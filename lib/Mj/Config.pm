@@ -1516,8 +1516,7 @@ sub parse_digest_issues {
 
   $data = {};
 
-  ($table, $error) = parse_table('fsss');
-
+  ($table, $error) = parse_table('fsss', $arr);
   return (0, "Error parsing table: $error") if $error;
 
   for ($i=0; $i<@{$table}; $i++) {

@@ -1,5 +1,23 @@
 Fri Jan 29 00:11:52 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Config.pm (parse_digest_issues): Fix stupid bug: forgot
+ 	to actually give any data to the table parser.
+
+	* lib/Mj/Deliver.pm (_eclass): Fix typo classarg1 -> classarg.
+	(deliver): Don't try to deliver if we don't have the class in our
+ 	delivery list.
+
+	* lib/Mj/List.pm (describe_class): Handle class args.
+	(set): Handle class args properly.
+
+	* lib/Majordomo.pm (_show): Pass both classargs to describe_class.
+
+	* lib/Mj/List.pm (make_setting): Handle both classargs properly.
+  	Don't make digest superclass; use classargs instead.
+
+	* setup/ask_basic.pl (ask_basic): Use an enum for the umask
+ 	values.
+
 	* lib/Mj/List.pm (make_setting): Also take the original class and
  	classarg; like the flags, if the setting string doesn't modify
  	them they are returned intact.

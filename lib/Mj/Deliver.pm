@@ -146,8 +146,8 @@ sub deliver {
       $eclass = _eclass($datref);
 
       # Stupid autovivification
-      next if $args{classes}{$eclass} &&
-	$args{classes}{$eclass}{exclude}{$canon};
+      next unless $args{classes}{$eclass};
+      next if $args{classes}{$eclass}{exclude}{$canon};
 
       $addr = $datref->{'stripaddr'};
       # Do we probe? XXX Also check bounce status and probe
@@ -292,7 +292,7 @@ sub _eclass {
 
   # 'digest' just uses the two class arguments
   if ($class eq 'digest') {
-    return "digest-$data->{classarg1}-$data->{classarg2}";
+    return "digest-$data->{classarg}-$data->{classarg2}";
   }
 
   # Everything else goes through unchanged

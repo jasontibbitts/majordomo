@@ -276,7 +276,7 @@ sub set {
   my $set  = shift;
   my $check= shift;
   my $log  = new Log::In 150, "$addr, $set";
-  my (@allowed, @class, $class, $classarg, $data, $flags, $inv, $isflag,
+  my (@allowed, @class, $carg1, $carg2, $class, $data, $flags, $inv, $isflag,
       $key, $mask, $ok, $rset);
 
   ($inv = $set) =~ s/^no//;
@@ -320,16 +320,17 @@ sub set {
   }
 
   # Call make_setting to get a new flag list and class setting
-  ($ok, $flags, $class, $classarg) =
+  ($ok, $flags, $class, $carg1, $carg2) =
     $self->make_setting($set, $data->{'flags'}, $data->{'class'},
-			$data->{'classarg'});
+			$data->{'classarg'}, $data->{'classarg2'});
   return ($ok, $flags) unless $ok;
 
-  ($data->{'flags'}, $data->{'class'}, $data->{'classarg'}) =
-    ($flags, $class, $classarg);
+  ($data->{'flags'}, $data->{'class'},
+   $data->{'classarg'}, $data->{'classarg2'}) =
+     ($flags, $class, $carg1, $carg2);
 
   $self->{'subs'}->replace("", $key, $data);
-  return (1, $flags, $class, $classarg);
+  return (1, $flags, $class, $carg1, $carg2);
 }
 
 =head2 make_setting
@@ -339,11 +340,7 @@ and a new flag list which reflect the information present in the string.
 
 =cut
 sub make_setting {
-  my $self  = shift;
-  my $str   = shift;
-  my $flags = shift;
-  my $class = shift;
-  my $classarg = shift;
+  my($self, $str, $flags, $class, $carg1, $carg2) = @_;
   my $log   = new Log::In 150, "$str, $flags";
   my($arg, $dig, $i, $inv, $isflag, $rset, $set, $time, $type);
 
@@ -388,15 +385,15 @@ sub make_setting {
     }
     else {
       # Process class setting
-      $classarg = '';
+      $carg1 = $carg2 = '';
       if ($classes{$rset}->[1] == 0) {
 	$class = $rset;
       }
       elsif ($classes{$rset}->[1] == 1) {
 	# Convert arg to time;
 	if ($arg) {
-	  $classarg = _str_to_time($arg);
-	  return (0, "Invalid time $arg.\n") unless $classarg; # XLANG
+	  $carg1 = _str_to_time($arg);
+	  return (0, "Invalid time $arg.\n") unless $carg1; # XLANG
 	}
 	$class = $rset;
       }
@@ -427,11 +424,13 @@ sub make_setting {
 	  $arg  = $dig->{'default_digest'};
 	  $type = $dig->{$arg}{'type'};
 	}
-	$class = "digest-$arg-$type"
+	$class = "digest";
+	$carg1 = $arg;
+	$carg2 = $type;
       }
     }
   }
-  return (1, $flags, $class, $classarg);
+  return (1, $flags, $class, $carg1, $carg2);
 }
 
 =head2 _str_to_time(string)
@@ -573,15 +572,14 @@ This returns a textual description for a subscriber class.
 sub describe_class {
   my $self  = shift;
   my $class = shift;
-  my $arg   = shift;
+  my $arg1  = shift;
+  my $arg2  = shift;
   my($dig, $time, $type);
 
-  if ($class =~ /^digest-(.*)-(.*)/) {
-    $arg  = $1;
-    $type = lc($2);
+  if ($class eq 'digest') {
     $dig = $self->config_get('digests');
-    if ($dig->{$arg}) {
-      return "$dig->{$arg}{'desc'} ($type)";
+    if ($dig->{$arg1}) {
+      return "$dig->{$arg1}{'desc'} ($arg2)";
     }
     else {
       return "Undefined digest." # XLANG
@@ -592,13 +590,13 @@ sub describe_class {
     return $classes{$class}->[2];
   }
   if ($classes{$class}->[1] == 1) {
-    if ($arg) {
-      $time = gmtime($arg);
+    if ($arg1) {
+      $time = gmtime($arg1);
       return "$classes{$class}->[2] until $time"; # XLANG
     }
     return $classes{$class}->[2];
   }
-  return "$classes{$class}->[2]";
+  return $classes{$class}->[2];
 }
 
 =head2 get_start()

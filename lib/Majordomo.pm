@@ -3301,7 +3301,9 @@ sub _show {
       # Extract some useful data
       push @out, ($data->{'fulladdr'},
 		  $self->{'lists'}{$i}->describe_class($data->{'class'},
-						       $data->{'classarg'}),
+						       $data->{'classarg'},
+						       $data->{'classarg2'},
+						      ),
 		  $data->{'subtime'}, $data->{'changetime'},
 		 );
       

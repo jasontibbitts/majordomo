@@ -83,7 +83,7 @@ What umask should Majordomo use?
 What should umask be set to?
 EOM
   $def = $config->{'umask'} || '077';
-  $config->{'umask'} = get_str($msg, $def);
+  $config->{'umask'} = get_enum($msg, $def, [qw(077 027 007 002 000)]);
 
   #---- Ask for insecure stored passwords
   $msg = <<EOM;

@@ -479,10 +479,12 @@ sub _post {
       
       for $j (@dtypes) {
 	# shifting off an element of @dfiles gives the corresponding digest
-      	$deliveries{"digest-$i-$j"} = {exclude => [], file => shift(@dfiles)};
+      	$deliveries{"digest-$i-$j"} = {exclude => {}, file => shift(@dfiles)};
       }
     }
   }
+
+  use Data::Dumper; print Dumper \%deliveries;
 
   # Invoke delivery routine
   $self->deliver($list, $sender, $seqno, \%deliveries);
