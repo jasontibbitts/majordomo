@@ -7,6 +7,9 @@ Variable Group: resend, bounce
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
+EXAMPLE:
+configset listname bounce_max_age = 14
+
 
 The length of time in days that a user's bounce data will be tracked.
 

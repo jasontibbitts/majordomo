@@ -8,7 +8,7 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname bounce_probe_frequency = 0
+configset listname bounce_probe_frequency = 7
 
 
 NOTE: If an address is bouncing (i.e. has bounced within bounce_max_age)

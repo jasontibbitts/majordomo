@@ -7,6 +7,9 @@ Variable Group: resend, bounce
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
+EXAMPLE:
+configset listname bounce_max_count = 20
+
 
 The maximum number of bounce data kept for a user.
 

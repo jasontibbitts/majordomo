@@ -7,9 +7,14 @@ Variable Group: resend, deliver, bounce
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
+EXAMPLE:
+configset listname bounce_probe_pattern = /example\.com/i
+
 
 If an address matches this pattern (see "help patterns"), it
 will be probed for bounces each time mail goes through the list.
+After one message, you can empty this variable because the
+automated system will handle the rest.
 
 If you get a bounce that the bounce handling system either can't parse or
 can't get any implicated members from, or if you think (perhaps because you
@@ -19,8 +24,7 @@ just want to remove them all, you can put /example\.com/ or "example.com"
 (with the quotes) in bounce_probe_pattern, wait for the next message, and the
 bounces will be probed.  If you were right, the bouncing address will be
 identified by the bounce parser and will automatically be probed until it
-is removed or it stops bouncing.  After one message, you can empty this
-variable because the automated system will handle the rest.
+is removed or it stops bouncing.
 
 
 See Also:
