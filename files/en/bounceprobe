@@ -1,0 +1,56 @@
+ __ 
+This message is being sent to you from
+  $SITE
+because your address
+  $VICTIM
+has been bouncing (failing to deliver) messages from the mailing list
+  $LIST
+
+SessionID:
+  $SESSIONID
+
+
+The purpose of this message is to do one final test; were this message to
+bounce, you would be removed from the list.  Since you are reading this,
+either the message did not bounce or there is some odd condition that
+results in bounces being received by the list processor while the mail
+still goes through to your mailbox.  If you are concerned, some possible
+explanations for the problem are included below.  For your convenience, a
+copy of the bounce message is attached to this message.
+
+You should review any forwarding arrangements that may in place and make
+sure that they are operating properly.  You may also want to check with
+your Internet provider to make sure that everything is OK on their end,
+and check with with the list server at
+  $MAJORDOMO
+or with the person(s) running the list at
+  $OWNER
+to make sure that you are still signed up.
+
+To reiterate, if this message bounces then you will automatically be
+removed from the list.  You should make sure that this did not happen, and
+that you are still on the list.  You should also try to figure out why the
+list processor may have seen bounces.
+
+Some possible explanations for this problem:
+
+There may have been some problem, like a full mailbox, that was causing
+bounces but which is now cleared.  In that case, everything should be OK.
+
+There may be some forwarding arrangement in place between the list server
+and your mailbox which is both bouncing and delivering messages.  This is
+possible but uncommon.  It generally happens when someone improperly sets
+up a local list expander without properly dealing with bounces locally,
+signs that addres up to a list, and lets a bad address stay on that local
+expander.  If this is the case, it should be immediately obvious from the
+address above (since it will most likely be the address of the list
+expander and not your address).
+
+Your Internet probider may be having some troubles.  Check with them to
+make sure that everything is in working order.
+
+Someone may be faking up bounces and sending them to the list server in
+order to force your removal.  Since they can't fake a bounce of this
+message, which contains a unique code, you are OK.  The attached bounce
+should contain enough evidence to help track down the forger.
+
