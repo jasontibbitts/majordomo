@@ -20,7 +20,7 @@ $Mj::Config::default_string = q(
  'get_access'           => "list",
  'archive_access'       => "list",
  'index_access'         => "open",
- 'who_access'           => "open",
+ 'who_access'           => ($list eq 'GLOBAL') ? "closed" : "open",
  'which_access'         => "open",
  'info_access'          => "open",
  'intro_access'         => "open",
@@ -49,7 +49,6 @@ $Mj::Config::default_string = q(
  'install_dir'          => undef,
  'lists_dir'            => undef,
  'sublists'             => [],
- 'templates'            => [],
  'triggers'             => ($list eq 'GLOBAL') ? 
                            [ 
                              'checksum | daily', 

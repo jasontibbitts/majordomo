@@ -80,6 +80,7 @@ EOC
     'groups' => [qw(access majordomo)],
     'visible'=> 0,
     'local'  => 1,
+    'global' => 1,
     'mutable'=> 1,
    },
    'which_access' =>
