@@ -211,6 +211,7 @@ sub confirm {
 	   'REQUESTER'  => $args{'requester'},
 	   'REQUESTOR'  => $args{'requester'},
 	   'VICTIM'     => $args{'victim'},
+	   'NOTIFY'     => $args{'notify'},
 	   'APPROVALS'  => $args{'approvals'},
 	   'CMDLINE'    => $args{'cmdline'},
 	   'REQUEST'    => $args{'request'},
