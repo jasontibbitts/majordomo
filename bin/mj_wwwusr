@@ -156,9 +156,6 @@ unless ($ok) {
         };
 
   print $cgi->header(-expires => '+10s');
-  $tmp = $mj->format_get_string('wwwusr', 'head');
-  $str = $mj->substitute_vars_format($tmp, $subs);
-  print STDOUT "$str\n";
   &login($mj, $subs, $mess);
 }
 
@@ -460,7 +457,6 @@ sub login {
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 
-  print STDOUT "$str\n";
   $tmp = $mj->format_get_string('wwwusr', 'login');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
