@@ -400,7 +400,7 @@ sub parse_command {
   $pass ||= '';  $pass =~ /(.*)/; $pass = $1;
 
   unless ($command) {
-    print STDERR "**** No command specified!\n";
+    print STDERR "**** No command was specified!\n";
     return (1, 0);
   }
 
@@ -411,7 +411,7 @@ sub parse_command {
   unless (defined($true_command) &&
 	  command_prop($true_command, "shell"))
     {
-      print STDERR "**** Illegal command: $command!\n";
+      print STDERR qq(**** The "$command" command is invalid.\n);
       return (1, 0);
     }
 
@@ -420,8 +420,16 @@ sub parse_command {
   }
   if ($true_command eq 'approve') {
     ($pass, $command, $args) = $args =~ /(\S+)\s*(\S*)\s*(.*)/;
-    print STDERR "**** approve requires a password!\n"
-      unless $pass;
+    if (! defined $pass) {
+      print STDERR 
+        qq(**** The "approve" command must be followed by a password.\n);
+      return (1, 0);
+    }
+    elsif (! (defined $command and length $command)) {
+      print STDERR 
+        qq(**** The "approve" command must be followed by a command.\n);
+      return (1, 0);
+    }
     return parse_command($command, $args, $pass, $dfl, @arglist);
   }
 
@@ -1076,8 +1084,8 @@ B<--noormanemts> switch will turn these off.
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2000 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2000, 2002 Jason Tibbitts for The Majordomo 
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
