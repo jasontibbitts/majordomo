@@ -64,7 +64,8 @@ sub accept {
 
     $command = $data->{'command'};
     # Print some basic data
-    eprint($out, $type, "Token for command:\n    $data->{'cmdline'}\n");
+    eprint($out, $type, "Token '$mess' for command:\n");
+    eprint($out, $type, "    \"$data->{'cmdline'}\"\n");
     eprint($out, $type, "issued at: ", scalar localtime($data->{'time'}), "\n");
     eprint($out, $type, "from sessionid: $data->{'sessionid'}\n");
 
@@ -130,7 +131,7 @@ sub archive {
 
   $subs = {
            $mj->standard_subs($request->{'list'}),
-           'CGIDATA'     => cgidata($mj, $request),
+           'CGIDATA'     => &cgidata($mj, $request),
            'CGIURL'      => $request->{'cgiurl'},
            'PASSWORD'    => $request->{'password'},
            'TOTAL_POSTS' => scalar @msgs,
@@ -243,6 +244,12 @@ sub archive {
       $subs->{'MSGNO'} = $i->[0];
       $subs->{'SIZE'}  = sprintf "(%d kB)",  int(($data->{'bytes'} + 512)/1024);
       $subs->{'FROM'}  = &escape($data->{'from'}, $type);
+      if (exists($data->{'hidden'}) and $data->{'hidden'}) {
+        $subs->{'HIDDEN'} = '*';
+      }
+      else {
+        $subs->{'HIDDEN'} = ' ';
+      }
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
@@ -346,7 +353,7 @@ sub configshow {
     $mode = $mode2 = '-extract';
   }
 
-  $cgidata = cgidata($mj, $request);
+  $cgidata = &cgidata($mj, $request);
   $cgiurl  = $request->{'cgiurl'};
 
   $gsubs = { $mj->standard_subs($list),
@@ -717,7 +724,7 @@ sub index {
     eprintf($out, $type, "%d file%s.\n", $count,$count==1?'':'s');
   }
   else {
-    eprint($out, $type, "No files.\n");
+    eprint($out, $type, qq(The "$request->{'path'}" directory is empty .\n));
   }
   1;
 }
@@ -725,22 +732,22 @@ sub index {
 sub lists {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my (%lists, $basic_format, $cat_format, $category, $count, $data, 
-      $desc, $digests, $flags, $global_subs, $i, $legend, $list, $site, 
-      $str, $subs, $tmp);
+      $desc, $digests, $flags, $global_subs, $i, $legend, $list, 
+      $site, $str, $subs, $tmp);
   my $log = new Log::In 29, $type;
   $count = 0;
   $legend = 0;
 
   ($site) = $mj->global_config_get($request->{'user'}, $request->{'pass'}, 
-                                   "site_name");
+                                   'site_name');
   $site ||= $mj->global_config_get($request->{'user'}, $request->{'pass'}, 
-                                   "whoami");
+                                   'whoami');
 
   my ($ok, @lists) = @$result;
 
   $global_subs = {
            $mj->standard_subs('GLOBAL'),
-           'CGIDATA'  => cgidata($mj, $request),
+           'CGIDATA'  => &cgidata($mj, $request),
            'CGIURL'   => $request->{'cgiurl'},
            'PASSWORD' => $request->{'password'},
            'PATTERN'  => $request->{'regexp'},
@@ -798,7 +805,7 @@ sub lists {
 
         $digests = [];
         for $i (sort keys %{$data->{'digests'}}) {
-          push @$digests, "$i:  $data->{'digests'}->{$i}";
+          push @$digests, "$i: $data->{'digests'}->{$i}";
         }
         $digests = ["(none)\n"] if ($list =~ /:/);
 
@@ -944,7 +951,7 @@ sub put {
 
   $chunk = '';
   while (1) {
-    last if ($request->{'mode'} =~ /dir/);
+    last if ($request->{'mode'} =~ /dir|delete/);
     $i = $handled ? 
       $request->{'contents'}->getline :
       shift @{$request->{'contents'}};
@@ -960,7 +967,7 @@ sub put {
     last unless (defined $i and $ok > 0);
   }
 
-  unless ($request->{'mode'} =~ /dir/) {
+  unless ($request->{'mode'} =~ /dir|delete/) {
     $request->{'command'} = "put_done"; 
     ($ok, $mess) = @{$mj->dispatch($request)};
   }
@@ -997,7 +1004,8 @@ sub reject {
       next;
     }
     ($token, $data) = @$res;
-    eprint($out, $type, "Token '$token' for command:\n    $data->{'cmdline'}\n");
+    eprint($out, $type, "Token '$token' for command:\n");
+    eprint($out, $type, qq(    "$data->{'cmdline'}"\n));
     eprint($out, $type, "issued at: ", scalar localtime($data->{'time'}), "\n");
     eprint($out, $type, "from session: $data->{'sessionid'}\n");
     eprint($out, $type, "has been rejected.\n");
@@ -1223,14 +1231,13 @@ sub set {
       }
       $summary = <<EOM;
 Settings for $change->{'victim'}->{'full'} on "$list":
-  Receiving $change->{'classdesc'} %s
+  Receiving $change->{'classdesc'}
   Flags:
 EOM
-      $summary = sprintf $summary, ($change->{'class'}->[0] eq 'digest') ?
-                 "(in $change->{'class'}->[2] format)" : '';
       $summary .=  "    " . join("\n    ", @{$change->{'flagdesc'}}) . "\n\n";
       eprint($out, $type, &indicate($summary, $ok, 1));
-      if (exists $change->{'digest'} and ref $change->{'digest'}) {
+      if (exists $change->{'digest'} and ref $change->{'digest'}
+          and exists $change->{'digest'}->{'messages'}) {
         eprint($out, $type, "A partial digest of messages has been mailed.\n");
       }
     }
@@ -1239,7 +1246,7 @@ EOM
         eprint($out, $type, &indicate("$change\n", $ok, 1));
     }
   }
-  eprint($out, $type, "Addresses changed: $count\n");
+  eprint($out, $type, "Addresses affected: $count\n");
   eprint($out, $type, 
     "Use the 'help set' command to see an explanation of the settings.\n");
 
@@ -1256,7 +1263,7 @@ sub show {
 
   $global_subs = {
     $mj->standard_subs('GLOBAL'),
-    'CGIDATA' => cgidata($mj, $request),
+    'CGIDATA' => &cgidata($mj, $request),
     'CGIURL'  => $request->{'cgiurl'},
     'PASSWORD' => $request->{'password'},
     'USER'     => escape("$request->{'user'}", $type),
@@ -1464,7 +1471,7 @@ sub showtokens {
 
   $global_subs = {
            $mj->standard_subs($request->{'list'}),
-           'CGIDATA' => cgidata($mj, $request),
+           'CGIDATA' => &cgidata($mj, $request),
            'CGIURL'  => $request->{'cgiurl'},
            'PASSWORD' => $request->{'password'},
            'USER'     => escape("$request->{'user'}", $type),
@@ -1547,7 +1554,7 @@ sub tokeninfo {
   my ($ok, $data, $sess) = @$result;
  
   $subs = { $mj->standard_subs($request->{'list'}),
-            'CGIDATA' => cgidata($mj, $request),
+            'CGIDATA' => &cgidata($mj, $request),
             'CGIURL'  => $request->{'cgiurl'},
             'PASSWORD' => $request->{'password'},
             'USER'     => escape("$request->{'user'}", $type),
@@ -1727,7 +1734,7 @@ sub who {
 
   $gsubs = { 
             $mj->standard_subs($source),
-            'CGIDATA'  => cgidata($mj, $request),
+            'CGIDATA'  => &cgidata($mj, $request),
             'CGIURL'   => $request->{'cgiurl'},
             'PASSWORD' => $request->{'password'},
             'PATTERN'  => $request->{'regexp'},
@@ -1976,24 +1983,58 @@ sub who {
 
 sub g_get {
   my ($base, $mj, $out, $err, $type, $request, $result) = @_;
-  my ($chunk, $chunksize, $lastchar);
+  my ($chunk, $chunksize, $lastchar, $subs, $tmp);
   my ($ok, $mess) = @$result;
 
   unless ($ok > 0) {
-    eprint($out, $type, &indicate("The $base command failed.\n", $ok));
-    eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
+    $subs = {
+             $mj->standard_subs($request->{'list'}),
+             'COMMAND' => $base,
+             'ERROR' => $mess || '',
+            };
+
+    $tmp = $mj->format_get_string($type, 'get_error');
+    $chunk = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate("$chunk\n", $ok);
+
     return $ok;
   }
 
   $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
                                       "chunksize");
 
-  if ($base eq 'get' and $request->{'mode'} =~ /edit/) {
-    $chunk = sprintf "put-data %s %s %s %s %s %s %s <<ADGBEH",
-                     $request->{'list'}, $request->{'path'}, $mess->{'c-type'},
-                     $mess->{'charset'}, $mess->{'c-t-encoding'},
-                     $mess->{'language'}, $mess->{'description'};
-    eprint($out, $type, "$chunk\n");
+  if ($base ne 'sessioninfo') {
+    $subs = {
+             $mj->standard_subs($request->{'list'}),
+             'CGIDATA'  => &cgidata($mj, $request),
+             'CGIURL'   => $request->{'cgiurl'},
+             'DESCRIPTION' => $mess->{'description'},
+             'PASSWORD' => $request->{'password'},
+             'USER'     => escape("$request->{'user'}", $type),
+            };
+
+    # include CMDLINE substitutions for the various files.
+    if ($request->{'mode'} =~ /edit/) {
+      if ($base eq 'get') {
+        $subs->{'REPLACECMD'} = 'put-data';
+        $subs->{'CMDLINE'} = "put-data $request->{'list'}";
+        $subs->{'CMDARGS'} = sprintf "%s %s %s %s %s %s",
+                 $request->{'path'}, $mess->{'c-type'},
+                 $mess->{'charset'}, $mess->{'c-t-encoding'},
+                 $mess->{'language'}, $mess->{'description'};
+      }
+      else {
+        $subs->{'REPLACECMD'} = "new$base";
+        $subs->{'CMDLINE'} = "new$base $request->{'list'}";
+        $subs->{'CMDARGS'} = '';
+      }
+      $tmp = $mj->format_get_string($type, 'get_edit_head');
+    }
+    else {
+      $tmp = $mj->format_get_string($type, 'get_head');
+    }
+    $chunk = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$chunk\n";
   }
 
   $request->{'command'} = "get_chunk";
@@ -2011,10 +2052,16 @@ sub g_get {
   }
 
   # Print the end of the here document in "edit" mode.
-  if ($base eq 'get' and $request->{'mode'} =~ /edit/) {
+  if ($base ne 'sessioninfo') {
     $chunk = ($lastchar eq "\n")?  '' : "\n";
-    $chunk .= "ADGBEH";
-    eprint($out, $type, "$chunk\n");
+    if ($request->{'mode'} =~ /edit/) {
+      $tmp = $mj->format_get_string($type, 'get_edit_foot');
+    }
+    else {
+      $tmp = $mj->format_get_string($type, 'get_foot');
+    }
+    $chunk .= $mj->substitute_vars_format($tmp, $subs);
+    print $out "$chunk\n";
   }
     
   # Use the original command name for logging purposes.
@@ -2022,7 +2069,6 @@ sub g_get {
   $mj->dispatch($request);
   1;
 }
-
 
 =head2 g_sub($act, ..., $ok, $mess)
 
