@@ -26,11 +26,13 @@ followed by an optional colon and description. The description is
 used in the output of the lists-aux command.
 
 If the 'A' flag is used in the aliases configuration, only auxiliary
-lists mentioned here will be given aliases (see "help configset aliases"). 
+lists mentioned here will be given aliases by the "createlist" command
+(see "help configset aliases"). 
 
 
 See Also:
    help lists
+   help createlist
    help configset aliases
 
 For a list of all help topics send this one-line message

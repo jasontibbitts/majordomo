@@ -1,30 +1,34 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 createlist-destroy listname owner
-createlist[-force][-nocreate][-noheader][-quiet][-regen] listname owner
+createlist[-force][-noarchive][-nocreate][-noheader][-nowelcome][-quiet][-regen] listname owner
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname,  required, is an email list at this site
 owner,     required, is an email address for who will manage the list
 -destroy,  if specified, deletes instead of creating the list
 -force,    if specified, takes action even if list already exists
+-noarchive if specified, suppresses creation of the msg archive directory
 -nocreate, if specified, shows suggested aliases but takes no action
 -noheader, if specified, shortens the suggested aliases message
--quiet,    if specified, suppresses intro msg for new owner (default)
+-nowelcome,if specified, suppresses intro msg for new owner (default)
+-quiet,    if specified, is the same as -nowelcome
 -regen,    if specified, re-generates the suggested MTA configurations
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-
-NOTE: The new_list file is sent to the list owner when a new list is
-created, unless "nowelcome" mode was specified. If you want to change
-this message, use "put". This command automatically creates the archive
-directory unless "noarchive" mode is specified, and also generates a
-random list password which can be replaced using "configset".
 
 Creates the internal structures needed to maintain a list with the given
 name, unless the "-nocreate" or "-regen" options are used or unless the
 list already exists and the "-force" option is not used. Be sure to review
-"help configset debug_flags" and "help set" - it is easier to set up the
+"help configset debug_flags" and "help set": it is easier to set up the
 default values correctly than it is to have each subscriber alter them.
 Some items like replyfile specifications in "configset access_rules" may
 not function properly if default_flags are set wrong.
+
+The GLOBAL new_list file is sent to the list owner when a new list is
+created, unless the "-nowelcome" (or the equivalent "-quiet") mode was
+specified. If you want to change this message, use "put GLOBAL new_list".
+
+The createlist command automatically creates the archive directory unless
+"-noarchive" mode is specified, and also generates a random list password
+which can be replaced using "configset".
 
 The "createlist" command also suggests the necessary MTA configuration
 if the MTA in use is supported -- for example, if sendmail is the MTA in
@@ -59,6 +63,11 @@ Options include the following:
     enter when you force the list creation will replace any previous owner
     addresses associated with the list.
 
+  -noarchive:
+    This argument suppresses creation of the message archive directory.
+    WITHOUT '-noarchive', the directory "listname/public/archive" is
+    created (regardless of the "configset archive_dir" setting???).
+
   -nocreate:
     This argument will cause 'createlist' to suggest the MTA
     configuration without actually creating the list; the command will not
@@ -68,23 +77,26 @@ Options include the following:
     The instructional information that precedes the suggested
     MTA configuration info will not be displayed.
 
+  -nowelcome:
   -quiet:
     No introductory mail will be sent to the list owner.
-    (Introductory mail is not currently implemented as of 1/99.)
+    (The 'quiet' and 'nowelcome' modes are identical.)
 
   -regen:
     Display MTA configuration only, ignore all other options and args.
 
 NOTE: Auxiliary or sub lists are NOT created with createlist! Only regular
 lists need createlist - a sublist is created by adding an address to it
-with auxadd, or by mentioning it in the access rules.
+with auxadd, or by mentioning it in the access rules. If a list has sublists,
+aliases will be generated only for those sublists specified by "configset sublists".
 
 
 See Also:
-   help auxadd      (to create and subscribe addresses to a sublist)
-   help configset               (to configure the list once created)
-   help configset access_rules_variables (set/test for this command)
-   help configset default_flags (to configure default subscriptions)
+   help auxadd           (to create and subscribe addresses to a sublist)
+   help configset                    (to configure the list once created)
+   help configset access_rules_variables      (set/test for this command)
+   help configset default_flags      (to configure default subscriptions)
+   help configset sublists (to make cause alias generation for aux lists)
 
 For a list of all help topics send this one-line message
    help topics
