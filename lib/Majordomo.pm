@@ -2163,28 +2163,31 @@ sub valid_list {
   my $name   = shift || "";
   my $all    = shift;
   my $global = shift;
-
-  $::log->in(120, "$name");
+  my $log    = new Log::In 120, "$name";
 
   unless ($self->legal_list_name($name)) {
-    $::log->out("failed");
     return undef;
   }
 
   $self->_fill_lists;
   
-  if ((exists $self->{'lists'}{$name} ||
-       ($name eq 'ALL' && $all)) &&
-      ($name eq 'GLOBAL' ? $global : 1))
+  if (($name eq 'ALL' && $all) ||
+      ($name eq 'GLOBAL' && $global))
     {
       # untaint
       $name =~ /(.*)/;
       $name = $1;
-      $::log->out;
       return $name;
     }
-  
-  $::log->out("failed");
+
+  $name = lc($name);
+  if (exists $self->{'lists'}{$name}) {
+    # untaint
+    $name =~ /(.*)/;
+    $name = $1;
+    return $name;
+  }
+
   return undef;
 }
 

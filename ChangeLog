@@ -1,4 +1,9 @@
-1999-02-03  Jason L Tibbitts III  <tibbs@math.uh.edu>
+Wed Feb  3 17:55:15 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (valid_list): If not 'ALL' or 'GLOBAL',
+ 	downcase the list name.
+
+	* lib/Mj/CommandProps.pm (command_legal): Downcase the command.
 
 	* lib/Majordomo.pm (substitute_vars): Remove debugging printout.
 

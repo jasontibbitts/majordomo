@@ -261,7 +261,7 @@ sub parse_command {
     
   if ($true_command eq "configedit") {
     
-    # Pull the editor out of the environment and untaint it. This is save
+    # Pull the editor out of the environment and untaint it. This is safe
     # because we only exec the editor as the calling user.
     $editor = $ENV{EDITOR} || $ENV{VISUAL} || '/bin/vi';
     $editor =~ /(.*)/;

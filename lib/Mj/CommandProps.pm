@@ -489,7 +489,7 @@ my %aliases =
 # returns the true name of the command looked up through the %aliases hash
 # if necessary.
 sub command_legal {
-  my $command = shift;
+  my $command = lc(shift);
 
   return $command if $commands{$command}{'parser'};
   return $aliases{$command} if defined $aliases{$command};
