@@ -858,7 +858,7 @@ sub who {
         $result = $mj->substitute_vars_string($template, $subs);
         chomp $result;
       }
-      elsif ($mode =~ /export/) {
+      elsif ($mode =~ /export/ && $i->{'classdesc'} && $i->{'flagdesc'}) {
 	$result = "subscribe-nowelcome $i->{'fulladdr'}\n" .
 	  "set $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
       }

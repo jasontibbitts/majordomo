@@ -4435,9 +4435,9 @@ sub who_chunk {
     next if $regexp && !_re_match($regexp, $i->{'fulladdr'});
     # If we're to show it all...
     if ($self->{'unhide_who'}) {
-      $i->{'fullflags'} =
+      $i->{'flagdesc'} =
 	join(',',$self->{'lists'}{$list}->describe_flags($i->{'flags'}));
-      $i->{'fullclass'} =
+      $i->{'classdesc'} =
 	$self->{'lists'}{$list}->describe_class($i->{'class'},
 						$i->{'classarg'},
 						$i->{'classarg2'},

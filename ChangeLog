@@ -1,5 +1,8 @@
 2000-06-07  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Format.pm (who): Don't run export mode unless the
+	extra data is there; instead, fall back to a normal who.
+
 	* lib/Majordomo.pm (who_chunk): In export mode, attach flag and
 	class descriptions to the address.
 
