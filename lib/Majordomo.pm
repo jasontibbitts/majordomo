@@ -88,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200203160";
+$VERSION = "0.1200203270";
 $unique = 'AAA';
 
 use strict;
@@ -4575,6 +4575,7 @@ sub _createlist {
   $result = {
              'aliases' => '',
              'newlist' => $list,
+             'oldaliases' => '',
              'oldlist' => '',
              'owners'  => [],
              'password'=> '',
@@ -4756,28 +4757,11 @@ sub _createlist {
     $args{'lists'} = [];
     $self->_fill_lists;
     for $i (keys %{$self->{'lists'}}) {
-      $debug = $self->_list_config_get($i, 'debug');
-      $aliases = $self->_list_config_get($i, 'aliases');
+      $aliases  = $self->_list_config_get($i, 'aliases');
+      $debug    = $self->_list_config_get($i, 'debug');
+      $digests  = $self->_list_config_get($i, 'digests');
       $priority = $self->_list_config_get($i, 'priority') || 0;
-
-      unless (ref $aliases eq 'HASH') {
-        # Convert aliases from old to new format
-        $aliases = $self->_list_config_get($i, 'aliases', 1);
-        @tmp = ();
-        for ($j = 0 ; $j < length $aliases ; $j++) {
-          $setting = substr $aliases, $j, 1;
-          push @tmp, $Mj::List::alias{$setting};
-        }
-        $self->_list_config_set($i, 'aliases', @tmp);
-        $self->_list_config_unlock($i);
-        $aliases = $self->_list_config_get($i, 'aliases');
-      }
-
-      # Extract the list of sublists that should have aliases generated
       $sublists = $self->_list_config_get($i, 'sublists');
-
-      # Extract the list of digests
-      $digests = $self->_list_config_get($i, 'digests');
 
       push @{$args{'lists'}}, {
                                'list'     => $i,
@@ -4919,11 +4903,11 @@ sub _createlist {
   # If the list already exists, use its settings to determine
   # the aliases.
   if ($i) {
-    $aliases = $self->_list_config_get($list, 'aliases');
-    $digests = $self->_list_config_get($list, 'digests');
-    $sublists = $self->_list_config_get($list, 'sublists');
+    $aliases  = $self->_list_config_get($list, 'aliases');
+    $debug    = $self->_list_config_get($list, 'debug');
+    $digests  = $self->_list_config_get($list, 'digests');
     $priority = $self->_list_config_get($list, 'priority');
-    $debug = $self->_list_config_get($list, 'debug');
+    $sublists = $self->_list_config_get($list, 'sublists');
   }
   # otherwise, use the DEFAULT list and templates to determine
   # the correct values.
@@ -5158,10 +5142,15 @@ sub _digest {
 
     while (1) {
       $deliveries = {};
-      $self->do_digests('list'       => $list,     'run'        => $d,
-                        'force'      => $force,    'deliveries' => $deliveries,
-                        'substitute' => $subs,     'sender'     => $owner,
-                        'whereami'   => $whereami, 'tmpdir'     => $tmpdir,
+      $self->do_digests(
+                        'deliveries' => $deliveries,
+                        'force'      => $force,    
+                        'list'       => $list,     
+                        'run'        => $d,
+                        'sender'     => $owner,
+                        'substitute' => $subs,     
+                        'tmpdir'     => $tmpdir,
+                        'whereami'   => $whereami, 
                         # 'msgnum' => undef, 'arcdata' => undef,
                        );
 

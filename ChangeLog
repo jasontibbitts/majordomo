@@ -1,15 +1,50 @@
+2002-03-27  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  Version number is now 0.1200203270.
+	(_createlist)  Bugfix:  initialize "oldaliases" result.
+	Thanks to Roger Klorese.
+	Move "aliases" format conversion code to Mj::Config::_upgrade.
+
+	* lib/Mj/Addr.pm:  Support the ".eu" top-level domain.
+
+	* lib/Mj/BounceHandler.pm:  (_hbr_consult, _hbr_probe)
+	Add second argument to n_defaults calls.
+
+	* lib/Mj/Config.pm:  Version number is now 1.1.
+        (regen)  Add a version number to each configuration file.
+	(_upgrade)  New routine.  Convert settings from old to
+	new formats if required.
+	(parse_digests)  Use a new one-field-per-line format.
+	Add support for a new "newmsg" field, which controls
+	whether or not incoming messages will cause digests to
+	be checked.
+
+	* lib/Mj/Digest.pm:  (trigger, choose, decide)  Add 
+	support for the "newmsg" field.
+
+	* lib/Mj/MIMEParser.pm:  (collect_data, _r_ct_lines)
+	Add sanity checks.  Thanks to Brock Rozen.
+
+	* lib/Mj/Token.pm:  (confirm)  Bugfix:  remove inappropriate
+	array reference.
+	(t_accept)  Add second argument to n_defaults call.
+
+	* lib/Mj/Util.pm:  Support "true" for "yes" and "false" for "no".
+        (str_to_offset)  Bugfix:  use a definition test instead of
+	defaulting to an empty string.
+
 2002-03-19  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Addr.pm (_validate): Add Soviet Union domain back in;
 	folks are still using it.
 
-2002-03-19 Michael Yount <csf@moscow.com>
+2002-03-19  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm: (_lists)  Bugfix:  initialize
 	variable.  Thanks to Roger Klorese.
 	(_subscribe)  Support the already_subscribed error file.
 
-2002-03-17 Michael Yount <csf@moscow.com>
+2002-03-17  Michael Yount <csf@moscow.com>
 
 	* bin/mj_enqueue:  Exit after sending a "Hello" message
 	to the queue server.  Record the total time taken.
@@ -21,7 +56,7 @@
 	* bin/mj_queuerun:  Sort messages within a queue directory
 	in date order, oldest first.  Suggested by Brock Rozen.
 
-2002-03-16 Michael Yount <csf@moscow.com>
+2002-03-16  Michael Yount <csf@moscow.com>
 
 	* bin/mj_queuerun:  Shut down if a "Bye" ping is received 
 	from the queue server.
