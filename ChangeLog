@@ -1,3 +1,16 @@
+2001-01-27  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/BounceParser.pm:  (parse)  Parse addresses with
+	digest volume and issue number, which takes the form DVxxxNyyy.
+
+	* lib/Mj/Deliver.pm:  (_setup)  Use a separate envelope sender for
+        each destination object.  This allows VERP probing for digest
+	recipients, among other things.
+
+	* lib/Mj/Resend.pm:  (do_digests)  Manufacture a sequence
+	number from the volume and issue number of each digest to 
+	allow VERP probing of digest recipients.
+
 2001-01-25  Michael Yount <csf@moscow.com>
 
 	* bin/mj_shell:  Untaint the password.  Allow multiple

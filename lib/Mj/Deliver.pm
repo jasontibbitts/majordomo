@@ -53,33 +53,31 @@ connections and speaking SMTP.
 
 This routine takes the following named arguments:
 
-  list    - ref to list object 
-  sublist - name of auxiliary list
+  list    - name of the mailing list
+  dbtype  - determines how to obtain addresses 
+            Values include sublist, registry, and none.
+  dbfile  - name of the database file (sublist and registry only)
+  backend - type of database backend (sublist and registry only)
+  domain  - domain or host name (sublist and registry only)
+  listdir - directory containing database file (sublist and registry only)
+  addresses - list of hashrefs containing "strip" and "canon" addresses
+              (dbtype "none" only)
   sender  - base part of message sender
   classes - a hashref: each key is an extended class name; each value is a
             hashref with the following keys:
             file    - the name of the file to mail
             exclude - a hashref of canonical addresses (the values are not
                       used but should be true) that mail won''t be sent to.
+            seqnum  - message sequence number
   rules   - hashref containing parsed delivery rules
   chunk   - size of various structures
-  seqnum  - message sequence number
   manip   - do extended sender manipulation
-  probe   - do bounce probe
-  probeall- do bounce probe of every address
   sendsep - extended sender separator
   regexp  - regular expression matching addresses to probe
   buckets - total number of different probe groups
   bucket  - the group to probe
 
-listref is a list object (not the name of a list).  Only the iterator
-methods get_start, get_done and get_matching_chunk are required but the
-object must return reasonable values for the various fields.
-
-sublist is the name of an auxiliary list to which the message
-will be delivered.  If this value is empty, the message is delivered
-to the main subscriber list.  Note that auxiliary lists never
-receive digests.
+list is a list name.
 
 sender is the envelope sender.  For bounce probing, this will be augmented
 in some fashion.
@@ -127,8 +125,8 @@ sub deliver {
   my $log  = new Log::In 150;
   my ($db);
 
-  use Data::Dumper; 
-  $log->message(150, 'info', "Delivery variables:  " . Dumper \%args);
+  # use Data::Dumper; 
+  # $log->message(150, 'info', "Delivery variables:  " . Dumper \%args);
 
   my (@data, $addr, $canon, $classes, $datref, $dests, $eclass, $error, $i,
       $j, $matcher, $ok, $probeit, $probes);
@@ -140,12 +138,12 @@ sub deliver {
 
   if ($args{'dbtype'} eq 'registry') {
     $db = new Mj::RegList (
-                                  'backend' => $args{'backend'},
-                                  'domain'  => $args{'domain'},
-                                  'file'    => $args{'dbfile'},
-                                  'list'    => $args{'list'},
-                                  'listdir' => $args{'listdir'},
-                                 );
+                           'backend' => $args{'backend'},
+                           'domain'  => $args{'domain'},
+                           'file'    => $args{'dbfile'},
+                           'list'    => $args{'list'},
+                           'listdir' => $args{'listdir'},
+                          );
 
     $matcher = sub {
       shift;
@@ -268,20 +266,9 @@ sub _setup {
   my $rules = shift;
   my %args= @_;
   my $log = new Log::In 150;
-  my ($i, $j, $classes, $dests, $probes);
+  my ($i, $j, $classes, $dests, $probes, $sender);
   $classes = {all => 1}; $dests = {}; $probes = {};
 
-  # Deal with extended sender manipulation if requested
-  if ($args{manip}) {
-    $args{sender} = Bf::Sender::any_regular_sender($args{sender}, $args{sendsep},
-                                                   $args{seqnum});
-  }
-
-  # Move the sender into the rules; this makes the calling sequence a bit
-  # simpler
-  for ($i=0; $i<@{$rules}; $i++) {
-    $rules->[$i]{'data'}{'sender'} = $args{sender};
-  }
 
   # Loop over all of the classes.
   for $i (keys %{$args{classes}}) {
@@ -293,11 +280,22 @@ sub _setup {
     # doing incremental or regexp probing), allocate the destinations; if
     # we're sorting, allocate sorters instead
     if ($args{'regexp'} ne 'ALL' and $args{'buckets'} != 1) {
+      # Deal with extended sender manipulation if requested
+      if ($args{manip}) {
+        $sender = Bf::Sender::any_regular_sender($args{sender}, 
+                                                 $args{sendsep},
+                                                 $args{classes}{$i}{seqnum});
+      }
+      else {
+        $sender = $args{'sender'};
+      }
+
       for ($j=0; $j<@{$rules}; $j++) {
 	if (exists $rules->[$j]{'data'}{'sort'}) {
 	  $dests->{$i}[$j] =
 	    new Mj::Deliver::Sorter($rules->[$j]{'data'},
 				    $args{classes}{$i}{file},
+                                    $sender,
 				   );
 	}
 	# Need a non-sorting Sorter to count the addresses for numbatches
@@ -307,6 +305,7 @@ sub _setup {
 	    $dests->{$i}[$j] =
 	      new Mj::Deliver::Sorter($rules->[$j]{'data'},
 				      $args{classes}{$i}{file},
+                                      $sender,
 				      'nosort',
 				     );
 	  }
@@ -315,6 +314,7 @@ sub _setup {
 	  $dests->{$i}[$j] =
 	    new Mj::Deliver::Dest($rules->[$j]{'data'},
 				  $args{classes}{$i}{file},
+                                  $sender,
 				 );
 	}
       }
@@ -326,7 +326,8 @@ sub _setup {
 	$probes->{$i}[$j] =
 	  new Mj::Deliver::Prober($rules->[$j]{'data'},
 				  $args{classes}{$i}{file},
-				  $args{seqnum},
+                                  $args{sender},
+				  $args{classes}{$i}{seqnum},
 				  $args{sendsep},
 				 );
       }
