@@ -66,7 +66,7 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl,
                 'info'          => [0, 0, 1, 0, 'list'],
                 'intro'         => [0, 0, 1, 0, 'list'],
                 'lists'         => [0, 0, 0, 0, 'lists'],
-                'password'      => [0, 1, 0, 1, 'login'],
+                'password'      => [0, 1, 0, 0, 'login'],
                 'register'      => [0, 1, 0, 0, 'welcome'],
                 'set'           => [1, 1, 1, 0, 'show'],
                 'show'          => [1, 1, 0, 0, 'show'],
@@ -335,7 +335,9 @@ for $list (@lists) {
       Mj::Parser::parse_args ($request, $tmp, '');
     }
     else {
-      $request->{'mode'} = 'gen';
+      unless (length $request->{'mode'}) {
+        $request->{'mode'} = 'gen';
+      }
     }
     $subs->{'CMDPASS'} = '';
     $subs->{'COMMAND'} = 'show';

@@ -1,3 +1,43 @@
+2002-06-04  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwusr:  The password command now has format file
+	support.
+
+	* lib/Majordomo.pm:  (_password)  Add support for the 
+	password-show command.
+
+	* lib/mj_cf_defs.pl:  Add the RFC 2369 headers to the
+	delete_headers default values.  Thanks to Roger Klorese.
+
+	* lib/Mj/CommandProps.pm:  Add support for the password-show
+	command.
+
+	* lib/Mj/Deliver.pm:  (_setup)  Bugfix:  Initialize the
+	sender variable properly when setting upon Probers.
+
+	* lib/Mj/Format.pm:  (accept)  Add support for the accept_stall
+	format file.  Thanks to Roger Klorese.
+	(accept, reject)  Change the "NOTIFY" substitution to "NOTIFIED".
+	(password)  Add format file support.
+
+	* lib/Mj/Token.pm:  (t_accept)  Initialize the "expire" arg
+	to avoid warnings.
+
+	* lib/Mj/Deliver/Dest.pm:  (sendenvelope)  Respond to timeouts
+	more predictably by forcing the envelope to be reinitialized.
+	(flush)  Bugfix:  Initialize the sender for deferred recipients
+	correctly.
+	
+	* lib/Mj/Deliver/Envelope.pm:  (address)  Bugfix:  Repair
+	off-by-one response counting error for "452" errors.
+	Issue RSET if the address array is empty but the envelope
+	is not addressed.
+	(send)  Issue RSET if the DATA command produced an error
+	response.
+
+	* lib/Mj/Deliver/Prober.pm:  (new)  Bugfix:  Initialize the
+	"lhost" argument correctly.
+
 2002-06-02  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/Deliver/Dest.pm (_gen_bounces): New Dest calling convention.
