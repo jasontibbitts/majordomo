@@ -58,6 +58,7 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, $domain, $extra
 # Fifth value:  Page to display after the result.
 %commands = (   
                 'alias'         => [1, 1, 0, 1, 'show'],
+                'archive'       => [0, 1, 1, 0, 'list'],
                 'changeaddr'    => [1, 1, 0, 1, 'show'],
                 'faq'           => [0, 0, 1, 0, 'list'],
                 'help'          => [0, 0, 0, 1, 'help'],
@@ -212,6 +213,10 @@ else {
   $ofunc =~ /(.*)/; $ofunc = $1;
   $func = $ofunc;
   $mode = '';
+}
+
+if ($func eq 'archive' and $mode =~ /get/) {
+  $mode .= $mode? "-immediate" : "immediate";
 }
 
 # Make sure the command is valid
