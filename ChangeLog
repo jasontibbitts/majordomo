@@ -1,3 +1,47 @@
+2001-11-13  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm, mj_wwwadm:  Add support for the tokeninfo-part 
+	commands, including the ability to display message parts with their
+	appropriate content types.  This makes it possible to display
+	images and other parts inline or in separate browser windows.
+
+	* bin/mj_shell:  Automatically invoke an editor for the
+	tokeninfo-part-edit command.
+
+	* bin/mj_wwwusr:  Always validate the password during to the login
+	process.  Thanks to Roger Klorese.
+
+	* lib/Majordomo.pm:  Version number is now 0.1200111130.
+	(dispatch)  Make mode checking stricter, including tests
+	for incompatible modes and missing prerequisites.
+	(sessioninfo_start)  Cease dealing with message spool files.
+	The tokeninfo-full command is no longer supported.
+	(tokeninfo_start)  The tokeninfo command is now iterated.
+	Iteration allows the contents of message parts to be obtained
+	in chunks.  Add support for the tokeninfo "part" modes:
+	part, part-delete, part-edit, and part-replace, which deal
+	with body parts of moderated messages and their headers.
+	(_get_msg_data)  Obtain or alter a table of entities within 
+	a moderated message and return the revised table.  Each entity 
+	is numbered, which allows parts to be altered or removed using 
+	the appropriate number.  Part "0" refers to the whole message.
+
+	* lib/Mj/CommandProps.pm:  Add command mode data to determine
+	which modes are incompatible and which modes require the use
+	of other modes.  Add support for the tokeninfo-part commands,
+	and remove support for the tokeninfo-full command.
+
+	* lib/Mj/Format.pm:  (_tokeninfo_post)  Move code to handle
+	tokens for moderated messages into a separate routine.  Add
+	support for the new tokeninfo-part commands.
+
+	* lib/Mj/MIMEParser.pm:  (get_entity_structure, remove_part,
+	replace_part)  New routines.  Given a file containing a message,
+	obtain or alter the structure of the message.  Each part within
+	a message is given a number:  "1" for the top-level
+	part, "1h" for its headers, "1.3" for the third subpart,
+	"1.3.2" for the second subpart of the third subpart, and so on.
+
 2001-11-03  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_list_file_get_string)  Return undef
