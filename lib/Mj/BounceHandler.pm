@@ -766,8 +766,8 @@ sub _hbr_noprobe {
 		$self->{'interface'}, $ok, 0, 0, 
 		$args{'reasons'}, $::log->elapsed - $time);
 
-  # XXX Test and document
-  shell_hook('bouncehandler-unsubscribe');
+  shell_hook('name' => 'bouncehandler-unsubscribe',
+             'cmdargs' => [ $self->domain, $args{'list'}, $args{'user'} ]);
 
   return ($ok, $mess);
 }
