@@ -28,6 +28,28 @@ Majordomo does not support for a particular command.
 
 (standard plus MODE, MODES)
 
+make_list
+---------
+This error message is displayed when Majordomo is unable to initialize
+an existing mailing list.
+
+(standard)
+
+no_password
+-----------
+This error message is displayed when a Majordomo command that requires
+a password is issued without one.
+
+(standard plus COMMAND)
+
+not_extracted
+-------------
+This error message is displayed when a configset-extract command attempts
+to remove a configuration fragment occupies more lines than the 
+actual value of the setting.
+
+(standard plus EXPECTED, SETTING, VALUE)
+
 password_length
 ---------------
 This error message is displayed if the password command is used to
