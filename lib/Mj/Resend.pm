@@ -648,7 +648,7 @@ sub _r_ck_body {
   @parts = $ent->parts;
   for ($i=0; $i<@parts; $i++) {
     $self->_r_ck_body($list, $parts[$i], $reasons, $avars, $safe, $qreg,
-		      $mcode, $tcode, $inv, "$part, subpart " . ($i+1),
+		      $mcode, $tcode, $inv, $max, "$part, subpart ".($i+1),
 		      ($first && $i==0));
     return;
   }
@@ -682,8 +682,9 @@ sub _r_ck_body {
   }
 
   # Do final calculations
+  $avars->{quoted_lines} ||= 0; $avars->{lines} ||= 1;
   $avars->{percent_quoted} =
-    int(100*($avars->{quoted_lines} / ($avars->{lines} || 1)));
+    int(100*($avars->{quoted_lines} / $avars->{lines}));
 
   if ($first) {
     $sum1 = $sum1->hexdigest;
