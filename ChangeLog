@@ -1,8 +1,69 @@
+2002-04-08  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Allow special-purpose welcome files to
+	be supported using the "doc" CGI parameter.  The first
+	such file is welcome_showtokens.
+
+	* lib/Majordomo.pm:  (help_start)  Support TOPIC substitution,
+	which allows the help file name to be displayed within the 
+	help file.
+	(_showtokens)  Sort tokens in Mj::Format::showtokens.
+	(trigger)  Support GLOBAL file triggers.  Thanks to Brock Rozen.
+	(_list_file_execute)  New routine.  Parse commands within a
+	file and execute them.
+
+	* lib/Mj/Addr.pm:  (new)  Return immediately if an address
+	was not supplied.
+
+	* lib/Mj/Archive.pm:  (_sync_msgs)  Improve error handling.
+	Thanks to Brock Rozen.
+
+	* lib/Mj/CommandProps.pm:  Add support for the 
+	showtokens-consult and showtokens-confirm commands.
+
+	* lib/Mj/Digest.pm:  (decide)  Add existence test to
+	eliminate warnings.
+	(examine)  Add a "stateonly" parameter that prevents 
+	decision values from being returned.  Thanks to Brock Rozen.
+
+	* lib/Mj/Format.pm:  (accept)  If the results of the 
+	acceptance are sent to the victim, give an indication
+	of the result of the command.
+	(showtokens)  Use the showtokens file to display a list-specific
+	heading.  Use the showtokens_all file to display a summary
+	at the end.  The showtokens_data file is now used for the
+	ALL pseudo-list also.  Sort the tokens by list.
+
+	* lib/Mj/List.pm:  (default_class) Return a non-default
+	digest if one is specified in the default_class setting.
+	(moderators)  Use the "owners" setting before the "whoami_owner"
+	setting.
+
+	* lib/Mj/Resend.pm:  Minor rearrangements for readability.
+
+	* setup/ask_basic.pl:  Place the tmp directory under the
+	installation directory by default.
+	Bugfix:  set the database backend to "text" if DB_File
+	is not available.
+
+2002-04-04  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Token.pm (_del_spooled_files): New function: delete any
+	files spooled with a token.
+	(t_expire, t_reject): Call _del_spooled_files.
+
 2002-04-02  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (common_subs)  Bugfix:  supply 
 	default value for chunksize.
 	(_set)  Bugfix:  correct syntax error.  Thanks to Brock Rozen.
+
+2002-03-30  Jason Tibbitts  <tibbs@math.uh.edu>
+ 
+	* lib/Majordomo.pm (_showtokens): Add 'confirm' and 'consult'
+	modes, make "confirm-consult" the default if no modes were given.
+ 
+	* lib/Mj/CommandProps.pm: Add additional modes for showtokens.
 
 2002-03-27  Michael Yount <csf@moscow.com>
 
@@ -36,9 +97,14 @@
 	(t_accept)  Add second argument to n_defaults call.
 
 	* lib/Mj/Util.pm:  Support "true" for "yes" and "false" for "no".
-        (str_to_offset)  Bugfix:  use a definition test instead of
+	(str_to_offset)  Bugfix:  use a definition test instead of
 	defaulting to an empty string.
 
+2002-03-19  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/Resend.pm (post): Remove warning when return from
+	_check_approval is undef.
+  
 2002-03-19  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Addr.pm (_validate): Add Soviet Union domain back in;

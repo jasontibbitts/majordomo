@@ -1,5 +1,17 @@
         Notes on upgrading from previous versions of Majordomo 2
 
+2002.04.08 (CVS):
+
+The "showtokens" command has a new syntax.  If a command mode specifies
+a particular token type, no other types will be displayed by default.
+For example, the "showtokens-delay" command formerly showed all confirm,
+consult, and delay tokens.  Now, it only shows delay tokens.
+
+2002.03.27 (CVS):
+
+The "digests" configuration setting has a new, more readable format.
+Existing values will be converted to the new format automatically.
+
 2001.10.15 (CVS):
 
 For files in the "format" directory, the CMDPASS substitution is
