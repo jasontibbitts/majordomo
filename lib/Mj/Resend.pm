@@ -526,19 +526,21 @@ sub _post {
     }
   }
   
-  # Make duplicate archive/digest entity
-  $arcent = $ent[0]->dup;
-  $archead = $arcent->head;
-  $archead->modify(0);
-
   # Remove skippable headers, including Approved:.
   @skip = ('Approved');
   push @skip, $self->_list_config_get($list, 'delete_headers');
   push @skip, 'Received' if $self->_list_config_get($list, 'purge_received');
   for $i (@skip) {
     $head->delete($i);
-    $archead->delete($i);
   }
+
+  # Rewrite the From: header
+  $self->_munge_from($ent[0], $list);
+
+  # Make duplicate archive/digest entity
+  $arcent = $ent[0]->dup;
+  $archead = $arcent->head;
+  $archead->modify(0);
 
   while (1) {
     $rand = gen_pw(6);
@@ -670,9 +672,6 @@ sub _post {
       $head->add('Sender', $sender);
     }
 
-
-    # Rewrite the From: header
-    $self->_munge_from($ent[0], $list);
     $subs->{'USER'} = $head->get('From');
 
     # Generate the exclude and membership lists
