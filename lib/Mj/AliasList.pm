@@ -1,6 +1,6 @@
 =head1 NAME
 
-Mj::AlistList.pm - An object containing address aliases and equivalencies.
+Mj::AliasList.pm - An object containing address aliases and equivalencies.
 
 =head1 DESCRIPTION
 
@@ -58,7 +58,7 @@ sub AUTOLOAD {
   no strict 'refs';
   my $self = shift;
   $AUTOLOAD =~ s/.*://;
-  $self->{delegate}->$AUTOLOAD(@_);
+  $self->{delegate}->$AUTOLOAD(@_) if ref $self->{delegate};
 }
 
 =head2 add
