@@ -335,7 +335,8 @@ sub parse_dsn {
     }
 
   # So we must have a DSN.  The second part has the info we want.
-  $type = $ent->parts(1)->mime_type;
+  $i = $ent->parts(1);
+  $type = $i->mime_type if (defined $i);
   if ($type !~ m!message/delivery-status!i) {
     # Weird, the second part is always supposed to be of this type.  But
     # nothing else is going to be able to parse this message, so just
