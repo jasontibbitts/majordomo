@@ -1,3 +1,17 @@
+2000-06-07  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (who_chunk): In export mode, attach flag and
+	class descriptions to the address.
+
+	* lib/Mj/Format.pm (set): Rewrite; use new return values from the
+	core.
+
+	* lib/Majordomo.pm (_set): Change the return values a bit.  Return
+	a hash for each address and generate class and flag descriptions.
+
+	* lib/Mj/List.pm (set): Allow comma-separated list of settings.
+	Clean up return value a bit.
+
 2000-06-07  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/MailOut.pm (owner_done): Chomp out all bounce handling

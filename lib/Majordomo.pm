@@ -17,8 +17,8 @@ calls to the appropriate module, so maintenance issues are reduced.
 
  use Majordomo;
  $mj = new Majordomo $listdir;
- 
- # Grab lists visible to us, their description and their flags 
+
+ # Grab lists visible to us, their description and their flags
  @lists = $mj->lists($user, $passwd, $auth, $interface,
                      "lists".$mode?"=mode":"", $mode);
 
@@ -3601,20 +3601,27 @@ sub set {
 
 sub _set {
   my ($self, $list, $user, $addr, $mode, $cmd, $setting) = @_;
-  my ($data, $l, $ok, $tmp, @out);
+  my (@lists, @out, $data, $l, $ok, $res);
 
   @out = (1);
   if ($list eq 'ALL') {
     $data = $self->{'reg'}->lookup($addr->canon);
     return (0, "Unable to find data for $addr->canon.\n") unless $data;
-    for $l (split("\002", $data->{'lists'})) {
-      $self->_make_list($l);
-      push @out, $self->{'lists'}{$l}->set($addr, $setting), $l;
-    }
+    @lists = split("\002", $data->{'lists'});
   }
   else {
-    $self->_make_list($list);
-    push @out, $self->{'lists'}{$list}->set($addr, $setting), $list;
+    @lists = ($list);
+  }
+
+  for $l (@lists) {
+    $self->_make_list($l);
+    ($ok, $res) = $self->{'lists'}{$l}->set($addr, $setting);
+    if ($ok) {
+      $res->{'list'} = $l;
+      $res->{'flagdesc'} = [$self->{'lists'}{$l}->describe_flags($res->{'flags'})];
+      $res->{'classdesc'} = $self->{'lists'}{$l}->describe_class(@{$res->{'class'}});
+    }
+    push @out, ($ok, $res);
   }
   @out;
 }
@@ -3674,7 +3681,7 @@ sub _show {
 
   # Transform
   push @out, $addr->xform;
-  
+
   # Alias, inverse aliases
   push @out, $addr->alias;
   $aliases = join("\002",$self->_alias_reverse_lookup($addr));
@@ -3706,7 +3713,7 @@ sub _show {
 						      ),
 		  $data->{'subtime'}, $data->{'changetime'},
 		 );
-      
+
       # Deal with flags
       push @out, (join(',',
 		       $self->{'lists'}{$i}->describe_flags($data->{'flags'})
@@ -4418,16 +4425,24 @@ sub who_chunk {
   else {
     @chunk = $self->{'lists'}{$list}->get_chunk($chunksize);
   }
-  
+
   unless (@chunk) {
     $log->out("finished");
     return 0;
   }
- 
+
   for $i (@chunk) {
-    next if $regexp && !_re_match($regexp, $i->{'fulladdr'}); 
+    next if $regexp && !_re_match($regexp, $i->{'fulladdr'});
     # If we're to show it all...
     if ($self->{'unhide_who'}) {
+      $i->{'fullflags'} =
+	join(',',$self->{'lists'}{$list}->describe_flags($i->{'flags'}));
+      $i->{'fullclass'} =
+	$self->{'lists'}{$list}->describe_class($i->{'class'},
+						$i->{'classarg'},
+						$i->{'classarg2'},
+						1,
+					       );
       push @out, $i;
       next;
     }
@@ -4453,7 +4468,7 @@ sub who_chunk {
     }
     push @out, $i;
   }
-  
+
   return (1, @out);
 }
 

@@ -60,7 +60,7 @@ use vars (qw($addr %flags %noflags %classes %digest_types));
 # Classes -> [realclass, takesargs, description]
 %classes =
   (
-   'each'     => ['each',   0, "each message"],
+   'each'     => ['each',   0, "each message as it is posted"],
    'single'   => ['each',   0],
    'all'      => ['all',    0, "all list traffic"],
    'digest'   => ['digest', 2, "messages in a digest"],
@@ -86,7 +86,7 @@ that is used to hold information about an existing list.
 sub new {
   my $type  = shift;
   my %args  = @_;
-  
+
   my $class = ref($type) || $type;
   my $log   = new Log::In 150, "$args{'dir'}, $args{'name'}, $args{'backend'}";
 
@@ -101,7 +101,7 @@ sub new {
   $self->{ldir}     = $args{dir};
   $self->{name}     = $args{name};
   $self->{sdirs}    = 1; # Obsolete goody
-    
+
   return unless -d "$self->{ldir}/$self->{name}";
 
   $subfile = $self->_file_path("_subscribers");
@@ -117,7 +117,7 @@ sub new {
      dir       => $args{'dir'},
      callbacks => $args{'callbacks'},
     );
-  
+
   # We have to figure out our database backend for ourselves if we're
   # creating the GLOBAL list, since it couldn't be passed to us.
   if ($args{name} eq 'GLOBAL' or $args{name} eq 'DEFAULT') {
@@ -271,52 +271,65 @@ sub is_subscriber {
   return;
 }
 
-=head2 set(addr, setting, arg, check)
+=head2 set(addr, setting, check)
 
 This sets various subscriber data.
 
 If $check is true, we check the validity of the settings but don''t
-actually change any values (not implemented).
+actually change any values.
+
+If $force is true, we don't check to see if the class or flag setting is in
+the allowed set.  This is used if the owner is changing normally off-limits
+settings.  (XXX Allowed sets not implemented.)
 
 =cut
 sub set {
   my $self = shift;
   my $addr = shift;
-  my $set  = shift;
+  my $oset = shift;
   my $check= shift;
-  my $log  = new Log::In 150, "$addr, $set";
-  my (@allowed, @class, $carg1, $carg2, $class, $data, $flags, $inv, $isflag,
-      $key, $mask, $ok, $rset);
+  my $force= shift;
+  my $log  = new Log::In 150, "$addr, $oset";
+  my (@allowed, @class, @settings, $carg1, $carg2, $class, $data, $flags,
+      $inv, $isflag, $key, $mask, $ok, $rset);
 
-  ($inv = $set) =~ s/^no//;
+  @settings = split(',', $oset);
 
-  @class = split(/-/, $set);
+  # Loop over settings, checking for legality
+  for $set (@settings) {
+    ($inv = $set) =~ s/^no//;
 
-  if ($rset = $flags{$set}->[0] || $flags{$inv}->[0]) {
-    $isflag = 1;
-  }
-  elsif ($rset = $classes{$class[0]}->[0]) {
-    $isflag = 0;
-  }
-  else {
-    $log->out("failed, invalidaction");
-    return (0, "Invalid setting: $set.\n"); # XLANG
-  }
+    @class = split(/-/, $set);
 
-  if ($check) {
-    # Check the setting against the allowed flag mask.
-    if ($isflag) {
-      $mask = $self->config_get('allowed_flags');
-      # Make sure base flag is in the set.
+    if ($rset = $flags{$set}->[0] || $flags{$inv}->[0]) {
+      $isflag = 1;
     }
-
-    # Else it's a class
+    elsif ($rset = $classes{$class[0]}->[0]) {
+      $isflag = 0;
+    }
     else {
-      @allowed = $self->config_get('allowed_classes');
-      # Make sure that one of the allowed classes is at the beginning of
-      # the given class.
-
+      $log->out("failed, invalidaction");
+      return (0, "Invalid setting: $set.\n"); # XLANG
     }
+
+    unless ($force) {
+      # Check the setting against the allowed flag mask.
+      if ($isflag) {
+	$mask = $self->config_get('allowed_flags');
+	# Make sure base flag is in the set.
+      }
+
+      # Else it's a class
+      else {
+	@allowed = $self->config_get('allowed_classes');
+	# Make sure that one of the allowed classes is at the beginning of
+	# the given class.
+      }
+    }
+  }
+
+  # If we were checking and didn't bail, we're done
+  if ($check) {
     return 1;
   }
 
@@ -328,18 +341,23 @@ sub set {
     return (0, "$addr is not subscribed to the $self->{'name'} list.\n"); # XLANG
   }
 
-  # Call make_setting to get a new flag list and class setting
-  ($ok, $flags, $class, $carg1, $carg2) =
-    $self->make_setting($set, $data->{'flags'}, $data->{'class'},
-			$data->{'classarg'}, $data->{'classarg2'});
-  return ($ok, $flags) unless $ok;
+  for $set (@settings) {
+    # Call make_setting to get a new flag list and class setting
+    ($ok, $flags, $class, $carg1, $carg2) =
+      $self->make_setting($set, $data->{'flags'}, $data->{'class'},
+			  $data->{'classarg'}, $data->{'classarg2'});
+    return ($ok, $flags) unless $ok;
 
-  ($data->{'flags'}, $data->{'class'},
-   $data->{'classarg'}, $data->{'classarg2'}) =
-     ($flags, $class, $carg1, $carg2);
+    ($data->{'flags'}, $data->{'class'},
+     $data->{'classarg'}, $data->{'classarg2'}) =
+       ($flags, $class, $carg1, $carg2);
+  }
 
   $self->{'subs'}->replace("", $key, $data);
-  return (1, $flags, $class, $carg1, $carg2);
+  return (1, {flags => $flags,
+	      class => [$class, $carg1, $carg2],
+	     },
+	 );
 }
 
 =head2 make_setting
@@ -358,7 +376,7 @@ sub make_setting {
   # ignore commas within parentheses.
   for $i (split("\s*,\s*", $str)) {
     next unless $i;
-    
+
     # Deal with digest-(arg with spaces)
     if ($i =~ /(\S+?)\-\((.*)\)/) {
       $set = $1;
@@ -372,9 +390,9 @@ sub make_setting {
       $set = $i;
       $arg = "";
     }
-    
+
     ($inv = $set) =~ s/^no//;
-    
+
     if ($rset = $flags{$set}->[0] || $flags{$inv}->[0]) {
       $isflag = 1;
     }
@@ -385,11 +403,11 @@ sub make_setting {
       $log->out("failed, invalidaction");
       return (0, "Invalid setting: $set.\n"); # XLANG
     }
-    
+
     if ($isflag) {
       # Process flag setting; remove the flag from the list
       $flags =~ s/$flags{$rset}->[3]//ig;
-      
+
       # Add the new flag (which may be null)
       $flags .= $flags{$set}->[3] || '';
     }
@@ -558,7 +576,7 @@ sub flag_set {
   my ($flags, $data);
   return unless $flags{$flag};
   return unless $addr->isvalid;
-  
+
   $flags = $addr->retrieve("$self->{name}-flags");
 
   if ($force || !defined($flags)) {
@@ -584,9 +602,10 @@ flag_string.
 
 =cut
 sub describe_flags {
-  my $self   = shift;
-  my $flags  = shift || "";
-  my %nodesc = reverse %noflags;
+  my $self    = shift;
+  my $flags   = shift || "";
+  my $setting = shift;
+  my %nodesc  = reverse %noflags;
   my (%desc, @out, $i, $seen);
 
   for $i (keys %flags) {
@@ -613,26 +632,33 @@ sub describe_flags {
 
 This returns a textual description for a subscriber class.
 
+If as_setting is true, the description returned is in the form taken by the
+set command.
+
+XXX This does not properly handle nomail with expiration.
+
 =cut
 sub describe_class {
   my $self  = shift;
   my $class = shift;
   my $arg1  = shift;
   my $arg2  = shift;
+  my $as_setting = shift;
   my($dig, $time, $type);
 
   if ($class eq 'digest') {
     $dig = $self->config_get('digests');
     if ($dig->{$arg1}) {
-      return "$dig->{$arg1}{'desc'} ($arg2)";
+      return $as_setting? "$class-$arg1-$arg2" :
+	"$dig->{$arg1}{'desc'} (in $arg2 format)";
     }
     else {
       return "Undefined digest." # XLANG
     }
   }
-  
+
   if ($classes{$class}->[1] == 0) {
-    return $classes{$class}->[2];
+    return $as_setting? $class : $classes{$class}->[2];
   }
   if ($classes{$class}->[1] == 1) {
     if ($arg1) {

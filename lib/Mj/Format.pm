@@ -488,38 +488,38 @@ sub set {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
       $list, $vict, $setting, $arg2, $arg3, $ok, @changes) = @_;
   my $log = new Log::In 29, "$type, $vict";
-  my ($flags, $mess, $mode1, $mode2, $mode3, $fullflags, $fullmode);
+  my ($result);
   $mess ||= '';
 
   if ($ok>0) {
     eprint($out, $type, "Setting \"$setting\" for $vict.\n");
-    while (($ok, $flags, $mode1, $mode2, $mode3, $list) =
-            splice @changes, 0, 6) {
+
+    while (($ok, $result) = splice(@changes, 0, 2)) {
       if ($ok>0) {
-        $fullmode = " (unknown digest mode???)";
-        $fullmode = " (not receiving posts)" if $mode1 eq 'nomail';
-        $fullmode = "-$mode2-$mode3 (receiving digests)" if $mode1 eq 'digest';
-        $fullmode = " (receiving messages as they are posted)" if $mode1 eq 'each';
-        # $fullmode = Mj::List::describe_class($mode1,$mode2,$mode3) if $mode1 eq 'digest';
-        $fullflags = join "\n  ", Mj::List::describe_flags($list, $flags);
-        eprint($out, $type, &indicate(
-       "$list:\n  $mode1$fullmode\n  $fullflags\n(see 'help set' for full explanation)\n", $ok, 1));
+        eprint($out,
+	       $type,
+	       &indicate("New settings for $result->{'list'}:\n"    .
+			 "  Receiving $result->{'classdesc'}\n".
+			 "  Flags:\n    ".
+			 join("\n    ", @{$result->{'flagdesc'}}).
+			 "\n(see 'help set' for full explanation)\n",
+			 $ok, 1)
+	      );
       }
       # deal with partial failure
       else {
-        eprint($out, $type, &indicate("$flags\n", $ok, 1));
+        eprint($out, $type, &indicate("$result\n", $ok, 1));
       }
     }
   }
   else {
-    $mess = shift @changes;
+    $result = shift @changes;
     eprint($out, $type, "Settings for $vict not changed.\n");
-    eprint($out, $type, &indicate("$mess\n", $ok, 1));
+    eprint($out, $type, &indicate("$result\n", $ok, 1));
   }
 
   1;
 }
-
 
 sub show {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
@@ -808,13 +808,13 @@ sub who {
     eprint($out, $type, &indicate($mess, $ok));
     return $ok;
   }
-  
+
   # We know we succeeded
   $count = 0;
   @stuff = ($user, $pass, $auth, $int, $cmd, $mode, $list, $vict);
   $chunksize = $mj->global_config_get($user, $pass, $auth, $int,
 				      "chunksize");
-  
+
   $ind = $template = '';
   unless ($mode =~ /export|short/) {
     eprint($out, $type, "Members of list \"$list\":\n");
@@ -830,10 +830,10 @@ sub who {
   else {
     $template = '$FULLADDR $PAD $FLAGS $CLASS';
   }
-  
+
   while (1) {
     ($ret, @lines) = $mj->dispatch('who_chunk', @stuff, $regexp, $chunksize);
-    
+
     last unless $ret > 0;
     for $i (@lines) {
       $subs = {};
@@ -859,7 +859,8 @@ sub who {
         chomp $result;
       }
       elsif ($mode =~ /export/) {
-	$result = "subscribe $i->{'fulladdr'}";
+	$result = "subscribe-nowelcome $i->{'fulladdr'}\n" .
+	  "set $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
       }
       else {
         $result = $i->{'fulladdr'};
@@ -870,7 +871,7 @@ sub who {
     }
   }
   $mj->dispatch('who_done', @stuff);
-  
+
   unless ($mode =~ /short|export/) {
     eprintf($out, $type, "%s listed subscriber%s\n", 
 	    ($count || "No"),
