@@ -1,7 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-tokeninfo[-full] token
+tokeninfo[-full][-nosession][-remind] token
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -full, if specified, shows contents of a post waiting for approval
+-nosession, if specified, prevents session info from being displayed
+-remind, if specified, causes a reminder message to be mailed
 token, required, is a 12-character id for an action that needs approval
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
  
@@ -37,6 +39,16 @@ through the "sessioninfo" command.
 If "full" mode is used, and a token refers to a posted message,
 the full message will be shown in the results.  Otherwise, 
 only the message headers will be shown.
+
+If "nosession" mode is used, the session information will not be
+displayed.  The session information usually consists of message headers
+when the e-mail interface is used, or the remote host address and port
+number if one of the web interfaces is used.
+
+If "remind" mode is used, a reminder message will be mailed to the
+address of the person who issued the tokeninfo command.  This is useful
+when people who moderate a mailing list using a web interface wish
+to obtain a copy of a moderated, posted message.
 
 Tokens generally have a limited lifetime.  If nobody explicitly 
 approves a request, after a few days the token will automatically
