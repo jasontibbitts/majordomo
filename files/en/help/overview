@@ -1,0 +1,187 @@
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+
+Section 1 - Introduction to "help overview"
+
+Below are many techniques a list subscriber may want to use, but
+some commands and many options are left out. For a complete set of all
+subscriber commands, send "help commands" to $MJ
+(or send "help topics" for a list of all possible commands)
+
+To get top-level help, send "help" on a line by itself to the server.
+To get a description of command syntax, send "help commands".
+
+This file is specific to list subscribers! To get suggestions from an
+administrator or list owner perspective  send "help admin commands"
+or "help admin" to the server.
+
+Here are the main sections below:
+  Section 2 - Where to Send Email (or "don't bug the wrong person")
+  Section 3 - Subscribing and Unsubscribing (without the owner's help)
+  Section 4 - Getting Information (about lists and about the server)
+
+If you have suggestions or corrections for this or other help files,
+please contact the maintainer as indicated at the end of this message.
+
+
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+
+Section 2 - Where to Send Email (or "don't bug the wrong person")
+
+All Majordomo2 commands are sent to the server at $MJ
+(this includes things like "subscribe", "help", "lists", etc)
+If you have shell access, refer to "help mj_shell" for an
+alternative to sending email to the server.
+
+To send a post (also called a broadcast) to an email list called
+"LISTNAME", just send email to LISTNAME@$WHEREAMI
+(of course "LISTNAME" is replaced with the actual name of the list)
+
+
+<> DO NOT SEND MAJORDOMO COMMANDS TO THE EMAIL LIST ITSELF!
+<> Go back and read the two paragraphs above if you have any questions.
+
+
+To contact the owner of a specific list, send mail to that list's
+owner address, which is formed by adding "-owner" to the list name.
+For instance, to contact the list owner for the list "LISTNAME",
+you would send email to LISTNAME-owner@$WHEREAMI
+
+A human site administrator should be available at $MJOWNER
+but don't expect the overall admin to answer questions in detail!
+(save this address for when a list owner can't help you...)
+
+NOTE: This section is replicated in "help admin".
+
+
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+
+Section 3 - Subscribing and Unsubscribing (without the owner's help)
+
+For full details, send this six-line message to $MJ
+   help register
+   help unregister
+   help subscribe
+   help unsubscribe
+   help accept
+   help password
+
+
+Subscribing To a List
+---------------------
+
+  Once you've determined that you wish to subscribe to one or more lists on
+  this system, you can send commands to Majordomo to have it add you to the
+  list, so you can begin receiving mailings. You don't need to involve the
+  list owner in this process (usually), and doing it yourself will save
+  them LOTS of time. Remember a list owner is normally a volunteer with
+  other things to do and lots of people subscribed to one or more lists.
+
+  To receive list mail at the address from which you're sending your mail,
+  simply send a "subscribe" command to the server as detailed in the help
+  file for "subscribe". To get that file, send this one line to $MJ
+   help subscribe
+  You supply at least the list's name, and you can supply your real name
+  and email address if it is not in your email headers.
+
+  Based on configuration decisions made by the list owners, you may be
+  added to the mailing list immediately, or you may receive notification
+  that an authorization key (or token) is required for subscription.
+  This can be a bit of extra hassle, but it helps keep you from being
+  swamped in extra email by someone who forged requests from your address.
+  In this case, follow the instructions in the help file for "accept".
+  (Or send a "reject" command if you don't want to be subscribed.)
+
+  You may also get a message that your subscription is being forwarded to
+  the list owner for approval; some lists have waiting lists, or policies
+  about who may subscribe.  If your request is forwarded for approval, the
+  list owner may contact you soon after your request, or the list owner may
+  simply add you to the list when they have time.
+
+  Upon subscribing, you should receive an introductory message, containing
+  list policies and features.  Please SAVE THIS MESSAGE for future
+  reference; it should contain exact directions for unsubscribing.  If
+  you lose the intro mail and would like another copy of the policies,
+  send this one-line message to $MJ
+       intro LISTNAME
+  ...substituting, of course, the real name of your list for "LISTNAME".
+
+  It is possible for a list owner to configure the list so it sends no
+  files or many files to new subscribers. There can be an "intro" file,
+  an "info" file, a "faq" file, and other messages. If you find that you
+  get too much or too little information, or you don't know how to get
+  another copy after you lose it, contact the list owner as indicated
+  below (using the special "-owner" email address that all lists have).
+
+
+Unsubscribing From Mailing LIsts
+--------------------------------
+
+  Your original intro message should contains the exact command for
+  removing your address from the list.  However, in most cases, you
+  may simply send the command "unsubscribe" followed by the list name:
+       unsubscribe LISTNAME
+  (This command may fail if your provider has changed the way your
+  return address is shown in your mail headers.)
+
+  To remove an address other than the one from which you're sending the
+  request, refer to the help file for "unsubscribe" to get details on
+  how to remove yourself. If you have your old password, you can quickly
+  remove your old address even if you no longer have access to the
+  account. If your old account is forwarding mail to your new account,
+  you can also use "accept" from the new account once the server asks
+  you for confirmation.
+
+  If you want to unsubscribe from all lists on this server at once,
+  send an "unregister" command instead of "unsubscribe". This will
+  remove you from all email lists reachable from $MJ
+
+
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+
+Section 4 - Getting Information (about lists and about the server)
+
+  For full details, send this eight-line message to $MJ
+   help help
+   help lists
+   help info
+   help intro
+   help faq
+   help index
+   help get
+   help show
+
+  To get help on any subject, try sending "help XXXX" to the server,
+  where "XXXX" is replaced by the command you need information on.
+  If you did not pick a subject for which there is a specific help
+  file, just send "help" on a line by itself. The default help file
+  will point you to other help files, and you can usually find the
+  right help subject in one or two more tries.
+
+  To get a list of lists on this system that are available to you,
+  send the following one-line message to $MJ
+       lists
+  You will receive a reply contain the names of the mailing lists
+  and a brief description of each list. You can get more or less
+  detail by adding options to the command - see the "lists" help file.
+
+  To get more information about a particular list, use several commands
+  to get files associated with the list. For example, if the name of
+  the list about which you wish information is "LISTNAME", you could
+  put one or more of these commands in a message to $MJ
+       info  LISTNAME
+       intro LISTNAME
+       faq   LISTNAME
+       index LISTNAME
+  You will get back information, an introduction, and a FAQ (which
+  stands for Frequently Asked Questions) assuming the list owner has
+  configured the list to contain all these files. The "index" command
+  will show you if the list owner has made OTHER files available for
+  you to get with the "get" command. (Note that sending "faq LISTNAME"
+  is identical to sending "get LISTNAME faq" to the server, etc.)
+
+  To find out more about your subscription, use the "show" command
+  as detailed by "help show".
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
