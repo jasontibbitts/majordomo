@@ -238,9 +238,11 @@ if (function_prop($func, 'iter')) {
 
 # For the 'set' command, convert the CGI data into the appropriate settings.
 if ($func eq 'set') {
-  my ($i, $j, @settings);
+  my ($i, $j, @params, @settings);
+  @params = $cgi->param;
   for $j (qw(delivery ackdeny ackpost ackreject ackstall eliminatecc hide prefix replyto selfcopy rewritefrom)) {
     $i = "$list:$j";
+    next unless (grep {$_ eq $i} @params);
     if ($j eq 'delivery') {
       push @settings, $cgi->param($i);
     }
@@ -461,8 +463,8 @@ EOM
 
 sub Mj::Format::show {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($i, $j, @lists, $lfull, $class, $subtime); 
-  my (@flaglist, $lflags, $lchangetime, $changetime);
+  my ($i, $j, @lists, $lfull, $class, $subtime, $testflag); 
+  my (@allowed, @flaglist, $lflags, $lchangetime, $changetime, $mask);
   my ($ok, $listdata) = @$result;
   select $out;
 
@@ -522,34 +524,60 @@ EOM
 
   print "<table border><th>Mailing List<th>Delivery Mode";
   print "<th>AckDeny<th>AckPost<th>AckReject<th>AckStall<th>EliminateCC\n";
-  print "<th>Hide<th>Prefix<th>ReplyTo<th>SelfCopy<th>RewriteFrom\n";
+  print "<th>Hide<th>Prefix<th>ReplyTo<th>RewriteFrom<th>SelfCopy\n";
   for $i (@lists) {
     $lfull      = $listdata->{'lists'}{$i}->{'fulladdr'};
     $class      = $listdata->{'lists'}{$i}->{'class'};
     $subtime    = $listdata->{'lists'}{$i}->{'subtime'};
     $changetime = $listdata->{'lists'}{$i}->{'changetime'};
-    $lflags     = $listdata->{'lists'}{$i}->{'flags'};
+    $lflags     = $listdata->{'lists'}{$i}->{'flagdesc'};
+    @allowed    = keys %{$mj->list_config_get(undef, undef, 
+                                              $i, 'allowed_classes')};
     print <<EOM;
     <tr><td align=center><input type=radio name=list value=$i>$i<br>
-    <td align=center><select name="$i:delivery">
+    <td align=center>
 EOM
-    for $j (qw (each digest nomail)) {
-      if ($class eq $j) {
-        print "<option selected> $j\n"; 
+    # Print a menu with the available delivery classes.
+    if (@allowed) {
+      print "<select name=\"$i:delivery\">\n";
+      for $j (@allowed) {
+        if ($class eq $j) {
+          print "<option selected> $j\n"; 
+        }
+        else {
+          print "<option> $j\n";
+        }
       }
-      else {
-        print "<option> $j\n";
-      }
+      print "</select>\n";
     }
-    print "</select>\n";
+    else {
+      print "$class";
+    }
+
+    # Add a checkbox for those flags that are permitted by
+    # the allowed_flags configuration setting.
+    $mask = $mj->list_config_get(undef, undef, $i, 'allowed_flags');
     @flaglist = qw(ackdeny ackpost ackreject ackstall eliminatecc 
-                   hide prefix replyto selfcopy rewritefrom);
+                   hideall prefix replyto rewritefrom selfcopy);
     for $j (@flaglist) {
-      if (grep { $_ eq "no$j" } @{$lflags}) {
-        print "<td align=center><input type=checkbox name=\"$i:$j\">\n";
+      $testflag = $Mj::List::flags{$Mj::List::flags{$j}->[0]}->[3];
+      if (grep { $_ eq $j } @{$lflags}) {
+        $j = 'hide' if ($j eq 'hideall');
+        if ($mask !~ /$testflag/) {
+          print "<td align=center>$j\n";
+        }
+        else {
+          print "<td align=center><input type=checkbox name=\"$i:$j\" checked>\n";
+        }
       }
       else {
-        print "<td align=center><input type=checkbox name=\"$i:$j\" checked>\n";
+        $j = 'hide' if ($j eq 'hideall');
+        if ($mask !~ /$testflag/) {
+          printf "<td align=center>%s", ($j eq "hide") ? "nohide\n" : "no$j\n";
+        }
+        else {
+          print "<td align=center><input type=checkbox name=\"$i:$j\">\n";
+        }
       }
     }
   }
