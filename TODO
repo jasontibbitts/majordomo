@@ -37,6 +37,11 @@ Top of the list
      from then to now.
 
 ! Digest:
+
+Switch around parameters order in digests variable.
+Allow a time of 'any'.
+report-digest command to show status of digest spools.
+
   Configurables:
     subject
     index header

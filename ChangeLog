@@ -1,5 +1,19 @@
 Thu Oct 15 19:22:11 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Config.pm (parse_digests): Redo to accept new element
+ 	order.
+
+	* lib/mj_cf_data.pl: Redo 'digests' description; reorder elements
+ 	to that little-used and wizardly elements go on the end where they
+ 	can be left off.
+
+	* lib/Mj/Digest.pm (_close_state): Turn on Data::Dumper::Purity
+ 	flag so the nested references don't get destroyed.
+
+	* lib/Mj/Config.pm (_str_to_clock): Fix stupid typo.
+
+	* lib/Mj/Digest.pm (decide): Fix undef warning.
+
 	* lib/mj_cf_defs.pl: Change 'digests' default back to an empty
  	listref; this is the _unparsed_ version, so a hashref is
  	definitely not appropriate.

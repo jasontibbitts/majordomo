@@ -1425,7 +1425,7 @@ sub parse_digests {
   $data = {};
 
   # Parse the table: one line with lots of fields, and single-line field
-  ($table, $error) = parse_table('fspopooopl', $arr);
+  ($table, $error) = parse_table('fspppooool', $arr);
   
   return (0, "Error parsing table: $error")
     if $error;
@@ -1436,8 +1436,14 @@ sub parse_digests {
     $data->{$table->[$i][0]} = {};
     $elem = $data->{$table->[$i][0]};
 
-    # minsizes
+    # times
+    $elem->{'times'} = [];
     for $j (@{$table->[$i][1]}) {
+      push @{$elem->{'times'}}, _str_to_clock($j);
+    }
+
+    # minsizes
+    for $j (@{$table->[$i][2]}) {
       if ($j =~ /(\d+)m/i) {
 	$elem->{'minmsg'} = $1;
       }
@@ -1449,9 +1455,6 @@ sub parse_digests {
       }
     }
 
-    # maxage
-    $elem->{'maxage'} = _str_to_offset($table->[$i][2]);
-    
     # maxsizes
     for $j (@{$table->[$i][3]}) {
       if ($j =~ /(\d+)m/i) {
@@ -1465,21 +1468,19 @@ sub parse_digests {
       }
     }
 
-    # minage
-    $elem->{'minage'} = _str_to_offset($table->[$i][4]);
+    # maxage
+    $elem->{'maxage'} = _str_to_offset($table->[$i][4]);
     
     # separate
     $elem->{'separate'} = _str_to_offset($table->[$i][5]);
 
-    # mime
-    $elem->{'mime'} = $table->[$i][6] =~ /y/ ? 1 : 0;
+    # minage
+    $elem->{'minage'} = _str_to_offset($table->[$i][6]);
+    
+    # type XXX Need some syntax checking here.
+    $elem->{'type'} = $table->[$i][6] || 'mime';
 
-    # times
-    $elem->{'times'} = [];
-    for $j (@{$table->[$i][7]}) {
-      push @{$elem->{'times'}}, _str_to_clock($j);
-    }
-    # Give a default of 'anytime'
+    # Give a default time of 'anytime'
     $elem->{'times'} = [['a', 0, 23]] unless @{$elem->{'times'}};
 
     # description
@@ -2819,7 +2820,7 @@ sub _str_to_clock {
   elsif ($arg =~ /^(\d+)-(\d+)$/) {
     $flag  = 'a';
     $start = $1;
-    $end   = $2
+    $end   = $2;
     push @out, [$flag, $start, $end];
   }
 

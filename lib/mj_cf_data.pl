@@ -1247,48 +1247,11 @@ Majordomo when an issue should be generated.  The following data can be given:
 name     - A one-word name given to the digest.  It is unwise to name
            the digest "mime" or "nomime".
 
-minsizes - The minimum amount of data (measured in messages or
-           kilobytes) which must be collected before a digest will be
-           generated.  10m gives a minimum size of 10 messages; 20k
-           gives a minimum size of 20 kilobytes, and 10m, 20k will
-           create a digest when either 10 messages or 20 kilobytes
-           of message data have been collected.  The default is no
-           minimum.
+times    - The times that digests are allowed to be created.  Times are
+           specified as any of the following:
 
-maxsizes - The maximum size of digest that will be created.  Specify
-           either messages or kilobytes or both as with minsizes.  The
-           default is no maximum.
-
-maxage   - If an article is older than this, a digest will be created
-           even if enough messages have not been collected.  This
-           prevents messages from becoming "stale" on low traffic
-           lists.  Specify hours like 12h, days like 4d and weeks like
-           2w.  The default is no maximum age.
-
-minage   - A digest will not be created if it most recent article is
-           younger than this.  This is intended to prevent digest
-           creation in the middle of active discussion.  The default
-           is no minimum age.
-
-separate - The minimum amount of time that separates digests.  When
-           messages come in quickly, or when a body of messages builds
-           up during the times that digests are not allowed to be
-           generated, it is possible that there are too many messages
-           to be sent in a single digest and perhaps enough messages
-           to fill more than one digest.  To prevent multiple digests
-           from being generated too close to one another, set this to
-           some amound of time.  To generate as many digests as
-           necessary to clear out the backlog, leave this unset.
-
-mime     - This specifies whether new subscribers recive the digest in
-           MIME mode by default.  Subscribers can still specify MIME
-           or non-MIME delivery explicitly.
-
-time     - The times that digests are allowed to be created.  Times are
-           specified as following:
-
-            an integer from 0 to 23: digests will be created once,
-            after this hour of the day.
+            an integer from 0 to 23: digests will be created only
+            during this hour of the day.  (0 is midnight.)
 
             two integers separated by a dash: digests will be created
             anytime between these two hours.  If the second number is
@@ -1307,8 +1270,44 @@ time     - The times that digests are allowed to be created.  Times are
 
             mo(6,8,10), tu(12-18,22-6), we, 3rd(4,10-14)
 
-           The default is to allow digest creation without regard to
-           time.
+           The default is to allow digest creation anytime.
+
+minsizes - The minimum amount of data (measured in messages or
+           kilobytes) which must be collected before a digest will be
+           generated.  10m gives a minimum size of 10 messages; 20k
+           gives a minimum size of 20 kilobytes, and 10m, 20k will
+           create a digest when either 10 messages or 20 kilobytes
+           of message data have been collected.  The default is no
+           minimum.
+
+maxsizes - The maximum size of digest that will be created.  Specify
+           either messages or kilobytes or both as with minsizes.  The
+           default is no maximum.
+
+maxage   - If an article is older than this, a digest will be created
+           even if enough messages have not been collected.  This
+           prevents messages from becoming "stale" on low traffic
+           lists.  Specify hours like 12h, days like 4d and weeks like
+           2w.  The default is no maximum age.
+
+separate - The minimum amount of time that separates digests.  When
+           messages come in quickly, or when a body of messages builds
+           up during the times that digests are not allowed to be
+           generated, it is possible that there are too many messages
+           to be sent in a single digest and perhaps enough messages
+           to fill more than one digest.  To prevent multiple digests
+           from being generated too close to one another, set this to
+           some amound of time.  To generate as many digests as
+           necessary to clear out the backlog, leave this unset.
+
+minage   - A digest will not be created if it most recent article is
+           younger than this.  This is intended to prevent digest
+           creation in the middle of active discussion.  The default
+           is no minimum age.
+
+deftype -- This specifies the type of digest that new subscribers get
+           by default.  Currently only MIME and index digests are
+           supported.  The default is MIME.
 
 These settings take precedence in the following order:
 
@@ -1325,17 +1324,16 @@ These settings take precedence in the following order:
 Each digest is defined by two lines.  The first contains data in the
 following order, separated by vertical bars (\'|\') or colons:
 
-name    | minsizes | maxage | maxsizes | minage | separate | mime | time
+name    | times  | minsizes | maxsizes | maxage | separate | minage | deftype
 
 The second line holds a description of the digest.
 
 Here is an example, defining two digests:
 
-daily   | 20K, 5m  | 3d     | 40K, 10m |        | 1d       | no   | 23
+daily   | 23     | 20K, 5m  | 40K, 10m | 3d     | 1d       |        | mime
 The test-list daily digest
-weekly  | 20k, 5m  |        | 100k,30m |        |          | yes  | fr(23)
-The test-list weekly digest
-
+weekly  | fr(23) |20k, 5m   | 100k,30m |        |          |        | index
+The test-list weekly index
 EOC
    },
    'digest_index_format' =>

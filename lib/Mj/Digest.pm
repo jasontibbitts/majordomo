@@ -226,7 +226,7 @@ sub decide {
   # minmsg)
   return 0 unless !$p->{minsize} || $s->{bytecount} >= $p->{minsize};
 
-  return 0 unless scalar(@{$s->{messages}}) >= $p->{minmsg};
+  return 0 unless !$p->{minmsg} || scalar(@{$s->{messages}}) >= $p->{minmsg};
 
   # Check newest message; bail if not old enough (minage)
   return 0 unless !$p->{minage} || ($time - $s->{newest}) >= $p->{minage};
@@ -360,7 +360,10 @@ sub _close_state {
     return;
   }
   
-  $self->{'datafh'}->print(Dumper($data));
+  {
+    local $Data::Dumper::Purity = 1;
+    $self->{'datafh'}->print(Dumper($data));
+  }
   $self->{'datafh'}->commit;
 }
 
