@@ -20,12 +20,10 @@ during changes.
 
 package Mj::SimpleDB::Text;
 use Mj::SimpleDB::Base;
-use IO::File;
 use Mj::File;
 use Mj::Lock;
 use Mj::FileRepl;
 use Mj::Log;
-use Safe;
 use strict;
 use vars qw(@ISA $VERSION $safe);
 
@@ -58,11 +56,6 @@ sub new {
   $self->{lock} = $args{lockfile} || $self->{name};
   my $log  = new Log::In 200, "$self->{name}, $self->{lock}";
   $self->{fields} = $args{fields};
-
-  unless (defined($safe)) {
-    $safe = new Safe;
-    $safe->permit_only(qw(const leaveeval not null pushmark return rv2sv stub));
-  }
 
   $self;
 }
@@ -118,9 +111,8 @@ sub add {
 
   # Auto-create ourselves if we don't exist
   unless (-r $self->{'name'}) {
-    $fh   = new IO::File;
-    $fh->open($self->{'name'}, ">>");
-    $fh->close;
+    open(FH, ">>$self->{'name'}");
+    close(FH);
   }
   
   # Already locked, no need to lock again
@@ -386,9 +378,8 @@ sub get_start {
   # error if the file doesn't exist, and because we want a lock during the
   # entire operation.
   unless (-r $self->{'name'}) {
-    my $fh = new IO::File;
-    $fh->open($self->{'name'}, ">>");
-    $fh->close;
+    open(FH, ">>$self->{'name'}");
+    close(FH);
   }
 
   # Already locked
@@ -495,6 +486,7 @@ sub get_matching_quick {
   return @keys;
 }
 
+use Mj::Util qw(re_match);
 sub get_matching_quick_regexp {
   my $self  = shift;
   my $log   = new Log::In 121, "$self->{'name'}, @_";
@@ -508,7 +500,7 @@ sub get_matching_quick_regexp {
     last unless $key;
     ($key, $data) = split("\001", $key, 2);
     $data = $self->_unstringify($data);
-    if (defined($data->{$field}) && Majordomo::_re_match($value, $data->{$field})) {
+    if (defined($data->{$field}) && re_match($value, $data->{$field})) {
       push @keys, $key;
       next;
     }
@@ -554,6 +546,7 @@ sub get_matching {
   return @keys;
 }
 
+use Mj::Util qw(re_match);
 sub get_matching_regexp {
   my $self  = shift;
   my $count = shift;
@@ -567,7 +560,7 @@ sub get_matching_regexp {
     last unless $key;
     ($key, $data) = split("\001", $key, 2);
     $data = $self->_unstringify($data);
-    if (defined($data->{$field}) && Majordomo::_re_match($value, $data->{$field})) {
+    if (defined($data->{$field}) && re_match($value, $data->{$field})) {
       push @keys, ($key, $data);
       next;
     }
@@ -603,6 +596,7 @@ sub lookup_quick {
   return (split("\001",$out,2))[1];
 }
 
+use Mj::Util qw(re_match);
 sub lookup_quick_regexp {
   my $self = shift;
   my $reg  = shift;
@@ -616,7 +610,7 @@ sub lookup_quick_regexp {
   while (defined ($line = $fh->search($reg))) {
     chomp $line;
     ($key, $match) = split("\001", $line, 2);
-    if (Majordomo::_re_match($reg, $key)) {
+    if (re_match($reg, $key)) {
       return ($key, $match);
     }
     elsif ($wb) {
@@ -625,33 +619,6 @@ sub lookup_quick_regexp {
   }
   return;
 }
-
-# sub _re_match {
-#   my $re   = shift;
-#   my $addr = shift;
-#   my $match;
-#   return 1 if $re eq 'ALL';
-
-#   local($^W) = 0;
-#   $match = $Majordomo::safe->reval("'$addr' =~ $re");
-#   $::log->complain("_re_match error: $@") if $@;
-#   return $match;
-# }
-
-#  sub _re_match {
-#    my    $re = shift;
-#    local $_  = shift;
-#    my $match;
-#    return 1 if $re eq 'ALL';
-
-#    local($^W) = 0;
-#    $match = $safe->reval("$re");
-#    $::log->complain("_re_match error: $@\nstring: $_\nregexp: $re") if $@;
-#    if (wantarray) {
-#      return ($match, $@);
-#    }
-#    return $match;
-#  }
 
 1;
 
@@ -664,7 +631,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
