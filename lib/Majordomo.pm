@@ -423,7 +423,7 @@ sub dispatch {
       # Last resort; we found _nothing_ to call
      return [0, "No action implemented for $request->{'command'}"];
     }
-    if ($base_fun eq 'post' or $base_fun eq 'owner' and defined $out->[1]) {
+    if ($base_fun eq 'post' or $base_fun eq 'owner' and $out->[1]) {
       $request->{'user'} = $out->[1];
       $base_fun = "bounce" if ($base_fun eq 'owner');
     }
