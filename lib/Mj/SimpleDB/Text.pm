@@ -111,8 +111,10 @@ sub add {
 
   # Auto-create ourselves if we don't exist
   unless (-r $self->{'name'}) {
-    open(FH, ">>$self->{'name'}");
-    close(FH);
+    open (FH, ">>$self->{'name'}")
+      or $::log->abort("Unable to open file $self->{'name'}: $!");
+    close (FH)
+      or $::log->abort("Unable to close file $self->{'name'}: $!");
   }
   
   # Already locked, no need to lock again
@@ -378,8 +380,10 @@ sub get_start {
   # error if the file doesn't exist, and because we want a lock during the
   # entire operation.
   unless (-r $self->{'name'}) {
-    open(FH, ">>$self->{'name'}");
-    close(FH);
+    open (FH, ">>$self->{'name'}")
+      or $::log->abort("Unable to open file $self->{'name'}: $!");
+    close (FH)
+      or $::log->abort("Unable to close file $self->{'name'}: $!");
   }
 
   # Already locked

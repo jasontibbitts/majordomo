@@ -131,9 +131,11 @@ sub done {
 
   $file = Majordomo::tempname();
   $fh = new IO::File ">$file";
+  $::log->abort("Unable to open file $file: $!") unless ($fh);
 
   $self->{top}->print($fh);
-  $fh->close;
+  $fh->close()
+    or $::log->abort("Unable to close file $file: $!");
   $file;
 }
 

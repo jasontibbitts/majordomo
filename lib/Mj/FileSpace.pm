@@ -213,7 +213,7 @@ sub put {
   my $lang = shift || 'en';
   my $perm = shift || "Rw";
   my $log  = new Log::In 120, "$src, $file";
-  my ($path, $oldperm, $data);
+  my ($path, $oldperm, $data, $fh);
 
   # Check for legal name
   return (0, "Illegal file name.")
@@ -239,8 +239,11 @@ sub put {
   # Else were weren't passed a file, so we just make sure the destination
   # exists.
   else {
-    open BLAH, ">>$path";
-    close BLAH;
+    $fh = gensym();
+    open ($fh, ">>$path")
+      or $::log->abort("Unable to open file $path: $!");
+    close ($fh)
+      or $::log->abort("Unable to close file $path: $!");
   }
   # Add database info
   $data =
@@ -274,7 +277,8 @@ sub putdata {
     $data->{$i} = '' unless defined $data->{$i};
     print $fh "$data->{$i}\n";
   }
-  close $fh;
+  close ($fh)
+    or $::log->abort("Unable to close file $name: $!");
 }
 
 =head2 put_start, put_chunk, put_done
@@ -356,7 +360,8 @@ sub put_chunk {
 sub put_done {
   my $self = shift;
   return unless $self->{'fh'};
-  close $self->{'fh'};
+  close ($self->{'fh'})
+    or $::log->abort("Unable to close file: $!");
   $self->{'fh'} = undef;
   1;
 }
@@ -493,7 +498,7 @@ sub _empty_dir {
 
   opendir ($dirh, $dir) 
     or return (0, qq(Cannot open directory "$dir": $!\n));
-  while ($file = readdir($dirh)) {
+  while (defined($file = readdir($dirh))) {
     next if ($file eq '.' or $file eq '..');
     $file =~ /(.*)/; $file = $1;
 

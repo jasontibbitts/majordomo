@@ -138,7 +138,9 @@ sub send {
   $log->abort("Sending unaddressed envelope") unless $self->{'addressed'};
   $log->abort("Sending empty envelope")       unless $self->{'file'};
   $self->{'addfile'}->print( "\00");
-  $self->{'addfile'}->close;
+  $self->{'addfile'}->close()
+    or $::log->abort("Unable to close file $self->{'addname'}: $!");
+
   if ($pid = fork()) {
     waitpid $pid,0;
     unlink $self->{'addname'};

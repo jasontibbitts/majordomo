@@ -120,8 +120,10 @@ sub open {
   # We have a lock now; the file is ours to do with as we please.
   # First, create the old file if it doesn't exist.
   unless (-f $name) {
-    $self->{'oldhandle'}->open(">> $name");
-    $self->{'oldhandle'}->close;
+    $self->{'oldhandle'}->open(">> $name")
+      or $::log->abort("Unable to open file $name: $!");
+    $self->{'oldhandle'}->close()
+      or $::log->abort("Unable to close file $name: $!");
   }
   # Now get down to business
   $self->{'oldhandle'}->open("+< $name") ||

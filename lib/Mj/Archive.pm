@@ -305,7 +305,8 @@ sub add_done {
   $self->{'indices'}{$arc}->add("", $msgno, $data);
   
   # Close the archive
-  $fh->close;
+  $fh->close()
+    or $::log->abort("Unable to close archive $arc: $!");
 
   # Return the message number - yyyymmdd/#####
   ("$arc/$msgno", $data);
@@ -577,7 +578,8 @@ sub _sync_msgs {
       # If a message has been seen, close the temporary file
       # and update the index.
       if ($seen) {
-        $tmpfh->close;
+        $tmpfh->close() 
+          or $::log->abort("Unable to close file $tmpfile: $!");
         $entity = $parser->parse_open($tmpfile);
         return (0, "Unable to parse mailbox.\n") unless $entity;
         $arcnum = $entity->head->get("X-Archive-Number");
@@ -616,7 +618,8 @@ sub _sync_msgs {
     $tmpfh->print($line);
   }
   $mbox->commit;
-  $tmpfh->close;
+  $tmpfh->close()
+    or $::log->abort("Unable to close file $tmpfile: $!");
   unlink $tmpfile;
 
   ($seen, @out);
@@ -743,7 +746,7 @@ sub get_to_file {
   my $fh =   new IO::File ">$file";
   my $chunk;
 
-  return unless $fh;
+  $::log->abort("Unable to open file $file: $!") unless ($fh);
   return unless (defined $self->{'get_handle'});
 
   if ($skip) {
@@ -754,7 +757,8 @@ sub get_to_file {
     $fh->print($chunk);
   }
   $self->get_done;
-  $fh->close;
+  $fh->close()
+    or $::log->abort("Unable to close file $file: $!");
   ($data, $file);
 }
 
@@ -1261,7 +1265,8 @@ sub _read_counts {
     $tmp = $fh->getline;
     chomp $tmp;
     $self->{splits}{$file}{msgs} = $tmp;
-    $fh->close;
+    $fh->close()
+      or $::log->abort("Unable to close file C$list.$file: $!");
   }
   else {
     $self->{'splits'}{$file}{bytes} = 0;    
@@ -1291,7 +1296,8 @@ sub _write_counts {
     $log->abort("Can't write count file $dir/.index/C$list.$file: $!");
   $fh->print("$self->{splits}{$file}{msgs}\n") ||
     $log->abort("Can't write count file $dir/.index/C$list.$file: $!");
-  $fh->close;
+  $fh->close()
+    or $::log->abort("Unable to close file C$list.$file: $!");
 }
 
 =head2 _make_index

@@ -686,8 +686,9 @@ sub t_accept {
 
     my ($file) = $self->_list_file_get($data->{'list'}, $rf);
     $file = $self->substitute_vars($file, $repl);
-    my $fh = new Mj::File "$file"
-      or $log->abort("Cannot read file $file, $!");
+    my $fh = new Mj::File "$file";
+    $log->abort("Cannot read file $file, $!") unless ($fh);
+
     while (defined ($line = $fh->getline)) {
       $mess .= $line;
     }
@@ -801,7 +802,8 @@ sub t_accept {
       print $outfh "\n$comment\n";
     }
 
-    close $outfh;
+    close ($outfh)
+      or $::log->abort("Unable to close file $tmp: $!");
 
     $self->_get_mailfile($data->{'list'}, $data->{'victim'}, 
                          'fulfill', $tmp, %file)

@@ -146,7 +146,7 @@ sub close {
     log_abort("Mj::File::close called on unopened handle");
   }
   
-  $self->{handle}->close || $::log->abort("Couldn't close $self, $!");
+  $self->{handle}->close() || $::log->abort("Unable to close $self: $!");
   $self->{'open'} = 0;
 
   $self->{lock}->unlock if $self->{lock};

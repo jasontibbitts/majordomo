@@ -103,7 +103,8 @@ sub mail_entity {
   $fh = gensym();
   open ($fh, "> $tmpfile") || $::log->abort("Can't open $tmpfile, $!");
   $entity->print($fh);
-  close $fh;
+  close ($fh)
+    or $::log->abort("Unable to close file $tmpfile: $!");
 
   if ($self->mail_message($sender, $tmpfile, @addrs)) {
     unlink ($tmpfile) || $::log->abort("Can't unlink $tmpfile, $!");
@@ -267,7 +268,8 @@ sub owner_done {
   my (@owners, $badaddr, $handled, $sender, $user);
   $badaddr = '';
 
-  close $self->{'owner_fh'};
+  close ($self->{'owner_fh'})
+    or $::log->abort("Unable to close file $self->{'owner_file'}: $!");
   $self->_make_list($request->{'list'});
 
   # Call bounce handling routine
@@ -314,8 +316,8 @@ sub welcome {
   my $addr = shift;
   my %args = @_;
   my $log = new Log::In 150, "$list, $addr";
-  my (%file, @mess, @temps, $count, $head, $file, $final, $subj, $subs,
-      $top, $i, $j);
+  my (%file, @mess, @temps, $count, $fh, $file, $final, $head,
+      $i, $j, $subj, $subs, $top);
 
   # Extract some necessary variables from the config files
   my $tmpdir    = $self->_global_config_get('tmpdir');
@@ -389,10 +391,12 @@ sub welcome {
     }
 
     $final = "$tmpdir/mj-tmp." . Majordomo::unique();
-    open FINAL, ">$final" ||
+    $fh = gensym();
+    open ($fh, ">$final") ||
       $::log->abort("Cannot open file $final, $!");
-    $top->print(\*FINAL);
-    close FINAL;
+    $top->print($fh);
+    close ($fh) or
+      $::log->abort("Unable to close file $final: $!");
     push @temps, $final;
     $self->mail_message($sender, $final, $addr);
   }

@@ -553,7 +553,8 @@ EOM
         print $fh "    $_->[1] $_->[2]\n";
       }
       print $fh "-- Original message omitted --\n";
-      close $fh;
+      close($fh)
+        or $::log->abort("Unable to close file $self->{'file'}: $!");
 
       # reinitialize using temporary values and send the message.
       if (lc($self->{'activehosts'}[$ch]) eq '@qmail') {
