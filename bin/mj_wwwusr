@@ -197,7 +197,7 @@ if ($func eq 'logout') {
     Mj::Format::cgidata($mj, { 'password' => '',
                                'user'     => $user });
 
-  &usage($mj, $subs, 'You have successfully signed out.');
+  &usage($mj, $cgi, $subs, 'You have successfully signed out.', '');
 }
 elsif ($func eq 'login') {
   $subs->{'COMMAND'} = 'welcome';
@@ -210,7 +210,7 @@ if ($func eq 'archive' and $mode =~ /get/ and ! $raw) {
 
 # Make sure the command is valid
 unless (exists $commands{$func}) {
-  &usage($mj, $subs, qq(The "$func" command is not supported.));
+  &usage($mj, $cgi, $subs, qq(The "$func" command is not supported.), '');
 }
 
 #----- Address check -----#
@@ -251,14 +251,16 @@ else {
 }
 
 if ($ofunc eq 'welcome') {
-  &usage($mj, $subs, '');
+  $tmp = $cgi->param('doc') || '';
+  &usage($mj, $cgi, $subs, '', $tmp);
 }
 
 #----- List check -----#
 @lists   = $cgi->param('list');
 if ($commands{$func}->[2] and ! scalar @lists) {
-  &usage($mj, $subs, 
-         qq(A mailing list must be provided to use the "$func" command.));
+  &usage($mj, $cgi, $subs, 
+         qq(A mailing list must be provided to use the "$func" command.),
+         '');
 }
 $lists[0] ||= 'GLOBAL';
   
@@ -345,7 +347,8 @@ for $list (@lists) {
   }
 
   $result = $mj->dispatch($request); 
-  &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
+  &usage($mj, $cgi, $subs, "Unable to obtain result from Majordomo.") 
+    unless $result;
 
   # Display part of a message when the archive-get-part command is used.
   if ($raw) {
@@ -396,7 +399,7 @@ if ($commands{$func}->[3] ne $func and $ofunc ne 'set-check') {
     for $list (@lists) {
       $request->{'regexp'} = $list;
       $result = $mj->dispatch($request); 
-      &usage($mj, $subs, "Unable to obtain result from Majordomo.") 
+      &usage($mj, $cgi, $subs, "Unable to obtain result from Majordomo.", '') 
         unless $result;
       &Mj::Format::lists($mj, \*STDOUT, \*STDOUT, 'wwwusr', $request, $result);
     }
@@ -406,7 +409,7 @@ if ($commands{$func}->[3] ne $func and $ofunc ne 'set-check') {
     $request->{'mode'} = '';
     $request->{'list'} = 'GLOBAL';
     $result = $mj->dispatch($request); 
-    &usage($mj, $subs, "Unable to obtain result from Majordomo.") 
+    &usage($mj, $cgi, $subs, "Unable to obtain result from Majordomo.", '') 
       unless $result;
     &Mj::Format::lists($mj, \*STDOUT, \*STDOUT, 'wwwusr', $request, $result);
   }
@@ -414,12 +417,12 @@ if ($commands{$func}->[3] ne $func and $ofunc ne 'set-check') {
     $func = $request->{'command'} = 'show';
     $request->{'mode'} = '';
     $result = $mj->dispatch($request); 
-    &usage($mj, $subs, "Unable to obtain result from Majordomo.") 
+    &usage($mj, $cgi, $subs, "Unable to obtain result from Majordomo.", '') 
       unless $result;
     &Mj::Format::show($mj, \*STDOUT, \*STDOUT, 'wwwusr', $request, $result);
   }
   elsif ($commands{$func}->[3] eq 'welcome') {
-    &usage($mj, $subs, '');
+    &usage($mj, $cgi, $subs, '', '');
   }
   elsif ($commands{$func}->[3] eq 'login') {
     &login($mj, $subs, '', 0);
@@ -485,7 +488,7 @@ sub login {
 }
 
 sub usage {
-  my ($mj, $subs, $message) = @_;
+  my ($mj, $cgi, $subs, $message, $helpfile) = @_;
   my ($str, $tmp);
 
   $subs->{'ERROR'} = Mj::Format::escape($message);
@@ -496,7 +499,14 @@ sub usage {
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 
-  $tmp = $mj->format_get_string('wwwusr', 'welcome');
+  $tmp = '';
+  if (defined $helpfile and length $helpfile) {
+    $tmp = $mj->format_get_string('wwwusr', "welcome_$helpfile");
+  }
+
+  unless (defined $tmp and length $tmp) {
+    $tmp = $mj->format_get_string('wwwusr', 'welcome');
+  }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 

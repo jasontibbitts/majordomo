@@ -173,7 +173,8 @@ unless (exists $commands{$func}) {
 }
 
 if ($func eq 'welcome') {
-  &usage($mj, $cgi, $subs, '');
+  $tmp = $cgi->param('doc') || '';
+  &usage($mj, $cgi, $subs, '', $tmp);
 }
 elsif ($func eq 'login') {
   &login($mj, $cgi, $subs, '');
@@ -285,7 +286,7 @@ sub login {
 }
 
 sub usage {
-  my ($mj, $cgi, $subs, $message) = @_;
+  my ($mj, $cgi, $subs, $message, $helpfile) = @_;
   my ($str, $tmp);
 
   print $cgi->header();
@@ -295,8 +296,15 @@ sub usage {
   $tmp = $mj->format_get_string('wwwconfirm', 'head');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
-  
-  $tmp = $mj->format_get_string('wwwconfirm', 'welcome');
+
+  $tmp = ''; 
+  if (defined $helpfile and length $helpfile) {
+    $tmp = $mj->format_get_string('wwwconfirm', "welcome_$helpfile");
+  }
+
+  unless (defined $tmp and length $tmp) {
+    $tmp = $mj->format_get_string('wwwconfirm', 'welcome');
+  }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
 
