@@ -11,20 +11,17 @@ blah
 This contains code to implement the abstract Majordomo database API using a
 PostgreSQL database.  The DBI module is used
 
-Note that unlike SimpleDB::Text.pm, this module doesn''t delete empty
-databases.  That opens up a very nasty set of race conditions.  
-
 =cut
 
 package Mj::SimpleDB::Pg;
-use Mj::SimpleDB::Base;
-use DBI;
+use Mj::SimpleDB::SQL;
 use Mj::Lock;
 use Mj::Log;
+use DBI;
 use strict;
-use vars qw(@ISA $VERSION $safe);
+use vars qw(@ISA $VERSION $safe $dbh);
 
-@ISA=qw(Mj::SimpleDB::Base);
+@ISA=qw(Mj::SimpleDB::SQL);
 $VERSION = 1;
 
 =head2 new(path, lockpath, field_list_ref)
@@ -44,36 +41,35 @@ sub new {
   my $self = {};
   bless $self, $class;
 
-  $self->{backend}  = 'DB';
-  $self->{filename} = $args{filename};
-  $self->{lockfile} = $args{lockfile} || $self->{filename};
+  $self->{backend}  = 'Pg';
   $self->{fields}   = $args{fields};
-  $self->{compare}  = $args{compare};
 
-  my $log  = new Log::In 200, "$self->{filename}, $self->{lockfile}";
+  # We parse what we need from the filename XXX
+  # work for the DBs in the list dir, but not for the ones in the files/ directory
+  if ($args{filename} =~ m/\/([^\/]+)\/([^\/]+)\/([^\/]+)$/) {
+    $self->{domain} = $1;
+    $self->{list} = $2;
+    $self->{file} = $3;
+    $self->{filename} = "$self->{domain}, $self->{list}, $self->{file}";
+  } else {
+    warn "Problem parsing filename $self->{filename}";
+  }
 
-  # Now allocate the database bits.
-  if ($self->{compare}) {
-    $self->{dbtype} = new DB_File::BTREEINFO;
-    $self->{dbtype}{compare} = $self->{compare};
-  }
-  else {
-    $self->{dbtype} = new DB_File::HASHINFO;
-  }
+  my $log  = new Log::In 200, "$self->{filename}";
 
   $self;
 }
 
 sub _make_db {
   my $self = shift;
-  my (%db, $db);
 
-  # Now grab the DB object.  We don't care about the hash we're tying to,
-  # because we're going to save the speed hit and use the API directly.
-  # $db = tie %db, 'DB_File', $self->{filename},
-  #                        O_RDWR|O_CREAT, 0666, $self->{dbtype};
-  warn "Problem allocating database" unless $db;
-  $db;
+  unless (defined $dbh) {
+    $dbh = DBI->connect("dbi:Pg:dbname=majordomo", "majordomo", "majordomo", {PrintError => 0, RaiseError => 0, AutoCommit => 0});
+    warn "Problem allocating database" unless $dbh;
+    $dbh;
+  } else {
+    $dbh;
+  }
 }
 
 =head2 DESTROY
@@ -86,10 +82,39 @@ size.
 
 sub DESTROY {
   my $self = shift;
-  my $log  = new Log::In 200, $self->{filename};
-  undef $self->{get_handle};
-  undef $self->{get_lock};
-  undef $self->{db};
+  my $log  = new Log::In 200, "$self->{filename}";
+}
+
+sub put {
+  my $self = shift;
+  my $db   = shift;
+  my $key  = shift;
+  my $argref = shift;
+  my $flag = shift || 0;
+  my $log    = new Log::In 200, "$self->{filename}, $key, $argref, $flag";
+
+  my $exist = $db->do("SELECT key FROM $self->{file} WHERE domain = ? AND list = ? AND key = ? FOR UPDATE",
+		      undef,
+		      $self->{domain}, $self->{list}, $key);
+
+  if ($exist == 0) {
+    my $r = $db->do("INSERT INTO $self->{file} (domain, list, key, ".
+		     join(",", @{$self->{fields}}).
+		     ") VALUES (?, ?, ?, ".
+		     join(", ", map { "?" } @{$self->{fields}}).
+		     ")", undef, $self->{domain}, $self->{list}, $key, 
+		    @{%$argref}{@{$self->{fields}}});
+
+    return (defined($r) ? 0 : 1);
+  } elsif ($exist and $flag == 0) {
+    my $r = $db->do("UPDATE $self->{file} SET ".
+		     join(", ", map { "$_ = ? " } @{$self->{fields}}).
+		     " WHERE domain = ? AND list = ? AND key = ?", undef,
+		    @{%$argref}{@{$self->{fields}}}, $self->{domain}, $self->{list}, $key);
+		  
+    return (defined($r) ? 0 : -1);
+  }
+  return 1;
 }
 
 =head2 add(mode, key, datahashref)
@@ -115,30 +140,36 @@ sub add {
 
   # Grab a lock up front; this elminiates the race between creation and
   # opening.
-  my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
+#  my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
 
   $db = $self->_make_db;
   return 0 unless $db;
 
-  $flags = 0; # $flags = R_NOOVERWRITE unless $mode =~ /force/;
-  $status = $db->put($key, $self->_stringify($argref), $flags);
+  $db->begin_work();
+  
+  $flags = 0; $flags = 1 unless $mode =~ /force/;
+  $status = $self->put($db, $key, $self->_stringify($argref), $flags);
 
   # If success...
   if ($status == 0) {
     $done = 1;
+    $db->commit();
   }
-  # If the key existed and NOOVERWEITE was given...
+  # If the key existed and flag = 1 was given...
   elsif ($status > 0) {
     $data = $self->_lookup($db, $key);
     $done = 0;
+    $db->rollback();
   }
   # Else it just bombed
   else {
     $done = 0;
+    $db->rollback();
   }
 
   ($done, $data);
 }
+
 
 =head2 remove(mode, key)
 
@@ -150,56 +181,79 @@ mode=~/regex/, the key is taken as a regular expression.
 This returns a list of (keys, data) pairs that were removed.
 
 =cut
+use Mj::Util qw(re_match);
 sub remove {
   my $self = shift;
   my $mode = shift;
   my $key  = shift;
   my $log  = new Log::In 120, "$self->{filename}, $mode, $key";
 
-  my (@nuke, @out, $data, $db, $fh, $match, $status, $try, $value, @deletions);
+  my (@out, $data, $db, $fh, $match, $status, $try, @deletions, $sth);
   $db = $self->_make_db;
   return unless $db;
-
-  my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
 
   # First, take care of the simple case.  Note that we don't allow
   # duplicates, but if we did there would be a problem with the del method
   # automatically removing all keys present.
   if ($mode !~ /regex/) {
     # Perhaps the key exists; look it up
+    $db->begin_work();
     $data = $self->_lookup($db, $key);
 
-    # If we got something, delete and return it.
+    # If we got something, delete, commit the transaction and return the old value.
     if ($data) {
-      $status = $db->del($key);
+      $sth = $db->prepare_cached("DELETE FROM $self->{file} WHERE domain = ? AND list = ? AND key = ?");
+      $status = $sth->execute($self->{domain}, $self->{list}, $key);
+      $sth->finish();
+      $db->commit();
       return ($key, $data);
     }
+    # if we did not, just rollback the transaction, as it was useless...
+    $db->rollback();
     return;
   }
 
   # So we're doing regex processing, which means we have to search.
-  # SimpleDB::Text can make use of lookup and lookup_regexp but we can't
-  # rely on the stability of the cursor across a delete.
-  $try = $value = 0;
-  for ($status = $db->seq($try, $value, R_FIRST);
-       $status == 0;
-       $status = $db->seq($try, $value, R_NEXT)
-      )
-    {
-      if (_re_match($key, $try)) {
-        push @deletions, $try;
-        push @out, ($try, $self->_unstringify($value));
-        last if $mode !~ /allmatching/;
-      }
-    }
+  # SimpleDB::Text can make use of lookup and lookup_regexp but we cannot*
+  # just delete one entry with sql.
   
-  for $try (@deletions) {
-    $db->del($try);
+  $db->begin_work();
+
+  $sth = $db->prepare_cached("SELECT key, ".
+			      join(",", @{$self->{fields}}).
+			      " FROM $self->{file} WHERE domain = ? AND list = ? FOR UPDATE");
+
+  $sth->execute($self->{domain}, $self->{list});
+  
+  for ($data = $sth->fetchrow_hashref;
+       defined($data);
+       $data = $sth->fetchrow_hashref) {
+    $try = delete $data->{key};
+    if (re_match($key, $try)) {
+      push @deletions, $try;
+      push @out, ($try, $data);
+      last if $mode !~ /allmatching/;
+    }
   }
 
+  $sth->finish();
+
+  $sth = $db->prepare_cached("DELETE FROM $self->{file} WHERE domain = ? AND list = ? AND key = ?");
+  
+  for $try (@deletions) {
+    $sth->execute($self->{domain}, $self->{list}, $try)
+  }
+  
+  $sth->finish();
+
+  # if there were some row found, commit the transaction and return the old values
   if (@out) {
+    $db->commit();
     return @out;
   }
+
+  # if we did not, just rollback the transaction, as it was useless...
+  $db->rollback();
   
   $log->out("failed");
   return;
@@ -211,7 +265,7 @@ This replaces the value of a field in one or more rows with a different
 value.  The mode parameter controls how this operates.  If mode=~/regex/,
 key is taken as a regular expression, otherwise it is taken as the key to
 modify.  If mode=~/allmatching/, all matching rows are modified, else only
-the first is.
+$db, the first is.
 
 If field is a hash reference, it is used as the hash of data and values.
 If field is a code reference, it is executed (with the data hash available
@@ -227,15 +281,14 @@ sub replace {
   my $key   = shift;
   my $field = shift;
   my $value = shift;
-  my (@out, $i, $k, $match, $data, $status, $v, @changes);
-  $value = "" unless defined $value;
-  my $log = new Log::In 120, "$self->{filename}, $mode, $key, $field, $value";
+  my (@out, $i, $k, $match, $data, $v, @changes, $sth);
+  my $log = new Log::In 120, "$self->{filename}, $mode, $key, $field, ".defined($value)? $value :"<undef>";
   my $db  = $self->_make_db;
   return unless $db;
-  my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
 
   # Take care of the easy case first.  Note that we don't allow duplicates, so there's no need to loop nere.
   if ($mode !~ /regex/) {
+    $db->begin_work();
     $data = $self->_lookup($db, $key);
     return unless $data;
     # Update the value, and the record.
@@ -248,49 +301,57 @@ sub replace {
     else {
       $data->{$field} = $value;
     }
-    $db->put($key, $self->_stringify($data));
+    $self->put($db, $key, $self->_stringify($data));
+    $db->commit();
     return ($key);
   }
 
-  # So we're doing regex processing, which means we have to search.
-  $k = $v = 0;
-  for ($status = $db->seq($k, $v, R_FIRST);
-       $status == 0;
-       $status = $db->seq($k, $v, R_NEXT)
-      )
-    {
-      if (_re_match($key, $k)) {
-	if (ref($field) eq 'HASH') {
-	  $data = $field;
-	}
-	elsif (ref($field) eq 'CODE') {
-	  $data = $self->_unstringify($v);
-	  $data = &$field($data);
-	}
-	else {
-	  $data = $self->_unstringify($v);
-	  $data->{$field} = $value;
-	}
+  $db->begin_work();
 
-	# For some DB implementations, changing the data affects the
-	# cursor.  Work around this by saving keys and values.
-	# An ordinary array is used because DB key/value pairs are
-	# not necessarily unique.
-        push @changes, $k, $self->_stringify($data);
-        push @out, $k;
-        last if $mode !~ /allmatching/;
+  # So we're doing regex processing, which means we have to search.
+  $sth = $db->prepare_cached("SELECT key, ".
+			      join(",", @{$self->{fields}}).
+			      " FROM $self->{file} WHERE domain = ? AND list = ? FOR UPDATE");
+
+  $sth->execute($self->{domain}, $self->{list});
+  
+  for ($data = $sth->fetchrow_hashref;
+       defined($data);
+       $data = $sth->fetchrow_hashref) {
+    $k = delete $data->{key};
+    if (re_match($key, $k)) {
+      if (ref($field) eq 'HASH') {
+	$data = $field;
       }
+      elsif (ref($field) eq 'CODE') {
+	$data = &$field($data);
+      }
+      else {
+	$data->{$field} = $value;
+      }
+
+      # For some DB implementations, changing the data affects the
+      # cursor.  Work around this by saving keys and values.
+      # An ordinary array is used because DB key/value pairs are
+      # not necessarily unique.
+      push @changes, $k, $self->_stringify($data);
+      push @out, $k;
+      last if $mode !~ /allmatching/;
     }
-  for ($i = 0; defined($changes[$i]); $i+=2) {
-    $db->del($changes[$i]);
   }
+
+  $sth->finish();
+  
   while (($k, $v) = splice(@changes, 0, 2)) {
-    $db->put($k, $v);
+    $self->put($db, $k, $v);
   }
 
   if (@out) {
+    $db->commit();
     return @out;
   }
+
+  $db->rollback();
 
   $log->out("failed");
   return;
@@ -321,62 +382,73 @@ sub mogrify {
   my $code = shift;
   my $log  = new Log::In 120, "$self->{filename}";
   my (@new, $changed, $changedata, $changekey, $data, $encoded, $k,
-      $newkey, $status, $v, @deletions);
+      $newkey, $v, @deletions, $sth);
   my $db = $self->_make_db;
   return unless $db;
-  my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
   $changed = 0;
+
+  $db->begin_work();
+
+  $sth = $db->prepare_cached("SELECT key, ".
+			      join(",", @{$self->{fields}}).
+			      " FROM $self->{file} WHERE domain = ? AND list = ?");
+
+  $sth->execute($self->{domain}, $self->{list});
   
-  $k = $v = 0;
  RECORD:
-  for ($status = $db->seq($k, $v, R_FIRST);
-       $status == 0;
-       $status = $db->seq($k, $v, R_NEXT)
-      ) 
-    {
-      # Extract the data and call the coderef
-      $data = $self->_unstringify($v);
-      ($changekey, $changedata, $newkey) = &$code($k, $data);
+  for ($data = $sth->fetchrow_hashref;
+       defined($data);
+       $data = $sth->fetchrow_hashref) {
+    # Extract the data and call the coderef
+    $k = delete $data->{key};
+    $v = $data;
+    ($changekey, $changedata, $newkey) = &$code($k, $data);
 
-      # If we have nothing to change, go on
-      unless ($changekey || $changedata) {
-	next RECORD;
-      }
-
-      # So we must change something
-      $changed++;
-
-      # Encode the data hash; if nothing changed, we don't have to
-      # reflatten it
-      if ($changedata) {
-	$encoded = $self->_stringify($data, ($changedata < 0));
-      }
-      else {
-	$encoded = $v;
-      }
-
-      # If the key must change, the old value must be deleted and the new
-      # one saved for later addition in order to prevent a possible loop,
-      # since if we add a key now we may come upon it later.  Otherwise we
-      # can just the new data onto the same key.  If the new key is
-      # undefined, we just delete the existing entry and save nothing for
-      # later.
-      if ($changekey) {
-	if (defined $newkey) {
-	  push @new, $newkey, $encoded;
-	}
-	push @deletions, $k;
-      }
-      else {
-	push @new, $k, $encoded; 
-      }
+    # If we have nothing to change, go on
+    unless ($changekey || $changedata) {
+      next RECORD;
     }
+
+    # So we must change something
+    $changed++;
+
+    # Encode the data hash; if nothing changed, we don't have to
+    # reflatten it
+    if ($changedata) {
+      $encoded = $self->_stringify($data, ($changedata < 0));
+    }
+    else {
+      $encoded = $v;
+    }
+
+    # If the key must change, the old value must be deleted and the new
+    # one saved for later addition in order to prevent a possible loop,
+    # since if we add a key now we may come upon it later.  Otherwise we
+    # can just the new data onto the same key.  If the new key is
+    # undefined, we just delete the existing entry and save nothing for
+    # later.
+    if ($changekey) {
+      if (defined $newkey) {
+	push @new, $newkey, $encoded;
+      }
+      push @deletions, $k;
+    }
+    else {
+      push @new, $k, $encoded; 
+    }
+  }
+
+  $sth->finish();
+
   for $k (@deletions) {
-    $status = $db->del($k);
+    $db->do("DELETE FROM $self->{file} WHERE domain = ? AND list = ? AND key = ?",
+	    undef,
+	    $self->{domain}, $self->{list}, $k);
   }
   while (($k, $v) = splice(@new, 0, 2)) {
-    $status = $db->put($k, $v);
+    my $aa = $self->put($db, $k, $v);
   }
+  $db->commit();
   $log->out("changed $changed");
 }
 
@@ -389,7 +461,6 @@ also returns the first element, we have a tiny bit of complexity in _get.
 sub get_start {
   my $self = shift;
 
-  $self->{get_lock}  = new Mj::Lock($self->{lockfile}, 'Shared');
   $self->{get_going} = 0;
   $self->{db} = $self->_make_db;
   return unless $self->{db};
@@ -399,7 +470,6 @@ sub get_start {
 sub get_done {
   my $self = shift;
   $self->{db}        = undef;
-  $self->{get_lock}  = undef;
   $self->{get_going} = 0;
 }
 
@@ -407,10 +477,10 @@ sub _get {
   my $self = shift;
   my($k, $v, $stat) = (0, 0);
   if ($self->{get_going}) {
-    $stat = $self->{db}->seq($k, $v, R_NEXT);
+    $stat = $self->{db}->seq($k, $v, 1); # next
   }
   else {
-    $stat = $self->{db}->seq($k, $v, R_FIRST);
+    $stat = $self->{db}->seq($k, $v, 1); # first
     $self->{get_going} = 1;
   }
   return unless $stat == 0;
@@ -584,7 +654,7 @@ sub get_matching_regexp {
   return @keys;
 }
 
-=head2 _lookup(db, key)
+=head2 _lookup(key)
 
 An internal lookup function that does no locking; essentially, it is
 db->get with unstringification of the result.
@@ -592,13 +662,23 @@ db->get with unstringification of the result.
 =cut
 sub _lookup {
   my($self, $db, $key) = @_;
-  my($status, $value, $data);
+  my $log   = new Log::In 201, "$self->{filename}, $key";
+  my($status);
 
-  $status = $db->get($key, $value);
-  if ($status == 0 && $value) {
-    $data = $self->_unstringify($value);
+  my $sth = $db->prepare_cached("SELECT ".
+				  join(",", @{$self->{fields}}).
+				  " FROM $self->{file} WHERE domain = ? AND list = ? AND key = ? FOR UPDATE");
+
+  $status = $sth->execute($self->{domain}, $self->{list}, $key);
+
+  if ($status) {
+    $status = $sth->fetchrow_hashref();
+    $sth->finish();
+    return $status;
+  } else {
+    $sth->finish();
+    return undef;
   }
-  $data;
 }
 
 
@@ -615,31 +695,25 @@ sub lookup_quick {
   unless ($key) {
     $::log->complain("SimpleDB::lookup_quick called with null key.");
   }
-  my $lock = new Mj::Lock($self->{lockfile}, 'Shared');
-  my $value = 0;
   my $db = $self->_make_db;
   return unless $db;
 
-  my $status = $db->get($key, $value);
-  if ($status != 0) {
-    return;
-  }
-  $value;
+  my $value = $self->_lookup($db, $key);
+  return $value;
 }
 
 sub lookup_quick_regexp {
   my $self = shift;
   my $reg  = shift;
-  my $lock = new Mj::Lock($self->{lockfile}, 'Shared');
   my $db   = $self->_make_db;
   return unless $db;
 
   my ($key, $match, $status, $value);
 
   $key = $value = '';
-  for ($status = $db->seq($key, $value, R_FIRST) ;
+  for ($status = $db->seq($key, $value, 1) ; # first
        $status == 0 ;
-       $status = $db->seq($key, $value, R_NEXT) )
+       $status = $db->seq($key, $value, 1) ) # next
     {
       if (_re_match($reg, $key)) {
 	return ($key, $value);
@@ -648,31 +722,22 @@ sub lookup_quick_regexp {
   return;
 }
 
-# sub _re_match {
-#   my $re   = shift;
-#   my $addr = shift;
-#   my $match;
-#   return 1 if $re eq 'ALL';
+sub _stringify {
+  my $self     = shift;
+  my $argref   = shift;
+  my $nochange = shift;
+  my $log   = new Log::In 201, "$self->{filename}, $argref, ".defined($nochange)?1:"";
 
-#   local($^W) = 0;
-#   $match = $Majordomo::safe->reval("'$addr' =~ $re");
-#   $::log->complain("_re_match error: $@") if $@;
-#   return $match;
-# }
+  # Supply defaults
+  $argref->{'changetime'} = time unless $nochange;
 
-sub _re_match {
-  my    $re = shift;
-  local $_  = shift;
-  my $match;
-  return 1 if $re eq 'ALL';
+  $argref;
+}
 
-  local($^W) = 0;
-  $match = $safe->reval("$re");
-  $::log->complain("_re_match error: $@\nstring: $_\nregexp: $re") if $@;
-  if (wantarray) {
-    return ($match, $@);
-  }
-  return $match;
+sub _unstringify {
+  my $self = shift;
+  my $string = shift;
+  $string;
 }
 
 1;
