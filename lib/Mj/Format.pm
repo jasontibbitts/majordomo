@@ -152,6 +152,9 @@ sub archive {
     $tmp = $mj->format_get_string($type, 'archive_none');
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
+    # reset the arcadmin flag.
+    $request->{'command'} = "archive_done";
+    $mj->dispatch($request);
     return 1;
   }
 
@@ -605,10 +608,14 @@ sub digest {
                  scalar @{$digest->{'messages'}} if ($digest->{'messages'});
       $comm .= sprintf "Minimum message count      %d\n", 
                  $digest->{'minmsg'} if ($digest->{'minmsg'});
-      $comm .= sprintf "Message total size         %d bytes\n", 
-                 $digest->{'bytecount'} if ($digest->{'bytecount'});
+      $comm .= sprintf "Maximum message count      %d\n", 
+                 $digest->{'maxmsg'} if ($digest->{'maxmsg'});
+      $comm .= sprintf "Minimum size of a digest   %d bytes\n", 
+                 $digest->{'minsize'} if ($digest->{'minsize'});
       $comm .= sprintf "Maximum size of a digest   %d bytes\n", 
                  $digest->{'maxsize'} if ($digest->{'maxsize'});
+      $comm .= sprintf "Message total size         %d bytes\n", 
+                 $digest->{'bytecount'} if ($digest->{'bytecount'});
       for $msgdata (@{$digest->{'messages'}}) {
         $comm .= sprintf "%-14s %s\n", $msgdata->[0], 
                    substr($msgdata->[1]->{'subject'}, 0, 62); 
@@ -630,7 +637,8 @@ sub intro {g_get("intro", @_)}
 sub help {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, $request->{'topic'};
-  my ($cgidata, $cgiurl, $chunk, $chunksize, $domain, $hwin, $tmp, $topic);
+  my ($cgidata, $cgiurl, $chunk, $chunksize, $domain, 
+      $hwin, $list, $tmp, $topic);
   my ($ok, $mess) = @$result;
 
   unless ($ok > 0) {
@@ -648,6 +656,7 @@ sub help {
 
   $cgidata = cgidata($mj, $request);
   $cgiurl = $request->{'cgiurl'};
+  $list = $request->{'list'};
   $domain = $mj->{'domain'};
 
   $request->{'command'} = "get_chunk";
@@ -659,7 +668,7 @@ sub help {
       $chunk = escape($chunk);
       $chunk =~ s/(\s{3}|&quot;)(help\s)(configset|admin|mj) (?=\w)/$1$2$3_/g;
       $chunk =~ 
-       s#(\s{3}|&quot;)(help\s)(\w+)#$1$2<a href="$cgiurl?\&${cgidata}\&func=help\&extra=$3"$hwin>$3</a>#g;
+       s#(\s{3}|&quot;)(help\s)(\w+)#$1$2<a href="$cgiurl?\&${cgidata}\&list=${list}\&func=help\&extra=$3"$hwin>$3</a>#g;
     }
     print $out $chunk;
   }
