@@ -1,3 +1,22 @@
+2002-11-08  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  Make use of the password_level and
+	make_list error files to replace some hard-coded English.
+
+	* lib/mj_cf_defs.pl:  Use the special "default" keyword
+	in welcome_files and farewell_files to support list-specific
+	language customizations by default.
+
+	* lib/Mj/List.pm:  Mark hard-coded English messages.
+
+	* lib/Mj/MailOut.pm:  (welcome)  Support the use of the 
+	"default" keyword in file descriptions to use the description
+	from the file space.  This allows per-list language
+	customizations to be supported by default.
+
+	* lib/Mj/Token.pm:  (t_gen)  Adjust the algorithm to avoid
+	character wrapping warnings.
+
 2002-10-22  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* setup/install_util.pl (copy_file): Fix precedence error causing

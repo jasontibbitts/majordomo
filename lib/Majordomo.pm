@@ -179,7 +179,7 @@ sub new {
   $basename = $domain;  
   $basename =~ s#.+/([^/\s]+)#$1#;
   if ($basename =~ /[^A-Za-z0-9\.\-]/) {
-    return qq(The domain name "$basename" is invalid.);
+    return qq(The domain name "$basename" is invalid.);  # XLANG
   }
 
   unless (-d $self->{'ldir'}) {
@@ -355,13 +355,13 @@ sub connect {
     # This assumes that there is only one process doing expiry, so our
     # directories can't be deleted twice.
     unless (mkdir($dir1, 0777)) {
-      warn "Can't mkdir $dir1: $!";
+      warn "Can't mkdir $dir1: $!";  # XLANG
     }
     unless (mkdir($dir2, 0777)) {
-      warn "Can't mkdir $dir2: $!";
+      warn "Can't mkdir $dir2: $!";  # XLANG
     }
     $log->abort("Can't write session file to $sfile, $!")
-      unless (open ($self->{sessionfh}, ">>$sfile"));
+      unless (open ($self->{sessionfh}, ">>$sfile"));  # XLANG
   }
 
   select((select($self->{sessionfh}), $| = 1)[0]);
@@ -470,7 +470,7 @@ sub dispatch {
 
   my $log  = new Log::In $level, "$request->{'command'}, $request->{'user'}";
 
-  $log->abort('Not yet connected!') unless $self->{'sessionid'};
+  $log->abort('Not yet connected!') unless $self->{'sessionid'}; # XLANG
 
   unless (function_legal($request->{'command'})) {
     return [0, $self->format_error('invalid_command', 'GLOBAL',
@@ -602,18 +602,28 @@ sub dispatch {
 
   # Check for suppression of logging and owner information
   if ($request->{'mode'} =~ /nolog/) {
-    # This is serious; user must use the master global password.
+    # This is serious; user must use a domain-level password.
     $ok = $self->validate_passwd($request->{'user'}, $request->{'password'},
 				                 'GLOBAL', 'ALL', 1);
-    return [0, "The given password is not sufficient to disable logging."]
-      unless $ok > 0; #XLANG
+    return [0, $self->format_error('password_level', $request->{'list'},
+                                   'MODE'    => 'nolog',
+                                   'SETTING' => '',
+                                   'LEVEL'   => $ok,
+                                   'NEEDED'  => 3,
+                                   'USER'    => "$request->{'user'}")]
+      unless $ok > 0;
     $over = 2;
   }
   elsif ($request->{'mode'} =~ /noinform/) {
     $ok = $self->validate_passwd($request->{'user'}, $request->{'password'},
                                  $request->{'list'}, 'config_inform');
-    return [0, "The given password is not sufficient to disable owner information."]
-      unless $ok > 0; #XLANG
+    return [0, $self->format_error('password_level', $request->{'list'},
+                                   'MODE'    => 'noinform',
+                                   'SETTING' => '',
+                                   'LEVEL'   => $ok,
+                                   'NEEDED'  => 1,
+                                   'USER'    => "$request->{'user'}")]
+      unless $ok > 0;
     $over = 1;
   }
   else {
@@ -841,7 +851,7 @@ to determine how a command is parsed.
 =cut
 
 sub gen_cmdline {
-  my ($request) = shift;
+  my $request = shift;
   my (@tmp, $arguments, $base, $cmdline, $hereargs, $variable);
 
   return unless (ref $request eq 'HASH');
@@ -1094,8 +1104,11 @@ sub substitute_vars {
 
   # always close the INPUT file
   close ($in);
-  # ONLY close the OUTPUT file at zero depth - else recursion gives 'print to closed file handle'
-  close ($out) if(!$depth); # it will automatically close itself when it goes out of scope
+  # Only close the OUTPUT file at zero depth - else recursion 
+  # gives a 'print to closed file handle' error.
+  # The file handle will be closed automatically when the variable goes 
+  # out of scope.
+  close ($out) if (!$depth); 
   $tmp;
 }
 
@@ -1690,7 +1703,7 @@ sub common_subs {
   for $tlist (@tmp) {
     return (0, $mess)
       unless (($list, undef, $mess) = $self->valid_list($tlist, 0, 1));
-    push @lists, $list unless ($list eq 'GLOBAL');
+    push (@lists, $list) unless ($list eq 'GLOBAL');
   }
 
   $self->{'reg'}->get_start;
@@ -1790,7 +1803,7 @@ sub s_expire {
 
   $dh = new DirHandle $dir;
 
-  while(defined($i = $dh->read)) {
+  while (defined($i = $dh->read)) {
     next if $i eq '.' or $i eq '..';
 
     # Untaint the filename, so we can delete it later
@@ -1931,6 +1944,7 @@ sub list_config_set {
   }
   unless ($ok >= $level) {
     return (0, $self->format_error('password_level', $request->{'list'},
+                                   'MODE'    => '',
                                    'SETTING' => $request->{'setting'},
                                    'LEVEL'   => $ok,
                                    'NEEDED'  => $level,
@@ -2087,8 +2101,8 @@ sub list_config_set_to_default {
   my ($self, $user, $passwd, $list, $sublist, $var) = @_;
   my (@groups, @out, $ok, $mess, $level);
 
-  return (0, "Unable to initialize list $list.\n")
-    unless $self->_make_list($list); #XLANG
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
+    unless $self->_make_list($list);
   return (0, "Unable to access configuration file $list:$sublist")
     unless $self->{'lists'}{$list}->valid_config($sublist); #XLANG
 
@@ -2115,6 +2129,7 @@ sub list_config_set_to_default {
     $self->validate_passwd($user, $passwd, $list, "config_$var");
   unless ($ok >= $level) {
     return (0, $self->format_error('password_level', $list,
+                                   'MODE'    => '',
                                    'SETTING' => $var,
                                    'LEVEL'   => $ok,
                                    'NEEDED'  => $level,
@@ -2546,7 +2561,7 @@ sub config_get_vars {
   $hidden = ($ok > 0) ? $ok : 0;
   @out = $self->{'lists'}{$list}->config_get_vars($var, $hidden,
                                                   ($list eq 'GLOBAL'));
-  $::log->out(($ok>0)?"validated":"not validated"); #XLANG
+  $::log->out(($ok > 0)? "validated" : "not validated"); #XLANG
   @out;
 }
 
@@ -2599,7 +2614,7 @@ sub _get {
   my $log = new Log::In 35, "$list, $name";
   my (%data, $cset, $desc, $enc, $file, $mess, $nname, $ok, $type);
 
-  return (0, "Unable to initialize list $list.\n") #XLANG
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
 
   # Untaint the file name
@@ -2611,7 +2626,7 @@ sub _get {
   }
 
   unless ($self->{'lists'}{$list}->fs_legal_file_name($nname)) {
-    return (0, qq(The path "/$name" is not valid.\n));
+    return (0, qq(The path "/$name" is not valid.\n)); # XLANG
   }
 
   ($file, %data) = $self->_list_file_get(list => $list, file => $nname);
@@ -2737,7 +2752,7 @@ sub _faq {
   my $log = new Log::In 35, "$list";
   my (%fdata, $file, $subs);
 
-  return (0, "Unable to initialize list $list.\n") #XLANG
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
 
   ($file, %fdata) = $self->_list_file_get(list => $list, file => 'faq');
@@ -2865,8 +2880,8 @@ sub _info {
   my $log = new Log::In 35, "$list";
   my (%fdata, $file, $subs);
 
-  return (0, "Unable to initialize list $list.\n")
-    unless $self->_make_list($list); #XLANG
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
+    unless $self->_make_list($list); 
 
   ($file, %fdata) = $self->_list_file_get(list => $list, file => 'info');
 
@@ -2919,8 +2934,8 @@ sub _intro {
   my $log = new Log::In 35, "$list";
   my (%fdata, $file, $subs);
 
-  return (0, "Unable to initialize list $list.\n")
-    unless $self->_make_list($list); #XLANG
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
+    unless $self->_make_list($list);
 
   ($file, %fdata) = $self->_list_file_get(list => $list, file => 'intro');
 
@@ -3108,8 +3123,8 @@ sub _put {
   ($type, $cset, $enc, $lang) = split("\002", $stuff);
 
   my $log = new Log::In 35, "$list, $file, $subj, $type, $cset, $enc, $lang";
-  return (0, "Unable to initialize list $list.\n")
-    unless $self->_make_list($list); #XLANG
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
+    unless $self->_make_list($list); 
 
   # If given an "absolute path", trim it, else stick "public/" onto it
   unless ($file =~ s!^/!!) {
@@ -3193,11 +3208,12 @@ sub _request_response {
   my (%file, $cset, $desc, $dom, $enc, $ent, $file, $hdr, $list_own,
       $mess, $sender, $subs, $type);
 
-  return unless $self->_make_list($list);
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
+    unless $self->_make_list($list);
 
   $dom = $self->_global_config_get('whereami');
   if ($victim->strip eq "$list-request\@$dom") {
-    return (0, "Loop detected.\n");
+    return (0, "Loop detected.\n");  # XLANG
   }
 
   ($file, %file) = $self->_list_file_get(list => $list,
@@ -3244,7 +3260,7 @@ sub _request_response {
     return (1, '');
   }
   else {
-    return (0, "Unable to create message entity.\n");
+    return (0, "Unable to create message entity.\n");  # XLANG
   }
 }
 
@@ -3273,8 +3289,7 @@ sub _index {
   my $log = new Log::In 35, "$list, $dir";
   my ($nodirs, $recurse);
 
-  # XLANG
-  return (0, "Unable to initialize list $list.\n")
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
 
   # If given an "absolute path", trim it, else stick "public/" onto it
@@ -3640,6 +3655,7 @@ sub valid_list {
   }
   if ($sublist) {
     unless (legal_list_name($sublist)) {
+      # XLANG
       return (undef, undef, qq(The sublist name "$sublist" is invalid.\n));
     }
   }
@@ -4015,7 +4031,7 @@ sub _announce {
   $tmpfile = "$tmpdir/mja" . unique();
   $fh = gensym();
   open ($fh, ">$tmpfile") ||
-    return(0, "Could not open temporary file, $!");
+    return(0, "Could not open temporary file, $!"); # XLANG
   $ent->print($fh);
   close ($fh)
     or $::log->abort("Unable to close file $tmpfile: $!");
@@ -4101,7 +4117,7 @@ sub archive_start {
   my (@tmp, $i, $mess, $ok, $out, $pattern, $type);
 
   return (0, "No dates or message numbers were supplied.\n")
-    unless ($request->{'mode'} =~ /summary/ or $request->{'args'});
+    unless ($request->{'mode'} =~ /summary/ or $request->{'args'}); # XLANG
 
   $request->{'part'} ||= 0;
 
@@ -4146,7 +4162,7 @@ sub archive_start {
   if ($request->{'mode'} =~ /delete|edit|replace|sync|hidden/) {
     return (0, "An administrative password is needed to alter the archive or view
 hidden messages.\n")
-      unless ($ok > 1);
+      unless ($ok > 1); # XLANG
   }
   $self->{'arcadmin'} = 1 if ($ok > 1);
 
@@ -4165,7 +4181,7 @@ sub _archive {
   my (@msgs, @patterns, @tmp, $arc, $data, $i, $j, $mess, $msg, $ok,
       $private, $re_pattern, $regex, $type);
   return 1 unless ($args or $mode =~ /summary/);
-  return (0, "Unable to initialize list $list.\n")
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
 
   # sync mode makes the message database correspond to the archive files.
@@ -4278,10 +4294,10 @@ sub archive_chunk {
       $j, $k, $line, $list, $ok, $out, $owner, $part);
 
   return (0, "The archive was not initialized.\n")
-    unless (exists $self->{'archct'});
+    unless (exists $self->{'archct'}); # XLANG
   return (1, "No messages were found which matched your request.\n")
-    if (scalar(@$result) <= 0);
-  return (0, "Unable to initialize list $request->{'list'}.\n")
+    if (scalar(@$result) <= 0); # XLANG
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $request->{'list'}))
     unless $self->_make_list($request->{'list'});
   $list = $self->{'lists'}{$request->{'list'}};
 
@@ -4388,13 +4404,14 @@ Contents:
     ($j, $k) = @{$result->[0]};
     ($ok, $out) = $list->archive_replace_msg($j, $self->{'spoolfile'}, $tmpdir);
     if ($ok) {
-      return (1, "Message $j has been replaced.\n");
+      return (1, "Message $j has been replaced.\n"); # XLANG
     }
     else {
-      return (0, "Part $request->{'part'} of message $j has not been replaced.\n$out\n");
+      return (0, "Part $request->{'part'} of message $j has not been replaced.\n$out\n"); # XLANG
     }
   }
   elsif ($request->{'mode'} =~ /part/) {
+    # XLANG
     return (0, undef) unless (exists $self->{'msg_data'});
 
     return (0, undef)
@@ -4445,7 +4462,9 @@ sub archive_done {
   delete $self->{'arcadmin'};
 
   if (exists $self->{'msg_parser'}) {
-    $self->{'msg_parser'}->filer->purge;
+    if (defined $MIME::Tools::VERSION and $MIME::Tools::VERSION >= 5) {
+      $self->{'msg_parser'}->filer->purge;
+    }
     delete $self->{'msg_parser'};
     delete $self->{'msg_data'};
   }
@@ -4537,7 +4556,7 @@ sub configshow {
     ($config) = $self->valid_list($request->{'config'}, 0, 1);
     unless ($config) {
       return (1, [0, "Invalid configuration name: $request->{'config'}",
-                  '', '']);
+                  '', '']); # XLANG
     }
     # Expose DEFAULT list settings in "merge" mode.
     $config = $request->{'list'} unless ($request->{'list'} =~ /^DEFAULT/);
@@ -4660,6 +4679,7 @@ sub _changeaddr {
       $over, $time, $tmp);
 
   if (($vict->canon eq $requ->canon) and ($vict->strip ne $requ->strip)) {
+    # XLANG
     return (0, $requ->full . " and " . $vict->full . " are aliases.\n");
   }
 
@@ -4667,6 +4687,7 @@ sub _changeaddr {
 
   unless ($key) {
     $log->out("failed, nomatching");
+    # XLANG
     return (0, "No address matched $vict->{'canon'}.\n");
   }
 
@@ -4750,6 +4771,7 @@ sub createlist {
   my ($mess, $ok);
 
   unless ($request->{'mode'} =~ /regen/) {
+    # XLANG
     return (0, "Must supply a list name.\n")
       unless $request->{'newlist'};
 
@@ -4760,6 +4782,7 @@ sub createlist {
 
     my $log = new Log::In 50, "$request->{'newlist'}, $request->{'owners'}->[0]";
 
+    # XLANG
     return (0, "Illegal list name: $request->{'newlist'}")
       unless ($ok = legal_list_name($request->{'newlist'}));
 
@@ -4832,6 +4855,7 @@ sub _createlist {
 
   # Destroy mode: remove the list, but only if it has no subscribers.
   if ($mode =~ /destroy/) {
+    # XLANG
     return (0, "The GLOBAL and DEFAULT lists cannot be destroyed.\n")
       if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
 
@@ -4845,6 +4869,7 @@ sub _createlist {
 
     if ($self->{'lists'}{$list}->get_chunk('MAIN', 1)) {
       $self->{'lists'}{$list}->get_done('MAIN');
+      # XLANG
       return (0, "All addresses must be unsubscribed before destruction.\n");
     }
 
@@ -4876,6 +4901,7 @@ sub _createlist {
     }
 
     rename("$self->{'ldir'}/$list", "$self->{'ldir'}/,$list.$desc");
+    # XLANG
     return (0, "Unable to remove all of the files for $list.\n")
       if (-d "$self->{'ldir'}/$list");
 
@@ -4892,10 +4918,12 @@ sub _createlist {
     return (0, $mess) unless ($list);
 
     # new list name must be valid
+    # XLANG
     return (0, "Illegal list name: $pw\n")
       unless ($newlist = legal_list_name($pw));
 
     # new list must not exist
+    # XLANG
     return (0, "The \"$newlist\" list already exists.\n")
       if (exists $self->{'lists'}{$newlist});
 
@@ -4971,6 +4999,7 @@ sub _createlist {
   # Should the MTA configuration be regenerated?
   if ($mode =~ /regen|destroy|rename/) {
     unless ($mta && $Mj::MTAConfig::supported{$mta}) {
+      # XLANG
       return (1, "Unsupported MTA $mta, can't regenerate configuration.\n");
     }
 
@@ -5028,12 +5057,14 @@ sub _createlist {
   }
 
   @tmp = split "\002\002", $owner;
-  return (0, "No owner address was specified.\n") unless @tmp;
+  return (0, "No owner address was specified.\n") unless @tmp; # XLANG
   for $owner (@tmp) {
     $i = new Mj::Addr($owner);
+    # XLANG
     return (0, "The owner address \"$owner\" is invalid.\n")
       unless $i;
     ($ok, $mess) = $i->valid;
+    # XLANG
     return (0, "The owner address \"$owner\" is invalid.\n$mess")
       unless $ok;
     push @owners, $i;
@@ -5049,6 +5080,7 @@ sub _createlist {
 
   # Should a list be created?
   if ($mode !~ /nocreate/) {
+    # XLANG
     return (0, "The \"$list\" list already exists.\n")
       if ($list eq 'default' or $list eq 'global');
 
@@ -5057,16 +5089,20 @@ sub _createlist {
       $list =~ /(.*)/; $list = $1;
       $dir  = "$self->{'ldir'}/$list";
 
+      # XLANG
       return (0, "The \"$list\" list already exists.\n")
 	if exists $self->{'lists'}{$list} && $mode !~ /force/;
 
       $self->{'lists'}{$list} = undef;
 
       unless (-d $dir) {
+        # XLANG
 	mkdir $dir, 0777
 	  or $log->abort("Couldn't make $dir, $!");
+        # XLANG
 	mkdir "$dir/files", 0777
 	  or $log->abort("Couldn't make $dir/files, $!");
+        # XLANG
 	mkdir "$dir/files/public", 0777
 	  or $log->abort("Couldn't make $dir/files/public, $!");
       }
@@ -5805,6 +5841,7 @@ sub reject {
         if ($data->{'command'} eq 'post' and (-f $data->{'arg1'})
            and ($ack_attach->{'reject'} or $ack_attach->{'all'})) {
           $ent->make_multipart;
+          # XLANG
           $ent->attach(
                        'Description' => 'Original message',
                        'Filename'    => undef,
@@ -5815,6 +5852,7 @@ sub reject {
         }
         elsif ($tmp and -f $sfile) {
           $ent->make_multipart;
+          # XLANG
           $ent->attach(
             'Description' => "Information about session $data->{'sessionid'}",
             'Filename'    => undef,
@@ -5859,6 +5897,7 @@ sub reject {
       if ($ent) {
          if (-f "$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}") {
           $ent->make_multipart;
+          # XLANG
           $ent->attach(
                        'Description' => "Information for session $data->{'sessionid'}",
                        'Filename'    => undef,
@@ -6109,6 +6148,7 @@ sub _rekey {
               ($list eq 'DEFAULT' or $list eq 'GLOBAL'));
   }
   unless (scalar @{$self->{'rekey_lists'}}) {
+    # XLANG
     return (0, "No mailing lists were found for rekeying.\n");
   }
   return (1, $ra, $rca, $aa, $aca);
@@ -6265,16 +6305,19 @@ sub _report {
       $begin = $end - $span;
     }
     else {
+      # XLANG
       return (0, "Unable to parse date $date.\n");
     }
   }
-  return (0, "Unable to initialize list $list.\n")
+  
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
 
   $file = "$self->{'ldir'}/GLOBAL/_log";
 
   $self->{'report_fh'} = new IO::File "< $file";
   unless ($self->{'report_fh'}) {
+    # XLANG
     return (0, "Cannot access the log.\n");
   }
   return (1, [$begin, $end]);
@@ -6286,12 +6329,15 @@ sub report_chunk {
      "$request->{'list'}, $request->{'user'}";
   my (@data, @out, $count, $line, $scope);
 
+  # XLANG
   return (0, "The log file is unopened.\n")
     unless (defined $self->{'report_fh'});
 
+  # XLANG
   return (0, "Invalid chunk size given.\n")
-    unless ($request->{'chunksize'} > 0);
+    unless (defined ($request->{'chunksize'}) and $request->{'chunksize'} > 0);
 
+  # XLANG
   return (0, "Unable to determine what to report")
     unless (defined $self->{'report_scope'});
 
@@ -6364,6 +6410,7 @@ sub sessioninfo_start {
 
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
+    # XLANG
     return (0, "No such session.\n");
   }
 
@@ -6455,6 +6502,7 @@ sub set {
 
   my $log = new Log::In 30, "$request->{'list'}, $request->{'setting'}";
 
+  # XLANG
   return (0, "The set command is not supported for the $request->{'list'} list.\n")
     if ($request->{'list'} eq 'GLOBAL' or $request->{'list'} eq 'DEFAULT');
 
@@ -6506,13 +6554,15 @@ sub _set {
   if ($mode =~ /regex|pattern/) {
     # Initialize the database
     if ($list eq 'ALL') {
+      # XLANG
       return (0, "Unable to initialize registry.\n")
         unless $self->{'reg'}->get_start;
       $db = $self->{'reg'};
     }
     else {
-      return (0, "Unable to initialize list $list.\n")
+      return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
         unless $self->_make_list($list);
+      # XLANG
       return (0, "Unknown auxiliary list name \"$sublist\".")
         unless ($ok = $self->{'lists'}{$list}->valid_aux($sublist));
       $sublist = $ok;
@@ -6540,6 +6590,7 @@ sub _set {
     }
     $db->get_done;
     unless ($count) {
+      # XLANG
       return (0, qq(No addresses were found that match "$vict".\n));
     }
   }
@@ -6559,16 +6610,18 @@ sub _set {
 
   while (($addr, $data) = splice @addrs, 0, 2) {
     @lists = split("\002", $data);
+    # XLANG
     push @out, (0, "$addr is not subscribed to any lists.\n")
       unless @lists;
     for $l (sort @lists) {
       unless ($self->_make_list($l)) {
-        push @out, (0, "The $l list apparently does not exist.\n");
+        push @out, (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list));
         next;
       }
 
       if ($sublist) {
         unless ($ok = $self->{'lists'}{$l}->valid_aux($sublist)) {
+          # XLANG
           push @out, (0, "There is no sublist $sublist of the $l list.\n");
           next;
         }
@@ -6775,6 +6828,7 @@ sub showtokens {
 
   if ($request->{'action'}) {
     if (! command_legal($request->{'action'})) {
+      # XLANG
       return (0, "$request->{'action'} is not a legal command.");
     }
   }
@@ -6899,7 +6953,7 @@ sub _subscribe {
   my ($ok, $class, $classarg, $classarg2, $data, $exist, $flags, $ml,
       $rdata, $welcome, $welcome_table);
 
-  return (0, "Unable to initialize list $list.\n")
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
 
   if ($setting) {
@@ -7079,6 +7133,7 @@ sub _get_msg_data {
   my $log = new Log::In 30;
   my ($ent, $ok, $parser, $spool, $table);
 
+  # XLANG
   return (0, "The message spool file is unavailable.\n")
     unless (exists $self->{'spoolfile'} and -f $self->{'spoolfile'});
 
@@ -7086,6 +7141,7 @@ sub _get_msg_data {
   $part ||= '0';
 
   $parser = new Mj::MIMEParser;
+  # XLANG
   return (0, "Unable to initialize message parser.\n")
     unless ($parser);
 
@@ -7167,7 +7223,9 @@ sub tokeninfo_done {
   my $log = new Log::In 550, $request->{'id'};
 
   if (exists $self->{'msg_parser'}) {
-    $self->{'msg_parser'}->filer->purge;
+    if (defined $MIME::Tools::VERSION and $MIME::Tools::VERSION >= 5) {
+      $self->{'msg_parser'}->filer->purge;
+    }
     delete $self->{'msg_parser'};
     delete $self->{'msg_data'};
   }
@@ -7437,6 +7495,8 @@ sub _unalias {
   if (defined $key) {
     return (1, $key);
   }
+
+  # XLANG
   return (0, "$source is not aliased to $requ.\n");
 }
 
@@ -7504,6 +7564,7 @@ sub _unregister {
 
   unless (@removed) {
     $log->out("failed, nomatching");
+    # XLANG
     return (0, "Cannot unregister $vict:  no matching addresses.");
   }
 
@@ -7565,6 +7626,7 @@ sub unsubscribe {
   }
 
   $request->{'sublist'} ||= 'MAIN';
+  # XLANG
   return (0, "The GLOBAL and DEFAULT lists have no subscribers.\n")
     if ($request->{'sublist'} eq 'MAIN' and
         $request->{'list'} =~ /GLOBAL|DEFAULT/);
@@ -7590,10 +7652,11 @@ sub _unsubscribe {
   my(%fdata, @out, @removed, $data, $desc, $farewell, $farewell_table, $fh,
      $file, $flist, $key, $ok, $subs);
 
-  return (0, "Unable to initialize list $list.\n")
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
 
   if (defined $sublist) {
+    # XLANG
     return (0, "Unable to access subscriber list \"$sublist\".\n")
       unless $self->{'lists'}{$list}->valid_aux($sublist);
   }
@@ -7607,6 +7670,7 @@ sub _unsubscribe {
   (@removed) = $self->{'lists'}{$list}->remove($mode, $vict, $sublist);
 
   unless (@removed) {
+    # XLANG
     $log->out("failed, nomatching");
     return (0, "Cannot unsubscribe $vict: no matching addresses.");
   }
@@ -7830,12 +7894,14 @@ sub who_start {
   if ($request->{'mode'} =~ /alias/ and
       ($request->{'list'} ne 'GLOBAL' or
        $request->{'sublist'} ne 'MAIN')) {
+    # XLANG
     return (0, "Alias mode is only supported for the GLOBAL list.\n");
   }
 
   if ($request->{'mode'} =~ /owners/ and
       ($request->{'list'} ne 'GLOBAL' or
        $request->{'sublist'} ne 'MAIN')) {
+    # XLANG
     return (0, "Owners mode is only supported for the GLOBAL list.\n");
   }
 
@@ -7850,6 +7916,7 @@ sub who_start {
   if ($request->{'mode'} =~ /common/) {
     ($list, undef, $mess) = $self->valid_list($request->{'list2'}, 0, 1);
     unless ($list) {
+      # XLANG
       $log->out("invalid second list \"$request->{'list2'}\"");
       return (0, $mess);
     }
@@ -7893,6 +7960,7 @@ sub _who {
       return ($ok2, $error);
     }
     unless (scalar keys %$error) {
+      # XLANG
       $log->out("no common addresses");
       return (0, "No common addresses were found.\n");
     }
@@ -7900,6 +7968,7 @@ sub _who {
   }
 
   if ($list eq 'GLOBAL' and $mode =~ /alias/) {
+    # XLANG
     return (0, "Unable to initialize alias list.\n")
       unless $self->{'alias'}->get_start;
   }
@@ -7907,15 +7976,18 @@ sub _who {
     return $self->sync_owners($requ);
   }
   elsif ($list eq 'DEFAULT' and $sublist eq 'MAIN') {
+    # XLANG
     return (0, "The DEFAULT list never has subscribers");
   }
   elsif ($list eq 'GLOBAL' and $sublist eq 'MAIN') {
+    # XLANG
     return (0, "Unable to initialize registry.\n")
       unless $self->{'reg'}->get_start;
   }
   else {
-    return (0, "Unable to initialize list $list.\n")
+    return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
       unless $self->_make_list($list);
+    # XLANG
     return (0, "Unknown auxiliary list name \"$sublist\".")
       unless ($ok = $self->{'lists'}{$list}->valid_aux($sublist));
     $sublist = $ok;
@@ -7950,10 +8022,12 @@ sub who_chunk {
     unless (defined $chunksize and $chunksize > 0); # XLANG
 
   $list = $self->{'lists'}{$request->{'list'}};
+  # XLANG
   return (0, "Unable to access the \"$request->{'list'}\" list.")
     unless $list;
 
   # who for DEFAULT returns nothing
+  # XLANG
   if ($request->{'list'} eq 'DEFAULT') {
     return (0, "The DEFAULT list never has subscribers");
   }
