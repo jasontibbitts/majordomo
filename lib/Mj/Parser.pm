@@ -419,7 +419,7 @@ sub parse_part {
       }
       elsif ($action eq 'delay') {
         if ($cmdargs) {
-          $delay = str_to_offset($cmdargs) || 0;
+          $delay = str_to_offset($cmdargs, 1, 0) || 0;
         }
         else {
           $delay = 0;
