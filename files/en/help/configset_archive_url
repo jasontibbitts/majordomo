@@ -15,13 +15,14 @@ configset listname archive_url = http://www.mydomain.org/archives/
 
 The URL at which public list archives are made accessible.
 
-The URL will undergo variable substitution if it is added to
-message headers, to support RFC 2369.  It is also used by
-the WWW interface.
+The URL can be used in variable substitution if the ARCURL variable
+is added to message headers (see "help configset message_headers"),
+to support RFC 2369. It is also used by the WWW interface (mj_wwwusr).
 
 
 See Also:
    help variables (for a list of all possible variables and what they mean)
+   help configset message_headers    (to put this string into post headers)
 
 For a list of all help topics send this one-line message
    help topics

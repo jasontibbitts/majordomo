@@ -149,17 +149,21 @@ evaluated in both the subject and message body:
   \$SENDER    => the person who sent the message
   \$VERSION   => the version of Majordomo
 
-In the headers added by "configset listname message_headers"
-these variables are evaluated in the subject only:
-  \$ARCHIVE  => the number of this message in the archives
-  \$LIST     => the name of the current list,
-  \$SENDER   => the sender as taken from the from line,
-  \$SEQNO    => the contents of the sequence_number variable, which is
-               automatically incremented each time a message is posted
-  \$VERSION  => the version of Majordomo.
+For a post to any email list, in the text supplied as headers added by
+"configset listname message_headers" these variables are evaluated in
+the subject only:
+  \$ARCHIVE   => the number of this message in the archives
+  \$ARCURL    => the string specified by "configset listname archive_url"
+  \$LIST      => the name of the current list
+  \$OWNER     => the address of the list owner
+  \$SENDER    => the sender as taken from the from line
+  \$SEQNO     => the contents of the sequence_number variable, which is
+                 automatically incremented each time a message is posted
+  \$VERSION   => the version of Majordomo.
+  \$WHOAMI    => the address of the list the post is being sent to
 
-In the headers added by "configset listname reply_to"
-these variables are evaluated in the subject only:
+For a post to any email list, in the text supplied as headers added by
+"configset listname reply_to" these variables are evaluated in the subject only:
   \$HOST      => the hostname of the server (from the resend_host variable)
   \$LIST      => The name of the list
   \$SENDER    => the address of person who sent the message
