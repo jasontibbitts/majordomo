@@ -1,0 +1,6 @@
+#!/usr/bin/perl -wT
+
+$::CONFFILE = "blah";
+
+print "This is a placeholder.\n";
+exit 0;
