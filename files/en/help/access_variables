@@ -40,6 +40,10 @@ by the access_rules configuration setting:
   sublist                       string
   user_password                 boolean
 
+The access command also uses this variable:
+
+  block                         number
+
 The password command also uses this variable:
 
   password_length               number
