@@ -649,3 +649,5 @@ Allow access control language to make modifications to outgoing messages,
 Keep a list of banned domains, compare against them in resend and fail all
  commands from them in the email interface (or, perhaps, in the
  dispatcher).
+Purge archive files after a certain period of time.
+Make archiver add files into filespace with useful descriptions.

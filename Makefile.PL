@@ -32,27 +32,29 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\
 unless (check_syslog() &&
         check_prereq
 	(
-	 'MIME::Parser'	=> 4.102,
-	 'MIME::Entity'	=> 4.114,
-	 'MIME::Base64'	=> 2.00,
-	 'Data::Dumper'	=> 2.07,
+	 'Mail::Internet' => 1.30,
+	 'Mail::Header'   => 1.10,
+	 'MIME::Parser'   => 4.102,
+	 'MIME::Entity'   => 4.114,
+	 'MIME::Base64'   => 2.00,
+	 'Data::Dumper'   => 2.07,
 	 #	     'Data::ShowTable'  => 0,  # Want 3.3, but the stupid module
 	 # doesn't have a version number
-	 'Date::Manip'	=> 5.10,
-	 'HTML::Stream' => 1.42,
-	 'CGI'          => 2.36,
-	 'MD5'		=> 1.7,
-	 'IO::Socket'	=> 1.1602,
-	 'IO::File'	=> 0,
-	 'IO::Handle'	=> 0,
-	 'Date::Format' => 0,
-	 'DirHandle'	=> 0,
-	 'Safe'		=> 0,
-	 'POSIX'	=> 0,
-	 'Net::Domain'	=> 0,
-	 'File::Copy'	=> 0,
-	 'Fcntl'	=> 0,
-	 'Carp'		=> 0,
+	 'Date::Manip'    => 5.10,
+	 'HTML::Stream'   => 1.42,
+	 'CGI'            => 2.36,
+	 'MD5'	          => 1.7,
+	 'IO::Socket'     => 1.1602,
+	 'IO::File'       => 0,
+	 'IO::Handle'	  => 0,
+	 'Date::Format'   => 0,
+	 'DirHandle'	  => 0,
+	 'Safe'		  => 0,
+	 'POSIX'	  => 0,
+	 'Net::Domain'	  => 0,
+	 'File::Copy'	  => 0,
+	 'Fcntl'	  => 0,
+	 'Carp'		  => 0,
 	))
   {
     print "Majordomo cannot run without its prerequisite modules.\n";

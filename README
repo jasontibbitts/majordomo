@@ -1,25 +1,26 @@
 -*- Text -*-
 
-This is a pre-alpha release of Majordomo 2.0.  It does quite a few things
-and (modulo bugs) could easily be used to run a number of lists.  Many
-pieces of functionality that are present in 1.94.x are missing from this
-release.  There is much work to be done.
+This is an alpha release of Majordomo 2.0.  It can easily be used to run a
+number of lists.  Many pieces of functionality that are present in 1.94.x
+(most prominent being digests) are missing from this release and there is
+much work to be done.  There are definltely many bugs although all critical
+bugs encountered during testing have been fixed.
 
 Note: this requires Perl 5.004_01 to run.  This is due to bugs in
 5.004, and the fact that lesser versions are both lacking in features
-and security.
+and security.  Most of the testing is done using 0perl 5.004_04.
 
 The following modules are required:
 
-the libnet package
-Data::Dumper   v2.07
-MD5            v1.7
-MIME::Base64   v2.0
-Mail::Internet        (part of the MailTools package)
-Mail::Header          (part of the MailTools package)
-MIME::Parser   v4.102 (part of the MIME-Tools package)
-MIME::Entity   v4.114 (part of the MIME-Tools package)
-Date::Manip    v5.1
+the libnet package, including Net::Domain.
+the MIME-tools package (version 4.116), including MIME::Parser and
+  MIME::Entity, but see below.
+the MailTools package (version 1.11), including Mail::Header and
+  Mail::Internet.
+Data::Dumper version 2.07
+MD5 version 1.7
+MIME::Base64 version 2.0
+Date::Manip version 5.1
 Date::Format
 
 The Time::HiRes module is recommended if you want to generate accurate
@@ -31,9 +32,14 @@ Archive Network.  To find a CPAN site nearest you, look at
 the CPAN module which comes with Perl; check the Perl documentation for
 more info.
 
-Majordomo 2 now includes its own setuid wrapper generation, so setuid
-scripts are no longer required.  Things are slightly simpler without
-them, but all functionality is preserved.
+The MIME-Tools package is missing a patch to fix certain warnings; this
+patch is included as MIME-tools.patch.  It is not required, but occasional
+warnings will appear from Entity.pm if it is not applied.  Hopefully a new
+version of MIME-tools will appear soon with this problem fixed.
+
+Majordomo 2 includes its own setuid wrapper generation, so setuid scripts
+are not required.  Things are slightly simpler without them, but all
+functionality is preserved.
 
 Note: if you have any input on this software, even if you have not
 tested it, please let majordomo-workers@greatcircle.com know.  All
@@ -89,7 +95,6 @@ list, and the hundred or so pages of notes I have on real paper which you
 probably couldn't read even if you could get to them.
 
 
-
 Installation:
 
 Much blood has been shed to make installation as painless as possible.
@@ -104,6 +109,28 @@ To install:
 When it's done, that will be all.  But it's not done...  It's getting
 better, though.
 
+
+Interacting with Majordomo:
+
+After installing the aliases as given by the installation process and
+possibly rebuildig the alias database, Majordomo should respond to mailed
+commands at the given address.  The command processor works in much the
+same way as it does in Majordomo 1, but with many additions.  In
+particular, the commahd works and also takes topics to give help on; try
+'help topics' and 'help parser'.
+
+New with Majordomo2 is the shell interface; it can be used to interact with
+the server via the command line.  This is in general much easier to deal
+with for local users.  The installation process will have installed a
+manual page along with the executables and libraries; accessing it is
+system-dependent but may require setting the MANPATH variable to add the
+new directory.  Just about everything that can be done from te email
+interface can be done from the shell interface, along with a few other
+things like interactive editing of configuration variables.
+
+
+Creating and converting lists:
+
 You can make your own lists just by calling the creatlist command, like
 this:
 
@@ -113,20 +140,95 @@ This will give you the necessary aliases to add to the appropriate file, if
 you're running Sendmail.  You can pull in a set of addresses from a
 Majordomo 1.9x list like this:
 
-mj_shell -p password -f old-list-file subscribe=quiet list-name
+mj_shell -p password -f old-list-file subscribe=quiet,noinform list-name
+
+(This subscribes all addresses from a file, without welcoming them and
+without sending an informational notification to the list owner).
 
 If you copy the old configuration file into the directory for the new list,
 it will be automatically created.
 
-This should all be automated in a future release.
 
-If you want archives, you must set the list's 'archive_dir' variable to an
-existing, writable directory.  Everything will happen automatically after
-that.  Nothing will happen until you do that.  Archives aren't completely
-working, but they have about as much functionality as archive2.pl (and have
-no Y2K problems).
+List configuration:
 
-Read the source.  Write a better readme.  Join in and help.  Read the TASKS
-list.  Get involved.  It won't get finished unless people pitch in.
+Lists are configured using the configshow and configset commands.  The old
+config interface is not yet supported.  Try viewing the 'admin
+configuration' help topic.  To see the whole config file, you can send
+'configshow=comments listname ALL'.
+
+
+The Filespace:
+
+Each list has a directory where retrievable files are stored; this is
+called a filespace.  Because normal filesystems do not track enough
+information about file types, Majordomo2 maintains a database containing
+information about these files such as their description and MIME type.  The
+list owner can upload files to the filespace and users can retrieve files
+from the public portion of the filespace.
+
+When retrieving a file from the filespace, Majordomo2 consults a search
+list made from the 'file_search' config variable and a global default.
+Other list's files can be referenced as long as they share their files.
+Since Majordomo2 goes through the filespace to send out nearly all of its
+messages, this provides both an overrideable defaults mechanism and a means
+for internationalization.
+
+Files are uploaded using the 'put' command; 'put=dir' will make
+directories.  There is currently no way to delete a file.  The 'newinfo',
+'newintro' and 'newfaq' commands are shortcuts for 'put' with specific
+arguments.
+
+Files are retrieved with the 'get' command; 'get=immediate' will return the
+file inline instead of mailing it as a separate message.  The 'intro',
+'info' and 'faq' commands are shortcuts for 'get' with specific arguments.
+
+A (partial) list of the response files that Majordomo2 uses are given, with
+supported variable expansions, in the FILES document.
+
+
+Archives:
+
+Archives start accumulating as soon as the archive_dir variable is set and
+the directory exists.  There is no need to create additional aliases.
+Archives are free of fronters, footers, most header modifications and
+subject prefixing.
+
+A future release will have archiving on by default, with archives
+accumulating in files/public/archive.  This can actually be a symlink
+without problems.  (Archives will be needed in order for digests to work.
+There will be provisions for old archives to automatically be removed, in
+case long-term archiving is not desired.)
+
+
+Access Control:
+
+All operations which need to restrict access go through a central mechanism
+for doing so.  The list owner can choose to use the old Majordomo 1
+interface which works via the *_access variables, restrict_post,
+subscribe_policy and the like.  This works as expected (though the
+mechanism by which restrict_post lists are set up has changed).
+
+The owner can also choose to make use of an extremely flexible system which
+is semi-documented in the 'ACCESS_RULES' file.  This, when coupled with
+some of the taboo_* extensions (like severity and classes) and the metrics
+that resend collects allows almost arbitrarily complex access control.
+
+Instead of Majordomo 1's limitation of confirming only subscribes, almost
+any operation can be stalled and completed after a conformation token is
+returned by either the user or the owner (or both).  The owner can also
+choose to deny outright a request.
+
+Information about a token can be retrieved using the 'tokeninfo' command.
+
+
+Sessions:
+
+Majordomo2 stores information about every email or command line processed
+in files called sessions.  These are files containing all pertinent
+information about the session (email headers, CGI environment, selected
+environment variables, etc. as appropriate) as well as a log of all
+commands executed during that session.  When a token is rejected,
+information about the session that generated it is automatically mailed to
+the list and site owners (if they elect to receive such information).
 
  - J<

@@ -1603,7 +1603,7 @@ sub config_get_vars {
 
 =head1 Archive functions
 
-These interface with the list's Archive object.
+These interface with the list''s Archive object.
 
 =head2 archive_add
 
