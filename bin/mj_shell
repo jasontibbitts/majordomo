@@ -261,7 +261,6 @@ sub parse_interactive {
   require Term::ReadLine;
   $term = Term::ReadLine->new('Interactive Majordomo Shell Interface');
   $^W = 1;
-warn "AA";
 
   $prompt   = "Majordomo>";
   $features = $term->Features;
