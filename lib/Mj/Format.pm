@@ -2338,8 +2338,8 @@ use Date::Format;
 sub showtokens {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$request->{'list'}";
-  my (@tokens, $bf, $count, $data, $df, $gsubs, 
-      $list, $ok,  $size, $str, $subs, $tmp, $tokens, $user);
+  my (@tokens, $bf, $count, $data, $df, $gsubs, $list, $ok,  
+      $size, $str, $subs, $tmp, $tokens, $user, $victim);
   my (%type_abbrev) = (
                         'alias'   => 'L',
                         'async'   => 'A',
@@ -2397,6 +2397,7 @@ sub showtokens {
     }
 
     $user = &escape($data->{'user'}, $type);
+    $victim = &escape($data->{'victim'}, $type);
 
     $subs = { 
               %{$gsubs},
@@ -2410,6 +2411,7 @@ sub showtokens {
               'SIZE'   => $size,
               'TOKEN'  => $data->{'token'},
               'TYPE'   => $data->{'type'},
+              'VICTIM' => $victim,
             };
 
     if ($data->{'list'} ne $list) {

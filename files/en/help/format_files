@@ -1170,7 +1170,7 @@ showtokens_data
 (text, wwwadm)  This file displays data for a single token.
 
 (standard plus ADATE, ATYPE, CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND,
- DATE, ERROR, LIST, SIZE, TOKEN, TYPE, USER)
+ DATE, ERROR, LIST, REQUESTER, SIZE, TOKEN, TYPE, USER, VICTIM)
 
 
 showtokens_error
