@@ -149,26 +149,13 @@ sub post {
   $thead->decode;
   $thead->unfold;
   $::log->out;
+  $reasons = []; $avars = {};
+  $user = $request->{'user'};
 
-  # Snarf user from headers XXX Is this really the victim?  The user
-  # is the one who made the command happen; that may be unset if
-  # called from mj_resend but will exist if calling from the post
-  # command.
-  chomp($user = $thead->get('from') ||
-	$thead->get('apparently-from'));
-
-  if (! $user) {
-    $spool = "$tmpdir/unparsed." . Majordomo::unique();
-    mv ($request->{'file'}, $spool);
-    $self->inform("GLOBAL", "post", $user, $user, $request->{'cmdline'}, 
-                  "resend", 0, 0, -1, 
-                  "Unable to determine sender; moved to $spool.", 
-                  $::log->elapsed);
-    return (0, "Unable to parse message.");
+  if (! ($user and $user->valid)) {
+    $avars->{'invalid_from'} = 1;
   }
 
-  $user = new Mj::Addr($user);
-  $reasons = []; $avars = {};
 
   # XXX Pass in the password we were called with, so that passwords
   # can be passed out-of-band.
@@ -195,7 +182,7 @@ sub post {
     $avars->{dup_partial_checksum} || '';
   $avars->{mime} = $avars->{mime_consult} || $avars->{mime_deny} || '';
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
-    $avars->{admin} || $avars->{bad_approval} || '';
+    $avars->{admin} || $avars->{bad_approval} || $avars->{invalid_from} || '';
   $avars->{'sublist'} = $request->{'sublist'};
   # Used to determine the archive.
   $avars->{'time'} = time;
