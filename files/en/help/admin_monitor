@@ -43,13 +43,13 @@ Reports of recent activity
 You can receive a full listing or summary of recent actions for your
 mailing list with the report command.  For example, 
 
-  report LISTNAME post 14d
+  report LISTNAME 14d post
 
 will show the log entry for each message posted to your list during 
 the last 14 days.  It is also possible to combine actions, and to
 limit by result.  For example, 
 
-  report-fail LISTNAME subscribe,unsubscribe 36h
+  report LISTNAME 36h subscribe,unsubscribe : fail
 
 will show a summary of all failed subscribe and unsubscribe commands
 during the last 36 hours.  Majordomo discards log entries older than
