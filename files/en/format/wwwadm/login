@@ -1,32 +1,41 @@
 <pre>?ERROR</pre>
-<form method=POST action="$CGIURL">
-  <input type=hidden name=func value="$COMMAND">
-  <input type=hidden name=user value="$USER">
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="func" value="$COMMAND">
+  <input type="hidden" name="user" value="$USER">
 
-<table cellspacing=15 width="100%">
+<table cellspacing="15" width="100%">
 <tr>
-  <td valign=top>
-    <input size=36 name=list value="$LIST">
+  <td valign="top">
+    List: <input size="36" name="list" value="$LIST">
   </td>
   <td>
-    Type the name of your mailing list into the box unless it is already present.
+    Type the name of your mailing list into the <b>List</b> box 
+    unless it is already present.
   </td>
 </tr>
 <tr>
-  <td valign=top>
-    Password: <input type=password name=passw size=15 value="$CMDPASS">
+  <td valign="top">
+    Password: <input type="password" name="passw" size="15" value="$CMDPASS">
   </td>
-  <td valign=top>
-    Type your list's administrative password into the box.  
+  <td valign="top">
+    Type your list's administrative password into the <b>Password</b> box.  
     If you see fourteen stars in this box, it may already be present.
     (The fourteen stars are a temporary password that applies only to
     this session.)
   </td>
 </tr>
 <tr>
-  <td valign=top>
-    <input type=submit value="Go"><br>
-    <input type=reset value="Clear">
+  <td valign="top">
+    Address: <input name="user" size="32" value="$USER">
+  </td>
+  <td valign="top">
+    Optionally, type your e-mail address into the <b>Address</b>
+    box.
+  </td>
+<tr>
+  <td valign="top">
+    <input type="submit" value="Go"><br>
+    <input type="reset" value="Clear">
   </td>
   <td>
     <p>
