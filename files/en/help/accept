@@ -1,8 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-accept[-archive][-hide] [token] [comment]
+accept[-archive][-hide][-intact] [token] [comment]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -archive, if specified, archives a message without distributing it
 -hide,    if specified, omits a message from public archives
+-intact,  if specified, keeps message attachments from being altered
 token,    if specified, is a 12-digit identifier
 comment,  if specified, is passed from the owner to the subscriber
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -45,14 +46,20 @@ If the stalled command is for a message that should be placed in the
 mailing list archive, but not distributed to the mailing list members
 directly, the 'accept-archive' command may be used.  This feature has
 proven useful in short-term, moderated discussions, when messages that
-would be acceptable under other circumstances are not distributed, to keep
-the discussion from overwhelming the participants.  The "archive only"
-messages may be seen by the public at a later time, through a WWW archive,
-or using Majordomo's "archive" command.  Similarly, the
-'accept-hide' command can be used to mark a message as "hidden" in
-the list's archive.  An "X-no-archive: yes" header will be added to
-the message, and the message will only be visible through the archive
-command to people with administrative access.
+would be acceptable under other circumstances are not distributed, to
+keep the discussion from overwhelming the participants.  The "archive
+only" messages may be seen by the public at a later time, through a WWW
+archive, or using Majordomo's "archive" command.  
+
+Similarly, the 'accept-hide' command can be used to mark a message as
+"hidden" in the list's archive.  An "X-no-archive: yes" header will be
+added to the message, and the message will only be visible through the
+archive command to people with administrative access.
+
+The "accept-hide" command can be used to prevent a posted message from
+having its content altered due to the attachment rules.  See 
+"help configset_attachment_rules" for more details on how messages
+can be changed.
 
 For consult tokens, the presence of a delay will convert the token type
 to "delay," delay the acceptance by the amount of time specified by a

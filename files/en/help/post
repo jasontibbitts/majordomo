@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-post[-archive][-hide] listname <<TAG
+post[-archive][-hide][-intact] listname <<TAG
 [Message Contents]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-post-addhdr[-archive][-hide] listname subject <<TAG
+post-addhdr[-archive][-hide][-intact] listname subject <<TAG
 [Message Contents]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -12,6 +12,7 @@ subject,  if specified, gives the contents of the subject header
 -addhdr,  if specified, automatically adds mail headers
 -archive, if specified, archives a message without distributing it
 -hide,    if specified, omits a message from public archives
+-intact,  if specified, keeps message attachments from being altered
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The post command sends a message to a mailing list, or to an auxiliary
@@ -34,6 +35,11 @@ If the "hide" command mode is used, the message will be marked as
 "hidden" in the archive, and an "X-no-archive: yes" header will be added
 to the message.  This will help to keep anyone without administrative
 access from seeing the message in a public archive.
+
+If the "intact" command mode is used, any attachment rules that would
+alter the contents of the message will not be applied.  See
+"help configset_attachment_rules" for more details on how the message
+contents can be altered.
 
 The post command enables a Majordomo list to be run without doing any
 MTA configuration, such as creating aliases.  The list will not,
