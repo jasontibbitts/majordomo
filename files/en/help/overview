@@ -131,8 +131,8 @@ Your Personal Password
   When you first subscribe to a mailing list at $WHEREAMI, you will
   receive a password, and have your address registered in the Majordomo
   central registry.  No matter how many subscriptions you have at
-  $WHEREAMI, you will never have more than one password for your e-mail 
-  address.
+  $WHEREAMI, you will never have more than one password 
+  for your e-mail address.
 
   Once you have obtained a password, you can use it to avoid the extra
   step of confirmation when you change your settings with the set 
@@ -207,15 +207,15 @@ Receiving Messages in a Digest
 
   In addition, there are three digest formats available, MIME, text,
   and index.  MIME digests cause each message to be included as an
-  attachment; this is the most standard format.  Text digests have
+  attachment; this is the most common format.  Text digests have
   all of the messages collected into one attachment.  Index digests
   list only the table of contents, not any of the actual messages.
   To choose a new digest, add its name to the set command:
    
     set LISTNAME digest-mime
 
-  Finally, each mailing list can have several digests.  To see details
-  for a particular mailing list, use the command
+  Each mailing list can have several digests.  To see details for a 
+  particular mailing list, use the command
 
     lists-full LISTNAME
 
