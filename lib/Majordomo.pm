@@ -4331,7 +4331,12 @@ sub configshow {
         $all_vars{$var}++;
         @tmp = $self->config_get_groups($var);
         for $i (@tmp) {
-          $category{$i}++;
+          if (! exists $category{$i}) {
+            $category{$i} = [ $var ];
+          }
+          else {
+            push @{$category{$i}}, $var;
+          }
         }
       }
     }
@@ -4543,8 +4548,9 @@ sub _createlist {
 
   my (%args, %data, @defaults, @lists, @owners, @tmp, $aliases, $bdir,
       $desc, $digests, $dir, $dom, $debug, $ent, $file, $i, $j, $k, 
-      $mess, $mta, $mtaopts, $ok, $priority, $pwl, $rmess, $sender, 
-      $setting, $shpass, $sources, $sublists, $subs, $who);
+      $mess, $mta, $mtaopts, $newlist, $ok, $priority, $pwl, $regsub,
+      $result, $sender, $setting, $shpass, $sources, $sublists, $subs, 
+      $who);
 
   $mta   = $self->_site_config_get('mta');
   $dom   = $self->{'domain'};
@@ -4554,6 +4560,13 @@ sub _createlist {
   $who   = $self->_global_config_get('whoami');
   $who   =~ s/@.*$// if $who; # Just want local part
   $mtaopts = $self->_site_config_get('mta_options');
+  $result = {
+             'aliases' => '',
+             'newlist' => $list,
+             'oldlist' => '',
+             'owners'  => [],
+             'password'=> '',
+            };
 
   %args = ('bindir'     => $bdir,
 	   'topdir'     => $self->{topdir},
@@ -4577,7 +4590,7 @@ sub _createlist {
     return (0, $mess) unless ($list);
 
     ($ok, $mess) = $self->{'lists'}{$list}->get_start('MAIN');
-    return (0, "$mess\n") unless $ok;
+    return (0, $mess) unless $ok;
 
     if ($self->{'lists'}{$list}->get_chunk('MAIN', 1)) {
       $self->{'lists'}{$list}->get_done('MAIN');
@@ -4585,6 +4598,27 @@ sub _createlist {
     }
 
     $self->{'lists'}{$list}->get_done('MAIN');
+
+    unless ($args{'options'}{'maintain_config'}) {
+      $aliases = $self->_list_config_get($list, 'aliases');
+      $digests = $self->_list_config_get($list, 'digests');
+      $sublists = $self->_list_config_get($list, 'sublists');
+      $priority = $self->_list_config_get($list, 'priority');
+      $debug = $self->_list_config_get($list, 'debug');
+
+      $args{'aliases'}  = {%$aliases};
+      $args{'debug'}    = $debug;
+      $args{'digests'}  = [keys(%{$digests})];
+      $args{'priority'} = $priority || 0;
+      $args{'sublists'} = [keys(%{$sublists})];
+      $args{'list'} = $list;
+
+      {
+        no strict 'refs';
+        $result->{'oldaliases'} = &{"Mj::MTAConfig::$mta"}(%args);
+      }
+    }
+
     # Prefix a comma to the list directory name.  Suffix a version number.
     for ($desc = 0; ; $desc++) {
       last unless (-d "$self->{'ldir'}/,$list.$desc");
@@ -4593,11 +4627,10 @@ sub _createlist {
     rename("$self->{'ldir'}/$list", "$self->{'ldir'}/,$list.$desc");
     return (0, "Unable to remove all of the files for $list.\n")
       if (-d "$self->{'ldir'}/$list");
+
     delete $self->{'lists'}{$list};
-    $mess .= "The $list list has been destroyed.\n";
   }
   elsif ($mode =~ /rename/) {
-    my $newlist;
 
     return (0, "The GLOBAL and DEFAULT lists cannot be renamed.\n")
       if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
@@ -4615,8 +4648,31 @@ sub _createlist {
     return (0, "The \"$newlist\" list already exists.\n")
       if (exists $self->{'lists'}{$newlist});
 
+    $result->{'newlist'} = $newlist;
+    $result->{'oldlist'} = $list;
+
+    unless ($args{'options'}{'maintain_config'}) {
+      $aliases = $self->_list_config_get($list, 'aliases');
+      $debug = $self->_list_config_get($list, 'debug');
+      $digests = $self->_list_config_get($list, 'digests');
+      $priority = $self->_list_config_get($list, 'priority');
+      $sublists = $self->_list_config_get($list, 'sublists');
+
+      $args{'aliases'}  = {%$aliases};
+      $args{'debug'}    = $debug;
+      $args{'digests'}  = [keys(%{$digests})];
+      $args{'priority'} = $priority || 0;
+      $args{'sublists'} = [keys(%{$sublists})];
+      $args{'list'} = $list;
+
+      {
+        no strict 'refs';
+        $result->{'oldaliases'} = &{"Mj::MTAConfig::$mta"}(%args);
+      }
+    }
+
     # replace the entries in the registry
-    my $regsub =
+    $regsub =
       sub {
         my $key = shift;
         my $data = shift;
@@ -4659,8 +4715,6 @@ sub _createlist {
 
     # delete old list
     delete $self->{'lists'}{$list};
-
-    $mess .= qq(The "$list" list has been renamed to "$newlist".\n);
   }
 
   # Should the MTA configuration be regenerated?
@@ -4673,9 +4727,9 @@ sub _createlist {
     # settings into parsed data.
     if ($mode =~ /regen/) {
       $self->_fill_lists;
-      for my $i (keys %{$self->{'lists'}}) {
-	$self->_make_list($i);
-	for my $j ($self->{'lists'}{$i}->_fill_config) {
+      for $i (keys %{$self->{'lists'}}) {
+	next unless ($self->_make_list($i));
+	for $j ($self->{'lists'}{$i}->_fill_config) {
 	  $self->_list_config_regen($i, $j);
 	}
       }
@@ -4724,10 +4778,16 @@ sub _createlist {
     }
     {
       no strict 'refs';
-      $mess .= &{"Mj::MTAConfig::$mta"}(%args);
+      $result->{'aliases'} = &{"Mj::MTAConfig::$mta"}(%args);
+
+      # Obtain the new aliases if the list has been renamed.
+      if ($mode =~ /rename/ and ! $args{'options'}{'maintain_config'}) {
+        $args{'regenerate'} = 0;
+        $args{'list'} = $newlist;
+        $result->{'aliases'} = &{"Mj::MTAConfig::$mta"}(%args);
+      }
     }
-    $mess ||= "MTA configuration for $dom regenerated.\n";
-    return (1, $mess);
+    return (1, $result);
   }
 
   @tmp = split "\002\002", $owner;
@@ -4748,12 +4808,6 @@ sub _createlist {
   }
   else {
     $pw = &gen_pw($pwl);
-  }
-
-  unless ($mtaopts->{'maintain_config'}) {
-    # We know that we'll give back instructions, so pull out the header.
-    $mess = $Mj::MTAConfig::header{$mta} 
-      unless $mode =~ /noheader/;
   }
 
   # Should a list be created?
@@ -4779,21 +4833,38 @@ sub _createlist {
     }
 
     # Now do some basic configuration
-    $self->_make_list($list);
+    return (0, $self->format_error('make_list', 'GLOBAL', 
+                                   'LIST' => $list))
+      unless ($self->_make_list($list));
     @tmp = ();
     for $j (@owners) {
       push @tmp, $j->strip;
     }
     $self->_list_config_set($list, 'owners', @tmp);
     $self->_list_config_set($list, 'master_password', $pw); 
-    $self->_list_config_unlock($list);
-
-    unless ($list eq 'GLOBAL' or $list eq 'DEFAULT' or $mode =~ /noarchive/) {
-      $self->{'lists'}{$list}->fs_mkdir('public/archive', 'List archives');
+    if ($mode =~ /inactive/) {
+      $self->_list_config_set($list, 'active', 0); 
     }
 
+    $self->_list_config_unlock($list);
+
+    if ($self->_list_config_get($list, 'active')) {
+      $result->{'inactive'} = '';
+    }
+    else {
+      $result->{'inactive'} = " ";
+    }
+
+    $result->{'noarchive'} = " ";
+    unless ($list eq 'GLOBAL' or $list eq 'DEFAULT' or $mode =~ /noarchive/) {
+      $self->{'lists'}{$list}->fs_mkdir('public/archive', 'List archives');
+      $result->{'noarchive'} = '';
+    }
+
+    $result->{'welcome'} = '';
     # Send an introduction to the list owner.
     unless ($mode =~ /nowelcome/) {
+      $result->{'welcome'} = " ";
       $sender = $self->_global_config_get('sender');
 
       $subs = {
@@ -4837,9 +4908,7 @@ sub _createlist {
   # the aliases.
   if ($i) {
     $aliases = $self->_list_config_get($list, 'aliases');
-
     $digests = $self->_list_config_get($list, 'digests');
-
     $sublists = $self->_list_config_get($list, 'sublists');
     $priority = $self->_list_config_get($list, 'priority');
     $debug = $self->_list_config_get($list, 'debug');
@@ -4891,14 +4960,12 @@ sub _createlist {
 
   {
     no strict 'refs';
-    $mess = &{"Mj::MTAConfig::$mta"}(%args, 'list' => $list);
-    $tmp = join (" ", @owners);
-    $tmp ||= $owner;
-    $mess ||= "The $list list has been created.\n  Owner(s): $tmp\n" .
-              "  Password: $pw\n";
+    $result->{'aliases'}  = &{"Mj::MTAConfig::$mta"}(%args, 'list' => $list);
+    $result->{'owners'}   = [ @owners ];
+    $result->{'password'} = $pw;
   }
 
-  return (1, $mess);
+  return (1, $result);
 }
 
 =head2 sync_owners
@@ -5043,7 +5110,7 @@ sub _digest {
 
   $d = [ @req ];
 
-  return (0, "Unable to initialize list $list.\n")
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
 
   # status:  return data but make no changes.
