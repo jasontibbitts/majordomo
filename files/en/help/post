@@ -64,6 +64,15 @@ To send a message to an auxiliary list, the "auxiliary" option must be
 included in the 'aliases' configuration setting, and the auxiliary list
 name must be included in the "sublists" configuration setting.  
 
+If posted messages are not being delivered to a mailing list, two steps
+are recommended to diagnose the failures.  First, use the report command
+to see if Majordomo believes that the messages have been transmitted
+successfully.  If the report command does not have a record of the
+posted messages, the second step is to use the mj_shell program with the
+-D option, and from the shell prompt use the post-addhdr command to send
+a test message to the list.  See "help mj_shell" and "help report" for
+more information.
+
 
 See Also:
    help approve   (which can eliminate the need to use "accept")
