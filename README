@@ -214,15 +214,23 @@ supported variable expansions, in the FILES document.
 Archives:
 
 Archives start accumulating as soon as the archive_dir variable is set and
-the directory exists.  There is no need to create additional aliases.
-Archives are free of fronters, footers, most header modifications and
-subject prefixing.
+the directory exists, or as soon as an "archive" directory appears in the
+public area of the list's filespace.  The latter can be done by the command
 
-A future release will have archiving on by default, with archives
-accumulating in files/public/archive.  This can actually be a symlink
-without problems.  (Archives will be needed in order for digests to work.
-There will be provisions for old archives to automatically be removed, in
-case long-term archiving is not desired.)
+  put=dir /public/archive Archives
+
+(properly approved, of course).  There is no need to create additional
+aliases.  Archives are free of fronters, footers, most header modifications
+and subject prefixing.  The archive system will automatically create a
+".index" directory to place various indices.
+
+The archive directory can be a symbolic link without problems, although it
+cannot be created from within Majordomo.  The usual reason for this is to
+permit the archives to be in an FTP area.
+
+(Archives will be needed in order for digests to work.  There will be
+provisions for old archives to automatically be removed, in case long-term
+archiving is not desired.)
 
 
 Access Control:

@@ -1,3 +1,24 @@
+Thu May 14 01:22:42 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Archive.pm (add): Changed naming to more closely match
+ 	archive2.pl: list.YYYYMMDD-XX.
+
+	* lib/Majordomo.pm (archive): Add stub archive entry.
+
+	* bin/mj_shell (parse_command): Move to new mode specification.
+
+Tue May 12 22:14:34 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Format.pm (index): Adjust output formats slightly.
+
+	* lib/Mj/Resend.pm (_post): Pass in body_lines.
+
+	* lib/Mj/Archive.pm: Add an additional index_field for lines in
+ 	the body.
+
+	* lib/Mj/Parser.pm (parse_part): Change to allow both '=' and '-'
+ 	as argument/mode separators.
+
 Sun May 10 00:33:48 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/Lock.pm (unlock): OK, don't delete the lockfile since it

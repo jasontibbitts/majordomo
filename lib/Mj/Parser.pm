@@ -195,7 +195,7 @@ sub parse_part {
     }
     
     # Pull off a command mode
-    ($command, $mode) = split(/\s*=\s*/, $command);
+    ($command, $mode) = $command =~ /([^=-]+)[=-]?(.*)/;
     $mode = '' unless defined $mode;
     
     $true_command = command_legal($command);
@@ -221,6 +221,7 @@ sub parse_part {
     }
     $garbage = 0;
     print $outhandle $out;
+
     undef $password;
 
     # Deal with "approve" command; we do it here so that it can be aliased
@@ -229,7 +230,7 @@ sub parse_part {
       ($password, $command, $args) = split(" ", $args, 3);
 
       # Pull off a command mode
-      ($command, $mode) = split(/\s*=\s*/, $command);
+      ($command, $mode) = $command =~ /([^=-]+)[=-]?(.*)/;
       $mode = '' unless defined $mode;
 
       $true_command = command_legal($command);

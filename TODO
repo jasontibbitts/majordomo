@@ -12,10 +12,11 @@ Switch over one of my lists.  (How?  Manually maintain subscription
 Top of the list 
 ---------------
 
+! Install different version of repl_confirm is no web server configured.
+
 ! Make sure all sent mails have To: headers.
 
-! Retrieve message given archive name and number
-  Retrieve last N messages/message numbers from archive
+! Finish archive interface.
 
 ! Make sure that archives get a separate umask, so that people can
   download them.
@@ -42,6 +43,8 @@ Top of the list
 
 ! Make mail_message go through the same delivery functions as normal
   delivery.
+
+! Add a banned_domains list; just ignore connections from these hosts.
 
 - Implement rejection (and perhaps acceptance) messages for tokens, and add
   a box to type them in to the web interface.

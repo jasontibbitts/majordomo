@@ -265,12 +265,12 @@ sub index {
       }
       elsif ($mode =~ /long/) {
 	eprintf($out, $type,
-		"  %2s %-$width[0]s %$width[6]s  %-$width[3]s  %-$width[4]s  %-$width[5]s  %-50s\n",
+		"  %2s %-$width[0]s %$width[6]s  %-$width[3]s  %-$width[4]s  %-$width[5]s  %s\n",
 		$i->[1], $i->[0], $i->[6], $i->[3], $i->[4], $i->[5], $i->[2]);
       }
       else { # normal
 	eprintf($out, $type,
-		"  %-$width[0]s %$width[6]d %-50s\n", $i->[0], $i->[6], $i->[2]);
+		"  %-$width[0]s %$width[6]d %s\n", $i->[0], $i->[6], $i->[2]);
       }
     }
     return 1 if $mode =~ /short/;

@@ -1700,6 +1700,64 @@ sub _alias {
   ($ok, $err);
 }
 
+=head2 archive(..., list, args)
+
+This is a general archive interface.  It checks access, then looks at the
+mode to determine what action to take.
+
+Useful modes include:
+
+  search - grep message subjects or bodies; build TOC or digest if few
+           enough hits
+
+  Search the bodies:
+    archive-search list regexp
+
+  Search subjects:
+    archive-search-subject list regexp
+
+  get - retrieve a named message (or messages)
+
+  By named messages:
+    archive-get list 199805/12 199805/15
+
+  By a range of names:
+    archive-get list 199805/12 - 199805/20
+
+  By date:
+    archive-get list 19980501
+
+  By date range:
+    archive-get list 19980501 - 19980504
+
+  The slash in a named message is required.  (Note that names don''t always
+  have six digits; it depends on archive_split.)  Dates hever have slashes.
+  Separators (1998.05.01, 1998-05-01) are allowed in dates and names, by
+  applying s/[\.\-]//g to each date.  Spaces around the dashes in a range
+  are required.  Multiple ranges aren''t supported in a first cut.  If the
+  end of a range is left off, the most recent message or current date is
+  used.
+
+  Results are returned in digests.  The type of digest is selected by a
+  mode; normal, MIME and HTML are possibilities.  The digest will be mailed
+  in a separate message.
+
+  An immediate mode returns the text of the messages verbatim, including
+  From_ separators; this is essentially an mbox file.
+
+  Other modes ('index', perhaps) could be used to return just the subjects
+  of messages or other data (probably an array of everything stored within
+  the archive index).
+
+=cut
+sub archive {
+  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
+      $list, $addr, $name) = @_;
+  
+  1;
+
+}
+
 =head2 auxadd(..., list, name, address)
 
 This adds an address to a lists named auxiliary address list.

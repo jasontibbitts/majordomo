@@ -92,7 +92,7 @@ sub new {
   $dh = new DirHandle $dir;
   return undef unless defined $dh;
   while (defined($_ = $dh->read)) {
-    if (/^$list-/) {
+    if (/^$list\./) {
       $self->{'archives'}{$_} = {};
     }
   }
@@ -141,7 +141,7 @@ sub add {
   $data->{'split'} = '';
 
   $dir = $self->{'dir'};
-  $arc = $self->{list}. '-'. _arc_name($self->{'split'}, $data->{'time'});
+  $arc = $self->{list}. '.'. _arc_name($self->{'split'}, $data->{'time'});
 
   # Determine the proper count if necessary; don't bother if unlimited;
   # otherwise, take the last existing one and check to make sure it will
@@ -150,13 +150,13 @@ sub add {
     $count = "00";
 
     # Check to see whether we already have archives from this month
-    if ($self->{'archives'}{"$arc.$count"}) {
+    if ($self->{'archives'}{"$arc-$count"}) {
 
       # Figure out which count to use; take the last file in the list and
       # extract the count from it
       $sub = (grep(/^$arc\.\d\d/,
 		   sort(keys(%{$self->{'archives'}})))
-	     )[-1] || "$arc.$count";
+	     )[-1] || "$arc-$count";
 
       $sub =~ /.*\.(\d\d)/; $count = $1;
 
@@ -177,7 +177,7 @@ sub add {
   # Now choose the final values we will use
   $sub = $arc;
   if (defined $count) {
-    $sub .= ".$count";
+    $sub .= "-$count";
     $data->{'split'} = $count;
   }
 
@@ -288,7 +288,7 @@ sub get_message {
 
   # Open FH on appropriate split
   if (length($data->{split})) {
-    $fh = new Mj::File "$dir/$arc.$data->{split}";
+    $fh = new Mj::File "$dir/$arc-$data->{split}";
   }
   else {
     $fh = new Mj::File "$dir/$arc";

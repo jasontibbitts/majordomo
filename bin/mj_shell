@@ -164,7 +164,7 @@ sub parse_command {
     return 0;
   }
 
-  ($command, $mode) = split('=', $command, 2);
+  ($command, $mode) = $command =~ /([^=-]+)[=-]?(.*)/;
   $mode ||= "";
   
   my $true_command = Mj::Parser::command_legal($command);
