@@ -1,3 +1,9 @@
+2002-05-08  Michael Yount <csf@moscow.com>
+
+	* t/*.t  Change "perl-latest" to "perl" in test files to 
+	avoid errors from recent versions of Test::Harness.
+	Thanks to Deb Heller-Evans.
+
 2002-05-07  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/BounceParser.pm (parse_compuserve, parse_compuserve2):

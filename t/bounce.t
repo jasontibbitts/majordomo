@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 # This script will run the bounce parsing engine over a number of files.
 # Each file must contain one message including all of the headers.

@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl-latest -w
+#!/usr/bin/perl -w
 use Mj::SimpleDB;
 use Mj::Log;
 use Majordomo;
