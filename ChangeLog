@@ -1,3 +1,34 @@
+2001-09-19  Michael Yount <csf@moscow.com>
+
+	* bin/mj_shell:  Bugfix:  use str_to_offset to determine
+	the length of a delay.
+
+	* lib/Majordomo.pm:  (_report)  Use Mj::Util::str_to_offset()
+	to determine the time period for a report.
+
+	* lib/mj_cf_data.pl:  support the "quarterly" option for
+	the archive_split setting.
+
+	* lib/Mj/Access.pl:  (list_access_check)  Remove unneeded 
+	support for the check_main condition.
+	(_a_delay)  Use Mj::Util::str_to_offset() to determine a
+	delay.
+
+	* lib/Mj/Archive.pm:  (_secs_start, _secs_end)  Treat
+	a five-digit number, such as 20012, as an indication of
+	a quarter-year instead of a month.
+	(expand_range)  Use Mj::Util::str_to_offset().
+
+	* lib/Mj/Config.pm:  (_str_to_offset)  Move to Mj::Util.
+	(parse_limits)  Bugfix:  make a leading digit in a
+	time span optional.
+
+	* lib/Mj/Parser.pm:  (parse_part)  use Mj::Util::str_to_offset().
+
+	* lib/Mj/Util.pm:  (str_to_offset)  Rename
+	Mj::Config::_str_to_offset.
+	(str_to_time)  Call str_to_offset() for syntax consistency.
+	
 2001-09-18  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_archive)  Add support for the "subject,"

@@ -454,10 +454,9 @@ sub parse_command {
       print STDERR "User set to \"$dfl->{'user'}\".\n";
     }
     elsif ($command eq 'delay') {
-      my ($time) = time;
       if (defined $args) {
-        $dfl->{'delay'} = Mj::List::_str_to_time($args) || $time;
-        $dfl->{'delay'} -= $time;
+        eval ("use Mj::Util qw(str_to_offset)");
+        $dfl->{'delay'} = str_to_offset($args) || 0;
       }
       else {
         $dfl->{'delay'} = 0;
