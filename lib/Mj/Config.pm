@@ -2105,7 +2105,7 @@ sub parse_digests {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, $var;
-  my(@tmp, $data, $elem, $error, $i, $j, $table);
+  my(@tmp, $data, $elem, $error, $i, $j, $table, $tmp);
 
   # %$data will hold the return hash
   $data = {};
@@ -2164,19 +2164,33 @@ sub parse_digests {
       }
     }
 
-    # maxage
-    $elem->{'maxage'} = str_to_offset($table->[$i][4]);
-    # default to zero (no limit) to avoid warnings in decide().
-    $elem->{'maxage'} ||= 0;
+    # maxage.  Default to zero (no limit).
+    $tmp = str_to_offset($table->[$i][4]);
+    if (defined $tmp) {
+      $elem->{'maxage'} = $table->[$i][4];
+    }
+    else {
+      $elem->{'maxage'} = 0;
+    }
 
-    # separate
-    $elem->{'separate'} = str_to_offset($table->[$i][5]);
-    unless (defined $elem->{'separate'}) {
+    # separate.  Default to 15 minutes between deliveries.
+    $tmp = str_to_offset($table->[$i][5]);
+    if (defined $tmp) {
+      $elem->{'separate'} = $table->[$i][5];
+    }
+    else {
       $elem->{'separate'} = 900;
     }
 
-    # minage
-    $elem->{'minage'} = str_to_offset($table->[$i][6]);
+    # minage.  Default to no minimum.
+    $tmp = str_to_offset($table->[$i][6]);
+    # default to zero (no limit) to avoid warnings in decide().
+    if (defined $tmp) {
+      $elem->{'minage'} = $table->[$i][6];
+    }
+    else {
+      $elem->{'minage'} = 0;
+    }
 
     # type:  index, mime, or text
     $elem->{'type'} = $table->[$i][7] || 'mime';
@@ -2424,13 +2438,14 @@ sub parse_integer {
 
 =head2 parse_limits
 
-A limits table consists of three fields per line:
-PATTERN | CONDITIONS | CONDITIONS
+A limits table consists of four fields per line:
+PATTERN | CONDITIONS | CONDITIONS | CONDITIONS
 The pattern is matched against the e-mail addresses of people
-who post messages.  The first set of conditions defines a "soft"
-limit (by default, the message will be held for approval), while
-the second set of conditions defines a "hard" limit (by default,
-the message will be denied).
+who post messages.
+
+The first set of conditions defines "soft" upper limits.
+The second set of conditions defines "hard" upper limits.
+The third set of conditions defines lower limits.
 
 =cut
 use Mj::Util 'str_to_offset';
@@ -2439,12 +2454,15 @@ sub parse_limits {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, $var;
-  my (@out, $err, $i, $j, $ok, $part, $regex, $stat, $table, $whole);
+  my (@limits,@out, $err, $i, $j, $k, $ok, $part, $regex, $stat, 
+      $table, $tmp, $whole);
 
-  ($table, $err) = parse_table('fspp', $arr);
+  ($table, $err) = parse_table('fsppp', $arr);
 
   return (0, "Error parsing table: $err.")
     if $err;
+
+  @limits = qw(soft hard lower);
 
   # Iterate over the table
   for ($i = 0; $i < @$table; $i++) {
@@ -2457,48 +2475,30 @@ sub parse_limits {
     $out[$i]->{'pattern'} = $regex;
     $out[$i]->{'soft'} = [];
     $out[$i]->{'hard'} = [];
+    $out[$i]->{'lower'} = [];
 
-    # Parse soft limit conditions
-    for ($j = 0; $j < @{$table->[$i][1]}; $j++) {
-      $stat = $table->[$i][1]->[$j];
-      if ($stat =~ m#(\d+)/(\d*)([\da-z]+)$#i) {
-        $part = $1;
-        $whole = str_to_offset(($2 || 1) . $3);
-        return (0, "Unable to parse time span $stat.") 
-          unless (defined($whole) and $whole > 0);
-        push @{$out[$i]->{'soft'}}, ['t', $part, $whole];
+    for ($j = 1; $j < 4; $j++) {
+      for ($k = 0; $k < @{$table->[$i][$j]}; $k++) {
+        $stat = $table->[$i][$j]->[$k];
+        if ($stat =~ m#(\d+)/(\d+)$#) {
+          $part = $1;
+          $whole = $2;
+          return (0, "Proportion $stat is greater than one.") 
+            if ($whole < $part);
+          push @{$out[$i]->{$limits[$j-1]}}, ['p', $part, $whole];
+        }
+        elsif ($stat =~ m#(\d+)/(\d*)([\da-z]+)$#i) {
+          $part = $1;
+          $whole = ($2 || 1) . $3;
+          $tmp = &str_to_offset($whole, 0, 0);
+          return (0, "Unable to parse time span $whole.") 
+            unless ($tmp > 0);
+          push @{$out[$i]->{$limits[$j-1]}}, ['t', $part, $whole];
+        }
+        else {
+          return (0, "Unrecognized condition $stat.");
+        }
       }
-      elsif ($stat =~ m#(\d+)/(\d+)#) {
-        $part = $1;
-        $whole = $2;
-        return (0, "Proportion $stat is greater than one.") 
-          if ($whole < $part);
-        push @{$out[$i]->{'soft'}}, ['p', $part, $whole];
-      }
-      else {
-        return (0, "Unrecognized condition $stat.");
-      }
-    }
-    # Parse hard limit conditions
-    for ($j = 0; $j < @{$table->[$i][2]}; $j++) {
-      $stat = $table->[$i][2]->[$j];
-      if ($stat =~ m#(\d+)/(\d*)([\da-z]+)$#i) {
-        $part = $1;
-        $whole = str_to_offset(($2 || 1) . $3);
-        return (0, "Unable to parse time span $stat.") unless ($whole > 0);
-        push @{$out[$i]->{'hard'}}, ['t', $part, $whole];
-      }
-      elsif ($stat =~ m#(\d+)/(\d+)#) {
-        $part = $1;
-        $whole = $2;
-        return (0, "Proportion $stat is greater than one.") 
-          if ($whole < $part);
-        push @{$out[$i]->{'hard'}}, ['p', $part, $whole];
-      }
-      else {
-        return (0, "Unrecognized condition $stat.");
-      }
-      $stat = $table->[$i][1]->[$j];
     }
   }
 
@@ -3536,8 +3536,8 @@ This is not yet implemented.)
 
 If force is 'substring', convert an undelimited pattern into a substring
 pattern.  If force is 'exact', convert an undelimited pattern into an
-equality match.  Prefixing either with 'i' maeks the match
-case-inseneitive.
+equality match.  Prefixing either with 'i' makes the match
+case-insensitive.
 
 Returns a flag, an error, and the compiled pattern.
 
@@ -3567,6 +3567,7 @@ sub compile_pattern {
   my %sh = ('?'=>'.', '*'=>'.*', '['=>'[', ']'=>']');
 
   return (1, '', '') unless $str;
+  return (1, '', '//') if ($str eq 'ALL');
 
   # Extract leading and trailing characters and the pattern; remove
   # whitespace
@@ -3605,7 +3606,8 @@ sub compile_pattern {
 
   $mod ||= '';
 
-  # Decide which type of RE we're dealing with.  Extract the first character of the string
+  # Decide which type of RE we're dealing with.  
+  # Extract the first character of the string.
   if ($id1 eq '"') {
     # Substring pattern; fail if the quote isn't closed
     return (0, "Error in pattern '$str': no closing '\"'.\n")
