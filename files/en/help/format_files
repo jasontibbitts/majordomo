@@ -29,23 +29,23 @@ how domains are managed by Majordomo.
 
 archive_error
 -------------
-(text, wwwadm)  This file is displayed when the archive command fails
-or stalls.
+(text, wwwadm, wwwusr)  This file is displayed when the archive 
+command fails or stalls.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOTAL_POSTS, USER)
 
 
 archive_foot
 ------------
-(text, wwwadm)  This file is displayed at the bottom of the output
-of the archive-index command.
+(text, wwwadm, wwwusr)  This file is displayed at the bottom 
+of the output of the archive-index command.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
 
 
 archive_get_foot
 ----------------
-(text, wwwadm)  This file is displayed at the bottom of the output
+(text, wwwadm, wwwusr)  This file is displayed at the bottom of the output
 of the archive-get or archive-delete command.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
@@ -53,7 +53,7 @@ of the archive-get or archive-delete command.
 
 archive_get_head
 ----------------
-(text, wwwadm)  This file is displayed at the top of the output
+(text, wwwadm, wwwusr)  This file is displayed at the top of the output
 of the archive-get or archive-delete command.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
@@ -61,7 +61,7 @@ of the archive-get or archive-delete command.
 
 archive_head
 ------------
-(text, wwwadm)  This file is displayed at the top of the output
+(text, wwwadm, wwwusr)  This file is displayed at the top of the output
 of the archive-index command.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
@@ -69,7 +69,7 @@ of the archive-index command.
 
 archive_index
 -------------
-(text, wwwadm)  This file is displayed for each message in the
+(text, wwwadm, wwwusr)  This file is displayed for each message in the
 result of the archive-index command.
 
 (standard plus BODY_LINES, BYTE, BYTES, CGIDATA, CGIURL, CMDPASS, DATE, 
@@ -79,7 +79,7 @@ result of the archive-index command.
 
 archive_none
 ------------
-(text, wwwadm)  This file is displayed when no messages were found
+(text, wwwadm, wwwusr)  This file is displayed when no messages were found
 in the archive.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
@@ -87,11 +87,36 @@ in the archive.
 
 archive_stats
 -------------
-(text, wwwadm)  This file is displayed when the archive-stats command
-is used.
+(text, wwwadm, wwwusr)  This file is displayed when the 
+archive-stats command is used.
 
 (standard plus AUTHORS, CGIDATA, CGIURL, CMDPASS, FINISH, KILOBYTES,
  POSTS, START, TOTAL_KILOBYTES, TOTAL_POSTS, USER)
+
+
+archive_summary
+---------------
+(text, wwwadm, wwwusr)  This file displays the statistics for one
+mailing list when the archive-summary command is used.
+
+(standard plus BYTES, CGIDATA, CGIURL, CMDPASS, FILE, LINES, MSGS,
+ SIZE, TOTAL_POSTS, USER)
+
+
+archive_summary_foot
+--------------------
+(text, wwwadm, wwwusr)  This file is displayed at the bottom of the
+output when the archive-summary command is used.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+
+
+archive_summary_head
+--------------------
+(text, wwwadm, wwwusr)  This file is displayed at the top of the 
+output when the archive-summary command is used.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
 
 
 command
@@ -321,8 +346,9 @@ lists_full
 about a mailing list (name, description, digests, etc.) when the
 "full" command mode is used.
 
-(standard plus ARCURL, CATEGORY, CGIDATA, CGIURL, CMDPASS, DESCRIPTION, 
- DIGESTS, FLAGS, LIST, OWNER, PATTERN, POSTS, SUBS, USER, WHOAMI)
+(standard plus ARCURL, CAN_READ, CATEGORY, CGIDATA, CGIURL, CMDPASS, 
+ DESCRIPTION, DIGESTS, FLAGS, LIST, OWNER, PATTERN, POSTS, SUBS, USER, 
+ WHOAMI)
 
 
 lists_head
