@@ -1064,7 +1064,7 @@ sub substitute_vars_format {
     $i = $self->_global_config_get('www_help_window');
     $j = $i ? ' target="mj2help"' : '';
     $helpurl =
-      q(<a href="$CGIURL?$CGIDATA&list=$LIST&func=help&extra=%s"%s>%s</a>);
+      q(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=help&amp;extra=%s"%s>%s</a>);
   }
   else {
     $helpurl = '%s';
@@ -3599,13 +3599,14 @@ sub accept {
   $elapsed = $request->{'time'}
     if (exists $request->{'time'});
 
-  return (0, "No token was supplied.\n")
-    unless (scalar(@{$request->{'tokens'}})); #XLANG
+  return (0, $self->format_error('no_token', 'GLOBAL'))
+    unless (scalar(@{$request->{'tokens'}}));
 
   for $ttoken (@{$request->{'tokens'}}) {
     $token = $self->t_recognize($ttoken);
     if (! $token) {
-      push @out, 0, "Illegal token \"$ttoken\".\n"; #XLANG
+      push @out, 0, 
+        $self->format_error('invalid_token', 'GLOBAL', 'TOKEN' => $ttoken);
       next;
     }
     my ($ok, $mess, $data, $tmp) =
@@ -5485,7 +5486,7 @@ sub reject {
       $inform, $line, $list_owner, $mess, $mj_addr, $mj_owner, $ok,
       $owner, $reason, $repl, $rfile, $sess, $site, $t, $token, $victim);
 
-  return (0, "No token was supplied.\n")
+  return (0, $self->format_error('no_token', 'GLOBAL'))
     unless (scalar(@{$request->{'tokens'}}));
 
   $site       = $self->_global_config_get('site_name');
@@ -5498,7 +5499,8 @@ sub reject {
       $token = $self->t_recognize($t);
     }
     if (! $token) {
-      push @out, 0, "Illegal token \"$t\".\n";
+      push @out, 0,
+        $self->format_error('invalid_token', 'GLOBAL', 'TOKEN' => $t);
       next;
     }
 
@@ -6736,12 +6738,13 @@ sub tokeninfo_start {
   # information on tokens.  When we have some way to prevent lots of
   # consecutive requests, we could call the access check routine.
 
-  return (0, "No token identifier was found.\n")
-    unless (length $request->{'id'}); #XLANG
+  return (0, $self->format_error('no_token', 'GLOBAL'))
+    unless (length $request->{'id'});
 
   $token = $self->t_recognize($request->{'id'});
   if (! $token) {
-    return (0, "Illegal token \"$request->{'id'}\".\n");
+    return (0, $self->format_error('invalid_token', 'GLOBAL', 
+                                   'TOKEN' => $request->{'id'}));
   }
   $request->{'id'} = $token;
 
@@ -6749,7 +6752,8 @@ sub tokeninfo_start {
   ($ok, $data) = $self->t_info($token);
   return ($ok, $data) unless ($ok > 0);
 
-  return (0, "Cannot initialize the list \"$data->{'list'}\".\n")
+  return (0, $self->format_error('make_list', 'GLOBAL', 
+                                 'LIST' => $data->{'list'}))
     unless $self->_make_list($data->{'list'});
 
   $data->{'willack'} = '';
