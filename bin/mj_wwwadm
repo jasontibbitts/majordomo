@@ -59,11 +59,11 @@ my (%commands, %seen, @extra, @hereargs, @lists, @mlists,
 # Fourth value:  Page to display after the result.
 %commands = (   
                 'accept'        => [1, 0, 1, 'showtokens'],
-                'archive'       => [1, 1, 1, 'showtokens'],
+                'archive'       => [1, 1, 0, 'command'],
                 'configdef'     => [1, 1, 1, 'configshow'],
                 'configset'     => [1, 1, 1, 'configshow'],
                 'configshow'    => [1, 1, 0, 'configshow'],
-                'digest'        => [1, 1, 1, 'showtokens'],
+                'digest'        => [1, 1, 1, 'command'],
                 'faq'           => [1, 1, 1, 'lists'],
                 'get'           => [1, 1, 1, 'lists'],
                 'help'          => [0, 0, 1, 'help'],
@@ -72,7 +72,7 @@ my (%commands, %seen, @extra, @hereargs, @lists, @mlists,
                 'intro'         => [1, 1, 1, 'lists'],
                 'lists'         => [1, 0, 0, 'lists'],
                 'reject'        => [1, 0, 1, 'showtokens'],
-                'report'        => [1, 1, 1, 'showtokens'],
+                'report'        => [1, 1, 1, 'command'],
                 'sessioninfo'   => [1, 0, 1, 'showtokens'],
                 'set'           => [1, 1, 1, 'who'],
                 'showtokens'    => [1, 1, 0, 'showtokens'],
@@ -365,7 +365,8 @@ elsif ($func ne 'showtokens') {
 #   lists      - Show details about a list, or a collection of lists.
 #   showtokens - Display a list of pending requests
 #   who        - Search the subscriber list or (un)subscribe addresses
-if ($cgi->param('command') eq 'on' and $func ne 'showtokens') {
+if (($cgi->param('command') eq 'on' and $func ne 'showtokens')
+    or $commands{$func}->[3] eq 'command') {
   &command($mj, $subs, '');
 }
 elsif ($commands{$func}->[3] eq 'showtokens') {
