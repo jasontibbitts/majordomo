@@ -40,7 +40,7 @@ The second way is, if you know the name of the list, to type
 it into the <b>Mailing List</b> box in the following form,
 then press the <b>search</b> button.
 
-<form METHOD=post action="$CGIURL">
+<form method=POST action="$CGIURL">
   <input type=hidden name=domain value="$DOMAIN">
   <input type=hidden name=func value="lists-full-long">
   <input type=hidden name=passw value="$PASSWORD">
@@ -88,7 +88,7 @@ You can obtain a new password or register using the following
 form.  Type your e-mail address into the box, then press
 the <b>password-gen</b> or the <b>register</b> button.
 
-<form METHOD=post action="$CGIURL">
+<form method=POST action="$CGIURL">
   <input type=hidden name=domain value="$DOMAIN">
   <input type=hidden name=passw value="$PASSWORD">
 address:
