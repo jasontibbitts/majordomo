@@ -1084,14 +1084,15 @@ sub sort_msgs {
   my ($msgs, $mode, $re_pattern) = @_;
   return unless (ref($msgs) eq 'ARRAY' and scalar(@$msgs));
   my (@msgs, @refs, $ct, $data, $i, $j, $key, $order, $re_mods, $subj);
+  my $log = new Log::In 350, $mode;
 
   @msgs = @$msgs;
   if ($mode =~ /author/) {
+    for ($i = 0 ; $i <= $#msgs; $i++) {
+      $msgs[$i]->[1]->{'from'} = lc $msgs[$i]->[1]->{'from'};
+    }
     @msgs = sort {
-                  my ($a1, $a2);
-                  $a1 = new Mj::Addr($a->[1]->{'from'});
-                  $a2 = new Mj::Addr($b->[1]->{'from'});
-                  reverse($a1->canon) cmp reverse($a2->canon);
+                   lc $a->[1]->{'from'} cmp lc $b->[1]->{'from'};
                  } @msgs;
   }
   elsif ($mode =~ /date/) {
@@ -1103,14 +1104,16 @@ sub sort_msgs {
     $re_mods = $2 || '';
     $re_mods .= 's';
 
+    for ($i = 0 ; $i <= $#msgs; $i++) {
+      (undef, $j) =
+        re_match("/^($re_pattern)?\\s*(.*)\$/$re_mods",
+                 $msgs[$i]->[1]->{'subject'}, 1);
+      $msgs[$i]->[1]->{'Subject'} = $j;
+    }
+
     @msgs = 
       sort {
-             my ($s1, $s2) = ($a->[1]->{'subject'}, $b->[1]->{'subject'});
-             (undef, $s1) =
-               re_match("/^($re_pattern)?\\s*(.*)\$/$re_mods", $s1, 1);
-             (undef, $s2) =
-               re_match("/^($re_pattern)?\\s*(.*)\$/$re_mods", $s2, 1);
-             $s1 cmp $s2;
+             $a->[1]->{'Subject'} cmp $b->[1]->{'Subject'};
            } @msgs;
   }
   elsif ($mode =~ /thread/) {
