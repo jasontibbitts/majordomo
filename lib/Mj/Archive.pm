@@ -477,9 +477,11 @@ sub expand_date {
   my $end   = shift || $start;
   my (@arcs, @matches, @out, @tmp, $e, $ea, $i, $j, $k, $match, $s, $sa);
 
-  # Figure out start and end times
-  $s = _secs_start($start);
-  $e = _secs_end($end);
+  # Figure out start and end times; pass the 'local' flag because the
+  # articles went into the archive tagged with the local time, so they
+  # should come out the same.
+  $s = _secs_start($start, 1);
+  $e = _secs_end($end, 1);
 
   # Figure out the names of the starting and ending archives
   $sa = _arc_name($self->{'split'}, $s);
@@ -511,14 +513,18 @@ sub expand_date {
   @out;
 }
 
-=head2 _secs_start(date)
+=head2 _secs_start(date, local)
 
 Returns the seconds count at the beginning of the given 'date'.
+
+If local is true, the date is assumed to be in local time, else it is
+assumed to be in GMT.
 
 =cut
 use Time::Local;
 sub _secs_start {
   my $d = shift;
+  my $local = shift;
 
   # Convert the data into yyyymmmdd format
   if ($d =~ /^\d$/) {
@@ -547,7 +553,12 @@ sub _secs_start {
 
   # Now convert that to seconds
   $d =~ /^(\d{4})(\d{2})(\d{2})$/;
-  timegm(0,0,0,$3,$2-1,$1);
+  if ($local) {
+    return timelocal(0,0,0,$3,$2-1,$1);
+  }
+  else {
+    return timegm(0,0,0,$3,$2-1,$1);
+  }
 }
 
 =head2 _secs_end(date)
@@ -558,6 +569,7 @@ Returns the seconds count at the end of the given 'date'.
 use Time::Local;
 sub _secs_end {
   my $d = shift;
+  my $local = shift;
 
   # Convert the data into yyyymmmdd format
   if ($d =~ /^\d$/) {
@@ -590,7 +602,12 @@ sub _secs_end {
 
   # Now convert that to seconds
   $d =~ /^(\d{4})(\d{2})(\d{2})$/;
-  timegm(59,59,23,$3,$2-1,$1);
+  if ($local) {
+    return timelocal(59,59,23,$3,$2-1,$1);
+  }
+  else {
+    return timegm(59,59,23,$3,$2-1,$1);
+  }
 }
 
 # Days in month.

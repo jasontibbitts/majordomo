@@ -1,5 +1,10 @@
 Wed Oct 14 16:51:35 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Archive.pm (_secs_start,_secs_end): Take 'local'
+ 	parameter and return a seconds count based on the date being in
+ 	local time if true.
+	(expand_date): Call _secs_* with a true 'local' parameter.
+
 	* Various: turn autoloading back on.
 	
 	* lib/Mj/Digest/Build.pm (build_mime): Print the message number
