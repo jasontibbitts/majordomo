@@ -2563,7 +2563,7 @@ can never be a token for the 'accept' command.
 sub accept {
   my ($self, $request) = @_;
   my $log = new Log::In 30, scalar(@{$request->{'tokens'}}) . " tokens";
-  my ($token, $ttoken, @out);
+  my ($comment, $token, $ttoken, @out);
 
   $request->{'list'} = 'GLOBAL';
 
@@ -2579,7 +2579,8 @@ sub accept {
     }
 
     my ($ok, $mess, $data, $tmp) = 
-        $self->t_accept($token, $request->{'mode'}, $request->{'xplanation'});
+        $self->t_accept($token, $request->{'mode'}, $request->{'xplanation'},
+                        $request->{'delay'});
 
     # We don't want to blow up on a bad token; log something useful.
     unless (defined $data) {
@@ -2593,6 +2594,9 @@ sub accept {
       $tmp = [0];
     }
 
+    $comment = '';
+    $comment = $tmp->[1] unless (!defined $tmp->[1] or ref $tmp->[1]);
+
     # Now call inform so the results are logged
     $self->inform($data->{'list'},
           ($data->{'type'} eq 'consult')? 'consult' : $data->{'command'},
@@ -2600,7 +2604,7 @@ sub accept {
           $data->{'victim'},
           $data->{'cmdline'},
           "token-$self->{'interface'}",
-          $tmp->[0], 0, 0, $tmp->[1]);
+          $tmp->[0], 0, 0, $comment);
 
     $mess ||= "Further approval is required.\n" if ($ok < 0);
     if ($ok) {
@@ -4772,7 +4776,7 @@ sub trigger {
     while (@req) {
       ($key, $data) = splice @req, 0, 2;
       ($ok, $mess, $data, $tmp) =
-        $self->t_accept($key);
+        $self->t_accept($key, '', 'The request was completed after a delay', 0));
       $self->inform($data->{'list'},
                     $data->{'command'},
                     $data->{'user'},
