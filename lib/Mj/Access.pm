@@ -562,6 +562,11 @@ sub list_access_check {
     # Check the password against the requester
     ($ok) = $self->validate_passwd($requester, $passwd, $list, $request);
    
+    unless ($ok or (! $args{'posing'})) {
+      # Check the password against the session user
+      ($ok) = $self->validate_passwd($self->{'sessionuser'}, $passwd, $list, $request);
+    }
+
     unless (($ok > 0) or (! $args{'mismatch'})) {
       # Check the password against the victim
       ($ok) = $self->validate_passwd($victim, $passwd, $list, $request);
