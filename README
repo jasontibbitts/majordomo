@@ -501,5 +501,11 @@ create it at runtime.  Therefore you should be wary of placing this on a
 filesystem like Sun's tempfs which goes away after a reboot unless you take
 care to recreate the directory properly during the boot process.
 
+----
+
+Note that you can prepare a response file that has the answer to each
+question.  This is currently very fragile as it is still in the
+preliminary stages.  Any change in the questions will cause a response
+file to break.  You've been warned.
 
  - J<

@@ -1,4 +1,6 @@
 # Nipped from MakeMaker.
+use Term::ReadKey;
+
 sub prompt ($;$) {
   sep();
   my($mess,$def)=@_;
@@ -7,10 +9,12 @@ sub prompt ($;$) {
   my $dispdef = defined $def ? "[$def] " : " ";
   $def = defined $def ? $def : "";
   my $ans;
-  if ($ISA_TTY) {
+  if ($ISA_TTY || -s STDIN) {
     local $|=1;
     print "$mess $dispdef->";
     chomp($ans = <STDIN>);
+    # show the output if we're reading from a response file
+    print $ans, "\n" unless $ISA_TTY;
   }
   # and if it's NOT a tty? return undef?
   return $ans if(length $ans);
