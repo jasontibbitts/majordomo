@@ -1,5 +1,6 @@
-Token $TOKEN has been rejected for the following command:
+Token $TOKEN has been rejected for the following request:
   Command:  $CMDLINE
+  From:     ?REQUESTER
   Date:     $DATE
   Session:  $SESSIONID
 

@@ -1,5 +1,6 @@
-Token $TOKEN has been accepted for the following command:
+Token $TOKEN has been accepted for the following request:
   Command:  $CMDLINE
+  From:     ?REQUESTER
   Date:     $DATE
   Session:  $SESSIONID
 
