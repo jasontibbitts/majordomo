@@ -330,7 +330,7 @@ sub _setup {
 	$probes->{$i}[$j] =
 	  new Mj::Deliver::Prober(data    => $rules->[$j]{'data'},
 				  file    => $args{classes}{$i}{file},
-                                  sender  => $sender,
+                                  sender  => $args{sender},
 				  seqnum  => $args{classes}{$i}{seqnum},
 				  sendsep => $args{sendsep},
                                   lhost   => $args{lhost},
