@@ -338,8 +338,12 @@ sub do_default_config {
   print "Setting configuration defaults for $dom:" unless $quiet;
 
   # Figure out what the owner address should be
-  $config->{'domain'}{$dom}{whoami} =~ /(.*)\@(.*)/;
-  $owner = "$1-owner\@$2";
+  if ($config->{'domain'}{$dom}{whoami} =~ /(.*)\@(.*)/) {
+    $owner = "$1-owner\@$2";
+  }
+  else {
+    $owner = "$config->{'domain'}{$dom}{whoami}-owner";
+  }
 
   # Open the master defaults file, in lib/mj_cf_defs.pl
   open MASTER, 'lib/mj_cf_defs.pl';

@@ -187,7 +187,7 @@ sub get_text {
     $fh->print("\n----- End Included Message -----\n");
   }
   else {
-    $fh->print("Part of type $type removed.\n");
+    $fh->print("\n\nAttachment of type $type removed.\n");
   }
 }
 
