@@ -1,3 +1,30 @@
+2000-05-12  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Token.pm:
+	(confirm, consult, t_remind) Substitute for $REASONS.  The reasons
+	are separated by newlines.
+
+	(consult) Use a reply file for all commands, and for posts append
+	the original message as a second (message/rfc822) body part.
+
+	* lib/Mj/Resend.pm:
+	(_check_approval, _trim_approved) Adjust regex to allow
+	an absence of white space between password and token.
+	Check for Approved: in first body part if no password
+	was found in the preamble.
+
+	* lib/Mj/Access.pm:
+	(_a_default) Specify reasons for many of the default actions.
+
+	* files/en/token_remind, files/en/confirm, files/en/confirm_noweb, files/en/consult, files/en/consult_noweb:
+	Add explanation of reasons in consult, confirm, token_remind
+	files.
+
+	* files/INDEX.pl:
+	Include the name of the request ($REQUEST) in the description for
+	English consult/confirm files.
+
+
 2000-05-12  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Parser.pm (parse_entity): New calling convention: take
@@ -8,7 +35,7 @@
 	* bin/mj_email (parse_commands): Handle new Parser::Parse_entity
 	calling conventions.
 
-2000-05-10  Michael Yount  <csf@moscow.com>
+2000-05-11  Michael Yount  <csf@moscow.com>
 
 	* bin/mj_wwwadm: Use the remote IP address as the
 	local part of the fake requester address.
