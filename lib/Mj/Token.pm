@@ -348,9 +348,9 @@ sub consult {
         			      );
 
   # This extracts a list of moderators.  If a moderator group
-  # was specified, the addresses are taken from the auxiliary
+  # was specified, the addresses are taken from the subsidiary
   # list of the same name.  If no such list exists, the
-  # "moderators" auxiliary list and the "moderators," "moderator,"
+  # "moderators" subsidiary list and the "moderators," "moderator,"
   # and "sender" configuration setting are each consulted
   # in turn until an address is found.
   $self->_make_list($list);
@@ -701,7 +701,7 @@ sub t_accept {
       # Reconstruct the list address.
       my %avars = split("\002", $data->{'arg3'});
       $whoami = $data->{'list'};
-      $data->{'auxlist'} = $avars{'sublist'} || '';
+      $data->{'sublist'} = $avars{'sublist'} || '';
       if ($avars{'sublist'} ne '') {
         $whoami .=  "-$avars{'sublist'}";
       }
@@ -788,7 +788,7 @@ sub t_accept {
   else {
     # determine whether or not the victim was notified.
     if ($self->{'lists'}{$data->{'list'}}->should_ack(
-         $data->{'auxlist'}, $vict, 'f')) {
+         $data->{'sublist'}, $vict, 'f')) {
       $data->{'ack'} = 1;
     }
   }
