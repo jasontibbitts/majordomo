@@ -1,6 +1,24 @@
+2000-07-30  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm: (dispatch) Inform on post_done, but not
+	on post_start.
+	(set, who)  Use arg3 instead of arg2 for the auxiliary list,
+	because arg2 is used by the access rules to offer reasons. 
+	(accept)  Allow a comment to be given on the command line,
+	as with the reject command.
+	
+	* lib/Mj/Access.pm: (list_access_check) Make the command mode 
+	available to the access rules.
+
+	* lib/Mj/Format.pm: (post) Do not print comment on success.
+	(accept) Indicate whether or not the victim was notified.
+
+	* lib/Mj/List.pm: (valid_aux) Rename validate_aux to valid_aux
+	and use it to untaint the sublist name, ala valid_list.
+
 2000-07-28  Michael Yount <csf@moscow.com>
 
-    * lib/Mj/CommandProps.pm:  Use "auxlist" instead of "sublist."
+	* lib/Mj/CommandProps.pm:  Use "auxlist" instead of "sublist."
 	The argument names must be alphabetical in relation to the
 	order in which the arguments appear on the command line.
 	Using "auxlist" allows more flexibility in choosing names
@@ -28,6 +46,7 @@
 	for the help, lists, and show commands.  
 	Add support for multiple domains.
 	Add support for the help and changeaddr commands.
+	(Thanks to Sudhakar Chandrasekharan for the help suggestion.)
 
 	* lib/Majordomo.pm (subscribe):  Set the matches_list variable
 	if someone attempts to add the -unsubscribe alias to the list.
@@ -39,14 +58,15 @@
 	  -M            Forward message to moderators (-moderator)
 	  -x SUBLIST    Post a message to an auxiliary list.
 	At present, qmail support does not include auxiliary lists.
-    The -moderator alias follows the same conventions as the
+	The -moderator alias follows the same conventions as the
 	-owner alias.  The auxiliary list aliases follow the same
 	conventions as the resend (main list) alias.
+	(Thanks to Brock Rozen for suggesting the -(un)subscribe aliases.)
       
 	* bin/mj_queuerun: Handle altered queue file names for new aliases.
 	The file names will end with a comma, followed by an auxiliary
 	list name or command name or 'M' (for -moderator).
-    Remove the unused qmail code.
+	Remove the unused qmail code.
 
 	* bin/mj_wwwadm, bin/mj_wwwusr: Add support for latchkeys. 
 	Instead of sending the password back to the client with the
@@ -86,8 +106,8 @@
 	lists now use the SubscriberList module.
 	(set, make_setting) Allow settings to be changed for 
 	auxiliary lists.  Digest mode is not supported for sublists.
-    Ensure that digest names are converted to lower case.
-    (aux_add) Extend the data to accommodate the fields of
+	Ensure that digest names are converted to lower case.
+	(aux_add) Extend the data to accommodate the fields of
 	a SubscriberList.
 	(aux_get_chunk) Return all of the data instead of just the address.
 	(aux_get_matching) New subroutine.
@@ -120,7 +140,7 @@
 	lib/Mj/Token.pm: (consult) Allow moderator groups (auxiliary
 	lists) and group sizes to be used.
 	(t_expire) Expire latchkeys (temporary passwords).
-    (_make_latchkeydb, gen_latchkey, validate_latchkey) New subroutines.
+	(_make_latchkeydb, gen_latchkey, validate_latchkey) New subroutines.
 	Latchkeys are temporary passwords used by the WWW interfaces
 	to prevent the CGI scripts from passing a permanent password
 	back to the client.
@@ -153,7 +173,7 @@
 	request hash, and make the 'interface' variable specific
 	to each session, rather than to each request.  This reduces
 	the number of arguments to routines like global_config_get
-    and list_access_check by 2.
+	and list_access_check by 2.
 
 2000-07-07  Michael Yount <csf@moscow.com>
 
@@ -178,7 +198,7 @@
 2000-07-01  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm: (archive_chunk)  Use existing
-    Mj::List routines to retrieve messages in 'immediate' mode.
+	Mj::List routines to retrieve messages in 'immediate' mode.
 
 2000-06-30  Michael Yount <csf@moscow.com>
 
@@ -188,9 +208,9 @@
 	* lib/Majordomo.pm:
 	(faq_start, info_start, intro_start) Remove temporary files.
 	(createlist) Use "newlist" variable instead of "list."
-    (sessioninfo) Rename to sessioninfo_start.  Treat
+	(sessioninfo) Rename to sessioninfo_start.  Treat
 	sessioninfo as an iterated core routine.
-    (showtokens) Allow tokens shown to be limited to a
+	(showtokens) Allow tokens shown to be limited to a
 	particular command.  Include the size of the spool
 	file in the output for posted messages.
 

@@ -49,6 +49,7 @@ my %reg_legal =
    'addr'           =>3,
    'fulladdr'       =>3,
    'host'           =>3,
+   'mode'           =>3,
   );
 
 # one-line descriptions of every access_rule variable used in $commands{???}{'access'}{'legal'} 
@@ -185,7 +186,8 @@ my %commands =
    {
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'tokens', 'ARRAY'},
+                   'arguments' => {'tokens' => 'ARRAYELEM',
+                                   'xplanation' => 'SCALAR'},
                    'hereargs'  => 'tokens',
                    'tokendata' => {'arg1' => 'tokens'},
                   },
@@ -255,7 +257,7 @@ my %commands =
     'dispatch' => {'top' => 1, 'iter' => 1,
                    'arguments' => {'auxlist' => 'SCALAR',
                                    'regexp'  => 'SCALAR'},
-                   'tokendata' => {'arg2'    => 'auxlist',
+                   'tokendata' => {'arg3'    => 'auxlist',
                                    'arg1'    => 'regexp'}
                   },
     'access'   => {
@@ -420,7 +422,6 @@ my %commands =
     'dispatch' => {'top' => 1, 'iter' => 1, 'noaddr' => 1,
                    'arguments' => { 'auxlist' => 'SCALAR' },
                    'hereargs'  =>   'message',
-                   'tokendata' => { 'arg2'    => 'auxlist'},
                   },
     'access'   => {
                    'default' => 'special',
@@ -536,7 +537,7 @@ my %commands =
                    'hereargs'  => 'victims',
                    'tokendata' => {'victim' => 'victims',
                                    'arg1'   => 'setting',
-                                   'arg2'   => 'auxlist'}
+                                   'arg3'   => 'auxlist'}
                   },
     'access'   => {
                    'default' => 'policy',

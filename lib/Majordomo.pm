@@ -421,8 +421,12 @@ sub dispatch {
     if ($base_fun eq 'post' and defined $out->[1]) {
       $request->{'user'} = $out->[1];
     }
+    # Inform on post_done and post, but not on post_start.
+    $over = 2 if ($request->{'command'} eq 'post_start');
+
     # Inform unless overridden or continuing an iterator
-    unless ($over == 2 || $request->{'command'} =~ /_(chunk|done)$/) {
+    unless ($over == 2 || 
+            $request->{'command'} =~ /(_chunk|(?<!post)_done)$/) {
       # XXX How to handle an array of results?
       $self->inform($request->{'list'}, $base_fun, $request->{'user'}, 
                     $request->{'victim'}, $request->{'cmdline'}, 
@@ -2526,7 +2530,8 @@ sub accept {
       next;
     }
 
-    my ($ok, $mess, $data, $tmp) = $self->t_accept($token, $request->{'mode'});
+    my ($ok, $mess, $data, $tmp) = 
+        $self->t_accept($token, $request->{'mode'}, $request->{'xplanation'});
 
     # We don't want to blow up on a bad token; log something useful.
     unless (defined $data) {
@@ -3823,7 +3828,7 @@ sub set {
   ($ok, $mess) =
     $self->list_access_check($request->{'password'}, $request->{'mode'}, 
      $request->{'cmdline'}, $request->{'list'}, 'set', $request->{'user'}, 
-     $request->{'addr'}, $request->{'setting'}, $request->{'auxlist'}, '');
+     $request->{'victim'}, $request->{'setting'}, '', $request->{'auxlist'});
   unless ($ok > 0) {
     $log->out("noaccess");
     return ($ok, $mess);
@@ -3832,11 +3837,11 @@ sub set {
   $self->_make_list($request->{'list'});
   $self->_set($request->{'list'}, $request->{'user'}, $request->{'victim'}, 
               $request->{'mode'}, $request->{'cmdline'}, $request->{'setting'},
-              $request->{'auxlist'});
+              '', $request->{'auxlist'});
 }
 
 sub _set {
-  my ($self, $list, $user, $addr, $mode, $cmd, $setting, $sublist) = @_;
+  my ($self, $list, $user, $addr, $mode, $cmd, $setting, $d, $sublist) = @_;
   my (@lists, @out, $data, $l, $ok, $res);
 
   if ($list eq 'ALL') {
@@ -4587,7 +4592,7 @@ sub who_start {
     $self->list_access_check($request->{'password'}, $request->{'mode'}, 
                              $request->{'cmdline'}, $request->{'list'}, 
                              $base, $request->{'user'}, $request->{'user'}, 
-                             $request->{'regexp'}, $request->{'auxlist'});
+                             $request->{'regexp'}, '', $request->{'auxlist'});
 
   unless ($ok > 0) {
     $log->out("noaccess");
@@ -4597,13 +4602,13 @@ sub who_start {
   $self->{'unhide_who'} = ($ok > 1 ? 1 : 0);
   $self->_who($request->{'list'}, $request->{'user'}, '', 
               $request->{'mode'}, $request->{'cmdline'}, 
-              $request->{'regexp'}, $request->{'auxlist'});
+              $request->{'regexp'}, '', $request->{'auxlist'});
 }
 
 sub _who {
-  my ($self, $list, $requ, $victim, $mode, $cmdline, $regexp, $sublist) = @_;
-  my $log = new Log::In 35, "$list";
-  my ($fh, $listing, $mess, $ok);
+  my ($self, $list, $requ, $victim, $mode, $cmdline, $regexp, $d, $sublist) = @_;
+  my $log = new Log::In 35, $list;
+  my ($fh, $listing, $ok);
   my ($tmpl) = '';
   $listing = [];
   $sublist ||= '';
@@ -4618,7 +4623,8 @@ sub _who {
     $self->_make_list($list);
     if (length $sublist) {
       return (0, "Unknown auxiliary list name \"$sublist\".")
-        unless ($self->{'lists'}{$list}->validate_aux($sublist));
+        unless ($ok = $self->{'lists'}{$list}->valid_aux($sublist));
+      $sublist = $ok;
       $self->{'lists'}{$list}->aux_get_start($sublist);
     }
     else {
