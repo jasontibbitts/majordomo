@@ -52,7 +52,7 @@ __END__
 
 sub accept { 
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($ok, $mess, $token, $data, $rresult, @tokens);
+  my ($command, $ok, $mess, $token, $data, $rresult, @tokens);
 
   @tokens = @$result;
   while (@tokens) {
@@ -68,6 +68,7 @@ sub accept {
       next;
     }
 
+    $command = $data->{'command'};
     # Print some basic data
     eprint($out, $type, "Token for command:\n    $data->{'cmdline'}\n");
     eprint($out, $type, "issued at: ", scalar gmtime($data->{'time'}), " GMT\n");
@@ -88,7 +89,7 @@ sub accept {
 
     # Then call the appropriate formatting routine to format the real command
     # return.
-    my $fun = "Mj::Format::$data->{'command'}";
+    my $fun = "Mj::Format::$command";
     {
       no strict 'refs';
       &$fun($mj, $out, $err, $type, $data, $rresult);
@@ -132,7 +133,7 @@ sub archive {
       $mess, $msg, %stats, @tmp);
   my ($ok, @msgs) = @$result;
 
-  if ($ok <= 0 || $request->{'mode'} =~ /sync/) { 
+  if ($ok <= 0) { 
     eprint($out, $type, &indicate($msgs[0], $ok));
     return $ok;
   }
@@ -143,7 +144,13 @@ sub archive {
 
   $request->{'command'} = "archive_chunk";
 
-  if ($request->{'mode'} =~ /get|delete/) {
+  if ($request->{'mode'} =~ /sync/) {
+    for (@msgs) {
+      ($ok, $mess) = @{$mj->dispatch($request, ($_))};
+      eprint($out, $type, indicate($mess, $ok));
+    }
+  }
+  elsif ($request->{'mode'} =~ /get|delete/) {
     $chunksize = 
       $mj->global_config_get($request->{'user'}, $request->{'password'}, 
                              "chunksize");
@@ -483,7 +490,7 @@ sub lists {
   my ($ok, @lists) = @$result;
 
   if ($ok <= 0) {
-    eprint($out, $type, "Lists failed: $lists[0]\n");
+    eprint($out, $type, indicate("Lists failed: $lists[0]", $ok));
     return 1;
   }
   
@@ -544,14 +551,16 @@ sub lists {
   eprintf($out, $type, "There %s %s list%s.\n", $count==1?("is",$count,""):("are",$count==0?"no":$count,"s"));
   if (%legend) {
     eprint($out, $type, "\nLegend:\n");
-    eprint($out, $type, " '+'  appears next to lists on which you are subscribed\n") if $legend{'+'};
+    eprint($out, $type, " '+'  appears next to lists to which you are subscribed.\n") if $legend{'+'};
+    eprint($out, $type, "\nUse the 'show' command to get more information about your subscriptions.\n");
   }
-  else {
-    eprint($out, $type, "\nYou are not subscribed to any lists using this email address.\n")
-  }
-  eprint($out, $type, "\nUse the 'show' command to get more information about your subscriptions.\n");
-  if ($count) {
-    eprint($out, $type, "\nUse the 'info listname' command to get more information about a specific list.\n");
+  elsif ($request->{'mode'} =~ /enhanced/) {
+    eprint($out, $type, 
+           "\nYou are not subscribed to any lists using this email address.\n");
+    if ($count) {
+      eprint($out, $type, 
+       "\nUse the 'info' command to learn more about a specific list.\n");
+    }
   }
   1;
 }
@@ -801,14 +810,14 @@ sub report {
   }
   if ($request->{'mode'} =~ /summary/) {
     if (scalar keys %stats) {
-      $mess = sprintf "     Command: Total  (Succeed/Stall/Fail)\n";
+      $mess = sprintf "     Command: Total   Succeed Stall Fail\n";
     }
     else {
       $mess = "There was no activity.\n";
     }
     eprint($out, $type, indicate($mess, $ok, 1));
     for $end (sort keys %stats) {
-      $mess = sprintf "%12s: %4d   (%7d/%5d/%4d)\n", $end, $stats{$end}{'total'},
+      $mess = sprintf "%12s: %4d    %7d %5d %4d\n", $end, $stats{$end}{'total'},
         $stats{$end}{1}, $stats{$end}{'-1'}, $stats{$end}{'0'};
       eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
     }
@@ -1059,10 +1068,10 @@ Expires:      $expire
 EOM
 
   # Indicate reasons
-  if ($data->{'arg2'}) {
-    @reasons = split "\002", $data->{'arg2'};
+  if ($data->{'reasons'}) {
+    @reasons = split "\002", $data->{'reasons'};
     for (@reasons) {
-      eprint($out, $type, "Reason:      $_\n");
+      eprint($out, $type, "Reason:       $_\n");
     }
   }
   if ($sess) {
@@ -1230,7 +1239,7 @@ sub who {
         else {
           $subs->{'LISTS'} =~ s/\002/ /g;
         }
-        if (defined $i->{'changetime'}) {
+        if ($i->{'changetime'}) {
           my (@time) = localtime($i->{'changetime'});
           $subs->{'LASTCHANGE'} = 
             sprintf "%4d-%.2d-%.2d", $time[5]+1900, $time[4]+1, $time[3];
