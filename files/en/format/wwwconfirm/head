@@ -4,17 +4,44 @@
 <html><head>
   <title>Majordomo 2 Request Confirmation</title>
 </head>
-
 <body>
 
-<h3 align=center>Request Confirmation at $SITE</h3>
-
 <form method=POST action="$CGIURL">
-  <input name="t" value="$TOKEN">
-  <input type=submit name="a" value="welcome">
-  <input type=submit name="a" value="tokeninfo-full">
-  <input type=submit name="a" value="accept">
-  <input type=submit name="a" value="reject">
+
+<table width="100%" cellspacing=10>
+<tr>
+  <td align=center bgcolor="#706060">
+  <font color="#f0f0f0">
+    Token: <input name="t" value="$TOKEN">
+  </font>
+
+  <td align=center bgcolor="#706060">
+  <font color="#f0f0f0">
+    <input type=submit name="a" value="accept">
+  </font>
+
+  <td align=center bgcolor="#706060">
+  <font color="#f0f0f0">
+    <input type=submit name="a" value="reject">
+  </font>
+
+  <td align=center bgcolor="#706060">
+  <font color="#f0f0f0">
+    <input type=submit name="a" value="tokeninfo-full">
+  </font>
+
+  <td align=center bgcolor="#706060">
+  <font color="#f0f0f0">
+    <input type=submit name="a" value="welcome">
+  </font>
+
+</table>
+
   <input type=hidden name="d" value="$DOMAIN">
 </form>
+
+<center>
+    <font size=+1>$SITE</font><br>
+    request confirmation
+</center>
 

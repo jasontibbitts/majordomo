@@ -1,27 +1,22 @@
 
-<pre>$ERROR</pre>
+<pre>?ERROR</pre>
 
-Welcome to the Majordomo 2 request confirmation interface at $SITE!
-The form at the top of the page will help you to 
-manage one or more unfulfilled Majordomo requests. 
-  
-
-<h3 align=center>Instructions</h3>
-
-Each Majordomo request has a 12-digit token identifier that looks 
-something like this:
+<p>  
+Each Majordomo request has a 12-digit <b>token</b> identifier that looks 
+like this:
 <pre>
   2E48-FA94-4C39
 </pre>
-If the token you wish to accept or reject is not present
-in the first box at the top of the page, type it into that
-box immediately.  There are four buttons you can use to
-manage requests.
 
-<ol>
+If your token is not present in the box at the top of the page, type it 
+into the box.   There are four buttons you can use to manage requests.
+
+<ul>
   <li>
-    To return to this introduction at any time, press the 
-    <b>welcome</b> button at the top of the page. 
+    To approve the request, press the <b>accept</b> button.
+
+  <li>
+    To disapprove the request, press the <b>reject</b> button.
 
   <li>
     To get more information about a pending request (who made
@@ -29,10 +24,9 @@ manage requests.
     press the <b>tokeninfo-full</b> button.
 
   <li>
-    To approve the request, press the <b>accept</b> button.
+    To return to this introduction at any time, press the 
+    <b>welcome</b> button at the top of the page. 
 
-  <li>
-    To disapprove the request, press the <b>reject</b> button.
 
-</ol>
+</ul>
 

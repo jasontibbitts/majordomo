@@ -1,6 +1,7 @@
 <!-- Majordomo foot format file -->
-<hr>
+<p>
 For assistance, contact 
-<a href="mailto:$MJOWNER">$MJOWNER</a>
-</body></html>
+<a href="mailto:$MJOWNER">the $DOMAIN administrators</a>.
+</body>
+</html>
 
