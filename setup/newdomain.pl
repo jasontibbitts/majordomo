@@ -97,12 +97,7 @@ while (1) {
   }
 
   # save the values in the configuration file.
-  open(CONFIG, ">.mj_config") || die ("Cannot create .mj_config: $!");
-  print CONFIG Dumper($config);
-  close CONFIG;
-  if ($config->{save_passwords}) {
-    chmod 0600, '.mj_config';
-  }
+  save_mj_config($config);
 }
 
 exit;
