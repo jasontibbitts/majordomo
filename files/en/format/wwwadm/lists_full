@@ -51,6 +51,11 @@ $POSTS
   Welcome Message</a> 
   (<a href="$CGIURL?$CGIDATA&amp;func=info-edit&amp;list=$LIST">Edit</a>)
 
+<br>
+
+  <a href="$CGIURL?$CGIDATA&amp;func=index&amp;list=$LIST&amp;extra=%2F">
+  Index of Files</a>
+
 </td>
 </tr>
 
