@@ -440,6 +440,10 @@ EOM
     printf "<dd>%s\n", (exists $data->{'subs'}) ? 
                        $data->{'subs'} 
                        : "Unknown";
+    print "<dt>Posts in the last 30 days\n";
+    printf "<dd>%d\n", (exists $data->{'posts'}) ? 
+                       $data->{'posts'} 
+                       : "Unknown";
     print "<dt>List Address\n";
     printf "<dd>%s\n", (exists $data->{'address'}) ? 
                        "<a href=\"mailto:$data->{'address'}\">$data->{'address'}</a>" 
