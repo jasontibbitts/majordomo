@@ -1378,7 +1378,7 @@ sub expand_range {
     if (!$a1 && !$a2) {
       #  Number range.  100 - 20 would return 100 messages ending with
       #  The 20th previous message.
-      push @out, $self->last_n($m2 + $m1, $m1);
+      push @out, $self->last_n($m1, $m2);
     }
     elsif ($m1 && $m2) {
       # Message range
