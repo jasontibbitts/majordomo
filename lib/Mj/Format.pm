@@ -1011,64 +1011,158 @@ sub createlist {
 use Mj::Util qw(str_to_offset time_to_str);
 sub digest {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($comm, $digest, $i, $msgdata);
-  my ($ok, $mess) = @$result;
+  my $log = new Log::In 29;
+  my ($date, $digest, $gsubs, $i, $j, $mess, $msgdata, $ok, 
+      $str, $subs, $tmp);
+  
+  ($ok, $mess) = @$result;
+
+  $gsubs = {
+           $mj->standard_subs($request->{'list'}),
+           'CGIDATA' => $request->{'cgidata'} || '',
+           'CGIURL'  => $request->{'cgiurl'} || '',
+           'CMDPASS' => &escape($request->{'password'}, $type),
+           'USER'    => &escape("$request->{'user'}", $type),
+          };
+
   unless ($ok > 0) {
-    eprint($out, $type, 
-           &indicate($type, "The digest-$request->{'mode'} command failed.\n", $ok));
-    eprint($out, $type, &indicate($type, $mess, $ok));
+    $gsubs->{'ERROR'} = $mess;
+    $tmp = $mj->format_get_string($type, 'digest_error');
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out &indicate($type, "$str\n", $ok);
     return $ok;
   }
 
-  if ($request->{'mode'} !~ /status/) {
-    eprint($out, $type, "$mess") if $mess;
+  if ($request->{'mode'} =~ /incvol/) {
+    $tmp = $mj->format_get_string($type, 'digest_incvol');
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out "$str\n";
   }
-  else {
+  elsif ($request->{'mode'} =~ /status/) {
+    unless (ref $mess eq 'HASH') {
+      $tmp = $mj->format_get_string($type, 'digest_none');
+      $str = $mj->substitute_vars_format($tmp, $gsubs);
+      print $out "$str\n";
+      return 1;
+    }
+
     for $i (sort keys %$mess) {
       next if ($i eq 'default_digest');
       $digest = $mess->{$i};
-      $comm =          "Digest Name                $i\n";
-      $comm .= sprintf "Last delivered on          %s\n",
-                 scalar localtime($digest->{'lastrun'})
-                 if $digest->{'lastrun'};
-      $comm .= sprintf "Next delivery on or after  %s\n",
+
+      $subs = { %$gsubs,
+                'COUNT'       => '',
+                'DESCRIPTION' => '',
+                'DIGESTNAME'  => $i,
+                'LAST_RUN'    => '',
+                'MAX_AGE'     => '',
+                'MAX_MSGS'    => '',
+                'MAX_SIZE'    => '',
+                'MIN_AGE'     => '',
+                'MIN_MSGS'    => '',
+                'MIN_SIZE'    => '',
+                'NEWEST_AGE'  => '',
+                'NEXT_RUN'    => '',
+                'OLDEST_AGE'  => '',
+                'SIZE'        => '',
+              };
+
+      $subs->{'DESCRIPTION'} = &escape($digest->{'description'})
+        if $digest->{'desc'};
+
+      $subs->{'LAST_RUN'} = scalar localtime($digest->{'lastrun'})
+        if $digest->{'lastrun'};
+
+      $subs->{'NEXT_RUN'} =
         scalar localtime($digest->{'lastrun'} + 
           str_to_offset($digest->{'separate'}, 1, 0, $digest->{'lastrun'})) 
-                 if ($digest->{'lastrun'} and $digest->{'separate'});
-      $comm .= sprintf "Age of oldest message      %s\n", 
-                 time_to_str(time - $digest->{'oldest'}, 1)
-                 if ($digest->{'oldest'});
-      $comm .= sprintf "Oldest age allowed         %s\n", 
-                 str_to_offset($digest->{'maxage'}, 0, 1)
-                 if ($digest->{'maxage'});
-      $comm .= sprintf "Age of newest message      %s\n", 
-                 time_to_str(time - $digest->{'newest'}, 1)
-                 if ($digest->{'newest'});
-      $comm .= sprintf "Minimum age required       %s\n", 
-                 str_to_offset($digest->{'minage'}, 0, 1)
-                 if ($digest->{'minage'});
-      $comm .= sprintf "Messages awaiting delivery %d\n", 
-                 scalar @{$digest->{'messages'}} if ($digest->{'messages'});
-      $comm .= sprintf "Minimum message count      %d\n", 
-                 $digest->{'minmsg'} if ($digest->{'minmsg'});
-      $comm .= sprintf "Maximum message count      %d\n", 
-                 $digest->{'maxmsg'} if ($digest->{'maxmsg'});
-      $comm .= sprintf "Minimum size of a digest   %d bytes\n", 
-                 $digest->{'minsize'} if ($digest->{'minsize'});
-      $comm .= sprintf "Maximum size of a digest   %d bytes\n", 
-                 $digest->{'maxsize'} if ($digest->{'maxsize'});
-      $comm .= sprintf "Message total size         %d bytes\n", 
-                 $digest->{'bytecount'} if ($digest->{'bytecount'});
+        if ($digest->{'lastrun'} and $digest->{'separate'});
+
+      $subs->{'OLDEST_AGE'} = time_to_str(time - $digest->{'oldest'}, 1)
+        if ($digest->{'oldest'});
+
+      $subs->{'MAX_AGE'} = str_to_offset($digest->{'maxage'}, 0, 1)
+        if ($digest->{'maxage'});
+
+      $subs->{'NEWEST_AGE'} = time_to_str(time - $digest->{'newest'}, 1)
+        if ($digest->{'newest'});
+
+      $subs->{'MIN_AGE'} = str_to_offset($digest->{'minage'}, 0, 1)
+        if ($digest->{'minage'});
+
+      $subs->{'COUNT'} = scalar @{$digest->{'messages'}} 
+        if ($digest->{'messages'});
+
+      $subs->{'MIN_MSGS'} = $digest->{'minmsg'} 
+        if ($digest->{'minmsg'});
+
+      $subs->{'MAX_MSGS'} = $digest->{'maxmsg'} 
+        if ($digest->{'maxmsg'});
+
+      $subs->{'MIN_SIZE'} = $digest->{'minsize'} 
+        if ($digest->{'minsize'});
+
+      $subs->{'MAX_SIZE'} = $digest->{'maxsize'} 
+        if ($digest->{'maxsize'});
+
+      $subs->{'SIZE'} = $digest->{'bytecount'} 
+        if ($digest->{'bytecount'});
+
+      $tmp = $mj->format_get_string($type, 'digest_status_head');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
+
+      $tmp = $mj->format_get_string($type, 'digest_status');
+
       for $msgdata (@{$digest->{'messages'}}) {
-        $comm .= sprintf "%-14s %s\n", $msgdata->[0], 
-                   substr($msgdata->[1]->{'subject'}, 0, 62); 
-        $comm .= sprintf " by %-48s %s\n", 
-                   substr($msgdata->[1]->{'from'}, 0, 48), 
-                   scalar localtime($msgdata->[1]->{'date'}); 
+        $subs->{'MSGNO'} = $msgdata->[0];
+       
+        for $j (keys %{$msgdata->[1]}) {
+          if ($j eq 'changetime' or $j eq 'date') {
+            $date = scalar localtime($msgdata->[1]->{$j});
+            $subs->{uc $j} = &escape($date, $type);
+          }
+          else {
+            $subs->{uc $j} = &escape($msgdata->[1]->{$j}, $type);
+          }
+        }
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print $out "$str\n";
       }
-      eprint($out, $type, "$comm\n");
+
+      $tmp = $mj->format_get_string($type, 'digest_status_foot');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
     } 
   }
+  else {
+    $tmp = $mj->format_get_string($type, 'digest_head');
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out "$str\n";
+
+    # force or check mode
+    if (ref $mess eq 'HASH' and scalar keys %$mess) {
+      $subs = { %$gsubs };
+      $tmp = $mj->format_get_string($type, 'digest');
+
+      for $i (sort keys %$mess) {
+        $subs->{'DIGESTNAME'} = &escape($i, $type);
+        $subs->{'ISSUES'} = &escape($mess->{$i}, $type);
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print $out "$str\n";
+      }
+    }
+    else {
+      $tmp = $mj->format_get_string($type, 'digest_none');
+      $str = $mj->substitute_vars_format($tmp, $gsubs);
+      print $out "$str\n";
+    }
+
+    $tmp = $mj->format_get_string($type, 'digest_foot');
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out "$str\n";
+  }
+
   $ok;
 }
 
