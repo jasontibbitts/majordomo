@@ -349,10 +349,12 @@ sub welcome {
            'QSADDR'    => Mj::Format::qescape($addr->strip),
 	   'USER'      => $addr,
 	   'VICTIM'    => $addr,
-	   'FRONTER'   => join("\n", @{$fronters->[0]}),
-	   'FOOTER'    => join("\n", @{$footers->[0]}),
-	   'RANDOM_FRONTER' => join("\n", @{@$fronters[rand(@$fronters)]}),
-	   'RANDOM_FOOTER'  => join("\n", @{@$footers[rand(@$footers)]}),
+	   'FRONTER'   => @$fronters ? join("\n", @{$fronters->[0]}) : '',
+	   'FOOTER'    => @$footers  ? join("\n", @{$footers->[0]})  : '',
+	   'RANDOM_FRONTER' =>
+	      @$fronters ? join("\n", @{@$fronters[rand(@$fronters)]}) : '',
+	   'RANDOM_FOOTER'  =>
+	      @$footers  ? join("\n", @{@$footers[rand(@$footers)]})   : '',
 	   'ALL_FRONTERS' => $all_fronters,
 	   'ALL_FOOTERS'  => $all_footers,
 	   %args,

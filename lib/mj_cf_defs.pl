@@ -242,9 +242,9 @@ $Mj::Config::default_string = q(
 			    :
 			    [
 			     'Welcome to the $LIST mailing list!',
-			     'welcome | NSE',
+			     'welcome | NS',
 			     'List introductory information',
-			     'info | S',
+			     'info | SE',
 			    ]),
  'whereami'             => $subs->{'whereami'},
  'which_access'         => "open",

@@ -1,3 +1,14 @@
+2002-07-08  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/mj_cf_defs.pl: Fix welcome_files; had put 'E' flag on the
+	wrong file before.
+
+	* lib/Mj/MailOut.pm (welcome): Handle case where fronters or
+	footers don't exist.
+
+	* setup/ask_domain.pl (ask_domain): Fix botched default for strict
+	domain checking.
+
 2002-07-07  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/Util.pm (shell_hook): New function: implement hooks by

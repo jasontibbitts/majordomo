@@ -1,6 +1,6 @@
 sub ask_domain {
   my ($config, $dom) = @_;
-  my ($cfg, $def, $msg, $strict, $tmp);
+  my ($cfg, $def, $msg, $strict, $tld, $tmp);
 
   $config->{'domain'}{$dom} ||= {};
   $cfg = $config->{'domain'}{$dom};
@@ -13,8 +13,11 @@ sub ask_domain {
   $cfg->{'whereami'} = get_str($msg, $def);
 
   #---- Strict checking (Intranet use)
+  $cfg->{whereami} =~ /([^.]*)$/;
+  $tld = $1;
   $msg = retr_msg('strict_domain_checks', $lang, 'DOMAIN' => $dom);
-  $def = $cfg->{'addr_strict_domain_check'} || $Mj::Addr::top_level_domains{$cfg->{whereami}};
+  $def = $cfg->{'addr_strict_domain_check'} ||
+    $Mj::Addr::top_level_domains{$tld} ? 1 : 0;
   $strict = get_bool($msg, $def);
   $cfg->{'addr_strict_domain_check'} = $strict;
 
