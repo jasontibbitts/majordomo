@@ -1001,7 +1001,7 @@ sub plain_to_hyper {
   $repl->commit;
 }
 
-=head2 clean_html (file, attributes, elements)
+=head2 clean_html (file, attributes, elements, tags)
 
 This function removes unwanted elements and attributes from 
 an HTML file.
@@ -1010,13 +1010,14 @@ an HTML file.
 use Mj::FileRepl;
 use HTML::Parser;
 sub clean_html {
-  my ($file, $attr, $elem) = @_;
+  my ($file, $attr, $elem, $tags) = @_;
   my $log = new Log::In 350;
   my ($line, $parser, $repl);
 
   return unless (-f $file);
   return unless ((ref $elem eq 'ARRAY' and scalar @$elem) or
-                 (ref $attr eq 'ARRAY' and scalar @$attr));
+                 (ref $attr eq 'ARRAY' and scalar @$attr) or
+                 (ref $tags eq 'ARRAY' and scalar @$tags));
 
   
   $repl = new Mj::FileRepl($file);
@@ -1076,7 +1077,7 @@ sub clean_html {
                           "text"
                          ],
       process_h       => ["", ""],
-      ignore_tags     => [],
+      ignore_tags     => $tags,
       ignore_elements => $elem,
     );
 
