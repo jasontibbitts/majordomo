@@ -77,8 +77,7 @@ to see your current subscriptions.
   </td>
   <td>
 
-Majordomo has over 100 cross-referenced help documents, which you can 
-browse by pressing <b>Help</b>.
+Majordomo has over 100 cross-referenced help documents.
 They describe how to email commands to Majordomo at 
 <a href="mailto:$MJ">$MJ</a>.  
 The help pages may be displayed in a new window in your web browser.
