@@ -260,21 +260,25 @@ EOB
       $vblock .= "$list-subscribe\@$dom      $list$vut-subscribe\n";
     }
     if (exists $args{'aliases'}->{'subscribe-digest'} and @{$args{'digests'}}) {
-      $block .= sprintf $aliasfmt, '-subscribe-digest:', '-c subscribe --req setting=digest';
+      $block .= sprintf $aliasfmt, '-subscribe-digest:', 
+                        '-c subscribe-set --req setting=digest';
       $vblock .= "$list-subscribe-digest\@$dom    $list$vut-subscribe-digest\n";
     }
     if (exists $args{'aliases'}->{'subscribe-digest-all'} and @{$args{'digests'}}) {
       for my $i (@{$args{'digests'}}) {
-        $block .= sprintf $aliasfmt, "-subscribe-digest-$i:", "-c subscribe --req setting=digest-$i";
+        $block .= sprintf $aliasfmt, "-subscribe-digest-$i:", 
+                          "-c subscribe-set --req setting=digest-$i";
         $vblock .= "$list-subscribe-digest-$i\@$dom    $list$vut-subscribe-digest-$i\n";
       }
     }
     if (exists $args{'aliases'}->{'subscribe-each'}) {
-      $block .= sprintf $aliasfmt, '-subscribe-each:', '-c subscribe --req setting=each';
+      $block .= sprintf $aliasfmt, '-subscribe-each:', 
+                        '-c subscribe-set --req setting=each';
       $vblock .= "$list-subscribe-each\@$dom    $list$vut-subscribe-each\n";
     }
     if (exists $args{'aliases'}->{'subscribe-nomail'}) {
-      $block .= sprintf $aliasfmt, '-subscribe-nomail:', '-c subscribe --req setting=nomail';
+      $block .= sprintf $aliasfmt, '-subscribe-nomail:', 
+                        '-c subscribe-set --req setting=nomail';
       $vblock .= "$list-subscribe-nomail\@$dom    $list$vut-subscribe-nomail\n";
     }
     if (exists $args{'aliases'}->{'unsubscribe'}) {
