@@ -336,11 +336,13 @@ my %commands =
                    'modes'    =>  {
                                    %generic_modes,
                                    'delete'      => 1,
+                                   'digest'      => 1,
                                    'get'         => 1,
                                    'immediate'   => 1,
                                    'index'       => 1,
                                    'mime'        => 1,
                                    'stats'       => 1,
+                                   'summary'     => 1,
                                    'sync'        => 1,
                                   },
                    'tokendata' => {'arg1' => 'args'}
