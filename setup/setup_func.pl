@@ -1,22 +1,7 @@
 # This file contains routines used by the postinstall script to do initial
 # site and domain setup.
 
-use vars(qw($config $msg0 $msg4 $quiet $verb));
-
-$msg0 = <<EOM;
-
-What is the default global password for domain \$DOM?
-EOM
-
-$msg4 = <<EOM;
-
-Your master site password must be known for some of the installation
- process, but it is insecure to store it anywhere outside of Majordomo.
- Thus you must enter it now.  If you have not yet set a password, choose
- one and enter it below.
-
-What is the site password?
-EOM
+use vars(qw($config $lang $quiet $verb));
 
 # Create the necessary directories for an entire installation.
 sub create_dirs {
@@ -28,7 +13,7 @@ sub create_dirs {
   my $tmp  = shift;
   my($i);
 
-  print "Making directories:" unless $quiet;
+  print retr_msg('making_dirs', $lang) unless $quiet;
   print "$l, $tmp, $uid, $gid\n" if $verb;
 
   # We need to make sure the top level lists directory and the ALIASES
@@ -72,7 +57,10 @@ sub create_dirs_dom {
   my $gid = shift;
   my $um  = shift;
 
-  printf "ok.\nMaking directories for %s, mode %lo.", $d, (0777 & ~oct($um));
+  print "ok.\n";
+  print retr_msg('making_dirs_domain', $lang, 'DOMAIN' => $d, 
+                 'UMASK' => sprintf("%lo", (0777 & ~oct($um))));
+
   safe_mkdir("$l/$d",                    0777 & ~oct($um), $uid, $gid);dot();
   safe_mkdir("$l/$d/GLOBAL",             0777 & ~oct($um), $uid, $gid);dot();
   safe_mkdir("$l/$d/GLOBAL/sessions",    0777 & ~oct($um), $uid, $gid);dot();
@@ -83,21 +71,21 @@ sub create_dirs_dom {
   safe_mkdir("$l/$d/DEFAULT/files",       0777 & ~oct($um), $uid, $gid);dot();
   safe_mkdir("$l/$d/DEFAULT/files/public",0777 & ~oct($um), $uid, $gid);dot();
 
-  # Make the dotfiles so they show up properly in an index
-  open DF, ">$l/$d/GLOBAL/files/.spool"
-    or die "Can't open $l/$d/GLOBAL/files/.spool: $!";
-  print DF "Spooled Files\nd\n\n\n\n\n";
-  close DF;
-  dot();
-  chownmod($uid, $gid, (0777 & ~oct($um)), "$l/$d/GLOBAL/files/.spool");
-  dot();
-
+  # Make the dotfiles so the public directories show up properly in an index
   open DF, ">$l/$d/GLOBAL/files/.public"
     or die "Can't open $l/$d/GLOBAL/files/.public: $!";
-  print DF "Public Files\nd\n\n\n\n\n";
+  print DF retr_msg('public_dir', $lang);
   close DF;
   dot();
   chownmod($uid, $gid, (0777 & ~oct($um)), "$l/$d/GLOBAL/files/.public");
+  dot();
+
+  open DF, ">$l/$d/DEFAULT/files/.public"
+    or die "Can't open $l/$d/DEFAULT/files/.public: $!";
+  print DF retr_msg('public_dir', $lang);
+  close DF;
+  dot();
+  chownmod($uid, $gid, (0777 & ~oct($um)), "$l/$d/DEFAULT/files/.public");
   dot();
 }
 
@@ -112,11 +100,12 @@ sub do_default_config {
   # Prompt for the password if necessary
   $pw = $config->{'domain'}{$dom}{'master_password'};
   unless ($pw) {
-    ($msg = $msg0) =~ s/\$DOM/$dom/;
-    $pw = get_str($msg);
+    $msg = retr_msg('domain_password', $lang, 'DOMAIN' => $dom);
+    $pw = get_passwd($msg);
     $config->{'domain'}{$dom}{'master_password'} = $pw;
   }
-  print "Setting configuration defaults for $dom..." unless $quiet;
+  print retr_msg('config_defaults', $lang, 'DOMAIN' => $dom)
+    unless $quiet;
 
   # Figure out what the owner address should be
   if ($config->{'domain'}{$dom}{whoami} =~ /(.*)\@(.*)/) {
@@ -195,12 +184,12 @@ sub do_site_config {
   # Prompt for the site password if necessary
   $pw = $config->{'site_password'};
   unless ($pw) {
-    $pw = get_str($msg4);
+    $pw = get_passwd(retr_msg('site_password', $lang));
     $config->{'site_password'} = $pw;
   }
   $pw = sha1_base64($pw);
 
-  print "Configuring site-wide parameters:";
+  print retr_msg('config_site', $lang) unless $quiet;
 
   # Figure out what to stash in the MTA options
   $mtaopts = {};
@@ -226,12 +215,12 @@ sub do_site_config {
 
   # Open the site config file
   open SITE, ">$config->{'lists_dir'}/SITE/config.pl"
-    or die "Couldn't open site config file $config->{'lists_dir'}/SITE/config.pl: $!";
+    or die "Cannot open site config file $config->{'lists_dir'}/SITE/config.pl: $!";
   dot();
 
   # Print out the data hash
   print SITE Dumper($data)
-    or die "Couldn't populate site config file $config->{'lists_dir'}/SITE/config.pl: $!";
+    or die "Cannot populate site config file $config->{'lists_dir'}/SITE/config.pl: $!";
   dot();
 
   # Close the file
@@ -239,8 +228,10 @@ sub do_site_config {
   dot();
 
   # Change ownership and permissions
-  chownmod(scalar getpwnam($config->{'uid'}),	scalar getgrnam($config->{'gid'}),
-           (0777 & ~oct($config->{'umask'})), "$config->{'lists_dir'}/SITE/config.pl");
+  chownmod(scalar getpwnam($config->{'uid'}),	
+           scalar getgrnam($config->{'gid'}),
+           (0777 & ~oct($config->{'umask'})), 
+           "$config->{'lists_dir'}/SITE/config.pl");
   print ".ok.\n" unless $quiet;
 }
 
@@ -251,7 +242,7 @@ sub install_config_templates {
 
   $pw = $config->{'site_password'};
   unless ($pw) {
-    $pw = get_str($msg4);
+    $pw = get_str(retr_msg('site_password', $lang));
     $config->{'site_password'} = $pw;
   }
 
@@ -265,7 +256,8 @@ sub install_config_templates {
   close CONFIG;
   close $tmpfh;
 
-  print "Installing configuration templates for $domain..." unless $quiet;
+  print retr_msg('config_templates', $lang, 'DOMAIN' => $domain)
+    unless $quiet;
 
   open(TMP, ">&STDOUT");
   open(STDOUT, ">/dev/null");
@@ -273,7 +265,7 @@ sub install_config_templates {
            'mj2_install@example.com', '-d', $domain, '-F', $tmpfile);
 
   if (system(@args)) {
-    die "Error executing $args[0], $?";
+    die "Error executing $args[0]: $?";
   }
 
   close STDOUT;
@@ -288,7 +280,7 @@ sub install_config_templates {
 sub install_response_files {
   my ($gid, $uid, $um);
 
-  print "Installing stock response files:" unless $quiet;
+  print retr_msg('response_files', $lang) unless $quiet;
 
   rcopy("files", "$config->{'lists_dir'}/SITE/files", 1);
 
@@ -307,11 +299,15 @@ sub make_alias_symlinks {
   my $dir = shift;
 
   symlink("$config->{lists_dir}/ALIASES/mj-alias-$dom", "$dir/mj-alias-$dom") ||
-    warn "\nWarning: could not make symlink from\n  $dir/mj-alias-$dom to\n  $config->{lists_dir}/ALIASES/mj-alias-$dom:\n  $!.\n";
+    warn retr_msg('no_symlink', $lang, 'SOURCE' => "$dir/mj-alias-$dom",
+                  'DEST' => "$config->{lists_dir}/ALIASES/mj-alias-$dom",
+                  'ERROR' => $!);
 
   if ($config->{sendmail_maintain_vut}) {
     symlink("$config->{lists_dir}/ALIASES/mj-vut-$dom", "$dir/mj-vut-$dom") ||
-    warn "\nWarning: could not make symlink from\n  $dir/mj-vut-$dom to\n  $config->{lists_dir}/ALIASES/mj-vut-$dom:\n  $!.\n";
+    warn retr_msg('no_symlink', $lang, 'SOURCE' => "$dir/mj-vut-$dom",
+                  'DEST' => "$config->{lists_dir}/ALIASES/mj-vut-$dom",
+                  'ERROR' => $!);
   }
 }
 
@@ -321,7 +317,7 @@ sub set_script_perms {
   my $scripts    = shift;
   my ($dir, $gid, $id, $uid);
 
-  print "Setting permissions:" unless $quiet;
+  print retr_msg('script_perms', $lang) unless $quiet;
   $id = $config->{'install_dir'};
   if ($config->{wrappers}) {
     for my $i (@$sidscripts) {
@@ -342,7 +338,7 @@ sub set_script_perms {
   # Change permissions on the top-level installation directory, but make
   # sure that anyone can look in it to run programs.
   for $dir ($id, "$id/bin", "$id/lib", "$id/man") {
-    die "set_script_perms: Unable to locate directory at\n  $dir\n"
+    die "Cannot locate the directory at\n  $dir\nto change permissions.\n"
       unless (-d $dir);
   }
   chownmod("", "", (0777 & ~oct($config->{'umask'})) | 0555, $id);
@@ -366,13 +362,8 @@ sub set_script_perms {
 
 # Give a suggested crontab
 sub suggest_crontab {
-  return <<"EOM";
-
-# Remove old lock files
-30 0 * * * $config->{'install_dir'}/bin/mj_trigger -t lock
-# Hourly trigger
-20 * * * * $config->{'install_dir'}/bin/mj_trigger -t hourly
-EOM
+  return retr_msg('crontab', $lang, 
+                  'INSTALL_DIR' => $config->{'install_dir'});
 }
 
 sub mta_setup {
@@ -417,9 +408,24 @@ sub tempfile {
     $handle = new IO::File($name, O_CREAT | O_EXCL | O_RDWR, 0600);
     return ($name, $handle) if $handle;
   }
-  die "Couldn't open a temporary file after ten tries: $!";
+  die "Cannot open a temporary file after ten tries: $!";
 }
 
+=head1 COPYRIGHT
+
+Copyright (c) 1999, 2002 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+This program is distributed in the hope that it will be useful, but WITHOUT 
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
 
 1;
 #
