@@ -23,7 +23,7 @@ mj_trigger - Simple Majordomo event trigger
 
 =head1 SYNOPSIS
 
-B<mj_trigger> B<-t> trigger_type
+B<mj_trigger> [B<-d> domain] [B<-v> debug_level] B<-t> trigger_type
 
 =head1 DESCRIPTION
 
@@ -99,6 +99,16 @@ expired.
 Excepting B<digest>, which has its own setting, these triggers are
 invoked by the B<daily> trigger, or by the B<hourly> trigger at the
 times indicated by the I<triggers> configuration setting.
+
+By default, the mj_trigger program performs its functions for all
+of the Majordomo domains at a site.  However, it is possible to
+limit it to one particular domain by using the C<-d> switch.
+
+If the mj_trigger program is run from a shell, the debugging output will
+be sent to the screen (stdout).  Otherwise, the debugging output will be
+sent to the mj_trigger.debug file in Majordomo's temporary file
+directory.  The default debugging level is 0.  This number can be
+increased by using the C<-v> switch.
 
 =cut
 
