@@ -30,10 +30,11 @@ more lines, with three fields on each line.  If the command matches the
 criteria in the first two fields, the actions in the third field are
 undertaken.
 
-The first field on each line can be any Majordomo command, or any of the 
-following other events that are logged:  badtoken, bounce, connect, consult,
-or parse.  See "help report" for a description of each of these events.
-The "help topics" document has a list of all of the commands.
+The first field on each line can be any Majordomo command, or any of the
+following other events that are logged:  badtoken, bounce, connect,
+consult, expire, or parse.  See "help report" for a description of each
+of these events.  The "help topics" document has a list of all of the
+commands.
 
 The second field on each line is one or more of these results:
   succeed  perform the actions if the request succeeds.
