@@ -212,11 +212,14 @@ sub archive {
   my ($mj, $out, $err, $type, $request, $result) = @_;
  
   my (%stats, @tmp, $chunksize, $data, $first, $i, $j, $last, 
-      $line, $lines, $mess, $msg, $str, $size, $subs, $tmp);
+      $line, $lines, $list, $mess, $mode, $msg, $str, $size, $subs, $tmp);
   my ($ok, @msgs) = @$result;
 
+  $list = $request->{'list'};
+  $mode = $request->{'mode'};
+
   $subs = {
-           $mj->standard_subs($request->{'list'}),
+           $mj->standard_subs($list),
            'CGIDATA'     => $request->{'cgidata'} || '',
            'CGIURL'      => $request->{'cgiurl'} || '',
            'CMDPASS'     => &escape($request->{'password'}, $type),
@@ -226,13 +229,13 @@ sub archive {
 
   if ($ok <= 0) { 
     $subs->{'ERROR'} = $msgs[0];
-    $tmp = $mj->format_get_string($type, 'archive_error', $request->{'list'});
+    $tmp = $mj->format_get_string($type, 'archive_error', $list);
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok, 1);
     return $ok;
   }
   unless (@msgs) {
-    $tmp = $mj->format_get_string($type, 'archive_none', $request->{'list'});
+    $tmp = $mj->format_get_string($type, 'archive_none', $list);
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
     # reset the arcadmin flag.
@@ -243,18 +246,18 @@ sub archive {
 
   $request->{'command'} = "archive_chunk";
 
-  if ($request->{'mode'} =~ /sync/) {
+  if ($mode =~ /sync/) {
     for (@msgs) {
       ($ok, $mess) = @{$mj->dispatch($request, [$_])};
       eprint($out, $type, indicate($type, $mess, $ok));
     }
   }
-  elsif ($request->{'mode'} =~ /summary/) {
-    $tmp = $mj->format_get_string($type, 'archive_summary_head', $request->{'list'});
+  elsif ($mode =~ /summary/) {
+    $tmp = $mj->format_get_string($type, 'archive_summary_head', $list);
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
 
-    $tmp = $mj->format_get_string($type, 'archive_summary', $request->{'list'});
+    $tmp = $mj->format_get_string($type, 'archive_summary', $list);
 
     for $i (@msgs) {
       ($mess, $data) = @$i;
@@ -268,13 +271,13 @@ sub archive {
       print $out "$str\n";
     }
 
-    $tmp = $mj->format_get_string($type, 'archive_summary_foot', $request->{'list'});
+    $tmp = $mj->format_get_string($type, 'archive_summary_foot', $list);
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
-  elsif ($request->{'mode'} =~ /get|delete|edit|replace/) {
-    if ($request->{'mode'} !~ /part|edit/) {
-      $tmp = $mj->format_get_string($type, 'archive_get_head', $request->{'list'});
+  elsif ($mode =~ /get|delete|edit|replace/) {
+    if ($mode !~ /part|edit/) {
+      $tmp = $mj->format_get_string($type, 'archive_get_head', $list);
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
@@ -291,28 +294,42 @@ sub archive {
       ($msg, $data) = @{$msgs[$i]};
       push @tmp, $msgs[$i];
       $lines += $data->{'lines'};
-      if (($request->{'mode'} =~ /digest/ and $lines > $chunksize) 
-          or $i == $#msgs) {
-
-        if ($request->{'mode'} =~ /part|edit/) {
+      if (($mode =~ /digest/ and $lines > $chunksize) or $i == $#msgs) {
+        if ($mode =~ /part|edit/) {
           _archive_part($mj, $out, $err, $type, $request, [@tmp]);
         }
         else {
           ($ok, $mess) = @{$mj->dispatch($request, [@tmp])};
-          eprint($out, $type, indicate($type, $mess, $ok));
+          if (!$ok or $mode =~ /immediate|delete/) {
+            eprint($out, $type, indicate($type, $mess, $ok))
+              if (defined $mess and length $mess);
+          }
+          elsif ($mode =~ /digest/) {
+            $subs->{'MESSAGECOUNT'} = $mess;
+            $tmp = $mj->format_get_string($type, 'archive_get_digest', $list);
+            $str = $mj->substitute_vars_format($tmp, $subs);
+            print $out "$str\n";
+          }
+          else {
+            # get mode
+            $subs->{'MESSAGECOUNT'} = $mess;
+            $tmp = $mj->format_get_string($type, 'archive_get', $list);
+            $str = $mj->substitute_vars_format($tmp, $subs);
+            print $out "$str\n";
+          }
         }
 
         $lines = 0; @tmp = ();
       }
     }
 
-    if ($request->{'mode'} !~ /part|edit/) {
-      $tmp = $mj->format_get_string($type, 'archive_get_foot', $request->{'list'});
+    if ($mode !~ /part|edit/) {
+      $tmp = $mj->format_get_string($type, 'archive_get_foot', $list);
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
   }
-  elsif ($request->{'mode'} =~ /stats/) {
+  elsif ($mode =~ /stats/) {
     $first = time;
     $last = 0;
     $size = 0;
@@ -343,17 +360,17 @@ sub archive {
       push @{$subs->{'POSTS'}}, $stats{$i}{'count'};
       push @{$subs->{'KILOBYTES'}}, int(($stats{$i}{'size'} + 512) / 1024);
     }
-    $tmp = $mj->format_get_string($type, 'archive_stats', $request->{'list'});
+    $tmp = $mj->format_get_string($type, 'archive_stats', $list);
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
   else {
     # The archive-index command.
-    $tmp = $mj->format_get_string($type, 'archive_head', $request->{'list'});
+    $tmp = $mj->format_get_string($type, 'archive_head', $list);
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
 
-    $tmp = $mj->format_get_string($type, 'archive_index', $request->{'list'});
+    $tmp = $mj->format_get_string($type, 'archive_index', $list);
     for $i (@msgs) {
       $data = $i->[1];
       $data->{'subject'} ||= "(No Subject)";
@@ -379,7 +396,7 @@ sub archive {
       print $out "$str\n";
     }
 
-    $tmp = $mj->format_get_string($type, 'archive_foot', $request->{'list'});
+    $tmp = $mj->format_get_string($type, 'archive_foot', $list);
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
@@ -716,6 +733,7 @@ sub configset {
   $ok;
 }
 
+use Mj::Util qw(text_to_html);
 sub configshow {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
@@ -831,6 +849,7 @@ sub configshow {
       $mess =~ s/^/# /gm if ($type eq 'text');
       chomp $mess;
       $mess = &escape($mess, $type);
+      $mess = text_to_html($mess) if ($type ne 'text');
       $subs->{'COMMENT'} = $mess;
     }
 
