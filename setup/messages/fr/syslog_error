@@ -5,7 +5,7 @@ avec l'erreur :
 
 $ERROR
 
-Les erreurs ici sont généralement liées a des problèmes d'installation
+Les erreurs ici sont généralement liées à des problèmes d'installation
 de Perl. Sys::Syslog requiert le fichier syslog.ph, qui est supposé
 être généré par le programme h2ph. Si syslog.ph n'a pas été trouvé, il
 peut être généré en exécutant les commandes suivantes en tant que root :
