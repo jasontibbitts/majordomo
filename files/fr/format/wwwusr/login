@@ -9,6 +9,7 @@ vous ici.<br>
 <form method="POST" action="$CGIURL">
   <input type="hidden" name="list" value="$LIST">
   <input type="hidden" name="func" value="$COMMAND">
+  <input type="hidden" name="extra" value="?EXTRA">
   Adresse e-mail : <input size="36" name="user" value="$USER"><br>
   Mot de passe : <input type="password" name="passw" size="15" value="$CMDPASS">
   <input type="submit" value="Sign In">
