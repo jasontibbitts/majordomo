@@ -1000,11 +1000,15 @@ Return a hashref containing complete data about settings:
 =cut
 sub get_setting_data {
   my $self = shift;
+  my $sublist = shift;
   my $log = new Log::In 150;
   my (@classes, $allowed, $class, $dd, $df, $dfl, $dig, $flag, 
       $flagmask, $i, $j, $out);
 
   $out = { 'classes' => [], 'flags' => [] };
+  unless (defined $sublist and length $sublist) {
+    $sublist = 'MAIN';
+  }
 
   $flagmask = $self->get_flags('allowed_flags');
   $dfl = $self->get_flags('default_flags');
@@ -1026,6 +1030,11 @@ sub get_setting_data {
 
   @classes = keys %{$self->config_get('allowed_classes')};
   ($dfl, $dd, $df) = $self->default_class;
+  if ($sublist ne 'MAIN' and $dfl eq 'digest') {
+    $dfl = 'nomail';
+    $dd = '';
+    $df = '';
+  }
 
   $i = 0;
   for $flag (sort keys %classes) {
@@ -1035,6 +1044,7 @@ sub get_setting_data {
     $allowed = grep { $_ eq $flag } @classes;
 
     if ($flag eq 'digest') {
+      next if ($sublist ne 'MAIN');
       $dig = $self->config_get('digests');
       next unless $dig;
       
@@ -1370,12 +1380,11 @@ that they can be tested for with exists().
 use Symbol;
 sub _fill_aux {
   my $self = shift;
+  my $log = new Log::In 120;
 
   # Bail early if we don't have to do anything
   return 1 if $self->{'aux_loaded'};
   
-  $::log->in(120);
-
   my $dirh = gensym();
   my ($file);
   
@@ -1390,8 +1399,60 @@ sub _fill_aux {
   closedir $dirh;
   
   $self->{'aux_loaded'} = 1;
-  $::log->out;
   1;
+}
+
+=head2 aux_create (sublist)
+
+Create an empty sublist.
+
+=cut
+sub aux_create {
+  my $self = shift;
+  my $sublist = shift;
+
+  return (0, 'none') unless (defined $sublist and length $sublist);
+
+  return (0, 'existing') if ($self->valid_aux($sublist));
+
+  if ($self->_make_aux($sublist)) {
+    my $addr = new Mj::Addr('joe@example.com');
+    $self->add('', $addr, $sublist);
+    $self->remove('', $addr, $sublist);
+    return (1, '');
+  }
+  else {
+    return (0, "Error: $!");
+  }
+}
+
+=head2 aux_destroy (sublist)
+
+Destroy an existing sublist.
+
+=cut
+sub aux_destroy {
+  my $self = shift;
+  my $sublist = shift;
+  my ($sublists);
+
+  return (0, 'none') unless (defined $sublist and length $sublist);
+
+  return (0, 'absent') unless ($self->valid_aux($sublist));
+  $self->_make_aux($sublist);
+
+  return (0, 'public') if ($sublist eq 'MAIN');
+
+  unless ($self->{'name'} eq 'GLOBAL' or $self->{'name'} eq 'DEFAULT') {
+    $sublists = $self->config_get('sublists', 0);
+    if (defined $sublists and exists $sublists->{$sublist}) {
+      return (0, 'public');
+    }
+  }
+
+  $self->{'sublists'}{$sublist}->erase;
+  delete $self->{'sublists'}{$sublist};
+  return (1, '');
 }
 
 =head2 moderators($group)
