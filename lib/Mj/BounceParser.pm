@@ -146,6 +146,11 @@ sub parse {
   # stuff.
   ($info) = $to =~ /\Q$list\E-owner\Q$sep\E([^@]+)\@/;
 
+  # Take a stab at parsing the old owner-blah format as well
+  if (!defined($info)) {
+    ($info) = $to =~ /owner-\Q$list\E\Q$sep\E([^@]+)\@/;
+  }
+
   # We might not have a special envelope
   if (!defined($info)) {
 
@@ -402,10 +407,10 @@ sub parse_dsn {
     }
     $user =~ s/.*?;\s*(.*?)\s*/$1/;
     $user =~ s/^<(.*)>$/$1/;
-    if (lc($status[$i]->{'action'}) eq 'failed') {
+    if ($status[$i]->{'action'} =~ /failed/i) {
       $action = 'failure';
     }
-    elsif (lc($status[$i]->{'action'}) eq 'delayed') {
+    elsif ($status[$i]->{'action'} =~ /delayed/i) {
       $action = 'warning';
     }
     else {

@@ -15,6 +15,12 @@
 use MIME::Parser;
 use Mj::BounceParser;
 use Mj::FakeLog;
+use Getopt::Std;
+use Data::Dumper;
+
+getopts('vl:');
+
+$opt_l ||= 'test';
 
 $Mj::FakeLog::verbose = 1;
 
@@ -37,9 +43,10 @@ for $file (@ARGV) {
 
   ($type, $msgno, $user, $handler, $data) =
     Mj::BounceParser::parse($ent,
-			    'test',
+			    $opt_l,
 			    '+',
 			   );
+  print Dumper $data if $opt_v;
 
   $handler ||= 'unknown';
 

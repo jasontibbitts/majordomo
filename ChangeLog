@@ -1,3 +1,9 @@
+2003-03-25  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/BounceParser.pm (parse): Accept owner-list as well as
+	list-owner in To: lines when extracting special envelope info.
+	(parse_dsn): Be more tolerant of weird Action: entries.
+
 2003-03-11  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Archive.pm:  (_sync_msgs)  Declare undeclared variables.
