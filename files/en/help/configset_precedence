@@ -13,6 +13,17 @@ configset listname precedence = bulk
 
 Put a precedence header with value <value> into the outgoing message.
 
+NOTE: This command can be duplicated with the more general command
+"configset message_headers", which for the example above would look
+like this:
+configset listname message_headers <<END
+Precedence: bulk
+END
+
+
+See Also:
+   help configset message_headers (for how to add arbitrary headers)
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ

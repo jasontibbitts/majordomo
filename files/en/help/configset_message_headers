@@ -55,6 +55,7 @@ which are supported.
 
 See Also:
    help configset block_headers (for how to block server commands)
+   help configset precedence    (for how to add a special header)
    help configset reply_to
    help configset sender
    help variables (for a list of all possible variables and what they mean)
