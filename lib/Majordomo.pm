@@ -3945,7 +3945,11 @@ sub _createlist {
 
     # Now do some basic configuration
     $self->_make_list($list);
-    $self->_list_config_set($list, 'owners', "$owner");
+    @tmp = ();
+    for $j (@owners) {
+      push @tmp, $j->strip;
+    }
+    $self->_list_config_set($list, 'owners', @tmp);
     $self->_list_config_set($list, 'master_password', $pw); 
     $self->_list_config_unlock($list);
 
