@@ -52,6 +52,12 @@ Top of the list
     configset
     configdef
 
+- allow mime-match classes just like taboo classes.
+
+- add nonterminal access_rules.  Now we take the first matching, but we
+  could act and keep going.  This could be used to add reasons to a list,
+  falling through to a final consult or deny.
+
 - rewrite lots of routines to take named arguments instead of positionals.
 
 - Allow end user to set language preference.  Add language choice as extra

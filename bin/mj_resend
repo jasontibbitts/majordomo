@@ -8,7 +8,6 @@ BEGIN {
 
   # Redirect STDERR as soon as possible to catch errors and warnings
   if (! -t STDERR) {
-    close STDERR;
     open (STDERR, ">>$::TMPDIR/mj_resend.debug");
   }
 }

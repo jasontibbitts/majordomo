@@ -9,7 +9,6 @@ BEGIN {
 
   # Redirect standard error output.
   if (! -t STDERR) {
-    close STDERR;
     open (STDERR, ">>$::TMPDIR/mj_email.debug");
   }
 

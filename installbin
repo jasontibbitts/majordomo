@@ -22,13 +22,13 @@ while (($src,$dst) = splice(@ARGV,0,2)) {
     open(DST,">$dst") || die "Cannot open $dst:$!";
     while (defined($line = <SRC>)) {
       $line =~ s/^#!\s*\S+/$start/;
-      $line =~ s!(^  \$::LIBDIR\s*= ).*!\1\"$config->{'install_dir'}/lib\";!;
-      $line =~ s!(^  \$::LISTDIR\s*= ).*!\1\"$config->{'lists_dir'}\";!;
-      $line =~ s!(^  \$::TMPDIR\s*= ).*!\1\"$config->{'tmpdir'}\";!;
-      $line =~ s!(^  \$::WTMPDIR\s*= ).*!\1\"$config->{'wtmpdir'}\";!;
-      $line =~ s!(^  \$::DEFDOM\s*= ).*!\1\"$ {$config->{'domains'}}[0]\";!;
-      $line =~ s!(^  \$::UID\s*= ).*!\1\"$uid\";!;
-      $line =~ s!(^  \$::GID\s*= ).*!\1\"$gid\";!;
+      $line =~ s!(^  \$::LIBDIR\s*= ).*!$1\"$config->{'install_dir'}/lib\";!;
+      $line =~ s!(^  \$::LISTDIR\s*= ).*!$1\"$config->{'lists_dir'}\";!;
+      $line =~ s!(^  \$::TMPDIR\s*= ).*!$1\"$config->{'tmpdir'}\";!;
+      $line =~ s!(^  \$::WTMPDIR\s*= ).*!$1\"$config->{'wtmpdir'}\";!;
+      $line =~ s!(^  \$::DEFDOM\s*= ).*!$1\"$ {$config->{'domains'}}[0]\";!;
+      $line =~ s!(^  \$::UID\s*= ).*!$1\"$uid\";!;
+      $line =~ s!(^  \$::GID\s*= ).*!$1\"$gid\";!;
       print DST $line;
     }
     close(SRC);

@@ -196,28 +196,39 @@ EOW
 }
       
 sub check_prereq {
-  my ($pkg, $ver, $ok);
+  my (@mods_needed, $pkg, $ver, $ok);
   $ok = 1;
 
   while (($pkg, $ver) = splice(@_, 0, 2)) {
     unless (have_vers($pkg => $ver)) {
       $ok = 0;
+      push @mods_needed, $pkg;
       if ($ver == 0) {
 	warn <<EOW;
-
 **** Majordomo requires $pkg (any version).
-
 EOW
       }
       else {
 	
 	warn <<EOW;
-	  
 **** Majordomo requires $pkg version $ver or greater!
-
 EOW
       }
     }
+  }
+  if (@mods_needed) {
+    print <<EOP;
+
+Some modules which Majordomo requires were not found.  You should fetch
+them from a CPAN site of your choice, or, if the CPAN module is properly
+set up, you can install them by running the following commands as a user
+capable of installing modules:
+
+EOP
+    for my $i (@mods_needed) {
+      print "perl -MCPAN -e'CPAN::Shell->install(\"$i\")'\n";
+    }  
+    print "\n";
   }
   $ok;
 }

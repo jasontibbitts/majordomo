@@ -1,5 +1,18 @@
 Sun Apr 12 00:03:57 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* Makefile.PL (check_prereq): Print info on how to use CPAN to
+ 	install missing modules.
+
+	* bin/mj_email: Don't close stderr.
+
+	* bin/mj_trigger: Don't close stderr.
+
+	* bin/mj_confirm: Don't close stderr.
+
+	* bin/mj_resend: Don't close stderr.
+
+	* installbin: Clean up pattern matches.
+
 	* lib/Mj/Parser.pm (parse_line): Add ability to backslash lines
  	within a here document.
 
