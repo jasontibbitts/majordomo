@@ -13,6 +13,7 @@ parsing the files out of a MIME entity.
 
 =cut
 package Mj::Parser;
+use IO::File;
 use Mj::Log;
 use Mj::Format;
 use Mj::CommandProps qw(:command :function);
@@ -763,7 +764,7 @@ sub parse_args {
     if (scalar @$arglist) {
       push @{$request->{$hereargs}}, @$arglist;
     }
-    elsif (ref $attachh eq 'IO::File' or ref $attachh eq 'IO::Handle') {
+    elsif (ref ($attachh) =~ /^IO/) {
       # For iterated functions, pass the handle.
       if (function_prop($request->{'command'}, 'iter')) {
         $request->{$hereargs} = $attachh;

@@ -866,9 +866,7 @@ sub post {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my ($i, $ok, $mess, $handled); 
   $handled = 0;
-  $handled = 1 
-    if (   ref $request->{'message'} eq 'IO::File'  
-        or ref $request->{'message'} eq 'IO::Handle');
+  $handled = 1 if (ref ($request->{'message'}) =~ /^IO/);
  
   $request->{'command'} = "post_chunk"; 
  
@@ -928,10 +926,7 @@ sub put {
   }
 
   $handled = 0;
-  if (   ref $request->{'contents'} eq 'IO::File'  
-      or ref $request->{'contents'} eq 'IO::Handle') {
-    $handled = 1;
-  }
+  $handled = 1 if (ref ($request->{'contents'}) =~ /^IO/);
 
   my ($chunksize) = $mj->global_config_get(undef, undef, "chunksize") * 80;
 
