@@ -322,9 +322,9 @@ sub dispatch {
   @out;
 }
 
-#use AutoLoader 'AUTOLOAD';
+use AutoLoader 'AUTOLOAD';
 1;
-#__END__
+__END__
 
 =head1 Utility functions
 

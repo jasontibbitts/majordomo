@@ -85,6 +85,8 @@ Top of the list
 
 ! Dispatch should log password failures for overriding logging.
 
+- Make 'default' work in interactive shell.
+
 ! Investigate other locking methods.
 
 ! Make sure that $SENDER is reset properly after _trim_approval is called,

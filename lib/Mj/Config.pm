@@ -320,9 +320,9 @@ sub _load_new {
   1;
 }
 
-#use AutoLoader 'AUTOLOAD';
+use AutoLoader 'AUTOLOAD';
 1;
-#__END__
+__END__
 
 
 =head2 default(variable)

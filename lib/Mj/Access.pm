@@ -27,9 +27,9 @@ use Mj::Config qw(parse_table);
 use strict;
 use vars qw($victim $passwd @permitted_ops %args %memberof %requests);
 
-#use AutoLoader 'AUTOLOAD';
+use AutoLoader 'AUTOLOAD';
 1;
-#__END__
+__END__
 
 =head2 validate_passwd(user, passwd, auth, interface, list, action)
 

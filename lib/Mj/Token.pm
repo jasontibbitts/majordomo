@@ -49,9 +49,9 @@ sub t_recognize {
   $1;
 }
 
-#use AutoLoader 'AUTOLOAD';
+use AutoLoader 'AUTOLOAD';
 1;
-#__END__
+__END__
 
 =head2 t_gen()
 

@@ -21,9 +21,9 @@ Mj::Deliver.pm.
 package Mj::MailOut;
 use strict;
 
-#use AutoLoader 'AUTOLOAD';
+use AutoLoader 'AUTOLOAD';
 1;
-#__END__
+__END__
 
 =head2 mail_message(sender, file, addresses)
 

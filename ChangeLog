@@ -1,5 +1,9 @@
 Sun Sep 20 11:16:24 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Majordomo.pm,lib/Mj/Access.pm,lib/Mj/Config.pm,lib/Mj/MailOut.pm,
+	* lib/Mj/TextOutput.pm,lib/Mj/Token.pm:
+ 	Turn on AutoLoader.
+
 	* lib/Majordomo.pm: Bump version number for snapshot.
 
 	* t/shell.t (run): Remove test setting MTA.  Use 'quiet' mode of
@@ -50,7 +54,8 @@ Thu Sep 17 01:29:10 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* files/en/help/admin,files/en/help/regexp: New files.
 	
-	* files/en/help/topics,files/en/help/commands,files/en/help/admin_commands:
+	* files/en/help/topics,files/en/help/commands,
+	* files/en/help/admin_commands:
  	Updated to WRD's latest submissions.
 
 Wed Sep 16 00:10:05 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
