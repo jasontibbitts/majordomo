@@ -1296,7 +1296,8 @@ sub help {
 
 sub index {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my (%legend, %width, @fields, @index, @item, $count, $i, $j, $ok);
+  my (%legend, %width, @fields, @index, @item, $count,
+      $i, $j, $ok, $parent, $str, $subs, $tmp);
   $count = 0;
 
   @fields = qw(file c-type charset c-t-encoding language size);
@@ -1304,11 +1305,33 @@ sub index {
     $width{$i} = 0;
   }
 
+  $tmp = $request->{'path'};
+  if (length $tmp and $tmp !~ m#/$#) {
+    $tmp .= '/';
+  }
+  $parent = '';
+  if (length $tmp and $tmp !~ m#^/+$#) {
+    $parent = $tmp;
+    $parent =~ s#[^/]+/+$##;
+  }
+
+  $gsubs = { $mj->standard_subs($request->{'list'}),
+             'CGIDATA'  => $request->{'cgidata'},
+             'CGIURL'   => $request->{'cgiurl'},
+             'CMDPASS'  => &escape($request->{'password'}, $type),
+             'PARENT'   => &escape($parent, $type),
+             'PATH'     => &escape($tmp, $type),
+             'USER'     => &escape("$request->{'user'}", $type),
+             'VICTIM'   => &escape("$request->{'victim'}", $type),
+           };
+
   ($ok, @index) = @$result;
   unless ($ok > 0) {
     return $ok if ($index[0] eq 'NONE');
-    eprint($out, $type, &indicate($type, "The index command failed.\n", $ok));
-    eprint($out, $type, &indicate($type, $index[0], $ok)) if $index[0];
+    $gsubs->{'ERROR'} = &escape($index[0]);
+    $tmp = $mj->format_get_string($type, 'index_error', $request->{'list'});
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out &indicate($type, $str, $ok);
     return $ok;
   }
   
@@ -1338,11 +1361,44 @@ sub index {
   $width{'language'}     ||= 5; 
   $width{'size'}         ||= 5;
 
-  if (! scalar @index) {
-    # XLANG
-    eprint($out, $type, qq(The "$request->{'path'}" directory is empty .\n));
+  unless (scalar @index and length $index[0]) {
+    $tmp = $mj->format_get_string($type, 'index_none', $request->{'list'});
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out "$str\n";
   }
   elsif ($type eq 'wwwadm' or $type eq 'wwwusr') {
+    $tmp = $mj->format_get_string($type, 'index_head', $request->{'list'});
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out "$str\n";
+
+    $subs = { %$gsubs };
+    for $i (@index) {
+      $count++;
+      $subs->{'CHARSET'}      = &escape($i->{'charset'});
+      $subs->{'CONTENT_TYPE'} = &escape($i->{'c-type'});
+      $subs->{'DESCRIPTION'}  = &escape($i->{'description'});
+      $subs->{'ENCODING'}     = &escape($i->{'c-t-encoding'});
+      $subs->{'FILE'}         = &escape($i->{'file'});
+      $subs->{'LANGUAGE'}     = &escape($i->{'language'});
+      $subs->{'PERMISSIONS'}  = &escape($i->{'permissions'});
+      $subs->{'SIZE'}         = &escape($i->{'size'});
+      if ($i->{'c-type'} eq '(dir)') {
+        $tmp = $mj->format_get_string($type, 'index_dir', $request->{'list'});
+      }
+      elsif ($i->{'c-type'} =~ /^text/i) {
+        $tmp = $mj->format_get_string($type, 'index_text', $request->{'list'});
+      }
+      else {
+        $tmp = $mj->format_get_string($type, 'index_binary', $request->{'list'});
+      }
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
+    }
+
+    $gsubs->{'COUNT'} = $count;
+    $tmp = $mj->format_get_string($type, 'index_foot', $request->{'list'});
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out "$str\n";
   }
   else {
     # index_head
