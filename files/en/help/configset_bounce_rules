@@ -127,11 +127,15 @@ diagnostic:
   perform special handling.  This will contain the string "unknown" if no
   diagnostic could be extracted.
 
+The use of these variables in comparisons is described in the
+"help configset_access_rules" and "help access_variables" documents.
+
+
 Here's an in-depth example:
 
   # When AOL says a user doesn't exist, drop it immediately
   remove-noprobe
-  $host = "aol.com" && $diagnostic =~ /mailbox not found/i
+  $host =~ /aol.com/ && $diagnostic =~ /mailbox not found/i
 
   # Remove all users bouncing enough messages over three days, but not for
   # "mailbox full" errors, because we want to be more lenient with them
