@@ -3486,15 +3486,17 @@ sub reject {
     if ($data->{'type'} eq 'confirm') {
       $rfile = 'token_reject';
     }
+    # XXX Allowing a file name to be used gives read access to any file
+    # in the list's file space to any moderator of the list.
     else {
       $rfile = 'ack_rejection';
-    }
-    if (defined $request->{'xplanation'}) {
-      if ($request->{'xplanation'} !~ /\S[^\\]\s\S/) {
-        $rfile = $request->{'xplanation'};
-      }
-      else {
-        $reason = $request->{'xplanation'};
+      if (defined $request->{'xplanation'}) {
+        if ($request->{'xplanation'} !~ /\S[^\\]\s\S/) {
+          $rfile = $request->{'xplanation'};
+        }
+        else {
+          $reason = $request->{'xplanation'};
+        }
       }
     }
     $list_owner = $self->_list_config_get($data->{'list'}, 'sender');
