@@ -64,6 +64,16 @@ an existing mailing list.
 
 (standard)
 
+message_count
+-------------
+This error message is displayed when the archive-part command is used 
+to access more than one message.  For example, the archive-part-edit
+command is normally used to alter a single message;  if, instead of
+a single message number, a group of messages is requested, the command
+will fail.
+
+(standard plus MSGNO)
+
 missing_mode
 ------------
 This message is displayed if a command is issued with a command mode

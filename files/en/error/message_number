@@ -1,0 +1,8 @@
+The edit, part, and replace command modes require that one specific
+message be identified.  The message number that you specified:
+
+  $MSGNO
+
+does not correspond to a unique message within the archive of the
+$LIST list.
+
