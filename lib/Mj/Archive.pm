@@ -59,6 +59,9 @@ is a string describing just when an archive should be split:
   weekly
   daily
 
+The split value is determined by the archive_split configuration
+setting.
+
 Size is a string representing the maximum size of a subarchive:
 
   AAAAk  (A kilobytes)
@@ -90,7 +93,11 @@ sub new {
 
   # Get list of files but don't pull in any data.
   $dh = new DirHandle $dir;
-  return undef unless defined $dh;
+  return unless defined $dh;
+
+  # The splits hash contains separate data for each file, whereas
+  # the archives hash contains only one entry for an archive that
+  # has been split into several files.
   while (defined($_ = $dh->read)) {
     if (s/^$list\.//) {
       $self->{'splits'}{$_} = {};
@@ -137,10 +144,10 @@ Throughout these routine, $arc is the name of the main archive while $sub
 is the name of the subarchive (the archive with the split count appended).
 $data holds info about the message being added.
 
-This is split into two routines so tat the message number can be known
+This is split into two routines so that the message number can be known
 before the actual message is generated.  This enables the archive number of
 a message to be included in a message sent to the archives (so that a
-separate copy of the message for the archives isn''t necessary).
+separate copy of the message for the archives is not necessary).
 
 =cut
 sub add_start {
@@ -180,7 +187,7 @@ sub add_start {
 		   sort(keys(%{$self->{'splits'}})))
 	     )[-1] || "$arc-$count";
 
-      $sub =~ /.*-(\d\d)/; $count = $1;
+      $sub =~ /.*-(\d+)/; $count = $1;
       # Grab the counts for the subarchive and open a new archive if
       # necessary. XXX Put the archive in the filespace with an appropriate
       # description if creating a new one.
@@ -711,11 +718,13 @@ sub get_done {
   undef $self->{get_handle};
 }
 
-=head2 get_to_file(message, filename, data)
+=head2 get_to_file(message, filename, data, skip)
 
 Retrieves a message from the archive and places it in the given file, which
 must be writable.  If a filename is not provided, one is generated
 randomly.  If data is not provided, it is looked up from the index.
+
+If skip is set, the initial "From " line will be discarded.
 
 =cut
 sub get_to_file {
@@ -723,10 +732,15 @@ sub get_to_file {
   my $msg  = shift;
   my $file = shift || Majordomo::tempname();
   my $data = $self->get_message($msg, shift);
+  my $skip = shift || '';
   return unless $data;
   my $fh =   new IO::File ">$file";
   my $chunk;
 
+  if ($skip) {
+    $chunk = $self->{'get_handle'}->getline;
+    $self->{'get_count'} += length($chunk);
+  }
   while (defined($chunk = $self->get_chunk(4096))) {
     $fh->print($chunk);
   }
@@ -737,14 +751,14 @@ sub get_to_file {
 
 =head2 get_all_data(archive)
 
-Load all of the data for a particular into a list.
+Load all of the data for a particular archive into a list.
 
 =cut
 sub get_all_data {
   my $self = shift;
   my $arc  = shift;
   my $log = new Log::In 150, $arc;
-  my (@out, $data);
+  my (@chunk, @out, $data);
 
   @out = ();
   # Restore sublist name if needed.
@@ -754,7 +768,7 @@ sub get_all_data {
 
   return unless $self->_make_index($arc);
   return unless $self->{'indices'}{$arc}->get_start;
-  while (@chunk = $self->{'indices'}{$arc}->get(100)) {
+  while (@chunk = $self->{'indices'}{$arc}->get(1000)) {
     push @out, @chunk;
   }
   $self->{'indices'}{$arc}->get_done;
@@ -1191,6 +1205,24 @@ sub _arc_name {
   return "$year$month$mday" if $split eq 'daily';
 }
 
+=head2 summary
+
+Return a list of all archives, along with the message count for
+each archive.
+
+=cut
+sub summary {
+  my $self = shift;
+  my (@out, $arc);
+
+  for $arc (sort keys %{$self->{'splits'}}) {
+    $self->_read_counts($arc);
+    push @out, [$arc, $self->{'splits'}{$arc}];
+  }
+
+  @out;
+}
+
 =head2 _read_counts
 
 Loads in the sizing data for an archive or a subarchive.  This really
@@ -1211,6 +1243,7 @@ sub _read_counts {
   if (-f "$dir/.index/C$list.$file") {
     $self->{splits}{$file}{bytes} = (stat("$dir/$list.$file"))[7];
     $fh = new IO::File "<$dir/.index/C$list.$file";
+    # XLANG
     $log->abort("Can't read count file $dir/.index/C$list.$file: $!") unless $fh;
     $tmp = $fh->getline;
     chomp $tmp;
@@ -1242,6 +1275,7 @@ sub _write_counts {
 
   $list = $self->{'list'};
   $fh = new IO::File ">$dir/.index/C$list.$file";
+    # XLANG
   $log->abort("Can't write count file $dir/.index/C$list.$file: $!") unless $fh;
   $fh->print("$self->{splits}{$file}{lines}\n") ||
     $log->abort("Can't write count file $dir/.index/C$list.$file: $!");
@@ -1271,10 +1305,10 @@ sub _make_index {
 
 Takes a range of articles and expands it into a list of articles.
 
-* By named messages:
+  By named messages:
     199805/12 199805/15
 
-* By a message count (last 10 messages):
+  By a message count (last 10 messages):
      10
 
   By a range of names:
