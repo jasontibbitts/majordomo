@@ -29,6 +29,7 @@ BEGIN {
   # Croak if install was botched
   die("Not running as UID $::UID") unless $> == $::UID;
   die("Not running as GID $::GID") unless $) == $::GID;
+  $< = $>; $( = $);
 
   # Quiet warning
   $::LOCKDIR;

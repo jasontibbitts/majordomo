@@ -4,6 +4,8 @@ BEGIN {
   $::LISTDIR= 'unset';
   $::TMPDIR = 'unset';
   $::LOCKDIR= "blah";
+  $::UID    = "baduid";
+  $::GID    = "badgid";
   $::UMASK  = "007";
   $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 
@@ -11,6 +13,11 @@ BEGIN {
   if (! -t STDERR) {
     open (STDERR, ">>$::TMPDIR/mj_wwwusr.debug");
   }
+
+  # Croak if install was botched
+  die("Not running as UID $::UID") unless $> == $::UID;
+  die("Not running as GID $::GID") unless $) == $::GID;
+  $< = $>; $( = $);
 }
 
 =head1 NAME

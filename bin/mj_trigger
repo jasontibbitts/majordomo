@@ -126,6 +126,7 @@ my(%opts, @domains, @mess, @tmp, $approved, $dom, $fh, $fname, $head,
 
 die("Not running as UID $::UID") unless $> == $::UID;
 die("Not running as GID $::GID") unless $) == $::GID;
+$< = $>; $( = $);
 
 umask oct($::UMASK);
 

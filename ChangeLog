@@ -1,3 +1,18 @@
+2004-09-29  Michael Yount <csf@moscow.com>
+
+	* bin/mj_enqueue, et al.:  Change the real uid and gid
+	to match their effective counterparts.
+	Thanks to James Grinter.
+
+	* lib/Mj/Config.pm:  (parse_attachment_filters)  Support
+	the "keep" action, which allows multipart types to pass
+	without having their subparts filtered.
+
+	* lib/Mj/Resend.pm:  (_post)  Use the original message body
+	instead of the decoded and re-encoded body if no alterations
+	were made to the body.
+	Thanks to Steve Kennedy.
+
 2004-09-18  Michael Yount <csf@moscow.com>
 
 	* Makefile.PL, postinstall:  Qmail requires mj_enqueue

@@ -22,6 +22,7 @@ BEGIN {
   # Croak if install was botched
   die("Not running as UID $::UID") unless $> == $::UID;
   die("Not running as GID $::GID") unless $) == $::GID;
+  $< = $>; $( = $);
 
   # Hardcoded constants so we don't have to use Fcntl
   $::LOCK_EX  = "blah";

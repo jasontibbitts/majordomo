@@ -66,6 +66,8 @@ if ($> != 0 && ($> != $::UID || $) != $::GID)) {
   exit 1;
 }
 
+$< = $>; $( = $);
+
 # XXX Check writeability of the directory and file.
 
 # XXX or run setuid and prompt for the password?
