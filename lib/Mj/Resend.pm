@@ -2586,30 +2586,14 @@ sub do_digests {
   $digests = $self->_list_config_get($list, 'digests');
   if (scalar keys %{$digests}) {
 
-    # Obtain headers
-    for $i ($self->_list_config_get($list, 'message_headers')) {
-      $i = $self->substitute_vars_string($i, $subs);
-      if ($i =~ /^to:\s*(.*)/i) {
-        $whoami = $1;
-        next;
+    @headers = $self->_digest_get_headers($list, $subs);
+    for $i (@headers) {
+      if ($i->[0] =~ /^from$/i) {
+        $from = $i->[1];
       }
-      if ($i =~ /^from:\s*(.*)/i) {
-        $from = $1;
-        next;
+      elsif ($i->[0] =~ /^to$/i) {
+        $whoami = $i->[1];
       }
-      push (@headers, [undef, $i]) 
-        if ($i =~ /^[^\x00-\x1f\x7f-\xff :]+:/);
-    }
-    if ($i = $self->_list_config_get($list, 'precedence')) {
-      push @headers, ['Precedence', $i];
-    }
-    if ($i = $self->_list_config_get($list, 'sender')) {
-      push @headers, ['Sender', $i];
-      push @headers, ['Errors-To', $i];
-    }
-    if ($i = $self->_list_config_get($list, 'reply_to')) {
-      $i = $self->substitute_vars_string($i, $subs);
-      push @headers, ['Reply-To', $i];
     }
 
     $dfl_format = $self->_list_config_get($list, 'digest_index_format')
@@ -2649,14 +2633,14 @@ sub do_digests {
 	# files that we need, and we look for them under any of four names
 	# of decreasing specificity.  Hence the wildly nested loop here.
 	for $j (@dtypes) {
+          $subs->{DIGESTTYPE} = $j;
 	  for $k (qw(preindex postindex footer)) {
-	    $subs->{DIGESTTYPE} = $j;
 	    for $l ("digest_${i}_${j}_${k}", "digest_${i}_${k}", "digest_${j}_${k}", "digest_${k}") {
 	      ($file, %file) = $self->_list_file_get(list => $list,
 						     file => $l,
 						     subs => $subs,
 						    );
-	      if($file) {
+	      if ($file) {
 	        # We're guaranteed to have something if we got here; if the user
 	        # didn't provide a file, the build routine will just leave
 	        # the appropriate spot blank.
