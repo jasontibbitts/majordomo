@@ -1,3 +1,10 @@
+2003-08-12  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Resend.pm:  (_r_strip_body)  Bugfix:  preserve
+	the original character set and encoding of altered
+	message parts.
+	(_format_text)  Process the decoded, not encoded, text.
+
 2003-06-20  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (connect)  Close the session handle

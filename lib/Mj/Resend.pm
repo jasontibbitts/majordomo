@@ -1586,7 +1586,8 @@ sub _r_strip_body {
   my $code     = shift;
   local $level = shift;
   my $log = new Log::In 50, $level;
-  my (@changes, @newparts, @parts, $i, $tmpdir, $txtfile, $verdict, $xform);
+  my (@changes, @newparts, @parts, $char, $enc, $i, $mt, $nent, $tmpdir, 
+      $txtfile, $verdict, $xform);
 
   # Create a Safe compartment
   my ($safe) = new Safe;
@@ -1600,7 +1601,10 @@ sub _r_strip_body {
   if (@parts) {
     $level++;
     for $i (@parts) {
-      $_ = $i->effective_type;
+      $_ = $mt = $i->effective_type;
+      $enc = $i->head->mime_encoding;
+      $char = $i->head->mime_attr('content-type.charset') 
+                || 'iso-8859-1';
       ($verdict, $xform) = $safe->reval($code);
       if ($verdict eq 'allow') {
         push @newparts, $i;
@@ -1610,19 +1614,26 @@ sub _r_strip_body {
 
         if ($txtfile) {
           # Create an entity from the cleaned file.
-          # XLANG
-          push @newparts, 
+          $nent =
             build MIME::Entity(
-              'Type' => $_,
+              'Type' => $mt,
               'Path' => $txtfile,
-              'Description' => "Cleaned $_ message",
-              'Encoding' => '8bit',
+              'Charset' => $char,
+              'Description' => "Cleaned $mt message part",
+              'Encoding' => $enc,
             );
-          
-          push @changes, [$_, 'clean'];
+         
+          if ($nent) { 
+            push @newparts, $nent;
+            push @changes, [$mt, 'clean'];
+          }
+          else {
+            $log->message(50, 'info', "Unable to replace part $mt");
+            push @newparts, $i;
+          }
         }
         else {
-          $log->message(50, 'info', "No changes made to $_");
+          $log->message(50, 'info', "No changes made to $mt");
           push @newparts, $i;
         }
       }
@@ -1636,32 +1647,40 @@ sub _r_strip_body {
           push @newparts, $i;
         }
         else {
-          push @changes, [$_, 'discard'];
-          $log->message(50, 'info', "Discarding MIME type $_");
+          push @changes, [$mt, 'discard'];
+          $log->message(50, 'info', "Discarding MIME type $mt");
         }
       }
       elsif ($verdict eq 'format') {
-        $log->message(50, 'info', "Formatting MIME type $_");
+        $log->message(50, 'info', "Formatting MIME type $mt");
 
         $txtfile = $self->_format_text($i, $xform);
 
         if ($txtfile) {
           # Create a new plain text entity and include it
           # in the list of new parts.
+          # Will the new entity be purged automatically?
           # XLANG
-          push @newparts, 
+          $nent =
             build MIME::Entity(
               'Type' => 'text/plain',
               'Path' => $txtfile,
-              'Charset' => 'ISO-8859-1',  
-              'Description' => "Reformatted $_ message",
-              'Encoding' => '8bit',
+              'Charset' => $char,  
+              'Description' => "Reformatted $mt message",
+              'Encoding' => $enc,
             );
-          # Will the new entity be purged automatically?
-          push @changes, [$_, 'format'];
+          
+          if ($nent) { 
+            push @newparts, $nent;
+            push @changes, [$mt, 'format'];
+          }
+          else {
+            $log->message(50, 'info', "Unable to replace part $mt");
+            push @newparts, $i;
+          }
         }
         else {
-          $log->message(50, 'info', "No changes made to $_");
+          $log->message(50, 'info', "No changes made to $mt");
           push @newparts, $i;
         }
       }
@@ -1681,11 +1700,13 @@ sub _r_strip_body {
   elsif ($level == 1) {
     # single-part messages cannot have parts discarded, but the 
     # message can be formatted.
-    $_ = $ent->effective_type;
+    $_ = $mt = $ent->effective_type;
+    $char = $ent->head->mime_attr('content-type.charset') 
+              || 'iso-8859-1';
     ($verdict, $xform) = $safe->reval($code);
 
     if ($verdict eq 'format') {
-      $log->message(50, 'info', "Formatting MIME type $_");
+      $log->message(50, 'info', "Formatting MIME type $mt");
       $txtfile = $self->_format_text($ent, $xform);
 
       if ($txtfile) {
@@ -1693,8 +1714,8 @@ sub _r_strip_body {
         $i = new MIME::Body::File "$txtfile";
         $ent->bodyhandle($i);
         $i = $ent->head;
-        $i->replace('Content-Type', 'text/plain; charset=ISO-8859-1');
-        push @changes, [$_, 'format'];
+        $i->replace('Content-Type', "text/plain; charset=$char");
+        push @changes, [$mt, 'format'];
       }
     }
   }
@@ -1745,7 +1766,7 @@ sub _format_text {
     return;
   }
       
-  $entity->print_body($outfh);
+  $entity->bodyhandle->print($outfh);
   close ($outfh)
     or $::log->abort("Unable to close file $txtfile: $!");
 
