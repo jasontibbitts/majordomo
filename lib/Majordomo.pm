@@ -4652,7 +4652,7 @@ sub _subscribe {
   my $class = shift;
   my $flags = shift;
   my $log   = new Log::In 35, "$list, $vict";
-  my ($ok, $classarg, $classarg2, $cstr, $data, $exist, $rdata, $welcome);
+  my ($ok, $classarg, $classarg2, $cstr, $data, $exist, $ml, $rdata, $welcome);
 
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
@@ -4680,9 +4680,11 @@ sub _subscribe {
     return (0, "Already subscribed as $data->{'fulladdr'}.\n");
   }
 
+  $ml = $self->_global_config_get('password_min_length');
+
   # dd to/update registration database
   ($exist, $rdata) =
-    $self->_reg_add($vict, 'password' => Mj::Access::_gen_pw(), 'list' =>
+    $self->_reg_add($vict, 'password' => Mj::Access::_gen_pw($ml), 'list' =>
 		    $list);
 
   $welcome = $self->_list_config_get($list, "welcome");
