@@ -405,9 +405,9 @@ An access rule will only be applicable to a particular command if the
 rule's conditions match the characteristics of the command.
 
 If no rules match, the "default" action is taken, which results in a
-reasonable emulation of the Majordomo 1 behavior using *_access,
-moderate, restrict_post, etc. The default actions for all requests are
-listed in "help access_variables".
+reasonable emulation of the Majordomo 1 behavior using who_access,
+moderate, restrict_post, and other configuration settings. The default
+actions for all requests are listed below.
 
 Several special features are supported by the condition syntax:
 
@@ -728,8 +728,8 @@ allow=5
 ALL
 
 
-Delaying unsubscriptions
-------------------------
+Delay unsubscriptions
+---------------------
 In the following example, the unsubscribe-rule command, used in
 conjunction with an administrative password, would cause the "expiring"
 file to be mailed to the victim.  The victim would have four days to
@@ -740,8 +740,8 @@ delay=(expiring,4d)
 $master_password
 
 
-Delaying posts to spread out the system load
---------------------------------------------
+Delay posts to spread out the system load
+-----------------------------------------
 The following rule would delay for four hours all messages that are
 posted between 8:00 and 17:59.  The delay only affects posted messages that
 would otherwise be distributed immediately.
