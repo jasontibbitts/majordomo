@@ -23,21 +23,22 @@ BEGIN {
 #print join("\n", keys(%INC)), "\n";
 
 use lib "$::LIBDIR";
+use IO::File;
+use Net::Domain qw(hostfqdn);
+use Getopt::Long;
+
 use strict;
 no strict "refs";
-use IO::File;
 use Majordomo;
 use Mj::Log;
 use Mj::Format;
 use Mj::Parser;
 use Mj::CommandProps qw(:command :function);
-use Net::Domain qw(hostfqdn);
-use Getopt::Long;
 
 use vars qw(%opts $log_entries $log_level $program_name);
 my (@cmdfiles, @in, $disp, $dom, $editor, $fh, $go, $i, $id, $infile, $infh,
-    $lang, $list, $mess, $ok, $passw, $result, $tempfile, $tlist, $tmpg,
-    $tmpu, $top);
+    $lang, $list, $mess, $ok, $passw, $result, $sess, $tempfile, $tlist, 
+    $tmpg, $tmpu, $top);
 
 $| = 1;
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
@@ -188,13 +189,16 @@ my $logname = getpwuid($<);
 my $user = $opts{'u'} || "$logname\@$host";
 $user =~ /(.*)/; $user = $1;
 
-($id, $mess) = $mj->connect('shell', "logname   = $logname
-host      = $host
-user      = $user
-\$SHELL    = $ENV{SHELL}
-\$HOME     = $ENV{HOME}
-",
-			    $user);
+$sess = <<ADG;
+X-Logname: $logname
+X-Host: $host
+X-User: $user
+X-Shell: $ENV{'SHELL'}
+X-Home: $ENV{'HOME'}
+ADG
+
+$sess .= 'Date: ' . scalar(localtime()) . "\n";
+($id, $mess) = $mj->connect('shell', $sess, $user);
 
 unless ($id) {
   print STDERR "Cannot connect:\n$mess";
