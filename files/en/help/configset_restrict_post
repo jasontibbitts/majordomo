@@ -12,16 +12,74 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset listname restrict_post << ENDTAG
 asublist
+bsublist
 ENDTAG
 
+This is an array variable, but for backwards compatibility the
+line is split on spaces, tabs, and colons.
 
-If defined only addresses belonging to one of the listed sublists will
-be allowed to post to the list.  This variable's function is
-completely encapsulated within the access_rules mechanism, but it
-remains for backwards compatibility and because it's simpler to use.
+EXAMPLE:
+configset listname restrict_post = asublist: bsublist:
 
-This is an array variable, but for backwards compatibility the first
-item is split on spaces, tabs, and colons.
+
+If restrict_post is defined for a given list, only addresses belonging
+to one of the listed sublists will be allowed to post to that list.
+
+This variable's function is completely encapsulated within the access_rules
+mechanism, but it remains for backwards compatibility and because it's simpler
+to use. Unlike Majordomo 1, you can (and must) manage the second list through
+majordomo instead of making it by hand. There's a lot of additional
+functionality as well, and because of that it's pretty complicated.
+
+If before you had (in Mj1):
+  restrict_post = listname listname.allow
+
+you would do it this way in Mj2:
+  configset listname restrict_post = allow:
+
+Instead of adding addresses to the listname.allow file by hand, you do
+something like this in Mj2 (to add the addresses to the auxiliary list
+"allow" belonging to "listname"):
+  auxadd listname allow <<END
+address1@example.com
+address2@example.com
+END
+
+Because of backwards compatibility, the interpretation of restrict_post is
+complicated. With a colon, you're giving a list:auxlist pair and if auxlist
+is empty then the main list is checked. This lets you restrict based on the
+contents of other lists.  Without a colon, we try to duplicate most
+conventions for naming of Mj1 restrict_post files.  If just the listname is
+present, we look in the subscriber file for this list.  We do the same for
+listname.digest and listname-digest, since digests aren't separate lists
+any longer.
+
+Otherwise we try hard to find an auxlist that looks like what we were
+given.  For listname-allow, we look for one named listname-allow and just
+allow.  The same with listname.allow.
+
+You can put your restrict list on one line (for backwards compatibility):
+  restrict_post = blah:urgh hurl: allow
+or as an array, as it should have been in the first place:
+  restrict_post <<END
+blah:urgh
+hurl:
+allow
+END
+
+The "alias" command lets you subscribe to a list from one address but alsop
+post from another address. The "set" command's "nomail" option allows you
+to subscribe two addresses, and post from either, but receive messages only
+from one of the subscriptions. If you want, you can still do this with
+restrict_post!  Say your special list is called "posters".  Then you can
+have users sign up to "posters" and put this in restrict_post:
+  configset listname restrict_post = listname: posters:
+
+
+See Also:
+   help alias  (for how to make two posting addresses equivalent)
+   help auxadd (for maintaining an auxiliary list)
+   help set    (for 'nomail', which suppresses posts to a subscribed address)
 
 For a list of all help topics send this one-line message
    help topics
