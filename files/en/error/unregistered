@@ -1,6 +1,6 @@
-The address 
+The e-mail address 
   $VICTIM
-is not registered at $SITE.  
-An address may be added to the registration database 
-by subscribing it to one or more mailing lists, or by 
-using the register command.
+is not registered at $SITE.
+
+An address can be registered by subscribing it to one or more 
+mailing lists, or by using the register command.
