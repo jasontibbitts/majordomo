@@ -1601,6 +1601,7 @@ sub _faq {
   unless ($self->{'get_fh'}) {
     return (0, "No FAQ available.\n");
   }
+  push @{$self->{'get_temps'}}, $file;
   return (1, '');
 }
 
@@ -1708,6 +1709,7 @@ sub _info {
   unless ($self->{'get_fh'}) {
     return (0, "Info file available.\n");
   }
+  push @{$self->{'get_temps'}}, $file;
   return (1, '');
 }
 
@@ -1757,6 +1759,7 @@ sub _intro {
   unless ($self->{'get_fh'}) {
     return (0, "Intro file is unavailable.\n");
   }
+  push @{$self->{'get_temps'}}, $file;
   return (1, '');
 }
 
@@ -3127,15 +3130,15 @@ sub createlist {
 
   unless ($request->{'mode'} =~ /regen/) {
     return (0, "Must supply a list name.\n")
-      unless $request->{'list'};
+      unless $request->{'newlist'};
 
     return (0, "Must supply an address for the owner.\n")
       unless $request->{'victim'};
 
-    my $log = new Log::In 50, "$request->{'list'}, $request->{'victim'}";
+    my $log = new Log::In 50, "$request->{'newlist'}, $request->{'victim'}";
 
-    return (0, "Illegal list name: $request->{'list'}")
-      unless $self->legal_list_name($request->{'list'});
+    return (0, "Illegal list name: $request->{'newlist'}")
+      unless $self->legal_list_name($request->{'newlist'});
   }
   
   $self->_fill_lists;
@@ -3151,7 +3154,7 @@ sub createlist {
                                $request->{'interface'}, $request->{'mode'}, 
                                $request->{'cmdline'}, "createlist", 
                                $request->{'user'}, $request->{'victim'}, 
-                               $request->{'victim'}, $request->{'list'});
+                               $request->{'victim'}, $request->{'newlist'});
     
   unless ($ok > 0) {
     return ($ok, $mess);
@@ -3159,13 +3162,13 @@ sub createlist {
 
   $self->_createlist('', $request->{'user'}, $request->{'victim'}, 
                      $request->{'mode'}, $request->{'cmdline'}, 
-                     $request->{'victim'}, $request->{'list'});
+                     $request->{'victim'}, $request->{'newlist'});
 }
 
 sub _createlist {
   my ($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list) = @_;
   $list ||= '';
-  my $log = new Log::In 35, "$mode,$list";
+  my $log = new Log::In 35, "$mode, $list";
   my (%args, @lists, $bdir, $dir, $dom, $mess, $mta, $mtaopts, $rmess,
      $who);
 
@@ -3722,10 +3725,10 @@ sub _rekey {
 Returns the stored text for a given session id.
 
 =cut
-sub sessioninfo {
+sub sessioninfo_start {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'sessionid'}";
-  my($file, $in, $line, $sess);
+  my ($file);
 
   return (0, "You must supply a session identifier.\n")
     unless ($request->{'sessionid'});
@@ -3739,22 +3742,19 @@ sub sessioninfo {
     # use the base name to untaint the file.
     $request->{'spoolfile'} =~ s#.+/([^/]+)$#$1#;
     $request->{'spoolfile'} = "$self->{ldir}/GLOBAL/spool/$request->{'spoolfile'}";
+    if ($request->{'command'} eq 'post' and (-f $request->{'spoolfile'})) {
+      $file = $request->{'spoolfile'};
+    }
+  }
+  $file = "$self->{ldir}/GLOBAL/sessions/$request->{'sessionid'}" 
+    unless defined $file;
+
+  $self->{'get_fh'} = new IO::File $file;
+  unless ($self->{'get_fh'}) {
+    return (0, "No such session.\n");
   }
 
-  if ($request->{'command'} eq 'post' and (-f $request->{'spoolfile'})) {
-    $file = $request->{'spoolfile'};
-  }
-  else {
-    $file = "$self->{ldir}/GLOBAL/sessions/$request->{'sessionid'}";
-  }
-  $in = new IO::File "$file";
-  return (0, "No such session.\n") unless defined $in;
-  while ($line = $in->getline) {
-    $sess .= $line;
-  }
-  $in->close;
-  
-  (1, $sess);
+  (1, '');
 }
 
 =head2 set
@@ -3967,7 +3967,12 @@ sub showtokens {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
   my ($mess, $ok);
-  
+ 
+  if ($request->{'action'}) {
+    if (! command_legal($request->{'action'})) {
+      return (0, "$request->{'action'} is not a legal command."); 
+    }
+  }
   $self->_make_list($request->{'list'});
   ($ok, $mess) =
     $self->list_access_check($request->{'password'}, $request->{'auth'}, 
@@ -3979,11 +3984,11 @@ sub showtokens {
     return ($ok, $mess);
   }
   $self->_showtokens($request->{'list'}, $request->{'user'}, '', 
-                     $request->{'mode'}, $request->{'cmdline'});
+                     $request->{'mode'}, $request->{'cmdline'}, $request->{'action'});
 }
 
 sub _showtokens {
-  my ($self, $list, $user, $vict, $mode, $cmd) = @_;
+  my ($self, $list, $user, $vict, $mode, $cmd, $action) = @_;
   my $log = new Log::In 35, "$list";
   my (@tmp, @out, $data, $token);
 
@@ -3994,6 +3999,11 @@ sub _showtokens {
     ($token, $data) = $self->{'tokendb'}->get(1);
     last unless $token;
     next unless $data->{'list'} eq $list || $list eq 'ALL';
+    next if ($action and ($data->{'command'} ne $action)); 
+
+    if ($data->{'command'} eq 'post') {
+      $data->{'size'} = (stat $data->{'arg1'})[7];
+    }
 
     # Stuff the data
     push @tmp, [$token, $data];
@@ -4127,8 +4137,8 @@ sub tokeninfo {
   ($ok, $data) = $self->t_info($request->{'token'});
   return ($ok, $data) unless ($ok > 0);
 
-  $spool = '';
-  if ($data->{'command'} eq 'post') {
+  $spool = $sess = '';
+  if ($data->{'command'} eq 'post' and $request->{'mode'} eq 'full') {
     # spool file; use basename
     $spool = $data->{'arg1'};
     $spool =~ s#.+/([^/]+)$#$1#;
@@ -4136,8 +4146,8 @@ sub tokeninfo {
   }
   # Pull out the session data
   if ($request->{'mode'} !~ /nosession/ && $data->{'sessionid'}) {
-    ($ok, $sess) =
-      $self->sessioninfo($data);
+    ($sess) =
+      $self->sessioninfo_start($data);
   }    
 
   # Return the lot.

@@ -279,10 +279,10 @@ my %commands =
    {
     'parser' => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1, 
-                   'arguments' => {'list' => 'SCALAR',
+                   'arguments' => {'newlist' => 'SCALAR',
                                    'victims' => 'ARRAYELEM'},
                    'tokendata' => {'victim' => 'victims',
-                                   'arg1' => 'list'}
+                                   'arg1' => 'newlist'}
                   },
     'access'   => {
                    'default' => 'deny',
@@ -514,7 +514,7 @@ my %commands =
    'sessioninfo' =>
    {
     'parser' => [qw(email shell nohereargs real)],
-    'dispatch' => {'top' => 1, 
+    'dispatch' => {'top' => 1, 'iter' => 1,
                    'arguments' => {'sessionid' => 'SCALAR'}
                   },
     # The session key is the access restriction
@@ -550,8 +550,11 @@ my %commands =
    },
    'showtokens' =>
    {
-    'parser'   => [qw(email shell list global all nohereargs real)],
-    'dispatch' => {'top' => 1},
+    'parser'   => [qw(email shell list global all real)],
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'action' => 'SCALAR'},
+                   'tokendata' => {'arg1' => 'action'}
+                  },
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
