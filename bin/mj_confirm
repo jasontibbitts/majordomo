@@ -38,9 +38,9 @@ use Majordomo;
 use Mj::Format;
 use Mj::Log;
 
-my (@data, @args, $action, $approvals, $cgi, $cmdline, $date, $domain,
-    $error, $mess, $mj, $ok, $ptoken, $result, $request, $requester, $sess,
-    $site_name, $token, $time, $tprefix, $ttype, $type);
+my ($data, @args, $action, $approvals, $cgi, $cmdline, $date, $domain,
+    $error, $expire, $mess, $mj, $ok, $ptoken, $result, $request, 
+    $requester, $sess, $site_name, $token, $time, $tprefix, $ttype, $type);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
@@ -152,7 +152,9 @@ if (!$token || !$action) {
   # If we have a legal token, we can show some information about it
   # and hide the entry box
   if ($ok) {
-    $ttype="hidden";
+    $ttype   = "hidden";
+    $time    = localtime($data->{'time'});
+    $expire  = localtime($data->{'expire'});
     $tprefix =<<EOF;
 <table>
 <tr>
@@ -163,7 +165,10 @@ if (!$token || !$action) {
 <td><tt>$data->{'cmdline'}</tt></td>
 <tr>
 <td align=right><b>Submitted:</b></td>
-<td><i>$data->{'time'}</i></td>
+<td><i>$time</i></td>
+<tr>
+<td align=right><b>Expires:</b></td>
+<td><i>$expire</i></td>
 <tr>
 <td align=right><b>By:</b></td>
 <td><i>$data->{'user'}</i></td>
@@ -187,6 +192,7 @@ Request Confirmation
 $error
 <h1>Majordomo Request Confirmation</h1>
 <form method=post>
+<input name=\"d\" type=\"hidden\" value=\"$domain\">
 $tprefix <input name=\"t\" type=\"$ttype\" value=\"$token\"><p>
 <table>
 <tr>
@@ -233,6 +239,8 @@ EOF
 			 $mj->dispatch($request));
   }
   elsif ($action eq "info") {
+    $time    = localtime($data->{'time'});
+    $expire  = localtime($data->{'expire'});
     print <<EOF;
 <table>
 <tr>
@@ -249,7 +257,10 @@ EOF
 <td><tt>$data->{'cmdline'}</tt></td>
 <tr>
 <td align=right><b>Submitted:</b></td>
-<td><i>$data->{'time'}</i></td>
+<td><i>$time</i></td>
+<tr>
+<td align=right><b>Expires:</b></td>
+<td><i>$expire</i></td>
 <tr>
 <td align=right><b>By:</b></td>
 <td><i>$data->{'user'}</i></td>
@@ -257,9 +268,11 @@ EOF
 <hr>
 <b>Session information:</b><p>
 <pre>
-$sess
-</pre>
 EOF
+    if ($sess) {
+      $request->{'sessionid'} = $data->{'sessionid'};
+      Mj::Format::sessioninfo($mj, \*STDOUT, \*STDOUT, 'html', $request, [1, '']);
+    }
   }
   else {
     print "Undefined action!\n";
