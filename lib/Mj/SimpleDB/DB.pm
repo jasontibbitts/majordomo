@@ -57,7 +57,7 @@ sub new {
 
   unless (defined($safe)) {
     $safe = new Safe;
-    $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
+    $safe->permit_only(qw(const leaveeval not null pushmark return rv2sv stub));
   }
 
   # Now allocate the database bits.
