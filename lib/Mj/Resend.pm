@@ -447,7 +447,7 @@ sub _post {
   else { $sl = ''; }
 
   # $sl now holds the untainted sublist name.
-  if (!$sl) {
+  if (!$sl and $mode !~ /archive/) {
     # Atomically update the sequence number
     $self->_list_config_lock($list);
     $seqno  = $self->_list_config_get($list, 'sequence_number');
@@ -459,6 +459,7 @@ sub _post {
   else {
     $log->message(35,'info',"Sending message to $sl");
     print {$self->{sessionfh}} "Post: auxiliary list $sl.\n";
+    $seqno = 0;
   }
 
   # trick: we take a pre-parsed entity as an extra argument; if it's
@@ -572,7 +573,8 @@ sub _post {
   # archive around if we didn't.
   if ($msgnum) {
     $archead->replace('X-Archive-Number', $msgnum);
-    $archead->replace('X-Sequence-Number', $seqno) unless $sl;
+    $archead->replace('X-Sequence-Number', $seqno) 
+      unless ($sl or $mode =~ /archive/);
 
     # Print out the archive copy
     $tmp = "$tmpdir/mjr.$$.$rand.arc";
