@@ -24,13 +24,16 @@
 	* lib/Mj/CommandProps.pm:  The "force" command mode can be
 	used with any variant of the put command.
 
+	* lib/Mj/FileSpace.pm:  (put_start, mkdir)  Create parent
+	directories automatically if "force" mode is in use.
+
 	* lib/Mj/Format.pm:  The cgidata request element will be
 	supplied directly by each CGI program.
 	(qescape)  Convert special characters in a string into
 	a format acceptable for a URL query string.
 
 	* lib/Mj/List.pm:  (get_post_data, post_add)  Cope with
-	invalid author addresses.  Thanks to Brock Rozen.
+	invalid author addresses.  Thanks to Brock Rozen and SRE.
 
 	* lib/Mj/Parser.pm:  (parse_part)  Improve error messages
 	for the "approve" command.

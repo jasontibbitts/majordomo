@@ -268,7 +268,7 @@ sub putdata {
   my $self = shift;
   my $file = shift;
   my $data = shift;
-  my($fh, $i, $name);
+  my ($fh, $i, $name);
 
   $name = $self->_dotfile($file);
   $fh = gensym();
@@ -284,7 +284,7 @@ sub putdata {
 =head2 put_start, put_chunk, put_done
 
 An iterative interface to the put functions.  Note that put_start has the
-same semantics as put, and will overrwite if necessary at the beginning;
+same semantics as put, and will overwrite if necessary at the beginning;
 the file will be created and entered into the database then and will exist
 incomplete if the entire file is not deposited with put_chunk.  put_done
 simply closes the file.
@@ -302,39 +302,49 @@ sub put_start {
   my $type = shift || "text/plain";
   my $cset = shift || "ISO-8859-1";
   my $cte  = shift || "8bit";
-  my $lang = shift || 'en',
+  my $lang = shift || 'en';
   my $perm = shift || "Rw";
+  my $force = shift || 0;
   my $log  = new Log::In 150, "$file, $desc";
-  my ($data, $dir, $dpath, $oldperm, $path);
+  my ($data, $dir, $dpath, $ok, $oldperm, $mess, $path);
 
   # Check for legal name
   $file = $self->legal_file_name($file);
-  return (0, "Illegal file name.")
+  return (0, "Illegal file name.\n")
     unless $file;
+  $file =~ s#/+$##;
 
   # Trim off the trailing file part to get the directory
-  ($dir  = $file) =~ s![^/]*$!!;
+  ($dir = $file) =~ s![^/]*$!!;
   $dpath = "$self->{'dir'}/$dir";
   $path  = "$self->{'dir'}/$file";
 
-  # Check to see if file exists.  If it does?
-  return (0, "\"$dir\" does not exist!\n")
-    unless -e $dpath;
+  # Create directories as needed.
+  unless (-e $dpath) {
+    if ($force and length($dir) and ($dir ne $file)) {
+      ($ok, $mess) = $self->mkdir($dir, '', 1);
+      return ($ok, $mess) unless $ok;
+    }
+    else {
+      return (0, "The directory \"$dir\" does not exist!\n")
+    }
+  }
 
-  return (0, "Can't put files in \"$dir\"!\n")
+  return (0, "Cannot put files in the \"$dir\" directory!\n")
     unless -w $dpath;
 
+  # Check to see if file exists.  If it does?
   if (-e $path ) {
     $oldperm = $self->get_permissions($file);
     if ($oldperm !~ /w/) {
-      return (0, "Can't overwrite file.\n")
+      return (0, "Cannot overwrite file.\n")
 	unless $over;
     }
-    return (0, "Can't delete existing file!")
+    return (0, "Cannot delete existing file!\n")
       unless $self->delete($file);
   }
   $self->{'fh'} = gensym();
-  return (0, "Unable to open file.")
+  return (0, "Unable to open file.\n")
     unless (open ($self->{'fh'}, ">$path"));
 
   $data =
@@ -366,33 +376,45 @@ sub put_done {
   1;
 }
 
-=head2 mkdir
+=head2 mkdir (name, description, force)
 
-This creates a directory.
+The mkdir method creates a directory.  
+
+If the force variable is set to a true value, parent directories will
+also be created as needed.
 
 =cut
 sub mkdir {
-  my $self = shift;
-  my $dir  = shift;
-  my $desc = shift || "(dir)";
-  my $log  = new Log::In 150, "$dir, $desc";
-  my ($base, $data, $dpath, $oldperm, $path);
+  my $self  = shift;
+  my $dir   = shift;
+  my $desc  = shift || "(dir)";
+  my $force = shift || 0;
+  my $log   = new Log::In 150, "$dir, $desc";
+  my ($base, $data, $dpath, $ok, $oldperm, $mess, $path);
 
   # Check for legal name
   $dir = $self->legal_file_name($dir);
-  return (0, "Illegal file name.")
+  return (0, "Illegal file name.\n")
     unless $dir;
 
   # Trim off the trailing file part to get the directory
   ($base = $dir) =~ s![^/]*$!!;
+  $base  =~ s!/+$!!;
   $dpath = "$self->{'dir'}/$base";
   $path  = "$self->{'dir'}/$dir";
 
-  # Check to see if file exists.  If it does?
-  return (0, "\"$base\" does not exist!\n")
-    unless -e $dpath;
+  # Check to see if directory exists.  If it does?
+  unless (-e $dpath) {
+    if ($force and length($base) and ($base ne $dir)) {
+      ($ok, $mess) = $self->mkdir($base, '', $force);
+      return ($ok, $mess) unless $ok;
+    }
+    else {
+      return (0, "The directory \"$base\" does not exist!\n")
+    }
+  }
 
-  return (0, "Can't put files in \"$base\"!\n")
+  return (0, "Cannot put files in the \"$base\" directory!\n")
     unless -w $dpath;
 
   if (-e $path ) {
@@ -401,7 +423,7 @@ sub mkdir {
       unlink $self->_dotfile($dir);
     }
     else {
-      return (0, "Can't overwrite a file with a directory!");
+      return (0, "Cannot overwrite a file with a directory!\n");
     }
   }
 
@@ -638,7 +660,7 @@ sub _find_legal_files {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1999 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1999, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
