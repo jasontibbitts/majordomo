@@ -124,6 +124,7 @@ to the owner.  This is removed from inform so that MIME::Entity does not
 have to be loaded for every log entry.
 
 =cut
+use Date::Format;
 use MIME::Entity;
 sub _inform_owner {  
   my($self, $list, $req, $requ, $user, $cmd, $int, $stat, $pass, 
@@ -176,6 +177,7 @@ sub _inform_owner {
      Filename    => undef,
      -To         => $owner,
      -From       => $sender,
+     -Date       => time2str("%a, %d %b %Y %T %z", time),
      -Subject    => $desc,
      'Content-Language:' => $data{'language'},
     );
