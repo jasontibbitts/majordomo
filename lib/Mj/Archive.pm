@@ -246,8 +246,8 @@ sub add_start {
   my $sender = shift;
   my $data   = shift || {};
   my $log    = new Log::In 150;
-
-  my($arc, $count, $dir, $fh, $month, $msgno, $msgs, $sub, $tmp, $year);
+  my ($arc, $count, $dir, $fh, $month, $msgno, $msgs, $size, 
+      $sub, $tmp, $year);
 
   $data->{'date'} ||= time;
   $data->{'split'} = '';
@@ -302,7 +302,16 @@ sub add_start {
   # Open and lock the subarchive; we're now in a critical section
   $fh = new Mj::File;
   $fh->open("$dir/$self->{'list'}.$sub", ">>");
+
   $data->{'byte'} = $fh->tell;
+
+  # Workaround for tell() error
+  unless (defined($data->{'byte'}) and $data->{'byte'} > 0) {
+    $size = -s "$dir/$self->{'list'}.$sub";
+    if (defined($size) and $size > 0) {
+      $data->{'byte'} = $size;
+    }
+  }
 
   # Grab the overall counts for the archive 
   $self->_read_counts($sub, 1);
@@ -889,9 +898,10 @@ sub get_message {
   else {
     $fh = new Mj::File "$file";
   }
+  return unless (defined $fh);
 
   # Seek to byte offset
-  $fh->seek($data->{byte}, 0);
+  return unless ($fh->seek($data->{byte}, 0));
 
   # Stuff handle
   $self->{get_handle} = $fh;

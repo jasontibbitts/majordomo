@@ -1,3 +1,9 @@
+2003-05-27  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Archive.pm:  (add_start)  Add workaround for
+	tell() bug in some versions of Perl.
+	Thanks to Erich Schraer.
+
 2003-05-20  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Format.pm:  (showtokens)  Add support for the 
