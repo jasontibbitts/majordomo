@@ -1,3 +1,51 @@
+2000-08-13  Michael Yount <csf@moscow.com>
+
+	* files/en/ack_archive:  New file, sent when a post is
+	archived but not distributed.
+
+	* bin/mj_wwwadm:  Add forms to the output of the configshow
+	command to allow settings to be changed or set to the default.
+	(only one setting at a time may be changed)
+
+	* lib/Majordomo.pm: (_alias_reverse_lookup) Optionally
+	include the bookkeeping alias in the result.  Return
+	keys instead of stripsource values.
+	(alias) Use list instead of listref error return values.
+	(configshow) Indicate if a global password is 
+	required to change a particular variable.
+	(_changeaddr) Replace the bookkeeping alias correctly.
+	(reject) Allow DATE substitution (date of original request).
+	(set, _set) Use "check" and "force" variables to allow
+	settings to be seen without changing them, and to allow
+	list owners to override allowed_* settings that limit
+	the changes available to subscribers.
+
+	* lib/mj_cf_data.pl: Remove ack_denials_always.
+	Add values for 'flags' variables to allow sanity checks.
+
+	* lib/Mj/Config.pm (parse_flags):  Check the validity
+	of flags in list settings (allowed_flags, aliases, ...)
+
+	* lib/Mj/List.pm: (%flags) Add ackdeny, ackpost, ackreject,
+	and ackstall settings for fine-grained selection of acknowledgements.
+	(set) Implement allowed_classes and allowed_flags checks,
+	which limit the settings which may be changed by subscribers.
+	(make_setting) Deal with group settings: the ackall and
+	ackimportant flags now turn on all of the individual ack flags,
+	and the noack flag turns them all off.
+	(should_ack) New routine.  Determine whether a certain action
+	requires an ack to be sent to the victim.
+	(aux_get_member) New routine.  Return the auxiliary list
+	data for a particular address.
+        
+	* lib/Mj/Resend.pm: (post) Include the sublist, date,
+	and message author in the variable substitutions.
+	(_post) Send an acknowledgement if warranted.
+
+	* lib/Mj/Token.pm (t_accept):  Acks for posted messages
+	are handled by Mj::Resend::_post.  Determine if an
+	ack was sent in this case.
+
 2000-08-10  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Access.pm (list_access_check):  Allow reasons

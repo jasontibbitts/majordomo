@@ -50,7 +50,7 @@ use Mj::Addr;
 my ($cgi, $cgiurl, $domain, $i, $mj, $ok, $mess, $serveradmin, $sess, $token);
 my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, @lists, $vict, $extra);
 my ($line, $st, $file, $fh, $cmdform, $localpart, $request, $req, @extra);
-my (%seen, @mlists, $otherlists, $subs);
+my (%seen, @mlists, $otherlists, $subs, $hargs, @hereargs);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
@@ -118,10 +118,12 @@ $passw   = $cgi->param('passw') || '';
 @lists   = $cgi->param('list') if $cgi->param('list');
 @mlists  = $cgi->param('mlist');
 @extra   = $cgi->param('extra');
+$hargs   = $cgi->param('hereargs') || '';
 $st      = $cgi->param('st') || '';
 if ($st eq 'on' or $st eq 'checked') { $st = 'checked'; }
 $extra[0] ||= '';
 $extra   = $extra[0];
+@hereargs = split /\r?\n/, $hargs;
 # Remove duplicates from the list of lists.
 @lists   = grep (!$seen{$_}++, @lists, @mlists);
 
@@ -140,6 +142,7 @@ else {
   $func = $ofunc;
   $mode = '';
 }
+$otherlists = '';
 for $list (@mlists) {
   $otherlists .= "<input type=hidden name=mlist value=$list>\n";
 }
@@ -239,14 +242,14 @@ unless ($fh) {
   &surrender($mess, $sess, $serveradmin);
 } 
 if ($func ne 'showtokens') {
-  $fh->print("<pre><small>\n") unless ($func eq 'tokeninfo' or $func =~ /who/);
+  $fh->print("<pre><small>\n") unless ($func =~ /configshow|tokeninfo|who/);
   for $req (@extra) {
-    Mj::Parser::parse_args($request, $req);
+    Mj::Parser::parse_args($request, $req, \@hereargs);
     &{"Mj::Format::$func"}($mj, $fh, $fh, 'html', $request,
       $mj->dispatch($request));
     print $fh "\n";
   }
-  $fh->print("</small></pre>\n") unless ($func eq 'tokeninfo' or $func =~ /who/);
+  $fh->print("</small></pre>\n") unless ($func =~ /configshow|tokeninfo|who/);
 }
 
 # If the "show pending requests" button is checked, or if the 
@@ -324,6 +327,77 @@ sub format_print {
   1;
 }
 
+sub Mj::Format::configshow {
+  my ($mj, $out, $err, $type, $request, $result) = @_;
+  my $log = new Log::In 29, "$type, $request->{'list'}";
+  my ($ok, $mess, $varresult, $var, $val, $tag, $auto);
+  select $out;
+
+  $ok = shift @$result;
+  for $varresult (@$result) {
+    ($ok, $mess, $var, $val) = @$varresult;
+    if (! $ok) {
+      print "Configshow error: $mess\n";
+      next;
+    }
+    print "<pre>\n" . Mj::Format::escape($mess) . "</pre>\n";
+
+    # One kind of variable cannot be changed through these HTML forms.
+    # $ok == -1 => automatically maintained variable
+
+    if (ref ($val) eq 'ARRAY') {
+      # Process as an array
+      if ($ok > 0) {
+        print <<EOM;
+<form method=POST action="$cgiurl">
+<input type=hidden name=domain value="$mj->{'domain'}">
+<input type=hidden name=list value="$request->{'list'}">
+<input type=hidden name=extra value="$var">
+<input type=hidden name=passw value="$request->{'password'}">
+<input type=hidden name=st value="$request->{'st'}">
+<textarea cols=70 rows=8 name=hereargs>
+EOM
+      }
+
+      for (@$val) {
+        print Mj::Format::escape($_) if defined $_;
+      }
+
+      if ($ok > 0) {
+        print <<EOM;
+</textarea><br>
+<input type=submit name=func value="configset">
+<input type=submit name=func value="configdef">
+</form>
+EOM
+      }
+    }
+    else {
+      # Process as a simple variable
+      $val = "" unless defined $val;
+      if ($ok > 0) {
+        print <<EOM;
+<form method=POST action="$cgiurl">
+<input type=hidden name=domain value="$mj->{'domain'}">
+<input type=hidden name=list value="$request->{'list'}">
+<input type=hidden name=passw value="$request->{'password'}">
+<input type=hidden name=st value="$request->{'st'}">
+<input type=hidden name=extra value="$var">
+<input size=70 name=hereargs value="$val"><br>
+<input type=submit name=func value="configset">
+<input type=submit name=func value="configdef">
+</form>
+EOM
+      }
+      else {
+        print Mj::Format::escape($val) . "<p>\n";
+      }
+    }
+  }
+  select STDOUT;
+  1;
+}
+
 sub Mj::Format::help { 
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, $request->{'topic'};
@@ -366,7 +440,7 @@ sub Mj::Format::showtokens {
 
   ($ok, @tokens) = @$result;
   unless ($ok) {
-    print "<p>Error.  $tokens[0]\n";
+    print "<p>Showtokens error:  $tokens[0]\n";
     return 0;
   }
   unless (@tokens) {
@@ -414,7 +488,7 @@ sub Mj::Format::tokeninfo {
   select $out;
 
   unless ($ok > 0) {
-    print "<p>Error. $data\n";
+    print "<p>Tokeninfo error: $data\n";
     return $ok;
   }
   
