@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd">
+<html><head>
+<title>Majordomo 2 Administration: $REQUEST</title>
+</head>
+<body>
+<form method=POST action="$CGIURL">
+<input type=hidden name=domain value="$DOMAIN">
+<table><tr><td>
+Command:&nbsp;&nbsp;
+<select name=func>
+<option> about this service
+<option> accept
+<option> archive-index
+<option> archive-get
+<option> auxadd
+<option> auxremove
+<option> auxwho
+<option> configshow
+<option> configset
+<option> configdef
+<option> get
+<option> help
+<option> index-recursive
+<option> lists-aux
+<option> reject
+<option> report
+<option> sessioninfo
+<option> set
+<option> set-aux
+<option> showtokens
+<option> subscribe
+<option> tokeninfo
+<option> tokeninfo-full
+<option> unsubscribe
+<option> unregister
+<option> which
+<option> who
+<option> who-bounces
+</select>
+<td>
+<input size=26 name=extra value="">
+<td>
+<input type=checkbox name=st $ST> Show Pending Requests
+<tr><td>
+Mailing List:&nbsp;&nbsp;
+<input size=20 name=list value="$LIST">
+$MULTILIST
+<td>
+Password:&nbsp;&nbsp;
+<input size=16 name=passw type=password value="$PASSWORD">
+<td>
+<input type=submit value="Issue Command">
+</table>
+</form>
+

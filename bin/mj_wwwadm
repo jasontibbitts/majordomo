@@ -50,7 +50,7 @@ use Mj::Addr;
 my ($cgi, $cgiurl, $domain, $i, $mj, $ok, $mess, $serveradmin, $sess, $token);
 my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, @lists, $vict, $extra);
 my ($line, $st, $file, $fh, $cmdform, $localpart, $request, $req, @extra);
-my (%seen, @mlists, @supported, $listbox);
+my (%seen, @mlists, $otherlists, $subs);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
@@ -80,60 +80,35 @@ print $cgi->header;
 $domain = $cgi->param('domain') || $::DEFDOM;
 $domain =~ /(\S+)/; $domain = $1;
 
-# Make the Majordomo object
-$mj = new Majordomo $::LISTDIR, $domain;
-unless (ref $mj) {
-  print <<EOM;
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
-"http://www.w3.org/TR/REC-html40/strict.dtd"> 
-<html><head>
-<title>Majordomo 2 Administration: Error</title>
-</head>
-<body>
-<h2>Error: $mj</h2>
-</body></html>
-EOM
-  exit 0;
-}
-
 # Generate the session information
 for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
   $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
 }
 $sess .= scalar(localtime(time)) . "\n";
+
+# Make the Majordomo object
+$mj = new Majordomo $::LISTDIR, $domain;
+&surrender($mess, $sess) unless (ref $mj);
+
 $serveradmin = $mj->global_config_get(undef, undef, 'whoami_owner');
 
 ($ok, $mess) = $mj->connect('mj_wwwadm', $sess);
-unless ($ok) {
-  print <<EOM;
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
-"http://www.w3.org/TR/REC-html40/strict.dtd"> 
-<html><head>
-<title>Majordomo 2 Administration: Error</title>
-</head>
-<body>
-<h2>Error: $mess</h2>
-Please contact
-<a href="mailto:$serveradmin">$serveradmin</a> and report
-this error.
-</body></html>
-EOM
-  exit 0;
-}
+&surrender($mess, $sess, $serveradmin) unless ($ok);
+
+# $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
+# Use the URL with which we were called
+$cgiurl = sprintf "http://%s:%s%s", $ENV{'SERVER_NAME'},
+          $ENV{'SERVER_PORT'}, $ENV{'SCRIPT_NAME'};
 
 $pathinfo = 'GLOBAL';
 if (exists $ENV{'PATH_INFO'}) {
+  $cgiurl  .= $ENV{'PATH_INFO'};
   $pathinfo = $ENV{'PATH_INFO'};
   $pathinfo =~ m#/([^/\s]+)#;
   $pathinfo = $1;
 }
 
-# $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
-# Use the URL with which we were called
-$cgiurl = sprintf "http://%s:%s%s%s", $ENV{'SERVER_NAME'},
-          $ENV{'SERVER_PORT'}, $ENV{'SCRIPT_NAME'}, $ENV{'PATH_INFO'};
-
-# Set HTML form variables
+# Get HTML form variables
 $ofunc   = $cgi->param('func') || "help";
 $localpart = $ENV{'REMOTE_ADDR'} || "mj_wwwadm";
 $localpart =~ /(.*)/; $localpart = $1;
@@ -147,6 +122,7 @@ $st      = $cgi->param('st') || '';
 if ($st eq 'on' or $st eq 'checked') { $st = 'checked'; }
 $extra[0] ||= '';
 $extra   = $extra[0];
+# Remove duplicates from the list of lists.
 @lists   = grep (!$seen{$_}++, @lists, @mlists);
 
 # Generate temporary password for increased security.
@@ -164,93 +140,42 @@ else {
   $func = $ofunc;
   $mode = '';
 }
-if (scalar(@lists) > 1) {
-  $listbox = "<select name=list>\n";
-  for $list (@lists) {
-    $listbox .= "<option>$list\n";
-  }
-  $listbox .= "</select>\n";
-  for $list (@lists) {
-    $listbox .= "<input type=hidden name=mlist value=$list>\n";
-  }
-}
-else {
-  $listbox = "<input size=20 name=list value=\"$lists[0]\">";
+for $list (@lists) {
+  $otherlists .= "<input type=hidden name=mlist value=$list>\n";
 }
 
-# The auxwho command will work on ordinary lists,
-# not just sublists.
-@supported = (qw(accept archive-index archive-get auxadd auxremove
-auxwho configshow configset configdef get help index-recursive
-lists-aux reject report sessioninfo set set-aux showtokens subscribe 
-tokeninfo tokeninfo-full unsubscribe unregister which who who-bounces));
+$subs = {
+         'CGIURL'   => $cgiurl,
+         'DOMAIN'   => $domain,
+         'LIST'     => $lists[0],
+         'MULTILIST'=> $otherlists,
+         'PASSWORD' => $passw,
+         'REQUEST'  => $func,
+         'ST'       => $st,
+        };
 
-
-$cmdform = <<EOM;
-<form method=POST action="$cgiurl">
-<input type=hidden name=domain value="$domain">
-<table><tr><td>
-Command:&nbsp;&nbsp;
-<select name=func>
-<option> about this service
-EOM
-
-for (@supported) {
-  $cmdform .= "<option> $_\n";
-}
-
-$cmdform .= <<EOM;
-</select>
-<td>
-<input size=26 name=extra value="$extra">
-<td>
-<input type=checkbox name=st $st> Show Pending Requests
-<tr><td>
-Mailing List:&nbsp;&nbsp;
-$listbox
-<td>
-Password:&nbsp;&nbsp;
-<input size=16 name=passw type=password value="$passw">
-<td>
-<input type=submit value="Issue Command">
-</table>
-</form>
-EOM
-
-# Select the previous command.
-$cmdform =~ s/option> $ofunc/option selected> $ofunc/;
-
-print <<EOM;
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
-"http://www.w3.org/TR/REC-html40/strict.dtd"> 
-<html><head>
-<title>Majordomo 2 Administration: $func</title>
-</head>
-<body>
-EOM
-
-print $cmdform;
+($file, undef) = $mj->_list_file_get('GLOBAL', 'wwwadm_head', $subs);
 
 if (! $cgi->param('func') or $func =~ /about/) {
-  &usage($mj, $lists[0]);
-  exit 0;
+  $::log->message(50, "info",  "Displaying introduction.");
+  &usage($mj, $lists[0], $cgiurl, $file);
 }
 
 no strict 'refs';
 # Make sure the command is valid
 unless (command_legal($func)) {
-  print "Illegal command: $func\n";
-  $::log->message(50, "info",  "Invalid command $func in form data.");
-  exit 0;
+  $mess = "Invalid command $func in form data.";
+  $::log->message(50, "info", $mess);
+  &surrender($mess, $sess, $serveradmin, $file);
 }
 
 # Make sure the list names are valid
 for ($i = 0; $i < scalar(@lists); $i++) {
   if ($lists[$i] ne '') {
     unless ($lists[$i] = $mj->valid_list($lists[$i], 1, 1)) {
-      print "<h3>Invalid list name: $lists[$i]</h3>\n";
-      $::log->message(50, "info",  "Invalid list $lists[$i] in form data.");
-      exit 0; 
+      $mess = "Invalid list name: $lists[$i]";
+      $::log->message(50, "info", $mess);
+      &surrender($mess, $sess, $serveradmin, $file);
     }
   }
 }
@@ -266,17 +191,18 @@ if ($func eq 'auxwho' or $func eq 'who') {
 
 # Verify the password provided, if the command requires one.
 if ($passw eq '' and $func !~ /help|lists|accept|reject|tokeninfo/) {
-  print "<h3>You must provide a password to use the $func command</h3>\n";
-  exit 0;
+  $mess = "A password is required to use the $func command.";
+  $::log->message(50, "info", $mess);
+  &surrender($mess, $sess, $serveradmin, $file);
 }
 elsif ($passw ne '') {
   # Check the password against the requester
   for $i (@lists) {
     $ok = $mj->validate_latchkey($user, $passw, $i, $func);
     if ($ok <= 0) {
-      print "<h3>The password you provided is invalid for the $i list, or has expired.</h3>\n";
-      $::log->message(50, "info",  "Invalid password in form data.");
-      exit 0;
+      $mess = "The password is invalid or has expired.";
+      $::log->message(50, "info", $mess);
+      &surrender($mess, $sess, $serveradmin, $file);
     }
   }
 }
@@ -284,9 +210,9 @@ elsif ($passw ne '') {
 if ($func eq 'auxadd' or $func eq 'auxremove') {
   # The group and mail address must be specified in 'extra'
   if ($extra !~ /\s/) {
-    print "<p>When using $func, specify the auxiliary list name\n";
-    print "and the e-mail address, in that order.\n";
-    exit 0;
+    $mess = "The $func command requires an auxiliary list name and an address.\n";
+    $::log->message(50, "info", $mess);
+    &surrender($mess, $sess, $serveradmin, $file);
   }
 }
 
@@ -305,8 +231,13 @@ if (scalar @lists > 1){
   $request->{'mlist'} = \@lists;
 }
 
-$file = Majordomo::tempname();
-$fh = new IO::File ">$file";
+$fh = new IO::File ">>$file";
+
+unless ($fh) {
+  $mess = "Unable to open output file $file.\n";
+  $::log->message(50, "info", $mess);
+  &surrender($mess, $sess, $serveradmin);
+} 
 if ($func ne 'showtokens') {
   $fh->print("<pre><small>\n") unless ($func eq 'tokeninfo' or $func =~ /who/);
   for $req (@extra) {
@@ -318,6 +249,11 @@ if ($func ne 'showtokens') {
   $fh->print("</small></pre>\n") unless ($func eq 'tokeninfo' or $func =~ /who/);
 }
 
+# If the "show pending requests" button is checked, or if the 
+# showtokens command is chosen from the command menu, a list
+# of pending requests will appear at the bottom of the screen.
+# Unless the command was chosen from the menu, the command
+# arguments are not parsed.
 if ($passw and ($st eq 'checked' or $func eq 'showtokens') and @lists) {
   # The password may have been omitted earlier.
   $request->{'password'} = $passw;
@@ -373,7 +309,7 @@ exit 0;
 
 #---------------- Subroutines -----------------#
 sub format_print {
-  my ($file) = @_;
+  my ($file) = shift; 
   my ($line, $token, $summarize, $hdrs, $remove);
   $summarize = $hdrs = 0;
 
@@ -666,132 +602,56 @@ EOM
   select STDOUT;
 }
 
-# XXX Move into external file
 sub usage {
-  my ($mj, $list) = @_;
-  my $site  = $mj->global_config_get(undef, undef, 'site_name');
-  my $serveraddr = $mj->global_config_get(undef, undef, 'whoami');
-  my $serveradmin = $mj->global_config_get(undef, undef, 'whoami_owner');
+  my ($mj, $list, $cgiurl, $file) = @_;
+  my $subs = {
+              'CGIURL'   => $cgiurl,
+              'DOMAIN'   => $mj->{'domain'},
+              'LIST'     => $list,
+              'MJ'       => $mj->global_config_get(undef, undef, 'whoami'),
+              'MJOWNER'  => $mj->global_config_get(undef, undef, 'whoami_owner'),
+              'SITE'     => $mj->global_config_get(undef, undef, 'site_name'),
+          };
+  my ($helpfile, undef) = $mj->_list_file_get('GLOBAL', 'wwwadm_help', $subs);
+  &format_print($file);
+  &format_print($helpfile);
+  unlink $file;
+  unlink $helpfile;
+  exit 0;
+}
+
+sub surrender {
+  my ($mess, $sess, $addr, $file) = @_;
+
+  if ($file) {
+    &format_print($file);
+    unlink $file;
+  }
+  else {
+    print <<EOM;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd">
+<html><head>
+<title>Majordomo 2: Error</title>
+</head>
+<body>
+EOM
+  }
 
   print <<EOM;
-Welcome to the Majordomo 2 administrative interface at $site!
-To return to this introduction at any time, select
-<b>about this service</b> from the menu above and press the 
-<b>Issue Command</b> button.
-<p>
-At the top of this page is a command form that will allow you to issue 
-commands to administrate the $list mailing list.
-Some commands, like <b>lists-aux</b>, have a hyphen in their names.
-The part that follows the hyphen is called the "command mode."
-<p>
-To learn more about a particular command, select <b>help</b> in 
-the command menu, type the name of the command (without
-the command mode) in the box immediately to the right,
-and press the <b>Issue Command</b> button. You will
-see a summary of how the command works.  
-The same commands may be issued by sending electronic mail to
-<a href="mailto:$serveraddr">$serveraddr</a>.
-<p>
-Choose a command from the command menu.
-Since most commands require a password, type the password
-for the $list mailing list into the <b>Password:</b> box.
-To administer a different list,
-type its name into the <b>Mailing List:</b> box.
-If additional information is needed to issue
-a command, type that information into the box
-immediately to the right of the command menu.
-Finally, press the "Issue Command" button.
-<p>
-If the <b>Show Pending Requests</b>
-button is pressed, the pending requests for your list will
-appear at the bottom of the page.  There are many kinds of
-requests:  a subscription or set request that
-a subscriber has not yet confirmed; a request
-for help that was sent to the mailing list by mistake; or
-a posted message that is held for your approval because a
-header line was too long, for example.
-<p>
-If there are requests, you will see a form
-like this:
-<form method=POST action="$cgiurl">
-<input type=submit name=func value="tokeninfo-full">
-<input type=submit name=func value="tokeninfo">
-<input type=submit name=func value="accept">
-<input type=submit name=func value="accept-archive">
-<input type=submit name=func value="reject">
-<input type=hidden name=domain value="$domain">
-<input type=hidden name=list value="$list">
-<input type=hidden name=passw value=yourpassword>
-<input type=hidden name=st value=>
-<br>
-Choose one or more requests from the following list,
-then press one of the buttons.
-<table>
-<tr><td colspan=5>Requests for $list
-<tr>
-<td><input type=checkbox name=extra value=13D7-C445-6A37>13D7-C445-6A37
-<td>O
-<td>post (5 kB)
-<td>05-12 20:27:46 
-<td>Someone You Know &lt;someone\@example.com&gt;
-<tr>
-<td><input type=checkbox name=extra value=8E49-E388-BADC>8E49-E388-BADC
-<td>S
-<td>subscribe
-<td>05-13 10:27:46 
-<td>Someone New &lt;unknown\@example.org&gt;
-</table>
-</form>
-
-<ul>
-<li>The first column has a checkbox and
-the "token identifier," which is unique to that request.  
-Checkboxes allow more than one request to be handled at once.
-
-<li>Generally, <b>subscribe</b> and <b>set</b> requests need 
-to be confirmed by the subscribers themselves, but any other request 
-should be handled by the list owners.  This is indicated 
-in the second column by an <b>O</b> (the owners must approve) 
-or an <b>S</b> (the subscriber must approve). 
-
-<li>The third column shows the type of request.  If the
-request is a <b>post</b>ed message, the size of the message is
-also shown.
-
-<li>The remaining columns contain the date of
-the request and the e-mail address of the person who made it.
-</ul>
-
-<p>
-There are five buttons available to deal with pending requests.
-<ol>
-<li>The <b>tokeninfo-full</b> button will show the headers of the message
-that caused the request, plus the message itself if the request
-is a <b>post</b>.
-<li>The <b>tokeninfo</b> button will show the headers of the message
-and a summary of the request.
-<li>The <b>accept</b> button will approve the request.
-<li>The <b>accept-archive</b> button will approve the request, but
-if it is a <b>post</b>, the message will be stored in
-the archive but not distributed to the subscribers.
-<li>The <b>reject</b> button will deny the request.
-</ol>
-<p>
-If there are no pending requests, you will see the following message:
+<h2>Error: $mess</h2>
 <pre>
-There are no pending requests for $list.
+$sess
 </pre>
-<p>
-Requests will eventually expire unless someone handles them.
-By default, the lifetime of a request is one week.
-<p>
-If you have questions about this interface, contact your
-site administrator at 
-<a href="mailto:$serveradmin">$serveradmin</a>.
-</body>
-</html>
 EOM
+
+  print "Please contact <a href=\"mailto:$addr\">$addr</a>\n" .
+        " if you wish to report this error.\n"  if $addr;
+
+  print "</body></html>\n";
+  exit 0;
 }
+
 =head1 COPYRIGHT
 
 Copyright (c) 2000 Jason Tibbitts for The Majordomo Development

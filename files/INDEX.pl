@@ -33,6 +33,8 @@ $files =
    'en/welcome'                                       => ['Welcome',                                  'us-ascii', '7bit'],
    'en/who_registry'                                  => ['registry data template',                   'us-ascii', '7bit'],
    'en/who_subscriber'                                => ['subscriber data template',                 'us-ascii', '7bit'],
+   'en/wwwadm_head'                                   => ['command form for WWW admin interface',     'us-ascii', '7bit'],
+   'en/wwwadm_help'                                   => ['introduction to the WWW admin interface',  'us-ascii', '7bit'],
 
    # english help files
    'en/help/accept'                                   => ['detailed help for accept command',         'us-ascii', '7bit'],

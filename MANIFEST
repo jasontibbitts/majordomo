@@ -428,6 +428,8 @@ files/en/token_remind
 files/en/welcome
 files/en/who_registry
 files/en/who_subscriber
+files/en/wwwadm_head
+files/en/wwwadm_help
 installbin
 lib/Bf/Sender.pm
 lib/Majordomo.pm
