@@ -616,9 +616,8 @@ sub help {
   my ($cgidata, $cgiurl, $chunk, $chunksize, $domain, $hwin, $tmp, $topic);
   my ($ok, $mess) = @$result;
 
-  select $out;
   unless ($ok > 0) {
-    print "Help $request->{'topic'} failed.\n$mess";
+    print $out "Help $request->{'topic'} failed.\n$mess";
     return $ok;
   }
 
@@ -645,12 +644,11 @@ sub help {
       $chunk =~ 
        s#(\s{3}|&quot;)(help\s)(\w+)#$1$2<a href="$cgiurl?\&${cgidata}\&func=help\&extra=$3"$hwin>$3</a>#g;
     }
-    print $chunk;
+    print $out $chunk;
   }
 
   $request->{'command'} = "help_done";
   $mj->dispatch($request);
-  select STDOUT;
   1;
 }
 
@@ -728,7 +726,6 @@ sub lists {
       $desc, $digests, $flags, $global_subs, $i, $legend, $list, $site, 
       $str, $subs, $tmp);
   my $log = new Log::In 29, $type;
-  select $out;
   $count = 0;
 
   ($site) = $mj->global_config_get($request->{'user'}, $request->{'pass'}, 
@@ -879,11 +876,10 @@ sub post {
   $handled = 0;
   $handled = 1 if (ref ($request->{'message'}) =~ /^IO/);
  
-  $request->{'command'} = "post_chunk"; 
- 
   # The message will have been posted already if this subroutine
   # is called by Mj::Token::t_accept . 
   if (exists $request->{'message'}) { 
+    $request->{'command'} = "post_chunk"; 
     while (1) {
       $i = $handled ? 
         $request->{'message'}->getline :
