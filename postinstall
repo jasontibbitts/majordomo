@@ -88,14 +88,7 @@ if (!$skip && (!$ask || get_bool($msg2))) {
 # Convert lists if desired
 
 # Give some basic MTA configuration
-if (!$skip && -t STDIN) {
-#  print "\nSome basic configuration information:\n";
-  my $nhead = 0;
-  for my $i (@{$config->{'domains'}}) {
-    suggest_mta($i, $nhead);
-    $nhead = 1;
-  }
-}
+mta_setup(@{$config->{'domains'}}) unless $skip;
 
 if ($config->{sendmail_make_symlinks}) {
   print "Making symlinks in $config->{sendmail_symlink_location}";

@@ -22,16 +22,12 @@ actually do some or all of the required configuration.
 package Mj::MTAConfig;
 use Mj::Log;
 use strict;
-use vars (qw(%header %sendsep %supported));
-
-%sendsep = (
-	    sendmail => '+',
-	    qmail    => '-',
-	   );
+use vars (qw(%header %supported));
 
 %supported = (
 	      sendmail => 'sendmail',
 	      qmail    => 'qmail',
+	      exim     => 'exim',
 	     );
 
 %header = (
@@ -65,6 +61,31 @@ sub sendmail {
     if ($args{options}{maintain_vut}) {
       $args{vutfile} = "$args{topdir}/ALIASES/mj-vut-$dom"
     }
+  }
+
+  if ($args{regenerate}) {
+    return Mj::MTAConfig::Sendmail::regen_aliases(%args);
+  }
+  elsif ($args{'delete'}) {
+    return Mj::MTAConfig::Sendmail::del_alias(%args);
+  }
+  Mj::MTAConfig::Sendmail::add_alias(%args);
+}
+
+=head2 exim
+
+Because Exim uses alias files in the same format as Sendmail does but
+doesn''t need the virtusertable garbage, we can just call the simple
+Sendmail routines.
+
+=cut
+sub exim {
+  my %args = @_;
+  my $log = new Log::In 150;
+  my $dom = $args{domain};
+
+  if ($args{options}{maintain_config}) {
+    $args{aliasfile} = "$args{topdir}/ALIASES/mj-alias-$dom";
   }
 
   if ($args{regenerate}) {
@@ -372,7 +393,7 @@ sub regen_aliases {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997-1999 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it

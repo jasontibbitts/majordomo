@@ -35,8 +35,6 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
-Exim support.
-
 New stored token format:
   Data::Dumper to store a hash.  The contents are essentially opaque to the
   token system; upon extraction certain elements are passed to the bottom

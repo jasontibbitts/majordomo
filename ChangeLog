@@ -1,3 +1,33 @@
+Sun Jun 20 13:34:52 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* setup/setup_func.pl (do_site_config): Just put all info from all
+ 	available MTAs into the config; it can't hurt to be there and
+ 	eliminates the possibility of making some stupid errors.
+
+	* setup/query_util.pl (get_file): Fix some dumb logic errors;
+ 	comment better.
+
+	* setup/ask_basic.pl: Completely restructure MTA configuration
+ 	sections.
+
+	* lib/Mj/MailOut.pm (deliver): Get the sender separator out of the
+ 	site config instead of hardcoded constants in MTAConfig.pm.
+
+	* lib/Mj/MTAConfig.pm: Add Exim support; remove %sendsep
+ 	completely (since it's now configurable at install time).
+
+	* bin/mj_queueserv (in): Handle the case of select returning -1;
+ 	previously we moved into the accept and blocked forever.
+
+Sat Jun 19 13:15:35 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* setup/setup_func.pl (mta_setup): Restructure a bit; handle
+ 	making mj-domains file.
+
+	* postinstall: Don't skip MTA configuration if not running on a
+ 	terminal.
+	Rework MTA setup a bit.
+
 Fri Jun 18 23:18:20 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Access.pm (_a_confirm): Hack to get unspooled filename

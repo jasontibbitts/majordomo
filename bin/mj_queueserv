@@ -56,6 +56,7 @@ die "Couldn't fork: $!" unless defined($pid);
 POSIX::setsid() or die "Can't start a new session: $!";
 
 $SIG{CHLD} = sub {wait};
+#$SIG{CHLD} = 'DEFAULT';
 $SIG{PIPE} = 'IGNORE';
 
 logmsg("Majordomo Queue Server - ".scalar(localtime));
@@ -73,17 +74,22 @@ while (1) {
 
   # Select on the Socket, time out after a while
   $rin = $win = $ein = ''; vec($rin,fileno(Server),1) = 1; $ein = $rin | $win;
-  unless (select($rout=$rin, $wout=$win, $eout=$ein,
-		 $::TIMEOUT*$::CONCURRENCY)
-	 )
-    {
-      logmsg "Timed out";
-      last;
-    }
+  $nfound = select($rout=$rin, $wout=$win, $eout=$ein,
+		   $::TIMEOUT*$::CONCURRENCY);
+
+  # select returns 0 on a timeout
+  if ($nfound == 0) {
+    logmsg "Timed out";
+    last;
+  }
+
+  # select returns -1 if interrupted by a system call (like SIGCHLD)
+  next if $nfound < 0;
 
   # Got a connection, accept it
-  accept(Client,Server);
   logmsg "Got connection";
+  accept(Client,Server);
+  logmsg "Accepted connection";
 
   $line = in(*Client);
   if ($line =~ /quit/i) {

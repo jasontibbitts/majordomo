@@ -123,7 +123,7 @@ sub deliver {
      classes => $classes,
      rules   => $self->_list_config_get($list,'delivery_rules'),
      chunk   => $self->_global_config_get('chunksize'),
-     sendsep => $Mj::MTAConfig::sendsep{$mta},
+     sendsep => $self->_site_config_get('mta_separator'),
      manip   => 1,
      seqnum  => $seqno,
     );

@@ -50,6 +50,31 @@ EOM
 	(-d "/etc" && "/etc") || '';  
       $config->{'sendmail_symlink_location'} = get_dir($msg, $def);
     }
+
+  # Technically we should ask about this, but I really doubt that anyone
+  # ever changes it from the default.
+  $config->{mta_separator} = '+';
+}
+
+sub setup_sendmail {};
+
+sub setup_sendmail_domain {
+  my($config, $dom, $nhead) = @_;
+
+  # Do sendmail configuration by calling createlist-regen.
+
+  # Prompt for the site password if necessary
+  $pw = $config->{'site_password'};
+  unless ($pw) {
+    $pw = get_str($msg4);
+    $config->{'site_password'} = $pw;
+  }
+
+  my @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-p",
+	      "$pw", "createlist-regen" . ($nhead ? "-noheader" : ''));
+
+#  print "(@args)\n";
+  system(@args) == 0 or die "Error executing $args[0], $?";
 }
 
 =head1 COPYRIGHT

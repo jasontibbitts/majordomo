@@ -361,9 +361,6 @@ sub _post {
     $ent[0] = $mime_parser->read(\*SPOOL);
   }
 
-warn "BLAH";
-$ent[0]->print(\*STDERR);
-
   # Trim off approvals, get back a new entity
   $ent[0] = $self->_trim_approved($ent[0]);
   $head = $ent[0]->head;

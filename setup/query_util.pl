@@ -35,6 +35,7 @@ sub get_enum {
   }
 }
 
+# Query for the existence of a file.
 sub get_file {
   my ($msg, $def, $exist, $exe, $path, $force) = @_;
   my ($file);
@@ -42,19 +43,33 @@ sub get_file {
   while (1) {
     my $ans = prompt($msg, $def);
     $file = ($ans =~ /(\S*)/)[0];
-    last if !length $file && !$exist;
+
+    # We always require some input, else we wouldn't be asking
     unless (length $file) {
       $msg = "You must enter something.\n";
       next;
     }
-    last if -f $file && !$exe;
+
+    # If existence isn't required, we can exit as soon as we have anything
+    # at all
+    last if !$exist;
+
+    # If it's executable, we're done.  If it simply exists and we don't
+    # need executability, we're also done.
     last if -x $file;
+    last if -f $file && !$exe;
+
+    # Now we can run over the path
     if ($path) {
       for my $i (split(':', $ENV{PATH})) {
 	last OUTER if -x "$i/$file";
       }
     }
-    # So it didn't exist or wasn't executable.
+
+    # So it didn't exist or wasn't executable.  Complain a bit.  If $force
+    # is true, we require that the file be there and so we make another
+    # round.  Otherwise we can just make sure that the user really intended
+    # to type what they typed.
     if ($force) {
       if ($exe) {
         $msg = "You must enter the name of an existing executable file.\n";
