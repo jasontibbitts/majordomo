@@ -116,7 +116,7 @@ $cgiurl = Mj::Format::uescape($cgiurl);
 
 unless ($domain) {
   @domains = Majordomo::domains($::LISTDIR);
-  ($domain) = grep { $_ eq $ENV{'HTTP_HOST'} } @domains;
+  ($domain) = grep { lc $_ eq lc $ENV{'HTTP_HOST'} } @domains;
   $domain = $domains[0] unless $domain;
 }
 

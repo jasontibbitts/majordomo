@@ -1,3 +1,47 @@
+2001-11-23  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Make domain
+	comparisons using the HTTP_HOST environment variable
+	case-insensitive.
+
+	* bin/mj_shell:  Use revised str_to_offset parameters
+	when determining delay lengths.
+
+	* lib/Majordomo.pm:  (new)  Test for case-insensitive
+        equivalence in domain names.
+
+	* lib/Mj/Access.pm:  (_d_post)  Add limit_lower to the
+	list of consult variables.
+
+	* lib/Mj/Archive.pm:  (expand_range)  Use new str_to_offset
+	parameters.
+
+	* lib/Mj/CommandProps.pm:  Support the limit_lower access
+	variable.
+
+	* lib/Mj/Config.pm:  (parse_digests)  Parse time spans
+	in the minage, separate, and maxage fields at run time.
+	(parse_limits)  Add support for a lower limit.
+
+	* lib/Mj/Digest.pm:  (decide)  Parse time spans at
+	run time.  Clarify log messages.
+
+	* lib/Mj/Format.pm:  (digest)  Parse time spans at
+	run time.
+
+	* lib/Mj/Parser.pm:  (parse_part)  Use revised str_to_offset
+	parameters when determining delay lengths.
+
+	* lib/Mj/Resend.pm:  (_within_limits)  Add support for lower
+	limits.
+
+	* lib/Mj/Util.pm:  (str_to_offset)  Add support for calendar
+	days, weeks, months, and years.  Present the result as
+	a string instead of a second count if requested.
+
+	* setup/mta_sendmail.pl:  Bugfix:  do not use the "noheader"
+	mode with the createlist-regen command.
+
 2001-11-21  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/CommandProps.pm: Add posts_this_day/week/month variables.
