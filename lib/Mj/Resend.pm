@@ -446,40 +446,45 @@ sub _post {
   if ($msgnum && scalar keys %{$digests}) {
     %digest = $self->{'lists'}{$list}->digest_add($msgnum, $arcdata);
 
-    # Extract volumes and issues, then write back the incremented values.
-    # Note that when we set the new value, we must do it in an unparsed
-    # form.
-    @tmp = ();
-    $self->_list_config_lock($list);
-    $dissues = $self->_list_config_get($list, 'digest_issues');
-    for $i (keys %$digests) {
-      next if $i eq 'default_digest';
-      $dissues->{$i}{volume} ||= 1; $dissues->{$i}{issue} ||= 1;
-      push @tmp, "$i : $dissues->{$i}{volume} " .
-	" : " . ($dissues->{$i}{issue}+1);
-    }
-    $self->_list_config_set($list, 'digest_issues', @tmp);
-    $self->_list_config_unlock($list);
+    if (%digest) {
+      # Extract volumes and issues, then write back the incremented values.
+      # Note that when we set the new value, we must do it in an unparsed
+      # form.
+      @tmp = ();
+      $self->_list_config_lock($list);
+      $dissues = $self->_list_config_get($list, 'digest_issues');
+      
+      use Data::Dumper; print Dumper $digests; print Dumper \%digest;
 
-    # Now have a hash of digest name, listref of [article, data] pairs.
-    # For each digest, build the three types and for each type and then
-    # stuff an appropriate entry into %deliveries.
-    for $i (keys(%digest)) {
-      @dtypes = qw(text mime index);
-      @dfiles = $self->{'lists'}{$list}->digest_build
-	(messages     => $digest{$i},
-	 types        => [@dtypes],
-	 subject      => $digests->{$i}{desc} . " V$dissues->{$i}{volume} #$dissues->{$i}{issue}",
-	 tmpdir       => $tmpdir,
-	 index_line   => $self->_list_config_get($list, 'digest_index_format'),
-	 index_header => "index header\n",
-	 index_footer => "index footer\n",
-	);
+      for $i (keys %digest) {
+	warn "$i";
+	$dissues->{$i}{volume} ||= 1; $dissues->{$i}{issue} ||= 1;
+	push @tmp, "$i : $dissues->{$i}{volume} " .
+	  " : " . ($dissues->{$i}{issue}+1);
+      }
+      $self->_list_config_set($list, 'digest_issues', @tmp);
+      $self->_list_config_unlock($list);
+
+      # Now have a hash of digest name, listref of [article, data] pairs.
+      # For each digest, build the three types and for each type and then
+      # stuff an appropriate entry into %deliveries.
+      for $i (keys(%digest)) {
+	@dtypes = qw(text mime index);
+	@dfiles = $self->{'lists'}{$list}->digest_build
+	  (messages     => $digest{$i},
+	   types        => [@dtypes],
+	   subject      => $digests->{$i}{desc} . " V$dissues->{$i}{volume} #$dissues->{$i}{issue}",
+	   tmpdir       => $tmpdir,
+	   index_line   => $self->_list_config_get($list, 'digest_index_format'),
+	   index_header => "index header\n",
+	   index_footer => "index footer\n",
+	  );
 
       
-      for $j (@dtypes) {
-	# shifting off an element of @dfiles gives the corresponding digest
-      	$deliveries{"digest-$i-$j"} = {exclude => {}, file => shift(@dfiles)};
+	for $j (@dtypes) {
+	  # shifting off an element of @dfiles gives the corresponding digest
+	  $deliveries{"digest-$i-$j"} = {exclude => {}, file => shift(@dfiles)};
+	}
       }
     }
   }

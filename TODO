@@ -37,13 +37,16 @@ Top of the list
 ---------------
 
 Build complete maintenance scripts so that the installer only needs to add
-two crontab entries period instead of two per domain.
-
+  two crontab entries period instead of two per domain.
+Move all aliases into one file, and all vut entries into one file, to make
+  sendmail configuration easier.
 Move t_accept messages into external files.
 Return additional information from _post so that t_accept can provide
- additional data.
-Finish work on allosed_flags and allowed_classes.
+  additional data.
+Finish work on allowed_flags and allowed_classes.
 Update FILES.
+
+
 
 Can filespace system entirely.  To see if a file exists, just stat it.
 Store additional info in a dotfile.  Only difficult rewrite is index.

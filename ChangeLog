@@ -1,3 +1,9 @@
+Sat Jan 30 15:21:12 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Don't increment issue numbers for all
+ 	digests, only the digests we're sending out.  Avoid doing any
+ 	digest processing if we have no digests to send.
+
 Fri Jan 29 00:11:52 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Deliver/Connection.pm (new): Display any errors opening
