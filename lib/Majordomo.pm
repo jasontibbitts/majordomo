@@ -1829,6 +1829,7 @@ sub _list_config_set {
     # Synchronize the GLOBAL:owners sublist if the owners
     # setting was changed.
     elsif ($var eq 'owners') {
+      $self->_list_config_unlock($list);
       $self->sync_owners($self->{'sessionuser'});
     }
   }
@@ -5725,7 +5726,7 @@ sub unregister {
 sub _unregister {
   my($self, $list, $requ, $vict, $mode, $cmd) = @_;
   my $log = new Log::In 35, "$vict";
-  my(@out, @removed, @aliases, $data, $key, $l);
+  my(@out, @removed, @aliases, $data, $key, $l, $tmp);
 
   if ($mode =~ /regex|pattern/) {
     (@removed) = $self->{'reg'}->remove($mode, $vict);
@@ -5745,7 +5746,12 @@ sub _unregister {
     # Remove from all subscribed lists
     for $l (split("\002", $data->{'lists'})) {
       next unless $self->_make_list($l);
+      $tmp = $::log->elapsed;
       $self->{'lists'}{$l}->remove('', $key);
+      # Log the removal of the subscription.
+      $self->inform($l, 'unsubscribe', $requ, $key, $cmd, 
+                    $self->{'interface'}, 1, '', 0, '', 
+                    $::log->elapsed - $tmp);
     }
     @aliases = $self->_alias_reverse_lookup($key, 1);
     for (@aliases) {
@@ -5841,11 +5847,13 @@ sub _unsubscribe {
   while (($key, $data) = splice(@removed, 0, 2)) {
     # Convert to an Addr object and remove the list from 
     # the registration entry for that address.
+    $key = new Mj::Addr($key);
+
     if ($sublist eq 'MAIN') {
-      $key = new Mj::Addr($key);
       $self->_reg_remove($key, $list);
-      push (@out, $data->{'fulladdr'});
     }
+
+    push (@out, $data->{'fulladdr'});
 
     # Send a farewell message
     if ($mode =~ /farewell/) {

@@ -13,6 +13,7 @@
 	(_subscribe, _unsubscribe)  Do not alter the registry when
 	an address is subscribed to or unsubscribed from an auxiliary 
 	list.
+	(_unregister)  Log/inform for each of the individual unsubs.
 
 	* setup/setup_func.pl:  (install_config_templates)  Run the
 	Majordomo commands in the setup/config_commands file.  These
