@@ -1696,7 +1696,9 @@ use Mj::FileSpace;
 sub _make_fs {
   my $self = shift;
   return 1 if $self->{'fs'};
-  my $dir = $self->{'config'}->get("filedir");
+  # XXX The filedir setting is insecure.
+  # my $dir = $self->{'config'}->get("filedir");
+  my $dir = '';
   $dir = $self->_file_path("files") unless $dir;
   $self->{'fs'} = new Mj::FileSpace($dir, $self->{backend});
   return unless $self->{'fs'};
