@@ -121,7 +121,7 @@ sub open {
   # We have a lock now; the file is ours to do with as we please.
   # First, create the old file if it doesn't exist.
   unless (-f $name) {
-    $self->{'oldhandle'}->open("> $name");
+    $self->{'oldhandle'}->open(">> $name");
     $self->{'oldhandle'}->close;
   }
   # Now get down to business

@@ -81,6 +81,8 @@ $VERSION = "1.0";
    'delivery_rules'   => 1,
    'digests'          => 1,
    'inform'           => 1,
+   'regexp'           => 1,
+   'regexp_array'     => 1,
    'restrict_post'    => 1,
    'string_2darray'   => 1,
    'taboo_body'       => 1,
@@ -1696,7 +1698,19 @@ sub parse_passwords {
 
 =head2 parse_regexp
 
-This parses a regular expression.
+This parses a generalized regular expression.  The result is a legal Perl
+regular expression.
+
+Right now we only parse two kinds of generalized expressions:
+
+ substring, delimited by double quotes, in which all metacharacters are
+   escaped.
+
+ perl-like, delimited by forward slashes, in which nothing is escaped
+   _unless_ the original expression fails because of an array deref error.
+   In that case, all unescaped @ symbols are escaped and the regexp is
+   tried again.
+
 
 =cut
 use Safe;
@@ -1705,14 +1719,46 @@ sub parse_regexp {
   my $str  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var, $str";
-  my ($err, $safe);
-  
-  $safe = new Safe;
-  $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
+  my ($err, $id1, $id2, $mod, $pat, $re);
+ 
+  # Extract leading and trailing characters and the pattern; remove
+  # whitespace
+  ($id1, $pat, $id2, $mod) = $str =~ /^\s*      # Leading whitespace
+                                       ([\/\"]) # Opening delimiter
+                                       (.*)     # The pattern
+                                       ([\/\"]) # Closing delimiter
+                                       ([ix])?  # Allosed modifiers
+                                       \s*$     # Trailing whitespacce
+				     /x;
+  $mod ||= '';
 
-  $err = (Majordomo::_re_match($safe, $str, "justateststring"))[1];
-  return (0, "Error in regexp '$str'\n$err.") if $err;
-  1;
+  # Decide which type of RE we're dealing with.  Extract the first character of the string
+  if ($id1 eq '"') {
+    # Substring pattern; fail if the quote isn't closed
+    return (0, "Error in pattern '$str': no closing '\"'.\n")
+      unless $id2 eq '"';
+    $re = "/\Q$pat\E/$mod";
+    return (1, '', $re);
+  }
+  if ($id1 eq '/') {
+    # Substring pattern; fail if the closing '/' is missing
+    return (0, "Error in pattern '$str': no closing '/'.\n")
+      unless $id2 eq '/';
+    $re = "/$pat/$mod";
+
+    # Check validity of the regexp
+    $err = (Majordomo::_re_match($re, "justateststring"))[1];
+
+    # If we got an array deref error, try escaping '@' signs and trying
+    # again
+    if ($err =~ /array deref/) {
+      $re =~ s/((?:^|[^\\\@])(?:\\\\)*)\@/$1\\\@/g; # Ugh
+      $err = (Majordomo::_re_match($re, "justateststring"))[1];
+    }
+    return (0, "Error in regexp '$str'\n$err") if $err;
+    return (1, '', $re);
+  }  
+  return (0, "Unrecognized pattern '$str'.\n");
 }
 
 =head2 parse_regexp_array
@@ -1728,16 +1774,15 @@ sub parse_regexp_array {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-  my ($safe, $err);
+  my ($err, $ok, $out, $re);
 
-  $safe = new Safe;
-  $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
-
+  $out = [];
   for my $i (@$arr) {
-    $err = (Majordomo::_re_match($safe, $i, "justateststring"))[1];
-    return (0, "Error in regexp '$i'\n$err") if $err;
+    ($ok, $err, $re) = $self->parse_regexp($i, $var);
+    return (0, $err) if $err;
+    push @$out, $re;
   }
-  1;
+  (1, '', $out);
 }
 
 

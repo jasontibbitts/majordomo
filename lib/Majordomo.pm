@@ -411,7 +411,7 @@ sub _re_match {
   my    $re = shift;
   local $_  = shift;
 #  my $log  = new Log::In 200, "$re, $str";
-  my $match;
+  my ($match, $warn);
   return 1 if $re eq 'ALL';
 
   # Hack; untaint things.  That's why we're running inside a safe
@@ -424,9 +424,10 @@ sub _re_match {
 
   local($^W) = 0;
   $match = $safe->reval("$re");
-  $::log->complain("_re_match error: $@\nstring: $_\nregexp: $re") if $@;
+  $warn = $@;
+  $::log->message(10,'info',"_re_match error: $warnstring: $_\nregexp: $re") if $warn;
   if (wantarray) {
-    return ($match, $@);
+    return ($match, $warn);
   }
   return $match;
 }

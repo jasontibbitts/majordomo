@@ -810,20 +810,20 @@ sub _d_advertise {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
   my $log = new Log::In 150, "";
-  my (@adv, @noadv, $i);
+  my ($adv, $i, $noadv);
   shift @_;
 
-  @adv = $self->_list_config_get($list, 'advertise');
+  $adv = $self->_list_config_get($list, 'advertise');
 
-  for $i (@adv) {
-    return $self->_a_allow(@_) if Majordomo::_re_match($i, $requester);
+  for $i (@$adv) {
+    return $self->_a_allow(@_) if Majordomo::_re_match($i, $requester->strip);
   }
 
   # Somewhat complicated; we try not to check membership unless we
   # need to; we do so only if we would otherwise deny.
-  @noadv = $self->_list_config_get($list, 'noadvertise');
-  for $i (@noadv) {
-    if (Majordomo::_re_match($i, $requester)) {
+  $noadv = $self->_list_config_get($list, 'noadvertise');
+  for $i (@$noadv) {
+    if (Majordomo::_re_match($i, $requester->strip)) {
       if ($self->{'lists'}{$list}->is_subscriber($requester)) {
 	return $self->_a_allow(@_);
       }

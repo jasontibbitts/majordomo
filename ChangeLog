@@ -1,3 +1,24 @@
+Thu Nov 12 00:33:44 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Config.pm (parse_regexp): Major changes to accept
+ 	patterns and return true Perl regexps.  The 'regexp' type is now
+ 	parsed.
+	(parse_regexp_array): Call parse_regexp; return arrayref of parsed
+ 	regexps.
+
+	* lib/Mj/Access.pm (_d_advertise): Adjust to advertise and
+ 	noadvertise being parsed arrays (i.e. config_get returns
+ 	arrayrefs).  Do comparisons on stripped addresses.
+
+Wed Nov 11 18:10:58 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/FileRepl.pm (open): Be even safer: nondestructively
+ 	create the file if it doesn't exist.
+
+	* lib/Mj/Config.pm (parse_regexp): Call Mj::_re_match properly.
+
+        * Rememberance Day: Lest we forget.
+
 Tue Nov 10 00:36:26 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* postinstall (make_alias_symlinks): If requested, make symlinks

@@ -3,6 +3,21 @@
 Here you'll find information on major changes.  (Read the ChangeLog
 for the boring stuff.)  Items at the top are newer.
 
+Simplified patterns are supported; currently Majordomo will auto-escape
+those pesky '@' signs that Perl now requires to be escaped (but only if the
+regexp is illegal without such escaping).  Substring patterns are also
+supported, where no characters are magical.  Perl patterns are enclosed in
+'/' characters, while substring patterns are enclosed in '"'.  Modifiers
+('i' for case insensitivity, mainly) are also supported.
+
+Alias generation is supported, as is virtusertable generation.  The latter
+is very experimental.  Once set up, in a single domain configuration new
+lists can be added without any outside configuration; a single createlist
+command can do everything required to set up a list.
+
+Makefile.PL will force you to go through the Q&A process when new questions
+are added.
+
 The 'archive-get' command is supported; this returns digests built out of
 messages from the archive.  Messages from a date or range of dates can be
 requested, as can lists of named messages and the last several messages

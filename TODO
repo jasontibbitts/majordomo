@@ -22,27 +22,31 @@ The interface can pass in bad lists and nothing checks them.  Explosions
   result.
 The interface can pass bad passwords to some functions (config_get_vars)
   and get a result indistinguishable from using no password.
-Pass stripped address to access restriction language.
-
-
+Call parse_regexp in _compile rule so we can process all regexps the same
+  way.
 
 Top of the list 
 ---------------
 
-Invalid addresses are never subscribers, registered users, and never
-compare equal to anything else.
+Access: call Mj::is_subscriber instead of List::is_subscriber.
 
-Add @anonymous; any address ending in this is valid but considered like an
-invalid address for equality comparisons.
+Pass stripped address to access restriction language: $svictim =
+$victim->strip; share $svictim (local); pass to reval.
+
+
+Fix _compile_rule, parse_taboo_body and parse_taboo_header to call
+parse_regexp so the cool parsing effects everything.
+
+Fix comands that take regexps to call Config::parse_regexp to get back a
+Perl regexp to use.
+
+Invalid addresses and never compare equal to anything else.
 
 ! Auto-maintain aliases:
   Add 'del_one' in Mj::MTAConfig::Sendmail; opensa filerepl and copies the
   alias file until the opening comment is hit, then it skips until after the
   closing comment, then prints the rest of the file.  Use this for a
   'createlist-delete' routine.
-
-  Possibly make a root-owned directory somewhere and make symlinks to
-  the actual alias files.
 
 ! Archiver:
     Build index from existing file (sync)
@@ -883,4 +887,5 @@ Have an action attach text to an outgoing message (warning about quotes,
  deleted parts, etc.)
 Always allocating address objects for every core call costs for iterators;
  invent some handle method instead so we can cache state between calls.
-
+If processing a command yields an invalid address error and following line
+ does not hold a legal command, join the two lines and try again.
