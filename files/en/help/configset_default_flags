@@ -15,7 +15,6 @@ configset listname default_flags = SPR
 
 A string containing the flags to be given to new subscribers unless they
 choose otherwise.  Possible flags are:
-
   A - ackall
   a - ackimportant
   C - eliminatecc
@@ -24,9 +23,12 @@ choose otherwise.  Possible flags are:
   P - prefix
   R - replyto
   S - selfcopy
+  W - rewritefrom
 NOTE: These supply defaults for new subscribers. Once subscribed, the
 user can change their own settings on a per-list per-subscriber basis.
-See "help set" for more information, including digest and nomail settings.
+
+See "help set" for more information, including digest and nomail
+settings, and a better description of what each option does.
 
 These flags correspond to these "set" commands:
           A  - set listname ackall          EmailAddress
@@ -43,6 +45,7 @@ These flags correspond to these "set" commands:
       (no R) - set listname noreplyto       EmailAddress
           S  - set listname selfcopy        EmailAddress
       (no S) - set listname noselfcopy      EmailAddress
+          W  - set listname rewritefrom     EmailAddress
 
 See Also:
    help set       (for how a user can set these options after subscribing)
