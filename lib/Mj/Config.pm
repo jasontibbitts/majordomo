@@ -1636,6 +1636,7 @@ sub parse_access_rules {
   # field
   ($table, $error) = parse_table('fmfmx', $arr);
 
+  # XLANG
   return (0, "\nError parsing table: $error\n")
     if $error;
 
@@ -1745,7 +1746,7 @@ sub parse_access_rules {
 
       # Compile the rule
       ($ok, $error, $part, $check_aux, $check_time) =
-	_compile_rule($i, 'access_rules', $action, $evars, $rule, $count);
+	$self->_compile_rule($i, 'access_rules', $action, $evars, $rule, $count);
 
       # If the compilation failed, we return the error
       return (0, "\nError compiling rule for $i: $error")
@@ -2100,7 +2101,7 @@ sub parse_bounce_rules {
 
       # Compile the rule
       ($ok, $error, $part, $check_aux, $check_time) =
-	_compile_rule('_bounce', 'bounce_rules', $acts, {}, $rule, $i+1);
+	$self->_compile_rule('_bounce', 'bounce_rules', $acts, {}, $rule, $i+1);
 
       # If the compilation failed, we return the error
       return (0, "\nError compiling rule $i: $error")
@@ -3925,6 +3926,7 @@ About the ID:
 
 =cut
 sub _compile_rule {
+  my $self    = shift;
   my $request = shift;
   my $reqname = shift;
   my $action  = shift;
@@ -3937,7 +3939,7 @@ sub _compile_rule {
       $invert,    # Should sense of next expression be inverted?
       $need_or,   # Is an 'or' required to join the next exp?
       $var,       # Variable name for parsing $variable=arg
-      $arg,       # Argument for pasring @variable=arg or @list
+      $arg,       # Argument for passing @variable=arg or @list
       $o,         # Accumulates output string.
       $e,         # Accumulates errors encountered.
       $w,         # Accumulates warnings encountered.
@@ -3947,9 +3949,11 @@ sub _compile_rule {
       $iop,       # holder for inverted op
       $re,        # Current regexp operator
       $pr,        # Element prologue
-      $ep,        # Element epilogie
+      $ep,        # Element epilogue
       $err,       # Generic error holder
       $ok,
+      $mess,
+      $tmp,
       @tmp,
    );
 
@@ -4147,31 +4151,31 @@ sub _compile_rule {
 #warn "var comparison V$var O$op A$arg";
 	$op ||= '';
 
-	# Weed out bad variables, but allow some special cases
-	unless (rules_var($request, $var) ||
-	       (($request eq 'post' or $request eq 'access') 
-                && $evars->{$var}))
-	  {
-            if ($var =~ /(global_)?(admin_|block_|taboo_|noarchive_)\w+/) { 
-              $w .= "Variable $var has not been defined.\n";
-            }
-            else {
-              @tmp = rules_vars($request);
-              $e .= "Illegal variable for $reqname: $var.\nLegal variables are:\n  ".
-                join("\n  ", sort(@tmp));
-              if (($request eq 'post' or $request eq 'access') 
-                   && scalar(keys(%$evars))) 
-              {
-                $e .= "\nPlus these variables currently defined in admin, noarchive and taboo rules:\n  ".
-                  join("\n  ", sort (keys(%$evars)));
-              }
-              last;
-            }
-	  }
 	if ($need_or) {
 	  $o .= " ||";
 	}
 	$o .= "\n    "."  "x$indent;
+
+        ($ok, $mess) = $self->_ck_var($var, $request, $reqname, $evars);
+        if ($ok < 0) {
+          $w .= $mess;
+        }
+        elsif (! $ok) {
+          $e .= $mess;
+          last;
+        }
+
+        if (defined $arg and $arg =~ /^\$(\w+)/) {
+          $tmp = $1;
+          ($ok, $mess) = $self->_ck_var($tmp, $request, $reqname, $evars);
+          if ($ok < 0) {
+            $w .= $mess;
+          }
+          elsif (! $ok) {
+            $e .= $mess;
+            last;
+          }
+        }
 
 	# Do plain $var form
 	if (!$op) {
@@ -4266,6 +4270,7 @@ sub _compile_rule {
       next;
     }
 
+    # XLANG
     $e .= "unknown rule element at:\n";
     $e .= "$_";
     last;
@@ -4278,6 +4283,44 @@ sub _compile_rule {
     return (0, $e, $o);
   }
   return (1, $w, $o, $check_aux, $check_time);
+}
+
+=head2 _ck_var(var, request, reqname, evars)
+
+Validate an access variable.
+
+=cut
+sub _ck_var {
+  my $self    = shift;
+  my $var     = shift;
+  my $request = shift;
+  my $reqname = shift;
+  my $evars   = shift;
+  my (@tmp, $mess);
+
+  unless (rules_var($request, $var) ||
+         (($request eq 'post' or $request eq 'access') 
+          && $evars->{$var}))
+  {
+    # XLANG
+    if ($var =~ /(global_)?(admin_|block_|taboo_|noarchive_)\w+/) 
+    { 
+      return (-1, "Variable $var has not been defined.\n");
+    }
+    else {
+      @tmp = rules_vars($request);
+      $mess = "Illegal variable for $reqname: $var.\nLegal variables are:\n  ".
+        join("\n  ", sort(@tmp));
+      if (($request eq 'post' or $request eq 'access') 
+           && scalar(keys(%$evars))) 
+      {
+          $mess .= "\nPlus these variables currently defined in admin, noarchive and taboo rules:\n  ".
+            join("\n  ", sort (keys(%$evars)));
+      }
+      return (0, $mess);
+    }
+  }
+  (1, '');
 }
 
 
