@@ -265,7 +265,7 @@ sub parse_command {
   my $pass    = shift;
   my $dfl     = shift;
   my @arglist = @_;
-  my ($mode, $request, $tlist);
+  my ($list, $mode, $request, $sublist, $tlist);
   $pass ||= '';  $pass =~ /(.*)/; $pass = $1; 
   
   unless ($command) {
@@ -298,16 +298,15 @@ sub parse_command {
     ($tlist, $args) = split(" ", $args, 2);
     $tlist ||= "";
     $args ||= "";
-    unless
-      (defined
-       ($list =
-	$::mj->valid_list($tlist,
-			  command_prop($true_command, 'all'),
-			  command_prop($true_command, 'global'))))
-	{
-	  print STDERR "**** Illegal list \"$tlist\".\n";
-	  return (1, 0);
-	}
+    ($list, $sublist) = $::mj->valid_list($tlist,
+                                command_prop($true_command, 'all'),
+                                command_prop($true_command, 'global'));
+
+    unless (defined $list) {
+      print STDERR "**** Illegal list \"$tlist\".\n";
+      return (1, 0);
+    }
+    $list .= ":$sublist" if (length $sublist);
   }
   if ($true_command eq 'default') {
     ($command, $args) = split(" ", $args, 2);
