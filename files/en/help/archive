@@ -1,17 +1,17 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+archive-delete   listname pattern
 archive-get      listname pattern
 archive-get-mime listname pattern
 archive-index    listname pattern
+archive-sync     listname pattern
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is the name of a regular list at this site
 pattern,  required, is a single value or range of values (see below)
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 If a Majordomo mailing list is configured to store messages in
-an archive, those messages may be retrieved using the "archive-get"
-and "archive-index" commands. The index and get commands will not
-allow archive retrieval if "archive_dir" is set to somewhere outside
-the list's file space, but in many cases it will be possible to.
+an archive, those messages may be retrieved using "archive-get"
+after they are found with the "archive-index" command.
 
 The type of digest for the archive-get command can be specified in
 the mode: "archive-get-mime" sends a multi-part MIME message, just
@@ -99,6 +99,41 @@ would retrieve an index of the last 10 messages posted to the
 "tangerine" list during 1998, 
   archive-index tangerine 1998 - 10
 would retrieve an index of the first 10 messages.
+
+The index and get commands may not allow archive retrieval if
+"configset archive_dir" is set to somewhere outside the list's
+file space, but they may work if the file system permissions are
+set appropriately.
+
+The options "archive-delete" and "archive-sync" are intended only
+for use by expert list owners, and "-sync" in particular will be
+useful only to those with shell access who wish to hand-edit the
+archives (a practice which is possible but discouraged). Both of
+these options require an administrative password.
+
+The archive-delete option takes the usual arguments: dates,
+message counts, message numbers, and combinations thereof
+(as described for "archive-get", above). It can remove all
+of the archives for a mailing list with one command, and a
+message can be prevented from appearing in a digest by deleting
+it, so use this mode with extreme caution.  
+
+The numbers of the remaining messages are not changed. For example,
+if message number 200008/2 were deleted,  200008/1 and 200008/3
+would be the first two messages in the August 2000 archive.
+Deleting a message causes the index and count files to be updated
+automatically, so "archive-sync" is not needed after "archive-delete".
+
+The archive-sync command takes one argument, which must be the
+date of a particular archive file.  For example,
+  archive-sync mj2-dev 200005
+would synchronize the May 2000 archive index and counts with the
+messages themselves. Any message not containing an X-Archive-Number
+header will be given a new number, one greater than the highest
+number in the archive, and a new header.  Any archive number that
+does not correspond to the archive in question will be replaced by
+one that does (in this way, it is possible to combine archives).
+
 
 See Also:
    help configset access_rules_variables (set/test for this command)
