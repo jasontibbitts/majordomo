@@ -8,4 +8,5 @@
 <pre>
 ?COMMENT
 </pre>
+A level $LEVEL password is required to change this value.
 <input size=70 name="$VARIABLE" value="$VALUE">

@@ -8,6 +8,7 @@
 <pre>
 ?COMMENT
 </pre>
+A level $LEVEL password is required to change this value.
 <select name="$VARIABLE">
 <option $SELECTED> $SETTINGS
 </select>

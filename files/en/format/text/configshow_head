@@ -1,5 +1,7 @@
-?COMMENT The first two lines of each description contain data about
-?COMMENT the configuration setting.
-?COMMENT Setting Name         /Possible Values/
-?COMMENT (Default Value)      [Data Type] <Category>
-
+?COMMENTS Each setting has its own help page. For example, 
+?COMMENTS to get help on the access_rules setting, use this command:
+?COMMENTS   help configset_access_rules
+?COMMENTS  
+?COMMENTS There are five levels of password access.  For more info, see
+?COMMENTS   help admin_passwords
+ 

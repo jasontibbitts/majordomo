@@ -1,2 +1,3 @@
 ?COMMENT
+?COMMENTS A level $LEVEL password is required to change this value.
 $SETCOMMAND

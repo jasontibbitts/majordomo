@@ -6,6 +6,7 @@
 <input type=submit name=func value="help"><br>
 <td>
 <pre>?COMMENT</pre>
+A level $LEVEL password is required to change this value.
 <textarea cols=70 rows=$LINES name="$VARIABLE">
 ?VALUE
 </textarea><br>
