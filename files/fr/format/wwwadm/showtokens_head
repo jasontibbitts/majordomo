@@ -5,7 +5,7 @@
 <p>
 Choisissez une ou plusieurs requêtes dans cette liste en cochant
 leur case associée, cliquez ensuite sur l'un des boutons.
-[<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=welcome_showtokens">aide</a>]
+[<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=welcome&amp;doc=showtokens">plus</a>]
 </p>
 
 <p>

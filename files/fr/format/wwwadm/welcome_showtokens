@@ -34,10 +34,11 @@ requise.
 
 <tr>
   <td>confirm</td>
-  <td>L'abonné (D'habitude la personne qui a fait la
-    requête). Si vous acceptez (<b>accept</b>) ou rejetez
-    (<b>reject</b>) un ticket <b>confirm</b>, cela peut
-    dérouter l'abonné.
+  <td>L'abonné (D'habitude c'est la personne qui a fait la requête).
+    Si vous acceptez (<b>accept</b>) ou rejetez (<b>reject</b>) un
+    ticket <b>confirm</b>, cela peut dérouter un abonné qui essayerais
+    de suivre les instructions d'un message de confirmation, et qui
+    découvrirais que le ticket qui n'existe plus.
   </td>
 </tr>
 

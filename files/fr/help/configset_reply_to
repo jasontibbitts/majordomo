@@ -13,7 +13,7 @@ configset liste reply_to = \$SENDER
 
 $INCLUDE-config/reply_to
 
-Seuls les abonnés ayant le reglage personnel "replyto" verront cette
+Seuls les abonnés ayant le réglage personnel "replyto" verront cette
 en-tête. (référez vous à "help set" pour plus d'information sur les
 paramètres personnels.)
 
@@ -24,8 +24,9 @@ existantes.
 
 L'en-tête peut contenir des variables de substitutions et elles seront
 remplacées avant l'ajout de l'en-tête dans le message. Ces variables
-incluent les variables standards, plus HOST, SENDER et SEQNO. Référez
-vous à "help variables" pour une description de ces substitutions.
+incluent les variables standards, plus HOST, NEEDCOPY, SENDER et
+SEQNO. Référez vous à "help variables" pour une description de ces
+substitutions.
 
 
 Référez vous aussi à :
