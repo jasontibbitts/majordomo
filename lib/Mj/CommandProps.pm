@@ -532,6 +532,8 @@ my %commands =
                                    'short'       => 1,
                                    'tiny'        => 1,
                                   },
+                   'tokendata' => { 'arg1' => 'regexp',
+                                    'arg2' => 'password', },
                   },
     'access'   => {
                    'default' => 'allow',
