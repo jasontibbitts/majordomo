@@ -13,8 +13,9 @@ use the "accept" or "reject" command to send these tokens to the
 server for immediate action, thereby clearing the backlog.
 
 See Also:
-   help accept (approving  action)
-   help reject (cancelling action)
+   help accept     (approving  action)
+   help reject     (cancelling action)
+   help tokeninfo  (for more details about a particular token)
    help configset token_lifetime (site-wide or per-list expiration period)
    help configset token_remind   (site-wide or per-list reminder before expiration)
 
