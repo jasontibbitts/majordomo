@@ -238,7 +238,7 @@ if ($func =~ /accept|reject/) {
 # Deal with result sets
 elsif ($func eq 'who') {
   $request->{'chunksize'} = $cgi->param('chunksize') || 0;
-  $request->{'start'} = ($cgi->param('chunk') || 0) * $request->{'chunk'} + 1;
+  $request->{'start'} = $cgi->param('start') || 1;
 }
 
 if (function_prop($func, 'iter')) {
@@ -417,7 +417,7 @@ elsif ($commands{$func}->[3] ne $func) {
     $request->{'command'} = 'who_start';
     $request->{'mode'} = 'enhanced';
     $request->{'list'} = $lists[0];
-    $request->{'chunksize'} = $cgi->param('chunksize') || 0;
+    $request->{'chunksize'} = $cgi->param('chunksize') || 20;
     $request->{'start'} = $cgi->param('start') || 1;
   }
   $result = $mj->dispatch($request); 
