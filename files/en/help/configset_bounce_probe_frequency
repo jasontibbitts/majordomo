@@ -11,40 +11,35 @@ EXAMPLE:
 configset listname bounce_probe_frequency = 7
 
 
-NOTE: If an address is bouncing (i.e. has bounced within bounce_max_age)
-it will be automatically probed on every message until all of its stored
-bounces expire.
+$INCLUDE-config/bounce_probe_frequency
 
-This variable controls how often bounce probes are sent out.
+Probing allows Majordomo to determine more easily which subscribers are
+not receiving mail from a mailing list.  When a subscriber's address is
+probed, a posted message or digest is sent to that address in a way that
+uniquely identifies the recipient.
 
-The address list is split into 'bounce_probe_frequency' pieces, and a
-different piece is probed for each message sent to the list.  This lowers
-the overall load while still allowing complete probes to be done in a
-reasonable amount of time.
+Setting this value to zero disables regular bounce probing.  Setting
+this value to one would cause every address to be probed for every
+message, which can consume more computer resources and make delivery
+very slow.
 
-Setting this to zero disables regular bounce probing.  Setting this to one
-probes every address for every message and may place an extreme load on the
-server(s).  Note that this variable will be ignored if the MTA is qmail,
-because qmail does an equivalent kind of bounce probing itself.
-Bounce probing entails sending specially formatted messages such that the
-address causing a bounce is immediately obvious when the bounce is
-received.  This requires that each mail transaction send to only one
-address, which places additional load on the mail server.  To counter this,
-bounce probing is implemented in an incremental fashion.
+This setting will be ignored if the MTA is qmail, because qmail does an
+equivalent kind of bounce probing automatically.
 
-The proper setting depends on a number of factors; it is generally
-desireable to probe the entire list once every several days and definitely
-not more frequently than once a day.  Thus this should not be set lower
-than the expected number of messages per day.  The upper bound depends on
-how much additional load the mail server(s) can tolerate.
+To probe the entire subscriber list an average of once per day, choose
+a value that is equal to the average number of posted messages your list
+receives in a day.
+
+Any subscriber's address that has experienced delivery failures recently
+will be probed automatically.
 
 
 See Also:
-   help configset bounce_max_age         (how long a user's bounce data will be tracked)
-   help configset bounce_max_count       (maximum number of bounce data kept for a user)
-   help configset bounce_probe_pattern   (force probes of matching addresses)
-   help configset bounce_recipients      (who receives bounce error messages)
+   help admin_delivery
+   help configset_bounce_max_age
+   help configset_bounce_max_count
+   help configset_bounce_probe_pattern
+   help configset_bounce_recipients
+   help configset_bounce_rules
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

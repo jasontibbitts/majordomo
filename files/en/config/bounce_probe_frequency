@@ -3,13 +3,3 @@ list of subscribers is split into several groups, and a different group
 of addresses is probed for each message sent to the list.  For example,
 if this value is 8, approximately one-eighth of the subscribers'
 addresses will be probed every time.
-
-Probing allows Majordomo to determine more easily which subscribers are
-not receiving mail from a mailing list.
-
-Setting this value to zero disables regular bounce probing.  Setting
-this value to one probes every address for every message, and may place
-an extreme load on the server.  
-
-This setting will be ignored if the MTA is qmail, because qmail does an
-equivalent kind of bounce probing automatically.
