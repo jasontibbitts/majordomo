@@ -2298,6 +2298,12 @@ sub archive_get_done {
   $self->{'archive'}->get_done(@_);
 }
 
+sub archive_get_data {
+  my $self = shift;
+  return unless $self->_make_archive;
+  $self->{'archive'}->get_data(@_);
+}
+
 sub archive_get_neighbors {
   my $self = shift;
   return unless $self->_make_archive;
@@ -2318,19 +2324,44 @@ sub archive_expand_range {
 
 sub archive_delete_msg {
   my $self = shift;
-  my $data;
-  return unless $self->_make_archive;
-  $data = $self->{'archive'}->remove(@_);
-  $self->digest_sync;
-  $data;
+  my $msg = shift;
+  my ($arc, $data, $ok);
+
+  return (0, "Unable to initialize archive.\n")
+    unless $self->_make_archive;
+
+  ($arc) = $msg =~ m!([^/]+)/.*!;
+  ($ok, $data) = $self->{'archive'}->remove($msg, @_);
+  $self->digest_sync($arc) if ($ok);
+  ($ok, $data);
+}
+
+sub archive_replace_msg {
+  my $self = shift;
+  my $msg = shift;
+  my ($arc, $data, $ok);
+  my $qp = $self->config_get('quote_pattern');
+  my $owner = $self->config_get('whoami_owner');
+
+  return (0, "Unable to initialize archive.\n")
+    unless $self->_make_archive;
+
+  ($arc) = $msg =~ m!([^/]+)/.*!;
+  ($ok, $data) = $self->{'archive'}->replace($msg, @_, $qp, $owner);
+  $self->digest_sync($arc) if ($ok);
+  ($ok, $data);
 }
 
 sub archive_find {
   my $self = shift;
   my $patt = shift;
   my ($ok, $mess, $regex) = Mj::Config::compile_pattern($patt, 0, "exact");
+
   return ($ok, $mess) unless $ok;
-  return unless $self->_make_archive;
+
+  return (0, "Unable to initialize archive.\n")
+    unless $self->_make_archive;
+
   $self->{'archive'}->find($regex);
 }
 
@@ -2342,11 +2373,12 @@ sub archive_summary {
 
 sub archive_sync {
   my $self = shift;
+  my $arc = shift;
   my $qp = $self->config_get('quote_pattern');
   my @out;
   return unless $self->_make_archive;
-  @out = $self->{'archive'}->sync(@_, $qp);
-  $self->digest_sync;
+  @out = $self->{'archive'}->sync($arc, @_, $qp);
+  $self->digest_sync($arc);
   @out;
 }
 
@@ -2401,21 +2433,35 @@ archives.
 =cut
 sub digest_sync {
   my $self = shift;
-  my (@tmp, $data, $dig, $i, $j, $msglist);
+  my $arc = shift;
+  my $log = new Log::In 150, $arc;
+  my (%seen, @tmp, $data, $dig, $i, $j, $msg, $msgarc, $msgdata);
 
   return unless $self->_make_digest;
+  return unless $self->_make_archive;
+
   $dig = $self->config_get('digests');
   $data = $self->digest_examine([ keys %$dig ]);
   for $i (keys %$data) {
-    # Collect the message numbers into a string.
-    for $j (@{$data->{$i}->{'messages'}}) {
-      push @tmp, $j->[0];
-    }
-    $msglist = join (" ", @tmp);
+    @tmp = %seen = ();
+    next unless (exists $data->{$i}->{'messages'});
 
-    # Extract the data for each message from the archive.
-    $data->{$i}->{'messages'} =
-      [ $self->archive_expand_range(0, $msglist, 0) ];
+    # Look up data for any message whose number is in the 
+    # altered archive.
+    for ($j = 0 ; $j < scalar @{$data->{$i}->{'messages'}} ; $j++) {
+      $msg      = $data->{$i}->{'messages'}->[$j]->[0];
+      $msgdata  = $data->{$i}->{'messages'}->[$j]->[1];
+      ($msgarc) = $msg =~ m!([^/]+)/.*!;
+      next if (exists $seen{$msg});
+
+      if ($msgarc eq $arc) {
+        $msgdata = $self->archive_get_data($msg);
+        next unless ($msgdata);
+      }
+      push @tmp, [$msg, $msgdata];
+      $seen{$msg}++;
+    }
+    $data->{$i}->{'messages'} = [ @tmp ];
   }
   $self->{digest}->sync($data);
 }
