@@ -184,13 +184,16 @@ duplicated.
 The reply_to and override_reply_to configuration settings will only
 cause a Reply-To header to be added to messages sent to people whose
 "replyto" personal setting is turned on.  In contrast, the
-delete_headers, message_headers, and precedence settings affect every
-message that is sent to a subscriber individually.
+delete_headers, message_headers, precedence, and purge_received settings
+affect every message that is sent to a subscriber individually.
 
 See the following help files for more details:
    help configset_delete_headers 
    help configset_message_headers
+   help configset_override_reply_to
    help configset_precedence
+   help configset_purge_received
+   help configset_reply_to
 
 
 Fronters and footers
