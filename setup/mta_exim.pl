@@ -30,13 +30,15 @@ sub setup_exim {};
 # createlist-regen to make the alias files and suggest the appropriate
 # stuff to paste into the Exim configuration file.
 sub setup_exim_domain {
-  my($config, $dom) = @_;
+  my ($config, $dom) = @_;
+  my $whereami = $config->{'domain'}{$dom}->{'whereami'};
 
   require "setup/mta_sendmail.pl";
   setup_sendmail_domain($config, $dom);
 
   # Now just suggest some info
-  print <<EOM;
+  if ($dom eq $whereami) {
+    print <<EOM;
 
 ---------------------------------------------------------------------------
 The following director should be placed in the Directors section of your
@@ -56,18 +58,42 @@ Improvements to this description are welcomed.
 ---------------------------------------------------------------------------
 
 EOM
+  } 
+  else {
+  
+    print <<EOM;
+
+---------------------------------------------------------------------------
+The following director should be placed in the Directors section of your
+Exim configuration file:
+
+majordomo_aliases_$dom:
+    driver = aliasfile
+    pipe_transport = address_pipe
+    suffix = \"$config->{mta_separator}*\"
+    suffix_optional
+    user = $config->{uid}
+    domains = $whereami
+    file = $config->{lists_dir}/ALIASES/mj-alias-$dom
+    search_type = lsearch
+
+Improvements to this description are welcomed.
+---------------------------------------------------------------------------
+
+EOM
+  }
 }
 
 =head1 COPYRIGHT
 
-Copyright (c) 1999 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1999, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
