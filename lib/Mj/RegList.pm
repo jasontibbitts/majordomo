@@ -63,17 +63,12 @@ SimpleDB object with the fields we use.
 
 =cut
 sub new {
-  my ( $type, %args ) = shift;
+  my ( $type, %args ) = @_;
   my $class = ref($type) || $type;
 
-  new Mj::SimpleDB( backend => $args->{backend},
-                     domain => $args->{domain},
-                    listdir => $args->{ldir},
-                       list => $args->{list},
-                       file => $args->{file},
-                     fields => \@fields,
-                    compare => \&compare );
-
+  new Mj::SimpleDB(%args,
+                   fields => \@fields,
+                   compare => \&compare );
 }
 
 sub compare {
