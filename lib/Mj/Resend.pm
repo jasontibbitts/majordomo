@@ -1137,8 +1137,8 @@ sub _check_body {
 
   # Create a Safe comaprtment
   $safe = new Safe;
-  $safe->permit_only(qw(aassign const le leaveeval not null padany push
-			pushmark return rv2sv stub));
+  $safe->permit_only(qw(aassign concat const le leaveeval not null padany push
+			pushmark regcreset return rv2sv stub));
 
   # Recursively check the body
   $avars->{'mime_header_length'} = 0;
@@ -1268,8 +1268,8 @@ sub _r_strip_body {
 
   # Create a Safe compartment
   my ($safe) = new Safe;
-  $safe->permit_only(qw(aassign const le leaveeval not null padany push
-                        pushmark return rv2sv stub undef));
+  $safe->permit_only(qw(aassign concat const le leaveeval not null padany push
+                        pushmark regcreset return rv2sv stub undef));
   local ($_);
   @newparts = ();
 
@@ -1335,8 +1335,8 @@ sub _ck_theader {
 
   # Set up the Safe compartment
   $safe = new Safe;
-  $safe->permit_only(qw(aassign const leaveeval not null padany push pushmark
-			return rv2sv stub));
+  $safe->permit_only(qw(aassign concat const leaveeval not null padany push 
+                        pushmark regcreset return rv2sv stub));
   $safe->share('$text');
   $avars->{total_header_length} = 0;
   $avars->{max_header_length}   = 0;
