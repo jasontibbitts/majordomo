@@ -422,7 +422,6 @@ sub global_access_check {
 =head2 list_access_check(request, arghash)
 
 =cut
-use Data::Dumper;
 use Mj::CommandProps qw(:function action_terminal);
 use Mj::Util qw(process_rule in_clock);
 sub list_access_check {
@@ -446,7 +445,8 @@ sub list_access_check {
 
   my $log = new Log::In 60, "$list, $request, $requester, $victim";
 
-  $log->message(450, "info", "Access variables: ". Dumper \%args);
+  # use Data::Dumper;
+  # $log->message(450, "info", "Access variables: ". Dumper \%args);
 
   # Convert the hash arguments into token data
   my ($td) = function_prop ($data->{'command'}, 'tokendata');
@@ -872,6 +872,7 @@ sub _a_delay {
 }
 
 use Mj::MIMEParser;
+use Symbol;
 sub _a_forward {
   my ($self, $arg, $td, $args) = @_;
 
@@ -888,14 +889,13 @@ sub _a_forward {
       $cmdline .= "\nUnable to forward to $arg due to apparent mail loop.";
     }
 
-    $ent = new MIME::Entity
-      [
-       "Subject: Forwarded request from $td->{'user'}\n",
-       "From: $td->{'user'}\n",
-       "Reply-To: $td->{'user'}\n",
-       "\n",
-       "$cmdline\n",
-      ];
+    $ent = build MIME::Entity
+      (
+       'Subject'  => "Forwarded request from $td->{'user'}\n",
+       'From'     => "$td->{'user'}\n",
+       'Reply-To' => "$td->{'user'}\n",
+       'Data'     => ["$cmdline\n"],
+      );
   }
   else {
     # Reconstruct the list address
@@ -914,11 +914,12 @@ sub _a_forward {
     $parser->output_dir($tmpdir);
     $parser->output_prefix("mjf");
 
-    $fh = new IO::File "<$td->{'arg1'}";
+    $fh = gensym();
+    open($fh, "<$td->{'arg1'}");
     $ent = $parser->read($fh);
     # This should be safe, because the file has already
     # been moved from the queue to the spool.
-    $fh->close;
+    close $fh;
 
     if (lc $whoami eq lc $arg) {
       # Mail Loop!  Send to owners instead.
@@ -953,7 +954,7 @@ sub _a_reply {
 sub _a_replyfile {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150, $arg;
-  my (%file, $file, $fh, $line, $out);
+  my (%file, $file, $line, $out);
 
   # Given 'NONE', return an empty message.  This means something to the
   # 'post' request.
@@ -962,9 +963,9 @@ sub _a_replyfile {
   # Retrieve the file, but don't fail
   ($file, %file) = $self->_list_file_get($td->{'list'}, $arg, undef, 1);
 
-  $fh = new Mj::File "$file"
+  open (FH, "< $file")
     or $log->abort("Cannot read file $file, $!");
-  while (defined ($line = $fh->getline)) {
+  while (defined ($line = <FH>)) {
     $out .= $line;
   }
   return (undef, undef, $out, \%file);
@@ -1197,7 +1198,7 @@ sub _a_default {
 # If there are advertise patterns, we succeed if one matches, else we fail.
 # Otherwise, we succeed.
 #
-use Safe;
+use Mj::Util qw(re_match);
 sub _d_advertise {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150;
@@ -1209,7 +1210,7 @@ sub _d_advertise {
   $noadv = $self->_list_config_get($td->{'list'}, 'noadvertise');
   if (ref $noadv eq 'ARRAY' and scalar @$noadv) {
     for $i (@$noadv) {
-      if (Majordomo::_re_match($i, $strip)) {
+      if (re_match($i, $strip)) {
         return $self->_a_deny(@_);
       }
     }
@@ -1218,7 +1219,7 @@ sub _d_advertise {
   $adv = $self->_list_config_get($td->{'list'}, 'advertise');
   if (ref $adv eq 'ARRAY' and scalar @$adv) {
     for $i (@$adv) {
-      if (Majordomo::_re_match($i, $strip)) {
+      if (re_match($i, $strip)) {
         return $self->_a_allow(@_);
       }
     }
