@@ -3575,6 +3575,7 @@ files/fr/help/.end
 files/fr/help/.exit
 files/fr/help/.faq
 files/fr/help/.foot
+files/fr/help/.format_files
 files/fr/help/.index
 files/fr/help/.info
 files/fr/help/.intro
@@ -3685,6 +3686,7 @@ files/fr/help/end
 files/fr/help/exit
 files/fr/help/faq
 files/fr/help/foot
+files/fr/help/format_files
 files/fr/help/index
 files/fr/help/info
 files/fr/help/intro
