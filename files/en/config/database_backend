@@ -1,2 +1,5 @@
-This controls the database format used to store various sets of data
-like subscriber lists.  Currently only a flat text database is supported.
+THIS COMMAND IS OBSOLETE - flat text or BerkeleyDB databases must
+be chosen during installation, and there is no configuration setting
+which will change that choice. You can convert from text to DB files
+while the server is NOT RUNNING - see README.UPGRADE in the
+source distribution directory for details.
