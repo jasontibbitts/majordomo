@@ -1,2 +1,17 @@
 </pre>
 <!-- Majordomo get_foot format file -->
+
+<p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="func" value="$COMMAND">
+Send this file in an e-mail message to: 
+  <input name="victims" size="36">
+  <input type="submit" value="Send">
+</form>
+
+</p>
+

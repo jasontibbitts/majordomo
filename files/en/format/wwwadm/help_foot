@@ -1,2 +1,18 @@
 <!-- Majordomo help_foot format file -->
 </pre>
+
+<p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="func" value="help">
+  <input type="hidden" name="extra" value="$TOPIC">
+Send this file in an e-mail message to: 
+  <input name="victims" size="36">
+  <input type="submit" value="Send">
+</form>
+
+</p>
+
