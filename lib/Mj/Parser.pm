@@ -708,12 +708,13 @@ sub parse_args {
     @splitargs = split /$arguments->{'split'}/, $args, scalar @argnames;
 
     for $argname (@argnames) {
-      $k = shift @splitargs || '';
+      $k = shift @splitargs;
       if ($arguments->{$argname} =~ /SCALAR/) {
+        $k = '' unless defined $k;
         $request->{$argname} = $k;
       }
       elsif ($arguments->{$argname} eq 'ARRAYELEM') {
-        if ($k) {
+        if (defined $k) {
           push @{$request->{$argname}}, $k;
         }
         else {
