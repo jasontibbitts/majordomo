@@ -21,6 +21,18 @@ subscribed to a list on the same server, this command will fail. You
 can use the "unregister" command above to remove it, then send the
 "alias" command again.
 
+On the other hand, if you for some reason have managed to subscribe
+an address at which you can receive mail but can no longer send mail,
+you can use the "default user" command to override the return address
+in the header of your email to the server. This effectively switches
+identities when sending from another account (and establishes an
+alias that makes your old account equivalent to your new account):
+  default user my_new_address@mydomain.com
+  alias my_old_address@anotherdomain.com
+This will require confirmation tokens to be returned after they are
+sent to both accounts, but it doesn't matter which account is used
+to return them.
+
 NOTE: The address GIVEN on the alias command will be considered
 equivalent to the address from which you SENT the command when
 checking who can post to a list. Note that this applies to ALL lists
