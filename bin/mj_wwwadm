@@ -136,6 +136,7 @@ $cgiurl = sprintf "http://%s:%s%s%s", $ENV{'SERVER_NAME'},
 # Set HTML form variables
 $ofunc   = $cgi->param('func') || "help";
 $localpart = $ENV{'REMOTE_ADDR'} || "mj_wwwadm";
+$localpart =~ /(.*)/; $localpart = $1;
 $user    = new Mj::Addr("$localpart\@example.com");
 $passw   = $cgi->param('passw') || '';
 @lists   = ($pathinfo);
@@ -143,7 +144,7 @@ $passw   = $cgi->param('passw') || '';
 @mlists  = $cgi->param('mlist');
 @extra   = $cgi->param('extra');
 $st      = $cgi->param('st') || '';
-if ($st eq 'on') { $st = 'checked'; }
+if ($st eq 'on' or $st eq 'checked') { $st = 'checked'; }
 $extra[0] ||= '';
 $extra   = $extra[0];
 @lists   = grep (!$seen{$_}++, @lists, @mlists);
@@ -177,9 +178,11 @@ else {
   $listbox = "<input size=20 name=list value=\"$lists[0]\">";
 }
 
+# The auxwho command will work on ordinary lists,
+# not just sublists.
 @supported = (qw(accept archive-index archive-get auxadd auxremove
 auxwho configshow configset configdef get help index-recursive
-lists-aux reject report sessioninfo set showtokens subscribe 
+lists-aux reject report sessioninfo set set-aux showtokens subscribe 
 tokeninfo tokeninfo-full unsubscribe unregister which who-bounces));
 
 
@@ -305,14 +308,14 @@ if (scalar @lists > 1){
 $file = Majordomo::tempname();
 $fh = new IO::File ">$file";
 if ($func ne 'showtokens') {
-  $fh->print("<pre><small>\n") unless ($func eq 'tokeninfo' or $func eq 'who');
+  $fh->print("<pre><small>\n") unless ($func eq 'tokeninfo' or $func =~ /who/);
   for $req (@extra) {
     Mj::Parser::parse_args($request, $req);
     &{"Mj::Format::$func"}($mj, $fh, $fh, 'html', $request,
       $mj->dispatch($request));
     print $fh "\n";
   }
-  $fh->print("</small></pre>\n") unless ($func eq 'tokeninfo' or $func eq 'who');
+  $fh->print("</small></pre>\n") unless ($func eq 'tokeninfo' or $func =~ /who/);
 }
 
 if ($passw and ($st eq 'checked' or $func eq 'showtokens') and @lists) {
@@ -564,9 +567,18 @@ EOM
 sub Mj::Format::who {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, $request->{'list'};
-  my ($chunksize, $count, $fullclass, $i, $lastchange);
+  my ($arg, $chunksize, $count, $fullclass, $i, $lastchange);
   my (@lines, $numbered, $remove, @time, $user);
-  $remove = $request->{'list'} eq 'GLOBAL' ? "unregister" : "unsubscribe";
+
+  if ($request->{'auxlist'}) {
+    $remove = "auxremove";
+  }
+  elsif ($request->{'list'} eq 'GLOBAL') { 
+    $remove = "unregister"; 
+  }
+  else {
+    $remove = "unsubscribe";
+  }
   select $out;
 
   my ($ok, $regexp, $tmpl) = @$result;
@@ -614,7 +626,9 @@ EOM
       $lastchange = sprintf "%4d-%.2d-%.2d", $time[5]+1900, $time[4]+1, $time[3];
 
       $count++;
-      print "<tr><td><input type=checkbox name=extra value=\"$i->{'stripaddr'}\">$user\n";
+      $arg = $i->{'stripaddr'};
+      $arg = "$request->{'auxlist'} $arg" if ($request->{'auxlist'});
+      print "<tr><td><input type=checkbox name=extra value=\"$arg\">$user\n";
       print "<td>$lastchange\n";
 
       if ($request->{'list'} eq 'GLOBAL') {
