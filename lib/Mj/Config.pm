@@ -58,6 +58,7 @@ $VERSION = "1.0";
    'digest_issues'    => 1,
    'enum_array'       => 1,
    'inform'           => 1,
+   'limits'           => 1,
    'list_array'       => 1,
    'passwords'        => 1,
    'regexp_array'     => 1,
@@ -88,6 +89,7 @@ $VERSION = "1.0";
    'digest_issues'    => 1,
    'enum_array'       => 1,
    'inform'           => 1,
+   'limits'           => 1,
    'regexp'           => 1,
    'regexp_array'     => 1,
    'restrict_post'    => 1,
@@ -1962,6 +1964,89 @@ sub parse_integer {
   return 1 if $str =~ /^\s*$/;
   return 1 if $str =~ /^[+-]?\d+$/;
   return (0, "Not an integer.");
+}
+
+=head2 parse_limits
+
+A limits table consists of three fields per line:
+PATTERN | CONDITIONS | CONDITIONS
+The pattern is matched against the e-mail addresses of people
+who post messages.  The first set of conditions defines a "soft"
+limit (by default, the message will be held for approval), while
+the second set of conditions defines a "hard" limit (by default,
+the message will be denied).
+
+=cut
+sub parse_limits {
+  my $self = shift;
+  my $arr  = shift;
+  my $var  = shift;
+  my $log  = new Log::In 150, "$var";
+  my ($ok, $part, $regex, $stat, $whole);
+
+  my ($table, $err) = parse_table('fsmm', $arr);
+
+  return (0, "Error parsing table: $err.")
+    if $err;
+
+  my @out = ();
+
+  # Iterate over the table
+  for (my $i = 0; $i < @$table; $i++) {
+    $out[$i] = {};
+
+    ($ok, $err, $regex) = compile_pattern($table->[$i][0], 0, "isubstring");
+    return ($ok, $err)
+      unless $ok;
+
+    $out[$i]->{'pattern'} = $regex;
+    $out[$i]->{'soft'} = [];
+    $out[$i]->{'hard'} = [];
+
+    # Parse soft limit conditions
+    for (my $j = 0; $j < @{$table->[$i][1]}; $j++) {
+      $stat = $table->[$i][1]->[$j];
+      if ($stat =~ m#(\d+)/(\d+[ymwdh])*([ymwdh])$#) {
+        $part = $1;
+        $whole = Mj::List::_str_to_time(($2 || 1) . $3);
+        return (0, "Unable to parse time span $stat.") unless ($whole > 0);
+        push @{$out[$i]->{'soft'}}, ['t', $part, $whole];
+      }
+      elsif ($stat =~ m#(\d+)/(\d+)#) {
+        $part = $1;
+        $whole = $2;
+        return (0, "Proportion $stat is greater than one.") 
+          if ($whole < $part);
+        push @{$out[$i]->{'soft'}}, ['p', $part, $whole];
+      }
+      else {
+        return (0, "Unrecognized condition $stat.");
+      }
+    }
+    # Parse hard limit conditions
+    for (my $j = 0; $j < @{$table->[$i][2]}; $j++) {
+      $stat = $table->[$i][2]->[$j];
+      if ($stat =~ m#(\d+)/(\d*)([a-z]+)#) {
+        $part = $1;
+        $whole = _str_to_offset(($2 || 1) . $3);
+        return (0, "Unable to parse time span $stat.") unless ($whole > 0);
+        push @{$out[$i]->{'hard'}}, ['t', $part, $whole];
+      }
+      elsif ($stat =~ m#(\d+)/(\d+)#) {
+        $part = $1;
+        $whole = $2;
+        return (0, "Proportion $stat is greater than one.") 
+          if ($whole < $part);
+        push @{$out[$i]->{'hard'}}, ['p', $part, $whole];
+      }
+      else {
+        return (0, "Unrecognized condition $stat.");
+      }
+      $stat = $table->[$i][1]->[$j];
+    }
+  }
+
+  return (1, '', \@out);
 }
 
 =head2 parse_list_array
