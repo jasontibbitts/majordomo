@@ -352,7 +352,7 @@ sub run_queue {
             if ($func eq 'owner' && $msg =~ /^\w\w\w-\d+$/) {
               $log->message(50, 'info', 'Forwarding to majordomo-owner');
               debug_to($emerg_log || 'owner');
-              forward_to_owner($mj, 'GLOBAL');
+              forward_to_owner($mj, 'GLOBAL', '');
               debug_to('queuerun');
               unlink $statfile; unlink $file;
               close MSG;
@@ -415,7 +415,7 @@ sub run_queue {
               elsif ($request_ans eq 'owner') {
                 $log->message(50, 'info', 'Forwarding to owner');
                 debug_to($emerg_log || 'owner');
-                forward_to_owner($mj, $list);
+                forward_to_owner($mj, $list, '');
                 debug_to('queuerun');
               }
               else {
@@ -466,14 +466,14 @@ sub run_queue {
 # Forward the message to the list owner.  Call owner_start, owner_chunk,
 # owner_done passing in all of the message.
 sub forward_to_owner {
-  my ($mj, $list, $moderator) = @_;
-  my ($from, $ok, $mess, $sess, $request);
+  my ($mj, $list, $mode) = @_;
+  my ($from, $mess, $ok, $request, $sess);
 
   # If the message was sent to the -moderator alias, $moderator will be 'M'
-  $moderator ||= '';
+  $mode ||= '';
 
   ($sess, $from) = connect_no_parse($mj, 'owner');
-  return unless $sess;
+  return unless (defined $sess and length $sess);
 
   # Some MTAs hand the message to us with the mbox separator prepended.
   # Sending this on as part of the headers can hose some MTAs, so we strip
@@ -482,7 +482,7 @@ sub forward_to_owner {
   $request = {
     'command'   => 'owner_start',
     'list'      => $list,
-    'mode'      => $moderator,
+    'mode'      => $mode,
     'password'  => '',
     'user'      => $from,
   };
@@ -594,7 +594,7 @@ sub connect_no_parse {
 # unstripped) will be returned.
 sub connect_and_parse {
   my ($mj, $int) = @_;
-  my($entity, $head, $mime_parser, $ok, $user, $subject, $suser);
+  my ($entity, $head, $mime_parser, $ok, $suser, $user);
 
   $::log->in(85, undef, "info", "Setting MIME parser properties");
   $mime_parser = new Mj::MIMEParser;
@@ -617,37 +617,16 @@ sub connect_and_parse {
   $head->unfold;
   $::log->out;
 
-  $user = $head->get('from') || $head->get('apparently-from');
+  $user = $head->get('from') || $head->get('apparently-from') 
+          || 'unknown@anonymous';
   chomp $user;
-
-  unless ($user) {
-    $subject = $head->get('subject') || "no subject";
-    chomp $subject;
-    $head->replace('Subject', 
-                   "Majordomo error: no address found (was: $subject)");
-    $user = $mj->global_config_get(undef, undef, 'whoami_owner');
-    $mj->mail_entity('', $entity, $user) if ($user);
-    $entity->purge;
-    return;
-  }
 
   # Connect; gives back the stripped user
   ($ok, $suser) = $mj->connect($int, $entity->head->as_string, $user);
 
-  # Connect can now fail: 0: try again later, undef: bomb with error, > 0:
-  # connection ID
-
-  # If it failed, just clean up and return.  
-  unless (defined($ok)) {
+  # If the connection failed, return.
+  unless ($ok) {
     $::log->complain("Error connecting: $suser");
-    $subject = $head->get('subject') || "no subject";
-    chomp $subject;
-    $suser =~ s/\n/ /g;
-    $suser = substr $suser, 0, 100;
-    $head->replace('Subject', 
-                   "Majordomo error: $suser (was: $subject)");
-    $user = $mj->global_config_get(undef, undef, 'whoami_owner');
-    $mj->mail_entity('', $entity, $user) if ($user);
     $entity->purge;
     return;
   }

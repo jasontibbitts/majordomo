@@ -204,7 +204,7 @@ elsif ($opts{'q'} or $opts{'c'}) {
     parse_commands($mj, $opts{'l'}, $opts{'c'} || '', $int, $opts{'req'});
   }
   elsif ($request_ans eq 'owner') {
-    forward_to_owner($mj, $opts{'l'});
+    forward_to_owner($mj, $opts{'l'}, '');
   }
   else {
     respond_with_file($mj, $opts{'l'});
@@ -238,22 +238,22 @@ exit ($opts{'S'} ? 99 : 0);
 # Forward the message to the list owner.  Call owner_start, owner_chunk,
 # owner_done passing in all of the message.
 sub forward_to_owner {
-  my ($mj, $list, $moderator) = @_;
-  my ($from, $ok, $mess, $sess, $request);
+  my ($mj, $list, $mode) = @_;
+  my ($from, $mess, $ok, $request, $sess);
 
   ($sess, $from) = connect_no_parse($mj, 'owner');
-  return unless $sess;
+  return unless (defined $sess and length $sess);
 
   # Some MTAs hand the message to us with the mbox separator prepended.
   # Sending this on as part of the headers can hose some MTAs, so we strip
   # it.  The regexp doesn't harm the body $sess contains only the headers.
   $sess =~ s/^From .*?\r?\n//;
-  $moderator ||= '';
+  $mode ||= '';
 
   $request = {
     'command'   => 'owner_start',
     'list'      => $list,
-    'mode'      => $moderator? 'M' : '',
+    'mode'      => $mode? 'M' : '',
     'password'  => '',
     'user'      => $from,
   };
@@ -378,7 +378,7 @@ sub connect_no_parse {
 # unstripped) will be returned.
 sub connect_and_parse {
   my ($mj, $int) = @_;
-  my($entity, $head, $mime_parser, $ok, $user, $subject, $suser);
+  my ($entity, $head, $mime_parser, $ok, $user, $suser);
 
   $::log->in(85, undef, "info", "Setting MIME parser properties");
   $mime_parser = new Mj::MIMEParser;
@@ -398,32 +398,23 @@ sub connect_and_parse {
   # Get the header.
   $::log->in(80, undef, "info", "Parsing the header");
   $head = $entity->head;
+  return unless (ref $head);
   $head->unfold;
   $::log->out;
 
-  $user = $head->get('from') || $head->get('apparently-from');
+  $user = $head->get('from') || $head->get('apparently-from')
+          || 'unknown@anonymous';
   chomp $user;
 
-  unless ($user) {
-    $subject = $head->get('subject') || "no subject";
-    chomp $subject;
-    $head->replace('Subject', 
-                   "Majordomo error: no address found (was: $subject)");
-    $user = $mj->global_config_get(undef, undef, 'whoami_owner');
-    $mj->mail_entity('', $entity, $user) if ($user);
-    $entity->purge;
-    return;
-  }
-
   # Connect; gives back the stripped user
-  ($ok, $suser) = $mj->connect($int, $entity->head->as_string, $user);
+  ($ok, $suser) = $mj->connect($int, $head->as_string, $user);
 
-  # If it failed, just clean up and exit.  Should probably tell the owner.
-  unless (defined($ok)) {
+  # If the connection failed, exit.
+  unless ($ok) {
     $::log->complain("Error connecting: $suser");
     $entity->purge;
     exit ($opts{'S'} ? 99 : 0);
-    #    $::log->abort("Connect failed: $suser");
+    # $::log->abort("Connect failed: $suser");
   }
 
   ($entity, $head, $suser, $user);
@@ -441,7 +432,9 @@ sub parse_commands {
       $pass, $repl, $request, $sender, $server, $sub_addin, $subject,
       $sub_start, $time, $top, $token, $user, $uuser);
 
-  ($entity, $head, $user, $uuser) = connect_and_parse($mj, $int);
+  ($entity, $head, $user, $uuser) = 
+    connect_and_parse($mj, $int);
+
   # 65 is EX_DATAERR (error in input data)
   exit 65 unless $entity;
   $subject = $head->get('subject') || "";
