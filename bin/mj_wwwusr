@@ -225,7 +225,12 @@ if ($user and $passw) {
 
 if ($func and $func =~ /info|intro|faq|subscribe/) {
   if ($func =~ /subscribe/ and $user->strip =~ /example.(com|net|org)/) {
-    print "<p>Please do not (un)subscribe example.com addresses.\n";
+    print "<h2>Please do not (un)subscribe example.com addresses.</h2>\n";
+    &usage($mj);
+    exit 0;
+  }
+  if ($func =~ /subscribe/ and $list eq 'GLOBAL') {
+    print "<h2>Please select a mailing list before pressing the (un)subscribe button.</h2>\n";
     &usage($mj);
     exit 0;
   }
@@ -478,6 +483,15 @@ It is possible for you to subscribe to mailing lists without
 using a password.  However, you will probably need to go
 through an extra confirmation step.  Confirmation instructions
 will be sent via e-mail to your address.
+<p>
+Before pressing the "subscribe," "unsubscribe," or "set" button, 
+you must first choose a mailing list by pressing the button
+for that list. 
+<p>
+The "faq," "info," and "intro" documents may or may not exist
+for a particular list.  It may be possible to see general
+information about $site by pressing one of these buttons
+without choosing a list first.  "faq
 <p>
 Majordomo 2 also has an
 <a href="$admurl">interface for list owners</a>.
