@@ -699,6 +699,7 @@ sub list_access_check {
 
 
 FINISH:
+  $mess = '';
   # Call the _a_ action routines.
   for $i (@final_actions) {
     no strict 'refs';
@@ -725,7 +726,7 @@ FINISH:
       if ($text eq 'NONE') {
         $mess = $text;
       }
-      elsif (defined $mess and $mess ne 'NONE') {
+      elsif ($mess ne 'NONE') {
         $mess .= $text;
       }
     }
