@@ -32,7 +32,7 @@ To accept or reject this request, please do one of the following:
 
 4. If you know the administrative password for the $LIST list,
    all pending requests can be managed by visiting
-   <URL:$WWWADM_URL/$LIST?domain=$DOMAIN&func=showtokens>
+   <URL:$WWWADM_URL/$LIST?func=showtokens>
 
 If you do not respond within $EXPIRE days, this token will expire,
 and the request will not be completed.
