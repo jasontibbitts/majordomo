@@ -165,6 +165,12 @@ the subscribe command, or by mentioning it in the access rules (see
 Whenever the createlist command succeeds, the createlist-regen shell
 hook is run.  See "help shell_hook" for more details.
 
+When a new list is created, Majordomo will update the alias and virtual
+user table files by adding the new aliases to the end of each file.
+When a list is destroyed or renamed, or the aliases are regenerated, the
+files are entirely rewritten.  (This is only true if Majordomo is
+configured to update the files automatically.)
+
 
 See Also:
    help admin                 (how to manage a list after it is created)
