@@ -1,0 +1,37 @@
+Comment: DSN with missing reporting-mta and multiple "rfc822;" fields
+To: test-owner+M7@example.com
+From: Mail Administrator <Postmaster@example.com>
+Reply-To: Mail Administrator <Postmaster@example.com>
+Subject: Mail System Error - Returned Mail
+Message-ID: <20001115215204.LURV10244.example.com@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/report;
+		report-type=delivery-status;
+		Boundary="===========================_ _= 2797241(10244)974325124"
+
+--===========================_ _= 2797241(10244)974325124
+Content-Type: text/plain
+
+This Message was undeliverable due to the following reason:
+
+I have no idea.
+
+--===========================_ _= 2797241(10244)974325124
+Content-Type: message/delivery-status
+
+Original-Recipient: rfc822; rfc822; <user@example.com>
+Final-Recipient: RFC822; <user2@example.com>
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: User unknown
+
+--===========================_ _= 2797241(10244)974325124
+Content-Type: message/rfc822
+
+Subject: Bounced message
+
+This message bounced.
+
+--===========================_ _= 2797241(10244)974325124--
+
+
