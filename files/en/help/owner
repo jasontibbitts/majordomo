@@ -2,15 +2,65 @@
 owner
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The owner command is run whenever an e-mail message is sent to the
-LISTNAME-owner or LISTNAME-moderator address for a mailing list.  Access
-to these two addresses can be restricted with the block_headers
-configuration setting.
+The owner command is used only in the access_rules configuration
+setting, and only for the GLOBAL list. 
+
+The owner command allows list managers to restrict e-mail messages which
+are sent to the owners or moderators of a mailing list.  For example, a
+manager could create an auxiliary list, badguys, and use this
+access_rule:
+ 
+configset GLOBAL access_rules << ENDTAG
+owner
+deny, reason="This address has been blacklisted."
+@badguys
+ENDTAG
+
+Alternatively, the banned users could be listed in the rule, for
+example:
+
+configset GLOBAL access_rules << ENDTAG
+owner
+deny, reason="This address has been blacklisted."
+/joe\@example.com/i OR /jane\@example.com/i
+ENDTAG
+
+The following actions are supported for the "owner" command in the
+access_rules setting:  allow, deny, mailfile, reason, reply, and
+replyfile.  
+
+When access is denied, a reply message is not usually sent to the person
+who was denied access.  Instead, any explanations given by reason,
+reply, or replyfile actions in the access rules will be added to the
+"inform" message that is sent to the list administrators, if the
+"inform" setting is configured to send notices when the owner command
+fails.
+
+The "mailfile" action can be used to send a message to the address 
+that was denied access.  For example, the following rule would send
+the "/access_blocked" file to anyone in the "badguys" sublist who
+sends a message to the administrators.
+
+owner
+mailfile=/access_blocked
+@badguys
+
+By default, the message will be sent to the list owners or moderators.
+
+Access checks for the owner command take place after the message is
+checked by the bounce rules.  See "help configset_bounce_rules" for more
+information.
+
 
 See Also:
+   help access_variables
+   help admin_domain
    help admin_moderate
+   help auxiliary_list
+   help configset_access_rules   (to restrict access to any command)
    help configset_aliases
-   help configset_block_headers
+   help configset_bounce_rules
+   help configset_inform
    help configset_moderators
    help configset_owners
 
