@@ -127,6 +127,7 @@ $Mj::Config::default_string = q(
                                Errors-To
 			       List-Archive
 			       List-Help
+                               List-ID
 			       List-Owner
 			       List-Post
 			       List-Subscribe
