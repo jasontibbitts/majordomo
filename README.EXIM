@@ -22,7 +22,7 @@ majordomo_aliases:
     suffix_optional
     user = majordom
     domains = lsearch;/usr/local/majordomo/ALIASES/mj-domains
-    file = /usr/local/majordomo/ALIASES/mj-alias-example.com
+    file = /usr/local/majordomo/ALIASES/mj-alias-$domain
     search_type = lsearch
 
 The suffix and suffix_optional settings instruct Exim to 
