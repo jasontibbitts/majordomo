@@ -1,17 +1,39 @@
-One of three values: open, closed, auto; plus an optional modifier:
-'+confirm' or '+password'.  
+The set_policy configuration setting is used to restrict access
+to the set command.
 
-Open allows people to change their own settings, but attempts to change 
-the settings for one address from a different address will require 
-administrative approval.  
+The following eight values are supported:
 
-Auto allows anybody to change anyone else's settings.
+auto           - Anyone can use the set command for any address.
 
-Closed requires maintainer approval for all requests.  
+auto+confirm   - Anyone can use the set command for any address,
+                 but the command must be confirmed by the person at
+                 the affected address.
 
-Adding '+confirm', (i.e. 'open+confirm') will cause majordomo to send 
-a message to the affected address, asking for that person's approval.
-The subscriber must then reply with 'accept' for the command to succeed.
+auto+password  - Anyone can use the set command for any address,
+                 but the person issuing the command must supply a
+                 personal password.
 
-open+password or auto+password requires that the command be issued using
-the personal password for the affected address, or an admin password.
+open           - Anyone can use the set command for her own
+                 address.  If anyone attempts to use the set
+                 command for a different address, the approval of
+                 the list moderators will be required.
+
+open+confirm   - Anyone can use the set command for her own
+                 address.  If anyone attempts to use the set
+                 command for a different address, the approval of
+                 the list moderators will be required.  The command
+                 must be confirmed by the person at the affected
+                 address.
+
+open+password  - Anyone can use the set command for her own
+                 address.  If anyone attempts to use the set
+                 command for a different address, the approval of
+                 the list moderators will be required.  The person
+                 issuing the command must supply a personal password.
+
+closed         - Anyone can use the set command for any address,
+                 but the approval of the list moderators is required.
+
+closed+confirm - Anyone can use the set command for any address,
+                 but the approval of the person at the affected address
+                 and the list moderators is required.

@@ -1,13 +1,20 @@
-One of five values: open, open+password, list, list+password, closed.  
+The get_access configuration is used to restrict access to the get command.  
 
-Open allows anyone access to the get command.  
+The following five values are supported:
 
-Open+password allows anyone registered at this domain access
-if they use their personal password.
+  open          -  Anyone can use the get command.
 
-List allows only list members access. 
+  open+password -  Anyone registered at this domain can use the get
+                   command if a personal password is supplied.
 
-List+password allows list members to issue this command, but only
-if they use their personal password.
+  list          -  Anyone subscribed to a mailing list can use the
+                   get command for that list.
 
-Closed disables the command for everyone but the list administrators. 
+  list+password -  Anyone subscribed to a mailing list can use the
+                   get command for that list if a personal password 
+                   is supplied.
+
+  closed        -  Only the list administrators can use the get command.
+
+This setting can be overridden by rules for the get command in the 
+access_rules configuration setting.
