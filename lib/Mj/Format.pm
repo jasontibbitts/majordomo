@@ -1815,28 +1815,28 @@ sub who {
       next unless (ref ($i) eq 'HASH');
 
       #----- Hard-coded formatting for who, who-export, and who-alias -----#
-      if ($request->{'mode'} =~ /export/ &&
-             $request->{'list'} eq 'GLOBAL' &&
-             $request->{'sublist'} eq 'MAIN') {
-        $line = "register-pass-nowelcome $i->{'password'} $i->{'fulladdr'}";
+      if ($request->{'mode'} =~ /alias/ &&
+             $request->{'list'} eq 'GLOBAL') 
+      {
+        $line = "default user $i->{'target'}\n  alias-noinform $i->{'stripsource'}\n";
         eprint($out, $type, "$line\n");
         next;
       }
-      elsif ($request->{'mode'} =~ /alias/ &&
-             $request->{'list'} eq 'GLOBAL') 
-      {
-        $line = "default user $i->{'target'}\n  alias $i->{'stripsource'}\n";
+      elsif ($request->{'mode'} =~ /export/ &&
+             $request->{'list'} eq 'GLOBAL' &&
+             $request->{'sublist'} eq 'MAIN') {
+        $line = "register-pass-nowelcome-noinform $i->{'password'} $i->{'fulladdr'}";
         eprint($out, $type, "$line\n");
         next;
       }
       elsif ($request->{'mode'} =~ /export/ && $i->{'classdesc'} 
              && $i->{'flagdesc'}) 
       {
-	$line = "subscribe-nowelcome $source $i->{'fulladdr'}\n";
+	$line = "subscribe-nowelcome-noinform $source $i->{'fulladdr'}\n";
 	if ($i->{'origclassdesc'}) {
-	  $line .= "set $source $i->{'origclassdesc'} $i->{'stripaddr'}\n";
+	  $line .= "set-noinform $source $i->{'origclassdesc'} $i->{'stripaddr'}\n";
 	}
-	$line .= "set $source $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
+	$line .= "set-noinform $source $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
         eprint($out, $type, "$line\n");
         next;
       }
