@@ -45,8 +45,8 @@ sub t_recognize {
   my $str  = shift || "";
   my $log  = new Log::In 60;
 
-  if ($str =~ /([A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4})/) {
-    return $1;
+  if ($str =~ /([A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4})/i) {
+    return uc $1;
   }
   return;
 }
