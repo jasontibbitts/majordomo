@@ -166,7 +166,7 @@ sub parse_part {
   my $inhandle    = $args{'infh'};
   my $outhandle   = $args{'outfh'};
   my $title       = $args{'title'};
-  my $interface   = $args{'interface'};
+  my $interface   = $mj->{'interface'};
   my $attachments = $args{'attachments'};
 
   my $log         = new Log::In 50, "$interface, $title";
