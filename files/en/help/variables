@@ -3,66 +3,68 @@
 When Majordomo sends a reply message in response to a request, the document
 that it sends is usually a template.  The template may have one or more 
 keyword variables, for which Majordomo automatically substitutes the 
-appropriate value.  Majordomo variables, for the purpose of message 
-or file substitution, are upper case words with a leading dollar sign.
+appropriate value.  Substitution variables are composed of a leading
+dollar sign, followed by capital letters and underscores.
 
 For example, when you use the command
    help overview
-The first line of the template says
-   An Overview of Majordomo 2, version \$VERSION
+The last line of the document says
+   Majordomo 2, version \$VERSION
 However, what you see on your screen is
-   An Overview of Majordomo 2, version $VERSION
+   Majordomo 2, version $VERSION
 
 Majordomo automatically substitutes the version number for the 
 VERSION keyword variable.
 
-The most important use of variable substitutions is in the faq, info, and
-intro files that are available through the commands with the same names.
+The most important use of variable substitutions is in the faq, info,
+and intro files that are available through the commands with the same
+names.  Substitution variables are also used by some configuration
+settings and by the announce and help commands.
 
-Substitution variables are not the same as access rule variables.
-See "help access_variables" for more information about access variables.
+Substitution variables are not the same as access rule variables.  See
+"help access_variables" for more information about access variables.
 
 As an example of a variable, using this string in a file
   \$MJ
 will cause the the address of the majordomo email interface to be
 inserted before the user sees the file contents.
 
-You must watch out for lines that get too long when the string
-(or the contents of a file) replaces the variable name you type.
+When you edit a document that contains substitution variables, be
+certain to leave enough space for the text that will replace each
+variable.  Otherwise, some lines in the document may be longer than you
+expected.
 
-There are some cases where some variables are undefined... so the
-user may see the actual variable name if you use a variable in the
-wrong place. The most problematic variable in this respect is
-"\$VICTIM", which is descriptive but may cause minor panic.
+Variables that are not supported by a particular document or
+configuration setting will remain unaltered.  See "help error_files",
+"help format_files" and "help reply_files" for a list of documents and
+the substitutions that they support.
 
-The \$INCLUDE variable is a special case, not mentioned in the per-file
-list below, but available in many cases when other variable substitution
-is present! Documents may be combined 'on the fly' using \$INCLUDE
-to insert other files as they are sent out. You can nest
-includes 3 levels deep, so an included file can include another
-file. More than 3 levels of nesting is taken to be an infinite loop,
-and the inclusion is terminated with an error message.
+The \$INCLUDE variable can be used to incorporate a separate document
+into the current document.  This variable must be followed by a dash and
+the location of a file within the file space of your mailing list.  For
+example, the following substitution:
 
-If you use \$INCLUDE, the syntax is different than other variables.
-This variable MUST be followed with a dash and then the path to the
-file you want to include.  Nothing can follow the file name. For example
   \$INCLUDE-help/topics
-will pull the contents of "help topics" into your current file,
-usually from the SITE/files/en/help directory. This variable should
-be used only by skilled administrators, and only with full testing
-before the files are released. It is especially critical to test
-error messages, which may be hard to simulate.  See "help reply_files"
-for more information about which files support the \$INCLUDE variable.
 
-If you misspell a variable, or use one that is not defined,
-it will show up in the mail message exactly as you typed it (dollar
-sign and all), so watch for these and be aware that unevaluated
-variables do not cause errors to be logged.
+will include the contents of the "help topics" document into the current
+file.  The line that contains the substitution must end immediately
+after the file location.  
 
-You can keep variable evaluation from happening by escaping the
+Included files can also use the \$INCLUDE substitution, but more
+than 3 levels of nesting is taken to be an infinite loop, which will
+cause an error message to be displayed.
+
+The \$INCLUDE substitution is supported by reply files, but not by error
+files or format files.
+
+If you misspell a variable, or use one that is not defined, it will
+appear exactly as you typed it, including the dollar sign.
+
+You can keep variable evaluation from happening by preceding the
 dollar sign with a backslash, as in
   \\$MAJORDOMO
-which will appear as simply "\$MAJORDOMO" to the user.
+which will appear as simply "\$MAJORDOMO" after the substitutions are
+finished.
 
 In addition, the text can be padded and justified, as illustrated
 in this example:
@@ -79,6 +81,7 @@ that display a table of data with each column aligned properly.
 
 See "help get" and "help put" for information on how to see, change,
 or create the error, format, and reply files that use these substitutions.
+
 
 Standard substitution variables
 -------------------------------
@@ -390,13 +393,16 @@ Example:
 
 
 See Also:
-   help access_variables (for access_rules variables)
+   help access_variables
+   help admin_documents
+   help announce
    help configset_access_rules  (for mailfile and deny usage)
    help configset_welcome_files (for additional files that can be sent)
    help digest                  (for additional file names and usage)
    help error_files
    help format_files
    help get                     (obtain existing files)
+   help help
    help put                     (create or update files by email)
    help reply_files
 
