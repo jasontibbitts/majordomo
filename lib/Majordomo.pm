@@ -677,10 +677,24 @@ sub dispatch {
     # owner_done returns the address of the originator,
     # and bouncing addresses if any were identified.
     if ($base_fun eq 'owner' and $res[1]) {
-      if ($request->{'command'} eq 'owner_done' and @{$res[1]}) {
-        $base_fun = "bounce";
-        $request->{'cmdline'} = "(bounce from " .
-                                join(" ", @{$res[1]}) . ")";
+      if ($request->{'command'} eq 'owner_done' and length $res[1]) {
+        if (ref $res[3] eq 'ARRAY' and scalar @{$res[3]}) {
+          $mess = " from " . join(" ", @{$res[3]});
+        }
+        else {
+          $mess = '';
+        }
+
+        if ($res[1] eq 'P') {
+          $base_fun = 'probebounce';
+        }
+        elsif ($res[1] eq 'D' or $res[1] eq 'T') {
+          $base_fun = 'tokenbounce';
+        }
+        else {
+          $base_fun = 'bounce';
+        }
+        $request->{'cmdline'} = "($base_fun message$mess)";
       }
     }
     else {

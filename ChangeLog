@@ -1,3 +1,24 @@
+2002-11-30  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (dispatch)  Differentiate token, probe, and
+	regular bounces.
+
+	* lib/mj_cf_defs.pl:  Inform about tokenbounce events by
+	default.
+
+	* lib/Mj/BounceHandler.pm:  (handle_bounce)  Return the bounce
+	type.
+	(handle_bounce_token)  Send the bounce message to the owners
+	based upon the inform configuration setting.
+
+	* lib/Mj/Config.pm:  Include probebounce and tokenbounce in the
+	list of logged events.
+
+	* lib/Mj/Inform.pm:  (inform)  Do not send notices for
+	tokenbounce events.
+
+	* lib/Mj/MailOut.pm:  (owner_done)  Return the bounce type.
+
 2002-11-28  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Move hard-coded English
