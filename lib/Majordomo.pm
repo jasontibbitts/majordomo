@@ -4892,7 +4892,10 @@ sub _createlist {
   {
     no strict 'refs';
     $mess = &{"Mj::MTAConfig::$mta"}(%args, 'list' => $list);
-    $mess ||= "The $list list was created with owner $owner and password $pw.\n";
+    $tmp = join (" ", @owners);
+    $tmp ||= $owner;
+    $mess ||= "The $list list has been created.\n  Owner(s): $tmp\n" .
+              "  Password: $pw\n";
   }
 
   return (1, $mess);
@@ -7392,10 +7395,12 @@ initialize the registry, alias database, or subscriber list.
 use Mj::Config;
 sub who_start {
   my ($self, $request) = @_;
+  my ($base, $error, $list, $mess, $ok, $ok2, $tmp);
+
   $request->{'sublist'} ||= 'MAIN';
   $request->{'list2'} ||= '';
+
   my $log = new Log::In 30, "$request->{'list'}, $request->{'sublist'}";
-  my ($base, $list, $mess, $ok, $ok2, $error, $tmp);
 
   $base = $request->{'command'}; $base =~ s/_start//i;
 
