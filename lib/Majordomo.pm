@@ -6963,7 +6963,7 @@ Returns all available information about a token, including the session data
 sub tokeninfo_start {
   my ($self, $request) = @_;
   my $log = new Log::In 30, $request->{'id'};
-  my ($ok, $ent, $error, $data, $gurl, $mj_owner, $origmsg, $parser,
+  my ($ok, $ent, $error, $data, $gurl, $mess, $mj_owner, $origmsg, $parser,
       $part, $sender, $sess, $spool, $token, $victim);
 
   # Don't check access for now; users should always be able to get
@@ -6987,6 +6987,16 @@ sub tokeninfo_start {
   return (0, $self->format_error('make_list', 'GLOBAL', 
                                  'LIST' => $data->{'list'}))
     unless $self->_make_list($data->{'list'});
+
+  
+  # Check access
+  $request->{'oldlist'} = $request->{'list'};
+  $request->{'list'} = $data->{'list'};
+  ($ok, $mess) = $self->list_access_check($request, 'nostall' => 1);
+
+  unless ($ok > 0) {
+    return ($ok, $mess);
+  }
 
   $data->{'willack'} = '';
   $victim = new Mj::Addr($data->{'victim'});
@@ -7012,6 +7022,7 @@ sub tokeninfo_start {
     $spool = $data->{'arg1'};
     $spool =~ s#.+/([^/]+)$#$1#;
     $self->{'spoolfile'} = "$self->{'ldir'}/GLOBAL/spool/$spool";
+    $request->{'part'} ||= 0;
 
     ($ok, $sess) =
       $self->_get_msg_data($data, $request->{'part'},
@@ -7161,6 +7172,7 @@ sub tokeninfo_done {
     delete $self->{'spoolfile'};
   }
 
+  $request->{'list'} = $request->{'oldlist'};
   1;
 }
 

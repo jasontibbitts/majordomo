@@ -1,3 +1,15 @@
+2002-08-06  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (tokeninfo_start)  Add list-specific
+	access check with no stall allowed as an interim solution
+	for tokeninfo-edit security problems.  Thanks to Nick Simicich.
+
+	* lib/Mj/CommandProps.pm:  Add access information for the
+	tokeninfo command.  
+
+	* lib/Mj/Format.pm: (tokeninfo)  Use the token's list to
+	retrieve format files.  Thanks to Roger Klorese.
+
 2002-08-05  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* bin/mj_queuerun (parse_commands): 
