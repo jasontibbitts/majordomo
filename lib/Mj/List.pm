@@ -300,8 +300,9 @@ sub set {
   my $check= shift;
   my $force= shift;
   my $log  = new Log::In 150, "$addr, $oset";
-  my (@allowed, @class, @settings, $baseflag, $carg1, $carg2, $class, $data, 
-      $db, $flags, $inv, $isflag, $key, $mask, $ok, $rset);
+  my (@allowed, @class, @flags, @settings, $baseflag, $carg1, 
+      $carg2, $class, $data, $db, $digest, $flags, $inv, $isflag, 
+      $key, $mask, $ok, $rset);
 
   $oset = lc $oset;
   @settings = split(',', $oset);
@@ -350,7 +351,7 @@ sub set {
 
       # Else it's a class
       else {
-	@allowed = $self->config_get('allowed_classes');
+	@allowed = keys %{$self->config_get('allowed_classes')};
 	# Make sure that one of the allowed classes is at the beginning of
 	# the given class.
         unless (grep {$_ eq $rset} @allowed) {
@@ -397,8 +398,7 @@ sub set {
 	   );
   }
 
-
-
+  $digest = '';
   for $set (@settings) {
     # Call make_setting to get a new flag list and class setting
     ($ok, $flags, $class, $carg1, $carg2) =
@@ -408,14 +408,24 @@ sub set {
     return (0, "Digest mode is not supported by auxiliary lists.") 
       if ($subl ne '' and $class eq 'digest');
 
+    # Issue partial digest if changing from 'digest' to 'each'
+    if ($data->{'class'} eq 'digest' and $class eq 'each') {
+      $ok = $self->digest_examine($data->{'classarg'});
+      if ($ok) {
+          $digest = $ok->{$data->{'classarg'}};
+          $digest->{'type'} = $data->{'classarg2'};
+      }
+    }
+      
     ($data->{'flags'}, $data->{'class'},
      $data->{'classarg'}, $data->{'classarg2'}) =
        ($flags, $class, $carg1, $carg2);
   }
 
   $db->replace("", $key, $data);
-  return (1, {flags => $flags,
-	      class => [$class, $carg1, $carg2],
+  return (1, {flags  => $flags,
+	      class  => [$class, $carg1, $carg2],
+              digest => $digest,
 	     },
 	 );
 }
