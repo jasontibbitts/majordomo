@@ -1,6 +1,6 @@
 A user ($REQUESTER) has made the following request:
 
-  $CMDLINE
+  "$CMDLINE"
 
 It requires your confirmation for the following reason(s):
 

@@ -1,7 +1,7 @@
 Several days ago, a confirmation token was sent to you because of the
 following request:
 
-  $CMDLINE
+  "$CMDLINE"
 
 It was sent for the following reason(s):
 
