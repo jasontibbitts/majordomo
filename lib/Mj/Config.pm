@@ -38,7 +38,7 @@ use vars qw(@EXPORT_OK @ISA $VERSION %is_array %is_parsed $list);
 require Exporter;
 require "mj_cf_data.pl";
 
-$VERSION = "1.0";
+$VERSION = "1.1";
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(parse_table parse_keyed);
 
@@ -571,18 +571,11 @@ sub regen {
   my $self = shift;
   my $log  = new Log::In 150, $self->{'list'};
   return unless $self->lock;
-  my (@result, $var);
+  my (@result, $config, $var);
 
-  my $config = $self->{'source'}{'MAIN'};
+  $config = $self->{'source'}{'MAIN'};
 
-  # Convert any existing "moderator" address to the "moderators"
-  # setting.
-  if (exists ($config->{'raw'}->{'moderator'}) and ! exists
-      ($config->{'raw'}->{'moderators'})) 
-  {
-     $config->{'raw'}->{'moderators'} = 
-      [ $config->{'raw'}->{'moderator'} ];
-  }
+  $self->_upgrade;
 
   for $var (keys %{$config->{'raw'}}) {
     # remove outdated settings
@@ -615,6 +608,105 @@ sub regen {
 
   $self->{'dirty'} = 1;
   $self->unlock;
+}
+
+=head2 _upgrade
+
+Make changes to the format of raw settings in the main configuration 
+file to bring them up to date.  To complete the upgrade, the 
+settings must subsequently be parsed and saved.
+
+=cut
+
+sub _upgrade {
+  my $self = shift;
+  my (@tmp, @vars, $config, $i, $j, $setting, $table, $tmp, $version);
+
+  $config = $self->{'source'}{'MAIN'}; 
+  return 1 if (exists $config->{'VERSION'} and 
+               $config->{'VERSION'} == $Mj::Config::VERSION);
+
+  $version = $config->{'VERSION'} || 1.0;
+
+  if ($version < 1.1) {
+    # Convert any existing "moderator" address to the "moderators"
+    # setting.
+    if (exists ($config->{'raw'}->{'moderator'}) and 
+        ! exists ($config->{'raw'}->{'moderators'})) 
+    {
+     $config->{'raw'}->{'moderators'} = [ $config->{'raw'}->{'moderator'} ];
+    }
+
+    # Convert the old aliases flags to a list.
+    if (exists $config->{'raw'}->{'aliases'}) {
+      $tmp = $config->{'raw'}->{'aliases'};
+      if (ref $tmp ne 'ARRAY') {
+        # Convert aliases from old to new format
+        @tmp = ();
+        for ($j = 0 ; $j < length $tmp; $j++) {
+          $setting = substr $tmp, $j, 1;
+          push (@tmp, $Mj::List::alias{$setting}) 
+            if (defined $Mj::List::alias{$setting});
+        }
+        $config->{'raw'}->{'aliases'} = [ @tmp ];
+      }
+    }
+
+    @vars = qw(name times minsize maxsize maxage separate 
+               minage type sort index desc subject);
+
+    if (exists ($config->{'raw'}->{'digests'}) and
+        defined ($config->{'raw'}->{'digests'}->[0]) and
+        $config->{'raw'}->{'digests'}->[0] =~ /\|/) 
+    {
+      @tmp = ();
+
+      ($table) = 
+        parse_table('fspppoooooofso', $config->{'raw'}->{'digests'});
+
+      if ($table) {
+        for ($i = 0; $i < @{$table}; $i++) {
+          $tmp = $table->[$i][0];
+          push @tmp, $tmp;
+
+          if (scalar @{$table->[$i][1]}) {
+            push @tmp, "times=" . join(',', @{$table->[$i][1]});
+          }
+
+          for $j (@{$table->[$i][2]}) {
+            if ($j =~ /(\d+)k/i) {
+              push @tmp, "minsize=$1";
+            }
+            elsif ($j =~ /(\d+)m/i) {
+              push @tmp, "minmsg=$1";
+            }
+          }
+
+          for $j (@{$table->[$i][3]}) {
+            if ($j =~ /(\d+)k/i) {
+              push @tmp, "maxsize=$1";
+            }
+            elsif ($j =~ /(\d+)m/i) {
+              push @tmp, "maxmsg=$1";
+            }
+          }
+
+          for ($j = 4; $j < scalar @vars; $j++) {
+            if (length $table->[$i][$j])
+            {
+              push @tmp, "$vars[$j]=$table->[$i][$j]";
+            }
+          }
+          push @tmp, '';
+        }
+        $config->{'raw'}->{'digests'} = [ @tmp ];
+      }
+    }
+  }
+
+  $config->{'VERSION'} = $Mj::Config::VERSION;
+
+  1;
 }
 
 =head2 default(variable)
@@ -1106,40 +1198,6 @@ sub set {
 
   $self->{'dirty'} = 1;
   (1, $error, $parsed);
-}
-
-=head2 atomic_set(var, updatesub)
-
-This atomically sets a config variable.  The config file is locked
-(implicitly by the FileRepl operation) loaded (from the FileRepl), modified
-in memory (by retrieving the value of the variable and passing it to
-updatesub, then setting the value of the variable, then writing the file
-out and clearing the dirty bit.
-
-XXX Probably should just ignore this, given lock/unlock.
-
-=cut
-sub atomic_set {
-  my $self = shift;
-
-  my $log = new Log::In 150;
-
-  # Determine the filename
-
-  # Save if it's dirty (yes, this is nexessary
-
-  # Open file for writing
-
-  # Load it in
-
-  # Call the mod sub
-
-  # Write the variable back
-
-  # Deal with parsing routines
-
-  # Save the file and unlock/commit
-
 }
 
 =head2 set_to_default
@@ -2040,7 +2098,7 @@ sub parse_delivery_rules {
 #  print Dumper $table;
 
   # The multiline field has keyed data; parse it out
-  for ($i=0; $i<@$table; $i++) {
+  for ($i = 0; $i < @$table; $i++) {
 
     # If we've seen an ALL tag, there's no need to parse any more
     if ($seen_all) {
@@ -2136,135 +2194,163 @@ Parses the digests variable.  Returns a hash containing:
 
 =cut
 use Mj::List;
-use Mj::Util qw(str_to_offset);
+use Mj::Util qw(str_to_bool str_to_offset);
 sub parse_digests {
   my $self = shift;
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, $var;
-  my(@tmp, $data, $elem, $error, $i, $j, $table, $tmp);
+  my(%fields, @tmp, $data, $elem, $error, $field, $i, $j, $sched,
+     $table, $tmp, $type, $val);
 
+  %fields = (
+             'desc'     => { 'type' => 'string',
+                             'default' => 'Message Digest', },
+             'index'    => { 'type' => 'index',
+                             'default' => '', },
+             'maxage'   => { 'type' => 'timespan',
+                             'default' => 0, },
+             'maxmsg'   => { 'type' => 'integer',
+                             'default' => 0, },
+             'maxsize'  => { 'type' => 'integer',
+                             'default' => 0, },
+             'minage'   => { 'type' => 'timespan',
+                             'default' => 0, },
+             'minmsg'   => { 'type' => 'integer',
+                             'default' => 0, },
+             'minsize'  => { 'type' => 'integer',
+                             'default' => 0, },
+             'newmsg'   => { 'type' => 'bool',
+                             'default' => 1, },
+             'separate' => { 'type' => 'timespan',
+                             'default' => '900', },
+             'sort'     => { 'type' => 'sort',
+                             'default' => 'numeric', },
+             'subject'  => { 'type' => 'string',
+                             'default' => 
+                               '[$LIST] $DIGESTDESC V$VOLUME #$ISSUE', 
+                           },
+             'times'    => { 'type' => 'schedule',
+                             'default' => 'always', },
+             'type'     => { 'type' => 'type',
+                             'default' => 'mime', },
+            );
   # %$data will hold the return hash
   $data = {};
 
-  # Parse the table: one line with lots of fields, and one line with two fields
-  ($table, $error) = parse_table('fspppoooooofso', $arr);
+  # Parse the table: the name of the digest appears on the first line,
+  # followed by zero or more lines with field=value specifications.
+  ($table, $error) = parse_table('lx', $arr);
 
   return (0, "Error parsing table: $error")
     if $error;
 
-  $data->{'default_digest'} = $table->[0][0] if $table->[0];
 
-  for ($i=0; $i<@{$table}; $i++) {
-    $data->{lc $table->[$i][0]} = {};
-    $elem = $data->{lc $table->[$i][0]};
+  for ($i = 0; $i< @$table; $i++) {
+    $j = lc $table->[$i][0];
+    $j =~ s/\s+//g;
+    $data->{'default_digest'} = $j if ($i == 0);
+    $data->{$j} = {};
+    $elem = $data->{$j};
 
-    # times
-    $elem->{'times'} = [];
-    if (@{$table->[$i][1]}) {
-      for $j (@{$table->[$i][1]}) {
-        @tmp = _str_to_clock($j);
-        if (defined $tmp[0] and not ref $tmp[0] and $tmp[0] == 0) {
-          return @tmp;
+    # Validate supplied values
+    for $j (@{$table->[$i][1]}) {
+      ($field, $val) = ($j =~ /^\s*(\S+)\s*=\s*(.*)$/);
+      return (0, qq(Unrecognized field "$field".\n)
+                 . "Recognized fields include:\n  " 
+                 .  join ("\n  ", sort keys %fields))
+        unless (defined $field and exists $fields{$field});
+
+      $type = $fields{$field}->{'type'};
+
+      if ($type eq 'bool') {
+        $tmp = str_to_bool($val);
+        return (0, qq(The value "$val" for the "$field" field is neither true nor false."))
+          if ($tmp == -1);
+
+        $elem->{$field} = $tmp;
+      }
+
+      elsif ($type eq 'index') {
+        unless (grep { $val =~ /$_/i } keys (%Mj::List::digest_index_types)) {
+          return (0, 
+            qq(Digest index type "$val" is invalid.\n) 
+            .  qq(Valid index types include:\n  ) 
+            .  join ("\n  ", sort keys (%Mj::List::digest_index_types)));
         }
-	push @{$elem->{'times'}}, @tmp;
-      }
-    }
-    else {
-      # The default should be 'any'
-      push @{$elem->{'times'}}, ['a', 0, 23];
-    }
 
-    # minsizes
-    for $j (@{$table->[$i][2]}) {
-      if ($j =~ /(\d+)m/i) {
-	$elem->{'minmsg'} = $1;
+        $elem->{$field} = $val;
       }
-      elsif ($j =~ /(\d+)k/i) {
-	$elem->{'minsize'} = $1*1024;
+
+      elsif ($type eq 'integer') {
+        $val =~ s/\s*//g;
+
+        return (0, qq(The value "$val" for the "$field" field is not a number.))
+          unless ($val =~ /^\d+$/);
+
+        if ($field eq 'minsize' or $field eq 'maxsize') {
+          $val *= 1024;
+        }
+
+        $elem->{$field} = $val;
+      }
+
+      elsif ($type eq 'schedule') {
+        ($sched, $error) = parse_table('fm', [ $val ]);
+        return (0, qq(Error parsing schedule:  $error\n))
+          if ($error);
+
+        for $j (@{$sched->[0][0]}) {
+          @tmp = _str_to_clock($j);
+          if (defined $tmp[0] and not ref $tmp[0] and $tmp[0] == 0) {
+            return @tmp;
+          }
+          $elem->{$field} = [] unless (exists $elem->{$field});
+          push @{$elem->{$field}}, @tmp;
+        }
+      }
+
+      elsif ($type eq 'sort') {
+        unless (grep { $val =~ /$_/i } keys (%Mj::List::digest_sort_orders)) {
+          return (0, qq(Digest sort order "$val" is invalid.\n)
+                  .  qq(Valid sort orders include:\n  ) 
+                  .  join ("\n  ", sort keys (%Mj::List::digest_sort_orders)));
+        }
+
+        $elem->{$field} = $val;
+      }
+
+      elsif ($type eq 'timespan') {
+        return (0, qq(The value "$val" for the "$field" field is not a valid time span.))
+          unless (defined str_to_offset($val));
+
+        $elem->{$field} = $val;
+      }
+
+      elsif ($type eq 'type') {
+        unless (grep { $val =~ /$_/i } keys (%Mj::List::digest_types)) {
+          return (0, qq(Digest type "$val" is invalid.\n) .
+                     qq(Valid types include:\n  ) .
+                     join ("\n  ", sort keys (%Mj::List::digest_types)));
+        }
+
+        $elem->{$field} = $val;
       }
       else {
-	return (0, "Can't parse minimum size $j");
+        $elem->{$field} = $val;
       }
     }
 
-    # maxsizes
-    for $j (@{$table->[$i][3]}) {
-      if ($j =~ /(\d+)m/i) {
-	$elem->{'maxmsg'} = $1;
-      }
-      elsif ($j =~ /(\d+)k/i) {
-	$elem->{'maxsize'} = $1*1024;
+    # Supply default values for missing fields.
+    for $j (keys %fields) {
+      next if (exists $elem->{$j});
+      if ($fields{$j}->{'type'} eq 'schedule') {
+        $elem->{$j} = [ _str_to_clock($fields{$j}->{'default'}) ];
       }
       else {
-	return (0, "Can't parse maximum size $j");
+        $elem->{$j} = $fields{$j}->{'default'};
       }
     }
-
-    # maxage.  Default to zero (no limit).
-    $tmp = str_to_offset($table->[$i][4]);
-    if (defined $tmp) {
-      $elem->{'maxage'} = $table->[$i][4];
-    }
-    else {
-      $elem->{'maxage'} = 0;
-    }
-
-    # separate.  Default to 15 minutes between deliveries.
-    $tmp = str_to_offset($table->[$i][5]);
-    if (defined $tmp) {
-      $elem->{'separate'} = $table->[$i][5];
-    }
-    else {
-      $elem->{'separate'} = 900;
-    }
-
-    # minage.  Default to no minimum.
-    $tmp = str_to_offset($table->[$i][6]);
-    # default to zero (no limit) to avoid warnings in decide().
-    if (defined $tmp) {
-      $elem->{'minage'} = $table->[$i][6];
-    }
-    else {
-      $elem->{'minage'} = 0;
-    }
-
-    # type:  index, mime, or text
-    $elem->{'type'} = $table->[$i][7] || 'mime';
-    unless (grep { $elem->{'type'} =~ /$_/i }
-              keys (%Mj::List::digest_types))
-    {
-      return (0, qq(Digest type "$elem->{'type'}" is invalid.\n) .
-                 qq(Valid types include:\n  ) .
-                 join ("\n  ", sort keys (%Mj::List::digest_types)));
-    }
-
-    # sort: the order in which the messages are sorted
-    $elem->{'sort'} = $table->[$i][8] || 'numeric';
-    unless (grep { $elem->{'type'} =~ /$_/i }
-              keys (%Mj::List::digest_types))
-    {
-      return (0, qq(Digest sort order "$elem->{'sort'}" is invalid.\n) .
-                 qq(Valid sort orders include:\n  ) .
-                 join ("\n  ", sort keys (%Mj::List::digest_sort_orders)));
-    }
-
-    # index:  what information is displayed about each message.
-    $elem->{'index'} = $table->[$i][9] || '';
-    unless ((! $elem->{'index'}) or grep { $elem->{'index'} =~ /$_/i }
-              keys (%Mj::List::digest_index_types))
-    {
-      return (0, qq(Digest index type "$elem->{'index'}" is invalid.\n) .
-                 qq(Valid index types include:\n  ) .
-                 join ("\n  ", sort keys (%Mj::List::digest_index_types)));
-    }
-
-    # description
-    $elem->{'desc'} = $table->[$i][10];
-
-    # subject header
-    $elem->{'subject'} = $table->[$i][11];
-    $elem->{'subject'} ||= '[$LIST] $DIGESTDESC V$VOLUME #$ISSUE';
   }
   return (1, '', $data);
 }
