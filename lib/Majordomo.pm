@@ -286,16 +286,18 @@ sub connect {
   my $addr = shift || 'unknown@anonymous';
   my $pw   = shift || '';
   my $log = new Log::In 50, "$int, $addr";
-  my ($avars, $dir1, $dir2, $err, $expire, $id, $loc, $ok, $path, $pdata, 
-      $req, $sfile, $tmp, $user);
+  my (@anon_interfaces, $avars, $dir1, $dir2, $err, $expire, $id, $loc, 
+      $ok, $path, $pdata, $req, $sfile, $tmp, $user);
 
   $user = new Mj::Addr($addr);
   # Untaint
   $int =~ /([\w-]+)/;
   $self->{'interface'} = $1;
   $self->{'sessionid'} = '';
+  @anon_interfaces = ('owner', 'resend', 'shell', 'wwwconfirm',
+                      'wwwadm', 'wwwusr');
 
-  unless ($int eq 'resend' or $int eq 'owner' or $int eq 'shell') {
+  unless (grep { $_ eq $int } @anon_interfaces) {
     if (! defined $user) {
       ($ok, $err) = (0, $self->format_error('undefined_address', 'GLOBAL'));
     }
@@ -1686,10 +1688,14 @@ sub _alias_reverse_lookup {
   my $incself = shift;
   my (@data, @out, $data, $key);
 
+  # Do not trawl the database unless the bookkeeping alias is present.
+  # $data = $self->{'alias'}->lookup($addr->canon);
+  # return unless $data;
+
   $self->{'alias'}->get_start;
 
   # Grab _every_ matching entry
-  @data = $self->{'alias'}->get_matching(0, 'target', $addr->canon);
+  @data = $self->{'alias'}->get_matching(0, 'striptarget', $addr->canon);
   $self->{'alias'}->get_done;
 
   while (($key, $data) = splice(@data, 0, 2)) {
@@ -6270,7 +6276,6 @@ sub _rekey {
     };
 
   $self->{'alias'}->mogrify($sub) unless ($mode =~ /verify|repair/);
-
 
   # Rekey the registry
   $rca = $ra = 0;

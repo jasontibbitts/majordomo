@@ -1,3 +1,12 @@
+2004-08-22  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwusr:  Ask for an e-mail address with optional
+	name as needed, instead of displaying an error message.
+	Require a valid e-mail address to use the archive command.
+
+	* lib/Majordomo.pm:  (connect)  Allow the web interfaces
+	to perform their own e-mail address authentication.
+
 2004-08-21  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwusr:  Ask for a list name or login as needed
