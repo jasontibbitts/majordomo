@@ -71,7 +71,13 @@ sub accept {
 
     # If we accepted a consult token, we can stop now.
     if ($data->{'type'} eq 'consult') {
-      eprint($out, $type, "was accepted.\n\n");
+      eprint($out, $type, "was accepted.\n");
+      if ($data->{'ack'}) {
+        eprint($out, $type, "$data->{'victim'} was notified.\n\n");
+      }
+      else {
+        eprint($out, $type, "$data->{'victim'} was not notified.\n\n");
+      }
       next;
     }
     eprint($out, $type, "was accepted with these results:\n\n");
@@ -498,7 +504,7 @@ sub post {
   }
 
   if ($ok>0) {
-    eprint($out, $type, "Post succeeded.\nDetails:\n");
+    eprint($out, $type, "Post succeeded.\n");
   }
   elsif ($ok<0) {
     eprint($out, $type, "Post stalled, awaiting approval.\nDetails:\n");
@@ -506,7 +512,8 @@ sub post {
   else {
     eprint($out, $type, "Post failed.\nDetails:\n");
   }
-  eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+  # The "message" given by a success is only the poster's address.
+  eprint($out, $type, indicate($mess, $ok, 1)) if ($mess and ($ok <= 0));
 
   return $ok;
 }
@@ -585,10 +592,10 @@ sub reject {
     eprint($out, $type, "has been rejected.\n");
     if ($data->{'type'} eq 'consult') {
       if ($data->{'ack'}) {
-        eprint($out, $type, "$data->{'victim'} was notified.\n");
+        eprint($out, $type, "$data->{'victim'} was notified.\n\n");
       }
       else {
-        eprint($out, $type, "$data->{'victim'} was not notified.\n");
+        eprint($out, $type, "$data->{'victim'} was not notified.\n\n");
       }
     }
   }
