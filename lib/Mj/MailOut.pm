@@ -309,7 +309,7 @@ specified in the 'welcome_files' variable. If one of the files in the
 welcome message does not exist, it is ignored.
 
 =cut
-use Date::Parser;
+use Date::Format;
 use MIME::Entity;
 sub welcome {
   my $self = shift;
