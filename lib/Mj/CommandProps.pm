@@ -150,6 +150,7 @@ my %commands =
                    'modes'    =>  {
                                    %generic_modes,
                                    'append'      => 1,
+                                   'categories'  => 1,
                                    'declared'    => 1,
                                    'extract'     => 1,
                                    'merge'       => 1,
@@ -177,8 +178,8 @@ my %commands =
     'parser' => [qw(email shell list global real)],
     'dispatch' => {'top' => 1,
                    'arguments' => {'split', '[\s,]+',
-                                   'vars'     => {'type' => 'ARRAY'}},
-                   'hereargs' =>  'vars',
+                                   'setting'     => {'type' => 'ARRAY'}},
+                   'hereargs' =>  'setting',
                    'modes'    =>  {
                                    %generic_modes,
                                   },
@@ -348,8 +349,9 @@ my %commands =
     'dispatch' => {'top' => 1, 
                    'arguments' => {'newlist'   => {'type' => 'SCALAR',
                                                    'exclude' => 'regen'},
-                                   'victims'   => {'type' => 'SCALAR'}
+                                   'owners'   =>  {'type' => 'ARRAYELEM'}
                                   },
+                   'hereargs'  => 'owners',
                    'modes'    =>  {
                                    %generic_modes,
                                    'destroy'     => 1,
@@ -360,7 +362,7 @@ my %commands =
                                    'nowelcome'   => 1,
                                    'regen'       => 1,
                                   },
-                   'tokendata' => {'victim' => 'victims',
+                   'tokendata' => {'arg2' => 'owners',
                                    'arg1' => 'newlist',
                                   }
                   },
@@ -411,6 +413,7 @@ my %commands =
 		   'arguments' => {'path' => {'type' => 'SCALAR'}},
                    'modes'    =>  {
                                    %generic_modes,
+                                   'edit'        => 1,
                                    'immediate'   => 1,
                                   },
                    'tokendata' => {'arg1' => 'path'}
