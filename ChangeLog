@@ -1,3 +1,11 @@
+2004-03-24  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/FileSpace.pm:  (_empty_dir)  Bugfix:  Call
+	closedir() instead of close() for a directory.
+
+	* lib/Mj/List.pm:  (rename_archive)  Bugfix:  Call
+	closedir() instead of close() for a directory.
+
 2004-03-02  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (who_chunk)  Bugfix:  Reduce the

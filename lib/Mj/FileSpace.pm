@@ -536,7 +536,7 @@ sub _empty_dir {
         unless (rmdir "$dir/$file");
     }
   }
-  close $dirh;
+  closedir $dirh;
   return (1, '');
 }
 

@@ -1347,7 +1347,7 @@ sub _fill_config {
       $self->{'templates'}{$1} = undef;
     }
   }
-  closedir($dirh);
+  closedir $dirh;
 
   $self->{'config_loaded'} = 1;
   $::log->out;
@@ -1382,7 +1382,7 @@ sub _fill_aux {
       $self->{'sublists'}{$1} = undef;
     }
   }
-  closedir($dirh);
+  closedir $dirh;
   
   $self->{'aux_loaded'} = 1;
   $::log->out;
@@ -2105,7 +2105,7 @@ sub rename_archive {
     }
   }
 
-  close ($dirh); 
+  closedir $dirh; 
  
   opendir ($dirh, "$dir/.index") 
     or $::log->abort("Error opening directory $dir/.index: $!");
@@ -2118,7 +2118,7 @@ sub rename_archive {
     }
   }
 
-  close ($dirh); 
+  closedir $dirh; 
 
   1;
 }
