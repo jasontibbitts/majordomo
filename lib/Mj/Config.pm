@@ -1723,6 +1723,7 @@ sub parse_address {
   my $str  = shift || '';
   my $var  = shift;
   my $log  = new Log::In 150, "$var, $str";
+  my $domain;
 
   return (1, '', '') unless $str;
 
@@ -1732,7 +1733,9 @@ sub parse_address {
 
   # We try to tack on a hostname if one isn't given
   unless ($str =~ /\@/) {
-    $str .= "\@" . $self->get('whereami');
+    $domain =
+      &{$self->{'callbacks'}{'mj._global_config_get'}}('whereami');
+    $str .= '@' . $domain if $domain;
   }
 
   my $addr = new Mj::Addr($str);
@@ -1791,6 +1794,7 @@ sub parse_attachment_filters {
   %allowed_actions =
     (
      'allow'   => 1,
+     'clean'   => 1,
      'discard' => 0,
      'format'  => 1,
     );
@@ -1807,7 +1811,8 @@ sub parse_attachment_filters {
   # Bomb on unrecognized actions.
   for ($i=0; $i<@$table; $i++) {
 
-    # First item is either an unquoted string or a pattern.  Convert the former to the latter.
+    # First item is either an unquoted string or a pattern.  
+    # Convert the former to the latter.
     ($ok, $err, $pat) = compile_pattern($table->[$i][0], 0, 'iexact');
 
     if ($err) {
@@ -1821,6 +1826,9 @@ sub parse_attachment_filters {
       else {
 	$change .= qq^return ('allow', undef) if $pat;\n^;
       }
+    }
+    elsif ($table->[$i][1] eq 'clean') {
+      $change .= qq^return ('clean', undef) if $pat;\n^;
     }
     elsif ($table->[$i][1] eq 'discard') {
       $change .= qq^return ('discard', undef) if ($pat and \$level > 1);\n^;
@@ -2776,6 +2784,7 @@ sub parse_passwords {
         $acts = join ',', @{$table->[$i][1]};
       }
       if (@{$table->[$i][2]}) {
+        # XXX An individual address cannot contain a comma.
         $addrs = join ',', @{$table->[$i][2]};
       }
       push @{$rd}, "$pw | $acts | $addrs";
