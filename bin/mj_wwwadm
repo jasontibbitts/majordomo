@@ -376,6 +376,7 @@ elsif ($commands{$func}->[3] eq 'showtokens') {
     if ($func eq 'showtokens' and $extra[0]);
   $i = 0;
   $request->{'command'} = 'showtokens';
+  $request->{'mode'} = 'delay';
   my (%seen);
   for $list (@lists, @mlists) {
     next if (exists $seen{$list});
