@@ -47,7 +47,6 @@ blah
 use strict;
 use DirHandle;
 use Symbol;
-use File::Copy "cp";
 use Mj::Log;
 
 =head2 new(dir)
@@ -233,7 +232,8 @@ sub put {
       return unless $self->delete($file);
     }
     # Copy in the file
-    cp($src, $path) ||
+    require File::Copy;
+    File::Copy::cp($src, $path) ||
       $::log->abort("Mj::FileSpace::put failed copying file $src to $path, $!");
   }
   # Else were weren't passed a file, so we just make sure the destination
