@@ -1,3 +1,10 @@
+2002-01-20  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* bin/mj_shell: Delay module loading until runtime.
+	Add -W option, load and import Carp at runtime, and fixup warnings
+	to spit out a backtrace.
+	
+
 2002-01-19  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	Add Encoding=>'8bit' to generated MIME Entities:
@@ -11,11 +18,11 @@
 	* lib/Mj/Parser.pm (parse_entity, parse_part)
 	* lib/Mj/MailOut.pm (welcome)
 	* lib/Mj/BounceHandler.pm (handle_bounce_message, handle_bounce_token)
-	* lib/Mj/Access.pm (_a_forward):
-	* lib/Majordomo.pm (reject, tokeninfo_start
+	* lib/Mj/Access.pm (_a_forward)
+	* lib/Majordomo.pm (reject, tokeninfo_start)
 	
 	* lib/Mj/Addr.pm (_validate): Accept dots in the phrase portion of
-	an route address.
+	a route address.
 
 2002-01-18  Michael Yount <csf@moscow.com>
 
