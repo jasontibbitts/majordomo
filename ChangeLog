@@ -1,5 +1,12 @@
 Sun May  3 14:49:27 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* Makefile.PL: Screwed up MIME-tools version check.
+
+	* lib/Mj/Parser.pm (parse_part): Remove undef warning; explicitly
+ 	note that a list name is required if one wasn't given or shifted
+ 	out of the argument list.  This has a speed bonus, too, since
+ 	valid_list isn't called on an empty list.
+
 	* lib/Majordomo.pm: Bumped version number; still alpha1.
 
 	* postinstall (create_dirs): Create dirs according to the proper
