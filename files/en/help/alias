@@ -47,11 +47,11 @@ file for a Perl script that assumes shell access.
 
 See Also:
    help access_variables (set/test for this command)
-   help configset aliases (MTA configuration, used by list owners)
+   help configset_aliases (MTA configuration, used by list owners)
    help register  (must occur before alias will work)
+   help rekey     (alters the aliases database)
    help subscribe (does an automatic registration)
    help unalias   (to cancel an alias command)
+   help who       (to display aliases)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
