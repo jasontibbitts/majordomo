@@ -57,7 +57,7 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
                 'configdef'     => [1, 1, 1, 'configshow'],
                 'configset'     => [1, 1, 1, 'configshow'],
                 'configshow'    => [1, 1, 0, 'configshow'],
-                'createlist'    => [1, 0, 1, 'command'],
+                'createlist'    => [1, 0, 1, 'newlist'],
                 'digest'        => [1, 1, 1, 'lists'],
                 'faq'           => [1, 1, 0, 'lists'],
                 'get'           => [1, 1, 0, 'lists'],
@@ -66,6 +66,7 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
                 'info'          => [1, 1, 0, 'lists'],
                 'intro'         => [1, 1, 0, 'lists'],
                 'lists'         => [1, 0, 0, 'lists'],
+                'newlist'       => [1, 1, 1, 'newlist'],
                 'put'           => [1, 1, 1, 'lists'],
                 'reject'        => [1, 0, 1, 'showtokens'],
                 'report'        => [1, 1, 1, 'command'],
@@ -179,7 +180,7 @@ $subs = { $mj->standard_subs($lists[0]),
           'CGIURL'    => $cgiurl,
           'CMDPASS'   => '',
           'COMMAND'   => $ofunc,
-          'USER'      => $user,
+          'USER'      => ($user =~ /example.com$/) ? '' : $user,
         };
 
 
@@ -227,7 +228,12 @@ if ($ofunc eq 'tokeninfo-part' or
 #----- Print the generic page header -----#
 unless ($raw) {
   print $cgi->header('-expires' => '+50s');
-  $tmp = $mj->format_get_string('wwwadm', 'head');
+  if ($lists[0] =~ /^(ALL|DEFAULT|GLOBAL)/) {
+    $tmp = $mj->format_get_string('wwwadm', 'head_global');
+  }
+  else {
+    $tmp = $mj->format_get_string('wwwadm', 'head');
+  }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 }
@@ -237,6 +243,10 @@ unless ($raw) {
 if ($ofunc eq 'logout') {
   &usage($mj, $subs, 'You have successfully signed out.');
 }
+elsif ($ofunc eq 'newlist') {
+  &newlist($mj, $subs, '')
+}
+
 unless (length $lists[0]) {
   &login($mj, $subs, '');
 }
@@ -350,6 +360,10 @@ if (function_prop($func, 'iter')) {
 # The seventh exception is for the who command, which must include
 # a pattern.
 #
+# The eighth exception is for the createlist command, which
+# can include a group of list owners, a password, and possibly
+# a new list name.
+#
 # In each of these cases, the basic command form requires that the
 # "extra" variable still be handled if it was used.
 if (@extra and $func ne 'showtokens') {
@@ -379,7 +393,12 @@ if (@extra and $func ne 'showtokens') {
           ($func eq 'archive' and ! $request->{'part'}))
       {
         print $cgi->header('-expires' => '+50s');
-        $tmp = $mj->format_get_string('wwwadm', 'head');
+        if ($request->{'list'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
+          $tmp = $mj->format_get_string('wwwadm', 'head_global');
+        }
+        else {
+          $tmp = $mj->format_get_string('wwwadm', 'head');
+        }
         $str = $mj->substitute_vars_format($tmp, $subs);
         print STDOUT "$str\n";
         $raw = 0;
@@ -502,6 +521,27 @@ elsif ($func ne 'showtokens') {
     @extra = split "\r?\n", $tmp;
     $request->{'contents'} = [@extra];
   }
+  elsif ($func eq 'createlist') {
+    $request->{'newlist'} = $cgi->param('newlist');
+    if ($cgi->param('newname')) {
+      $request->{'newpasswd'} = $cgi->param('newname');
+    }
+    elsif ($cgi->param('newpasswd')) {
+      unless ($request->{'mode'} =~ /pass/) {
+        if (length $request->{'mode'}) {
+          $request->{'mode'} .= '-pass';
+        }
+        else {
+          $request->{'mode'} = 'pass';
+        }
+      }
+      $request->{'newpasswd'} = $cgi->param('newpasswd');
+    }
+    $tmp = $cgi->param('owners');
+    $tmp =~ s/\r?\n$//;
+    @extra = split "\r?\n", $tmp;
+    $request->{'owners'} = [@extra];
+  }
     
   $result = $mj->dispatch($request); 
   &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
@@ -513,7 +553,8 @@ elsif ($func ne 'showtokens') {
 #----- Display supplementary information -----#
 # There are five supplementary screens which this script displays. 
 #   command    - Display a command menu
-#   configshow - allow easy access to collections of settings
+#   configshow - Allow easy access to collections of settings.
+#   newlist    - Allow lists to be created, renamed, or destroyed.
 #   lists      - Show details about a list, or a collection of lists.
 #   showtokens - Display a list of pending requests
 #   who        - Search the subscriber list or (un)subscribe addresses
@@ -525,6 +566,9 @@ if ($cgi->param('brief') or $raw) {
 elsif (($tmp eq 'on' and $func ne 'showtokens')
     or $commands{$func}->[3] eq 'command') {
   &command($mj, $subs, '');
+}
+elsif ($commands{$func}->[3] eq 'newlist') {
+  &newlist($mj, $subs, '');
 }
 elsif ($commands{$func}->[3] eq 'showtokens') {
   # A separate head and foot are needed because this interface
@@ -590,7 +634,12 @@ elsif ($commands{$func}->[3] ne $func) {
 
 #----- Print the Footer -----#
 unless ($raw and $result->[0]) {
-  $tmp = $mj->format_get_string('wwwadm', 'foot');
+  if ($request->{'list'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
+    $tmp = $mj->format_get_string('wwwadm', 'foot_global');
+  }
+  else {
+    $tmp = $mj->format_get_string('wwwadm', 'foot');
+  }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 }
@@ -670,6 +719,29 @@ sub login {
   exit 1;
 }
 
+sub newlist {
+  my ($mj, $subs, $message) = @_;
+  my ($str, $tmp);
+
+  $subs->{'ERROR'} = $message;
+  $::log->message(50, "info", $message) if $message;
+
+  $tmp = $mj->format_get_string('wwwadm', 'newlist');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+
+  if ($subs->{'LIST'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
+    $tmp = $mj->format_get_string('wwwadm', 'foot_global');
+  }
+  else {
+    $tmp = $mj->format_get_string('wwwadm', 'foot');
+  }
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+  
+  exit 1;
+}
+
 sub usage {
   my ($mj, $subs, $message) = @_;
   my ($str, $tmp);
@@ -677,11 +749,21 @@ sub usage {
   $subs->{'ERROR'} = $message;
   $::log->message(50, "info", $message) if $message;
 
-  $tmp = $mj->format_get_string('wwwadm', 'welcome');
+  if ($subs->{'LIST'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
+    $tmp = $mj->format_get_string('wwwadm', 'welcome_global');
+  }
+  else {
+    $tmp = $mj->format_get_string('wwwadm', 'welcome');
+  }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 
-  $tmp = $mj->format_get_string('wwwadm', 'foot');
+  if ($subs->{'LIST'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
+    $tmp = $mj->format_get_string('wwwadm', 'foot_global');
+  }
+  else {
+    $tmp = $mj->format_get_string('wwwadm', 'foot');
+  }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
   

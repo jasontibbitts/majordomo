@@ -1,3 +1,21 @@
+2002-03-02  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  (newlist)  Add support for list creation,
+	renaming, and deletion for site and domain administrators.
+
+	* lib/Majordomo.pm:  (_createlist)  Clarify success message.
+
+	* lib/Mj/Archive.pm:  (_parse_archive_arg)  Bugfix:  distinguish
+	dates from message counts more intelligently.
+
+	* lib/Mj/CommandProps.pm:  Add support for the who-summary
+	command.
+
+	* lib/Mj/Format.pm:  (rekey)  Do not display results for the
+	DEFAULT or GLOBAL pseudo-list.  Thanks to Chan Wilson.
+	(who)  Add support for the who-summary command, which shows
+	the number of subscribers in each delivery class.
+
 2002-02-25  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Util.pm:  (process_rule)  Bugfix:  add "negate" and 
