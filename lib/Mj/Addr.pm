@@ -693,7 +693,7 @@ sub _validate {
 
   # We'll be interpolating arrays into strings and we don't want any
   # spaces.
-  $"=''; #";
+  local($") = ''; 
 
   # Trim leading and trailing whitespace; it hoses the algorithm
   s/^\s+//;
