@@ -39,12 +39,10 @@ address that matches the pattern will be removed from the registry
 The "-pattern" option is identical to the "-regex" option.
 
 See Also:
+   help access_variables
    help changeaddr  (which replaces one address with another)
-   help configset access_rules_variables (set/test for this command)
    help register    (which adds an address to the database)
    help subscribe   (which adds an address to a list)
    help unsubscribe (which removes an address from one list)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

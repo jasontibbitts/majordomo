@@ -33,7 +33,7 @@ will take precedence over the value of this setting.
 See Also:
    help access   (for the special case of granting/denying all access)
    help configset_access_rules           (to restrict access to any command)
-   help configset_access_rules_variables (for requests, variables, defaults)
+   help access_variables (for requests, variables, defaults)
    help configset_archive_access      (for     archive command access_rules)
    help configset_faq_access          (for         faq command access_rules)
    help configset_get_access          (for         get command access_rules)

@@ -1,19 +1,19 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 faq listname
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname, required, is an email list at this site
+listname, required, is a mailing list at this domain
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-This command returns a Frequently Asked Questions file for the list named,
-if one is available. If no FAQ file exists, it returns an error message.
+The faq command returns a Frequently Asked Questions file for a mailing
+list, if one exists.
 
 See Also:
-   help configset access_rules_variables (set/test for this command)
+   help admin_documents (to learn about the file space of a mailing list)
+   help configset_access_rules  (to restrict access to this command)
+   help configset_faq_access    (to restrict access to this command)
    help get   (for another way to retrieve this file)
    help info  (another document related to the list)
    help intro (another document related to the list)
+   help newfaq (to create or replace the "faq" document)
 
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

@@ -45,14 +45,12 @@ Alternately, sending these TWO commands "From: Jane Doe <jane@doe.org>":
 will have the same effect if everyone returns the confirmation tokens.
 
 See Also:
+   help access_variables
    help alias       (which makes two addresses equivalent)
-   help configset access_rules_variables (set/test for this command)
    help default     (for how to override the "From:" address)
    help register    (which adds an address to the database)
    help subscribe   (which adds an address to a list)
    help unregister  (which removes an address from all lists)
    help unsubscribe (which removes an address from one list)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

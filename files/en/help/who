@@ -83,11 +83,11 @@ subscriber lists" (see "help auxiliary_list" for more details.)
 
 
 See Also:
+   help access_variables
    help alias    (creates the aliases shown by the "who-alias" command)
    help announce (to mail a file to all members of an auxiliary list)
    help auxiliary_list (which is used to manage a set of addresses)
    help configset_access_rules (to restrict use of the who command)
-   help configset_access_rules_variables (set/test for this command)
    help configset_bounce_max_age (to force bounces to expire)
    help configset_who_access   (to restrict use of who)
    help patterns (for simple and complex regular expressions)
@@ -95,6 +95,4 @@ See Also:
    help show     (for information about a given subscriber)
    help which    (for all lists a given subscriber is on)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

@@ -538,22 +538,19 @@ NOTE: "showall" and "nohide" are identical, use whichever you like.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 See Also:
-   help configset access_rules           (to restrict or allow access to 'set' changes)
-   help configset access_rules_variables (set/test for this command)
-   help configset ack_attach_original    (attaches post to error message if stalled)
-   help configset allowed_flags          (restricts subscribers ability to set flags)
-   help configset allowed_classes        (restricts subscribers ability to set digest)
-   help configset default_class          (sets per-list defaults before subscribing)
-   help configset default_flags          (sets per-list defaults before subscribing)
-   help configset dup_lifetime           (can bypass duplicate post / "unique" class checking)
-   help configset nonmember_flags        (sets non-subscriber defaults for ack messages)
-   help configshow                       (for how to get a list of availabel digests)
+   help access_variables
+   help configset_access_rules     (to restrict or allow access to 'set' changes)
+   help configset ack_attach_original (attaches post to error message if stalled)
+   help configset allowed_flags    (restricts subscribers ability to set flags)
+   help configset allowed_classes  (restricts subscribers ability to set digest)
+   help configset default_class    (sets per-list defaults before subscribing)
+   help configset default_flags    (sets per-list defaults before subscribing)
+   help configset dup_lifetime     (can bypass duplicate post checking)
+   help configset nonmember_flags  
+   help configshow                 (for how to get a list of availabel digests)
    help show      (displays all of the current settings for one subscriber)
-   help subscribe (allows you to choose the comment that appears with your address)
+   help subscribe (to choose the comment that appears with your address)
    help times     (details of how to specify a time period for 'nomail')
-   help who       (-export option can extract all the set commands for an entire list)
+   help who       (to extract all the set commands for an entire list)
 
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

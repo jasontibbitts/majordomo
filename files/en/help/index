@@ -29,13 +29,12 @@ where a slash "/" separates the directory names, and a slash by
 itself is the same as using no pathname at all.
 
 See Also:
-   help configset access_rules_variables (set/test for this command)
-   help configset archive_index  (to restrict indexing of special files)
-   help configset index_access (determines who can index files under a list)
-   help archive      (for how to index special files)
-   help get          (retrieve files by email)
-   help put          (to create files or directories under a list)
+   help admin_documents (to learn about the file space of a mailing list)
+   help archive (to obtain an index of an archive of posted messages)
+   help configset_access_rules   (to restrict access to this command)
+   help configset_archive_index  (to restrict indexing of special files)
+   help configset_index_access (determines who can index files under a list)
+   help get (to retrieve files from the file space)
+   help put (to create files or directories in the file space)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

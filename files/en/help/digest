@@ -9,8 +9,6 @@ digestname, if specified, is the name of a list digest
 listname, required, is the name of a list at this site
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-NOTE: The "mkdigest" command causes "digest-force" to occur.
-
 In all cases, leaving off the digestname operates on all of the
 lists's digests. You must have list archives enabled to create digests.
 
@@ -87,13 +85,11 @@ on your server, and you have lots of files to "put"!
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 See Also:
-   help configset access_rules_variables (set/test for this command)
-   help configset archive_dir (to store archives in a non-default dir)
-   help configset_digests     (for how to configure digesting)
-   help mkdigest  (for another way to do "digest-force")
-   help put       (for how to create archive dir and pre/post/foot files)
-   help variables (for details on variable substitution and auto-include files)
+   help access_variables       (to restrict access to the digest command)
+   help configset_access_rules (to restrict access to the digest command)
+   help configset_archive_dir  (to change the location of the archives)
+   help configset_digests      (to configure digests)
+   help put       (to create an archive directory or pre/post/foot files)
+   help variables (to learn about substitution variables)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

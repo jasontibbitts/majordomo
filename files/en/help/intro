@@ -1,22 +1,29 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 intro listname
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname, required, is an email list at this site
+listname, required, is a mailing list at this domain.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-This command returns a Introduction file for the list named, if one
-is available. If no INTRO file exists, it returns an error message.
+The intro command displays an introductory file for a mailing list, if one
+exists. 
 
-Note that this may not be the same as the welcome document that is
-sent to new subscribers.
+In recent editions of Majordomo version 1, the "intro" document is
+sent in the welcome message that new subscribers receive when they
+join a mailing list.  Majordomo 2, by default, will send the "info"
+document instead.  As a result, the intro document is not normally used,
+and this command is supported only for purposes of compatibility.
+
+The welcome_files configuration setting can be adjusted to use the
+"intro" file in the welcome message, if the list owners prefer.
 
 See Also:
-   help configset access_rules_variables (set/test for this command)
+   help admin_documents (to learn about the file space of a mailing list)
+   help configset_access_rules  (to restrict access to this command)
+   help configset_intro_access  (to restrict access to this command)
+   help configset_welcome_files (to adjust the welcome message)
    help get   (for another way to retrieve this file)
    help faq  (another document related to the list)
    help info (another document related to the list)
+   help newintro (to create or replace the "intro" document)
 
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

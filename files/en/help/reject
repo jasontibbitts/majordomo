@@ -48,11 +48,9 @@ must have the "ackall" flag set to receive an acknowledgement.
 
 See Also:
    help accept      (the opposite action of "reject")
+   help access_variables (set and test in access_rules)
+   help configset_token_lifetime (site-wide or per-list expiration period)
+   help configset_token_remind   (site-wide or per-list reminder)
    help showtokens  (for a list of unhandled requests)
-   help configset access_rules_variables (set and test in access_rules)
-   help configset token_lifetime (site-wide or per-list expiration period)
-   help configset token_remind   (site-wide or per-list reminder before expiration)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

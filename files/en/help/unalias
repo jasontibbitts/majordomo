@@ -13,10 +13,8 @@ the server; the given "address" will then be removed from the database
 and no longer considered equivalent to the registered account.
 
 See Also:
+   help access_variables
    help alias     (subscribe once, post from several addresses)
-   help configset access_rules_variables (set/test for this command)
    help subscribe (subscribe your primary address before alias)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

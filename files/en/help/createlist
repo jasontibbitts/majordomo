@@ -131,7 +131,7 @@ See Also:
    help admin           (how to manage a list after it is created)
    help auxiliary_list  (introduction to sublists)
    help configset                     (to configure the list once created)
-   help configset access_rules_variables       (set/test for this command)
+   help access_variables       (set/test for this command)
    help configset archive_dir (to specify a non-default archive directory)
    help configset default_class       (to configure default subscriptions)
    help configset default_flags       (to configure default subscriptions)

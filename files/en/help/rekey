@@ -1,5 +1,5 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-rekey [-verify][-repair][-repair-quiet]
+rekey [-verify][-repair[-quiet]]
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
@@ -45,9 +45,7 @@ and rekeying.
 
 
 See Also:
-   help configset access_rules_variables (set/test for this command)
-   help configset addr_xforms  (downcase or otherwise fix addresses)
+   help access_variables
+   help configset_addr_xforms  (downcase or otherwise fix addresses)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

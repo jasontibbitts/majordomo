@@ -28,15 +28,15 @@ will take precedence over the value of this setting.
 
 See Also:
    help access        (for the special case of granting/denying all access)
+   help access_variables              (for requests, variables, defaults)
    help archive       (for the command that this policy regulates)
-   help configset_access_rules           (to restrict access to any command)
-   help configset_access_rules_variables (for requests, variables, defaults)
+   help configset_access_rules        (to restrict access to any command)
    help configset_archive_dir  (to change the default location of the archive)
-   help configset_faq_access          (for         faq-related access_rules)
+   help configset_faq_access          (for         faq command access_rules)
    help configset_get_access          (for         get command access_rules)
    help configset_index_access        (for       index command access_rules)
-   help configset_info_access         (for        info-related access_rules)
-   help configset_intro_access        (for       intro-related access_rules)
+   help configset_info_access         (for        info command access_rules)
+   help configset_intro_access        (for       intro command access_rules)
    help configset_set_policy          (for         set command access_rules)
    help configset_subscribe_policy    (for   subscribe command access_rules)
    help configset_unsubscribe_policy  (for unsubscribe command access_rules)
@@ -46,6 +46,4 @@ See Also:
    help index         (for a command that this policy does NOT regulate)
    help post          (for the special case of restricting who can post msgs)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

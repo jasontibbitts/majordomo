@@ -40,7 +40,7 @@ subscriptions at once.
 See Also:
    help access   (for the special case of granting/denying all access)
    help configset_access_rules           (to restrict access to any command)
-   help configset_access_rules_variables (for requests, variables, defaults)
+   help access_variables (for requests, variables, defaults)
    help configset_allowed_classes     (delivery settings members can change)
    help configset_allowed_flags       (the settings members can change)
    help configset_archive_access      (for     archive command access_rules)

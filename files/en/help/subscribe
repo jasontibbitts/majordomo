@@ -134,18 +134,16 @@ subscriber list" (see "help auxiliary_list" for more details.)
 
 See Also:
    help accept      (which is used to confirm subscriptions)
+   help access_variables 
    help approve     (which can eliminate the need to use "accept")
    help auxiliary_list (which is used to manage a set of addresses)
    help changeaddr  (which replaces one address with another)
    help commands    (for an explanation of "here files")
-   help configset access_rules_variables (set/test for this command)
-   help configset welcome       (determines if welcome messages are sent)
-   help configset welcome_files (determines which welcome messages are sent)
+   help configset_welcome       (determines if welcome messages are sent)
+   help configset_welcome_files (determines which welcome messages are sent)
    help password    (which changes an individual's password)
    help register    (which registers, and creates a password for, an address)
-   help unsubscribe (which removes an address from just one list)
    help unregister  (which removes an address from all lists)
+   help unsubscribe (which removes an address from just one list)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

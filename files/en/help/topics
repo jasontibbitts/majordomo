@@ -50,9 +50,9 @@ These help files are introductory documents:
 These help files discuss advanced topics in detail:
 
    help access
+   help access_variables
    help auxiliary_list
    help command_parser
-   help configset_access_rules_variables
    help delay
    help error_files
    help format_files

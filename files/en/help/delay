@@ -81,7 +81,7 @@ to be fulfilled less frequently.
 
 See Also:
    help configset access_rules
-   help configset access_rules_variables
+   help access_variables
    help configset triggers
    help default
    help times

@@ -83,17 +83,15 @@ information about the Majordomo registry).
 
 
 See Also:
+   help access_variables
    help approve     (which can eliminate the need to use "accept")
    help auxiliary_list (which is used to manage a set of addresses)
    help changeaddr  (which replaces one address with another)
    help commands    (for an explanation of "here files")
-   help configset access_rules_variables (set/test for this command)
    help password    (which changes an individual's password)
    help patterns    (for simple and complex regular expressions)
    help register    (which adds an address to the Majordomo registry)
    help subscribe   (which adds an address to a list)
    help unregister  (which removes an address from all lists)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

@@ -34,13 +34,11 @@ password that is specific to one mailing list will result in an
 "Invalid password" error.
 
 See Also:
+   help access_variables 
+   help configset_access_rules (to restrict use of which)
+   help configset_which_access (to restrict use of which)
    help patterns (for simple and complex regular expressions)
    help show     (for information about a given subscriber)
    help who      (for all subscribers to a given list)
-   help configset access_rules (to restrict use of which)
-   help configset access_rules_variables (set/test for this command)
-   help configset which_access (to restrict use of which)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

@@ -25,11 +25,10 @@ requesting address are the same; otherwise, a token is generated and
 the requested address must issue an "accept" command.
 
 See Also:
-   help configset access_rules (to restrict use of show)
-   help configset access_rules_variables (set/test for this command)
+   help access_variables
+   help commands
+   help configset_access_rules (to restrict use of show)
    help who   (for all subscribers to a given list)
    help which (for all lists a given subscriber is on)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

@@ -73,8 +73,9 @@ use the following two commands:
   index-recursive LISTNAME
 
 See Also:
-   help archive    (for how to get special files)
-   help configset_access_rules_variables (set/test for this command)
+   help admin_documents (to learn about the file space of a mailing list)
+   help archive    (for how to obtain archives of posted messages)
+   help configset_access_rules (to restrict access to this command)
    help configset_archive_access (to restrict access to special files)
    help configset_get_access (determines who can get files from a list)
    help faq        (retrieves the "/faq" file, with keyword substitutions)
@@ -84,7 +85,4 @@ See Also:
    help put        (to create files or directories under a list)
    help variables  (to see which keyword substitutions are supported)
 
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

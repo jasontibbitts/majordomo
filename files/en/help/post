@@ -13,68 +13,53 @@ subject,     if specified, gives the contents of the subject header.
 -archive,    if specified, archives a message without distributing it
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The "post" command sends a message to "listname", or an auxiliary list
-"sublistname" which is associated with "listname". The main list is
-assumed if no auxiliary list name is included. "Post" may require a
-list or site password via "approve". This is an alternative to just
-sending a message to the list address.
+The post command sends a message to a mailing list, or to an auxiliary
+list.  A password is normally required to use this command.  Unlike
+other commands, using a password with the post command does not
+guarantee that the message is distributed to the subscribers immediately.
+The message will undergo the same access checks as if it were sent
+using e-mail.
 
-Note that the message must be fully formed, with all necessary headers.
-Majordomo will not add omitted headers, nor does it check the validity
-of the message. All of the normal resend access checks apply.
-
-If the "addhdr" command mode is used, Majordomo will consider the
+If the "addhdr" command mode is used, Majordomo will consider the 
 contents you supply to be a plain text message body, and will
 automatically add the From, To, Date, Subject, Message-Id, and
 Content-type headers.  The message subject is taken from the 
 first command line.
 
-The "post" command enables a Majordomo list to be run without doing
+The post command enables a Majordomo list to be run without doing
 any MTA configuration, such as creating aliases.  The list will not, 
-however, be terribly functional.  This will probably work for 
-announcement lists, though.
+however, be very functional.  This will probably work for announcement 
+lists, though.
 
-The "post" command could be used on a moderated list, if the 
-moderators wish to edit a message before distributing it.
-The edited message would still need to be approved with the
-"accept" command, and the original post would have to be denied 
-with the "reject" command.
+The post command could be used on a moderated list, if the moderators 
+wish to edit a message before distributing it.  The edited message 
+would still need to be approved with the "accept" command, and the 
+original post would have to be denied with the "reject" command.
+A better approach is to add an "Approved" header to the message;
+see "help admin_moderate" for more details.
 
-The "post-archive" command may be used to store a message in the
-mailing list archive, but not distribute it on the mailing list.
+The post-archive command may be used to store a message in the
+mailing list archive, but not distribute it to the subscribers.
 If you maintain a WWW archive of your mailing lists, you might
-wish to include a message that describes how to subscribe to
+wish to archive a message that describes how to subscribe to
 the mailing list.  Obviously, you would not want that message to 
 be distributed on the list, since the list's participants are
 already subscribed to the list.
 
-To send a message to an auxiliary list, the "auxiliary" option
-must be included in the 'aliases' configuration setting, and
-the auxiliary list name must be included in the "sublists" configuration
-setting.  
+To send a message to an auxiliary list, the "auxiliary" option must be 
+included in the 'aliases' configuration setting, and the auxiliary list 
+name must be included in the "sublists" configuration setting.  
 
 
 See Also:
    help approve   (which can eliminate the need to use "accept")
    help access    (for the special case of granting/denying all access)
-   help password  (which changes an individual's password)
-   help post      (for the special case of restricting who can post msgs)
+   help access_variables
+   help admin_delivery
+   help admin_moderate
+   help auxiliary_list
+   help configset_access_rules           (to restrict access to any command)
+   help configset_aliases                (to allow direct posting on sublists)
    help variables (for a list of all possible variables and what they mean)
-   help configset access_rules           (to restrict access to any command)
-   help configset access_rules_variables (set/test for this command)
-   help configset aliases                (to allow direct posting on sublists)
-   help configset archive_access      (for     archive-related access_rules)
-   help configset faq_access          (for         faq-related access_rules)
-   help configset get_access          (for         get command access_rules)
-   help configset index_access        (for       index command access_rules)
-   help configset info_access         (for        info-related access_rules)
-   help configset intro_access        (for       intro-related access_rules)
-   help configset which_access        (for       which command access_rules)
-   help configset who_access          (for         who command access_rules)
-   help configset set_policy          (for         set command access_rules)
-   help configset subscribe_policy    (for   subscribe command access_rules)
-   help configset unsubscribe_policy  (for unsubscribe command access_rules)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

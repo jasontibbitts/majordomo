@@ -1,19 +1,23 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 info listname
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname, required, is an email list at this site
+listname, required, is a mailing list at this domain
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-This command returns an Information file for the list named, if one
-is available. If no INFO file exists, it returns an error message.
+The info command displays an Information file for a mailing list, if one
+exists. 
+
+The "info" document is included in the welcome message that is received
+by new subscribers when they join a mailing list.
 
 See Also:
-   help configset access_rules_variables (set/test for this command)
+   help admin_documents (to learn about the file space of a mailing list)
+   help configset_access_rules  (to restrict access to this command)
+   help configset_info_access   (to restrict access to this command)
+   help configset_welcome_files (to adjust the welcome message)
    help faq   (another document related to the list)
    help get   (for another way to retrieve this file)
    help intro (another document related to the list)
+   help newinfo (to create or replace the "info" document)
 
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

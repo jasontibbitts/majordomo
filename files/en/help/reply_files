@@ -4,7 +4,7 @@ In response to a command, Majordomo will sometimes need to provide
 the person who issued the command with extra information.  For example,
 when you subscribe to a Majordomo mailing list, you will usually receive
 a welcome message, part of which contains instructions for leaving the
-mailing list.  These instructions are one example of a Majordomo reply
+mailing list.  These instructions are one instance of a Majordomo reply
 file.
 
 The rest of this document lists each reply file that is a standard
@@ -98,7 +98,8 @@ the access_rules configuration setting (see "help configset_access_rules"
 for more details).
 
 (standard plus APPROVALS, ARG1, ARG2, ARG3, CMDLINE, COMMAND, EXPIRE,
- NOTIFY, REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, URL, VICTIM)
+ FULFILL, NOTIFY, REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, URL, 
+ VICTIM)
 
 
 confirm_noweb
@@ -115,7 +116,7 @@ may be used by customizing the access_rules configuration setting
 (see "help configset_access_rules" for more details).
 
 (standard plus APPROVALS, ARG1, ARG2, ARG3, CMDLINE, COMMAND, EXPIRE,
- REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, URL, VICTIM)
+ FULFILL, REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, URL, VICTIM)
 
 
 consult_noweb
@@ -369,13 +370,11 @@ details).
 
 
 See Also:
+   help access_variables (for access_rules variables)
+   help admin_documents  (introduction to document management)
    help configset_access_rules  (for mailfile and deny usage)
-   help configset_access_rules_variables (for access_rules variables)
    help configset_welcome_files (for additional files that can be sent)
    help digest                  (for additional file names and usage)
-   help put                     (create or update files by email)
+   help put                     (create or update files and directories)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
-
+$INCLUDE-help/foot

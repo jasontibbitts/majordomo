@@ -114,9 +114,9 @@ to the person who make the request:
 
 
 See Also:
+   help admin_monitor
    help auxiliary_list (for a discussion of auxiliary subscriber lists)
-   help configset_access_rules         (to make use of auxiliary lists)
-   help configset_access_rules_variables    (set/test for this command)
+   help configset_access_rules (to restrict access to this command)
    help configset_advertise
    help configset_advertise_subscribed
    help configset_category
@@ -131,6 +131,4 @@ See Also:
    help info      (to find out more about a list)
    help subscribe (to add your address to a list)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

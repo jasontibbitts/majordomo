@@ -1,15 +1,16 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-register[-nowelcome][-password][-welcome] [newpassword] address
+register[-[no]welcome] [address]
+register-pass[-[no]welcome] newpassword [address]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-address,     required,     is a previously unregistered address
+address,     if specified, is a previously unregistered address
 -nowelcome,  if specified, suppresses the new registration message
--password,   if specified, takes the first arg as the new password
+-pass,       if specified, also sets the password
 -welcome,    if specified, sends the new registration message
 newpassword, if specified, is the initial password for address
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-register-password XXX Joe Blow <joe@blow.org>
+register-password XXX Joe Blow <joe@blow.example.org>
 
 The "register" command adds an "address" to the registration database
 without adding it to any lists. It is possible to register, get a
@@ -76,8 +77,8 @@ databases all at one time.
 
 
 See Also:
+   help access_variables
    help changeaddr (which replaces one address with another)
-   help configset_access_rules_variables (set/test for this command)
    help configset_password_min_length    (set minimum password length)
    help configset_welcome        (determines if welcome messages are sent)
    help configset_welcome_files  (determines which welcome messages are sent)
@@ -87,6 +88,4 @@ See Also:
    help unregister (which removes an address from the database)
    help who        (for a list of addresses in the registry)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

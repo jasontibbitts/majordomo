@@ -46,7 +46,7 @@ databases. Please contact the maintainer shown at the bottom of this
 file for a Perl script that assumes shell access.
 
 See Also:
-   help configset access_rules_variables (set/test for this command)
+   help access_variables (set/test for this command)
    help configset aliases (MTA configuration, used by list owners)
    help register  (must occur before alias will work)
    help subscribe (does an automatic registration)

@@ -20,8 +20,7 @@ The most important use of variable substitutions is in the faq, info, and
 intro files that are available through the commands with the same names.
 
 Substitution variables are not the same as access rule variables.
-See "help configset_access_rules_variables" for more information about
-access rules variables.
+See "help access_variables" for more information about access variables.
 
 As an example of a variable, using this string in a file
   \$MJ
@@ -272,9 +271,9 @@ Example:
 
 
 See Also:
-   help configset access_rules  (for mailfile and deny usage)
-   help configset access_rules_variables (for access_rules variables)
-   help configset welcome_files (for additional files that can be sent)
+   help access_variables (for access_rules variables)
+   help configset_access_rules  (for mailfile and deny usage)
+   help configset_welcome_files (for additional files that can be sent)
    help digest                  (for additional file names and usage)
    help error_files
    help format_files
@@ -282,8 +281,4 @@ See Also:
    help put                     (create or update files by email)
    help reply_files
 
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
-
+$INCLUDE-help/foot
