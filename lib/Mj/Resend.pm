@@ -480,7 +480,7 @@ sub _post {
   $date = &str2time($date);
   $date = time unless ($date > 0 and $date < time);
   $date =~ /(\d+)/; $date = $1;
-  # XXX-no-archive (alter sublist)
+  # XXX-no-archive (alter sublist or adjust data)
   ($msgnum) = $self->{'lists'}{$list}->archive_add_start
     ($sender,
      {
@@ -608,6 +608,8 @@ sub _post {
       unlink $deliveries{$i}{file}
         if $deliveries{$i}{file};
     }
+    # Update post data
+    $self->{'lists'}{$list}->post_add($user, time, 'F', $seqno);
   } # not archive mode
  
   # Inform sender of successful delivery
@@ -759,6 +761,7 @@ sub _check_approval {
 This computes various pieces of data about the poster:
 
   days since the user subscribed
+  whether a hard or soft posted message limit has been reached
 
 =cut
 sub _check_poster {
@@ -772,17 +775,124 @@ sub _check_poster {
   # Grab the list data
   my $data = $self->{'lists'}{$list}->is_subscriber($user);
 
-  # If not a subscriber...
-  unless ($data) {
+  # Extract subscribe date
+  if ($data) {
+    $avars->{days_since_subscribe}
+      = (time - $data->{subtime})/86400;
+  }
+  else {
     $avars->{days_since_subscribe} = -1;
-    return;
   }
 
-  # Extract subscribe date
-  $avars->{days_since_subscribe}
-    = (time - $data->{subtime})/86400;
+  $avars->{limit} = 0;
+  $avars->{limit_soft} = 0;
+  $avars->{limit_hard} = 0;
+
+  # Obtain posting statistics for this address
+  $data = $self->{'lists'}{$list}->get_post_data($user);
+  return unless $data;
+  
+  $rules = $self->_list_config_get($list, 'post_limits');
+
+  # Check post_limits rules in turn and determine if a hard
+  # or soft limit has been reached.  Stop after the first
+  # rule whose pattern matches the address.
+  for ($i = 0 ; $i <= $#$rules ; $i++) {
+    if (Majordomo::_re_match($rules->[$i]->{'pattern'}, $user->canon)) {
+      ($ok, $mess) = $self->_within_limits($list, $data, $rules->[$i]->{'soft'}, 
+                                          $rules->[$i]->{'hard'});
+      if ($ok) {
+        $avars->{limit} = 1;
+        $avars->{limit_soft} = 1;
+        $avars->{limit_hard} = 1 if ($ok > 0);
+        push @$reasons, $mess if $mess;
+      }
+      last;
+    }
+  }
 }
 
+=head2 _within_limits(list, data, soft, hard)
+
+Using the posted message data for an address, determine if
+it falls within the hard or soft limits from the post_limits
+variable.  Returns 1 for a hard limit, -1 for a soft limit,
+and 0 for no limit.
+
+=cut
+sub _within_limits {
+  my ($self, $list, $data, $soft, $hard) = @_;
+  my ($cond, $count, $seqno, $time);
+  return unless (ref $soft eq 'ARRAY' and ref $hard eq 'ARRAY');
+
+  $seqno = $self->_list_config_get($list, 'sequence_number');
+  for $cond (@$hard) {
+    if ($cond->[0] eq 't') {
+      # time-dependent
+      $time = time - $cond->[2];
+      $count = 0;
+      for $msg (keys %$data) {
+        if ($data->{$msg} > $time) {
+          $count++;
+          return (1, sprintf "More than %d messages posted in %s",
+                  $cond->[1], Mj::List::_time_to_str($cond->[2], 1))
+                  if ($count > $cond->[1]);
+        }
+      }
+    }
+    elsif ($cond->[0] eq 'p') {
+      # count-dependent
+      $time = $seqno - $cond->[2];
+      $time = 1 if ($time < 1);
+      $count = 0;
+      for $msg (keys %$data) {
+        if ($msg > $time and $msg <= $seqno) {
+          $count++;
+          return (1, "More than $cond->[1] messages posted out of the last $cond->[2]")
+            if ($count > $cond->[1]);
+        }
+      }
+    }
+    else {
+      # XXX Error
+      return;
+    }
+  }
+  for $cond (@$soft) {
+    if ($cond->[0] eq 't') {
+      # time-dependent
+      $time = time - $cond->[2];
+      $count = 0;
+      for $msg (keys %$data) {
+        if ($data->{$msg} > $time) {
+          $count++;
+          return (-1, sprintf "More than %d messages posted in %s",
+                  $cond->[1], Mj::List::_time_to_str($cond->[2], 1))
+                  if ($count > $cond->[1]);
+        }
+      }
+    }
+    elsif ($cond->[0] eq 'p') {
+      # count-dependent
+      $time = $seqno - $cond->[2];
+      $time = 1 if ($time < 1);
+      $count = 0;
+      for $msg (keys %$data) {
+        if ($msg > $time and $msg <= $seqno) {
+          $count++;
+          return (-1, "More than $cond->[1] messages posted out of the last $cond->[2]")
+            if ($count > $cond->[1]);
+        }
+      }
+    }
+    else {
+      # XXX Error
+      return;
+    }
+  }
+  return 0;
+}
+      
 =head2 _check_header(list, head)
 
 This investigates all header improprieties.

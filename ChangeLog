@@ -1,3 +1,45 @@
+2000-09-06  Michael Yount <csf@moscow.com>
+
+	* files/en/config/post_limits:  New local configuration
+	setting.  Each line consists of a pattern, followed by
+	comma-separated lists of soft and hard limits.  By default,
+	messages exceeding a soft limit are bounced to the moderators,
+	while messages exceeding a hard limit are denied.
+
+	* lib/Majordomo.pm: (_lists) In aux mode, include a count
+	of posted messages in the last 30 days.
+	(trigger) Add new "post" trigger, which removed old data
+	from the post database.  The data have a lifetime twice
+	that of the duplicate database.
+
+	* lib/Mj/Access.pm (_d_post):  Add "limit_soft" to the list
+	of consult variables, and "limit_hard" to the list of deny
+	variables.
+
+        * lib/Mj/Archive.pm: (first_n, last_n)  Collect data more quickly.
+	(expand_range)  Allow use of "mwdh" format to specify "last 3 weeks"
+	and similar ages.
+	(get_all_data)  New routine.  Load all data from an archive index.
+
+	* lib/Mj/Config.pm (parse_limits):  New routine.  Parse the
+	post_limits variable into a format similar to the digest times.
+
+	* lib/Mj/List.pm:  (_time_to_str) Allow "long" format output
+	("2 days" instead of "2d").
+	(post_add, get_post_data, expire_post_data) New routines to 
+	handle the "posts" database, which records times and sequence
+	numbers for posted messages, keyed on the e-mail address of
+	the authors.
+	(count_posts) New routine.  Total the posts to a list over
+	a number of days, based upon the archive data.
+
+	* lib/Mj/Resend.pm:  (_post)  Add the data about a post to
+	the "posts" database after delivery.
+	(_check_poster)  Determine if a message falls within limits.
+	(_within_limits)  New routine.  Use the post_limits setting
+	and data from the posts database to determine if a hard
+	or soft limit is exceeded.
+    
 2000-08-31  Michael Yount <csf@moscow.com>
 
 	* files/en/config/block_headers:  New global configuration
