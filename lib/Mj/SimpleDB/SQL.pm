@@ -67,6 +67,10 @@ sub new {
   $self;
 }
 
+sub DESTROY {
+  undef;
+}
+
 =head2 _make_db
 
 This will return the schema for the table so that the backend can
@@ -161,9 +165,9 @@ issue the proper "CREATE TABLE" statements.
 		  { NAME => 'chain2',     TYPE => 'varchar(120)' },
 		  { NAME => 'chain3',     TYPE => 'varchar(120)' },
 		  { NAME => 'approver',   TYPE => 'varchar(64)' },
-		  { NAME => 'arg1',       TYPE => 'varchar(20)' },
-		  { NAME => 'arg2',       TYPE => 'varchar(20)' },
-		  { NAME => 'arg3',       TYPE => 'varchar(20)' },
+		  { NAME => 'arg1',       TYPE => 'text' },
+		  { NAME => 'arg2',       TYPE => 'text' },
+		  { NAME => 'arg3',       TYPE => 'text' },
 		  { NAME => 'time',       TYPE => 'integer' },
 		  { NAME => 'changetime', TYPE => 'integer' },
 		  { NAME => 'sessionid',  TYPE => 'varchar(40)' },
@@ -215,7 +219,8 @@ sub put {
   my $key  = shift;
   my $argref = shift;
   my $flag = shift || 0;
-  my $log    = new Log::In 200, "$self->{filename}, $key, $argref, $flag";
+  my $log    = new Log::In 200, "$self->{filename}, $key, $flag, $argref";
+  my %args = %$argref;
 
   my $exist = $db->do("SELECT t_key FROM $self->{table} WHERE t_domain = ? AND t_list = ? AND t_key = ? FOR UPDATE",
 		      undef,
@@ -223,18 +228,18 @@ sub put {
 
   if ($exist == 0) {
     my $r = $db->do("INSERT INTO $self->{table} (t_domain, t_list, t_key, ".
-		     join(",", @{$self->{fields}}).
+		     join(", ", $self->_escape_field(@{$self->{fields}})).
 		     ") VALUES (?, ?, ?, ".
 		     join(", ", map { "?" } @{$self->{fields}}).
 		     ")", undef, $self->{domain}, $self->{list}, $key, 
-		    @{%$argref}{@{$self->{fields}}});
+		    $self->_escape_value(@args{@{$self->{fields}}}));
 
     return (defined($r) ? 0 : 1);
   } elsif ($exist and $flag == 0) {
     my $r = $db->do("UPDATE $self->{table} SET ".
-		     join(", ", map { "$_ = ? " } @{$self->{fields}}).
+		     join(", ", map { "$_ = ? " } $self->_escape_field(@{$self->{fields}})).
 		     " WHERE t_domain = ? AND t_list = ? AND t_key = ?", undef,
-		    @{%$argref}{@{$self->{fields}}}, $self->{domain}, $self->{list}, $key);
+		    $self->_escape_value(@args{@{$self->{fields}}}), $self->{domain}, $self->{list}, $key);
 		  
     return (defined($r) ? 0 : -1);
   }
@@ -340,7 +345,7 @@ sub remove {
   $db->begin_work();
 
   $sth = $db->prepare_cached("SELECT t_key, ".
-			      join(",", @{$self->{fields}}).
+			      join(",", $self->_escape_field(@{$self->{fields}})).
 			      " FROM $self->{table} WHERE t_domain = ? AND t_list = ? FOR UPDATE");
 
   $sth->execute($self->{domain}, $self->{list});
@@ -430,7 +435,7 @@ sub replace {
 
   # So we're doing regex processing, which means we have to search.
   $sth = $db->prepare_cached("SELECT t_key, ".
-			      join(",", @{$self->{fields}}).
+			      join(",", $self->_escape_field(@{$self->{fields}})).
 			      " FROM $self->{table} WHERE t_domain = ? AND t_list = ? FOR UPDATE");
 
   $sth->execute($self->{domain}, $self->{list});
@@ -510,7 +515,7 @@ sub mogrify {
   $db->begin_work();
 
   $sth = $db->prepare_cached("SELECT t_key, ".
-			      join(",", @{$self->{fields}}).
+			      join(",", $self->_escape_field(@{$self->{fields}})).
 			      " FROM $self->{table} WHERE t_domain = ? AND t_list = ?");
 
   $sth->execute($self->{domain}, $self->{list});
@@ -591,7 +596,7 @@ also returns the first element, we have a tiny bit of complexity in _get.
     $db = $self->_make_db;
 
     $sth = $db->prepare_cached("SELECT t_key, ".
-				join(",", @{$self->{fields}}).
+				join(",", $self->_escape_field(@{$self->{fields}})).
 				" FROM $self->{table} WHERE t_domain = ? AND t_list = ?");
 
     $sth->execute($self->{domain}, $self->{list});
@@ -791,7 +796,7 @@ sub _lookup {
   my($status);
 
   my $sth = $db->prepare_cached("SELECT ".
-				  join(",", @{$self->{fields}}).
+				  join(",", $self->_escape_field(@{$self->{fields}})).
 				  " FROM $self->{table} WHERE t_domain = ? AND t_list = ? AND t_key = ? FOR UPDATE");
 
   $status = $sth->execute($self->{domain}, $self->{list}, $key);
@@ -833,13 +838,18 @@ sub lookup_quick_regexp {
   my $db   = $self->_make_db;
   return unless $db;
 
-  my ($key, $match, $status, $value);
+  my ($key, $match, $data, $value, $sth);
 
-  $key = $value = '';
-  for ($status = $db->seq($key, $value, 1) ; # first
-       $status == 0 ;
-       $status = $db->seq($key, $value, 1) ) # next
-    {
+  $sth = $db->prepare_cached("SELECT t_key FROM $self->{table} WHERE t_domain = ? AND t_list = ?");
+
+  $sth->execute($self->{domain}, $self->{list});
+  
+ RECORD:
+  for ($data = $sth->fetchrow_hashref;
+       defined($data);
+       $data = $sth->fetchrow_hashref) {
+      $key = delete $data->{t_key};
+      $value = $data;
       if (_re_match($reg, $key)) {
 	return ($key, $value);
       }
@@ -863,6 +873,19 @@ sub _unstringify {
   my $self = shift;
   my $string = shift;
   $string;
+}
+
+sub _escape_field {
+  my $self = shift;
+  return @_;
+}
+
+sub _escape_value {
+  my $self = shift;
+  for (@_) {
+    undef ($_) if /^$/o;
+  }
+  return @_
 }
 
 1;

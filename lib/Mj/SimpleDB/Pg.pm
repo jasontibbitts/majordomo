@@ -62,10 +62,10 @@ sub _make_db {
       my ($query, @prim_key);
       $query = "CREATE TABLE \"$self->{table}\" (";
       for my $f ($self->SUPER::_make_db()) {
-	$query .= " \"$f->{NAME}\" $f->{TYPE}, ";
+	$query .= " ".$self->_escape_field($f->{NAME})." $f->{TYPE}, ";
 	push (@prim_key, $f->{NAME}) if $f->{PRIM_KEY};
       }
-      $query .= "primary key (" . join(", ", map { "\"$_\"" } @prim_key) . "))";
+      $query .= "primary key (" . join(", ", $self->_escape_field(@prim_key)) . "))";
       $log->message(205, 'info', $query);
       my $ok = $dbh->do($query);
       my $error = $dbh->errstr;
@@ -77,7 +77,12 @@ sub _make_db {
   $dbh;
 }
 
-1;
+sub _escape_field {
+    my $self = shift;
+    return map { "\"$_\""} @_;
+}
+
+1 ;
 
 =head1 COPYRIGHT
 
