@@ -197,9 +197,9 @@ sub check_nr_install {
 
   print <<EOM;
 
-Majordomo 2 can be installed as the root user, or as the majordomo
-user ($config->{'uid'}).  If there are any barriers to doing this,
-they are listed here:
+Majordomo 2 can be installed by the root user, 
+or by the majordomo user ($config->{'uid'}).  
+If there are any barriers to doing this, they are listed here:
 EOM
 
   # Does the uid exist?
@@ -405,7 +405,7 @@ sub configure {
       print "\nFound existing configuration in file '.mj_config':\n";
       printhash($config);
       print "End of existing configuration from file '.mj_config'\n";
-      $msg = "\nNOTE: Answer 'no' to use the configuration above without changes.\nDo you want to modify your configuration?\n";
+      $msg = "Do you want to change the existing configuration?\n";
       return $config unless get_bool($msg, 0);
     }
   elsif ($config) {
