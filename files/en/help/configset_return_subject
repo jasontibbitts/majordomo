@@ -8,12 +8,28 @@ Password Notes: Set with global password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset GLOBAL return_subject = 1
+configset GLOBAL return_subject = no
 
 
-Should the subject of an email request be returned as part of the
-subject of the response?
+$INCLUDE-config/return_subject
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+For example, if the original message has the following subject header:
+  Subject: Hello Mojo
+and the return_subject setting is turned on, the subject of the reply
+will be:
+  Subject: Majordomo results: Hello Mojo
+If the return_subject setting is turned off, the subject of the reply
+will be:
+  Subject: Majordomo results
+
+Only the first 40 characters of the original subject header will be
+used in the reply if this setting is turned on.
+
+
+See Also:
+   help admin_domain
+   help configset_block_headers
+   help configset_message_headers
+   help configset_whoami_owner
+
+$INCLUDE-help/foot

@@ -1,2 +1,5 @@
-Should the subject of an email request be returned as part of the
-subject of the response?
+When Majordomo finishes processing commands in an e-mail message, a
+reply message containing the results is sent to the person who issued
+the commands.  The return_subject setting determines whether or not 
+the subject of the original message will appear in the subject header of
+the reply message.
