@@ -620,8 +620,7 @@ sub sessioninfo {
     return ($ok>0);
   }
   eprint($out, $type, "Stored information from session $request->{'sessionid'}\n");
-  eprint($out, $type, $sess);
-  1;
+  g_get("Sessioninfo failed.", @_);
 }
 
 
@@ -827,6 +826,7 @@ sub tokeninfo {
 Information about token $request->{'token'}:
 Generated at: $time
 By:           $data->{'user'}
+Type:         $data->{'type'}
 From command: $data->{'cmdline'}
 EOM
 
@@ -838,7 +838,8 @@ EOM
     }
   }
   if ($sess) {
-    eprint($out, $type, "\nInformation about the session ($data->{'sessionid'}):\n$sess");
+    $request->{'sessionid'} = $data->{'sessionid'};
+    Mj::Format::sessioninfo($mj, $out, $err, $type, $request, [1, '']);
   }
 
   1;
