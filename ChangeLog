@@ -1,3 +1,8 @@
+2003-06-12  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwusr:  Give a clearer response when someone signs
+	in.  Suggested by Roger Klorese.
+
 2003-06-08  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Config.pm:  (parse_taboo_body, parse_taboo_headers)

@@ -174,7 +174,9 @@ if (length $opass) {
 
 $ofunc = $cgi->param('func') || 'welcome';
 $mode  = join ('-', $cgi->param('mode')) || '';
-$mode  =~ /^([a-zA-Z=-]*)/; $mode = lc $1;
+if ($mode  =~ /^([a-zA-Z=-]+)/) { 
+  $mode = lc $1;
+}
 
 $cgidata = Mj::Format::cgidata($mj, { 'password' => $passw,
                                       'user'     => ($user eq $falseuser) ? 
@@ -223,7 +225,7 @@ if ($func eq 'logout') {
   &usage($mj, $cgi, $subs, $str, '');
 }
 elsif ($func eq 'login') {
-  $subs->{'COMMAND'} = 'welcome';
+  $subs->{'COMMAND'} = 'welcome-login';
   &login($mj, $subs, '', 1);
 }
 
@@ -288,7 +290,11 @@ else {
   }
 }
 
-if ($ofunc eq 'welcome') {
+if ($func eq 'welcome') {
+  if ($mode =~ /login/) {
+    $tmp = $mj->format_get_string('wwwusr', 'logged_in', 'GLOBAL');
+    $subs->{'ERROR'} = $mj->substitute_vars_format($tmp, $subs);
+  }
   $tmp = $cgi->param('doc') || '';
   &usage($mj, $cgi, $subs, '', $tmp);
 }
@@ -301,7 +307,6 @@ if ($commands{$func}->[2] and ! scalar @lists) {
          '');
 }
 $lists[0] ||= 'GLOBAL';
-  
 
 #----- Construct the request -----#
 $request = {
@@ -532,8 +537,13 @@ sub usage {
   my ($mj, $cgi, $subs, $message, $helpfile) = @_;
   my ($str, $tmp);
 
-  $subs->{'ERROR'} = Mj::Format::escape($message);
-  $::log->message(50, "info", $message) if $message;
+  if (defined $message and length $message) {
+    $subs->{'ERROR'} = Mj::Format::escape($message);
+    $::log->message(50, "info", $message);
+  }
+  else {
+    $subs->{'ERROR'} ||= '';
+  }
 
   print $cgi->header(-expires => '+10s');
   $tmp = $mj->format_get_string('wwwusr', 'head', $subs->{'LIST'});
