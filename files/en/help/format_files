@@ -834,6 +834,13 @@ found.
 (standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
 
 
+logged_in
+---------
+(wwwusr)  This message indicates that the login was successful.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, ERROR, USER)
+
+
 login
 -----
 (wwwadm, wwwusr)  This file displays an HTML form that allows
