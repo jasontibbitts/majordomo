@@ -11,7 +11,7 @@ $counter = 1;
 $debug = 0;
 $tmpdir = "/tmp/mjtest.$$";
 
-print "1..32\n";
+print "1..35\n";
 
 print "Load the stashed configuration\n";
 eval('$config = require ".mj_config"');
@@ -265,6 +265,14 @@ $result = $mj->dispatch({user     => 'enchanter@example.com',
 			});
 ok(1, $result->[0]);
 
+print "Check the address using the which command.\n";
+$result = $mj->dispatch({user     => 'enchanter@example.com',
+			 password => 'suspect',
+			 command  => 'which',
+			 regexp   => '',
+			});
+ok(1, $result->[0]);
+
 print "Unsubscribe the (doubly) aliased address using the password\n";
 $result = $mj->dispatch({user     => 'core_test@example.com',
 			 password => 'suspect',
@@ -280,6 +288,21 @@ $result = $mj->dispatch({user     => 'zork@example.com',
 			 password => 'suspect',
 			 command  => 'unalias',
 			 victims  => ['planetfall@example.com'],
+			});
+ok(1, $result->[0]);
+
+print "Change the address using the remaining alias.\n";
+$result = $mj->dispatch({user     => 'xyz@example.com',
+			 password => 'gonzo',
+			 command  => 'changeaddr',
+			 victims  => ['enchanter@example.com'],
+			});
+ok(1, $result->[0]);
+
+print "Unregister the address using the remaining alias.\n";
+$result = $mj->dispatch({user     => 'enchanter@example.com',
+			 password => 'suspect',
+			 command  => 'unregister',
 			});
 ok(1, $result->[0]);
 

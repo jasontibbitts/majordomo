@@ -1,6 +1,6 @@
 use File::Copy 'copy';
 
-print "1..18\n";
+print "1..21\n";
 
 $| = 1;
 $counter = 1;
@@ -134,15 +134,31 @@ $e = qq!Settings for enchanter!;
 $r = run('-p suspect -u enchanter@example.com set bleeargh unique');
 ok($e, $r);
 
-# 17. Unsubscribe the aliased address using the set password
+# 17. Look for the canonical address in the result of the which command.
+$e = qq!bleeargh.*zork\@example.com!;
+$r = run('-p suspect -u enchanter@example.com which');
+ok($e, $r);
+
+# 18. Unsubscribe the aliased address using the set password
 $e = qq!was removed from!;
 $r = run('-p suspect unsubscribe bleeargh enchanter@example.com');
 ok($e, $r);
 
-# 18. Remove one of the aliases from the canonical address.
+# 19. Remove one of the aliases from the canonical address.
 $e = qq!The unalias command succeeded!;
 $r = run('-p suspect -u zork@example.com unalias planetfall@example.com');
 ok($e, $r);
+
+# 20. Change the canonical address using the remaining alias.
+$e = qq!The changeaddr command succeeded!;
+$r = run('-p gonzo -u xyz@example.com changeaddr enchanter@example.com');
+ok($e, $r);
+
+# 21. Unregister the canonical address using the remaining alias
+$e = qq!was unregistered from!;
+$r = run('-p suspect -u enchanter@example.com unregister');
+ok($e, $r);
+
 
 
 sub ok {
