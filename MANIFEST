@@ -179,6 +179,7 @@ files/en/config/request_answer
 files/en/config/resend_host
 files/en/config/restrict_post
 files/en/config/return_subject
+files/en/config/save_denial_checksums
 files/en/config/sender
 files/en/config/sequence_number
 files/en/config/session_lifetime
@@ -384,6 +385,7 @@ files/en/help/unknowntopic
 files/en/help/unregister
 files/en/help/unsub
 files/en/help/unsubscribe
+files/en/help/variables
 files/en/help/which
 files/en/help/who
 files/en/info
@@ -406,6 +408,7 @@ files/en/welcome
 files/en/who_registry
 files/en/who_subscriber
 installbin
+lib/Bf/Parser.pm
 lib/Bf/Sender.pm
 lib/Majordomo.pm
 lib/Mj/Access.pm
@@ -440,6 +443,7 @@ lib/Mj/Log.pm
 lib/Mj/MIMEParser.pm
 lib/Mj/MTAConfig.pm
 lib/Mj/MailOut.pm
+lib/Mj/Mode.pm
 lib/Mj/Parser.pm
 lib/Mj/RegList.pm
 lib/Mj/Resend.pm
