@@ -672,7 +672,7 @@ Config Stuff
 - passwords <<  asdf : !config (exclude a variable)
 
 Email Interface
-- add a subscribe-listname and unsubscribe-listname alias for each list that
+- add a listname-subscribe and listname-unsubscribe alias for each list that
   will un/subscribe a person to the list without the need for a message body.
 - prescan for bad situations: unmatched tokens, too many subscribes in one
   message, etc.
