@@ -51,8 +51,8 @@ for the GLOBAL pseudo-list. There are different requests that can be
 trapped by each one.  If a command takes a list, it is restricted by
 the list-specific access_rules. If it doesn't, the GLOBAL rules are used.
 
-NOTE: Please refer to "help configset access_rules_variables" for
-      details on which requests and variables are available!
+NOTE: Please refer to "help access_variables" for details on which 
+      requests and variables are available!
 
 WARNING: If you set access rules for the GLOBAL pseudo-list that attempt
 to trap per-list commands, those rules will be silently ignored! This
@@ -81,6 +81,7 @@ Table of contents for the information below:
              1.2.12 - replyfile=file
              1.2.13 - set=(variable=value)
              1.2.14 - unset
+             1.2.15 - notify=(variable=val,...)
           1.3 - Up to next blank line - code
           1.4 - Semantics
           1.5 - Moderator Groups
@@ -161,7 +162,7 @@ Section 1.1 - First line - request
   advertise, alias, post, subscribe, etc. For a complete list of
   commands, see "help topics". For a complete list of commands
   which are considered requests (on which access_rules can operate),
-  see "help configset access_rules_variables".
+  see "help access_variables".
 
   Note the special requests of "access" and "post", which
   are not technically commands but can be trapped as requests.
@@ -181,9 +182,8 @@ Section 1.2 - Second line - action
   depending on what the primary action is.
 
   The 'set' and 'unset' actions operate on the variables listed
-  in "help configset access_rules_variables", so tests can be
-  chained in order. The blank lines which separate rules do not
-  reset variables.
+  in "help access_variables", so tests can be chained in order. 
+  The blank lines which separate rules do not reset variables.
 
 1.2.1 - allow=N - the request succeeds.  If given an argument (allow=N) then N
     will be passed back to the calling routine (used in 'which' requests to
@@ -313,13 +313,22 @@ Section 1.2 - Second line - action
 1.2.13 - set=(variable=value) - sets a variable to a given value
     The "set" action can take an argument if the variable and the value
     are enclosed in parentheses as in "set=(delay=4h)". If no value is
-    give, as in "set=delay", a value of '1' will be assigned. Setting the
+    given, as in "set=delay", a value of '1' will be assigned. Setting the
     'delay' variable has the same effect as using "default delay" before
     the command was issued - see "help default" for details, and refer to
     the "delay" action above for notes on the difference between the
-    action and the variable of the same name.
+    action and the variable of the same name.  
 
-1.2.14 - unset - sets a variable to zero, but does not delete it.
+1.2.14 - unset - sets a variable to zero (for boolean, numeric, and
+    timespan variables) or the empty string (for string variables).
+
+    See "help access_variables" for a complete list of variables and
+    types.
+
+1.2.15 - notify=(variable=value,...) - allows various attributes of
+    a token identifier to be changed when a request requires approval.  
+    See the last section of "help access_variables" for a description 
+    of the notification variables.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -362,7 +371,7 @@ Section 1.4 - Semantics:
   If no rules match, the "default" action is taken, which results in a
   reasonable emulation of the 1.94.3 behavior using *_access, moderate,
   restrict_post, etc. The default actions for all requests are listed
-  in "help configset access_rules_variables".
+  in "help access_variables".
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -871,12 +880,7 @@ ENDCONFIRM
 
 See Also:
    help access    (for the special case of granting/denying all access)
-   help default   (for details on the non-access-rules "delay" option)
-   help post      (for the special case of restricting who can post msgs)
-   help subscribe (for how to add addresses to auxiliary lists)
-   help times     (for how to specify times for "delay")
-   help variables (for a list of all possible variables and what they mean)
-   help configset_access_rules_variables (for requests, variables, defaults)
+   help access_variables              (for requests, variables, defaults)
    help configset_archive_access      (for     archive command access_rules)
    help configset_block_headers       (for how to filter out server requests)
    help configset_faq_access          (for         faq command access_rules)
@@ -890,7 +894,10 @@ See Also:
    help configset_unsubscribe_policy  (for unsubscribe command access_rules)
    help configset_which_access        (for       which command access_rules)
    help configset_who_access          (for         who command access_rules)
+   help default   (for details on the non-access-rules "delay" option)
+   help post      (for the special case of restricting who can post msgs)
+   help subscribe (for how to add addresses to auxiliary lists)
+   help times     (for how to specify times for "delay")
+   help variables (for a list of all possible variables and what they mean)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
