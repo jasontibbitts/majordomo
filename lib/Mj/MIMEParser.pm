@@ -111,7 +111,7 @@ sub collect_data {
   $data->{'date'} = $tmp;
   
   chomp($data->{'from'} = $head->get('from') ||
-        $head->get('apparently-from'));
+        $head->get('apparently-from') || '');
 
   _r_ct_lines($entity, $data, $qp);
   # Account for separator
