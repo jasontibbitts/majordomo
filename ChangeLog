@@ -1,3 +1,8 @@
+Fri Aug 20 00:01:42 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* setup/ask_domain.pl (ask_domain): Make sure the domain hash gets
+ 	initialized.
+
 Thu Aug 19 23:22:32 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* setup/setup_func.pl (do_default_config): Fix problem with

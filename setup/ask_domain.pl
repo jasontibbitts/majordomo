@@ -1,6 +1,7 @@
 sub ask_domain {
   my($config, $i) = @_;
   my $hdr = "Configuring the domain: $i.";
+  $config->{'domain'}{$i} ||= {};
   my $cfg = $config->{'domain'}{$i};
 
   #---- Ask for global configuration information:

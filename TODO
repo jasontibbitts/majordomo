@@ -61,7 +61,11 @@ rewritten to the form of address you used when you signed up.
 Top of the list 
 ---------------
 
-Query for 'ignore case' in addr_xforms at install time.
+Allow connection refusal: Majordomo::connect can do a global_access_check
+on 'access'.
+
+Make sure permissions on created directories and files reach some minimum
+level (for Exim support, at least).
 
 Add useful bounce reasons for failed restrict_post match.  Allow reason
 specification (how?) for access_rules consults.
@@ -74,8 +78,6 @@ Implement naive list deletion functionality:
 List converter:
 
     if -digest, offer to create non-digest version and add subscribers to digest.
-
-
 
 New stored token format:
   Data::Dumper to store a hash.  The contents are essentially opaque to the
