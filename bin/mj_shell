@@ -176,7 +176,8 @@ elsif (@ARGV == 0) {
 }
 # Else we're to interpret the command line
 else {
-  ($go, $result) = parse_command(shift @ARGV, (join(' ', @ARGV)), $opts{p});
+  ($go, $result) = parse_command(shift @ARGV, (join(' ', @ARGV)), $opts{p},
+                                 { 'user' => $user });
 }
 
 $::log->message(50, "info", "-----Calling destructors-----");
