@@ -1,3 +1,11 @@
+2004-02-09  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/BounceHandler.pm:  (handle_bounce_probe)
+	Include the reasons from the token data.
+	(handle_bounce_user)  Bugfix:  Only mention that
+	the subscriber was removed for no probe/no consult.
+	Thanks to SRE.
+
 2004-02-06  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (digest)  Add missing substitutions.

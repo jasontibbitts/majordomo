@@ -348,12 +348,12 @@ sub handle_bounce_probe {
   }
 
   # Should the owners be consulted?
-  if ($data->{mode} && $data->{mode} !~ /noconsult/ &&
-      $data->{mode} =~ /consult/)
+  if ($data->{mode} && $data->{mode} =~ /\bconsult/)
     {
       return $self->_hbr_consult(%args,
 			         user   => $user,
-			         list   => $data->{list},
+			         list   => $data->{'list'},
+                                 reasons => $data->{'reasons'},
 			        );
     }
 
@@ -674,9 +674,10 @@ sub handle_bounce_user {
                                      subbed => !!$sdata,
                                      user   => $user,
                                     );
-      return ($ok, $tmp) unless $ok; 
-      $args{'reasons'} .= "\003" . 
-        $self->format_error('bounce_unsub', $list, 'VICTIM' => "$user");
+      if ($ok and $arg =~ /noprobe/ and $arg !~ /\bconsult/) {
+        $args{'reasons'} .= "\003" . 
+          $self->format_error('bounce_unsub', $list, 'VICTIM' => "$user");
+      }
       $inform = 1 unless ($arg =~ /quiet/);
     }
     else {
@@ -801,7 +802,7 @@ sub _hbr_consult {
   # Check that a type 'C' bounce event does not exist for this address
   $self->_make_list($args{list});
   $bdata = $self->{lists}{$args{list}}->bounce_get($args{user});
-  return if $bdata->{'C'};
+  return if (defined $bdata and $bdata->{'C'});
 
   $defaults = n_defaults('consult', 'unsubscribe');
   $notify = n_build($args{notify}, $defaults);
@@ -857,7 +858,7 @@ sub _hbr_probe {
 
   # Check that no type 'P' or type 'C' bounce event exists for this address
   $bdata = $self->{lists}{$args{list}}->bounce_get($args{user});
-  return if $bdata->{'C'} || $bdata->{'P'};
+  return if (defined $bdata and ($bdata->{'C'} || $bdata->{'P'}));
 
   $defaults = n_defaults('probe', 'unsubscribe');
   $notify = n_build($args{notify}, $defaults);
