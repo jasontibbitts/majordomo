@@ -671,6 +671,8 @@ sub lists {
            $mj->standard_subs('GLOBAL'),
            'CGIDATA' => cgidata($mj, $request),
            'CGIURL' => $request->{'cgiurl'},
+           'PASSWORD' => $request->{'password'},
+           'USER'     => escape("$request->{'user'}", $type),
           };
 
   if ($ok <= 0) {
@@ -1132,7 +1134,9 @@ sub show {
     $mj->standard_subs('GLOBAL'),
     'CGIDATA' => cgidata($mj, $request),
     'CGIURL'  => $request->{'cgiurl'},
-    'VICTIM'  => escape("$request->{'victim'}"),
+    'PASSWORD' => $request->{'password'},
+    'USER'     => escape("$request->{'user'}", $type),
+    'VICTIM'  => escape("$request->{'victim'}", $type),
   };
  
   # use Data::Dumper; print $out Dumper $data;
@@ -1336,6 +1340,8 @@ sub showtokens {
            $mj->standard_subs($request->{'list'}),
            'CGIDATA' => cgidata($mj, $request),
            'CGIURL'  => $request->{'cgiurl'},
+           'PASSWORD' => $request->{'password'},
+           'USER'     => escape("$request->{'user'}", $type),
           };
 
   my ($ok, @tokens) = @$result;
@@ -1417,6 +1423,8 @@ sub tokeninfo {
   $subs = { $mj->standard_subs('GLOBAL'),
             'CGIDATA' => cgidata($mj, $request),
             'CGIURL'  => $request->{'cgiurl'},
+            'PASSWORD' => $request->{'password'},
+            'USER'     => escape("$request->{'user'}", $type),
            };
 
   unless ($ok > 0) {
@@ -1639,14 +1647,15 @@ sub who {
   $count = 0;
   if (exists $request->{'chunksize'} and $request->{'chunksize'} > 0) {
     $chunksize = $request->{'chunksize'} || 1000;
+    $gsubs->{'CHUNKSIZE'} = $chunksize;
   }
   else {
     $chunksize = $mj->global_config_get($request->{'user'}, 
                                         $request->{'password'}, 
                                         "chunksize");
     $chunksize ||= 1000;  
+    $gsubs->{'CHUNKSIZE'} = '';
   }
-  $gsubs->{'CHUNKSIZE'} = $chunksize;
 
 
   unless ($request->{'mode'} =~ /export|short|alias/) {
