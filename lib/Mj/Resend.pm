@@ -347,7 +347,7 @@ sub _post {
 
   my(%ackinfo, %avars, %deliveries, %digest, @dfiles, @dtypes, @dup, @ent, 
      @files, @refs, @tmp, @skip, $ack_attach, $ackfile, $arcdata, 
-     $arcent, $archead, $desc, $digests, $dissues, $dup,
+     $arcent, $archead, $date, $desc, $digests, $dissues, $dup,
      $exclude, $head, $i, $j, $msgnum, $nent, $precedence, $prefix, 
      $replyto, $safe, $sender, $seqno, $subject, $sl, $subs, 
      $tmp, $tmpdir, $tprefix, $whereami);
@@ -457,6 +457,8 @@ sub _post {
   # Pass to archive.  XXX Is $user good enough, or should we re-extract?
   $subject = $archead->get('subject') || ''; chomp $subject;
   $subject =~ /(.*)/; $subject = $1;
+  $date = $archead->get('date') || scalar localtime; chomp $date;
+  $date =~ /(.*)/; $date = $1;
 
   # XXX X-no-archive handling should be implemented here. 
   # (alter sublist or adjust data)
@@ -498,7 +500,7 @@ sub _post {
          $self->standard_subs($list),
          ARCHIVE  => $msgnum,
          ARCURL   => $self->_list_config_get($list, 'archive_url'),
-         DATE     => scalar localtime(time),
+         DATE     => $date,
          SENDER   => "$user",
          SEQNO    => $seqno,
          SUBJECT  => $subject,
