@@ -1,8 +1,12 @@
-2003-02-11  Michael Yount <csf@moscow.com>
+2003-02-12  Michael Yount <csf@moscow.com>
 
-	* lib/Majordomo.pm:  (subscribe)  Avoid subscription
-	of the list-subscribe address to a list.
-	Thanks to Brock Rozen.
+	* lib/Majordomo.pm:  (subscribe)  Prevent a variety of reserved
+	addresses from being subscribed to a mailing list.
+	Suggested by Brock Rozen.
+
+	* lib/Mj/Token.pm:  (confirm)  Bugfix:  Use the correct
+	address in To: headers of confirmation messages.
+	Thanks to Jeff Wasilko.
 
 2003-02-07  Michael Yount <csf@moscow.com>
 

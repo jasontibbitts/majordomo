@@ -6966,28 +6966,42 @@ message.
 
 sub subscribe {
   my ($self, $request) = @_;
-  my ($ok, $error, $i, $matches_list, $mismatch, $tmp, $whereami);
+  my (@addrs, $error, $i, $matches_list, $mismatch, $mj, $ok, $tmp, $whereami);
 
   my $log = new Log::In  30, "$request->{'list'}, $request->{'victim'}, $request->{'mode'}";
 
   # Do a list_access_check here for the address; subscribe if it succeeds.
   # The access mechanism will automatically generate failure notices and
   # confirmation tokens if necessary.
-  $whereami     = $self->_global_config_get('whereami');
-  $tmp = new Mj::Addr("$request->{'list'}\@$whereami");
-  $matches_list = $request->{'victim'} eq $tmp;
-  # Do not add the -unsubscribe alias
-  unless ($matches_list) {
-    $tmp = new Mj::Addr("$request->{'list'}-unsubscribe\@$whereami");
-    $matches_list = $request->{'victim'} eq $tmp;
+  $whereami = $self->_global_config_get('whereami');
+
+  # Do not allow command aliases to be subscribed
+  @addrs = qw(-unsubscribe -subscribe -subscribe-digest -subscribe-each 
+              -subscribe-nomail -subscribe-unique -request);
+  push @addrs, "";
+
+  $tmp = $self->_list_config_get($request->{'list'}, 'digests');
+  if (ref $tmp eq 'HASH') {
+    for $i (keys %$tmp) {
+      next if ($i eq 'default_digest');
+      push @addrs, "-subscribe-digest-$i";
+    }
   }
+
+  for $i (@addrs) { 
+    $tmp = new Mj::Addr("$request->{'list'}$i\@$whereami");
+    $matches_list = $request->{'victim'} eq $tmp;
+    last if $matches_list;
+  }
+  # Also guard against subscribing the main server address.
   unless ($matches_list) {
-    $tmp = new Mj::Addr("$request->{'list'}-subscribe\@$whereami");
+    $tmp = new Mj::Addr($self->_global_config_get('whoami'));
     $matches_list = $request->{'victim'} eq $tmp;
   }
 
   $request->{'setting'} ||= '';
   $request->{'sublist'} ||= 'MAIN';
+  # XLANG
   return (0, "The GLOBAL and DEFAULT lists have no subscribers.\n")
     if ($request->{'sublist'} eq 'MAIN' and
         $request->{'list'} =~ /GLOBAL|DEFAULT/);
