@@ -176,9 +176,9 @@ file_sent
 ---------
 This file is sent in reply when the get command is used to retrieve
 a file in a separate message.  It informs the person making the
-request that the file was sent in a separate message
+request that the file was sent in a separate message.
 
-(no substitutions are supported)
+(standard plus FILE and VICTIM)
 
 
 info
