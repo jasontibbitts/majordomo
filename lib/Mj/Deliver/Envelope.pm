@@ -82,6 +82,7 @@ sub new {
   }
 
   $self->{'sender'} = $args{'sender'};
+  $self->{'personal'} = $args{'personal'};
 
   return undef unless $self->init;
   
@@ -177,6 +178,12 @@ sub address {
     $addr = [$addr];
   }
   return 0 unless (@{$addr});
+
+  # If a message is meant to be sent to one recipient, keep the recipient
+  # address for later use.
+  if ($self->{'personal'}) {
+    $self->{'rcpt'} = $addr->[0];
+  }
 
   $good = 0;
 
@@ -278,6 +285,11 @@ sub send {
   }
 
   while (defined ($line = $fh->getline)) {
+    # If a message is personal (a probe), substitute for $MSGRCPT.
+    if ($self->{'personal'} and $self->{'rcpt'}) {
+      # Don't substitute after backslashed $'s
+      $line =~ s/([^\\]|^)\$\QMSGRCPT\E(\b|$)/$1$self->{'rcpt'}/g;
+    }
     $ok = $self->{'smtp'}->senddata($line);
     return 0 unless $ok;
   }
@@ -291,6 +303,7 @@ sub send {
   # fail...
   ($val, $code, $mess) = $self->{'smtp'}->RSET;
 
+  undef $self->{'rcpt'} if $self->{'personal'};
   $self->{'initialized'} = 0;
   return 1;
 }
