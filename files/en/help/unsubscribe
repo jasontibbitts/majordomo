@@ -30,12 +30,13 @@ registration database unless "unregister" is used. This allows a user
 to leave one list and join another without obtaining a new password.
 
 If you want to put multiple unsubscribe commands in a single message
-to the server, it is possible to register, get a password, and then
-use "approve" to unsubscribe from several lists instead of using
-"accept" to confirm each unsubscribe. (The "-regexp" option always
-requires the list password, and does not apply patterns to list names.)
-List owners and site administrators with list passwords can also
-pre-approve unsubscribe to bypass "accept" for basic unsub commands.
+to the server, it is possible to get a password (if you don't already
+have one or don't remember it), and then use "approve" to unsubscribe
+from several lists instead of using "accept" to confirm each unsubscribe.
+(The "-regexp" option always requires the list password, and does not
+apply patterns to list names.) List owners and site administrators
+with list passwords can also pre-approve unsubscribe to bypass "accept"
+for basic unsub commands.
 
 Without the "-regexp" option, "address" is matched literally with
 no interpretation of special characters. Matching is case sensitive.
