@@ -66,7 +66,7 @@ EOM
 sub setup_sendmail {};
 
 sub setup_sendmail_domain {
-  my($config, $dom, $nhead) = @_;
+  my($config, $dom) = @_;
   my (@args, $pw, $tmpfh, $tmpfile);
 
   # Do sendmail configuration by calling createlist-regen.
@@ -80,7 +80,7 @@ sub setup_sendmail_domain {
 
   ($tmpfile, $tmpfh) = tempfile();
   print $tmpfh "default password $pw\n\n";
-  print $tmpfh "createlist-regen" . ($nhead? "-noheader" : '') . "\n";
+  print $tmpfh "createlist-regen\n";
   close $tmpfh;
 
   @args = ("$config->{'install_dir'}/bin/mj_shell", '-u', 

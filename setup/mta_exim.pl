@@ -33,7 +33,7 @@ sub setup_exim_domain {
   my($config, $dom) = @_;
 
   require "setup/mta_sendmail.pl";
-  setup_sendmail_domain($config, $dom, 1);
+  setup_sendmail_domain($config, $dom);
 
   # Now just suggest some info
   print <<EOM;

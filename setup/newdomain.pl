@@ -43,7 +43,7 @@ while (1) {
       join "\n  ", @{$config->{'domains'}};
   }
 
-  $newdomain = get_str ($msg88, '');
+  $newdomain = get_str($msg88, '');
   exit 0 unless $newdomain;
 
   if ($newdomain =~ /[^A-Za-z0-9\.\-]/) {

@@ -42,7 +42,7 @@ sub setup_postfix_domain {
   my($config, $dom) = @_;
 
   require "setup/mta_sendmail.pl";
-  setup_sendmail_domain($config, $dom, 1);
+  setup_sendmail_domain($config, $dom);
 }
 
 =head1 COPYRIGHT
