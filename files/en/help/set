@@ -170,9 +170,13 @@ a per-list basis. Typical sub-classes, NOT always present, might be:
      (noack, ackall, ackimportant, ackstall, ackdeny, ackpost, ackreject)
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-To control what parts of the process Majordomo informs you of
-once your message is submitted, send one of these commands to
-the server $MJ
+To control what kind of messages are sent to non-subscribers who try to
+send messages to the list, the list owner can set default flags. Refer
+to "help configset nonmember_flags" for details.
+
+To control what parts of the process Majordomo informs you about once your
+message is submitted to a list where you are subscribed, send one of these
+commands to the server $MJ after you subscribe:
 
    set LISTNAME noack YourEmailAddressHere
      - You receive nothing about posts, whether they go to the list or
@@ -208,8 +212,7 @@ the server $MJ
 
 NOTE: To override "noack" for denied posts, or to send additional information,
       the list owner can configure the list to override the user's settings.
-      Refer to "help configset ack_denials_always" for how to bypass "noack",
-      and "help configset ack_attach_original" for how to return the denied
+      Refer to "help configset ack_attach_original" for how to return the denied
       post along with the pre-defined error text. These are not user commands.
 
 WARNING: Using "noack", the default, can make error messages vanish if
@@ -415,10 +418,10 @@ See Also:
    help configset access_rules           (to restrict or allow access to 'set' changes)
    help configset access_rules_variables (set/test for this command)
    help configset ack_attach_original    (attaches post to error message if stalled)
-   help configset ack_denials_always     (overrides "noack" for denied posts)
    help configset allowed_flags          (restricts subscribers ability to set flags)
    help configset allowed_classes        (restricts subscribers ability to set digest)
    help configset default_flags          (sets per-list defaults before subscribing)
+   help configset nonmember_flags        (sets non-subscriber defaults for ack messages)
    help configshow                       (for how to get a list of availabel digests)
    help subscribe (allows you to choose the comment that appears with your address)
    help who       (-export option can extract all the set commands for an entire list)

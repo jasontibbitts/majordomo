@@ -31,9 +31,10 @@ the flags in that group (like "set noack").
 
 
 See Also:
-   help set  (for how a user can set these and other options after subscribing)
-   help configset allowed_classes        (restricts other subscription options)
-   help configset default_flags     (sets per-list defaults before subscribing)
+   help set    (for how a user can set these and other options after subscribing)
+   help configset allowed_classes          (restricts other subscription options)
+   help configset default_flags       (sets per-list defaults before subscribing)
+   help configset nonmember_flags (sets non-subscriber defaults for ack messages)
 
 For a list of all help topics send this one-line message
    help topics

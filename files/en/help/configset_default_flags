@@ -23,7 +23,8 @@ settings, and a better description of what each option does.
 
 See Also:
    help set       (for how a user can set these options after subscribing)
-   help configset allowed_flags (restricts subscribers ability to use set)
+   help configset allowed_flags   (restricts subscribers ability to use set)
+   help configset nonmember_flags (sets non-subscriber defaults for ack messages)
 
 For a list of all help topics send this one-line message
    help topics
