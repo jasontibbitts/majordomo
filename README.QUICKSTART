@@ -1,18 +1,18 @@
 -*- Text -*-
 
-A short guide to getting up and running with Majordomo2
+          A short guide to getting Majordomo 2 up and running
 
-First, make and install the package:
+First, configure the software:
 
-  Perl Makefile.PL
+  perl Makefile.PL
 
 This may fail with instructions to install some prerequisite modules.
-Do this and try again. See README for a list of required modules, and
-hints on where to find them!
+Do this and try again.  See the README file for more information about
+perl modules.
 
-If all of the prerequisites are present several questions will be asked.
-Answer them (truthfully).  You may have to perform other actions (like
-creating the necessary Majordomo user via the operating system) as well.
+If all of the necessary modules are present, several questions will be
+asked about your site, and several questions for each virtual domain
+that you plan to support.
 
 Next, build the package:
 
@@ -23,11 +23,25 @@ be turned off.  Then, as root, run:
 
   make install
 
-This will complete the installation.  See the appropriate README file for
-your MTA for any additional configutation instructions required to get
-things going.
+Now you have a complete Majordomo installation.  To add support
+for a new virtual domain, or to change the default configuration for an 
+existing domain, run the following command as root:
 
-Now you have a complete Majordomo installation on one or more
-virtual domains.  You still need to create lists.... as described
-in "help admin", which you can send through the email interface
-(to the server) or by starting mj_shell.
+  make domain
+
+Majordomo will not work until you have configured at least one virtual
+domain.
+
+Your MTA software must be configured to recognize the aliases for the
+Majordomo server and its mailing lists.  See README.EXIM,
+README.POSTFIX, README.QMAIL, or README.SENDMAIL for more details.
+
+Once Majordomo has been installed, send a message to the server address.
+In the body of the message, put the following three commands:
+
+  help overview
+  help admin_domain
+  help mj_shell
+
+Read these three help documents to become more familiar with Majordomo 2.
+
