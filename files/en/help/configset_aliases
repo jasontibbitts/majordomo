@@ -30,7 +30,8 @@ the owners and moderators are identical, there is no need for an
 additional "-moderator" alias.
 
 Some addresses, like -owner and -moderator, can be set in the list
-configurations.
+configurations. Only sublists explicitly mentioned in the "sublists"
+configuration setting are given aliases (see "help configset sublists").
 
 The -subscribe and -unsubscribe addresses cause commands to be
 generated and sent to the server address as if the user had typed
@@ -54,11 +55,13 @@ messages to a sublist.
 
 See Also:
    help announce
+   help createlist (for the -regen option that creates new aliases)
    help post
    help configset moderator
    help configset moderators
    help configset owners
    help configset request_answer
+   help confitset sublists
    help configset whoami
    help configset whoami_owner
 
