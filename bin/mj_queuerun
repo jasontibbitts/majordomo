@@ -576,7 +576,7 @@ sub connect_no_parse {
       chomp $from;
       ($id, $err) = $mj->connect($int, $sess, $from);
       unless (defined $id) {
-	$::log->complain("Error when connecting: $err");
+	# $::log->complain("Error when connecting: $err");
 	return;
       }
       $sess .= $i;
@@ -626,7 +626,7 @@ sub connect_and_parse {
 
   # If the connection failed, return.
   unless ($ok) {
-    $::log->complain("Error connecting: $suser");
+    # $::log->complain("Error connecting: $suser");
     $entity->purge;
     return;
   }
