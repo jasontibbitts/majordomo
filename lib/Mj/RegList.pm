@@ -14,29 +14,29 @@ that is not per-list information.  It also serves to speed up such queries
 as 'what lists is this user subscribed to'.
 
 The database is keyed on the canonical address, and the following
-information is kept about a registered user (dates in normal time format,
-seconds since epoch):
+information is kept about a registered user (dates in normal time
+format, seconds since epoch):
 
-  Stripped address (the address to which mail should be sent)
-  Complete address (including comments)
-  Registration time
-  Time of last change
-  Password (encrypted)
-  Preferred language
-  Lists (\002 separated)
-  Flags
-  Bounce data
-  Warnings data
-  Data1 - Data5 (site-specific data)
+  stripaddr   - Stripped e-mail address (without comments)
+  fulladdr    - Complete address (including comments)
+  changetime  - Time of last change to the registration data
+  regtime     - The time at which the address was registered
+  password    - The personal password (not encrypted)
+  language    - Preferred language (currently unused)
+  lists       - All of the subscriptions (separated by \002)
+  flags       - unused
+  bounce      - unused 
+  warnings    - unused
+  data01-15   - unused (Intended to contain site-specific data)
+  rewritefrom - unused 
 
-Bounce data is a scratchpad for the bounce processor, used to decide when
-an address is bouncing too much.  Since an address bounces, not a list
-subscription, this is made a global value.
+Bounce handling is implemented on a list-by-list basis at present, so
+the "bounce" field in the registry is unused.
 
 Warnings data is intended to be used to store messages to be sent to an
-address when it next communicates.  The idea is to be able to tell prople
-what happened while they were unreachable.  This may turn out to be
-useless, or may never be implemented.
+address when it next communicates.  The idea is to be able to tell
+prople what happened while they were unreachable.  This may turn out to
+be useless, or may never be implemented.
 
 =head1 SYNOPSIS
 
@@ -77,8 +77,8 @@ sub compare {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2002, 2003 Jason Tibbitts 
+for The Majordomo Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
