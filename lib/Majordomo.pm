@@ -4290,19 +4290,19 @@ sub which {
     while (1) {
       ($match, $data) = $self->{'lists'}{$list}->search($string, 'regexp');
       last unless defined $match;
-      $total_hits++;
-      $hits++;
       # if ($total_hits > $max_hits) {
         # push @matches, (undef, "Total match limit exceeded.\n");
         # last LIST;
       # }
       if ($hits > $max_list_hits) {
-        push @matches, ($list, "Match limit exceeded.");
+        push @matches, (undef, "-- Match limit exceeded.\n");
         last ADDR;
       }
       else {
         push @matches, ($list, $match);
       }
+      $hits++;
+      $total_hits++;
     }
     $self->{'lists'}{$list}->get_done;
   }
