@@ -26,7 +26,6 @@ use Safe;  # For evaluating the address transforms
 use Mj::File;
 use Mj::FileRepl;
 use Mj::SubscriberList;
-# use Mj::AddressList;
 use Mj::Config qw(parse_table);
 use Mj::Addr;
 use Mj::Log;
@@ -324,7 +323,7 @@ sub set {
   my $log  = new Log::In 150, "$addr, $oset";
   my (@allowed, @class, @flags, @settings, $baseflag, $carg1, 
       $carg2, $class, $data, $db, $digest, $flags, $inv, $isflag, 
-      $key, $mask, $ok, $rset);
+      $key, $list, $mask, $ok, $rset);
 
   $oset = lc $oset;
   @settings = split(',', $oset);
@@ -390,8 +389,12 @@ sub set {
     
   unless ($data) {
     $log->out("failed, nonmember");
+    $list = $self->{'name'};
+    if (length $subl and $subl ne 'MAIN') {
+      $list .= ":$subl";
+    }
     # XLANG
-    return (0, "$addr is not subscribed to the $self->{'name'}:$subl list.\n"); 
+    return (0, "$addr is not subscribed to the $list list.\n"); 
   }
 
   # If we were checking and didn't bail, we're done
@@ -907,6 +910,77 @@ sub describe_class {
   return $classes{$class}->[2];
 }
 
+=head2 get_setting_data() 
+
+Return a hashref containing complete data about settings:
+  name, description, availability, abbreviations, defaults
+
+=cut
+sub get_setting_data {
+  my $self = shift;
+  my $log = new Log::In 150;
+  my (@classes, $allowed, $class, $dd, $dfl, $dig, $flag, $i, $out);
+
+  $out = { 'classes' => [], 'flags' => [] };
+
+  $flagmask = $self->config_get('allowed_flags');
+  $dfl = $self->config_get('default_flags');
+
+  $i = 0;
+  for $flag (sort keys %flags) {
+    next unless ($flags{$flag}->[1] == 0);
+
+    $class = $flags{$flags{$flag}->[0]}->[3];
+    $allowed = ($flagmask =~ /$class/)? $flag : '';
+    $out->{'flags'}[$i]->{'allow'}  = $allowed;
+    $allowed = ($dfl =~ /$class/)? 1 : 0;
+    $out->{'flags'}[$i]->{'default'}  = $allowed;
+    $out->{'flags'}[$i]->{'name'}   = $flag;
+    $out->{'flags'}[$i]->{'abbrev'} = $flags{$flag}->[3];
+
+    $i++;
+  }  
+
+  @classes = keys %{$self->config_get('allowed_classes')};
+  $dfl = $self->config_get('default_class');
+  $dd = '';
+
+  $i = 0;
+  for $flag (sort keys %classes) {
+    # skip aliases
+    next unless ($classes{$flag}->[0] eq $flag);
+
+    $allowed = grep { $_ eq $flag } @classes;
+
+    if ($flag eq 'digest') {
+      $dig = $self->config_get('digests');
+      if ($dfl eq 'digest') {
+        $dd = $dig->{'default_digest'};
+      }
+      
+      for $class (sort keys %$dig) {
+        next if ($class eq 'default_digest');
+        $out->{'classes'}[$i]->{'name'}  = "digest-$class";
+        $out->{'classes'}[$i]->{'allow'} = $allowed;
+        $out->{'classes'}[$i]->{'default'} = 
+          ($class eq $dd) ? 1 : 0;
+        $out->{'classes'}[$i]->{'desc'}  = $dig->{$class}{'desc'};
+        $i++;
+      }
+    }
+    else {
+      $out->{'classes'}[$i]->{'name'}  = $flag;
+      $out->{'classes'}[$i]->{'allow'} = $allowed;
+      $out->{'classes'}[$i]->{'default'} = 
+        ($flag eq $dfl) ? 1 : 0;
+      $out->{'classes'}[$i]->{'desc'}  = $classes{$flag}->[2];
+      $i++;
+    }
+  }
+
+  $out;
+}
+
 =head2 get_start()
 
 Begin iterating over a list of subscribers.
@@ -1398,7 +1472,6 @@ Add a post event to the post database, and return the parsed
 data.
 
 =cut
-use Mj::AddressList;
 sub post_add {
   my($self, $addr, $time, $type, $number) = @_;
   my $log = new Log::In 150, "$time #$number";
@@ -1425,7 +1498,6 @@ sub post_add {
 
 
 =cut
-use Mj::AddressList;
 sub get_post_data {
   my $self = shift;
   my $addr = shift;
@@ -1452,7 +1524,6 @@ sub get_post_data {
 This expires old data about posted messages.
 
 =cut
-use Mj::AddressList;
 sub expire_post_data {
   my $self = shift;
   # XXX Use twice the lifetime of duplicates.
@@ -1736,7 +1807,7 @@ sub _make_archive {
 This opens the post database.
 
 Note that we really should not be specifying a comparison function, but
-since originally this was build on a Mj::AddressList and the post data
+since originally this was built on a Mj::AddressList and the post data
 stored in the comment field, the format of the database needed to be
 preserved.
 
@@ -1973,10 +2044,12 @@ sub archive_sync {
 sub count_posts {
   my $self = shift;
   my $days = shift;
+  my $sublist = shift || '';
   my (@msgs) = ();
+  my ($tmp) = (length $sublist)? "$sublist." : '';
   return 0 unless (defined $days and $days > 0);
   return 0 unless $self->_make_archive;
-  @msgs = $self->{'archive'}->expand_range(0, $days . "d");
+  @msgs = $self->{'archive'}->expand_range(0, $sublist . $days . "d");
   return scalar @msgs;
 }
 
