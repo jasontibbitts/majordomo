@@ -1419,11 +1419,11 @@ sub parse_access_rules {
 	}
       }
 
-      # Grab extra variables from admin_ and taboo_ (and their global
+      # Grab extra variables from admin_ noarchive_ and taboo_ (and their global
       # counterparts) for the post request.
       $evars = {};
       if ($i eq 'post') {
-	for $k ('admin_', 'taboo_') {
+	for $k ('admin_', 'taboo_', 'noarchive_') {
 	  for $l ('body', 'headers') {
 	    $taboo = $self->get("$k$l");
 	    for $m (keys %{$taboo->{'classes'}}) {
@@ -3586,7 +3586,7 @@ Legal variables which you can pattern match against are:\n".
 	unless (rules_var($request, $var) ||
 	       ($request eq 'post' && $evars->{$var}))
 	  {
-            if ($var =~ /(global_)?(admin_|taboo_)\w+/) { 
+            if ($var =~ /(global_)?(admin_|taboo_|noarchive_)\w+/) { 
               $w .= "Variable $var has not been defined.\n";
             }
             else {
@@ -3594,7 +3594,7 @@ Legal variables which you can pattern match against are:\n".
               $e .= "Illegal variable for $reqname: $var.\nLegal variables are:\n  ".
                 join("\n  ", sort(@tmp));
               if ($request eq 'post' && scalar(keys(%$evars))) {
-                $e .= "\nPlus these variables currently defined in admin and taboo rules:\n  ".
+                $e .= "\nPlus these variables currently defined in admin, noarchive and taboo rules:\n  ".
                   join("\n  ", sort (keys(%$evars)));
               }
               last;
@@ -3632,7 +3632,7 @@ Legal variables which you can pattern match against are:\n".
 
 	# Numeric comparisons; first make sure we allow them
 	else {
-	  if ($var !~ /(global_)?(admin_|taboo_)\w+/ &&
+	  if ($var !~ /(global_)?(admin_|taboo_|noarchive_)\w+/ &&
 	      rules_var($request, $var) ne 'integer') {
 	    $e .= "Variable '$var' does not allow numeric comparisons.\n";
 	    last;
