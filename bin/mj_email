@@ -653,7 +653,8 @@ sub do_qmail {
     $opts{'m'} = 1;
     return;
   }
-  if ($addr eq "$opts{'Q'}-owner" || $addr eq "owner-$opts{'Q'}") {
+  if ($addr =~ /^(?:\Q$opts{'Q'}\E-owner|owner-\Q$opts{'Q'}\E)(?:\+[a-z].+)?$/o) 
+  {
     $opts{'o'} = 1;
     return;
   }
@@ -667,7 +668,7 @@ sub do_qmail {
     $list = $1; $fun = 'moderator';
   }
   # Note that we don't anchor to the end; we may be receiving a probe
-  elsif ($addr =~ /^(.*)-owner/) {
+  elsif ($addr =~ /^(.*)-owner(\+[a-z].+)?$/) {
     $list = $1; $fun = 'owner';
   }
   elsif ($addr =~ /^(.*)-request$/) {

@@ -274,7 +274,8 @@ sub do_qmail {
     $opts{'m'} = 1;
     return;
   }
-  if ($addr eq "$opts{'Q'}-owner" || $addr eq "owner-$opts{'Q'}") {
+  if ($addr =~ /^(?:\Q$opts{'Q'}\E-owner|owner-\Q$opts{'Q'}\E)(?:\+[a-z].+)?$/o)
+  {
     $opts{'o'} = 1;
     return;
   }

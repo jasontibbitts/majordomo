@@ -1,3 +1,15 @@
+2004-04-07  Michael Yount <csf@moscow.com>
+
+	* bin/mj_email, mj_enqueue:  (do_qmail)  Bugfix:  
+	Recognize extensions to the majordomo-owner address.
+	Thanks to Peter Ajamian.
+
+	* lib/Mj/Access.pm:  (list_access_check)  Add support
+	for the COMMAND substitution to reply files.
+
+	* lib/Mj/Config.pm:  (parse_bounce_rules)  Bugfix:
+	eliminate rule duplication.  Thanks to Peter Ajamian.
+
 2004-03-24  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/FileSpace.pm:  (_empty_dir)  Bugfix:  Call
