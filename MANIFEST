@@ -3494,10 +3494,12 @@ files/fr/format/wwwusr/welcome
 files/fr/help/.accept
 files/fr/help/.access
 files/fr/help/.admin_modes
+files/fr/help/.alias
 files/fr/help/.aliasadd
 files/fr/help/.aliasremove
 files/fr/help/.approve
 files/fr/help/.cancel
+files/fr/help/.command_parser
 files/fr/help/.commands
 files/fr/help/.config
 files/fr/help/.configdefault
@@ -3575,6 +3577,7 @@ files/fr/help/.faq
 files/fr/help/.foot
 files/fr/help/.index
 files/fr/help/.info
+files/fr/help/.intro
 files/fr/help/.man
 files/fr/help/.mkdigest
 files/fr/help/.newconfig
@@ -3600,10 +3603,12 @@ files/fr/help/.which
 files/fr/help/accept
 files/fr/help/access
 files/fr/help/admin_modes
+files/fr/help/alias
 files/fr/help/aliasadd
 files/fr/help/aliasremove
 files/fr/help/approve
 files/fr/help/cancel
+files/fr/help/command_parser
 files/fr/help/commands
 files/fr/help/config
 files/fr/help/configdefault
@@ -3681,6 +3686,7 @@ files/fr/help/faq
 files/fr/help/foot
 files/fr/help/index
 files/fr/help/info
+files/fr/help/intro
 files/fr/help/man
 files/fr/help/mj_confirm
 files/fr/help/mj_email
