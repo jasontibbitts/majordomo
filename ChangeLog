@@ -1,9 +1,148 @@
+2000-04-20  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/CommandProps.pm, lib/Majordomo.pm:
+	Tighten access to the "set" and "show" commands.  The new
+	"default user" feature makes it possible not only to assume
+	someone's identity, but also to see the result of commands
+	that are issued.  Add list_access_check to the "set" core
+	function, and change the default access for the "show"
+	command from "mismatch" to "confirm."
+
+	* lib/Mj/Token.pm:
+	Add sanity checks for reminders:  if token_remind is unset,
+	negative, or greater than token_lifetime, do not send a reminder.
+
+2000-04-20  SRE  <eckert@climber.org>
+
+	* README, README.QUICKSTART:
+	improved notes about which Perl modules are required to install,
+	and where/how to get them
+
+2000-04-20  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Format.pm, lib/Mj/Parser.pm, lib/Majordomo.pm:
+	Implement sample "unregister-replace" command, which allows one
+	address to be replaced by another in the registry.
+
+	Add "user" to the supported actions for the default command.
+	This allows the address from the From: or Apparently-From: header
+	to be overridden.
+
+2000-04-19  SRE  <eckert@climber.org>
+
+	* files/en/help/faq, files/en/help/get, files/en/help/info, files/en/help/intro, files/en/help/put, files/en/help/rekey, files/en/help/admin, files/en/help/admin_commands, files/en/help/configset_tmpdir:
+	noted 'get-immediate' option, fixed obsolete references to 'filesync'
+
+	* setup/setup_func.pl:
+	if no mta config was requested, directory ALIASES wasn't created,
+	and "make install" failed trying to write ALIASES/mj-domains
+	at setup/setup_func.pl line 332
+
+	* files/en/help/put:
+	question on majordomo_users indicated people were confused about
+	pathname to put files relative to system root, so added a note and fixed a typo
+
+2000-04-17  Michael Yount  <csf@moscow.com>
+
+	* bin/mj_wwwadm:
+	Improve the appearance of output from the showtokens and
+	tokeninfo commands.
+
+2000-04-16  Michael Yount  <csf@moscow.com>
+
+	* bin/mj_enqueue:
+	Always read all data on stdin.  Discard any data following an
+	error during print().
+
+2000-04-16 Sudhakar Chandrasekharan <thaths@netscape.com>
+	
+	* README.POSTFIX:
+	Indicate that the Postfix LDA should be configured to
+	run as the majordomo user.
+
+2000-04-15  Michael Yount  <csf@moscow.com>
+
+	* setup/mta_sendmail.pl:
+	Use "nobody@example.com" as an artificial address.
+
+	* lib/Mj/Inform.pm, lib/Mj/Resend.pm:
+	Log the address of the person who posts a message.  This makes
+	the output of the post command and the "inform" messages
+	sent to the list owners less informative, but clarifies the
+	main log, which will be useful when statistics-reporting is
+	implemented.
+
+2000-04-12  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Log.pm:
+	(add) Use the fully qualified Sys::Syslog::setlogsock() call.
+	In perl 5.00404, this subroutine will not be exported on
+	systems where &_PATH_LOG is undefined by the system headers.
+	Thanks to David L. Potter and Michael Smith for the idea.
+
+	* bin/mj_enqueue:
+	Improve error checking.  Since stdio is buffered, print() may always
+	succeed if an incoming message is small, but an error may occur when
+	the output file handle is closed.  In either case, return EX_IOERR.
+
+	If the queue file cannot be opened, return EX_CANTCREAT unless the
+	error is EEXIST.
+
+	* bin/mj_enqueue:
+	Cope with a lack of disk space.  Perl's print subroutine (and fprintf
+	in C) will return a value indicating success if data are written to a file
+	on a full filesystem, so checking the result of print is not helpful.
+	However, when close() is called, it will return an error.
+	If that happens, unlink the queue file and exit with
+	a status of EX_IOERR.  Sendmail and Zmailer, at least, will then
+	defer delivery of the incoming message.
+
+	* lib/Mj/Format.pm, lib/Mj/TextOutput.pm:
+	(set) Allow the set command to work properly when multiple
+	addresses are specified with a here document.
+
+2000-04-11  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/FileRepl.pm:
+	(commit) Test result of close() on the replacement file.
+	Do not replace the old file if it fails.
+
+	* lib/Mj/Access.pm:
+	(list_access_check) Append each "reason" to $arg2.  This will cause
+	the reason to appear in the subject line of CONSULT messages.
+
+	* setup/install_util.pl:
+	Apply safe_mkdir patch from Darren Stalder.
+
+	* lib/Mj/Config.pm:
+	(unlock, _save_new) Check result of print() and do not commit if
+	it fails.
+
+	* lib/Mj/List.pm:
+	(rekey) Do not run subscriber_rekey on the DEFAULT list.
+
+2000-04-10  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Resend.pm:
+	(post) Remove REASONS from the list of substitutions for
+	acknowledgement subjects.
+
+	* setup/ask_basic.pl:
+	Allow people with DB_File installed to choose flat file databases instead.
+	The database_backend variable was not being set in .mj_config.
+
+2000-04-10  SRE  <eckert@climber.org>
+
+	* lib/Majordomo.pm, files/en/help/configset_save_denial_checksums, MANIFEST, files/INDEX.pl:
+	updated help files for new configset option "save_denial_checksum"
+
+2000-04-10  Darren Stalder  <torin@daft.com>
+
+	* setup/install_util.pl:
+	(safe_mkdir)  Have safe_mkdir be more safe by creating all the
+	directories leading up to supplied directory if necessary.
+
 2000-04-09  Michael Yount  <csf@moscow.com>
-
-	* lib/Mj/MailOut.pm:
-	(mail_message) Fix variable name typo.
-
-	* MANIFEST: *** empty log message ***
 
 	* lib/Mj/MailOut.pm:
 	(mail_message)  Change error handling:  call inform() instead of Log::abort()
@@ -50,7 +189,7 @@
 	a directory.  This will keep the index command from aborting if the
 	path specified in the request does not exist.
 
-2000-04-07  SRE  <sre@climber.org>
+2000-04-07  SRE  <eckert@climber.org>
 
 	* files/en/help/put, files/en/help/variables, files/en/help/configset_reply_to, files/en/help/configset_signature_separator, files/en/help/configset_subject_prefix, files/en/help/configset_welcome_files, files/en/help/configset_message_footer, files/en/help/configset_message_fronter, files/en/help/configset_message_headers, files/en/help/configset_digests, files/en/help/configset_inform, files/en/help/configset_access_rules, files/en/help/configset_confirm_url, files/en/help/configset_delivery_rules, files/en/config/welcome, files/en/config/welcome_files, files/en/config/signature_separator, files/en/config/subject_prefix, files/en/config/taboo_body, files/en/config/taboo_headers, files/en/config/message_fronter, files/en/config/message_headers, files/en/config/reply_to, files/en/config/restrict_post, files/en/config/sequence_number, files/en/config/delivery_rules, files/en/config/digest_issues, files/en/config/digests, files/en/config/message_footer, files/en/config/addr_allow_ending_dot, files/en/config/admin_headers, files/en/config/attachment_rules, files/en/config/confirm_url, files/en/config/default_flags, files/en/config/access_rules:
 	made sure contents of files/en/help/configset_* is a strict superset of files/en/config
@@ -66,7 +205,7 @@
 	* files/en/help/unknowntopic:
 	made it more clear why this file was sent
 
-2000-04-06  SRE  <sre@climber.org>
+2000-04-06  SRE  <eckert@climber.org>
 
 	* files/en/help/digest, files/en/help/put:
 	moved description of digest files (preindex, postindex, and footer)
@@ -100,12 +239,12 @@
 
 	Aside from this problem, Mj2 and Zmailer work well together.
 
-2000-04-01  SRE  <sre@climber.org>
+2000-04-01  SRE  <eckert@climber.org>
 
 	* lib/Mj/Parser.pm:
 	enable "dash represents blank line" in command parser here documents
 
-2000-03-30  SRE  <sre@climber.org>
+2000-03-30  SRE  <eckert@climber.org>
 
 	* files/en/help/set:
 	added a note about using 'configshow listname digests' to get list
@@ -117,7 +256,7 @@
 	(make_setting) Return an error if an attempt is made to receive
 	digests on a mailing list for which no digests are distributed.
 
-2000-03-29  SRE  <sre@climber.org>
+2000-03-29  SRE  <eckert@climber.org>
 
 	* lib/Mj/CommandProps.pm:
 	bug fix for command_legal() - missing "exists" test caused hash keys to be added
@@ -134,7 +273,7 @@
 	Exim will return a 552 for too many recipients in some cases, in
 	which case DATA will fail also.
 
-2000-03-28  SRE  <sre@climber.org>
+2000-03-28  SRE  <eckert@climber.org>
 
 	* lib/Mj/TextOutput.pm, DESIGN:
 	change comment reference from parser_data.pl to CommandProps.pm
@@ -162,7 +301,7 @@
 	(address) Await and discard responses if a 452 or 552 error code is
 	received in response to a RCPT TO.
 
-2000-03-27  SRE  <sre@climber.org>
+2000-03-27  SRE  <eckert@climber.org>
 
 	* files/en/help/admin:
 	inserted text from README.QUICKSTART, for how to quickly set up a list
@@ -214,12 +353,12 @@
 	"one transaction": send ONEX immediately after EHLO/HELO to
 	prevent sendmail forking a grandchild after MAIL FROM.
 
-2000-03-25  tibbs  <tibbs@math.uh.edu>
+2000-03-25  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Bf/Parser.pm:
 	More bounce parsing work.
 
-2000-03-24  SRE  <sre@climber.org>
+2000-03-24  SRE  <eckert@climber.org>
 
 	* setup/mta_sendmail.pl, setup/setup_func.pl, setup/ask_domain.pl:
 	improved transcript messages to avoid invalid answers during install,
