@@ -446,7 +446,7 @@ sub remove {
   $self->_make_index($arc);
   $data = $self->{'indices'}{$arc}->lookup($msg);
   return (0, "Unable to lookup message data") 
-    unless $data;
+    unless $data;  # XLANG
   
   $self->_read_counts($arc, 1);
   if ($self->{'splits'}{$arc}{'msgs'} == $msg) {
@@ -476,7 +476,7 @@ sub remove {
     $file= "$dir/$self->{'list'}.$arc";
   }
   $fh = new Mj::FileRepl $file;
-  return (0, "Unable to open the new archive: $!") unless $fh;
+  return (0, "Unable to open the new archive: $!") unless $fh; # XLANG
 
   # Copy the original archive up to the beginning of the deleted message.
   for ($count = $data->{byte} ; $count > 0; ) {
@@ -484,7 +484,7 @@ sub remove {
     $res = $fh->{'oldhandle'}->read($buf, $size);
     if (!$res) {
       $fh->abandon;
-      return (0, "Unable to read from the archive: $!");
+      return (0, "Unable to read from the archive: $!"); # XLANG
     }
     $count -= $res;
     $fh->{'newhandle'}->print($buf);
@@ -547,9 +547,9 @@ sub replace {
   $self->_make_index($arc);
   $data = $self->{'indices'}{$arc}->lookup($msg);
   return (0, "Unable to lookup message data") 
-    unless $data;
+    unless $data; # XLANG
   return (0, "Unable to locate the replacement message") 
-    unless (defined $msgfile and -f $msgfile);
+    unless (defined $msgfile and -f $msgfile); # XLANG
   
   $self->_read_counts($arc, 1);
   if ($self->{'splits'}{$arc}{'msgs'} == $msg) {
@@ -580,10 +580,10 @@ sub replace {
   }
 
   $newfh = new IO::File $msgfile;
-  return (0, "Unable to open the archive: $!") unless $newfh;
+  return (0, "Unable to open the archive: $!") unless $newfh; # XLANG
 
   $fh = new Mj::FileRepl $file;
-  return (0, "Unable to open the new archive: $!") unless $fh;
+  return (0, "Unable to open the new archive: $!") unless $fh; # XLANG
 
   # Copy the original archive up to the beginning of the deleted message.
   for ($count = $data->{byte} ; $count > 0; ) {
@@ -591,7 +591,7 @@ sub replace {
     $res = $fh->{'oldhandle'}->read($buf, $size);
     if (!$res) {
       $fh->abandon;
-      return (0, "Unable to read from the archive: $!");
+      return (0, "Unable to read from the archive: $!"); # XLANG
     }
     $count -= $res;
     $fh->{'newhandle'}->print($buf);
@@ -639,12 +639,12 @@ sub sync {
   $arc =~ /^((?:[\w\-\.]+\.)?\d+)(-\d\d)?$/;
   $sub = defined $2 ? "$1$2" : $1;
   $split = defined $2 ? substr $2, 1, 2 : '';
-  return (0, "Illegal archive name: \"$arc\"\n") unless $sub;
+  return (0, "Illegal archive name: \"$arc\"\n") unless $sub; # XLANG
   $arc = $1;
 
   # Verify that the file in question exists.  
   return (0, "No such archive:  \"$sub\"\n") 
-    unless (-f "$self->{'dir'}/$self->{'list'}.$sub");
+    unless (-f "$self->{'dir'}/$self->{'list'}.$sub"); # XLANG
 
   # If an index exists for the archive, load its counts.
   if (exists $self->{'archives'}{$arc}) {
@@ -670,6 +670,7 @@ sub sync {
   }
 
   # instantiate the archive
+  # XLANG
   return (0, "Unable to create index.\n") unless $self->_make_index($arc);
 
   # remove all entries with the same "split" from the index. 
@@ -720,6 +721,7 @@ sub sync {
     $self->_sort_archives;
   }
 
+  # XLANG
   (1, "Archive \"$sub\", containing $self->{'splits'}{$sub}{'msgs'} messages,"
    . " has been synchronized.\n");
 }
@@ -742,13 +744,16 @@ sub _sync_msgs {
   $file =~ /^((?:[\w\-\.]+\.)?\d+)(-\d\d)?$/;
   $arcname = $1;
   $mbox = new Mj::FileRepl("$self->{'dir'}/$self->{'list'}.$file");
+  # XLANG
   return (0, "Unable to replace archive $file.\n") unless $mbox;
 
   $tmpfile = Majordomo::tempname();
   $tmpfh =  new IO::File "> $tmpfile";
+  # XLANG
   return (0, "Unable to open temporary file.\n") unless $tmpfh;
 
   $parser = new Mj::MIMEParser;
+  # XLANG
   return (0, "Unable to create parser.\n") unless $parser;
   $parser->output_dir($tmpdir);
 
@@ -768,6 +773,7 @@ sub _sync_msgs {
         $tmpfh->close() 
           or $::log->abort("Unable to close file $tmpfile: $!");
         $entity = $parser->parse_open($tmpfile);
+        # XLANG
         return (0, "Unable to parse message $arcname/$count.\n") unless $entity;
         $arcnum = $entity->head->get("X-Archive-Number");
         unless (defined $arcnum and $arcnum =~ m#$arcname/\d+#) {
@@ -789,6 +795,7 @@ sub _sync_msgs {
         $mbox->{'newhandle'}->print($line);
         # reopen the temporary file
         $tmpfh =  new IO::File "> $tmpfile";
+        # XLANG
         return (0, "Unable to open temporary file.\n") unless $tmpfh;
       }
       else {
@@ -1543,7 +1550,6 @@ sub _read_counts {
   if (-f "$dir/.index/C$list.$file") {
     $self->{splits}{$file}{bytes} = (stat("$dir/$list.$file"))[7];
     $fh = new IO::File "<$dir/.index/C$list.$file";
-    # XLANG
     $log->abort("Can't read count file $dir/.index/C$list.$file: $!") unless $fh;
     $tmp = $fh->getline;
     chomp $tmp;
@@ -1583,7 +1589,6 @@ sub _write_counts {
   }
 
   $fh = new IO::File ">$dir/.index/C$list.$file";
-    # XLANG
   $log->abort("Can't write count file $dir/.index/C$list.$file: $!") unless $fh;
   $fh->print("$self->{splits}{$file}{lines}\n") ||
     $log->abort("Can't write count file $dir/.index/C$list.$file: $!");
@@ -1888,7 +1893,7 @@ sub _parse_message_range {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2002  Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
