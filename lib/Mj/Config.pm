@@ -437,7 +437,7 @@ Returns the default value of the given variable.
 
 =cut
 sub default {
-  my ($self, $user, $passwd, $auth, $interface, $var) = @_;
+  my ($self, $var) = @_;
 
   $::log->in(180, "$var");
   
