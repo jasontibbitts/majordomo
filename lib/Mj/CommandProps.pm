@@ -660,19 +660,19 @@ my %commands =
    },
    'report' =>
    {
-    'parser'   => [qw(email shell list global all nohereargs real)],
+    'parser'   => [qw(email shell list global all real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
-                   'arguments' => {'action'  => {'type' => 'SCALAR',},
-                                   'date'    => {'type' => 'SCALAR',},},
+                   'arguments' => {'date'    => {'type' => 'SCALAR',},
+                                   'requests'=> {'type' => 'ARRAYELEM',},
+                                  },
+                   'hereargs' => 'requests',
                    'modes'    =>  {
                                    %generic_modes,
-                                   'fail'        => 1,
-                                   'stall'       => 1,
-                                   'succeed'     => 1,
+                                   'inform'      => 1,
                                    'summary'     => 1,
                                   },
-                   'tokendata' => {'arg1'   => 'action',
-                                   'arg2'   => 'date'}
+                   'tokendata' => {'arg2'   => 'action',
+                                   'arg1'   => 'date'}
                   },
     'access'   => {
                    'default' => 'deny',
