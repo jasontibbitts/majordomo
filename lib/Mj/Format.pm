@@ -865,11 +865,18 @@ sub lists {
 sub password {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, $type;
+  my ($str, $subs, $tmp);
 
   my ($ok, $mess) = @$result; 
 
   if ($ok>0) {
-    eprint($out, $type, "Password set.\n");
+    $subs = {
+             $mj->standard_subs('GLOBAL'),
+             'VICTIM' => "$request->{'victim'}",
+            };
+    $tmp = $mj->format_get_string($type, 'password');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate("$str\n", $ok, 1);
   }
   else {
     eprint($out, $type, "Password not set.\n");
@@ -1426,7 +1433,7 @@ sub show {
       for ($j = 0; $j < @{$settings->{'classes'}}; $j++) {
         $flag = $settings->{'classes'}[$j]->{'name'};
         if ($flag eq $data->{'lists'}{$i}{'class'} or $flag eq 
-            "$data->{'lists'}{$i}{'class'}-$data->{'lists'}{$i}{'classarg'}") 
+            "$data->{'lists'}{$i}{'class'}-$data->{'lists'}{$i}{'classarg'}-$data->{'lists'}{$i}{'classarg2'}") 
         {
           $str = 'selected';
         }
@@ -1919,7 +1926,7 @@ sub who {
             $flag = $settings->{'classes'}[$j]->{'name'};
             
             if ($flag eq $i->{'class'} or 
-                $flag eq "$i->{'class'}-$i->{'classarg'}") 
+                $flag eq "$i->{'class'}-$i->{'classarg'}-$i->{'classarg2'}") 
             {
               push @{$subs->{'CLASS_SELECTED'}}, 'selected';
             }

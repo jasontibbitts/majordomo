@@ -1,3 +1,9 @@
+2001-08-15  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Format.pm:  (show,who)  Bugfix:  include the third part of
+	the delivery class when determining which class applies to a
+	subscription.
+
 2001-08-14  Michael Yount <csf@moscow.com>
 
 	* bin/mj_shell:  Invoke an editor automatically when
