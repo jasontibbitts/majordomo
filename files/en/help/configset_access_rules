@@ -137,7 +137,7 @@ Action     Terminal?     Default Reply File
 -------------------------------------------------------------------
 allow            yes     none
 confirm          yes     repl_confirm
-confirm2         yes     repl_confirm2
+confirm2         yes     repl_confirm2* 
 confirm_consult  yes     repl_confcons
 consult          yes     repl_consult or ack_stall
 default          yes     none
@@ -150,6 +150,9 @@ replyfile         no     none
 set               no     none
 unset             no     none
 -------------------------------------------------------------------
+* If the victim's password is supplied, and only one confirmation 
+  step is required, the repl_confirm_req reply file will be used by 
+  default.
 
 The default reply file is used to display the result of a command.  The
 ack_delay, ack_denial, and ack_stall files are only used in response to
