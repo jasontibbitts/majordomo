@@ -1,3 +1,10 @@
+Tue Jul 27 00:53:35 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* setup/ask_domain.pl (ask_domain): Turn Mj1 conversion questions
+ 	back on.
+
+	* setup/query_util.pl (get_dir): Require pathnames be absolute.
+
 Fri Jul 23 12:11:53 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/SimpleDB/DB.pm (mogrify): Dumb bug made returning

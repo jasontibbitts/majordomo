@@ -97,6 +97,10 @@ sub get_dir {
     $dir = ($ans =~ /(\S*)/)[0];
     last if !length $dir && $empty;
     next unless length $dir;
+    unless ($dir =~ m!^/!) {
+      $msg .= "\nYou must enter a complete pathname, beginning with '/'.";
+      next;
+    }
     last if -d $dir;
     last if get_bool("$dir does not exist; use anyway?");
   }

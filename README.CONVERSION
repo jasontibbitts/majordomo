@@ -1,0 +1,67 @@
+Converting Majordomo 1.x Lists
+------------------------------
+
+The Majordomo2 package includes a conversion script, convertlist.pl, which
+can perform a simple type of conversion.  This is only the first step,
+however, and the process of converting a list cannot be fully automated.
+
+
+Before Running convertlist.pl
+-----------------------------
+
+You must, of course, have Majordomo2 installed and running first.  During
+the installation, a handful of questions are asked which essentially set
+defaults for convertlist.pl; the only purpose is to save some typing.
+
+It is probably best to stop your MTA before converting lists; if so
+configured, Majordomo2 will perform the actions necessary to route mail to
+the new lists.  This may result in conflicting configurations with
+unpredictable results.
+
+Majordomo2 generally preserves the meaning of configuration variables, but
+there are notable changes:
+
+*) There is a single master password; convertlist.pl will take the value of
+   admin_password for this.  approve_password will be completely ignored.
+   If you need the multiple password functionality, investigate the
+   passwords variable, which can be used to create passwords that can carry
+   out various actions.
+
+*) Digest configuration is completely different.  Digests no longer live in
+   separate lists, and the old digest_* variables are gone.  Currently
+   convertlist.pl does not do anything special for digest lists, although
+   this is planned.
+
+*) subject_prefix and reply_to generally work as before, but now users can
+   elect to receive them or not.  These are controlled by user settings
+   (flags).  For compatibility, the default for newly added users is to
+   receive prefixes and Reply-To: headers so that you can configure them
+   once and have all users immediately begin to see them (as in
+   Majordomo1).
+
+   However, if you don't currently use them but would like to allow them in
+   the future, it is best to set the default flags such that users _don't_
+   receive them by default.  This will allow you to specify values for
+   subject_prefix and reply_to and have users not see them unless they turn
+   them on.  convertlist.pl will give you the opportunity to set this up.
+
+
+Running convertlist.pl
+----------------------
+
+An invocation of convertlist looks like this:
+
+perl convertlist.pl -d example.com  -option argument list list list
+
+The script takes the following options:
+
+ -d - the virtual domain that the converted lists will live in.  Of
+      course, this domain must have been set up already.  If omitted, the
+      default domain will be chosen.  Leave it out if you have only one
+      domain.
+
+ -o - the directory containing old the old lists.  Only necessary if you
+      didn't tell the installer about it.
+
+Any number of lists can be specified; they will be converted in turn.
+

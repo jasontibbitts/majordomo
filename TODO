@@ -55,8 +55,6 @@ List converter:
     open config
 
     if -digest, offer to create non-digest version and add subscribers to digest.
-    
-
 
 
 Query for Confirm_url at install time.
