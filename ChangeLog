@@ -1,3 +1,55 @@
+2000-10-28  Michael Yount <csf@moscow.com>
+
+	* files/en/help/*:  Document previously undocumented modes.
+	Add a paragraph about comments within here documents to the
+	appropriate configuration setting files.  Describe configuration
+	templates.  Demonstrate the use of here documents with the
+	subscribe and unsubscribe commands.
+
+	* lib/Majordomo.pm:   (common_subs)  New routine.  Find the
+	addresses that are present in two or more subscriber lists.
+	(config_get_vars)  Make non-secure settings of DEFAULT lists
+	visible.
+	(list_config_set)  Support "extract" mode, which removes a
+	set of values from an array, or sets an existing value to
+	its default if the existing value and extracted value are
+	identical.
+	(compare_arrays) New routine, from the perl FAQ.
+	(lists) Show the private auxiliary lists (in aux mode) and
+	private configuration templates (in config mode) if a
+	list-specific master password is used.  Show the DEFAULT
+	templates (in config mode) if a pattern matching DEFAULT
+	is used.
+	(rekey) Return to old behavior:  do not verify by default.
+	(set) Add support for patterns using "pattern," "regex,"
+	and "allmatching" modes.
+	(who) Add support for "common" mode, which displays the 
+	addresses held in common by two mailing lists.
+
+	* lib/Mj/Access.pm (list_access_check):  Do not fail if
+	the lists command was provided with a non-GLOBAL password.
+	List-specific passwords can be used to view private templates
+	and sublists.
+
+	* lib/Mj/CommandProps.pm:  List the supported modes
+	for each command.
+
+	* lib/Mj/Config.pm:  (parse_inform) Inform majordomo-owner
+	about connection failures by default.
+
+	* lib/Mj/Format.pm:  (configset) Support append and extract modes.
+	(configshow)  Support append, extract, and merge modes.
+
+	* lib/Mj/List.pm:  (get_chunk) Return the canonical address
+	with the rest of the data.
+
+	* lib/Mj/Resend.pm:  (post) Initialize sublist (Thanks to SRE.)
+
+	* lib/Mj/Token.pm:  (t_accept) Propagate the reasons (Thanks to SRE.)
+
+	* lib/Mj/Deliver/Dest.pm:  (flush) Use empty envelope sender 
+	(Thanks to Jason.)
+
 2000-10-27  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* bin/mj_queuerun (run_queue): If mj_enqueue was called with an
