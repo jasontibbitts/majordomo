@@ -1,22 +1,34 @@
-Someone ($REQUESTER) has made the following request:
+The following request
 
   "$CMDLINE"
 
-It requires your confirmation for the following reason(s):
+was sent to $SITE 
+by $REQUESTER.
+
+To accept or reject this request, please do one of the following:
+
+1. Reply to $MJ 
+   with one of the following two commands in the body of the message:
+
+    accept
+    reject
+
+   (The number $TOKEN must be in the Subject header)
+
+2. Reply to $MJ 
+   with one of the following two commands in the body of the message:
+   
+    accept $TOKEN
+    reject $TOKEN
+
+Your confirmation is required for the following reason(s):
 
   $REASONS
 
-If you want this action to be taken, please reply to 
-  $MJ
-with the word "accept" (without quotes) on a line by itself.
-
 If you do not respond within $REMIND days, a reminder will be sent.
-If you do not respond within $EXPIRE days, this token will expire.
 
-If you did not originate this request, believe it to be in error, or do
-not want it to be carried out, you may reject it by replying to 
-  $MJ
-with the word "reject" (without quotes) on a line by itself.
+If you do not respond within $EXPIRE days, this token will expire,
+and the request will not be completed.
 
 If you would like to communicate with a person, 
 send mail to $OWNER.
