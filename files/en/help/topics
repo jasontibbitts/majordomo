@@ -132,8 +132,10 @@ These help files describe configuration settings:
    help configset_archive_url
    help configset_bounce_recipients
    help configset_comments
+   help configset_config_access
    help configset_debug
    help configset_default_language
+   help configset_delivery_rules
    help configset_dup_lifetime
    help configset_faq_access
    help configset_get_access
@@ -181,7 +183,6 @@ These help files describe configuration settings:
    help configset_default_class
    help configset_default_flags
    help configset_delete_headers
-   help configset_delivery_rules
    help configset_description
    help configset_description_long
    help configset_digest_index_format
