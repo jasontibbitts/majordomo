@@ -1,0 +1,56 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  owners <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+configset listname owners <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : [définie durant l'installation] ...
+                    (seul le premier est affiché)
+Type de donnée    : tableau d'adresses
+Catégorie         : moderate
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXeMPLE :
+configset GLOBAL owners << ENDTAG
+admin@example.org
+ENDTAG
+
+
+$INCLUDE-config/owners
+
+Pour la pseudo liste GLOBAL, tous les messages envoyés à
+  $MJOWNER
+seront envoyés aux adresses de ce paramètre.
+
+Pour les listes normales, les messages envoyés à l'adresse LISTE-owner
+seront envoyés aux adresses de ce paramètre.
+
+Les propriétaires peuvent recevoir d'autres messages :
+
+* Un message d'information lorsque quelqu'un s'abonne ou se désabonne.
+  (Référez vous à "help configset_inform" pour plus de détails.)
+
+* Les messages de confirmations pour les commandes qui requierent des
+  approbations. (Référez vous à "help configset_moderators" pour plus
+  de détails.)
+
+* Les rapports d'erreurs pour les messages postés.
+  (Référez vous à "help configset_bounce_rules" et "help
+   configset_bounce_recipients" pour plus de détails.)
+
+
+Référez vous aussi à :
+   help admin
+   help admin_domain
+   help configset_bounce_recipients
+   help configset_bounce_rules
+   help configset_inform
+   help configset_moderators
+   help configset_whoami_owner
+
+$INCLUDE-help/foot
+
