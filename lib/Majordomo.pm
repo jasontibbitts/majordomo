@@ -232,7 +232,7 @@ my %functions =
    'intro'       => {'top' => 1, 'iter' => 1},
    'lists'       => {'top' => 1},
    'owner'       => {'top' => 1, 'iter' => 1, 'noaddr' => 1},
-   'post'        => {'top' => 1, 'iter' => 1},
+   'post'        => {'top' => 1, 'iter' => 1, 'noaddr' => 1},
    'put'         => {'top' => 1, 'iter' => 1},
    'reject'      => {'top' => 1},
    'register'    => {'top' => 1},

@@ -1,3 +1,11 @@
+Tue Sep  8 09:53:46 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (connect): The post method doesn't need
+ 	validated addresses.
+
+	* lib/Mj/Resend.pm (post): Make a new Addr object after extracting
+ 	the user from the headers.
+
 Mon Sep  7 12:26:34 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Majordomo.pm (help_start): Untaint the topic.

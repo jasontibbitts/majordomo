@@ -137,7 +137,7 @@ sub post {
   chomp($user = $thead->get('reply-to') ||
 	$thead->get('from') ||
 	$thead->get('apparently-from'));
-
+  $user = new Mj::Addr($user);
   $reasons = []; $avars = {};
 
   # XXX Pass in the password we were called with, so that passwords
