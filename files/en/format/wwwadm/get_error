@@ -3,3 +3,11 @@
 The $COMMAND command did not succeed.
 $ERROR
 </pre>
+
+<p>
+
+<a href="$CGIURL?$CGIDATA&amp;func=index&amp;list=$LIST&amp;extra=$PATH">
+Index of Files</a>
+
+</p>
+
