@@ -587,7 +587,15 @@ sub _archive_part {
         print $out "$str\n";
 
         ($ok, $tmp) = @{$mj->dispatch($request, $result)};
-        eprint($out, $type, $tmp);
+        # Break long lines
+        if ($type =~ /^www/) {
+          $tmp = &escape($tmp);
+          $tmp =~ s/\n/\&nbsp\;\<BR\>\n/g;
+          $tmp =~ s/  /\&nbsp\; /g;
+          $tmp =~ s/ \&nbsp\;/\&nbsp\;\&nbsp\;/g;
+          $tmp =~ s/  /\&nbsp\; /g;
+        }
+        eprint($out, '', $tmp);
 
         $tmp = $mj->format_get_string($type, 'archive_text_foot', $request->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);

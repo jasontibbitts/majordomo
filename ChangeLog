@@ -4,6 +4,8 @@
 
 	* lib/Mj/Format.pm:  (who)  Add format file support for
 	the who-summary command.
+	(archive)  Allow the web interfaces to break long lines in
+	plain text message parts.  Implemented by Peter Ajamian.
 
 2004-08-29  Michael Yount <csf@moscow.com>
 
