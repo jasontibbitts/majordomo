@@ -1,0 +1,540 @@
+                   Fichiers d'erreurs de Majordomo
+
+Pour pouvoir avoir des messages d'erreurs qui sont faciles a
+comprendre et a localiser, les messages d'erreurs sont graduellement
+déplacé hors du code source dans des fichiers séparés. Les fichiers
+d'erreurs sont des patrons qui supportent des substitutions de
+variables. Ces fichiers sont spécifiques a chaque site, mais peuvent
+être modifier domaines par domaine en utilisant la commande get. Par
+exemple, pour modifier le fichier "password_length", utilisez la
+commande :
+ get-edit GLOBAL /error/password_length
+
+Les fichiers d'erreurs ne sont jamais retournées directement. Leur
+texte est incorporé dans le fichier de format approprié pour la
+commande qui a généré l'erreur. (Référez vous à "help format_files"
+pour plus de détails.)
+
+Les variables de substitutions supportées par chaque fichier est
+donnée entre parenthèses.
+
+add_headers
+-----------
+Ce message est affiché si l'ajout d'une en-tête a un message par la
+commande post-addhdr a échoué.
+
+(Substitutions standard uniquement)
+
+already_subscribed
+------------------
+Ce message est affiché lors d'une tentative d'abonnement d'une adresse
+déjà abonnée.
+
+(Standard plus FULLADDR, VICTIM)
+
+after_route
+-----------
+Ce message est affiché lorsqu'il y a des commentaires dans une adresse
+email après la "route" (l'adresse en elle même).
+
+(Substitutions standard uniquement)
+
+at_symbol
+---------
+Ce message est affiché lorsque plus d'un symbole '@' apparaît dans une
+adresse email.
+
+(Substitutions standard uniquement)
+
+bracketed_addresses
+-------------------
+Ce message est affiché lorsque plus d'une adresse email est incluse
+dans une seule pair de '<' et '>'.
+
+(Substitutions standard uniquement)
+
+denied_post
+-----------
+Ce message est affiché dans l'en-tête Sujet d'un accusé de réception
+lorsqu'un message posté est refusé par les tests "access" et que le
+message résultant n'a pas de description. C'est en général causé par
+l'action "reply" d'une règle d'accès. (Référez vous à "help
+configset_access_rules" pour plus de détails.)
+
+(Substitutions standard uniquement)
+
+digest_mode
+-----------
+Ce message est affiché si la commande "digest" est envoyée sans l'un
+des modes de commande requis.
+
+(Standard plus DIGEST_DESCRIPTIONS, DIGESTS, MODES)
+
+ending_at
+---------
+Ce message est affiché lorsqu'une adresse email se termine par un '@'.
+
+(Substitutions standard uniquement)
+
+host_length
+-----------
+Ce message est affiché lorsque le nom d'hôte dans une adresse email
+est supérieur a 64 caractères.
+
+(Substitutions standard uniquement)
+
+inactive_list
+-------------
+Ce message d'erreur est affiché si l'accès a une liste a été refusé
+parce que le paramètre de configuration "active" est désactivé.
+
+(Substitutions standard uniquement)
+
+incompatible_mode
+-----------------
+Ce message est affiché lorsqu'une commande est envoyée avec deux ou
+plus modes incompatibles.
+
+(Standard plus MODE, MODES)
+
+incomplete_host
+---------------
+Ce message est affiché lorsque le nom d'hôte ne contient qu'un seul
+domaine.
+
+(Substitutions standard uniquement)
+
+invalid_address
+---------------
+Ce message est affiché si une adresse email est invalide.
+
+(Standard plus ADDRESS, ERROR, LOCATION)
+
+invalid_approval
+----------------
+Ce message est affiché si la ligne "Approved" d'un message posté
+contient un mot de passe invalide. (Référez vous à "help
+admin_moderate" pour plus de détails sur la fonctionnalité "Approved".)
+
+(Substitutions standard uniquement)
+
+invalid_char
+------------
+Ce message est affiché lorsqu'une adresse email contient des
+caractères invalides.
+
+(Substitutions standard uniquement)
+
+invalid_command
+---------------
+Ce message d'erreur est affiché si une commande envoyée n'est pas
+supportée par Majordomo.
+
+(Standard plus COMMAND)
+
+invalid_comment
+---------------
+Ce message est affiché lorsque la partie commentaire d'une adresse
+email est invalide.
+
+(Standard plus COMMENT, ERROR, LOCATION)
+
+invalid_component
+-----------------
+Ce message est affiché lorsqu'un morceau d'une adresse email n'est
+reconnu ni en tant que commentaire ni en tant que "route".
+
+(Substitutions standard uniquement)
+
+invalid_entity
+--------------
+Ce message est affiché lorsque l'analyseur de messages est incapable
+de comprendre la structure d'un message posté.
+
+(Substitutions standard uniquement)
+
+invalid_list
+------------
+Ce message d'erreur est affiché si le nom d'une liste contient des
+caractères illégaux. Les caractères légaux incluent les lettres, les
+chiffres, et les caractères souligné, point et tiret.
+
+(Substitutions standard uniquement)
+
+invalid_mode
+------------
+Ce message d'erreur est affiché si le mode de commande requis n'est
+pas supporté par Majordomo pour une commande particulière.
+
+(Standard plus MODE, MODES)
+
+invalid_password
+----------------
+Ce message d'erreur est affiché lorsqu'un mot de passe administratif
+ou personnel invalide, ou lorsqu'un mot de passe temporaire ayant
+expiré, est utilisé.
+
+(Standard plus VICTIM)
+
+invalid_sublist
+---------------
+Ce message est affiché lorsqu'un message est posté vers une liste
+auxiliaire qui n'existe pas.
+
+(Substitutions standard uniquement)
+
+invalid_token
+-------------
+Ce message d'erreur est affiché lorsque l'une des commandes "accept",
+"reject" ou "tokeninfo" est utilisée avec un ticket qui n'a pas un
+format valide.
+
+(Standard plus TOKEN)
+ip_address
+----------
+Ce message est affiché lorsqu'une adresse IP apparaît dans la partie
+droite d'une adresse email sans être entourée de crochets.
+
+(Substitutions standard uniquement)
+
+left_brackets
+-------------
+Ce message est affiché lorsqu'une adresse email à un a un '<' de trop.
+
+(Substitutions standard uniquement)
+
+lhs_domain_literal
+------------------
+Ce message est affiché lorsqu'un domaine littéral (une adresse IP
+entre crochets) apparaît dans la partie locale d'une adresse email.
+
+(Substitutions standard uniquement)
+
+local_part_length
+-----------------
+Ce message est affiché lorsque la partie locale (la partie gauche
+d'une adresse email) contient plus de 64 caractères.
+
+(Substitutions standard uniquement)
+
+make_list
+---------
+Ce message d'erreur est affiché lorsque Majordomo est incapable
+d'initialiser une liste existante.
+
+(Substitutions standard uniquement)
+
+message_number
+--------------
+Ce message d'erreur est affiché lorsque les commandes "archive-part",
+"archive-edit" ou "archive-replace" sont utilisée pour accéder a plus
+d'un message. Par exemple, la commande "archive-part-edit" est
+normalement utilisée pour altérer un seul message. Si a la place d'un
+seul numéro de message, un groupe de message est requis, la commande
+échouera.
+
+(Standard plus MSGNO)
+
+mime_header_length
+------------------
+Ce message est affiché lorsqu'un volet d'un message posté contient une
+en-tête MIME dont la longueur excède le paramètre "max_mime_header_length".
+
+(Standard plus LIMIT, SIZE)
+
+missing_mode
+------------
+Ce message est affiché si une commande est envoyée avec un mode de
+commande qui a un pré requis manquant. Par exemple, la commande
+"archive-immediate" est invalide car le mode "get" doit être utilisé
+avec le mode de "immediate".
+
+(Standard plus MODE, MODES)
+
+multiple_addresses
+------------------
+Ce message est affiché lorsqu'une seule adresse email étais attendue,
+mais que plusieurs ont été spécifiées.
+
+(Substitutions standard uniquement)
+
+nested_brackets
+---------------
+Ce message est affiché si la "route" d'une adresse email est entourée
+de plus d'une paire de '<' et '>'.
+
+(Substitutions standard uniquement)
+
+no_address
+----------
+Ce message d'erreur est affiché si l'une des commandes "register",
+"set", "subscribe" ou "unsubscribe" a été exécutée avec l'interface
+wwwadm, mais qu'aucune adresse email n'a été spécifiée.
+
+(Substitutions standard uniquement)
+
+no_domain
+---------
+Ce message est affiché lorsqu'une adresse email ne contient pas de nom
+d'hôte.
+
+(Substitutions standard uniquement)
+
+no_list
+-------
+Ce message est affiché lorsqu'une commande requérant un nom de liste a
+été utilisée, mais qu'aucun nom de liste n'a été spécifié.
+
+(Substitutions standard uniquement)
+
+no_local_part
+-------------
+Ce message est affiché lorsqu'une adresse email semble avoir une
+"route" qui ne contient qu'un nom d'hôte, mais pas de partie locale.
+
+(Substitutions standard uniquement)
+
+no_password
+-----------
+Ce message d'erreur est affiché lorsqu'une commande de Majordomo qui
+requiert un mot de passe est utilisée sans.
+
+(Standard plus COMMAND)
+
+no_route
+--------
+Ce message est affiché lorsqu'une adresse email semble ne contenir que
+des commentaires.
+
+(Substitutions standard uniquement)
+
+no_token
+--------
+Ce message d'erreur est affiché lorsque l'une des commandes "accept",
+"reject" ou "tokeninfo" est utilisée, mais qu'aucun numéro de ticket
+n'est spécifié.
+
+(Substitutions standard uniquement)
+
+no_visible
+----------
+Ce message d'erreur est affiché lorsque la commande "configshow"
+n'affiche aucun paramètre.
+
+(Standard plus SETTING)
+
+not_extracted
+-------------
+Ce message d'erreur est affiché lorsque la commande "configset-extract"
+a essayé de supprimer un fragment de configuration qui occupe plus de
+lignes que la valeur actuelle du paramètre.
+
+(Standard plus EXPECTED, SETTING, VALUE)
+
+over_message_limit
+------------------
+Ce message est affiché lorsqu'une limite soft ou hard du paramètre
+"post_limits" est dépassée.
+
+(Standard plus COUNT, TOTAL)
+
+over_time_limit
+------------------
+Ce message est affiché lorsqu'une limite soft ou hard temporaire du
+paramètre "post_limits" est dépassée.
+
+(Standard plus COUNT, TIME)
+
+password_length
+---------------
+Ce message d'erreur est affiché si la commande mot de passe est
+utilisée pour créer un mot de passe personnel qui est trop court.
+(Référez vous à "help password" et "help configset_password_min_length"
+pour plus de détails.)
+
+(Substitutions standard uniquement)
+
+password_level
+--------------
+Ce message d'erreur est affiché lorsqu'un administrateur de liste
+utilise un mot de passe valide qui n'a pas suffisamment de privilèges.
+Il s'applique uniquement pour les commandes "configdef" et "configset",
+qui requièrent différents niveaux de privilèges suivant le paramètre
+qui est modifié. Le paramètre "config_access" peut être utilisé pour
+modifier ces pré requis.
+
+(Standard plus LEVEL, MODE, NEEDED, SETTING, USER)
+
+pending_delivery
+----------------
+Ce message d'erreur est affiché si la commande "archive-delete" est
+utilisée pour essayer de supprimer un message qui devrait être inclus
+dans une ou plusieurs compilations.
+
+(Standard plus MSGNO)
+
+post_block
+----------
+Ce message est affiché dans les messages de confirmation lorsque le
+paramètre "postblock" est activé pour l'auteur d'un message posté.
+
+(Standard plus USER)
+
+relocated_list
+--------------
+Ce message d'erreur est affiché lorsqu'une liste du paramètre de
+configuration GLOBAL "relocated_lists" est utilisé dans l'une des
+commandes de Majordomo.
+
+(Standard plus NEWLIST)
+
+rhs_domain_literal
+------------------
+Ce message est affiché lorsqu'un domaine littéral (une adresse IP
+entourée de crochets) apparaît dans la partie droite d'une adresse
+après un autre caractère que '.' ou '@'.
+
+(Substitutions standard uniquement)
+
+right_brackets
+--------------
+Ce message est affiché lorsqu'une adresse email a un '>' de trop.
+
+(Substitutions standard uniquement)
+
+single_header_length
+--------------------
+Ce message est affiché lorsqu'une ou plusieurs en-tête d'un message
+posté est plus longue que le paramètre "max_header_line_length".
+
+(Standard plus LIMIT, SIZE)
+
+source_route
+------------
+Ce message est affiché si une adresse email contient une source de
+route. (une série de noms d'hôtes séparés par des virgules qui
+indiquent comment le message doit être envoyé a destination.)
+
+(Substitutions standard uniquement)
+
+spool_file
+----------
+Ce message est affiché lorsque le fichier contenant un message posté
+qui est sur le point d'être envoyé est manquant.
+
+(Substitutions standard uniquement)
+
+stalled_post
+------------
+Ce message est affiché dans l'en-tête Sujet d'un accusé de réception
+lorsqu'un message posté est mis en attente ou requiert une
+confirmation et que le le message de réponse n'a pas de description.
+C'est en général causé par l'action "reply" d'une règle d'accès.
+(Référez vous à "help configset_access_rules" pour plus de détails.)
+
+(Substitutions standard uniquement)
+
+sublist_post
+------------
+Ce message est affiché lorsqu'un message est posté sur une liste
+auxiliaire qui n'est pas considérée comme publique. (Référez vous à
+"help auxiliary_list" pour plus de détails sur les listes auxiliaires
+publiques.)
+
+(Substitutions standard uniquement)
+
+top_level_domain
+----------------
+Ce message est affiché si le domaine de plus haut niveau (ex. com, net
+ou fr) ne semble pas être dans la liste des domaines valides.
+
+(Substitutions standard uniquement)
+
+total_header_length
+-------------------
+Ce message est affiché lorsque la taille totale des en-têtes d'un
+message posté est plus grand que la limite du paramètre
+"max_total_header_length".
+
+(Standard plus LIMIT, SIZE)
+
+undefined_address
+-----------------
+Ce message d'erreur est affiché si une adresse email est vide.
+
+(Standard plus ADDRESS, ERROR)
+
+under_message_limit
+-------------------
+Ce message est affiché lorsqu'une limite proportionnelle basse du
+paramètre "post_limits" n'est pas atteinte.
+
+(Standard plus COUNT, TOTAL)
+
+under_time_limit
+----------------
+Ce message est affiché lorsqu'une limite temporaire basse du paramètre
+"post_limits" n'est pas atteinte.
+
+(Standard plus COUNT, TIME)
+
+unknown_list
+------------
+Ce message d'erreur est affiché lorsqu'une liste ayant un nom légal,
+mais qui n'existe pas sur ce domaine est utilisée dans une commande
+Majordomo.
+
+(Substitutions standard uniquement)
+
+unknown_setting
+------------
+Ce message d'erreur est affiché si la commande "configdef" ou
+"configset" est utilisée pour modifier un paramètre de configuration
+qui n'est pas supporté par Majordomo pour la liste en question. Ça
+peut être du a une faute de frappe, ou du au fait que certains
+paramètres ne sont valides que pour la pseudo liste GLOBAL ou que pour
+les listes ordinaires.
+
+(Standard plus SETTING)
+
+unknown_token
+-------------
+Ce message d'erreur est affiché si l'une des commandes "accept",
+"reject" ou "tokeninfo" est utilisée en conjonction a un ticket qui a
+un format correct, mais qui est introuvable dans la base des tickets.
+
+(Standard plus TOKEN)
+
+unmatched_paren
+---------------
+Ce message est affiché lorsqu'il manque dans une adresse une ou
+plusieurs parenthèses fermantes.
+
+(Substitutions standard uniquement)
+
+unregistered
+------------
+Ce message d'erreur est affiché si la commande "password" est utilisée
+pour changer le mot de passe d'une adresse qui n'est pas encore
+enregistrée sur ce domaine. (Référez vous à "help register" pour plus
+de détails sur l'enregistrement.)
+
+(Standard plus VICTIM)
+
+word_separator
+--------------
+Ce message est affiché lorsque les mots d'une adresse email sont
+séparés par autre chose que '.' ou '@'.
+
+(Substitutions standard uniquement)
+
+
+Référez vous aussi à :
+
+   help admin_domain
+   help format_files
+   help get
+   help reply_files
+   help variables
+
+$INCLUDE-help/foot
