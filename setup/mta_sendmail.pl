@@ -64,6 +64,7 @@ sub setup_sendmail {};
 
 sub setup_sendmail_domain {
   my($config, $dom, $nhead) = @_;
+  my (@args, $pw, $tmp);
 
   # Do sendmail configuration by calling createlist-regen.
 
@@ -74,14 +75,28 @@ sub setup_sendmail_domain {
     $config->{'site_password'} = $pw;
   }
 
-  # 3/21/2000 - SRE - added "-u nobody@example.com", 
-  # to keep mj_shell from aborting with "can't connect"
-  my @args = ("$config->{'install_dir'}/bin/mj_shell", "-u", 
-          "nobody\@example.com", "-d", "$dom", "-p",
-	      "$pw", "createlist-regen" . ($nhead ? "-noheader" : ''));
+  $tmp = "tmp.$$." . &gen_tag;
+  open PW, ">$tmp";
+  print PW "default password $pw\n\n";
+  print PW "createlist-regen" . ($nhead? "-noheader" : '') . "\n";
+  close PW;
 
-  print "Regenerating MTA Configuration for $dom, please wait...\n";
+
+  @args = ("$config->{'install_dir'}/bin/mj_shell", '-u', 
+           'mj2_install@example.com', '-d', $dom, '-F', $tmp);
+
+  print "Regenerating MTA Configuration for $dom..."
+    unless $quiet;
+
+  open(TMP, ">&STDOUT");
+  open(STDOUT, ">/dev/null");
   system(@args) == 0 or die "Error executing $args[0], $?";
+
+  close STDOUT;
+  open(STDOUT, ">&TMP");
+  unlink $tmp;
+
+  print "ok.\n" unless $quiet;
 }
 
 =head1 COPYRIGHT
