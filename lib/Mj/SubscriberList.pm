@@ -30,9 +30,11 @@ Reception classes are (not chiseled in stone):
   all              - user receives everything, digests, single messages,
                      etc. This is intended for list owners who might want
                      to see everything that does out.
-  none        - the user doesn''t receive any mail at all.
-
-Postpone status could be implemented here, too.  How?
+  nomail           - the user doesn''t receive any mail at all.
+  unique           - each unduplicated message.  Duplicates are messages
+                     with identical IDs or body checksums that have 
+                     already been distributed by Majordomo to the same
+                     address.
 
 Flags is a string of flags.  These could be made into normal fields, but
 large numbers of fields incur a time penalty.  So stuffed here are bits of
@@ -94,7 +96,6 @@ sub new {
 sub compare {
   reverse($_[0]) cmp reverse($_[1]);
 }
-
 
 =head1 COPYRIGHT
 
