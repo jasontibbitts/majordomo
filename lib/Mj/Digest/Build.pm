@@ -80,6 +80,7 @@ sub build {
        tmpdir       => $args{tmpdir},
        from         => $args{from},
        to           => $args{to},
+       headers      => $args{headers},
       );
   }
 
@@ -122,7 +123,7 @@ spaces.
 sub idx_subject {
   my ($type, $msg, $data) = @_;
   my $sub = $data->{'subject'};
-  $sub = '(no subject)' unless length $sub;
+  $sub = '(no subject)' unless defined $sub && length $sub;
 
   if ($type eq 'index') {
     return sprintf("  %-10s: %s\n", $msg, $sub);

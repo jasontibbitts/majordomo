@@ -312,8 +312,8 @@ sub _post {
 
   my(%avars, %deliveries, %digest, @dfiles, @dtypes, @ent, @files, @refs,
      @tmp, @skip, $arcdata, $arcent, $archead, $digests, $dissues,
-     $exclude, $head, $i, $j, $msgnum, $prefix, $replyto, $sender, $seqno,
-     $subject, $subs, $tmp, $tmpdir, $tprefix, $whereami);
+     $exclude, $head, $i, $j, $msgnum, $precedence, $prefix, $replyto,
+     $sender, $seqno, $subject, $subs, $tmp, $tmpdir, $tprefix, $whereami);
 
   $self->_make_list($list);
   $tmpdir   = $self->_global_config_get('tmpdir');
@@ -417,8 +417,8 @@ sub _post {
   $subs = {
 	   LIST     => $list,
 	   VERSION  => $Majordomo::VERSION,
-	   SENDER   => $user,
-	   USER     => $user,
+	   SENDER   => "$user",
+	   USER     => "$user",
 	   SEQNO    => $seqno,
 	   ARCHIVE  => $msgnum,
 	   SUBJECT  => $subject,
@@ -432,6 +432,9 @@ sub _post {
   for $i ($self->_list_config_get($list, 'message_headers')) {
     $i = $self->substitute_vars_string($i, $subs);
     $head->add(undef, $i);
+  }
+  if ($precedence = $self->_list_config_get($list, 'precedence')) {
+    $head->add('Precedence', $precedence);
   }
   $head->add('Sender', $sender);
 
@@ -487,8 +490,13 @@ sub _post {
   # Build digests if we have a message number from the archives
   # (%deliveries is modified)
   if ($msgnum) {
-    $self->do_digests($list, undef, 0, \%deliveries, $subs, $msgnum,
-		      $arcdata, $sender, $whereami, $tmpdir);
+    $self->do_digests('list'      => $list,     'deliveries' => \%deliveries,
+		      'substiute' => $subs,     'msgnum'     => $msgnum,
+		      'arcdata'   => $arcdata,  'sender'     => $sender,
+		      'whereami'  => $whereami, 'tmpdir'     => $tmpdir,
+		      'headers'   => [['Predecence', $precedence]],
+		      # 'run' => 0, 'force' => 0,
+		     );
   }
 
   # Invoke delivery routine
@@ -1457,26 +1465,30 @@ If not true, the normal decision algorithm will run.
 $deliveries is modified.
 
 If $msgnum is not defined, digest_trigger will be called instead of
-digest_add, so this function can be used to trigger a digest .
+digest_add, so this function can be used to trigger a digest.
 
 =cut
 sub do_digests {
-  my ($self, $list, $run, $force, $deliveries, $subs, $msgnum, $arcdata, $sender,
-      $whereami, $tmpdir,) = @_;
+  my ($self, %args) = @_;
   my $log = new Log::In 40;
   my (%digest, %file, @dfiles, @dtypes, @nuke, @tmp, $digests, $dissues, $dtext,
-      $file, $i, $j, $k);
+      $file, $i, $j, $k, $l, $list, $subs);
+  $list = $args{'list'}; $subs = $args{'substitute'};
 
   # Pass to digest if we got back good archive data and there is something
   # in the digests variable.
   $digests = $self->_list_config_get($list, 'digests');
   if (scalar keys %{$digests}) {
-    if ($msgnum) {
+    if ($args{'msgnum'}) {
       # Note that digest_add will eventually call the trigger itself.
-      %digest = $self->{'lists'}{$list}->digest_add($msgnum, $arcdata);
+      %digest = $self->{'lists'}{$list}->digest_add($args{'msgnum'},
+						    $args{'arcdata'},
+						   );
     }
     else {
-      %digest = $self->{'lists'}{$list}->digest_trigger($run, $force);
+      %digest = $self->{'lists'}{$list}->digest_trigger($args{'run'},
+							$args{'force'},
+						       );
     }
 
     if (%digest) {
@@ -1494,7 +1506,6 @@ sub do_digests {
 	$subs->{DIGESTDESC} = $digests->{$i}{desc};
 	$subs->{ISSUE}      = $dissues->{$i}{issue};
 	$subs->{VOLUME}     = $dissues->{$i}{volume};
-	$detext = {};
 
 	# Fetch the files from storage.  Per digest type, we have three
 	# files that we need, and we look for them under any of four names
@@ -1520,12 +1531,11 @@ sub do_digests {
 	   types        => [@dtypes],
 	   files        => $dtext,
 	   subject      => $digests->{$i}{desc} . " V$dissues->{$i}{volume} #$dissues->{$i}{issue}",
-	   from         => $sender,
-	   to           => "$list\@$whereami",
-	   tmpdir       => $tmpdir,
+	   from         => $args{'sender'},
+	   to           => "$list\@$args{'whereami'}",
+	   tmpdir       => $args{'tmpdir'},
 	   index_line   => $self->_list_config_get($list, 'digest_index_format'),
-#	   index_header => "index header\n",
-#	   index_footer => "index footer\n",
+	   headers      => $args{'headers'},
 	  );
 
 	# Unlink the temporaries.
@@ -1533,7 +1543,9 @@ sub do_digests {
 
 	for $j (@dtypes) {
 	  # shifting off an element of @dfiles gives the corresponding digest
-	  $deliveries->{"digest-$i-$j"} = {exclude => {}, file => shift(@dfiles)};
+	  $args{'deliveries'}->{"digest-$i-$j"} = {exclude => {},
+						   file => shift(@dfiles),
+						  };
 	}
       }
     }

@@ -57,6 +57,11 @@ sub new {
      Data     => '',
      # More fields here
     );
+
+  for $i (@{$args{headers}}) {
+    $self->{top}->head->add($i->[0], $i->[1]);
+  }
+
   $self->{body} = $self->{top}->open('w');
   $self->{from}      = $args{from};
   $self->{indexfn}   = $args{indexfn};

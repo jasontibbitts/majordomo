@@ -53,6 +53,11 @@ sub new {
      Filename => undef,
      # More fields here
     );
+
+  for $i (@{$args{headers}}) {
+    $self->{top}->head->add($i->[0], $i->[1]);
+  }
+
   $self->{digest} = build MIME::Entity
     (Type     => 'multipart/digest',
      Filename => undef,

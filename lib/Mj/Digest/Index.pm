@@ -45,10 +45,11 @@ sub new {
   bless $self, $class;
 
   $self->{'indexfn'} = $args{'indexfn'};
-  $self->{'count'} = 0;
+  $self->{'count'}   = 0;
   $self->{'subject'} = $args{'subject'} || '';
-  $self->{'from'} = $args{'from'};
-  $self->{'to'} = $args{'to'};
+  $self->{'from'}    = $args{'from'};
+  $self->{'to'}      = $args{'to'};
+  $self->{'headers'} = $args{'headers'};
 
   # Pull in the index.
   $self->{'index'} = "";
@@ -123,6 +124,10 @@ sub done {
      Data     => $self->{'index'},
      # More fields here
     );
+
+  for $i (@{$self->{headers}}) {
+    $self->{top}->head->add($i->[0], $i->[1]);
+  }
 
   $file = Majordomo::tempname();
   $fh = new IO::File ">$file";

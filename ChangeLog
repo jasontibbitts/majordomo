@@ -1,3 +1,36 @@
+Sat Apr  3 22:10:51 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Pass additional headers to do_digests.
+
+	* lib/Mj/Digest/Build.pm (build): Pass on extra headers.
+
+	* lib/Mj/Digest/MIME.pm (new): Add extra headers.
+
+	* lib/Mj/Digest/Text.pm (new): Add extra headers.
+
+	* lib/Mj/Digest/Index.pm (new): Add extra headers.
+
+Fri Apr  2 18:01:58 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Digest/Build.pm (idx_subject): Make sure subject is
+ 	defined.
+
+	* lib/Mj/Resend.pm (do_digests): Take a hash of arguments instead
+ 	of a pile of positional args.
+	(_post): Call do_digests with a hash.
+
+	* lib/Majordomo.pm (_digest): Call do_digests with a hash.
+
+Thu Apr  1 01:16:24 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (list_config_set): Refine application of
+ 	config_CLASS and config_var subsidiary passwords.
+	(substitute_vars_string): Don't turn \\ into \, just \$ into $.
+
+Wed Mar 31 00:33:46 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Add Precedence: header.
+
 Sun Mar 28 02:23:03 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Archive.pm (add_start): Be sure to return the full

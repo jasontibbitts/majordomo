@@ -1,5 +1,10 @@
 Notes on upgrading from alpha1 or before:
 
+1999.04.01 (CVS):
+
+Backslashes in help files no longer need to be escaped, only expansion
+variables that you don't want expanded.
+
 1999.03.27 (CVS):
 
 If you use /.../ matching in access_rules, you must force the variables to

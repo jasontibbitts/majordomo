@@ -516,7 +516,7 @@ sub substitute_vars_string {
     # Don't substitute after backslashed $'s
     $str =~ s/([^\\]|^)\$\Q$i\E(\b|$)/$1$subs->{$i}/g;
   }
-  $str =~ s/\\([\$\\])/$1/g;
+  $str =~ s/\\\$/\$/g;
   $str;
 }
 
@@ -926,10 +926,14 @@ sub list_config_set {
   # Validate passwd
   for $i (@groups) {
     $ok = $self->validate_passwd($user, $passwd, $auth, $int,
-				 $list, "config_$i", $global_only);
+				 $list, "config_\U$i", $global_only);
     last if $ok > 0;
   }
-  if (!($ok>0)) {
+  unless ($ok > 0) {
+    $ok = $self->validate_passwd($user, $passwd, $auth, $int,
+				 $list, "config_$var", $global_only);
+  }
+  unless ($ok > 0) {
     $self->inform($list, 'config_set', $user, $user, "configset $list $var",
 		  $int, 0, 1, 0);
     return (0, "Password does not authorize $user to alter $var.\n");
@@ -2908,8 +2912,12 @@ sub _digest {
 	    };
     $deliveries = {};
     $force = 1 if $mode =~ /force/;
-    $self->do_digests($list, $d, $force, $deliveries, $subs, undef, undef,
-		      $sender, $whereami, $tmpdir);
+    $self->do_digests('list'       => $list,     'run'        => $d,
+		      'force'      => $force,    'deliveries' => $deliveries,
+		      'substitute' => $subs,     'sender'     => $sender,
+		      'whereami'   => $whereami, 'tmpdir'     => $tmpdir
+		      # 'msgnum' => undef, 'arcdata' => undef,
+		     );
 
     # Deliver then clean up
     if (keys %$deliveries) {
