@@ -6,7 +6,29 @@ Mj::AliasList.pm - An object containing address aliases and equivalencies.
 
 This encapsulates a simple database of aliases, linking one address to
 another so that they will compare as equivalent for all intents and
-purposes.
+purposes.  The main purpose of an alias is to allow people to 
+issue commands or post messages from more than one e-mail address.
+
+Each alias has a source and a target.  For example, if jane@example.org
+issues an alias command for the address jane@example.edu:
+
+  default user jane@example.org  
+  alias jane@example.edu
+
+The address "jane@example.edu" is the source, and the address
+"jane@example.org" is the target.
+
+Whenever a new alias is created, two entries are added to the alias
+database.  The key of the first entry is the canonical address of the
+source; the key of the second ("bookkeeping") entry is the canonical
+address of the target.  Each of the two entries has identical data.
+
+The following data are stored for each alias:
+
+  target      - The target address
+  stripsource - The source address, with any comments removed
+  striptarget - The target address, with any comments removed
+  changetime  - The time at which the data was last changed
 
 Many have been interested in linking this alias functionality into some
 other database that their site offers.  This should be a relatively simple
@@ -18,7 +40,6 @@ that I neglected to consider, like what happens when removing aliases.  (A
 lookup may see that there is an alias to remove when in reality it isn''t
 removable.)
 
-What about global aliases?  What about sharing aliases between lists?
 
 =head1 SYNOPSIS
 
@@ -104,8 +125,8 @@ sub add {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2002, 2004 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
