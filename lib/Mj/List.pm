@@ -1682,8 +1682,9 @@ This expires old data about posted messages.
 =cut
 sub expire_post_data {
   my $self = shift;
-  # XXX Use twice the lifetime of duplicates.
-  my $expiretime = time - $self->config_get('dup_lifetime') * 2*60*60*24;
+  my $age = $self->config_get('post_lifetime');
+  return unless (defined $age and $age =~ /^[+-]?\d+$/);
+  my $expiretime = time - $age * 86400;
 
   $self->_make_post_data;
   return unless $self->{'posts'};
@@ -1716,24 +1717,60 @@ sub expire_post_data {
   $self->{'posts'}->mogrify($mogrify);
 }
 
+=head2 expire_inactive_subs
+
+This removes subscribers who have been in "nomail"
+delivery mode for a long period of time.
+
+=cut
+sub expire_inactive_subs {
+  my $self = shift;
+  my (@nuked, $age, $expiretime, $time);
+
+  $time = time;
+  $age = $self->config_get('inactive_lifetime');
+  if (defined $age and $age =~ /^\+?\d+$/) {
+    $expiretime = $time - $age * 86400;
+  }
+  else {
+    return 1;
+  }
+
+  my $mogrify = sub {
+    my $key  = shift;
+    my $data = shift;
+
+    # True if we have an inactive account
+    my $i = ($data->{class} eq 'nomail' &&
+             ! $data->{classarg}        &&
+	     $expiretime > $data->{changetime}
+	    );
+
+    if ($i) {
+      push @nuked, ($key, $data);
+      return (1, 1, undef);
+    }
+    return (0, 0);
+  };
+
+  $self->{'sublists'}{'MAIN'}->mogrify($mogrify);
+  return (1, @nuked);
+}
+
 =head2 expire_subscriber_data
 
 This converts members with timed nomail classes back to their old class
-when the vacation time is passed and removes old bounce data.
+when the vacation time is passed.
 
 =cut
 sub expire_subscriber_data {
   my $self = shift;
   my $time = time;
-  my $maxbouncecount = $self->config_get('bounce_max_count');
-  my $maxbounceage   = $self->config_get('bounce_max_age') * 60*60*24;
-  my $bounceexpiretime = $time - $maxbounceage;
-  my $ali;
 
   my $mogrify = sub {
     my $key  = shift;
     my $data = shift;
-    my (@b1, @b2, $a1, $a2, $b, $c, $e, $u1, $u2, $t);
+    my ($a1, $a2, $c, $e, $u);
 
     # True if we have an expired timer
     $e = ($data->{class} eq 'nomail' &&
@@ -1741,43 +1778,19 @@ sub expire_subscriber_data {
 	  $time > $data->{classarg}
 	 );
 
-    # Fast exit if we have no expired timers and no bounce data
-    return (0, 0) if !$e && !$data->{bounce};
+    # Fast exit if we have no expired timers
+    return (0, 0) if (!$e);
     if ($e) {
       # Now we know we must expire; extract the args
       ($c, $a1, $a2) = split("\002", $data->{classarg2});
       $data->{'class'}     = defined $c  ? $c  : 'each';
       $data->{'classarg'}  = defined $a1 ? $a1 : '';
       $data->{'classarg2'} = defined $a2 ? $a2 : '';
-      $u1 = 1;
-    }
-
-    # Expire old bounce data.
-    if ($data->{bounce}) {
-      @b1 = split(/\s+/, $data->{bounce});
-      @b2 = ();
-      $c = 0;
-      while (1) {
-
-	# Stop now if we have too many bounces
-	if ($c >= $maxbouncecount) {
-	  $u2 = 1;
-	  last;
-	}
-
-	$b = pop @b1; last unless defined $b;
-	($t) = $b =~ /^(\d+)\w/;
-	if ($t < $bounceexpiretime) {
-	  $u2 = 1;
-	  next;
-	}
-	unshift @b2, $b; $c++;
-      }
-      $data->{bounce} = join(' ', @b2) if $u2;
+      $u = 1;
     }
 
     # Update if necessary
-    if ($u1 || $u2) {
+    if ($u) {
       return (0, 1, $data);
     }
     return (0, 0);
