@@ -4,4 +4,4 @@
         $SUBJECT</a>
     <td>$FROM
     <td>$DATE $SIZE
-    <td>$MSGNO
+    <td>$MSGNO&nbsp;$HIDDEN
