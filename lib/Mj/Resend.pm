@@ -226,7 +226,6 @@ sub post {
 	   MJOWNER  => $self->_global_config_get('sender'),
 	   SITE     => $self->_global_config_get('site_name'),
 	   WHEREAMI => $self->_global_config_get('whereami'),
-	   REASONS  => $mess,
 	  };
 
   $desc = $fileinfo->{description};
