@@ -118,8 +118,8 @@ details.
 </p>
 
 <p>
-<a
-href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=lists-aux&amp;extra=$PLIST">
-List of Auxiliary Lists
+View the 
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=lists-aux&amp;extra=$PLIST">
+list of auxiliary lists
 </a>
 </p>

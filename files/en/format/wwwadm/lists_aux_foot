@@ -13,3 +13,27 @@ The main subscriber list
 
 </tr>
 </table>
+
+<p>
+To create a new sublist of the $LIST mailing list, type the name of the
+sublist into the <b>Sublist</b> box, then press the <b>Create
+Sublist</b> button.  Sublist names can only consist of letters, digits,
+periods, underscores, and hyphens.
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input name="list" type="hidden" value="$LIST">
+  <input name="passw" type="hidden" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="func" value="sublist-create">
+
+  Sublist:
+  <input name="sublist" value="">
+  <input type="submit" value="Create Sublist">
+</form>
+
+<p>
+To learn more about sublists, see the 
+$HELP:AUXILIARY_LIST help document.
+</p>
+

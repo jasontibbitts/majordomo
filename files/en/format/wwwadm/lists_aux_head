@@ -1,8 +1,8 @@
 <!-- Majordomo lists_aux_head format file -->
 <p>
-The following auxiliary lists are available at $SITE.
-Click the name to see a subscription summary for that
-auxiliary list.
+The following auxiliary lists (also known as sublists) are available 
+at $SITE.
+Click the name to see a subscription summary for that auxiliary list.
 
 <table>
 <tr><th align="left">Name<th align="left">Description</tr>

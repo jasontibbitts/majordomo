@@ -123,10 +123,17 @@ List of Lists
 </td>
 
 <td>
+
+View the
+<a href="$CGIURL?$CGIDATA&amp;func=lists-aux&amp;list=$LIST&amp;extra=$PLIST">
+ list of auxiliary lists</a>.
+<br>
+
+View
 <a href="$CGIURL?$CGIDATA&amp;func=lists-long&amp;list=$LIST">
- View every mailing list for which access is authorized.</a><br>
+ every mailing list</a> for which access is authorized.<br>
+
 <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=newlist">
- Create, Rename, or Destroy a mailing list.
-</a>
+ Create, Rename, or Destroy</a> a mailing list.
 </td>
 </tr>

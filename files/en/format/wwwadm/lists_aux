@@ -2,7 +2,7 @@
 <tr>
 
 <td>
-<a href="$CGIURL?$CGIDATA&amp;func=who-summary&amp;list=$LIST">
+<a href="$CGIURL?$CGIDATA&amp;func=sublist&amp;list=$LIST">
 $LIST
 </a>
 </td>

@@ -1,5 +1,15 @@
 <!-- Majordomo who_error format file -->
-<pre>
+<p>
 The &quot;$LIST&quot; subscriber list could not be accessed.
+</p>
+
+<pre>
 $ERROR
 </pre>
+
+<p>
+View the
+<a href="$CGIURL?$CGIDATA&amp;func=lists-aux&amp;list=$LIST&amp;extra=$PLIST">
+list of auxiliary lists</a>
+</p>
+

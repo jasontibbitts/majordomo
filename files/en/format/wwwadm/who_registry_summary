@@ -83,14 +83,16 @@ details.
 </p>
 
 <p>
+View the list of
 <a href="$CGIURL?$CGIDATA&amp;list=GLOBAL&amp;func=lists-aux&amp;extra=GLOBAL">
-GLOBAL Auxiliary Lists
+GLOBAL auxiliary lists
 </a>
 
 <br>
 
+View the list of
 <a href="$CGIURL?$CGIDATA&amp;list=DEFAULT&amp;func=lists-aux&amp;extra=DEFAULT">
-DEFAULT Auxiliary Lists
+DEFAULT auxiliary lists
 </a>
 </p>
 
