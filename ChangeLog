@@ -1,3 +1,11 @@
+1999-08-25  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Config.pm (parse_access_rules): Typo in file not found
+	  warning.
+
+	* lib/Majordomo.pm (_make_list): Dumb typo in list_file_get
+	  callback function.
+
 Fri Aug 20 00:01:42 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* setup/ask_domain.pl (ask_domain): Make sure the domain hash gets

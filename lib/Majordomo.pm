@@ -2175,7 +2175,7 @@ sub _make_list {
 		 callbacks =>
 		 {
 		  'mj.list_file_get' => 
-		  sub { $self->_list_config_get(@_) },
+		  sub { $self->_list_file_get(@_) },
 		 },
 		);
   return unless $tmp;

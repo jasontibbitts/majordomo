@@ -1154,7 +1154,7 @@ sub parse_access_rules {
 	    ($file) =
 	      &{$self->{callbacks}{'mj.list_file_get'}}($self->{list}, $k);
 	    unless ($file) {
-	      $warn .= "  Req. $i, action $tmp: file '$k' could not found.\n";
+	      $warn .= "  Req. $i, action $tmp: file '$k' could not be found.\n";
 	    }      
 	  }
 	}
