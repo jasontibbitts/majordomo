@@ -8,8 +8,8 @@ value, if specified, is the string to be used in following commands
 NOTE: This help file is for the command called "default". To get
       basic help, just send "help" to the server (not "help default").
 
-WARNING: This command is not implemented in mj_shell, it is available
-         ONLY when sending commands via email.
+WARNING: Some options of this command are not implemented in mj_shell,
+         as indicated below, and are available ONLY for email commands.
 
 The 'default' command sets certain defaults used by the command parser
 for processing one or more commands. The more commands you have, the
@@ -25,31 +25,37 @@ not for others.
 
 The following defaults can be set, as explained below:
 
- 1. language:  (Not implemented.) Sets the default language preference
-               list to the comma-separated list of two-letter language
-               abbreviations.
+Section 1: default language XX (Not implemented.)
+   Sets the default language preference list to the comma-separated
+   list of two-letter language abbreviations.
 
- 2. list:      Sets the default list for commands to the provided list.
-               To clear the default list, don't supply one.
+Section 2: default list LISTNAME
+   Sets the default list for commands to the provided list.
+   To clear the default list, don't supply one. NOT supported
+   by mj_shell, available only to email interface.
 
- 3. password:  Approves all following commands with the given password.
-               To clear the password, don't supply one.
+Section 3: default password STRING
+   Approves all following commands with the given password.
+   To clear the password, don't supply one.
 
- 4. prefix:    (Not implemented.) Sets a prefix that (if present) will be
-               deleted from the beginning of all following lines.
+Section 4: default prefix STRING (Not implemented.)
+   Sets a prefix that (if present) will be deleted from the beginning
+   of all following lines.
 
- 5. user:      Replaces the address found in the "From:" field of your
-               email headers.
+Section 5: default user ADDRESS
+   Replaces the address found in the "From:" field of your email headers.
+
+Section 6: default delay TIMESPEC
+   Postpones commands, making them occur in the future instead of
+   when the command is parsed.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Section 1: default language XX
-
-  Not implemented!
+Section 1: default language XX (Not implemented.)
 
 The 'language' command (not implemented) is equivalent to the 'default
-language' command, and is supplied for the benefit of those who do not
-wish to see server messages in English.
+language' command, and may someday be supplied for the benefit of those
+who do not wish to see server messages in English.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -91,9 +97,7 @@ or:
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Section 4: default prefix STRING
-
-  Not implemented!
+Section 4: default prefix STRING (Not implemented.)
 
 Sets a prefix that (if present) will be DELETED, not ADDED, from the
 beginning of all following lines before the commands are processed.
@@ -146,6 +150,30 @@ or:
     default password Real Name <someone@example.com>
     subscribe ONE-LIST
     subscribe TWO-LIST
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Section 6: default delay TIMESPEC
+
+This command postpones OTHER commands, making them occur in the
+future instead of when the other command is parsed. The TIMESPEC
+is detailed in the "Time Period" section of "help times".
+
+For example,
+  default delay 3h
+would cause all subsequent commands to be delayed by three hours,
+but only if an admin password is supplied and access_password_override
+is enabled.
+
+The delay command also supports a non-standard time specification
+of "seconds", in which there is nothing after an integer:
+  default delay 3
+would set the delay to 3 seconds.  This is useful if you want a
+command to be executed by the very next delay trigger. (The delay
+trigger times are list-specific, and set by "configset triggers".)
+By default, delay triggers occur every hour.
+
+A delay can also be specified in "configset access rules".
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

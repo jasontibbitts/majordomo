@@ -1,10 +1,69 @@
-This file is specific to administrators! To get suggestions from a
-user's perspective (as a list subscriber) send "help overview" or
-"help commands" to the server at $MJ
+This file contains information for both subscribers and administrators,
+but subscribers will probably find only the first section useful!
 
-This file describes the general format that Majordomo uses for specifying
-the time at which an event happens. For list configurations that need
-a time specification, you can use any of the following forms:
+Below are several general formats that Majordomo uses for specifying
+the time at which an event happens, how long to wait for something to
+happen, when it did happen, etc.
+
+Section 1 - Time Periods (for 'set nomail', 'default delay', etc)
+Section 2 - Time Stamps (for 'archive-get', 'report', etc)
+Section 3 - Time Specs (for administrators and list configuration)
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Section 1 - Time Periods (for 'set nomail', 'default delay', etc)
+
+The period of time before something happens can be specified in
+hours, days, weeks, months, or years. For example, use:
+   3h for 3 hours
+   7d for 7 days
+   2w for 2 weeks
+   6m for 6 months
+   2y for 2 years
+
+The single-letter abbreviations h/d/w/m/y can be expanded into full
+words if you want: only one character is required, but the words shown
+above (hours, days, weeks, months, years) are equivalent. If you are
+using full words, remember NOT to use a space: "2weeks", NOT "2 weeks".
+
+If you need more flexibility in specifying time spans, you
+can combine these, as in 2w3d for two weeks and three days.
+
+If no character follows the number, different portions of the software
+make different decisions: For example, the delay command interprets
+unqualified numbers as seconds out of a minute, and the post_limits
+configuration setting interprets them as number of posts. Be careful
+to check the help file for any command on which you don't include
+a qualifier like "d".
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Section 2 - Time Stamps (for 'archive-get', 'report', etc)
+
+To include an entire year, use a four-digit number. For example:
+   1999      for the year  of           1999
+
+To include only one month of a specific year, use a four-digit year
+plus a two-digit month (with a leading '0' if needed):
+   200007    for the month of    July   2000
+
+To include a specific WEEK use a four-digit year, plus a two-digit
+month (with a leading '0' if needed), plus a ONE-DIGIT week:
+   2000011  for the first week of January 2000
+
+To include a specific DAY use a four-digit year, plus a two-digit
+month (with a leading '0' if needed), plus a TWO-DIGIT day:
+   20000802 for the day   of 02 August 2000
+
+NOTE: There is a subtle difference between day and week time stamps...
+days are always two digits, weeks are always one digit!
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Section 3 - Time Specs (for administrators and list configuration)
+
+For list configurations that need a time specification, you can use any
+of the following forms:
 
 1. HOUR: an integer from 0 to 23
    - 0 is midnight, 12 is noon
@@ -59,10 +118,16 @@ a time specification, you can use any of the following forms:
 NOTE: Commas can be used to make lists of hours or days, so you
       can have: mo(6,8,10), tu(12-18,22-6), we, 3rd(4,10-14)
 
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 See Also:
+   help archive
    help configset digests
+   help configset post_limits
    help configset triggers
+   help default
+   help report
+   help set
 
 For a list of all help topics send this one-line message
    help topics

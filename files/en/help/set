@@ -112,17 +112,10 @@ as described in "help configset default_class".
   set before you enabled 'nomail', without you having to remember.
 
   You can also specify an amount of time that you would like to stop receiving
-  mail, as a number of days/weeks/months. If you DO specify a time period, you
-  will return to the 'digest' or 'each' setting you had before you set your
-  subscription to 'nomail'. The nomail period can be specified in hours, days,
-  weeks, months, or years. For example, use:
-   3h for 3 hours
-   7d for 7 days
-   2w for 2 weeks
-   6m for 6 months
-   2y for 2 years
-   NOTE: If you need more flexibility in specifying time spans, you
-         can combine these, as in 2w3d for two weeks and three days.
+  mail, as a number of days/weeks/months/etc. If you DO specify a time period,
+  you will return to the 'digest' or 'each' setting you had before you set your
+  subscription to 'nomail'. For details on how to specify the time period, see
+  "help times".
 
   For example, you can send commands like this to $MJ
      set LISTNAME nomail YourEmailAddressHere
@@ -454,6 +447,7 @@ See Also:
    help configset nonmember_flags        (sets non-subscriber defaults for ack messages)
    help configshow                       (for how to get a list of availabel digests)
    help subscribe (allows you to choose the comment that appears with your address)
+   help times     (details of how to specify a time period for 'nomail')
    help who       (-export option can extract all the set commands for an entire list)
 
 

@@ -44,28 +44,18 @@ specified with the report command:
 
 If you specify a "date" field, the report will be restricted to a
 period of time. Without "date", all events since the software was
-installed will be reported. Dates can be specified in many formats:
- 1. for the last N hours, days, weeks, months, or years, use:
-   3h for 3 hours
-   7d for 7 days
-   2w for 2 weeks
-   6m for 6 months
-   2y for 2 years
-   NOTE: If you need more accuracy in specifying time spans, you
-         can combine these, as in 2w8h for two weeks and eight hours.
- 2. for a given year, month, or day, use "yyyymmdd" as follows:
-   1999     for the year  of           1999
-   200007   for the month of    July   2000
-   20000802 for the day   of 02 August 2000
- 3. for a given week, use "yyyymmw" as follows:
-   2000011 for the first week of January 2000
-NOTE: There is a subtle difference between day and week time periods...
-days are always two digits, weeks are always one digit! (this is the
-same date syntax found in "help archive")
+installed will be reported. Dates can be specified in several formats:
+ 1. for the last N hours, days, weeks, months, or years, use the
+    format shown in the "Time Period" section of "help times".
+    For example, "3h" reports on events during the last 3 hours
+ 2. for a given year, month, week, or day, use the format shown in
+    the "Time Stamp" section of "help times". For example, "200007"
+    reports on events during the month of July 2000
 
 
 See Also:
    help configset access_rules (to limit access to this command)
+   help times (for how to specify the report period)
 
 For a list of all help topics send this one-line message
    help topics

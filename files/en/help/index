@@ -12,9 +12,10 @@ a list, which the list owner must have previously stored there. If no
 files or directories exist, or if you are not authorized to index the
 list, the "index" command returns an error message.
 
-Normally, archived posts are retrieved with "archive-get", and the
-index and get commands will not allow archive retrieval if "archive_dir"
-is set to somewhere outside the list's file space.
+Normally, archived posts are listed with "archive-index" and retrieved
+with "archive-get". The index and get commands will not allow archive
+retrieval if "archive_dir" is set to somewhere outside the list's file
+space, and are not as convenient even if they DO work.
 
 Note that "pathname" may include one or more levels of directories
 (also called folders). For example, if list "MYLIST" contains a

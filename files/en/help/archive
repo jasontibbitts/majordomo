@@ -26,20 +26,10 @@ for the month of March, 1999, would be called
 Archives may be organized by year, month, week, or day, at the 
 discretion of the list owners.
 
-Dates can be specified in two formats, depending on the list settings:
- 1. for a given year, month, or day, use "yyyymmdd" as follows:
-   1999     for the year  of           1999
-   200007   for the month of    July   2000
-   20000802 for the day   of 02 August 2000
- 2. for a given week, use "yyyymmw" as follows:
-   2000011 for the first week of January 2000
-NOTE: There is a subtle difference between day and week time periods...
-days are always two digits, weeks are always one digit! (this is the
-same date syntax found in "help report")
-
-Within each archive, each message will have a number.  For instance,
-the seventh message in the March, 1999, archive would have the following
-number:
+Dates can be specified in several formats, as detailed in the
+"Time Stamp" section of "help times". Within each archive, each
+message will have a number.  For instance, the seventh message in
+the March, 1999, archive would have the following number:
   199903/7
 
 Messages sent to auxiliary lists are also archived, and made available
@@ -64,7 +54,8 @@ Another pattern is a message number.  For example,
 would retrieve the fourth message in the March, 1999, archive of
 the "test" list.
 
-The final pattern is a number which expresses a date.  The command
+The final pattern is a number which expresses a date. Again, see
+"help times" for the full syntax of "Time Stamp" dates. The command
   archive-index plum 19990814
 would retrieve an index of messages posted to the "plum" list
 on August 14, 1999.  Similarly, the command
@@ -150,6 +141,7 @@ See Also:
    help get   (which may be used in some cases to retrieve archives)
    help index (which may be used to show which archives are available)
    help put   (which is used to create the archive directory)
+   help times (for how to specify time stamps)
 
 For a list of all help topics send this one-line message
    help topics
