@@ -1,3 +1,12 @@
+2005-01-31  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (connect)  Give a reasonable value
+	for the elapsed time if the connection fails.
+	Thanks to Marc Fournier.
+
+	* lib/Mj/Parser.pm:  (parse_part)  Give a reasonable value
+	for the elapsed time if no commands are found.
+
 2005-01-16  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Access.pm:  (_d_advertise)  Show information about

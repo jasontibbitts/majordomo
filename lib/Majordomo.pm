@@ -286,10 +286,11 @@ sub connect {
   my $addr = shift || 'unknown@anonymous';
   my $pw   = shift || '';
   my $log = new Log::In 50, "$int, $addr";
-  my (@anon_interfaces, $avars, $dir1, $dir2, $err, $expire, $id, $loc, 
-      $ok, $path, $pdata, $req, $sfile, $tmp, $user);
+  my (@anon_interfaces, $avars, $dir1, $dir2, $elapsed, $err, $expire, 
+      $id, $loc, $ok, $path, $pdata, $req, $sfile, $tmp, $user);
 
   $user = new Mj::Addr($addr);
+  $elapsed = $::log->elapsed;
   # Untaint
   $int =~ /([\w-]+)/;
   $self->{'interface'} = $1;
@@ -407,8 +408,9 @@ sub connect {
   # If the access check failed we tell the client to sod off.  Clearing the
   # sessionid prevents further actions.
   unless ($ok > 0) {
+    $elapsed = $::log->elapsed - $elapsed;
     $self->inform('GLOBAL', 'connect', $user, $user, 'connect',
-                  $int, $ok, '', 0, $err, $::log->elapsed);
+                  $int, $ok, '', 0, $err, $elapsed);
     if (exists $self->{'sessionfh'}) {
       close $self->{sessionfh};
       undef $self->{sessionfh};
