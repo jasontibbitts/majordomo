@@ -1,5 +1,9 @@
 Thu Mar 25 23:01:33 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Config.pm (_compile_rule): Escape backslashes and single
+ 	quotes in action strings, so as to avoid errors in the generated
+ 	code.
+
 	* lib/Mj/Resend.pm (_post): Fix problem calling archive_add_done
  	when archive_add_start failed.
 

@@ -822,7 +822,7 @@ sub g_sub {
   my ($act, $mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd,
       $mode, $list, $vict, $arg1, $arg2, $arg3, $ok, $mess) = @_;
   my $log = new Log::In 29, "$act, $type";
-  my ($fail, $good, $i, $pend);
+  my ($fail, $good, $i, $pend, $tok);
 
   $tok = 0;
   if ($act eq 'sub') {

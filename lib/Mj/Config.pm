@@ -2900,7 +2900,7 @@ sub _compile_rule {
   }
   
   $o .= "$ep";
-  $o .= "    return ['" . join("', '",@{$action}) . "'];\n  }\n";
+  $o .= "    return ['" . join("', '",(map { s/([\\\'])/\\$1/g; $_ } @{$action})) . "'];\n  }\n";
   
   if ($e) {
     return (0, $e, $o);
