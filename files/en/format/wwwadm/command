@@ -35,8 +35,9 @@
       <option> unsubscribe-farewell
       <option> unsubscribe-nofarewell
       <option> which
-      <option> who
       <option> who-bounce
+      <option> who-enhanced
+      <option> who-short
     </select>
   </td>
   <td colspan="2">
