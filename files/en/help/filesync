@@ -4,6 +4,9 @@ filesync listname
 listname, required, is the name of a list at this site
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
+NOTE: As of March 2000, his command is no longer implemented.
+      The documentation below may be useful for older versions.
+
 The "filesync" command is used only by site administrators and very
 savvy list owners, and usually only after shell-level hacking.
 
