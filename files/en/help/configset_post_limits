@@ -12,21 +12,22 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset listname post_limits <<ENDTAG
 /joe\@example.com/ |      |
-/example.com/      | 3/20 | 5/3d12h,10/4m
+/example.com/      | 3/20 | 5/3d12h,10/4m |
 ENDTAG
 
 $INCLUDE-config/post_limits
 
 See "help patterns" for an introduction to writing Majordomo patterns.
 
-Each set of limits is a comma-separated list of ratios and/or frequencies. 
-If an author exceeds a soft limit, this will cause the "limit_soft"
-access variable to be set.  Similarly, exceeding a hard limit will cause
-the "limit_hard" access variable to be set.  Unless rules for the "post"
-command in the access_rules take precedence, a message will be moderated
-if the "limit_soft" access variable is set, and denied if the
-"limit_hard" access variable is set.  If both variables are set, the
-message will be denied.
+Each set of limits is a comma-separated list of ratios and/or
+frequencies.  If an author exceeds a soft limit, this will cause the
+"limit_soft" access variable to be set.  Similarly, exceeding a hard
+limit will cause the "limit_hard" access variable to be set, and not
+meeting a lower limit will cause the "limit_lower" access variable to be
+set.  Unless rules for the "post" command in the access_rules setting
+take precedence, a message will be moderated if the "limit_soft" or
+"limit_lower" access variable is set, or denied if the "limit_hard"
+access variable is set.  
 
 If no limits are used, as in the first line of the example above, the
 matching address can be exempted from the remaining rules.  The first
@@ -89,7 +90,8 @@ reset at midnight local time may be surprised.  However, if instead of
   More than 3 messages posted in 24 hours.
 
 might be clearer to someone who has not been informed about the effect 
-of the limit.
+of the limit.  Alternatively, the "calendar day" abbreviation can be
+used to count messages since midnight, "3/1cd" in the previous example.
 
 There is a "post" trigger to expire data from the "posts" database.
 The post data has a lifetime twice that of the dup_lifetime setting, at
