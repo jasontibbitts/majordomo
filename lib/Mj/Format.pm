@@ -57,12 +57,16 @@ sub accept {
   @tokens = @$result;
   while (@tokens) {
     $ok  =  shift @tokens;
-    if ($ok <= 0) {
+    if ($ok == 0) {
       $mess = shift @tokens;
       eprint($err, $type, &indicate($mess, $ok));
       next;
     }
     ($mess, $data, $rresult) = @{shift @tokens};
+    if ($ok < 0) {
+      eprint($err, $type, &indicate($mess, $ok));
+      next;
+    }
 
     # Print some basic data
     eprint($out, $type, "Token for command:\n    $data->{'cmdline'}\n");
@@ -203,6 +207,7 @@ sub configdef {
       eprintf($out, $type, "%s set to default value.\n", $var);
     }
   }
+  $ok;
 }
 
 sub changeaddr {
