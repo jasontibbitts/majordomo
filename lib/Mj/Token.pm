@@ -221,7 +221,7 @@ sub confirm {
            'SESSIONID'  => $self->{'sessionid'},
            'ARG1'       => $args{'arg1'},
            'ARG2'       => $args{'arg2'},
-	       'REASONS'    => $reasons,
+	   'REASONS'    => $reasons,
            'ARG3'       => $args{'arg3'},
           };
 
@@ -557,6 +557,12 @@ sub t_accept {
   # so that they'll be formatted by the core accept routine.
   return (1, '', $data, \@out) if ($data->{'type'} eq 'confirm');
 
+  # Extract the sublist
+  if ($data->{'command'} eq 'post') {
+    my %avars = split("\002", $data->{'arg3'});
+    $data->{'auxlist'} = $avars{'sublist'} || '';
+  }
+
   # So we're accepting a consult token. We need to give back some
   # useful info the the accept routine so the owner will know that the
   # accept worked, but we also need to generate a separate reply
@@ -566,13 +572,8 @@ sub t_accept {
   # bodyhandle.  Then we send it.  Then we return some token info and
   # pretend we did a 'consult' (in $rreq) command so that the accept
   # routine will format it as we want for the reply to the owner.
-  if ($data->{'command'} ne 'post' 
-      ||
-      $self->{'lists'}{$data->{'list'}}->flag_set('ackimportant', $vict)
-      ||
-      $self->{'lists'}{$data->{'list'}}->flag_set('ackall', $vict))
-      {
-
+  # Acknowledgements of posts take place in Mj::Resend::_post.
+  if ($data->{'command'} ne 'post') {
     # Note that the victim was notified.
     $data->{'ack'} = 1;
 
@@ -628,6 +629,13 @@ sub t_accept {
     $self->mail_entity($sender, $ent, $data->{'victim'});
 
     $ent->purge;
+  }
+  else {
+    # determine whether or not the victim was notified.
+    if ($self->{'lists'}{$data->{'list'}}->should_ack(
+         $data->{'auxlist'}, $vict, 'f')) {
+      $data->{'ack'} = 1;
+    }
   }
 
   return (1, '', $data, [@out]);
