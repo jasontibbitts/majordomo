@@ -346,6 +346,12 @@ sub welcome {
     $head->replace('To',      $addr);
     $head->replace('Subject', $mess[$i]{'subject'});
     $head->replace('From',    $sender);
+
+    for $j ($self->_global_config_get('message_headers')) {
+      $j = $self->substitute_vars_string($j, $subs);
+      $head->add(undef, $j);
+    }
+
     $final = "$tmpdir/mj-tmp." . Majordomo::unique();
     open FINAL, ">$final" ||
       $::log->abort("Cannot open file $final, $!");
