@@ -305,15 +305,19 @@ sub owner_done {
 }
 
 
-=head2 welcome(list, address)
+=head2 welcome(list, address, args)
 
 This welcomes a subscriber to the list by sending them the messages
 specified in the 'welcome_files' variable. If one of the files in the
 welcome message does not exist, it is ignored.
 
+It also is used to mail files to someone whose address has been added to
+the global registry using the "register" command.
+
 =cut
 use Date::Format;
 use MIME::Entity;
+use Mj::Format;
 sub welcome {
   my $self = shift;
   my $list = shift;
@@ -323,6 +327,8 @@ sub welcome {
   my (%file, @mess, @temps, $count, $fh, $file, $final, $head,
       $i, $j, $reg, $subj, $subs, $top);
 
+  return unless (ref($addr) and $addr->isvalid);
+
   # Extract some necessary variables from the config files
   my $tmpdir    = $self->_global_config_get('tmpdir');
   my $sender    = $self->_list_config_get($list, 'sender');
@@ -330,7 +336,9 @@ sub welcome {
 
   $subs = {
            $self->standard_subs($list),
-	   'USER'     => $addr,
+           'STRIPADDR' => $addr->strip,
+           'QSADDR'    => Mj::Format::qescape($addr->strip),
+	   'USER'      => $addr,
 	   %args,
 	  };
 
@@ -343,7 +351,7 @@ sub welcome {
 
   # Loop over the table, processing parts and substituting values
   $count = 0;
-  for($i=0; $i<@{$table}; $i++) {
+  for($i = 0; $i < @{$table}; $i++) {
     # skip this file if the registration flags do not match.
     next if ($table->[$i][2] =~ /U/ and $reg);
     next if ($table->[$i][2] =~ /R/ and ! $reg);
