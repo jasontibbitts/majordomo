@@ -30,7 +30,7 @@ calls to the appropriate module, so maintenance issues are reduced.
              'user'     => $user,
              'victim'   => $user,
             };
-             
+
  $result = $mj->dispatch($request);
 
 =head2 A note about the division of labor between core and interface:
@@ -128,12 +128,12 @@ Returns a list of domains served by Majordomo at a site.
 sub domains {
   my $topdir = shift;
   my (@domains, $fh);
-  
+
   return unless (-r "$topdir/ALIASES/mj-domains");
 
   $fh = gensym();
   open ($fh, "< $topdir/ALIASES/mj-domains") or return;
-  
+
   while (<$fh>) {
     chomp $_;
     push @domains, $_ if (defined ($_) and -d "$topdir/$_/GLOBAL");
@@ -197,7 +197,7 @@ sub new {
   $log->abort("Can't create GLOBAL list: $!")
     unless $self->_make_list('GLOBAL'); #XLANG
   $log->abort($self->format_error('make_list', 'GLOBAL', 'LIST' => 'DEFAULT'))
-    unless $self->_make_list('DEFAULT'); 
+    unless $self->_make_list('DEFAULT');
 
   $self->{alias} = new Mj::AliasList(backend => $self->{backend},
                                       domain => $self->{domain},
@@ -270,7 +270,7 @@ interesting things.
 
 =cut
 
-use Digest::SHA1 qw(sha1_hex); 
+use Digest::SHA1 qw(sha1_hex);
 sub connect {
   my $self = shift;
   my $int  = shift;
@@ -279,7 +279,7 @@ sub connect {
   my $pw   = shift || '';
   my $log = new Log::In 50, "$int, $addr";
   my ($err, $id, $ok, $path, $pdata, $req, $user);
- 
+
   $user = new Mj::Addr($addr);
 
   unless ($int eq 'resend' or $int eq 'owner' or $int eq 'shell') {
@@ -318,18 +318,19 @@ sub connect {
     # Generate a session ID; hash the session, the time and the PID
     $id = sha1_hex($sess.scalar(localtime).$$);
   }
-      
+
   $id =~ /(.*)/; $id = $1; # Safe to untaint because it's nearly impossible
                            # to leak information through the digest
                            # algorithm.
 
-    
+
   $self->{sessionid} = $id;
   $self->{sessionfh} = gensym();
 
-  # Open the session file; 
+  # Open the session file;
   $log->abort("Can't write session file to $self->{ldir}/GLOBAL/sessions/$id, $!")
     unless (open ($self->{sessionfh}, ">>$self->{ldir}/GLOBAL/sessions/$id"));
+  select((select($self->{sessionfh}), $| = 1)[0]);
 
   # Do not log "Approved:" passwords
   $sess =~ s/^(approved:[ \t]*)(\S+)/$1PASSWORD/gim;
@@ -340,13 +341,13 @@ sub connect {
 
   # Now check if the client has access.  (Didn't do it earlier because we
   # want to save the session data first.)
-  $req = {  
+  $req = {
           'command' => 'access',
           'delay'   => 0,
           'list'    => 'GLOBAL',
           'user'    => $user,
          };
-          
+
   ($ok, $err) = $self->global_access_check($req);
 
   # Access check succeeded; now try the block_headers variable if applicable.
@@ -404,8 +405,8 @@ processing done at the beginning.
 
 sub dispatch {
   my ($self, $request, $extra) = @_;
-  my (@addr, @canon, @modes, @res, @tmp, $addr, $base_fun, $comment, 
-      $continued, $data, $elapsed, $func, $l, $modelist, $mess, $ok, $out, 
+  my (@addr, @canon, @modes, @res, @tmp, $addr, $base_fun, $comment,
+      $continued, $data, $elapsed, $func, $l, $modelist, $mess, $ok, $out,
       $over, $sl, $validate);
   my $level = 29;
   $level = 500 if ($request->{'command'} =~ /_chunk$/);
@@ -435,10 +436,10 @@ sub dispatch {
   }
 
 
-  if (command_prop($base_fun, 'list') and 
+  if (command_prop($base_fun, 'list') and
       $request->{'command'} !~ /_chunk$/) {
-    ($l, $sl, $mess) = 
-      $self->valid_list($request->{'list'}, 
+    ($l, $sl, $mess) =
+      $self->valid_list($request->{'list'},
                         command_prop($base_fun, 'all'),
                         command_prop($base_fun, 'global'));
 
@@ -448,7 +449,7 @@ sub dispatch {
   }
 
   return [0, $mess]
-    unless $l; 
+    unless $l;
 
   # Untaint
   $request->{'list'} = $l;
@@ -528,10 +529,10 @@ sub dispatch {
       unless $ok; #XLANG
   }
 
-  # Each of the victims must be verified. 
-  if (exists ($request->{'victims'}) and 
+  # Each of the victims must be verified.
+  if (exists ($request->{'victims'}) and
       @{$request->{'victims'}} and
-      $request->{'mode'} !~ /regex|pattern/) 
+      $request->{'mode'} !~ /regex|pattern/)
   {
     while (@{$request->{'victims'}}) {
       $addr = shift @{$request->{'victims'}};
@@ -539,7 +540,7 @@ sub dispatch {
       $addr =~ s/^\s+//;
       $addr =~ s/\s+$//;
       $addr = new Mj::Addr($addr);
-      push (@addr, $addr); 
+      push (@addr, $addr);
     }
     $request->{'victims'} = [@addr];
   }
@@ -554,14 +555,14 @@ sub dispatch {
   # Check for suppression of logging and owner information
   if ($request->{'mode'} =~ /nolog/) {
     # This is serious; user must use the master global password.
-    $ok = $self->validate_passwd($request->{'user'}, $request->{'password'}, 
+    $ok = $self->validate_passwd($request->{'user'}, $request->{'password'},
 				                 'GLOBAL', 'ALL', 1);
     return [0, "The given password is not sufficient to disable logging."]
       unless $ok > 0; #XLANG
     $over = 2;
   }
   elsif ($request->{'mode'} =~ /noinform/) {
-    $ok = $self->validate_passwd($request->{'user'}, $request->{'password'}, 
+    $ok = $self->validate_passwd($request->{'user'}, $request->{'password'},
                                  $request->{'list'}, 'config_inform');
     return [0, "The given password is not sufficient to disable owner information."]
       unless $ok > 0; #XLANG
@@ -572,7 +573,7 @@ sub dispatch {
   }
 
   # Make a separate request for each affected address.
-  for $addr (@addr) { 
+  for $addr (@addr) {
     $request->{'victim'} = $addr;
     if ($validate and $request->{'mode'} !~ /regex|pattern/) {
       ($ok, $mess) = $addr->valid;
@@ -591,7 +592,7 @@ sub dispatch {
       # Last resort; we found _nothing_ to call
      return [0, "No action implemented for $request->{'command'}"]; #XLANG
     }
- 
+
     $comment = '';
     # owner_done returns the address of the originator,
     # and bouncing addresses if any were identified.
@@ -600,27 +601,27 @@ sub dispatch {
         $base_fun = "bounce";
         $request->{'cmdline'} = "(bounce from " .
                                 join(" ", @{$res[1]}) . ")";
-      } 
+      }
     }
     else {
       # Obtain the comment for failed and stalled actions.
       $comment = $res[1] if (defined $res[1] and $res[0] < 1);
     }
-      
-    # Inform on post_done and post and owner_done, 
+
+    # Inform on post_done and post and owner_done,
     # but not on post_start or owner_start.
-    $over = 2 if ($request->{'command'} eq 'post_start' or 
-                  $request->{'command'} eq 'owner_start' or 
+    $over = 2 if ($request->{'command'} eq 'post_start' or
+                  $request->{'command'} eq 'owner_start' or
                   ($request->{'command'} =~ /_start$/ and $res[0] == 1));
 
     # Inform unless overridden or continuing an iterator
-    unless ($over == 2 || 
+    unless ($over == 2 ||
             $request->{'command'} =~ /_chunk$/) {
       $elapsed = $::log->elapsed - $request->{'time'};
       # XXX How to handle an array of results?
-      $self->inform($request->{'list'}, $base_fun, $request->{'user'}, 
-                    $request->{'victim'}, $request->{'cmdline'}, 
-                    $self->{'interface'}, $res[0], 
+      $self->inform($request->{'list'}, $base_fun, $request->{'user'},
+                    $request->{'victim'}, $request->{'cmdline'},
+                    $self->{'interface'}, $res[0],
                     !!$request->{'password'}+0, $over, $comment, $elapsed);
 
       # reset timer in case multiple commands are being issued.
@@ -682,7 +683,7 @@ sub _make_list {
 		 backend   => $self->{backend},
 		 callbacks =>
 		 {
-		  'mj.list_file_get' => 
+		  'mj.list_file_get' =>
 		  sub { $self->_list_file_get(@_) },
 		  'mj._global_config_get' =>
 		  sub { $self->_global_config_get(@_) },
@@ -819,9 +820,9 @@ sub gen_cmdline {
   # Add LIST if the command requires one
   if (command_prop($base, "list")) {
     $cmdline .= " $request->{'list'}";
-    if (exists ($request->{'sublist'}) and 
-        length ($request->{'sublist'}) and 
-        ($request->{'sublist'} ne 'MAIN')) 
+    if (exists ($request->{'sublist'}) and
+        length ($request->{'sublist'}) and
+        ($request->{'sublist'} ne 'MAIN'))
     {
       $cmdline .= ":$request->{'sublist'}";
     }
@@ -868,7 +869,7 @@ sub gen_cmdline {
 
       last if (defined $hereargs and ($variable eq $hereargs));
       if (exists $request->{$variable} and $arguments->{$variable} ne 'ARRAY') {
-        $cmdline .= " $request->{$variable}" 
+        $cmdline .= " $request->{$variable}"
           if (defined $request->{$variable} and length $request->{$variable});
       }
     }
@@ -966,7 +967,7 @@ sub substitute_vars {
     open ($out, "> $tmp") or
       $::log->abort("Cannot write to file $tmp, $!"); #XLANG
   }
-   
+
   while (defined ($i = <$in>)) {
     if ($i =~ /([^\\]|^)\$INCLUDE-(.*)$/) {
       # Do a _list_file_get.  If we get a file, open it and call
@@ -1005,8 +1006,8 @@ sub substitute_vars {
 
 This substitutes embedded variables in a string, one line at a time.
 
-It allows for the repetition of substitutions when a 
-substitution value is an array reference instead of 
+It allows for the repetition of substitutions when a
+substitution value is an array reference instead of
 a scalar value.
 
 =cut
@@ -1016,7 +1017,7 @@ sub substitute_vars_format {
   my $str  = shift;
   my $subs = shift;
   my $log = new Log::In 250;
-  my (%subcount, @ghost, @lines, @out, @table, 
+  my (%subcount, @ghost, @lines, @out, @table,
       $ghost, $helpurl, $i, $j, $line, $maxiter, $value);
 
   return unless $str;
@@ -1032,7 +1033,7 @@ sub substitute_vars_format {
   if ($self->{'interface'} =~ /^www/) {
     $i = $self->_global_config_get('www_help_window');
     $j = $i ? ' target="mj2help"' : '';
-    $helpurl = 
+    $helpurl =
       q(<a href="$CGIURL?$CGIDATA&list=$LIST&func=help&extra=%s"%s>%s</a>);
   }
   else {
@@ -1058,7 +1059,7 @@ sub substitute_vars_format {
       if (defined $subs->{$i} and length $subs->{$i}) {
         while ($str =~ /([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/) {
           $value = defined $3 ? "%$3s" : "%s";
-          $value =~ s/://; 
+          $value =~ s/://;
           $line = sprintf $value, $subs->{$i};
           $str =~ s/([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/;
         }
@@ -1097,7 +1098,7 @@ sub substitute_vars_format {
       if (defined $subs->{$i} and length $subs->{$i}) {
         while ($ghost =~ /([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/) {
           $value = defined $3 ? "%$3s" : "%s";
-          $value =~ s/://; 
+          $value =~ s/://;
           $line = sprintf $value, " ";
           $ghost =~ s/([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/;
         }
@@ -1105,7 +1106,7 @@ sub substitute_vars_format {
       else {
         while ($ghost =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/) {
           $value = defined $2 ? "%$2s" : "%s";
-          $value =~ s/://; 
+          $value =~ s/://;
           $line = sprintf $value, " ";
           $ghost =~ s/([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/;
         }
@@ -1114,7 +1115,7 @@ sub substitute_vars_format {
   }
 
   # Build the substitution table.  Each value is depleted as it is
-  # used.  As a result, if a line is repeated more than once, a 
+  # used.  As a result, if a line is repeated more than once, a
   # substitution value that has only one element will appear only
   # in the first iteration.
   #
@@ -1143,7 +1144,7 @@ sub substitute_vars_format {
   @lines = split "\002\001", $str;
   @ghost = split "\002\001", $ghost;
   # Split the input string into lines, and make substitutions
-  # on each line. 
+  # on each line.
   LINE:
   for ($j = 0; $j < @lines ; $j++) {
     $line = $lines[$j];
@@ -1206,7 +1207,7 @@ sub substitute_vars_string {
     # Don't substitute after backslashed $'s
     while ($str =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(\b|$)/g) {
       $format = defined $2 ? "%$2s" : "%s";
-      $format =~ s/://; 
+      $format =~ s/://;
       $value = sprintf $format, $subs->{$i};
       $str =~ s/([^\\]|^)\$\Q$i\E(:-?\d+)?(\b|$)/$1$value/;
     }
@@ -1233,7 +1234,7 @@ sub format_error {
   my ($subs, $tmp);
 
   $subs = { $self->standard_subs($list),
-            %subs 
+            %subs
           };
 
   $tmp = $self->_list_file_get_string('GLOBAL', "error/$name");
@@ -1278,7 +1279,7 @@ sub _make_parser_data {
   return 1 if $self->{'parserdata'};
 
   $self->{'parserdata'} =
-    new Mj::SimpleDB(filename => 
+    new Mj::SimpleDB(filename =>
                        $self->{'lists'}{'GLOBAL'}->_file_path("_parser"),
                      backend  => $self->{'backend'},
                      compare  => sub {reverse($_[0]) cmp reverse($_[1])},
@@ -1345,7 +1346,7 @@ sub _reg_add {
   my %args = @_;
   my $log = new Log::In 200;
   my (@lists, $data, $existing, $i);
-  
+
   # Look up the user
   $data = $self->{reg}->lookup($addr->canon);
 
@@ -1373,7 +1374,7 @@ sub _reg_add {
 	    };
   }
 
-  # Copy arguments 
+  # Copy arguments
   if (!$existing || $args{'update'}) {
     for $i (qw(regtime password language lists flags bounce warnings
 	       data1 data2 data3 data4 data5)) {
@@ -1485,7 +1486,7 @@ sub _reg_remove {
       $data->{'lists'} = join("\002", sort @out);
       $data;
     };
-      
+
   $addr->flush;
   $self->{'reg'}->replace('', $addr->canon, $sub);
 }
@@ -1507,13 +1508,13 @@ sub _alias_reverse_lookup {
   my $addr    = shift;
   my $incself = shift;
   my (@data, @out, $data, $key);
-  
+
   $self->{'alias'}->get_start;
-  
+
   # Grab _every_ matching entry
   @data = $self->{'alias'}->get_matching(0, 'target', $addr->canon);
   $self->{'alias'}->get_done;
-  
+
   while (($key, $data) = splice(@data, 0, 2)) {
     unless ($key eq $data->{'target'} and ! $incself) {
       push @out, $key;
@@ -1579,7 +1580,7 @@ sub common_subs {
   $out = {};
 
   for $tlist (@tmp) {
-    return (0, $mess) 
+    return (0, $mess)
       unless (($list, undef, $mess) = $self->valid_list($tlist, 0, 1));
     push @lists, $list unless ($list eq 'GLOBAL');
   }
@@ -1730,7 +1731,7 @@ sub list_config_get {
   return unless $self->_list_set_config($list, $sublist);
 
   # Find the level of access required to see a variable.
-  $level = $self->config_get_visible($list, $var); 
+  $level = $self->config_get_visible($list, $var);
 
   # Anyone can see it if it is visible or part of a DEFAULT template.
   if ($level == 0) {
@@ -1774,34 +1775,34 @@ sub list_config_set {
   my (@groups, @tmp, @tmp2, $global_only, $i, $j, $join, $level, $mess, $ok);
 
   unless ($self->_make_list($request->{'list'})) {
-    return (0, $self->format_error('make_list', 'GLOBAL', 
+    return (0, $self->format_error('make_list', 'GLOBAL',
                                    'LIST' => $request->{'list'}));
   }
 
   if (!defined $request->{'password'}) {
-    return (0, $self->format_error('no_password', 'GLOBAL', 
+    return (0, $self->format_error('no_password', 'GLOBAL',
                                    'COMMAND' => 'configset'));
   }
 
   @groups = $self->config_get_groups($request->{'setting'});
   if (!@groups) {
-    return (0, $self->format_error('unknown_setting', $request->{'list'}, 
+    return (0, $self->format_error('unknown_setting', $request->{'list'},
                                    'SETTING' => $request->{'setting'}));
   }
   $level = $self->config_get_mutable($request->{'list'}, $request->{'setting'});
-  
+
   # Validate passwd
   for $i (@groups) {
-    $ok = $self->validate_passwd($request->{'user'}, 
-                                 $request->{'password'}, 
-				 $request->{'list'}, 
+    $ok = $self->validate_passwd($request->{'user'},
+                                 $request->{'password'},
+				 $request->{'list'},
                                  "config_\U$i", $global_only);
     last if $ok >= $level;
   }
   unless ($ok >= $level) {
-    $ok = $self->validate_passwd($request->{'user'}, 
-                                 $request->{'password'}, 
-				 $request->{'list'}, 
+    $ok = $self->validate_passwd($request->{'user'},
+                                 $request->{'password'},
+				 $request->{'list'},
                                  "config_$request->{'setting'}", $global_only);
   }
   unless ($ok >= $level) {
@@ -1809,7 +1810,7 @@ sub list_config_set {
                                    'SETTING' => $request->{'setting'},
                                    'LEVEL'   => $ok,
                                    'NEEDED'  => $level,
-                                   'USER'    => "$request->{'user'}")); 
+                                   'USER'    => "$request->{'user'}"));
   }
 
   # Untaint the stuff going in here.  The security implications: this
@@ -1826,7 +1827,7 @@ sub list_config_set {
   }
 
   $self->_list_set_config($request->{'list'}, $request->{'sublist'});
-  @tmp = @{$request->{'value'}}; 
+  @tmp = @{$request->{'value'}};
   #  Append mode:  catenate arrays and replace scalar values.
   if ($request->{'mode'} =~ /append/) {
     $join = $self->config_get_isarray($request->{'setting'});
@@ -1836,24 +1837,24 @@ sub list_config_set {
     @tmp = $self->_list_config_get($request->{'list'}, $request->{'setting'}, 1);
     if ($join == 2) {
       # Add a blank line separator (do it always, to make extraction easier.)
-      push @tmp, ""; 
-    } 
+      push @tmp, "";
+    }
     push @tmp, @{$request->{'value'}};
     # Get possible error value and print it here, for error checking.
-    ($ok, $mess) = 
+    ($ok, $mess) =
       $self->_list_config_set($request->{'list'}, $request->{'setting'}, @tmp);
   }
   #  Extract mode:  splice values out of arrays and set scalar values to defaults.
   elsif ($request->{'mode'} =~ /extract/) {
     $join = $self->config_get_isarray($request->{'setting'});
-    @tmp = $self->_list_config_get($request->{'list'}, 
+    @tmp = $self->_list_config_get($request->{'list'},
                                    $request->{'setting'}, 1);
 
     if (! $join) {
       # Extraction of a scalar setting causes it to be set to its default value.
       # if the existing and desired settings are identical.
       if ($tmp[0] eq $request->{'value'}->[0]) {
-        ($ok, $mess) = 
+        ($ok, $mess) =
           $self->{'lists'}{$request->{'list'}}->
             config_set_to_default($request->{'setting'});
       }
@@ -1873,7 +1874,7 @@ sub list_config_set {
     }
     else {
       for ($i = 0; $#{$request->{'value'}} + $i <= $#tmp ; $i++) {
-        $j = $i + $#{$request->{'value'}}; 
+        $j = $i + $#{$request->{'value'}};
         @tmp2 = @tmp[$i .. $j];
         if (compare_arrays($request->{'value'}, \@tmp2)) {
           splice @tmp, $i, scalar @{$request->{'value'}};
@@ -1881,13 +1882,13 @@ sub list_config_set {
         }
       }
       if (@tmp) {
-        ($ok, $mess) = 
-          $self->_list_config_set($request->{'list'}, 
+        ($ok, $mess) =
+          $self->_list_config_set($request->{'list'},
                                   $request->{'setting'}, @tmp);
       }
       else {
         # Set the value to its default if no lines remain.
-        ($ok, $mess) = 
+        ($ok, $mess) =
           $self->{'lists'}{$request->{'list'}}->config_set_to_default(
                                                  $request->{'setting'});
       }
@@ -1896,7 +1897,7 @@ sub list_config_set {
 
   elsif ($request->{'mode'} =~ /noforce/) {
     $join = $self->config_get_isarray($request->{'setting'});
-    @tmp = $self->_list_config_get($request->{'list'}, 
+    @tmp = $self->_list_config_get($request->{'list'},
                                    $request->{'setting'}, 1);
 
     # If the new value and current value are identical, return
@@ -1910,7 +1911,7 @@ sub list_config_set {
                                   'VALUE'    => $tmp[0]);
     }
     else {
-      ($ok, $mess) = $self->_list_config_set($request->{'list'}, 
+      ($ok, $mess) = $self->_list_config_set($request->{'list'},
                                              $request->{'setting'}, @tmp);
     }
   }
@@ -1918,7 +1919,7 @@ sub list_config_set {
   #  Simply replace the value.
   else {
     # Get possible error value and print it here, for error checking.
-    ($ok, $mess) = $self->_list_config_set($request->{'list'}, 
+    ($ok, $mess) = $self->_list_config_set($request->{'list'},
                                            $request->{'setting'}, @tmp);
   }
   $self->_list_config_unlock($request->{'list'});
@@ -1966,14 +1967,14 @@ sub list_config_set_to_default {
     unless $self->_make_list($list); #XLANG
   return (0, "Unable to access configuration file $list:$sublist")
     unless $self->{'lists'}{$list}->valid_config($sublist); #XLANG
-  
+
   if (!defined $passwd) {
     return (0, "No password was supplied.\n"); #XLANG
   }
 
   @groups = $self->config_get_groups($var);
   if (!@groups) {
-    return (0, $self->format_error('unknown_setting', $list, 
+    return (0, $self->format_error('unknown_setting', $list,
                                    'SETTING' => $var));
   }
   $level = $self->config_get_mutable($list, $var);
@@ -1993,7 +1994,7 @@ sub list_config_set_to_default {
                                    'SETTING' => $var,
                                    'LEVEL'   => $ok,
                                    'NEEDED'  => $level,
-                                   'USER'    => "$user")); 
+                                   'USER'    => "$user"));
   }
   else {
     $self->_list_set_config($list, $sublist);
@@ -2013,7 +2014,7 @@ sub save_configs {
     }
   }
   $::log->out;
-}  
+}
 
 =head2 _list_config_get, _list_config_set (private)
 
@@ -2029,7 +2030,7 @@ consistency with the saved state.
 sub _list_config_get {
   my $self = shift;
   my $list = shift;
-  
+
   $list = 'GLOBAL' if $list eq 'ALL';
   return unless $self->_make_list($list);
   $self->{'lists'}{$list}->config_get(@_);
@@ -2078,7 +2079,7 @@ sub _list_config_set {
 sub _list_config_lock {
   my $self = shift;
   my $list = shift;
-  
+
   $list = 'GLOBAL' if $list eq 'ALL';
   return unless $self->_make_list($list);
   $self->{'lists'}{$list}->config_lock(@_);
@@ -2087,7 +2088,7 @@ sub _list_config_lock {
 sub _list_config_unlock {
   my $self = shift;
   my $list = shift;
-  
+
   $list = 'GLOBAL' if $list eq 'ALL';
   return unless $self->_make_list($list);
   $self->{'lists'}{$list}->config_unlock(@_);
@@ -2145,7 +2146,7 @@ sub _list_sync_owners {
   my $new = shift;
   my $log = new Log::In 150, $list;
 
-  my (%owners, %seen, @lists, $addr, $data, $i, $j, $requ, 
+  my (%owners, %seen, @lists, $addr, $data, $i, $j, $requ,
       $strip, $time);
 
   $requ = $self->{'sessionuser'};
@@ -2176,14 +2177,14 @@ sub _list_sync_owners {
                                       'groups' => $list);
       $self->inform('GLOBAL', 'subscribe', $requ, $i,
                     "subscribe GLOBAL:owners $i",
-                    $self->{'interface'}, 1, 1, 0, 
+                    $self->{'interface'}, 1, 1, 0,
                     '',
                     $::log->elapsed - $time);
 
       next;
     }
     @lists = split "\002", $data->{'groups'};
-    
+
     if ($seen{$i} > 0) {
       unless (grep { $_ eq $list } @lists) {
         push @lists, $list;
@@ -2202,7 +2203,7 @@ sub _list_sync_owners {
         $self->{'lists'}{'GLOBAL'}->remove('', $owners{$i}, 'owners');
         $self->inform('GLOBAL', 'unsubscribe', $requ, $i,
                       "unsubscribe GLOBAL:owners $i",
-                      $self->{'interface'}, 1, 1, 0, 
+                      $self->{'interface'}, 1, 1, 0,
                       '', $::log->elapsed - $time);
 
       }
@@ -2445,7 +2446,7 @@ sub get_start {
   unless ($ok > 0) {
     return ($ok, $mess);
   }
-  $self->_get($request->{'list'}, $request->{'user'}, $request->{'user'}, 
+  $self->_get($request->{'list'}, $request->{'user'}, $request->{'user'},
               $request->{'mode'}, $request->{'cmdline'}, $request->{'path'});
 }
 
@@ -2465,13 +2466,13 @@ sub _get {
   unless (($nname = $name) =~ s!^/!!) {
     $nname = "public/$name";
   }
-  
+
   unless ($self->{'lists'}{$list}->fs_legal_file_name($nname)) {
     return (0, qq(The path "/$name" is not valid.\n));
   }
 
   ($file, %data) = $self->_list_file_get($list, $nname);
-  
+
   unless ($file) {
     if ($mode =~ /immediate|edit/) {
       ($file, %data) = $self->_list_file_get($list, 'unknown_file');
@@ -2480,7 +2481,7 @@ sub _get {
       return (0, qq(The file "$name" does not exist or is a directory.\n)); #XLANG
     }
   }
-  
+
   # Start up the iterator if we're running in immediate mode
   if ($mode =~ /immediate|edit/) {
     $self->{'get_fh'} = new IO::File $file;
@@ -2537,7 +2538,7 @@ sub get_chunk {
   my ($self, $request, $chunksize) = @_;
   my $log = new Log::In 50;
   my ($i, $line, $out);
-  
+
   return unless $self->{'get_fh'};
   for ($i = 0; $i < $chunksize; $i++) {
     $line = $self->{'get_fh'}->getline;
@@ -2574,14 +2575,14 @@ sub faq_start {
   my ($self, $request) = @_;
   my $log = new Log::In 50, "$request->{'list'}, $request->{'user'}";
   my ($mess, $ok);
-  
+
   ($ok, $mess) =
     $self->list_access_check($request);
 
   unless ($ok > 0) {
     return ($ok, $mess);
   }
-  $self->_faq($request->{'list'}, $request->{'user'}, $request->{'user'}, 
+  $self->_faq($request->{'list'}, $request->{'user'}, $request->{'user'},
               $request->{'mode'}, $request->{'cmdline'}, 'faq');
 }
 
@@ -2606,8 +2607,8 @@ sub _faq {
        $self->standard_subs($list),
        'LASTCHANGE' => scalar localtime($fdata{'lastmod'}),
        'USER'       => $requ,
-      }; 
-   
+      };
+
     $file = $self->substitute_vars($file, $subs);
     push @{$self->{'get_temps'}}, $file;
   }
@@ -2630,7 +2631,7 @@ sub help_start {
   my (@info, $file, $mess, $ok, $subs, $whoami, $wowner);
 
   # convert, for example,
-  #    "help configset access_rules" 
+  #    "help configset access_rules"
   # to "help configset_access_rules"
   if ($request->{'topic'}) {
     $request->{'topic'} = lc(join('_', split(/\s+/, $request->{'topic'})));
@@ -2666,8 +2667,8 @@ sub help_start {
   # "help configset_access_rules" can be abbreviated to "help access_rules"
   unless ($file) {
     $subs->{'TOPIC'} = "configset_$request->{'topic'}";
-    ($file) =  $self->_list_file_get('GLOBAL', 
-                                     "help/configset_$request->{'topic'}", 
+    ($file) =  $self->_list_file_get('GLOBAL',
+                                     "help/configset_$request->{'topic'}",
                                       $subs);
   }
   unless ($file) {
@@ -2695,14 +2696,14 @@ sub info_start {
   my ($self, $request) = @_;
   my $log = new Log::In 50, "$request->{'list'}, $request->{'user'}";
   my ($mess, $ok);
-  
+
   ($ok, $mess) =
     $self->list_access_check($request);
 
   unless ($ok > 0) {
     return ($ok, $mess);
   }
-  $self->_info($request->{'list'}, $request->{'user'}, $request->{'user'}, 
+  $self->_info($request->{'list'}, $request->{'user'}, $request->{'user'},
                $request->{'mode'}, $request->{'cmdline'}, 'info');
 }
 
@@ -2727,8 +2728,8 @@ sub _info {
        $self->standard_subs($list),
        'LASTCHANGE' => scalar localtime($fdata{'lastmod'}),
        'USER'       => $requ,
-      }; 
-   
+      };
+
     $file = $self->substitute_vars($file, $subs);
     push @{$self->{'get_temps'}}, $file;
   }
@@ -2749,14 +2750,14 @@ sub intro_start {
   my ($self, $request) = @_;
   my $log = new Log::In 50, "$request->{'list'}, $request->{'user'}";
   my ($mess, $ok);
-  
+
   ($ok, $mess) =
     $self->list_access_check($request);
 
   unless ($ok > 0) {
     return ($ok, $mess);
   }
-  $self->_intro($request->{'list'}, $request->{'user'}, $request->{'user'}, 
+  $self->_intro($request->{'list'}, $request->{'user'}, $request->{'user'},
                 $request->{'mode'}, $request->{'cmdline'});
 }
 
@@ -2770,19 +2771,19 @@ sub _intro {
     unless $self->_make_list($list); #XLANG
 
   ($file, %fdata) = $self->_list_file_get($list, 'intro');
-  
+
   unless ($file) {
     return (0, "No intro available.\n"); #XLANG
   }
-  
+
   if ($mode !~ /edit/) {
     $subs =
       {
        $self->standard_subs($list),
        'LASTCHANGE' => scalar localtime($fdata{'lastmod'}),
        'USER'       => $requ,
-      }; 
-   
+      };
+
     $file = $self->substitute_vars($file, $subs);
     push @{$self->{'get_temps'}}, $file;
   }
@@ -2821,15 +2822,15 @@ sub password {
     unless (length($request->{'newpasswd'}) >= $minlength);
 
   ($ok, $mess) =
-    $self->global_access_check($request, 'password_length' => 
+    $self->global_access_check($request, 'password_length' =>
                                length($request->{'newpasswd'}));
 
   unless ($ok > 0) {
     return ($ok, $mess);
   }
 
-  $self->_password($request->{'list'}, $request->{'user'}, $request->{'victim'}, 
-                   $request->{'mode'}, $request->{'cmdline'}, $request->{'newpasswd'});  
+  $self->_password($request->{'list'}, $request->{'user'}, $request->{'victim'},
+                   $request->{'mode'}, $request->{'cmdline'}, $request->{'newpasswd'});
 }
 
 use MIME::Entity;
@@ -2986,7 +2987,7 @@ Stops the put operation.
 
 sub put_done {
   my ($self, $request) = @_;
-  
+
   $self->{'lists'}{$request->{'list'}}->fs_put_done;
 }
 
@@ -3003,14 +3004,14 @@ sub request_response {
   my ($self, $request) = @_;
   my $log = new Log::In 50, "$request->{'list'}, $request->{'victim'}";
   my ($mess, $ok);
-  
+
   ($ok, $mess) = $self->list_access_check($request);
 
   unless ($ok > 0) {
     return ($ok, $mess);
   }
-  $self->_request_response($request->{'list'}, $request->{'user'}, 
-                           $request->{'user'}, $request->{'mode'}, 
+  $self->_request_response($request->{'list'}, $request->{'user'},
+                           $request->{'user'}, $request->{'mode'},
                            $request->{'cmdline'});
 }
 
@@ -3019,7 +3020,7 @@ use Mj::MailOut;
 sub _request_response {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my (%file, $cset, $desc, $dom, $enc, $ent, $file, $hdr, $list_own, 
+  my (%file, $cset, $desc, $dom, $enc, $ent, $file, $hdr, $list_own,
       $mess, $sender, $subs, $type);
 
   return unless $self->_make_list($list);
@@ -3028,7 +3029,7 @@ sub _request_response {
   if ($victim->strip eq "$list-request\@$dom") {
     return (0, "Loop detected.\n");
   }
-  
+
   ($file, %file) = $self->_list_file_get($list, 'request_response');
   return unless $file;
 
@@ -3080,7 +3081,7 @@ sub index {
   my ($self, $request) = @_;
   my ($ok, $mess, $root);
   my $log = new Log::In  30, "$request->{'list'}, $request->{'path'}";
-  
+
   # Are we rooted?  Special case '/help', so index GLOBAL /help works.
   $root = 1 if $request->{'path'} =~ m!^/! && $request->{'path'} ne '/help';
 
@@ -3091,7 +3092,7 @@ sub index {
     return ($ok, $mess);
   }
 
-  $self->_index($request->{'list'}, $request->{'user'}, $request->{'user'}, 
+  $self->_index($request->{'list'}, $request->{'user'}, $request->{'user'},
                 $request->{'mode'}, $request->{'cmdline'}, $request->{'path'});
 }
 
@@ -3120,7 +3121,7 @@ sub _index {
 
   $self->{'lists'}{$list}->fs_index($dir, $nodirs, $recurse);
 }
-  
+
 
 =head2 _list_file_get(list, file, subs, nofail, lang, force)
 
@@ -3162,7 +3163,7 @@ sub _list_file_get {
   return unless $self->_make_list($list);
   @search = $self->_list_config_get($list, 'file_search');
 
-  $lang ||= $self->_list_config_get($list, 'default_language'); 
+  $lang ||= $self->_list_config_get($list, 'default_language');
   @langs = split(/\s*,\s*/, $lang) if $lang;
 
   # Build @paths list; maintain %paths hash to determine uniqueness.
@@ -3343,10 +3344,10 @@ sub _get_stock {
   }
 
   unless ($self->{'sitedata'}{'filespace'}) {
-    return unless ($self->{'sitedata'}{'filespace'} = 
+    return unless ($self->{'sitedata'}{'filespace'} =
       new Mj::FileSpace("$self->{'sitedir'}/files", $self->{'backend'}));
   }
-    
+
   $self->{'sitedata'}{'filespace'}->get($file);
 }
 
@@ -3364,12 +3365,12 @@ sub _fill_lists {
 
   # Bail early if we don't have to do anything
   return 1 if $self->{'lists_loaded'};
-  
+
   $::log->in(120);
 
   my $dirh = gensym();
   my ($list, @lists);
-  
+
   my $listdir = $self->{'ldir'};
   opendir($dirh, $listdir) || $::log->abort("Error opening $listdir: $!"); #XLANG
 
@@ -3426,7 +3427,7 @@ This has the nice side effect of returning the untainted list name.
 If the list is invalid or has been relocated, a message is returned.
 
 If allok is true, then ALL will be accepted as a list name.
-If globalok is true, then GLOBAL and DEFAULT will be accepted as 
+If globalok is true, then GLOBAL and DEFAULT will be accepted as
 list names.
 
 =cut
@@ -3445,7 +3446,7 @@ sub valid_list {
   }
 
   unless (legal_list_name($name)) {
-    return (undef, undef, 
+    return (undef, undef,
             $self->format_error('invalid_list', 'GLOBAL', 'LIST' => $name));
   }
   if ($sublist) {
@@ -3477,7 +3478,7 @@ sub valid_list {
       $reloc->{$oname}->{'file'} ||= '/error/relocated_list';
     }
     if (length($reloc->{$oname}->{'file'})) {
-      $subs = { 
+      $subs = {
                 $self->standard_subs('GLOBAL'),
                 'LIST' => $oname,
                 'NEWLIST' => $name,
@@ -3579,7 +3580,7 @@ sub accept {
       push @out, 0, "Illegal token \"$ttoken\".\n"; #XLANG
       next;
     }
-    my ($ok, $mess, $data, $tmp) = 
+    my ($ok, $mess, $data, $tmp) =
         $self->t_accept($token, $request->{'mode'}, $request->{'xplanation'},
                         $request->{'delay'});
 
@@ -3601,9 +3602,9 @@ sub accept {
     $elapsed = $::log->elapsed - $elapsed;
     # Now call inform so the results are logged
     $self->inform($data->{'list'},
-          ($data->{'type'} eq 'consult' 
+          ($data->{'type'} eq 'consult'
            and $request->{'mode'} !~ /archive/
-           and $data->{'command'} eq 'post')? 
+           and $data->{'command'} eq 'post')?
            'consult' : $data->{'command'},
           $data->{'user'},
           $data->{'victim'},
@@ -3621,7 +3622,7 @@ sub accept {
       push @out, $ok, $mess;
     }
   }
-  @out; 
+  @out;
 }
 
 =head2 alias(..., list, to, from)
@@ -3678,7 +3679,7 @@ sub alias {
   my $log = new Log::In 30, "$request->{'newaddress'}, $request->{'user'}";
   my ($a2, $ok, $mess);
 
-  return (0, "No address was supplied.\n") 
+  return (0, "No address was supplied.\n")
     unless (length $request->{'newaddress'}); #XLANG
 
   $a2 = new Mj::Addr($request->{'newaddress'});
@@ -3696,8 +3697,8 @@ sub alias {
     $log->out("noaccess");
     return ($ok, $mess);
   }
-  $self->_alias($request->{'list'}, $request->{'user'}, $request->{'user'}, 
-                $request->{'mode'}, $request->{'cmdline'}, 
+  $self->_alias($request->{'list'}, $request->{'user'}, $request->{'user'},
+                $request->{'mode'}, $request->{'cmdline'},
                 $request->{'newaddress'});
 }
 
@@ -3705,7 +3706,7 @@ sub _alias {
   my ($self, $list, $requ, $to, $mode, $cmdline, $from) = @_;
   my $log = new Log::In 35, "$to, $from";
   my ($data, $err, $fdata, $ok, $tdata);
- 
+
   # the dispatcher doesn't do this one for us.
   $from = new Mj::Addr($from);
 
@@ -3767,7 +3768,7 @@ sub announce {
   unless ($ok > 0) {
     return ($ok, $mess);
   }
-  $self->_announce($request->{'list'}, $request->{'user'}, $request->{'user'}, 
+  $self->_announce($request->{'list'}, $request->{'user'}, $request->{'user'},
                    $request->{'mode'}, $request->{'cmdline'}, $request->{'file'},
                    $request->{'sublist'});
 
@@ -3777,7 +3778,7 @@ use MIME::Entity;
 sub _announce {
   my ($self, $list, $user, $vict, $mode, $cmdline, $file, $sublist) = @_;
   my $log = new Log::In 30, "$list, $file";
-  my (@classlist, %data, $baseclass, $classes, $desc, $ent, $fh, 
+  my (@classlist, %data, $baseclass, $classes, $desc, $ent, $fh,
       $mailfile, $sender, $subs, $tmpfile);
 
   $sender = $self->_list_config_get($list, 'sender');
@@ -3790,14 +3791,14 @@ sub _announce {
      'REQUESTER' => $user,
      'USER'      => $user,
     };
-  
+
   ($mailfile, %data) = $self->_list_file_get($list, $file, $subs);
- 
+
   return (0, "The file $file is unavailable.\n")
     unless $mailfile; #XLANG
 
   $desc = $self->substitute_vars_string($data{'description'}, $subs);
-  
+
   $ent = build MIME::Entity
     (
      'Path'     => $mailfile,
@@ -3811,7 +3812,7 @@ sub _announce {
      'Filename' => undef,
      'Content-Language:' => $data{'language'},
     );
- 
+
   return (0, "Unable to create mail entity.\n")
     unless $ent; #XLANG
 
@@ -3830,9 +3831,9 @@ sub _announce {
     @classlist = qw(each nomail);
   }
   else {
-    @classlist = qw(nomail each-noprefix-noreplyto each-prefix-noreplyto 
+    @classlist = qw(nomail each-noprefix-noreplyto each-prefix-noreplyto
                     each-noprefix-replyto each-prefix-replyto
-                    unique-noprefix-noreplyto unique-prefix-noreplyto 
+                    unique-noprefix-noreplyto unique-prefix-noreplyto
                     unique-noprefix-replyto unique-prefix-replyto);
     push @classlist, $self->{'lists'}{$list}->_digest_classes
       if ($sublist eq 'MAIN');
@@ -3866,7 +3867,7 @@ mode to determine what action to take.
 Useful modes include:
 
   get - retrieve a named message (or messages).
- 
+
   index - retrieve a list of messages.
 
   By named messages:
@@ -3885,15 +3886,15 @@ Useful modes include:
   have six digits; it depends on archive_split.)  Dates hever have slashes.
   Separators (1998-05-01) are allowed in dates and names, by
   applying s/[\-]//g to each date.  Spaces around the dashes in a range
-  are required.  
+  are required.
 
-  Results for archive-get are returned in one or more digests unless 
-  -immediate is given; in that case, the messages will be returned 
-  immediately in mbox format.  The type of digest is selected by a mode; 
-  mime if "mime" mode is specified; text otherwise.  The digest will be mailed 
+  Results for archive-get are returned in one or more digests unless
+  -immediate is given; in that case, the messages will be returned
+  immediately in mbox format.  The type of digest is selected by a mode;
+  mime if "mime" mode is specified; text otherwise.  The digest will be mailed
   in a separate message.
 
-  Other modes could be used to return other data 
+  Other modes could be used to return other data
   (probably an array of everything stored within the archive index).
 
 =cut
@@ -3909,13 +3910,13 @@ sub archive_start {
   $request->{'part'} ||= 0;
 
   # Verify any patterns that were supplied, and pack them.
-  if (exists $request->{'contents'} and 
+  if (exists $request->{'contents'} and
       ref ($request->{'contents'}) eq 'ARRAY') {
 
     if ($request->{'mode'} =~ /replace/) {
       $request->{'contents'} = join "\002", @{$request->{'contents'}};
     }
-    else {  
+    else {
       for $i (@{$request->{'contents'}}) {
         if ($i =~ /~([as])(.+)/) {
           $type = ($1 eq 'a') ? 'author' : 'subject';
@@ -3926,7 +3927,7 @@ sub archive_start {
           $pattern = $i;
         }
 
-        ($ok, $mess, $pattern) = 
+        ($ok, $mess, $pattern) =
           Mj::Config::compile_pattern($pattern, 0, 'isubstring');
 
         unless ($ok) {
@@ -3953,7 +3954,7 @@ hidden messages.\n")
   }
   $self->{'arcadmin'} = 1 if ($ok > 1);
 
-  $self->_archive($request->{'list'}, $request->{'user'}, $request->{'user'}, 
+  $self->_archive($request->{'list'}, $request->{'user'}, $request->{'user'},
                   $request->{'mode'}, $request->{'cmdline'},
                   $request->{'args'}, $request->{'part'},
                   $request->{'contents'});
@@ -3962,10 +3963,10 @@ hidden messages.\n")
 # Returns data for all messages matching the arguments.
 use Mj::Util qw(re_match);
 sub _archive {
-  my ($self, $list, $user, $vict, $mode, $cmdline, $args, 
+  my ($self, $list, $user, $vict, $mode, $cmdline, $args,
       $part, $contents) = @_;
   my $log = new Log::In 30, "$list, $args";
-  my (@msgs, @patterns, @tmp, $arc, $data, $i, $j, $mess, $msg, $ok, 
+  my (@msgs, @patterns, @tmp, $arc, $data, $i, $j, $mess, $msg, $ok,
       $private, $re_pattern, $regex, $type);
   return 1 unless ($args or $mode =~ /summary/);
   return (0, "Unable to initialize list $list.\n")
@@ -3990,7 +3991,7 @@ sub _archive {
     if (exists $self->{'arcadmin'}) {
       $private = 0;
     }
-    @msgs = $self->{'lists'}{$list}->archive_expand_range(0, $args, 
+    @msgs = $self->{'lists'}{$list}->archive_expand_range(0, $args,
                                        $private);
 
     # "hidden" mode causes only messages which are not intended to
@@ -4041,7 +4042,7 @@ sub _archive {
     for ($i = 0; $i <= $#msgs; $i++) {
       ($msg, $data) = @{$msgs[$i]};
       next unless $msg;
-      $msgs[$i]->[1] = 
+      $msgs[$i]->[1] =
         $self->{'lists'}{$list}->archive_get_neighbors(
           $msg, $data, $re_pattern, $private);
     }
@@ -4057,7 +4058,7 @@ sub _archive {
 
     ($msg, $data) = @{$msgs[0]};
     # In part mode, save the message to a temporary file and
-    # obtain information about its structure.  Return the 
+    # obtain information about its structure.  Return the
     # resulting data.
     ($ok, $mess) = $self->{'lists'}{$list}->archive_get_to_file(
        $msg, '', $data, 1);
@@ -4089,7 +4090,7 @@ sub archive_chunk {
   $list = $self->{'lists'}{$request->{'list'}};
 
   if ($request->{'mode'} =~ /sync/) {
-    return (0, "Permission denied.  An administrative password is required.\n") 
+    return (0, "Permission denied.  An administrative password is required.\n")
       unless (exists $self->{'arcadmin'}); # XLANG
     @msgs = @$result;
     for $i (@msgs) {
@@ -4112,7 +4113,7 @@ sub archive_chunk {
     return (1, $buf);
   }
   elsif ($request->{'mode'} =~ /delete/) {
-    return (0, "Permission denied.  An administrative password is required.\n") 
+    return (0, "Permission denied.  An administrative password is required.\n")
       unless (exists $self->{'arcadmin'}); # XLANG
     $buf = '';
     @msgs = @$result;
@@ -4132,16 +4133,16 @@ sub archive_chunk {
     }
     for $i (@msgs) {
       if ($request->{'mode'} !~ /force/ and
-          exists($pending{$i->[0]})) 
+          exists($pending{$i->[0]}))
       {
-        $buf .= $self->format_error('pending_delivery', 
+        $buf .= $self->format_error('pending_delivery',
                   $request->{'list'}, 'MSGNO' => $i->[0]);
         next;
       }
-      
+
       if ($request->{'mode'} =~ /part/) {
         ($j, $k) = @$i;
-        ($ok, $out) = 
+        ($ok, $out) =
           $list->archive_replace_msg($j, $self->{'spoolfile'}, $tmpdir);
 
         if ($ok) {
@@ -4172,7 +4173,7 @@ sub archive_chunk {
      to            => "$request->{'user'}",
      tmpdir        => $tmpdir,
      index_line    => $self->_list_config_get($request->{'list'}, 'digest_index_format'),
-     index_header  => "Custom-Generated Digest Containing " . scalar(@$result) . 
+     index_header  => "Custom-Generated Digest Containing " . scalar(@$result) .
                       " Messages
 
 Contents:
@@ -4200,8 +4201,8 @@ Contents:
   elsif ($request->{'mode'} =~ /part/) {
     return (0, undef) unless (exists $self->{'msg_data'});
 
-    return (0, undef) 
-      unless (defined $request->{'part'} and 
+    return (0, undef)
+      unless (defined $request->{'part'} and
               exists $self->{'msg_data'}->{$request->{'part'}});
 
     $part = $self->{'msg_data'}->{$request->{'part'}};
@@ -4220,7 +4221,7 @@ Contents:
     while ($line = $part->{'fh'}->getline) {
       $out = '' unless $out;
       $out .= $line;
-    } 
+    }
 
     delete ($part->{'fh'});
     return (1, $out);
@@ -4233,10 +4234,10 @@ Contents:
       ($buf, $data) = @$i;
       (undef, $file) = $list->archive_get_to_file($buf, '', $data, 1);
       next unless $file;
-      $self->mail_message($owner, $file, $request->{'user'}); 
+      $self->mail_message($owner, $file, $request->{'user'});
       unlink $file;
     }
-    return (1, "The messages (". scalar(@$result). 
+    return (1, "The messages (". scalar(@$result).
                " total) have been mailed to $request->{'user'}.\n"); # XLANG
   }
 }
@@ -4276,19 +4277,19 @@ sub configdef {
     unless (@{$request->{'setting'}}); # XLANG
 
   return (0, ["The GLOBAL:_install template values cannot be reset.\n", ''])
-    if ($request->{'list'} eq 'GLOBAL' and 
+    if ($request->{'list'} eq 'GLOBAL' and
         $request->{'sublist'} eq '_install'); # XLANG
 
   return (0, ["The DEFAULT:_install template values cannot be reset.\n", ''])
-    if ($request->{'list'} eq 'DEFAULT' and 
+    if ($request->{'list'} eq 'DEFAULT' and
         $request->{'sublist'} eq '_install'); # XLANG
 
   for $var (@{$request->{'setting'}}) {
     ($ok, $mess) =
-      $self->list_config_set_to_default($request->{'user'}, 
+      $self->list_config_set_to_default($request->{'user'},
                                         $request->{'password'},
-                                        $request->{'list'}, 
-                                        $request->{'sublist'}, 
+                                        $request->{'list'},
+                                        $request->{'sublist'},
                                         $var);
     push @out, $ok, [$mess, $var];
   }
@@ -4304,7 +4305,7 @@ Change a configuration setting to a particular value
 sub configset {
   my ($self, $request) = @_;
   return (0, "The name of the setting to be changed is missing.\n")
-    unless (defined $request->{'setting'} and 
+    unless (defined $request->{'setting'} and
             length $request->{'setting'});
   my $log = new Log::In 30, "$request->{'list'}, $request->{'setting'}";
 
@@ -4318,8 +4319,8 @@ Settings are classified into groups.  Requesting a particular
 group (in capital letters) will cause all of the variables
 in that group to be displayed.
 
-"declared" mode will cause only those values defined in a 
-particular configuration file to be shown; settings which have 
+"declared" mode will cause only those values defined in a
+particular configuration file to be shown; settings which have
 the default values are ignored.
 
 "extract," "merge," and "append" modes will alter the appearance
@@ -4329,8 +4330,8 @@ of the configset commands that are displayed.
 
 sub configshow {
   my ($self, $request) = @_;
-  my (%all_vars, %category, @hereargs, @out, @tmp, @vars, 
-      $auto, $comment, $config, $data, $flag, $group, $groups, 
+  my (%all_vars, %category, @hereargs, @out, @tmp, @vars,
+      $auto, $comment, $config, $data, $flag, $group, $groups,
       $i, $intro, $level, $message, $val, $var, $vars, $whence);
 
   if (! defined $request->{'groups'}->[0]) {
@@ -4339,12 +4340,12 @@ sub configshow {
   if (exists $request->{'config'}) {
     ($config) = $self->valid_list($request->{'config'}, 0, 1);
     unless ($config) {
-      return (1, [0, "Invalid configuration name: $request->{'config'}", 
+      return (1, [0, "Invalid configuration name: $request->{'config'}",
                   '', '']);
     }
     # Expose DEFAULT list settings in "merge" mode.
     $config = $request->{'list'} unless ($request->{'list'} =~ /^DEFAULT/);
-  } 
+  }
   else {
     $config = $request->{'list'};
   }
@@ -4352,12 +4353,12 @@ sub configshow {
   for $group (@{$request->{'groups'}}) {
     $data = {};
     # This expands groups and checks visibility and existence of variables
-    @vars = $self->config_get_vars($request->{'user'}, $request->{'password'}, 
+    @vars = $self->config_get_vars($request->{'user'}, $request->{'password'},
                                    $config, $request->{'sublist'},
                                    $group);
     unless (@vars) {
       push @out, [0, $self->format_error('no_visible', $request->{'list'},
-                                         'SETTING' => $group), 
+                                         'SETTING' => $group),
                   $data, $group, ''];
     }
     else {
@@ -4378,7 +4379,7 @@ sub configshow {
 
   if ($request->{'mode'} =~ /categories/) {
     for $var (sort keys %category) {
-      $comment = $self->_list_file_get_string('GLOBAL', 
+      $comment = $self->_list_file_get_string('GLOBAL',
                                               "config/categories/$var");
       push @out, [1, $comment, $data, $var, $category{$var}];
     }
@@ -4390,9 +4391,9 @@ sub configshow {
     $auto = $self->config_get_isauto($var);
     # Process the options
     $comment = '';
-    $whence = $self->config_get_whence($request->{'list'}, 
+    $whence = $self->config_get_whence($request->{'list'},
                                        $request->{'sublist'}, $var);
-    next if (defined $whence and $whence ne 'MAIN' and 
+    next if (defined $whence and $whence ne 'MAIN' and
              $request->{'mode'} =~ /declared|merge|append/);
 
     if ($request->{'mode'} !~ /nocomments/) {
@@ -4414,7 +4415,7 @@ sub configshow {
     if ($self->config_get_isarray($var)) {
       @hereargs = ();
       # Process as an array
-      for ($self->list_config_get($request->{'user'}, $request->{'password'}, 
+      for ($self->list_config_get($request->{'user'}, $request->{'password'},
                                   $request->{'list'}, $request->{'sublist'},
                                   $var, 1))
       {
@@ -4424,7 +4425,7 @@ sub configshow {
     }
     else {
       # Process as a simple variable
-      ($val) = $self->list_config_get($request->{'user'}, $request->{'password'}, 
+      ($val) = $self->list_config_get($request->{'user'}, $request->{'password'},
                                     $request->{'list'}, $request->{'sublist'},
                                     $var, 1);
       push @out, [$level, $comment, $data, $var, $val];
@@ -4547,12 +4548,12 @@ sub createlist {
 
     return (0, "Illegal list name: $request->{'newlist'}")
       unless ($ok = legal_list_name($request->{'newlist'}));
-   
+
     $request->{'newlist'} = $ok;
   }
 
   $request->{'newpasswd'} ||= '';
-  $request->{'newlist'} = lc $request->{'newlist'}; 
+  $request->{'newlist'} = lc $request->{'newlist'};
 
   # Check the password XXX Think more about where the results are
   # sent.  Normally we expect that the majordomo-owner will be the
@@ -4562,13 +4563,13 @@ sub createlist {
   # command.
   $request->{'owners'} = join "\002\002", @{$request->{'owners'}};
   ($ok, $mess) = $self->global_access_check($request);
-    
+
   unless ($ok > 0) {
     return ($ok, $mess);
   }
 
-  $self->_createlist('', $request->{'user'}, $request->{'victim'}, 
-                     $request->{'mode'}, $request->{'cmdline'}, 
+  $self->_createlist('', $request->{'user'}, $request->{'victim'},
+                     $request->{'mode'}, $request->{'cmdline'},
                      $request->{'owners'}, $request->{'newlist'},
                      $request->{'newpasswd'});
 }
@@ -4581,9 +4582,9 @@ sub _createlist {
   my $log = new Log::In 35, "$mode, $list";
 
   my (%args, %data, @defaults, @lists, @owners, @tmp, $aliases, $bdir,
-      $desc, $digests, $dir, $dom, $debug, $ent, $file, $i, $j, $k, 
+      $desc, $digests, $dir, $dom, $debug, $ent, $file, $i, $j, $k,
       $mess, $mta, $mtaopts, $newlist, $ok, $priority, $pwl, $regsub,
-      $result, $sender, $setting, $shpass, $sources, $sublists, $subs, 
+      $result, $sender, $setting, $shpass, $sources, $sublists, $subs,
       $who);
 
   $mta   = $self->_site_config_get('mta');
@@ -4715,7 +4716,7 @@ sub _createlist {
         $change = 0;
 
         @tmp = split ("\002", $data->{'lists'});
-        @lists = map { if ($_ eq $list) { 
+        @lists = map { if ($_ eq $list) {
                          $_ = $newlist;
                          $change++;
                        }
@@ -4736,7 +4737,7 @@ sub _createlist {
     rename("$self->{'ldir'}/$list", "$self->{'ldir'}/$newlist");
 
     # instantiate new list
-    return (0, $self->format_error('make_list', 'GLOBAL', 
+    return (0, $self->format_error('make_list', 'GLOBAL',
                                    'LIST' => $newlist))
       unless ($self->_make_list($newlist));
 
@@ -4841,7 +4842,7 @@ sub _createlist {
       $self->{'lists'}{$list} = undef;
 
       unless (-d $dir) {
-	mkdir $dir, 0777 
+	mkdir $dir, 0777
 	  or $log->abort("Couldn't make $dir, $!");
 	mkdir "$dir/files", 0777
 	  or $log->abort("Couldn't make $dir/files, $!");
@@ -4851,7 +4852,7 @@ sub _createlist {
     }
 
     # Now do some basic configuration
-    return (0, $self->format_error('make_list', 'GLOBAL', 
+    return (0, $self->format_error('make_list', 'GLOBAL',
                                    'LIST' => $list))
       unless ($self->_make_list($list));
     @tmp = ();
@@ -4859,9 +4860,9 @@ sub _createlist {
       push @tmp, $j->strip;
     }
     $self->_list_config_set($list, 'owners', @tmp);
-    $self->_list_config_set($list, 'master_password', $pw); 
+    $self->_list_config_set($list, 'master_password', $pw);
     if ($mode =~ /inactive/) {
-      $self->_list_config_set($list, 'active', 0); 
+      $self->_list_config_set($list, 'active', 0);
     }
 
     $self->_list_config_unlock($list);
@@ -4890,12 +4891,12 @@ sub _createlist {
        'PASSWORD' => $pw,
       };
 
-      for $owner (@owners) { 
+      for $owner (@owners) {
         $subs->{'USER'} = $owner->strip;
         ($file, %data) = $self->_list_file_get('GLOBAL', 'new_list', $subs);
-        $desc = $self->substitute_vars_string($data{'description'}, $subs); 
+        $desc = $self->substitute_vars_string($data{'description'}, $subs);
 
-        if ($file) { 
+        if ($file) {
           $ent = build MIME::Entity
             (
              Path     => $file,
@@ -4996,7 +4997,7 @@ the contents of each "owners" configuration setting.
 
 sub sync_owners {
   my ($self, $requ) = @_;
-  my (%owners, %seen, @deletions, @tmp, $addr, $data, $i, $j, $lists, $out, 
+  my (%owners, %seen, @deletions, @tmp, $addr, $data, $i, $j, $lists, $out,
       $owners, $strip, $time);
   my $log = new Log::In 150;
   $self->_fill_lists;
@@ -5008,7 +5009,7 @@ sub sync_owners {
       $addr = new Mj::Addr($j);
       next unless $addr->isvalid;
       $strip = $addr->strip;
-      # If this address has already been processed, update its 
+      # If this address has already been processed, update its
       # data and continue.
       if (exists $out->{$strip}) {
         push @{$out->{$strip}}, $i;
@@ -5030,12 +5031,12 @@ sub sync_owners {
       $self->{'lists'}{'GLOBAL'}->update('', $owners{$addr}, 'owners', $data);
     }
     else {
-      $self->{'lists'}{'GLOBAL'}->add('', $owners{$addr}, 'owners', 
+      $self->{'lists'}{'GLOBAL'}->add('', $owners{$addr}, 'owners',
                                       'groups' => $lists);
 
       $self->inform('GLOBAL', 'subscribe', $requ, $addr,
                     "subscribe GLOBAL:owners $addr",
-                    $self->{'interface'}, 1, 1, 1, 
+                    $self->{'interface'}, 1, 1, 1,
                     '', $::log->elapsed - $time);
     }
   }
@@ -5057,7 +5058,7 @@ sub sync_owners {
     $time = $::log->elapsed;
     $addr = new Mj::Addr($i);
     next unless $addr;
-    $self->_unsubscribe('GLOBAL', $requ, $addr, '', 
+    $self->_unsubscribe('GLOBAL', $requ, $addr, '',
                         "unsubscribe GLOBAL:owners $addr", 'owners');
     $self->inform('GLOBAL', 'unsubscribe', $requ, $addr,
                   "unsubscribe GLOBAL:owners $addr",
@@ -5066,7 +5067,7 @@ sub sync_owners {
   }
   return (1, $out);
 }
-    
+
 
 =head2 digest
 
@@ -5082,7 +5083,7 @@ This implements an interface to various digest functionality:
 sub digest {
   my ($self, $request) = @_;
   $request->{'args'} ||= 'ALL';
-  my $log = new Log::In 30, "$request->{'mode'}, $request->{'list'}, 
+  my $log = new Log::In 30, "$request->{'mode'}, $request->{'list'},
                              $request->{'args'}";
 
   my ($ok, $mess) = $self->list_access_check($request);
@@ -5091,14 +5092,14 @@ sub digest {
     $log->out("noaccess");
     return ($ok, $mess);
   }
-  $self->_digest($request->{'list'}, $request->{'user'}, $request->{'user'}, 
+  $self->_digest($request->{'list'}, $request->{'user'}, $request->{'user'},
                  $request->{'mode'}, $request->{'cmdline'}, $request->{'args'});
 }
 
 sub _digest {
   my ($self, $list, $requ, $vict, $mode, $cmd, $digest) = @_;
   my $log  = new Log::In 35, "$mode, $list, $digest";
-  my (@desc, @req, @sup, $d, $deliveries, $digests, $force, $i, $issues, 
+  my (@desc, @req, @sup, $d, $deliveries, $digests, $force, $i, $issues,
       $mess, $owner, $sender, $subs, $tmpdir, $whereami);
 
   $digests = $self->_list_config_get($list, 'digests');
@@ -5166,13 +5167,13 @@ sub _digest {
       $deliveries = {};
       $self->do_digests(
                         'deliveries' => $deliveries,
-                        'force'      => $force,    
-                        'list'       => $list,     
+                        'force'      => $force,
+                        'list'       => $list,
                         'run'        => $d,
                         'sender'     => $owner,
-                        'substitute' => $subs,     
+                        'substitute' => $subs,
                         'tmpdir'     => $tmpdir,
-                        'whereami'   => $whereami, 
+                        'whereami'   => $whereami,
                         # 'msgnum' => undef, 'arcdata' => undef,
                        );
 
@@ -5192,11 +5193,11 @@ sub _digest {
       last unless ($mode =~ /repeat/);
     }
 
-    # Indicate which digests were issued. 
+    # Indicate which digests were issued.
     # (XXX Move to Mj::Format::digest.)
     if (scalar keys %$issues) {
       for $i (sort keys %$issues) {
-        $mess .= sprintf "%12s digest issues delivered: $issues->{$i}\n", 
+        $mess .= sprintf "%12s digest issues delivered: $issues->{$i}\n",
                          qq("$i");
       }
     }
@@ -5212,7 +5213,7 @@ sub _digest {
     return (1, "Volume numbers for $digest incremented.\n");
   }
 
-  $mess = $self->format_error('digest_mode', $list, 
+  $mess = $self->format_error('digest_mode', $list,
                               'DIGESTS' => \@sup,
                               'DIGEST_DESCRIPTIONS' => \@desc,
                               'MODES' => [qw(check force incvol status)]);
@@ -5234,7 +5235,7 @@ sub lists {
   my ($mess, $ok);
 
   if ($request->{'regexp'}) {
-    ($ok, $mess, $request->{'regexp'}) 
+    ($ok, $mess, $request->{'regexp'})
       = Mj::Config::compile_pattern($request->{'regexp'}, 0, 'iexact');
     return ($ok, $mess) unless $ok;
   }
@@ -5247,7 +5248,7 @@ sub lists {
   }
 
   $self->_lists('GLOBAL', $request->{'user'}, $request->{'user'},
-                $request->{'mode'}, $request->{'cmdline'}, 
+                $request->{'mode'}, $request->{'cmdline'},
                 $request->{'regexp'}, $request->{'password'}, $ok);
 }
 
@@ -5263,8 +5264,8 @@ sub _lists {
   my $ok       = shift || 0;
 
   my $log = new Log::In 35, $mode;
-  my (@lines, @lists, @out, @tmp, $cat, $compact, $count, $data, 
-      $desc, $digests, $expose, $flags, $i, $j, $limit, $list, 
+  my (@lines, @lists, @out, @tmp, $cat, $compact, $count, $data,
+      $desc, $digests, $expose, $flags, $i, $j, $limit, $list,
       $mess, $sublist, $sublists, $testreq);
 
   $expose = 0;
@@ -5281,7 +5282,7 @@ sub _lists {
   @lists = $self->get_all_lists($user, $password, $regexp);
 
   if ($mode =~ /config/) {
-    eval ("use Mj::Util qw(re_match)"); 
+    eval ("use Mj::Util qw(re_match)");
     if (re_match($regexp, 'DEFAULT')) {
       push @lists, 'DEFAULT';
     }
@@ -5303,7 +5304,7 @@ sub _lists {
 
     $cat   = $self->_list_config_get($list, 'category');
     $flags = '';
- 
+
     if ($compact) {
       $desc = $self->_list_config_get($list, 'description');
       unless ($desc) {
@@ -5323,15 +5324,15 @@ sub _lists {
       $desc ||= $self->_list_config_get($list, 'description');
     }
 
-    $data = { 
-             'category'    => $cat, 
-             'description' => $desc, 
+    $data = {
+             'category'    => $cat,
+             'description' => $desc,
              'flags'       => '',
-             'list'        => $list, 
+             'list'        => $list,
             };
 
     if ($mode =~ /enhanced/) {
-      $data->{'flags'} .= 'S' 
+      $data->{'flags'} .= 'S'
                          if $self->is_subscriber($user, $list);
     }
     # "full" mode:  return digests, post and subscriber counts, archive URL.
@@ -5354,13 +5355,13 @@ sub _lists {
                    'victim'   => $vict,
                  };
 
-      ($data->{'can_read'}) = 
+      ($data->{'can_read'}) =
         $self->list_access_check($testreq, 'nostall' => 1);
-     
+
       $digests = $self->_list_config_get($list, 'digests');
       for $i (keys %$digests) {
         next if ($i eq 'default_digest');
-        $data->{'digests'}->{$i} = 
+        $data->{'digests'}->{$i} =
           $self->{'lists'}{$list}->describe_class('digest', $i, '');
       }
     }
@@ -5397,17 +5398,17 @@ sub _lists {
                     'flags'       => $flags,
                     'list'        => "$list:$i",
                     'posts' => $self->{'lists'}{$list}->count_posts(30, $i),
-                    'subs'  => 
+                    'subs'  =>
                       $self->{'lists'}{$list}->count_subs($i) || 0,
                    };
       }
-    } 
+    }
     # Config mode:  display information about configuration templates.
     if ($mode =~ /config/ and ($expose > 1 or $list =~ /^DEFAULT/)) {
       for $sublist ($self->{'lists'}{$list}->_fill_config) {
         next if ($sublist eq 'MAIN' and $list !~ /^DEFAULT/);
         $desc = '';
-        @lines = $self->list_config_get($user, $password, $list, 
+        @lines = $self->list_config_get($user, $password, $list,
                                         $sublist, 'comments', 1);
         $count = 1;
         for (@lines) {
@@ -5449,8 +5450,8 @@ use IO::File;
 sub reject {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "@{$request->{'tokens'}}";
-  my (%file, @out, $ack_attach, $data, $desc, $ent, $file, $in, $inf, 
-      $inform, $line, $list_owner, $mess, $mj_addr, $mj_owner, $ok, 
+  my (%file, @out, $ack_attach, $data, $desc, $ent, $file, $in, $inf,
+      $inform, $line, $list_owner, $mess, $mj_addr, $mj_owner, $ok,
       $owner, $reason, $repl, $rfile, $sess, $site, $t, $token, $victim);
 
   return (0, "No token was supplied.\n")
@@ -5460,7 +5461,7 @@ sub reject {
   $mj_addr    = $self->_global_config_get('whoami');
   $mj_owner   = $self->_global_config_get('sender');
 
-  for $t (@{$request->{'tokens'}}) { 
+  for $t (@{$request->{'tokens'}}) {
 
     if (defined $t) {
       $token = $self->t_recognize($t);
@@ -5492,9 +5493,9 @@ sub reject {
     }
     # XXX Allowing a file name to be used gives read access to any file
     # in the list's file space to any moderator of the list.
-    # 
-    # The explanation for a consult rejection could be a file or a string.  
-    # If it contains no white space, treat it as a file.  
+    #
+    # The explanation for a consult rejection could be a file or a string.
+    # If it contains no white space, treat it as a file.
     else {
       $rfile = 'ack_rejection';
       if (length $request->{'xplanation'}) {
@@ -5532,24 +5533,24 @@ sub reject {
       my %avars = split("\002", $data->{'arg3'});
       $data->{'sublist'} = $avars{'sublist'} || '';
     }
-    $victim = new Mj::Addr($data->{'victim'});  
+    $victim = new Mj::Addr($data->{'victim'});
 
     # For confirmation tokens, or if the 'ackreject' flag is set,
     # a notice is sent to the victim
-    if ($data->{'type'} eq 'confirm' 
+    if ($data->{'type'} eq 'confirm'
           or
-        $self->{'lists'}{$data->{'list'}}->should_ack($data->{'sublist'}, 
+        $self->{'lists'}{$data->{'list'}}->should_ack($data->{'sublist'},
                                                       $victim, 'j')
-       ) 
+       )
     {
       $data->{'ack'} = 1;
       ($file, %file) = $self->_list_file_get($data->{'list'}, $rfile, $repl);
       unless (defined $file) {
-        ($file, %file) = 
+        ($file, %file) =
           $self->_list_file_get($data->{'list'}, "token_reject", $repl);
       }
       $desc = $self->substitute_vars_string($file{'description'}, $repl);
-        
+
       # Send it off if type confirm or required by settings
       $ent = build MIME::Entity
         (
@@ -5594,16 +5595,16 @@ sub reject {
         unlink $file;
       }
     }
-      
+
     # Send a message to the list owner and majordomo owner if appropriate
-    if ($data->{'type'} eq 'confirm' 
-        and $request->{'mode'} !~ /nolog|noinform/) 
+    if ($data->{'type'} eq 'confirm'
+        and $request->{'mode'} !~ /nolog|noinform/)
     {
-      ($file, %file) = $self->_list_file_get($data->{'list'}, 
+      ($file, %file) = $self->_list_file_get($data->{'list'},
                                              "token_reject_owner");
       $file = $self->substitute_vars($file, $repl);
       $desc = $self->substitute_vars_string($desc, $repl);
-      
+
       $ent = build MIME::Entity
         (
          Path        => $file,
@@ -5613,11 +5614,11 @@ sub reject {
          Filename    => undef,
          -From       => $mj_owner,
          '-Reply-To' => $mj_owner,
-         -Subject    => $desc, 
+         -Subject    => $desc,
          -To         => $list_owner,
          'Content-Language:' => $file{'language'},
         );
-      
+
       # Should we inform the list owner?
       $inform = $self->_list_config_get($data->{'list'}, 'inform');
       $inf = $inform->{'reject'}{'all'} || $inform->{'reject'}{1} || 0;
@@ -5675,7 +5676,7 @@ sub register {
   my $log = new Log::In  30, "$request->{'victim'}, $request->{'mode'}";
 
   $request->{'newpasswd'} ||= '';
- 
+
   # Do a list_access_check here for the address; subscribe if it succeeds.
   # The access mechanism will automatically generate failure notices and
   # confirmation tokens if necessary.
@@ -5685,7 +5686,7 @@ sub register {
     $log->message(30, "info", "noaccess");
     return ($ok, $error);
   }
-  $self->_register('', $request->{'user'}, $request->{'victim'}, $request->{'mode'}, 
+  $self->_register('', $request->{'user'}, $request->{'victim'}, $request->{'mode'},
                        $request->{'cmdline'}, $request->{'newpasswd'});
 }
 
@@ -5700,7 +5701,7 @@ sub _register {
   my $pw    = shift;
   my $log   = new Log::In 35, "$vict";
   my ($data, $exist, $ok, $welcome);
-  
+
   if (!defined $pw || !length($pw)) {
     $d = $self->_global_config_get('password_min_length');
     $pw = &gen_pw($d);
@@ -5708,20 +5709,20 @@ sub _register {
 
   # Add to/update registration database
   ($exist, $data) = $self->_reg_add($vict, 'password' => $pw);
-  
+
   # We shouldn't fail, because we trust the reg. database to be correct
   if ($exist) {
     # XLANG
     $log->out("failed, existing");
     return (0, "$vict is already registered as $data->{'fulladdr'}.\n");
   }
-  
+
   $welcome = $self->_global_config_get('welcome');
   $welcome = 1 if $mode =~ /welcome/;
   $welcome = 0 if $mode =~ /(nowelcome|quiet)/;
-  
+
   if ($welcome) {
-    $ok = $self->welcome('GLOBAL', $vict, 'PASSWORD' => $pw, 
+    $ok = $self->welcome('GLOBAL', $vict, 'PASSWORD' => $pw,
                          'REGISTERED' => 0);
     unless ($ok) {
       # Perhaps complain to the list owner?
@@ -5786,11 +5787,11 @@ sub rekey_start {
   $request->{'regexp'} ||= '';
 
   if ($request->{'regexp'}) {
-    ($ok, $mess, $request->{'regexp'}) 
+    ($ok, $mess, $request->{'regexp'})
       = Mj::Config::compile_pattern($request->{'regexp'}, 0, 'iexact');
     return ($ok, $mess) unless $ok;
   }
-  
+
   ($ok, $mess) = $self->global_access_check($request);
 
   unless ($ok > 0) {
@@ -5798,7 +5799,7 @@ sub rekey_start {
     return ($ok, $mess);
   }
 
-  $self->_rekey('', $request->{'user'}, $request->{'user'}, 
+  $self->_rekey('', $request->{'user'}, $request->{'user'},
                 $request->{'mode'}, $request->{'cmdline'},
                 $request->{'regexp'});
 }
@@ -5857,7 +5858,7 @@ sub _rekey {
   # loop over all lists
   $self->_fill_lists;
   @lists = sort keys(%{$self->{'lists'}});
-  $self->{'rekey_lists'} = []; 
+  $self->{'rekey_lists'} = [];
   if ($regexp) {
     require Mj::Util;
     import Mj::Util qw(re_match);
@@ -5867,8 +5868,8 @@ sub _rekey {
     if ($regexp and $mode =~ /verify|repair/) {
       next unless re_match($regexp, $list);
     }
-    push (@{$self->{'rekey_lists'}}, $list) 
-      unless ($mode =~ /verify|repair/ and 
+    push (@{$self->{'rekey_lists'}}, $list)
+      unless ($mode =~ /verify|repair/ and
               ($list eq 'DEFAULT' or $list eq 'GLOBAL'));
   }
   unless (scalar @{$self->{'rekey_lists'}}) {
@@ -5918,7 +5919,7 @@ sub rekey_chunk {
         $self->{'lists'}{$list}->add('', $data, '', '', '', '', 'MAIN');
       }
     }
-  } 
+  }
   else {
     return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list));
   }
@@ -5942,12 +5943,12 @@ Display statistics about logged actions for one or more lists.
 
 sub report_start {
   my ($self, $request) = @_;
-  my $log = new Log::In 50, 
+  my $log = new Log::In 50,
      "$request->{'list'}, $request->{'user'}";
   my ($action, $mess, $ok);
 
   unless (ref ($request->{'requests'}) eq 'ARRAY' and
-          scalar(@{$request->{'requests'}}) > 0) 
+          scalar(@{$request->{'requests'}}) > 0)
   {
     $request->{'requests'} = ['ALL : all'];
   }
@@ -5959,7 +5960,7 @@ sub report_start {
     return ($ok, $mess);
   }
 
-  $self->_report($request->{'list'}, $request->{'user'}, $request->{'user'}, 
+  $self->_report($request->{'list'}, $request->{'user'}, $request->{'user'},
               $request->{'mode'}, $request->{'cmdline'}, $request->{'date'},
               $request->{'action'});
 }
@@ -5971,7 +5972,7 @@ use Mj::Config;
 sub _report {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $date, $action) = @_;
   my $log = new Log::In 35, "$list, $action";
-  my (@table, @tmp, @tmp2, $begin, $end, $file, $i, $j, 
+  my (@table, @tmp, @tmp2, $begin, $end, $file, $i, $j,
       $req, $res, $scope, $span, $tmp);
 
   $scope = {};
@@ -6011,7 +6012,7 @@ sub _report {
     $scope = $tmp[$#tmp];
   }
   $self->{'report_scope'} = $scope;
- 
+
   $begin = 0; $end = time;
 
   if (length $date) {
@@ -6035,7 +6036,7 @@ sub _report {
     unless $self->_make_list($list);
 
   $file = "$self->{'ldir'}/GLOBAL/_log";
-  
+
   $self->{'report_fh'} = new IO::File "< $file";
   unless ($self->{'report_fh'}) {
     return (0, "Cannot access the log.\n");
@@ -6045,17 +6046,17 @@ sub _report {
 
 sub report_chunk {
   my ($self, $request) = @_;
-  my $log = new Log::In 500, 
+  my $log = new Log::In 500,
      "$request->{'list'}, $request->{'user'}";
   my (@data, @out, $count, $line, $scope);
 
-  return (0, "The log file is unopened.\n") 
+  return (0, "The log file is unopened.\n")
     unless (defined $self->{'report_fh'});
 
   return (0, "Invalid chunk size given.\n")
     unless ($request->{'chunksize'} > 0);
 
-  return (0, "Unable to determine what to report") 
+  return (0, "Unable to determine what to report")
     unless (defined $self->{'report_scope'});
 
   $request->{'begin'} ||= 0;
@@ -6064,17 +6065,17 @@ sub report_chunk {
   $scope = $self->{'report_scope'};
   $count = 0;
 
-  while (1) { 
+  while (1) {
     $line = $self->{'report_fh'}->getline;
     last unless $line;
     chomp $line;
     @data = split "\001", $line;
     # check time, list, and action constraints
-    next unless (defined $data[9] and $data[9] >= $request->{'begin'} 
+    next unless (defined $data[9] and $data[9] >= $request->{'begin'}
                  and $data[9] <= $request->{'end'});
-    next unless ($data[0] eq $request->{'list'} 
+    next unless ($data[0] eq $request->{'list'}
                  or $request->{'list'} eq 'ALL');
-    next unless (exists ($scope->{'ALL'}{$data[6]}) or 
+    next unless (exists ($scope->{'ALL'}{$data[6]}) or
                  exists ($scope->{$data[1]}{$data[6]}));
     push @out, [@data];
     $count++;  last if ($count >= $request->{'chunksize'});
@@ -6085,7 +6086,7 @@ sub report_chunk {
 
 sub report_done {
   my ($self, $request) = @_;
-  my $log = new Log::In 50, 
+  my $log = new Log::In 50,
      "$request->{'list'}, $request->{'user'}";
   undef $self->{'report_scope'};
   return unless $self->{'report_fh'};
@@ -6168,16 +6169,16 @@ sub set {
   $request->{'sublist'} ||= 'MAIN';
 
   my $log = new Log::In 30, "$request->{'list'}, $request->{'setting'}";
- 
+
   return (0, "The set command is not supported for the $request->{'list'} list.\n")
-    if ($request->{'list'} eq 'GLOBAL' or $request->{'list'} eq 'DEFAULT'); 
+    if ($request->{'list'} eq 'GLOBAL' or $request->{'list'} eq 'DEFAULT');
 
 
   if ($request->{'mode'} =~ /regex|pattern/) {
     $mismatch = 0;
     $regexp   = 1;
     # Parse the regexp
-    ($ok, $mess, $request->{'victim'}) = 
+    ($ok, $mess, $request->{'victim'}) =
        Mj::Config::compile_pattern($request->{'victim'}, 0);
     return (0, $mess) unless $ok;
     # Untaint the regexp
@@ -6200,15 +6201,15 @@ sub set {
   # override the allowed_classes and allowed_flags settings if necessary.
   $force = ($ok > 1)? 1 : 0;
 
-  $self->_set($request->{'list'}, $request->{'user'}, $request->{'victim'}, 
+  $self->_set($request->{'list'}, $request->{'user'}, $request->{'victim'},
               $request->{'mode'}, $request->{'cmdline'}, $request->{'setting'},
               '', $request->{'sublist'}, $force);
 }
 
 sub _set {
   my ($self, $list, $user, $vict, $mode, $cmd, $setting, $d, $sublist, $force) = @_;
-  my (@addrs, @lists, @out, @tmp, $addr, $check, $chunksize, $count, 
-      $data, $db, $file, $format, $k, $l, $mess, $ok, $owner, $res, 
+  my (@addrs, @lists, @out, @tmp, $addr, $check, $chunksize, $count,
+      $data, $db, $file, $format, $k, $l, $mess, $ok, $owner, $res,
       $sd, $v);
 
   $check = 0;
@@ -6260,7 +6261,7 @@ sub _set {
   else {
     if ($list eq 'ALL') {
       $data = $self->{'reg'}->lookup($vict->canon);
-      return (0, $self->format_error('unregistered', 'GLOBAL', 
+      return (0, $self->format_error('unregistered', 'GLOBAL',
                                      'VICTIM' => $vict->full))
         unless $data;
       $v = $data->{'lists'};
@@ -6270,8 +6271,8 @@ sub _set {
     }
     push @addrs, $vict, $v;
   }
-  
-  while (($addr, $data) = splice @addrs, 0, 2) {  
+
+  while (($addr, $data) = splice @addrs, 0, 2) {
     @lists = split("\002", $data);
     push @out, (0, "$addr is not subscribed to any lists.\n")
       unless @lists;
@@ -6293,7 +6294,7 @@ sub _set {
         $sd->{$l} = $self->{'lists'}{$l}->get_setting_data;
       }
 
-      ($ok, $res) = 
+      ($ok, $res) =
         $self->{'lists'}{$l}->set($addr, $setting, $sublist, $check, $force);
 
       if ($ok) {
@@ -6301,9 +6302,9 @@ sub _set {
         $res->{'fulladdr'} = $addr->full;
         $res->{'list'}     = $l;
         $res->{'sublist'}  = $sublist;
-        $res->{'flagdesc'} = 
+        $res->{'flagdesc'} =
           [$self->{'lists'}{$l}->describe_flags($res->{'flags'})];
-        $res->{'classdesc'} = 
+        $res->{'classdesc'} =
           $self->{'lists'}{$l}->describe_class(@{$res->{'class'}});
         $res->{'settings'} = $sd->{$l};
         $res->{'partial'} = 0;
@@ -6328,14 +6329,14 @@ sub _set {
              index_footer  => "\n",
             );
 
-          # Mail the partial digest 
+          # Mail the partial digest
           if ($file) {
             $owner = $self->_list_config_get($l, 'sender');
             $self->mail_message($owner, $file, $addr);
             unlink $file;
             $res->{'partial'} = 1;
           }
-        } 
+        }
       }
       push @out, $ok, $res;
     }
@@ -6389,7 +6390,7 @@ sub show {
                  },
            );
   }
-  $self->_show('', $request->{'user'}, $request->{'victim'}, $request->{'mode'}, 
+  $self->_show('', $request->{'user'}, $request->{'victim'}, $request->{'mode'},
                $request->{'cmdline'});
 }
 
@@ -6453,7 +6454,7 @@ sub _show {
       $bouncedata = $self->{'lists'}{$i}->bounce_get($addr);
       if ($bouncedata) {
 	$out{'lists'}{$i}{'bouncedata'}  = $bouncedata;
-	$out{'lists'}{$i}{'bouncestats'} = 
+	$out{'lists'}{$i}{'bouncestats'} =
           $self->{'lists'}{$i}->bounce_gen_stats($bouncedata);
       }
     }
@@ -6485,10 +6486,10 @@ sub showtokens {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
   my ($mess, $ok);
- 
+
   if ($request->{'action'}) {
     if (! command_legal($request->{'action'})) {
-      return (0, "$request->{'action'} is not a legal command."); 
+      return (0, "$request->{'action'} is not a legal command.");
     }
   }
 
@@ -6498,8 +6499,8 @@ sub showtokens {
     $log->out("noaccess");
     return ($ok, $mess);
   }
-  $self->_showtokens($request->{'list'}, $request->{'user'}, '', 
-                     $request->{'mode'}, $request->{'cmdline'}, 
+  $self->_showtokens($request->{'list'}, $request->{'user'}, '',
+                     $request->{'mode'}, $request->{'cmdline'},
                      $request->{'action'});
 }
 
@@ -6519,7 +6520,7 @@ sub _showtokens {
     ($token, $data) = $self->{'tokendb'}->get(1);
     last unless $token;
     next unless $data->{'list'} eq $list || $list eq 'ALL';
-    next if ($action and ($data->{'command'} ne $action)); 
+    next if ($action and ($data->{'command'} ne $action));
     next if ($data->{'type'} eq 'async'   and $mode !~ /async/);
     next if ($data->{'type'} eq 'alias'   and $mode !~ /alias/);
     next if ($data->{'type'} eq 'confirm' and $mode !~ /confirm/);
@@ -6565,9 +6566,9 @@ message.
 sub subscribe {
   my ($self, $request) = @_;
   my ($ok, $error, $i, $matches_list, $mismatch, $tmp, $whereami);
-  
+
   my $log = new Log::In  30, "$request->{'list'}, $request->{'victim'}, $request->{'mode'}";
-  
+
   # Do a list_access_check here for the address; subscribe if it succeeds.
   # The access mechanism will automatically generate failure notices and
   # confirmation tokens if necessary.
@@ -6583,7 +6584,7 @@ sub subscribe {
   $request->{'setting'} ||= '';
   $request->{'sublist'} ||= 'MAIN';
   return (0, "The GLOBAL and DEFAULT lists have no subscribers.\n")
-    if ($request->{'sublist'} eq 'MAIN' and 
+    if ($request->{'sublist'} eq 'MAIN' and
         $request->{'list'} =~ /GLOBAL|DEFAULT/);
 
   ($ok, $error) =
@@ -6593,8 +6594,8 @@ sub subscribe {
     $log->message(30, "info", "noaccess");
     return ($ok, $error);
   }
-  $self->_subscribe($request->{'list'}, $request->{'user'}, $request->{'victim'}, 
-                    $request->{'mode'}, $request->{'cmdline'}, 
+  $self->_subscribe($request->{'list'}, $request->{'user'}, $request->{'victim'},
+                    $request->{'mode'}, $request->{'cmdline'},
                     $request->{'setting'}, $request->{'sublist'});
 }
 
@@ -6609,7 +6610,7 @@ sub _subscribe {
   my $setting = shift;
   my $sublist = shift || 'MAIN';
   my $log   = new Log::In 35, "$list, $vict";
-  my ($ok, $class, $classarg, $classarg2, $data, $exist, $flags, $ml, 
+  my ($ok, $class, $classarg, $classarg2, $data, $exist, $flags, $ml,
       $rdata, $welcome);
 
   return (0, "Unable to initialize list $list.\n")
@@ -6617,7 +6618,7 @@ sub _subscribe {
 
   if ($setting) {
     ($ok, $flags, $class, $classarg, $classarg2) =
-      $self->{'lists'}{$list}->make_setting($setting, '', 
+      $self->{'lists'}{$list}->make_setting($setting, '',
         $self->{'lists'}{$list}->default_class);
     unless ($ok) {
       return (0, $flags);
@@ -6630,15 +6631,15 @@ sub _subscribe {
   # Add to list
   ($ok, $data) =
     $self->{'lists'}{$list}->add($mode, $vict, $sublist,
-                                 'flags' => $flags, 
-                                 'class' => $class, 
-                                 'classarg' => $classarg, 
-                                 'classarg2' => $classarg2, 
+                                 'flags' => $flags,
+                                 'class' => $class,
+                                 'classarg' => $classarg,
+                                 'classarg2' => $classarg2,
                                 );
 
   unless ($ok) {
     $log->out("failed, existing");
-    return (0, $self->format_error('already_subscribed', $list, 
+    return (0, $self->format_error('already_subscribed', $list,
             'VICTIM' => "$vict", 'FULLADDR' => $data->{'fulladdr'}));
   }
 
@@ -6647,7 +6648,7 @@ sub _subscribe {
   # dd to/update registration database
   if ($sublist eq 'MAIN') {
     ($exist, $rdata) =
-      $self->_reg_add($vict, 'password' => &gen_pw($ml), 
+      $self->_reg_add($vict, 'password' => &gen_pw($ml),
                       'list' => $list);
   }
 
@@ -6699,13 +6700,13 @@ sub tokeninfo_start {
   return (0, "Cannot initialize the list \"$data->{'list'}\".\n")
     unless $self->_make_list($data->{'list'});
 
-  $data->{'willack'} = ''; 
-  $victim = new Mj::Addr($data->{'victim'});  
+  $data->{'willack'} = '';
+  $victim = new Mj::Addr($data->{'victim'});
 
-  if ($data->{'command'} ne 'post' or  
+  if ($data->{'command'} ne 'post' or
       $self->{'lists'}{$data->{'list'}}->
         should_ack($data->{'sublist'}, $victim, 'j')
-     ) 
+     )
   {
     $data->{'willack'} = " ";
   }
@@ -6723,8 +6724,8 @@ sub tokeninfo_start {
     $spool =~ s#.+/([^/]+)$#$1#;
     $self->{'spoolfile'} = "$self->{'ldir'}/GLOBAL/spool/$spool";
 
-    ($ok, $sess) = 
-      $self->_get_msg_data($data, $request->{'part'}, 
+    ($ok, $sess) =
+      $self->_get_msg_data($data, $request->{'part'},
                            $request->{'mode'}, $request->{'contents'});
     return ($ok, $sess) unless ($ok);
 
@@ -6801,7 +6802,7 @@ sub _get_msg_data {
     $table = {};
     $ok = Mj::MIMEParser::get_entity_structure($ent, 1, $table);
     if (exists $table->{'1'}) {
-        $table->{'0'} = { 
+        $table->{'0'} = {
                           'file' => $spool,
                           'type' => $table->{'1'}->{'type'},
                           'size' => sprintf("%.1f", ((-s ($spool)) + 51) / 1024),
@@ -6826,8 +6827,8 @@ sub tokeninfo_chunk {
 
   return (0, undef) unless (exists $self->{'msg_data'});
 
-  return (0, undef) 
-    unless (defined $request->{'part'} and 
+  return (0, undef)
+    unless (defined $request->{'part'} and
             exists $self->{'msg_data'}->{$request->{'part'}});
 
   $request->{'part'} ||= 0;
@@ -6851,7 +6852,7 @@ sub tokeninfo_chunk {
     last unless defined $line;
     $out = '' unless $out;
     $out .= $line;
-  } 
+  }
 
   delete ($part->{'fh'}) unless (defined $out);
   return (1, $out);
@@ -6888,7 +6889,7 @@ use Mj::Util qw(in_clock);
 sub trigger {
   my ($self, $request) = @_;
   my $log = new Log::In 27, "$request->{'mode'}";
-  my (%subs, @data, @files, @ready, @req, $addr, $cmdfile, $data, 
+  my (%subs, @data, @files, @ready, @req, $addr, $cmdfile, $data,
       $elapsed, $key, $list, $mess, $mode, $ok, $times, $tmp);
   $mode = $request->{'mode'};
 
@@ -6920,7 +6921,7 @@ sub trigger {
       $times = $self->_list_config_get($data->{'list'}, 'triggers');
       next unless (exists $times->{'delay'} and
                    Mj::Util::in_clock($times->{'delay'}));
-      
+
       ($ok, $mess, $data, $tmp) =
         $self->t_accept($key, '', 'The request was completed after a delay', 0);
       $self->inform($data->{'list'},
@@ -6951,17 +6952,17 @@ sub trigger {
     ($ok, @data) = $self->r_expire;
     while (($addr, undef) = splice @data, 0, 2) {
       # Log the removal of the registration.
-      $self->inform('GLOBAL', 
-                    'unregister', 
-                    $request->{'user'}, 
-                    $addr, 
-                    "unregister $addr", 
-                    $self->{'interface'}, 
+      $self->inform('GLOBAL',
+                    'unregister',
+                    $request->{'user'},
+                    $addr,
+                    "unregister $addr",
+                    $self->{'interface'},
                     1, '', 0, '', $::log->elapsed - $elapsed);
     }
   }
   if ($mode =~ /^h/) {
-    @files = grep { $_ =~ m#^/# } @ready; 
+    @files = grep { $_ =~ m#^/# } @ready;
     %subs = $self->standard_subs('GLOBAL');
     for $cmdfile (@files) {
       $self->_list_file_execute('GLOBAL', $cmdfile, \%subs);
@@ -6997,12 +6998,12 @@ sub trigger {
       ($ok, @data) = $self->{'lists'}{$list}->expire_subscriber_data;
       while (($addr, undef) = splice @data, 0, 2) {
         # Log the delivery mode change.
-        $self->inform($list, 
-                      'set', 
-                      $request->{'user'}, 
-                      $addr, 
-                      "set $list nomail-return $addr", 
-                      $self->{'interface'}, 
+        $self->inform($list,
+                      'set',
+                      $request->{'user'},
+                      $addr,
+                      "set $list nomail-return $addr",
+                      $self->{'interface'},
                       1, '', 0, '', $::log->elapsed - $elapsed);
       }
     }
@@ -7018,28 +7019,28 @@ sub trigger {
       ($ok, @data) = $self->{'lists'}{$list}->expire_inactive_subs;
       while (($addr, undef) = splice @data, 0, 2) {
         # Log the delivery mode change.
-        $self->inform($list, 
-                      'unsubscribe', 
-                      $request->{'user'}, 
-                      $addr, 
-                      "unsubscribe $list $addr", 
-                      $self->{'interface'}, 
+        $self->inform($list,
+                      'unsubscribe',
+                      $request->{'user'},
+                      $addr,
+                      "unsubscribe $list $addr",
+                      $self->{'interface'},
                       1, '', 0, '', $::log->elapsed - $elapsed);
       }
     }
 
-    # Mode: hourly or digest - issue digests 
+    # Mode: hourly or digest - issue digests
     if ($mode =~ /^(h|di)/) {
-      # Call digest-check-repeat; this will do whatever is necessary 
+      # Call digest-check-repeat; this will do whatever is necessary
       # to tickle the digests.
-      $self->_digest($list, $request->{'user'}, 
+      $self->_digest($list, $request->{'user'},
                      $request->{'user'}, 'check-repeat', '', 'ALL');
     }
 
     # Mode: hourly.  Check for files in the filespace containing commands
     # to execute.
     if ($mode =~ /^h/) {
-      @files = grep { $_ =~ m#^/# } @ready; 
+      @files = grep { $_ =~ m#^/# } @ready;
       %subs = $self->standard_subs($list);
       for $cmdfile (@files) {
         $self->_list_file_execute($list, $cmdfile, \%subs);
@@ -7072,10 +7073,10 @@ sub _list_file_execute {
 
   # XXX What if failure occurs?
   Mj::Parser::parse_part(
-        $self, 
-        'attachments' => '', 
-        'infh' => $infh, 
-        'outfh' => \*STDOUT, 
+        $self,
+        'attachments' => '',
+        'infh' => $infh,
+        'outfh' => \*STDOUT,
         'password' => '',
         'reply_to' => '',
         'title' => $file,
@@ -7104,7 +7105,7 @@ sub unalias {
 
   $mismatch = !($request->{'user'}->alias eq $request->{'victim'}->alias);
 
-  ($ok, $mess) = 
+  ($ok, $mess) =
     $self->list_access_check($request, 'mismatch' => $mismatch);
 
   unless ($ok > 0) {
@@ -7112,7 +7113,7 @@ sub unalias {
     return ($ok, $mess);
   }
 
-  $self->_unalias($request->{'list'}, $request->{'user'}, $request->{'victim'}, 
+  $self->_unalias($request->{'list'}, $request->{'user'}, $request->{'victim'},
                   $request->{'mode'}, $request->{'cmdline'});
 }
 
@@ -7120,8 +7121,8 @@ sub _unalias {
   my ($self, $list, $requ, $source, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$requ, $source";
   my ($key, $data);
-  
-  return (0, qq(The address "$source" is not an alias.\n)) 
+
+  return (0, qq(The address "$source" is not an alias.\n))
     if ($source->xform eq $source->alias); #XLANG
 
   ($key, $data) = $self->{'alias'}->remove('', $source->xform);
@@ -7147,7 +7148,7 @@ sub unregister {
     $mismatch = 0;
     $regexp   = 1;
     # Parse the regexp
-    ($ok, $error, $request->{'victim'}) = 
+    ($ok, $error, $request->{'victim'}) =
        Mj::Config::compile_pattern($request->{'victim'}, 0);
     return (0, $error) unless $ok;
     # Untaint the regexp
@@ -7166,8 +7167,8 @@ sub unregister {
     $log->message(30, "info", "$request->{'user'}:  noaccess");
     return  ($ok, $error);
   }
-  $self->_unregister($request->{'list'}, $request->{'user'}, 
-                     $request->{'victim'}, $request->{'mode'}, 
+  $self->_unregister($request->{'list'}, $request->{'user'},
+                     $request->{'victim'}, $request->{'mode'},
                      $request->{'cmdline'});
 
 }
@@ -7181,8 +7182,8 @@ sub _unregister {
   # override owner information.  We can assume that the
   # dispatch function has already checked the appropriate passwords
   # here.
-  $over = 0; 
-  $over = 1 if ($mode =~ /noinform/); 
+  $over = 0;
+  $over = 1 if ($mode =~ /noinform/);
 
   if ($mode =~ /regex|pattern/) {
     $tmp = 'regex';
@@ -7208,8 +7209,8 @@ sub _unregister {
       $self->{'lists'}{$l}->remove('', $key);
 
       # Log the removal of the subscription.
-      $self->inform($l, 'unsubscribe', $requ, $key, $cmd, 
-                    $self->{'interface'}, 1, '', $over, '', 
+      $self->inform($l, 'unsubscribe', $requ, $key, $cmd,
+                    $self->{'interface'}, 1, '', $over, '',
                     $::log->elapsed - $tmp)
         unless ($mode =~ /nolog/);
     }
@@ -7244,7 +7245,7 @@ sub unsubscribe {
     $mismatch = 0;
     $regexp   = 1;
     # Parse the regexp
-    ($ok, $error, $request->{'victim'}) = 
+    ($ok, $error, $request->{'victim'}) =
        Mj::Config::compile_pattern($request->{'victim'}, 0);
     return (0, $error) unless $ok;
     # Untaint the regexp
@@ -7257,7 +7258,7 @@ sub unsubscribe {
 
   $request->{'sublist'} ||= 'MAIN';
   return (0, "The GLOBAL and DEFAULT lists have no subscribers.\n")
-    if ($request->{'sublist'} eq 'MAIN' and 
+    if ($request->{'sublist'} eq 'MAIN' and
         $request->{'list'} =~ /GLOBAL|DEFAULT/);
 
   ($ok, $error) =
@@ -7268,9 +7269,9 @@ sub unsubscribe {
     $log->message(30, "info", "$request->{'victim'}:  noaccess");
     return ($ok, $error);
   }
-   
-  $self->_unsubscribe($request->{'list'}, $request->{'user'}, 
-                      $request->{'victim'}, $request->{'mode'}, 
+
+  $self->_unsubscribe($request->{'list'}, $request->{'user'},
+                      $request->{'victim'}, $request->{'mode'},
                       $request->{'cmdline'}, $request->{'sublist'});
 }
 
@@ -7278,7 +7279,7 @@ use IO::File;
 sub _unsubscribe {
   my($self, $list, $requ, $vict, $mode, $cmd, $sublist) = @_;
   my $log = new Log::In 35, "$list, $vict";
-  my(%fdata, @out, @removed, $bye, $data, $desc, $fh, $file, 
+  my(%fdata, @out, @removed, $bye, $data, $desc, $fh, $file,
      $flist, $key, $subs);
 
   return (0, "Unable to initialize list $list.\n")
@@ -7310,7 +7311,7 @@ sub _unsubscribe {
   }
 
   while (($key, $data) = splice(@removed, 0, 2)) {
-    # Convert to an Addr object and remove the list from 
+    # Convert to an Addr object and remove the list from
     # the registration entry for that address.
     $key = new Mj::Addr($key);
 
@@ -7336,7 +7337,7 @@ sub _unsubscribe {
       $self->_get_mailfile($list, $key, 'farewell', $bye, %fdata);
       unlink $bye;
     }
- 
+
   }
 
   return (1, [@out]);
@@ -7388,7 +7389,7 @@ sub which {
     $request->{'regexp'} = '"' . $request->{'regexp'} . '"';
   }
   # compile the pattern
-  ($ok, $err, $request->{'regexp'}) = 
+  ($ok, $err, $request->{'regexp'}) =
      Mj::Config::compile_pattern($request->{'regexp'}, 0, "substring");
   return (0, $err) unless $ok;
 
@@ -7414,10 +7415,10 @@ sub which {
 
   # Loop over the lists that the user can see
  LIST:
-  for $list 
+  for $list
     ($self->get_all_lists($request->{'user'}, $request->{'password'})) {
-    
-    # Check access for this list, 
+
+    # Check access for this list,
     $request->{'list'} = $list;
     ($max_list_hits, $err) =
       $self->list_access_check($request);
@@ -7475,8 +7476,8 @@ iterator is finished.  If the value is one, the iterator is not yet
 finished even though there may be no listed subscribers in this chunk.
 Keep calling until the value is zero.
 
-_who is the bottom half; it just calls the internal get_start routine to 
-initialize the registry, alias database, or subscriber list.  
+_who is the bottom half; it just calls the internal get_start routine to
+initialize the registry, alias database, or subscriber list.
 
 =cut
 
@@ -7493,7 +7494,7 @@ sub who_start {
   $base = $request->{'command'}; $base =~ s/_start//i;
 
   if ($request->{'regexp'} and $request->{'regexp'} ne 'ALL') {
-    ($ok, $error, $request->{'regexp'}) 
+    ($ok, $error, $request->{'regexp'})
       = Mj::Config::compile_pattern($request->{'regexp'}, 0, "isubstring");
     return ($ok, $error) unless $ok;
   }
@@ -7501,13 +7502,13 @@ sub who_start {
     $request->{'regexp'} = 'ALL';
   }
 
-  if ($request->{'mode'} =~ /alias/ and 
+  if ($request->{'mode'} =~ /alias/ and
       ($request->{'list'} ne 'GLOBAL' or
        $request->{'sublist'} ne 'MAIN')) {
     return (0, "Alias mode is only supported for the GLOBAL list.\n");
   }
 
-  if ($request->{'mode'} =~ /owners/ and 
+  if ($request->{'mode'} =~ /owners/ and
       ($request->{'list'} ne 'GLOBAL' or
        $request->{'sublist'} ne 'MAIN')) {
     return (0, "Owners mode is only supported for the GLOBAL list.\n");
@@ -7541,11 +7542,11 @@ sub who_start {
     # Use the lowest of the return values to determine unhiding.
     # $ok = $ok2 if ($ok2 < $ok);
 
-  } 
+  }
 
   $self->{'unhide_who'} = ($ok > 1 ? 1 : 0);
-  $self->_who($request->{'list'}, $request->{'user'}, '', 
-              $request->{'mode'}, $request->{'cmdline'}, 
+  $self->_who($request->{'list'}, $request->{'user'}, '',
+              $request->{'mode'}, $request->{'cmdline'},
               $request->{'regexp'}, $request->{'sublist'}, $request->{'list2'});
 }
 
@@ -7559,7 +7560,7 @@ sub _who {
 
   if ($mode =~ /common/) {
     # Obtain a hashref of addresses
-    ($ok2, $error) = 
+    ($ok2, $error) =
       $self->common_subs($list, $list2);
 
     unless ($ok2 > 0) {
@@ -7574,7 +7575,7 @@ sub _who {
   }
 
   if ($list eq 'GLOBAL' and $mode =~ /alias/) {
-    return (0, "Unable to initialize alias list.\n") 
+    return (0, "Unable to initialize alias list.\n")
       unless $self->{'alias'}->get_start;
   }
   elsif ($list eq 'GLOBAL' and $mode =~ /owners/) {
@@ -7584,7 +7585,7 @@ sub _who {
     return (0, "The DEFAULT list never has subscribers");
   }
   elsif ($list eq 'GLOBAL' and $sublist eq 'MAIN') {
-    return (0, "Unable to initialize registry.\n") 
+    return (0, "Unable to initialize registry.\n")
       unless $self->{'reg'}->get_start;
   }
   else {
@@ -7607,24 +7608,24 @@ use Mj::Addr;
 use Safe;
 sub who_chunk {
   my ($self, $request, $chunksize) = @_;
-  my $log = new Log::In 100, 
+  my $log = new Log::In 100,
                   "$request->{'list'}, $request->{'regexp'}, $chunksize";
   my (@chunk, @out, @tmp, $addr, $i, $j, $k, $list, $strip);
 
   # Common mode: stop now if no addresses remain to be matched.
   return (0, '')
     if ($request->{'mode'} =~ /common/ and not
-        (exists $self->{'commoners'} and 
+        (exists $self->{'commoners'} and
          scalar keys %{$self->{'commoners'}}));
 
-  return (0, "No subscriber list was specified") 
+  return (0, "No subscriber list was specified")
     unless (length $request->{'sublist'}); # XLANG
 
-  return (0, "Invalid chunk size \"$chunksize\"") 
+  return (0, "Invalid chunk size \"$chunksize\"")
     unless (defined $chunksize and $chunksize > 0); # XLANG
 
   $list = $self->{'lists'}{$request->{'list'}};
-  return (0, "Unable to access the \"$request->{'list'}\" list.") 
+  return (0, "Unable to access the \"$request->{'list'}\" list.")
     unless $list;
 
   # who for DEFAULT returns nothing
@@ -7645,7 +7646,7 @@ sub who_chunk {
   }
   # who for GLOBAL will search the registry
   elsif ($request->{'list'} eq 'GLOBAL' and $request->{'sublist'} eq 'MAIN') {
-    @tmp = $self->{'reg'}->get_matching_regexp($chunksize, 'fulladdr', 
+    @tmp = $self->{'reg'}->get_matching_regexp($chunksize, 'fulladdr',
                                                $request->{'regexp'});
     while (($j, $i) = splice(@tmp, 0, 2)) {
       $i->{'canon'} = $j;
@@ -7660,7 +7661,7 @@ CHUNK:
     $k = scalar @tmp;
     while (($j, $i) = splice(@tmp, 0, 2)) {
 
-      # In bounce mode, addresses without bounce data must be removed here, to 
+      # In bounce mode, addresses without bounce data must be removed here, to
       # allow the full chunk of addresses to be collected.
       if ($request->{'mode'} =~ /bounce/) {
         # use Data::Dumper; warn Dumper $i;
@@ -7676,11 +7677,11 @@ CHUNK:
     }
 
     if ($request->{'mode'} =~ /bounce/ and $k and
-        scalar @chunk < $chunksize) 
+        scalar @chunk < $chunksize)
     {
       goto CHUNK;
     }
-       
+
   }
 
   unless (@chunk) {
@@ -7695,7 +7696,7 @@ CHUNK:
       delete $self->{'commoners'}->{$i->{'canon'}}
         unless ($request->{'mode'} =~ /alias/);
     }
-      
+
     # If we're to show it all, obtain descriptions of the settings.
     if ($self->{'unhide_who'}) {
 
@@ -7769,7 +7770,7 @@ sub who_done {
 # sub writeconfig {
 #   my ($user, $passwd, $outfh, $mode, $list) = @_;
 #   my ($vlist);
-  
+
 #   $::log->in(30, "info", "Internal writeconfig", "$list");
 
 #   unless (defined($vlist = ::list_valid($list))) {
@@ -7778,7 +7779,7 @@ sub who_done {
 #   }
 
 #   Mj::Config::Old::save($vlist);
-  
+
 #   $::log->out;
 #   return 1;
 # }
