@@ -255,7 +255,10 @@ sub run_queue {
             if ($func eq 'majordomo') {
               $log->message(50, 'info', 'Processing commands');
               debug_to('majord');
-              unlink $file if (parse_commands($mj, ''));
+              unless (parse_commands($mj, '')) {
+                $log->message(50, 'info', 'Parsing failed; forwarding');
+              }
+              unlink $file;
               debug_to('queuerun');
               close MSG;
               next MSG;
@@ -480,7 +483,7 @@ sub connect_no_parse {
 # unstripped) will be returned.
 sub connect_and_parse {
   my ($mj, $int) = @_;
-  my($entity, $head, $mime_parser, $ok, $user, $suser);
+  my($entity, $head, $mime_parser, $ok, $user, $subject, $suser);
 
   $::log->in(85, undef, "info", "Setting MIME parser properties");
   $mime_parser = new Mj::MIMEParser;
@@ -507,6 +510,13 @@ sub connect_and_parse {
   chomp $user;
 
   unless ($user) {
+    $subject = $head->get('subject') || "no subject";
+    chomp $subject;
+    $head->replace('Subject', 
+                   "Majordomo error: no address found (was: $subject)");
+    $user = $mj->global_config_get(undef, undef, 'whoami_owner');
+    $suser = $mj->global_config_get(undef, undef, 'sender');
+    $mj->mail_entity($suser, $entity, $user);
     $entity->purge;
     return;
   }
@@ -517,10 +527,18 @@ sub connect_and_parse {
   # Connect can now fail: 0: try again later, undef: bomb with error, > 0:
   # connection ID
 
-  # If it failed, just clean up and return.  XXX We probably should warn
-  # the owner here.
+  # If it failed, just clean up and return.  
   unless (defined($ok)) {
     $::log->complain("Error connecting: $suser");
+    $subject = $head->get('subject') || "no subject";
+    chomp $subject;
+    $suser =~ s/\n/ /g;
+    $suser = substr $suser, 0, 100;
+    $head->replace('Subject', 
+                   "Majordomo error: $suser (was: $subject)");
+    $user = $mj->global_config_get(undef, undef, 'whoami_owner');
+    $suser = $mj->global_config_get(undef, undef, 'sender');
+    $mj->mail_entity($suser, $entity, $user);
     $entity->purge;
     return;
   }
