@@ -27,7 +27,7 @@ the banned users could be listed in the command itself, as with
 configset GLOBAL access_rules << ENDTAG
 access
 deny, reply="Request denied.  Your address has been blacklisted."
-joe@nowhere.com, jane@somewhere.com
+/joe\@nowhere.com/i OR /jane\@somewhere.com/i
 ENDTAG
 
 
