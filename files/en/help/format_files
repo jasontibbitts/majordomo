@@ -119,7 +119,7 @@ about any message body part which is not plain text, a container type
  BYTES, CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE, DATE_NEXT, 
  DATE_PREV, FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, 
  QUOTED, REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART, 
- THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER, VICTIM)
 
 
 archive_container
@@ -132,7 +132,7 @@ multipart/related).
  BYTES, CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE, DATE_NEXT, 
  DATE_PREV, FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, 
  PART, QUOTED, REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, 
- SUBPART, THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+ SUBPART, THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER, VICTIM)
 
 
 archive_edit_foot
@@ -141,7 +141,7 @@ archive_edit_foot
 allow a message body part or its headers to be edited and replaced.
 
 (standard plus ARCHIVE, CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE, 
- MSGNO, PART, SIZE, USER)
+ MSGNO, PART, SIZE, USER, VICTIM)
 
 
 archive_edit_head
@@ -151,7 +151,7 @@ form that allows a message body part or its headers to be edited and
 replaced.
 
 (standard plus ARCHIVE, CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE, 
- MSGNO, PART, SIZE, USER)
+ MSGNO, PART, SIZE, USER, VICTIM)
 
 
 archive_error
@@ -159,7 +159,8 @@ archive_error
 (ALL)  This file is displayed when the archive 
 command fails or stalls.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOTAL_POSTS, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOTAL_POSTS, USER,
+ VICTIM)
 
 
 archive_foot
@@ -167,7 +168,7 @@ archive_foot
 (ALL)  This file is displayed at the bottom 
 of the output of the archive-index command.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER, VICTIM )
 
 
 archive_get
@@ -175,7 +176,8 @@ archive_get
 (ALL)  This file is displayed when the archive-get command is used
 to mail messages from the archive.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, MESSAGECOUNT, TOTAL_POSTS, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, MESSAGECOUNT, TOTAL_POSTS,
+ USER, VICTIM)
 
 
 archive_get_digest
@@ -183,7 +185,8 @@ archive_get_digest
 (ALL)  This file is displayed when the archive-get command is used
 to mail messages from the archive in one or more digests.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, MESSAGECOUNT, TOTAL_POSTS, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, MESSAGECOUNT, TOTAL_POSTS, USER,
+ VICTIM)
 
 
 archive_get_foot
@@ -191,7 +194,7 @@ archive_get_foot
 (ALL)  This file is displayed at the bottom of the output
 of the archive-get or archive-delete command.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER, VICTIM)
 
 
 archive_get_head
@@ -199,7 +202,7 @@ archive_get_head
 (ALL)  This file is displayed at the top of the output
 of the archive-get or archive-delete command.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER, VICTIM)
 
 
 archive_head
@@ -207,7 +210,7 @@ archive_head
 (ALL)  This file is displayed at the top of the output
 of the archive-index command.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER, VICTIM)
 
 
 archive_header
@@ -219,7 +222,7 @@ such as From, Subject, and Date.
  BYTES, CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE, DATE_NEXT, 
  DATE_PREV, FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, 
  PART, QUOTED, REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, 
- SUBPART, THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER, and others)
+ SUBPART, THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER, VICTIM, and others)
 
 
 archive_image
@@ -232,7 +235,7 @@ image is displayed inline.
  BYTES, CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE, DATE_NEXT, 
  DATE_PREV, FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, 
  QUOTED, REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART, 
- THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER, VICTIM)
 
 
 archive_index
@@ -242,7 +245,7 @@ result of the archive-index command.
 
 (standard plus BODY_LINES, BYTE, BYTES, CGIDATA, CGIURL, CMDPASS, DATE, 
  FROM, HIDDEN, LINE, LINES, MSGNO, QUOTED, REFS, SIZE, SPLIT, SUBJECT, 
- TOTAL_POSTS, USER)
+ TOTAL_POSTS, USER, VICTIM)
 
 
 archive_msg_foot
@@ -254,7 +257,7 @@ of messages when the archive-get-immediate command is used.
  BYTE, BYTES, CGIDATA, CGIURL, CMDPASS, DATE_NEXT, DATE_PREV, 
  FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, QUOTED, REFS, SIZE,
  SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, THREAD_NEXT, THREAD_PREV,
- TOTAL_POSTS, USER)
+ TOTAL_POSTS, USER, VICTIM)
 
 
 archive_msg_head
@@ -266,7 +269,7 @@ of messages when the archive-get-immediate command is used.
  BYTE, BYTES, CGIDATA, CGIURL, CMDPASS, DATE_NEXT, DATE_PREV, 
  FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, QUOTED, REFS, SIZE,
  SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, THREAD_NEXT, THREAD_PREV,
- TOTAL_POSTS, USER)
+ TOTAL_POSTS, USER, VICTIM)
 
 
 archive_none
@@ -274,7 +277,7 @@ archive_none
 (ALL)  This file is displayed when no messages were found
 in the archive.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER, VICTIM)
 
 
 archive_part_delete
@@ -282,7 +285,8 @@ archive_part_delete
 (ALL)  This file indicates that a message body
 part has been removed.
 
-(standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, MSGNO, PART, USER)
+(standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, MSGNO, PART, USER,
+ VICTIM)
 
 
 archive_part_replace
@@ -290,7 +294,8 @@ archive_part_replace
 (ALL)  This file indicates that a message body
 part has been replaced.
 
-(standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, MSGNO, PART, USER)
+(standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, MSGNO, PART, USER,
+ VICTIM)
 
 
 archive_stats
@@ -299,7 +304,7 @@ archive_stats
 archive-stats command is used.
 
 (standard plus AUTHORS, CGIDATA, CGIURL, CMDPASS, FINISH, KILOBYTES,
- POSTS, START, TOTAL_KILOBYTES, TOTAL_POSTS, USER)
+ POSTS, START, TOTAL_KILOBYTES, TOTAL_POSTS, USER, VICTIM)
 
 
 archive_summary
@@ -308,7 +313,7 @@ archive_summary
 mailing list when the archive-summary command is used.
 
 (standard plus BYTES, CGIDATA, CGIURL, CMDPASS, FILE, LINES, MSGS,
- SIZE, TOTAL_POSTS, USER)
+ SIZE, TOTAL_POSTS, USER, VICTIM)
 
 
 archive_summary_foot
@@ -316,7 +321,8 @@ archive_summary_foot
 (ALL)  This file is displayed at the bottom of the
 output when the archive-summary command is used.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER, VICTIM,
+ YEARS)
 
 
 archive_summary_head
@@ -324,7 +330,7 @@ archive_summary_head
 (ALL)  This file is displayed at the top of the 
 output when the archive-summary command is used.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER, VICTIM)
 
 
 archive_text_foot
@@ -336,7 +342,7 @@ plain text message part.
  BYTES, CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE, DATE_NEXT, 
  DATE_PREV, FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, 
  QUOTED, REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART, 
- THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER, VICTIM)
 
 
 archive_text_head
@@ -348,7 +354,7 @@ of a plain text message part.
  BYTES, CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE, DATE_NEXT, 
  DATE_PREV, FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, 
  QUOTED, REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART, 
- THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER, VICTIM)
 
 
 changeaddr
@@ -1482,8 +1488,8 @@ for the use of each WWW interface.
 
 welcome_choose_email
 --------------------
-(wwwusr)  This file asks for an e-mail address when a command that
-requires an address is issued without one.
+(wwwadm, wwwusr)  This file asks for an e-mail address when a command
+that requires an address is issued without one.
 
 (standard plus CGIDATA, CGIURL, COMMAND, CMDPASS, EXTRA, USER)
 

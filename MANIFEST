@@ -1294,6 +1294,7 @@ files/en/format/wwwadm/.unregister_error
 files/en/format/wwwadm/.unsubscribe
 files/en/format/wwwadm/.unsubscribe_error
 files/en/format/wwwadm/.welcome
+files/en/format/wwwadm/.welcome_choose_email
 files/en/format/wwwadm/.welcome_global
 files/en/format/wwwadm/.welcome_showtokens
 files/en/format/wwwadm/.which
@@ -1477,6 +1478,7 @@ files/en/format/wwwadm/unregister_error
 files/en/format/wwwadm/unsubscribe
 files/en/format/wwwadm/unsubscribe_error
 files/en/format/wwwadm/welcome
+files/en/format/wwwadm/welcome_choose_email
 files/en/format/wwwadm/welcome_global
 files/en/format/wwwadm/welcome_showtokens
 files/en/format/wwwadm/which
