@@ -1,0 +1,47 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname active = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : 1
+Data Type     : bool
+Category      : access
+Password Notes: Visible only with password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset listname active = 0
+
+$INCLUDE-config/active
+
+This setting is useful for making a list unavailable to the public
+when it is first created.  The list owners can make configuration
+changes, write the welcome message and other documents, and take other
+preparatory steps that are needed before the list is made public.
+
+Another use of this setting is to stop a mailing list temporarily
+if a serious problem such as a mail loop or denial of service attack
+occurs.
+
+An administrative password can be used to issue commands for a mailing
+list, regardless of the value of this setting.
+
+This setting will override any rules in the access_rules setting.
+
+
+See Also:
+   help admin_config
+   help configset_access_rules        (to restrict access to any command)
+   help configset_config_access 
+   help configset_faq_access          (for         faq command access_rules)
+   help configset_get_access          (for         get command access_rules)
+   help configset_index_access        (for       index command access_rules)
+   help configset_info_access         (for        info command access_rules)
+   help configset_intro_access        (for       intro command access_rules)
+   help configset_set_policy          (for         set command access_rules)
+   help configset_subscribe_policy    (for   subscribe command access_rules)
+   help configset_unsubscribe_policy  (for unsubscribe command access_rules)
+   help configset_which_access        (for       which command access_rules)
+   help configset_who_access          (for         who command access_rules)
+   help createlist    (to create a list that is initially inactive)
+   help post          (for the special case of restricting who can post msgs)
+
+$INCLUDE-help/foot
