@@ -81,7 +81,7 @@ $Mj::Config::default_string = q(
  'allowed_flags'        => [qw(ackdeny ackpost ackreject ackstall eliminatecc 
                                hideaddress hideall prefix replyto 
                                rewritefrom selfcopy)],
- 'archive_access'       => "list",
+ 'archive_access'       => "list+password",
  'archive_dir'          => '',
  'archive_size'         => 'unlimited',
  'archive_split'        => 'monthly',
