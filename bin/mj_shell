@@ -4,6 +4,7 @@ BEGIN {
   $::LISTDIR= "/path/to/lists";
   $::DEFDOM = "some.dom.ain";
   $::TMPDIR = "/tmp";
+  $::WTMPDIR= "/tmp";
   $::UID    = "baduid";
   $::GID    = "badgid";
 #  $Exporter::Verbose = 1;
@@ -184,8 +185,7 @@ sub parse_command {
 	  return 0;
 	}
   }
-  
-  
+    
   if ($true_command eq "configedit") {
     
     # Pull the editor out of the environment and untaint it. This is save
@@ -196,7 +196,7 @@ sub parse_command {
     
     # Switch UIDs, open a file, restore
     $tmpu = $>; $> = $<;  $tmpg = $); $) = $(;
-    $fh = new IO::File "$::TMPDIR/mjs.$$.AAA", O_WRONLY|O_CREAT, 0600;
+    $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA", O_WRONLY|O_CREAT, 0600;
     $> = $tmpu; $) = $tmpg;
     $result = 
       Mj::TextOutput::configshow($mj, $command,
@@ -205,10 +205,10 @@ sub parse_command {
 				 $mode, $list, $args);
     $fh->close;
     if ($result) {
-      my $modtime = (stat("$::TMPDIR/mjs.$$.AAA"))[9];
+      my $modtime = (stat("$::WTMPDIR/mjs.$$.AAA"))[9];
       # Switch UIDs, run the editor, restore
       $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
-      $ok = system("$editor $::TMPDIR/mjs.$$.AAA");
+      $ok = system("$editor $::WTMPDIR/mjs.$$.AAA");
       $> = $tmpu; $) = $tmpg;
       
       if ($ok) {  # system has reversed semantics...
@@ -218,7 +218,7 @@ sub parse_command {
 	if ((stat("$::TMPDIR/mjs.$$.AAA"))[9] != $modtime) {
 	  # Switch, open, restore
 	  $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
-	  $fh = new IO::File "$::TMPDIR/mjs.$$.AAA";
+	  $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA";
 	  $> = $tmpu; $) = $tmpg;
 	  
 	  $result = parse_file($fh, '', [], $user, $pass);
@@ -233,14 +233,14 @@ sub parse_command {
       # Got bad result!
       # Switch, open, restore
       $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
-      $fh = new IO::File "$::TMPDIR/mjs.$$.AAA";
+      $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA";
       $> = $tmpu; $) = $tmpg;
       print while <$fh>;
     }
     
     # Switch, delete the tempfile, restore
     $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
-    unlink "$::TMPDIR/mjs.$$.AAA";
+    unlink "$::WTMPDIR/mjs.$$.AAA";
     $> = $tmpu; $) = $tmpg;
   }
 

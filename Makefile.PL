@@ -314,20 +314,34 @@ EOM
   $def = $config->{'lists_dir'};
   $config->{'lists_dir'} = get_dir($msg, $def);
 
-  #---- Ask for temporary dir
+  #---- Ask for writable temporary dir
   $msg = <<EOM;
 
 Where can Majordomo place temporary files?
- For maximum security, this should be a special directory that is not
-   writable by normal users.  (In other words, it should not be /tmp unless
-   you know what you\'re doing.)  Many security problems can arise when any
-   user can create files and links in the temporary directory with the same
-   names that Majordomo would use.
+ Majordomo occasionally needs to write out short-lived files in a place
+   that all users can write to.  These files are generally small and are
+   deleted after the operations are complete.
+EOM
+  $def = $config->{'wtmpdir'} || "/tmp";
+  $config->{'wtmpdir'} = get_dir($msg, $def);
+
+  #---- Ask for secure temporary dir
+  $msg = <<EOM;
+
+Where can Majordomo place secure temporary files?
+ Majordomo also needs to write out provate temporary files.  For maximum
+   security, this should be a special directory that is neither readable
+   nor writable by normal users.  (In other words, it should not be /tmp
+   unless you know what you\'re doing.)  Many security problems can arise
+   when any user can create files and links in the temporary directory with
+   the same names that Majordomo would use.
  The installation process will create this directory if it does not exist,
    but will not enforce any permissions.
 EOM
-  $def = $config->{'tmpdir'};
+  $def = $config->{'tmpdir'} || "$config->{'wtmpdir'}/mj";
   $config->{'tmpdir'} = get_dir($msg, $def);
+
+
 
   #---- Ask for MTA
   $msg = <<EOM;
