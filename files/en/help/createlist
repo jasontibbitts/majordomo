@@ -54,13 +54,14 @@ is displayed. This will be required after changing "configset debug".
 Options include the following:
 
   -destroy
-    Add createlist-destroy, which removes a list by renaming the list's
+    The createlist-destroy option removes a list by renaming the list's
     directory, including a generation number to prevent successive
     destructions of the same list from overwriting one another. The list
     must have no subscribers, to prevent inconsistencies in the registry,
     and is not actually deleted from the file system until someone with
     shell access goes in and deletes the files and the renamed directory
-    by hand. It renames the list's directory.
+    by hand. It renames the list's directory to start with a comma and
+    end with the deletion version number as in ",test-list.0".
 
   -force:
     If the list already exists, the 'createlist' command will fail
