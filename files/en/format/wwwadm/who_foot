@@ -18,7 +18,7 @@
   Search the $LIST subscriber list 
     (using the $HELP:WHO command)<br>
   <input type=radio name=func value="who-bounces">
-  Search the $LIST subscriber list for address with bounces 
+  Search the $LIST subscriber list for addresses with bounces 
     (using the $HELP:WHO-bounces command)<br>
   <input type=radio name=func value="which">
   Search all of the mailing lists
@@ -46,8 +46,13 @@ Number of addresses to show:
   Add subscribers with the addresses the large box. 
   <b>Do not</b> send a welcome message.<br>
 
+  <input type=radio name=func value="unsubscribe-farewell"> 
+  Remove subscribers with the addresses in the large box.
+  Send a farewell message. <br>
+
   <input type=radio name=func value="unsubscribe"> 
   Remove subscribers with the addresses in the large box.
+  <b>Do not</b> send a farewell message. <br>
 
   <p>
   Addresses of subscribers:<br>
