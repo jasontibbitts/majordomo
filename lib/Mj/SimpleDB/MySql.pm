@@ -17,7 +17,6 @@ MySql database.  The DBI module is used
 
 package Mj::SimpleDB::MySql;
 use Mj::SimpleDB::SQL;
-use Mj::Lock;
 use Mj::Log;
 use DBI;
 use strict;
@@ -47,6 +46,13 @@ sub new {
   bless $self, $class;
   $self;
 }
+
+=head2 _make_db()
+
+connect to the backend if it's not already done, and check that the
+table we'll be trying to use exists.
+
+=cut
 
 sub _make_db {
   my $self = shift;

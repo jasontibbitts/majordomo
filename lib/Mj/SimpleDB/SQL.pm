@@ -71,6 +71,12 @@ sub new {
   $self;
 }
 
+=head2 DESTROY
+
+don't do anything, $dbh is shared among instances.
+
+=cut
+
 sub DESTROY {
   undef;
 }
@@ -81,8 +87,10 @@ This will return the schema for the table so that the backend can
 issue the proper "CREATE TABLE" statements.
 
 =cut
-
-{
+  
+sub _make_db {
+  my $self = shift;
+  my $log   = new Log::In 200, "$self->{filename}";
   my $schema = {
     'default' => [
 		   { NAME => "t_domain", TYPE => "varchar(64)",  PRIM_KEY => 1 },
@@ -181,29 +189,18 @@ issue the proper "CREATE TABLE" statements.
 		  { NAME => 'remind',     TYPE => 'integer' },
 		  { NAME => 'reasons',    TYPE => 'text' },
 		],
-    };
-    # copying definitions is the worst thing so...
-    $schema->{latchkeys}   = $schema->{tokens};
-    $schema->{dup_sum}     = $schema->{dup_id};
-    $schema->{dup_partial} = $schema->{dup_id};
+  };
+  # copying definitions is the worst thing so...
+  $schema->{latchkeys}   = $schema->{tokens};
+  $schema->{dup_sum}     = $schema->{dup_id};
+  $schema->{dup_partial} = $schema->{dup_id};
 
-=cut
+  if (defined($schema->{$self->{table}})) {
+    my @schema = (@{$schema->{default}},@{$schema->{$self->{table}}});
 
-There is not archive table in there yet, because it's hardcoded into text.
-
-=cut
-  
-  sub _make_db {
-    my $self = shift;
-    my $log   = new Log::In 200, "$self->{filename}";
-
-    if (defined($schema->{$self->{table}})) {
-      my @schema = (@{$schema->{default}},@{$schema->{$self->{table}}});
-
-      return @schema;
-    } else {
-      return;
-    }
+    return @schema;
+  } else {
+    return;
   }
 }
 
@@ -583,8 +580,7 @@ sub mogrify {
 
 =head2 get_start, get_done, _get
 
-These are very simple.  Note that because the act of starting a sequence
-also returns the first element, we have a tiny bit of complexity in _get.
+These are very simple. the $db and $sth are shared among them. 
 
 =cut
 {
@@ -818,7 +814,7 @@ sub _lookup {
 }
 
 
-=head2 lookup_quick(key, fileh)
+=head2 lookup_quick(key)
 
 This checks to see if a key is a member of the list.  It
 returns only truth on success and not any of the data.
@@ -864,6 +860,12 @@ sub lookup_quick_regexp {
   return;
 }
 
+=head2 _stringify(string)
+
+Need to overload theses because sql don't store fields as text/db do.
+
+=cut
+
 sub _stringify {
   my $self     = shift;
   my $argref   = shift;
@@ -884,11 +886,23 @@ sub _stringify {
   $argref;
 }
 
+=head2 _unstringify(string)
+
+It really does nothing.
+
+=cut
+
 sub _unstringify {
   my $self = shift;
   my $string = shift;
   $string;
 }
+
+=head2 _escape_field(fields array)
+
+Default handler which does nothing
+
+=cut
 
 sub _escape_field {
   my $self = shift;
