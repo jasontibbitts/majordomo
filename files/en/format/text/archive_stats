@@ -2,7 +2,7 @@ Posted message statistics for the $LIST list
   from $START to $FINISH
 
 Messages     Size     Author
-  $POSTS:5    $KILOBYTES:5      $AUTHORS
   $TOTAL_POSTS:5    $TOTAL_KILOBYTES:5      Total
+  $POSTS:5    $KILOBYTES:5      $AUTHORS
 
 The sizes displayed are in kilobytes.

@@ -5,9 +5,12 @@ $START to $FINISH
 </p>
 <table border>
   <tr><th>Messages</th><th>Size</th><th>Author</th></tr>
-  <tr><td align="right">$POSTS</td><td align="right">$KILOBYTES</td><td>$AUTHORS</td></tr>
-  <tr><td align="right">$TOTAL_POSTS</td><td align="right">$TOTAL_KILOBYTES</td><td>Total</td></tr>
+  <tr><td align="right">$TOTAL_POSTS</td><td align="right">$TOTAL_KILOBYTES kB</td><td>Total</td></tr>
+  <tr><td align="right">$POSTS</td><td align="right">$KILOBYTES kB</td><td>$AUTHORS</td></tr>
 </table>
+
 <p>
-The sizes displayed are in kilobytes.
+<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-summary">
+Archive Index
+</a>
 </p>
