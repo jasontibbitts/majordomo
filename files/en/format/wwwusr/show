@@ -11,5 +11,8 @@
   </td>
 </tr>
 <tr>
+  <td><font size="-1">$SETTINGS</font></td>
+</tr>
+<tr>
   <td align="center">$CHECKBOX</td>
 </tr>
