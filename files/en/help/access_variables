@@ -155,9 +155,12 @@ admin
   more details.
 
 any
-  This variable is set if any of the dup, taboo, admin, mime, bad_approval,
-  or invalid_from variables is set.  It provides a convenient way to test 
-  whether or not a posted message violated any of the standard message checks.
+  This variable is set if any of the dup, taboo, admin, mime, limit,
+  bad_approval, body_length_exceeded, mime_header_length_exceeded,
+  total_header_length_exceeded, max_header_length_exceeded, or
+  invalid_from variables is set.  It provides a convenient way to test
+  whether or not a posted message violated any of the standard message
+  checks.
 
 bad_approval
   This variable is set if an "Approved" line with an invalid password is
