@@ -14,24 +14,46 @@ and use this access_rule:
  
 configset GLOBAL access_rules << ENDTAG
 access
-deny, reply="Request denied.  Your address has been blacklisted."
+deny, reason="This address has been blacklisted."
 @badguys
 ENDTAG
 
-Alternatively, the banned users could be listed in the command itself, as
-with:
+Alternatively, the banned users could be listed in the rule, for
+example:
 
 configset GLOBAL access_rules << ENDTAG
 access
-deny, reply="Request denied.  Your address has been blacklisted."
+deny, reason="This address has been blacklisted."
 /joe\@example.com/i OR /jane\@example.com/i
 ENDTAG
 
-Thus, anyone who repeatedly violated the site administrator's rules could
-be banned from issuing majordomo commands.  When access is denied in this
-way, all of the features of Majordomo are restricted, including messages
-sent to the list owners using the <list>-owner alias, messages posted to
-mailing lists, or commands sent to the server.
+Thus, anyone who repeatedly violated the domain managers' rules could be
+banned from the domain entirely.  When access is denied in this way, all
+of the features of Majordomo are restricted, including messages sent to
+the list owners, messages posted to mailing lists, or commands sent to
+the server.
+
+The following actions are supported for the "access" command in the
+access_rules setting:  allow, deny, mailfile, reason, reply, and
+replyfile.  
+
+When access is denied, a reply message is not usually sent to the person
+who was denied access.  Instead, any explanations given by reason,
+reply, or replyfile actions in the access rules will be added the
+"inform" message that is sent to the domain administrators.
+
+The "mailfile" action can be used to send a message to the address 
+that was denied access.  For example, the following rule would send
+the "/access_blocked" file to anyone denied access by the block_headers
+configuration setting:
+
+access
+mailfile=/access_blocked
+$block
+
+By default, access will be allowed unless a message matches one of the
+patterns in the block_headers setting.  See "help configset_block_headers"
+for more details.
 
 Two special cases have to be considered when GLOBAL access is
 restricted.  The mj_trigger program, which causes digests to be
@@ -43,23 +65,14 @@ the interfaces that use them will not work.
 
 
 See Also:
+   help access_variables
    help admin_domain
    help admin_moderate
    help auxiliary_list
-   help configset_access_rules        (to restrict access to any command)
-   help configset_archive_access      (for     archive command access_rules)
-   help configset_faq_access          (for         faq command access_rules)
-   help configset_get_access          (for         get command access_rules)
-   help configset_index_access        (for       index command access_rules)
-   help configset_info_access         (for        info command access_rules)
-   help configset_intro_access        (for       intro command access_rules)
-   help configset_which_access        (for       which command access_rules)
-   help configset_who_access          (for         who command access_rules)
-   help configset_set_policy          (for         set command access_rules)
-   help configset_subscribe_policy    (for   subscribe command access_rules)
-   help configset_unsubscribe_policy  (for unsubscribe command access_rules)
-   help post      (for the special case of restricting who can post msgs)
+   help configset_access_rules   (to restrict access to any command)
+   help configset_block_headers  (deny access based on mail headers)
+   help configset_inform
+   help mj_trigger
    help trigger
-   help variables (for a description of substitution variables)
 
 $INCLUDE-help/foot
