@@ -67,6 +67,7 @@ $VERSION = "1.0";
    'passwords'        => 1,
    'regexp_array'     => 1,
    'restrict_post'    => 1,
+   'relocated_lists'  => 1,
    'string_array'     => 1,
    'string_2darray'   => 2,
    'sublist_array'    => 1,
@@ -99,6 +100,7 @@ $VERSION = "1.0";
    'pw'               => 1,
    'regexp'           => 1,
    'regexp_array'     => 1,
+   'relocated_lists'  => 1,
    'restrict_post'    => 1,
    'string_2darray'   => 1,
    'sublist_array'    => 1,
@@ -2697,6 +2699,52 @@ sub parse_restrict_post {
   }
 
   return (1, '', $out);
+}
+
+=head2 parse_relocated_lists 
+
+The relocated_lists setting provides a table of lists that have been
+renamed, discontinued, or moved to other sites.  Each line in
+the array consists of a list name, an optional new list name, 
+and an optional file to display when the list name is accessed
+using a Majordomo command.
+
+=cut
+use Majordomo qw(legal_list_name);
+sub parse_relocated_lists {
+  my $self = shift;
+  my $arr  = shift;
+  my $var  = shift;
+  my $log  = new Log::In 150, $var;
+  my $table = [];
+  my $lists = {};
+  my $file;
+
+  if (@$arr) {
+    ($table, $err) = parse_table('fsoo', $arr);
+    return (0, $err) unless ($table);
+  }
+
+  for ($i = 0 ; $i < @$table ; $i++) {
+    return (0, qq("$table->[$i][0]" is not a valid list name.))
+      unless (Majordomo::legal_list_name($table->[$i][0]));
+    if (length $table->[$i][1]) {
+      return (0, qq("$table->[$i][1]" is not a valid list name.))
+        unless (Majordomo::legal_list_name($table->[$i][1]));
+    }
+    if (length $table->[$i][2]) {
+      ($file) =
+        &{$self->{callbacks}{'mj.list_file_get'}}($self->{list},
+                                                  $table->[$i][2]);
+      unless ($file) {
+        return (0, qq(The file "$table->[$i][2]" could not be found.));
+      }
+    }
+    $lists->{$table->[$i][0]}->{'name'} = $table->[$i][1] || '';
+    $lists->{$table->[$i][0]}->{'file'} = $table->[$i][2] || '';
+  }
+
+  return (1, '', $lists);
 }
 
 =head2 parse_string, parse_string_array
