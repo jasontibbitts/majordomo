@@ -978,7 +978,7 @@ This function converts a plain text file into a simple HTML file.
 
 =cut
 use Mj::FileRepl;
-use Mj::Format qw(escape);
+use Mj::Format;
 sub plain_to_hyper {
   my $txtfile = shift;
   my $log = new Log::In 350;
@@ -994,7 +994,7 @@ sub plain_to_hyper {
       $repl->{'newhandle'}->print("<p>\n");
     }
     else {
-      $repl->{'newhandle'}->print("<br>" . &escape($line));
+      $repl->{'newhandle'}->print("<br>" . Mj::Format::escape($line));
     }
   }
 
