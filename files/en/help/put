@@ -9,11 +9,15 @@ TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 put-dir listname filename [description]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+put-delete[-force] listname filename
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (or GLOBAL)
 filename, required, is the pathname of the file or directory to create
 subject,  if specified, is a string that describes the file's contents
 -data,    if specified, causes the file type and other info to be stored
+-delete,  if specified, deletes a file or empty directory
 -dir,     if specified, creates an empty directory, not a file
+-force,   if specified, deletes a directory recursively
 ctype, if specified, is the content type of the document
 cset,  if specified, is the character set of the document
 encoding, if specified, is the content transfer encoding of the document
@@ -62,9 +66,13 @@ put-data LISTNAME /test.html text/html us-ascii 7bit en Web Page <<LLL
 <h2>Hello, World</h2>
 LLL
 
-The put-dir command may be used to created a directory (also called a 
-folder).  The put-dir command does not require any data or contents. 
+The put-dir command may be used to create a directory (also called a
+folder).  The put-dir command does not require any data or contents.
 Once a directory is created, files can be stored in that directory.
+
+The put-delete command may be used to remove a file or an empty
+directory.  The put-delete command does not require any data or
+contents. 
 
 The contents of any file must be specified using a here document.
 For example, the following command creates a document called "test"
