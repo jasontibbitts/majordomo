@@ -1151,6 +1151,8 @@ sub who {
       eprint($out, $type, "$ind$line\n");
       if ($request->{'mode'} =~ /bounces/ && exists $i->{'bouncestats'}) {
         $tmp = '';
+        $tmp .=  "$ind  Diagnostic of last bounce: $i->{'diagnostic'}\n"
+          if $i->{'diagnostic'};
         $tmp .= "$ind  Bounces in the past week: $i->{'bouncestats'}->{'week'}\n"
           if $i->{'bouncestats'}->{'week'};
         $tmp .= "$ind  Bounces in the past month: $i->{'bouncestats'}->{'month'}\n"

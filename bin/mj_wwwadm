@@ -140,7 +140,7 @@ else {
   $func = $ofunc;
   $mode = '';
 }
-for $list (@lists) {
+for $list (@mlists) {
   $otherlists .= "<input type=hidden name=mlist value=$list>\n";
 }
 
@@ -577,6 +577,8 @@ EOM
       }
         
       if ($request->{'mode'} =~ /bounces/ && exists $i->{'bouncestats'}) {
+        print "<tr><td cols=4>Diagnostic of last bounce: $i->{'diagnostic'}\n"
+          if $i->{'diagnostic'};
         print "<tr><td cols=4>Bounces in the past week: $i->{'bouncestats'}->{'week'}\n"
           if $i->{'bouncestats'}->{'week'};
         print "<tr><td cols=4>Bounces in the past month: $i->{'bouncestats'}->{'month'}\n"
