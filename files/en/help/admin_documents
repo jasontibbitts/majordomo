@@ -108,6 +108,8 @@ LMNO
 
 The description of the file, "Subscribers only,"  will appear when someone
 uses the index command to see a listing of the top-level directory.
+File descriptions can also appear in the Subject headers of welcome
+and farewell messages (see "help configset_welcome_files" for more details.)
 
 The names in capital letters, like \$OWNER, are substitution variables.
 In some situations, Majordomo will automatically fill in the correct
@@ -192,6 +194,8 @@ farewell command mode.  For example, the command:
 
 would cause the farewell message to be sent to someone@example.com
 if the unsubscribe command succeeds.
+
+See "help configset_farewell_files" for more information.
 
 
 Sending documents to other people

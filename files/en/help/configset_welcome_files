@@ -34,7 +34,13 @@ The "get" command can be used to verify that the file exists:
 
   get-immediate LISTNAME FILENAME
 
-Files can be created in the file space using the "put" command.
+Files can be created in your list's file space using the "put" command.
+
+Each file in a list's file space has a brief description.  If you wish
+to use a file's default description in the subject or
+content-description header of a welcome message, simply use the word
+"default".  See "help admin_documents" for an introduction to the file
+space and file descriptions.
 
 The second field of the second line of a file description is an optional
 flag field.  Four flags are supported:  
@@ -69,7 +75,7 @@ included in the welcome messages.
 Here is another example:
 
 configset LISTNAME welcome_files <<END
-Welcome to the \$LIST mailing list!
+default
 welcome
 Picture of the list owner!
 owner.jpg 
@@ -101,6 +107,10 @@ In this example, newcomers will receive a message consisting of two
 files, "welcome" and "registered".  Subscribers who are already
 registered at this domain will only receive the first welcome file.
 
+
+Each file in a list's file space has a brief description.  If you
+wish to use a file's default description in the subject or content-description
+header of a welcome message, simply use the word "default".
 
 The GLOBAL welcome_files setting only applies to messages that are sent
 when someone uses the "register" command.

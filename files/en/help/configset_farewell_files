@@ -17,6 +17,7 @@ Instructions in case you wish to rejoin
 rejoin-info : NS
 ENDTAG
 
+
 $INCLUDE-config/farewell_files
 
 The first line of each file description will be displayed in the Subject
@@ -31,6 +32,12 @@ The "get" command can be used to verify that the file exists:
   get-immediate LISTNAME FILENAME
 
 Files can be created in the file space using the "put" command.
+
+Each file in a list's file space has a brief description.  If you wish
+to use a file's default description in the subject or
+content-description header of a welcome message, simply use the word
+"default".  See "help admin_documents" for an introduction to the file
+space and file descriptions.
 
 The second field of the second line of a file description is an optional
 flag field.  Three flags are supported:  
