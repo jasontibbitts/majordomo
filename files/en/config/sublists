@@ -1,4 +1,4 @@
-The sublists setting is used to explicitly state which auxiliary
+The sublists setting is used to state explicitly which auxiliary
 lists are given aliases and displayed by the lists-aux command.
 Each line contains a sublist name (the sublist must already exist)
 followed by an optional colon and description. The description is

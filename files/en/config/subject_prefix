@@ -1,4 +1,3 @@
-This word will be prefixed to the subject line, if it is not already
-in the subject. The subject text will undergo variable substitution
-as it is added to the message. See "help variables" for a list of
-substitutions which are supported.
+The subject_prefix setting contains a word or words which will be prefixed 
+to the subject header of each posted message.   The prefix will not be
+added if it is already present.

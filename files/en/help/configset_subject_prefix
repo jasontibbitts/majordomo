@@ -11,24 +11,31 @@ EXAMPLE:
 configset listname subject_prefix = [\$LIST: \$SEQNO]
 
 
-The contents of this setting will be prefixed to the Subject header
-of every message that is posted to a mailing list.  Only subscribers
-with the prefix setting will see the prefix (see "help set" for 
-more information). This value supports the standard variable substitutions, 
-plus the \$SEQNO substitution (see "help variables" for more details).
+$INCLUDE-config/subject_prefix
 
-When deciding if the prefix text is already in the subject, Majordomo
-ignores leading tags like "Re:" and "FWD:" that are commonly used for
-indicating replies. If non-standard prefixes have been inserted before
-the existing Majordomo prefix, a duplicate prefix may be added.
+The prefix will only be added to copies of a message that are delivered
+to subscribers with the "prefix" setting turned on.  The prefix will
+automatically be removed from copies of a message that are delivered to
+subscribers with the "prefix" setting turned off.  See "help set" for
+more information on personal settings. 
+
+This setting supports the standard substitution variables, plus the
+\$SEQNO substitution.  See "help variables" for an introduction to
+substitution variables.
+
+The subject_prefix setting only affects the subject headers of messages
+that are delivered individually.  See "help configset_digests" for
+details on customizing the subject header of message digests.
 
 
 See Also:
-   help configset_delete_headers  (to remove headers from a posted message)
-   help configset_message_headers (to add headers to a posted message)
-   help set       (for a description of the prefix setting)
-   help variables (for a list of all possible variables and what they mean)
+   help admin_delivery
+   help configset_delete_headers
+   help configset_message_headers
+   help configset_reply_to
+   help configset_subject_re_pattern
+   help configset_subject_re_strip
+   help set
+   help variables
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

@@ -19,22 +19,24 @@ beer : to wash the taste of vegetables away
 ENDTAG
 
 
-The sublists setting is used to explicitly state which auxiliary
-lists are given aliases and displayed by the lists-aux command.
-Each line contains a sublist name (the sublist must already exist)
-followed by an optional colon and description. The description is
-used in the output of the lists-aux command.
+$INCLUDE-config/sublists
 
-If the 'A' flag is used in the aliases configuration, only auxiliary
-lists mentioned here will be given aliases by the "createlist" command
-(see "help configset aliases"). 
+Sublists are also called auxiliary lists.  See "help auxiliary_list" for
+an introduction.
+
+If the "auxiliary" alias is listed in the aliases configuration setting,
+auxiliary lists mentioned here will be given mail aliases.  In that
+case, if the value of the sublists setting is changed, the
+createlist-regen command should be run afterward to the regenerate the
+aliases.  See "help configset_aliases" for more information on mail
+aliases.
 
 
 See Also:
-   help lists
+   help admin_monitor
+   help auxiliary_list
+   help configset_aliases
    help createlist
-   help configset aliases
+   help lists
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
