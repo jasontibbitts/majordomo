@@ -332,6 +332,11 @@ This line can appear in the message headers, or as the first non-blank
 line in the body of the message.  Majordomo will automatically remove
 the Approved line when the message is delivered.
 
+For compatibility with Majordomo version 1, if an "Approved" line in the
+body is followed by a non-blank line, it and all succeeding non-blank
+lines, up to the first blank line, will become the headers of the
+message when it is posted.
+
 Sometimes, a moderator may want to make corrections to a moderated
 message before it is delivered to the subscribers.   It is possible to
 do this using an extended form of the Approved line, using the following
