@@ -1,32 +1,40 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configedit-nocomments listname variable[,variable]
+configedit[-append][-declared][-extract][-nocomments] listname [settings]
+configedit-merge[-append][-extract][-nocomments] listname listname [settings]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site
-variable, required, is one or more "configset" items with commas between
--nocomments, if specified, hides explanatory comments with the variable
+settings,    if specified, are one or more comma-separated configuration settings
+-append,     if specified, causes "configset-append" commands to be displayed
+-declared,   if specified, displays settings that have been changed by the owners
+-extract,    if specified, causes "configset-extract" commands to be displayed
+-merge,      if specified, displays configset commands for the second list.
+-nocomments, if specified, hides explanatory comments with the setting
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-NOTE: Implemented for shell interface only!
+The configedit command is used to display and change one or more
+configuration settings for a mailing list.  This command is only
+supported by the mj_shell command line program (see "help mj_shell" for
+more details.)
 
-Retrieves the value of the variable and opens an editor on it. The editor
-to use is chosen from the EDITOR environment variable. When the editor is
-exited, the variable is set to the new value assuming the editor contents
-have been modified and saved and assuming there are no syntax errors.
+When the configedit command is invoked, a separate editor program is
+run, and the configuration settings are displayed.  By editing the
+settings and saving the changes, you will cause Majordomo to execute the
+configset commands to change the settings.  The editor program is chosen
+from the EDITOR environment variable or the VISUAL environment variable.
+If neither of those variables is set, the "vi" program is used.
 
-Multiple variables can be edited by listing them separated by commas, and
-groups can be specified with upper case letters.  Listing no variable
-name at all retrieves the complete list of variables.
+Other than this special use of an external editor, the configedit
+command is identical to the configshow command.  Please see 
+"help configshow" for more information.
 
-Unless the '-nocomments' option is used, explanatory information about
-the variable(s) will be returned as well, as with "configshow".
-
-A complete list of configset variables is included in "help topics".
+A complete list of configuration settings is included in "help topics".
 
 See Also:
+   help admin_config
+   help admin_domain  (for an explanation of default configuration values)
    help configdefault (to have the variable track the default value)
    help configset     (for complete details on syntax of the variables)
    help configshow    (to display the variable's current value)
+   help mj_shell
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
