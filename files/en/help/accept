@@ -56,10 +56,10 @@ Similarly, the 'accept-hide' command can be used to mark a message as
 added to the message, and the message will only be visible through the
 archive command to people with administrative access.
 
-The "accept-hide" command can be used to prevent a posted message from
-having its content altered due to the attachment rules.  See 
-"help configset_attachment_rules" for more details on how messages
-can be changed.
+The "accept-intact" command can be used to prevent a posted message from
+having its content altered due to the attachment rules.  See "help
+configset_attachment_rules" for more details on how messages can be
+changed.
 
 For consult tokens, the presence of a delay will convert the token type
 to "delay," delay the acceptance by the amount of time specified by a
