@@ -1,5 +1,14 @@
 2002-01-13  Jason Tibbitts  <tibbs@math.uh.edu>
 
+	* lib/Majordomo.pm (dispatch): Initialize $request->{modes} to an
+	empty hashref.
+
+	* lib/Mj/MailOut.pm (owner_done): Don't call bounce parser of
+	'nobounce' mode is present.
+	* lib/Mj/CommandProps.pm: Add nobounce mode to owner functions.
+
+2002-01-13  Jason Tibbitts  <tibbs@math.uh.edu>
+
 	* lib/Majordomo.pm (dispatch): Add 'modes' member of the request
         structure.  This is a hash containing one key per mode present.
         Now you can check for a mode with if ($request->{modes}{whatever})
@@ -10,7 +19,6 @@
 
 	* bin/mj_queueserv: Fix warning on exec if SIG_CHLD_IGNORE == 1.
 
->>>>>>> 1.519
 2002-01-12  Todd Miller  <Todd.Miller@courtesan.com>
 
 	* lib/Mj/Resend.pm (_describe_taboo): Fix warning on undef $match.

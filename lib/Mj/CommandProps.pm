@@ -183,8 +183,9 @@ my %commands =
                    'iter' => 1, 
                    'noaddr' => 1,
                    'modes' => {
-                                'm'           => 1,
-                              },
+			       'm'           => 1,
+			       'nobounce'    => 1,
+			      },
                   },
    },
    'trigger' => 

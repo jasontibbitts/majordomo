@@ -461,6 +461,7 @@ sub dispatch {
 
   # Test the command mode against the list of acceptable modes
   # from Mj::CommandProps.
+  $request->{'modes'} ||= {};
   if ($request->{'mode'} and !$continued) {
     @tmp = split /[=-]/, $request->{'mode'};
     $modelist = function_prop($request->{'command'}, 'modes');

@@ -273,13 +273,15 @@ sub owner_done {
   $self->_make_list($request->{'list'});
 
   # Call bounce handling routine
-  ($handled, $user, $badaddr) =
-   $self->handle_bounce($request->{'list'}, $self->{'owner_file'});
+  if (!$request->{'modes'}{'nobounce'}) {
+    ($handled, $user, $badaddr) =
+      $self->handle_bounce($request->{'list'}, $self->{'owner_file'});
+  }
 
-  if (! $handled) {
-    # Nothing from the bounce parser
+  if (!$handled) {
+    # Nothing from the bounce parser (or parser wasn't called)
     # Just mail out the file as if we never saw it
-    if ($request->{'mode'} eq 'm') {
+    if ($request->{'modes'}{'m'}) {
       # Forward to moderators instead of owners.
       @owners = $self->{'lists'}{$request->{'list'}}->moderators;
     }
