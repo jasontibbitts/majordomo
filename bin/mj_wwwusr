@@ -300,6 +300,7 @@ for $list (@lists) {
   }
   elsif ($func eq 'password') {
     $tmp = $cgi->param('newpasswd');
+    $tmp =~ s/\s+//g;
     if (defined $tmp and length $tmp) {
       Mj::Parser::parse_args ($request, $tmp, '');
     }
