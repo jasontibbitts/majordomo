@@ -1,6 +1,6 @@
-This contains blocks of text, called footers, that can be added to
-the beginning of outgoing messages.  You can include multiple footers
-here by separating them by blank lines.  When a footer is to be
-added, it is chosen at random from the footers given here. The
-frequency with which footers appear can be controlled with
-"configset listname message_footer_frequency".
+This contains blocks of text, called footers, that can be added to the
+end of outgoing messages.  You can include multiple footers here by
+separating them by blank lines.  When a footer is to be added, it is
+chosen at random from the footers given here. The frequency with which
+footers appear can be controlled with the message_footer_frequency
+setting.

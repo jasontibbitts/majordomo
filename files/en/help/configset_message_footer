@@ -18,13 +18,7 @@ Administrative commands like unsubscribe send to majordomo@example.org
 Help: Try listname-owner@example.org first then try admin@example.org
 ENDTAG
 
-
-This contains blocks of text, called footers, that can be added to
-the beginning of outgoing messages.  You can include multiple footers
-here by separating them by blank lines.  When a footer is to be
-added, it is chosen at random from the footers given here. The
-frequency with which footers appear can be controlled with
-"configset listname message_footer_frequency".
+$INCLUDE-config/message_footer
 
 The footer text will undergo variable substitution as it is added
 to the message.  The variables supported include the standard substitutions,
@@ -57,7 +51,4 @@ See Also:
    help configset_message_fronter_frequency (for how often the fronter is sent)
    help variables         (for an explanation of substitution variables)
 
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
