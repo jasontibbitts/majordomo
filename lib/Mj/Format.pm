@@ -2466,7 +2466,6 @@ sub tokeninfo {
             'DATE'    => scalar localtime($data->{'time'}),
             'EXPIRE'  => scalar localtime($data->{'expire'}),
             'ISPOST'  => '',
-            'LIST'    => $data->{'list'},
             'REQUESTER' => &escape($data->{'user'}, $type),
             'TOKEN'   => $request->{'id'},
             'TYPE'    => $data->{'type'},
@@ -2483,23 +2482,28 @@ sub tokeninfo {
   }
 
   if ($request->{'mode'} =~ /nosession/) {
-    $tmp = $mj->format_get_string($type, "tokeninfo_nosession_$data->{'command'}", $request->{'list'});
+    $tmp = $mj->format_get_string($type, 
+                                  "tokeninfo_nosession_$data->{'command'}",
+                                  $data->{'list'});
     unless ($tmp) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_nosession', $request->{'list'});
+      $tmp = $mj->format_get_string($type, 'tokeninfo_nosession', 
+                                    $data->{'list'});
     }
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
     return 1;
   }
   elsif ($request->{'mode'} =~ /remind/) {
-    $tmp = $mj->format_get_string($type, "tokeninfo_remind", $request->{'list'});
+    $tmp = $mj->format_get_string($type, "tokeninfo_remind", 
+                                  $data->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
 
-  $tmp = $mj->format_get_string($type, "tokeninfo_head_$data->{'command'}", $request->{'list'});
+  $tmp = $mj->format_get_string($type, "tokeninfo_head_$data->{'command'}", 
+                                $data->{'list'});
   unless ($tmp) {
-    $tmp = $mj->format_get_string($type, 'tokeninfo_head', $request->{'list'});
+    $tmp = $mj->format_get_string($type, 'tokeninfo_head', $data->{'list'});
   }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
@@ -2514,9 +2518,11 @@ sub tokeninfo {
   $request->{'command'} = 'tokeninfo_done';
   $mj->dispatch($request);
 
-  $tmp = $mj->format_get_string($type, "tokeninfo_foot_$data->{'command'}", $request->{'list'});
+  $tmp = $mj->format_get_string($type, "tokeninfo_foot_$data->{'command'}", 
+                                $data->{'list'});
   unless ($tmp) {
-    $tmp = $mj->format_get_string($type, 'tokeninfo_foot', $request->{'list'});
+    $tmp = $mj->format_get_string($type, 'tokeninfo_foot', 
+                                  $data->{'list'});
   }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
@@ -2556,7 +2562,6 @@ sub _tokeninfo_post {
             'DATE'    => scalar localtime($data->{'time'}),
             'EXPIRE'  => scalar localtime($data->{'expire'}),
             'ISPOST'  => " ",
-            'LIST'    => $data->{'list'},
             'PART'    => $request->{'part'},
             'REQUESTER' => &escape($data->{'user'}, $type),
             'TOKEN'   => $request->{'id'},
@@ -2574,9 +2579,11 @@ sub _tokeninfo_post {
   }
 
   if ($request->{'mode'} =~ /nosession/) {
-    $tmp = $mj->format_get_string($type, "tokeninfo_nosession_post", $request->{'list'});
+    $tmp = $mj->format_get_string($type, "tokeninfo_nosession_post", 
+                                  $data->{'list'});
     unless ($tmp) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_nosession', $request->{'list'});
+      $tmp = $mj->format_get_string($type, 'tokeninfo_nosession', 
+                                    $data->{'list'});
     }
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
@@ -2599,7 +2606,8 @@ sub _tokeninfo_post {
 
     # Display head file
     if ($request->{'mode'} =~ /edit/) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_edit_head', $request->{'list'});
+      $tmp = $mj->format_get_string($type, 'tokeninfo_edit_head', 
+                                    $data->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
@@ -2631,7 +2639,8 @@ sub _tokeninfo_post {
     # Display foot file
     if ($request->{'mode'} =~ /edit/) {
       $tmp = ($lastchar eq "\n")? '' : '\n';
-      $tmp .= $mj->format_get_string($type, 'tokeninfo_edit_foot', $request->{'list'});
+      $tmp .= $mj->format_get_string($type, 'tokeninfo_edit_foot', 
+                                     $data->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
@@ -2639,25 +2648,26 @@ sub _tokeninfo_post {
   else {
     # Print result message.
     if ($request->{'mode'} =~ /delete/) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_delete', $request->{'list'});
+      $tmp = $mj->format_get_string($type, 'tokeninfo_delete', 
+                                    $data->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
     elsif ($request->{'mode'} =~ /remind/) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_remind', $request->{'list'});
+      $tmp = $mj->format_get_string($type, 'tokeninfo_remind', $data->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
     elsif ($request->{'mode'} =~ /replace/) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_replace', $request->{'list'});
+      $tmp = $mj->format_get_string($type, 'tokeninfo_replace', $data->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
 
     # Print head.
-    $tmp = $mj->format_get_string($type, 'tokeninfo_head_post', $request->{'list'});
+    $tmp = $mj->format_get_string($type, 'tokeninfo_head_post', $data->{'list'});
     unless ($tmp) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_head', $request->{'list'});
+      $tmp = $mj->format_get_string($type, 'tokeninfo_head', $data->{'list'});
     }
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
@@ -2698,7 +2708,8 @@ sub _tokeninfo_post {
               $hsubs->{"HEADER_$j"} = $tmp[0];
             }
           }
-          $tmp = $mj->format_get_string($type, 'tokeninfo_header', $request->{'list'});
+          $tmp = $mj->format_get_string($type, 'tokeninfo_header', 
+                                        $data->{'list'});
           $str = $mj->substitute_vars_format($tmp, $subs);
           $str = $mj->substitute_vars_format($str, $hsubs);
           print $out "$str\n";
@@ -2708,7 +2719,8 @@ sub _tokeninfo_post {
       # Display the contents of plain text parts.
       if ($msgdata->{$i}->{'type'} =~ m#^text/plain#i) {
         $request->{'part'} = $i;
-        $tmp = $mj->format_get_string($type, 'tokeninfo_text_head', $request->{'list'});
+        $tmp = $mj->format_get_string($type, 'tokeninfo_text_head', 
+                                      $data->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
 
@@ -2719,37 +2731,42 @@ sub _tokeninfo_post {
           last unless $ok;
         }
 
-        $tmp = $mj->format_get_string($type, 'tokeninfo_text_foot', $request->{'list'});
+        $tmp = $mj->format_get_string($type, 'tokeninfo_text_foot', 
+                                      $data->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
       }
       
       # Display images.
       elsif ($msgdata->{$i}->{'type'} =~ /^image/i) {
-        $tmp = $mj->format_get_string($type, 'tokeninfo_image', $request->{'list'});
+        $tmp = $mj->format_get_string($type, 'tokeninfo_image', 
+                                      $data->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
       }
 
       # Display containers, such as multipart types.
       elsif (! length ($msgdata->{$i}->{'size'})) {
-        $tmp = $mj->format_get_string($type, 'tokeninfo_container', $request->{'list'});
+        $tmp = $mj->format_get_string($type, 'tokeninfo_container', 
+                                      $data->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
       }
 
       # Display summaries of other body parts.
       else {
-        $tmp = $mj->format_get_string($type, 'tokeninfo_attachment', $request->{'list'});
+        $tmp = $mj->format_get_string($type, 'tokeninfo_attachment', 
+                                      $data->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
       }
     }
        
     # Print foot. 
-    $tmp = $mj->format_get_string($type, 'tokeninfo_foot_post', $request->{'list'});
+    $tmp = $mj->format_get_string($type, 'tokeninfo_foot_post', 
+                                  $data->{'list'});
     unless ($tmp) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_foot', $request->{'list'});
+      $tmp = $mj->format_get_string($type, 'tokeninfo_foot', $data->{'list'});
     }
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
