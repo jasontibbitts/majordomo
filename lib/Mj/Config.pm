@@ -55,6 +55,7 @@ $VERSION = "1.0";
    'address_array'    => 1,
    'attachment_rules' => 2,
    'bounce_rules'     => 2,
+   'config_array'     => 1,
    'delivery_rules'   => 2,
    'digests'          => 1,
    'digest_issues'    => 1,
@@ -87,6 +88,7 @@ $VERSION = "1.0";
    'attachment_rules' => 1,
    'bool'             => 1,
    'bounce_rules'     => 1,
+   'config_array'     => 1,
    'delivery_rules'   => 1,
    'digests'          => 1,
    'digest_issues'    => 1,
@@ -258,10 +260,10 @@ responsible for determining which of possible many config files is the most
 current and calling the appropriate function to bring it in.
 
 =cut
-sub load {  # XXX unfinished
+sub load {
   my $self = shift;
   my $log  = new Log::In 150, "$self->{'list'}";
-  my ($file, $key, $oldfile, $old_more_recent);
+  my ($file, $i, $key, $oldfile, $old_more_recent, $tmp, $tmpl);
 
   # Look up the filenames
   $file = $self->_filename;
@@ -326,6 +328,28 @@ sub load {  # XXX unfinished
   push @{$self->{'sources'}}, 'installation';
 
   $self->{'loaded'} = 1;
+
+  # Load configuration templates if needed.  Templates must be
+  # stored under the DEFAULT list.
+  if ($self->{'list'} ne 'GLOBAL' and $self->{'list'} ne 'DEFAULT') {
+    $tmpl = $self->get('config_defaults');
+
+    if (defined($tmpl) and ref($tmpl) eq 'ARRAY' and scalar(@$tmpl)) {
+      $tmp = shift @{$self->{'sources'}};
+
+      for $i (reverse @$tmpl) {
+        next unless $i;
+        next if (grep {$_ eq "DEFAULT:$i"} @{$self->{'sources'}});
+        $self->{'source'}{"DEFAULT:$i"} =
+          $self->_load_dfl('DEFAULT', $i);
+        unshift @{$self->{'sources'}}, "DEFAULT:$i";
+      }
+
+      unshift @{$self->{'sources'}}, $tmp;
+    }
+  }
+      
+    
   1;
 }
 
@@ -1711,6 +1735,35 @@ sub parse_bounce_rules {
   return (1, $warn, $data)
 }
 
+=head2 parse_config_array
+
+Checks to see that all array items are the names of existing
+configuration templates in the DEFAULT list.
+
+Permits a trailing extra bit separated from the template by a colon.  This is
+useful as a path or comment or whatever.  The template portion (before the
+colon) is allowed to be empty.  
+
+=cut
+
+use Majordomo qw(legal_list_name);
+sub parse_config_array {
+  my $self = shift;
+  my $arr  = shift;
+  my $var  = shift;
+  my $log  = new Log::In 150, $var;
+  my ($i, $l, $e);
+
+  for $i (@$arr) {
+    ($l, $e) = split /[: ]+/, $i, 2;
+    next unless length($l);
+    return (0, qq(Illegal or unknown configuration template: "$l".))
+      unless ((-f "$self->{'ldir'}/DEFAULT/C$l")
+               && (Majordomo::legal_list_name($l)));
+  }
+  (1, undef, $arr);
+}
+
 =head2 parse_delivery_rules
 
 Parses a set of delivery rules and, if necessary, adds the default.
@@ -2110,10 +2163,11 @@ sub parse_limits {
     # Parse soft limit conditions
     for ($j = 0; $j < @{$table->[$i][1]}; $j++) {
       $stat = $table->[$i][1]->[$j];
-      if ($stat =~ m#(\d+)/([\dymwdh]*)([ymwdh])$#) {
+      if ($stat =~ m#(\d+)/(\d+)([\da-z]+)$#) {
         $part = $1;
         $whole = str_to_time(($2 || 1) . $3) - time;
-        return (0, "Unable to parse time span $stat.") unless ($whole > 0);
+        return (0, "Unable to parse time span $stat.") 
+          unless (defined($whole) and $whole > 0);
         push @{$out[$i]->{'soft'}}, ['t', $part, $whole];
       }
       elsif ($stat =~ m#(\d+)/(\d+)#) {
