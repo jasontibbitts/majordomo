@@ -4,6 +4,7 @@
 use vars(qw($config $lang $quiet $verb));
 
 # Create the necessary directories for an entire installation.
+use File::Basename;
 sub create_dirs {
   my $l    = shift;
   my $uid  = shift;
@@ -42,6 +43,9 @@ sub create_dirs {
   safe_mkdir("$l/SITE",       0777 & ~oct($um), $uid, $gid);dot();
   safe_mkdir("$l/SITE/files", 0777 & ~oct($um), $uid, $gid);dot();
 
+  unless (-d dirname($config->{majordomocf})) {
+    safe_mkdir(dirname($config->{majordomocf}), 0777 & ~oct($um), $uid, $gid);dot();
+  }
 
   for $i (@$doms) {
     create_dirs_dom($l, $i, $uid, $gid, $um);

@@ -9,10 +9,12 @@ use strict;
 use IO::File;
 use Getopt::Long;
 use Data::Dumper;
+use File::Basename;
+use Digest::SHA1 qw(sha1_base64);
 use Carp;
 
-my (%opts, @goargs, @undefined, $check, $clear, $cmdlineop, $complete,
-    $conf, $err, $i, $nosep, $ok, $sepclear);
+my (%opts, @goargs, @undefined, $check, $clear, $cmd, $cmdlineop,
+    $complete, $conf, $err, $i, $nosep, $ok, $pw, $sepclear);
 
 # Information on all of the settings
 my @var =
@@ -22,6 +24,7 @@ my @var =
     'type' => 'bool',
     'desc' => 'Screen Clearing',
     'ques' => 'Clear the screen before each question?',
+    'def'  => sub {0},
     'post' => sub {
       require Term::Cap;
       my $term = Term::Cap->Tgetent({OSPEED=>9600});
@@ -40,7 +43,16 @@ my @var =
   any function on any list in any virtual domain at the site, in addition
   to various more specific passwords.  It should be chosen with care.  It
   can be of arbitrary length, but cannot contain spaces.
+
+  Note that you may also supply a password which has already been
+  encrypted; this may indeed be the default.  An encrypted password appears
+  as a string of random characters prefixed by "SHA1$".
 ',
+    'def'  => sub {''},
+    'post' => sub {
+      $conf->{site_password} = 'SHA1'.chr(044). sha1_base64($conf->{site_password})
+        unless $conf->{site_password} =~ /^SHA1\$/;
+    }
    },
 
   );
@@ -48,16 +60,18 @@ my @var =
 # Check IDs: must be run as the majordomo user XXX Run setuid and prompt
 # for pasword?  Allow running as root, changing ownership of any written
 # files?
-if ($> != $::UID || $) != $::GID) {
-  print STDERR "This program must be run under the Majordomo user and group:\n";
+if ($> != 0 && ($> != $::UID || $) != $::GID)) {
+  print STDERR "This program must be run as root, or under\nthe Majordomo user and group:\n";
   print STDERR "   UID: $::UID, GID: $::GID\n";
   exit 1;
 }
 
+# XXX Check writeability of the directory and file.
+
 # XXX or run setuid and prompt for the password?
 
 # Parse options.  Build option list from @var array, call GetOptions
-@goargs=(qw(i));
+@goargs=(qw(c i n s));
 for $i (@var) {
   push @goargs, "$i->{name}=s";
 }
@@ -80,23 +94,8 @@ for $i (@var) {
   }
 }
 
-# If majordomo.cf exists, load it.
-if (-f $::CONFFILE) {
-  print "Found existing config file in $::CONFFILE.\n";
-  $conf = do "$::CONFFILE";
-
-  # Check for errors
-  unless (defined $conf) {
-    if ($@) {
-      die "Cannot compile config file $::CONFFILE: $@";
-    }
-    die "Cannot read config file $::CONFFILE: $!";
-  }
-}
-else {
-  print "Generating new config file in $::CONFFILE.\n";
-  $conf = {};
-}
+$conf = loadconf();
+#pause();
 
 # Fill in config structure from given option, and check to see that every
 # setting has been defined.
@@ -105,68 +104,158 @@ for $i (@var) {
     $conf->{$i->{name}} = $opts{$i->{name}};
     $cmdlineop = 1;
   }
-  if (!exists $conf->{$i->{name}}) {
-    push @undefined, $i->{name};
-  }
 }
 
 #print Dumper \@undefined;
 #print Dumper $conf;
 
 # If no options given (or if interactive option given) go interactive
-if ($opts{i} || !$cmdlineop) {
+if (!$opts{'s'}) {
   print "\n";
-  interact();
+  print "Welcome to the Majordomo automatic configuration system!\n\n";
+
+  showconf($conf);
+  print "\n";
+#  pause();
+  print "\n";
+  interact($conf);
 }
 
 # Check that all settings have been configured.  If not, error out?  Force
 # interactive setup?  It is potentially fatal to leave a setting
 # unconfigured.
-
-# Write out majordomo.cf.  Use given umask?
+for $i (@var) {
+  if (!exists $conf->{$i->{name}}) {
+    push @undefined, $i->{name};
+  }
+}
+if (@undefined) {
+  print STDERR "Configuration not complete.  The following settings are not defined:\n";
+  print STDERR '  ', join(' ',@undefined), "\n";
+  print STDERR "Configuration file will not be written.\n";
+  exit 1;
+}
 
 # As an option, write out an mj_setup command line instead of a
 # majordomo.cf.
+print Dumper \%opts;
+if ($opts{c}) {
+  print "The following command will regenerate this configuration:\n";
+  printcmdline($conf);
+}
 
+# Write out majordomo.cf.  Use given umask?
+writeconf($conf) unless $opts{n};
 
-print "Note: this script does not yet do anything.\n";
 exit 0;
 
 # Various subroutines
 sub interact {
+  my $conf = shift;
   my ($def, $i, $name, $prompter);
   $sepclear = 0; $nosep = 1;
 
   print <<EOM;
-Welcome to the Majordomo automatic configuration system!
- 
 This script will guide you through some of the Majordomo configuration
-process.  Configuring majordomo causes a configuration file (.mj_config)
-to be created.  If an existing .mj_config file was found and read in,
-the default answers below will be from that file. If no configuration
-file existed, this is assumed to be a fresh install and basic defaults
-will be provided. Some answers CANNOT be defaulted, even if this is a
-re-install with an existing configuration file, so don't just hit ENTER
-without reading the prompt!
+process.  Configuring majordomo causes a configuration file
+  $::CONFFILE
+to be created.  If an existing config file was found and read in, the
+default answers below will be from that file. If no configuration file
+existed, this is assumed to be a fresh install and basic defaults will be
+provided. Some answers CANNOT be defaulted, even if this is a re-install
+with an existing configuration file, so don't just hit ENTER without
+reading the prompt!
 
 EOM
 
   for $i (@var) {
-#    print $i->{ques};
-
-    # Default...
-
+    sep();
     $prompter = "get_$i->{type}";
+
+    # Extract the default
+    if (exists $conf->{$i->{name}} && !$i->{nodef}) {
+      $def = $conf->{$i->{name}};
+    }
+    else {
+      $def = &{$i->{def}};
+    }
+
     {
       no strict 'refs';
-      $conf->{$i->{name}} = &$prompter($i->{ques}, 0);
+      $conf->{$i->{name}} = &$prompter($i->{ques}, $def);
     }
+
+    # Run after-config routine
     if ($i->{post}) { &{$i->{post}} };
   }
 }
 
+sub loadconf {
+  my $conf = {};
+  # If majordomo.cf exists, load it.
+  if (-f $::CONFFILE) {
+    print "Found existing config file in $::CONFFILE.\n";
+    $conf = do "$::CONFFILE";
+
+    # Check for errors
+    unless (defined $conf) {
+      if ($@) {
+	die "Cannot compile config file $::CONFFILE: $@";
+      }
+      die "Cannot read config file $::CONFFILE: $!";
+    }
+  }
+  else {
+    print "No existing configuration file found.\n";
+    print "Generating new config file in $::CONFFILE.\n";
+  }
+  $conf;
+}
+
+sub showconf {
+  my $conf = shift;
+  my ($i, $val);
+  print "Current configuration:\n";
+  for $i (@var) {
+    if ($conf->{$i->{name}}) {
+      $val = $conf->{$i->{name}};
+    }
+    else {
+      $val = "(not yet configured)";
+    }
+    printf("  %15s = %s\n", $i->{name}, $val);
+  }
+}
+
+sub writeconf {
+  my $conf = shift;
+
+  print "Writing configuration file $::CONFFILE.\n";
+
+  # Security... Links and such?
+  if (-f $::CONFFILE) {
+    unlink $::CONFFILE or die "Can't remove old copy of $::CONFFILE: $!"
+  }
+
+  sysopen(CF, $::CONFFILE, O_WRONLY|O_CREAT|O_EXCL, 0600)
+    or die "Can't open $::CONFFILE: $!";
+
+  print CF Dumper $conf;
+
+  close CF;
+
+}
+
+sub printcmdline {
+  my $conf = shift;
+  my $cmd = "$0 ";
+  for $i (@var) {
+    $cmd .= "--$i->{name} \'$conf->{$i->{name}}\' ";
+  }
+  print "$cmd\n";
+}
+
 sub prompt ($;$) {
-  sep();
   my($mess,$def) = @_;
   my $ISA_TTY = -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT));
   Carp::confess("prompt function called without an argument")
@@ -202,8 +291,9 @@ sub get_str_nospace {
 }
 sub check_str_nospace {
   my $str = shift;
-  return 1 unless $str =~ /\s/;
-  return (0, "Spaces are not allowed.");
+  return (0, "Empty strings not allowed.") unless length($str);
+  return (0, "Spaces are not allowed.") if $str =~ /\s/;
+  1;
 }
 
 sub get_enum {
@@ -217,6 +307,7 @@ sub get_enum {
       return $ans;
     }
     $msg = "Allowed values are:\n";
+    $nosep = 1;
     for my $i (@$vals) {
       $msg .= "  $i\n";
     }
@@ -338,6 +429,12 @@ sub get_bool {
   $val =~ /^y/i ? 1:0;
 }
 
+sub check_bool {
+  my $str = shift;
+  return 1 if $str == 1 or $str == 0;
+  return 0;
+}
+
 sub get_domain_list {
   my ($msg, $def, $empty) = @_;
   my ($elem, $list);
@@ -366,6 +463,10 @@ sub get_domain_list {
   $list;
 }
 
+sub pause {
+  prompt("Press enter to continue:");
+}
+
 sub sep {
   return if $nosep;
   if ($sepclear) {
@@ -373,6 +474,44 @@ sub sep {
     return;
   }
   print "\n", '-'x76, "\n";
+}
+
+=head2 parse_conf(file, warn) - Parses a Majordomo configuration file
+
+This parses a Majordomo configuration file.
+
+file - the filename of the configuration file to parse
+warn - warn about missing or unknown settings
+
+Returns a hash.
+
+=cut
+
+# 1 -> known  2 -> required
+# Should include type information for syntax checking
+my %conf_vars =
+  (
+  );
+
+sub parse_conf {
+  my $file = shift;
+
+  # Open the file, return undef if it doesn't exist
+  
+  # While lines in the file
+
+  # Parse the line.  Space around the '=' is allowed.  Convert spaces
+  # within the setting name to underscores?
+
+  # Check that the setting is known; ignore if not.  (No chance of weird
+  # settings getting in.)
+
+  # Store the setting
+
+
+  # Loop over known settings and make sure each is set.  Otherwise,
+  # complain about unknown settings if told to.
+
 }
 
 =head1 NAME

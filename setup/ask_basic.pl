@@ -53,7 +53,7 @@ sub ask_basic {
 
   #---- Ask for majordomo.cf location
   $msg = retr_msg('site_config', $lang);
-  $def = $config->{majordomocf} || '/etc/majordomo.cf';
+  $def = $config->{majordomocf} || '/etc/majordomo/majordomo.cf';
   $config->{majordomocf} = get_file($msg, $def, 0, 0, 0, 0);
 
   #---- Ask for UID

@@ -158,6 +158,7 @@ sub new {
   my $class  = ref($type) || $type;
   my $topdir = shift;
   my $domain = shift;
+  my $config = shift;
   my (@domains, @tmp, $basename);
 
   my $log = new Log::In 50, "$topdir, $domain";
@@ -195,6 +196,7 @@ sub new {
   }
 
   # Pull in the site configuration file
+  $self->{'sitedata'}{'setup'} = $config; # New cf format
   $self->{'sitedata'}{'config'} = do "$topdir/SITE/config.pl";
   $log->abort("Can't find site config file $topdir/SITE/config.pl: $!")
     unless $self->{'sitedata'}{'config'}; #XLANG
