@@ -482,10 +482,10 @@ sub regen {
   my $config = $self->{'source'}{'MAIN'};
 
   for $var (keys %{$config->{'raw'}}) {
+    next if     ($self->{'vars'}{$var}{'type'} =~ /^address/ and
+                 $self->{'list'} =~ /^DEFAULT/);
     next unless ($self->isparsed($var) or 
-                 $self->{'vars'}{$var}{'type'} eq 'passwords' or
-                 ($self->{'vars'}{$var}{'type'} =~ /^address/ and
-                  $self->{'list'} =~ /^DEFAULT/));
+                 $self->{'vars'}{$var}{'type'} eq 'passwords');
 
     @result = $self->parse($var, $config->{'raw'}{$var});   
     if ($result[0] == 0) {

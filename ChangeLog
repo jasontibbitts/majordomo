@@ -1,3 +1,8 @@
+2001-06-23  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Config.pm:  (regen)  Bugfix:  Do not parse 
+	addresses in DEFAULT configuration files.
+
 2001-06-22  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_make_list)  Bugfix:  Use the "_install"
