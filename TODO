@@ -19,11 +19,11 @@ Top of the list
 
 ! Make sure all sent mails have To: headers.
 
-! Auto-configure global defaults instead of relying on defaults file, so
+- Auto-configure global defaults instead of relying on defaults file, so
   that we can minimize config file access time (because defaults must be
   parsed).
 
-- Put sessions somewhere other than the GLOBAL filespace; remote access
+! Put sessions somewhere other than the GLOBAL filespace; remote access
   comes with the sessioninfo command and the database lookup when opening a
   new session is too slow.
 

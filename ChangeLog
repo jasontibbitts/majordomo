@@ -1,3 +1,7 @@
+Mon Apr 20 01:54:00 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/List.pm (default_flags): Another dumb thinko.
+
 Sun Apr 19 16:58:30 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/List.pm (flag_set): Fix dumb thinko.

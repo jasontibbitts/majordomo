@@ -491,6 +491,7 @@ This should be a per-list variable, or a whole set of list variables.
 
 =cut
 sub default_flags {
+  my $self = shift;
   return $self->config_get('default_flags');
 }
 
