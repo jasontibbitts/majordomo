@@ -1,3 +1,15 @@
+2001-08-21  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Format.pm:  (show)  Escape HTML special characters
+	in registration data substitutions.
+
+	* lib/Mj/SimpleDB/DB.pm:  (get_matching, get_matching_quick)
+	Bugfix:  take into consideration values at the beginning
+	of a catenated string of data.
+
+	* lib/Mj/Util.pm:  (post)  Bugfix:  use the \003 character
+	to separate reasons.
+
 2001-08-20  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwusr:  Allow subscribers to specify the new password

@@ -1326,7 +1326,7 @@ sub show {
 
   for $i (keys %$data) {
     next if ($i eq 'lists' or $i eq 'regdata');
-    $subs->{uc $i} = $data->{$i};
+    $subs->{uc $i} = &escape($data->{$i}, $type);
   }
 
   if ($data->{strip} eq $data->{xform}) {
@@ -1343,7 +1343,7 @@ sub show {
     return 1;
   }
   for $i (keys %{$data->{'regdata'}}) {
-    $subs->{uc $i} = $data->{'regdata'}{$i};
+    $subs->{uc $i} = &escape($data->{'regdata'}{$i}, $type);
   }
 
   $subs->{'REGTIME'}    = localtime($data->{'regdata'}{'regtime'});
@@ -2179,7 +2179,7 @@ sub eprintf {
   }
 }
 
-# Basic idea from HTML::Stream, 
+# Basic idea from HTML::Stream. 
 sub escape {
   local $_ = shift;
   my $type = shift || '';
