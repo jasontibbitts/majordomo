@@ -130,7 +130,7 @@ sub deliver {
 
   my $rules   = $args{rules};
   my $list    = $args{list};
-  my $sublist = $args{sublist};
+  my $sublist = $args{sublist} || 'MAIN';
 
   # Allocate destinations and probers and do some other setup stuff
   ($classes, $dests, $probes) = _setup($rules, %args);
@@ -141,35 +141,24 @@ sub deliver {
     0;
   };
 
-  if (length $sublist) {
-    # Ensure that a new sublist is not created.
-    return (0, "Unknown auxiliary list name \"$args{'sublist'}\".") 
-      unless ($sublist = $list->valid_aux($sublist));
+  return (0, "Unknown subscriber list name \"$args{'sublist'}\".") 
+    unless ($sublist = $list->valid_aux($sublist));
 
-    ($ok, $error) = $list->aux_get_start($sublist);
-  }
-  else {
-    ($ok, $error) = $list->get_start;
-
-    if ($list->{'name'} eq 'GLOBAL') {
-      $matcher = sub {
-        shift;
-        my ($data) = shift;
-        my ($class) = length $data->{'lists'} ? "each" : "nomail";
-        return 1 if $classes->{$class};
-        0;
-      };
-    }  
-  }
+  if ($list->{'name'} eq 'GLOBAL') {
+    $matcher = sub {
+      shift;
+      my ($data) = shift;
+      my ($class) = length $data->{'lists'} ? "each" : "nomail";
+      return 1 if $classes->{$class};
+      0;
+    };
+  }  
+ 
+  ($ok, $error) = $list->get_start($sublist);
   return ($ok, $error) unless $ok;
 
   while (1) {
-    if (length $sublist) {
-      @data = $list->aux_get_matching($sublist, $args{chunk}, $matcher);
-    }
-    else {
-      @data = $list->get_matching_chunk($args{chunk}, $matcher);
-    }
+    @data = $list->get_matching_chunk($sublist, $args{chunk}, $matcher);
     last unless @data;
 
     # Add each address to the appropriate destination.
@@ -230,13 +219,7 @@ sub deliver {
   }
 
   # Close the iterator.
-  if (length $sublist) {
-    ($ok, $error) = $list->aux_get_done($sublist);
-  }
-  else {
-    ($ok, $error) = $list->get_done;
-  }
-  return ($ok, $error);
+  return $list->get_done($sublist);
 
   # Rely on destruction to flush the destinations
 }
