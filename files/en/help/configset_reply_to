@@ -12,17 +12,24 @@ configset listname reply_to = $SENDER
 
 
 Put a reply-to header with value <value> into the outgoing message.
+NOTE: A pre-existing Reply-To: header (such as one added by the user's
+mail tool) will NOT be replaced unless override_reply_to is true.
+
+Another way to get reply-to headers is with "configset message_headers",
+but that is normally done only for the GLOBAL pseudo-list. This command
+is more flexible in that it can supply defaults but dissappear when
+there is already such a header. Reply-To, no matter how it is supplied,
+should override the Sender header.
 
 The header text will undergo variable substitution as it is added to
 the message. See "help variables" for a list of substitutions which
 are supported.
 
-Note that a preexisting Reply-To: header will not be replaced unless
-override_reply_to is true.
-
 
 See Also:
    help configset message_headers (for adding arbitrary headers)
+   help configset override_reply_to (which may keep this from working)
+   help configset sender (to supply yet another header field)
    help variables (for a list of all possible variables and what they mean)
 
 For a list of all help topics send this one-line message

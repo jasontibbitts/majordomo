@@ -16,6 +16,12 @@ to add one of its own, should the existing one be deleted and replaced
 with the list's?  If set to no, the list will not add its reply-to
 header if one is already present.
 
+
+See Also:
+   help configset message_headers
+   help configset reply_to
+   help configset sender
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ

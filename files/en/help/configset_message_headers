@@ -17,6 +17,10 @@ EXAMPLE:
 configset listname message_headers << ENDTAG
 X-Loop: msg $SEQNO from listname@nowhere.org
 ENDTAG
+configset GLOBAL message_headers << ENDTAG
+X-Loop: Mj2 server at NoWhere.Org
+Reply-To: $MJ
+ENDTAG
 
 
 These headers will be appended to the headers of a posted message
@@ -24,12 +28,26 @@ when a regular list is specified, or to the headers of replies
 from the server (such as token confirmation requests) when the
 GLOBAL pseudo-list is specified.
 
-The header text will undergo variable substitution as it is added to
-the message. See "help variables" for a list of substitutions which
-are supported.
+WARNING: A "Reply-To" header is REQUIRED for the GLOBAL pseudo-list
+to function properly. Make sure you don't delete it if you replace
+the defaults! This will be the address that confirmation tokens
+(for commands like subscribe and set) go to with a default reply,
+and without it confirmations may go to the list owner, depending
+on the values in "configset sender", and "configset whoami".
+
+For regular lists, there are other header fields that can be added
+with different variables available. See "help configset reply_to"
+and "help configset sender" for additional information. You normally
+don't need to control list replies with "configset message_headers".
+
+This header text will undergo variable substitution as it is added
+to the message. See "help variables" for a list of substitutions
+which are supported.
 
 
 See Also:
+   help configset reply_to
+   help configset sender
    help variables (for a list of all possible variables and what they mean)
 
 For a list of all help topics send this one-line message

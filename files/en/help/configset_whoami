@@ -21,10 +21,13 @@ to the value of "whoami" from the appropriate list.
 
 
 For normal lists:
-  The default value of "whoami" is the name of the list itself,
+  The default value of "whoami" is the address of the list itself,
   and things will function just fine if you don't specify "whoami".
-  If your list is called "listname@nowhere.org", then you would use
+  If your list is called "listname@nowhere.org", then you could use
+     configset GLOBAL whereami = nowhere.org
      configset listname whoami = listname
+  or you could use
+     configset listname whoami = listname@nowhere.org
   The domain will be supplied by "whereami" if you don't supply it.
 
   In spite of the comments produced by configshow, the "whoami"
@@ -50,6 +53,8 @@ For the GLOBAL pseudo-list:
 
 
 See Also:
+   help configset reply_to
+   help configset resend_host
    help configset sender
    help configset whereami
    help configset whoami_owner

@@ -48,6 +48,8 @@ For the GLOBAL pseudo-list:
 
 
 See Also:
+   help configset reply_to
+   help configset resend_host
    help configset sender
    help configset whereami
    help configset whoami

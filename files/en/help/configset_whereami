@@ -24,6 +24,8 @@ setting supplies domains when only a partial address is specified.
 
 
 See Also:
+   help configset reply_to
+   help configset resend_host
    help configset sender
    help configset whoami
    help configset whoami_owner

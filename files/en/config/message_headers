@@ -3,6 +3,9 @@ when a regular list is specified, or to the headers of replies
 from the server (such as token confirmation requests) when the
 GLOBAL pseudo-list is specified.
 
-The header text will undergo variable substitution as it is added to
-the message. See "help variables" for a list of substitutions which
-are supported.
+WARNING: A "Reply-To" header is REQUIRED for the GLOBAL pseudo-list
+to function properly. Make sure you don't delete it if you replace
+the defaults! This will be the address that confirmation tokens
+(for commands like subscribe and set) go to with a default reply,
+and without it confirmations may go to the list owner, depending
+on the values in "configset sender", and "configset whoami".
