@@ -134,8 +134,8 @@ sub post {
     $spool = "$tmpdir/unparsed." . Majordomo::unique();
     mv ($request->{'file'}, "$spool");
     $self->inform("GLOBAL", "post", $request->{'user'}, $request->{'user'},
-        $request->{'cmdline'}, "resend",
-        0, 0, -1, "Unable to parse message; moved to $spool.");
+        $request->{'cmdline'}, "resend", 0, 0, -1, 
+        "Unable to parse message; moved to $spool.", $::log->elapsed);
     return (0, "Unable to parse message.");
   }
 
@@ -160,8 +160,10 @@ sub post {
   if (! $user) {
     $spool = "$tmpdir/unparsed." . Majordomo::unique();
     mv ($request->{'file'}, $spool);
-    $self->inform("GLOBAL", "post", $user, $user, $request->{'cmdline'}, "resend",
-        0, 0, -1, "Unable to determine sender; moved to $spool.");
+    $self->inform("GLOBAL", "post", $user, $user, $request->{'cmdline'}, 
+                  "resend", 0, 0, -1, 
+                  "Unable to determine sender; moved to $spool.", 
+                  $::log->elapsed);
     return (0, "Unable to parse message.");
   }
 
@@ -376,7 +378,8 @@ sub _post {
   if ($avars{'sublist'} ne '') {
     unless ($sl = $self->{'lists'}{$list}->valid_aux($avars{'sublist'})) {
       $self->inform($list, "post", $user, $victim, $cmdline, "resend",
-        0, 0, -1, "Unknown auxiliary list \"$avars{'sublist'}\".");
+        0, 0, -1, "Unknown auxiliary list \"$avars{'sublist'}\".",
+        $::log->elapsed);
       return (0, "Unknown auxiliary list \"$avars{'sublist'}\".");
     }
   }
@@ -409,7 +412,8 @@ sub _post {
       # The spool file, containing the message to be posted, is missing.
       # Inform the site owner, and return.
       $self->inform("GLOBAL", "post", $user, $victim, $cmdline, "resend",
-        0, 0, -1, "Spool file $file is missing; unable to post message.");
+        0, 0, -1, "Spool file $file is missing; unable to post message.",
+        $::log->elapsed);
       return (0, "The message was not delivered, due to a malfunction.\n");
     }
     my $mime_parser = new Mj::MIMEParser;
@@ -1931,8 +1935,9 @@ digest_add, so this function can be used to trigger a digest.
 sub do_digests {
   my ($self, %args) = @_;
   my $log = new Log::In 40;
-  my (%digest, %file, @dfiles, @dtypes, @nuke, @tmp, $digests, $dissues, $dtext,
-      $file, $i, $j, $k, $l, $list, $subs);
+  my (%digest, %file, @dfiles, @dtypes, @nuke, @tmp, 
+      $digests, $dissues, $dtext, $elapsed, $file, $i, 
+      $j, $k, $l, $list, $subs);
   $list = $args{'list'}; $subs = $args{'substitute'};
 
   # Pass to digest if we got back good archive data and there is something
@@ -1961,6 +1966,7 @@ sub do_digests {
       # For each digest, build the three types and for each type and then
       # stuff an appropriate entry into %deliveries.
       for $i (keys(%digest)) {
+        $elapsed = $::log->elapsed;
 	@dtypes = qw(text mime index);
 	$subs->{DIGESTNAME} = $i;
 	$subs->{DIGESTDESC} = $digests->{$i}{desc};
@@ -2007,9 +2013,10 @@ sub do_digests {
 						   file => shift(@dfiles),
 						  };
 	}
-    # XXX The status and password values (1, 0) may be inaccurate.
+        # XXX The status and password values (1, 0) may be inaccurate.
 	$self->inform($list, "digest", 'unknown@anonymous', 'unknown@anonymous',
-                  "digest $list $i", "resend", 1, 0, 0);
+                  "digest $list $i", "resend", 1, 0, 0, '', 
+                  $::log->elapsed - $elapsed);
       }
     }
   }
