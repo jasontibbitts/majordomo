@@ -349,7 +349,7 @@ sub configshow {
     }
 
     if ($request->{'mode'} =~ /categories/) {
-      push @{$subs->{'CATEGORIES'}}, $val;
+      push @{$subs->{'CATEGORIES'}}, $var;
       push @{$subs->{'COUNT'}}, $val;
       push @{$subs->{'COMMENT'}}, $mess;
       next;
