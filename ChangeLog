@@ -1,3 +1,21 @@
+2001-10-29  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm:  Revise the appearance to resemble the
+	other WWW interfaces more closely.
+
+	* lib/Majordomo.pm:  (_show)  Determine which lists are
+        owned by the address in question.  Suggested by Roger Klorese.
+
+        * lib/Mj/Format.pm:  (tokeninfo)  Add ISPOST and VICTIM
+        substitutions to support conditional "accept" buttons and
+        clearer instructions.
+
+2001-10-28  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Format.pm:  (archive)  Add KILOBYTES and
+	TOTAL_KILOBYTES substitutions to allow message size statistics
+	to be displayed by the archive-stats command.
+	
 2001-10-27  Michael Yount <csf@moscow.com>
 
 	* bin/mj_shell,mj_wwwadm:  Use the message returned by 

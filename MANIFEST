@@ -733,12 +733,14 @@ files/en/format/wwwadm/who_foot
 files/en/format/wwwadm/who_head
 files/en/format/wwwconfirm/.foot
 files/en/format/wwwconfirm/.head
+files/en/format/wwwconfirm/.login
 files/en/format/wwwconfirm/.tokeninfo_error
 files/en/format/wwwconfirm/.tokeninfo_foot
 files/en/format/wwwconfirm/.tokeninfo_head
 files/en/format/wwwconfirm/.welcome
 files/en/format/wwwconfirm/foot
 files/en/format/wwwconfirm/head
+files/en/format/wwwconfirm/login
 files/en/format/wwwconfirm/tokeninfo_error
 files/en/format/wwwconfirm/tokeninfo_foot
 files/en/format/wwwconfirm/tokeninfo_head

@@ -2,59 +2,31 @@
 "http://www.w3.org/TR/REC-html40/strict.dtd">
 <!-- Majordomo head format file -->
 <html><head>
-  <title>Majordomo 2 Request Confirmation</title>
+  <title>Majordomo 2 Confirmation Interface</title>
 </head>
 <body>
 
-<form method=POST action="$CGIURL">
-
-<table width="100%" cellspacing=0>
+<table width="100%" cellspacing=8>
 <tr>
   <td align=center bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=welcome&t=$TOKEN">
   <font color="#f0f0f0">
-    Token: <input name="t" value="$TOKEN">
-  </font>
+    Introduction
+  </font></a>
 
   <td align=center bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=login&t=$TOKEN">
   <font color="#f0f0f0">
-    <input type=submit name="a" value="accept">
-  </font>
+    Sign In
+  </font></a>
 
   <td align=center bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=tokeninfo-full&t=$TOKEN">
   <font color="#f0f0f0">
-    <input type=submit name="a" value="reject">
-  </font>
-
-  <td align=center bgcolor="#706060">
-  <font color="#f0f0f0">
-    <input type=submit name="a" value="reject-quiet">
-  </font>
-
-  <td align=center bgcolor="#706060">
-  <font color="#f0f0f0">
-    <input type=submit name="a" value="tokeninfo-full">
-  </font>
-
-  <td align=center bgcolor="#706060">
-  <font color="#f0f0f0">
-    <input type=submit name="a" value="welcome">
-  </font>
-
-<tr>
-  <td align=center bgcolor="#706060" colspan=6>
-  <font color="#f0f0f0">
-    Your reasons for accepting or 
-    rejecting the request (optional):<br>
-
-    <textarea rows=3 cols=78 name="xplanation">
-    </textarea>
-  </font>
+    Show Details
+  </font></a>
 
 </table>
-
-
-  <input type=hidden name="d" value="$DOMAIN">
-</form>
 
 <center>
     <font size=+1>$SITE</font><br>

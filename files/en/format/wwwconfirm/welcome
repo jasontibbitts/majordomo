@@ -1,39 +1,51 @@
 
 <pre>?ERROR</pre>
 
-<p>  
-Each Majordomo request has a 12-digit <b>token</b> identifier that looks 
-like this:
-<pre>
-  2E48-FA94-4C39
-</pre>
-
-If your token is not present in the box at the top of the page, type it 
-into the box.   There are four buttons you can use to manage requests.
-
+<h4 align=center>Introduction to the Confirmation Interface</h4>
+<p>
+When people make requests of the Majordomo mailing list server at
+$SITE, some requests must be confirmed before they will be completed.
+Confirmation may be needed for any number of different reasons.  Two
+of the more common reasons are:
 <ul>
-  <li>
-    To approve the request, press the <b>accept</b> button.
-    If you would like to explain why the request was accepted,
-    type your reasons into the large box.
-
-  <li>
-    To disapprove the request, press the <b>reject</b> button.  If you
-    would like to explain why the request was rejected, type your reasons
-    into the large box.  This may result in various acknowledgements being
-    sent.
-
-  <li>
-    To disapprove the request without sending acknowledgments, press the
-    <b>reject-quiet </b> button.
-
-  <li>
-    To get more information about a pending request (who made
-    the request, why it requires your confirmation, and so on),
-    press the <b>tokeninfo-full</b> button.
-
-  <li>
-    To return to this introduction at any time, press the 
-    <b>welcome</b> button at the top of the page. 
+  <li>Someone wishes to subscribe to a mailing list.  Confirmation
+  is required to make sure that the subscription request is not a
+  forgery.
+  <li>A message is posted to a mailing list by someone who is not
+  a subscriber.  Confirmation from the moderators of the mailing 
+  list is required to make sure that the contents of the message are
+  appropriate for the mailing list.
 </ul>
+
+<p>
+Majordomo assigns a unique <b>token identifier</b> to every request
+that requires someone's approval.  Token identifiers are fourteen
+characters long, for example:
+<pre>
+87E4-995C-BF31
+</pre>
+If you received confirmation instructions in an e-mail message, the
+token identifier should appear in the subject and body of that message.
+
+<p>
+There are three basic commands available for dealing with a request.
+<ol>
+  <li>The <b>accept</b> command will confirm the request 
+  and cause it to be completed.
+  <li>The <b>reject</b> command will discard the request and
+  prevent it from being completed.
+  <li>The <b>tokeninfo</b> command will display more information
+  about the request.
+</ol>
+If you do not wish the request to be completed, you can simply
+ignore it.  If you ignore the request, Majordomo may send one reminder
+message to your e-mail address in a few days.  Eventually,
+the time limit on the request will expire.
+
+<p>
+If you wish to accept or reject a request, click the <b>Sign In</b>
+link at the top or bottom of this document and follow the instructions
+to tell Majordomo the token identifier for the request.
+To return to this introduction at any time, click the <b>Introduction</b>
+link at the top or bottom.
 

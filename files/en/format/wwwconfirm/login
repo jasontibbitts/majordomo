@@ -1,0 +1,45 @@
+<form method=POST action="$CGIURL">
+
+<pre>?ERROR</pre>
+
+<table width="100%">
+<tr>
+  <td valign=top>
+    <input size=16 name="t" value="$TOKEN">
+  <td>
+    Type a token identifier into the box.  A token identifier is a
+    combination of 12 letters and numbers with intervening dashes,
+    for example:
+    <pre>3DF8-644A-B923</pre>
+    Then press one of the three buttons.
+<tr>
+  <td>
+    <input type=submit name="a" value="tokeninfo-full">
+  <td>
+    Press the <b>tokeninfo-full</b> button to see full details
+    about the Majordomo command or posted message that is awaiting
+    your approval.
+  
+<tr>
+  <td>
+    <input type=submit name="a" value="accept">
+  <td>
+    Press the <b>accept</b> button to approve the Majordomo command
+    or posted message that is awaiting your approval.
+
+<tr>
+  <td>
+    <input type=submit name="a" value="reject">
+  <td>
+    Press the <b>reject</b> button to disapprove the Majordomo command
+    or posted message that is awaiting your approval.
+
+</table>
+
+  <input type=hidden name="d" value="$DOMAIN">
+</form>
+
+<p>
+Click the <b>Introduction</b> link at the top or
+bottom of the page to get detailed instructions.
+

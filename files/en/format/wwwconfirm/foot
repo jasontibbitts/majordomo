@@ -2,6 +2,29 @@
 <p>
 For assistance, contact 
 <a href="mailto:$MJOWNER">the $DOMAIN administrators</a>.
+
+<table width="100%" cellspacing=8>
+<tr>
+  <td align=center bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=welcome&t=$TOKEN">
+  <font color="#f0f0f0">
+    Introduction
+  </font></a>
+
+  <td align=center bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=login&t=$TOKEN">
+  <font color="#f0f0f0">
+    Sign In
+  </font></a>
+
+  <td align=center bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=tokeninfo-full&t=$TOKEN">
+  <font color="#f0f0f0">
+    Show Details
+  </font></a>
+
+</table>
+
 </body>
 </html>
 

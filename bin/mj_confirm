@@ -25,7 +25,7 @@ Place a link in cgi-bin and configure Majordomo with the proper URL.
 
 When issuing tokens, Majordomo can provide the user with a URL to
 visit to accept the token easily.  This script sits at that URL and
-receives tokens to accept or deny.  If no token or action is provided, 
+receives tokens to accept or reject.  If no token or action is provided, 
 instructions will be displayed. 
 
 =cut
@@ -65,6 +65,7 @@ $::log->startup_time();
 # First value:  Should the result be preformatted?
 %commands = (  
                'accept'    => [1],
+               'login'     => [0],
                'reject'    => [1],
                'tokeninfo' => [0],
                'welcome'   => [0],
@@ -75,9 +76,6 @@ $cgi = new CGI;
 
 $tmp = '+10s';
 print $cgi->header(-expires => $tmp);
-
-$ptoken = $cgi->param('t');
-$action = $cgi->param('a') || 'welcome';
 
 $pathinfo = $domain = '';
 if (exists $ENV{'PATH_INFO'}) {
@@ -131,8 +129,10 @@ $sess .= "Date: " . scalar(localtime(time)) . "\n";
 
 #----- Collect some useful substitution variables -----#
 $user = "z$ENV{'REMOTE_ADDR'}\@example.com";
+$ptoken = $cgi->param('t');
+$action = $cgi->param('a') || 'tokeninfo-full';
 
-$cgidata = Mj::Format::uescape("user=$user");
+$cgidata = Mj::Format::uescape("user=$user&d=$domain");
 
 $token = $mj->t_recognize($ptoken) || "";
 
@@ -152,6 +152,13 @@ $str = $mj->substitute_vars_format($tmp, $subs);
 print "$str\n";
 
 #----- Determine what service was requested -----#
+if ($ptoken and not $token) {
+  &login($mj, $subs, qq(The token "$ptoken" is not valid.));
+}
+elsif (! ($token or $action eq 'welcome')) {
+  &login($mj, $subs, '');
+}
+
 # Extract "mode" from command name
 if ($action =~ /([^\s=-]+)[=-](.*)/) {
   $func = $1;
@@ -169,6 +176,9 @@ unless (exists $commands{$func}) {
 
 if ($func eq 'welcome') {
   &usage($mj, $subs, '');
+}
+elsif ($func eq 'login') {
+  &login($mj, $subs, '');
 }
 
 $request = {
@@ -201,6 +211,31 @@ $::log->out;
 exit 0;
 
 #----- Subroutines -----#
+sub login {
+  my $mj = shift; 
+  my $subs = shift;
+  my $message = shift || '';
+  my ($str, $tmp);
+
+  $subs->{'ERROR'} = $message;
+  $subs->{'COMMAND'} = "tokeninfo"
+   if ($subs->{'COMMAND'} eq "login");
+
+  if ($message) {
+    $str = $message . "  Request: $subs->{'COMMAND'}  List: $subs->{'LIST'}";
+    $::log->message(50, "info", $message);
+  }
+
+  $tmp = $mj->format_get_string('wwwconfirm', 'login');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+
+  $tmp = $mj->format_get_string('wwwconfirm', 'foot');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+  
+  exit 1;
+}
 
 sub usage {
   my ($mj, $subs, $message) = @_;

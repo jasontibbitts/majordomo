@@ -1,4 +1,57 @@
 <!-- Majordomo tokeninfo_head format file -->
+<p>
+To get instructions, click the <b>Introduction</b> link at the top
+or bottom of this document.<br>
+To confirm a different request, click the <b>Sign In</b> link at
+the top or bottom.<br>
+To return to this document at any time, click the <b>Show Details</b>
+link at the top or bottom.
+<p>
+<form method=POST action="$CGIURL">
+?WILLACK If you wish to explain your reasons for $HELP:ACCEPTing
+?WILLACK or $HELP:REJECTing the request, type them here:
+?WILLACK <br>
+?WILLACK <textarea rows=4 cols=70 name=xplanation>
+?WILLACK </textarea>
+
+<table>
+  <tr>
+    <td>
+      <input type=submit name="a" value="accept">
+    <td>
+      Press the <b>accept</b> button to approve the request.
+?ISPOST  <tr>
+?ISPOST    <td>
+?ISPOST      <input type=submit name="a" value="accept-archive">
+?ISPOST    <td>
+?ISPOST      Press the <b>accept-archive</b> button to approve the request.
+?ISPOST      The message will be stored in the archive but not distributed
+?ISPOST      to the subscribers.
+?ISPOST  <tr>
+?ISPOST    <td>
+?ISPOST      <input type=submit name="a" value="accept-hide">
+?ISPOST    <td>
+?ISPOST      Press the <b>accept-hide</b> button to approve the request.
+?ISPOST      The message will not be displayed in a public archive.
+  <tr>
+    <td>
+      <input type=submit name="a" value="reject">
+    <td>
+      Press the <b>reject</b> button to disapprove the request.
+?WILLACK An explanation will be sent to $VICTIM.
+?WILLACK  <tr>
+?WILLACK    <td>
+?WILLACK      <input type=submit name="a" value="reject-quiet">
+?WILLACK    <td>
+?WILLACK      Press the <b>reject-quiet</b> button to disapprove the request.
+?WILLACK      No explanation will be sent to $VICTIM.
+</table>
+  
+
+<input type=hidden name="t" value="$TOKEN">
+<input type=hidden name="d" value="$DOMAIN">
+</form>
+
 <table>
   <tr><td>Token  <td>$TOKEN
   <tr><td>Created<td>$DATE
@@ -8,6 +61,5 @@
   <tr><td>Expires<td>$EXPIRE
   <tr><td>Reason <td>$REASONS
 </table>
-
 <pre>
 
