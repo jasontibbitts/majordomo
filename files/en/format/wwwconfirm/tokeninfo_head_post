@@ -6,8 +6,6 @@ at $SITE.  A summary of the message appears below.
 
 <table>
   <tr><td>Token:  </td><td>$TOKEN</td></tr>
-  <tr><td>Date:   </td><td>$DATE</td></tr>
-  <tr><td>From:   </td><td>$REQUESTER</td></tr>
   <tr><td>Type:   </td><td>$TYPE</td></tr>
   <tr><td>Expires:</td><td>$EXPIRE</td></tr>
   <tr><td>Reason: </td><td>$REASONS</td></tr>
