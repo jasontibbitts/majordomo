@@ -10,50 +10,33 @@ Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset GLOBAL whoami_owner = admin@nowhere.org
+configset GLOBAL whoami_owner = admin@example.org
 
+$INCLUDE-config/whoami_owner
 
-Where to bounces from the whoami address go? If you do not specify
-"whoami_owner", the string "-owner" will be appended to the value
-of "whoami" from the appropriate list.
+For example, to contact the administrators of a mailing list with the
+address "chard@example.com", it would be necessary to write to the
+address "chard-owner@example.com".  By default the whoami_owner and
+sender configuration settings have the same value; however, the
+whoami_owner setting is displayed publicly, whereas the address in the
+sender configuration is only used internally.  This address frequently
+appears in the "From:" header of e-mail notices that are sent by the
+Majordomo server in response to a command or posted message.
 
-
-For normal lists:
-  The default value of "whoami_owner" is "listname-owner" for
-  the list "listname@nowhere.org". You can set "whoami_owner"
-  to be any local address, WITHOUT a domain specified, and the
-  "whereami" domain will be added.
-
-  As indicated in the configshow comments, bounces from the list
-  will be sent to the list owner. These addresses are common:
-     listname@nowhere.org         (the list itself, "whoami@whereami")
-     listname-owner@nowhere.org   (the human running the list)
-
-
-For the GLOBAL pseudo-list:
-  You should set "whoami_owner" to be "majordomo-owner" WITHOUT
-  a domain specified. The value of "configset whereami" will be
-  supplied as the domain. 
-
-  As indicated in the configshow comments, failed subscribe
-  commands and other actions which are not specific to a list
-  but which bounce or generate errors will go to this address.
-  For example, these are common addresses:
-     majordomo@nowhere.org        (the server, "whoami")
-     majordomo-owner@nowhere.org  (the human running the server)
-
-  WARNING:  If you fail to specify "whoami_owner" after supplying
-  a full email address (including domain) for "whoami", commands
-  like "lists" to die horribly due to a malformed email address.
+If there is no domain given in the address, for example:
+  configset mylist whoami_owner = webmaster
+the domain in the GLOBAL whereami configuration setting is used.  If the
+domain is example.com, the "webmaster" sender address would become
+"webmaster@example.com" in this instance.
 
 
 See Also:
-   help configset reply_to
-   help configset resend_host
-   help configset sender
-   help configset whereami
-   help configset whoami
+   help configset_bounce_recipients
+   help configset_owners
+   help configset_reply_to
+   help configset_resend_host
+   help configset_sender
+   help configset_whereami
+   help configset_whoami
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

@@ -10,40 +10,42 @@ Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset GLOBAL sender = majordomo-owner@yourdomain.net
-configset mylist sender =    mylist-owner@yourdomain.net
+configset GLOBAL sender = majordomo-owner@example.com
+configset mylist sender =  mylist-owner
 
+$INCLUDE-config/sender
 
-The envelope and sender address for the resent mail.  This string has
-"@" and the value of resend_host appended to it to make a complete
-address if you do not supply a domain. When applied to the GLOBAL
-pseudo-list, it provides the sender address for things like token
-confirmation requests. When applied to a regular email list, it
-supplies the sender address for regular posts in addition to the
-welcome mail message generated as part of the subscribe command.
+Formally, this is the address used in "MAIL FROM" SMTP commands.  As a
+result, most "bounce" messages caused by delivery failures will be sent
+to this address.  Once the bounce messages have been processed, any
+bounce messages that areintended to be read by a person will be sent to
+the addresses in the bounce_recipients configuration setting.
 
-Formally, this is the address used in "Mail From" SMTP commands.
-Practically, it should usually be a human (such as list-owner)
-and the From or Reply-To fields of the header should be set up
-so they control where replies go.
+The sender configuration setting is only used internally by Majordomo.
+In contrast, the address in the whoami_owner configuration setting
+frequently appears in the "From:" header of mail notices that are sent
+by the Majordomo server.  For this reason, it is highly recommended that
+you customize the whoami_owner configuration setting instead of changing
+the sender configuration setting.
 
-If you set this address to LISTNAME-owner, replies to welcome text
-go to the list owner. If properly configured, with "configset
-message_headers" or "configset reply_to", an extra Reply-To field
-causes replies go to the server regardless of how "configset sender"
-is used. This often cuts down on random traffic for people who want
-to "set" their subscription options or unsubscribe, but it may also
-cause usage questions to reach the server instead of the owner.
+Although the "sender" address may appear in the "Sender:" header of some
+e-mail messages, that header is usually added by the software that
+performs the delivery (such as Sendmail), not by Majordomo.
+
+If there is no domain given in the address, for example:
+  configset mylist sender = webmaster
+the domain in the GLOBAL whereami configuration setting is used.  If the
+domain is example.com, the "webmaster" sender address would become
+"webmaster@example.com" in this instance.
 
 
 See Also:
-   help configset message_headers
-   help configset reply_to
-   help configset resend_host
-   help configset whereami
-   help configset whoami
-   help configset whoami_owner
+   help configset_bounce_recipients
+   help configset_message_headers
+   help configset_reply_to
+   help configset_resend_host
+   help configset_whereami
+   help configset_whoami
+   help configset_whoami_owner
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

@@ -1,2 +1,3 @@
-Where do bounces from the whoami address go? If no value is specified,
-"-owner" will be appended to the value of the whoami setting.
+The whoami_owner configuration setting is intended to contain the e-mail
+address through which the public can contact the people who manage a
+Majordomo mailing list or domain.
