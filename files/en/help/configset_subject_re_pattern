@@ -15,7 +15,7 @@ configset listname subject_re_pattern = \
 A pattern used to match Re: and other text that user mail programs
 place in the subject header to indicate replies.
 
-Majordomo uses this for two things:
+Majordomo uses this for three things:
 
 1) To place the subject_prefix after the reply indicator.
 
@@ -28,9 +28,12 @@ Majordomo uses this for two things:
    messages can accumulate an annoying stack of them.  This should
    match any combination of reply indicators.
 
+3) To sort messages by subject or thread for the archive command.
+
 
 See Also:
    help admin_delivery
+   help archive
    help configset_subject_prefix
    help configset_subject_re_strip
 
