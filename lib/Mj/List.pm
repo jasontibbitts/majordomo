@@ -1755,6 +1755,18 @@ sub digest_trigger {
   $self->{digest}->trigger(@_);
 }
 
+=head2 digest_examine
+
+Examine the current state of the digests without making any changes.
+
+=cut
+sub digest_examine {
+  my $self = shift;
+  if ($self->_make_digest) {
+    $self->{digest}->examine(@_);
+  }
+}
+
 =head2 digest_incvol(inc, digests)
 
 Increment the volume numbers and reset the issue numbers for the given
