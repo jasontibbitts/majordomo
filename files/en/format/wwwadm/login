@@ -11,7 +11,7 @@
     Type the name of your mailing list into the box unless it is already present.
 <tr>
   <td valign=top>
-    Password: <input type=password name=passw size=15 value="$PASSWORD">
+    Password: <input type=password name=passw size=15 value="$CMDPASS">
   <td valign=top>
     Type your list's administrative password into the box.  
     If you see fourteen stars in this box, it may already be present.

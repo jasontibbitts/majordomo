@@ -18,7 +18,7 @@
   <input type=submit name=func value="tokeninfo-remind">
   <input type=hidden name=extra value="$TOKEN">
   <input type=hidden name=list value="$LIST">
-  <input type=hidden name=passw value="$PASSWORD">
+  <input type=hidden name=passw value="$CMDPASS">
 ?WILLACK <br>
 ?WILLACK If you wish to make known your reasons for $HELP:ACCEPTing
 ?WILLACK or $HELP:REJECTing the request, type them here:

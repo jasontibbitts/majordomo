@@ -4,7 +4,7 @@
 To alter this document, edit it, then press the
 <b>$REPLACECMD</b> button.<br>
   <input type=hidden name=list value="$LIST">
-  <input type=hidden name=passw value="$PASSWORD">
+  <input type=hidden name=passw value="$CMDPASS">
   <input type=hidden name=user value="$USER">
   <input type=submit name=func value="$REPLACECMD">
   <input size=68 name=args value="?CMDARGS">

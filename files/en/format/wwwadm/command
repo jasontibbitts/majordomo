@@ -45,7 +45,7 @@
     <input size=20 name=list value="$LIST">
   <td>
     Password:&nbsp;&nbsp;
-    <input size=15 name=passw type=password value="$PASSWORD">
+    <input size=15 name=passw type=password value="$CMDPASS">
   <td>
     <input type=submit value="Issue Command">
 </table>

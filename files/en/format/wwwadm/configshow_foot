@@ -13,7 +13,7 @@ press one of the <b>configshow</b> buttons.
 
 <form method=POST action="$CGIURL">
   <input type=hidden name=list  value="$LIST">
-  <input type=hidden name=passw value="$PASSWORD">
+  <input type=hidden name=passw value="$CMDPASS">
   <input type=hidden name=user value="$USER">
   <input type=submit name=func value="configshow">
 

@@ -11,7 +11,7 @@
     Type your e-mail address into the box unless it is already present.
 <tr>
   <td valign=top>
-    Password: <input type=password name=passw size=15 value="$PASSWORD">
+    Password: <input type=password name=passw size=15 value="$CMDPASS">
   <td valign=top>
     Type your password into the box, but only if Majordomo has already
     assigned one to you.  It is not necessary to use a password to

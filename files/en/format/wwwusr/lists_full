@@ -29,7 +29,7 @@ you wish to unsubscribe without using your password.)<br>
 
 <form method=POST action="$CGIURL">
   <input type=hidden name=domain value="$DOMAIN">
-  <input type=hidden name=passw value="$PASSWORD">
+  <input type=hidden name=passw value="$CMDPASS">
   <input type=hidden name=list value="$LIST">
   <input size=36 name=user value="$USER">
   <input type=submit name=func value="subscribe">

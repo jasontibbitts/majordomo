@@ -27,6 +27,6 @@ seven buttons.
   <input type=submit name=func value="reject">
   <input type=submit name=func value="reject-quiet">
   <input type=hidden name=list value="$LIST">
-  <input type=hidden name=passw value="$PASSWORD">
+  <input type=hidden name=passw value="$CMDPASS">
   <input type=hidden name=user value="$USER">
 

@@ -136,7 +136,7 @@ sub archive {
            $mj->standard_subs($request->{'list'}),
            'CGIDATA'     => &cgidata($mj, $request),
            'CGIURL'      => $request->{'cgiurl'},
-           'PASSWORD'    => $request->{'password'},
+           'CMDPASS'     => $request->{'password'},
            'TOTAL_POSTS' => scalar @msgs,
            'USER'        => escape("$request->{'user'}", $type),
           };
@@ -370,7 +370,7 @@ sub configshow {
   $gsubs = { $mj->standard_subs($list),
             'CGIDATA'  => $cgidata,
             'CGIURL'   => $cgiurl,
-            'PASSWORD' => $request->{'password'},
+            'CMDPASS'  => $request->{'password'},
             'USER'     => escape("$request->{'user'}", $type),
           };
 
@@ -766,7 +766,7 @@ sub lists {
            $mj->standard_subs('GLOBAL'),
            'CGIDATA'  => &cgidata($mj, $request),
            'CGIURL'   => $request->{'cgiurl'},
-           'PASSWORD' => $request->{'password'},
+           'CMDPASS'  => $request->{'password'},
            'PATTERN'  => $request->{'regexp'},
            'USER'     => escape("$request->{'user'}", $type),
           };
@@ -831,12 +831,12 @@ sub lists {
                   'ARCURL'        => $data->{'archive'} || "",
                   'CATEGORY'      => $category || "?",
                   'CGIURL'        => $request->{'cgiurl'} || "",
+                  'CMDPASS'       => $request->{'password'},
                   'DESCRIPTION'   => $desc,
                   'DIGESTS'       => $digests,
                   'FLAGS'         => $flags,
                   'LIST'          => $list,
                   'OWNER'         => $data->{'owner'},
-                  'PASSWORD'      => $request->{'password'},
                   'POSTS'         => $data->{'posts'},
                   'SUBS'          => $data->{'subs'},
                   'USER'          => escape("$request->{'user'}", $type),
@@ -1354,8 +1354,8 @@ sub show {
     $mj->standard_subs('GLOBAL'),
     'CGIDATA' => &cgidata($mj, $request),
     'CGIURL'  => $request->{'cgiurl'},
-    'PASSWORD' => $request->{'password'},
-    'USER'     => escape("$request->{'user'}", $type),
+    'CMDPASS' => $request->{'password'},
+    'USER'    => escape("$request->{'user'}", $type),
     'VICTIM'  => escape("$request->{'victim'}", $type),
   };
  
@@ -1562,8 +1562,8 @@ sub showtokens {
            $mj->standard_subs($request->{'list'}),
            'CGIDATA' => &cgidata($mj, $request),
            'CGIURL'  => $request->{'cgiurl'},
-           'PASSWORD' => $request->{'password'},
-           'USER'     => escape("$request->{'user'}", $type),
+           'CMDPASS' => $request->{'password'},
+           'USER'    => escape("$request->{'user'}", $type),
           };
 
   my ($ok, @tokens) = @$result;
@@ -1645,8 +1645,8 @@ sub tokeninfo {
   $subs = { $mj->standard_subs($request->{'list'}),
             'CGIDATA' => &cgidata($mj, $request),
             'CGIURL'  => $request->{'cgiurl'},
-            'PASSWORD' => $request->{'password'},
-            'USER'     => escape("$request->{'user'}", $type),
+            'CMDPASS' => $request->{'password'},
+            'USER'    => escape("$request->{'user'}", $type),
            };
 
   unless ($ok > 0) {
@@ -1825,7 +1825,7 @@ sub who {
             $mj->standard_subs($source),
             'CGIDATA'  => &cgidata($mj, $request),
             'CGIURL'   => $request->{'cgiurl'},
-            'PASSWORD' => $request->{'password'},
+            'CMDPASS'  => $request->{'password'},
             'PATTERN'  => $request->{'regexp'},
             'REMOVE'   => $remove,
             'START'    => $request->{'start'},
@@ -2097,8 +2097,8 @@ sub g_get {
              $mj->standard_subs($request->{'list'}),
              'CGIDATA'  => &cgidata($mj, $request),
              'CGIURL'   => $request->{'cgiurl'},
+             'CMDPASS'  => $request->{'password'},
              'DESCRIPTION' => $mess->{'description'},
-             'PASSWORD' => $request->{'password'},
              'USER'     => escape("$request->{'user'}", $type),
             };
 
@@ -2265,6 +2265,7 @@ sub eprintf {
 sub escape {
   local $_ = shift;
   my $type = shift || '';
+  return unless (defined $_);
   return $_ if ($type eq 'text');
   my %esc = ( '&'=>'amp', '"'=>'quot', '<'=>'lt', '>'=>'gt');
   s/([<>\"&])/\&$esc{$1};/mg; 

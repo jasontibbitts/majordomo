@@ -23,7 +23,7 @@
 
 <form method=POST action="$CGIURL">
   <input name=list type=hidden value="$LIST">
-  <input name=passw type=hidden value="$PASSWORD">
+  <input name=passw type=hidden value="$CMDPASS">
   <input type=hidden name=user value="$USER">
 
   <input type=radio name=func value="who" checked>
@@ -57,7 +57,7 @@ Number of addresses:
 
 <form method=POST action="$CGIURL">
   <input name=list type=hidden value="$LIST">
-  <input name=passw type=hidden value="$PASSWORD">
+  <input name=passw type=hidden value="$CMDPASS">
   <input type=hidden name=user value="$USER">
   
   <input type=radio name=func value="subscribe-set-welcome" checked> 
