@@ -142,9 +142,13 @@ sub do_default_config {
     s!(^ \'sender\'.*)SITE_DFLT(.*)!$1$owner$2!;
     if ($config->{cgi_bin}) {
       s!(^ \'confirm_url\'.*)SITE_DFLT(.*)!$1$config->{cgi_url}mj_confirm?d=$dom&t=\$TOKEN$2!;
+      s!(^ \'wwwadm_url\'.*)SITE_DFLT(.*)!$1$config->{cgi_url}mj_wwwadm$2!;
+      s!(^ \'wwwusr_url\'.*)SITE_DFLT(.*)!$1$config->{cgi_url}mj_wwwusr$2!;
     }
     else {
       s!(^ \'confirm_url\'.*)SITE_DFLT(.*)!$1no server configured$2!;
+      s!(^ \'wwwadm_url\'.*)SITE_DFLT(.*)!$1no server configured$2!;
+      s!(^ \'wwwusr_url\'.*)SITE_DFLT(.*)!$1no server configured$2!;
     }
     $tmp = $config->{ignore_case} ? "'ignore case'" : '';
     s!(^ \'addr_xforms\'.*\[)(\].*)!$1$tmp$2!;
