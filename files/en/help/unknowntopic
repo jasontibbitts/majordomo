@@ -1,11 +1,11 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-help [topic]
+help unknowntopic
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-all possible topics are listed in "help topics"
+ERROR - unknown request - all possible topics are listed in "help topics"
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 YOU RECEIVED THIS MESSAGE BECAUSE YOU SENT A HELP REQUEST THAT THE
-SERVER CANNOT RESPOND TO. Please check the spelling, and try again.
+SERVER CANNOT RESPOND TO. Please check your speling, and try again!
 
 The "help" command returns a help file from the server, if help is
 available for the requested topic. If the requested topic is not
