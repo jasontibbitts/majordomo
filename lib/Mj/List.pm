@@ -1282,11 +1282,11 @@ sub _fill_aux {
 =head2 moderators($group)
 
 Returns an array of addresses corresponding to the list moderators.
-In decreasing order, the sources are:
+In decreasing precedence, the sources are:
   The "moderators" or another, named auxiliary list.
   The "moderators" configuration setting.
   The "moderator" configuration setting.
-  The "sender" configuration setting.
+  The "whoami_owner" configuration setting.
 
 =cut
 
@@ -1310,7 +1310,7 @@ sub moderators {
   }
   @out = @{$self->config_get('moderators')};
   return @out if (scalar @out);
-  $self->config_get('moderator') || $self->config_get('sender');
+  $self->config_get('moderator') || $self->config_get('whoami_owner');
 }
  
   
