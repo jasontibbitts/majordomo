@@ -9,9 +9,9 @@ The fields are:
 
 type       - the type of the token; confirm or consult.
 list       - the list the request will be performed in, if any.
-request    - the request to be performed.  A '_' will be prepended and
+command    - the request to be performed.  A '_' will be prepended and
              used as the function to call when the token is approved.
-requester  - the address that made the request
+user       - the address that made the request
 victim     - the address that will be affected by the request (if any)
 mode       - the mode that the command will be run with
 cmdline    - the command that was issued (depends on the interface, used
@@ -34,7 +34,7 @@ package Mj::TokenDB;
 use strict;
 use Mj::SimpleDB;
 
-my @fields = qw(type list request requester victim mode cmdline approvals
+my @fields = qw(type list command user victim mode cmdline approvals
 		chain1 chain2 chain3 chain4 arg1 arg2 arg3 time
 		changetime sessionid reminded permanent expire remind);
 

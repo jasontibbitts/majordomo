@@ -26,6 +26,7 @@ after token confirmation.
 =cut
 
 package Mj::Token;
+use Mj::CommandProps qw(:function);
 use Mj::Log;
 use Mj::TokenDB;
 use strict;
@@ -101,20 +102,20 @@ sub t_add {
   $data =
     {
      'type'       => shift,
-     'list'	  => shift,
-     'request'	  => shift,
-     'requester'  => shift,
-     'victim'	  => shift,
+     'list'       => shift,
+     'command'    => shift,
+     'user'       => shift,
+     'victim'     => shift,
      'mode'       => shift,
-     'cmdline'	  => shift,
+     'cmdline'    => shift,
      'approvals'  => shift,
      'chain1'     => shift,
      'chain2'     => shift,
      'chain3'     => shift,
      'chain4'     => shift,
-     'arg1'	  => shift,
-     'arg2'	  => shift,
-     'arg3'	  => shift,
+     'arg1'          => shift,
+     'arg2'          => shift,
+     'arg3'          => shift,
      'expire'     => shift,
      'remind'     => shift,
      'reminded'   => shift,
@@ -187,42 +188,42 @@ sub confirm {
   }
 
   # Make a token and add it to the database
-  $token = $self->t_add('confirm', $list, $args{'request'},
-			$args{'requester'}, $args{'victim'}, $args{'mode'},
-			$args{'cmdline'}, $args{'approvals'},
-			@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
-			$expire, $remind, $reminded, $permanent);
+  $token = $self->t_add('confirm', $list, $args{'command'},
+        		$args{'user'}, $args{'victim'}, $args{'mode'},
+        		$args{'cmdline'}, $args{'approvals'},
+        		@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
+			    $expire, $remind, $reminded, $permanent);
 
   $sender   = $self->_list_config_get($list, 'sender');
   $mj_addr  = $self->_global_config_get('whoami');
   $mj_owner = $self->_global_config_get('sender');
   $url = $self->_global_config_get('confirm_url');
   $url = $self->substitute_vars_string($url,
-				       {'TOKEN' => $token,},
-				      );
+        			       {'TOKEN' => $token,},
+        			      );
 
   ($reasons = $args{'args'}[1]) =~ s/\002/\n  /g;
   $repl = {'OWNER'      => $sender,
-	   'MJ'         => $mj_addr,
-	   'MJOWNER'    => $mj_owner,
-	   'TOKEN'      => $token,
-	   'URL'        => $url,
-	   'EXPIRE'     => $expire_days,
-	   'REMIND'     => $remind_days,
-	   'REQUESTER'  => $args{'requester'},
-	   'REQUESTOR'  => $args{'requester'},
-	   'VICTIM'     => $args{'victim'},
-	   'NOTIFY'     => $args{'notify'},
-	   'APPROVALS'  => $args{'approvals'},
-	   'CMDLINE'    => $args{'cmdline'},
-	   'REQUEST'    => $args{'request'},
-	   'LIST'       => $list,
-	   'SESSIONID'  => $self->{'sessionid'},
-	   'ARG1'       => $args{'args'}[0],
-	   'ARG2'       => $args{'args'}[1],
-	   'REASONS'    => $reasons,
-	   'ARG3'       => $args{'args'}[2],
-	  };
+           'MJ'         => $mj_addr,
+           'MJOWNER'    => $mj_owner,
+           'TOKEN'      => $token,
+           'URL'        => $url,
+           'EXPIRE'     => $expire_days,
+           'REMIND'     => $remind_days,
+           'REQUESTER'  => $args{'user'},
+           'REQUESTOR'  => $args{'user'},
+           'VICTIM'     => $args{'victim'},
+           'NOTIFY'     => $args{'notify'},
+           'APPROVALS'  => $args{'approvals'},
+           'CMDLINE'    => $args{'cmdline'},
+           'REQUEST'    => $args{'command'},
+           'LIST'       => $list,
+           'SESSIONID'  => $self->{'sessionid'},
+           'ARG1'       => $args{'arg1'},
+           'ARG2'       => $args{'arg2'},
+	       'REASONS'    => $reasons,
+           'ARG3'       => $args{'arg3'},
+          };
 
   # Extract the file from storage
   ($file, %file) = $self->_list_file_get($list, $args{'file'}, $repl, 1);
@@ -282,8 +283,8 @@ This function takes:
   file  - name of template file to mail to owner
   group - name of moderator group to use
   list
-  request
-  requester
+  request (command)
+  requester (user)
   victim
   mode
   cmdline
@@ -323,19 +324,19 @@ sub consult {
   }
 
   # Make a token and add it to the database
-  $token = $self->t_add('consult', $list, $args{'request'},
-			$args{'requester'}, $args{'victim'}, $args{'mode'},
-			$args{'cmdline'}, $args{'approvals'},
-			@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
-			$expire, $remind, $reminded, $permanent);
+  $token = $self->t_add('consult', $list, $args{'command'},
+        		$args{'user'}, $args{'victim'}, $args{'mode'},
+        		$args{'cmdline'}, $args{'approvals'},
+        		@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
+                $expire, $remind, $reminded, $permanent);
 
   $sender = $self->_list_config_get($list, 'sender');
   $mj_addr  = $self->_global_config_get('whoami');
   $mj_owner = $self->_global_config_get('sender');
   $url = $self->_global_config_get('confirm_url');
   $url = $self->substitute_vars_string($url,
-				       {'TOKEN' => $token,},
-				      );
+        			       {'TOKEN' => $token,},
+        			      );
 
   # This extracts the moderator. XXX We want to rewrite this so that it
   # extracts the appropriate moderator group and picks a sample of the
@@ -345,7 +346,7 @@ sub consult {
     $group = $self->_list_config_get($list, 'moderator_group');
     if ($group) {
       for (my $i=0; $i<$group && @mod1; $i++) {
-	push(@mod2, splice(@mod1, rand @mod1, 1));
+        push(@mod2, splice(@mod1, rand @mod1, 1));
       }
     }
     else {
@@ -355,31 +356,30 @@ sub consult {
   else {
     $mod2[0] = $self->_list_config_get($list, 'moderator') || $sender;
   }
-
   ($reasons = $args{'args'}[1]) =~ s/\002/\n  /g;
 
   # Not doing a post, so we send a form letter.
   # First, build our big hash of substitutions.
   $repl = {'OWNER'      => $sender,
-	   'MJ'         => $mj_addr,
-	   'MJOWNER'    => $mj_owner,
-	   'TOKEN'      => $token,
-	   'URL'        => $url,
-	   'EXPIRE'     => $expire_days,
-	   'REMIND'     => $remind_days,
-	   'REQUESTER'  => $args{'requester'},
-	   'REQUESTOR'  => $args{'requester'},
-	   'VICTIM'     => $args{'victim'},
-	   'APPROVALS'  => $args{'approvals'},
-	   'CMDLINE'    => $args{'cmdline'},
-	   'REQUEST'    => $args{'request'},
-	   'LIST'       => $list,
-	   'SESSIONID'  => $self->{'sessionid'},
-	   'ARG1'       => $args{'args'}[0],
-	   'ARG2'       => $args{'args'}[1],
-	   'REASONS'    => $reasons,
-	   'ARG3'       => $args{'args'}[2],
-	  };
+           'MJ'         => $mj_addr,
+           'MJOWNER'    => $mj_owner,
+           'TOKEN'      => $token,
+           'URL'        => $url,
+           'EXPIRE'     => $expire_days,
+           'REMIND'     => $remind_days,
+           'REQUESTER'  => $args{'user'},
+           'REQUESTOR'  => $args{'user'},
+           'VICTIM'     => $args{'victim'},
+           'APPROVALS'  => $args{'approvals'},
+           'CMDLINE'    => $args{'cmdline'},
+           'REQUEST'    => $args{'command'},
+           'LIST'       => $list,
+           'SESSIONID'  => $self->{'sessionid'},
+           'ARG1'       => $args{'args'}[0],
+           'ARG2'       => $args{'args'}[1],
+           'REASONS'    => $reasons,
+           'ARG3'       => $args{'args'}[2],
+          };
 
   # Extract the file from storage:
   ($file, %file) = $self->_list_file_get($list, $args{'file'}, $repl, 1);
@@ -400,7 +400,7 @@ sub consult {
      'Content-Language:' => $file{'language'},
     );
 
-  if ($args{'request'} eq 'post') {
+  if ($args{'command'} eq 'post') {
     $ent->make_multipart;
     $ent->attach(Type        => 'message/rfc822',
                  Description => 'Original message',
@@ -448,7 +448,7 @@ sub t_accept {
 
   $self->_make_tokendb;
   $data = $self->{'tokendb'}->lookup($token);
-  return (0, "Nonexistant token \"$token\"!\n") unless $data;
+  return (0, "Nonexistent token \"$token\"!\n") unless $data;
   
   # Tick off one approval
   # XXX Note that more approvals are still required.
@@ -475,10 +475,10 @@ sub t_accept {
         'file'      => $data->{'chain1'},
         'group'     => $data->{'chain2'},
         'list'      => $data->{'list'},
-        'request'   => $data->{'request'},
-        'requester' => $data->{'requester'},
+        'command'   => $data->{'command'},
+        'user'      => $data->{'user'},
         'victim'    => $data->{'victim'},
-        'notify'    => $data->{'requester'},
+        'notify'    => $data->{'user'},
         'mode'      => $data->{'mode'},
         'cmdline'   => $data->{'cmdline'},
         'sessionid' => $data->{'sessionid'},
@@ -491,28 +491,28 @@ sub t_accept {
     # Generate the new consult token
     else {
       $self->consult('chained'   => 1,
-		   'file'      => $data->{'chain1'},
-		   'group'     => $data->{'chain2'},
-		   'list'      => $data->{'list'},
-		   'request'   => $data->{'request'},
-		   'requester' => $data->{'requester'},
-		   'victim'    => $data->{'victim'},
-		   'mode'      => $data->{'mode'},
-		   'cmdline'   => $data->{'cmdline'},
-		   'sessionid' => $data->{'sessionid'},
-		   'approvals' => $data->{'chain3'},
-		   'args'      => [$data->{'arg1'}, $data->{'arg2'}, $data->{'arg3'}],
-		  );
+        	   'file'      => $data->{'chain1'},
+        	   'group'     => $data->{'chain2'},
+        	   'list'      => $data->{'list'},
+        	   'command'   => $data->{'command'},
+        	   'user'      => $data->{'user'},
+        	   'victim'    => $data->{'victim'},
+        	   'mode'      => $data->{'mode'},
+        	   'cmdline'   => $data->{'cmdline'},
+        	   'sessionid' => $data->{'sessionid'},
+        	   'approvals' => $data->{'chain3'},
+        	   'args'      => [$data->{'arg1'}, $data->{'arg2'}, $data->{'arg3'}],
+        	  );
     }
     $self->t_remove($token);
 
     # and build the return message string from the replyfile
     $repl = {
-             'REQUESTER'  => $data->{'requester'},
+             'REQUESTER'  => $data->{'user'},
              'VICTIM'     => $data->{'victim'},
-             'NOTIFY'     => $data->{'requester'},
+             'NOTIFY'     => $data->{'user'},
              'CMDLINE'    => $data->{'cmdline'},
-             'REQUEST'    => $data->{'request'},
+             'REQUEST'    => $data->{'command'},
              'LIST'       => $data->{'list'},
              'SESSIONID'  => $data->{'sessionid'},
             };
@@ -527,27 +527,27 @@ sub t_accept {
     return (-1, $mess, $data, -1);
   }
 
-  $func = "$data->{'request'}";
-  $req  = new Mj::Addr($data->{'requester'});
+  $func = $data->{'command'};
+  $req  = new Mj::Addr($data->{'user'});
   $vict = new Mj::Addr($data->{'victim'});
   
   $func = "_$func";
   @out = $self->$func($data->{'list'},
-		       $req,
-		       $vict,
-		       $data->{'mode'},
-		       $data->{'cmdline'},
-		       $data->{'arg1'},
-		       $data->{'arg2'},
-		       $data->{'arg3'},
-		      );
+        	       $req,
+        	       $vict,
+        	       $data->{'mode'},
+        	       $data->{'cmdline'},
+        	       $data->{'arg1'},
+        	       $data->{'arg2'},
+        	       $data->{'arg3'},
+        	      );
 
   # Nuke the token
   $self->t_remove($token);
 
   # If we're accepting a confirm token, we can just return the results
   # so that they'll be formatted by the core accept routine.
-  return (1, '', $data, @out) if ($data->{'type'} eq 'confirm');
+  return (1, '', $data, \@out) if ($data->{'type'} eq 'confirm');
 
   # So we're accepting a consult token. We need to give back some
   # useful info the the accept routine so the owner will know that the
@@ -558,7 +558,7 @@ sub t_accept {
   # bodyhandle.  Then we send it.  Then we return some token info and
   # pretend we did a 'consult' (in $rreq) command so that the accept
   # routine will format it as we want for the reply to the owner.
-  if ($data->{'request'} ne 'post' 
+  if ($data->{'command'} ne 'post' 
       ||
       $self->{'lists'}{$data->{'list'}}->flag_set('ackimportant', $vict)
       ||
@@ -578,24 +578,20 @@ sub t_accept {
     print $outfh "The list owner has approved your request.\n";
     print $outfh "Here are the results:\n\n";
 
+    # Convert the token data into the appropriate hash entries
+    # that would have appeared in the original $request hash
+    my ($td) = function_prop ($data->{'command'}, 'tokendata');
+    for (keys %$td) {
+      $data->{$td->{$_}} = $data->{$_};
+    }
+
     # Now pass those results to the formatter and have it spit its
     # output to our tempfile.
-    $ffunc = "Mj::Format::$data->{'request'}";
+    $ffunc = "Mj::Format::$data->{'command'}";
     my $ret;
     {
       no strict 'refs';
-      $ret = &$ffunc($self, $outfh, $outfh, 'text',
-             $data->{'requester'},
-             '', '', 'core',
-             $data->{'cmdline'},
-             $data->{'mode'},
-             $data->{'list'},
-             $data->{'victim'},
-             $data->{'arg1'},
-             $data->{'arg2'},
-             $data->{'arg3'},
-             @out,
-            );
+      $ret = &$ffunc($self, $outfh, $outfh, 'text', $data, \@out);
     }
     close $outfh;
 
@@ -619,8 +615,7 @@ sub t_accept {
 
   # Now convince the formatter to give the accepter some info about
   # the token, but not the command return.
-  $data->{'request'} = 'consult';
-  return (1, '', $data, @out);
+  return (1, '', $data, \@out);
 }
 
 =head2 t_reject(token)
@@ -637,7 +632,8 @@ sub t_reject {
   $self->_make_tokendb;
 
   (undef, $data) = $self->t_remove($token, 1);
-  return unless $data;
+  return (0, "Token $token is unavailable")
+    unless $data;
 
   # XXX Notify/requester the owner unless $quiet
   
@@ -660,7 +656,7 @@ sub t_info {
 
   return (0, "Illegal token!\n") unless $data;
 
-  return 1, '', $data;
+  return (1, $data);
 }
 
 =head2 t_remind
@@ -682,11 +678,11 @@ sub t_remind {
     my $data = shift;
 
     if (!$data->{'reminded'} && !$data->{'permanent'} &&
-	$time > $data->{'remind'})
+        $time > $data->{'remind'})
       {
-	push @reminded, ($key, $data);
-	$data->{'reminded'} = 1;
-	return (0, 1);
+        push @reminded, ($key, $data);
+        $data->{'reminded'} = 1;
+        return (0, 1);
       }
     return (0, 0);
   };
@@ -710,8 +706,8 @@ sub t_remind {
       # Extract some list-specific variables
       $sender = $self->_list_config_get($data->{'list'}, 'sender');
       $url    = $self->substitute_vars_string($gurl,
-					      {'TOKEN' => $token,},
-					     );
+        				      {'TOKEN' => $token,},
+        				     );
 
       # Find number of days left until it dies
       $expire = int(($data->{'expire'}+43200-time)/86400);
@@ -719,24 +715,24 @@ sub t_remind {
       ($reasons = $data->{'arg2'}) =~ s/\002/\n  /g;
       # Generate replacement hash
       $repl = {OWNER      => $sender,
-	       MJ         => $mj_addr,
-	       MJOWNER    => $mj_owner,
-	       TOKEN      => $token,
-	       URL        => $url,
-	       EXPIRE     => $expire,
-	       REQUESTER  => $data->{'requester'},
-	       REQUESTOR  => $data->{'requester'},
-	       VICTIM     => $data->{'victim'},
-	       APPROVALS  => $data->{'approvals'},
-	       CMDLINE    => $data->{'cmdline'},
-	       REQUEST    => $data->{'request'},
-	       LIST       => $data->{'list'},
-	       SESSIONID  => $data->{'sessionid'},
-	       ARG1       => $data->{'arg1'},
-	       ARG2       => $data->{'arg2'},
-	       REASONS    => $reasons,
-	       ARG3       => $data->{'arg3'},
-	      };
+               MJ         => $mj_addr,
+               MJOWNER    => $mj_owner,
+               TOKEN      => $token,
+               URL        => $url,
+               EXPIRE     => $expire,
+               REQUESTER  => $data->{'user'},
+               REQUESTOR  => $data->{'user'},
+               VICTIM     => $data->{'victim'},
+               APPROVALS  => $data->{'approvals'},
+               CMDLINE    => $data->{'cmdline'},
+               REQUEST    => $data->{'command'},
+               LIST       => $data->{'list'},
+               SESSIONID  => $data->{'sessionid'},
+               ARG1       => $data->{'arg1'},
+               ARG2       => $data->{'arg2'},
+               REASONS    => $reasons,
+               ARG3       => $data->{'arg3'},
+              };
 
       # Substitute values in the file and the description
       $file = $self->substitute_vars($file, $repl);
@@ -744,29 +740,29 @@ sub t_remind {
       
       # Build an entity
       $ent = build MIME::Entity
-	(
-	 Path        => $file,
-	 Type        => $file{'c-type'},
-	 Charset     => $file{'charset'},
-	 Encoding    => $file{'c-t-encoding'},
-	 Filename    => undef,
-	 -From       => $mj_addr,
-	 '-Reply-To' => $mj_addr,
-	 -Subject    => "$token : $desc",
-	 'Content-Language:' => $file{'language'},
-	);
+        (
+         Path        => $file,
+         Type        => $file{'c-type'},
+         Charset     => $file{'charset'},
+         Encoding    => $file{'c-t-encoding'},
+         Filename    => undef,
+         -From       => $mj_addr,
+         '-Reply-To' => $mj_addr,
+         -Subject    => "$token : $desc",
+         'Content-Language:' => $file{'language'},
+        );
       
       # Mail it out; the victim gets confirm notices, otherwise the owner
       # gets them
       if ($data->{type} eq 'confirm') {
-	$ent->head->replace('To', $data->{'victim'});
-	$self->mail_entity($mj_owner, $ent, $data->{'victim'});
+        $ent->head->replace('To', $data->{'victim'});
+        $self->mail_entity($mj_owner, $ent, $data->{'victim'});
       }
       else {
-	$ent->head->replace('To', $sender);
-	$self->mail_entity($mj_owner, $ent, $sender);
+        $ent->head->replace('To', $sender);
+        $self->mail_entity($mj_owner, $ent, $sender);
       }
-	
+        
       # Purge the entity
       $ent->purge;
     }
@@ -807,7 +803,7 @@ sub t_expire {
   # Unspool any spooled documents relating to the nuked tokens
   @kill = @nuked;
   while (($key, $data) = splice(@nuked, 0, 2)) {
-    if ($data->{'request'} eq 'post') {
+    if ($data->{'command'} eq 'post') {
       unlink "$self->{ldir}/GLOBAL/spool/$data->{arg1}";
     }
   }
@@ -838,7 +834,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
