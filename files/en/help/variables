@@ -89,8 +89,14 @@ of the Majordomo error, format, and reply files.  Their names and values
 some of the variables (LIST, OWNER, REQUEST, SUBLIST, and WHOAMI)
 will vary depending upon the mailing list.
 
+\$ARCURL      $ARCURL
+  (The URL that allows access to an external archive.  This value is
+   determined by the archive_url configuration setting;  see 
+   "help configset_archive_url" for more information.)
+
 \$CONFIRM_URL $CONFIRM_URL
-  (The location of the WWW interface for token confirmation)
+  (The location of the WWW interface to confirm a subscription,
+   posted message, or other Majordomo command.)
 
 \$DOMAIN      $DOMAIN
   (The name of the current domain, as determined at installation time)
@@ -159,11 +165,6 @@ See "help reply_files" for a description of each of the reply files.
   The archive name of a posted message, for example "200008".
   This is not the same as the sequence number;  see "help archive"
   for more details.
-
-\$ARCURL
-  The URL that allows access to an external archive.  This value is
-  determined by the archive_url configuration setting;  see 
-  "help configset_archive_url" for more information.
 
 \$AUTHOR_NEXT
 \$AUTHOR_PREV

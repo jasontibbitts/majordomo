@@ -437,7 +437,7 @@ lists
 (text, wwwadm, wwwusr)  Displays information about a mailing list
 when "full" command mode is not used.
 
-(standard plus ARCURL, CATEGORY, CGIDATA, CGIURL, CMDPASS, DESCRIPTION, 
+(standard plus CATEGORY, CGIDATA, CGIURL, CMDPASS, DESCRIPTION, 
  DIGESTS, FLAGS, LIST, OWNER, PATTERN, POSTS, SUBS, USER, WHOAMI)
 
 
@@ -481,7 +481,7 @@ lists_full
 about a mailing list (name, description, digests, etc.) when the
 "full" command mode is used.
 
-(standard plus ARCURL, CAN_READ, CATEGORY, CGIDATA, CGIURL, CMDPASS, 
+(standard plus CAN_READ, CATEGORY, CGIDATA, CGIURL, CMDPASS, 
  DESCRIPTION, DIGESTS, FLAGS, LIST, OWNER, PATTERN, POSTS, SUBS, USER, 
  WHOAMI)
 

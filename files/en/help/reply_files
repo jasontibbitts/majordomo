@@ -27,8 +27,8 @@ moderator uses the accept-archive command.  The reply is only sent if the
 "ackpost" flag is set for the address in question (see "help set" for
 a description of flags).
 
-(standard plus ARCURL, DATE, HOST, MSGNO, SENDER, SEQNO, SUBJECT, 
-SUBSCRIBED, USER)
+(standard plus DATE, HOST, MSGNO, SENDER, SEQNO, SUBJECT, SUBSCRIBED, 
+ USER)
 
     
 ack_delay    
@@ -152,7 +152,7 @@ There are two other files which may be used, digest_postindex and
 digest_footer.  There are no stock files for digest_postindex and 
 digest_footer; list owners who wish to use them will have to create them.
 
-(standard plus ARCURL, DIGESTDESC, DIGESTNAME, DIGESTTYPE, ISSUE, 
+(standard plus DIGESTDESC, DIGESTNAME, DIGESTTYPE, ISSUE, 
  SENDER, VOLUME)
 
 
