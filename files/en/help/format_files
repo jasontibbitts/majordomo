@@ -1046,7 +1046,7 @@ register_error
 --------------
 (ALL)  This file is displayed when the register command stalls or fails.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER, VICTIM)
 
 
 reject
@@ -1345,7 +1345,7 @@ subscribe_error
 --------------
 (ALL)  This file is displayed when the subscribe command stalls or fails.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER, VICTIM)
 
 
 subscribe_none
@@ -1545,7 +1545,7 @@ unregister_error
 ----------------
 (ALL)  This file is displayed when the unregister command stalls or fails.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER, VICTIM)
 
 
 unsubscribe
@@ -1557,9 +1557,10 @@ unsubscribe
 
 unsubscribe_error
 -----------------
-(ALL)  This file is displayed when the unsubscribe command stalls or fails.
+(ALL)  This file is displayed when the unsubscribe command stalls or
+fails.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER, VICTIM)
 
 
 welcome

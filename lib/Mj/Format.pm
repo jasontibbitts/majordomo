@@ -2975,32 +2975,7 @@ sub _tokeninfo_post {
 }
 
 sub unalias {
-  my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($mess, $ok, $str, $subs, $tmp);
-  ($ok, $mess) = @$result;
-
-  $subs = { $mj->standard_subs('GLOBAL'),
-           'CGIDATA'  => $request->{'cgidata'},
-           'CGIURL'   => $request->{'cgiurl'},
-           'CMDPASS'  => &escape($request->{'password'}, $type),
-           'USER'     => &escape("$request->{'user'}", $type),
-           'VICTIM'   => &escape("$request->{'victim'}", $type),
-          };
-
-  if ($ok > 0) { 
-    $tmp = $mj->format_get_string($type, 'unalias', $request->{'list'});
-    $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out &indicate($type, "$str\n", $ok, 1);
-  }
-  else {
-    return $ok if ($mess eq 'NONE');
-    $subs->{'ERROR'} = &escape($mess, $type);
-    $tmp = $mj->format_get_string($type, 'unalias_error', $request->{'list'});
-    $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out &indicate($type, "$str\n", $ok, 1);
-  }
-
-  $ok;
+  g_sub('unalias', @_);
 }
 
 sub unregister {
@@ -3595,7 +3570,8 @@ $act controls the content of various messages; if eq 'sub', we used
 sub g_sub {
   my ($act, $mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$act, $type";
-  my (@res, $addr, $fail, $i, $list, $ok, $str, $subs, $succeed, $tmp);
+  my (@res, @victims, $addr, $count, $fail, $i, $list, $ok, 
+      $str, $subs, $succeed, $tmp);
 
   $list = $request->{'list'};
   if (exists ($request->{'sublist'}) and 
@@ -3623,12 +3599,25 @@ sub g_sub {
 
     return 1;
   }
+
+  if (ref $request->{'victims'} eq 'ARRAY') {
+    @victims = @{$request->{'victims'}};
+  }
+
   # Now print the multi-address format.
+  $count = -1;
   while (@res) {
+    $count++;
     ($ok, $addr) = splice @res, 0, 2;
 
     unless ($ok > 0) {
       next if ($addr eq 'NONE');
+      if (defined $victims[$count]) {
+        $subs->{'VICTIM'} = &escape("$victims[$count]", $type);
+      }
+      else {
+        $subs->{'VICTIM'} = '';
+      }
       $subs->{'ERROR'} = &escape($addr, $type);
       $str = $mj->substitute_vars_format($fail, $subs);
       print $out &indicate($type, "$str\n", $ok);
