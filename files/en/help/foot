@@ -1,6 +1,6 @@
 This is the "$TOPIC" help document for 
 Majordomo 2, version $VERSION.
 
-For a list of all help documents send the following command:
+For a list of all help documents, send the following command:
    help topics
 in the body of a message to $MJ.
