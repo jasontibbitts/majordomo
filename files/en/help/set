@@ -45,6 +45,7 @@ each one will override the others in the group):
   7. replyto header added by owner (replyto, noreplyto)
   8. rewrite "From:" header when you post (rewritefrom, norewritefrom)
   9. summary of all possible flags (and how to default them)
+ 10. administrators only: how to change flags for ALL subscribers
 
 At the bottom of this file is a summary of all possible flags and a
 cross reference to default settings that might be useful to list owners.
@@ -462,6 +463,30 @@ NOTE: "showall" and "nohide" are identical, use whichever you like.
    set LISTNAME   rewritefrom Address              ('W' in default_flags)
    set LISTNAME norewritefrom Address           (no 'W' in default_flags)
 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 10. administrators only: how to change flags for ALL subscribers
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+FOR ADMINISTRATORS WITH SHELL ACCESS ONLY: This trick fairly quickly
+changes the "set" options for every subscriber to every list on your
+system, which can be used to accommodate new flags or recover from a
+bad choice of default flags (see "help configset default_flags").
+The "set" command cannot wild-card addresses, but you can use "who"
+to obtain a list of unique subscribers and use "set ALL" to fix every
+list they are subscribed to.
+
+In this example, the "ackpost" flag is being turned off, and all
+other "set" flags are left unchanged:
+mj_shell -p XXX who-noinform-quiet GLOBAL > \
+  | sed "s/^/set-noinform-quiet ALL noackpost /" > mj.tmp
+mj_shell -p XXX -F mj.tmp > mj.log
+
+You should search the transcript for any sort of error message,
+and search the "mj.log" file for asterisks which indicate Majordomo
+parsing errors. The first and last line of the mj.tmp file will be
+invalid commands, but no harm will be done.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 See Also:
    help configset access_rules           (to restrict or allow access to 'set' changes)
