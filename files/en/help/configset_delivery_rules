@@ -1,4 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  delivery_rules <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset listname delivery_rules <<TAG
 [VALUE LINES]
 TAG
@@ -22,6 +26,10 @@ delivery and a batch size.  (This duplicates much of the functionality
 of bulk_mailer, for those familiar with it.) Smaller batch sizes will
 keep malformed addresses from killing the entire delivery, but the
 optimal batch size depends on your mail handler and net connections.
+The delivery rules apply to all messages which are mailed by Majordomo.
+The rules for the GLOBAL pseudo-list, if any, are used to determine
+how replies to Majordomo commands are sent.  If no delivery rules
+are specified, the mail is delivered to localhost.
 
 Each delivery destination should begin with a line containing either a
 regular expression, or the word ALL.  Addreses are compared against
