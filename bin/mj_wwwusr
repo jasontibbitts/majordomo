@@ -159,6 +159,7 @@ password:
 <input size=10 name=passw type=password value="$passw"><br>
 <input type=submit name=func value="about this service">
 <input type=submit name=func value="lists">
+<input type=submit name=func value="show">
 EOM
 
 print <<EOM;
@@ -183,10 +184,6 @@ page.  These pages may be reached by pressing the "lists,"
 and you have typed your password into the password box.
 $cmdform
 EOM
-
-if (defined $isreg) {
-  print "<input type=submit name=func value=\"show\">\n";
-}
 
 # Print help information if it was requested
 if ($func =~ /about/) {
@@ -296,8 +293,9 @@ sub showlists {
   my $passw = shift;
   my ($list, $cat, $desc, $flags);
   my ($ok, $mess, @listdata) = 
-    $mj->dispatch('lists', $user, $passw, '', 'mj_wwwusr', 'lists', 'enhanced');
+    $mj->dispatch('lists', $user, $passw, '', 'mj_wwwusr', 'lists', '');
   # Iterate over lists and add form buttons
+  select STDOUT;
   if (! $ok) {
     print "<h2>Error: $mess</h2>\n";
     return;
@@ -336,7 +334,7 @@ sub showdata {
     $fl=0;
     for $i (split("\002",$listdata[4])) {
       next if $i eq $listdata[0];
-      print "Aliases:<br><ul>\n"
+      print "<br>Aliases:<ul>\n"
         unless ($fl);
       print "<li>$i\n";
       $fl=1;
@@ -362,8 +360,8 @@ EOM
     print "</select>\n";
     for $j (split(',',$lflags)) {
       $j =~ /(no)?(.+)/;  print $1 ?
-          "<td align=center><input type=checkbox name=\"$i:$2\">"
-        : "<td align=center><input type=checkbox name=\"$i:$2\" checked>";
+          "<td align=center><input type=checkbox name=\"$i:$2\">\n"
+        : "<td align=center><input type=checkbox name=\"$i:$2\" checked>\n";
     }
   }
   print <<EOM;
@@ -415,6 +413,7 @@ sub format_print {
   my $file = shift;
   my ($line, $summarize, $hdrs);
   $summarize = $hdrs = 0;
+  select STDOUT;
 
   $fh = new IO::File "<$file";
   if (! $fh) { 
