@@ -1,4 +1,11 @@
+2000-11-15  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/BounceParser.pm (parse_postoffice): Handle older
+	Post.Office bounces.
+
 2000-11-14  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* t/bounce.t: Clear out @expect array between tests.
 
 	* lib/Mj/BounceParser.pm (parse_postoffice): Restructure to fix
 	several warnings.

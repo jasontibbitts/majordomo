@@ -1,4 +1,4 @@
-Comment: This teste Exim bounce parsing.
+Comment: This tests Exim bounce parsing.
 X-Failed-Recipients: user1@example.com
 X-Failed-Recipients: user2@example.com
 X-Failed-Recipients: user3@example.com

@@ -817,6 +817,10 @@ paragraph of the diagnostic and all of the users.  The diag is after the
 "This message was undeliverable" line and the users are after the "The
 following recipients" line.
 
+It also seems that some versions of Post.Office do not include the "the
+following recipients" line, and some include extra junk on the lines
+containing the addresses.  We try to cope.
+
 =cut
 sub parse_postoffice {
   my $log  = new Log::In 50;
@@ -850,18 +854,12 @@ sub parse_postoffice {
   # We just want the first sentence of the diagnostic
   $diag =~ s/([^\.]+\.).*/$1/;
 
-  # Look for the line introducing the users
   while (1) {
     $line = $bh->getline;
     return unless defined $line;
-    next if $line =~ /^\s*$/;
-    last if $line =~ /^\s*the following recipients did not receive this message:\s*$/i;
-  }
-
-  while (1) {
-    $line = $bh->getline;
-    return unless defined $line;
-    next if $line =~ /^\s*$/ && !$user;
+    next if ($line =~ /^\s*$/ ||
+	     $line =~ /^\s*the following recipients did not receive this message:\s*$/i)
+      && !$user;
     last if $line =~ /^\s*$/;
     last unless $line =~ /^(?:SMTP)?\s*<(.*)>\s*$/;
     $user = $1;

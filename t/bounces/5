@@ -1,0 +1,34 @@
+Comment: This tests Post.Office v3.5.2 parsing
+To: test-owner+M5@example.com
+From: Mail Administrator<Postmaster@example.com>
+Reply-To: Mail Administrator<Postmaster@example.com>
+Subject: Mail System Error - Returned Mail
+Message-ID: <20001103155538.AAA9198@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+		Boundary="===========================_ _= 930480(9198)"
+Content-Transfer-Encoding: 7BIT
+
+--===========================_ _= 930480(9198)
+Content-Type: text/plain
+
+This Message was undeliverable due to the following reason:
+
+The following destination addresses were unknown (please check
+the addresses and re-mail the message):
+
+SMTP <user@example.com>
+
+Please reply to Postmaster@example.com
+if you feel this message to be in error.
+
+
+--===========================_ _= 930480(9198)
+Content-Type: message/rfc822
+
+Subject: bounced message
+
+This message bounced.
+
+--===========================_ _= 930480(9198)--
+

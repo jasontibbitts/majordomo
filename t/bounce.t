@@ -59,6 +59,7 @@ while(defined($file = readdir(DIR))) {
   $ehandler = <DESC>; chomp $ehandler;
   #  ($ehandler, $etype) = split('\t+', $line);
   $i = 0;
+  undef @expect;
   while(defined($line = <DESC>)) {
     chomp $line;
     $expect[$i++] = [split('\t+', $line)];
