@@ -25,7 +25,7 @@ extracts the address of the user who is bouncing messages.  Statistics are
 then generated, and then the bounce_rules are consulted to see what action
 should be taken.
 
-Currently there are three basic actions; inform is the default:
+Currently there are four basic actions (inform is the default):
 
   ignore - do nothing; do not send a bounce notice to the owners and
            perform no action on the list of subscribers.  (Statistics are
@@ -34,6 +34,7 @@ Currently there are three basic actions; inform is the default:
            on the list.
   remove - send a bounce notice to the owners, and remove the user from the
            list.
+  reason - specify a reason that a particular action was taken.
 
 There are several modes for the remove action.  By default, the list owners
 are sent a notice of the bounce (as with the inform action) and the
@@ -148,13 +149,13 @@ they are).
 
   # Remove all users bouncing enough messages over three days, but not for
   # "mailbox full" errors, because we want to be more lenient with them
-  remove
+  remove, reason="Over 20 consecutive 'mailbox full' bounces"
   $consecutive > 20 &&
   $consecutive_days > 3 &&
   $diagnostic !~ /mailbox full/i
 
   # Now deal with long consecutive runs that the above rule didn't match
-  remove
+  remove, reason="Over 100 consecutive bounces"
   $consecutive > 100 &&
   $consecutive_days > 7
 

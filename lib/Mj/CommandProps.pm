@@ -1037,6 +1037,7 @@ my %commands =
 			       'ignore' => 1,
 			       'inform' => 1,
 			       'notify' => 1,
+			       'reason' => 1,
 			      },
 		},
    },
