@@ -37,7 +37,7 @@ sub get_addr {
   my $def = shift;
   my $dom = shift;
   my $strict = shift;
-  my ($addr, $ans, $full, $mess, $ok);
+  my ($addr, $ans, $full, $loc, $mess, $ok);
 
   while (1) {
     $ans = $full = get_str($msg, $def);
@@ -49,17 +49,19 @@ sub get_addr {
 
     $addr = new Mj::Addr $full, 'strict_domain_check' => $strict;
     if (! defined $addr) {
+      $mess = retr_error('undefined_address', $lang);
       $msg = retr_msg('invalid_address', $lang, 'ADDRESS' => $ans,
-                      'ERROR' => '');
+                      'ERROR' => $mess, 'LOCATION' => $loc);
     }
     else {
-      ($ok, $mess) = $addr->valid;
+      ($ok, $mess, $loc) = $addr->valid;
       if ($ok) {
         return $ans;
       }
       else {
+        $mess = retr_error($mess, $lang);
         $msg = retr_msg('invalid_address', $lang, 'ADDRESS' => $ans,
-                        'ERROR' => $mess);
+                        'ERROR' => $mess, 'LOCATION' => $loc);
       }
     }
   }
@@ -272,30 +274,45 @@ sub sep {
   print "\n", '-'x76, "\n";
 }
 
-use Symbol;
 sub retr_msg {
-  my ($message, $lang, %subs) = @_;
+  my $file = shift;
+  my $lang = shift || 'en';
+  my $text;
+
+  $text = retr_file("setup/messages/$lang/$file", @_);
+  unless (defined $text and length $text) {
+    $text = retr_file("setup/messages/en/$file", @_);
+  }
+
+  return $text;
+}
+
+sub retr_error {
+  my $file = shift;
+  my $lang = shift || 'en';
+  my $text;
+
+  $text = retr_file("files/$lang/error/$file", @_);
+  unless (defined $text and length $text) {
+    $text = retr_file("files/en/error/$file", @_);
+  }
+
+  return $text;
+}
+
+use Symbol;
+sub retr_file {
+  my ($file, %subs) = @_;
   my ($fh, $line, $text, $var);
   $lang ||= 'en';
 
-  unless (-f "setup/messages/$lang/$message") {
-    warn qq(Message "$message" could not be located);
-
-    if ($lang ne 'en') {
-      $lang = 'en';
-      unless (-f "setup/messages/$lang/$message") {
-        warn qq(Message "$message" could not be located.);
-        return;
-      }
-    }
-    else {
-      return;
-    }
+  unless (-f $file) {
+    warn qq(File "$message" could not be located);
   }
 
   $fh = gensym();
-  unless (open ($fh, "< setup/messages/$lang/$message")) {
-    warn qq(Message "$message" could not be opened: $!);
+  unless (open ($fh, "< $file")) {
+    warn qq(File "$message" could not be opened: $!);
     return;
   }
 
