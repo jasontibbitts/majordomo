@@ -122,6 +122,7 @@ The post command also uses these variables:
   admin                         number
   any                           boolean
   bad_approval                  boolean
+  blind_copy                    boolean
   body_length                   number
   body_length_exceeded          boolean
   days_since_subscribe          number
@@ -209,6 +210,10 @@ bad_approval
   This variable is set if an "Approved" line with an invalid password is
   present in a posted message.  See "help admin_moderate" for more details on
   Approved lines.
+
+blind_copy
+  This variable is set if a posted message does not contain the address
+  of the mailing list in its To or Cc headers.
 
 body_length
   This variable contains the total number of characters in the body parts 
