@@ -162,7 +162,7 @@ sub oke {
 
 END {
   unlink ".Ltestdb.$$";
-  unlink "testdb.$$";
+  unlink "testdb.$$.T";
 }
 
 1;
