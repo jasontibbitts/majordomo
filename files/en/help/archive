@@ -1,59 +1,168 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-archive-delete        listname filespec
-archive-get           listname filespec
-archive-get-immediate listname filespec
-archive-get-mime      listname filespec
-archive-index         listname filespec
-archive-stats         listname filespec
-archive-sync          listname filespec
+archive-delete            listname filespec
+archive-get               listname filespec
+archive-get-immediate     listname filespec
+archive-get-digest[-mime] listname filespec
+archive-index             listname filespec
+archive-stats             listname filespec
+archive-summary           listname
+archive-sync              listname pattern
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is the name of a regular list at this site
 filespec, required, is a single value or range of values (see below)
+pattern,  required, is a single value or pattern matching archive file names
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-NOTE: 
+The archive command is used to retrieve posted messages that 
+have been sent to a mailing list.  It also offers two special
+command modes ("delete" and "sync") that allow list administrators
+to alter the contents of the archives.  All of the other command
+modes are potentially available to both subscribers and administrators.
+Each command mode is detailed in a separate section of this document.
 
-If a Majordomo mailing list is configured to store messages in
-an archive, it is possible to retrieve messages (with "archive-get")
-or obtain a list of messages with each message's subject and message
-number (using "archive-index"). Messages sent to auxiliary lists are
-also archived, and made available using the archive-get command with
-an extra argument.
-
-The type of digest for the archive-get command can be specified in
-the mode: "archive-get-mime" sends a multi-part MIME message, just
-"archive-get" sends plain text. The original format of the messages
-shouldn't matter. "archive-get" or "archive-get-mime" will cause 
-messages to be bundled into digest, typically with no more than
-1000 lines in a digest.  "archive-get-immediate" will cause all
-messages to be sent within one message, exactly as they are stored
-in the archive, with all message headers intact.
+Most of the commands use a flexible but complicated file specification
+syntax ("filespec").  The filespec allows you to indicate exactly
+which messages you wish to see.  The filespec syntax is discussed,
+with examples, in the last section of this document.
 
 List archives may be organized by year, month, week, or day, at the 
 discretion of the list owners. The configuration of the list does
 not affect the use of "archive" commands, but refer to "help index"
 and "help get" for other ways to directly access the archive files
-without using "archive-index" and "archive-get".
+without using "archive-index" and "archive-get".  List owners can
+limit access to the archives with the archive_access configuration 
+setting.
 
-Different "filespec" syntax applies to different archive options:
-  Section 1: archive-index, archive-get, archive-get-immediate, 
-             archive-get-mime (users)
-  Section 2: archive-delete, archive-stats (list administrators only)
-  Section 3: archive-sync (list admins with file system access only)
+Messages sent to auxiliary lists are also archived, and made available 
+using the archive-get command with an extra argument.  Examples are
+shown in the filespec section.
 
-The -get and -index options are the only "archive" command that list
-subscribers can use. They allow listing and retrieval of messages.
+In the examples that follow, where you see LIST, instead use the name
+of an actual mailing list.
 
-The options "archive-delete" and "archive-sync" are intended only
-for use by expert list owners, and "-sync" in particular will be
-useful only to those with shell access who wish to hand-edit the
-archives (a practice which is possible but discouraged). Both of
-these options require an administrative password.
+                             archive-summary
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+The archive-summary command is used to see which archives are available
+for a mailing list.  It is usually similar to the 
 
-Section 1: archive-index, archive-get, archive-get-immediate,
-           archive-get-mime (users)
+  index LIST archive
+
+command, but it also displays the number of messages, lines,
+and bytes in each archive file.  This command does not take a 
+filespec or other argument at the moment.  Just use
+
+  archive-summary LIST
+
+
+                              archive-index
+
+The archive-index command is used to see a summary of individual
+messages within an archive.  The details in the summary usually
+include the message number and date, the e-mail address of the 
+author, the subject of the message, and the size of the message 
+in kilobytes.  The message number of each message can be used in
+the filespec to retrieve messages individually.
+
+The archive message number indicates the count of the message 
+within a particular archive file.  For example, 200101/12 means
+the 12th message in the January, 2001 archive.  Administrators should
+note that this is not the same as the sequence number of the message.
+For example, a sequence number of 85 means that this is the 85th
+message ever posted to the mailing list (see "help configset_sequence_number"
+for a more thorough explanation.)
+
+                               archive-get
+
+The archive-get command is used to retrieve the actual contents of 
+posted messages.  If the "get" command mode is used by itself, each
+message that is retrieved will be mailed to you, just as if you had 
+received it when it was first delivered to the mailing list.  List
+administrators can use this in combination with the "default user"
+command to resend messages to individual subscribers who wish to receive
+a new copy.
+
+If the archive-get-immediate command is used, all of the messages will 
+cause all messages to be sent within one message, exactly as they are 
+stored in the archive, with all message headers intact.
+
+The archive-get-digest or archive-get-digest-mime command will cause 
+messages to be bundled into digests, typically with no more than 1000 
+lines in each digest.  Usually, a plain text digest is sent, but
+"mime" mode will cause the messages to be bundled into MIME digests,
+in which each message is a separate attachment.
+
+                              archive-stats
+
+The archive-stats command is used to get a sorted report of the 
+number of messages posted by each address to a mailing list for the 
+messages specified by "filespec". For instance, to find out who posted 
+most often on a mailing list during September 2000, use this command:
+
+  archive-stats LIST 200009
+
+
+                 archive-delete (for administrators only)
+
+The archive-delete option takes the usual arguments: dates, message counts, 
+message numbers, and combinations thereof.   It is possible to delete all
+of the archives for a mailing list with one command, and a message 
+can be prevented from appearing in a digest by deleting it, so use this 
+mode with extreme caution.  If you wish to delete a recent message from 
+the archives, but want to make sure that all digests containing the
+message have been sent, use the "digest-status" command to examine
+the state of the digests.  See "help digest" for more details.
+
+After one or more messages have been deleted, the numbers of the remaining 
+messages are not changed. For example, if message number 200008/2 were 
+deleted,  200008/1 and 200008/3 would be the first two messages in the 
+August 2000 archive.  Deleting a message causes the index and count files 
+to be updated automatically, so "archive-sync" is not needed after 
+"archive-delete".
+
+                  archive-sync (for administrators only)
+
+The archive-sync command allows list administrators to upload 
+old archives, or to replace existing archives, after the archive
+files have been changed using the put command.
+
+Only use "archive-sync" when you have manually edited a file
+at the operating system level. You may also have to delete old
+archive database files and strip special lines out of the archive
+to make this work. For expert use only! Back up your directories
+before attempting to use this option.
+
+The archive-sync command takes one argument, which must be the
+date of a particular archive file or a Majordomo pattern matching
+one or more archive files (see "help patterns").  For example,
+  archive-sync mj2-dev 200005
+would synchronize the May 2000 archive databases with the
+messages themselves.  
+
+Alternately, if you have a bunch of files to process at once,
+you can specify a pattern and all files matching that pattern
+will be synchronized.  For example,
+
+  archive-sync LIST /19991/
+
+would synchronize the October, November, and December 1999 archives.
+The archive names against which the pattern is matched may be seen
+using the archive-summary command.
+
+In the file system, all archive file names must begin with the list
+name, and the list name should NOT be included in the "filespec" field.
+This is important to remember if you upload archives into the archive
+directory using the put command.
+
+When using archive-sync, any message without an X-Archive-Number 
+header will be given a new number, one greater than the highest
+number in the archive, and a new header.  Any archive number that
+does not correspond to the archive in question will be replaced by
+one that does (in this way, it is possible to combine archives).
+
+
+
+                      The file specification syntax
+
 
 The "filespec" needed for these "archive" commands can take various
 forms, and examples of each are shown below:
@@ -119,7 +228,7 @@ Example 7: "filespec1 - filespec2" has decreasing "count" fields
     archive-index lime 15 - 3
   would retrieve an index of the 15 messages immediately preceding
   the 3rd most recent message sent to the "lime" list. This unusual
-  result is because the last field of the range (3) indicates the
+  result happens because the last field of the range (3) indicates the
   range ends with the 3rd most recent post. The start of the range,
   as with a single message count, counts backwards from the end.
 
@@ -147,62 +256,6 @@ file space, but they may work if the file system permissions are
 set appropriately. Contact your system administrator if you get
 messages like "permission denied".
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-Section 2: archive-delete, archive-stats (list administrators only)
-
-The archive-delete option takes the usual arguments: dates,
-message counts, message numbers, and combinations thereof
-(as described for "archive-get", above). It can remove all
-of the archives for a mailing list with one command, and a
-message can be prevented from appearing in a digest by deleting
-it, so use this mode with extreme caution.  
-
-The numbers of the remaining messages are not changed. For example,
-if message number 200008/2 were deleted,  200008/1 and 200008/3
-would be the first two messages in the August 2000 archive.
-Deleting a message causes the index and count files to be updated
-automatically, so "archive-sync" is not needed after "archive-delete".
-
-List owners can use the "archive-stats" command to get a sorted
-report of the number of messages posted by each address to the named
-list for the period of time specified by "filespec". For instance,
-to find out who posted the most on mj2-dev during September 2000:
-  archive-stats mj2-dev 200009
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-Section 3: archive-sync (list admins with file system access only)
-
-Only use "archive-sync" when you have manually edited a file
-at the operating system level. You may also have to delete old
-archive database files and strip special lines out of the archive
-to make this work. For expert use only! Back up your directories
-before attempting to use this option.
-
-The archive-sync command takes one argument, which must be the
-date of a particular archive file or a Majordomo filespec matching
-one or more archive files (see "help filespecs").  For example,
-  archive-sync mj2-dev 200005
-would synchronize the May 2000 archive index and counts with the
-messages themselves.
-
-Alternately, if you have a bunch of files to process at once,
-you can specify a pattern and all files matching that pattern
-will be synchronized:
-  archive-sync mj2-dev /19991?/
-would synchronize the October, November, and December 1999 archives.
-
-In the file system, all archive file names must begin with the list
-name, and the list name should NOT be included in the "filespec" field.
-
-When using archive-sync, any message without an X-Archive-Number 
-header will be given a new number, one greater than the highest
-number in the archive, and a new header.  Any archive number that
-does not correspond to the archive in question will be replaced by
-one that does (in this way, it is possible to combine archives).
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 See Also:
    help configset access_rules_variables (set/test for this command)
