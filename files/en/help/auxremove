@@ -12,9 +12,9 @@ The commands "auxdel" and "auxunsubscribe" are identical to "auxremove".
 
 Removes an address or addresses from the named sublist of a given list.
 
-There is currently no help file for sublist usage.
-
 See Also:
+   help auxadd      (for discussion of auxiliary lists)
+   help auxwho      (to see the addresses in a sublist)
    help unsubscribe (for syntax)
 
 For a list of all help topics send this one-line message
