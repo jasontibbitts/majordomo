@@ -499,7 +499,7 @@ sub gen_cmdline {
     return 1;
   }
   if ($request->{'command'} =~ /post/) {
-    if (defined $request->{'sublist'}) {
+    if (length $request->{'sublist'}) {
       $request->{'cmdline'} = "(post to $request->{'list'}:$request->{'sublist'})";
     }
     else {
