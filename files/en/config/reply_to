@@ -1,3 +1,4 @@
-Put a reply-to header with value <value> into the outgoing message.
-NOTE: A pre-existing Reply-To: header (such as one added by the user's
-mail tool) will NOT be replaced unless override_reply_to is true.
+The reply_to setting contains an e-mail address which will be placed in
+the "Reply-To" header of posted messages.  If the message already has a
+"Reply-To" header, it will be replaced only if the override_reply_to
+configuration setting is turned on.

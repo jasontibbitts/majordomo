@@ -8,34 +8,32 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname reply_to = $SENDER
+configset listname reply_to = \$SENDER
 
-Majordomo adds a Reply-to header to posted messages with this value
-if the value is set.  Only subscribers with the replyto setting
-will see this header (see "help set" for more information).
 
-NOTE: A pre-existing Reply-To: header (such as one added by the user's
-mail tool) will NOT be replaced unless the override_reply_to configuration
-setting has a true value.
+$INCLUDE-config/reply_to
 
-Another way to get reply-to headers is with "configset message_headers",
-but that is normally done only for the GLOBAL pseudo-list. The reply_to
-setting is more flexible in that it does not always override existing
-headers.
+Only subscribers with the "replyto" personal setting will see this
+header (see "help set" for more information on personal settings.)
 
-The header text will undergo variable substitution as it is added to
+The Reply-To header can also be altered using the delete_headers and
+message_headers configuration settings.  The reply_to setting is more
+flexible in that it does not always override existing headers.
+
+The header text will undergo variable substitution when it is added to
 the message.  These variables include the standard substitutions, plus
 HOST, SENDER, and SEQNO.  See "help variables" for a description of these
 substitutions.
 
 
 See Also:
+   help admin_delivery
+   help configset_default_flags
    help configset_delete_headers (to remove headers from a posted message)
    help configset_message_headers (to add headers to a posted message)
    help configset_override_reply_to (which may keep this from working)
    help configset_sender (to supply yet another header field)
-   help variables (for a list of all possible variables and what they mean)
+   help set
+   help variables (for an introduction to substitution variables)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
