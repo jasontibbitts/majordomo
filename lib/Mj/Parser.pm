@@ -159,7 +159,7 @@ sub parse_part {
   my $interface   = shift;
   my $extra       = shift;
   my $log         = new Log::In 50, "$interface, $title";
-  my (@arglist, @help, $action, $args, $attachhandle, $command, $count,
+  my (@arglist, @help, $action, $cmdargs, $attachhandle, $command, $count,
       $ent, $fail_count, $function, $garbage, $list, $mode, $name, 
       $ok, $ok_count, $out, $outfh, $password, $pend_count, $replacement, 
       $sigsep, $tlist, $true_command, $unk_count, $user);
@@ -190,7 +190,7 @@ sub parse_part {
 
     # We have something that looks like a command.  Process it and any here
     # arguments that may follow.
-    ($out, $command, $args, $attachhandle, @arglist) =
+    ($out, $command, $cmdargs, $attachhandle, @arglist) =
       parse_line($mj, $inhandle, $outhandle, $attachments, $_);
 
     # If we hit EOF while processing the command line, we ignore it and let
@@ -240,7 +240,7 @@ sub parse_part {
     # Deal with "approve" command; we do it here so that it can be aliased
     # by the above call to command_legal.
     if ($true_command eq "approve") {
-      ($password, $command, $args) = split(" ", $args, 3);
+      ($password, $command, $cmdargs) = split(" ", $cmdargs, 3);
 
       # Pull off a command mode
       ($command, $mode) = $command =~ /([^=-]+)[=-]?(.*)/;
@@ -266,9 +266,9 @@ sub parse_part {
     # If necessary, we extract the list name from the arguments, accounting
     # for a possible default list in effect, and verify its validity
     if (command_prop($true_command, "list")) {
-      $args = add_deflist($mj, $args, $extra->{'deflist'},
+      $cmdargs = add_deflist($mj, $cmdargs, $extra->{'deflist'},
 			  $interface, $extra->{'reply_to'});
-      ($tlist, $args) = split(" ", $args, 2);
+      ($tlist, $cmdargs) = split(" ", $cmdargs, 2);
       unless (defined($tlist) && length($tlist)) {
 	print $outhandle "A list name is required.\n";
 	next CMDLINE;
@@ -293,7 +293,7 @@ sub parse_part {
       
     # Warn if command takes no args
     if (command_prop($true_command, "noargs") &&
-	($args || @arglist || $attachhandle))
+	($cmdargs || @arglist || $attachhandle))
       {
 	print $outhandle "Command $command will ignore any arguments.\n";
       }
@@ -310,18 +310,18 @@ sub parse_part {
     # First, handle the "default" command internally.
     if ($true_command eq 'default') {
       $ok_count++;
-      ($action, $args) = split(" ", $args, 2);
+      ($action, $cmdargs) = split(" ", $cmdargs, 2);
       if ($action eq 'list') {
-	$extra->{'deflist'} = $args;
-	print $outhandle "Default list set to \"$args\".\n";
+	$extra->{'deflist'} = $cmdargs;
+	print $outhandle "Default list set to \"$cmdargs\".\n";
       }
       elsif ($action =~ /^password|passwd$/) {
-	$extra->{'password'} = $args;
+	$extra->{'password'} = $cmdargs;
 	print $outhandle "Default password set to \"$extra->{'password'}\".\n";
       }
       elsif ($action eq 'user') {
-        if ($args) {
-          $user = $args;
+        if ($cmdargs) {
+          $user = $cmdargs;
         }
         else { 
           $user = $extra->{'reply_to'};
@@ -337,9 +337,9 @@ sub parse_part {
     else {
       # Handle default arguments for commands
       if ($true_command =~ /accept|reject/) {
-	$args ||= $extra->{'token'};
+	$cmdargs ||= $extra->{'token'};
       }
-      $args ||= '';
+      $cmdargs ||= '';
       no strict 'refs';
 
       # If a new identity has been assumed, send the output
@@ -360,7 +360,7 @@ sub parse_part {
 					   $password || $extra->{'password'},
 					   undef, $interface,
 					   $attachhandle, $outfh,
-					   $mode, $list, $args, @arglist);
+					   $mode, $list, $cmdargs, @arglist);
 
       # Mail the result if posing.
       if ($user ne $extra->{'reply_to'}) {

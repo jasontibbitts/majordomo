@@ -2,6 +2,7 @@
 
 	* lib/Mj/Parser.pm (parse_entity): New calling convention: take
 	just one hash, abolish $extra.
+	(parse_part): Rename $args variable to avoid confusion with %args.
 
 	* bin/mj_queuerun (parse_commands): 
 	* bin/mj_email (parse_commands): Handle new Parser::Parse_entity
