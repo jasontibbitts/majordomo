@@ -1,0 +1,8 @@
+Messages cannot be posted to the $SUBLIST sublist
+of the $LIST mailing list.  The sublist is not public.
+
+To learn more about sublists, send the following command in the 
+body of a message to $MJ:
+
+  help auxiliary_list
+

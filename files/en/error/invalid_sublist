@@ -1,0 +1,7 @@
+The $LIST list does not have a "$SUBLIST" sublist.
+
+For more information about sublists, send a message to
+  $MJ
+In the body of the message, put this command:
+  help auxiliary_list
+
