@@ -46,9 +46,9 @@ In other words, the templates in this setting will override the
 installation defaults and the settings in the DEFAULT list.  However,
 any changes made to the configuration of a mailing list with the
 configset command will override the settings in the templates.  The
-configshow-comments command will show which configuration file supplies
-the value of a setting; this feature is useful for verifying that the
-templates will work as planned.
+configshow command will show which configuration file supplies the value
+of a setting; this feature is useful for verifying that the templates
+will work as planned.
 
 
 See Also:
