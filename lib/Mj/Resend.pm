@@ -170,6 +170,7 @@ sub post {
 
   unless ($ok) {
     $avars->{bad_approval} = "Invalid Approve Header";
+    # XLANG ACCESS
     push @$reasons, "Invalid Approve Header";
   }
 
@@ -177,7 +178,7 @@ sub post {
   $self->_check_poster($request->{'list'}, $user, $reasons, $avars);
 
   # Check header
-  $self->_check_header($request->{'list'}, $thead, $reasons, $avars);
+  $self->_check_header($request->{'list'}, $ent, $reasons, $avars);
 
   # Recursively check bodies
   $self->_check_body($request->{'list'}, $ent, $reasons, $avars);
@@ -243,9 +244,11 @@ sub post {
     $desc = $self->substitute_vars_string($fileinfo->{description}, $subs);
   }
   elsif ($ok == 0) {
+    # XLANG REPLY
     $desc = "Denied post to the $list mailing list";
   }
   else {
+    # XLANG REPLY
     $desc = "Stalled post to the $list mailing list";
   }
 
@@ -952,6 +955,7 @@ sub _check_approval {
     $time = $::log->elapsed;
     ($ok, $data) = $self->t_reject($token);
     if ($ok) {
+      # XLANG REPLY
       $self->inform('GLOBAL', 'reject',
                 $user, $data->{'user'}, "reject $token",
                 $self->{'interface'}, $ok, 0, 0, 
@@ -1008,9 +1012,8 @@ sub _check_poster {
 
   $avars->{hide_post} = $self->{lists}{$list}->flag_set('hidepost', $user);
   if ($avars->{hide_post}) {
-    push @$reasons, "The hidepost flag is set for $user."; # XLANG
+    # push @$reasons, "The hidepost flag is set for $user."; # XLANG
   }
-
 
   $avars->{limit} = 0;
   $avars->{limit_soft} = 0;
@@ -1140,51 +1143,205 @@ sub _within_limits {
   return ($out, $reasons);
 }
 
-=head2 _check_header(list, head)
+=head2 _check_header (list, entity, reasons, variables)
 
-This investigates all header improprieties.
+This checks for taboo and admin headers, based upon the various
+taboo_headers and admin_headers variables.
+
+No returns; implicitly modifies the the list referenced by reasons and the
+hash referenced by avars.
 
 =cut
+use Safe;
 sub _check_header {
   my $self    = shift;
   my $list    = shift;
-  my $head    = shift;
+  my $ent     = shift;
   my $reasons = shift;
   my $avars   = shift;
   my $log     = new Log::In 40;
-  my ($data, $id, $maxhdrl, $maxthdr, $msg);
+  my (@inv, $class, $code, $data, $i, $invars, $j, $k, $l, 
+      $len, $max, $rule, $safe, $sev);
 
-  $self->_make_list($list);
+  return unless ($self->_make_list($list));
+  $code = {};
 
-  # Check for duplicate message ID
-  chomp($id = $head->get('Message-ID') || '(none)');
-  if ($data = $self->{'lists'}{$list}->check_dup($id, 'id')) {
-    $msg = "Duplicate Message-ID - $id (".localtime($data->{changetime}).")";
-    push @$reasons, $msg;
-    $avars->{dup_msg_id} = $msg;
+  return unless $ent->head;
+
+  for $i ('GLOBAL', $list) {
+    for $j ('admin_headers', 'taboo_headers', 'noarchive_headers') {
+      $data = $self->_list_config_get($i, $j);
+      push @inv, @{$data->{'inv'}};
+      $code->{$j}{$i} = $data->{'code'};
+    }
   }
 
-  # Taboo check the header; this also computes the header size since it
-  # iterates over the whole thing.
-  $self->_ck_theader($list, $head, $reasons, $avars);
+  # Make a hash of these for fast lookup
+  for $i (@inv) {
+    $invars->{$i} = $i;
+  }
 
-  # Comb the Received: headers for IP addresses to RBL.
-  # Make sure we have a subject
-  # Make sure the list shows up somewhere in To: or CC:.
+  # Set up the Safe compartment
+  $safe = new Safe;
+  $safe->permit_only(qw(aassign const leaveeval not null padany push 
+                        pushmark return rv2sv stub));
 
-  # Check size of header
-  $maxhdrl = $self->_list_config_get($list, 'max_header_line_length');
-  if ($maxhdrl && $maxhdrl <= $avars->{max_header_length}) {
-    push @$reasons, "A header line is too long ($avars->{max_header_length} > $maxhdrl)";
+  $avars->{total_header_length} = 0;
+  $avars->{max_header_length}   = 0;
+  $avars->{mime_header_length}  = 0;
+  $avars->{blind_copy} = 1;
+
+  # Recursively check message headers for taboo, admin, and
+  # noarchive matches.
+  $self->_r_ck_header($list, $ent, $reasons, $avars, $safe, 
+                      $code, $invars, 'toplevel');
+
+  # Untaint
+  if ($avars->{total_header_length} =~ /(\d+)/) {
+    $avars->{total_header_length} = $1;
+  }
+  if ($avars->{max_header_length} =~ /(\d+)/) {
+    $avars->{max_header_length} = $1;
+  }
+  if ($avars->{mime_header_length} =~ /(\d+)/) {
+    $avars->{mime_header_length} = $1;
+  }
+
+  # Check the size of the largest top-level header.
+  $max = $self->_list_config_get($list, 'max_header_line_length');
+  $len = $avars->{'max_header_length'};
+  if ($max && ($len > $max)) {
+    # XLANG
+    push @$reasons, "A header line is too long ($len > $max)";
     $avars->{max_header_length_exceeded} = 1;
   }
-  $maxthdr = $self->_list_config_get($list, 'max_total_header_length');
-  if ($maxthdr && $maxthdr <= $avars->{total_header_length}) {
-    push @$reasons, "The header is too large ($avars->{total_header_length} > $maxthdr)";
+
+  # Check the total size of the top-level headers combined.
+  $max = $self->_list_config_get($list, 'max_total_header_length');
+  $len = $avars->{'total_header_length'};
+  if ($max && ($len > $max)) {
+    # XLANG
+    push @$reasons, "The headers are too large ($len > $max)";
     $avars->{total_header_length_exceeded} = 1;
   }
 
-  # Run user-supplied procedures to check the headers.
+  # Check the size of the largest MIME header.
+  $max = $self->_list_config_get($list, 'max_mime_header_length');
+  $len = $avars->{'mime_header_length'};
+  if ($max && ($len > $max)) {
+    # XLANG
+    push(@$reasons, "A MIME header is too long ($len > $max)");
+    $avars->{mime_header_length_exceeded} = 1;
+  }
+
+  # Record missed inverted matches from the taboo_headers,
+  # admin_headers, and noarchive_headers settings.
+  for $i (keys %$invars) {
+    ($k, $l, $rule, $sev, $class) = split('\t', $i);
+    _describe_taboo($reasons, $avars, $k, $l, $rule, undef, undef, $sev,
+		    $class, 1)
+  }
+}
+
+=head2 _r_ck_header
+
+=cut
+sub _r_ck_header {
+  my ($self, $list, $ent, $reasons, $avars, $safe, $code,
+      $invars, $part) = @_;
+  my $log  = new Log::In 150, "$part";
+  my (@matches, @parts, $class, $data, $head, $i, $id, $inv, $j, $k, $l, 
+      $listaddr, $match, $msg, $rule, $sev, $spart);
+  local($text);
+
+  $listaddr = $self->_list_config_get($list, 'whoami');
+
+  @parts = $ent->parts;
+  if (@parts) {
+    for ($i = 0; $i < @parts; $i++) {
+      if ($part eq 'toplevel') {
+	$spart = "part ". ($i+1);
+      }
+      else {
+	$spart = "$part, subpart " . ($i+1);
+      }
+      $self->_r_ck_header($list, $parts[$i], $reasons, $avars, 
+                          $safe, $code, $invars, $spart);
+    }
+  }
+
+  $head = $ent->head->dup;
+  return unless $head;
+  $head->unfold;
+  $head->decode;
+
+  $safe->share('$text');
+
+  if ($part eq 'toplevel') {
+    # Check for duplicate message ID
+    chomp($id = $head->get('Message-ID') || '(none)');
+    if ($data = $self->{'lists'}{$list}->check_dup($id, 'id')) {
+      # XLANG
+      $msg = "Duplicate Message-ID - $id (".localtime($data->{changetime}).")";
+      push @$reasons, $msg;
+      $avars->{dup_msg_id} = $msg;
+    }
+  }
+
+  # Process the header
+  for $i ($head->tags) {
+    # Skip the mailbox separator, if we get one
+    next if $i eq 'From ';
+
+    # Grab all of the occurrences of that tag and iterate over them
+    for $j ($head->get($i)) {
+      chomp $j;
+      $text = "$i: $j";
+
+      if ($part ne 'toplevel') {
+        $avars->{mime_header_length} = length($text)
+          if (length($text) > $avars->{mime_header_length});
+      }
+      else {
+        # Check for the presence of the list's address in the To
+        # and Cc headers.
+        if ($i =~ /^(to|cc)$/i) {
+          # A looser test would be $j =~ /$list\@/i
+          if ($j =~ /$listaddr/i) {
+            $avars->{blind_copy} = 0;
+          }
+        }
+
+        # Check lengths
+        $avars->{total_header_length} += length($text) + 1;
+        $avars->{max_header_length}    = length($text) + 1
+          if $avars->{max_header_length} <= length($text);
+      }
+
+      # Now run all of the taboo codes
+      for $k ('GLOBAL', $list) {
+	for $l ('admin_headers', 'taboo_headers', 'noarchive_headers') {
+
+	  # Eval the code
+	  @matches = $safe->reval($code->{$l}{$k});
+	  warn $@ if $@;
+
+	  # Run over the matches that resulted
+	  while (($rule, $match, $sev, $class, $inv) = splice(@matches, 0, 5)) {
+
+	    # An inverted match; remove it from the list
+	    if ($inv) {
+	      delete $invars->{"$k\t$l\t$rule\t$sev\t$class"};
+	    }
+	    else {
+	      _describe_taboo($reasons, $avars, $k, $l, $rule, $match,
+			      undef, $sev, $class, $inv);
+	    }
+	  }
+	}
+      }
+    }
+  }
 }
 
 =head2 _check_body
@@ -1202,7 +1359,7 @@ sub _check_body {
   my $reasons = shift;
   my $avars   = shift;
   my $log     = new Log::In 150;
-  my (@inv, $class, $data, $i, $inv, $j, $l, $max, $maxbody, $maxlen,
+  my (@inv, $class, $data, $i, $inv, $j, $l, $max, $maxbody, 
       $mcode, $qreg, $rule, $safe, $sev, $tcode, $var);
   $inv = {}; $mcode = {}; $tcode = {};
 
@@ -1230,7 +1387,6 @@ sub _check_body {
   $i      = $self->_list_config_get($list, 'attachment_rules');
   $mcode  = $i->{check_code};
   $qreg   = $self->_list_config_get($list, 'quote_pattern');
-  $maxlen = $self->_list_config_get($list, 'max_mime_header_length');
 
   # Create a Safe compartment
   $safe = new Safe;
@@ -1242,7 +1398,7 @@ sub _check_body {
   $avars->{'body_length'} = 0;
   $avars->{'mime_require'} = 0;
   $self->_r_ck_body($list, $ent, $reasons, $avars, $safe, $qreg, $mcode,
-            $tcode, $inv, $max, $maxlen, 'toplevel', 1);
+            $tcode, $inv, $max, 'toplevel', 1);
 
   $maxbody = $self->_list_config_get($list, 'maxlength');
   if ($maxbody && $maxbody < $avars->{'body_length'}) {
@@ -1261,7 +1417,7 @@ use Digest::SHA1;
 use Mj::Util qw(re_match);
 sub _r_ck_body {
   my ($self, $list, $ent, $reasons, $avars, $safe, $qreg, $mcode, $tcode,
-      $inv, $max, $maxlen, $part, $first) = @_;
+      $inv, $max, $part, $first) = @_;
   my $log  = new Log::In 150, "$part";
   my (@parts, $body, $data, $i, $line, $spart, $sum1, $sum2, $text);
 
@@ -1279,7 +1435,7 @@ sub _r_ck_body {
 	$spart = "$part, subpart ".($i+1);
       }
       $self->_r_ck_body($list, $parts[$i], $reasons, $avars, $safe, $qreg,
-			$mcode, $tcode, $inv, $max, $maxlen, $spart,
+			$mcode, $tcode, $inv, $max, $spart,
 			($first && $i==0));
     }
     return;
@@ -1290,7 +1446,7 @@ sub _r_ck_body {
   $sum2 = new Digest::SHA1;
 
   # Check MIME status and any other features of the entity as a whole
-  _check_mime($reasons, $avars, $safe, $ent, $mcode, $maxlen, $part);
+  _check_mime($reasons, $avars, $safe, $ent, $mcode, $part);
 
   # Now the meat.  Open the body.
   $body = $ent->bodyhandle->open('r');
@@ -1560,114 +1716,6 @@ sub _format_text {
   return $txtfile;
 }
 
-=head2 _ck_theader
-
-This checks for taboo and admin headers, based upon the various
-taboo_headers and admin_headers variables.
-
-No returns; implicitly modifies the the list referenced by reasons and the
-hash referenced by avars.
-
-=cut
-use Safe;
-sub _ck_theader {
-  my $self    = shift;
-  my $list    = shift;
-  my $head    = shift;
-  my $reasons = shift;
-  my $avars   = shift;
-  my (%inv, @inv, @matches, $class, $code, $data, $i, $inv, $j, $k, $l,
-      $listaddr, $match, $maxthdr, $maxhdrl, $rule, $safe, $sev);
-  local ($text);
-
-  $code = {};
-  $listaddr = $self->_list_config_get($list, 'whoami');
-
-  for $i ('GLOBAL', $list) {
-    for $j ('admin_headers', 'taboo_headers', 'noarchive_headers') {
-      $data = $self->_list_config_get($i, $j);
-      push @inv, @{$data->{'inv'}};
-      $code->{$j}{$i} = $data->{'code'};
-    }
-  }
-
-  # Make a hash of these for fast lookup
-  for $i (@inv) {
-    $inv{$i} = $i;
-  }
-
-  # Set up the Safe compartment
-  $safe = new Safe;
-  $safe->permit_only(qw(aassign const leaveeval not null padany push 
-                        pushmark return rv2sv stub));
-  $safe->share('$text');
-  $avars->{total_header_length} = 0;
-  $avars->{max_header_length}   = 0;
-  $avars->{blind_copy} = 1;
-
-  # Process the header; mega-nesting!  Iterate over each tag present in the
-  # header.
-  for $i ($head->tags) {
-
-    # Skip the mailbox separator, if we get one
-    next if $i eq 'From ';
-
-    # Grab all of the occurrences of that tag and iterate over them
-    for $j ($head->get($i)) {
-      chomp $j;
-
-      # Check for the presence of the list's address in the To
-      # and Cc headers.
-      if ($i =~ /^(to|cc)$/i) {
-        # A looser test would be $j =~ /$list\@/i
-        if ($j =~ /$listaddr/i) {
-          $avars->{blind_copy} = 0;
-        }
-      }
-
-      $text = "$i: $j";
-
-      # Check lengths
-      $avars->{total_header_length}+= length($text)+1;
-      $avars->{max_header_length}   = length($text)+1
-	if $avars->{max_header_length} < length($text)+1;
-
-      # Now run all of the taboo codes
-      for $k ('GLOBAL', $list) {
-	for $l ('admin_headers', 'taboo_headers', 'noarchive_headers') {
-
-	  # Eval the code
-	  @matches = $safe->reval($code->{$l}{$k});
-	  warn $@ if $@;
-
-	  # Run over the matches that resulted
-	  while (($rule, $match, $sev, $class, $inv) = splice(@matches, 0, 5)) {
-
-	    # An inverted match; remove it from the list
-	    if ($inv) {
-	      delete $inv{"$k\t$l\t$rule\t$sev\t$class"};
-	    }
-	    else {
-	      _describe_taboo($reasons, $avars, $k, $l, $rule, $match,
-			      undef, $sev, $class, $inv);
-	    }
-	  }
-	}
-      }
-    }
-    # Untaint
-    $avars->{total_header_length} =~ /(\d+)/;
-    $avars->{total_header_length} = $1;
-    $avars->{max_header_length} =~ /(\d+)/;
-    $avars->{max_header_length} = $1;
-  }
-  # Now complain about missed inverted matches
-  for $i (keys %inv) {
-    ($k, $l, $rule, $sev, $class) = split('\t', $i);
-    _describe_taboo($reasons, $avars, $k, $l, $rule, undef, undef, $sev,
-		    $class, 1)
-  }
-}
 
 =head2 _ck_tbody_line
 
@@ -1711,7 +1759,7 @@ sub _ck_tbody_line {
   }
 }
 
-=head2 _check_mime
+=head2 _check_mime (reasons, avars, safe, entity, code, part, type)
 
 This checks a given MIME type against the mime matching code built from
 attachment_rules and modifies the bounce reasons and access variables as
@@ -1724,24 +1772,25 @@ sub _check_mime {
   my $safe    = shift;
   my $ent     = shift;
   my $code    = shift;
-  my $maxlen  = shift;
   my $part    = shift;
   my $type    = $ent->mime_type;
-  my $log = new Log::In 250, "$type";
+  my $log = new Log::In 250, $type;
   local($_);
-  my ($action, $head, $len);
+  my ($action);
 
   # Evaluate the matching code
   $_      = $type;
   $action = $safe->reval($code);
   $::log->complain($@) if $@;
   if ($action eq 'consult') {
+    # XLANG
     push @$reasons, "Questionable MIME part in $part: $type";
     $avars->{mime_consult} = 1;
     $avars->{mime} = 1;
     $log->out('consult');
   }
   elsif ($action eq 'deny') {
+    # XLANG
     push @$reasons, "Illegal MIME part in $part: $type";
     $avars->{mime_deny} = 1;
     $avars->{mime} = 1;
@@ -1750,32 +1799,6 @@ sub _check_mime {
   elsif ($action eq 'require') {
     $avars->{mime_require} = 1;
     $log->out('require');
-  }
-
-  # Unless we're parsing the top level (where we've already checked the
-  # header closely), extract and unfold the MIME headers, then check for
-  # long lines.  Don't decode, because it takes time and we want to see the
-  # longest strings here.  XXX Further limit this for message/rfc822
-  # inclusions?
-  unless ($part eq 'toplevel') {
-    $head = $ent->head; $head->unfold;
-   HEAD:
-    for my $i ($head->tags) {
-      for my $j ($head->get($i)) {
-        $len = length($i)+length($j)+2;
-        $avars->{mime_header_length} = $len
-          if ($len > $avars->{mime_header_length});
-        if ($maxlen && ($len > $maxlen)) {
-          push(@$reasons,
-               "A MIME header is too long in $part ($len > $maxlen)");
-          $avars->{mime_header_length_exceeded} = 1;
-          last HEAD;
-        }
-      }
-    }
-    # Untaint
-    $avars->{mime_header_length} =~ /(\d+)/;
-    $avars->{mime_header_length} = $1;
   }
 }
 
