@@ -172,7 +172,16 @@ my %commands =
 
    # Internal commands (not accessible to the end user except through
    # specialized interfaces)
-   'owner'   => {'dispatch' => {'top' => 1, 'iter' => 1, 'noaddr' => 1}},
+   'owner' => 
+   {
+    'dispatch' => {'top' => 1, 
+                   'iter' => 1, 
+                   'noaddr' => 1,
+                   'modes' => {
+                                'm'           => 1,
+                              },
+                  },
+   },
    'trigger' => 
    {
     'dispatch' => {'top' => 1, 

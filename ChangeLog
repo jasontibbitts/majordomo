@@ -1,3 +1,20 @@
+2001-08-07  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Access.pm:  (_a_forward)  Bugfix:  alter
+	the command line before changing the destination.
+
+	* lib/Mj/CommandProps.pm:  Bugfix:  support the "m"
+	mode of the owner command, which handles mail sent to
+	the LIST-moderator address.
+
+	* lib/Mj/List.pm:  (moderators)  Use the whoami_owner
+	setting instead of the sender setting for the fallback
+	address.
+
+	* lib/Mj/Token.pm:  (confirm)  Use the whoami_owner
+	setting instead of the sender setting in the From
+	header of confirmation messages.
+
 2001-08-05  Michael Yount <csf@moscow.com>
 
 	* bin/mj_email:  Bugfix:  handle "-c" commands in the
