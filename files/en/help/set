@@ -320,12 +320,12 @@ will be there for each subscriber or if it will represent a real name.
   5. list mail if you already got a CC (eliminatecc, noeliminatecc)
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-These control carbon copy elimination.  If this is on and your address
-appears in the To: or CC: headers of a message that Majordomo is
+These control carbon copy elimination. If this is enabled and your address
+appears in the To: or CC: headers of a posted message that Majordomo is
 processing, it will not send an additional copy to you.  This helps to
 cut down on many of those annoying duplicates that are often received,
-but it deprives you of the additional processin that Majordomo does on a
-message (subject prefixes, additional headers, etc.).
+but it deprives you of the additional processing that Majordomo does on
+a message (subject prefixes, additional headers, etc.).
      eliminatecc   - turns CC elimination on
      noeliminatecc - turns it off
 

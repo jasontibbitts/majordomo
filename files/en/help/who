@@ -7,7 +7,7 @@ listname, required, is an email list at this site (or the word "GLOBAL")
 -short,    if specified, produces just a simple list of email addresses
 -export,   if specified, produces commands needed to recreate the list
 -bounces,  if specified, shows only addresses with bounces
-pattern,   if specified, is a matching string (see "help patterns")
+pattern,   if specified, is an address matching string
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The "who" command returns all or some subscribers to the named list,
@@ -20,8 +20,9 @@ returned instead of information from a specific list.
 
 If "pattern" is not supplied, all subscribers are listed.
 
-If "pattern" is supplied, beware of case sensitivity, and review
-the "help patterns" file carefully. Patterns can be very simple or
+If "pattern" is supplied, only addresses which match the pattern
+will be listed. Beware of case sensitivity, and review the
+"help patterns" file carefully. Patterns can be very simple or
 full-blown Perl regular expressions.
 
 If "-short" is specified, the simple list of addresses can be used
