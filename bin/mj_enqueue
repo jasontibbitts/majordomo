@@ -35,6 +35,7 @@ BEGIN {
 use Socket;
 #use Fcntl qw(:flock :DEFAULT);
 use Getopt::Std;
+use Errno 'EEXIST';
 use strict;
 require "sysexits.ph";
 
@@ -104,7 +105,8 @@ while (1) {
   $ok = sysopen(OUT, "$qdir/$qfile", $::O_WRONLY|$::O_CREAT|$::O_EXCL, 0777);
   last if $ok;
   # XXX Hack?
-  die "Can't create queue file $qdir/$qfile: $!" unless $! =~ /exist/i;
+  # die "Can't create queue file $qdir/$qfile: $!" unless $! =~ /exist/i;
+  exit &EX_CANTCREAT unless $!{EEXIST};
   $q2++;
 }
 
@@ -117,15 +119,23 @@ $ok = flock(OUT, $::LOCK_EX);
 $line = <STDIN>;
 print OUT $line unless $line =~ /^From /;
 while (defined($line = <STDIN>)) {
-  print OUT $line;
+  $ok = print OUT $line;
+  last unless $ok;
 }
 $ok = close OUT;  # Also unlocks.
+
+# Better discrimination of errors is needed here.
+
+# Since stdio is buffered, there is a chance that print()
+# will succeed while close() fails for a small message.
+# Returning EX_IOERR will cause sendmail to regard the
+# problem as a temporary failure and defer delivery.
 unless ($ok) {
   # untaint
   my ($abandoned) = "$qdir/$qfile";
   $abandoned =~ /(.*)/;
   $abandoned = $1;
-  unlink "$abandoned";
+  unlink $abandoned;
   exit &EX_IOERR;
 }
 
