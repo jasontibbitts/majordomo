@@ -124,7 +124,7 @@ command:
 <option> get
 <option> help
 <option> index-recursive
-<option> lists
+<option> lists-aux
 <option> reject
 <option> sessioninfo
 <option> showtokens
