@@ -96,7 +96,9 @@ sub _stringify {
 
 sub _unstringify {
   my $self = shift;
-  my @args = split("\001", shift, @{$self->{fields}});
+  my $string = shift;
+  $string =~ /(.*)/; $string = $1;
+  my @args = split("\001", $string, @{$self->{fields}});
   my $hashref = {};
 
   for my $i (@{$self->{'fields'}}) {

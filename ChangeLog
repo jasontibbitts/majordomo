@@ -1,3 +1,8 @@
+2002-10-14  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/SimpleDB/Base.pm:  (_unstringify)  Untaint the data
+	as a preliminary workaround for DB_File 1.8xx tainting problems.
+
 2002-09-15  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/Config.pm (_upgrade): Restructure; break out upgrade
