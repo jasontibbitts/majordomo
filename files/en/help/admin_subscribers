@@ -1,0 +1,221 @@
+                    Introduction to Subscriber Management
+
+In an ideal world, people who subscribe to your mailing list would
+never need your attention.  In practice, sometimes you will need
+to assist people who cannot help themselves.  This document explains 
+some ways to make this job easier, such as...
+
+  * searching the list of subscribers
+  * unsubscribing several addresses with one command
+  * seeing which subscribers are not receiving mail
+
+The examples in this document assume that you know how to use your 
+list's administrative password.  Please review "help admin_passwords",
+if you have not already done so.  In each example, replace LISTNAME
+with the name of your mailing list, and ADDRESS with the e-mail address
+of a subscriber.  ADDRESS can include the name of the subscriber, for example,
+  John Doe <anonymous@example.com>
+
+
+Viewing the subscriber list
+---------------------------
+
+The who command will display the list of subscribers.  The simplest use
+of this command, 
+
+  who LISTNAME
+
+will show every e-mail address that is subscribed to the list.  Using
+the "enhanced" command mode will cause the delivery class and personal
+settings for each subscriber to be displayed.  For example, the command
+
+  who-enhanced LISTNAME
+
+might show the following result:
+
+  Judy <sister@example.com>                       PRSbd    digest-daily-text
+  Joe <brother@example.com>                       CSd      each
+
+The letters in the second column are "flags," abbreviations for personal
+settings.  The words in the third column are the "delivery class."
+The "help set" file describes each of the flags.  "help admin_delivery"
+presents a simple introduction to delivery classes.
+
+If there are many addresses subscribed to a mailing list, some of
+them inevitably will have trouble receiving  mail.  Error messages about 
+delivery problems are called "bounces," and the addresses that are
+experiencing such problems can be seen with the who-bounce command:
+
+  who-bounce LISTNAME
+
+This command displays a count of error messages over the past week and
+month, the sequence numbers of the messages that bounced, and in some cases
+a diagnostic message that indicates why the delivery failed.
+
+It is also possible to search the subscriber list using the who command
+with a pattern (see "help patterns" for more information).  For example,
+the command
+
+  who LISTNAME edu
+
+would display a list of all subscribers with "edu" in their name or
+e-mail address.
+
+For more details, see "help who".
+
+
+Adding and removing subscribers
+-------------------------------
+
+The simplest way to add or remove an address is with a one-line command:
+
+  subscribe LISTNAME ADDRESS
+  unsubscribe LISTNAME ADDRESS
+
+List owners can also use a here document to add or remove addresses, to 
+save some typing.  The following command...
+
+subscribe LISTNAME <<DONE
+John <john@example.net>
+Fred <fred@example.net>
+Martha <martha@example.net>
+DONE
+
+...would add three addresses to the mailing list.
+
+Addresses can also be removed using a pattern.  For example,
+
+  unsubscribe-pattern-allmatching LISTNAME edu
+
+would remove all addresses containing "edu" from the mailing list.
+See "help subscribe", "help unsubscribe", "help here_document", and
+"help patterns" for more details.
+
+
+Personal settings
+-----------------
+
+Several personal settings are available to customize how messages 
+are delivered to each subscriber.  The settings of new subscribers 
+are often determined by the default_class and default_flags configuration 
+settings.  However, the subscribe-set command allows the default settings 
+to be overridden.  For example, new subscribers who wish to receive messages 
+in digests can be placed in the "digest" delivery class with this command:
+
+  subscribe-set LISTNAME digest ADDRESS
+
+The personal settings of subscribers can be changed with the set command.  
+For example,
+
+  set LISTNAME each,noselfcopy ADDRESS
+
+would set the delivery class to "each", turn off the "selfcopy" setting, 
+and leave the other personal settings unchanged.
+
+Settings for more than one address can be changed with one command using 
+a here document or a pattern.  For example,
+
+set-pattern-allmatching LISTNAME nomail <<LMN
+/washington.edu/i
+/oregon.edu/i
+LMN
+
+would change the delivery class of all washington.edu and oregon.edu
+subscribers to "nomail".
+
+For more information, see "help configset_default_flags",  "help set",
+and "help configset_default_class".  Examples of how the personal settings 
+affect delivery may be found in "help admin_delivery".
+
+
+Welcome and farewell
+--------------------
+
+When people join a mailing list, they are usually sent a welcome message
+with instructions for leaving the list.  When people leave the list, they
+usually do not receive a farewell message.  However, it is possible
+to do things differently.  For example, to subscribe someone without
+sending a welcome message, use this command:
+
+  subscribe-nowelcome LISTNAME someone@example.com
+
+and to unsubscribe someone with a farewell message, use this command:
+
+  unsubscribe-farewell LISTNAME someone@example.com
+
+For details on how to customize the welcome and farewell messages, see
+"help admin_documents".
+
+
+Restricting access
+------------------
+
+Any rules for the set, subscribe, unsubscribe, or who command in the 
+access_rules configuration setting take precedence in determining who
+has access to the commands.  If none of the access rules is applicable,
+the policy or access setting for the command holds sway.  For more
+information, see the following documents:
+
+   help admin_config
+   help configset_access_rules
+   help configset_set_policy
+   help configset_subscribe_policy
+   help configset_unsubscribe_policy
+   help configset_who_access
+
+
+Aliases and address changes
+---------------------------
+
+Some subscribers may want to post messages to a mailing list from
+more than one address.  The alias command can be used to tell Majordomo
+that two addresses belong to the same person.  A site or domain
+administrator can issue these commands to create an alias.
+
+  default user OLDADDRESS
+  alias NEWADDRESS
+
+The OLDADDRESS must already have been subscribed to at least one mailing list, 
+and the NEWADDRESS must not already be registered.  The alias applies
+to all of the subscriber's subscriptions.
+
+Some subscribers may change their e-mail address, and want to move 
+all of their subscriptions to the new address.  A site or domain
+administrator can issue these commands to change the address:
+
+  default user NEWADDRESS
+  changeaddr OLDADDRESS
+
+The password, aliases, and subscription settings will be transferred from
+OLDADDRESS to NEWADDRESS.  If both addresses are subscribed to a
+mailing list, the subscription for OLDADDRESS will be discarded.
+
+Do not use a list's administrative password with the alias or changeaddr
+command.  Only a domain or site password (level 3 or above; see 
+"help admin_passwords" for details) or the subscriber's personal password
+will help.  This is true because the changes apply to all mailing lists,
+but a list's password only has the power to make changes for one mailing
+list.
+
+See "help alias" and "help changeaddr" for more details.
+
+
+See Also:
+   help admin
+   help admin_commands
+   help admin_config
+   help admin_delivery
+   help admin_documents
+   help admin_moderate
+   help admin_monitor
+   help admin_passwords
+   help alias
+   help changeaddr
+   help configset_welcome
+   help configset_welcome_files
+   help set
+   help subscribe
+   help unsubscribe
+   help who
+
+$INCLUDE-help/foot

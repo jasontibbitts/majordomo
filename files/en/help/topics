@@ -31,6 +31,13 @@ These help files are introductory documents:
 
    help admin
    help admin_commands
+   help admin_config
+   help admin_delivery
+   help admin_documents
+   help admin_moderate
+   help admin_monitor
+   help admin_passwords
+   help admin_subscribers
    help commands
    help mj_confirm
    help mj_shell
@@ -39,15 +46,16 @@ These help files are introductory documents:
    help overview
    help topics
 
-These help files discuss complicated topics in detail:
+These help files discuss advanced topics in detail:
 
    help access
-   help admin_passwords
    help auxiliary_list
+   help command_parser
    help configset_access_rules_variables
    help delay
    help error_files
    help format_files
+   help here_document
    help patterns
    help reply_files
    help times
@@ -56,7 +64,6 @@ These help files discuss complicated topics in detail:
 These help files describe Majordomo commands:
 
    help accept
-   help advertise
    help alias
    help announce
    help approve

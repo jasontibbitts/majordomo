@@ -1,0 +1,238 @@
+                   Introduction to the Delivery Process
+
+When a message is delivered to the subscribers of a mailing list, 
+Majordomo may make some alterations to the content of the message.
+Among other features, a mailing list can be configured to...
+
+  * Add unsubscription instructions to the end of the message.
+  * Change the Subject header to show the name of the mailing list.
+  * Remove attachments.
+  * Change the Reply-To header to direct replies to the mailing list.
+  * Bundle the messages into a digest.
+
+Some portion of the addresses that are subscribed to a mailing list
+may be temporarily or permanently unavailable.  When delivery to
+one of these addresses fails, an error message ("bounce") is sent
+to the list owners.  Majordomo's flexible framework for coping 
+with bounces is discussed later in this document.
+
+Majordomo relies on another computer program (the message transfer agent,
+or MTA) to deliver the mail.  The last part of this document outlines 
+ways in which you can help Majordomo and the MTA to cooperate more 
+efficiently.
+
+The examples in this document assume that you know how to use your 
+list's administrative password.  Please review "help admin_passwords",
+if you have not already done so.  In each example, replace LISTNAME
+with the name of your mailing list.
+
+Delivery classes
+----------------
+
+Whether or not a subscriber receives a message that is posted to a
+mailing list will depend upon that subscriber's delivery class.  
+There are four main delivery classes: digest, each, nomail, and unique.  
+
+  * Subscribers in the digest class receive messages in bundles, rather 
+    than individually.   
+ 
+  * Subscribers in the each class receive each message.
+
+  * Subscribers in the nomail class receive no messages.
+
+  * Subscribers in the unique class receive each message, unless the
+    same message was previously posted to another mailing list
+    in the same domain ($DOMAIN) to which the subscriber is subscribed.
+
+When someone first joins a mailing list, their delivery class is
+usually determined by the default_class configuration setting (see
+"help configset_default_class" for more details).  However, it
+is also possible to subscribe and choose the delivery class at
+the same time.  For example, the following command:
+
+  subscribe-set LISTNAME digest
+
+will subscribe an address to a mailing list and set its delivery
+class to "digest" at the same time.  For more information, please
+refer to "help admin_subscribers".
+
+Digests
+-------
+
+There are two situations in which a digest might be delivered.
+The trigger mechanism (see "help configset_triggers") will check once 
+an hour to see if a digest is ready for delivery.  In addition, 
+the digests are checked every time a message is posted to a mailing list.
+
+The digest configuration setting offers a lot of flexibility in how
+and when digests are delivered.  Briefly, you can choose:
+
+  * The hours of the day, and days of the week, during which digests
+    can be delivered.
+
+  * The minimum and maximum size or number of messages in a digest.
+
+  * The maximum acceptable age of undelivered messages in a digest.
+
+  * The minimum time between digest deliveries.
+
+  * The default format of a digest.
+
+See "help configset_digests" for more details.
+
+
+The rest of this document deals with messages that are delivered separately.
+
+
+Personal delivery settings
+--------------------------
+
+There are two message headers that can vary from subscriber to subscriber.
+A prefix can be added to the Subject of a message to make it clear to
+the readers on which mailing list the message was posted.  For example,
+in this header...
+
+  Subject: Re: [radish-list] Purple podding radishes
+
+..."[radish-list]" is the subject prefix.  This is controlled by
+the "prefix" personal setting.
+
+Also, people who want their replies to always go to the address of the
+list can choose to have a Reply-To: LISTNAME@$DOMAIN header added
+to each message.  This is controlled by the "replyto" personal setting.
+
+Subscribers who post messages can choose whether or not to receive copies 
+of their own messages.  This is controlled by the "selfcopy" setting.
+
+If a message is sent to a mailing list, and the address of a subscriber
+appears in the To or Cc headers of the message, the subscriber will
+usually receive two copies.  Subscribers can forego receiving a second
+copy from the list; this is controlled by the "eliminatecc" personal
+setting.
+
+Which of these personal settings are given to new subscribers is determined
+by the default_flags configuration setting.  For example, to turn on
+all four of these features, use the following command:
+
+configset LISTNAME default_flags <<LLL
+eliminatecc
+prefix
+replyto
+selfcopy
+LLL
+
+The following command would turn on all four settings for someone who
+is already subscribed to the list:
+
+  set LISTNAME eliminatecc,prefix,replyto,selfcopy
+
+For more information, read the following documents:
+   help configset_default_flags
+   help configset_override_reply_to
+   help configset_reply_to
+   help configset_subject_prefix
+   help set
+
+
+Changing the headers
+--------------------
+
+Aside from the personal delivery settings in the last section, any
+changes made to a message will affect all of the people who receive
+separate copies of the message.  The message_headers and remove_headers
+configuration settings can be used to add or remove any header in a posted 
+message.  The remove_headers changes are applied first, so the two
+settings can be used in tandem to replace existing headers. For example,
+the following commands will remove any existing To or Cc headers, and
+place the list address in the To header of the message.  This could
+be used to cut down on duplicates and prevent cross-posting.
+
+configset-append LISTNAME delete_headers <<JKL
+To
+Cc
+JKL
+
+configset LISTNAME message_headers <<MNO
+To: $WHOAMI
+MNO
+
+See "help configset_delete_headers" and "help configset_message_headers"
+for more details.
+
+
+Fronters and footers
+--------------------
+
+Sometimes, administrative notices or advertisements are automatically
+included at the beginning or end of mail messages.  These notices
+are called fronters and footers.  Although they can be added easily
+to plain text messages, including them in HTML or plain text/HTML
+alternative messages is problematic.  As a result, fronters and
+footers may be added to some messages and not to others.
+
+See "help configset_message_fronter" and "help configset_message_footer"
+for more details.
+
+
+Discarding attachments
+----------------------
+
+The attachment_rules configuration setting has a dual purpose.  As 
+mentioned in "help admin_moderate", messages can be moderated or
+rejected based upon the type of attachment.  In addition, the attachment
+rules can be used to discard parts of a posted message.
+
+To remove all of the text/html parts from all messages bodies, use the
+following command:
+
+configset LISTNAME attachment_rules <<LPQ
+text/html | discard
+LPQ
+
+This rule is useful if you want to include a fronter or footer in each 
+message, or want to avoid the security problems associated by HTML in
+e-mail.  Unfortunately, it is not uncommon for people to send messages
+with only a text/html body, in which case this rule would discard
+the entire message.
+
+See "help configset_attachment_rules" for more details.
+
+
+Delivery rules (advanced topic)
+-------------------------------
+
+How quickly a posted message will be delivered by the MTA depends upon who 
+is subscribed to a mailing list, and how Majordomo handed off the message.
+For example, if 35 addresses on the list use the same service provider,
+it may be more efficient to deliver the message to all of them at once.
+On the other hand, if the list has tens of thousands of subscribers, it
+is more efficient to separate them into smaller groups during delivery.
+
+For security reasons, only site or domain managers can change the delivery
+rules for a mailing list.  See "help configset_delivery_rules" for more 
+information.
+
+
+Personalizing messages (advanced topic)
+---------------------------------------
+
+It is possible to configure a Majordomo list to deliver a separate copy
+of each message to each recipient.  This makes it possible to place
+the address of the recipient in the To: header, or to add a footer
+that says "You are subscribed to the LISTNAME list as soandso@example.com."
+For more details, see the section on "Configuration templates" in
+the "help admin_config" document.
+
+
+See Also:
+   help admin
+   help admin_commands
+   help admin_config
+   help admin_documents
+   help admin_monitor
+   help admin_moderate
+   help admin_passwords
+   help admin_subscribers
+   help post
+
+$INCLUDE-help/foot

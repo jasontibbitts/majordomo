@@ -32,7 +32,7 @@ unfortunately somewhat complicated mechanism for precisely restricting
 access to Majordomo functions.
 
 NOTE: Defining an access rule which refers to a sublist will CREATE
-that sublist (or auxiliary list). See "help auxadd" for how to create
+that sublist (or auxiliary list). See "help subscribe" for how to create
 and/or put people on the sublist, see "help createlist" for regular lists.
 
 There are a few shortcuts which can control access to common features,
@@ -345,7 +345,8 @@ Section 1.3 - Up to next blank line - code
   @, @MAIN - these are equivalent, and check to see that the user is a
     list subscriber.
   @auxlist - checks to see that the user is a member of the named auxiliary
-    list. (see "help auxadd" and "help createlist" for how to create lists)
+    list. (see "help createlist" and "help auxiliary_list" for how to 
+           create lists and sublists, respectively)
 
   Variable check:
   \$variable - checks to see that the supplied variable is true.
@@ -378,7 +379,7 @@ Section 1.5 - Moderator Groups:
 
   If you use the "moderators" auxiliary list to store your moderators'
   addresses, it is possible to choose which of them will receive mail
-  sent to the -moderator alias, using the "set-aux" command.
+  sent to the -moderator alias, using the set command.
 
   The moderator group to send the confirmation request to defaults
   to sending to moderator. The moderator group influences whether
@@ -393,7 +394,7 @@ Section 1.5 - Moderator Groups:
   moderator group influences whether the person to see the message
   is a list moderator or the requester.  If it is set to 'requester',
   the person consulted is the requester; otherwise, the list moderator
-  is consulted. Moderator groups are otherwise another unfinished idea.
+  is consulted.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -870,25 +871,25 @@ ENDCONFIRM
 
 See Also:
    help access    (for the special case of granting/denying all access)
-   help auxadd    (for how to put addresses on sublists)
    help default   (for details on the non-access-rules "delay" option)
    help post      (for the special case of restricting who can post msgs)
+   help subscribe (for how to add addresses to auxiliary lists)
    help times     (for how to specify times for "delay")
    help variables (for a list of all possible variables and what they mean)
-   help configset access_rules_variables (for requests, variables, defaults)
-   help configset archive_access      (for     archive-related access_rules)
-   help configset block_headers       (for how to filter out server requests)
-   help configset faq_access          (for         faq-related access_rules)
-   help configset get_access          (for         get command access_rules)
-   help configset index_access        (for       index command access_rules)
-   help configset info_access         (for        info-related access_rules)
-   help configset intro_access        (for       intro-related access_rules)
-   help configset post_limits         (for how to restrict posting frequency)
-   help configset set_policy          (for         set command access_rules)
-   help configset subscribe_policy    (for   subscribe command access_rules)
-   help configset unsubscribe_policy  (for unsubscribe command access_rules)
-   help configset which_access        (for       which command access_rules)
-   help configset who_access          (for         who command access_rules)
+   help configset_access_rules_variables (for requests, variables, defaults)
+   help configset_archive_access      (for     archive command access_rules)
+   help configset_block_headers       (for how to filter out server requests)
+   help configset_faq_access          (for         faq command access_rules)
+   help configset_get_access          (for         get command access_rules)
+   help configset_index_access        (for       index command access_rules)
+   help configset_info_access         (for        info command access_rules)
+   help configset_intro_access        (for       intro command access_rules)
+   help configset_post_limits         (for how to restrict posting frequency)
+   help configset_set_policy          (for         set command access_rules)
+   help configset_subscribe_policy    (for   subscribe command access_rules)
+   help configset_unsubscribe_policy  (for unsubscribe command access_rules)
+   help configset_which_access        (for       which command access_rules)
+   help configset_who_access          (for         who command access_rules)
 
 For a list of all help topics send this one-line message
    help topics

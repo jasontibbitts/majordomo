@@ -1,267 +1,190 @@
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+                      Summary of Commands for Subscribers
 
-Section 1 - Introduction to "help commands"
+This document briefly describes every command available to list subscribers, 
+but no explanation of why they are needed.  For a gentler introduction, 
+please see "help overview".  To learn about Majordomo commands from the 
+perspective of a list administrator, see "help admin" and "help admin_commands".
 
-Below are the commands a list subscriber may need to use, but
-there is little or no explanation of WHY they might be needed or
-how they interact with each other. For that type of information,
-send "help overview" to $MJ
+To issue a command, send it in the body of an e-mail message to
+  $MJ
 
-Each command is further explained by 'help COMMAND', but in this
-file you will see a VERY brief description of each command. Every
-user-specific command should be mentioned here, with all options
-that pertain to list subscribers. Some commands have additional
-options that are more appropriate for list administrators, and
-some commands are only useful to administrators - those commands
-are listed in "help admin commands". For a complete list of help
-files, send "help topics". If you know of a command that is NOT
-in this file, but should be please contact the maintainer as
-indicated at the end of this message.
+The syntax of each command is displayed, followed by a brief description.
+In the command syntax, any item in square braces [ ] is considered
+optional.  Any word in capital letters should be replaced with an
+appropriate value.  For example, LISTNAME should be replaced with the
+name of a mailing list.
 
-For a complete list of ALL commands, see "help topics".
-
-
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 2 - Command Syntax
-
-All Majordomo commands should be sent to $MJ
-If you have shell access, refer to "help mj_shell" for an
-alternative to sending email to the server (this same text
-may be available from "man mj_shell" at the unix prompt).
-
-Please refer to "help end" for ways to ignore automatically inserted
-signature blocks, and remember that you MUST NOT allow any text to
-be inserted at the top of your email message if that's how you send
-commands to Majordomo.
-
-At some sites, there is a "listname-request" address which will also
-accept commands pertaining to "listname", but this address is not
-always present. (If it is present, and if you use it, you don't need
-to specify the list name as part of the command itself.) Other special
-addresses like "listname-subscribe" can be set up by the list owner
-to imply the list name AND the action without putting anything in the
-body of your message to the server. These aliases are not always
-present, and don't always do the same thing, so they are not documented
-here in the help files. (See "help info" and "help intro" for places
-where special addresses should be described on a per-list basis.)
-
-An email address can generally be omitted from a command even if one
-is required by the description below. If omitted, the address found
-in your email header will be used if it can be determined.
-
-Comments can be included as lines before or after commands. Comments
-start with the first # on a line, and continue to the end  of the line.
-There is no way to "escape" the # character (e.g. to keep it from
-causing the rest of the line to be ignored). Within a here document
-(described below), the # sign is NOT a comment character.
-
-Many commands have options available to modify their behavior, and
-may take arguments to supply additional information:
- - Arguments are generally separated by spaces, but may use the "<<" syntax.
- - Options start with a dash, and follow the command name without a space.
-    (you may use an equal instead of a dash - they are exactly equivalent)
-
-If a command is too long to fit on a line, or if your mail tool is
-'wrapping' lines without your knowledge, you may get error messages
-back from the server. The errors will NOT say that the line was too
-long, but they will show that parts of the line were interpreted as
-separate (and incomplete) commands. To fix this, you can "escape" the
-line breaks: Anywhere a space is allowed, you can insert a backslash
-and a hard return to make the server interpret several lines as just
-one command. (White space after the backslash will be ignored.)
-
-For example:
-  subscribe my-very-long-list-name MyFirstNameHere MyLastNameHere <my_email@my_domain>
-is too long for many mail tools. To keep the command from being
-broken up, you can type this in your message to $MJ 
-(making sure the '\' is the very last character on the first line):
-  subscribe my-very-long-list-name \ 
-  MyFirstNameHere MyLastNameHere <my_email@my_domain>
-The server will then re-assemble the two lines into one command.
-
-Other options include getting a better mail tool and turning off
-automatic line wrapping, but don't expect the list owner to do
-everything for you when there IS a way to do it yourself.
-
-List owners using "put" to store files must keep in mind that the
-backslash described above ALWAYS joins two lines as one, even if
-it's part of a file being put and not a one-line command, unless it
-is "escaped" by another backslash. See the "here file" notes below.
-
-All of the Majordomo2 commands and options can be entered with only
-LOWER CASE LETTERS with underscore also possible. Commands are NOT case
-sensitive, and may be typed in upper case, but lower case is recommended.
-Some options and/or arguments may be case sensitive.
-
-A basic command might be:
-  COMMAND
-
-A command with an option would then be:
-   COMMAND-OPT
-or if you prefer seeing it this way
-   COMMAND=OPT
-
-Commands may also have arguments after a space:
-  COMMAND ARG
-
-Commands may have both options and arguments:
-  COMMAND-OPT ARG
-
-The general case, then, is a command with several dash-separated
-options and several space-separated arguments:
-   COMMAND-OPT1-OPT2-OPT3 ARG1 ARG2 ARG3
-or the alternative
-   COMMAND=OPT1=OPT2=OPT3 ARG1 ARG2 ARG3
-
-If options are allowed, the help file description of the command
-will show all options strung together. Keep in mind that some or
-all of the options can be dropped.
-
-If arguments are allowed, the help file description of the
-command will show REQUIRED arguments with plain names, and
-NON-REQUIRED arguments in square brackets. For example
-   COMMAND ARG1 [ARG2]
-indicates that COMMAND must have one argument, and may have two.
-Read the description carefully to find out what each arg does.
-
-If that's not enough complexity, some arguments require several
-lines of input, not just a word or two. In these cases a syntax
-is used that Unix people will recognize:
-   COMMAND-OPT <<TAG
-DATA1
-DATA2 DATA3
-TAG
-
-This is sometimes called a "here file" because all argument lines
-after "<<TAG" and before the matching "TAG" (shown above as "DATA1"
-and "DATA2" are stored in the command as if they had been read from
-a file. The "#" character is usually NOT a comment character between the tags!
-You can use your own string for "TAG", with a few restrictions:
-  - the string must begin with three upper case letters.
-  - after the first three letters, any number of upper case letters
-      or digits can be used.
-  - the end "TAG" must be on a line by itself (no indents or comments).
-It is wise to use different tags for different commands, so they don't
-accidentally mismatch due to typing errors.
-
-NOTE: When using "here files" for commands like "put", keep in mind that
-you can use backslashes to join lines, or you can escape them to keep
-from joining lines. For example, this will produce a one-line file:
-   put GLOBAL welcome <<ENDWEL
-   first line \
-   second line
-   ENDWEL
-If you were trying to create a two-line file that actually CONTAINED
-the backslash, you would have to issue this command instead:
-   put GLOBAL welcome <<ENDWEL
-   first line \\
-   second line
-   ENDWEL
-A backslash anywhere OTHER than the end of the line is treated as
-simply another character.
-
-In addition to the '<<' syntax for supplying arguments to a command, there
-is the '<@' syntax.  When followed by a number, this references the
-numbered attachment.  (Number 1 being the attachment following the part
-containing the commands.)  From the shell interface, this references the
-numbered '-f' argument.  (Read the mj_shell manual page for more
-information, or send "help mj_shell" to the server.  Note that the shell
-interface is only available to users local to the machine running Majordomo.)
-This enables the upload of binary files and the like by attaching them to
-the command message and doing something like the following:
-  approve password put-data mylist image/jpeg none base64 A Picture <@ 1
-
-See "help configset" and "help configshow" for more information about
-the syntax of those commands (both input and output).
-
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 3 - User Command Syntax & Summary
-
-Each user command is described very briefly here. For other commands,
-send "help admin commands" to the server. For more detail on a given
-command, send "help COMMAND" to the server. For ideas on which command
-to use, send "help overview" to the server.
-
-For basic help, just send "help" to the server at $MJ
-For a complete list of help files, send "help topics".
+accept [TOKEN]
+  The accept command is used to confirm a posted message or other 
+  request that was being held for approval.  Confirmation is
+  often required when you subscribe to a mailing list, to verify your
+  identity.
+  See "help accept" for more details.
 
 
-accept [token]
-==> sent back to the server as confirmation, tells server to take action
+alias NEWADDRESS
+  The alias command gives a new e-mail address the same privileges as 
+  your original e-mail address.  Your original address must already
+  be registered at this site.  This command is useful if you want to
+  post messages to the same mailing list from two different addresses.
+  It applies to all of your subscriptions at $DOMAIN.
+  See "help alias" for more details. 
+  
 
-alias address
-==> allows posting from more than one address based on a single subscription
+approve PASSWORD COMMAND
+  The approve command is a prefix to another, complete command.  It
+  asks Majordomo to use a particular password, but only for this
+  one command.
+  See "help approve" for more details.
 
-approve password command-options [arguments]
-==> allows Majordomo to execute a command without using an "accept" token
 
-changeaddr address
-==> replaces the address in the database and on every list at this site
+archive LISTNAME MESSAGES
+  The archive command is used to see the contents of, or a summary of, one
+  or more messages which have been posted to a mailing list.
+  See "help archive" for more details.
 
-default variable value
-==> sets a default value for the remaining commands
+
+changeaddr OLDADDRESS
+  The changeaddr command will transfer all of your subscriptions from
+  your old e-mail address to your new e-mail address.
+  See "help changeaddr" for more details.
+
+
+default VARIABLE [VALUE]
+  The default command tells Majordomo to use a particular value for
+  all succeeding commands.  Acceptable names for VARIABLE are:
+
+    password  Use a different personal password 
+              (see "help password" for more details).
+
+    user      Masquerade as someone else.  The results of the command 
+              will be mailed to the other person, with your address in the 
+              From: header.
+
+  See "help default" for more details.
+
 
 end
-==> stops reading Majordomo commands from email or the keyboard
+  The end command tells Majordomo that no more commands remain to be
+  processed.  Anything following the end command will be ignored.
 
-faq listname
-==> returns a Frequently Asked Questions file for listname, if available
 
-get listname filename 
-==> retrieves the given file from the list's file storage
+faq LISTNAME
+  The faq command shows the Frequently Asked Questions document for
+  a mailing list.
 
-help [topics]
-==> retrieves the requested help topic, if available
 
-index-recursive-long listname [pathname]
-==> retrieves an index of available files in the list's file storage
+get LISTNAME FILENAME
+  The get command retrieves a document from the file space of a
+  mailing list.
+  See "help get" for more details.
 
-info listname
-==> returns a Information file for listname, if available
 
-intro listname
-==> returns a Introductory file for listname, if available
+help [TOPIC]
+  The help command displays a help file, such as the document you
+  are reading right now.
+  See "help help" for more details.
 
-lists-enhanced-long-compact-short-tiny
-==> retrieves a list of lists on this server which are available to you
 
-password-random [newpassword] address
-==> change the password for a pre-registered address
+index LISTNAME [PATH]
+  The index command displays a directory of the files in the file
+  space of a mailing list.
+  See "help index" for more details.
 
-register-nowelcome-password [newpassword] address
-==> add an address to the registration database but no lists
 
-reject [token]
-==> sent back to the server as denial, tells server to cancel action
+info LISTNAME
+  The info command displays the Welcome Message for a mailing list.
+  See "help info" for more details.
 
-set listname flag address
-==> change subscriber options like digest, nomail, ack
 
-show address
-==> displays various information about the address
+intro LISTNAME
+  The intro command displays the List Introductory Information document
+  for a mailing list.
+  See "help intro" for more details.
 
-subscribe-nowelcome listname address
-==> adds the address to listname and to the registration database
 
-unalias address
-==> removes the given address as an alias for the requester's address
+lists [PATTERN]
+  The lists command shows a directory of the public mailing lists at
+  the $DOMAIN domain.
+  See "help lists" for more details.
 
-unregister address
-==> removes the address from the database and from every list at this site
 
-unsubscribe-regexp-allmatching listname address
-==> removes an address or addresses from the given list.
+password NEWPASSWORD
+  The password command will change your personal password for all of
+  your subscriptions at $DOMAIN.
 
-which-regexp searchstring
-==> shows which lists contain addresses which contain the searchstring
 
-who listname [pattern]
-==> returns all or some subscribers to the named list
+register 
+  The register command will add your address to the central registry
+  and assign a password for you.  The register command will not subscribe
+  your address to any mailing lists.  When you subscribe to a mailing
+  list, you will be registered automatically.
 
-For a complete list of all help topics, see "help topics".
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+reject [TOKEN]
+  The reject command is used by list moderators to disallow a posted
+  message or other request that is being held for approval.
+  See "help reject" for more details.
+
+
+set LISTNAME [SETTING[,SETTING]]
+  The set command will display or change your personal settings for
+  a mailing list.
+  See "help set" for more details.
+
+
+show
+  The show command will display information about all of your 
+  subscriptions and aliases.
+  See "help show" for more details.
+
+
+subscribe LISTNAME [ADDRESS]
+  The subscribe command adds one or more e-mail addresses to the membership
+  of a regular or auxiliary list.
+  See "help subscribe" for more details.
+
+
+tokeninfo TOKEN
+  The tokeninfo command displays information about a request that requires
+  the approval of the list moderators.
+  See "help tokeninfo" for more details.
+
+
+unalias ADDRESS
+  The unalias command will remove an alias that you previously created
+  with the alias command.
+  See "help unalias" and "help alias" for more details.
+
+
+unregister [ADDRESS]
+  The unregister command will cancel all of your subscriptions and 
+  aliases, and annul your personal password.
+  See "help unregister" for more details.
+
+
+unsubscribe LISTNAME [ADDRESS]
+  The unsubscribe command removes one or more e-mail addresses from the
+  membership of a regular or auxiliary list.
+  See "help unsubscribe", "help admin_subscribers", and "help auxiliary_list"
+  for more details.
+
+
+which [PATTERN]
+  The which command shows addresses matching a pattern, and the mailing lists
+  to which they are subscribed.
+  See "help which" and "help patterns" for more details.
+
+
+who LISTNAME [PATTERN]
+  The who command shows the e-mail addresses of members of a regular or
+  auxiliary list.
+  See "help who" and "help patterns" for more details.
+
+
+See Also:
+   help command_parser (signatures, attachments, and splitting long commands)
+   help help
+   help overview
+
+$INCLUDE-help/foot

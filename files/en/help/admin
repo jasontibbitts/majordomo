@@ -1,711 +1,258 @@
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 1 - Introduction to "help admin"
-
-Below are many techniques a list administrator may want to use, but
-some commands and many options are left out. For a complete set of all
-available commands, send "help topics" to $MJ
-
-This file is specific to administrators! To get suggestions from a
-user's perspective (as a list subscriber) send "help overview" or
-"help commands" to the server.
+                    Introduction to List Administration
 
-To get top-level help, send "help" on a line by itself to the server.
-To get a brief description of command syntax, send "help admin commands".
-For information on variable substitution and nested file inclusion in
-help files and other messages the server may send out, see "help put"
-and "help variables".
+As the owner of a Majordomo mailing list, there are several basic duties
+you will need to perform:  configuration, moderation, subscriber
+management, document management, and monitoring.  Each of these duties 
+will be outlined in this document.  A separate, detailed help
+file is available for each duty.
 
-Here are the main sections in this file:
-  Section 1 - Introduction to "help admin"
-  Section 2 - Where to Send Email (or "don't bug the wrong person")
-  Section 3 - The Text Parser (how Majordomo reads your commands)
-  Section 4 - List Configuration (how an owner sets list options)
-  Section 5 - Passwords (global, list, master, subsidiary)
-  Section 6 - Creating and Running Lists (all the other stuff you need)
-          6.1 - Creating a list
-          6.2 - Moving a list from Majordomo 1.9x
-          6.3 - Simple logs for debugging
-          6.4 - Where the files are
-          6.5 - List Archives
-          6.6 - Access Control
-          6.7 - Administrative Command Modes
-  Section 7 - Cookbook for common list owner problems
-          7.1 - creating a list of who can and cannot post
-          7.2 - requiring approval for posts from specific domains
-          7.3 - keeping certain users or a certain domain from posting
-          7.4 - stopping massive crossposting between lists
-          7.5 - making people read my list for a few days before they post
-          7.6 - replacing an old subscriber address with a new one
+This document assumes that your mailing list has already been
+created.  If that is not the case, see "help createlist"
+for an introduction to list creation.
 
-If you have suggestions or corrections for this or other help files,
-please contact the maintainer as indicated at the end of this message.
-
-
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 2 - Where to Send Email (or "don't bug the wrong person")
-
-All Majordomo2 commands are sent to the server at $MJ
-(this includes things like "subscribe", "help", "lists", etc)
-If you have shell access, refer to "help mj_shell" for an
-alternative to sending email to the server.
-
-To send a post (also called a broadcast) to an email list called
-"LISTNAME", just send email to LISTNAME@$WHEREAMI
-(of course "LISTNAME" is replaced with the actual name of the list)
-
-
-  DO NOT SEND MAJORDOMO COMMANDS TO THE EMAIL LIST ITSELF!
-  Go back and read the two paragraphs above if you have any questions.
-
-
-To contact the owner of a specific list, send mail to that list's
-owner address, which is formed by adding "-owner" to the list name.
-For instance, to contact the list owner for the list "LISTNAME",
-you would send email to LISTNAME-owner@$WHEREAMI
-
-A human site administrator should be available at $MJOWNER
-but don't expect the overall admin to answer questions in detail!
-(save this address for when a list owner can't help you...)
-
-NOTE: This section is replicated in "help overview".
-
-
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 3 - The Text Parser (how Majordomo reads your commands)
-
-The text parser is the part of Majordomo that takes a body of text and
-extracts the commands from it.  In the simplest case it just parses
-commands, one per line.  It can, however, do much more.
-
-The parser only looks in text/plain parts for commands.  Other parts are
-discarded.  Lines beginning with '#' are considered to be comments, and are
-ignored.  Lines ending in '\' are joined to the next line.
-
-The parser will check for the validity of each command and report errors.
-It will also skip large amounts of errors, reporting the count of lines
-skipped.  If necessary, a default list will be added based on the default
-list supplied to the parser.
-
-If the command line ends in '<<' and a word in upper case, all lines
-between the command line and one consisting only of the specified word are
-taken as additional arguments to the command.  Then the command routine is
-called and the results are reported. See the "help admin commands" or
-"help commands" files for syntax details on how to read files or email
-attachments directly as input instead of using the '<<' method.
-
-The 'approve' command runs the given command (and arguments) with the
-supplied password.  Essentially any command can be executed with
-privileges using the approve command.  The 'default' command makes it
-much easier to approve several commands at once by setting certain
-defaults for the duration of the parsing (currently only implemented
-for password and listname, the default command will one day have a
-language and prefix option). Refer to these help files for details:
-   help approve
-   help default
-
-
-
-
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 4 - List Configuration (how an owner sets list options)
-
-All aspects of list configuration and most aspects of Majordomo
-configuration are alterable remotely using the configuration interface.
-This interface allows single variables or sets of variables to be retrieved
-and modified individually, and for variables to be set without first
-retrieving their value.  The result of a variable retrieval is a set of
-commands ready to be edited and mailed back.
-
-The configuration interface makes use of three commands: configshow,
-configset and configdefault.  In addition, the shell interface (for local
-users) supports the configedit command.
-
-NOTE: The output of "configshow-comments" has been stored for every
-      configset variable, and is available through the help system:
-      The command "help configset VARIABLE" sent to $MJ,
-      where "VARIABLE" is replaced with the configset variable you
-      want details on, will return both the default comments and
-      (in some cases) annotations showing operation which differs
-      from the configshow comments and/or further explantion of
-      how the command works. use "help configset" with no variable
-      name to get a list of all possible variables and other info.
-
-
-Configset or Configedit:
-  configset changes the value of the given variable.  It takes as arguments
-  the list (or GLOBAL for global configuration), the variable to be changed,
-  and the value.  The value for scalar variables (those containing only a
-  single value) are supplied with an equals sign; array and table values are
-  set with the '<< TAG' syntax (see below). Configedit does the same thing
-  from a command line instead of through email.
-
-Configshow:
-  configshow displays the value of a configuration variable.  This display
-  includes the commands necessary to set the variable; this makes it simple
-  to issue a configshow, edit the result and send it back to the server.
-  Refer to "help configshow" for more details on this command.
-
-Configdefault:
-  The configdefault command sets the value of a variable back to its default
-  value.  Not only that, but variables set to their default values will track
-  changes made to the defaults file, so that a change made to the defaults
-  file will update the values of the relevant variables in all lists that
-  have not set the variables otherwise.  The configdefault command takes the
-  list and the name of the variable to be defaulted.
-
-The Old Interface:
-  Note that the old Majordomo1 commands are not yet supported, but they
-  essentially translate as follows:
-    config      -> configshow=comments list ALL
-    newconfig   -> not required; output of configshow contains appropriate
-                   commands 
-    writeconfig -> not required; config file is stored internally in a manner
-                   that makes this unnecessary
-
-
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 5 - Passwords (global, list, master, subsidiary)
-
-NOTE: There are also "personal passwords" for list subscribers. The
-passwords discussed in this section are for administration of the
-site or lists. Refer to "help password" for personal password info. 
-
-The Majordomo system implements most of its security through the use of
-passwords.  Providing a password causes the system to bypass the normal
-access checks; if the password is valid and carries the proper
-authorizations, the action will be carried out.  This enables a list owner
-to administer the list from various addresses and to give others
-administration duties simply by giving out passwords.
-
-There are various overlapping classes of passwords:
-
-*) Global passwords.
-   These passwords are authorized to perform actions on all lists at a
-   site.
-
-*) List passwords.
-   These can affect only a single list.
-
-*) Master passwords.
-   These are authorized to perform any action on the list.  The global
-   master password is allowed to perform every action on every list.
-
-*) Subsidiary passwords.
-   The list owner (actually anyone who has the list's master password or
-   the global master password) can create an unlimited number of passwords
-   and authorize each to do different things.
-
-The concept of subsidiary passwords is powerful.  One (or, perhaps, more
-than one) password can be authorized to perform subscriptions while another
-can bypass access restrictions on posting messages.  Passwords can be
-authorized to do more than one thing, or to do anything except see or
-change any of the password.  (Only the master passwords are authorized to
-do that.)
-
-In addition, subsidiary passwords can be bound to email addresses.  This is
-not intended to give a large amount of additional security; email can be
-forged trivially and a user with a password authorized to carry out the
-'alias' action can simply equate his address to one which is authorized to
-do some other action.  Still, since the passwords themselves are hidden
-from view, it prevents casual password guessing.
-
-Note that master passwords cannot be bound to addresses.  If this is
-desired, it is best to create a subsidiary password authorized to do 'ALL'.
-Some sites may even choose not to give master passwords to list owners.
-
-For information on how to actually set up and change passwords,
-send these two lines to $MJ
-   help configset master_password
-   help configset passwords
-and for information on how to apply passwords, see
-   help approve
-   help default
-
-
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 6 - Creating and Running Lists (all the other stuff you need)
-
-6.1 - Creating a list:
-
-  You will probably have to add something to PATH or type the full path to
-  mj_shell for mj_shell to work, and you have to have access to a shell
-  command line on the computer that receives Majordomo commands. If you
-  don't have access to mj_shell, just send the following commands to the
-  server by email.
-
-  If you start mj_shell without arguments, it will respond with some
-  instructions and a 'Majordomo>' prompt.  If you have the appropriate modules
-  installed, you may have interactive editing capabilities although those
-  modules often have some trouble on some OSes.
-
-  You can make your own list 'test-list' owned by someone@example.com
-  just by issuing the createlist command...
-
-  - from an interactive shell:
-      % mj_shell -d example.com -p password
-      Majordomo> createlist test-list someone@example.com
-
-  - from a shell command line
-      % mj_shell -d example.com -p password createlist test-list someone@example.com
-
-  - or send email to $MJ
-      approve password createlist test-list someone@example.com
-
-  This will give you the necessary aliases to add to the appropriate file, if
-  you're running Sendmail.  Note that for sites running virtual domains the
-  suggestions may not be completely correct and additions to other files (the
-  virtusertable, most likely). See "help createlist" for details.
-
-  Help is always available; send the command
-   help topics
-  to see a list of available help topics.
-
-  Now to configure this list.  This should do everything necessary, although
-  some aspects of your MTA configuration may cause the list addresses to not
-  be immediately availabile.
-
-  The default configuration of this list may be reasonable (as the defaults
-  are designed to mirror Majordomo 1.94.4 behavior), but there are some
-  variables you will want to play with:
-
-  - from an interactive shell:
-      Majordomo> configedit test-list subject_prefix
-
-  - or send email to $MJ
-      approve password configshow test-list subject_prefix
-    (edit the email you get back)
-      approve password configset test-list subject_prefix ...
-    (send back the edited text)
-
-  This will open an editor on the subject_prefix variable, with a short
-  description of the variable present.  Note that in Mj2, users have the
-  choice of receiving a subject prefix so you probably want to configure
-  one.  The same goes for 'reply_to' and other interesting variables.
-
-  If you want digests or archiving, you must make a directory to store
-  archived messages:
-     put-dir test-list /public/archive Message Archives
-  Now archives will accumulate, and are accessible using the get command.  If
-  you want some digests, do
-     Majordomo> configedit test-list digests
-  and set up one or more.  Users can use the 'set' command to choose whether
-  they want each message or a digest.  They can choose which of the digests
-  you've defined and what kind of digest they want (text, MIME, or index).
-  They can also set various other parameters using 'set'
-
-
-6.2 - Moving a list from Majordomo 1.9x:
-
-  You can pull in a set of addresses from a Majordomo 1.9x list like this:
-     mj_shell -p password -f old-list-file subscribe=quiet,noinform list-name
-  which subscribes all addresses from a file, without welcoming them and
-  without sending an informational notification to the list owner.
-  If you copy the old configuration file into the directory for the new list,
-  it will be automatically created.
-
-
-6.3 - Simple logs for debugging;
-
-  Majordomo2 stores information about every email or command line processed
-  in files called sessions.  These are files containing all pertinent
-  information about the session (email headers, CGI environment, selected
-  environment variables, etc. as appropriate) as well as a log of all
-  commands executed during that session.  When a token is rejected,
-  information about the session that generated it is automatically mailed to
-  the list and site owners (if they elect to receive such information).
-  See "help configset debug" for more information.
-
-
-6.4 - Where the files are:
-
-  Please refer to "help put" for details on the directory structure used
-  by Majordomo2... especially if you have shell access and plan to edit
-  or create files by hand (using the operating system shell). Links and/or
-  manually created files will work, but only if the ownership permissions
-  are right.
-
-  Each list has a directory where retrievable files are stored; this is
-  called a filespace.  Because normal filesystems do not track enough
-  information about file types, Majordomo2 maintains a database containing
-  information about these files such as their description and MIME type.  The
-  list owner can upload files to the filespace and users can retrieve files
-  from the public portion of the filespace.
-
-  When retrieving a file from the filespace, Majordomo2 consults a search
-  list made from the 'file_search' config variable and a global default.
-  Other list's files can be referenced as long as they share their files.
-  Since Majordomo2 goes through the filespace to send out nearly all of its
-  messages, this provides both an overrideable defaults mechanism and a means
-  for internationalization.
-
-  Files are uploaded using the 'put' command; 'put-dir' will make
-  directories.  There is currently no way to delete a file.  The 'newinfo',
-  'newintro' and 'newfaq' commands are shortcuts for 'put' with specific
-  arguments.
-
-  Files are retrieved with the 'get' command; 'get=immediate' will return the
-  file inline instead of mailing it as a separate message.  The 'intro',
-  'info' and 'faq' commands are shortcuts for 'get' with specific arguments.
-
-  A (partial) list of the response files that Majordomo2 uses are given, with
-  supported variable expansions, in "help put". You will also find a list of
-  variables that can be substituted as a file is sent to the user, and how to
-  automatically include one file within another file.
-
-
-6.5 - List Archives:
-
-  Archives start accumulating as soon as the archive_dir variable is set and
-  the directory exists, or as soon as an "archive" directory appears in the
-  public area of the list's filespace.  The latter can be done by the command
-     put-dir LISTNAME /public/archive Archives
-  (properly approved, of course). You can use the "configset archive_dir"
-  command to put the directory elsewhere. There is no need to create additional
-  aliases.  Archives are free of fronters, footers, most header modifications
-  and subject prefixing. (For example, "message_headers" and "subject_prefix"
-  will not be in the archives.) The archive system will automatically create a
-  ".index" directory to place various indices.
-
-  The archive is in the standard Unix mailbox format (usable by mail readers
-  such as elm and /usr/bin/mail). You get a list of messages from the people
-  who posted, as you would expect. This standard format can be imported directly
-  into Eudora (on Windoze PCs): just copy the file into the directory Eudora
-  looks at and restart Eudora. On Unix systems, just read the archive directly
-  with "/usr/bin/mail -f archive_file_path".
-
-  The archive directory can be a symbolic link without problems, although it
-  cannot be created that way from within Majordomo.  The usual reason for this
-  is to permit the archives to be in an FTP area.
-
-  (Archives will be needed in order for digests to work. There will be
-  provisions for old archives to automatically be removed, in case long-term
-  archiving is not desired.)
-
-  Refer to these help files for additional information on archive files:
-   help configset archive_dir
-   help configset archive_size
-   help configset archive_split
-   help configset get_access
-   help configset index_access
-
-
-6.6 - Access Control:
-
-  All operations which need to restrict access go through a central mechanism
-  for doing so.  The list owner can choose to use the old Majordomo 1
-  interface which works via the *_access variables, restrict_post,
-  subscribe_policy and the like.  This works as expected (though the
-  mechanism by which restrict_post lists are set up has changed).
-
-  The owner can also choose to make use of an extremely flexible system which
-  is documented in the "help configset access_rules" file.  This, when
-  coupled with some of the admin_* and taboo_* extensions (like severity and
-  classes) and the metrics that resend collects allows almost arbitrarily
-  complex access control. (see "help configset admin_body" for details!)
-
-  Instead of Majordomo 1's limitation of confirming only subscribes, almost
-  any operation can be stalled and completed after a conformation token is
-  returned by either the user or the owner (or both).  The owner can also
-  choose to deny outright a request.
-
-  To keep subscriber lists private, you should use "configset access_rules"
-  to disable or limit use of "who", "which", and "show". There are commands
-  (see "help configset who_access" and "help configset which_access") for
-  who and which, but the show command can only be limited with access_rules.
-
-  Information about a token can be retrieved as indicated in "help showtokens".
-
-6.7 - Administrative Command Modes:
-
-  The commands you send to Majordomo often have a command "mode" which
-  alters the behavior of the command.  For example, in the command
-    lists-short-enhanced 
-  the command mode is "short-enhanced".
-
-  Majordomo offers four command modes that can be applied to any 
-  command, and are only useful to list owners and site administrators.
-
-  noinform - Do not send an informational message to the list owners.
-    The "inform" configuration setting determines when a message
-    would normally be sent.  See "help configset inform" for more
-    details.
-
-  nolog - Do not log the result of this command.
-    For each Majordomo request, one line describing the request 
-    and its result is normally added to a global log file.  The 
-    contents of the log file can be displayed using the "report" command.
-    A site or domain password is required to use this mode.
-
-  quiet - Do not send a notice when a delay token is created.
-    It is possible for you to delay the completion of a request
-    until later;  see the description of the "default delay"
-    command in "help default" for details.  When a request is
-    delayed, a notice is usually sent to the person whom the 
-    request affects.  That person can follow the instructions
-    in the notice to keep the request from being fulfilled, or
-    to complete the request immediately. 
-
-  rule - Turn off the "access_password_override" setting temporarily.
-    Usually, when you use the master password for a mailing list,
-    your requests are completed right away.  This mode causes
-    the privileges of the master password to be suspended.  The
-    access rules and other restrictions are applied as usual.
-    See "help configset access_password_override" for a practical
-    example.
-    
-A site, domain, or list master password is required to use these
-four command modes.
-
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 7 - Cookbook for common list owner problems
-
-This section contains examples of how you would solve certain problems.
-The answers are probably not complete; in many cases Mj2 is so flexible
-that there are many ways to solve the problem.
-
----------------------------
-
-7.1 - Problem: How can I have a list with 30 members but allow
-      posting by 300 specific addresses and nobody else?
-
-
-7.1.1 - first Solution (no auxiliary files):
-  Sign everyone up, but put the people who don't want to get anything in the
-  class 'nomail'.  (set blah-list nomail address@host.dom).  This means the
-  people who can post are real subscribers; they just don't get any
-  messages.  Set restrict_post appropriately:
-
-  restrict_post <<END
-  blah-list
-  END
-
-  to close off posting to the list.
-
-
-7.1.2 - second Solution (most like Majordomo 1):
-  Sign up the recipient users as usual, and put everyone else in
-  a sublist like this:
-
-     subscribe blah-list:posters address@host.dom
-
-  (where "blah-list" is the main list and "posters" is the sublist)
-  then restrict posting to the main list and that sublist:
-
-  restrict_post <<END
-  blah-list
-  posters
-  END
-
-
-7.1.3 - third Solution (most flexible):
-  Sign up the recipient users, put everyone else in a sublist, make a file
-  explaining that only members can post, 'put' it with the name
-  'membersonly', and make an access rule:
-
-  access_rules <<END
-  post
-  deny, replyfile=membersonly
-  !@MAIN && !@posters
-  END
-
-  This rule denies all postings from users who are not in the main list and
-  are not in the 'posters' sublist.  They will be sent the named denial
-  message if they try to post.  Be sure you either have
-  'always_ack_denials' set or you have 'a' or 'A' in 'nonmember_flags' so
-  that users will see these messages.  Also put 'fail' (or 'all') in
-  'ack_attach_original' if you would like these users to receive a copy of
-  their message back with the rejection notice.
-
-  The 'deny' can be changed to 'consult' to let the list owner approve the
-  messages if desired, as with the other two solutions.
-
----------------------------
-
-7.2 - Problem: How do I let everyone in a certain domain post while
-      requiring approval for all other domains?
-
-7.2 - Solution:
-  First note that headers can be forged and so if people really want to
-  bypass a header-based restriction they can. For protection against most
-  non-malicious spammers, add a simple access rule as shown below.
-
-  We'll use the 'no' (Norway) domain as the first example. This ruke
-  consults the list owner(s) for all addresses not ending in '.no':
-
-  access_rules <<END
-  post
-  consult
-  !/\.no$/
-  END
-
----------------------------
-
-7.3 - Problem: How do I keep anyone, or a certain domain, from posting
-      while allowing all other users and domains to post freely?
-
-7.3.1 - backward-compatible Solution: see "help configset restrict_post"
-
-7.3.2 - access_rules Solution:
-  First note that headers can be forged and so if people really want to
-  bypass a header-based restriction they can. Often what you REALLY
-  want is to keep one user from posting while allowing everyone else
-  to post, but the "freebie" domains make it easy to create new accounts
-  and cause trouble.
-
-  Here is how to lock out one domain, using Yahoo as an example. Note
-  that the '@' and '.' characters need to be escaped with "\", and
-  refer to "help patterns" for details on regular expressions:
-
-  access_rules <<END
-  post
-  deny
-  /\@yahoo\.com$/
-  END
-
-  Here is how to lock out TWO domains, using Yahoo and MSN, and you
-  can add more domains to the list as needed:
-
-  access_rules <<END
-  post
-  deny
-  /\@yahoo\.com$/ OR /\@msn\.com$/
-  END
-
-  Here is how to lock out the entire Yahoo domain, and also any email
-  address from any domain which contains the string "calliger":
-
-  access_rules <<END
-  post
-  deny
-  /\@yahoo\.com$/i OR /calliger/i
-  END
-
----------------------------
-
-7.4 - Problem: How to I stop massive crossposting between lists
-      at my site and perhaps lists at other sites, too?
-
-7.4 Solution:
-  You can do this using taboo_headers matches and an access rule.
-
-  First create and 'put' a file called 'nocrossposting' explaining how
-  crossposting between your lists and between your and others are not
-  allowed.
-
-  Then put some entries into taboo_headers:
-
-taboo_headers <<END
-/^(to|cc):.*some-list/i 10,crosspost
-/^(to|cc):.*some-other-list/i 10,crosspost
-/^(to|cc):.*another-related-list/i 10,crosspost
-/^(to|cc):.*yet-another-list/i 10,crosspost
-/^(to|cc):.*and-another/i 10,crosspost
-END
-
-  These look like normal taboo_headers entries, with a twist: the
-  information on the end contains a 'score' (or a 'severity') and a name.
-  Taboo matches can be given names; when one of them matches, the score is
-  added to that name.  So for every match, ten points are added to the
-  'crosspost' match.  Note that if you included your own list there, the
-  match will start out at 10.
-
-  Now, you have to test the score of the 'crosspost' match and do something
-  with the message if it matches too many times.  This is done with a few
-  lines in the access_rules variable:
-
-access_rules <<END
-post
-deny, replyfile=nocrossposting
-$taboo_crosspost >= 30
-END
-
-  This will deny the message and mail out your 'nocrossposting' file if the
-  score gets to 30 or above.  If your list is not matched by any of the
-  taboo_headers lines, this means that the message will be sent back to the
-  poster if it is crossposted to three or more lists.  You can adjust the
-  '30' to meet your needs.  You can also adjust the individual scores;
-  perhaps some lists are OK to crosspost to but you still want to stamp out
-  excessive crossposting, so you could give the taboo lines matching those
-  lists scores of 5 or so.
-
-  Note that because each of your lists doesn't know what comes in to your
-  other lists, the poster will get several rejection notices.
-
----------------------------
-
-7.5 - Problem: I want people to read my list for a few days before they post.
-
-7.5 - Solution:
-  You can do this using access_rules and the $days_since_subscribe variable:
-
-access_rules <<END
-post
-deny, replyfile=membersonly
-!@
-post
-consult, replyfile=waitawhile
-$days_since_subscribe < 3
-END
-
-  Write and upload a suitable files called 'membersonly' and 'waitawhile'
-  and they will be sent to nonmembers and new menbers, respectively (where
-  new members are those who have been signed up for less than three days).
-  Nonmembers will be rejected out of hand, while new members will have to
-  wait for the list owner to approve their messages.
-
----------------------------
-
-7.6 - Problem: One of the subscribers wants to change her address from 
-      jane@example.com to ruth@example.net.  How can she do this?
-
-
-7.6.1 - Solution when she still has access to the old account:
-
-Sending email from 'ruth@example.net', she can send this one-line command:
-  changeaddr jane@example.com
-
-
-7.6.2 - Solution when email cannot be sent from the old account:
-
-Anyone, including 'jane@example.net' can send the following two commands:
-  default user ruth@example.net
-  changeaddr jane@example.com
-following which both accounts will be required to return a token before
-the change takes effect. This will work when the old account is set to
-forward somewhere else, because the token can be returned from any address.
-It will NOT work if the old account is completely gone, since the user
-will not know what token to send back.
-
-If the site administrator uses the master password, neither address will
-need to confirm the change:
-  default password SITEPASSWORD
-  default user ruth@example.net
-  changeaddr jane@example.com
-
-If the password for the old address is used, only the new address will
-need to confirm by returning a token:
-  default password RUTHSPASSWORD
-  default user ruth@example.net
-  changeaddr jane@example.com
-
-
----------------------------
-
-
-If you don't find the answer to your problem here, PLEASE send it to
-mj2-dev@csf.colorado.edu so we can build commonly needed
-solutions into future releases!
-
-
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+In the examples in this document, wherever you see LISTNAME,
+substitute the name of any valid mailing list at $DOMAIN.
+
+Interfaces
+----------
+
+There are several ways to issue administrative commands.  The most
+common way is to use e-mail.  Commands should be mailed to
+  $MJ
+Commands should always be placed in the body of the e-mail messages,
+never in the Subject header.  Majordomo only processes commands
+in plain text parts of the message, although it is possible
+to use attachments in some circumstances.  See "help parser"
+for more information.
+
+In addition, if you have shell access for the computer on which
+Majordomo runs, you may be able to use the mj_shell program 
+(see "help mj_shell" for more details).  mj_shell allows you
+to type Majordomo commands at the command line.  The mj_shell
+commands use the same syntax as the e-mail commands.
+
+Finally, if Majordomo is configured to use the WWW, there will be
+an interface for list administrators at the following location:
+  $WWWADM_URL
+and an interface for list subscribers at
+  $WWWUSR_URL
+
+The rest of this document, and most of the Majordomo help system,
+assumes that you are using either the e-mail or the shell interface.
+The WWW interfaces have separate instructions.
+
+Passwords
+---------
+
+If you want to perform administrative tasks, you have to tell 
+Majordomo your administrative password.  The easiest way to do this is
+to always use this command first...
+
+  default password YOURPASSWORD
+
+...substituting the list's administrative password for YOURPASSWORD.
+
+For more details, see "help admin_passwords".
+
+Configuration 
+-------------
+
+There are many different ways to run an electronic mailing list.  
+Some common differences are:
+
+  * Is the list public or private?
+  * Who can post messages to a mailing list?
+  * Can the subscribers receive messages in a digest?
+  * How are bounces (error messages from addresses that are unable
+    to receive mail) handled?
+  * Will a monthly reminder be sent to the subscribers?
+
+The answers to all of these questions are determined by your mailing
+list's configuration settings.  Because there are over 100 settings,
+they have been divided into several categories.  Each setting has
+a separate help page.
+
+There are three basic commands used to manage the settings.  The
+configshow command is used to see the current value of a setting.
+For example,
+
+  configshow GLOBAL whereami
+
+To change a setting, the configset command is used.  For example,
+
+  configset LISTNAME access_password_override = 0
+
+To return a modified setting to its default value, the configdef
+command is used.  For example,
+
+  configdef GLOBAL taboo_body
+
+For more details, see "help admin_config".
+
+
+Moderation
+----------
+
+Sometimes, when someone attempts to subscribe to your mailing list
+or post a message, approval is required before the subscription
+succeeds or the message is distributed on the list.  When this
+happens, we say that the request is "stalled."  Majordomo keeps track 
+of these "pending requests" by assigning a "token identifier" 
+to each request.  It then sends the list moderators
+a "consult" message with instructions for approving the action.
+
+The showtokens command will display all of the stalled requests for
+a mailing list.  For instance,
+  showtokens LISTNAME
+
+The token identifier for each request will look something like this:
+  A96F-54E1-004B
+
+In the following three examples, substitute a valid token identifier
+for the word TOKEN.
+
+To see information about a stalled request, use the tokeninfo command:
+  tokeninfo-full TOKEN
+
+To approve a stalled request, use the accept command:
+  accept TOKEN
+
+To disapprove a stalled request, use the reject command:
+  reject TOKEN
+
+To make posted messages fully moderated, change the moderate setting:
+  configset LISTNAME moderate = 1
+
+To allow only subscribers to post freely, change the restrict_post setting:
+  configset LISTNAME restrict_post = LISTNAME
+(substitute the name of a mailing list for both instances of LISTNAME)
+
+For more details, see "help admin_moderate".
+
+To learn how to change the appearance of posted messages, and the
+way in which they are delivered, see "help admin_delivery".
+
+
+Subscriber Management
+---------------------
+
+Anyone who signs up to receive messages from a mailing list is
+considered a subscriber.  The complete list of subscribers can be 
+displayed using the who command, 
+  who-enhanced LISTNAME
+
+If your mailing list has many subscribers, you can search the 
+list using a pattern (see "help patterns" for more information).
+For example, to find all of the e-mail addresses containing the
+pattern "abc" in them, use the command
+  who-enhanced LISTNAME abc
+
+The who-enhanced command will show the personal settings for
+each subscriber (see "help set" for an explanation of the settings).
+To change the settings for a subscriber, use the set command:
+  set LISTNAME digest someone@example.net
+
+You can add subscribers using the subscribe command, for example,
+  subscribe LISTNAME someone@example.com
+
+Addresses can be removed using the unsubscribe command, for instance,
+  unsubscribe LISTNAME someone@example.com
+
+Configuration settings such as subscribe_policy and unsubscribe_policy
+determine whether or not your approval is needed to join or leave 
+your mailing list.  The who_access and which_access configuration
+settings control who is able to see the list of subscribers.
+
+For more details, see "help admin_subscribers".
+
+Document Management
+-------------------
+
+Each mailing list has a file space, part of which is public,
+and part private.  You can see a directory of the files that
+are available with the index command:
+
+  index-recursive LISTNAME
+
+shows the public files, and
+ 
+  index-recursive LISTNAME /
+
+shows the entire file space, including the public directory.
+The archive of messages previously posted to the mailing list 
+is usually located in the public/archive directory. 
+
+Files can be retrieved from the public directory using the
+get command, for example:
+
+  get LISTNAME FILE
+
+where FILE is the name of a file.  File names beginning with a
+slash, '/', can only be retrieved with the get command by a list 
+administrator.
+
+Each list has three special private documents, /faq, /info, and /intro.
+
+  /faq    contains frequently asked questions and answers.
+          The faq command will retrieve this document.
+          The newfaq command will replace this document.
+
+  /info   is a welcome message that new subscribers receive.
+          The info command will retrieve this document.
+          The newinfo command will replace this document.
+
+  /intro  contains an introduction to the mailing list.
+          The intro command will retrieve this document.
+          The newintro command will replace this document.
+
+The archive of posted messages can be reviewed with the archive command.
+For example,
+
+  archive-index LISTNAME 50
+
+will show a summary of the 50 most recent messages, and
+
+  archive-get LISTNAME 30
+
+will cause the 30 most recent messages to be mailed to your address
+individually.
+
+For more details, see "help admin_documents".
+
+Monitoring
+----------
+
+Majordomo keeps a log of every posted message and command that it processes.
+There are several ways in which you can see what the people on your list 
+have been doing.  Majordomo can send you notices automatically, or you can
+ask Majordomo for a report when the need arises.
+
+Also, if your list is public, anyone can learn more about it with the
+following command:
+
+  lists-full LISTNAME
+
+For more details, see "help admin_monitor".
+
+
+See Also:
+   help admin_commands
+   help admin_config
+   help admin_delivery
+   help admin_documents
+   help admin_moderate
+   help admin_monitor
+   help admin_passwords
+   help admin_subscribers
+   help archive
+   help configdef
+   help configset
+   help configshow
+   help digest
+   help lists
+   help newfaq
+   help newinfo
+   help newintro
+   help report
+
+$INCLUDE-help/foot

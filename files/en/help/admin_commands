@@ -1,127 +1,303 @@
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+               Summary of Commands for List Administrators
 
-Section 1 - Introduction to "help admin commands"
+This document briefly describes every command available to
+a list administrator, but no explanation of why they are needed.
+For a gentler introduction, please see "help admin".
+To learn about Majordomo commands from the perspective of an
+end user, see "help commands" and "help overview".
 
-Below are the commands a list administrator may need to use, but
-there is little or no explanation of WHY they might be needed or
-how they interact with each other. For that type of information,
-send "help admin" to $MJ
+To issue a command, send it in the body of an e-mail message to
+  $MJ
 
-Each command is further explained by 'help COMMAND', but in this
-file you will see a VERY brief description of each command. Every
-administration-specific command should be mentioned here, with
-all options that pertain to administrators. Some commands have
-additional options that are more appropriate for subscribers, and
-some commands are only useful to subscribers - those commands are
-listed in "help commands". For a complete list of help files, send
-"help topics".
+The examples in this document assume that you know how to use your 
+list's administrative password.  Please review "help admin_passwords",
+if you have not already done so. 
 
-For a complete list of ALL commands, see "help topics".
+The syntax of each command is displayed, followed by a brief description.
+In the command syntax, any item in square braces [ ] is considered
+optional.  Any word in capital letters should be replaced with an 
+appropriate value.  For example, LISTNAME should be replaced with the 
+name of a mailing list.
 
-
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 2 - Command Syntax
-
-See "help commands" for information on how to format general commands.
-See "help configset" and "help configshow" for more information about
-the syntax of those commands (both input and output).
+accept [TOKEN]
+  The accept command is used by list moderators to approve a posted
+  message or other request that was being held for approval.
+  See "help accept" and "help admin_moderate" for more details.
 
 
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 3 - Admin Command Syntax & Summary
-
-Each admin command is described very briefly here. For other commands,
-send "help topics" to the server. For more detail on a given command,
-send "help COMMAND" to the server. For ideas on which command to use,
-send "help admin" to the server. For basic help, just send "help"
-to the server at $MJ
+announce LISTNAME FILENAME
+  The announce command is used to send a file to the subscribers of a 
+  mailing list.  A separate copy of the announcement is sent to each
+  recipient.
+  See "help announce" and "help admin_documents" for more details.
 
 
-accept [token]
-==> sent back to the server as confirmation, tells server to take action
+approve PASSWORD COMMAND
+  The approve command is a prefix to another, complete command.  It
+  asks Majordomo to use a particular password, but only for this
+  one command.
 
-approve password command-options [arguments]
-==> allows Majordomo to execute a command without using an "accept" token
 
-auxsubscribe listname sublist address
-==> adds an address to the named sublist of a given list.
+archive LISTNAME MESSAGES
+  The archive command is used to see the contents of, or a summary of, one
+  or more messages which have been posted to a mailing list.
+  See "help archive" for more details.
 
-auxunsubscribe-regexp-allmatching listname sublist address
-==> removes an address or addresses from the named sublist of a given list
 
-auxwho list sublist
-==> return the contents of the named sublist of a given list
+configdef LISTNAME [SETTING[,SETTING]]
+  The configdef command returns a configuration setting to its default
+  value.
+  See "help configdef" for more details.
 
-configdefault list variable
-==> sets the variable back to the default value
 
-configedit-comments listname variable
-==> retrieves the value of the variable and opens an editor on it
+configedit LISTNAME [SETTING[,SETTING]]
+  The configedit command is identical to the configshow command, with
+  one exception.  When it is run from the mj_shell command line, the
+  configuration settings will be edited by a text editor.  This makes
+  changing settings much easier.
 
-configset list variable = value
-configset list variable <<TAG
-==> sets the given variable to the given value (see "help topics" for variables)
+  
+configset LISTNAME SETTING = VALUE
+  The configset command is used to change the value of one configuration
+  setting.  If the value occupies more than one line, a here document
+  is necessary (see "help here_document" for more details).
+  See "help configset" for more details.
 
-configshow-comments listname variable
-==> retrieves the value of the given variable
 
-createlist-nocreate-noheader-force-quiet listname owner
-==> creates the internal structures needed to maintain a list
+configshow LISTNAME [SETTING[,SETTING]]
+  The configshow command displays the value of one or more configuration
+  settings.  If no settings are named, all of the settings will be
+  shown.
+  See "help configshow" for more details.
 
-default variable value
-==> sets a default value for the remaining commands
+
+default VARIABLE [VALUE]
+  The default command tells Majordomo to use a particular value for
+  all succeeding commands.  Acceptable names for VARIABLE are:
+
+    delay     Postpone the command (see "help delay" for details).
+
+    password  Use a different administrative password (see
+              "help admin_passwords" for more details).
+
+    user      Masquerade as someone else (see the "Forwarding files
+              to someone else" section in "help admin_documents" for
+              more details).
+
+  See "help default" for more details.
+
+
+digest LISTNAME [DIGESTNAME]
+  The digest command displays the status of, or initiates the delivery
+  of, one or more digests of posted messages.
+  See "help digest" and "help admin_delivery" for more details.
+
 
 end
-==> stops reading Majordomo commands from email or the keyboard
+  The end command tells Majordomo that no more commands remain to be
+  processed.  Anything following the end command will be ignored.
 
-get listname filename [address]
-==> retrieves the given file from the list's file storage
 
-help [topics]
-==> retrieves the requested help topic, if available
+faq LISTNAME
+  The faq command shows the Frequently Asked Questions document for 
+  a mailing list.
 
-index-recursive-long listname [pathname]
-==> retrieves an index of available files in the list's file storage
 
-post list
-==> sends a message to the given list.
+get LISTNAME FILENAME
+  The get command retrieves a document from the file space of a 
+  mailing list.
+  See "help get" for more details.
 
-put      listname filename          [subject] <<TAG
-put-data listname filename MIMEdata [subject] <<TAG
-put-dir  listname filename          [subject]
-==> creates the given file or directory in the list's file storage
 
-reject [token]
-==> sent back to the server as denial, tells server to cancel action
+help [TOPIC]
+  The help command displays a help file, such as the document you
+  are reading right now.
+  See "help help" for more details.
 
-rekey
-==> regenerates the database keys after changing addr_xforms
 
-set listname flag address
-==> change subscriber options like digest, nomail, ack
+index LISTNAME [PATH]
+  The index command displays a directory of the files in the file
+  space of a mailing list.
+  See "help index" for more details.
 
-show address
-==> displays various information about the address
 
-subscribe-nowelcome listname address
-==> adds the address to listname and to the registration database
+info LISTNAME
+  The info command displays the Welcome Message for a mailing list.
+  See "help info" and "help configset_welcome_files" for more details.
 
-unregister address
-==> removes the address from the database and from every list at this site
 
-unsubscribe-regexp-allmatching listname address
-==> removes an address or addresses from the given list.
+intro LISTNAME
+  The intro command displays the List Introductory Information document
+  for a mailing list.
+  See "help intro" for more details.
 
-which-regexp searchstring
-==> shows which lists contain addresses which contain the searchstring
 
-who listname [pattern]
-==> returns all or some subscribers to the named list
+lists [PATTERN]
+  The lists command shows a directory of mailing lists, simple or
+  detailed.
+  See "help lists" for more details.
 
-For a complete list of all help topics, see "help topics".
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+newfaq LISTNAME <<ENDTAG
+  [DOCUMENT_CONTENTS]
+ENDTAG
+
+  The newfaq command replaces the Frequently Asked Questions document for
+  a mailing list.  That document can be retrieved with the faq command.
+  See "help admin_documents" and "help here_document" for more details.
+
+
+newinfo LISTNAME <<ENDTAG
+  [DOCUMENT_CONTENTS]
+ENDTAG
+
+  The newinfo command replaces the Welcome Message for a mailing list.
+  That document can be retrieved with the info command.
+  See "help admin_documents" and "help here_document" for more details.
+
+
+newintro LISTNAME <<ENDTAG
+  [DOCUMENT_CONTENTS]
+ENDTAG
+
+  The newintro command replaces the List Introductory Information document for
+  a mailing list.  That document can be retrieved with the intro command.
+  See "help admin_documents" and "help here_document" for more details.
+
+
+post LISTNAME [SUBJECT] <<ENDTAG
+  [MESSAGE_CONTENTS]
+ENDTAG
+
+  The post command causes a message to be delivered to the subscribers of
+  a mailing list.  The message undergoes the same access checks as it would
+  if it were mailed to the list directly.
+  See "help post" and "help admin_delivery" for more details.
+
+
+put LISTNAME FILENAME [DESCRIPTION] <<ENDTAG
+  [FILENAME_CONTENTS]
+ENDTAG
+
+  The put command stores a file in the file space of a mailing list.
+  See "help put" and "help admin_documents" for more details.
+
+
+reject [TOKEN]
+  The reject command is used by list moderators to disallow a posted
+  message or other request that is being held for approval.
+  See "help reject" and "help admin_moderate" for more details.
+
+
+sessioninfo SESSION
+  The sessioninfo command is used to learn more about what caused a 
+  request to be processed by Majordomo.  If the request was sent in an
+  e-mail message, the headers of the message will be shown.  If the request
+  was made with one of the web interfaces, the date of the request and
+  the address of the host from which the request was made will be shown.
+  See "help sessioninfo" for more details.
+
+
+set LISTNAME [SETTING[,SETTING]] [ADDRESS]
+  The set command is used to change the personal preferences of one or
+  more subscribers.
+  See "help set" and "help admin_subscribers" for more details.
+
+
+showtokens LISTNAME
+  The showtokens command is used to see a summary of all "stalled" requests
+  for a mailing list.  A stalled request requires someone's approval before
+  it can be completed.
+  See "help showtokens" and "help admin_moderate" for more details.
+
+
+subscribe LISTNAME [ADDRESS]
+  The subscribe command adds one or more e-mail addresses to the membership
+  of a regular or auxiliary list.
+  See "help subscribe", "help admin_subscribers", and "help auxiliary_list"
+  for more details.
+
+
+tokeninfo TOKEN
+  The tokeninfo command displays information about a request that requires
+  the approval of the list moderators.
+  See "help tokeninfo" and "help admin_moderate" for more details.
+
+
+unsubscribe LISTNAME [ADDRESS]
+  The unsubscribe command removes one or more e-mail addresses from the
+  membership of a regular or auxiliary list.
+  See "help unsubscribe", "help admin_subscribers", and "help auxiliary_list"
+  for more details.
+
+
+which [PATTERN]
+  The which command shows addresses matching a pattern, and the mailing lists
+  to which they are subscribed.
+  See "help which" and "help patterns" for more details.
+
+
+who LISTNAME [PATTERN]
+  The who command shows the e-mail addresses of members of a regular or
+  auxiliary list.
+  See "help unsubscribe", "help admin_subscribers", and "help auxiliary_list"
+  for more details.
+
+
+Administrative command modes
+----------------------------
+
+  The commands you send to Majordomo often have one or more command 
+  "modes" which alters the behavior of the command.  For example, 
+  in the command
+    lists-short-enhanced 
+  the command modes are "short" and "enhanced".
+
+  Majordomo offers four command modes that can be applied to any 
+  command, and are only useful to list owners and site administrators.
+
+  noinform - Do not send an informational message to the list owners.
+    The "inform" configuration setting determines when a message
+    would normally be sent.  See "help configset inform" for more
+    details.
+
+  nolog - Do not log the result of this command.
+    For each Majordomo request, one line describing the request 
+    and its result is normally added to a global log file.  The 
+    contents of the log file can be displayed using the "report" command.
+    A site or domain password is required to use this mode.
+
+  quiet - Do not send a notice when a delay token is created.
+    It is possible for you to delay the completion of a request
+    until later;  see the description of the "default delay"
+    command in "help default" for details.  When a request is
+    delayed, a notice is usually sent to the person whom the 
+    request affects.  That person can follow the instructions
+    in the notice to keep the request from being fulfilled, or
+    to complete the request immediately. 
+
+  rule - Turn off the "access_password_override" setting temporarily.
+    Usually, when you use the master password for a mailing list,
+    your requests are completed right away.  This mode causes
+    the privileges of the master password to be suspended.  The
+    access rules and other restrictions are applied as usual.
+    See "help configset access_password_override" for a practical
+    example.
+    
+An administrative password is required to use any of these command
+modes.  Please see "help admin_passwords" for a detailed description
+of the different types of administrative password.
+
+See Also:
+   help admin
+   help admin_config
+   help admin_delivery
+   help admin_documents
+   help admin_moderate
+   help admin_monitor
+   help admin_passwords
+   help admin_subscribers
+   help commands
+   help overview
+
+$INCLUDE-help/foot

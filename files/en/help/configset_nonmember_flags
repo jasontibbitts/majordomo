@@ -3,7 +3,7 @@ configset listname nonmember_flags <<TAG
 [VALUE LINES]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : (ackdeny ackreject ackstall)
+Default Value : (ackdeny ackpost ackreject ackstall postblock)
 Data Type     : enum_array
 Category      : reply
 Password Notes: Visible only with password. 

@@ -32,7 +32,7 @@ how replies to Majordomo commands are sent.  If no delivery rules
 are specified, the mail is delivered to localhost.
 
 Each delivery destination should begin with a line containing either a
-regular expression, or the word ALL.  Addreses are compared against
+regular expression, or the word ALL.  Addresses are compared against
 these in order; the first matching destination is chosen.  This
 enables you to choose which addresses go to which sets of hosts.
 The remaining lines (up until the next blank) should consist of

@@ -1,0 +1,70 @@
+                            The Command Parser
+                 how commands in e-mail messages are processed
+
+The parser is the part of Majordomo that extracts commands from e-mail messages.  In the simplest case it just parses commands, one per line.  It can, however, 
+do much more.
+
+If a message consists of multiple parts, Majordomo will only process
+commands in the first body part, and only if it is a text/plain body part.
+
+Lines beginning with '#' are considered to be comments, and are ignored.  
+
+Lines ending in a single '\' are joined to the next line.
+
+The second and succeeding body parts can be used to supply data to
+a command.  They are referred to by number.  For example, this command
+
+put LISTNAME /welcome Welcome to LISTNAME <@1
+
+would store the contents of attachment number 1 (the first body
+part following the one containing commands) into a file called
+"/welcome".
+
+The parser can also process multi-line commands using here documents
+(see "help here_document" for more details).
+
+Breaking long command lines
+---------------------------
+
+If a command is too long to fit on a line, or if your mail tool is
+'wrapping' lines without your knowledge, you may get error messages
+back from the server. The errors will NOT say that the line was too
+long, but they will show that parts of the line were interpreted as
+separate (and incomplete) commands. To fix this, you can "escape" the
+line breaks:  anywhere a space is allowed, you can insert a backslash
+and a hard return to make the server interpret several lines as just
+one command. (White space after the backslash will be ignored.)
+
+For example:
+
+  subscribe-set LISTNAME digest John Jacob Whatsisname <whatsisname@example.com>
+
+is too long for some mail tools. Instead, making sure the '\' is the very 
+last character on the first line, use this command:
+
+  subscribe-set LISTNAME digest \
+  John Jacob Whatsisname <whatsisname@example.com>
+
+The parser will reassemble the two lines into one command.
+
+Signatures
+----------
+
+The Majordomo server will automatically stop looking for commands
+in the body of an e-mail message when it reaches a recognizable e-mail 
+signature (one that starts with "-- ").  However, to make sure that your 
+signature is not processed, you can use the end command.  
+See "help end" for more details.
+
+
+See Also:
+   help admin
+   help help
+   help overview
+
+$INCLUDE-help/foot
+See Also:
+   help approve
+   help default
+
+$INCLUDE-help/foot

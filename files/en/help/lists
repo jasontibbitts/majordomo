@@ -98,7 +98,7 @@ the following steps are taken to determine if a list should be shown
 to the person who make the request:
 
   * If the person is subscribed to the list, and the GLOBAL 
-    advertise_subscribed setting is turned on,  the list is shown.
+    advertise_subscribed setting is turned on, the list is shown.
 
   * Any rules for the "advertise" request in the list's access_rules setting
     are considered.

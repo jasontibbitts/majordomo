@@ -1,0 +1,393 @@
+                    Introduction to List Configuration
+
+When a new mailing list is created, the way in which it is configured
+may require some adjustment.  This document presents a "top ten" list
+of configuration settings that may require immediate attention.  Next
+is a summary of the configuration categories, with a short description
+of the purpose of each setting.  We conclude with several advanced
+features for list administrators.  First, we will review the basic
+concepts of list configuration.
+
+As mentioned in "help admin", there are three commands that list
+administrators can use to view and change the configuration settings.
+These commands are:
+
+  configdef   Return a setting to its default value
+  configset   Change the value of a setting
+  configshow  See the current value of a setting
+
+When the configset command is used to change the value of a setting,
+the new value sometimes takes up more than one line.  In that case,
+it is necessary to put the new value into a here document (see
+"help here_document" for more details).
+
+The examples in this document assume that you know how to use your 
+list's administrative password.  Please review "help admin_passwords",
+if you have not already done so.  In each example, replace LISTNAME
+with the name of your mailing list.
+
+Look before you leap
+--------------------
+
+Every configuration setting has a default value.  Every time a list
+administrator uses the configset command, the default value for
+the setting is overridden, even if the old and new values are identical.
+For this reason, we recommend that you always "show before you set,"
+use the configshow command to see the current value of a setting
+before you change it with the configset command.  By overriding the 
+settings that were configured by the domain administrators, a list owner 
+might miss out on wise present and future default values.
+
+A technical discussion of default values is presented later, in
+the "Default values" section.
+
+Important settings for new mailing lists
+----------------------------------------
+
+Every mailing list shares the same default values.  Because there
+are so many kinds of mailing list (private or public, moderated or 
+unmoderated, with open or closed membership, etc.), it is likely that 
+most new lists will need some configuration before they are ready to run.  
+This section gives examples for the "top ten" settings that are likely 
+to need attention, in reverse order of importance.  Each setting has its 
+own help page, to which you can refer if you need to learn more.
+
+10. category
+
+  The "lists" command, which shows a list of public mailing lists
+  at $DOMAIN, will organize all of the lists by category, but only
+  if the category has been set for any of the lists.  For example,
+
+    configset LISTNAME category = economics
+
+9. noadvertise
+
+  To make a list private (invisible to the lists command), the noadvertise
+  setting can be configured.  For example,
+
+    configset LISTNAME noadvertise = /./
+
+
+8. subject_prefix
+
+  People who like to see the name of the list or some other identifying
+  marker in the Subject headers can use the "prefix" personal setting.
+  For example, the subject prefix for the cabbage mailing list might
+  make the message subjects look like this:
+
+    Subject: [cabbage] Re: Cold frames
+
+  The subject_prefix setting can be used to customize the Subject lines,
+  for example,
+
+    configset cabbage subject_prefix = [CABBAGE: $SEQNO]
+
+  would include the sequence number of the message in the subject, 
+
+    Subject: [CABBAGE: 142] Re: Cold frames
+
+
+7. who_access
+
+  By default, the subscribers of a mailing list can use the who command
+  to see a list of the other subscribers.  If you want to protect the
+  privacy of your subscribers, restrict access to both the who and the
+  which command:
+
+    configset LISTNAME who_access = closed
+    configset LISTNAME which_access = closed
+
+
+6. subscribe_policy
+
+  When someone subscribes to a mailing list, a confirmation notice is 
+  mailed.  The subscriber then has to confirm the subscription request
+  with the accept command.  Using confirmation notices prevents 
+  forgeries; however, the list owners can stop requiring confirmations 
+  with this command:
+  
+    configset LISTNAME subscribe_policy = open
+
+  Usually, when someone attempts to subscribe someone else to a mailing
+  list, the moderators' approval is required.  In this case, the address 
+  making the request is called the "requester," and the address that is being 
+  subscribed is called the "victim."  Often, the requester and victim are the 
+  same person, and the intervention of the moderators is unnecessary.  To
+  allow people to subscribe other addresses, subject to the confirmation
+  of the victim, use this command:
+
+    configset LISTNAME subscribe_policy = auto+confirm
+
+  Finally, if the moderators would like to approve every subscription, use
+  this command:
+
+    configset LISTNAME subscribe_policy = closed+confirm
+
+  There are similar settings for the set and unsubscribe commands; see
+  "help configset_set_policy" and "help configset_unsubscribe_policy"
+  for more details.
+  
+
+5. description
+
+  The description is shown when someone views the list of mailing lists 
+  with the lists command.  This short description should be less than
+  50 characters in length, for example:
+ 
+    configset cabbage description = The cabbage family, Brassica oleracea
+
+  There is also a description_long configuration setting, that is displayed
+  by the lists-long command.  See "help configset_description" and
+  "help configset_description_long" for more details.
+
+
+4. attachment_rules
+
+  The widespread appearance of virii and worms in e-mail messages makes
+  content screening a necessity.  The attachment_rules setting can be
+  used to moderate or deny messages based on the type of attachments,
+  or to remove attachments from messages before they are delivered.
+  For example, to moderate all messages with application/octet-stream
+  parts, and to remove all HTML body parts, use this command:
+
+configset LISTNAME attachment_rules <<LLL
+application/octet-stream | consult
+text/html | discard
+LLL
+
+
+3. default_flags
+
+  When someone joins a mailing list with the subscribe command, her
+  personal preferences are set automatically, according to the contents
+  of the default_flags configuration setting.  By default, only the
+  "selfcopy" flag is turned on.  If you would like new subscribers to
+  see subject prefixes automatically, use this command:
+
+configset LISTNAME default_flags <<ABDF
+prefix
+selfcopy
+ABDF
+
+  There is also a "default_class" configuration setting that determines
+  how messages are delivered to new subscribers.  See "help set" for a 
+  detailed discussion of the classes and flags.  An address can be 
+  subscribed, and the settings configured at the same time.  For example,
+
+    subscribe-set LISTNAME digest someone@example.net
+
+  See "help configset_default_flags", "help configset_default_class", and 
+  "help subscribe" for more details.
+
+
+2. digests
+
+  Unless the domain administrator has set up default digest settings, 
+  each list's administrators must change the digests configuration 
+  setting, if they want digests to be supported.  
+
+  Each digest in the digests setting takes up two lines.  The first
+  line is the name of the digest, followed by a group of values
+  that determine when the digests are sent.  The second line is
+  a description of the digest, which appears in the Subject header
+  when the digest is mailed.  Here is a simple example:
+
+configset LISTNAME digests <<KLM
+daily | 1-3 | 30k | 100k | 36h | | | text
+LISTNAME Daily Digest
+KLM
+
+  This daily digest is delivered between 1 and 3 AM every morning.
+  Each digest must be at least 30 kilobytes (kB) in size, but no greater
+  than 100 kB.  The digest will be delivered if a message is older
+  than 36 hours, even if the total message size is less than 30 kB.
+  Finally, the default digest format is text, meaning that attachments
+  will not be included in the digest.
+
+  There is also a digest_issues setting that shows the current volume
+  and issue number for each digest, if any messages have been 
+  delivered.  The "digest-incvol" command can be used to increase
+  the volume number.  See "help configset_digests", "help digest",
+  and "help configset_digest_issues" for more information.
+
+
+1. access_rules
+
+  The access_rules setting is one of Majordomo's most powerful and
+  complicated features.  It allows the list owners to control access
+  to any request, especially posted messages, that affects a mailing
+  list.  There are other configuration settings that control access,
+  such as the subscribe_policy setting, the who_access setting, the
+  moderate setting, and the restrict_post setting; however, access_rules 
+  will override any of those settings.
+
+  The most important use of the access_rules is to control who can
+  post messages to a mailing list.  For example, the following rule
+  would allow anyone to post, including unsolicited advertisers:
+
+configset LISTNAME access_rules <<ZYZY
+post
+allow
+ALL
+ZYZY
+
+  This example allows only people who are subscribed to a mailing list
+  to post messages.  Posts from anyone else will be moderated:
+
+configset LISTNAME access_rules <<POP
+post
+consult
+!@MAIN
+POP
+
+  More examples are shown in "help admin_moderate".  For a more detailed 
+  description of access_rules, see "help configset_access_rules".
+  
+
+Categories of settings
+----------------------
+
+Majordomo has over 100 configuration settings.  To help you manage them
+more easily, they have been divided into several categories.  Some
+settings appear in more than one category.  The categories of interest
+to list owners are ACCESS, ARCHIVE, BOUNCE, DELIVER, LISTS, MISCELLANY,
+MODERATE, PASSWORD, and REPLY.  The "help configshow" document gives
+a summary of each category.
+
+As an illustration, to see the current settings in the BOUNCE category,
+use this command:
+
+  configshow LISTNAME BOUNCE
+
+To see a summary of the categories, use this command:
+
+  configshow-categories LISTNAME
+
+
+The configedit command
+----------------------
+
+The mj_shell command-line interface has a special feature.  If you
+use the configedit command, the current values of the settings you
+name on the command line will be edited by your favorite text
+editor program.  This makes the value of the setting much easier
+to edit and replace.  
+
+This feature only applies to the mj_shell program.  If the configedit
+command is used in an e-mail message, it will have the same effect
+as the configshow command.
+
+Configuration templates and default values (advanced topic)
+-----------------------------------------------------------
+
+Any list owner can use the configdef, configset, and configshow commands
+to store configuration settings in files called configuration templates.
+They are called templates because they act as guides for copying settings
+from list to list.
+
+Template names have the same constraints as list names: they must consist
+only of letters, digits, period, hyphen, and underscore.  Each template
+must be managed by an existing mailing list.  To refer to a template,
+use the listname, followed by a colon and the template name.  For example,
+this command:
+
+  configset LISTNAME:mytemplate moderate = 1
+
+would create or change a template called "mytemplate" and set its 
+"moderate" configuration setting.
+
+Once a template exists, you can see all of its values using the 
+configshow-declared command, for example:
+
+  configshow-declared LISTNAME:mytemplate
+
+would show only one value, for the "moderate" configuration setting,
+because only one value has been declared in that template.
+
+The most important templates are the ones stored by the DEFAULT list.
+These configuration files are available to any list owner through the
+configshow command.  To see a description of the DEFAULT templates,
+use this command:
+
+  lists-config DEFAULT
+
+Two of these templates are critically important.  The DEFAULT:MAIN template
+is another name for the main configuration settings of the DEFAULT list.
+The DEFAULT:_install template gives the installation default values.
+These settings apply to all lists in the $DOMAIN domain.
+
+When Majordomo looks up the value of a setting for a mailing list, if that 
+setting is not declared within the list's main configuration file, it
+looks in the DEFAULT:MAIN configuration template.  If the setting has
+not been declared there, it uses the value from the DEFAULT:_install template.
+As a consequence, the DEFAULT:_install template must have a declaration
+of every configuration setting.
+
+The DEFAULT:personal template gives an example of how useful templates 
+can be.  This template customizes each posted message; the address
+of the subscriber is placed in the To: header, and a footer is added
+that also shows the subscriber's address.
+
+Please look at the settings using this command:
+
+  configshow-declared-nocomments DEFAULT:personal
+
+As you can see, it takes several commands to achieve the "personal" effect.  
+These commands would be difficult to remember, but you can easily apply them 
+to your mailing list with the configshow-merge command:
+
+  configshow-merge-append-nocomments DEFAULT:personal LISTNAME
+
+The configshow command will automatically change the configset commands that 
+are displayed so they apply to the LISTNAME mailing list.  Please read the 
+"comments" setting in the output of the configshow command:  personalized 
+mailing lists require more resources, because a separate copy of each posted 
+message is delivered to each recipient.
+
+If you decide to undo the changes from the DEFAULT:personal template,
+simply use the configshow-extract command:
+
+  configshow-merge-extract-nocomments DEFAULT:personal LISTNAME
+
+The configset commands displayed by the configshow-extract command will 
+return the settings to their original values.
+
+If you would like to see other templates added to Majordomo, contact
+the developers at mj2-dev@csf.colorado.edu.
+
+
+Password levels (advanced topic)
+-----------------------------------------------
+
+Each configuration setting has two numbers that determine what level of
+password is required to see or change the value of the setting.  
+Higher numbers mean greater restrictions.  In the output of the configshow 
+command, you will see comments like this:
+
+# master_password (level 2)
+
+"level 2" means that a level 2 password is required to change the value.
+Your list's master administrative password has level 2.  If you wish
+to change any setting with a higher level, you will need to contact a
+domain or site manager.  
+
+For more details, see "help configset_config_access".
+
+
+See Also:
+   help admin
+   help admin_commands
+   help admin_delivery
+   help admin_documents
+   help admin_moderate
+   help admin_monitor
+   help admin_passwords
+   help admin_subscribers
+   help configdef
+   help configset
+   help configshow
+   help here_document
+   help set
+   help subscribe
+
+$INCLUDE-help/foot

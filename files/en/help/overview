@@ -144,7 +144,7 @@ Your Personal Password
   In addition, if this site is configured to use Majordomo's built-in
   WWW interfaces, you can use your password at the following WWW page
   to change your settings, unsubscribe, or join other mailing lists:
-    $WWWUSR_URL?domain=$DOMAIN
+    $WWWUSR_URL
 
 Unsubscribing from Mailing Lists
 --------------------------------

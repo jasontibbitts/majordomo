@@ -93,9 +93,16 @@ these addresses, together with the names of the mailing lists that
 each administrates, can be seen with the following command:
   who-owners GLOBAL
 
+If you feel ready to begin creating mailing lists and configuring them,
+the following help pages are recommended:
+   help admin_passwords
+   help createlist
+   help admin_config
+
 
 See Also:
    help accept
+   help admin
    help alias
    help announce
    help auxiliary_list

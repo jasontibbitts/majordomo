@@ -1,0 +1,545 @@
+                     Introduction to List Moderation
+
+When people say "a mailing list is moderated," they usually mean that 
+every message that someone posts to the list is examined by someone else 
+before it is allowed to be delivered.  In Majordomo, moderation can also 
+apply to subscription or unsubscription, access to the list archives, 
+and many of Majordomo's other features.  The word "request" is used 
+to refer to anything that requires approval, including posted messages.
+
+When a request is moderated, Majordomo mails a message to the moderators
+with the word "CONSULT" in the subject line.  Basically, to approve or 
+disapprove a request, you only need to reply to that message and type 
+one of these two commands into the body of the reply:
+
+  accept
+  reject
+
+The rest of this document focuses on the details of moderation:
+  * Who are the moderators?
+  * How does Majordomo keep track of the moderated requests?
+  * Why does a request become moderated?
+  * Is the person who made the request notified of what happens?
+  * How can you decide what requests are and are not moderated?
+
+The last section of this document presents solutions for common
+moderation problems.
+
+The examples in this document assume that you know how to use your 
+list's administrative password.  Please review "help admin_passwords",
+if you have not already done so.  In each example, replace LISTNAME
+with the name of your mailing list.
+
+
+What's the difference between an owner and a moderator?
+-------------------------------------------------------
+
+The short answer is that the owner has all of the authority, and the 
+moderator has all of the responsibility.  Only kidding.
+
+When a request is moderated, a message with CONSULT in the Subject
+header will be sent to the moderators.  Basically, all the moderators
+have to do is reply with the accept command to approve a request, or the 
+reject command to disallow it.  Neither of these commands requires a password,
+so in principle the moderators might not have permission to perform other 
+administrative tasks, such as unsubscribing people from the mailing list.
+
+The list owners are the people whose e-mail addresses appear in the 
+"owners" configuration setting.  The list owners usually know the list's 
+master password, and can issue any administrative command.
+
+Majordomo uses the following steps to determine who the moderators are, 
+stopping when it finds a valid address:
+
+  1. It looks in the LISTNAME:moderators auxiliary list, for addresses
+     that do not have the "nomail" flag set (see "help auxiliary_list"
+     for more details).
+
+  2. It looks in the "moderators" configuration setting for the list.
+
+  3. It looks in the "moderator" configuration setting for the list.
+     This is provided for backward compatibility with Majordomo version 1.
+
+  4. It looks in the "sender" configuration setting.  This value is
+     usually the list owners' address, so in the last resort, the 
+     owners and the moderators are the same people.
+
+If the moderators and the owners are different people, and the owners
+want the moderators to be able to perform other duties, such as
+subscribing and unsubscribing people, passwords with restricted privileges
+can be defined for the moderators using the "passwords" configuration
+setting (See "help configset_passwords" for more details).
+
+
+Token identifiers
+-----------------
+
+When a request requires someone's approval, Majordomo creates a random
+number, called a "token identifier" or "token," to keep track of the
+request.  Every token looks something like this:
+ 
+  98FE-03BB-A743
+
+To approve or disallow a token, the accept or reject command is used,
+for example:
+
+  accept B139-DE29-A649
+  reject 98FE-03BB-A743
+
+If a request is not accepted or rejected, after a few days the moderators
+will receive a reminder that the request has not been completed.  A few
+days later, the token will expire, and the request will never be completed.
+
+The reminder notice gives a brief summary of the request.  If a moderator
+has forgotten the details of the request, the tokeninfo command can be
+used to obtain more information, for example:
+
+  tokeninfo-full 9F34-77DA-B021
+
+The accept, reject, and tokeninfo commands never require a password.
+
+Administrators who do know a list's administrative password can see
+a summary of outstanding tokens for a mailing list with the showtokens
+command:
+
+  showtokens LISTNAME
+
+See "help accept", "help reject", "help showtokens", and "help tokeninfo"
+for more details.
+
+
+Notifications
+-------------
+
+When a moderator accepts or rejects a request, Majordomo may or may not 
+send a notice to the person affected by the request (the "victim").  The 
+decision to send a notice is based upon the victim's personal settings.
+
+  * For accepted requests other than posted messages, a notice is always sent.
+
+  * When posted messages are accepted, a notice is sent if the "ackpost"
+    setting is turned on.
+
+  * When any request is rejected, a notice is sent if the "ackreject" setting
+    is turned on.
+
+If the victim is a subscriber to the mailing list, the settings are determined
+from the victim's subscription.  Otherwise, the settings are determined
+by the list's nonmember_flags configuration setting.
+
+
+Causes of moderation
+--------------------
+
+There are many ways in which the rules in the access_rules configuration
+setting can cause moderation.  These causes will usually be clear to
+the person writing the rules.  However, there are some less-than-obvious
+ways in which the default access settings can cause a request to be moderated.
+
+For requests other than posted messages, the default settings are usually
+determined by a "policy" or "access" configuration setting.  For example,
+access to the subscribe command is controlled by the subscribe_policy
+configuration setting, and access to the who command is controlled by
+the who_access configuration setting.  All of the policy and access settings 
+are part of the ACCESS category.  To see their values, use this command:
+
+  configshow LISTNAME ACCESS
+
+(Substitute the name of your mailing list for LISTNAME, but type
+the word ACCESS as shown, in capital letters.) 
+
+If a policy setting is "open" or "open+confirm," the moderators' approval
+will be needed if there is an address mismatch or posing.  A mismatch occurs 
+when someone issues a command for another address.  For example, if 
+jane@example.com uses this command:
+
+  subscribe LISTNAME ruth@example.net
+
+the two addresses, jane@example.com and ruth@example.net, do not match.
+Posing occurs when someone uses the "default user" command.  For example, 
+if jane@example.com uses these commands:
+
+  default user ruth@example.net
+  subscribe LISTNAME
+
+jane@example.com is posing as ruth@example.net.  Mismatch and posing also 
+will cause messages posted with the post command (see "help post" for more 
+details) to be moderated.
+
+Aside from mismatch and posing, there are many reasons a posted message
+might be moderated:
+
+  * The moderate configuration setting is turned on.
+
+  * The author of the message is not a member of the groups in the 
+    restrict_post configuration setting.
+
+  * The administrivia configuration setting is turned on, and the
+    message matches one or more of the patterns in the admin_body
+    and admin_headers configuration settings.
+
+  * The message contains an Approved: header with an invalid password.
+
+  * The message exceeds one of the size limits in the max_total_header_length,
+    maxlength, max_header_line_length, and max_mime_header_length 
+    configuration settings.
+
+  * The message has a body part whose type is marked for moderation
+    by the attachment_rules setting.
+
+  * The message has a duplicate Message-ID header, or duplicate body,
+    of another message that has been posted to the same mailing list.
+
+  * The message matches one or more of the patterns in the taboo_body
+    and taboo_headers configuration settings.
+
+  * The author exceeded the "soft limit" quota in the post_limits
+    configuration setting.
+
+  * The "postblock" personal setting for the author is turned on.
+    (See "help set" for details on personal settings.)
+
+The rest of this document discusses how these settings can be tuned
+for effective moderation of posted messages.  Using the access_rules
+setting, any or all of the moderation checks can be turned off.
+Likewise, any of the moderation checks can cause a message to be
+discarded instead of moderated.  See "help configset_access_rules"
+for more details.
+
+
+Full moderation
+---------------
+
+The simplest way to moderate every message posted to a mailing list is 
+to turn on the moderate configuration setting:
+
+  configset LISTNAME moderate = 1
+
+See "help configset_moderate" for more details.
+
+
+Content filtering
+-----------------
+
+There are six configurations settings that support moderation based upon
+the contents of the message.  For more information, see the following 
+documents:
+
+   help configset_admin_body
+   help configset_admin_headers
+   help configset_administrivia
+   help configset_attachment_rules
+   help configset_taboo_body
+   help configset_taboo_headers
+
+
+Size limits
+-----------
+
+There are four configuration settings that support moderation based upon
+the size of the message body or the message headers.  For more information,
+see the following documents:
+
+  help configset_max_header_line_length
+  help configset_max_mime_header_length
+  help configset_max_total_header_length
+  help configset_maxlength
+
+
+Personal limits
+---------------
+
+There are two moderation checks that can differ, depending upon who posted
+the message.  A message will be moderated if the "postblock" personal
+setting is turned on.  Only subscribers have personal settings, so if
+a non-subscriber posts a message, the setting is determined by the list's
+nonmember_flags configuration setting.
+
+One weakness of the postblock setting is that, unless it is turned on
+by default in the default_flags configuration setting, a subscriber
+can unsubscribe, then subscribe again to turn the setting off.
+For more information, see "help set".
+
+The post_limits setting is used to moderate or deny messages from people
+who post too often.  The limits can vary from person to person or domain
+to domain.  For example, consider the following command:
+
+configset LISTNAME post_limits <<BLD
+/example.edu/  |  10/100  |  4/d
+/./            |  15/100  |  7/d
+BLD
+
+These settings establish the following limits:
+
+  * For addresses in the example.edu domain, any person who has posted
+    more than 10 messages out of the last 100 will exceed the "soft
+    limit."  Any person who has posted more than 4 messages in the last
+    day will exceed the "hard limit."
+
+  * For all other addresses, the soft limit is 15 messages out of the 
+    last 100, and the hard limit is 7 messages in the last day.
+
+Exceeding a soft limit will cause a message to be moderated.  Exceeding
+a hard limit will cause a message to be denied and discarded.  For more
+information, see "help configset_post_limits".
+
+
+Duplicates
+----------
+
+A posted message that has a Message-ID header, body, or first 10 lines
+in the body that are the same as a previously posted message is 
+considered a duplicate.  These checks are useful for preventing mail
+loops; however, they can also unnecessarily moderate messages that
+have a first body part that is empty.  To turn off the body checks,
+use the following rule in the access_rules setting:
+
+post
+unset=(dup_checksum,dup_partial_checksum)
+ALL
+
+
+"Approved" messages
+-------------------
+
+Anyone who knows a list's master password can use the password to
+skip all of the access checks.  To do this, it is necessary to
+add an "Approved" line in the headers or body of the message.
+For example, if the list's master password is 4a5p6h7o, the line
+would look like this:
+
+Approved: 4a5p6h7o
+
+This line can appear in the message headers, or as the first non-blank
+line in the body of the message.  Majordomo will automatically remove
+the Approved line when the message is delivered.
+
+Sometimes, a moderator may want to make corrections to a moderated
+message before it is delivered to the subscribers.   It is possible
+to do this using an extended form of the Approved line, using the 
+following steps:  
+
+  * Obtain the original posted message, either from the CONSULT message 
+    that was sent to the moderator, or using the tokeninfo-full command:
+
+      tokeninfo-full TOKEN
+
+  * Edit the message and make the desired corrections.
+
+  * Add an Approved line to the headers or the start of the body, with
+    the following difference:  after the password, put a comma and
+    the token identifier:
+
+      Approved: PASSWORD , TOKEN
+
+  * Send the edited message to the address of the mailing list.
+
+When these steps are taken, two things will happen.  First, the password
+will cause the moderation checks to be skipped.  Second, when Majordomo
+sees the token identifier on the Approved line, it will reject the 
+token.  This will help to prevent another moderator from approving the
+delivery of the original posted message.
+
+
+Moderator groups (advanced topic)
+---------------------------------
+
+Different groups of moderators can be assigned different moderation
+tasks.  A moderator group is created by adding addresses to an auxiliary 
+list with the subscribe command.  The access_rules setting can then
+be adjusted to assign responsibilities to the new moderator group.
+
+For example, consider a list where one group of moderators is 
+assigned to approve subscriptions and another is assigned to approve
+posted messages.  All subscriptions and all posted messages are moderated.
+The addresses of the subscription moderators have been added to the
+"smods" auxiliary list, and the post moderators are in the "pmods"
+auxiliary list.  The access_rules setting is changed:
+
+configset LISTNAME access_rules <<LPP
+post
+consult=(consult,1,pmods,), reason="All moderated messages require approval."
+ALL
+
+subscribe
+consult=(consult,1,smods,), reason="All subscriptions required approval."
+ALL
+LPP
+
+See "help configset_access_rules" for more information.
+
+
+                  Cookbook for common moderation problems
+                  ---------------------------------------
+
+
+Problem  How do I allow only subscribers, and a select group of 
+-------  non-subscribers, to post messages to the list?
+
+
+                                First approach:
+
+  Subscribe all of the non-subscribers, but change their delivery class
+  to "nomail" so they do not receive messages.
+
+subscribe-set LISTNAME nomail nonsubscriber@example.com
+
+  Then, set the restrict_post configuration setting to allow only list
+  members to post:
+
+configset LISTNAME restrict_post <<END
+LISTNAME
+END
+
+
+                    Second approach (most like Majordomo 1):
+
+  Sign up the recipient users as usual, and put everyone else in
+  a "posters" auxiliary list:
+
+subscribe LISTNAME:posters nonsubscriber@example.com
+
+  then restrict posting to the main list and that sublist:
+  Then, set the restrict_post configuration setting to allow only list
+  members and members of the "posters" sublist to post:
+
+configset LISTNAME restrict_post <<END
+LISTNAME
+LISTNAME:posters
+END
+
+
+Problem  How do I allow everyone in a certain domain to post, but
+-------  require approval for all other domains?
+
+  Headers can be forged, so persistent people can easily bypass any 
+  restrictions based on the message headers. 
+
+  The following access rule will cause posted messages from any address
+  outside the "example.com" domain to be moderated.
+
+configset LISTNAME access_rules <<END
+post
+consult, reason="Outsiders require approval."
+!/example\.com$/
+END
+
+
+Problem  How do I keep anyone, or a certain domain, from posting
+-------  while allowing all other users and domains to post freely?
+
+  First note that headers can be forged and so if people really want to
+  bypass a header-based restriction they can. Often what you REALLY
+  want is to keep one user from posting while allowing everyone else
+  to post, but the "freebie" domains make it easy to create new accounts
+  and cause trouble.
+
+  Here is how to lock out one domain, using Yahoo as an example. Note
+  that the '@' and '.' characters need to be escaped with "\", and
+  refer to "help patterns" for details on regular expressions:
+
+configset LISTNAME  access_rules <<END
+post
+deny
+/\@yahoo\.com$/
+END
+
+  Here is how to lock out TWO domains, using Yahoo and MSN, and you
+  can add more domains to the list as needed:
+
+configset LISTNAME access_rules <<END
+post
+deny
+/\@yahoo\.com$/ OR /\@msn\.com$/
+END
+
+  Here is how to lock out the entire Yahoo domain, and also any email
+  address from any domain which contains the string "calliger":
+
+configset LISTNAME access_rules <<END
+post
+deny
+/\@yahoo\.com$/i OR /calliger/i
+END
+
+
+Problem  How to I stop massive crossposting between my mailing list
+-------  and other mailing lists at this site, and perhaps other sites?
+
+  You can do this using taboo_headers matches and an access rule.
+
+configset LISTNAME taboo_headers <<END
+/^(to|cc):.*some-list/i 10,crosspost
+/^(to|cc):.*some-other-list/i 10,crosspost
+/^(to|cc):.*another-related-list/i 10,crosspost
+/^(to|cc):.*yet-another-list/i 10,crosspost
+/^(to|cc):.*and-another/i 10,crosspost
+END
+
+  These look like normal taboo_headers entries, with a twist:  the
+  information on the end contains a 'score' (or a 'severity') and a name.
+  Taboo matches can be given names; when one of them matches, the score is
+  added to that name.  So for every match, ten points are added to the
+  'crosspost' match.  Note that if you included your own list there, the
+  match will start out at 10.
+
+  Now, you have to test the score of the 'crosspost' match and do something
+  with the message if it matches too many times.  This is with an access
+  rule:
+
+configset LISTNAME access_rules <<END
+post
+deny, reason="Cross-posting is prohibited"
+$taboo_crosspost >= 30
+END
+
+  The person who posted the message may or may not receive a notice indicating
+  that the message was denied.  See "help configset_nonmember_flags" and
+  "help set" for details on the "ackdeny" setting.
+
+  The "unique" delivery class can be used to keep people from receiving
+  duplicates when messages are cross-posted to lists in the same domain.
+  See "help set" for more details.
+
+
+Problem  I want people to read my list for a few days before they post.
+------- 
+
+  The number of days that have passed since the author of a message
+  subscribed is recorded in the days_since_subscribe access variable.
+  To moderate posted messages from people who have been subscribed
+  less than three days, use the following access rule:
+
+configset LISTNAME access_rules <<END
+post
+consult, reason="New subscribers are moderated"
+$days_since_subscribe < 3
+END
+
+
+If you don't find the answers to your questions here, please write
+to the developers at mj2-dev@csf.colorado.edu. 
+
+
+See Also:
+   help accept
+   help admin
+   help admin_commands
+   help admin_config
+   help admin_delivery
+   help admin_documents
+   help admin_monitor
+   help admin_passwords
+   help admin_subscribers
+   help configdef
+   help configset
+   help configset_access_rules
+   help configset_default_flags
+   help configset_nonmember_flags
+   help configshow
+   help reject
+   help set        (for a description of the postblock personal setting)
+   help showtokens
+   help tokeninfo
+
+$INCLUDE-help/foot

@@ -1,0 +1,258 @@
+               Managing documents in the file space
+
+Every mailing list has a "file space," a set of directories in 
+which documents and list archives are kept.  These directories
+are arranged in a hierarchy; the top-level directory is called
+"/", and beneath the top level is at least one directory, a
+public directory called "/public".  If the mailing list has
+been set up to keep archives of the posted messages, there will
+usually be an archive directory, "/public/archive".  This 
+document explains how documents are stored into and retrieved from
+the file space.
+
+The examples in this document assume that you know how to use your 
+list's administrative password.  Please review "help admin_passwords",
+if you have not already done so.  In each example, replace LISTNAME
+with the name of your mailing list.
+
+
+File names
+----------
+
+There are two ways to refer to a document or directory.  If the name starts
+with a solidus, '/', it is called an absolute path.  If it does not,
+it is called a relative path.  In the file space, relative paths are
+considered relative to the public directory.  This means that
+  archive/LISTNAME.200101
+and 
+  /public/archive/LISTNAME.200101
+refer to the same file.  Only the list owners can use absolute paths.
+
+
+Displaying the contents of the file space
+-----------------------------------------
+
+The quickest way to see what documents are currently stored in the 
+file space is to use the index-recursive command.  For example,
+
+  index-recursive LISTNAME
+
+will display a directory listing of the public directory, and 
+
+  index-recursive LISTNAME /
+
+will display a directory listing of the whole file space.
+
+See "help index" for more details.
+
+
+Retrieving a document
+---------------------
+
+To retrieve a document from the file space, use the get command.
+For example, the LISTNAME.200102 archive can be retrieved with
+the following command:
+
+  get-immediate LISTNAME archive/LISTNAME.200102
+
+The get command also has an "edit" command mode that makes it
+easy for the list owners to retrieve, edit, and replace a document.
+For example, if you have previously stored a file in your list's
+file space called "/welcome", you can get it with this command:
+
+  get-edit LISTNAME /welcome
+
+The contents of the document will be wrapped inside a put command.  To
+replace the document, simply edit it and send the put command
+back to the server at $MJ.
+  
+It is also possible to get messages from the list archive using the
+archive command.  For example,
+
+  archive-index LISTNAME 2001
+
+will show a summary of all messages posted in the year 2001.
+As another example,
+
+  archive-get-immediate LISTNAME 50
+
+will display the full contents of the last 50 messages posted to 
+the mailing list.  
+
+For more information, please see "help get" and "help archive".
+
+Storing a document
+------------------
+
+The put command is used to add or replace a document in the file space.
+Because most documents occupy more than one line, a here document is
+needed (see "help here_document" for details).
+
+For example, the following command stores a document called "/subs_only.txt"
+in the file space.  
+
+put LISTNAME /subs_only.txt Subscribers only <<LMNO
+Only subscribers are allowed to post messages to the \$LIST list.
+
+If you wish to subscribe, write to \$MJ
+In the body of the message, put only this command:
+
+  subscribe \$LIST
+
+If you have questions, contact the list owners at this address:
+
+  \$OWNER
+
+LMNO
+
+The description of the file, "Subscribers only,"  will appear when someone
+uses the index command to see a listing of the top-level directory.
+
+The names in capital letters, like \$OWNER, are substitution variables.
+In some situations, Majordomo will automatically fill in the correct
+value.  This allows documents to be shared by more than one list.
+See "help configset_file_search" and "help configset_file_share" for
+more information on sharing documents.  See "help variables" for
+more information on substitution variables.
+
+The put command usually requires an administrative password.  See
+"help put" for more details.
+
+Five special documents
+----------------------
+
+There are five special documents that every list owner ought to review
+before running a new mailing list.  Three of these documents are available
+through special commands (faq, info, and intro).  The other two documents
+are commonly sent to people when they join or leave a mailing list
+(welcome and farewell).
+
+The faq, info, and intro commands will each retrieve a special document
+from the file space.  These three documents should be stored in the 
+top-level directory and be called "/faq", "/info", and "/intro".
+You can see each document with the following three commands:
+
+  faq LISTNAME
+  info LISTNAME
+  intro LISTNAME
+
+Like any other document in the file space, these three documents can
+be retrieved with the get command, but there is a subtle difference.
+Unlike the get command, the faq, info, and intro commands will automatically
+replace substitution variables.  For example, if you use \$LIST in
+one of the documents, Majordomo will automatically substitute the 
+name of the mailing list when the document is displayed.  See
+"help variables" to learn more about substitution variables.
+
+The other two important documents are "/welcome" and "/farewell".
+These documents are sent to subscribers when they join or leave a mailing
+list.  They also make use of substitution variables.  Unlike the
+other three documents, the welcome and farewell documents are supplied
+by default, so it should not be necessary to customize them.
+
+The put command can be used to replace any of these documents, but 
+
+New subscribers will usually receive a welcome message, which contains
+two parts.  The first part, called "/welcome",  shows the subscriber's 
+password and gives specific instructions for leaving the mailing list.  
+The second part is the "/info" file.  The files used in the welcome
+message can be changed by altering the welcome_files configuration setting.
+For example, if you would like to send only the "/intro" file, use
+the following command:
+
+configset LISTNAME welcome_files <<ABDF
+Welcome to the $LIST mailing list!
+intro | NS
+ABDF
+
+Unlike the get, put, and index commands, this setting considers relative
+paths to be relative to the top-level "/" directory, so 
+  intro
+and
+  /intro
+refer to the same file.
+
+For more information, see "help configset_welcome_files".
+
+There is no farewell_files configuration setting.  People who unsubscribe
+do not normally receive a farewell file; it requires the farewell command
+mode.  For example, the command:
+
+  unsubscribe-farewell LISTNAME someone@example.com
+
+would cause the farewell message to be sent to someone@example.com.
+
+
+Sending documents to other people
+---------------------------------
+
+List owners can send documents to other people by masquerading as 
+the recipient.  For example, if ruth@example.net asks "How do I subscribe
+to your mailing list," you could send the "help overview" document
+to her with these commands:
+
+  default user ruth@example.net
+  help overview
+
+When ruth@example.net receives the message, it will have your address,
+not the server's address, in the From: header.
+
+
+Automatic replies
+-----------------
+
+Another use for documents is to inform people whose requests are stalled
+or blocked by the access rules.  Consider the following two access rules,
+which deny posted messages from non-subscribers:
+
+  post
+  deny, reply="Only subscribers are not allowed to post messages."
+  !@MAIN
+
+  post
+  deny, replyfile="/subs_only.txt"
+  !@MAIN
+
+In the first rule, the message that is sent back to author of the message 
+may be hard to understand.  The author may be subscribed to the list under 
+a different address, or may want to know how to subscribe.  In this case, 
+the second rule is more helpful, because the file "/subs_only.txt" can
+hold a much clearer explanation.
+
+For more details on how and when automatic replies are sent, see
+"help admin_moderate" and "help configset_access_rules".
+
+
+Restricting access to documents
+-------------------------------
+
+Each command that has been discussed in this document (archive, faq, get, 
+index, info, and intro) has a corresponding configuration setting that
+controls access to the command.  For example, to learn more about restricting 
+the archive command, see "help configset_archive_access".
+
+It is also possible to restrict any of these commands with the access_rules
+configuration setting.  Any rules in the access_rules setting will override
+the settings that were mentioned in the previous paragraph.  
+See "help configset_access_rules" for more details.
+
+
+
+See Also:
+   help admin
+   help admin_commands
+   help admin_config
+   help admin_delivery
+   help admin_moderate
+   help admin_monitor
+   help admin_passwords
+   help admin_subscribers
+   help archive
+   help faq
+   help get
+   help index
+   help info
+   help intro
+   help put
+
+$INCLUDE-help/foot
