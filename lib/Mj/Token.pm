@@ -165,7 +165,7 @@ sub confirm {
   my $log  = new Log::In 50;
   my (%file, $repl, $token, $data, $ent, $sender, $url, $file, $mj_addr,
       $mj_owner, $expire, $expire_days, $desc, $remind, $remind_days,
-      $reminded, $permanent);
+      $reminded, $permanent, $reasons);
   my $list = $args{'list'};
 
   $self->_make_tokendb;
@@ -200,6 +200,7 @@ sub confirm {
 				       {'TOKEN' => $token,},
 				      );
 
+  ($reasons = $args{'args'}[1]) =~ s/\002/\n/g;
   $repl = {'OWNER'      => $sender,
 	   'MJ'         => $mj_addr,
 	   'MJOWNER'    => $mj_owner,
@@ -215,9 +216,10 @@ sub confirm {
 	   'REQUEST'    => $args{'request'},
 	   'LIST'       => $list,
 	   'SESSIONID'  => $self->{'sessionid'},
-	   'ARG1'       => $args{'arg1'},
-	   'ARG2'       => $args{'arg2'},
-	   'ARG3'       => $args{'arg3'},
+	   'ARG1'       => $args{'args'}[0],
+	   'ARG2'       => $args{'args'}[1],
+	   'REASONS'    => $reasons,
+	   'ARG3'       => $args{'args'}[2],
 	  };
 
   # Extract the file from storage
@@ -290,7 +292,7 @@ sub consult {
   my $log  = new Log::In 50;
   my (%file, @mod1, @mod2, $data, $desc, $ent, $expire, $expire_days,
       $file, $group, $mj_addr, $mj_owner, $remind, $remind_days, $repl,
-      $sender, $subject, $tmp, $token, $url, $reminded, $permanent);
+      $sender, $subject, $tmp, $token, $url, $reminded, $permanent, $reasons);
   my $list = $args{'list'};
 
   $self->_make_tokendb;
@@ -345,39 +347,7 @@ sub consult {
     $mod2[0] = $self->_list_config_get($list, 'moderator') || $sender;
   }
 
-  # For post requests, the consult message we send to the owner/moderator
-  # has to include the entire original message (since they'll want to read
-  # it).  Since we also want to enable the old
-  # edit-the-message-to-approve-it thing, we can't include anything else.
-  # We do give a useful content-type, though.  This is going to be a
-  # sticking point; it should be configurable ('old_style_consult').
-  if ($args{'request'} eq 'post') {
-    # Build a mesage
-    $subject = "$token : CONSULT $list";
-    if ($args{'args'}[1]) {
-      ($tmp = $args{'args'}[1]) =~ s/\002/\n /g;
-      $subject .= "\n $tmp";
-    }
-    $ent = build MIME::Entity
-      (
-#       Path            => $args{'args'}[0],
-# Note serious hack here
-       Path            => $args{'unspooled_file'} || $args{'args'}[0],
-       Type            => 'message/rfc822',
-       Encoding        => '8bit',
-       Filename        => undef,
-       -To             => $sender,
-       -From           => $sender,
-       '-X-Mj-Confirm' => $url,
-       '-Reply-To'     => $mj_addr,
-      );
-    # This prevents Mail::Header from refolding gratuitously
-    $ent->head->modify(0);
-    $ent->head->add('Subject', $subject);
-
-    $self->mail_entity($mj_owner, $ent, @mod2);
-    return;
-  }
+  ($reasons = $args{'args'}[1]) =~ s/\002/\n/g;
 
   # Not doing a post, so we send a form letter.
   # First, build our big hash of substitutions.
@@ -397,7 +367,8 @@ sub consult {
 	   'LIST'       => $list,
 	   'SESSIONID'  => $self->{'sessionid'},
 	   'ARG1'       => $args{'args'}[0],
-	   'REASONS'    => $args{'args'}[1],
+	   'ARG2'       => $args{'args'}[1],
+	   'REASONS'    => $reasons,
 	   'ARG3'       => $args{'args'}[2],
 	  };
 
@@ -420,9 +391,19 @@ sub consult {
      'Content-Language:' => $file{'language'},
     );
 
+  if ($args{'request'} eq 'post') {
+    $ent->make_multipart;
+    $ent->attach(Type        => 'message/rfc822',
+                 Description => 'Original message',
+                 # Note serious hack here
+                 Path        => $args{'unspooled_file'} || $args{'args'}[0],
+                 Filename    => undef,
+                );
+  }
   $self->mail_entity($sender, $ent, @mod2);
-  $ent->purge;
-#  unlink $file || $::log->abort("Couldn't unlink $file, $!");
+  # We do not want to unlink the spool file.
+  # $ent->purge;
+  unlink $file || $::log->abort("Couldn't unlink $file, $!");
 }
 
 =head2 t_accept(token)
@@ -683,8 +664,8 @@ sub t_remind {
   my $self = shift;
   my $log  = new Log::In 60;
   my $time = time;
-  my (%file, @reminded, @tmp, $data, $desc, $ent, $expire, $file,
-      $gurl, $i, $mj_addr, $mj_owner, $repl, $sender, $token, $url);
+  my (%file, @reminded, @tmp, $data, $desc, $ent, $expire, $file, $gurl, 
+      $i, $mj_addr, $mj_owner, $reasons, $repl, $sender, $token, $url);
 
   my $mogrify = sub {
     my $key  = shift;
@@ -725,6 +706,7 @@ sub t_remind {
       # Find number of days left until it dies
       $expire = int(($data->{'expire'}+43200-time)/86400);
 
+      ($reasons = $data->{'arg2'}) =~ s/\002/\n/g;
       # Generate replacement hash
       $repl = {OWNER      => $sender,
 	       MJ         => $mj_addr,
@@ -742,6 +724,7 @@ sub t_remind {
 	       SESSIONID  => $data->{'sessionid'},
 	       ARG1       => $data->{'arg1'},
 	       ARG2       => $data->{'arg2'},
+	       REASONS    => $reasons,
 	       ARG3       => $data->{'arg3'},
 	      };
 
