@@ -1,4 +1,5 @@
-Who will receive error messages for this list?  Majordomo will internally
-forward mail received at the -owner address to all of these addresses if
-the mail is identified as a bounce message.  If this variable is unset,
-bounces will be forwarded to the list owners.
+Specifies who will receive error messages for the named list, or for
+the GLOBAL pseudo-list.  Majordomo will internally forward mail
+received at the -owner address to all of these addresses if the
+mail is identified as a bounce message. If this variable is unset,
+or specified without data, bounces will be sent to the list owners.
