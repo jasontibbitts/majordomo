@@ -109,6 +109,7 @@ Variables available for all requests, with their types:
   master_password               number
   mismatch                      boolean
   mode                          string
+  nostall                       boolean
   posing                        boolean
   remind                        timespan
   sublist                       string
@@ -397,6 +398,12 @@ nonempty_lines
   This variable contains a count of the number of lines in the message
   which are not empty (i.e. which consist of at least one non-whitespace
   character).
+
+nostall
+  If this variable is set, a "stall" result is treated as a failure.
+  Commands can be stalled because someone's approval is required for
+  the command to be completed, or because of a delay (see "help delay"
+  for more details).
 
 password_length
   This variable contains the length in characters of a new personal 
