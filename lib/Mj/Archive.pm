@@ -39,7 +39,7 @@ use Mj::Log;
 use vars qw(@index_fields);
 
 @index_fields = qw(byte bytes line lines body_lines quoted split date from
-		   subject refs);
+		   subject refs hidden);
 
 use AutoLoader 'AUTOLOAD';
 1;   
@@ -138,6 +138,10 @@ $data->{'subject'} should contain the subject of the message.
 $data->{'refs'} should contain the data from the References: header (a
 comma-separated list of message-IDs in brackets), or the single message-ID
 from the In-Reply-To: header.  Or nothing...
+
+$data->{'hidden'} should be set to 1 if a message contains headers
+that indicate that a subscriber does not wish the message to be 
+available in a public archive.
 
 Throughout these routine, $arc is the name of the main archive while $sub
 is the name of the subarchive (the archive with the split count appended).
@@ -409,7 +413,7 @@ sub remove {
     my $values = shift;
     
     if ($key > $msg) {
-      $values->{'byte'} -= $data->{'bytes'};
+      $values->{'byte'} -= ($data->{'bytes'} + 1);
       $values->{'line'} -= $data->{'lines'};
       return (0, 1);
     }
@@ -1345,7 +1349,8 @@ sub expand_range {
   my $self = shift;
   my $lim  = shift;
   my $args = shift; 
-  my (@out, @args, $i, $j, $ct, $a1, $m1, $a2, $m2, $tmp);
+  my $private = shift;
+  my (@out, @args, @tmp, $data, $i, $j, $ct, $a1, $m1, $a2, $m2, $tmp);
 
   @args = split " ", $args;
   # Walk the arg list
@@ -1464,6 +1469,16 @@ sub expand_range {
     }
   }
   $self->{'sublist'} = '';
+  if ($private) {
+    @tmp = ();
+    for $i (@out) {
+      ($j, $data) = @$i;
+      unless (exists($data->{'hidden'}) and $data->{'hidden'}) {
+        push @tmp, $i;
+      }
+    }
+    @out = @tmp;
+  }
   @out;
 }
 
