@@ -1,3 +1,58 @@
+2002-06-01  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Use CHUNKSIZE and EXTRA substitutions to
+	allow commands to be completed if the sign in process must
+	be completed.  Thanks to Roger Klorese.
+
+	* bin/mj_wwwusr:  Bugfix:  Do not print the HTTP header
+	twice when displaying the login page.
+
+	* lib/Majordomo.pm:  (new)  Bugfix:  Untaint any domain names
+	retrieved from the mj-domains file.  Thanks to Brock Rozen.
+	(_list_sync_owners)  Bugfix:  Test addresses for definition 
+	before testing for validity.  Thanks to Roger Klorese.
+	(_password)  Add QSADDR and STRIPADDR substitution support
+	to the new_password reply file.
+	(_createlist)  Pass both the Internet domain and the Mj2
+	domain to the MTA configuration module.  Thanks to Matt
+	Armstrong.
+	(_unsubscribe)  Add QSADDR and STRIPADDR substitution support
+	to the farewell reply file.
+
+	* lib/Mj/Access.pm:  (validate_passwd)  Retrieve the latchkey
+	from the "chain1" field instead of the "arg1" field.
+	(_build_passwd_data)  Bugfix:  Test addresses for definition
+	before testing for validity.  Thanks to Brock Rozen.
+	(_a_confirm, _a_confirm2)  Bugfix:  Use the repl_confirm_req
+	reply file by default if the requester, not the victim, will
+	be sent a confirmation message.  Thanks to Nick Simicich.
+
+	* lib/Mj/Format.pm:  (show)  Add support for the QSADDR
+	and STRIPADDR substitutions.
+
+	* lib/Mj/List.pm:  (post_gen_stats)  Bugfix:  correct 
+	off-by-one error.  Thanks to Matt Armstrong.
+
+	* lib/Mj/MTAConfig.pm:  (add_alias)  Allow the Mj2
+	domain and Internet domain to be different.
+
+	* lib/Mj/MailOut.pm:  (welcome)  Add support for the 
+	VICTIM substitution.
+
+	* lib/Mj/Token.pm:  (t_add)  Change the chain4 field to
+	the approver field.
+	(confirm)  Store the group name of the confirmation notice
+	recipient in the approver field.  Use the repl_confirm_req
+	reply file by default if the requester is sent the confirmation
+	notice.
+	(t_remind) Determine where the reminder notice should be
+	sent more consistently.
+	(gen_latchkey)  Store the latchkey in the chain1 field, not
+	the arg1 field.
+
+	* setup/mta_exim.pl:  If the Mj2 domain and the Internet domain
+	differ, suggest a domain-specific director/router.
+	
 2002-05-31  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Majordomo.pm: Update version number to 200205310.

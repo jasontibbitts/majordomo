@@ -178,11 +178,17 @@ $cgidata = Mj::Format::cgidata($mj, { 'user' => $user,
 $subs = { $mj->standard_subs($lists[0]),
           'CGIDATA'   => $cgidata,
           'CGIURL'    => $cgiurl,
+          'CHUNKSIZE' => $cgi->param('chunksize') || '',
           'CMDPASS'   => '',
           'COMMAND'   => $ofunc,
+          'EXTRA'     => '',
           'USER'      => ($user =~ /example.com$/) ? '' : $user,
         };
 
+@extra = $cgi->param('extra');
+if (defined $extra[0]) {
+  $subs->{'EXTRA'} = $extra[0];
+}
 
 #----- Determine what service was requested -----#
 # Extract "mode" from command name
