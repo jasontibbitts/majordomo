@@ -4001,7 +4001,7 @@ sub _register {
   # We shouldn't fail, because we trust the reg. database to be correct
   if ($exist) {
     $log->out("failed, existing");
-    return (0, "$vict->{'fulladdr'} is already registered as $data->{'fulladdr'}.\n", $vict->{'fulladdr'});
+    return (0, "$vict is already registered as $data->{'fulladdr'}.\n");
   }
   
   $welcome = $self->_global_config_get('welcome');
