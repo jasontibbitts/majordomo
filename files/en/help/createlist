@@ -16,6 +16,7 @@ owner,     required, is an email address for who will manage the list
 -nowelcome,if specified, suppresses intro msg for new owner
 -pass,     if specified, allows the list's master password to be specified.
 -regen,    if specified, regenerates the mail aliases
+-rename,   if specified, changes the name of a mailing list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The createlist command is used to build or destroy an electronic
@@ -139,7 +140,9 @@ The command modes include the following:
     list.  All subscription information, archive file names, and 
     mail aliases will be updated automatically.  It may be necessary
     to adjust the configuration settings and welcome message manually,
-    to reflect the new list name.
+    to reflect the new list name.  After the list has been renamed, 
+    use the configshow-declared command to see if any of the list's
+    settings contain the old list name.
 
 Once a list has been renamed, it is possible to cause commands that use
 the old list name to be adjusted to use the new name automatically.  See
