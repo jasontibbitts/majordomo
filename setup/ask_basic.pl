@@ -118,15 +118,10 @@ sub ask_basic {
   $msg .= retr_msg('database_text', $lang);
   $db = 'text';
 
-  if ($have{'DBI'}) {
-    if ($have{'DBD::Pg'}) {
-      unshift @backends, 'pgsql';
-      $msg .= retr_msg('database_pgsql', $lang);
-    }
-    if ($have{'DBD::mysql'}) {
-      unshift @backends, 'mysql';
-      $msg .= retr_msg('database_mysql', $lang);
-    }
+  if ($have{'DBI'} && ($have{'DBD::Pg'} || $have{'DBD::mysql'})) {
+    $db = 'sql';
+    unshift @backends, 'sql';
+    $msg .= retr_msg('database_sql', $lang);
   }
  
   if ($have{'DB_File'}) {
@@ -145,10 +140,33 @@ sub ask_basic {
   $config->{'database_backend'} = get_enum($msg, $def, [@backends]);
 
   # Ask for RDBMS specifics if necessary
-  if ($config->{'database_backend'} eq 'pgsql' or
-      $config->{'database_backend'} eq 'mysql') 
+  if ($config->{'database_backend'} eq 'sql')
   {
     $db = $config->{'database_backend'};
+
+    if($have{'DBD::Pg'}) {
+      if(!defined($type)) { 
+        $type = 'pgsql' 
+      };
+      unshift @sql_type, 'pgsql';
+      $sql_msg .= retr_msg('database_pgsql', $lang);
+    }
+
+    if($have{'DBD::mysql'}) {
+      if(!defined($type)) { 
+        $type = 'mysql' 
+      };
+      unshift @sql_type, 'mysql';
+      $sql_msg .= retr_msg('database_mysql', $lang);
+    }
+
+    if(defined $config->{'database'}->{'type'}) {
+     $def = $config->{'database'}->{'type'};
+    } else {
+     $def = $type;
+    }
+
+    $config->{'database'}->{'type'} = get_enum($sql_msg, $def, [@sql_type]);
 
     $msg = retr_msg('dbms_host', $lang, 'DB' => $db);
     $def = $config->{database}->{srvr} || "localhost"; 

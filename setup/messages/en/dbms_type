@@ -1,0 +1,8 @@
+Database Storage
+
+On which host is the $DB database software running?
+
+Enter "localhost" if Majordomo and the database server will run
+on the same host.  Otherwise, enter the full domain name of the
+database server host.
+

@@ -1,0 +1,11 @@
+
+========= EXPERIMENTAL: DO NOT USE sql UNLESS YOU ARE DEVELOPING =========
+==                                                                      ==
+== You have DBI and an appropraite DBD module installed, which allows   ==
+== you to use an SQL database backend, instead of Berkeley DB.          ==
+==                                                                      ==
+== To use this, type 'sql' at the prompt.                               ==
+==                                                                      ==
+==========================================================================
+
+
