@@ -52,6 +52,7 @@ if (! -t STDERR) {
 }
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb"; # Needed for Syslog to get hostname.
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 # Parse the command line arguments.
 # -c - specify command to be executed (arg)

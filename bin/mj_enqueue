@@ -47,6 +47,7 @@ my (%opts, $dom, $i, $line, $ok, $pid, $rendezvous, $q1, $q2, $q3, $qdir,
 
 umask oct($::UMASK);
 $ENV{PATH} = '';
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 # Parse command line args
 # -c - specify command to be executed (arg)
