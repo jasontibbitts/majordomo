@@ -43,7 +43,7 @@
 
   </td>
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who-summary&amp;chunksize=10">
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who-summary">
      <font size="-1" color="#f0f0f0">
      Subscribers</font></a>
 
