@@ -3,6 +3,9 @@
 	* bin/mj_confirm:  Clear the token after the accept or
 	reject command is issued.  Thanks to Steven Orr.
 
+	* bin/mj_wwwusr:  Bugfix:  Initialize variable to
+	avoid access check crash.  Thanks to Roger Klorese.
+
 	* lib/Majordomo.pm:  (_faq, help_start, _info, _intro)
 	Allow files to be mailed from the wwwadm interface.
 
