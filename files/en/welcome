@@ -3,19 +3,19 @@ Your password at $SITE is
 
 $PASSWORD
 
-Please save this message for future reference.  Thank you.
-
-If you ever want to remove yourself from this mailing list, send the
-following command in email to $MJ:
+To leave this mailing list, send the following command in the body
+of a message to $MJ:
 
 approve $PASSWORD unsubscribe $LIST $USER
 
-Note that this works even if your address changes; for that reason
-(among others) it is important that you have this message handy when it
-comes time for you to leave the list.
+This command will work even if your address changes.  For that reason,
+among others, it is important that you keep a copy of this message.
 
-If you ever need to get in contact with the owner of the list, (if you
-have trouble unsubscribing or have questions about the list itself) send
-email to $OWNER.
-This is the general rule for most mailing lists when you need to contact
-a human being.
+If you need help or have questions about the mailing list, please
+contact the people who manage the list by sending a message to
+  $OWNER
+
+If the web features of Majordomo are supported at this site, you
+can manage your subscription by visiting the following location:
+  <URL:$WWWUSR_URL>
+
