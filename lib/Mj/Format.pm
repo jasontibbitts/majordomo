@@ -107,6 +107,20 @@ sub alias {
   $ok;
 }
 
+sub announce {
+  my ($mj, $out, $err, $type, $request, $result) = @_;
+
+  my ($ok, $mess) = @$result;
+  if ($ok > 0) { 
+    eprint($out, $type, "The announcement was sent.\n");
+  }
+  else {
+    eprint($out, $type, "The announcement was not sent.\n");
+    eprint($out, $type, &indicate($mess, $ok));
+  }
+  $ok;
+}
+
 sub archive {
   my ($mj, $out, $err, $type, $request, $result) = @_;
  
@@ -616,6 +630,95 @@ sub rekey {
     eprint($out, $type, &indicate($mess, $ok));
   }
   $ok;
+}
+
+use Date::Format;
+sub report {
+  my ($mj, $out, $err, $type, $request, $result) = @_;
+  my $log = new Log::In 29, "$type";
+  my (%outcomes, %stats, @tmp, $begin, $chunk, $chunksize, $data, $end, $victim);
+  my ($ok, $mess) = @$result;
+
+  unless ($ok > 0) {
+    eprint($out, $type, "Unable to create report\n");
+    eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+    return $ok;
+  }
+
+  %outcomes = ( 1 => 'succeed',
+                0 => 'fail',
+               -1 => 'stall',
+              );
+
+  ($request->{'begin'}, $request->{'end'}) = @$mess;
+  @tmp = localtime($request->{'begin'});
+  $begin = strftime("%Y-%m-%d %H:%M", @tmp);
+  @tmp = localtime($request->{'end'});
+  $end = strftime("%Y-%m-%d %H:%M", @tmp);
+
+  $mess = sprintf "Activity for %s from %s to %s\n\n", 
+                  $request->{'list'}, $begin, $end;
+  eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+
+  $request->{'chunksize'} = 
+    $mj->global_config_get($request->{'user'}, $request->{'password'},
+                           "chunksize");
+
+  $request->{'command'} = "report_chunk";
+
+  while (1) {
+    ($ok, $chunk) = @{$mj->dispatch($request)};
+    unless ($ok) {
+      eprint($out, $type, indicate($chunk, $ok, 1)) if $chunk;
+      last;
+    }
+    last unless scalar @$chunk;
+    for $data (@$chunk) {
+      # Remove the comment from the victim's address.
+      $victim = $data->[1] eq 'post'? $data->[3] : $data->[2];
+      $victim =~ s/.*<([^>]+)>.*/$1/;
+      @tmp = localtime($data->[9]);
+      $end = strftime("%d %b %H:%M", @tmp);
+
+      if ($request->{'mode'} !~ /summary/) {
+        if ($request->{'list'} eq 'ALL') { 
+          $mess = sprintf "%-11s %-16s %-30s %-7s %s\n", $data->[1],
+                  $data->[0], $victim, $outcomes{$data->[6]}, $end;
+        }
+        else {
+          $mess = sprintf "%-11s %-46s %-7s %s\n", $data->[1],
+                  $victim, $outcomes{$data->[6]}, $end;
+        }
+     
+        eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+      }
+      else {
+        $stats{$data->[1]}{1}  ||= 0;
+        $stats{$data->[1]}{-1} ||= 0;
+        $stats{$data->[1]}{0}  ||= 0;
+        $stats{$data->[1]}{$data->[6]}++;
+        $stats{$data->[1]}{'total'}++;
+      }
+    }
+  }
+  if ($request->{'mode'} =~ /summary/) {
+    if (scalar keys %stats) {
+      $mess = sprintf "     Command: Total  (Succeed/Stall/Fail)\n";
+    }
+    else {
+      $mess = "There was no activity.\n";
+    }
+    eprint($out, $type, indicate($mess, $ok, 1));
+    for $end (sort keys %stats) {
+      $mess = sprintf "%12s: %4d   (%7d/%5d/%4d)\n", $end, $stats{$end}{'total'},
+        $stats{$end}{1}, $stats{$end}{'-1'}, $stats{$end}{'0'};
+      eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+    }
+  }
+
+  $request->{'command'} = "report_done";
+  $mj->dispatch($request);
+  1;
 }
 
 sub sessioninfo {

@@ -206,6 +206,19 @@ my %commands =
                    'actions' => \%actions,
                   },
    },
+   'announce' =>
+   {
+    'parser'   => [qw(email shell list global real)],
+    'dispatch' => {'top' => 1, 
+                   'arguments' => {'file', 'SCALAR'},
+                   'tokendata' => {'arg1' => 'file'}
+                  },
+    'access'   => {
+                   'default' => 'deny',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
+   },
    'archive' =>
    {
     'parser'   => [qw(email shell list real)],
@@ -512,6 +525,21 @@ my %commands =
    {
     'parser'   => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1},
+    'access'   => {
+                   'default' => 'deny',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
+   },
+   'report' =>
+   {
+    'parser'   => [qw(email shell list global all nohereargs real)],
+    'dispatch' => {'top' => 1, 'iter' => 1,
+                   'arguments' => {'action'  => 'SCALAR',
+                                   'date'    => 'SCALAR',},
+                   'tokendata' => {'arg1'   => 'action',
+                                   'arg3'   => 'date'}
+                  },
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
