@@ -2043,11 +2043,15 @@ sub parse_bounce_rules {
   my $var  = shift;
   my $log  = new Log::In 150;
 
-  my (@tmp, $acts, $check_aux, $check_time, $count, $data, $error,
-      $file, $i, $j, $k, $o, $ok, $part, $rule, $table, $tmp, $tmp2, $warn);
+  my (@modes, @tmp, $acts, $check_aux, $check_time, $count, $data, 
+      $error, $file, $i, $j, $k, $o, $ok, $part, $rule, $table, 
+      $tmp, $tmp2, $warn);
 
   # %$data will contain our output hash
   $data = {};
+
+  # The "remove" action supports the following modes
+  @modes = qw(consult noconsult noprobe quiet);
 
   # We start with no warnings.
   $warn = '';
@@ -2075,6 +2079,7 @@ sub parse_bounce_rules {
       ($tmp, $tmp2) = ($acts->[$j] =~ /([^=-]*)(?:[=-](.*))?/);
       unless (rules_action('_bounce', $tmp)) {
 	@tmp = rules_actions('_bounce');
+        # XLANG
 	return (0, "\nIllegal action: $acts->[$j].\nLegal actions for bounce_rules are:\n".
 		join("\n",sort(@tmp)));
       }
@@ -2098,6 +2103,19 @@ sub parse_bounce_rules {
 	    return ($ok, $error);
 	  }
 	}
+        elsif ($tmp eq 'remove') {
+          @tmp = split /[-]/, $tmp2;
+          for $k (@tmp) {
+            next unless ($k =~ /\S/);
+            unless (grep { $_ eq $k } @modes) {
+              # XLANG
+              $error = "Invalid mode:  $k\n"
+              . "Valid modes for the \"remove\" action include:\n" 
+              . join ("\n", @modes);
+              return (0, $error);
+            }
+          }
+        }
       }
 
       # Compile the rule
