@@ -88,12 +88,14 @@ files/en/consult
 files/en/consult_noweb
 files/en/faq
 files/en/file_sent
+files/en/help/admin
 files/en/help/admin_commands
 files/en/help/admin_configuration
 files/en/help/admin_passwords
 files/en/help/commands
 files/en/help/default
 files/en/help/parser
+files/en/help/regexp
 files/en/help/subscribe
 files/en/help/topics
 files/en/info
