@@ -84,6 +84,7 @@ $Mj::Config::default_string = q(
 			       Priority
 			       X-Pmrqc
 			       Return-Path
+			       Delivered-To
 			      )],
  'subject_prefix'       => undef,
  'admin_headers'        => (#'

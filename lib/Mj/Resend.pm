@@ -155,6 +155,9 @@ sub post {
     push @$reasons, "Invalid Approve Header";
   }
 
+  # Check poster
+  $self->_check_poster($list, $user, $reasons, $avars);
+
   # Check header
   $self->_check_header($list, $thead, $reasons, $avars);
 
@@ -624,6 +627,34 @@ sub _check_approval {
   }
 
   return (1, $passwd, $token);
+}
+
+=head2 _check_poster(list, head, reasons, avars)
+
+This computes various pieces of data about the poster:
+
+  days since the user subscribed
+
+=cut
+sub _check_poster {
+  my $self    = shift;
+  my $list    = shift;
+  my $user    = shift; # Already in an Mj::Addr object
+  my $reasons = shift;
+  my $avars   = shift;
+
+  # Grab the list data
+  my $data = $self->{'lists'}{$list}->is_subscriber($user);
+
+  # If not a subscriber...
+  unless ($data) {
+    $avars->{days_since_subscribe} = -1;
+    return;
+  }
+  
+  # Extract subscribe date
+  $avars->{days_since_subscribe} 
+    = (time - $data->{subtime})/86400;
 }
 
 =head2 _check_header(list, head)
