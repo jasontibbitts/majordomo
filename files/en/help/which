@@ -1,8 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 which-regexp searchstring
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-searchstring, required, is an email address fragment you wish to find
 -regexp, if specified, makes searchstring a pattern (see "help patterns")
+searchstring, required, is an email address fragment you wish to find
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The "which" command returns all subscribers to all lists that have
@@ -23,6 +23,13 @@ with no interpretation of special characters. Matching is case sensitive.
 Which can return a huge amount of data, so be as specific as possible
 when choosing the string to search for. Matches may be case sensitive,
 so if "Joe" does not match, try "joe" instead.
+
+Anyone who uses this command without the site password will be
+limited to one match per mailing list.
+
+Since "which" is a global command, attempting to use it with a 
+password that is specific to one mailing list will result in an
+"Invalid password" error.
 
 See Also:
    help patterns (for simple and complex regular expressions)
