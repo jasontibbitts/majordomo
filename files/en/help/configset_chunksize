@@ -11,10 +11,49 @@ EXAMPLE:
 configset GLOBAL chunksize = 1000
 
 
-This controls the size of various internal structures.  Lowering this
-value saves memory and decreases performance.  Setting it to 0
-disables internal chunking, and can use very large amounts of memory.
+$INCLUDE-config/chunksize
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+Chunks are used by "iterated" commands.  The information that is
+processed in chunks varies according to the command that is being run,
+as shown in the following table: 
+
+Command     Chunks of...
+-------     ------------
+announce    addresses from a subscriber database.
+archive     lines from messages in the archive.
+faq         lines from a file.
+get         lines from a file.
+help        lines from a file.
+info        lines from a file.
+intro       lines from a file.
+post        addresses from a subscriber database.
+put         lines in a file.
+rekey       addresses from a subscriber database.
+report      lines from the log.
+sessioninfo lines from a file.
+tokeninfo   lines from a session file or posted message.
+who         addresses from a subscriber database.
+
+The chunksize has no impact on the output that is displayed for a
+command. It only affects the computer resources required to execute a
+command.
+
+
+See Also:
+   help admin_domain
+   help announce
+   help archive
+   help faq
+   help get
+   help help
+   help info
+   help intro
+   help post
+   help put
+   help rekey
+   help report
+   help sessioninfo
+   help tokeninfo
+   help who
+
+$INCLUDE-help/foot

@@ -1,3 +1,5 @@
-This controls the size of various internal structures.  Lowering this
-value saves memory and decreases performance.  Setting it to 0
-disables internal chunking, and can use very large amounts of memory.
+The chunksize setting limits the amount of memory that is used for
+potentially large actions.  For example, a value of 100 would cause the
+who command to process addresses in blocks of 100.  Larger values will
+cause the software to run slightly faster and use more memory; smaller
+values will cause the software to run more slowly and use less memory.
