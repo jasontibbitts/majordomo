@@ -507,6 +507,8 @@ if ($commands{$func}->[3] ne $func and $ofunc ne 'set-check') {
   }
   elsif ($commands{$func}->[3] eq 'show') {
     $func = $request->{'command'} = 'show';
+    delete $request->{'victim'};
+    delete $request->{'victims'};
     $request->{'mode'} = '';
     $result = $mj->dispatch($request); 
     &usage($mj, $cgi, $subs, "Unable to obtain result from Majordomo.", '') 
