@@ -774,7 +774,7 @@ package Mj::Config;
    'digest_index_format' =>
    {
     'type'   => 'enum',
-    'values' => [qw(numbered subject subject_author)],
+    'values' => [qw(numbered numbered_name subject subject_author subject_name)],
     'groups' => [qw(deliver)],
     'global' => 0,
     'local'  => 1,

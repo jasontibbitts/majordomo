@@ -1,3 +1,44 @@
+2001-09-25  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (archive_chunk)  Use listref as
+	argument to digest_examine().
+	(_set)  Use the digest's index format when a partial digest
+	is issued.
+	(_showtokens) Fix typo in mode test.
+	(_unsubscribe) Test validity of a sublist only if one is
+	specified.
+
+	* lib/mj_cf_data.pl:  Support new "numbered_name" and
+	"subject_name" digest index formats.
+
+	* lib/Mj/Archive.pm:  (expand_date)  Bugfix:  continue
+	looking for messages in an archive which is not in chronological
+	order.  Thanks to Roger Klorese.
+
+	* lib/Mj/BounceHandler.pm:  (_hbr_probe)  Use "unsubscribe"
+	as the command for a probe token to allow the token to be
+	accepted.  Thanks to Roger Klorese.
+
+	* lib/Mj/Config.pm:  (parse_digests)  Add support for digest
+	sorting and digest-specific index formats.
+
+	* lib/Mj/List.pm:  (set)  Use a listref as the argument to
+	digest_examine().
+
+	* lib/Mj/MIMEParser.pm:  (collect_data) Add definition test
+	to stop warnings.
+
+	* lib/Mj/Resend.pm:  (do_digests)  Add support for digest
+	sorting and digest-specific index formats.
+
+	* lib/Mj/Token.pm:  (t_accept)  Do not send the results of
+	an accepted probe token to the victim.
+
+	* lib/Mj/Digest/Build.pm:  (idx_numbered_name, idx_subject_name)
+	New routines.  Support the numbered_name and subject_name index
+	formats, which display the authors' names but not their
+	addresses.
+
 2001-09-24  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_unsubscribe)  Bugfix:  do not close the
