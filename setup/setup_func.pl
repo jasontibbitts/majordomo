@@ -45,6 +45,8 @@ sub create_dirs {
   safe_mkdir("$l/LIB",        0777 & ~oct($um), $uid, $gid);dot();
   safe_mkdir("$l/SITE",       0777 & ~oct($um), $uid, $gid);dot();
   safe_mkdir("$l/SITE/files", 0777 & ~oct($um), $uid, $gid);dot();
+  safe_mkdir("$config->{'install_dir'}/lib/setup", 0777 & ~oct($um), 
+             $uid, $gid);dot();
 
   unless (-d dirname($config->{majordomocf})) {
     safe_mkdir(dirname($config->{majordomocf}), 0777 & ~oct($um), $uid, $gid);dot();
@@ -254,7 +256,7 @@ sub install_config_templates {
 
   $pw = $config->{'site_password'};
   unless ($pw) {
-    $pw = get_str(retr_msg('site_password', $lang));
+    $pw = get_passwd(retr_msg('site_password', $lang));
     $config->{'site_password'} = $pw;
   }
 
@@ -295,12 +297,16 @@ sub install_response_files {
   print retr_msg('response_files', $lang) unless $quiet;
 
   rcopy("files", "$config->{'lists_dir'}/SITE/files", 1);
+  rcopy("setup", "$config->{'install_dir'}/lib/setup", 1);
+  copy_file(".mj_config", ".", "$config->{'install_dir'}/lib", 0);
 
   $uid = getpwnam($config->{'uid'});
   $gid = getgrnam($config->{'gid'});
   $um  = oct($config->{'umask'});
   rchown($uid, $gid, 0666 & ~$um, 0777 & ~$um, 
          "$config->{'lists_dir'}/SITE/files");
+  rchown($uid, $gid, 0666 & ~$um, 0777 & ~$um, 
+         "$config->{'install_dir'}/lib/setup");
 
   print "ok.\n" unless $quiet;
 }
