@@ -2,6 +2,7 @@
 report[-summary][-inform] listname [date] [action[,action]]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site
+-full,    if specified, displays the session number and interface
 -inform,  if specified, uses the set of actions in the "inform" setting
 -summary, if specified, gives a table summarizing the number of events
 action,   if specified, is a comma separated list of things to report
@@ -10,6 +11,7 @@ date,     if specified, determines the period of time to report on
 
 EXAMPLE:
   report-summary nectarine 12h ALL
+might display the following report:
 
 Activity for nectarine from 2000-08-03 02:53 to 2000-08-03 14:53
      Command:   Total  Succeed Stall Fail 
@@ -20,15 +22,15 @@ Activity for nectarine from 2000-08-03 02:53 to 2000-08-03 14:53
 
 The "report" command displays raw or summarized data for recent log
 entries for a mailing list, and can be constrained by action or date.
-The "summary" command mode results in a table summarizing how many of each
-kind of event occurred.  Otherwise, each event is reported.
+The "summary" command mode results in a table summarizing how many of
+each kind of event occurred.  Otherwise, each event is reported.
 
-The specified "listname" can be any regular list, or "ALL" to report
-on all mailing lists, or one of the pseudo-lists "DEFAULT" or "GLOBAL".
+The specified "listname" can be any regular list, or "ALL" to report on
+all mailing lists, or one of the pseudo-lists "DEFAULT" or "GLOBAL".
 Reporting on "GLOBAL" will inform you about commands such as accept,
-reject, lists, which, and help. Reporting on "DEFAULT" shows commands that
-act on the system defaults, like "configset DEFAULT". Reporting on a
-regular list will inform you about things like subscription requests
+reject, lists, which, and help. Reporting on "DEFAULT" shows commands
+that act on the system defaults, like "configset DEFAULT". Reporting on
+a regular list will inform you about things like subscription requests
 and attempts to post.
 
 If you specify a "date" field, the report will be restricted to a
@@ -43,47 +45,59 @@ installed will be reported. Dates can be specified in several formats:
 
 The "inform" command mode will cause the actions for which "report" is
 specified in the inform configuration setting to be displayed.  Any
-actions specified in the report command itself will have no influence
-on the output.
+actions specified in the report command itself will have no influence on
+the output.
 
 If you specify majordomo commands in a comma-separated list of actions,
 only those types of events will be reported. If you specify no actions,
-or if you use "ALL" as the action, all events will be reported.  See 
-"help topics" for a list of commands that can be reported.  The following 
-additional actions can be specified with the report command:
+or if you use "ALL" as the action, all events will be reported.  See
+"help topics" for a list of commands that can be reported.  The
+following additional actions can be specified with the report command:
 
   badtoken    A bad token identifier was given with the accept command.
   bounce      A bounce to the list owner that had a recognized address.
   connect     A connection failed due to the GLOBAL configuration settings.
   consult     A consult token was accepted for a posted message.
+  expire      The lifetime of a request that required approval expired,
+              and its token identifier was removed from the database.
   parse       A message was sent to the server that contained no valid commands.
   ALL         Report everything.
 
 The actions can optionally be followed by a colon or pipe (':', '|') and
-one or more results.  The possible results are "succeed," "stall," "fail,"
-or "all."  For example, the following command will show a report of all 
-successful posts made to the bismuth mailing list during the last 12 days:
+one or more results.  The possible results are "succeed," "stall,"
+"fail," or "all."  For example, the following command will show a report
+of all successful posts made to the bismuth mailing list during the last
+12 days:
 
   report bismuth 12d post : succeed
 
-Actions and results can be combined with comma-separated lists.  For example,
-the following command will show a report of all stalled and failed subscription
-and unsubscription attempts on the cannabis list during the last 36 hours:
+Actions and results can be combined with comma-separated lists.  For
+example, the following command will show a report of all stalled and
+failed subscription and unsubscription attempts on the cannabis list
+during the last 36 hours:
 
   report cannabis 36h subscribe,unsubscribe : stall,fail
 
 It is also possible to use multiple action/result criteria with a here
-document.  The following command would have the same result as the previous
-command:
+document.  The following command would have the same result as the
+previous command:
 
 report cannabis 36h <<ABC
 subscribe : stall,fail
 unsubscribe : stall, fail
 ABC
 
+Normally, when events are reported individually, the command, address
+from which the request was made, result of the command, date, time and
+elapsed time are displayed.  If the "full" command mode is used, the
+interface and session number will also be displayed, on a separate line.
+The session number is especially useful for determining what caused
+a "bounce" (delivery failure).  Please see "help sessioninfo" for more
+details.
+
 Log entries that are older than the number of days in the log_lifetime
-configuration setting are removed automatically.  Consequently, the report 
-command is only useful for monitoring recent events.
+configuration setting are removed automatically.  Consequently, the
+report command is only useful for monitoring recent events.
 
 See Also:
    help accept
@@ -91,6 +105,7 @@ See Also:
    help configset_access_rules (to limit access to this command)
    help configset_inform
    help configset_log_lifetime
+   help sessioninfo
    help times (for how to specify the report period)
 
 $INCLUDE-help/foot
