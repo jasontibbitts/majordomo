@@ -1716,7 +1716,10 @@ sub _password {
        'Content-Language:' => $file{'language'},
       );
 
-    $self->mail_entity($sender, $ent, $vict);
+    if ($ent) {
+      $self->mail_entity($sender, $ent, $vict);
+      $ent->purge;
+    }
   }
   1;
 }
@@ -3289,8 +3292,10 @@ sub reject {
        'Content-Language:' => $file{'language'},
       );
     
-    $self->mail_entity($mj_owner, $ent, $data->{'victim'});
-    $ent->purge;
+    if ($ent) { 
+      $self->mail_entity($mj_owner, $ent, $data->{'victim'});
+      $ent->purge;
+    }
     
     # Then we send a message to the list owner and majordomo owner if
     # appropriate
@@ -3315,18 +3320,20 @@ sub reject {
     # Should we inform the list owner?
     $inform = $self->_list_config_get($data->{'list'}, 'inform');
     $inf = $inform->{'reject'}{'all'} || $inform->{'reject'}{1} || 0;
-    if ($inf & 2) {
-      $self->mail_entity($mj_owner, $ent, $list_owner);
-    }
+    if ($ent) {
+      if ($inf & 2) {
+        $self->mail_entity($mj_owner, $ent, $list_owner);
+      }
 
-    # Should we inform majordomo-owner?
-    $inform = $self->_global_config_get('inform');
-    $inf = $inform->{'reject'}{'all'} || $inform->{'reject'}{1} || 0;
-    if ($inf & 2) {
-      $ent->head->replace('To', $mj_owner);
-      $self->mail_entity($mj_owner, $ent, $mj_owner);
+      # Should we inform majordomo-owner?
+      $inform = $self->_global_config_get('inform');
+      $inf = $inform->{'reject'}{'all'} || $inform->{'reject'}{1} || 0;
+      if ($inf & 2) {
+        $ent->head->replace('To', $mj_owner);
+        $self->mail_entity($mj_owner, $ent, $mj_owner);
+      }
+      $ent->purge;
     }
-    $ent->purge;
   }
 
   # We cannot pass the data ref out to the interface, so we choose to
