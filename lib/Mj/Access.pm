@@ -97,7 +97,7 @@ sub validate_passwd {
   $global_only = 1
     if ($list =~ /^DEFAULT/);
 
-  if ($global_only) {
+  if ($global_only or $list eq 'GLOBAL') {
     @try = ('GLOBAL');
   }
   else {
@@ -151,8 +151,8 @@ sub validate_passwd {
     }
   }
 
-  # Now check to see if the user's password matches.  Loookup registration
-  # data; cached data acceptable
+  # Now check to see if the user's password matches.  Look up registration
+  # data; cached data acceptable.
   $reg = $self->_reg_lookup($user, undef, 1);
 
   # Compare password field; return '-1' if eq.
