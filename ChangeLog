@@ -1,3 +1,15 @@
+2002-02-16  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (standard_subs)  Incorporate
+	ARCURL into the standard substitutions.
+
+	* lib/Mj/Archive.pm:  (new, _split_name)  Sort archive
+	file names, accounting for sublists, quarter-years, 
+	and two-digit years. 
+	(_secs_start, _secs_end)  Support two-digit years.
+	Suggested by Brock Rozen.
+	(_parse_message_range)  Eliminate potential infinite loop.
+
 2002-02-06  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Archive.pm:  (_write_counts)  Remove database

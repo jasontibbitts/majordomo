@@ -77,7 +77,7 @@ sub new {
   my $size  = shift;
   my $class = ref($type) || $type;
   my $log   = new Log::In 150, "$dir, $list, $split, $size";
-  my($dh, $fh, $tmp);
+  my (%data, @tmp, $dh, $fh, $sort_arcs, $tmp);
   my $self = {'dir'   => $dir,
 	      'list'  => $list,
 	      'split' => $split,
@@ -100,16 +100,82 @@ sub new {
   while (defined($_ = $dh->read)) {
     if (s/^$list\.//) {
       $self->{'splits'}{$_} = {};
-      $_ =~ /(.*)-\d\d/;
-      if ($1) {
+      @tmp = _split_name($_);
+      $data{$_} = [ @tmp ];
+
+      if ($_ =~ /(.*)-\d\d/) {
 	$self->{'archives'}{$1} = {};
+        @tmp = _split_name($_);
+        $data{$1} = [ @tmp ];
       }
       else {
 	$self->{'archives'}{$_} = {};
       }
     }
   }
+
+  $sort_arcs = 
+  sub {
+
+    # different sublists
+    if ($data{$a}->[0] ne $data{$b}->[0]) {
+      return $a cmp $b;
+    }
+    # same date
+    elsif ($data{$a}->[1] eq $data{$b}->[1]) {
+      return $a cmp $b;
+    }
+    # different date
+    else {
+      return $data{$a}->[1] cmp $data{$b}->[1];
+    }
+  };
+
+  @tmp = sort $sort_arcs (keys %{$self->{'archives'}});
+  $self->{'sorted_archives'} = [ @tmp ];
+
+  @tmp = sort $sort_arcs (keys %{$self->{'splits'}});
+  $self->{'sorted_splits'} = [ @tmp ];
+                
   return $self;
+}
+
+=head2 _split_name (filename)
+
+This function returns the sublist name and full date
+(with four-digit year) of an archive file name.
+
+=cut
+sub _split_name {
+  my $arc = shift;
+  my ($sl, $tmp);
+
+  # Remove sublist names
+  $sl = "";
+  if ($arc =~ s/^(.*)\.//) {
+    $sl = $1;
+  }
+
+  # Remove trailing split numbers
+  $arc =~ s/-\d\d$//;
+
+  # Account for two-digit years
+  unless ($arc =~ /^(19|20)/) {
+    $tmp = substr($arc, 0, 2);
+    if ($tmp > 69) {
+      $arc = '19' . $arc;
+    }
+    else {
+      $arc = '20' . $arc;
+    }
+  }
+
+  # Account for quarter years
+  if ($arc =~ /^(\d{4})(\d)$/) {
+    $arc = $1 . sprintf ("%0.2d", ($2 - 1) * 3 + 1);
+  }
+
+  return ($sl, $arc);
 }
 
 =head2 add_start(sender, bytes, datahashref), add_done(file)
@@ -187,9 +253,8 @@ sub add_start {
 
       # Figure out which count to use; take the last file in the list and
       # extract the count from it
-      $sub = (grep(/^$arc-\d\d/,
-		   sort(keys(%{$self->{'splits'}})))
-	     )[-1] || "$arc-$count";
+      $sub = (grep(/^$arc-\d\d/, @{$self->{'sorted_splits'}}))[-1] 
+                || "$arc-$count";
 
       $sub =~ /.*-(\d+)/; $count = $1;
       # Grab the counts for the subarchive and open a new archive if
@@ -979,8 +1044,8 @@ sub last_message {
   unless ($arc) {
     # Pick out the last archive in the list and strip the count and list
     # from it
-    $arc = (sort(grep {$_ =~ /^$self->{'sublist'}\.?\d/}
-                 keys(%{$self->{'archives'}})))[-1];
+    $arc = (grep {$_ =~ /^$self->{'sublist'}\.?\d/}
+                 @{$self->{'sorted_archives'}})[-1];
   }
   
   # Restore sublist name if needed.
@@ -1006,20 +1071,23 @@ sub first_n {
   my $n    = shift;
   my $ct   = shift || 0;
   my $arc  = shift;
-  my (@arcs, @data, @msgs, $final, $key, $msg, $value);
+  my (@arcs, @data, @msgs, $final, $key, $msg, $tmp, $value);
   @msgs = ();
 
   if ($arc and $self->{'sublist'}) {
     $arc = "$self->{'sublist'}.$arc";
   }
-  # @arcs will hold all archives older than $arc, if given
+  # @arcs will hold all archives newer than $arc, if given
   if ($arc) {
-    @arcs  = sort(grep {$_ gt $arc and $_ =~ /^$self->{'sublist'}\.?\d/} 
-                   keys(%{$self->{'archives'}}));
+    @arcs = grep { $_ =~ /^$self->{'sublist'}\.?\d/ } 
+             @{$self->{'sorted_archives'}};
+    while ($tmp = shift @arcs) {
+      last if ($tmp eq $arc);
+    }
   }
   else {
-    @arcs  = sort(grep {$_ =~ /^$self->{'sublist'}\.?\d/}               
-                   keys(%{$self->{'archives'}}));
+    @arcs = grep { $_ =~ /^$self->{'sublist'}\.?\d/ }               
+               @{$self->{'sorted_archives'}};
   }
 
   $arc ||= shift @arcs;
@@ -1070,12 +1138,15 @@ sub last_n {
   }
   # @arcs will hold all archives older than $arc, if given
   if ($arc) {
-    @arcs  = sort(grep {$_ lt $arc and $_ =~ /^$self->{'sublist'}\.?\d/} 
-                   keys(%{$self->{'archives'}}));
+    @arcs = grep { $_ =~ /^$self->{'sublist'}\.?\d/ } 
+              @{$self->{'sorted_archives'}};
+    while ($tmp = pop @arcs) {
+      last if ($tmp eq $arc);
+    }
   }
   else {
-    @arcs  = sort(grep {$_ =~ /^$self->{'sublist'}\.?\d/} 
-                   keys(%{$self->{'archives'}}));
+    @arcs  = grep { $_ =~ /^$self->{'sublist'}\.?\d/ }               
+               @{$self->{'sorted_archives'}};
   }
 
   $arc ||= pop @arcs;
@@ -1125,7 +1196,7 @@ sub expand_date {
  
   # Extract the names of all archives overlapping requested interval
   # Use only archives corresponding to the sublist.
-  for $arc (sort keys(%{$self->{'archives'}})) {
+  for $arc (@{$self->{'sorted_archives'}}) {
     next unless $arc =~ /^$self->{'sublist'}\.?\d/;
     # separate sublist from archive name
     $date = $arc;  $date =~ s/$self->{'sublist'}\.?(\d.+)/$1/;
@@ -1191,7 +1262,7 @@ use Time::Local;
 sub _secs_start {
   my $d = shift;
   my $local = shift;
-  my $tmp;
+  my ($i, $tmp);
 
   # Convert the data into yyyymmmdd format
   if ($d =~ /^\d$/) {
@@ -1200,7 +1271,18 @@ sub _secs_start {
   elsif ($d =~ /^\d{2,3}$/) {
     $d += 1900;
   }
-  elsif ($d =~ /^\d{4}$/) {
+
+  unless ($d =~ /^(20|19)/) {
+    $i = substr($d, 0, 2);
+    if ($i >= 70) {
+      $d = '19' . $d;
+    }
+    else {
+      $d = '20' . $d;
+    }
+  }
+
+  if ($d =~ /^\d{4}$/) {
     $d .= '0101';
   }
   elsif ($d =~ /^(\d{4})(\d)$/) {
@@ -1255,7 +1337,18 @@ sub _secs_end {
   elsif ($d =~ /^\d{2,3}$/) {
     $d += 1900;
   }
-  elsif ($d =~ /^\d{4}$/) {
+
+  unless ($d =~ /^(20|19)/) {
+    $i = substr($d, 0, 2);
+    if ($i >= 70) {
+      $d = '19' . $d;
+    }
+    else {
+      $d = '20' . $d;
+    }
+  }
+
+  if ($d =~ /^\d{4}$/) {
     $d .= '1231';
   }
   elsif ($d =~ /^(\d{4})(\d)$/) {
@@ -1385,7 +1478,7 @@ sub summary {
   my $self = shift;
   my (@out, $arc);
 
-  for $arc (sort keys %{$self->{'splits'}}) {
+  for $arc (@{$self->{'sorted_splits'}}) {
     $self->_read_counts($arc, 0);
     push @out, [$arc, $self->{'splits'}{$arc}]
       if (exists($self->{'splits'}{$arc}) and 
@@ -1696,10 +1789,8 @@ sub _parse_archive_arg {
 sub _parse_message_range {
     my $self = shift;
     my ($arch1, $msg1, $arch2, $msg2) = splice (@_, 0, 4);
-    my (@out) = ();
-    my ($arc, $num, $final, @arcs);
+    my (@arcs, @out, $arc, $final, $num, $tmp);
     my $log = new Log::In 250, "$arch1 $msg1 $arch2 $msg2";
-    
 
     if (!$msg1 || !$msg2 || !($arch1 || $arch2) || 
         ($arch2 and ($arch1 gt $arch2))) {
@@ -1725,22 +1816,27 @@ sub _parse_message_range {
       if ($self->{'sublist'} and $arch2 !~ /^$self->{'sublist'}/) {
         $arch2 = "$self->{'sublist'}.$arch2";
       }
-      # @arcs will hold all archives newer than $arc, if given.
-      @arcs  = sort(grep {$_ ge $arch1 and  $_ =~ /^$self->{'sublist'}\.?\d/} 
-                    keys(%{$self->{'archives'}}));
+      # @arcs will hold all archives newer than $arch1.
+      @arcs = grep { $_ =~ /^$self->{'sublist'}\.?\d/ } 
+                @{$self->{'sorted_archives'}};
 
-      $arc = shift @arcs;
+      while ($arc = shift @arcs) {
+        last if ($arc eq $arch1);
+      }
+
       return @out unless $arc;
 
       $num = $msg1;
       ($final) = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
 
       while (($arc lt $arch2) || (($arc eq $arch2) && ($num <= $msg2))) {
-        my $tmp = $self->get_data("$arc/$num");
+        $tmp = $self->get_data("$arc/$num");
         if (defined $tmp) {
           push @out, ["$arc/$num", $tmp];
-          $num++;
         }
+
+        $num++;
+
         unless ($num <= $final) {
           # Move to next archive.
           $arc = shift @arcs;
@@ -1753,6 +1849,7 @@ sub _parse_message_range {
     }
     @out;
 }
+
 =head1 COPYRIGHT
 
 Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
