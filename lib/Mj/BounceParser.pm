@@ -396,7 +396,7 @@ sub parse_dsn {
   # least) look like legal DSNs but don't actually have the per-user
   # description block.  We call a special parser in another function to
   # deal with these, then return what that parser gave us.
-  if (@status < 2) {
+  if (@status < 2 && ! exists($status[0]->{'final-recipient'})) {
     $ok = check_dsn_netscape($ent, $data);
     return $ok;
   }
@@ -405,14 +405,16 @@ sub parse_dsn {
   # Original-Recipient: lines if we can get them, Final-Recipient: lines
   # otherwise, Action: fields, and Diagnostic-Code: if present. And we
   # don't want anything from the first group of status entries.
-  for ($i = 1; $i < @status; $i++) {
+  for ($i = 0; $i < @status; $i++) {
+    next unless (exists $status[$i]->{'final-recipient'}
+                 or exists $status[$i]->{'original-recipient'});
     if ($status[$i]->{'original-recipient'}) {
       $user = $status[$i]->{'original-recipient'};
     }
     else {
       $user = $status[$i]->{'final-recipient'};
     }
-    $user =~ s/.*?;\s*(.*?)\s*/$1/;
+    $user =~ s/.*?;\s*(.*?)\s*/$1/g;
     $user =~ s/^<(.*)>$/$1/;
     if ($status[$i]->{'action'} =~ /failed/i) {
       $action = 'failure';
