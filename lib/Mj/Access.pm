@@ -1207,12 +1207,13 @@ use MIME::Entity;
 sub _a_mailfile {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150, $arg;
-  my (%file, $ent, $file, $sender, $subs);
+  my (%file, $ent, $file, $request, $sender, $subs);
+  ($request = $td->{'command'}) =~ s/_(start|chunk|done)$//;
 
   $subs = {
     $self->standard_subs($td->{'list'}),
     'CMDLINE' => $td->{'cmdline'},
-    'COMMAND' => $td->{'command'},
+    'COMMAND' => $request,
     'FULFILL' => scalar localtime (time + $args->{'delay'}),
     'NOTIFY'  => "$td->{'victim'}",
     'REASONS' => $args->{'reasons'},
@@ -1242,7 +1243,11 @@ sub _a_mailfile {
 
     $sender = $self->_list_config_get($td->{'list'}, 'sender');
     if ($sender and $ent) {
-      $self->mail_entity($sender, $ent, $td->{'user'});
+      # Avoid a mail loop of the whoami_owner address with itself
+      unless ($request eq 'owner' and lc "$td->{'user'}" eq
+              lc $subs->{'OWNER'}) {
+        $self->mail_entity($sender, $ent, $td->{'user'});
+      }
     }
   }
 
@@ -1489,6 +1494,18 @@ sub _a_default {
 }
 
 sub _d_access {
+  my ($self, $arg, $td, $args) = @_;
+  my $log = new Log::In 150;
+  shift @_;
+
+  if (exists $args->{'block'} and $args->{'block'}) {
+    return $self->_a_deny(@_);
+  }
+
+  $self->_a_allow(@_);
+}
+
+sub _d_owner {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150;
   shift @_;
