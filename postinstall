@@ -21,6 +21,8 @@ $config = eval { require ".mj_config" };
 die retr_msg('no_mj_config', $lang)
   unless $config;
 
+$lang ||= $config->{'language'};
+
 #@dirs = (); %files = (); # Silence warning.
 # die "Can't get file index, $!"
 #   unless eval { require "files/INDEX.pl" };
