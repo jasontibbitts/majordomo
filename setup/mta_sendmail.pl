@@ -1,64 +1,32 @@
-use vars (qw($msg4 $quiet));
+use vars (qw($quiet));
 
 sub ask_sendmail {
   my $config = shift;
   my ($def, $msg);
 
-    #---- Ask if aliases should be maintained
-    $msg = <<EOM;
-Mail Handling Setup
+  #---- Ask if aliases should be maintained
+  $msg = retr_msg('maintain_aliases', $lang, 'MTA' => 'SENDMAIL');
+  $def = $config->{'maintain_mtaconfig'} || 1;
+  $config->{'maintain_mtaconfig'} = get_bool($msg, $def);
 
-Should Majordomo maintain your aliases automatically?
- Majordomo can automatically maintain your Sendmail aliases for you.  You
-  still have to do some manual setup (see README.SENDMAIL) but this only
-  needs to be done once; after that you can add lists without doing any
-  configuration whatsoever.
- If you say no, Majordomo  will provide you with information to paste into
-  your aliases file when you add new lists.
-EOM
-    $def = $config->{'maintain_mtaconfig'} || 1;
-    $config->{'maintain_mtaconfig'} = get_bool($msg, $def);
+  #---- Ask if virtual user tables should be maintained
+  $msg = retr_msg('maintain_vut', $lang, 'MTA' => 'SENDMAIL');
+  $def = $config->{'sendmail_maintain_vut'} || 0;
+  $config->{'sendmail_maintain_vut'} = get_bool($msg, $def);
 
-    #---- Ask about virtuser files as well
-    $msg = <<EOM;
-Mail Handling Setup
+  #---- Ask about making links
+  $msg = retr_msg('link_alias_files', $lang);
+  $def = $config->{'sendmail_make_symlinks'} || 0;
+  $config->{'sendmail_make_symlinks'} = get_bool($msg, $def);
 
-Should Majordomo maintain VirtUserTable files as well?
- Majordomo can also automatically maintain VirtUserTable files for handling
-  virtual domains.  If you answer 'yes', these files will be generated and
-  the aliases will be adjusted appropriately.
-EOM
-    $def = $config->{'sendmail_maintain_vut'} || 0;
-    $config->{'sendmail_maintain_vut'} = get_bool($msg, $def);
-
-    #---- Ask about making links
-    $msg = <<EOM;
-Mail Handling Setup
-
-Should Majordomo make links to alias and virtuser files?
- Some Sendmail versions will complain about permission problems with
-  Majordomo-generated alias files; this attempts to work around that by
-  making some symbolic links.
-EOM
-    $def = $config->{'sendmail_make_symlinks'} || 0;
-    $config->{'sendmail_make_symlinks'} = get_bool($msg, $def);
-
-    if ($config->{'sendmail_make_symlinks'}) {
-      #---- Ask about link location
-      $msg = <<EOM;
-Mail Handling Setup
-
-Where should these links be made?
- This needs to be a root-owned directory with sufficiently restrictive
-  permissions to appease Sendmail.  The installation process will not
-  create this directory for you; you must make sure that it exists and
-  has the proper permissions yourself.
-EOM
-      $def = $config->{'sendmail_symlink_location'} ||
-        (-d "/etc/mail" && "/etc/mail") ||
-	(-d "/etc" && "/etc") || '';  
-      $config->{'sendmail_symlink_location'} = get_dir($msg, $def);
-    }
+  if ($config->{'sendmail_make_symlinks'}) {
+    #---- Ask about link location
+    $msg = retr_msg('link_location', $lang);
+    $def = $config->{'sendmail_symlink_location'} ||
+           (-d "/etc/mail" && "/etc/mail") ||
+	   (-d "/etc" && "/etc") || '';  
+    $config->{'sendmail_symlink_location'} = get_dir($msg, $def);
+  }
 
   # Technically we should ask about this, but I really doubt that anyone
   # ever changes it from the default.
@@ -76,7 +44,7 @@ sub setup_sendmail_domain {
   # Prompt for the site password if necessary
   $pw = $config->{'site_password'};
   unless ($pw) {
-    $pw = get_str($msg4);
+    $pw = get_passwd(retr_msg('site_password', $lang));
     $config->{'site_password'} = $pw;
   }
 
@@ -88,7 +56,7 @@ sub setup_sendmail_domain {
   @args = ("$config->{'install_dir'}/bin/mj_shell", '-u', 
            'mj2_install@example.com', '-d', $dom, '-F', $tmpfile);
 
-  print "Regenerating MTA Configuration for $dom..."
+  print retr_msg('regen_aliases', $lang, 'DOMAIN' => $dom)
     unless $quiet;
 
   open(TMP, ">&STDOUT");
@@ -104,7 +72,7 @@ sub setup_sendmail_domain {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1999 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1999, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
