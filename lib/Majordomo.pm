@@ -5188,6 +5188,7 @@ sub _digest {
       $mess, $owner, $sender, $subs, $tmpdir, $whereami);
 
   $digests = $self->_list_config_get($list, 'digests');
+  # XLANG
   return (0, "No digests have been configured for the $list list.\n")
     unless (ref ($digests) eq 'HASH' and scalar (keys %$digests));
 
@@ -5207,6 +5208,7 @@ sub _digest {
     map { $_ = lc $_ } @req;
     for $i (@req) {
       unless (grep { $_ eq $i } @sup) {
+        # XLANG
         return (0, "The $i digest is not supported for the $list list.\n");
       }
     }
@@ -5221,6 +5223,7 @@ sub _digest {
   if ($mode =~ /status/) {
     $i = $self->{'lists'}{$list}->digest_examine($d, 0);
     return (1, $i) if $i;
+    # XLANG
     return (0, qq(Nothing is known about the "$digest" digest.\n"));
   }
 
@@ -5233,17 +5236,15 @@ sub _digest {
     $tmpdir   = $self->_global_config_get('tmpdir');
     $subs = {
               $self->standard_subs($list),
-              DATE     => scalar(localtime()),
-              HOST     => $self->_list_config_get($list, 'resend_host'),
-              SENDER   => $sender,
+              'DATE'   => scalar(localtime()),
+              'HOST'   => $self->_list_config_get($list, 'resend_host'),
+              'SENDER' => $sender,
 	    };
     if ($mode =~ /force/) {
       $force = 1;
-      $mess = "Digests forced.\n";
     }
     else {
       $force = 0;
-      $mess = "Digests triggered.\n";
     }
 
     $issues = {};
@@ -5278,24 +5279,13 @@ sub _digest {
       last unless ($mode =~ /repeat/);
     }
 
-    # Indicate which digests were issued.
-    # (XXX Move to Mj::Format::digest.)
-    if (scalar keys %$issues) {
-      for $i (sort keys %$issues) {
-        $mess .= sprintf "%12s digest issues delivered: $issues->{$i}\n",
-                         qq("$i");
-      }
-    }
-    else {
-      $mess .= "No digests were ready for delivery.\n";
-    }
-    return (1, $mess);
+    return (1, $issues);
   }
 
   # incvol: call list->digest_incvol
   if ($mode =~ /incvol/) {
     $self->{'lists'}{$list}->digest_incvol($d);
-    return (1, "Volume numbers for $digest incremented.\n");
+    return (1, '');
   }
 
   $mess = $self->format_error('digest_mode', $list,
@@ -5303,7 +5293,7 @@ sub _digest {
                               'DIGEST_DESCRIPTIONS' => \@desc,
                               'MODES' => [qw(check force incvol status)]);
 
-  return (1, $mess);
+  return (0, $mess);
 }
 
 
