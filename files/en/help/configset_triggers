@@ -14,11 +14,14 @@ Password Notes: Visible only with password. Set with global password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset  GLOBAL  triggers <<ENDTAG
+configset  GLOBAL  triggers <<ENDGLOBAL
 session  | monday(6,12,18), thursday(8)
 token    | always  
 checksum | 3rd(17),10th(9),17th(11),24th(19)
-ENDTAG
+ENDGLOBAL
+configset  GLOBAL  triggers <<ENDLIST
+delay | hourly
+ENDLIST
 
 
 Triggers are used to send reminders and to remove expired data from
@@ -35,6 +38,9 @@ Here are the available actions which can be triggered:
  post     - Expire data from the "post_limits" database.
  session  - Expire old session data.
  token    - Issue reminders and remove expired tokens and temporary passwords.
+
+NOTE: Only the 'delay' action can be specified for a regular list,
+and only the others can be specified for the GLOBAL pseudo-list.
 
 When the software was installed, a cron job should have been set up to
 call mj_trigger periodically. The suggested setting is to do this on an
