@@ -5472,6 +5472,7 @@ sub trigger {
     # Mode: daily or bounce or vacation - expire vacation settings and bounces
     if ($mode =~ /^(da|b|v)/ or grep {$_ eq 'bounce'} @ready) {
       $self->{'lists'}{$list}->expire_subscriber_data;
+      $self->{'lists'}{$list}->expire_bounce_data;
     }
 
     # Mode: daily or post - expire post data

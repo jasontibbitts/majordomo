@@ -1,3 +1,15 @@
+2000-12-11  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (trigger): Expire additional bounce data as
+	well.
+
+	* lib/Mj/List.pm (expire_subscriber_data): Trim accidental debug
+	statement.  Properly deal with excessive counts.  Unshift data
+	into new list unstead of pushing it, so that order is preserved.
+	
+	(expire_bounce_data): New function: expire old data from _bounce
+	database.
+
 2000-12-11  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/BounceHandler.pm (handle_bounce_user): Pass $user to

@@ -1565,19 +1565,24 @@ sub expire_subscriber_data {
 
     # Expire old bounce data.
     if ($data->{bounce}) {
-      warn "Old bounce data: $data->{bounce}";
       @b1 = split(/\s+/, $data->{bounce});
       @b2 = ();
       $c = 0;
       while (1) {
-	last if $c >= $maxbouncecount;
+
+	# Stop now if we have too many bounces
+	if ($c >= $maxbouncecount) {
+	  $u2 = 1;
+	  last;
+	}
+
 	$b = pop @b1; last unless defined $b;
 	($t) = $b =~ /^(\d+)\w/;
 	if ($t < $bounceexpiretime) {
 	  $u2 = 1;
 	  next;
 	}
-	push @b2, $b; $c++;
+	unshift @b2, $b; $c++;
       }
       $data->{bounce} = join(' ', @b2) if $u2;
     }
@@ -1596,7 +1601,7 @@ sub expire_subscriber_data {
   for (keys %{$self->{'sublists'}}) {
     next unless $self->_make_aux($_);
     $self->{'sublists'}{$_}->mogrify($mogrify);
-  }     
+  }
   1;
 }
 
@@ -2424,6 +2429,67 @@ sub bounce_gen_stats {
   $stats->{month_overload} = ($stats->{month} >= $maxbouncecount)?'>':'';
 
   $stats;
+}
+
+=head2 expire_bounce_data
+
+This converts members with timed nomail classes back to their old class
+when the vacation time is passed and removes old bounce data.
+
+=cut
+sub expire_bounce_data {
+  my $self = shift;
+  my $time = time;
+  my $maxbouncecount = $self->config_get('bounce_max_count');
+  my $maxbounceage   = $self->config_get('bounce_max_age') * 60*60*24;
+  my $bounceexpiretime = $time - $maxbounceage;
+  my $ali;
+
+  my $mogrify = sub {
+    my $key  = shift;
+    my $data = shift;
+    my (@b1, @b2, $b, $c, $u, $t);
+
+    if ($data->{bounce}) {
+      @b1 = split(/\s+/, $data->{bounce});
+      @b2 = ();
+      $c = 0;
+      while (1) {
+
+	# Stop now if we have too many bounces
+	if ($c >= $maxbouncecount) {
+	  $u = 1;
+	  last;
+	}
+	$b = pop @b1; last unless defined $b;
+	($t) = $b =~ /^(\d+)\w/;
+	if ($t < $bounceexpiretime) {
+	  $u = 1;
+	  next;
+	}
+	unshift @b2, $b; $c++;
+      }
+      $data->{bounce} = join(' ', @b2) if $u;
+    }
+
+    # If we deleted all bounce data, we want the key to go away
+    if (!$data->{bounce}) {
+      return (1, 0, undef);
+    }
+
+    # If the data changed, update it
+    if ($u) {
+      return (0, 1, $data);
+    }
+
+    # Otherwise, no change
+    return (0, 0);
+  };
+
+  $self->_make_bounce;
+  $self->{bounce}->mogrify($mogrify);
+
+  1;
 }
 
 =head1 COPYRIGHT
