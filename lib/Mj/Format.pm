@@ -109,6 +109,10 @@ sub archive {
     eprint($out, $type, &indicate($msgs[0], $ok));
     return $ok;
   }
+  unless (@msgs) {
+    eprint($out, $type, "No messages were found.\n");
+    return 1;
+  }
 
   $request->{'command'} = "archive_chunk";
 
