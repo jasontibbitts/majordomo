@@ -10,6 +10,7 @@ $| = 1;
 $counter = 1;
 $debug = 0;
 $tmpdir = "/tmp/mjtest.$$";
+$::LIBDIR = '.'; $::LIBDIR = '.'; # Nasty hack until config stuff is done
 
 print "1..35\n";
 
