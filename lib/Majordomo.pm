@@ -6215,7 +6215,7 @@ sub sessioninfo_start {
     return (0, qq(The session ID "$request->{'sessionid'}" is invalid.\n));
   }
 
-  if ($sess == 0) {
+  if ($sess eq '0') {
     # XLANG
     return (0, qq(The session ID "$request->{'sessionid'}" has expired.\n));
   }
