@@ -1,3 +1,18 @@
+Sat Oct  3 10:28:16 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (archive): Pass in appropriate type.
+
+	* lib/Mj/List.pm (build_digest): Use and call Mj::Digest::Build.
+
+	* lib/Mj/Digest/Build.pm: New file: hold functions that build
+ 	digests out of an archive and a list of messages, plus functions
+ 	to generate index lines.
+	(build): Select build function from the passed-in type.
+
+	* postinstall (set_script_perms): Open permissions on wrappers
+ 	slightly to allow them to be copied on machines where root can't
+ 	open a mode 0111 file.
+
 Thu Oct  1 17:45:23 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/Archive.pm (last_n): Fix dumb bug; stop if we popped all

@@ -1294,11 +1294,11 @@ Builds a digest.
 XXXX Currently a hack.
 
 =cut
+use Mj::Digest::Build;
 sub build_digest {
   my $self = shift;
-  $self->_make_digest;
-
-  $self->{'digest'}->build_mime(@_);
+  $self->_make_archive;
+  Mj::Digest::Build::build(@_, 'archive' => $self->{'archive'});
 }
 
 =head1 COPYRIGHT

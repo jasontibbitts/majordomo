@@ -2363,6 +2363,7 @@ sub archive {
     # Build a digest; gives back an entity
     ($ent, $msgs) = $self->{'lists'}{$list}->build_digest
       (messages      => [@msgs],
+       type          => 'mime',
        subject       => "Custom Digest from $list",
        index_line    => $self->_list_config_get($list, 'digest_index_format'),
        index_header  => "

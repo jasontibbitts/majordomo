@@ -134,6 +134,7 @@ lib/Mj/Deliver/QQEnvelope.pm
 lib/Mj/Deliver/SMTP.pm
 lib/Mj/Deliver/Sorter.pm
 lib/Mj/Digest.pm
+lib/Mj/Digest/Build.pm
 lib/Mj/File.pm
 lib/Mj/File.pm.debug
 lib/Mj/FileRepl.pm

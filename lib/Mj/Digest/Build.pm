@@ -1,25 +1,21 @@
 =head1 NAME
 
-Mj::Digest.pm - Majordomo digest object
+Mj::Digest::Build.pm - Majordomo digest building routines
 
 =head1 SYNOPSIS
 
-  $digest = new Mj::Digest parameters;
+Mj::Digest::Build::build(parameters);
 
 =head1 DESCRIPTION
 
-This contains code for the Digest object, which encapsulates all message
-digesting functionality for Majordomo.
-
-A digest is a collection of messages enclosed in a single message;
-internally, Majordomo represents digests as an object to which message
-numbers (derived from the Archive object) are associated; when certain
-conditions arise, some number of those messages are removed from the pool
-and turned into a digest message which is sent to the proper recipients.
+This module contains routines that are used to build digests.  These are
+functions, not methods, and expect to be called with all necessary
+parameters.  These generally include an Archive object and a list of
+article names to be extracted from that object.
 
 =cut
 
-package Mj::Digest;
+package Mj::Digest::Build;
 
 use IO::File;
 use Mj::Log;
@@ -29,88 +25,20 @@ use strict;
 1;
 #__END__
 
-=head2 new(archive, dir, datahashref)
+=head2 build
 
-This creates a digest object.  dir is the place where the digest will store
-its state file (volume, issue, pooled messages, etc).  archive is an
-archive object already created that digest will use to do its message
-retrieval.  The data hash should contain all of the data necessary to
-operate the trigger decision mechanism and the build mechanism (generally
-passed directly from the List object).  It will not be modified.
-
-=cut
-sub new {
-  my $type  = shift;
-  my $arc   = shift;
-  my $dir   = shift;
-  my $data  = shift;
-  my $class = ref($type) || $type;
-  my $log   = new Log::In 150, "$dir";
-  my $self  = {};
-  bless $self, $class;
-
-  # Open state file if it exists
-
-  $self->{'archive'} = $arc;
-  $self->{'dir'}     = $dir;
-  return $self;
-}
-
-=head2 add(message, datehashref)
-
-This adds a message to the digest''s message pool.  The information in the
-data hash is used by the decision algorithm.
-
-=cut
-sub add {
-   
-}
-
-=head2 volume(number)
-
-This sets the volume number of the digest.  If number is not defined, the
-existing number is simply incremented.
-
-=cut
-sub volume {
-  my $self = shift;
-  my $num  = shift;
-  
-  if (defined $num) {
-    $self->{'state'}{'volume'} = $num;
-  }
-  else {
-    $self->{'state'}{'volume'}++;
-  }
-  1;
-}
-
-=head2 trigger
-
-This causes the digest to decide whether or not it should generate a
-digest message.
-
-=cut
-sub trigger {
-
-}
-
-=head2 build(%args)
-
-This actually builds the digest, given a list of message numbers.
-
-
- type     => the type of digest to build: MIME, 1153, HTML, index
- subject  => the subject header to be used
- messages => a listref of messages to build the digest out of 
+This builds a digest.  It looks at the passed arguments and calls the
+appropriate build routine.
 
 =cut
 sub build {
+  my %args = @_;
 
-
-
-
-
+  my $func = lc("build_$args{'type'}");
+  {
+    no strict 'refs';
+    &$func(@_);
+  }
 }
 
 =head2 build_mime
@@ -128,7 +56,6 @@ This builds a MIME digest.  These have the following structure:
 use MIME::Entity;
 use Data::Dumper;
 sub build_mime {
-  my $self = shift; 
   my %args = @_;
   my (@msgs, $count, $data, $digest, $file, $func, $i, $index, $indexf,
       $indexh, $tmp, $top);
@@ -152,7 +79,7 @@ sub build_mime {
   # Extract all messages from the archive into files, building them into
   # entities and generating the index file.
   for $i (@{$args{'messages'}}) {
-    ($data, $file) = $self->{'archive'}->get_to_file($i);
+    ($data, $file) = $args{'archive'}->get_to_file($i);
     unless ($data) {
       $indexh->print("  Message $i not in archive.\n");
       next;
@@ -253,7 +180,6 @@ detailed information.
 1;
 #
 ### Local Variables: ***
-### mode:cperl ***
 ### cperl-indent-level:2 ***
 ### End: ***
 

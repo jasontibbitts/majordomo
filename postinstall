@@ -209,7 +209,7 @@ sub set_script_perms {
   # Make executables setuid; the scripts must be readable while the the
   # wrappers need only be executable.
   if ($config->{'wrappers'}) {
-    chmod(06111, @$sidscripts) || die "Couldn't change mode: $!";
+    chmod(06511, @$sidscripts) || die "Couldn't change mode: $!";
   }
   else {
     chmod(06555, @$sidscripts) || die "Couldn't change mode: $!";
