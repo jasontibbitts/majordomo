@@ -802,9 +802,9 @@ sub lists {
 
         $subs = { 
                   %{$global_subs},
-                  'ARCURL'        => $data->{'archive'} || "?",
+                  'ARCURL'        => $data->{'archive'} || "",
                   'CATEGORY'      => $category || "?",
-                  'CGIURL'        => $request->{'cgiurl'} || "?",
+                  'CGIURL'        => $request->{'cgiurl'} || "",
                   'DESCRIPTION'   => $desc,
                   'DIGESTS'       => $digests,
                   'FLAGS'         => $flags,

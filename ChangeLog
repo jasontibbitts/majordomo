@@ -1,3 +1,9 @@
+2001-07-04  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Format.pm:  (lists)  Use an empty string instead
+	of a question mark in variable expansions to avoid incorrect
+        URLs.  Thanks to Gavin Walker.
+
 2001-06-23  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/BounceHandler.pm (handle_bounce_user): Add addr,
