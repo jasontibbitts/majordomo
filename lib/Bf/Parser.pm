@@ -160,6 +160,7 @@ sub parse_dsn {
 	  $type =~ m!multipart/report!i &&
 	  $type =~ m!report-type=delivery-status!i)
     {
+      $log->out('Wrong MIME type');
       return 0;
     }
 
@@ -169,6 +170,7 @@ sub parse_dsn {
     # Weird, the second part is always supposed to be of this type.  But
     # nothing else is going to be able to parse this message, so just
     # assume that we couldn't find a bouncing address.
+    $log->out('Busted DSN?');
     return 1;
   }
 
@@ -248,7 +250,6 @@ sub parse_dsn {
   if ($nodiag) {
     check_dsn_diags($ent, $data);
   }
-
   return 1;
 }
 
@@ -434,16 +435,20 @@ sub check_dsn_diags {
 	$line =~ /^\s*\d{3}\s*<(.*)>[\s\.]*(.*)\s*$/i)
       {
 	$user = $1; $diag = $2;
-	if ($data->{$user} &&
-	    (
-	     $data->{$user}{'diag'} eq 'unknown' ||
-	     $data->{$user}{'diag'} =~ /250/     ||
-	     !defined($data->{$user}{'diag'})
-	    )
-	   )
-	{
-	  $data->{$user}{'diag'} = $diag;
-	}
+      }
+    # Another pattern
+    elsif ($line =~ /^\s*\d{3}\s*(.*)\s*to\s*<(.*)>/i) {
+      $user = $2; $diag = $1;
+    }
+    if ($user && $data->{$user} &&
+	(
+	 $data->{$user}{'diag'} eq 'unknown' ||
+	 $data->{$user}{'diag'} =~ /250/     ||
+	 !defined($data->{$user}{'diag'})
+	)
+       )
+      {
+	$data->{$user}{'diag'} = $diag;
       }
   }
 }
