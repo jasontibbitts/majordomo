@@ -101,7 +101,7 @@ keys of possible importance:
   bytes
   lines
   body_lines
-  quited
+  quoted
   date
   from
   subject
@@ -349,6 +349,37 @@ sub in_clock {
   # None of the intervals include the time, so no match.
   0;
 }
+
+=head2 examine
+
+  Return data concerning the rules and pending messages
+  for a group of digests.
+
+=cut
+sub examine {
+  my $self = shift;
+  my $digest = shift;
+  my $log = new Log::In 200, $digest;
+  my (@digests, $data, $i, $j, $state);
+  $state = $self->_open_state;
+  $self->_close_state($state, 0);
+  if (defined $digest and $digest ne 'ALL') {
+    return unless exists $self->{'decision'}{$digest};
+    @digests = ($digest);
+  }
+  else {
+    @digests = keys %{$self->{'decision'}};
+  }
+  for $i (@digests) {
+    $data->{$i} = $self->{'decision'}{$i};
+    if (exists $state->{$i}) {
+      for $j (keys %{$state->{$i}}) {
+        $data->{$i}->{$j} = $state->{$i}->{$j};
+      }
+    }
+  }
+  return ($data);
+}  
 
 =head2 _open_state, _close_state(data, dirty)
 
