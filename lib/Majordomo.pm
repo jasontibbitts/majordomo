@@ -278,7 +278,7 @@ sub connect {
   my $addr = shift || 'unknown@anonymous';
   my $pw   = shift || '';
   my $log = new Log::In 50, "$int, $addr";
-  my ($err, $id, $ok, $path, $pdata, $req, $user);
+  my ($err, $expire, $id, $ok, $path, $pdata, $req, $user);
 
   $user = new Mj::Addr($addr);
 
@@ -319,6 +319,12 @@ sub connect {
       }
     }
   }
+  # If the session number of an existing session was provided,
+  # save results in that session file.
+  elsif ($self->s_recognize($pw)) {
+    $id = $pw;
+  }
+
   unless (defined $id) {
     # Generate a session ID; hash the session, the time and the PID
     $id = sha1_hex($sess.scalar(localtime).$$);
@@ -369,7 +375,14 @@ sub connect {
     return (undef, $err);
   }
 
-  return wantarray ? ($id, $user->strip) : $id;
+  # Determine the session expiration time.
+  $expire = $self->_global_config_get('session_lifetime') || 0;
+  if ($expire >= 0) {
+    $expire *= 86400;
+    $expire += time;
+  }
+
+  return wantarray ? ($id, $user->strip, $expire) : $id;
 }
 
 =head2 dispatch(request, extra)
@@ -419,6 +432,7 @@ sub dispatch {
   ($base_fun = $request->{'command'}) =~ s/_(start|chunk|done)$//;
   $continued = 1 if $request->{'command'} =~ /_(chunk|done)/;
 
+  $request->{'cgidata'}  ||= '';
   $request->{'cgiurl'}   ||= '';
   $request->{'delay'}    ||= 0;
   $request->{'list'}     ||= 'GLOBAL';
@@ -1471,10 +1485,6 @@ entry.
 Note that this does not remove the entry altogether if the user has left
 their last list.  They may be intending to join another list immediately or
 in the near future, so removing their password would be a bad thing.
-
-XXX A periodic process could cull stale registrations, or a command could
-be provided to remove a user''s reguistration (unsubscribing them from all
-of their lists in the process).
 
 XXX There is a race here between removing the user from the list and
 removing the list from the user''s registration.  This should be rare, but
@@ -2688,7 +2698,7 @@ sub help_start {
                                       $subs);
   }
   unless ($file) {
-    $subs->{'TOPIC'} = "unknown";
+    $subs->{'TOPIC'} = "unknowntopic";
     ($file) =  $self->_list_file_get('GLOBAL', "help/unknowntopic", $subs);
   }
   unless ($file) {
@@ -2968,20 +2978,22 @@ sub _put {
     return (0, qq(The path "/$file" is not valid.\n));
   }
 
+  $force = ($mode =~ /force/) ? 1 : 0;
+
   # Make a directory instead?
   if ($mode =~ /dir/) {
-    return ($self->{'lists'}{$list}->fs_mkdir($file, $subj));
+    return ($self->{'lists'}{$list}->fs_mkdir($file, $subj, $force));
   }
 
   # Delete a file/directory instead?
   if ($mode =~ /delete/) {
-    $force = ($mode =~ /force/) ? 1 : 0;
     return $self->_list_file_delete($list, $file, $force);
   }
 
   # The zero is the overwrite control; haven't quite figured out what to
   # do with it yet.
-  $self->{'lists'}{$list}->fs_put_start($file, 0, $subj, $type, $cset, $enc, $lang);
+  $self->{'lists'}{$list}->fs_put_start($file, 0, $subj, $type, $cset, 
+                             $enc, $lang, '', $force);
 }
 
 =head2 put_chunk(..., data, data, data, ...)
@@ -3296,7 +3308,7 @@ sub _list_file_get_string {
 =head2 _list_file_put(list, name, source, overwrite, description,
 content-type, charset, content-transfer-encoding, permissions)
 
-Calls the lists fs_put function.
+Calls the list's fs_put function.
 
 =cut
 
@@ -4477,7 +4489,7 @@ sub _changeaddr {
   my $log = new Log::In 35, "$vict, $requ";
   my(@out, @aliases, @lists, %uniq, $data, $key, $l, $lkey, $ldata);
 
-  if ($vict->canon eq $requ->canon) {
+  if (($vict->canon eq $requ->canon) and ($vict->strip ne $requ->strip)) {
     return (0, $requ->full . " and " . $vict->full . " are aliases.\n");
   }
 
@@ -4847,6 +4859,9 @@ sub _createlist {
 
   # Should a list be created?
   if ($mode !~ /nocreate/) {
+    return (0, "The \"$list\" list already exists.\n")
+      if ($list eq 'default' or $list eq 'global');
+
     if ($list ne 'GLOBAL') {
       # Untaint $list - we know it's a legal name, so no slashes, so it's safe
       $list =~ /(.*)/; $list = $1;
@@ -5526,7 +5541,9 @@ sub reject {
     $list_owner = $self->_list_config_get($data->{'list'}, 'whoami_owner');
     if (! $list_owner) {
       # This will cope with the inability to create a list.
-      push @out, 0, ["Unable to determine owner of $data->{'list'}."];
+      push @out, $ok, [$token, $data];
+      push @out, 0, 
+        qq(Unable to determine the owner of the \"$data->{'list'}\" list.);
       next;
     }
 
@@ -6129,7 +6146,7 @@ sub sessioninfo_start {
 
   # The session identifier can be a 32-character MD5 digest, or
   # a 40-character SHA-1 digest.
-  if ($request->{'sessionid'} !~ /^[0-9a-f]{32}([0-9a-f]{8})?$/) {
+  unless ($self->s_recognize($request->{'sessionid'})) {
     return (0, qq(The session ID "$request->{'sessionid'}" is invalid.\n));
   }
 
@@ -6148,6 +6165,25 @@ sub sessioninfo_done {
   (shift)->get_done(@_);
 }
 
+=head2 s_recognize(id)
+
+The id is examined to see if it is a valid session number.
+A session number consists only of digits and lower-case letters,
+and is 32 or 40 characters long.
+
+=cut
+sub s_recognize {
+  my $self = shift;
+  my $id  = shift || "";
+  my $log  = new Log::In 60;
+
+  if ($id =~ /^([0-9a-f]{32}([0-9a-f]{8})?)$/) {
+    return unless (-f "$self->{ldir}/GLOBAL/sessions/$id");
+    return $1;
+  }
+  return;
+}
+  
 =head2 set
 
 Perform the set command.  This changes various pieces of subscriber data.
@@ -7804,7 +7840,7 @@ sub who_done {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it

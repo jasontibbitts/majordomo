@@ -1,3 +1,45 @@
+2002-05-25  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm:  Minor CGI data adjustments.
+
+	* bin/mj_shell:  Improve error messages for the 
+	"approve" command and invalid commands.
+
+	* bin/mj_wwwadm, mj_wwwusr:  Do not record an error if an
+	expired latchkey is used; simply display the login page.
+
+	* lib/Majordomo.pm:  (connect)  Include session expiration
+	time in return values.
+	(put_start)  Allow "force" mode to create parent directories.
+	(_changeaddr)  Fix false aliases bug.  Thanks to Nick Simicich.
+	(_createlist)  Do not allow the "global" or "default" list
+	to be created.
+	(reject)  Bugfix:  display the appropriate message if the
+	list of a rejected token has no owners or cannot be initialized.
+	(s_recognize)  Recognize the ID of an existing session.
+
+	* lib/Mj/Access.pm:  (list_access_check)  Do not perform
+	"mismatch" or "posing" comparisons for two invalid addresses.
+
+	* lib/Mj/CommandProps.pm:  The "force" command mode can be
+	used with any variant of the put command.
+
+	* lib/Mj/Format.pm:  The cgidata request element will be
+	supplied directly by each CGI program.
+	(qescape)  Convert special characters in a string into
+	a format acceptable for a URL query string.
+
+	* lib/Mj/List.pm:  (get_post_data, post_add)  Cope with
+	invalid author addresses.  Thanks to Brock Rozen.
+
+	* lib/Mj/Parser.pm:  (parse_part)  Improve error messages
+	for the "approve" command.
+
+	* lib/Mj/Token.pm:  (t_accept)  Check list validity.
+	(_make_tokendb, _make_latchkeydb)  Improve error checking.
+	(gen_latchkey)  Return expiration time if an array is
+	requested.
+
 2002-05-16  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Parser.pm (parse_part): Fix a couple of undef warnings.
