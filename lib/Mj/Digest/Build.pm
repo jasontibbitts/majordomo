@@ -97,7 +97,8 @@ sub build {
     # Extract the message from the archives
     ($data, $file) = $args{'archive'}->get_to_file($msg, undef, $data);
 
-    # Skip nonexistant messages (???)
+    # Skip nonexistent messages (e.g., messages that were deleted from
+    # the archive).
     next unless $data;
 
     # It is necessary to remove temporary files, since the
@@ -139,6 +140,7 @@ sub idx_subject {
   return "  $sub\n";
 }
 
+
 =head2 idx_subject_author
 
 This formats an index line like the following:
@@ -164,7 +166,7 @@ sub idx_subject_author {
   if ($type eq 'index') {
     $sub = sprintf("%-10s: %s", $msg, $sub);
   }
-  $from = $data->{from};
+  $from = $data->{'from'};
 
   if (length("$sub $from") > 72) {
     return "  $sub\n" . (' ' x int(74-length($from))) . "[$from]\n";
@@ -172,6 +174,55 @@ sub idx_subject_author {
 
   $width = length($from) + length($sub);
   return "  $sub " . (' ' x int(71 - $width)) . "[$from]\n";
+}
+=head2 idx_subject_name
+
+This formats an index line like the following:
+
+  Today's your birthday, friend...                            (Mike Matthews)
+  Chantal Kreviazuk                                            ("J." Wermont)
+  Re: Musical Tidbits from Ice Magazine                 (Philip David Morgan)
+  Re: Chantal Kreviazuk                                            (FAMarcus)
+
+The format is identical to the subject_author format, but the address of
+the author is omitted.
+
+The idea here is to try to show things on one line, but break otherwise.
+The original truncated the From: header; this just breaks the line instead.
+
+=cut
+use Mj::Addr;
+sub idx_subject_name {
+  my ($type, $msg, $data) = @_;
+  my ($addr, $from, $sub, $tmp, $width);
+
+  $sub = $data->{'subject'};
+  $sub = '(no subject)' unless length $sub;
+  if ($type eq 'index') {
+    $sub = sprintf("%-10s: %s", $msg, $sub);
+  }
+
+  $addr = new Mj::Addr($data->{'from'});
+
+  if ($addr and $addr->isvalid) {
+    $from = $addr->comment;
+    # use the local part of the address if no comment is available.
+    unless ($from) {
+      $from = $addr->strip;
+      $from =~ s/([^\@]+)\@.+/$1/;
+    }
+  }
+
+  unless (defined $from) {
+    $from = "unknown";
+  }
+
+  if (length("$sub $from") > 72) {
+    return "  $sub\n" . (' ' x int(74-length($from))) . "($from)\n";
+  }
+
+  $width = length($from) + length($sub);
+  return "  $sub " . (' ' x int(71 - $width)) . "($from)\n";
 }
 
 =head2 idx_numbered
@@ -190,8 +241,43 @@ sub idx_numbered {
   return sprintf "  %-10s: %s\n    %s\n", 
                   $msg || '???',
                   $data->{'subject'} || '(no subject)',
-                  $data->{'from'} || '(anonymous)';
+                  $data->{'from'} || '(unknown)';
 
+}
+
+=head2 idx_numbered_name
+
+This produces the same format regardless of the digest type.
+Each entry consists of two lines.  The first contains the 
+message number and subject.  The second contains the name
+of the author.
+
+  200008/12: Today's your birthday, friend...                 
+    Mike Matthews
+
+=cut
+sub idx_numbered_name {
+  my ($type, $msg, $data) = @_;
+  my ($addr, $from);
+
+  $addr = new Mj::Addr($data->{'from'});
+
+  if ($addr and $addr->isvalid) {
+    $from = $addr->comment;
+    # use the local part of the address if no comment is available.
+    unless ($from) {
+      $from = $addr->strip;
+      $from =~ s/([^\@]+)\@.+/$1/;
+    }
+  }
+
+  unless (defined $from) {
+    $from = "unknown";
+  }
+  return sprintf "  %-10s: %s\n    %s\n", 
+                  $msg || '???',
+                  $data->{'subject'} || '(no subject)',
+                  $from;
 }
 
 =head1 COPYRIGHT
