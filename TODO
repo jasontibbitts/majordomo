@@ -665,9 +665,6 @@ Some kind of pseudo-anonymizer so that users' addresses are replaced by
 Allow a 'default prefix' command to specify a prefix to strip from all
  lines in the text parser.  This allows replies to be yanked and quoted, as
  long as they aren't line wrapped.
-Allow 'approve password' on the line before the command to be approved.
-New 'append' mode to configset to append additional data from a variable
- instead of replacing the existing data.
 Add additional sender information to things like confirmations so that if
  they bounce, the bounce processor can take care of the generated token and
  not forward the bounce to the owner.
