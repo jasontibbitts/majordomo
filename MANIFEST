@@ -280,7 +280,6 @@ files/en/config/.message_fronter
 files/en/config/.message_fronter_frequency
 files/en/config/.message_headers
 files/en/config/.moderate
-files/en/config/.moderator
 files/en/config/.moderator_group
 files/en/config/.moderators
 files/en/config/.noadvertise
@@ -428,7 +427,6 @@ files/en/config/message_fronter
 files/en/config/message_fronter_frequency
 files/en/config/message_headers
 files/en/config/moderate
-files/en/config/moderator
 files/en/config/moderator_group
 files/en/config/moderators
 files/en/config/noadvertise
@@ -1121,7 +1119,6 @@ files/en/help/.configset_message_fronter
 files/en/help/.configset_message_fronter_frequency
 files/en/help/.configset_message_headers
 files/en/help/.configset_moderate
-files/en/help/.configset_moderator
 files/en/help/.configset_moderator_group
 files/en/help/.configset_moderators
 files/en/help/.configset_noadvertise
@@ -1338,7 +1335,6 @@ files/en/help/configset_message_fronter
 files/en/help/configset_message_fronter_frequency
 files/en/help/configset_message_headers
 files/en/help/configset_moderate
-files/en/help/configset_moderator
 files/en/help/configset_moderator_group
 files/en/help/configset_moderators
 files/en/help/configset_noadvertise
