@@ -170,8 +170,9 @@ if ($passw) {
   $passw =~ /(.+)/; $passw = $1;
 }
 
-$cgidata = sprintf 'user=%s&list=%s', $user, $lists[0];
-$cgidata = Mj::Format::uescape($cgidata);
+$cgidata = Mj::Format::cgidata($mj, { 'user' => $user, 
+                                      'password' => $passw });
+$cgidata .= "&list=$lists[0]";
 
 $subs = { $mj->standard_subs($lists[0]),
           'CGIDATA'   => $cgidata,
@@ -210,8 +211,9 @@ else {
   $passw = $mj->gen_latchkey($passw) 
     if ($passw and !$mj->t_recognize($passw));
   $subs->{'CMDPASS'} = $passw;
-  $cgidata = sprintf 'user=%s&passw=%s&list=%s', $user, $passw, $lists[0];
-  $cgidata = Mj::Format::uescape($cgidata);
+  $cgidata = Mj::Format::cgidata($mj, { 'user' => $user, 
+                                      'password' => $passw});
+  $cgidata .= "&list=$lists[0]";
   $subs->{'CGIDATA'} = $cgidata;
 }
 
@@ -248,6 +250,7 @@ unless (length $lists[0]) {
 
 ($truelist, $sublist, $mess) = $mj->valid_list($lists[0], 1, 1);
 unless ($truelist) {
+  $subs->{'USER'} ||= $user;
   &login($mj, $subs, $mess);
 }
 unless ($passw) {
@@ -256,7 +259,13 @@ unless ($passw) {
 
 $addr = new Mj::Addr($user);
 
-($ok, $mess) = $addr->valid;
+if (! defined $addr) {
+  ($ok, $mess) = (0, "The address is undefined.");
+}
+else {
+  ($ok, $mess) = $addr->valid;
+}
+
 unless ($ok) {
   &login($mj, $subs, "The address $user is invalid.\n$mess\n");
 }
@@ -480,7 +489,7 @@ elsif ($func ne 'showtokens') {
     }
     elsif ($func eq 'subscribe' and scalar @extra == 1) {
       $tmp = $cgi->param('name');
-      if (defined $tmp) {
+      if (defined $tmp and $tmp =~ /\S/) {
         $addr = new Mj::Addr($extra[0]);
         ($ok, $mess) = $addr->setcomment($tmp);
         unless ($ok) {
@@ -814,7 +823,7 @@ print "</body></html>\n";
 
 =head1 COPYRIGHT
 
-Copyright (c) 2000 Jason Tibbitts for The Majordomo Development
+Copyright (c) 2000, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it

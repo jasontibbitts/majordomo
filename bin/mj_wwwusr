@@ -169,8 +169,8 @@ if ($passw) {
 
 $ofunc   = $cgi->param('func') || 'welcome';
 
-$cgidata = sprintf 'passw=%s&user=%s', $passw, $user;
-$cgidata = Mj::Format::uescape($cgidata);
+$cgidata = Mj::Format::cgidata($mj, { 'password' => $passw,
+                                      'user'     => $user });
 
 $subs = { $mj->standard_subs('GLOBAL'),
           'CGIDATA'  => $cgidata,
@@ -228,7 +228,7 @@ unless ($ok) {
 }
 
 $tmp = $cgi->param('name');
-if (defined $tmp) {
+if (defined $tmp and $tmp =~ /\S/) {
   ($ok, $mess) = $addr->setcomment($tmp);
   unless ($ok) {
     &login($mj, $subs, "The name $tmp is invalid.\n$mess\n");
@@ -545,7 +545,7 @@ print "</body></html>\n";
 
 =head1 COPYRIGHT
 
-Copyright (c) 2000 Jason Tibbitts for The Majordomo Development
+Copyright (c) 2000, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it

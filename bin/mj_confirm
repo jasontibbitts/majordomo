@@ -318,11 +318,11 @@ sub surrender {
 <body>
 <h2 align=center>Majordomo Error</h2>
 $message
-<form method=POST action="$url">
-  <input type=hidden name=func value="login">
+<form method="POST" action="$url">
+  <input type="hidden" name="func" value="login">
   Enter the domain name into the box, then press the <b>Sign In</b> button.<br>
-  <input name=domain size=45>
-  <input type=submit value="Sign In">
+  <input name="domain" size="45">
+  <input type="submit" value="Sign In">
 </form>
 EOM
 
@@ -342,8 +342,8 @@ print "</body></html>\n";
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2001 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2001, 2002 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

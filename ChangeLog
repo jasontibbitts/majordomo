@@ -1,3 +1,15 @@
+2002-05-06  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm, bin/mj_wwwusr:  
+	Deal with special characters in query strings more thoroughly.
+	Bugfix:  Display user address more clearly if an invalid list
+	is given.  Validate the user address more robustly.
+	Thanks to Larry Rosenbaum and Roger Klorese.
+	
+	* lib/Mj/Format.pm:  (cgidata)  Bugfix:  Escape 
+	non-alphanumeric characters in query strings.  
+	Thanks to Nick Simicich.
+	
 2002-05-05  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/Deliver/Dest.pm (flush): When generating a bounce for an
