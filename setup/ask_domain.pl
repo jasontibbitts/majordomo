@@ -10,6 +10,7 @@ sub ask_domain {
 $hdr
 
 What is the actual Internet domain name?
+(be sure to include .com, .net, or whatever, as in 'mydomain.com')
 
 EOM
   $def = $cfg->{'whereami'} || $i;
@@ -22,6 +23,7 @@ $hdr
 What address will the Majordomo at $i receive mail at?
  This is normally "majordomo" but if you are running a Majordomo1
   installation you may want to run Majordomo2 at an address like "mj2".
+(be sure to enter the full address, as in 'mj2\@mydomain.com')
 EOM
   $def = $cfg->{whoami} || 'majordomo';
   $cfg->{whoami} = get_str($msg, $def);
@@ -31,6 +33,7 @@ EOM
 $hdr
 
 What is the email address of the owner of this Majordomo installation?
+(be sure to enter the full address, as in 'owner\@mydomain.com')
 EOM
   $def = $cfg->{'owner'};
   # XXX Should probably have a get_addr routine, but we might have

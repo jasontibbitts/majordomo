@@ -74,7 +74,8 @@ sub setup_sendmail_domain {
     $config->{'site_password'} = $pw;
   }
 
-  my @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-p",
+  # 3/21/2000 - SRE - added "-u junk@junk.com", to keep mj_shell from aborting with "can't connect"
+  my @args = ("$config->{'install_dir'}/bin/mj_shell", "-u", "junk\@junk.com", "-d", "$dom", "-p",
 	      "$pw", "createlist-regen" . ($nhead ? "-noheader" : ''));
 
 #  print "(@args)\n";

@@ -328,7 +328,8 @@ sub mta_setup {
   &{"setup_$config->{mta}"}($config);
 
   # Then do the per-domain setup and build the mj-domains file.
-  open DOMAINS, ">$config->{lists_dir}/ALIASES/mj-domains";
+  # 3/21/2000 - SRE - added "or die" to trap missing ALIASES directory (print to closed filehandle)
+  open DOMAINS, ">$config->{lists_dir}/ALIASES/mj-domains" or die "ERROR! Can't open ".$config->{lists_dir}."/ALIASES/mj-domains";
   for my $i (@_) {
     print DOMAINS "$i\n";
     &{"setup_$config->{mta}_domain"}($config, $i, $nhead);
