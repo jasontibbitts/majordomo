@@ -4,6 +4,9 @@ At what e-mail address should Majordomo receive mail?
 
 This is the address to which list server commands will be sent.
 
+It should be different from the e-mail address of the Majordomo user,
+to prevent cron messages from being processed for commands.
+
 If you are using the "majordomo" address to serve Majordomo 1
 lists, you may want to run Majordomo 2 at a different address,
 such as "mj2".

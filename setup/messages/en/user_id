@@ -1,6 +1,6 @@
 Basic Security Configuration (user)
 
-What is the name or number of the majordomo user?
+What is the name or number of the Majordomo user?
 
 The files and directories created by the final installation step will be
 owned by this user, and cron jobs for digests and other periodic tasks
