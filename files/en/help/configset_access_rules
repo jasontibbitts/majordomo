@@ -241,9 +241,8 @@ Section 1.2 - Second line - action
     moderators/randomly chosen subset of a group of moderators.  The token
     must be returned before the action which triggered the rule will take
     place. The following comma-separated arguments are taken:
-      file - the file used for the consultation message (ignored if the
-        request is post, and if a file is not specified here the standard
-        file "consult" is used).
+      file - the file used for the consultation message (if a file is
+        not specified here the standard file "consult" is used).
       M - the number of approvals that are required.  This permits a
         rudimentary form of group moderation (default 1).
       group - See 1.5 (Moderator Groups) below.
