@@ -20,7 +20,7 @@ Format routines take:
     variables and call other core functions
   outfh - a filehendle to send output to
   errfh - a filehandle to send error output to
-  output_type - text or html or ???
+  output_type - text, wwwadm, or wwwusr
   user, password, auth, interface, cmd, mode, list, victim - the usual
     stuff
   arg1 - arg3 - three arguments to use in formatting.  These can be use for
@@ -212,24 +212,6 @@ sub archive {
   $ok;
 }
 
-sub configdef {
-  my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, "$type, $request->{'list'}";
-  my ($ok, $mess, $var, @arglist, @results);
-
-  @results = @$result;
-  while (@results) {
-    $ok = shift @results;
-    ($mess, $var) = @{shift @results};
-
-    eprint ($out, $type, indicate($mess,$ok)) if $mess;
-    if ($ok > 0) {
-      eprintf($out, $type, "%s set to default value.\n", $var);
-    }
-  }
-  $ok;
-}
-
 sub changeaddr {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'user'}";
@@ -244,6 +226,24 @@ sub changeaddr {
   else {
     eprint($out, $type, "Address not changed from $request->{'victim'} to $request->{'user'}.\n");
     eprint($out, $type, &indicate($mess, $ok));
+  }
+  $ok;
+}
+
+sub configdef {
+  my ($mj, $out, $err, $type, $request, $result) = @_;
+  my $log = new Log::In 29, "$type, $request->{'list'}";
+  my ($ok, $mess, $var, @arglist, @results);
+
+  @results = @$result;
+  while (@results) {
+    $ok = shift @results;
+    ($mess, $var) = @{shift @results};
+
+    eprint ($out, $type, indicate($mess,$ok)) if $mess;
+    if ($ok > 0) {
+      eprintf($out, $type, "%s set to default value.\n", $var);
+    }
   }
   $ok;
 }
@@ -278,7 +278,10 @@ sub configset {
 sub configshow {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
-  my ($list, $mode, $mode2, $ok, $mess, $varresult, $var, $val, $tag, $auto);
+  my ($auto, $gsubs, $list, $mess, $mode, $mode2, $ok, $str, $subs,
+      $tag, $tmp, $val, $var, $varresult);
+
+  $request->{'cgiurl'} ||= '';
 
   if (exists $request->{'config'} and length $request->{'config'}) {
     $list = $request->{'config'};
@@ -295,57 +298,159 @@ sub configshow {
   elsif ($request->{'mode'} =~ /extract/) {
     $mode = $mode2 = '-extract';
   }
+  
    
+  $gsubs = { $mj->standard_subs($list),
+            'CGIURL'   => $request->{'cgiurl'},
+            'PASSWORD' => $request->{'password'},
+            'USER'     => "$request->{'user'}",
+          };
 
   $ok = shift @$result;
-  unless (scalar @$result) {
-    $mess = "No settings were found for the $list list.\n";
-    eprint($out, $type, indicate($mess, $ok));
+  unless ($ok) {
+    $mess = shift @$result;
+    $gsubs->{'ERROR'} = $mess;
+    $tmp = $mj->format_get_string($type, 'configshow_error');
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    eprint($out, $type, indicate("$str\n", $ok));
     return $ok;
   }
+
+  unless (scalar @$result) {
+    $tmp = $mj->format_get_string($type, 'configshow_none');
+    $mess = $mj->substitute_vars_format($tmp, $gsubs);
+    eprint($out, $type, indicate("$mess\n", $ok));
+    return $ok;
+  }
+
+  $subs = { %$gsubs };
+
+  if ($request->{'mode'} !~ /categories/) {
+    $tmp = $mj->format_get_string($type, 'configshow_head');
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    eprint($out, $type, "$str\n");
+  }
+  else {
+    $subs->{'CATEGORIES'} = [];
+    $subs->{'COMMENT'} = [];
+    $subs->{'COUNT'} = [];
+  }
+
   for $varresult (@$result) {
     ($ok, $mess, $var, $val) = @$varresult;
+    $subs->{'VARIABLE'} = $var;
+
     if (! $ok) {
-      eprint($out, $type, indicate($mess, $ok));
-      return 0;
+      $subs->{'ERROR'} = $mess;
+      $tmp = $mj->format_get_string($type, 'configshow_error');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      eprint($out, $type, indicate("$str\n", $ok));
+      next;
     }
+
+    if ($request->{'mode'} =~ /categories/) {
+      push @{$subs->{'CATEGORIES'}}, $val;
+      push @{$subs->{'COUNT'}}, $val;
+      push @{$subs->{'COMMENT'}}, $mess;
+      next;
+    }
+      
+
+    $subs->{'COMMENT'} = '';
     if ($request->{'mode'} !~ /nocomments/) {
-      $mess =~ s/^/# /gm;
-      eprint($out, $type, indicate($mess, 1));
+      $mess =~ s/^/# /gm if ($type eq 'text');
+      chomp $mess;
+      $mess = escape($mess, $type);
+      $subs->{'COMMENT'} = $mess;
     }
+
     $auto = '';
     if ($ok < 1) {
       $auto = '# ';
       $mess = "# This variable is automatically maintained by Majordomo.  Uncomment to change.\n";
-      eprint($out, $type, indicate($mess, 1));
     }
 
     if (ref ($val) eq 'ARRAY') {
       # Process as an array
-      $tag = Majordomo::unique2();
-      eprint ($out, $type, 
-              indicate("${auto}configset$mode $list $var \<\< END$tag\n", 1));
-      for (@$val) {
-          eprint ($out, $type, indicate("$auto$_", 1)) if defined $_;
+      if ($type eq 'text') {
+        $subs->{'LINES'} = scalar(@$val);
+        for ($i = 0; $i < @$val; $i++) {
+          $val->[$i] = "$auto$val->[$i]";
+          chomp($val->[$i]);
+        }
       }
-      eprint ($out, $type, indicate("${auto}END$tag\n\n", 1));
+      elsif ($type =~ /^www/) {
+        $subs->{'LINES'} = (scalar(@$val) > 8)? scalar(@$val) : 8;
+        for ($i = 0; $i < @$val; $i++) {
+          $val->[$i] = escape($val->[$i], $type);
+          chomp($val->[$i]);
+        }
+      }
+
+      $subs->{'AUTO'} = $auto;
+      $subs->{'SETCOMMAND'} = "configset$mode";
+      $subs->{'TAG'} = "END" . Majordomo::unique2();
+      $subs->{'VALUE'} = $val;
+      $tmp = $mj->format_get_string($type, 'configshow_array');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      eprint($out, $type, "$str\n");
     }
     else {
       # Process as a simple variable
+      $subs->{'SETCOMMAND'} = "configset$mode2";
       $val = "" unless defined $val;
-      if (length $val > 40) {
-        eprint ($out, $type, 
-          indicate("${auto}configset$mode2 $list $var =\\\n    $auto$val\n", 1));
+      $val = escape($val) if ($type =~ /^www/);
+      $subs->{'VALUE'} = $val;
+
+      if ($type eq 'text' and length $val > 40) {
+        $subs->{'AUTO'} = "\\\n    $auto";
       }
       else {
-        eprint ($out, $type, 
-                indicate("${auto}configset$mode2 $list $var = $val\n", 1));
+        $subs->{'AUTO'} = $auto;
       }
-      if ($request->{'mode'} !~ /nocomments/) {
-        print $out "\n";
+
+      # Determine the type of the variable
+      $vardata = $Mj::Config::vars{$var};
+
+      if ($vardata->{'type'} =~ /^(integer|word|pw|bool)$/) {
+        $tmp = $mj->format_get_string($type, 'configshow_short');
       }
+      elsif ($vardata->{'type'} =~ /^(enum|flags)$/) {
+        $tmp = $mj->format_get_string($type, "configshow_$vardata->{'type'}");
+        @possible = sort @{$vardata->{'values'}};
+        $subs->{'SETTINGS'} = [@possible];
+        $subs->{'SELECTED'} = [];
+        $subs->{'CHECKED'}  = [];
+        for $str (@possible) {
+          if ($val =~ /$str/) {
+            push @{$subs->{'SELECTED'}}, "selected";
+            push @{$subs->{'CHECKED'}}, "checked";
+          }
+          else {
+            push @{$subs->{'SELECTED'}}, "";
+            push @{$subs->{'CHECKED'}},  "";
+          }
+        }
+      }
+      else {
+        $tmp = $mj->format_get_string($type, 'configshow');
+      }
+  
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      eprint($out, $type, "$str\n");
     }
   }
+
+  if ($request->{'mode'} =~ /categories/) {
+    $tmp = $mj->format_get_string($type, 'configshow_categories');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+  }
+  else {
+    $tmp = $mj->format_get_string($type, 'configshow_foot');
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+  }
+  print $out "$str\n";
+
   1;
 }
 
@@ -426,9 +531,46 @@ sub digest {
 
 sub faq   {g_get("FAQ failed.",   @_)}
 sub get   {g_get("Get failed.",   @_)}
-sub help  {g_get("Help failed.",  @_)}
 sub info  {g_get("Info failed.",  @_)}
 sub intro {g_get("Intro failed.", @_)}
+
+sub help {
+  my ($mj, $out, $err, $type, $request, $result) = @_;
+  my $log = new Log::In 29, $request->{'topic'};
+  my ($cgiurl, $chunk, $chunksize, $domain, $topic);
+  my ($ok, $mess) = @$result;
+
+  select $out;
+  unless ($ok > 0) {
+    print "Help $request->{'topic'} failed.\n$mess";
+    return $ok;
+  }
+
+  $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
+                                      "chunksize");
+  return unless $chunksize;
+
+  $cgiurl = $request->{'cgiurl'};
+  $domain = $mj->{'domain'};
+
+  $request->{'command'} = "get_chunk";
+
+  while (1) {
+    ($ok, $chunk) = @{$mj->dispatch($request, $chunksize)};
+    last unless defined $chunk;
+    if ($type =~ /www/) { 
+      $chunk = escape($chunk);
+      $chunk =~ s/(\s{3}|&quot;)(help\s)(configset|admin|mj) (?=\w)/$1$2$3_/g;
+      $chunk =~ 
+       s#(\s{3}|&quot;)(help\s)(\w+)#$1$2<a href="$cgiurl?domain=$domain&func=help&extra=$3">$3</a>#g;
+    }
+    print $chunk;
+  }
+
+  $request->{'command'} = "help_done";
+  $mj->dispatch($request);
+  select STDOUT;
+}
 
 sub index {
   my ($mj, $out, $err, $type, $request, $result) = @_;
@@ -500,8 +642,10 @@ sub index {
 
 sub lists {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my (%lists, %legend, $list, $category, $count, 
-      $data, $desc, $flags, $i, $site);
+  my (%lists, $basic_format, $cat_format, $category, $count, $data, 
+      $desc, $flags, $global_subs, $i, $legend, $list, $site, $str, 
+      $subs, $tmp);
+  my $log = new Log::In 29, $type;
   select $out;
   $count = 0;
 
@@ -512,86 +656,127 @@ sub lists {
 
   my ($ok, @lists) = @$result;
 
+  $global_subs = {
+           $mj->standard_subs('GLOBAL'),
+          };
+
   if ($ok <= 0) {
-    eprint($out, $type, indicate("Lists failed: $lists[0]", $ok));
+    $tmp = $mj->format_get_string($type, 'lists_error');
+    $str = $mj->substitute_vars_format($tmp, $global_subs);
+    eprint($out, $type, indicate("$str\n", $ok, 1));
     return 1;
   }
   
   if (@lists) {
-    eprint($out, $type, 
-           "$site serves the following lists:\n\n")
-      unless $request->{'mode'} =~ /compact|tiny/;
-    
+    unless ($request->{'mode'} =~ /compact|tiny/) {
+      $tmp = $mj->format_get_string($type, 'lists_head');
+      $str = $mj->substitute_vars_format($tmp, $global_subs);
+      eprint($out, $type, "$str\n");
+    }
+ 
+    if ($request->{'mode'} =~ /full/ and $request->{'mode'} !~ /config/) { 
+      $basic_format = $mj->format_get_string($type, 'lists_full');
+    }
+    else {
+      $basic_format = $mj->format_get_string($type, 'lists');
+    }
+
+    $cat_format = $mj->format_get_string($type, 'lists_category');
+
     while (@lists) {
       $data = shift @lists;
       next if ($data->{'list'} =~ /^DEFAULT/ and $request->{'mode'} !~ /config/);
       $lists{$data->{'category'}}{$data->{'list'}} = $data;
     }
-
+    
     for $category (sort keys %lists) {
       if (length $category && $request->{'mode'} !~ /tiny/) {
-        eprint($out, $type, "$category:\n");
+        $subs->{'CATEGORY'} = $category;
+        $str = $mj->substitute_vars_format($cat_format, $subs);
+        eprint($out, $type, "$str\n");
       }
       for $list (sort keys %{$lists{$category}}) {
         $count++ unless ($list =~ /:/);
         $data = $lists{$category}{$list};
-        $flags = $data->{'flags'};
+        $flags = $data->{'flags'} ? "+" : " ";
         if ($request->{'mode'} =~ /tiny/) {
           eprint($out, $type, "$list\n");
           next;
         }
-        $desc  = $data->{'description'}
+        $legend++ if $data->{'flags'};
+        $tmp  = $data->{'description'}
                  || "(no description)";
-        for (split /\n/, $desc) {
-          $legend{'+'} = 1 if $flags =~ /S/;
-          eprintf($out, $type, " %s%-23s %s\n", 
-                  $flags=~/S/ ? '+' : ' ',
-                  $flags=~/shown/ ? '' : $list,
-                  $_);
-          $flags = 'shown';
+        $desc = [ split ("\n", $tmp) ];
+
+        $digests = [];
+        for $i (sort keys %{$data->{'digests'}}) {
+          push @$digests, "$i:  $data->{'digests'}->{$i}";
         }
-        if ($request->{'mode'} =~ /full/) {
-          eprintf($out, $type, "%sSubscribers: %4d\n", ' ' x 27, 
-                               $data->{'subs'})  if (exists $data->{'subs'});
-          eprintf($out, $type, "%sPosts: %10d in the past 30 days\n", ' ' x 27, 
-                               $data->{'posts'})  if (exists $data->{'posts'});
-          eprintf($out, $type, "%sArchive URL: %s\n", ' ' x 27, 
-                               $data->{'archive'} || "(none)") 
-                               if (exists $data->{'archive'});
-          if (exists $data->{'digests'} and keys %{$data->{'digests'}}) {
-            eprintf($out, $type, "%sDigests:\n", ' ' x 27);
-            for $i (sort keys %{$data->{'digests'}}) {
-              eprintf($out, $type, "%s %s: %s\n", ' ' x 27, 
-                      $i, $data->{'digests'}->{$i});
-            }
-          }
-        }
-        eprint($out, $type, "\n") if $request->{'mode'} =~ /long|enhanced/;
+        $digests = ["(none)\n"] if ($list =~ /:/);
+
+        $subs = { 
+                  %{$global_subs},
+                  'ARCURL'        => $data->{'archive'} || "?",
+                  'CATEGORY'      => $category || "?",
+                  'CGIURL'        => $request->{'cgiurl'} || "?",
+                  'DESCRIPTION'   => $desc,
+                  'DIGESTS'       => $digests,
+                  'FLAGS'         => $flags,
+                  'LIST'          => $list,
+                  'OWNER'         => $data->{'owner'},
+                  'PASSWORD'      => $request->{'password'},
+                  'POSTS'         => $data->{'posts'},
+                  'SUBS'          => $data->{'subs'},
+                  'USER'          => "$request->{'user'}",
+                  'WHOAMI'        => $data->{'address'},
+                };
+                  
+        $str = $mj->substitute_vars_format($basic_format, $subs);
+        eprint($out, $type, "$str\n");
       }
     }
   }
-  return 1 if $request->{'mode'} =~ /compact|tiny/;
-  eprint($out, $type, "\n") unless $request->{'mode'} =~ /long|enhanced/;
-  eprintf($out, $type, "There %s %s list%s.\n", $count==1?("is",$count,""):("are",$count==0?"no":$count,"s"));
-  if (%legend) {
-    eprint($out, $type, "\nLegend:\n");
-    eprint($out, $type, " '+'  appears next to lists to which you are subscribed.\n") if $legend{'+'};
-    eprint($out, $type, "\nUse the 'show' command to get more information about your subscriptions.\n");
+  else {
+    # No lists were found.
+    $subs = { 
+              %{$global_subs},
+              'CGIURL'        => $request->{'cgiurl'} || "?",
+              'PASSWORD'      => $request->{'password'},
+              'PATTERN'       => $request->{'regexp'},
+              'USER'          => "$request->{'user'}",
+            };
+    $tmp = $mj->format_get_string($type, 'lists_none');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    eprint($out, $type, "$str\n");
   }
-  elsif ($request->{'mode'} =~ /enhanced/) {
-    eprint($out, $type, 
-           "\nYou are not subscribed to any lists using this email address.\n");
-    if ($count) {
-      eprint($out, $type, 
-       "\nUse the 'info' command to learn more about a specific list.\n");
-    }
+
+  return 1 if $request->{'mode'} =~ /compact|tiny/;
+
+  $subs = {
+            %{$global_subs},
+            'COUNT' => $count,
+          };
+  $tmp = $mj->format_get_string($type, 'lists_foot');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  eprint($out, $type, "$str\n");
+
+  if ($request->{'mode'} =~ /enhanced/) {
+    $subs = {
+              %{$global_subs},
+              'COUNT'         =>  $count,
+              'SUBSCRIPTIONS' =>  $legend,
+              'USER'          => "$request->{'user'}",
+            };
+    $tmp = $mj->format_get_string($type, 'lists_enhanced');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    eprint($out, $type, "$str\n");
   }
   1;
 }
 
 sub password {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, "$type";
+  my $log = new Log::In 29, $type;
 
   my ($ok, $mess) = @$result; 
 
@@ -919,20 +1104,23 @@ EOM
   eprint($out, $type, 
     "Use the 'help set' command to see an explanation of the settings.\n");
 
-  1;
+  $ok;
 }
 
 sub show {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
-  my (@lists, $bouncedata, $strip);
+  my (@lists, $bouncedata, $error, $global_subs, $i, $j, $lsubs,
+      $settings, $str, $subs, $tmp);
   my ($ok, $data) = @$result;
-    
-  $strip = $data->{strip};
-
+  $error = [];
+  $global_subs = {
+    $mj->standard_subs('GLOBAL'),
+    'CGIURL' => $request->{'cgiurl'} || '',
+    'VICTIM' => "$request->{'victim'}",
+  };
+ 
   # use Data::Dumper; print $out Dumper $data;
-
-  eprint($out, $type, "  Address: $request->{'victim'}\n");
 
   # For validation failures, the dispatcher will do the verification and
   # return the error as the second argument.  For normal denials, $ok is
@@ -940,92 +1128,180 @@ sub show {
   # get from the address.
   if ($ok == 0) {
     if (ref($data)) {
-      eprint($out, $type, "    Show failed.\n");
-      eprint($out, $type, prepend('    ',"$data->{error}\n"));
+      push @$error, "The show command failed.";
+      push @$error, "$data->{error}";
     }
     else {
-      eprint($out, $type, "    Address is invalid.\n");
-      eprint($out, $type, prepend('    ',"$data\n"));
+      push @$error, "Address is invalid.";
+      push @$error, "$data";
     }
+
+    $subs = { %$global_subs,
+              'ERROR' => $error,
+            };
+
+    $tmp = $mj->format_get_string($type, 'show_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    eprint($out, $type, indicate("$str\n", $ok, 1));
+
     return $ok;
   }
 
   elsif ($ok < 0) {  
-    eprint($out, $type, "    Address is valid.\n");
-    eprint($out, $type, "      Mailbox: $strip\n");
-    eprint($out, $type, "      Comment: $data->{comment}\n")
-      if defined $data->{comment} && length $data->{comment};
-    eprint($out, $type, indicate($data->{error}, $ok));
+    push @$error, "Address is valid.";
+    push @$error, "Mailbox: $data->{'strip'}";
+    push @$error, "Comment: $data->{'comment'}"
+      if (defined $data->{comment} && length $data->{comment});
+    push @$error, indicate($data->{error}, $ok);
+
+    $subs = { %$global_subs,
+              'ERROR' => $error,
+            };
+
+    $tmp = $mj->format_get_string($type, 'show_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    eprint($out, $type, indicate("$str\n", $ok, 1));
+
     return $ok;
   }
 
-  eprint($out, $type, "    Address is valid.\n");
-  eprint($out, $type, "      Mailbox: $strip\n");
-  eprint($out, $type, "      Comment: $data->{comment}\n")
-    if defined $data->{comment} && length $data->{comment};
+  $subs = { %$global_subs };
+  $subs->{'USER'}     = "$request->{'user'}";
+  $subs->{'PASSWORD'} = $request->{'password'};
 
-  if ($strip ne $data->{xform}) {
-    eprint($out, $type, "    Address transforms to:\n");
-    eprint($out, $type, "      $data->{xform}\n");
+  for $i (keys %$data) {
+    next if ($i eq 'lists' or $i eq 'regdata');
+    $subs->{uc $i} = $data->{$i};
   }
-  if ($strip ne $data->{alias}) {
-    eprint($out, $type, "    Address aliased to:\n");
-    eprint($out, $type, "      $data->{alias}\n");
+
+  if ($data->{strip} eq $data->{xform}) {
+    $subs->{'XFORM'} = '';
   }
-  $fl=0;
-  for $i (@{$data->{aliases}}) {
-    next if $i eq $strip;
-    eprint($out, $type, "    Address(es) aliased to this address:\n")
-      unless ($fl);
-    eprint($out, $type, "      $i\n");
-    $fl=1;
+  if ($data->{strip} eq $data->{alias}) {
+    $subs->{'ALIAS'} = '';
   }
 
   unless ($data->{regdata}) {
-    eprint($out, $type, "    Address is not registered.\n");
+    $tmp = $mj->format_get_string($type, 'show_none');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    eprint($out, $type, "$str\n");
     return 1;
   }
-  eprint($out, $type, "    Address is registered as:\n");
-  eprint($out, $type, "      $data->{regdata}{fulladdr}\n");
-  eprint($out, $type, "    Registered at ".gmtime($data->{regdata}{regtime})." GMT.\n");
-  eprint($out, $type, "    Registration data last changed at ".
-	 gmtime($data->{regdata}{changetime})." GMT.\n");
+  for $i (keys %{$data->{'regdata'}}) {
+    $subs->{uc $i} = $data->{'regdata'}{$i};
+  }
+
+  $subs->{'REGTIME'}    = gmtime($data->{'regdata'}{'regtime'});
+  $subs->{'RCHANGETIME'} = gmtime($data->{'regdata'}{'changetime'});
 
   @lists = sort keys %{$data->{lists}};
-  unless (@lists) {
-    eprint($out, $type, "    Address is not subscribed to any lists.\n");
-    return 1;
+  $subs->{'COUNT'} = scalar @lists;
+
+  $subs->{'SETTINGS'} = [];
+  $settings = $data->{'lists'}{$lists[0]}{'settings'};
+  if ($settings) {
+    for ($j = 0; $j < @{$settings->{'flags'}}; $j++) {
+      push @{$subs->{'SETTINGS'}}, $settings->{'flags'}[$j]->{'name'};
+    }
   }
-  eprintf($out, $type, "    Address is subscribed to %s list%s:\n",
-	  scalar(@lists), @lists == 1?'':'s');
+
+  $tmp = $mj->format_get_string($type, 'show_head');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  eprint($out, $type, "$str\n");
 
   for $i (@lists) {
-    eprint($out, $type, "      $i:\n");
-    eprint($out, $type, "        Subscribed as $data->{lists}{$i}{fulladdr}.\n")
-      if $data->{lists}{$i}{fulladdr} ne $strip;
-    eprint($out, $type, "        Subscribed at ".gmtime($data->{lists}{$i}{subtime})." GMT.\n");
-    eprint($out, $type, "        Receiving $data->{lists}{$i}{classdesc}.\n");
-    eprint($out, $type, "        Subscriber flags:\n");
-    for $i (@{$data->{lists}{$i}{flagdesc}}) {
-      eprint($out, $type, "          $i\n");
+    $lsubs = { %$subs };
+    # Per-list substitutions available directly include:
+    #   changetime class classarg classarg2 classdesc flags flagdesc
+    #   fulladdr subtime
+    for $j (keys %{$data->{'lists'}{$i}}) {
+      next if ($j eq 'bouncedata' or $j eq 'settings');
+      $lsubs->{uc $j} = $data->{'lists'}{$i}{$j};
     }
+
+    $lsubs->{'CHANGETIME'} = gmtime($data->{'lists'}{$i}{'changetime'});
+    $lsubs->{'LIST'} = $i;
+    $lsubs->{'NUMBERED_BOUNCES'} = '';
+    $lsubs->{'SUBTIME'}    = gmtime($data->{'lists'}{$i}{'subtime'});
+    $lsubs->{'UNNUMBERED_BOUNCES'} = '';
+
     $bouncedata = $data->{lists}{$i}{bouncedata};
     if ($bouncedata) {
       if (keys %{$bouncedata->{M}}) {
-	eprint($out, $type, "        Has bounced the following messages:\n          ");
-	eprint($out, $type, join(" ", keys %{$bouncedata->{M}})."\n" );
-	if (@{$bouncedata->{UM}}) {
-	  eprint($out, $type, "          (plus ".scalar(@{$bouncedata->{UM}})." unnumbered messages).\n");
-	}
+        $lsubs->{'NUMBERED_BOUNCES'} = 
+          join(" ", keys %{$bouncedata->{M}});
       }
-      elsif (@{$bouncedata->{UM}}) {
-	eprint($out, $type, "        Has bounced ".scalar(@{$bouncedata->{UM}})." unnumbered messages.\n");
+      if (@{$bouncedata->{UM}}) {
+        $lsubs->{'UNNUMBERED_BOUNCES'} = scalar(@{$bouncedata->{UM}});
       }
     }
-    eprint($out, $type, "        Data last changed at ".
-	   gmtime($data->{lists}{$i}{changetime})." GMT.\n");
+     
+    # XXX Simple first approach: create CHECKBOX substitution.
+    $settings = $data->{'lists'}{$i}{'settings'};
+    $lsubs->{'CHECKBOX'}           = [];
+    $lsubs->{'CLASS_DESCRIPTIONS'} = [];
+    $lsubs->{'CLASSES'}            = [];
+    $lsubs->{'SELECTED'}           = [];
 
+    if ($settings) {
+      for ($j = 0; $j < @{$settings->{'flags'}}; $j++) {
+        $flag = $settings->{'flags'}[$j]->{'name'};
+        # Is this setting set?
+        $str = $settings->{'flags'}[$j]->{'abbrev'};
+        if ($data->{'lists'}{$i}{'flags'} =~ /$str/) {
+          $str = 'checked';
+        }
+        else {
+          $str = '';
+        }
+
+        # Is this setting allowed?
+        if ($settings->{'flags'}[$j]->{'allow'} or $type eq 'wwwadm') {
+          push @{$lsubs->{'CHECKBOX'}}, 
+            "<input name=\"$i;$flag\" type=\"checkbox\" $str>";
+        }
+        else {
+          # Use an X or O to indicate a setting that has been disabled
+          # by the allowed_flags configuration value.
+          if ($str eq 'checked') {
+            $str = 'X';
+          }
+          else {
+            $str = 'O';
+          }
+          push @{$lsubs->{'CHECKBOX'}}, 
+            "<input name=\"$i;$flag\" type=\"hidden\" value=\"disabled\">$str";
+        }
+      }
+      for ($j = 0; $j < @{$settings->{'classes'}}; $j++) {
+        $flag = $settings->{'classes'}[$j]->{'name'};
+        if ($flag eq $data->{'lists'}{$i}{'class'} or $flag eq 
+            "$data->{'lists'}{$i}{'class'}-$data->{'lists'}{$i}{'classarg'}") 
+        {
+          $str = 'selected';
+        }
+        else {
+          $str = '';
+        }
+
+        if ($settings->{'classes'}[$j]->{'allow'} or $type eq 'wwwadm') {
+          push @{$lsubs->{'CLASSES'}}, $flag;
+          push @{$lsubs->{'SELECTED'}}, $str;
+          push @{$lsubs->{'CLASS_DESCRIPTIONS'}}, 
+               $settings->{'classes'}[$j]->{'desc'};
+        }
+      }    
+    }
+
+    $tmp = $mj->format_get_string($type, 'show');
+    $str = $mj->substitute_vars_format($tmp, $lsubs);
+    eprint($out, $type, "$str\n");
   }
+
+  $tmp = $mj->format_get_string($type, 'show_foot');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  eprint($out, $type, "$str\n");
+
   1;
 }
 
@@ -1033,46 +1309,86 @@ use Date::Format;
 sub showtokens {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$request->{'list'}";
-  my ($count, $token, $data);
+  my ($basic_format, $count, $data, $data_format, $global_subs, 
+      $size, $str, $subs, $tmp, $token, $user);
+  my (%type_abbrev) = (
+                        'confirm' => 'S',
+                        'consult' => 'O',
+                        'delay'   => 'D',
+                      );
+
+  $global_subs = {
+           $mj->standard_subs($request->{'list'}),
+          };
 
   my ($ok, @tokens) = @$result;
   unless (@tokens) {
-    eprint($out, $type, "No tokens for $request->{'list'}.\n");
-    return 1;
+    $tmp = $mj->format_get_string($type, 'showtokens_none');
+    $str = $mj->substitute_vars_format($tmp, $global_subs);
+    eprint($out, $type, indicate("$str\n", $ok, 1));
+    return $ok;
   }
-  unless ($ok>0) {
-    eprint($out, $type, "No tokens shown.\n");
-    eprint($out, $type, &indicate("$tokens[0]\n", $ok, 1));
-    return 1;
+  unless ($ok > 0) {
+    $subs = {
+             %{$global_subs},
+             'ERROR'  => $tokens[0],
+            };
+    $tmp = $mj->format_get_string($type, 'showtokens_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    eprint($out, $type, indicate("$str\n", $ok, 1));
+    return $ok;
   }
 
-  eprint($out, $type, "Pending tokens for $request->{'list'}:\n");
   if ($request->{'list'} eq 'ALL') {
-    eprint($out, $type,
-           "Token          List         Req.    Date                User\n");
+    $basic_format = $mj->format_get_string($type, 'showtokens_all');
+    $data_format = $mj->format_get_string($type, 'showtokens_all_data');
   }
   else {
-    eprint($out, $type, "Token          Req.    Date                User\n");
+    $basic_format = $mj->format_get_string($type, 'showtokens');
+    $data_format = $mj->format_get_string($type, 'showtokens_data');
   }
 
+  $tokendata = [];
   while (@tokens) {
     ($token, $data) = splice @tokens, 0, 2;
     $count++;
-      
-    if ($request->{'list'} eq 'ALL') {
-      eprintf($out, $type,
-              "%13s %-12s %-7s %19s %s\n",
-              $token, $data->{'list'}, substr($data->{'command'}, 0, 7),
-              time2str('%Y-%m-%d %T', $data->{'time'}), $data->{'user'});
+   
+    $size = '';
+    if ($data->{'size'}) {
+      $size = sprintf "(%d kB)",  int(($data->{'size'} + 512)/1024);
+    }
+
+    if ($type ne 'text') {
+      $user = escape($data->{'user'});
     }
     else {
-      eprintf($out, $type,
-              "%13s %-7s %19s %s\n",
-              $token, substr($data->{'command'}, 0, 7),
-              time2str('%Y-%m-%d %T', $data->{'time'}), $data->{'user'});
+      $user = $data->{'user'};
     }
+
+    $subs = { 
+              %{$global_subs},
+              'ADATE'  => time2str('%m-%d %H:%M', $data->{'time'}), 
+              'ATYPE'  => $type_abbrev{$data->{'type'}},
+              'COMMAND'=> $data->{'command'},
+              'CMDLINE'=> $data->{'cmdline'},
+              'DATE'   => scalar localtime($data->{'time'}),
+              'LIST'   => $data->{'list'},
+              'SIZE'   => $size,
+              'TOKEN'  => $token,
+              'TYPE'   => $data->{'type'},
+              'USER'   => $user,
+            };
+             
+    push @{$tokendata}, $mj->substitute_vars_format($data_format, $subs);
   }
-  eprintf($out, $type, "%s token%s shown.\n", $count, $count==1?'':'s');
+  $subs = {
+           %{$global_subs},
+           'COUNT'     => $count,
+           'TOKENDATA' => $tokendata,
+          };
+              
+  $str = $mj->substitute_vars_format($basic_format, $subs);
+  eprint($out, $type, "$str\n");
   1;
 }
 
@@ -1083,39 +1399,47 @@ sub subscribe {
 sub tokeninfo {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$request->{'token'}";
-  my ($expire, $time);
+  my (@tmp, $expire, $str, $subs, $time, $tmp);
   my ($ok, $data, $sess) = @$result;
 
+  $subs = { $mj->standard_subs('GLOBAL') };
+
   unless ($ok > 0) {
-    eprint($out, $type, &indicate($data, $ok));
+    $subs->{'ERROR'} = $data;
+    $tmp = $mj->format_get_string($type, 'tokeninfo_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    eprint($out, $type, indicate("$str\n", $ok, 1));
     return $ok;
   }
-  
-  $time   = localtime($data->{'time'});
-  $expire = localtime($data->{'expire'});
 
-  eprint($out, $type, <<EOM);
-Information about token $request->{'token'}:
-Generated at: $time
-By:           $data->{'user'}
-Type:         $data->{'type'}
-From command: $data->{'cmdline'}
-Approvals:    $data->{'approvals'}
-Expires:      $expire
-EOM
+  $subs->{'APPROVALS'}  = $data->{'approvals'};
+  $subs->{'CMDLINE'} = escape($data->{'cmdline'}, $type);
+  $subs->{'DATE'} = localtime($data->{'time'});
+  $subs->{'EXPIRE'} = localtime($data->{'expire'});
+  $subs->{'TOKEN'}  = $request->{'token'};
+  $subs->{'TYPE'}  = $data->{'type'};
+  $subs->{'USER'}  = escape($data->{'user'}, $type);
 
   # Indicate reasons
+  $subs->{'REASONS'} = [];
   if ($data->{'reasons'}) {
-    @reasons = split "\002", $data->{'reasons'};
-    for (@reasons) {
-      eprint($out, $type, "Reason:       $_\n");
-    }
+    @tmp = split "\002", escape($data->{'reasons'}, $type);
+    $subs->{'REASONS'} = [@tmp];
   }
+
+  $tmp = $mj->format_get_string($type, 'tokeninfo_head');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  eprint($out, $type, "$str\n");
+
   if ($sess) {
     eprint($out, $type, "\n");
     $request->{'sessionid'} = $data->{'sessionid'};
     Mj::Format::sessioninfo($mj, $out, $err, $type, $request, [1, '']);
   }
+
+  $tmp = $mj->format_get_string($type, 'tokeninfo_foot');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  eprint($out, $type, "$str\n");
 
   1;
 }
@@ -1213,87 +1537,135 @@ sub which {
 
 sub who {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my (@lines, @out, @stuff, $chunksize, $count, $error, $i, $ind, $list, $ret);
-  my ($template, $tmp, $subs, $fh, $line, $mess, $numbered, $source);
-  my ($ok, $regexp, $tmpl) = @$result;
+  my (%stats, @lines, @out, @stuff, @time, $chunksize, $count, 
+      $error, $fh, $flag, $foot, $fullclass, $gsubs, $head, $i, 
+      $j, $line, $list, $mess, $numbered, $ok, $regexp, $ret, 
+      $settings, $source, $subs, $tmp);
 
   $request->{'sublist'} ||= 'MAIN';
   $source = $request->{'list'};
+  $remove = "unsubscribe";
+
   if ($request->{'sublist'} ne 'MAIN') {
     $source .= ":$request->{'sublist'}";
+    $tmp = $mj->format_get_string($type, 'who');
+    $head = $mj->format_get_string($type, 'who_head');
+    $foot = $mj->format_get_string($type, 'who_foot');
   }
+  elsif ($source eq 'GLOBAL') {
+    $remove = "unregister";
+    $tmp = $mj->format_get_string($type, 'who_registry');
+    $head = $mj->format_get_string($type, 'who_registry_head');
+    $foot = $mj->format_get_string($type, 'who_registry_foot');
+  }
+  else {
+    $tmp = $mj->format_get_string($type, 'who');
+    $head = $mj->format_get_string($type, 'who_head');
+    $foot = $mj->format_get_string($type, 'who_foot');
+  }
+ 
   my $log = new Log::In 29, "$type, $source, $request->{'regexp'}";
 
+  $gsubs = { 
+            $mj->standard_subs($source),
+            'CGIURL'   => $request->{'cgiurl'},
+            'PASSWORD' => $request->{'password'},
+            'PATTERN'  => $request->{'regexp'},
+            'REMOVE'   => $remove,
+            'USER'     => "$request->{'user'}",
+           };
+
+  ($ok, $regexp, $settings) = @$result;
+
   if ($ok <= 0) {
-    eprint($out, $type, "Could not access \"$source\":\n");
-    eprint($out, $type, &indicate($regexp, $ok)) if $regexp;
+    $gsubs->{'ERROR'} = indicate($regexp, $ok);
+    $tmp = $mj->format_get_string($type, 'who_error');
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out "$str\n";
     return $ok;
   }
 
+  # Special substitutions for WWW interfaces.
+  $gsubs->{'CLASS_SELECTED'}     = [];
+  $gsubs->{'CLASS_DESCRIPTIONS'} = [];
+  $gsubs->{'CLASSES'}            = [];
+  $gsubs->{'SETTINGS'}           = [];
+  $gsubs->{'SETTING_CHECKED'}    = [];
+
+  for ($j = 0; $j < @{$settings->{'flags'}}; $j++) {
+    push @{$gsubs->{'SETTINGS'}}, $settings->{'flags'}[$j]->{'name'};
+    if ($settings->{'flags'}[$j]->{'default'}) {
+      $str = 'checked';
+    }
+    else {
+      $str = '';
+    }
+    push @{$gsubs->{'SETTING_CHECKED'}}, $str;
+  }
+  
+  for ($j = 0; $j < @{$settings->{'classes'}}; $j++) {
+    push @{$gsubs->{'CLASSES'}}, $settings->{'classes'}[$j]->{'name'};
+    push @{$gsubs->{'CLASS_DESCRIPTIONS'}}, 
+           $settings->{'classes'}[$j]->{'desc'};
+    if ($settings->{'classes'}[$j]->{'default'})
+    {
+      $str = 'selected';
+    }
+    else {
+      $str = '';
+    }
+    push @{$gsubs->{'CLASS_SELECTED'}}, $str;
+  }    
+
   # We know we succeeded
   $count = 0;
-  $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'}, 
-                                      "chunksize");
-  return 0 unless $chunksize;  
-
-  $ind = $template = '';
-
-  unless ($request->{'mode'} =~ /export|short|alias/) {
-    eprint($out, $type, "Members of list \"$source\":\n");
-    $ind = '  ';
-  }
-
-  if (ref ($tmpl) eq 'ARRAY') {
-    $template = join ("\n", @$tmpl);
-  }
-  elsif ($request->{'list'} eq 'GLOBAL') {
-    $template = '$FULLADDR:-48 $LISTS';
+  if (exists $request->{'chunksize'} and $request->{'chunksize'} > 0) {
+    $chunksize = $request->{'chunk'} || 1000;
   }
   else {
-    $template = '$FULLADDR:-48 $FLAGS:-9 $CLASS';
+    $chunksize = $mj->global_config_get($request->{'user'}, 
+                                        $request->{'password'}, 
+                                        "chunksize");
+    $chunksize ||= 1000;  
   }
- 
+  $gsubs->{'CHUNKSIZE'} = $chunksize;
+
+
+  unless ($request->{'mode'} =~ /export|short|alias/) {
+    $str = $mj->substitute_vars_format($head, $gsubs);
+    print $out "$str\n";
+  }
+
   $request->{'command'} = "who_chunk";
-  $list = $request->{'list'};
-  if ($request->{'sublist'} ne 'MAIN') {
-    $list .= ":$request->{'sublist'}";
+  if (exists ($request->{'start'}) and ($request->{'start'} > 1)) {
+    # discard results
+    $mj->dispatch($request, $request->{'start'} - 1);
   }
- 
+
+
+  $subs = { %$gsubs };
+
   while (1) {
     ($ok, @lines) = @{$mj->dispatch($request, $chunksize)};
     
     last unless $ok > 0;
     for $i (@lines) {
-      $subs = {};
       next unless (ref ($i) eq 'HASH');
-      if ($request->{'mode'} =~ /enhanced|alias/) {
-        for $j (keys %$i) {
-          $subs->{uc $j} = $i->{$j};
-        }
-        if ($request->{'list'} ne 'GLOBAL' or $request->{'sublist'} ne 'MAIN') {
-          my ($fullclass) = $i->{'class'};
-          $fullclass .= "-" . $i->{'classarg'} if ($i->{'classarg'});
-          $fullclass .= "-" . $i->{'classarg2'} if ($i->{'classarg2'});
-          $subs->{'CLASS'} = $fullclass;
-        }
-        elsif ($request->{'mode'} !~ /alias/) {
-          $subs->{'LISTS'} =~ s/\002/ /g;
-        }
-        if ($i->{'changetime'}) {
-          my (@time) = localtime($i->{'changetime'});
-          $subs->{'LASTCHANGE'} = 
-            sprintf "%4d-%.2d-%.2d", $time[5]+1900, $time[4]+1, $time[3];
-        }
-        else {
-          $subs->{'LASTCHANGE'} = '';
-        }
-        $line = $mj->substitute_vars_string($template, $subs);
-        chomp $line;
-      }
-      elsif ($request->{'mode'} =~ /export/ &&
+
+      #----- Hard-coded formatting for who-export and who-alias -----#
+      if ($request->{'mode'} =~ /export/ &&
              $request->{'list'} eq 'GLOBAL' &&
              $request->{'sublist'} eq 'MAIN') {
         $line = "register-pass $i->{'password'} $i->{'fulladdr'}";
+        eprint($out, $type, "$line\n");
+        next;
+      }
+      elsif ($request->{'mode'} =~ /alias/ &&
+             $request->{'list'} eq 'GLOBAL') 
+      {
+        $line = "default user $i->{'target'}\n  alias $i->{'stripsource'}\n";
+        eprint($out, $type, "$line\n");
+        next;
       }
       elsif ($request->{'mode'} =~ /export/ && $i->{'classdesc'} 
              && $i->{'flagdesc'}) 
@@ -1303,35 +1675,130 @@ sub who {
 	  $line .= "set $list $i->{'origclassdesc'} $i->{'stripaddr'}\n";
 	}
 	$line .= "set $list $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
-      }
-      else {
-        $line = $i->{'fulladdr'};
+        eprint($out, $type, "$line\n");
+        next;
       }
 
-      $count++;
-      eprint($out, $type, "$ind$line\n");
-      if ($request->{'mode'} =~ /bounces/ && exists $i->{'bouncestats'}) {
-        $tmp = '';
-        $tmp .=  "$ind  Diagnostic of last bounce: $i->{'diagnostic'}\n"
-          if $i->{'diagnostic'};
-        $tmp .= "$ind  Bounces in the past week: $i->{'bouncestats'}->{'week'}\n"
-          if $i->{'bouncestats'}->{'week'};
-        $tmp .= "$ind  Bounces in the past month: $i->{'bouncestats'}->{'month'}\n"
-          if $i->{'bouncestats'}->{'month'};
-        $numbered = join " ", sort {$a <=> $b} keys %{$i->{'bouncedata'}{'M'}};
-        $tmp .= "$ind  Message numbers: $numbered\n"
-          if $numbered;
-        eprint($out, $type, "$tmp\n");
+      #----- Flexible formatting for who and who-enhanced -----#
+      for $j (keys %$i) {
+        if ($request->{'mode'} =~ /enhanced/) {
+          $subs->{uc $j} = $i->{$j};
+        }
+        else {
+          $subs->{uc $j} = '';
+        }
       }
+
+      $subs->{'FULLADDR'} = escape($i->{'fulladdr'}, $type);
+      $subs->{'LASTCHANGE'} = '';
+    
+      $count++;
+
+      if ($request->{'mode'} =~ /enhanced/) {
+        if ($request->{'list'} ne 'GLOBAL' or $request->{'sublist'} ne 'MAIN') {
+          $fullclass = $i->{'class'};
+          $fullclass .= "-" . $i->{'classarg'} if ($i->{'classarg'});
+          $fullclass .= "-" . $i->{'classarg2'} if ($i->{'classarg2'});
+          $subs->{'CLASS'} = $fullclass;
+        }
+        $subs->{'LISTS'} =~ s/\002/ /g;
+        if ($i->{'changetime'}) {
+          @time = localtime($i->{'changetime'});
+          $subs->{'LASTCHANGE'} = 
+            sprintf "%4d-%.2d-%.2d", $time[5]+1900, $time[4]+1, $time[3];
+        }
+        else {
+          $subs->{'LASTCHANGE'} = '';
+        }
+
+        # Special substitutions for WWW interfaces.
+        $subs->{'CHECKBOX'}           = [];
+        $subs->{'CLASS_DESCRIPTIONS'} = [];
+        $subs->{'CLASSES'}            = [];
+        $subs->{'SELECTED'}           = [];
+        $subs->{'SETTINGS'}           = [];
+
+        for ($j = 0; $j < @{$settings->{'flags'}}; $j++) {
+          $flag = $settings->{'flags'}[$j]->{'name'};
+          push @{$subs->{'SETTINGS'}}, $flag;
+          # Is this setting set?
+          $str = $settings->{'flags'}[$j]->{'abbrev'};
+          if ($i->{'flags'} =~ /$str/) {
+            $str = 'checked';
+          }
+          else {
+            $str = '';
+          }
+
+          push @{$subs->{'CHECKBOX'}}, 
+              "<input name=\"$i->{'stripaddr'};$flag\" type=\"checkbox\" $str>";
+        }
+        for ($j = 0; $j < @{$settings->{'classes'}}; $j++) {
+          $flag = $settings->{'classes'}[$j]->{'name'};
+          if ($flag eq $i->{'class'} or 
+              $flag eq "$i->{'class'}-$i->{'classarg'}") 
+          {
+            $str = 'selected';
+          }
+          else {
+            $str = '';
+          }
+
+          if ($settings->{'classes'}[$j]->{'allow'} or $type eq 'wwwadm') {
+            push @{$subs->{'CLASSES'}}, $flag;
+            push @{$subs->{'SELECTED'}}, $str;
+            push @{$subs->{'CLASS_DESCRIPTIONS'}}, 
+                 $settings->{'classes'}[$j]->{'desc'};
+          }
+        }    
+      }
+
+      $subs->{'BOUNCE_DIAGNOSTIC'} = ''; 
+      $subs->{'BOUNCE_MONTH'} = ''; 
+      $subs->{'BOUNCE_NUMBERS'} = ''; 
+      $subs->{'BOUNCE_WEEK'} = ''; 
+
+      if ($request->{'mode'} =~ /bounces/ && exists $i->{'bouncestats'}) {
+        $subs->{'BOUNCE_DIAGNOSTIC'} = escape($i->{'diagnostic'}, $type);
+        $subs->{'BOUNCE_WEEK'} = $i->{'bouncestats'}->{'week'};
+        $subs->{'BOUNCE_MONTH'} = $i->{'bouncestats'}->{'month'};
+        $numbered = join " ", sort {$a <=> $b} keys %{$i->{'bouncedata'}{'M'}};
+        $subs->{'BOUNCE_NUMBERS'} = $numbered;
+      }
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
     }
+    last if (exists $request->{'chunksize'} and $request->{'chunksize'} > 0);
   }
+
   $request->{'command'} = "who_done";
   $mj->dispatch($request);
-  
-  unless ($request->{'mode'} =~ /short|export|alias/) {
-    eprintf($out, $type, "%s listed subscriber%s\n", 
-            ($count || "No"),
-            ($count == 1 ? "" : "s"));
+     
+  unless ($request->{'mode'} =~ /export|short|alias/) {
+    $gsubs->{'COUNT'} = $count;
+    $gsubs->{'PREVIOUS'} = '';
+    $gsubs->{'NEXT'} = '';
+
+    # Create next and previous markers if result sets are used.
+    if (exists $request->{'chunksize'} and $request->{'chunksize'} > 0) {
+      $gsubs->{'NEXT'} = $request->{'start'} + $request->{'chunksize'}
+        if ($count >= $request->{'chunksize'});
+
+      if ($request->{'chunksize'} >= $request->{'start'}) {
+        if ($request->{'start'} > 1) {
+          $gsubs->{'PREVIOUS'} = 1;
+        }
+        else {
+          $gsubs->{'PREVIOUS'} = ''; 
+        }
+      }
+      else {
+        $gsubs->{'PREVIOUS'} = $request->{'start'} - $request->{'chunksize'};
+      }
+    }
+      
+    $str = $mj->substitute_vars_format($foot, $gsubs);
+    print $out "$str\n";
   }
 
   1;
@@ -1339,8 +1806,11 @@ sub who {
 
 sub g_get {
   my ($fail, $mj, $out, $err, $type, $request, $result) = @_;
-  my ($chunk, $chunksize);
+  my ($base, $chunk, $chunksize, $lastchar);
   my ($ok, $mess) = @$result;
+
+  $base = $request->{'command'};
+  $base =~ s/_start//;
 
   unless ($ok > 0) {
     eprint($out, $type, "$fail\n");
@@ -1351,15 +1821,36 @@ sub g_get {
   $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
                                       "chunksize");
 
+  if ($base eq 'get' and $request->{'mode'} =~ /edit/) {
+    $chunk = sprintf "put-data %s %s %s %s %s %s %s <<ADGBEH",
+                     $request->{'list'}, $request->{'path'}, $mess->{'c-type'},
+                     $mess->{'charset'}, $mess->{'c-t-encoding'},
+                     $mess->{'language'}, $mess->{'description'};
+    eprint($out, $type, "$chunk\n");
+  }
+
   $request->{'command'} = "get_chunk";
+
+  # In "edit" mode, determine if the text ends with a newline,
+  # and add one if not.
+  $lastchar = "\n";
 
   while (1) {
     ($ok, $chunk) = @{$mj->dispatch($request, $chunksize)};
     last unless defined $chunk;
-    eprint($out, $type, $chunk);
+    $lastchar = substr $chunk, -1;
+    eprint($out, $type, escape($chunk, $type));
   }
 
-  $request->{'command'} = "get_done";
+  # Print the end of the here document in "edit" mode.
+  if ($base eq 'get' and $request->{'mode'} =~ /edit/) {
+    $chunk = ($lastchar eq "\n")?  '' : "\n";
+    $chunk .= "ADGBEH";
+    eprint($out, $type, "$chunk\n");
+  }
+    
+  # Use the original command name for logging purposes.
+  $request->{'command'} = $base . "_done";
   $mj->dispatch($request);
   1;
 }
@@ -1449,6 +1940,8 @@ sub eprintf {
 # Basic idea from HTML::Stream, 
 sub escape {
   local $_ = shift;
+  my $type = shift || '';
+  return $_ if ($type eq 'text');
   my %esc = ( '&'=>'amp', '"'=>'quot', '<'=>'lt', '>'=>'gt');
   s/([<>\"&])/\&$esc{$1};/mg; 
   s/([\x80-\xFF])/'&#'.unpack('C',$1).';'/eg;
