@@ -1,0 +1,13 @@
+User:       $VICTIM
+Status:     $STATUS
+Diagnostic: $DIAGNOSTIC
+This address is not subscribed to the $LIST list. ?NONMEMBER
+
+Bounce statistics for this user:
+  Bounces last 24 hours:          $BOUNCES_DAY
+  Bounces last 7 days:            $BOUNCES_WEEK
+  Bounces last 30 days:           $BOUNCES_MONTH
+  Consecutive messages bounced:   ?CONSECUTIVE
+  Percentage of messages bounced: ?BOUNCE_PERCENT
+
+$REASONS
