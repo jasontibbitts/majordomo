@@ -1573,6 +1573,8 @@ sub post_add {
   my $log = new Log::In 150, "$time #$number";
   my($data, $event, $ok);
 
+  return unless $addr->isvalid;
+
   $self->_make_post_data;
   return unless $self->{'posts'};
 
@@ -1599,6 +1601,8 @@ sub get_post_data {
   my $self = shift;
   my $addr = shift;
   my (@msgs);
+
+  return unless $addr->isvalid;
 
   $self->_make_post_data;
   return unless $self->{'posts'};
