@@ -1,4 +1,43 @@
+Sat Feb 20 00:28:45 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Access.pm (_a_reply, _a_replyfile): Deal with 'NONE'.
+	(_a_replyfile): Return file info as fourth argument.
+	(_a_mailfile): Return temp as fifth argument, not fourth.
+	(list_access_check): Deal with additional argument returned by
+ 	replyfile.
+
+	* lib/Mj/Resend.pm (post): Major improvements to acking.  Use new
+ 	ack_denials_always and ack_attach_original variables.  Add
+ 	$HEADERS expansion.  Receive replyfile info data from
+ 	list_access_check and make use of it.  Properly ack stalls on
+ 	'ackimportant', not just 'ackall'.
+
+	* files/INDEX.pl: Include proper subject for ack_denial and
+ 	ack_stall.
+
+	* lib/mj_cf_data.pl: Add ack_attach_original variable.
+
+	* lib/Mj/Config.pm (parse_enum_array): New function; parse an
+ 	array of enums and return a hash for quick lookups.
+
+	* lib/mj_cf_data.pl: Rename 'always_ack_denials' to
+ 	'ack_denials_always'.
+
+	* postinstall (do_default_config): Properly fill in owner address
+ 	when the user provides a rully qualified address for majordomo.
+  	Don't just tack on '-owner'.
+
+	* lib/Mj/Resend.pm (post): Use 'always_ack_denials' variable to
+ 	decide whether denials should be acked or if ack flags should be
+ 	checked.  Ack stalls if 'ackimportant' is set, not only on
+ 	'ackall' as before (bug).
+	(_r_ck_body): Get part name right.
+
 Fri Feb 19 19:18:53 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/mj_cf_data.pl: Add always_ack_denials variable.
+
+	* lib/Mj/Resend.pm (_check_mime): Improve logging.
 
 	* lib/Mj/List.pm (make_setting): Fix bad typo.
 

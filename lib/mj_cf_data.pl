@@ -156,6 +156,45 @@ access_rules entry is used to override the normal processing of
 advertise/noadvertise, but list owners will then have the choice.
 EOC
    },
+   'ack_denials_always' =>
+   {
+    'type'   => 'bool',
+    'groups' => [qw(resend)],
+    'visible'=> 0,
+    'local'  => 1,
+    'global' => 0,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+If this is on, users whose posts are denied will always be informed of
+the denial.  Otherwise they will be informed based on their flag
+settings: if they have either the 'ackall' or 'ackimportant' flag set
+then they will receive notice of the denial, else they will not
+recieve any type of notice.
+EOC
+   },
+   'ack_attach_original' =>
+   {
+    'type'   => 'enum_array',
+    'values' => [qw(fail stall succeed any)],
+    'groups' => [qw(resend)],
+    'visible'=> 0,
+    'local'  => 1,
+    'global' => 0,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+This controls under what circumstances the original message will be
+attached (as a MIME attachment) to acknowlegements sent out to inform
+the user of delivery progress (as set by the user''s ack setting and
+the value of the 'ack_denials_always' variable).
+
+Each element of this array myst be one of the following:
+
+  fail - acks for failed messages will include the original message
+  stall - acks for stalls (confirmations or consultations) will
+    include the original message.
+  any - acks sent for any reason will include the original message.
+EOC
+   },
    'inform' =>
    {
     'type'   => 'inform',
@@ -165,7 +204,6 @@ EOC
     'global' => 1,
     'mutable'=> 1,
     'comment'=> <<EOC,
-
 This controls just what actions the list owner will be informed of and
 what will be logged.  The format of each line is:
 

@@ -55,6 +55,7 @@ $VERSION = "1.0";
    'delivery_rules'   => 1,
    'digests'          => 1,
    'digest_issues'    => 1,
+   'enum_array'       => 1,
    'inform'           => 1,
    'list_array'       => 1,
    'passwords'        => 1,
@@ -81,6 +82,7 @@ $VERSION = "1.0";
    'delivery_rules'   => 1,
    'digests'          => 1,
    'digest_issues'    => 1,
+   'enum_array'       => 1,
    'inform'           => 1,
    'regexp'           => 1,
    'regexp_array'     => 1,
@@ -88,7 +90,6 @@ $VERSION = "1.0";
    'string_2darray'   => 1,
    'taboo_body'       => 1,
    'taboo_headers'    => 1,
-
    'welcome_files'    => 1,
   );
 
@@ -1233,7 +1234,8 @@ sub parse_attachment_rules {
   my $self = shift;
   my $arr  = shift;
   my $log  = new Log::In 150;
-  my(%allowed_actions, $check, $change, $data, $err, $i, $safe, $table);
+  my(%allowed_actions, $check, $change, $data, $err, $i, $ok, $pat, $safe,
+     $table);
 
   %allowed_actions =
     (
@@ -1576,6 +1578,30 @@ sub parse_enum {
   $log->out('illegal value');
   return (0, "Illegal value '$str'.\nLegal values are:\n".
 	  join(' ', @{$self->{'vars'}{$var}{'values'}}));
+}
+
+=head2 parse_enum_array
+
+This parses an array of strings, each of which must be in the variable''s
+'allowed' list.
+
+The parsed value of this is a hashref; this makes it easy to check if a
+given value is supplied without traversing a list.
+
+=cut
+sub parse_enum_array {
+  my $self = shift;
+  my $arr  = shift;
+  my $var  = shift;
+  my $log  = new Log::In 150, "$var";
+  my (%out, $i, $mess, $ok);
+
+  for $i (@$arr) {
+    ($ok, $mess) = $self->parse_enum($i, $var);
+    return (0, $mess) unless $ok;
+    $out{$i}++;
+  }
+  return (1, '', \%out);
 }
 
 =head2 parse_inform

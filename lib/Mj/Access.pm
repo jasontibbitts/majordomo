@@ -416,6 +416,7 @@ sub list_access_check {
       $reasons,             # The \n separated list of bounce reasons
       $i,                   # duh
       $func,
+      $fileinfo,
       $text,
       $temp,
       $ok, $ok2,
@@ -515,7 +516,7 @@ sub list_access_check {
     $func =~ s/\+/\_/g;
     # Handle stupid 8 character autoload uniqueness limit
     $func = '_a_conf_cons' if $func eq '_a_confirm_consult';
-    ($ok, $deffile, $text, $temp) =
+    ($ok, $deffile, $text, $fileinfo, $temp) =
       $self->$func($arg, $mj_owner, $sender, $list, $request, $requester,
 		   $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args);
     $allow = $ok if defined $ok;
@@ -526,7 +527,7 @@ sub list_access_check {
   # If we ran out of actions and didn't generate any reply text, we
   # should replyfile the default (for the last action we ran).
   if (!$mess && $deffile) {
-    (undef, undef, $mess) =
+    (undef, undef, $mess, $fileinfo) =
       $self->_a_replyfile($deffile, $mj_owner, $sender, $list,
 			  $request, $requester, $victim, $mode,
 			  $cmdline, $arg1, $arg2, $arg3, %args);
@@ -557,7 +558,7 @@ sub list_access_check {
     unlink $i || $::log->abort("Failed to unlink $i, $!");
   }
   
-  return wantarray? ($allow, $mess) : $allow;
+  return wantarray? ($allow, $mess, $fileinfo) : $allow;
 }
 
 =head2 The action subroutines
@@ -579,11 +580,16 @@ They each take the following:
   arg2
   arg3
 
-They return a list.  The first element is the result code; this will
-(if defined) be returned as the result of the access check.  The
-second is a message; this will be appended to the returned message.
-The last is a tempfile; if defined, all returned tempfiles will be
-unlinked at the end of action processing.
+They return a list:
+
+the result code; this will (if defined) be returned as the result of the
+  access check.
+the name of the default file for this action.
+a message; this will be appended to the returned message.
+fileinfo; this is the raw data hashref returned from list_file_get.
+  _a_replyfile uses this to return this data back to the caller.
+a tempfile; if defined, all returned tempfiles will be unlinked at the end
+  of action processing.
 
 =cut
 
@@ -674,6 +680,10 @@ sub _a_reply {
   my $self = shift;
   my $arg  = shift;
 
+  # Return an empty message if passed 'NONE'; this means something to the
+  # 'post' request.
+  return (undef, undef, '') if $arg eq 'NONE';
+
   $arg =~ s/^\"(.*)\"$/$1/;
   return (undef, undef, "$arg\n");
 }    
@@ -682,16 +692,20 @@ sub _a_replyfile {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
   my $log = new Log::In 150, "$arg";
-  my ($file, $fh, $line, $out);
+  my (%file, $file, $fh, $line, $out);
 
-  ($file) = $self->_list_file_get($list, $arg);
+  # Given 'NONE', return an empty message.  This means something to the
+  # 'post' request.
+  return (undef, undef, '') if $arg eq 'NONE';
+
+  ($file, %file) = $self->_list_file_get($list, $arg);
 
   $fh = new Mj::File "$file"
     || $log->abort("Cannot read file $file, $!");
   while (defined ($line = $fh->getline)) {
     $out .= $line;
   }
-  return (undef, undef, $out);
+  return (undef, undef, $out, \%file);
 }
 
 use MIME::Entity;
@@ -720,7 +734,7 @@ sub _a_mailfile {
      'Content-Language:' => $file{'language'},
     );
   $self->mail_entity($sender, $ent, $requester);
-  return (undef, undef, undef, $file);
+  return (undef, undef, undef, undef, $file);
 }
 
 =head2 The default actions

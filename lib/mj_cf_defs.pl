@@ -171,5 +171,7 @@ $Mj::Config::default_string = q(
  'request_answer'       => 'majordomo',
  'owners'               => $list eq 'GLOBAL' ? ['DEFAULT'] : [],
  'signature_separator'  => '/^[-_]/',
+ 'ack_denials_always'   => 1,
+ 'ack_attach_original'  => [qw(fail stall)],
 };
 );

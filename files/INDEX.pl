@@ -4,9 +4,9 @@
 $files =
   {
    # English
-   'en/ack_denial'              => ['Denial',                                          'us-ascii', '7bit'],
+   'en/ack_denial'              => ['Denied post to $LIST',                            'us-ascii', '7bit'],
    'en/ack_rejection'           => ['Rejection',                                       'us-ascii', '7bit'],
-   'en/ack_stall'               => ['Stall',                                           'us-ascii', '7bit'],
+   'en/ack_stall'               => ['Stalled post to $LIST',                           'us-ascii', '7bit'],
    'en/ack_success'             => ['Success',                                         'us-ascii', '7bit'],
    'en/ack_timeout'             => ['Timeout',                                         'us-ascii', '7bit'],
    'en/faq'                     => ['Default faq reply',                               'us-ascii', '7bit'],
@@ -41,9 +41,9 @@ $files =
    'en/help/admin_passwords'    => ['Information on Majordomo security and passwords', 'us-ascii', '7bit'],
 
    # German
-   'de/ack_denial'              => 'Denial',
+   'de/ack_denial'              => 'Denied post to $LIST',
    'de/ack_rejection'           => 'Rejection',
-   'de/ack_stall'               => 'Stall',
+   'de/ack_stall'               => 'Stalled post to $LIST',
    'de/ack_success'             => 'Success',
    'de/ack_timeout'             => 'Timeout',
    'de/faq'                     => 'Default faq reply',

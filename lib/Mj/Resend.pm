@@ -107,6 +107,9 @@ sub post {
       $c_type,
       $c_t_encoding,
       $approved,
+      $fileinfo,
+      $subs,
+      $ack_attach,
      );
   my $log = new Log::In 30, "$list, $user, $file"; 
   $tmpdir = $self->_global_config_get("tmpdir");
@@ -174,56 +177,67 @@ sub post {
     $ok = 1;
   }
   else {
-    ($ok, $mess) =
+    ($ok, $mess, $fileinfo) =
       $self->list_access_check
 	($passwd, undef, $int, $mode, $cmd, $list, "post", $user, '',
 	 $file, join("\002", @$reasons), join("\002", %$avars), %$avars);
   }
+
+  # If we got an empty return message, this is a signal not to ack anything
+  # and so we just return;
+  return $ok unless length $mess;
 
   $owner = $self->_list_config_get($list, 'sender');
   if ($ok > 0) {
     return $self->_post($list, $user, $user, $mode, $cmd,
 			$ent, '', join("\002", %$avars));
   }
-  elsif ($ok < 0) {
-    # ack the stall if necessary.  Note that we let the access call
-    # generate the message even though we have better access to the
-    # information because the list owner can control the message using the
-    # access language while we can't do that here.  We could do something
-    # gross like return a filename as the message and process it here, but
-    # it's cleaner this way even with the bit of added conditional code in
-    # Access.pm.  We could also substitute some variables in the access
-    # routine and some here, but since we already passed in the essential
-    # information there's no reason not to take care of it all at once.
-    if ($self->{'lists'}{$list}->flag_set('ackall', $user)) {
+  
+  # Some substitutions will be done by the access routine, but we have
+  # extensive information about the message here so we can do some more.
+  $subs = {LIST    => $list,
+	   HEADERS => $ent->head->stringify,
+	  };
+
+  $desc = $fileinfo->{description};
+  $desc = $self->substitute_vars_string($desc, $subs);
+  $ack_attach = $self->_list_config_get($list, 'ack_attach_original');
+
+  # We handled the OK case, so we have either a stall or a denial.
+  # Stall:  ack if flags say so
+  # Denial: ack if flags say so or if ack_denials_always is set
+  if ($self->{'lists'}{$list}->flag_set('ackimportant', $user)
+      ||
+      $self->{'lists'}{$list}->flag_set('ackall', $user)
+      ||
+      ($ok == 0 && $self->_list_config_get($list, 'ack_denials_always'))
+     )
+    {
       $nent = build MIME::Entity
 	(
 	 Data        => [ $mess ],
-	 Type        => 'text/plain',
-	 Encoding    => '8bit',
+	 Type        => $fileinfo->{'c-type'},
+	 Encoding    => $fileinfo->{'c-t-encoding'},
+	 Charset     => $fileinfo->{'charset'},
 	 Filename    => undef,
 	 -From       => $owner,
-	 -Subject    => "Stalled post to $list",
+	 -To         => "$user", # Note stringification
+	 -Subject    => $desc,
+	 'Content-Language:' => $fileinfo->{'language'},
 	);
+
+      if (($ok <  0 && $ack_attach->{stall}) ||
+	  ($ok == 0 && $ack_attach->{reject}))
+	{
+	  $nent->make_multipart;
+	  $nent->attach(Type        => 'message/rfc822',
+			Description => 'Original message',
+			Path        => $file,
+			Filename    => undef,
+		       );
+	}
       $self->mail_entity($owner, $nent, $user);
     }
-  }
-  else {
-    if ($self->{'lists'}{$list}->flag_set('ackimportant', $user) ||
-	$self->{'lists'}{$list}->flag_set('ackall', $user))
-      {
-	$nent = build MIME::Entity
-	  (
-	   Data        => [ $mess ],
-	   Type        => 'text/plain',
-	   Encoding    => '8bit',
-	   Filename    => undef,
-	   -From       => $owner,
-	   -Subject    => "Denied post to $list",
-	  );
-	$self->mail_entity($owner, $nent, $user);
-      }
-  }
   # Clean up after ourselves;
   $nent->purge if $nent;
   $ent->purge;
@@ -713,23 +727,25 @@ sub _r_ck_body {
   my ($self, $list, $ent, $reasons, $avars, $safe, $qreg, $mcode, $tcode,
       $inv, $max, $maxlen, $part, $first) = @_;
   my $log  = new Log::In 150, "$part";
-  my (@parts, $body, $data, $i, $line, $sum1, $sum2, $text);
+  my (@parts, $body, $data, $i, $line, $spart, $sum1, $sum2, $text);
 
   # If we have parts, we don't have any text so we process the parts and
   # exit.  Note that we try to preserve the $first setting down the chain
   # if appropriate.  We also construct an appropriate name for the part
   # we're processing.
   @parts = $ent->parts;
-  for ($i=0; $i<@parts; $i++) {
-    if ($part eq 'toplevel') {
-      $part = "part ".($i+1);
+  if (@parts) {
+    for ($i=0; $i<@parts; $i++) {
+      if ($part eq 'toplevel') {
+	$spart = "part ".($i+1);
+      }
+      else {
+	$spart = "$part, subpart ".($i+1);
+      }
+      $self->_r_ck_body($list, $parts[$i], $reasons, $avars, $safe, $qreg,
+			$mcode, $tcode, $inv, $max, $maxlen, $spart,
+			($first && $i==0));
     }
-    else {
-      $part .= ", subpart ".($i+1);
-    }
-    $self->_r_ck_body($list, $parts[$i], $reasons, $avars, $safe, $qreg,
-		      $mcode, $tcode, $inv, $max, $maxlen,
-		      "$part, subpart ".($i+1), ($first && $i==0));
     return;
   }
 
@@ -933,7 +949,7 @@ sub _check_mime {
   my $type    = $ent->mime_type;
   my $log = new Log::In 250, "$type";
   local($_);
-  my ($action, $head, $len, $type);
+  my ($action, $head, $len);
 
   # Evaluate the matching code
   $_      = $type;
@@ -943,11 +959,13 @@ sub _check_mime {
     push @$reasons, "Questionable MIME part in $part: $type";
     $avars->{mime_consult} = 1;
     $avars->{mime} = 1;
+    $log->out('consult');
   }
   elsif ($action eq 'deny') {
     push @$reasons, "Illegal MIME part in $part: $type";
     $avars->{mime_deny} = 1;
     $avars->{mime} = 1;
+    $log->out('deny');
   }    
 
   # Unless we're parsing the top level (where we've already checked the
