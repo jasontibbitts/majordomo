@@ -1096,7 +1096,8 @@ sub rekey {
         next;
       }
 
-      eprintf($out, $type, "%-20s %4d out of %d\n", $list, $changed, $count);
+      eprintf($out, $type, "%-20s %4d out of %d\n", $list, $changed, 
+              $count + scalar(keys %$unsub));
       if ($request->{'mode'} =~ /repair/) {
         for $i (keys %$unreg) {
           eprint($out, $type, "  The registry entry for $i was repaired.\n");
@@ -2072,7 +2073,7 @@ sub who {
 
 sub g_get {
   my ($base, $mj, $out, $err, $type, $request, $result) = @_;
-  my ($chunk, $chunksize, $lastchar, $subs, $tmp);
+  my ($chunk, $chunksize, $desc, $lastchar, $subs, $tmp);
   my ($ok, $mess) = @$result;
 
   unless ($ok > 0) {
@@ -2105,12 +2106,14 @@ sub g_get {
     # include CMDLINE substitutions for the various files.
     if ($request->{'mode'} =~ /edit/) {
       if ($base eq 'get') {
+        $desc = $mess->{'description'};
+        $desc =~ s/\$/\\\$/g;
         $subs->{'REPLACECMD'} = 'put-data';
         $subs->{'CMDLINE'} = "put-data $request->{'list'}";
         $subs->{'CMDARGS'} = sprintf "%s %s %s %s %s %s",
                  $request->{'path'}, $mess->{'c-type'},
                  $mess->{'charset'}, $mess->{'c-t-encoding'},
-                 $mess->{'language'}, $mess->{'description'};
+                 $mess->{'language'}, $desc;
       }
       else {
         $subs->{'REPLACECMD'} = "new$base";
