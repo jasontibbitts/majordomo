@@ -1,5 +1,7 @@
 2001-02-04  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Format.pm (who): Use nowelcome for who-export GLOBAL.
+
 	* setup/setup_func.pl (tempfile): New function copied from
 	mj_shell.
         Call it where appropriate.

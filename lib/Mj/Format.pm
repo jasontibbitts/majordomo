@@ -1798,7 +1798,7 @@ sub who {
       if ($request->{'mode'} =~ /export/ &&
              $request->{'list'} eq 'GLOBAL' &&
              $request->{'sublist'} eq 'MAIN') {
-        $line = "register-pass $i->{'password'} $i->{'fulladdr'}";
+        $line = "register-pass-nowelcome $i->{'password'} $i->{'fulladdr'}";
         eprint($out, $type, "$line\n");
         next;
       }
