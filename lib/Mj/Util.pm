@@ -42,8 +42,8 @@ memberof - the memberof hash, containing info on what list:sublist pairs
   the user is on.
 request - the request that this rule refers to.  For bounce_rules, this
   should be _bounce.  (Used to look up request data from CommandProps.)
-current - flag indicating whether or not time restrictions are currently on
-  or not.
+current - list of lists indicating whether the current time matches
+  a time specification.
 
 =cut
 use Safe;
@@ -54,11 +54,11 @@ sub process_rule {
   my $log = new Log::In 70;
 
   my @permitted_ops = qw(
-     anonlist  const    enter  eq
+     anonlist  aelem    const  enter  eq
      ge        gt       helem  le
      leaveeval lt       ne     not
      null      pushmark refgen return
-     rv2sv     seq      sne
+     rv2av     rv2sv    seq    sne
     );
 
   my (@final_actions, $actions, $arg, $cpt, $func, $i, $ok, $saw_terminal, $value);
@@ -72,7 +72,7 @@ sub process_rule {
   # Set up the shared variables
   %memberof = %{$params{memberof}};
   %args     = %{$params{args}};
-  $current  = $params{current} || 0;
+  $current  = $params{current} || [];
   $skip     = 0;
 
   # Run the rule.  Loop until a terminal action is seen
@@ -142,6 +142,9 @@ sub process_rule {
     # We need to stop if we saw a terminal action in the results of the
     # last rule
     last RULE if $saw_terminal;
+  }
+  for $i (keys %args) {
+    $params{'args'}->{$i} = $args{$i};
   }
   @final_actions;
 }
