@@ -536,12 +536,20 @@ sub list_access_check {
   $args{'delay'} = $data->{'delay'};
 
   # Figure out if $requester and $victim are the same
-  $args{'mismatch'} = !($requester eq $victim)
-    unless defined($args{'mismatch'});
+  unless (defined ($args{'mismatch'})) {
+    if ((ref $requester and $requester->isvalid) or
+        (ref $victim and $victim->isvalid)) {
+      $args{'mismatch'} = !($requester eq $victim);
+    }
+  }
 
   # Figure out if the user's identity has changed during this session.
-  $args{'posing'} = !($requester eq $self->{'sessionuser'})
-    unless defined($args{'posing'});
+  unless (defined ($args{'posing'})) {
+    if ((ref $requester and $requester->isvalid) or
+        (ref $self->{'sessionuser'} and $self->{'sessionuser'}->isvalid)) {
+      $args{'posing'} = !($requester eq $self->{'sessionuser'});
+    }
+  }
 
   # If we were given a password, it must be valid.  Note that, in the case
   # of a mismatch, we make sure that the user password supplied matches
