@@ -1,5 +1,5 @@
 This file contains information for both subscribers and administrators,
-but subscribers will probably find only the first section useful!
+but subscribers will probably find only the first two sections useful!
 
 Below are several general formats that Majordomo uses for specifying
 the time at which an event happens, how long to wait for something to
@@ -23,8 +23,8 @@ hours, days, weeks, months, or years. For example, use:
 
 The single-letter abbreviations h/d/w/m/y can be expanded into full
 words if you want: only one character is required, but the words shown
-above (hours, days, weeks, months, years) are equivalent. If you are
-using full words, remember NOT to use a space: "2weeks", NOT "2 weeks".
+above (hours/days/weeks/months/years) are equivalent. If you are using
+full words, remember NOT to use a space: "2weeks" is OK, but NOT "2 weeks".
 
 If you need more flexibility in specifying time spans, you
 can combine these, as in 2w3d for two weeks and three days.
