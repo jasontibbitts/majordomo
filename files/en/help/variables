@@ -334,9 +334,14 @@ See "help reply_files" for a description of each of the reply files.
   next issue might be delivered, and the ages of the oldest and newest
   messages that are awaiting delivery.
 
+\$LINE
+  The line number at which a pattern matched part of the body of a 
+  posted message.
+
 \$LOCATION
   In error messages for invalid e-mail addresses, this variable contains
-  the invalid portion of the address.
+  the invalid portion of the address.  In taboo match descriptions, this
+  variable contains the text that matched.
 
 \$MAX_AGE
 \$MAX_MSGS
@@ -395,6 +400,10 @@ See "help reply_files" for a description of each of the reply files.
   The personal password corresponding to a particular e-mail address,
   or the master password of a newly created mailing list.
 
+\$PATTERN
+  A pattern listed in the taboo_headers configuration setting, or
+  another related setting.
+  
 \$QSADDR
   An e-mail address, altered to allow it to be included safely in the
   query string of a URL.
@@ -480,6 +489,10 @@ See "help reply_files" for a description of each of the reply files.
   The type of a stalled command, such as "confirm" if the person
   affected by the request must confirm the command, or "consult" if 
   the moderators must confirm the command.
+
+  In the context of taboo pattern matches, this is the type of
+  pattern that matched a header or body of a posted message, in
+  capital letters (e.g., "TABOO_BODY").
 
 \$URL
   Identical to \$CONFIRM_URL

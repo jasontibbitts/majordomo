@@ -390,6 +390,13 @@ name.
 
 (standard substitutions only)
 
+no_headers
+----------
+This message is displayed when an e-mail message does not have any
+headers.
+
+(standard substitutions only)
+
 no_list
 -------
 This message is displayed when a command that requires a list name is
@@ -571,6 +578,32 @@ which is not considered public.  See "help auxiliary_list" for a
 description of public auxiliary lists.
 
 (standard substitutions only)
+
+taboo_body
+----------
+This message is displayed when one of the patterns in the
+taboo_body setting or a related configuration setting matches
+the body of an e-mail message.
+
+(standard plus LINE, LOCATION, PATTERN, TYPE)
+
+taboo_header
+------------
+This message is displayed when one of the patterns in the
+taboo_headers setting or a related configuration setting matches
+the body of an e-mail message.  Inverted patterns begin with a '!'.
+the headers of an e-mail message.
+
+(standard plus LOCATION, PATTERN, TYPE)
+
+taboo_inverted
+--------------
+This message is displayed when one of the "inverted" patterns in the
+taboo_body or taboo_headers setting or a related configuration setting
+does not match the body or headers of an e-mail message.  Inverted
+patterns begin with a '!'.
+
+(standard plus PATTERN, TYPE)
 
 top_level_domain
 ----------------
