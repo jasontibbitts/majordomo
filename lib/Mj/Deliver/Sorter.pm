@@ -26,21 +26,17 @@ sorted but its size will be computed anyway.
 sub new {
   my $type   = shift;
   my $class  = ref($type) || $type;
-  my $data   = shift;
-  my $file   = shift;
-  my $sender = shift;
-  my $lhost  = shift;
-  my $nosort = shift;
+  my %args   = @_;
   my $log    = new Log::In 150;
 
   my $self = {};
   bless $self, $class;
 
-  $self->{'data'}   = $data;
-  $self->{'file'}   = $file;
-  $self->{'lhost'}  = $lhost;
-  $self->{'sender'} = $sender;
-  $self->{'nosort'} = $nosort;
+  $self->{'data'}   = $args{data};
+  $self->{'file'}   = $args{file};
+  $self->{'lhost'}  = $args{lhost};
+  $self->{'sender'} = $args{sender};
+  $self->{'nosort'} = $args{nosort};
   $self->{'addrs'}  = [];
   $self;
 }
@@ -88,12 +84,13 @@ sub flush {
 
   $self->{'data'}{'total'} = scalar(@{$self->{'addrs'}});
 #  print "Allocating Dest\n";
-  $dest = Mj::Deliver::Dest->new($self->{'data'}, 
-                                 $self->{'file'}, 
-                                 $self->{'sender'},
-                                 $self->{'lhost'});
+  $dest = Mj::Deliver::Dest->new(data   => $self->{'data'},
+                                 file   => $self->{'file'},
+                                 sender => $self->{'sender'},
+                                 lhost  => $self->{'lhost'}
+				);
 #  print "Allocated Dest\n";
-  
+
   for (my $i=0; $i < @{$self->{'addrs'}}; $i++) {
     $dest->add(@{$self->{'addrs'}[$i]});
   }

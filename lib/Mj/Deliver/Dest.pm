@@ -83,24 +83,25 @@ out to files and then just dump the file to the MTA.
 sub new {
   my $type   = shift;
   my $class  = ref($type) || $type;
-  my $data   = shift;
-  my $file   = shift;
-  my $sender = shift;
-  my $lhost  = shift || '';
-  my $single = shift;
+  my %args = @_;
+
   my $log   = new Log::In 150;
   my (@tmp1, $code, $fail, $i, $mess, $val);
 
   my $self = {};
   bless $self, $class;
 
+  my $data   = $args{data};
+
   # Pull in sender and file
-  $self->{'sender'} = $sender;
-  $self->{'origsender'} = $sender;
-  $self->{'file'}   = $file || $data->{'file'};
+  $self->{sender}     = $args{sender};
+  $self->{origsender} = $args{sender};
+  $self->{file}       = $args{file} || $data->{file};
+  $self->{nobounces}  = $args{nobounces};
+  $self->{data}       = $data;
 
   # Figure out method and args;
-  if ($single) {
+  if ($args{single}) {
     $self->{'method'} = 'maxaddrs';
     $self->{'size'} = 1;
   }
@@ -180,7 +181,7 @@ sub new {
 
   # These counts keep track of the numbers of addresses/domains sent so we
   # know when to mail an envelope.
-  $self->{'lhost'}      = $lhost;
+  $self->{'lhost'}      = $args{lhost};
   $self->{'batch'}      = 0;
   $self->{'count'}      = 0;
   $self->{'subcount'}   = 0;
@@ -260,6 +261,7 @@ sub make_bsmtpenvelope {
 				    'file'   => $self->{'file'},
 				    'local'  => $self->{'lhost'},
 				    'personal' => ($self->{'size'} == 1),
+				    'ofile'  => "/tmp/mj_bsmtp",
 				    %{$self->{'hostdata'}{$host}},
 				   );
 }
@@ -622,7 +624,7 @@ sub _gen_bounces {
   my($ch, $dest, $fh, $file, $i, $sender);
 
   # We don't want to bouce recursively
-  return if $self->{data}{nobounces};
+  return if $self->{nobounces};
 
   for $i (@{$self->{failed}}) {
 
@@ -663,12 +665,11 @@ EOM
       or $::log->abort("Unable to close file $self->{'file'}: $!");
 
     # Create a new Dest object to send the bounces
-    $dest = new Mj::Deliver::Dest({ %{$self->{data}},
-				    'nobounces' => 1,
-				  },
-				  $file,
-				  '',
-				  $self->{lhost},
+    $dest = new Mj::Deliver::Dest(data      => $self->{data},
+				  file      => $file,
+				  sender    => '',
+				  lhost     =>$self->{lhost},
+				  nobounces => 1,
 				 );
     $dest->add($sender);
     undef $dest;

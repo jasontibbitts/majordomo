@@ -153,7 +153,7 @@ sub deliver {
       return 1 if $classes->{$class};
       0;
     };
-  }  
+  }
   elsif ($args{'dbtype'} eq 'sublist') {
     $db = new Mj::SubscriberList (
                                   'backend' => $args{'backend'},
@@ -271,7 +271,6 @@ sub _setup {
   my ($i, $j, $classes, $dests, $probes, $sender);
   $classes = {all => 1}; $dests = {}; $probes = {};
 
-
   # Loop over all of the classes.
   for $i (keys %{$args{classes}}) {
     # Get the base class and stuff it in a hash for quick lookups.
@@ -295,10 +294,10 @@ sub _setup {
       for ($j=0; $j<@{$rules}; $j++) {
 	if (exists $rules->[$j]{'data'}{'sort'}) {
 	  $dests->{$i}[$j] =
-	    new Mj::Deliver::Sorter($rules->[$j]{'data'},
-				    $args{classes}{$i}{file},
-                                    $sender,
-                                    $args{lhost},
+	    new Mj::Deliver::Sorter(data   => $rules->[$j]{'data'},
+				    file   => $args{classes}{$i}{file},
+                                    sender => $sender,
+                                    lhost  => $args{lhost},
 				   );
 	}
 	# Need a non-sorting Sorter to count the addresses for numbatches
@@ -306,20 +305,20 @@ sub _setup {
 	       $rules->[$j]{'data'}{'numbatches'} > 1)
 	  {
 	    $dests->{$i}[$j] =
-	      new Mj::Deliver::Sorter($rules->[$j]{'data'},
-				      $args{classes}{$i}{file},
-                                      $sender,
-                                      $args{lhost},
-				      'nosort',
+	      new Mj::Deliver::Sorter(data   => $rules->[$j]{'data'},
+				      file   => $args{classes}{$i}{file},
+                                      sender => $sender,
+                                      lhost  => $args{lhost},
+				      nosort => 1,
 				     );
 	  }
 	# Nothing special, so allocate a plain destination
 	else {
 	  $dests->{$i}[$j] =
-	    new Mj::Deliver::Dest($rules->[$j]{'data'},
-				  $args{classes}{$i}{file},
-                                  $sender,
-                                  $args{lhost},
+	    new Mj::Deliver::Dest(data   => $rules->[$j]{'data'},
+				  file   => $args{classes}{$i}{file},
+                                  sender => $sender,
+                                  lhost  => $args{lhost},
 				 );
 	}
       }
@@ -329,12 +328,12 @@ sub _setup {
     if ($args{'dbtype'} eq 'sublist' or $args{'regexp'} or $args{'buckets'} > 0) {
       for ($j=0; $j<@{$rules}; $j++) {
 	$probes->{$i}[$j] =
-	  new Mj::Deliver::Prober($rules->[$j]{'data'},
-				  $args{classes}{$i}{file},
-                                  $args{sender},
-				  $args{classes}{$i}{seqnum},
-				  $args{sendsep},
-                                  $args{lhost},
+	  new Mj::Deliver::Prober(data    => $rules->[$j]{'data'},
+				  file    => $args{classes}{$i}{file},
+                                  sender  => $sender,
+				  seqnum  => $args{classes}{$i}{seqnum},
+				  sendsep => $args{sendsep},
+                                  lhost   => $args{lhost},
 				 );
       }
     }

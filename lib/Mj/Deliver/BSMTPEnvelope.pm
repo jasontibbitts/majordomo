@@ -32,6 +32,7 @@ Arguments:
   sender  - the address to show in the From_ line.  Bounces will go here.
   file    - the file containing the message text (headers and body) to send
   addrs   - a listref containing the addresses to send to
+  ofile   - the file in which to store the batch
 
 =cut
 sub new {
@@ -49,14 +50,13 @@ sub new {
     $args{'sender'} = 'misconfigured@example.com';
   }
 
-  $self->{'sender'} = $args{'sender'};
+  $self->{ofile}      = $args{ofile};
+  $self->{'sender'}   = $args{'sender'};
   $self->{'personal'} = $args{'personal'};
 
   # Open the FH
   $self->{fh} = gensym();
 
-  # XXXX This is for testing only; must properly pass in a filename
-  $self->{ofile} = "/tmp/mj_bsmtp";
   unless (open($self->{fh}, ">> $self->{ofile}")) {
     $log->complain("Can't open $self->{ofile}: $!");
     return undef;

@@ -26,24 +26,24 @@ This creates a prober object.
 sub new {
   my $type  = shift;
   my $class = ref($type) || $type;
-  my $data  = shift;
-  my $file  = shift;
-  my $sender= shift;
-  my $snum  = shift;
-  my $sep   = shift;
-  my $lhost = shift;
-  my $log   = new Log::In 150, "$sender, $snum, $sep";
+
 
   my $self = {};
   bless $self, $class;
 
-  $self->{'data'}    = $data;
-  $self->{'dest'}    = Mj::Deliver::Dest->new($self->{'data'}, $file, 
-                                              $sender, $lhost, 'single');
-  $self->{'sender'}  = $sender;
-  $self->{'seqnum'}  = $snum;
-  $self->{'sendsep'} = $sep;
-  $self->{'addrs'} = [];
+  my %args = @_;
+  my $log  = new Log::In 150, "$args{sender}, $args{seqnum}, $args{sendsep}";
+
+  $self->{sender}  = $args{sender};
+  $self->{seqnum}  = $args{seqnum};
+  $self->{sendsep} = $args{sendsep};
+  $self->{addrs}   = [];
+  $self->{dest}    = Mj::Deliver::Dest->new(data   => $args{data},
+					    file   => $args{file},
+					    sender => $self->{sender},
+					    lhost  => $lhost,
+					    single => 1,
+					   );
   $self;
 }
 

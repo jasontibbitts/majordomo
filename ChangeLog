@@ -1,3 +1,16 @@
+2002-06-02  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/Deliver/Dest.pm (_gen_bounces): New Dest calling convention.
+
+	* lib/Mj/Deliver/Sorter.pm (flush): New Dest calling convention.
+
+	* lib/Mj/Deliver/Prober.pm (new): New Dest calling convention.
+
+	* lib/Mj/Deliver.pm (_setup): New Dest calling convention.
+
+	* lib/Mj/Deliver/Dest.pm (new): Take a hash of named args instead
+	of a list.  This makes it easier to pass additional arguments.
+
 2002-06-02  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Format.pm:  Bugfix:  ignore hashrefs in data 
