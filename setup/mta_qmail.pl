@@ -46,8 +46,10 @@ sub setup_qmail {};
 sub setup_qmail_domain {
   my($config, $dom) = @_;
 
-  $dir  = $config->{domain}{$dom}{qmaildir};
-  $file = $config->{domain}{$dom}{qmailfile};
+  $dir    = $config->{domain}{$dom}{qmaildir};
+  $file   = $config->{domain}{$dom}{qmailfile};
+  $whoami = $config->{domain}{$dom}{whoami};
+  $whoami =~ s/\@.*$//;
 
   # If file exists, open and read it.  If first line is the proper
   # comment, erase it else don't touch it and exit.
@@ -71,15 +73,13 @@ sub setup_qmail_domain {
   print QD "# Additions to this file will be overwritten by Majordomo\n";
   print QD "# unless these comments are removed.\n";
   if ($config->{queue_mode}) {
-    print QD "|$config->{'install_dir'}/bin/mj_enqueue -d $dom -Q\n";
+    print QD "|$config->{'install_dir'}/bin/mj_enqueue -d $dom -Q $whoami\n";
   }
   else {
-    print QD "|$config->{'install_dir'}/bin/mj_email -d $dom -Q\n";
+    print QD "|$config->{'install_dir'}/bin/mj_email -d $dom -Q $whoami\n";
   }
   close QD;
 }
-
-
 
 =head1 COPYRIGHT
 

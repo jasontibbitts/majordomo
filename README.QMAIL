@@ -23,12 +23,13 @@ does one of two things:
 The -S option may make it possible for Majordomo to coexist with other
 programs that make use of the -default mechanism.
 
-So, for the virtual domain example.com, placing the following in the
-.qmail-default directory:
+So, for the virtual domain example.com with Majordomo responding to
+majordomo@example.com, placing the following in the .qmail-default
+directory:
 
-  |/path/to/mj_email -Q -d example.com
+  |/path/to/mj_email -d example.com -Q majordomo
 
-is sufficient to enable Majordomo.
+is sufficient to enable the list manager.
 
 
 About automatic configuration:
@@ -45,3 +46,14 @@ can do so yourself.  If you elect not to use the -default mechanism at all
 you must instead make .qmail files for each list, -request and -owner
 address at your site.
 
+
+Special note about the 'whoami' configuration variable:
+
+A very small amount of functionality is lost because of this extremely
+simple setup mechanism.  This is necessary because the decision about
+whether or not an address is bound for Majordomo must be done as quickly as
+possible; there is no time to start up the full Majordomo system to extract
+configuration information.  Thus the value of the 'whoami' variable must be
+passed on the command line (via '-Q') and if it is changed later (through
+the normal Majordomo configuration mechanism) the .qmail-default file must
+be edited to match.

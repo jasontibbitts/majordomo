@@ -1,5 +1,13 @@
 Sun Jun 20 13:34:52 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* setup/mta_qmail.pl (setup_qmail_domain): Write out $whoami
+ 	argument to -Q in .qmail-default files.
+
+	* bin/mj_enqueue: Make -Q take $whoami for this domain as an
+ 	argument so 'majordomo' isn't hardcoded.
+
+	* bin/mj_email: ditto.
+
 	* bin/mj_queueserv: Sed $SIG{CHLD} based on the value of
  	$::SIG_CHLD_IGNORE.
 

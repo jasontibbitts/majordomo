@@ -61,10 +61,11 @@ $ENV{PATH} = '';
 # -v - specify debug verbosity (arg), default 50.
 # -Q - figure out addresses from $ENV{DEFAULT} (for qmail) or use
 #      $ENV{LOCAL} if $ENV{DEFAULT} does not exist
+#      argument is $whoami for this domain
 # -S - when done, exit 99 instead of 0 (for qmail)
 # -T - for qmail versions prior to 1.03, trim this string from $ENV{LOCAL}.
 
-getopts('d:l:mop:P:qQrSt:T:v:', \%opts);
+getopts('d:l:mop:P:qQ:rSt:T:v:', \%opts);
 
 # Deal with -Q option
 do_qmail() if $opts{'Q'};
@@ -199,11 +200,11 @@ sub do_qmail {
   # First look at majordomo addresses XXX These are hardcoded to
   # 'majordomo', but it would take too much time to load Majordomo.pm so
   # that we can extract the real majordomo address.
-  if ($addr eq 'majordomo') {
+  if ($addr eq "$opts{'Q'}") {
     $opts{'m'} = 1;
     return;
   }
-  if ($addr eq 'majordomo-owner' || $addr eq 'owner-majordomo') {
+  if ($addr eq "$opts{'Q'}-owner" || $addr eq "owner-$opts{'Q'}") {
     $opts{'o'} = 1;
     return;
   }
