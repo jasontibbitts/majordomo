@@ -22,6 +22,8 @@ die retr_msg('no_mj_config', $lang)
 
 $| = 1;
 
+ask_lang($config);
+
 #---- Ask about clearing screen
 ask_clear($config);
 

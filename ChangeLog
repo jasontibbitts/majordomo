@@ -1,3 +1,17 @@
+2002-06-30  Michael Yount <csf@moscow.com>
+
+	* Makefile.PL:  Add language choice support.
+
+	* bin/mj_wwwadm:  The report command now has format file
+	support.
+
+	* lib/Mj/Format.pm:  (report)  Add format file support.
+
+	* setup/ask_basic.pl:  Offer "fr" language option.
+	Thanks to Mathieu Arnold.
+
+	* setup/newdomain.pl:  Add language choice support.
+
 2002-06-28  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/SimpleDB/MySql.pm:  New module, unfinished.

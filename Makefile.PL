@@ -6,6 +6,7 @@ $|  = 1;
 use Carp;
 use Config;
 require "setup/query_util.pl";
+require "setup/ask_basic.pl";
 
 BEGIN {
   require 5.00401;
@@ -16,7 +17,7 @@ BEGIN {
 my $config_version = 12;
 my (@SIDSCRIPTS, @SCRIPTS, @EXES, $ok);
 use vars qw(%have $lang);
-$lang = 'en';
+$lang = ask_lang();
 
 # Convert module file names to man page names.
 my %MODULES = 
@@ -383,7 +384,6 @@ sub configure {
   }
   get_str(retr_msg('welcome', $lang));
 
-  require "setup/ask_basic.pl";
   ask_basic($config);
 
   $config->{version} = $config_version;
@@ -431,7 +431,7 @@ sub printhash {
 # copies of the real scripts because MakeMaker isn't quite as flexible as
 # I'd like.  XXX This could probably use some error checking.
 sub generate_wrappers {
-  print "\nGenerating the wrappers...";
+  print retr_msg('build_wrappers', $lang);
   @EXES = ();
 
   unless (-d 'wrappers') {
@@ -456,7 +456,7 @@ int main(int ac, char ** av)
     push @EXES, "./wrappers/$i";
     push @EXES, map {"./bin/$_"} @SCRIPTS;
   }
-  print "done.\n";
+  print "ok.\n";
 }
 
 =head1 COPYRIGHT
