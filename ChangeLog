@@ -1,3 +1,40 @@
+2002-03-16 Michael Yount <csf@moscow.com>
+
+	* bin/mj_queuerun:  Shut down if a "Bye" ping is received 
+	from the queue server.
+
+	* bin/mj_queueserv:  After a timeout, ping runners and do
+	not shut down until all queue runners have finished.
+	Thanks to Brock Rozen.
+
+	* lib/Majordomo.pm:  Version number is now 0.1200203160.
+	(_password)  Use the GLOBAL message_headers setting in the 
+	headers of the password notice that is mailed to the victim.
+	(reject)  Use a list-specific whoami_owner address in the
+	From header of a rejection notice to the victim.
+        Suggested by Roger Klorese.
+	(alias)  Bugfix:  use length() instead of exists() test
+	for the presence of an address.  Thanks to Brock Rozen.
+
+	* lib/Mj/Access.pm:  (_a_confirm2)  Use only 2 parameters,
+	file names for the victim and requester.
+	(_a_forward)  Use the whoami_owner address if no parameter
+	is given.
+	(_a_mailfile)  Use the whoami_owner address instead of the
+	sender address.
+
+	* lib/Mj/Config.pm:  (_compile_rule)  Test filename parameters
+	in notify variables.
+
+	* lib/Mj/Format.pm:  (alias)  Make minor improvements to the
+	result message.
+
+	* lib/Mj/Token.pm:  (confirm, t_accept)  Support "notify"
+	customizations for the chain file and expiration time.
+
+	* lib/Mj/Util.pm:  (n_defaults)  Support the new chainfile
+	and expire notify variables.
+
 2002-03-12  Michael Yount <csf@moscow.com>
 
 	* bin/mj_queuerun:  Cease shuffling messages within a directory.

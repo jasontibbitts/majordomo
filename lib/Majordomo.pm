@@ -88,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200202210";
+$VERSION = "0.1200203160";
 $unique = 'AAA';
 
 use strict;
@@ -723,11 +723,14 @@ sub get_all_lists {
 
   $list = '';
 
+  if ($regexp) {
+    require Mj::Util;
+    import Mj::Util qw(re_match);
+  }
+
   for $list (keys %{$self->{'lists'}}) {
     next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
     if ($regexp) {
-      require Mj::Util;
-      import Mj::Util qw(re_match);
       next unless re_match($regexp, $list);
     }
 
@@ -2829,7 +2832,7 @@ use MIME::Entity;
 sub _password {
   my ($self, $list, $user, $vict, $mode, $cmdline, $pass) = @_;
   my $log = new Log::In 35, "$vict";
-  my (%file, $desc, $ent, $file, $reg, $sender, $subst);
+  my (%file, $desc, $ent, $file, $i, $reg, $sender, $subst);
 
   # Make sure user is registered.  XXX This ends up doing two reg_lookups,
   # which should probably be cached
@@ -2867,6 +2870,7 @@ sub _password {
        Charset  => $file{'charset'},
        Encoding => $file{'c-t-encoding'},
        Subject  => $desc,
+       -From    => $subst->{'MJOWNER'},
        -To      => $vict->canon,
        Top      => 1,
        Filename => undef,
@@ -2874,6 +2878,10 @@ sub _password {
       );
 
     if ($ent) {
+      for $i ($self->_global_config_get('message_headers')) {
+        $i = $self->substitute_vars_string($i, $subst);
+        $ent->head->add(undef, $i);
+      }
       $self->mail_entity($sender, $ent, $vict);
       $ent->purge;
     }
@@ -3649,9 +3657,13 @@ sub alias {
   my ($a2, $ok, $mess);
 
   return (0, "No address was supplied.\n") 
-    unless (exists $request->{'newaddress'}); #XLANG
+    unless (length $request->{'newaddress'}); #XLANG
 
   $a2 = new Mj::Addr($request->{'newaddress'});
+
+  return (0, "$request->{'newaddress'} is an invalid address.\n")
+    unless (defined $a2); #XLANG
+
   ($ok, $mess) = $a2->valid;
   return (0, "$request->{'newaddress'} is an invalid address.\n$mess")
     unless ($ok > 0); #XLANG
@@ -5200,32 +5212,8 @@ sub _digest {
 
 =head2 lists
 
-Perform the lists command.  This gets the visible lists and their
-descriptions and some data.
-
-This returns two elements, then a list of triples:
-
-  success flag
-  default mode
-
-  the list name
-  the list description
-  a string containing single-letter flags
-
-The descriptions will not contain newlines.  The interface should be
-prepared to handle undefined descriptions.
-
-If mode =~ /enhanced/, the flag string will contain the following:
-
-  S - the user is subscribed
-
-XXX More flags to come: D=digest available, 
-
-Short mode:
-  uses short descriptions
-
-Enhanded mode:
-  returns extra data  
+Obtain data about mailing lists at this domain and
+return a hashref of data for each list that is visible.
 
 =cut
 
@@ -5264,9 +5252,9 @@ sub _lists {
   my $ok       = shift || 0;
 
   my $log = new Log::In 35, $mode;
-  my (@lines, @lists, @out, @tmp, $cat, $compact, 
-      $count, $data, $desc, $digests, $flags, $i, $j, $limit, $list, 
-      $expose, $mess, $sublist, $sublists, $testreq);
+  my (@lines, @lists, @out, @tmp, $cat, $compact, $count, $data, 
+      $desc, $digests, $expose, $flags, $i, $j, $limit, $list, 
+      $mess, $sublist, $sublists, $testreq);
 
   $expose = 0;
   $mode ||= $self->_global_config_get('default_lists_format');
@@ -5279,10 +5267,7 @@ sub _lists {
     $compact = 1;
   }
 
-  @lists = $self->get_all_lists($user, 
-                                $password, 
-                                $regexp);
-
+  @lists = $self->get_all_lists($user, $password, $regexp);
 
   if ($mode =~ /config/) {
     eval ("use Mj::Util qw(re_match)"); 
@@ -5305,21 +5290,23 @@ sub _lists {
       $expose = $ok;
     }
 
-    @lines = $self->_list_config_get($list, 'description_long');
     $cat   = $self->_list_config_get($list, 'category');
-    $desc  = '';
     $flags = '';
  
     if ($compact) {
       $desc = $self->_list_config_get($list, 'description');
-      $desc ||= $lines[0];
+      unless ($desc) {
+        @lines = $self->_list_config_get($list, 'description_long');
+        $desc ||= $lines[0];
+      }
     }
     else {
+      @lines = $self->_list_config_get($list, 'description_long');
       $count = 1;
       for (@lines) {
 	$desc .= "$_\n";
 	$count++;
-	last if $limit && $count > $limit;
+	last if ($limit && $count > $limit);
       }
       $desc ||= $self->_list_config_get($list, 'description');
     }
@@ -5365,7 +5352,7 @@ sub _lists {
           $self->{'lists'}{$list}->describe_class('digest', $i, '');
       }
     }
-    push @out, $data unless ($list =~ /^DEFAULT/);
+    push (@out, $data) unless ($list =~ /^DEFAULT/);
 
     # "aux" mode: return information about auxiliary lists
     if ($mode =~ /aux/) {
@@ -5403,15 +5390,13 @@ sub _lists {
                    };
       }
     } 
-    # Only display a list of templates if a master password was given.
-    if ($mode =~ /config/ and 
-        ($expose > 1 or $list =~ /^DEFAULT/)) {
+    # Config mode:  display information about configuration templates.
+    if ($mode =~ /config/ and ($expose > 1 or $list =~ /^DEFAULT/)) {
       for $sublist ($self->{'lists'}{$list}->_fill_config) {
         next if ($sublist eq 'MAIN' and $list !~ /^DEFAULT/);
         $desc = '';
-        @lines = $self->list_config_get($user,
-                                       $password,
-                                       $list, $sublist, 'comments', 1);
+        @lines = $self->list_config_get($user, $password, $list, 
+                                        $sublist, 'comments', 1);
         $count = 1;
         for (@lines) {
           $desc .= "$_\n";
@@ -5454,7 +5439,7 @@ sub reject {
   my $log = new Log::In 30, "@{$request->{'tokens'}}";
   my (%file, @out, $ack_attach, $data, $desc, $ent, $file, $in, $inf, 
       $inform, $line, $list_owner, $mess, $mj_addr, $mj_owner, $ok, 
-      $reason, $repl, $rfile, $sess, $site, $t, $token, $victim);
+      $owner, $reason, $repl, $rfile, $sess, $site, $t, $token, $victim);
 
   return (0, "No token was supplied.\n")
     unless (scalar(@{$request->{'tokens'}}));
@@ -5560,9 +5545,8 @@ sub reject {
          Charset     => $file{'charset'},
          Encoding    => $file{'c-t-encoding'},
          Filename    => undef,
-         -From       => $mj_owner,
+         -From       => $repl->{'OWNER'},
          -To         => $data->{'victim'},
-         '-Reply-To' => $mj_owner,
          -Subject    => $desc,
          'Content-Language:' => $file{'language'},
         );
