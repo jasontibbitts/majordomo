@@ -86,7 +86,7 @@ sub _stringify {
   # Could this be done with map?
   for $i (@{$self->{'fields'}}) {
     $tmp = defined($argref->{$i}) ? $argref->{$i} : '';
-    $tmp =~ s/\001/ /g;
+    $tmp =~ s/[\001\r\n]/ /g;
     $string .= "$tmp\001";
   }
   
