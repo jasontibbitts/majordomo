@@ -24,7 +24,7 @@ by Majordomo. When you send the number back Majordomo knows it has reached
 you because the number acts like a one-time-only password.
 
 If the token is omitted from the command, the Subject: header will be
-searched for one; accepting a token therefore usually requires only that
+searched for one; rejecting a token therefore usually requires only that
 you hit "reply" on your mailer and type the word "reject".
 
 Once Majordomo receives your rejection, the stalled command will be
