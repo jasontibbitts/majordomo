@@ -1,6 +1,8 @@
 <!-- Majordomo index_dir format file -->
 <tr>
-  <td valign="top">$FILE
+  <td valign="top">
+  <a href="$CGIURL?$CGIDATA&amp;func=get-immediate&amp;list=$LIST&amp;extra=$PATH$FILE">
+  $FILE</a>
   </td>
   <td valign="top">$SIZE
   </td>
