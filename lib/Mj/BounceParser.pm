@@ -111,6 +111,7 @@ sub parse {
   $ok or ($ok = parse_exchange  ($ent, $data, $hints));
   $ok or ($ok = parse_sendmail  ($ent, $data, $hints));
   $ok or ($ok = parse_compuserve($ent, $data, $hints));
+  $ok or ($ok = parse_msn       ($ent, $data, $hints));
   $ok or ($ok = parse_lotus     ($ent, $data, $hints));
   $ok or ($ok = parse_postoffice($ent, $data, $hints));
   $ok or ($ok = parse_softswitch($ent, $data, $hints));
@@ -595,6 +596,59 @@ sub parse_lotus {
   }
 
   'Lotus';
+}
+
+=head2 parse_msn
+
+Attempts to parse the bounces issued by MSN.  These bounces are multipart;
+the first part is flat and looks like this:
+
+------Transcript of session follows -------
+XXXX@email.msn.com
+The user's email name is not found.
+
+These headers are also present:
+
+From: Postmaster<Postmaster@email.msn.com>
+Subject: Nondeliverable mail
+
+MSN does not (to the best of my knowledge) issue warnings.
+
+=cut
+sub parse_msn {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my ($bh, $diag, $line, $ok, $user);
+
+  # Check the subject
+  return unless $ent->head->get('Subject') =~ /nondeliverable mail/i;
+
+  # MSN only mails multipart bounces; the first part is flat
+  return unless $ent->parts;
+  return if $ent->parts(0)->parts;
+
+  # The first non-blank line must contain the greeting
+  $bh = $ent->parts(0)->bodyhandle->open('r');
+  return unless $bh;
+
+  while (1) {
+    $line = $bh->getline;
+    return unless defined $line;
+    next if $line =~ /^\s*$/;
+    last if $line =~ /^-+transcript of session follows/i;
+    return;
+  }
+
+  # Next line is the user, next is the diag.
+  chomp($user = $bh->getline);
+  return unless $user =~ /.+\@.+/;
+  chomp($diag = $bh->getline);
+
+  $data->{$user}{'diag'}   = $diag;
+  $data->{$user}{'status'} = 'failure';
+
+  'MSN';
 }
 
 =head2 parse_postfix

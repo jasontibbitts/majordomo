@@ -1906,10 +1906,10 @@ data.
 =cut
 sub bounce_add {
   my($self, $addr, $time, $type, $number, $diagnostic) = @_;
+  my $log = new Log::In 150, "$time T$type #$number";
   my($bouncedata, $event, $ok);
 
   $event = "$time$type$number";
-
   my $repl = sub {
     my $data = shift;
 

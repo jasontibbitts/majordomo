@@ -37,6 +37,10 @@ my %actions =
    'replyfile'       => {files => [0],},
    'set'             => {files => [],},
    'unset'           => {files => [],},
+
+   # These are for bounce_rules
+   'unsubscribe'     => {files => [],    terminal => 1,},
+   'ignore'          => {files => [],    terminal => 1,},
   );
 
 # a standard set of access_rules variables
@@ -52,7 +56,7 @@ my %reg_legal =
    'mode'           =>3,
   );
 
-# one-line descriptions of every access_rule variable used in $commands{???}{'access'}{'legal'} 
+# one-line descriptions of every access_rule variable used in $commands{???}{'access'}{'legal'}
 #  (not used at run-time, this hash is for the help file generator)
 # only "en" for now, but some day there may be versions in other than english!
 %Mj::CommandProps::access_vars_desc_en = (
@@ -108,7 +112,7 @@ my %reg_legal =
 # real       -> corresponds to a real core command
 # interp     -> corresponds to a command that the interpreter handles
 
-my %commands = 
+my %commands =
   (
    # Commands implemented by the parser/marshaller only
    'approve'    => {'parser' => [qw(email shell interp)]},
@@ -131,7 +135,7 @@ my %commands =
                                   }
                    },
    'configdef'  => {'parser' => [qw(email shell list global real)],
-                    'dispatch' => {'top' => 1, 
+                    'dispatch' => {'top' => 1,
                                    'arguments' => {'split', '[\s,]+',
                                                    'vars', {'type' => 'ARRAY'}},
                                    'hereargs' =>  'vars',
@@ -186,7 +190,7 @@ my %commands =
    },
 
    # Normal core commands
-   'accept' => 
+   'accept' =>
    {
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1,
@@ -201,7 +205,7 @@ my %commands =
    {
     'parser'   => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1, 
-                   'arguments' => {'newaddress', {'type' => 'SCALAR'}},
+		   'arguments' => {'newaddress', {'type' => 'SCALAR'}},
                    'tokendata' => {'arg1' => 'newaddress'},
                   },
     'access'   => {
@@ -339,7 +343,7 @@ my %commands =
    {
     'parser'   => [qw(email shell list global nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1, 
-                   'arguments' => {'path' => {'type' => 'SCALAR'}},
+		   'arguments' => {'path' => {'type' => 'SCALAR'}},
                    'tokendata' => {'arg1' => 'path'}
                   },
     'access'   => {
@@ -423,7 +427,7 @@ my %commands =
                    'default' => 'special',
                    'legal'   => {
                                  'master_password'  => 1,
-                                 'user_password'    => 1, 
+                                 'user_password'    => 1,
                                  'mismatch'         => 1,
                                  'posing'           => 1,
                                  'password_length'  => 2,
@@ -708,6 +712,29 @@ my %commands =
                    'actions' => \%actions,
                   },
    },
+
+   # This isn't a command at all; the bounce_rules variable reuses most of
+   # the access_rules code, so we store information about actions and
+   # variables here as well.
+   '_bounce' =>
+   {
+    'access' => {
+		 'legal'   => {
+			       'days_since_subscribe' => 2,
+			       'consecutive'          => 2,
+			       'bouncedpct'           => 2,
+			       'numbered'             => 2,
+			       'day'                  => 2,
+			       'week'                 => 2,
+			       'month'                => 2,
+			      },
+		 'actions' => {
+			       'unsubscribe' => {files => [],    terminal => 1,},
+			       'ignore'      => {files => [],    terminal => 1,},
+			      },
+		},
+   },
+
 #   'writeconfig'    => {'parser' => [qw(email shell list obsolete real)],
 #                        'dispatch' => {'top' => 1},
 #                       },
@@ -867,7 +894,7 @@ sub rules_vars {
   my $type = shift;
 
   if (defined $type) {
-    return grep {$commands{$req}{'access'}{'legal'}{$_} == $type} 
+    return grep {$commands{$req}{'access'}{'legal'}{$_} == $type}
       keys %{$commands{$req}{'access'}{'legal'}}
         if rules_request($req);
   }
@@ -899,9 +926,9 @@ sub action_files {
   my $act = shift;
   my $arg = shift;
   my (@args, @out, $i);
-  
+
   return unless $actions{$act};
-    
+
   @args = split(/\s*,\s*/, $arg);
   for $i (@{$actions{$act}{files}}) {
     push @out, $args[$i];
@@ -916,7 +943,7 @@ sub action_terminal {
   return $actions{$act}{terminal};
 }
 
-# --- 
+# ---
 sub access_def {
   my $req = shift;
   my $def = shift;
@@ -924,7 +951,7 @@ sub access_def {
   return 0 unless $commands{$req}{'access'}{'default'} eq $def;
   1;
 }
-  
+
 # This returns the default access for a command.
 # Returns undef if command is not listed above, does NOT expand aliases.
 sub command_default {

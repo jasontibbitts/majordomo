@@ -52,6 +52,7 @@ $VERSION = "1.0";
    'access_rules'     => 1,
    'address_array'    => 1,
    'attachment_rules' => 1,
+   'bounce_rules'     => 1,
    'delivery_rules'   => 1,
    'digests'          => 1,
    'digest_issues'    => 1,
@@ -79,6 +80,7 @@ $VERSION = "1.0";
    'address_array'    => 1,
    'attachment_rules' => 1,
    'bool'             => 1,
+   'bounce_rules'     => 1,
    'delivery_rules'   => 1,
    'digests'          => 1,
    'digest_issues'    => 1,
@@ -105,7 +107,7 @@ sub new {
   my $type  = shift;
   my $class = ref($type) || $type;
   my %args  = @_;
-  
+
   my $list  = $args{'list'} or
     $::log->abort("Mj::Config::New called without list name");
 
@@ -201,14 +203,14 @@ sub get {
       }
       return $self->{'data'}{'raw'}{$var};
     }
-    
+
     if (exists $self->{'dfldata'}{'raw'}{$var}) {
       if ($self->isarray($var)) {
         return @{$self->{'dfldata'}{'raw'}{$var}};
       }
       return $self->{'dfldata'}{'raw'}{$var};
     }
-    
+
     # or return the default data
     if (exists $self->{'defaults'}{$var}) {
       $log->out('default');
@@ -221,7 +223,7 @@ sub get {
     # or just return nothing
     return;
   }
-    
+
   # We need to give back parsed data.  If we have it already...
   if (exists $self->{'data'}{'parsed'}{$var}) {
     $log->out('parsed');
@@ -278,7 +280,7 @@ sub get {
 }
 
 =head2 whence
-Determines the origin of a variable.  
+Determines the origin of a variable.
 
 1   variable was set by the DEFAULT list
 0   variable was set by mj_cf_defs.pl
@@ -314,11 +316,11 @@ sub whence {
   if (exists $self->{'data'}{'raw'}{$var}) {
     return -1;
   }
-    
+
   if (exists $self->{'dfldata'}{'raw'}{$var}) {
     return 1;
   }
-    
+
   if (exists $self->{'defaults'}{$var}) {
     return 0;
   }
@@ -338,7 +340,7 @@ sub load {  # XXX unfinished
   my $log  = new Log::In 150, "$self->{'list'}";
   my ($file, $key, $oldfile, $old_more_recent);
 
-  # Look up the filenames 
+  # Look up the filenames
   $file = $self->_filename;
   $oldfile = $self->_filename_old;
 
@@ -364,7 +366,7 @@ sub load {  # XXX unfinished
     -r $oldfile &&
       (! -r $file ||
        (stat($oldfile))[9] >= (stat($file))[9]);
-  
+
   if ($old_more_recent) {
     $self->_load_old;
     $self->_save_new;
@@ -392,9 +394,9 @@ sub _load_new {
   my $self = shift;
   my $log  = new Log::In 160;
   my ($file, $name);
-  
+
   $name = $self->_filename;
-  
+
   # We have to lock the file
   $file = new Mj::File $name, "<";
   $self->{'data'} = do $name;
@@ -406,7 +408,7 @@ sub _load_new {
 =head2 _load_dfl
 
 Get the configuration values for the DEFAULT list.
-This data has higher precedence than the 
+This data has higher precedence than the
 settings in mj_cf_defs.pl, but lower than the
 individual lists' settings.
 
@@ -433,7 +435,7 @@ __END__
 
 
 =head2 default(variable)
-  
+
 Returns the default value of the given variable.
 
 =cut
@@ -441,7 +443,7 @@ sub default {
   my ($self, $var) = @_;
 
   $::log->in(180, "$var");
-  
+
   if ($self->{'defaults'}{$var}) {
     return $self->{'defaults'}{$var};
   }
@@ -526,7 +528,7 @@ sub intro {
   $self->_defaults unless $self->{'defaults'};
 
   $type = $self->{'vars'}{$var}{'type'};
-  
+
   if ($self->isarray($var)) {
     if (defined $self->{'defaults'}{$var} && @{$self->{'defaults'}{$var}}) {
       $default = "$self->{'defaults'}{$var}[0] ...";
@@ -551,7 +553,7 @@ sub intro {
       join(',',@{$self->{'vars'}{$var}{'values'}}) .
 	"/";
   }
-  
+
   $::log->out;
   return sprintf("%-20s %s\n%-20s %s\n",
 		 $var, $enums, "($default)",
@@ -597,7 +599,7 @@ Returns trus if the variable is of a parsed type; undef otherwise.
 sub isparsed {
   my $self = shift;
   my $var  = shift;
-  
+
   if ($self->{'vars'}{$var}) {
     return $is_parsed{$self->{'vars'}{$var}{'type'}};
   }
@@ -645,7 +647,7 @@ sub type {
   my $var  = shift;
 
   if ($self->{'vars'}{$var}) {
-    return $self->{'vars'}{$var}{'type'}; 
+    return $self->{'vars'}{$var}{'type'};
   }
   return undef;
 }
@@ -669,9 +671,9 @@ XXX There''s too much repeated code here.
 sub vars {
   my ($self, $var, $hidden, $global) = @_;
   my (@vars, $i, $seen);
-  
+
   $::log->in(140, "$self->{'list'}, $var");
-  
+
   # Expand ALL tag
   if ($var eq 'ALL') {
     for $i (keys %{$self->{'vars'}}) {
@@ -763,7 +765,7 @@ sub lock {
     $self->_load_dfl unless $self->{'dfldata'};
     $self->{loaded} = 1;
   }
-  
+
   # Note that we are locked
   $self->{locked} = 1;
 }
@@ -786,7 +788,7 @@ sub unlock {
     # Nothing was changed; don't bother writing
     $self->{fh}->abandon;
   }
-  
+
   # Say we're not locked any longer
   $self->{locked} = 0;
   delete $self->{fh};
@@ -807,7 +809,7 @@ sub set {
 
   # Make sure we're setting a legal variable
   unless (exists $self->{'vars'}{$var} &&
-	  ($self->{'list'} eq 'GLOBAL' ? 
+	  ($self->{'list'} eq 'GLOBAL' ?
 	   $self->{'vars'}{$var}{'global'} :
 	   $self->{'vars'}{$var}{'local'}))
     {
@@ -856,7 +858,7 @@ XXX Probably should just ignore this, given lock/unlock.
 =cut
 sub atomic_set {
   my $self = shift;
-  
+
   my $log = new Log::In 150;
 
   # Determine the filename
@@ -872,7 +874,7 @@ sub atomic_set {
   # Write the variable back
 
   # Deal with parsing routines
-  
+
   # Save the file and unlock/commit
 
 }
@@ -888,7 +890,7 @@ sub set_to_default {
 
   $::log->in(150, "$self->{'list'}, $var");
   $self->lock;
-  
+
   if (exists $self->{'vars'}{$var}) {
     delete $self->{'data'}{'raw'}{$var};
     delete $self->{'data'}{'parsed'}{$var};
@@ -961,7 +963,7 @@ sub _load_old {
     $::log->out("$name unreadable");
     return 1;
   }
-  
+
   $file = new Mj::File($name);
   while (defined ($_ = $file->getline)) {
     next if /^\s*($|\#)/;
@@ -970,7 +972,7 @@ sub _load_old {
     s/\s+$//;
     ($key, $op, $val) = split(" ", $_, 3);
     $key = lc($key);
-    
+
     # XXX Check validity of key.  Figure out what to do about errors.
     if ($op eq "\<\<") {
       $self->{'data'}{'raw'}{$key} = [];
@@ -1005,7 +1007,7 @@ sub _save_new {
 
   $::log->in(155, "$self->{'list'}");
   $name = $self->_filename;
-  
+
   if (-r $name) {
     $file = new Mj::FileRepl "$name";
   }
@@ -1014,7 +1016,7 @@ sub _save_new {
   }
 
   $ok = $file->print(Dumper $self->{'data'});
-  
+
   $file->commit if $ok;
   $::log->out;
 }
@@ -1036,7 +1038,7 @@ files.
 #   my $self = shift;
 #   my ($comment, $default, $enums, $file, $groups, $instructions,
 #       $key, $lval, $name, $op, $tag, $type, $value);
-  
+
 #   $::log->in(155, "$self->{'list'}");
 
 #   $name = $self->_filename_old;
@@ -1055,7 +1057,7 @@ files.
 #   $self->_defaults unless $self->{'defaults'};
 
 #   $file->print($ {$self->{'file_header'}});
-  
+
 #   foreach $key (sort keys %{$self->{'vars'}}) {
 #     # First set up the values to put into the format
 #     $type    = $self->{'vars'}{$key}{'type'};
@@ -1068,15 +1070,15 @@ files.
 #     else {
 #       $value = "";
 #     }
-    
+
 #     $instructions = $self->instructions($key);
 #     $instructions =~ s/^(.*)\n/   #$1\n/;
 #     $file->print($instructions);
-    
+
 #     if ($type =~ /array/) {
 #       $op = '<<';
 #       $file->printf("%-20s << %s\n", $key, "END$tag");
-      
+
 #       for $lval (@{$value}) {
 #         $lval =~ s/^-/--/;
 #         $lval =~ s/^$/-/;
@@ -1115,7 +1117,7 @@ sub _defaults {
   if ($@) {
     $::log->abort("Eval of config defaults failed: $@");
   }
-  
+
   delete $self->{'defaulting'};
   1;
 }
@@ -1124,7 +1126,7 @@ sub _filename {
   my $self = shift;
   my $list = $self->{'list'};
   my $listdir = $self->{'ldir'};
-  
+
   if ($self->{'sdirs'}) {
     return "$listdir/$list/_config";
   }
@@ -1180,7 +1182,7 @@ sub parse {
 
 This takes an array containing access rules, runs a table parse on it, then
 picks apart the table array and sends the appropriate bits to the compiler
-to get evalable scrings.  Returns a hash containing a hash per request
+to get evalable strings.  Returns a hash containing a hash per request
 type, each containing:
 
  check_main  - membership in the main list must be checked
@@ -1307,7 +1309,6 @@ sub parse_access_rules {
   return (1, $warn, $data)
 }
 
-
 =head2 parse_address, parse_address_array
 
 Calls Mj::Addr::validate to make sure the address is syntactically legal,
@@ -1330,7 +1331,7 @@ sub parse_address {
 
   my $addr = new Mj::Addr($str);
   my ($ok, $mess) = $addr->valid;
-  
+
   return (1, '', $str) if $ok;
   return (0, $mess);
 }
@@ -1453,7 +1454,7 @@ sub parse_bool {
   my $log  = new Log::In 150, "$var, $str";
 
   # Attempt to be multi-lingual
-  my %yes = 
+  my %yes =
     (
      1                => 1,
      'y'	      => 1,
@@ -1470,7 +1471,7 @@ sub parse_bool {
      'shore nuf'      => 1,
      'ayuh'           => 1,             # Maine
     );
-     
+
   my %no =
     (
      ''               => 1,
@@ -1492,6 +1493,94 @@ sub parse_bool {
   return (1, '', 1) if $yes{$str};
   return (1, '', 0) if $no{$str};
   (0, 'Could not determine if string means yes or no.');
+}
+
+=head2 parse_bounce_rules
+
+Parses out a set of bounce rules, which look like access_rules without the
+line specifying the requests.  Bounce rules also have a (mostly) different
+set of variables and actions.
+
+Returns a hash with the following elements:
+
+ check_aux   - hash of aux lists that must be checked.
+ code        - a string ready to be evaled.
+
+=cut
+sub parse_bounce_rules {
+  my $self = shift;
+  my $arr  = shift;
+  my $var  = shift;
+  my $log  = new Log::In 150;
+
+  my (@tmp, $acts, $check_aux, $check_main, $count, $data, $error,
+      $i, $j, $k, $o, $part, $rule, $table, $tmp, $tmp2, $warn);
+
+  # %$data will contain our output hash
+  $data = {};
+
+  # We start with no warnings.
+  $warn = '';
+
+  # Do the table parse: one multi-item, single field line, one multiline
+  # field
+  ($table, $error) = parse_table('fmx', $arr);
+
+  return (0, "\nError parsing table: $error\n")
+    if $error;
+
+  # Iterate over the rules
+  for ($i=0; $i<@$table; $i++) {
+
+    # Grab the action and code
+    $acts = $table->[$i][0];
+    $rule = join(' ',@{$table->[$i][1]});
+
+    $part = "";
+
+    # Check validity of the action.
+    for ($j=0; $j<@{$acts}; $j++) {
+
+      # Unpack action=arg,arg set
+      ($tmp, $tmp2) = ($acts->[$j] =~ /([^=]*)(?:=(.*))?/);
+      unless (rules_action('_bounce', $tmp)) {
+	@tmp = rules_actions('_bounce');
+	return (0, "\nIllegal action: $acts->[$j].\nLegal actions for bounce_rules are:\n".
+		join("\n",sort(@tmp)));
+      }
+      if ($tmp2) {
+	$tmp2 =~ s/^\((.*)\)/$1/;
+	for $k (action_files($tmp, $tmp2)) {
+	  ($file) =
+	    &{$self->{callbacks}{'mj.list_file_get'}}($self->{list}, $k);
+	  unless ($file) {
+	    $warn .= "  Action $tmp: file '$k' could not be found.\n";
+	  }
+	}
+      }
+
+      # Compile the rule
+      ($ok, $error, $part, $check_main, $check_aux) =
+	_compile_rule('_bounce', $acts, {}, $rule, $i);
+
+      # If the compilation failed, we return the error
+      return (0, "\nError compiling rule for $i: $error")
+	unless $ok;
+
+      $data->{'code'}        .= $part;
+      $data->{'check_main'} ||= $check_main;
+      for $k (@{$check_aux}) {
+	$data->{'check_aux'}{$k} = 1;
+      }
+    }
+  }
+
+  # By default the bounces are ignored
+  $data->{'code'} .= "\nreturn [$i, 'ignore'];\n";
+
+  # If we get this far, we know we shouldn't have any errors, but maybe
+  # some warnings
+  return (1, $warn, $data)
 }
 
 =head2 parse_delivery_rules
@@ -1573,13 +1662,13 @@ sub parse_digests {
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
   my($data, $elem, $error, $i, $j, $table);
-  
+
   # %$data will hold the return hash
   $data = {};
 
   # Parse the table: one line with lots of fields, and single-line field
   ($table, $error) = parse_table('fspppooool', $arr);
-  
+
   return (0, "Error parsing table: $error")
     if $error;
 
@@ -1631,13 +1720,13 @@ sub parse_digests {
     $elem->{'maxage'} = _str_to_offset($table->[$i][4]);
     # default to zero (no limit) to avoid warnings in decide().
     $elem->{'maxage'} ||= 0;
-    
+
     # separate
     $elem->{'separate'} = _str_to_offset($table->[$i][5]);
 
     # minage
     $elem->{'minage'} = _str_to_offset($table->[$i][6]);
-    
+
     # type XXX Need some syntax checking here.
     $elem->{'type'} = $table->[$i][7] || 'mime';
 
@@ -1797,7 +1886,7 @@ sub parse_inform {
   my $log  = new Log::In 150, "$var";
   my ($stat);
 
-  my %stats = 
+  my %stats =
     (
      'all'     => 1,
      'succeed' => 1,
@@ -1807,13 +1896,13 @@ sub parse_inform {
      'failure' => 0,
      'stall'   => -1,
     );
-  
+
   my ($table, $err) = parse_table('fsmm', $arr);
 
   return (0, "Error parsing table: $err.")
     if $err;
 
-  my %out = 
+  my %out =
     (
      'subscribe'   => {'1' => 3},
      'unsubscribe' => {'1' => 3},
@@ -1848,7 +1937,7 @@ sub parse_inform {
   }
 
   return (1, '', \%out);
-}  
+}
 
 
 =head2 parse_integer
@@ -1995,7 +2084,7 @@ sub parse_restrict_post {
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
   my $out = [];
-  
+
   push(@$out, split(/\s+/, $arr->[0])) if @$arr;
   for (my $i = 1; $i < @$arr; $i++) {
     push @$out, $arr->[$i];
@@ -2042,7 +2131,7 @@ sub parse_string_2darray {
   if (@$arr) {
     ($table, $err) = parse_table('x', $arr);
   }
-  
+
   $out = [];
   for ($i=0;$i<@$table;$i++) {
     push @$out, $table->[$i][0];
@@ -2145,7 +2234,7 @@ sub parse_taboo_body {
     }
     $max = $stop ? $stop > $max ? $stop : $max : 0; #Whee!
   }
-  
+
   # Tack on the 'no match' condition, which provides us with a convenient
   # default
   $data->{'code'} .= "return \@out;\n";
@@ -2215,7 +2304,7 @@ sub parse_welcome_files {
 
   # Parse the table, one siingle-field line and a line with two fields
   ($table, $error) = parse_table('lfso', $arr);
-		
+
   return (0, "Error parsing: $error")
     if $error;
 
@@ -2328,20 +2417,20 @@ This splits up a config table.
       s - single value
       o - optional single value
       m - multivalue, split on commas
-      p - optional multivalue      
+      p - optional multivalue
 
   Output: a listref containing one listref per table record, containing one
     string or listref per table element, the elements of which depend on
     the specifier:
       l - a string
       f - a string per s element, or a list of strings per m element
-      x - a list of strings      
+      x - a list of strings
     a string containing an error message, used for syntax checking.
 
  Examples:
 
   1. fsss
-     field : field : field  
+     field : field : field
 
   2. fsms
      field : field, field : field
@@ -2383,7 +2472,7 @@ sub parse_table {
   # We walk over the lines of data
  LINE:
   while (1) {
-    
+
     while (defined $data->[$line] && $data->[$line] !~ /\S/) {
       $line++;
     }
@@ -2412,7 +2501,7 @@ sub parse_table {
 	push @row, $data->[$line];
 	$line++;
       }
-      
+
       # Process all lines until EOD or a blank line
       elsif ($s eq 'x') {
 	@group=();
@@ -2422,7 +2511,7 @@ sub parse_table {
 	}
 	push @row, [@group];
       }
-      
+
       # Process multifield lines
       elsif ($s =~ /^f/g) {
 	@group = split(/\s*[:|]\s*/,$data->[$line]);
@@ -2463,8 +2552,8 @@ sub parse_table {
 	      # correct...
 	      m{
                 ((?=.)         # Must not be empty
-                 (?:[^\"\(,\\]|\\[\"\(,])* 
-                 (?:             
+                 (?:[^\"\(,\\]|\\[\"\(,])*
+                 (?:
                  \"(?:[^\"\\]|\\.)*(?:\"|$)
                  |
                  \((?:[^\)\\]|\\.)*(?:\)|$)
@@ -2474,7 +2563,7 @@ sub parse_table {
                 [\s,]*      # Any number of spaces and commas
 
 	       }gx;
-	    
+
 	    # The old non-parenthesis version in case I screwed up
 	    # m{
 	    # ([^\",]*?"[^\"\\]*(?:\\.[^\"\\]*)*")\s*,?\s*
@@ -2483,7 +2572,7 @@ sub parse_table {
 	    # }gx;
 	    $elem++;
 	  }
-	  
+
 	  # Oops
 	  else {
 	    $error .= "Illegal field specifier '$1'.\n";
@@ -2581,7 +2670,7 @@ sub parse_keyed {
       /\Q$c/          and $err = "$c before $o.", next;
       /\Q$q/          and push(@stack, 'delim'), $state = 'quote', next;
     }
-    
+
     # Quote state, trying to find an end quote to finish building a value
     elsif ($state eq 'quote') {
       !defined        and $err = "Ran out of data looking for $q.", last;
@@ -2667,11 +2756,11 @@ sub parse_keyed {
       next;
     }
   }
-  
+
   # Only got here if we errored out!
   my $done = join('', splice(@done, -6, 6));
   my $list = join('', splice(@list, 0, 6));
-  
+
   if ($err =~ /\n/) {
     return (undef, $err);
   }
@@ -2776,7 +2865,7 @@ sub compile_pattern {
     }
     return (0, "Error in regexp '$str'\n$err") if $err;
     return (1, '', $re);
-  }  
+  }
   if ($id1 eq '%') {
     # Shell-like pattern; fail if the closing '%' is absent
     return (0, "Error in pattern '$str': no closing '\%'.\n")
@@ -2812,7 +2901,7 @@ Things supported:
   Parentheses for grouping
   regexp matches within /.../, matching the user address
   list membership checks with @
-  ALL rule matching everything  
+  ALL rule matching everything
 
 Returns:
 
@@ -2867,14 +2956,14 @@ sub _compile_rule {
   $ep = "\n   ))\n  {\n";
 
   $o .= $pr;
-  
+
   while (length $_) {
-    
+
     # Eat leading space.
     if (s:^\s+::) {
       next;
     }
-    
+
     # Process /reg\/exp/
     if (s:^(([\/\"\%\_]).*?(?!\\).\2[ix]?)::) {
       ($ok, $err, $re) = compile_pattern($1, 0);
@@ -2929,7 +3018,7 @@ sub _compile_rule {
 	    join("\n", sort(@tmp));
 	  last;
 	}
-	
+
 	if ($need_or) {
 	  $o .= "  ||";
 	}
@@ -2957,7 +3046,7 @@ sub _compile_rule {
       $indent++;
       next;
     }
-    
+
     # Process close group ')'
     if (s:^\)::) {
 #warn "close group";
@@ -2971,7 +3060,7 @@ sub _compile_rule {
       $need_or = 1;
       next;
     }
-    
+
     # Process AND 'n &&
     if (s:^AND:: || s:^\&\&::) {
       if ($invert) {
@@ -2983,7 +3072,7 @@ sub _compile_rule {
       $need_or = 0;
       next;
     }
-    
+
     # Process OR and ||
     if (s:^(OR):: || s:^(\|\|)::) {
       unless ($need_or) {
@@ -3035,7 +3124,7 @@ sub _compile_rule {
  	(\w*)                   # the variable name
  	\s*
  	(?:
- 	 (=|!=|<|>|>=|<=|==|<>) # any legal op
+ 	 (>=|<=|==|<>|=|!=|<|>) # any legal op
  	 \s*                    # possible whitespace
  	 ([^\s]+)               # the value, ends at space
  	)?                      # but maybe not "op value"
@@ -3046,9 +3135,9 @@ sub _compile_rule {
 	($var, $op, $arg) = ($1, $2, $3);
 #warn "var comparison V$var O$op A$arg";
 	$op ||= '';
-	
+
 	# Weed out bad variables, but allow some special cases
-	unless (rules_var($request, $var) || 
+	unless (rules_var($request, $var) ||
 	       ($request eq 'post' && $evars->{$var}))
 #$var =~ /(global_)?(admin_|taboo_)\w+/))
 	  {
@@ -3063,9 +3152,9 @@ sub _compile_rule {
 	  }
 	if ($need_or) {
 	  $o .= " ||";
-	}    
+	}
 	$o .= "\n    "."  "x$indent;
-	
+
 	# Do plain $var form
 	if (!$op) {
 	  if ($invert) {
@@ -3081,7 +3170,7 @@ sub _compile_rule {
 	elsif ($op eq '!=' || $op eq '=') {
 	  $op eq '!=' and $op = 'ne' and $iop = 'eq';
 	  $op eq '='  and $op = 'eq' and $iop = 'ne';
-	  
+
 	  if ($invert) {
 	    $o .= "(\$args{'$var'} $iop \"$arg\")";
 	    $invert = 0;
@@ -3105,7 +3194,7 @@ sub _compile_rule {
 	  $op eq '>'  and $iop = '<=';
 	  $op eq '==' and $iop = '!=';
 	  $op eq '<>' and $op  = '!=' and $iop = '==';
-	  
+
 	  # Do $var > arg form
 	  if ($invert) {
 	    $o .= "(\$args{'$var'} $iop $arg)";
@@ -3115,11 +3204,11 @@ sub _compile_rule {
 	    $o .= "(\$args{'$var'} $op $arg)";
 	  }
 	}
-	
+
 	$need_or = 1;
 	next;
       }
-    
+
     # Process @list, @MAIN, and @ forms
     if (s:^\@(.*?)($|[\s\)])::) {
       $arg = $1 || "MAIN";
@@ -3139,16 +3228,16 @@ sub _compile_rule {
       }
       $need_or = 1;
       next;
-    }    
-    
+    }
+
     $e .= "unknown rule element at:\n";
     $e .= "$_";
     last;
   }
-  
+
   $o .= "$ep";
   $o .= "    return [$id, '" . join("', '",(map { s/([\\\'])/\\$1/g; $_ } @{$action})) . "'];\n  }\n";
-  
+
   if ($e) {
     return (0, $e, $o);
   }

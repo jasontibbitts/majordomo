@@ -943,7 +943,7 @@ EOC
    'bounce_max_age' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(resend bounce)],
+    'groups' => [qw(bounce)],
     'local'  => 1,
     'global' => 0,
     'visible'=> 0,
@@ -952,7 +952,16 @@ EOC
    'bounce_max_count' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(resend bounce)],
+    'groups' => [qw(bounce)],
+    'local'  => 1,
+    'global' => 0,
+    'visible'=> 0,
+    'mutable'=> 1,
+   },
+   'bounce_rules' =>
+   {
+    'type'   => 'bounce_rules',
+    'groups' => [qw(bounce)],
     'local'  => 1,
     'global' => 0,
     'visible'=> 0,

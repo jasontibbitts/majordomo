@@ -132,7 +132,7 @@ sub deliver {
   my $classes = shift;
 
   my $log = new Log::In 30;
-  my(%args, $bucket, $buckets, $mta, $subdb);
+  my(%args, $bucket, $buckets, $mta, $regexp, $subdb);
 
   # Figure out some data related to bounce probing
   $mta     = $self->_site_config_get('mta');
@@ -185,7 +185,7 @@ sub probe {
 
   return unless $self->_make_list($list);
 
-  %args =
+  my %args =
     (list    => $self->{'lists'}{$list},
      sublist => '',
      sender  => $sender,
@@ -237,7 +237,7 @@ sub owner_done {
   $self->_make_list($request->{'list'});
 
   # Call bounce handling routine
-  ($handled, $user, $badaddr) = 
+  ($handled, $user, $badaddr) =
    $self->handle_bounce($request->{'list'}, $self->{'owner_file'});
 
   if (! $handled) {
@@ -273,10 +273,8 @@ use Mj::BounceParser;
 sub handle_bounce {
   my ($self, $list, $file) = @_;
   my $log  = new Log::In 30, "$list";
-
-  my (@bouncers, @owners, $addrs, $data, $diag, $ent, $fh, $handled, $handler, $i,
-      $lsender, $mess, $msgno, $nent, $parser, $sender, $source, $subj, $tmp,
-      $tmpdir, $type, $whoami);
+  my ($addrs, $data, $ent, $fh, $handled, $handler, $msgno, $parser,
+      $source, $type, $user, $whoami);
 
   $parser = new Mj::MIMEParser;
   $parser->output_dir($self->_global_config_get('tmpdir'));
@@ -290,112 +288,146 @@ sub handle_bounce {
   $whoami = $self->_global_config_get('whoami');
   $whoami =~ s/\@.*$//;
   $source = 'unknown@anonymous';
-  $addrs  = [];
 
   if (defined $ent) {
     chomp($source = $ent->head->get('from') ||
           $ent->head->get('apparently-from') || 'unknown@anonymous');
 
-  ($type, $msgno, $user, $handler, $data) =
-    Mj::BounceParser::parse($ent,
-			    $list eq 'GLOBAL'?$whoami:$list,
-			    $self->_site_config_get('mta_separator')
-			   );
+    ($type, $msgno, $user, $handler, $data) =
+      Mj::BounceParser::parse($ent,
+			      $list eq 'GLOBAL'?$whoami:$list,
+			      $self->_site_config_get('mta_separator')
+			     );
 
-  # If a token bounced
-  if ($type eq 'T') {
-    $handled = 1;
-    $self->handle_bounce_token(entity  => $ent,
-			       data    => $data,
-			       file    => $file,
-			       handler => $handler,
-			       token   => $msgno,
-			      );
-  }
-
-  # If we know we have a message
-  elsif ($type eq 'M') {
-    $handled = 1;
-
-    # Dump the body to the session file
-    $ent->print_body($self->{sessionfh});
-
-    $mess  = "Detected a bounce of message #$msgno.\n";
-    $mess .= "  (bounce type $handler)\n\n";
-
-    $sender   = $self->_list_config_get('GLOBAL', 'sender');
-    $lsender  = $self->_list_config_get($list, 'sender');
-    @owners   = @{$self->_list_config_get($list, 'owners')};
-    @bouncers = @{$self->_list_config_get($list, 'bounce_recipients')};
-    @bouncers = @owners unless @bouncers;
-
-    # If we have an address from the envelope, we can only have one and we
-    # know it's correct.  Parsing may have been able to extract a status
-    # and diagnostic, so grab them then overwrite the data hash with a new
-    # one containing just that user.  The idea is to ignore any addresses
-    # that parsing extracted but aren't relevant.
-    if ($user) {
-      if ($data->{$user}) {
-	$status = $data->{$user}{status};
-	$diag   = $data->{$user}{diag} || 'unknown';
-      }
-      else {
-	$status = 'bounce';
-	$diag   = 'unknown';
-      }
-      $data = {$user => {status => $status, diag => $diag}};
+    # If we know we have a message
+    if ($type eq 'M') {
+      $handled = 1;
+      $addrs =
+	$self->handle_bounce_message(data    => $data,
+				     entity  => $ent,
+				     file    => $file,
+				     handler => $handler,
+				     list    => $list,
+				     msgno   => $msgno,
+				     type    => $type,
+				     user    => $user,
+				    );
     }
 
-    # Now plow through the data from the parsers
-    for $i (keys %$data) {
-      $tmp = $self->handle_bounce_user($i, $list, $type, $msgno, $handler, %{$data->{$i}});
-      $mess .= $tmp if $tmp;
-
-      if ($subj) {
-	$subj .= ", $i";
-      }
-      else {
-	$subj  = "Bounce detected from $i";
-      }
-      push @$addrs, $i;
+    # If a token bounced
+    elsif ($type eq 'T') {
+      $handled = 1;
+      $self->handle_bounce_token(entity  => $ent,
+				 data    => $data,
+				 file    => $file,
+				 handler => $handler,
+				 token   => $msgno,
+				);
     }
 
-    # Build a new message which includes the explanation from the bounce
-    # parser and attach the original message.
-    $subj ||= 'Bounce detected';
-    $nent = build MIME::Entity
-      (
-       Data     => [ $mess,
-		     "The bounce message is attached below.\n\n",
-		   ],
-       -Subject => $subj,
-       -To      => $lsender,
-       -From    => $sender,
-      );
-    $nent->attach(Type        => 'message/rfc822',
-		  Description => 'Original message',
-		  Path        => $file,
-		  Filename    => undef,
-		 );
-    $self->mail_entity($sender, $nent, @bouncers);
-  }
-
-  # We couldn't parse anything useful
-  else {
-    $handled = 0;
-  }
+    # We couldn't parse anything useful
+    else {
+      $handled = 0;
+    }
   }
 
   $ent->purge if $ent;
-  $nent->purge if $nent;
 
   # Tell the caller whether or not we handled the bounce
   ($handled, $source, $addrs);
 }
 
+=head2 handle_bounce_message
+
+Deal with a bouncing message.  This involves figuring out what address is
+bouncing and if it's on the list, then running the bounce_rules code to
+figure out what to do about it.
+
+=cut
+sub handle_bounce_message {
+  my($self, %args) = @_;
+  my $log  = new Log::In 35;
+  my (@bouncers, @owners, $diag, $i, $lsender, $mess, $nent, $sender,
+      $status, $subj, $tmp);
+
+  my $data = $args{data};
+  my $list = $args{list};
+  my $user = $args{user};
+  my $addrs= [];
+
+  # Dump the body to the session file
+  $args{entity}->print_body($self->{sessionfh});
+
+  $mess  = "Detected a bounce of message #$args{msgno}.\n";
+  $mess .= "  (bounce type $args{handler})\n\n";
+
+  $sender   = $self->_list_config_get('GLOBAL', 'sender');
+  $lsender  = $self->_list_config_get($list, 'sender');
+  @owners   = @{$self->_list_config_get($list, 'owners')};
+  @bouncers = @{$self->_list_config_get($list, 'bounce_recipients')};
+  @bouncers = @owners unless @bouncers;
+
+  # If we have an address from the envelope, we can only have one and we
+  # know it's correct.  Parsing may have been able to extract a status
+  # and diagnostic, so grab them then overwrite the data hash with a new
+  # one containing just that user.  The idea is to ignore any addresses
+  # that parsing extracted but aren't relevant.
+  if ($user) {
+    if ($data->{$user}) {
+      $status = $data->{$user}{status};
+      $diag   = $data->{$user}{diag} || 'unknown';
+    }
+    else {
+      $status = 'bounce';
+      $diag   = 'unknown';
+    }
+    $data = {$user => {status => $status, diag => $diag}};
+  }
+
+  # Now plow through the data from the parsers
+  for $i (keys %$data) {
+    $tmp = $self->handle_bounce_user(%args,
+				     user => $i,
+				     %{$data->{$i}},
+				    );
+    $mess .= $tmp if $tmp;
+
+    if ($subj) {
+      $subj .= ", $i";
+    }
+    else {
+      $subj  = "Bounce detected from $i";
+    }
+    push @$addrs, $i;
+  }
+
+  # Build a new message which includes the explanation from the bounce
+  # parser and attach the original message.
+  $subj ||= 'Bounce detected';
+  $nent = build MIME::Entity
+    (
+     Data     => [ $mess,
+		   "The bounce message is attached below.\n\n",
+		 ],
+     -Subject => $subj,
+     -To      => $lsender,
+     -From    => $sender,
+    );
+  $nent->attach(Type        => 'message/rfc822',
+		Description => 'Original message',
+		Path        => $args{file},
+		Filename    => undef,
+	       );
+  $self->mail_entity($sender, $nent, @bouncers);
+
+  $nent->purge if $nent;
+  $addrs;
+}
+
 =head2 handle_bounce_token
 
-Deal with a bouncing token.
+Deal with a bouncing token.  This involves simply deleting the token, since
+it didn't get where it was going.
 
 =cut
 sub handle_bounce_token {
@@ -468,17 +500,16 @@ Does the bounce processing for a single user.  This involves:
 =cut
 sub handle_bounce_user {
   my $self   = shift;
-  my $user   = shift;
-  my $list   = shift;
-  my $type   = shift;
-  my $msgno  = shift;
-  my $parser = shift || 'unknown';
   my %args = @_;
   my $log  = new Log::In 35;
-  my ($mess, $bdata, $status, $userdata);
+  my ($mess, $bdata, $stats, $status, $userdata);
+
+  my $user   = $args{user};
+  my $list   = $args{list};
+  my $parser = shift || 'unknown';
 
   $status = $args{status};
-  $msgno = '' if $msgno eq 'unknown';
+  $args{msgno} = '' if $args{msgno} eq 'unknown';
   if ($status eq 'unknown' || $status eq 'warning' || $status eq 'failure') {
     $user = new Mj::Addr($user);
 
@@ -489,7 +520,7 @@ sub handle_bounce_user {
 
     # Add the new bounce event to the collected bounce data
     if ($list ne 'GLOBAL') {
-      $bdata = $self->{lists}{$list}->bounce_add($user, time, $type, $msgno, $args{'diag'});
+      $bdata = $self->{lists}{$list}->bounce_add($user, time, $args{type}, $args{msgno}, $args{diag});
     }
     $mess .= "  User:        $user\n";
     $mess .= "  Subscribed:  " .($bdata?'yes':'no')."\n" if $list ne 'GLOBAL';
@@ -510,7 +541,7 @@ sub handle_bounce_user {
       $mess .= "    Percentage of messages bounced: $stats->{bouncedpct}\n"
 	if $stats->{bouncedpct};
 
-      # Make triage decision
+      # Make triage decision.  Run the parsed code from bounce_rules
       if (($stats->{consecutive} && $stats->{consecutive} > 10) ||
 	  ($stats->{bouncedpct}      && $stats->{numbered} &&
 	   $stats->{bouncedpct} > 70 && $stats->{numbered} > 20))

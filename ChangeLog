@@ -1,3 +1,40 @@
+2000-08-20  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm: Strip trailing whitespace in code.
+
+	* lib/Mj/MailOut.pm (mail_message): Fix undeclared variable
+	problem.
+	Strip trailing whitespace in code.
+	(handle_bounce_user): Take all arguments in a hash.
+
+	* lib/Mj/Config.pm (parse_bounce_rules): New function to parse
+	bounce_rules variable.  Works mostly like parse_delivery_rules.
+	Strip trailing whitespace in code.
+	Hook up parse_bounce_rules function to the appropriate type.
+	(_compile_rule): Fix handling of two-character numeric
+	comparisons, which have been broken for forever.
+
+	* lib/Mj/CommandProps.pm: Add variables and actions for "_bounce"
+	fake command, for use in bounce_rules.
+	Strip trailing whitespace in code.
+
+	* bin/mj_queuerun: Strip trailing whitespace in the code.
+
+	* lib/Mj/MailOut.pm (handle_bounce): Split out 'M'-type bounce
+	processing, like we did with 'T'-type bounces.
+	(handle_bounce_message): New function to deal with bounced
+	messages.
+
+	* lib/Mj/List.pm (bounce_add): Add logging.
+
+2000-08-19  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/BounceParser.pm (parse_msn): Add parser for MSN-format
+	bounces.
+
+	* lib/Mj/Config.pm (_compile_rule): Fix broken operator comparison
+	regexp.
+
 2000-08-18  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm (_rekey):  Allow the registry
@@ -70,6 +107,12 @@
 	* lib/Mj/Token.pm (t_accept):  Acks for posted messages
 	are handled by Mj::Resend::_post.  Determine if an
 	ack was sent in this case.
+
+2000-08-12  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/mj_cf_data.pl: Add bounce_rules variable.
+
+	* lib/Mj/MailOut.pm (handle_bounce): Fix busted indentation.
 
 2000-08-10  Michael Yount <csf@moscow.com>
 

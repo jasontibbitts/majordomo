@@ -185,6 +185,7 @@ $Mj::Config::default_string = q(
  'bounce_probe_pattern' => '',
  'bounce_max_age'       => 31,
  'bounce_max_count'     => 100,
+ 'bounce_rules'         => [],
  'default_language'     => 'en',
  'quote_pattern'        => '/^( - | : | > | [a-z]+> )/xi',
  'max_header_line_length'=> 448,

@@ -100,7 +100,7 @@ sub post {
       $reasons,              # Listref containing bounce reasons
       $ok,
       $nent,
-      $mess, 
+      $mess,
       $desc,
       $c_type,
       $c_t_encoding,
@@ -108,21 +108,21 @@ sub post {
       $fileinfo,             # Info from list_file_get
       $subs,                 # Hash of substitutions
       $ack_attach,           # Should acks attach the message (fron config)
-      $spool,                # File to spool 
-      $subject,              # Header 
+      $spool,                # File to spool
+      $subject,              # Header
       $date,                 # Header
       $list,                 # Includes sublist if applicable
       $user,                 # Obtained from headers
-      $passwd, 
+      $passwd,
      );
-  my $log = new Log::In 30, "$request->{'list'}, $request->{'user'}, $request->{'file'}"; 
+  my $log = new Log::In 30, "$request->{'list'}, $request->{'user'}, $request->{'file'}";
   $tmpdir = $self->_global_config_get("tmpdir");
 
   $parser = new Mj::MIMEParser;
   $parser->output_to_core($self->_global_config_get("max_in_core"));
   $parser->output_dir($tmpdir);
   $parser->output_prefix("mjr");
-  
+
   $fh = new IO::File "<$request->{'file'}";
   $ent = $parser->read($fh);
   # If perl is configured without Config{'d_flock'}, this close call
@@ -130,7 +130,7 @@ sub post {
   # a race condition.  Do not call close() explicitly.
   # $fh->close;
 
-  # Fail gracefully: 
+  # Fail gracefully:
   if (! $ent) {
     $spool = "$tmpdir/unparsed." . Majordomo::unique();
     mv ($request->{'file'}, "$spool");
@@ -144,13 +144,13 @@ sub post {
   $::log->in(80, undef, "info", "Parsing the header");
   $head = $ent->head;
   $head->modify(0);
-  
+
   # Make a copy that we can mess with.
   $thead = $head->dup;
   $thead->decode;
   $thead->unfold;
   $::log->out;
-  
+
   # Snarf user from headers XXX Is this really the victim?  The user
   # is the one who made the command happen; that may be unset if
   # called from mj_resend but will exist if calling from the post
@@ -217,15 +217,15 @@ sub post {
 
     ($ok, $mess, $fileinfo) =
       $self->list_access_check
-	($passwd, $request->{'mode'}, $request->{'cmdline'}, $request->{'list'}, 
-     "post", $user, '', $request->{'file'}, join("\002", @$reasons), 
+	($passwd, $request->{'mode'}, $request->{'cmdline'}, $request->{'list'},
+     "post", $user, '', $request->{'file'}, join("\002", @$reasons),
      join("\002", %$avars), %$avars);
   }
 
   $owner = $self->_list_config_get($request->{'list'}, 'sender');
   if ($ok > 0) {
-    return $self->_post($request->{'list'}, $user, $user, $request->{'mode'}, 
-            $request->{'cmdline'}, $request->{'file'}, '', 
+    return $self->_post($request->{'list'}, $user, $user, $request->{'mode'},
+            $request->{'cmdline'}, $request->{'file'}, '',
             join("\002", %$avars), $ent);
   }
 
@@ -260,7 +260,7 @@ sub post {
   # If we got an empty return message, this is a signal not to ack anything
   # and so we just return;
   $rtnhdr = $user->full;
-  return ($ok, $rtnhdr) 
+  return ($ok, $rtnhdr)
     unless defined $mess && length $mess;
 
   # Otherwise, decide what to ack, based on the user's flags
@@ -371,19 +371,19 @@ sub _post {
      $replyto, $rtnhdr, $sender, $seqno, $subject, $sl, $subs, 
      $tmp, $tmpdir, $tprefix, $whereami);
 
-  return (0, "Unable to access list $list.\n") 
+  return (0, "Unable to access list $list.\n")
     unless $self->_make_list($list);
   $tmpdir   = $self->_global_config_get('tmpdir');
   $whereami = $self->_global_config_get('whereami');
   $sender   = $self->_list_config_get($list, "sender");
-  
+
   %avars = split("\002", $avars);
   # Is the message being sent to a sublist?
   if ($avars{'sublist'} ne '') {
     unless ($sl = $self->{'lists'}{$list}->valid_aux($avars{'sublist'})) {
-      $self->inform($list, "post", $user, $victim, $cmdline, "resend", 
-        0, 0, -1, "Unknown auxiliary list \"$avars{'sublist'}\"."); 
-      return (0, "Unknown auxiliary list \"$avars{'sublist'}\"."); 
+      $self->inform($list, "post", $user, $victim, $cmdline, "resend",
+        0, 0, -1, "Unknown auxiliary list \"$avars{'sublist'}\".");
+      return (0, "Unknown auxiliary list \"$avars{'sublist'}\".");
     }
   }
   else { $sl = ''; }
@@ -414,8 +414,8 @@ sub _post {
     if (!open SPOOL, "<$file") {
       # The spool file, containing the message to be posted, is missing.
       # Inform the site owner, and return.
-      $self->inform("GLOBAL", "post", $user, $victim, $cmdline, "resend", 
-        0, 0, -1, "Spool file $file is missing; unable to post message."); 
+      $self->inform("GLOBAL", "post", $user, $victim, $cmdline, "resend",
+        0, 0, -1, "Spool file $file is missing; unable to post message.");
       return (0, "The message was not delivered, due to a malfunction.\n");
     }
     my $mime_parser = new Mj::MIMEParser;
@@ -437,7 +437,7 @@ sub _post {
   $archead->modify(0);
 
   # Convert/drop MIME parts.  Bill?
-  
+
   # Remove skippable headers, including Approved:.
   @skip = ('Approved');
   push @skip, $self->_list_config_get($list, 'delete_headers');
@@ -468,7 +468,7 @@ sub _post {
   $subject =~ /(.*)/; $subject = $1;
   # Convert the message date into a time value.
   # Use the last Received header, or the Date header.
-  $date = (split /\s*;\s*/, ($arcent->head->get('received'))[-1])[-1] 
+  $date = (split /\s*;\s*/, ($arcent->head->get('received'))[-1])[-1]
           || $arcent->head->get('date');
   chomp $date;
   $date = &str2time($date);
@@ -600,7 +600,7 @@ sub _post {
     $self->deliver($list, $sl, $sender, $seqno, \%deliveries);
 
     # Inform sender of successful delivery
-    
+
     # Clean up and say goodbye
     for $i (keys %deliveries) {
       unlink $deliveries{$i}{file}
@@ -653,8 +653,8 @@ sub _post {
   # We're done with the file by this point, so we should remove it.
   # This step must be done last: if _post is called by Mj::Token::t_accept,
   # and the program aborts between the deletion of the file
-  # and the removal of the token, we will have a request in the 
-  # queue for a token with no associated spool file. 
+  # and the removal of the token, we will have a request in the
+  # queue for a token with no associated spool file.
   unlink $file;
 
   (1, $rtnhdr);
@@ -665,7 +665,7 @@ sub _post {
 This takes a ref to a MIME::Entity and checks to see if it is approved by
 one of several methods:
 
-  In header 
+  In header
   First line of preamble
   First line of first part
   First line of body
@@ -673,7 +673,7 @@ one of several methods:
 
 Head should be a copy of the message header, already decoded and unfolded.
 
-Return flag, password, token. 
+Return flag, password, token.
 
 The password is validated and the token unspooled if they are given.
 
@@ -702,7 +702,7 @@ sub _check_approval {
     chomp $line;
     ($passwd, $token) = split('\s*,\s*', $line);
   }
-  
+
   # Check that we have a preamble and that it contains something that
   # looks like Approved: password, token in the first few lines
   elsif ($pre) {
@@ -722,8 +722,8 @@ sub _check_approval {
       last if $part->bodyhandle;
       $part = $part->parts(0);
     }
-   
-    return unless $part->bodyhandle; 
+
+    return unless $part->bodyhandle;
     # Check in first few of lines of that entity; skip blank lines but
     # stop as soon as we see any text
     $fh = $part->bodyhandle->open('r');
@@ -735,7 +735,7 @@ sub _check_approval {
       ($passwd, $token) = ($1, $2);
     }
   }
-  
+
   # Now check validity of the password and existance of the token if
   # provided; unspool the token if it exists.  (If it doesn't, just
   # ignore it.  The password must be good, though.)
@@ -743,7 +743,7 @@ sub _check_approval {
     return
       unless $self->validate_passwd($user, $passwd, $list, 'post') > 0;
   }
-  
+
   if ($token) {
     $token = undef unless $self->t_remove($token);
   }
@@ -776,7 +776,7 @@ sub _check_poster {
   }
 
   # Extract subscribe date
-  $avars->{days_since_subscribe} 
+  $avars->{days_since_subscribe}
     = (time - $data->{subtime})/86400;
 }
 
@@ -793,7 +793,7 @@ sub _check_header {
   my $avars   = shift;
   my $log     = new Log::In 40;
   my ($data, $id, $maxhdrl, $maxthdr, $msg);
-  
+
   $self->_make_list($list);
 
   # Check for duplicate message ID
@@ -823,7 +823,7 @@ sub _check_header {
     push @$reasons, "The header is too large ($avars->{total_header_length} > $maxthdr)";
     $avars->{total_header_length_exceeded} = 1;
   }
-  
+
   # Run user-supplied procedures to check the headers.
 }
 
@@ -842,7 +842,7 @@ sub _check_body {
   my $reasons = shift;
   my $avars   = shift;
   my $log     = new Log::In 150;
-  my (@inv, $class, $data, $i, $inv, $j, $l, $max, $maxbody, $maxlen, 
+  my (@inv, $class, $data, $i, $inv, $j, $l, $max, $maxbody, $maxlen,
       $mcode, $qreg, $rule, $safe, $sev, $tcode, $var);
   $inv = {}; $mcode = {}; $tcode = {};
 
@@ -879,7 +879,7 @@ sub _check_body {
 
   # Recursively check the body
   $avars->{'mime_header_length'} = 0;
-  $self->_r_ck_body($list, $ent, $reasons, $avars, $safe, $qreg, $mcode, 
+  $self->_r_ck_body($list, $ent, $reasons, $avars, $safe, $qreg, $mcode,
             $tcode, $inv, $max, , $maxlen, 'toplevel', 1);
 
   $maxbody = $self->_list_config_get($list, 'maxlength');
@@ -943,8 +943,8 @@ sub _r_ck_body {
     }
 
     # Update checksum counters
-    if ($first) {$sum1->add($text); $sum2->add($text) if $line <= 10;}    
-    
+    if ($first) {$sum1->add($text); $sum2->add($text) if $line <= 10;}
+
     # Calculate a few message metrics
     $avars->{lines}++;
     $avars->{body_length} += length($text);
@@ -957,7 +957,7 @@ sub _r_ck_body {
   $avars->{percent_quoted} =
     int(100*($avars->{quoted_lines} / $avars->{lines}));
   # Untaint
-  $avars->{body_length} =~ /(\d+)/; 
+  $avars->{body_length} =~ /(\d+)/;
   $avars->{body_length} = $1;
 
   if ($first) {
@@ -1018,14 +1018,14 @@ sub _ck_theader {
   $safe->share('$text');
   $avars->{total_header_length} = 0;
   $avars->{max_header_length}   = 0;
-  
+
   # Process the header; mega-nesting!  Iterate over each tag present in the
   # header.
   for $i ($head->tags) {
-    
+
     # Skip the mailbox separator, if we get one
     next if $i eq 'From ';
-    
+
     # Grab all of the occurrences of that tag and iterate over them
     for $j ($head->get($i)) {
       chomp $j;
@@ -1039,14 +1039,14 @@ sub _ck_theader {
       # Now run all of the taboo codes
       for $k ('GLOBAL', $list) {
 	for $l ('admin_headers', 'taboo_headers') {
-	  
+
 	  # Eval the code
 	  @matches = $safe->reval($code->{$l}{$k});
 	  warn $@ if $@;
-	  
+
 	  # Run over the matches that resulted
 	  while (($rule, $match, $sev, $class, $inv) = splice(@matches, 0, 5)) {
-	    
+
 	    # An inverted match; remove it from the list
 	    if ($inv) {
 	      delete $inv{"$k\t$l\t$rule\t$sev\t$class"};
@@ -1060,9 +1060,9 @@ sub _ck_theader {
       }
     }
     # Untaint
-    $avars->{total_header_length} =~ /(\d+)/; 
+    $avars->{total_header_length} =~ /(\d+)/;
     $avars->{total_header_length} = $1;
-    $avars->{max_header_length} =~ /(\d+)/; 
+    $avars->{max_header_length} =~ /(\d+)/;
     $avars->{max_header_length} = $1;
   }
   # Now complain about missed inverted matches
@@ -1093,13 +1093,13 @@ sub _ck_tbody_line {
 
   # Share some variables with the compartment
   $safe->share(qw($text $line));
-  
+
   for $i ('GLOBAL', $list) {
     for $j ('admin_body', 'taboo_body') {
       # Eval the code
       @matches = $safe->reval($code->{$i}{$j});
       warn $@ if $@;
-      
+
       # Run over the matches that resulted
       while (($rule, $match, $sev, $class, $invert) = splice(@matches, 0, 5)) {
 	# An inverted match; remove it from the list
@@ -1150,7 +1150,7 @@ sub _check_mime {
     $avars->{mime_deny} = 1;
     $avars->{mime} = 1;
     $log->out('deny');
-  }    
+  }
 
   # Unless we're parsing the top level (where we've already checked the
   # header closely), extract and unfold the MIME headers, then check for
@@ -1163,7 +1163,7 @@ sub _check_mime {
     for my $i ($head->tags) {
       for my $j ($head->get($i)) {
         $len = length($i)+length($j)+2;
-        $avars->{mime_header_length} = $len 
+        $avars->{mime_header_length} = $len
           if ($len > $avars->{mime_header_length});
         if ($len > $maxlen) {
           push(@$reasons,
@@ -1175,7 +1175,7 @@ sub _check_mime {
     }
     # Untaint
     $avars->{mime_header_length} =~ /(\d+)/;
-    $avars->{mime_header_length} = $1;      
+    $avars->{mime_header_length} = $1;
   }
 }
 
@@ -1200,7 +1200,7 @@ sub _describe_taboo {
   # Make sure messages are pretty
   $match =~ s/\s+$// if defined $match;
 
-  # Remove ^A characters, the token database field separator. 
+  # Remove ^A characters, the token database field separator.
   $match =~ s/\001//g if defined $match;
 
   # Chomp the match down to something manageable, so we don't get hideously
@@ -1240,7 +1240,7 @@ sub _describe_taboo {
       $reason = uc($type) . ": $rule matched \"$match\"$trunc";
     }
     push @$reasons, $reason;
-    
+
     # Bump the combined match variables
     if ($admin) {
       $avars->{admin} += $sev;
@@ -1306,7 +1306,7 @@ sub _trim_approved {
       last if $$pre[$i] =~ /\S/;
     }
   }
-  
+
   # Now check the body; if multipart:
   $part = $oent->parts(0);
   if ($part) {
@@ -1331,7 +1331,7 @@ sub _trim_approved {
 	    $parser->output_prefix('mjr');
 	    $nent = $parser->read($nfh);
 	    $oent->purge;
-	    return $nent;	  
+	    return $nent;
 	  }
 	# Otherwise make a new body and copy everything after the approved
 	# line into it, set part 0's body to the new value, and return.
@@ -1360,7 +1360,7 @@ sub _trim_approved {
 	# Found it; save the file position and read one more line.
 	$pos = $ofh->tell;
 	$line = $ofh->getline;
-	
+
 	# If it's blank, make a new body and copy everything after the
 	# blank into it, replace the old body with the new one and return
 	# the entity.
@@ -1385,7 +1385,7 @@ sub _trim_approved {
 	$parser->output_prefix('mjr');
 	$nent =  $parser->read($ofh);
 	$oent->purge;
-	return $nent;	  
+	return $nent;
       }
     }
   }
@@ -1742,7 +1742,7 @@ sub do_digests {
 	  );
 
 	# Unlink the temporaries.
-	unlink @nuke;	
+	unlink @nuke;
 
 	for $j (@dtypes) {
 	  # shifting off an element of @dfiles gives the corresponding digest
@@ -1751,8 +1751,8 @@ sub do_digests {
 						  };
 	}
     # XXX The status and password values (1, 0) may be inaccurate.
-	$self->inform($list, "digest", 'unknown@anonymous', 'unknown@anonymous', 
-                  "digest $list $i", "resend", 1, 0, 0); 
+	$self->inform($list, "digest", 'unknown@anonymous', 'unknown@anonymous',
+                  "digest $list $i", "resend", 1, 0, 0);
       }
     }
   }
