@@ -1,0 +1,35 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL priority = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+configset listname priority = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : 10
+Data Type     : integer
+Category      : miscellany
+Password Notes: The site master password is required to change the value.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset listname priority = 15
+
+$INCLUDE-config/priority
+
+This setting is only meaningful if message queueing is in use, and if
+qmail is not the message transport agent.
+
+Incoming mail is processed by the mj_enqueue program.  mj_enqueue has
+two command options, '-P' and '-p', which are used to determine the
+priority given to the domain and mailing list to which the message is
+delivered.  If these options are not used, mj_enqueue uses a default
+value of 10.  Higher numbers mean faster service, and higher-numbered
+domains will always receive faster service than lower-numbered domains,
+regardless of the priority of lists within each domain.
+
+Changes to this setting will not take effect until the createlist-regen
+command has been run to regenerate the mail aliases.
+
+See Also:
+   help admin_domain
+   help createlist
+
+$INCLUDE-help/foot

@@ -1,14 +1,5 @@
 <!-- Majordomo lists_none format file -->
-<h2>Error: $ERROR</h2>
-If you received an "Invalid password" error, here are
-the possible causes:
-<ul>
-<li>The address in the <b>address</b> box is not registered at this site.
-<li>The password in the <b>password</b> box is incorrect.
-</ul>
-A password is necessary if you wish to use the <b>show, set,</b>
-or <b>unsubscribe</b> command.
-<p>
-A password is probably not necessary if you wish to use the <b>subscribe,
-faq, help, info, intro, lists</b>, or <b>welcome</b> command.
-
+<big>
+No lists were found
+that matched the pattern &quot;?PATTERN&quot;
+</big>

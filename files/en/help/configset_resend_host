@@ -1,18 +1,23 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL resend_host = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset listname resend_host = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : 
+Default Value : $WHEREAMI
 Data Type     : word
 Category      : deliver
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname resend_host = nowhere.org
+configset listname resend_host = example.org
 
+$INCLUDE-config/resend_host
 
-The host name that is appended to all address strings specified for
-resend.
+See Also:
+   help admin_delivery
+   help configset_delivery_rules
+   help configset_whereami
 
 For a list of all help topics send this one-line message
    help topics

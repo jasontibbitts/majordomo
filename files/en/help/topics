@@ -155,6 +155,7 @@ These help files describe configuration settings:
    help configset_noadvertise
    help configset_owners
    help configset_passwords
+   help configset_priority
    help configset_sender
    help configset_set_policy
    help configset_taboo_body
@@ -177,6 +178,7 @@ These help files describe configuration settings:
    help configset_allowed_classes
    help configset_allowed_flags
    help configset_archive_access
+   help configset_archive_date
    help configset_archive_dir
    help configset_archive_size
    help configset_archive_split

@@ -1,5 +1,6 @@
 <!-- Majordomo archive_error format file -->
-<p>
+<pre>
 No messages were retrieved from the archive for the $LIST list.
-<p>
+
 $ERROR
+</pre>

@@ -1,7 +1,7 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-default variable value
+default variable [value]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-variable, required, must be "delay", "list", "password", or "user"
+variable, required, is one of delay, display, list, password, user
 value, if specified, is the string to be used in following commands
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -14,7 +14,7 @@ more "default" helps you. It is most often used by list owners and
 administrators, but can also be used by subscribers.
 
 This is not a general variable mechanism; it only works for the 
-four variables described in the next section.  If the value is omitted, 
+five variables described in the next section.  If the value is omitted, 
 the default setting is removed.  This allows you to set one of the
 four variables for some commands but not for others.
 
@@ -37,6 +37,10 @@ Section 3: default password STRING
 
 Section 4: default user ADDRESS
    Replaces the address found in the "From:" field of your email headers.
+
+Section 5: default display PROGRAM
+   The default display command is used in the mj_shell program to 
+   make the results easier to read.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -158,6 +162,43 @@ or:
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+Section 5: default display pager
+           default display editor
+
+In the mj_shell program, when you type a command, sometimes the results
+occupy more than one page on your screen.  The default display command
+makes the results easier to read.  There are two programs supported,
+pager and editor.
+
+The pager program, usually "more" or "less," is taken from the PAGER 
+environment variable.  After you finish reading the output and quit
+the pager, you will return to the mj_shell command line and have
+the opportunity to type more commands.
+
+The editor program, such as "emacs," "vi," or "pico," is taken from
+the EDITOR or VISUAL environment variable.  After you finish editing
+the output of the commands, the mj_shell program will read the edited
+output and attempt to issue any commands it contains.  For example,
+if you would like to remove some addresses that have been experiencing
+delivery failures, you could use these two commands:
+
+  default display editor
+  who-bounces LISTNAME
+
+where LISTNAME is the name of your mailing list.  With the editor, 
+you could then add unsubscribe commands to the output and remove
+several addresses at once.
+
+To turn off the editor or pager feature, use this command:
+
+  default display
+
+If the mj_shell program is run with the "-P" option, the pager will
+be turned on immediately.
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 See Also:
    help accept     (which may be required if default is not used)
    help admin_passwords (to learn how administrative passwords are used)
@@ -166,9 +207,8 @@ See Also:
    help configset_triggers (determines when postponed requests are completed)
    help changeaddr (for how to replace one address with another)
    help delay      (for an overview of how to postpone requests)
+   help mj_shell
    help password   (which changes an individual's password)
    help set        (for how to change some or all subscriptions)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

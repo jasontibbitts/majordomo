@@ -1,2 +1,3 @@
-The host name that is appended to all address strings specified for
-resend.
+The resend host name is substituted for the HOST variable in the
+reply_to, message_headers, and other configuration settings.  See
+"help variables" for an introduction to substitution variables.

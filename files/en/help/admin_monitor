@@ -19,12 +19,10 @@ for an introduction to configuration settings).  By default, notices
 of all successful subscribe and unsubscribe commands are sent to the
 list owners.  Also, whenever a subscriber disallows a request with
 the reject command, a notice is sent.  To stop receiving all of these 
-notices, use the following command:
+notices, use the following command to change the inform setting to
+an empty value:
 
 configset LISTNAME inform <<ABC
-subscribe | all | ignore
-unsubscribe | all | ignore
-reject | all | ignore
 ABC
 
 If you are receiving notices about unsubscriptions, you might want to

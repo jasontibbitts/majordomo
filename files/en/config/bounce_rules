@@ -1,3 +1,5 @@
-Currently bounce_rules is very simple. It has a syntax much like access_rules,
-but without the first line specifying the request list, so each rule is just a
-line with actions and several lines of conditionals; a blank line separates rules.
+The bounce_rules setting determines how error messages due to delivery 
+failures should be processed.  Each rule consists of at least two lines.  
+On the first line are one or more actions, separated by commas.  On the 
+second and succeeding lines are conditions under which the actions occur.  
+Blank lines are used to separate rules.

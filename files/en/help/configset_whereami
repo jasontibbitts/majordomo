@@ -1,35 +1,45 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset  GLOBAL  whereami = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : [defined during installation]
+Default Value : $DOMAIN
 Data Type     : word
 Category      : miscellany
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset GLOBAL whereami = nowhere.org
+configset GLOBAL whereami = example.org
 
 
-What machine is Majordomo running on? This is the server domain,
-as opposed to a full address for the server.
+$INCLUDE-config/whereami
 
-The "whereami" configuration applies only to the GLOBAL pseudo-list.
-You should set "whereami" to be the domain of the server, such as
-"wherever.com" if you want users to send posts to addresses like
-"listname@wherever.com".
+Other configuration settings (bounce_recipients, moderator, moderators, 
+owners, sender, whoami, whoami_owner) may contain e-mail addresses
+without domain names, for example:
+ 
+  configset mylist whoami = mylist
 
-In some cases email addresses can be fully qualified. The "whereami"
-setting supplies domains when only a partial address is specified.
+In this case, the contents of the whereami setting will be appended to
+the e-mail address automatically.
+
+The value of this setting is used in the EHLO/HELO command during conversations
+between Majordomo and the message transport agent.
+
+The whereami setting is also substituted for the \$WHEREAMI variable wherever
+substitutions are used.  See "help variables" for more details.
 
 
 See Also:
-   help configset reply_to
-   help configset resend_host
-   help configset sender
-   help configset whoami
-   help configset whoami_owner
+   help admin_domain
+   help configset_bounce_recipients
+   help configset_moderator
+   help configset_moderators
+   help configset_owners
+   help configset_reply_to
+   help configset_resend_host
+   help configset_sender
+   help configset_whoami
+   help configset_whoami_owner
+   help variables
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

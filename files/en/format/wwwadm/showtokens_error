@@ -1,2 +1,5 @@
 <!-- Majordomo showtokens_error format file -->
-<p>Showtokens error:  $ERROR
+<pre>
+Showtokens error:  
+$ERROR
+</pre>

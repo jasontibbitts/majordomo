@@ -124,10 +124,9 @@ which is the same as the special string
 
 
 See Also:
+   help alias
+   help configset_access_rules (for how to trap or match specific addresses)
    help patterns (for details of regular expressions and replacement strings)
    help rekey    (must clean up the internal database after new transforms)
-   help configset access_rules (for how to trap or match specific addresses)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

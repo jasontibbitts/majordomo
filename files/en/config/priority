@@ -1,0 +1,3 @@
+The priority setting affects which domains and lists receive service first
+when incoming messages are queued.  The higher the number, the faster a
+domain or list is processed.

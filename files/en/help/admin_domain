@@ -99,10 +99,33 @@ the following help pages are recommended:
    help createlist
    help admin_config
 
+Domains do not have to be valid Internet domain names.  Like valid domain names,
+they must contain only letters, digits, hyphen, or period.  However, within 
+those limits, you can call domains anything you like.  This feature can be used 
+to segregate lists that fall within the same domain.  For example, you could 
+have five lists on the same host divided into two domains, "rodent" and "tree":
+
+  rodent
+  ------
+  mouse@example.com
+  squirrel@example.com
+
+  tree
+  ----
+  maple@example.com
+  oak@example.com
+  magnolia@example.com
+
+Make certain that the whereami setting for each list is set to the actual 
+internet domain name, for example:
+
+  configset GLOBAL whereami = example.com
+
 
 See Also:
    help accept
    help admin
+   help admin_commands
    help alias
    help announce
    help auxiliary_list
@@ -113,6 +136,7 @@ See Also:
    help configset_admin_headers
    help configset_taboo_body
    help configset_taboo_headers
+   help configset_whereami
    help createlist
    help password
    help register

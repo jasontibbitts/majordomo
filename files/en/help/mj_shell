@@ -9,11 +9,13 @@ BEWARE: Using the "-p" option to specify a password will make your
 password visible to other shell users, who can issue a command like
 "ps -ax" to see your full command line.
 
-The text which follows is simply a copy of the man page:
+The text which follows is simply a copy of the documentation from
+the program:
 
 ------------------------------------------------------------------------
 
-% man mj_shell
+% pod2text bin/mj_shell
+
 
 NAME
     mj_shell - Majordomo command line interface
@@ -32,7 +34,7 @@ DESCRIPTION
 
     mj_shell also provides a convenient 'configedit' command that opens an
     editor on a set of config variables and allows them to be edited
-    directly.  Similarly, the 'get-edit' command will start a text editor
+    directly. Similarly, the 'get-edit' command will start a text editor
     program to allow a file to be edited and replaced easily.
 
     If called without a command file, mj_shell will enter an interactive
@@ -50,7 +52,6 @@ DESCRIPTION
     For a list of supported commands, execute
 
       mj_shell help topics
-      mj_shell help admin_commands
 
   Passwords
 
@@ -255,6 +256,11 @@ DESCRIPTION
         tags, so in the Nynorsk example above, plain Norwegian would not be
         returned unless it was listed as an additional preference.
 
+    -P  Use a pager to display the results. It is also possible to achieve
+        this effect in interactive mode with the following command:
+
+          default display pager
+
     -p *password*
         Specifies a password that a command will be run with, or the default
         password for commands run by the text parser.
@@ -318,6 +324,7 @@ See Also:
    help admin_commands
    help configset
    help configshow
+   help default
    
 For a list of all help topics send this one-line message
    help topics

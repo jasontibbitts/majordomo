@@ -1,2 +1,4 @@
-What machine is Majordomo running on? This is the server domain,
-as opposed to a full address for the server.
+The whereami configuration setting should contain the fully-qualified domain 
+name of the server, such as "myhost.example.com" if you want users to send 
+posts to addresses like "LISTNAME@myhost.example.com".  This setting
+applies to the GLOBAL pseudo-list only.

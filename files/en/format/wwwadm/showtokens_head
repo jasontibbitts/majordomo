@@ -1,7 +1,8 @@
 <!-- Majordomo showtokens_head format file -->
+Choose one or more requests from the following list by pressing
+the checkbox to the left of each request, press one of the
+five buttons.
 <ul>
-  <li>Choose one or more requests from the following list by pressing
-      the checkbox on the left.
   <li>Press <b>tokeninfo-full</b> to display a summary of each chosen request,
       including the bodies of any <b>post</b>ed messages.
   <li>Press <b>tokeninfo</b> to display a summary of each chosen request.

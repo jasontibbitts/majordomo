@@ -37,6 +37,12 @@
 
 </table>
 
+Your reasons for $HELP:ACCEPTing or $HELP:REJECTing the request:<br>
+
+  <textarea rows=3 cols=70 name=xplanation>
+  </textarea>
+
+
   <input type=hidden name="d" value="$DOMAIN">
 </form>
 
