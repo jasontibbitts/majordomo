@@ -1,5 +1,18 @@
 Notes on upgrading from alpha1 or before:
 
+2000.08.28 (CVS):
+
+Due to the addition of the "triggers" configuration setting, only
+the hourly trigger needs to be run by cron.  If the daily trigger cron job
+continues to run, the daily triggers will be invoked twice every morning 
+instead of once.
+
+2000.07.25 (CVS):
+
+Auxiliary lists now use the SubscriberList module instead of the
+AddressList module to store addresses.  To bring old auxiliary
+lists up to date, run the rekey command.
+
 1999.07.17 (CVS):
 
 BerkeleyDB databases accessed through DB_File are now supported.  The
