@@ -5,7 +5,7 @@ BEGIN {
   $::DEFDOM = 'unset';
   $::TMPDIR = 'unset';
   $::UMASK  = "007";
-  $SIG{__WARN__} = sub {print "--== $_[0]"};
+  $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 
   # Redirect standard error output.
   if (! -t STDERR) {

@@ -330,13 +330,19 @@ current and calling the appropriate function to bring it in.
 sub load {  # XXX unfinished
   my $self = shift;
   my $log  = new Log::In 150, "$self->{'list'}";
-  my ($file, $key, $mtime, $oldfile, $old_more_recent);
+  my ($file, $key, $oldfile, $old_more_recent);
 
   # Look up the filenames 
   $file = $self->_filename;
   $oldfile = $self->_filename_old;
 
-  $mtime = (stat($file))[9] if -r $file;
+  # We want to make sure that the on-disk file is not more recent than when
+  # we last looked at it.  So we store the time when we last looked.  Later
+  # we will compare the on-disk timestamp with this one and reload if the
+  # on-disk one is newer or the same age.  We don't store the actual
+  # on-disk time here because if the file doesn't change, we will waste
+  # time reloading it later.
+  $self->{mtime} = time;
 
   # Clobber existing values (just in case) then pull in the defaults.  We
   # have to do the defaults now because we will allow the new style config
@@ -350,25 +356,22 @@ sub load {  # XXX unfinished
   # one doesn't or it's been modified more recently than the old one was.
   $old_more_recent =
     -r $oldfile &&
-      (!$mtime ||
-       (stat($oldfile))[9] > $mtime);
+      (! -r $file ||
+       (stat($oldfile))[9] >= (stat($file))[9]);
   
   if ($old_more_recent) {
     $self->_load_old;
     $self->_save_new;
-    $mtime = (stat($file))[9];
   }
-  elsif ($mtime) {
+  elsif (-r $file) {
     $self->_load_new;
   }
   else {
     # Create the file, just because.
     $self->_save_new;
-    $mtime = (stat($file))[9];
   }
 
   $self->{loaded} = 1;
-  $self->{mtime}  = $mtime;
   1;
 }
 
@@ -698,9 +701,9 @@ is only refreshed after set is called.  Instead, make the lock implicitly,
 then calculate the new value.
 
 unlock just saves the file and commits if dirty, else it abandons any
-changes.  (This avoids hosing the mtime if we don''t change anything.)  It
-is not harmful to unlock when not locked and indeed the DESTROY function
-does an implicit unlock.
+changes.  (This avoids hosing the mtime of the on-disk file if we don''t
+change anything.)  It is not harmful to unlock when not locked and indeed
+the DESTROY function does an implicit unlock.
 
 _These only work on new-style config files_.  Old-style files must be
 explicitly loaded (and thus autoconverted) first.
@@ -718,9 +721,13 @@ sub lock {
   $self->{fh} = new Mj::FileRepl $name;
 
   # Load the file if necessary
-  if ($self->{mtime} < (stat($name))[9]) {
+  if ($self->{mtime} <= (stat($name))[9]) {
+    $log->message(150, 'info', 'reloading');
     delete $self->{data};
-    $self->{data} = do $name;
+    $self->{mtime} = time;
+    $self->{data}  = do $name;
+    $self->_defaults unless $self->{'defaults'};
+    $self->{loaded} = 1;
   }
   
   # Note that we are locked
@@ -734,6 +741,7 @@ sub unlock {
   # Bail if not locked.
   return unless $self->{locked};
 
+  $self->{mtime} = time;
   if ($self->{dirty}) {
     # Save (print out) the file and commit
     $self->{fh}->print(Dumper $self->{'data'});
@@ -1067,7 +1075,8 @@ code to determine the default values in the current context.
 sub _defaults {
   my $self = shift;
   local($list) = $self->{'list'};
-  
+  my $log = new Log::In 250, "$list";
+
   $::log->in(170, $list);
   $self->{'defaulting'} = 1;
 

@@ -322,7 +322,7 @@ sub consult {
   $sender = $self->_list_config_get($list, "sender");
   $mj_addr  = $self->_global_config_get("whoami");
   $mj_owner = $self->_global_config_get("whoami_owner");
-  $url = $self->_list_config_get($list, "confirm_url");
+  $url = $self->_global_config_get("confirm_url");
   $url = $self->substitute_vars_string($url,
 				       'TOKEN' => $token,
 				      );

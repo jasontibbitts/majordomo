@@ -17,14 +17,14 @@ have not been listed; please inform majordomo-workers (see below) of these.
 
 the libnet package, including Net::Domain.
 the MIME-tools package (version 4.116), including MIME::Parser and
-  MIME::Entity, but see below.
+  MIME::Entity, but see below for a necessary patch.
 the MailTools package (version 1.11), including Mail::Header and
   Mail::Internet.
+the TimeDate package (version 1.08), including Date::Format.
 Data::Dumper version 2.07
 MD5 version 1.7
 MIME::Base64 version 2.0
 Date::Manip version 5.1
-Date::Format
 
 The Time::HiRes module is recommended if you want to generate accurate
 timings, but is not required.

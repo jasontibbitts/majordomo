@@ -252,16 +252,19 @@ sub get_message {
   my $self = shift;
   my $msg  = shift;
   my $log = new Log::In 150, "$msg";
-  my ($file);
+  my ($cache, $file);
 
   # Figure out appropriate index file
   ($file) = $msg =~ /(.*)\.(.*)/;
   $idx = "$self->{dir}/.I$file";
 
   # If cached data, look at end to see if what we want is contained within.
-  # If so, binary search for it.
-  if (@{$self->{icache}{$file}}) {
-  }    
+  $cache = $self->{icache}{$file};
+  if (@$cache && _msgnum($msg) < $cache->[$#{$cache}]{msgnum}) {
+
+    # If so, binary search for it.
+    
+  }
   # Otherwise, open index file, seek to where we left off (if we've looked
   # here before, iterate until we hit the right message number, pushing
   # data into cache.
@@ -347,6 +350,18 @@ sub count_name {
 
   # Look up archive dir, tack on with .C
 
+}
+
+=head2 _msgnum 
+
+Extracts the message number within an archive from the full message
+identifier.
+
+=cut
+sub _msgnum {
+  my $a = shift;
+  $a =~ /(.*)\.(.*)/;
+  $2;
 }
 
 

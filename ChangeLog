@@ -1,3 +1,18 @@
+Thu Apr 30 01:48:04 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Deliver/Dest.pm (sendenvelope): Sleep for an additional
+ 	random number of seconds.
+
+	* lib/Mj/Config.pm (get): Save current time instead of on-disk
+ 	time as config timestamp.
+	(lock): Reload the file even if the times are identical.  Since
+ 	the saved time is generally some time after the actual on-disk
+ 	time, this doesn't cause unnecessary reloads and closes a race
+ 	condition.
+
+	* bin/mj_confirm: Direct warnings to STDERR instead of STDOUT,
+ 	where they get in the way of the HTML.
+
 Tue Apr 28 18:28:26 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* postinstall (suggest_mta): Beautify output somewhat.
