@@ -549,6 +549,7 @@ sub list_access_check {
   $args{'master_password'} = 0;
   $args{'user_password'}   = 0;
   $args{'delay'}           = 0;
+  $args{'interface'}       = $self->{'interface'};
   $args{'sublist'}         = $sublist;
 
   if ($passwd) {
@@ -585,9 +586,10 @@ sub list_access_check {
     $password_override = 
       $self->_list_config_get($list, "access_password_override");
   
+    $args{'delay'} = $data->{'delay'};
     # Return some huge value, because this value is also used as a count
     # for some routines.  If a delay was used, delay the command.
-    # If "rule" mode was used, do not override the 
+    # If "rule" mode was used, do not override the access rules.
     if ($password_override and $mode !~ /rule/) {
       if ($data->{'delay'} > 0) {
         @final_actions = ('delay');
@@ -595,7 +597,6 @@ sub list_access_check {
       }
       return $self->_a_allow(2**30);
     }
-    $args{'delay'} = $data->{'delay'};
   }
 
   $access = $self->_list_config_get($list, 'access_rules');
