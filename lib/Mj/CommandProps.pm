@@ -183,8 +183,8 @@ my %commands =
                    'iter' => 1, 
                    'noaddr' => 1,
                    'modes' => {
-			       'm'           => 1,
-			       'nobounce'    => 1,
+			       'm'        => 1,
+			       'nobounce' => 1,
 			      },
                   },
    },
@@ -223,12 +223,16 @@ my %commands =
    'access' =>
    {
     'access'   => {
-                   'default' => 'allow',
-                   'legal'   =>\%reg_legal,
+                   'default' => 'special',
+                   'legal'   => {
+                                 %reg_legal,
+                                 'block' => 'integer',
+                                },
                    'actions' =>{
                                 'allow'     =>1,
                                 'deny'      =>1,
                                 'mailfile'  =>1,
+                                'reason'    =>1,
                                 'reply'     =>1,
                                 'replyfile' =>1,
                               },
@@ -243,6 +247,7 @@ my %commands =
                                  'allow'   =>1,
                                  'deny'    =>1,
                                  'mailfile'=>1,
+                                 'reason'  =>1,
                                 },
                   },
    },
