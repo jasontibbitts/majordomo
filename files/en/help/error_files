@@ -185,7 +185,7 @@ commands_processed
 This message summarizes the results of a group of commands that were
 processed by the command parser.
 
-(standard plus COUNT, FAIL, STALL, SUCCEED)
+(standard plus COUNT, FAIL, SESSIONID, STALL, SUCCEED)
 
 command_results
 ---------------
@@ -520,6 +520,13 @@ address is specified.
 
 (standard substitutions only)
 
+no_body
+-------
+This message is displayed when an e-mail message has no body, or when
+the body could not be opened.
+
+(standard substitutions only)
+
 no_domain
 ---------
 This message is displayed when an e-mail address does not contain a host
@@ -685,6 +692,14 @@ This error message is displayed when a list from the GLOBAL relocated_lists
 configuration setting is used in a Majordomo command.
 
 (standard plus NEWLIST)
+
+replacement_header
+------------------
+This message is displayed when an "Approved" line in the body of a
+posted message is not followed by replacement e-mail headers or by a
+blank line.
+
+(standard substitutions only)
 
 restrict_post
 -------------
