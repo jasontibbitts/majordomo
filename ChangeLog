@@ -1,5 +1,12 @@
 2002-03-17 Michael Yount <csf@moscow.com>
 
+	* bin/mj_enqueue:  Exit after sending a "Hello" message
+	to the queue server.  Record the total time taken.
+
+	* bin/mj_queueserv:  (ping_runners)  Return immediately
+	if a valid runner is found.
+	Do not respond to clients.
+
 	* bin/mj_queuerun:  Sort messages within a queue directory
 	in date order, oldest first.  Suggested by Brock Rozen.
 
@@ -17,7 +24,7 @@
 	headers of the password notice that is mailed to the victim.
 	(reject)  Use a list-specific whoami_owner address in the
 	From header of a rejection notice to the victim.
-        Suggested by Roger Klorese.
+	Suggested by Roger Klorese.
 	(alias)  Bugfix:  use length() instead of exists() test
 	for the presence of an address.  Thanks to Brock Rozen.
 

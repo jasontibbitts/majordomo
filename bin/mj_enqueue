@@ -36,13 +36,26 @@ use Socket;
 use Getopt::Long;
 use strict;
 
+sub logmsg { 
+  print STDERR "[$$].Enqueue: @_\n"; 
+}
 
-sub logmsg { print STDERR "[$$].Enqueue: @_\n"; }
-sub out { logmsg("Out: $_[1]"); syswrite($_[0], $_[1], length($_[1])) }
-sub in  { logmsg("In..."); sysread($_[0], $_, 1024); logmsg("In: $_"); $_ };
+sub out { 
+  logmsg("Out: $_[1]"); 
+  syswrite($_[0], $_[1], length($_[1]));
+}
 
-my (%opts, $dom, $i, $j, $line, $ok, $pid, $rendezvous, $q1, $q2, $q3,
-    $qdir, $qfile, $qfunc, $abandoned);
+sub in { 
+  logmsg("In..."); 
+  sysread($_[0], $_, 1024); 
+  logmsg("In: $_"); 
+  return $_;
+}
+
+my (%opts, $abandoned, $dom, $i, $j, $line, $ok, $pid, $q1, $q2, $q3,
+    $qdir, $qfile, $qfunc, $rendezvous, $time);
+
+$time = time;
 
 umask oct($::UMASK);
 $ENV{PATH} = '';
@@ -186,6 +199,7 @@ if (!($ok = connect(SOCK, sockaddr_un($rendezvous)))) {
 
   unless (flock(LOCK, $::LOCK_EX|$::LOCK_NB)) {
     logmsg "Another process is starting the server";
+    logmsg sprintf("Total time: %d second(s).",  (time - $time));
     exit ($opts{'S'} ? 99 : 0);
   }
 
@@ -216,12 +230,13 @@ for ($i = 0; $i < 10 or die "connect: $!"; $i++) {
 }
 
 # Send a greeting to the server
-out(*SOCK, "Hello.\n");
+out(*SOCK, "Hello.");
 
 # Get a response
-while ($line = in(*SOCK)) {
-  logmsg "$line";
-}
+# while ($line = in(*SOCK)) {
+#   logmsg "$line";
+# }
+logmsg sprintf("Total time: %d second(s).",  (time - $time));
 
 exit ($opts{'S'} ? 99 : 0);
 
@@ -316,6 +331,7 @@ sub smkdir {
     }
   }
 }
+
 
 =head1 NAME
 
