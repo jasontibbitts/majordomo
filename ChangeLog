@@ -1,4 +1,7 @@
 2000-05-28  Michael Yount  <csf@moscow.com>
+	* lib/Mj/CommandProps.pm:  Allow faq, info, and intro
+	to be used with the GLOBAL and DEFAULT lists.
+    
 	* lib/Majordomo.pm:
 	(_reg_add, _reg_remove) Sort the list names when storing
 	    a subscriber's registry data.
