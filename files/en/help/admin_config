@@ -407,7 +407,7 @@ that setting from the DEFAULT:_install template.  Templates never
 inherit values from other templates.
 
 If you would like to see other templates added to Majordomo, contact the
-developers at mj2-dev@csf.colorado.edu.
+developers at mj2-dev@lists.mj2.org.
 
 
 Password levels (advanced topic)

@@ -295,7 +295,7 @@ See the "mj_wwwadm" help file for more information.
 
 Reporting Problems
 ------------------
-Please report bugs to mj2-dev@csf.colorado.edu and CC a copy to
+Please report bugs to mj2-dev@lists.mj2.org and CC a copy to
 tibbs@math.uh.edu (just in case).  Please be sure to include information on
 what version of Majordomo 2 you're running (including the time you checked
 it out of CVS if you did so), the version of Perl you're using and the OS
@@ -303,7 +303,7 @@ you're running.  We may also need to know the versions of any relevant
 modules and the configuration options you chose.
 
 To participate in the Majordomo 2 developers' mailing list, write to 
-  majordomo@csf.colorado.edu
+  majordomo@lists.mj2.org
 and in the body of the message, put this command:
   sub mj2-dev
 

@@ -2,7 +2,7 @@
 Maintenant, vous devriez exécuter les commandes suivantes :
   make         (attendez vous à plein de warnings à propos de coupures
 		à 8 caractères)
-  make test    (rapportez tous les problèmes à mj2-dev@csf.colorado.edu)
+  make test    (rapportez tous les problèmes à mj2-dev@lists.mj2.org)
   make install (en général en tant que root, répondez aux questions
 		qui vous sont présentées)
 

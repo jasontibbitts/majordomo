@@ -1,7 +1,7 @@
 
 Now you should run the following shell commands:
   make         (expect several warnings about truncation to 8 characters)
-  make test    (report any problems to mj2-dev@csf.colorado.edu)
+  make test    (report any problems to mj2-dev@lists.mj2.org)
   make install (usually as root, answering any questions that appear)
 
 After the software has been installed, save a copy of .mj_config,

@@ -47,6 +47,6 @@ When reporting bugs, please remember to include version of Majordomo2
 (including the date of your last CVS update if you did one), version of
 Perl, and your OS and its version.  Also include some debug logs; usually
 the 100 lines before and including the error/backtrace/warning/whatever is
-sufficient.  Send these reports to mj2-dev@csf.colorado.edu and CC
+sufficient.  Send these reports to mj2-dev@lists.mj2.org and CC
 a copy to tibbs@math.uh.edu for faster response.
 
