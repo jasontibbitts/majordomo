@@ -13,10 +13,7 @@ parsing the files out of a MIME entity.
 
 =cut
 package Mj::Parser;
-use IO::File;
 use Mj::Log;
-use Mj::Format;
-use Mj::CommandProps qw(:command :function);
 use strict;
 
 use AutoLoader 'AUTOLOAD';
@@ -41,6 +38,7 @@ main part but before any of the attachments.  The solution to this would be
 to allow the attachments to be named instead of referred to by number.
 
 =cut
+use IO::File;
 sub parse_entity {
   my $mj        = shift;
   my %args      = @_;
@@ -157,7 +155,10 @@ a hash containing additional data (currently reply_to, password, deflist,
 and token).
 
 =cut
-use Mj::Util 'str_to_time';
+use Mj::Util qw(re_match str_to_time);
+use Mj::CommandProps qw(:command :function);
+use Mj::Format;
+use IO::File;
 use MIME::Entity;
 sub parse_part {
   my $mj         = shift;
@@ -197,7 +198,7 @@ sub parse_part {
     # to call a function in the Majordomo namespace from here.  We know the
     # module has been loaded because we have a valid Majordomo object, but
     # still, this is client-side.
-    if (Majordomo::_re_match($sigsep, $_)) {
+    if (re_match($sigsep, $_)) {
       print $outhandle ">>>> $_";
       print $outhandle "Stopping at signature separator.\n\n";
       last CMDLINE;
@@ -710,6 +711,7 @@ sub add_deflist {
   return "$deflist $list$line";
 }
 
+use Mj::CommandProps qw(:function);
 sub parse_args {
   my ($request, $args, $arglist, $attachh) = @_;
   my ($k, $arguments, @splitargs);
