@@ -127,7 +127,8 @@ will vary depending upon the mailing list.
   (The "request" address for a mailing list)
 
 \$SITE        $SITE
-  (The name of this site)
+  (A description of this domain, taken from the site_name configuration
+   setting.)
 
 \$SUBLIST     $SUBLIST
   (An auxiliary list, if one is used.  See "help auxiliary_list" for details.)
@@ -401,6 +402,7 @@ See Also:
    help admin_documents
    help announce
    help configset_access_rules  (for mailfile and deny usage)
+   help configset_site_name
    help configset_welcome_files (for additional files that can be sent)
    help digest                  (for additional file names and usage)
    help error_files

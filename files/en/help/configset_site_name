@@ -8,12 +8,22 @@ Password Notes: Set with global password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset GLOBAL site_name =\\
-    My Organization (www.nowhere.org or admin@nowhere.org)
+configset GLOBAL site_name = Bruno's E-mail Boutique
 
 
-The name of the site that this Majordomo runs at.
+$INCLUDE-config/site_name
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+The site_name description can be displayed in many documents and
+configuration settings by using the SITE substitution.  
+See "help variables" for an introduction to substitution variables.
+
+
+See Also:
+   help admin_domain
+   help configset_whereami
+   help error_files
+   help format_files
+   help reply_files
+   help variables
+
+$INCLUDE-help/foot
