@@ -1,2 +1,3 @@
-  Address: $VICTIM
-    $ERROR
+The show command for "?VICTIM" did not succeed.
+
+  ?ERROR
