@@ -597,6 +597,7 @@ sub parse_exim {
       $user = $1;
     }
     elsif ($line =~ /^ {4}(.*)$/) {
+      $diag .= ' ' if length($diag);
       $diag .= $1;
     }
     # In warnings, we just get a list of addresses indented by two spaces
@@ -735,7 +736,8 @@ content-description of 'Notification'.  The identifying line is:
 
 This is the Postfix program at host.*
 
-Failure is indicated by the string "could not be delivered".
+A warning is indicated by the presense of the string "THIS IS A WARNING
+ONLY".
 
 Bouncing addresses are located at the end, and look like
 
@@ -762,12 +764,13 @@ sub parse_postfix {
     return;
   }
 
-  # Now look for two things: a line containing "could not deliver" which
-  # tells us that we're processing a set of failures, and an address in
-  # angle brackets.
+  # Now look for two things: a line containing "WARNING" which tells us
+  # that we're processing a set of failures, and an address in angle
+  # brackets.
+  $failure = 1;
   while (defined($line = $bh->getline)) {
     if ($line =~ /could not be delivered/i) {
-      $failure = 1;
+      $failure = 0;
       next;
     }
     if ($line =~ /^\s*<(.*)>:\s+(.*?)\s*$/) {

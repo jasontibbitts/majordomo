@@ -1,3 +1,9 @@
+2000-10-20  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/BounceParser.pm (parse_exim): Put a space between the
+	lines of a multiline diag.
+	(parse_postfix): Handle warnings properly.
+
 2000-10-20  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/BounceParser.pm (parse_exchange): Parse a variant of the

@@ -1,0 +1,47 @@
+Comment: This bounce tests DSN parsing with a fallback to diag extraction
+	when the diag included in the DSN is stupid or useless.
+Date: Tue, 6 Jun 2000 22:58:19 -0400
+From: Mail Delivery Subsystem <MAILER-DAEMON@example.com>
+Message-Id: <200006070258.WAC267072@example.com>
+To: <test-list-owner+M1@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+	boundary="WAC267072.960346699/example.com"
+Subject: Returned mail: User unknown
+Auto-Submitted: auto-generated (failure)
+
+This is a MIME-encapsulated message
+
+--WAC267072.960346699/example.com
+
+The original message was received at Tue, 6 Jun 2000 22:55:46 -0400
+from lisa.math.uh.edu [129.7.128.49]
+
+   ----- The following addresses had permanent fatal errors -----
+<user1@example.com>
+
+   ----- Transcript of session follows -----
+... while talking to example.com.:
+>>> RCPT To:<user1@example.com>
+<<< 553 <user1@example.com>... Users mailbox is currently disabled
+550 <user1@example.com>... User unknown
+
+--WAC267072.960346699/example.com
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; example.com
+Arrival-Date: Tue, 6 Jun 2000 22:55:46 -0400
+
+Final-Recipient: RFC822; user1@example.com
+Action: failed
+Status: 2.0.0
+Remote-MTA: DNS; loopback.example.com
+Diagnostic-Code: SMTP; 250 Message accepted for delivery
+Last-Attempt-Date: Tue, 6 Jun 2000 22:58:18 -0400
+
+--WAC267072.960346699/example.com
+Content-Type: text/rfc822-headers
+
+Nothing:
+
+--WAC267072.960346699/example.com--

@@ -1,0 +1,27 @@
+Comment: This tests MSN bounce parsing
+From: Postmaster<Postmaster@email.msn.com>
+To: owner-test+M2@example.com
+Date: 22 Sep 2000 10:40:58 -0700
+Message-ID: <0fe655840171690CPIMSSMTPI11@example.com>
+Subject: Nondeliverable mail
+MIME-Version: 1.0
+Content-Type: Multipart/mixed;
+	 boundary = "CPIMSSMTPI11S'yg.z_MrDfoHaN(QYQq6trSkVB"
+
+
+--CPIMSSMTPI11S'yg.z_MrDfoHaN(QYQq6trSkVB
+
+------Transcript of session follows -------
+user1@example.com
+The process cannot access the file because
+it is being used by another process.
+
+
+--CPIMSSMTPI11S'yg.z_MrDfoHaN(QYQq6trSkVB
+Content-Type: message/rfc822; charset=us-ascii 
+
+Header: header
+
+Message
+
+--CPIMSSMTPI11S'yg.z_MrDfoHaN(QYQq6trSkVB--

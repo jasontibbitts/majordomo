@@ -1,0 +1,4 @@
+Exim
+user1@example.com	failure	unknown local-part "user1" in domain "example.com"
+user2@example.com	failure	diag2 diag2 continued
+user3@example.com	failure

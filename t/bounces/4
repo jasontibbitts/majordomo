@@ -1,0 +1,34 @@
+Comment: This teste Exim bounce parsing.
+X-Failed-Recipients: user1@example.com
+X-Failed-Recipients: user2@example.com
+X-Failed-Recipients: user3@example.com
+From: Mail Delivery System <Mailer-Daemon@example.com>
+To: test-owner+M4@example.com
+Subject: Mail delivery failed: returning message to sender
+Message-Id: <E13fRQT-0002M1-00@example.com>
+
+This message was created automatically by mail delivery software.
+
+A message that you sent could not be delivered to one or more of its
+recipients. The following address(es) failed:
+
+  user1@example.com:
+    unknown local-part "user1" in domain "example.com"
+  user2@example.com:
+    diag2
+    diag2 continued
+
+------ This is a copy of the message, including all the headers. ------
+
+Return-path: <tibbs@malifon.math.uh.edu>
+Received: from tibbs by malifon.math.uh.edu with local (Exim 3.13 #1)
+	id 13fRQT-0002Lz-00
+	for asdfadf@malifon.math.uh.edu; Sat, 30 Sep 2000 13:31:57 -0500
+To: asdfadf@malifon.math.uh.edu
+Message-Id: <E13fRQT-0002Lz-00@malifon.math.uh.edu>
+From: "Jason L Tibbitts III,660 PGH,(713)743-3486,(713)690-2133" <tibbs@malifon.math.uh.edu>
+Date: Sat, 30 Sep 2000 13:31:57 -0500
+
+test
+
+
