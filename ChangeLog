@@ -1,3 +1,15 @@
+2000-10-07  Michael Yount <csf@moscow.com>
+
+	* bin/mj_shell (parse_interactive):  Remove unneeded white space.
+
+	* lib/Majordomo.pm (accept):  Track elapsed time for each token
+	individually.
+	(_subscribe):  Use "set" mode to allow settings to be included
+	in a subscription command.  For example,
+	  subscribe-set LIST digest
+	is used instead of 
+	  subscribe-digest LIST
+	
 2000-10-05  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* bin/mj_shell (parse_interactive): Term::ReadLine can spew

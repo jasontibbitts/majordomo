@@ -292,7 +292,7 @@ sub connect {
   # sessionid prevents further actions.
   unless ($ok > 0) {
     $self->inform('GLOBAL', 'connect', $user, $user, 'connect',
-                  $int, $ok, '', 0, $err);
+                  $int, $ok, '', 0, $err, $::log->elapsed);
     undef $self->{sessionfh};
     undef $self->{sessionid};
     return (undef, $err);
@@ -445,8 +445,8 @@ sub dispatch {
     $over = 0;
   }
 
-  for (@{$request->{'victims'}}) { 
-    $request->{'victim'} = $_;
+  for $ok (@{$request->{'victims'}}) { 
+    $request->{'victim'} = $ok;
     gen_cmdline($request) unless ($request->{'command'} =~ /_chunk|_done/);
     if (function_prop($request->{'command'}, 'top')) {
       $func = $request->{'command'};
@@ -482,7 +482,7 @@ sub dispatch {
     # Inform unless overridden or continuing an iterator
     unless ($over == 2 || 
             $request->{'command'} =~ /_chunk$/) {
-      $elapsed = sprintf ("%.3f", $::log->elapsed - $request->{'time'});
+      $elapsed = $::log->elapsed - $request->{'time'};
       # XXX How to handle an array of results?
       $self->inform($request->{'list'}, $base_fun, $request->{'user'}, 
                     $request->{'victim'}, $request->{'cmdline'}, 
@@ -2576,9 +2576,12 @@ can never be a token for the 'accept' command.
 sub accept {
   my ($self, $request) = @_;
   my $log = new Log::In 30, scalar(@{$request->{'tokens'}}) . " tokens";
-  my ($comment, $token, $ttoken, @out);
+  my ($comment, $elapsed, $token, $ttoken, @out);
 
   $request->{'list'} = 'GLOBAL';
+  $elapsed = 0;
+  $elapsed = $request->{'time'}
+    if (exists $request->{'time'});
 
   return (0, "No token was supplied.\n")
     unless (scalar(@{$request->{'tokens'}}));
@@ -2590,7 +2593,6 @@ sub accept {
       push @out, 0, "Illegal token \"$ttoken\".\n";
       next;
     }
-
     my ($ok, $mess, $data, $tmp) = 
         $self->t_accept($token, $request->{'mode'}, $request->{'xplanation'},
                         $request->{'delay'});
@@ -2610,14 +2612,19 @@ sub accept {
     $comment = '';
     $comment = $tmp->[1] unless (!defined $tmp->[1] or ref $tmp->[1]);
 
+    $elapsed = $::log->elapsed - $elapsed;
     # Now call inform so the results are logged
     $self->inform($data->{'list'},
-          ($data->{'type'} eq 'consult')? 'consult' : $data->{'command'},
+          ($data->{'type'} eq 'consult' 
+           and $data->{'command'} eq 'post')? 
+           'consult' : $data->{'command'},
           $data->{'user'},
           $data->{'victim'},
           $data->{'cmdline'},
           "token-$self->{'interface'}",
-          $tmp->[0], 0, 0, $comment);
+          $tmp->[0], 0, 0, $comment, $elapsed);
+
+    $elapsed = $::log->elapsed;
 
     $mess ||= "Further approval is required.\n" if ($ok < 0);
     if ($ok) {
@@ -4624,12 +4631,11 @@ sub _showtokens {
   return (1, @out);
 }
 
-=head2 subscribe(..., mode, list, address, class, flags)
+=head2 subscribe()
 
-Perform the subscribe command.  class should be a legal subscriber class.
-flags should be a string containing subscriber flags.  mode be interpreted
-to find a class and additional subscriber flags; it will also be passed
-onto to the List::add routine.
+Perform the subscribe command.  If the "set" mode is used, an
+the "setting" element of the request hash is treated as a
+subscription class and/or flags.
 
 Returns a list:
 
@@ -4659,6 +4665,7 @@ sub subscribe {
     $tmp = new Mj::Addr("$request->{'list'}-unsubscribe\@$whereami");
     $matches_list = $request->{'victim'} eq $tmp;
   }
+  $request->{'setting'} ||= '';
 
   ($ok, $error) =
     $self->list_access_check($request, 'matches_list' => $matches_list);
@@ -4668,7 +4675,8 @@ sub subscribe {
     return ($ok, $error);
   }
   $self->_subscribe($request->{'list'}, $request->{'user'}, $request->{'victim'}, 
-                    $request->{'mode'}, $request->{'cmdline'}, '', '');
+                    $request->{'mode'}, $request->{'cmdline'}, 
+                    $request->{'setting'}, '');
 }
 
 sub _subscribe {
@@ -4678,26 +4686,23 @@ sub _subscribe {
   my $vict  = shift;
   my $mode  = shift;
   my $cmd   = shift;
-  my $class = shift;
-  my $flags = shift;
+  my $setting = shift;
   my $log   = new Log::In 35, "$list, $vict";
-  my ($ok, $classarg, $classarg2, $cstr, $data, $exist, $ml, $rdata, $welcome);
+  my ($ok, $classarg, $classarg2, $data, $exist, $ml, $rdata, $welcome);
 
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
 
-  # Gross.  We've overloaded the mode string to specify subscriber
-  # flags as well, and that mechanism is reasonably nasty as is.  But
-  # we have to somehow remove modes that we know might get to us but
-  # that aren't legal subscriber flags, so that make_setting() doesn't
-  # yell at us.  XXX Make this a variable somewhere.
-  ($cstr = $mode) =~ s/(quiet|(no)?(welcome|inform|log))[-,]?//g;
-
-  ($ok, $flags, $class, $classarg, $classarg2) =
-    $self->{'lists'}{$list}->make_setting($cstr, '');
-
-  unless ($ok) {
-    return (0, $class);
+  if ($setting) {
+    ($ok, $flags, $class, $classarg, $classarg2) =
+      $self->{'lists'}{$list}->make_setting($setting, '', 
+        $self->{'lists'}{$list}->default_class);
+    unless ($ok) {
+      return (0, $flags);
+    }
+  }
+  else {
+    $flags = $class = $classarg = $classarg2 = '';
   }
 
   # Add to list
@@ -4781,7 +4786,8 @@ sub trigger {
   my ($self, $request) = @_;
   my $log = new Log::In 27, "$request->{'mode'}";
 
-  my (@ready, @req, $data, $key, $list, $ok, $mess, $mode, $times, $tmp);
+  my (@ready, @req, $data, $elapsed, $key, $list, $ok, 
+      $mess, $mode, $times, $tmp);
   $mode = $request->{'mode'};
   @ready = ();
 
@@ -4808,6 +4814,7 @@ sub trigger {
   if ($mode =~ /^(da|de|h)/) {
     @req = $self->t_fulfill;
     while (@req) {
+      $elapsed = $::log->elapsed;
       ($key, $data) = splice @req, 0, 2;
       $times = $self->_list_config_get($data->{'list'}, 'triggers');
       next unless (exists $times->{'delay'} and
@@ -4821,7 +4828,7 @@ sub trigger {
                     $data->{'victim'},
                     $data->{'cmdline'},
                     "token-fulfill",
-                    $tmp->[0], 0, 0, $mess);
+                    $tmp->[0], 0, 0, $mess, $::log->elapsed - $elapsed);
     }
   }
   # Mode: daily or session - expire session data
