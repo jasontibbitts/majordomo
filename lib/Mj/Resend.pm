@@ -672,7 +672,7 @@ sub _check_approval {
   }
 
   # Check in the body
-  unless ($password) {
+  unless ($passwd) {
     # If multipart, grab first part.  Cope with nested multipart messages.
     $part = $ent;
     while (defined $part->parts(0)) {
@@ -698,8 +698,7 @@ sub _check_approval {
   # ignore it.  The password must be good, though.)
   if ($passwd) {
     return
-      unless $self->validate_passwd($user, $passwd, undef,
-				    'resend', $list, 'post') > 0;
+      unless $self->validate_passwd($user, $passwd, $list, 'post') > 0;
   }
   
   if ($token) {
