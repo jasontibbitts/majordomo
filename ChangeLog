@@ -1,4 +1,53 @@
+Sat Jan 23 18:17:11 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Access.pm (_a_default): 'closed' access means deny, not
+ 	consult.
+
+	* lib/Majordomo.pm (show): Add security; split off _show function.
+  	Remove address validity testing; the dispatcher does that for us.
+
+	* lib/Mj/Format.pm (show): Handle stalled shows.
+
+	* lib/Majordomo.pm (which): Stalled requests have $mac_hits < 0,
+ 	but this wasn't handled correctly.
+
+Thu Jan 14 00:30:19 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (_register): Generate a password if the one
+ 	passed in is empty or undefined.
+
+	* lib/Mj/TextOutput.pm (register): Random password is the default;
+ 	must use 'password' mode to supply a password.
+
+Wed Jan 13 00:29:48 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* postinstall: Call do_default_config properly to get reasonable
+ 	defaults that don't override domain owners' configurations.
+
+Mon Jan 11 00:49:44 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* postinstall (do_default_config): New function; fill in
+ 	appropriate defaults from initial configuration instructions.
+
+	* lib/Mj/List.pm (_fill_aux): The suffix representing the database
+ 	backend is not part of the sublist name.
+
+	* lib/Mj/Config.pm: Remove require of defaults.
+
 Sun Jan 10 00:42:03 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): 'default_digest' isn't a real digest.
+
+	* lib/Mj/TextOutput.pm (configshow): Handle automatic array
+ 	variables properly.
+
+	* lib/Mj/Resend.pm (_post): Mods to maintain digest_issues and to
+ 	include volume/issue when building digests.
+
+	* lib/Mj/Config.pm (parse_digest_issues): New function.
+	Addition of digest_issues to various tables.
+
+	* lib/mj_cf_data.pl: Add digest_issues variable.
 
 	* lib/Mj/Resend.pm (_post): Really delete tempfiles.
 

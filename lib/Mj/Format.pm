@@ -467,11 +467,20 @@ sub show {
 
   eprint($out, $type, "  Address: $vict\n");
 
-  unless ($ok) {
+  # For validation failures, the dispatcher will do the verification and
+  # return the error as the second argument.
+  if ($ok == 0) {
     eprint($out, $type, "    Address is invalid.\n");
     $addr = prepend('      ', $addr);
     eprint($out, $type, "$addr\n");
-    return 0;
+    return $ok;
+  }
+  elsif ($ok < 0) {
+    eprint($out, $type, "    Address is valid.\n");
+    eprint($out, $type, "      Mailbox: $addr\n") if $addr ne $vict;
+    eprint($out, $type, "      Comment: $comm\n") if defined $comm && $comm ne "";
+    eprint($out, $type, indicate($xform, $ok));
+    return $ok;
   }
    
   eprint($out, $type, "    Address is valid.\n");

@@ -260,7 +260,7 @@ sub is_subscriber {
 This sets various subscriber data.
 
 If $check is true, we check the validity of the settings but don''t
-actually change any values.
+actually change any values (not implemented).
 
 =cut
 sub set {
@@ -270,15 +270,17 @@ sub set {
   my $arg  = shift;
   my $check= shift;
   my $log  = new Log::In 150, "$addr, $set";
-  my (@classes, $data, $dig, $inv, $isflag, $key, $mask, $mime, $rset,
+  my (@allowed, @class, $data, $dig, $inv, $isflag, $key, $mask, $mime, $rset,
       $subflags, $time);
 
   ($inv = $set) =~ s/^no//;
 
+  @class = split(/-/, $set);
+
   if ($rset = $flags{$set}->[0] || $flags{$inv}->[0]) {
     $isflag = 1;
   }
-  elsif ($rset = $classes{$set}->[0]) {
+  elsif ($rset = $classes{$class[0]}->[0]) {
     $isflag = 0;
   }
   else {
@@ -295,7 +297,7 @@ sub set {
 
     # Else it's a class
     else {
-      @classes = $self->config_get('allowed_classes');
+      @allowed = $self->config_get('allowed_classes');
       # Make sure that one of the allowed classes is at the beginning of
       # the given class.
 
@@ -921,7 +923,7 @@ sub _fill_aux {
   opendir($dirh, $listdir) || $::log->abort("Error opening $listdir: $!");
 
   while (defined($file = readdir $dirh)) {
-    if ($file =~ /^X(.*)/) {
+    if ($file =~ /^X(.*)\..*/) {
       $self->{'auxlists'}{$1} = undef;
     }
   }

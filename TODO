@@ -11,22 +11,54 @@ The interface can pass bad passwords to some functions (config_get_vars)
 Untainting sometimes happens in the wrong place; in a C/S model, we won't
   trust what comes in over the network.
 
+Requests from SRE
+-----------------
+register-update - if stripped address is the same, update the comment.
+subscribe-update - same
+Get help subject line into message (???)
+Add an 'address' argument to the inform variable; address to send
+ information to.
+
+Restructuring Plan
+------------------
+Move to a more module-based system; allow various filtering pieces of resend:
+
+  mime filters
+  checksumming
+  taboo/admin
+  
+to be moved into modules; have per-message modules and per-line modules.
+Allow modules to be added; have a variable listing modules to be run.
+Define module interface.  Move lesser-used commands out of Majordomo.pm
+(and TextOutput.pm and Format.pm) and into separate modules.
+
+
 Top of the list 
 ---------------
+
+Fix set digest-?-?.
+
+Build complete maintenance scripts so that the installer only needs to add
+two crontab entries period instead of two per domain.
 
 Move t_accept messages into external files.
 Return additional information from _post so that t_accept can provide
  additional data.
 Finish work on allosed_flags and allowed_classes.
-Make resync work (with appropriate security).
 Update FILES.
+
+Can filespace system entirely.  To see if a file exists, just stat it.
+Store additional info in a dotfile.  Only difficult rewrite is index.
 
 ! Digest:
 
-Allow a time of 'any'?
+digest-incvol to increment volume number of a digest
+digest-force  to force a specific digest
+digest-check  to possibly run a specific digest
 report-digest command to show status of digest spools.
 
   Configurables:
+    index header
     index footer
     digest footer - after all messages
 

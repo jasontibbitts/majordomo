@@ -1418,6 +1418,21 @@ provides an index like the following:
                                        [A Verbose user <verbose\@example.com>]
 EOC
    },
+   'digest_issues' =>
+   {
+    'type'   => 'digest_issues',
+    'groups' => ['digest'],
+    'visible'=> 0,
+    'global' => 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'auto'   => 1,
+    'comment'=> <<EOC,
+A table of digest name, volume, issue.  This is maintained
+automatically by the digest system, and should be chane only with
+care.
+EOC
+   },
    'addr_xforms' =>
    {
     'type'   => 'xform_array',

@@ -39,7 +39,6 @@ use vars qw(@EXPORT_OK @ISA $VERSION %is_array %is_parsed $list);
 
 require Exporter;
 require "mj_cf_data.pl";
-require "mj_cf_defs.pl";
 
 $VERSION = "1.0";
 @ISA = qw(Exporter);
@@ -55,6 +54,7 @@ $VERSION = "1.0";
    'attachment_rules' => 1,
    'delivery_rules'   => 1,
    'digests'          => 1,
+   'digest_issues'    => 1,
    'inform'           => 1,
    'list_array'       => 1,
    'passwords'        => 1,
@@ -80,6 +80,7 @@ $VERSION = "1.0";
    'bool'             => 1,
    'delivery_rules'   => 1,
    'digests'          => 1,
+   'digest_issues'    => 1,
    'inform'           => 1,
    'regexp'           => 1,
    'regexp_array'     => 1,
@@ -87,6 +88,7 @@ $VERSION = "1.0";
    'string_2darray'   => 1,
    'taboo_body'       => 1,
    'taboo_headers'    => 1,
+
    'welcome_files'    => 1,
   );
 
@@ -1495,6 +1497,39 @@ sub parse_digests {
   return (1, '', $data);
 }
 
+=head2 parse_digest_issues
+
+Parse the digest_issues variable.  Returns a hash keyed on digest name:
+
+{name => {volume => xx,
+	  issue  => yy,
+	 }
+}
+
+=cut
+sub parse_digest_issues {
+  my $self = shift;
+  my $arr  = shift;
+  my $var  = shift;
+  my $log  = new Log::In 150, "$var";
+  my($data, $elem, $error, $i, $j, $table);
+
+  $data = {};
+
+  ($table, $error) = parse_table('fsss');
+
+  return (0, "Error parsing table: $error") if $error;
+
+  for ($i=0; $i<@{$table}; $i++) {
+    $data->{$table->[$i][0]} =
+      {volume => $table->[$i][1],
+       issue  => $table->[$i][2],
+      };
+  }
+
+  return (1, '', $data);
+}
+  
 =head2 parse_directory
 
 This takes a single string, makes sure that it represents an absolute path,
@@ -2958,7 +2993,7 @@ sub _str_to_clock {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 1999 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it

@@ -223,6 +223,5 @@ detailed information.
 
 #
 ### Local Variables: ***
-### mode:cperl ***
 ### cperl-indent-level:2 ***
 ### End: ***

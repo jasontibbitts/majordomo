@@ -118,6 +118,7 @@ do_site_config();
 # Configure a few global parameters
 if (!$skip && (!$ask || get_bool($msg2))) {
   for my $i (@{$config->{'domains'}}) {
+    do_default_config($i);
     do_config($i);
   }
 }
@@ -248,6 +249,7 @@ sub create_dirs {
   safe_mkdir($tmp,         0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$tmp/locks", 0777 & ~oct($um), $uid, $gid);dot;
 
+  safe_mkdir("$l/LIB",        0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$l/SITE",       0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$l/SITE/files", 0777 & ~oct($um), $uid, $gid);dot;
 
@@ -279,7 +281,8 @@ sub do_config {
     $config->{'domain'}{$dom}{'master_password'} = $pw;
     $msg0 = $msg0s; # Switch to using the short prompt.
   }
-  print "Configuring $dom:" unless $quiet;
+
+ print "Configuring $dom:" unless $quiet;
 
   # Build the command line
   @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F",
@@ -287,18 +290,12 @@ sub do_config {
 
   # Build the command file
   open FILE, ">$config->{wtmpdir}/inst.$$";
-  print FILE "approve $config->{site_password} configset GLOBAL master_password = $pw\n";
+#  print FILE "approve $config->{site_password} configset GLOBAL master_password = $pw\n";
   print FILE "default password $pw\n";
 
   # Make the necessary directories in the GLOBAL filespace
   print FILE "put-dir GLOBAL /spool Spooled Files\n";
   print FILE "put-dir GLOBAL /public Public Files\n";
-  print FILE "configset GLOBAL whereami = $dom\n";
-  for $i (qw(tmpdir site_name whoami)) {
-    $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};
-    print FILE "configset GLOBAL $i = $arg\n";
-  }
-  print FILE "configset GLOBAL owners   = $config->{domain}{$dom}{owner}\n";
   close FILE;
   # Make sure the file can be read by the Majordomo user.  XXX This is a
   # slight security hole.  We're root, so we should play with chowning the
@@ -325,6 +322,57 @@ sub do_config {
     print "ok.\n" unless $quiet;
   }
 }
+
+# This sets appropriate defaults for several config variables
+sub do_default_config {
+  my $dom = shift;
+  my(@args, $arg, $errcount, $i, $ignore, $msg, $pw);
+
+  # Prompt for the password if necessary
+  $pw = $config->{'domain'}{$dom}{'master_password'};
+  unless ($pw) {
+    ($msg = $msg0) =~ s/\$DOM/$dom/;
+    $pw = get_str($msg);
+    $config->{'domain'}{$dom}{'master_password'} = $pw;
+    $msg0 = $msg0s; # Switch to using the short prompt.
+  }
+  print "Setting configuration defaults for $dom:" unless $quiet;
+
+  # Open the master defaults file, in lib/mj_cf_defs.pl
+  open MASTER, 'lib/mj_cf_defs.pl';
+
+  # Open the file in $listsdir/LIB/cf_defs_$dom.pl
+  open DEFS, ">$config->{lists_dir}/LIB/cf_defs_$dom.pl";
+
+  while (defined($_ = <MASTER>)) {
+    # Do substitutions
+    s!(^ \'whereami\'.*)DEFAULT(.*)!$1$dom$2!;
+    s!(^ \'master_password\'.*)DEFAULT(.*)!$1$config->{site_password}$2!;
+    s!(^ \'whoami\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{whoami}$2!;
+    s!(^ \'whoami_owner\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{whoami}-owner$2!;
+    s!(^ \'owners\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{owner}$2!;
+    
+    for $i (qw(tmpdir site_name)) {
+      $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};
+      s!(^ \'$i\'.*)DEFAULT(.*)!$1$arg$2!;
+    }
+    print DEFS $_;
+  }
+  close MASTER;
+  close DEFS;
+
+  # Change ownership and permissions
+  chown (scalar getpwnam($config->{'uid'}),
+	 scalar getgrnam($config->{'gid'}),
+	 "$config->{'lists_dir'}/LIB/cf_defs_$dom.pl")
+    or die "Can't chown $config->{'lists_dir'}/LIB/cf_defs_$dom.pl: $!";
+  dot;
+
+  chmod ((0777 & ~oct($config->{'umask'}), "$config->{'lists_dir'}/LIB/cf_defs_$dom.pl"))
+    or die "Can't chmod $config->{'lists_dir'}/LIB/cf_defs_$dom.pl: $!";
+  print "ok.\n" unless $quiet;
+}
+
 
 # Dump out the initial site config
 sub do_site_config {

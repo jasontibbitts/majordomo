@@ -269,10 +269,10 @@ of configset commands to be edited and returned.
 sub configshow {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
-  my (%all_vars, @vars, $comment, $flag, $group, $groups,
+  my $log = new Log::In 27, $args;
+  my (%all_vars, @vars, $auto, $comment, $flag, $group, $groups,
       $message, $opts, $tag, $val, $var, $vars);
 
-  my $log = new Log::In 27, $args;
 
   ($groups, $opts) = split(" ", $args);
   $groups .= join(',',@arglist);
@@ -301,30 +301,33 @@ sub configshow {
       $comment =~ s/^/# /gm;
       print $outfh $comment;
     }
+    $auto = '';
     if ($mj->config_get_isauto($var)) {
-      print $outfh "# This variable is automatically maintained by Majordomo.  Uncomment to change.\n# ";
+      $auto = '# ';
+      print $outfh "# This variable is automatically maintained by Majordomo.  Uncomment to change.\n";
     }
     if ($mj->config_get_isarray($var)) {
       # Process as an array
       $tag = Majordomo::unique2();
-      print $outfh "configset $list $var \<\< END$tag\n";
+      print $outfh "${auto}configset $list $var \<\< END$tag\n";
       for ($mj->list_config_get($user, $passwd, $auth, $interface,
 				$list, $var, 1))
 	{
-	  print $outfh "$_\n" if defined $_;
+	  print $outfh "$auto$_\n" if defined $_;
 	}
-      print $outfh "END$tag\n\n";
+      print $outfh "${auto}END$tag\n\n";
     }
     else {
       # Process as a simple variable
       $val = $mj->list_config_get($user, $passwd, $auth, $interface,
 				  $list, $var, 1);
       $val ||= "";
-      print $outfh "configset $list $var =";
       if (length $val > 40) {
-	print $outfh "\\\n   ";
+	print $outfh "${auto}configset $list $var =\\\n    $auto$val\n";
       }
-      print $outfh " $val\n";
+      else {
+	print $outfh "${auto}configset $list $var = $val\n";
+      }
       if ($mode !~ /nocomments/) {
 	print $outfh "\n";
       }
@@ -635,9 +638,9 @@ sub put {
 This adds a user to the registration database without adding them to any
 lists.
 
-Modes: randpassword - assign a random password
+Modes: password - a password is passed as the first argu,ent
 
-else a password is a required argument.
+else a password will be randomly generated.
 
 =cut
 sub register {
@@ -648,7 +651,7 @@ sub register {
       $pw);
 
   ($arg1, $arg2) = split(/\s+/, $args, 2);
-  if ($infh && $mode =~ /randpass/) {
+  if ($infh && $mode !~ /pass/) {
     $addresses[0] = $arg1; $pw = '';
     $cmd = "register".($mode?"=$mode":"")." ";
   }

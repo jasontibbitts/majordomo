@@ -767,7 +767,8 @@ sub _a_default {
       return $self->_a_allow(@_);
     }
     elsif ($access eq 'closed') {
-      return $self->_a_consult(@_);
+      
+      return $self->_a_deny(@_);
     }
     elsif ($access eq 'list' &&
 	   $self->{'lists'}{$list}->is_subscriber($victim))

@@ -285,7 +285,7 @@ sub _post {
   my $log  = new Log::In 35, "$list, $user, $file";
 
   my(%avars, %deliveries, %digest, @dfiles, @dtypes, @ent, @files, @refs,
-     @skip, $arcdata, $arcent, $archead, $digests, $dissue, $dvolume,
+     @tmp, @skip, $arcdata, $arcent, $archead, $digests, $dissues,
      $exclude, $head, $i, $j, $msgnum, $prefix, $replyto, $sender, $seqno,
      $subject, $tmp, $tmpdir, $tprefix);
 
@@ -415,6 +415,8 @@ sub _post {
     close FINAL;
   }
 
+  # These are the deliveries we always make.  If pushing digests, we'll add
+  # those later.
   %deliveries =
     ('each-prefix-noreplyto' =>
      {
@@ -444,8 +446,20 @@ sub _post {
   if ($msgnum && scalar keys %{$digests}) {
     %digest = $self->{'lists'}{$list}->digest_add($msgnum, $arcdata);
 
-    # XXX Do the atomic increment game on $dissue.
-    $dvolume = "???", $dissue = "???";
+    # Extract volumes and issues, then write back the incremented values.
+    # Note that when we set the new value, we must do it in an unparsed
+    # form.
+    @tmp = ();
+    $self->_list_config_lock($list);
+    $dissues = $self->_list_config_get($list, 'digest_issues');
+    for $i (keys %$digests) {
+      next if $i eq 'default_digest';
+      $dissues->{$i}{volume} ||= 1; $dissues->{$i}{issue} ||= 1;
+      push @tmp, "$i :" . ($dissues->{$i}{volume}+1) .
+	" : " . ($dissues->{$i}{issue}+1);
+    }
+    $self->_list_config_set($list, 'digest_issues', @tmp);
+    $self->_list_config_unlock($list);
 
     # Now have a hash of digest name, listref of [article, data] pairs.
     # For each digest, build the three types and for each type and then
@@ -455,7 +469,7 @@ sub _post {
       @dfiles = $self->{'lists'}{$list}->digest_build
 	(messages     => $digest{$i},
 	 types        => [@dtypes],
-	 subject      => $digests->{$i}{desc} . " V$dvolume #$dissue",
+	 subject      => $digests->{$i}{desc} . " V$dissues->{$i}{volume} #$dissues->{$i}{issue}",
 	 tmpdir       => $tmpdir,
 	 index_line   => $self->_list_config_get($list, 'digest_index_format'),
 	 index_header => "index header\n",
@@ -469,7 +483,6 @@ sub _post {
       }
     }
   }
-  use Data::Dumper; print Dumper \%deliveries;
 
   # Invoke delivery routine
   $self->deliver($list, $sender, $seqno, \%deliveries);
@@ -507,7 +520,7 @@ The password is validated and the token unspooled if they are given.
 
 Note that this routine doesn''t do any processing on the message;
 specifically, it does not remove any Approved: lines or extract any
-embedded messages.  This is done in teh bottom half of the post
+embedded messages.  This is done in the bottom half of the post
 function.
 
 =cut

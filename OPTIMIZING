@@ -1,0 +1,75 @@
+Currently Majordomo2 exists as a monolithic entity; there are a few
+interfaces, but they generally just allocate a Majordomo object and make
+calls into it.  This is reasonable during the early development period, but
+it has a rather significant performance penalty: compilation time.  Since
+Perl is compiled at runtime, startup cost can be significant.
+
+There are many possible ways to remove the speed penalty; the two most
+important are:
+
+Daemonizing - Majordomo could be made into a persistent entity that the
+  (now much smaller) interfaces talk to.  Compilation time is eliminated
+  except for the rare startup case.
+
+Splitting along lines of functionality - The monolithic approach has its
+  uses but to achieve reasonable performance it may be necessary to split
+  up the common case into separate pieces of functionality.  For instance,
+  take the 'resend' functionality.  A message comes in, mj_resend is
+  compiled, the message is processed, filtered, etc. and it is delivered.
+  This can be split as follows:
+
+    mj_resend is a small program that recieves the message and places it
+    into a queue along with a control file of some sort.
+
+    Periodically (and perhaps upon prodding from mj_resend) mj_filter_q
+    goes through the queue and hacks up the messages, bouncing them to the
+    owner as appropriate.  A set of final messages (the four variants plus
+    any digests) along with their delivery classes and control information
+    are placed in a delivery queue.
+
+    Periodically, a delivery process takes the messages from the delivery
+    queue and delivers them.
+
+  Benefits: each component is smaller, so startup is more reasonable.  The
+  queue runners can stay running for longer periods of time.  mj_resend
+  needs no access to config databases (the queue location can be compiled
+  in and all other necessary info can be passed on the command line) as
+  long as a suitable naming convention for the queue files can be found.
+  mj_deliver_q only needs read access to the member database; any necessary
+  config info (delivery_rules, bounce probing, exclude lists, etc) can be
+  passed in the control file.  Queue runners only need to be compiled once
+  per queue run and mj_deliver_q can, if possible, process multiple
+  messages with a single membership database scan.
+
+  mj_deliver_q will generally take an extended amount of time to run,
+  depending on the number of list members and the speed of the hosts
+  receiving the messages.  mj_filter_q wil take time proportional to
+  message size but nearly constant with list size (excepting linear time
+  database lookups; see below).
+
+In addition to these there is the hope of a functional Perl compiler, but
+that is no longer something that can be counted on.
+
+The best performance may be reached by some combination of these; the
+daemon approach is appropriate for command processing but te queue approach
+is better for message delivery.
+
+In addition, Majordomo currently uses only flat text databases.  These have
+_very bad_ performance characteristics; many operations take time
+increasing linearly with list size or traffic.  Berkeley DB databases are
+coming; this will mave facorable effects on runtime but the effects on
+compilation time are not known (and probably will be slightly negative).
+
+Care must be taken in the queue case to avoid implicit serialization.
+mj_filter_q must update the config files to imcrement the sequence number
+and digest volumes, so mj_deliver_q should never access the config files
+because it would then end up blocking in mj_filter_q for unacceptable
+periods of time.  Conversely, mj_filter_q cannot modify the member
+databases (say, to store a 'last post time') because mj_deliver_q will have
+them open for reading.
+
+An important assumption is that either database-modifying commands are
+assumed to be rare compared with list traffic or list traffic is low.
+Database-modifying commands will implement a barrier to simultaneous
+delivery.
+

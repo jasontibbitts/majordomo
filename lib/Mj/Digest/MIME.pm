@@ -55,7 +55,7 @@ sub new {
     );
   $self->{indexfn} = $args{indexfn};
   $self->{count} = 0;
-  $self->{index} = $args{index_header} || '';
+  $self->{'index'} = $args{index_header} || '';
   $self;
 }
 

@@ -97,6 +97,10 @@ use Mj::Inform;
 use Mj::CommandProps ':function';
 use Safe;
 
+#BEGIN{$AutoLoader::Verbose = 1; $Exporter::Verbose = 1;};
+#BEGIN{sub UNIVERSAL::import {warn "Importing $_[0]"};};
+#BEGIN{sub CORE::require {warn "Requiring $_[0]"; CORE::require(@_);};};
+
 # sub is_tainted {
 #   return ! eval {
 #     join('',@_), kill 0;
@@ -141,6 +145,15 @@ sub new {
   $self->{'sitedata'}{'config'} = do "$topdir/SITE/config.pl";
   $log->abort("Can't find site config file $topdir/SITE/config.pl: $!")
     unless $self->{'sitedata'}{'config'};
+
+  # Pull in config variable default string for this domnain
+  if (-f "$topdir/LIB/cf_defs_$domain.pl") {
+    require "$topdir/LIB/cf_defs_$domain.pl";
+  }
+  else {
+    # This will search the library path
+    require "mj_cf_defs.pl";
+  }
 
   $self->{backend} = ''; # Suppress warnings
   $self->_make_list('GLOBAL');
@@ -3058,7 +3071,7 @@ sub _register {
   my $log   = new Log::In 35, "$vict";
   my ($ok, $data, $exist, $welcome);
   
-  if ($mode =~ /randpass/) {
+  if (!defined $pw || !length($pw)) {
     $pw = Mj::Access::_gen_pw();
   }
 
@@ -3230,14 +3243,28 @@ Returns:
 sub show {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $d, $addr) = @_;
-  my (@out, $aliases, $comm, $data, $i, $mess, $ok);
+  my ($error, $ok);
   my $log = new Log::In 30, "$addr";
 
-  ($ok, $mess) = $addr->valid;
-  unless ($ok) {
-    return (0, $mess);
+  # We know the address is valid; the dispatcher took care of that for us.
+
+  ($ok, $error) =
+    $self->global_access_check($passwd, $auth, $interface, $mode, $cmdline,
+			     'show', $user, $addr, '', '', '');
+  unless ($ok > 0) {
+    $log->out("noaccess");
+    return ($ok, $addr->strip, $addr->comment, $error);
   }
-  push @out, ($ok, $addr->strip, $addr->comment);
+  $self->_show('', $user, $addr, $mode, $cmdline);
+}
+
+sub _show {
+  my ($self, $dummy, $user, $addr, $mode, $cmd) = @_;
+  my $log = new Log::In 35;
+  my (@out, $aliases, $comm, $data, $i, $mess, $ok);
+
+  # Extract mailbox and comment
+  push @out, (1, $addr->strip, $addr->comment);
 
   # Transform
   push @out, $addr->xform;
@@ -3793,7 +3820,7 @@ sub which {
 
   # Bomb if we're not allowed any hits
   return (0, $err)
-    unless $max_hits;
+    unless $max_hits > 0;
 
   $total_hits = 0;
 
