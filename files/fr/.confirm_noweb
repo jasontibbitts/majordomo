@@ -1,4 +1,4 @@
-$TOKEN : CONFIRM from $LIST ($COMMAND)
+$TOKEN : CONFIRMATION de la liste $LIST ($COMMAND)
 R
 text/plain
 ISO-8859-15

@@ -1,4 +1,4 @@
-$TOKEN : CONSULT from $LIST ($COMMAND)
+$TOKEN : CONSULTATION de la liste $LIST ($COMMAND)
 R
 text/plain
 ISO-8859-15
