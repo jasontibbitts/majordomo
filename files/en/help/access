@@ -39,7 +39,7 @@ replyfile.
 
 When access is denied, a reply message is not usually sent to the person
 who was denied access.  Instead, any explanations given by reason,
-reply, or replyfile actions in the access rules will be added the
+reply, or replyfile actions in the access rules will be added to the
 "inform" message that is sent to the domain administrators.
 
 The "mailfile" action can be used to send a message to the address 
