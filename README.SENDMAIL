@@ -216,6 +216,19 @@ ENDAAB
 
 You probably will want to do the same for the GLOBAL pseudo-list.
 
+Both majordomo and sendmail (versions 8.12 and higher) have the
+capability to split up messages with a large number of recipients
+into multiple messages with a configurable maximum number of
+recipients.  It is probably best to let sendmail do the splitting
+if the version of sendmail you run supports this.  The following
+line in a .mc file specifies up to 10 simultaneous queue runners
+and splits messages into batches of up to 20 recipients.
+
+QUEUE_GROUP(`mqueue', `P=/var/spool/mqueue, R=10, r=20, F=f')
+
+If you are using multiple queue groups each group has its own 
+options.
+
 
 Other performance tweaks:
 
@@ -226,10 +239,11 @@ your .mc file:
 
     define(`confHOST_STATUS_DIRECTORY', `.hoststat')dnl
 
-and create a .hoststat directory in /var/spool/mqueue.  You can
-also change the default timeout of this information (30 minutes)
-with the Timeout.hoststatus variable.  In the .mc file this is set
-like so:
+and create a .hoststat directory in /var/spool/mqueue.  The default
+timeout for the information in this directory is 30 minutes (which
+should be reasonable for most installations).  You can change the
+timeout with the Timeout.hoststatus variable.  In the .mc file this
+is set like so:
 
     define(`confTO_HOSTSTATUS', `1h')dnl
 
@@ -242,17 +256,20 @@ and you should move the existing df, qf, and xf files to the
 corresponding directories.  It is also possible to use multiple
 queues.  See the sendmail operator's guide for information.
 
-With a very large mail queue it can take a long time for the single
-sendmail queue runner that wakes up periodically (usually every 15
-or 30 minutes) to processes the queued entries.  It is possible to
-start multiple sendmail daemons whose only function is to run the
-queue.  The following example starts 3 additional queue runners that
-wake up every 15 minutes.  These do not interfere with each other
-since sendmail locks each message before processing it.
+Normally, sendmail starts a queue runner periodically (usually every
+half hour or every hour) to process queued messages.  For very large
+queues it can be useful to have persistent queue runners that are
+always processing the queue, independent of the mail sendmail
+process.  The following example starts 3 additional queue runners
+that continuously processes the mail queue, sleeping for one minute
+after the queue was been processed before starting again at the
+beginning.  These do not interfere with each other (or with other
+sendmail processes) since sendmail locks each message before
+processing it.
 
-    sendmail -OPidFile=/var/run/sendmail-q1.pid -L sm-queue -q15m 
-    sendmail -OPidFile=/var/run/sendmail-q2.pid -L sm-queue -q15m 
-    sendmail -OPidFile=/var/run/sendmail-q3.pid -L sm-queue -q15m 
+    sendmail -OPidFile=/var/run/sendmail-q1.pid -L sm-queue -q1m 
+    sendmail -OPidFile=/var/run/sendmail-q2.pid -L sm-queue -q1m 
+    sendmail -OPidFile=/var/run/sendmail-q3.pid -L sm-queue -q1m 
 
 Note that it is important to specify a different pid file for each one.
 
