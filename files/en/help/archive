@@ -40,10 +40,7 @@ The following command modes will sort the results of the
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The archive command is used to retrieve posted messages that have been
-sent to a mailing list.  Two command modes ("delete" and "sync") 
-require the use of an administrative password because they alter the 
-archives.  The other command modes can potentially be used by anyone.
-Each command mode is detailed in a separate section of this document.
+sent to a mailing list.  
 
 In the examples that follow, where you see LISTNAME, instead use the 
 name of an actual mailing list.
@@ -400,11 +397,25 @@ to be relocated automatically.  If the new directory is outside the file
 space of a mailing list, the "get" and "index" commands will no longer be
 useful for retrieving the files.
 
-Messages posted to auxiliary lists are also archived, but the file
-name of the archive is adjusted to include the auxiliary list name. 
-For example, a message posted to the "prunus" mailing list in July 2000
-might be stored in the "prunus.200107" file.  The same message posted to
-the "plum" auxiliary list of the "prunus" would be stored in the
+Archive file names begin with the name of the mailing list, followed by
+a period and a date.  For example, a message posted to the "prunus"
+mailing list in July 2001 might be stored in the "prunus.200107" file.
+The archive_split configuration setting determines the style of date
+(for example, "weekly" or "quarterly") that is used for any new
+messages.  Although any new archive files will use four digits to
+specify the year, archives with two-digit years are supported for
+backward compatibility.
+
+The archive_size configuration setting can be used to limit the total
+size of an archive file.  If the size is limited, a hyphen and two digit
+number are added to the name of each archive file.  For example, the
+messages posted to the "prunus" mailing list in June 2002 might be
+stored in the "prunus.200206-00" and "prunus.200206-01" archive files.
+
+Messages posted to auxiliary lists are also archived, but the file name
+of the archive is adjusted to include the auxiliary list name.  For
+example, a message posted to the "plum" auxiliary list of the "prunus"
+mailing list during July 2001 would be stored in the
 "prunus.plum.200107" file.
 
 By default, the list archives are available to subscribers who
