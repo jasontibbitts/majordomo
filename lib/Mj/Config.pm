@@ -94,6 +94,7 @@ $VERSION = "1.0";
    'delivery_rules'   => 1,
    'digests'          => 1,
    'digest_issues'    => 1,
+   'enum'             => 1,
    'enum_array'       => 1,
    'inform'           => 1,
    'limits'           => 1,
@@ -2309,12 +2310,12 @@ Makes sure the value is allowed (i.e. in the variable''s 'allowed' list.
 =cut
 sub parse_enum {
   my $self = shift;
-  my $str  = shift;
+  my $str  = lc shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var, $str";
 
   for my $i (@{$self->{'vars'}{$var}{'values'}}) {
-    return 1 if $str eq $i;
+    return (1, '', $str) if $str eq $i;
   }
 
   $log->out('illegal value');
@@ -2341,6 +2342,7 @@ sub parse_enum_array {
   return (0, "Not an array") unless (ref $arr eq 'ARRAY');
 
   for $i (@$arr) {
+    $i = lc $i;
     $i =~ s/^\s*//;
     $i =~ s/\s*$//;
 
