@@ -1,4 +1,4 @@
-default help file for non-user command
+Majordomo's "trigger" command
 R
 text/plain
 us-ascii

@@ -711,8 +711,8 @@ get_edit_foot
 end of a put command, or an HTML form, that allows a document
 to be edited and replaced easily.
 
-(standard plus CGIDATA, CGIURL, CMDARGS, CMDLINE, CMDPASS, DESCRIPTION, 
-REPLACECMD, USER)
+(standard plus CGIDATA, CGIURL, CMDARGS, CMDLINE, CMDPASS, COMMAND,
+ DESCRIPTION, REPLACECMD, USER)
 
 
 get_edit_head
@@ -721,8 +721,8 @@ get_edit_head
 beginning of a put command, or an HTML form, that allows a document
 to be edited and replaced easily.
 
-(standard plus CGIDATA, CGIURL, CMDARGS, CMDLINE, CMDPASS, DESCRIPTION, 
-REPLACECMD, USER)
+(standard plus CGIDATA, CGIURL, CMDARGS, CMDLINE, CMDPASS, COMMAND,
+ DESCRIPTION, REPLACECMD, USER)
 
 
 get_error
@@ -738,7 +738,7 @@ get_foot
 (text, wwwadm, wwwusr)  This file displays supplementary information when
 a document is displayed by the faq, get, info, or intro command.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, DESCRIPTION, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DESCRIPTION, USER)
 
 
 get_head
@@ -746,7 +746,7 @@ get_head
 (text, wwwadm, wwwusr)  This file displays preliminary information when
 a document is displayed by the faq, get, info, or intro command.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, DESCRIPTION, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DESCRIPTION, USER)
 
 
 head

@@ -1,4 +1,4 @@
-alias help file
+Majordomo's "man" command
 R
 text/plain
 us-ascii
