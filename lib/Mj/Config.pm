@@ -1583,12 +1583,23 @@ sub parse_access_rules {
 	    } # XLANG
 	  }
           if ($tmp eq 'notify') {
-            ($ok, $error) = n_validate($tmp2);
+            ($ok, $error, $l) = n_validate($tmp2);
             if ($ok < 0) {
               $warn .= "Req. $i, action notify:  $error\n";
             }
-            elsif ($ok == 0) {
+
+            if ($ok == 0) {
               return ($ok, $error);
+            }
+            else {
+              for $m (keys %$l) {
+                if ($Mj::Util::notify_var{$m} eq 'filename') {
+                  ($file) = &{$self->{callbacks}{'mj.list_file_get'}}($self->{list}, $l->{$m});
+                  unless ($file) {
+                    $warn .= "  Req. $i, action $tmp: $m '$l->{$m}' could not be found.\n";
+                  } # XLANG
+                }
+              }
             }
           }
 	}
