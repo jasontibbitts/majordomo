@@ -93,7 +93,7 @@ sub add_alias {
   my $who  = $args{whoami} || 'majordomo'; 
 
   if ($args{debug}) {
-    $debug = " -v500";
+    $debug = " -v$args{debug}";
   }
   else {
     $debug = '';

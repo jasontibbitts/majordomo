@@ -1,3 +1,9 @@
+Wed Oct 28 10:27:26 1998  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/mj_cf_data.pl: Update description of te 'debug' variable.
+
+	* lib/Mj/MTAConfig.pm (add_alias): Use actual value of debug parameter.
+
 Tue Oct 27 19:20:07 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/MTAConfig.pm (sendmail): Quiet Perl 5.004 warnings.
