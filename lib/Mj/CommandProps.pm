@@ -56,6 +56,7 @@ my %reg_legal =
    'fulladdr'       =>3,
    'host'           =>3,
    'mode'           =>3,
+   'sublist'        =>3,
   );
 
 # one-line descriptions of every access_rule variable used in $commands{???}{'access'}{'legal'}
@@ -95,7 +96,7 @@ my %reg_legal =
               'percent_quoted' => "contains the percentage of lines which are quoted (100 * quoted_lines / lines)",
                       'posing' => "is set if 'default user' is in effect",
                 'quoted_lines' => "contains the number of lines that matched the pattern in 'configset quote_pattern'",
-                     'sublist' => "is set to the name of the sublist, if a message was posted to an auxiliary list",
+                     'sublist' => "is set to the name of the sublist, if a requestinvolves an auxiliary list",
                        'taboo' => "is set if any taboo_* variable is set (note that taboo configsets can create new variables)",
          'total_header_length' => "contains the sum of the lengths of all headers, see 'total_header_length_exceeded' for test",
 'total_header_length_exceeded' => "is set if 'total_header_length' exceeds the value in 'configset LISTNAME max_total_header_length'",
@@ -125,28 +126,34 @@ my %commands =
    'default'    => {'parser' => [qw(email shell shell_parsed real)]},
    'end'        => {'parser' => [qw(email shell interp)]},
    'config'     => {'parser' => [qw(email list obsolete=configshow real)]},
-   'configshow' => {'parser' => [qw(email shell list global real)],
-                    'dispatch' => {'top' => 1, 
-                                   'arguments' => {'split' => '[\s,]+',
-                                                   'groups' => {'type' => 'ARRAY'}},
-                                   'hereargs' => 'groups' 
-                                  }
-                   },
-   'configset'  => {'parser' => [qw(email shell list global real)],
-                    'dispatch' => {'top' => 1, 
-                                   'arguments' => {'split' => '\s*=\s*',
-                                                   'setting' => {'type' => 'SCALAR',},
-                                                   'value', {'type' => 'ARRAYELEM'}},
-                                   'hereargs' =>  'value',
-                                  }
-                   },
-   'configdef'  => {'parser' => [qw(email shell list global real)],
-                    'dispatch' => {'top' => 1,
-                                   'arguments' => {'split', '[\s,]+',
-                                                   'vars', {'type' => 'ARRAY'}},
-                                   'hereargs' =>  'vars',
-                                  }
-                   },
+   'configshow' => 
+   {
+    'parser' => [qw(email shell list global real)],
+    'dispatch' => {'top' => 1, 
+                   'arguments' => {'split' => '[\s,]+',
+                                   'groups' => {'type' => 'ARRAY'}},
+                   'hereargs' => 'groups' 
+                  }
+   },
+   'configset'  => 
+   {
+    'parser' => [qw(email shell list global real)],
+    'dispatch' => {'top' => 1, 
+                   'arguments' => {'split'   => '[\s=]+',
+                                   'setting' => {'type' => 'SCALAR',},
+                                   'value'   => {'type' => 'ARRAYELEM'}},
+                   'hereargs' =>  'value',
+                  }
+   },
+   'configdef'  => 
+   {
+    'parser' => [qw(email shell list global real)],
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'split', '[\s,]+',
+                                   'vars'     => {'type' => 'ARRAY'}},
+                   'hereargs' =>  'vars',
+                  }
+   },
    'configedit' => {'parser' => [qw(shell list global real)]},
    'newconfig'  => {'parser' => [qw(email shell list obsolete=configset real)]},
    'newfaq'     => {'parser' => [qw(email shell list global real)]},
@@ -246,53 +253,6 @@ my %commands =
                    'actions' => \%actions,
                   },
    },
-   'auxadd' =>
-   {
-    'parser' => [qw(email shell list global real)],
-    'dispatch' => {'top' => 1,
-                   'arguments' => {'auxlist' => {'type' => 'SCALAR',},
-                                   'victims' => {'type' => 'ARRAYELEM'}},
-                   'hereargs' => 'victims',
-                   'tokendata' => {'victim' => 'victims',
-                                   'arg1'   => 'auxlist' }
-                  },
-    'access'   => {
-                   'default' => 'deny',
-                   'legal'   => \%reg_legal,
-                   'actions' => \%actions,
-                  },
-   },
-   'auxremove' =>
-   {
-    'parser' => [qw(email shell list global all real)],
-    'dispatch' => {'top' => 1, 
-                   'arguments' => {'auxlist' => {'type' => 'SCALAR',},
-                                   'victims' => {'type' => 'ARRAYELEM'}},
-                   'hereargs' => 'victims',
-                   'tokendata' => {'victim' => 'victims',
-                                   'arg1'   => 'auxlist' }
-                  },
-    'access'   => {
-                   'default' => 'deny',
-                   'legal'   => \%reg_legal,
-                   'actions' => \%actions,
-                  },
-   },
-   'auxwho' =>
-   {
-    'parser' => [qw(email shell list global nohereargs real)],
-    'dispatch' => {'top' => 1, 'iter' => 1,
-                   'arguments' => {'auxlist' => {'type' => 'SCALAR',},
-                                   'regexp'  => {'type' => 'SCALAR'}},
-                   'tokendata' => {'arg2'    => 'auxlist',
-                                   'arg1'    => 'regexp'}
-                  },
-    'access'   => {
-                   'default' => 'deny',
-                   'legal'   => \%reg_legal,
-                   'actions' => \%actions,
-                  },
-   },
    'changeaddr' =>
    {
     'parser' => [qw(email shell nohereargs real)],
@@ -310,11 +270,14 @@ my %commands =
    {
     'parser' => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1, 
-                   'arguments' => {'newlist' => {'type' => 'SCALAR',
-                                                 'exclude' => 'regen'},
-                                   'victims' => {'type' => 'ARRAYELEM'}},
+                   'arguments' => {'newlist'   => {'type' => 'SCALAR',
+                                                   'exclude' => 'regen'},
+                                   'templates' => {'type' => 'SCALAR',
+                                                   'include' => 'template'},
+                                   'victims'   => {'type' => 'SCALAR'}},
                    'tokendata' => {'victim' => 'victims',
-                                   'arg1' => 'newlist'}
+                                   'arg1' => 'newlist',
+                                   'arg2' => 'templates'}
                   },
     'access'   => {
                    'default' => 'deny',
@@ -444,7 +407,6 @@ my %commands =
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1, 
-                   'arguments' => { 'auxlist' => {'type' => 'SCALAR'} },
                    'hereargs'  =>   'message',
                    'tokendata' => { 'arg1'   => 'file',
                                     'arg3'   => 'vars',}
@@ -479,7 +441,6 @@ my %commands =
                     'mode'                         => 3,
                     'percent_quoted'               => 2,
                     'quoted_lines'                 => 2,
-                    'sublist'                      => 3,
                     'total_header_length'          => 2,
                     'total_header_length_exceeded' => 1,
                    },
@@ -500,7 +461,8 @@ my %commands =
                                    'olanguage'=> {'type' => 'SCALAR',
                                                   'include' => 'data'},
                                    'xdesc'    => {'type' => 'SCALAR'}},
-                   'hereargs' => 'contents'
+                   'hereargs' => 'contents',
+                   'tokendata' => { 'arg1'   => 'spool' }
                   },
     'access'   => {
                    'default' => 'deny',
@@ -572,15 +534,13 @@ my %commands =
    {
     'parser'   => [qw(email shell list global all real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'auxlist' => {'type' => 'SCALAR',
-                                                 'include' => 'aux'},
-                                   'setting' => {'type' => 'SCALAR',
+                   'arguments' => {'setting' => {'type' => 'SCALAR',
                                                  'exclude' => 'check'},
                                    'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  => 'victims',
                    'tokendata' => {'victim' => 'victims',
                                    'arg1'   => 'setting',
-                                   'arg2'   => 'auxlist'}
+                                   'arg2'   => 'sublist'}
                   },
     'access'   => {
                    'default' => 'policy',
@@ -617,7 +577,7 @@ my %commands =
    },
    'subscribe' =>
    {
-    'parser'   => [qw(email shell list real)],
+    'parser'   => [qw(email shell list global real)],
     'dispatch' => {'top' => 1,
                                    
                    'arguments' => {'setting' => {'type'    => 'SCALAR',
@@ -625,19 +585,14 @@ my %commands =
                                    'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  =>  'victims',
                    'tokendata' => {'victim' => 'victims',
-                                   'arg1' => 'setting'}
+                                   'arg1' => 'setting',
+                                   'arg2' => 'sublist'}
                   },
     'access'   => {
                    'default' => 'policy',
                    'legal'   => {
-                                 'master_password'=> 1,
-                                 'user_password'  => 1,
-                                 'mismatch'       => 1,
-                                 'posing'         => 1,
+                                 %reg_legal,
                                  'matches_list'   => 1,
-                                 'addr'           => 3,
-                                 'fulladdr'       => 3,
-                                 'host'           => 3,
                                 },
                    'actions' => \%actions,
                   },
@@ -680,11 +635,12 @@ my %commands =
    },
    'unsubscribe' =>
    {
-    'parser'   => [qw(email shell list all real)],
+    'parser'   => [qw(email shell list global all real)],
     'dispatch' => {'top' => 1, 
                    'arguments' => {'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  =>  'victims',
-                   'tokendata' => {'victim' => 'victims'}
+                   'tokendata' => {'victim' => 'victims',
+                                   'arg1'   => 'sublist' }
                   },
     'access'   => {
                    'default' => 'policy',
@@ -710,7 +666,8 @@ my %commands =
     'parser'   => [qw(email shell global list nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
                    'arguments' => {'regexp' => {'type' => 'SCALAR'}},
-                   'tokendata' => {'arg1'   => 'regexp'}
+                   'tokendata' => {'arg1'   => 'regexp',
+                                   'arg2'   => 'sublist'}
                   },
     'access'   => {
                    'default' => 'access',
@@ -754,10 +711,6 @@ my %aliases =
    '.'              => 'end',
    'aliasadd'       => 'alias',
    'aliasremove'    => 'unalias',
-   'auxdel'         => 'auxremove',
-   'auxsubscribe'   => 'auxadd',
-   'auxunsubscribe' => 'auxremove',
-   'auxshow'        => 'auxwho',
    'cancel'         => 'unsubscribe',
    'configdefault'  => 'configdef',
    'exit'           => 'end',
