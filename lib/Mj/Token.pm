@@ -876,7 +876,7 @@ sub t_remind {
   my $log  = new Log::In 60;
   my $time = time;
   my (%file, @mod, @reminded, @tmp, $data, $ent, $gurl, 
-      $mj_addr, $mj_owner, $sender, $tmp, $token, $url);
+      $mj_addr, $mj_owner, $owner, $tmp, $token, $url);
 
   my $mogrify = sub {
     my $key  = shift;
@@ -914,8 +914,8 @@ sub t_remind {
         }
       }
 
-      $sender = $self->_list_config_get($data->{'list'}, 'sender');
-      $ent = $self->r_gen($token, $data, $gurl, $sender);
+      $owner = $self->_list_config_get($data->{'list'}, 'whoami_owner');
+      $ent = $self->r_gen($token, $data, $gurl, $owner);
       next unless $ent;
 
       # Mail it out; the victim gets confirm notices, otherwise the owner
@@ -925,7 +925,7 @@ sub t_remind {
         $self->mail_entity($mj_owner, $ent, $data->{'victim'});
       }
       elsif ($data->{'type'} eq 'alias') {
-        $ent->head->replace('To', $sender);
+        $ent->head->replace('To', $owner);
         if ($data->{'chain2'} eq 'none') {
           next;
         }
@@ -941,8 +941,8 @@ sub t_remind {
         $self->mail_entity($mj_owner, $ent, @mod) if (scalar @mod);
       }  
       else {
-        $ent->head->replace('To', $sender);
-        $self->mail_entity($mj_owner, $ent, $sender);
+        $ent->head->replace('To', $owner);
+        $self->mail_entity($mj_owner, $ent, $owner);
       }
         
       # Purge the entity
