@@ -26,7 +26,7 @@ sub ask_lang {
   # If additional translations are added, the English "language" file
   # should be modified to prompt for that language.
   $lang = $config->{'language'} = 
-    get_enum(retr_msg('language', 'en'), $def, [qw(en)]);
+    get_enum(retr_msg('language', 'en'), $def, [qw(en fr)]);
 }
 
 sub ask_basic {
