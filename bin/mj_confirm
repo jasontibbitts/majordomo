@@ -131,9 +131,11 @@ $ptoken = $cgi->param('t');
 $action = $cgi->param('a') || 'tokeninfo-nosession';
 $part   = $cgi->param('p') || '0';
 
-$cgidata = Mj::Format::uescape("user=$user&d=$domain");
+$cgidata = Mj::Format::cgidata($mj, { 'user' => $user,
+                                      'password' => '',
+                                    });
 
-$token = $mj->t_recognize($ptoken) || "";
+$token = $mj->t_recognize($ptoken) || '';
 
 $subs = { $mj->standard_subs('GLOBAL'),
           'CGIDATA'   => $cgidata,
@@ -143,7 +145,6 @@ $subs = { $mj->standard_subs('GLOBAL'),
           'TOKEN'     => $token,
           'USER'      => $user,
         };
-
 
 #----- Determine what service was requested -----#
 if ($ptoken and not $token) {
@@ -176,6 +177,7 @@ elsif ($func eq 'login') {
 }
 
 $request = {
+  'cgidata'   => $cgidata,
   'cgiurl'    => $cgiurl,
   'command'   => $func,
   'id'        => $token,
