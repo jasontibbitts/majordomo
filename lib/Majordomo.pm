@@ -428,7 +428,7 @@ sub get_all_lists {
 	push @lists, $list;
       }
   }
-  @lists;
+  sort @lists;
 }
 
 =head2 domain
@@ -1693,6 +1693,7 @@ sub _password {
 	      SITE      => $site,
 	      LIST      => $list,
 	      PASSWORD  => $pass,
+	      VICTIM    => $vict->canon,
 	     };
 
     ($file, %file) = $self->_list_file_get('GLOBAL', 'new_password');
@@ -3444,7 +3445,7 @@ sub _rekey {
   my $log = new Log::In 35;
   my ($list);
 
-  # Do a rekey operation on the regustration databass
+  # Do a rekey operation on the registration database
   my $sub =
     sub {
       my $key  = shift;
@@ -3453,6 +3454,10 @@ sub _rekey {
 
       # Allocate an Mj::Addr object from stripaddr and transform it.
       $addr = new Mj::Addr($data->{'stripaddr'});
+
+      # Skip this record if it is not a valid address.
+      return (0, 0, 0) unless $addr;
+
       $newkey = $addr->xform;
       $changekey = ($newkey ne $key);
       return ($changekey, 0, $newkey);
@@ -4033,7 +4038,12 @@ sub _unregister {
   my $log = new Log::In 35, "$vict";
   my(@out, @removed, @aliases, $data, $key, $l);
 
-  (@removed) = $self->{'reg'}->remove($mode, $vict->canon);
+  if ($mode =~ /regex/) {
+    (@removed) = $self->{'reg'}->remove($mode, $vict);
+  }
+  else {
+    (@removed) = $self->{'reg'}->remove($mode, $vict->canon);
+  }
 
   unless (@removed) {
     $log->out("failed, nomatching");
@@ -4048,13 +4058,13 @@ sub _unregister {
       $self->_make_list($l);
       $self->{'lists'}{$l}->remove('', $key);
     }
+    @aliases = $self->_alias_reverse_lookup($key);
+    for (@aliases) {
+      $self->{'alias'}->remove('', $_);
+    }
     push (@out, $data->{'fulladdr'});
   }
 
-  @aliases = $self->_alias_reverse_lookup($vict);
-  for (@aliases) {
-    $self->{'alias'}->remove('', $_);
-  }
 
   return (1, @out);
 }
