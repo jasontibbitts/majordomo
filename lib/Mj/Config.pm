@@ -64,6 +64,7 @@ $VERSION = "1.0";
    'restrict_post'    => 1,
    'string_array'     => 1,
    'string_2darray'   => 1,
+   'sublist_array'    => 1,
    'taboo_body'       => 1,
    'taboo_headers'    => 1,
    'welcome_files'    => 1,
@@ -1975,10 +1976,40 @@ sub parse_list_array {
   my $log  = new Log::In 150, "$var";
   my($i, $l, $e);
   for $i (@$arr) {
-    ($l, $e) = split(':', $i);
+    ($l, $e) = split /[ :]+/, $i, 2;
     next unless length($l);
     return (0, "Illegal or unknown list $l.")
-      unless ((-d "$self->{'ldir'}/$l") && (legal_list_name(undef, $l)));
+      unless ((-d "$self->{'ldir'}/$l") && 
+              (Majordomo::legal_list_name(undef, $l)));
+  }
+  (1, undef, $arr);
+}
+
+=head2 parse_sublist_array
+
+Checks to see that all array items are the names of existing sublists.
+Permits a trailing extra bit separated from the list by a colon.  This is
+useful as a path or comment or whatever.  The list portion (before the
+colon) is allowed to be empty.  (Some of this functionality may need to be
+moved to another function.)
+
+=cut
+
+use Majordomo qw(legal_list_name);
+sub parse_sublist_array {
+  my $self = shift;
+  my $arr  = shift;
+  my $var  = shift;
+  my $log  = new Log::In 150, "$var";
+  my($i, $l, $e);
+  for $i (@$arr) {
+    ($l, $e) = split /[: ]+/, $i, 2;
+    next unless length($l);
+    # XXX Assumes .D or .T suffix for sublist database.
+    return (0, "Illegal or unknown list $l.")
+      unless ((-f "$self->{'ldir'}/$self->{'list'}/X$l.D" ||
+               -f "$self->{'ldir'}/$self->{'list'}/X$l.T")
+               && (Majordomo::legal_list_name(undef, $l)));
   }
   (1, undef, $arr);
 }
