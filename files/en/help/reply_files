@@ -27,7 +27,7 @@ moderator uses the accept-archive command.  The reply is only sent if the
 "ackpost" flag is set for the address in question (see "help set" for
 a description of flags).
 
-(standard plus ARCHIVE, ARCURL, DATE, HOST, SENDER, SEQNO, SUBJECT, 
+(standard plus ARCNO, ARCURL, DATE, HOST, SENDER, SEQNO, SUBJECT, 
 SUBSCRIBED, USER)
 
     

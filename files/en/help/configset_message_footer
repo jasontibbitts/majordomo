@@ -22,7 +22,7 @@ $INCLUDE-config/message_footer
 
 The footer text will undergo variable substitution as it is added to the
 message.  The variables supported include the standard substitutions,
-plus ARCHIVE, ARCURL, DATE, HOST, SENDER, SEQNO, SUBJECT, SUBSCRIBED,
+plus ARCNO, ARCURL, DATE, HOST, SENDER, SEQNO, SUBJECT, SUBSCRIBED,
 and USER.  See "help variables" for more information.  If the
 "rewritefrom" flag is set for the author of the message, the USER
 substitution will contain the author's rewritten address.  See "help
