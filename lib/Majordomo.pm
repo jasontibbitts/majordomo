@@ -164,7 +164,7 @@ sub new {
   my $log = new Log::In 50, "$topdir, $domain";
 
   unless (-d $topdir) {
-    return "Top level directory $topdir does not exist!"; #XLANG
+    return "Top level directory $topdir does not exist!";
   }
 
   my $self   = {};
@@ -199,11 +199,11 @@ sub new {
   $self->{'sitedata'}{'setup'} = $config; # New cf format
   $self->{'sitedata'}{'config'} = do "$topdir/SITE/config.pl";
   $log->abort("Can't find site config file $topdir/SITE/config.pl: $!")
-    unless $self->{'sitedata'}{'config'}; #XLANG
+    unless $self->{'sitedata'}{'config'};
 
   $self->{backend} = $self->_site_config_get('database_backend');
   $log->abort("Can't create GLOBAL list: $!")
-    unless $self->_make_list('GLOBAL'); #XLANG
+    unless $self->_make_list('GLOBAL');
   $log->abort($self->format_error('make_list', 'GLOBAL', 'LIST' => 'DEFAULT'))
     unless $self->_make_list('DEFAULT');
 
@@ -213,7 +213,7 @@ sub new {
                                         list => "GLOBAL",
                                         file => "_aliases");
   $log->abort("Unable to initialize GLOBAL aliases database: $!")
-    unless ($self->{'alias'}); #XLANG
+    unless ($self->{'alias'});
 
   $self->{reg}   = new Mj::RegList(backend => $self->{backend},
                                     domain => $self->{domain},
@@ -1147,8 +1147,8 @@ sub substitute_vars {
 	}
       }
       else {
-	warn "Include file $2 not found."; #XLANG
-	print $out ("Include file $2 not found.\n"); #XLANG
+	warn "Include file $2 not found.";
+	print $out $self->format_error('no_file', 'GLOBAL', 'FILE' => $2);
       }
       next;
     }
@@ -2713,7 +2713,7 @@ sub _get {
   }
 
   unless ($self->{'lists'}{$list}->fs_legal_file_name($nname)) {
-    return (0, qq(The path "/$name" is not valid.\n)); # XLANG
+    return (0, $self->format_error('invalid_file', $list, 'FILE' => $name));
   }
 
   ($file, %data) = $self->_list_file_get(list => $list, file => $nname);
@@ -2725,7 +2725,8 @@ sub _get {
 					    );
     }
     unless ($file) {
-      return (0, qq(The file "$name" does not exist or is a directory.\n)); #XLANG
+      return (0, $self->format_error('no_file', $list, 
+                                     'FILE' => $name));
     }
   }
 
@@ -2733,7 +2734,8 @@ sub _get {
   if ($mode =~ /immediate|edit/) {
     $self->{'get_fh'} = new IO::File $file;
     unless ($self->{'get_fh'}) {
-      return (0, "Cannot open file \"$name\".\n"); #XLANG
+      return (0, $self->format_error('open_file', $list, 
+                                     'FILE' => $name, 'ERROR' => $!));
     }
     # Return the data to make editing/replacing the file easier.
     return (1, \%data);
@@ -2746,11 +2748,12 @@ use IO::File;
 sub _get_send_and_reply {
   my $self = shift;
   my ($list, $victim, $name) = @_;
+  my (%data, $file);
 
   # Mail out the file to the victim.
   # Be sneaky and return another file to be read; this keeps the code
   # simpler and lets the owner customize the file_sent message
-  my ($file, %data) = $self->_list_file_get(list => $list, file => 'file_sent');
+  ($file, %data) = $self->_list_file_get(list => $list, file => 'file_sent');
   $self->_get_mailfile(@_);
 
   $self->{'get_subst'} = {
@@ -2760,7 +2763,8 @@ sub _get_send_and_reply {
                          };
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
-    return (0, "Cannot open file \"$name\".\n"); #XLANG
+    return (0, $self->format_error('open_file', $list, 
+                                   'FILE' => $name, 'ERROR' => $!));
   }
   return (1, \%data);
 }
@@ -2854,7 +2858,7 @@ sub _faq {
   ($file, %fdata) = $self->_list_file_get(list => $list, file => 'faq');
 
   unless ($file) {
-    return (0, "No FAQ available.\n"); #XLANG
+    return (0, $self->format_error('no_file', $list, 'FILE' => '/faq'));
   }
 
   if ($mode !~ /edit/) {
@@ -2874,7 +2878,8 @@ sub _faq {
 
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
-    return (0, "No FAQ available.\n$@"); #XLANG
+    return (0, $self->format_error('open_file', $list, 'FILE' => '/faq',
+                                   'ERROR' => $!));
   }
   return (1, \%fdata);
 }
@@ -2945,7 +2950,8 @@ sub help_start {
                            );
   }
   unless ($file) {
-    return (0, "No help for that topic.\n"); #XLANG
+    return (0, $self->format_error('no_file', 'GLOBAL', 'FILE' =>
+                                   "help/$request->{'topic'}"));
   }
 
   if ("$request->{'user'}" ne "$request->{'victim'}") {
@@ -2994,7 +3000,7 @@ sub _info {
   ($file, %fdata) = $self->_list_file_get(list => $list, file => 'info');
 
   unless ($file) {
-    return (0, "No info available.\n"); #XLANG
+    return (0, $self->format_error('no_file', $list, 'FILE' => '/info'));
   }
 
   if ($mode !~ /edit/) {
@@ -3014,7 +3020,8 @@ sub _info {
 
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
-    return (0, "Info file unavailable.\n"); #XLANG
+    return (0, $self->format_error('open_file', $list, 'FILE' => '/info',
+                                   'ERROR' => $!));
   }
   return (1, \%fdata);
 }
@@ -3051,7 +3058,7 @@ sub _intro {
   ($file, %fdata) = $self->_list_file_get(list => $list, file => 'intro');
 
   unless ($file) {
-    return (0, "No intro available.\n"); #XLANG
+    return (0, $self->format_error('no_file', $list, 'FILE' => '/intro'));
   }
 
   if ($mode !~ /edit/) {
@@ -3072,7 +3079,8 @@ sub _intro {
     
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
-    return (0, "Intro file is unavailable.\n"); #XLANG
+    return (0, $self->format_error('open_file', $list, 'FILE' => '/intro',
+                                   'ERROR' => $!));
   }
   return (1, \%fdata);
 }
@@ -3250,8 +3258,8 @@ sub _put {
   }
 
   unless ($self->{'lists'}{$list}->fs_legal_file_name($file)) {
-    # XLANG
-    return (0, qq(The path "/$file" is not valid.\n));
+    return (0, $self->format_error('invalid_file', $list, 
+                                   'FILE' => $file));
   }
 
   $force = ($mode =~ /force/) ? 1 : 0;
@@ -3387,7 +3395,7 @@ sub _request_response {
     return (1, '');
   }
   else {
-    return (0, "Unable to create message entity.\n");  # XLANG
+    return (0, $self->format_error('no_entity', $list));
   }
 }
 
@@ -3428,8 +3436,7 @@ sub _index {
   $dir =~ s!/$!!;
 
   unless (!$dir or $self->{'lists'}{$list}->fs_legal_file_name($dir)) {
-    # XLANG
-    return (0, qq(The path "/$dir" is not valid.\n));
+    return (0, $self->format_error('invalid_file', $list, 'FILE' => $dir));
   }
 
   $nodirs  = 1 if $mode =~ /nodirs/;
@@ -3569,7 +3576,7 @@ sub _list_file_get {
     $args{subs} ||= {};
     $args{subs}->{'UNKNOWNFILE'} = $file;
     $out[0] = $self->substitute_vars($out[0], $args{subs}, $list);
-    $log->complain("Requested file $file not found"); #XLANG
+    $log->complain("Requested file $file not found");
     return @out;
   }
   return;
@@ -3591,13 +3598,13 @@ sub _list_file_get_string {
   %args = @_;
   ($file, %data) = $self->_list_file_get(@_);
 
-  # return "No such file: \"$_[1]\".\n" unless $file; #XLANG
   return unless $file;
 
   $fh = gensym();
 
-  return qq(Unable to open file "$file".\n)
-    unless (open $fh, "<$file"); # XLANG
+  return $self->format_error('open_file', $args{'list'}, 
+                             'FILE' => $args{'file'}, 'ERROR' => $!)
+    unless (open $fh, "<$file");
 
   while (defined($line = <$fh>)) {
     $out .= $line;
@@ -4060,8 +4067,9 @@ sub _alias {
 
   # Check that the target (after aliasing) is registered
   $tdata = $self->{reg}->lookup($to->canon);
-  return (0, "$to is not registered here.\n")
-    unless $tdata; #XLANG
+  return (0, $self->format_error('unregistered', 'GLOBAL', 
+                                 'VICTIM' => "$to"))
+    unless $tdata;
 
   # Check that the transformed but unaliased source is _not_ registered, to
   # prevent cycles.
@@ -4147,8 +4155,8 @@ sub _announce {
 					     subs => $subs,
 					    );
 
-  return (0, "The file $file is unavailable.\n")
-    unless $mailfile; #XLANG
+  return (0, $self->format_error('no_file', $list, 'FILE' => $file))
+    unless $mailfile;
 
   $desc = $self->substitute_vars_string($data{'description'}, $subs);
 
@@ -4167,13 +4175,14 @@ sub _announce {
      'Content-Language:' => $data{'language'},
     );
 
-  return (0, "Unable to create mail entity.\n")
-    unless $ent; #XLANG
+  return (0, $self->format_error('no_entity', $list))
+    unless $ent;
 
   $tmpfile = "$tmpdir/mja" . unique();
   $fh = gensym();
   open ($fh, ">$tmpfile") ||
-    return(0, "Could not open temporary file, $!"); # XLANG
+    return(0, $self->format_error('open_file', $list, 'FILE' =>
+                                  $tmpfile, 'ERROR' => $!));
   $ent->print($fh);
   close ($fh)
     or $::log->abort("Unable to close file $tmpfile: $!");
