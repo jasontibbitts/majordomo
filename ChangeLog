@@ -1,3 +1,16 @@
+2000-06-22  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Bf/Parser.pm (parse_postoffice): Parse bounces from
+	Post.Office.
+	(parse_qmail): Handle yet another qmail variant.
+	(check_dsn_diags): Recognize yet another sendmail diagnostic
+	format.
+
+2000-06-21  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Bf/Parser.pm (parse_lotus): Parse bounces from Lotus SMTP
+	MTA.
+
 2000-06-20  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/mj_cf_data.pl: Add bounce_max_age (31) and bounce_max_count

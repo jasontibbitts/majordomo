@@ -83,6 +83,8 @@ sub parse {
   $ok or ($ok = parse_exchange  ($ent, $data, $hints));
   $ok or ($ok = parse_sendmail  ($ent, $data, $hints));
   $ok or ($ok = parse_compuserve($ent, $data, $hints));
+  $ok or ($ok = parse_lotus     ($ent, $data, $hints));
+  $ok or ($ok = parse_postoffice($ent, $data, $hints));
   $ok or ($ok = parse_softswitch($ent, $data, $hints));
 
   # Look for useful bits in the To: header (assuming we even have one)
@@ -508,6 +510,57 @@ sub parse_exim {
   $ok;
 }
 
+=head2 parse_lotus
+
+Attempts to parse the bounces issued by Lotus SMTP MTA (v1.2, at least).
+These bounces look like this:
+
+------- Failure Reasons  --------
+
+User  not listed in public Name & Address Book
+xxxx@notes.yyyy.com
+
+
+------- Returned Message --------
+
+Examples of warnings from this MTA are welcomed.
+
+=cut
+sub parse_lotus {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my ($bh, $diag, $line, $ok, $user);
+
+  # Lotus mails only single-part bounces
+  return if $ent->parts;
+
+  # The first non-blank line must contain the greeting
+  $bh = $ent->bodyhandle->open('r');
+  return unless $bh;
+  while (defined($line = $bh->getline)) {
+    next if $line =~ /^\s*$/;
+    last if $line =~ /^-+\s+failure reasons/i;
+    return;
+  }
+
+  # Next non-blank line is the diag, next line is the user
+  while (defined($line = $bh->getline)) {
+    next if $line =~ /^\s*$/; chomp $line;
+    $diag = $line;
+    $line = $bh->getline;
+    return unless $line;
+    chomp $line;
+    $user = $line;
+
+    $data->{$user}{'diag'}   = $diag;
+    $data->{$user}{'status'} = 'failure';
+    last; # Never seen more than one bouncing user per bounce
+  }
+
+  'Lotus';
+}
+
 =head2 parse_postfix
 
 Attempts to parse the bounces issued by Postfix.
@@ -665,6 +718,93 @@ sub parse_softswitch {
   'SoftSwitch';
 }
 
+=head2 parse_postoffice
+
+Attempts to parse the bounces issued by Post.Office (v3.5.3 tested).  These
+bounces are multipart; the first part looks like this:
+
+
+This Message was undeliverable due to the following reason:
+
+Your message was not delivered because the DNS records for the
+destination computer could not be found.  Carefully check that
+the address was spelled correctly, and try sending it again if
+there were any mistakes.
+
+It is also possible that a network problem caused this situation,
+so if you are sure the address is correct you might want to try to
+send it again.  If the problem continues, contact your friendly
+system administrator.
+
+     Host yyyy.uk not found
+
+The following recipients did not receive this message:
+
+     <xxxx@yyyy.uk>
+
+Please reply to Postmaster@site-2.jet.uk
+if you feel this message to be in error.
+
+Post.Office bounces are chatty and this makes it tough to get just a simple
+diagnostic.  What we try to do is pull out the first sentence of the first
+paragraph of the diagnostic and all of the users.  The diag is after the
+"This message was undeliverable" line and the users are after the "The
+following recipients" line.
+
+=cut
+sub parse_postoffice {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my ($bh, $diag, $line, $user);
+
+  # Post.Office sends multipart bounces, each part is flat.
+  return unless $ent->parts;
+  return if $ent->parts(0)->parts;
+
+  $bh = $ent->parts(0)->bodyhandle->open('r');
+  return unless $bh;
+
+  # Look for the line introducing the diagnostic
+  while (defined($line = $bh->getline)) {
+    next if $line =~ /^\s*$/;
+#warn "A $line";
+    last if $line =~ /^\s*this message was undeliverable due to the following reason:\s*$/i;
+  }
+
+  while (defined($line = $bh->getline)) {
+    next if $line =~ /^\s*$/ && !$diag;
+    last if $line =~ /^\s*$/;
+#warn "B $line";
+    chomp $line; $diag .= ($diag?' ':'').$line;
+  }
+
+  # We just want the first sentence of the diagnostic
+  $diag =~ s/([^\.]+\.).*/$1/;
+
+  # Look for the line introducing the users
+  while (defined($line = $bh->getline)) {
+    next if $line =~ /^\s*$/;
+#warn "C $line";
+    last if $line =~ /^\s*the following recipients did not receive this message:\s*$/i;
+  }
+
+  while (defined($line = $bh->getline)) {
+    next if $line =~ /^\s*$/ && !$user;
+    last if $line =~ /^\s*$/;
+#warn "D $line";
+    last unless $line =~ /^\s*<(.*)>\s*$/;
+    $user = $1;
+
+    if ($user) {
+      $data->{$user}{'diag'} = $diag;
+      $data->{$user}{'status'} = 'failure';
+    }
+  }
+
+  'Post.Office';
+}
+
 =head2 parse_qmail
 
 Attempts to parse the bounces issued by qmail, and also by yahoo (which is
@@ -710,6 +850,7 @@ sub parse_qmail {
     next if $line =~ /^\s*$/;
     $type = 'Qmail';
     last if $line =~ /^\s*hi.*this is/i;
+    last if $line =~ /^\s*this is the mail transport/i;
     $type = 'Yahoo';
     last if $line =~ /^\s*message from\s*yahoo.com/i;
     return;
@@ -720,7 +861,8 @@ sub parse_qmail {
   # an address in angle brackets.
   while (defined($line = $bh->getline)) {
     if ($line =~ /permanent error/i   ||
-	$line =~ /unable to deliver/i)
+	$line =~ /unable to deliver/i ||
+	$line =~ /could not be delivered/i)
       {
 	$failure = 1;
 	next;
@@ -746,7 +888,7 @@ sub parse_qmail {
 =head2 check_dsn_diags
 
 Does extra parsing for bounces where we could extract bouncing addresses
-but didn't get useful diagnostics.  This uncludes DSns not including the
+but didn't get useful diagnostics.  This includes DSNs not including the
 optional diagnostic-code-field and those who include the field but indlude
 a string like "250 OK" or "250 Message accepted for delivery" instead of
 something useful.
@@ -807,6 +949,7 @@ sub check_dsn_diags {
   # <<< 552 address... Mailbox Full
   # <<< 552 address Mailbox Full
   # 550 address... User unknown
+  # <address>... User Unknown
 
   # Note that when the address is in brackets, we don't have to be explicit
   # about the three dots and whitespace, but if we don't have the brackets
@@ -819,7 +962,8 @@ sub check_dsn_diags {
 	$line =~ /^\d{3}\s*<(.*)>[\s\.]*(.*)$/i       ||
 	$line =~ /^<<<\s*\d{3}\s*(.*)\.{3}\s*(.*)$/i  ||
 	$line =~ /^<<<\s*\d{3}\s*([^\s]*)\s+(.*)$/i   ||
-	$line =~ /^\d{3}\s*([^\s]*)\.{3}\s*(.*)$/i
+	$line =~ /^\d{3}\s*([^\s]*)\.{3}\s*(.*)$/i    ||
+	$line =~ /^<(.*)>[\s\.]*(.*)$/i
        )
       {
 	$user = $1; $diag = $2;
@@ -878,8 +1022,9 @@ following line.
 The following recipients did not receive this message:
      <xxxx@yyyy.net>
 
-We keep the previous line around and when we hit the second line we know to
-save away the diagnostics and pull out addresses until the next blank.
+We keep the previous lines around (dumping them when we see a blank) and
+when we hit the appropriate line we know to save away the diagnostics and
+pull out addresses until the next blank.
 
 4) A variant of the first, without as much identifying information:
 
@@ -902,7 +1047,7 @@ sub check_dsn_netscape {
   my $ent  = shift;
   my $data = shift;
   my $hints= shift;
-  my ($fh, $diag, $format3, $format5, $line, $ok, $oline, $type, $user);
+  my ($fh, $diag, $format3, $format5, $line, $ok, $pdiag, $type, $user);
 
   # Check the type of the first part; it should be plain text
   $type = $ent->parts(0)->mime_type;
@@ -914,7 +1059,15 @@ sub check_dsn_netscape {
   $format5=0;
  LINE:
   while (1) {
-    $oline = $line; $line = $fh->getline; last unless defined $line;
+    $pdiag .= ($pdiag?" ":'').$line if defined($line);
+    $line = $fh->getline; last unless defined $line;
+    chomp $line;
+
+    if ($line =~ /^\s*$/) {
+      $pdiag = '';
+      next;
+    }
+
     if ($line =~ /(.*): [sl]mtp <(.*)>$/i) {
 #      warn "format 1";
       $user = $2;
@@ -926,15 +1079,14 @@ sub check_dsn_netscape {
       $user = $1;
       $line = $fh->getline;
       last unless defined $line;
-      chomp $line;
       $line =~ s/^\s*reason:\s*//i;
       $diag = $line;
     }
 
     elsif ($line =~ /following recipients did not receive/i) {
 #      warn "format 3";
-      $diag = $oline;
-      chomp $diag; $diag =~ s/^\s*//;
+      $diag = $pdiag;
+      $diag =~ s/^\s*//;
       $line = $fh->getline;
       last unless defined $line;
       if ($line =~ /^\s*<(.*)>\s*$/) {
@@ -963,7 +1115,7 @@ sub check_dsn_netscape {
     elsif ($line =~ /the following destination addresses/i) {
 #      warn "format 5";
       $diag = $line;
-      chomp $diag; $diag =~ s/^\s*//;
+      $diag =~ s/^\s*//;
       $format5 = 1;
     }
     # Parsing the rest of the diagnostic
@@ -971,7 +1123,6 @@ sub check_dsn_netscape {
       if ($line =~ /^\s*$/) {
 	$format5=2;
       }
-      chomp $line;
       $diag .= " $line";
     }
     # Parsing the addresses
