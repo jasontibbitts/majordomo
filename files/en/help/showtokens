@@ -1,5 +1,5 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-showtokens[-alias][-async][-delay] listname [action]
+showtokens[-alias][-async][-delay][-probe] listname [action]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is the name of a list at this site
 action, optional, is the name of a request, such as post or subscribe.
@@ -12,7 +12,8 @@ action, optional, is the name of a request, such as post or subscribe.
 A token is an identification number (for example, "0B18-996F-76ED")
 that refers to a request that has not yet been completed.
 
-There are five kinds of token:  confirm, consult, delay, async, and alias.
+There are six kinds of token:  confirm, consult, delay, async, probe, 
+and alias.
 
 Confirm tokens need to be approved by the person whom the request
 affects before they can take place.
@@ -41,12 +42,18 @@ more than once.  Sending a separate, alias token to each moderator
 avoids this problem.  Alias tokens are only displayed if the
 "alias" command mode is used.
 
-Probe tokens are created when a delivery failure ("bounce") occurs and 
+Probe tokens are created when a delivery failure ("bounce") occurs and
 the bounce_rules configuration setting calls for a probe message to be
 sent.  A probe message is sent to the address which experienced the
 failure; if the probe message cannot be delivered, the address will be
-unsubscribed from the mailing list.  See "help configset_bounce_rules"
-for more details.
+unsubscribed from the mailing list.  See "help configset_bounce_rules" 
+for more details.  
+
+Accepting a probe token will cause the probed address to be unsubscribed
+from the mailing list.  Only do this if you are absolutely certain
+that the probed address is invalid.  Rejecting a probe token will
+prevent a bouncing address from being unsubscribed if a the probe
+message cannot be delivered.
 
 The "showtokens" command provides a list of all outstanding tokens.  If
 there are many such unhandled tokens, it may be due to an absent list
