@@ -1382,7 +1382,7 @@ sub put {
 } 
 
 sub register {
-  g_sub('reg', @_)
+  g_sub('register', @_)
 }
 
 sub reject {
@@ -2161,7 +2161,7 @@ sub showtokens {
 }
 
 sub subscribe {
-  g_sub('sub', @_)
+  g_sub('subscribe', @_);
 }
 
 sub tokeninfo {
@@ -2509,11 +2509,11 @@ sub unalias {
 }
 
 sub unregister {
-  g_sub('unreg', @_);
+  g_sub('unregister', @_);
 }
 
 sub unsubscribe {
-  g_sub('unsub', @_);
+  g_sub('unsubscribe', @_);
 }
 
 sub which {
@@ -2734,11 +2734,11 @@ sub who {
       elsif ($request->{'mode'} =~ /export/ && $i->{'classdesc'} 
              && $i->{'flagdesc'}) 
       {
-	$line = "subscribe-nowelcome-noinform $source $i->{'fulladdr'}\n";
-	if ($i->{'origclassdesc'}) {
-	  $line .= "set-noinform $source $i->{'origclassdesc'} $i->{'stripaddr'}\n";
-	}
-	$line .= "set-noinform $source $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
+        $line = "subscribe-nowelcome-noinform $source $i->{'fulladdr'}\n";
+        if ($i->{'origclassdesc'}) {
+          $line .= "set-noinform $source $i->{'origclassdesc'} $i->{'stripaddr'}\n";
+        }
+        $line .= "set-noinform $source $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
         eprint($out, $type, "$line\n");
         next;
       }
@@ -2758,6 +2758,7 @@ sub who {
       }
 
       $subs->{'FULLADDR'} = &escape($i->{'fulladdr'}, $type);
+      $subs->{'QSADDR'} = &qescape($i->{'stripaddr'}, $type);
       $subs->{'LASTCHANGE'} = '';
 
       # Summary mode:  collect statistics instead of displaying 
@@ -3018,44 +3019,50 @@ $act controls the content of various messages; if eq 'sub', we used
 sub g_sub {
   my ($act, $mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$act, $type";
-  my ($addr, $i, $list, $ok, @res);
+  my (@res, $addr, $fail, $i, $list, $ok, $str, $subs, $succeed, $tmp);
 
   $list = $request->{'list'};
-  if ((exists $request->{'sublist'}) and 
+  if (exists ($request->{'sublist'}) and 
       length ($request->{'sublist'}) and
       $request->{'sublist'} ne 'MAIN') 
   {
     $list .= ":$request->{'sublist'}";
   }
 
-  if ($act eq 'sub') {
-    $act = "added to $list";
-  }
-  elsif ($act eq 'reg') {
-    $act = 'registered'; 
-  }
-  elsif ($act eq 'unreg') {
-    $act = 'unregistered and removed from all lists'; 
-  }
-  else {
-    $act = "removed from $list";
-  }
+  $subs = { $mj->standard_subs($list),
+            'CGIDATA'  => $request->{'cgidata'},
+            'CGIURL'   => $request->{'cgiurl'},
+            'CMDPASS'  => $request->{'password'},
+            'USER'     => &escape("$request->{'user'}", $type),
+          };
+
+  $fail = $mj->format_get_string($type, "${act}_error");
+  $succeed = $mj->format_get_string($type, $act);
 
   @res = @$result;
   unless (scalar (@res)) {
-    eprint($out, $type, "No addresses were found.\n");
+    $tmp = $mj->format_get_string($type, 'subscribe_none');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", 0); 
+
     return 1;
   }
   # Now print the multi-address format.
   while (@res) {
     ($ok, $addr) = splice @res, 0, 2;
+
     unless ($ok > 0) {
-      eprint($out, $type, &indicate($type, "$addr\n", $ok));
+      $subs->{'ERROR'} = $addr;
+      $str = $mj->substitute_vars_format($fail, $subs);
+      print $out &indicate($type, "$str\n", $ok);
+
       next;
     }
-    for (@$addr) {
-      my ($verb) = ($ok > 0)?  $act : "not $act";
-      eprint($out, $type, "$_ was $verb.\n");
+
+    for $tmp (@$addr) {
+      $subs->{'VICTIM'} = "$tmp";
+      $str = $mj->substitute_vars_format($succeed, $subs);
+      print $out &indicate($type, "$str\n", $ok); 
     }
   }
   $ok;
