@@ -423,6 +423,7 @@ sub last_n {
   my $arc  = shift;
   my (@arcs, @msgs, $msg, $num);
 
+  # @arcs will hold all archives older than $arc, if given
   if ($arc) {
     @arcs  = sort(grep {$_ < $arc} keys(%{$self->{'archives'}}));
   }
@@ -430,8 +431,6 @@ sub last_n {
     @arcs  = sort(keys(%{$self->{'archives'}}));
   }
 
-  use Data::Dumper; print Dumper \@arcs;
-  
   $arc ||= pop @arcs;
 
   $msg = $self->last_message($arc);
@@ -444,8 +443,9 @@ sub last_n {
     unless ($num > 0) {
       # Move to previous archive.
       $arc = pop @arcs;
-      # Set $num to its last message
-      $num = $self->last_message($arc);
+      last unless $arc;
+      # Set $num to its last message number
+      ($num) = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
     }
   }
   @msgs;
@@ -601,7 +601,7 @@ Takes a range of articles and expands it into a list of articles.
 * By named messages:
     199805/12 199805/15
 
-  By a message count:
+  By a message count (last 10 messages):
      10
 
   By a range of names:
@@ -641,8 +641,11 @@ sub expand_range {
     # Remove date separators.
     $i =~ s/[\.\-]//g;
 
-    # Do we have a message or a date?
-    if ($i =~ m!/!) {
+    # Do we have a count, a date or a message?
+    if ($i =~ /^(\d{1,3})$/) {
+      push @out, $self->last_n($i)
+    }
+    elsif ($i =~ m!/!) {
       # Message: look beyond for a range, grab it, expand it
       if (@args && $args[0] eq '-') {
 	# Parse message range

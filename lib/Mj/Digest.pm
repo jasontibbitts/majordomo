@@ -128,57 +128,63 @@ This builds a MIME digest.  These have the following structure:
 use MIME::Entity;
 use Data::Dumper;
 sub build_mime {
- my $self = shift; 
- my %args = @_;
- my (@msgs, $count, $data, $digest, $file, $i, $index, $indexf, $indexh,
-     $tmp, $top);
+  my $self = shift; 
+  my %args = @_;
+  my (@msgs, $count, $data, $digest, $file, $func, $i, $index, $indexf,
+      $indexh, $tmp, $top);
+  
+  $count = 0;
+  $top = build MIME::Entity
+    (Type     => 'multipart/mixed',
+     Subject  => $args{'subject'} || '',
+     Filename => undef,
+     # More fields here
+    );
+  $digest = build MIME::Entity
+    (Type     => 'multipart/digest',
+     Filename => undef,
+    );
 
- $count = 0;
- $top = build MIME::Entity
-   (Type     => 'multipart/mixed',
-    Subject  => $args{'subject'} || '',
-    Filename => undef,
-    # More fields here
-   );
- $digest = build MIME::Entity
-   (Type     => 'multipart/digest',
-    Filename => undef,
-   );
+  $indexf = Majordomo::tempname();
+  $indexh = new IO::File ">$indexf";
+  $indexh->print($args{'index_header'}) if $args{'index_header'};
 
- $indexf = Majordomo::tempname();
- $indexh = new IO::File ">$indexf";
- $indexh->print("Custom digest\n\n");
+  # Extract all messages from the archive into files, building them into
+  # entities and generating the index file.
+  for $i (@{$args{'messages'}}) {
+    ($data, $file) = $self->{'archive'}->get_to_file($i);
+    unless ($data) {
+      $indexh->print("  Message $i not in archive.\n");
+      next;
+    }
+    $count++;
+    {
+      no strict 'refs';
+      $func = "idx_$args{'index_line'}";
+      $indexh->print(&$func($data));
+    }
+    $tmp = build MIME::Entity
+      (Type        => 'message/rfc822',
+       Description => "$i",
+       Path        => $file,
+       Filename    => undef,
+      );
+    $digest->add_part($tmp);
+  }
 
- # Extract all messages from the archive into files, building them into
- # entities and generating the index file.
- for $i (@{$args{'messages'}}) {
-   ($data, $file) = $self->{'archive'}->get_to_file($i);
-   unless ($data) {
-     $indexh->print("Message $i not in archive.\n\n");
-     next;
-   }
-   $count++;
-   $indexh->print("Message $i:\n", Dumper($data), "\n\n");
-   $tmp = build MIME::Entity
-     (Type        => 'message/rfc822',
-      Description => "$i",
-      Path        => $file,
-      Filename    => undef,
-     );
-   $digest->add_part($tmp);
- }
+  $indexh->print($args{'index_footer'}) if $args{'index_footer'};
 
- # Build index entry.
- $indexh->close;
- $index = build MIME::Entity
-   (Type        => 'text/plain',
-    Description => 'Index',
-    Path        => $indexf,
-    Filename    => undef,
-   );
- $top->add_part($index);
- $top->add_part($digest);
- ($top, $count);
+  # Build index entry.
+  $indexh->close;
+  $index = build MIME::Entity
+    (Type        => 'text/plain',
+     Description => 'Index',
+     Path        => $indexf,
+     Filename    => undef,
+    );
+  $top->add_part($index);
+  $top->add_part($digest);
+  ($top, $count);
 }
 
 =head2 build_1153_start
@@ -188,6 +194,45 @@ sub build_mime {
 This builds an rfc1153 (old) style digest.
 
 =cut
+
+=head2 idx_default
+
+This formats an index line containing just the subject indented by two
+spaces.
+
+=cut
+sub idx_default {
+  my $data = shift;
+
+  return "  $data->{'subject'}\n";
+}
+
+=head2 idx_wasilko
+
+This formats an index line like the following:
+
+  Today's your birthday, friend...                 [Mike Matthews <matthewm>]
+  Chantal Kreviazuk                       ["J." Wermont <jwermont@sonic.net>]
+  Re: Musical Tidbits from Ice Magazine  [Philip David Morgan <philipda@li.n]
+  Re: Chantal Kreviazuk                                    [FAMarcus@aol.com]
+
+Original code by Jeff Wasilko. '
+
+=cut
+sub idx_wasilko {
+  my $data = shift;
+  my ($from, $subj, $width);
+
+  $subj = $data->{'subject'};
+  if (length($subj) > 40) {
+    return "  $subj\n" . (' ' x int(74-length($data->{'from'}))) .
+      "[$data->{'from'}]\n";
+  }
+
+  $from = substr($data->{'from'},0,71-length($subj));
+  $width = length($from) + length($subj);
+  return "  $subj " . (' ' x int(71 - $width)) . "[$from]\n";
+}
 
 =head1 COPYRIGHT
 

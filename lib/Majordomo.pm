@@ -2361,7 +2361,17 @@ sub archive {
     @msgs = $self->{'lists'}{$list}->archive_expand_range(0, @args);
 
     # Build a digest; gives back an entity
-    ($ent, $msgs) = $self->{'lists'}{$list}->build_digest(@msgs);
+    ($ent, $msgs) = $self->{'lists'}{$list}->build_digest
+      (messages      => [@msgs],
+       subject       => "Custom Digest from $list",
+       index_line    => $self->_list_config_get($list, 'digest_index_format'),
+       index_header  => "
+Custom-Generated Digest Containing " . scalar(@msgs) . " Messages
+
+Contents:
+",
+       index_footer  => "\n",
+      );
 
     # Mail the entity out to the victim
     $owner = $self->_list_config_get($list, 'sender');

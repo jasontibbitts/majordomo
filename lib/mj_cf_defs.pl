@@ -47,6 +47,7 @@ $Mj::Config::default_string = q(
  'description'          => undef,
  'description_long'     => [],
  'digests'              => [],
+ 'digest_index_format'  => 'default',
  'subscribe_policy'     => "open+confirm",
  'unsubscribe_policy'   => "open",
  'mungedomain'          => 0,

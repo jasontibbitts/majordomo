@@ -1,3 +1,26 @@
+Thu Oct  1 17:45:23 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Archive.pm (last_n): Fix dumb bug; stop if we popped all
+ 	previous archives.
+
+	* lib/Majordomo.pm (archive): Pass appropriate information to the
+ 	digest engine.
+
+	* lib/Mj/List.pm (build_digest): Now just pass in the arguments as
+ 	given.
+
+	* lib/Mj/Digest.pm (idx_default): Just a plain subject listing.
+	(idx_wasilko): A fancier listing of authors and subjects.
+	(build_mime): Call the appropriate index formatter.  Use the
+ 	passed-in index fronter, footer, and subject.
+
+	* lib/Mj/Archive.pm (expand_range): Expand a 1 to 3 digit count to
+ 	a list of the last N messages.
+
+	* lib/mj_cf_data.pl: Add new variable 'digest_index_format'.
+
+	* lib/Mj/List.pm: Move use AutoLoader down near the _END_ tag.
+
 Wed Sep 30 16:55:40 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Majordomo.pm (_list_config_set): The type of the

@@ -23,7 +23,6 @@ Top of the list
 ---------------
 
 ! Archiver:
-    Retrieve last N messages/message numbers from archive
     Build index from existing file (sync)
     Delete message from archive?
     Automatically add meaningful description to created archive files.
@@ -34,6 +33,16 @@ Top of the list
      from then to now.
 
 ! Digest:
+  Configurables:
+    subject
+    index header
+    index line
+    index footer
+    digest footer - after all messages
+
+
+
+
     Trigger parameters:
       maximum size
       maximum messages
@@ -75,6 +84,18 @@ digests, 'digest-blah' allows only 'blah' digest.
     Add message number to digest
     Trigger - ?
     Build digest given message numbers.
+
+- add nonterminal access_rules.  Now we take the first matching, but we
+  could act and keep going.  This could be used to add reasons to a list,
+  falling through to a final consult or deny.  Would require restructuring
+  the compiled code to push into a list instead of returning on first
+  match.
+
+  add unset action to erase a variable (to, say, ignore taboo matches for a
+  class of users)
+
+  add reason action to stuff another bounce reason onto the list.
+
 
 ! Utility method to set the default language from the interface.
   Check the user's chosen language.  Should the language used be that of
@@ -218,12 +239,6 @@ digests, 'digest-blah' allows only 'blah' digest.
     configdef
 
 - allow mime-match classes just like taboo classes.
-
-- add nonterminal access_rules.  Now we take the first matching, but we
-  could act and keep going.  This could be used to add reasons to a list,
-  falling through to a final consult or deny.  Would require restructuring
-  the compiled code to push into a list instead of returning on first
-  match.
 
 - rewrite lots of routines to take named arguments instead of positionals.
 

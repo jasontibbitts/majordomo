@@ -20,7 +20,6 @@ handling all archiving and digesting aspects of the list.
 =cut
 
 package Mj::List;
-#use AutoLoader 'AUTOLOAD';
 
 use strict;
 use Safe;  # For evaluating the address transforms
@@ -141,6 +140,7 @@ sub _file_path {
   }
 }
 
+#use AutoLoader 'AUTOLOAD';
 1;
 #__END__
 
@@ -1298,7 +1298,7 @@ sub build_digest {
   my $self = shift;
   $self->_make_digest;
 
-  $self->{'digest'}->build_mime(messages => [@_])
+  $self->{'digest'}->build_mime(@_);
 }
 
 =head1 COPYRIGHT

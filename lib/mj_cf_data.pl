@@ -1332,6 +1332,27 @@ The test-list weekly digest
 
 EOC
    },
+   'digest_index_format' =>
+   {
+    'type'   => 'enum',
+    'values' => [qw(default wasilko)],
+    'groups' => ['digest'],
+    'visible'=> 0,
+    'global' => 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+Selects one of the formats for each line in the index listing for the
+digests.  The 'default' format consists simply of the subjects of the
+messages.  The 'wasilko' format, originally provided by Jeff Wasilko,
+provides an index like the following:
+
+  A subject                                         [User <user\@example.com>]
+  Another sibject                      [Another User <otheruser\@example.org>]
+  A really, really, really, really, really really long subject
+                                       [A Verbose user <verbose\@example.com>]
+EOC
+   },
    'addr_xforms' =>
    {
     'type'   => 'xform_array',
