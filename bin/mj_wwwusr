@@ -332,7 +332,8 @@ if ($func eq 'changeaddr') {
   
 no strict 'refs';
 #----- Convert the arguments into the appropriate request values -----#
-Mj::Parser::parse_args ($request, $extra, '') if ($extra);
+Mj::Parser::parse_args ($request, $extra, '') 
+  if (defined $extra and length $extra);
 
 #----- Print the generic page header -----#
 unless ($raw) {
