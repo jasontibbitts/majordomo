@@ -1,11 +1,21 @@
 <!-- Majordomo set_check format file -->
 <h4 align=center>Param&egrave;tres de $FULLADDR</h4>
-  <input type="hidden" name="victims" value="$VICTIM">
+  <input type="hidden" name="victims" value="$STRIPADDR">
 
 <p>
-Une fois que vous avez chang&eacute; vos param&egrave;tres personnels, appuyez sur
-le bouton <b>set</b> pour rendre vos changements permanents.<br>
+Les d&eacute;tails a propos des modes de r&eacute;ception et des 13 param&egrave;tres
+personnels appara&icirc;ssent ci dessous. Si vous modifiez le mode ou les r&eacute;glages,
+cliquez sur le bouton <b>set</b> pour rendre vos changements permanents.
+</p>
+<p>
+Pour supprimer cette adresse sans envoyer de message d'adieu &agrave; $STRIPADDR,
+cliquez sur le bouton <b>unsubscribe</b>. Pour l'enlever en lui envoyant un message
+d'adieu, cliquez sur le bouton <b>unsubscribe-farewell</b>.
+</p>
+<p>
   <input type="submit" name="func" value="set">
+  <input type="submit" name="func" value="unsubscribe">
+  <input type="submit" name="func" value="unsubscribe-farewell">
 </p>
 <p>
 

@@ -1,5 +1,6 @@
 Le ticket $TOKEN a été accepté pour la commande :
   Commande : $CMDLINE
+  De :       ?REQUESTER
   Date :     $DATE
   Session :  $SESSIONID
 

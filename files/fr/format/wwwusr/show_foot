@@ -96,9 +96,8 @@ Pour vous d&eacute;senregistrer, cliquez sur le bouton
 supprim&eacute;s, votre mot de passe sera invalid&eacute;.
 
 <form method="POST" action="$CGIURL">
-  <input type="hidden" name="domain" value="$DOMAIN">
   <input type="hidden" name="user" value="$USER">
-  <input type="hidden" name="passw" type=password value="$CMDPASS">
+  <input type="hidden" name="passw" value="$CMDPASS">
   <input type="submit" name="func" value="unregister">
 </form>
 </p>

@@ -1,11 +1,15 @@
 <!-- Majordomo accept format file -->
 <p>
-Un ticket a &eacute;t&eacute; accept&eacute; pour la commande&nbsp;:
+Un ticket a &eacute;t&eacute; accept&eacute; pour la requête&nbsp;:
 </p>
 <table>
 <tr>
   <td>Commande</td>
   <td>$CMDLINE</td>
+</tr>
+<tr>
+  <td>From</td>
+  <td>$REQUESTER</td>
 </tr>
 <tr>
   <td>Date</td>

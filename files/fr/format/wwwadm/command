@@ -1,3 +1,4 @@
+<!-- Majordomo command format file -->
 <h4 align="center">Formulaire de commandes de Majordomo</h4>
 <form method="POST" action="$CGIURL">
 <input type="hidden" name="command" value="on">

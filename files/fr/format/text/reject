@@ -1,5 +1,6 @@
-Le ticket $TOKEN a été rejeté pour la commande :
+Le ticket $TOKEN a été rejeté pour la requête :
   Commande : $CMDLINE
+  De :       ?REQUESTER
   Date :     $DATE
   Session :  $SESSIONID
 

@@ -62,7 +62,6 @@
     ensuite sur le bouton <b>S'abonner</b>.
 
 <form method="POST" action="$CGIURL">
-  <input type="hidden" name="domain" value="$DOMAIN">
   <input type="hidden" name="passw" value="$CMDPASS">
   <input type="hidden" name="list" value="$LIST">
   <input type="hidden" name="func" value="subscribe">

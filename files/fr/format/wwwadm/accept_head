@@ -9,6 +9,10 @@ commande&nbsp;:
   <td>$CMDLINE</td>
 </tr>
 <tr>
+  <td>From</td>
+  <td>$REQUESTER</td>
+</tr>
+<tr>
   <td>Date</td>
   <td>$DATE</td>
 </tr>
