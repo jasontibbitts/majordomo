@@ -164,8 +164,13 @@ sub post {
   $avars->{dup} = $avars->{dup_msg_id} || $avars->{dup_checksum} ||
     $avars->{dup_partial_checksum} || '';
   $avars->{mime} = $avars->{mime_consult} || $avars->{mime_deny} || '';
+
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
-    $avars->{admin} || $avars->{bad_approval} || $avars->{invalid_from} || '';
+    $avars->{admin} || $avars->{bad_approval} ||
+    $avars->{body_length_exceeded} || $avars->{invalid_from} ||
+    $avars->{mime_header_length_exceeded} ||
+    $avars->{total_header_length_exceeded} || '';
+
   $avars->{'sublist'} = $request->{'sublist'} || '';
   $avars->{'time'} = time;
 

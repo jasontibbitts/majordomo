@@ -1,3 +1,13 @@
+2003-04-19  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Resend.pm (post): Add some additional access variables to
+	$any.
+
+	* lib/Mj/Access.pm (_d_post): Add invalid_from as an access
+	variable causing consultation by default.
+	(list_access_check): Turn logging of access variables back on;
+	it's too useful.
+
 2003-04-17  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Access.pm:  (_a_forward)  Use reply files
