@@ -57,6 +57,7 @@ will subscribe an address to a mailing list and set its delivery
 class to "digest" at the same time.  For more information, please
 refer to "help admin_subscribers".
 
+
 Digests
 -------
 
@@ -88,6 +89,13 @@ The digest command can be used to force a digest to be delivered
 immediately.  See "help configset_digests" and "help digest" for more
 details.
 
+Headers are added to every digest as determined by the
+message_headers, precedence, reply_to, and sender configuration
+settings.  For more information, see the following documents:
+   help configset_message_headers
+   help configset_precedence
+   help configset_reply_to
+   help configset_sender
 
 The rest of this document deals with messages that are delivered
 separately.
@@ -167,8 +175,22 @@ configset LISTNAME message_headers <<MNO
 To: \$WHOAMI
 MNO
 
-See "help configset_delete_headers" and "help configset_message_headers"
-for more details.
+In addition to the message_headers setting, the precedence and reply_to
+settings will also add headers to outgoing messages.  We recommend that
+you do not include a Reply-To or Precedence header in the
+message_headers setting, because it may result in headers being
+duplicated.
+
+The reply_to and override_reply_to configuration settings will only
+cause a Reply-To header to be added to messages sent to people whose
+"replyto" personal setting is turned on.  In contrast, the
+delete_headers, message_headers, and precedence settings affect every
+message that is sent to a subscriber individually.
+
+See the following help files for more details:
+   help configset_delete_headers 
+   help configset_message_headers
+   help configset_precedence
 
 
 Fronters and footers
@@ -192,7 +214,7 @@ The attachment filters can be used to change or discard parts of a
 posted message.
 
 To remove all of the text/html parts from multipart messages, and
-convert all single-part messages into plain text, use the following 
+convert all single-part HTML messages into plain text, use the following
 command:
 
 configset LISTNAME attachment_filters <<LPQ
