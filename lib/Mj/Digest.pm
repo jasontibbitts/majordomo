@@ -84,7 +84,8 @@ sub new {
   $self->{'digests'}  = [];
 
   for my $i (keys(%$data)) {
-    push @{$self->{'digests'}}, $i unless $i eq 'default_digest';
+    push (@{$self->{'digests'}}, $i) 
+      unless ($i eq 'default_digest');
   }
   return $self;
 }
@@ -392,6 +393,7 @@ sub _open_state {
   }
 
   $self->{'datafh'} = new Mj::FileRepl($file);
+  return {} unless (-s $file);
   do $file;
   $VAR1;
 }
