@@ -1,4 +1,2 @@
-The $SETTING setting was not changed.  The value
-  $VALUE
-that was specified is identical to the existing value.
+The old and new values of the "$SETTING" setting are identical.
 
