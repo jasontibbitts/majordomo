@@ -1,3 +1,14 @@
+2000-12-16  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (standard_subs) Add CONFIRM_URL, WWWADM_URL
+	and WWWUSR_URL variables to the standard substitutions.  These
+	give the values from the GLOBAL configuration settings of the
+	same names (wwwadm_url and wwwusr_url are new settings).
+	(help_start)  Use "help overview" as the default help page;
+	"help help" instead displays a summary of the help command.
+	(_faq, _info, _intro)  Allow LASTCHANGE substitution to be used
+	to supply the date on which the document was last modified.
+
 2000-12-13  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/BounceHandler.pm (handle_bounce_user): Actually call

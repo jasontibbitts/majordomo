@@ -148,7 +148,7 @@ sub new {
   my $log = new Log::In 50, "$topdir, $domain";
 
   unless (-d $topdir) {
-    return "Top level directory $topdir does not exist!";
+    return "Top level directory $topdir does not exist!"; #XLANG
   }
 
   my $self   = {};
@@ -163,13 +163,13 @@ sub new {
   $self->{'installdata'} = {};
 
   unless (-d $self->{'ldir'}) {
-    return "The domain '$domain' does not exist!";
+    return "The domain '$domain' does not exist!"; #XLANG
   }
 
   # Pull in the site configuration file
   $self->{'sitedata'}{'config'} = do "$topdir/SITE/config.pl";
   $log->abort("Can't find site config file $topdir/SITE/config.pl: $!")
-    unless $self->{'sitedata'}{'config'};
+    unless $self->{'sitedata'}{'config'}; #XLANG
 
   # Pull in config variable default string for this domain
   if (-f "$topdir/LIB/cf_defs_$domain.pl") {
@@ -182,9 +182,9 @@ sub new {
 
   $self->{backend} = $self->_site_config_get('database_backend');
   $log->abort("Can't create GLOBAL list: $!")
-    unless $self->_make_list('GLOBAL');
+    unless $self->_make_list('GLOBAL'); #XLANG
   $log->abort("Can't create DEFAULT list: $!")
-    unless $self->_make_list('DEFAULT');
+    unless $self->_make_list('DEFAULT'); #XLANG
 
   $self->{alias} = new Mj::AliasList(backend => $self->{backend},
                                       domain => $domain,
@@ -277,7 +277,7 @@ sub connect {
     ($ok, $err) = $user->valid;
 
     unless ($ok) {
-      $err = "Invalid address: $user\n$err";
+      $err = "Invalid address: $user\n$err"; #XLANG
       $self->inform('GLOBAL', 'connect', $user, $user, 'connect',
                     $int, $ok, '', 0, $err, $::log->elapsed);
       return (undef, "$err") unless $ok;
@@ -302,10 +302,10 @@ sub connect {
     new IO::File(">$self->{ldir}/GLOBAL/sessions/$id");
 
   $log->abort("Can't write session file to $self->{ldir}/GLOBAL/sessions/$id, $!")
-    unless $self->{sessionfh};
+    unless $self->{sessionfh}; #XLANG
 
-  $self->{sessionfh}->print("Source: $int\n");
-  $self->{sessionfh}->print("PID:    $$\n\n");
+  $self->{sessionfh}->print("Source: $int\n"); #XLANG
+  $self->{sessionfh}->print("PID:    $$\n\n"); #XLANG
   $self->{sessionfh}->print("$sess\n");
 
   # Now check if the client has access.  (Didn't do it earlier because we
@@ -415,7 +415,7 @@ sub dispatch {
   }
 
   return [0, "Illegal list: \"$request->{'list'}\".\n"]
-    unless $l;
+    unless $l; #XLANG
 
   # Untaint
   $request->{'list'} = $l;
@@ -463,7 +463,7 @@ sub dispatch {
   if ($validate) {
     ($ok, $mess) = $request->{'user'}->valid;
     return [0, "$request->{'user'} is an invalid address:\n$mess"]
-      unless $ok;
+      unless $ok; #XLANG
   }
 
   # Each of the victims must be verified. 
@@ -479,7 +479,7 @@ sub dispatch {
       $addr = new Mj::Addr($addr);
       ($ok, $mess) = $addr->valid;
       return [0, "$addr is an invalid address:\n$mess"]
-        unless $ok;
+        unless $ok; #XLANG
       push (@addr, $addr); 
     }
     $request->{'victims'} = [@addr];
@@ -497,14 +497,14 @@ sub dispatch {
     $ok = $self->validate_passwd($request->{'user'}, $request->{'password'}, 
 				                 'GLOBAL', 'ALL', 1);
     return [0, "The given password is not sufficient to disable logging."]
-      unless $ok > 0;
+      unless $ok > 0; #XLANG
     $over = 2;
   }
   elsif ($request->{'mode'} =~ /noinform/) {
     $ok = $self->validate_passwd($request->{'user'}, $request->{'password'}, 
                                  $request->{'list'}, 'config_inform');
     return [0, "The given password is not sufficient to disable owner information."]
-      unless $ok > 0;
+      unless $ok > 0; #XLANG
     $over = 1;
   }
   else {
@@ -522,7 +522,7 @@ sub dispatch {
     }
     else {
       # Last resort; we found _nothing_ to call
-     return [0, "No action implemented for $request->{'command'}"];
+     return [0, "No action implemented for $request->{'command'}"]; #XLANG
     }
  
     $comment = '';
@@ -728,7 +728,7 @@ sub _re_match {
   local($^W) = 0;
   $match = $safe->reval("$re");
   $warn = $@;
-  $::log->message(10,'info',"_re_match error: $warn string: $_\nregexp: $re") if $warn;
+  $::log->message(10,'info',"_re_match error: $warn string: $_\nregexp: $re") if $warn; #XLANG
   if (wantarray) {
     return ($match, $warn);
   }
@@ -761,7 +761,9 @@ sub standard_subs {
   else {
     $whoami = $self->_list_config_get($list, 'whoami');
   }
+
   my %subs = (
+    'CONFIRM_URL' => $self->_global_config_get('confirm_url'),
     'DOMAIN'      => $self->{'domain'},
     'LIST'        => $olist,
     'MJ'          => $self->_global_config_get('whoami'),
@@ -777,6 +779,8 @@ sub standard_subs {
     'VERSION'     => $Majordomo::VERSION,
     'WHEREAMI'    => $whereami,
     'WHOAMI'      => $whoami,
+    'WWWADM_URL'  => $self->_global_config_get('wwwadm_url'),
+    'WWWUSR_URL'  => $self->_global_config_get('wwwusr_url'),
   );
   %subs;
 }
@@ -799,24 +803,24 @@ sub substitute_vars {
 
   # always open a new input file
   $in  = new Mj::File "$file"
-    or $::log->abort("Cannot read file $file, $!");
+    or $::log->abort("Cannot read file $file, $!"); #XLANG
 
   # open a new output file if one is not already open (should be at $depth of 0)
   $tmp = $tmpdir;
   $tmp = "$tmp/mj-tmp." . unique();
   $out ||= new IO::File ">$tmp"
-    or $::log->abort("Cannot write to file $tmp, $!");
+    or $::log->abort("Cannot write to file $tmp, $!"); #XLANG
 
   while (defined ($i = $in->getline)) {
-    if ($i =~ /\$INCLUDE-(.*)$/) {
+    if ($i =~ /([^\\]|^)\$INCLUDE-(.*)$/) {
       # Do a _list_file_get.  If we get a file, open it and call
       # substitute_vars on it, printing to the already opened handle.  If
       # we don't get a file, print some amusing text.
-      ($inc) =  $self->_list_file_get($list, $1);
+      ($inc) =  $self->_list_file_get($list, $2);
 
       if ($inc) {
 	if ($depth > 3) {
-	  $out->print("Recursive inclusion depth exceeded\n ($depth levels: may be a loop, now reading $1)\n");
+	  $out->print("Recursive inclusion depth exceeded\n ($depth levels: may be a loop, now reading $1)\n"); #XLANG
 	}
 	else {
 	  # Got the file; substitute in it, perhaps recursively
@@ -824,8 +828,8 @@ sub substitute_vars {
 	}
       }
       else {
-	warn "Include file $1 not found.";
-	$out->print("Include file $1 not found.\n");
+	warn "Include file $1 not found."; #XLANG
+	$out->print("Include file $1 not found.\n"); #XLANG
       }
       next;
     }
@@ -1355,7 +1359,7 @@ sub common_subs {
   $out = {};
 
   for $tlist (@tmp) {
-    return (0, "Nonexistent list: \"$tlist\"\n")
+    return (0, "Nonexistent list: \"$tlist\"\n") #XLANG
       unless (($list) = $self->valid_list($tlist, 0, 1));
     push @lists, $list unless ($list eq 'GLOBAL');
   }
@@ -1492,21 +1496,21 @@ sub list_config_set {
   my $log = new Log::In 150, "$request->{'list'}, $request->{'setting'}";
   my (@groups, @tmp, @tmp2, $i, $j, $join, $mess, $ok, $global_only);
 
-  return (0, "Unable to initialize list $request->{'list'}.\n")
+  return (0, "Unable to initialize list $request->{'list'}.\n") #XLANG
     unless $self->_make_list($request->{'list'});
 
   if (!defined $request->{'password'}) {
-    return (0, "No password was supplied.\n");
+    return (0, "No password was supplied.\n"); #XLANG
   }
 
   ($ok, $mess) = $request->{'user'}->valid;
   if (!$ok) {
-    return (0, "$request->{'user'} is invalid\n$mess");
+    return (0, "$request->{'user'} is invalid\n$mess"); #XLANG
   }
 
   @groups = $self->config_get_groups($request->{'setting'});
   if (!@groups) {
-    return (0, "Unknown variable \"$request->{'setting'}\".\n");
+    return (0, "Unknown variable \"$request->{'setting'}\".\n"); #XLANG
   }
   $global_only = 1;
   if ($self->config_get_mutable($request->{'setting'})) {
@@ -1528,7 +1532,7 @@ sub list_config_set {
                                  "config_$request->{'setting'}", $global_only);
   }
   unless ($ok > 0) {
-    return (0, "Password does not authorize $request->{'user'} to alter $request->{'setting'}.\n");
+    return (0, "Password does not authorize $request->{'user'} to alter $request->{'setting'}.\n"); #XLANG
   }
 
   # Untaint the stuff going in here.  The security implications: this
@@ -1550,7 +1554,7 @@ sub list_config_set {
   if ($request->{'mode'} =~ /append/) {
     $join = $self->config_get_isarray($request->{'setting'});
     unless ($join) {
-      return (0, "Appending values to the $request->{'setting'} setting is not possible.\n");
+      return (0, "Appending values to the $request->{'setting'} setting is not possible.\n"); #XLANG
     }
     @tmp = $self->_list_config_get($request->{'list'}, $request->{'setting'}, 1);
     if ($join == 2) {
@@ -1580,14 +1584,14 @@ sub list_config_set {
         $mess = "The $request->{'setting'} setting was not changed.\n"
                . "The value\n$request->{'value'}->[0]\n"
                . "was expected, but the value\n"
-               . "$tmp[0]\nwas found instead.";
+               . "$tmp[0]\nwas found instead."; #XLANG
       }
     }
     # Impossible to splice an array out of a smaller array.
     elsif ($#{$request->{'value'}} > $#tmp) {
       $ok = 0;
       $mess = "The $request->{'setting'} setting\n"
-             ."does not contain the value you specified";
+             ."does not contain the value you specified"; #XLANG
     }
     else {
       for ($i = 0; $#{$request->{'value'}} + $i <= $#tmp ; $i++) {
@@ -1621,10 +1625,10 @@ sub list_config_set {
   $self->_list_config_unlock($request->{'list'});
   $self->_list_set_config($request->{'list'}, 'MAIN');
   if (!$ok) {
-    return (0, "Error parsing $request->{'setting'}:\n$mess");
+    return (0, "Error parsing $request->{'setting'}:\n$mess"); #XLANG
   }
   elsif ($mess) {
-    return (1, "Warnings parsing $request->{'setting'}:\n$mess");
+    return (1, "Warnings parsing $request->{'setting'}:\n$mess"); #XLANG
   }
   else {
     return 1;
@@ -1657,23 +1661,23 @@ sub list_config_set_to_default {
   my (@groups, @out, $ok, $mess, $level);
 
   return (0, "Unable to initialize list $list.\n")
-    unless $self->_make_list($list);
+    unless $self->_make_list($list); #XLANG
   return (0, "Unable to access configuration file $list:$sublist")
-    unless $self->{'lists'}{$list}->valid_config($sublist);
+    unless $self->{'lists'}{$list}->valid_config($sublist); #XLANG
   
   if (!defined $passwd) {
-    return (0, "No password was supplied.\n");
+    return (0, "No password was supplied.\n"); #XLANG
   }
 
   @groups = $self->config_get_groups($var);
   if (!@groups) {
-    return (0, "Unknown variable \"$var\".\n");
+    return (0, "Unknown variable \"$var\".\n"); #XLANG
   }
 
   $user = new Mj::Addr($user);
   ($ok, $mess) = $user->valid;
   unless ($ok) {
-    return (0, "$user is invalid:\n$mess");
+    return (0, "$user is invalid:\n$mess"); #XLANG
   }
 
   # Validate by category.
@@ -1681,7 +1685,7 @@ sub list_config_set_to_default {
   ($ok, $mess, $level) =
     $self->validate_passwd($user, $passwd, $list, "config_$var");
   if (!($ok>0)) {
-    @out = (0, "Password does not authorize $user to alter $var.\n");
+    @out = (0, "Password does not authorize $user to alter $var.\n"); #XLANG
   }
   else {
     $self->_list_set_config($list, $sublist);
@@ -1986,7 +1990,7 @@ sub config_get_vars {
   $hidden = ($ok > 0) ? 1 : 0; 
   @out = $self->{'lists'}{$list}->config_get_vars($var, $hidden,
                                                   ($list eq 'GLOBAL'));
-  $::log->out(($ok>0)?"validated":"not validated");
+  $::log->out(($ok>0)?"validated":"not validated"); #XLANG
   @out;
 }
 
@@ -2037,7 +2041,7 @@ sub _get {
   my $log = new Log::In 35, "$list, $name";
   my (%data, $cset, $desc, $enc, $file, $mess, $nname, $ok, $type);
 
-  return (0, "Unable to initialize list $list.\n")
+  return (0, "Unable to initialize list $list.\n") #XLANG
     unless $self->_make_list($list);
 
   # Untaint the file name
@@ -2055,14 +2059,14 @@ sub _get {
   }
 
   unless ($file) {
-    return (0, "No such file \"$name\".\n");
+    return (0, "No such file \"$name\".\n"); #XLANG
   }
   
   # Start up the iterator if we're running in immediate mode
   if ($mode =~ /immediate|edit/) {
     $self->{'get_fh'} = new IO::File $file;
     unless ($self->{'get_fh'}) {
-      return (0, "Cannot open file \"$name\".\n");
+      return (0, "Cannot open file \"$name\".\n"); #XLANG
     }
     # Return the data to make editing/replacing the file easier.
     return (1, \%data);
@@ -2077,7 +2081,7 @@ sub _get {
   ($file, %data) = $self->_list_file_get($list, 'file_sent');
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
-    return (0, "Cannot open file \"$name\".\n");
+    return (0, "Cannot open file \"$name\".\n"); #XLANG
   }
   return (1, '');
 }
@@ -2101,7 +2105,7 @@ sub _get_mailfile {
      Top      => 1,
      Filename => undef,
      'Content-Language:' => $data{'language'},
-    );
+    ); #XLANG
 
   $self->mail_entity($sender, $ent, $vict) if $ent;
 }
@@ -2160,26 +2164,29 @@ sub faq_start {
 sub _faq {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my ($file, $subs);
+  my (%fdata, $file, $subs);
 
-  return (0, "Unable to initialize list $list.\n")
+  return (0, "Unable to initialize list $list.\n") #XLANG
     unless $self->_make_list($list);
+
+  ($file, %fdata) = $self->_list_file_get($list, 'faq');
+
+  unless ($file) {
+    return (0, "No FAQ available.\n"); #XLANG
+  }
 
   $subs =
     {
      $self->standard_subs($list),
-     USER     => $requ,
-    };
+     'LASTCHANGE' => scalar localtime($fdata{'lastmod'}),
+     'USER'       => $requ,
+    }; 
+  
+  $file = $self->substitute_vars($file, $subs); 
 
-  ($file) = $self->_list_file_get($list, 'faq', $subs);
-  
-  unless ($file) {
-    return (0, "No FAQ available.\n");
-  }
-  
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
-    return (0, "No FAQ available.\n");
+    return (0, "No FAQ available.\n$@"); #XLANG
   }
   push @{$self->{'get_temps'}}, $file;
   return (1, '');
@@ -2201,7 +2208,7 @@ sub help_start {
     $request->{'topic'} = lc(join('_', split(/\s+/, $request->{'topic'})));
   }
   else {
-    $request->{'topic'} = "help";
+    $request->{'topic'} = "overview";
   }
   my $log = new Log::In 50, "$request->{'user'}, $request->{'topic'}";
 
@@ -2236,7 +2243,7 @@ sub help_start {
     ($file) =  $self->_list_file_get('GLOBAL', "help/unknowntopic", $subs);
   }
   unless ($file) {
-    return (0, "No help for that topic.\n");
+    return (0, "No help for that topic.\n"); #XLANG
   }
 
   $self->{'get_fh'} = new IO::File $file;
@@ -2270,26 +2277,29 @@ sub info_start {
 sub _info {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my ($file, $subs);
+  my (%fdata, $file, $subs);
 
   return (0, "Unable to initialize list $list.\n")
-    unless $self->_make_list($list);
+    unless $self->_make_list($list); #XLANG
+
+  ($file, %fdata) = $self->_list_file_get($list, 'info');
+
+  unless ($file) {
+    return (0, "No info available.\n"); #XLANG
+  }
 
   $subs =
     {
      $self->standard_subs($list),
-     USER     => $requ,
-    };
+     'LASTCHANGE' => scalar localtime($fdata{'lastmod'}),
+     'USER'       => $requ,
+    }; 
+  
+  $file = $self->substitute_vars($file, $subs);
 
-  ($file) = $self->_list_file_get($list, 'info', $subs);
-  
-  unless ($file) {
-    return (0, "No info available.\n");
-  }
-  
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
-    return (0, "Info file available.\n");
+    return (0, "Info file unavailable.\n"); #XLANG
   }
   push @{$self->{'get_temps'}}, $file;
   return (1, '');
@@ -2318,26 +2328,29 @@ sub intro_start {
 sub _intro {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my ($file, $subs);
+  my (%fdata, $file, $subs);
 
   return (0, "Unable to initialize list $list.\n")
-    unless $self->_make_list($list);
+    unless $self->_make_list($list); #XLANG
 
+  ($file, %fdata) = $self->_list_file_get($list, 'intro');
+  
+  unless ($file) {
+    return (0, "No intro available.\n"); #XLANG
+  }
+  
   $subs =
     {
      $self->standard_subs($list),
-     USER     => $requ,
+     'LASTCHANGE' => scalar localtime($fdata{'lastmod'}),
+     'USER'       => $requ,
     };
 
-  ($file) = $self->_list_file_get($list, 'intro', $subs);
-  
-  unless ($file) {
-    return (0, "No intro available.\n");
-  }
-  
+  $file = $self->substitute_vars($file, $subs);
+
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
-    return (0, "Intro file is unavailable.\n");
+    return (0, "Intro file is unavailable.\n"); #XLANG
   }
   push @{$self->{'get_temps'}}, $file;
   return (1, '');
@@ -2483,7 +2496,7 @@ sub _put {
 
   my $log = new Log::In 35, "$list, $file, $subj, $type, $cset, $enc, $lang";
   return (0, "Unable to initialize list $list.\n")
-    unless $self->_make_list($list);
+    unless $self->_make_list($list); #XLANG
 
   # If given an "absolute path", trim it, else stick "public/" onto it
   unless ($file =~ s!^/!!) {
@@ -2744,7 +2757,7 @@ sub _list_file_get {
     if (@out and $subs) {
       $out[0] = $self->substitute_vars($out[0], $subs, $list);
     }
-    $log->complain("Requested file $file not found");
+    $log->complain("Requested file $file not found"); #XLANG
     return @out;
   }
   return;
@@ -2764,7 +2777,7 @@ sub _list_file_get_string {
 
   ($file, %data) = $self->_list_file_get(@_);
 
-  return "No such file: \"$_[1]\".\n" unless $file;
+  return "No such file: \"$_[1]\".\n" unless $file; #XLANG
 
   $fh = new Mj::File($file);
 
@@ -2831,7 +2844,7 @@ sub _get_stock {
     ($self->{'sitedata'}{'files'}, $self->{'sitedata'}{'dirs'})
       = @{do "$self->{'sitedir'}/files/INDEX.pl"};
     $log->abort("Can't load index file $self->{'sitedir'}/files/INDEX.pl!")
-      unless $self->{'sitedata'}{'files'};
+      unless $self->{'sitedata'}{'files'}; #XLANG
   }
 
 #  use Data::Dumper; print Dumper $self->{'sitedata'};
@@ -2888,7 +2901,7 @@ sub _fill_lists {
   my ($list, @lists);
   
   my $listdir = $self->{'ldir'};
-  opendir($dirh, $listdir) || $::log->abort("Error opening $listdir: $!");
+  opendir($dirh, $listdir) || $::log->abort("Error opening $listdir: $!"); #XLANG
 
   if ($self->{'sdirs'}) {
     while (defined($list = readdir $dirh)) {
@@ -3104,13 +3117,13 @@ sub accept {
     if (exists $request->{'time'});
 
   return (0, "No token was supplied.\n")
-    unless (scalar(@{$request->{'tokens'}}));
+    unless (scalar(@{$request->{'tokens'}})); #XLANG
 
   # XXX Log an entry for each token / only recognized tokens? 
   for $ttoken (@{$request->{'tokens'}}) {
     $token = $self->t_recognize($ttoken);
     if (! $token) {
-      push @out, 0, "Illegal token \"$ttoken\".\n";
+      push @out, 0, "Illegal token \"$ttoken\".\n"; #XLANG
       next;
     }
     my ($ok, $mess, $data, $tmp) = 
@@ -3146,7 +3159,7 @@ sub accept {
 
     $elapsed = $::log->elapsed;
 
-    $mess ||= "Further approval is required.\n" if ($ok < 0);
+    $mess ||= "Further approval is required.\n" if ($ok < 0); #XLANG
     if ($ok) {
       push @out, $ok, [$mess, $data, $tmp];
     }
@@ -3211,12 +3224,12 @@ sub alias {
   my ($a2, $ok, $mess);
 
   return (0, "No address was supplied.\n") 
-    unless (exists $request->{'newaddress'});
+    unless (exists $request->{'newaddress'}); #XLANG
 
   $a2 = new Mj::Addr($request->{'newaddress'});
   ($ok, $mess) = $a2->valid;
   return (0, "$request->{'newaddress'} is an invalid address.\n$mess")
-    unless ($ok > 0);
+    unless ($ok > 0); #XLANG
 
   ($ok, $mess) = $self->list_access_check($request);
 
@@ -3240,14 +3253,14 @@ sub _alias {
   # Check that the target (after aliasing) is registered
   $tdata = $self->{reg}->lookup($to->alias);
   return (0, "$to is not registered here.\n")
-    unless $tdata;
+    unless $tdata; #XLANG
 
   # Check that the transformed but unaliased source is _not_ registered, to
   # prevent cycles.
   $fdata = $self->{reg}->lookup($from->xform);
 
   return (0, "$from is already registered here.\n")
-    if $fdata;
+    if $fdata; #XLANG
 
   # Add bookkeeping alias; don't worry if it fails
   $data = {
@@ -3283,10 +3296,10 @@ sub announce {
   my ($mess, $ok);
 
   return (0, "A file name was not supplied.\n")
-    unless $request->{'file'};
+    unless $request->{'file'}; #XLANG
 
   return (0, "Announcements to the DEFAULT list are not supported.\n")
-    if ($request->{'list'} eq 'DEFAULT');
+    if ($request->{'list'} eq 'DEFAULT'); #XLANG
 
   ($ok, $mess) = $self->list_access_check($request);
 
@@ -3307,7 +3320,7 @@ sub _announce {
 
   $sender = $self->_list_config_get($list, 'sender');
   return (0, "Unable to obtain sender address.\n")
-    unless $sender;
+    unless $sender; #XLANG
 
   $subs =
     {
@@ -3319,7 +3332,7 @@ sub _announce {
   ($mailfile, %data) = $self->_list_file_get($list, $file, $subs);
  
   return (0, "The file $file is unavailable.\n")
-    unless $mailfile;
+    unless $mailfile; #XLANG
 
   $desc = $self->substitute_vars_string($data{'description'}, $subs);
   
@@ -3338,7 +3351,7 @@ sub _announce {
     );
  
   return (0, "Unable to create mail entity.\n")
-    unless $ent;
+    unless $ent; #XLANG
 
   $tmpfile = "$tmpdir/mja" . unique();
   open FINAL, ">$tmpfile" ||
@@ -3370,7 +3383,7 @@ sub _announce {
     }
   }
   return (0, "No valid subscriber classes were found.\n")
-    unless (scalar keys %$classes);
+    unless (scalar keys %$classes); #XLANG
 
   # Send the message.
   $self->probe($list, $sender, $classes);
@@ -4427,10 +4440,10 @@ sub reject {
     $repl = {
          $self->standard_subs($data->{'list'}),
          'CMDLINE'    => $data->{'cmdline'},
+         'COMMAND'    => $data->{'command'},
          'DATE'       => scalar localtime($data->{'time'}),
          'MESSAGE'    => $reason,
          'REJECTER'   => $request->{'user'},
-         'COMMAND'    => $data->{'command'},
          'REQUESTER'  => $data->{'user'},
          'SESSIONID'  => $data->{'sessionid'},
          'SESSION'    => $sess,
