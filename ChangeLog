@@ -1,3 +1,16 @@
+Sun May  3 14:49:27 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm: Bumped version number; still alpha1.
+
+	* postinstall (create_dirs): Create dirs according to the proper
+ 	umask; show the umask in the printed message.
+	(safe_mkdir): Need to chmod again after a chown.
+
+	* bin/mj_shell: Log the umask used.
+
+	* postinstall (set_script_perms): Now make sure that permissions
+ 	on install_dir and the bin and man in there are sane.
+
 Fri May  1 23:01:19 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/Resend.pm (_post): Add Reply-To: headers.

@@ -16,8 +16,8 @@ The following modules are required.  These may have prerequisites which
 have not been listed; please inform majordomo-workers (see below) of these.
 
 the libnet package, including Net::Domain.
-the MIME-tools package (version 4.116), including MIME::Parser and
-  MIME::Entity, but see below for a necessary patch.
+the MIME-tools package (version 4.119), including MIME::Parser and
+  MIME::Entity.
 the MailTools package (version 1.11), including Mail::Header and
   Mail::Internet.
 the TimeDate package (version 1.08), including Date::Format.
@@ -35,14 +35,12 @@ Archive Network.  To find a CPAN site nearest you, look at
 the CPAN module which comes with Perl; check the Perl documentation for
 more info.
 
-The MIME-Tools package is missing a patch to fix certain warnings; this
-patch is included as MIME-tools.patch.  It is not required, but occasional
-warnings will appear from Entity.pm if it is not applied.  Hopefully a new
-version of MIME-tools will appear soon with this problem fixed.
-
 Majordomo 2 includes its own setuid wrapper generation, so setuid scripts
 are not required.  Things are slightly simpler without them, but all
-functionality is preserved.
+functionality is preserved.  The wrappers are compiled using the
+information from the Perl configuration; if this is incorrect, then the
+wrappers will not build.  You need a complete and proper Perl installation
+in order to run Majordomo.
 
 Note: if you have any input on this software, even if you have not
 tested it, please let majordomo-workers@greatcircle.com know.  All

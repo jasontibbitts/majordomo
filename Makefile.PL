@@ -32,12 +32,11 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\
 unless (check_syslog() &&
         check_prereq
 	(
-	 'Mail::Internet' => 1.30,
-	 'Mail::Header'   => 1.10,
-	 'MIME::Parser'   => 4.102,
-	 'MIME::Entity'   => 4.114,
-	 'MIME::Base64'   => 2.00,
-	 'Data::Dumper'   => 2.07,
+         'Mail::Internet' => 1.30,
+         'Mail::Header'   => 1.10,
+         'MIME::Tools'    => 1.19,
+         'MIME::Base64'   => 2.00,
+         'Data::Dumper'   => 2.07,
 	 #	     'Data::ShowTable'  => 0,  # Want 3.3, but the stupid module
 	 # doesn't have a version number
 	 'Date::Manip'    => 5.10,
@@ -54,7 +53,7 @@ unless (check_syslog() &&
 	 'Net::Domain'	  => 0,
 	 'File::Copy'	  => 0,
 	 'Fcntl'	  => 0,
-	 'Carp'		  => 0,
+         'Carp'		  => 0,
 	))
   {
     print "Majordomo cannot run without its prerequisite modules.\n";
@@ -341,7 +340,7 @@ What umask should Majordomo use?
  The umask is the Unix method of restricting the permissions on newly
   created files and directories.
  Useful values are:
-  077 (nobody can read any Majordomo files)
+  077 (nobody except Majordomo can read any Majordomo files)
   027 (users in the Majordomo group can read the files)
   007 (users in the Majordomo group can read and write the files)
  Choose 077 for maximum security.  Majordomo2 can operate with very strict

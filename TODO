@@ -42,6 +42,9 @@ Top of the list
     Make sure that archives get a separate umask, so that people can
     download them.
 
+! Split up _post a bit.  Remove reply-to and subject_prefix handling to
+  separate functions.
+
 - Figure out how to pass the access variables through to the _post function
   so that we can use things like the byte and line counts for cool things.
   Probably just flatten the hash and join by the secret separator and stuff

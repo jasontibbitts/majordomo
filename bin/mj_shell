@@ -95,6 +95,7 @@ if ($opts{D}) {
 
 $::log->in(20, undef, "info", "Majordomo Shell client - ".scalar(localtime));
 $::log->startup_time();
+$::log->message(20, 'info', 'Umask set to '.sprintf('%lo', oct($::UMASK)));
 
 # Untaint the top directory and the domain.  It may not be completely safe
 # to do this.

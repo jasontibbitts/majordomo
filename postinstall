@@ -110,6 +110,7 @@ if (get_bool($msg1)) {
   create_dirs($config->{'lists_dir'},
 	      scalar getpwnam($config->{'uid'}),
 	      scalar getgrnam($config->{'gid'}),
+	      $config->{'umask'},
 	      $config->{'domains'},
 	      $config->{'tmpdir'},
 	     );
@@ -184,8 +185,17 @@ sub set_script_perms {
   map {$_ = "$id/bin/$_" unless /\//} @$sidscripts, @$scripts;
   $uid = getpwnam($config->{'uid'});
   $gid = getgrnam($config->{'gid'});
+
+  # Properly set ownerships on everything.
   chown($uid, $gid, @$sidscripts, @$scripts) || die "Couldn't change ownership: $!";
   rchown($id, $uid, $gid);
+
+  # Change permissions on important installation dirs; it's a sad state
+  # that root users these days can't comprehend umasks.
+  chmod(0755, $id, "$id/bin", "$id/man");
+
+  # Make executables setuid; the scripts must be readable while the the
+  # wrappers need only be executable.
   if ($config->{'wrappers'}) {
     chmod(06111, @$sidscripts) || die "Couldn't change mode: $!";
   }
@@ -199,21 +209,22 @@ sub create_dirs {
   my $l    = shift;
   my $uid  = shift;
   my $gid  = shift;
+  my $um   = shift;
   my $doms = shift;
   my $tmp  = shift;
   my($i);
 
   print "$l, $tmp, $uid, $gid\n";
 
-  safe_mkdir($l, 0770, $uid, $gid);
-  safe_mkdir($tmp, 0770, $uid, $gid);
+  safe_mkdir($l,   0777 & ~oct($um), $uid, $gid);
+  safe_mkdir($tmp, 0777 & ~oct($um), $uid, $gid);
   
   for $i (@$doms) {
-    print "Making directories for $i.\n";
-    safe_mkdir("$l/$i", 0770, $uid, $gid);
-    safe_mkdir("$l/$i/GLOBAL", 0770, $uid, $gid);
-    safe_mkdir("$l/$i/GLOBAL/files", 0770, $uid, $gid);
-    safe_mkdir("$l/$i/GLOBAL/sessions", 0770, $uid, $gid);
+    printf "Making directories for %s, mode %lo.\n", $i, (0777 & ~oct($um));
+    safe_mkdir("$l/$i", 0777 & ~oct($um), $uid, $gid);
+    safe_mkdir("$l/$i/GLOBAL", 0777 & ~oct($um), $uid, $gid);
+    safe_mkdir("$l/$i/GLOBAL/files", 0777 & ~oct($um), $uid, $gid);
+    safe_mkdir("$l/$i/GLOBAL/sessions", 0777 & ~oct($um), $uid, $gid);
   }    
 }
 
@@ -344,6 +355,7 @@ sub safe_mkdir {
   unless (-d $dir) {
     mkdir $dir, $mode or die "Can't make $dir, $!";
     chown ($uid, $gid, $dir) or die "Can't chown $dir, $!";
+    chmod ($mode, $dir) or die "Can't chmod $dir, $!";
   }
 }
 
