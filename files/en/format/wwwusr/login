@@ -26,7 +26,7 @@
   <td valign="top">
     <input type="radio" name="func" value="$COMMAND" checked>
       Sign in<br>
-    <input type="radio" name="func" value="password-gen">
+    <input type="radio" name="func" value="password-show">
       I forgot my password<br>
     <input type="radio" name="func" value="register">
       Register my address<br> 
@@ -36,7 +36,7 @@
     To sign in, press the <b>Go</b> button.
     <p>
     If you have already registered or subscribed to a $DOMAIN mailing list, 
-    but do not know your password, Majordomo can send you a new password.
+    but do not know your password, Majordomo can send you your password.
     Press the button next to <b>I forgot my password</b>, 
     then press the <b>Go</b> button.  A confirmation message may
     be sent to your e-mail address.
