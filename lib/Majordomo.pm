@@ -487,8 +487,10 @@ sub substitute_vars_string {
   my $i;
 
   for $i (keys %subs) {
-    $str =~ s/\$\Q$i\E(\b|^)/$subs{$i}/g;
+    # Don't substitute after backslashed $'s
+    $str =~ s/([^\\]|^)\$\Q$i\E(\b|$)/$1$subs{$i}/g;
   }
+  $str =~ s/\\([\$\\])/$1/g;
   $str;
 }
 

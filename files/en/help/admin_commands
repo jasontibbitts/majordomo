@@ -74,9 +74,9 @@ auxunsubscribe list sublist address (-regexp, -allmatching)
   address that matches the pattern to be removed from the sublist.
 
     Examples:  auxunsubscribe scooters posters buster@example.com
-               auxunsubscribe-regexp scooters posters buster\@
+               auxunsubscribe-regexp scooters posters buster\\@
                auxunsubscribe-regexp-allmatching scooters posters
-                 \@example\.com
+                 \\@example\\.com
 
     See also:  'admin sublists' help subtopic
                'patterns' help topic
@@ -369,7 +369,7 @@ unsubscribe list address (-regexp, -allmatching)
   address that matches the pattern to be removed from the list.
 
     Examples:  unsubscribe scooters buster@example.com
-               unsubscribe-regexp scooters /buster\@/
+               unsubscribe-regexp scooters /buster\\@/
                unsubscribe-regexp-allmatching scooters "@example.com"
 
     See also:  'patterns' help topic

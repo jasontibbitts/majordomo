@@ -20,7 +20,7 @@ where an asterisk matches any number of any character.
 If you need more powerful patterns, you can use a Perl regular expression
 surrounded by '/':
 
-  /(someone|nobody)\@.*example.com/i
+  /(someone|nobody)\\@.*example.com/i
 
 
 The Details
@@ -106,15 +106,15 @@ The character / is used to mark the beginning and end of a regular
 expression.  Letters and numbers stand for themselves.  Many of the
 other characters are symbolic.  Some commonly used ones are:
 
-  \@    the `@' found in nearly all addresses; it must be preceeded by a
+  \\@    the `@' found in nearly all addresses; it must be preceeded by a
         backslash to avoid errors in Perl
   .     (period) any character
   *     previous character, zero or more times; note especially...
   .*    any character, zero or more times
   +     previous character, one or more times; so for example...
   a+    letter "a", one or more times
-  \     next character stands for itself; so for example...
-  \.     literally a period, not meaning "any character"
+  \\     next character stands for itself; so for example...
+  \\.     literally a period, not meaning "any character"
   ^     beginning of the string; so for example...
   ^a    a string beginning with letter "a"
   $     end of the string; so for example...
@@ -124,7 +124,7 @@ other characters are symbolic.  Some commonly used ones are:
 Example 1
 ---------
 
-     /foo\.example\.com/
+     /foo\\.example\\.com/
 
 Notice that the periods are preceded by a backslash so that they are
 interpreted as periods, rather than wildcards.  This matches any string
@@ -143,7 +143,7 @@ such as:
 Example 2
 ---------
 
-     /johndoe\@.*foo\.example\.com/
+     /johndoe\\@.*foo\\.example\\.com/
 
 The `@' has special meaning to Perl and should be prefixed with a backslash
 to avoid errors.  The string ".*" means "any character, zero or more
@@ -162,7 +162,7 @@ But it doesn't match:
 Example 3
 ---------
 
-     /^johndoe\@.*cs\.example\.org$/
+     /^johndoe\\@.*cs\\.example\\.org$/
 
 This is similar to Example 2, and matches the same first two strings:
 
@@ -189,9 +189,9 @@ This is the regular expression that matches anything.
 Example 5
 ---------
 
-     /.\*johndoe/
+     /.\\*johndoe/
 
-Here the * is preceded by a \, so it refers literally to an asterisk
+Here the * is preceded by a \\, so it refers literally to an asterisk
 character and not the symbolic meaning "zero or more times".  The . still
 has its symbolic meaning of "any one character", so it would match:
 
@@ -209,21 +209,21 @@ Example 6
 Normally all matches are case sensitive; you can make any match case
 insensitive by appending an `i' to the end of the expression.
 
-     /example\.com/i
+     /example\\.com/i
 
 This would match example.com, EXAMPLE.com, ExAmPlE.cOm, etc.  Removing the `i':
 
-     /example\.com/
+     /example\\.com/
 
 ...would match example.com but not EXAMPLE.com or any other capitalization.
 
 
-To be on the safe side put a \ in front of any characters in the
+To be on the safe side put a \\ in front of any characters in the
 regular expressions that are not numbers or letters.  In order to put
 a / into the regular expression, the same rule holds: precede it
-with a \.  Thus, with \ in front of the / and = characters, this:
+with a \\.  Thus, with \\ in front of the / and = characters, this:
 
-     /\/CO\=US/
+     /\\/CO\\=US/
 
 ...matches /CO=US and may be a useful regular expression to those of you
 who need to deal with X.400 addresses that contain / characters.
@@ -245,7 +245,7 @@ This can be a bit difficult to follow, so we can space it out a bit:
 
 The 'x' modifier specifies that whitespace is to be ignored, and makes the
 pattern a bit easier to read.  If you want to match actual whitespace, use
-'\s'.
+'\\s'.
 
 Note that the 'x' modifier provides additional functionality to Perl code
 relating to comments, but because Majordomo requires patterns to lie all on

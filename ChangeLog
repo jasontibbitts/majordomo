@@ -1,3 +1,19 @@
+Mon Jan 25 23:39:50 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/MTAConfig.pm: Add beginnings of qmail code.  Not actually
+ 	enabled yet.
+
+	* lib/Majordomo.pm (substitute_vars_string): Allow \$ and \\
+ 	escapes.  Fix up help files to double backslashes where necessary.
+
+Sun Jan 24 23:01:47 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* Makefile.PL: Big split: move Q&A stuff out into separate files.
+
+	* postinstall (do_default_config): Mistakenly used site_password
+ 	where master_password belonged.  Remove query routines and use the
+ 	sile split from Makefile.PL.
+
 Sat Jan 23 18:17:11 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Access.pm (_a_default): 'closed' access means deny, not

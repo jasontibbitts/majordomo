@@ -1,0 +1,169 @@
+# Nipped from MakeMaker.
+sub prompt ($;$) {
+  my($mess,$def)=@_;
+  my $ISA_TTY = -t STDIN && -t STDOUT ;
+  Carp::confess("prompt function called without an argument") unless defined $mess;
+  my $dispdef = defined $def ? "[$def] " : " ";
+  $def = defined $def ? $def : "";
+  my $ans;
+  if ($ISA_TTY) {
+    local $|=1;
+    print "$mess $dispdef->";
+    chomp($ans = <STDIN>);
+  }
+  return $ans || $def;
+}
+
+sub get_str {
+  return prompt(shift, shift);
+}
+
+sub get_enum {
+  my $msg  = shift;
+  my $def  = shift;
+  my $vals = shift;
+  my $ans;
+  while (1) {
+    $ans = get_str($msg, $def);
+    if (grep {$ans eq $_} @$vals) {
+      return $ans;
+    }
+    $msg = "Allowed values are:\n";
+    for my $i (@$vals) {
+      $msg .= "  $i\n";
+    }
+  }
+}
+
+sub get_file {
+  my ($msg, $def, $exist, $exe, $path, $force) = @_;
+  my ($file);
+ OUTER:
+  while (1) {
+    my $ans = prompt($msg, $def);
+    $file = ($ans =~ /(\S*)/)[0];
+    last if !length $file && !$exist;
+    unless (length $file) {
+      $msg = "You must enter something.\n";
+      next;
+    }
+    last if -f $file && !$exe;
+    last if -x $file;
+    if ($path) {
+      for my $i (split(':', $ENV{PATH})) {
+	last OUTER if -x "$i/$file";
+      }
+    }
+    # So it didn't exist or wasn't executable.
+    if ($force) {
+      if ($exe) {
+        $msg = "You must enter the name of an existing executable file.\n";
+        next;
+      }
+      $msg = "You must enter the name of an existing file.\n";
+      next;
+    }
+    if ($exe) {
+      last if get_bool("$file does not exist or is not executable; use anyway?");
+    }
+    else {
+      last if get_bool("$file does not exist; use anyway?");
+    }
+  }
+  $file;
+}
+
+sub get_dir {
+  my ($msg, $def, $empty) = @_;
+  my ($dir);
+  while (1) {
+    my $ans = prompt($msg, $def);
+    $dir = ($ans =~ /(\S*)/)[0];
+    last if !length $dir && $empty;
+    next unless length $dir;
+    last if -d $dir;
+    last if get_bool("$dir does not exist; use anyway?");
+  }
+  $dir;
+}
+
+sub get_uid {
+  my ($msg, $def) = @_;
+  my ($uid);
+
+  while (1) {
+    my $ans = prompt($msg, $def);
+    $uid = ($ans =~ /(\S*)/)[0];
+    next unless length $uid;
+    last if getpwnam $uid ;
+    last if $uid =~ /\d+/ && ($uid = getpwuid($uid));
+  }
+  $uid;
+}
+
+sub get_gid {
+  my ($msg, $def) = @_;
+  my ($gid);
+
+  while (1) {
+    my $ans = prompt($msg, $def);
+    $gid = ($ans =~ /(\S*)/)[0];
+    next unless length $gid;
+    last if getgrnam $gid;
+    last if $gid =~ /\d+/ && ($gid = getgrgid($gid));
+  }
+  $gid;
+}
+
+sub get_bool {
+  my ($msg, $def) = @_;
+  chomp $msg;
+  my $val = prompt($msg, $def ? "yes" : "no");
+  $val =~ /^y/i ? 1:0;
+}
+
+sub get_list {
+  my ($msg, $def, $empty) = @_;
+  my ($elem, $list);
+  $list = [];
+  print $msg;
+
+  while (1) {
+    my $ans = prompt("", (@{$def} ? shift @{$def} : undef));
+    $elem = ($ans =~ /(\S*)/)[0];
+    unless (length $elem) {
+      last if $empty;
+      last if @{$list};
+      print "Empty list not allowed!\n";
+      next;
+    }
+    push @{$list}, $elem;
+  }
+  $list;
+}
+  
+
+=head1 COPYRIGHT
+
+Copyright (c) 1999 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+his program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+1;
+
+#
+### Local Variables: ***
+### cperl-indent-level:2 ***
+### cperl-label-offset:-1 ***
+### indent-tabs-mode: nil ***
+### End: ***

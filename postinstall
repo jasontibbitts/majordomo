@@ -9,6 +9,7 @@
 use DirHandle;
 use File::Copy "cp";
 use Data::Dumper;
+require "setup/query_util.pl";
 sub dot ();
 
 # We call mj_shell (which we make sure has the right permissions) to do the
@@ -281,7 +282,6 @@ sub do_config {
     $config->{'domain'}{$dom}{'master_password'} = $pw;
     $msg0 = $msg0s; # Switch to using the short prompt.
   }
-
  print "Configuring $dom:" unless $quiet;
 
   # Build the command line
@@ -347,7 +347,7 @@ sub do_default_config {
   while (defined($_ = <MASTER>)) {
     # Do substitutions
     s!(^ \'whereami\'.*)DEFAULT(.*)!$1$dom$2!;
-    s!(^ \'master_password\'.*)DEFAULT(.*)!$1$config->{site_password}$2!;
+    s!(^ \'master_password\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{master_password}$2!;
     s!(^ \'whoami\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{whoami}$2!;
     s!(^ \'whoami_owner\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{whoami}-owner$2!;
     s!(^ \'owners\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{owner}$2!;
@@ -519,32 +519,6 @@ sub suggest_crontab {
 EOM
 }
 
-sub get_str {
-  return prompt(shift, shift);
-}
-
-sub get_bool {
-  my ($msg, $def) = @_;
-  chomp $msg;
-  my $val = prompt($msg, $def ? "yes" : "no");
-  $val =~ /^y/i ? 1:0;
-}
-
-sub prompt ($;$) {
-  my($mess,$def)=@_;
-  my $ISA_TTY = -t STDIN && -t STDOUT ;
-  Carp::confess("prompt function called without an argument") unless defined $mess;
-  my $dispdef = defined $def ? "[$def] " : " ";
-  $def = defined $def ? $def : "";
-  my $ans;
-  if ($ISA_TTY) {
-    local $|=1;
-    print "$mess $dispdef->";
-    chomp($ans = <STDIN>);
-  }
-  return $ans || $def;
-}
-	    
 sub safe_mkdir {
   my $dir  = shift;
   my $mode = shift;

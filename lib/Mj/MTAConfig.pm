@@ -25,11 +25,13 @@ use strict;
 use vars (qw(%header %sendsep %supported));
 
 %sendsep = (
-	    sendmail => '+'
+	    sendmail => '+',
+	    qmail    => '-',
 	   );
 
 %supported = (
-	      'sendmail' => 'sendmail',
+	      sendmail => 'sendmail',
+	      qmail    => 'qmail',
 	     );
 
 %header = (
@@ -72,6 +74,22 @@ sub sendmail {
     return Mj::MTAConfig::Sendmail::del_alias(%args);
   }
   Mj::MTAConfig::Sendmail::add_alias(%args);
+}
+
+=head2 qmail
+
+=cut
+sub qmail {
+  my %args = @_;
+    my $dom = $args{domain};
+
+  if($args{regenerate}) {
+    return Mj::MTAConfig::Qmail::regen_aliases(%args);
+  }
+  elsif($args{'delete'}) {
+    return Mj::MTAConfig::Qmail::del_alias(%args);
+  }
+  Mj::MTAConfig::Qmail::add_alias(%args);
 }
 
 package Mj::MTAConfig::Sendmail;
@@ -231,6 +249,89 @@ sub regen_aliases {
   }
   $body;
 }
+
+package Mj::MTAConfig::Qmail;
+use IO::File;
+use Mj::Log;
+sub add_alias {
+  my $log = new Log::In 150;
+  my %args = @_;
+  my($fn,$debug,$base,$file);
+  my $bin  = $args{bindir} || $log->abort("bindir not specified");
+  my $dom  = $args{domain} || $log->abort("domain not specified");
+  my $list = $args{list}   || 'GLOBAL';
+  my $who  = $args{whoami} || 'majordomo'; 
+  my $aliasdir = $args{aliasdir} || $log->abort("qmail aliasdir not specified");
+  my $domainprefix = "-$args{aliasprefix}" || ''; 
+
+  if ($args{debug}) {
+    $debug = " -v$args{debug}";
+  }
+  else {
+    $debug = '';
+  }
+
+  if ($list eq 'GLOBAL') {
+    $fn = "$aliasdir/.qmail$domainprefix" . "-$who";
+    my $file = new IO::File(">$fn");
+    $file->print("|$bin/mj_email -m -d $dom$debug\n");
+    $file->close;
+
+    $fn = "$aliasdir/.qmail$domainprefix" . "-$who" . "-owner";
+    $file = new IO::File(">$fn");
+    $file->print("|$bin/mj_email -o -d $dom$debug\n");
+    $file->close;
+
+    symlink($fn,"$aliasdir/.qmail$domainprefix"."-owner-$who");
+  }
+  else {
+    $fn = "$aliasdir/.qmail$domainprefix" . "-$list";
+    $file = new IO::File(">$fn");
+    $file->print("|$bin/mj_email -r -d $dom -l $list$debug\n");
+    $file->close;
+
+    $base = $fn;
+
+    $fn = $base . "-request";
+    $file = new IO::File(">$fn");
+    $file->print("|$bin/mj_email -q -d $dom -l $list$debug\n");
+    $file->close;
+
+    $fn = $base . "-owner";
+    $file = new IO::File(">$fn");
+    $file->print("|$bin/mj_email -o -d $dom -l $list$debug\n");
+    $file->close;
+
+    symlink($fn,"$aliasdir/.qmail$domainprefix"."owner-$list");
+  }
+
+  return "The appropriate alias files have been created in $aliasdir.\n";
+}
+
+sub del_alias {
+  my %args = @_;
+  my $list = $args{list};
+  my $log = new Log::In 150;
+  my $aliasdir = $args{aliasdir} || $log->abort("qmail aliasdir not specified");
+  my $domainprefix = "-$args{aliasprefix}" || '';
+
+  unlink "$aliasdir/.qmail$domainprefix" . "-$list";
+  unlink "$aliasdir/.qmail$domainprefix" . "-$list". "-owner";
+  unlink "$aliasdir/.qmail$domainprefix" . "-$list". "-request";
+  unlink "$aliasdir/.qmail$domainprefix" . "-owner-$list";
+}
+
+sub regen_aliases {
+  my %args = @_;
+  my($i,$block,$body);
+  for $i (@{$args{lists}}) {
+    $block = add_alias(%args,list => $i->[0],debug => $i->[1]);
+    $body .= "$block" if $block;
+  }
+  $body;
+}
+
+
 
 =head1 COPYRIGHT
 
