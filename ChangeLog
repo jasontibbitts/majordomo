@@ -1,3 +1,27 @@
+Sun Jul 11 15:00:10 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/RegList.pm (new): 
+	* lib/Mj/AddressList.pm (new):
+		Add comparison functions.
+
+	* lib/Majordomo.pm (substitute_vars_string): Add patch by Anton
+ 	Berezin to recursively substitute an arrayref.  This fixes the
+ 	non-substitution of variables in fronters and footers.
+
+Sat Jul 10 19:11:53 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/SimpleDB.pm (new): New calling convention: take a hash
+ 	now.
+
+	* lib/Mj/TokenDB.pm (new): 
+	* lib/Mj/SubscriberList.pm (new): 
+	* lib/Mj/AddressList.pm (new): 
+	* lib/Mj/AliasList.pm (new): 
+	* lib/Mj/Archive.pm (_make_index): 
+	* lib/Mj/List.pm (_make_dup): 
+	* lib/Mj/RegList.pm (new):
+		Use new SimpleDB calling convention
+
 Sun Jul  4 15:53:32 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Parser.pm (parse_entity): Deal with the fact that

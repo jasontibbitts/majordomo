@@ -512,12 +512,29 @@ sub substitute_vars {
   $out->close;
   $tmp;
 }
-  
+
+=head2 substitute_vars_string(string, subhashref)
+
+This substitutes embedded variables in a string.
+
+If passed an arrayref instead of a string, the elements of the array are
+operated on instead.  Note that in this case, the array elements are
+modified.  The operation is recursive.
+
+=cut
 sub substitute_vars_string {
   my $self = shift;
   my $str  = shift;
   my $subs = shift;
   my $i;
+
+  if (ref $str eq 'ARRAY') {
+    for (@$str) {
+      # Perform a recursive substitution
+      $_ = $self->substitute_vars_string($_, $subs);
+    }
+    return $str;
+  }
 
   for $i (keys %$subs) {
     # Don't substitute after backslashed $'s

@@ -50,7 +50,10 @@ sub new {
   my $path = shift;
   my $back = shift;
 
-  new Mj::SimpleDB $path, $back, \@fields;
+  new Mj::SimpleDB(filename => $path,
+		   backend  => $back,
+		   fields   => \@fields,
+		  );
 }
 
 =head1 COPYRIGHT

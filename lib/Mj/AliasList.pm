@@ -47,7 +47,10 @@ sub new {
   my $path = shift;
   my $back = shift;
 
-  my $ref = new Mj::SimpleDB $path, $back, \@fields;
+  my $ref = new Mj::SimpleDB(filename => $path,
+			     backend  => $back,
+			     fields   => \@fields,
+			    );
   bless {delegate => $ref}, $class;
 }
 

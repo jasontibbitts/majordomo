@@ -799,7 +799,10 @@ sub _make_index {
 
   unless ($self->{'indices'}{$arc}) {
     my $idx = "$self->{'dir'}/.index/I$self->{'list'}.$arc";
-    $self->{'indices'}{$arc} = new Mj::SimpleDB($idx, 'text', \@index_fields);
+    $self->{'indices'}{$arc} = new Mj::SimpleDB(filename => $idx,
+						backend  => 'text',
+						fields   => \@index_fields,
+					       );
   }
 }
 

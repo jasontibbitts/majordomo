@@ -70,7 +70,8 @@ use vars qw(%beex %exbe);
   (
    'none' => '',
    'text' => 'T',
-   'db'   => 'D',
+#   'berkdb'   => 'B',
+   'db'  => 'D',
   );
 
 %exbe = reverse(%beex);
@@ -101,9 +102,17 @@ arguments (for remote databases, etc.)
 
 =cut
 sub new {
-  my ($type, $name, $backend, $fields, $indexes, $sorter) = @_;
-  my $log  = new Log::In 200, "$name, $backend";
-  my ($exist, $lock, $ver);
+  my ($type, %args) = @_;
+
+  # $name, $backend, $fields, $indices, $sorter) = @_;
+
+  my $log  = new Log::In 200, "$args{filename}, $args{backend}";
+  my ($exist, $lock, $ver, $name);
+
+  # Fix up arguments
+  $name = $args{filename};
+  $args{lockfile} = $name;
+  $args{filename} = "$name.$beex{$args{backend}}";
 
   # Lock the path
   $lock = new Mj::Lock($name, 'Shared');
@@ -112,15 +121,14 @@ sub new {
   ($exist, $ver) = _find_existing($name);
 
   # Convert if necessary
-  if ($exist && $exist ne $backend) {
-    _convert($name, $exist, $backend);
+  if ($exist && $exist ne $args{backend}) {
+    _convert($name, $exist, $args{backend});
   }
 
   # Create and return the database
   {
     no strict 'refs';
-    &{"_c_$backend"}("$name.$beex{$backend}", $name, $fields, $indexes,
-		   $sorter);
+    &{"_c_$args{backend}"}(%args)
   }
 }
 

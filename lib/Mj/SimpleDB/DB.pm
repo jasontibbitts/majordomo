@@ -1,6 +1,6 @@
 =head1 NAME
 
-Mj::SimpleDB::Text - A very simple flat-file database
+Mj::SimpleDB::DB - A wrapper around a BerkeleyDB database
 
 =head1 SYNOPSIS
 
@@ -8,22 +8,19 @@ blah
 
 =head1 DESCRIPTION
 
-This contains rouines to implement a very simple database.  Data is tab
-delimited and is not maintained in any particular order.  There are a few
-access routines which are used to retrieve keys and data; these are
-tailored to the kind of access which Majordomo needs.
+This contains code to implement the abstract Majordomo database API using a
+Berkeley DB database.  The DB_File module is used, not the newer BerkeleyDB
+module which is not yet stable.
 
-If the database has a changetime field, it will be automatically maintained
-during changes.
-
+Note that unlike SimpleDB::Text.pm, this module doesn''t delete empty
+databases.  That opens up a very nasty set of race conditions.  Note also
+that BTree databases never shrink.
 =cut
 
 package Mj::SimpleDB::Text;
 use Mj::SimpleDB::Base;
-use IO::File;
-use Mj::File;
+use DB_File;
 use Mj::Lock;
-use Mj::FileRepl;
 use Mj::Log;
 use Safe;
 use strict;
@@ -34,40 +31,55 @@ $VERSION = 1;
 
 =head2 new(path, lockpath, field_list_ref)
 
-This allocates the SimpleDB with a particular name.  This will create the
-data file if it does not exist.  The file is not locked in any way by this
-operation.
-
-If lockpath is set, it will be used as the path to lock.  This is done to
-ease automatic use of multiple databases, so that one base name can be used
-as the lockfile for all backends.  Note that due to the way Mj::Lock works,
-this is not the actual path to the lockfile.  In effect, we can pretend
-we''re locking a database without the extension.
+This allocates the a BerkeleyDB with a particular name.  The database will
+be created if it does not exist.  Note that if a sorter is specified, a
+Btree database will be allocated, otherwise a somple Hash will be
+allocated.
 
 =cut
 sub new {
   my $type  = shift;
+  my %args  = @_;
   my $class = ref($type) || $type;
-  my %args = @_;
-
+  my (%db, $db);
   my $self = {};
   bless $self, $class;
 
-  $self->{back} = 'Text';
-  $self->{name} = $args{filename};
-  $self->{lock} = $args{lockfile} || $self->{name};
-  my $log  = new Log::In 200, "$self->{name}, $self->{lock}";
-  $self->{fields} = $args{fields};
+  $self->{backend}  = 'DB';
+  $self->{filename} = $args{filename};
+  $self->{lockfile} = $args{lockfile} || $self->{filename};
+  $self->{fields}   = $args{fields};
+  $self->{compare}  = $args{compare};
+
+  my $log  = new Log::In 200, "$self->{filename}, $self->{lockfile}";
 
   unless (defined($safe)) {
     $safe = new Safe;
     $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
   }
 
+  # Now allocate the database bits.
+  if ($self->{compare}) {
+    $self->{dbtype} = new DB_File::BTREEINFO;
+    $self->{dbtype}{compare} = $self->{compare};
+  }
+  else {
+    $self->{dbtype} = new DB_File::HASHINFO;
+  }
+
   $self;
 }
 
+sub _make_db {
+  my $self = shift;
+  return if $self->{db};
+  my (%db);
 
+  # Now grab the DB object.  We don't care about the hash we're tying to,
+  # because we're going to save the speed hit and use the API directly.
+  $self->{db} = tie %db, 'DB_File', $self->{filename},
+                         O_RDWR|O_CREAT, 0666, $self->{dbtype};
+}
 
 =head2 DESTROY
 
@@ -82,16 +94,7 @@ sub DESTROY {
   my $log  = new Log::In 200, $self->{'name'};
   undef $self->{get_handle};
   undef $self->{get_lock};
-  
-  if (-z $self->{name}) {
-    my $lock = new Mj::Lock($self->{lock}, 'Exclusive');
-
-    # Check again now that we have a lock
-    if (-z $self->{name}) {
-      $log->message(170, "info", "Mj::SimpleDB deleting zero-size file $self->{'name'}");
-      unlink $self->{name};
-    }
-  }
+  undef $self->{db};
 }
 
 =head2 add(mode, key, datahashref)
@@ -101,7 +104,10 @@ This adds a row to the database.
 This returns a list:
 
   flag - truth on success
-  data - if failure, a ref to the data that already exists for the key
+  data - if failure, a ref to the data that already exists for the key (if any)
+
+Note that if mode =~ force, existing data will be overwritten and _not
+returned_.
 
 =cut
 sub add {
@@ -109,29 +115,30 @@ sub add {
   my $mode   = shift || "";
   my $key    = shift;
   my $argref = shift;
-  my $log    = new Log::In 120, "$self->{'name'}, $mode, $key";
-  my ($data, $done, $fh);
+  my $log    = new Log::In 120, "$self->{filename}, $mode, $key";
+  my ($data, $done, $flags, $status);
 
   # Grab a lock up front; this elminiates the race between creation and
   # opening.
-  my $lock = new Mj::Lock($self->{lock}, 'Exclusive');
+  my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
+  return 0 unless $self->_make_db;
 
-  # Auto-create ourselves if we don't exist
-  unless (-r $self->{'name'}) {
-    $fh   = new IO::File;
-    $fh->open($self->{'name'}, ">>");
-    $fh->close;
-  }
-  
-  # Already locked, no need to lock again
-  $fh = new Mj::File $self->{'name'}, 'U+<';
+  $flags = 0; $flags = R_NOOVERWRITE unless $mode =~ /force/;
+  $status = $self->{db}->put($key, $self->_stringify($argref), $flags);
 
-  if ($mode =~ /force/i || !($data = $self->lookup($key, $fh))) {
-    $fh->seek(0,2);
-    $fh->print("$key\001" . $self->_stringify($argref) . "\n");
+  # If success...
+  if ($status == 0) {
     $done = 1;
   }
-  $fh->close;
+  # If the key existed and NOOVERWEITE was given...
+  elsif ($status > 0) {
+    $data = $self->lookup($key);
+    $done = 0;
+  }
+  # Else it just bombed
+  else {
+    $done = 0;
+  }
   ($done, $data);
 }
 
@@ -149,51 +156,48 @@ sub remove {
   my $self = shift;
   my $mode = shift;
   my $key  = shift;
-  my $log  = new Log::In 120, "$self->{'name'}, $mode, $key";
+  my $log  = new Log::In 120, "$self->{filename}, $mode, $key";
 
-  my (@out, $data, $fh, $match);
-  
-  # If we don't exist, there's no point
-  unless (-r $self->{name}) {
-    $log->out("failed");
+  my (@nuke, @out, $data, $fh, $match, $status, $try, $value);
+  return unless $self->_make_db;
+
+  my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
+
+  # First, take care of the simple case.  Note that we don't allow
+  # duplicates, but if we did there would be a problem with the del method
+  # automatically removing all keys present.
+  if ($mode !~ /regex/) {
+    # Perhaps the key exists; look it up
+    $data = $self->_lookup($key);
+
+    # If we got something, delete and return it.
+    if ($data) {
+      $status = $self->{db}->del($key);
+      return ($key, $data);
+    }
     return;
   }
 
-  $fh = new Mj::FileRepl($self->{name}, $self->{lock});
-  
-  if ($mode =~ /regex/) {
-    while (1) {
-      # Note that lookup on a FileRepl automatically copies for us, unless
-      # the match is false (matches in the line but doesn't match the key).
-      # For that, we pass the special flag that causes lookup_regexp to
-      # write back false matches.
-      ($match, $data) = $self->lookup_regexp($key, $fh, 1);
-      last unless defined $match;
-      push @out, ($match, $data);
-      if ($mode !~ /allmatching/) {
-	$fh->copy;
-	last;
+  # So we're doing regex processing, which means we have to search.
+  # SimpleDB::Text can make use of lookup and lookup_regexp but we can't
+  # rely on the stability of the cursor across a delete.
+  $try = $value = 0;
+  for ($status = $self->{db}->seq($try, $value, R_FIRST);
+       $status == 0;
+       $status = $self->{db}->seq($try, $value, R_NEXT);
+      ) 
+    {
+      if (_re_match($key, $try)) {
+	$self->{db}->del($try, R_CURSOR);
+	push @out, ($try, $self->_unstringify($value));
+	last if $mode !~ /allmatching/;
       }
     }
-  }
-  else {
-    while (1) {
-      # Note that lookup on a FileRepl automatically copies for us
-      ($data) = $self->lookup($key, $fh);
-      last unless defined $data;
-      push @out, ($key, $data);
-      if ($mode !~ /allmatching/) {
-	$fh->copy;
-	last;
-      }
-    }
-  }
+
   if (@out) {
-    $fh->commit;
     return @out;
   }
   
-  $fh->abandon;
   $log->out("failed");
   return;
 }
@@ -208,8 +212,8 @@ the first is.
 
 If field is a hash reference, it is used as the hash of data and values.
 If field is a code reference, it is executed and the resulting hash is
- written back as the data.  Unlike the mogrify function, this cannot change
- the key.
+written back as the data.  Unlike the mogrify function, this cannot change
+the key.
 
 Returns a list of keys that were modified.
 
@@ -221,20 +225,72 @@ sub replace {
   my $field = shift;
   my $value = shift;
   $value = "" unless defined $value;
-  my $log   =  new Log::In 120, "$self->{'name'}, $mode, $key, $field, $value";
-  my (@out, $fh, $matches, $match, $data);
+  my $log   =  new Log::In 120, "$self->{filename}, $mode, $key, $field, $value";
+  return unless $self->_make_db;
+  my (@out, $k, $matches, $match, $data, $v);
+  my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
 
-  # If we don't exist, there's no point
-  unless (-r $self->{name}) {
-    $log->out("failed");
-    return;
-  }
-
-  $fh = new Mj::FileRepl($self->{name}, $self->{lock});
   $matches = 0;
+
+  # Take care of the easy case first.  Note that we don't allow duplicates, so there's no need to loop nere.
+  if ($mode !~ /regex/) {
+    $data = $self->_lookup($key);
+    return unless $data;
+    # Update the value, and the record.
+    if (ref($field) eq 'HASH') {
+      $data = $field;
+    }
+    elsif (ref($field) eq 'CODE') {
+      $data = &$field($data);
+    }
+    else {
+      $data->{$field} = $value;
+    }
+    $self->{db}->put($key, $self->_stringify($data));
+    return ($key);
+  }
   
-  if ($mode =~ /regex/) {
-    while (1) {
+  # So we're doing regex processing, which means we have to search.
+  # SimpleDB::Text can make use of lookup and lookup_regexp but we can't
+  # rely on the stability of the cursor across a delete.
+  $try = $value = 0;
+  for ($status = $self->{db}->seq($k, $v, R_FIRST);
+       $status == 0;
+       $status = $self->{db}->seq($k, $v, R_NEXT);
+      ) 
+    {
+      if (_re_match($key, $k)) {
+	if (ref($field) eq 'HASH') {
+	  $data = $field;
+	}
+	elsif (ref($field) eq 'CODE') {
+	  $data = $self->_unstringify($v);
+	  $data = &$field($data);
+	}
+	else {
+	  $data = $self->_unstringify($v);
+	  $data->{$field} = $value;
+	}
+	$self->{db}->put($key, $self->_stringify($data), R_CURSOR);
+	return ($key);
+	
+
+	$self->{db}->del($try, R_CURSOR);
+	push @out, ($try, $self->_unstringify($value));
+	last if $mode !~ /allmatching/;
+      }
+    }
+
+  if (@out) {
+    return @out;
+  }
+  
+  $log->out("failed");
+  return;
+}
+
+
+  while (1) {
       # Note that lookup implicitly copies for us.
       ($match, $data) = $self->lookup_regexp($key, $fh);
       last unless defined $match;
@@ -255,36 +311,6 @@ sub replace {
       }
     }
   }
-  else {
-    while (1) {
-      $data = $self->lookup($key, $fh);
-      last unless defined $data;
-      
-      # Update the value, and the record.
-      if (ref($field) eq 'HASH') {
-	$data = $field;
-      }
-      elsif (ref($field) eq 'CODE') {
-	$data = &$field($data);
-      }
-      else {
-	$data->{$field} = $value;
-      }
-      $fh->print("$key\001" . $self->_stringify($data) . "\n");
-      push @out, $key;
-      if ($mode !~ /allmatching/) {
-	$fh->copy;
-	last;
-      }
-    }
-  }
-  if (@out) {
-    $fh->commit;
-    return @out
-  }
-
-  $fh->abandon;
-  return;
 }
 
 =head2 mogrify(coderef)
@@ -321,7 +347,7 @@ sub mogrify {
     return;
   }
 
-  $fh = new Mj::FileRepl($self->{name}, $self->{lock});
+  $fh = new Mj::FileRepl($self->{name}, $self->{lockfile});
   $fh->untaint;
   $changed = 0;
 
@@ -380,7 +406,7 @@ These initialize and close the iterator used to retrieve lists of rows.
 sub get_start {
   my $self = shift;
 
-  $self->{get_lock} = new Mj::Lock($self->{lock}, 'Shared');
+  $self->{get_lock} = new Mj::Lock($self->{lockfile}, 'Shared');
 
   # Auto-create ourselves.  Do this because we don't want to return an
   # error if the file doesn't exist, and because we want a lock during the
@@ -576,6 +602,24 @@ sub get_matching_regexp {
   return @keys;
 }
 
+=head2 _lookup(key)
+
+An internal lookup function that does no locking; essentially, it is
+db->get with unstringification of the result.
+
+=cut
+sub _lookup {
+  my($self, $key) = @_;
+  my($status, $value, $data);
+
+  $status = $self->{db}->get($key, $value);
+  if ($status == 0 && $value) {
+    $data = $self->_unstringify($value);
+  }
+  $data;
+}
+
+
 =head2 lookup_quick(key, fileh)
 
 This checks to see if a key is a member of the list.  It
@@ -588,7 +632,15 @@ sub lookup_quick {
   my $self = shift;
   my $key  = shift;
   return unless -f $self->{'name'};
-  my $fh   = shift || new Mj::File $self->{'name'}, '<', $self->{lock};
+  my $fh   = shift || new Mj::File $self->{'name'}, '<', $self->{lockfile};
+
+
+    $status = $self->{db}->get($key, $value);
+    if ($status != 0) {
+      return;
+    }
+    $data = $self->
+
 
   # We should be able to trust the contents of this file.
   $fh->untaint;
@@ -607,7 +659,7 @@ sub lookup_quick_regexp {
   my $self = shift;
   my $reg  = shift;
   return unless -f $self->{'name'};
-  my $fh   = shift || new Mj::File $self->{'name'}, '<', $self->{lock};
+  my $fh   = shift || new Mj::File $self->{'name'}, '<', $self->{lockfile};
   my $wb  = shift;
   $fh->untaint;
 

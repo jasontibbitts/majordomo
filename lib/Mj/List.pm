@@ -1152,8 +1152,10 @@ sub _make_dup {
   return 1 if $self->{'dup'}{$type};
 
   $self->{'dup'}{$type} =
-    new Mj::SimpleDB($self->_file_path("_dup_$type"), $self->{backend},
-		     ['changetime']);
+    new Mj::SimpleDB(filename => $self->_file_path("_dup_$type"),
+		     backend  => $self->{backend},
+		     fields   => ['changetime'],
+		    );
   1;
 }
 

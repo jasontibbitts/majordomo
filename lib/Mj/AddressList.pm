@@ -41,7 +41,16 @@ sub new {
   my $path = shift;
   my $back = shift;
 
-  new Mj::SimpleDB $path, $back, \@fields;
+  new Mj::SimpleDB(filename => $path,
+		   backend  => $back, 
+		   fields   => \@fields,
+		   compare  => \&compare,
+		  );
+}
+
+sub compare {
+  my ($k1, $k2) = @_;
+  reverse($k1) cmp reverse($k2);
 }
 
 =head1 COPYRIGHT
