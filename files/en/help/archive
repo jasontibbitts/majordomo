@@ -253,6 +253,14 @@ filespec or other argument.  Just use the following command:
 
   archive-summary LISTNAME
 
+This command will only show archives of messages that were posted to the
+list.  To see archived of messages that were posted to a sublist, use
+the following command:
+
+  archive-summary LISTNAME:SUBLIST
+
+See "help auxiliary_list" for more information about sublists.
+
 
 archive-stats
 -------------

@@ -4240,6 +4240,10 @@ sub archive_start {
     if ($request->{'mode'} =~ /replace/) {
       $request->{'contents'} = join "\002", @{$request->{'contents'}};
     }
+    elsif ($request->{'mode'} =~ /summary/) {
+      # Hack to allow sublist transfer for stalled commands.
+      $request->{'contents'} = $request->{'sublist'};
+    }
     else {
       for $i (@{$request->{'contents'}}) {
         if ($i =~ /~([as])(.+)/) {
@@ -4255,7 +4259,7 @@ sub archive_start {
           Mj::Config::compile_pattern($pattern, 0, 'isubstring');
 
         unless ($ok) {
-          return (0, qw(The pattern "$i" is invalid.\n));
+          return (0, qw(The pattern "$i" is invalid.\n)); # XLANG
         }
         $pattern =~ s/\002//g;
         push @tmp, $type, $pattern;
@@ -4303,7 +4307,7 @@ sub _archive {
 
   # summary mode lists all archives, along with the number of messages in each.
   elsif ($mode =~ /summary/) {
-    @msgs = $self->{'lists'}{$list}->archive_summary();
+    @msgs = $self->{'lists'}{$list}->archive_summary($contents);
   }
 
   # return information from the message database for each message matching

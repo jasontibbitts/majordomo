@@ -1554,18 +1554,30 @@ sub _arc_name {
   return "$year$month$mday" if $split eq 'daily';
 }
 
-=head2 summary
+=head2 summary (private)
 
 Return a list of all archives, along with the message count for
 each archive.
 
+Do not show sublist archives unless the private argument is set.
+
 =cut
 sub summary {
   my $self = shift;
+  my $sublist = shift;
   my (@out, $arc);
   my $log   = new Log::In 250;
 
+  $sublist = '' if (! defined($sublist) or $sublist eq 'MAIN');
+
   for $arc (@{$self->{'sorted_splits'}}) {
+    # skip sublist archives unless they are requested specifically.
+    if ($sublist) {
+      next unless ($arc =~ /^$sublist\./i);
+    }
+    else {
+      next if ($arc =~ /\./);
+    }
     $self->_read_counts($arc, 0);
     push @out, [$arc, $self->{'splits'}{$arc}]
       if (exists($self->{'splits'}{$arc}) and 

@@ -1,3 +1,12 @@
+2004-08-31  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_archive)  Only show archives for
+	the specified sublist when the archive-summary command
+	is used.
+
+	* lib/Mj/Archive.pm:  (summary)  Only summarize archives
+	for the specified sublist.
+
 2004-08-30  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Support the plain who command.
