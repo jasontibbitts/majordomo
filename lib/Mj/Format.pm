@@ -3430,16 +3430,17 @@ sub g_get {
       $path, $subs, $tmp);
   my ($ok, $mess) = @$result;
 
-  $path = $request->{'path'};
-  $file = $parent = $dir = '';
-
-  if ($path =~ m#(.*/)([^/]+)$#) {
-    $dir = $1;
-    $file = $2;
-    ($parent = $dir) =~ s#[^/]+/+$##;
-  }
-  else {
-    $file = $path;
+  $path = $file = $parent = $dir = '';
+  if ($base eq 'get') {
+    $path = $request->{'path'};
+    if ($path =~ m#(.*/)([^/]+)$#) {
+      $dir = $1;
+      $file = $2;
+      ($parent = $dir) =~ s#[^/]+/+$##;
+    }
+    else {
+      $file = $path;
+    }
   }
  
   unless ($ok > 0) {
