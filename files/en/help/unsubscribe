@@ -9,8 +9,9 @@ listname,   required, is the name of a list at this site
 
 By default, the "unsubscribe" command removes an "address" from the
 named list. Unless the command is "approve"d in advance, a confirmation
-token will be sent to the given "address" to verify this action, and
-must be replied to with an "accept" command before the address is
+token may be sent to the given "address" (based on unsubscribe_policy
+or the access_rules settings for "listname") to verify this action,
+and must be replied to with an "accept" command before the address is
 removed from the list.
 
 To unsubscribe from the LISTNAME email broadcast list at this site,
@@ -39,10 +40,12 @@ no interpretation of special characters. Matching is case sensitive.
 If the "-regexp" option is used, "address" is interpreted as a
 Majordomo matching pattern. Review the "help patterns" file carefully.
 Patterns can be very simple or full-blown Perl regular expressions.
+When -regexp is used to unsubscribe addresses with wild cards, the
+list password is required and confirmations will not be requested.
+Without "-allmatching", only the first matching address is removed.
 
 If the "-allmatching" option is used with "-regexp", then every
 address that matches the pattern will be removed from the list.
-Without "-allmatching", only the first matching address is removed.
 
 See Also:
    help approve     (which can eliminate the need to use "accept")

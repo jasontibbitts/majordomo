@@ -11,10 +11,11 @@ EXAMPLE:
 configset listname unsubscribe_policy = open
 
 
-WARNING: The default unsubscribe_policy allows anyone to forge
+WARNING: The default unsubscribe_policy (open) allows anyone to forge
          a return address and remove another subscriber from the
-         list. It is HIGHLY recommended that you use open+confirm
-         instead. The default is for compatibility with Mj1.
+         list. The "auto" setting allows the same thing without even
+         faking the From field. It is HIGHLY recommended that you use
+         open+confirm instead. The default is for compatibility with Mj1.
 
 One of three values: open, closed, auto; plus an optional modifier:
 '+confirm'.  Open allows people to unsubscribe themselves from the list,
@@ -29,6 +30,9 @@ must be sent back in with another unsubscribe command.
 This functionality of unsubscribe_policy is completely encapsulated in
 the access_rules mechanism, but it exists for backwards compatibility
 and because it's simpler to use.
+
+Regardless of the unsubscribe_policy setting, you cannot use wild
+cards (e.g. "unsubscribe-regexp") without the list password.
 
 
 See Also:

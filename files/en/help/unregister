@@ -1,7 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-unregister address
+unregister-regexp-allmatching address
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 address, required, is a previously registered address
+-regexp, if specified, makes address a pattern (see "help patterns")
+-allmatching, if specified, operates on every address that matches
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The "register" command adds an "address" to the registration database
@@ -10,9 +12,17 @@ any list at this site, it is automatically put in the registration
 database. Unregistering will automatically remove that address from all
 lists at this site.
 
-A confirmation token will be sent to the given "address" to verify
-this action, and must be replied to with an "accept" command, unless
-an authorized password is used with "approve".
+Unless the command is "approve"d in advance, a confirmation token will
+be sent to the given "address" to verify this action, and must be replied
+to with an "accept" command.
+
+When -regexp is used to unregister addresses with wild cards, the site
+password is required and confirmations will not be requested. Without
+"-allmatching", only the first matching address is removed.
+
+If the "-allmatching" option is used with "-regexp", then every
+address that matches the pattern will be removed from the list.
+
 
 See Also:
    help changeaddr  (which replaces one address with another)

@@ -11,6 +11,13 @@ EXAMPLE:
 configset listname subscribe_policy = closed
 
 
+WARNING: Using "open" alone is not safe: Many mail tools allow easy
+         forgery of the "From" field, so an "open" policy allows
+         anyone to subscribe anyone else to your list! The "auto"
+         setting allows the same thing without even faking the From
+         field. The default setting (open+confirm) allows anyone to
+         start the process, but it must be confirmed by the 'victim'.
+
 One of three values: open, closed, auto; plus an optional modifier:
 '+confirm'.  Open allows people to subscribe themselves to the list,
 but attempts to subscribe addresses diferent than where the request is
@@ -24,9 +31,6 @@ must be sent back in with another subscribe command.
 This functionality of subscribe_policy is completely encapsulated in
 the access_rules mechanism, but it exists for backwards compatibility
 and because it's simpler to use.
-
-This functionality of this variable is completely encapsulated within
-the access_rules mechanism, but it exists because it's simpler to use.
 
 
 See Also:

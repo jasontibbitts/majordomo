@@ -7,9 +7,10 @@ listname,   required, is the name of a list at this site
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The "subscribe" command adds an "address" to the named list. Unless
-the command is "approve"d in advance, a confirmation token will be
-sent to the given "address" to verify this action, and must be
-replied to with an "accept" command before the subscription is done.
+the command is "approve"d in advance, a confirmation token may be
+sent to the given "address" (based on the subscribe_policy or the
+access_rules settings for "listname") to verify this action, and must
+be replied to with an "accept" command before the subscription is done.
 
 To subscribe to the LISTNAME email broadcast list at this site,
 as simply as possible, send this one-line message to $MJ:
@@ -80,6 +81,7 @@ unsubscribing.  If you lose the intro mail and would like another copy of
 the policies, send this message to $MJ
         intro LISTNAME
 (substituting, of course, the real name of your list for "LISTNAME").
+
 
 See Also:
    help approve     (which can eliminate the need to use "accept")
