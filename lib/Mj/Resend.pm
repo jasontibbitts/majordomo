@@ -18,9 +18,6 @@ messages which pass are delivered to the various recipients who receive
 each message.  The message is also passed on for archiving and
 digestifying.
 
-Future cool things to investigate include: users who do not receive
-their own messages.  (I implemented everything else on my list.)
-
 Order of operation:
 
  Pull in message, parse into MIME entities and header [1]
@@ -378,17 +375,16 @@ sub _post {
   
   %avars = split("\002", $avars);
   # Is the message being sent to a sublist?
-  $sl = $avars{'sublist'};
-  if ($sl ne '') {
-    if (!$self->{'lists'}{$list}->validate_aux($sl)) {
+  if ($avars{'sublist'} ne '') {
+    unless ($sl = $self->{'lists'}{$list}->valid_aux($avars{'sublist'})) {
       $self->inform($list, "post", $user, $victim, $cmdline, "resend", 
-        0, 0, -1, "Unknown auxiliary list \"$sl\".  Unable to post message."); 
-      return (0, "Unknown auxiliary list \"$sl\".  Unable to post message."); 
+        0, 0, -1, "Unknown auxiliary list \"$avars{'sublist'}\"."); 
+      return (0, "Unknown auxiliary list \"$avars{'sublist'}\"."); 
     }
-    # untaint
-    $sl =~ /(.*)/; $sl = $1; 
   }
+  else { $sl = ''; }
 
+  # $sl now holds the untainted sublist name.
   if (!$sl) {
     # Atomically update the sequence number
     $self->_list_config_lock($list);
@@ -502,7 +498,7 @@ sub _post {
     unlink "$tmp";
   }
 
-  if ($mode ne "archive") {
+  if ($mode !~ /archive/) {
     # Cook up a substitution hash
     $subs = {
          LIST     => $list,

@@ -352,7 +352,7 @@ sub set {
   }
   else {
     return (0, "Unknown auxiliary list name \"$subl\".") 
-      unless $self->validate_aux($subl);
+      unless $self->valid_aux($subl);
     $self->_make_aux($subl);
     $key  = $addr->canon;
     $db   = $self->{'auxlists'}{$subl};
@@ -1067,7 +1067,7 @@ sub moderators {
     return unless $self->aux_get_start($group);
     while (@addr = $self->aux_get_chunk($group, 4)) {
       for $i (@addr) {
-        push @out, $i->{'stripaddr'};
+        push @out, $i->{'stripaddr'} if ($i->{'class'} ne 'nomail');
       }
     }
     return @out if (scalar @out);
@@ -1308,17 +1308,22 @@ sub _make_aux {
   1;
 }
 
-=head2 validate_aux
+=head2 valid_aux
 
 Verify the existence of an auxiliary list.  
 
 =cut
-sub validate_aux {
+sub valid_aux {
   my $self = shift;
   my $name = shift;
 
   $self->_fill_aux;
-  exists $self->{'auxlists'}{$name};
+  if (exists $self->{'auxlists'}{$name}) {
+    # Untaint
+    $name =~ /(.*)/; $name = $1;
+    return $name;
+  }
+  return;
 }
 
 
