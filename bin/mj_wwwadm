@@ -535,7 +535,7 @@ sub Mj::Format::who {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$request->{'list'}";
   my ($cgiurl, $chunksize, $count, $fullclass, $i, $lastchange);
-  my (@lines, $remove, @time, $user);
+  my (@lines, $numbered, $remove, @time, $user);
   $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
   $remove = $request->{'list'} eq 'GLOBAL' ? "unregister" : "unsubscribe";
   select $out;
@@ -594,7 +594,14 @@ EOM
       }
         
       if ($request->{'mode'} =~ /bounces/ && exists $i->{'bouncestats'}) {
-        print "<tr><td cols=4>Bounces in the past week: $i->{'bouncestats'}->{'week'}\n";
+        print "<tr><td cols=4>Bounces in the past week: $i->{'bouncestats'}->{'week'}\n"
+          if $i->{'bouncestats'}->{'week'};
+        print "<tr><td cols=4>Bounces in the past month: $i->{'bouncestats'}->{'month'}\n"
+          if $i->{'bouncestats'}->{'month'};
+        $numbered = join " ", sort {$a <=> $b} keys %{$i->{'bouncedata'}{'M'}};
+        print "<tr><td cols=4>Message numbers: $numbered\n"
+          if $numbered;
+       
       }
     }
   }
