@@ -133,8 +133,9 @@ the checkbox next to the name of a setting to change its value.
   <dt>$REPLYTO_CHECKBOX replyto</dt>
   <dd>
     Select this if you want your replies to be sent to the
-    $LIST mailing list.  Otherwise, your replies may only be 
-    sent to the authors of the messages to which you reply.
+    $LIST mailing list.  Otherwise, when you reply to a message
+    that was posted to the list, it will probably be addressed
+    to the person who wrote the message.
   </dd>
 
   <dt>$REWRITEFROM_CHECKBOX rewritefrom</dt>
