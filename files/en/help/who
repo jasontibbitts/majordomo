@@ -2,6 +2,7 @@
 who[-short][-enhanced][-export][-bounce][-summary] listname [pattern]
 who[-short][-enhanced][-export][-bounce][-alias][-summary] GLOBAL [pattern]
 who-common[-short][-enhanced][-export][-bounce] listname listname [pattern]
+who-common-alias GLOBAL listname [pattern]
 who-owners GLOBAL
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (or the word "GLOBAL")
@@ -86,6 +87,8 @@ used, are only relevant to the first of the two lists.  This feature is
 useful for viewing the registration data for people subscribed to a
 particular list: 
   who-common-enhanced GLOBAL LISTNAME
+or the aliases for one list's subscribers:
+  who-common-alias GLOBAL LISTNAME
 (A valid mailing list name should be substituted for LISTNAME.)
 
 The "who-summary" command will display a summary of statistics.  For
