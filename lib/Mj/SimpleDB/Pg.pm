@@ -57,9 +57,19 @@ sub _make_db {
   unless (defined($tables->{$self->{file}})) {
     $tables->{$self->{file}} = $dbh->func($self->{file}, 'table_attributes') ;
 
-    use Data::Dumper;
     unless (scalar @{$tables->{$self->{file}}}) {
-      die Dumper($self->SUPER::_make_db());
+      my ($query, @prim_key);
+      $query = "CREATE TABLE \"$self->{file}\" (";
+      for my $f ($self->SUPER::_make_db()) {
+	$query .= " \"$f->{NAME}\" $f->{TYPE}, ";
+	push (@prim_key, $f->{NAME}) if $f->{PRIM_KEY};
+      }
+      $query .= "primary key (" . join(", ", map { "\"$_\"" } @prim_key) . "))";
+      $log->message(205, 'info', $query);
+      my $ok = $dbh->do($query);
+      my $error = $dbh->errstr;
+      $dbh->commit();
+      warn "Unable to create table $self->{file} $error" unless (defined $ok);
     }
   }
 

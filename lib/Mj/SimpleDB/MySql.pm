@@ -52,7 +52,7 @@ sub _make_db {
   my $log   = new Log::In 200, "$self->{filename}";
 
   unless (defined $dbh) {
-    $dbh = DBI->connect("DBI:mysql:majordomo", "majordomo", "majordomo" );
+    $dbh = DBI->connect("DBI:mysql:majordomo", "majordomo", "majordomo", {PrintError => 0, RaiseError => 0, AutoCommit => 0} );
     warn "Problem allocating database" unless $dbh;
   }
 
@@ -62,8 +62,18 @@ sub _make_db {
       last if ($table =~ /^$self->{file}$/ && ($tables->{$self->{file}} = 1));
     }
     unless ($tables->{$self->{file}}) {
-      use Data::Dumper;
-      die Dumper($self->SUPER::_make_db());
+      my ($query, @prim_key);
+      $query = "CREATE TABLE $self->{file} (";
+      for my $f ($self->SUPER::_make_db()) {
+	$query .= " $f->{NAME} $f->{TYPE}" .($f->{PRIM_KEY}?" NOT NULL":"") . ", ";
+	push (@prim_key, $f->{NAME}) if $f->{PRIM_KEY};
+      }
+      $query .= "primary key (" . join(", ", @prim_key) . "))";
+      $log->message(205, 'info', $query);
+      my $ok = $dbh->do($query);
+      my $error = $dbh->errstr;
+      $dbh->commit();
+      warn "Unable to create table $self->{file} $error" unless (defined $ok);
     }
   }
   $dbh;

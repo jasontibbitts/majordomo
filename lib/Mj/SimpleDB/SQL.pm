@@ -63,11 +63,33 @@ issue the proper "CREATE TABLE" statements.
 
 =cut
 
-sub _make_db {
-  my $self = shift;
-  my $log   = new Log::In 200, "$self->{filename}";
+{
+  my $schema = {
+    'default' => [
+		   { NAME => "t_domain",
+		     TYPE => "varchar(64)",
+		     PRIM_KEY => 1 },
+		   { NAME => "t_list",
+		     TYPE => "varchar(64)",
+		     PRIM_KEY => 1 },
+		   { NAME => "t_key",
+		     TYPE => "varchar(64)",
+		     PRIM_KEY => 1 }
+		 ],
+  };
+  
+  sub _make_db {
+    my $self = shift;
+    my $log   = new Log::In 200, "$self->{filename}";
 
-  return $self->{file};
+    if (defined($schema->{$self->{file}})) {
+      my @schema = (@{$schema->{default}},@{$schema->{$self->{file}}});
+
+      return @schema;
+    } else {
+      return;
+    }
+  }
 }
 
 =head2 put(db, key, argref, flag)
@@ -88,12 +110,12 @@ sub put {
   my $flag = shift || 0;
   my $log    = new Log::In 200, "$self->{filename}, $key, $argref, $flag";
 
-  my $exist = $db->do("SELECT cle FROM $self->{file} WHERE domain = ? AND list = ? AND cle = ? FOR UPDATE",
+  my $exist = $db->do("SELECT t_key FROM $self->{file} WHERE t_domain = ? AND t_list = ? AND t_key = ? FOR UPDATE",
 		      undef,
 		      $self->{domain}, $self->{list}, $key);
 
   if ($exist == 0) {
-    my $r = $db->do("INSERT INTO $self->{file} (domain, list, cle, ".
+    my $r = $db->do("INSERT INTO $self->{file} (t_domain, t_list, t_key, ".
 		     join(",", @{$self->{fields}}).
 		     ") VALUES (?, ?, ?, ".
 		     join(", ", map { "?" } @{$self->{fields}}).
@@ -104,7 +126,7 @@ sub put {
   } elsif ($exist and $flag == 0) {
     my $r = $db->do("UPDATE $self->{file} SET ".
 		     join(", ", map { "$_ = ? " } @{$self->{fields}}).
-		     " WHERE domain = ? AND list = ? AND cle = ?", undef,
+		     " WHERE t_domain = ? AND t_list = ? AND t_key = ?", undef,
 		    @{%$argref}{@{$self->{fields}}}, $self->{domain}, $self->{list}, $key);
 		  
     return (defined($r) ? 0 : -1);
@@ -193,7 +215,7 @@ sub remove {
 
     # If we got something, delete, commit the transaction and return the old value.
     if ($data) {
-      $sth = $db->prepare_cached("DELETE FROM $self->{file} WHERE domain = ? AND list = ? AND cle = ?");
+      $sth = $db->prepare_cached("DELETE FROM $self->{file} WHERE t_domain = ? AND t_list = ? AND t_key = ?");
       $status = $sth->execute($self->{domain}, $self->{list}, $key);
       $sth->finish();
       $db->commit();
@@ -210,16 +232,16 @@ sub remove {
   
   $db->begin_work();
 
-  $sth = $db->prepare_cached("SELECT cle, ".
+  $sth = $db->prepare_cached("SELECT t_key, ".
 			      join(",", @{$self->{fields}}).
-			      " FROM $self->{file} WHERE domain = ? AND list = ? FOR UPDATE");
+			      " FROM $self->{file} WHERE t_domain = ? AND t_list = ? FOR UPDATE");
 
   $sth->execute($self->{domain}, $self->{list});
   
   for ($data = $sth->fetchrow_hashref;
        defined($data);
        $data = $sth->fetchrow_hashref) {
-    $try = delete $data->{cle};
+    $try = delete $data->{t_key};
     if (re_match($key, $try)) {
       push @deletions, $try;
       push @out, ($try, $data);
@@ -229,7 +251,7 @@ sub remove {
 
   $sth->finish();
 
-  $sth = $db->prepare_cached("DELETE FROM $self->{file} WHERE domain = ? AND list = ? AND cle = ?");
+  $sth = $db->prepare_cached("DELETE FROM $self->{file} WHERE t_domain = ? AND t_list = ? AND t_key = ?");
   
   for $try (@deletions) {
     $sth->execute($self->{domain}, $self->{list}, $try)
@@ -300,16 +322,16 @@ sub replace {
   $db->begin_work();
 
   # So we're doing regex processing, which means we have to search.
-  $sth = $db->prepare_cached("SELECT cle, ".
+  $sth = $db->prepare_cached("SELECT t_key, ".
 			      join(",", @{$self->{fields}}).
-			      " FROM $self->{file} WHERE domain = ? AND list = ? FOR UPDATE");
+			      " FROM $self->{file} WHERE t_domain = ? AND t_list = ? FOR UPDATE");
 
   $sth->execute($self->{domain}, $self->{list});
   
   for ($data = $sth->fetchrow_hashref;
        defined($data);
        $data = $sth->fetchrow_hashref) {
-    $k = delete $data->{cle};
+    $k = delete $data->{t_key};
     if (re_match($key, $k)) {
       if (ref($field) eq 'HASH') {
 	$data = $field;
@@ -380,9 +402,9 @@ sub mogrify {
 
   $db->begin_work();
 
-  $sth = $db->prepare_cached("SELECT cle, ".
+  $sth = $db->prepare_cached("SELECT t_key, ".
 			      join(",", @{$self->{fields}}).
-			      " FROM $self->{file} WHERE domain = ? AND list = ?");
+			      " FROM $self->{file} WHERE t_domain = ? AND t_list = ?");
 
   $sth->execute($self->{domain}, $self->{list});
   
@@ -391,7 +413,7 @@ sub mogrify {
        defined($data);
        $data = $sth->fetchrow_hashref) {
     # Extract the data and call the coderef
-    $k = delete $data->{cle};
+    $k = delete $data->{t_key};
     $v = $data;
     ($changekey, $changedata, $newkey) = &$code($k, $data);
 
@@ -432,7 +454,7 @@ sub mogrify {
   $sth->finish();
 
   for $k (@deletions) {
-    $db->do("DELETE FROM $self->{file} WHERE domain = ? AND list = ? AND cle = ?",
+    $db->do("DELETE FROM $self->{file} WHERE t_domain = ? AND t_list = ? AND t_key = ?",
 	    undef,
 	    $self->{domain}, $self->{list}, $k);
   }
@@ -461,9 +483,9 @@ also returns the first element, we have a tiny bit of complexity in _get.
 
     $db = $self->_make_db;
 
-    $sth = $db->prepare_cached("SELECT cle, ".
+    $sth = $db->prepare_cached("SELECT t_key, ".
 				join(",", @{$self->{fields}}).
-				" FROM $self->{file} WHERE domain = ? AND list = ?");
+				" FROM $self->{file} WHERE t_domain = ? AND t_list = ?");
 
     $sth->execute($self->{domain}, $self->{list});
 
@@ -484,7 +506,7 @@ also returns the first element, we have a tiny bit of complexity in _get.
     my $self = shift;
     my($k, $v) = (0, 0);
     $v = $sth->fetchrow_hashref();
-    $k = delete $v->{cle};
+    $k = delete $v->{t_key};
     return unless defined($k);
     ($k, $v);
   }
@@ -663,7 +685,7 @@ sub _lookup {
 
   my $sth = $db->prepare_cached("SELECT ".
 				  join(",", @{$self->{fields}}).
-				  " FROM $self->{file} WHERE domain = ? AND list = ? AND cle = ? FOR UPDATE");
+				  " FROM $self->{file} WHERE t_domain = ? AND t_list = ? AND t_key = ? FOR UPDATE");
 
   $status = $sth->execute($self->{domain}, $self->{list}, $key);
 
