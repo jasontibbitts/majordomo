@@ -207,6 +207,7 @@ sub make_envelope {
 			       'sender' => $self->{'sender'},
 			       'file'   => $self->{'file'},
 			       'host'   => $host,
+                               'personal' => ($self->{'size'} == 1),
 			       %{$self->{'hostdata'}{$host}},
 			      );
   1;
