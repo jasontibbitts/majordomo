@@ -14,8 +14,8 @@ parsing the files out of a MIME entity.
 =cut
 package Mj::Parser;
 use Mj::Log;
-use Mj::TextOutput;
-use Mj::CommandProps ':command';
+use Mj::Format;
+use Mj::CommandProps qw(:command :function);
 use strict;
 
 use AutoLoader 'AUTOLOAD';
@@ -69,8 +69,8 @@ sub parse_entity {
 		    );
       push @entities, @ents;
       if ($ok) {
-	$::log->message(30, "info", "Parsed commands; not parsing attachments.");
-	last;
+        $::log->message(30, "info", "Parsed commands; not parsing attachments.");
+        last;
       }
       $count++;
     }
@@ -99,7 +99,7 @@ sub parse_entity {
     for $i (@{$args{'parts'}}) {
       # Make sure we have a single part entity
       if (defined($i->is_multipart) && $i->is_multipart == 0) {
-	push @attachments, $i->bodyhandle->open("r");
+        push @attachments, $i->bodyhandle->open("r");
       }
     }
 
@@ -178,7 +178,7 @@ sub parse_part {
   $count = $ok_count = $pend_count = $fail_count = $unk_count = $garbage = 0;
   $user = $args{'reply_to'};
   $sigsep = $mj->global_config_get(undef, undef, undef, $interface,
-				   'signature_separator');
+                                   'signature_separator');
 
  CMDLINE:
   while (defined($_ = $inhandle->getline)) {
@@ -198,6 +198,12 @@ sub parse_part {
       print $outhandle "Stopping at signature separator.\n\n";
       last CMDLINE;
     }
+
+    # request is a reference to a hash that is used 
+    # to marshal arguments for a call to majordomo core
+    # functions via dispatch().
+    my ($request) = {};
+    $request->{'auth'} = '';
 
     # We have something that looks like a command.  Process it and any here
     # arguments that may follow.
@@ -226,22 +232,22 @@ sub parse_part {
     $log->message(50, "info", "$command aliased to $true_command.")
       if defined $true_command and $command ne $true_command;
     unless (defined($true_command) &&
-	    (command_prop($true_command, $interface) ||
-	    (command_prop($true_command, "${interface}_parsed"))))
+            (command_prop($true_command, $interface) ||
+            (command_prop($true_command, "${interface}_parsed"))))
       {
-	unless ($garbage) {
-	  print $outhandle $out;
-	  print $outhandle "**** Illegal command!\n\n";
-	}
-	$garbage++;
-	next CMDLINE;
+        unless ($garbage) {
+          print $outhandle $out;
+          print $outhandle "**** Illegal command!\n\n";
+        }
+        $garbage++;
+        next CMDLINE;
       }
 
     # The command is pretty close to legal; go ahead and print the line and
     # a message if we skipped any garbage
     if ($garbage > 1) {
       printf $outhandle ("**** Skipped %d additional line%s of unrecognized text.\n\n",
-			 $garbage-1, $garbage==1?"":"s")
+                         $garbage-1, $garbage==1?"":"s")
     }
     $garbage = 0;
     print $outhandle $out;
@@ -259,13 +265,13 @@ sub parse_part {
 
       $true_command = command_legal($command);
       $log->message(50, "info", "$command aliased to $true_command.")
-	if defined $true_command and $command ne $true_command;
+        if defined $true_command and $command ne $true_command;
       unless (defined($true_command) &&
-	      command_prop($true_command, $interface))
-	{
-	  print $outhandle "Illegal command!\n";
-	  next CMDLINE;
-	}
+              command_prop($true_command, $interface))
+        {
+          print $outhandle "Illegal command!\n";
+          next CMDLINE;
+        }
     }
 
     # Deal with "end" command; again, this can be aliased
@@ -281,32 +287,32 @@ sub parse_part {
 			  $interface, $args{'reply_to'});
       ($tlist, $cmdargs) = split(" ", $cmdargs, 2);
       unless (defined($tlist) && length($tlist)) {
-	print $outhandle "A list name is required.\n";
-	next CMDLINE;
+        print $outhandle "A list name is required.\n";
+        next CMDLINE;
       }
       unless (defined
-	      ($list = $mj->valid_list
-	       ($tlist,
-		command_prop($true_command, 'all'),
-		command_prop($true_command, 'global'))))
-	{
-	  print $outhandle "Illegal list \"$tlist\".\n";
-	  next CMDLINE;
-	}
+              ($list = $mj->valid_list
+               ($tlist,
+                command_prop($true_command, 'all'),
+                command_prop($true_command, 'global'))))
+        {
+          print $outhandle "Illegal list \"$tlist\".\n";
+          next CMDLINE;
+        }
     }
     # Bomb if given here args or an attachment when not supposed to
     if (command_prop($true_command, "nohereargs") &&
-	(@arglist || $attachhandle))
+        (@arglist || $attachhandle))
       {
-	print $outhandle "Command $command doesn't take arguments with << TAG or <@.\n";
-	next CMDLINE;
+        print $outhandle "Command $command doesn't take arguments with << TAG or <@.\n";
+        next CMDLINE;
       }
       
     # Warn if command takes no args
     if (command_prop($true_command, "noargs") &&
 	($cmdargs || @arglist || $attachhandle))
       {
-	print $outhandle "Command $command will ignore any arguments.\n";
+        print $outhandle "Command $command will ignore any arguments.\n";
       }
 
     # Warn of obsolete usage
@@ -340,9 +346,9 @@ sub parse_part {
 	    print $outhandle "User set to \"$user\".\n";
       }
       else {
-	print $outhandle "Illegal action \"$action\" for default.\n";
-	$ok_count--;
-	$fail_count++;
+        print $outhandle "Illegal action \"$action\" for default.\n";
+        $ok_count--;
+        $fail_count++;
       }
     }
     else {
@@ -350,8 +356,37 @@ sub parse_part {
       if ($true_command =~ /accept|reject/) {
 	$cmdargs ||= $args{'token'};
       }
+      elsif ($true_command =~ /newfaq/) { 
+        $cmdargs = "/faq Frequently Asked Questions";
+        $true_command = "put";
+      }
+      elsif ($true_command =~ /newinfo/) { 
+        $cmdargs = "/info List Information";
+        $true_command = "put";
+      }
+      elsif ($true_command =~ /newintro/) { 
+        $cmdargs = "/intro List Introductory Information";
+        $true_command = "put";
+      }
+        
       $cmdargs ||= '';
+
+      # initialize basic information
+      $request->{'command'} = $true_command;
+      $request->{'user'} = $user;
+      $request->{'password'} = $password || $args{'password'};
+      $request->{'interface'} = $interface;
+      $request->{'mode'} = $mode;
+      $request->{'list'} = $list;
+      # deal with arguments
+      parse_args($request, $cmdargs, @arglist);
+
+      # XXX if there are no arguments, read attachment from attachhandle
       no strict 'refs';
+      if (function_prop($true_command, 'iter')) {
+        $request->{'command'} .= '_start';
+      }
+      my $result = $mj->dispatch($request);
 
       # If a new identity has been assumed, send the output
       # of the command to the new address.
@@ -366,12 +401,8 @@ sub parse_part {
       }
 
       ($ok, @help) =
-	&{"Mj::TextOutput::$true_command"}($mj, $command,
-					   $user,
-					   $password || $args{'password'},
-					   undef, $interface,
-					   $attachhandle, $outfh,
-					   $mode, $list, $cmdargs, @arglist);
+        &{"Mj::Format::$true_command"}($mj, $outfh, $outfh,
+                                       'text', $request, $result);
 
       # Mail the result if posing.
       if ($user ne $args{'reply_to'}) {
@@ -387,23 +418,23 @@ sub parse_part {
            'MIME-Version' => "1.0",
           );
         $mj->mail_entity($sender, $ent, $user) if $ent;
-        $ent->purge;
+        $ent->purge if $ent;
         unlink $name;
         print $outhandle $ok>0? "Succeeded" : $ok<0 ? "Stalled" : "Failed";
         print $outhandle ".  The results were mailed to $user.\n";
       }
 
       if (!defined $ok) {
-	$unk_count++;
+        $unk_count++;
       }
       elsif ($ok > 0) {
-	$ok_count++;
+        $ok_count++;
       }
       elsif ($ok < 0) {
-	$pend_count++;
+        $pend_count++;
       }
       else { # $ok == 0
-	$fail_count++;
+        $fail_count++;
       }
     }
     print $outhandle "\n";
@@ -515,8 +546,8 @@ sub parse_line {
   # Merge lines ending in backslashes
   chomp;
   while (/\\\s*$/) {
-    s/\\\s*$/ /;		
-    $_ .= $inhandle->getline;	
+    s/\\\s*$/ /;                
+    $_ .= $inhandle->getline;        
     chomp;
   }
   
@@ -574,8 +605,8 @@ sub parse_line {
       
       # Did we run out of input?
       unless (defined $line) {
-	$out .= "Reached EOF without seeing tag $tag!\n";
-	return $out;
+        $out .= "Reached EOF without seeing tag $tag!\n";
+        return $out;
       }
       chomp $line;
       
@@ -583,15 +614,15 @@ sub parse_line {
       
       # Process backslashes
       while ($line =~ /\\\s*$/) {
-	$line =~ s/\\\s*$/ /;		
-	$line .= $inhandle->getline;	
-	chomp $line;
+        $line =~ s/\\\s*$/ /;                
+        $line .= $inhandle->getline;        
+        chomp $line;
       }
 
       # Did we find the tag?
       if ($line eq $tag) {
-	$out .= ">>>> Found tag $tag.\n";
-	last;
+        $out .= ">>>> Found tag $tag.\n";
+        last;
       }
 
       # process leading dashes in here documents
@@ -656,6 +687,67 @@ sub add_deflist {
   return "$deflist $list$line";
 }
 
+sub parse_args {
+  my ($request, $args, @arglist) = @_;
+  my ($variable, $varcount, $useopts, $om, $k, $arguments, @splitargs);
+  my ($hereargs);
+
+  $hereargs  = function_prop($request->{'command'}, 'hereargs');
+  $request->{$hereargs} = [] if $hereargs;
+  $arguments = function_prop($request->{'command'}, 'arguments');
+  if (defined $arguments) {
+    $arguments->{'split'} ||= ' ';
+    $arguments->{'optmode'} ||= '';
+    # account for "optmode" and "split" when counting variables
+    $varcount = scalar (keys %$arguments) - 2;
+    $useopts = 1;
+    my $om = $arguments->{'optmode'};
+
+    # Do not use optional variables unless required
+    if ($arguments->{'optmode'} and ($request->{'mode'} !~ /$om/)) {
+      $useopts = 0;
+      for $variable (keys %$arguments) {
+        $varcount--
+          if ($arguments->{$variable} =~ /OPT/); 
+      }
+    }
+
+    @splitargs = ();
+    if ($varcount > 1) {
+      @splitargs = split /$arguments->{'split'}/, $args, $varcount;
+    }
+    else {
+      @splitargs = ($args);
+    }
+    $k = 0;
+    for $variable (sort keys %$arguments) {
+      next if ($variable eq 'optmode' or $variable eq 'split');
+      next if (!$useopts and ($arguments->{$variable} =~ /OPT/));
+      last unless defined ($splitargs[$k]);
+      if ($arguments->{$variable} =~ /SCALAR/) {
+        $request->{$variable} = $splitargs[$k];
+      }
+      elsif ($arguments->{$variable} eq 'ARRAYELEM') {
+        $request->{$variable} = [$splitargs[$k]];
+      }
+      elsif ($arguments->{$variable} eq 'ARRAY') {
+        unless (exists $request->{$variable}) {
+          $request->{$variable} = [];
+        }
+        push @{$request->{$variable}}, split (" ", $splitargs[$k]);
+      }
+      $k++;
+    }
+  }
+  # deal with hereargs
+  if (defined $hereargs) {
+    unless (exists $request->{$hereargs}) {
+      $request->{$hereargs} = [];
+    }
+    push @{$request->{$hereargs}}, @arglist;
+  }
+  1;
+}
 =head1 COPYRIGHT
 
 Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
@@ -665,7 +757,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
