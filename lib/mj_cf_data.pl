@@ -214,6 +214,15 @@ package Mj::Config;
     'visible'=> 1,
     'mutable'=> 3,
    },
+   'priority' =>
+   {
+    'type'   => 'integer',
+    'groups' => [qw(miscellany)],
+    'global' => 1,
+    'local'  => 1,
+    'visible'=> 3,
+    'mutable'=> 5,
+   },
    'default_flags' =>
    {
     'type'   => 'enum_array',
@@ -551,6 +560,15 @@ package Mj::Config;
     'groups' => [qw(address)],
     'local'  => 0,
     'global' => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+   },
+   'archive_date' =>
+   {
+    'type'   => 'enum',
+    'values' => [qw(arrival delivery)],
+    'groups' => [qw(archive)],
+    'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
    },
