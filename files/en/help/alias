@@ -6,7 +6,9 @@ address, required, is the alternate address you want to post from
 
 If you have more than one email account, you may wish to be able to
 post from more than one of them, while receiving list mail at only a
-single address. The 'alias' command allows this.
+single address. The 'alias' command allows this. Do not confuse this
+command (intended for regular subscribers) with "configset aliases"
+(used by list owners).
 
 To post from several accounts, first subscribe to any list with the
 address which appears in the mail headers where you want to receive
@@ -45,6 +47,7 @@ file for a Perl script that assumes shell access.
 
 See Also:
    help configset access_rules_variables (set/test for this command)
+   help configset aliases (MTA configuration, used by list owners)
    help register  (must occur before alias will work)
    help subscribe (does an automatic registration)
    help unalias   (to cancel an alias command)

@@ -23,6 +23,9 @@ createlist-regen command must be run to recreate the aliases.
   U    LIST-unsubscribe
 Currently, O R and Q are mandatory.
 
+NOTE:  Do not confuse this command (used by list owners) with the
+"alias" command (intended for regular subscribers).
+
 This configuration does not determine the address pointed to by the
 aliases, it simply causes the aliases to be generated for your MTA.
 Flexibility motivated this configuration setting. For example, if
@@ -54,6 +57,7 @@ messages to a sublist.
 
 
 See Also:
+   help alias
    help announce
    help createlist (for the -regen option that creates new aliases)
    help post
