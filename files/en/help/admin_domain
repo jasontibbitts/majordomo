@@ -94,6 +94,16 @@ only by site or domain administrators.  For a complete list, see the
 "Settings for the GLOBAL pseudo-list only" section of the "help topics"
 document.
 
+For security reasons, some list-specific configuration settings can only
+be changed by site or domain administrators.  Please see the help page
+for each setting for more details:
+   help configset_aliases
+   help configset_archive_dir
+   help configset_config_access
+   help configset_debug
+   help configset_delivery_rules
+   help configset_priority
+
 Majordomo automatically maintains the GLOBAL:owners auxiliary list, which
 contains the addresses of all mailing list owners within a domain.
 A site or domain owner who wishes to contact all of the list owners
