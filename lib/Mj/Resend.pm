@@ -238,10 +238,16 @@ sub post {
            USER     => "$user",
 	  };
 
-  $desc = $fileinfo->{description};
-  if ($desc) {
-    $desc = $self->substitute_vars_string($desc, $subs);
+  if (exists $fileinfo->{description}) {
+    $desc = $self->substitute_vars_string($fileinfo->{description}, $subs);
   }
+  elsif ($ok == 0) {
+    $desc = "Denied post to the $list mailing list";
+  }
+  else {
+    $desc = "Stalled post to the $list mailing list";
+  }
+
   $ack_attach = $self->_list_config_get($request->{'list'}, 'ack_attach_original');
 
   # We handled the OK case, so we have either a stall or a denial.
@@ -1548,10 +1554,12 @@ sub _ck_theader {
   my $reasons = shift;
   my $avars   = shift;
   my (%inv, @inv, @matches, $class, $code, $data, $i, $inv, $j, $k, $l,
-      $match, $maxthdr, $maxhdrl, $rule, $safe, $sev);
+      $listaddr, $match, $maxthdr, $maxhdrl, $rule, $safe, $sev);
   local ($text);
 
   $code = {};
+  # $listaddr = $self->_list_config_get($list, 'whoami');
+
   for $i ('GLOBAL', $list) {
     for $j ('admin_headers', 'taboo_headers', 'noarchive_headers') {
       $data = $self->_list_config_get($i, $j);
@@ -1572,6 +1580,7 @@ sub _ck_theader {
   $safe->share('$text');
   $avars->{total_header_length} = 0;
   $avars->{max_header_length}   = 0;
+  $avars->{blind_copy} = 1;
 
   # Process the header; mega-nesting!  Iterate over each tag present in the
   # header.
@@ -1583,6 +1592,16 @@ sub _ck_theader {
     # Grab all of the occurrences of that tag and iterate over them
     for $j ($head->get($i)) {
       chomp $j;
+
+      # Check for the presence of the list's address in the To
+      # and Cc headers.
+      if ($i =~ /^(to|cc)$/i) {
+        # A looser test would be $j =~ /$list\@/i
+        if ($j =~ /$listaddr/i) {
+          $avars->{blind_copy} = 0;
+        }
+      }
+
       $text = "$i: $j";
 
       # Check lengths
