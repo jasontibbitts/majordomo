@@ -1,53 +1,47 @@
 
 <pre>?ERROR</pre>
+<p>
+<b>Registered Users:</b>
+If you have already registered or subscribed to a mailing list at 
+$SITE, 
+and you know your password, sign in here.<br>
+
 <form method="POST" action="$CGIURL">
-    <input type="hidden" name="list" value="$LIST">
-<table cellspacing="15" width="100%">
-<tr>
-  <td valign="top">
-    <input size="36" name="user" value="$USER">
-  </td>
-  <td>
-    Type your e-mail address into the box unless it is already present.
-  </td>
-</tr>
-<tr>
-  <td valign="top">
-    Password: <input type="password" name="passw" size="15" value="$CMDPASS">
-  </td>
-  <td valign="top">
-    If you have a Majordomo password at the $DOMAIN domain, type
-    it into the <b>Password</b> box.  It is not necessary to use 
-    a password to subscribe to mailing lists.
-  </td>
-</tr>
-<tr>
-  <td valign="top">
-    <input type="radio" name="func" value="$COMMAND" checked>
-      Sign in<br>
-    <input type="radio" name="func" value="password-show">
-      I forgot my password<br>
-    <input type="radio" name="func" value="register">
-      Register my address<br> 
-    <input type="submit" value="Go">
-  </td>
-  <td>
-    To sign in, press the <b>Go</b> button.
-    <p>
-    If you have already registered or subscribed to a $DOMAIN mailing list, 
-    but do not know your password, Majordomo can send you your password.
-    Press the button next to <b>I forgot my password</b>, 
-    then press the <b>Go</b> button.  A confirmation message may
-    be sent to your e-mail address.
-    </p>
-    <p>
-    If you have not already subscribed to a mailing list at $DOMAIN,
-    you can register here and obtain a password.  Press the button
-    next to <b>Register my address</b>, then press the <b>Go</b> button. 
-    A confirmation message may be sent to your e-mail address.
-    </p>
-  </td>
-</tr>
-</table>
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="func" value="$COMMAND">
+  E-mail Address: <input size="36" name="user" value="$USER"><br>
+  Password: <input type="password" name="passw" size="15" value="$CMDPASS">
+  <input type="submit" value="Sign In">
+</form>
+
+<p>
+<b>New Users:</b>
+If you have not registered or subscribed to a mailing list at
+$SITE, 
+register here to obtain a password.  A confirmation message may 
+be sent to your e-mail address.<br>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="func" value="register">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  E-mail Address: <input size="36" name="user" value="$USER">
+  <input type="submit" value="Register">
+</form>
+
+<p>
+<b>Lost Password:</b>
+If you have registered or subscribed to a mailing list at
+$SITE, 
+but you do not know your password, use this form to have your password
+sent to your e-mail address.  For security reasons, a confirmation
+message may be sent to your e-mail address first.<br>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="func" value="password-show">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  E-mail Address: <input size="36" name="user" value="$USER">
+  <input type="submit" value="Mail My Password">
 </form>
 
