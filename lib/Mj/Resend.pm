@@ -235,8 +235,8 @@ sub post {
   # and so we just return;
   unless (defined $mess && length $mess) {
     # Unlink the spool file if the post was denied.
-    # XXX The file should be unlinked if the message was forwarded.
     unlink $request->{'file'} unless $ok; 
+    unlink @{$self->{'post_temps'}} if $self->{'post_temps'};
     return ($ok, '');
   }
 
@@ -306,9 +306,9 @@ sub post {
 
   # If the request failed, we need to unlink the file.
   if (!$ok) {
-    # XXX The file should be unlinked if the message was forwarded.
     unlink $request->{'file'};
   }
+  unlink @{$self->{'post_temps'}} if $self->{'post_temps'};
 
   # Purging will unlink the spool file.
   # $nent->purge if $nent;
