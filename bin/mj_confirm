@@ -129,6 +129,8 @@ $sess .= "Date: " . scalar(localtime(time)) . "\n";
 $user   = "z$ENV{'REMOTE_ADDR'}\@example.com";
 $ptoken = $cgi->param('t');
 $action = $cgi->param('a') || 'tokeninfo-nosession';
+$mode   = join ('-', $cgi->param('m')) || '';
+$mode   =~ /^([a-zA-Z=-]*)/; $mode = lc $1;
 $part   = $cgi->param('p') || '0';
 
 $cgidata = Mj::Format::cgidata($mj, { 'user' => $user,
@@ -159,12 +161,16 @@ elsif (! ($token or $action eq 'welcome')) {
 # Extract "mode" from command name
 if ($action =~ /([^\s=-]+)[=-](.*)/) {
   $func = $1;
-  $mode = $2;
+  if (length $mode) {
+    $mode = lc $2 . "-$mode";
+  }
+  else {
+    $mode = lc $2;
+  }
 }
 else { 
   $action =~ /(.*)/; $action = $1;
   $func = $action;
-  $mode = '';
 }
 
 unless (exists $commands{$func}) {

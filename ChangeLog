@@ -1,3 +1,14 @@
+2002-12-02  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Add support for a
+	"mode" CGI parameter.
+
+	* lib/Majordomo.pm:  (lists)  Move the pattern validation
+	code to _lists to preserve the original pattern.
+
+	* lib/Mj/Format.pm:  (lists)  Use an empty USER substitution
+	if a fake address is given.
+
 2002-11-30  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (dispatch)  Differentiate token, probe, and

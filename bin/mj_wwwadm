@@ -153,6 +153,8 @@ $falseuser = "y$ENV{'REMOTE_ADDR'}\@example.com";
 $user      = $cgi->param('user') || $falseuser;
 
 $ofunc   = $cgi->param('func') || 'welcome';
+$mode    = join ('-', $cgi->param('mode')) || '';
+$mode    =~ /^([a-zA-Z=-]*)/; $mode = lc $1;
 @lists   = $cgi->param('list');
 if ((! @lists) and @mlists) {
   @lists = @mlists;
@@ -163,12 +165,16 @@ $lists[0] ||= '';
 # Extract "mode" from command name
 if ($ofunc =~ /([^\s=-]+)[=-](.*)/) {
   $func = $1;
-  $mode = lc $2;
+  if (length $mode) {
+    $mode = lc $2 . "-$mode";
+  }
+  else {
+    $mode = lc $2;
+  }
 }
 else { 
   $ofunc =~ /(.*)/; $ofunc = $1;
   $func = $ofunc;
-  $mode = '';
 }
 
 #----- Determine the administrative password -----#
@@ -192,7 +198,8 @@ unless ($ok) {
 }
 
 #----- Initialize the variable substitutions -----#
-$cgidata = Mj::Format::cgidata($mj, { 'user' => $user, 
+$cgidata = Mj::Format::cgidata($mj, { 'user' => ($user eq $falseuser) ?
+                                      '' : $user, 
                                       'password' => $passw });
 
 $subs = { $mj->standard_subs($lists[0]),
@@ -202,7 +209,7 @@ $subs = { $mj->standard_subs($lists[0]),
           'CMDPASS'   => '',
           'COMMAND'   => Mj::Format::escape($ofunc),
           'EXTRA'     => '',
-          'USER'      => ($user =~ /example.com$/) ? '' : 
+          'USER'      => ($user eq $falseuser) ? '' : 
                          Mj::Format::escape($user),
         };
 

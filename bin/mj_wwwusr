@@ -171,16 +171,19 @@ if (length $opass) {
 }
 
 $ofunc = $cgi->param('func') || 'welcome';
+$mode  = join ('-', $cgi->param('mode')) || '';
+$mode  =~ /^([a-zA-Z=-]*)/; $mode = lc $1;
 
 $cgidata = Mj::Format::cgidata($mj, { 'password' => $passw,
-                                      'user'     => $user });
+                                      'user'     => ($user eq $falseuser) ? 
+                                       '' : $user });
 
 $subs = { $mj->standard_subs('GLOBAL'),
           'CGIDATA'  => $cgidata,
           'CGIURL'   => $cgiurl,
           'CMDPASS'  => Mj::Format::escape($passw),
           'COMMAND'  => Mj::Format::escape($ofunc),
-          'USER'     => ($falseuser eq $user) ? '':
+          'USER'     => ($user eq $falseuser) ? '':
                         Mj::Format::escape($user),
         };
 
@@ -188,12 +191,16 @@ $subs = { $mj->standard_subs('GLOBAL'),
 # Extract "mode" from command name
 if ($ofunc =~ /([^\s=-]+)[=-](.*)/) {
   $func = $1;
-  $mode = $2;
+  if (length $mode) {
+    $mode = lc $2 . "-$mode";
+  }
+  else {
+    $mode = lc $2;
+  }
 }
 else { 
   $ofunc =~ /(.*)/; $ofunc = $1;
   $func = $ofunc;
-  $mode = '';
 }
 
 $raw = 0;
