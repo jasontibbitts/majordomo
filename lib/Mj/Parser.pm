@@ -333,7 +333,12 @@ sub parse_part {
       }
       elsif ($action =~ /^password|passwd$/) {
 	$args{'password'} = $cmdargs;
-	print $outhandle "Default password set to \"$args{'password'}\".\n";
+	if (length($cmdargs)) {
+	  print $outhandle "Default password set to \"$args{'password'}\".\n";
+	}
+	else {
+	  print $outhandle "Default password canceled.\n";
+	}
       }
       elsif ($action eq 'user') {
         if ($cmdargs) {

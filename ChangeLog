@@ -1,3 +1,11 @@
+2000-11-01  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Parser.pm (parse_part): Fix undef warning with "default
+        password".  Use a better message in this case.
+
+	* bin/mj_shell (parse_command): Use better message when
+        "default password" is used to clear out a default password.
+
 2000-10-28  Michael Yount <csf@moscow.com>
 
 	* files/en/help/*:  Document previously undocumented modes.

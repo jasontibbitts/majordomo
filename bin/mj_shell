@@ -312,7 +312,12 @@ sub parse_command {
     ($command, $args) = split(" ", $args, 2);
     if ($command =~ /^password|passwd$/) {
       $dfl->{'password'} = $args || '';
-      print STDERR "Default password set to \"$dfl->{'password'}\".\n";
+      if (length($args)) {
+	print STDERR "Default password set to \"$dfl->{'password'}\".\n";
+      }
+      else {
+	print STDERR "Default password canceled.\n";
+      }
     }
     elsif ($command eq 'user') {
       if (defined $args) {
@@ -365,6 +370,7 @@ sub parse_command {
     $tmpu = $>; $> = $<;  $tmpg = $); $) = $(;
     $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA", O_WRONLY|O_CREAT, 0600;
     $> = $tmpu; $) = $tmpg;
+    die "Cannot open $::WTMPDIR/mjs.$$.AAA: $!" unless $fh;
     $request = {
       'command'   => 'configshow',
       'list'      => $list,
