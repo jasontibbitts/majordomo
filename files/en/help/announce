@@ -13,8 +13,8 @@ The announce command sends a file to some or all classes of subscribers
 of a full or auxiliary mailing list.  Delivering an announcement
 may require more resources than a typical posted message, because a separate
 copy of the announcement is sent to every recipient.  The recipient's 
-address appears in the "To:" header, and the list owner's address 
-(from the sender configuration setting) appears in the "From:" header.
+address appears in the "To:" header, and the list owners' address 
+(from the whoami_owner configuration setting) appears in the "From:" header.
 
 The announce command could be used to deliver periodic reminders, announcements 
 that need to reach only 'digest' subscribers, or to ask 'nomail' subscribers 
@@ -56,7 +56,7 @@ See Also:
    help admin_commands (a summary of all administrative commands)
    help admin_subscribers (for an introduction to delivery classes)
    help configset_access_rules (to limit access to this command)
-   help configset_sender (the address that appears in the From: header)
+   help configset_whoami_owner (which appears in the From: header)
    help put (how to store a document in the file space of a mailing list)
    help set (for an introduction to delivery classes)
    help variables (for substitutions that can be made in "filename")
