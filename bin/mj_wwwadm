@@ -53,7 +53,7 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
 # Third value:   Should the result be preformatted?
 # Fourth value:  Page to display after the result.
 %commands = (   
-                'accept'        => [1, 0, 1, 'showtokens'],
+                'accept'        => [1, 0, 0, 'showtokens'],
                 'archive'       => [1, 1, 0, 'command'],
                 'configdef'     => [1, 1, 1, 'configshow'],
                 'configset'     => [1, 1, 1, 'configshow'],
@@ -68,7 +68,7 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
                 'intro'         => [1, 1, 0, 'lists'],
                 'lists'         => [1, 0, 0, 'lists'],
                 'put'           => [1, 1, 1, 'lists'],
-                'reject'        => [1, 0, 1, 'showtokens'],
+                'reject'        => [1, 0, 0, 'showtokens'],
                 'report'        => [1, 1, 1, 'command'],
                 'sessioninfo'   => [1, 0, 1, 'showtokens'],
                 'set'           => [1, 1, 0, 'who'],

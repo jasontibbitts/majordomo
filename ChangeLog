@@ -1,3 +1,16 @@
+2002-05-27  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm, mj_wwwadm:  The accept and reject commands
+	now have format files.
+
+	* lib/Majordomo.pm:  (substitute_vars_format)  Use SGML
+	entities in CGI data.  Thanks to Mathieu Arnold.
+	(accept, reject, tokeninfo_start)  Support error files
+	for absent and invalid tokens.
+
+	* lib/Mj/Format.pm:  (accept, reject)  Use format files.
+	(indicate)  Do not use indicators for the WWW interfaces.
+
 2002-05-25  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm:  Minor CGI data adjustments.

@@ -65,9 +65,9 @@ $::log->startup_time();
 #----- Which commands are supported ?  -----#
 # First value:  Should the result be preformatted?
 %commands = (  
-               'accept'    => [1],
+               'accept'    => [0],
                'login'     => [0],
-               'reject'    => [1],
+               'reject'    => [0],
                'tokeninfo' => [0],
                'welcome'   => [0],
             );
@@ -148,7 +148,8 @@ $subs = { $mj->standard_subs('GLOBAL'),
 
 #----- Determine what service was requested -----#
 if ($ptoken and not $token) {
-  &login($mj, $cgi, $subs, qq(The token "$ptoken" is not valid.));
+  &login($mj, $cgi, $subs, 
+         $mj->format_error('invalid_token', 'GLOBAL', 'TOKEN' => $ptoken));
 }
 elsif (! ($token or $action eq 'welcome')) {
   &login($mj, $cgi, $subs, '');
