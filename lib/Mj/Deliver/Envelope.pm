@@ -22,7 +22,7 @@ syntax improprieties may result in unpredictable (i.e. bad) behavior.
 =cut
 
 package Mj::Deliver::Envelope;
-use IO::File;
+use Symbol;
 use Mj::Log;
 use Mj::Deliver::SMTP;
 use strict;
@@ -103,12 +103,12 @@ sub new {
 
 =head2 DESTROY
 
-When the time coems, close down the connection.
+When the time comes, close down the connection.
 
 =cut
 sub DESTROY {
   my $self = shift;
-  $self->{'smtp'}->QUIT;
+  $self->{'smtp'}->QUIT if (defined $self->{'smtp'});
 }
 
 =head2 file(filename)
@@ -288,14 +288,14 @@ some kind of error on the remote host).
 sub send {
   my $self = shift;
   my $log = new Log::In 150;
-  my $fh = new IO::File;
+  my $fh = gensym();
   my ($code, $line, $mess, $ok, $val);
 
   $log->abort("Sending unaddressed envelope") unless $self->{'addressed'};
   $log->abort("Sending empty envelope")       unless $self->{'file'};
 
   # If we can't open the file, we really are hosed
-  open $fh, $self->{'file'} ||
+  open ($fh, $self->{'file'}) ||
     $log->abort("Failed to open envelope data file: $!");
 
   ($val, $code, $mess) = $self->{'smtp'}->DATA;
@@ -305,7 +305,7 @@ sub send {
     return 0;
   }
 
-  while (defined ($line = $fh->getline)) {
+  while (defined ($line = <$fh>)) {
     # If a message is personal (a probe), substitute for $MSGRCPT.
     if ($self->{'personal'} and $self->{'rcpt'}) {
       # Don't substitute after backslashed $'s
@@ -314,6 +314,7 @@ sub send {
     $ok = $self->{'smtp'}->senddata($line);
     return 0 unless $ok;
   }
+  close $fh;
 
   # Finish up and reset the connection
   ($val, $code, $mess) = $self->{'smtp'}->enddata;
