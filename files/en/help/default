@@ -1,174 +1,83 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-default variable [value]
+default setting [value]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-variable, required, is one of delay, display, list, password, user
-value, if specified, is the string to be used in following commands
+setting, required, is one of debug, delay, display, list, password, user
+value, if specified, is the value assigned to the setting
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-NOTE: This help file is for the command called "default". To get
-      basic help, just send "help" to the server (not "help default").
+The default command can be used to change the value of one of
+the following six settings.
 
-The 'default' command sets certain defaults used by the command parser
-for processing one or more commands. The more commands you have, the
-more "default" helps you. It is most often used by list owners and
-administrators, but can also be used by subscribers.
+debug    - The amount of diagnostic information recorded about
+           a command.
 
-This is not a general variable mechanism; it only works for the 
-five variables described in the next section.  If the value is omitted, 
-the default setting is removed.  This allows you to set one of the
-four variables for some commands but not for others.
+delay    - The length of time a command is delayed.
 
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+display  - How the results of a command are presented.
 
-The following default variables can be set, as explained below:
+list     - The name of a mailing list.
 
-Section 1: default delay TIMESPEC
-   Postpones commands, making them occur in the future instead of
-   when the command is parsed.
+password - An administrative or personal Majordomo password.
 
-Section 2: default list LISTNAME
-   Sets the default list for commands to the provided list.
-   To clear the default list, leave LISTNAME blank. This 
-   command is NOT supported by mj_shell, only by the email interface.
+user     - The e-mail address of the person on whose behalf a command
+           is made.
 
-Section 3: default password STRING
-   Approves all following commands with the given password.
-   To clear the password, don't supply one.
+Each setting is described in more detail later in this document.
 
-Section 4: default user ADDRESS
-   Replaces the address found in the "From:" field of your email headers.
+The biggest benefit of the default command is that it can save you a lot
+of typing.  For example, if you use the "default list" command at
+the beginning of an e-mail message to identify your mailing list, you
+will not need to type your list's name repeatedly if you issue several
+commands for the list.
 
-Section 5: default display PROGRAM
-   The default display command is used in the mj_shell program to 
-   make the results easier to read.
+The default command is only used by the e-mail and mj_shell interfaces.
+It has no effect upon the web interfaces.
 
-Section 6: default debug INTEGER
-   Used in the mj_shell program to adjust the amount of debugging output.
+The "default debug" and "default display" commands are only relevant to
+the mj_shell interface.  They are not recognized by the e-mail command
+parser.  See "help mj_shell" for more information about the mj_shell
+program.
 
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Section 1: default delay TIMESPEC
+default debug LEVEL
+-------------------
+The "default debug" command can be used to change the amount of
+diagnostic information that is displayed during an mj_shell session.
+The information is sent to STDERR, so by default it will appear on your
+screen if you are using the mj_shell program interactively.  By default,
+the debug level is zero.  If you set it to 1000 or higher, all of the
+information that is available will be displayed.  
 
-This command postpones OTHER commands, making them occur in the
-future instead of when the other command is parsed. The TIMESPEC
-is detailed in the "Time Period" section of "help times".
+See "help configset_debug" for more information on debug levels.
 
-For example,
+
+default delay TIMESPAN
+----------------------
+This command causes each succeeding command to be delayed, then
+run automatically at some later time by the mj_trigger program. 
+See the "Time spans" section of "help times" for a description of
+how to specify time spans.  See "help mj_trigger" and 
+"help configset_triggers" for more information about triggers.
+
+For example, the following command:
+
   default delay 3h
-would cause all subsequent commands to be delayed by three hours,
-but only if an admin password is supplied and access_password_override
-is enabled.
 
-The delay command also supports a non-standard time specification
-of "seconds", in which there is nothing after an integer:
-  default delay 3
-would set the delay to 3 seconds.  This is useful if you want a
-command to be executed by the very next delay trigger. (The delay
-trigger times are list-specific.  See "help
-By default, delay triggers occur every hour.
+would cause all subsequent commands to be delayed by three hours.
+If the timespan is simply a number, it is assumed to be a number of
+seconds.  For example, the following command:
 
-A delay can also be specified in the access_rules setting, where
-there is both a 'delay' action and a 'delay' variable.
+  default delay 30
 
-See "help delay" for more information about delays.
+would delay all subsequent commands by 30 seconds.
 
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Delays may only be used by list administrators.  See "help delay" for
+more information about delays.
 
-Section 2: default list LISTNAME
 
-Setting a default list makes the list an optional argument for all
-commands which take one (excepting the createlist command). To clear
-the default list for additional commands, use the following command:
-
-  default list
-
-Note that this is not without ambiguity, as the parser cannot always
-tell when the default list is implied.  When running at the -request
-address, the parser generally starts with a default list in place.
-
-This command is not available in the mj_shell interface.
-
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-Section 3: default password STRING
-
-Setting a default password will implicitly do the equivalent of
-'approve password' at the beginning of each following command.
-
-List subscribers will find little use for "default", except that
-it can make command lines shorter.
-
-List administrators will find it especially useful when returning
-the output of a 'configshow' command to the parser to change some
-variables; simply add the 'default password' command to the beginning
-of the message or file, and the parser will accept the 'configset'
-commands exactly as displayed by the configshow command.
-
-Defaulting a password make it much simpler to submit multiple
-commands to the parser in one fell swoop.  For example, it makes
-the following sets of commands equivalent:
-    approve MYPASSWORD subscribe ONE-LIST someone@example.com
-    approve MYPASSWORD subscribe TWO-LIST someone@example.com
-or:
-    default password MYPASSWORD
-    subscribe ONE-LIST someone@example.com
-    subscribe TWO-LIST someone@example.com
-
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-Section 4: default user ADDRESS
-
-ADDRESS is a regular email address, optionally containing comments.
-For example:
-  joe@blow.com
-  Joe Blow <joe@blow.com>
-  joe@blow.com (Joe Blow)
-
-When a "default user" command is in effect, any command that looks
-at your headers to see who sent the command will behave as if your
-headers had contained the defaulted ADDRESS instead. To cancel the
-command, and cause the command parser to look at your headers again,
-issue the command with no ADDRESS.
-
-You can put several different "default user" commands in a single
-email, each applying to other commands which follow.
-
-Since confirm tokens always go to the address being altered, 'default'
-will not allow someone to alter another person's subscription. Some
-commands, such as changeaddr, require confirmation tokens from two
-addresses (the address being changed and the address making the
-request) so 'default user' can cause a token to be sent to an address
-other than the one which sent the request.
-
-Setting a default user is primarily useful when resubscribing
-(see "help changeaddr"), and then only if the "From:" field of
-the request message is incorrect. It can also be used by a list
-owner to send info files, show output, etc. to someone who
-simply can't figure out how to do it for themselves.
-
-For example, a message sent from the server to the user's address
-will have the "From" field address showing who sent the request
-(rather than the server's address or the defaulted user's address).
-The person sending the message to the server will still see the
-result of the command (succeed, stall, fail) but none of the output.
-
-Defaulting a user can make it much simpler to submit multiple
-commands to the parser in one fell swoop.  For example, it makes
-the following sets of commands equivalent:
-    approve MYPASSWORD subscribe ONE-LIST someone@example.com
-    approve MYPASSWORD subscribe TWO-LIST someone@example.com
-or:
-    default password MYPASSWORD
-    default password Real Name <someone@example.com>
-    subscribe ONE-LIST
-    subscribe TWO-LIST
-
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-Section 5: default display pager
-           default display editor
-
-In the mj_shell program, when you type a command, sometimes the results
+default display PROGRAM
+-----------------------
+With the mj_shell program, when you type a command, sometimes the results
 occupy more than one page on your screen.  The default display command
 makes the results easier to read.  There are two programs supported,
 pager and editor.
@@ -199,31 +108,155 @@ To turn off the editor or pager feature, use this command:
 If the mj_shell program is run with the "-P" option, the pager will
 be turned on immediately.
 
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Section 6: default debug INTEGER
+default list LISTNAME
+---------------------
+Setting a default list makes it unnecessary to type the list name in any
+succeeding commands which require a list name (except the createlist
+command).  For example, if you manage a list called "clarinet," the
+following commands could be used to remove jane@example.com from, and
+add joe@example.com to, your list:
 
-It is occasionally useful to extract some debugging information from
-Majordomo.  mj_shell supports the -D switch to enable maximum debugging
-information, but also supports the "default debug" command for fine-tuning.
+  default list clarinet
+  unsubscribe jane@example.com
+  subscribe joe@example.com
 
-Provide a positive integer to enable debugging information; higher numbers
-generate more data.  1000 is the maximum.
+If you not want a default list, use the following command:
 
-To turn debugging off, just use "default debug" without the number.
+  default list
 
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+default password PASSWORD
+-------------------------
+When you use the "default password" command in an  e-mail message or
+mj_shell session, that password will automatically be applied to each
+succeeding command.  This is much easier than using the "approve"
+command to indicate the password for each command.
+
+For example, the following two sets of commands are equivalent:
+
+    approve MYPASSWORD subscribe clarinet
+    approve MYPASSWORD subscribe hautbois
+
+    default password MYPASSWORD
+    subscribe clarinet
+    subscribe hautbois
+
+The second approach can save some typing if you want to issue several
+commands.
+
+
+default user ADDRESS
+--------------------
+The "default user" command can be used to change the e-mail address on
+whose behalf a command is issued.  The ADDRESS is a regular email
+address, optionally containing comments, for example:
+  default user joe@example.com
+  default user Joe Blow <joe@example.com>
+  default user joe@example.com (Joe Blow)
+
+In an e-mail message, the user's address is taken from the "From:"
+header of the message.  In an mj_shell session, the user's address is
+usually determined by the system login name of the person who is running
+the program.  When a "default user" command is in effect, the command
+parser will act as if the user address in the command had issued any
+subsequent commands.  To return the user address to its original value,
+use the following command:
+
+  default user
+
+In the e-mail interface, the "default user" command can be used to send
+the results of a command to another person.  For example, if you use
+the following two commands:
+
+  default user jane@example.com
+  faq trumpet
+
+the FAQ for the trumpet list will be mailed to jane@example.com.  The
+message that is sent to Jane will have your e-mail address in the
+"From:" header.  This feature does not apply to the mj_shell interface.
+
+The following two sets of commands are equivalent:
+    
+  subscribe clarinet Joe Blow <joe@example.com>
+  subscribe hautbois Joe Blow <joe@example.com>
+
+  default user Joe Blow <joe@example.com>
+  subscribe clarinet
+  subscribe hautbois
+
+The second approach can save some typing if you plan to issue several
+commands for a single address.
+
+Some Majordomo commands require more than one e-mail address, in which
+case the "default user" command must be used to specify the second
+address.  For example, the following two commands:
+
+  default user new@example.com
+  changeaddr old@example.com
+
+will move all of the subscriptions of old@example.com to
+new@example.com.
+
+In another example, the following two commands:
+
+  default user old@example.com
+  alias new@example.com
+
+will cause the address new@example.com to become an alias for the
+address old@example.com.
+
+
+Using list admin credentials for GLOBAL commands (advanced topic)
+-----------------------------------------------------------------
+Majordomo supports several commands which are GLOBAL in scope, and
+usually require the authority of a domain or site manager to execute
+without confirmation.  These commands include the alias, changeaddr,
+createlist, password, register, rekey, unalias, and unregister commands.
+
+If you are a list administrator, you can indicate your credentials
+using the "default list" and "default password" commands:
+
+  default list YOURLIST
+  default password YOURPASSWORD
+
+Usually, these credentials have no impact upon GLOBAL commands.
+However, a domain or site administrator could change the GLOBAL access
+rules to allow list administrators to run GLOBAL commands, using
+the list_password access variable.  For example, the following GLOBAL
+access rule:
+
+  alias
+  allow
+  $list_password
+
+would allow all list administrators to use the alias command to create
+aliases for their subscribers.  In that case, the following commands
+would be needed for list administrators to create an alias:
+
+  default list LISTNAME
+  default password ADMIN_PASSWORD
+  default user OLD_ADDRESS
+  alias NEW_ADDRESS
+
+(Another, more secure, option is to define a GLOBAL password for the
+alias command and to distribute it to list administrators who need it.
+See "help configset_passwords" for more details.)
+
 
 See Also:
-   help accept     (which may be required if default is not used)
-   help admin_passwords (to learn how administrative passwords are used)
-   help approve    (like "default password", but for only one command)
-   help configset_access_rules (for another way to delay actions)
-   help configset_triggers (determines when postponed requests are completed)
-   help changeaddr (for how to replace one address with another)
-   help delay      (for an overview of how to postpone requests)
+   help access_variables
+   help admin_passwords
+   help alias
+   help approve
+   help changeaddr
+   help configset_access_password_override
+   help configset_access_rules
+   help configset_passwords
+   help configset_triggers 
+   help delay
    help mj_shell
-   help password   (which changes an individual's password)
-   help set        (for how to change some or all subscriptions)
+   help password
+   help unalias
 
 $INCLUDE-help/foot
