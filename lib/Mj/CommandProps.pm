@@ -402,6 +402,10 @@ my %commands =
 		   'actions' => \%reg_actions,
 		  },
    },
+
+# XXX Unregister
+
+
    'unsubscribe' =>
    {
     'parser'   => [qw(email shell list all real)],

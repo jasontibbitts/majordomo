@@ -990,6 +990,7 @@ sub check_dup {
   my ($data, $ok);
 
   $self->_make_dup($type);
+  ($rec) = $rec =~ /(.*)/; # Untaint
   ($ok, $data) = $self->{'dup'}{$type}->add("", $rec, {});
 
   # Inverted logic here; we return nothing only if we didn't get a match

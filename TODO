@@ -19,19 +19,6 @@ Bugs?
 
 Messages with empty first part always checksum the same?
 
-Always allocating address objects for every core call costs for iterators;
-invent some handle method instead so we can cache state between calls.
-
-Addr objects make it difficult to have inputs that are either regexps or
-addresses.  There are only two of these, so they can probably be worked
-around easily.
-
-When sending to the owner, actually look up 'owners' instead of sending to
-the owner alias and having to run things again.
-
-Inform should mail notifications in the list's preferred language, not the
-GLOBAL one (unless it's a GLOBAL request).
-
 Top of the list 
 ---------------
 
@@ -866,3 +853,6 @@ Change commands executed/successful to counts of
 Allow headers to vary depending on access variables.
 Have an action attach text to an outgoing message (warning about quotes,
  deleted parts, etc.)
+Always allocating address objects for every core call costs for iterators;
+ invent some handle method instead so we can cache state between calls.
+
