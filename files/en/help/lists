@@ -1,10 +1,11 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-lists-aux-compact-enhanced-full-long-short-tiny [pattern]
+lists[-aux][-compact][-config][-enhanced][-full][-long][-short][-tiny] [pattern]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 pattern,   if specified, is a regular expression to search list names
 -aux,      if specified, shows all auxiliary lists also
 -compact,  if specified, shows all lists without site information
--enhanced, if specified, marks lists to which you are subscribed
+-config,   if specified, shows all configuration templates also
+-enhanced, if specified, marks the lists to which you are subscribed
 -full,     if specified, shows all lists with maximal information
 -long,     if specified, shows all lists with paragraph descriptions
 -short,    if specified, shows all lists with one-line descriptions
@@ -42,27 +43,44 @@ With the "-enhanced" option, you also get information about which
 lists you are subscribed to. If only this option is used, you get
 all the information from "-long".
 
-The "-aux" option causes all sublists to be displayed.  Sublists,
-also known as auxiliary lists, are used to categorize subscribers,
-and to allow different groups of subscribers to have different 
-privileges. Note that only sublists specified by the list owner
-with "configset sublists" will appear in this listing.
+To find out where you are subscribed without descriptive paragraphs:
+  lists-enhanced-short
 
 The "-full" option causes extra information, including a subscriber
 count, the URL of the list archives (if configured), the list posting
 address, the owner address, etc. to be displayed.
 
-To find out where you are subscribed without descriptive paragraphs:
-  lists-enhanced-short
+The "-aux" option causes all sublists to be displayed.  Sublists,
+also known as auxiliary lists, are used to categorize subscribers,
+and to allow different groups of subscribers to have different 
+privileges. Note that only sublists specified by the list owner
+with "configset sublists" will appear in this listing, unless
+a list, domain, or site master password is used.
+
+The "-config" option causes all configuration templates to be
+displayed.  See "help configshow" for a discussion of templates.
+This option will only work if a list, domain, or site master
+password is used.  When a configuration template is displayed,
+the text of "comments" setting of that template is presented
+as a description of the template.
+
+If the owner of a mailing list types the name of her list as a 
+pattern, and uses the master password for the list, the lists
+command may display extra information.  In "aux" mode, auxiliary
+lists which are not included in the sublists setting are displayed.
+In "config" mode, configuration templates for her list and the
+DEFAULT list are shown.
 
 
 See Also:
-   help auxwho    (to see the addresses on an auxiliary list)
-   help info      (to find out more about a list)
-   help subscribe (to add your name to a list)
+   help auxiliary_list (for a discussion of auxiliary subscriber lists)
    help configset access_rules         (to make use of auxiliary lists)
    help configset access_rules_variables    (set/test for this command)
+   help configset comments (used for descriptions of configuration templates)
    help configset sublists (to choose auxiliary lists that are visible)
+   help configshow (for a description of configuration templates)
+   help info      (to find out more about a list)
+   help subscribe (to add your name to a list)
 
 For a list of all help topics send this one-line message
    help topics
