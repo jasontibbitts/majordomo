@@ -8,8 +8,8 @@ a particular domain.  A call to Majordomo can go in the .qmail-default file
 each list and place them in the proper directory.  Majordomo supports the
 former method automatically.
 
-Majordomo receives messages via a single mj_email command.  When given the
--Q option, mj_email examines the contents of the LOCAL environment variable
+Majordomo receives messages via a single mj_enqueue command.  When given the
+-Q option, mj_enqueue examines the contents of the LOCAL environment variable
 and figures out what it should be doing.  If it sees that the address is
 bound for some Majordomo-run address is does the appropriate processing and
 does one of two things:
@@ -27,7 +27,7 @@ So, for the virtual domain example.com with Majordomo responding to
 majordomo@example.com, placing the following in the .qmail-default
 directory:
 
-  |/path/to/mj_email -d example.com -Q majordomo
+| /usr/local/majordomo/bin/mj_enqueue -d example.com -S -Q majordomo
 
 is sufficient to enable the list manager.
 
@@ -39,7 +39,7 @@ under qmail it will ask if it should set up the necessary .qmail-default
 files itself.  If so, it will prompt for the location of the qmail
 directory for each domain and will create .qmail-default files there unless
 those files already exist and contain lines that Majordomo doesn't
-recognise (in which case it will complain and do nothing).
+recognise (in which case it will do nothing).
 
 If you elect not to have Majordomo maintain the .qmail-default files, you
 can do so yourself.  If you elect not to use the -default mechanism at all
