@@ -5534,7 +5534,12 @@ sub _digest {
               $self->standard_subs($list),
               'DATE'   => scalar(localtime()),
               'HOST'   => $self->_list_config_get($list, 'resend_host'),
+              'MSGNO'  => '',
               'SENDER' => $sender,
+              'SEQNO'  => '',
+              'SUBJECT' => '',
+              'SUBSCRIBED' => '',
+              'USER'   => $sender,
 	    };
     if ($mode =~ /force/) {
       $force = 1;
