@@ -78,12 +78,12 @@ my %reg_legal =
    'mismatch'       =>1,
    'posing'         =>1,
    'user_password'  =>1,
+   'master_password'=>2,
    'addr'           =>3,
    'delay'          =>3,
    'fulladdr'       =>3,
    'host'           =>3,
    'interface'      =>3,
-   'master_password'=>3,
    'mode'           =>3,
    'sublist'        =>3,
   );
