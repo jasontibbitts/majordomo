@@ -1,5 +1,8 @@
 Sun Feb 21 00:38:40 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* postinstall (do_default_config): Bring prompt for global
+ 	password in line with what is actually done.
+
 	* lib/Mj/Resend.pm (post): Move decision to exit without acking
  	until after we've tested to see if the message should be posted.
   	Oops.

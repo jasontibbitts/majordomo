@@ -195,6 +195,7 @@ misc/mime1
 misc/test-message.1
 misc/test-message.2
 misc/test-message.3
+misc/test-message.4
 misc/testsmtp
 misc/usetree
 misc/validate_addresses

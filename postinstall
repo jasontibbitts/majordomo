@@ -38,28 +38,8 @@ $| = 1;
 
 $msg0 = <<EOM;
 
-Your global password must be known for some of the installation process,
- but it is insecure to store it anywhere outside of Majordomo.  Thus you
- must enter it now.  If you have not yet set a password, choose one and
- enter it below.
-
-What is the global password for domain \$DOM?
+What is the default global password for domain \$DOM?
 EOM
-
-$msg0s = <<EOM;
-
-What is the global password for domain \$DOM?
-EOM
-
-# $msg1 = <<EOM;
-
-# Majordomo stores its lists in a hiearachy of directories.  These can be
-#  created for you now.  The various list files will be created as needed.
-#  If you do not answer yes, and the necessary directories do not already
-#  exist, the rest of the installation will fail.
-
-# Create directories?
-# EOM
 
 $msg2 = <<EOM;
 
@@ -72,17 +52,6 @@ If you do not do this, the rest of the installation may not proceed
 
 Do basic global configuration now?
 EOM
-
-# $msg3 = <<EOM;
-
-# Majordomo stores response files (the confirmation message, the various help
-#  texts, etc.) separately instead of placing them into the program code.
-#  These files must be installed into the Majordomo system.  Note that these
-#  go into a special file area and will not overrwite any response files
-#  which have been uploaded.
-
-# Install response files?
-# EOM
 
 $msg4 = <<EOM;
 
@@ -333,7 +302,6 @@ sub do_default_config {
     ($msg = $msg0) =~ s/\$DOM/$dom/;
     $pw = get_str($msg);
     $config->{'domain'}{$dom}{'master_password'} = $pw;
-    $msg0 = $msg0s; # Switch to using the short prompt.
   }
   print "Setting configuration defaults for $dom:" unless $quiet;
 
