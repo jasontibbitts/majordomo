@@ -101,7 +101,7 @@ sub accept {
     if ($ok < 0) {
       $subs->{'ERROR'} = $mess;
 
-      $tmp = $mj->format_get_string($type, 'accept_stall', $request->{'list'});
+      $tmp = $mj->format_get_string($type, 'accept_stall', $data->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out &indicate($type, "$str\n", $ok); 
       next;
@@ -120,17 +120,17 @@ sub accept {
           }
           else {
             $subs->{'FAIL'} = " ";
-            $subs->{'ERROR'} = $rresult->[1];
+            $subs->{'ERROR'} = &escape($rresult->[1], $type);
           }
         }
       }
 
-      $tmp = $mj->format_get_string($type, 'accept', $request->{'list'});
+      $tmp = $mj->format_get_string($type, 'accept', $data->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out &indicate($type, "$str\n", $ok); 
     }
     else {
-      $tmp = $mj->format_get_string($type, 'accept_head', $request->{'list'});
+      $tmp = $mj->format_get_string($type, 'accept_head', $data->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out &indicate($type, "$str\n", $ok); 
 
@@ -142,7 +142,7 @@ sub accept {
         $ok = &$fun($mj, $out, $err, $type, $data, $rresult);
       }
 
-      $tmp = $mj->format_get_string($type, 'accept_foot', $request->{'list'});
+      $tmp = $mj->format_get_string($type, 'accept_foot', $data->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out &indicate($type, "$str\n", $ok); 
     }
@@ -691,7 +691,7 @@ sub configset {
            'VALUE'    => &escape($val, $type),
           };
 
-  if ($ok) {
+  if ($ok > 0) {
     if ($request->{'mode'} =~ /append/) {
       $tmp = $mj->format_get_string($type, 'configset_append', $request->{'list'});
     }
@@ -1673,7 +1673,7 @@ sub reject {
     if ($ok < 0) {
       $subs->{'ERROR'} = $mess;
 
-      $tmp = $mj->format_get_string($type, 'reject_error', $request->{'list'});
+      $tmp = $mj->format_get_string($type, 'reject_error', $data->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out &indicate($type, "$str\n", $ok); 
       next;
@@ -1685,7 +1685,7 @@ sub reject {
       $subs->{'NOTIFIED'} = " ";
     }
 
-    $tmp = $mj->format_get_string($type, 'reject', $request->{'list'});
+    $tmp = $mj->format_get_string($type, 'reject', $data->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok); 
   }
