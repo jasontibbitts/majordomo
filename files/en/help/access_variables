@@ -142,6 +142,7 @@ The post command also uses these variables:
   mime_deny                     boolean
   mime_header_length            number
   mime_header_length_exceeded   boolean
+  mime_require                  boolean
   mode                          string
   noarchive                     number
   nonempty_lines                number
@@ -332,6 +333,10 @@ mime_header_length_exceeded
   This variable is set if the number of character in the longest
   MIME headere exceeds the value of the max_mime_header_length
   configuration setting
+
+mime_require
+  This variable is set one or more body parts of a posted message were
+  required to be present by the attachment_rules configuration setting.
 
 mismatch
   This variable is set if the e-mail address of the person making a
