@@ -401,6 +401,11 @@ simply use the configshow-extract command:
 The configset commands displayed by the configshow-extract command will
 return the settings to their original values.
 
+When the configshow command displays an undeclared value for a
+setting in a configuration template, it will use the default value for
+that setting from the DEFAULT:_install template.  Templates never
+inherit values from other templates.
+
 If you would like to see other templates added to Majordomo, contact the
 developers at mj2-dev@csf.colorado.edu.
 
