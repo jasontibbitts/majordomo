@@ -635,22 +635,28 @@ sub should_ack {
 
 =head2 _str_to_time(string)
 
-This converts a string to a time.
+This converts a string to a number of seconds since 1970 began.
 
 =cut
 sub _str_to_time {
   my $arg = shift;
   my $log = new Log::In 150, $arg;
-  my($time);
+  my ($time) = 0;
 
+  if ($arg =~ /(\d+)h(ours?)?/) {
+    $time += (3600 * $1);
+  }
   if ($arg =~ /(\d+)d(ays?)?/) {
-    $time = time + (86400 * $1);
+    $time += (86400 * $1);
   }
-  elsif ($arg =~ /(\d+)w(eeks?)?/) {
-    $time = time + (86400 * 7 * $1);
+  if ($arg =~ /(\d+)w(eeks?)?/) {
+    $time += (86400 * 7 * $1);
   }
-  elsif ($arg =~ /(\d+)m(onths?)?/) {
-    $time = time + (86400 * 30 * $1);
+  if ($arg =~ /(\d+)m(onths?)?/) {
+    $time += (86400 * 30 * $1);
+  }
+  if ($time) {
+    $time += time;
   }
   else {
     # We try calling Date::Manip::ParseDate
@@ -671,6 +677,31 @@ sub _str_to_time_dm {
   my $arg = shift;
   $Date::Manip::PersonalCnf="";
   return UnixDate(ParseDate($arg),"%s");
+}
+
+=head2 _time_to_str(time)
+
+Converts a time in seconds to an abbreviation. 
+For example, a time of 90000 seconds
+would produce a string "1d1h" (for one day, one hour).
+
+=cut
+sub _time_to_str {
+  my $arg = shift;
+  return "0h" unless ($arg and $arg > 0);
+  my ($i, $out);
+  $out = '';
+
+  $i = int($arg / (7 * 86400));
+  $arg %= (7 * 86400);
+  $out .= "${i}w" if $i;
+  $i = int($arg / 86400);
+  $arg %= (86400);
+  $out .= "${i}d" if $i;
+  $i = int(($arg + 1800) / 3600);
+  $out .= "${i}h" if $i;
+
+  $out;
 }
 
 =head2 default_class
@@ -780,8 +811,6 @@ This returns a textual description for a subscriber class.
 If as_setting is true, the description returned is in the form taken by the
 set command.
 
-XXX This does not properly handle nomail with expiration.
-
 =cut
 sub describe_class {
   my $self  = shift;
@@ -795,7 +824,7 @@ sub describe_class {
     $dig = $self->config_get('digests');
     if ($dig->{$arg1}) {
       return $as_setting? "$class-$arg1-$arg2" :
-	"$dig->{$arg1}{'desc'} (in $arg2 format)";
+	$dig->{$arg1}{'desc'};
     }
     else {
       return "Undefined digest." # XLANG
@@ -806,10 +835,15 @@ sub describe_class {
     return $as_setting? $class : $classes{$class}->[2];
   }
   if ($classes{$class}->[1] == 1) {
+    # nomail setting
     if ($arg1) {
-      $time = gmtime($arg1);
-      return $as_setting? "$class-(epoch $arg1)" :
-	"$classes{$class}->[2] until $time"; # XLANG
+      if ($as_setting) {
+        return sprintf "$class-%s", _time_to_str($arg1 - time);
+      }
+      else { 
+        $time = gmtime($arg1);
+        return "$classes{$class}->[2] until $time"; # XLANG
+      }
     }
     return $classes{$class}->[2];
   }
