@@ -638,6 +638,7 @@ sub list_access_check {
 	'REQUEST' => $request,
 	'REQUESTER' => $requester,
 	'VICTIM'  => $victim,
+    'NOTIFY'  => $victim,
 	'REASONS' => $reasons,
        },
       ) if $mess;
@@ -1056,7 +1057,7 @@ sub _a_default {
     $action = "_a_deny";
   }
 
-  if ($reason) {
+  if (defined $reason) {
     $_[10] = "$reason\002" . $_[10];
   }
   return $self->$action(@_);

@@ -504,6 +504,7 @@ sub t_accept {
     $repl = {
              'REQUESTER'  => $data->{'requester'},
              'VICTIM'     => $data->{'victim'},
+             'NOTIFY'     => $data->{'requester'},
              'CMDLINE'    => $data->{'cmdline'},
              'REQUEST'    => $data->{'request'},
              'LIST'       => $data->{'list'},
