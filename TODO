@@ -272,13 +272,6 @@ cannot turn it off.  It should be very easy to make bounce_rules apply to
 GLOBAL.  Tracking of bounces may need to be turned off for GLOBAL, though.
 
 
-Registration files for first-time subscribers
----------------------------------------------
-When an unregistered address is subscribed to a mailing list, it should
-be possible to mail a registration message, based upon the GLOBAL
-welcome_files setting, to that address automatically.
-
-
 Counting recipients
 -------------------
 In addition to using header length limits for posts, it should be
@@ -288,19 +281,18 @@ special consideration, because it most frequently surpasses the header
 length limits.
 
 
-Repairing individual subscriber databases
------------------------------------------
-Because of the time required for the rekey command, the rekey-repair and
-rekey-verify options should have the option of examining or modifying a
-select number of mailing lists.
-
-
 Editing moderated messages with the wwwadm interface
 ----------------------------------------------------
 In the wwwadm interface, the tokeninfo command displays the raw message,
 including all of the headers and attachments.  This could be improved to
 allow text parts to be edited, headers to be displayed more selectively,
 and attachments to be discarded.
+
+
+Case-sensitivity
+----------------
+Make token identifiers and Majordomo domain names case-insensitive.
+
 
 =======================
 Totally out there stuff
