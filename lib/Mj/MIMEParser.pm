@@ -102,9 +102,9 @@ use Mj::Util qw(re_match);
 sub _r_ct_lines {
   my ($entity, $data, $qp) = @_;
   my (@parts) = $entity->parts;
-  my ($body, $line);
+  my ($body, $i, $line);
   if (@parts) {
-    for ($i=0; $i<@parts; $i++) {
+    for ($i = 0; $i < @parts ; $i++) {
       _r_ct_lines($parts[$i], $data, $qp);
     }
     return;
