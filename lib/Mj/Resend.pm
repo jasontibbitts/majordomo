@@ -508,6 +508,9 @@ sub _post {
   # Cook up a substitution hash
   $subs = {
          LIST     => $list,
+         OWNER    => $self->_list_config_get($list, 'whoami_owner'),
+         WHOAMI   => $self->_list_config_get($list, 'whoami'),
+         ARCURL   => $self->_list_config_get($list, 'archive_url'),
          VERSION  => $Majordomo::VERSION,
          SENDER   => "$user",
          USER     => "$user",
