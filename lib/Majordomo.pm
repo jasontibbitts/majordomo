@@ -608,6 +608,12 @@ sub gen_cmdline {
   # Add LIST if the command requires one
   if (command_prop($base, "list")) {
     $cmdline .= " $request->{'list'}";
+    if (exists ($request->{'sublist'}) and 
+        length ($request->{'sublist'}) and 
+        ($request->{'sublist'} ne 'MAIN')) 
+    {
+      $cmdline .= ":$request->{'sublist'}";
+    }
   }
 
   $hereargs  = function_prop($base, 'hereargs');
