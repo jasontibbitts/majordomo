@@ -564,6 +564,8 @@ files/en/format/text/.accept_head
 files/en/format/text/.accept_stall
 files/en/format/text/.alias
 files/en/format/text/.alias_error
+files/en/format/text/.announce
+files/en/format/text/.announce_error
 files/en/format/text/.archive_attachment
 files/en/format/text/.archive_container
 files/en/format/text/.archive_edit_foot
@@ -589,6 +591,12 @@ files/en/format/text/.archive_text_foot
 files/en/format/text/.archive_text_head
 files/en/format/text/.changeaddr
 files/en/format/text/.changeaddr_error
+files/en/format/text/.configdef
+files/en/format/text/.configdef_error
+files/en/format/text/.configset
+files/en/format/text/.configset_append
+files/en/format/text/.configset_error
+files/en/format/text/.configset_extract
 files/en/format/text/.configshow
 files/en/format/text/.configshow_array
 files/en/format/text/.configshow_bool
@@ -627,6 +635,9 @@ files/en/format/text/.register
 files/en/format/text/.register_error
 files/en/format/text/.reject
 files/en/format/text/.reject_error
+files/en/format/text/.sessioninfo_error
+files/en/format/text/.sessioninfo_foot
+files/en/format/text/.sessioninfo_head
 files/en/format/text/.set
 files/en/format/text/.set_check
 files/en/format/text/.set_error
@@ -686,6 +697,8 @@ files/en/format/text/accept_head
 files/en/format/text/accept_stall
 files/en/format/text/alias
 files/en/format/text/alias_error
+files/en/format/text/announce
+files/en/format/text/announce_error
 files/en/format/text/archive_attachment
 files/en/format/text/archive_container
 files/en/format/text/archive_edit_foot
@@ -711,6 +724,12 @@ files/en/format/text/archive_text_foot
 files/en/format/text/archive_text_head
 files/en/format/text/changeaddr
 files/en/format/text/changeaddr_error
+files/en/format/text/configdef
+files/en/format/text/configdef_error
+files/en/format/text/configset
+files/en/format/text/configset_append
+files/en/format/text/configset_error
+files/en/format/text/configset_extract
 files/en/format/text/configshow
 files/en/format/text/configshow_array
 files/en/format/text/configshow_bool
@@ -749,6 +768,9 @@ files/en/format/text/register
 files/en/format/text/register_error
 files/en/format/text/reject
 files/en/format/text/reject_error
+files/en/format/text/sessioninfo_error
+files/en/format/text/sessioninfo_foot
+files/en/format/text/sessioninfo_head
 files/en/format/text/set
 files/en/format/text/set_check
 files/en/format/text/set_error
@@ -808,6 +830,8 @@ files/en/format/wwwadm/.accept_head
 files/en/format/wwwadm/.accept_stall
 files/en/format/wwwadm/.alias
 files/en/format/wwwadm/.alias_error
+files/en/format/wwwadm/.announce
+files/en/format/wwwadm/.announce_error
 files/en/format/wwwadm/.archive_attachment
 files/en/format/wwwadm/.archive_container
 files/en/format/wwwadm/.archive_edit_foot
@@ -834,6 +858,12 @@ files/en/format/wwwadm/.archive_text_head
 files/en/format/wwwadm/.changeaddr
 files/en/format/wwwadm/.changeaddr_error
 files/en/format/wwwadm/.command
+files/en/format/wwwadm/.configdef
+files/en/format/wwwadm/.configdef_error
+files/en/format/wwwadm/.configset
+files/en/format/wwwadm/.configset_append
+files/en/format/wwwadm/.configset_error
+files/en/format/wwwadm/.configset_extract
 files/en/format/wwwadm/.configshow
 files/en/format/wwwadm/.configshow_array
 files/en/format/wwwadm/.configshow_bool
@@ -878,6 +908,9 @@ files/en/format/wwwadm/.register
 files/en/format/wwwadm/.register_error
 files/en/format/wwwadm/.reject
 files/en/format/wwwadm/.reject_error
+files/en/format/wwwadm/.sessioninfo_error
+files/en/format/wwwadm/.sessioninfo_foot
+files/en/format/wwwadm/.sessioninfo_head
 files/en/format/wwwadm/.set
 files/en/format/wwwadm/.set_check
 files/en/format/wwwadm/.set_error
@@ -942,6 +975,8 @@ files/en/format/wwwadm/accept_head
 files/en/format/wwwadm/accept_stall
 files/en/format/wwwadm/alias
 files/en/format/wwwadm/alias_error
+files/en/format/wwwadm/announce
+files/en/format/wwwadm/announce_error
 files/en/format/wwwadm/archive_attachment
 files/en/format/wwwadm/archive_container
 files/en/format/wwwadm/archive_edit_foot
@@ -968,6 +1003,12 @@ files/en/format/wwwadm/archive_text_head
 files/en/format/wwwadm/changeaddr
 files/en/format/wwwadm/changeaddr_error
 files/en/format/wwwadm/command
+files/en/format/wwwadm/configdef
+files/en/format/wwwadm/configdef_error
+files/en/format/wwwadm/configset
+files/en/format/wwwadm/configset_append
+files/en/format/wwwadm/configset_error
+files/en/format/wwwadm/configset_extract
 files/en/format/wwwadm/configshow
 files/en/format/wwwadm/configshow_array
 files/en/format/wwwadm/configshow_bool
@@ -1012,6 +1053,9 @@ files/en/format/wwwadm/register
 files/en/format/wwwadm/register_error
 files/en/format/wwwadm/reject
 files/en/format/wwwadm/reject_error
+files/en/format/wwwadm/sessioninfo_error
+files/en/format/wwwadm/sessioninfo_foot
+files/en/format/wwwadm/sessioninfo_head
 files/en/format/wwwadm/set
 files/en/format/wwwadm/set_check
 files/en/format/wwwadm/set_error
@@ -1077,6 +1121,8 @@ files/en/format/wwwconfirm/.accept_head
 files/en/format/wwwconfirm/.accept_stall
 files/en/format/wwwconfirm/.alias
 files/en/format/wwwconfirm/.alias_error
+files/en/format/wwwconfirm/.announce
+files/en/format/wwwconfirm/.announce_error
 files/en/format/wwwconfirm/.archive_attachment
 files/en/format/wwwconfirm/.archive_container
 files/en/format/wwwconfirm/.archive_edit_foot
@@ -1130,6 +1176,9 @@ files/en/format/wwwconfirm/.register
 files/en/format/wwwconfirm/.register_error
 files/en/format/wwwconfirm/.reject
 files/en/format/wwwconfirm/.reject_error
+files/en/format/wwwconfirm/.sessioninfo_error
+files/en/format/wwwconfirm/.sessioninfo_foot
+files/en/format/wwwconfirm/.sessioninfo_head
 files/en/format/wwwconfirm/.set
 files/en/format/wwwconfirm/.set_check
 files/en/format/wwwconfirm/.set_error
@@ -1190,6 +1239,8 @@ files/en/format/wwwconfirm/accept_head
 files/en/format/wwwconfirm/accept_stall
 files/en/format/wwwconfirm/alias
 files/en/format/wwwconfirm/alias_error
+files/en/format/wwwconfirm/announce
+files/en/format/wwwconfirm/announce_error
 files/en/format/wwwconfirm/archive_attachment
 files/en/format/wwwconfirm/archive_container
 files/en/format/wwwconfirm/archive_edit_foot
@@ -1243,6 +1294,9 @@ files/en/format/wwwconfirm/register
 files/en/format/wwwconfirm/register_error
 files/en/format/wwwconfirm/reject
 files/en/format/wwwconfirm/reject_error
+files/en/format/wwwconfirm/sessioninfo_error
+files/en/format/wwwconfirm/sessioninfo_foot
+files/en/format/wwwconfirm/sessioninfo_head
 files/en/format/wwwconfirm/set
 files/en/format/wwwconfirm/set_check
 files/en/format/wwwconfirm/set_error

@@ -93,6 +93,22 @@ alias_error
 (standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER, VICTIM)
 
 
+announce
+--------
+(text, wwwadm, wwwconfirm)  This file is displayed when the announce
+command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, FILE, USER)
+
+
+announce_error
+--------------
+(text, wwwadm, wwwconfirm)  This file is displayed when the announce
+command stalls or fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, FILE, USER)
+
+
 archive_attachment
 ------------------
 (ALL)  This file displays summary information
@@ -340,6 +356,54 @@ command
 that are not otherwise supported by the interface.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
+
+
+configdef
+---------
+(text, wwwadm)  This file is displayed when a configuration setting is
+reset to its default value.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SETTING, USER)
+
+
+configdef_error
+---------------
+(text, wwwadm)  This file is displayed when a configuration setting is
+not reset to its default value.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, SETTING, USER)
+
+
+configset
+---------
+(text, wwwadm)  This file is displayed when a configuration setting is
+changed.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SETTING, USER, VALUE)
+
+
+configset_append
+----------------
+(text, wwwadm)  This file is displayed when a configuration setting is
+changed by appending additional values.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SETTING, USER, VALUE)
+
+
+configset_error
+---------------
+(text, wwwadm)  This file is displayed when the configset command
+fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, SETTING, USER, VALUE)
+
+
+configset_extract
+-----------------
+(text, wwwadm)  This file is displayed when a configuration setting is
+changed by extracting values.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SETTING, USER, VALUE)
 
 
 configshow
@@ -903,6 +967,31 @@ subscribe_none
 or unsubscribe command does not generate any results.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+
+sessioninfo_error
+-----------------
+(text, wwwadm, wwwconfirm)  This file is displayed when the sessioninfo
+command fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, SESSIONID, USER)
+
+
+sessioninfo_head
+----------------
+(text, wwwadm, wwwconfirm)  This file is displayed before the
+session data if the sessioninfo command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SESSIONID, USER)
+
+
+sessioninfo_foot
+----------------
+(text, wwwadm, wwwconfirm)  This file is displayed after the
+session data if the sessioninfo command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SESSIONID, USER)
 
 
 tokeninfo_attachment
