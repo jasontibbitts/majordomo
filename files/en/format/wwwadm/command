@@ -74,7 +74,7 @@ There are several steps required to use the command form.
 
   <li>An administrative password is required to use this form.
   The password for your mailing list should already be marked by 
-  14 asterisks in the <b>Password:</b> box.  If this is not true, 
+  14 asterisks in the <b>Password</b> box.  If this is not true, 
   type an administrative password into the box.</li>
 
   <li>If additional information is needed to issue
