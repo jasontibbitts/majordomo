@@ -15,13 +15,14 @@ with a log of each command that was executed is stored in a file with
 things like the headers or the CGI environment.  This information can
 be retrieved using the sessioninfo command.
 
-Session files are deleted after the amount of time specified in
-the session_lifetime.  They are extremely useful in tracking down the source
-of things like forged subscription requests and spam (particularly on a
-list that strips Received: headers).  The relevant session data is also
-sent out when someone rejects a confirmation token.  (The assumption is
-that the request may have been forged, so everything available for
-tracking the forgery is automatically sent out.)
+Session files are deleted after the amount of time specified in the
+session_lifetime configuration setting.  They are extremely useful in
+tracking down the source of things like forged subscription requests and
+spam (particularly on a list that strips Received: headers).  The
+relevant session data is also sent out when someone rejects a
+confirmation token.  (The assumption is that the request may have been
+forged, so everything available for tracking the forgery is
+automatically sent out.)
 
 Where do you get session IDs from? The server will mail you confirmation
 messages (if configured to do so) that include lines like this:
