@@ -1,0 +1,38 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste precedence = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : bulk
+Type de donnée    : mot
+Catégorie         : deliver
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset liste precedence = bulk
+
+
+$INCLUDE-config/precedence
+
+l'en-tête "Precedence" est important car il réduit les chances de
+recevoir des notices d'absences sur votre liste, ce qui peut
+entraîner des bouclages d'emails.
+
+Une manière plus générale de remplacer des en-têtes d'un message
+envoyé est d'utiliser le paramètre de configuration "delete_headers"
+pour supprimer les en-têtes existantes, et pour ajouter les en-têtes,
+utiliser le paramètre "message_headers". Si vous utilisez ces
+paramètres pour régler l'en-tête "Precedence", ce paramètre doit être
+modifié pour avoir une valeur vide. Autrement, L'en-tête serai
+doublée et pourrait apparaître dans le corps du message. Référez vous
+à "help admin_delivery" pour un exemple d'utilisation des paramètres
+"delete_headers" et "message_headers" ensembles.
+
+
+Référez vous aussi à :
+   help admin_delivery
+   help configset_delete_headers
+   help configset_message_headers
+   help configset_reply_to
+   help configset_subject_prefix
+
+$INCLUDE-help/foot

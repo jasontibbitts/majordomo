@@ -1,0 +1,38 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL priority = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+configset liste priority = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : 10
+Type de donnée    : entier
+Catégorie         : miscellany
+Mot de passe      : Le mot de passe du site est disponible pour
+                    modifier cette valeur
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset liste priority = 15
+
+$INCLUDE-config/priority
+
+Ce paramètre n'a de sens que si la mise en attente des message est
+utilisée, et si qmail n'est pas le serveur d'emails.
+
+Les message entrants sont traités par le programme "mj_enqueue".
+"mj_enqueue" possède deux options, '-P' et '-p', qui sont utilisées
+pour déterminer la priorité du domaine, et de la liste à laquelle le
+message est envoyé. Si ces options ne sont pas utilisées, "mj_enqueue"
+prendra la valeur par défaut qui est 10. Un numéro plus élevé signifie
+une priorité plus élevée, et les domaines avec des priorités plus
+élevées seront toujours traités plus vite que les autres. quelquesoit
+la priorité de leurs listes.
+
+La modification de ce paramètre ne prendra pas effet tant que la
+commande "createlist-regen" n'aura pas été lancée pour régénérer les
+alias email.
+
+Référez vous aussi à :
+   help admin_domain
+   help createlist
+
+$INCLUDE-help/foot

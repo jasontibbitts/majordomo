@@ -1,0 +1,40 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste ack_attach_original <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : fail stall
+Type de donnée    : énumérée, entre : fail reject stall succeed all
+Catégorie         : reply
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset liste ack_attach_original << ENDTAG
+fail
+ENDTAG
+
+$INCLUDE-config/ack_attach_original
+
+Le fait d'inclure le message original lors d'une confirmation peut
+aider le destinataire à avoir une meilleur idée de quel message parle
+cette confirmation.
+
+Le message de confirmation lui même peut être choisi en utilisant
+l'action "replyfile" du paramètre "access_rules" pour les résultat
+"fail" et "stall". Par défaut, les messages de confirmation utilisés
+sont "ack_success", "ack_stall", "rejection", et "ack_denial". Référez
+vous à "help reply_files" pour une description complète de chaque
+fichier.
+
+
+Référez vous aussi à :
+   help admin_moderate
+   help configset_access_rules  (pour savoir comment spécifier les
+                                 fichiers de réponses (replyfiles))
+   help configset_default_flags (pour pré régler les paramètres "ack")
+   help configset_nonmember_flags
+   help reply_files
+   help set                     (pour régler paramètre des abonnés)
+
+$INCLUDE-help/foot

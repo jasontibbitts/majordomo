@@ -1,0 +1,36 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste override_reply_to = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : no
+Type de donnée    : booléen, entre : 0 n no, 1 y yes
+Catégorie         : deliver
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset liste override_reply_to = yes
+
+
+$INCLUDE-config/override_reply_to
+
+Le paramètre "override_reply_to" n'affecte que les messages qui sont
+envoyés aux abonnés avec le paramètre "replyto" activé. Référez vous à
+"help set" pour de plus amples informations.
+
+Pour remplacer l'en-tête "Reply-To" de chaque messages, utilisez les
+paramètres "delete_headers" et "message_headers". Cela passera outre
+l'utilité du paramètre "replyto".
+
+Le paramètre "override_reply_to" n'a pas d'effets sur les compilations.
+
+
+Référez vous aussi à :
+   help admin_delivery
+   help configset_allowed_flags
+   help configset_default_flags
+   help configset_delete_headers
+   help configset_message_headers
+   help configset_reply_to
+   help set
+
+$INCLUDE-help/foot
