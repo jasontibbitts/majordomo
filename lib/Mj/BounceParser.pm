@@ -174,7 +174,7 @@ sub parse {
     $msgno  = $1;
     $user   = undef;
   }
-    # Digest probes have volume and issue number
+  # Digest probes have volume and issue number
   elsif ($info =~ /^DV(\d{1,5})N(\d{1,5})=([^=]+)=([^=]+)/i) {
     $type   = 'M';
     $msgno  = $1 . $2;
@@ -185,7 +185,8 @@ sub parse {
     $msgno  = $1 . $2;
     $user   = undef;
   }
-  elsif ($info =~ /^([TD])(.*)/i) {
+  # Tokens, deletable tokens and bounce probes
+  elsif ($info =~ /^([TDP])(.*)/i) {
     $type  = $1;
     $msgno = $2;
     $user  = undef;

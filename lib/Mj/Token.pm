@@ -235,6 +235,9 @@ sub confirm {
     elsif (($i->{'group'} !~ /^(victim|requester)$/) and $ttype eq 'confirm') {
       $ttype = 'consult';
     }
+    elsif (exists $i->{'bounce'} && $i->{'bounce'} == -1) {
+      $ttype = 'probe';
+    }
 
     if (exists $i->{'remind'} and $i->{'remind'} >= 0) {
       $remind = $i->{'remind'};
@@ -415,7 +418,10 @@ sub confirm {
 
       # Determine whether or not a bounce of the token would result
       # in the token being deleted.
-      if (exists($dest->{'bounce'}) and $dest->{'bounce'} == 0) {
+      if (exists($dest->{'bounce'}) and $dest->{'bounce'} == -1) {
+      	$envext = 'P';
+      }
+      elsif (exists($dest->{'bounce'}) and $dest->{'bounce'} == 0) {
         $envext = 'D';
       }
       else {

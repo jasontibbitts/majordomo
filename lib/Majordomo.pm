@@ -2782,10 +2782,9 @@ sub put_start {
   $filedesc = "$request->{'ocontype'}\002$request->{'ocset'}\002$request->{'oencoding'}\002$request->{'olanguage'}";
   $request->{'arg3'} = $filedesc;
 
-  my $log = new Log::In 30, "$request->{'list'}, $request->{'file'}, " . 
+  my $log = new Log::In 30, "$request->{'list'}, $request->{'file'}, " .
             "$request->{'xdesc'}, $request->{'ocontype'}, $request->{'ocset'}, "
               . "$request->{'oencoding'}, $request->{'olanguage'}";
-
 
   # Check the password
   ($ok, $mess) = $self->list_access_check($request);
@@ -2793,11 +2792,10 @@ sub put_start {
   unless ($ok > 0) {
     return ($ok, $mess);
   }
-  
-  $filedesc = "$request->{'ocontype'}\002$request->{'ocset'}\002$request->{'oencoding'}\002$request->{'olanguage'}";
 
-  $self->_put($request->{'list'}, $request->{'user'}, $request->{'user'}, 
-              $request->{'mode'}, $request->{'cmdline'}, $request->{'file'}, 
+
+  $self->_put($request->{'list'}, $request->{'user'}, $request->{'user'},
+              $request->{'mode'}, $request->{'cmdline'}, $request->{'file'},
               $request->{'xdesc'}, $filedesc);
 }
 
@@ -2821,6 +2819,11 @@ sub _put {
   # Make a directory instead?
   if ($mode =~ /dir/) {
     return ($self->{'lists'}{$list}->fs_mkdir($file, $subj));
+  }
+
+  # Delete a file/directory instead?
+  if ($mode =~ /delete/) {
+    return ($self->{'lists'}{$list}->fs_delete($file, $subj));
   }
 
   # The zero is the overwrite control; haven't quite figured out what to
@@ -3005,7 +3008,7 @@ sub _list_file_get {
   @langs = split(/\s*,\s*/, $lang) if $lang;
 
   # Build @paths list; maintain %paths hash to determine uniqueness.
-  for $i (@search, 'DEFAULT:', 'DEFAULT:$LANG', 
+  for $i (@search, 'DEFAULT:$LANG', 'DEFAULT:',
 	  'STOCK:$LANG', 'STOCK:en')
     {
       # Split and supply defaults

@@ -1,3 +1,15 @@
+2001-06-22  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/Util.pm (n_defaults): The default file for a bounce probe
+	is "bounceprobe".
+
+	* lib/Mj/Token.pm (confirm): Set token type to 'probe' as
+	appropriate.  Set envelope extention properly for probe tokens.
+
+	* lib/Majordomo.pm (_put): Preliminary: allow put-delete.
+	(_list_file_get): Search per-language default files before
+	searching non-language-specific default files.
+
 2001-06-20  Michael Yount <csf@moscow.com>
 
 	* bin/mj_shell:  Note that the -D option causes the debugging
@@ -24,6 +36,31 @@
 	Hill.
 	(lists) Bugfix:  Initialize "legend" variable for the
 	lists-enhanced command.  Thanks to Paul Hancock.
+
+2001-06-15  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/CommandProps.pm: Add consecutive_days as a legal variable
+	for bounce_rules.
+
+2001-06-14  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/List.pm (bounce_gen_stats): Calculate consecutive_days
+	statistic.
+
+	* lib/Mj/BounceHandler.pm (handle_bounce_probe): New function:
+	deal with bouncing bounce probes.
+	(handle_bounce): Deal with bounces of type 'P' by calling
+	handle_bounce_probe.
+	(_hbr_probe): New function: send a bounce probe.
+	(handle_bounce_user): Add failure variable.
+
+2001-06-13  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/BounceHandler.pm (_hbr_noprobe): Accept 'reason' argument
+	so the caller can supply its own removal reason.
+
+	* lib/Mj/BounceParser.pm (parse): Allow type 'P' envelopes (for
+	bounce probes) as well.
 
 2001-06-05  Jason L Tibbitts III  <tibbs@math.uh.edu>
 

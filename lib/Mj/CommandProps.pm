@@ -915,6 +915,7 @@ my %commands =
 			       'subscribed'           => 'bool',
 			       'days_since_subscribe' => 'integer',
 			       'consecutive'          => 'integer',
+			       'consecutive_days'     => 'integer',
 			       'bouncedpct'           => 'integer',
 			       'numbered'             => 'integer',
 			       'day'                  => 'integer',

@@ -271,7 +271,7 @@ sub n_defaults {
   elsif ($type eq 'probe') {
     $defaults->{'attach'} = 1;
     $defaults->{'bounce'} = -1;
-    $defaults->{'file'}   = 'probe';
+    $defaults->{'file'}   = 'bounceprobe';
   }
 
   $defaults;

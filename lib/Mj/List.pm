@@ -2374,13 +2374,16 @@ also be other data there depending on what bounces were detected.
 An incident is formatted like:
 
 timeMnumber
+timeMnumber,sessionid
 timeCtoken
 timePtoken
 
 where 'time' is the numeric cound of seconds since the epoch, 'M' indicates
-a message bounce and 'number' indicates the message number.  'C' indicates
-that a consult token was issued for the deletion of the bouncing address,
-while 'P' indicates that a probe was issued against the bounding address.
+a message bounce, 'number' indicates the message number and sessionid, if
+present, indicates the SessionID of the bounce (so that the text of the
+bounce can be retrieved using the sessioninfo command).  'C' indicates that
+a consult token was issued for the deletion of the bouncing address, while
+'P' indicates that a probe was issued against the bounding address.
 'token' indicates the token number used for the consultation or probe.
 
 Some bounces have a type but no message number.  There are stored under
@@ -2431,22 +2434,23 @@ sub bounce_gen_stats {
   my $self = shift;
   my $bdata = shift;
   my $now = time;
-  my (@numbered, @times, $do_month, $i, $lastnum,
-      $maxbounceage, $maxbouncecount, $stats);
+  my (@numbered, @times, $do_month, $i, $lastnum, $maxbounceage,
+      $maxbouncecount, $seqendtime, $seqstarttime, $stats);
 
   # Initialize $stats
   $stats = {
-	    bouncedpct     => 0,
-	    consecutive    => 0,
-	    day            => 0,
-	    day_overload   => '',
-	    week           => 0,
-	    week_overload  => '',
-	    maxcount       => 0,
-	    month          => 0,
-	    month_overload => '',
-	    numbered       => 0,
-	    span           => 0,
+	    bouncedpct       => 0,
+	    consecutive      => 0,
+	    consecutive_days => 0,
+	    day              => 0,
+	    day_overload     => '',
+	    week             => 0,
+	    week_overload    => '',
+	    maxcount         => 0,
+	    month            => 0,
+	    month_overload   => '',
+	    numbered         => 0,
+	    span             => 0,
 	   };
 
   # No bounce data?  Return empty statistics.
@@ -2464,18 +2468,23 @@ sub bounce_gen_stats {
     $stats->{span} = $numbered[$#numbered] - $numbered[0] + 1;
   }
 
+  $seqstarttime = $seqendtime = 0;
   for $i (@numbered) {
     push @times, $bdata->{M}{$i};
     $stats->{numbered}++;
     if (!defined($lastnum) || $i == $lastnum+1) {
       $lastnum = $i;
       $stats->{consecutive}++;
+      $seqendtime = $bdata->{M}{$i};
+      $seqstarttime ||= $bdata->{M}{$i}
     }
     else {
       undef $lastnum;
+      $seqstarttime = $seqendtime = $bata->{M}{$i};
       $stats->{consecutive} = 1;
     }
   }
+  $stats{consecutive_days} = ($seqendtime - $seqstarttime) / (24*60*60);
 
   if ($stats->{numbered} && $stats->{span}) {
     $stats->{bouncedpct} = int(.5 + 100*($stats->{numbered} / $stats->{span}));

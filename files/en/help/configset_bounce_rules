@@ -20,18 +20,39 @@ ENDTAG
 
 $INCLUDE-config/bounce_rules
 
-Currently there are four actions; inform is the default:
-  ignore                  - do not send a bounce message to the owners
-  inform                  - send a bounce message to the owners
-  remove-noprobe          - remove the user from the list of subscribers
-                            and send a bounce message to the owners
-  remove-noprobe-quiet    - remove the user from the list of subscribers
-                            and do not send a bounce message to the owners
+Currently there are three basic actions; inform is the default:
+  ignore - do nothing; do not send a bounce notice to the owners and
+           perform no action on the list of subscribers.
+  inform - send a bounce notice to the owners, but leave the bouncing user
+           on the list.
+  remove - send a bounce notice to the owners, and remove the user from the
+           list.
+
+There are several modes for the remove action.  By default, the list owners
+are sent a notice of the bounce (as with the inform action) and the
+bouncing user is sent one final, unique test message and if it bounces then
+the user is removed.
+
+The remove-consult action will, after the test message has bounced, send a
+consultation token to the list owners instead of immediately removing the
+user.  If this token is accepted, then the user is removed.
+
+The remove-noprobe action will immediately remove the user, without sending
+the probing test message to verify that the user is indeed bouncing.
+
+The remove-noprobe-consult action is also valid; it causes the owners to be
+consulted but no probing test message to be sent to the bouncing user.
+
+Finally, the -quiet mode (i.e. remove-consult-quiet, remove-noprobe-quiet,
+remove-noprobe-consult-quiet) suppresses the bounce notice that is sent.
+The owners will still see a consultation token if one was requested, and
+will still receive notice that the bouncing user has been unsubscribed from
+the list if that happens.
 
 The bounce message is sent to the e-mail addresses in the bounce_recipients
 configuration setting, or to the list owners if that setting is empty.  
 
-The variables currently recognized [2] are:
+The variables currently recognized are:
   days_since_subscribe
   consecutive - number of consecutive messages bounced
   day         - number of bounces in the last 24 hours
@@ -49,28 +70,13 @@ when to be notified.  I'm not really sure which is the way to go.  I'd like
 to avoid a mixed approach (where you can do things with the rules and with
 the variables).
 
-[1] This will eventually include a final probe message that must bounce for
-    the removal to take effect.
-
-[2] I recall that there was some question as to the validity of these
-   statistics while I was away.  I think it revolved around not correlating
-   "bounces per day/week/month" with messages passing through the list
-   during that time.  I counter that this is the best that we can do, since
-   the bounces can be received an arbitrary amount of time (I've seen four
-   weeks) after the message is sent.  The point is to build up an accurate
-   picture of what list messages are bouncing without trying to do any
-   correlation with list messages.  Not that it can't be done, but that it
-   can't be done "simply".  Sure, we could look up the date of the message
-   in the archive and compute a "bounce delay time", but that doesn't
-   qualify as "simple". 
-
 It is possible to use comments before, between, and after the individual
 rules, but not within rules.  Comments are lines that begin with a '#'.
 
 
 See Also:
    help admin_subscribers
-   help configset_access_rules (for basic syntax, needs to be copied here)
+   help configset_access_rules
    help configset_bounce_max_age
    help configset_bounce_max_count
    help configset_bounce_probe_frequency

@@ -93,6 +93,18 @@ sub handle_bounce {
 				);
     }
 
+    # If a probe bounced
+    elsif ($type eq 'P') {
+      $handled = 1;
+      $self->handle_bounce_probe(entity  => $ent,
+				 data    => $data,
+				 file    => $file,
+				 handler => $handler,
+				 token   => $msgno,
+                                 type    => $type,
+				);
+    }
+
     # We couldn't parse anything useful
     else {
       $handled = 0;
@@ -209,6 +221,48 @@ sub handle_bounce_message {
 
   $nent->purge if $nent;
   $addrs;
+}
+
+=head2 handle_bounce_probe
+
+Deal with a bouncing probe.  If the owner is to be consulted, generate a
+consult token.  Otherwise, just remove the user directly.
+
+=cut
+sub handle_bounce_probe {
+  my($self, %args) = @_;
+  my $log = new Log::In 35;
+  my (@bouncers, @owners, $data, $ok, $user);
+
+  # Grab the data for the token
+  ($ok, $data) = $self->t_info($args{token});
+
+  # Simply return if it doesn't exist.  XXX This should be an error
+  # condition, and someone should be notified.
+  return 1 if !$ok || !$data;
+
+  $self->t_remove($args{token}?);
+
+  $user = new Mj::Addr $data->{victim};
+
+  # Should the owners be consulted?
+  if ($data->{mode} && $data->{mode} !~ /noconsult/ &&
+      $data->{mode} =~ /consult/)
+    {
+      $self->_hbr_consult(%args,
+			  user   => $user,
+			  list   => $data->{list},
+			 );
+      return;
+    }
+
+  # Otherwise, just remove the user
+  $self->_hbr_noprobe(%args,
+		      user   => $user,
+		      list   => $data->{list},
+		      sender => $self->_list_config_get('GLOBAL', 'sender'),
+		      reason => qq(The bounce_rules setting says "remove" and a probe message was bounced.),
+		     );
 }
 
 =head2 handle_bounce_token
@@ -360,6 +414,7 @@ sub handle_bounce_user {
 
   # Add in extra arguments
   $args{warning}              = ($params{status} eq 'warning');
+  $args{failure}              = ($params{status} eq 'failure');
   $args{subscribed}           = !!$sdata;
   $args{days_since_subscribe} = $sdata? ((time - $sdata->{subtime})/86400): 0;
   $args{notify}               = [];
@@ -417,19 +472,12 @@ There are several possibilities:
 
 1) Remove the user immediately.
 
-2) Generate a bounce probe; if it bounces, remove the user.
+2) Send the owner(s) a consultation token; when accepted, the user is
+   removed.
 
-3) #2, but consult the owner before removing.
+3) Generate a bounce probe; if it bounces, remove the user.
 
-#1 is easy; just call the core unsubscribe routine.
-
-#2 is more difficult; we construct the message and send it with a special
-sender.  We also generate a token.  When a bounce is seen with the special
-sender, the token is accepted (instead of being deleted, which is the
-normal action for bouncing tokens).
-
-#3 involves the same as #2, except that the token is generate with chain
-#fields indicating a consult token is to be generated upon its acceptance.
+4) #3, but consult the owner before removing.
 
 =cut
 sub handle_bounce_removal {
@@ -461,10 +509,8 @@ sub handle_bounce_removal {
     return $self->_hbr_consult(%args);
   }
 
-  # We're probing; the only issue is whether or not the owner is consulted
-  # when the probe bounces
-
-  return "  Only doing -noprobe removals at this time.\n";
+  # We are probing
+  return $self->_hbr_probe(%args);
 }
 
 =head2 _hbr_noprobe
@@ -489,7 +535,7 @@ sub _hbr_noprobe {
 		qq("Automatic Bounce Processor" <$args{'sender'}>),
 		$args{'user'}, "unsubscribe $args{'list'} $args{'user'}",
 		$self->{'interface'}, $ok, 0, 0, 
-		qq(The bounce_rules setting says "remove-noprobe"),
+		$args{reason} || qq(The bounce_rules setting says "remove-noprobe"),
 		$::log->elapsed - $time);
 
   if ($ok) {
@@ -503,9 +549,12 @@ sub _hbr_noprobe {
 Send a consultation token to the owners; if accepted, the address is
 removed.
 
-We must also make a note that we have acted on a bounce from this address
-so that succeeding bounces don't generate additional tokens.  (They should
-generate statistics, however.)
+We also note that we have consulted the owner about this address, and if we
+see that we have already done so, we return without doing anything.  We
+don't care if we have sent a probe, because the probe may have been lost
+somewhere or may have made it through.  This enables probing at a normnal
+threshold and consultation at a higher threshold, so that the owner only
+gets bothered if automatic handling doesn't take care of the bounce.
 
 =cut
 use Mj::Token;
@@ -517,6 +566,7 @@ sub _hbr_consult {
   my ($bdata, $defaults, $notify, $token);
 
   # Check that a type 'C' bounce event does not exist for this address
+  $self->_make_list($args{list});
   $bdata = $self->{lists}{$args{list}}->bounce_get($args{user});
   return if $bdata->{'C'};
 
@@ -530,12 +580,13 @@ sub _hbr_consult {
 		   command  => 'unsubscribe',
 		   list     => $args{list},
 		   victim   => $args{user},
-		   user     => $self->_list_config_get($args{list}, 'sender'),
+		   user     => ($self->_list_config_get($args{list}, 'sender') .
+				" (automatic bounce processor)"),
 		   mode     => '',
 		   cmdline  => "unsubscribe $args{list} $args{user}",
 		   notify   => $notify,
 		   chain    => 0,
-		   expire   => 0,
+		   expire   => -1,
 		   arg1     => 'MAIN',
 		   #XXX Include some info from statistics
 		   reasons  => 'Address has bounced too many messages.',
@@ -551,7 +602,56 @@ sub _hbr_consult {
     );
 }
 
+=head2 _hbr_probe
 
+Send a bounce probe token to the bouncing address.  If it bounces, the
+address is removed (possibly after consultation).
+
+We also note that we have probed the address so that we do not continuously
+probe.  Also, we do not probe if a consultation token has been sent
+already.
+
+=cut
+use Mj::Token;
+use Mj::Util qw(n_build n_defaults);
+sub _hbr_probe {
+  my $self = shift;
+  my %args = @_;
+  my $log = new Log::In 100;
+  my (%tokenargs, $bdata, $default);
+  # Check that no type 'P' or type 'C' bounce event exists for this address
+  $bdata = $self->{lists}{$args{list}}->bounce_get($args{user});
+  return if $bdata->{'C'} || $bdata->{'P'};
+
+  $defaults = n_defaults('probe');
+  $notify = n_build($args{notify}, $defaults);
+  $notify->[0]{attach} = {file => $args{file}} if $notify->[0]{attach};
+
+  # Now create the token
+  $token =
+    $self->confirm(
+		   command  => 'bounceprobe',
+		   list     => $args{list},
+		   victim   => $args{user},
+		   user     => $self->_list_config_get($args{list}, 'sender'),
+		   mode     => $args{mode},
+		   cmdline  => "bounceprobe for $args{user} on $args{list}",
+		   chain    => 0,
+		   expire   => -1,
+		   notify   => $notify,
+		   #XXX Include some info from statistics
+		   reasons  => 'Address has bounced too many messages.',
+		  );
+
+  # And add a type P bounce event
+  $self->{lists}{$args{list}}->bounce_add
+    (addr   => $args{user},
+     subbed => 1,
+     time   => time,
+     type   => 'P',
+     evdata => $token,
+    );
+}
 
 sub _gen_bounce_message {
   my ($user, $args, $params, $actions) = @_;

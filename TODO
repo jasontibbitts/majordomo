@@ -1,8 +1,8 @@
-Various items discussed recently (2000.10.25) on mj2-dev.  Items should get
-added here when it is decided that something needs to be done, and removed
-when the folks who asked for the feature/fix have agreed that the feature
-is in/problem is fixed, or that the feature is not needed/problem really
-isn't a problem.
+Various items discussed recently (2000.10.25 and later) on mj2-dev.  Items
+should get added here when it is decided that something needs to be done,
+and removed when the folks who asked for the feature/fix have agreed that
+the feature is in/problem is fixed, or that the feature is not
+needed/problem really isn't a problem.
 
 ==================================
 Implemented, awaiting verification
@@ -29,22 +29,81 @@ to keep) mj_queuerun will maintain a status file named by prepending the
 message filename with a '.'.  In it is stored a single line with a single
 number: the attempt count.  No locking of the status file is necessary.
 
-This is implemented as requested.
+This is implemented as requested, but still needs tweaking.  The queue file
+should be saved off somewhere, and there needs to be some method of seeing
+just what's in the queue.
 
 
-Duplicate Elimination
----------------------
+Bounce Handling
+---------------
 
-Some code is in place to globally eliminate duplicates; when a message is
-posted to multiple lists, users who are on more than one of them only get
-one message if their class is set to "unique".  If the class is not unique
-on all lists, the behavior is variable depending on which list gets the
-message first.  If the user is in digest mode on one list and unique on the
-other, they will get a separate copy and a copy in the digest.  This is not
-technically difficult to change.
+Bounce handling is fully implemented, modulo bugs and tweaks.
 
-This is implemented.  The requesters of this feature have not commented on
-whether it satisfies their requirements.
+bounce_rules actions:
+
+ignore - don't tell the owner and don't remove the user
+inform - inform the list owner of the bounce but don't remove the user
+remove - remove the bouncing user and inform the owner
+  Modes for remove:
+    -quiet - don't inform the owner
+    -noprobe - don't send a bounce probe
+    -consult - ask the list owner before actually doing any removals
+    -noattach - don't attach a copy of the bounce (not implemented)
+
+Two kinds of messages:
+
+ 1) specify something to be sent to the owner
+ 2) specify the form of a bounce probe
+
+Statistics are always gathered when appropriate.
+
+bounce_rules variables:
+
+$failure - true if bounce indicates a failure
+$warning - true if bounce indicates a warning
+$consecutive - count of consecutive messages bounced
+
+$consecutive_days - number of days between first and last consecutive
+  bounces.  Use to ensure that not only is an address bouncing consecutive
+  messages, but that they are bouncing them over a long enough range of
+  time.
+
+$bouncedpct - percentage of messages bounced, determined by look at how
+  many messages have bounced between the first known bounce and the last.
+  Note that this is not an absolute indicator of how many messages have
+  bounced, since it make take a week or more to see bounces.  This means
+  that if an address bounces once, $bouncedpct is will be 100.  So, only
+  use $bouncedpct in conjunction with some other measure of bounces, such
+  as $month.  When used this way, $bouncedpct is quite useful in handling
+  addresses that bounce some constant percentage of messages but that you
+  don't want removed automatically.
+$day - the number of bounces in the past 24 hours.
+$week - the number of bounces in the past seven days.
+$month - the number of bounces in the last thirty days.
+$subscribed - true if the user is subscribed to the list
+$days_since_subscribe - the number of days since the address was added to
+  the list.
+$numbered - the number of numbered bounces seen.
+$span - the difference between the lowest and highest message bounced.
+
+$diagnostic - the actual diagnostic; match against this to try and
+  special-case certain types of bounces (not implenented)
+
+default:
+
+# Don't bother the owner with warnings
+ignore
+$warning
+
+# Delete users after 50 consecutive bounces
+remove
+$consecutive > 50
+
+# The default action is 'inform'; all bounces not matched by the above will
+# cause an informative message to be sent to the owner.
+
+
+
 
 
 ===========================
@@ -91,77 +150,6 @@ Wrapper Security
 
 The wrapper needs to sanitize as much of its environment as possible.  This
 involves making a list of needed env variables and deleting everything else.
-
-
-Bounce Handling
----------------
-
-Hook up bounce_rules execution when a bounce comes in.  Most of the
-infrastructure is in place for this.
-
-bounce_rules actions:
-
-ignore - don't tell the owner and don't remove the user
-inform - inform the list owner of the bounce but don't remove the user
-remove - remove the bouncing user and inform the owner
-  Modes for remove:
-    -quiet - don't inform the owner
-    -noprobe - don't send a bounce probe
-    -consult - ask the list owner before actually doing any removals (not implemented)
-    -noattach - don't attach a copy of the bounce (not implemented)
-  Currently, you must use remove-noprobe if you want users to be deleted.
-
-Two kinds of messages:
-
- 1) specify something to be sent to the owner
- 2) specify the form of a bounce probe
-
-Statistics are always gathered when appropriate.
-
-bounce_rules variables:
-
-$failure - true if bounce indicates a failure
-$warning - true if bounce indicates a warning
-$consecutive - count of consecutive messages bounced
-
-$consecutive_time_span - number of days between first and last consecutive
-  messages.  Use to ensure that not only is an address bouncing consecutive
-  messages, but that they are bouncing them over a long enough range of
-  time.  (not implemented yet)
-
-$bouncedpct - percentage of messages bounced, determined by look at how
-  many messages have bounced between the first known bounce and the last.
-  Note that this is not an absolute indicator of how many messages have
-  bounced, since it make take a week or more to see bounces.  This means
-  that if an address bounces once, $bouncedpct is will be 100.  So, only
-  use $bouncedpct in conjunction with some other measure of bounces, such
-  as $month.  When used this way, $bouncedpct is quite useful in handling
-  addresses that bounce some constant percentage of messages but that you
-  don't want removed automatically.
-$day - the number of bounces in the past 24 hours.
-$week - the number of bounces in the past seven days.
-$month - the number of bounces in the last thirty days.
-$subscribed - true if the user is subscribed to the list
-$days_since_subscribe - the number of days since the address was added to
-  the list.
-$numbered - the number of numbered bounces seen.
-$span - the difference between the lowest and highest message bounced.
-
-$diagnostic - the actual diagnostic; match against this to try and
-  special-case certain types of bounces (not implenented)
-
-default:
-
-# Don't bother the owner with warnings
-ignore
-$warning
-
-# Delete users after 50 consecutive bounces
-remove
-$consecutive > 50
-
-# The default action is 'inform'; all bounces not matched by the above will
-# cause an informative message to be sent to the owner.
 
 
 Uuencode and ms-tnef in the body as "attachments"
