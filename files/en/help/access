@@ -1,7 +1,39 @@
-WARNING: 'access' is a valid command, but has no help as of 18 Mar 2000
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+access
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+used only in "configset access_rules" for the GLOBAL pseudo-list
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-This command may not be implemented, or may be undocumented for a reason!
+The "access" command is used only in majordomo's access_rules 
+configuration setting, and only for the GLOBAL list. There must
+be several lines of data after the access command, as described
+by "help configset access_rules".
 
+The access command allows site managers to restrict access to all
+of majordomo's features to certain e-mail addresses. For example,
+a  site administrator could create an auxiliary group, badguys,
+and use this access_rule:
+ 
+configset GLOBAL access_rules << ENDTAG
+access
+deny, reply="Request denied.  Your address has been blacklisted."
+@badguys
+ENDTAG
+
+Then, anyone who repeatedly violated the site administrator's
+rules could be banned using the "auxadd" command. ALternatively,
+the banned users could be listed in the command itself, as with
+
+configset GLOBAL access_rules << ENDTAG
+access
+deny, reply="Request denied.  Your address has been blacklisted."
+joe@nowhere.com, jane@somewhere.com
+ENDTAG
+
+
+See Also:
+   help auxadd
+   help configset access_rules
 
 For a list of all help topics send this one-line message
    help topics
