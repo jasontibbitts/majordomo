@@ -345,7 +345,7 @@ my %commands =
    },
    'createlist' =>
    {
-    'parser' => [qw(email shell nohereargs real)],
+    'parser' => [qw(email shell real)],
     'dispatch' => {'top' => 1, 
                    'arguments' => {'newlist'   => {'type' => 'SCALAR',
                                                    'exclude' => 'regen'},
