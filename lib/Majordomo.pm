@@ -392,8 +392,7 @@ sub dispatch {
 
   }
   else {
-    $l = 'GLOBAL';
-    $sl = '';
+    ($l, $sl) = $self->valid_list($request->{'list'}, 0, 1);
   }
 
   return [0, "Illegal list: \"$request->{'list'}\".\n"]
@@ -2369,9 +2368,9 @@ sub put_start {
   $filedesc = "$request->{'ocontype'}\002$request->{'ocset'}\002$request->{'oencoding'}\002$request->{'olanguage'}";
   $request->{'arg3'} = $filedesc;
 
-  my $log = new Log::In 30, "$request->{'list'}, $request->{'file'}, 
-              $request->{'xdesc'}, $request->{'ocontype'}, $request->{'ocset'}, 
-              $request->{'oencoding'}, $request->{'olanguage'}";
+  my $log = new Log::In 30, "$request->{'list'}, $request->{'file'}, " . 
+            "$request->{'xdesc'}, $request->{'ocontype'}, $request->{'ocset'}, "
+              . "$request->{'oencoding'}, $request->{'olanguage'}";
 
 
   # Check the password
@@ -2381,7 +2380,7 @@ sub put_start {
     return ($ok, $mess);
   }
   
-  $filedesc =   "\002$request->{'ocontype'}\002$request->{'ocset'}\002$request->{'oencoding'}\002$request->{'olanguage'}";
+  $filedesc = "$request->{'ocontype'}\002$request->{'ocset'}\002$request->{'oencoding'}\002$request->{'olanguage'}";
 
   $self->_put($request->{'list'}, $request->{'user'}, $request->{'user'}, 
               $request->{'mode'}, $request->{'cmdline'}, $request->{'file'}, 
