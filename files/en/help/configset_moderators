@@ -53,6 +53,7 @@ See Also:
    help admin_moderate
    help auxiliary_list
    help configset_access_rules
+   help configset_moderate
    help configset_moderator_group
    help set
 
