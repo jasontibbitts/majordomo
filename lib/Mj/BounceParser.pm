@@ -478,7 +478,9 @@ sub parse_exchange {
   }
 
   # $line should now contain the address
-  return unless $line =~ /^\s*([^\s\@]+\@[^\s\@]+)\s+on/i;
+  return unless ($line =~ /^\s*([^\s\@]+\@[^\s\@]+)\s+on/i ||
+		 $line =~ /SMTP=([^\s\@]+\@[^\s\@]+);.*?\s+on/i);
+
   $user = $1;
 
   # The next line should contain the diagnostic

@@ -1,3 +1,8 @@
+2000-10-20  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/BounceParser.pm (parse_exchange): Parse a variant of the
+        exchange format.
+
 2000-10-19  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Config.pm (_defaults): When an eval of the defaults
