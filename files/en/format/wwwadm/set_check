@@ -1,14 +1,24 @@
 <!-- Majordomo set_check format file -->
 <h4 align=center>Settings for $FULLADDR</h4>
-  <input type="hidden" name="victims" value="$VICTIM">
+  <input type="hidden" name="victims" value="$STRIPADDR">
 
 <p>
-Once you have changed the personal settings,
-press the <b>set</b> button to make the changes permanent.<br>
-  <input type="submit" name="func" value="set">
+  Details about the delivery class and 13 personal settings appear
+  below.  If you change the class or the settings, press the <b>set</b>
+  button to make the changes permanent.
 </p>
-<p>
 
+<p>
+  To remove this address from the list without sending a
+  farewell message to $STRIPADDR, press the <b>unsubscribe</b> button.
+  To remove this address from the list and send a
+  farewell message, press the <b>unsubscribe-farewell</b> button.
+</p>
+
+<p>
+  <input type="submit" name="func" value="set">
+  <input type="submit" name="func" value="unsubscribe">
+  <input type="submit" name="func" value="unsubscribe-farewell">
 <dl>
   <dt>
   Delivery class:
