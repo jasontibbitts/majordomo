@@ -167,10 +167,10 @@ sub new {
   my $key;
 
   # Bail if creating an Addr from an Addr
-  return $val if ref($val) eq 'Mj::Addr';
+  return $val if (ref ($val) eq 'Mj::Addr');
 
   # Untaint
-  $val =~ /(.*)/; $val = $1;
+  $val =~ /(.*)/; $val = $1 || "";
   # Avoid database overlaps.
   $val =~ s/\001/^A/g;
 
@@ -179,7 +179,7 @@ sub new {
 #  my $log = new Log::In 150, $self->{'full'};
   bless $self, $class;
 
-  if ($val =~ /\@anonymous$/) {
+  if ($val =~ /(.+)\@anonymous$/) {
     $self->{'aliased'} = 1;
     $self->{'anon'} = 1;
     $self->{'parsed'} = 1;
@@ -188,6 +188,8 @@ sub new {
     $self->{'canon'} = $val;
     $self->{'strip'} = $val;
     $self->{'xform'} = $val;
+    $self->{'local_part'} = $1;
+    $self->{'domain'} = 'anonymous';
   }
 
   # Copy in defaults, then override.
@@ -243,7 +245,7 @@ sub separate {
   }
 }
 
-=head2 reset($addr)
+=head2 reset(addr)
 
 Clears out any cached data and resets the address to a new string.  This
 has less overhead than destroying and creating anew large numbers of
@@ -260,12 +262,61 @@ sub reset {
   delete $self->{'cache'};
   if ($addr) {
     $self->{'full'} = $addr;
-    delete $self->{'strip'};
-    delete $self->{'comment'};
-    delete $self->{'xform'};
-    delete $self->{'alias'};
-    delete $self->{'canon'};
+
+    if ($addr =~ /(.+)\@anonymous$/) {
+      $self->{'aliased'} = 1;
+      $self->{'anon'} = 1;
+      $self->{'parsed'} = 1;
+      $self->{'valid'} = 1;
+      $self->{'xformed'} = 1;
+      $self->{'canon'} = $addr;
+      $self->{'strip'} = $addr;
+      $self->{'xform'} = $addr;
+      $self->{'local_part'} = $1;
+      $self->{'domain'} = 'anonymous';
+    }
+
+    else {
+      delete $self->{'alias'};
+      delete $self->{'canon'};
+      delete $self->{'comment'};
+      delete $self->{'domain'};
+      delete $self->{'local_part'};
+      delete $self->{'strip'};
+      delete $self->{'xform'};
+      delete $self->{'valid'};
+      $self->{'parsed'} = 0;
+      $self->{'aliased'} = 0;
+      $self->{'xformed'} = 0;
+    }
   }
+}
+
+=head2 setcomment(comment)
+   
+This changes the comment portion of an address.  As a side effect, it
+will coerce the full address to route-address form.
+
+=cut
+sub setcomment {
+  my $self    = shift;
+  my $comment = shift;
+  my ($newaddr, $mess, $ok, $orig, $strip);
+
+  $comment =~ s/^\s*["'](.*)["']\s*$/$1/;
+
+  $strip = $self->strip;
+  $orig = $self->full;
+
+  $newaddr = qq("$comment" <$strip>);
+  $self->reset($newaddr);
+
+  ($ok, $mess) = $self->valid;
+  unless ($ok) {
+    $self->reset($orig);
+  }
+
+  return ($ok, $mess);
 }
 
 =head2 full
@@ -304,6 +355,36 @@ sub comment {
 
   $self->_parse unless $self->{parsed};
   $self->{'comment'};
+}
+
+=head2 local_part
+
+This routine returns the local part of an address.
+For example, the address "fred@example.com" has the local
+part "fred".
+
+=cut
+sub local_part {
+  my $self = shift;
+#  my $log = new Log::In 150, $self->{'full'};
+
+  $self->_parse unless $self->{parsed};
+  $self->{'local_part'};
+}
+
+=head2 domain
+
+This routine returns the domain of an address.
+For example, the address "fred@example.com" has the 
+domain "example.com".
+
+=cut
+sub domain {
+  my $self = shift;
+#  my $log = new Log::In 150, $self->{'full'};
+
+  $self->_parse unless $self->{parsed};
+  $self->{'domain'};
 }
 
 =head2 valid, isvalid
@@ -441,27 +522,31 @@ sub match {
 =head2 _parse
 
 Parse an address, extracting the valid flag, a syntax error (if any), the
-stripped address and the comments.
+stripped address, the comments, and the local part.
 
 =cut
 sub _parse {
   my $self = shift;
 
-  my ($ok, $v1, $v2) = $self->_validate;
+  my ($ok, $v1, $v2, $v3, $v4) = $self->_validate;
 
   if ($ok > 0) {
     $self->{'strip'}   = $v1;
     $self->{'comment'} = $v2;
+    $self->{'local_part'} = $v3;
+    $self->{'domain'}   = $v4;
     $self->{'valid'}   = 1;
-    $self->{message} = '';
+    $self->{'message'} = '';
   }
   else {
     $self->{'strip'}   = undef;
     $self->{'comment'} = undef;
+    $self->{'local_part'} = undef;
+    $self->{'domain'}  = undef;
     $self->{'valid'}   = 0;
-    $self->{message} = $v1;
+    $self->{'message'} = $v1;
   }
-  $self->{parsed} = 1;
+  $self->{'parsed'} = 1;
   $self->{'valid'};
 }
 
@@ -973,9 +1058,11 @@ to be a legal top-level domain.\n");
 
   my $addr = join("", @words);
   my $comm = join(" ", @comment) || "";
+  my $lp   = substr $addr, 0, $lhs_length;
+  my $dom  = substr $addr, -1, $rhs_length;
 
 #  $log->out('ok');
-  (1, $addr, $comm);
+  (1, $addr, $comm, $lp, $dom);
 }
 
 %top_level_domains =
@@ -1240,14 +1327,14 @@ to be a legal top-level domain.\n");
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
