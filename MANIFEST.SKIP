@@ -12,3 +12,6 @@ Makefile$
 .*.bak
 \.L.*
 TAGS
+CVS
+.cvsignore
+inst\..*
