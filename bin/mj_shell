@@ -25,17 +25,17 @@ BEGIN {
 use lib "$::LIBDIR";
 use strict;
 no strict "refs";
+use IO::File;
 use Majordomo;
 use Mj::Log;
 use Mj::Format;
 use Mj::Parser;
 use Mj::CommandProps qw(:command :function);
 use Net::Domain qw(hostfqdn);
-use IO::File;
 use Getopt::Long;
 
 use vars qw(%opts $log_entries $log_level $program_name);
-my (@cmdfiles, @in, $dom, $editor, $fh, $go, $i, $id, $infile, $infh,
+my (@cmdfiles, @in, $disp, $dom, $editor, $fh, $go, $i, $id, $infile, $infh,
     $lang, $list, $mess, $ok, $passw, $result, $tempfile, $tlist, $tmpg,
     $tmpu, $top);
 
@@ -51,6 +51,7 @@ umask oct($::UMASK);
 #  -F : parse commands from given file (multiple files may be used)
 #  -f : give attachment file
 #  -l : choose language
+#  -P : use a pager to display the results
 #  -p : specify password
 #  -R : dump requests sent to core and results received from core
 #  -t : specify directory containing domains
@@ -65,7 +66,7 @@ Getopt::Long::config('no_ignore_case', 'bundling');
 
 %opts = (ornaments => 1, aliascomplete => 0);
 GetOptions(\%::opts, 'D', 'd=s', 'F=s' => \@cmdfiles, 'f=s@', 'l=s@',
-           'p=s', 'R', 't=s', 'u=s', 'Z', 'id',
+           'P', 'p=s', 'R', 't=s', 'u=s', 'Z', 'id',
            'lockdir=s', 'ornaments!', 'aliascomplete!');
 
 #print Dumper \%opts;
@@ -120,6 +121,13 @@ if ($opts{D}) {
 if ($opts{R}) {
   require Data::Dumper;
   import Data::Dumper qw(Dumper);
+}
+
+if ($opts{P}) {
+  $disp = 'pager';
+}
+else {
+  $disp = '';
 }
 
 $::log->in(20, undef, "info", "Majordomo Shell client - ".scalar(localtime));
@@ -206,12 +214,12 @@ if (@cmdfiles) {
 # If we don't have any arguments left and we weren't given a command file,
 # we're to run interactively
 elsif (@ARGV == 0) {
-  parse_interactive(\@in, $passw);
+  parse_interactive(\@in, $passw, $disp);
 }
 # Else we're to interpret the command line
 else {
   ($go, $result) = parse_command(shift @ARGV, (join(' ', @ARGV)), $passw,
-                                 { 'user' => $user });
+                                 { 'user' => $user, 'display' => $disp });
 }
 
 $::log->message(50, "info", "-----Calling destructors-----");
@@ -225,7 +233,7 @@ exit 1;
 
 # A simple interactive routine.
 sub parse_interactive {
-  my ($in, $pass) = @_;
+  my ($in, $pass, $disp) = @_;
   my ($args, @arglist, $cmd, $cmdline, $defaults, $features, $go,
       $prompt, $res, $term);
 
@@ -242,6 +250,7 @@ sub parse_interactive {
   # values from default commands;
   $defaults = {
                'delay'    => 0,
+               'display'  => $disp,
                'password' => $pass,
                'user'     => $user,
               };
@@ -288,7 +297,7 @@ sub parse_command {
   my $pass    = shift;
   my $dfl     = shift;
   my @arglist = @_;
-  my ($list, $mode, $request, $sublist, $tlist);
+  my ($display, $list, $mode, $request, $sublist, $tlist);
   $pass ||= '';  $pass =~ /(.*)/; $pass = $1;
 
   unless ($command) {
@@ -362,6 +371,24 @@ sub parse_command {
       }
       print STDERR "Delay set to $dfl->{'delay'} seconds.\n";
     }
+    elsif ($command eq 'display') {
+      if (defined $args) {
+        if ($args =~ /^page/i) {
+          $dfl->{'display'} = 'pager';
+        }
+        elsif ($args =~ /^edit/i) {
+          $dfl->{'display'} = 'editor';
+        }
+        else {
+          print STDERR "Illegal display \"$args\".\n";
+          print STDERR "Valid display values are pager and editor.\n";
+        }
+      }
+      else {
+        $dfl->{'display'} = '';
+      }
+      print STDERR "Display was set to $dfl->{'display'}.\n";
+    }
     else {
       print STDERR "Illegal action \"$command\" for default.\n";
     }
@@ -383,34 +410,65 @@ sub parse_command {
 
   if ($true_command eq "configedit" or
       $true_command eq "get" and $mode =~ /edit/) {
+    $display = 'editor';
+  }
+  else {
+    $display = $dfl->{'display'};
+  }
 
-    # Pull the editor out of the environment and untaint it. This is safe
-    # because we only exec the editor as the calling user.
-    $editor = $ENV{EDITOR} || $ENV{VISUAL} || '/bin/vi';
-    $editor =~ /(.*)/;
-    $editor = $1;
-
+  if ($display eq 'pager' or $display eq 'editor') {
     # Switch UIDs, open a file, restore
     privs_user();
     ($tempfile, $fh) = tempfile();
     privs_mj();
+  }
+  else {
+    $fh = \*STDOUT;
+  }
 
-    $i = ($true_command eq 'configedit') ? 'configshow' : 'get_start';
+  if ($true_command eq 'configedit') {
+    $true_command = 'configshow';
+  }
 
-    $request = {
-      'command'   => $i,
-      'list'      => $list,
-      'mode'      => $mode,
-      'password'  => $pass || $dfl->{'password'},
-      'user'      => $dfl->{'user'},
-    };
-    Mj::Parser::parse_args($request, $args, \@arglist);
+  $request = {
+    'command'   => $true_command,
+    'delay'     => $dfl->{'delay'},
+    'list'      => $list,
+    'mode'      => $mode,
+    'password'  => $pass || $dfl->{'password'},
+    'user'      => $dfl->{'user'},
+  };
+  # XXX $in[0] is an attachment from global variable @in.
+  Mj::Parser::parse_args($request, $args, \@arglist, $in[0]);
+  if (function_prop($true_command, 'iter')) {
+    $request->{'command'} .= '_start';
+  }
 
-    $i = ($true_command eq 'configedit') ? 'configshow' : 'get';
+  if($opts{R}) {
+    print "Request:\n";
+    print Dumper($request);
+  }
+  $result = $mj->dispatch($request);
+  if ($opts{R}) {
+    print "Results:\n";
+    print Dumper($result);
+  }
 
-    $result =
-      &{"Mj::Format::$i"}($mj, $fh, $fh, 'text', $request,
-        $mj->dispatch($request));
+  &{"Mj::Format::$true_command"}($mj, $fh, $fh, 'text', $request, $result);
+
+  # If the 
+  if ($display eq 'pager' or $display eq 'editor') {
+    # Pull the editor out of the environment and untaint it. This is safe
+    # because we only exec the editor as the calling user.
+    if ($display eq 'editor') {
+      $editor = $ENV{EDITOR} || $ENV{VISUAL} || '/bin/vi';
+    }
+    else {
+      $editor = $ENV{PAGER} || '/usr/bin/more';
+    }
+  
+    $editor =~ /(.*)/;
+    $editor = $1;
 
     $fh->close;
     if ($result) {
@@ -420,30 +478,33 @@ sub parse_command {
       $ok = system("$editor $tempfile");
       privs_mj();
 
-      if ($ok) {  # system has reversed semantics...
-	print "Editor returned an error: $?\n";
-	$ok = prompt('Abort configedit?', 'yes');
-	if ($ok =~ /^n/i) {
-	  undef $ok; # Dirty trick
-	}
-      }
-      # Another dirty trick; do this if the system returned a null value
-      # (reversed semantics) or we cleared that after the abort prompt
-      # above.
-      if (!$ok) {
-	if ((stat("$tempfile"))[9] != $modtime) {
-	  # Switch, open, restore
-	  privs_user();
-	  $fh = new IO::File "$tempfile";
-	  privs_mj();
+      if ($display eq 'editor') {
+        if ($ok) {  # system has reversed semantics...
+          print "Editor returned an error: $?\n";
+          $ok = prompt('Abort configedit?', 'yes');
+          if ($ok =~ /^n/i) {
+            undef $ok; # Dirty trick
+          }
+        }
+        # Another dirty trick; do this if the system returned a null value
+        # (reversed semantics) or we cleared that after the abort prompt
+        # above.
+        if (!$ok) {
+          if ((stat("$tempfile"))[9] != $modtime) {
+            # Switch, open, restore
+            privs_user();
+            $fh = new IO::File "$tempfile";
+            privs_mj();
 
-	  $result = parse_file($fh, '', [], $user, $pass || $dfl->{'password'});
-	  $fh->close;
-	}
-	else {
-	  print "\nFile unchanged; not executing.\n";
-	}
+            $result = parse_file($fh, '', [], $user, $pass || $dfl->{'password'});
+            $fh->close;
+          }
+          else {
+            print "\nFile unchanged; not executing.\n";
+          }
+        }
       }
+      # just fall through if a pager was requested.
     }
     else {
       # Got bad result!
@@ -460,36 +521,7 @@ sub parse_command {
     unlink $tempfile;
     privs_mj();
   }
-
-  else {
-    $request = {
-      'command'   => $true_command,
-      'delay'     => $dfl->{'delay'},
-      'list'      => $list,
-      'mode'      => $mode,
-      'password'  => $pass || $dfl->{'password'},
-      'user'      => $dfl->{'user'},
-    };
-    # XXX $in[0] is an attachment from global variable @in.
-    Mj::Parser::parse_args($request, $args, \@arglist, $in[0]);
-    if (function_prop($true_command, 'iter')) {
-      $request->{'command'} .= '_start';
-    }
-
-    if($opts{R}) {
-      print "Request:\n";
-      print Dumper($request);
-    }
-    $result = $mj->dispatch($request);
-    if ($opts{R}) {
-      print "Results:\n";
-      print Dumper($result);
-    }
-
-    &{"Mj::Format::$true_command"}($mj, \*STDOUT, \*STDOUT,
-                                   'text', $request, $result);
-    return (1, $result);
-  }
+  return (1, $result);
 }
 
 sub parse_file {
@@ -849,6 +881,13 @@ considered separately from tags, so in the Nynorsk example above, plain
 Norwegian would not be returned unless it was listed as an additional
 preference.
 
+=item B<-P>
+
+Use a pager to display the results.  It is also possible to achieve this
+effect in interactive mode with the following command:
+
+  default display pager
+
 =item B<-p> I<password>
 
 Specifies a password that a command will be run with, or the default
@@ -922,7 +961,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
