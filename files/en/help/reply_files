@@ -103,11 +103,6 @@ for more details).
  VICTIM)
 
 
-confirm_noweb
-------------
-Like confirm, for sites that run Majordomo without WWW support.
-
-
 consult
 -------
 This file is sent when a request requires the approval of one or
@@ -118,11 +113,6 @@ may be used by customizing the access_rules configuration setting
 
 (standard plus APPROVALS, ARG1, ARG2, ARG3, CMDLINE, COMMAND, EXPIRE,
  FULFILL, REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, URL, VICTIM)
-
-
-consult_noweb
--------------
-Like consult, for sites that run Majordomo without WWW support.
 
 
 delay
@@ -137,11 +127,6 @@ file may be used by customizing the access_rules configuration setting
 (standard plus APPROVALS, ARG1, ARG2, ARG3, CMDLINE, COMMAND, EXPIRE,
  FULFILL, NOTIFY, REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, URL, 
  VICTIM)
-
-
-delay_noweb
------------
-Like delay, for sites that run Majordomo without WWW support.
 
 
 digest_preindex
