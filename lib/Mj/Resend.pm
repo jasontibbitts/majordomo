@@ -183,16 +183,12 @@ sub post {
 	 $file, join("\002", @$reasons), join("\002", %$avars), %$avars);
   }
 
-  # If we got an empty return message, this is a signal not to ack anything
-  # and so we just return;
-  return $ok unless length $mess;
-
   $owner = $self->_list_config_get($list, 'sender');
   if ($ok > 0) {
     return $self->_post($list, $user, $user, $mode, $cmd,
 			$ent, '', join("\002", %$avars));
   }
-  
+
   # Some substitutions will be done by the access routine, but we have
   # extensive information about the message here so we can do some more.
   $subs = {LIST    => $list,
@@ -204,6 +200,11 @@ sub post {
   $ack_attach = $self->_list_config_get($list, 'ack_attach_original');
 
   # We handled the OK case, so we have either a stall or a denial.
+  # If we got an empty return message, this is a signal not to ack anything
+  # and so we just return;
+  return $ok unless defined $mess && length $mess;
+
+  # Otherwise, decide what to ack
   # Stall:  ack if flags say so
   # Denial: ack if flags say so or if ack_denials_always is set
   if ($self->{'lists'}{$list}->flag_set('ackimportant', $user)
