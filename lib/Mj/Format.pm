@@ -653,6 +653,10 @@ sub unalias {
   $ok>0;
 }
 
+sub unregister {
+  g_sub('unreg', @_);
+}
+
 sub unsubscribe {
   g_sub('unsub', @_);
 }
@@ -813,6 +817,9 @@ sub g_sub {
   }
   elsif ($act eq 'reg') {
     $act = 'registered'; $list = '';
+  }
+  elsif ($act eq 'unreg') {
+    $act = 'unregistered and removed from all lists'; $list = '';
   }
   else {
     $act = 'removed from ';

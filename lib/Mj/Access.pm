@@ -42,11 +42,11 @@ negative number if it is a user password, used to bypass identity
 confirmation.  If the password happens to be both kinds of passwords, the
 strongest (most positive) possible value will be returned.
 
-In addition, positive values can be discriminated: the global master
-password returns a value of 4; global subsidiary passwords return 3; list
-master passwords return 2 and list subsidiary passwords return 1.  These
-values may change in the future; generally a check for a positive value is
-sufficient.
+In addition, positive values can be discriminated: the site password
+returns a value of 5; the global master password returns 4; global
+subsidiary passwords return 3; list master passwords return 2 and list
+subsidiary passwords return 1.  These values may change in the future;
+generally a check for a positive value is sufficient.
 
 Visibility should be handled elsewhere; this routine just shouldn''t be
 called for visible variables unless it''s to check ahead of time if they

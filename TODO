@@ -22,9 +22,6 @@ Messages with empty first part always checksum the same?
 Top of the list 
 ---------------
 
-! Master address database:
-  unregister - leave all lists and delete registration entry
-
 ! Utility method to set the default language from the interface.
   Check the user's chosen language.  Should the language used be that of
   the victim or the requester?  The requester will see the immediate

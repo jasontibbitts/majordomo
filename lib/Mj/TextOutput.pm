@@ -153,10 +153,9 @@ sub auxremove {
   # Untaint $file;
   $file =~ /(.*)/;
   $file = $1;
-  
-  g_remove($mj, $name, $user, $passwd, $auth, $interface,
-	   $infh, $outfh, $mode, $list, $file, 1,
-	   @addresses);
+
+  g_remove('auxremove', $mj, $name, $user, $passwd, $auth, $interface,
+	   $infh, $outfh, $mode, $list, $file, 1, @addresses);
 }
 
 =head2 auxwho
@@ -922,6 +921,20 @@ sub unalias {
 		     );
 }
 
+sub unregister {
+  my ($mj, $name, $user, $passwd, $auth, $interface,
+      $infh, $outfh, $mode, $list, $args, @arglist) = @_;
+  my $log = new Log::In 27, "$args";
+  my (@addresses);
+  
+  $addresses[0] = $args;
+  @addresses = @arglist unless $args;
+  @addresses = ($user) unless @addresses;
+
+  g_remove('unregister', $mj, $name, $user, $passwd, $auth, $interface,
+	   $infh, $outfh, $mode, $list, undef, undef, @addresses);
+}
+
 sub unsubscribe {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
@@ -932,9 +945,8 @@ sub unsubscribe {
   @addresses = @arglist unless $args;
   @addresses = ($user) unless @addresses;
 
-  g_remove($mj, $name, $user, $passwd, $auth, $interface,
-	   $infh, $outfh, $mode, $list, undef, undef,
-	   @addresses);
+  g_remove('unsubscribe', $mj, $name, $user, $passwd, $auth, $interface,
+	   $infh, $outfh, $mode, $list, undef, undef, @addresses);
 }
 
 sub which {
@@ -1019,7 +1031,7 @@ This handles the internals of the unsubscribe and auxunsubscribe commands.
 
 =cut
 sub g_remove {
-  my ($mj, $name, $user, $pass, $auth, $int,
+  my ($type, $mj, $name, $user, $pass, $auth, $int,
       $infh, $outfh, $mode, $list, $file, $aux,
       @addresses) = @_;
   my (@good, @bad, @maybe, @out, $ok, $mess, $i, $key);
@@ -1028,18 +1040,28 @@ sub g_remove {
     $i = $infh ? $infh->getline : shift @addresses;
     last unless $i;
     chomp $i;
-    
-    if ($aux) {
+
+warn "$type";
+    if ($type eq 'auxremove') {
       ($ok, @out) =
 	$mj->dispatch('auxremove', $user, $pass, $auth, $int, 
-		      "auxunsubscribe".($mode?"=$mode":"")." $list $file $i",
+		      "auxremove".($mode?"-$mode":"")." $list $file $i",
+		      $mode, $list, $i, $file);
+    }
+    elsif ($type eq 'unsubscribe') {
+      ($ok, @out) = 
+       $mj->dispatch('unsubscribe', $user, $pass, $auth, $int,
+		     "unsubscribe".($mode?"-$mode":"")." $list $i",
+		     $mode, $list, $i);
+    }
+    elsif ($type eq 'unregister') {
+      ($ok, @out) =
+	$mj->dispatch('unregister', $user, $pass, $auth, $int, 
+		      "unregister".($mode?"-$mode":"")." $i",
 		      $mode, $list, $i, $file);
     }
     else {
-      ($ok, @out) = 
-       $mj->dispatch('unsubscribe', $user, $pass, $auth, $int,
-		     "unsubscribe".($mode?"=$mode":"")." $list $i",
-		     $mode, $list, $i);
+      $::log->abort("g_remove called illegally!");
     }
 
     # Successful removals carry no message, so we just add blanks
@@ -1057,15 +1079,25 @@ sub g_remove {
     }
   }
   
-  # For auxlist stuff, just report the auxlist as the list name
-  $list = $file if $aux;
-
-  # Note that the command line and the victim are useless because
-  # there can be many addresses
-  return
-    Mj::Format::unsubscribe($mj, $outfh, $outfh, 'text', $user, $pass, $auth,
-			  $int, 'useless', $mode, $list, 'useless',
-			  \@good, \@bad, \@maybe);
+  if ($type eq 'auxremove') {
+    # For auxlist stuff, just report the auxlist as the list name
+    $list = $file if $aux;
+    $type = 'unsubscribe';
+  }
+  if ($type eq 'unsubscribe') {
+    # Note that the command line and the victim are useless because
+    # there can be many addresses
+    return
+      Mj::Format::unsubscribe($mj, $outfh, $outfh, 'text', $user, $pass, $auth,
+			      $int, 'useless', $mode, $list, 'useless',
+			      \@good, \@bad, \@maybe);
+  }
+  else { # unregister
+    return
+      Mj::Format::unregister($mj, $outfh, $outfh, 'text', $user, $pass, $auth,
+			      $int, 'useless', $mode, $list, 'useless',
+			      \@good, \@bad, \@maybe);
+  }
 }
 
 =head1 COPYRIGHT

@@ -402,16 +402,22 @@ my %commands =
 		   'actions' => \%reg_actions,
 		  },
    },
-
-# XXX Unregister
-
-
+   'unregister' =>
+   {
+    'parser'   => [qw(email shell real)],
+    'dispatch' => {'top' => 1, 'noaddr' => 1},
+    'access'   => {
+		   'default' => 'confirm',
+		   'legal'   =>\%reg_legal,
+		   'actions' =>\%reg_actions,
+		  },
+   },
    'unsubscribe' =>
    {
     'parser'   => [qw(email shell list all real)],
     'dispatch' => {'top' => 1, 'noaddr' => 1},
     'access'   => {
-		   'default' => 'mismatch',
+		   'default' => 'confirm',
 		   'legal'   =>\%reg_legal,
 		   'actions' =>\%reg_actions,
 		  },

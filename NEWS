@@ -3,6 +3,9 @@
 Here you'll find information on major changes.  (Read the ChangeLog
 for the boring stuff.)  Items at the top are newer.
 
+The user can be removed from the registration database and all lists at
+once with the 'unregister' command.
+
 There is a single, site-wide password that works as a global password for
 all domains.  It is set at install time and is changed by rerunning make
 install.

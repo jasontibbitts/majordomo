@@ -77,7 +77,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform);
-$VERSION = "0.1199809200";
+$VERSION = "0.1199809201";
 
 use strict;
 no strict 'refs';
@@ -1834,7 +1834,6 @@ sub _list_file_get {
     }
     # The list shares with us, so we can get the file.  Handle the special
     # stock list first:
-warn "$l";
     if ($l eq 'STOCK') {
       @out = $self->_get_stock($f);
     }
@@ -3344,6 +3343,80 @@ sub _unalias {
   
   ($key, $data) = $self->{'alias'}->remove('', $source->xform);
   return !!$key;
+}
+
+=head2 unregister
+
+This removes a user from the master address database.  It also deletes the
+registration entry, in effect wiping the user from all databases.
+
+=cut
+sub unregister {
+  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
+      $list, $addr) = @_;
+  my $log = new Log::In 30, "$addr";
+  my (@out, @removed, $mismatch, $ok, $regexp, $error, $key, $data);
+
+  $user = new Mj::Addr($user);
+
+  unless ($mode =~ /regex/) {
+    # Validate the address
+    $addr = new Mj::Addr($addr);
+    ($ok, $error) = $addr->valid;
+    unless ($ok) {
+      $log->out("failed, invalidaddr");
+      return (0, "Invalid address:\n$error");
+    }
+  }
+
+  if ($mode =~ /regex/) {
+    $mismatch = 0;
+    $regexp   = 1;
+    # Untaint the regexp
+    $addr =~ /(.*)/; $addr = $1;
+  }
+  else {
+    $mismatch = !($user eq $addr);
+    $regexp   = 0;
+  }
+  ($ok, $error) =
+    $self->global_access_check($passwd, $auth, $interface, $mode, $cmdline,
+			     'unregister', $user, $addr, '','','',
+			     'mismatch' => $mismatch,
+			     'regexp'   => $regexp,
+			    );
+  unless ($ok>0) {
+    $log->out("noaccess");
+    return ($ok, $error);
+  }
+  
+  $self->_unregister($list, $user, $addr, $mode, $cmdline);
+}
+
+sub _unregister {
+  my($self, $list, $requ, $vict, $mode, $cmd) = @_;
+  my $log = new Log::In 35, "$list, $vict";
+  my(@out, @removed, $data, $key, $l);
+
+  (@removed) = $self->{'reg'}->remove($mode, $vict->canon);
+
+  unless (@removed) {
+    $log->out("failed, nomatching");
+    return (0, "No matching addresses.\n");
+  }
+
+  while (($key, $data) = splice(@removed, 0, 2)) {
+    $key = new Mj::Addr($key);
+
+    # Remove from all subscribed lists
+    for $l (split("\002", $data->{'lists'})) {
+      $self->_make_list($l);
+      $self->{'lists'}{$l}->remove('', $key);
+    }
+    push (@out, $data->{'fulladdr'});
+  }
+
+  return (1, @out);
 }
 
 =head2 unsubscribe(..., mode, list, address)

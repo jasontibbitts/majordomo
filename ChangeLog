@@ -1,5 +1,22 @@
 Sun Sep 20 11:16:24 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Mj/CommandProps.pm: Change default actions for unreg and
+ 	unsub to 'confirm'.
+
+	* files/en/help/commands: Added register, unregister and tweaked
+ 	some instructions.
+
+	* lib/Mj/Format.pm (g_sub): Deal with 'unregistered' action.
+
+	* lib/Majordomo.pm (unregister): New function; remove a user from
+ 	the reg database and all lists.
+
+	* lib/Mj/TextOutput.pm (g_remove): Take $type as 1st arg; use it
+ 	to determine which removal function to use.
+	(auxremove, unsubscribe): Call g_remove with proper type.
+
+	* lib/Mj/CommandProps.pm: Added definition of unregister command.
+
 	* lib/Majordomo.pm,lib/Mj/Access.pm,lib/Mj/Config.pm,lib/Mj/MailOut.pm,
 	* lib/Mj/TextOutput.pm,lib/Mj/Token.pm:
  	Turn on AutoLoader.

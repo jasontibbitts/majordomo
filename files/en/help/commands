@@ -70,9 +70,11 @@ faq list
   if one is available
 
 
-get list file
+get list file address (-immediate)
 -------------
-  This retrieves the given file from the list's file storage.
+  This retrieves the given file from the list's file storage.  The file
+  will be mailed to the supplied address unless the -immediate option is
+  used, in which case the file will be returned directly.
 
 
 help topic subtopic ...
@@ -105,6 +107,16 @@ lists (-enhanced, -short, -tiny)
   information, including an indication of whether you are subscribed to each
   list.  The short mode uses only short descriptions.  The tiny mode includes
   only the list names and nothing else.
+
+
+register address (-nowelcome)
+----------------
+  This adds an address to the registration database without adding it to
+  any lists.
+
+    Example:  register nobody@example.com
+
+    See Also:  unregister
 
 
 reject [token]
@@ -146,8 +158,9 @@ show address
 
 subscribe list address (-nowelcome)
 ----------------------
-  This adds the address to the given list.  The 'nowelcome' option prevents
-  the server from sending the welcome message that is usually mailed to new
+  This adds the address to the given list and to the registration database
+  if not already registered.  The 'nowelcome' option prevents the server
+  from sending the welcome message that is usually mailed to new
   subscribers.
 
     Examples:  subscribe scooters
@@ -163,11 +176,26 @@ unalias list address
     See Also:  alias
 
 
+unregister address
+------------------
+  This removes the given address from the registration database and from
+  every list that it might be subscribed to.
+
+    Example:  unregister someone@example.com
+
+    See Also:  register, unsubscribe
+
+
 unsubscribe list address
 ------------------------
-  Removes an address or addresses from the given list.
+  Removes an address or addresses from the given list.  Even after the
+  address has been removed from all lists, it will still exist in the
+  registration database.  This allows a user to leave one list and join
+  another without obtaining a new personal password.
 
     Example:  unsubscribe scooters buster@foo.com
+
+    See Also:  subscribe, unregister
 
 
 which string (-regexp)
