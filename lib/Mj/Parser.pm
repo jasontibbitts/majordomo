@@ -671,16 +671,8 @@ sub add_deflist {
   $list = $1;
   $line = $2 || "";
 
-  return "$deflist $list$line" unless
-    $mj->legal_list_name($list);
-
-
   # XXX Possibly allow "list@host" and "list" to be equal?
-  if (grep {$list eq $_}
-      $mj->get_all_lists($reply_to, undef, undef, "email"))
-    {
-      return "$list$line";
-    }
+  return "$list$line" if ($mj->valid_list($list, 1, 1));
 
   return "$deflist $list$line";
 }
