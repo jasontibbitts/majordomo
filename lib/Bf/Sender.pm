@@ -177,11 +177,14 @@ sub any_probe_sender ($$$$) {
   my $type=shift;
   my $addr=shift;
 
+  # Trim any existing mailbox argument
+  $sender =~ s/\Q$tag\E[^@]*//;
+
   $addr=~/(.*)\@(.*)/;
   my $info="$tag$type=$2=$1";
   $sender=~/([^@]*)(.*)/;
   if (length($1)+length($info)>63) {
-    $info="$tag$type".make_abbrev($addr);
+    $info="$tag$type=".make_abbrev($addr);
   }
   return "$1$info$2";
 }
