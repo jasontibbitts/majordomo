@@ -1205,6 +1205,11 @@ sub substitute_vars_format {
   # The ghost is a copy of the initial string without any of
   # the scalar substitution variables.  It is used to ease
   # iteration for array values.
+  #
+  # Newlines are replaced to maintain alignment between the 
+  # original and the ghost after substitution.
+
+  $str =~ s/\n/\002\001/g;
   $ghost = $str;
 
   # Track the number of data elements in each substitution value
@@ -1247,6 +1252,7 @@ sub substitute_vars_format {
   # if no arrays are present, restore newlines and return.
   unless (keys %subcount) {
     $str =~ s/\\\$/\$/g;
+    $str =~ s/\002\001/\n/g;
     return $str;
   }
 
@@ -1300,8 +1306,8 @@ sub substitute_vars_format {
   }
 
 
-  @lines = split "\n", $str;
-  @ghost = split "\n", $ghost;
+  @lines = split "\002\001", $str;
+  @ghost = split "\002\001", $ghost;
   # Split the input string into lines, and make substitutions
   # on each line.
   LINE:
@@ -1317,7 +1323,7 @@ sub substitute_vars_format {
     for $i (keys %subcount) {
       # Variables starting with question marks will cause
       # the line to be ignored if the variable is unset.
-      if ($line =~ /([^\\]|^)\?\Q$i\E(?![A-Z_])/) {
+      if ($line =~ /([^\\]|^)\?\Q$i\E(?![A-Z_])/m) {
         if ($table[0]->{$i} eq '') {
           next LINE;
         }

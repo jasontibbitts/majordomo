@@ -1,3 +1,9 @@
+2003-09-22  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (substitute_vars_format)  Bugfix:
+	Restore newline replacement trick to preserve formatting
+	alignment.  Thanks to Roger Klorese.
+
 2003-09-18  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (substitute_vars_format)  Bugfix:
@@ -1756,7 +1762,7 @@
 	* lib/Mj/Format.pm:  (archive)  Add message-specific formatting
 	for the archive-get-immediate command.
 
-	* lib/Mj/List.pm:   (archive_get_neighbors)  Add a wrapper
+	* lib/Mj/List.pm:  (archive_get_neighbors)  Add a wrapper
 	for Mj::Archive::get_neighbors().
 
 	* lib/Mj/Resend.pm:  (_post)  Change the ARCHIVE substitution
@@ -4228,7 +4234,7 @@
 
 	* lib/Mj/Access.pm:  (list_access_check)  The data used to 
 	check time constraints on access rules are now a list
-	of lists rather than a scalar value.   Treat the master_password
+	of lists rather than a scalar value.  Treat the master_password
 	variable as an integer instead of a boolean value.  This
 	allows administrative passwords to be differentiated by type.
 
@@ -4474,7 +4480,7 @@
 	templates.  Demonstrate the use of here documents with the
 	subscribe and unsubscribe commands.
 
-	* lib/Majordomo.pm:   (common_subs)  New routine.  Find the
+	* lib/Majordomo.pm:  (common_subs)  New routine.  Find the
 	addresses that are present in two or more subscriber lists.
 	(config_get_vars)  Make non-secure settings of DEFAULT lists
 	visible.
@@ -5474,7 +5480,7 @@
 
 2000-07-07  Michael Yount <csf@moscow.com>
 
-	* lib/Mj/Parser.pm (parse_args):   Deal with attachments.  If a command 
+	* lib/Mj/Parser.pm (parse_args):  Deal with attachments.  If a command 
 	accepts here arguments and is iterated,  set the appropriate request
 	variable to the attachment file handle.  Otherwise, read
 	the data from the file handle into the argument array.
