@@ -2785,11 +2785,20 @@ XXX More flags to come: D=digest available,
 Enhanced mode is terribly inefficient as it checks every list for
 membership.
 
+The rules for choosing a description are as follows:
+
+Compact mode:
+  description or first line of description_long
+
+Other modes having descriptions:
+  (description_max_lines || all) of description_long or description
+
 =cut
 sub lists {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode) = @_;
   my $log = new Log::In 30, "$mode";
-  my (@out, $cat, $count, $desc, $err, $flags, $limit, $list, $ok);
+  my (@lines, @out, $cat, $compact, $count, $desc, $err, $flags, $limit,
+      $list, $ok);
 
   # Stuff the registration information to save lots of database lookups
   $self->_reg_lookup($user);
@@ -2806,21 +2815,28 @@ sub lists {
   $limit =  $self->_global_config_get('description_max_lines');
 
   if ($mode =~ /compact/) {
-    $limit = 1;
+    $compact = 1;
   }
 
   for $list ($self->get_all_lists($user, $passwd, $auth, $interface)) {
+    @lines = $self->_list_config_get($list, "description_long");
     $cat   = $self->_list_config_get($list, 'category');;
     $desc  = '';
     $flags = '';
 
-    $count = 1;
-    for ($self->_list_config_get($list, "description_long")) {
-      $desc .= "$_\n";
-      $count++;
-      last if $limit && $count > $limit;
+    if ($compact) {
+      $desc = $self->_list_config_get($list, "description");
+      $desc ||= $lines[0];
     }
-    $desc ||= $self->_list_config_get($list, "description");
+    else {
+      $count = 1;
+      for (@lines) {
+	$desc .= "$_\n";
+	$count++;
+	last if $limit && $count > $limit;
+      }
+      $desc ||= $self->_list_config_get($list, "description");
+    }
 
     if ($mode =~ /enhanced/) {
       $flags .= 'S' if $self->is_subscriber($user, $list);

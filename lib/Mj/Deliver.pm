@@ -119,10 +119,6 @@ sub deliver {
   my $list   = $args{list};
   my $chunk  = $args{chunk};
 
-  my $safe = new Safe;
-  $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
-#  $safe->share('$addr');
-
   # Make a hash so we can tell if an address is to be excluded quickly
   for $i (@{$args{exclude}}) {
     $exclude{$i} = 1;
@@ -189,7 +185,7 @@ sub deliver {
       $probeit =
 	($args{probe} &&
 	 ($args{probeall} ||
-	  ($args{regexp} && _re_match($safe, $args{regexp}, $addr)) ||
+	  ($args{regexp} && Majordomo::re_match($args{regexp}, $addr)) ||
 	  (defined $args{bucket} &&
 	   $args{bucket} == (unpack("%16C*", $addr) % $args{buckets})
 	  )));

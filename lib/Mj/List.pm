@@ -42,6 +42,8 @@ use vars (qw($addr %flags %noflags %classes));
    'hideaddress'  => ['hideall',      2,0,'h'],
    'showall'      => ['hideall',      1,0,'' ],
    'eliminatecc'  => ['eliminatecc',  0,1,'C'],
+   'prefix'       => ['prefix',       0,1,'P'],
+   'replyto'      => ['replyto',      0,1,'R'],
   );
 
 # Special inverse descriptions
@@ -57,7 +59,6 @@ use vars (qw($addr %flags %noflags %classes));
   (
    'each'     => ['each',   0, "each message"],
    'single'   => ['each',   0],
-   'high'     => ['each',   0, "messages at high priority"],
    'all'      => ['all',    0, "all list traffic"],
    'digest'   => ['digest', 2, "messages in a digest"],
    'nomail'   => ['nomail', 1, "no messages"],

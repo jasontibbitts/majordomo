@@ -28,6 +28,43 @@ Untainting sometimes happens in the wrong place; in a C/S model, we won't
 Top of the list 
 ---------------
 
+Delivery engine rewrite:
+
+The idea is to dump a collection of messages on the delivery engine with a
+description of which addresses get which messages.  Try to scan the list of
+addresses only once, because this takes time.  Time to stuff the various
+addresses into the buckets is probably negligible.
+
+Need to look at class, classarg1, classarg2, flags (reply_to or not,
+subject_prefix or not).
+
+class each: replyto+prefix, replyto, prefix, (neither)
+class digest: one for each defined digest, times one for each digest type
+   (MIME, 1153, index)
+class nomail: gets no mail
+class all: gets everything.
+
+Allocate buckets and probers for each message to mail.
+Generate class choosing function: find is top-level class in a hash.
+
+Pull a chunk of addresses from the database.
+Pull an address.
+Construct the full class name:
+  (look at flags for 'each'):
+  each-replyto-prefix
+  each-replyto-noprefix
+  each-noreplyto-prefix
+  each-noreplyto-noprefix
+
+  (look at classarg1, classarg2 for digest)
+  digest-{name}-{type}
+
+If the class exists in the delivery list:
+  check exclude list
+  place in proper
+
+
+
 Access: call Mj::is_subscriber instead of List::is_subscriber.
 
 Pass stripped address to access restriction language: $svictim =

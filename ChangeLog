@@ -1,3 +1,15 @@
+Mon Nov 23 00:36:07 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (lists): Make compact mode prefer description
+ 	over description_long[0].
+
+	* lib/Mj/List.pm: Add 'prefix' and 'replyto' flags.
+
+Sun Nov 22 12:15:59 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Deliver.pm (deliver): Call the one true regexp matching
+ 	routine.
+
 Sat Nov 21 12:51:27 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Majordomo.pm: Bump version in preparation for snapshot.

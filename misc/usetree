@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl-latest -w
+#!/usr/bin/perl -w
 
 # A hack to generate an XVCG graph description for the module useage of a
 # module/script/program.
