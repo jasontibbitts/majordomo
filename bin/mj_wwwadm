@@ -225,21 +225,8 @@ exit 0;
 #---------------- Subroutines -----------------#
 sub format_print {
   my $file = shift;
-  my ($line, $token, $url);
-
-  if ($func eq 'tokeninfo') {
-    print STDOUT <<EOM;
-<form action=$cgiurl method=POST>
-<input type=submit name=func value=accept>
-<input type=submit name=func value=accept-archive>
-<input type=submit name=func value=reject>
-<input type=hidden name=extra value='$extra'>
-<input type=hidden name=list value=$list>
-<input type=hidden name=passw value=$passw>
-<input type=hidden name=st value=$st>
-</form>
-EOM
-  }
+  my ($line, $token, $summarize, $hdrs);
+  $summarize = $hdrs = 0;
 
   $fh = new IO::File "<$file";
   if (! $fh) { 
@@ -252,32 +239,55 @@ EOM
     $line =~ s/([<>\"&])/\&$esc{$1};/mg; 
     $line =~ s/([\x80-\xFF])/'&#'.unpack('C',$1).';'/eg;
     if ($line =~ /(Token  )(.*)/) {
-      # hack to keep columns in order in showtokens output.
-      $line = $1 . " " x 13 . $2 . "\n";
+      print STDOUT <<EOM;
+</pre>
+<form method=POST action=$cgiurl>
+<input type=submit name=func value="tokeninfo-full">
+<input type=submit name=func value="tokeninfo">
+<input type=submit name=func value="accept">
+<input type=submit name=func value="accept-archive">
+<input type=submit name=func value="reject">
+<input type=hidden name=st value=$st>
+<input type=hidden name=list value=$list>
+<input type=hidden name=passw value=$passw>
+<br>
+Choose one request from the list below,
+then press one of the buttons above.
+<pre>
+EOM
+      $summarize = 1;
+      next;
+    }
+    elsif ($func eq 'tokeninfo' and $line =~ /^Information about the session /) {
+      print STDOUT "<small>\n";
+      $hdrs = 1;
+    }
+    elsif ($hdrs and $line =~ /^$/) {
+      print STDOUT "</small></pre>\n";
+      print STDOUT <<EOM;
+<form action=$cgiurl method=POST>
+<input type=submit name=func value=accept>
+<input type=submit name=func value=accept-archive>
+<input type=submit name=func value=reject>
+<input type=hidden name=extra value='$extra'>
+<input type=hidden name=list value=$list>
+<input type=hidden name=passw value=$passw>
+<input type=hidden name=st value=$st>
+</form>
+<pre>
+EOM
+      $hdrs = 0;
     }
     # add link to tokeninfo if a token is present
     elsif ($line =~ /^([0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4})/) {
       $token = $1;
-      $url = "$cgiurl?extra=$token";
-      $url .= "&list=$list" if ($list ne '');
-      $url .= "&st=$st" if ($st ne '');
-      $line =~ s/$token//;
-      my ($tmp) = $line;
-      chomp $tmp;
-      $line = "<form method=POST action=$cgiurl>" .
-              "<input type=submit name=func value=tokeninfo>" .
-              "<input type=submit name=func value=accept>" .
-              "<input type=submit name=func value=reject>" .
-              "<input type=hidden name=extra value=$token>" .
-              "<input type=hidden name=st value=$st>" .
-              "<input type=hidden name=list value=$list>" .
-              "<input type=hidden name=passw value=$passw>" .
-               $tmp . "</form>\n";
+      $line = "<input type=radio name=extra value=$token>$line";
     }
     print STDOUT $line;
   }
   $fh->close();
   print STDOUT "</pre>\n";
+  print STDOUT "</form>\n" if $summarize;
 }
 
 =head1 COPYRIGHT
