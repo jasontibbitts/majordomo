@@ -3096,6 +3096,10 @@ sub who {
     print $out "$str\n";
   }
 
+  if ($type =~ /^w/ and $request->{'mode'} !~ /enhanced|summary/) {
+    print $out "<pre>\n";
+  }
+
   $request->{'command'} = "who_chunk";
   if (exists ($request->{'start'}) and ($request->{'start'} > 1)) {
     # discard results
@@ -3260,27 +3264,37 @@ sub who {
 
   $request->{'command'} = "who_done";
   $mj->dispatch($request);
-  
+ 
+  if ($type =~ /^w/ and $request->{'mode'} !~ /enhanced|summary/) {
+    print $out "</pre>\n";
+  }
+ 
   if ($request->{'mode'} =~ /summary/) {
-    print $out "<pre>\n" if ($type =~ /^www/);
 
+    $gsubs->{'TOTAL'} = $stats{'TOTAL'};
     if ($request->{'list'} ne 'GLOBAL' or $request->{'sublist'} ne 'MAIN') {
-      print $out sprintf("%-12s %s\n", 'Class', 'Subscribers');
-      print $out sprintf("%-12s %5d\n", 'TOTAL', $stats{'TOTAL'});
-      for $tmp (sort keys %stats) {
-        next if ($tmp eq 'TOTAL');
-        print $out sprintf("%-12s %5d\n", $tmp,  $stats{$tmp});
+      $tmp = $mj->format_get_string($type, 'who_summary', $request->{'list'});
+      $gsubs->{'CLASS'} = [];
+      $gsubs->{'SUBS'} = [];
+      for $i (sort keys %stats) {
+        next if ($i eq 'TOTAL');
+        push @{$gsubs->{'CLASS'}}, $i;
+        push @{$gsubs->{'SUBS'}}, $stats{$i};
       }
     }
     else {
-      print $out sprintf("%-20s %s\n", 'List', 'Subscribers');
-      print $out sprintf("%-20s %5d\n", 'TOTAL', $stats{'TOTAL'});
-      for $tmp (sort keys %stats) {
-        next if ($tmp eq 'TOTAL');
-        print $out sprintf("%-20s %5d\n", $tmp,  $stats{$tmp});
+      $tmp = $mj->format_get_string($type, 'who_registry_summary', 
+                                    $request->{'list'});
+      $gsubs->{'LISTS'} = [];
+      $gsubs->{'SUBS'} = [];
+      for $i (sort keys %stats) {
+        next if ($i eq 'TOTAL');
+        push @{$gsubs->{'LISTS'}}, $i;
+        push @{$gsubs->{'SUBS'}}, $stats{$i};
       }
     }
-    print $out "</pre>\n" if ($type =~ /^www/);
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out "$str\n";
   }   
   elsif ($request->{'mode'} !~ /export|short|alias/) {
     $gsubs->{'COUNT'} = $count;
