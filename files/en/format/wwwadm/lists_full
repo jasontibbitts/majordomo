@@ -1,27 +1,46 @@
 <!-- Majordomo lists_full format file -->
 <tr><td>Name<td>$LIST
+
 <tr><td>Description<td>
 $DESCRIPTION
-<tr><td>Archive Location<td><a href="$ARCURL">$ARCURL</a>
-<tr><td>Digests<td>
+
+<tr><td>Archive Location<td><a href="?ARCURL">?ARCURL</a>
+
+<tr><td valign=top>
+Digests
+(<a href="$CGIURL?$CGIDATA&func=digest-status&list=$LIST&extra=ALL">Status</a>)
+<td>
 $DIGESTS<br>
+
 <tr><td>Subscribers<td>$SUBS
-<tr><td>Posts in the last 30 days<td>$POSTS
+
+<tr><td>Posts in the last 30 days<td>
+$POSTS
+(<a href="$CGIURL?$CGIDATA&func=archive-stats&list=$LIST&extra=30d">Statistics</a>)
+
 <tr><td>List address<td><a href="mailto:$WHOAMI">$WHOAMI</a>
+
 <tr><td>List owner address<td><a href="mailto:$OWNER">$OWNER</a>
 
-<tr><td>Documentation<td>
+<tr><td valign=top>Documentation<td>
 
   <a href="$CGIURL?$CGIDATA&func=faq&list=$LIST">
-  Frequently Asked Questions</a><br>
+  Frequently Asked Questions</a> 
+  (<a href="$CGIURL?$CGIDATA&func=faq-edit&list=$LIST">Edit</a>)
+
+<br>
 
   <a href="$CGIURL?$CGIDATA&func=intro&list=$LIST">
-  Introduction to the List</a><br>
+  Introduction to the List</a> 
+  (<a href="$CGIURL?$CGIDATA&func=intro-edit&list=$LIST">Edit</a>)
+
+<br>
 
   <a href="$CGIURL?$CGIDATA&func=info&list=$LIST">
-  Welcome Message</a><br>
+  Welcome Message</a> 
+  (<a href="$CGIURL?$CGIDATA&func=info-edit&list=$LIST">Edit</a>)
 
-<tr><td>Subscribe or Unsubscribe<td>
+<tr><td valign=top>Subscribe or Unsubscribe<td>
 To (un)subscribe, type your address into the box and press the (un)subscribe
 button.  A valid password is required to unsubscribe.  A confirmation message 
 may be sent to your address.  (See the $HELP:UNSUBSCRIBE help page if
@@ -37,6 +56,6 @@ you wish to unsubscribe without using your password.)<br>
 </form>
 
 <tr><td>List of Lists<td>
-<a href="$CGIURL?$CGIDATA&func=lists-long">View every mailing list
+<a href="$CGIURL?$CGIDATA&func=lists-long&list=$LIST">View every mailing list
 for which access is authorized.</a>
 
