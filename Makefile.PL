@@ -285,7 +285,10 @@ EOM
   $msg = <<EOM;
 
 Where will the Majordomo libraries, executables and documentation be kept?
- Note that this is not necessarily where your lists will be stored.
+ This could be something like \"/usr/local/majordomo\"; Majordomo will make
+   this directory and several directories under it to hold its various
+   components.
+ Note that this is not necessarily where your lists must be stored.
 EOM
   $def = $config->{'install_dir'};
   $config->{'install_dir'} = get_dir($msg, $def);

@@ -15,9 +15,6 @@ Switch over one of my lists.  (How?  Manually maintain subscription
 Top of the list 
 ---------------
 
-! Warn in installation that tmpdir should not be world writable.  Create
-  this directory during postinstall if necessary.
-
 ! Make sure all sent mails have To: headers.
 
 ! Implement rejection (and perhaps acceptance) messages for tokens, and add

@@ -591,8 +591,27 @@ sub _list_config_set {
   $self->{'lists'}{$list}->config_set(@_);
 }
 
+sub _list_config_lock {
+  my $self = shift;
+  my $list = shift;
+  
+  $list = 'GLOBAL' if $list eq 'ALL';
+  $self->_make_list($list);
+  $self->{'lists'}{$list}->config_lock(@_);
+}
+
+sub _list_config_unlock {
+  my $self = shift;
+  my $list = shift;
+  
+  $list = 'GLOBAL' if $list eq 'ALL';
+  $self->_make_list($list);
+  $self->{'lists'}{$list}->config_unlock(@_);
+}
+
 =head2 config_get_allowed, config_get_comment, config_get_intro,
-config_get_isarray, config_get_groups, config_get_type, config_get_visible
+config_get_isarray, config_get_isauto, config_get_groups,
+config_get_type, config_get_visible
 
 These return various information about a config variable:
 
@@ -637,6 +656,12 @@ sub config_get_isarray {
   my $self = shift;
   my $var  = shift;
   $self->{'lists'}{'GLOBAL'}->config_get_isarray($var);    
+}
+
+sub config_get_isauto {
+  my $self = shift;
+  my $var  = shift;
+  $self->{'lists'}{'GLOBAL'}->config_get_isauto($var);    
 }
 
 sub config_get_type {

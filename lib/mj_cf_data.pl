@@ -636,6 +636,7 @@ EOC
     'local'  => 1,
     'global' => 0,
     'mutable'=> 1,
+    'auto'   => 1,
     'comment'=> <<EOC,
 This is the sequence number used to number messages which pass through the
 list.  It is automatically incremented by one for each message.  It may be

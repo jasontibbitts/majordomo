@@ -1519,6 +1519,14 @@ sub config_save {
   shift->{'config'}->save;
 }
 
+sub config_lock {
+  shift->{'config'}->lock;
+}
+
+sub config_unlock {
+  shift->{'config'}->unlock;
+}
+
 sub config_get_allowed {
   my $self = shift;
   my $var  = shift;
@@ -1547,6 +1555,12 @@ sub config_get_isarray {
   my $self = shift;
   my $var  = shift;
   $self->{'config'}->isarray($var);
+}
+
+sub config_get_isauto {
+  my $self = shift;
+  my $var  = shift;
+  $self->{'config'}->isauto($var);
 }
 
 sub config_get_visible {

@@ -1,3 +1,37 @@
+Tue Mar 31 01:29:20 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Update the sequence number atomically.
+
+Mon Mar 30 00:26:02 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/List.pm (config_lock): New.
+	(config_unlock): New.
+
+	* lib/Majordomo.pm (_list_config_lock): New.
+	(_list_config_unlock): New.
+
+	* lib/Mj/Config.pm (lock): New function to lock the config file.
+	(unlock): Do the opposite.
+	(DESTROY): Now just unlock instead of save; unlocking will
+ 	automatically save if needed.
+	(set): Automatically lock if needed.
+
+	* lib/Mj/TextOutput.pm (configshow): Comment out automatic
+ 	variables; the user can uncomment them if they really need to be
+ 	set manually.
+
+	* lib/Mj/Config.pm (isauto): New function.
+
+Sun Mar 29 01:18:50 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/List.pm (config_get_isauto): New function.
+
+	* lib/Majordomo.pm (config_get_isauto): New function.
+
+	* Makefile.PL (configure): Tweaked install_dir question.
+
+	* lib/Mj/Config.pm (save): Remove ability to save old-style files.
+
 Sat Mar 28 02:16:12 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/mj_cf_data.pl: Tweak tmpdir description.

@@ -186,6 +186,8 @@ sub new {
   $self->{'vars'}           = \%Mj::Config::vars;
   $self->{'file_header'}    = \$Mj::Config::file_header;
   $self->{'default_string'} = \$Mj::Config::default_string;
+  $self->{'locked'}         = 0;
+  $self->{'timestamp'}      = 0;
   $::log->out;
   $self;
 }
@@ -197,7 +199,7 @@ Config changes are automatically saved during destruction.
 =cut
 sub DESTROY {
   my $self = shift;
-  $self->save if $self->{'dirty'};
+  $self->unlock;
 }
 
 =head2 get(variable, raw)
@@ -327,11 +329,13 @@ current and calling the appropriate function to bring it in.
 sub load {  # XXX unfinished
   my $self = shift;
   my $log  = new Log::In 150, "$self->{'list'}";
-  my ($file, $key, $new_exists, $oldfile, $old_more_recent);
+  my ($file, $key, $mtime, $oldfile, $old_more_recent);
 
   # Look up the filenames 
   $file = $self->_filename;
   $oldfile = $self->_filename_old;
+
+  $mtime = (stat($file))[9] if -r $file;
 
   # Clobber existing values (just in case) then pull in the defaults.  We
   # have to do the defaults now because we will allow the new style config
@@ -341,29 +345,29 @@ sub load {  # XXX unfinished
   delete $self->{'data'};
   $self->_defaults unless $self->{'defaults'};
 
-  # Does the new-style file exist?
-  $new_exists = 1 if -r $file;
-
   # The legacy config file is more recent if it exists and either the new
   # one doesn't or it's been modified more recently than the old one was.
   $old_more_recent =
     -r $oldfile &&
-      (! $new_exists ||
-       (stat($oldfile))[9] > (stat($file))[9]);
+      (!$mtime ||
+       (stat($oldfile))[9] > $mtime);
   
   if ($old_more_recent) {
     $self->_load_old;
     $self->_save_new;
+    $mtime = (stat($file))[9];
   }
-  elsif ($new_exists) {
+  elsif ($mtime) {
     $self->_load_new;
   }
   else {
     # Create the file, just because.
     $self->_save_new;
+    $mtime = (stat($file))[9];
   }
 
-  $self->{'loaded'} = 1;
+  $self->{loaded} = 1;
+  $self->{mtime}  = $mtime;
   1;
 }
 
@@ -532,6 +536,22 @@ sub isarray {
   return;
 }
 
+=head2 isarray(variable)
+
+Returns true if the variable is an "auto" variable.  That is, if it is
+automatically maintained by Majordomo.
+
+=cut
+sub isauto {
+  my $self = shift;
+  my $var  = shift;
+
+  if ($self->{'vars'}{$var}) {
+    return $self->{'vars'}{$var}{'auto'};
+  }
+  return;
+}
+
 =head2 isparsed(variable)
 
 Returns trus if the variable is of a parsed type; undef otherwise.
@@ -657,6 +677,77 @@ sub vars {
   return;
 }
 
+=head2 lock, unlock
+
+These form a config file locking system.  Because we have vaiables which
+change due to things other than user input and because changing one
+variable involves saving back the entire config file, we must be very
+careful to make sure that a process doesn''t save back stale data that it
+has kept in memory.
+
+lock does the obvious and must be done before any values are changed.  (The
+set command locks automatically if necessary.)  The file is reloaded if
+necessary after locking to ensure that the in-memory data is completely
+op-to-date.  This locking model is opportunistic, in that you don''t need
+to lock if you aren''t planning to change the file.
+
+Note that the implicit locking of the set method should not be relied upon
+to modify a variable based on its current value, because the in-memory data
+is only refreshed after set is called.  Instead, make the lock implicitly,
+then calculate the new value.
+
+unlock just saves the file and commits if dirty, else it abandons any
+changes.  (This avoids hosing the mtime if we don''t change anything.)  It
+is not harmful to unlock when not locked and indeed the DESTROY function
+does an implicit unlock.
+
+_These only work on new-style config files_.  Old-style files must be
+explicitly loaded (and thus autoconverted) first.
+
+=cut
+sub lock {
+  my $self = shift;
+  my $log  = new Log::In 150;
+  my $name = $self->_filename;
+
+  # Bail early if locked
+  return if $self->{'locked'};
+
+  # Open the filerepl and stash it
+  $self->{fh} = new Mj::FileRepl $name;
+
+  # Load the file if necessary
+  if ($self->{mtime} < (stat($name))[9]) {
+    delete $self->{data};
+    $self->{data} = do $name;
+  }
+  
+  # Note that we are locked
+  $self->{locked} = 1;
+}
+
+sub unlock {
+  my $self = shift;
+  my $log  = new Log::In 150;
+
+  # Bail if not locked.
+  return unless $self->{locked};
+
+  if ($self->{dirty}) {
+    # Save (print out) the file and commit
+    $self->{fh}->print(Dumper $self->{'data'});
+    $self->{fh}->commit;
+  }
+  else {
+    # Nothing was changed; don't bother writing
+    $self->{fh}->abandon;
+  }
+  
+  # Say we're not locked any longer
+  $self->{locked} = 0;
+  delete $self->{fh};
+}
+
 =head2 set
 
 Sets the value of a config variable, and sets the dirty flag.  Returns true
@@ -680,10 +771,8 @@ sub set {
       return;
     }
 
-  # Load the config file first if needed
-  unless ($self->{'loaded'}) {
-    $self->load;
-  }
+  # Lock the file; this will load it for us
+  $self->lock;
 
   # Stash the data away
   if ($self->isarray($var)) {
@@ -709,6 +798,40 @@ sub set {
 
   $self->{'dirty'} = 1;
   1;
+}
+
+=head2 atomic_set(var, updatesub)
+
+This atomically sets a config variable.  The config file is locked
+(implicitly by the FileRepl operation) loaded (from the FileRepl), modified
+in memory (by retrieving the value of the variable and passing it to
+updatesub, then setting the value of the variable, then writing the file
+out and clearing the dirty bit.
+
+XXX Probably should just ignore this, given lock/unlock.
+
+=cut
+sub atomic_set {
+  my $self = shift;
+  
+  my $log = new Log::In 150;
+
+  # Determine the filename
+
+  # Save if it's dirty (yes, this is nexessary
+
+  # Open file for writing
+
+  # Load it in
+
+  # Call the mod sub
+
+  # Write the variable back
+
+  # Deal with parsing routines
+  
+  # Save the file and unlock/commit
+
 }
 
 =head2 set_to_default
@@ -770,7 +893,7 @@ sub save {
 
   $::log->in(150, $self->{'list'});
   if ($self->{'dirty'} || $force) {
-    $self->_save_old if $force || $self->{'old_loaded'};
+#    $self->_save_old if $force || $self->{'old_loaded'};
     $self->_save_new;
   }
   delete $self->{'dirty'};
@@ -868,69 +991,69 @@ This code is kind of gross, but it's just there to support the obsolete
 files.
 
 =cut
-sub _save_old {
-  my $self = shift;
-  my ($comment, $default, $enums, $file, $groups, $instructions,
-      $key, $lval, $name, $op, $tag, $type, $value);
+# sub _save_old {
+#   my $self = shift;
+#   my ($comment, $default, $enums, $file, $groups, $instructions,
+#       $key, $lval, $name, $op, $tag, $type, $value);
   
-  $::log->in(155, "$self->{'list'}");
+#   $::log->in(155, "$self->{'list'}");
 
-  $name = $self->_filename_old;
-  $tag = "AA";
+#   $name = $self->_filename_old;
+#   $tag = "AA";
 
-  # If the file exists, we can just replace it; otherwise we have to create
-  # it.
-  if (-s $name) {
-    $file = new Mj::FileRepl($name);
-  }
-  else {
-    $file = new Mj::File($name);
-  }
+#   # If the file exists, we can just replace it; otherwise we have to create
+#   # it.
+#   if (-s $name) {
+#     $file = new Mj::FileRepl($name);
+#   }
+#   else {
+#     $file = new Mj::File($name);
+#   }
 
-  # Just in case
-  $self->_defaults unless $self->{'defaults'};
+#   # Just in case
+#   $self->_defaults unless $self->{'defaults'};
 
-  $file->print($ {$self->{'file_header'}});
+#   $file->print($ {$self->{'file_header'}});
   
-  foreach $key (sort keys %{$self->{'vars'}}) {
-    # First set up the values to put into the format
-    $type    = $self->{'vars'}{$key}{'type'};
-    if (defined $self->{'data'}{'raw'}{$key}) {
-      $value = $self->{'data'}{'raw'}{$key};
-    }
-    elsif (defined $self->{'defaults'}{$key}) {
-      $value = $self->{'defaults'}{$key};
-    }
-    else {
-      $value = "";
-    }
+#   foreach $key (sort keys %{$self->{'vars'}}) {
+#     # First set up the values to put into the format
+#     $type    = $self->{'vars'}{$key}{'type'};
+#     if (defined $self->{'data'}{'raw'}{$key}) {
+#       $value = $self->{'data'}{'raw'}{$key};
+#     }
+#     elsif (defined $self->{'defaults'}{$key}) {
+#       $value = $self->{'defaults'}{$key};
+#     }
+#     else {
+#       $value = "";
+#     }
     
-    $instructions = $self->instructions($key);
-    $instructions =~ s/^(.*)\n/   #$1\n/;
-    $file->print($instructions);
+#     $instructions = $self->instructions($key);
+#     $instructions =~ s/^(.*)\n/   #$1\n/;
+#     $file->print($instructions);
     
-    if ($type =~ /array/) {
-      $op = '<<';
-      $file->printf("%-20s << %s\n", $key, "END$tag");
+#     if ($type =~ /array/) {
+#       $op = '<<';
+#       $file->printf("%-20s << %s\n", $key, "END$tag");
       
-      for $lval (@{$value}) {
-        $lval =~ s/^-/--/;
-        $lval =~ s/^$/-/;
-        $lval =~ s/^(\s)/-$1/;
-        $file->print("$lval\n");
-      }
-      $file->print("END$tag\n");
-      $tag++;
-    }
-    else {
-      $op = '=';
-      $file->printf("%-20s = %s\n", $key, $value);
-    }
-    $file->print("\n");
-  }
-  $file->commit;
-  $::log->out;
-}
+#       for $lval (@{$value}) {
+#         $lval =~ s/^-/--/;
+#         $lval =~ s/^$/-/;
+#         $lval =~ s/^(\s)/-$1/;
+#         $file->print("$lval\n");
+#       }
+#       $file->print("END$tag\n");
+#       $tag++;
+#     }
+#     else {
+#       $op = '=';
+#       $file->printf("%-20s = %s\n", $key, $value);
+#     }
+#     $file->print("\n");
+#   }
+#   $file->commit;
+#   $::log->out;
+# }
 
 =head2 _defaults (private)
 

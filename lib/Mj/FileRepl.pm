@@ -15,7 +15,7 @@ Mj::FileRepl - Safe file replacement operations
 These functions implement the FileRepl class.  For reasons of speed, this
 ignores that fact that Mj::File exists.  This saves an extra jump through
 the AUTOLOAD function to implement proxied methods, and it lets us avoid
-locking the replacement file since it isn't necessary.
+locking the replacement file since it isn''t necessary.
 
 The downside is that we most duplicate some code, including a significant
 chunk in open.
@@ -53,7 +53,7 @@ sub new {
 
 =head2 DESTROY
 
-A simple destructor which abandons any replacement in progress.  It's safer
+A simple destructor which abandons any replacement in progress.  It''s safer
 to abandon in case the program takes an exception before a commit.
 
 =cut

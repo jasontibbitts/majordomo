@@ -390,8 +390,12 @@ sub _post {
 
   $self->_make_list($list);
   $tmpdir = $self->_global_config_get('tmpdir');
+
+  # Atomically update the sequence number
+  $self->_list_config_lock($list);
   $seqno  = $self->_list_config_get($list, 'sequence_number');
   $self->_list_config_set($list, 'sequence_number', $seqno+1);
+  $self->_list_config_unlock($list);
 
   # trick: if $file is a ref to a MIME::Entity, we can skip the parse
   if (ref($file) eq "MIME::Entity") {

@@ -288,6 +288,9 @@ sub configshow {
       $comment =~ s/^/# /gm;
       print $outfh $comment;
     }
+    if ($mj->config_get_isauto($var)) {
+      print $outfh "# This variable is automatically maintained by Majordomo.  Uncomment to change.\n# ";
+    }
     if ($mj->config_get_isarray($var)) {
       # Process as an array
       $tag = $mj->unique2;
