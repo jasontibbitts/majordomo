@@ -107,11 +107,31 @@ sub _unstringify {
   $hashref;
 }
 
+=head2 erase
+
+Unlink the file containing the database, if one exists.
+
+This has no effect upon databases stored by one of the SQL back ends.
+
+=cut
+use Mj::Lock;
+sub erase {
+  my $self = shift;
+
+  return unless (ref $self);
+  return unless (exists $self->{'lockfile'} and exists $self->{'filename'});
+
+  my $lock = new Mj::Lock ($self->{'lockfile'}, 'Exclusive');
+  return unless (defined $lock);
+
+  unlink $self->{'filename'};
+}
+
 1;
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2004 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
