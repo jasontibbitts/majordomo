@@ -181,7 +181,7 @@ Perform a complete SMTP command transaction.
 sub transact {
   my $self = shift;
   return 0 unless $self->send(shift);
-  $self->getresp(shift || 1);
+  $self->getresp(@_);
 }
 
 =head2 SMTP commands
@@ -199,7 +199,7 @@ sub EHLO { shift->transact("EHLO ".shift             )}
 sub HELO { shift->transact("HELO ".shift             )}
 sub MAIL { shift->transact("MAIL FROM: <".shift().">")}
 sub ONEX { shift->transact("ONEX"                    )}
-sub RCPT { shift->transact("RCPT TO: <".shift().">",5)}
+sub RCPT { shift->transact("RCPT TO: <".shift().">",1,5)}
 sub RSET { shift->transact("RSET"                    )}
 sub QUIT { shift->transact("QUIT"                    )}
 
