@@ -515,7 +515,7 @@ sub whence {
   my $self = shift;
   my $var  = shift;
   my $log  = new Log::In 180, "$self->{'list'}, $var";
-  my ($file, $ok);
+  my ($file, $ok, $tmp);
 
   return unless $var;
 
@@ -610,6 +610,7 @@ Returns the default value of the given variable.
 =cut
 sub default {
   my ($self, $var) = @_;
+  my (@tmp);
 
   $::log->in(180, $var);
 
@@ -623,12 +624,17 @@ sub default {
     @tmp = &{$self->{callbacks}{'mj._list_config_search'}}(
                'DEFAULT', ['_install'], $var, 1);
     if (scalar(@tmp) > 1) {
-      $default = $tmp[1];
+      if ($self->isarray($var)) {
+        shift @tmp;
+        return [ @tmp ];
+      }
+      else {
+        return $tmp[1];
+      }
     }
   }
 
   return undef;
-
 }
 
 =head2 allowed(variable)
