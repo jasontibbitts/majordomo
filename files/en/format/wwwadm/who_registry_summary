@@ -48,7 +48,7 @@
   <li>Choose one of the three add/remove methods by pressing the
       appropriate button.</li>
   <li>Type e-mail addresses into the box, one address per line.</li>
-  <li>Press the <b>register or unregister addresses</b> button.</li>
+  <li>Press the <b>Register or Unregister addresses</b> button.</li>
 </ol>
 
 <form method="POST" action="$CGIURL">
@@ -70,8 +70,29 @@
   <textarea name="victims" rows="8" cols="70">
   </textarea>
 
-  <input type="submit" value="register or unregister addresses">
+  <input type="submit" value="Register or Unregister addresses">
 </form>
+
+
+<h4 align="center">Auxiliary Lists</h4>
+
+<p>
+Auxiliary lists are used to store groups of e-mail addresses, for a
+variety of reasons.  See the $HELP:AUXILIARY_LIST help document for more
+details.
+</p>
+
+<p>
+<a href="$CGIURL?$CGIDATA&amp;list=GLOBAL&amp;func=lists-aux&amp;extra=GLOBAL">
+GLOBAL Auxiliary Lists
+</a>
+
+<br>
+
+<a href="$CGIURL?$CGIDATA&amp;list=DEFAULT&amp;func=lists-aux&amp;extra=DEFAULT">
+DEFAULT Auxiliary Lists
+</a>
+</p>
 
 <h4 align="center">Subscription Summary</h4>
 
@@ -86,4 +107,3 @@
 <tr><td> TOTAL <td align="right"> $TOTAL </tr>
 
 </table>
-

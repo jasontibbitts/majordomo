@@ -59,10 +59,10 @@ Show:
       appropriate button.</li>
   <li>Type addresses into the box, one address per line.</li>
   <li>If addresses are being added, choose the personal settings
-      for these addresses with the delivery class menu and
+      for these addresses with the <b>Delivery class</b> menu and
       setting buttons.  (See the $HELP:SET help document for more
       details on the delivery class and other settings.)</li>
-  <li>Press the <b>add or remove subscribers</b> button.</li>
+  <li>Press the <b>Add or Remove subscribers</b> button.</li>
 </ol>
 
 <form method="POST" action="$CGIURL">
@@ -106,6 +106,20 @@ Settings for new subscribers:
     <option value="$CLASSES" $CLASS_SELECTED>$CLASSES: $CLASS_DESCRIPTIONS</small>
   </select>
 
-  <input type="submit" value="add or remove subscribers">
+  <input type="submit" value="Add or Remove subscribers">
 </form>
 
+<h4 align="center">Auxiliary Lists</h4>
+
+<p>
+Auxiliary lists are used to store groups of e-mail addresses, for a 
+variety of reasons.  See the $HELP:AUXILIARY_LIST help document for more
+details.
+</p>
+
+<p>
+<a
+href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=lists-aux&amp;extra=$PLIST">
+List of Auxiliary Lists
+</a>
+</p>

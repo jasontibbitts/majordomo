@@ -36,7 +36,7 @@
   </td>
 
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=lists-full-long&amp;extra=$LIST">
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=lists-full-long&amp;extra=$PLIST">
      <font size="-1" color="#f0f0f0">
      List Info</font></a>
   </td>
