@@ -131,11 +131,14 @@ ABC
 List owners can also add addresses to a collection called an "auxiliary 
 subscriber list" (see "help auxiliary_list" for more details.)
 
+$INCLUDE-help/admin_modes
+
 
 See Also:
    help accept      (which is used to confirm subscriptions)
    help access_variables 
-   help approve     (which can eliminate the need to use "accept")
+   help admin_subscribers
+   help approve     (authentication to avoid the confirmation process)
    help auxiliary_list (which is used to manage a set of addresses)
    help changeaddr  (which replaces one address with another)
    help commands    (for an explanation of "here files")
