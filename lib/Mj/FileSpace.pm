@@ -513,6 +513,7 @@ sub _find_legal_files {
   my (@out, $ent);
   
   my $dh = new DirHandle $dir;
+  return unless $dh;
   while (defined($ent = $dh->read)) {
     # Skip what we want to ignore.
     next if $ent =~ /^[._]/;
