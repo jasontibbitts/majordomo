@@ -76,7 +76,11 @@ You can then view and change the current settings.
 
 If your mailing list is public, pressing <b>List Info</b> will show
 you how it will appear when people visit the 
-<a href="$WWWUSR_URL">web page for subscribers</a>.
+<a href="$WWWUSR_URL">web interface for subscribers</a>.
+<p>
+You can also edit the welcome message and other documents, see
+statistics for recent posted messages, or check the status 
+of message digests through the links on the <b>List Info</b> page.
 
 <tr>
   <td valign=top>Command Form
