@@ -1,3 +1,17 @@
+2000-10-03  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm: Use BounceHandler module; set ISA
+	appropriately.
+
+	* lib/Mj/MailOut.pm: Remove bounce handling stuff.
+
+	* lib/Mj/BounceHandler.pm: New file: handle bounces.
+
+	* bin/mj_shell: Add option to dump request and result structures.
+
+	* lib/Majordomo.pm (dispatch): Eliminate warnings when mode is
+	empty or contains all non-alphabetics.
+
 2000-10-02  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm (dispatch):  Inform on *_done commands.

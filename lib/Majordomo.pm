@@ -75,7 +75,7 @@ simply not exist.
 
 package Majordomo;
 
-@ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform);
+@ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
 $VERSION = "0.1200009300";
 $unique = 'AAA';
 
@@ -93,6 +93,7 @@ use Mj::MailOut;
 use Mj::Token;
 use Mj::Resend;
 use Mj::Inform;
+use Mj::BounceHandler;
 use Mj::CommandProps qw(:function :command);
 use Safe;
 
@@ -347,10 +348,16 @@ sub dispatch {
 
   $request->{'delay'}    ||= 0;
   $request->{'list'}     ||= 'GLOBAL';
+
+  # Sanitize the mode
   $request->{'mode'}     ||= '';
   $request->{'mode'}       = lc $request->{'mode'};
-  $request->{'mode'}       =~ /([a-z-]*)/; 
-  $request->{'mode'}       = $1;
+  if ($request->{'mode'} =~ /([a-z-]+)/) {
+    $request->{'mode'} = $1;
+  }
+  else {
+    $request->{'mode'}       = '';
+  }
   $request->{'password'} ||= '';
   $request->{'user'}     ||= 'unknown@anonymous';
   $request->{'victim'}   ||= '';

@@ -461,6 +461,7 @@ lib/Mj/Addr.pm
 lib/Mj/AddressList.pm
 lib/Mj/AliasList.pm
 lib/Mj/Archive.pm
+lib/Mj/BounceHandler.pm
 lib/Mj/BounceParser.pm
 lib/Mj/CommandProps.pm
 lib/Mj/Config.pm
@@ -555,6 +556,7 @@ setup/setup_func.pl
 t/README
 t/addr.t
 t/checksubs
+t/core.t
 t/db-dbmbtree.t
 t/db-dbmhash.t
 t/db-text.t

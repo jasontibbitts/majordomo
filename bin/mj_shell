@@ -52,6 +52,7 @@ umask oct($::UMASK);
 #  -f : give attachment file
 #  -l : choose language
 #  -p : specify password
+#  -R : dump requests sent to core and results received from core
 #  -t : specify directory containing domains
 #  -u : specify user (for testing only)
 #  -Z : For testing: wimp put of UID/GID tests
@@ -63,10 +64,9 @@ umask oct($::UMASK);
 Getopt::Long::config('no_ignore_case', 'bundling');
 
 %opts = (ornaments => 1, aliascomplete => 0);
-GetOptions(\%::opts, 'D', 'd=s', 'F=s', 'f=s@', 'l=s@', 'p=s', 't=s',
+GetOptions(\%::opts, 'D', 'd=s', 'F=s', 'f=s@', 'l=s@', 'p=s', 'R', 't=s',
 	   'u=s', 'Z', 'id', 'lockdir=s', 'ornaments!', 'aliascomplete!');
 
-#use Data::Dumper;
 #print Dumper \%opts;
 
 if ($::opts{'id'}) {
@@ -115,6 +115,11 @@ if ($opts{D}) {
      log_args    => 1,
     );
 };
+
+if ($opts{R}) {
+  require Data::Dumper;
+  import Data::Dumper qw(Dumper);
+}
 
 $::log->in(20, undef, "info", "Majordomo Shell client - ".scalar(localtime));
 $::log->startup_time();
@@ -427,7 +432,16 @@ sub parse_command {
       $request->{'command'} .= '_start';
     }
 
+    if($opts{R}) {
+      print "Request:\n";
+      print Dumper($request);
+    }
     $result = $mj->dispatch($request);
+    if ($opts{R}) {
+      print "Results:\n";
+      print Dumper($result);
+    }
+
     &{"Mj::Format::$true_command"}($mj, \*STDOUT, \*STDOUT, 
                                    'text', $request, $result);
     return (1, $result);
@@ -518,7 +532,7 @@ mj_shell - Majordomo command line interface
 
 =head1 SYNOPSIS
 
-B<mj_shell> [B<-D>] [B<-d> domain] [B<-t> topdir] [B<-p> password] [command [args]]
+B<mj_shell> [B<-D>] [B<-R>] [B<-d> domain] [B<-t> topdir] [B<-p> password] [command [args]]
 
 =head1 DESCRIPTION
 
@@ -734,7 +748,7 @@ read.
 
 =item B<-l> I<language>
 
-Specifies the user''s preferred language.  This should be in the standard
+Specifies the user's preferred language.  This should be in the standard
 two-letter (ISO 639) form, plus subtags as outlined in RFC 1766.  (For
 example, B<en> for English, B<de> for German, or B<no-nynorsk> for
 Norwegian/Nynorsk.)  Case is not significant.  Multiple preferences can be
@@ -753,6 +767,12 @@ preference.
 
 Specifies a password that a command will be run with, or the default
 password for commands run by the text parser.
+
+=item B<-R>
+
+As a debugging aid, specifies that mj_shell should dump the request
+structures sent to the Majordomo library and the result structures received
+from the library.
 
 =item B<-t> I<directory>
 
