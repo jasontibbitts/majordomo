@@ -5895,13 +5895,14 @@ sub reject {
       $inform = $self->_list_config_get($data->{'list'}, 'inform');
       $inf = $inform->{'reject'}{'all'} || $inform->{'reject'}{1} || 0;
       if ($ent) {
-         if (-f "$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}") {
+        ($tmp, $sfile) = $self->s_recognize($data->{'sessionid'}, 0);
+        if ($tmp and -f $sfile) {
           $ent->make_multipart;
           # XLANG
           $ent->attach(
                        'Description' => "Information for session $data->{'sessionid'}",
                        'Filename'    => undef,
-                       'Path'        => "$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}",
+                       'Path'        => $sfile,
                        'Type'        => 'text/plain',
                        'Encoding'    => '8bit',
                       );

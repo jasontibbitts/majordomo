@@ -4,6 +4,9 @@
 	cooperate with stricter checking under perl 5.8.0.
 	Thanks to Olivier Prenant.
 
+	* lib/Majordomo.pm:  (reject)  Bugfix:  attach the session
+	file correctly in messages to administrators.
+
 	* lib/Mj/Digest/Text.pm:  (get_text)  Convert single-part
 	HTML messages into plain text in text digests.  Suggested
 	by Roger Klorese.
