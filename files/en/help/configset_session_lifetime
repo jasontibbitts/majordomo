@@ -17,6 +17,12 @@ and all pertinent information for other types of requests.  These
 files can occupy significant space on an active server, so they are
 purged after this many days.
 
+
+See Also:
+   help sessioninfo      (see the e-mail message that contains the request)
+   help showtokens       (for a list of unapproved requests)
+   help tokeninfo        (another way to get info similar to sessioninfo)
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ
