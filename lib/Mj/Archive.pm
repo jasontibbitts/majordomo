@@ -738,8 +738,9 @@ use Mj::MIMEParser;
 sub _sync_msgs {
   my ($self, $file, $tmpdir, $split, $count, $qp) = @_;
   my $log = new Log::In 250, $file;
-  my (@out, $arcname, $arcnum, $blank, $data, $entity, $lastfrom, $line, 
-      $lines, $mbox, $num, $parser, $seen, $tf2, $tmpfh, $tmpfile); 
+  my (@out, $arcname, $arcnum, $blank, $data, $entity, $lastfrom,
+      $length, $line, $lines, $mbox, $modified, $num, $parser, $seen, 
+      $tf2, $tmpfh, $tmpfile); 
  
   $file =~ /^((?:[\w\-\.]+\.)?\d+)(-\d\d)?$/;
   $arcname = $1;
