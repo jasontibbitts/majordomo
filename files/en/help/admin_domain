@@ -51,8 +51,8 @@ configuration setting.  Majordomo does not define any digests by default
 (see "help configset_digests" for more details).
 
 The DEFAULT list can also be used to make files available to all of the
-mailing lists within a domain.  See "help get" and "help configset
-file_share" for more details.  There is also a Stock directory for files
+mailing lists within a domain.  See "help configset file_share" and
+"help get" for more details.  There is also a Stock directory for files
 that are supplied by Majordomo, like this help file.  These files can be
 obtained using the get command, and replaced using the put command;
 however, there is no way to overwrite the files in the Stock directory.
