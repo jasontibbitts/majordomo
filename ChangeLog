@@ -9,6 +9,9 @@
 	* lib/Mj/Inform.pm:  (_inform_owner)  Remove example.com
 	from two substitutions.  Thanks to SRE.
 
+	* lib/Mj/Util.pm:  (process_rule)  Add "or" to the list
+	of Safe compartment operations.  Thanks to SRE.
+
 2004-02-04  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (connect)  Initialize variables
