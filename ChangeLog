@@ -1,3 +1,9 @@
+Thu Oct 15 19:22:11 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/mj_cf_defs.pl: Change 'digests' default back to an empty
+ 	listref; this is the _unparsed_ version, so a hashref is
+ 	definitely not appropriate.
+
 Wed Oct 14 16:51:35 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Archive.pm (_secs_start,_secs_end): Take 'local'
