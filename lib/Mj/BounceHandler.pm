@@ -113,7 +113,7 @@ figure out what to do about it.
 sub handle_bounce_message {
   my($self, %args) = @_;
   my $log  = new Log::In 35;
-  my (@bouncers, @owners, $diag, $i, $lsender, $mess, $nent, $sender,
+  my (@bouncers, @owners, $diag, $from, $i, $lsender, $mess, $nent, $sender,
       $status, $subj, $tmp);
 
   my $data = $args{data};
@@ -132,9 +132,10 @@ sub handle_bounce_message {
   @bouncers = @owners unless @bouncers;
   if ($list eq 'GLOBAL') {
     $sender = $owners[0];
+    $from = $self->_list_config_get('GLOBAL', 'sender');
   }
   else {
-    $sender  = $self->_list_config_get('GLOBAL', 'sender');
+    $from = $sender = $self->_list_config_get('GLOBAL', 'sender');
   }
   $lsender  = $self->_list_config_get($list, 'sender');
 
@@ -193,7 +194,7 @@ sub handle_bounce_message {
 		 ],
      -Subject => $subj,
      -To      => $lsender,
-     -From    => $sender,
+     -From    => $from,
     );
   $nent->attach(Type        => 'message/rfc822',
 		Description => 'Original message',
@@ -215,7 +216,7 @@ it didn't get where it was going.
 sub handle_bounce_token {
   my($self, %args) = @_;
   my $log  = new Log::In 35;
-  my(@owners, @bouncers, $i, $mess, $nent, $sender);
+  my(@owners, @bouncers, $from, $i, $mess, $nent, $sender);
 
 
   # Dump the body to the session file
@@ -235,6 +236,7 @@ sub handle_bounce_token {
   @bouncers = @{$self->_global_config_get('bounce_recipients')};
   @bouncers = @owners unless @bouncers;
   $sender = $owners[0];
+  $from = $self->_global_config_get('sender');
 
   # Build a new message which includes the explanation from the bounce
   # parser and attach the original message.
@@ -246,8 +248,8 @@ sub handle_bounce_token {
 		   "The bounce message is attached below.\n\n",
 		 ],
      -Subject => "Bounce of token $args{token} detected",
-     -To      => $sender,
-     -From    => $sender,
+     -To      => $from,
+     -From    => $from,
     );
   $nent->attach(Type        => 'message/rfc822',
 		Description => 'Original message',
