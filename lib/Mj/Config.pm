@@ -1736,10 +1736,16 @@ sub parse_access_rules {
 	  }
 	}
       }
+      elsif ($i eq 'access') {
+        $taboo = $self->get("block_headers");
+        for $m (keys %{$taboo->{'classes'}}) {
+          $evars->{"block_$m"} = 1;
+        }
+      }
 
       # Compile the rule
       ($ok, $error, $part, $check_aux, $check_time) =
-	_compile_rule($i, $action, $action, $evars, $rule, $count);
+	_compile_rule($i, 'access_rules', $action, $evars, $rule, $count);
 
       # If the compilation failed, we return the error
       return (0, "\nError compiling rule for $i: $error")
@@ -4015,8 +4021,8 @@ sub _compile_rule {
 
 	unless (rules_var($request, $var, 'string')) {
 	  @tmp = rules_vars($request, 'string');
-	  $e .= "Illegal match variable for $reqname: $var.
-Legal variables which you can pattern match against are:\n".
+	  $e .= "Illegal match variable for $reqname: $var\n" .
+                "Legal variables for pattern matches are:\n".
 	    join("\n", sort(@tmp));
 	  last;
 	}
@@ -4140,16 +4146,19 @@ Legal variables which you can pattern match against are:\n".
 
 	# Weed out bad variables, but allow some special cases
 	unless (rules_var($request, $var) ||
-	       ($request eq 'post' && $evars->{$var}))
+	       (($request eq 'post' or $request eq 'access') 
+                && $evars->{$var}))
 	  {
-            if ($var =~ /(global_)?(admin_|taboo_|noarchive_)\w+/) { 
+            if ($var =~ /(global_)?(admin_|block_|taboo_|noarchive_)\w+/) { 
               $w .= "Variable $var has not been defined.\n";
             }
             else {
               @tmp = rules_vars($request);
               $e .= "Illegal variable for $reqname: $var.\nLegal variables are:\n  ".
                 join("\n  ", sort(@tmp));
-              if ($request eq 'post' && scalar(keys(%$evars))) {
+              if (($request eq 'post' or $request eq 'access') 
+                   && scalar(keys(%$evars))) 
+              {
                 $e .= "\nPlus these variables currently defined in admin, noarchive and taboo rules:\n  ".
                   join("\n  ", sort (keys(%$evars)));
               }
