@@ -167,6 +167,7 @@ $Mj::Config::default_string = q(
  'description_max_lines'=> 0,
  'confirm_url'          => 'SITE_DFLT',
  'dup_lifetime'         => 28,
+ 'save_denial_checksums'=> 0,
  'session_lifetime'     => 14,
  'token_lifetime'       => 7,
  'token_remind'         => 4,

@@ -480,7 +480,7 @@ This converts a string to a time.
 =cut
 sub _str_to_time {
   my $arg = shift;
-  my $log = new Log::In 150, "$arg";
+  my $log = new Log::In 150, $arg;
   my($time);
 
   if ($arg =~ /(\d+)d(ays?)?/) {
@@ -851,7 +851,7 @@ Stop iterating over the members of an auxiliary list.
 sub aux_get_done {
   my $self = shift;
   my $name = shift;
-  my $log  = new Log::In 150, "$name";
+  my $log  = new Log::In 150, $name;
 
   $self->_make_aux($name);
   $self->{'auxlists'}{$name}->get_done;
@@ -996,7 +996,7 @@ sub fs_put_done {
 use Mj::FileSpace;
 sub fs_delete {
   my $self = shift;
-  my $log = new Log::In 150, "$_[0]";
+  my $log = new Log::In 150, $_[0];
   $self->_make_fs || return;
   $self->{'fs'}->delete(@_);
 }
@@ -1031,7 +1031,7 @@ sub check_dup {
   my $self = shift;
   my $rec  = shift; # ID or checksum to check
   my $type = shift; # "id", "sum" or "partial"
-  my $log  = new Log::In 150, "$rec";
+  my $log  = new Log::In 150, $rec;
   my ($data, $ok);
 
   $self->_make_dup($type);
@@ -1040,6 +1040,25 @@ sub check_dup {
 
   # Inverted logic here; we return nothing only if we didn't get a match
   return $data;
+}
+
+=head2 remove_dup(rec, type)
+
+Removes the record of a duplicate from a duplicate database.
+
+=cut
+sub remove_dup {
+  my $self = shift;
+  my $rec  = shift; # ID or checksum to check
+  my $type = shift; # "id", "sum" or "partial"
+  my $log  = new Log::In 150, $rec;
+  my ($data, $ok);
+
+  $self->_make_dup($type);
+  ($rec) = $rec =~ /(.*)/; # Untaint
+  ($ok, $data) = $self->{'dup'}{$type}->remove("", $rec);
+
+  return $ok;
 }
 
 =head2 expire_dup

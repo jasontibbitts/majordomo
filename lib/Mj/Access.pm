@@ -485,6 +485,7 @@ sub list_access_check {
   }
 
   $access = $self->_list_config_get($list, 'access_rules');
+  $reasons = '';
 
   if ($access->{$request}) {
     # Populate the memberships hash
@@ -553,10 +554,18 @@ sub list_access_check {
       }
 	  next ACTION;
 	}
-	if ($func eq 'unset') {
+	elsif ($func eq 'unset') {
 	  # Unset a variable.
-      if ($arg and exists $args{$arg}) {
-        delete $args{$arg};
+      if ($arg) {
+        $args{$arg} = 0;
+      }
+	  next ACTION;
+	}
+    elsif ($func eq 'reason') {
+      if ($arg) {
+        my $reason = $arg;
+        $reason =~ s/^\"(.*)\"$/$1/;
+        $reasons .= "$reason\n";
       }
 	  next ACTION;
 	}
@@ -608,9 +617,8 @@ sub list_access_check {
 
   # Build the reasons list by splitting $arg2, if we're handling a
   # post request.
-  $reasons = '';
   if ($request eq 'post') {
-    $reasons = join("\n", split("\002", $arg2));
+    $reasons .= join("\n", split("\002", $arg2));
   }
 
   # Expand variables in the returned message.  XXX Obviously add some
@@ -668,15 +676,27 @@ a tempfile; if defined, all returned tempfiles will be unlinked at the end
 
 sub _a_deny {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
-  my $log = new Log::In 150, "$request";
+      $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
+  my $log = new Log::In 150, $request;
+
+  if ($request eq 'post' 
+       and not $self->_list_config_get($list, 'save_denial_checksums')) {
+    unless(exists $args{'dup_checksum'}) {
+      $self->{'lists'}{$list}->remove_dup($args{'checksum'}, 'sum')
+        if $args{'checksum'};
+    }
+    unless(exists $args{'dup_partial_checksum'}) {
+      $self->{'lists'}{$list}->remove_dup($args{'partial_checksum'}, 'partial')
+        if $args{'partial_checksum'};
+    }
+  }
   return (0, $request eq 'post' ? 'ack_denial' : 'repl_deny');
 }
 
 sub _a_denymess {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
-  my $log = new Log::In 150, "$request";
+  my $log = new Log::In 150, $request;
   return (0, undef, $arg);
 }
  
@@ -747,7 +767,7 @@ sub _a_confirm {
 sub _a_consult {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %extra) = @_;
-  my $log = new Log::In 150, "$request";
+  my $log = new Log::In 150, $request;
   my ($file, $group, $size);
 
   ($file, $arg, $group, $size) = split(/\s*,\s*/,$arg || "");
@@ -798,7 +818,7 @@ sub _a_reply {
 sub _a_replyfile {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
-  my $log = new Log::In 150, "$arg";
+  my $log = new Log::In 150, $arg;
   my (%file, $file, $fh, $line, $out);
 
   # Given 'NONE', return an empty message.  This means something to the
@@ -863,7 +883,7 @@ use Mj::CommandProps ':access';
 sub _a_default {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
-  my $log = new Log::In 150, "$request";
+  my $log = new Log::In 150, $request;
   my ($access, $fun);
 
   # First check the hash of allowed requests.
@@ -937,7 +957,7 @@ use Safe;
 sub _d_advertise {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
-  my $log = new Log::In 150, "";
+  my $log = new Log::In 150;
   my ($adv, $i, $noadv);
   shift @_;
 
@@ -1078,7 +1098,7 @@ sub _d_post {
 sub _d_subscribe {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
-  my $log = new Log::In 150, "";
+  my $log = new Log::In 150;
   my $policy = $self->_list_config_get($list, 'subscribe_policy');
   
   # We'll need this to pass on
@@ -1120,7 +1140,7 @@ sub _d_subscribe {
 sub _d_unsubscribe {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
-  my $log = new Log::In 150, "";
+  my $log = new Log::In 150;
   my $policy = $self->_list_config_get($list, 'unsubscribe_policy');
   
   # We'll need this to pass on

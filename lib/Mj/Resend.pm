@@ -180,7 +180,7 @@ sub post {
   $self->_check_body($list, $ent, $reasons, $avars);
 
   # Construct some aggregate variables;
-  $avars->{dup} = $avars->{dup_msg_id} || $avars->{dup_chesksum} ||
+  $avars->{dup} = $avars->{dup_msg_id} || $avars->{dup_checksum} ||
     $avars->{dup_partial_checksum} || '';
   $avars->{mime} = $avars->{mime_consult} || $avars->{mime_deny} || '';
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
@@ -226,6 +226,7 @@ sub post {
 	   MJOWNER  => $self->_global_config_get('sender'),
 	   SITE     => $self->_global_config_get('site_name'),
 	   WHEREAMI => $self->_global_config_get('whereami'),
+	   REASONS  => $mess,
 	  };
 
   $desc = $fileinfo->{description};
@@ -240,7 +241,7 @@ sub post {
   # If we got an empty return message, this is a signal not to ack anything
   # and so we just return;
   $rtnhdr = $ent->head->stringify;
-  return ($ok, "$rtnhdr") 
+  return ($ok, $rtnhdr) 
     unless defined $mess && length $mess;
 
   # Otherwise, decide what to ack
@@ -288,7 +289,7 @@ sub post {
   # Clean up after ourselves;
   $nent->purge if $nent;
   $ent->purge;
-  ($ok, "$rtnhdr");
+  ($ok, $rtnhdr);
 }
 
 =head2 post_start, post_chunk, post_done
@@ -573,7 +574,7 @@ sub _post {
   # queue for a token with no associated spool file. 
   unlink $file;
 
-  (1, "$rtnhdr");
+  (1, $rtnhdr);
 }
 
 =head2 _check_approval(list, head, entity, user)
@@ -793,8 +794,8 @@ sub _check_body {
 			pushmark return rv2sv stub));
 
   # Recursively check the body
-  $self->_r_ck_body($list, $ent, $reasons, $avars, $safe, $qreg, $mcode, $tcode,
-		    $inv, $max, , $maxlen, 'toplevel', 1);
+  $self->_r_ck_body($list, $ent, $reasons, $avars, $safe, $qreg, $mcode, 
+            $tcode, $inv, $max, , $maxlen, 'toplevel', 1);
 
   # Now look at what's left in %$inv and build reasons from it
   for $i (keys %$inv) {
@@ -867,12 +868,14 @@ sub _r_ck_body {
 
   if ($first) {
     $sum1 = $sum1->hexdigest;
+    $avars->{checksum} = $sum1;
     if($data = $self->{'lists'}{$list}->check_dup($sum1, 'sum')) {
       push @$reasons,
       "Duplicate Message Checksum (".localtime($data->{changetime}).")";
       $avars->{dup_checksum} = 1;
     }
     $sum2 = $sum2->hexdigest;
+    $avars->{partial_checksum} = $sum2;
     if($data = $self->{'lists'}{$list}->check_dup($sum2, 'partial')) {
       push @$reasons,
       "Duplicate Partial Message Checksum (".localtime($data->{changetime}).")";

@@ -31,6 +31,7 @@ my %actions =
    'forward'         => {files => [],    terminal => 1,},
 #  'log'             => 1,
    'mailfile'        => {files => [0],},
+   'reason'          => {files => [],},
    'reply'           => {files => [],},
    'replyfile'       => {files => [0],},
    'set'             => {files => [],},

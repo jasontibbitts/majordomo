@@ -211,7 +211,6 @@ sub address {
     }
 
     # 452 return code: too many recipients or lack of disk space.
-    # 552 return code: message too large.
     if ($val == -2) {
       # Checkpoint; discard responses.
       for ( ; $i > $j ; $i-- ) {
@@ -232,6 +231,11 @@ sub address {
       # backtrack 
       $recip = ${$addr}[$i];
       ($val, $code, $mess) = $self->{'smtp'}->RCPT($recip);
+    }
+    # 450 return code: mailbox busy; try again at the end of the delivery.
+    # 450 is returned by some MTAs if a DNS lookup timed out.
+    if ($code == 450) {
+      push @{$deferred}, ${$addr}[$j];
     }
 
     $j++ if (defined $val);

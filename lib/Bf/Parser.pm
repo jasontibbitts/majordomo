@@ -84,7 +84,7 @@ sub parse {
   }
 
   # Now try to identify the type of bounce
-  ($ok, %data) = parse_dsn($ent);
+  # ($ok, %data) = parse_dsn($ent);
 
   return ($status, $user, $mess);
 }

@@ -853,6 +853,14 @@ EOC
     'local'  => 1,
     'visible'=> 0,
   },
+   'save_denial_checksums' =>
+   {
+    'type'   => 'integer',
+    'groups' => [qw(resend majordomo)],
+    'global' => 0,
+    'local'  => 1,
+    'visible'=> 0,
+   },
    'session_lifetime' =>
    {
     'type'   => 'integer',

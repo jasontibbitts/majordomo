@@ -298,6 +298,7 @@ $files =
    'en/config/resend_host'                     => ['The resend_host variable',                     'us-ascii', '7bit'],
    'en/config/restrict_post'                   => ['The restrict_post variable',                   'us-ascii', '7bit'],
    'en/config/return_subject'                  => ['The return_subject variable',                  'us-ascii', '7bit'],
+   'en/config/save_denial_checksums'           => ['The save_denial_checksums variable',           'us-ascii', '7bit'],
    'en/config/sender'                          => ['The sender variable',                          'us-ascii', '7bit'],
    'en/config/sequence_number'                 => ['The sequence_number variable',                 'us-ascii', '7bit'],
    'en/config/session_lifetime'                => ['The session_lifetime variable',                'us-ascii', '7bit'],
