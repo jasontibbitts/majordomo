@@ -11,8 +11,18 @@ EXAMPLE:
 configset listname max_total_header_length = 2048
 
 
-Sets the maximum length of the headers in an unapproved message.  Set to
-zero to disable the total length check.
+Sets the maximum length of the combined headers in an unapproved
+message in number of characters. Set to zero to disable the total
+header length check, use configset max_header_line_length to check
+individual header lines one at a time. Actual header size and a
+boolean for exceeding this limit can be tested in access_rules.
+
+
+See also:
+   help configset access_rules           (how to trap violations of this limit)
+   help configset access_rules_variables (for what to test in access_rules)
+   help configset max_header_line_length (to test one header line at a time)
+   help configset max_mime_header_length (to test MIME part boundary headers)
 
 For a list of all help topics send this one-line message
    help topics

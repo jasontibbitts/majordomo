@@ -1,4 +1,5 @@
-Sets the maximum length of a single header in an unapproved message.
-This can be used to prevent excessive CC'ing or to cut down on some
-types of spam.  Set to zero to disable length checks on single
-headers.
+Sets the maximum length of a single header in an unapproved message
+in number of characters. Set to zero to disable length checks on
+individual header lines, use configset max_total_header_length to
+check all header lines at once. Actual longest header size and a
+boolean for exceeding this limit can be tested in access_rules.

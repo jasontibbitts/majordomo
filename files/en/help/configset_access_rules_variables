@@ -376,7 +376,11 @@ Third, an explanation of each variable:
                 bad_approval - is set if someone tried to do use a classic
                                approval method and gave a bad password
 
-                       bytes - contains the byte count of the message
+        body_length_exceeded - is set if 'bytes' exceeds the value in
+                               'configset LISTNAME maxlength'
+
+                       bytes - contains the actual byte count of the
+                               message, see 'body_length_exceeded' for test
 
         days_since_subscribe - contains the number of days since the user
                                signed up (used for a cooling off period
@@ -413,10 +417,12 @@ Third, an explanation of each variable:
                                someone is trying to make a mail loop)
 
            max_header_length - contains the length of the longest header in
-                               the message
+                               the message, see
+                               'max_header_length_exceeded' for test
 
-  max_header_length_exceeded - is set if max_header_length exceeds the
-                               value in 'configset max_header_line_length'
+  max_header_length_exceeded - is set if 'max_header_length' exceeds the
+                               value in 'configset LISTNAME
+                               max_header_line_length'
 
                         mime - is set if either mime_consult or mime_deny
                                is true
@@ -426,6 +432,14 @@ Third, an explanation of each variable:
 
                    mime_deny - is set if attachment_rules flagged a MIME
                                part as 'deny'
+
+          mime_header_length - contains the length of the longest MIME
+                               header in the message, see
+                               'mime_header_length_exceeded' for test
+
+ mime_header_length_exceeded - is set if 'mime_header_length' exceeds the
+                               value in 'configset LISTNAME
+                               max_mime_header_length'
 
                     mismatch - is set if the user and victim addresses are
                                not the same (after aliasing,
@@ -448,10 +462,12 @@ Third, an explanation of each variable:
                                variables)
 
          total_header_length - contains the sum of the lengths of all
-                               headers
+                               headers, see 'total_header_length_exceeded'
+                               for test
 
-total_header_length_exceeded - is set if total_header_length exceeds the
-                               value in 'configset max_total_header_length'
+total_header_length_exceeded - is set if 'total_header_length' exceeds the
+                               value in 'configset LISTNAME
+                               max_total_header_length'
 
                user_password - is set if the user's correct password was
                                used

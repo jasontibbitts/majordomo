@@ -11,8 +11,14 @@ EXAMPLE:
 configset listname maxlength = 40000
 
 
-The maximum size of an unapproved message in characters.  Set to zero to
-disable the message length check.
+Sets the maximum size of an unapproved message in number of characters.
+Set to zero to disable the message length check. Actual message size
+and a boolean for exceeding this limit can be tested in access_rules.
+
+
+See also:
+   help configset access_rules           (how to trap violations of this limit)
+   help configset access_rules_variables (for what to test in access_rules)
 
 For a list of all help topics send this one-line message
    help topics

@@ -11,10 +11,21 @@ EXAMPLE:
 configset listname max_header_line_length = 448
 
 
-Sets the maximum length of a single header in an unapproved message.
-This can be used to prevent excessive CC'ing or to cut down on some
-types of spam.  Set to zero to disable length checks on single
-headers.
+Sets the maximum length of a single header in an unapproved message
+in number of characters. Set to zero to disable length checks on
+individual header lines, use configset max_total_header_length to
+check all header lines at once. Actual longest header size and a
+boolean for exceeding this limit can be tested in access_rules.
+
+This command can be used to prevent excessive CC'ing or to cut down
+on some types of spam.
+
+
+See also:
+   help configset access_rules            (how to trap violations of this limit)
+   help configset access_rules_variables  (for what to test in access_rules)
+   help configset max_total_header_length (to test all header lines together)
+   help configset max_mime_header_length  (to test MIME part boundary headers)
 
 For a list of all help topics send this one-line message
    help topics
