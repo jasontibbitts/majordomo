@@ -438,12 +438,14 @@ sub _archive_part {
     $part = $request->{'part'} || 0;
     if ($part =~ s/[hH]$//) {
       $subs->{'CONTENT_TYPE'} = "header";
+      $subs->{'CHARSET'} = "US-ASCII";
       $subs->{'SIZE'} = 
         sprintf("%.1f", (length($msgdata->{$part}->{'header'}) + 51) / 1024);
       $showhead = 1;
     }
     else {
       $subs->{'CONTENT_TYPE'} = $msgdata->{$part}->{'type'};
+      $subs->{'CHARSET'} = $msgdata->{$part}->{'charset'};
       $subs->{'SIZE'} = $msgdata->{$part}->{'size'};
       $showhead = 0;
     }
@@ -522,6 +524,7 @@ sub _archive_part {
     for $i (sort keys %$msgdata) {
       next if ($i eq '0');
       $subs->{'CONTENT_TYPE'} = $msgdata->{$i}->{'type'};
+      $subs->{'CHARSET'}      = $msgdata->{$i}->{'charset'};
       $subs->{'PART'}         = $i;
       $subs->{'SIZE'}         = $msgdata->{$i}->{'size'};
       $subs->{'SUBPART'}      = $i eq '1' ? '' : " ";
@@ -2595,12 +2598,14 @@ sub _tokeninfo_post {
     $part = $request->{'part'};
     if ($part =~ s/[hH]$//) {
       $subs->{'CONTENT_TYPE'} = "header";
+      $subs->{'CHARSET'} = "US-ASCII";
       $subs->{'SIZE'} = 
         sprintf("%.1f", (length($msgdata->{$part}->{'header'}) + 51) / 1024);
       $showhead = 1;
     }
     else {
       $subs->{'CONTENT_TYPE'} = $msgdata->{$part}->{'type'};
+      $subs->{'CHARSET'} = $msgdata->{$part}->{'charset'};
       $subs->{'SIZE'} = $msgdata->{$part}->{'size'};
       $showhead = 0;
     }
@@ -2682,6 +2687,7 @@ sub _tokeninfo_post {
     for $i (sort keys %$msgdata) {
       next if ($i eq '0');
       $subs->{'CONTENT_TYPE'} = $msgdata->{$i}->{'type'};
+      $subs->{'CHARSET'}      = $msgdata->{$i}->{'charset'};
       $subs->{'PART'}         = $i;
       $subs->{'SIZE'}         = $msgdata->{$i}->{'size'};
       $subs->{'SUBPART'}      = $i eq '1' ? '' : " ";
