@@ -2746,7 +2746,7 @@ sub parse_triggers {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, $var;
-  my (@tmp, $data, $elem, $error, $i, $j, $table);
+  my (%needed, @names, @tmp, $data, $elem, $error, $i, $j, $table);
 
   # %$data will hold the return hash
   $data = {};
@@ -2757,13 +2757,23 @@ sub parse_triggers {
   return (0, "Error parsing table: $error")
     if $error;
 
+  @names = @{$self->{'vars'}{$var}{'values'}};
+  if ($self->{'list'} eq 'GLOBAL') {
+    @names = grep { $_ !~ /bounce|post/ } @names;
+  }
+  else {
+    @names = grep { $_ !~ /log|session|token/ } @names;
+  }
+  @needed{@names} = ();
+
   for ($i=0; $i<@{$table}; $i++) {
     # Ensure that each trigger name is valid.
-    unless (grep {$table->[$i][0] eq $_} @{$self->{'vars'}{$var}{'values'}}) {
+    if (! grep {$table->[$i][0] eq $_} @names) {
       $log->out('illegal value');
       return (0, "Illegal trigger '$table->[$i][0]'.\nLegal triggers are:\n".
-	  join(' ', @{$self->{'vars'}{$var}{'values'}}));
+        join(' ', @names));
     }
+    delete $needed{$table->[$i][0]};
     $data->{lc $table->[$i][0]} = [];
     $elem = $data->{lc $table->[$i][0]};
 
@@ -2776,6 +2786,11 @@ sub parse_triggers {
 	push @$elem, @tmp;
       }
     }
+  }
+  # All triggers must be included, even if executed "never"
+  if (scalar keys %needed) {
+    return (0, "Some required triggers are missing:  " .
+        join(' ', sort keys %needed) . "\n");
   }
   (1, '', $data);
 }

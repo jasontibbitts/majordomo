@@ -50,14 +50,19 @@ $Mj::Config::default_string = q(
  'lists_dir'            => undef,
  'sublists'             => [],
  'triggers'             => ($list eq 'GLOBAL') ? 
-                           [ 'bounce   | daily', 
+                           [ 
                              'checksum | daily', 
-                             'delay    | daily', 
+                             'delay    | hourly', 
                              'log      | daily',
-                             'post     | daily',
                              'session  | daily', 
-                             'token    | daily' ] : 
-                           [ 'delay    | hourly' ],
+                             'token    | daily' 
+                           ] : 
+                           [ 
+                             'bounce   | daily',
+                             'checksum | daily',
+                             'delay    | hourly',
+                             'post     | daily',
+                           ],
  'default_class'        => 'each',
  'default_flags'        => 'SPR',
  'delivery_rules'       => [],
