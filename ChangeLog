@@ -1,3 +1,9 @@
+2002-04-26  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (connect, dispatch)  Determine if an
+	address is defined before testing its validity.
+	Thanks to Brock Rozen.
+
 2002-04-25  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Archive.pm:  (_sort_archives, _by_date)  Use a

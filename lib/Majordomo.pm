@@ -283,13 +283,18 @@ sub connect {
   $user = new Mj::Addr($addr);
 
   unless ($int eq 'resend' or $int eq 'owner' or $int eq 'shell') {
-    ($ok, $err) = $user->valid;
+    if (! defined $user) {
+      ($ok, $err) = (0, "The address is undefined.\n"); # XLANG
+    }
+    else {
+      ($ok, $err) = $user->valid;
+    }
 
     unless ($ok) {
-      $err = "Invalid address: \"$addr\"\n$err"; #XLANG
+      $err = qq(The address "$addr" is invalid:\n$err); #XLANG
       $self->inform('GLOBAL', 'connect', $addr, $addr, 'connect',
                     $int, $ok, '', 0, $err, $::log->elapsed);
-      return (undef, "$err") unless $ok;
+      return (undef, $err) unless $ok;
     }
   }
 
@@ -522,10 +527,16 @@ sub dispatch {
   }
 
   # Validate the address responsible for the request.
-  $request->{'user'} = new Mj::Addr($request->{'user'});
+  $addr = $request->{'user'};
+  $request->{'user'} = new Mj::Addr($addr);
   if ($validate) {
-    ($ok, $mess) = $request->{'user'}->valid;
-    return [0, "$request->{'user'} is an invalid address:\n$mess"]
+    if (! defined $request->{'user'}) {
+      ($ok, $mess) = (0, "The address is undefined.\n"); # XLANG
+    }
+    else {
+      ($ok, $mess) = $request->{'user'}->valid;
+    }
+    return [0, qq(The address "$addr" is invalid:\n$mess)]
       unless $ok; #XLANG
   }
 
@@ -576,9 +587,14 @@ sub dispatch {
   for $addr (@addr) {
     $request->{'victim'} = $addr;
     if ($validate and $request->{'mode'} !~ /regex|pattern/) {
-      ($ok, $mess) = $addr->valid;
+      if (! defined $addr) {
+        ($ok, $mess) = (0, "The address is undefined.\n"); # XLANG
+      }
+      else {
+        ($ok, $mess) = $addr->valid;
+      }
       unless ($ok) {
-        push @$out, (0, "$addr is an invalid address:\n$mess"); # XLANG
+        push @$out, (0, qq(The address "$addr" is invalid:\n$mess)); # XLANG
         next;
       }
     }
