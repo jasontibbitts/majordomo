@@ -1,5 +1,5 @@
 The WWW interface for list administrators is located at:
-  $WWWADM_URL?domain=$DOMAIN
+  $WWWADM_URL
 
 Instructions are available there.
 
@@ -20,12 +20,23 @@ a site's virtual domains is being accessed.
 
 
 Actions performed with this CGI script will be logged with the IP
-address of the remote host, e.g.,
+address of the remote host, for example,
 
-  y127.0.0.1@example.com
+  y192.168.0.17@example.com
+
+After a list administrator has signed in, a temporary password ("latchkey")
+is substituted for the permanent password, to prevent the real password
+being recorded.  This password looks like a token, for example,
+
+  34FE-910B-D055
     
+and is valid for an hour by default.  For more information on latchkeys,
+see "help configset_latchkey_lifetime".
+
 
 See Also:
+   help admin
+   help admin_domain
    help configset_confirm_url
    help configset_wwwadm_url
    help configset_wwwusr_url
