@@ -548,6 +548,7 @@ files/en/format/text/.lists_foot
 files/en/format/text/.lists_full
 files/en/format/text/.lists_head
 files/en/format/text/.lists_none
+files/en/format/text/.password
 files/en/format/text/.show
 files/en/format/text/.show_error
 files/en/format/text/.show_foot
@@ -597,6 +598,7 @@ files/en/format/text/lists_foot
 files/en/format/text/lists_full
 files/en/format/text/lists_head
 files/en/format/text/lists_none
+files/en/format/text/password
 files/en/format/text/show
 files/en/format/text/show_error
 files/en/format/text/show_foot
@@ -744,6 +746,7 @@ files/en/format/wwwusr/.lists_full
 files/en/format/wwwusr/.lists_head
 files/en/format/wwwusr/.lists_none
 files/en/format/wwwusr/.login
+files/en/format/wwwusr/.password
 files/en/format/wwwusr/.show
 files/en/format/wwwusr/.show_error
 files/en/format/wwwusr/.show_foot
@@ -766,6 +769,7 @@ files/en/format/wwwusr/lists_full
 files/en/format/wwwusr/lists_head
 files/en/format/wwwusr/lists_none
 files/en/format/wwwusr/login
+files/en/format/wwwusr/password
 files/en/format/wwwusr/show
 files/en/format/wwwusr/show_error
 files/en/format/wwwusr/show_foot
