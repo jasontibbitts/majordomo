@@ -100,8 +100,12 @@ NOTE: You can use "nomail" or "vacation", they are identical commands.
   names shown here ('daily' or 'weekly'). To get that document, send
      intro LISTNAME
   using the actual list name, to the server at $MJ
-  (If that doesn't discuss digests, you may have to contact the list
-  owner at the special address LISTNAME-owner@$WHEREAMI)
+
+  If the welcome/info/intro text doesn't discuss digests, you can send
+  this command to the server for a list of available digests:
+     configshow LISTNAME digests
+  or you can contact the list owner at the special address
+  LISTNAME-owner@$WHEREAMI
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -314,6 +318,7 @@ See Also:
    help configset ack_denials_always  (overrides "noack" for denied posts)
    help configset allowed_flags       (restricts subscribers ability to use set)
    help configset default_flags       (sets per-list defaults before subscribing)
+   help configshow                    (for how to get a list of availabel digests)
    help subscribe (allows you to choose the comment that appears with your address)
 
 For a list of all help topics send this one-line message
