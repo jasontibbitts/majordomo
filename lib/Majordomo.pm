@@ -3447,7 +3447,7 @@ sub _subscribe {
   ($cstr = $mode) =~ s/(quiet|(no)?(welcome|inform|log))[-,]?//g;
   
   ($ok, $flags, $class, $classarg) =
-    $self->{'lists'}{$list}->make_setting($cstr, "");
+    $self->{'lists'}{$list}->make_setting($cstr, '');
   
   unless ($ok) {
     return (0, $class);

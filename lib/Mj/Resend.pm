@@ -455,7 +455,7 @@ sub _post {
     for $i (keys %$digests) {
       next if $i eq 'default_digest';
       $dissues->{$i}{volume} ||= 1; $dissues->{$i}{issue} ||= 1;
-      push @tmp, "$i :" . ($dissues->{$i}{volume}+1) .
+      push @tmp, "$i : $dissues->{$i}{volume} " .
 	" : " . ($dissues->{$i}{issue}+1);
     }
     $self->_list_config_set($list, 'digest_issues', @tmp);

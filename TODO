@@ -67,20 +67,6 @@ Way to force the users to use the digest version:
 
 List::digest_trigger - just call trigger method, pass results to digest_generate.
 
-List::digest_add - add num.data pair to digest (call $self->{digest}->add).
-  If results, call digest_generate
-
-List::digest_generate - actually make all of the digests and stuff them in
-  files.  Wrap the filenames up with the classes to be delivered to somehow
-  (key by digest name, perhaps) and return them.  Mj::Resend can deliver
-  them.
-
-  Take the built entities
-  and stuff them into files.  Return a list of digest, file pairs.
-  Resend::_post can take those and deliver them to the appropriate classes:
-    digest-digestname-digesttype: digest-daily-mime, digest-weekly-html
-
-
 Access: call Mj::is_subscriber instead of List::is_subscriber.
 
 Pass stripped address to access restriction language: $svictim =

@@ -321,7 +321,8 @@ sub set {
 
   # Call make_setting to get a new flag list and class setting
   ($ok, $flags, $class, $classarg) =
-    $self->make_setting($set, $data->{'flags'});
+    $self->make_setting($set, $data->{'flags'}, $data->{'class'},
+			$data->{'classarg'});
   return ($ok, $flags) unless $ok;
 
   ($data->{'flags'}, $data->{'class'}, $data->{'classarg'}) =
@@ -341,9 +342,10 @@ sub make_setting {
   my $self  = shift;
   my $str   = shift;
   my $flags = shift;
+  my $class = shift;
+  my $classarg = shift;
   my $log   = new Log::In 150, "$str, $flags";
-  my($arg, $class, $classarg, $dig, $i, $inv, $isflag, $rset, $set, $time,
-     $type);
+  my($arg, $dig, $i, $inv, $isflag, $rset, $set, $time, $type);
 
   # Split the string on commas; discard empties.  XXX This should probably
   # ignore commas within parentheses.

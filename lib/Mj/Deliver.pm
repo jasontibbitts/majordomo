@@ -144,7 +144,7 @@ sub deliver {
   ADDR:
     while (($canon, $datref) = splice(@data, 0, 2)) {
       $eclass = _eclass($datref);
-warn $eclass;
+
       # Stupid autovivification
       next if $args{classes}{$eclass} &&
 	$args{classes}{$eclass}{exclude}{$canon};

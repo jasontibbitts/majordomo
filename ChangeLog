@@ -1,5 +1,12 @@
 Fri Jan 29 00:11:52 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/List.pm (make_setting): Also take the original class and
+ 	classarg; like the flags, if the setting string doesn't modify
+ 	them they are returned intact.
+
+	* lib/Mj/Resend.pm (_post): No need to increment the volume number
+ 	for every post.
+
 	* lib/Majordomo.pm (set): Take only $setting.
 
 Thu Jan 28 20:42:09 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
