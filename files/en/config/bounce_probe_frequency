@@ -3,9 +3,12 @@ This variable controls how often bounce probes are sent out.
 The address list is split into 'bounce_probe_frequency' pieces, and a
 different piece is probed for each message sent to the list.  This lowers
 the overall load while still allowing complete probes to be done in a
-reasonable amount of time.
+reasonable amount of time.  For example, if the value is 8, approximately
+one-eighth of the subscribers' addresses will be probed every time.
 
 Setting this to zero disables regular bounce probing.  Setting this to one
 probes every address for every message and may place an extreme load on the
-server(s).  Note that this variable will be ignored if the MTA is qmail,
-because qmail does an equivalent kind of bounce probing itself.
+server(s).  
+
+Note that this variable will be ignored if the MTA is qmail, because qmail 
+does an equivalent kind of bounce probing itself.
