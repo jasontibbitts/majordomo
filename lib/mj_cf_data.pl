@@ -963,6 +963,15 @@ package Mj::Config;
     'visible'=> 1,
     'mutable'=> 1,
    },
+   'www_help_window' =>
+   {
+    'type'   => 'bool',
+    'groups' => [qw(miscellany)],
+    'local'  => 0,
+    'global' => 1,
+    'visible'=> 0,
+    'mutable'=> 1,
+   },
    'wwwadm_url' =>
    {
     'type'   => 'string',

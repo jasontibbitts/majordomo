@@ -225,6 +225,7 @@ $Mj::Config::default_string = q(
  'who_access'           => ($list eq 'GLOBAL') ? "closed" : "open",
  'whoami'               => ($list eq 'GLOBAL') ? $subs->{'whoami'} : '$LIST',
  'whoami_owner'         => ($list eq 'GLOBAL') ? $subs->{'whoami_owner'} : '$LIST-owner',
+ 'www_help_window'      => 0,
  'wwwadm_url'           => $subs->{'wwwadm_url'},
  'wwwusr_url'           => $subs->{'wwwusr_url'},
 };
