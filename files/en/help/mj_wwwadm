@@ -26,24 +26,27 @@ address of the remote host, for example,
 
 After a list administrator has signed in, a temporary password ("latchkey")
 is substituted for the permanent password, to prevent the real password
-being recorded.  This password looks like a token, for example,
+being recorded.  This password looks like a token identifier, for example,
 
   34FE-910B-D055
     
 and is valid for an hour by default.  For more information on latchkeys,
 see "help configset_latchkey_lifetime".
 
+If the GLOBAL www_help_window setting is turned on, all of the links for
+help files will cause the help documents to be displayed in a separate
+window.
+
 
 See Also:
    help admin
    help admin_domain
    help configset_confirm_url
+   help configset_latchkey_lifetime
+   help configset_www_help_window
    help configset_wwwadm_url
    help configset_wwwusr_url
    help mj_confirm
    help mj_wwwusr
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
-
+$INCLUDE-help/foot
