@@ -47,29 +47,30 @@ of security.
     notice will only be sent to the new address.
 
   * Using the personal password of the new address, if that address
-    is already registered, will have no effect.
+    is already registered, will cause an error.
 
 If the old and new addresses are identical except for the comments, only
 one confirmation will be required. This can be useful for changing the
 comment fields in all subscriptions at once. For example, if a
 subscriber had previously registered as "Joe <joe@example.org>" but
-wanted his last name to appear also, he could send the following two
+wanted his last name to be recorded, he could use the following two
 commands:
 
-  default user Joe Blow <joe@example.com>
+  default user Joe Blow <joe@example.org>
   changeaddr joe@example.org
 
 to change the comments in his address, for all of his subscriptions.
 
 
 See Also:
+   help admin_domain
    help auxiliary_list
    help alias       (which makes two addresses equivalent)
-   help default     (for how to override the "From:" address)
+   help default     (for how to specify the new address)
    help password    (for information on personal passwords)
-   help register    (which adds an address to the database)
-   help subscribe   (which adds an address to a list)
-   help unregister  (which removes an address from all lists)
-   help unsubscribe (which removes an address from one list)
+   help register    
+   help subscribe   
+   help unregister  
+   help unsubscribe 
 
 $INCLUDE-help/foot
