@@ -1,0 +1,352 @@
+                  Introduction aux motifs (pattern)
+
+Les motifs sont utilisés par diverses commandes et paramètres de
+configurations :
+
+  Par la commande "archive-sync", pour faire correspondre avec les
+    noms des archives.
+  Par les commandes "lists" et "rekey", pour faire correspondre avec
+    des noms de listes.
+  Par les commandes "set-pattern", "unregister-pattern",
+  "unsubscribe-pattern", "which" et "who", pour faire correspondre
+    avec des adresses email.
+
+  Par les paramètres "access_rules", "advertise", "noadvertise",
+    "bounce_probe_pattern", "bounce_rules", "delivery_rules", and
+    "post_limits", pour faire correspondre avec des adresses email.
+  Par les paramètres "admin_body" and "taboo_body", pour faire
+    correspndre a des lignes du corps d'un message posté.
+  Par les paramètres "admin_headers" and "taboo_headers", pour faire 
+    correspndre a des lignes des en-têtes d'un message posté.
+  Par les paramètres "attachment_filters" and "attachment_rules", pour
+    faire correspondre avec les types des partie des messages.
+  Par le paramètre "quote_pattern", pour compter le nombre de lignes
+    d'un message qui sont marquées comme étant écrite par quelqu'un
+    d'autre.
+  Par le paramètre "signature_separator", pour faire correspondre avec
+    le début de la signature.
+
+
+Il y a quatre types de motifs supportés :
+  Sous chaînes,             comme   "exemple"
+  Globaux,                  comme   %exemple%
+  Expressions rationnelles, comme   /exemple/
+  Non limités,              comme    exemple
+
+Plusieur exemples d'expressions rationnelles sont expliqués :
+  Exemple 1  - une liste de caractères spéciaux
+  Exemple 2  - masquer le caractère "." est requis
+  Exemple 3  - masquer le caractère "@" est requis
+  Exemple 4  - le début et la fin d'une chaîne
+  Exemple 5  - tout et n'importe quoi
+  Exemple 6  - masquer le caractère "*" est requis
+  Exemple 7  - sensibilité à la casse
+  Exemple 8  - masquer un peut tout ne fait pas de mal
+  Exemple 9  - trouver (ou ne pas trouver) les espaces
+  Exemple 10 - correspondances inverses ou négatives
+
+Majordomo est écris en Perl. Les expressions rationnelles de Perl est
+un outil puissant mais complexe pour la reconnaissance de motifs. Pour
+simplifier un peu, trois formes plus simples de motifs, en plus des
+expressions rationnelles complètes de perl.
+
+Un motif contient en général des délimiteurs, avec des modificateurs
+optionnels situés en dehors des délimiteurs. Les délimiteurs indiquent où
+le motif commence et ou il se termine, et les modificateurs changent
+l'interpretation du motif. Par exemple, le motif :
+
+  "exemple.net"i
+
+les délimiteurs sont les guillemets, et le modificateur est 'i'.
+C'est le plus communément utilisé, la lettre 'i' rends les recherches
+insensibles à la casse, cela signifie que les minuscules et les
+majuscules seront considérées comme identiques.
+
+Le modificateur de négation, '!', peut être utilisé pour inverser
+n'importe lequel des types de motifs. Par exemple :
+
+  !edu
+
+fera correspondre toute les chaînes qui ne contiennent pas "edu".
+
+Le motif spécial
+  ALL
+correspond a tout.
+
+Sous chaînes
+------------
+
+  Exemples : "exemple.com"
+             "utilisateur@quelquepart.exemple.com"i
+
+Le délimiteur est un guillemet ('"'). Il n'y a aucuns caractères
+spéciaux. Le motif recherche son équivalence exacte dans le texte. Le
+modificateur 'i' est permis.
+  "bsc"          trouvera           unsubscribe
+  "bsc"          ne trouvera pas    unsuBsCribe
+  "bsc"i         trouvera           unsuBsCribe
+
+
+Motifs globaux
+--------------
+
+  Exemples : %user@*exemple.com%i
+             %u-???@*exemple.com%i
+
+Le délimiteur est le pourcent ('%'). Ces motifs sont des restes des
+motifs de recherches de fichiers des interfaces en ligne de commandes
+DOS ou UNIX. Les caractères spéciaux incluent :
+
+  ?   correspond à un caractère.
+  *   correspond à n'importe combien de n'importe quel caractère.
+  []  sont utilisés pour définir une classe de caractères. Par
+      exemple, [abc] correspondra à n'importe laquelle des lettres a,
+      b ou c. Ce style de groupement à le même effet que dans les
+      expressions rationnelles.
+
+
+Expressions rationnelles
+------------------------
+
+Ce qui suit est une explication des bases des expressions rationnelles
+de Perl. Il y a une différence majeure entre les expressions
+rationnelles de Majordomo et celles de Perl : dans Perl version 5 et
+suppérieures, le caractère '@' doit être masqué par un anti slash
+"\@". Majordomo le fera tout seul si vous oubliez l'anti slash, mais
+pour la grace de dieu, vous devriez toujours l'ajouter lorsque vous
+désirez un symbole '@' littéral.
+
+Exemple 1 - une liste de caractères spéciaux
+
+Une expression rationnelle est une manière concrete d'exprimer un
+motif avec une série de caractères. La puissance des expressions
+rationnelles peut rendre certaines taches difficiles bien plus simple,
+mais nous allons devoir déblayer un peu le terrain pour vous.
+
+Le caractère / est utilisé pour marquer le début et la fin d'une
+expression rationnelle. Les lettres et les numéros sont conservés a
+l'identique. Un majorité des autres caractères ont des significations.
+Les plus communément utilisés sont :
+
+  !     est la négation de ce qui suit, correspond lorsque
+          l'expression ne le fait pas.
+  \@    le '@' se trouve dans toutes les adresse, il doit être précédé
+          d'un anti slash pour éviter les erreurs.
+  .     (point) n'importe quel caractère.
+  *     le caractère précédent, zero ou plus de fois, notez
+  *     spécialement...
+  .*    n'importe quel caractère, zero ou plus de fois.
+  +     le caractère précédent, au moins une fois, par exemple...
+  a+    la lettre "a", au moins une fois.
+  \     le caractère suivant ne sera pas interprété, par exemple...
+  \.    représente un point, et pas n'importe quel caractère.
+  ^     le début d'une chaîne, par exemple...
+  ^a    une chaîne débutant par la lettre "a".
+  \$    la fin d'une chaîne, par exemple...
+  a\$   une chaîne se terminant par la lettre "a".
+
+
+
+Exemple 2 - masquer le caractère "." est requis
+
+    /truc\.exemple\.com/
+
+Notez bien que les points sont masqués par un anti slash pour qu'ils
+soient interprétés comme des points et non pas des caractères de
+remplacement. Cela correspondra a une chaîne contenant :
+
+    truc.exemple.com
+
+Comme :
+
+     truc.exemple.com
+     machin.truc.exemple.com
+     qui@machin.truc.exemple.com
+     qui%machin.truc.exemple.com@exemple.com
+
+
+Exemple 3 - masquer le caractère "@" est requis
+
+     /pierre\@.*truc\.exemple\.com/
+
+Le '@' a un sens spécial en Pler, et dervait être masqué par un anti
+slash pour éviter les erreurs. La chaîne ".*" signifie "n'importe quel
+caractere, zero ou plus de fois". Donc, les chaînes suivantes
+correspondront :
+
+     pierre@truc.exemple.com
+     pierre@terminus.truc.exemple.com
+    apierre@terminus.truc.exemple.com
+
+Mais les suivantes non :
+
+     pierre@exemple.com
+     jacque@truc.exemple.com
+
+
+Exemple 4 - le début et la fin d'une chaîne
+
+     /^pierre\@.*truc\.exemple\.org\$/
+
+Cet exemple est similaire a l'exemple 4.3, et les chaînes suivante
+correspondent :
+
+     pierre@truc.exemple.org
+     pierre@terminus.truc.exemple.org
+
+Mais la suivante non :
+
+     apierre@terminus.truc.exemple.org
+
+... parce que l'expression rationnelle dit que la chaîne doit
+commencer par un "p" et se terminer par un "g", en utilisant le ^ et
+le \$, et aucune n'est vraie pour "apierre@terminus.truc.exemple.org".
+
+
+Exemple 5 - tout et n'importe quoi
+
+     /.*/
+
+Cette expression correspond a tout (n'importe quel caractère, zero ou
+plus de fois).
+
+
+Exemple 6 - masquer le caractère "*" est requis
+
+     /.\*pierre/
+
+Ici, l'* est précédé d'un \, donc, il correspondra a une asterisque et
+non pas le sens symbolique "zero ou plus de fois". Le '.' a toujours
+son sens symbolique de "n'importe lequel des caracteres", alors, il
+correspondra à :
+
+     a*pierre
+     s*pierre
+
+Car le . implique un caractère, mais pas :
+
+     *pierre
+
+
+Exemple 7 - sensibilité à la casse
+
+Normalement, tous les motifs sont sensibles à la casse. Vous pouvez
+rendre n'importe quel motif insensible en ajoutant un 'i' à la fin de
+l'expression.
+
+     /exemple\.com/i
+
+Cela correspondra à exemple.com, EXEMPLE.com, ExEmPlE.cOm, etc.
+Supprimons le 'i' :
+
+     /exemple\.com/
+
+... correspondrais à exemple.com mais pas EXEMPLE.com, ou n'importe
+quelle capitalisation.
+
+
+Exemple 8 - masquer un peut tout ne fait pas de mal
+
+Pour être un peu sur de ce qui se passe, mettez un \ devant tous les
+caractères de l'expression qui ne sont pas des numéros ou des lettres.
+Pour pouvoir mettre un / dedans, la même punition s'impose, un \
+devant. Donc :
+
+     /\/CO\=US/
+
+...correspond à /CO=US et peut être utile dans les expressions
+rationelles de ceux qui ont a gérer des adresses X.400 qui contiennent
+des caractères /.
+
+
+Exemple 9 - trouver (ou ne pas trouver) les espaces
+
+Normally, all whitespace within a pattern is matched verbatim, but it is
+sometimes desirable to add some additional space within a pattern to make
+it more readable.  For instance, here is a pattern matching some common
+quoting characters in email:
+
+  /^(-|:|>|[a-z]+>)/i
+
+This can be a bit difficult to follow, so we can space it out a bit:
+
+  /^( - | : | > | [a-z]+> )/xi
+
+The 'x' modifier specifies that whitespace is to be ignored, and makes the
+pattern a bit easier to read.  If you want to match actual whitespace, use
+'\s'.
+
+Note that the 'x' modifier provides additional functionality to Perl code
+relating to comments, but because Majordomo requires patterns to lie all on
+a single line, this is not significant here.
+
+
+Example 10 - negated or inverted matches
+
+Negated matches (like !/^sub/) work in places where they have meaning, such
+as the taboo expression matcher which has lots of complicated logic to handle
+them, but not all places. Majordomo patterns just get sent through a function
+that turns them into regular expressions... which may or may not make sense
+in the context you want to use them.
+
+For exemple
+   who-regexp listname !/xxx\.com/
+will produce a list of subscribers to "listname" that are NOT from the
+'xxx.com' domain. Be careful to escape the period, which otherwise will
+match any character, not just a period.
+
+Motifs non délimités
+--------------------
+
+Dans les sections précédentes, tous les motifs étaient considérés
+comme étant entre guillemets, pourcents ou slash. Il est possible
+d'utiliser des motifs sans les entourer de délimiteurs dans certains
+cas. Toutefois, le type de correspondance dépendra d'ou le motif est
+utilisé.
+
+  Par la commande "archive-sync", une correspondance exacte.
+  Par les commandes "lists" et "rekey", une correspondance exacte
+    insensible à la casse.
+  Par les commandes "which" et "who", une correspondance de sous
+    chaînes insensible à la casse.
+
+  Dans les paramètres "attachment_filters setting" et
+    "attachment_rules setting", une correspondance exacte insensible à
+    la casse.
+  Dans le paramètre "post_limits setting", une correspondance de sous
+    chaînes insensible à la casse.
+
+
+  Dans tous les autres cas mentionnés dans la première section, des
+  délimiteurs de motifs sont requis. L'utilisation d'un motif sans
+  délimiteur engendrera une erreur.
+
+
+Référez vous aussi à :
+   help admin
+   help archive
+   help configset_access_rules
+   help configset_advertise
+   help configset_admin_body
+   help configset_admin_headers
+   help configset_attachment_filters
+   help configset_attachment_rules
+   help configset_bounce_probe_pattern
+   help configset_bounce_rules
+   help configset_delivery_rules
+   help configset_noadvertise
+   help configset_post_limits
+   help configset_quote_pattern
+   help configset_signature_separator
+   help configset_taboo_body
+   help configset_taboo_headers
+   help lists
+   help overview
+   help rekey
+   help set
+   help unregister
+   help unsubscribe
+   help which
+   help who
+
+$INCLUDE-help/truct
