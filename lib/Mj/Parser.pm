@@ -256,7 +256,7 @@ sub parse_part {
 
   my $log         = new Log::In 50, "$interface, $title";
   my (@arglist, @help, $action, $cmdargs, $attachhandle, $command, $count,
-      $delay, $ent, $fail_count, $function, $garbage, $mess,
+      $delay, $elapsed, $ent, $fail_count, $function, $garbage, $mess,
       $mode, $name, $ok, $ok_count, $out, $outfh, $password, 
       $pend_count, $replacement, $request, $result, $sender, $shown,
       $sigsep, $subject, $sublist, $subs, $tlist, $tmpdir, $true_command, 
@@ -268,6 +268,7 @@ sub parse_part {
 
   $count = $ok_count = $pend_count = $fail_count = $unk_count = $garbage = 0;
   $delay = 0;
+  $elapsed = $::log->elapsed;
   $shown = 0;
   $user = $args{'reply_to'};
   $sigsep = $mj->global_config_get(undef, undef, 'signature_separator');
@@ -636,9 +637,10 @@ sub parse_part {
 
   if ($count == 0) {
     # No commands were found; log as an error under "parse".
+    $elapsed = $::log->elapsed - $elapsed;
     $mj->inform('GLOBAL', 'parse', $user, $user, '(no valid commands)',
                 $mj->{'interface'}, 0, 0, 0, "No valid commands were found.",
-                $::log->elapsed);
+                $elapsed);
 
   }
   return $count;
