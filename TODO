@@ -1,32 +1,12 @@
-Various items discussed recently (2000.10.25 and later) on mj2-dev.  Items
-should get added here when it is decided that something needs to be done,
-and removed when the folks who asked for the feature/fix have agreed that
-the feature is in/problem is fixed, or that the feature is not
-needed/problem really isn't a problem.
+The ideas presented here have been discussed on the mj2-dev mailing
+list.  Items should get added here when it is decided that something
+needs to be done, and removed when the folks who asked for the
+feature/fix have agreed that the feature is in/problem is fixed, or that
+the feature is not needed/problem really isn't a problem.
 
 ==================================
 Implemented, awaiting verification
 ==================================
-
-Using author statistics in the access rules
--------------------------------------------
-The access rules should have the posted message statistics available
-for the author of a message, to allow rules such as "moderate messages
-from people who have posted fewer than five messages to the list
-previously."
-
-Additional user request: keep stats from beginning of day/week/month
-instead of last 1/7/30 days.  [It is possible to do this already
-using the post_limits setting.]
-
-
-Configurable Subject: headers for digests
------------------------------------------
-Add an optional third line to the digests setting specifying the format of
-the subject header to be used when the digest is generated.  Allow standard
-digest substitutions (already defined in Mj::Resend::do_digests).  Add
-MSGCOUNT substitution for completeness.
-
 
 Better Queue Handling
 ---------------------
@@ -296,8 +276,7 @@ Better tmpdir and debug support
 -------------------------------
 The default value during installation should be on a file system that
 can hold hundreds of megabytes.  It should be possible to rotate logs
-and expire old files automatically.  The debugging level should apply
-to the WWW interfaces also.
+and expire old files automatically.
 
 
 Simplify the wwwadm list configuration
