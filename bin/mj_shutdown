@@ -46,7 +46,7 @@ unless (socket(SOCK, PF_UNIX, SOCK_STREAM, 0)) {
 
 if ($ok = connect(SOCK, sockaddr_un($rendezvous))) {
   # Connected to the server; 
-  print SOCK "quit $time\n";
+  syswrite(SOCK, "quit $time\n");
   print "The queue server has been asked to shut down in $time seconds.\n";
 }
 else {

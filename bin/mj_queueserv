@@ -31,11 +31,11 @@ $|=1;
 $ENV{PATH} = '';
 
 sub logmsg { print STDERR "[$$].Queueserv: @_\n"; }
-sub out { logmsg "Out: $_[1]"; syswrite($_[0], $_[1], length($_[1])) }
+sub out { my $w = ''; vec($w, fileno($_[0]), 1) = 1; logmsg "Out: $_[1]"; syswrite($_[0], $_[1]) if select(undef, $w, undef, .25) == 1; }
 sub in  { logmsg "In..."; sysread($_[0], $_, 1024); logmsg "In: $_"; $_ };
 
-my(@child, @parent, $ein, $eout, $expire, $i, $in, $line, $nfound, 
-   $out, $pid, $ping, $rin, $rout, $use_child, $wait, $win, $wout);
+my(@child, @parent, $ein, $eout, $expire, $i, $in, $line, $nfound, $out,
+    $pid, $ping, $rin, $rout, $status, $use_child, $wait, $win, $wout);
 
 my $sock = "$::TMPDIR/mj_queueserv.sock";
 my $uaddr = sockaddr_un($sock);
@@ -56,7 +56,7 @@ if ($::SIG_CHLD_IGNORE) {
   $SIG{CHLD} = 'IGNORE';
 }
 else {
-  $SIG{CHLD} = sub {wait};
+  $SIG{CHLD} = sub {while (waitpid(-1, &WNOHANG) > 0) {}};
 }
 
 logmsg("Majordomo Queue Server - ".scalar(localtime));
@@ -127,10 +127,15 @@ while (1) {
     # buffered ping responses here, so we send along the time.
     #logmsg "Checking $i";
     $ping = 'Ping ' . time;
-    unless (out($child[$i], $ping)) {
+    $status = out($child[$i], $ping);
+    if (!defined($status)) {
       logmsg "$i is dead";
       close $child[$i];
       undef $child[$i];
+      next PICK;
+    } elsif ($status == 0) {
+      # select() timed out, system may be heavily loaded
+      logmsg "$i is not responding";
       next PICK;
     }
 
@@ -240,8 +245,8 @@ while (1) {
 
   # Tell the client to go.
   unless (out($child[$use_child], "Parent $$ sending")) {
-    # It was alive just a second ago, but now it's dead.  So we just
-    # pretend we have high load.
+    # It was alive just a second ago, but now it's dead or not responding.
+    # So we just pretend we have high load.
     out(*Client, "Excessive load; queueing");
     close Client;
     next;
