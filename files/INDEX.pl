@@ -53,6 +53,7 @@ $files =
    'en/help/auxunsubscribe'                           => ['alias help file',                          'us-ascii', '7bit'],
    'en/help/auxwho'                                   => ['detailed help for auxwho command',         'us-ascii', '7bit'],
    'en/help/cancel'                                   => ['alias help file',                          'us-ascii', '7bit'],
+   'en/help/changeaddr'                               => ['detailed help for changeaddr command',     'us-ascii', '7bit'],
    'en/help/commands'                                 => ['complete user command reference',          'us-ascii', '7bit'],
    'en/help/config'                                   => ['alias help file',                          'us-ascii', '7bit'],
    'en/help/configdef'                                => ['command alias help file',                  'us-ascii', '7bit'],
