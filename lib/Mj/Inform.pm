@@ -63,8 +63,8 @@ elapsed is the amount of time required for the command to execute.
 
 =cut
 sub inform {
-  my($self, $list, $req, $requ, $user, $cmd, $int, 
-     $stat, $pass, $over, $comment, $elapsed) = @_;
+  my ($self, $list, $req, $requ, $user, $cmd, $int, 
+      $stat, $pass, $over, $comment, $elapsed) = @_;
   my $log  = new Log::In 150, "$list, $req";
   my $lf = gensym();
 
@@ -128,10 +128,12 @@ have to be loaded for every log entry.
 use Date::Format;
 use MIME::Entity;
 sub _inform_owner {  
-  my($self, $list, $req, $requ, $user, $cmd, $int, $stat, $pass, 
-     $comment, $elapsed) = @_;
+  my ($self, $list, $req, $requ, $user, $cmd, $int, $stat, $pass, 
+      $comment, $elapsed) = @_;
   my $log = new Log::In 150, "$list, $req";
   my ($author, $strip, $victim);
+
+  $list = 'GLOBAL' if ($list =~ /^DEFAULT/);
 
   my $whereami = $self->_global_config_get('whereami');
   my $owner    = $self->_list_config_get($list, 'whoami_owner');
