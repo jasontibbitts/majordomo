@@ -1184,9 +1184,6 @@ sub substitute_vars_format {
   # Count the elements in the largest of the listrefs in the substitution hash
   $maxiter = 1;
 
-  # Convert newlines to allow variable expansion
-  $str =~ s/\n/\002\001/g;
-
   # HELP substitution hack
   if ($self->{'interface'} =~ /^www/) {
     $i = $self->_global_config_get('www_help_window');
@@ -1200,9 +1197,9 @@ sub substitute_vars_format {
   }
 
   # Make initial substitution for HELP:TOPIC
-  while ($str =~ /([^\\]|^)\$HELP:([A-Z_]+)/) {
+  while ($str =~ /([^\\]|^)\$HELP:([A-Z_]+)/m) {
     $line = $1 . sprintf($helpurl, lc $2, $j, lc $2);
-    $str =~ s/([^\\]|^)\$HELP:([A-Z_]+)/$line/;
+    $str =~ s/([^\\]|^)\$HELP:([A-Z_]+)/$line/m;
   }
 
   # The ghost is a copy of the initial string without any of
@@ -1215,27 +1212,27 @@ sub substitute_vars_format {
     if (! ref $subs->{$i}) {
       # handle simple substitutions immediately
       if (defined $subs->{$i} and length $subs->{$i}) {
-        while ($str =~ /([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/) {
+        while ($str =~ /([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/m) {
           $value = defined $3 ? "%$3s" : "%s";
-          $value =~ s/://;
+          $value =~ s/://s;
           $line = sprintf $value, $subs->{$i};
-          $str =~ s/([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/;
+          $str =~ s/([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/m;
         }
       }
       # empty value: mark for line-by-line processing
       else {
-        while ($str =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/) {
+        while ($str =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/m) {
           $value = defined $2 ? "%$2s" : "%s";
           $value =~ s/://;
           $line = sprintf $value, $subs->{$i};
-          $str =~ s/([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/;
+          $str =~ s/([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/m;
         }
-        next unless ($str =~ /([^\\]|^)(\?)\Q$i\E(:-?\d+)?(?![A-Z_])/);
+        next unless ($str =~ /([^\\]|^)(\?)\Q$i\E(:-?\d+)?(?![A-Z_])/m);
         $subcount{$i} = 1;
       }
     }
     elsif (ref ($subs->{$i}) eq 'ARRAY')  {
-      next unless ($str =~ /([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(\b|$)/);
+      next unless ($str =~ /([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(\b|$)/m);
       $value = scalar @{$subs->{$i}};
       $maxiter = $value if ($value > $maxiter);
       $subcount{$i} = $value;
@@ -1249,7 +1246,6 @@ sub substitute_vars_format {
 
   # if no arrays are present, restore newlines and return.
   unless (keys %subcount) {
-    $str =~ s/\002\001/\n/g;
     $str =~ s/\\\$/\$/g;
     return $str;
   }
@@ -1259,19 +1255,19 @@ sub substitute_vars_format {
     last unless $maxiter > 1;
     if (! ref $subs->{$i}) {
       if (defined $subs->{$i} and length $subs->{$i}) {
-        while ($ghost =~ /([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/) {
+        while ($ghost =~ /([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/m) {
           $value = defined $3 ? "%$3s" : "%s";
           $value =~ s/://;
           $line = sprintf $value, " ";
-          $ghost =~ s/([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/;
+          $ghost =~ s/([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/m;
         }
       }
       else {
-        while ($ghost =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/) {
+        while ($ghost =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/m) {
           $value = defined $2 ? "%$2s" : "%s";
           $value =~ s/://;
           $line = sprintf $value, " ";
-          $ghost =~ s/([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/;
+          $ghost =~ s/([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/m;
         }
       }
     }
@@ -1304,8 +1300,8 @@ sub substitute_vars_format {
   }
 
 
-  @lines = split "\002\001", $str;
-  @ghost = split "\002\001", $ghost;
+  @lines = split "\n", $str;
+  @ghost = split "\n", $ghost;
   # Split the input string into lines, and make substitutions
   # on each line.
   LINE:
@@ -1313,6 +1309,7 @@ sub substitute_vars_format {
     $line = $lines[$j];
     $ghost = $ghost[$j];
     if ($line !~ /[\?\$][A-Z]/) {
+      $line =~ s/\\\$/\$/g;
       push @out, $line;
       next;
     }
@@ -1325,10 +1322,10 @@ sub substitute_vars_format {
           next LINE;
         }
         # Convert the ? to $.
-        $line =~ s/([^\\]|^)\?\Q$i\E(?![A-Z_])/$1\$$i/g;
-        $ghost =~ s/([^\\]|^)\?\Q$i\E(?![A-Z_])/$1\$$i/g;
+        $line =~ s/([^\\]|^)\?\Q$i\E(?![A-Z_])/$1\$$i/gm;
+        $ghost =~ s/([^\\]|^)\?\Q$i\E(?![A-Z_])/$1\$$i/gm;
       }
-      if ($line =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/) {
+      if ($line =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/m) {
         $maxiter = $subcount{$i} if ($subcount{$i} > $maxiter);
       }
     }
@@ -1368,11 +1365,11 @@ sub substitute_vars_string {
 
   for $i (keys %$subs) {
     # Don't substitute after backslashed $'s
-    while ($str =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(\b|$)/g) {
+    while ($str =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(\b|$)/gm) {
       $format = defined $2 ? "%$2s" : "%s";
-      $format =~ s/://;
+      $format =~ s/://s;
       $value = sprintf $format, $subs->{$i};
-      $str =~ s/([^\\]|^)\$\Q$i\E(:-?\d+)?(\b|$)/$1$value/;
+      $str =~ s/([^\\]|^)\$\Q$i\E(:-?\d+)?(\b|$)/$1$value/m;
     }
   }
   $str =~ s/\\\$/\$/g;
@@ -8331,8 +8328,8 @@ sub who_done {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2002, 2003 Jason Tibbitts for The Majordomo 
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

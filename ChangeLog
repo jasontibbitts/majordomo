@@ -1,5 +1,10 @@
 2003-09-18  Michael Yount <csf@moscow.com>
 
+	* lib/Majordomo.pm:  (substitute_vars_format)  Bugfix:
+	Remove backslashes before dollar signs on lines that
+	have no substitution variables.  Account for newlines
+	in regular expressions.  Thanks to Roger Klorese.
+
 	* lib/Mj/Addr.pm:  (new)  Bugfix:  Unfold the address
 	before parsing it.  Thanks to David Miller.
 
