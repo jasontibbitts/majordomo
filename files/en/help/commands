@@ -72,6 +72,7 @@ end
 faq LISTNAME
   The faq command shows the Frequently Asked Questions document for
   a mailing list.
+  See "help faq" for more details.
 
 
 get LISTNAME FILENAME
@@ -112,6 +113,7 @@ lists [PATTERN]
 password NEWPASSWORD
   The password command will change your personal password for all of
   your subscriptions at $DOMAIN.
+  See "help password" for more details.
 
 
 register 
@@ -119,6 +121,7 @@ register
   and assign a password for you.  The register command will not subscribe
   your address to any mailing lists.  When you subscribe to a mailing
   list, you will be registered automatically.
+  See "help register" for more details.
 
 
 reject [TOKEN]
