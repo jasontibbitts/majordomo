@@ -574,7 +574,7 @@ sub list_access_check {
     # for some routines.  If a delay was used, delay the command.
     # If "rule" mode was used, do not override the access rules.
     if ($password_override and $mode !~ /rule/) {
-      if ($data->{'delay'} > 0) {
+      if (defined($data->{'delay'}) and $data->{'delay'} > 0) {
         @final_actions = ('delay');
         goto FINISH;
       }
