@@ -2995,6 +2995,7 @@ sub who {
             'CGIDATA' => $request->{'cgidata'} || '',
             'CGIURL'  => $request->{'cgiurl'} || '',
             'CMDPASS' => &escape($request->{'password'}, $type),
+            'MODE'    => &escape($request->{'mode'}, $type),
             'PATTERN' => &escape($request->{'regexp'}, $type),
             'REMOVE'  => $remove,
             'START'   => $request->{'start'},
