@@ -2,8 +2,6 @@
 
 Mj::Resend - filtering and transformation functions for Majordomo
 
-___NNNOOOTTT FINISHED!!!___
-
 =head1 SYNOPSIS
 
   $mj->resend($list, $file);
@@ -107,6 +105,7 @@ sub post {
       $desc,
       $c_type,
       $c_t_encoding,
+      $approved,
      );
   my $log = new Log::In 30, "$list, $user, $file"; 
   $tmpdir = $self->_global_config_get("tmpdir");
@@ -143,18 +142,10 @@ sub post {
 
   # XXX Pass in the password we were called with, so that passwords
   # can be passed out-of-band.
-  ($ok, $passwd, $token) = $self->_check_approval($list, $thead, $ent, $user);
+  ($ok, $passwd, $token) =
+    $self->_check_approval($list, $thead, $ent, $user);
+  $approved = ($ok>0) && $passwd;
 
-  # No need to do any more (expensive) checks if we're approved.  This
-  # might turn out to be a bad idea.  If passwords don't always
-  # override access restrictions then we need to do our checks.
-  if ($ok > 0 && $passwd &&
-      $self->_list_config_get($list, 'access_password_override'))
-    {
-      return $self->_post($list, $user, $user, $mode, $cmd, $ent);
-    }
-  
-  # We're not approved; get on with life
   unless ($ok) {
     $avars->{bad_approval} = "Invalid Approve Header";
     push @$reasons, "Invalid Approve Header";
@@ -168,24 +159,30 @@ sub post {
 
   # Construct some aggregate variables;
   $avars->{dup} = $avars->{dup_msg_id} || $avars->{dup_chesksum} ||
-    $avars->{dup_partial_checksum};
-  $avars->{mime} = $avars->{mime_consult} || $avars->{mime_deny};
+    $avars->{dup_partial_checksum} || '';
+  $avars->{mime} = $avars->{mime_consult} || $avars->{mime_deny} || '';
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
-    $avars->{admin} || $avars->{bad_approval};
+    $avars->{admin} || $avars->{bad_approval} || '';
 
   # Bounce if necessary: concatenate all possible reasons with %~%, call
   # access_check with filename as arg1 and reasons as arg2.  XXX Victim
   # here should be the user in the headers; requester should be the user
   # making the request.  We should only regenerate user if it is not set.
   # This adds a modicum of security to the post command.
-  ($ok, $mess) =
-    $self->list_access_check
-      ($passwd, undef, $int, $mode, $cmd, $list, "post", $user, '',
-       $file, join('%~%', @$reasons), undef, %$avars);
+  if ($approved) {
+    $ok = 1;
+  }
+  else {
+    ($ok, $mess) =
+      $self->list_access_check
+	($passwd, undef, $int, $mode, $cmd, $list, "post", $user, '',
+	 $file, join('%~%', @$reasons), join('%~%', %$avars), %$avars);
+  }
 
   $owner = $self->_list_config_get($list, 'sender');
   if ($ok > 0) {
-    return $self->_post($list, $user, $user, $mode, $cmd, $ent);
+    return $self->_post($list, $user, $user, $mode, $cmd,
+			$ent, '', join('%~%', %$avars));
   }
   elsif ($ok < 0) {
     # ack the stall if necessary.  Note that we let the access call
@@ -289,14 +286,16 @@ sub post_done {
 use MIME::Parser;
 sub _post {
   my($self, $list, $user, $victim, $mode, $cmdline, $file, $arg2,
-     $arg3) = @_;
+     $avars) = @_;
   my $log  = new Log::In 35, "$list, $user, $file";
 
-  my(@refs, @skip, $arcent, $archead, $ent, $head, $i, $msgnum, $prefix,
-     $replyto, $sender, $seqno, $subject, $tmp, $tmpdir, $tprefix);
+  my(%avars, @refs, @skip, $arcent, $archead, $ent, $head, $i, $msgnum,
+     $prefix, $replyto, $sender, $seqno, $subject, $tmp, $tmpdir,
+     $tprefix);
 
   $self->_make_list($list);
   $tmpdir = $self->_global_config_get('tmpdir');
+  %avars = split('%~%', $avars);
 
   # Atomically update the sequence number
   $self->_list_config_lock($list);
@@ -428,17 +427,26 @@ sub _post {
   while ($tmp =~ s/<([^>]*)>//) {
     push @refs, $1;
   }
-  
+
+  # Unlink the file and print out the archive copy
+  unlink "$file";
+  $file = "$tmpdir/mjr.$$.arc";
+  open FINAL, ">$file" ||
+    $::log->abort("Couldn't open final output file, $!");
+  $arcent->print(\*FINAL);
+  close FINAL;
+
   # Pass to archive.  XXX Is $user good enough, or should we re-extract?
-  $msgnum =
-    $self->{'lists'}{$list}->archive_add($file,
-					 undef,
-					 {
-					  'from'    => $user,
-					  'subject' => $subject,
-					  'refs'    => join(',',@refs),
-					 },
-					);
+  $msgnum = $self->{'lists'}{$list}->archive_add
+    ($file,
+     undef,
+     {
+      'from'    => $user,
+      'quoted'  => $avars{quoted_lines},
+      'refs'    => join(',',@refs),
+      'subject' => $subject,
+     },
+    );
 
   # Pass to digest
   #$self->{'lists'}{$list}->digest_add($msgnum) if $msgnum;
@@ -457,12 +465,11 @@ sub _post {
 This takes a ref to a MIME::Entity and checks to see if it is approved by
 one of several methods:
 
- *In header 
- *First line of preamble
+  In header 
+  First line of preamble
   First line of first part
   First line of body
   First line of first part followed by a message/rfc822 attachment.
-  
 
 Head should be a copy of the message header, already decoded and unfolded.
 

@@ -878,9 +878,14 @@ EOC
     'mutable'=> 0,
     'comment'=> <<EOC,
 The directory where the mailing list archive is kept.
+
+If this is not set, Majordomo will look for a directory named "archive" in
+the public directory of the filespace.  If it exists, archives will be
+placed there.  If not, archives will not be generated and digests will not
+function.
 EOC
    },
-   'archive_split' =>
+   'archive_size' =>
    {
     'type'   => 'string',
     'groups' => [qw(archive)],
@@ -888,12 +893,43 @@ EOC
     'local'  => 1,
     'mutable'=> 1,
     'comment'=> <<EOC,
-A word describing how the archive files should be split:
+A string decribing the maximum size of a single archive file.  When a
+message arrives that would cause an archive file to exceed the size set
+here, a new archive file is created with the final number incremented by
+one.
 
-  monthly  - put one month\'s worth of messages in a file
-  weekly   - put a week\'s worth of messages in a file
-  daily    - one file per day
-  ####k    - start a new archive before the old one exceeds this size
+Possible values are an integer followed by one of k, or m for
+kilobytes or messages.  The value 'unlimited' is also permitted, in
+which case the archives will not have the following period and two
+digits appended.
+
+Note that changing this variable will only change the settings for new
+messages; old archives will not be renamed or altered in any way.
+EOC
+   },
+   'archive_split' =>
+   {
+    'type'   => 'enum',
+    'values' => [qw(yearly monthly weekly daily)],
+    'groups' => [qw(archive)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+A word describing how the archive files should be split.  Here are the
+possibilities, along with sample names of the archive files:
+
+  yearly  - 1999.00
+  monthly - 199903.00
+  weekly  - 20021031.00
+  daily   - 21121002.00
+
+Note that archives will be further split by size; see the archive_size
+variable.  This gives rise to the two trailing digits, which may not be
+present depending on the archive_size setting.
+
+Also note that changing this variable will only change the settings for new
+messages; old archives will not be renamed or altered in any way.
 EOC
    },
    'install_dir' =>

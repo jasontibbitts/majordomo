@@ -169,7 +169,7 @@ sub parse_part {
     
     # Stop parsing at a signature separator.  This has been relaxed to work
     # like Mj1 works, but it may be wise to make it configurable.
-    # if (/^-- $/) {
+    # if (/^\s*-+\s*$/) {
     if (/^-/) {
       print $outhandle ">>>> $_";
       print $outhandle "Stopping at signature separator.\n\n";

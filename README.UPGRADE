@@ -9,3 +9,15 @@ There are new Makefile.PL questions; be sure to rerun it and go through the
 questions again.  Things are likely to misbehave if the proper
 configuration options are not defined properly (or at all).
 
+You must answer 'y' to the "Create directories" prompt after make install
+in order to creat the new lock directory.  You can also delete any and all
+'.L' files that may exist in your lists directory.
+
+The archiving scheme has changed completely; any archives that may have
+been collected using previous versions need to be moved out of the way and
+all of the dotfiles need to be deleted.  The new archiving scheme will
+automatically start if an archive directory exists under public in the
+list's filespace.  Mj2 will automatically create a .index directory under
+that to store the indices.  As of yet there is no tool to convert archives
+to the new format.  The archive-related config variables have also changed;
+look over the settings of archive_split and archive_size.

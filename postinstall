@@ -149,10 +149,27 @@ if (-t STDIN) {
 You may also wish to add the following entries to the $config->{'uid'}
 account\'s crontab:
 EOM
-  for my $i (@{$config->{'domains'}}) {
-    print suggest_crontab($i);
-  }
 }
+open OUT, ">$config->{install_dir}/majordomo.crontab" or
+  die "Can't open sample crontab file, $!";
+print OUT <<EOM;
+# This is a set of sample crontab entries.
+EOM
+  
+my $ct;
+for my $i (@{$config->{'domains'}}) {
+  $ct = suggest_crontab($i);
+  print $ct if -t STDIN;
+  print OUT $ct;
+}
+
+close OUT;
+chown (scalar getpwnam($config->{'uid'}),
+       scalar getgrnam($config->{'gid'}),
+       "$config->{install_dir}/majordomo.crontab") or
+  die "Can't chown $config->{install_dir}/majordomo.crontab, $!";
+chmod (0755, "$config->{install_dir}/majordomo.crontab") or
+  die "Can't chmod $config->{install_dir}/majordomo.crontab, $!";
 
 exit;
 
@@ -188,11 +205,8 @@ sub set_script_perms {
 
   # Properly set ownerships on everything.
   chown($uid, $gid, @$sidscripts, @$scripts) || die "Couldn't change ownership: $!";
-  rchown($id, $uid, $gid);
-
-  # Change permissions on important installation dirs; it's a sad state
-  # that root users these days can't comprehend umasks.
-  chmod(0755, $id, "$id/bin", "$id/man");
+  chown($uid, $gid, $id);
+  rchown($uid, $gid, 0644, 0755, "$id/bin", "$id/man", "$id/lib");
 
   # Make executables setuid; the scripts must be readable while the the
   # wrappers need only be executable.
@@ -202,6 +216,7 @@ sub set_script_perms {
   else {
     chmod(06555, @$sidscripts) || die "Couldn't change mode: $!";
   }
+  chmod(0555, @$scripts);
   print "ok\n";
 }
 
@@ -216,8 +231,9 @@ sub create_dirs {
 
   print "$l, $tmp, $uid, $gid\n";
 
-  safe_mkdir($l,   0777 & ~oct($um), $uid, $gid);
-  safe_mkdir($tmp, 0777 & ~oct($um), $uid, $gid);
+  safe_mkdir($l,           0777 & ~oct($um), $uid, $gid);
+  safe_mkdir($tmp,         0777 & ~oct($um), $uid, $gid);
+  safe_mkdir("$tmp/locks", 0777 & ~oct($um), $uid, $gid);
   
   for $i (@$doms) {
     printf "Making directories for %s, mode %lo.\n", $i, (0777 & ~oct($um));
@@ -225,7 +241,7 @@ sub create_dirs {
     safe_mkdir("$l/$i/GLOBAL", 0777 & ~oct($um), $uid, $gid);
     safe_mkdir("$l/$i/GLOBAL/files", 0777 & ~oct($um), $uid, $gid);
     safe_mkdir("$l/$i/GLOBAL/sessions", 0777 & ~oct($um), $uid, $gid);
-  }    
+  }
 }
 
 # Set basic config vars
@@ -360,23 +376,28 @@ sub safe_mkdir {
 }
 
 sub rchown {
-  my $dir = shift;
   my $uid = shift;
   my $gid = shift;
+  my $mod = shift;
+  my $dmod = shift;
+  my ($dh, $dir);
 
-  $dir =~ s!/$!!;
-
-  my $dh = DirHandle->new($dir);
-  chown($uid, $gid, $dir) || die("Couldn't chown $dir, $!");
-  for my $i ($dh->read) {
-    next if $i eq '.' || $i eq '..';
-    chown($uid, $gid, "$dir/$i") || die("Couldn't chown $dir/$i, $!");
-    if (-d "$dir/$i") {
-      rchown("$dir/$i", $uid, $gid);
+  for $dir (@_) {
+    $dir =~ s!/$!!;
+    
+    $dh = DirHandle->new($dir);
+    chown($uid, $gid, $dir) || die("Couldn't chown $dir, $!");
+    chmod($dmod, $dir);
+    for my $i ($dh->read) {
+      next if $i eq '.' || $i eq '..';
+      chown($uid, $gid, "$dir/$i") || die("Couldn't chown $dir/$i, $!");
+      chmod($mod, "$dir/$i") || die("Couldn't chmod $dir/$i, $!");
+      if (-d "$dir/$i") {
+	rchown($uid, $gid, $mod, $dmod, "$dir/$i");
+      }
     }
   }
 }
-
 1;
 #
 ### Local Variables: ***

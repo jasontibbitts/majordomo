@@ -26,6 +26,7 @@ while (($src,$dst) = splice(@ARGV,0,2)) {
       $line =~ s!(^  \$::LISTDIR\s*= ).*!$1\"$config->{'lists_dir'}\";!;
       $line =~ s!(^  \$::UMASK\s*= ).*!$1\"$config->{'umask'}\";!;
       $line =~ s!(^  \$::TMPDIR\s*= ).*!$1\"$config->{'tmpdir'}\";!;
+      $line =~ s!(^  \$::LOCKDIR\s*= ).*!$1\"$config->{'lockdir'}\";!;
       $line =~ s!(^  \$::WTMPDIR\s*= ).*!$1\"$config->{'wtmpdir'}\";!;
       $line =~ s!(^  \$::DEFDOM\s*= ).*!$1\"$ {$config->{'domains'}}[0]\";!;
       $line =~ s!(^  \$::UID\s*= ).*!$1\"$uid\";!;

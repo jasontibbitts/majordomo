@@ -4,6 +4,7 @@ BEGIN {
   $::LISTDIR= 'unset';
   $::DEFDOM = 'unset';
   $::TMPDIR = 'unset';
+  $::LOCKDIR= "blah";
   $::UMASK  = "007";
   $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 

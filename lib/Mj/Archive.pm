@@ -40,12 +40,13 @@ use Mj::File;
 use Mj::Log;
 use vars qw(@index_fields);
 
-@index_fields = qw(byte bytes line lines date from subject refs quoted);
+@index_fields = qw(byte bytes line lines quoted split date from subject
+		   refs);
 
 1;   
 __END__
 
-=head2 new(directory, listname, split)
+=head2 new(directory, listname, split, size)
 
 This allocates an archive object and loads in the names of the individual
 archive files.  directory is the actual pathname to the directory
@@ -53,12 +54,15 @@ containing the archive files; listname is the name of the list the files
 are associated with (so that their names can be easily deduced) and split
 is a string describing just when an archive should be split:
 
+  yearly
   monthly
   weekly
   daily
-  AAAAk  (after A kilobytes)
-  BBBBl  (after B lines) (not implemented)
-  CCCCm  (after C messages) (not implemented)
+
+Size is a string representing the maximum size of a subarchive:
+
+  AAAAk  (A kilobytes)
+  BBBBm  (B messages)
 
 note that no less frequent interval is supported.
 
@@ -68,22 +72,29 @@ sub new {
   my $dir   = shift;
   my $list  = shift;
   my $split = shift;
+  my $size  = shift;
   my $class = ref($type) || $type;
-  my $log   = new Log::In 150, "$dir, $list";
-  my($dh);
+  my $log   = new Log::In 150, "$dir, $list, $split, $size";
+  my($dh, $fh, $tmp);
   my $self = {'dir'   => $dir,
 	      'list'  => $list,
 	      'split' => $split,
+	      'size'  => $size,
 	     };
   bless $self, $class;
 
-  # Get list of files
+  unless (-d "$dir/.index") {
+    mkdir("$dir/.index", 0777) ||
+      $log->abort("Couldn't create index dir $dir/.index, $!");
+  }
+
+  # Get list of files but don't pull in any data.
   $dh = new DirHandle $dir;
   return undef unless defined $dh;
   while (defined($_ = $dh->read)) {
-#XXX    $self->{'archives'}{$_} = {};
-    $self->{'archives'}{$_}{'bytes'} = (stat("$dir/$_"))[7]
-      if /^$list-\d{8}/;
+    if (/^$list-/) {
+      $self->{'archives'}{$_} = {};
+    }
   }
   return $self;
 }
@@ -110,10 +121,9 @@ $data->{'refs'} should contain the data from the References: header (a
 comma-separated list of message-IDs in brackets), or the single message-ID
 from the In-Reply-To: header.  Or nothing...
 
-This routine will fill in the other data fields (byte, bytes, line, lines,
-quoted) itself.
-
-XXX This is too large; break it up.
+Throughout this routine, $arc is the name of the main archive while $sub is
+the name of the subarchive (the archive with the split count appended).
+$data holds info about the message being added.
 
 =cut
 sub add {
@@ -123,74 +133,78 @@ sub add {
   my $data   = shift || {};
   my $log    = new Log::In 150, "$file";
 
-  my($arc, $count, $dir, $fh, $from_line, $month, $msgno, $msgs, $th,
+  my($arc, $count, $dir, $fh, $from_line, $month, $msgno, $msgs, $sub, $th,
      $time, $tmp, $year);
 
   $data->{'bytes'} = (stat($file))[7];
-  $data->{'lines'} = 0;
-
-  # Figure out which archive to add to: use date -> year, month
   $data->{'date'} ||= time;
-  ($month, $year) = (localtime($data->{'date'}))[4,5];
-  $year += 1900;
-  $month++;
-  $month = "0$month" if $month < 10;
-  $count = "00";
-  $arc = "$self->{'list'}-$year$month$count";
+  $data->{'split'} = '';
+
   $dir = $self->{'dir'};
+  $arc = $self->{list}. '-'. _arc_name($self->{'split'}, $data->{'time'});
 
-  # Check to see whether we already have archives from this month
-  if ($self->{'archives'}{$arc}) {
-    # Figure out which count to use; take the last file in the list
-    $arc = (grep(/^$self->{'list'}-$year$month\d\d/,
-		 sort(keys(%{$self->{'archives'}})))
-	   )[-1];
-    ($count) = $arc =~ /$self->{'list'}-$year$month(\d\d)/;
+  # Determine the proper count if necessary; don't bother if unlimited;
+  # otherwise, take the last existing one and check to make sure it will
+  # fit.
+  unless ($self->{size} eq 'unlimited') {
+    $count = "00";
 
-    # If we're splitting on size, check sizes and increment count if necessary
-    if ($self->{'split'} =~ /(\d+)k/ &&
-	$data->{'bytes'} + $self->{'archives'}{$arc}{'bytes'} > $1 * 1024)
-      {
-	$count++;
-	$arc = "$self->{'list'}-$year$month$count";
+    # Check to see whether we already have archives from this month
+    if ($self->{'archives'}{"$arc.$count"}) {
+
+      # Figure out which count to use; take the last file in the list and
+      # extract the count from it
+      $sub = (grep(/^$arc\.\d\d/,
+		   sort(keys(%{$self->{'archives'}})))
+	     )[-1] || "$arc.$count";
+
+      $sub =~ /.*\.(\d\d)/; $count = $1;
+
+      # Grab the counts for the subarchive and open a new archive if
+      # necessary. XXX Put the archive in the filespace with an appropriate
+      # description if creating a new one.
+      $self->_read_counts($sub);
+      if ($self->{size} =~ /(\d+)k/) {
+	$count++ if $self->{archives}{$sub}{bytes} &&
+	  $data->{bytes} + $self->{archives}{$sub}{bytes} > $1 * 1024;
       }
-    # Do the same for message counts; open the count file and check
-   
-    # Do the same for line counts
-
+      if ($self->{size} =~ /(\d+)m/) {
+	$count++ if $self->{archives}{$sub}{msgs} &&
+	  $self->{archives}{$sub}{msgs}+1 > $1;
+      }
+    }
   }
-  
-  # Instantiate the index
-  $self->{'indices'}{$arc} = new Mj::SimpleDB "$dir/.I$arc", \@index_fields;
+  # Now choose the final values we will use
+  $sub = $arc;
+  if (defined $count) {
+    $sub .= ".$count";
+    $data->{'split'} = $count;
+  }
 
-  # Open and lock the archive
+  # Open and lock the subarchive; we're now in a critical section
   $fh = new Mj::File;
-  $fh->open("$dir/$arc", ">>");
+  $fh->open("$dir/$sub", ">>");
   $data->{'byte'} = $fh->tell;
 
-  # Grab the line and message count
-  if (-f "$dir/.C$arc") {
-    $th = new IO::File "<$dir/.C$arc";
-    $log->abort("Can't read count file $dir/.C$arc: $!") unless $th;
-    $tmp = $th->getline;
-    chomp $tmp;
-    $data->{'line'} = $tmp;
-    $tmp = $th->getline;
-    chomp $tmp;
-    $msgs = $tmp + 1;
-    $msgno = "$year$month$count.$msgs";
-    $th->close;
-  }
-  else {
-    $data->{'line'} = 0;
-    $msgs = 1;
-    $msgno = "$year$month$count.1";
-  }
+  # Grab the overall counts for the archive XXX Add force option to
+  # eliminate race possibility here.
+  $self->_read_counts($sub);
+  $self->_read_counts($arc);
+
+  # Figure out the proper message number, which is from the unsplit count
+  # file.
+  $msgno = $self->{archives}{$arc}{msgs}+1;
+
+  # Find the starting line of the new message
+  $data->{line} = $self->{archives}{$sub}{lines}+1;
+
+  # Instantiate the index
+  $self->{'indices'}{$arc} = new Mj::SimpleDB "$dir/.index/.I$arc", \@index_fields;
 
   # Generate and append the mbox separator if necessary
   if ($sender) {
-    if ($data->{'date'}) {
-      $time = localtime($data->{'date'});
+    if ($data->{'time'}) {
+      $time = localtime($data->{'time'});
     }
     else {
       $time = localtime;
@@ -204,12 +218,10 @@ sub add {
   # Copy in the message
   $th = new IO::File "<$file";
   $log->abort("Coundn't read message file $file: $!") unless $th;
-  $data->{'quoted'} = 0;
   while (defined ($_ = $th->getline)) {
     # XXX Error check the print
     $fh->print($_);
-    $data->{'quoted'}++ if /^( : | > | [a-z]+> )/xio;
-    $data->{'lines'}++;
+    $data->{lines}++;
   }
   
   # Close the message
@@ -218,19 +230,20 @@ sub add {
   # Print the blank line separator
   $fh->print("\n");
   $data->{'lines'}++;
-  # Don't increment the byte count, because seek counts from zero so we
-  # have to subtract one somewhere.
+  # Don't increment the byte count; seek counts from zero so we have to
+  # subtract one somewhere.
 
-  # Print out the new count file
-  $th = new IO::File ">$dir/.C$arc";
-  $log->abort("Can't write count file $dir/.C$arc: $!") unless $th;
-  $count = $data->{'line'} + $data->{'lines'};
-  $th->print("$count\n") ||
-    $log->abort("Can't write count file $dir/.C$arc: $!");
-  $th->print("$msgs\n") ||
-    $log->abort("Can't write count file $dir/.C$arc: $!");
-  $th->close;
-  
+  # Print out the new count files; additionally do the main archive if
+  # splitting by size.
+  $self->{archives}{$sub}{lines} += $data->{lines};
+  $self->{archives}{$sub}{msgs}++;
+  $self->_write_counts($sub);
+  if ($arc ne $sub) {
+    $self->{archives}{$arc}{lines} += $data->{lines};
+    $self->{archives}{$arc}{msgs}++;
+    $self->_write_counts($arc);
+  }
+
   # Append the line containing the info to index
   $self->{'indices'}{$arc}->add("", $msgno, $data);
   
@@ -364,6 +377,89 @@ sub _msgnum {
   $2;
 }
 
+=head2 _arc_name
+
+Gives the base name of the archive file for a given split and a given time.
+
+=cut
+sub _arc_name {
+  my $split = shift;
+  my $time  = shift || time;
+  my $log = new Log::In 200, "$split, $time";
+  my ($mday, $month, $week, $year);
+
+  # Extract data from teh given time
+  ($mday, $month, $year) = (localtime($time))[3,4,5];
+
+  # Week 1 is from day 0 to day 6, etc.
+  $week = 1+(int($mday)/7);
+  $mday++;
+  $year += 1900;
+  $month++;
+  $month = "0$month" if $month < 10;
+  $mday  = "0$mday"  if $mday  < 10;
+
+  return "$year"            if $split eq 'yearly';
+  return "$year$month"      if $split eq 'monthly';
+  return "$year$month$mday" if $split eq 'daily';
+  return "$year$month$week" if $split eq 'wekly';
+}
+
+=head2 _read_counts
+
+Loads in the sizing data for an archive or a subarchive.  This really
+expects that the index file exists; else some default values are set.
+
+=cut
+sub _read_counts {
+  my $self = shift;
+  my $file = shift;
+  my $dir = $self->{dir};
+  my $log = new Log::In 200, "$file";
+  my ($fh, $tmp);
+
+  return if defined $self->{archives}{$file}{bytes};
+
+  if (-f "$dir/.index/.C$file") {
+    $self->{archives}{$file}{bytes} = (stat("$dir/$file"))[7];
+    $fh = new IO::File "<$dir/.index/.C$file";
+    $log->abort("Can't read count file $dir/.index/.C$file: $!") unless $fh;
+    $tmp = $fh->getline;
+    chomp $tmp;
+    $self->{archives}{$file}{lines} = $tmp;
+    $tmp = $fh->getline;
+    chomp $tmp;
+    $self->{archives}{$file}{msgs} = $tmp;
+    $fh->close;
+  }
+  else {
+    $self->{'archives'}{$file}{bytes} = 0;    
+    $self->{'archives'}{$file}{lines} = 0;
+    $self->{'archives'}{$file}{msgs}  = 0;
+  }
+}
+
+=head2 _write_counts
+
+Writes out the count file for a given file.  This depends on the data
+stored in the archive object being correct.
+
+=cut
+sub _write_counts {
+  my $self  = shift;
+  my $file  = shift;
+  my $dir   = $self->{dir};
+  my $log   = new Log::In 200, "$file";
+  my ($fh);
+
+  $fh = new IO::File ">$dir/.index/.C$file";
+  $log->abort("Can't write count file $dir/.index/.C$file: $!") unless $fh;
+  $fh->print("$self->{archives}{$file}{lines}\n") ||
+    $log->abort("Can't write count file $dir/.index/.C$file: $!");
+  $fh->print("$self->{archives}{$file}{msgs}\n") ||
+    $log->abort("Can't write count file $dir/.index/.C$file: $!");
+  $fh->close;
+}
 
 =head2 load_index
 

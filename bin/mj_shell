@@ -3,6 +3,7 @@ BEGIN {
   $::LIBDIR = "/path/to/lib";
   $::LISTDIR= "/path/to/lists";
   $::DEFDOM = "some.dom.ain";
+  $::LOCKDIR= "blah";
   $::WTMPDIR= "/tmp";
   $::UMASK  = "007";
   $::UID    = "baduid";

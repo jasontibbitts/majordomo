@@ -13,6 +13,10 @@ the possibility of communicating with something other than a socket using
 the same interface.  An earlier version of this code supported executing a
 program with the Connection object encapsulating its input and output.
 
+This class also encapsulates a simple buffered IO mechanism over unbuffered
+sysread and syswrite.  This enables us to use select calls to provide real
+timeouts on socket reads.  (The buffered writes are still used, right now.)
+
 =cut
 
 package Mj::Deliver::Connection;
@@ -47,6 +51,7 @@ sub new {
   return undef unless $self->{'outhandle'};
   $self->{'outhandle'}->autoflush(1);
   $self->{'outsel'} = new IO::Select $self->{'outhandle'};
+  $self->{buffer} = '';
   return $self;
 }
 
@@ -68,6 +73,10 @@ sub print {
 This grabs a line from the connection, timing out (and returning undef)
 appropriately.
 
+Because select and getline (and buffered input in general) don''t mix, we
+maintain our own buffer and read a chunk off of the socket whenever it is
+necessary.
+
 There was support for a separate input handle, but the support for
 communicating with a pair of filehandles has been scrapped.  (That was the
 original reason for this module, but...)
@@ -75,8 +84,16 @@ original reason for this module, but...)
 =cut
 sub getline {
   my $self = shift;
-  return undef unless $self->{'outsel'}->can_read($self->{'timeout'});
-  $self->{'outhandle'}->getline;
+  my ($len);
+  
+  while(!length($self->{buffer}) || $self->{buffer} !~ /\n/) {
+    return undef unless $self->{outsel}->can_read($self->{timeout});
+    $len = $self->{outhandle}->sysread($self->{buffer}, 1024,
+				       length($self->{buffer}));
+    return undef unless $len;
+  }
+  $self->{buffer} =~ s/^([^\n]*\n)//;
+  $1;
 }
 
 =head2 fileno

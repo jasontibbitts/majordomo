@@ -35,6 +35,7 @@ $Mj::Config::default_string = q(
  'addr_require_fqdn'    => 1,
  'addr_strict_domain_check' => 1,
  'archive_dir'          => '',
+ 'archive_size'         => 'unlimited',
  'archive_split'        => 'monthly',
  'attachment_rules'     => [],
  'install_dir'          => undef,

@@ -1,0 +1,54 @@
+#!/usr/bin/perl -w
+
+use IO;
+use IO::Socket;
+use IO::Select;
+
+sub getline {
+  while(!length($buffer) || $buffer !~ /\r\n/) {
+#    print ".";
+    die "timed out" unless $sel->can_read(60);
+    $len = $sock->sysread($buffer, 2, length($buffer));
+    die "error reading" unless defined $len;
+    warn "got empty read" unless $len;
+  }
+  $buffer =~ s/^([^\n]*\n)//;
+  $1;
+}
+
+sub getresp {
+  while (1) {
+    $resp = getline;
+    print "<<< $resp";
+    last if $resp =~ /^\d{3} .*/;
+  }
+}
+
+sub putline {
+  $line = shift;
+  print ">>> $line\n";
+  $sock->print("$line\r\n");
+}
+
+$sock = new IO::Socket::INET
+  # Change to other hostnames to test them
+  PeerAddr => 'localhost',
+  PeerPort => 25,
+  Protp    => 'tcp',
+  Timeout  => 60;
+die "No socket" unless $sock;
+
+$sel = new IO::Select $sock;
+die "No select" unless $sel;
+
+$buffer = '';
+
+getresp;
+# Choose one; SMTP or ESMTP
+putline('HELO sina.hpc.uh.edu');
+#putline('EHLO sina.hpc.uh.edu');
+getresp;
+putline('QUIT');
+getresp;
+exit 0;
+

@@ -1,3 +1,73 @@
+Sun May 10 00:33:48 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* postinstall: Properly set permissions on all installed files,
+ 	including lib and man.  Everything that is publically readable
+ 	should now have the appropriate permissions, and everything that
+ 	is to be secured should inherit properly from the configured
+ 	umask.
+
+	* lib/Mj/Lock.pm (unlock): Turned lockfile deletion back on after
+ 	some serious testing; for some reason, it doesn't cause problems
+ 	on Linux.  More testing on Solaris to come.
+
+Sat May  9 12:20:00 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* bin/*: Add LOCKDIR.
+
+	* Makefile.PL (configure): Set lockdir.
+
+	* installbin: Replace LOCKDIR.
+
+	* postinstall (create_dirs): Make locks directory under tmpdir.
+
+	* lib/Mj/Archive.pm: Move indices and counts into a .index
+ 	directory.  Create it if it doesn't exist.
+
+	* lib/Mj/Parser.pm (parse_part): Stop on any line matching
+ 	\s*-+\s*.
+
+	* lib/Mj/Deliver/Connection.pm (getline): Used unbuffered reads
+ 	and do our own internal buffering.
+
+Fri May  8 00:18:51 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/mj_cf_data.pl: archive_size - get rid of lines.
+
+	* lib/Mj/Resend.pm (_post): Pass the archive entity to the
+ 	archiver, not the distribution entity.
+
+Thu May  7 00:37:20 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (post): Make sure that undef values don't get
+ 	into $avars.
+
+Wed May  6 21:59:49 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (post): Pass avars to _post by joining them
+ 	like @reasons.  Always compute metrics and such, even if approved.
+  	Don't do access_check if approved.
+
+Tue May  5 22:41:58 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/List.pm (fs_get): Pass on all arguments.
+
+	* lib/mj_cf_data.pl: Tweak archive_dir description.
+
+	* lib/Mj/List.pm (_make_archive): If archive_dir is not set, see
+ 	if there is a /public/archive directory in the filespace and use
+ 	it if so.
+
+	* lib/Mj/FileSpace.pm (get): New dir parameter; allow directories.
+
+Mon May  4 02:10:14 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/List.pm (_make_archive): Pass archive_size, too.
+
+	* postinstall: Print the crontab out to a file in install_dir.
+
+	* lib/mj_cf_data.pl: Add archive_size and revise archive_split
+ 	description.
+
 Sun May  3 14:49:27 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* Makefile.PL: Screwed up MIME-tools version check.

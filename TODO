@@ -3,9 +3,6 @@
 Plan
 ----
 
-Finish what is required to run my lists:
-  archives
-
 Test the hell out of it.
 
 Switch over one of my lists.  (How?  Manually maintain subscription
@@ -15,41 +12,19 @@ Switch over one of my lists.  (How?  Manually maintain subscription
 Top of the list 
 ---------------
 
-! Test forwarding mechanism.
-
 ! Make sure all sent mails have To: headers.
 
 ! Retrieve message given archive name and number
   Retrieve last N messages/message numbers from archive
 
-  Need to deal with indices:
-    Retrieving a single message is best done by scanning the index line-by
-      line, then getting the byte offset and seeking into the archive file.
-    Same for a set of messages, as long as they're in order.
-    Random retrievals or retrievals by byte can do the same, since
-      everything is strictly ordered.
-
-    These should cache their data; an initial search should check to see:
-      1) that there is data in memory
-      2) that the maximum element in memory exceeds the value being
-         searched for.
-    A binary search can ensue if we know the value is in memory.  Else it's
-      a linear search through the disk file.
-    Need to store the byte location in the file that we last parsed, so
-      that we can seek to it immediate when we need more data from the
-      index.
-
-    Make sure that archives get a separate umask, so that people can
-    download them.
+! Make sure that archives get a separate umask, so that people can
+  download them.
 
 ! Split up _post a bit.  Remove reply-to and subject_prefix handling to
   separate functions.
 
-- Figure out how to pass the access variables through to the _post function
-  so that we can use things like the byte and line counts for cool things.
-  Probably just flatten the hash and join by the secret separator and stuff
-  the result in arg3, which happens to be free. Otherwise we could stuff it
-  in the reasons array somewhere.
+! Make mail_message go through the same delivery functions as normal
+  delivery.
 
 - Implement rejection (and perhaps acceptance) messages for tokens, and add
   a box to type them in to the web interface.
@@ -617,7 +592,6 @@ Expiration of subscriptions.
 Last posting date.
 Resend sequence numbers: keep a state file per list with the current
   sequence.  Allow setting of the sequence number.
-Separate directory for lock files, or locking that doesn't need them.
 Have who expand lists subscribed to current list.
 Clean up the flag and class setting code.
 Access_rules methods for checking against requesting user instead of victim.

@@ -186,7 +186,8 @@ sub deliver {
       next if $exclude{$canon};
       $addr = $datref->{'stripaddr'};
 
-      # Do we probe?
+      # Do we probe? XXX Also check bounce status and probe
+      # possibly-bouncing addresses.
       $probeit =
 	($args{probe} &&
 	 ($args{probeall} ||

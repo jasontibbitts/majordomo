@@ -3,6 +3,7 @@ BEGIN {
   $::LIBDIR = "/home/tibbs/mj/2.0/blib/lib";
   $::LISTDIR= "/home/tibbs/mj/2.0-lists";
   $::TMPDIR = "/tmp";
+  $::LOCKDIR= "blah";
   $::UID    = "baduid";
   $::GID    = "badgid";
   $::UMASK  = "007";

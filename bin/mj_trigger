@@ -4,6 +4,7 @@ BEGIN {
   $::LISTDIR= "/nowhere";
   $::DEFDOM = "nowhere";
   $::TMPDIR = "/nowhere";
+  $::LOCKDIR= "blah";
   $::UID    = "baduid";
   $::GID    = "badgid";
   $::UMASK  = "007";

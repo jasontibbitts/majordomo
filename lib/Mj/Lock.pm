@@ -77,9 +77,9 @@ sub DESTROY {
 
 =head2 lock(name, mode, noblock)
 
-Opens a lockfile and calls flock to lock it.  This doesn''t actually operate
-on the file itself, because we have other operations that may move or
-delete the actual file and the flock semantics of requiring an open
+Opens a lockfile and calls flock to lock it.  This doesn''t actually
+operate on the file itself, because we have other operations that may move
+or delete the actual file and the flock semantics of requiring an open
 filehandle make that work badly.  So we lock an associated file instead.
 
  name - the name of the file to lock (not the name of the lockfile)
@@ -143,15 +143,11 @@ sub unlock {
   }
 
   close $self->{'handle'};
-
-  # No need; the unlock is implicit in the close.
-#  flock($handle, LOCK_UN)
-#    || $::log->abort("Failed unlocking $lname, $handle, $!");
- 
   
-  # I want to nuke the lockfile, but I can't because it hoses the locking.
-#  unlink $lname
-#    || $::log->abort("Failed unlinking $lname, $!");
+  # This has caused problems in the past, but it seems to be OK at the
+  # moment, perhaps due to other changes.
+  unlink $self->{lname} ||
+    $::log->abort("Failed unlinking $self->{lname}, $!");
   
   delete $self->{'handle'};
 
@@ -164,9 +160,26 @@ sub unlock {
 This returns the name of the lockfile associated with a file.  If given a
 path, the path components are preserved intact.
 
+If the global $::LOCKDIR is defined and nonempty, locks will be created
+there by concatenating all of the path components and the filename with
+underscores.  This could possibly lead to problems with line length;
+filenames generated in this manner will be trimmed to 128 characters.
+
+Otherwise the lockfile will be named by prepending .L to the filename, in
+the same directory.
+
 =cut
 sub _name {
   $_ = shift;
+  my $n;
+
+  # Special processing if we have LOCKDIR
+  if ($::LOCKDIR && -d $::LOCKDIR) {
+    ($n = $_) =~ s/\//_/g;
+    $n = substr($n, -128);
+    return "$::LOCKDIR/$n";
+  }
+
   m|^(.*/)?(.*)$|;
   return ($1 || "") . ".L" . $2;
 }

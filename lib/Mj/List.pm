@@ -1264,10 +1264,8 @@ These provide an interface into the list''s FileSpace object.
 use Mj::FileSpace;
 sub fs_get {
   my $self  = shift;
-  my $file  = shift;
-  my $force = shift;
   $self->_make_fs || return;
-  $self->{'fs'}->get($file, $force);
+  $self->{'fs'}->get(@_);
 }
 
 use Mj::FileSpace;
@@ -1477,10 +1475,20 @@ sub _make_archive {
   my $self = shift;
   return 1 if $self->{'archive'};
   my $dir = $self->config_get('archive_dir');
+
+  # Default to /public/archive
+  unless ($dir) {
+    ($dir) = $self->fs_get('public/archive', 1, 1);
+  }
+
+  # Go away if we still don't have anything
   return unless $dir && -d $dir;
+
+  # Create the archive
   $self->{'archive'} = new Mj::Archive ($dir,
 					$self->{'name'},
 					$self->config_get('archive_split'),
+					$self->config_get('archive_size'),
 				       );
   1;
 }

@@ -402,6 +402,7 @@ Where can Majordomo place secure temporary files?
 EOM
   $def = $config->{'tmpdir'} || "$config->{'wtmpdir'}/mj";
   $config->{'tmpdir'} = get_dir($msg, $def);
+  $config->{'lockdir'} = "$config->{'tmpdir'}/locks";
 
   #---- Ask for cgi-bin directory
   $msg = <<EOM;

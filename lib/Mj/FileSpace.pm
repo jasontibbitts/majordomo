@@ -90,11 +90,14 @@ otherwise.
 
 If the file does not have permission "R", force must be true.
 
+If the file is really a directory, dir must be true.
+
 =cut
 sub get {
   my $self  = shift;
   my $file  = shift;
   my $force = shift;
+  my $dir   = shift;
   my $log = new Log::In 150, $file;
   my $data;
 
@@ -102,7 +105,8 @@ sub get {
   return unless $data;
 
   if (($data->{'permissions'} !~ /R/ && !$force) ||
-      $data->{'permissions'} eq '!' || $data->{'permissions'} eq 'd') 
+      $data->{'permissions'} eq '!' ||
+      ($data->{'permissions'} eq 'd' && !$dir)) 
     {
       return;
     }

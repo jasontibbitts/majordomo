@@ -4,6 +4,7 @@ BEGIN {
   $::LISTDIR= "/home/tibbs/mj/2.0-lists";
   $::DEFDOM = "hpc.uh.edu";
   $::TMPDIR = "/nowhere";
+  $::LOCKDIR= "blah";
   $::UMASK  = "007";
   $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 
