@@ -10,7 +10,7 @@ $START to $FINISH
 </table>
 
 <p>
-<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-summary">
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=archive-summary">
 Archive Index
 </a>
 </p>

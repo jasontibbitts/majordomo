@@ -2,5 +2,5 @@
 <p>
 [Part $PART $CONTENT_TYPE ($SIZE kilobytes)]<br>
 
-<img src="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PART&func=archive-get-part">
+<img src="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PART&amp;func=archive-get-part">
 </p>

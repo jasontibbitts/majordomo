@@ -1,7 +1,7 @@
 <!-- Majordomo showtokens_data format file -->
 <tr>
   <td><input type="checkbox" name="extra" 
-       value="$TOKEN"><a href="$CGIURL?$CGIDATA&list=$LIST&func=tokeninfo&extra=$TOKEN&brief=on" 
+       value="$TOKEN"><a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=tokeninfo&amp;extra=$TOKEN&amp;brief=on" 
        target="_token">$TOKEN</a>
   </td>
 

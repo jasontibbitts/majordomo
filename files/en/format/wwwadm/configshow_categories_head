@@ -17,7 +17,7 @@ check boxes unchecked, then press the <b>configshow</b> button.
 <p>
 If your list has not already been configured, we recommend that you 
 start by
-<a href="$CGIURL?$CGIDATA&list=$LIST&func=configshow&extra=1">
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=configshow&amp;extra=1">
 configuring the most important settings</a>.
 </p>
 

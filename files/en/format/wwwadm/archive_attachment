@@ -2,23 +2,23 @@
 <p>
 [Part $PART $CONTENT_TYPE ($SIZE kilobytes)]<br>
 
-  <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PART&func=archive-get-part-clean" target="_part">
+  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PART&amp;func=archive-get-part-clean" target="_part">
   (View in a separate window or Download)
   </a>
 
-  <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PART&func=archive-edit-part">
+  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PART&amp;func=archive-edit-part">
   (Edit)
   </a>
 
-  <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PARTh&func=archive-get-part" target="_part">
+  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PARTh&amp;func=archive-get-part" target="_part">
   (View Headers in a separate window)
   </a>
 
-  <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PARTh&func=archive-part-edit">
+  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PARTh&amp;func=archive-part-edit">
   (Edit Headers)
   </a>
 
-?SUBPART <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PART&func=archive-part-delete">
+?SUBPART <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PART&amp;func=archive-part-delete">
 ?SUBPART (Delete This Part)
 ?SUBPART </a>
 </p>

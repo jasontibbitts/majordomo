@@ -3,7 +3,7 @@
   <td colspan="7">
 
     <input type="checkbox" name="victims" value="$STRIPADDR">
-    <a href="$CGIURL?$CGIDATA&list=$LIST&func=set-check&extra=$STRIPADDR&brief=on">
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=set-check&amp;extra=$STRIPADDR&amp;brief=on">
       $FULLADDR
     </a>
   </td>

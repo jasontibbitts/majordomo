@@ -5,7 +5,7 @@
   </td>
 
   <td>
-    <a href="$CGIURL?$CGIDATA&list=$LIST&func=set-check&extra=$QSADDR"
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=set-check&amp;extra=$QSADDR"
      target="_which">
       $STRIPADDR
     </a>

@@ -2,7 +2,7 @@
 <p>
 [Part $PART $CONTENT_TYPE ($SIZE kilobytes)]<br>
 
-  <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PART&func=archive-get-part-clean" target="_part">
+  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PART&amp;func=archive-get-part-clean" target="_part">
   (View in a separate window or Download)
   </a>
 </p>

@@ -12,7 +12,7 @@ public view.
 </p>
 
 <p>
-<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-summary">
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=archive-summary">
 Other Archives
 </a>
 </p>

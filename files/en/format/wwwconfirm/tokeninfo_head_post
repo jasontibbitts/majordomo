@@ -73,10 +73,10 @@ at $SITE.  A summary of the message appears below.
 </form>
 
 <p>
-<a href="$CGIURL?$CGIDATA&t=$TOKEN&p=0&a=tokeninfo-part" target="_part">
+<a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=0&amp;a=tokeninfo-part" target="_part">
 (View the Complete Message in a separate window)<br>
 </a>
-<a href="$CGIURL?$CGIDATA&t=$TOKEN&p=0&a=tokeninfo-part-edit">
+<a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=0&amp;a=tokeninfo-part-edit">
 (Edit the Complete Message)
 </a>
 </p>

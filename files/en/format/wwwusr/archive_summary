@@ -2,7 +2,7 @@
 
 <tr>
 <td>
-  <a href="$CGIURL?$CGIDATA&func=archive-index&list=$LIST&extra=$FILE">
+  <a href="$CGIURL?$CGIDATA&amp;func=archive-index&amp;list=$LIST&amp;extra=$FILE">
   $FILE
   </a>
 </td>
@@ -16,19 +16,19 @@
 </td>
 
 <td>
-  (<a href="$CGIURL?$CGIDATA&func=archive-index-author&list=$LIST&extra=$FILE">
+  (<a href="$CGIURL?$CGIDATA&amp;func=archive-index-author&amp;list=$LIST&amp;extra=$FILE">
   Author
   </a>)
 
-  (<a href="$CGIURL?$CGIDATA&func=archive-index-date&list=$LIST&extra=$FILE">
+  (<a href="$CGIURL?$CGIDATA&amp;func=archive-index-date&amp;list=$LIST&amp;extra=$FILE">
   Date
   </a>)
 
-  (<a href="$CGIURL?$CGIDATA&func=archive-index-subject&list=$LIST&extra=$FILE">
+  (<a href="$CGIURL?$CGIDATA&amp;func=archive-index-subject&amp;list=$LIST&amp;extra=$FILE">
   Subject
   </a>)
 
-  (<a href="$CGIURL?$CGIDATA&func=archive-index-thread&list=$LIST&extra=$FILE">
+  (<a href="$CGIURL?$CGIDATA&amp;func=archive-index-thread&amp;list=$LIST&amp;extra=$FILE">
   Thread
   </a>)
 </td>

@@ -1,22 +1,22 @@
 <p>
 [Part $PART $CONTENT_TYPE $CHARSET ($SIZE kilobytes)]<br>
-  <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PARTh&a=tokeninfo-part" target="_part">
+  <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PARTh&amp;a=tokeninfo-part" target="_part">
   (View Headers in a separate window)
   </a>
 
-  <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PART&a=tokeninfo-part" target="_part">
+  <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PART&amp;a=tokeninfo-part" target="_part">
   (View Text in a separate window)
   </a>
 
-  <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PARTh&a=tokeninfo-part-edit">
+  <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PARTh&amp;a=tokeninfo-part-edit">
   (Edit Headers)
   </a>
 
-  <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PART&a=tokeninfo-part-edit">
+  <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PART&amp;a=tokeninfo-part-edit">
   (Edit Text)
   </a>
 
-?SUBPART <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PART&a=tokeninfo-part-delete">
+?SUBPART <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PART&amp;a=tokeninfo-part-delete">
 ?SUBPART (Delete This Part)
 ?SUBPART </a>
 </p>

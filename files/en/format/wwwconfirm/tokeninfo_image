@@ -1,18 +1,18 @@
 <p>
 [Part $PART $CONTENT_TYPE ($SIZE kilobytes)]<br>
 
-  <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PARTh&a=tokeninfo-part" target="_part">
+  <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PARTh&amp;a=tokeninfo-part" target="_part">
   (View Headers in a separate window)
   </a>
 
-  <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PARTh&a=tokeninfo-part-edit">
+  <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PARTh&amp;a=tokeninfo-part-edit">
   (Edit Headers)
   </a>
 
-?SUBPART <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PART&a=tokeninfo-part-delete">
+?SUBPART <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PART&amp;a=tokeninfo-part-delete">
 ?SUBPART (Delete This Part)
 ?SUBPART </a>
 <br>
 
-<img src="$CGIURL?$CGIDATA&t=$TOKEN&p=$PART&a=tokeninfo-part">
+<img src="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PART&amp;a=tokeninfo-part">
 </p>
