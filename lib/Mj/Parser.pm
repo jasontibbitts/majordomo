@@ -41,16 +41,16 @@ to allow the attachments to be named instead of referred to by number.
 
 =cut
 sub parse_entity {
-  my $mj        = shift;
-  my $title     = shift || "toplevel";
-  my $interface = shift;
-  my $tmpdir    = shift;
-  my $extra     = shift;
-  my $entity    = shift;
+  my %args      = @_;
+  my $mj        = $args{'mj'};
+  my $entity    = $args{'entity'};
+
+  $args{'title'} ||= 'toplevel';
+
   my (@entities, @parts, @attachments, @ents, $body, $i, $infh, $name,
       $outfh, $type, $ok, $count);
 
-  $::log->in(30, undef, "info", "Parsing entity $title");
+  $::log->in(30, undef, "info", "Parsing entity $args{'title'}");
   @parts = $entity->parts;
   @entities = ();
 
@@ -61,15 +61,17 @@ sub parse_entity {
     $count=0;
     while (@parts) {
       ($ok, @ents) =
-	parse_entity($mj, "part $count of $title", $interface, $tmpdir,
-		     $extra, @parts);
+	parse_entity(%args,
+		     title => "part $count of $title",
+		     entity => shift @parts,
+		     parts  => \@parts,
+		    );
       push @entities, @ents;
       if ($ok) {
 	$::log->message(30, "info", "Parsed commands; not parsing attachments.");
 	last;
       }
       $count++;
-      shift @parts;
     }
     $::log->out;
     return (0, @entities);
@@ -93,7 +95,7 @@ sub parse_entity {
       $::log->abort("Hosed! Couldn't open body part, $!");
     
     # Open handles for all of the attachments to this part
-    for $i (@_) {
+    for $i (@{$args{'parts'}}) {
       # Make sure we have a single part entity
       if (defined($i->is_multipart) && $i->is_multipart == 0) {
 	push @attachments, $i->bodyhandle->open("r");
@@ -101,12 +103,15 @@ sub parse_entity {
     }
 
     # Open a file to stuff the output in
-    $name = "$tmpdir/mje." . Majordomo::unique() . ".out";
+    $name = "$args{'tmpdir'}/mje." . Majordomo::unique() . ".out";
     $outfh = new IO::File "> $name" or
       $::log->abort("Hosed! Couldn't open output file $name, $!");
     
+    # XXX parse_part expects a hashref of "extra stuff" as its last
+    # argument.  We just happen to have all of that in our argument hash,
+    # so we pass it.  We should just pass a single hash.
     $ok = parse_part($mj, $infh, $outfh, \@attachments,
-		     $title, $interface, $extra);
+		     $args{'title'}, $args{'interface'}, \%args);
     $infh->close;
     $outfh->close;
     for $i (@attachments) {
@@ -116,7 +121,7 @@ sub parse_entity {
     push @entities, build MIME::Entity(
 				       Path        => $name,
 				       Filename    => undef,
-				       Description => "Results from $title",
+				       Description => "Results from $args{'title'}",
 				       Top         => 0,
 				      );
     

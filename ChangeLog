@@ -1,3 +1,12 @@
+2000-05-12  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Parser.pm (parse_entity): New calling convention: take
+	just one hash, abolish $extra.
+
+	* bin/mj_queuerun (parse_commands): 
+	* bin/mj_email (parse_commands): Handle new Parser::Parse_entity
+	calling conventions.
+
 2000-05-10  Michael Yount  <csf@moscow.com>
 
 	* bin/mj_wwwadm: Use the remote IP address as the

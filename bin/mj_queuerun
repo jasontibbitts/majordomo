@@ -534,13 +534,13 @@ sub parse_commands {
   }
 
   (undef, @entities) = 
-    Mj::Parser::parse_entity($mj, '', , "email", $::TMPDIR, 
-                 {
-                  'reply_to' => $uuser,
-                  'deflist'  => $deflist,
-                  'token'    => $token,
-                 },
-                 $entity,
+    Mj::Parser::parse_entity(mj => $mj,
+			     interface  => 'email',
+			     tmpdir     => $::TMPDIR, 
+			     entity     => $entity,
+			     reply_to   => $uuser,
+			     deflist    => $deflist,
+			     token      => $token,
                 );
   if ($debug_reply) {
     push @entities, build MIME::Entity
