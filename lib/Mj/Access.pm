@@ -1131,17 +1131,33 @@ sub _a_default {
       $action = "_a_deny";
       $reason = "Only list owners can make requests that involve sublists";
     }
-    elsif ($access eq 'open') {
+    elsif ($access =~ /\+password$/ and ! $args->{'user_password'}) {
+      $action = "_a_deny";
+      $reason = "A personal or administrative password is required to issue this command.";
+    }
+    elsif ($access =~ /^open/) {
       $action = "_a_allow";
     }
-    elsif ($access eq 'closed') {
+    elsif ($access =~ /^closed/) {
       $action = "_a_deny";
       $reason = "${request}_access is set to 'closed'";
     }
-    elsif ($access eq 'list' &&
+    elsif ($access =~ /^list/ &&
 	   $self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'victim'}))
       {
-		$action = "_a_allow";
+         if (($args{'mismatch'} or $args{'posing'})
+             and ! $args->{'user_password'}) 
+         {
+           $action = "_a_confirm";
+           $reason = "$td->{'user'} made a request that affects\n" .
+                     "another address ($td->{'victim'})."
+             if $args->{'mismatch'};
+           $reason = "$self->{'sessionuser'} is masquerading as $td->{'user'}."
+             if $args->{'posing'};
+         }
+         else {
+           $action = "_a_allow";
+         }
       }
   }
 
@@ -1164,6 +1180,11 @@ sub _a_default {
     # confirm settings.
     elsif ($args->{'user_password'}) {
       $action = "_a_allow"   if $policy =~ /^(auto|open)/;
+    }
+    # Deny the request if a password was required but not given.
+    elsif ($policy eq 'auto+password' or $policy eq 'open+password') {
+      $action = "_a_deny";
+      $reason = "A personal or administrative password is required to issue this command.";
     }
 
     # Now, open.  This depends on whether there's a mismatch.
