@@ -15,10 +15,7 @@ configset GLOBAL block_headers <<ENDTAG
 /^subject:\s*spam\b/i
 ENDTAG
 
-
-If any of the headers in a message sent to one of the list server addresses
-matches one of these regular expressions, the message will be forwarded to
-the list owners instead of being parsed for commands.
+$INCLUDE-config/block_headers
 
 The server will forward any message with an "X-Loop" header (regardless of
 the content of the header) that is sent to one of the server aliases to the
