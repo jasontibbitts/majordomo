@@ -1,3 +1,8 @@
+2000-11-25  Michael Yount <csf@moscow.com>
+
+	* setup/newdomain.pl:  Allow domains to be added
+	to the installation using the "make domain" shell command.
+
 2000-11-22  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Format.pm: Correct various syntax errors.

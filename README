@@ -245,6 +245,11 @@ correct for all sites; especially sites running virtual domains.  Virtual
 domain users and users of other MTAs, please let us know how to configure
 things for you.
 
+It is possible to configure Majordomo after installation to support
+additional virtual domains.  To do so, run the shell command
+  make domain
+(usually as the root user) in the top-level source directory.
+
 
 Interacting with Majordomo:
 

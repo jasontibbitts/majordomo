@@ -134,8 +134,10 @@ clean ::
 
   $a .= '
 
-install :: postinstall
+domain ::
+	$(PERL) -w setup/newdomain.pl
 
+install :: postinstall
 postinstall ::
 	$(PERL) -w postinstall
 ';
