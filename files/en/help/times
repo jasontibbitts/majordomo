@@ -40,6 +40,10 @@ months, or years.  For example, use:
    2w for 2 weeks
    6m for 6 months
    2y for 2 years
+  4cd for 4 calendar days
+  7cw for 7 calendar weeks
+  8cm for 8 calendar months
+  2cy for 2 calendar years
 
 If you need more flexibility in specifying time spans, you can combine 
 time periods, as in 2w3d for two weeks and three days.
@@ -47,6 +51,11 @@ time periods, as in 2w3d for two weeks and three days.
 The short abbreviations s/mi/h/d/w/m/y can be expanded into full words.
 If you are using full words, do not use a space: "2weeks" is correct, but 
 "2 weeks" is incorrect.  For example, "4w3d" can be written as "4weeks3days".
+
+The "calendar" time spans end on the boundaries between days, weeks,
+months, or years, but the other time spans are exact.  For example, "1
+calendar day" would be the time between now and midnight, but "1 day" is
+a time span of exactly 24 hours.
 
 
 Dates and time frames
