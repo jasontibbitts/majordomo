@@ -86,7 +86,7 @@ use AutoLoader 'AUTOLOAD';
 1;
 __END__
 
-use MIME::Parser;
+use Mj::MIMEParser;
 sub post {
   my($self, $user, $passwd, $auth, $int, $cmd, $mode, $list, $file) = @_;
   my ($owner,                # The list owner address
@@ -110,7 +110,7 @@ sub post {
   my $log = new Log::In 30, "$list, $user, $file"; 
   $tmpdir = $self->_global_config_get("tmpdir");
 
-  $parser = new MIME::Parser;
+  $parser = new Mj::MIMEParser;
   $parser->output_to_core($self->_global_config_get("max_in_core"));
   $parser->output_dir($tmpdir);
   $parser->output_prefix("mjr");
@@ -283,7 +283,7 @@ sub post_done {
 # allow a different set of MIME parts through.  How can we do this?
 # Maintain two separate copies of the entity and munge them both
 # except where appropriate?  Ugh.
-use MIME::Parser;
+use Mj::MIMEParser;
 sub _post {
   my($self, $list, $user, $victim, $mode, $cmdline, $file, $arg2,
      $avars) = @_;
@@ -310,7 +310,7 @@ sub _post {
   else {
     ($file) = $self->_list_file_get('GLOBAL', "spool/$file", undef, 1);
     my $fh = new IO::File "<$file";
-    my $mime_parser = new MIME::Parser;
+    my $mime_parser = new Mj::MIMEParser;
     $mime_parser->output_to_core($self->_global_config_get("max_in_core"));
     $mime_parser->output_dir($tmpdir);
     $mime_parser->output_prefix("mjr");
@@ -612,8 +612,8 @@ sub _check_body {
   my $reasons = shift;
   my $avars   = shift;
   my $log  = new Log::In 150;
-  my (@inv, $class, $data, $i, $inv, $j, $l, $max, $mcode, $qreg, $rule,
-      $safe, $sev, $tcode, $var);
+  my (@inv, $class, $data, $i, $inv, $j, $l, $max, $maxlen, $mcode, $qreg,
+      $rule, $safe, $sev, $tcode, $var);
   $inv = {}; $mcode = {}; $tcode = {};
 
   # Extract the code from the config variables XXX Move to separate func
@@ -637,9 +637,10 @@ sub _check_body {
     $inv->{$i} = $i;
   }
 
-  $i = $self->_list_config_get($list, 'attachment_rules');
-  $mcode = $i->{check_code};
-  $qreg = $self->_list_config_get($list, 'quote_regexp');
+  $i      = $self->_list_config_get($list, 'attachment_rules');
+  $mcode  = $i->{check_code};
+  $qreg   = $self->_list_config_get($list, 'quote_regexp');
+  $maxlen = $self->_list_config_get($list, 'max_mime_header_length');
 
   # Create a Safe comaprtment
   $safe = new Safe;
@@ -648,7 +649,7 @@ sub _check_body {
 
   # Recursively check the body
   $self->_r_ck_body($list, $ent, $reasons, $avars, $safe, $qreg, $mcode, $tcode,
-		    $inv, $max, 'toplevel', 1);
+		    $inv, $max, , $maxlen, 'toplevel', 1);
 
   # Now look at what's left in %$inv and build reasons from it
   for $i (keys %$inv) {
@@ -661,10 +662,9 @@ sub _check_body {
 use MD5;
 sub _r_ck_body {
   my ($self, $list, $ent, $reasons, $avars, $safe, $qreg, $mcode, $tcode,
-      $inv, $max, $part, $first) = @_;
-  my $log  = new Log::In 150;
-  my (@parts, $body, $i, $sum1, $sum2);
-  local($data, $text, $line);
+      $inv, $max, $maxlen, $part, $first) = @_;
+  my $log  = new Log::In 150, "$part";
+  my (@parts, $body, $data, $i, $line, $sum1, $sum2, $text);
 
   # If we have parts, we don't have any text so we process the parts and
   # exit.  Note that we try to preserve the first setting down the chain if
@@ -672,8 +672,8 @@ sub _r_ck_body {
   @parts = $ent->parts;
   for ($i=0; $i<@parts; $i++) {
     $self->_r_ck_body($list, $parts[$i], $reasons, $avars, $safe, $qreg,
-		      $mcode, $tcode, $inv, $max, "$part, subpart ".($i+1),
-		      ($first && $i==0));
+		      $mcode, $tcode, $inv, $max, $maxlen,
+		      "$part, subpart ".($i+1), ($first && $i==0));
     return;
   }
 
@@ -681,7 +681,7 @@ sub _r_ck_body {
   $sum1 = new MD5; $sum2 = new MD5;
 
   # Check MIME status and any other features of the entity as a whole
-  _check_mime($reasons, $avars, $safe, $ent->mime_type, $mcode);
+  _check_mime($reasons, $avars, $safe, $ent, $mcode, $maxlen, $part);
 
   # Now the meat.  Open the body
   $body = $ent->bodyhandle->open('r');
@@ -869,26 +869,46 @@ sub _check_mime {
   my $reasons = shift;
   my $avars   = shift;
   my $safe    = shift;
-  my $type    = shift;
+  my $ent     = shift;
   my $code    = shift;
-  my $log = new Log::In 250, "$type";
+  my $maxlen  = shift;
+  my $part    = shift;
+  my $log = new Log::In 250;
   local($_);
-  my ($action);
+  my ($action, $head, $len, $type);
 
-  $_ = $type;
+  # Extract the MIME type and evaluate the matching code
+  $type   = $ent->mime_type;
+  $_      = $type;
   $action = $safe->reval($code);
   $::log->complain($@) if $@;
-
   if ($action eq 'consult') {
-    push @$reasons, "Questionable MIME part: $type";
+    push @$reasons, "Questionable MIME part in $part: $type";
     $avars->{mime_consult} = 1;
     $avars->{mime} = 1;
   }
   elsif ($action eq 'deny') {
-    push @$reasons, "Illegal MIME part: $type";
+    push @$reasons, "Illegal MIME part in $part: $type";
     $avars->{mime_deny} = 1;
     $avars->{mime} = 1;
   }    
+
+  # Extract and unfold the MIME headers, then check for long lines.  Don't
+  # decode, because it takes time and we want to see the longest strings
+  # here.
+  $head = $ent->head; $head->unfold;
+ HEAD:
+  for my $i ($head->tags) {
+    for my $j ($head->get($i)) {
+      $len = length($i)+length($j)+2;
+warn "$i, $len";
+      if ($len > $maxlen) {
+	push @$reasons, "A MIME header is too long in $part ($len > $maxlen)";
+	$avars->{mime_header_length_exceeded} = 1;
+	last HEAD;
+      }
+    }
+  }
 }
 
 =head2 _describe_taboo
@@ -909,6 +929,9 @@ sub _describe_taboo {
   my $log = new Log::In 300, "$list, $var, $class";
   my ($admin, $global, $reason, $type);
   
+  # Make sure messages are pretty
+  $match =~ s/\s+$//;
+
   # Build match type and set the appropriate access variable
   if ($list eq 'GLOBAL') {
     $type .= "global_";
@@ -983,7 +1006,7 @@ XXX Need to purge all of the bodies and entities that we get rid of in
 the course of this function.
 
 =cut
-use MIME::Parser;
+use Mj::MIMEParser;
 sub _trim_approved {
   my $self  = shift;
   my $oent  = shift;
@@ -1022,7 +1045,7 @@ sub _trim_approved {
 	    # We could turn on parse_nested_message, but that's more
 	    # pain than its worth.
 	    $nfh = $oent->parts(1)->open('r');
-	    $parser = new MIME::Parser;
+	    $parser = new Mj::MIMEParser;
 	    $parser->output_to_core($self->_global_config_get('max_in_core'));
 	    $parser->output_dir($self->_global_config_get('tmpdir'));
 	    $parser->output_prefix('mjr');
@@ -1077,7 +1100,7 @@ sub _trim_approved {
 	# quoted mailbox separator) and parse from the body to a new
 	# entity; return it.
 	$ofh->seek($pos, 0) unless $line =~ /^>?From /;
-	$parser = new MIME::Parser;
+	$parser = new Mj::MIMEParser;
 	$parser->output_to_core($self->_global_config_get('max_in_core'));
 	$parser->output_dir($self->_global_config_get('tmpdir'));
 	$parser->output_prefix('mjr');

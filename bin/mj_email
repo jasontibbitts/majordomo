@@ -41,14 +41,15 @@ use Mj::Deliver::Envelope;
 use Mj::Log;
 use Getopt::Std;
 use Data::Dumper;
-use MIME::Parser;
+use Mj::MIMEParser;
 use IO::File;
 my (%opts, $entity, $head, $mime_parser, $mj, $ok, $request_ans, $user,
     $uuser);
 
 umask oct($::UMASK);
 
-# Redirect standard error output.
+# Redirect standard error output; we do this again later, but this lets us
+# catch option parsing errors.
 if (! -t STDERR) {
   close STDERR;
   open (STDERR, ">>$::TMPDIR/mj_email.debug");
@@ -66,6 +67,16 @@ $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb"; # Needed for Syslog to get hostname.
 # -t - specify directory containing domains (arg)
 # -v - specify debug verbosity (arg), default 50.
 getopts('d:l:moqrt:v:', \%opts);
+
+# Redirect standard error output again now that we've parsed the options
+if (! -t STDERR) {
+  close STDERR;
+  if    ($opts{'m'}) {open (STDERR, ">>$::TMPDIR/mj_majord.debug")}
+  elsif ($opts{'q'}) {open (STDERR, ">>$::TMPDIR/mj_request.debug")}
+  elsif ($opts{'r'}) {open (STDERR, ">>$::TMPDIR/mj_resend.debug")}
+  else               {open (STDERR, ">>$::TMPDIR/mj_email.debug")}
+}
+
 
 # We must untaint the top level dir and the domain because they are used to
 # generate filenames; it's safe since they were supplied by the site owner.
@@ -243,7 +254,7 @@ sub connect_and_parse {
   my($entity, $head, $mime_parser, $ok, $user, $uuser);
 
   $::log->in(85, undef, "info", "Seting MIME parser properties");
-  $mime_parser = new MIME::Parser;
+  $mime_parser = new Mj::MIMEParser;
   $mime_parser->output_to_core($mj->global_config_get(undef, undef, undef,
 						      $int,
 						      "max_in_core"));

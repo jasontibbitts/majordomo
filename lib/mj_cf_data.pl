@@ -543,6 +543,28 @@ types of spam.  Set to zero to disable length checks on single
 headers.
 EOC
    },
+   'max_mime_header_length' =>
+   {
+    'type'   => 'integer',
+    'groups' => 'resend',
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+Sets the maximum length of any single header in a MIME part.  Some mail
+reading programs are subject to crashing or security exploits when passed
+messages with MIME headers that exceed a certain length.  While these
+mailers are definitely flawed and their users should contact the
+manufacturers for upgrades, this variable is provided to filter out such
+messages.
+
+Note that this setting does not implement any filtering for the security
+exploits that can occur in the contents of the various parts of the body of
+a message; this must be done with appropriate settings of taboo_body and
+attachment_rules.  (Filtering of HTML mail is recommended to help eliminate
+exploits which lie in HTML tags.)
+EOC
+   },
    'max_total_header_length' =>
    {
     'type'   => 'integer',

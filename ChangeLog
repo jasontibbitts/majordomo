@@ -1,3 +1,28 @@
+Sat Aug  1 09:28:18 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm: Bump version number.
+
+	* lib/Mj/Resend.pm (_ck_tbody_line): Strip newlines so bounce
+ 	messages look right.
+	(_describe_taboo): Chomp the match to keep messages looking right.
+	(_r_ck_body, _check_mime): Clean up messages.
+
+	* lib/Mj/MIMEParser.pm: New file; subclass MIME::Parser.  Globally
+ 	change all uses of MIME::Parser to call this instead.
+
+	* lib/Mj/Resend.pm (_check_body): Retrieve max_mime_header_length
+ 	and pass to _r_ck_body.
+	(_r_ck_body): Accept m_m_h_length and pass to _check_mime.  Also
+ 	pass the complete entity to _check_mime.
+	(_check_mime): Take the full entity and m_m_h_lenght, extract the
+ 	MIME type and the header, and check each header for a length
+ 	overrun.
+	
+	* lib/mj_cf_data.pl: Add max_mime_header_length variable, default
+ 	to 128.
+
+	* bin/mj_email: Create debugging file based on parsed options.
+
 Thu Jul 30 22:45:01 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/Access.pm (_d_post): Make sure the variable is defined

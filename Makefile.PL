@@ -23,9 +23,10 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\
       Mj/Deliver/Prober.pm Mj/Deliver/QQEnvelope.pm Mj/Deliver/SMTP.pm
       Mj/Deliver/Sorter.pm Mj/Digest.pm Mj/File.pm Mj/FileRepl.pm
       Mj/FileSpace.pm Mj/FileSpaceDB.pm Mj/Format.pm Mj/Inform.pm
-      Mj/List.pm Mj/Lock.pm Mj/Log.pm Mj/MailOut.pm Mj/Parser.pm
-      Mj/Resend.pm Mj/SimpleDB.pm Mj/SubscriberList.pm Mj/TextOutput.pm
-      Mj/Token.pm Mj/TokenDB.pm Bf/Sender.pm mj_cf_data.pl mj_cf_defs.pl );
+      Mj/List.pm Mj/Lock.pm Mj/Log.pm Mj/MailOut.pm Mj/MIMEParser.pm
+      Mj/Parser.pm Mj/Resend.pm Mj/SimpleDB.pm Mj/SubscriberList.pm
+      Mj/TextOutput.pm Mj/Token.pm Mj/TokenDB.pm Bf/Sender.pm mj_cf_data.pl
+      mj_cf_defs.pl );
 
 #### Prerequisite checking
 
