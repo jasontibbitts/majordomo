@@ -1,3 +1,27 @@
+2002-01-11  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (list_config_set)  Add support for
+	"noforce" mode, which will cause the configset command to
+	fail if the new and old values are identical.
+
+	* lib/Mj/Access.pm:  Add support for the "nostall" access
+	variable, which will prevent a command from being delayed,
+	because of an explicit delay, or because the command requires
+	someone's approval.
+
+	* lib/Mj/CommandProps.pm:  Add support for the "nostall"
+	access variable and the "noforce" command mode.
+
+	* lib/Mj/Config.pm:  (compile_pattern)  Add a third return
+	value if a failure occurs, to stop warnings.  Thanks to
+	Brock Rozen.
+
+	* lib/Mj/Format.pm:  (configshow)  Use "noforce" command
+	mode in the configset commands if it was requested.
+
+	* lib/Mj/Util.pm:  (process_rule)  The rule set=VARNAME
+	should establish a true value.
+
 2001-12-21  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Bugfix:  Do not use "immediate" mode with "edit"

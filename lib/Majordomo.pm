@@ -1830,7 +1830,8 @@ sub list_config_set {
       # if the existing and desired settings are identical.
       if ($tmp[0] eq $request->{'value'}->[0]) {
         ($ok, $mess) = 
-          $self->{'lists'}{$request->{'list'}}->config_set_to_default($request->{'setting'});
+          $self->{'lists'}{$request->{'list'}}->
+            config_set_to_default($request->{'setting'});
       }
       else {
         $ok = 0;
@@ -1869,6 +1870,27 @@ sub list_config_set {
     }
   } # "extract" mode
 
+  elsif ($request->{'mode'} =~ /noforce/) {
+    $join = $self->config_get_isarray($request->{'setting'});
+    @tmp = $self->_list_config_get($request->{'list'}, 
+                                   $request->{'setting'}, 1);
+
+    # If the new value and current value are identical, return
+    # an error.
+    if (($join and compare_arrays($request->{'value'}, \@tmp))
+      or (! $join and $tmp[0] eq $request->{'value'}->[0]))
+    {
+      $ok = 0;
+      $mess = $self->format_error('setting_unchanged', $request->{'list'},
+                                  'SETTING'  => $request->{'setting'},
+                                  'VALUE'    => $tmp[0]);
+    }
+    else {
+      ($ok, $mess) = $self->_list_config_set($request->{'list'}, 
+                                             $request->{'setting'}, @tmp);
+    }
+  }
+
   #  Simply replace the value.
   else {
     # Get possible error value and print it here, for error checking.
@@ -1877,11 +1899,12 @@ sub list_config_set {
   }
   $self->_list_config_unlock($request->{'list'});
   $self->_list_set_config($request->{'list'}, 'MAIN');
+
   if (!$ok) {
-    return (0, "Error parsing $request->{'setting'}:\n$mess"); #XLANG
+    return ($ok, $mess);
   }
   elsif ($mess) {
-    return (1, "Warnings parsing $request->{'setting'}:\n$mess"); #XLANG
+    return (1, "Warnings for the $request->{'setting'} setting:\n$mess"); #XLANG
   }
   else {
     return 1;
@@ -2862,7 +2885,7 @@ sub put_start {
               . "$request->{'oencoding'}, $request->{'olanguage'}";
 
   # Check the password
-  ($ok, $mess) = $self->list_access_check($request);
+  ($ok, $mess) = $self->list_access_check($request, 'nostall' => 1);
 
   unless ($ok > 0) {
     return ($ok, $mess);
