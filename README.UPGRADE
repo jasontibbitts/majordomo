@@ -1,0 +1,6 @@
+Notes on upgrading from alpha1 or before:
+
+Before installing, the sessions directory must be moved to its new
+location.  (This provides a performance improvement.)  Rename
+GLOBAL/files/sessions to GLOBAL/files in each domain.  Then make;make
+install and run a filesync GLOBAL in each domain.

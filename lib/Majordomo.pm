@@ -202,13 +202,13 @@ sub connect {
   $id = MD5->hexhash($sess.scalar(localtime).$$);
 
   # Open the session file; overwrite in case of a conflict;
-  ($ok, $path) = $self->{'lists'}{'GLOBAL'}->fs_put
-    ("sessions/$id", '', 1, "Session $id");
-
-  $log->abort("Can't write session file $id, $path") unless $ok;
-
   $self->{sessionid} = $id;
-  $self->{sessionfh} = new Mj::File($path, '>>');
+  $self->{sessionfh} =
+    new Mj::File("$self->{ldir}/GLOBAL/sessions/$id", '>');
+  
+  $log->abort("Can't write session file to $self->{ldir}/GLOBAL/sessions/$id, $!")
+    unless $self->{sessionfh};
+
   $self->{sessionfh}->print("Source: $int\n\n");
   $self->{sessionfh}->print("$sess\n");
 
@@ -381,30 +381,28 @@ sub addr_validate {
 Miscellaneous internal function.
 
 This removes all spooled sessions older than 'session_lifetime' days old.
+We stat all of the files in the sessions directory and delete the old ones.
 
 =cut
+use DirHandle;
 sub s_expire {
   my $self = shift;
   my $log = new Log::In 60;
   my $days = $self->_global_config_get('session_lifetime');
-  my $time = time;
-  my (@nuke, $i);
+  my $now = time;
+  my (@nuke, $dh, $dir, $i, $time);
 
-  my $mogrify = sub {
-    my $key  = shift;
-    my $data = shift;
-    
-    # We just note things to kill, but we don't actually kill them
-    if ($key =~ /^sessions\// && $data->{'changetime'} + $days*86400 < $time) {
-      push @nuke, $key;
+  $dir = "$self->{ldir}/GLOBAL/sessions";
+  $dh  = new DirHandle $dir;
+
+  while(defined($i = $dh->read)) {
+    # Untaint the filename, so we can delete it later
+    $i =~ /(.*)/; $i = $1;
+    $time = (stat("$dir/$i"))[9];
+    if ($time + $days*86400 < $now) {
+      push @nuke, $i;
+      unlink "$dir/$i";
     }
-    return (0, 0);
-  };
-
-  $self->{'lists'}{'GLOBAL'}->fs_mogrify($mogrify);
-
-  for $i (@nuke) {
-    $self->{'lists'}{'GLOBAL'}->fs_delete($i)
   }
   @nuke;
 }
@@ -2186,12 +2184,8 @@ sub sessioninfo {
   my $log = new Log::In 30, "$sessionid";
   my($file, $in, $line, $sess);
 
-  ($file) =
-    $self->_list_file_get('GLOBAL', "sessions/$sessionid");
-  return (0, "No such session.\n") unless $file;
-
-  $in = new Mj::File "$file"
-    || $::log->abort("Cannot read file $file, $!");
+  $in = new Mj::File "$self->{ldir}/GLOBAL/sessions/$sessionid"
+    || return (0, "No such session.\n");
   while (defined($line = $in->getline)) {
     $sess .= $line;
   }

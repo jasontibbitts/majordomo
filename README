@@ -1,5 +1,7 @@
 -*- Text -*-
 
+If upgrading from alpha 1 or earlier, please read README.UPGRADE.
+
 This is an alpha release of Majordomo 2.0.  It can easily be used to run a
 number of lists.  Many pieces of functionality that are present in 1.94.x
 (most prominent being digests) are missing from this release and there is

@@ -65,7 +65,6 @@ die "Can't do postinstall unless Makefile.PL has been run!"
    'stock/en'	   => 'English',
    'stock/en/help' => 'Help files',
    'spool'         => 'Spooled files',
-   'sessions'      => 'Session data',
    'public'        => 'Public files',
   );
 
@@ -208,7 +207,7 @@ sub create_dirs {
     safe_mkdir("$l/$i", 0770, $uid, $gid);
     safe_mkdir("$l/$i/GLOBAL", 0770, $uid, $gid);
     safe_mkdir("$l/$i/GLOBAL/files", 0770, $uid, $gid);
-    safe_mkdir("$l/$i/GLOBAL/files/sessions", 0770, $uid, $gid);
+    safe_mkdir("$l/$i/GLOBAL/sessions", 0770, $uid, $gid);
   }    
 }
 

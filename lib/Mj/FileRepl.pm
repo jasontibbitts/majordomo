@@ -3,6 +3,7 @@ package Mj::FileRepl;
 use strict;
 use IO::File;
 use Mj::Lock;
+use Mj::Log;
 use vars qw($AUTOLOAD $VERSION);
 
 =head1 NAME
@@ -82,7 +83,7 @@ sub AUTOLOAD {
   my $self = shift;
   my $name = $AUTOLOAD;
   $name =~ s/.*://; 
-  $::log->in(200, "$name");
+#  my $log = new Log::In 200, "$name";
   
   unless ($self->{'oldhandle'}->can($name)) {
     $::log->abort("Attempting to call unimplemented function by proxy");
@@ -90,12 +91,10 @@ sub AUTOLOAD {
   
   if (wantarray) {
     my @out = $self->{'oldhandle'}->$name(@_);
-    $::log->out;
     @out;
   }
   else {
     my $out = $self->{'oldhandle'}->$name(@_);
-    $::log->out;
     $out;
   }
 }

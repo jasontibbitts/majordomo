@@ -1,3 +1,16 @@
+Sat Apr 25 01:46:56 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/FileRepl.pm (AUTOLOAD): Turn off logging; hundreds of
+ 	getlines fill the logs and are useless.
+
+	* postinstall (create_dirs): Make the new session directory.
+
+	* lib/Majordomo.pm (connect): Don't store sessions in the
+ 	filespace; store then in a separate directory.
+	(s_expire): Just iterate over teh files in the directory and
+ 	delete the old ones; don't need to bother with the filespace.
+	(sessioninfo): Don't go through the filespace.
+
 Fri Apr 24 01:29:33 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* Release of alpha 1.

@@ -20,19 +20,10 @@ Top of the list
 ! Make sure all sent mails have To: headers.
 
 ! Make sure that our temporary directory exists.
+  Have each interface create it if it doesn't exist.
 
-- Auto-configure global defaults instead of relying on defaults file, so
-  that we can minimize config file access time (because defaults must be
-  parsed).
-
-! Put sessions somewhere other than the GLOBAL filespace; remote access
-  comes with the sessioninfo command and the database lookup when opening a
-  new session is too slow.
-
-  sessions directory directly in GLOBAL directory instead of under files.
-  Change sessioninfo command to deal.
-  Change connect to deal.  inform just uses the handle.
-  Change expiry process to deal.
+! Make each interface set umask before it writes anything.  Configure umask
+  in makefile.pl and hardcode it into each executable.
 
 - Figure out how to pass the access variables through to the _post function
   so that we can use things like the byte and line counts for cool things.
@@ -44,6 +35,11 @@ Top of the list
   a box to type them in to the web interface.
 
 - Rewrite the web interface to use proper design techniques.
+
+? Move spool files out of filespace like sessions?  Use filespace only for
+  things needing remote access (not spooled files) or things needing i18n
+  (not spooled files) or things you want an index of (perhaps spooled
+  files).  Maybe an open token report is warranted.
 
 ! Code to force 2047-encoding of headers.  Function should take an entity
   and a charset and call MIME::Words::encode_mimewords on each header.
@@ -84,6 +80,10 @@ Top of the list
    Back end mime-modification functions come later.
 
 
+- Auto-configure global defaults instead of relying on defaults file, so
+  that we can minimize config file access time (because defaults must be
+  parsed).
+
 - Add some variable expansions in message_fronters/footers like in
   message_headers. 
 
@@ -116,8 +116,6 @@ Top of the list
         that file else look in the given sublist if it exists.
       check all of the taboo_* admin_* dup_* and *_mime variables and
         do the appropriate thing.
-
-! umask setting in interfaces? or in core?
 
 ! Clean up all Majordomo-level commands.  Add
   access checking and split across the token barrier properly.
@@ -655,3 +653,6 @@ Purge archive files after a certain period of time.
 Make archiver add files into filespace with useful descriptions.
 Change commands executed/successful to counts of
  total/executed/pending/failed or somesuch.
+Allow headers to vary depending on access variables.
+Have an action attach text to an outgoing message (warning about quotes,
+ deleted parts, etc.)
