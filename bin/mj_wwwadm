@@ -184,7 +184,8 @@ else {
   $mode = '';
 }
 
-unless (($i) = $mj->valid_list($lists[0], 1, 1)) {
+($i) = $mj->valid_list($lists[0], 1, 1);
+unless (defined $i) {
   &login($mj, $subs, "Invalid list: \"$lists[0]\".");
 }
 unless ($passw) {
