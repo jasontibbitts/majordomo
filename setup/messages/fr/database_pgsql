@@ -1,4 +1,4 @@
-==== EXPERIMENTAL : N'UTILISEZ PAS pgsql A MOINS QUE VOUS DEVELOPPIEZ ====
+==== EXPÉRIMENTAL : N'UTILISEZ PAS pgsql A MOINS QUE VOUS DÉVELOPPIEZ ====
 ==                                                                      ==
 == Vous avez le module DBD::Pg d'installé, qui supporte le gestionnaire ==
 ==    de bases de données PostgreSQL. Entrez "pgsql" à l'invite pour    ==
