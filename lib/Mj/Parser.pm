@@ -258,8 +258,8 @@ sub parse_part {
   my (@arglist, @help, $action, $cmdargs, $attachhandle, $command, $count,
       $delay, $ent, $fail_count, $function, $garbage, $mess,
       $mode, $name, $ok, $ok_count, $out, $outfh, $password, 
-      $pend_count, $replacement, $request, $result, $sender, $sigsep, 
-      $subject, $sublist, $subs, $tlist, $tmpdir, $true_command, 
+      $pend_count, $replacement, $request, $result, $sender, $shown,
+      $sigsep, $subject, $sublist, $subs, $tlist, $tmpdir, $true_command, 
       $unk_count, $user);
 
 # use Data::Dumper;
@@ -268,6 +268,7 @@ sub parse_part {
 
   $count = $ok_count = $pend_count = $fail_count = $unk_count = $garbage = 0;
   $delay = 0;
+  $shown = 0;
   $user = $args{'reply_to'};
   $sigsep = $mj->global_config_get(undef, undef, 'signature_separator');
   $interface =~ s/(\w+)-.+/$1/;
@@ -341,7 +342,6 @@ sub parse_part {
                                            'LINES' => $garbage - 1);
     }
     $garbage = 0;
-    print $outhandle $out;
 
     undef $password;
 
@@ -351,11 +351,13 @@ sub parse_part {
       ($password, $command, $cmdargs) = split(" ", $cmdargs, 3);
 
       unless (defined $password) {
+        print $outhandle $out;
         print $outhandle $mj->format_error('approve_no_password', $list);
         next CMDLINE;
       }
 
       unless (defined $command) {
+        print $outhandle $out;
         print $outhandle $mj->format_error('approve_no_command', $list);
         next CMDLINE;
       }
@@ -372,6 +374,7 @@ sub parse_part {
       unless (defined($true_command) &&
               command_prop($true_command, $interface))
         {
+          print $outhandle $out;
           print $outhandle $mj->format_error('invalid_command', $list,
                                              'COMMAND' => $command);
           next CMDLINE;
@@ -380,6 +383,7 @@ sub parse_part {
 
     # Deal with "end" command; again, this can be aliased
     if ($true_command eq "end") {
+      print $outhandle $out;
       print $outhandle $mj->format_error('end_command', $list);
       last CMDLINE;
     }
@@ -390,6 +394,7 @@ sub parse_part {
       $cmdargs = add_deflist($mj, $cmdargs, $args{'deflist'}, $args{'reply_to'});
       ($tlist, $cmdargs) = split(" ", $cmdargs, 2);
       unless (defined($tlist) && length($tlist)) {
+        print $outhandle $out;
         print $outhandle $mj->format_error('no_list', 'GLOBAL',
                                            'COMMAND' => $command);
         next CMDLINE;
@@ -399,6 +404,7 @@ sub parse_part {
                                   command_prop($true_command, 'global'));
 
       if (length $mess) { 
+        print $outhandle $out;
         print $outhandle "$mess\n";
       }
       unless (defined $list and length $list) {
@@ -410,6 +416,7 @@ sub parse_part {
     if (command_prop($true_command, "nohereargs") &&
         (@arglist || $attachhandle))
       {
+        print $outhandle $out;
         print $outhandle $mj->format_error('invalid_hereargs', $list,
                                            'COMMAND' => $command);
         next CMDLINE;
@@ -419,12 +426,14 @@ sub parse_part {
     if (command_prop($true_command, "noargs") &&
 	($cmdargs || @arglist || $attachhandle))
       {
+        print $outhandle $out;
         print $outhandle $mj->format_error('invalid_arguments', $list,
                                            'COMMAND' => $command);
       }
 
     # Warn of obsolete usage
     if ($replacement = command_prop($true_command, "obsolete")) {
+      print $outhandle $out;
       print $outhandle $mj->format_error('obsolete_command', $list,
                                          'COMMAND' => $command,
                                          'NEWCOMMAND' => $replacement);
@@ -433,9 +442,11 @@ sub parse_part {
 
     # We have a legal command.  Now we actually do something.
     $count++;
+    $shown++;
 
     # First, handle the "default" command internally.
     if ($true_command eq 'default') {
+      print $outhandle $out;
       $ok_count++;
       ($action, $cmdargs) = split(" ", $cmdargs, 2);
       if ($action eq 'list') {
@@ -520,6 +531,15 @@ sub parse_part {
       }
       $result = $mj->dispatch($request);
 
+      if (ref $result eq 'ARRAY' and $result->[0] <= 0 
+          and $result->[1] eq 'NONE')
+      {
+        $shown--;
+        next CMDLINE;
+      }
+
+      print $outhandle $out;
+
       # If a new identity has been assumed, send the output
       # of the command to the new address.
       if ($user ne $args{'reply_to'}) {
@@ -567,16 +587,19 @@ sub parse_part {
            Subject  => $mess,
            'MIME-Version' => "1.0",
           );
-        $mj->mail_entity($sender, $ent, $user) if $ent;
+
+        if ($ent and -s $name) {
+          $mj->mail_entity($sender, $ent, $user) if ($ent and -s $name);
+          print $outhandle 
+            $mj->format_error('results_mailed', $list,
+                              'USER' => $user,
+                              'SUCCEED' => $ok >0 ? " " : '',
+                              'STALL'   => $ok <0 ? " " : '',
+                              'FAIL'    => $ok==0 ? " " : '',
+                             );
+        }
         $ent->purge if $ent;
         unlink $name;
-        print $outhandle 
-          $mj->format_error('results_mailed', $list,
-                            'USER' => $user,
-                            'SUCCEED' => $ok >0 ? " " : '',
-                            'STALL'   => $ok <0 ? " " : '',
-                            'FAIL'    => $ok==0 ? " " : '',
-                           );
       }
 
       if (!defined $ok) {
@@ -592,7 +615,6 @@ sub parse_part {
         $fail_count++;
       }
     }
-    print $outhandle "\n";
   } # CMDLINE
 
   if ($garbage > 1) {
@@ -600,14 +622,17 @@ sub parse_part {
                                          'LINES' => $garbage - 1);
   }
 
-  print $outhandle
-    $mj->format_error('commands_processed', $list,
-                      'COUNT' => $count,
-                      'FAIL'  => $fail_count,
-                      'STALL' => $pend_count,
-                      'SUCCEED' => $ok_count,
-                      'SESSIONID' => $mj->{'sessionid'},
-                     );
+  if ($shown or $garbage > 1) {
+    print $outhandle
+      $mj->format_error('commands_processed', $list,
+                        'COUNT' => $shown,
+                        'FAIL'  => $fail_count,
+                        'STALL' => $pend_count,
+                        'SUCCEED' => $ok_count,
+                        'SESSIONID' => $mj->{'sessionid'},
+                       );
+  }
+
   if ($count == 0) {
     # No commands were found; log as an error under "parse".
     $mj->inform('GLOBAL', 'parse', $user, $user, '(no valid commands)',
