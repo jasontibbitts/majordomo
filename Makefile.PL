@@ -115,6 +115,8 @@ sub MY::installbin {
   package MY;
   my $str = shift->SUPER::installbin(@_);
   $str =~ s/^\tcp\s/\t\$(PERL) installbin /mg;
+  $str =~ s/^\t\$\(CP\)\s/\t\$(PERL) installbin /mg;
+  $str =~ s/^.*\$\(FIXIN\).*\n//mg;
   return $str;
 }
 

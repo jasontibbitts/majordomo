@@ -1,3 +1,8 @@
+2003-11-01  Michael Yount <csf@moscow.com>
+
+	* Makefile.PL:  Compensate for changes in the MakeMaker
+	installbin routine.  Thanks to Devin Reade.
+
 2003-10-29  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/MIMEParser.pm:  (parse_open)  Bugfix:  Call
