@@ -1,5 +1,5 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset  GLOBAL  confirm_url = [VALUE]
+configset GLOBAL confirm_url = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : [defined during installation]
 Data Type     : string
@@ -11,20 +11,16 @@ EXAMPLE:
 configset GLOBAL confirm_url = no server configured
 
 
-The URL that is used to return confirmation tokens.  The only purpose
-of this variable is to supply a value to be used in the confirmation
-messages that are sent out.
+$INCLUDE-config/confirm_url
 
-The URL will undergo variable substitution as it is added to
-the message requesting confirmation. See "help variables" for
-a discussion of substitutions.  The appropriate token
-will be substituted for \$TOKEN in the value.  No other 
-substitutions are supported.
+The \$TOKEN substitution variable is replaced by the token identifier of
+a message or command that needs to be confirmed.
 
 
 See Also:
-   help variables (for a list of all possible variables and what they mean)
+   help admin_domain
+   help mj_confirm (technical details about the confirmation interface)
+   help tokeninfo  (an introduction to token identifiers)
+   help variables  (an introduction to substitution variables)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
