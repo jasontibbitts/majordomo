@@ -1,0 +1,16 @@
+The $NEWLIST list has been created.
+
+The list owners are:
+  $OWNERS
+
+The list's administrative password is $PASSWORD
+
+?WELCOME The guide for new owners has been mailed to each list owner.
+?NOARCHIVE The list does not yet have a directory to hold archives.
+?INACTIVE The "active" configuration setting must be turned on 
+?INACTIVE to activate the list.
+
+If the mail aliases need to be updated, they are displayed below:
+
+?ALIASES
+

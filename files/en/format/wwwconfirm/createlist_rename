@@ -1,0 +1,8 @@
+The $OLDLIST mailing list has been renamed to $NEWLIST.
+
+If the list's old aliases must be removed, they appear here:
+?OLDALIASES
+
+If the list's aliases must be updated, the new aliases appear here:
+?ALIASES
+

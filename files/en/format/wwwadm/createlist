@@ -1,0 +1,44 @@
+<p>
+The $NEWLIST list has been created.
+</p>
+
+<p>
+The list owners are:
+<ul>
+<li> $OWNERS
+</ul>
+
+<p>
+The list's master password is <b>$PASSWORD</b>.
+</p>
+
+<p>
+?WELCOME The guide for new owners has been mailed to each list owner.<br>
+?NOARCHIVE The list does not yet have a directory to hold archives.<br>
+?INACTIVE The "active" configuration setting must be turned on 
+?INACTIVE to activate the list.<br>
+</p>
+
+<p>
+If the mail aliases need to be updated, they are displayed below:
+</p>
+
+<pre>
+?ALIASES
+</pre>
+
+<p>
+Press the <b>configshow</b> button to review and change the list's
+configuration settings.  You may be prompted to enter the new
+list's password.
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="list" value="$NEWLIST">
+  <input type="hidden" name="func" value="configshow-categories">
+  <input type="submit" value="configshow">
+</form>
+
+</p>
+
