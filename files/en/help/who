@@ -1,13 +1,13 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-who[-short][-enhanced][-export][-bounces] listname [pattern]
-who[-short][-enhanced][-export][-bounces][-alias] GLOBAL   [pattern]
-who-common[-short][-enhanced][-export][-bounces] listname listname [pattern]
+who[-short][-enhanced][-export][-bounce] listname [pattern]
+who[-short][-enhanced][-export][-bounce][-alias] GLOBAL   [pattern]
+who-common[-short][-enhanced][-export][-bounce] listname listname [pattern]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (or the word "GLOBAL")
 -enhanced, if specified, displays flags and mail mode for each subscriber
 -short,    if specified, produces just a simple list of email addresses
 -export,   if specified, produces commands needed to recreate the list
--bounces,  if specified, shows only addresses with bounces
+-bounce,   if specified, shows only addresses with bounces
 -common,   if specified, shows addresses that appear on both lists
 -alias,    if specified, produces commands needed to recreate the alias database
 pattern,   if specified, is an address matching string
@@ -53,7 +53,7 @@ If "-alias" is specified in combination with the GLOBAL list, commands
 will be displayed that would allow the GLOBAL aliases database to
 be reconstructed.
 
-If "-bounces" is specified, only those addresses with bounces being
+If "-bounce" is specified, only those addresses with bounces being
 processed will be shown. Refer to "help configset bounce_max_age"
 for additional information on bounce processing (including other
 commands related to bounces).
