@@ -575,7 +575,7 @@ sub list_access_check {
     # the help command.
     return (0, "Invalid password.\n")
       unless $args{'master_password'} || $args{'user_password'}
-             || $request eq 'help';
+             || $request eq 'help' || $request eq 'lists';
   }
   return (0, "The master password is required to use regular expressions.\n")
     if ($args{'regexp'} and not $args{'master_password'});
