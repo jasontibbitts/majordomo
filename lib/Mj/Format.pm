@@ -212,18 +212,6 @@ sub archive {
   $ok;
 }
 
-sub auxadd {
-  subscribe(@_);
-}
-
-sub auxremove {
-  unsubscribe(@_);
-}
-
-sub auxwho  {
-  who (@_);
-}
-
 sub configdef {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
@@ -635,10 +623,22 @@ sub put {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my ($act, $chunk, $handled, $i);
   my ($ok, $mess) = @$result;
+
+  if    ($request->{'file'} eq '/info' ) {$act = 'Newinfo' }
+  elsif ($request->{'file'} eq '/intro') {$act = 'Newintro'}
+  elsif ($request->{'file'} eq '/faq'  ) {$act = 'Newfaq'  }
+  else                                   {$act = 'Put'     }
+
+  unless ($ok) {
+    eprint($out, $type, "$act failed.\n");
+    return $ok;
+  }
+
   $handled = 0;
-  $handled = 1 
-    if (   ref $request->{'contents'} eq 'IO::File'  
-        or ref $request->{'contents'} eq 'IO::Handle');
+  if (   ref $request->{'contents'} eq 'IO::File'  
+      or ref $request->{'contents'} eq 'IO::Handle') {
+    $handled = 1;
+  }
 
   my ($chunksize) = $mj->global_config_get(undef, undef, "chunksize") * 80;
 
@@ -667,13 +667,11 @@ sub put {
     ($ok, $mess) = @{$mj->dispatch($request)};
   }
 
-  if    ($request->{'file'} eq '/info' ) {$act = 'Newinfo' }
-  elsif ($request->{'file'} eq '/intro') {$act = 'Newintro'}
-  elsif ($request->{'file'} eq '/faq'  ) {$act = 'Newfaq'  }
-  else                      {$act = 'Put'     }
-
   if ($ok > 0) {
     eprint($out, $type, "$act succeeded.\n");
+  }
+  elsif ($ok < 0) {
+    eprint($out, $type, "$act stalled.\n");
   }
   else {
     eprint($out, $type, "$act failed.\n");
@@ -787,12 +785,12 @@ sub report {
       @tmp = localtime($data->[9]);
       $end = strftime("%d %b %H:%M", @tmp);
       if (defined $data->[10]) {
-        $end .= ", $data->[10]s";
+        $end .= ", $data->[10]";
       }
 
       if ($request->{'mode'} !~ /summary/) {
         if ($request->{'list'} eq 'ALL') { 
-          $mess = sprintf "%-11s %-16s %-30s %-7s %s\n", $data->[1],
+          $mess = sprintf "%-11s %-16s %-22s %-7s %s\n", $data->[1],
                   $data->[0], $victim, $outcomes{$data->[6]}, $end;
         }
         else {
@@ -829,7 +827,7 @@ sub report {
   $request->{'command'} = "report_done";
   ($ok, @tmp) = @{$mj->dispatch($request)};
   if ($ok and $request->{'mode'} =~ /summary/) {
-    $mess = "\nThis report includes the following auxiliary lists:\n";
+    $mess = "\nThis report includes the following subsidiary lists:\n";
     eprint($out, $type, $mess);
     for $mess (@tmp) {
       eprint($out, $type, "  $mess\n");
@@ -861,8 +859,8 @@ sub set {
     ($ok, $change) = splice @changes, 0, 2;
     if ($ok > 0) {
       $list = $change->{'list'};
-      if (length $change->{'auxlist'}) {
-        $list .= ":$change->{'auxlist'}";
+      if (length $change->{'sublist'}) {
+        $list .= ":$change->{'sublist'}";
       }
       $summary = <<EOM;
 Settings for $change->{'victim'}->{'full'} on "$list":
@@ -1183,10 +1181,10 @@ sub who {
   my ($template, $tmp, $subs, $fh, $line, $mess, $numbered, $source);
   my ($ok, $regexp, $tmpl) = @$result;
 
-  $request->{'auxlist'} ||= '';
+  $request->{'sublist'} ||= 'MAIN';
   $source = $request->{'list'};
-  if (length $request->{'auxlist'}) {
-    $source .= ":$request->{'auxlist'}";
+  if ($request->{'sublist'} ne 'MAIN') {
+    $source .= ":$request->{'sublist'}";
   }
   my $log = new Log::In 29, "$type, $source, $request->{'regexp'}";
 
@@ -1210,7 +1208,7 @@ sub who {
   }
 
   if (ref ($tmpl) eq 'ARRAY') {
-    $template = join ("", @$tmpl);
+    $template = join ("\n", @$tmpl);
   }
   elsif ($request->{'list'} eq 'GLOBAL') {
     $template = '$FULLADDR $PAD $LISTS';
@@ -1228,18 +1226,18 @@ sub who {
     for $i (@lines) {
       $subs = {};
       next unless (ref ($i) eq 'HASH');
-      if ($request->{'mode'} =~ /enhanced/) {
+      if ($request->{'mode'} =~ /enhanced|alias/) {
         for $j (keys %$i) {
           $subs->{uc $j} = $i->{$j};
         }
         $subs->{'PAD'} = " " x (48 - length($i->{'fulladdr'}));
-        if ($request->{'list'} ne 'GLOBAL') {
+        if ($request->{'list'} ne 'GLOBAL' or $request->{'sublist'} ne 'MAIN') {
           my ($fullclass) = $i->{'class'};
           $fullclass .= "-" . $i->{'classarg'} if ($i->{'classarg'});
           $fullclass .= "-" . $i->{'classarg2'} if ($i->{'classarg2'});
           $subs->{'CLASS'} = $fullclass;
         }
-        else {
+        elsif ($request->{'mode'} !~ /alias/) {
           $subs->{'LISTS'} =~ s/\002/ /g;
         }
         if ($i->{'changetime'}) {
@@ -1323,8 +1321,8 @@ sub g_get {
 
 =head2 g_sub($act, ..., $ok, $mess)
 
-This function implements reporting subscribe/unsubscribe results (and
-auxadd/auxremove results too).  If $arg1 - $arg3 are listrefs, it will
+This function implements reporting subscribe/unsubscribe results 
+If $arg1 - $arg3 are listrefs, it will
 format them as a lists of successes/failures/stalls.  Otherwise it
 takes $ok and $mess and figures out whether or not a single request
 succeeded.
@@ -1365,14 +1363,14 @@ sub g_sub {
   while (@res) {
     ($ok, $addr) = splice @res, 0, 2;
     unless ($ok > 0) {
-      eprint($out, $type, "$addr\n");
+      eprint($out, $type, indicate("$addr\n", $ok));
       next;
     }
     for (@$addr) {
       my ($verb) = ($ok > 0)?  $act : "not $act";
       $verb =~ s/LIST/$request->{'list'}/;
-      if (exists $request->{'auxlist'}) {
-        $verb .= ":$request->{'auxlist'}";
+      if (exists $request->{'sublist'} and $request->{'sublist'} ne 'MAIN') {
+        $verb .= ":$request->{'sublist'}";
       }
       eprint($out, $type, "$_ was $verb.\n");
     }
