@@ -33,7 +33,7 @@ and a subscription form.
   </td>
 </tr>
 <tr>
-  <td valign="top">Unsubscribe or <br>Change Settings
+  <td valign="top">Unsubscribe or Change Settings
   </td>
   <td>
 Click the <b>Unsubscribe or Change Settings</b>
@@ -53,7 +53,7 @@ Click the <b>Help</b> link to return to this page.
 </tr>
 
 <tr>
-  <td valign="top">Shortcuts for <br>Common Tasks
+  <td valign="top">Shortcuts for Common Tasks
   </td>
   <td>
   Choose a task from the <b>Task</b> menu, then press the <b>Go</b>
@@ -109,12 +109,13 @@ help document to learn more about search patterns.
 Majordomo has over 100 cross-referenced help documents.
 They describe how to email commands to Majordomo at 
 <a href="mailto:$MJ">$MJ</a>.  
+The help pages may be displayed in a new window in your web
+browser.
 
 <p>
 To see the help document for a particular topic, type its
 name into the <b>Topic</b> box, then press the <b>Help</b>
-button.  The help pages may be displayed in a new window in your web
-browser.
+button.
 </p>
 
 <form method="POST" action="$CGIURL">
