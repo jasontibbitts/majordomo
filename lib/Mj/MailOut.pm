@@ -327,7 +327,7 @@ sub welcome {
   my %args = @_;
   my $log = new Log::In 150, "$list, $addr";
   my (%file, @mess, @temps, $count, $desc, $fh, $file, $final, $head, 
-      $i, $j, $nodefsearch, $reg, $subj, $subs, $top);
+      $i, $j, $nodefsearch, $reg, $seen, $subj, $subs, $top);
 
   return unless (ref($addr) and $addr->isvalid);
 
@@ -352,14 +352,14 @@ sub welcome {
   }
 
   # Loop over the table, processing parts and substituting values
-  $count = 0;
+  $count = $seen = 0;
   for($i = 0; $i < @{$table}; $i++) {
     # skip this file if the registration flags do not match.
     next if ($table->[$i][2] =~ /U/ and $reg);
     next if ($table->[$i][2] =~ /R/ and ! $reg);
 
     # Are we starting a new message?
-    if ($i!=0 && $table->[$i][2] =~ /N/) {
+    if ($seen && $table->[$i][2] =~ /N/) {
       $count++;
     }
     $nodefsearch = 0;
@@ -404,6 +404,8 @@ sub welcome {
        Top         => 0,
        'Content-Language:' => $file{'language'},
       );
+
+    $seen++;
   }
 
   # Now we can go over the @mess array, build messages and deliver them

@@ -1,3 +1,9 @@
+2003-11-08  Michael Yount <csf@moscow.com>
+
+        * lib/Mj/MailOut.pm:  (welcome)  Increase the message count
+        only if a welcome file has already been processed.
+        Thanks to Roger Klorese.
+
 2003-11-04  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  Version number is now 0.1200311040.
