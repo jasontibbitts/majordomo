@@ -714,10 +714,10 @@ sub lists {
 
   $global_subs = {
            $mj->standard_subs('GLOBAL'),
-           'CGIDATA' => cgidata($mj, $request),
-           'CGIURL' => $request->{'cgiurl'},
+           'CGIDATA'  => cgidata($mj, $request),
+           'CGIURL'   => $request->{'cgiurl'},
            'PASSWORD' => $request->{'password'},
-           'PATTERN'       => $request->{'regexp'},
+           'PATTERN'  => $request->{'regexp'},
            'USER'     => escape("$request->{'user'}", $type),
           };
 
@@ -1695,6 +1695,13 @@ sub who {
     return $ok;
   }
 
+  if ($request->{'mode'} =~ /owners/ and $request->{'list'} eq 'GLOBAL') {
+    for $i (sort keys %$regexp) {
+      $j = join ", ", @{$regexp->{$i}};
+      print $out sprintf "%-40s : %s\n", $i, $j;
+    }
+    return 1;
+  }
   # Special substitutions for WWW interfaces.
   $gsubs->{'CLASS_SELECTED'}     = [];
   $gsubs->{'CLASS_DESCRIPTIONS'} = [];
