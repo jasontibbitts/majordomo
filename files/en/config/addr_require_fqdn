@@ -1,7 +1,5 @@
 If this is true, addresses are required to have fully qualified domain
-names.  Since Majordomo does not verify this using name service lookups,
-this essentially means that the right hand side of an address must contain
-at least one period.
-
-To enable Majordomo to run at a site where the mail transfer agents do not
-fully qualify the domain names, set this to false.
+names, often referred to as "strict addressing".  Since Majordomo does
+not verify this using name service lookups, this essentially means that
+an address must contain '@' and the string on the right hand side of
+'@' (the domain) must contain at least one period.
