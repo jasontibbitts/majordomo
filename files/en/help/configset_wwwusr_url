@@ -8,17 +8,16 @@ Password Notes: Visible only with password. Set with global password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset GLOBAL wwwusr_url = no server configured
+configset GLOBAL wwwusr_url = http://example.com/cgi-bin/mj_wwwusr
 
 $INCLUDE-config/wwwusr_url
 
 See Also:
+   help admin_domain
    help configset_confirm_url
    help configset_wwwadm_url
    help mj_confirm
    help mj_wwwadm
    help mj_wwwusr
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

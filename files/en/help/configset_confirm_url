@@ -19,7 +19,11 @@ a message or command that needs to be confirmed.
 
 See Also:
    help admin_domain
+   help configset_wwwadm_url
+   help configset_wwwusr_url
    help mj_confirm (technical details about the confirmation interface)
+   help mj_wwwadm
+   help mj_wwwusr
    help tokeninfo  (an introduction to token identifiers)
    help variables  (an introduction to substitution variables)
 

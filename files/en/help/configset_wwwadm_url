@@ -8,11 +8,12 @@ Password Notes: Visible only with password. Set with global password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset GLOBAL wwwadm_url = no server configured
+configset GLOBAL wwwadm_url = http://example.com/cgi-bin/mj_wwwadm
 
 $INCLUDE-config/wwwadm_url
 
 See Also:
+   help admin_domain
    help configset_confirm_url
    help configset_wwwusr_url
    help mj_confirm
