@@ -13,7 +13,7 @@ EXAMPLE:
 configset listname digests << ENDTAG
 daily  | 5      | 20K,5m | 40K,10m  | 3d | 1d | | mime  | thread | numbered
 The pre-dawn daily digest  | [\$LIST] Daily digest (\$MESSAGECOUNT messages)
-weekly | fr(23) |20k,5m  | 100k,30m |    |    | | index |  |  numbered
+weekly | fr(23) |20k,5m  | 100k,30m |    |    | | index |    |
 The listname weekly index, generated late friday night.
 ENDTAG
 
@@ -61,9 +61,9 @@ maxage   - If an article is older than this awaits delivery, a digest
 separate - The minimum amount of time that separates digests.  The
            default is 15 minutes.
 
-minage   - A digest will not be created if it most recent article is
+minage   - A digest will not be created if the most recent message is
            younger than this.  This is intended to prevent digest
-           creation in the middle of active discussion.  The default
+           creation in the middle of an active discussion.  The default
            is no minimum age.
 
 type     - This specifies the type of digest that new subscribers get
@@ -192,6 +192,14 @@ The default value is 15 minutes.
 
 minage
 ------
+The arrival of a new message will cause digests to be delivered if
+the criteria are met.  If a digest has no minimum size specified by the
+"minsize" field, a digest may be delivered that contains only the latest 
+message.  To keep a digest from being triggered by every new message,
+set this field to some small value, for example "20s" for twenty seconds.
+This will work consistently only if the archive_date configuration
+setting is set to "delivery".
+
 This field uses the same format as the maxage field.
 
 The default value is no minimum age.
