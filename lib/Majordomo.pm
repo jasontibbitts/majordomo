@@ -183,8 +183,8 @@ sub new {
   $self->{backend} = $self->_site_config_get('database_backend');
   $log->abort("Can't create GLOBAL list: $!")
     unless $self->_make_list('GLOBAL'); #XLANG
-  $log->abort("Can't create DEFAULT list: $!")
-    unless $self->_make_list('DEFAULT'); #XLANG
+  $log->abort($self->format_error('make_list', 'GLOBAL', 'LIST' => 'DEFAULT'))
+    unless $self->_make_list('DEFAULT'); 
 
   $self->{alias} = new Mj::AliasList(backend => $self->{backend},
                                       domain => $domain,
@@ -1496,16 +1496,14 @@ sub list_config_set {
   my $log = new Log::In 150, "$request->{'list'}, $request->{'setting'}";
   my (@groups, @tmp, @tmp2, $i, $j, $join, $mess, $ok, $global_only);
 
-  return (0, "Unable to initialize list $request->{'list'}.\n") #XLANG
-    unless $self->_make_list($request->{'list'});
-
-  if (!defined $request->{'password'}) {
-    return (0, "No password was supplied.\n"); #XLANG
+  unless ($self->_make_list($request->{'list'})) {
+    return (0, $self->format_error('make_list', 'GLOBAL', 
+                                   'LIST' => $request->{'list'}));
   }
 
-  ($ok, $mess) = $request->{'user'}->valid;
-  if (!$ok) {
-    return (0, "$request->{'user'} is invalid\n$mess"); #XLANG
+  if (!defined $request->{'password'}) {
+    return (0, $self->format_error('no_password', 'GLOBAL', 
+                                   'COMMAND' => 'configset'));
   }
 
   @groups = $self->config_get_groups($request->{'setting'});
@@ -1582,10 +1580,10 @@ sub list_config_set {
       }
       else {
         $ok = 0;
-        $mess = "The $request->{'setting'} setting was not changed.\n"
-               . "The value\n$request->{'value'}->[0]\n"
-               . "was expected, but the value\n"
-               . "$tmp[0]\nwas found instead."; #XLANG
+        $mess = $self->format_error('not_extracted', $request->{'list'},
+                                    'SETTING'  => $request->{'setting'},
+                                    'EXPECTED' => $request->{'value'}->[0],
+                                    'VALUE'    => $tmp[0]);
       }
     }
     # Impossible to splice an array out of a smaller array.
@@ -3297,6 +3295,8 @@ sub announce {
   my $log = new Log::In 30, "$request->{'list'}, $request->{'file'}";
   my ($mess, $ok);
 
+  $request->{'sublist'} ||= 'MAIN';
+
   return (0, "A file name was not supplied.\n")
     unless $request->{'file'}; #XLANG
 
@@ -3309,13 +3309,14 @@ sub announce {
     return ($ok, $mess);
   }
   $self->_announce($request->{'list'}, $request->{'user'}, $request->{'user'}, 
-                   $request->{'mode'}, $request->{'cmdline'}, $request->{'file'});
+                   $request->{'mode'}, $request->{'cmdline'}, $request->{'file'},
+                   $request->{'sublist'});
 
 }
 
 use MIME::Entity;
 sub _announce {
-  my ($self, $list, $user, $vict, $mode, $cmdline, $file) = @_;
+  my ($self, $list, $user, $vict, $mode, $cmdline, $file, $sublist) = @_;
   my $log = new Log::In 30, "$list, $file";
   my (@classlist, %data); 
   my ($baseclass, $classes, $desc, $ent, $mailfile, $sender, $subs, $tmpfile);
@@ -3364,7 +3365,7 @@ sub _announce {
   # Construct classes from the mode.  If none was given,
   # use all classes.
   $classes = {};
-  if ($list eq 'GLOBAL') {
+  if ($list eq 'GLOBAL' and $sublist eq 'MAIN') {
     @classlist = qw(each nomail);
   }
   else {
@@ -3372,7 +3373,8 @@ sub _announce {
                     each-noprefix-replyto each-prefix-replyto
                     unique-noprefix-noreplyto unique-prefix-noreplyto 
                     unique-noprefix-replyto unique-prefix-replyto);
-    push @classlist, $self->{'lists'}{$list}->_digest_classes;
+    push @classlist, $self->{'lists'}{$list}->_digest_classes
+      if ($sublist eq 'MAIN');
   }
   for (@classlist) {
     ($baseclass = $_) =~ s/\-.+//;
@@ -3388,7 +3390,7 @@ sub _announce {
     unless (scalar keys %$classes); #XLANG
 
   # Send the message.
-  $self->probe($list, $sender, $classes);
+  $self->probe($list, $sender, $classes, $sublist);
   unlink $tmpfile;
   unlink $mailfile;
   1;
@@ -5877,7 +5879,7 @@ sub who_start {
 
   $base = $request->{'command'}; $base =~ s/_start//i;
 
-  if ($request->{'regexp'}) {
+  if ($request->{'regexp'} and $request->{'regexp'} ne 'ALL') {
     ($ok, $error, $request->{'regexp'}) 
       = Mj::Config::compile_pattern($request->{'regexp'}, 0, "isubstring");
     return ($ok, $error) unless $ok;
@@ -5890,6 +5892,12 @@ sub who_start {
       ($request->{'list'} ne 'GLOBAL' or
        $request->{'sublist'} ne 'MAIN')) {
     return (0, "Alias mode is only supported for the GLOBAL list.\n");
+  }
+
+  if ($request->{'mode'} =~ /owners/ and 
+      ($request->{'list'} ne 'GLOBAL' or
+       $request->{'sublist'} ne 'MAIN')) {
+    return (0, "Owners mode is only supported for the GLOBAL list.\n");
   }
 
   ($ok, $error) = $self->list_access_check($request);
@@ -5930,7 +5938,8 @@ sub who_start {
 sub _who {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $regexp, $sublist, $list2) = @_;
   my $log = new Log::In 35, $list;
-  my ($listing, $ok, $settings);
+  my (@deletions, @tmp, $addr, $error, $i, $j, $listing, 
+      $ok, $ok2, $out, $owners, $settings, $strip);
   $listing = [];
   $sublist ||= 'MAIN';
 
@@ -5954,6 +5963,63 @@ sub _who {
     return (0, "Unable to initialize alias list.\n") 
       unless $self->{'alias'}->get_start;
   }
+  elsif ($list eq 'GLOBAL' and $mode =~ /owners/) {
+    $self->_fill_lists;
+    $out = {};
+    for $i (sort keys %{$self->{'lists'}}) {
+      $owners = $self->_list_config_get($i, 'owners');
+      for $j (@$owners) {
+        $ok = $::log->elapsed;
+        $addr = new Mj::Addr($j);
+        next unless $addr->isvalid;
+        $strip = $addr->strip;
+        if (exists $out->{$strip}) {
+          push @{$out->{$strip}}, $i;
+        }
+        else {
+          $out->{$strip} = [$i];
+        }
+        unless ($self->{'lists'}{'GLOBAL'}->is_subscriber($addr, 'owners')) {
+          $self->_subscribe('GLOBAL', $requ, $addr, '', 
+                            "subscribe GLOBAL:owners $addr", '', 'owners');
+          $self->inform('GLOBAL', 'subscribe', $requ, $addr,
+                        "subscribe GLOBAL:owners $addr",
+                        $self->{'interface'}, 1, 1, 0, 
+                        '',
+                        $::log->elapsed - $ok);
+
+        }
+      }
+    }
+    # Synchronize the GLOBAL::owners sublist with the current
+    # set of owners by iterating over all of the addresses and
+    # removing those that are not currently list owners.
+    $self->{'lists'}{'GLOBAL'}->get_start('owners');
+    while (1) {
+      @tmp = $self->{'lists'}{'GLOBAL'}->get_chunk('owners', 1000);
+      last unless @tmp;
+      for $i (@tmp) {
+        unless (exists $out->{$i->{'canon'}}) {
+          push @deletions, $i->{'canon'};
+        }
+      }
+    }
+    $self->{'lists'}{'GLOBAL'}->get_done('owners');
+    for $i (@deletions) {
+      $ok = $::log->elapsed;
+      $addr = new Mj::Addr($i);
+      next unless $addr;
+      $self->_unsubscribe('GLOBAL', $requ, $addr, '', 
+                          "unsubscribe GLOBAL:owners $addr", 'owners');
+      $self->inform('GLOBAL', 'unsubscribe', $requ, $addr,
+                    "unsubscribe GLOBAL:owners $addr",
+                    $self->{'interface'}, 1, 1, 0, '',
+                    $::log->elapsed - $ok);
+    }
+    
+    return (1, $out);
+  }
+    
   elsif ($list eq 'DEFAULT' and $sublist eq 'MAIN') {
     return (0, "The DEFAULT list never has subscribers");
   }
