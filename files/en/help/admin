@@ -1,17 +1,16 @@
                     Introduction to List Administration
 
 As the owner of a Majordomo mailing list, there are several basic duties
-you will need to perform:  configuration, moderation, subscriber
-management, document management, and monitoring.  Each of these duties 
-will be outlined in this document.  A separate, detailed help
-file is available for each duty.
+you will need to perform:  configuration, moderation, subscriber management, 
+document management, and monitoring.  Each of these duties will be outlined 
+in this document.  A separate, detailed help file is available for each duty.
 
-This document assumes that your mailing list has already been
-created.  If that is not the case, see "help createlist"
-for an introduction to list creation.
+This document assumes that your mailing list has already been created.  If 
+that is not the case, see "help createlist" for an introduction to list creation.
 
-In the examples in this document, wherever you see LISTNAME,
-substitute the name of any valid mailing list at $DOMAIN.
+In the examples in this document, wherever you see this word:
+  LISTNAME
+substitute the name of any mailing list at $DOMAIN.
 
 Interfaces
 ----------
@@ -22,7 +21,7 @@ common way is to use e-mail.  Commands should be mailed to
 Commands should always be placed in the body of the e-mail messages,
 never in the Subject header.  Majordomo only processes commands
 in plain text parts of the message, although it is possible
-to use attachments in some circumstances.  See "help parser"
+to use attachments in some circumstances.  See "help command_parser"
 for more information.
 
 In addition, if you have shell access for the computer on which
