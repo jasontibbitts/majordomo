@@ -32,6 +32,8 @@ know or implement a parser yourself.
 
 MTAs whose bounces aren't boing to be parsed:
   MMDF (who came up with these bounces?)
+  Any broken enough to not bother including any mention of the recipient
+   address.
 
 
 =head1 SYNOPSIS
@@ -117,6 +119,10 @@ sub parse {
   $ok or ($ok = parse_softswitch($ent, $data, $hints));
   $ok or ($ok = parse_smtp32    ($ent, $data, $hints));
 
+  # XXX Remove parse_compuserve2 once it is verified that no more bounces
+  # are being produced in that format.
+  $ok or ($ok = parse_compuserve2($ent, $data, $hints));
+
   # Look for useful bits in the To: header (assuming we even have one)
   $to = $ent->head->get('To');
   $to ||= '';
@@ -169,8 +175,53 @@ sub parse {
 
 =head2 parse_compuserve
 
-Attempts to parse the bounces issued by Compuserve.  These bounces look
-like this:
+Attempts to parse bounces issued by Compuserve. These bounces look like
+this:
+
+Receiver not found: 5of7
+
+
+Your message could not be delivered as addressed.
+
+Plus a chatty explanation which we ignore.
+
+=cut
+sub parse_compuserve {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my ($bh, $diag, $from, $line, $ok, $user);
+
+  # The message must come from postmaster@compuserve.com
+  $from = $ent->head->get('from'); chomp $from;
+  return unless $from =~ /postmaster\@compuserve.com/i;
+
+  # Compuserve only sends single-part bounces
+  return if $ent->parts;
+
+  $bh = $ent->bodyhandle->open('r');
+  return unless $bh;
+
+  # Each of the initial non-blank lines contains a message and user
+  while (1) {
+    $line = $bh->getline;
+    last unless defined $line;
+    chomp $line;
+    last if $line =~ /^\s*$/;
+    last unless $line =~ /^(.*)\s*:\s*(.*)$/;
+    $user = "$2\@compuserve.com"; $diag = $1;
+    $data->{$user}{'diag'} = $diag;
+    $data->{$user}{'status'} = 'failure';
+    $ok = 'Compuserve';
+  }
+
+  $ok;
+}
+
+=head2 parse_compuserve2
+
+Attempts to parse the bounces that used to be issued by Compuserve.  These
+bounces look like this:
 
 Your message could not be delivered due to the following:
 
@@ -180,7 +231,7 @@ Invalid receiver address: yyyy@compuserve.com
 An explanation follows, but we ignore it.
 
 =cut
-sub parse_compuserve {
+sub parse_compuserve2 {
   my $log  = new Log::In 50;
   my $ent  = shift;
   my $data = shift;
@@ -210,7 +261,7 @@ sub parse_compuserve {
       $user = $2; $diag = $1;
       $data->{$user}{'diag'} = $diag;
       $data->{$user}{'status'} = 'failure';
-      $ok = 'Compuserve';
+      $ok = 'Compuserve (old)';
     }
     else {
      last;
@@ -470,21 +521,34 @@ Failure is indicated by the string "could not be delivered"; a warning has
 format, having addresses indented by two spaces, not followed by a colon
 and with no following diagnostic.
 
+Exim also conveniently includes an X-Failed-Recipients: header.  We still
+want to parse the body to extract a diagnostic, but it is possible that
+someone will install a custom bounce format so we use the header as a
+fallback.
+
 =cut
 sub parse_exim {
   my $log  = new Log::In 50;
   my $ent  = shift;
   my $data = shift;
   my $hints= shift;
-  my ($bh, $diag, $line, $ok, $status, $user);
+  my ($bh, $diag, $i, $line, $ok, $status, $user);
 
-  return if $ent->parts;
+  # Check for X-Failed-Recipients: headers
+  for $i ($ent->head->get('X-Failed-Recipients')) {
+    chomp $i;
+    $data->{$i}{diag}   = 'unknown';
+    $data->{$i}{status} = 'failure';
+    $ok = 'Exim';
+  }
+
+  return $ok if $ent->parts;
   $bh = $ent->bodyhandle->open('r');
 
   # We eat the message until we see the trademark Exim bounce line
   while (1) {
     $line = $bh->getline;
-    return unless defined $line;
+    return $ok unless defined $line;
     chomp $line;
     next if $line =~ /^\s*$/;
     last if $line =~ /^\s*this message was created automatically by mail delivery software/i;
@@ -606,6 +670,7 @@ the first part is flat and looks like this:
 ------Transcript of session follows -------
 XXXX@email.msn.com
 The user's email name is not found.
+Possible additional lines.
 
 These headers are also present:
 
@@ -643,9 +708,17 @@ sub parse_msn {
   # Next line is the user, next is the diag.
   chomp($user = $bh->getline);
   return unless $user =~ /.+\@.+/;
-  chomp($diag = $bh->getline);
 
-  $data->{$user}{'diag'}   = $diag;
+  while (1) {
+    $line = $bh->getline;
+    last unless defined $line;
+    last if $line =~ /^\s*$/;
+    chomp $line;
+    $diag .= ' ' if $diag;
+    $diag .= $line;
+  }
+
+  $data->{$user}{'diag'}   = $diag || 'unknown';
   $data->{$user}{'status'} = 'failure';
 
   'MSN';

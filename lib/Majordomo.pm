@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform);
-$VERSION = "0.1200009110";
+$VERSION = "0.1200009300";
 $unique = 'AAA';
 
 use strict;
@@ -5291,6 +5291,7 @@ sub who_chunk {
       # GLOBAL has no flags or classes or bounces
       if ($request->{'list'} ne 'GLOBAL') {
         if ($request->{'mode'} =~ /bounces/) {
+	  use Data::Dumper; warn Dumper $i;
           next unless $i->{'bounce'};
           $i->{'bouncedata'} = $self->{'lists'}{$request->{'list'}}->_bounce_parse_data($i->{'bounce'});
           next unless $i->{'bouncedata'};

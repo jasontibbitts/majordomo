@@ -1,5 +1,13 @@
 2000-09-30  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Majordomo.pm: Bump version number.
+
+	* lib/Mj/BounceParser.pm (parse_msn): Handle MSN bounces with
+	multiline diagnostics.
+	(parse_compuserve): Old function moved to parse_compuserve2.  New
+	function to parse new bounce format.
+	(parse_exim): Look at X-Failed-Recipients: header as well.
+
 	* lib/Mj/SimpleDB/Text.pm: Use Majordomo::_re_match instead of
 	local version.  Delete local copy.
 
