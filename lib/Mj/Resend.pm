@@ -373,22 +373,8 @@ sub _post {
      },
     );
 
-  # Add Reply-To: header.
-  $replyto = $self->_list_config_get($list, 'reply_to');
-  if ($replyto && (!$head->get('Reply-To') ||
-		   $self->_list_config_get($list, 'override_reply_to')))
-    {
-      $replyto =
-	$self->substitute_vars_string
-	  ($replyto,
-	   'HOST'    => $self->_list_config_get($list, 'resend_host'),
-	   'LIST'    => $list,
-	   'SENDER'  => $user,
-	   'SEQNO'   => $seqno,
-	  );
-      $head->set('Reply-To', $replyto);
-    }
-  
+
+
   # Determine sender
   $sender = $self->_list_config_get($list, "sender");
   
@@ -399,7 +385,7 @@ sub _post {
 				       'VERSION' => $Majordomo::VERSION,
 				       'SENDER'  => $user,
 				       'SEQNO'   => $seqno,
-				       'ARCHIVE' => $archive,
+				       'ARCHIVE' => $msgnum,
 				      );
     $head->add(undef, $i);
   }
@@ -413,9 +399,13 @@ sub _post {
   # Add in subject prefix
   ($ent[0], $ent[1]) = $self->_subject_prefix($ent[0], $list, $seqno);
 
+  # Add in Reply-To:
+  $ent[2] = $self->_reply_to($ent[0]->dup, $list, $seqno, $user);
+  $ent[3] = $self->_reply_to($ent[1]->dup, $list, $seqno, $user);
+
   # Unlink archive copy and print delivery messages to files
   unlink "$file";
-  for ($i = 0; $i <=1; $i++) {
+  for ($i = 0; $i < @ent; $i++) {
     $files[$i] = "$tmpdir/mjr.$$.final$i";
     open FINAL, ">$files[$i]" ||
       $::log->abort("Couldn't open final output file, $!");
@@ -442,14 +432,23 @@ sub _post {
 		   exclude => [],
 		   file    => $files[1],
 		  },
+		  'each-prefix-replyto' =>
+		  {
+		   exclude => [],
+		   file    => $files[2],
+		  },
+		  'each-noprefix-replyto' =>
+		  {
+		   exclude => [],
+		   file    => $files[3],
+		  },
 		 },
 		);
-
 
   # Inform sender of successful delivery
   
   # Clean up and say goodbye
-  for ($i = 0; $i <= 1; $i++) {
+  for ($i = 0; $i < @ent; $i++) {
     unlink $files[$i];
     $ent[$i]->purge;
   }
@@ -1231,7 +1230,7 @@ removed.
 =cut
 sub _subject_prefix {
   my ($self, $ent1, $list, $seqno) = @_;
-  my (%subs, $gprefix, $prefix, $subject2);
+  my (%subs, $ent2, $gprefix, $head1, $head2, $prefix, $subject, $subject2);
 
   $ent2  = $ent1->dup;
   $head1 = $ent1->head;
@@ -1285,6 +1284,36 @@ sub _subject_prefix {
   }
   ($ent1, $ent2);
 }
+
+=head2 _reply_to(ent)
+
+This adds a Reply-To: header to an entity.
+
+=cut
+sub _reply_to {
+  my($self, $ent, $list, $seqno, $user) = @_;
+  my ($head, $replyto);
+
+  $head = $ent->head;
+  $replyto = $self->_list_config_get($list, 'reply_to');
+
+  if ($replyto && (!$head->get('Reply-To') ||
+		   $self->_list_config_get($list, 'override_reply_to')))
+    {
+      $replyto =
+	$self->substitute_vars_string
+	  ($replyto,
+	   'HOST'    => $self->_list_config_get($list, 'resend_host'),
+	   'LIST'    => $list,
+	   'SENDER'  => $user,
+	   'SEQNO'   => $seqno,
+	  );
+      $head->set('Reply-To', $replyto);
+    }
+  $ent;
+}
+  
+
 
 =head1 COPYRIGHT
 

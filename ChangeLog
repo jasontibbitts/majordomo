@@ -2,6 +2,7 @@ Sat Nov 28 00:03:32 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Resend.pm (_post): Make sure the subject_prefix never
  	shows up in the archive copy.
+	(_reply_to): New function: add the appropriate Reply-To: header.
 
 	* lib/Mj/Deliver.pm (deliver): Remove debugging code.
 
