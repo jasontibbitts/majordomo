@@ -46,7 +46,7 @@ sub new {
   $self->{'timeout'}   = shift || 60;
   $proto = getprotobyname('tcp');
 
-  $sock = gensym;
+  $sock = gensym();
   $tmp = socket($sock, PF_INET, SOCK_STREAM, $proto);
   unless ($tmp) {
     warn $@ if $@;

@@ -163,8 +163,8 @@ while (1) {
     logmsg "Starting new runner $i";
 
     # Setup a pipe set for the child
-    $child[$i]  = gensym; 
-    $parent[$i] = gensym; 
+    $child[$i]  = gensym(); 
+    $parent[$i] = gensym(); 
     socketpair($child[$i], $parent[$i], AF_UNIX, SOCK_STREAM, PF_UNSPEC) or die "Socketpair: $!";
     &af($child[$i]);
     &af($parent[$i]);

@@ -136,7 +136,7 @@ sub add {
     unless ($dest{'filename'}) { 
       confess "Trying to add file destination with no filename.";
     }
-    $dest{'handle'} = gensym;
+    $dest{'handle'} = gensym();
     open ($dest{'handle'}, ">> $dest{'filename'}") ||
       confess "Can't open $dest{'filename'} to write the log!";
   }
