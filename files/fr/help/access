@@ -1,0 +1,78 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+access
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+utilisé dans "configset access_rules" pour la pseudo liste GLOBAL
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+La commande "access" est uniquement utilisée dans la configuration des
+"access_rules", et uniquement pour la pseudo liste GLOBAL.
+
+La commande "access" permet aux gestionnaires du domaine de
+restreindre l'accès a toutes les fonctionnalités de Majordomo pour
+certaines adresses email. Par exemple, un administrateur du domaine
+peut créer une liste auxiliaire, mechants, et utiliser cette
+"access_rules" :
+
+configset GLOBAL access_rules << ENDTAG
+access
+deny, reply="Requête refusée. Votre adresse est sur la liste noire."
+@mechants
+ENDTAG
+
+Vous pouvez aussi spécifier les utilisateurs bannis dans la commande
+elle même :
+
+configset GLOBAL access_rules << ENDTAG
+access
+deny, reply="Requête refusée. Votre adresse est sur la liste noire."
+/joe\@example.com/i OR /jane\@example.com/i
+ENDTAG
+
+Par conséquent, quelqu'un qui violerais les règles des administrateurs
+pourrait être banni de Majordomo. Lorsque l'accès est refusé de cette
+manière, toutes les fonctions de Majordomo sont restreintes, incluant
+le fait de poster des messages sur les listes, d'en envoyer aux alias
+des gestionnaires (list-owner), ou les commandes envoyées au serveur.
+
+Deux case doivent être pris en compte lorsque l'accès GLOBAL est
+restreint. Le programme mj_trigger, qui envoie les compilations et qui
+supprime les données expirées est lancé avec une adresse anonyme,
+"unknown@anonymous". L'interface WWW utilise l'adresse IP du client et
+le domaine "example.com", par exemple, "127.0.0.1@example.com". Si
+ces adresses n'ont pas le droit d'accéder, les interfaces en questions
+ne fonctionneront pas.
+
+
+Référez vous aussi à :
+   help admin_domain
+   help admin_moderate
+   help auxiliary_list
+   help configset_access_rules        (pour restreindre l'accès aux
+				       commandes)
+   help configset_archive_access      (pour la commande     archive et
+				       access_rules)
+   help configset_faq_access          (pour la commande         faq et
+				       access_rules)
+   help configset_get_access          (pour la commande         get et
+				       access_rules)
+   help configset_index_access        (pour la commande       index et
+				       access_rules)
+   help configset_info_access         (pour la commande        info et
+				       access_rules)
+   help configset_intro_access        (pour la commande       intro et
+				       access_rules)
+   help configset_which_access        (pour la commande       which et
+				       access_rules)
+   help configset_who_access          (pour la commande         who et
+				       access_rules)
+   help configset_set_policy          (pour la commande         set et
+				       access_rules)
+   help configset_subscribe_policy    (pour la commande   subscribe et
+				       access_rules)
+   help configset_unsubscribe_policy  (pour la commande unsubscribe et
+				       access_rules)
+   help post      (pour le cas spécial de restreindre qui peut poster)
+   help trigger
+   help variables (pour une description des variables substituées)
+
+$INCLUDE-help/foot
