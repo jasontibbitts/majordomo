@@ -226,7 +226,7 @@ Digests will always be checked hourly by a periodic trigger, regardless
 of the value of this field.  See "help configset_triggers" for more
 information about periodic triggers.
 
-A new messages will never cause more than one issue of each digest to be
+A new message will never cause more than one issue of each digest to be
 delivered.
 
 
