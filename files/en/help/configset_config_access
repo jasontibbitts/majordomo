@@ -1,7 +1,11 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset  GLOBAL  config_access = [VALUE]
+configset  GLOBAL  config_access <<ENDTAG
+[VALUE LINES]
+ENDTAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-configset listname config_access = [VALUE]
+configset listname config_access <<ENDTAG
+[VALUE LINES]
+ENDTAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : empty
 Data Type     : access_array
@@ -9,8 +13,38 @@ Category      : access
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
+Example:
+configset GLOBAL config_access <<ENDTAG
+config_access | 5 | 5
+ENDTAG
+
 $INCLUDE-config/config_access
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+Some configuration settings must continue to have a visibility level
+of zero, or the setting may have no effect under some circumstances.
+
+For ordinary mailing lists, only the debug setting must have a
+visibility level of 0.
+
+For the GLOBAL pseudo-list, the following settings must have a
+visibility level of 0:
+  chunksize
+  debug
+  max_in_core
+  message_headers
+  request_answer
+  return_subject
+  sender
+  signature_separator
+  site_name
+  whoami
+  whoami_owner
+  www_help_window
+
+
+See Also:
+   help admin_domain
+   help configset
+   help configshow
+
+$INCLUDE-help/foot
