@@ -40,7 +40,6 @@ use strict;
 use Mj::Log;
 use Mj::RegList;
 use Mj::SubscriberList;
-use Safe;
 use Mj::Deliver::Dest;
 use Mj::Deliver::Sorter;
 use Mj::Deliver::Prober;
@@ -59,6 +58,7 @@ This routine takes the following named arguments:
   dbfile  - name of the database file (sublist and registry only)
   backend - type of database backend (sublist and registry only)
   domain  - domain or host name (sublist and registry only)
+  lhost   - local host name (may differ from domain)
   listdir - directory containing database file (sublist and registry only)
   addresses - list of hashrefs containing "strip" and "canon" addresses
               (dbtype "none" only)
@@ -120,6 +120,7 @@ the total number of groups, while bucket selects the group to probe.
 
 =cut
 use Bf::Sender;
+use Mj::Util qw(re_match);
 sub deliver {
   my (%args) = @_;
   my $log  = new Log::In 150;
@@ -173,7 +174,7 @@ sub deliver {
     return (0, "No addresses supplied.") unless $args{'addresses'};
     for $addr (@{$args{'addresses'}}) {
       for ($i=0; $i<@$rules; $i++) {
-	if (Majordomo::_re_match($rules->[$i]{'re'}, $addr->{'strip'})) {
+	if (re_match($rules->[$i]{'re'}, $addr->{'strip'})) {
           $dests->{'all'}[$i]->add($addr->{'strip'}, $addr->{'canon'});
           last;
         }
@@ -217,14 +218,14 @@ sub deliver {
       $probeit =
 	 ($args{regexp} eq 'ALL'  ||
 	  (exists $datref->{bounce} and length $datref->{bounce}) ||
-	  ($args{regexp} && Majordomo::_re_match($args{regexp}, $addr)) ||
+	  ($args{regexp} && re_match($args{regexp}, $addr)) ||
 	  (defined $args{bucket} && $args{buckets} > 0 &&
 	   $args{bucket} == (unpack("%16C*", $addr) % $args{buckets}))
 	 );
 
       # Find the delivery rule that applies to this address
       for ($i=0; $i<@$rules; $i++) {
-	if (Majordomo::_re_match($rules->[$i]{'re'}, $addr)) {
+	if (re_match($rules->[$i]{'re'}, $addr)) {
 	  if ($probeit) {
 	    if ($eclass eq 'all') {
 	      for $j (keys %{$args{classes}}) {
@@ -296,6 +297,7 @@ sub _setup {
 	    new Mj::Deliver::Sorter($rules->[$j]{'data'},
 				    $args{classes}{$i}{file},
                                     $sender,
+                                    $args{lhost},
 				   );
 	}
 	# Need a non-sorting Sorter to count the addresses for numbatches
@@ -306,6 +308,7 @@ sub _setup {
 	      new Mj::Deliver::Sorter($rules->[$j]{'data'},
 				      $args{classes}{$i}{file},
                                       $sender,
+                                      $args{lhost},
 				      'nosort',
 				     );
 	  }
@@ -315,6 +318,7 @@ sub _setup {
 	    new Mj::Deliver::Dest($rules->[$j]{'data'},
 				  $args{classes}{$i}{file},
                                   $sender,
+                                  $args{lhost},
 				 );
 	}
       }
@@ -329,6 +333,7 @@ sub _setup {
                                   $args{sender},
 				  $args{classes}{$i}{seqnum},
 				  $args{sendsep},
+                                  $args{lhost},
 				 );
       }
     }
@@ -364,33 +369,16 @@ sub _eclass {
   return $class;
 }
 
-# sub _re_match {
-#   my $safe = shift;
-#   my $re   = shift;
-#   my $addr = shift;
-# #  my $log  = new Log::In 200, "$re, $addr";
-#   my $match;
-#   return 1 if $re eq 'ALL';
-
-# #   # Hack; untaint $addr
-# #   $addr =~ /./;
-# #   $addr = $1;
-
-#   $match = $safe->reval("'$addr' =~ $re");
-#   $::log->complain("_re_match error: $@") if $@;
-#   return $match;
-# }
-
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2001 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
