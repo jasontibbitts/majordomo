@@ -162,6 +162,9 @@ on a mailing list during September 2000, use this command:
 
   archive-stats LISTNAME 200009
 
+The cumulative size of the messages posted by each author is also shown
+in the report.
+
 
                  archive-delete (for administrators only)
 
