@@ -160,10 +160,10 @@ sub remove {
   my $log  = new Log::In 120, "$self->{filename}, $mode, $key";
 
   my (@nuke, @out, $data, $db, $fh, $match, $status, $try, $value, @deletions);
-  $db = $self->_make_db;
-  return unless $db;
 
   my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
+  $db = $self->_make_db;
+  return unless $db;
 
   # First, take care of the simple case.  Note that we don't allow
   # duplicates, but if we did there would be a problem with the del method
@@ -234,9 +234,9 @@ sub replace {
   my (@out, $i, $k, $match, $data, $status, $v, @changes);
   $value = "" unless defined $value;
   my $log = new Log::In 120, "$self->{filename}, $mode, $key, $field, $value";
+  my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
   my $db  = $self->_make_db;
   return unless $db;
-  my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
 
   # Take care of the easy case first.  Note that we don't allow duplicates, so there's no need to loop nere.
   if ($mode !~ /regex|pattern/) {
@@ -326,9 +326,9 @@ sub mogrify {
   my $log  = new Log::In 120, "$self->{filename}";
   my (@new, $changed, $changedata, $changekey, $data, $encoded, $k,
       $newkey, $status, $v, @deletions);
+  my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
   my $db = $self->_make_db;
   return unless $db;
-  my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
   $changed = 0;
   
   $k = $v = 0;
@@ -662,7 +662,7 @@ sub lookup_quick_regexp {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
