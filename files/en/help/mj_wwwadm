@@ -3,6 +3,28 @@ The WWW interface for list administrators is located at:
 
 Instructions are available there.
 
+The wwwadm script uses several approaches to determine which of
+a site's virtual domains is being accessed.
+
+  * The domain could appear in the URL path, for example:
+
+    http://example.com/cgi-bin/mj_wwwadm/domain=virtual.example.com
+
+  * The domain could be provided in the data, for example:
+
+    http://example.com/cgi-bin/mj_wwwadm?domain=virtual.example.com
+
+  * The domain could appear in the host name, for example:
+
+    http://virtual.example.com/cgi-bin/mj_wwwadm
+
+
+Actions performed with this CGI script will be logged with the IP
+address of the remote host, e.g.,
+
+  y127.0.0.1@example.com
+    
+
 See Also:
    help configset_confirm_url
    help configset_wwwadm_url
