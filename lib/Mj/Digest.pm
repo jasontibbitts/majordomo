@@ -362,7 +362,7 @@ sub examine {
       $data->{$i} = {};
     }
     else {
-      $data->{$i} = $self->{'decision'}{$i};
+      $data->{$i} = { %{$self->{'decision'}{$i}}};
     }
     if (exists $state->{$i}) {
       for $j (keys %{$state->{$i}}) {

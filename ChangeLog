@@ -1,3 +1,8 @@
+2002-12-19  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Digest.pm:  (examine)  Bugfix:  Copy the decision
+	information to avoid altering it.  Thanks to Brock Rozen.
+
 2002-12-02  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Add support for a
