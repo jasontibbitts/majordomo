@@ -1671,9 +1671,11 @@ sub tokeninfo {
   $subs->{'CMDLINE'} = escape($data->{'cmdline'}, $type);
   $subs->{'DATE'} = localtime($data->{'time'});
   $subs->{'EXPIRE'} = localtime($data->{'expire'});
+  $subs->{'ISPOST'} = ($data->{'command'} eq 'post') ? " " : '';
   $subs->{'REQUESTER'}  = escape($data->{'user'}, $type);
   $subs->{'TOKEN'}  = $request->{'token'};
   $subs->{'TYPE'}  = $data->{'type'};
+  $subs->{'VICTIM'}  = escape($data->{'victim'}, $type);
   $subs->{'WILLACK'}  = $data->{'willack'};
 
   # Indicate reasons
