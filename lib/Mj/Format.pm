@@ -616,7 +616,7 @@ sub sessioninfo {
 
   my ($ok, $sess) = @$result; 
   unless ($ok>0) {
-    eprint($out, $type, &indicate($sess, $ok)) if $mess;
+    eprint($out, $type, &indicate($sess, $ok)) if $sess;
     return ($ok>0);
   }
   eprint($out, $type, "Stored information from session $request->{'sessionid'}\n");
