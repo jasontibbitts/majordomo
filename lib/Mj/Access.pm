@@ -443,8 +443,6 @@ sub list_access_check {
 
   $list = 'GLOBAL' if $list eq 'ALL';
   $self->_make_list($list);
-  $password_override =
-    $self->_list_config_get($list, "access_password_override");
 
   # If we were given a password, it must be valid.  Note that, in the case
   # of a mismatch, we make sure that the user password supplied matches
@@ -484,10 +482,13 @@ sub list_access_check {
   
   # If we got a good master password _and_ it overrides access
   # restrictions, we're done.
-  if ($password_override && $args{'master_password'}) {
+  if ($args{'master_password'}) {
+    $password_override = 
+      $self->_list_config_get($list, "access_password_override");
+  
     # Return some huge value, because this value is also used as a count
     # for some routines.
-    return 2**30;
+    return 2**30 if $password_override;
   }
 
   $access = $self->_list_config_get($list, 'access_rules');
@@ -1114,6 +1115,7 @@ sub _d_password {
     return $self->_a_allow(@_);
   }
 
+  $_[10] = "By default, the password command requires confirmation.\002" . $_[10];
   return $self->_a_confirm(@_);
 }
 
