@@ -30,7 +30,9 @@ files/en/ack_stall
 files/en/ack_success
 files/en/ack_timeout
 files/en/confirm
+files/en/confirm_noweb
 files/en/consult
+files/en/consult_noweb
 files/en/faq
 files/en/file_sent
 files/en/help/admin_commands
@@ -50,6 +52,7 @@ files/en/repl_confirm
 files/en/repl_consult
 files/en/repl_deny
 files/en/repl_forward
+files/en/request_response
 files/en/subscribe_to_self
 files/en/token_reject
 files/en/token_reject_owner
@@ -83,11 +86,14 @@ lib/Mj/Inform.pm
 lib/Mj/List.pm
 lib/Mj/Lock.pm
 lib/Mj/Log.pm
+lib/Mj/MIMEParser.pm
 lib/Mj/MTAConfig.pm
 lib/Mj/MailOut.pm
 lib/Mj/Parser.pm
 lib/Mj/Resend.pm
 lib/Mj/SimpleDB.pm
+lib/Mj/SimpleDB/Base.pm
+lib/Mj/SimpleDB/Text.pm
 lib/Mj/SubscriberList.pm
 lib/Mj/TextOutput.pm
 lib/Mj/Token.pm
@@ -117,6 +123,7 @@ misc/approve3
 misc/approve4
 misc/approve5
 misc/approve6
+misc/bad.message.1
 misc/bad1
 misc/chunk.stats
 misc/domain.regexp
@@ -124,6 +131,7 @@ misc/mime1
 misc/test-message.1
 misc/test-message.2
 misc/test-message.3
+misc/testsmtp
 misc/usetree
 misc/validate_addresses
 postinstall
