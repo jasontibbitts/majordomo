@@ -431,7 +431,7 @@ ALL
 sort, maxdomains=20
 
 Use a remote exploder for Scandinavia:
-/(\.fi|\.no|\.se)$/
+/(\.fi|\.no|\.se)\$/
 hosts=(nordland.no=(esmtp, onex), reallycold.se)
 backup=(my.host.com)
 numbatches=2

@@ -75,6 +75,7 @@ sub new {
   my $type   = shift;
   my $class  = ref($type) || $type;
   my $data   = shift;
+  my $file   = shift;
   my $single = shift;
   my $log   = new Log::In 150;
   my (@tmp1, $code, $fail, $i, $mess, $val);
@@ -84,7 +85,7 @@ sub new {
 
   # Pull in sender and file
   $self->{'sender'} = $data->{'sender'};
-  $self->{'file'}   = $data->{'file'};
+  $self->{'file'}   = $file || $data->{'file'};
 
   # Figure out method and args; 
   if ($single) {
@@ -635,7 +636,6 @@ detailed information.
 1;
 #
 ### Local Variables: ***
-### mode:cperl ***
 ### cperl-indent-level:2 ***
 ### End: ***
 

@@ -289,9 +289,9 @@ sub _post {
      $avars) = @_;
   my $log  = new Log::In 35, "$list, $user, $file";
 
-  my(%avars, %digest, @refs, @skip, $arcdata, $arcent, $archead, $ent, $head, $i,
-     $msgnum, $prefix, $replyto, $sender, $seqno, $subject, $tmp, $tmpdir,
-     $tprefix);
+  my(%avars, %digest, @ent, @files, @refs, @skip, $arcdata, $arcent,
+     $archead, $head, $i, $msgnum, $prefix, $replyto, $sender, $seqno,
+     $subject, $tmp, $tmpdir, $tprefix);
 
   $self->_make_list($list);
   $tmpdir = $self->_global_config_get('tmpdir');
@@ -305,7 +305,7 @@ sub _post {
 
   # trick: if $file is a ref to a MIME::Entity, we can skip the parse
   if (ref($file) eq "MIME::Entity") {
-    $ent = $file;
+    $ent[0] = $file;
   }
   else {
     ($file) = $self->_list_file_get('GLOBAL', "spool/$file", undef, 1);
@@ -314,17 +314,17 @@ sub _post {
     $mime_parser->output_to_core($self->_global_config_get("max_in_core"));
     $mime_parser->output_dir($tmpdir);
     $mime_parser->output_prefix("mjr");
-    $ent = $mime_parser->read($fh);
+    $ent[0] = $mime_parser->read($fh);
     $fh->close;
   }
 
   # Trim off approvals, get back a new entity
-  $ent = $self->_trim_approved($ent);
-  $head = $ent->head;
+  $ent[0] = $self->_trim_approved($ent[0]);
+  $head = $ent[0]->head;
   $head->modify(0);
 
   # Make duplicate archive/digest entity
-  $arcent = $ent->dup;
+  $arcent = $ent[0]->dup;
   $archead = $arcent->head;
   $archead->modify(0);
 
@@ -370,9 +370,6 @@ sub _post {
      },
     );
 
-  # Add in subject prefix
-  ($ent, undef) = $self->_subject_prefix($ent, $list, $seqno);
-
   # Add Reply-To: header.
   $replyto = $self->_list_config_get($list, 'reply_to');
   if ($replyto && (!$head->get('Reply-To') ||
@@ -408,37 +405,51 @@ sub _post {
   # Add list-headers standard headers
 
   # Add fronter and footer.
-  $self->_add_fters($list, $ent);
+  $self->_add_fters($list, $ent[0]);
 
-  # Unlink archive copy and print delivery message to file
+  # Add in subject prefix
+  ($ent[0], $ent[1]) = $self->_subject_prefix($ent[0], $list, $seqno);
+
+  # Unlink archive copy and print delivery messages to files
   unlink "$file";
-  $file = "$tmpdir/mjr.$$.final";
-  open FINAL, ">$file" ||
-    $::log->abort("Couldn't open final output file, $!");
-  $ent->print(\*FINAL);
-  close FINAL;
-  
-  # Invoke delivery routine on the file, first to high-priority folks, then
-  # to the rest
-#  $self->deliver($list, $sender, $file, $seqno, 'high');
-  $self->deliver($list, $sender, $file, $seqno, [], 'each');
-  
+  for ($i = 0; $i <=1; $i++) {
+    $files[$i] = "$tmpdir/mjr.$$.final$i";
+    open FINAL, ">$files[$i]" ||
+      $::log->abort("Couldn't open final output file, $!");
+    $ent[$i]->print(\*FINAL);
+    close FINAL;
+  }
+
   # Pass to digest if we got back good archive data and there is something
   # in the digests variable.
   if ($msgnum && scalar keys %{$self->_list_config_get($list, 'digests')}) {
     %digest = $self->{'lists'}{$list}->digest_add($msgnum, $arcdata);
   }
-
 #  use Data::Dumper; print Dumper \%digest;
 
-  # XXX We have to deliver the digests here because the list can't do it itself.
+  # Invoke delivery routine
+  $self->deliver($list, $sender, $seqno,
+		 {'each-prefix-noreplyto' =>
+		  {
+		   exclude => [],
+		   file    => $files[0],
+		  },
+		  'each-noprefix-noreplyto' =>
+		  {
+		   exclude => [],
+		   file    => $files[1],
+		  },
+		 },
+		);
 
 
   # Inform sender of successful delivery
   
   # Clean up and say goodbye
-  unlink "$file";
-  $ent->purge;
+  for ($i = 0; $i <= 1; $i++) {
+    unlink $files[$i];
+    $ent[$i]->purge;
+  }
   $arcent->purge;
   1;
 }

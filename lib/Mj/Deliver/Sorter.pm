@@ -27,6 +27,7 @@ sub new {
   my $type   = shift;
   my $class  = ref($type) || $type;
   my $data   = shift;
+  my $file   = shift;
   my $nosort = shift;
   my $log    = new Log::In 150;
 
@@ -82,7 +83,7 @@ sub flush {
 
   $self->{'data'}{'total'} = scalar(@{$self->{'addrs'}});
 #  print "Allocating Dest\n";
-  $dest = Mj::Deliver::Dest->new($self->{'data'});
+  $dest = Mj::Deliver::Dest->new($self->{'data'}, $self->{'file'});
 #  print "Allocated Dest\n";
   
   for (my $i=0; $i < @{$self->{'addrs'}}; $i++) {

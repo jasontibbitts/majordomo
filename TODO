@@ -14,43 +14,6 @@ Untainting sometimes happens in the wrong place; in a C/S model, we won't
 Top of the list 
 ---------------
 
-Delivery engine rewrite:
-
-The idea is to dump a collection of messages on the delivery engine with a
-description of which addresses get which messages.  Try to scan the list of
-addresses only once, because this takes time.  Time to stuff the various
-addresses into the buckets is probably negligible.
-
-Need to look at class, classarg1, classarg2, flags (reply_to or not,
-subject_prefix or not).
-
-class each: replyto+prefix, replyto, prefix, (neither)
-class digest: one for each defined digest, times one for each digest type
-   (MIME, 1153, index)
-class nomail: gets no mail
-class all: gets everything.
-
-Allocate buckets and probers for each message to mail.
-Generate class choosing function: find is top-level class in a hash.
-
-Pull a chunk of addresses from the database.
-Pull an address.
-Construct the extended class name:
-  (look at flags for 'each'):
-  each-replyto-prefix
-  each-replyto-noprefix
-  each-noreplyto-prefix
-  each-noreplyto-noprefix
-
-  (look at classarg1, classarg2 for digest)
-  digest-{name}-{type}
-
-If the extended class exists in the delivery list:
-  check exclude list
-  place in proper destination/prober
-
-Done.
-
 ! Digest:
 
 RFC1153 (test) digests:
@@ -60,8 +23,6 @@ RFC1153 (test) digests:
   Included Message ----" and "---- End Included Message ----".
 
   Need a library of MIME transformations.
-
-  
 
 Allow a time of 'any'?
 report-digest command to show status of digest spools.
@@ -910,3 +871,4 @@ If processing a command yields an invalid address error and following line
  does not hold a legal command, join the two lines and try again.
 Export information from the registration database to .htaccess files, so
  owners can restrict access to web archives or whatever.
+Provide some way for users to see what digests are available.

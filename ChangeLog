@@ -1,3 +1,52 @@
+Sat Nov 28 00:03:32 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* t/addr.t: Add stripping tests.
+
+	* lib/Mj/Addr.pm (_parse): We allow _validate to return a negative
+ 	number to indicate failure, so that we can also use it in another
+ 	sense.
+	(_validate): When multiple addresses are detected, return a
+ 	special value, the usual error message, the portion on the left of
+ 	the comma and the portion on the right.
+	(_validate): Make sure we don't return the comma.
+	(_validate): Strip whitespace from front of the address; there's
+ 	no sense in having it.
+
+	* lib/Mj/Deliver.pm (deliver): Deal with 'any' class.
+
+	* lib/mj_cf_data.pl: Fix typo.
+
+	* lib/Mj/Resend.pm (_post): Call delivery routine properly.
+
+	* lib/Mj/MailOut.pm (deliver): Adapt to new Mj::Deliver calling
+ 	convention.
+
+Fri Nov 27 02:05:24 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Deliver.pm (_eclass): New function: figure out the
+ 	extended class name given a piece of data from te subscriber
+ 	database.
+
+	* lib/Mj/Archive.pm (expand_date): Adapt to new behavior of
+ 	get_matching.
+
+	* lib/Mj/SimpleDB/Text.pm (get_matching): When matching against a
+ 	codered, pass it the key as well as the data.
+
+Thu Nov 26 13:59:58 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Deliver/Sorter.pm (new): File as second argument.
+
+	* lib/Mj/Deliver/Prober.pm (new): Add file as second argument.
+
+	* lib/Mj/Deliver/Dest.pm (new): Takes optional third argument: the
+ 	file to distribute.  This makes things easier for the higher-level
+ 	parts of the delivery engine.
+
+Wed Nov 25 00:38:08 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Deliver.pm (deliver): Begin multiple-class rewrite.
+
 Mon Nov 23 00:36:07 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Deliver.pm (deliver): Fix all calls to _re_match; get rid

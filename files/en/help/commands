@@ -28,7 +28,7 @@ Examples of the commands that follow will assume an imaginary list named
 'scooters'.
 
 
-accept [token]
+accept token
 --------------
   Some commands will require your confirmation before their actions will be
   taken; this can help protect you from mischief by preventing others from
@@ -155,9 +155,89 @@ reject [token]
     See Also:  accept
 
 
-set list flag address
+set list value address
 ---------------------
-  This sets various subscription parameters.  More documentation to come.
+  This sets the values of various subscription parameters.
+  *NOTE* - Not all of this functionality is implemented.
+
+  You can set your subscription class, which controls how (and if) you
+  receive messages from the server.  There are three basic classes:
+
+    each   - you get each message as it is posted.
+    digest - you get periodic collections of messages.
+    nomail - you get nothing.
+
+  Along with 'digest', you can specify which digest you want to receive and
+  how you want it formatted.
+
+    Examples: set scooters digest-daily-mime
+              set scooters digest-weekly-index
+
+  Here, 'daily' and 'weekly' are the names of the digests; you should see
+  the introductory document for a list of which digests are available to
+  you.  'mime' and 'index', along with 'text', are the three supported
+  types of digest you can receive:
+
+    mime  - a format supported by many of the newer mail clients.
+    text  - the old, plain text digest format
+    index - just an index of messages; you can retrieve the ones you want
+            to see using the 'archive' command.
+
+  Along with 'nomail' (also known as 'vacation'), you can specify an amount
+  of time that you would like to stop receiving mail.
+
+    Examples: set scooters nomail
+              set scooters nomail-4d
+
+  You can specify times like '1week', '2months', '3days' and you can leave
+  off all but the last letter.
+
+  In addition, there are several flags which you can manipulate to control
+  various Majordomo functions.
+
+  These control what parts of the process Majordomo informs you of once
+  your message is submitted:
+
+    ackall       - when the message is posted and if it is held up for
+                   approval.
+    ackimportant - if the message is held up for approval
+    noack        - nothing; you should monitor the list to see if your
+                   message is posted.
+
+  These control whether or not you get a copy of your own message sent back
+  to you.  (Assuming you are receiving 'each' message; 'digest' users will
+  always see their own messages in the digest and 'nomail' users will
+  obviously not receive their messages).
+    selfcopy
+    noselfcopy
+
+  These control whether or not users can see your address using the 'who'
+  command:
+    hideall     - 'who' shows nothing about you.
+    hideaddress - 'who' shows your name but not your email address
+    showall     - 'who' shows your name and address
+
+  These control carbon copy elimination.  If this is on and your address
+  appears in the To: or CC: headers of a message that Majordomo is
+  processing, it will not send an additional copy to you.  This helps to
+  cut down on many of those annoying duplicates that are often received,
+  but it deprives you of the additional processin that Majordomo does on a
+  message (subject prefixes, additional headers, etc.).
+    elimatecc   - turns CC elimination on
+    noelimatecc - turns it off
+
+  These control subject prefix generation.  If the list owner has defined a
+  prefix, you can specify whether or not you want to see it.
+    prefix   - always add the prefix
+    noprefix - never show the prefix
+
+  These control Reply-To: header generation.  If the list owner has defined
+  a Reply-To: header, you can specify whether or not you want to see it.
+    replyto   - always add the Reply-To: header
+    noreplyto - never add the header (but if the poster has provided one,
+                you will see it)
+
+    See Also: archive, show, who
 
 
 show address
@@ -193,7 +273,8 @@ subscribe list address
 unalias address
 ---------------
   This removes the given address as an alias for the current address.  Send
-  this command from an address that is registered with the server; the
+  this command from an address that is registered with the server; thehow much information the list server gives you about
+  messages that you post:
   given address will then be removed from the database an no longer
   considered equivalent to the registered address.
 

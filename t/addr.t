@@ -85,7 +85,17 @@ $::log->add
 
   );
 
-print "1..51\n";
+# Splitting tests
+@s =
+  (
+   ['tibbs@hpc.uh.edu, tibbs@hpc.uh.edu', 'tibbs@hpc.uh.edu', 'tibbs@hpc.uh.edu'],
+   ['tibbs@uh.edu (Homey (  j (\(\() t, ) Tibbs), nobody@example.com',
+    'tibbs@uh.edu', 'nobody@example.com'],
+   [q|"tib,bs@home"@hpc.uh.edu (J,LT ), Tibbs <tibbs@hpc.uh.edu>|,
+    '"tib,bs@home"@hpc.uh.edu', 'Tibbs <tibbs@hpc.uh.edu>'],						 
+  );
+
+print "1..57\n";
 
 # Allocate a validator with some default settings
 Mj::Addr::set_params
@@ -143,10 +153,24 @@ for ($i = 0; $i<@t; $i++) {
   next;
 }
 
+# Check splitting
+for $i (@s) {
+  @out = Mj::Addr::separate($i->[0]);
+#warn "$i->[0] - ", join ':', @out;
+  for ($j = 1; $j < @{$i}; $j++) {
+    if ($i->[$j] eq $out[$j-1]) {
+      print "ok\n";
+    }
+    else {
+      print "not ok\n";
+      print STDERR "Expected $i->[$j], got $out[$j-1]\n";
+    }
+  }  
+}
+
 1;
 
 #
 ### Local Variables: ***
-### mode:cperl ***
 ### cperl-indent-level:2 ***
 ### End: ***

@@ -27,6 +27,7 @@ sub new {
   my $type  = shift;
   my $class = ref($type) || $type;
   my $data  = shift;
+  my $file  = shift;
   my $snum  = shift;
   my $sep   = shift;
   my $log   = new Log::In 150, "$data->{sender}, $snum, $sep";
@@ -35,7 +36,7 @@ sub new {
   bless $self, $class;
 
   $self->{'data'}    = $data;
-  $self->{'dest'}    = Mj::Deliver::Dest->new($self->{'data'}, 'single');
+  $self->{'dest'}    = Mj::Deliver::Dest->new($self->{'data'}, $file, 'single');
   $self->{'seqnum'}  = $snum;
   $self->{'sendsep'} = $sep;
   $self->{'addrs'} = [];

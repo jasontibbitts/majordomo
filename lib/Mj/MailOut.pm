@@ -107,12 +107,8 @@ sub deliver {
   my $self    = shift;
   my $list    = shift;
   my $sender  = shift;
-  my $file    = shift;
   my $seqno   = shift;
-  my $exclude = shift;
-  my $class   = shift;
-  my $carg1   = shift;
-  my $carg2   = shift;
+  my $classes = shift;
 
   my $log = new Log::In 30, $file;
   my(%args, $bucket, $buckets, $mta);
@@ -125,13 +121,9 @@ sub deliver {
   %args =
     (list    => $self->{'lists'}{$list},
      sender  => $sender,
-     file    => $file,
-     class   => $class,
-     carg1   => $carg1,
-     carg2   => $carg2,
+     classes => $classes,
      rules   => $self->_list_config_get($list,'delivery_rules'),
      chunk   => $self->_global_config_get('chunksize'),
-     exclude => $exclude,
      sendsep => $Mj::MTAConfig::sendsep{$mta},
      manip   => 1,
      seqnum  => $seqno,

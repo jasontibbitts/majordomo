@@ -195,6 +195,49 @@ sub new {
   $self;
 }
 
+=head2 separate(string)
+
+This takes a string, assumed to be a comma-separated list of addresses, and
+returns a list containing the separate addresses.  Because of the bizarre
+nature of RFC822 addresses, this is not a simple matter.
+
+The returned values are strings, _NOT_ Mj::Addr objects.  They may or may
+not be valid because only enough of the validation procedure to determine
+where the splits occur is run.  If the procedure does detect an invalid
+address, it will return the separated addresses to the left of the error
+but not anything else.  The returned strings may or not be stripped
+addresses; parenthesized comments will be removed but route addresses
+will be left whole.
+
+=cut
+sub separate {
+  my $str = shift;
+  my(@out, $addr, $ok, $rest, $self);
+  # Fake an addr object so we can call _validate
+  $self = new Mj::Addr('unknown@anonymous');
+
+  while (1) {
+    $self->{full} = $str;
+    ($ok, undef, $addr, $rest) = $self->_validate;
+    # Three possibilities:
+    if ($ok == 0) {
+      # Some kind of syntax failure; bail with what we have
+      return @out;
+    }
+    elsif ($ok > 0) {
+      # The string was a real, valid address and there is no more to split
+      $str =~ s/^\s+//; $str =~ s/\s+$//;
+      push @out, $str;
+      return @out;
+    }
+    else { # $ok < 0
+      # Stripped one address; more to check
+      push @out, $addr;
+      $str = $rest;
+    }
+  }
+}
+
 =head2 reset($addr)
 
 Clears out any cached data and resets the address to a new string.  This
@@ -401,7 +444,7 @@ sub _parse {
 
   my ($ok, $v1, $v2) = $self->_validate;
 
-  if ($ok) {
+  if ($ok > 0) {
     $self->{'strip'}   = $v1;
     $self->{'comment'} = $v2;
     $self->{'valid'}   = 1;
@@ -534,6 +577,11 @@ It currently does not properly handle non-ASCII characters in comments and
 hostnames, nor does it handle address groups and route addresses with more
 than one host.
 
+When a list of addresses separated by a comma is detected, a special error
+value is returned along with a normal error message, the portion of the
+address to the left of the comma and the portion to the right.  This can be
+used to chip addresses off of the left hand side of an address list.
+
 =cut
 
 sub _validate {
@@ -550,7 +598,8 @@ sub _validate {
   # spaces.
   $"=''; #";
 
-  # Trim trailing whitespace; it hoses the algorithm
+  # Trim leading and trailing whitespace; it hoses the algorithm
+  s/^\s+//;
   s/\s+$//;
   
   if ($_ eq "") {
@@ -659,9 +708,10 @@ a '.' or a '\@': $words[-2] _$1_$_\n");
 @words[0..$#words-1] _$1_ $_
 Did you mistype a period as a comma?\n");
 	}
-	return (0, "Multiple addresses not allowed, at
-@words[0..$#words-1] _$1_ $_
-Did you mistype a period as a comma?\n");
+	pop @words;
+	return (-1, "Multiple addresses not allowed, at
+@words[0..$#words] _$1_ $_
+Did you mistype a period as a comma?\n", join('',@words), $_);
       }
       
       # An '@' special puts us on the right hand side of an address

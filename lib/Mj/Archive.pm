@@ -491,6 +491,7 @@ sub expand_date {
   @arcs  = sort(grep {$_ >= $sa && $_ <= $ea} keys(%{$self->{'archives'}}));
 
   $match = sub {
+    shift;
     my $date = (shift)->{'date'};
     return 0     unless $date >= $s;
     return undef unless $date <= $e;

@@ -458,9 +458,11 @@ one field/value?  Ugh.
 We take either a field/value pair or coderef.  There are a couple of
 interesting optimizations we can do with the field/value pair that get the
 operation down close to one regexp match per line.  If a coderef is passed,
-it will be called with the extracted data hash for each database entry.  It
-should return true or false, indicating whether or not the field matched.
-If it returns 'undef', the search will stop immediately.  This is useful
+it will be called with the key and the extracted data hash for each
+database entry.  It should return true or false, indicating whether or not
+the field matched.  If it returns 'undef', the search will stop
+immediately.  This is useful if you know the database is sorted or you only
+want to find a small number of matches.
 
 This returns a list of entries, or an empty list if no matching entries
 before EOF.
@@ -536,7 +538,7 @@ sub get_matching {
     ($key, $data) = split("\001", $key, 2);
     $data = $self->_unstringify($data);
     if ($code) {
-      $tmp = &$field($data);
+      $tmp = &$field($key, $data);
       last unless defined $tmp;
       push @keys, ($key, $data) if $tmp;
     }

@@ -28,9 +28,15 @@ track of its state.
 Parallel to the Envelope is the QQEnvelope, which communicates with the
 internal qmail queueing mechanism.
 
+The list will be scanned only once and deliveries to each class will happen
+in parallel; thus, when a set of messages is available to be delivered, one
+large set of classes should be built up and passed to this routine all at
+once.
+
 =cut
 
 package Mj::Deliver;
+use strict;
 use Mj::Log;
 use Safe;
 use Mj::Deliver::Dest;
@@ -43,28 +49,29 @@ This routine delivers mail to a set of addresses extracted from the
 subscriber database of a list.  It does so by making various network
 connections and speaking SMTP.
 
-This routine takes the following named arguments (R indicates that the
-argument is required, P indicates that the argument only makes sense if
-'probe' is true):
+This routine takes the following named arguments:
 
-R list    - ref to list object 
-R sender  - base part of message sender
-R file    - file to mail
-R class   - address class to mail to
+  list    - ref to list object 
+  sender  - base part of message sender
+  classes - a hashref: each key is an extended class name; each value is a
+            hashref with the following keys:
+            file    - the name of the file to mail
+            exclude - a listref of canonical addresses that mail won''t be
+                      sent to.
   rules   - hashref containing parsed delivery rules
   chunk   - size of various structures
-  exclude - listref of addresses _not_ to send to
   seqnum  - message sequence number
   manip   - do extended sender manipulation
   probe   - do bounce probe
-P sendsep - extended sender separator
-P regexp  - regular expression matching addresses to probe
-P buckets - total number of different probe groups
-P bucket  - the group to probe
-P probeall- do a _complete_ probe
+  sendsep - extended sender separator
+  regexp  - regular expression matching addresses to probe
+  buckets - total number of different probe groups
+  bucket  - the group to probe
+  probeall- do a _complete_ probe
 
 listref is a list object (not the name of a list).  Only the iterator
-methods get_start, get_done and get_matching_chunk are required.
+methods get_start, get_done and get_matching_chunk are required but the
+object must return reasonable values for the various fields.
 
 sender is the envelope sender.  For bounce probing, this will be augmented
 in some fashion.
@@ -109,76 +116,40 @@ the total number of groups, while bucket selects the group to probe.
 use Bf::Sender;
 sub deliver {
   my %args = @_;
-  my $log  = new Log::In 150, "$args{list}, $args{file}, $args{class}";
+  my $log  = new Log::In 150;
 
-  my (%exclude, @addrs, @data, @dests, @probes, $addr, $canon, $datref, $i,
-      $n, $ok, $error, $probeit, $sender);
+  my (%classes, %exclude, @addrs, @data, $addr, $canon, $classes, $datref,
+      $dests, $eclass, $error, $i, $j, $matcher, $ok, $probeit, $probes,
+      $sender);
 
   my $rules  = $args{rules};
-  my $class  = $args{class};
   my $list   = $args{list};
-  my $chunk  = $args{chunk};
 
-  # Make a hash so we can tell if an address is to be excluded quickly
-  for $i (@{$args{exclude}}) {
-    $exclude{$i} = 1;
-  }
+  # Allocate destinations and probers and do some other setup stuff
+  ($classes, $dests, $probes) = _setup($rules, %args);
 
-  # Deal with extended sender manipulation
-  if ($args{manip}) {
-    $sender = Bf::Sender::M_regular_sender($args{sender}, $args{sendsep},
-					   $args{seqnum});
-  }
-    
-  # Fill in a bit of info
-  for ($i=0; $i<@{$rules}; $i++) {
-    $rules->[$i]{'data'}{'sender'} = $sender;
-    $rules->[$i]{'data'}{'file'}   = $args{file};
-  }
-
-  # If we're doing any normal delivery (i.e. we're not probing or we're
-  # doing incremental or regexp probing), allocate the destinations; if
-  # we're sorting, allocate sorters instead
-  if (!$args{'probe'} || defined($args{'bucket'}) || $args{'regexp'}) {
-    for ($i=0; $i<@{$rules}; $i++) {
-      if (exists $rules->[$i]{'data'}{'sort'}) {
-	$dests[$i] = new Mj::Deliver::Sorter $rules->[$i]{'data'};
-      }
-      
-      # Need a non-sorting Sorter to count the addresses for numbatches
-      elsif ($rules->[$i]{'data'}{'numbatches'} &&
-	     $rules->[$i]{'data'}{'numbatches'} > 1)
-	{
-	  $dests[$i] = new Mj::Deliver::Sorter $rules->[$i]{'data'}, 'nosort';
-	}
-      else {
-	$dests[$i] = new Mj::Deliver::Dest $rules->[$i]{'data'};
-      }
-    }
-  }
-  
-  # If we're probing, allocate a separate set of destinations for the probes
-  if ($args{probe}) {
-    for ($i=0; $i<@{$rules}; $i++) {
-      $probes[$i] =
-	new Mj::Deliver::Prober($rules->[$i]{'data'},
-				$args{seqnum},
-				$args{sendsep},
-			       );
-    }
-  }
+  $matcher = sub {
+    shift;
+    return 1 if $classes->{(shift)->{class}};
+    0;
+  };
 
   ($ok, $error) = $list->get_start;
   return ($ok, $error) unless $ok;
   
   while (1) {
-    @data = $list->get_matching_chunk($chunk, 'class', $class);
+    @data = $list->get_matching_chunk($args{chunk}, $matcher);
     last unless @data;
     
     # Add each address to the appropriate destination.
   ADDR:
     while (($canon, $datref) = splice(@data, 0, 2)) {
-      next if $exclude{$canon};
+      $eclass = _eclass($datref);
+
+      # Stupid autovivification
+      next if $args{classes}{$eclass} &&
+	$args{classes}{$eclass}{excludehash}{$canon};
+
       $addr = $datref->{'stripaddr'};
       # Do we probe? XXX Also check bounce status and probe
       # possibly-bouncing addresses.
@@ -191,9 +162,29 @@ sub deliver {
 	  )));
 
       for ($i=0; $i<@$rules; $i++) {
-	# Eval the RE in a Safe compartment, or look for ALL
 	if (Majordomo::_re_match($rules->[$i]{'re'}, $addr)) {
-	  $probeit ? $probes[$i]->add($addr, $canon) : $dests[$i]->add($addr, $canon);
+	  if ($probeit) {
+	    if ($eclass eq 'all') {
+	      for $j (keys %{$args{classes}}) {
+		$probes->{$j}[$i]->add($addr, $canon);
+	      }
+	    }
+	    else {
+	      $probes->{$eclass}[$i]->add($addr, $canon);
+	    }
+	  }
+	  else {
+warn "$eclass";
+	    if ($eclass eq 'all') {
+	      for $j (keys %{$args{classes}}) {
+warn "$j";
+		$dests->{$j}[$i]->add($addr, $canon);
+	      }
+	    }
+	    else {
+	      $dests->{$eclass}[$i]->add($addr, $canon);
+	    }
+	  }
 	  next ADDR;
 	}
       }
@@ -205,6 +196,116 @@ sub deliver {
   return ($ok, $error);
 
   # Rely on destruction to flush the destinations
+}
+
+=head2 _setup
+
+Properly allocates destinations and probers for each of the classes.
+
+=cut
+sub _setup {
+  my $rules = shift;
+  my %args= @_;
+  my $log = new Log::In 150;
+  my ($i, $j, $classes, $dests, $probes);
+  $classes = {all => 1}; $dests = {}; $probes = {};
+
+  # Deal with extended sender manipulation if requested
+  if ($args{manip}) {
+    $args{sender} = Bf::Sender::M_regular_sender($args{sender}, $args{sendsep},
+						 $args{seqnum});
+  }
+
+  # Move the sender into the rules; this makes the calling sequence a bit
+  # simpler
+  for ($i=0; $i<@{$rules}; $i++) {
+    $rules->[$i]{'data'}{'sender'} = $args{sender};
+  }
+
+  # Loop over all of the classes.
+  for $i (keys %{$args{classes}}) {
+    # Generate hashes out of the exclude lists, so lookups are quick.
+    $args{classes}{$i}{excludehash} = {};
+    for $j (@{$args{classes}{$i}{exclude}}) {
+      $args{classes}{$i}{excludehash}{$i} = 1;
+    }
+
+    # Get the base class and stuff it in a hash for quick lookups.
+    $i =~ /([^-]+).*/;
+    $classes->{$1} = 1;
+
+    # If we're doing any normal delivery (i.e. we're not probing or we're
+    # doing incremental or regexp probing), allocate the destinations; if
+    # we're sorting, allocate sorters instead
+    if (!$args{'probe'} || defined($args{'bucket'}) || $args{'regexp'}) {
+      for ($j=0; $j<@{$rules}; $j++) {
+	if (exists $rules->[$j]{'data'}{'sort'}) {
+	  $dests->{$i}[$j] =
+	    new Mj::Deliver::Sorter($rules->[$j]{'data'},
+				    $args{classes}{$i}{file},
+				   );
+	}
+	# Need a non-sorting Sorter to count the addresses for numbatches
+	elsif ($rules->[$j]{'data'}{'numbatches'} &&
+	       $rules->[$j]{'data'}{'numbatches'} > 1)
+	  {
+	    $dests->{$i}[$j] =
+	      new Mj::Deliver::Sorter($rules->[$j]{'data'},
+				      $args{classes}{$i}{file},
+				      'nosort',
+				     );
+	  }
+	# Nothing special, so allocate a plain destination
+	else {
+	  $dests->{$i}[$j] =
+	    new Mj::Deliver::Dest($rules->[$j]{'data'},
+				  $args{classes}{$i}{file},
+				 );
+	}
+      }
+    }
+  
+    # If we're probing, allocate a separate set of destinations for the probes
+    if ($args{probe}) {
+      for ($j=0; $j<@{$rules}; $j++) {
+	$probes->{$i}[$j] =
+	  new Mj::Deliver::Prober($rules->[$j]{'data'},
+				  $args{classes}{$i}{file},
+				  $args{seqnum},
+				  $args{sendsep},
+				 );
+      }
+    }
+  }
+  ($classes, $dests, $probes);
+}
+
+=head2 _eclass
+
+This returns the extended class for a given piece of subscriber data.
+
+=cut
+sub _eclass {
+  my $data = shift;
+  my ($class, $flags);
+
+  $class = $data->{class};
+
+  # First deal with 'each'; this is the common case, so it comes first.
+  # Use the 'P' and 'R' flags to determine the class name.
+  if ($class eq 'each') {
+    $flags = $data->{flags};
+    return "each-" . (index($flags, 'P')<0 ? 'noprefix-' : 'prefix-') .
+      (index($flags, 'R')<0 ? 'noreplyto' : 'replyto');
+  }
+
+  # 'digest' just uses the two class arguments
+  if ($class eq 'digest') {
+    return "digest-$data->{classarg1}-$data->{classarg2}";
+  }
+
+  # Everything else goes through unchanged
+  return $class;
 }
 
 # sub _re_match {
