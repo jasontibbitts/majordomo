@@ -419,9 +419,9 @@ sub _post {
   my(%ackinfo, %avars, %deliveries, %digest, @changes, @dfiles, @dtypes,
      @dup, @ent, @files, @refs, @tmp, @skip, $ack_attach, $ackfile,
      $arcdata, $arcdate, $arcent, $archead, $date, $desc, $digests,
-     $dissues, $dup, $exclude, $head, $hidden, $i, $j, $k, $members,
-     $mess, $msgid, $msgnum, $nent, $nonmembers, $precedence, $prefix, 
-     $rand, $replyto, $sender, $seqno, $subject, $sl, $subs, 
+     $dissues, $dup, $exclude, $from, $head, $hidden, $i, $j, $k, 
+     $members, $mess, $msgid, $msgnum, $nent, $nonmembers, $precedence, 
+     $prefix, $rand, $replyto, $sender, $seqno, $subject, $sl, $subs, 
      $tmp, $tmpdir, $tprefix, $whereami);
 
   return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
@@ -542,7 +542,11 @@ sub _post {
   (undef, $arcent) = $self->_munge_subject($arcent, $list, $seqno);
   $archead = $arcent->head;
 
-  # Pass to archive.  XXX Is $user good enough, or should we re-extract?
+  # Collect information from the message, then store
+  # it in the archive.
+  $from = $archead->get('from') || $archead->get('apparently-from')
+            || 'unknown@anonymous';  chomp $from;
+  $from =~ /(.*)/s; $from = $1;
   $subject = $archead->get('subject') || ''; chomp $subject;
   $subject =~ /(.*)/s; $subject = $1;
   $msgid = $archead->get('message-id') || ''; chomp $msgid;
@@ -580,7 +584,7 @@ sub _post {
       'body_lines' => $avars{lines},
       'bytes'      => (stat($file))[7],
       'date'       => $arcdate,
-      'from'       => "$user", # Stringify on purpose
+      'from'       => $from,
       'hidden'     => $hidden,
       'msgid'      => $msgid,
       'quoted'     => $avars{quoted_lines},

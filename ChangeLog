@@ -3,6 +3,11 @@
 	* lib/Mj/Access.pm:  (_a_forward)  Use reply files
 	to allow for language translation.
 
+	* lib/Mj/Resend.pm:  (_post)  Bugfix:  Extract the
+	author's address from the headers again when the
+	message is archived; it may have been changed.
+	Thanks to Brock Rozen.
+
 2003-04-12  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/BounceHandler.pm:  (handle_bounce_user)  Add a
