@@ -200,7 +200,7 @@ sub confirm {
 				       {'TOKEN' => $token,},
 				      );
 
-  ($reasons = $args{'args'}[1]) =~ s/\002/\n/g;
+  ($reasons = $args{'args'}[1]) =~ s/\002/\n  /g;
   $repl = {'OWNER'      => $sender,
 	   'MJ'         => $mj_addr,
 	   'MJOWNER'    => $mj_owner,
@@ -347,7 +347,7 @@ sub consult {
     $mod2[0] = $self->_list_config_get($list, 'moderator') || $sender;
   }
 
-  ($reasons = $args{'args'}[1]) =~ s/\002/\n/g;
+  ($reasons = $args{'args'}[1]) =~ s/\002/\n  /g;
 
   # Not doing a post, so we send a form letter.
   # First, build our big hash of substitutions.
@@ -706,7 +706,7 @@ sub t_remind {
       # Find number of days left until it dies
       $expire = int(($data->{'expire'}+43200-time)/86400);
 
-      ($reasons = $data->{'arg2'}) =~ s/\002/\n/g;
+      ($reasons = $data->{'arg2'}) =~ s/\002/\n  /g;
       # Generate replacement hash
       $repl = {OWNER      => $sender,
 	       MJ         => $mj_addr,
