@@ -27,19 +27,20 @@ overridden by access rules for the "advertise" action.
 If the GLOBAL advertise_subscribed setting is turned on, a
 mailing list will be displayed by the lists command if the
 person making the request is subscribed to the list.  This
-is true regardless of the value of the noadvertise setting.
+is true regardless of the value of the noadvertise setting,
+the advertise setting, or the access rules.
 
 Here are the access_rules that implement the same functionality as
 advertise and noadvertise:
 
 configset LISTNAME access_rules <<ENDACCESSRULES
 advertise
-allow
-/some pattern/ || /another pattern/
+deny
+/noadvertise pattern/
 
 advertise
 deny
-/evil pattern/
+!/advertise pattern/
 
 advertise
 allow
