@@ -184,8 +184,6 @@ sub post {
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
     $avars->{admin} || $avars->{bad_approval} || $avars->{invalid_from} || '';
   $avars->{'sublist'} = $request->{'sublist'} || '';
-  # Used to determine the archive.
-  $avars->{'time'} = time;
 
   # Bounce if necessary: concatenate all possible reasons with \002, call
   # access_check with filename as arg1 and reasons as arg2.  XXX Victim
@@ -349,7 +347,7 @@ sub _post {
 
   my(%ackinfo, %avars, %deliveries, %digest, @dfiles, @dtypes, @dup, @ent, 
      @files, @refs, @tmp, @skip, $ack_attach, $ackfile, $arcdata, 
-     $arcent, $archead, $date, $desc, $digests, $dissues, $dup,
+     $arcent, $archead, $desc, $digests, $dissues, $dup,
      $exclude, $head, $i, $j, $msgnum, $nent, $precedence, $prefix, 
      $replyto, $safe, $sender, $seqno, $subject, $sl, $subs, 
      $tmp, $tmpdir, $tprefix, $whereami);
@@ -460,15 +458,15 @@ sub _post {
   $subject = $archead->get('subject') || ''; chomp $subject;
   $subject =~ /(.*)/; $subject = $1;
 
-  $date = exists $avars{'time'} ? $avars{'time'} : time;
-  $date =~ /(\d+)/; $date = $1;
-  # XXX-no-archive (alter sublist or adjust data)
+  # XXX X-no-archive handling should be implemented here. 
+  # (alter sublist or adjust data)
+
   ($msgnum) = $self->{'lists'}{$list}->archive_add_start
     ($sender,
      {
       'body_lines' => $avars{lines},
       'bytes'      => (stat($file))[7],
-      'date'       => $date,
+      'date'       => time,
       'from'       => "$user", # Stringify on purpose
       'quoted'     => $avars{quoted_lines},
       'refs'       => join("\002", @refs),
@@ -500,7 +498,7 @@ sub _post {
          $self->standard_subs($list),
          ARCHIVE  => $msgnum,
          ARCURL   => $self->_list_config_get($list, 'archive_url'),
-         DATE     => scalar localtime($date),
+         DATE     => scalar localtime(time),
          SENDER   => "$user",
          SEQNO    => $seqno,
          SUBJECT  => $subject,
