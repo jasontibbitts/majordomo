@@ -151,13 +151,13 @@ Things we need:
   list   => name of list (no list -> produce global aliases)
   bindir => path to executables
   domain => domain this list or majordomo is to serve
-  debug  => whether or not copious debuging is called for
+  debug  => debugging level
 
 =cut
 sub add_alias {
   my $log  = new Log::In 150;
   my %args = @_;
-  my ($block, $debug, $fh, $vblock, $vut);
+  my ($aliasfmt, $block, $debug, $fh, $program, $sublist, $vblock, $vut);
   my $bin  = $args{bindir} or $log->abort("bindir not specified");
   my $dom  = $args{domain} or $log->abort("domain not specified");
   my $list = $args{list}   || 'GLOBAL';
@@ -180,13 +180,18 @@ sub add_alias {
     $vut = '';
   }
 
+  if ($args{'queue_mode'}) {
+    $program = "mj_enqueue";
+  }
+  else {
+    $program = "mj_email";
+  }
 
   if ($list eq 'GLOBAL') {
-    if ($args{'queue_mode'}) {
-      $block = <<"EOB";
+    $block = <<"EOB";
 # Aliases for Majordomo at $dom
-$who$vut:       "|$bin/mj_enqueue -m -d $dom$debug"
-$who$vut-owner: "|$bin/mj_enqueue -o -d $dom$debug"
+$who$vut:       "|$bin/$program -m -d $dom$debug"
+$who$vut-owner: "|$bin/$program -o -d $dom$debug"
 owner-$who$vut: $who$vut-owner
 # End aliases for Majordomo at $dom
 EOB
@@ -198,62 +203,61 @@ $who-owner\@$dom   $who$vut-owner
 owner-$who-\@$dom  owner-$who$vut
 # End VUT entries for Majordomo at $dom
 EOB
-    }
-    else {
-      $block = <<"EOB";
-# Aliases for Majordomo at $dom
-$who$vut:       "|$bin/mj_email -m -d $dom$debug"
-$who$vut-owner: "|$bin/mj_email -o -d $dom$debug"
-owner-$who$vut: $who$vut-owner
-# End aliases for Majordomo at $dom
+  }
+  #
+  # Create aliases for one mailing list.
+  # Which aliases are created will depend upon the 
+  # "aliases" configuration setting.  If the
+  # list is new, the default value will need to be
+  # used.  The possible aliases settings are:
+  #
+  # A    An alias for each auxiliary list.
+  # M    LIST-moderator
+  # O    LIST-owner
+  # R    LIST
+  # Q    LIST-request
+  # S    LIST-subscribe
+  # U    LIST-unsubscribe
+  #
+  # As implemented, O R and Q are mandatory.
+  else {
+    $aliasfmt = "$list$vut%-12s \"|$bin/$program %s -d $dom -l $list$debug\"\n";
+    $block  = "# Aliases for $list at $dom\n";
+    $block .= sprintf $aliasfmt, ':', '-r';
+    $block .= sprintf $aliasfmt, '-request:', '-q';
+    $block .= sprintf $aliasfmt, '-owner:', '-o';
+    $block .= "owner-$list$vut:   $list-owner\n";
+
+    $vblock = <<"EOB";
+# VUT entries for $list at $dom
+$list\@$dom              $list$vut
+$list-request\@$dom      $list$vut-request
+$list-owner\@$dom        $list$vut-owner
+owner-$list\@$dom        owner-$list$vut
 EOB
 
-      $vblock = <<"EOB";
-# VUT entries for Majordomo at $dom
-$who\@$dom         $who$vut
-$who-owner\@$dom   $who$vut-owner
-owner-$who-\@$dom  owner-$who$vut
-# End VUT entries for Majordomo at $dom
-EOB
+    if ($args{'aliases'} =~ /M/) {
+      $block .= sprintf $aliasfmt, '-moderator:', '-M';
+      $vblock .= "$list-moderator\@$dom      $list$vut-moderator\n";
     }
-  }
-  else {
-    if ($args{'queue_mode'}) {
-      $block = <<"EOB";
-# Aliases for $list at $dom
-$list$vut:         "|$bin/mj_enqueue -r -d $dom -l $list$debug"
-$list$vut-request: "|$bin/mj_enqueue -q -d $dom -l $list$debug"
-$list$vut-owner:   "|$bin/mj_enqueue -o -d $dom -l $list$debug"
-owner-$list$vut:   $list-owner
-# End aliases for $list at $dom
-EOB
-      $vblock = <<"EOB";
-# VUT entries for $list at $dom
-$list\@$dom          $list$vut
-$list-request\@$dom  $list$vut-request
-$list-owner\@$dom    $list$vut-owner
-owner-$list\@$dom    owner-$list$vut
-# End VUT entries for $list at $dom
-EOB
+    if ($args{'aliases'} =~ /S/) {
+      $block .= sprintf $aliasfmt, '-subscribe:', '-c subscribe';
+      $vblock .= "$list-subscribe\@$dom      $list$vut-moderator\n";
     }
-    else {
-      $block = <<"EOB";
-# Aliases for $list at $dom
-$list$vut:         "|$bin/mj_email -r -d $dom -l $list$debug"
-$list$vut-request: "|$bin/mj_email -q -d $dom -l $list$debug"
-$list$vut-owner:   "|$bin/mj_email -o -d $dom -l $list$debug"
-owner-$list$vut:   $list-owner
-# End aliases for $list at $dom
-EOB
-      $vblock = <<"EOB";
-# VUT entries for $list at $dom
-$list\@$dom          $list$vut
-$list-request\@$dom  $list$vut-request
-$list-owner\@$dom    $list$vut-owner
-owner-$list\@$dom    owner-$list$vut
-# End VUT entries for $list at $dom
-EOB
+    if ($args{'aliases'} =~ /U/) {
+      $block .= sprintf $aliasfmt, '-unsubscribe:', '-c unsubscribe';
+      $vblock .= "$list-unsubscribe\@$dom    $list$vut-moderator\n";
     }
+
+    if ($args{'aliases'} =~ /A/ and $args{'sublists'}) {
+      for $sublist (split "\002", $args{'sublists'}) {
+        next if ($sublist =~ /^(request|owner|subscribe|unsubscribe|moderator)$/);
+        $block .= sprintf $aliasfmt, "-$sublist:", "-x $sublist";
+        $vblock .= "$list-$sublist\@$dom    $list$vut-$sublist\n";
+      }
+    }
+    $block .= "# End aliases for $list at $dom\n";
+    $vblock .= "# End VUT entries for $list at $dom\n";
   }
   if ($args{aliashandle}) {
     $args{aliashandle}->print("$block\n");
@@ -311,17 +315,11 @@ sub regen_aliases {
     }
   }
 
-  # Generate aliases for each given list; do this twice to get GLOBAL out
+  # Sort the list of lists, to get GLOBAL out
   # first for aesthetic purposes.
-  for $i (@{$args{lists}}) {
-    next unless $i->[0] eq 'GLOBAL';
-    $block = add_alias(%args, list => $i->[0], debug => $i->[1]);
-    $body .= "$block\n" if $block;
-  }
-
-  for $i (@{$args{lists}}) {
-    next if $i->[0] eq 'GLOBAL';
-    $block = add_alias(%args, list => $i->[0], debug => $i->[1]);
+  for $i (sort @{$args{lists}}) {
+    $block = add_alias(%args, 'list' => $i->[0], 'debug' => $i->[1], 
+                              'aliases' => $i->[2], 'sublists' => $i->[3]);
     $body .= "$block\n" if $block;
   }
 
