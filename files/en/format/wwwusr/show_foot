@@ -65,6 +65,13 @@ Aliases:
   with the
   $HELP:WHO command.
 
+  <dt>postblock
+  <dd>  This flag is set if the list moderators have decided to
+  moderate or deny your posted messages by default.  Normally,
+  only the list moderators can change this setting.  Questions
+  about this setting should be addressed to 
+  <a href="mailto:$OWNER">$OWNER</a>.
+
   <dt>prefix
   <dd>  Select this if you want to see a prefix which indicates
   the name of the mailing list in the Subject header of every message.
