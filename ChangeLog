@@ -1,5 +1,12 @@
 Tue Sep  1 00:12:14 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Mj/Format.pm (which): Fixes to give proper output for large
+ 	numbers of matches.
+
+	* lib/Mj/SimpleDB/Text.pm (get_matching_regexp): Better log
+ 	message; call _re_match instead of comparing directly.
+	(get_matching_quick_regexp): Ditto.
+
 	* lib/Mj/SubscriberList.pm: Remove fields not needed because of
  	the registration database.
 

@@ -493,12 +493,10 @@ sub get_matching_quick_regexp {
     last unless $key;
     ($key, $data) = split("\t", $key, 2);
     $data = $self->_unstringify($data);
-    if (defined($data->{$field}) && 
-	$data->{$field} =~ /$value/)
-      {
-	push @keys, $key;
-	next;
-      }
+    if (defined($data->{$field}) && _re_match($value, $data->{$field})) {
+      push @keys, $key;
+      next;
+    }
     redo;
   }
   return @keys;
@@ -531,10 +529,10 @@ sub get_matching {
 
 sub get_matching_regexp {
   my $self  = shift;
-  my $log   = new Log::In 121, "$self->{'name'}, @_";
   my $count = shift;
   my $field = shift;
   my $value = shift;
+  my $log   = new Log::In 121, "$self->{'name'}, $count, $field, $value";
   my (@keys, $key, $data, $i);
 
   for ($i=0; $i<$count; $i++) {
@@ -542,12 +540,10 @@ sub get_matching_regexp {
     last unless $key;
     ($key, $data) = split("\t", $key, 2);
     $data = $self->_unstringify($data);
-    if (defined($data->{$field}) && 
-	$data->{$field} =~ /$value/i)
-      {
-	push @keys, ($key, $data);
-	next;
-      }
+    if (defined($data->{$field}) && _re_match($value, $data->{$field})) {
+      push @keys, ($key, $data);
+      next;
+    }
     redo;
   }
   return @keys;

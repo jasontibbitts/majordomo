@@ -667,16 +667,16 @@ sub which {
       next;
     }
     
+    if ($list ne $last_list) {
+      if ($list_count > 3) {
+	eprint($out, $type, "-- $list_count matches this list\n");
+      }
+      $list_count = 0;
+    }
     eprintf($out, $type, "%-23s %s\n", $list, $match);
     $list_count++;
     $total_count++;
-
-    if ($list_count > 3 && $list ne $last_list) {
-      eprintf($out, $type, "-- %s match%s this list\n",
-      $list_count,  ($list_count == 1 ? "" : "es"));
-      $list_count = 0;
-      $last_list = $list;
-    }
+    $last_list = $list;
   }
 
   if ($total_count) {

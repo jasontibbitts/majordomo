@@ -31,112 +31,15 @@ around easily.
 When sending to the owner, actually look up 'owners' instead of sending to
 the owner alias and having to run things again.
 
-SimpleDB::replace is now very close to mogrify.
-
 Top of the list 
 ---------------
 
-Done:
-new
-dispatch
-get_all_lists
-s_expire
-global_config_get
-list_config_get
-list_config_set (debug)
-list_config_set_to_default (debug)
-save_configs
-_global_config_get
-_list_config_get
-_list_config_set
-_list_config_lock
-_list_config_unlock
-config_get_allowed
-config_get_comment
-config_get_groups
-config_get_intro
-config_get_isarray
-config_get_isauto
-config_get_type
-config_get_visible
-config_get_mutable
-config_get_default
-
-domain
-_re_match
-substitute_vars
-substitute_vars_string
-unique
-unique2
-tempname
-get_start
-_get
-_get_mailfile
-get_chunk
-get_done
-faq_start
-_faq
-help_start
-info_start
-_info
-intro_start
-_intro
-put_start
-_put
-put_chunk
-put_done
-request_response
-_request_response
-index
-_index
-_list_file_get
-_list_file_put
-_list_file_delete
-list_file_sync
-_fill_lists
-_make_lists
-legal_list_name
-valid_list
-accept
-alias
-_alias
-archive
-auxadd
-_auxadd
-auxremove
-auxwho_start
-auxwho_chunk
-auxwho_done
-createlist
-_createlist
-lists
-reject
-register
-_register
-
-sessioninfo
-set (needs access checking)
-show (needs access checking)
-showtokens
-_showtokens
-subscribe
-_subscribe
-tokeninfo
-trigger
-unalias
-_unalias
-unsubscribe
-_unsubscribe
-which
-who_start
-_who
-who_chunk
-who_done
-
-Skipped:
-config_get_vars
-rekey
-
+! Two more majordomo routines to work over for the rewrite:
+  config_get_vars
+  rekey - this needs to be a generic database-lint routine.  The keys
+   should be regenerated from the stripped addresses and the list of lists
+   in the reg database should be updated from the actual membership lists.
+   This makes this a global function and an extremely time consuming one.
 
 ! Addr object
 
@@ -145,66 +48,11 @@ on the victim; if it is problematic, stringify $victim before evalling the
 code.
 
 ! Master address database:
-  One global database storing some information on each address subscribed
-  to any list in the domain.  Maintains the following info:
-
-    addtime
-    changetime
-    full address
-    stripped address
-    encrypted password
-    preferred language
-    bounce data
-    warnings data
-    lists (colon (space?) separated list of lists)
-
-  remove redundant data from subscriber database, maintain all
-   list-specific stuff there.
-
-  Following routines affected:
-
-    subscribe - add or update master database entry
-    unsub - update (or optionally remove) master database entry
-    show - don't take a list, do global access check.  just dump all data.
-       Traverse list of lists, looking up data on each.
-    lists - don't need to check membership in each list, just use master
-    who - can take GLOBAL, return additional data
-    which - just search master database
-
-    functions like is_list_member should still operate on the list database
-    as they're smaller and this doesn't require parsing out the list of
-    lists.  (Caching may actually negate this.)
-
-    need routine to add and remove to/from master database.  remove
-    function should also kill aliases.
 
 Need these functions to manipulate the reglist:
 
-  _register - actually do the registration
-  reg_add_list - add an additional list to a user's registration.
   password - change a password (later)
   crypt - encrypt a password (just call MD5)
-
-! Master alias database.
-
-  Aliasing moves to being a global entity.
-
-  Routines affected:
-    The whole module: doesn't sit at the list level any more; sits under
-    GLOBAL.
-
-    Majordomo::new - allocate it appropriately.
-    List::new - _don't_ allocate it at all.
-    canon - move to Majordomo method, don't take a list.
-    addr_match - move to Majordomo method
-    (un)alias - do global access check.
-    _(un)alias - don't _make_list, don't take a list, don't call through a
-      list object, subsume List::alias_add/remove.
-    List::remove - don't worry about aliases
-
-    Anything which calls canon at the list level cannot; these routines
-    must assume that a canonical address has been passed, and upstream
-    routines are responsible for canonizing appropriately.
 
 ! Rewrite shell.t to just build the file, call mj_shell once (or perhaps
   just a few times) and check the output.  This should improve test times

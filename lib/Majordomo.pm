@@ -3397,6 +3397,9 @@ sub which {
 
   $total_hits = 0;
 
+  # Untaint
+  $string =~ /(.*)/; $string = $1;
+
   # Loop over the lists that the user can see
  LIST:
   for $list ($self->get_all_lists($user, $pass, $auth, $int)) {
