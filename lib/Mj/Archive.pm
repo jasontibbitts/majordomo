@@ -1130,7 +1130,7 @@ sub last_n {
   my $n    = shift;
   my $ct   = shift || 0;
   my $arc  = shift;
-  my (@arcs, @data, @msgs, $final, $key, $msg, $value);
+  my (@arcs, @data, @msgs, $final, $key, $msg, $tmp, $value);
   @msgs = ();
 
   if ($arc and $self->{'sublist'}) {
@@ -1328,7 +1328,7 @@ use Time::Local;
 sub _secs_end {
   my $d = shift;
   my $local = shift;
-  my $tmp;
+  my ($i, $tmp);
 
   # Convert the data into yyyymmmdd format
   if ($d =~ /^\d$/) {
