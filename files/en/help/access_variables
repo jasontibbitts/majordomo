@@ -1,9 +1,9 @@
-                      Access Commands and Variables
+                            Access Variables
 
-This document contains all commands and variables which can be controlled
-through the access_rules configuration setting, and also shows which 
-variables can be tested, set, and unset while handling those requests. 
-Please refer to "help configset_access_rules" for a detailed explanation.
+This document contains all variables which can be controlled through the
+access_rules configuration setting, and also shows which variables can
+be tested, set, and unset while handling those requests.  Please refer
+to "help configset_access_rules" for a detailed explanation.
 
 This file does not describe the keyword substitution variables, which
 cause text to be substituted into reply messages.  To learn more about
