@@ -525,6 +525,21 @@ will override the "ackstall" or "ackdeny" flag and prevent a reply
 message from being sent if a posted message is delayed, denied,
 forwarded, or requires confirmation.
 
+A reply of "NONE" can also be used to prevent the "Majordomo results"
+message from being sent to a person who will also receive a confirmation
+message.  For example, the following rule:
+
+  subscribe
+  confirm, reply=NONE, reason="Confirmation prevents subscription forgeries" 
+  $interface =~ /^email/ AND !$mismatch AND !$user_password
+  
+will prevent the results from being mailed if the subscribe command is
+the only command that Majordomo processes.  The "interface" condition is
+necessary to keep web users from seeing no reply.
+
+In general, a reply of "NONE" has no effect upon a command that succeeds
+immediately.
+
 
                             Default Actions
 
