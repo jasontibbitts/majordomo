@@ -1,3 +1,12 @@
+2001-08-01  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Resend.pm:  (post, _post)  Use "(no subject)"
+	in the SUBJECT expansion if no subject was provided.
+
+	* lib/Mj/Token.pm:  (t_info)  Use the "unknown_token"
+	error message if the tokeninfo command accesses a
+	token that is not in the database.
+
 2001-07-29  Michael Yount <csf@moscow.com>
 
 	* Makefile.PL:  Bugfix:  make certain that the scripts are

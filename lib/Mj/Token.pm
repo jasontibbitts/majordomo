@@ -814,7 +814,9 @@ sub t_info {
   $token =~ /(.*)/; $token = $1; # Untaint
   my $data = $self->{'tokendb'}->lookup($token);
 
-  return (0, "Illegal token!\n") unless $data;
+  return (0, $self->format_error('unknown_token', 'GLOBAL', 
+          'TOKEN' => $token))
+    unless $data;
 
   return (1, $data);
 }
