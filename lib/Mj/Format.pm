@@ -1065,10 +1065,11 @@ sub g_get {
   my ($chunk, $chunksize);
   my ($ok, $mess) = @$result;
 
-  unless ($ok>0) {
+  unless ($ok > 0) {
     eprint($out, $type, "$fail\n");
+    eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+    return $ok;
   }
-  eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
 
   $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
                                       "chunksize");
