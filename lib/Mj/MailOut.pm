@@ -64,6 +64,7 @@ sub mail_message {
     $i = new Mj::Addr($i);
     next unless $i->isvalid;
     next if     $i->isanon;
+    next if     ($i->domain eq 'example.com');
     push @{$args{'addresses'}}, { 'canon' => $i->canon,
                                   'strip' => $i->strip };
   }
