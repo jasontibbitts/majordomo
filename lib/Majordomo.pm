@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200103090";
+$VERSION = "0.1200104070";
 $unique = 'AAA';
 
 use strict;
@@ -483,9 +483,6 @@ sub dispatch {
       $addr =~ s/^\s+//;
       $addr =~ s/\s+$//;
       $addr = new Mj::Addr($addr);
-      ($ok, $mess) = $addr->valid;
-      return [0, "$addr is an invalid address:\n$mess"]
-        unless $ok; #XLANG
       push (@addr, $addr); 
     }
     $request->{'victims'} = [@addr];
@@ -521,6 +518,13 @@ sub dispatch {
   # Make a separate request for each affected address.
   for $addr (@addr) { 
     $request->{'victim'} = $addr;
+    if ($validate and $request->{'mode'} !~ /regex|pattern/) {
+      ($ok, $mess) = $addr->valid;
+      unless ($ok) {
+        push @$out, (0, "$addr is an invalid address:\n$mess"); # XLANG
+        next;
+      }
+    }
     gen_cmdline($request) unless ($request->{'command'} =~ /_chunk|_done/);
     if (function_prop($request->{'command'}, 'top')) {
       $func = $request->{'command'};
@@ -3647,10 +3651,35 @@ Useful modes include:
 sub archive_start {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}, $request->{'args'}";
-  my ($ok, $out);
+  my (@tmp, $i, $mess, $ok, $out, $pattern, $type);
 
   return (0, "No dates or message numbers were supplied.\n")
     unless ($request->{'mode'} =~ /summary/ or $request->{'args'});
+
+  # Verify any patterns that were supplied, and pack them.
+  if (exists $request->{'patterns'} and 
+      ref ($request->{'patterns'}) eq 'ARRAY') {
+    for $i (@{$request->{'patterns'}}) {
+      if ($i =~ /~([as])(.+)/) {
+        $type = ($1 eq 'a') ? 'author' : 'subject';
+        $pattern = $2;
+      }
+      else {
+        $type = 'subject';
+        $pattern = $i;
+      }
+
+      ($ok, $mess, $pattern) = 
+        Mj::Config::compile_pattern($pattern, 0, 'isubstring');
+
+      unless ($ok) {
+        return (0, qw(The pattern "$i" is invalid.\n));
+      }
+      $pattern =~ s/\002//g;
+      push @tmp, $type, $pattern;
+    }
+    $request->{'patterns'} = join "\002", @tmp;
+  }
 
   ($ok, $out) =
     $self->list_access_check($request);
@@ -3658,6 +3687,7 @@ sub archive_start {
   unless ($ok > 0) {
     return ($ok, $out);
   }
+
   if ($request->{'mode'} =~ /delete|sync/) {
     return (0, "Insufficient privileges to alter the archive.\n")
       unless ($ok > 1);
@@ -3665,14 +3695,16 @@ sub archive_start {
   }
 
   $self->_archive($request->{'list'}, $request->{'user'}, $request->{'user'}, 
-                  $request->{'mode'}, $request->{'cmdline'}, $request->{'args'});
+                  $request->{'mode'}, $request->{'cmdline'},
+                  $request->{'args'}, $request->{'patterns'});
 }
 
 # Returns data for all messages matching the arguments.
+use Mj::Util qw(re_match);
 sub _archive {
-  my ($self, $list, $user, $vict, $mode, $cmdline, $args) = @_;
+  my ($self, $list, $user, $vict, $mode, $cmdline, $args, $patterns) = @_;
   my $log = new Log::In 30, "$list, $args";
-  my (@msgs, $mess, $ok);
+  my (@msgs, @patterns, @tmp, $data, $i, $j, $mess, $ok, $regex, $type);
   return 1 unless ($args or $mode =~ /summary/);
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
@@ -3691,6 +3723,24 @@ sub _archive {
   # the command arguments.
   else {
     @msgs = $self->{'lists'}{$list}->archive_expand_range(0, $args);
+
+    # If any patterns were supplied, remove messages that do not match.
+    if (length $patterns) {
+      @patterns = split "\002", $patterns;
+      while (($type, $regex) = splice @patterns, 0, 2) {
+        @tmp = ();
+        for $j (@msgs) {
+          ($i, $data) = @$j;
+          if ($type eq 'author') {
+            push (@tmp, $j) if (re_match($regex, $data->{'from'}));
+          }
+          else {
+            push (@tmp, $j) if (re_match($regex, $data->{'subject'}));
+          }
+        }
+        @msgs = @tmp;
+      }
+    }
   }
   $self->{'archct'} = 1;
   return (1, @msgs);
