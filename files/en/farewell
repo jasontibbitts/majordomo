@@ -1,0 +1,23 @@
+The address
+  $VICTIM
+has been removed from the $LIST mailing list.
+
+Although you will not receive any further mail from the list,
+your registration password at $SITE is still valid.
+
+If you wish to subscribe again to the $LIST mailing list,
+write to 
+  $MJ
+and in the body of the message, put this command:
+  approve $PASSWORD subscribe $LIST $VICTIM
+
+To see the status of your registration, use this command:
+  approve $PASSWORD show $VICTIM
+
+If you wish to remove your address from our registration database
+and invalidate your password, use this command instead:
+  approve $PASSWORD unregister $VICTIM
+This will also remove any other subscriptions you have at this site.
+
+Please contact $OWNER if you have questions.
+

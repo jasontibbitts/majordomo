@@ -12,6 +12,7 @@ $files =
    'en/ack_timeout'                                   => ['Timeout',                                  'us-ascii', '7bit'],
    'en/digest_preindex'                               => ['Index',                                    'us-ascii', '7bit'],
    'en/faq'                                           => ['Frequently Asked Questions',               'us-ascii', '7bit'],
+   'en/farewell'                                      => ['Farewell from the $LIST list',             'us-ascii', '7bit'],
    'en/file_not_found'                                => ['File not found',                           'us-ascii', '7bit'],
    'en/file_sent'                                     => ['File has been sent',                       'us-ascii', '7bit'],
    'en/info'                                          => ['List Information',                         'us-ascii', '7bit'],
