@@ -1,8 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-unregister-regexp-allmatching address
+unregister[-pattern][-regex][-allmatching] address
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 address, required, is a previously registered address
--regexp, if specified, makes address a pattern (see "help patterns")
+-regex,   if specified, treats the address as a pattern (see "help patterns")
+-pattern, if specified, treats the address as a pattern (see "help patterns")
 -allmatching, if specified, operates on every address that matches
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -15,16 +16,27 @@ lists at this site.
 Unless the command is "approve"d in advance, a confirmation token will
 be sent to the given "address" to verify this action, and must be replied
 to with an "accept" command. Users can pre-approve unregistering
-individual addresses, but the site password is required for "-regexp".
+individual addresses, but the site password is required for "-regex".
 
-When -regexp is used to unregister addresses with wild cards, the site
+When -regex is used to unregister addresses with wild cards, the site
 password is required and confirmations will not be requested. Without
 "-allmatching", only the first matching address is removed.
 
-If the "-allmatching" option is used with "-regexp", then every
+Each address has an original and a canonical form.  Usually these
+addresses are the same, but if the original address (the one
+that was used to subscribe to a mailing list) is an alias for
+another address, the latter address is the canonical address.
+
+When the "-regex" option is used, the canonical addresses are
+compared to the pattern.  This may cause some surprising results
+when an original address that does not match the pattern is
+reported to have been unsubscribed.
+
+If the "-allmatching" option is used with "-regex", then every
 address that matches the pattern will be removed from the registry
 (and automatically unsubscribed from every list).
 
+The "-pattern" option is identical to the "-regex" option.
 
 See Also:
    help changeaddr  (which replaces one address with another)
