@@ -212,5 +212,7 @@ $Mj::Config::default_string = q(
  'who_access'           => ($list eq 'GLOBAL') ? "closed" : "open",
  'whoami'               => ($list eq 'GLOBAL') ? 'SITE_DFLT' : '$LIST',
  'whoami_owner'         => ($list eq 'GLOBAL') ? 'SITE_DFLT' : '$LIST-owner',
+ 'wwwadm_url'           => 'SITE_DFLT',
+ 'wwwusr_url'           => 'SITE_DFLT',
 };
 );

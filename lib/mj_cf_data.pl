@@ -903,6 +903,22 @@ EOC
     'global' => 1,
     'visible'=> 0,
    },
+   'wwwadm_url' =>
+   {
+    'type'   => 'string',
+    'groups' => [qw(miscellany)],
+    'local'  => 0,
+    'global' => 1,
+    'visible'=> 0,
+   },
+   'wwwusr_url' =>
+   {
+    'type'   => 'string',
+    'groups' => [qw(miscellany)],
+    'local'  => 0,
+    'global' => 1,
+    'visible'=> 0,
+   },
    'token_remind' =>
    {
     'type'   => 'integer',
