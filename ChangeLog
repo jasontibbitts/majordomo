@@ -1,3 +1,9 @@
+2000-05-06  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Bf/Parser.pm (parse_dsn): Return Diagnostic-Code: if
+	available.  Loop over all per-user bounce status blocks and return
+	data on all users found there.
+
 2000-05-04  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Bf/Parser.pm (parse): Allow lower case types because some

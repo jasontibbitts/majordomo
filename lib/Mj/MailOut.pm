@@ -224,8 +224,9 @@ sub owner_done {
       else {
 	$status = "bounce";
       }
-      $mess .= "  User:   $user.\n";
-      $mess .= "  Status: $status\n\n";
+      $mess .= "  User:       $user.\n";
+      $mess .= "  Status:     $status\n";
+      $mess .= "  Diagnostic: $data->{$user}{diag}\n\n";
     }
 
     # If we don't have a specific user from the envelope, we might have

@@ -140,13 +140,12 @@ Returns:
   not mean that we have any bouncing address, only that there's no reason
   to check other formats.
 
-  a hash, containing the bouncing users (as keys) and the type of bounce
-  (failure, warning, none, unknown) as values.
-
-  Note that this has may contain users that are not actually subscribe, or
-  could even contain gueses at the bouncing address obtained by applying
-  heuristics.  Don't assume that every address returned here will be a
-  subscriber to any list.
+The passed $data hashref is modified to contain data on each user found in
+the bounce (including the status (faulure, warning, etc.) and any
+user-readable diagnostic information present.  Note that this has may
+contain users that are not actually subscribed, or could even contain
+gueses at the bouncing address obtained by applying heuristics.  Don't
+assume that every address returned here will be a subscriber to any list.
 
 =cut
 
@@ -154,7 +153,7 @@ sub parse_dsn {
   my $log  = new Log::In 50;
   my $ent  = shift;
   my $data = shift;
-  my (@status, $action, $fh, $i, $line, $to, $type, $user);
+  my (@status, $action, $diag, $fh, $i, $line, $to, $type, $user);
 
   # Check the Content-Type
   $type = $ent->head->get('content-type');
@@ -198,30 +197,38 @@ sub parse_dsn {
 
   # There's lots of info here, but we only want couple of things:
   # Original-Recipient: lines if we can get them, Final-Recipient: lines
-  # otherwise, and Action: fields. And we don't want anything from the
-  # first group of status entries.
+  # otherwise, Action: fields, and Diagnostic-Code: if present. And we
+  # don't want anything from the first group of status entries.
   for ($i = 1; $i < @status; $i++) {
-    if ($status[1]->{'original-recipient'}) {
-      $user = $status[1]->{'original-recipient'};
+    if ($status[$i]->{'original-recipient'}) {
+      $user = $status[$i]->{'original-recipient'};
     }
     else {
-      $user = $status[1]->{'final-recipient'};
+      $user = $status[$i]->{'final-recipient'};
     }
     $user =~ s/.*?;\s*(.*?)\s*/$1/;
     $user =~ s/^<(.*)>$/$1/;
 
-    if (lc($status[1]->{'action'}) eq 'failed') {
+    if (lc($status[$i]->{'action'}) eq 'failed') {
       $action = 'failure';
     }
-    elsif (lc($status[1]->{'action'}) eq 'delayed') {
+    elsif (lc($status[$i]->{'action'}) eq 'delayed') {
       $action = 'warning';
     }
     else {
       $action = 'none';
     }
     $data->{$user}{'status'} = $action;
-  }
 
+    $diag = $status[$i]->{'diagnostic-code'};
+    if ($diag) {
+	$diag =~ s/^\s*SMTP;\s*//;
+	$data->{$user}{'diag'} = $diag;
+    }
+    else {
+	$data->{$user}{'diag'} = "unknown";
+    }
+  }
   return 1;
 }
 
