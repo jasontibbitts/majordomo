@@ -302,13 +302,13 @@ sub parse_part {
     # If we hit EOF while processing the command line, we ignore it and let
     # the loop run its course.
     unless (defined $command) {
-      print $outhandle $out if (defined $out and length $out);
+      print $outhandle "\n$out" if (defined $out and length $out);
       next CMDLINE;
     }
 
     # Check for legality of command
     if ($command eq '') {
-      print $outhandle $out;
+      print $outhandle "\n$out";
       print $outhandle $mj->format_error('empty_command', $list);
       next CMDLINE;
     }
@@ -327,7 +327,7 @@ sub parse_part {
             (command_prop($true_command, "${interface}_parsed"))))
       {
         unless ($garbage) {
-          print $outhandle $out;
+          print $outhandle "\n$out";
           print $outhandle $mj->format_error('invalid_command', $list,
                                                'COMMAND' => $command);
         }
@@ -351,13 +351,13 @@ sub parse_part {
       ($password, $command, $cmdargs) = split(" ", $cmdargs, 3);
 
       unless (defined $password) {
-        print $outhandle $out;
+        print $outhandle "\n$out";
         print $outhandle $mj->format_error('approve_no_password', $list);
         next CMDLINE;
       }
 
       unless (defined $command) {
-        print $outhandle $out;
+        print $outhandle "\n$out";
         print $outhandle $mj->format_error('approve_no_command', $list);
         next CMDLINE;
       }
@@ -374,7 +374,7 @@ sub parse_part {
       unless (defined($true_command) &&
               command_prop($true_command, $interface))
         {
-          print $outhandle $out;
+          print $outhandle "\n$out";
           print $outhandle $mj->format_error('invalid_command', $list,
                                              'COMMAND' => $command);
           next CMDLINE;
@@ -383,7 +383,7 @@ sub parse_part {
 
     # Deal with "end" command; again, this can be aliased
     if ($true_command eq "end") {
-      print $outhandle $out;
+      print $outhandle "\n$out";
       print $outhandle $mj->format_error('end_command', $list);
       last CMDLINE;
     }
@@ -394,7 +394,7 @@ sub parse_part {
       $cmdargs = add_deflist($mj, $cmdargs, $args{'deflist'}, $args{'reply_to'});
       ($tlist, $cmdargs) = split(" ", $cmdargs, 2);
       unless (defined($tlist) && length($tlist)) {
-        print $outhandle $out;
+        print $outhandle "\n$out";
         print $outhandle $mj->format_error('no_list', 'GLOBAL',
                                            'COMMAND' => $command);
         next CMDLINE;
@@ -404,7 +404,7 @@ sub parse_part {
                                   command_prop($true_command, 'global'));
 
       if (length $mess) { 
-        print $outhandle $out;
+        print $outhandle "\n$out";
         print $outhandle "$mess\n";
       }
       unless (defined $list and length $list) {
@@ -416,7 +416,7 @@ sub parse_part {
     if (command_prop($true_command, "nohereargs") &&
         (@arglist || $attachhandle))
       {
-        print $outhandle $out;
+        print $outhandle "\n$out";
         print $outhandle $mj->format_error('invalid_hereargs', $list,
                                            'COMMAND' => $command);
         next CMDLINE;
@@ -426,14 +426,14 @@ sub parse_part {
     if (command_prop($true_command, "noargs") &&
 	($cmdargs || @arglist || $attachhandle))
       {
-        print $outhandle $out;
+        print $outhandle "\n$out";
         print $outhandle $mj->format_error('invalid_arguments', $list,
                                            'COMMAND' => $command);
       }
 
     # Warn of obsolete usage
     if ($replacement = command_prop($true_command, "obsolete")) {
-      print $outhandle $out;
+      print $outhandle "\n$out";
       print $outhandle $mj->format_error('obsolete_command', $list,
                                          'COMMAND' => $command,
                                          'NEWCOMMAND' => $replacement);
@@ -446,7 +446,7 @@ sub parse_part {
 
     # First, handle the "default" command internally.
     if ($true_command eq 'default') {
-      print $outhandle $out;
+      print $outhandle "\n$out";
       $ok_count++;
       ($action, $cmdargs) = split(" ", $cmdargs, 2);
       if ($action eq 'list') {
@@ -538,7 +538,7 @@ sub parse_part {
         next CMDLINE;
       }
 
-      print $outhandle $out;
+      print $outhandle "\n$out";
 
       # If a new identity has been assumed, send the output
       # of the command to the new address.
@@ -623,6 +623,7 @@ sub parse_part {
   }
 
   if ($shown or $garbage > 1) {
+    print $outhandle "\n";
     print $outhandle
       $mj->format_error('commands_processed', $list,
                         'COUNT' => $shown,
