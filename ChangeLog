@@ -85,6 +85,8 @@
 	(digest_sync)  New routine.  Obtain a message list for
 	each digest, extract the current information from the
 	archives, and update the digest information.
+	(should_ack)  Test the validity of the address.
+	Thanks to Ron Kuris.
 
 	* lib/Mj/MIMEParser.pm:  (collect_data)  Mark a message as
 	"hidden" if it has an "x-no-archive: yes" or 

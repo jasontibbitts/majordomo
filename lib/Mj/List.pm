@@ -55,6 +55,7 @@ use vars (qw($addr %alias %flags %noflags %classes %digest_types));
    'nohide'       => ['hideall',      1,0,'' ],
    'showall'      => ['hideall',      1,0,'' ],
    'eliminatecc'  => ['eliminatecc',  0,1,'C'],
+   'hidepost'     => ['hidepost',     0,1,'N'],
    'prefix'       => ['prefix',       0,1,'P'],
    'replyto'      => ['replyto',      0,1,'R'],
    'rewritefrom'  => ['rewritefrom',  0,1,'W'],
@@ -723,6 +724,7 @@ sub should_ack {
   my $flag    = shift;
   my ($data);
 
+  return 0 unless $victim->isvalid;
   $data = $self->get_member($victim, $sublist);
 
   unless (defined $data) {
@@ -881,13 +883,20 @@ sub describe_class {
   my $arg1  = shift;
   my $arg2  = shift;
   my $as_setting = shift;
-  my($dig, $time, $type);
+  my($desc, $dig, $time, $type);
 
   if ($class eq 'digest') {
     $dig = $self->config_get('digests');
     if ($dig->{$arg1}) {
-      return $as_setting? "$class-$arg1-$arg2" :
-	$dig->{$arg1}{'desc'};
+      if ($as_setting) {
+        return "$class-$arg1-$arg2";
+      }
+      else {
+	$desc = $dig->{$arg1}{'desc'};
+        $desc .= ", $arg2 format"
+          if ($arg2);
+        return $desc;
+      }
     }
     else {
       return "Undefined digest." # XLANG
@@ -922,8 +931,8 @@ Return a hashref containing complete data about settings:
 sub get_setting_data {
   my $self = shift;
   my $log = new Log::In 150;
-  my (@classes, $allowed, $class, $dd, $dfl, $dig, $flag, 
-      $flagmask, $i, $out);
+  my (@classes, $allowed, $class, $dd, $df, $dfl, $dig, $flag, 
+      $flagmask, $i, $j, $out);
 
   $out = { 'classes' => [], 'flags' => [] };
 
@@ -947,7 +956,7 @@ sub get_setting_data {
 
   @classes = keys %{$self->config_get('allowed_classes')};
   $dfl = $self->config_get('default_class');
-  $dd = '';
+  $dd = $df = '';
 
   $i = 0;
   for $flag (sort keys %classes) {
@@ -960,16 +969,20 @@ sub get_setting_data {
       $dig = $self->config_get('digests');
       if ($dfl eq 'digest') {
         $dd = $dig->{'default_digest'};
+        $df = $dig->{$dd}->{'type'};
       }
       
       for $class (sort keys %$dig) {
         next if ($class eq 'default_digest');
-        $out->{'classes'}[$i]->{'name'}  = "digest-$class";
-        $out->{'classes'}[$i]->{'allow'} = $allowed;
-        $out->{'classes'}[$i]->{'default'} = 
-          ($class eq $dd) ? 1 : 0;
-        $out->{'classes'}[$i]->{'desc'}  = $dig->{$class}{'desc'};
-        $i++;
+        for $j ('index', 'mime', 'text') {
+          $out->{'classes'}[$i]->{'name'}  = "digest-$class-$j";
+          $out->{'classes'}[$i]->{'allow'} = $allowed;
+          $out->{'classes'}[$i]->{'default'} = 
+            ($class eq $dd and $j eq $df) ? 1 : 0;
+          $out->{'classes'}[$i]->{'desc'}  
+            = $dig->{$class}{'desc'} . ", $j format";
+          $i++;
+        }
       }
     }
     else {
@@ -1325,6 +1338,13 @@ sub fs_get {
   my $self  = shift;
   $self->_make_fs || return;
   $self->{'fs'}->get(@_);
+}
+
+use Mj::FileSpace;
+sub fs_legal_file_name {
+  my $self  = shift;
+  $self->_make_fs || return;
+  $self->{'fs'}->legal_file_name(@_);
 }
 
 use Mj::FileSpace;
@@ -2078,8 +2098,11 @@ sub archive_expand_range {
 
 sub archive_delete_msg {
   my $self = shift;
+  my $data;
   return unless $self->_make_archive;
-  $self->{'archive'}->remove(@_);
+  $data = $self->{'archive'}->remove(@_);
+  $self->digest_sync('ALL');
+  $data;
 }
 
 sub archive_find {
@@ -2100,8 +2123,11 @@ sub archive_summary {
 sub archive_sync {
   my $self = shift;
   my $qp = $self->config_get('quote_pattern');
+  my @out;
   return unless $self->_make_archive;
-  $self->{'archive'}->sync(@_, $qp);
+  @out = $self->{'archive'}->sync(@_, $qp);
+  $self->digest_sync('ALL');
+  @out;
 }
 
 sub count_posts {
@@ -2112,7 +2138,7 @@ sub count_posts {
   my ($tmp) = (length $sublist)? "$sublist." : '';
   return 0 unless (defined $days and $days > 0);
   return 0 unless $self->_make_archive;
-  @msgs = $self->{'archive'}->expand_range(0, $sublist . $days . "d");
+  @msgs = $self->{'archive'}->expand_range(0, $sublist . $days . "d", 0);
   return scalar @msgs;
 }
 
@@ -2145,6 +2171,32 @@ sub digest_add {
   my $self = shift;
   return unless $self->_make_digest;
   $self->{digest}->add(@_);
+}
+
+=head2 digest_sync
+
+Synchronize the contents of all digests with the corresponding
+archives.
+
+=cut
+sub digest_sync {
+  my $self = shift;
+  my (@tmp, $data, $i, $j, $msglist);
+
+  return unless $self->_make_digest;
+  $data = $self->digest_examine(@_);
+  for $i (keys %$data) {
+    # Collect the message numbers into a string.
+    for $j (@{$data->{$i}->{'messages'}}) {
+      push @tmp, $j->[0];
+    }
+    $msglist = join (" ", @tmp);
+
+    # Extract the data for each message from the archive.
+    $data->{$i}->{'messages'} =
+      [ $self->archive_expand_range(0, $msglist, 0) ];
+  }
+  $self->{digest}->sync($data);
 }
 
 =head2 digest_trigger
