@@ -1,0 +1,12 @@
+Configuration du domaine "$DOMAIN"
+
+Est ce que Majordomo doit faire une vérification stricte des domaines ?
+
+Majordomo peut effectuer des tests pour vérifier que les adresses
+email incluent un domaine racine valide.
+
+Normalement, vous devriez répondre "yes". Toutefois, si Majordomo
+est sensé tourner sur un réseau interne, il se peut que les adresses
+n'aient pas toutes de domaines qui soit valides. Si c'est le cas,
+répondez "no".
+

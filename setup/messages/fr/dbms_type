@@ -1,0 +1,8 @@
+Stockage en base de données
+
+Sur quel serveur est ce que le serveur de bases de données $DB est lancé ?
+
+Entrez "localhost" si Majordomo et le serveur de bases de données sont
+sur le même serveur. Sinon, entrez le nom de domaine du serveur de
+bases de données.
+
