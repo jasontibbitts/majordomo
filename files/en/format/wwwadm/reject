@@ -1,6 +1,6 @@
-<!-- Majordomo accept format file -->
+<!-- Majordomo reject format file -->
 <p>
-Token $TOKEN has been accepted for the following command:
+Token $TOKEN has been rejected for the following command:
 </p>
 <table>
 <tr>
@@ -19,12 +19,6 @@ Token $TOKEN has been accepted for the following command:
 </tr>
 </table>
 
-<p>
-?SUCCEED The command succeeded.
-?STALL The command stalled, and may need further approval.
-?FAIL  The command failed.
-?NOTIFY <br>The results were mailed to $VICTIM.
-</p>
+<p>?NOTIFY A notice was mailed to $VICTIM. </p>
 
 <pre>?ERROR</pre>
-

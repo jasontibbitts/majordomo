@@ -1,0 +1,9 @@
+Token $TOKEN has been rejected for the following command:
+  Command:  $CMDLINE
+  Date:     $DATE
+  Session:  $SESSIONID
+
+?NOTIFY A notice was mailed to $VICTIM.
+
+?ERROR
+

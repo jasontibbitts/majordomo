@@ -1,0 +1,22 @@
+<!-- Majordomo reject format file -->
+<p>
+Token $TOKEN has been rejected for the following command:
+</p>
+<table>
+<tr>
+  <td>Command</td>
+  <td>$CMDLINE</td>
+</tr>
+<tr>
+  <td>Date</td>
+  <td>$DATE</td>
+</tr>
+<tr>
+  <td>Session</td>
+  <td>$SESSIONID</td>
+</tr>
+</table>
+
+<p>?NOTIFY A notice was mailed to $VICTIM. </p>
+
+<pre>?ERROR</pre>

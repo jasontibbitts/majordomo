@@ -1,4 +1,4 @@
-<!-- Majordomo accept format file -->
+<!-- Majordomo accept_head format file -->
 <p>
 Token $TOKEN has been accepted for the following command:
 </p>
@@ -20,11 +20,7 @@ Token $TOKEN has been accepted for the following command:
 </table>
 
 <p>
-?SUCCEED The command succeeded.
-?STALL The command stalled, and may need further approval.
-?FAIL  The command failed.
-?NOTIFY <br>The results were mailed to $VICTIM.
+The results of the command are:
 </p>
 
-<pre>?ERROR</pre>
-
+<pre>

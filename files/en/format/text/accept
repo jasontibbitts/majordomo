@@ -1,5 +1,12 @@
-A token was accepted for the command:
-  $CMDLINE
-issued at:
-  $DATE
-from session id $SESSION.
+Token $TOKEN has been accepted for the following command:
+  Command:  $CMDLINE
+  Date:     $DATE
+  Session:  $SESSIONID
+
+?SUCCEED The command succeeded.
+?STALL The command stalled, and may need further approval.
+?FAIL  The command failed.
+?NOTIFY The results were mailed to $VICTIM.
+
+?ERROR
+

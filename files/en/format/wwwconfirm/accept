@@ -13,9 +13,7 @@ Token $TOKEN has been accepted for the following command:
 </tr>
 <tr>
   <td>Session</td>
-  <td>
-    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=sessioninfo&amp;extra=$SESSIONID>$SESSIONID</a>
-  </td>
+  <td>$SESSIONID</td>
 </tr>
 </table>
 

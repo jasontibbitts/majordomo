@@ -1,0 +1,7 @@
+Token $TOKEN has been accepted for the following command:
+  Command:  $CMDLINE
+  Date:     $DATE
+  Session:  $SESSIONID
+
+The results of the command are:
+

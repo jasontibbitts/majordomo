@@ -498,10 +498,12 @@ files/en/error/.invalid_command
 files/en/error/.invalid_list
 files/en/error/.invalid_mode
 files/en/error/.invalid_password
+files/en/error/.invalid_token
 files/en/error/.make_list
 files/en/error/.message_number
 files/en/error/.missing_mode
 files/en/error/.no_password
+files/en/error/.no_token
 files/en/error/.no_visible
 files/en/error/.not_extracted
 files/en/error/.password_length
@@ -522,10 +524,12 @@ files/en/error/invalid_command
 files/en/error/invalid_list
 files/en/error/invalid_mode
 files/en/error/invalid_password
+files/en/error/invalid_token
 files/en/error/make_list
 files/en/error/message_number
 files/en/error/missing_mode
 files/en/error/no_password
+files/en/error/no_token
 files/en/error/no_visible
 files/en/error/not_extracted
 files/en/error/password_length
@@ -545,6 +549,10 @@ files/en/format/.text
 files/en/format/.wwwadm
 files/en/format/.wwwconfirm
 files/en/format/.wwwusr
+files/en/format/text/.accept
+files/en/format/text/.accept_error
+files/en/format/text/.accept_foot
+files/en/format/text/.accept_head
 files/en/format/text/.archive_attachment
 files/en/format/text/.archive_container
 files/en/format/text/.archive_edit_foot
@@ -601,6 +609,8 @@ files/en/format/text/.lists_full
 files/en/format/text/.lists_head
 files/en/format/text/.lists_none
 files/en/format/text/.password
+files/en/format/text/.reject
+files/en/format/text/.reject_error
 files/en/format/text/.set
 files/en/format/text/.set_check
 files/en/format/text/.set_error
@@ -638,6 +648,9 @@ files/en/format/text/.who_error
 files/en/format/text/.who_foot
 files/en/format/text/.who_head
 files/en/format/text/accept
+files/en/format/text/accept_error
+files/en/format/text/accept_foot
+files/en/format/text/accept_head
 files/en/format/text/archive_attachment
 files/en/format/text/archive_container
 files/en/format/text/archive_edit_foot
@@ -694,6 +707,8 @@ files/en/format/text/lists_full
 files/en/format/text/lists_head
 files/en/format/text/lists_none
 files/en/format/text/password
+files/en/format/text/reject
+files/en/format/text/reject_error
 files/en/format/text/set
 files/en/format/text/set_check
 files/en/format/text/set_error
@@ -730,6 +745,10 @@ files/en/format/text/who
 files/en/format/text/who_error
 files/en/format/text/who_foot
 files/en/format/text/who_head
+files/en/format/wwwadm/.accept
+files/en/format/wwwadm/.accept_error
+files/en/format/wwwadm/.accept_foot
+files/en/format/wwwadm/.accept_head
 files/en/format/wwwadm/.archive_attachment
 files/en/format/wwwadm/.archive_container
 files/en/format/wwwadm/.archive_edit_foot
@@ -793,6 +812,8 @@ files/en/format/wwwadm/.lists_none
 files/en/format/wwwadm/.login
 files/en/format/wwwadm/.newlist
 files/en/format/wwwadm/.password
+files/en/format/wwwadm/.reject
+files/en/format/wwwadm/.reject_error
 files/en/format/wwwadm/.set
 files/en/format/wwwadm/.set_check
 files/en/format/wwwadm/.set_error
@@ -835,6 +856,9 @@ files/en/format/wwwadm/.who_error
 files/en/format/wwwadm/.who_foot
 files/en/format/wwwadm/.who_head
 files/en/format/wwwadm/accept
+files/en/format/wwwadm/accept_error
+files/en/format/wwwadm/accept_foot
+files/en/format/wwwadm/accept_head
 files/en/format/wwwadm/archive_attachment
 files/en/format/wwwadm/archive_container
 files/en/format/wwwadm/archive_edit_foot
@@ -898,6 +922,8 @@ files/en/format/wwwadm/lists_none
 files/en/format/wwwadm/login
 files/en/format/wwwadm/newlist
 files/en/format/wwwadm/password
+files/en/format/wwwadm/reject
+files/en/format/wwwadm/reject_error
 files/en/format/wwwadm/set
 files/en/format/wwwadm/set_check
 files/en/format/wwwadm/set_error
@@ -940,6 +966,10 @@ files/en/format/wwwadm/who
 files/en/format/wwwadm/who_error
 files/en/format/wwwadm/who_foot
 files/en/format/wwwadm/who_head
+files/en/format/wwwconfirm/.accept
+files/en/format/wwwconfirm/.accept_error
+files/en/format/wwwconfirm/.accept_foot
+files/en/format/wwwconfirm/.accept_head
 files/en/format/wwwconfirm/.archive_attachment
 files/en/format/wwwconfirm/.archive_container
 files/en/format/wwwconfirm/.archive_edit_foot
@@ -986,6 +1016,8 @@ files/en/format/wwwconfirm/.lists_head
 files/en/format/wwwconfirm/.lists_none
 files/en/format/wwwconfirm/.login
 files/en/format/wwwconfirm/.password
+files/en/format/wwwconfirm/.reject
+files/en/format/wwwconfirm/.reject_error
 files/en/format/wwwconfirm/.set
 files/en/format/wwwconfirm/.set_check
 files/en/format/wwwconfirm/.set_error
@@ -1023,6 +1055,10 @@ files/en/format/wwwconfirm/.who
 files/en/format/wwwconfirm/.who_error
 files/en/format/wwwconfirm/.who_foot
 files/en/format/wwwconfirm/.who_head
+files/en/format/wwwconfirm/accept
+files/en/format/wwwconfirm/accept_error
+files/en/format/wwwconfirm/accept_foot
+files/en/format/wwwconfirm/accept_head
 files/en/format/wwwconfirm/archive_attachment
 files/en/format/wwwconfirm/archive_container
 files/en/format/wwwconfirm/archive_edit_foot
@@ -1069,6 +1105,8 @@ files/en/format/wwwconfirm/lists_head
 files/en/format/wwwconfirm/lists_none
 files/en/format/wwwconfirm/login
 files/en/format/wwwconfirm/password
+files/en/format/wwwconfirm/reject
+files/en/format/wwwconfirm/reject_error
 files/en/format/wwwconfirm/set
 files/en/format/wwwconfirm/set_check
 files/en/format/wwwconfirm/set_error
