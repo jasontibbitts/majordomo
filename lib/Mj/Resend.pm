@@ -525,6 +525,7 @@ sub _post {
          VERSION  => $Majordomo::VERSION,
          SENDER   => "$user",
          USER     => "$user",
+         SUBSCRIBED => ($avars{'days_since_subscribe'} < 0) ? "not" : "",
          SEQNO    => $seqno,
          ARCHIVE  => $msgnum,
          SUBJECT  => $subject,
