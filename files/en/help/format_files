@@ -199,6 +199,50 @@ at the bottom of every web page.
 (standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, PASSWORD, USER)
 
 
+get_edit_foot
+-------------
+(text, wwwadm)  This file displays command information, either the
+end of a put command, or an HTML form, that allows a document
+to be edited and replaced easily.
+
+(standard plus CGIDATA, CGIURL, CMDARGS, CMDLINE, DESCRIPTION, 
+PASSWORD, REPLACECMD, USER)
+
+
+get_edit_head
+-------------
+(text, wwwadm)  This file displays command information, either the
+beginning of a put command, or an HTML form, that allows a document
+to be edited and replaced easily.
+
+(standard plus CGIDATA, CGIURL, CMDARGS, CMDLINE, DESCRIPTION, 
+PASSWORD, REPLACECMD, USER)
+
+
+get_error
+---------
+(text, wwwadm, wwwusr)  This file displays an error when the faq,
+get, info, or intro command fails.
+
+(standard plus COMMAND, ERROR)
+
+
+get_foot
+--------
+(text, wwwadm, wwwusr)  This file displays supplementary information when
+a document is displayed by the faq, get, info, or intro command.
+
+(standard plus CGIDATA, CGIURL, DESCRIPTION, PASSWORD, USER)
+
+
+get_head
+--------
+(text, wwwadm, wwwusr)  This file displays preliminary information when
+a document is displayed by the faq, get, info, or intro command.
+
+(standard plus CGIDATA, CGIURL, DESCRIPTION, PASSWORD, USER)
+
+
 head
 ----
 (wwwadm, wwwconfirm, wwwusr)  This file displays supplementary information
