@@ -184,12 +184,13 @@ sub probe {
   my $list    = shift;
   my $sender  = shift;
   my $classes = shift;
+  my $sublist = shift || 'MAIN';
 
   return unless $self->_make_list($list);
 
   my %args =
     (list    => $self->{'lists'}{$list},
-     sublist => '',
+     sublist => $sublist,
      sender  => $sender,
      classes => $classes,
      rules   => $self->_list_config_get($list,'delivery_rules'),
