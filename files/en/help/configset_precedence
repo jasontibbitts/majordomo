@@ -11,19 +11,27 @@ EXAMPLE:
 configset listname precedence = bulk
 
 
-Put a precedence header with value <value> into the outgoing message.
+$INCLUDE-config/precedence
 
-NOTE: This command can be duplicated with the more general command
-"configset message_headers", which for the example above would look
-like this:
-configset listname message_headers <<END
-Precedence: bulk
-END
+The Precedence header is important because it reduces the likelihood
+that vacation notices will be sent to your mailing list, which could
+potentially cause a mail loop.
+
+A more general way to replace headers in posted messages is to use the
+delete_headers configuration setting to remove existing headers, and to
+add headers using the message_headers configuration setting.  If you use
+those two settings to change the Precedence headers of messages, the
+precedence setting should be changed to contain an empty value.
+Otherwise, duplicate Precedence headers may appear in the messages.
+See "help admin_delivery" for an example of using the delete_headers and
+message_headers settings together.
 
 
 See Also:
-   help configset message_headers (for how to add arbitrary headers)
+   help admin_delivery
+   help configset_delete_headers
+   help configset_message_headers
+   help configset_reply_to
+   help configset_subject_prefix
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

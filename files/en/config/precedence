@@ -1,1 +1,3 @@
-Put a precedence header with value <value> into the outgoing message.
+The precedence setting, unless it is empty, will cause a Precedence
+header with this value to be added to each posted message and to each
+digest that is delivered to the subscribers.
