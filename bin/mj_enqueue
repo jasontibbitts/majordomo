@@ -36,6 +36,7 @@ use Socket;
 #use Fcntl qw(:flock :DEFAULT);
 use Getopt::Std;
 use strict;
+require "sysexits.ph";
 
 
 sub logmsg { print STDERR "[$$].Enqueue: @_\n"; }
@@ -118,7 +119,15 @@ print OUT $line unless $line =~ /^From /;
 while (defined($line = <STDIN>)) {
   print OUT $line;
 }
-close OUT;  # Also unlocks.
+$ok = close OUT;  # Also unlocks.
+unless ($ok) {
+  # untaint
+  my ($abandoned) = "$qdir/$qfile";
+  $abandoned =~ /(.*)/;
+  $abandoned = $1;
+  unlink "$abandoned";
+  exit &EX_IOERR;
+}
 
 # Now start up the server.  We must exit 0 from here on out (no dying)
 # because the file has already been queued and a runner will pick it up
