@@ -25,9 +25,8 @@ Place a link in cgi-bin and configure Majordomo with the proper URL.
 
 When issuing tokens, Majordomo can provide the user with a URL to
 visit to accept the token easily.  This script sits at that URL and
-receives tokens to accept or deny.  If no token is provided, a text
-field is presented where a token can be typed.  If no action is
-provided, a radio control will be presented.
+receives tokens to accept or deny.  If no token or action is provided, 
+instructions will be displayed. 
 
 =cut
 use lib "$::LIBDIR";
@@ -37,9 +36,9 @@ use Majordomo;
 use Mj::Format;
 use Mj::Log;
 
-my ($data, @args, $action, $approvals, $cgi, $cmdline, $date, $domain,
-    $error, $expire, $mess, $mj, $ok, $ptoken, $result, $request, 
-    $requester, $sess, $site_name, $token, $time, $tprefix, $ttype, $type);
+my (%commands, $action, $cgi, $cgidata, $cgiurl, $domain, $func, 
+    $i, $mess, $mj, $mode, $ok, $ptoken, $result, $request, 
+    $sess, $str, $subs, $tmp, $token, $user);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
@@ -50,7 +49,7 @@ $::log = new Mj::Log;
 $::log->add
   (
    method      => 'handle',
-   id          => 'mjwc',
+   id          => 'wwwconfirm',
    handle      => \*STDERR,
    level       => 500,
    subsystem   => 'mail',
@@ -59,235 +58,160 @@ $::log->add
    log_args    => 1,
   );
 
-$::log->in(20, undef, "info", "Majordomo webconfirm client - ".scalar(localtime));
+$::log->in(20, undef, "info", "Majordomo wwwconfirm client - ".scalar(localtime));
 $::log->startup_time();
+
+#----- Which commands are supported ?  -----#
+# First value:  Should the result be preformatted?
+%commands = (  
+               'accept'    => [1],
+               'reject'    => [1],
+               'tokeninfo' => [0],
+               'welcome'   => [0],
+            );
 
 # Start up the page and parse the URL
 $cgi = new CGI;
 print $cgi->header;
+$cgiurl = $cgi->script_name . $cgi->path_info;
+
 $ptoken = $cgi->param('t');
-$action = $cgi->param('a');
+$action = $cgi->param('a') || 'welcome';
 $domain = $cgi->param('d');
-$domain =~ /([a-zA-Z0-9\-\.]+)/;
-$domain = $1;
-
-
-# Make the Majordomo object
-$::mj = new Majordomo $::LISTDIR, $domain;
-$mj = $::mj;
-unless (ref $mj) {
-  print <<EOM; 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
-"http://www.w3.org/TR/REC-html40/strict.dtd">
-<html><head>
-<title>Majordomo 2 Token Confirmation: Error</title>
-</head>
-<body>
-<h2>Error: $mj</h2>
-</body></html>
-EOM
-  exit 0;
+unless ($domain) {
+  ($domain) = Majordomo::domains($::LISTDIR);
 }
+$domain =~ /([a-zA-Z0-9\.\-]+)/; $domain = $1;
 
-# Generate the session information
-for my $i (keys(%ENV)) {
-  $sess .= "$i = $ENV{$i}\n";
+
+#----- Make the Majordomo object -----#
+$mj = new Majordomo $::LISTDIR, $domain;
+&surrender($mj) unless (ref $mj);
+
+#----- Generate the session information. -----#
+for $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
+  $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
 }
-$sess .= $cgi->dump('true');
+$sess .= scalar(localtime(time)) . "\n";
 
-($ok, $mess) = $mj->connect('webconfirm', $sess);
-unless ($ok) {
-  print <<EOM; 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
-"http://www.w3.org/TR/REC-html40/strict.dtd">
-<html><head>
-<title>Majordomo 2 Token Confirmation: Error</title>
-</head>
-<body>
-<h2>Error: $mess</h2>
-</body></html>
-EOM
-  exit 0;
-}
+#----- Connect to the server -----#
+($ok, $mess) = $mj->connect('wwwconfirm', $sess);
+&surrender($mess) unless $ok; 
 
-# Extract some useful configuration variables
-$site_name =
-  $mj->global_config_get(undef, undef, "site_name");
+#----- Collect some useful substitution variables -----#
+$user = "z$ENV{'REMOTE_ADDR'}\@example.com";
+$cgidata = sprintf 'domain=%s&user=%s', $domain, $user;
 
-# Parse the token and extract some useful data from it
 $token = $mj->t_recognize($ptoken) || "";
-$ok = 0;
+
+$subs = { $mj->standard_subs('GLOBAL'),
+          'CGIDATA'   => $cgidata,
+          'CGIURL'    => $cgiurl,
+          'COMMAND'   => $action,
+          'PASSWORD'  => '',
+          'TOKEN'     => $token,
+          'USER'      => $user,
+        };
+
+
+#----- Print the header -----#
+$tmp = $mj->format_get_string('wwwconfirm', 'head');
+$str = $mj->substitute_vars_format($tmp, $subs);
+print "$str\n";
+
+#----- Determine what service was requested -----#
+# Extract "mode" from command name
+if ($action =~ /([^\s=-]+)[=-](.*)/) {
+  $func = $1;
+  $mode = $2;
+}
+else { 
+  $action =~ /(.*)/; $action = $1;
+  $func = $action;
+  $mode = '';
+}
+
+unless (exists $commands{$func}) {
+  &usage($mj, $subs, "$action is an unsupported command.");
+}
+
+if ($func eq 'welcome') {
+  &usage($mj, $subs, '');
+}
 
 $request = {
-    'command'   => 'tokeninfo',
-    'list'      => '',
-    'mode'      => '',
-    'password'  => '',
-    'user'      => 'unknown@anonymous',
-    'token'     => $token,
-    'tokens'    => [$token]
+  'cgiurl'    => $cgiurl,
+  'command'   => $func,
+  'list'      => 'GLOBAL',
+  'mode'      => $mode,
+  'password'  => '',
+  'token'     => $token,
+  'tokens'    => [$token],
+  'user'      => $user,
 };
-if ($token) {
-  ($ok, $data, $sess) = @{$mj->dispatch($request)};
-}
 
-# We head the page with an error if we have one
-$error = "";
-if ($ptoken && (!$token || !$ok)) {
-  $error = "Invalid token \"$ptoken\"!";
-  $token = "";
-}
+no strict 'refs';
+$result = $mj->dispatch($request); 
+&usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
+print "<pre><small>\n" if ($commands{$func}->[0]);
+&{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwconfirm', $request, $result);
+print "</small></pre>\n" if ($commands{$func}->[0]);;
 
-# Now build a page
-if (!$token || !$action) {
-  if ($error) {
-    $error="<b><i>Error: $error</i></b><p>\n";
-  }
-  
-  # If we have a legal token, we can show some information about it
-  # and hide the entry box
-  if ($ok) {
-    $ttype   = "hidden";
-    $time    = localtime($data->{'time'});
-    $expire  = localtime($data->{'expire'});
-    $tprefix =<<EOF;
-<table>
-<tr>
-<td align=right><b>Token:</b></td>
-<td><tt>$token</tt></td>
-<tr>
-<td align=right><b>Request:</b></td>
-<td><tt>$data->{'cmdline'}</tt></td>
-<tr>
-<td align=right><b>Submitted:</b></td>
-<td><i>$time</i></td>
-<tr>
-<td align=right><b>Expires:</b></td>
-<td><i>$expire</i></td>
-<tr>
-<td align=right><b>By:</b></td>
-<td><i>$data->{'user'}</i></td>
-</table>
-
-EOF
-  }  
-  else {
-    $tprefix="<b>Confirmation token:</b>";
-    $ttype="text";
-  }
-  
-  print <<EOF;
-<html>
-<head>
-<title>
-Request Confirmation
-</title>
-</head>
-<body>
-$error
-<h1>Majordomo Request Confirmation</h1>
-<form method=post>
-<input name=\"d\" type=\"hidden\" value=\"$domain\">
-$tprefix <input name=\"t\" type=\"$ttype\" value=\"$token\"><p>
-<table>
-<tr>
-<td><b>Action:</b><br></td>
-<td><input type=\"radio\" value=\"info\" name=\"a\"> Get more info<br>
-    <input type=\"radio\" value=\"accept\" name=\"a\"> Accept<br>
-    <input type=\"radio\" value=\"reject\" name=\"a\"> Reject<br>
-</td></tr></table>
-<input type=\"submit\" value=\"Click here to process\">
-</form>
-</body>
-</html>
-EOF
-  
-}
-
-# We have all the arge we need; accept or reject and display the
-# results
-else {
-
-  # Start the page
-  print <<EOF;
-<html>
-<head>
-<title>Request Confirmation Results</title>
-</head>
-<body>
-<h1>Majordomo Request Confirmation Results</h1>
-EOF
-
-  # Call the appropriate function
-  if ($action eq "accept") {
-    print '<pre>';
-    $request->{'command'} = "accept";
-    Mj::Format::accept($mj, \*STDOUT, \*STDOUT, 'html', $request,
-			 $mj->dispatch($request));
-  }
-  elsif ($action eq "reject") {
-    print '<pre>';
-    $request->{'command'} = "reject";
-    Mj::Format::reject($mj, \*STDOUT, \*STDOUT, 'html', $request,
-			 $mj->dispatch($request));
-  }
-  elsif ($action eq "info") {
-    $time    = localtime($data->{'time'});
-    $expire  = localtime($data->{'expire'});
-    print <<EOF;
-<table>
-<tr>
-<td align=right><b>Token:</b></td>
-<td><tt>$token</tt></td>
-<tr>
-<td align=right><b>Type:</b></td>
-<td><i>$data->{'type'}</i></td>
-<tr>
-<td aligh=right><b>Approvals required:</b></td>
-<td><i>$data->{'approvals'}</i></td>
-<tr>
-<td align=right><b>Request:</b></td>
-<td><tt>$data->{'cmdline'}</tt></td>
-<tr>
-<td align=right><b>Submitted:</b></td>
-<td><i>$time</i></td>
-<tr>
-<td align=right><b>Expires:</b></td>
-<td><i>$expire</i></td>
-<tr>
-<td align=right><b>By:</b></td>
-<td><i>$data->{'user'}</i></td>
-</table>
-<hr>
-<b>Session information:</b><p>
-<pre>
-EOF
-    if ($sess) {
-      $request->{'sessionid'} = $data->{'sessionid'};
-      Mj::Format::sessioninfo($mj, \*STDOUT, \*STDOUT, 'html', $request, [1, '']);
-    }
-  }
-  else {
-    print "Undefined action!\n";
-  }
-  print <<EOF;
-</pre>
-</body>
-</html>
-EOF
-  
-}
-
-sub escape {
-  local $_ = shift;
-  my %esc = ( '&'=>'amp', '"'=>'quot', '<'=>'lt', '>'=>'gt');
-  s/([<>\"&])/\&$esc{$1};/mg; 
-  s/([\x80-\xFF])/'&#'.unpack('C',$1).';'/eg;
-  $_;
-}
+$tmp = $mj->format_get_string('wwwconfirm', 'foot');
+$str = $mj->substitute_vars_format($tmp, $subs);
+print STDOUT "$str\n";
 
 $::log->out;
 exit 0;
+
+#----- Subroutines -----#
+
+sub usage {
+  my ($mj, $subs, $message) = @_;
+  my ($str, $tmp);
+
+  $subs->{'ERROR'} = $message;
+  $::log->message(50, "info", $message) if $message;
+
+  $tmp = $mj->format_get_string('wwwconfirm', 'welcome');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+
+  $tmp = $mj->format_get_string('wwwconfirm', 'foot');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+  
+  exit 1;
+}
+
+sub surrender {
+  my ($message) = shift;
+  $::log->message(50, "info", $message) if $message;
+
+  print <<EOM;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd">
+<html><head>
+<title>Majordomo 2 WWW for List Owners: Error</title>
+</head>
+<body>
+<h2>Majordomo Error</h2>
+$message
+EOM
+
+  if (defined $subs and exists $subs->{'MJOWNER'}) {
+    print <<EOM;
+Please contact 
+<a href="mailto:$subs->{'MJOWNER'}">$subs->{'MJOWNER'}</a>
+ for assistance.
+EOM
+  }
+
+print "</body></html>\n";
+
+  exit 0;
+}
+
 
 =head1 COPYRIGHT
 
