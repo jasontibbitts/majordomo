@@ -9,55 +9,49 @@
 <table cellspacing="8" width="100%">
 <tr>
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=welcome">
-     <font size="-1" color="#f0f0f0">
-     Introduction</font></a>
-
-  </td>
-  <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=login">
+    <a href="$CGIURL?$CGIDATA&list=$LIST&func=login">
      <font size="-1" color="#f0f0f0">
      Sign In</font></a>
 
   </td>
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=logout">
+    <a href="$CGIURL?$CGIDATA&list=$LIST&func=logout">
      <font size="-1" color="#f0f0f0">
      Sign Out</font></a>
 
   </td>
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=showtokens">
+    <a href="$CGIURL?$CGIDATA&list=$LIST&func=showtokens">
      <font size="-1" color="#f0f0f0">
      Moderation</font></a>
 
   </td>
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=who&chunksize=20">
+    <a href="$CGIURL?$CGIDATA&list=$LIST&func=who&chunksize=20">
      <font size="-1" color="#f0f0f0">
      Subscribers</font></a>
 
   </td>
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=configshow-categories">
+    <a href="$CGIURL?$CGIDATA&list=$LIST&func=configshow-categories">
      <font size="-1" color="#f0f0f0">
      Configuration</font></a>
 
   </td>
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=lists-full-long&extra=$LIST">
+    <a href="$CGIURL?$CGIDATA&list=$LIST&func=lists-full-long&extra=$LIST">
      <font size="-1" color="#f0f0f0">
      List Info</font></a>
 
   </td>
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=command">
+    <a href="$CGIURL?$CGIDATA&list=$LIST&func=command">
      <font size="-1" color="#f0f0f0">
      Command Form</font></a>
 
   </td>
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=help&extra=help">
+    <a href="$CGIURL?$CGIDATA&list=$LIST&func=welcome">
      <font size="-1" color="#f0f0f0">
      Help</font></a>
   </td>
