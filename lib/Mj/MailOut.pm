@@ -274,7 +274,7 @@ sub handle_bounce {
   my ($self, $list, $file) = @_;
   my $log  = new Log::In 30, "$list";
 
-  my (@bouncers, @owners, $data, $diag, $ent, $fh, $handled, $handler, $i,
+  my (@bouncers, @owners, $addrs, $data, $diag, $ent, $fh, $handled, $handler, $i,
       $lsender, $mess, $msgno, $nent, $parser, $sender, $subj, $tmp,
       $tmpdir, $type, $whoami);
 
@@ -289,6 +289,7 @@ sub handle_bounce {
   # Extract information from the envelope, if any, and parse the bounce.
   $whoami = $self->_global_config_get('whoami');
   $whoami =~ s/\@.*$//;
+  $addrs  = '';
 
   if (defined $ent) {
   ($type, $msgno, $user, $handler, $data) =
@@ -348,9 +349,11 @@ sub handle_bounce {
 
       if ($subj) {
 	$subj .= ", $i";
+        $addrs .= ", $i";
       }
       else {
 	$subj  = "Bounce detected from $i";
+        $addrs = $i;
       }
     }
 
@@ -384,7 +387,7 @@ sub handle_bounce {
   $nent->purge if $nent;
 
   # Tell the caller whether or not we handled the bounce
-  ($handled, $user);
+  ($handled, $addrs);
 }
 
 =head2 handle_bounce_token
