@@ -673,68 +673,17 @@ sub t_accept {
   $vict = new Mj::Addr($data->{'victim'});
   $req  = new Mj::Addr($data->{'user'});
 
-  if ($func ne 'post' or $mode =~ /archive/) {
-  
-    $func = "_$func";
-    @out = $self->$func($data->{'list'},
-                        $req,
-                        $vict,
-                        $data->{'mode'},
-                        $data->{'cmdline'},
-                        $data->{'arg1'},
-                        $data->{'arg2'},
-                        $data->{'arg3'},
-                       );
-  }
-  else {
-    if (! -r $data->{'arg1'}) {
-      # missing spool file; inform and quit.
-      $self->inform("GLOBAL", "post", $data->{'user'}, $data->{'user'},
-        $data->{'cmdline'}, "resend",
-        0, 0, -1, "Spool file $data->{'arg1'} is missing; cannot requeue.",
-        $::log->elapsed);
-      @out = (0, "Unable to locate the posted message.\n");
-    }
-    else {
-      # To respond to the request faster, add an Approved header
-      # and requeue the message.  
+  $func = "_$func";
+  @out = $self->$func($data->{'list'},
+                      $req,
+                      $vict,
+                      $data->{'mode'},
+                      $data->{'cmdline'},
+                      $data->{'arg1'},
+                      $data->{'arg2'},
+                      $data->{'arg3'},
+                     );
 
-      # Obtain sender and list (with possible sublist) addresses.
-      $sender = $self->_list_config_get($data->{'list'}, 'sender');
-      $tmpdir = $self->_global_config_get('tmpdir');
-
-      # Reconstruct the list address.
-      my %avars = split("\002", $data->{'arg3'});
-      $whoami = $data->{'list'};
-      $data->{'sublist'} = $avars{'sublist'} || '';
-      if ($avars{'sublist'} ne '') {
-        $whoami .=  "-$avars{'sublist'}";
-      }
-      $whoami .=  '@' . $self->_list_config_get($data->{'list'}, 'whereami');
-
-      # Set up a parser to add headers to the message.
-      my $parser = new Mj::MIMEParser;
-      $parser->output_to_core($self->_global_config_get("max_in_core"));
-      $parser->output_dir($tmpdir);
-      $parser->output_prefix("mjq");
-
-      my $pw = $self->_list_config_get($data->{'list'}, "master_password"); 
-      # Add or replace the Approved header, and mail the message. 
-      # Remove the Delivered-To header if it exists.
-      $ok = $parser->replace_headers($data->{'arg1'}, 
-                                     'Approved' => $pw,
-                                     '-Delivered-To' => '');
-      if ($ok and $sender and $whoami) {
-        $self->mail_message($sender, $data->{'arg1'}, $whoami);
-        @out = (1, "The message was requeued and will be delivered soon.\n");
-        # Delete the spool file.
-        unlink $data->{'arg1'};
-      }
-      else {
-        @out = (0, "The message could not be requeued.\n");
-      }
-    }
-  }
   # Nuke the token
   $self->t_remove($token);
 
