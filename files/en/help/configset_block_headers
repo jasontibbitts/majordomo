@@ -20,12 +20,32 @@ If any of the headers in a message sent to one of the list server addresses
 matches one of these regular expressions, the message will be forwarded to
 the list owners instead of being parsed for commands.
 
+The server will forward any message with an "X-Loop" header (regardless of
+the content of the header) that is sent to one of the server aliases to the
+owner instead. Server aliases include addresses like majordomo@xxx.com,
+listname-request@xxx.com, listname-subscribe@xxx.com, etc., depending on
+various MTA settings and configuration choices. Trapping X-Loop prevents
+a mail loop if a confirmation request has been sent to an administrative
+address, because an X-Loop header is added to Confirm, Consult, and Reminder
+messages (only) REGARDLESS of how "configset message_headers" is configured.
+These messages are a serious problem because they contain unquoted majordomo
+commands.  A new token may be created each time a message loops, so stopping
+loops is critical enough to justify adding and trapping special headers.
+
+Sympa and Smartlist both use X-Loop.  Listar uses X-listar-antiloop,
+and Mailman uses X-BeenThere and List-Id headers.  Having an
+Mj2-specific header would allow more definite control, but supporting
+X-Loop is a step toward creating a standard, since other software uses it.
+List owners are encouraged to add an X-Loop header to outgoing posts,
+using "configset message_headers", as an additional safety precaution.
+See "help configset message_headers" for details.
+
 
 See Also:
    help configset access_rules
    help configset admin_body
    help configset admin_headers
-   help configset block_headers (for how to block server commands)
+   help configset message_headers
    help configset taboo_body
    help configset taboo_headers
 

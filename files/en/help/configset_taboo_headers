@@ -31,6 +31,10 @@ see "admin_" in that help file.
 See "help configset access_rules" for how to send informative messages
 when one of the taboo_headers lines matches.
 
+There are other header traps in place: See "help configset block_headers"
+for a description of headers which are both added and looked for.
+(Specifically, X-Loop has special meaning!)
+
 
 See Also:
    help configset access_rules

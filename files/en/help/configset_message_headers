@@ -28,6 +28,14 @@ when a regular list is specified, or to the headers of replies
 from the server (such as token confirmation requests) when the
 GLOBAL pseudo-list is specified.
 
+There are header traps in place: See "help configset block_headers"
+for a description of headers which are both added and looked for.
+(Specifically, X-Loop has special meaning!) List owners are encouraged
+to add an X-Loop header to outgoing posts, using "configset message_headers",
+as an additional safety precaution. This is a good place to include
+an evaluated variable for the list name (so filters can always figure
+out which list the post came from) and perhaps a sequence number.
+
 WARNING: A "Reply-To" header is REQUIRED for the GLOBAL pseudo-list
 to function properly. Make sure you don't delete it if you replace
 the defaults! This will be the address that confirmation tokens
@@ -46,6 +54,7 @@ which are supported.
 
 
 See Also:
+   help configset block_headers (for how to block server commands)
    help configset reply_to
    help configset sender
    help variables (for a list of all possible variables and what they mean)
