@@ -315,7 +315,7 @@ sub parse_command {
     ($command, $args) = split(" ", $args, 2);
     if ($command =~ /^password|passwd$/) {
       $dfl->{'password'} = $args || '';
-      if (length($args)) {
+      if (defined $args and length $args) {
 	print STDERR "Default password set to \"$dfl->{'password'}\".\n";
       }
       else {
