@@ -8,8 +8,8 @@ ackreject, and ackstall flags for the person who posted the message
 
 There are five values that can be used to determine which
 acknowledgements will include a copy of a posted message:
-  fail    - acks for messages denied by the access rules
-  reject  - acks for messages rejected by the moderators
-  stall   - acks for messages that are held for moderation
-  succeed - acks for messages that are successfully delivered
-  all     - all acknowledgements
+  all         all acknowledgements
+  fail        acks for messages denied by the access rules
+  reject      acks for messages rejected by the moderators
+  stall       acks for messages that are held for moderation
+  succeed     acks for messages that are successfully delivered
