@@ -273,7 +273,7 @@ sub configset {
 sub configshow {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
-  my ($array, $auto, $enum, $flags, $gen, $gsubs, $list, $mess, 
+  my ($array, $auto, $enum, $gen, $gsubs, $list, $mess, 
       $mode, $mode2, $ok, $short, $str, $subs,
       $tag, $tmp, $val, $var, $varresult);
 
@@ -336,7 +336,6 @@ sub configshow {
   $gen   = $mj->format_get_string($type, 'configshow');
   $array = $mj->format_get_string($type, 'configshow_array');
   $enum  = $mj->format_get_string($type, 'configshow_enum');
-  $flags = $mj->format_get_string($type, 'configshow_flags');
   $short = $mj->format_get_string($type, 'configshow_short');
 
   for $varresult (@$result) {
@@ -425,8 +424,8 @@ sub configshow {
       if ($vardata->{'type'} =~ /^(integer|word|pw|bool)$/) {
         $tmp = $short;
       }
-      elsif ($vardata->{'type'} =~ /^(enum|flags)$/) {
-        $tmp = ($vardata->{'type'} eq 'enum') ? $enum : $flags;
+      elsif ($vardata->{'type'} =~ /^(enum)$/) {
+        $tmp = $enum;
         @possible = sort @{$vardata->{'values'}};
         if ($type =~ /^www/) {
           $subs->{'SETTINGS'} = [@possible];
@@ -549,7 +548,7 @@ sub intro {g_get("Intro failed.", @_)}
 sub help {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, $request->{'topic'};
-  my ($cgiurl, $chunk, $chunksize, $domain, $topic);
+  my ($cgidata, $cgiurl, $chunk, $chunksize, $domain, $topic);
   my ($ok, $mess) = @$result;
 
   select $out;
@@ -562,6 +561,7 @@ sub help {
                                       "chunksize");
   return unless $chunksize;
 
+  $cgidata = cgidata($mj, $request);
   $cgiurl = $request->{'cgiurl'};
   $domain = $mj->{'domain'};
 
@@ -574,7 +574,7 @@ sub help {
       $chunk = escape($chunk);
       $chunk =~ s/(\s{3}|&quot;)(help\s)(configset|admin|mj) (?=\w)/$1$2$3_/g;
       $chunk =~ 
-       s#(\s{3}|&quot;)(help\s)(\w+)#$1$2<a href="$cgiurl?domain=$domain&func=help&extra=$3">$3</a>#g;
+       s#(\s{3}|&quot;)(help\s)(\w+)#$1$2<a href="$cgiurl?\&${cgidata}\&func=help\&extra=$3">$3</a>#g;
     }
     print $chunk;
   }
@@ -674,6 +674,7 @@ sub lists {
            'CGIDATA' => cgidata($mj, $request),
            'CGIURL' => $request->{'cgiurl'},
            'PASSWORD' => $request->{'password'},
+           'PATTERN'       => $request->{'regexp'},
            'USER'     => escape("$request->{'user'}", $type),
           };
 
@@ -755,15 +756,8 @@ sub lists {
   }
   else {
     # No lists were found.
-    $subs = { 
-              %{$global_subs},
-              'CGIURL'        => $request->{'cgiurl'} || "?",
-              'PASSWORD'      => $request->{'password'},
-              'PATTERN'       => $request->{'regexp'},
-              'USER'          => escape("$request->{'user'}", $type),
-            };
     $tmp = $mj->format_get_string($type, 'lists_none');
-    $str = $mj->substitute_vars_format($tmp, $subs);
+    $str = $mj->substitute_vars_format($tmp, $global_subs);
     print $out "$str\n";
   }
 
@@ -1045,27 +1039,74 @@ sub report {
      
         eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
       }
+      elsif ($request->{'list'} eq 'ALL') {
+        
+        # keep both per-list counts and overall totals for each command.
+        $stats{$data->[1]}{$data->[0]}{1}  ||= 0;
+        $stats{$data->[1]}{$data->[0]}{-1} ||= 0;
+        $stats{$data->[1]}{$data->[0]}{0}  ||= 0;
+        $stats{$data->[1]}{$data->[0]}{'time'} ||= 0;
+        $stats{$data->[1]}{$data->[0]}{$data->[6]}++;
+        $stats{$data->[1]}{$data->[0]}{'TOTAL'}++;
+        $stats{$data->[1]}{$data->[0]}{'time'} += $data->[10];
+
+        $stats{$data->[1]}{'TOTAL'}{1}  ||= 0;
+        $stats{$data->[1]}{'TOTAL'}{-1} ||= 0;
+        $stats{$data->[1]}{'TOTAL'}{0}  ||= 0;
+        $stats{$data->[1]}{'TOTAL'}{'time'} ||= 0;
+        $stats{$data->[1]}{'TOTAL'}{$data->[6]}++;
+        $stats{$data->[1]}{'TOTAL'}{'TOTAL'}++;
+        $stats{$data->[1]}{'TOTAL'}{'time'} += $data->[10];
+      }
       else {
         $stats{$data->[1]}{1}  ||= 0;
         $stats{$data->[1]}{-1} ||= 0;
         $stats{$data->[1]}{0}  ||= 0;
+        $stats{$data->[1]}{'time'}  ||= 0;
         $stats{$data->[1]}{$data->[6]}++;
-        $stats{$data->[1]}{'total'}++;
+        $stats{$data->[1]}{'TOTAL'}++;
+        $stats{$data->[1]}{'time'} += $data->[10];
       }
     }
   }
   if ($request->{'mode'} =~ /summary/) {
     if (scalar keys %stats) {
-      $mess = sprintf "     Command: Total    Succeed Stall Fail\n";
+      if ($request->{'list'} eq 'ALL') {
+        $mess = "     Command:" . " "x17 . 
+                "List Total Succeed Stall  Fail   Time\n";
+      }
+      else {
+        $mess = "     Command: Total Succeed Stall  Fail   Time\n";
+      }
     }
     else {
       $mess = "There was no activity.\n";
     }
     eprint($out, $type, indicate($mess, $ok, 1));
+
     for $end (sort keys %stats) {
-      $mess = sprintf "%12s: %4d    %7d %5d %4d\n", $end, $stats{$end}{'total'},
-        $stats{$end}{1}, $stats{$end}{'-1'}, $stats{$end}{'0'};
-      eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+      if ($request->{'list'} eq  'ALL') {
+        for $begin (sort keys %{$stats{$end}}) {
+          # next if key is TOTAL and request is GLOBAL only.
+          $mess = sprintf "%12s: %20s %5d   %5d %5d %5d %6.3f\n", 
+                                 $end, $begin,
+                                 $stats{$end}{$begin}{'TOTAL'},
+                                 $stats{$end}{$begin}{1},
+                                 $stats{$end}{$begin}{'-1'}, 
+                                 $stats{$end}{$begin}{'0'},
+                                 $stats{$end}{$begin}{'time'} / 
+                                 $stats{$end}{$begin}{'TOTAL'};
+          eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+        }
+      }
+      else {
+        $mess = sprintf "%12s: %5d   %5d %5d %5d %6.3f\n", 
+                           $end, $stats{$end}{'TOTAL'}, $stats{$end}{1}, 
+                           $stats{$end}{'-1'}, $stats{$end}{'0'},
+                           $stats{$end}{'time'} / 
+                           $stats{$end}{'TOTAL'};
+        eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+      }
     }
   }
 
@@ -1187,8 +1228,6 @@ sub show {
   }
 
   $subs = { %$global_subs };
-  $subs->{'USER'}     = escape("$request->{'user'}", $type);
-  $subs->{'PASSWORD'} = $request->{'password'};
 
   for $i (keys %$data) {
     next if ($i eq 'lists' or $i eq 'regdata');
