@@ -548,13 +548,13 @@ EOM
       $errmsg->close;
 
       # reinitialize using temporary values and send the message.
-      $self->sender('failed@example.com');
       if (lc($self->{'activehosts'}[$ch]) eq '@qmail') {
 	$self->{'envelopes'}[$ch] = $self->make_qqenvelope($ch);
       }
       else {
 	$self->{'envelopes'}[$ch] = $self->make_envelope($ch);
       }
+      $self->sender('');
       $self->add($sender);
       $self->sendenvelope;
     
