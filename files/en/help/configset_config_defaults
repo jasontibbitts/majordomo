@@ -19,7 +19,7 @@ $INCLUDE-config/config_defaults
 Collections of configuration settings can be stored for future use in
 files called configuration templates.  For example, there exists a
 template called "DEFAULT:rfc2369" that allows a mailing list to be
-configured to headers to posted messages which make subscribing and
+configured to add headers to posted messages which make subscribing and
 unsubscribing easier.  To see the contents of the template, use the
 following command:
 
@@ -34,24 +34,26 @@ Because templates are stored under the DEFAULT list, a site or domain
 administrative password is needed to create them.  However, any list
 owner can use a template once it is created.
 
-Templates that are higher in the list have higher precedence.  The overall
-order of precedence is as follows:
+Templates that are higher in the list have higher precedence.  The
+overall order of precedence is as follows:
 
   the main configuration file of the mailing list
   templates in the config_defaults setting
   the main configuration file of the DEFAULT pseudo-list
   the installation settings
 
-In other words, the templates in this setting will override the installation
-defaults and the settings in the DEFAULT list.  However, any changes made
-to the configuration of a mailing list with the configset command will
-override the settings in the templates.  The configshow-comments command
-will show which configuration file supplies the value of a setting; this
-feature is useful for verifying that the templates will work as planned.
+In other words, the templates in this setting will override the
+installation defaults and the settings in the DEFAULT list.  However,
+any changes made to the configuration of a mailing list with the
+configset command will override the settings in the templates.  The
+configshow-comments command will show which configuration file supplies
+the value of a setting; this feature is useful for verifying that the
+templates will work as planned.
 
 
 See Also:
    help admin_domain
+   help configdef
    help configset
    help configshow
    help lists
