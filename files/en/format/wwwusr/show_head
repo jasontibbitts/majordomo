@@ -1,5 +1,5 @@
 <!-- Majordomo show_head format file -->
-<h4 align="center">Personal Settings for $FULLADDR</h4>
+<h4 align="center">Subscriptions for $FULLADDR</h4>
 <form method="POST" action="$CGIURL">
   <input type="hidden" name="domain" value="$DOMAIN">
   <input type="hidden" name="user" value="$USER">
@@ -7,26 +7,27 @@
 
 <p>
 The following table lists all of the subscriptions for
-$STRIPADDR
-at $SITE.
-To change settings, press the checkbox next to the name of each 
-list you wish to change, choose the settings you want, then press 
-the $HELP:SET button.  To see a detailed explanation of the 
-settings for a mailing list, click the name of the mailing list.
-</p>
-<p>
+$STRIPADDR at $SITE.
 To $HELP:UNSUBSCRIBE, press the checkbox next to the name of
 each list you wish to leave, then press the <b>unsubscribe</b> button.
 </p>
+
 <p>
-  <input type="submit" name="func" value="set">
-  <input type="submit" name="func" value="unsubscribe">
+To change the settings of your subscriptions, press the checkbox next to
+the name of each list you wish to change, choose the settings you want,
+then press the $HELP:SET button.  To see a detailed explanation of the
+settings for a mailing list, click the name of the mailing list.
+Settings that you cannot change will be marked with an <b>X</b> 
+for "on" and an <b>O</b> for "off".
 </p>
+
+<p>
+  <input type="submit" name="func" value="unsubscribe">
+  <input type="submit" name="func" value="set">
+</p>
+
 <table border>
 <tr>
   <td colspan="4">mailing list</td>
   <td colspan="9">delivery class</td>
-</tr>
-<tr>
-  <td><font size="-1">$SETTINGS</font></td>
 </tr>
