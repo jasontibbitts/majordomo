@@ -556,7 +556,6 @@ files/en/token_reject_owner
 files/en/token_remind
 files/en/unknown_file
 files/en/welcome
-files/en/who_subscriber
 installbin
 lib/Bf/Sender.pm
 lib/Majordomo.pm
