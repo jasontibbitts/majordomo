@@ -14,11 +14,11 @@ EXAMPLE:
 might display the following report:
 
 Activity for nectarine from 2000-08-03 02:53 to 2000-08-03 14:53
-     Command:   Total  Succeed Stall Fail 
-    announce:    7      6       0     1 
-         faq:    1      1       0     0 
-      report:    2      1       0     1 
-         who:    1      1       0     0 
+     Command:   Total  Succeed Stall Fail  Time
+    announce:    7      6       0     1    1.375
+         faq:    1      1       0     0    0.849
+      report:    2      1       0     1    5.439 
+         who:    1      1       0     0    2.247
 
 The "report" command displays raw or summarized data for recent log
 entries for a mailing list, and can be constrained by action or date.
@@ -60,6 +60,7 @@ following additional actions can be specified with the report command:
   consult     A consult token was accepted for a posted message.
   expire      The lifetime of a request that required approval expired,
               and its token identifier was removed from the database.
+  newtoken    A new token identifier has been added to the token database.
   parse       A message was sent to the server that contained no valid commands.
   ALL         Report everything.
 
