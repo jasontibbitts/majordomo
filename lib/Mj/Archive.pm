@@ -121,6 +121,7 @@ This method sorts the archive file names chronologically.
 =cut
 sub _sort_archives {
   my $self = shift;
+  my $log   = new Log::In 250;
   my (%data, @tmp, $arc, $sort_arcs);
 
   $sort_arcs = 
@@ -1066,6 +1067,7 @@ period.
 sub last_message {
   my $self = shift;
   my $arc  = shift;
+  my $log  = new Log::In 250, "$arc";
 
   unless ($arc) {
     # Pick out the last archive in the list and strip the count and list
@@ -1097,6 +1099,7 @@ sub first_n {
   my $n    = shift;
   my $ct   = shift || 0;
   my $arc  = shift;
+  my $log   = new Log::In 250;
   my (@arcs, @data, @msgs, $final, $key, $msg, $tmp, $value);
   @msgs = ();
 
@@ -1156,6 +1159,7 @@ sub last_n {
   my $n    = shift;
   my $ct   = shift || 0;
   my $arc  = shift;
+  my $log  = new Log::In 250;
   my (@arcs, @data, @msgs, $final, $key, $msg, $tmp, $value);
   @msgs = ();
 
@@ -1217,6 +1221,7 @@ sub expand_date {
   my $s = shift;
   my $e = shift || $s;
   my $ct = shift || 65535;
+  my $log   = new Log::In 250, "$s - $e";
   my (@arcs, $arc, $date, @matches, @tmp, $ea, $i, $j, $k, $l, $match, $sa);
   my (@out) = ();
  
@@ -1503,6 +1508,7 @@ each archive.
 sub summary {
   my $self = shift;
   my (@out, $arc);
+  my $log   = new Log::In 250;
 
   for $arc (@{$self->{'sorted_splits'}}) {
     $self->_read_counts($arc, 0);
@@ -1643,6 +1649,7 @@ sub expand_range {
   my $lim  = shift;
   my $args = shift; 
   my $private = shift;
+  my $log   = new Log::In 250, "$args";
   my (@out, @args, @tmp, $data, $i, $j, $ct, $a1, $m1, $a2, $m2, $tmp);
 
   @args = split " ", $args;
@@ -1789,23 +1796,24 @@ There are three possible arguments:
 
 =cut
 sub _parse_archive_arg {
-    my $self = shift;
-    my $arg = shift;
-    my ($archive, $msg) = (0, 0);
-    
-    if ($arg =~ m#(\d+)/(\d+)#) {
-      $archive = $1;
-      $msg = $2;
+  my $self = shift;
+  my $arg = shift;
+  my $log   = new Log::In 200, "$arg";
+  my ($archive, $msg) = (0, 0);
+  
+  if ($arg =~ m#(\d+)/(\d+)#) {
+    $archive = $1;
+    $msg = $2;
+  }
+  elsif ($arg =~ /^(\d+)$/) {
+    if (($arg > 1970 or substr ($arg, 0, 1) eq '0') and _secs_start($1, 1) > 0) {
+      $archive = $arg;
     }
-    elsif ($arg =~ /^(\d+)$/) {
-      if (_secs_start($1, 1) > 0) {
-        $archive = $1;
-      }
-      else {
-        $msg = $arg;
-      }
+    else {
+      $msg = $arg;
     }
-    ($archive, $msg);
+  }
+  ($archive, $msg);
 }
 
 =head2 _parse_message_range(archive1, msgno1, archive2, msgno2)
