@@ -21,7 +21,7 @@ size reasons.
 
  # Check that a user is allowed to get a file, automatically handling
  # confirmation tokens if the list owner has so configured it
- $mj->list_access_check($passwd, $mode, $cmdline, $list, "get", $user);
+ $mj->list_access_check($request);
 
 =cut
 package Mj::Access;
@@ -71,7 +71,9 @@ sub validate_passwd {
   my (@try, $c, $i, $j, $reg);
   return 0 unless defined $passwd;
   my $log = new Log::In 100, "$user, $list, $action";
-  
+  $global_only = 1  
+    if ($list =~ /^DEFAULT/);
+ 
   if ($global_only) {
     @try = ('GLOBAL');
   }
@@ -474,9 +476,13 @@ sub list_access_check {
   my    $mode      = $data->{'mode'};
   my    $cmdline   = $data->{'cmdline'};
   my    $list      = $data->{'list'};
+        $list      = 'GLOBAL'
+          if ($list =~ /^DEFAULT/);
   my    $request   = $data->{'command'}; 
         $request   =~ s/_(start|chunk|done)$//;
   my    $requester = $data->{'user'};
+  my    $sublist   = (exists $data->{'sublist'}) ? 
+                       $data->{'sublist'} : 'MAIN';
   local $victim    = $data->{'victim'} || $requester;
   my    $arg1      = exists $data->{'arg1'} ? $data->{'arg1'} : '';
   my    $arg2      = exists $data->{'arg2'} ? $data->{'arg2'} : '';
@@ -514,13 +520,13 @@ sub list_access_check {
       $text,
       $temp,
       $ok, $ok2,
-      $tmpl, $tmpa,         # Temporary list and auxlist holders
+      $tmpl, $tmpa,         # Temporary list and sublist holders
       @temps,
       $value,               # Value to which the 'set' action changes a variable.
      );
   
   local (
-	 %memberof,         # Hash of auxlists the user is in
+	 %memberof,         # Hash of sublists the user is in
 	);
 
   # Figure out if $requester and $victim are the same
@@ -542,7 +548,8 @@ sub list_access_check {
   # password error.
   $args{'master_password'} = 0;
   $args{'user_password'}   = 0;
-  $args{'delay'}    = 0;
+  $args{'delay'}           = 0;
+  $args{'sublist'}         = $sublist;
 
   if ($passwd) {
     # Check the password against the requester
@@ -602,7 +609,7 @@ sub list_access_check {
     }
     if ($access->{$request}{'check_aux'}) {
       for $i (keys %{$access->{$request}{'check_aux'}}) {
-	# Handle list: and list:auxlist syntaxes; if the list doesn't
+	# Handle list: and list:sublist syntaxes; if the list doesn't
 	# exist, just skip the entry entirely. 
 	if ($i =~ /(.+):(.*)/) {
 	  ($tmpl, $tmpa) = ($1, $2);
@@ -1138,6 +1145,11 @@ sub _a_default {
       $action = "_a_deny";
       $reason = "Requests which specify absolute paths are denied."
     }
+    elsif (exists $td->{'sublist'} and $td->{'sublist'} 
+           and $td->{'sublist'} !~ /MAIN/) {
+      $action = "_a_deny";
+      $reason = "Only list owners can make requests that involve sublists";
+    }
     elsif ($access eq 'open') {
       $action = "_a_allow";
     }
@@ -1160,11 +1172,16 @@ sub _a_default {
     return (0, 'subscribe_to_self') 
       if $request eq 'subscribe' and $args->{'matches_list'};
 
+    if (exists $td->{'sublist'} and $td->{'sublist'} 
+           and $td->{'sublist'} !~ /MAIN/) {
+      $action = "_a_deny";
+      $reason = "Only list owners can make requests that involve sublists";
+    }
     # If the user has supplied their password, we never confirm.  We also
     # don't have to worry about mismatches, since we know we saw the victim's
     # password.  So we allow it unless the list is closed, and we ignore
     # confirm settings.
-    if ($args->{'user_password'}) {
+    elsif ($args->{'user_password'}) {
       $action = "_a_allow"   if $policy =~ /^(auto|open)/;
     }
 
@@ -1302,7 +1319,7 @@ sub _d_post {
   $restrict = $self->_list_config_get($td->{'list'}, 'restrict_post');
   $member = 0;
   for $i (@$restrict) {
-    # First, check to see that we don't have a "list:" or "list:auxlist" string
+    # First, check to see that we don't have a "list:" or "list:sublist" string
     if ($i =~ /(.+):(.*)/) {
       ($tmpl, $tmps) = ($1, $2);
       next unless $self->_make_list($tmpl);
@@ -1323,14 +1340,14 @@ sub _d_post {
     # Otherwise we have to check both the exact restrict_post file and
     # try to remove the list name and a separator from it and try that
     else {
-      if ($self->{'lists'}{$td->{'list'}}->aux_is_member($i, $td->{'user'})) {
+      if ($self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'user'}, $i)) {
 	$member = 1;
 	last;
       }
       else {
 	$tmp = $i;
 	$tmp =~ s/\Q$td->{'list'}\E[.-_]?//;
-	if ($self->{'lists'}{$td->{'list'}}->aux_is_member($i, $td->{'user'})) {
+	if ($self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'user'}, $i)) {
 	  $member = 1;
 	  last;
 	}
