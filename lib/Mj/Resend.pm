@@ -83,6 +83,7 @@ use AutoLoader 'AUTOLOAD';
 1;
 __END__
 
+use Date::Format;
 use Mj::MIMEParser;
 use IO::File;
 use File::Copy 'mv';
@@ -270,6 +271,7 @@ sub post {
 	 Encoding    => $fileinfo->{'c-t-encoding'},
 	 Charset     => $fileinfo->{'charset'},
 	 Filename    => undef,
+         -Date       => time2str("%a, %d %b %Y %T %z", time),
 	 -From       => $owner,
 	 -To         => "$user", # Note stringification
 	 -Subject    => $desc,
@@ -348,14 +350,14 @@ sub post_start  {
 
   (1, '');
 }
-
+use Date::Format;
 use MIME::Head;
 use Digest::SHA1 qw(sha1_hex);
 sub _add_headers {
   my ($self, $request) = @_;
   my $log  = new Log::In 30, $request->{'list'};
   my $head = new MIME::Head;
-  my (@now, $day, $month, $tmp);
+  my ($tmp);
 
   return unless $head;
 
@@ -365,6 +367,7 @@ sub _add_headers {
   # Language choice should be configurable.
 
   $head->add('From', "$request->{'user'}");
+
   if (! $request->{'sublist'} or $request->{'sublist'} eq 'MAIN') {
     $tmp = $self->_list_config_get($request->{'list'}, 'whoami');
     $head->add('To', $tmp);
@@ -378,12 +381,7 @@ sub _add_headers {
   $head->add('Subject', $request->{'subject'} || '(no subject)');
 
   # Add the Date header
-  @now = gmtime;
-  $day = ('Sun','Mon','Tue','Wed','Thu','Fri','Sat')[$now[6]];
-  $month = ('Jan','Feb','Mar','Apr','May','Jun',
-            'Jul','Aug','Sep','Oct','Nov','Dec')[$now[4]];
-  $tmp = sprintf "%s, %2d %s %d %.2d:%.2d:%.2d -0000", $day, $now[3], 
-                 $month, $now[5] + 1900, $now[2], $now[1], $now[0];
+  $tmp = time2str("%a, %d %b %Y %T %z", time);
   $head->add('Date', $tmp);
 
   $tmp = sha1_hex($head->as_string . rand(9));
@@ -424,6 +422,7 @@ sub post_done {
   ($ok, $mess);
 }
 
+use Date::Format;
 use Mj::MIMEParser;
 use Mj::Util qw(gen_pw);
 use Symbol;
@@ -661,11 +660,12 @@ sub _post {
     }
 
 
+    # Rewrite the From: header
+    $self->_munge_from($ent[0], $list);
+    $subs->{'USER'} = $head->get('From');
+
     # Add fronter and footer.
     $self->_add_fters($ent[0], $list, $subs);
-
-    # Hack up the From: and CC: headers
-    $self->_munge_from($ent[0], $list);
 
     # Add in subject prefix
     ($ent[0], $ent[1]) = $self->_munge_subject($ent[0], $list, $seqno);
@@ -824,6 +824,7 @@ sub _post {
 	 Encoding    => $ackinfo{'c-t-encoding'},
 	 Charset     => $ackinfo{'charset'},
 	 Filename    => undef,
+         -Date       => time2str("%a, %d %b %Y %T %z", time),
 	 -From       => $sender,
 	 -To         => "$user", # Note stringification
 	 -Subject    => $desc,
