@@ -458,7 +458,7 @@ sub parse_command {
     elsif ($command eq 'delay') {
       if (defined $args) {
         eval ("use Mj::Util qw(str_to_offset)");
-        $dfl->{'delay'} = str_to_offset($args) || 0;
+        $dfl->{'delay'} = str_to_offset($args, 1, 0) || 0;
       }
       else {
         $dfl->{'delay'} = 0;
