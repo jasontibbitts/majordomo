@@ -24,8 +24,8 @@ $INCLUDE-config/restrict_post
 In the examples that follow, substitute the name of your mailing list
 wherever you see LISTNAME.
 
-To allow posted messages from the subscribers the LISTNAME mailing list,
-use the following value:
+To allow posted messages from the subscribers of the LISTNAME mailing
+list, use the following value:
   LISTNAME
 
 To allow posted messages from the members of an auxiliary list
