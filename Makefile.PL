@@ -29,8 +29,8 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\
 
 #### Prerequisite checking
 
-check_syslog();
-unless (check_prereq
+unless (check_syslog() &&
+        check_prereq
 	(
 	 'MIME::Parser'	=> 4.102,
 	 'MIME::Entity'	=> 4.114,

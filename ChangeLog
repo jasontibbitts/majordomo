@@ -1,5 +1,8 @@
 Thu Apr  2 20:18:13 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* postinstall (create_dirs): Create sessions directory so that we
+ 	can run mj_shell (to create the sessions directory).
+
 	* Makefile.PL (check_prereq): Return a value indicating any
  	problems.
 
