@@ -40,6 +40,7 @@ use lib "$::LIBDIR";
 use strict;
 use CGI;
 use Majordomo;
+use Mj::Addr;
 use Mj::CommandProps qw(:function);
 use Mj::Format;
 use Mj::Log;
@@ -155,7 +156,6 @@ unless ($ok) {
                           Mj::Format::escape($user),
         };
 
-  print $cgi->header(-expires => '+10s');
   &login($mj, $subs, $mess);
 }
 
@@ -219,13 +219,32 @@ unless (exists $commands{$func}) {
   &usage($mj, $subs, "$func is an unsupported command.");
 }
 
+#----- Address check -----#
+$addr = new Mj::Addr($user);
+
+($ok, $mess) = $addr->valid;
+unless ($ok) {
+  &login($mj, $subs, "The address $user is invalid.\n$mess\n");
+}
+
+$tmp = $cgi->param('name');
+if (defined $tmp) {
+  ($ok, $mess) = $addr->setcomment($tmp);
+  unless ($ok) {
+    &login($mj, $subs, "The name $tmp is invalid.\n$mess\n");
+  }
+}
+
+if ($commands{$func}->[1] and (!$user or $user =~ /example\.com$/i)) {
+  &login($mj, $subs, "The address \"$user\" is invalid.");
+}
+
 #----- Password check -----#
 if (! $passw) {
   &login($mj, $subs, "A password is required to use the $func command.")
     if ($commands{$func}->[0]);
 }
 else {
-  $addr = new Mj::Addr($user);
   unless ($mj->validate_passwd($addr, $passw, 'GLOBAL', 'show')) {
     $subs->{'CMDPASS'} = '';
     &login($mj, $subs, $mj->format_error('invalid_password',
@@ -235,11 +254,6 @@ else {
 
 if ($ofunc eq 'welcome') {
   &usage($mj, $subs, '');
-}
-
-#----- Address check -----#
-if ($commands{$func}->[1] and (!$user or $user =~ /example\.com$/i)) {
-  &login($mj, $subs, "The address \"$user\" is invalid.");
 }
 
 #----- List check -----#
@@ -258,7 +272,7 @@ $request = {
   'list'      => $lists[0],
   'mode'      => $mode,
   'password'  => $passw,
-  'user'      => $user,
+  'user'      => $addr,
 };
 if (function_prop($func, 'iter')) {
   $request->{'command'} .= '_start';
