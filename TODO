@@ -360,6 +360,21 @@ this problem.  It would make the continuation of sessions more
 convenient.
 
 
+Add token tracking support
+--------------------------
+Using the report command, it should be possible to track the lifetime
+of confirmation tokens more clearly.  As an extension, it might be
+possible to salvage portions of a corrupted token database based
+upon the log.
+
+
+Allow domain info to be changed
+-------------------------------
+Currently, the "make domain" command will fail if an existing domain
+is specified.  It should be possible to use the command to change the
+information for an existing domain.
+
+
 =======================
 Totally out there stuff
 =======================
