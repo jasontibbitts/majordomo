@@ -336,10 +336,12 @@ sub run_queue {
             }
 
             # if at -request pull out global 'request_answer' variable and
-            # figure out what to do
+            # figure out what to do.  Note that if $arg is set to something
+            # (indicating that we were passed an explicit command) then we
+            # always process that command.
             elsif ($func eq 'request') {
               $request_ans = $mj->global_config_get(undef, undef, 'request_answer');
-              if ($request_ans eq 'majordomo') {
+              if ($request_ans eq 'majordomo' || $arg) {
                 $log->message(50, 'info', 'Processing commands');
                 debug_to($emerg_log || 'majord');
                 parse_commands($mj, $list, $arg);
