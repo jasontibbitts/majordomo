@@ -28,6 +28,14 @@ does not support.
 
 (standard plus COMMAND)
 
+invalid_list
+------------
+This error message is displayed if a list name is used that contains
+illegal characters.  Legal characters include letters, digits,
+underscore, period, and hyphen.
+
+(standard substitutions only)
+
 invalid_mode
 ------------
 This error message is displayed if a command mode is requested that
@@ -89,7 +97,6 @@ more digests.
 
 password_level
 --------------
-
 This error message is displayed when a list administrator uses a 
 valid password that has insufficient privileges.  It applies only
 to the configdef and configset commands, which require varying
@@ -97,6 +104,20 @@ privileges according to which setting is being changed.  The
 config_access setting may be used to change the requirements.
 
 (standard plus LEVEL, NEEDED, SETTING, USER)
+
+relocated_list
+--------------
+This error message is displayed when a list from the GLOBAL relocated_lists 
+configuration setting is used in a Majordomo command.
+
+(standard plus NEWLIST)
+
+unknown_list
+------------
+This error message is displayed when a list that has a legal name
+but is not supported at this domain is used in a Majordomo command.
+
+(standard substitutions only)
 
 unknown_setting
 ------------
