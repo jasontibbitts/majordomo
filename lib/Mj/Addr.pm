@@ -168,6 +168,7 @@ sub new {
 
   # Bail if creating an Addr from an Addr
   return $val if (ref ($val) eq 'Mj::Addr');
+  return unless (defined $val);
 
   # Untaint
   $val =~ /(.*)/; $val = $1 || "";
