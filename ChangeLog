@@ -1,3 +1,14 @@
+2001-07-12  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Config.pm (parse_access_rules, parse_bounce_rules,
+        _compile_rule): Slightly better error messages.
+
+	* lib/Mj/BounceHandler.pm (handle_bounce_user): Pass the
+	'diagnostic' variable to the rules parser.
+
+	* lib/Mj/CommandProps.pm: Add 'diagnostic' as a legal bounce_rules
+	variable.
+
 2001-07-09  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (get_all_lists)  Bugfix:  Use the first return

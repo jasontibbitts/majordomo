@@ -915,6 +915,7 @@ my %commands =
 			       'addr'                 => 'string',
 			       'fulladdr'             => 'string',
 			       'host'                 => 'string',
+			       'diagnostic'           => 'string',
 			       'subscribed'           => 'bool',
 			       'days_since_subscribe' => 'integer',
 			       'consecutive'          => 'integer',

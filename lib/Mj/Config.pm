@@ -1441,7 +1441,7 @@ sub parse_access_rules {
 
       # Compile the rule
       ($ok, $error, $part, $check_aux, $check_time) =
-	_compile_rule($i, $action, $evars, $rule, $count);
+	_compile_rule($i, $action, $action, $evars, $rule, $count);
 
       # If the compilation failed, we return the error
       return (0, "\nError compiling rule for $i: $error")
@@ -1730,10 +1730,10 @@ sub parse_bounce_rules {
 
       # Compile the rule
       ($ok, $error, $part, $check_aux, $check_time) =
-	_compile_rule('_bounce', $acts, {}, $rule, $i+1);
+	_compile_rule('_bounce', 'bounce_rules', $acts, {}, $rule, $i+1);
 
       # If the compilation failed, we return the error
-      return (0, "\nError compiling rule for $i: $error")
+      return (0, "\nError compiling rule $i: $error")
 	unless $ok;
 
       $data->{'code'}        .= $part;
@@ -3321,7 +3321,7 @@ sub compile_pattern {
   return (0, "Unrecognized pattern '$str'.\n");
 }
 
-=head2 _compile_rule(request, action, rule, id)
+=head2 _compile_rule(request, request_name, action, rule, id)
 
 This takes the access control language and "compiles" it into a Perl
 subroutine (contained in a string) which can be processed with eval (or
@@ -3360,6 +3360,7 @@ About the ID:
 =cut
 sub _compile_rule {
   my $request = shift;
+  my $reqname = shift;
   my $action  = shift;
   my $evars   = shift; # Any extra legal variables
   $_          = shift;
@@ -3457,7 +3458,8 @@ sub _compile_rule {
 
 	unless (rules_var($request, $var, 'string')) {
 	  @tmp = rules_vars($request, 'string');
-	  $e .= "Illegal match variable for $request: $var.\nLegal variables which you can match against are:\n".
+	  $e .= "Illegal match variable for $reqname: $var.
+Legal variables which you can pattern match against are:\n".
 	    join("\n", sort(@tmp));
 	  last;
 	}
@@ -3588,7 +3590,7 @@ sub _compile_rule {
             }
             else {
               @tmp = rules_vars($request);
-              $e .= "Illegal variable for $request: $var.\nLegal variables are:\n  ".
+              $e .= "Illegal variable for $reqname: $var.\nLegal variables are:\n  ".
                 join("\n  ", sort(@tmp));
               if ($request eq 'post' && scalar(keys(%$evars))) {
                 $e .= "\nPlus these variables currently defined in admin and taboo rules:\n  ".

@@ -415,6 +415,7 @@ sub handle_bounce_user {
   # Add in extra arguments
   $args{warning}              = ($params{status} eq 'warning');
   $args{failure}              = ($params{status} eq 'failure');
+  $args{diagnostic}           = $params{diag};
   $args{subscribed}           = !!$sdata;
   $args{days_since_subscribe} = $sdata? ((time - $sdata->{subtime})/86400): 0;
   $args{notify}               = [];
