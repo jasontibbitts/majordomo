@@ -676,6 +676,7 @@ my %commands =
                    'hereargs' => 'requests',
                    'modes'    =>  {
                                    %generic_modes,
+                                   'full'        => 1,
                                    'inform'      => 1,
                                    'summary'     => 1,
                                   },
@@ -751,6 +752,7 @@ my %commands =
                                    'alias'       => 1,
                                    'async'       => 1,
                                    'delay'       => 1,
+                                   'probe'       => 1,
                                   },
                    'tokendata' => {'arg1' => 'action'}
                   },
