@@ -1,3 +1,11 @@
+2000-06-15  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Bf/Parser.pm (parse_compuserve): New function to parse
+	Compuserve bounces.
+
+	* misc/parsebounce.pl: Collect better statistics about what bounce
+	formats were seen.
+
 2000-06-15  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/MailOut.pm (handle_bounce): Pull per-user bounce handling

@@ -82,6 +82,7 @@ sub parse {
   $ok or ($ok = parse_qmail     ($ent, $data, $hints));
   $ok or ($ok = parse_exchange  ($ent, $data, $hints));
   $ok or ($ok = parse_sendmail  ($ent, $data, $hints));
+  $ok or ($ok = parse_compuserve($ent, $data, $hints));
   $ok or ($ok = parse_softswitch($ent, $data, $hints));
 
   # Look for useful bits in the To: header (assuming we even have one)
@@ -125,7 +126,59 @@ sub parse {
     $type = '';
   }
 
-  return ($type, $msgno, $user, $data);
+  return ($type, $msgno, $user, $ok, $data);
+}
+
+=head2 parse_compuserve
+
+Attempts to parse the bounces issued by Compuserve.  These bounces look
+like this:
+
+Your message could not be delivered due to the following:
+
+Invalid receiver address: xxxx@compuserve.com
+Invalid receiver address: yyyy@compuserve.com
+
+An explanation follows, but we ignore it.
+
+=cut
+sub parse_compuserve {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my ($bh, $diag, $from, $line, $ok, $user);
+
+  # The message must come from postmaster@compuserve.com
+  $from = $ent->head->get('from'); chomp $from;
+  return unless $from =~ /postmaster\@compuserve.com/i;
+
+  # Compuserve only sends single-part bounces
+  return if $ent->parts;
+
+  # The first non-blank line must contain the "greeting"
+  $bh = $ent->bodyhandle->open('r');
+  return unless $bh;
+  while (defined($line = $bh->getline)) {
+    next if $line =~ /^\s*$/;
+    last if $line =~ /^\s*your message could not be delivered due to the following:\s*/i;
+    return;
+  }
+
+  # Skip blanks; expect all other lines to match the diag: address format.
+  # If not, stop parsing.
+  while (defined($line = $bh->getline)) {
+    next if $line =~ /^\s*$/;
+    if ($line =~ /^([^:]+):\s*(.*?)\s*$/) {
+      $user = $2; $diag = $1;
+      $data->{$user}{'diag'} = $diag;
+      $data->{$user}{'status'} = 'failure';
+      $ok = 'Compuserve';
+    }
+    else {
+     last;
+    }
+  }
+  $ok;
 }
 
 =head2 parse_dsn
@@ -165,7 +218,7 @@ sub parse_dsn {
 	  $type =~ m!report-type=delivery-status!i)
     {
       $log->out('Wrong MIME type');
-      return 0;
+      return;
     }
 
   # So we must have a DSN.  The second part has the info we want.
@@ -175,7 +228,7 @@ sub parse_dsn {
     # nothing else is going to be able to parse this message, so just
     # assume that we couldn't find a bouncing address.
     $log->out('Busted DSN?');
-    return 1;
+    return 'Broken DSN';
   }
 
   # Pull apart the delivery-status part, which consists of groups of
@@ -261,8 +314,9 @@ sub parse_dsn {
   # get useful diagnostics
   if ($nodiag) {
     check_dsn_diags($ent, $data);
+    return 'DSN + diag extraction';
   }
-  return 1;
+  'DSN';
 }
 
 =head2 parse_exchange
@@ -300,14 +354,14 @@ sub parse_exchange {
   $subj = $ent->head->get('subject');
   unless ($subj =~ /undeliverable:/i) {
     $log->out("Wrong subject");
-    return 0;
+    return;
   }
 
   if ($ent->parts) {
     if ($ent->parts(0)->parts) {
       if ($ent->parts(0)->parts(0)->parts) {
 	# Jeez; forget it.
-	return 0;
+	return;
       }
       $bh = $ent->parts(0)->parts(0)->bodyhandle->open('r');
     }
@@ -322,7 +376,7 @@ sub parse_exchange {
   # We eat the message until we see the first line of the bounce block
   while (1) {
     $line = $bh->getline;
-    return 0 unless defined $line;
+    return unless defined $line;
     chomp $line;
     last if $line =~ /did not reach the following/i;
   }
@@ -330,24 +384,24 @@ sub parse_exchange {
   # Skip some whitespace
   while (1) {
     $line = $bh->getline;
-    return 0 unless defined $line;
+    return unless defined $line;
     last if $line !~ /^\s*$/;
   }
 
   # $line should now contain the address
-  return 0 unless $line =~ /^\s*([^\s\@]+\@[^\s\@]+)\s+on/i;
+  return unless $line =~ /^\s*([^\s\@]+\@[^\s\@]+)\s+on/i;
   $user = $1;
 
   # The next line should contain the diagnostic
   $line = $bh->getline;
-  return 0 unless defined $line;
+  return unless defined $line;
   $line =~ /^\s*(.*)$/;
   $diag = $1;
 
   $data->{$user}{'status'} = 'failure';
   $data->{$user}{'diag'}   = $diag;
 
-  1;
+  'Exchange';
 }
 
 =head2 parse_exim
@@ -386,14 +440,13 @@ sub parse_exim {
   my $hints= shift;
   my ($bh, $diag, $line, $ok, $status, $user);
 
-  return 0 if $ent->parts;
-  $ok = 0;
+  return if $ent->parts;
   $bh = $ent->bodyhandle->open('r');
 
   # We eat the message until we see the trademark Exim bounce line
   while (1) {
     $line = $bh->getline;
-    return 0 unless defined $line;
+    return unless defined $line;
     chomp $line;
     next if $line =~ /^\s*$/;
     last if (lc($line) eq 
@@ -423,7 +476,7 @@ sub parse_exim {
     # Stop before we get into the bounced message
     if ($line =~ /^-/) {
       if ($user) {
-	$ok = 1;
+	$ok = 'Exim';
 	$data->{$user}{'status'} = $status;
 	$data->{$user}{'diag'}   = $diag;
       }
@@ -447,7 +500,7 @@ sub parse_exim {
     elsif ($status eq 'warning' && $line =~ /^  (\S.*\@.*)\s*$/) {
       $data->{$1}{'status'} = $status;
       $data->{$1}{'diag'}   = 'none included in bounce';
-      $ok = 1;
+      $ok = 'Exim';
       next;
     }
   }
@@ -477,11 +530,9 @@ sub parse_postfix {
   my $data = shift;
   my ($bh, $diag, $failure, $line, $ok, $user);
 
-  $ok = 0;
-
   # Postfix returns only multipart bounces nested one level deep
-  return 0 unless $ent->parts;
-  return 0 if $ent->parts(0)->parts;
+  return unless $ent->parts;
+  return if $ent->parts(0)->parts;
 
   $bh = $ent->parts(0)->bodyhandle->open('r');
   return 0 unless $bh;
@@ -490,7 +541,7 @@ sub parse_postfix {
   while (defined($line = $bh->getline)) {
     next if $line =~ /^\s*$/;
     last if $line =~ /^\s*this is the postfix program/i;
-    return 0;
+    return;
   }
 
   # Now look for two things: a line containing "could not deliver" which
@@ -506,10 +557,10 @@ sub parse_postfix {
       $diag = $2;
       $data->{$user}{'diag'} = $diag;
       $data->{$user}{'status'} = $failure? 'failure' : 'warning';
-      $ok = 1;
+      $ok = 'Postfix';
     }
   }
-  return $ok;
+  $ok;
 }
 
 
@@ -534,13 +585,13 @@ sub parse_sendmail {
   my $data = shift;
   my ($bh, $line, $ok, $user);
 
-  return 0 if $ent->parts;
+  return if $ent->parts;
   $bh = $ent->bodyhandle->open('r');
-  return 0 unless $bh;
+  return unless $bh;
 
   while (1) {
     $line = $bh->getline;
-    return 0 if !defined($line) || $line =~ /^\s*-+\s+original message/i;
+    return if !defined($line) || $line =~ /^\s*-+\s+original message/i;
     last if $line =~ /^\s*-+\s*the following addresses had permanent fatal errors/i;
   }
 
@@ -549,7 +600,7 @@ sub parse_sendmail {
     if ($line =~ /^\s*<(.*)>\s*$/) {
       $data->{$1}{'status'} = 'failure';
       $data->{$1}{'diag'}   = 'unknown';
-      $ok = 1;
+      $ok = 'Sendmail Classic';
     }
   }
   if ($ok) {
@@ -581,15 +632,15 @@ sub parse_softswitch {
   my $data = shift;
   my ($bh, $diag, $failure, $line, $ok, $user);
 
-  return 0 if $ent->parts;
+  return if $ent->parts;
 
   $bh = $ent->bodyhandle->open('r');
-  return 0 unless $bh;
+  return unless $bh;
 
   while (defined($line = $bh->getline)) {
     next if $line =~ /^\s*$/;
     last if $line =~ /^\s*this report relates to/i;
-    return 0;
+    return;
   }
 
   while (defined($line = $bh->getline)) {
@@ -597,12 +648,12 @@ sub parse_softswitch {
     if ($line =~ /^\s*your message was not delivered to\s+(.*)\s*$/i) {
       $user = $1; $diag = '';
       $line = $bh->getline;
-      return 0 unless $line =~ /\s*for the following/i;
+      return unless $line =~ /\s*for the following/i;
       last;
     }
   }
   while (defined($line = $bh->getline)) {
-    return 0 if $line =~ /^\s*\*/;
+    return if $line =~ /^\s*\*/;
     last if $line =~ /^\s*$/;
     chomp $line; $line =~ s/^\s+//; $line =~ s/\s+$//;
     $diag .= ' ' if $diag;
@@ -611,7 +662,7 @@ sub parse_softswitch {
   $data->{$user}{'status'} = 'failure';
   $data->{$user}{'diag'}   = $diag;
 
-  1;
+  'SoftSwitch';
 }
 
 =head2 parse_qmail
@@ -647,21 +698,21 @@ sub parse_qmail {
   my $log  = new Log::In 50;
   my $ent  = shift;
   my $data = shift;
-  my ($bh, $diag, $failure, $line, $ok, $user);
-
-  $ok = 0;
+  my ($bh, $diag, $failure, $line, $ok, $type, $user);
 
   # Qmail mails only single-part bounces
-  return 0 if $ent->parts;
+  return if $ent->parts;
 
   # The first non-blank line must contain the qmail or yahoo greeting.
   $bh = $ent->bodyhandle->open('r');
-  return 0 unless $bh;
+  return unless $bh;
   while (defined($line = $bh->getline)) {
     next if $line =~ /^\s*$/;
+    $type = 'Qmail';
     last if $line =~ /^\s*hi.*this is/i;
+    $type = 'Yahoo';
     last if $line =~ /^\s*message from\s*yahoo.com/i;
-    return 0;
+    return;
   }
 
   # Now look for two things: a line containing "permanent error" or "unable
@@ -677,11 +728,11 @@ sub parse_qmail {
     if ($line =~ /^<(.*)>:$/) {
       $user = $1;
       $line = $bh->getline;
-      return 0 unless defined $line;
+      return unless defined $line;
       chomp $line;
       $data->{$user}{'diag'} = $line;
       $data->{$user}{'status'} = $failure? 'failure' : 'warning';
-      $ok = 1;
+      $ok = $type;
     }
     if ($line =~ /---.*copy of the message/i ||
 	$line =~ /---.*original message follows/i)
@@ -689,7 +740,7 @@ sub parse_qmail {
 	last;
       }
   }
-  return $ok;
+  $ok;
 }
 
 =head2 check_dsn_diags
@@ -856,7 +907,7 @@ sub check_dsn_netscape {
   # Check the type of the first part; it should be plain text
   $type = $ent->parts(0)->mime_type;
   if ($type !~ m!text/plain!i) {
-    return 0;
+    return;
   }
 
   $fh = $ent->parts(0)->bodyhandle->open('r');
@@ -937,7 +988,7 @@ sub check_dsn_netscape {
     if ($user) {
       $data->{$user}{'status'} = 'failure';
       $data->{$user}{'diag'}   = $diag;
-      $ok = 1;
+      $ok = 'DSN + Netscape';
     }
   }
   $ok;

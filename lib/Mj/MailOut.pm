@@ -213,8 +213,9 @@ sub handle_bounce {
   my ($self, $list, $file) = @_;
   my $log  = new Log::In 30, "$list";
 
-  my (@bouncers, @owners, $data, $diag, $ent, $fh, $handled, $i, $lsender,
-      $mess, $msgno, $nent, $parser, $sender, $subj, $tmp, $tmpdir);
+  my (@bouncers, @owners, $data, $diag, $ent, $fh, $handled, $handler, $i,
+      $lsender, $mess, $msgno, $nent, $parser, $sender, $subj, $tmp,
+      $tmpdir, $type);
 
   $parser = new Mj::MIMEParser;
   $parser->output_to_core($self->_global_config_get("max_in_core"));
@@ -226,7 +227,7 @@ sub handle_bounce {
   $fh->close;
 
   # Extract information from the envelope, if any, and parse the bounce.
-  ($type, $msgno, $user, $data) =
+  ($type, $msgno, $user, $handler, $data) =
     Bf::Parser::parse($ent,
 		      $list,
 		      $self->_site_config_get('mta_separator')

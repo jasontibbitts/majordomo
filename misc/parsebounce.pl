@@ -33,15 +33,16 @@ for $file (@ARGV) {
   $total++;
   print "Parsing $file...\n";
 
-  ($type, $msgno, $user, $data) =
+  ($type, $msgno, $user, $handler, $data) =
     Bf::Parser::parse($ent,
 		      'test',
 		      '+',
 		     );
 
   if ($type eq 'M') {
-    print "Parsed this bounce: message #$msgno.\n";
+    print "Parsed this bounce: message #$msgno, bounce type: $handler.\n";
     $parsed++;
+    $handlers{$handler}++;
     if ($user) {
       if ($data->{$user}) {
 	$status = $data->{$user}{status};
@@ -77,6 +78,7 @@ for $file (@ARGV) {
   }
   else {
     print "Couldn't parse this bounce.\n\n";
+    $handlers{'Unhandled'}++;
   }
   $ent->purge;
 }
@@ -90,4 +92,13 @@ if ($parsed) {
     $pct = 100 * ($usefuldiag / $users);
     print "Found a \"useful\" diagnostic for $usefuldiag ($pct%)\n  of $users total users extracted.\n";
   }
+}
+print "\nHandler breakdown:\n";
+if ($handlers{'Unhandled'}) {
+  printf("%22s: %3d\n", 'Unhandled', $handlers{'Unhandled'});
+  delete $handlers{'Unhandled'};
+}
+  
+for $i (sort { $handlers{$b} <=> $handlers{$a} || $a cmp $b;} keys %handlers) {
+  printf("%22s: %3d\n", $i, $handlers{$i});
 }
