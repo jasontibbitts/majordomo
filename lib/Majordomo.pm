@@ -114,7 +114,7 @@ use Mj::CommandProps qw(:function :command);
 
 # sub is_tainted {
 #   return ! eval {
-#     join('',@_), kill 0;
+#     eval("#" . substr(join("", @_), 0, 0));
 #     1;
 #   };
 # }
@@ -482,17 +482,22 @@ sub dispatch {
                                    'COMMAND' => $request->{'command'})];
   }
 
+  # Catenate list and sublist for validity checks.
+  $l = $request->{'list'};
+  if (length $request->{'sublist'}) {
+    $l =~ s/:.*$//;
+    $l .= ":$request->{'sublist'}";
+  }
 
   if (command_prop($base_fun, 'list') and
       $request->{'command'} !~ /_chunk$/) {
     ($l, $sl, $mess) =
-      $self->valid_list($request->{'list'},
-                        command_prop($base_fun, 'all'),
+      $self->valid_list($l, command_prop($base_fun, 'all'),
                         command_prop($base_fun, 'global'));
 
   }
   else {
-    ($l, $sl, $mess) = $self->valid_list($request->{'list'}, 1, 1);
+    ($l, $sl, $mess) = $self->valid_list($l, 1, 1);
   }
 
   return [0, $mess]

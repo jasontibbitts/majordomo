@@ -1,3 +1,11 @@
+2003-01-27  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (dispatch)  Bugfix:  Improve sublist validation
+	to avoid taint problems.  Thanks to Roger Klorese.
+
+	* setup/ask_domain.pl:  Bugfix:  Incorporate qmail code as
+	needed.  Thanks to Tim Treaster.
+
 2003-01-21  Michael Yount <csf@moscow.com>
 
 	* bin/mj_shell:  Fail gracefully if no domains are defined.
