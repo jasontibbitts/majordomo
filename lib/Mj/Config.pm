@@ -741,14 +741,14 @@ sub lock {
   # Bail early if locked
   return if $self->{'locked'};
 
-  # Open the filerepl and stash it
-  $self->{fh} = new Mj::FileRepl $name;
-
   # Load the file if necessary
-  if ($self->{mtime} <= (stat($name))[9]) {
+  if ((-r $name) && $self->{mtime} <= (stat($name))[9]) {
     $log->message(150, 'info', 'reloading');
     $self->load;
   }
+
+  # Open the filerepl and stash it
+  $self->{fh} = new Mj::FileRepl $name;
 
   # Note that we are locked
   $self->{locked} = 1;
