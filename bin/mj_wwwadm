@@ -188,10 +188,10 @@ for ($i = 0; $i < scalar(@lists); $i++) {
 if ($func eq 'archive' or $func eq 'get') {
   $mode .= "-immediate";
 }
-if ($func eq 'auxwho' or $func eq 'who') {
+elsif ($func eq 'auxwho' or $func eq 'who') {
   $mode .= $mode? "-enhanced" : "enhanced";
 }
-if ($func eq 'configdef') {
+elsif ($func eq 'configdef') {
   @hereargs = ();
 }
 
@@ -264,6 +264,8 @@ if ($passw and ($st eq 'checked' or $func eq 'showtokens') and @lists) {
   # The password may have been omitted earlier.
   $request->{'password'} = $passw;
   $request->{'command'} = 'showtokens';
+  # Include delay tokens in the listing.
+  $request->{'mode'} = 'delay';
   # 'action' is also used by the report command.
   delete $request->{'action'} if (exists $request->{'action'});
   Mj::Parser::parse_args($request, $extra[0])
@@ -503,6 +505,9 @@ sub Mj::Format::showtokens {
     print "<td>$data->{'list'}\n" if ($request->{'list'} eq 'ALL'); 
     if ($data->{'type'} eq 'consult') {
       print "<td>O\n";
+    }
+    elsif ($data->{'type'} eq 'delay') {
+      print "<td>D\n";
     }
     else {
       print "<td>S\n";
