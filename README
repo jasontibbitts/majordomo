@@ -318,7 +318,7 @@ subscribe_policy and the like.  This works as expected (though the
 mechanism by which restrict_post lists are set up has changed).
 
 The owner can also choose to make use of an extremely flexible system which
-is semi-documented in the 'ACCESS_RULES' file.  This, when coupled with
+is documented in "help configset access_rules".  This, when coupled with
 some of the taboo_* extensions (like severity and classes) and the metrics
 that resend collects allows almost arbitrarily complex access control.
 
