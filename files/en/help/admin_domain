@@ -83,7 +83,7 @@ to avoid cross-posted messages, using the "unique" delivery class
 (see "help set" for an explanation of delivery classes).
 
 The GLOBAL list shares the values of (only) six configuration settings
-with all of the other mailing lists in the same domain.  The five
+with all of the other mailing lists in the same domain.  The six
 settings are admin_body, admin_headers, noarchive_body,
 noarchive_headers, taboo_body, and taboo_headers.  These settings are
 combined with a mailing list's individual settings when Majordomo
