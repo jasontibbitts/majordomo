@@ -314,13 +314,16 @@ sub sendenvelope {
     $ok = $self->{'envelopes'}[$ch]->address($self->{'addrs'},
                                              $self->{'deferred'},
                                              $self->{'failed'});
-    # Return now if no addresses remain to be processed.
-    return 0 if (!@{$self->{'addrs'}});
+
+
+    # Unrecoverable error or response timeout.
     if ($ok == 0) {
       undef $self->{'envelopes'}[$ch];
-      next;
+      next if (scalar @{$self->{'addrs'}});
     }
 
+    # Return now if no addresses remain to be processed.
+    return 0 unless (scalar @{$self->{'addrs'}});
 
     if ($ok < 0) {
       # Some addresses were processed successfully, but the envelope
@@ -332,6 +335,7 @@ sub sendenvelope {
     # We addressed the envelope OK, so we can send it
     $ok = $self->{'envelopes'}[$ch]->send;
     last if $ok;
+    undef $self->{'envelopes'}[$ch];
 
     # We fall off the block and do error processing here.
   }
@@ -525,11 +529,10 @@ This causes all remaining addresses to be sent.  If sorting is active, the
 list is sorted and pushed out.
 
 =cut
-use Symbol;
 sub flush {
   my $self = shift;
   my $log  = new Log::In 150;
-  my ($addr, $batch, @tmp);
+  my (@tmp, $addr, $batch, $tmp);
 
   if (@{$self->{'stragglers'}}) {
     if (@{$self->{'addrs'}} >= $self->{'size'}) {
@@ -560,14 +563,19 @@ sub flush {
   # is done individually.
   if (@{$self->{'deferred'}}) {
     # avoid infinite loop; sendenvelope may change the "deferred" list.
+    $tmp = $self->{'sender'};
     @tmp = @{$self->{'deferred'}};
+
     while (@tmp) {
       $addr = shift @tmp;
+      $self->{'sender'} = $addr->[1];
       $self->{'addrs'} = [$addr->[0]];
       $self->sendenvelope;
     }
+
     $self->{'deferred'} = [];
     $self->{'addrs'} = [];
+    $self->{'sender'} = $tmp;
   }
   # failed addresses either received a permanent error during
   # RCPT TO or were deferred and failed during the retry.
@@ -618,6 +626,7 @@ the bounce parser will process it as such, which is good enough for
 automatic bounce processing to work.
 
 =cut
+use Symbol;
 sub _gen_bounces {
   my $self = shift;
   my $log   = new Log::In 140;
