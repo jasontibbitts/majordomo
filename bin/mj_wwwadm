@@ -180,7 +180,7 @@ unless ($passw) {
   &login($mj, $subs, '');
 }
 $addr = new Mj::Addr($user);
-unless ($mj->validate_latchkey($addr, $passw, $lists[0], 'ALL')) {
+unless ($mj->validate_latchkey($addr, $passw, $i, 'ALL')) {
   &login($mj, $subs, 'Invalid password.');
 }
 
