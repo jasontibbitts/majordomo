@@ -116,14 +116,14 @@ example, the following command:
   subscribe-rule LISTNAME
 
 would be subject to the access rules for the LISTNAME mailing list,
-regardless of whether an administrative password were used.
+regardless of whether an administrative password is used.
 
 It is possible to use comments before, between, and after the individual
 rules, but not within rules.  Comments are lines that begin with a '#'.
 
 Any access rule which refers to an auxiliary list will cause it to be
-created automatically (see "help auxiliary_list" for an introduction to
-auxiliary lists.)
+created automatically.  See "help auxiliary_list" for an introduction to
+auxiliary lists.
 
 
                                 Actions
@@ -433,6 +433,8 @@ Membership check
           ('@' can be used as an abbreviation for '@MAIN'.)
   @SUBLIST - true if the victim is a member of the SUBLIST auxiliary
     list. (See "help auxiliary_list" for an introduction to sublists.)
+  @LIST:SUBLIST - true if the victim is a member of the SUBLIST
+    auxiliary list of the LIST mailing list.
 
 Comparisons
 -----------
@@ -692,28 +694,51 @@ subscribe
 confirm_consult, notify, notify=(fulfill=1,expire=0,chainfile=more_info,file=questions,group=victim), notify
 ALL
 
-The first notify action sends the default confirmation message to the
-victim.  
+This rule uses three "notify" actions to modify the behavior of the
+confirm_consult action.  Normally, the confirm_consult action would
+cause two confirmation notices to be sent:  the "confirm" notice would
+be sent to the victim, and the "consult" notice would be sent to the
+moderators after the victim confirms the first notice.  Using three
+notices causes both the second notice and the third notice to have the
+characteristics of a "consult" notice by default.
 
-The second notify action includes "fulfill" and "expire" variables which
-cause a delay token to be created which will expire immediately.  The
-"more_info" reply file is sent to the victim, and the "questions" file
-is mailed separately. 
+The first notify action has no customizations.  This causes the default
+"confirm" confirmation message to be sent to the victim.  
 
-The third notify action causes a confirmation message to be sent to the
-moderators of the mailing list.
+The second notify action modifies a "consult" action with several
+customizations:
+
+  * The "group=victim" customization causes the notice to be sent to
+    the victim instead of the moderators.
+
+  * The "chainfile=more_info" customization causes the "more_info" reply file 
+    to be sent to the person who confirmed the first confirmation message.
+
+  * The "file=questions" customization causes the "questions" file to
+    be sent to the victim in a separate message.
+
+  * The "fulfill" and "expire" variables cause a delay token to be created 
+    which will expire immediately.  Expiring the token immediately makes
+    it unnecessary for someone to confirm the second notice.
+
+The third notify action has no customizations.  This causes the default
+"consult" confirmation message to be sent to the moderators of the
+mailing list.
 
 
 Prevent duplicate message checksums from being used
 ---------------------------------------------------
 Normally, a posted message with a body that matches a previously posted
 message will be sent to the moderators for confirmation.  The following
-rule will turn the body checks off, but leave intact the duplicate
-message-ID check.
+rule will turn off the body checks.
 
 post
 unset=dup_checksum, unset=dup_partial_checksum
 ALL
+
+This rule unsets the dup_checksum and dup_partial_checksum access
+variables.  See "help configset_dup_lifetime" for an explanation of the
+body checks.
 
 
 Adjust the output of the which command
@@ -738,6 +763,16 @@ reject the unsubscribe command and preserve the subscription.
 unsubscribe
 delay=(expiring,4d)
 $master_password
+
+The master_password access variable will be set only if the unsubscribe
+command is issued using an administrative password.  This will prevent
+unauthorized people from using the unsubscribe-rule command to remove
+other people from your mailing list.
+
+See "help admin_passwords" for an introduction to administrative
+passwords.  See "help access_variables" for an introduction to access
+variables.  See "help configset_access_password_override" and 
+"help unsubscribe" for an explanation of the "rule" command mode.
 
 
 Delay posts to spread out the system load
