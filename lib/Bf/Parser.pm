@@ -337,14 +337,17 @@ sub parse_yahoo {
   my $data = shift;
   my (%ok_from, %ok_subj, $bh, $line, $ok);
 
-  %ok_from = {'mailer-daemon\@yahoo.com' => 1};
-  %ok_subj = {'failure delivery'         => 1};
+  %ok_from = ('mailer-daemon@yahoo.com' => 1);
+  %ok_subj = ('failure delivery'         => 1);
   $ok = 0;
 
   # First check the From: and Subject: headers to see if we understand this
   # bounce
-  return 0 unless $ok_from{lc($ent->head->get('from'))};
-  return 0 unless $ok_subj{lc($ent->head->get('subject'))};
+  my $f = lc($ent->head->get('from'));
+  my $s = lc($ent->head->get('subject'));
+  chomp $f; chomp $s;
+  return 0 unless $ok_from{lc($f)};
+  return 0 unless $ok_subj{lc($s)};
   return 0 if $ent->parts; # Must be able to open the body
 
   # Now run through the body.  We look for an address in brackets and, on
