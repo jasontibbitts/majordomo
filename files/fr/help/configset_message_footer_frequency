@@ -13,7 +13,7 @@ configset liste message_footer_frequency = 100
 
 $INCLUDE-config/message_footer_frequency
 
-Ce paramètre est intéressant a partir du moment ou un ou plusieurs
+Ce paramètre est intéressant à partir du moment ou un ou plusieurs
 pieds d'emails ont été définis par le paramètre "message_footer".
 Cette valeur contrôle la probabilité qu'aura un pied d'email d'être
 ajouté. Le fait d'ajouter ou non un pied d'email est déterminé

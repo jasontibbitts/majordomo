@@ -13,7 +13,7 @@ configset liste message_fronter_frequency = 50
 
 $INCLUDE-config/message_fronter_frequency
 
-Ce paramètre est intéressant a partir du moment ou un ou plusieurs
+Ce paramètre est intéressant à partir du moment ou un ou plusieurs
 haut d'emails ont été définis par le paramètre "message_fronter".
 Cette valeur contrôle la probabilité qu'aura un haut d'email d'être
 ajouté. Le fait d'ajouter ou non un haut d'email est déterminé
