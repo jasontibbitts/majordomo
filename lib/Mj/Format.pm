@@ -83,6 +83,7 @@ sub accept {
       &$fun($mj, $out, $err, $type, $data, $rresult);
     }
   }
+  $ok;
 }
 
 sub alias {
@@ -1138,7 +1139,7 @@ sub g_sub {
       eprint($out, $type, "$_ was $verb.\n");
     }
   }
-  1;
+  $ok;
 }
 
 sub eprint {
