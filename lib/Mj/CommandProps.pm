@@ -311,21 +311,29 @@ my %commands =
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
                    'arguments' => {
-                                   'args' => {'type' => 'SCALAR'}
+                                   'args' => {'type' => 'SCALAR'},
+                                   'part' => {'type' => 'SCALAR',
+                                              'include' => 'part'},
                                   },
-                   'hereargs' => 'patterns',
+                   'hereargs' => 'contents',
                    'modes'    =>  {
                                    %generic_modes,
                                    'author'      => {'include' => 'get|index'},
                                    'date'        => {'include' => 'get|index'},
                                    'delete'      => {'exclude' => 'get|index|stats|summary|sync'},
+                                   'edit'        => {'include' => 'part',
+                                                     'exclude' => 'delete|get|index|replace|stats|summary|sync'},
                                    'digest'      => {'include' => 'get'},
-                                   'force'       => {'include' => 'delete'},
+                                   'force'       => {'include' => 'delete|replace'},
                                    'get'         => 1,
                                    'hidden'      => 1,
                                    'immediate'   => {'include' => 'get'},
                                    'index'       => 1,
                                    'mime'        => {'include' => 'digest'},
+                                   'part'        => {'include' => 'delete|edit|get|replace',
+                                                     'exclude' => 'digest|immediate'},
+                                   'replace'     => {'include' => 'part', 
+                                                     'exclude' => 'delete|get|index|stats|summary|sync'},
                                    'reverse'     => {'include' => 'get|index|summary'},
                                    'stats'       => {'exclude' => 'get|index|summary|sync'},
                                    'subject'     => {'include' => 'get|index'},
@@ -334,7 +342,8 @@ my %commands =
                                    'thread'      => {'include' => 'get|index'},
                                   },
                    'tokendata' => {'arg1' => 'args',
-                                   'arg2' => 'patterns' }
+                                   'arg2' => 'part',
+                                   'arg3' => 'contents' }
                   },
     'access'   => {
                    'default' => 'access',
