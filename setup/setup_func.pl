@@ -106,7 +106,8 @@ sub create_dirs_dom {
 # responses to the configurator.
 sub do_default_config {
   my $dom = shift;
-  my(@args, $arg, $errcount, $i, $ignore, $msg, $owner, $pw, $tmp);
+  my(@args, $arg, $dset, $gset, $i, $list, $msg, $owner, $pw, 
+     $subs, $tag, $tmp, $var);
 
   # Prompt for the password if necessary
   $pw = $config->{'domain'}{$dom}{'master_password'};
@@ -115,7 +116,7 @@ sub do_default_config {
     $pw = get_str($msg);
     $config->{'domain'}{$dom}{'master_password'} = $pw;
   }
-  print "Setting configuration defaults for $dom:" unless $quiet;
+  print "Setting configuration defaults for $dom..." unless $quiet;
 
   # Figure out what the owner address should be
   if ($config->{'domain'}{$dom}{whoami} =~ /(.*)\@(.*)/) {
@@ -126,47 +127,74 @@ sub do_default_config {
   }
 
   # Open the master defaults file, in lib/mj_cf_defs.pl
-  open MASTER, 'lib/mj_cf_defs.pl';
+  # open MASTER, 'lib/mj_cf_defs.pl';
+  require 'lib/mj_cf_defs.pl';
+  require 'lib/mj_cf_data.pl';
 
-  # Open the file in $listsdir/LIB/cf_defs_$dom.pl
-  open DEFS, ">$config->{lists_dir}/LIB/cf_defs_$dom.pl";
+  $subs = {
+           'addr_xforms'     => $config->{ignore_case} ? "ignore case" : '',
+           'master_password' => $config->{'domain'}{$dom}{master_password},
+           'owners'          => $config->{'domain'}{$dom}{owner},
+           'resend_host'     => $config->{'domain'}{$dom}{whereami},
+           'sender'          => $owner,
+           'site_name'       => $config->{'domain'}{$dom}{site_name} 
+                                 || $config->{site_name},
+           'tmpdir'          => $config->{'domain'}{$dom}{tmpdir} 
+                                 || $config->{tmpdir},
+           'whereami'        => $config->{'domain'}{$dom}{whereami},
+           'whoami'          => $config->{'domain'}{$dom}{whoami},
+           'whoami_owner'    => $owner,
+  };
 
-  while (defined($_ = <MASTER>)) {
-    # Do substitutions
-    s!(^ \'master_password\'.*)SITE_DFLT(.*)!$1$config->{'domain'}{$dom}{master_password}$2!;
-    s!(^ \'whereami\'.*)SITE_DFLT(.*)!$1$config->{'domain'}{$dom}{whereami}$2!;
-    s!(^ \'resend_host\'.*)SITE_DFLT(.*)!$1$config->{'domain'}{$dom}{whereami}$2!;
-    s!(^ \'whoami\'.*)SITE_DFLT(.*)!$1$config->{'domain'}{$dom}{whoami}$2!;
-    s!(^ \'whoami_owner\'.*)SITE_DFLT(.*)!$1$owner$2!;
-    s!(^ \'owners\'.*)SITE_DFLT(.*)!$1$config->{'domain'}{$dom}{owner}$2!;
-    s!(^ \'sender\'.*)SITE_DFLT(.*)!$1$owner$2!;
-    if ($config->{cgi_bin}) {
-      s!(^ \'confirm_url\'.*)SITE_DFLT(.*)!$1$config->{cgi_url}mj_confirm?d=$dom&t=\$TOKEN$2!;
-      s!(^ \'wwwadm_url\'.*)SITE_DFLT(.*)!$1$config->{cgi_url}mj_wwwadm$2!;
-      s!(^ \'wwwusr_url\'.*)SITE_DFLT(.*)!$1$config->{cgi_url}mj_wwwusr$2!;
-    }
-    else {
-      s!(^ \'confirm_url\'.*)SITE_DFLT(.*)!$1no server configured$2!;
-      s!(^ \'wwwadm_url\'.*)SITE_DFLT(.*)!$1no server configured$2!;
-      s!(^ \'wwwusr_url\'.*)SITE_DFLT(.*)!$1no server configured$2!;
-    }
-    $tmp = $config->{ignore_case} ? "'ignore case'" : '';
-    s!(^ \'addr_xforms\'.*\[)(\].*)!$1$tmp$2!;
-
-    for $i (qw(tmpdir site_name)) {
-      $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};
-      s!(^ \'$i\'.*)SITE_DFLT(.*)!$1$arg$2!;
-    }
-    print DEFS $_;
-    dot;
+  if ($config->{cgi_bin}) {
+    $subs->{'confirm_url'} = "$config->{cgi_url}mj_confirm?d=$dom&t=\$TOKEN";
+    $subs->{'wwwadm_url'} = "$config->{cgi_url}mj_wwwadm";
+    $subs->{'wwwusr_url'} = "$config->{cgi_url}mj_wwwusr";
   }
-  close MASTER;
-  close DEFS;
+  else {
+    $subs->{'confirm_url'} = "no server configured";
+    $subs->{'wwwadm_url'} = "no server configured";
+    $subs->{'wwwusr_url'} = "no server configured";
+  }
 
-  # Change ownership and permissions
-  chownmod(scalar getpwnam($config->{'uid'}), scalar getgrnam($config->{'gid'}),
-           (0777 & ~oct($config->{'umask'})), "$config->{'lists_dir'}/LIB/cf_defs_$dom.pl");
+  # The system defaults configuration files
+  # must be available for use before they can be parsed.
+  # Use Data::Dumper to save the raw data to a configuration
+  # file.   The data will be parsed by createlist-regen,
+  # which will be run (in most cases) when the aliases are
+  # updated.
+  use Data::Dumper;
+  $list = "GLOBAL";
+  $gset->{'raw'} = eval $Mj::Config::default_string;
+  open GCF, ">$config->{'lists_dir'}/$dom/GLOBAL/C_install";
+  print GCF Dumper $gset;
+  close GCF;
+  &chownmod(scalar getpwnam($config->{'uid'}),	
+            scalar getgrnam($config->{'gid'}),
+            (0777 & ~oct($config->{'umask'})), 
+            "$config->{'lists_dir'}/$dom/GLOBAL/C_install");
+  
+  $list = "DEFAULT";
+  $dset->{'raw'} = eval $Mj::Config::default_string;
+  open GCF, ">$config->{'lists_dir'}/$dom/DEFAULT/C_install";
+  print GCF Dumper $dset;
+  close GCF;
+  &chownmod(scalar getpwnam($config->{'uid'}),	
+            scalar getgrnam($config->{'gid'}),
+            (0777 & ~oct($config->{'umask'})), 
+            "$config->{'lists_dir'}/$dom/DEFAULT/C_install");
+  
   print "ok.\n" unless $quiet;
+}
+
+sub gen_tag {
+  my $chr = 'ABCDEFGHIJKLMNPQRSTUVWXYZ';
+  my $pw;
+
+  for my $i (1..6) {
+    $pw .= substr($chr, rand(length($chr)), 1);
+  }
+  $pw;
 }
 
 # Dump out the initial site config
@@ -235,11 +263,18 @@ sub install_config_templates {
     $config->{'site_password'} = $pw;
   }
 
+  $tmp = "tmp.$$." . &gen_tag;
+  open PW, ">$tmp";
+  print PW "default password $pw\n\n";
+  close PW;
+
+  print "Installing configuration templates for $domain..." unless $quiet;
+
   open(TMP, ">&STDOUT");
   open(STDOUT, ">/dev/null");
   @args = ("$config->{'install_dir'}/bin/mj_shell", '-u', 
-           'mj2_install@example.com', '-d', $domain, '-p',
-           $pw, '-F', 'setup/config_commands');
+           'mj2_install@example.com', '-d', $domain, 
+           '-F', $tmp, '-F', 'setup/config_commands');
 
   if (system(@args)) {
     die "Error executing $args[0], $?";
@@ -247,6 +282,9 @@ sub install_config_templates {
 
   close STDOUT;
   open(STDOUT, ">&TMP");
+  unlink $tmp;
+
+  print "ok.\n" unless $quiet;
 }
 
 
