@@ -128,8 +128,8 @@ use Date::Format;
 sub archive {
   my ($mj, $out, $err, $type, $request, $result) = @_;
  
-  my ($chunksize, $data, $first, $i, $j, $last, $line, $lines, 
-      $mess, $msg, $str, $subs, $tmp,  %stats, @tmp);
+  my (%stats, @tmp, $chunksize, $data, $first, $i, $j, $last, 
+      $line, $lines, $mess, $msg, $str, $size, $subs, $tmp);
   my ($ok, @msgs) = @$result;
 
   $subs = {
@@ -206,14 +206,20 @@ sub archive {
   elsif ($request->{'mode'} =~ /stats/) {
     $first = time;
     $last = 0;
+    $size = 0;
     $chunksize = scalar @msgs;
     for $i (@msgs) {
       $data = $i->[1];
       $first = $data->{'date'} if ($data->{'date'} < $first);
       $last = $data->{'date'} if ($data->{'date'} > $last);
-      $stats{$data->{'from'}} = 0 
-        unless (exists $stats{$data->{'from'}});
-      $stats{$data->{'from'}}++;
+      unless (exists $stats{$data->{'from'}}) {
+        $stats{$data->{'from'}}{'count'} = 0;
+        $stats{$data->{'from'}}{'size'} = 0;
+      }
+
+      $stats{$data->{'from'}}{'count'}++;
+      $stats{$data->{'from'}}{'size'} += $data->{'bytes'};
+      $size += $data->{'bytes'};
     }
     @tmp = localtime $first;
     $subs->{'START'} = strftime("%Y-%m-%d %H:%M", @tmp);
@@ -221,9 +227,12 @@ sub archive {
     $subs->{'FINISH'} = strftime("%Y-%m-%d %H:%M", @tmp);
     $subs->{'AUTHORS'} = [];
     $subs->{'POSTS'} = [];
-    for $i (sort { $stats{$b} <=> $stats{$a} } keys %stats) {
+    $subs->{'KILOBYTES'} = [];
+    $subs->{'TOTAL_KILOBYTES'} = int(($size + 512) / 1024);
+    for $i (sort { $stats{$b}{'count'} <=> $stats{$a}{'count'} } keys %stats) {
       push @{$subs->{'AUTHORS'}}, &escape($i, $type);
-      push @{$subs->{'POSTS'}}, $stats{$i};
+      push @{$subs->{'POSTS'}}, $stats{$i}{'count'};
+      push @{$subs->{'KILOBYTES'}}, int(($stats{$i}{'size'} + 512) / 1024);
     }
     $tmp = $mj->format_get_string($type, 'archive_stats');
     $str = $mj->substitute_vars_format($tmp, $subs);

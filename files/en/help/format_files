@@ -90,8 +90,8 @@ archive_stats
 (text, wwwadm)  This file is displayed when the archive-stats command
 is used.
 
-(standard plus AUTHORS, CGIDATA, CGIURL, CMDPASS, FINISH, POSTS, START, 
- TOTAL_POSTS, USER)
+(standard plus AUTHORS, CGIDATA, CGIURL, CMDPASS, FINISH, KILOBYTES,
+ POSTS, START, TOTAL_KILOBYTES, TOTAL_POSTS, USER)
 
 
 command
