@@ -21,7 +21,7 @@ require Exporter;
                 ep_recognize find_thread_root gen_pw in_clock n_build
                 n_defaults n_validate plain_to_hyper process_rule re_match
                 reconstitute reflow_plain shell_hook sort_msgs str_to_bool
-                str_to_time str_to_offset time_to_str);
+                str_to_time str_to_offset text_to_html time_to_str);
 
 use AutoLoader 'AUTOLOAD';
 
@@ -220,6 +220,8 @@ sub process_rule {
 	    $args{$arg} -= $time;
 	  }
 	  elsif ($value and ($ok ne 'bool')) {
+            # XXX Extend this to allow arithmetic and variables on 
+            # the right-hand side.
 	    $args{$arg} = $value;
 	  }
 	  else {
@@ -1189,6 +1191,74 @@ sub reflow_plain {
   $repl->commit;
 }
 
+=head2 text_to_html(text)
+
+Plain text is given simple markup to allow it to be presented
+as part of a web page.  Blank lines are treated as paragraph
+breaks.  Indented text is considered preformatted.  Anchors
+are added to URLs
+
+=cut
+sub text_to_html {
+  my $text = shift;
+  my (@lines, @out, $i, $line, $link, $state);
+  my $log = new Log::In 350;
+
+  return "" unless (defined $text and length $text);
+  $state = 'begin';
+
+  @lines = split(/\r?\n/, $text);
+
+  for ($i = 0; $i <= $#lines; $i++) {
+    $line = $lines[$i];
+
+    if ($line =~ m#(\&lt;)*(http://\S+)(\&gt;)*#i) {
+      $link = $2;
+      $line =~ s#$link#<a href="$link">$link</a>#;
+    }
+
+    if ($line =~ /^\s*$/) {
+      if ($state ne 'begin') {
+        push (@out, '</pre>') if ($state eq 'pre');
+        push (@out, '<p>');
+        $state = 'begin';
+      }
+    }
+    elsif ($line =~ /^\s+/) {
+      if ($state eq 'begin' and 
+          ($i == $#lines or $lines[$i+1] =~ /^(\s|$)/)) 
+      {
+        push (@out, '<pre>');
+        $state = 'pre';
+      }
+      elsif ($state eq 'text' and $i != $#lines 
+             and $lines[$i+1] =~ /^\s*$)/) 
+      {
+        push (@out, '<pre>');
+        $state = 'pre';
+      }
+    }
+    else {
+      if ($state eq 'pre') {
+        push (@out, '</pre>');
+      }
+      $state = 'text';
+    }
+    push (@out, $line);
+  }
+  return join ("\n", @out);
+}
+    
+=head2 sort_msgs(messages, mode, re_pattern)
+
+The array of messages is sorted by author, date, subject, or
+thread, according to the mode.  If the mode contains the word
+reverse, the messages are returned in reverse order.
+
+The re_pattern is used to remove leading "Re:" and related 
+prefixes from the message subjects before sorting.
+
+=cut
 sub sort_msgs {
   my ($msgs, $mode, $re_pattern) = @_;
   return unless (ref($msgs) eq 'ARRAY' and scalar(@$msgs));
