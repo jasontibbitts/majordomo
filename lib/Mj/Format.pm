@@ -823,8 +823,8 @@ Settings for $change->{'victim'}->{'full'} on "$list":
   Receiving $change->{'classdesc'} %s
   Flags:
 EOM
-        $summary = sprintf $summary, ($change->{'class'} eq 'digest') ?
-                   "(in $change->{'classarg2'} format)" : '';
+        $summary = sprintf $summary, ($change->{'class'}->[0] eq 'digest') ?
+                   "(in $change->{'class'}->[2] format)" : '';
         $summary .=  "    " . join("\n    ", @{$change->{'flagdesc'}}) . "\n\n";
         eprint($out, $type, &indicate($summary, $ok, 1)
         );
@@ -835,7 +835,7 @@ EOM
     }
   }
   eprint($out, $type, 
-    "Use the 'help set' command for an explanation of the set command.\n");
+    "Use the 'help set' command to see an explanation of the settings.\n");
 
   1;
 }
