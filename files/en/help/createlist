@@ -62,9 +62,14 @@ this message, use the following command:
   get-edit GLOBAL /new_list
 
 The createlist command automatically creates an archive directory unless
-"-noarchive" mode is specified. It also creates a master administrative
+"noarchive" mode is specified. It also creates a master administrative
 password randomly (see "help configset_master_password" for details on
 changing this password).
+
+For instance, the following command will create the "broccoli" mailing 
+list without an archive directory:
+
+       createlist-noarchive broccoli cabbage@example.com
 
 The archive directory is used to store messages that have been posted to
 a mailing list.  Majordomo cannot send messages bundled into digests
