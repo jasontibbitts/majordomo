@@ -46,6 +46,7 @@ sub new {
   $self->{top} = build MIME::Entity
     (Type     => 'multipart/mixed',
      Subject  => $args{'subject'} || '',
+     From     => $args{'from'},
      Filename => undef,
      # More fields here
     );

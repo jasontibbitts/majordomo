@@ -50,6 +50,7 @@ sub new {
   $self->{top} = build MIME::Entity
     (Type     => 'text/plain',
      Subject  => $args{'subject'} || '',
+     From     => $args{'from'},
      Filename => undef,
      Data     => '',
      # More fields here

@@ -407,7 +407,8 @@ sub sendenvelope {
   # also sleep for a while.
   continue {
     $i++;
-    if ($self->{'emergency'} && $i > 10) {
+    if ($self->{'emergency'} && $i > 25) {
+      warn "Could not deliver, even in emergency mode!";
       $log->abort("Could not deliver, even in emergency mode!");
     }
     
@@ -448,14 +449,14 @@ sub sendenvelope {
       # we're still not getting through.  So now we stuff all of the hosts
       # back in, go into 'super emergency' mode, and try them all again
       $self->{'activehosts'} = 
-	[@{$self->{'hostlist'}}, @{$self->{'backuplist'}}, 'localhost'];      
+        [@{$self->{'hostlist'}}, @{$self->{'backuplist'}}, 'localhost'];      
       $log->complain("Going into super-emergency delivery mode!")
 	unless $self->{'emergency'} == 2;
       $self->{'emergency'} = 2;
     }
     
-    # Wait a while, waiting longer the more we fail
-    sleep 10*$i*$self->{'emergency'} + 2 + rand(5);
+    # Wait a while, waiting longer the more we fail.
+    sleep (10 * $i * $self->{'emergency'}) + 2 + rand(5);
   }
   
   # We delivered an envelope OK, so move to the next host

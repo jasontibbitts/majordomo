@@ -45,7 +45,15 @@ Return additional information from _post so that t_accept can provide
   additional data.
 Finish work on allowed_flags and allowed_classes.
 Update FILES.
-
+Delay allocation of Dest/Sorter objects until something actually goes into
+  them.
+Keep a count of addresses delivered to and return this out of the delivery
+  module.
+Make Deliver take a list of delivery hashes, so you can pass in a whole
+  pile of class/message sets (including multiple files to the same class,
+  as long as they're in a different delivery hash).  This would allow a
+  queue runner to deliver multiple messages to one list with only one
+  database scan.
 
 Can filespace system entirely.  To see if a file exists, just stat it.
 Store additional info in a dotfile.  Only difficult rewrite is index.
@@ -798,3 +806,4 @@ Export information from the registration database to .htaccess files, so
  owners can restrict access to web archives or whatever.
 Provide some way for users to see what digests are available.
 Add an X-Header indicating whether or not the posting user is subscribed.
+Make _post call inform itself to get useful information in the log.

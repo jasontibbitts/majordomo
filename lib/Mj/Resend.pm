@@ -475,6 +475,7 @@ sub _post {
 	  (messages     => $digest{$i},
 	   types        => [@dtypes],
 	   subject      => $digests->{$i}{desc} . " V$dissues->{$i}{volume} #$dissues->{$i}{issue}",
+	   from         => $sender,
 	   tmpdir       => $tmpdir,
 	   index_line   => $self->_list_config_get($list, 'digest_index_format'),
 	   index_header => "index header\n",
@@ -782,7 +783,7 @@ sub _r_ck_body {
 =head2 _ck_theader
 
 This checks for taboo and admin headers, based upon the various
-taboo_header and admin_header variables.
+taboo_headers and admin_headers variables.
 
 No returns; implicitly modifies the the list referenced by reasons and the
 hash referenced by avars.

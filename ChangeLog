@@ -1,3 +1,8 @@
+Thu Feb  4 15:46:23 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Deliver/Dest.pm (sendenvelope): Increase number of
+ 	retries before giving up.
+
 1999-02-04  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Deliver/Envelope.pm (DESTROY): Shut down the SMTP

@@ -101,7 +101,7 @@ When the time coems, close down the connection.
 =cut
 sub DESTROY {
   my $self = shift;
-  $self->{'SMTP'}->QUIT;
+  $self->{'smtp'}->QUIT;
 }
 
 =head2 file(filename)

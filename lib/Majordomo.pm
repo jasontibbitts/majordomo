@@ -248,7 +248,8 @@ sub connect {
   $log->abort("Can't write session file to $self->{ldir}/GLOBAL/sessions/$id, $!")
     unless $self->{sessionfh};
 
-  $self->{sessionfh}->print("Source: $int\n\n");
+  $self->{sessionfh}->print("Source: $int\n");
+  $self->{sessionfh}->print("PID:    $$\n\n");
   $self->{sessionfh}->print("$sess\n");
 
   return wantarray ? ($id, $user->strip) : $id;
