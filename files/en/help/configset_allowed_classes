@@ -4,7 +4,7 @@ configset listname allowed_classes <<TAG
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : each ... (only first item is shown)
-Data Type     : enum_array, choose from: all digest each nomail
+Data Type     : enum_array, choose from: all digest each nomail unique
 Variable Group: class
 Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -26,19 +26,24 @@ described in "help set".
 
 If a class (like 'digest') which has sub-classes is allowed, users
 are allowed to put themselves into any of the more specific classes
-(like 'digest-daily' or digest-weekly'). Unless 'each' is allowed,
-the owner can force users to stay in 'digest' or 'nomail' mode,
-thus lowering the load on the server.
+(like 'digest-daily' or digest-weekly'). Unless 'each' or 'unique'
+is allowed, the owner can force users to stay in 'digest' or 'nomail'
+mode, thus lowering the load on the server.
 
 Subscription class can be changed by the "set" command. By default,
 a user is free to choose any of these three classes. The example
 above prohibits the user from choosing to receive digests but does
 allow them to suspend their subscription with 'nomail'.
 
+To suspend cross-list duplicate post checking, do not allow the
+"unique" class of subscriptions. Refer to "help configset dup_lifetime"
+and "help set" for more details.
+
 
 See Also:
    help set    (to change your subscription class/sub-class)
    help configset digests (to define sub-classes for a list)
+   help configset dup_lifetime (must have non-zero lifetime for GLOBAL)
 
 For a list of all help topics send this one-line message
    help topics

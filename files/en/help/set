@@ -35,7 +35,7 @@ The settings can be grouped as follows, and each of these numbered items
 is in a separate section below (specify only one of each group, because
 each one will override the others in the group):
   1. subscription class or subclass
-      (each, nomail, nomail-period, nomail-return, vacation, digest, digest-XXX, all)
+      (each, unique, nomail, nomail-period, nomail-return, vacation, digest, digest-XXX, all)
   2. informative messages
       (noack, ackall, ackimportant, ackstall, ackdeny, ackpost, ackreject)
   3. copies of your own posts (selfcopy, noselfcopy)
@@ -65,14 +65,21 @@ manner if settings are changed without the subscriber's reply.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   1. subscription class or subclass
-(each, nomail, nomail-period, nomail-return, vacation, digest, digest-XXX, all)
+(each, unique, nomail, nomail-period, nomail-return, vacation, digest, digest-XXX, all)
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 You can set your subscription class, which controls how (and if) you
-receive messages from the server.  There are three basic classes:
+receive messages from the server. List owners should refer to
+"help configset dup_lifetime" if any subscribers want to use the
+duplicate post elimination of the "unique" class.
+
+There are four basic classes:
      each          - you get each message as it is posted.
+     unique        - like 'each', but no duplicates from multiple lists.
      digest        - you get periodic collections of messages.
      nomail        - you get nothing until you issue another 'set' command.
+
+In addition, there are some special classes:
      nomail-period - you get nothing for the specified time period.
      nomail-return - cancels "set nomail", if one is in effect.
      vacation      - another way of spelling "nomail".
@@ -85,6 +92,7 @@ a per-list basis. Typical sub-classes, NOT always present, might be:
 The list owner can also determine the default class for new subscribers
 as described in "help configset default_class".
 
+
 1a) Subscription Class of "each":
 
   To receive each message from the list as it is posted, send this
@@ -92,9 +100,26 @@ as described in "help configset default_class".
      set LISTNAME each YourEmailAddressHere
   where "LISTNAME" is replaced with the name of the list. This will turn
   off (or cancel) the digest and/or nomail options if they are in effect.
+  If you are subscribed to many lists at the same server, and often get
+  the same message from several lists, consider using "unique" instead.
 
 
-1b) Subscription Class of "nomail" or "vacation":
+1b) Subscription Class of "unique":
+
+  To receive each message from the FIRST LIST it goes to, as it is posted,
+  send this one-line command to $MJ
+     set LISTNAME unique YourEmailAddressHere
+  where "LISTNAME" is replaced with the name of the list. This will turn
+  off (or cancel) the digest and/or nomail options if they are in effect.
+  This class is different from "each" in that subscribers will not receive
+  additional copies of the same message if they have potentially received
+  it from a different mailing list on which they are subscribed and on
+  which the same message was posted. Odd results may occur if you are in
+  the "digest" class for some lists and "unique" for others, but you should
+  still get exactly one copy of each message.
+
+
+1c) Subscription Class of "nomail" or "vacation":
 
   NOTE: You can use either "nomail" or "vacation", they are the same class.
 
@@ -127,7 +152,7 @@ as described in "help configset default_class".
   with the name of the list where you are subscribed. If you come back
 
 
-1c) Subscription Class of "digest":
+1d) Subscription Class of "digest":
 
   To receive groups of messages or just a list of messages from the list,
   instead of receiving each message one at a time, send this one-line
@@ -136,7 +161,7 @@ as described in "help configset default_class".
   where "LISTNAME" is replaced with the name of the list.
 
 
-1d) Subscription Class of "digest" with a sub-class of digest name:
+1e) Subscription Class of "digest" with a sub-class of digest name:
 
   Along with 'digest', you can specify which sub-class of digest you want to
   receive and how you want it formatted. For example, you can send one of these
@@ -170,7 +195,7 @@ as described in "help configset default_class".
   LISTNAME-owner@$WHEREAMI
 
 
-1e) Subscription Class of "all" for use in debugging by list owners
+1f) Subscription Class of "all" for use in debugging by list owners
 
   There is a class called "all", but it should only be used by the list
   owner as a debugging tool. The 'all' class is NOT a shorthand for all
@@ -446,6 +471,7 @@ See Also:
    help configset allowed_classes        (restricts subscribers ability to set digest)
    help configset default_class          (sets per-list defaults before subscribing)
    help configset default_flags          (sets per-list defaults before subscribing)
+   help configset dup_lifetime           (can bypass duplicate post / "unique" class checking)
    help configset nonmember_flags        (sets non-subscriber defaults for ack messages)
    help configshow                       (for how to get a list of availabel digests)
    help subscribe (allows you to choose the comment that appears with your address)
