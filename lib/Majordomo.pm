@@ -2873,6 +2873,7 @@ sub _archive {
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
   my (@msgs) = $self->{'lists'}{$list}->archive_expand_range(0, $args);
+  $self->{'archct'} = 1;
   return (1, @msgs);
 }
 
@@ -2881,9 +2882,10 @@ sub archive_chunk {
   my $log = new Log::In 30, "$request->{'list'}";
   my (@msgs, $data, $ent, $file, $i, $list, $out, $owner, $fh, $buf);
 
-  if (scalar(@$result) <= 0) {
-    return (1, "No messages were found which matched your request.\n");
-  }
+  return (0, "The archive was not initialized.\n")
+    unless (exists $self->{'archct'});
+  return (1, "No messages were found which matched your request.\n")
+    if (scalar(@$result) <= 0);
   return (0, "Unable to initialize list $request->{'list'}.\n")
     unless $self->_make_list($request->{'list'});
   $list = $self->{'lists'}{$request->{'list'}};
@@ -2908,7 +2910,8 @@ sub archive_chunk {
     ($file) = $list->digest_build
     (messages      => $result,
      type          => $out,
-     subject       => "Results from $request->{'cmdline'}",
+     subject       => "$request->{'list'} list archives ($self->{'archct'})",
+     to            => "$request->{'user'}",
      tmpdir        => $tmpdir,
      index_line    => $self->_list_config_get($request->{'list'}, 'digest_index_format'),
      index_header  => "Custom-Generated Digest Containing " . scalar(@$result) . 
@@ -2922,6 +2925,7 @@ Contents:
     $owner = $self->_list_config_get($request->{'list'}, 'sender');
     $self->mail_message($owner, $file, $request->{'user'});
     unlink $file;
+    $self->{'archct'}++;
     return (1, "A digest containing ".scalar(@$result)." messages has been mailed.\n");
   }
 }
