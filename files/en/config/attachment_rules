@@ -1,26 +1,26 @@
-The attachment_rules setting contains a table of rules, which describe 
-how to treat the different body parts of a posted message. 
+The attachment_rules setting contains a list of rules, which describe 
+what content types of a posted message are considered acceptable.
 
-A rule consists of a MIME type (or regular expression matching a MIME
-type) and a list of actions to perform when a message with this type
-or containing a part of this type passes through the list.  It looks
-something like this:
+A rule consists of a MIME type (or pattern matching a MIME type) and an
+action to perform when a message with this type or containing a part 
+of this type passes through the list.  Each rule looks something 
+like this:
 
 mime/type | action=argument
 
-Some MIME types are:
-
-text/plain, text/html, image/jpeg, video/mpeg
+Some common MIME types are text/plain, text/html, and image/jpeg.
 
 Possible actions are:
 
-  allow     - let the body part pass untouched.
-  consult   - send the entire message to the list owner for approval.
-  deny      - reject the entire message.
-  discard   - remove the part from the message and pass the rest.
-  format    - convert the body part to plain text.  A numerical
-              argument will adjust the right margin of the text,
-              which occurs at position 72 by default.
-  require   - let the body part pass untouched.  Set the "mime_require"
-              access variable for use in the access rules.
+  allow   - Accept the body part.
+  consult - Set the "mime_consult" access variable.  By default, this
+            will cause the message to be sent to the list moderators
+            for approval.
+  deny    - Set the "mime_deny" access variable.  By default, this will
+            cause the entire message to be discarded.
+  require - Set the "mime_require" access variable.  By default, this 
+            has no effect.
+
+See "help configset_access_rules" and "help access_variables" for an
+explanation of how to use access variables in the access rules.
 
