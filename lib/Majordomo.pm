@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200102140";
+$VERSION = "0.1200102160";
 $unique = 'AAA';
 
 use strict;
@@ -253,7 +253,7 @@ session should now be fine, but we want to enforce timeouts and other
 interesting things.
 
 =cut
-use MD5;
+use Digest::SHA1 qw(sha1_hex); 
 sub connect {
   my $self = shift;
   my $int  = shift;
@@ -282,7 +282,7 @@ sub connect {
   $self->{interface} = $1;
 
   # Generate a session ID; hash the session, the time and the PID
-  $id = MD5->hexhash($sess.scalar(localtime).$$);
+  $id = sha1_hex($sess.scalar(localtime).$$);
   $id =~ /(.*)/; $id = $1; # Safe to untaint because it's nearly impossible
                            # to leak information through the digest
                            # algorithm.
@@ -703,7 +703,7 @@ sub gen_cmdline {
       last if (defined $hereargs and ($variable eq $hereargs));
       if (exists $request->{$variable} and $arguments->{$variable} ne 'ARRAY') {
         $cmdline .= " $request->{$variable}" 
-          if length $request->{$variable};
+          if (defined $request->{$variable} and length $request->{$variable});
       }
     }
   }
@@ -4117,7 +4117,7 @@ sub _createlist {
   my $log = new Log::In 35, "$mode, $list";
   my (%args, %data, @lists, @owners, @sublists, @tmp, $aliases, $bdir, $desc, 
       $dir, $dom, $debug, $ent, $file, $i, $j, $mess, $mta, $mtaopts, $pw, 
-      $rmess, $sender, $setting, $subs, $sublists, $who);
+      $rmess, $sender, $setting, $shpass, $subs, $sublists, $who);
 
   unless ($mode =~ /regen|destroy/) {
     @tmp = split "\002\002", $owner;
@@ -4543,41 +4543,60 @@ Enhanded mode:
 sub lists {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'mode'}";
-  my (@lines, @lists, @out, @sublists, @tmp, $cat, $compact, 
-      $count, $data, $desc, $digests, $flags, $i, $limit, $list, 
-      $expose, $mess, $ok, $sublist);
+  my ($mess, $ok);
 
-  # Stuff the registration information to save lots of database lookups
-  $self->_reg_lookup($request->{'user'});
-
-  $expose = 0;
   if ($request->{'regexp'}) {
     ($ok, $mess, $request->{'regexp'}) 
-      = Mj::Config::compile_pattern($request->{'regexp'}, 0, "iexact");
+      = Mj::Config::compile_pattern($request->{'regexp'}, 0, 'iexact');
     return ($ok, $mess) unless $ok;
   }
 
   # Check access
-  ($ok, $mess) = $self->list_access_check($request);
+  ($ok, $mess) = $self->global_access_check($request);
 
   unless ($ok > 0) {
     return ($ok, $mess);
   }
 
-  $request->{'mode'} ||= $self->_global_config_get('default_lists_format');
+  $self->_lists('GLOBAL', $request->{'user'}, $request->{'user'},
+                $request->{'mode'}, $request->{'cmdline'}, 
+                $request->{'regexp'}, $request->{'password'}, $ok);
+}
+
+sub _lists {
+  my $self     = shift;
+  my $d        = shift;
+  my $user     = shift;
+  my $vict     = shift;
+  my $mode     = shift;
+  my $cmd      = shift;
+  my $regexp   = shift;
+  my $password = shift;
+  my $ok       = shift || 0;
+
+  my $log = new Log::In 35, $mode;
+  my (@lines, @lists, @out, @sublists, @tmp, $cat, $compact, 
+      $count, $data, $desc, $digests, $flags, $i, $limit, $list, 
+      $expose, $mess, $sublist);
+
+  $expose = 0;
+  $mode ||= $self->_global_config_get('default_lists_format');
   $limit =  $self->_global_config_get('description_max_lines');
 
-  if ($request->{'mode'} =~ /short/) {
+  # Stuff the registration information to save lots of database lookups
+  $self->_reg_lookup($user);
+
+  if ($mode =~ /short/) {
     $compact = 1;
   }
 
-  @lists = $self->get_all_lists($request->{'user'}, 
-                                $request->{'password'}, 
-                                $request->{'regexp'});
+  @lists = $self->get_all_lists($user, 
+                                $password, 
+                                $regexp);
 
 
-  if ($request->{'mode'} =~ /config/) {
-    if (_re_match($request->{'regexp'}, 'DEFAULT')) {
+  if ($mode =~ /config/) {
+    if (_re_match($regexp, 'DEFAULT')) {
       push @lists, 'DEFAULT';
     }
   }
@@ -4588,10 +4607,8 @@ sub lists {
     # and private auxiliary list names.  To accommodate this,
     # the password is checked against each list, and the "ok"
     # result is upgraded.
-    if ($request->{'mode'} =~ /aux|config/) {
-      $expose = $self->validate_passwd($request->{'user'}, 
-                                         $request->{'password'}, 
-                                         $list, 'ALL', 0);
+    if ($mode =~ /aux|config/) {
+      $expose = $self->validate_passwd($user, $password, $list, 'ALL', 0);
       $expose = ($expose > $ok) ? $expose : $ok;
     }
     else {
@@ -4624,12 +4641,12 @@ sub lists {
              'list'        => $list, 
             };
 
-    if ($request->{'mode'} =~ /enhanced/) {
+    if ($mode =~ /enhanced/) {
       $data->{'flags'} .= 'S' 
-                         if $self->is_subscriber($request->{'user'}, $list);
+                         if $self->is_subscriber($user, $list);
     }
     # "full" mode:  return digests, post and subscriber counts, archive URL.
-    if ($request->{'mode'} =~ /full/) {
+    if ($mode =~ /full/) {
       $data->{'owner'}    = $self->_list_config_get($list, 'whoami_owner');
       $data->{'address'}  = $self->_list_config_get($list, 'whoami');
       $data->{'subs'}     = $self->{'lists'}{$list}->count_subs;
@@ -4646,7 +4663,7 @@ sub lists {
     push @out, $data unless ($list =~ /^DEFAULT/);
  
     # "aux" mode: return information about auxiliary lists
-    if ($request->{'mode'} =~ /aux/) {
+    if ($mode =~ /aux/) {
       $self->{'lists'}{$list}->_fill_aux;
       # If a master password was given, show all auxiliary lists.
       if ($expose > 1) {
@@ -4666,30 +4683,30 @@ sub lists {
         next if ($sublist eq 'MAIN');
         ($sublist, $desc) = split /[\s:]+/, $sublist, 2;
         $flags = '';
-        if ($request->{'mode'} =~ /enhanced/) {
+        if ($mode =~ /enhanced/) {
           $flags = 'S'  
-            if ($self->{'lists'}{$list}->is_subscriber($request->{'user'},
+            if ($self->{'lists'}{$list}->is_subscriber($user,
                                                        $sublist));        
         }
         push @out, { 
-                     'list'        => "$list:$sublist", 
-                     'category'    => $cat, 
-                     'description' => $desc, 
-                     'flags'       => $flags,
-                     'posts'       => $self->{'lists'}{$list}->count_posts(30, $sublist),
-                     'subs'        => $self->{'lists'}{$list}->count_subs($sublist),
+                    'category'    => $cat, 
+                    'description' => $desc, 
+                    'flags'       => $flags,
+                    'list'        => "$list:$sublist", 
+                    'posts' => $self->{'lists'}{$list}->count_posts(30, $sublist),
+                    'subs'  => $self->{'lists'}{$list}->count_subs($sublist),
                    };
       }
     } 
     # Only display a list of templates if a master password was given. 
-    if ($request->{'mode'} =~ /config/ and 
+    if ($mode =~ /config/ and 
         ($expose > 1 or $list =~ /^DEFAULT/)) {
       $self->{'lists'}{$list}->_fill_config;
       for $sublist (keys %{$self->{'lists'}{$list}->{'templates'}}) {
         next if ($sublist eq 'MAIN' and $list !~ /^DEFAULT/);
         $desc = '';
-        @lines = $self->list_config_get($request->{'user'},
-                                       $request->{'password'},
+        @lines = $self->list_config_get($user,
+                                       $password,
                                        $list, $sublist, 'comments', 1);
         $count = 1;
         for (@lines) {
@@ -5225,8 +5242,10 @@ sub sessioninfo_start {
   return (0, "You must supply a session identifier.\n")
     unless ($request->{'sessionid'});
 
-  if ($request->{'sessionid'} !~ /^[0-9a-f]{32}$/) {
-    return (0, "Illegal session identifier $request->{'sessionid'}.\n");
+  # The session identifier can be a 32-character MD5 digest, or
+  # a 40-character SHA-1 digest.
+  if ($request->{'sessionid'} !~ /^[0-9a-f]{32}([0-9a-f]{8})?$/) {
+    return (0, qq(The session ID "$request->{'sessionid'}" is invalid.\n));
   }
 
   # spoolfile should only be defined if invoked by tokeninfo. 

@@ -1,3 +1,19 @@
+2001-02-16  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (connect) Use SHA-1 hex digest for session
+	identifiers.
+	(_lists)  Add back end to allow the lists command to stall.
+	Change version number to 0.1200102160.
+
+	* lib/Mj/Confirm.pm:  (parse_passwords, parse_pw)  Convert clear
+	text admin passwords to SHA-1 digests.
+
+	* lib/Mj/Token.pm:  (validate_latchkey)  Removed.
+
+	* lib/Mj/Util.pm:  (ep_convert, ep_recognize)  New routines to
+	convert a clear text password to an SHA-1 digest, and to recognize
+	an SHA-1 base 64 digest.
+
 2001-02-14  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Improve domain checking.
