@@ -81,15 +81,16 @@ try to extend the patterns (like tacking an hour on a day-of-year spec).
    - the action will be taken only during this hour of each day
       (at whatever minute is convenient for the software)
    - minutes can NOT be specified
-   - EXAMPLES: "0" is midnight, "12" is noon, "23" is late evening
+   - EXAMPLE: "0" is midnight, "12" is noon
+   - EXAMPLE: "23" is late evening, the last hour of the day
 
 1b. HOUR RANGE: two HOURs separated by a dash
-   - the action will be taken anytime between these two hours each day
+   - the action will be taken each hour between these two hours each day
    - if the second number is less than the first, the range continues
       into the next day (wraps around midnight)
-   - EXAMPLE: "12-13" is the noon hour, 12noon to 1pm
-   - EXAMPLE: "8-5" is the work day, 8am to 5pm
-   - EXAMPLE: "22-6" most people are asleep, 10pm to 6am
+   - EXAMPLE: "12-13" is around noon, action taken at 12noon and 1pm
+   - EXAMPLE: "8-17" is the work day, once per hour from 8am to 5pm
+   - EXAMPLE: "22-6" most people are asleep, once per hour from 10pm to 6am
 
 1c. HOUR LIST: two or more HOURs and/or HOUR RANGEs separated by commas
    - the action will be taken during each of these hours each day, as needed
@@ -147,8 +148,8 @@ try to extend the patterns (like tacking an hour on a day-of-year spec).
    - can use a number 1-12 followed by 'm' and ANOTHER number 1-31 followed by 'd'
    - YEAR DAYs beyond the last actual day of a year (like 400y or 2m31d) will be IGNORED
    - do not confuse this once-per-year spec with the once-per-month spec above!
-   - EXAMPLES: "91y"  is April Fool's day and "359y"   is Christmas
-   - EXAMPLES: "4m1d" is April Fool's day and "12m25d" is Christmas
+   - EXAMPLES: "91y"  is April Fool's day and "359y"   is Christmas in the year 2000
+   - EXAMPLES: "4m1d" is April Fool's day and "12m25d" is Christmas in the year 2000
 
 6. SPECIAL NAMES: these can be used as alternatives to the DAY specs above
    - always:    take the action whenever possible (cron usually runs triggers hourly)
