@@ -163,6 +163,9 @@ EOM
     if (get_bool($msg, $def)) {
       $config->{database_backend} = 'db';
     }
+    else {
+      $config->{database_backend} = 'text';
+    }
   }
   else {
     $msg = <<EOM;
