@@ -55,8 +55,9 @@ sub collect_data {
                  'refs'        => '',
                  'subject'     => '',
                };
-  my ($head) = $entity->head;
+  my ($head) = $entity->head->dup;
   return unless $head;
+  $head->unfold;
 
   # Obtain references
   @refs = ();
@@ -116,6 +117,42 @@ sub _r_ct_lines {
     $data->{body_lines}++;
     $data->{quoted_lines}++ if Majordomo::_re_match($qp, $line);
   }
+}
+
+=head2 replace_headers (file, headers)
+
+Given a file containing a message, replace a group of headers within
+the file.
+
+=cut
+use Mj::FileRepl;
+sub replace_headers {
+  my $self = shift;
+  my $file = shift;
+  my %hdrs = @_;
+  my ($ent, $hdr, $repl, $tmp);
+
+  return unless keys %hdrs;
+
+  $repl = new Mj::FileRepl "$file";
+  return unless $repl;
+
+  $ent = $self->read($repl->{'oldhandle'});
+  return unless $ent;
+  for $hdr (keys %hdrs) {
+    if ($hdr =~ /^-/) {
+      # Remove headers beginning with "-"
+      $tmp = substr $hdr, 1;
+      $ent->head->delete($tmp);
+    }
+    else {
+      $ent->head->replace($hdr, $hdrs{$hdr});
+    }
+  }
+
+  $ent->print($repl->{'newhandle'});
+  $repl->commit;
+  1;
 }
 
 =head1 COPYRIGHT
