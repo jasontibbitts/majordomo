@@ -537,7 +537,7 @@ sub _sync_msgs {
         $entity = $parser->parse_open($tmpfile);
         return (0, "Unable to parse mailbox.\n") unless $entity;
         $arcnum = $entity->head->get("X-Archive-Number");
-        unless ($arcnum =~ m#$arcname/\d+#) {
+        unless (defined $arcnum and $arcnum =~ m#$arcname/\d+#) {
           $arcnum = "$arcname/$count";
           $entity->head->replace("X-Archive-Number", $arcnum);
           $count++;
