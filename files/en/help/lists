@@ -12,75 +12,124 @@ pattern,   if specified, is a regular expression to search list names
 -tiny,     if specified, shows all lists with minimal information
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-NOTE: Normally you would only specify one option, as in "lists-long",
-but it is possible to combine them as in "lists-short-enhanced".
-Proof is left to the user that any of these combinations are useful.
+The lists command shows some or all of the public mailing lists 
+hosted at $DOMAIN.
 
-This command shows all the lists hosted at $MJ
-unless the owner of a list has configured it to be invisible to you.
-If you specify "pattern", only lists matching that regular expression
-will be displayed (see "help patterns" for regular expression details).
+To see a description of every public list, simply use this command:
 
-If no options are used, the kind of list you get is determined by
-the site administrator who can set the default to any option.
-Combinations may yield useful results or may produce garbage output.
+  lists
 
-With the "-tiny" option, you get back only the list names no matter
-what other options you may add to the command.
+You can also use a pattern to search the list of lists, for example:
 
-With the "-short" option, a one-line description of each list
-is provided, and lists are grouped by area of interest, as
-determined by the site administrator. Additional information
-about the site is provided.
+  lists major
 
-The "-long" option is similar to "-short", but a paragraph-length
-description is shown for each list.
+would display all mailing lists with "major" in their names.
+(See "help patterns" for more information on search patterns).
 
-The "-compact" option is similar to "-long", but site information
-and all blank lines are removed.
+Command modes
+-------------
 
-With the "-enhanced" option, you also get information about which
-lists you are subscribed to. If only this option is used, you get
-all the information from "-long".
+Anyone using the lists command can take advantage of the following
+command modes.  Command modes can be combined by joining them with
+hyphens or equal signs (e.g., "lists-enhanced-long" or "lists=full=short")
 
-To find out where you are subscribed without descriptive paragraphs:
+  compact
+    A long description of each list is provided, and lists are grouped by
+    category.
+
+  enhanced
+    The lists to which you are subscribed are marked.
+
+  full
+    Extra details are shown for each list:  the number of subscribers,
+    the digests delivered, the number of posted messages in the last 30
+    days, and other information.
+
+  long
+    A long description of each list is provided, and lists are grouped by
+    category.  A count of lists is shown.
+
+  short 
+    A brief description of each list is provided, and lists are grouped by 
+    category.  A count of lists is shown.
+
+  tiny
+    Only the list names are displayed.  The list descriptions and categories 
+    are omitted.
+
+To find out where you are subscribed without descriptive paragraphs, use
+this command:
+
   lists-enhanced-short
 
-The "-full" option causes extra information, including a subscriber
-count, the URL of the list archives (if configured), the list posting
-address, the owner address, etc. to be displayed.
+This command will create a lengthy report about all of the lists:
 
-The "-aux" option causes all sublists to be displayed.  Sublists,
-also known as auxiliary lists, are used to categorize subscribers,
-and to allow different groups of subscribers to have different 
-privileges. Note that only sublists specified by the list owner
-with "configset sublists" will appear in this listing, unless
-a list, domain, or site master password is used.
+  lists-long-full
 
-The "-config" option causes all configuration templates to be
-displayed.  See "help configshow" for a discussion of templates.
-This option will only work if a list, domain, or site master
-password is used.  When a configuration template is displayed,
-the text of "comments" setting of that template is presented
-as a description of the template.
 
-If the owner of a mailing list types the name of her list as a 
-pattern, and uses the master password for the list, the lists
-command may display extra information.  In "aux" mode, auxiliary
-lists which are not included in the sublists setting are displayed.
-In "config" mode, configuration templates for her list and the
-DEFAULT list are shown.
+Command modes for list administrators
+-------------------------------------
+
+  aux
+    If an administrative password is used, all auxiliary lists will
+    be displayed.  Otherwise, only the public auxiliary lists (from
+    the "sublists" configuration setting) will be displayed.
+    See "help auxiliary_list" for an introduction to sublists.
+
+  config
+    All configuration templates for a list will be displayed.
+    See "help configshow" for a discussion of templates.
+    This option will only work if an administrative password is used.
+    When a configuration template is displayed, the text of the "comments" 
+    setting of that template is presented as a description of the template.
+
+To see a summary of all public configuration templates, use this command:
+
+  lists-config DEFAULT
+
+If the owner of a mailing list types the name of her list as a pattern, 
+and uses the master password for the list, the lists command may display 
+extra information.  In "aux" mode, auxiliary lists which are not included 
+in the sublists setting are displayed.  In "config" mode, configuration 
+templates for her list and the DEFAULT list are shown.
+
+When an administrative password is not used with the lists command,
+the following steps are taken to determine if a list should be shown
+to the person who make the request:
+
+  * If the person is subscribed to the list, and the GLOBAL 
+    advertise_subscribed setting is turned on,  the list is shown.
+
+  * Any rules for the "advertise" request in the list's access_rules setting
+    are considered.
+
+  * If the person's address matches any of the patterns in the list's
+    noadvertise configuration setting, the list is not shown.
+
+  * If the list's advertise configuration setting contains patterns,
+    and the person's address does not match at least one of them,
+    the list is not shown.
+
+  * If none of the first four rules is applicable, the list is shown.
 
 
 See Also:
    help auxiliary_list (for a discussion of auxiliary subscriber lists)
-   help configset access_rules         (to make use of auxiliary lists)
-   help configset access_rules_variables    (set/test for this command)
-   help configset comments (used for descriptions of configuration templates)
-   help configset sublists (to choose auxiliary lists that are visible)
+   help configset_access_rules         (to make use of auxiliary lists)
+   help configset_access_rules_variables    (set/test for this command)
+   help configset_advertise
+   help configset_advertise_subscribed
+   help configset_category
+   help configset_comments (used for descriptions of configuration templates)
+   help configset_description
+   help configset_description_long
+   help configset_description_max_lines
+   help configset_default_lists_format (determines the default command modes)
+   help configset_noadvertise
+   help configset_sublists (to choose auxiliary lists that are visible)
    help configshow (for a description of configuration templates)
    help info      (to find out more about a list)
-   help subscribe (to add your name to a list)
+   help subscribe (to add your address to a list)
 
 For a list of all help topics send this one-line message
    help topics
