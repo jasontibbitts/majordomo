@@ -574,6 +574,15 @@ sub regen {
 
   my $config = $self->{'source'}{'MAIN'};
 
+  # Convert any existing "moderator" address to the "moderators"
+  # setting.
+  if (exists ($config->{'raw'}->{'moderator'}) and ! exists
+      ($config->{'raw'}->{'moderators'})) 
+  {
+     $config->{'raw'}->{'moderators'} = 
+      [ $config->{'raw'}->{'moderator'} ];
+  }
+
   for $var (keys %{$config->{'raw'}}) {
     # remove outdated settings
     unless (exists $self->{'vars'}{$var}) {
