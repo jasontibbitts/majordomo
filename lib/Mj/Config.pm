@@ -118,7 +118,7 @@ sub new {
   my %args  = @_;
 
   my $list  = $args{'list'} or
-    $::log->abort("Mj::Config::New called without list name");
+    $::log->abort("Mj::Config::new called without list name");
 
   $::log->in(150, "$list");
 
@@ -1301,14 +1301,15 @@ type, each containing:
  code        - a string ready to be evaled.
 
 =cut
+use Mj::Util qw(n_validate);
 sub parse_access_rules {
   my $self = shift;
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150;
 
-  my (%rules, @at, @tmp, $action, $check_aux, $code, $count,
-      $data, $error, $evars, $i, $j, $k, $l, $m, $n, $ok, $part, $rule,
+  my (%rules, @at, @tmp, $action, $check_aux, $check_time, $code, $count,
+      $data, $error, $evars, $file, $i, $j, $k, $l, $m, $n, $ok, $part, $rule,
       $table, $taboo, $tmp, $tmp2, $warn);
 
   # %$data will contain our output hash
@@ -1375,6 +1376,15 @@ sub parse_access_rules {
 	      $warn .= "  Req. $i, action $tmp: file '$k' could not be found.\n";
 	    } # XLANG
 	  }
+          if ($tmp eq 'notify') {
+            ($ok, $error) = n_validate($tmp2);
+            if ($ok < 0) {
+              $warn .= "Req. $i, action notify:  $error\n";
+            }
+            elsif ($ok == 0) {
+              return ($ok, $error);
+            }
+          }
 	}
       }
 
@@ -1633,7 +1643,7 @@ sub parse_bounce_rules {
   my $log  = new Log::In 150;
 
   my (@tmp, $acts, $check_aux, $check_time, $count, $data, $error,
-      $i, $j, $k, $o, $part, $rule, $table, $tmp, $tmp2, $warn);
+      $file, $i, $j, $k, $o, $ok, $part, $rule, $table, $tmp, $tmp2, $warn);
 
   # %$data will contain our output hash
   $data = {};
@@ -3241,7 +3251,7 @@ sub compile_pattern {
   return (0, "Unrecognized pattern '$str'.\n");
 }
 
-=head2 compile_rule(request, action, rule, id)
+=head2 _compile_rule(request, action, rule, id)
 
 This takes the access control language and "compiles" it into a Perl
 subroutine (contained in a string) which can be processed with eval (or
@@ -3375,8 +3385,8 @@ sub _compile_rule {
 	  last;
 	}
 
-	unless (rules_var($request, $var, 3)) {
-	  @tmp = rules_vars($request, 3);
+	unless (rules_var($request, $var, 'string')) {
+	  @tmp = rules_vars($request, 'string');
 	  $e .= "Illegal match variable for $request: $var.\nLegal variables which you can match against are:\n".
 	    join("\n", sort(@tmp));
 	  last;
@@ -3550,7 +3560,7 @@ sub _compile_rule {
 	# Numeric comparisons; first make sure we allow them
 	else {
 	  if ($var !~ /(global_)?(admin_|taboo_)\w+/ &&
-	      rules_var($request, $var) != 2) {
+	      rules_var($request, $var) ne 'integer') {
 	    $e .= "Variable '$var' does not allow numeric comparisons.\n";
 	    last;
 	  }
