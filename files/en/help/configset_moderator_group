@@ -10,16 +10,12 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset listname moderator_group = 2
 
-
-List messages requiring consulataion will be sent to this many of the
-addresses in 'moderators', chosen at random.  If this is zero, the
-message will be sent to all of the addresses in 'moderators'.
+$INCLUDE-config/moderator_group
 
 
 See Also:
-   help configset moderators (for more detailed info)
-   help configset moderator  (for a simple setting)
+   help admin_moderate
+   help configset_moderators (for more detailed info)
+   help configset_owners
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

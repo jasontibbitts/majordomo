@@ -3,7 +3,7 @@
 The moderate category includes the following settings:
    access_rules, admin_body, admin_headers, administrivia, attachment_rules, 
    dup_lifetime, max_header_line_length, max_mime_header_length, 
-   max_total_header_length, maxlength, moderate, moderator, moderator_group, 
+   max_total_header_length, maxlength, moderate, moderator_group, 
    moderators, owners, post_limits, quote_pattern, restrict_post, 
    save_denial_checksums, taboo_body, taboo_headers
 

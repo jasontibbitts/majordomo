@@ -213,7 +213,6 @@ These help files describe configuration settings:
    help configset_message_fronter
    help configset_message_fronter_frequency
    help configset_moderate
-   help configset_moderator
    help configset_moderator_group
    help configset_moderators
    help configset_nonmember_flags

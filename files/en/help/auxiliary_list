@@ -113,17 +113,17 @@ Auxiliary lists play an important role in list moderation.  In the
 access rules, it is possible to specify a moderator group that will be
 consulted when a request requires approval.  Moderator groups are the
 same as auxiliary lists.  The special "moderators" auxiliary list can be
-used instead of the "moderators" and "moderator" configuration settings
-to store the addresses of the default moderators.  The advantage of this
-approach is that moderators can use "nomail" and other subscriber
-settings if they wish to stop moderating the list temporarily.
+used instead of the "moderators" configuration setting to store the
+addresses of the default moderators.  The advantage of this approach is
+that moderators can use "nomail" and other subscriber settings if they
+wish to stop moderating the list temporarily.
 
 Auxiliary lists are also used by the "restrict_post" setting to control
 who is allowed to post messages to the mailing list.
 
 See Also:
+   help admin
    help configset_access_rules
-   help configset_moderator
    help configset_moderators
    help configset_restrict_post
    help set

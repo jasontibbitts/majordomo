@@ -91,7 +91,6 @@ See Also:
    help configset_allowed_classes
    help configset_default_class 
    help configset_digests (for configuring digests for subscribe-digest)
-   help configset_moderator
    help configset_moderators
    help configset_owners
    help configset_request_answer

@@ -16,24 +16,19 @@ joe@nowhere.org
 ENDTAG
 
 
-List messages requiring consultation will be sent to
-'moderator_group' (or all) of these addresses.  Any of them may
-approve or reject the message.
+$INCLUDE-config/moderators
 
 The server obtains a list of moderators from
 1) A named auxiliary list
 2) The 'moderators' auxiliary list
 3) The 'moderators' configuration setting
-4) The 'moderator' configuration setting
-5) The 'sender' configuration setting
+4) The 'whoami_owner' configuration setting
 in decreasing order of precedence.
 
 
 See Also:
-   help configset moderator  (for a simple setting)
-   help configset moderator_group
+   help admin_moderate
+   help auxiliary_list
+   help configset_moderator_group
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
-
+$INCLUDE-help/foot
