@@ -156,8 +156,11 @@ files/en/.ack_success
 files/en/.ack_timeout
 files/en/.config
 files/en/.confirm
+files/en/.confirm_noweb
 files/en/.consult
+files/en/.consult_noweb
 files/en/.delay
+files/en/.delay_noweb
 files/en/.digest_preindex
 files/en/.error
 files/en/.faq
@@ -186,6 +189,7 @@ files/en/.subscribe_to_self
 files/en/.token_reject
 files/en/.token_reject_owner
 files/en/.token_remind
+files/en/.token_remind_noweb
 files/en/.unknown_file
 files/en/.welcome
 files/en/ack_archive
@@ -728,6 +732,7 @@ files/en/format/wwwusr/template
 files/en/format/wwwusr/welcome
 files/en/help/.accept
 files/en/help/.access
+files/en/help/.access_variables
 files/en/help/.admin
 files/en/help/.admin_commands
 files/en/help/.admin_config
@@ -757,7 +762,6 @@ files/en/help/.configedit
 files/en/help/.configset
 files/en/help/.configset_access_password_override
 files/en/help/.configset_access_rules
-files/en/help/.configset_access_rules_variables
 files/en/help/.configset_ack_attach_original
 files/en/help/.configset_addr_allow_at_in_phrase
 files/en/help/.configset_addr_allow_bang_paths
@@ -939,6 +943,7 @@ files/en/help/.which
 files/en/help/.who
 files/en/help/accept
 files/en/help/access
+files/en/help/access_variables
 files/en/help/admin
 files/en/help/admin_commands
 files/en/help/admin_config
@@ -968,7 +973,6 @@ files/en/help/configedit
 files/en/help/configset
 files/en/help/configset_access_password_override
 files/en/help/configset_access_rules
-files/en/help/configset_access_rules_variables
 files/en/help/configset_ack_attach_original
 files/en/help/configset_addr_allow_at_in_phrase
 files/en/help/configset_addr_allow_bang_paths
@@ -1285,6 +1289,8 @@ t/bounces/1
 t/bounces/1.desc
 t/bounces/10
 t/bounces/10.desc
+t/bounces/11
+t/bounces/11.desc
 t/bounces/2
 t/bounces/2.desc
 t/bounces/3
