@@ -1,9 +1,10 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-unsubscribe-regexp-allmatching listname address
+unsubscribe[-pattern][-regex][-allmatching] listname [address]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-address,    required, is an email address not previously subscribed
-listname,   required, is the name of a list at this site
--regexp, if specified, makes address a pattern (see "help patterns")
+address,  if specified, is an email address current subscribed to listname
+listname, required, is the name of a list at this site
+-pattern, if specified, treats the address as a pattern (see "help patterns")
+-regex,   if specified, treats the address as a pattern (see "help patterns")
 -allmatching, if specified, operates on every address that matches
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -14,47 +15,71 @@ or the access_rules settings for "listname") to verify this action,
 and must be replied to with an "accept" command before the address is
 removed from the list.
 
-To unsubscribe from the LISTNAME email broadcast list at this site,
+To unsubscribe from the LISTNAME mailing list at this site,
 as simply as possible, send this one-line message to $MJ:
-    unsubscribe LISTNAME YourEmailAddress
-replacing "LISTNAME" with the name of the list and replacing
-"YourEmailAddress" with the address that was subscribed to the
-list. Additional commands may be required, but you will receive
-messages telling you what to do if necessary.
+    unsubscribe LISTNAME 
+replacing "LISTNAME" with the name of the list.
 
-Unregistering will automatically remove an address from all lists at
+If the address you wish to remove from the list is different from
+the address from which you are sending the message, the command
+may be written instead as:
+    unsubscribe LISTNAME EmailAddress
+replacing "EmailAddress" with the address you want to remove from
+the list.
+
+The unregister command will automatically remove an address from all lists at
 this site, or the unsubscribe command can be used to selectively remove
 an address from one list at a time. Even after the address has been
 unsubscribed from all lists one at a time, it will still exist in the
-registration database unless "unregister" is used. This allows a user
-to leave one list and join another without obtaining a new password.
+registration database unless "unregister" is used. 
 
-If you want to put multiple unsubscribe commands in a single message
-to the server, it is possible to get a password (if you don't already
-have one or don't remember it), and then use "approve" to unsubscribe
-from several lists instead of using "accept" to confirm each unsubscribe.
-(The "-regexp" option always requires the list password, and does not
-apply patterns to list names.) List owners and site administrators
-with list passwords can also pre-approve unsubscribe to bypass "accept"
-for basic unsub commands.
-
-Without the "-regexp" option, "address" is matched literally with
+Without the "-regex" option, "address" is matched literally with
 no interpretation of special characters. Matching is case sensitive.
 
-If the "-regexp" option is used, "address" is interpreted as a
+If the "-regex" option is used, "address" is interpreted as a
 Majordomo matching pattern. Review the "help patterns" file carefully.
 Patterns can be very simple or full-blown Perl regular expressions.
-When -regexp is used to unsubscribe addresses with wild cards, the
+When -regex is used to unsubscribe addresses with wild cards, the
 list password is required and confirmations will not be requested.
 Without "-allmatching", only the first matching address is removed.
 
-If the "-allmatching" option is used with "-regexp", then every
+If the "-allmatching" option is used with "-regex", then every
 address that matches the pattern will be removed from the list.
+
+Each address has an original and a canonical form.  Usually these
+addresses are the same, but if the original address (the one
+that was used to subscribe to a mailing list) is an alias for
+another address, the latter address is the canonical address.
+
+When the "-regex" option is used, the canonical addresses are 
+compared to the pattern.  This may cause some surprising results
+when an original address that does not match the pattern is
+reported to have been unsubscribed.
+
+The "-regex" option always requires the list password, and does not
+apply patterns to list names.  The "-pattern" option is identical 
+to the "-regex" option.
+
+List owners can unsubscribe more than one address or pattern from a 
+mailing list using a "here document" or "here file" (see "help commands" 
+for a description of here files.)  For example, to remove the
+addresses a@example.com and b@example.com from a list, the owner
+could use the following command:
+
+unsubscribe LISTNAME <<ABC
+a@example.com
+b@example.com
+ABC
+
+List owners can also remove addresses from a collection called an "auxiliary
+subscriber list" (see "help auxiliary_list" for more details.)
 
 
 See Also:
    help approve     (which can eliminate the need to use "accept")
+   help auxiliary_list (which is used to manage a set of addresses)
    help changeaddr  (which replaces one address with another)
+   help commands    (for an explanation of "here files")
    help configset access_rules_variables (set/test for this command)
    help password    (which changes an individual's password)
    help patterns    (for simple and complex regular expressions)
