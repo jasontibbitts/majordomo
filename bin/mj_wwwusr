@@ -182,12 +182,12 @@ if ($list) {
 
 if ($func =~ /subscribe/ and $user->strip =~ /example\.com$/i) {
   &print_header($user, $passw, $site, $cgiurl);
-  print "<h2>Please do not $func example.com addresses.</h2>\n";
+  print "<h4 align=center>Please do not $func example.com addresses.</h2>\n";
   &usage($mj);
 }
 if ($func =~ /subscribe|set/ and $list eq 'GLOBAL') {
   &print_header($user, $passw, $site, $cgiurl);
-  print "<h2>Please select a mailing list before pressing the $func button.</h2>\n";
+  print "<h4 align=center>Please select a mailing list before pressing the $func button.</h4>\n";
   &usage($mj);
 }
 
@@ -330,7 +330,7 @@ sub Mj::Format::help {
 
 sub Mj::Format::lists {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($list, $cat, $data, $desc, $flags, $listurl);
+  my ($list, $cat, $data, $desc, $flags, $listurl, $digests);
   my ($ok, @listdata) = @$result;
   select $out;
   # Iterate over lists and add form buttons
@@ -409,10 +409,23 @@ EOM
     printf "<dd>%s\n", (exists $data->{'description'}) ? 
                        $data->{'description'} || "(no description)"
                        : "Unknown";
-    print "<dt>Archive URL\n";
+    print "<dt>Archive Location\n";
     printf "<dd>%s\n", (exists $data->{'archive'} and $data->{'archive'}) ? 
                        "<a href=\"$data->{'archive'}\">$data->{'archive'}</a>" 
                        : "Unknown";
+    print "<dt>Digests\n";
+    if (exists $data->{'digests'}) {
+      $digests = '';
+      for (sort keys %{$data->{'digests'}}) {
+        $digests .= sprintf "%s : %s<br>\n", $_, $data->{'digests'}->{$_};
+      }
+      $digests ||= "(none)\n";
+    }
+    else {
+      $digests = "Unknown\n";
+    }
+    print "<dd>$digests";
+         
     print "<dt>Subscribers\n";
     printf "<dd>%s\n", (exists $data->{'subs'}) ? 
                        $data->{'subs'} 
