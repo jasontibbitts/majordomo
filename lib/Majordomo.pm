@@ -3061,7 +3061,7 @@ This removes an address from a lists named auxiliary address list.
 =cut
 sub auxremove {
   my ($self, $request) = @_;
-  my (@removed, @out, $error, $ok);
+  my (@removed, @out, $error, $mismatch, $ok, $regexp);
   my $log = new Log::In 30, "$request->{'list'}, $request->{'auxlist'}";
 
   return (0, "Illegal auxiliary list name \"$request->{'auxlist'}\".")
@@ -3071,15 +3071,26 @@ sub auxremove {
   $request->{'auxlist'} = $1;  
 
   if ($request->{'mode'} =~ /regex/) {
-    ($ok, $error, $request->{'victim'}) 
-      = Mj::Config::compile_pattern($request->{'victim'}, 0);
-    return ($ok, $error) unless $ok;
+    $mismatch = 0;
+    $regexp   = 1;
+    # Parse the regexp
+    ($ok, $error, $request->{'victim'}) = 
+       Mj::Config::compile_pattern($request->{'victim'}, 0);
+    return (0, $error) unless $ok;
+    # Untaint the regexp
+    $request->{'victim'} =~ /(.*)/; $request->{'victim'} = $1;
+  }
+  else {
+    $mismatch = ($request->{'victim'} ne $request->{'user'});
+    $regexp = 0;
   }
 
-  ($ok, $error) = $self->list_access_check($request);
+  ($ok, $error) = $self->list_access_check($request,
+                                           'mismatch' => $mismatch,
+                                           'regexp'   => $regexp);
 
   unless ($ok > 0) {
-    $log->message(30, "info", "$addr: noaccess");
+    $log->message(30, "info", "$request->{'victim'}: noaccess");
     return ($ok, $error);
   }
 
@@ -4898,11 +4909,15 @@ sub unregister {
   if ($request->{'mode'} =~ /regex/) {
     $mismatch = 0;
     $regexp   = 1;
+    # Parse the regexp
+    ($ok, $error, $request->{'victim'}) = 
+       Mj::Config::compile_pattern($request->{'victim'}, 0);
+    return (0, $error) unless $ok;
     # Untaint the regexp
     $request->{'victim'} =~ /(.*)/; $request->{'victim'} = $1;
   }
   else {
-    $mismatch = !($request->{'user'} eq $request->{'victim'});
+    $mismatch = ($request->{'user'} ne $request->{'victim'});
     $regexp   = 0;
   }
 
@@ -4969,26 +4984,20 @@ Returns a list:
 sub unsubscribe {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
-  my (@out, @removed, $addr, $error, $mismatch, $ok, $regexp);
-
-  $addr = $request->{'victim'};
+  my (@out, @removed, $error, $mismatch, $ok, $regexp);
 
   if ($request->{'mode'} =~ /regex/) {
     $mismatch = 0;
     $regexp   = 1;
     # Parse the regexp
-    ($ok, $error, $addr) = Mj::Config::compile_pattern($addr, 0);
+    ($ok, $error, $request->{'victim'}) = 
+       Mj::Config::compile_pattern($request->{'victim'}, 0);
     return (0, $error) unless $ok;
+    # Untaint the regexp
+    $request->{'victim'} =~ /(.*)/; $request->{'victim'} = $1;
   }
   else {
-    # Validate the address
-    $addr = new Mj::Addr($addr);
-    ($ok, $error) = $addr->valid;
-    unless ($ok) {
-      $log->message(30, "info", "$addr failed, invalidaddr");
-      return (0, "Invalid address:\n$error");
-    }
-    $mismatch = !($request->{'user'} eq $addr);
+    $mismatch = ($request->{'user'} ne $request->{'victim'});
     $regexp   = 0;
   }
 
@@ -4997,7 +5006,7 @@ sub unsubscribe {
                              'regexp'   => $regexp);
 
   unless ($ok>0) {
-    $log->message(30, "info", "$addr:  noaccess");
+    $log->message(30, "info", "$request->{'victim'}:  noaccess");
     return ($ok, $error);
   }
    
