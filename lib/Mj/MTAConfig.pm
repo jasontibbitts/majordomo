@@ -266,6 +266,7 @@ EOB
     }
     if (exists $args{'aliases'}->{'subscribe-digest-all'} and @{$args{'digests'}}) {
       for my $i (@{$args{'digests'}}) {
+        next if ($i eq 'default_digest');
         $block .= sprintf $aliasfmt, "-subscribe-digest-$i:", 
                           "-c subscribe-set --req setting=digest-$i";
         $vblock .= "$list-subscribe-digest-$i\@$dom    $list$vut-subscribe-digest-$i\n";
