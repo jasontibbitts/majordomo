@@ -17,7 +17,14 @@ If this is not set, Majordomo will look for a directory named "archive" in
 the public directory of the filespace.  If it exists, archives will be
 placed there.  If not, archives will not be generated and digests will not
 function.
+
 There is normally NO NEED TO USE the archive_dir command!
+
+WARNING: If you use "configset archive_dir" to change the default archive
+directory location, the directory created by "createlist" will NOT be
+renamed... you have to use "put-dir" to create your archive directory,
+or else the files will fall into the default directory and neither "get"
+nor "archive-get" will be able to find them.
 
 Archives will start accumulating as soon as an "archive" directory appears
 in the public area of the list's filespace.  This can be done by the command
@@ -32,6 +39,12 @@ to create the directory in the default location is easier.
 There is no need to create additional aliases. Archives are free of fronters,
 footers, most header modifications and subject prefixing. The archive system
 will automatically create a ".index" directory to contain various indices.
+
+
+See Also:
+   help archive                      (for how to retrieve archived messages)
+   help createlist              (for how the default directory gets created)
+   help put (for how to create the non-default dir specified by archive_dir)
 
 For a list of all help topics send this one-line message
    help topics

@@ -1,6 +1,6 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 createlist-destroy listname owner
-createlist[-force][-noarchive][-nocreate][-noheader][-nowelcome][-quiet][-regen] listname owner
+createlist[-force][-noarchive][-nocreate][-noheader][-nowelcome][-regen] listname owner
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname,  required, is an email list at this site
 owner,     required, is an email address for who will manage the list
@@ -9,8 +9,7 @@ owner,     required, is an email address for who will manage the list
 -noarchive if specified, suppresses creation of the msg archive directory
 -nocreate, if specified, shows suggested aliases but takes no action
 -noheader, if specified, shortens the suggested aliases message
--nowelcome,if specified, suppresses intro msg for new owner (default)
--quiet,    if specified, is the same as -nowelcome
+-nowelcome,if specified, suppresses intro msg for new owner
 -regen,    if specified, re-generates the suggested MTA configurations
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -23,12 +22,18 @@ Some items like replyfile specifications in "configset access_rules" may
 not function properly if default_flags are set wrong.
 
 The GLOBAL new_list file is sent to the list owner when a new list is
-created, unless the "-nowelcome" (or the equivalent "-quiet") mode was
-specified. If you want to change this message, use "put GLOBAL new_list".
+created, unless the "-nowelcome" mode was specified. If you want to change
+this message, use "put GLOBAL new_list".
 
-The createlist command automatically creates the archive directory unless
-"-noarchive" mode is specified, and also generates a random list password
-which can be replaced using "configset".
+The createlist command automatically creates the default archive directory
+unless "-noarchive" mode is specified. It also generates a random list
+password which can be replaced using "configset".
+
+WARNING: If you use "configset archive_dir" to change the default archive
+directory location, the directory created by "createlist" will NOT be
+renamed... you have to use "put-dir" to create your archive directory,
+or else the files will fall into the default directory and neither "get"
+nor "archive-get" will be able to find them.
 
 The "createlist" command also suggests the necessary MTA configuration
 if the MTA in use is supported -- for example, if sendmail is the MTA in
@@ -66,7 +71,7 @@ Options include the following:
   -noarchive:
     This argument suppresses creation of the message archive directory.
     WITHOUT '-noarchive', the directory "listname/public/archive" is
-    created (regardless of the "configset archive_dir" setting???).
+    created (regardless of the "configset archive_dir" setting).
 
   -nocreate:
     This argument will cause 'createlist' to suggest the MTA
@@ -92,11 +97,12 @@ aliases will be generated only for those sublists specified by "configset sublis
 
 
 See Also:
-   help auxadd           (to create and subscribe addresses to a sublist)
-   help configset                    (to configure the list once created)
-   help configset access_rules_variables      (set/test for this command)
-   help configset default_flags      (to configure default subscriptions)
-   help configset sublists (to make cause alias generation for aux lists)
+   help auxadd            (to create and subscribe addresses to a sublist)
+   help configset                     (to configure the list once created)
+   help configset access_rules_variables       (set/test for this command)
+   help configset archive_dir (to specify a non-default archive directory)
+   help configset default_flags       (to configure default subscriptions)
+   help configset sublists  (to make cause alias generation for aux lists)
 
 For a list of all help topics send this one-line message
    help topics
