@@ -339,6 +339,7 @@ sub welcome {
            'STRIPADDR' => $addr->strip,
            'QSADDR'    => Mj::Format::qescape($addr->strip),
 	   'USER'      => $addr,
+	   'VICTIM'    => $addr,
 	   %args,
 	  };
 
