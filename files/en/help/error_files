@@ -129,6 +129,36 @@ attachment_filters configuration setting.
 
 (standard plus CONTENT_TYPE, PART)
 
+bounce_error
+------------
+This message is displayed when a technical problem occurred while
+information about an e-mail address was being extracted from a bounce
+message.
+
+(standard plus ERROR, VICTIM)
+
+bounce_rule
+-----------
+This message provides a default explanation for an action taken by a
+rule in the bounce_rules setting.
+
+(standard plus COMMAND)
+
+bounce_unsub
+------------
+This message explains that an address was unsubscribed due to a delivery
+failure.
+
+(standard plus VICTIM)
+
+bounce_user
+-----------
+This message displays diagnostics and statistics for one address to
+which a posted message could not be delivered.
+
+(standard plus BOUNCE_PERCENT, BOUNCES_DAY, BOUNCES_MONTH, BOUNCES_WEEK,
+ CONSECUTIVE, DIAGNOSTIC, NONMEMBER, REASONS, STATUS, VICTIM)
+
 bracketed_addresses
 -------------------
 This message is displayed when more than one e-mail address is included
@@ -390,6 +420,18 @@ name.
 
 (standard substitutions only)
 
+no_entity
+---------
+This message is displayed when a MIME entity could not be created.
+
+(standard substitutions only)
+
+no_file
+-------
+This message is displayed when a file could not be created or read.
+
+(standard plus FILE)
+
 no_headers
 ----------
 This message is displayed when an e-mail message does not have any
@@ -454,6 +496,13 @@ actual value of the setting.
 
 (standard plus EXPECTED, SETTING, VALUE)
 
+not_subscribed
+--------------
+This message is displayed when an attempt is made to change a
+subscription that does not exist.
+
+(standard plus VICTIM)
+
 over_message_limit
 ------------------
 This message is displayed when a proportional soft or hard limit in the
@@ -508,6 +557,13 @@ This message is displayed in confirmation notices when the "postblock"
 setting is enabled for the author of a posted message.
 
 (standard plus USER)
+
+probe_bounce
+------------
+This message is displayed when a bounce probe message cannot be
+delivered to the address that is being probed.
+
+(standard substitutions only)
 
 relocated_list
 --------------
@@ -605,6 +661,14 @@ patterns begin with a '!'.
 
 (standard plus PATTERN, TYPE)
 
+token_deleted
+-------------
+This message is displayed when a confirmation message cannot be
+delivered, causing the confirmation token to be removed from the token
+database.
+
+(standard plus TOKEN)
+
 top_level_domain
 ----------------
 This message is displayed if the top-level domain (e.g., com, gov, or
@@ -639,6 +703,13 @@ post_limits setting is not met.
 
 (standard plus COUNT, TIME)
 
+unknown_bounce
+--------------
+This message is displayed when the kind of delivery problem (failure or
+warning) could not be determined from a bounce message.
+
+(standard substitutions only)
+
 unknown_list
 ------------
 This error message is displayed when a list that has a legal name
@@ -668,6 +739,13 @@ unmatched_paren
 ---------------
 This message is displayed when an e-mail address is missing one or more
 right parentheses.
+
+(standard substitutions only)
+
+unparsed_entity
+---------------
+This message is displayed when the message parser could not find a valid
+MIME entity in the message.
 
 (standard substitutions only)
 

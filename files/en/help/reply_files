@@ -99,6 +99,16 @@ for more details on the "Approved" feature.
 (no substitutions)
 
 
+bounce_detected
+---------------
+This file is mailed to the addresses in the bounce_recipients setting,
+or to the list owners, when a bounce message is received.  It displays
+information about the bounce:  the address that failed, the reasons
+for the failure, and so forth.
+
+(standard plus BOUNCE_DATA, HANDLER, SEQNO, VICTIM)
+
+
 confirm
 -------
 This file is sent when a request requires confirmation of the victim

@@ -92,11 +92,6 @@ of the Majordomo error, format, and reply files.  Their names and values
 some of the variables (LIST, OWNER, REQUEST, SUBLIST, and WHOAMI)
 will vary depending upon the mailing list.
 
-\$ALL_FOOTERS
-\$ALL_FRONTERS
-  All of the list's message_footers and message_fronters, respectively (if
-  any), separated by blank lines.
-
 \$ARCURL      $ARCURL
   (The URL that allows access to an external archive.  This value is
    determined by the archive_url configuration setting;  see 
@@ -112,11 +107,6 @@ will vary depending upon the mailing list.
 
 \$DOMAIN      $DOMAIN
   (The name of the current domain, as determined at installation time)
-
-\$FOOTER
-\$FRONTER
-  The list's message_footer and message_fronter, respectively.  If there
-  are multiple fronters or footers, the first of each will be used.
 
 \$LIST        $LIST
   (The name of the current mailing list, or GLOBAL)
@@ -136,10 +126,6 @@ will vary depending upon the mailing list.
 \$PWLENGTH    $PWLENGTH     
   (The minimum length of a new password.  See "help password" and 
    "help admin_passwords" for details.)
-
-\$RANDOM_FOOTER
-\$RANDOM_FRONTER
-  A randomly chosen message_footer and message_fronter, respectively.
 
 \$REQUEST     $REQUEST   
   (The "request" address for a mailing list)
@@ -202,6 +188,11 @@ See "help reply_files" for a description of each of the reply files.
   The mail aliases required by your system's message transport 
   software for one or more mailing lists.
 
+\$ALL_FOOTERS
+\$ALL_FRONTERS
+  All of the list's message_footers and message_fronters, respectively (if
+  any), separated by blank lines.
+
 \$APPROVALS
   The number of people who must use the accept command to approve
   a stalled request.
@@ -224,6 +215,20 @@ See "help reply_files" for a description of each of the reply files.
   These substitutions contain the message numbers of the next and
   previous messages within a mailing list archive, depending upon
   the order in which the messages are sorted.
+
+\$BOUNCE_DATA
+  This substitution displays statistics and diagnotic messages for
+  addresses to which a posted message could not be delivered.
+
+\$BOUNCE_PERCENT
+  This variable contains the percentage of posted messages that have
+  bounced for a particular address.
+
+\$BOUNCES_DAY
+\$BOUNCES_MONTH
+\$BOUNCES_WEEK
+  These variables contain the number of delivery failures for a
+  particular address in the specified period of time.
 
 \$CAN_READ
   This boolean variable is true if the person making a request has
@@ -264,6 +269,10 @@ See "help reply_files" for a description of each of the reply files.
 \$COMMENT
   A description of a configuration setting or category.
 
+\$CONSECUTIVE
+  The number of consecutive messages to a particular address that have 
+  bounced.
+
 \$CONSULT
   " " if the type of a stalled command is "consult"; '' otherwise.
   "consult" means that the moderators must confirm the command.
@@ -278,6 +287,10 @@ See "help reply_files" for a description of each of the reply files.
   A description of a mailing list, as determined by the description
   and description_long configuration settings.  Also, a description
   of a digest, as determined by the digests configuration setting.
+
+\$DIAGNOSTIC
+  The explanation for a delivery failure that is extracted from a bounce
+  message.
 
 \$DIGESTNAME
   The name of a digest, as determined by the digests configuration
@@ -306,9 +319,19 @@ See "help reply_files" for a description of each of the reply files.
 \$FINISH
   The date of the latest of a group of messages or requests.
 
+\$FOOTER
+\$FRONTER
+  The list's message_footer and message_fronter, respectively.  If there
+  are multiple fronters or footers, the first of each will be used.
+
 \$FULFILL
   The date at which a delayed request will be completed
   (see "help delay" for more information).
+
+\$HANDLER
+  When a bounce message is presented in a recognizable format, this
+  variable contains the name of the format (e.g., "DSN" or
+  "Compuserve").
 
 \$HOST
   The host from which a posted message is distributed to the subscribers
@@ -381,6 +404,10 @@ See "help reply_files" for a description of each of the reply files.
   " " if the archive for a new mailing list was not created
   automatically; '' otherwise.
 
+\$NONMEMBER
+  "  " if an address is not subscribed to the mailing list;
+  '' otherwise.
+
 \$NOTIFIED
   " " if an acknowledgement message was sent to the victim of a
   command; '' otherwise.
@@ -407,6 +434,10 @@ See "help reply_files" for a description of each of the reply files.
 \$QSADDR
   An e-mail address, altered to allow it to be included safely in the
   query string of a URL.
+
+\$RANDOM_FOOTER
+\$RANDOM_FRONTER
+  A randomly chosen message_footer and message_fronter, respectively.
 
 \$REMIND 
   The number of days before a reminder for a request that requires
@@ -452,6 +483,7 @@ See "help reply_files" for a description of each of the reply files.
 
 \$STATUS
   The result of a request:  succeed, stall, or fail.
+  A kind of bounce message:  failure or warning.
 
 \$STRIPADDR
 \$STRIPUSER
