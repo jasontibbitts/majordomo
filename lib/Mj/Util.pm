@@ -615,44 +615,168 @@ string, it will return undef.
 
 =cut
 sub str_to_offset {
-  my $arg = shift || '';
+  my $arg       = shift || '';
+  my $future    = shift || 0;
+  my $as_string = shift || 0;
+  my $basetime  = shift || time;
   my $log = new Log::In 150, $arg;
-  my $time;
+  my (@days, @lt, $desc, $elapsed, $i, $leapyear, $time, $tmp);
 
   return unless ($arg =~ /\S/);
  
+  @lt = localtime($basetime);
+  $desc = '';
+
+  # Seconds that have elapsed so far today.
+  $elapsed = $lt[0] + $lt[1] * 60 + $lt[2] * 3600;
+
+  # Is this a leap year?  Determine the number of days per month
+  $tmp = $lt[5];
+  $leapyear = 1;
+  @days = (31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+  if ($tmp % 4 or ! $tmp % 400) {
+    $leapyear = 0;
+    $days[1] = 28;
+  }
+  
   # Treat a plain number as a count of seconds.
   if ($arg =~ /^(\d+)$/) {
-    return $arg;
+    $tmp = ($arg > 1) ? "s" : "";
+    return ($as_string) ? "$arg second$tmp" : $arg;
   }
 
   if ($arg =~ /(\d+)s(econds?)?/) {
     $time += $1;
+    $tmp = ($1 > 1) ? "s" : "";
+    $desc = "$1 second$tmp $desc";
   }
   if ($arg =~ /(\d+)mi(nutes?)?/) {
     $time += 60 * $1;
+    $tmp = ($1 > 1) ? "s" : "";
+    $desc = "$1 minute$tmp $desc";
   }
   if ($arg =~ /(\d+)h(ours?)?/) {
     $time += (3600 * $1);
+    $tmp = ($1 > 1) ? "s" : "";
+    $desc = "$1 hour$tmp $desc";
   }
   if ($arg =~ /(\d+)d(ays?)?/) {
     $time += (86400 * $1);
+    $tmp = ($1 > 1) ? "s" : "";
+    $desc = "$1 day$tmp $desc";
   }
   if ($arg =~ /(\d+)w(eeks?)?/) {
     $time += (86400 * 7 * $1);
+    $tmp = ($1 > 1) ? "s" : "";
+    $desc = "$1 week$tmp $desc";
   }
-  if ($arg =~ /(\d+)m(onths?)?/) {
+  if ($arg =~ /(\d+)m(onths?)?([^i]|$)/) {
     $time += (86400 * 30 * $1);
+    $tmp = ($1 > 1) ? "s" : "";
+    $desc = "$1 month$tmp $desc";
   }
   if ($arg =~ /(\d+)y(ears?)?/) {
     $time += (86400 * 365 * $1);
+    $tmp = ($1 > 1) ? "s" : "";
+    $desc = "$1 year$tmp $desc";
   }
+
+  if ($arg =~ /(\d+)c(alendar)?d(ays?)?/) {
+    if ($1) {
+      if ($future) {
+        # from the beginning of the day.
+        $time -= $elapsed;
+      }
+      else {
+        # from the end of the day.
+        $time -= 86400 - $elapsed;
+      }
+    }
+    $time += (86400 * $1);
+    $tmp = ($1 > 1) ? "s" : "";
+    $desc = "$1 calendar day$tmp $desc";
+  }
+  if ($arg =~ /(\d+)c(alendar)?w(eeks?)?/) {
+    if ($1) {
+      if ($future) {
+        # from the beginning of the week.
+        $time -= $elapsed + $lt[6] * 86400;
+      }
+      else {
+        # from the end of the week.
+        $time -= 86400 - $elapsed + (6 - $lt[6]) * 86400;
+      }
+    }
+    $time += (86400 * 7 * $1);
+    $tmp = ($1 > 1) ? "s" : "";
+    $desc = "$1 calendar week$tmp $desc";
+  }
+  if ($arg =~ /(\d+)c(alendar)?m(onths?)?/) {
+    if ($1) {
+      if ($future) {
+        # from the beginning of the month.
+        $time -= $elapsed + ($lt[3] - 1) * 86400;
+      }
+      else {
+        # from the end of the month.
+        $time -= 86400 - $elapsed + ($days[$lt[4]] - $lt[3]) * 86400;
+      }
+    }
+
+    for ($i = $1; $i > 0; $i--) {
+      if ($future) {
+        $tmp = ($lt[4] + $i) % 12;
+      }
+      else {
+        $tmp = ($lt[4] - $i) % 12;
+      }
+      $time += (86400 * $days[$tmp]);
+    }
+    $tmp = ($1 > 1) ? "s" : "";
+    $desc = "$1 calendar month$tmp $desc";
+  }
+  if ($arg =~ /(\d+)c(alendar)?y(ears?)?/) {
+    if ($1) {
+      if ($future) {
+        # beginning of the year.
+        $time -= $elapsed + $lt[7] * 86400;
+      }
+      else {
+        # end of the year.
+        $time -= 86400 - $elapsed + (365 + $leapyear - $lt[7]) * 86400;
+      }
+    }
+    for ($i = $1; $i > 0; $i--) {
+      if ($future) {
+        $tmp = $lt[5] + $i + 1899;
+      }  
+      else {
+        $tmp = $lt[5] - $i + 1901;
+      }
+
+      if ($tmp % 4 or ! $tmp % 400) {
+        $time += (86400 * 365);
+      }
+      else {
+        $time += (86400 * 366);
+      }
+    }
+    $tmp = ($1 > 1) ? "s" : "";
+    $desc = "$1 calendar year$tmp $desc";
+  }
+
   unless (defined $time) {
     # We try calling Date::Manip::ParseDate
     $time = _str_to_time_dm($arg);
     $time -= time if (defined $time);
   }
-  $time;
+
+  if ($as_string) {
+    $desc;
+  }
+  else {
+    $time;
+  }
 }
 
 =head2 str_to_time(string)
