@@ -484,40 +484,63 @@ sub list_config_set {
   my ($self, $user, $passwd, $auth, $interface, $list, $var) =
     splice(@_, 0, 7);
   my $log = new Log::In 150, "$list, $var";
-  my (@groups, $i, $mess, $ok, $global_only);
+  my (@groups, @out, $i, $mess, $ok, $global_only);
 
   $self->_make_list($list);
 
-  unless (defined $passwd) {
-    return (0, "No passwd supplied.\n");
+  if (!defined $passwd) {
+    @out = (0, "No passwd supplied.\n");
+  }
+  else {
+    @groups = $self->config_get_groups($var);
+    if (!@groups) {
+      @out =(0, "Unknown variable \"$var\".\n");
+    }
+    else {
+      $global_only = 1;
+      if ($self->config_get_mutable($var)) {
+	$global_only = 0;
+      }
+
+      # Validate passwd
+      for $i (@groups) {
+	$ok = $self->validate_passwd($user, $passwd, $auth, $interface,
+				     $list, "config_$i", $global_only);
+	last if $ok;
+      }
+      if (!$ok) {
+	@out = (0, "Password does not authorize $user to alter $var.\n");
+      }
+      else {
+	
+	# Untaint the stuff going in here.  The security implications: this
+	# may (after suitable interpretation) turn into code or an eval'ed
+	# regexp.  We are sure (for other reasons) do do everything in
+	# suitable Safe compartments.  Besides, the generated code/regexps
+	# will be saved out and read in later, at which point they will be
+	# untainted for free.  This this untainting only lets us make use
+	# of a variable setting in the same session that sets it without
+	# failing.
+	for ($i = 0; $i < @_; $i++) {
+	  $_[$i] =~ /(.*)/;
+	  $_[$i] = $1;
+	}
+	
+	# Get possible error value and print it here, for error checking.
+	($ok, $mess) = $self->{'lists'}{$list}->config_set($var, @_);
+	if (!$ok) {
+	  @out = (0, "Error parsing $var: $mess\n");
+	}
+	else {
+	  @out = (1);;
+	}
+      }
+    }
   }
 
-  @groups = $self->config_get_groups($var);
-  unless (@groups) {
-    return (0, "Unknown variable \"$var\".\n");
-  }
-
-  $global_only = 1;
-  if ($self->config_get_mutable($var)) {
-    $global_only = 0;
-  }
-
-  # Validate passwd
-  for $i (@groups) {
-    $ok = $self->validate_passwd($user, $passwd, $auth, $interface,
-				   $list, "config_$i", $global_only);
-    last if $ok;
-  }
-  unless ($ok) {
-    return (0, "Password does not authorize $user to alter $var.\n");
-  }
-  
-  # Get possible error value and print it here, for error checking.
-  ($ok, $mess) = $self->{'lists'}{$list}->config_set($var, @_);
-  unless ($ok) {
-    return (0, "Error parsing $var: $mess\n");
-  }
-  return 1;
+  $self->inform($list, 'config_set', $user, $user, "configset $list $var",
+		$interface, $out[0], !!$passwd+0, 0);
+  @out;
 }
 
 =head2 list_config_set_to_default
@@ -528,27 +551,34 @@ default.
 =cut
 sub list_config_set_to_default {
   my ($self, $user, $passwd, $auth, $interface, $list, $var) = @_;
-  my (@groups, @levels, $ok, $mess, $level);
+  my (@groups, @out, $ok, $mess, $level);
   $self->_make_list($list);
   
-  unless (defined $passwd) {
-    return (0, "No passwd supplied.\n");
+  if (!defined $passwd) {
+    @out = (0, "No password supplied.\n");
   }
-
-  @groups = $self->config_get_groups($var);
-  unless (@groups) {
-    return (0, "Unknown variable \"$var\".\n");
+  else {
+    @groups = $self->config_get_groups($var);
+    if (!@groups) {
+      @out = (0, "Unknown variable \"$var\".\n");
+    }
+    else {
+      # Validate passwd, check for proper auth level.
+      ($ok, $mess, $level) =
+	$self->validate_passwd($user, $passwd, $auth,
+			       $interface, $list, "config_$var");
+      if (!$ok) {
+	@out = (0, "Password does not authorize $user to alter $var.\n");
+      }
+      else {
+	@out = $self->{'lists'}{$list}->config_set_to_default($var);
+      }
+    }
   }
-
-  # Validate passwd, check for proper auth level.
-  ($ok, $mess, $level) =
-    $self->validate_passwd($user, $passwd, $auth,
-			   $interface, $list, "config_$var");
-  unless ($ok) {
-    return (0, "Password does not authorize $user to alter $var.\n");
-  }
-
-  $self->{'lists'}{$list}->config_set_to_default($var);
+  $self->inform($list, 'configdefault', $user, $user,
+		"configdefault $list $var",
+		$interface, $out[0], !!$passwd+0, 0);
+  @out;
 }
 
 sub save_configs {

@@ -377,7 +377,7 @@ sub list_access_check {
     $cpt->permit_only(@permitted_ops);
     $cpt->share(qw($victim %args %memberof));
     $actions = $cpt->reval($access->{$request}{'code'});
-    warn $@ if $@;
+    warn "Error found when running access_rules code:\n$@" if $@;
   }
 
   $actions ||= ['default'];

@@ -14,75 +14,9 @@ Bugs?
 
 Messages with empty first part always checksum the same?
 
-Weird problem:  in interactive mode, set a deny rule on who for test-list.
-Then do a configshow, then an unapproved who:
-
-Enter a Majordomo command >approve gonzo configshow test-list access_rules
-
-configset test-list access_rules << ENDAAA
-ENDAAA
-
-
-Enter a Majordomo command >approve gonzo configedit test-list access_rules
-
-
->>>> configset test-list access_rules << ENDAAB
->>>> Found tag ENDAAB.
-access_rules set to "who...".
-
-1 valid command processed; it was successful.
-
-Enter a Majordomo command >approve gonzo configshow test-list access_rules
-
-configset test-list access_rules << ENDAAC
-who
-deny
-ALL
-ENDAAC
-
-
-Enter a Majordomo command >who test-list
-
---==    (in cleanup) Insecure dependency in eval while running setuid at (eval 420) line 1.
-Members of list "test-list":
-    tibbs@morpheus.hpc.uh.edu
-1 listed subscriber
-
-Enter a Majordomo command >who test-list
-
---==    (in cleanup) Insecure dependency in eval while running setuid at (eval 441) line 1.
-Members of list "test-list":
-    tibbs@morpheus.hpc.uh.edu
-1 listed subscriber
-
-Enter a Majordomo command >quit
-
-Exiting.
-[tibbs@morpheus 2.0]$ mj_shell
-Entering interactive mode; enter 'quit' to exit.
-
-Enter a Majordomo command >who test-list
-
-Could not access test-list:
-**** Your request was denied.
-
-Enter a Majordomo command >approve gonzo who test-list
-
-Members of list "test-list":
-    tibbs@morpheus.hpc.uh.edu
-1 listed subscriber
-
-The problem here is probably that the results from the configedit are
-tainted.  Normally this doesn't matter because we exit and the results of
-the loaded config file are untainted.  But when we're evaling code created
-from user data in the same session, we can have taint problems.
-
 
 Top of the list 
 ---------------
-
-! remove questions from postinstall; instead consult environment
-   variables.  Of course, still need to ask for passwords.
 
 ! mj_trigger _must_ clean up some locks.
   Even if you hold a lockfile, you cannot delete it because there may be
@@ -101,7 +35,7 @@ Top of the list
   Look them up in the RBL..
   Add an exemption list (addrs?  IPs?)
   Set access variable; bounce to owner by default if set.
-  DOn't ever do any checks if some config variable not set.
+  Don't ever do any checks if some config variable not set.
 
 --- Snapshot
 

@@ -1,3 +1,53 @@
+Sat Aug  8 11:18:45 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/parser_data.pl: Added 'man' alias for 'help'.
+
+	* bin/mj_shell (completer): Function to do completion for an
+ 	interactive mj_shell session.  Does commands, lists, and config
+ 	variables by calling the appropriate core functions.  Make
+ 	'noornaments' flag a negatable 'ornaments' flag, add
+ 	'aliascomplete' flag, and set default values for both of them.
+  	Document 'aliascomplete' in manpage.
+	(completer): Pay attention to 'aliascomplete'.
+	(parse_interactive): Don't take any options; access the %opts hash
+ 	directly.  (No reason not to.)
+
+	* lib/Majordomo.pm (list_config_set_to_default): Rewrite to call
+ 	inform.
+
+	* README: Updated with new postinstall stuff and interactive shell
+ 	mode.  Also spellchecked.  (Finally.)
+
+	* postinstall: Big changes to shut things up unless asked.
+
+	* bin/mj_shell (parse_command): Redo the return codes; internalize
+ 	exit processing.
+	$user is now a package global so the completer can see it.
+	Turn on autoflush.
+
+	* lib/parser_data.pl: Add some new aliases for exiting.
+
+	* bin/mj_shell (parse_interactive): Quit line can have spaces.
+
+	* lib/parser_data.pl (command_property): Add copyright notice.
+	(command_property): Look up properties on aliases, too.
+	(commands_matching): New function to be used for completion.
+
+Fri Aug  7 17:30:10 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (list_config_set): Restructure to call inform
+ 	at the end.
+
+	* bin/mj_shell (parse_command): Say what command is illegal.
+
+	* lib/Majordomo.pm (list_config_set): Untaint incoming config
+ 	variable data, and justify the security implications.
+
+	* lib/Mj/Access.pm (list_access_check): Spruce up warning message
+ 	when problems are found in the eval'ed access_rules code.
+
+	* lib/mj_cf_data.pl: Some things don't need to be visible.
+
 Thu Aug  6 00:10:23 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* bin/mj_shell (parse_interactive): New function: interactively

@@ -8,7 +8,7 @@
 
 use DirHandle;
 use File::Copy "cp";
-
+sub dot ();
 # We call mj_shell (which we make sure has the right permissions) to do the
 # dirty work; it would be possible to include the routines directly, but
 # this makes sure that everything was installed correctly.  It's better to
@@ -18,6 +18,13 @@ $config = eval { require ".mj_config" };
 
 die "Can't do postinstall unless Makefile.PL has been run!"
   unless $config;
+
+# We pull some variables from the environment 
+$ask   = $ENV{ASK};
+$skip  = $ENV{SKIP};
+$verb  = $ENV{VERBOSE};
+$quiet = $ENV{QUIET};
+$| = 1;
 
 # List of script files to be installed.
 @sidscripts = (qw(mj_resend mj_shell mj_email mj_confirm));
@@ -132,7 +139,7 @@ if ($config->{cgi_bin}) {
 }
 
 # Create list directories and such
-if (get_bool($msg1)) {
+if (!$skip && (!$ask || get_bool($msg1))) {
   create_dirs($config->{'lists_dir'},
 	      scalar getpwnam($config->{'uid'}),
 	      scalar getgrnam($config->{'gid'}),
@@ -143,7 +150,7 @@ if (get_bool($msg1)) {
 }
 
 # Configure a few global parameters
-if (get_bool($msg2)) {
+if (!$skip && (!$ask || get_bool($msg2))) {
   for my $i (@{$config->{'domains'}}) {
     do_config($i);
   }
@@ -152,7 +159,7 @@ if (get_bool($msg2)) {
 # Convert lists if desired
 
 # Install response files
-if (get_bool($msg3)) {
+if (!$skip && (!$ask || get_bool($msg3))) {
   for my $i (@{$config->{'domains'}}) {
     install_response_files($i, $config->{'domain'}{$i}{'password'},
 			   \%files, \@dirs);
@@ -160,8 +167,8 @@ if (get_bool($msg3)) {
 }
 
 # Give some basic MTA configuration
-if (-t STDIN) {
-  print "\n\nWe will now generate some basic configuration information:\n";
+if (!$skip && -t STDIN) {
+  print "\nSome basic configuration information:\n";
   my $nhead = 0;
   for my $i (@{$config->{'domains'}}) {
     suggest_mta($i, $nhead);
@@ -169,7 +176,7 @@ if (-t STDIN) {
   }
 }
 
-if (-t STDIN) {
+if (!$skip && !$quiet && -t STDIN) {
   print <<"EOM";
 
 You may also wish to add the following entries to the $config->{'uid'}
@@ -185,7 +192,7 @@ EOM
 my $ct;
 for my $i (@{$config->{'domains'}}) {
   $ct = suggest_crontab($i);
-  print $ct if -t STDIN;
+  print $ct if -t STDIN && (!$skip && !$quiet);
   print OUT $ct;
 }
 
@@ -223,7 +230,7 @@ sub copy_file {
 sub set_script_perms {
   my $sidscripts = shift;
   my $scripts    = shift;
-  print "Setting permissions...";
+  print "Setting permissions:" unless $quiet;
   $id = $config->{'install_dir'};
   if ($config->{wrappers}) {
     for my $i (@$sidscripts) {
@@ -231,14 +238,17 @@ sub set_script_perms {
     }
   }
   map {$_ = "$id/bin/$_" unless /\//} @$sidscripts, @$scripts;
-    
+
   $uid = getpwnam($config->{'uid'});
   $gid = getgrnam($config->{'gid'});
 
   # Properly set ownerships on everything.
   chown($uid, $gid, @$sidscripts, @$scripts) || die "Couldn't change ownership: $!";
+  dot;
   chown($uid, $gid, $id);
+  dot;
   rchown($uid, $gid, 0644, 0755, "$id/bin", "$id/man", "$id/lib");
+  dot;
 
   # Make executables setuid; the scripts must be readable while the the
   # wrappers need only be executable.
@@ -248,8 +258,10 @@ sub set_script_perms {
   else {
     chmod(06555, @$sidscripts) || die "Couldn't change mode: $!";
   }
+  dot;
   chmod(0555, @$scripts);
-  print "ok\n";
+  dot;
+  print "ok\n" unless $quiet;
 }
 
 sub create_dirs {
@@ -261,19 +273,22 @@ sub create_dirs {
   my $tmp  = shift;
   my($i);
 
-  print "$l, $tmp, $uid, $gid\n";
+  print "Making directories:" unless $quiet;
+  print "$l, $tmp, $uid, $gid\n" if $verb;
 
-  safe_mkdir($l,           0777 & ~oct($um), $uid, $gid);
-  safe_mkdir($tmp,         0777 & ~oct($um), $uid, $gid);
-  safe_mkdir("$tmp/locks", 0777 & ~oct($um), $uid, $gid);
+  safe_mkdir($l,           0777 & ~oct($um), $uid, $gid);dot;
+  safe_mkdir($tmp,         0777 & ~oct($um), $uid, $gid);dot;
+  safe_mkdir("$tmp/locks", 0777 & ~oct($um), $uid, $gid);dot;
   
   for $i (@$doms) {
-    printf "Making directories for %s, mode %lo.\n", $i, (0777 & ~oct($um));
-    safe_mkdir("$l/$i", 0777 & ~oct($um), $uid, $gid);
-    safe_mkdir("$l/$i/GLOBAL", 0777 & ~oct($um), $uid, $gid);
-    safe_mkdir("$l/$i/GLOBAL/files", 0777 & ~oct($um), $uid, $gid);
-    safe_mkdir("$l/$i/GLOBAL/sessions", 0777 & ~oct($um), $uid, $gid);
+    printf "Making directories for %s, mode %lo.\n", $i, (0777 & ~oct($um))
+      if $verb;
+    safe_mkdir("$l/$i", 0777 & ~oct($um), $uid, $gid);dot;
+    safe_mkdir("$l/$i/GLOBAL", 0777 & ~oct($um), $uid, $gid);dot;
+    safe_mkdir("$l/$i/GLOBAL/files", 0777 & ~oct($um), $uid, $gid);dot;
+    safe_mkdir("$l/$i/GLOBAL/sessions", 0777 & ~oct($um), $uid, $gid);dot;
   }
+  print "ok.\n" unless $quiet;
 }
 
 # Set basic config vars
@@ -282,11 +297,7 @@ sub do_config {
   # Do everything from the global $config
   my(@args, $arg, $i, $ignore, $msg, $pw);
 
-  @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F",
-	   "$config->{wtmpdir}/inst.$$");
-
-  open FILE, ">$config->{wtmpdir}/inst.$$";
-
+  # Prompt for the password if necessary
   $pw = $config->{'domain'}{$dom}{'master_password'};
   unless ($pw) {
     ($msg = $msg0) =~ s/\$DOM/$dom/;
@@ -294,22 +305,39 @@ sub do_config {
     $config->{'domain'}{$dom}{'master_password'} = $pw;
     $msg0 = $msg0s; # Switch to using the short prompt.
   }
+  print "Configuring $dom:" unless $quiet;
+
+  # Build the command line
+  @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F",
+	   "$config->{wtmpdir}/inst.$$");
+
+  # Build the command file
+  open FILE, ">$config->{wtmpdir}/inst.$$";
   print FILE "approve GLOBAL.pass configset GLOBAL master_password = $pw\n";
   print FILE "default password $pw\n";
-
   for $i (qw(tmpdir site_name install_dir lists_dir mta)) {
     $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};
     print FILE "configset GLOBAL $i = $arg\n";
   }    
-
   print FILE "configset GLOBAL whereami = $dom\n";
   close FILE;
-  chmod(0644, "$config->{wtmpdir}/inst.$$");
+  # Make sure the file can be read by the Majordomo user.  XXX This is a
+  # slight security hole.  We're root, so we should play with chowning the
+  # file.
+  chmod(0644, "$config->{wtmpdir}/inst.$$");dot;
 
-  print "\nDo not be alarmed if the first command fails.\n\n";
-  print "@args\n";
-  system(@args) == 0 or die "Error executing $args[0], $?";
+  print "\nDo not be alarmed if the first command fails.\n\n@args\n" if $verb;
+
+#  system(@args) == 0 or die "Error executing $args[0], $?";
+  $cmdline = join(' ', @args);
+  open SHELL, "$cmdline|" or die "Error executing $args[0], $?";
+  while (<SHELL>) {
+    print if $verb;
+    dot if />>>> / && !$verb;
+  }
+  close SHELL;
   unlink "$config->{wtmpdir}/inst.$$";
+  print "ok.\n" unless $quiet;
 }
 
 sub install_response_files {
@@ -319,6 +347,7 @@ sub install_response_files {
   my $dirs  = shift;
   my(@args, @dirs, $dir, $file, $i, $subj);
 
+  # Grab the password if necessary
   $pw = $config->{'domain'}{$dom}{'master_password'};
   unless ($pw) {
     ($msg = $msg0) =~ s/\$DOM/$dom/;
@@ -326,6 +355,7 @@ sub install_response_files {
     $config->{'domain'}{$dom}{'master_password'} = $pw;
     $msg0 = $msg0s; # Switch to using the short prompt.
   }
+  print "Installing response files for $dom:" unless $quiet;
 
   # Copy dirs so we don't destroy the original array
   @dirs = @$dirs;
@@ -333,19 +363,19 @@ sub install_response_files {
   @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F",
 	   "$config->{wtmpdir}/inst.$$");
 
+  # Build the command file
   open FILE, ">$config->{wtmpdir}/inst.$$";
   print FILE "default password $pw\n";
-
   # Make the directories
   while (($dir, $subj) = splice(@dirs, 0, 2)) {
     print FILE "put=dir GLOBAL /$dir $subj\n";
   }
-
   # Put the files
   $i = 1;
   while (($file, $subj) = each %{$files}) {
     if (ref($subj)) {
       print FILE "put GLOBAL /stock/$file $$subj[0] <\@$i\n";
+      # Copy each file into the temp area, so Majordomo can read it.
       cp("files/$$subj[1]", "$config->{wtmpdir}/inst.$$.$i");
     }
     else {
@@ -358,13 +388,25 @@ sub install_response_files {
   }
   close FILE;
   chmod(0644, "$config->{wtmpdir}/inst.$$");
-  print "@args\n";
-  system(@args) == 0 or die "Error executing $args[0], $?";
+
+  # Now run the generated command line, piping the output back to us so we
+  # can hide it from the user.
+  $cmdline = join(' ', @args);
+  print "$cmdline\n" if $verb;
+  open SHELL, "$cmdline|" or die "Error executing $args[0], $?";
+  while (<SHELL>) {
+    print if $verb;
+    dot if />>>> / && !$verb;
+  }
+  close SHELL;
+
+  # Now clean up all of those temporary files we made.
   unlink "$config->{wtmpdir}/inst.$$";
   while ($i > 0) {
     unlink "$config->{wtmpdir}/inst.$$.$i";
     $i--;
   }
+  print "ok.\n" unless $quiet;
 }
 
 sub suggest_mta {
@@ -446,6 +488,7 @@ sub rchown {
   my ($dh, $dir);
 
   for $dir (@_) {
+    dot;
     $dir =~ s!/$!!;
     
     $dh = DirHandle->new($dir);
@@ -461,10 +504,13 @@ sub rchown {
     }
   }
 }
+
+sub dot () {
+  print "." unless $quiet;
+}
 1;
 #
 ### Local Variables: ***
 ### mode:cperl ***
 ### cperl-indent-level:2 ***
 ### End: ***
-

@@ -1497,7 +1497,7 @@ EOC
     'type'   => 'word',
     'groups' => [qw(majordomo)],
     'global' => 1,
-    'visible'=> 1,
+    'visible'=> 0,
     'comment'=> <<EOC,
 What machine is Majordomo running on?
 EOC
@@ -1531,7 +1531,7 @@ EOC
     'groups' => [qw(majordomo)],
     'global' => 1,
     'local'  => 1,
-    'visible'=> 1,
+    'visible'=> 0,
     'mutable'=> 1,
     'comment'=> <<EOC,
 Who owns this list or majordomo installation?  Majordomo will internally
@@ -1543,7 +1543,7 @@ EOC
     'type'   => 'word',
     'groups' => ['majordomo'],
     'global' => 1,
-    'visible'=> 1,
+    'visible'=> 0,
     'comment'=> <<EOC,
 A directory in which to store temporary files.  For security reasons,
 this should not be a directory that normal users have write access to.

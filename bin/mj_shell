@@ -15,6 +15,8 @@ BEGIN {
   $SIG{__WARN__} = sub {print "--== $_[0]"};
 }
 
+#print join("\n", keys(%INC)), "\n";
+
 use lib "$::LIBDIR";
 use strict;
 no strict "refs";
@@ -27,9 +29,10 @@ use IO::File;
 use Getopt::Long;
 
 use vars qw(%opts $log_entries $log_level $program_name);
-my (@in, $dom, $editor, $fh, $i, $infile, $list, $mess, $ok, $result,
+my (@in, $dom, $editor, $fh, $go, $i, $infile, $list, $mess, $ok, $result,
     $tlist, $tmpg, $tmpu, $top);
 
+$| = 1;
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
@@ -51,8 +54,9 @@ umask oct($::UMASK);
 
 Getopt::Long::config('no_ignore_case', 'bundling');
 
+%opts = (ornaments => 1, aliascomplete => 0);
 GetOptions(\%::opts, 'D', 'd=s', 'F=s', 'f=s@', 'p=s', 't=s', 'u=s', 'Z',
-	   'id', 'lockdir=s', 'noornaments');
+	   'id', 'lockdir=s', 'ornaments!', 'aliascomplete!');
 
 #use Data::Dumper;
 #print Dumper \%opts;
@@ -152,11 +156,11 @@ if ($opts{F}) {
 # If we don't have any arguments left and we weren't given a command file,
 # we're to run interactively
 elsif (@ARGV == 0) {
-  parse_interactive(\@in, $opts{p}, $opts{noornaments});
+  parse_interactive(\@in, $opts{p});
 }
 # Else we're to interpret the command line
 else {
-  $result = parse_command(shift @ARGV, (join(' ', @ARGV)), $opts{p});
+  ($go, $result) = parse_command(shift @ARGV, (join(' ', @ARGV)), $opts{p});
 }
 
 $::log->message(50, "info", "-----Calling destructors-----");
@@ -170,30 +174,34 @@ exit 1;
 
 # A simple interactive routine.
 sub parse_interactive {
-  my ($in, $pass, $noornaments) = @_;
-  my ($args, $cmd, $cmdline, $features, $prompt, $term);
+  my ($in, $pass) = @_;
+  my ($args, $cmd, $cmdline, $features, $go, $prompt, $res, $term);
   require Term::ReadLine;
 
   $term = Term::ReadLine->new('Interactive Majordomo Shell Interface');
   $prompt = "Enter a Majordomo command >";
   $features = $term->Features;
-  $term->ornaments(1) if $features->{ornaments} && !$noornaments;
+  $term->ornaments(1) if $features->{ornaments} && $opts{ornaments};
+  $readline::rl_completion_function = # Shut up warnings...
+    $readline::rl_completion_function = '::completer'; 
 
-  print "Entering interactive mode; enter 'quit' to exit.\n\n";
+  # use Data::Dumper; print Dumper $features;
+  print "Entering interactive mode; the 'end' command exits.\n\n";
 
   while (defined($cmdline = $term->readline($prompt))) {
     print "\n";
-    if ($cmdline =~ /^(end|exit|quit|\.)$/i) {
-      print "Exiting.\n"; return 1;
-    }
     ($cmd, $args) = $cmdline =~ /(\S*)\s*(.*)/;
     if ($cmd) {
-      parse_command($cmd, $args, $pass);
+      ($go, $res) = parse_command($cmd, $args, $pass);
+      return 1 unless $go;
     }
     print "\n";
   }
+  1;
 }
 
+# Parse a command line; returns ($go, $result); if $go is true, user has
+# not requested an exit.
 sub parse_command {
   my $command = shift;
   my $args    = shift;
@@ -202,7 +210,7 @@ sub parse_command {
   
   unless ($command) {
     print STDERR "**** No command specified!\n";
-    return 0;
+    return (1, 0);
   }
 
   ($command, $mode) = $command =~ /([^=-]+)[=-]?(.*)/;
@@ -212,10 +220,13 @@ sub parse_command {
   unless (defined($true_command) &&
 	  Mj::Parser::command_property($true_command, "shell"))
     {
-      print STDERR "**** Illegal command!\n";
-      return 0;
+      print STDERR "**** Illegal command: $command!\n";
+      return (1, 0);
     }
   
+  if ($true_command eq 'end') {
+    print "Exiting.\n"; return (0, 0);
+  }
   if ($true_command eq 'approve') {
     ($pass, $command, $args) = $args =~ /(\S+)\s*(\S*)\s*(.*)/;
     print STDERR "**** approve requires a password!\n"
@@ -235,7 +246,7 @@ sub parse_command {
 			  Mj::Parser::command_property($true_command, 'global'))))
 	{
 	  print STDERR "**** Illegal list \"$tlist\".\n";
-	  return 0;
+	  return (1, 0);
 	}
   }
     
@@ -311,7 +322,7 @@ sub parse_command {
 					 $pass, undef, "shell",
 					 $in[0], \*STDOUT,
 					 $mode, $list, $args);
-    return $result;
+    return (1, $result);
   }
 }
 
@@ -345,6 +356,51 @@ sub prompt ($;$) {
     chomp($ans = <STDIN>);
   }
   return $ans || $def;
+}
+
+# Thanks to CPAN.pm for showing me how to do this
+sub completer {
+  my ($word, $line, $pos) = @_;
+  my (@lists, @vars, @out, $ac, $pass);
+  $pass = $opts{p};
+  $ac   = $opts{aliascomplete};
+  $word ||= "";
+  $line ||= "";
+  $pos ||= 0; # $pos is the position of the first letter of the word we're
+              # on in the string.
+  # At the beginning, any command will do
+  if ($pos == 0) {
+    @out = Mj::Parser::commands_matching("^$word", $ac, ['shell']);
+    return sort @out;
+  }
+  # If we're completing the password, no completion
+  if ($line =~ /^\s*approve\s+\S*$/) {
+    return ();
+  }
+  # Trim 'approve passwd' off
+  if ($line =~ s/^(\s*approve\s+(\S+)\s*)//) {
+    $pos -= length($1);
+    $pass = $2;
+  }
+  # If now on a command, complete real commands
+  if ($line =~ /^\S*$/) {
+    @out = Mj::Parser::commands_matching("^$word", $ac, ['shell', 'real']);
+    return sort @out;
+  }
+  # If on the second word after a command, complete as a list
+  if ($line =~ /^(\S+)\s*(\S*)$/ &&
+      Mj::Parser::command_property($1, 'list'))
+    {
+      @lists = $mj->get_all_lists($user, $pass, '', 'shell');
+      return sort(grep(/^$2/, @lists));
+    }
+  # Complete config variables.  XXX This doesn't handle completion of group
+  # names, but I'm inclined to not worry about it.
+  if ($line =~ /^config.*?\s+(\S+)\s+(\S*)$/) {
+    @vars = $mj->config_get_vars($user, $pass, '', 'shell', $1, 'ALL');
+    return sort(grep(/^$2/, @vars));
+  }
+  ();
 }
 
 =head1 NAME
@@ -606,6 +662,13 @@ correctly.
 
 This option is mainly used by the test scripts, so that they can run before
 the software has been completely installed.
+
+=item B<--aliascomplete>
+
+When running in interactive mode, B<mj_shell> provides for completion of
+Majordomo commands.  It does not normally complete command aliases (such as
+'remove' for 'unsubscribe') but supplying this switch will cause it to do
+so.
 
 =item B<--id>
 
