@@ -1,0 +1,105 @@
+This file is specific to administrators! To get suggestions from a
+user's perspective (as a list subscriber) send "help overview" or
+"help commands" to the server at $MJ
+
+Below is a list of all the variables a list or site administrator
+may use. Variables generally follow Unix syntax, with a dollar sign
+indicating evaluation and an upper-case string for the variable name.
+For example using this string in a file:
+  \$MAJORDOMO
+will cause the the address of the majordomo email interface to be
+inserted before the user sees the file contents.
+
+Note that \$INCLUDE is a special case! Most files may be modified
+'on the fly' by using \$INCLUDE to auto-include other files as they
+are sent out. You can nest included files 3 levels deep, so an
+included file can include another file. More than 3 levels of
+nesting is taken to be an infinite loop, and the inclusion is
+terminated with an error message.
+
+There are some cases where some variables are undefined... so the
+user may see the actual variable name if you use a variable in the
+wrong place. The most problematic variable in this respect is
+"\$VICTIM", which is descriptive but may cause minor panic.
+
+You can keep variable evaluation from happening by escaping the
+dollar sign, as in
+  \\\$MAJORDOMO
+which will appear as simply "\$MAJORDOMO" to the user.
+
+See "help put" for information on how to change or create the various
+files mentioned below, and for the meaning/use of each file.
+
+
+1. In the "ack_rejection" file, these variables are evaluated
+only in the message body:
+  \$REQUEST   => The submitted command line.
+  \$MESSAGE   => The rejection message given by the list owner, if any.
+
+2. In the "ack_stall", "ack_success", and "ack_denial" files, this variable
+is evaluated in both the subject and message body:
+  \$LIST      => The name of the list (duh).
+
+In the "ack_stall" and "ack_denial" files, this variable is evaluated
+only in the message body:
+  \$MESSAGE   => The stall/denial message returned from access_rules
+                 or the rejection message given by the moderator when
+                 the token is rejected.
+
+In the "ack_timeout" file, no variable substitutions are done.
+
+In the "confirm" and "consult" files, these variables are evaluated
+in both the subject and message body:
+  \$VICTIM    => The user who will be acted on by the request
+  \$REQUESTER => The user who made the request
+  \$CMDLINE   => The command that was sent (or would have been sent
+                 if the command had come in via email)
+  \$REQUEST   => The type of request that was made
+  \$LIST      => The list the request was made to
+  \$TOKEN     => The token that is to be returned
+  \$URL       => The URL that can be visited to accept the token
+  \$EXPIRE    => The number of days until the token expires
+  \$OWNER     => The address of the list owner
+  \$MJ        => The address Majordomo receives commands at
+  \$MJOWNER   => The address of the owner of this Majordomo installation
+
+In the various digest files, no variable substitutions are done.
+
+In the "inform" file, these variables are evaluated in the subject:
+  \$UREQUEST  => the _upcased_ request (to be like 1.9x)
+  \$REQUEST   => the request
+  \$LIST      => the list name
+
+In the "info" file, no variable substitutions are done.
+
+In the "inform" file, these variables are evaluated in the msg body:
+  \$VICTIM    => the user who will be effected by the request
+  \$LIST      => the list the request acted on
+  \$REQUEST   => the request that was made
+  \$REQUESTER => the user who made the request
+  \$CMDLINE   => the command that was sent
+  \$STATUS    => the status of the action (succeed, fail, stall)
+
+In the "intro" file, no variable substitutions are done.
+
+In the "faq" file, no variable substitutions are done.
+
+In the "welcome" file, these variables are evaluated in both the
+subject and message body:
+  \$LIST      => the name of the list
+  \$REQUEST   => the request address
+  \$MAJORDOMO => the address of the majordomo email interface
+  \$USER      => the user's address
+  \$OWNER     => the list owner's address
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+See Also:
+   help configset access_rules (for confirm, consult, deny, allow clauses)
+   help digest                 (for additional file names and usage)
+   help put                    (create or update files by email)
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
+
