@@ -839,9 +839,10 @@ sub isparsed {
   return;
 }
 
-=head2 visible(variable)
+=head2 visible(setting)
 
-Returns true of the variable is visible to external interfaces.
+Returns the level of password required to view a configuration
+setting with the configshow command.
 
 =cut
 sub visible {
@@ -861,8 +862,8 @@ sub visible {
 
 =head2 mutable(variable)
 
-Returns true if the variable can be changed with a list password.
-Otherwise, a global password is required.
+Returns the level of password required to change a configuration
+setting with the configdef or configset command.
 
 =cut
 sub mutable {
@@ -876,6 +877,27 @@ sub mutable {
   
   if (exists $self->{'vars'}{$var}) {
     return $self->{'vars'}{$var}{'mutable'};
+  }
+  return;
+}
+
+=head2 wizard(setting)
+
+Returns the skill level required to understand
+a configuration setting
+
+=cut
+sub wizard {
+  my $self = shift;
+  my $var  = shift;
+
+  my ($access) = $self->get('config_access');
+  if (exists $access->{$var} and exists $access->{$var}{'wizard'}) {
+    return $access->{$var}{'wizard'};
+  }
+  
+  if (exists $self->{'vars'}{$var}) {
+    return $self->{'vars'}{$var}{'wizard'};
   }
   return;
 }
@@ -908,55 +930,42 @@ variables that have the visible property will be shown.
 If global is true, only variables that have the global property will be
 shown.  If not, only variables that have the local property will be shown.
 
-XXX There''s too much repeated code here.
-
 =cut
 sub vars {
   my ($self, $var, $hidden, $global) = @_;
-  my (@vars, $i, $seen);
+  my (@vars, $i, $scope);
+  my $log = new Log::In 140, "$self->{'list'}, $var, $hidden";
 
-  $::log->in(140, "$self->{'list'}, $var, $hidden");
+  if ($global) {
+    $scope = 'global';
+  }
+  else {
+    $scope = 'local';
+  }
 
-  # Expand ALL tag
-  if ($var eq 'ALL') {
+  if (exists $self->{'vars'}{$var}) {
+    push (@vars, $var)
+      if (($hidden >= $self->visible($var)) && 
+          ($self->{'vars'}{$var}{$scope}));
+  }
+  else {
+    unless ($var eq 'ALL') {
+      $var = lc($var);
+    }
     for $i (keys %{$self->{'vars'}}) {
-      if (($hidden >= $self->visible($i)) &&
-	  ($global ? $self->{'vars'}{$i}{'global'} : $self->{'vars'}{$i}{'local'}))
-	{
-	  push @vars, $i;
-	}
+      next unless (($hidden >= $self->visible($i)) &&
+	           ($self->{'vars'}{$i}{$scope}));
+      if ($var =~ /^[1-9]$/) {
+        next unless ($var == $self->wizard($i));
+      }
+      elsif ($var ne 'ALL') {
+        next unless (grep {$var eq $_} @{$self->{'vars'}{$i}{'groups'}});
+      }
+      push @vars, $i;
     }
   }
-  # Expand groups
-  elsif ($var eq uc($var)) {
-    $seen = 0;
-    $var = lc($var);
-    for $i (keys %{$self->{'vars'}}) {
-      if (grep {$var eq $_} @{$self->{'vars'}{$i}{'groups'}}) {
-	if (($hidden >= $self->visible($i)) &&
-	    ($global ? $self->{'vars'}{$i}{'global'} : $self->{'vars'}{$i}{'local'}))
-	  {
-	    $seen = 1;
-	    push @vars, $i;
-	  }
-      }
-    }
-  }
 
-  # Try a single variable
-  elsif (exists $self->{'vars'}{$var}) {
-    if (($hidden >= $self->visible($var)) &&
-	($global ? $self->{'vars'}{$var}{'global'} : $self->{'vars'}{$var}{'local'}))
-      {
-	push @vars, $var;
-      }
-  }
-
-  $::log->out;
-  if (@vars) {
-    return @vars;
-  }
-  return;
+  return @vars;
 }
 
 =head2 lock, unlock
@@ -1436,9 +1445,9 @@ sub parse_access_array {
   my $var  = shift;
   my $log  = new Log::In 150;
 
-  my ($err, $i, $name, $out, $set, $show, $table);
+  my ($err, $i, $name, $out, $set, $show, $skill, $table);
 
-  ($table, $err) = parse_table('fsoo', $arr);
+  ($table, $err) = parse_table('fsooo', $arr);
 
   return (0, "Error parsing access table: $err.")
     if $err; # XLANG
@@ -1446,9 +1455,10 @@ sub parse_access_array {
   $out = {};
 
   for (my $i = 0; $i < @$table; $i++) {
-    $name = $table->[$i][0];
-    $show = $table->[$i][1];
-    $set  = $table->[$i][2];
+    $name  = $table->[$i][0];
+    $show  = $table->[$i][1];
+    $set   = $table->[$i][2];
+    $skill = $table->[$i][2];
     unless (exists $self->{'vars'}{$name}) {
       return (0, "The $name configuration setting is invalid."); #XLANG
     }
@@ -1471,6 +1481,12 @@ sub parse_access_array {
       return (0, "Level $set for $name is unsupported.  Use 1 2 3 4 or 5.")
         unless ($set =~ /^[12345]$/);
       $out->{$name}{'set'} = $set;
+    }
+    if (defined $skill) {
+      return (0, "Level $set for $name is unsupported.  Choose a number,
+1 through 9.")
+        unless ($skill =~ /^[1-9]$/);
+      $out->{$name}{'wizard'} = $skill;
     }
   }
   
