@@ -109,6 +109,9 @@ The session number is especially useful for determining what caused
 a "bounce" (delivery failure).  Please see "help sessioninfo" for more
 details.
 
+In a summary report, the time shown for each event type is the average
+number of seconds per event. 
+
 Log entries that are older than the number of days in the log_lifetime
 configuration setting are removed automatically.  Consequently, the
 report command is only useful for monitoring recent events.  The 
