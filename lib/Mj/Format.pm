@@ -121,19 +121,34 @@ sub announce {
   $ok;
 }
 
+use Date::Format;
 sub archive {
   my ($mj, $out, $err, $type, $request, $result) = @_;
  
   my ($chunksize, $data, $first, $i, $last, $line, $lines, 
-      $mess, $msg, %stats, @tmp);
+      $mess, $msg, $str, $subs, $tmp,  %stats, @tmp);
   my ($ok, @msgs) = @$result;
 
+  $subs = {
+           $mj->standard_subs($request->{'list'}),
+           'CGIDATA'     => cgidata($mj, $request),
+           'CGIURL'      => $request->{'cgiurl'},
+           'PASSWORD'    => $request->{'password'},
+           'TOTAL_POSTS' => scalar @msgs,
+           'USER'        => escape("$request->{'user'}", $type),
+          };
+
   if ($ok <= 0) { 
-    eprint($out, $type, &indicate($msgs[0], $ok));
+    $subs->{'ERROR'} = $msgs[0];
+    $tmp = $mj->format_get_string($type, 'archive_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate("$str\n", $ok, 1);
     return $ok;
   }
   unless (@msgs) {
-    eprint($out, $type, "No messages were found.\n");
+    $tmp = $mj->format_get_string($type, 'archive_none');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
     return 1;
   }
 
@@ -146,6 +161,10 @@ sub archive {
     }
   }
   elsif ($request->{'mode'} =~ /get|delete/) {
+    $tmp = $mj->format_get_string($type, 'archive_get_head');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
+
     $chunksize = 
       $mj->global_config_get($request->{'user'}, $request->{'password'}, 
                              "chunksize");
@@ -164,6 +183,10 @@ sub archive {
         eprint($out, $type, indicate($mess, $ok));
       }
     }
+
+    $tmp = $mj->format_get_string($type, 'archive_get_foot');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
   }
   elsif ($request->{'mode'} =~ /stats/) {
     $first = time;
@@ -177,28 +200,48 @@ sub archive {
         unless (exists $stats{$data->{'from'}});
       $stats{$data->{'from'}}++;
     }
-    $line = sprintf "Activity for %s from %s to %s\n\n", 
-                    $request->{'list'}, 
-                    scalar localtime $first, 
-                    scalar localtime $last;
-    eprint($out, $type, $line) if $line;
-    $line = sprintf "%5d Total messages\n", $chunksize;
-    eprint($out, $type, $line) if $line;
+    @tmp = localtime $first;
+    $subs->{'START'} = strftime("%Y-%m-%d %H:%M", @tmp);
+    @tmp = localtime $last;
+    $subs->{'FINISH'} = strftime("%Y-%m-%d %H:%M", @tmp);
+    $subs->{'AUTHORS'} = [];
+    $subs->{'POSTS'} = [];
     for $i (sort { $stats{$b} <=> $stats{$a} } keys %stats) {
-      $line = sprintf "%5d %s\n", $stats{$i}, $i;
-      eprint($out, $type, $line) if $line;
+      push @{$subs->{'AUTHORS'}}, &escape($i, $type);
+      push @{$subs->{'POSTS'}}, $stats{$i};
     }
+    $tmp = $mj->format_get_string($type, 'archive_stats');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
   }
   else {
+    # The archive-index command.
+    $tmp = $mj->format_get_string($type, 'archive_head');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
+
+    $tmp = $mj->format_get_string($type, 'archive_index');
     for $i (@msgs) {
       $data = $i->[1];
-      $data->{'subject'} ||= "(no subject)";
-      $data->{'from'} ||= "(author unknown)";
-      $line = sprintf "%-10s : %s\n  %-50s %6d lines, %6d bytes\n\n", 
-        $i->[0], $data->{'subject'}, $data->{'from'},
-        $data->{'body_lines'}, $data->{'bytes'};
-      eprint ($out, $type, $line);
+      $data->{'subject'} ||= "(Subject: ???)";
+      $data->{'from'} ||= "(From: ???)";
+      # Include all archive data in the substitutions.
+      for $j (keys %$data) {
+        $subs->{uc $j} = $data->{$j};
+      }
+
+      @tmp = localtime $data->{'date'};
+      $subs->{'DATE'}  = strftime("%Y-%m-%d %H:%M", @tmp);
+      $subs->{'MSGNO'} = $i->[0];
+      $subs->{'SIZE'}  = sprintf "(%d kB)",  int(($data->{'bytes'} + 512)/1024);
+      $subs->{'FROM'}  = &escape($data->{'from'}, $type);
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
     }
+
+    $tmp = $mj->format_get_string($type, 'archive_foot');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
   }
 
   $request->{'command'} = "archive_done";
