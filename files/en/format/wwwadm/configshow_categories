@@ -23,6 +23,11 @@ the <b>configshow</b> button.
   whether a command is completed immediately, stalled, or
   discarded.</dd>
 
+  <dt><input type=checkbox name=extra value="ADDRESS">Address</dt>
+  <dd>Settings that determine the difference between a valid and 
+  an invalid e-mail address.  For site and domain administrators only.
+  </dd>
+
   <dt><input type=checkbox name=extra value="ARCHIVE">Archive</dt>
   <dd>Settings that affect the archiving of posted messages.</dd>
 
