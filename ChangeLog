@@ -1,5 +1,10 @@
 Sun Apr 18 00:31:30 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* bin/mj_enqueue: Make use of hardcoded constants to avoid loading
+ 	Fcntl.pm.
+
+	* installbin: Substitute in constants taken from Fcntl.pm.
+
 	* bin/mj_queuerun (run_queue): Better debug info.
 
 	* bin/mj_enqueue (smkdir): Don't die if we can't make the

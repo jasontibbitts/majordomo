@@ -4,7 +4,6 @@ BEGIN {
 #  $::LIBDIR = "/path/to/lib";
   $::LISTDIR= "/path/to/lists";
   $::DEFDOM = "some.dom.ain";
-  $::LOCKDIR= "blah";
   $::TMPDIR = "/tmp/mj";
 #  $::WTMPDIR= "/tmp";
   $::UMASK  = "007";
@@ -24,12 +23,16 @@ BEGIN {
   die("Not running as UID $::UID") unless $> == $::UID;
   die("Not running as GID $::GID") unless $) == $::GID;
 
-  # Qyiet warning
-  $::LOCKDIR;
+  # Hardcoded constants so we don't usve to use Fcntl
+  $::LOCK_EX  = "blah";
+  $::LOCK_NB  = "blah";
+  $::O_WRONLY = "blah";
+  $::O_CREAT  = "blah";
+  $::O_EXCL   = "blah";
 }
 
 use Socket;
-use Fcntl qw(:flock :DEFAULT);
+#use Fcntl qw(:flock :DEFAULT);
 use Getopt::Std;
 use strict;
 sub logmsg { print STDERR "[$$].Enqueue: @_\n"; }
@@ -90,7 +93,7 @@ else            { $q3 = '' }
 # this will still work but we should be careful about the length of things.
 while (1) {
   $qfile = "$q1$q2-${$}${q3}";
-  $ok = sysopen(OUT, "$qdir/$qfile", O_WRONLY|O_CREAT|O_EXCL, 0777);
+  $ok = sysopen(OUT, "$qdir/$qfile", $::O_WRONLY|$::O_CREAT|$::O_EXCL, 0777);
   last if $ok;
   # XXX Hack?
   die "Can't create queue file $qdir/$qfile: $!" unless $! =~ /exist/i;
@@ -100,7 +103,7 @@ while (1) {
 # Now lock the file, so that the runner won't get to it.  If a runner does
 # get to it, it will have zero size and thus the runner will unlock it
 # quickly so we can just block here for a bit.
-$ok = flock(OUT, LOCK_EX);
+$ok = flock(OUT, $::LOCK_EX);
 
 # Fill the queue file, skipping mailbox separator if present.
 $line = <STDIN>;
@@ -126,7 +129,7 @@ if (!($ok = connect(SOCK, sockaddr_un($rendezvous)))) {
   open LOCK, ">> $::TMPDIR/mj_queueserv.lock" ||
     die "Couldn't open lockfile $::TMPDIR/mj_queueserv.lock: $!";
 
-  unless (flock(LOCK, LOCK_EX|LOCK_NB)) {
+  unless (flock(LOCK, $::LOCK_EX|$::LOCK_NB)) {
     logmsg "Another process is starting the server";
     exit 0;
   }
