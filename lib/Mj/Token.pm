@@ -96,8 +96,8 @@ sub t_add {
   my $self = shift;
   my ($data, $ok, $tmp, $token);
   $tmp = $::log->elapsed;
-  
-  $self->_make_tokendb;
+ 
+  return unless $self->_make_tokendb;
   $data =
     {
      'type'       => shift,
@@ -148,7 +148,7 @@ sub t_remove {
   my $self = shift;
   my $tok  = shift;
   my $log  = new Log::In 150, "$tok";
-  $self->_make_tokendb;
+  return unless $self->_make_tokendb;
   $self->{'tokendb'}->remove("", $tok);
 }
 
@@ -622,7 +622,8 @@ sub t_accept {
       $mess, $notify, $ok, $origtype, $outfh, $repl, $rf, $sender, 
       $server, $td, $tmp, $tmpdir, $whoami);
 
-  return (0, "The token database could not be initialized.\n")
+  # XLANG
+  return (0, "Unable to initialize token database.\n") 
     unless $self->_make_tokendb;
 
   $data = $self->{'tokendb'}->lookup($token);
@@ -743,13 +744,13 @@ sub t_accept {
       $data->{'expire'} = 0;
     }
 
+    # XXX What if the confirm method fails?
     $self->confirm(%$data, 
                    'chain'   => 1,
                    'expire'  => -1,
                    'notify'  => [$tmp],
                   );
 
-    # XXX What if the confirm method fails?
     $self->t_remove($token);
 
     # Determine which file to send based upon notify->{'group'}.
@@ -912,7 +913,9 @@ sub t_reject {
   my $log   = new Log::In 60, $token;
   my ($data);
 
-  $self->_make_tokendb;
+  # XLANG
+  return (0, "Unable to initialize token database.\n") 
+    unless $self->_make_tokendb;
 
   (undef, $data) = $self->t_remove($token, 1);
   return (0, $self->format_error('unknown_token', 'GLOBAL', 
@@ -941,7 +944,10 @@ sub t_info {
   my $token = shift;
   my $log = new Log::In 60, $token;
 
-  $self->_make_tokendb;
+  # XLANG
+  return (0, "Unable to initialize token database.\n") 
+    unless $self->_make_tokendb;
+
   $token =~ /(.*)/; $token = $1; # Untaint
   my $data = $self->{'tokendb'}->lookup($token);
 
@@ -980,7 +986,10 @@ sub t_remind {
     return (0, 0);
   };
 
-  $self->_make_tokendb;
+  # XLANG
+  return (0, "Unable to initialize token database.\n") 
+    unless $self->_make_tokendb;
+
   $self->{'tokendb'}->mogrify($mogrify);
 
   # Send out reminder notices
@@ -1146,8 +1155,11 @@ sub t_expire {
     }
     return (0, 0);
   };
-  
-  $self->_make_tokendb;
+ 
+  # XLANG
+  return (0, "Unable to initialize token database.\n") 
+    unless $self->_make_tokendb;
+
   $self->{'tokendb'}->mogrify($mogrify);
 
   # Unspool any spooled documents relating to the nuked tokens
