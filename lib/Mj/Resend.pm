@@ -150,9 +150,12 @@ sub post {
   $thead->unfold;
   $::log->out;
   $reasons = []; $avars = {};
-  $user = $request->{'user'};
+  $user =  $head->get('from') ||
+        $head->get('apparently-from') || 'unknown@anonymous';
+  chomp $user;
+  $user = new Mj::Addr($user);
 
-  if (! ($user and $user->valid)) {
+  if (! ($user and $user->isvalid)) {
     $avars->{'invalid_from'} = 1;
   }
 
@@ -186,8 +189,8 @@ sub post {
   $avars->{'sublist'} = $request->{'sublist'} || '';
 
   # Bounce if necessary: concatenate all possible reasons with \002, call
-  # access_check with filename as arg1 and reasons as arg2.  XXX Victim
-  # here should be the user in the headers; requester should be the user
+  # access_check with filename as arg1 and reasons as arg2.  Victim
+  # here is the user in the headers; requester is  the user
   # making the request.  We should only regenerate user if it is not set.
   # This adds a modicum of security to the post command.
   if ($approved) {
@@ -195,7 +198,7 @@ sub post {
   }
   else {
     # Generate a spool filename, just in case we have to stash the message.
-    # Just call t_gen and make sure the file doesn't exist
+    # Call Mj::Token::t_gen and make sure the file doesn't already exist.
     while (1) {
       $spool = $self->t_gen;
       last unless -f "$self->{ldir}/GLOBAL/spool/$spool";
@@ -204,6 +207,7 @@ sub post {
     $request->{'file'} = "$self->{'ldir'}/GLOBAL/spool/$spool";
     $avars->{'reasons'} = join("\002", @$reasons);
     $request->{'vars'} = join("\002", %$avars);
+    $request->{'victim'} = $user;
 
     ($ok, $mess, $fileinfo) =
       $self->list_access_check($request, %$avars);
@@ -305,12 +309,77 @@ sub post_start  {
   my $log  = new Log::In 30, "$request->{'list'}";
 
   my $tmp  = $self->_global_config_get('tmpdir');
+  my (@sl, $aliases, $head);
   my $file = "$tmp/post." . Majordomo::unique();
   $self->{'post_file'} = $file;
   $self->{'post_fh'} = new IO::File ">$file" or
     $log->abort("Can't open $file, $!");
 
+  if ($request->{'mode'} =~ /addhdr/) {
+    $head = $self->_add_headers($request);
+    return (0, 'Unable to create headers.')
+      unless $head;
+    $self->{'post_fh'}->print($head->as_string);
+    $self->{'post_fh'}->print("\n");
+  }  
+
+  if ($request->{'sublist'} and $request->{'sublist'} ne 'MAIN') {
+    $aliases = $self->_list_config_get($request->{'list'}, 'aliases');
+    unless (ref $aliases and exists $aliases->{'auxiliary'}) {
+      return (0, "Posting to auxiliary lists is not permitted.");
+    }
+    @sl = $self->_list_config_get($request->{'list'}, 'sublists');
+    unless (grep { $_ eq $request->{'sublist'} } @sl) {
+      return (0, "Posting to the $request->{'sublist'} auxiliary list is not permitted.");
+    }
+  }
+
   (1, '');
+}
+
+use MIME::Head;
+use MD5;
+sub _add_headers {
+  my ($self, $request) = @_;
+  my $log  = new Log::In 30, $request->{'list'};
+  my $head = new MIME::Head;
+  my (@now, $day, $month, $tmp);
+
+  return unless $head;
+
+  # Create headers based upon the request data.
+  # XXX Charset should be chosen more judiciously. 
+  # text/html and other types should be accommodated.
+  # Language choice should be configurable.
+
+  $head->add('From', "$request->{'user'}");
+  if (! $request->{'sublist'} or $request->{'sublist'} eq 'MAIN') {
+    $tmp = $self->_list_config_get($request->{'list'}, 'whoami');
+    $head->add('To', $tmp);
+  }
+  else {
+    $tmp = "$request->{'list'}-$request->{'sublist'}\@" .
+            $self->_list_config_get($request->{'list'}, 'whereami');
+    $head->add('To', $tmp);
+  }
+    
+  $head->add('Subject', $request->{'subject'} || '(no subject)');
+
+  # Add the Date header
+  @now = gmtime;
+  $day = (Sun,Mon,Tue,Wed,Thu,Fri,Sat)[$now[6]];
+  $month = (Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec)[$now[4]];
+  $tmp = sprintf "%s, %2d %s %d %.2d:%.2d:%.2d -0000", $day, $now[3], 
+                 $month, $now[5] + 1900, $now[2], $now[1], $now[0];
+  $head->add('Date', $tmp);
+
+  $tmp = MD5->hexhash($head->as_string . rand(9));
+  $tmp = '<' . $tmp . '@' . 
+         $self->_global_config_get('whereami') . '>';
+  $head->add('Message-ID', $tmp);
+  $head->add('Content-type', 'text/plain; charset=iso-8859-1');
+
+  return $head;
 }
 
 sub post_chunk {
@@ -339,7 +408,6 @@ sub post_done {
 }
 
 use Mj::MIMEParser;
-use Safe;
 sub _post {
   my($self, $list, $user, $victim, $mode, $cmdline, $file, $arg2,
      $avars, $ent) = @_;
@@ -349,7 +417,7 @@ sub _post {
      @files, @refs, @tmp, @skip, $ack_attach, $ackfile, $arcdata, 
      $arcent, $archead, $date, $desc, $digests, $dissues, $dup,
      $exclude, $head, $i, $j, $msgnum, $nent, $precedence, $prefix, 
-     $replyto, $safe, $sender, $seqno, $subject, $sl, $subs, 
+     $replyto, $sender, $seqno, $subject, $sl, $subs, 
      $tmp, $tmpdir, $tprefix, $whereami);
 
   return (0, "Unable to access list $list.\n")
@@ -416,11 +484,7 @@ sub _post {
   # Convert/drop MIME parts.  
   $i      = $self->_list_config_get($list, 'attachment_rules');
   if (exists $i->{'change_code'}) {
-    # Create a Safe compartment
-    $safe = new Safe;
-    $safe->permit_only(qw(aassign const le leaveeval not null padany push
-                          pushmark return rv2sv stub undef));
-    $self->_r_strip_body($list, $ent[0], $safe, $i->{'change_code'});
+    $self->_r_strip_body($list, $ent[0], $i->{'change_code'});
     $ent[0]->sync_headers;
   }
 
@@ -1146,10 +1210,16 @@ make it available through FTP, HTTP, or other means
 is not yet implemented.
 
 =cut
+use Safe;
 sub _r_strip_body {
-  my ($self, $list, $ent, $safe, $code) = @_;
+  my ($self, $list, $ent, $code) = @_;
   my $log = new Log::In 50;
   my (@newparts, @parts, $i, $verdict, $xform);
+
+  # Create a Safe compartment
+  my ($safe) = new Safe;
+  $safe->permit_only(qw(aassign const le leaveeval not null padany push
+                        pushmark return rv2sv stub undef));
   local ($_);
   @newparts = ();
 
@@ -1710,7 +1780,7 @@ sub _munge_from {
   my ($data, $from);
 
   $from = new Mj::Addr($ent->head->get('From'));
-  if ($from->isvalid &&
+  if ($from and $from->isvalid &&
       $self->{lists}{$list}->flag_set('rewritefrom', $from))
     {
       $data = $self->{lists}{$list}->is_subscriber($from);
