@@ -171,7 +171,7 @@ sub post {
 
   # XXX Pass in the password we were called with, so that passwords
   # can be passed out-of-band.
-  ($ok, $passwd, $token) =
+  ($ok, $request->{'password'}, $token) =
     $self->_check_approval($request->{'list'}, $thead, $ent, $user);
   $approved = ($ok>0) && $passwd;
 
@@ -214,12 +214,11 @@ sub post {
     }
     mv($request->{'file'}, "$self->{'ldir'}/GLOBAL/spool/$spool");
     $request->{'file'} = "$self->{'ldir'}/GLOBAL/spool/$spool";
+    $avars->{'reasons'} = join("\002", @$reasons);
+    $request->{'vars'} = join("\002", %$avars);
 
     ($ok, $mess, $fileinfo) =
-      $self->list_access_check
-	($passwd, $request->{'mode'}, $request->{'cmdline'}, $request->{'list'},
-     "post", $user, '', $request->{'file'}, join("\002", @$reasons),
-     join("\002", %$avars), %$avars);
+      $self->list_access_check($request, %$avars);
   }
 
   $owner = $self->_list_config_get($request->{'list'}, 'sender');
@@ -256,7 +255,7 @@ sub post {
   # If we got an empty return message, this is a signal not to ack anything
   # and so we just return;
   $rtnhdr = $user->full;
-  return ($ok, $rtnhdr)
+  return ($ok, '')
     unless defined $mess && length $mess;
 
   # Otherwise, decide what to ack, based on the user's flags
@@ -300,7 +299,7 @@ sub post {
 
   # Clean up after ourselves;
   $ent->purge;
-  ($ok, $rtnhdr);
+  ($ok, $mess);
 }
 
 =head2 post_start, post_chunk, post_done
@@ -433,7 +432,7 @@ sub _post {
   if (exists $i->{'change_code'}) {
     # Create a Safe compartment
     $safe = new Safe;
-    $safe->permit_only(qw(aassign const le leaveeval null padany push
+    $safe->permit_only(qw(aassign const le leaveeval not null padany push
                           pushmark return rv2sv stub undef));
     $self->_r_strip_body($list, $ent[0], $safe, $i->{'change_code'});
     $ent[0]->sync_headers;
@@ -663,7 +662,7 @@ sub _post {
   # queue for a token with no associated spool file.
   unlink $file;
 
-  (1, $rtnhdr);
+  (1, '');
 }
 
 =head2 _check_approval(list, head, entity, user)
@@ -988,7 +987,7 @@ sub _check_body {
 
   # Create a Safe comaprtment
   $safe = new Safe;
-  $safe->permit_only(qw(aassign const le leaveeval null padany push
+  $safe->permit_only(qw(aassign const le leaveeval not null padany push
 			pushmark return rv2sv stub));
 
   # Recursively check the body
@@ -1172,7 +1171,7 @@ sub _ck_theader {
 
   # Set up the Safe compartment
   $safe = new Safe;
-  $safe->permit_only(qw(aassign const leaveeval null padany push pushmark
+  $safe->permit_only(qw(aassign const leaveeval not null padany push pushmark
 			return rv2sv stub));
   $safe->share('$text');
   $avars->{total_header_length} = 0;
