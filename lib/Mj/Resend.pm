@@ -1035,6 +1035,7 @@ sub _check_body {
 
   # Recursively check the body
   $avars->{'mime_header_length'} = 0;
+  $avars->{'body_length'} = 0;
   $self->_r_ck_body($list, $ent, $reasons, $avars, $safe, $qreg, $mcode,
             $tcode, $inv, $max, , $maxlen, 'toplevel', 1);
 
@@ -1087,7 +1088,6 @@ sub _r_ck_body {
   # Now the meat.  Open the body
   $body = $ent->bodyhandle->open('r');
   $line = 1;
-  $avars->{body_length} = 0;
 
   # Iterate over the lines
   while (defined($text = $body->getline)) {
