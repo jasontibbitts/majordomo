@@ -1,13 +1,13 @@
                            Auxiliary Subscriber Lists
 
-Every mailing list has a collection of e-mail addresses which receive 
-the messages that are posted to the list.  In some situations, 
-other collections of addresses may be needed for a mailing list.  These other 
-collections are called auxiliary subscriber lists, or "auxlists"
-or "sublists" for short.  For example, if there are several moderators, 
-their addresses could be kept in a sublist, and if only a select group of 
-people are allowed to post messages to a mailing list, their addresses 
-could be kept in a sublist.  
+Every mailing list has a collection of e-mail addresses which receive
+the messages that are posted to the list.  In some situations, other
+collections of addresses may be needed for a mailing list.  These other
+collections are called auxiliary subscriber lists, or "auxlists" or
+"sublists" for short.  For example, if there are several moderators,
+their addresses could be kept in a sublist, and if only a select group
+of people are allowed to post messages to a mailing list, their
+addresses could be kept in a sublist.  
 
 Sublists are different from regular subscriber lists in that no record
 is kept of the sublist participants in Majordomo's central registry.
@@ -18,26 +18,26 @@ might keep a sublist of banned addresses, people who are excluded from
 participating in the list.
 
 Auxiliary lists follow the same naming conventions as fully-fledged
-Majordomo lists.  Names are case-insensitive, and may only consist
-of letters, digits, underscores, periods, or hyphens.
+Majordomo lists.  Names are case-insensitive, and may only consist of
+letters, digits, underscores, periods, or hyphens.
 
-There are several ways in which auxiliary lists are useful.  In the following
-examples, we will work with a mailing list called "cabbage" and sublists
-called "broccoli," "kohlrabi," and "kale."  The list is hosted at
-the example.net domain.
+There are several ways in which auxiliary lists are useful.  In the
+following examples, we will work with a mailing list called "cabbage"
+and sublists called "broccoli," "kohlrabi," and "kale."  The list is
+hosted at the example.net domain.
 
 By default, an administrative password is required to see or change the
 members of an auxiliary list.  There are several ways to make sublists
 more open, which will be illustrated below.
 
-To refer to a sublist in a majordomo command, it is necessary to use
-a special notation, the main list and the sublist must be separated
-by a colon (":").  For example, the kale sublist of the cabbage list
-would be referred to as
+To refer to a sublist in a majordomo command, it is necessary to use a
+special notation, the main list and the sublist must be separated by a
+colon (":").  For example, the kale sublist of the cabbage list would be
+referred to as
 
   cabbage:kale 
 
-and the command to add the address "lacinato@example.com" to the kale 
+and the command to add the address "lacinato@example.com" to the kale
 sublist would be
 
   subscribe cabbage:kale lacinato@example.com
@@ -49,51 +49,51 @@ commands follow the same pattern:
   who-enhanced cabbage:kale
   set cabbage:kohlrabi nomail vienna@example.net
 
-Auxiliary lists can be indicated in the access rules.  For example,
-the following rule allows members of the kale sublist to see the
-other members of the sublist:
+Auxiliary lists can be indicated in the access rules.  For example, the
+following rule allows members of the kale sublist to see the other
+members of the sublist:
 
   who
   allow
   @kale AND $sublist=kale
 
-In plain language, this says "allow people who are members of the 
-kale sublist to use the who command, but only if they are asking to view
-the roster of the kale sublist."
+In plain language, this says "allow people who are members of the kale
+sublist to use the who command, but only if they are asking to view the
+roster of the kale sublist."
 
-It is also possible to post messages to a sublist, but first
-the following steps must be taken:
+It is also possible to post messages to a sublist, but first the
+following steps must be taken:
 
-* The "A" flag must be present in the "aliases" configuration setting.
+* The "auxiliary" alias must be present in the "aliases" configuration
+  setting.
 
 * The name of the sublist must be included in the "sublists" configuration
   setting.
 
 * A site administrator must run the "createlist-regen" command to
-  create the mail aliases for the sublist, after the "sublists" 
-  setting has been changed.
+  create the mail aliases for the sublist, after the "sublists" setting
+  has been changed.
 
-Once these steps are finished, the address of the sublist will be
-a hyphenated form of the main list address.  In our example,
-the cabbage:kohlrabi sublist would have an address of
+Once these steps are finished, the address of the sublist will be a
+hyphenated form of the main list address.  In our example, the
+cabbage:kohlrabi sublist would have an address of
 
   cabbage-kohlrabi@example.net
 
-Archives are kept of all sublist posts, if the main list has an
-archive directory.  Messages posted during August, 2000,
-to the cabbage:kale sublist would be available through the archive
-command:
+Archives are kept of all sublist posts, if the main list has an archive
+directory.  Messages posted during August, 2000, to the cabbage:kale
+sublist would be available through the archive command:
 
   archive-index cabbage kale.200008
   
 Personal settings like "nomail" and "replyto" are honored by sublists,
 but digests are not available.  
 
-When a message is posted to a sublist, it uses the same access restrictions
-as the main subscriber list.  If a mailing list is moderated, its
-sublists will be moderated also, unless the list owner reconfigures
-the settings.  The following access rule allows any member of the
-kohlrabi sublist to post messages to that sublist.
+When a message is posted to a sublist, it uses the same access
+restrictions as the main subscriber list.  If a mailing list is
+moderated, its sublists will be moderated also, unless the list owner
+reconfigures the settings.  The following access rule allows any member
+of the kohlrabi sublist to post messages to that sublist.
 
   post
   allow
@@ -110,29 +110,25 @@ its public sublists displayed as well:
 of addresses in the sublist.
 
 Auxiliary lists play an important role in list moderation.  In the
-access rules, it is possible to specify a moderator group that
-will be consulted when a request requires approval.  Moderator
-groups are the same as auxiliary lists.  The special "moderators"
-auxiliary list can be used instead of the "moderators" and "moderator"
-configuration settings to store the addresses of the default moderators.
-The advantage of this approach is that moderators can use "nomail"
-and other subscriber settings if they wish to stop moderating the 
-list temporarily.
+access rules, it is possible to specify a moderator group that will be
+consulted when a request requires approval.  Moderator groups are the
+same as auxiliary lists.  The special "moderators" auxiliary list can be
+used instead of the "moderators" and "moderator" configuration settings
+to store the addresses of the default moderators.  The advantage of this
+approach is that moderators can use "nomail" and other subscriber
+settings if they wish to stop moderating the list temporarily.
 
-Auxiliary lists are also used by the "restrict_post" setting to 
-control who is allowed to post messages to the mailing list.
+Auxiliary lists are also used by the "restrict_post" setting to control
+who is allowed to post messages to the mailing list.
 
 See Also:
-   help configset access_rules
-   help configset moderator
-   help configset moderators
-   help configset restrict_post
+   help configset_access_rules
+   help configset_moderator
+   help configset_moderators
+   help configset_restrict_post
    help set
    help subscribe
    help unsubscribe
    help who
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
-
+$INCLUDE-help/foot

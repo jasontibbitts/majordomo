@@ -5,16 +5,16 @@ This help message is from the Majordomo list management software at
 You interact with the Majordomo software by sending commands to
   $MJ
 in the body of a mail message. Please do not put your commands in
-the subject! Majordomo only processes commands in the message body.
+the subject!  Majordomo only processes commands in the message body.
 
 Majordomo is designed to manage electronic mailing lists automatically.
 This document presents an overview of how Majordomo works, from the
-perspective of someone who wants to participate in a mailing list.
-If you are looking for an overview from the perspective of a list
+perspective of someone who wants to participate in a mailing list.  If
+you are looking for an overview from the perspective of a list
 administrator, use the "help admin" command.
 
 This document describes many of the common commands, but some features
-are not mentioned here.  To see a complete list of subscriber commands, 
+are not mentioned here.  To see a complete list of subscriber commands,
 use the "help commands" command.  To see a complete list of all
 Majordomo commands, use the "help topics" command.
 
@@ -262,6 +262,4 @@ See Also:
    help unregister
    help unsubscribe
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
