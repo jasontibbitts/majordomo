@@ -322,6 +322,8 @@ if ($passw and ($st eq 'checked' or $func eq 'showtokens') and @lists) {
   # The password may have been omitted earlier.
   $request->{'password'} = $passw;
   $request->{'command'} = 'showtokens';
+  # 'action' is also used by the report command.
+  delete $request->{'action'} if (exists $request->{'action'});
   Mj::Parser::parse_args($request, $extra[0])
     if ($func eq 'showtokens');
 
