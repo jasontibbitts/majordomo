@@ -464,7 +464,7 @@ sub parse_part {
           $user = $args{'reply_to'};
         }
         print $outhandle $mj->format_error('default_set', $list, 
-                                           'SETTING' => 'password',
+                                           'SETTING' => 'user',
                                            'VALUE' => $user);
       }
       elsif ($action eq 'delay') {
