@@ -470,6 +470,7 @@ sub _post {
   $date = $archead->get('date') || ''; chomp $date;
   $date = &str2time($date);
   $date = time unless ($date > 0 and $date < time);
+  $date =~ /(\d+)/; $date = $1;
   ($msgnum) = $self->{'lists'}{$list}->archive_add_start
     ($sender,
      {
