@@ -88,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200409020";
+$VERSION = "0.1200410090";
 $unique = 'AAA';
 
 use strict;
@@ -1527,18 +1527,14 @@ sub _reg_add {
   my $addr = shift;
   my %args = @_;
   my $log = new Log::In 200;
-  my (@lists, $data, $existing, $i);
+  my ($data, $i, $ok, $sub);
 
   # Look up the user
   $data = $self->{reg}->lookup($addr->canon);
 
   # If the entry doesn't exist, we need to generate a new one.
-  if ($data) {
-    $existing = 1;
-  }
-  else {
+  unless ($data) {
     # Make a new registration
-    $existing = 0;
     $data = {
              stripaddr => $addr->strip,
              fulladdr  => $addr->full,
@@ -1554,31 +1550,44 @@ sub _reg_add {
              data4     => '',
              data5     => '',
 	    };
-  }
 
-  # Copy arguments
-  if (!$existing || $args{'update'}) {
     for $i (qw(regtime password language lists flags bounce warnings
-	       data1 data2 data3 data4 data5)) {
-      $data->{$i} = $args{$i} if $args{$i};
+               data1 data2 data3 data4 data5)) {
+      $data->{$i} = $args{$i} if (defined $args{$i});
     }
+    if ($args{'list'}) {
+      $data->{'lists'} = $args{'list'};
+    }
+
+    ($ok) = $self->{reg}->add('', $addr->canon, $data);
+    return (0, $data) if $ok;
   }
 
-  if ($args{list}) {
-    @lists = split("\002", $data->{'lists'});
-    push (@lists, $args{list}) 
-      unless (grep { $_ eq $args{list} } @lists);
-    $data->{'lists'} = join("\002", sort @lists);
-  }
+  # Replace the data atomically to avoid a race condition.
+  $sub = sub {
+    my (@lists, $i, $rdata);
+    $rdata = shift;
 
-  # Replace or add the entry
-  if ($existing && ($args{'update'} || $args{'list'})) {
-    $self->{reg}->replace('', $addr->canon, $data);
-  }
-  else {
-    $self->{reg}->add('', $addr->canon, $data);
-  }
-  return ($existing, $data);
+    if ($args{'update'}) {
+      for $i (qw(regtime password language lists flags bounce warnings
+                 data1 data2 data3 data4 data5)) {
+        $rdata->{$i} = $args{$i} if (defined $args{$i});
+      }
+    }
+
+    if (defined $args{'list'} and length $args{'list'}) {
+      @lists = split("\002", $rdata->{'lists'});
+      push (@lists, $args{'list'}) 
+        unless (grep { $_ eq $args{'list'} } @lists);
+      $rdata->{'lists'} = join("\002", sort @lists);
+    }
+
+    $rdata;
+  };
+
+  $self->{'reg'}->replace('', $addr->canon, $sub);
+
+  return (1, $data);
 }
 
 =head2 _reg_lookup($addr, $regdata, $cache)
