@@ -222,16 +222,72 @@ Section 6 - Creating and Running Lists (all the other stuff you need)
 
 6.1 - Creating a list:
 
-  You can make your own lists just by calling the createlist command
-  from a shell command line
-      mj_shell -p password createlist list-name owner@address
-  or send email to $MJ
-      approve password createlist list-name owner@address
+  You will probably have to add something to PATH or type the full path to
+  mj_shell for mj_shell to work, and you have to have access to a shell
+  command line on the computer that receives Majordomo commands. If you
+  don't have access to mj_shell, just send the following commands to the
+  server by email.
+
+  If you start mj_shell without arguments, it will respond with some
+  instructions and a 'Majordomo>' prompt.  If you have the appropriate modules
+  installed, you may have interactive editing capabilities although those
+  modules often have some trouble on some OSes.
+
+  You can make your own list 'test-list' owned by someone@example.com
+  just by issuing the createlist command...
+
+  - from an interactive shell:
+      % mj_shell -d example.com -p password
+      Majordomo> createlist test-list someone@example.com
+
+  - from a shell command line
+      % mj_shell -d example.com -p password createlist test-list someone@example.com
+
+  - or send email to $MJ
+      approve password createlist test-list someone@example.com
 
   This will give you the necessary aliases to add to the appropriate file, if
   you're running Sendmail.  Note that for sites running virtual domains the
   suggestions may not be completely correct and additions to other files (the
   virtusertable, most likely). See "help createlist" for details.
+
+  Help is always available; send the command
+   help topics
+  to see a list of available help topics.
+
+  Now to configure this list.  This should do everything necessary, although
+  some aspects of your MTA configuration may cause the list addresses to not
+  be immediately availabile.
+
+  The default configuration of this list may be reasonable (as the defaults
+  are designed to mirror Majordomo 1.94.4 behavior), but there are some
+  variables you will want to play with:
+
+  - from an interactive shell:
+      Majordomo> configedit test-list subject_prefix
+
+  - or send email to $MJ
+      approve password configshow test-list subject_prefix
+    (edit the email you get back)
+      approve password configset test-list subject_prefix ...
+    (send back the edited text)
+
+  This will open an editor on the subject_prefix variable, with a short
+  description of the variable present.  Note that in Mj2, users have the
+  choice of receiving a subject prefix so you probably want to configure
+  one.  The same goes for 'reply_to' and other interesting variables.
+
+  If you want digests or archiving, you must make a directory to store
+  archived messages:
+     put-dir test-list /public/archive Message Archives
+  Now archives will accumulate, and are accessible using the get command.  If
+  you want some digests, do
+     Majordomo> configedit test-list digests
+  and set up one or more.  Users can use the 'set' command to choose whether
+  they want each message or a digest.  They can choose which of the digests
+  you've defined and what kind of digest they want (text, MIME, or index).
+  They can also set various other parameters using 'set'
+
 
 6.2 - Moving a list from Majordomo 1.9x:
 
