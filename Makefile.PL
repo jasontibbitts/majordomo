@@ -61,6 +61,8 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; $a=~s/\.p.$//; ("lib/$_" => "\$(INS
    'Fcntl'          => [0,     1],
    'Carp'      	    => [0,     1],
    'Time::Local'    => [0,     1],
+   'HTML::TreeBuilder' => [0,     1],
+   'HTML::FormatText'  => [0,     1],
    'DB_File'        => [1.63,  0],
    'DBI'            => [1.14,  0],
    'DBD::Pg'        => [0.95,  0],
@@ -276,7 +278,7 @@ DIR:
 
 sub check_syslog {
   my ($failed) = "the Sys::Syslog module";
-  print "Checking for Sys::Syslog and headers   ";
+  print "Checking for Sys::Syslog and headers     ";
   eval {require Sys::Syslog;};
   if ($@) {
     warn <<EOW;
@@ -362,7 +364,7 @@ EOP
 sub have_vers {
   my($pkg, $wanted, $msg, $vnum, $vstr) = @_;
   no strict 'refs';
-  printf("Checking for %15s %-9s ", $pkg, $wanted==0?'(any)':"(v$wanted)");
+  printf("Checking for %17s %-9s ", $pkg, $wanted==0?'(any)':"(v$wanted)");
 
   eval { my $p; ($p = $pkg . ".pm") =~ s!::!/!g; require $p; };
   
@@ -388,11 +390,11 @@ sub configure {
   require Data::Dumper; import Data::Dumper 'Dumper';
 
   # Pull in an existing configuration.
-  print "Checking for     Net::Config";
+  print "Checking for       Net::Config";
   eval {require Net::Config};
   print ' 'x11 . "done, status not checked\n";
 
-  print "Checking for      .mj_config";
+  print "Checking for        .mj_config";
   $config = eval { require ".mj_config" };
   if (defined $config) { print ' 'x11 . "found: default settings read from prior install\n"; }
   else                 { print ' 'x11 . "missing: using defaults and creating new file\n"; }
