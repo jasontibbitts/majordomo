@@ -3853,6 +3853,7 @@ files/fr/help/.configset_moderator_group
 files/fr/help/.configset_noadvertise
 files/fr/help/.configset_nonmember_flags
 files/fr/help/.configset_override_reply_to
+files/fr/help/.configset_owners
 files/fr/help/.configset_password_min_length
 files/fr/help/.configset_post_lifetime
 files/fr/help/.configset_precedence
@@ -3964,6 +3965,7 @@ files/fr/help/configset_moderator_group
 files/fr/help/configset_noadvertise
 files/fr/help/configset_nonmember_flags
 files/fr/help/configset_override_reply_to
+files/fr/help/configset_owners
 files/fr/help/configset_password_min_length
 files/fr/help/configset_post_lifetime
 files/fr/help/configset_precedence
