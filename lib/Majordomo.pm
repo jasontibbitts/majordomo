@@ -2791,6 +2791,7 @@ sub _createlist {
 	   'domain' => $dom,
 	   'whoami' => $who,
 	   'options'=> $mtaopts,
+	   'queue_mode' => $self->_site_config_get('queue_mode'),
 	  );
 
   unless ($mtaopts->{'maintain_config'}) {

@@ -1,0 +1,233 @@
+#!/usr/bin/perl -wT
+BEGIN {
+  $::BINDIR = "/path/to/bin";
+#  $::LIBDIR = "/path/to/lib";
+  $::LISTDIR= "/path/to/lists";
+  $::DEFDOM = "some.dom.ain";
+  $::LOCKDIR= "blah";
+  $::TMPDIR = "/tmp/mj";
+#  $::WTMPDIR= "/tmp";
+  $::UMASK  = "007";
+  $::UID    = "baduid";
+  $::GID    = "badgid";
+#  $Exporter::Verbose = 1;
+#  $AutoLoader::Verbose = 1;
+#  $AutoLoader::Notruncate = 1;
+  $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
+
+  # Redirect standard error output.
+  if (! -t STDERR) {
+    open (STDERR, ">>$::TMPDIR/mj_enqueue.debug");
+  }
+
+  # Croak if install was botched
+  die("Not running as UID $::UID") unless $> == $::UID;
+  die("Not running as GID $::GID") unless $) == $::GID;
+
+  # Qyiet warning
+  $::LOCKDIR;
+}
+
+use Socket;
+use Fcntl qw(:flock :DEFAULT);
+use Getopt::Std;
+use strict;
+my (%opts, $dom, $i, $line, $ok, $pid, $rendezvous, $q1, $q2, $q3, $qdir,
+    $qfile, $qfunc);
+
+umask oct($::UMASK);
+$ENV{PATH} = '';
+
+# Parse command line args
+# -d - specify domain to serve (arg)
+# -l - specify list (arg)
+# -m - run at main majordomo address; -l ignored.
+# -o - run as owner answerer
+# -q - run as request answerer; -l _required_.
+# -r - run as resend; -l _required_.
+# -t - specify directory containing domains (arg)
+# -v - specify debug verbosity (arg), default 50.
+# -Q - figure out addresses from $ENV{DEFAULT} (for qmail) or use
+#      $ENV{LOCAL} if $ENV{DEFAULT} does not exist
+# -S - when done, exit 99 instead of 0 (for qmail)
+# -T - for qmail versions prior to 1.03, trim this string from $ENV{LOCAL}.
+
+getopts('d:l:moqQrSt:T:v:', \%opts);
+
+# Deal with -Q option
+do_qmail() if $opts{'Q'};
+
+$dom = $opts{'d'} || $::DEFDOM;  $dom =~ /(.*)/; $dom = $1;
+
+# Choose the function; the queue name
+if    ($opts{'m'}) { $qfunc = 'majordomo'}
+elsif ($opts{'o'}) { $qfunc = 'owner'    }
+elsif ($opts{'q'}) { $qfunc = 'request'  }
+elsif ($opts{'r'}) { $qfunc = 'list'     }
+
+# Figure out the queue directory and make sure everything exists.
+$qdir = "$::TMPDIR/queue/$dom/$qfunc";
+smkdir("$::TMPDIR",            0777);
+smkdir("$::TMPDIR/queue",      0777);
+smkdir("$::TMPDIR/queue/$dom", 0777);
+smkdir("$qdir",                0777);
+
+# Construct some strings 
+$q1 = chr(ord('A') + (localtime(time))[2]);
+$q2 = 'AA';
+if ($opts{'l'}) { $q3 = "-$opts{'l'}"}
+else            { $q3 = '' }
+
+# Loop through until we have a unique string.  If we loop until ZZ then
+# this will still work but we should be careful about the length of things.
+while (1) {
+  $qfile = "$q1$q2-${$}${q3}";
+  $ok = sysopen(OUT, "$qdir/$qfile", O_WRONLY|O_CREAT|O_EXCL, 0777);
+  last if $ok;
+  # XXX Hack?
+  die "Can't create queue file $qdir/$qfile: $!" unless $! =~ /exist/i;
+  $q2++;
+}
+
+# Now lock the file, so that the runner won't get to it.  If a runner does
+# get to it, it will have zero size and thus the runner will unlock it
+# quickly so we can just block here for a bit.
+$ok = flock(OUT, LOCK_EX);
+
+# Fill the queue file, skipping mailbox separator if present.
+$line = <STDIN>;
+print OUT $line unless $line =~ /^From /;
+while (defined($line = <STDIN>)) {
+  print OUT $line;
+}
+close OUT;  # Also unlocks.
+
+# Now start up the server.  We must exit 0 from here on out (no dying)
+# because the file has already been queued and a runner will pick it up
+# later.  From the MTA's standpoint, delivery was successful.
+
+$rendezvous = "$::TMPDIR/mj_queueserv";
+unless (socket(SOCK, PF_UNIX, SOCK_STREAM, 0)) {
+  warn "Couldn't create socket: $!";
+  exit 0;
+}
+
+if (!($ok = connect(SOCK, sockaddr_un($rendezvous)))) {
+  # No connection; start the primary server
+  unless ($pid = fork) {
+    unless (defined $pid) {
+      warn "Couldn't fork: $!";
+      exit 0;
+    }
+    # Child...
+    exec "$::BINDIR/mj_queueserv";
+  }
+}
+
+# Poll with linear backoff until server starts up
+for ($i = 0; $i < 10 || die "connect: $!"; $i++) {
+  $ok ||= connect(SOCK, sockaddr_un($rendezvous));
+  last if $ok;
+  sleep $i;
+}
+while (defined($line = <SOCK>)) {
+}
+
+exit;
+
+
+# Look in $ENV{DEFAULT} which tells us the local-part of the address we're
+# being run at, and fake the other options.  Expect that we were called
+# with -d giving us the correct domain, so we don't have to fake that.
+# Use $ENV{LOCAL} if $ENV{DEFAULT} does not exist.
+sub do_qmail {
+  my $addr;
+  if(exists $ENV{DEFAULT}) {
+    $addr = lc($ENV{DEFAULT});
+  }
+  else {
+    $addr = lc($ENV{LOCAL});
+  }
+  if ($opts{T}) {
+    $addr =~ s/^$opts{T}//;
+    $addr =~ s/^-//;
+  }
+
+  my($list, $fun);
+
+  # First look at majordomo addresses XXX These are hardcoded to
+  # 'majordomo', but it would take too much time to load Majordomo.pm so
+  # that we can extract the real majordomo address.
+  if ($addr eq 'majordomo') {
+    $opts{'m'} = 1;
+    return;
+  }
+  if ($addr eq 'majordomo-owner' || $addr eq 'owner-majordomo') {
+    $opts{'o'} = 1;
+    return;
+  }
+
+  # Now assume we have a list address; look for owner-, -owner, -request.
+  # Note breakage if the list name actually has any of these in it.
+  if ($addr =~ /^owner-(.*)$/) {
+    $list = $1; $fun = 'owner';
+  }
+  # Note that we don't anchor to the end; we may be receiving a probe
+  elsif ($addr =~ /^(.*)-owner/) {
+    $list = $1; $fun = 'owner';
+  }
+  elsif ($addr =~ /^(.*)-request$/) {
+    $list = $1; $fun = 'request';
+  }
+  else {
+    $list = $addr; $fun = 'list';
+  }
+
+  # Now we have the (supposed) list name.  Check that it exists by looking
+  # directly into $::LISTDIR/$opts{'d'}.  Of course this assumes things
+  # about the structure of the internal storage, but we have to trust that
+  # or else go through some other expensive operations.  In this case, we
+  # want to be quick.
+  unless (-d "$::LISTDIR/$opts{'d'}/$list") {
+    # It's not bound for us; just exit 0 so the next entry in
+    # .qmail-default will be parsed.
+    exit 0;
+  }
+
+  # It is bound for us; fix up the options
+  $opts{'l'} = $list;
+  $fun eq 'list'    and $opts{'r'} = 1;
+  $fun eq 'owner'   and $opts{'o'} = 1;
+  $fun eq 'request' and $opts{'q'} = 1;
+}
+
+sub smkdir {
+  my $dir  = shift;
+  my $mode = shift;
+  unless (-d $dir) {
+    mkdir $dir, $mode or die "Can't make $dir, $!";
+  }
+}
+
+
+=head1 COPYRIGHT
+
+Copyright (c) 1999 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+his program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+#
+### Local Variables: ***
+### mode:cperl ***
+### cperl-indent-level:2 ***
+### End: ***

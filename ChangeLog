@@ -1,3 +1,43 @@
+Tue Apr 13 00:43:29 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* setup/setup_func.pl (suggest_mta): Pay attention to queue_mode
+ 	when creating qmail_default files.
+
+	* postinstall: Add new queue scripts to the appropriate arrays.
+
+	* Makefile.PL: Add new queue scripts to the appropriate arrays.
+
+	* lib/Mj/MTAConfig.pm: Handle queue_mode by calling mj_enqueue
+ 	instead of mj_email.
+
+	* setup/ask_queueing.pl (ask_queueing): New file; query for
+ 	timeout and concurrency.
+
+	* setup/ask_basic.pl (ask_basic): Ask about queueing.
+
+	* Makefile.PL: Bump config version.
+
+	* lib/Majordomo.pm (_createlist): Pass 'queue_mode' on to
+ 	MTAConfig.
+
+Mon Apr 12 19:51:29 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_queueserv: New file: manage a pool of queue runners.
+
+	* bin/mj_queuerun: Work through a queue and process all files
+ 	found there appropriately.
+
+Sun Apr 11 13:23:15 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_enqueue: Add locking of the queue file.
+
+Fri Apr  9 19:10:45 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_enqueue: New file: push a message into an appropriate
+ 	queue directory and start the queue server.
+
+	* installbin: Substitute $::BINDIR.
+
 Sat Apr  3 22:10:51 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Resend.pm (_post): Pass additional headers to do_digests.

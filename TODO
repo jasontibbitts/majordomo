@@ -35,6 +35,14 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
+Queueing:
+
+  Runners automatically exit after processing some number of messages (to
+  prevent memory leaks).
+
+  Server does the same, only some much larger number as it does no
+  allocations.
+
 Add option to set umask of generated alias files.
 
 Don't show the user variables that they can't change.  (Make their values
@@ -547,107 +555,9 @@ We already support translated long documents.
   is to eliminate it.  Have daemons run in the background as necessary to
   serve requests.
 
-  In the temp directory, have one directory per domain.  In that directory,
-  have a file containing the number of simultaneous daemons allowed.  The
-  client can look for daemons by Unix domain sockets there.  It should
-  select on all available and if it times out (or there aren't any to begin
-  with) it should spawn them.  It will never spawn more than the maximum.
+  Ignore the complex stuff that was here; use one of the RPC modules instead.
 
-  A daemon just select on its socket until it hits a connection, then it
-  accepts and talks client-server over the socket to do things.  If the
-  select times out, the daemon can exit, taking its socket with it.  This
-  limits the number of daemons to what is needed.
-
-  The clients should be small, so that they compile quickly.
-
-  Client looks like normal; everything is in the Majordomo module.  A
-  global can be consulted to do C/S or monolithic; the Majordomo module can
-  itself use Mj::Client or Mj::Core.
-
-  Daemon just calks Mj::Protocol, calls routines on its $mj and passes the
-  results back to Mj::Protocol.
-
-  A Mj::Protocol module can implement the C/S protocol, which should look
-  sort of like SMTP.  A transaction (from the view of the client) looks like:
-
-  >> CONN
-  << 30 OK; need: data, interface
-  >> ARG data
-  << 31 OK, send
-  >> +Connection data line w
-  >> +Line 1
-  >> +Whatever
-  >>
-  << 31 Received arg data; still need interface
-  >> ARG interface
-  
-  << 20 Connection received; ID follows
-  << 21
-  << 22-1234132BCDAF23432ED245AB
-  << 22
-  << 23 End of return values
-  >> UTIL get_all_lists
-  << 30 Command received; need user, pass, interface
-
-  Client sends two-letter mnemonic strings, many having (optional)
-  arguments.  Server sends numeric result codes.  (This is asymmetrical
-  because server needs to be chatty and thus needs a way to communicate
-  return values.)
-
-  Call sequence:  DISP/UTIL, ARG (name), ..., ARG (name), ..., END
-   Server will not execute any routines until END is seen.
-  Return sequence: 20, 21 (name), 22..., 21 (name), 22..., 23
-   Client should read continuously until 23 is seen.
-
-  20: printed after all arguments received, contains status message.
-  21: return value follows, gives name
-  22: return value
-  23: end of return values
-
-  30: got yor command, want some arguments
-  31: Send the argument
-  32: got the argument
-  33: got all arguments you sent.
-
-  (codes beginning with 1 reserved as in SMTP; could be used to provoke an
-  answer from the UI.)
-
-  START:    connection, takes optional session key
-  COMMAND:  call the dispatcher on the given core function name
-  UTILITY:  call the named utility function
-  QUIT:     close the connection
-  DIE:      have the daemon exit
-  ARGUMENT: named (or unnamed) argument follows
-  LINE:     here comes a line of data
-  END:      all arguments sent
-
-  (only the first two characters are significant)
-
-  A "+" endicates an appended newline that should be preserved.  A '-'
-  indicates a value with no newline.  A blank is the universal "end of
-  transaction indicator".  A line with a blank is assumed to be _not_
-  newline terminated, so most return values can be printed in one line.  An
-  empty line (containing just a newline) is just '+', a completely empty
-  string is just '-'.  (In other words, to print newline-terminated
-  strings, chomp, then print "+$string" for each line.)  This is much like
-  SMTP, in that you can parse until the first character after the code is a
-  space.  A return code with nothing following it is required to terminate
-  a newline-terminated string.
-
-  Arguments are communicated to the server with ARG commands; these
-  optionally take a name for named args.  Args are transmitted one at a
-  time until all are sent.  There is no fixed limit on the number of
-  arguments.
-
-  This enables names arguments to be sent as easily as passing a hash.
-  This means that lots of things can be rewritten in a much simpler manner
-  now.  Drat.
-
-  The utility/dispatch difference serves to reinforce the distinction
-  between these types of functions; dispatch functions all take the same
-  arguments.
-
-- Figure out how to moreclosely link bounce reasons with access control
+- Figure out how to more closely link bounce reasons with access control
   actions.  Problem: we can only generate bounce reasons before we call
   access_check.  We can't generate all possible reasons and we might not
   want to generate any.  The owner can't choose which reasons to use, and

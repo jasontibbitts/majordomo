@@ -129,13 +129,15 @@ sub add_alias {
 
 
   if ($list eq 'GLOBAL') {
-    $block = <<"EOB";
+    if ($args{'queue_mode'}) {
+      $block = <<"EOB";
 # Aliases for Majordomo at $dom
-$who$vut:       "|$bin/mj_email -m -d $dom$debug"
-$who$vut-owner: "|$bin/mj_email -o -d $dom$debug"
+$who$vut:       "|$bin/mj_enqueue -m -d $dom$debug"
+$who$vut-owner: "|$bin/mj_enqueue -o -d $dom$debug"
 owner-$who$vut: $who$vut-owner,
 # End aliases for Majordomo at $dom
 EOB
+
     $vblock = <<"EOB";
 # VUT entries for Majordomo at $dom
 $who\@$dom         $who$vut
@@ -143,18 +145,36 @@ $who-owner\@$dom   $who$vut-owner
 owner-$who-\@$dom  owner-$who$vut
 # End VUT entries for Majordomo at $dom
 EOB
+    }
+    else {
+      $block = <<"EOB";
+# Aliases for Majordomo at $dom
+$who$vut:       "|$bin/mj_email -m -d $dom$debug"
+$who$vut-owner: "|$bin/mj_email -o -d $dom$debug"
+owner-$who$vut: $who$vut-owner,
+# End aliases for Majordomo at $dom
+EOB
 
+      $vblock = <<"EOB";
+# VUT entries for Majordomo at $dom
+$who\@$dom         $who$vut
+$who-owner\@$dom   $who$vut-owner
+owner-$who-\@$dom  owner-$who$vut
+# End VUT entries for Majordomo at $dom
+EOB
+    }
   }
   else {
-    $block = <<"EOB";
+    if ($args{'queue_mode'}) {
+      $block = <<"EOB";
 # Aliases for $list at $dom
-$list$vut:         "|$bin/mj_email -r -d $dom -l $list$debug"
-$list$vut-request: "|$bin/mj_email -q -d $dom -l $list$debug"
-$list$vut-owner:   "|$bin/mj_email -o -d $dom -l $list$debug"
+$list$vut:         "|$bin/mj_enqueue -r -d $dom -l $list$debug"
+$list$vut-request: "|$bin/mj_enqueue -q -d $dom -l $list$debug"
+$list$vut-owner:   "|$bin/mj_enqueue -o -d $dom -l $list$debug"
 owner-$list$vut:   $list-owner,
 # End aliases for $list at $dom
 EOB
-    $vblock = <<"EOB";
+      $vblock = <<"EOB";
 # VUT entries for $list at $dom
 $list\@$dom          $list$vut
 $list-request\@$dom  $list$vut-request
@@ -162,6 +182,25 @@ $list-owner\@$dom    $list$vut-owner
 owner-$list\@$dom    owner-$list$vut
 # End VUT entries for $list at $dom
 EOB
+    }
+    else {
+      $block = <<"EOB";
+# Aliases for $list at $dom
+$list$vut:         "|$bin/mj_email -r -d $dom -l $list$debug"
+$list$vut-request: "|$bin/mj_email -q -d $dom -l $list$debug"
+$list$vut-owner:   "|$bin/mj_email -o -d $dom -l $list$debug"
+owner-$list$vut:   $list-owner,
+# End aliases for $list at $dom
+EOB
+      $vblock = <<"EOB";
+# VUT entries for $list at $dom
+$list\@$dom          $list$vut
+$list-request\@$dom  $list$vut-request
+$list-owner\@$dom    $list$vut-owner
+owner-$list\@$dom    owner-$list$vut
+# End VUT entries for $list at $dom
+EOB
+    }
   }
   if ($args{aliashandle}) {
     $args{aliashandle}->print("$block\n");

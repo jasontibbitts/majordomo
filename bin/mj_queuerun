@@ -1,0 +1,597 @@
+#!/usr/local/bin/perl-latest -wT
+BEGIN {
+  $::LIBDIR = "/home/tibbs/mj/2.0/blib/lib";
+  $::LISTDIR= "/home/tibbs/mj/2.0-lists";
+  $::TMPDIR = "/tmp";
+  $::LOCKDIR= "blah";
+  $::UID    = "baduid";
+  $::GID    = "badgid";
+  $::UMASK  = "007";
+  $::TIMEOUT= 30;
+
+  $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
+
+  # Redirect standard error output.
+  if (! -t STDERR) {
+    open (STDERR, ">>$::TMPDIR/mj_queuerun.debug");
+  }
+
+  # Croak if install was botched
+  die("Not running as UID $::UID") unless $> == $::UID;
+  die("Not running as GID $::GID") unless $) == $::GID;
+
+  # Qyiet warning
+  $::LOCKDIR;
+}
+
+=head1 NAME
+
+mj_queuerun - process outstanding queue entries.
+
+=head1 DESCRIPTION
+
+When instructed, this program will go over every appropriately named file
+in the queue directory and process it.  The server and the queueing program
+are intended to be very small so that all the work can be done here.  This
+program only exits after it has processed all outstanding queue files and
+has had no new ones for some period of time.  This saves on compilation
+time, which can get very expensive.
+
+=cut
+sub out { syswrite(STDOUT, $_[0], length($_[0]));}
+sub in  { sysread(STDIN, $_, 1024); $_};
+
+use lib "$::LIBDIR";
+use Getopt::Std;
+use strict;
+my (%opts, $ein, $eout, $head, $line, $mime_parser, $mj, $nfound, $ok, $request_ans, $rin,
+    $rout, $win, $wout);
+
+umask oct($::UMASK);
+
+$ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb"; # Needed for Syslog to get hostname.
+
+# Parse the command line arguments.
+# -t - specify directory containing domains (arg)
+# -v - specify debug verbosity (arg), default 50.
+
+getopts('t:v:', \%opts);
+
+# We must untaint the top level dir and the domain because they are used to
+# generate filenames; it's safe since they were supplied by the site owner.
+$opts{t} ||= $::LISTDIR;
+$opts{t} =~ /(.*)/;
+$opts{t} = $1;
+
+$opts{v} ||= 0;
+
+# Pull in the logging module
+eval 'use Mj::Log';
+
+# Open a log
+$::log = new Mj::Log;
+$::log->add
+  (
+   # If we can pront the messages somewhere, print them, else we dump them
+   # to syslog.
+#   method      => (-t STDERR)?'handle':'syslog',
+   method      => 'handle',
+   handle      => \*STDERR,
+   id          => 'mjqr',
+   level       => ($opts{v} =~ /^(\d+)$/)[0] || 50,
+   subsystem   => 'mail',
+   log_exits   => 1,
+   log_entries => 1,
+   log_args    => 1,
+  );
+
+$::log->in(20, undef, "info", "Majordomo queue runner - ".scalar(localtime));
+$::log->startup_time();
+
+# Now pull in the rest of the modules we need.  This is delayed until after
+# compile time in order to make qmail checking fast if we were called but
+# we do not handle the address.
+$::log->in(21, undef, 'info', 'Loading modules');
+eval '
+  use Fcntl ":flock";
+  use Majordomo;
+  use Mj::Parser;
+  use Mj::Deliver::Envelope;
+  use Mj::MIMEParser;
+  use Data::Dumper;
+  use IO::File;
+';
+$::log->out;
+
+# Now, we're ready.
+out('Starting');
+
+# Loop forever
+while (1) {
+  # Select on standard input, which is our signal to go.
+  $rin = $win = $ein = ''; vec($rin,fileno(STDIN),1) = 1; $ein = $rin | $win;
+  $nfound = select($rout=$rin, $wout=$win, $eout=$ein, $::TIMEOUT);
+  unless ($nfound) {
+    $::log->out('Timed out');
+    last;
+  }
+
+  $line = in();
+  if ($line =~ /(Ping \d+)$/) {
+    # The server is pinging us to see if we're alive.  Return the ping and
+    # wait again.  This lets the server know that we're are just sitting
+    # here and to refresh the timeout.  We chop off all but the last bit
+    # because the server may have pinged us multiple times.
+    out($line);
+    next;
+  }
+  unless (defined $line && length $line) {
+    $::log->message(50, 'info', "Read undef or empty line? $nfound, $rout, $wout, $eout");
+    last;
+  }
+  out('Running queue');
+  run_queue();
+}
+out('Exiting');
+exit;
+
+sub run_queue {
+  my(@domains, @functions, $dom, $file, $func, $list, $mj, $msg, $ok);
+  my $log = new Log::In 25, 'Running queue';
+
+  # Grab the domains from the queue
+  opendir DOMS, "$::TMPDIR/queue" ||
+    $::log->abort("Can't opendir $::TMPDIR/queue: $!");
+  @domains = grep { $_ !~ /^\./ } readdir DOMS;
+
+  # XXX Ramdomize domain list to avoid starvation
+
+  # Loop over domains
+ DOM:
+  for $dom (@domains) {
+    # Untaint $dom; this is safe because only we are able to write to that
+    # directory.
+    $dom =~ /(.*)/; $dom = $1;
+
+    # undef Majordomo object
+    if ($mj) {
+      $::log->message(50, "info", "-----Calling destructors-----");
+      undef $mj;
+      undef $::mj;
+    }
+
+    # Grab the functions from the queue
+    opendir FUNCS, "$::TMPDIR/queue/$dom" ||
+      $::log->abort("Can't opendir $::TMPDIR/queue/$dom: $!");
+    @functions = grep { $_ !~ /^\./ } readdir FUNCS;
+    
+    # XXX Ramdomize function list to avoid starvarion???
+
+    # Loop over functions
+  FUNC:
+    for $func (@functions) {
+      # Untaint $func; this is safe because only we are able to write to
+      # that directory.
+      $func =~ /(.*)/; $func = $1;
+
+      # Grab the queue files from the queue
+      opendir QDIR, "$::TMPDIR/queue/$dom/$func" ||
+	$::log->abort("Can't opendir $::TMPDIR/queue/$dom/$func: $!");
+
+      # Loop over queue files (no need to randomize; they're in a random
+      # order and there may be many of them)
+    MSG:
+      while (defined($msg = readdir QDIR)) {
+	next MSG if $msg =~ /^\./;
+	# Untaint $msg; this is safe because only we are able to write
+	# stuff in that directory
+	$msg =~ /(.*)/; $msg = $1;
+	$file = "$::TMPDIR/queue/$dom/$func/$msg";
+	open(MSG, $file);
+
+	# Lock a file, non-blocking; next if we didn't get it.
+	$ok = flock(MSG, &LOCK_EX|&LOCK_NB);
+	unless ($ok) {
+	  close MSG;
+	  next MSG;
+	}
+
+	# Make sure file has nonzero size to avoid a race with mj_enqueue
+	unless ((stat($file))[7]) {
+	  close MSG;
+	  next;
+	}
+
+	# OK, have something to process.  Lazily create a Majordomo object
+	# for the domain we're processing.
+	unless (defined $mj) {
+	  $::mj = new Majordomo $opts{t}, $dom; $mj = $::mj;
+	  unless (ref $::mj) {
+	    $::log->abort("Cannot create Majordomo object: $::mj");
+	  }
+	}
+
+	# If we're at the Majordom address, just parse commands
+	if ($func eq 'majordomo') {
+	  parse_commands($mj);
+	  next;
+	}
+
+	# Extract the list name
+	$msg =~ /^\w\w\w-\d+-(.*)$/; $list = $1;
+
+	# Perform the appropriate function
+	# If at list address, resend.
+	if ($func eq 'list' || $func eq 'resend') {
+	  resend($mj, $list);
+	}
+
+	# if at -request pull out global 'request_answer' variable and
+	# figure out what to do
+	elsif ($func eq 'request') {
+	  $request_ans = $mj->global_config_get(undef, undef, undef, 'email',
+						'request_answer');
+	  if ($request_ans eq 'majordomo') {
+	    parse_commands($mj, $list);
+	  }
+	  elsif ($request_ans eq 'owner') {
+	    forward_to_owner($mj, $list);
+	  }
+	  else {
+	    respond_with_file($mj, $list);
+	  }
+	}
+
+	# if at -owner look for bounces and forward everything else to the
+	# owner
+	elsif ($func eq 'owner') {
+	  # forward to owner; if -l is present, forward to that list else assume
+	  # we're majordomo-owner.
+	  forward_to_owner($mj, $list || 'GLOBAL');
+	}
+	unlink $file;
+	close MSG;
+      }
+    }  
+  }
+}
+
+# Forward the message to the list owner.  Call owner_start, owner_chunk,
+# owner_done passing in all of the message.
+sub forward_to_owner {
+  my ($mj, $list) = @_;
+  my (@stuff, $sess);
+
+  @stuff = ('', '', '', 'owner', "(message to $list-owner)", '', $list, '');
+  $sess = connect_no_parse($mj, 'owner');
+
+  # Some MTAs hand the message to us with the mbox separator prepended.
+  # Sending this on as part of the headers can hose some MTAs, so we strip
+  # it.  The regexp doesn't harm the body $sess contains only the headers.
+  $sess =~ s/^From .*?\r?\n//;
+  ($ok) = $mj->dispatch('owner_start', @stuff);
+  return unless $ok;
+
+  $_ = $sess;
+  while (1) {
+    last unless defined $_;
+    ($ok) = $mj->dispatch('owner_chunk', @stuff, $_);
+    return unless $ok;
+    $_ = <MSG>;
+  }
+  ($ok) = $mj->dispatch('owner_done', @stuff);
+  return unless $ok;
+  1;
+}
+
+# Resend a message; call post_start, post_chunk, post_done passing in all
+# of the message.
+sub resend {
+  my ($mj, $list) = @_;
+  my (@out, @stuff, $sess);
+
+  $sess = connect_no_parse($mj, 'resend');
+
+  # Some MTAs hand the message to us with the mbox separator prepended.
+  # Sending this on as part of the headers can hose some MTAs, so we strip
+  # it.  The regexp doesn't harm the body $sess contains only the headers.
+  $sess =~ s/^From .*?\r?\n//;
+
+  @stuff = ('', '', '', 'resend', "(post to $list)", '', $list, '');
+
+  ($ok) = $mj->dispatch('post_start', @stuff);
+  return unless $ok;
+
+  $_ = $sess;
+  while (1) {
+    last unless defined $_;
+    ($ok) = $mj->dispatch('post_chunk', @stuff, $_);
+    return unless $ok;
+    $_ = <MSG>;
+  }
+  ($ok) = $mj->dispatch('post_done', @stuff);
+  return unless $ok;
+  1;
+}
+
+# Just call the response_file method.
+sub respond_with_file {
+  my ($mj, $list) = @_;
+  my $user;
+
+  (undef, undef, $user) = connect_and_parse($mj, 'request');
+  $mj->dispatch('request_response', $user, '', '', 'email', '', '', $list,
+		$user);
+  1;
+}
+
+# These two functions exist because there are times when we can avoid
+# loading the MIME modules in the client.  To connect, all we need is the
+# header of the incoming message.  If we do no MIME parsing here (such as
+# when we're forwarding to the owner or resending) we can just pull in
+# everything until the first blank line.
+
+# This pulls in the header, connects to the given majordomo object, and
+# returns the header _including_ the first blank line.  Standard input will
+# contain the remainder of the message.
+sub connect_no_parse {
+  my ($mj, $int) = @_;
+  my ($i, $sess);
+
+  while (defined($i = <MSG>)) {
+    if ($i =~ /^\r?\n/) {
+      $mj->connect($int, $sess, 'unknown@anonymous');
+      $sess .= $i;
+      last;
+    }
+    $sess .= $i;
+  }
+  $sess;
+}
+
+# This parses the message and connects to the provided Majordomo object.
+# The MIME entity, unfolded header and user/reply address will be returned.
+sub connect_and_parse {
+  my ($mj, $int) = @_;
+  my($entity, $head, $mime_parser, $ok, $user, $suser);
+
+  $::log->in(85, undef, "info", "Seting MIME parser properties");
+  $mime_parser = new Mj::MIMEParser;
+  $mime_parser->output_to_core($mj->global_config_get(undef, undef, undef,
+						      $int,
+						      "max_in_core"));
+  $mime_parser->output_dir($::TMPDIR);
+  $mime_parser->output_prefix("mje");
+  $::log->out;
+
+  # One line does all of the parsing!
+  $::log->in(80, undef, "info", "Taking apart the incoming message");
+  $entity = $mime_parser->read(\*MSG);
+  $::log->out;
+  
+  # Get the header.
+  $::log->in(80, undef, "info", "Parsing the header");
+  $head = $entity->head;
+  $head->unfold;
+  $::log->out;
+
+  $user = $head->get('reply-to') || $head->get('from') ||
+      $head->get('apparently-from');
+  chomp $user;
+
+
+  # Connect; gives back the stripped user
+  ($ok, $suser) = $mj->connect($int, $entity->head->as_string, $user);
+
+  # Connect can now fail: 0: try again later, undef: bomb with error, > 0:
+  # connection ID
+
+  # If it failed, just clean up and exit.  Should probably tell the owner.
+  unless (defined($ok)) {
+    $entity->purge;
+    exit ($opts{'S'} ? 99 : 0);
+    #    $::log->abort("Connect failed: $suser");
+  }
+  
+#   ($ok, $user, undef) = $mj->addr_validate($uuser);
+#   unless ($ok) {
+#     # We can't get the stripped address, so we can't reply
+#     # We should send something to the owner or something
+#     $::log->abort("Invalid return address: $uuser, $user");
+#   }
+  ($entity, $head, $suser);
+}
+
+# Parse commands in the subject here; we do this early to get the debug log
+# going.  XXX Support ACCEPT, DENY, LIST and PASS in the subject, too.  The
+# first two for quick confirmation token processing; the latter two for
+# bypassing failed "access" checks.
+sub parse_commands {
+  my ($mj, $deflist) = @_;
+  my (@entities, $args, $av, $command, $debug_file, $debug_log,
+      $debug_reply, $entity, $head, $i, $line, $list, $ok, $sender,
+      $sub_addin, $subject, $tag, $tlist, $top, $token, $user);
+
+  ($entity, $head, $user) = connect_and_parse($mj, 'email');
+  $subject = $head->get('subject') || "";
+
+  # Look for a possible token
+  $token = $mj->t_recognize($subject);
+
+  if ($subject =~ s/DEBUG\s*(\d+)\s*//) {
+    $debug_reply = $1;
+    $debug_file  = "$::TMPDIR/mje.$$.debug";
+    $debug_log =
+      $::log->add(method      => 'file',
+		  filename    => $debug_file,
+		  id          => 'mje',
+		  level       => $debug_reply,
+		  subsystem   => 'mail',
+		  log_entries => 1,
+		  log_exits   => 1,
+		  log_args    => 1,
+		 );
+  }
+
+  $::log->message(35, "info", "Message from $user.");
+  
+  # Need to bail if we're talking to ourselves, either here (it's convenient)
+  # or when checking access.
+  
+  if ($mj->global_config_get(undef, undef, undef, 'email', 'return_subject') &&
+      defined($head->get('subject')) && $head->get('subject') =~ /\S/)
+    {
+      $sub_addin = ': ' . (substr($head->get('subject'), 0, 40));
+      chomp $sub_addin;
+    } 
+  else {
+    $sub_addin = '';
+  }
+
+  (undef, @entities) = 
+    Mj::Parser::parse_entity($mj, '', , "email", $::TMPDIR, 
+			     {
+			      'reply_to' => $user,
+			      'deflist'  => $deflist,
+			      'token'    => $token,
+			     },
+			     $entity,
+			    );
+  if ($debug_reply) {
+    push @entities, build MIME::Entity
+      (
+       Path        => "$debug_file",
+       Description => "Debugging information",
+       Top         => 0,
+      );
+  }
+  
+  # Somehow we need to put together all of the entities and the debug info.
+  # If we just have one entity, we add the necessary headers and send it
+  # (this avoids attaching useless MIME crap).  If we have multiple
+  # entities then we build a top and attach them all to it.
+  if (@entities == 1) {
+    $top = shift @entities;
+    # XXX This is nasty, because MIME-Tools might start supporting a newer
+    # MIME version at any time, but we have to do this until we get
+    # MIME::Entity::make_top.
+    $top->head->replace('MIME-Version', '1.0');
+  }
+  else {
+    $top = build MIME::Entity
+      Type => "multipart/mixed";
+    
+    for $i (@entities) {
+      $top->add_part($i);
+    }
+  }
+
+  $head = $top->head;
+  $head->replace('to'     , $user);
+  $head->replace('subject', "Majordomo results$sub_addin");
+  $head->replace('from'   , $mj->global_config_get(undef, undef, undef,
+						   "email", "whoami"));
+  
+  $sender = $mj->global_config_get(undef, undef, undef, "email", "whoami_owner");
+  $::log->delete($debug_log) if defined $debug_log;
+  open BLAH, ">$::TMPDIR/mje.$$.final" ||
+    $::log->abort("Couldn't open final output file, $!");
+  $top->print(\*BLAH);
+  close BLAH;
+  
+  $mj->mail_message($sender, "$::TMPDIR/mje.$$.final", $user);
+  
+  # Purge all tempfiles created by the entities.  XXX Ugh, need to clean up
+  # the variable names.
+  $entity->purge;
+  $top->purge;
+  unlink "$::TMPDIR/mje.$$.final";
+}
+
+
+# Look in $ENV{DEFAULT} which tells us the local-part of the address we're
+# being run at, and fake the other options.  Expect that we were called
+# with -d giving us the correct domain, so we don't have to fake that.
+# Use $ENV{LOCAL} if $ENV{DEFAULT} does not exist.
+sub do_qmail {
+  my $addr;
+  if(exists $ENV{DEFAULT}) {
+    $addr = lc($ENV{DEFAULT});
+  }
+  else {
+    $addr = lc($ENV{LOCAL});
+  }
+  if ($opts{T}) {
+    $addr =~ s/^$opts{T}//;
+    $addr =~ s/^-//;
+  }
+
+  my($list, $fun);
+
+  # First look at majordomo addresses XXX These are hardcoded to
+  # 'majordomo', but it would take too much time to load Majordomo.pm so
+  # that we can extract the real majordomo address.
+  if ($addr eq 'majordomo') {
+    $opts{'m'} = 1;
+    return;
+  }
+  if ($addr eq 'majordomo-owner' || $addr eq 'owner-majordomo') {
+    $opts{'o'} = 1;
+    return;
+  }
+
+  # Now assume we have a list address; look for owner-, -owner, -request.
+  # Note breakage if the list name actually has any of these in it.
+  if ($addr =~ /^owner-(.*)$/) {
+    $list = $1; $fun = 'owner';
+  }
+  # Note that we don't anchor to the end; we may be receiving a probe
+  elsif ($addr =~ /^(.*)-owner/) {
+    $list = $1; $fun = 'owner';
+  }
+  elsif ($addr =~ /^(.*)-request$/) {
+    $list = $1; $fun = 'request';
+  }
+  else {
+    $list = $addr; $fun = 'list';
+  }
+
+  # Now we have the (supposed) list name.  Check that it exists by looking
+  # directly into $::LISTDIR/$opts{'d'}.  Of course this assumes things
+  # about the structure of the internal storage, but we have to trust that
+  # or else go through some other expensive operations.  In this case, we
+  # want to be quick.
+  unless (-d "$::LISTDIR/$opts{'d'}/$list") {
+    # It's not bound for us; just exit 0 so the next entry in
+    # .qmail-default will be parsed.
+    exit 0;
+  }
+
+  # It is bound for us; fix up the options
+  $opts{'l'} = $list;
+  $fun eq 'list'    and $opts{'r'} = 1;
+  $fun eq 'owner'   and $opts{'o'} = 1;
+  $fun eq 'request' and $opts{'q'} = 1;
+}
+
+=head1 COPYRIGHT
+
+Copyright (c) 1999 Jason Tibbitts for The Majordomo Development Group.  All
+rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+his program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+#
+### Local Variables: ***
+### mode:cperl ***
+### cperl-indent-level:2 ***
+### End: ***

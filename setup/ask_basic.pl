@@ -210,6 +210,33 @@ EOM
     $config->{cgi_link} = get_bool($msg, $def);
   }
 
+  #---- Ask about queueing
+  $msg = <<EOM;
+
+Would you like to run Majordomo in queueing mode, or in direct mode?
+  Majordomo can be run in two modes:
+    In direct mode, every message that comes in is fully processed and
+    delivered by a new Majordomo process.  No limits are placed on the
+    number of messages processed concurrently.
+    In queueing mode, incoming messages are put in a queue to be processed
+    by a separate program.  Generally queued messages are processed
+    immediately, but the number of messages processed concurrently is
+    restricted.
+    Queueing mode is generally faster (because one program can handle many
+    messages without having to be run for each one) and uses system
+    resources much more sparingly (because under heavy load only a limited
+    number of processes can be active at a time) than direct mode, but it
+    is also much more experimental at this time.
+Use queueing mode?
+EOM
+  $def = defined($config->{queue_mode}) ?
+    $config->{queue_mode} : 1;
+  $config->{queue_mode} = get_bool($msg, $def);
+  if ($config->{queue_mode}) {
+    require "setup/ask_queueing.pl";
+    ask_queueing($config);
+  }
+
   #---- Ask for MTA
   $msg = <<EOM;
 

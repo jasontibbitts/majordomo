@@ -23,6 +23,7 @@ while (($src,$dst) = splice(@ARGV,0,2)) {
     open(DST,">$dst") || die "Cannot open $dst:$!";
     while (defined($line = <SRC>)) {
       $line =~ s/^#!\s*\S+/$start/;
+      $line =~ s!(^  \$::BINDIR\s*= ).*!$1\"$config->{'install_dir'}/bin\";!;
       $line =~ s!(^  \$::LIBDIR\s*= ).*!$1\"$config->{'install_dir'}/lib\";!;
       $line =~ s!(^  \$::LISTDIR\s*= ).*!$1\"$config->{'lists_dir'}\";!;
       $line =~ s!(^  \$::UMASK\s*= ).*!$1\"$config->{'umask'}\";!;
@@ -33,6 +34,10 @@ while (($src,$dst) = splice(@ARGV,0,2)) {
       $line =~ s!(^  \@::DOMAINS\s*= ).*!$1(qw($domains));!;
       $line =~ s!(^  \$::UID\s*= ).*!$1\"$uid\";!;
       $line =~ s!(^  \$::GID\s*= ).*!$1\"$gid\";!;
+      $line =~ s!(^  \$::TIMEOUT\s*= ).*!$1$config->{'queue_timeout'};!
+	if $config->{'queue_timeout'};
+      $line =~ s!(^  \$::CONCURRENCY\s*= ).*!$1$config->{'queue_concurrency'};!
+	if $config->{'queue_concurrency'};
       print DST $line;
     }
     close(SRC);
