@@ -133,7 +133,9 @@ Each digest consists of the following sections:
     volume, and issue number.
 
   * An index, the contents of which are determined by the
-    digest_index_format configuration setting.
+    digest_index_format configuration setting, and which
+    can be overridden on a digest-by-digest basis by the digests
+    configuration setting.
 
   * An optional postindex.
 
