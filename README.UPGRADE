@@ -1,5 +1,13 @@
         Notes on upgrading from previous versions of Majordomo 2
 
+2001.10.15 (CVS):
+
+For files in the "format" directory, the CMDPASS substitution is
+now used instead of the PASSWORD substitution (see "help variables"
+for a description of substitution variables).  If you have customized
+files in the format directories (text, wwwadm, and wwwusr), they will
+have to be edited to take this change into account.
+
 2001.09.20 (CVS):
 
 The attachment_rules configuration setting has been split into two 
