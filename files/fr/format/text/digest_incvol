@@ -1,0 +1,6 @@
+Le numéro de volume de la compilation a été incrémentée de un.
+
+Utilisez la commande suivante pour avoir la liste des compilation
+ainsi que leurs numéros :
+  configshow $LIST digest_issues
+

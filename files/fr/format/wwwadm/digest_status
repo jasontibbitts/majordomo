@@ -1,0 +1,40 @@
+<!-- Majordomo digest_status format file -->
+<table>
+<tr> 
+  <td>
+    Numéro de message
+  </td> 
+  <td>
+     <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get-part&amp;extra=?MSGNO">
+     ?MSGNO</a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    De
+  </td>
+  <td>
+    ?FROM
+  </td>
+</tr>
+
+<tr>
+  <td>
+    Sujet
+  </td>
+  <td>
+    ?SUBJECT
+  </td>
+</tr>
+
+<tr>
+  <td>
+    Date
+  </td>
+  <td>
+    ?DATE
+  </td>
+</tr>
+
+</table>

@@ -34,7 +34,8 @@ Pour vous désabonner d'une liste, la commande :
 Si vous désirez modifier votre mot de passe, utilisez la commande :
   approve $PASSWORD password NOUVEAUMOTDEPASSE
 (Remplacer le mot de passe que vous voulez à la place de
-  NOUVEAUMOTDEPASSE.)
+  NOUVEAUMOTDEPASSE. Le nouveau mot de passe doit avoir un minimum de
+  $PWLENGTH caractères.)
 
 Pour avoir un sommaire des commandes de Majordomo, utilisez la
 commande :

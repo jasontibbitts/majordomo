@@ -1,6 +1,5 @@
 Chaque commande Majordomo supporte quatre modes de commandes
-administratifs. Leur utilisation requiert un mot de passe
-administratif. Ces modes sont :
+administratifs. Ces modes sont :
   noinform -  Ne pas envoyer de message d'information aux
 	      gestionnaires de la liste.
   nolog    -  Ne pas enregistrer cette commande dans les logs.
@@ -8,5 +7,7 @@ administratif. Ces modes sont :
 	      est retardée.
   rule     -  Agir comme si le paramètre de configuration
 	      "access_password_override" étais désactivé.
-Pour plus de détails, référez vous à la section "Modes de commande
-administratifs" de la page d'aide "help admin_commands".
+L'utilisation des modes "noinform", "nolog" et "rule" necessite un mot
+de passe administratif.  Pour plus de détails, référez vous à la
+section "Modes de commande administratifs" de la page d'aide "help
+admin_commands".

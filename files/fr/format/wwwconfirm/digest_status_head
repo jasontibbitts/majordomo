@@ -1,0 +1,16 @@
+<!-- Majordomo digest_status_head format file -->
+Nom de la compilation             ?DIGESTNAME
+Description                       ?DESCRIPTION
+Dernier envoi                     ?LAST_RUN
+Prochain envoi le ou après        ?NEXT_RUN
+Âge du plus vieux message         ?OLDEST_AGE
+Âge maximal permis                ?MAX_AGE
+Âge of newest message             ?NEWEST_AGE
+Âge minimum requis                ?MIN_AGE
+Nombre minimal de messages        ?MIN_MSGS
+Nombre maximal de messages        ?MAX_MSGS
+Taille minimale de la compilation ?MIN_SIZE
+Taille maximale de la compilation ?MAX_SIZE
+Messages en attente               ?COUNT
+Taille totale des messages        ?SIZE bytes
+ 

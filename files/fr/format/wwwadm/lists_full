@@ -14,7 +14,7 @@
 <tr>
   <td valign="top">
     Compilations
-    (<a href="$CGIURL?$CGIDATA&amp;func=digest-status&amp;list=$LIST&amp;extra=ALL">Statuts</a>)
+    (<a href="$CGIURL?$CGIDATA&amp;func=digest-status&amp;brief=on&amp;list=$LIST&amp;extra=ALL">Status</a>)
   </td>
   <td>
     $DIGESTS

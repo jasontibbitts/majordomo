@@ -1,0 +1,59 @@
+<!-- Majordomo digest_status_head format file -->
+<h4 align="center">La compilation $DIGESTNAME</h4>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="extra" value="$DIGESTNAME">
+
+  <input type="radio" name="func" value="digest-check" checked>
+    digest-check&nbsp;:
+    Procéder a l'envoi de la compilation &dquot;$DIGESTNAME&dquot;
+    immédiatement si les conditions sont bonnes.<br>
+
+  <input type="radio" name="func" value="digest-force">
+    digest-force&nbsp;:
+    Forcer l'envoi de la compilation &dquot;$DIGESTNAME&dquot;
+    immédiatement.<br>
+
+  <input type="radio" name="func" value="digest-incvol">
+    digest-incvol&nbsp;:
+    Incrémente le numéro de volume de &quot;$DIGESTNAME&quot;
+    d'un.<br>
+
+  <input type="submit" value="Issue Command">
+</form>
+
+<table width="100%">
+
+<tr><td>Nom de la compilation</td>             <td>?DIGESTNAME</td></tr>
+
+<tr><td>Description</td>                       <td>?DESCRIPTION</td></tr>
+
+<tr><td>Dernier envoi</td>                     <td>?LAST_RUN</td></tr>
+
+<tr><td>Prochain envoi le ou après</td>        <td>?NEXT_RUN</td></tr>
+
+<tr><td>Âge du plus vieux message</td>         <td>?OLDEST_AGE</td></tr>
+
+<tr><td>Âge maximal permis</td>                <td>?MAX_AGE</td></tr>
+
+<tr><td>Âge of newest message</td>             <td>?NEWEST_AGE</td></tr>
+
+<tr><td>Âge minimum requis</td>                <td>?MIN_AGE</td></tr>
+
+<tr><td>Nombre minimal de messages</td>        <td>?MIN_MSGS</td></tr>
+
+<tr><td>Nombre maximal de messages</td>        <td>?MAX_MSGS</td></tr>
+
+<tr><td>Taille minimale de la compilation</td> <td>?MIN_SIZE</td></tr>
+
+<tr><td>Taille maximale de la compilation</td> <td>?MAX_SIZE</td></tr>
+
+<tr><td>Messages en attente</td>               <td>?COUNT</td></tr>
+
+<tr><td>Taille totale des messages</td>        <td>?SIZE bytes</td></tr>
+
+</table>
+
