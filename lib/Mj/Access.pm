@@ -1421,7 +1421,7 @@ sub _d_advertise {
 sub _d_post {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150;
-  my(@consult_vars, @deny_vars, $i, $member, $moderate, $restrict,
+  my (@consult_vars, @deny_vars, $i, $member, $moderate, $restrict,
      $tmp, $tmpl, $tmps);
   shift @_;
 
@@ -1524,9 +1524,24 @@ sub _d_post {
   return $self->_a_allow(@_);
 }
 
+sub _d_tokeninfo {
+  my ($self, $arg, $td, $args) = @_;
+  my $log = new Log::In 150;
+  shift @_;
+
+  if ($td->{'mode'} =~ /replace/ and $args->{'token_type'} eq 'confirm') {
+    $args->{'reasons'} = $self->format_error('no_password', $td->{'list'}, 
+                           'COMMAND' => "tokeninfo-$td->{'mode'}")
+                         . "\003" . $args->{'reasons'};
+    return $self->_a_deny(@_);
+  }
+  
+  return $self->_a_allow(@_);
+}
+
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
