@@ -1,3 +1,8 @@
+2000-12-20  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Format.pm:  (archive) Use format files for the archive
+	command, which is supported by the text and wwwadm interfaces.
+
 2000-12-19  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm:  Rewrite to use format files, have instructions,

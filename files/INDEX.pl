@@ -92,7 +92,7 @@ $files =
    ['Error format.  Warns that a password is too short.',
     'us-ascii', '7bit'],
 
-   'en/error/unknown_setting'                     => 
+   'en/error/unknown_setting'                  => 
    ['Error format.  Displayed when an unknown configuration setting is changed.',
     'us-ascii', '7bit'],
 
@@ -101,6 +101,38 @@ $files =
     'us-ascii', '7bit'],
 
    # English output formatting files (text)
+   'en/format/text/archive_error'                     => 
+   ['Plain text archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/archive_foot'                      => 
+   ['Plain text archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/archive_get_foot'                  => 
+   ['Plain text archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/archive_get_head'                  => 
+   ['Plain text archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/archive_head'                      => 
+   ['Plain text archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/archive_index'                     => 
+   ['Plain text archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/archive_none'                      => 
+   ['Plain text archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/archive_stats'                     => 
+   ['Plain text archive command format.',
+    'us-ascii', '7bit'],
+
    'en/format/text/configshow'                        => 
    ['Plain text configshow command format.  Shows var and value.',
     'us-ascii', '7bit'],
@@ -259,6 +291,38 @@ $files =
     'us-ascii', '7bit'],
 
    # English output formatting files (mj_wwwadm)
+   'en/format/wwwadm/archive_error'                     => 
+   ['WWW Admin archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/archive_foot'                      => 
+   ['WWW Admin archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/archive_get_foot'                  => 
+   ['WWW Admin archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/archive_get_head'                  => 
+   ['WWW Admin archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/archive_head'                      => 
+   ['WWW Admin archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/archive_index'                     => 
+   ['WWW Admin archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/archive_none'                      => 
+   ['WWW Admin archive command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/archive_stats'                     => 
+   ['WWW Admin archive command format.',
+    'us-ascii', '7bit'],
+
    'en/format/wwwadm/command'                           => 
    ['WWW Admin command form format file.',
      'us-ascii', '7bit'],
