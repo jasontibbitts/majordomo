@@ -33,11 +33,13 @@ added, it is chosen at random from the fronters given here. The
 frequency with which fronters appear can be controlled with
 "configset listname message_fronter_frequency".
 
-The fronter text will undergo variable substitution as it is added
-to the message.   The variables supported include the standard substitutions,
-plus ARCHIVE, ARCURL, DATE, HOST, SENDER, SEQNO, SUBJECT, SUBSCRIBED, and 
-USER.  See "help variables" for more information.
-
+The fronter text will undergo variable substitution as it is added to
+the message.   The variables supported include the standard
+substitutions, plus ARCHIVE, ARCURL, DATE, HOST, SENDER, SEQNO, SUBJECT,
+SUBSCRIBED, and USER.  See "help variables" for more information.  If
+the "rewritefrom" flag is set for the author of the message, the USER
+substitution will contain the author's rewritten address.  See "help
+set" for more information on the rewritefrom flag.
 
 Within the here document (between the tags), the '-' character takes
 on a special significance if it is the first character on the line.
@@ -51,10 +53,13 @@ alone. Note that leading white space does NOT have to be escaped
 with a dash, but it can be if you wish. This syntax applies only
 to message_fronters and message_footers.
 
-Note that for multipart messages, fronters appear as separate parts at
-the beginning of the message and that fronters are not added at all to
-single-part messages that are not of type text/plain.  (This avoids
-destroying the content of structured messages.)
+For multipart/mixed messages, fronters appear as separate parts at the
+beginning of the message.  Message fronters are never added to other
+kinds of multipart messages.
+
+Fronters are not added at all to single-part messages that are not of
+type text/plain.  This avoids destroying the content of structured
+messages.  
 
 
 See Also:
@@ -64,6 +69,7 @@ See Also:
    help configset_message_footer (to add a footer to the message)
    help configset_message_footer_frequency (for how often the foonter is sent)
    help configset_message_fronter_frequency (for how often the fronter is sent)
+   help set
    help variables         (for an explanation of substitution variables) 
 
 $INCLUDE-help/foot
