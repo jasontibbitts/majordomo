@@ -113,6 +113,13 @@ password.
 
 (standard substitutions only)
 
+archive_init
+------------
+This message is displayed when the archive_start routine has not been
+called to initialize the archive.
+
+(standard substitutions only)
+
 at_symbol
 ---------
 This message is displayed when more than one '@' appears in an e-mail
@@ -458,6 +465,19 @@ an existing mailing list.
 
 (standard substitutions only)
 
+message_deleted
+---------------
+This message is displayed when a message is deleted from the message
+archives.
+
+(standard plus MSGNO, PART)
+
+message_not_deleted
+-------------------
+This message is displayed when a message could not be deleted.
+
+(standard plus ERROR, MSGNO, PART)
+
 message_number
 --------------
 This error message is displayed when the archive-part command is used 
@@ -567,6 +587,13 @@ which contain only a host name and no local part.
 
 (standard substitutions only)
 
+no_messages
+-----------
+This message is displayed when the archive command is issued without
+a list of messages to retrieve.
+
+(standard substitutions only)
+
 no_password
 -----------
 This error message is displayed when a Majordomo command that requires
@@ -644,6 +671,32 @@ This message is displayed when a temporal soft or hard limit in the
 post_limits setting is exceeded.
 
 (standard plus COUNT, TIME)
+
+part_deleted
+------------
+This message is displayed when part of a message is deleted from the
+message archives.
+
+(standard plus MSGNO, PART)
+
+part_not_deleted
+----------------
+This message is displayed when part of a message could not be deleted.
+
+(standard plus ERROR, MSGNO, PART)
+
+part_replaced
+-------------
+This message is displayed when part of a message is replaced in the
+message archives.
+
+(standard plus MSGNO, PART)
+
+part_not_replaced
+-----------------
+This message is displayed when part of a message could not be replaced.
+
+(standard plus ERROR, MSGNO, PART)
 
 password_length
 ---------------

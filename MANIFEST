@@ -166,6 +166,10 @@ files/en/.consult
 files/en/.consult_noweb
 files/en/.delay
 files/en/.delay_noweb
+files/en/.digest_archive_preindex
+files/en/.digest_archive_subject
+files/en/.digest_partial_preindex
+files/en/.digest_partial_subject
 files/en/.digest_preindex
 files/en/.error
 files/en/.faq
@@ -504,6 +508,10 @@ files/en/consult
 files/en/consult_noweb
 files/en/delay
 files/en/delay_noweb
+files/en/digest_archive_preindex
+files/en/digest_archive_subject
+files/en/digest_partial_preindex
+files/en/digest_partial_subject
 files/en/digest_preindex
 files/en/error/.absolute_path
 files/en/error/.access_closed
@@ -520,6 +528,7 @@ files/en/error/.after_route
 files/en/error/.already_subscribed
 files/en/error/.approve_no_command
 files/en/error/.approve_no_password
+files/en/error/.archive_init
 files/en/error/.at_symbol
 files/en/error/.body_length
 files/en/error/.body_part_consult
@@ -569,6 +578,8 @@ files/en/error/.left_brackets
 files/en/error/.lhs_domain_literal
 files/en/error/.local_part_length
 files/en/error/.make_list
+files/en/error/.message_deleted
+files/en/error/.message_not_deleted
 files/en/error/.message_number
 files/en/error/.mime_header_length
 files/en/error/.missing_mode
@@ -584,6 +595,7 @@ files/en/error/.no_file
 files/en/error/.no_headers
 files/en/error/.no_list
 files/en/error/.no_local_part
+files/en/error/.no_messages
 files/en/error/.no_password
 files/en/error/.no_route
 files/en/error/.no_stall
@@ -595,6 +607,10 @@ files/en/error/.not_subscribed
 files/en/error/.obsolete_command
 files/en/error/.over_message_limit
 files/en/error/.over_time_limit
+files/en/error/.part_deleted
+files/en/error/.part_not_deleted
+files/en/error/.part_not_replaced
+files/en/error/.part_replaced
 files/en/error/.password_length
 files/en/error/.password_level
 files/en/error/.pattern_mode
@@ -647,6 +663,7 @@ files/en/error/after_route
 files/en/error/already_subscribed
 files/en/error/approve_no_command
 files/en/error/approve_no_password
+files/en/error/archive_init
 files/en/error/at_symbol
 files/en/error/body_length
 files/en/error/body_part_consult
@@ -696,6 +713,8 @@ files/en/error/left_brackets
 files/en/error/lhs_domain_literal
 files/en/error/local_part_length
 files/en/error/make_list
+files/en/error/message_deleted
+files/en/error/message_not_deleted
 files/en/error/message_number
 files/en/error/mime_header_length
 files/en/error/missing_mode
@@ -711,6 +730,7 @@ files/en/error/no_file
 files/en/error/no_headers
 files/en/error/no_list
 files/en/error/no_local_part
+files/en/error/no_messages
 files/en/error/no_password
 files/en/error/no_route
 files/en/error/no_stall
@@ -722,6 +742,10 @@ files/en/error/not_subscribed
 files/en/error/obsolete_command
 files/en/error/over_message_limit
 files/en/error/over_time_limit
+files/en/error/part_deleted
+files/en/error/part_not_deleted
+files/en/error/part_not_replaced
+files/en/error/part_replaced
 files/en/error/password_length
 files/en/error/password_level
 files/en/error/pattern_mode
@@ -783,6 +807,8 @@ files/en/format/text/.archive_edit_foot
 files/en/format/text/.archive_edit_head
 files/en/format/text/.archive_error
 files/en/format/text/.archive_foot
+files/en/format/text/.archive_get
+files/en/format/text/.archive_get_digest
 files/en/format/text/.archive_get_foot
 files/en/format/text/.archive_get_head
 files/en/format/text/.archive_head
@@ -945,6 +971,8 @@ files/en/format/text/archive_edit_foot
 files/en/format/text/archive_edit_head
 files/en/format/text/archive_error
 files/en/format/text/archive_foot
+files/en/format/text/archive_get
+files/en/format/text/archive_get_digest
 files/en/format/text/archive_get_foot
 files/en/format/text/archive_get_head
 files/en/format/text/archive_head
@@ -1107,6 +1135,8 @@ files/en/format/wwwadm/.archive_edit_foot
 files/en/format/wwwadm/.archive_edit_head
 files/en/format/wwwadm/.archive_error
 files/en/format/wwwadm/.archive_foot
+files/en/format/wwwadm/.archive_get
+files/en/format/wwwadm/.archive_get_digest
 files/en/format/wwwadm/.archive_get_foot
 files/en/format/wwwadm/.archive_get_head
 files/en/format/wwwadm/.archive_head
@@ -1282,6 +1312,8 @@ files/en/format/wwwadm/archive_edit_foot
 files/en/format/wwwadm/archive_edit_head
 files/en/format/wwwadm/archive_error
 files/en/format/wwwadm/archive_foot
+files/en/format/wwwadm/archive_get
+files/en/format/wwwadm/archive_get_digest
 files/en/format/wwwadm/archive_get_foot
 files/en/format/wwwadm/archive_get_head
 files/en/format/wwwadm/archive_head
@@ -1458,6 +1490,8 @@ files/en/format/wwwconfirm/.archive_edit_foot
 files/en/format/wwwconfirm/.archive_edit_head
 files/en/format/wwwconfirm/.archive_error
 files/en/format/wwwconfirm/.archive_foot
+files/en/format/wwwconfirm/.archive_get
+files/en/format/wwwconfirm/.archive_get_digest
 files/en/format/wwwconfirm/.archive_get_foot
 files/en/format/wwwconfirm/.archive_get_head
 files/en/format/wwwconfirm/.archive_head
@@ -1603,6 +1637,8 @@ files/en/format/wwwconfirm/archive_edit_foot
 files/en/format/wwwconfirm/archive_edit_head
 files/en/format/wwwconfirm/archive_error
 files/en/format/wwwconfirm/archive_foot
+files/en/format/wwwconfirm/archive_get
+files/en/format/wwwconfirm/archive_get_digest
 files/en/format/wwwconfirm/archive_get_foot
 files/en/format/wwwconfirm/archive_get_head
 files/en/format/wwwconfirm/archive_head
@@ -1741,6 +1777,8 @@ files/en/format/wwwusr/.archive_edit_foot
 files/en/format/wwwusr/.archive_edit_head
 files/en/format/wwwusr/.archive_error
 files/en/format/wwwusr/.archive_foot
+files/en/format/wwwusr/.archive_get
+files/en/format/wwwusr/.archive_get_digest
 files/en/format/wwwusr/.archive_get_foot
 files/en/format/wwwusr/.archive_get_head
 files/en/format/wwwusr/.archive_head
@@ -1817,6 +1855,8 @@ files/en/format/wwwusr/archive_edit_foot
 files/en/format/wwwusr/archive_edit_head
 files/en/format/wwwusr/archive_error
 files/en/format/wwwusr/archive_foot
+files/en/format/wwwusr/archive_get
+files/en/format/wwwusr/archive_get_digest
 files/en/format/wwwusr/archive_get_foot
 files/en/format/wwwusr/archive_get_head
 files/en/format/wwwusr/archive_head
