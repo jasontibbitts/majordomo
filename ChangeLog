@@ -1,3 +1,23 @@
+2001-01-18  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_archive)  Add support for summary mode,
+	which lists the archives available and the number of bytes,
+	lines, and messages in each archive.  
+	(archive_chunk) Change the default behavior
+	of the "archive-get" command:  mail the messages individually,
+	unless "digest" mode is also specified.
+	(_createlist) Add missing MIME::Entity declaration.  Noted
+	by Marc Fournier.
+	The version number is now 0.1200101180
+
+	* lib/Mj/Access.pm:  (_a_default)  Add password-only access
+	settings to the *_access and *_policy configuration settings.
+	_access settings can include open+password or list+password,
+	and _policy settings can include open+password or auto+password.
+
+	* lib/Mj/Deliver/Envelope.pm:  (new)  Allow an empty envelope
+	sender.  Suggested by Rudolph T Maceyko.
+
 2001-01-12  Michael Yount <csf@moscow.com>
 
 	* bin/mj_queuerun:  (parse_commands)  Record data for messages

@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200012190";
+$VERSION = "0.1200101180";
 $unique = 'AAA';
 
 use strict;
@@ -3512,7 +3512,7 @@ sub archive_start {
   my ($ok, $out);
 
   return (0, "No dates or message numbers were supplied.\n")
-    unless ($request->{'args'});
+    unless ($request->{'mode'} =~ /summary/ or $request->{'args'});
 
   ($ok, $out) =
     $self->list_access_check($request);
@@ -3535,12 +3535,22 @@ sub _archive {
   my ($self, $list, $user, $vict, $mode, $cmdline, $args) = @_;
   my $log = new Log::In 30, "$list, $args";
   my (@msgs, $mess, $ok);
-  return 1 unless $args;
+  return 1 unless ($args or $mode =~ /summary/);
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
+
+  # sync mode makes the message database correspond to the archive files.
   if ($mode =~ /sync/) {
     @msgs = $self->{'lists'}{$list}->archive_find($args);
   }
+
+  # summary mode lists all archives, along with the number of messages in each.
+  elsif ($mode =~ /summary/) {
+    @msgs = $self->{'lists'}{$list}->archive_summary();
+  }
+
+  # return information from the message database for each message matching
+  # the command arguments.
   else {
     @msgs = $self->{'lists'}{$list}->archive_expand_range(0, $args);
   }
@@ -3551,7 +3561,7 @@ sub _archive {
 sub archive_chunk {
   my ($self, $request, $result) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
-  my (@msgs, @out, $data, $ent, $file, $i, $list, $out, $owner, $fh, $buf);
+  my (@msgs, @out, $buf, $data, $ent, $fh, $file, $i, $list, $out, $owner);
 
   return (0, "The archive was not initialized.\n")
     unless (exists $self->{'archct'});
@@ -3561,8 +3571,9 @@ sub archive_chunk {
     unless $self->_make_list($request->{'list'});
   $list = $self->{'lists'}{$request->{'list'}};
 
-
   if ($request->{'mode'} =~ /sync/) {
+    return (0, "Permission denied.  An administrative password is required.\n") 
+      unless (exists $self->{'arcadmin'}); # XLANG
     @msgs = @$result;
     for $i (@msgs) {
       push @out, $list->archive_sync($i, $tmpdir);
@@ -3584,23 +3595,22 @@ sub archive_chunk {
     return (1, $buf);
   }
   elsif ($request->{'mode'} =~ /delete/) {
-    return (0, "Permission denied.\n") 
-      unless (exists $self->{'arcadmin'});
+    return (0, "Permission denied.  An administrative password is required.\n") 
+      unless (exists $self->{'arcadmin'}); # XLANG
     $buf = '';
     @msgs = @$result;
     for $i (@msgs) {
       $out = $list->archive_delete_msg(@$i);
       if ($out) {
-        $buf .= "Message $i->[0] deleted.\n";
+        $buf .= "Message $i->[0] deleted.\n"; # XLANG
       }
       else {
-        $buf .= "Message $i->[0] not deleted.\n";
+        $buf .= "Message $i->[0] not deleted.\n"; # XLANG
       }
     }
     return (1, $buf);
   }
-    
-  else {
+  elsif ($request->{'mode'} =~ /digest/) {
     $out = ($request->{'mode'} =~ /mime/) ? "mime" : "text";
     ($file) = $list->digest_build
     (messages      => $result,
@@ -3615,13 +3625,28 @@ sub archive_chunk {
 Contents:
 ",
      index_footer  => "\n",
-    );
+    ); # XLANG
     # Mail the entity out to the victim
     $owner = $self->_list_config_get($request->{'list'}, 'sender');
     $self->mail_message($owner, $file, $request->{'user'});
     unlink $file;
     $self->{'archct'}++;
-    return (1, "A digest containing ".scalar(@$result)." messages has been mailed.\n");
+    return (1, "A digest containing ".scalar(@$result).
+               " messages has been mailed.\n"); # XLANG
+  }
+  # Mail each message separately.
+  else {
+    @msgs = @$result;
+    $owner = $self->_list_config_get($request->{'list'}, 'sender');
+    for $i (@msgs) {
+      ($buf, $data) = @$i;
+      (undef, $file) = $list->archive_get_to_file($buf, '', $data, 1);
+      next unless $file;
+      $self->mail_message($owner, $file, $request->{'user'}); 
+      unlink $file;
+    }
+    return (1, "The messages (". scalar(@$result). 
+               " total) have been mailed to $request->{'user'}.\n"); # XLANG
   }
 }
 
@@ -3912,6 +3937,7 @@ sub createlist {
                      $request->{'owners'}, $request->{'newlist'});
 }
 
+use MIME::Entity;
 sub _createlist {
   my ($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list) = @_;
   $list ||= '';
