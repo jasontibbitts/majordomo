@@ -1,5 +1,8 @@
 2000-11-15  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/BounceParser.pm (parse_qmail): Support multiline
+	diagnostics.
+
 	* lib/Mj/Deliver/Prober.pm (add): Don't use the canonical address
 	in the envelope, since it makes it difficult to get back to the
 	real address later.

@@ -949,7 +949,7 @@ Unable to deliver message to the following address(es).
 
 <xxxx@yahoo.com>:
 User is over the quota.  You can try again later.
-
+Line 2 of response
 
 --- Original message follows.
 
@@ -991,11 +991,22 @@ sub parse_qmail {
 	next;
       }
     if ($line =~ /^<(.*)>:$/) {
+      $diag = '';
       $user = $1;
-      $line = $bh->getline;
-      return unless defined $line;
-      chomp $line;
-      $data->{$user}{'diag'} = $line;
+    DIAG:
+      while (1) {
+	$line = $bh->getline;
+	return unless defined $line;
+	chomp $line;
+	last DIAG if $line =~ /^\s*$/;
+	if ($diag) {
+	  $diag .= " $line";
+	}
+	else {
+	  $diag = $line;
+	}
+      }
+      $data->{$user}{'diag'} = $diag;
       $data->{$user}{'status'} = $failure? 'failure' : 'warning';
       $ok = $type;
     }

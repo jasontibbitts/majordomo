@@ -800,6 +800,7 @@ This computes various pieces of data about the poster:
 
   days since the user subscribed
   whether a hard or soft posted message limit has been reached
+  whether the user has the moderate or nopost flags set
 
 =cut
 sub _check_poster {
@@ -829,7 +830,7 @@ sub _check_poster {
   # Obtain posting statistics for this address
   $data = $self->{'lists'}{$list}->get_post_data($user);
   return unless $data;
-  
+
   $rules = $self->_list_config_get($list, 'post_limits');
 
   # Check post_limits rules in turn and determine if a hard
@@ -837,7 +838,7 @@ sub _check_poster {
   # rule whose pattern matches the address.
   for ($i = 0 ; $i <= $#$rules ; $i++) {
     if (Majordomo::_re_match($rules->[$i]->{'pattern'}, $user->canon)) {
-      ($ok, $mess) = $self->_within_limits($list, $data, $rules->[$i]->{'soft'}, 
+      ($ok, $mess) = $self->_within_limits($list, $data, $rules->[$i]->{'soft'},
                                           $rules->[$i]->{'hard'});
       if ($ok) {
         $avars->{limit} = 1;
@@ -930,7 +931,7 @@ sub _within_limits {
   }
   return 0;
 }
-      
+
 =head2 _check_header(list, head)
 
 This investigates all header improprieties.
