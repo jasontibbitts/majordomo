@@ -791,6 +791,13 @@ angle bracket.
 
 (standard substitutions only)
 
+same_address
+------------
+This message is displayed when two addresses that were expected to
+be different are identical or aliases.
+
+(standard plus USER, VICTIM)
+
 signature_separator
 -------------------
 This message is displayed when the command parser finds a signature

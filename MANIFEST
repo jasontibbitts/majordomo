@@ -623,6 +623,7 @@ files/en/error/.restrict_post
 files/en/error/.results_mailed
 files/en/error/.rhs_domain_literal
 files/en/error/.right_brackets
+files/en/error/.same_address
 files/en/error/.setting_unchanged
 files/en/error/.signature_separator
 files/en/error/.single_header_length
@@ -758,6 +759,7 @@ files/en/error/restrict_post
 files/en/error/results_mailed
 files/en/error/rhs_domain_literal
 files/en/error/right_brackets
+files/en/error/same_address
 files/en/error/setting_unchanged
 files/en/error/signature_separator
 files/en/error/single_header_length
