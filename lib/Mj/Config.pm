@@ -1840,6 +1840,9 @@ sub parse_enum_array {
   return (0, "Not an array") unless (ref $arr eq 'ARRAY');
 
   for $i (@$arr) {
+    $i =~ s/^\s*//;
+    $i =~ s/\s*$//;
+
     ($ok, $mess) = $self->parse_enum($i, $var);
     return (0, $mess) unless $ok;
     $out{$i}++;
