@@ -10,7 +10,6 @@ $START to $FINISH
 </table>
 
 <p>
-<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=archive-summary">
-Archive Index
-</a>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=archive-summary-reverse">
+Summary</a> of Message Archives
 </p>
