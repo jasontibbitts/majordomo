@@ -286,6 +286,7 @@ sub parse_interactive {
   $defaults = {
                'delay'    => 0,
                'display'  => $disp,
+               'list'     => '',
                'password' => $pass,
                'user'     => $user,
               };
@@ -399,7 +400,9 @@ sub parse_command {
   my $pass    = shift;
   my $dfl     = shift;
   my @arglist = @_;
-  my ($display, $list, $mess, $mode, $prog, $request, $sublist, $tlist);
+  my ($display, $list, $mess, $mode, $prog, $request, $sublist, $tlist,
+      $tmp);
+
   $pass ||= '';  $pass =~ /(.*)/; $pass = $1;
 
   unless ($command) {
@@ -438,6 +441,7 @@ sub parse_command {
   }
 
   if (command_prop($true_command, "list")) {
+    $args = add_deflist($::mj, $args, $dfl->{'list'});
     ($tlist, $args) = split(" ", $args, 2);
     $tlist ||= "";
     $args ||= "";
@@ -453,13 +457,30 @@ sub parse_command {
     }
     $list .= ":$sublist" if (length $sublist);
   }
+  else {
+    $list = $dfl->{'list'};
+  }
+
   if ($true_command eq 'default') {
     ($command, $args) = split(" ", $args, 2);
     if (!defined($command) || !length($command)) {
       print STDERR "The 'default' command requires an argument.\n";
     }
     elsif ($command eq 'list') {
-      print STDERR "The 'default list' command is not implemented in the shell interface.\n";
+      if (defined $args) {
+        ($tmp, undef, $mess) = $::mj->valid_list($args, 1, 1);
+        if (defined $tmp and length $tmp) {
+          $dfl->{'list'} = $tmp;
+          print STDERR qq(Default list was set to "$tmp".\n);
+        }
+        else {
+          print STDERR "$mess\n" if (defined $mess and length $mess);
+        }
+      }
+      else {
+        $dfl->{'list'} = '';
+        print STDERR qq(Default list was canceled.\n);
+      }
     }
     elsif ($command =~ /^password|passwd$/) {
       $dfl->{'password'} = $args || '';
@@ -734,6 +755,28 @@ sub completer {
     return sort(grep(/^\Q$2\E/, @vars));
   }
   ();
+}
+
+sub add_deflist {
+  my $mj        = shift;
+  my $line      = shift;
+  my $deflist   = shift;
+  my ($list, $tmp);
+
+  # If no deflist, add nothing
+  return $line unless (defined $deflist and length $deflist);
+
+  # If nothing on the line, return the deflist
+  return $deflist unless (defined $line and length $line);
+
+  $line =~ /(\S+)(.*)/;
+  $list = $1;
+  $line = $2 || "";
+
+  ($tmp) = $mj->valid_list($list, 1, 1);
+  return "$list$line" if $tmp;
+
+  return "$deflist $list$line";
 }
 
 
