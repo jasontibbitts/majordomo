@@ -27,7 +27,22 @@ configuration settings through the WHOAMI and MJ substitution variables.
 See "help variables" for an introduction to substitution variables.
 
 
+                     Note for Domain Administrators
+
+When a confirmation token for a posted message is accepted, Majordomo
+will mail a message containing an "accept" command to the address in the
+GLOBAL whoami setting.  For that reason, changing the GLOBAL whoami
+setting to an inappropriate address may cause some approved messages not
+to be delivered.  The following command:
+
+  showtokens-async ALL
+
+can be used to see if any accepted posts have not been delivered
+properly.
+
+
 See Also:
+   help accept
    help admin_domain
    help admin_delivery
    help configset_reply_to
@@ -35,6 +50,7 @@ See Also:
    help configset_sender
    help configset_whereami
    help configset_whoami_owner
+   help showtokens
    help variables
 
 $INCLUDE-help/foot
