@@ -1,7 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 who[-short][-enhanced][-export][-bounces] listname [pattern]
+who[-short][-enhanced][-export][-bounces] GLOBAL   [pattern]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname, required, is an email list at this site
+listname, required, is an email list at this site (or the word "GLOBAL")
 -enhanced, if specified, displays flags and mail mode for each subscriber
 -short,    if specified, produces just a simple list of email addresses
 -export,   if specified, produces commands needed to recreate the list
@@ -13,6 +14,9 @@ The "who" command returns all or some subscribers to the named list,
 if you are authorized to review the subscribers. Each list owner may
 decide who is authorized, and you will receive an error message if
 you have been refused access.
+
+If "GLOBAL" is used as the list name, the registry information is
+returned instead of information from a specific list.
 
 If "pattern" is not supplied, all subscribers are listed.
 
