@@ -117,8 +117,9 @@ original reason for this module, but...)
 =cut
 sub getline {
   my $self = shift;
-  my $tomult = shift || 1;
+  my $tomult = shift;
   my ($len, $ein, $rin, $eout, $rout, $tmp);
+  $tomult = 1 unless (defined($tomult) and length($tomult));
 
   $tmp = fileno($self->{'outhandle'});
   $rin = '';
