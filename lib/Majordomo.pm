@@ -3138,7 +3138,7 @@ sub _fill_lists {
   
   $::log->in(120);
 
-  my $dirh = new IO::Handle;
+  my $dirh = gensym();
   my ($list, @lists);
   
   my $listdir = $self->{'ldir'};
