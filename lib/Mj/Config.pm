@@ -1886,6 +1886,7 @@ sub parse_attachment_filters {
     ($ok, $err, $pat) = compile_pattern($table->[$i][0], 0, 'iexact');
 
     if ($err) {
+      # XLANG
       return (0, "Error in regexp '$table->[$i][0]', $err.");
     }
 
@@ -3953,6 +3954,7 @@ sub _compile_rule {
       $err,       # Generic error holder
       $ok,
       $mess,
+      $rhvar,
       $tmp,
       @tmp,
    );
@@ -4165,6 +4167,7 @@ sub _compile_rule {
           last;
         }
 
+        $rhvar = 0;
         if (defined $arg and $arg =~ /^\$(\w+)/) {
           $tmp = $1;
           ($ok, $mess) = $self->_ck_var($tmp, $request, $reqname, $evars);
@@ -4174,6 +4177,10 @@ sub _compile_rule {
           elsif (! $ok) {
             $e .= $mess;
             last;
+          }
+          else {
+            $arg = "\$args{'$tmp'}";
+            $rhvar = 1;
           }
         }
 
@@ -4193,7 +4200,7 @@ sub _compile_rule {
 	  $op eq '!=' and $op = 'ne' and $iop = 'eq';
 	  $op eq '='  and $op = 'eq' and $iop = 'ne';
           $arg =~ s/^(['"])(.*)\1$/$2/;
-          $arg = quotemeta($arg);
+          $arg = quotemeta($arg) unless $rhvar;
 
 	  if ($invert) {
 	    $o .= "(\$args{'$var'} $iop \"$arg\")";
