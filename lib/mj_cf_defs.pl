@@ -97,6 +97,7 @@ $Mj::Config::default_string = q(
  'category'             => '',
  'chunksize'            => 1000,
  'comments'             => [],
+ 'config_access'        => [],
  'confirm_url'          => $subs->{'confirm_url'},
  'debug'                => 0,
  'default_class'        => 'each',
