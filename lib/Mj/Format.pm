@@ -1546,6 +1546,7 @@ sub lists {
     $tmp = $mj->format_get_string($type, 'lists_none', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
+    return 1;
   }
 
   return 1 if $request->{'mode'} =~ /compact|tiny/;
@@ -2346,7 +2347,7 @@ sub show {
   if ($data->{strip} eq $data->{xform}) {
     $subs->{'XFORM'} = '';
   }
-  if ($data->{strip} eq $data->{alias}) {
+  if ($data->{xform} eq $data->{alias}) {
     $subs->{'ALIAS'} = '';
   }
 
