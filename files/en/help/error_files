@@ -23,10 +23,17 @@ does not support.
 
 invalid_mode
 ------------
-This error message is displayed in a command mode is requested that
+This error message is displayed if a command mode is requested that
 Majordomo does not support for a particular command.
 
 (standard plus MODE, MODES)
+
+invalid_password
+----------------
+This error message is displayed when an invalid administrative or
+personal password, or expired temporary password, is used.
+
+(standard plus VICTIM)
 
 make_list
 ---------
@@ -85,6 +92,14 @@ error, or due to the fact that some settings are supported only
 for the GLOBAL pseudo-list or only for ordinary mailing lists.
 
 (standard plus SETTING)
+
+unknown_token
+-------------
+This error message is displayed if the accept, reject, or tokeninfo
+command is used in conjunction with a token that has the correct
+format but could not be found in the token database.
+
+(standard plus TOKEN)
 
 unregistered
 ------------
