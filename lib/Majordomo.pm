@@ -719,11 +719,9 @@ sub substitute_vars {
   # open a new output file if one is not already open (should be at $depth of 0)
   $tmp = $tmpdir;
   $tmp = "$tmp/mj-tmp." . unique();
-  $in  = new Mj::File "$file"
-    || $::log->abort("Cannot read file $file, $!");
   $out ||= new IO::File ">$tmp"
     or $::log->abort("Cannot write to file $tmp, $!");
-  
+
   while (defined ($i = $in->getline)) {
     if ($i =~ /\$INCLUDE-(.*)$/) {
       # Do a _list_file_get.  If we get a file, open it and call
@@ -749,6 +747,7 @@ sub substitute_vars {
     $i = $self->substitute_vars_string($i, $subs);
     $out->print($i);
   }
+
   # always close the INPUT file
   $in->close;
   # ONLY close the OUTPUT file at zero depth - else recursion gives 'print to closed file handle'
@@ -1634,6 +1633,7 @@ sub _get_mailfile {
 
 sub get_chunk {
   my ($self, $request, $chunksize) = @_;
+  my $log = new Log::In 50;
   my ($i, $line, $out);
   
   return unless $self->{'get_fh'};

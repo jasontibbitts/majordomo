@@ -12,6 +12,12 @@ BEGIN {
 #  $Exporter::Verbose = 1;
 #  $AutoLoader::Verbose = 1;
 #  $AutoLoader::Notruncate = 1;
+
+# Uncomment this to get a backtrace for every warning
+#  use Carp qw(cluck);
+#  $SIG{__WARN__} = sub {cluck "--== $_[0]"};
+
+# Or this one to get plain warnings
   $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 }
 
@@ -214,6 +220,7 @@ sub parse_interactive {
         . "Type majordomo commands.  Use the 'end' command to exit.\n\n";
 
   while (defined($cmdline = $term->readline($prompt))) {
+    $i = $/; $/ = $i; # Silence weird Perl bug
     @arglist = ();
     if ($cmdline =~ /^(.*)\s+\<\<\s*([A-Z]{3}[A-Z0-9]*)$/) {
       $cmdline = $1;

@@ -1,3 +1,12 @@
+2000-09-29  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_shell: Add commented out code to get backtraces on
+	warnings.
+	Set $/ to $/ to get rid of a strange Perl problem.
+
+	* lib/Majordomo.pm (substitute_vars): Was opening the input file
+	twice.
+
 2000-09-26  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Config.pm (_compile_rule):  Add support for a 

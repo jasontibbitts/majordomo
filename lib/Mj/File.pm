@@ -39,7 +39,7 @@ sub new {
   my $self = {};
   $self->{'handle'} = new IO::File;
   bless $self, $class;
-  
+
   if (@_) {
     $self->open(@_)
       or return undef;
@@ -75,7 +75,7 @@ sub AUTOLOAD {
   my $name = $AUTOLOAD;
   $name =~ s/.*://; 
 #  $::log->in(200, "$name");
-  
+
   unless ($self->{'handle'}->can($name)) {
     $::log->abort("Attempting to call unimplemented function by proxy");
   }
@@ -125,7 +125,7 @@ sub open {
   }
 
   $self->{lock} = new Mj::Lock($lname, $lmode) unless $nolock;
-  
+
   # We have a lock now; the file is ours to do with as we please.
   $self->{handle}->open("$mode $name") || $::log->abort("Couldn't open $name, $!");
   $self->{'open'} = 1;
