@@ -11,20 +11,36 @@ EXAMPLE:
 configset GLOBAL latchkey_lifetime = 30
 
 
-The number of minutes for which a temporary password
-(latchkey) remains valid.  Latchkeys are used by the 
-WWW interfaces to prevent permanent passwords being
-cached by WWW client software.
+$INCLUDE-config/latchkey_lifetime
+
+Old latchkeys are removed from the latchkey database by the "token"
+trigger in the GLOBAL triggers configuration setting.  By default, this
+happens daily.
+
+The latchkey database is kept in the "_latchkeys.D" or "_latchkeys.T"
+file in the main directory for the GLOBAL pseudo-list.
+
+A latchkey like a confirmation token, is composed of  12 hexadecimal
+digits, separated into three groups by hyphens, for example:
+
+  B34F-78A1-9023
+
+See "help admin_moderate" for more information about tokens.
 
 
 See Also:
-   help configset dup_lifetime
-   help configset log_lifetime
-   help configset post_limits
-   help configset session_lifetime
-   help configset token_lifetime
-   help configset triggers
+   help admin_domain
+   help configset_bounce_max_age
+   help configset_dup_lifetime
+   help configset_inactive_lifetime
+   help configset_log_lifetime
+   help configset_post_lifetime
+   help configset_post_limits
+   help configset_session_lifetime
+   help configset_token_lifetime
+   help configset_triggers
+   help mj_confirm
+   help mj_wwwadm
+   help mj_wwwusr
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

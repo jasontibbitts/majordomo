@@ -1,4 +1,4 @@
-The number of minutes for which a temporary password
-(latchkey) remains valid.  Latchkeys are used by the 
-WWW interfaces to prevent permanent passwords being
-cached by WWW client software.
+The latchkey_lifetime setting contains the number of minutes for which a
+temporary password (latchkey) remains valid.  Latchkeys are used by the
+WWW interfaces to prevent permanent passwords being cached by WWW client
+software.
