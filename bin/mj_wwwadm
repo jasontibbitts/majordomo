@@ -47,9 +47,10 @@ use Mj::CommandProps qw(:command :function);
 use Mj::Log;
 use Mj::Addr;
 
-my ($cgi, $domain, $mj, $ok, $mess, $serveradmin, $sess, $token);
-my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, $vict, $extra);
+my ($cgi, $domain, $i, $mj, $ok, $mess, $serveradmin, $sess, $token, $listbox);
+my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, @lists, $vict, $extra);
 my ($line, $st, $file, $fh, $cgiurl, $cmdform, $localpart, $request, $req, @extra);
+my (%seen, @mlists);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
@@ -76,6 +77,7 @@ $::log->startup_time();
 # Start up the page and parse the URL
 $cgi = new CGI;
 print $cgi->header;
+# XXX adapt to allow per-domain customization
 $domain = $::DEFDOM;
 
 # Make the Majordomo object
@@ -94,6 +96,7 @@ EOM
   exit 0;
 }
 
+# XXX adapt to allow per-domain customization
 $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
 
 # Generate the session information
@@ -134,12 +137,14 @@ $ofunc   = $cgi->param('func') || "help";
 $localpart = $ENV{'REMOTE_ADDR'} || "mj_wwwadm";
 $user    = new Mj::Addr("$localpart\@example.com");
 $passw   = $cgi->param('passw') || '';
-$list    = $cgi->param('list') || $pathinfo;
+@lists   = $cgi->param('list') or ($pathinfo);
+@mlists  = $cgi->param('mlist');
 @extra   = $cgi->param('extra');
 $st      = $cgi->param('st') || '';
 if ($st eq 'on') { $st = 'checked'; }
 $extra[0] ||= '';
 $extra   = $extra[0];
+@lists   = grep (!$seen{$_}++, @lists, @mlists);
 
 # Extract "mode" from command name
 if ($ofunc =~ /([^\s=-]+)[=-](.*)/) {
@@ -151,12 +156,26 @@ else {
   $func = $ofunc;
   $mode = '';
 }
+if (scalar(@lists) > 1) {
+  $listbox = "<select name=list>\n";
+  for $list (@lists) {
+    $listbox .= "<option>$list\n";
+  }
+  $listbox .= "</select>\n";
+  for $list (@lists) {
+    $listbox .= "<input type=hidden name=mlist value=$list>\n";
+  }
+}
+else {
+  $listbox = "<input size=20 name=list value=\"$lists[0]\">";
+}
 
 $cmdform = <<EOM;
 <form method=POST action=$cgiurl>
 <table><tr><td>
 Command:&nbsp;&nbsp;
 <select name=func>
+<option> about this service
 <option> accept
 <option> archive-index
 <option> archive-get
@@ -182,7 +201,6 @@ Command:&nbsp;&nbsp;
 <option> which
 <option> who-enhanced
 <option> who-bounces-enhanced
-<option> about this service
 </select>
 <td>
 <input size=26 name=extra value="$extra">
@@ -190,7 +208,7 @@ Command:&nbsp;&nbsp;
 <input type=checkbox name=st $st> Show Pending Requests
 <tr><td>
 Mailing List:&nbsp;&nbsp;
-<input size=20 name=list value="$list">
+$listbox
 <td>
 Password:&nbsp;&nbsp;
 <input size=16 name=passw type=password value="$passw">
@@ -227,15 +245,15 @@ unless (command_legal($func)) {
   exit 0;
 }
 
-# Make sure the list name is valid
-if ($list ne '') {
-  unless ((-d "$mj->{'ldir'}/$list" and $mj->legal_list_name($list))
-           or $list eq 'ALL') {
-    print "<h3>Invalid list name: $list</h3>\n";
-    $::log->message(50, "info",  "Invalid list $list in form data.");
-    exit 0; 
+# Make sure the list names are valid
+for ($i = 1; $i <= scalar(@lists); $i++) {
+  if ($lists[$i-1] ne '') {
+    unless ($lists[$i-1] = $mj->valid_list($lists[$i-1])) {
+      print "<h3>Invalid list name: $lists[$i-1]</h3>\n";
+      $::log->message(50, "info",  "Invalid list $lists[$i-1] in form data.");
+      exit 0; 
+    }
   }
-  $list =~ /(.*)/; $list = $1;
 }
 
 # The archive-get and archive-index commands must use immediate mode,
@@ -273,7 +291,7 @@ $request = {
     'auth'      => '',
     'command'   => $func,
     'interface' => 'mjadm',
-    'list'      => $list,
+    'list'      => $lists[0],
     'mode'      => $mode,
     'password'  => ($func =~ /help|which|lists/)? '' : $passw, 
     'user'      => $user,
@@ -282,7 +300,9 @@ $request = {
 if (function_prop($func, 'iter')) {
   $request->{'command'} .= '_start';
 }
-
+if (scalar @lists > 1){
+  $request->{'mlist'} = \@lists;
+}
 
 $file = Majordomo::tempname();
 $fh = new IO::File ">$file";
@@ -300,20 +320,51 @@ if ($func ne 'showtokens') {
   $fh->print("</small></pre>\n") unless ($func eq 'tokeninfo' or $func eq 'who');
 }
 
-if ($passw and ($st eq 'checked' or $func eq 'showtokens')) {
+if ($passw and ($st eq 'checked' or $func eq 'showtokens') and @lists) {
   # The password may have been omitted earlier.
   $request->{'password'} = $passw;
   $request->{'command'} = 'showtokens';
   Mj::Parser::parse_args($request, $req);
-  &{"Mj::Format::showtokens"}($mj, $fh, $fh, 'html', $request,
-    $mj->dispatch($request));
+
+  print $fh <<EOM;
+<form method=POST action=$cgiurl>
+<input type=submit name=func value="tokeninfo-full">
+<input type=submit name=func value="tokeninfo">
+<input type=submit name=func value="accept">
+<input type=submit name=func value="accept-archive">
+<input type=submit name=func value="reject">
+<input type=hidden name=st value=$request->{'st'}>
+<input type=hidden name=passw value=$request->{'password'}>
+<br>
+Choose one or more requests from the following list,
+then press one of the buttons.
+EOM
+
+  $i = 0;
+  for $list (@lists) {
+    $request->{'list'} = $list;
+    $i += &{"Mj::Format::showtokens"}($mj, $fh, $fh, 'html', $request,
+                                      $mj->dispatch($request));
+  }
+
+  print $fh "<br>Requests found: $i.<br>\n";
+  if ($i > 7) {
+  print $fh <<EOM;
+<input type=submit name=func value="tokeninfo-full">
+<input type=submit name=func value="tokeninfo">
+<input type=submit name=func value="accept">
+<input type=submit name=func value="accept-archive">
+<input type=submit name=func value="reject">
+EOM
+  }
+  print "</form>\n";
 }
+
 $fh->print("<hr>For assistance, contact <a href=\"mailto:$serveradmin\">$serveradmin</a>\n");
 $fh->close();
 
 &format_print($file);
 unlink $file;
-
 
 $::log->out;
 exit 0;
@@ -339,39 +390,27 @@ sub format_print {
 sub Mj::Format::showtokens {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$request->{'list'}";
-  my ($cgiurl, $created, $data, $ok, $size, @time, $token, @tokens);
-  select STDOUT;
-  $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
+  my ($count, $created, $data, $ok, $size, @time, $token, @tokens);
+  select $out;
+  print "<input type=hidden name=list value=$request->{'list'}>\n";
 
-      print <<EOM;
-<form method=POST action=$cgiurl>
-<input type=submit name=func value="tokeninfo-full">
-<input type=submit name=func value="tokeninfo">
-<input type=submit name=func value="accept">
-<input type=submit name=func value="accept-archive">
-<input type=submit name=func value="reject">
-<input type=hidden name=st value=$request->{'st'}>
-<input type=hidden name=list value=$request->{'list'}>
-<input type=hidden name=passw value=$request->{'password'}>
-<br>
-Choose one or more requests from the following list,
-then press one of the buttons.
-EOM
   ($ok, @tokens) = @$result;
-  print "<table>\n";
   unless ($ok) {
     print "<p>Error.  $tokens[0]\n";
-    return;
+    return 0;
   }
   unless (@tokens) {
-    print "<p>No tokens for $request->{'list'}\n";
-    return;
+    print "<br>There are no pending requests for $request->{'list'}.\n";
+    return 0;
   }
+  $count = 0;
+  print "<table>\n";
+
   while (@tokens) {
     ($token, $data) = splice @tokens, 0, 2;
     print "<tr>\n";
     print "<td><input type=checkbox name=extra value=\"$token\">$token\n";
-    print "<td>$data->{'list'}\n" if ($request->{'list'} eq 'ALL');
+    print "<td>$data->{'list'}\n"; 
     if ($data->{'type'} eq 'consult') {
       print "<td>O\n";
     }
@@ -387,17 +426,12 @@ EOM
     $created = sprintf "%.2d-%.2d %.2d:%.2d:%.2d", 
       $time[4]+1, $time[3], $time[2], $time[1], $time[0];
     print "<td>$created\n";
-    print "<td>" . Mj::Format::escape($data->{'user'}) . "\n";
+    print "<td>" . Mj::Format::escape($data->{'user'}) . "\n"; 
+    $count++;
   }
-      print <<EOM;
-</table>
-<input type=submit name=func value="tokeninfo-full">
-<input type=submit name=func value="tokeninfo">
-<input type=submit name=func value="accept">
-<input type=submit name=func value="accept-archive">
-<input type=submit name=func value="reject">
-</form>
-EOM
+  print "</table>\n";
+  select STDOUT;
+  $count;
 } 
 
 sub Mj::Format::tokeninfo {
@@ -406,7 +440,7 @@ sub Mj::Format::tokeninfo {
   my ($body, $chunk, $chunksize, $cgiurl, @reasons, $showspool, $time, $tmp, $user);
   $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
   my ($ok, $data, $sess) = @$result;
-  select STDOUT;
+  select $out;
 
   unless ($ok > 0) {
     print "<p>Error. $data\n";
@@ -440,10 +474,17 @@ EOM
 <input type=submit name=func value=accept-archive>
 <input type=submit name=func value=reject>
 <input type=hidden name=extra value='$extra'>
-<input type=hidden name=list value=$list>
-<input type=hidden name=passw value=$passw>
-<input type=hidden name=st value=$st>
+<input type=hidden name=list value=$request->{'list'}>
+<input type=hidden name=passw value=$request->{'password'}>
+<input type=hidden name=st value=$request->{'st'}>
 EOM
+
+  if (exists $request->{'mlist'} and (ref $request->{'mlist'} eq 'ARRAY')) {
+    for (@{$request->{'mlist'}}) {
+      print "<input type=hidden name=mlist value=$_>\n"
+        unless ($list eq $_);
+    }
+  }
 
   if ($sess) {
     $request->{'command'} = "get_chunk";
@@ -483,7 +524,7 @@ EOM
   }
 
   print "</form>\n";
-
+  select STDOUT;
 } 
 
 sub Mj::Format::who {
@@ -493,7 +534,7 @@ sub Mj::Format::who {
   my (@lines, $remove, @time, $user);
   $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
   $remove = $request->{'list'} eq 'GLOBAL' ? "unregister" : "unsubscribe";
-  select STDOUT;
+  select $out;
 
   my ($ok, $regexp, $tmpl) = @$result;
   if ($ok <= 0) {
@@ -510,6 +551,7 @@ sub Mj::Format::who {
 addresses from the list below, then press the <b>$remove</b> button.
 <table>
 EOM
+
   # We know we succeeded
   $count = 0;
   $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'}, 
@@ -552,7 +594,16 @@ EOM
   }
   $request->{'command'} = "who_done";
   $mj->dispatch($request);
-  print "</table></form>\n";
+
+  print "</table>\n";
+  if (exists $request->{'mlist'} and (ref $request->{'mlist'} eq 'ARRAY')) {
+    for (@{$request->{'mlist'}}) {
+      print "<input type=hidden name=mlist value=$_>\n"
+        unless ($request->{'list'} eq $_);
+    }
+  }
+  print "</form>\n";
+  select STDOUT;
 }
 
 sub usage {
@@ -639,13 +690,15 @@ then press one of the buttons.
 the "token identifier," which is unique to that request.  
 Checkboxes allow more than one request to be handled at once.
 
+<li>The second column shows the name of the mailing list.
+
 <li>Generally, <b>subscribe</b> and <b>set</b> requests need 
 to be confirmed by the subscribers themselves, but any other request 
 should be handled by the list owners.  This is indicated 
-in the second column by an <b>O</b> (the owners must approve) 
+in the third column by an <b>O</b> (the owners must approve) 
 or an <b>S</b> (the subscriber must approve). 
 
-<li>The third column shows the type of request.
+<li>The fourth column shows the type of request.
 
 <li>The remaining columns contain the date of
 the request and the e-mail address of the person who made it.
@@ -668,7 +721,7 @@ the archive but not distributed to the subscribers.
 <p>
 If there are no pending requests, you will see the following message:
 <pre>
-No tokens for $list.
+There are no pending requests for $list.
 </pre>
 <p>
 Requests will eventually expire unless someone handles them.
