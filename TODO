@@ -149,59 +149,6 @@ visible to the interface but don't have configshow display them).
 confirm_consult needs to generate "now the owner must approve" message.
 
 
-- add nonterminal access_rules.  Now we take the first matching, but we
-  could act and keep going.  This could be used to add reasons to a list,
-  falling through to a final consult or deny.  Would require restructuring
-  the compiled code to push into a list instead of returning on first
-  match.
-
-  add unset action to erase a variable (to, say, ignore taboo matches for a
-  class of users)
-
-  add reason action to stuff another bounce reason onto the list.
-
-  Implementation:
-
-    instead of returning, push (comma-separated) actions onto a list.
-    return the list at the end.
-    access routine parses list items in order until it receives an element
-      that has a terminal rule.
-
-    code could just return the list as soon as it sees a nonterminal rule,
-    but then it needs to know more about what rules are terminal.
-
-
-  Terminal rules are:
-    allow
-    deny
-    denymess
-    confirm
-    consult
-    confirm+consult
-    forward
-
-  Nonterminal rules are:
-    reply
-    replyfile
-    mailfile
-
-    unset=variable
-    set=variable=value
-
-Need to be able to set variables so that later rules are effected.  Reason:
-I want to exempt certain users from taboo checks, so I just do
-
-post
-unset=admin_headers, unset=admin_body
-@
-
-and let normal processing continue.  The default action will take care of
-everything, and I'm not forced to update my rules to handle new checks.
-
-BUT now compile_rule needs to turn set and unset into actual writes into
-%args.  This requires more thought about security.  It also means
-compile_rule needs to understand the structure of actions and be able to
-handle them.  So it might as well parse the actions itself.
 
 
 Mechanism to set defaults for all lists:

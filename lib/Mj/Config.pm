@@ -1093,14 +1093,16 @@ sub parse_access_rules {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150;
-  my (%rules, @at, @tmp, $action, $check_aux, $check_main, $code, $data,
-      $error, $i, $j, $k, $ok, $part, $rule, $table, $tmp, $tmp2, $warn);
+  my (%rules, @at, @tmp, $action, $check_aux, $check_main, $code, $count,
+      $data, $error, $i, $j, $k, $ok, $part, $rule, $table, $tmp, $tmp2,
+      $warn);
 
   # %$data will contain our output hash
   $data = {};
 
   # We start with no warnings.
   $warn = '';
+  $count = 0;
   
   # Do the table parse: two multi-item, single field lines, one multiline
   # field
@@ -1138,6 +1140,7 @@ sub parse_access_rules {
     
     # Iterate over the action/rule pairs
     while (($action, $rule) = splice @{$rules{$i}}, 0, 2) {
+      $count++;
 
       # Check validity of the action.
       for ($j=0; $j<@{$action}; $j++) {
@@ -1162,7 +1165,7 @@ sub parse_access_rules {
       
       # Compile the rule
       ($ok, $error, $part, $check_main, $check_aux) =
-	_compile_rule($i, $action, $rule);
+	_compile_rule($i, $action, $rule, $count);
       
       # If the compilation failed, we return the error
       return (0, "\nError compiling rule for $i: $error")
@@ -1175,7 +1178,7 @@ sub parse_access_rules {
       }
     }
     
-    $data->{$i}{'code'} .= "\nreturn ['default'];\n";
+    $data->{$i}{'code'} .= "\nreturn [0, 'default'];\n";
   }
   # If we get this far, we know we shouldn't have any errors, but maybe
   # some warnings
@@ -2651,7 +2654,7 @@ sub compile_pattern {
   return (0, "Unrecognized pattern '$str'.\n");
 }
 
-=head2 compile_rule(request, action, rule)
+=head2 compile_rule(request, action, rule, id)
 
 This takes the access control language and "compiles" it into a Perl
 subroutine (contained in a string) which can be processed with eval (or
@@ -2670,22 +2673,27 @@ Things supported:
   list membership checks with @
   ALL rule matching everything  
 
-XXX Syntax-check regexps by matching against something in a safe
-  compartment.
-
 Returns:
 
  flag  (ok or not)
  error (if any)
  code in a string
  check_main - flag: should membership in the main list be checked
- cueck_aux  - listref: list of aux lists to check for membership
+ check_aux  - listref: list of aux lists to check for membership
+
+About the ID:
+
+ A matching rule returns its ID.  With the assumption that IDs are
+ monotonically increasing, it is easy to rerun the rule code and skip
+ directly to the next rule just by skipping all rules with IDs less than or
+ equal to the returned ID.
 
 =cut
 sub _compile_rule {
   my $request = shift;
   my $action  = shift;
   $_          = shift;
+  my $id      = shift;
   my ($check_main,# Should is_list_member be called?
       $check_aux, # Listref of aux lists to check for membership
       $indent,    # Counter for current indentation level.
@@ -2713,8 +2721,8 @@ sub _compile_rule {
   $need_or = 0;
   $check_main = 0;
   $check_aux = [];
-  $pr = "\nif (";
-  $ep = "\n   )\n  {\n";
+  $pr = "\nif ((\$skip < $id) &&\n   (";
+  $ep = "\n   ))\n  {\n";
 
   $o .= $pr;
   
@@ -2775,7 +2783,7 @@ sub _compile_rule {
 
 	unless (rules_var($request, $var, 3)) {
 	  @tmp = rules_vars($request, 3);
-	  $e .= "Illegal match variable for $request: $var.Legal variables which you can match against are:\n".
+	  $e .= "Illegal match variable for $request: $var.\nLegal variables which you can match against are:\n".
 	    join(' ', sort(@tmp));
 	  last;
 	}
@@ -2992,7 +3000,7 @@ sub _compile_rule {
   }
   
   $o .= "$ep";
-  $o .= "    return ['" . join("', '",(map { s/([\\\'])/\\$1/g; $_ } @{$action})) . "'];\n  }\n";
+  $o .= "    return [$id, '" . join("', '",(map { s/([\\\'])/\\$1/g; $_ } @{$action})) . "'];\n  }\n";
   
   if ($e) {
     return (0, $e, $o);

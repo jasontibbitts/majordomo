@@ -25,7 +25,7 @@ size reasons.
 package Mj::Access;
 use Mj::Config qw(parse_table);
 use strict;
-use vars qw($victim $passwd @permitted_ops %args %memberof %requests);
+use vars qw($skip $victim $passwd @permitted_ops %args %memberof %requests);
 
 use AutoLoader 'AUTOLOAD';
 1;
@@ -376,7 +376,9 @@ sub global_access_check {
      seq
      sne
     );
+
 use Data::Dumper;
+use Mj::CommandProps 'action_terminal';
 sub list_access_check {
   # We must share some of these variables with the compartment, so they
   # can't be lexicals
@@ -399,7 +401,8 @@ sub list_access_check {
 
   $log->message(450, "info", "Access variables: ". Dumper \%args);
 
-  my ($password_override,   # Does a supplied password always override
+  my (@final_actions,       # The final list of actions dictated by the rules
+      $password_override,   # Does a supplied password always override
                             # other restrictions?
       $access,              # To save typing
       $actions,             # The action to be performed
@@ -413,6 +416,7 @@ sub list_access_check {
       $deffile,             # The default replyfile if none is given
       $sender,              # Sender for this list's mail
       $mj_owner,
+      $saw_terminal,        # Flag: did a rule emit a terminal action
       $reasons,             # The \n separated list of bounce reasons
       $i,                   # duh
       $func,
@@ -512,24 +516,65 @@ sub list_access_check {
     $args{'addr'}     = $victim->strip;
     $args{'fulladdr'} = $victim->full;
    
-    # Now execute the code
+    # Pull in some useful variables
+    $sender = $self->_list_config_get($list, 'sender');
+    $mj_owner = $self->_global_config_get('sender');
+
+    # Prepare to execute the rules
+    $skip = 0;
     $cpt = new Safe;
     $cpt->permit_only(@permitted_ops);
-    $cpt->share(qw(%args %memberof));
-    $actions = $cpt->reval($access->{$request}{'code'});
-    warn "Error found when running access_rules code:\n$@" if $@;
+    $cpt->share(qw(%args %memberof $skip));
+
+    # Loop until we get a terminal action
+   RULE:
+    while (1) {
+      $actions = $cpt->reval($access->{$request}{'code'});
+      warn "Error found when running access_rules code:\n$@" if $@;
+
+      # The first element of the action array is the ID of the matching
+      # rule.  If we have to rerun the rules, we will want to skip to the
+      # next one.
+      $actions ||= [0, 'default'];
+      $skip = shift @{$actions};
+
+      # Now go over the actions we received.  We must process 'set' and
+      # 'unset' here so that they'll take effect if we have to rerun the
+      # rules.  Other actions are pushed into @final_actions.  If we hit a
+      # terminal action we stop rerunning rules.
+     ACTION:
+      for $i (@{$actions}) {
+	($func, $arg) = split(/[=-]/,$i,2);
+	if ($func eq 'set') {
+	  # Set a variable.
+	  warn "Setting $arg";
+	  next ACTION;
+	}
+	if ($func eq 'unset') {
+	  # Unset a variable.
+	  warn "Unsetting $arg";
+	  next ACTION;
+	}
+
+	# We'll process the function later.
+	push @final_actions, $i;
+
+	$saw_terminal ||= action_terminal($i);
+      }
+
+      # We need to stop if we saw a terminal action in the results of the
+      # last rule
+      last RULE if $saw_terminal;
+    }
   }
 
-  $actions ||= ['default'];
-
-  # Pull in some useful variables; we don't do these earlier because it
-  # wastes time if we were given a password (and it can foul up the test
-  # code)
-  $sender = $self->_list_config_get($list, 'sender');
-  $mj_owner = $self->_global_config_get('sender');
+  # What if we don't have a rule for this action?
+  else {
+    @final_actions = ('default');
+  }
 
   # Now figure out what to do
-  for $i (@{$actions}) {
+  for $i (@final_actions) {
     no strict 'refs';
     ($func, $arg) = split(/[-=]/,$i,2);
     $arg ||= '';
@@ -544,6 +589,8 @@ sub list_access_check {
     $mess .= $text if defined $text;
     push @temps, $temp if defined $temp;
   }
+
+
 
   # If we ran out of actions and didn't generate any reply text, we
   # should replyfile the default (for the last action we ran).

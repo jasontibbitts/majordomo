@@ -8,7 +8,7 @@ require Exporter;
 @EXPORT_OK = qw(access_def command_legal command_prop
 		commands_matching function_prop function_legal
 		rules_request rules_requests rules_var rules_vars
-		rules_action rules_actions action_files);
+		rules_action rules_actions action_files action_terminal);
 %EXPORT_TAGS = ('command'  => [qw(command_legal command_prop
 				  commands_matching)],
 		'function' => [qw(function_legal function_prop)],
@@ -22,19 +22,19 @@ use strict;
 # All supported actions, plus some additional information used for syntax
 # checking
 my %actions =
-  ('allow'           => {files => [],},
-   'confirm'         => {files => [0],},
-   'consult'         => {files => [0],},
-   'confirm_consult' => {files => [0,1],},
-   'default'         => {files => [],},
-   'deny'            => {files => [],},
-   'forward'         => {files => [],},
+  ('allow'           => {files => [],    terminal => 1,},
+   'confirm'         => {files => [0],   terminal => 1,},
+   'consult'         => {files => [0],   terminal => 1,},
+   'confirm_consult' => {files => [0,1], terminal => 1,},
+   'default'         => {files => [],    terminal => 1,},
+   'deny'            => {files => [],    terminal => 1,},
+   'forward'         => {files => [],    terminal => 1,},
 #  'log'             => 1,
    'mailfile'        => {files => [0],},
    'reply'           => {files => [],},
    'replyfile'       => {files => [0],},
-#  'set'             => 1,
-#  'unset'           => 1,
+   'set'             => {files => [],},
+   'unset'           => {files => [],},
   );
 
 my %reg_legal =
@@ -665,6 +665,12 @@ sub action_files {
   @out;
 }
 
+# Return true if the action is terminal.
+sub action_terminal {
+  my $act = shift;
+  return unless $actions{$act};
+  return $actions{$act}{terminal};
+}
 
 # --- 
 sub access_def {
