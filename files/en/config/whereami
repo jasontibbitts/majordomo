@@ -1,4 +1,4 @@
-The whereami configuration setting should contain the fully-qualified domain 
-name of the server, such as "myhost.example.com" if you want users to send 
-posts to addresses like "LISTNAME@myhost.example.com".  This setting
-applies to the GLOBAL pseudo-list only.
+The whereami configuration setting should contain the fully-qualified
+domain name of the server, such as "myhost.example.com" if you want
+users to send posts to addresses like "LISTNAME@myhost.example.com".
+This setting applies to the GLOBAL pseudo-list only.
