@@ -5,6 +5,8 @@ listname, required, is the name of a list at this site
 action, optional, is the name of a request, such as post or subscribe.
 -alias, if used, causes "alias" tokens to be shown.
 -async, if used, causes "async" tokens to be shown.
+-confirm, if used, causes "confirm" tokens to be shown.
+-consult, if used, causes "consult" tokens to be shown.
 -delay, if used, causes "delay" tokens to be shown.
 -probe, if used, causes "probe" tokens to be shown.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -55,9 +57,10 @@ that the probed address is invalid.  Rejecting a probe token will
 prevent a bouncing address from being unsubscribed if a the probe
 message cannot be delivered.
 
-The "showtokens" command provides a list of all outstanding tokens.  If
-there are many such unhandled tokens, it may be due to an absent list
-owner or a spammer.
+The "showtokens" command provides a list of all outstanding "confirm" and
+"consult" tokens.  If there are many such unhandled tokens, it may be due
+to an absent list owner or a spammer.  If one or more available mode
+switches are used, only those types of tokens will be listed.
 
 Anyone with a password that authorizes them to show the tokens can use
 the "accept" or "reject" command to immediately approve or discard one
