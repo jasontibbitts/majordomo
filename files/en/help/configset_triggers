@@ -43,7 +43,7 @@ cron job, the times for each trigger in the triggers setting are
 compared to the current day and time.  Triggers whose times match
 the current time are executed by the mj_trigger program.
 
-Here are the actions which can be triggered via the GLOBAL pseudo-list:
+The following actions can be triggered via the GLOBAL pseudo-list:
  checksum - Expire posted message checksums and message-id data.
  delay    - Complete delayed requests.
  inactive - Remove inactive registered addresses with no subscriptions.
@@ -51,7 +51,7 @@ Here are the actions which can be triggered via the GLOBAL pseudo-list:
  session  - Expire old session data.
  token    - Issue reminders and remove expired tokens and temporary passwords.
 
-Here are the actions which can be triggered via the regular lists:
+The following actions can be triggered via regular mailing lists:
  bounce   - Expire delivery failure information which is outdated.
  checksum - Expire posted message checksums and message-id data.
  delay    - Complete delayed requests and post delayed messages.
@@ -77,7 +77,10 @@ more details).  For example, within a file, the commands:
   lists-full \$LIST
 
 would contain the actual list owners' address and list name when the
-commands are run.  
+commands are run.  The file should always begin with a "default user"
+command; otherwise, the results will not be mailed.  See "help default"
+for more information.  See "help admin_documents" for an introduction
+to the file space and document management.
 
 It is possible to use comments before, between, and after the individual
 triggers.  Comments are lines that begin with a '#'.  You can use 
@@ -87,6 +90,7 @@ but comments have no impact on how the triggers work.
 
 See Also:
    help admin
+   help admin_documents
    help configset_access_rules
    help configset_dup_lifetime
    help configset_inactive_lifetime
@@ -96,6 +100,7 @@ See Also:
    help configset_post_limits
    help configset_session_lifetime
    help configset_token_lifetime
+   help default
    help mj_trigger
    help times
 
