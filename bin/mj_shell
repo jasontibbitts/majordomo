@@ -524,9 +524,11 @@ sub parse_command {
       $editor = $ENV{EDITOR} || $ENV{VISUAL} || '/bin/vi';
     }
     else {
-      $editor = $ENV{PAGER} || '/usr/bin/more';
+      $editor = ($ENV{PAGER}
+		 || (-f '/usr/bin/more' && '/usr/bin/more')
+		 || (-f '/bin/more'     && '/bin/more'));
     }
-  
+
     $editor =~ /(.*)/;
     $editor = $1;
 
