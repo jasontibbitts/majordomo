@@ -57,13 +57,15 @@ EOM
   $msg = <<EOM;
 Basic Security Configuration (user)
 
-NOTE: If you are 'root' when installing, you can
-have Majordomo run as any user you wish. If you
-are logged in as anyone else when installing,
-only that account can be the one you enter here!
-The files and directories created by the final
-installation step will be owned by this user, and
-cron jobs for digests must be run as this user.
+The files and directories created by the final installation step 
+will be owned by this user, and cron jobs for digests and other
+periodic tasks must be run as this user.
+
+When you run the "make install" command to install the software,
+you must have sufficient privileges to change the ownership of
+files and directories to this user.
+
+The user ID you specify here must already exist.
 
 Currently, you appear to be user '$tmpnam', uid $tmpuid.
 

@@ -127,8 +127,10 @@ sub get_uid {
       next;
     }
     last if getpwnam $uid ;
-    last if $uid =~ /\d+/ && ($uid = getpwuid($uid));
-    $msg .= "\n$uid can't be interpreted, please enter a valid user number.\n";
+    if ($uid =~ /\d+/) { 
+      last if ($uid = getpwuid($uid));
+    }
+    $msg .= qq(\nThe user ID "$ans" cannot be interpreted.  Please enter a valid user name or number.\n);
   }
   $uid;
 }
