@@ -43,6 +43,14 @@ package Mj::Config;
     'visible'=> 1,
     'mutable'=> 4,
    },
+   'config_defaults' => 
+   {
+    'type'   => 'config_array',
+    'groups' => [qw(miscellany)],
+    'local'  => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+   },
    'faq_access' => 
    {
     'type'   => 'enum',
