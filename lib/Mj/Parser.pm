@@ -255,6 +255,10 @@ sub parse_part {
       $args = add_deflist($mj, $args, $extra->{'deflist'},
 			  $interface, $extra->{'reply_to'});
       ($tlist, $args) = split(" ", $args, 2);
+      unless (defined($tlist) && length($tlist)) {
+	print $outhandle "A list name is required.\n";
+	next CMDLINE;
+      }
       unless (defined ($list = $mj->valid_list($tlist,
 				     command_property($true_command, 'all'),
 				     command_property($true_command, 'global'))))
