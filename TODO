@@ -41,14 +41,44 @@ Removal of database_backend variable.
 Top of the list 
 ---------------
 
+List converter:
+
+  Take location of old list directory and name of list to convert.
+
+  Pull in old config file 
+
+  Create list if not existing
+
+  For each list (sorted):
+    offer to create
+    add subscribers
+    open config
+
+    if -digest, offer to create non-digest version and add subscribers to digest.
+    
+
+
+
 Query for Confirm_url at install time.
 
 Implement rewritefrom flag.
 
-  set list rewritefrom string
+  set list rewritefrom
+
+Rewrites to address that the user was subscribed with.
 
 But is this setting a rewrite on the current address of string or the
 rewritefrom flag on the address "string"?
+
+  set list rewritefrom-as 
+
+sets the rewrite string (or erases it, I suppose).
+
+
+Implement naive list deletion functionality:
+  createlist-delete listname
+
+Only delete if no remaining subscribers.
 
 
 New stored token format:

@@ -35,6 +35,7 @@ bin/mj_queueserv
 bin/mj_shell
 bin/mj_shutdown
 bin/mj_trigger
+convertdb.pl
 convertfs.pl
 files/INDEX.pl
 files/de/ack_denial
@@ -497,6 +498,7 @@ lib/Mj/RegList.pm
 lib/Mj/Resend.pm
 lib/Mj/SimpleDB.pm
 lib/Mj/SimpleDB/Base.pm
+lib/Mj/SimpleDB/DB.pm
 lib/Mj/SimpleDB/Text.pm
 lib/Mj/SubscriberList.pm
 lib/Mj/TextOutput.pm
@@ -528,6 +530,7 @@ misc/approve6
 misc/bad.message.1
 misc/bad1
 misc/chunk.stats
+misc/dbtest.pl
 misc/domain.regexp
 misc/mime1
 misc/test-message.1
@@ -554,6 +557,8 @@ setup/setup_func.pl
 t/README
 t/addr.t
 t/checksubs
-t/db.t
+t/db-dbmbtree.t
+t/db-dbmhash.t
+t/db-text.t
 t/harness
 t/shell.t

@@ -337,11 +337,6 @@ sub mogrify {
       # So we must change something
       $changed++;
 
-      # If the new key is undefined, we delete it
-      unless (defined $newkey) {
-	next RECORD;
-      }
-
       # Encode the data hash; if nothing changed, we don't have to
       # reflatten it
       if ($changedata) {
@@ -354,9 +349,13 @@ sub mogrify {
       # If the key must change, the old value must be deleted and the new
       # one saved for later addition in order to prevent a possible loop,
       # since if we add a key now we may come upon it later.  Otherwise we
-      # can just the new data onto the same key.
+      # can just the new data onto the same key.  If the new key is
+      # undefined, we just delete the existing entry and save nothing for
+      # later.
       if ($changekey) {
-	push @new, $newkey, $encoded;
+	if (defined $newkey) {
+	  push @new, $newkey, $encoded 
+	}
 	$status = $self->{db}->del($k, R_CURSOR);
       }
       else {
