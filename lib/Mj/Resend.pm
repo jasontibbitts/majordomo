@@ -667,10 +667,17 @@ sub _r_ck_body {
   my (@parts, $body, $data, $i, $line, $sum1, $sum2, $text);
 
   # If we have parts, we don't have any text so we process the parts and
-  # exit.  Note that we try to preserve the first setting down the chain if
-  # appropriate.
+  # exit.  Note that we try to preserve the $first setting down the chain
+  # if appropriate.  We also construct an appropriate name for the part
+  # we're processing.
   @parts = $ent->parts;
   for ($i=0; $i<@parts; $i++) {
+    if ($part eq 'toplevel') {
+      $part = "part ".($i+1);
+    }
+    else {
+      $part .= ", subpart ".($i+1);
+    }
     $self->_r_ck_body($list, $parts[$i], $reasons, $avars, $safe, $qreg,
 		      $mcode, $tcode, $inv, $max, $maxlen,
 		      "$part, subpart ".($i+1), ($first && $i==0));
@@ -893,19 +900,23 @@ sub _check_mime {
     $avars->{mime} = 1;
   }    
 
-  # Extract and unfold the MIME headers, then check for long lines.  Don't
-  # decode, because it takes time and we want to see the longest strings
-  # here.
-  $head = $ent->head; $head->unfold;
- HEAD:
-  for my $i ($head->tags) {
-    for my $j ($head->get($i)) {
-      $len = length($i)+length($j)+2;
-warn "$i, $len";
-      if ($len > $maxlen) {
-	push @$reasons, "A MIME header is too long in $part ($len > $maxlen)";
-	$avars->{mime_header_length_exceeded} = 1;
-	last HEAD;
+  # Unless we're parsing the top level (where we've already checked the
+  # header closely), extract and unfold the MIME headers, then check for
+  # long lines.  Don't decode, because it takes time and we want to see the
+  # longest strings here.  XXX Further limit this for message/rfc822
+  # inclusions?
+  unless ($part eq 'toplevel') {
+    $head = $ent->head; $head->unfold;
+   HEAD:
+    for my $i ($head->tags) {
+      for my $j ($head->get($i)) {
+	$len = length($i)+length($j)+2;
+	if ($len > $maxlen) {
+	  push(@$reasons,
+	       "A MIME header is too long in $part ($len > $maxlen)");
+	  $avars->{mime_header_length_exceeded} = 1;
+	  last HEAD;
+	}
       }
     }
   }
