@@ -1192,12 +1192,15 @@ sub sessioninfo {
 sub set {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
-  my ($change, @changes, $list, $ok, $summary);
+  my (@changes, $change, $count, $list, $ok, $summary);
  
   @changes = @$result; 
+  $count = 0;
+
   while (@changes) {
     ($ok, $change) = splice @changes, 0, 2;
     if ($ok > 0) {
+      $count++;
       $list = $change->{'list'};
       if (length $change->{'sublist'} and $change->{'sublist'} ne 'MAIN') {
         $list .= ":$change->{'sublist'}";
@@ -1220,6 +1223,7 @@ EOM
         eprint($out, $type, &indicate("$change\n", $ok, 1));
     }
   }
+  eprint($out, $type, "Addresses changed: $count\n");
   eprint($out, $type, 
     "Use the 'help set' command to see an explanation of the settings.\n");
 
