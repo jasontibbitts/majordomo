@@ -677,6 +677,8 @@ sub t_accept {
   # sent.
   if ($func eq 'post' and $data->{'type'} ne 'async'
       and $data->{'mode'} !~ /archive/) {
+
+    my ($origtype) = $data->{'type'};
     $data->{'type'} = 'async';
     $data->{'reminded'} = 1;
     $self->{'tokendb'}->replace('', $token, $data);
@@ -693,6 +695,7 @@ sub t_accept {
 
     $self->mail_entity($sender, $ent, $server) if ($server and $ent);
 
+    $data->{'type'} = $origtype;
     return (1, '', $data, [1]);
   }
   else {
