@@ -1,6 +1,7 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-archive-get   listname pattern
-archive-index listname pattern
+archive-get      listname pattern
+archive-get-mime listname pattern
+archive-index    listname pattern
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is the name of a regular list at this site
 pattern,  required, is a single value or range of values (see below)
@@ -11,6 +12,11 @@ an archive, those messages may be retrieved using the "archive-get"
 and "archive-index" commands. The index and get commands will not
 allow archive retrieval if "archive_dir" is set to somewhere outside
 the list's file space, but in many cases it will be possible to.
+
+The type of digest for the archive-get command can be specified in
+the mode: "archive-get-mime" sends a multi-part MIME message, just
+"archive-get" sends plain text. The original format of the messages
+shouldn't matter.
 
 Majordomo archives are given names which indicate the dates of
 the messages in the archive.  For example, the "test" list's archive
@@ -32,10 +38,10 @@ where the list name "test" is set off by spaces and the auxiliary list
 name "bugs" is separated from the date by a period.
 
 It is possible to retrieve messages (with the "archive-get" command)
-or a list of messages, with each message's subject and message
-number (using the "archive-index" command).  There are several
-ways for you to indicate which messages you want to see, using
-three kinds of patterns.
+or obtain a list of messages, with each message's subject and message
+number (using the "archive-index" command).  There are several ways
+for you to indicate which messages you want to see, using three kinds
+of patterns.
 
 One pattern is a simple message count.  For example,
   archive-index test 20
