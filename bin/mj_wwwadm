@@ -46,7 +46,7 @@ use Mj::Log;
 use Mj::TextOutput;
 use Mj::Addr;
 
-my ($cgi, $domain, $mj, $ok, $sess, $token);
+my ($cgi, $domain, $mj, $ok, $mess, $serveradmin, $sess, $token);
 my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, $vict, $extra);
 my ($line, $st, $file, $fh, $cgiurl, $cmdform, $localpart);
 
@@ -59,7 +59,7 @@ $::log = new Mj::Log;
 $::log->add
   (
    method      => 'handle',
-   id          => 'mjwww',
+   id          => 'mjadm',
    handle      => \*STDERR,
    level       => 50,
    subsystem   => 'mail',
@@ -78,6 +78,20 @@ $domain = $::DEFDOM;
 
 # Make the Majordomo object
 $mj = new Majordomo $::LISTDIR, $domain;
+unless (ref $mj) {
+  print <<EOM;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd"> 
+<html><head>
+<title>Majordomo 2 Administration: Error</title>
+</head>
+<body>
+<h2>Error: $mj</h2>
+</body></html>
+EOM
+  exit 0;
+}
+
 $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
 
 # Generate the session information
@@ -85,8 +99,25 @@ for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
   $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
 }
 $sess .= scalar(localtime(time)) . "\n";
-# XXX Check result
-$mj->connect('mj_wwwadm', $sess);
+$serveradmin = $mj->_global_config_get('whoami_owner');
+
+($ok, $mess) = $mj->connect('mj_wwwadm', $sess);
+unless ($ok) {
+  print <<EOM;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd"> 
+<html><head>
+<title>Majordomo 2 Administration: Error</title>
+</head>
+<body>
+<h2>Error: $mess</h2>
+Please contact
+<a href="mailto:$serveradmin">$serveradmin</a> and report
+this error.
+</body></html>
+EOM
+  exit 0;
+}
 
 $pathinfo = 'GLOBAL';
 if (exists $ENV{'PATH_INFO'}) {
@@ -207,7 +238,7 @@ if ($passw eq '' and $func !~ /help|lists|accept|reject|tokeninfo/) {
 elsif ($passw ne '') {
   # Check the password against the requester
   $ok = $mj->validate_passwd($user, $passw, undef,
-                               "mjwww", $list, $func);
+                               "mjadm", $list, $func);
   if ($ok <= 0) {
     print "<h3>The password you provided is invalid</h3>\n";
     $::log->message(50, "info",  "Invalid password in form data.");
@@ -229,14 +260,14 @@ $file = Majordomo::tempname();
 $fh = new IO::File ">$file";
 &{"Mj::TextOutput::$func"}($mj, $func, $user, 
                            ($func =~ /help|which|lists/)? '' : $passw, 
-                           undef, "mjwww",
+                           undef, "mjadm",
                            undef, $fh, $mode, $list, $extra, ());
 
 if ($st eq 'checked' and $passw ne '' and $func ne 'showtokens') {
   print $fh "\n";
   # present the result of the showtokens command
   &{"Mj::TextOutput::showtokens"}($mj, $func, $user, $passw, 
-                                  undef, "mjwww",
+                                  undef, "mjadm",
                                   undef, $fh, $mode, $list, $extra, ());
 }
 $fh->close();

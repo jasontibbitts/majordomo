@@ -60,7 +60,7 @@ $::log->add
    log_args    => 1,
   );
 
-$::log->in(20, undef, "info", "Majordomo webcomfirm client - ".scalar(localtime));
+$::log->in(20, undef, "info", "Majordomo webconfirm client - ".scalar(localtime));
 $::log->startup_time();
 
 # Start up the page and parse the URL
@@ -69,17 +69,48 @@ print $cgi->header;
 $ptoken = $cgi->param('t');
 $action = $cgi->param('a');
 $domain = $cgi->param('d') || $::DEFDOM;
+if ($domain =~ /^([-\@\w.]+)$/) {
+  $domain = $1;
+}
+
 
 # Make the Majordomo object
 $::mj = new Majordomo $::LISTDIR, $domain;
 $mj = $::mj;
+unless (ref $mj) {
+  print <<EOM; 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd">
+<html><head>
+<title>Majordomo 2 Token Confirmation: Error</title>
+</head>
+<body>
+<h2>Error: $mj</h2>
+</body></html>
+EOM
+  exit 0;
+}
 
 # Generate the session information
 for my $i (keys(%ENV)) {
   $sess .= "$i = $ENV{$i}\n";
 }
 $sess .= $cgi->dump('true');
-$mj->connect('webconfirm', $sess);
+
+($ok, $mess) = $mj->connect('webconfirm', $sess);
+unless ($ok) {
+  print <<EOM; 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd">
+<html><head>
+<title>Majordomo 2 Token Confirmation: Error</title>
+</head>
+<body>
+<h2>Error: $mess</h2>
+</body></html>
+EOM
+  exit 0;
+}
 
 # Extract some useful configuration variables
 $site_name =

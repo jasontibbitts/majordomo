@@ -1,4 +1,7 @@
 2000-05-24  Michael Yount  <csf@moscow.com>
+	* bin/mj_wwwadm, bin/mj_confirm: Add error checks for return
+	values from new() and connect().  Untaint domain name.
+	(Thanks to Olivier Prenant)
 
 	* bin/mj_wwwadm: Use PATH_INFO to allow a list name to be specified
 	in the URL, e.g., http://example.com/cgi-bin/mj_wwwadm/mytestlist.
@@ -11,7 +14,7 @@
 
 	* lib/Mj/CommandProps.pm:  change the bytes variable to body_length.
 	Add the mime_header_length and mime_header_length_exceeded variables
-    to the 'legal' hash for the post command.
+	to the 'legal' hash for the post command.
  
 	* lib/Mj/Resend.pm: set the mime_header_length, body_length,
 	and body_length_exceeded variables appropriately.
