@@ -1564,7 +1564,8 @@ sub _reg_add {
 
   if ($args{list}) {
     @lists = split("\002", $data->{'lists'});
-    push @lists, $args{list};
+    push (@lists, $args{list}) 
+      unless (grep { $_ eq $args{list} } @lists);
     $data->{'lists'} = join("\002", sort @lists);
   }
 
@@ -6212,9 +6213,9 @@ sub rekey_start {
 sub _rekey {
   my($self, $d, $requ, $vict, $mode, $cmd, $regexp) = @_;
   my $log = new Log::In 35, $mode;
-  my (@lists, $aa, $aca, $changed, $dry, $field, $list, $ra, $rca);
+  my (%seen, @lists, $aa, $aca, $changed, $dry, $list, 
+      $ra, $rca, $sub);
 
-  $rca = $ra = 0;
   if ($mode =~ /noxform/) {
     $dry = 1;
   }
@@ -6222,15 +6223,66 @@ sub _rekey {
     $dry = 0;
   }
 
-  # Do a rekey operation on the registration database
-  my $sub =
+  # Rekey the alias database
+  $aca = $aa = 0;
+
+  $sub =
+    sub {
+      my $key  = shift;
+      my $data = shift;
+      my (@out, $addr, $addr2, $changekey, $source, $target);
+
+      # Allocate an Mj::Addr object and transform it.
+      # In the aliases database, each set of data appears 
+      # twice, under two different keys.
+      $addr = new Mj::Addr($data->{'stripsource'});
+      $addr2 = new Mj::Addr($data->{'striptarget'});
+
+      # Skip this record if it is not a valid address.
+      return (0, 0, 0) unless $addr;
+      return (0, 0, 0) unless $addr2;
+
+      $aa++;
+      $source = $addr->xform;
+      $target = $addr2->xform;
+
+      if ($target eq $key) {
+        # Skip this bookkeeping alias.
+        return (0, 0, $target);
+      }
+      elsif ($source eq $key) {
+        # Skip this ordinary alias.
+        $seen{$data->{'stripsource'}} = 1;
+        return (0, 0, $source);
+      }
+      else {
+        $aca++;
+        $changekey = $dry ? 0 : 1;
+
+        if (exists $seen{$data->{'stripsource'}}) {
+          return ($changekey, 0, $target);
+        }
+        else {
+          $seen{$data->{'stripsource'}} = 1;
+          return ($changekey, 0, $source);
+        }
+      }
+    };
+
+  $self->{'alias'}->mogrify($sub) unless ($mode =~ /verify|repair/);
+
+
+  # Rekey the registry
+  $rca = $ra = 0;
+
+  $sub =
     sub {
       my $key  = shift;
       my $data = shift;
       my (@out, $addr, $newkey, $changekey);
 
-      # Allocate an Mj::Addr object from stripaddr and transform it.
-      $addr = new Mj::Addr($data->{$field});
+      # Allocate an Mj::Addr object and transform it.
+      $addr = new Mj::Addr($data->{'stripaddr'});
 
       # Skip this record if it is not a valid address.
       return (0, 0, 0) unless $addr;
@@ -6247,16 +6299,6 @@ sub _rekey {
       return ($changekey, 0, $newkey);
     };
 
-  # Rekey the alias database
-  $field = 'stripsource';
-  $self->{'alias'}->mogrify($sub) unless ($mode =~ /verify|repair/);
-
-  $aca = $rca;
-  $aa = $ra;
-  $rca = $ra = 0;
-
-  # Rekey the registry
-  $field = 'stripaddr';
   $self->{'reg'}->mogrify($sub) unless ($mode =~ /verify|repair/);
 
 

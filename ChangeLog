@@ -1,9 +1,24 @@
+2004-06-22  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_rekey)  Bugfix:  Take bookkeeping
+	aliases into account when rekeying the alias database.
+	Thanks to SRE.
+
+	* lib/Mj/List.pm:  (aux_rekey)  Bugfix:  Rekey based
+	upon the stripped address, to allow xforms to be reversed.
+	Thanks to SRE.
+
+2004-06-19  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/CommandProps.pm:  Bugfix:  The "info" and "intro"
+	commands should also work in a GLOBAL or DEFAULT context.
+
 2004-06-14  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/SimpleDB/Text.pm:  (get_matching_quick_regexp)  Bugfix:
 	Remove anchors from the pattern more thoroughly.
 	(The rekey-verify command was returning spurious results for
-         text databases.)  Thanks to SRE.
+	text databases.)  Thanks to SRE.
 
 2004-05-24  Michael Yount <csf@moscow.com>
 
