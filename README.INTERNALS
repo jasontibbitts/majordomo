@@ -1,10 +1,8 @@
 Here is the chain of function calls that are made (or can be made) when an
-interface calls a core routine.  Not all of this is in place; the single
-core dispatch routine is not in place yet, and the TextOutput formatters
-haven't been separated from the main TextOutput routines.
+interface calls a core routine.  
 
   interface ->
-  argument marshaller (in TextOutput.pm) ->
+  argument marshaller (in Parser.pm) ->
   Majordomo::dispatch (does common checks, etc.) ->
   Core function ->
   (access check) -> (can stop here, perhaps generating a token)
@@ -18,9 +16,6 @@ This looks extremely complex, but consider these requirements:
 * There must be a clean break between the core and the interface.  The core
   must not assume anything about how the data will be displayed, and it
   should do no formatting.
-
-(This explains the reason the interface goes through the TextOutput
-routines.  A Web interface could go through an HTMLOutput routine.)
 
 * All calls from the interface must go through security validation.
   Nothing that comes from the interface is to be trusted.  The core
@@ -41,15 +36,10 @@ routines directly.  It's also the reason for most of the real complexity.)
 Here goes:
 
 The interface can call the parser to pick out a set of commands and call
-the TextOutput routine, or call the TextOutput routine directly.  Both the
+the dispatch routine, or call the dispatch routine directly.  Both the
 interface and the parser may call core utility functions to retrieve config
 variables and the list of lists.  The parser will provide the default list
 if it is known, and also maintain state for default password/list.
-
-The TextOutput routine takes an argument string, a list or argument
-lines, or a filehandle (along with a bunch of other parameters),
-processes them appropriately, and calls the Majordomo core dispatch
-function.  (It can also call some utility functions.)
 
 ---- The core/interface junction is here. ----
 
@@ -94,7 +84,7 @@ appropriate people are informed.
 
 ---- Back across the core/interface junction ----
 
-The TextOutput routine then takes the return and calls the appropriate
+The parser or interface then takes the return and calls the appropriate
 formatting function.
 
 The formatting function takes the data from the core function and turns it
@@ -102,9 +92,6 @@ into something the user can understand.  The formatter can make more calls
 to the core to retrieve additional data, so that huge lists or files do not
 have to be buffered entirely on both sides of the link.  The formatter then
 returns to the TextOutput function.
-
-The TextOutput function returns success or failure to the parser or
-interface.
 
 Note that in the case of a stall, the token acceptance routine will call
 into the core and the core will then call the bottom half function on its
