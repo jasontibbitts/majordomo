@@ -2,8 +2,8 @@ This file contains examples of how you would solve certain problems.  The
 answers are probably not complete; in many cases Mj2 is so flexible that
 there are many ways to solve the problem.
 
-
 Problem:
+-------
   How to have a list with 30 members but allow posting by 300 addresses and
   nobody else?
 
@@ -51,3 +51,56 @@ Solution 3 (most flexible):
 
   The 'deny' can be changed to 'consult' to let the list owner approve the
   messages if desired, as with the other two solutions.
+
+
+
+Problem:
+-------
+  How to I stop massive crossposting between lists at my site and perhaps
+  lists at other sites, too?
+
+Solution:
+  You can do this using taboo_headers matches and an access rule.
+
+  First create and 'put' a file called 'nocrossposting' explaining how
+  crossposting between your lists and between your and others are not
+  allowed.
+
+  Then put some entries into taboo_headers:
+
+taboo_headers <<END
+/^(to|cc):.*some-list/i 10,crosspost
+/^(to|cc):.*some-other-list/i 10,crosspost
+/^(to|cc):.*another-related-list/i 10,crosspost
+/^(to|cc):.*yet-another-list/i 10,crosspost
+/^(to|cc):.*and-another/i 10,crosspost
+END
+
+  These look like normal taboo_headers entries, with a twist: the
+  information on the end contains a 'score' (or a 'severity') and a name.
+  Taboo matches can be given names; when one of them matches, the score is
+  added to that name.  So for every match, ten points are added to the
+  'crosspost' match.  Note that if you included your own list there, the
+  match will start out at 10.
+
+  Now, you have to test the score of the 'crosspost' match and do something
+  with the message if it matches too many times.  This is done with a few
+  lines in the access_rules variable:
+
+access_rules <<END
+post
+deny, mailfile=nocrossposting
+$taboo_crosspost >= 30
+END
+
+  This will deny the message and mail out your 'nocrossposting' file if the
+  score gets to 30 or above.  If your list is not matched by any of the
+  taboo_headers lines, this means that the message will be sent back to the
+  poster if it is crossposted to three or more lists.  You can adjust the
+  '30' to meet your needs.  You can also adjust the individual scores;
+  perhaps some lists are OK to crosspost to but you still want to stamp out
+  excessive crossposting, so you could give the taboo lines matching those
+  lists scores of 5 or so.
+
+  Note that because each of your lists doesn't know what comes in to your
+  other lists, the poster will get several rejection notices.

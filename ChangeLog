@@ -1,3 +1,16 @@
+Sat Oct 17 13:30:06 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* installbin: Take 'startperl' from .mj_config instead of from
+ 	Config.pm.  Prepend '#!' to it.
+
+	* Makefile.PL (get_file): Sprice up prompting a bit.  Add 'force'
+ 	parameter which forces the file to exist or be executable.
+	(configure): Check for startperl; default from Config.pm but warn
+ 	if it's bogus.
+
+	* lib/Mj/MTAConfig.pm (sendmail): Add debugging info if 'debug'
+ 	argument is true.
+
 Fri Oct 16 15:52:47 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* Makefile.PL (configure): Check for version of stored config file

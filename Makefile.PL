@@ -12,7 +12,7 @@ BEGIN {
 
 # A version variable we can use to force users to reconfigure when we add
 # new questions.
-my $config_version = 0;
+my $config_version = 1;
 
 my @SIDSCRIPTS = qw(mj_email mj_shell mj_resend mj_confirm);
 my @SCRIPTS = qw(mj_trigger);
@@ -302,6 +302,30 @@ process.  Of course, it isn\'t finished....
 
 EOM
   }
+
+  #---- Ask for startperl
+  $msg = <<EOM;
+
+Where is Perl located on this system?
+EOM
+  $def = $config->{startperl};
+  unless ($def) {
+    $def = $Config{startperl};
+    $def =~ s/[\#\!]*\s*(\S+).*/$1/;
+    unless (-x $def) {
+      $msg .= "
+Normally the default answer to this question is taken
+from the 'startperl' variable in Config.pm (containing
+\"$Config{startperl}\" which is supposed
+to be correct in any proper Perl installation.
+Your installation does not seem to be correct.
+";
+      $def = '';
+    }
+  }
+
+  # Get an existing executable without searching $PATH, force existing.
+  $config->{startperl} = get_file($msg, $def, 1, 1, 0, 1);
 
   #---- Ask for UID
   $msg = <<EOM;
@@ -612,14 +636,17 @@ sub get_str {
 }
 
 sub get_file {
-  my ($msg, $def, $exist, $exe, $path) = @_;
+  my ($msg, $def, $exist, $exe, $path, $force) = @_;
   my ($file);
  OUTER:
   while (1) {
     my $ans = prompt($msg, $def);
     $file = ($ans =~ /(\S*)/)[0];
     last if !length $file && !$exist;
-    next unless length $file;
+    unless (length $file) {
+      $msg = "You must enter something.\n";
+      next;
+    }
     last if -f $file && !$exe;
     last if -x $file;
     if ($path) {
@@ -627,7 +654,21 @@ sub get_file {
 	last OUTER if -x "$i/$file";
       }
     }
-    last if get_bool("$file does not exist; use anyway?");
+    # So it didn't exist or wasn't executable.
+    if ($force) {
+      if ($exe) {
+        $msg = "You must enter the name of an existing executable file.\n";
+        next;
+      }
+      $msg = "You must enter the name of an existing file.\n";
+      next;
+    }
+    if ($exe) {
+      last if get_bool("$file does not exist or is not executable; use anyway?");
+    }
+    else {
+      last if get_bool("$file does not exist; use anyway?");
+    }
   }
   $file;
 }

@@ -47,11 +47,18 @@ Things we need:
 sub sendmail {
   my $log  = new Log::In 150;
   my %args = @_;
-
+  my ($debug);
   my $bin  = $args{bindir} || $log->abort("bindir not specified");
   my $dom  = $args{domain} || $log->abort("domain not specified");
   my $list = $args{list}   || 'GLOBAL';
   my $who  = $args{whoami} || 'majordomo'; 
+
+  if ($args{debug}) {
+    $debug = " -v500";
+  }
+  else {
+    $debug = '';
+  }
 
   my $head = <<EOS;
 Please add the following lines to your aliases file, if they are not
@@ -61,17 +68,17 @@ EOS
 
   if ($list eq 'GLOBAL') {
     return ($head, qq(# Aliases for Majordomo at $dom
-$who:       "|$bin/mj_email -m -d $dom"
-$who-owner: "|$bin/mj_email -o -d $dom"
+$who:       "|$bin/mj_email -m -d $dom$debug"
+$who-owner: "|$bin/mj_email -o -d $dom$debug"
 owner-$who: majordomo-owner,
 # End aliases for Majordomo at $dom
 ));
   }
   else {
     return ($head, qq(# Aliases for $list at $dom
-$list:         "|$bin/mj_email -r -d $dom -l $list"
-$list-request: "|$bin/mj_email -q -d $dom -l $list"
-$list-owner:   "|$bin/mj_email -o -d $dom -l $list"
+$list:         "|$bin/mj_email -r -d $dom -l $list$debug"
+$list-request: "|$bin/mj_email -q -d $dom -l $list$debug"
+$list-owner:   "|$bin/mj_email -o -d $dom -l $list$debug"
 owner-$list:   $list-owner,
 # End aliases for $list at $dom
 ));

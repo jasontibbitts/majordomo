@@ -7,7 +7,7 @@ die "Invalid .mj_config" unless $config;
 my $uid = getpwnam($config->{'uid'});
 my $gid = getgrnam($config->{'gid'});
 
-$start = $Config{'startperl'};
+$start = "#!$config->{'startperl'}";
 while (($src,$dst) = splice(@ARGV,0,2)) {
 
   # We just copy the file if we're moving a wrapper
