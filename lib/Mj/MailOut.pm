@@ -257,7 +257,7 @@ sub owner_done {
   unlink $self->{'owner_file'};
   undef $self->{'owner_fh'};
   undef $self->{'owner_file'};
-  (1, $user, $badaddr);
+  (1, $badaddr);
 }
 
 =head2 handle_bounce
@@ -315,13 +315,14 @@ sub handle_bounce {
     }
 
     # If a token bounced
-    elsif ($type eq 'T') {
+    elsif ($type eq 'T' or $type eq 'D') {
       $handled = 1;
       $self->handle_bounce_token(entity  => $ent,
 				 data    => $data,
 				 file    => $file,
 				 handler => $handler,
 				 token   => $msgno,
+                                 type    => $type,
 				);
     }
 
@@ -440,7 +441,9 @@ sub handle_bounce_token {
   $args{entity}->print_body($self->{sessionfh});
 
   # If we parsed out a failure, delete the token
+  # unless it is for a delayed action.
   for $i (keys %{$args{data}}) {
+    last if $args{'type'} eq 'D';
     if ($args{data}{$i}{status} eq 'failure') {
       $self->t_remove($args{token});
       last;
