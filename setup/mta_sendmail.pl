@@ -80,7 +80,7 @@ sub setup_sendmail_domain {
           "nobody\@example.com", "-d", "$dom", "-p",
 	      "$pw", "createlist-regen" . ($nhead ? "-noheader" : ''));
 
-#  print "(@args)\n";
+  print "Regenerating MTA Configuration for $dom, please wait...\n";
   system(@args) == 0 or die "Error executing $args[0], $?";
 }
 
@@ -93,7 +93,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
