@@ -2847,6 +2847,7 @@ files/fr/error/bounce_user
 files/fr/error/bracketed_addresses
 files/fr/error/command_results
 files/fr/error/commands_processed
+files/fr/error/default_reset
 files/fr/error/default_set
 files/fr/error/denied_post
 files/fr/error/digest_mode
@@ -2922,6 +2923,7 @@ files/fr/error/right_brackets
 files/fr/error/setting_unchanged
 files/fr/error/signature_separator
 files/fr/error/single_header_length
+files/fr/error/skipped_lines
 files/fr/error/source_route
 files/fr/error/spool_file
 files/fr/error/stalled_post
@@ -4128,6 +4130,7 @@ files/fr/help/.configset_subject_re_strip
 files/fr/help/.configset_sublists
 files/fr/help/.configset_token_lifetime
 files/fr/help/.configset_welcome
+files/fr/help/.configset_whereami
 files/fr/help/.configset_whoami_owner
 files/fr/help/.configset_www_help_window
 files/fr/help/.configset_wwwadm_url
@@ -4153,6 +4156,7 @@ files/fr/help/.patterns
 files/fr/help/.quit
 files/fr/help/.remove
 files/fr/help/.request_response
+files/fr/help/.shell_hook
 files/fr/help/.show
 files/fr/help/.signoff
 files/fr/help/.stop
@@ -4241,6 +4245,7 @@ files/fr/help/configset_subject_re_strip
 files/fr/help/configset_sublists
 files/fr/help/configset_token_lifetime
 files/fr/help/configset_welcome
+files/fr/help/configset_whereami
 files/fr/help/configset_whoami_owner
 files/fr/help/configset_www_help_window
 files/fr/help/configset_wwwadm_url
@@ -4273,6 +4278,7 @@ files/fr/help/patterns
 files/fr/help/quit
 files/fr/help/remove
 files/fr/help/request_response
+files/fr/help/shell_hook
 files/fr/help/show
 files/fr/help/signoff
 files/fr/help/stop
