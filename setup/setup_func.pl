@@ -138,7 +138,7 @@ sub do_default_config {
       s!(^ \'confirm_url\'.*)DEFAULT(.*)!$1no server configured$2!;
     }
     $tmp = $config->{ignore_case} ? "'ignore case'" : '';
-    s!(^ \'addr_xforms\'.*)\'DEFAULT\'(.*)!$1$tmp$2!;
+    s!(^ \'addr_xforms\'.*\[)(\].*)!$1$tmp$2!;
 
     for $i (qw(tmpdir site_name)) {
       $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};

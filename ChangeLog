@@ -1,3 +1,8 @@
+Thu Aug 19 23:22:32 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* setup/setup_func.pl (do_default_config): Fix problem with
+ 	initial addr_xforms value causing test failures.
+
 Wed Aug 18 19:58:48 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* setup/setup_func.pl (do_default_config): Replace addr_xforms.
