@@ -1,3 +1,13 @@
+2002-07-10  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Display the validation error message if a
+	list name is invalid.
+
+	* lib/Majordomo.pm:  (standard_subs)  Cope with relocated
+	lists.
+	(format_get_string)  Bugfix:  Validate the list name.
+	Thanks to Roger Klorese.
+
 2002-07-09  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Majordomo.pm (standard_subs): Add the DATE substitution.  No

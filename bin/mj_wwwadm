@@ -273,9 +273,11 @@ for ($i = 0 ; $i < scalar @lists ; $i++) {
 }
 
 ($truelist, $sublist, $mess) = $mj->valid_list($lists[0], 1, 1);
-unless ($truelist) {
-  $tmp = $mj->format_error('unknown_list', 'GLOBAL', 'LIST' => $lists[0]);
-  &login($mj, $subs, $tmp);
+unless (defined $truelist and length $truelist) {
+  unless (defined $mess and length $mess) {
+    $mess = $mj->format_error('unknown_list', 'GLOBAL', 'LIST' => $lists[0]);
+  }
+  &login($mj, $subs, $mess);
 }
 
 unless ($passw) {
@@ -772,7 +774,6 @@ sub login {
    if ($subs->{'COMMAND'} eq "login");
 
   if ($message) {
-    $str = $message . "  Request: $subs->{'COMMAND'}  List: $subs->{'LIST'}";
     $::log->message(50, "info", $message);
   }
 
@@ -794,15 +795,15 @@ sub newlist {
   $subs->{'ERROR'} = Mj::Format::escape($message);
   $::log->message(50, "info", $message) if $message;
 
-  $tmp = $mj->format_get_string('wwwadm', 'newlist');
+  $tmp = $mj->format_get_string('wwwadm', 'newlist', $subs->{'LIST'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 
   if ($subs->{'LIST'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
-    $tmp = $mj->format_get_string('wwwadm', 'foot_global');
+    $tmp = $mj->format_get_string('wwwadm', 'foot_global', 'GLOBAL');
   }
   else {
-    $tmp = $mj->format_get_string('wwwadm', 'foot');
+    $tmp = $mj->format_get_string('wwwadm', 'foot', $subs->{'LIST'});
   }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
