@@ -8,11 +8,24 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname moderate = no
+configset listname moderate = yes
 
 
-If yes, all postings to the list must be approved by the moderator.
+$INCLUDE-config/moderate
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+This setting can be overridden by rules for the "post" command in 
+the access_rules setting.
+
+If this setting is turned off, some messages may still be moderated due
+to size limits, suspicious content, or other reasons.  
+See "help admin_moderate" for more details.
+
+
+See Also:
+   help admin_moderate
+   help configset_access_rules
+   help configset_administrivia
+   help configset_moderators
+   help configset_moderator_group
+
+$INCLUDE-help/foot
