@@ -2315,7 +2315,7 @@ sub archive_delete_msg {
   my $data;
   return unless $self->_make_archive;
   $data = $self->{'archive'}->remove(@_);
-  $self->digest_sync('ALL');
+  $self->digest_sync;
   $data;
 }
 
@@ -2340,7 +2340,7 @@ sub archive_sync {
   my @out;
   return unless $self->_make_archive;
   @out = $self->{'archive'}->sync(@_, $qp);
-  $self->digest_sync('ALL');
+  $self->digest_sync;
   @out;
 }
 
@@ -2395,10 +2395,11 @@ archives.
 =cut
 sub digest_sync {
   my $self = shift;
-  my (@tmp, $data, $i, $j, $msglist);
+  my (@tmp, $data, $dig, $i, $j, $msglist);
 
   return unless $self->_make_digest;
-  $data = $self->digest_examine(@_);
+  $dig = $self->config_get('digests');
+  $data = $self->digest_examine([ keys %$dig ]);
   for $i (keys %$data) {
     # Collect the message numbers into a string.
     for $j (@{$data->{$i}->{'messages'}}) {

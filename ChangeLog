@@ -1,3 +1,8 @@
+2002-01-15  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/List.pm:  (digest_sync)  Bugfix:  supply the
+	correct arguments to digest_examine.  Thanks to Roger Klorese.
+
 2002-01-13  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Majordomo.pm (dispatch): Initialize $request->{modes} to an
