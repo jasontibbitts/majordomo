@@ -156,7 +156,7 @@ unless ($ok) {
                           Mj::Format::escape($user),
         };
 
-  &login($mj, $subs, $mess);
+  &login($mj, $subs, $mess, 1);
 }
 
 #----- Create a temporary password -----#
@@ -207,7 +207,7 @@ if ($func eq 'logout') {
 }
 elsif ($func eq 'login') {
   $subs->{'COMMAND'} = 'welcome';
-  &login($mj, $subs, '');
+  &login($mj, $subs, '', 1);
 }
 
 if ($func eq 'archive' and $mode =~ /get/ and ! $raw) {
@@ -224,35 +224,35 @@ $addr = new Mj::Addr($user);
 
 ($ok, $mess) = $addr->valid;
 unless ($ok) {
-  &login($mj, $subs, "The address $user is invalid.\n$mess\n");
+  &login($mj, $subs, "The address $user is invalid.\n$mess\n", 1);
 }
 
 $tmp = $cgi->param('name');
 if (defined $tmp and $tmp =~ /\S/) {
   ($ok, $mess) = $addr->setcomment($tmp);
   unless ($ok) {
-    &login($mj, $subs, "The name $tmp is invalid.\n$mess\n");
+    &login($mj, $subs, "The name $tmp is invalid.\n$mess\n", 1);
   }
 }
 
 if ($commands{$func}->[1] and (!$user or $user =~ /example\.com$/i)) {
-  &login($mj, $subs, "The address \"$user\" is invalid.");
+  &login($mj, $subs, "The address \"$user\" is invalid.", 1);
 }
 
 #----- Password check -----#
 if (! $passw) {
-  &login($mj, $subs, "A password is required to use the $func command.")
+  &login($mj, $subs, "A password is required to use the $func command.", 1)
     if ($commands{$func}->[0]);
 }
 else {
   unless ($mj->validate_passwd($addr, $passw, 'GLOBAL', 'show')) {
     if ($mj->t_recognize($opass)) {
       $subs->{'CMDPASS'} = '';
-      &login($mj, $subs, '');
+      &login($mj, $subs, '', 1);
     }
     $subs->{'CMDPASS'} = '';
     &login($mj, $subs, $mj->format_error('invalid_password',
-                         'GLOBAL', 'VICTIM' => $user));
+                         'GLOBAL', 'VICTIM' => $user), 1);
   }
 }
 
@@ -427,7 +427,7 @@ if ($commands{$func}->[4] ne $func and $ofunc ne 'set-check') {
     &usage($mj, $subs, '');
   }
   elsif ($commands{$func}->[4] eq 'login') {
-    &login($mj, $subs, '');
+    &login($mj, $subs, '', 0);
   }
   # Fall through for unexpected cases.
 }
@@ -465,16 +465,18 @@ sub initialize_log {
 }
 
 sub login {
-  my ($mj, $subs, $message) = @_;
+  my ($mj, $subs, $message, $printhdr) = @_;
   my ($str, $tmp);
 
   $subs->{'ERROR'} = $message;
   $::log->message(50, "info", $message) if $message;
 
-  print $cgi->header(-expires => '+10s');
-  $tmp = $mj->format_get_string('wwwusr', 'head');
-  $str = $mj->substitute_vars_format($tmp, $subs);
-  print STDOUT "$str\n";
+  if ($printhdr) {
+    print $cgi->header(-expires => '+10s');
+    $tmp = $mj->format_get_string('wwwusr', 'head');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print STDOUT "$str\n";
+  }
 
   $tmp = $mj->format_get_string('wwwusr', 'login');
   $str = $mj->substitute_vars_format($tmp, $subs);
