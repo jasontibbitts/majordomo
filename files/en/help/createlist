@@ -36,14 +36,13 @@ renamed... you have to use "put-dir" to create your archive directory,
 or else the files will fall into the default directory and neither "get"
 nor "archive-get" will be able to find them.
 
-The "createlist" command also suggests the necessary MTA configuration
-if the MTA in use is supported -- for example, if sendmail is the MTA in
-use, a set of sendmail aliases will be generated.  Note that Majordomo
-does not (yet) handle configuring the MTA itself, although it generally
-provides data which can simply be pasted into the necessary config file.
-
-NOTE: As of 1/99, the owner-listname alias has a trailing comma which must
-      be removed or the sendmail alias will not work.
+The "createlist" command also does (or suggests) the necessary MTA
+configuration if the MTA in use is supported. For example, if sendmail
+is the MTA in use, a set of sendmail aliases will be generated. Note that
+the choice of whether Majordomo actually handles configuring the MTA itself
+or just transcripts the aliases you should use is made at install time
+via the "maintain_mtaconfig" setting. Specific MTAs may also have extra
+install configuration, such as creating symlinks for sendmail.
 
 If "listname" is 'GLOBAL', the setup for the site-wide Majordomo address
 is given instead of the setup for a single list.
