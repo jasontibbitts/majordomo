@@ -663,9 +663,9 @@ use Date::Format;
 sub parse_commands {
   my ($mj, $deflist, $command, $int, $req) = @_;
   my (@entities, @events, $args, $commands, $data, $debug_file, $debug_log,
-      $debug_reply, $entity, $fh, $file, $head, $i, $list, $mode, $ok,
-      $pass, $repl, $request, $sender, $server, $sub_addin, $subject,
-      $sub_start, $time, $top, $token, $user, $uuser);
+      $debug_reply, $entity, $fh, $file, $head, $i, $list, $mess, $mode, 
+      $ok, $pass, $repl, $request, $result, $sender, $server, $sub_addin, 
+      $subject, $sub_start, $time, $top, $token, $user, $uuser);
 
   ($entity, $head, $user, $uuser) = connect_and_parse($mj, $int);
   return unless $entity;
@@ -728,22 +728,23 @@ sub parse_commands {
     $file = &Majordomo::tempname();
     $fh = gensym();
     if (open ($fh, ">$file")) {
-      call_format($command,
-		  $mj, $fh, $fh, 'text', $request,
-		  $mj->dispatch($request));
+      $result = $mj->dispatch($request);
+      call_format($command, $mj, $fh, $fh, 'text', $request, $result);
       close $fh;
     }
     else {
       # XXX The command may or may not have been completed.
       return;
     }
-    push @entities, build MIME::Entity
-      (
-       'Encoding'    => '8bit',
-       'Path'        => $file,
-       'Filename'    => undef,
-       '-To'         => $uuser,
-      );
+    if (-s $file) {
+      push @entities, build MIME::Entity
+        (
+         'Encoding'    => '8bit',
+         'Path'        => $file,
+         'Filename'    => undef,
+         '-To'         => $uuser,
+        );
+    }
   }
   else {
     ($commands, @entities) =
@@ -798,6 +799,7 @@ sub parse_commands {
   # If we just have one entity, we add the necessary headers and send it
   # (this avoids attaching useless MIME crap).  If we have multiple
   # entities then we build a top and attach them all to it.
+  return unless (scalar @entities);
   if (@entities == 1) {
     $top = shift @entities;
     # XXX This is nasty, because MIME-Tools might start supporting a newer

@@ -1,3 +1,32 @@
+2003-01-18  Michael Yount <csf@moscow.com>
+
+	* bin/mj_queuerun:  (parse_commands) Do not return a result
+	if the result file is empty.
+
+	* bin/mj_shell:  (parse_command)  Initialize variable to prevent
+	warnings.  Thanks to Brock Rozen.
+
+	* lib/Majordomo.pm:  Version number is now 0.1200301180.
+	(_get_msg_data)  Return an error if part 0h is referenced.
+	  Thanks to Brock Rozen.
+
+	* lib/Bf/Sender.pm:  Reverse the order of the host and
+	user in envelope extensions.  Implemented by John Levine.
+
+	* lib/Mj/Addr.pm:  (_validate)  Bugfix:  Change the list
+	separator character temporarily.  Thanks to Tim Treaster.
+
+	* lib/Mj/BounceParser.pm:  (parse)  Reverse the order of
+	the host and user in envelope extensions.  Implemented
+	by John Levine.
+
+	* lib/Mj/Format.pm:  (who)  Do not display the date and
+	previous class for people on temporary vacation.
+
+	* lib/Mj/Deliver/QQEnvelope.pm:  (sender)  Add a VERP
+	to any sender address that does not already contain it.
+	Implemented by John Levine.
+
 2002-12-19  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Digest.pm:  (examine)  Bugfix:  Copy the decision
