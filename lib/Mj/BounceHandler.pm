@@ -163,25 +163,26 @@ sub handle_bounce_message {
 
   # Now plow through the data from the parsers
   for $i (keys %$data) {
-
-    # We completely ignore warnings
-    next if $data->{$i}{status} eq 'warning';
     $tmp = $self->handle_bounce_user(%args,
 				     user => $i,
 				     %{$data->{$i}},
 				    );
-    $mess .= $tmp if $tmp;
 
-    if ($subj) {
-      $subj .= ", $i";
+    # If we got something back, we need to inform the owners
+    if (defined($tmp)) {
+      $mess .= $tmp;
+
+      if ($subj) {
+	$subj .= ", $i";
+      }
+      else {
+	$subj  = "Bounce detected (list $list) from $i";
+      }
+      push @$addrs, $i;
     }
-    else {
-      $subj  = "Bounce detected (list $list) from $i";
-    }
-    push @$addrs, $i;
   }
 
-  # We can bail if we didn't get any non-warning addresses
+  # We can bail if we have nothing to inform the owner of
   return [] unless @$addrs;
 
   # Build a new message which includes the explanation from the bounce
@@ -285,9 +286,8 @@ sub handle_bounce_user {
   my %params = @_; # Can't use %args, because the access code uses it.
   my $log  = new Log::In 35;
 
-  my (%args, %memberof, @final_actions, $actions, $arg, $bdata, $cpt,
-      $func, $i, $mess, $ok, $rules, $saw_terminal, $sdata, $status, $tmpa,
-      $tmpl, $value);
+  my (%args, %memberof, @final_actions, $bdata, $i, $mess, $rules, $sdata,
+      $status, $tmpa, $tmpl);
 
   my $user   = $params{user};
   my $list   = $params{list};
@@ -297,79 +297,129 @@ sub handle_bounce_user {
 
   $params{msgno} = '' if $params{msgno} eq 'unknown';
 
-  if ($status eq 'unknown' || $status eq 'warning' || $status eq 'failure') {
-    $user = new Mj::Addr($user);
+  # Make sure we understand what to do with this bounce
+  if ($status ne 'warning' && $status ne 'failure') {
+    return "  Unknown bounce type; can't handle.\n";
+  }
 
-    # No guarantees that an address pulled out of a bounce is valid
-    unless ($user) {
-      return "  User:       (unknown)\n\n";
-    }
+  $user = new Mj::Addr($user);
 
-    unless ($user->isvalid) {
-      return "  User:       $user (invalid)\n\n";
-    }
+  # No guarantees that an address pulled out of a bounce is valid
+  return "  User:       (unknown)\n\n"       unless $user;
+  return "  User:       $user (invalid)\n\n" unless $user->isvalid;
 
-    # Add the new bounce event to the collected bounce data
-    if ($list ne 'GLOBAL') {
-      $sdata = $self->{lists}{$list}->is_subscriber($user);
-      $bdata = $self->{lists}{$list}->bounce_add($user, time, $params{type}, $params{msgno}, $params{diag});
-    }
-
+  # Process a bounce that came in on the GLOBAL list.  We don't do much;
+  # bounce_rules doesn't apply and we don't record bounce data in the
+  # registry.  Plus we'll never have nice numbered bounces anyway.  Thus
+  # we output a little message and return.
+  if ($list eq 'GLOBAL') {
     $mess .= "  User:        $user\n";
-    $mess .= "  Subscribed:  " .($sdata?'yes':'no')."\n" if $list ne 'GLOBAL';
     $mess .= "  Status:      $params{status}\n";
     $mess .= "  Diagnostic:  $params{diag}\n";
-
-    if ($bdata) {
-      %args = %{$self->{lists}{$list}->bounce_gen_stats($bdata)};
-
-      $mess .= "  Bounce statistics for this user:\n";
-      $mess .= "    Bounces last 24 hours:          $args{day_overload}$args{day}\n";
-      $mess .= "    Bounces last 7 days:            $args{week_overload}$args{week}\n";
-      $mess .= "    Bounces last 30 days:           $args{month_overload}$args{month}\n"
-	if $args{month};
-      $mess .= "    Consecutive messages bounced:   $args{consecutive}\n"
-	if $args{consecutive} && $args{consecutive} > 3;
-      $mess .= "    Percentage of messages bounced: $args{bouncedpct}\n"
-	if $args{bouncedpct} && $args{numbered} >= 5;
-
-      # Make triage decision.  Run the parsed code from bounce_rules.  XXX
-      # Note that most of this code is duplicated from access_rules.  This
-      # is bad; the code needs to be shared.
-      $rules = $self->_list_config_get($list, 'bounce_rules');
-
-      # Fill in the memberof hash as necessary
-      for $i (keys %{$rules->{check_aux}}) {
-  	# Handle list: and list:auxlist syntaxes; if the list doesn't
-	# exist, just skip the entry entirely.
-	if ($i =~ /(.+):(.*)/) {
-	  ($tmpl, $tmpa) = ($1, $2);
-	  next unless $self->_make_list($tmpl);
-	}
-	else {
-	  ($tmpl, $tmpa) = ($list, $i);
-	}
-	$memberof{$i} = $self->{'lists'}{$tmpl}->is_subscriber($user, $tmpa);
-      }
-
-      # Add in extra arguments
-      $args{days_since_subscribe} = (time - $sdata->{subtime})/86400;
-
-      @final_actions =
-	process_rule(name     => 'bounce_rules',
-		     request  => '_bounce',
-		     code     => $rules->{code},
-		     args     => \%args,
-		     memberof => \%memberof,
-		    );
-
-      # XXX Don't actually do anything yet
-      $mess .= "  Bounce rules said: @final_actions.\n";
-
-      # Remove user if necessary
-    }
+    return $mess;
   }
-  "$mess\n";
+
+  $sdata = $self->{lists}{$list}->is_subscriber($user);
+
+  # For warnings, we don't actually want to add any data but we will want
+  # to generate statistics
+  if ($params{status} eq 'warning') {
+    $bdata = $self->{lists}{$list}->bounce_get($user);
+  }
+  else {
+    $bdata = $self->{lists}{$list}->bounce_add
+      (addr   => $user,
+       subbed => !!$sdata,
+       time   => time,
+       type   => $params{type},
+       msgno  => $params{msgno},
+       diag   => $params{diag},
+      );
+  }
+
+  %args = %{$self->{lists}{$list}->bounce_gen_stats($bdata)};
+
+  # Get ready to run the bounce rules
+  $rules = $self->_list_config_get($list, 'bounce_rules');
+
+  # Fill in the memberof hash as necessary
+  for $i (keys %{$rules->{check_aux}}) {
+    # Handle list: and list:auxlist syntaxes; if the list doesn't
+    # exist, just skip the entry entirely.
+    if ($i =~ /(.+):(.*)/) {
+      ($tmpl, $tmpa) = ($1, $2);
+      next unless $self->_make_list($tmpl);
+    }
+    else {
+      ($tmpl, $tmpa) = ($list, $i);
+    }
+    $memberof{$i} = $self->{'lists'}{$tmpl}->is_subscriber($user, $tmpa);
+  }
+
+  # Add in extra arguments
+  $args{warning}              = ($params{status} eq 'warning');
+  $args{subscribed}           = !!$sdata;
+  $args{days_since_subscribe} = $sdata? ((time - $sdata->{subtime})/86400): 0;
+
+  # Now run the rule
+  @final_actions =
+    process_rule(name     => 'bounce_rules',
+		 request  => '_bounce',
+		 code     => $rules->{code},
+		 args     => \%args,
+		 memberof => \%memberof,
+		);
+
+  # Now figure out what to do
+  for $i (@final_actions) {
+    ($func, $arg) = split(/[-=]/,$i,2);
+    $arg ||= '';
+
+    # ignore -> do nothing
+    next if $func eq 'ignore';
+
+    # Do we need to inform the owner?  inform does, and everything else
+    # does unless given an argument of 'quiet'.
+    if ($func eq 'inform' || $arg !~ /quiet/) {
+      $mess = _gen_bounce_message(\%args, \%params, \@final_actions);
+    }
+
+    # The only thing left is remove
+    if ($func ne 'remove') {
+      warn "Running bounce_rules: don't know how to $func";
+      next;
+    }
+
+    # Remove user if necessary
+    #      $self->handle_bounce_removal(
+    #				  );
+  }
+
+  $mess;
+}
+
+sub _gen_bounce_message {
+  my ($args, $params, $actions) = @_;
+  my $mess = '';
+  $mess .= "  User:        $user\n";
+  $mess .= "  Subscribed:  " .($args->{subscribed}?'yes':'no')."\n";
+  $mess .= "  Status:      $params->{status}\n";
+  $mess .= "  Diagnostic:  $params->{diag}\n";
+
+  $mess .= "  Bounce statistics for this user:\n";
+  $mess .= "    Bounces last 24 hours:          $args->{day_overload}$args->{day}\n";
+  $mess .= "    Bounces last 7 days:            $args->{week_overload}$args->{week}\n";
+  $mess .= "    Bounces last 30 days:           $args->{month_overload}$args->{month}\n"
+    if $args->{month};
+  $mess .= "    Consecutive messages bounced:   $args->{consecutive}\n"
+    if $args->{consecutive} && $args->{consecutive} > 3;
+  $mess .= "    Percentage of messages bounced: $args->{bouncedpct}\n"
+    if $args->{bouncedpct} && $args->{numbered} >= 5;
+
+  $mess .= "  Bounce rules said: @$actions.\n";
+  $mess .= "\n";
+
+  $mess;
 }
 
 

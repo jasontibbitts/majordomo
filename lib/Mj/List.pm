@@ -1698,6 +1698,29 @@ sub _make_fs {
   1;
 }
 
+=head2 _make_bounce
+
+This makes a small database for storing bounce data collected from
+addresses which aren't list members.
+
+=cut
+use Mj::SimpleDB;
+sub _make_bounce {
+  my $self = shift;
+
+  return 1 if $self->{bounce};
+
+  my @fields = qw(bounce diagnostic);
+
+  $self->{bounce} =
+    new Mj::SimpleDB(filename => $self->_file_path("_bounce"),
+		     backend  => $self->{backend},
+		     fields   => \@fields,
+		    );
+  1;
+}
+
+
 =head2 _make_dup(type)
 
 This makes a very simple database for storing just keys and a time (for
@@ -2200,10 +2223,16 @@ sub bounce_get {
   my $force= shift;
   my ($data);
 
+  # First look for cached data
   $data = $addr->retrieve("$self->{name}-subs");
-
   if ($force || !$data) {
     $data = $self->is_subscriber($addr);
+  }
+
+  # OK, user isn't a subscriber, but we still might have some data saved
+  if (!$data) {
+    $self->_make_bounce;
+    $data = $self->{bounce}->lookup($addr->canon);
   }
 
   return unless $data && $data->{bounce};
@@ -2215,13 +2244,22 @@ sub bounce_get {
 Add a bounce event to a user's saved bounce data, and return the parsed
 data.
 
+Takes a hash:
+
+addr   - bouncing address
+time   - time of bounced message
+type   - type of bounced message
+msgno  - message number of bouncing message
+subbed - true if user is subscribed
+
 =cut
 sub bounce_add {
-  my($self, $addr, $time, $type, $number, $diagnostic) = @_;
-  my $log = new Log::In 150, "$time T$type #$number";
+  my($self, %args) = @_;
+  my $log = new Log::In 150, "$args{time} T$args{type} #$args{msgno}";
+
   my($bouncedata, $event, $ok);
 
-  $event = "$time$type$number";
+  $event = "$args{time}$args{type}$args{msgno}";
   my $repl = sub {
     my $data = shift;
 
@@ -2232,8 +2270,8 @@ sub bounce_add {
       $data->{bounce} = $event;
     }
 
-    if ($diagnostic) {
-      $data->{diagnostic} = substr ($diagnostic, 0, 160);
+    if ($args{diag}) {
+      $data->{diagnostic} = substr ($args{diag}, 0, 160);
       $data->{diagnostic} =~ s/\001/X/g;
     }
 
@@ -2241,7 +2279,17 @@ sub bounce_add {
     $data;
   };
 
-  $ok = $self->{'sublists'}{'MAIN'}->replace('', $addr->canon, $repl);
+  # For subscribed users, modify their bounce data
+  if ($args{subbed}) {
+    $ok = $self->{'sublists'}{'MAIN'}->replace('', $args{addr}->canon, $repl);
+  }
+  # For unsubscribed users, we keep a bit of data in a separate database.
+  else {
+    $self->_make_bounce;
+    # Add a blank entry, just to make sure one is there
+    $self->{bounce}->add('', $args{addr}->canon, {});
+    $ok = $self->{bounce}->replace('', $args{addr}->canon, $repl);
+  }
   return $self->_bounce_parse_data($bouncedata) if $ok;
   return;
 }
@@ -2310,10 +2358,25 @@ sub bounce_gen_stats {
   my $now = time;
   my (@numbered, @times, $maxbounceage, $maxbouncecount, $stats);
 
-  return unless $bdata;
+  # Initialize $stats
+  $stats = {
+	    bouncedpct     => 0,
+	    consecutive    => 0,
+	    day            => 0,
+	    day_overload   => '',
+	    week           => 0,
+	    week_overload  => '',
+	    maxcount       => 0,
+	    month          => 0,
+	    month_overload => '',
+	    numbered       => 0,
+	    span           => 0,
+	   };
 
-  # We don't do a monthly view unless we're collecting a month's worth of
-  # data
+  # No bounce data?  Return empty statistics.
+  return $stats unless $bdata;
+
+  # We don't do a monthly view unless we're collecting a month's worth
   $maxbounceage   = $self->config_get('bounce_max_age');
   $maxbouncecount = $self->config_get('bounce_max_count');
   if ($maxbounceage >= 30) {
@@ -2323,9 +2386,6 @@ sub bounce_gen_stats {
   @numbered = sort {$a <=> $b} keys(%{$bdata->{M}});
   if (@numbered) {
     $stats->{span} = $numbered[$#numbered] - $numbered[0] + 1;
-  }
-  else {
-    $stats->{span} = 0;
   }
 
   for $i (@numbered) {
@@ -2341,15 +2401,11 @@ sub bounce_gen_stats {
     }
   }
 
-  $stats->{bouncedpct} = 0;
   if ($stats->{numbered} && $stats->{span}) {
     $stats->{bouncedpct} = int(.5 + 100*($stats->{numbered} / $stats->{span}));
   }
 
   $stats->{maxcount} = $maxbouncecount;
-  $stats->{day} = 0;
-  $stats->{week} = 0;
-  $stats->{month} = 0;
 
   # Extract breakdown by time
   for $i (@{$bdata->{UM}}, @times) {

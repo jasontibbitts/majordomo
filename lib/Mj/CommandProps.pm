@@ -935,6 +935,7 @@ my %commands =
    {
     'access' => {
 		 'legal'   => {
+			       'subscribed'           => 1,
 			       'days_since_subscribe' => 2,
 			       'consecutive'          => 2,
 			       'bouncedpct'           => 2,

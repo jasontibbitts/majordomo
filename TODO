@@ -101,18 +101,26 @@ infrastructure is in place for this.
 
 bounce_rules actions:
 
-remove - remove the bouncing user and inform the owner
-inform - inform the list owner of the bounce but don't remove the user
-remove-quiet - remove the user but don't inform the owner
 ignore - don't tell the owner and don't remove the user
+inform - inform the list owner of the bounce but don't remove the user
+remove - remove the bouncing user and inform the owner
+  Modes for remove:
+    -quiet - don't inform the owner
+    -noprobe - don't send a bounce probe
+    -consult - ask the list owner before actually doing any removals.
+
 Statistics are always gathered when appropriate.
 
 bounce_rules variables:
 
 $failure - true if bounce indicates a failure
-$warning - true if bounce indicates a warning (currently warnings are
-   always ignored, so this is useless)
+$warning - true if bounce indicates a warning
 $consecutive - count of consecutive messages bounced
+
+$consecutive_time_span - number of days between first and last consecutive
+  messages.  Use to ensure that not only is an address bouncing consecutive
+  messages, but that they are bouncing them over a long enough range of
+  time.  (not implemented yet)
 
 $bouncedpct - percentage of messages bounced, determined by look at how
   many messages have bounced between the first known bounce and the last.
@@ -126,6 +134,7 @@ $bouncedpct - percentage of messages bounced, determined by look at how
 $day - the number of bounces in the past 24 hours.
 $week - the number of bounces in the past seven days.
 $month - the number of bounces in the last thirty days.
+$subscribed - true if the user is subscribed to the list
 $days_since_subscribe - the number of days since the address was added to
   the list.
 $numbered - the number of numbered bounces seen.
@@ -141,9 +150,11 @@ $warning
 remove
 $consecutive > 50
 
-# All bounces not matched by the above will cause an informative message to
-# be sent to the owner.
+# The default action is 'inform'; all bounces not matched by the above will
+# cause an informative message to be sent to the owner.
 
+Need to expire old bounces in _bounce database, and to delete entries with
+no bounces.
 
 Uuencode and ms-tnef in the body as "attachments"
 -------------------------------------------------

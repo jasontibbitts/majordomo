@@ -1,3 +1,33 @@
+2000-12-11  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/List.pm (bounce_gen_stats): Handle generating statistics
+	even if we got no bounce data.
+
+	* lib/Mj/CommandProps.pm: "subscribed" variable is valid in
+	bounce_rules.
+
+	* lib/Mj/BounceHandler.pm (_gen_bounce_message): New function to
+	generate the bounce report message.
+	(handle_bounce_message): Don't ignore warnings; let bounce_rules
+	decide that.  If handle_bounce_user doesn't return a message,
+	assume that the owner doesn't want to be informed about the
+	bounce.
+	(handle_bounce_user): Rewrite.  Pay some atttention to
+	bounce_rules; don't generate a report if the owner doesn't want to
+	be informed.  Generate a short report for bounces to
+	majordomo-owner.  Since bounce_add can handle it, add bounce data
+	even for not-subscribed addresses.
+
+2000-12-10  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/List.pm (bounce_add): Take hash instead of lots of
+	arguments.
+	(_make_bounce): New function; create the simple bounce database.
+	(bounce_add): If user is not subscribed, add bounce data to a
+	separate database.
+	(bounce_get): If no subscriber data was found, look in the bounce
+	database.
+
 2000-12-09  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* t/core.t: Add even more tests.  Now tests all of the core calls
