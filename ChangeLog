@@ -1,3 +1,8 @@
+2003-02-03  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/mj_cf_defs.pl: Change default who_access and which_access to
+	closed.
+
 2003-01-27  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (dispatch)  Bugfix:  Improve sublist validation
