@@ -300,8 +300,7 @@ sub set_script_perms {
   chmod((0777 & ~oct($config->{'umask'})) | 0555, $id)
     || die "Couldn't change protection: $!";
   dot;
-  rchown($uid, $gid, 0644, 0755, "$id/bin", "$id/man", "$id/lib")
-    || die "Couldn't change protection: $!";
+  rchown($uid, $gid, 0644, 0755, "$id/bin", "$id/man", "$id/lib");
   dot;
 
   # Make executables setuid; the scripts must be readable while the the
