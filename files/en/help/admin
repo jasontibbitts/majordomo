@@ -521,3 +521,7 @@ END
 
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

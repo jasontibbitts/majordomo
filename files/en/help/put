@@ -116,6 +116,10 @@ See Also:
    help index    (find out which files are available for "put")
    help filedir  (to create files in a non-default location)
    help filesync (which must be used if you create files without "put")
+   help newfaq   (a shortcut way to put the file "faq")
+   help newinfo  (a shortcut way to put the file "info")
+   help newintro (a shortcut way to put the file "intro")
+
 
 For a list of all help topics send this one-line message
    help topics

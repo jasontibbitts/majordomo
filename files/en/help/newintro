@@ -1,8 +1,6 @@
-WARNING: 'newintro' is a valid command, but has no help as of 18 Mar 2000
+The 'newinfo', 'newintro' and 'newfaq' commands are shortcuts
+for 'put' for the info, intro, and faq files.
 
-This command may not be implemented, or may be undocumented for a reason!
+Text below is from "help put":
 
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/put
