@@ -201,6 +201,8 @@ might be moderated:
   * The "postblock" personal setting for the author is turned on.
     (See "help set" for details on personal settings.)
 
+  * The e-mail address in the "From" header of the message is invalid.
+
 The rest of this document discusses how these settings can be tuned for
 effective moderation of posted messages.  Using the access_rules
 setting, any or all of the moderation checks can be turned off.
@@ -589,6 +591,33 @@ If you don't find the answers to your questions here, please write to
 the software developers at mj2-dev@csf.colorado.edu. 
 
 
+Which settings take precedence?
+-------------------------------
+
+Majordomo has many configuration settings which determine what happens
+to a posted message.  You may wonder which settings have priority if one
+setting says a message should be sent to the moderators and another
+setting says a message should be thrown away.  Majordomo takes the
+following steps to determine what rules apply to each message:
+
+* The access_rules setting takes priority.  The first access rule with a
+  "final" outcome (consult, deny, confirm, and so on) that matches the
+  message causes that outcome to happen immediately.
+
+If no "final" access rule applies, only then can the other configuration 
+settings have any effect, in the following order:
+
+* If the message exceeds a hard limit in the post_limits configuration
+  setting, or contains an illegal body part according to the
+  attachment_rules setting, the message is discarded.
+
+* Any of the conditions listed in the "Causes of moderation" section, 
+  earlier in this document, will cause the message to be moderated.
+
+* Finally, if none of these restrictions applies, the message is posted
+  to the subscribers.
+
+
 See Also:
    help accept
    help admin
@@ -603,9 +632,11 @@ See Also:
    help configset
    help configset_access_rules
    help configset_ack_attach_original
+   help configset_attachment_rules
    help configset_default_flags
    help configset_moderators
    help configset_nonmember_flags
+   help configset_post_limits
    help configset_whoami_owner
    help configshow
    help reject
