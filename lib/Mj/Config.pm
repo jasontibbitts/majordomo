@@ -3302,7 +3302,7 @@ sub parse_triggers {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, $var;
-  my (%needed, @names, @tmp, $data, $elem, $error, $i, $j, $table);
+  my (%needed, @names, @tmp, $data, $elem, $error, $i, $j, $table, $warn);
 
   # %$data will hold the return hash
   $data = {};
@@ -3315,7 +3315,7 @@ sub parse_triggers {
 
   @names = @{$self->{'vars'}{$var}{'values'}};
   if ($self->{'list'} eq 'GLOBAL') {
-    @names = grep { $_ !~ /bounce|post/ } @names;
+    @names = grep { $_ !~ /bounce|post|vacation/ } @names;
   }
   else {
     @names = grep { $_ !~ /log|session|token/ } @names;
@@ -3350,12 +3350,21 @@ sub parse_triggers {
       }
     }
   }
-  # All triggers must be included, even if executed "never"
+
+  $warn = '';
+  # All triggers should be included, even if executed "never"
   if (scalar keys %needed) {
-    return (0, "Some required triggers are missing:  " .
-        join(' ', sort keys %needed) . "\n");
+    $warn = "  Some triggers are missing:  " .
+            join(' ', sort keys %needed) . "\n" .
+            "  These triggers will be run daily.\n";
+    for $i (keys %needed) {
+      # evaluate repeatedly to avoid Data::Dumper confusion.
+      @tmp = _str_to_clock('daily');
+      $data->{$i} = [ @tmp ];
+    }
   }
-  (1, '', $data);
+
+  (1, $warn, $data);
 }
 
 =head2 parse_keyed(field, key, quote, open, close, lines)
