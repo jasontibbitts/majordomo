@@ -497,7 +497,7 @@ my %commands =
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1, 'noaddr' => 1},
     'access'   => {
-                   'default' => 'confirm2',
+                   'default' => 'confirm',
                    'legal'   =>\%reg_legal,
                    'actions' =>\%actions,
                   },
