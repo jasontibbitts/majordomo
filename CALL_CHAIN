@@ -3,12 +3,21 @@ interface calls a core routine.  Not all of this is in place; the single
 core dispatch routine is not in place yet, and the TextOutput formatters
 haven't been separated from the main TextOutput routines.
 
+  interface ->
+  argument marshaller (in TextOutput.pm) ->
+  Majordomo::dispatch (does common checks, etc.) ->
+  Core function ->
+  (access check) -> (can stop here, perhaps generating a token)
+  (bottom half) ->
+  (do stuff) ->
+  (return stuff) ->
+  Format.pm (format results for humans).
+
 This looks extremely complex, but consider these requirements:
 
-* There must be a clean break between the core and the interface.  No
-  complex data structures can cross the boundary.  The core must not assume
-  anything about how the data will be displayed, and it should do no
-  formatting.
+* There must be a clean break between the core and the interface.  The core
+  must not assume anything about how the data will be displayed, and it
+  should do no formatting.
 
 (This explains the reason the interface goes through the TextOutput
 routines.  A Web interface could go through an HTMLOutput routine.)
@@ -23,7 +32,7 @@ functions don't do any special checking and can be eliminated.)
 
 * Any request must be able to be stalled indefinitely and completed at a
   later time when the owner or requester has verified that it is OK for the
-  request to proceed. 
+  request to proceed.
 
 (This explains the complicated path through the Token routines, and the
 reason that those routines can also call the bottom half of the core
@@ -96,7 +105,6 @@ returns to the TextOutput function.
 
 The TextOutput function returns success or failure to the parser or
 interface.
-
 
 Note that in the case of a stall, the token acceptance routine will call
 into the core and the core will then call the bottom half function on its
