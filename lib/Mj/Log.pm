@@ -334,6 +334,19 @@ sub out {
   $self->message($level, $prio, "$message..$extra, took $elapsed sec", undef, "exit");
 }
 
+=head2 elapsed
+
+Return the elapsed time since in() was called
+
+=cut
+sub elapsed {
+  my $self = shift;
+  my $state = $self->{'state'}->[-1];
+  return unless $state;
+
+  time - $state->[3];
+}
+
 =head2 abort(message)
 
 This logs an emergency message then aborts the running program with a
