@@ -148,8 +148,13 @@ $top = $1;
 unless ($dom) {
   ($dom) = Majordomo::domains($::LISTDIR);
 }
-$dom =~ /([a-zA-Z0-9\-\.]+)/;
-$dom = $1;
+if (defined $dom and length $dom) {
+  $dom =~ /([a-zA-Z0-9\-\.]+)/;
+  $dom = $1;
+}
+else {
+  die "Cannot determine which domain to use.\n";
+}
 
 $lang = '';
 $lang = join(',',@{$opts{l}}) if $opts{l};

@@ -1,3 +1,8 @@
+2003-01-21  Michael Yount <csf@moscow.com>
+
+	* bin/mj_shell:  Fail gracefully if no domains are defined.
+	Thanks to Gary Schrock.
+
 2003-01-18  Michael Yount <csf@moscow.com>
 
 	* bin/mj_queuerun:  (parse_commands) Do not return a result
