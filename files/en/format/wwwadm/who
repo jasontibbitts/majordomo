@@ -9,7 +9,7 @@
 <tr>
   <td align=center>$SETTING_CHECKBOX
 
-<tr><td colspan=3>Diagnostic message from the last bounce: ?BOUNCE_DIAGNOSTIC
-<tr><td colspan=3>Bounces in the past week: ?BOUNCE_WEEK
-<tr><td colspan=3>Bounces in the past month: ?BOUNCE_MONTH
-<tr><td colspan=3>Bounce numbers: ?BOUNCE_NUMBERS
+<tr><td colspan=12>Diagnostic message from the last bounce: ?BOUNCE_DIAGNOSTIC
+<tr><td colspan=12>Bounces in the past week: ?BOUNCE_WEEK
+<tr><td colspan=12>Bounces in the past month: ?BOUNCE_MONTH
+<tr><td colspan=12>Bounce numbers: ?BOUNCE_NUMBERS
