@@ -35,6 +35,8 @@ Your installation does not seem to be correct.
   $config->{startperl} = get_file($msg, $def, 1, 1, 0, 1);
 
   #---- Ask for UID
+  ($tmpnam,$tmppwd,$tmpuid,$tmpgid) = getpwnam($ENV{USER}) if(defined($ENV{USER}));
+  $tmpnam = $tmpuid = 'unknown' if(!defined($tmpnam));
   $msg = <<EOM;
 Basic Security Configuration (user)
 
@@ -46,6 +48,8 @@ The files and directories created by the final
 installation step will be owned by this user, and
 cron jobs for digests must be run as this user.
 
+Currently, you appear to be user '$tmpnam', uid $tmpuid.
+
 What is the user ID that Majordomo will run as?
  Either the numeric ID or the user name is fine.
 EOM
@@ -55,12 +59,16 @@ EOM
   $config->{'uid'} = get_uid($msg, $def);
 
   #---- Ask for GID
+  if(defined($tmpgid)) { $tmpnam = getgrgid($tmpgid);   }
+  else                 { $tmpnam = $tmpgid = 'unknown'; }
   $msg = <<EOM;
 Basic Security Configuration (group)
 
 NOTE: If and ONLY if you are 'root' when installing,
 you can have Majordomo run as any group you wish.
 See user ID note above.
+
+Currently, you appear to be in group '$tmpnam', gid $tmpgid.
 
 What is the group ID that Majordomo will run as?
  Either the numeric ID or the group name is fine.
