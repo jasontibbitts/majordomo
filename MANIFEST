@@ -492,6 +492,7 @@ files/en/delay
 files/en/delay_noweb
 files/en/digest_preindex
 files/en/error/.absolute_path
+files/en/error/.already_subscribed
 files/en/error/.digest_mode
 files/en/error/.inactive_list
 files/en/error/.incompatible_mode
@@ -515,6 +516,7 @@ files/en/error/.unknown_setting
 files/en/error/.unknown_token
 files/en/error/.unregistered
 files/en/error/absolute_path
+files/en/error/already_subscribed
 files/en/error/digest_mode
 files/en/error/inactive_list
 files/en/error/incompatible_mode
