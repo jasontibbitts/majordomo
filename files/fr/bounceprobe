@@ -17,12 +17,12 @@ quelque chose de bizarre qui arrive et qui fait qu'un message d'erreur
 est retourné au gestionnaire de la liste bien que le message arrive
 dans votre boîte aux lettres. Si c'est le cas, quelques explications
 possibles sont exposées plus bas. Pour vous aider, une copie du
-message d'erreur est attaché a ce message.
+message d'erreur est attachée à ce message.
 
 Vous devriez vérifier toutes les redirections qui peuvent être mises
-en place et vous assurer que tous fonctionnent sans soucis. Vous
+en place et vous assurer que toutes fonctionnent sans soucis. Vous
 voudrez peut être aussi vérifier auprès de votre fournisseur d'accès
-pour vous assurer que tout est OK de leur coté, et aussi vérifier avec
+pour vous assurer que tout est OK de leur côté, et aussi vérifier avec
 le serveur de la liste à
   $MAJORDOMO
 ou aux personnes qui gèrent la liste à
@@ -37,26 +37,26 @@ liste a reçu des messages d'erreurs.
 
 Quelques explications possibles pour ce problème :
 
-Il se peut qu'il y ai eu un problème, comme une boite pleine, qui
-causais ces messages d'erreurs mais qui est maintenant résolu. Dans ce
+Il se peut qu'il y ait eu un problème, comme une boîte pleine, qui
+causait ces messages d'erreurs mais qui est maintenant résolu. Dans ce
 cas, tout devrait être OK.
 
-Il se peut qu'il y ai quelques redirections en place entre le serveur
-de la liste et votre boite de réception qui renverrais des erreurs
+Il se peut qu'il y ait quelques redirections en place entre le serveur
+de la liste et votre boîte de réception qui renverraient des erreurs
 tout en transmettant quand même les messages. C'est possible, mais peu
 commun. Ça arrive lorsque quelqu'un configure mal une redirection de
 liste vers plusieurs personnes sans gérer les erreurs localement,
 enregistre cette adresse à la liste et laisse une adresse en erreur
-dans cette redirection. Dans ce cas, il devrais immédiatement
-apparaître avec l'adresse ci dessus (qui devrait être l'adresse de la
+dans cette redirection. Dans ce cas, il devrait immédiatement
+apparaître avec l'adresse ci-dessus (qui devrait être l'adresse de la
 redirection et non votre adresse).
 
-Votre fournisseur d'accès à peut être quelques problèmes. Vérifiez
+Votre fournisseur d'accès a peut être quelques problèmes. Vérifiez
 avec eux pour vous assurer que tout fonctionne bien.
 
 Quelqu'un envoie peut être des faux messages d'erreurs au serveur de
 la liste dans le but de vous faire désabonner. Il ne peut pas faire un
 faux message d'erreur avec ce message car il contient un code unique,
 donc, tout va bien. Le message d'erreur attaché devrait contenir
-suffisamment d'informations pour vous aider a retrouver le faussaire.
+suffisamment d'informations pour vous aider à retrouver le faussaire.
 
