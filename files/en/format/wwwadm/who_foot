@@ -57,19 +57,17 @@ Number of addresses to show:
   <p>
   Give these settings to the new subscribers:
 
-<table>
-  <tr>
-    <td colspan=9>
-    delivery class: 
+  delivery class: 
   <select name="setting">
     <option value="$CLASSES" $CLASS_SELECTED>$CLASSES: $CLASS_DESCRIPTIONS</small>
   </select>
+  <table>
   <tr>
-    <td>$SETTINGS
+    <td><small>$SETTINGS</small>
   <tr>
-  <td align=center><input type=checkbox name=$SETTINGS $SETTING_CHECKED>
-</table>
+    <td align=center><input name=setting type=checkbox value="$SETTINGS" $SETTING_CHECKED>
+  </table>
 
-<input type=submit value="add or remove subscribers">
+  <input type=submit value="add or remove subscribers">
 </form>
 

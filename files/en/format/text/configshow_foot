@@ -1,1 +1,4 @@
- 
+?COMMENT More information about any configuration setting may be obtained
+?COMMENT using the help command.  For example, to learn more about the
+?COMMENT access_rules setting, use this command:
+?COMMENT   help configset_access_rules

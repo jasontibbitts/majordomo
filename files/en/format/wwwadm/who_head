@@ -1,5 +1,12 @@
 <!-- Majordomo who_head format file -->
-<h4 align=center>change settings</h4>
+<h4 align=center>unsubscribe addresses or change settings</h4>
+
+<br>To remove addresses, press the button next to one or more
+addresses from the following list, then press the $HELP:UNSUBSCRIBE button.
+
+<br>To change settings, press the buttons next to the addresses
+whose settings you wish to change, select the appropriate settings,
+then press the $HELP:SET button.
 
 <form method=POST action="$CGIURL">
   <input type=submit name=func value="unsubscribe">
@@ -11,15 +18,10 @@
   <input type=hidden name=passw value="$PASSWORD">
   <input type=hidden name=pattern value="$PATTERN">
 
-<br>To remove addresses, press the button next to one or more
-addresses from the following list, then press the $HELP:UNSUBSCRIBE button.
-
-<br>To change settings, press the buttons next to the addresses
-whose settings you wish to change, select the appropriate settings,
-then press the $HELP:SET button.
-
-<table>
+<table border>
   <tr>
-    <td align=center><small>address</small>
-    <td align=center><small>delivery class</small>
+    <td colspan=7>address
+    <td colspan=5>delivery class
+  <tr>
     <td align=center><small>$SETTINGS</small>
+
