@@ -60,8 +60,9 @@ sub chownmod {
       print "\n# FAILED COMMAND: please issue these commands from an authorized account:\n";
       my $tmpfil;
       foreach $tmpfil ( @fil ) {
-        print "  chown $uid.$gid $tmpfil\n" if(defined($uid) && defined($gid));
-        print "  chmod $mod $tmpfil\n"      if(defined($mod) && ($mod =~ /[0-9]/) && ($mod !~ /[^0-9]/));
+        print "  chown $uid $tmpfil\n" if(defined($uid) && defined($gid));
+        print "  chgrp $gid $tmpfil\n" if(defined($uid) && defined($gid));
+        print "  chmod $mod $tmpfil\n" if(defined($mod) && ($mod =~ /[0-9]/) && ($mod !~ /[^0-9]/));
       }
     }
   } # if there was a problem
