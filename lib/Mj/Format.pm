@@ -3330,7 +3330,7 @@ sub g_sub {
     ($ok, $addr) = splice @res, 0, 2;
 
     unless ($ok > 0) {
-      $subs->{'ERROR'} = $addr;
+      $subs->{'ERROR'} = &escape($addr, $type);
       $str = $mj->substitute_vars_format($fail, $subs);
       print $out &indicate($type, "$str\n", $ok);
 
@@ -3338,7 +3338,7 @@ sub g_sub {
     }
 
     for $tmp (@$addr) {
-      $subs->{'VICTIM'} = "$tmp";
+      $subs->{'VICTIM'} = &escape("$tmp", $type);
       $str = $mj->substitute_vars_format($succeed, $subs);
       print $out &indicate($type, "$str\n", $ok); 
     }
