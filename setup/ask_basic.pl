@@ -254,7 +254,7 @@ sub ask_basic {
 
   #---- Ask about case smashing
   $msg = retr_msg('address_case', $lang);
-  $def = $config->{ignore_case};
+  $def = defined($config->{ignore_case}) ? $config->{ignore_case} : 1;
   $config->{ignore_case} = get_bool($msg, $def);
 
   #---- Ask for MTA
