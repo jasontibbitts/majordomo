@@ -4,7 +4,6 @@ use strict;
 use IO::File;
 use Mj::Lock;
 use Mj::Log;
-use Safe;
 use vars qw($AUTOLOAD $VERSION $safe);
 
 =head1 NAME
@@ -276,6 +275,7 @@ append mode, or read+write mode instead.
 This, like File::search, manipulates its internal filehandles itself.
 
 =cut
+use Mj::Util qw(re_match);
 sub search_copy {
   my $self = shift;
   my ($line, $re, $sub, $temp);
@@ -295,7 +295,7 @@ sub search_copy {
   # Else we weren't passed a subroutine.
   while (defined ($line = $self->{'oldhandle'}->getline)) {
     for $re (@_) {
-      if (Majordomo::_re_match($re, $line)) {
+      if (re_match($re, $line)) {
         $::log->out("matched: $line");
         return $line;
       }
@@ -339,18 +339,6 @@ sub _savename {
   return ($1 || "") . ".S" . $2 . $$;
 }
 
-# sub _re_match {
-#   my $re   = shift;
-#   my $addr = shift;
-#   my $match;
-#   return 1 if $re eq 'ALL';
-
-#   local($^W) = 0;
-#   $match = $Majordomo::safe->reval("'$addr' =~ $re");
-#   $::log->complain("_re_match error: $@") if $@;
-#   return $match;
-# }
-
 
 =head1 COPYRIGHT
 
@@ -361,7 +349,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
