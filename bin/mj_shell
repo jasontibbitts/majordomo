@@ -313,7 +313,7 @@ sub parse_command {
       'password'  => $pass,
       'user'      => $user,
     };
-    Mj::Parser::parse_args($request, $args, @arglist);
+    Mj::Parser::parse_args($request, $args, \@arglist);
     $result = 
       Mj::Format::configshow($mj, $fh, $fh, 'shell', $request,
         $mj->dispatch($request));
@@ -375,7 +375,8 @@ sub parse_command {
       'password'  => $pass,
       'user'      => $user,
     };
-    Mj::Parser::parse_args($request, $args, @arglist);
+    # XXX $in[0] is an attachment from global variable @in.
+    Mj::Parser::parse_args($request, $args, \@arglist, $in[0]);
     if (function_prop($true_command, 'iter')) {
       $request->{'command'} .= '_start';
     }
