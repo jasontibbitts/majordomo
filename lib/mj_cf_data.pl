@@ -1131,6 +1131,15 @@ package Mj::Config;
     'visible'=> 1,
     'mutable'=> 1,
    },
+   'relocated_lists' =>
+   {
+    'type'   => 'relocated_lists',
+    'groups' => [qw(miscellany)],
+    'local'  => 0,
+    'global' => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+   },
    'request_answer' =>
    {
     'type'   => 'enum',

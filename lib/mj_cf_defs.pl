@@ -180,6 +180,7 @@ $Mj::Config::default_string = q(
  'priority'             => 10,
  'purge_received'       => 0,
  'quote_pattern'        => '/^( - | : | > | [a-z]+> )/xi',
+ 'relocated_lists'      => [],
  'reply_to'             => '$LIST@$HOST',
  'request_answer'       => 'majordomo',
  'resend_host'          => $subs->{'resend_host'},
