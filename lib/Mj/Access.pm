@@ -718,10 +718,10 @@ FINISH:
         $self->standard_subs($list),
         'CMDLINE' => $cmdline,
         'FULFILL' => scalar localtime (time + $args{'delay'}),
-        'NOTIFY'  => $victim,
+        'NOTIFY'  => "$victim",
 	'REASONS' => $reasons,
-        'REQUESTER' => $requester,
-	'VICTIM'  => $victim,
+        'REQUESTER' => "$requester",
+	'VICTIM'  => "$victim",
        },
       ) if $mess;
 
@@ -1149,16 +1149,17 @@ use Date::Format;
 use MIME::Entity;
 sub _a_mailfile {
   my ($self, $arg, $td, $args) = @_;
+  my $log = new Log::In 150, $arg;
   my (%file, $ent, $file, $sender, $subs);
 
   $subs = {
     $self->standard_subs($td->{'list'}),
     'CMDLINE' => $td->{'cmdline'},
     'FULFILL' => scalar localtime (time + $args->{'delay'}),
-    'NOTIFY'  => $td->{'victim'},
+    'NOTIFY'  => "$td->{'victim'}",
     'REASONS' => $args->{'reasons'},
-    'REQUESTER' => $td->{'user'},
-    'VICTIM'  => $td->{'victim'} || '',
+    'REQUESTER' => "$td->{'user'}",
+    'VICTIM'  => "$td->{'victim'}" || '',
   };
 
   ($file, %file) = $self->_list_file_get(list   => $td->{'list'},
@@ -1167,24 +1168,26 @@ sub _a_mailfile {
 					 nofail => 1,
 					);
 
-  $ent = build MIME::Entity
-    (
+  if ($file) {
+    $ent = build MIME::Entity (
      Path        => $file,
      Type        => $file{'c_type'},
      Charset     => $file{'charset'},
      Encoding    => $file{'c_t_encoding'},
      Filename    => undef,
      -From       => $subs->{'OWNER'},
-     -To         => $td->{'user'},
+     -To         => "$td->{'user'}",
      -Date       => time2str("%a, %d %b %Y %T %z", time),
      -Subject    => $file{'description'},
      'Content-Language:' => $file{'language'},
     );
 
-  $sender = $self->_list_config_get($td->{'list'}, 'sender');
-  if ($sender and $ent) {
-    $self->mail_entity($sender, $ent, $td->{'user'});
+    $sender = $self->_list_config_get($td->{'list'}, 'sender');
+    if ($sender and $ent) {
+      $self->mail_entity($sender, $ent, $td->{'user'});
+    }
   }
+
   return (undef, undef, undef, undef, $file);
 }
 

@@ -1,3 +1,8 @@
+2002-08-10  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Access.pm:  (_a_mailfile)  Bugfix:  convert Mj::Addr
+	objects into strings where necessary.  Thanks to Roger Klorese.
+
 2002-08-09  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (tokeninfo_start)  Add support for
