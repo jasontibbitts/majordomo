@@ -496,7 +496,8 @@ my %commands =
    {
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'tokens' => 'ARRAY'},
+                   'arguments' => {'tokens' => 'ARRAYELEM',
+                                   'xplanation' => 'SCALAR'},
                    'hereargs'  => 'tokens'
                   },
     # The token is the access restriction

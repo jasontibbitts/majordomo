@@ -3447,11 +3447,16 @@ use MIME::Entity;
 sub reject {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "@{$request->{'tokens'}}";
-  my (%file, $data, $desc, $ent, $file, $in, $inf, $inform, $line, $t, @out,
-      $list_owner, $mj_addr, $mj_owner, $ok, $mess, $repl, $sess, $site, $token);
+  my (%file, $data, $desc, $ent, $file, $in, $inf, $inform, $line, $t, @out);
+  my ($list_owner, $mj_addr, $mj_owner, $ok, $mess, $reason, $repl, $rfile);
+  my ($sess, $site, $token, $victim);
 
   return (0, ["No token supplied.\n"])
     unless (scalar(@{$request->{'tokens'}}));
+
+  $site       = $self->_global_config_get('site_name');
+  $mj_addr    = $self->_global_config_get('whoami');
+  $mj_owner   = $self->_global_config_get('sender');
 
   for $t (@{$request->{'tokens'}}) { 
 
@@ -3472,49 +3477,77 @@ sub reject {
 
     # For confirmation tokens, a rejection is a serious thing.  We send a
     # message to the victim with important information.
+    # The explanation could be a file or a string.  
+    # If it contains embedded, unescaped white space, 
+    # treat it as a file.  This must be done for every
+    # token because the reply file sent may vary from list to
+    # list.
+    $reason = $rfile = '';
     if ($data->{'type'} eq 'confirm') {
-      $list_owner = $self->_list_config_get($data->{'list'}, 'sender');
-      $site       = $self->_global_config_get('site_name');
-      $mj_addr    = $self->_global_config_get('whoami');
-      $mj_owner   = $self->_global_config_get('sender');
-
-      # Extract the session data
-      $in = new IO::File("$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}");
-
-      # If the file no longer exists, what should we do?  We assume it's just
-      # a really old token and say so.
-      $sess = '';
-      if ($in) {
-        while (defined($line = $in->getline)) {
-          $sess .= $line;
-        }
-        $in->close;
+      $rfile = 'token_reject';
+    }
+    else {
+      $rfile = 'ack_rejection';
+    }
+    if (defined $request->{'xplanation'}) {
+      if ($request->{'xplanation'} !~ /\S[^\\]\s\S/) {
+        $rfile = $request->{'xplanation'};
       }
       else {
-        $sess = "Session info has expired.\n";
+        $reason = $request->{'xplanation'};
       }
+    }
+    $list_owner = $self->_list_config_get($data->{'list'}, 'sender');
 
-      $repl = {
-           'OWNER'      => $list_owner,
-           'MJ'         => $mj_addr,
-           'MJOWNER'    => $mj_owner,
-           'TOKEN'      => $token,
-           'REJECTER'   => $request->{'user'},
-           'REQUESTER'  => $data->{'user'},
-           'VICTIM'     => $data->{'victim'},
-           'CMDLINE'    => $data->{'cmdline'},
-           'REQUEST'    => $data->{'command'},
-           'LIST'       => $data->{'list'},
-           'SESSIONID'  => $data->{'sessionid'},
-           'SITE'       => $site,
-           'SESSION'    => $sess,
-          };
-      
-      ($file, %file) = $self->_list_file_get($data->{'list'}, "token_reject");
-      $file = $self->substitute_vars($file, $repl);
-      $desc = $self->substitute_vars_string($file{'description'}, $repl);
-      
-      # Send it off
+    # Extract the session data
+    # XXX Send this as an attachment instead of storing it in a string.
+    $in = new IO::File("$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}");
+
+    # If the file no longer exists, what should we do?  We assume it's just
+    # a really old token and say so.
+    $sess = '';
+    if ($in) {
+      while (defined($line = $in->getline)) {
+        $sess .= $line;
+      }
+      $in->close;
+    }
+    else {
+      $sess = "Session info has expired.\n";
+    }
+
+    $repl = {
+         'OWNER'      => $list_owner,
+         'MJ'         => $mj_addr,
+         'MJOWNER'    => $mj_owner,
+         'TOKEN'      => $token,
+         'REJECTER'   => $request->{'user'},
+         'MESSAGE'    => $reason,
+         'REQUESTER'  => $data->{'user'},
+         'VICTIM'     => $data->{'victim'},
+         'CMDLINE'    => $data->{'cmdline'},
+         'REQUEST'    => $data->{'command'},
+         'LIST'       => $data->{'list'},
+         'SESSIONID'  => $data->{'sessionid'},
+         'SITE'       => $site,
+         'SESSION'    => $sess,
+         'WHEREAMI'   => $self->_list_config_get($data->{'list'}, 'whereami'),
+         'WHOAMI'     => $self->_list_config_get($data->{'list'}, 'whoami'),
+        };
+   
+    ($file, %file) = $self->_list_file_get($data->{'list'}, $rfile, $repl);
+    unless (defined $file) {
+      ($file, %file) = $self->_list_file_get($data->{'list'}, "token_reject", $repl);
+    }
+    $desc = $self->substitute_vars_string($file{'description'}, $repl);
+   
+    $victim = new Mj::Addr($data->{'victim'});  
+    if ($data->{'type'} eq 'confirm' 
+          or
+        $self->{'lists'}{$data->{'list'}}->flag_set('ackall', $victim)) 
+    {
+        
+      # Send it off if type confirm or required by settings
       $ent = build MIME::Entity
         (
          Path        => $file,
@@ -3533,9 +3566,11 @@ sub reject {
         $self->mail_entity($mj_owner, $ent, $data->{'victim'});
         $ent->purge;
       }
+    }
       
-      # Then we send a message to the list owner and majordomo owner if
-      # appropriate
+    # Then we send a message to the list owner and majordomo owner if
+    # appropriate
+    if ($data->{'type'} eq 'confirm') {
       ($file, %file) = $self->_list_file_get($data->{'list'}, "token_reject_owner");
       $file = $self->substitute_vars($file, $repl);
       $desc = $self->substitute_vars_string($desc, $repl);

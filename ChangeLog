@@ -1,6 +1,13 @@
+2000-07-18  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm (reject):  Allow an explanation or a file to
+	be specified when a token is rejected.  The usual variable
+	substitutions are available for use in the file.
+
 2000-07-17  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Add hypertext links to help pages.
+	(Thanks to Sudhakar Chandrasekharan for the suggestion.)
 
 2000-07-16  Michael Yount <csf@moscow.com>
 

@@ -352,7 +352,9 @@ sub parse_part {
     else {
       # Handle default arguments for commands
       if ($true_command =~ /accept|reject/) {
-	$cmdargs ||= $args{'token'};
+        unless ($cmdargs =~ /[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}/) {
+          $cmdargs = "$args{'token'} $cmdargs";
+        }
       }
       elsif ($true_command =~ /newfaq/) {
         $cmdargs = "/faq Frequently Asked Questions";
