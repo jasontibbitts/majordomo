@@ -44,7 +44,8 @@ sub create_dirs {
     }
   }
   else {
-    safe_mkdir($l, 0777 & ~oct($um), $uid, $gid);dot;
+    safe_mkdir($l,           0777 & ~oct($um), $uid, $gid);dot;
+    safe_mkdir("$l/ALIASES", 0755 & ~oct($um), $uid, $gid);dot;
   }
 
   safe_mkdir($tmp,         0777 & ~oct($um), $uid, $gid);dot;
