@@ -210,7 +210,13 @@ sub address {
       return 0;
     }
 
+    # 452 return code: too many recipients or lack of disk space.
+    # 552 return code: message too large.
     if ($val == -2) {
+      # Checkpoint; discard responses.
+      for ( ; $i > $j ; $i-- ) {
+        $self->{'smtp'}->getresp(1, 5);
+      }
       # We can't send any more RCPTs, so we send ourselves and start over.
       if ($self->{'addressed'}) {
         $self->send;
@@ -224,7 +230,6 @@ sub address {
         return 0 unless $self->init;
       }
       # backtrack 
-      $i = $j;
       $recip = ${$addr}[$i];
       ($val, $code, $mess) = $self->{'smtp'}->RCPT($recip);
     }
