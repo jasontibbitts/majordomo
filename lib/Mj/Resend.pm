@@ -88,35 +88,13 @@ use Mj::MIMEParser;
 use IO::File;
 use File::Copy 'mv';
 sub post {
-  my($self, $request) = @_;
-  my ($owner,                # The list owner address
-      $sender,               # The sender address
-      $token,                # Token lifted from approval check, to be deleted
-      $parser,               # MIME::Parser
-      $tmpdir,               # duh
-      $fh,                   # File handle to parse from
-      $ent,                  # Parsed entity
-      $head,                 # Message headers
-      $thead,                # Temporary copy of message headers
-      $avars,                # Hashref containing access variables
-      $reasons,              # Listref containing bounce reasons
-      $ok,
-      $nent,
-      $mess,
-      $desc,
-      $c_type,
-      $c_t_encoding,
-      $approved,             # Is the message approved?
-      $fileinfo,             # Info from list_file_get
-      $subs,                 # Hash of substitutions
-      $ack_attach,           # Should acks attach the message (fron config)
-      $spool,                # File to spool
-      $subject,              # Header
-      $list,                 # Includes sublist if applicable
-      $user,                 # Obtained from headers
-      $passwd,
-     );
-  my $log = new Log::In 30, "$request->{'list'}, $request->{'user'}, $request->{'file'}";
+  my ($self, $request) = @_;
+  my ($ack_attach, $approved, $avars, $c_t_encoding, $c_type, $desc,
+      $ent, $fh, $fileinfo, $head, $list, $mess, $nent, $ok, $owner,
+      $parser, $passwd, $reasons, $sender, $spool, $subject, $subs,
+      $thead, $token, $tmpdir, $user);
+  my $log = new Log::In 30, 
+       "$request->{'list'}, $request->{'user'}, $request->{'file'}";
   $tmpdir = $self->_global_config_get("tmpdir");
 
   $parser = new Mj::MIMEParser;
@@ -131,7 +109,7 @@ sub post {
   # a race condition.  Do not call close() explicitly.
   # $fh->close;
 
-  # Fail gracefully:
+  # Fail gracefully if the message cannot be parsed
   if (! $ent) {
     $spool = "$tmpdir/unparsed." . Majordomo::unique();
     mv ($request->{'file'}, $spool);
@@ -160,7 +138,6 @@ sub post {
   if (! ($user and $user->isvalid)) {
     $avars->{'invalid_from'} = 1;
   }
-
 
   # XXX Pass in the password we were called with, so that passwords
   # can be passed out-of-band.
@@ -201,14 +178,16 @@ sub post {
     $ok = 1;
   }
   else {
-    # Generate a spool filename, just in case we have to stash the message.
-    # Call Mj::Token::t_gen and make sure the file doesn't already exist.
+    # Move the message into a spool file to prevent it being
+    # reprocessed.  Make sure the file doesn't already exist.
     while (1) {
       $spool = $self->t_gen;
       last unless -f "$self->{ldir}/GLOBAL/spool/$spool";
     }
-    mv($request->{'file'}, "$self->{'ldir'}/GLOBAL/spool/$spool");
+    mv($request->{'file'}, "$self->{'ldir'}/GLOBAL/spool/$spool")
+      || $::log->abort("Unable to create spool file: $!");
     $request->{'file'} = "$self->{'ldir'}/GLOBAL/spool/$spool";
+    chomp @$reasons;
     $avars->{'reasons'} = join("\003", @$reasons);
     $request->{'vars'} = join("\002", %$avars);
     $request->{'victim'} = $user;
@@ -226,8 +205,11 @@ sub post {
   # We handled the OK case, so we have either a stall or a denial.
   # If we got an empty return message, this is a signal not to ack anything
   # and so we just return;
-  return ($ok, '')
-    unless defined $mess && length $mess;
+  unless (defined $mess && length $mess) {
+    # Unlink the spool file if the post was denied.
+    unlink $request->{'file'} unless $ok; 
+    return ($ok, '');
+  }
 
   chomp($subject = ($thead->get('subject') || '(none)')); 
   $list = $request->{'list'};
@@ -1076,6 +1058,7 @@ sub _within_limits {
   $out = 0;
   $seqno = $self->_list_config_get($list, 'sequence_number');
 
+  # Each limit has a number assigned: 1 - hard, 2 - soft, 4 - lower.
   $i = 1;
   for $var (($hard, $soft, $lower)) {
     for $cond (@$var) {
@@ -1090,20 +1073,21 @@ sub _within_limits {
         }
         if ($i < 4) {
           if ($count >= $cond->[1]) {
-            # XLANG
             push (@$reasons, 
-                  sprintf ("More than %d messages posted in the last %s",
-                  $cond->[1], &str_to_offset($cond->[2], 0, 1)))
+                  $self->format_error('over_time_limit', $list,
+                                      'COUNT' => $cond->[1],
+                                      'TIME'  => &str_to_offset($cond->[2], 0, 1)))
               unless ($i == 2 and $out & 1);
             $out |= $i;
           }
         }
         else {
           if ($count < $cond->[1]) {
-            # XLANG
             push (@$reasons, 
-                  sprintf ("Fewer than %d messages posted in the last %s",
-                  $cond->[1], &str_to_offset($cond->[2], 0, 1)));
+                  $self->format_error('under_time_limit', $list,
+                                      'COUNT' => $cond->[1],
+                                      'TIME'  => &str_to_offset($cond->[2], 0, 1))
+                 );
             $out |= $i;
           }
         }
@@ -1120,20 +1104,24 @@ sub _within_limits {
         }
         if ($i < 4) {
           if ($count >= $cond->[1]) {
-            # XLANG
             push (@$reasons, 
-                  sprintf ("More than %d messages posted out of the last %d",
-                           $cond->[1], $cond->[2]))
+                  $self->format_error('over_message_limit', $list,
+                                      'COUNT' => $cond->[1],
+                                      'TOTAL' => $cond->[2],
+                                     )
+                 )
               unless ($i == 2 and $out & 1);
             $out |= $i;
           }
         }
         else {
           if ($count < $cond->[1]) {
-            # XLANG
             push (@$reasons, 
-                  sprintf ("Fewer than %d messages posted out of the last %d",
-                           $cond->[1], $cond->[2]));
+                  $self->format_error('under_message_limit', $list,
+                                      'COUNT' => $cond->[1],
+                                      'TOTAL' => $cond->[2],
+                                     )
+                 );
             $out |= $i;
           }
         }
@@ -1217,8 +1205,9 @@ sub _check_header {
   $max = $self->_list_config_get($list, 'max_header_line_length');
   $len = $avars->{'max_header_length'};
   if ($max && ($len > $max)) {
-    # XLANG
-    push @$reasons, "A header line is too long ($len > $max)";
+    push @$reasons, 
+      $self->format_error('single_header_length', $list,
+                          'SIZE' => $len, 'LIMIT' => $max);
     $avars->{max_header_length_exceeded} = 1;
   }
 
@@ -1226,8 +1215,9 @@ sub _check_header {
   $max = $self->_list_config_get($list, 'max_total_header_length');
   $len = $avars->{'total_header_length'};
   if ($max && ($len > $max)) {
-    # XLANG
-    push @$reasons, "The headers are too large ($len > $max)";
+    push @$reasons, 
+      $self->format_error('total_header_length', $list,
+                          'SIZE' => $len, 'LIMIT' => $max);
     $avars->{total_header_length_exceeded} = 1;
   }
 
@@ -1235,8 +1225,9 @@ sub _check_header {
   $max = $self->_list_config_get($list, 'max_mime_header_length');
   $len = $avars->{'mime_header_length'};
   if ($max && ($len > $max)) {
-    # XLANG
-    push(@$reasons, "A MIME header is too long ($len > $max)");
+    push @$reasons,
+      $self->format_error('mime_header_length', $list,
+                          'SIZE' => $len, 'LIMIT' => $max);
     $avars->{mime_header_length_exceeded} = 1;
   }
 
