@@ -13,12 +13,9 @@ Command:&nbsp;&nbsp;
 <option> accept
 <option> archive-index
 <option> archive-get
-<option> auxadd
-<option> auxremove
-<option> auxwho
+<option> configdef
 <option> configshow
 <option> configset
-<option> configdef
 <option> digest-status
 <option> get
 <option> help
@@ -26,6 +23,7 @@ Command:&nbsp;&nbsp;
 <option> lists-aux
 <option> reject
 <option> report
+<option> report-summary
 <option> sessioninfo
 <option> set
 <option> set-aux
