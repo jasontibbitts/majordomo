@@ -10,7 +10,7 @@ listname,  required, is an email list at this site
 owner,     required, is an email address for who will manage the list
 -destroy,  if specified, deletes instead of creating the list
 -force,    if specified, takes action even if list already exists
--noarchive if specified, suppresses creation of the msg archive directory
+-noarchive if specified, suppresses creation of the message archive directory
 -nocreate, if specified, shows suggested aliases but takes no action
 -noheader, if specified, shortens the suggested aliases message
 -nowelcome,if specified, suppresses intro msg for new owner
