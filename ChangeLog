@@ -1,3 +1,9 @@
+2000-05-10  Michael Yount  <csf@moscow.com>
+
+    * lib/Mj/SimpleDB/DB.pm: Do not use R_CURSOR when deleting.
+
+    * lib/Mj/Format.pm (tokeninfo): Indicate reasons if they exist.
+
 2000-05-09  Michael Yount  <csf@moscow.com>
 
 	* lib/Mj/Config.pm (whence): Determine the source of a
