@@ -148,9 +148,9 @@ unless ($ok) {
   $subs = { $mj->standard_subs('GLOBAL'),
             'CGIDATA'  => '',
             'CGIURL'   => $cgi->script_name,
+            'CMDPASS'  => '',
             'COMMAND'  => 'welcome',
             'DOMAIN'   => $domain,
-            'PASSWORD' => '',
             'USER'     => ($falseuser eq $user) ? '':
                           Mj::Format::escape($user),
         };
@@ -177,9 +177,9 @@ $cgidata = Mj::Format::uescape($cgidata);
 $subs = { $mj->standard_subs('GLOBAL'),
           'CGIDATA'  => $cgidata,
           'CGIURL'   => $cgiurl,
+          'CMDPASS'  => $passw,
           'COMMAND'  => $ofunc,
           'DOMAIN'   => $domain,
-          'PASSWORD' => $passw,
           'USER'     => ($falseuser eq $user) ? '':
                         Mj::Format::escape($user),
         };
@@ -195,7 +195,7 @@ if ($ofunc eq 'welcome') {
 }
 elsif ($ofunc eq 'logout') {
   $mj->del_latchkey($passw);
-  $subs->{'PASSWORD'} = '';
+  $subs->{'CMDPASS'} = '';
   $subs->{'COMMAND'} = 'welcome';
   &usage($mj, $subs, 'You have successfully signed out.');
 }
@@ -228,7 +228,7 @@ if (! $passw) {
 else {
   $addr = new Mj::Addr($user);
   unless ($mj->validate_passwd($addr, $passw, 'GLOBAL', 'show')) {
-    $subs->{'PASSWORD'} = '';
+    $subs->{'CMDPASS'} = '';
     &login($mj, $subs, 'Invalid password.');
   }
 }
@@ -307,7 +307,7 @@ for $list (@lists) {
     else {
       $request->{'mode'} = 'gen';
     }
-    $subs->{'PASSWORD'} = '';
+    $subs->{'CMDPASS'} = '';
     $subs->{'COMMAND'} = 'show';
   }
 

@@ -23,7 +23,7 @@ BEGIN {
   die("Not running as UID $::UID") unless $> == $::UID;
   die("Not running as GID $::GID") unless $) == $::GID;
 
-  # Hardcoded constants so we don't usve to use Fcntl
+  # Hardcoded constants so we don't have to use Fcntl
   $::LOCK_EX  = "blah";
   $::LOCK_NB  = "blah";
   $::O_WRONLY = "blah";

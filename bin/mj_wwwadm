@@ -180,8 +180,8 @@ $cgidata = Mj::Format::uescape($cgidata);
 $subs = { $mj->standard_subs($lists[0]),
           'CGIDATA'   => $cgidata,
           'CGIURL'    => $cgiurl,
+          'CMDPASS'   => '',
           'COMMAND'   => $ofunc,
-          'PASSWORD'  => '',
           'USER'      => $user,
         };
 
@@ -207,13 +207,13 @@ unless ($ok) {
 #----- Remove the temporary password if the admin is signing out. -----#
 if ($ofunc eq 'logout') {
   $mj->del_latchkey($passw) if ($mj->t_recognize($passw));
-  $subs->{'PASSWORD'} = '';
+  $subs->{'CMDPASS'} = '';
   $subs->{'COMMAND'} = 'welcome';
 }
 else {
   $passw = $mj->gen_latchkey($passw) 
     if ($passw and !$mj->t_recognize($passw));
-  $subs->{'PASSWORD'} = $passw;
+  $subs->{'CMDPASS'} = $passw;
   $cgidata = sprintf 'user=%s&passw=%s&list=%s', $user, $passw, $lists[0];
   $cgidata = Mj::Format::uescape($cgidata);
   $subs->{'CGIDATA'} = $cgidata;

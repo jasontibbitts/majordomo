@@ -139,8 +139,8 @@ $token = $mj->t_recognize($ptoken) || "";
 $subs = { $mj->standard_subs('GLOBAL'),
           'CGIDATA'   => $cgidata,
           'CGIURL'    => $cgiurl,
+          'CMDPASS'   => '',
           'COMMAND'   => $action,
-          'PASSWORD'  => '',
           'TOKEN'     => $token,
           'USER'      => $user,
         };
