@@ -19,7 +19,7 @@ Return additional information from _post so that t_accept can provide
  additional data.
 Finish work on allosed_flags and allowed_classes.
 Make resync work (with appropriate security).
-
+Update FILES.
 
 ! Digest:
 

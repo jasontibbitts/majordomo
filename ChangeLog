@@ -1,3 +1,16 @@
+Fri Jan  8 00:19:40 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Big changes to accommodate digest
+ 	generation.  Now working!
+
+	* lib/Mj/Deliver.pm (deliver): Remove some debug stuff.
+
+Wed Jan  6 23:33:44 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* postinstall (set_script_perms): Change mode of top level
+ 	installation directory as appropriate.  Make sure that it is
+ 	properly readable by everyone.
+
 Mon Jan  4 20:16:17 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Token.pm: Add REQUESTOR to substitute the same as

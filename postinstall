@@ -213,6 +213,10 @@ sub set_script_perms {
   chown($uid, $gid, @$sidscripts, @$scripts) || die "Couldn't change ownership: $!";
   dot;
   chown($uid, $gid, $id);dot;
+
+  # Change permissions on the top-level installation directory, but make
+  # sure that anyone can look in it to run programs.
+  chmod((0777 & ~oct($config->{'umask'})) | 0555, $id);dot;
   rchown($uid, $gid, 0644, 0755, "$id/bin", "$id/man", "$id/lib");dot;
 
   # Make executables setuid; the scripts must be readable while the the

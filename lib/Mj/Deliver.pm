@@ -127,8 +127,6 @@ sub deliver {
   # Allocate destinations and probers and do some other setup stuff
   ($classes, $dests, $probes) = _setup($rules, %args);
 
-  use Data::Dumper; print Dumper $args{classes};
-
   $matcher = sub {
     shift;
     return 1 if $classes->{(shift)->{class}};

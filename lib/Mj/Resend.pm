@@ -284,9 +284,10 @@ sub _post {
      $avars) = @_;
   my $log  = new Log::In 35, "$list, $user, $file";
 
-  my(%avars, %digest, @ent, @files, @refs, @skip, $arcdata, $arcent,
-     $archead, $exclude, $head, $i, $msgnum, $prefix, $replyto, $sender,
-     $seqno, $subject, $tmp, $tmpdir, $tprefix);
+  my(%avars, %deliveries, %digest, @dfiles, @dtypes, @ent, @files, @refs,
+     @skip, $arcdata, $arcent, $archead, $digests, $dissue, $dvolume,
+     $exclude, $head, $i, $j, $msgnum, $prefix, $replyto, $sender, $seqno,
+     $subject, $tmp, $tmpdir, $tprefix);
 
   $self->_make_list($list);
   $tmpdir = $self->_global_config_get('tmpdir');
@@ -414,37 +415,64 @@ sub _post {
     close FINAL;
   }
 
+  %deliveries =
+    ('each-prefix-noreplyto' =>
+     {
+      exclude => $exclude,
+      file    => $files[0],
+     },
+     'each-noprefix-noreplyto' =>
+     {
+      exclude => $exclude,
+      file    => $files[1],
+     },
+     'each-prefix-replyto' =>
+     {
+      exclude => $exclude,
+      file    => $files[2],
+     },
+     'each-noprefix-replyto' =>
+     {
+      exclude => $exclude,
+      file    => $files[3],
+     }
+    );
+
   # Pass to digest if we got back good archive data and there is something
   # in the digests variable.
-  if ($msgnum && scalar keys %{$self->_list_config_get($list, 'digests')}) {
+  $digests = $self->_list_config_get($list, 'digests');
+  if ($msgnum && scalar keys %{$digests}) {
     %digest = $self->{'lists'}{$list}->digest_add($msgnum, $arcdata);
+
+    # XXX Do the atomic increment game on $dissue.
+    $dvolume = "???", $dissue = "???";
+
+    # Now have a hash of digest name, listref of [article, data] pairs.
+    # For each digest, build the three types and for each type and then
+    # stuff an appropriate entry into %deliveries.
+    for $i (keys(%digest)) {
+      @dtypes = qw(text mime index);
+      @dfiles = $self->{'lists'}{$list}->digest_build
+	(messages     => $digest{$i},
+	 types        => [@dtypes],
+	 subject      => $digests->{$i}{desc} . " V$dvolume #$dissue",
+	 tmpdir       => $tmpdir,
+	 index_line   => $self->_list_config_get($list, 'digest_index_format'),
+	 index_header => "index header\n",
+	 index_footer => "index footer\n",
+	);
+
+      
+      for $j (@dtypes) {
+	# shifting off an element of @dfiles gives the corresponding digest
+      	$deliveries{"digest-$i-$j"} = {exclude => [], file => shift(@dfiles)};
+      }
+    }
   }
-#  use Data::Dumper; print Dumper \%digest;
+  use Data::Dumper; print Dumper \%deliveries;
 
   # Invoke delivery routine
-  $self->deliver($list, $sender, $seqno,
-		 {'each-prefix-noreplyto' =>
-		  {
-		   exclude => $exclude,
-		   file    => $files[0],
-		  },
-		  'each-noprefix-noreplyto' =>
-		  {
-		   exclude => $exclude,
-		   file    => $files[1],
-		  },
-		  'each-prefix-replyto' =>
-		  {
-		   exclude => $exclude,
-		   file    => $files[2],
-		  },
-		  'each-noprefix-replyto' =>
-		  {
-		   exclude => $exclude,
-		   file    => $files[3],
-		  },
-		 },
-		);
+  $self->deliver($list, $sender, $seqno, \%deliveries);
 
   # Inform sender of successful delivery
   
