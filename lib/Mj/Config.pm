@@ -47,13 +47,16 @@ $VERSION = "1.0";
 # This designates that the _raw_ form is an array of lines, not that the
 # parsed data comtains a simple array.  Note that these are types, not
 # variables.
+#
+# The number 2 on the right-hand side indicates that blank lines
+# should be used as separators when adding to the array.
 %is_array =
   (
-   'access_rules'     => 1,
+   'access_rules'     => 2,
    'address_array'    => 1,
-   'attachment_rules' => 1,
-   'bounce_rules'     => 1,
-   'delivery_rules'   => 1,
+   'attachment_rules' => 2,
+   'bounce_rules'     => 2,
+   'delivery_rules'   => 2,
    'digests'          => 1,
    'digest_issues'    => 1,
    'enum_array'       => 1,
@@ -64,7 +67,7 @@ $VERSION = "1.0";
    'regexp_array'     => 1,
    'restrict_post'    => 1,
    'string_array'     => 1,
-   'string_2darray'   => 1,
+   'string_2darray'   => 2,
    'sublist_array'    => 1,
    'taboo_body'       => 1,
    'taboo_headers'    => 1,
@@ -124,6 +127,7 @@ sub new {
 
   $self->{'list'}           = $list;
   $self->{'ldir'}           = $args{'dir'};
+  $self->{'name'}           = $args{'name'} || 'MAIN';
   $self->{'callbacks'}      = $args{'callbacks'};
   $self->{'sdirs'}          = 1;
   $self->{'vars'}           = \%Mj::Config::vars;
@@ -293,20 +297,17 @@ sub load {  # XXX unfinished
   elsif (-r $file) {
     $self->_load_new;
   }
-  else {
-    # Create the file, just because.
+  elsif ($self->{'name'} eq 'MAIN') {
+    # Create the main config file automatically, 
+    # but not a configuration template.
     $self->_save_new;
   }
+  # Store the order in which the various configuration sources
+  # will be consulted to find a setting.
   $self->{'sources'} = ['MAIN'];
 
+  # The GLOBAL list does not use the DEFAULT settings.
   if ($self->{'list'} ne 'GLOBAL') {
-#    if (exists $self->{'source'}{'MAIN'}{'raw'}{'templates'}) {
-#      for $file (@{$self->{'source'}{'MAIN'}{'raw'}{'templates'}}) {
-#        next unless $self->_load_dfl($file);
-#        push @{$self->{'sources'}}, $file;
-#      }
-#    } 
-      
     $self->_load_dfl('DEFAULT') 
       unless (exists $self->{'source'}{'DEFAULT'}{'raw'});
     push @{$self->{'sources'}}, 'DEFAULT';
@@ -364,6 +365,7 @@ sub _load_dfl {
   }
 #  else {
 #    $name = "$self->{'ldir'}/DEFAULT/C$template";
+#    $name = "$self->{'ldir'}/$template/_config";
 #  }
 
   if (-r $name) {
@@ -1113,6 +1115,9 @@ sub _filename {
   my $list = $self->{'list'};
   my $listdir = $self->{'ldir'};
 
+  if ($self->{'name'} ne 'MAIN') {
+    return "$listdir/$list/C$self->{'name'}";
+  }
   if ($self->{'sdirs'}) {
     return "$listdir/$list/_config";
   }
@@ -2582,21 +2587,34 @@ This splits up a config table.
 
      variable number of lines, ending in a blank line.
 
+  Leading blank lines are ignored.
+  Leading lines beginning with "#" are considered comments and
+  ignored, unless the specifier string is "x" (true
+  for string_2darray only).
+
 =cut
 sub parse_table {
   my $spec = shift;
   my $data = shift;
-  my (@out, @row, @group, $line, $elem, $s, $f, $error, $temp);
+  my (@out, @row, @group, $line, $elem, $s, $f, $error, $sc, $temp);
   my $log = new Log::In 150, $spec;
 
   # Line loops over the elements of the $data arrayref
   $line = 0;
+  
+  $sc = 1;
+  # Do not skip over comments if the specifier string is "x."
+  if ($spec eq 'x') {
+    $sc = 0;
+  }
 
   # We walk over the lines of data
  LINE:
   while (1) {
 
-    while (defined $data->[$line] && $data->[$line] !~ /\S/) {
+    while (defined $data->[$line] && 
+           ($data->[$line] !~ /\S/ || 
+           ($sc && $data->[$line] =~ /^\s*#/))) {
       $line++;
     }
 
@@ -2613,6 +2631,11 @@ sub parse_table {
     while ($spec =~ /\s*([^f]|f[msop]+)\s*/g) {
       $s = $1;
 
+      # skip leading comments
+      while ($sc && $data->[$line] =~ /^\s*#/) {
+        $line++;
+      }
+
       # We must have data at all times while parsing a record
       unless (defined $data->[$line]) {
 	$error .= "Ran out of data while parsing table.\n";
@@ -2628,7 +2651,8 @@ sub parse_table {
       # Process all lines until EOD or a blank line
       elsif ($s eq 'x') {
 	@group=();
-	while ($line < @{$data} && $data->[$line] =~ /\S/) {
+	while ($line < @{$data} && $data->[$line] =~ /\S/ &&
+               ! ($sc and $data->[$line] =~ /^\s*#/)) {
 	  push @group, $data->[$line];
 	  $line++;
 	}
@@ -2642,8 +2666,7 @@ sub parse_table {
 	while ($s =~ /\s*(.)\s*/g) {
 	  $f = $1;
 
-	  # Hendle optional fields; set a value, then parse normally
-	  # XXX need to complain about missing/empty fields unless optional
+	  # Handle optional fields; set a value, then parse normally
 	  if ($f eq 'o') {
 	    $group[$elem] = "" unless defined $group[$elem];
 	    $f = 's';
@@ -2713,20 +2736,6 @@ sub parse_table {
     push @out, [@row];
   }
   ([@out], $error);
-}
-
-=head2 parse_templates
-
-Parses the templates variable.  
-Returns a list of configuration templates.
-
-=cut
-sub parse_templates {
-  my $self = shift;
-  my $arr  = shift;
-  my $var  = shift;
-  my $log  = new Log::In 150, $var;
-
 }
 
 =head2 parse_triggers
