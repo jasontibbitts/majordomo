@@ -2,13 +2,13 @@
 <tr><td>Name<td>$LIST
 <tr><td>Description<td>
 $DESCRIPTION
-<tr><td>Archive Location<td>$ARCURL
+<tr><td>Archive Location<td><a href="$ARCURL">$ARCURL</a>
 <tr><td>Digests<td>
 $DIGESTS<br>
 <tr><td>Subscribers<td>$SUBS
 <tr><td>Posts in the last 30 days<td>$POSTS
-<tr><td>List address<td>$WHOAMI
-<tr><td>List owner address<td>$OWNER
+<tr><td>List address<td><a href="mailto:$WHOAMI">$WHOAMI</a>
+<tr><td>List owner address<td><a href="mailto:$OWNER">$OWNER</a>
 <tr><td>Documentation<td>
 <a href="$CGIURL?$CGIDATA&func=faq&list=$LIST">
 Frequently Asked Questions</a><br>
