@@ -4954,7 +4954,7 @@ sub _createlist {
   $bdir .= "/bin";
   $who   = $self->_global_config_get('whoami');
   $who   =~ s/@.*$// if $who; # Just want local part
-  $mtaopts = $self->_site_config_get('mta_options');
+  $mtaopts = { %{$self->_site_config_get('mta_options')} };
   $result = {
              'aliases' => '',
              'newlist' => $list,

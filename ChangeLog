@@ -1,5 +1,9 @@
 2004-07-11  Michael Yount <csf@moscow.com>
 
+	* lib/Majordomo.pm:  (_createlist)  Copy the MTA options
+	to avoid persistently changing them in "nocreate" mode.
+	Thanks to Darren Stalder.
+
 	* setup/query_util.pl:  (get_passwd)  Do not allow commas
 	in passwords.
 	Thanks to Darren Stalder.
