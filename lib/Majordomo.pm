@@ -429,7 +429,7 @@ sub dispatch {
   $request->{'sublist'} = $sl if (length $sl);
   $request->{'time'} ||= $::log->elapsed;
 
-  if ($request->{'mode'}) {
+  if ($request->{'mode'} and !$continued) {
     @tmp = split /[=-]/, $request->{'mode'};
     @modes = keys %{function_prop($request->{'command'}, 'modes')};
     for $l (@tmp) {
