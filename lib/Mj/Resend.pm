@@ -134,11 +134,11 @@ sub post {
   # Fail gracefully:
   if (! $ent) {
     $spool = "$tmpdir/unparsed." . Majordomo::unique();
-    mv ($request->{'file'}, "$spool");
-    $self->inform("GLOBAL", "post", $request->{'user'}, $request->{'user'},
-        $request->{'cmdline'}, "resend", 0, 0, -1, 
-        "Unable to parse message; moved to $spool.", $::log->elapsed);
-    return (0, "Unable to parse message.");
+    mv ($request->{'file'}, $spool);
+    $mess = $self->format_error('invalid_entity', $request->{'list'});
+    $self->inform('GLOBAL', 'post', $request->{'user'}, $request->{'user'},
+        $request->{'cmdline'}, 'resend', 0, 0, -1, $mess, $::log->elapsed);
+    return (0, $mess);
   }
 
   # Get the header.
@@ -166,12 +166,12 @@ sub post {
   # can be passed out-of-band.
   ($ok, $request->{'password'}, $token) =
     $self->_check_approval($request->{'list'}, $thead, $ent, $user);
-  $approved = $ok && ($ok>0) && $passwd;
+  $approved = $ok && ($ok > 0) && $passwd;
 
   unless ($ok) {
-    $avars->{bad_approval} = "Invalid Approve Header";
-    # XLANG ACCESS
-    push @$reasons, "Invalid Approve Header";
+    $avars->{bad_approval} = 1;
+    push @$reasons, 
+      $self->format_error('invalid_approval', $request->{'list'});
   }
 
   # Check poster
@@ -223,6 +223,12 @@ sub post {
             join("\002", %$avars), $ent);
   }
 
+  # We handled the OK case, so we have either a stall or a denial.
+  # If we got an empty return message, this is a signal not to ack anything
+  # and so we just return;
+  return ($ok, '')
+    unless defined $mess && length $mess;
+
   chomp($subject = ($thead->get('subject') || '(none)')); 
   $list = $request->{'list'};
   if ($request->{'sublist'}) {
@@ -243,22 +249,14 @@ sub post {
     $desc = $self->substitute_vars_string($fileinfo->{description}, $subs);
   }
   elsif ($ok == 0) {
-    # XLANG REPLY
-    $desc = "Denied post to the $list mailing list";
+    $desc = $self->format_error('denied_post', $list);
   }
   else {
-    # XLANG REPLY
-    $desc = "Stalled post to the $list mailing list";
+    $desc = $self->format_error('stalled_post', $list);
   }
 
-  $ack_attach = $self->_list_config_get($request->{'list'}, 'ack_attach_original');
-
-  # We handled the OK case, so we have either a stall or a denial.
-  # If we got an empty return message, this is a signal not to ack anything
-  # and so we just return;
-  return ($ok, '')
-    unless defined $mess && length $mess;
-
+  $ack_attach = 
+    $self->_list_config_get($request->{'list'}, 'ack_attach_original');
   $sender = $self->_list_config_get($request->{'list'}, 'sender');
   $owner = $self->_list_config_get($request->{'list'}, 'whoami_owner');
 
@@ -323,7 +321,7 @@ Hmmm.
 use IO::File;
 sub post_start  {
   my ($self, $request) = @_;
-  my $log  = new Log::In 30, "$request->{'list'}";
+  my $log  = new Log::In 30, $request->{'list'};
 
   my $tmp  = $self->_global_config_get('tmpdir');
   my (@sl, $aliases, $head);
@@ -334,7 +332,7 @@ sub post_start  {
 
   if ($request->{'mode'} =~ /addhdr/) {
     $head = $self->_add_headers($request);
-    return (0, 'Unable to create headers.')
+    return (0, $self->format_error('add_headers', $request->{'list'}))
       unless $head;
     $self->{'post_fh'}->print($head->as_string);
     $self->{'post_fh'}->print("\n");
@@ -343,11 +341,13 @@ sub post_start  {
   if ($request->{'sublist'} and $request->{'sublist'} ne 'MAIN') {
     $aliases = $self->_list_config_get($request->{'list'}, 'aliases');
     unless (ref $aliases and exists $aliases->{'auxiliary'}) {
-      return (0, "Posting to auxiliary lists is not permitted.");
+      return (0, $self->format_error('sublist_post',
+              "$request->{'list'}:$request->{'sublist'}"));
     }
     @sl = $self->_list_config_get($request->{'list'}, 'sublists');
     unless (grep { $_ eq $request->{'sublist'} } @sl) {
-      return (0, "Posting to the $request->{'sublist'} auxiliary list is not permitted.");
+      return (0, $self->format_error('sublist_post',
+              "$request->{'list'}:$request->{'sublist'}"));
     }
   }
 
@@ -438,11 +438,11 @@ sub _post {
      @dup, @ent, @files, @refs, @tmp, @skip, $ack_attach, $ackfile,
      $arcdata, $arcdate, $arcent, $archead, $date, $desc, $digests,
      $dissues, $dup, $exclude, $head, $hidden, $i, $j, $k, $members,
-     $msgid, $msgnum, $nent, $nonmembers, $precedence, $prefix, $rand,
-     $replyto, $sender, $seqno, $subject, $sl, $subs, $tmp, $tmpdir,
-     $tprefix, $whereami);
+     $mess, $msgid, $msgnum, $nent, $nonmembers, $precedence, $prefix, 
+     $rand, $replyto, $sender, $seqno, $subject, $sl, $subs, 
+     $tmp, $tmpdir, $tprefix, $whereami);
 
-  return (0, "Unable to access list $list.\n")
+  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
   $tmpdir   = $self->_global_config_get('tmpdir');
   $whereami = $self->_global_config_get('whereami');
@@ -452,10 +452,11 @@ sub _post {
   # Is the message being sent to a sublist?
   if ($avars{'sublist'} ne '') {
     unless ($sl = $self->{'lists'}{$list}->valid_aux($avars{'sublist'})) {
+      $mess = $self->format_error('invalid_sublist', $list, 'SUBLIST' =>
+                                  $avars{'sublist'});
       $self->inform($list, "post", $user, $victim, $cmdline, "resend",
-        0, 0, -1, "Unknown auxiliary list \"$avars{'sublist'}\".",
-        $::log->elapsed);
-      return (0, "Unknown auxiliary list \"$avars{'sublist'}\".");
+        0, 0, -1, $mess, $::log->elapsed);
+      return (0, $mess);
     }
   }
   else { $sl = ''; }
@@ -487,10 +488,10 @@ sub _post {
     if (!open SPOOL, "<$file") {
       # The spool file, containing the message to be posted, is missing.
       # Inform the site owner, and return.
+      $mess = $self->format_error('spool_file', $list);
       $self->inform("GLOBAL", "post", $user, $victim, $cmdline, "resend",
-        0, 0, -1, "Spool file $file is missing; unable to post message.",
-        $::log->elapsed);
-      return (0, "The message was not delivered, due to a malfunction.\n");
+        0, 0, -1, $mess, $::log->elapsed);
+      return (0, $mess);
     }
     my $mime_parser = new Mj::MIMEParser;
     $mime_parser->output_to_core($self->_global_config_get("max_in_core"));
@@ -900,7 +901,7 @@ sub _check_approval {
   my $ent  = shift;
   my $user = shift;
   my $log  = new Log::In 40;
-  my ($body, $data, $fh, $i, $line, $ok, $part, $passwd, 
+  my ($body, $data, $fh, $i, $lang, $line, $mess, $ok, $part, $passwd, 
       $pre, $sender, $time, $token);
 
   $pre = $ent->preamble;
@@ -958,12 +959,13 @@ sub _check_approval {
     $time = $::log->elapsed;
     ($ok, $data) = $self->t_reject($token);
     if ($ok) {
-      # XLANG REPLY
-      $self->inform('GLOBAL', 'reject',
-                $user, $data->{'user'}, "reject $token",
-                $self->{'interface'}, $ok, 0, 0, 
-                qq(The token was rejected using the "approved" feature.),
-                $::log->elapsed - $time);
+      $lang = $self->_list_config_get($list, 'default_language');
+      $mess = $self->_list_file_get_string('list' => $list, 
+                                           'file' => 'approved_reject',
+                                           'lang' => $lang);
+      $self->inform('GLOBAL', 'reject', $user, $data->{'user'}, 
+                    "reject $token", $self->{'interface'}, $ok, 
+                    0, 0, $mess, $::log->elapsed - $time);
       # No notice is sent to the list owners.
     }
     else {
@@ -991,10 +993,10 @@ sub _check_poster {
   my $reasons = shift;
   my $avars   = shift;
   my $log     = new Log::In 40, "$user";
-  my ($i, $mess, $ok, $pstats, $rules);
+  my ($data, $i, $mess, $ok, $pstats, $rules);
 
   # Grab the list data
-  my $data = $self->{'lists'}{$list}->is_subscriber($user);
+  $data = $self->{'lists'}{$list}->is_subscriber($user);
 
   # Extract subscribe date
   if ($data) {
@@ -1010,14 +1012,11 @@ sub _check_poster {
   $avars->{post_block} = $self->{lists}{$list}->flag_set('postblock', $user);
 
   if ($avars->{post_block}) {
-    push @$reasons, "The postblock flag is set for $user."; # XLANG
+    push @$reasons, 
+      $self->format_error('post_block', $list, 'USER' => "$user");
   }
 
   $avars->{hide_post} = $self->{lists}{$list}->flag_set('hidepost', $user);
-  if ($avars->{hide_post}) {
-    # push @$reasons, "The hidepost flag is set for $user."; # XLANG
-  }
-
   $avars->{limit} = 0;
   $avars->{limit_soft} = 0;
   $avars->{limit_hard} = 0;
@@ -1091,6 +1090,7 @@ sub _within_limits {
         }
         if ($i < 4) {
           if ($count >= $cond->[1]) {
+            # XLANG
             push (@$reasons, 
                   sprintf ("More than %d messages posted in the last %s",
                   $cond->[1], &str_to_offset($cond->[2], 0, 1)))
@@ -1100,6 +1100,7 @@ sub _within_limits {
         }
         else {
           if ($count < $cond->[1]) {
+            # XLANG
             push (@$reasons, 
                   sprintf ("Fewer than %d messages posted in the last %s",
                   $cond->[1], &str_to_offset($cond->[2], 0, 1)));
@@ -1119,6 +1120,7 @@ sub _within_limits {
         }
         if ($i < 4) {
           if ($count >= $cond->[1]) {
+            # XLANG
             push (@$reasons, 
                   sprintf ("More than %d messages posted out of the last %d",
                            $cond->[1], $cond->[2]))
@@ -1128,6 +1130,7 @@ sub _within_limits {
         }
         else {
           if ($count < $cond->[1]) {
+            # XLANG
             push (@$reasons, 
                   sprintf ("Fewer than %d messages posted out of the last %d",
                            $cond->[1], $cond->[2]));
@@ -1405,6 +1408,7 @@ sub _check_body {
 
   $maxbody = $self->_list_config_get($list, 'maxlength');
   if ($maxbody && $maxbody < $avars->{'body_length'}) {
+    # XLANG
     push @$reasons, "The message body is too long ($avars->{'body_length'} > $maxbody)";
     $avars->{'body_length_exceeded'} = 1;
   }
@@ -1491,6 +1495,7 @@ sub _r_ck_body {
     $sum1 = $sum1->hexdigest;
     $avars->{checksum} = $sum1;
     if($data = $self->{'lists'}{$list}->check_dup($sum1, 'sum')) {
+      # XLANG
       push @$reasons,
       "Duplicate Message Checksum (".localtime($data->{changetime}).")";
       $avars->{dup_checksum} = 1;
@@ -1498,6 +1503,7 @@ sub _r_ck_body {
     $sum2 = $sum2->hexdigest;
     $avars->{partial_checksum} = $sum2;
     if($data = $self->{'lists'}{$list}->check_dup($sum2, 'partial')) {
+      # XLANG
       push @$reasons,
       "Duplicate Partial Message Checksum (".localtime($data->{changetime}).")";
       $avars->{dup_partial_checksum} = 1;
@@ -1548,10 +1554,11 @@ sub _r_strip_body {
         push @newparts, $i;
       }
       elsif ($verdict eq 'clean') {
-        $txtfile = $self->_clean_text($i);
+        $txtfile = $self->clean_text($i);
 
         if ($txtfile) {
           # Create an entity from the cleaned file.
+          # XLANG
           push @newparts, 
             build MIME::Entity(
               'Type' => $_,
@@ -1589,6 +1596,7 @@ sub _r_strip_body {
         if ($txtfile) {
           # Create a new plain text entity and include it
           # in the list of new parts.
+          # XLANG
           push @newparts, 
             build MIME::Entity(
               'Type' => 'text/plain',
@@ -1739,7 +1747,7 @@ sub _format_text {
   return $txtfile;
 }
 
-=head2 _clean_text(entity)
+=head2 clean_text(entity)
 
 Removes selected HTML elements and attributes from a text/html
 body part.
@@ -1747,7 +1755,7 @@ body part.
 =cut
 use Symbol;
 use Mj::Util qw(clean_html);
-sub _clean_text {
+sub clean_text {
   my $self = shift;
   my $entity = shift;
   my $log = new Log::In 50;
@@ -1911,6 +1919,7 @@ sub _describe_taboo {
   $trunc = '';
   if (defined($match) && length($match) > 100) {
     $match = substr($match, 0, 100);
+    # XLANG
     $trunc = ' (truncated)';
   }
 
