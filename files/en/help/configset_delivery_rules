@@ -19,17 +19,15 @@ ALL
 sort, maxaddrs=30
 ENDTAG
 
+$INCLUDE-config/delivery_rules
 
-A table containing delivery rules, which describe how Majordomo will
-deliver mail.  In the simplest form, you can specify a host to use for
-delivery and a batch size.  (This duplicates much of the functionality
-of bulk_mailer, for those familiar with it.) Smaller batch sizes will
-keep malformed addresses from killing the entire delivery, but the
-optimal batch size depends on your mail handler and net connections.
 The delivery rules apply to all messages which are mailed by Majordomo.
-The rules for the GLOBAL pseudo-list, if any, are used to determine
-how replies to Majordomo commands are sent.  If no delivery rules
-are specified, the mail is delivered to localhost.
+The rules for an individual mailing list govern the delivery of posted
+messages, including digests, and announcements sent with the announce
+command.  The rules for the GLOBAL pseudo-list apply to all other
+messages sent by Majordomo, including responses to commands,
+confirmation notices, token reminders, and informational notices sent to
+the list owners.
 
 Each delivery destination should begin with a line containing either a
 regular expression, or the word ALL.  Addresses are compared against
@@ -75,6 +73,7 @@ hosts=(hosta=(parameter1, param2=5), hostb=(param3), hostc)
 
 The host parameters are as follows:
 
+dsn        - request delivery status notifications.
 esmtp      - speak ESMTP with the hosts if it is able.
 onex       - send ESMTP ONEX to the host if it supports it.
 pipelining - send the ESMTP PIPELINING command to the host.
@@ -82,6 +81,9 @@ timeout    - the number of seconds to wait when opening a connection
              to the host
 port       - the port number to connect to, if different from the
              usual SMTP port.
+
+If the dsn, onex, or pipelining parameter is used, the esmtp should also
+be specified.
 
 If, instead of a host name, the string "@qmail" is used, Majordomo
 will open a direct connection to the qmail-queue program and directly
@@ -159,7 +161,10 @@ ENDC
 It is possible to use comments before, between, and after the individual
 rules, but not within rules.  Comments are lines that begin with a '#'.
 
+See Also:
+   help admin_delivery
+   help admin_domain
+   help announce
+   help post
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
