@@ -897,7 +897,7 @@ sub substitute_vars {
 
       if ($inc) {
 	if ($depth > 3) {
-	  print $out "Recursive inclusion depth exceeded\n ($depth levels: may be a loop, now reading $1)\n"; #XLANG
+	  print $out "Recursive inclusion depth exceeded\n ($depth levels: may be a loop, now reading $2)\n"; #XLANG
 	}
 	else {
 	  # Got the file; substitute in it, perhaps recursively
@@ -905,8 +905,8 @@ sub substitute_vars {
 	}
       }
       else {
-	warn "Include file $1 not found."; #XLANG
-	print $out ("Include file $1 not found.\n"); #XLANG
+	warn "Include file $2 not found."; #XLANG
+	print $out ("Include file $2 not found.\n"); #XLANG
       }
       next;
     }
