@@ -10,7 +10,7 @@ was executed with status:
 in session:
   $SESSIONID
 
-from the $INTERFACE interface.
+from the $INTERFACE interface, taking $TIME seconds.
 
 $COMMENT
 
