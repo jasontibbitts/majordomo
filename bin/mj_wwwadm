@@ -183,7 +183,7 @@ else {
 @supported = (qw(accept archive-index archive-get auxadd auxremove
 auxwho configshow configset configdef get help index-recursive
 lists-aux reject report sessioninfo set set-aux showtokens subscribe 
-tokeninfo tokeninfo-full unsubscribe unregister which who-bounces));
+tokeninfo tokeninfo-full unsubscribe unregister which who who-bounces));
 
 
 $cmdform = <<EOM;
