@@ -6377,8 +6377,9 @@ sub _set {
         $self->{'lists'}{$l}->set($addr, $setting, $sublist, $check, $force);
 
       if ($ok) {
-        $res->{'victim'}   = $addr->strip;
+        $res->{'victim'}   = $addr->full;
         $res->{'fulladdr'} = $addr->full;
+        $res->{'stripaddr'} = $addr->strip;
         $res->{'list'}     = $l;
         $res->{'sublist'}  = $sublist;
         $res->{'flagdesc'} =
@@ -7465,69 +7466,97 @@ use Mj::Config;
 sub which {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'regexp'}";
-  my (@matches, $data, $err, $hits, $match, $max_hits, $max_list_hits,
-      $mess, $ok, $total_hits, $list);
+  my ($err, $match, $max_hits, $ok);
 
-  unless ($request->{'mode'} =~ /regex/) {
-    # treat the pattern as a literal substring match
-    $request->{'regexp'} = '"' . $request->{'regexp'} . '"';
+  $request->{'chunksize'} ||= 0;
+
+  unless (length $request->{'regexp'}) {
+    $request->{'regexp'} = $request->{'user'}->canon;
+    $match = 'iexact';
   }
+  else {
+    $match = 'isubstring';
+  }
+
   # compile the pattern
   ($ok, $err, $request->{'regexp'}) =
-     Mj::Config::compile_pattern($request->{'regexp'}, 0, "substring");
+     Mj::Config::compile_pattern($request->{'regexp'}, 0, $match);
   return (0, $err) unless $ok;
 
   # $max_hits will equal 1 for unprivileged people if they are allowed
-  # to use the which command.  Thus, the string length check is unneeded.
+  # to use the which command.  Thus, a string length check is unneeded.
 
-  # Check search string length; make sure we're not being trolled
-  # return (0, "Search string too short.\n")
-    # if length($string) < 3 || ($mode =~ /regex/ && length($string) < 5);
-
-  # Check global access, to get max hit limit
+  # Check global access, to get max hit limit, which is unused.
   ($max_hits, $err) = $self->global_access_check($request);
 
-  # Bomb if we're not allowed any hits
-  return (0, $err)
-    unless $max_hits > 0;
+  return ($max_hits, $err) unless $max_hits > 0;
+
+  $self->_which($request->{'list'}, $request->{'user'},
+                $request->{'user'}, $request->{'mode'},
+                $request->{'cmdline'}, $request->{'regexp'},
+                $request->{'chunksize'}, $request->{'password'});
+}
+
+sub _which {
+  my ($self, $d, $requ, $victim, $mode, $cmdline, $regexp, $chunksize,
+      $password) = @_;
+  my $log = new Log::In 35, $regexp;
+  my (@matches, $data, $err, $hits, $list, $match, $max_list_hits, 
+      $ok, $request, $total_hits);
+
+  # The chunk size and password aren't stored in the token
+  # database, so they may not be defined.
+  $chunksize ||= 0;
+  $password ||= '';
 
   $total_hits = 0;
 
   # Untaint
-  my ($string) = $request->{'regexp'};
-  $string =~ /(.*)/; $string = $1;
+  $regexp =~ /(.*)/; $regexp = $1;
+
+  $request = {
+              'cmdline' => $cmdline,
+              'command' => 'which',
+              'mode'    => $mode,
+              'password'=> $password,
+              'regexp'  => $regexp,
+              'user'    => $requ,
+              'victim'  => $victim,
+             };
 
   # Loop over the lists that the user can see
- LIST:
-  for $list
-    ($self->get_all_lists($request->{'user'}, $request->{'password'})) {
+  for $list ($self->get_all_lists($requ, $password)) {
 
-    # Check access for this list,
+    # Check access for this list
     $request->{'list'} = $list;
-    ($max_list_hits, $err) =
-      $self->list_access_check($request);
+    ($max_list_hits, $err) = $self->list_access_check($request);
 
     next unless $max_list_hits;
+    if ($chunksize > 0 and $chunksize < $max_list_hits) {
+      $max_list_hits = $chunksize;
+    }
 
     # We are authenticated and ready to search.
     next unless $self->_make_list($list);
-    $self->{'lists'}{$list}->get_start;
+    ($ok, $err) = $self->{'lists'}{$list}->get_start;
+    next unless $ok;
+
     $hits = 0;
 
-   ADDR:
     while (1) {
-      ($match, $data) = $self->{'lists'}{$list}->search('MAIN', $string, 'regexp');
+      ($match, $data) = 
+        $self->{'lists'}{$list}->search('MAIN', $regexp, 'regexp');
+
       last unless defined $match;
-      # if ($total_hits > $max_hits) {
-        # push @matches, (undef, "Total match limit exceeded.\n");
-        # last LIST;
-      # }
-      if ($hits > $max_list_hits) {
-        push @matches, [undef, "-- Match limit exceeded.\n"];
-        last ADDR;
+
+      if ($hits >= $max_list_hits) {
+        # XLANG
+        push @matches, [undef, 
+               "-- Match limit of $max_list_hits for $list exceeded."]; 
+        last;
       }
       else {
-        push @matches, [$list, $match];
+        push @matches, [$list, $data->{'stripaddr'}];
       }
       $hits++;
       $total_hits++;
