@@ -999,7 +999,7 @@ sub _a_forward {
     $parser->output_dir($tmpdir);
     $parser->output_prefix("mjf");
 
-    $fh = new IO::File "<$arg1";
+    $fh = new IO::File "<$td->{'arg1'}";
     $ent = $parser->read($fh);
     # This should be safe, because the file has already
     # been moved from the queue to the spool.
@@ -1012,7 +1012,7 @@ sub _a_forward {
         $subject = "Forwarding loop detected for $arg (was $subject)";
         $ent->head->replace('subject', $subject);
       }
-      $arg = $self->_list_config_get($list, 'whoami_owner');
+      $arg = $self->_list_config_get($td->{'list'}, 'whoami_owner');
     }
   }
   $mj_owner = $self->_global_config_get('sender');
@@ -1103,7 +1103,7 @@ sub _a_default {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150, $td->{'command'};
   my ($access, $policy, $action, $reason, $request);
-  ($request = $td->{'command'}) =~ s/_(start|chunk|done)$//g;
+  ($request = $td->{'command'}) =~ s/_(start|chunk|done)$//;
 
   # We'll use the arglist almost verbatim in several places.
   shift @_;
@@ -1146,7 +1146,7 @@ sub _a_default {
       $reason = "${request}_access is set to 'closed'";
     }
     elsif ($access eq 'list' &&
-	   $self->{'lists'}{$td->{'list'}}->is_subscriber($victim))
+	   $self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'victim'}))
       {
 		$action = "_a_allow";
       }
@@ -1338,7 +1338,7 @@ sub _d_post {
     }
   }
   if (@$restrict && !$member) {
-    $args->{'reasons'} = "Non-Member Submission from $victim\002" 
+    $args->{'reasons'} = "Non-Member Submission from $td->{'victim'}\002" 
                         . $args->{'reasons'};
     return $self->_a_consult(@_);
   }
