@@ -10,6 +10,9 @@
         substitutions to support conditional "accept" buttons and
         clearer instructions.
 
+	* lib/Mj/Util.pm:  (n_defaults)  Bugfix:  remove suffixes
+	from iterated commands.  
+
 2001-10-28  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Format.pm:  (archive)  Add KILOBYTES and

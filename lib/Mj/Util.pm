@@ -290,6 +290,8 @@ sub n_defaults {
   my ($type, $command) = @_;
   my ($defaults);
 
+  $command =~ s/_(start|chunk|done)$//;
+
   $defaults = {
                 'approvals'     => 1,
                 'attach'        => 0,
