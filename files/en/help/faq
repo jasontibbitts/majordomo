@@ -1,11 +1,36 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-faq listname
+faq[-edit] listname
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is a mailing list at this domain
+-edit, if specified, makes the faq document easy to edit and replace
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The faq command returns a Frequently Asked Questions file for a mailing
 list, if one exists.
+
+The faq document supports variable substitutions (see "help variables" 
+for more details).  
+
+The "edit" command mode is designed to allow list owners
+to edit and replace the existing document easily.  For example,
+the command:
+  faq-edit test-list
+
+would display the contents of the faq document wrapped in a "newfaq"
+command:
+
+newfaq test-list <<ADGBEH
+
+Q.:  How do I leave the test-list?
+
+A.:  Send a message to \$MJ.  
+     In the body of the message, put this command:
+       unsub test-list
+
+ADGBEH
+
+Please see "help here_document" and "help newfaq" for more information
+on replacing the faq document.
 
 See Also:
    help admin_documents (to learn about the file space of a mailing list)

@@ -1,14 +1,44 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-info listname
+info[-edit] listname
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is a mailing list at this domain
+-edit, if specified, makes the info document easy to edit and replace
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
+Example:
+  info test-list
+ 
 The info command displays an Information file for a mailing list, if one
 exists. 
 
 The "info" document is included in the welcome message that is received
-by new subscribers when they join a mailing list.
+by new subscribers when they join a mailing list.  List owners can
+use different documents in welcome messages by adjusting the
+welcome_files configuration setting.
+
+The info document supports variable substitutions (see "help variables" 
+for more details).  
+
+The "edit" command mode is designed to allow list owners
+to edit and replace the existing document easily.  For example,
+the command:
+  info-edit test-list
+
+would display the contents of the info document wrapped in a "newinfo"
+command:
+
+newinfo test-list <<ADGBEH
+
+To post to the mailing list, send a message to 
+  \$WHOAMI
+
+If you have questions about the test list, please write to
+  \$OWNER
+
+ADGBEH
+
+Please see "help here_document" and "help newinfo" for more information
+on replacing the info document.
 
 See Also:
    help admin_documents (to learn about the file space of a mailing list)

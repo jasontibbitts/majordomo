@@ -1,7 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-intro listname
+intro[-edit] listname
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is a mailing list at this domain.
+-edit, if specified, makes the intro document easy to edit and replace
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The intro command displays an introductory file for a mailing list, if one
@@ -15,6 +16,30 @@ and this command is supported only for purposes of compatibility.
 
 The welcome_files configuration setting can be adjusted to use the
 "intro" file in the welcome message, if the list owners prefer.
+
+The intro document supports variable substitutions (see "help variables" 
+for more details).  
+
+The "edit" command mode is designed to allow list owners
+to edit and replace the existing document easily.  For example,
+the command:
+  intro-edit test-list
+
+would display the contents of the intro document wrapped in a "newintro"
+command:
+
+newintro test-list <<ADGBEH
+
+The test-list is open to anyone interested in the new Majordomo
+server at \$SITE.  However, the list is lightly 
+moderated for civility.  If you have questions about the moderation
+policy, please write to \$OWNER.
+
+ADGBEH
+
+Please see "help here_document" and "help newintro" for more information
+on replacing the intro document.
+
 
 See Also:
    help admin_documents (to learn about the file space of a mailing list)
