@@ -40,6 +40,10 @@ use strict;
 use Fcntl qw(:flock);
 use Symbol;
 
+# This gets Time::HiRes if available, or uses crappy resolution timers if
+# not
+BEGIN {eval {require Time::HiRes; import Time::HiRes qw(time);}}
+
 =head2 new
 
 Simple constructor.  Calls lock if passed parameters.
@@ -132,6 +136,7 @@ sub lock {
   }
   $self->{'handle'} = $handle;
   $self->{'lname'}  = $lname;
+  $self->{'ltime'}  = time();
 
   $::log->out("locked");
   return 1;
@@ -144,6 +149,7 @@ Calls flock to unlock a file.
 =cut
 sub unlock {
   my $self = shift;
+  my ($elapsed);
 
   $::log->in(140, "$self->{'lname'}");
   
@@ -158,11 +164,14 @@ sub unlock {
   # some platforms.
   #unlink $self->{lname} ||
   #  $::log->abort("Failed unlinking $self->{lname}, $!");
-  
+
+  $elapsed = sprintf("%.3f", (time() - $self->{'ltime'}));
+
   delete $self->{'handle'};
   delete $self->{'master_handle'};
+  delete $self->{'ltime'};
 
-  $::log->out;
+  $::log->out("done (held for $elapsed sec)");
   return 1;
 }
 

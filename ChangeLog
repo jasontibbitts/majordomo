@@ -1,3 +1,9 @@
+2002-05-04  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/Lock.pm: Use Time::HiRes if available.
+	(lock): Store the time the lock was acquired.
+	(unlock): Log the time elapsed since the lock was acquired.
+
 2002-04-26  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (connect, dispatch)  Determine if an
