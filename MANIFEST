@@ -94,6 +94,7 @@ files/de/token_reject_owner
 files/de/token_remind
 files/de/welcome
 files/en/ack_archive
+files/en/ack_delay
 files/en/ack_denial
 files/en/ack_rejection
 files/en/ack_stall
@@ -221,6 +222,8 @@ files/en/confirm
 files/en/confirm_noweb
 files/en/consult
 files/en/consult_noweb
+files/en/delay
+files/en/delay_noweb
 files/en/digest_preindex
 files/en/faq
 files/en/file_not_found
@@ -435,8 +438,10 @@ files/en/repl_confcons
 files/en/repl_confirm
 files/en/repl_confirm2
 files/en/repl_consult
+files/en/repl_delay
 files/en/repl_deny
 files/en/repl_forward
+files/en/repl_fulfill
 files/en/request_response
 files/en/subscribe_to_self
 files/en/token_reject
@@ -491,6 +496,7 @@ lib/Mj/Resend.pm
 lib/Mj/SimpleDB.pm
 lib/Mj/SimpleDB/Base.pm
 lib/Mj/SimpleDB/DB.pm
+lib/Mj/SimpleDB/Pg.pm
 lib/Mj/SimpleDB/Text.pm
 lib/Mj/SubscriberList.pm
 lib/Mj/Token.pm

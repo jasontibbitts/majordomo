@@ -1,0 +1,29 @@
+Someone ($REQUESTER) has made the following request:
+
+  "$CMDLINE"
+
+It has been delayed for the following reason(s):
+
+  $REASONS
+
+This request will take place on or after
+
+  $FULFILL
+
+unless you act to stop it.
+
+
+If you do not want this action to be carried out, you may reject it 
+by doing the following:
+
+Reply to $MJ 
+  with the word "reject" (without quotes) on a line by itself.
+
+
+If you want this action to be taken immediately, please do the following:
+
+Reply to $MJ 
+  with the word "accept" (without quotes) on a line by itself.
+
+If you would like to communicate with a person, 
+send mail to $OWNER.

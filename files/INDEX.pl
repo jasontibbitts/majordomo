@@ -4,6 +4,7 @@ $files =
   {
    # english generic files
    'en/ack_archive'                                   => ['Archived post to $LIST',                   'us-ascii', '7bit'],
+   'en/ack_delay'                                     => ['Delayed post to $LIST',                    'us-ascii', '7bit'],
    'en/ack_denial'                                    => ['Denied post to $LIST',                     'us-ascii', '7bit'],
    'en/ack_rejection'                                 => ['Rejection of Majordomo Request "$COMMAND"','us-ascii', '7bit'],
    'en/ack_stall'                                     => ['Stalled post to $LIST',                    'us-ascii', '7bit'],
@@ -24,8 +25,10 @@ $files =
    'en/repl_confirm'                                  => ['Default confirm mailreply file',           'us-ascii', '7bit'],
    'en/repl_confirm2'                                 => ['Default double-confirm mailreply file',    'us-ascii', '7bit'],
    'en/repl_consult'                                  => ['Default consult mailreply file',           'us-ascii', '7bit'],
+   'en/repl_delay'                                    => ['Default delayed command reply file',       'us-ascii', '7bit'],
    'en/repl_deny'                                     => ['Default denial replyfile',                 'us-ascii', '7bit'],
    'en/repl_forward'                                  => ['Default forward replyfile',                'us-ascii', '7bit'],
+   'en/repl_fulfill'                                  => ['Results from delayed command',             'us-ascii', '7bit'],
    'en/request_response'                              => ['Automated response from $REQUEST',         'us-ascii', '7bit'],
    'en/subscribe_to_self'                             => ['Attempt to subscribe $LIST to itself',     'us-ascii', '7bit'],
    'en/token_reject'                                  => ['Rejected token $TOKEN',                    'us-ascii', '7bit'],
@@ -430,6 +433,7 @@ $files =
 if ($indexflags & 1) {
   $files->{'en/confirm'} = ['$TOKEN : CONFIRM from $LIST ($COMMAND)', 'us-ascii', '7bit'];
   $files->{'en/consult'} = ['$TOKEN : CONSULT from $LIST ($COMMAND)', 'us-ascii', '7bit'];
+  $files->{'en/delay'}   = ['$TOKEN : Delayed Command ($COMMAND)', 'us-ascii', '7bit'];
 
   $files->{'de/confirm'} = '$TOKEN : CONFIRM from $LIST';
   $files->{'de/consult'} = '$TOKEN : CONSULT from $LIST';
@@ -440,6 +444,7 @@ if ($indexflags & 1) {
 else {
   $files->{'en/confirm'} = ['$TOKEN : CONFIRM from $LIST ($COMMAND)', 'us-ascii', '7bit', 'en/confirm_noweb'];
   $files->{'en/consult'} = ['$TOKEN : CONSULT from $LIST ($COMMAND)', 'us-ascii', '7bit', 'en/consult_noweb'];
+  $files->{'en/delay'}   = ['$TOKEN : Delayed Command ($COMMAND)', 'us-ascii', '7bit', 'en/delay_noweb'];
 
   $files->{'de/confirm'} = ['$TOKEN : CONFIRM from $LIST', 'ISO-8859-1', '8bit', 'de/confirm_noweb'];
   $files->{'de/consult'} = ['$TOKEN : CONSULT from $LIST', 'ISO-8859-1', '8bit', 'de/consult_noweb'];
