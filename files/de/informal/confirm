@@ -9,7 +9,7 @@ benötigt. Du hast zwei Möglichkeiten, um dem Majordomo-Befehl
 zuzustimmen:
 
 1. Wenn Du einen Web Browser hast, besuche einfach
-   <URL:$URL>
+   <$URL>
    und folge den weiteren Anweisungen auf der Webseite.
 
 2. Oder antworte auf diese Nachricht, indem Du das Wort "accept"
@@ -28,7 +28,7 @@ Falls dieser Majordomo-Befehl nicht von Dir stammt, fehlerhaft ist oder Du
 nicht willst, dass er ausgefuehrt wird, kannst Du ihn ablehnen:
 
 1. Wenn Du einen Web Browser hast, besuche einfach
-   <URL:$URL>
+   <$URL>
    und folge den weiteren Anweisungen auf der Webseite.
 
 2. Oder antworte auf diese Nachricht, indem Du das Wort "reject"

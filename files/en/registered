@@ -41,7 +41,7 @@ To see a summary of Majordomo commands, use this command:
 
 If the web features of Majordomo are supported at this site, you
 can manage your registration by visiting the following location:
-  <URL:$WWWUSR_URL/$QSADDR>
+  <$WWWUSR_URL/$QSADDR>
 
 If you need help from a person, send a message to 
   $OWNER

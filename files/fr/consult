@@ -14,7 +14,7 @@ Pour accepter ou rejeter cette requête, choisissez l'une de ces
 possibilités :
 
 1. Si vous avez la possibilité de naviguer sur le web, visitez 
-   <URL:$URL>
+   <$URL>
    et suivez les instructions qui y sont.
 
 2. Répondez à $MJ 
@@ -34,7 +34,7 @@ possibilités :
 4. Si vous connaissez le mot de passe administratif de la liste
    $LIST, toutes les demandes en attente de traitement sont
    disponibles sur la page
-   <URL:$WWWADM_URL/$LIST?func=showtokens>
+   <$WWWADM_URL/$LIST?func=showtokens>
 
 Si vous ne répondez pas dans les $EXPIRE jours, ce ticket expirera, et
 la requête ne sera pas complétée

@@ -19,5 +19,5 @@ contact the people who manage the list by sending a message to
   $OWNER
 
 You can manage your subscription by visiting the following WWW location:
-  <URL:$WWWUSR_URL/$QSADDR>
+  <$WWWUSR_URL/$QSADDR>
 

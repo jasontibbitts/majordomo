@@ -10,7 +10,7 @@ zuzustimmen:
 
 
 1. Wenn Sie einen Web Browser haben, besuchen Sie
-   <URL:$URL>
+   <$URL>
    und folgen Sie den weiteren Anweisungen auf der Webseite.
 
 2. Oder antworten Sie auf diese Nachricht, indem Sie das Wort
@@ -29,7 +29,7 @@ Falls dieser Majordomo-Befehl nicht von Ihnen stammt, fehlerhaft ist oder
 Sie nicht wollen, dass er ausgeführt wird, können Sie ihn ablehnen:
 
 1. Wenn Sie einen Web Browser haben, besuchen Sie
-   <URL:$URL>
+   <$URL>
    und folgen Sie den weiteren Anweisungen auf der Webseite.
 
 2. Oder antworten Sie auf diese Nachricht, indem Sie das Wort

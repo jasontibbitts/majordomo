@@ -22,7 +22,7 @@ site.
 Vous pouvez aussi supprimer votre adresse du registre, modifier votre
 adresse ou vous abonner a d'autres listes en visitant la page
 suivante :
-  <URL:$WWWUSR_URL/$QSADDR>
+  <$WWWUSR_URL/$QSADDR>
 
 Contactez $OWNER si vous avez des questions.
 

@@ -13,7 +13,7 @@ The request requires your confirmation for the following reason(s):
 To accept or reject this request, please do one of the following:
 
 1. If you have web browsing capability, visit
-   <URL:$URL>
+   <$URL>
    and follow the instructions there.
 
 2. Reply to $MJ 
@@ -32,7 +32,7 @@ To accept or reject this request, please do one of the following:
 
 4. If you know the administrative password for the $LIST list,
    all pending requests can be managed by visiting
-   <URL:$WWWADM_URL/$LIST?func=showtokens>
+   <$WWWADM_URL/$LIST?func=showtokens>
 
 If you do not respond within $EXPIRE days, this token will expire,
 and the request will not be completed.

@@ -9,7 +9,7 @@ Wenn Sie wollen, daß dieser Majordomo-Befehl ausgeführt wird, haben Sie zwei
 Möglichkeiten:
 
 1. Wenn Sie einen Web Browser haben, besuche einfach
-   <URL:$URL>
+   <$URL>
    und folgen Sie den weiteren Anweisungen auf der Webseite.
 
 2. Oder antworten Sie auf diese Nachricht, indem Sie das Wort "accept"
@@ -24,7 +24,7 @@ Falls dieser Majordomo-Befehl nicht von Ihnen stammt, fehlerhaft ist,
 oder Sie nicht wollen, daß er ausgefuehrt wird, können Sie ihn ablehnen:
 
 1. Wenn Sie einen Web Browser haben, besuchen Sie einfach
-   <URL:$URL>
+   <$URL>
    und folgen den weiteren Anweisungen auf der Webseite.
 
 2. Oder antworten Sie auf diese Nachricht, indem Sie das Wort "reject"

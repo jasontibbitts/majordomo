@@ -21,7 +21,7 @@ This will also remove any other subscriptions you have at this site.
 
 You can also unregister, change your address, or subscribe to other
 mailing lists by visiting the following WWW page:
-  <URL:$WWWUSR_URL/$QSADDR>
+  <$WWWUSR_URL/$QSADDR>
 
 Please contact $OWNER if you have questions.
 

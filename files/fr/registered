@@ -43,7 +43,7 @@ commande :
 
 Si l'interface web de Majordomo est activée ici, vous pouvez gérer
 votre enregistrement en visitant le site :
-  <URL:$WWWUSR_URL/$QSADDR>
+  <$WWWUSR_URL/$QSADDR>
 
 Si vous avez besoin de l'aide de quelqu'un, envoyez un message à :
   $OWNER
