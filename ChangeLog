@@ -1,3 +1,25 @@
+2001-10-27  Michael Yount <csf@moscow.com>
+
+	* bin/mj_shell,mj_wwwadm:  Use the message returned by 
+	Majordomo::valid_list if a list validation error occurs.
+
+	* lib/Majordomo.pm:  (valid_list)  Make use of the
+	relocated_lists configuration setting to rewrite old list names.
+	(rekey)  Allow the use of a pattern with the rekey-verify and
+	rekey-repair commands.  Suggested by Roger Klorese.
+
+	* lib/mj_cf_data.pl,mj_cf_defs.pl:  Add support for the GLOBAL
+	relocated_lists configuration setting.
+
+	* lib/Mj/CommandProps.pm:  Add support for the use of a pattern
+	with the rekey-verify and rekey-repair commands.
+
+	* lib/Mj/Config.pm:  (parse_relocated_lists)  New routine.
+	Parse the GLOBAL relocated_lists configuration setting.
+
+	* lib/Mj/Parser.pm:  (parse_part)  Use the message returned
+	by Majordomo::valid_list if a list validation error occurs.
+
 2001-10-23  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (substitute_vars_format)  Bugfix:

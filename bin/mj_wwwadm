@@ -44,7 +44,7 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
     @settings, @values, $addr, $cgi, $cgidata, $cgiurl, $domain, 
     $falseuser, $fh, $func, $i, $j, $line, $list, 
     $mess, $mode, $mj, $ofunc, $ok, $passw, $pathinfo, $req, $request, 
-    $result, $sess, $str, $subs, $tmp, $token, $user);
+    $result, $sess, $str, $subs, $tmp, $token, $truelist, $user);
 
 #----- Which commands are supported ?  -----#
 # First  value:  Is a password required?
@@ -233,15 +233,15 @@ unless (length $lists[0]) {
   &login($mj, $subs, '');
 }
 
-($i) = $mj->valid_list($lists[0], 1, 1);
-unless (defined $i) {
-  &login($mj, $subs, "Invalid list: \"$lists[0]\".");
+($truelist, undef, $mess) = $mj->valid_list($lists[0], 1, 1);
+unless ($truelist) {
+  &login($mj, $subs, $mess);
 }
 unless ($passw) {
   &login($mj, $subs, '');
 }
 $addr = new Mj::Addr($user);
-unless ($mj->validate_passwd($addr, $passw, $i, 'ALL')) {
+unless ($mj->validate_passwd($addr, $passw, $truelist, 'ALL')) {
   &login($mj, $subs, 'Invalid password.');
 }
 
@@ -289,7 +289,7 @@ no strict 'refs';
 $request = {
     'cgiurl'    => $cgiurl,
     'command'   => $func,
-    'list'      => $lists[0],
+    'list'      => $truelist,
     'mode'      => $mode,
     'password'  => $passw, 
     'user'      => $user,
