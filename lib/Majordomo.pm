@@ -3751,7 +3751,7 @@ sub showtokens {
 sub _showtokens {
   my ($self, $list, $user, $vict, $mode, $cmd) = @_;
   my $log = new Log::In 35, "$list";
-  my (@out, $data, $token);
+  my (@tmp, @out, $data, $token);
 
   # We have access; open the token database and start pulling data.
   $self->_make_tokendb;
@@ -3762,7 +3762,7 @@ sub _showtokens {
     next unless $data->{'list'} eq $list || $list eq 'ALL';
 
     # Stuff the data
-    push @out, ($token,
+    push @tmp, [$token,
 		$data->{'request'},
 		$data->{'requester'},
 		$data->{'cmdline'},
@@ -3777,7 +3777,11 @@ sub _showtokens {
 		$data->{'time'},
 		$data->{'sessionid'},
 		$data->{'reminded'},
-	       );
+	       ];
+  }
+  @tmp = sort { $a->[12] <=> $b->[12] } @tmp;
+  for (@tmp) {
+    push @out, @$_;
   }
   $self->{'tokendb'}->get_done;
   return (1, @out);
