@@ -297,7 +297,7 @@ sub configshow {
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27, $args;
   my (%all_vars, @vars, $auto, $comment, $flag, $group, $groups,
-      $message, $tag, $val, $var, $vars);
+      $message, $tag, $val, $var, $vars, $whence);
 
 
   $groups = $args;
@@ -328,6 +328,16 @@ sub configshow {
       if ($comment) {
         $comment =~ s/^/# /gm;
         print $outfh $comment;
+      }
+      $whence = $mj->config_get_whence($list, $var);
+      if ($whence > 0) {
+        print $outfh "# This value was set by the DEFAULT list.\n";
+      }
+      elsif ($whence < 0) {
+        print $outfh "# This value was set by the list owners.\n";
+      }
+      elsif ($whence == 0) {
+        print $outfh "# This value was set by the installation defaults.\n";
       }
     }
     $auto = '';

@@ -1238,6 +1238,14 @@ sub config_get_visible {
   $self->{'lists'}{'GLOBAL'}->config_get_visible($var);
 }
 
+sub config_get_whence {
+  my $self = shift;
+  my $list = shift;
+  my $var  = shift;
+  $self->_make_list($list);
+  $self->{'lists'}{$list}->config_get_whence($var);
+}
+
 sub config_get_mutable {
   my $self = shift;
   my $var  = shift;

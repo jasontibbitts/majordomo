@@ -1,3 +1,10 @@
+2000-05-09  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Config.pm (whence): Determine the source of a
+	configuration setting: mj_cf_defs, DEFAULT, or list-specific.
+	This information is displayed in the results of the 
+	configshow command, as a comment.
+
 2000-05-09  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/MailOut.pm (owner_done): If the MIME parser didn't like
@@ -11,6 +18,12 @@
 	* lib/Mj/MailOut.pm (owner_done): Avoid undef warning when no
 	diagnostic is available.
 
+2000-05-06  Michael Yount  <csf@moscow.com>
+
+	* /lib/Mj/Access.pm:
+	(_a_confirm2) Allow the command if the requester and victim are
+	identical and the victim's password was supplied.
+
 2000-05-06  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/MailOut.pm (owner_done): Report diagnostic in message to
@@ -19,6 +32,38 @@
 	* lib/Bf/Parser.pm (parse_dsn): Return Diagnostic-Code: if
 	available.  Loop over all per-user bounce status blocks and return
 	data on all users found there.
+
+2000-05-05  Michael Yount  <csf@moscow.com>
+
+	* /lib/Majordomo.pm:
+	(changeaddr) If an address is to be replaced by an address that
+	is already in the registry, combine the list data for the
+	two registry entries.
+
+	(set) Return an error immediately if the set command is called
+	for the DEFAULT or GLOBAL lists.
+
+	* /lib/Mj/Access.pm, /lib/Mj/CommandProps.pm:
+	Remove default access routines for the subscribe and unsubscribe
+	commands and incorporate their functionality into
+	Mj::Access::_a_default.  Use a default access value
+	of 'policy' to invoke this code.  The unsubscribe, subscribe,
+	and set commands now have default access 'policy', and
+	the archive command has default access 'access'.
+
+	* /lib/Mj/Format.pm:
+	(set) Remember to obtain the error message if an error occurs.
+
+	* /lib/Mj/List.pm:
+	(set) Indicate the name of the list if an error occurs
+	because the victim is not subscribed.
+
+	* /lib/mj_cf_data.pl, /lib/mj_cf_defs.pl, /MANIFEST, /files/INDEX.pl, /files/e
+n/config/archive_access, /files/en/config/set_policy, /files/en/config/unsubscribe
+_policy:
+	Add archive_access and set_policy variables.
+
+	Change unsubscribe_policy to allow "+confirm" values.
 
 2000-05-04  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
@@ -37,6 +82,31 @@
 	directory doesn't exist.
 
 	* lib/Mj/Config.pm (parse_restrict_post): Was completely broken.
+
+2000-05-04  Michael Yount  <csf@moscow.com>
+
+	* /lib/Mj/List.pm, /lib/Mj/Format.pm:
+	(set, make_setting) Deal better with partial failures.
+	Indicate which setting is being changed.
+	If no digests are configured, indicate the name of the list.
+
+	* /bin/mj_wwwadm:
+	Correctly set command name for non-hyphenated commands.
+
+2000-05-03  Michael Yount  <csf@moscow.com>
+
+	* /lib/Mj/Resend.pm:
+	(_describe_taboo) Remove any control-A characters (the token database
+	field separator) from the matching text.
+
+	* /files/en/config/bounce_recipients, /lib/Mj/MailOut.pm, /lib/mj_cf_data.pl,
+/lib/mj_cf_defs.pl, /files/INDEX.pl:
+	Add bounce_recipients configuration variable.  The addresses
+	specified in this variable will receive any bounce messages
+	identified by Bf::Parser.
+
+	* /bin/mj_wwwadm:
+	Include the unregister command in the command menu
 
 2000-05-03  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
@@ -63,6 +133,155 @@
 	(_compile_rule): Don't blindly match against (admin|taboo)_ for
 	legal variables; use the hash of variables passed in to us
 	instead.
+
+2000-05-02  Michael Yount  <csf@moscow.com>
+
+	* README.EXIM:
+ 	Discuss the permissions required to read
+	alias files, and the use of Exim's temp_errors setting to queue
+	temporary failures in mj_enqueue.
+
+	* bin/mj_enqueue, Makefile.PL:
+	Remove Errno and sysexits dependencies entirely.
+	Use hard-coded return values instead.
+
+	* bin/mj_wwwadm
+	Display the command just executed in the command menu.
+	Use who-enhanced in the command menu.
+
+	* lib/Majordomo.pm (_set):
+	Add back-end for the "set" core function, and allow it to
+	work with GLOBAL or ALL, synonyms for changing the settings
+	on every list in which the subscriber participates.  Make
+	the result of the "set" command slightly more descriptive.
+
+	* lib/Mj/Access.pm (list_access_check):
+	Add a rules_var check for the "unset" access rule action.
+
+	* lib/Mj/Config.pm (_str_to_clock):
+	Make tests for days, numbers (1st, 3rd, etc.), and other
+	directives containing letters in the digest "times" field
+	case-insensitive.
+
+2000-05-01  SRE  <eckert@climber.org>
+
+	* files/en/help/changeaddr, files/en/help/default:
+	take a stab at documenting the new "default user" command
+
+	* files/en/help/configset_access_rules:
+	another pass at access_rules actions, based on email from Yount...
+	specifically re-wording confirm2, confirm_consult, and consult
+	with respect to files and groups
+
+	* files/en/config/save_denial_checksums:
+	made config match help for save_denial_checksums
+
+	* files/en/help/configset_access_rules:
+	added mention of actions that were previously missing: reason, set, unset
+
+	* files/en/help/configset_save_denial_checksums, files/en/config/save_denial_checksums:
+	improved help for save_denial_checksums: noted integer vs. boolean
+	value, added paragraph about why this variable is useful
+
+2000-04-30  Michael Yount  <csf@moscow.com>
+
+	* bin/mj_queuerun:
+	(connect_and_parse) Ensure that a MIME entity exists before
+	processing it.
+
+	* Makefile.PL:
+	Add tests for Errno.pm and sysexits.ph.
+
+2000-04-28  Michael Yount  <csf@moscow.com>
+
+	* setup/setup_func.pl:
+	Do not test the result of rchown().
+
+	* lib/Mj/Resend.pm, bin/mj_queuerun:
+	Add preliminary code to prevent the queue becoming clogged if a message
+	with no From: or Apparently-from: header is processed.
+
+2000-04-27  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Config.pm:
+	(_str_to_clock) Allow saturday and sunday to be used in the digest
+	"times" field.
+
+2000-04-25  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Access.pm:
+	Use the second file specified for conf_cons or confirm2 only for
+	notices that a token exists, not for replies after the token
+	is accepted or rejected.
+
+2000-04-25  SRE  <eckert@climber.org>
+
+	* files/en/help/changeaddr:
+	documented new confirm2 option for access_rules
+
+	* files/en/help/configset_access_rules:
+	improved explanation of changeaddr
+
+2000-04-25  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* setup/postinstall.pl, MANIFEST:
+	Remove postinstall.pl, as it isn't used anywhere.
+
+2000-04-25  SRE  <eckert@climber.org>
+
+	* MANIFEST, files/INDEX.pl:
+	added help file for new changeaddr command
+
+	* files/en/help/subscribe, files/en/help/unregister, files/en/help/unsubscribe, files/en/help/changeaddr, files/en/help/commands:
+	added help file for new changeaddr command, added mention
+	of the new command in several other help files
+
+	* setup/setup_func.pl:
+	for safety, add error traps on chmod and chown calls
+
+2000-04-24  Michael Yount  <csf@moscow.com>
+
+	* lib/Majordomo.pm (changeaddr):
+	Move address change code from "unregister-replace" to the new
+	"changeaddr" core routine.  The changeaddr command adjusts
+	aliases automatically, as does the unregister command, but
+	it does not yet deal with auxiliary lists.
+
+2000-04-23  SRE  <eckert@climber.org>
+
+	* files/en/help/configset_restrict_post, files/en/config/restrict_post, files/en/help/admin:
+	greatly improved description in "help configset restrict_post",
+	minor improvement to index and text of "help admin"
+
+2000-04-23  Michael Yount  <csf@moscow.com>
+
+	* files/en/confirm, files/en/confirm_noweb, files/en/consult, files/en/consult_noweb:
+	* Indicate in confirm and consult messages the address that was
+	responsible for the request.
+
+	* lib/Majordomo.pm (connect):
+	Add "sessionuser" variable to a Majordomo object, indicating the
+	address that was used to initiate a session.
+
+	* various:
+		  $fh = new IO::File ">$file" || die "Eek!";
+	does not work as expected.  Use "or" instead of ||.
+
+	* lib/Mj/CommandProps.pm, lib/Mj/Access.pm:
+	Add "posing" variable to access rules; it indicates if the
+	user for the current request is different from the original
+	"sessionuser."  The "posing" variable has side-effects:  if the rule
+	for a request is "mismatch" and "posing" is true, both
+	the user and victim may be consulted.  "posing" is treated
+	the same as "mismatch" for (un)subscribe commands.
+
+	* lib/Mj/Parser.pm (parse_part):
+	Enhance "default user" command: send results of each
+	command to the posed address.  The poser will still
+	see the result of the command (succeed, stall, fail)
+	but none of the output.  The message to the posee
+	has the poser's address in the From: header and
+	majordomo-owner in Reply-To.
 
 2000-04-21  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
@@ -236,7 +455,6 @@
 2000-04-08  Michael Yount  <csf@moscow.com>
 
 	* lib/Mj/Deliver/Envelope.pm, lib/Mj/List.pm, lib/Mj/Resend.pm, lib/Bf/Parser.pm, lib/Mj/Access.pm, lib/Mj/CommandProps.pm, lib/mj_cf_data.pl, lib/mj_cf_defs.pl, files/en/config/save_denial_checksums, files/en/repl_consult, files/en/repl_deny, files/INDEX.pl:
-	Temporarily comment out parse_dsn() in the bounce parser.
 
 	Add "save_denial_checksums" configuration variable.  This
 	determines whether or not message body checksums of messages

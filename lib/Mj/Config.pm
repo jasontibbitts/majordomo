@@ -276,6 +276,55 @@ sub get {
   return;
 }
 
+=head2 whence
+Determines the origin of a variable.  
+
+1   variable was set by the DEFAULT list
+0   variable was set by mj_cf_defs.pl
+-1  variable was set by the list's configuration data
+
+=cut
+sub whence {
+  my $self = shift;
+  my $var  = shift;
+  my $log  = new Log::In 180, "$self->{'list'}, $var";
+  my($ok);
+
+  return unless $var;
+
+  # We include a facility for setting some variables that we can access
+  # during the bootstrap process.
+  if (exists $self->{'special'}{$var}) {
+    return 0;
+  }
+
+  # Just in case, we make sure we don't get into any stupid loops looking
+  # up variables while we're still loading the variables.
+  if ($self->{'defaulting'}) {
+    $log->out("defaulting");
+    return;
+  }
+
+  # Pull in the config file if necessary
+  unless ($self->{'loaded'}) {
+    $self->load;
+  }
+
+  if (exists $self->{'data'}{'raw'}{$var}) {
+    return -1;
+  }
+    
+  if (exists $self->{'dfldata'}{'raw'}{$var}) {
+    return 1;
+  }
+    
+  if (exists $self->{'defaults'}{$var}) {
+    return 0;
+  }
+  # or just return nothing
+  return;
+}
+
 =head2 load
 
 This contains the logic for loading up stored config files.  It''s

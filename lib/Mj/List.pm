@@ -1322,6 +1322,12 @@ sub config_get_visible {
   $self->{'config'}->visible($var);
 }
 
+sub config_get_whence {
+  my $self = shift;
+  my $var  = shift;
+  $self->{'config'}->whence($var);
+}
+
 sub config_get_mutable {
   my $self = shift;
   my $var  = shift;
