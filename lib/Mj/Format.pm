@@ -1401,15 +1401,15 @@ sub lists {
                   %{$gsubs},
                   'ARCURL'        => $data->{'archive'} || "",
                   'CAN_READ'      => $data->{'can_read'} ? " " : '',
-                  'CATEGORY'      => $category || "?",
-                  'DESCRIPTION'   => $desc,
-                  'DIGESTS'       => $digests,
+                  'CATEGORY'      => &escape($category, $type) || "?",
+                  'DESCRIPTION'   => &escape($desc, $type),
+                  'DIGESTS'       => &escape($digests, $type),
                   'FLAGS'         => $flags,
                   'LIST'          => $list,
-                  'OWNER'         => $data->{'owner'},
+                  'OWNER'         => &escape($data->{'owner'}, $type),
                   'POSTS'         => $data->{'posts'},
                   'SUBS'          => $data->{'subs'},
-                  'WHOAMI'        => $data->{'address'},
+                  'WHOAMI'        => &escape($data->{'address'}, $type),
                 };
                   
         $str = $mj->substitute_vars_format($basic_format, $subs);
