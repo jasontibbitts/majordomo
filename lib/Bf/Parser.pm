@@ -31,14 +31,11 @@ Takes:
 
 Returns:
 
-  type - type of message this was identified to be ('bounce', 'warning',
-         'unknown').
-  address - address which is identified to be bouncing.
+  type - type of message this was identified to be, as a single letter (M
+    for list message, C for confirmation token, etc.)
   msgno   - the message number of the bouncing message, if known
-  info    - a descriptive message for the list owner.
-
-Please note that this is just a skeleton hack to get some functionality
-going.
+  address - address (if any) extracted from an envelope VERP.
+  data    - a hashref of data, one key per user 
 
 We are supposed to give enough information to the calling layer so that it
 can make a reasonable decision about what to do with the bounce.
@@ -77,6 +74,12 @@ sub parse {
 
   my ($data, $info, $msgno, $ok, $to, $type, $user);
 
+  # Try to identify the bounce by parsing it
+  $data = {};
+  $ok or ($ok = parse_dsn($ent, $data));
+# $ok or ($ok = parse_exim($ent, $data));
+
+
   # Look for useful bits in the To: header (assuming we even have one)
   $to = $ent->head->get('To');
   $to ||= '';
@@ -86,9 +89,18 @@ sub parse {
   # stuff.
   ($info) = $to =~ /\Q$list\E-owner\Q$sep\E([^@]+)\@/;
 
+  # We might not have a special envelope
   if (!defined($info)) {
-    $type = '';
- #   $status = 'none';
+
+    # But if we did manage to parse a bounce, we should return something
+    # useful anyway.
+    if ($ok) {
+      $type = 'M';
+      $msgno = 'unknown';
+    }
+    else {
+      $type = '';
+    }
   }
 
   # We know the message is special.  Look for:
@@ -115,11 +127,6 @@ sub parse {
 #    $status = 'unknown';
 #    $mess   = "Detected a special return message but could not discern its type.\n";
   }
-
-  # Now try to identify the type of bounce
-  $data = {};
-  $ok or ($ok = parse_dsn($ent, $data));
-# $ok or ($ok = parse_exim($ent, $data));
 
   # So now we have a hash of users and actions plus one possibly determined
   # from a VERP.  If the user in the VERP is already in the hash, trust
@@ -162,7 +169,8 @@ sub parse_dsn {
 
   # We can quit now if we don't have a type of multipart/report and a
   # subtype of delivery-status
-  unless ($type =~ m!multipart/report!i &&
+  unless ($type &&
+	  $type =~ m!multipart/report!i &&
 	  $type =~ m!report-type=delivery-status!i)
     {
       return 0;
@@ -186,13 +194,13 @@ sub parse_dsn {
 
  REC:
   for ($i = 0; 1; $i++) {
-    $status[$i] = {};
     while (1) {
       $line = $fh->getline;
       last REC unless defined $line;
       chomp $line;
       next REC if $line =~ /^\s*$/;
       $line =~ /([^:]+):\s*(.*)/;
+      $status[$i] = {} unless $status[$i];
       $status[$i]->{lc($1)} = $2;
     }
   }
@@ -231,6 +239,7 @@ sub parse_dsn {
 	$data->{$user}{'diag'} = "unknown";
     }
   }
+
   return 1;
 }
 

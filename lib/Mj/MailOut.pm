@@ -240,7 +240,7 @@ sub owner_done {
 	  if ($status eq 'unknown' || $status eq 'warning' || $status eq 'failure') {
 	    $mess .= "  User:       $i\n";
 	    $mess .= "  Status:     $data->{$i}{status}\n";
-	    $mess .= "  Diagnostic: $data->{$user}{diag}\n\n";
+	    $mess .= "  Diagnostic: $data->{$i}{diag}\n\n";
 	  }
 	}
       }

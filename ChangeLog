@@ -1,3 +1,9 @@
+2000-05-10  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Bf/Parser.pm (parse): Change order of parsing.  Try to do
+	specialized parsing even if the envelope doesn't include any VERP
+	stuff.
+
 2000-05-10  Michael Yount  <csf@moscow.com>
 
     * lib/Mj/SimpleDB/DB.pm: Do not use R_CURSOR when deleting.
