@@ -558,8 +558,8 @@ sub t_accept {
   my $delay = shift;
   my $log   = new Log::In 60, $token;
   my (%file, @out, @tmp, $data, $ent, $ffunc, $func, $line, $mess, 
-      $notify, $ok, $outfh, $repl, $req, $rf, $sender, $server, 
-      $tmp, $tmpdir, $vict, $whoami);
+      $notify, $ok, $outfh, $repl, $rf, $sender, $server, 
+      $tmp, $tmpdir, $whoami);
 
   return (0, "The token database could not be initialized.\n")
     unless $self->_make_tokendb;
@@ -702,9 +702,9 @@ sub t_accept {
   $data->{'ack'} = 1;
   if ($func eq 'post') {
     # determine whether or not the victim was notified.
-    $vict = new Mj::Addr($data->{'victim'});
+    $data->{'victim'} = new Mj::Addr($data->{'victim'});
     unless ($self->{'lists'}{$data->{'list'}}->should_ack(
-         $data->{'sublist'}, $vict, 'f')) {
+         $data->{'sublist'}, $data->{'victim'}, 'f')) {
       $data->{'ack'} = 0;
     }
   }
@@ -742,12 +742,13 @@ sub t_accept {
     return (1, $token, $data, [1]);
   }
   else {
-    $vict = new Mj::Addr($data->{'victim'}) unless (defined $vict);
-    $req  = new Mj::Addr($data->{'user'});
+    $data->{'victim'} = new Mj::Addr($data->{'victim'}) 
+      unless (ref $data->{'victim'});
+    $data->{'user'} = new Mj::Addr($data->{'user'});
     $func = "_$func";
     @out = $self->$func($data->{'list'},
-                        $req,
-                        $vict,
+                        $data->{'user'},
+                        $data->{'victim'},
                         $data->{'mode'},
                         $data->{'cmdline'},
                         $data->{'arg1'},
@@ -853,7 +854,7 @@ This returns a hashref containing all information about a token.
 sub t_info {
   my $self = shift;
   my $token = shift;
-  my $log = new Log::In 60, "$token";
+  my $log = new Log::In 60, $token;
 
   $self->_make_tokendb;
   $token =~ /(.*)/; $token = $1; # Untaint
