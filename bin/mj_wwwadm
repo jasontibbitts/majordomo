@@ -84,7 +84,9 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
 
 #----- Initialize the CGI object -----#
 $cgi = new CGI;
-print $cgi->header(-expires => '+10s');
+
+$tmp = '+50s';
+print $cgi->header(-expires => $tmp);
 
 #----- Multiple-list specification (used for showtokens) -----#
 $pathinfo = $domain = '';
@@ -154,13 +156,6 @@ $sess .= scalar(localtime(time)) . "\n";
 $falseuser = "y$ENV{'REMOTE_ADDR'}\@example.com";
 $user      = $cgi->param('user') || $falseuser;
 
-#----- Connect to the server -----#
-($ok, $mess) = $mj->connect('wwwadm', $sess, $user);
-unless ($ok) {
-  &surrender($mess);
-} 
-
-#----- Print the generic page header -----#
 $ofunc   = $cgi->param('func') || 'welcome';
 @lists   = $cgi->param('list');
 if ((! @lists) and @mlists) {
@@ -172,8 +167,6 @@ $lists[0] ||= 'GLOBAL';
 $passw   = $cgi->param('passw') || '';
 if ($passw) {
   $passw =~ /(.+)/; $passw = $1;
-  $passw = $mj->gen_latchkey($passw) 
-    unless ($mj->t_recognize($passw));
 }
 
 $cgidata = sprintf 'user=%s&passw=%s&list=%s', 
@@ -184,7 +177,7 @@ $subs = { $mj->standard_subs($lists[0]),
           'CGIDATA'   => $cgidata,
           'CGIURL'    => $cgiurl,
           'COMMAND'   => $ofunc,
-          'PASSWORD'  => $passw,
+          'PASSWORD'  => '',
           'USER'      => $user,
         };
 
@@ -201,13 +194,25 @@ else {
   $mode = '';
 }
 
-# Remove the temporary password if the admin is signing out.
+#----- Connect to the server -----#
+($ok, $mess) = $mj->connect('wwwadm', $sess, $user, $passw);
+unless ($ok) {
+  &surrender($mess);
+} 
+
+#----- Remove the temporary password if the admin is signing out. -----#
 if ($ofunc eq 'logout') {
-  $mj->del_latchkey($passw);
+  $mj->del_latchkey($passw) if ($mj->t_recognize($passw));
   $subs->{'PASSWORD'} = '';
   $subs->{'COMMAND'} = 'welcome';
 }
+else {
+  $passw = $mj->gen_latchkey($passw) 
+    if ($passw and !$mj->t_recognize($passw));
+  $subs->{'PASSWORD'} = $passw;
+}
 
+#----- Print the generic page header -----#
 $tmp = $mj->format_get_string('wwwadm', 'head');
 $str = $mj->substitute_vars_format($tmp, $subs);
 print STDOUT "$str\n";
