@@ -358,7 +358,8 @@ sub parse_command {
     $true_command = "put";
   }
     
-  if ($true_command eq "configedit") {
+  if ($true_command eq "configedit" or 
+      $true_command eq "get" and $mode =~ /edit/) {
     
     # Pull the editor out of the environment and untaint it. This is safe
     # because we only exec the editor as the calling user.
@@ -370,18 +371,26 @@ sub parse_command {
     $tmpu = $>; $> = $<;  $tmpg = $); $) = $(;
     $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA", O_WRONLY|O_CREAT, 0600;
     $> = $tmpu; $) = $tmpg;
+
     die "Cannot open $::WTMPDIR/mjs.$$.AAA: $!" unless $fh;
+
+    $i = ($true_command eq 'configedit') ? 'configshow' : 'get_start';
+
     $request = {
-      'command'   => 'configshow',
+      'command'   => $i,
       'list'      => $list,
       'mode'      => $mode,
       'password'  => $pass || $dfl->{'password'},
       'user'      => $dfl->{'user'},
     };
     Mj::Parser::parse_args($request, $args, \@arglist);
+
+    $i = ($true_command eq 'configedit') ? 'configshow' : 'get';
+
     $result = 
-      Mj::Format::configshow($mj, $fh, $fh, 'shell', $request,
+      &{"Mj::Format::$i"}($mj, $fh, $fh, 'text', $request,
         $mj->dispatch($request));
+
     $fh->close;
     if ($result) {
       my $modtime = (stat("$::WTMPDIR/mjs.$$.AAA"))[9];
