@@ -1,3 +1,12 @@
+2003-11-12  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/BounceHandler.pm:  (handle_bounce_message)  Override
+	the address found by the parser with the VERP address if
+	necessary.
+	(handle_bounce_removal)  Bugfix:  Convert the address from 
+	an object to a string when substituting.
+	Thanks to Roger Klorese and Jeff Wasilko.
+
 2003-11-08  Michael Yount <csf@moscow.com>
 
         * lib/Mj/MailOut.pm:  (welcome)  Increase the message count

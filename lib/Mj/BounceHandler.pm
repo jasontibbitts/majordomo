@@ -177,11 +177,11 @@ sub handle_bounce_message {
       # Account for abbreviated local parts
       ($other) = grep /^$user/i, keys %$data;
 
-      # Use the first address.
+      # Use data from the first address found if no data for the
+      # VERP address is available.
       ($other) = keys %$data unless (defined $other);
 
       if (defined($other)) {
-        $user   = $other;
         $status = $data->{$other}{status};
         $diag   = $data->{$other}{diag} || 'unknown';
         $diag   = $other . ' : ' . $diag;
@@ -254,7 +254,7 @@ sub handle_bounce_message {
   $subs = {
            $self->standard_subs($list),
            'BOUNCE_DATA' => join ("\n", @userdata),
-           'HANDLER'     => $args{'handler'},
+           'HANDLER'     => $args{'handler'} || 'unknown',
            'SEQNO'       => $args{'msgno'},
            'VICTIM'      => join (", ", @$addrs),
           };
@@ -450,7 +450,7 @@ sub handle_bounce_token {
            'CMDLINE'    => $data->{'cmdline'},
            'COMMAND'    => $data->{'command'},
            'DATE'       => scalar localtime ($data->{'time'}),
-           'HANDLER'    => $args{'handler'},
+           'HANDLER'    => $args{'handler'} || 'unknown',
            'REASONS'    => $reasons,
            'REQUESTER'  => $data->{'user'},
            'SESSIONID'  => $data->{'sessionid'},
@@ -713,7 +713,7 @@ sub handle_bounce_removal {
 
   if (!$args{subbed}) {
     return (0, $self->format_error('not_subscribed', $args{'list'},
-                                   'VICTIM' => $args{'user'}));
+                                   'VICTIM' => "$args{'user'}"));
   }
 
   $consult = 0;
