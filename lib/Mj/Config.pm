@@ -3804,6 +3804,8 @@ Legal variables which you can pattern match against are:\n".
 	elsif ($op eq '!=' || $op eq '=') {
 	  $op eq '!=' and $op = 'ne' and $iop = 'eq';
 	  $op eq '='  and $op = 'eq' and $iop = 'ne';
+          $arg =~ s/^(['"])(.*)\1$/$2/;
+          $arg = quotemeta($arg);
 
 	  if ($invert) {
 	    $o .= "(\$args{'$var'} $iop \"$arg\")";
