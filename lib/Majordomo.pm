@@ -4016,12 +4016,13 @@ sub _alias {
 =head2 announce
 
 This command allows a message to be sent to all or a portion
-of the subscribers of a mailing list, optionally including
-the subscribers in "nomail" mode.
+of the subscribers of a mailing list, including the subscribers 
+who receive digests or no mail.
 
 The message is sent as a probe, meaning that each subscriber
 will receive a customized copy.  The "To:" header in
 the message will be set to the subscriber's address.
+The "From:" header will contain the LIST-owner address.
 
 =cut
 
@@ -4053,9 +4054,10 @@ use MIME::Entity;
 sub _announce {
   my ($self, $list, $user, $vict, $mode, $cmdline, $file, $sublist) = @_;
   my $log = new Log::In 30, "$list, $file";
-  my (@classlist, %data, $baseclass, $classes, $desc, $ent, $fh,
+  my (@classlist, %data, $author, $baseclass, $classes, $desc, $ent, $fh,
       $mailfile, $sender, $subs, $tmpfile);
 
+  $author = $self->_list_config_get($list, 'whoami_owner');
   $sender = $self->_list_config_get($list, 'sender');
   return (0, "Unable to obtain sender address.\n")
     unless $sender; #XLANG
@@ -4063,8 +4065,8 @@ sub _announce {
   $subs =
     {
      $self->standard_subs($list),
-     'REQUESTER' => $user,
-     'USER'      => $user,
+     'REQUESTER' => "$user",
+     'USER'      => "$user",
     };
 
   ($mailfile, %data) = $self->_list_file_get(list => $list,
@@ -4077,6 +4079,7 @@ sub _announce {
 
   $desc = $self->substitute_vars_string($data{'description'}, $subs);
 
+  # XLANG
   $ent = build MIME::Entity
     (
      'Path'     => $mailfile,
@@ -4086,7 +4089,7 @@ sub _announce {
      'Subject'  => $desc || "Announcement from the $list list",
      'Top'      => 1,
      '-To'      => '$MSGRCPT',
-     '-From'    => $sender,
+     '-From'    => $author,
      'Filename' => undef,
      'Content-Language:' => $data{'language'},
     );

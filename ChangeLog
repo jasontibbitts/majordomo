@@ -1,7 +1,12 @@
+2003-04-11  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_announce)  Use the whoami_owner
+	address in the From header of each announcement.
+
 2003-04-10  Michael Yount <csf@moscow.com>
 
-        * lib/Mj/Resend.pm:  (do_digests)  Prevent "To" and "From"
-        headers from being duplicated by the message_headers setting.
+	* lib/Mj/Resend.pm:  (do_digests)  Prevent "To" and "From"
+	headers from being duplicated by the message_headers setting.
 
 2003-04-08  Michael Yount <csf@moscow.com>
 
