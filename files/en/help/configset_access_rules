@@ -43,6 +43,12 @@ each list's configuration if you want to keep someone from subscribing.
 
 This information is below:
   Section 1 - Working description of the access_rules config variable
+          1.1 - First line - request
+          1.2 - Second line - action (13 options)
+          1.3 - Up to next blank line - code
+          1.4 - Semantics
+          1.5 - Supported variables
+          1.6 - Example rules
   Section 2 - Hints and suggestions for how and why to use access_rules
           2.1 - how to test access_rules quickly
           2.2 - why deny is much more drastic than consult or confirm
@@ -98,31 +104,43 @@ that do take a list use the list's access_rules. There are two weird ones:
   lists - GLOBAL check for 'lists', but each list is individually checked
           for the 'advertise' request.
 
-First line - request 
-  Comma-separated list of advertise, alias, post, subscribe, unsubscribe,
-  ...
 
-  This determines the request(s) that this rule applies to
+1.1 - First line - request 
+  This determines the request(s) that a rule applies to.
 
-Second line - action
-  Comma separated list of allow, confirm, confirm2, consult, confirm_consult,
-  deny, forward, reply, replyfile, mailfile.
+  Comma-separated list of server requests (or commands) including
+  advertise, alias, post, subscribe, etc. For a complete list of
+  commands on which access_rules can operate, see "help topics"
+  and ignore those which are not commands (such as "help admin").
+  Note also the special requests of "access" and "post", which
+  are not technically commands but can be requests.
 
+
+1.2 - Second line - action
   This determines the actions to be taken if the rule matches.
 
-  allow=N - the request succeeds.  If given an argument (allow=N) then N
+  Comma separated list of allow, confirm, confirm2, confirm_consult,
+  consult, deny, forward, mailfile, reason, reply, replyfile, set, unset.
+
+  If the action is reply, replyfile, or mailfile, the message or file
+  can contain embedded variables which will be expanded before the
+  message or file is sent. Otherwise, a default reply will be used
+  depending on what the primary action is.
+
+1.2.1 - allow=N - the request succeeds.  If given an argument (allow=N) then N
     will be passed back to the calling routine (used in 'which' requests to
     limit the number of returned hits, and in 'who' to determine whether or
     not the user can see even hidden addresses).  If N is not given, it
     defaults to 1.  Be careful; this can render the 'which' command almost
     useless.
 
-  confirm=file - a confirmation token is sent to the user who will be affected
-    by the request.  If given an argument (confirm=file), the given file will
-    be used as the confirmation message.  If not, the file "confirm" is used.
+1.2.2 - confirm=file - a confirmation token is sent to the user who will be 
+    affected by the request.  If given an argument (confirm=file), the given
+    file will be used as the confirmation message.  If not, the standard
+    file "confirm" is used.
 
-  confirm2=file - a confirmation token is sent to BOTH users who will be
-    affected by the request. This is the default access action only for
+1.2.3 - confirm2=file - a confirmation token is sent to BOTH users who will
+    be affected by the request. This is the default access action only for
     changeaddr, but may also be used for other commands.
       * If requester and victim are the same, confirm with the victim.
       * If requester and victim are different, but the victim's password
@@ -134,46 +152,54 @@ Second line - action
         token before the requester.  If the victim accepts the token, the 
         roles are swapped when the token is sent to the requester.
     If given an argument (confirm=file), the given file will be used as the
-    confirmation message.  If not, the file "confirm2" is used.
+    confirmation message.  If not, the standard file "confirm2" is used.
 
-  consult=file,M,group,N - a token is sent to a moderator/group of
-    moderators/randomly chosen subset of a group of moderators.  The
-    following comma-separated arguments are taken:
-      file - the file used for the consultation message (not used if
-        request=post).
-     M - the number of approvals that are required.  This permit a
-       rudimentary form of group moderation (default 1).
-     group - the moderator group to send the confirmation request to
-       (defaults to sending to moderator).
-     N - the number of members of the moderator group to send to, chosen at
-       random (defaults to all of the group).
-     (some of this is unimplemented)
+1.2.4 - confirm_consult - first confirms the action with the victim, then
+    consults the list owner. Both tokens must be returned before the action
+    which triggered the rule will take place.
 
-  confirm_consult - first confirms the action with the victim, then
-    consults the list owner.
+1.2.5 - consult=file,M,group,N - (some of this is unimplemented) a token is
+    sent to a moderator/group of moderators/randomly chosen subset of a group
+    of moderators.  The following comma-separated arguments are taken:
+      file - the file used for the consultation message (ignored if the
+        request is post, and if a file is not specified here the standard
+        file "consult" is used).
+      M - the number of approvals that are required.  This permit a
+        rudimentary form of group moderation (default 1).
+      group - the moderator group to send the confirmation request to
+        (defaults to sending to moderator).
+      N - the number of members of the moderator group to send to, chosen at
+        random (defaults to all of the group).
+     
+1.2.6 - deny - disallows the action (with a default message unless reply,
+    replyfile, or mailfile is also specified to customize the response)
 
-  deny - disallows the action.
+1.2.7 - forward=address - forwards the command to another Majordomo server
+    running at the specified address.
 
-  forward=address - forwards the command to another Majordomo server
-    running at address.
+1.2.8 - mailfile=file - sends the contents of the given file back in a
+    separate message (e.g. not with the command return).
 
-  reply=message - sends a one-line message back as part of the command
+1.2.9 - reason - allows additional information to be added to reply files
+   for denied and stalled requests. Reason is similar to reply, but it is
+   substituted for $REASONS in any reply file or reply that is used by the
+   access rules. Each reason is appended to reasons that already exist,
+   such as "Duplicate Message Checksum". All reasons will appear in the
+   subject header of CONSULT messages to the list owners.  
+
+1.2.10 - reply=message - sends a one-line message back as part of the command
     return.  Enclose the message in quotes to embed commas.  Multiple reply
     messages are concatenated with newlines.
 
-  replyfile=file - sends the contents of the given file back as part
+1.2.11 - replyfile=file - sends the contents of the given file back as part
     of the command return.
 
-  mailfile=file - sends a message back in a separate reply.
+1.2.12 - set - sets a variable to one.
 
-  The message or file in the previous three actions can contain
-    embedded variables which will be expanded before the message is
-    sent.
+1.2.13 - unset - sets a variable to zero, but does not delete it.
 
-  If neither of the previous three are given, a default reply will be
-    used depending on what the primary action is.
 
-Up to next blank line - code
+1.3 - Up to next blank line - code
   This is code in a simple language that is used to determine whether or
   not the action (line 2) should be taken.
 
@@ -202,7 +228,7 @@ Up to next blank line - code
   \$variable=value - checks that the variable equals (stringwise) the given
     value.
 
-Semantics: 
+1.4 - Semantics: 
   Rules for a particular request are processed in order; the _first_ rule
   that matches is taken.
 
@@ -210,10 +236,10 @@ Semantics:
   reasonable emulation of the 1.94.3 behavior using *_access, moderate,
   restrict_post, etc.
 
-Supported variables:
-  see "help variables"
+1.5 - Supported variables:
+  listed in "help variables"
 
-Example rules:
+1.6 - Example rules:
 
 Equivalent to moderate=yes:
 post
