@@ -48,7 +48,7 @@ use Mj::Addr;
 
 my ($cgi, $domain, $mj, $ok, $sess, $token);
 my ($ofunc, $func, $user, $passw, $mode, $list, $vict, $extra);
-my ($line, $st, $file, $fh, $cgiurl, $cmdform);
+my ($line, $st, $file, $fh, $cgiurl, $cmdform, $localpart);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
@@ -90,7 +90,8 @@ $mj->connect('mj_wwwadm', $sess);
 # GET poses a security risk due to passwords being visible
 # Set HTML form variables
 $ofunc   = $cgi->param('func') || "help";
-$user    = new Mj::Addr("mj_wwwadm\@example.com");
+$localpart = $ENV{'REMOTE_ADDR'} || "mj_wwwadm";
+$user    = new Mj::Addr("$localpart\@example.com");
 $passw   = $cgi->param('passw') || '';
 $list    = $cgi->param('list') || 'GLOBAL';
 $extra   = $cgi->param('extra') || '';

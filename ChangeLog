@@ -1,3 +1,8 @@
+2000-05-10  Michael Yount  <csf@moscow.com>
+
+	* bin/mj_wwwadm: Use the remote IP address as the
+	local part of the fake requester address.
+
 2000-05-10  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Bf/Parser.pm (parse): Change order of parsing.  Try to do
@@ -6,9 +11,9 @@
 
 2000-05-10  Michael Yount  <csf@moscow.com>
 
-    * lib/Mj/SimpleDB/DB.pm: Do not use R_CURSOR when deleting.
+	* lib/Mj/SimpleDB/DB.pm: Do not use R_CURSOR when deleting.
 
-    * lib/Mj/Format.pm (tokeninfo): Indicate reasons if they exist.
+	* lib/Mj/Format.pm (tokeninfo): Indicate reasons if they exist.
 
 2000-05-09  Michael Yount  <csf@moscow.com>
 
