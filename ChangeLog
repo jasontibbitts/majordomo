@@ -1,3 +1,23 @@
+2002-01-25  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_archive)  Collect information about
+	neighboring messages when the archive-get-immediate command
+	is used.
+	(_lists) Fix typo.  Thanks to Roger Klorese.
+
+	* lib/Mj/Archive.pm:  (get_neighbors)  Determine the next
+	and previous messages within an archive for a particular
+	message.
+
+	* lib/Mj/Format.pm:  (archive)  Add message-specific formatting
+	for the archive-get-immediate command.
+
+	* lib/Mj/List.pm:   (archive_get_neighbors)  Add a wrapper
+	for Mj::Archive::get_neighbors().
+
+	* lib/Mj/Resend.pm:  (_post)  Change the ARCHIVE substitution
+	to ARCNO.
+
 2002-01-21  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* setup/ask_basic.pl (ask_basic): Ask for majordomo.cf location.

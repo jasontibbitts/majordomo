@@ -2029,7 +2029,7 @@ sub _list_config_set {
   @out = $self->{'lists'}{$list}->config_set($var, @_);
 
   $type = $self->config_get_type($var);
-  if ($out[0] == 1) {
+  if (defined ($out[0]) and $out[0] == 1) {
     # Now do some special stuff depending on the variable:
 
     # Regenerate password
@@ -3902,7 +3902,7 @@ use Mj::Util qw(re_match);
 sub _archive {
   my ($self, $list, $user, $vict, $mode, $cmdline, $args, $patterns) = @_;
   my $log = new Log::In 30, "$list, $args";
-  my (@msgs, @patterns, @tmp, $data, $i, $j, $mess, $ok, 
+  my (@msgs, @patterns, @tmp, $arc, $data, $i, $j, $mess, $msg, $ok, 
       $private, $re_pattern, $regex, $type);
   return 1 unless ($args or $mode =~ /summary/);
   return (0, "Unable to initialize list $list.\n")
@@ -3963,10 +3963,23 @@ sub _archive {
   }
   $self->{'archct'} = 1;
 
+  $re_pattern = $self->_list_config_get($list, 'subject_re_pattern');
+
   if ($mode =~ /author|date|reverse|subject|thread/) {
     eval ("use Mj::Util qw(sort_msgs)");
-    $re_pattern = $self->_list_config_get($list, 'subject_re_pattern');
     @msgs = sort_msgs(\@msgs, $mode, $re_pattern);
+  }
+
+  if ($mode =~ /immediate/) {
+    # collect data about each message
+
+    for ($i = 0; $i <= $#msgs; $i++) {
+      ($msg, $data) = @{$msgs[$i]};
+      next unless $msg;
+      $msgs[$i]->[1] = 
+        $self->{'lists'}{$list}->archive_get_neighbors(
+          $msg, $data, $re_pattern, $private);
+    }
   }
 
   return (1, @msgs);
@@ -5146,7 +5159,7 @@ sub _lists {
 
       # See if this user can read archives.
       $testreq = {
-                   'command'  => 'archives',
+                   'command'  => 'archive',
                    'list'     => $list,
                    'mode'     => '',
                    'password' => $password,
