@@ -3556,8 +3556,9 @@ in a scalar context.
 
 sub _list_file_get_string {
   my $self = shift;
-  my (%data, $fh, $file, $line, $out);
+  my (%args, %data, $fh, $file, $line, $out);
 
+  %args = @_;
   ($file, %data) = $self->_list_file_get(@_);
 
   # return "No such file: \"$_[1]\".\n" unless $file; #XLANG
@@ -3566,10 +3567,14 @@ sub _list_file_get_string {
   $fh = gensym();
 
   return qq(Unable to open file "$file".\n)
-    unless (open $fh, "<$file");
+    unless (open $fh, "<$file"); # XLANG
 
   while (defined($line = <$fh>)) {
     $out .= $line;
+  }
+
+  if ($args{'subs'}) {
+    unlink $file;
   }
 
   if (wantarray) {
@@ -4223,8 +4228,8 @@ sub archive_start {
   my $log = new Log::In 30, "$request->{'list'}, $request->{'args'}";
   my (@tmp, $i, $mess, $ok, $out, $pattern, $type);
 
-  return (0, "No dates or message numbers were supplied.\n")
-    unless ($request->{'mode'} =~ /summary/ or $request->{'args'}); # XLANG
+  return (0, $self->format_error('no_messages', $request->{'list'}))
+    unless ($request->{'mode'} =~ /summary/ or $request->{'args'});
 
   $request->{'part'} ||= 0;
 
@@ -4267,13 +4272,13 @@ sub archive_start {
   }
 
   if ($request->{'mode'} =~ /delete|edit|replace|sync|hidden/) {
-    return (0, "An administrative password is needed to alter the archive or view
-hidden messages.\n")
-      unless ($ok > 1); # XLANG
+    return (0, $self->format_error('no_password', $request->{'list'},
+                 'COMMAND' => 'archive-' . $request->{'mode'}))
+      unless ($ok > 1);
   }
   $self->{'arcadmin'} = 1 if ($ok > 1);
 
-  $self->_archive($request->{'list'}, $request->{'user'}, $request->{'user'},
+  $self->_archive($request->{'list'}, $request->{'user'}, $request->{'victim'},
                   $request->{'mode'}, $request->{'cmdline'},
                   $request->{'args'}, $request->{'part'},
                   $request->{'contents'});
@@ -4397,15 +4402,20 @@ sub _archive {
 sub archive_chunk {
   my ($self, $request, $result) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
-  my (%pending, @msgs, @out, $buf, $data, $dig, $ent, $fh, $file, $i,
-      $j, $k, $line, $list, $ok, $out, $owner, $part);
+  my (%file, %pending, @headers, @msgs, @nuke, @out, $buf, $data, 
+      $dig, $dtype, $ent, $fh, $file, $finfo, $foot, $head, $i, $j, $k, 
+      $line, $list, $ok, $out, $owner, $part, $subj, $subs);
 
-  return (0, "The archive was not initialized.\n")
-    unless (exists $self->{'archct'}); # XLANG
-  return (1, "No messages were found which matched your request.\n")
-    if (scalar(@$result) <= 0); # XLANG
-  return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $request->{'list'}))
+  return (0, $self->format_error('archive_init', $request->{'list'}))
+    unless (exists $self->{'archct'});
+
+  return (0, $self->format_error('no_messages', $request->{'list'}))
+    if (scalar(@$result) <= 0);
+
+  return (0, $self->format_error('make_list', 'GLOBAL', 
+                                 'LIST' => $request->{'list'}))
     unless $self->_make_list($request->{'list'});
+
   $list = $self->{'lists'}{$request->{'list'}};
 
   if ($request->{'mode'} =~ /sync/) {
@@ -4467,56 +4477,112 @@ sub archive_chunk {
           $list->archive_replace_msg($j, $self->{'spoolfile'}, $tmpdir);
 
         if ($ok) {
-          $buf .= "Part $request->{'part'} of message $j was deleted.\n"; # XLANG
+          $buf .= $self->format_error('part_deleted', $request->{'list'},
+                    'PART' => $request->{'part'}, 'MSGNO' => $j);
         }
         else {
-          return (0, "Part $request->{'part'} of message $j was not deleted.\n$out\n"); # XLANG
+          return (0, $self->format_error('part_not_deleted', 
+                       $request->{'list'}, 'PART' => $request->{'part'}, 
+                       'MSGNO' => $j, 'ERROR' => $out));
         }
       }
       else {
         ($ok, $out) = $list->archive_delete_msg(@$i);
         if ($ok) {
-          $buf .= "Message $i->[0] was deleted.\n"; # XLANG
+          $buf .= $self->format_error('message_deleted', $request->{'list'},
+                    'PART' => $request->{'part'}, 'MSGNO' => $j);
         }
         else {
-          $buf .= "Message $i->[0] was not deleted.\n$out\n"; # XLANG
+          $buf .= $self->format_error('message_not_deleted', 
+                    $request->{'list'}, 'PART' => $request->{'part'}, 
+                    'MSGNO' => $j, 'ERROR' => $out);
         }
       }
     }
     return (1, $buf);
   }
   elsif ($request->{'mode'} =~ /digest/) {
-    $out = ($request->{'mode'} =~ /mime/) ? "mime" : "text";
+    $dtype = ($request->{'mode'} =~ /mime/) ? 'mime' : 'text';
+    $owner = $self->_list_config_get($request->{'list'}, 'sender');
+    $subs = { 
+              $self->standard_subs($request->{'list'}),
+              'ARCHCT' => $self->{'archct'},
+              'DATE'   => scalar(localtime()),
+              'DIGESTDESC' => '',
+              'DIGESTNAME' => 'archive',
+              'DIGESTTYPE' => $dtype,
+              'HOST'   => $self->_list_config_get($request->{'list'}, 
+                             'resend_host'),
+              'ISSUE'  => $self->{'archct'},
+              'MESSAGECOUNT' => scalar(@$result),
+              'MSGNO'  => '',
+              'SENDER' => $owner,
+              'SEQNO'  => '',
+              'SUBJECT' => '',
+              'SUBSCRIBED' => '',
+              'USER' => $request->{'user'},
+              'VOLUME' => 1,
+            };
+
+    for $i (qw(preindex postindex footer)) {
+      for $j ("digest_archive_${dtype}_${i}", "digest_archive_${i}", 
+              "digest_${dtype}_${i} ", "digest_${i}") 
+      {
+        ($file, %file) = 
+          $self->_list_file_get(list => $request->{'list'},
+                                file => $j,
+                                subs => $subs,
+                               );
+        if ($file) {
+          $finfo->{$dtype}{$i}{'name'} = $file;
+          $finfo->{$dtype}{$i}{'data'} = \%file;
+          push @nuke, $file;
+          last;
+        }
+      }
+    }
+             
+    for $j ("digest_archive_${dtype}_subject", "digest_archive_subject") {
+      $subj = 
+        $self->_list_file_get_string(list => $request->{'list'},
+                                     file => $j,
+                                     subs => $subs,
+                                    );
+      last if (defined $subj and length $subj);
+    }
+
+    @headers = $self->_digest_get_headers($request->{'list'}, $subs);
+ 
     ($file) = $list->digest_build
     (messages      => $result,
-     type          => $out,
-     subject       => "$request->{'list'} list archives ($self->{'archct'})",
-     to            => "$request->{'user'}",
-     tmpdir        => $tmpdir,
+     files         => $finfo,
+     from          => $self->_list_config_get($request->{'list'}, 'whoami_owner'),
+     headers       => \@headers,
      index_line    => $self->_list_config_get($request->{'list'}, 'digest_index_format'),
-     index_header  => "Custom-Generated Digest Containing " . scalar(@$result) .
-                      " Messages
+     subject       => $subj,
+     tmpdir        => $tmpdir,
+     to            => "$request->{'user'}",
+     type          => $dtype,
+    );
 
-Contents:
-",
-     index_footer  => "\n",
-    ); # XLANG
-    # Mail the entity out to the victim
-    $owner = $self->_list_config_get($request->{'list'}, 'sender');
-    $self->mail_message($owner, $file, $request->{'user'});
+    # Mail the digest out to the victim
+    $self->mail_message($owner, $file, $request->{'victim'});
     unlink $file;
+    unlink @nuke;
     $self->{'archct'}++;
-    return (1, "A digest containing ".scalar(@$result).
-               " messages has been mailed.\n"); # XLANG
+    return (1, scalar(@$result));
   }
   elsif ($request->{'mode'} =~ /replace/) {
     ($j, $k) = @{$result->[0]};
     ($ok, $out) = $list->archive_replace_msg($j, $self->{'spoolfile'}, $tmpdir);
     if ($ok) {
-      return (1, "Message $j has been replaced.\n"); # XLANG
+      return (1, $self->format_error('part_replaced', $request->{'list'}, 
+                   'PART' => $request->{'part'}, 'MSGNO' => $j));
     }
     else {
-      return (0, "Part $request->{'part'} of message $j has not been replaced.\n$out\n"); # XLANG
+      return (0, $self->format_error('part_not_replaced', 
+                   $request->{'list'}, 'PART' => $request->{'part'}, 
+                   'MSGNO' => $j, 'ERROR' => $out));
     }
   }
   elsif ($request->{'mode'} =~ /part/) {
@@ -4568,8 +4634,7 @@ Contents:
       $self->mail_message($owner, $file, $request->{'user'});
       unlink $file;
     }
-    return (1, "The messages (". scalar(@$result).
-               " total) have been mailed to $request->{'user'}.\n"); # XLANG
+    return (1, scalar(@$result));
   }
 }
 
@@ -5608,6 +5673,41 @@ sub _digest {
   return (0, $mess);
 }
 
+=head2 _digest_get_headers
+
+Obtain a list of digest headers from the message_headers, precedence,
+sender, and reply_to settings.
+
+=cut
+sub _digest_get_headers {
+  my $self = shift;
+  my $list = shift;
+  my $subs = shift;
+  my $log = new Log::In 350, $list;
+  my (@headers, $i, $name, $value);
+
+  return unless $self->_make_list($list);
+
+  for $i ($self->_list_config_get($list, 'message_headers')) {
+    $i = $self->substitute_vars_string($i, $subs);
+    if ($i =~ /^([^\x00-\x1f\x7f-\xff :]+):(.*)$/) {
+      push @headers, [$1, $2];
+    }
+  }
+  if ($i = $self->_list_config_get($list, 'precedence')) {
+    push @headers, ['Precedence', $i];
+  }
+  if ($i = $self->_list_config_get($list, 'sender')) {
+    push @headers, ['Sender', $i];
+    push @headers, ['Errors-To', $i];
+  }
+  if ($i = $self->_list_config_get($list, 'reply_to')) {
+    $i = $self->substitute_vars_string($i, $subs);
+    push @headers, ['Reply-To', $i];
+  }
+
+  return @headers;
+}
 
 =head2 lists
 
@@ -6718,9 +6818,10 @@ sub set {
 
 sub _set {
   my ($self, $list, $user, $vict, $mode, $cmd, $setting, $d, $sublist, $force) = @_;
-  my (@addrs, @lists, @out, @tmp, $addr, $check, $chunksize, $count,
-      $data, $db, $file, $format, $k, $l, $mess, $ok, $owner, $res,
-      $sd, $v);
+  my (%file, @addrs, @headers, @lists, @nuke, @out, @tmp, $addr, 
+      $check, $chunksize, $count, $data, $db, $dtype, $file, $finfo, 
+      $format, $i, $j, $k, $l, $mess, $ok, $owner, $res, $sd, $subj,
+      $subs, $v);
 
   $check = 0;
   if ($mode =~ /check/ or ! $setting) {
@@ -6798,7 +6899,7 @@ sub _set {
       unless @lists;
     for $l (sort @lists) {
       unless ($self->_make_list($l)) {
-        push @out, (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list));
+        push @out, (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $l));
         next;
       }
 
@@ -6839,17 +6940,66 @@ sub _set {
 
           $format = $res->{'digest'}->{'index'} ||
                     $self->_list_config_get($l, 'digest_index_format');
+          $dtype = $res->{'digest'}->{'type'};
+          $owner = $self->_list_config_get($l, 'whoami_owner');
+
+          $subs = { 
+                    $self->standard_subs($l),
+                    'DATE'   => scalar(localtime()),
+                    'DIGESTDESC' => '',
+                    'DIGESTNAME' => 'partial',
+                    'DIGESTTYPE' => $dtype,
+                    'HOST'   => $self->_list_config_get($l, 'resend_host'),
+                    'ISSUE'  => 1,
+                    'MESSAGECOUNT' => scalar(@{$res->{'digest'}->{'messages'}}),
+                    'MSGNO'  => '',
+                    'SENDER' => $owner,
+                    'SEQNO'  => '',
+                    'SUBJECT' => '',
+                    'SUBSCRIBED' => '',
+                    'USER' => "$addr",
+                    'VOLUME' => 1,
+                  };
+
+          for $i (qw(preindex postindex footer)) {
+            for $j ("digest_partial_${dtype}_${i}", "digest_partial_${i}", 
+                    "digest_${dtype}_${i} ", "digest_${i}") 
+            {
+              ($file, %file) = $self->_list_file_get(list => $l,
+                                                     file => $j,
+                                                     subs => $subs,
+                                                    );
+              if ($file) {
+                $finfo->{$dtype}{$i}{'name'} = $file;
+                $finfo->{$dtype}{$i}{'data'} = \%file;
+                push @nuke, $file;
+                last;
+              }
+            }
+          }
+
+          for $j ("digest_partial_${dtype}_subject", "digest_partial_subject") {
+            $subj = 
+              $self->_list_file_get_string(list => $l,
+                                           file => $j,
+                                           subs => $subs,
+                                          );
+            last if (defined $subj and length $subj);
+          }
+                   
+          @headers = $self->_digest_get_headers($l, $subs);
 
           ($file) = $self->{'lists'}{$l}->digest_build
-            (messages      => $res->{'digest'}->{'messages'},
-             type          => $res->{'digest'}->{'type'},
-             subject       => "Partial digest for the $l list",
-             to            => "$addr",
-             tmpdir        => $tmpdir,
-             index_line    => $format,
-             index_header  => "Custom-Generated Digest",
-             index_footer  => "\n",
-            );
+            (messages   => $res->{'digest'}->{'messages'},
+             files      => $finfo,
+             from       => $owner,
+             headers    => \@headers,
+             index_line => $format,
+             subject    => $subj,
+             tmpdir     => $tmpdir,
+             to         => "$addr",
+             type       => $dtype,
+            ); # XLANG
 
           # Mail the partial digest
           if ($file) {
@@ -6858,6 +7008,8 @@ sub _set {
             unlink $file;
             $res->{'partial'} = 1;
           }
+
+          unlink @nuke;
         }
       }
       push @out, $ok, $res;
