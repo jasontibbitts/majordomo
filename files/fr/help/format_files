@@ -1262,8 +1262,8 @@ informations à propos des parties de messages qui ne sont pas en texte
 brut, qui n'est pas un conteneur (comme multipart/mixed) ou une image.
 
 (standard plus APPROVALS, CGIDATA, CGIURL, CHARSET, CMDLINE, CMDPASS,
- CONSULT, DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER,
- VICTIM, WILLACK)
+ CONSULT, CONTENT_TYPE, DATE, ERROR, EXPIRE, ISPOST, PART, REASONS,
+ TOKEN, TYPE, USER, VICTIM, WILLACK)
 
 
 tokeninfo_container
@@ -1272,8 +1272,8 @@ tokeninfo_container
 parties de messages qui est un conteneur (comme multipart/related).
 
 (standard plus APPROVALS, CGIDATA, CGIURL, CHARSET, CMDLINE, CMDPASS,
- CONSULT, DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER,
- VICTIM, WILLACK)
+ CONSULT, CONTENT_TYPE, DATE, ERROR, EXPIRE, ISPOST, PART, REASONS,
+ TOKEN, TYPE, USER, VICTIM, WILLACK)
 
 
 tokeninfo_delete
@@ -1293,8 +1293,8 @@ permettant à un volet du message ou à ses entêtes d'être éditées et
 remplacées.
 
 (standard plus APPROVALS, CGIDATA, CGIURL, CHARSET, CMDLINE, CMDPASS,
- CONSULT, DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER,
- VICTIM, WILLACK)
+ CONSULT, CONTENT_TYPE, DATE, ERROR, EXPIRE, ISPOST, PART, REASONS,
+ TOKEN, TYPE, USER, VICTIM, WILLACK)
 
 
 tokeninfo_edit_head
@@ -1304,8 +1304,8 @@ ou un formulaire HTML  permettant à un volet du message ou à ses
 entêtes d'être éditées et remplacées. 
 
 (standard plus APPROVALS, CGIDATA, CGIURL, CHARSET, CMDLINE, CMDPASS,
- CONSULT, DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER,
- VICTIM, WILLACK)
+ CONSULT, CONTENT_TYPE, DATE, ERROR, EXPIRE, ISPOST, PART, REASONS,
+ TOKEN, TYPE, USER, VICTIM, WILLACK)
 
 
 tokeninfo_error
@@ -1363,8 +1363,8 @@ tokeninfo_header
 comme From, Sujet, To, CC et Date.
 
 (standard plus APPROVALS, CGIDATA, CGIURL, CHARSET, CMDLINE, CMDPASS,
- CONSULT, DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER,
- VICTIM, WILLACK)
+ CONSULT, CONTENT_TYPE, DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN,
+ TYPE, USER, VICTIM, WILLACK)
 
 
 tokeninfo_image
@@ -1374,8 +1374,8 @@ propos d'une image attachée à un message posté. Dans les interfaces
 WWW, l'image est affichée dans la page.
 
 (standard plus APPROVALS, CGIDATA, CGIURL, CHARSET, CMDLINE, CMDPASS,
- CONSULT, DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER,
- VICTIM, WILLACK)
+ CONSULT, CONTENT_TYPE, DATE, ERROR, EXPIRE, ISPOST, PART, REASONS,
+ TOKEN, TYPE, USER, VICTIM, WILLACK)
 
 
 tokeninfo_nosession
@@ -1414,8 +1414,8 @@ tokeninfo_text_foot
 en texte pur d'un message.
 
 (standard plus APPROVALS, CGIDATA, CGIURL, CHARSET, CMDLINE, CMDPASS,
- CONSULT, DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER,
- VICTIM, WILLACK)
+ CONSULT, CONTENT_TYPE, DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN,
+ TYPE, USER, VICTIM, WILLACK)
 
 
 tokeninfo_text_head
@@ -1424,8 +1424,8 @@ tokeninfo_text_head
 en texte pur d'un message.
 
 (standard plus APPROVALS, CGIDATA, CGIURL, CHARSET, CMDLINE, CMDPASS,
- CONSULT, DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER,
- VICTIM, WILLACK)
+ CONSULT, CONTENT_TYPE, DATE, ERROR, EXPIRE, ISPOST, PART, REASONS,
+ TOKEN, TYPE, USER, VICTIM, WILLACK)
 
 
 unalias
