@@ -224,7 +224,7 @@ unless ($passw) {
   &login($mj, $subs, '');
 }
 $addr = new Mj::Addr($user);
-unless ($mj->validate_latchkey($addr, $passw, $i, 'ALL')) {
+unless ($mj->validate_passwd($addr, $passw, $i, 'ALL')) {
   &login($mj, $subs, 'Invalid password.');
 }
 
@@ -403,7 +403,9 @@ elsif ($func ne 'showtokens') {
 #   lists      - Show details about a list, or a collection of lists.
 #   showtokens - Display a list of pending requests
 #   who        - Search the subscriber list or (un)subscribe addresses
-if (($cgi->param('command') eq 'on' and $func ne 'showtokens')
+
+$tmp = $cgi->param('command') || '';
+if (($tmp eq 'on' and $func ne 'showtokens')
     or $commands{$func}->[3] eq 'command') {
   &command($mj, $subs, '');
 }
