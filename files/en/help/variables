@@ -321,6 +321,10 @@ See "help reply_files" for a description of each of the reply files.
   The twelve-character identifier that is used to accept or reject
   a stalled command (see "help tokeninfo" for more information.)
 
+\$TOPIC
+  When a help file is displayed, this value is replaced by the 
+  name of the help file.
+
 \$TYPE
   The type of a stalled command, such as "confirm" if the person
   affected by the request must confirm the command, or "consult" if 
