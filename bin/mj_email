@@ -133,11 +133,9 @@ $::log->in(21, undef, 'info', 'Loading modules');
 eval '
   use Majordomo;
   use Mj::Parser;
-  use Mj::Deliver::Envelope;
   use Mj::MIMEParser;
   use Mj::CommandProps qw(:command);
-  use Data::Dumper;
-  use IO::File;
+  use Symbol;
   use Mail::Header;
 ';
 $::log->out;
@@ -383,7 +381,7 @@ sub parse_commands {
   my ($mj, $deflist, $command) = @_;
   my (@entities, @events, $args, $commands, $data, $debug_file, 
       $debug_log, $debug_reply, $entity, $fh, $file, $head, $i, 
-      $list, $ok, $repl, $request, $sender, $sub_addin, $subject, 
+      $list, $ok, $repl, $request, $sender, $server, $sub_addin, $subject, 
       $sub_start, $time, $top, $token, $user, $uuser);
 
   ($entity, $head, $user, $uuser) = connect_and_parse($mj, 'email');
@@ -438,13 +436,18 @@ sub parse_commands {
     };
 
     $file = &Majordomo::tempname();
-    $fh = new IO::File "> $file";
-    if (defined $fh) {
+    $fh = gensym();
+    if (open ($fh, ">$file")) {
       no strict 'refs';
       &{"Mj::Format::$command"}($mj, $fh, $fh, 'text', $request,
-                           $mj->dispatch($request));
+                                $mj->dispatch($request));
+      close $fh;
     }
-    $fh->close;
+    else {
+      # XXX The command may or may not have been completed.
+      # exit 74;
+      return;
+    }
     push @entities, build MIME::Entity
       (
        'Path'        => "$file",
@@ -527,6 +530,7 @@ sub parse_commands {
   }
   
   $sender = $mj->global_config_get(undef, undef, 'sender');
+  $server = $mj->global_config_get(undef, undef, 'whoami');
   if ($sender eq $user) {
     # Avoid mail loops with empty sender.
     $sender = '';
@@ -538,7 +542,8 @@ sub parse_commands {
   $top->print(\*BLAH);
   close BLAH;
   
-  $mj->mail_message($sender, "$::TMPDIR/mje.$$.final", $user);
+  $mj->mail_message($sender, "$::TMPDIR/mje.$$.final", $user)
+    unless ($user eq $server);
   
   # Purge all tempfiles created by the entities.  XXX Ugh, need to clean up
   # the variable names.

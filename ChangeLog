@@ -1,3 +1,152 @@
+2001-02-24  Michael Yount <csf@moscow.com>
+
+	* Makefile.PL:  Depend upon Socket instead of IO::Socket.
+	Suggest reading the admin_domain help file with the new -P
+	option to mj_shell.
+
+	* bin/mj_confirm:  Add explanation box, as requested by 
+	David Miller.
+
+	* bin/mj_email, bin/mj_queuerun:  Use Symbol instead of IO::File. 
+	Do not mail a reply if the request came from the server address.
+
+	* bin/mj_queueserv:  Use Symbol instead of IO::File.  Add a
+	routine to autoflush file handles.
+
+	* bin/mj_shell:  Add "-P" option to show the output of commands
+	in a pager.  The "default display" command can be used to show
+	the output of any command in a pager or editor.  If an editor
+	is used, mj_shell will attempt to execute commands from the file
+	after the editing is completed.
+
+	* bin/mj_wwwadm:  Increase the time before cache expiration to
+	50 seconds.
+
+	* lib/Majordomo.pm:  Version number is now 0.1200102240.
+	Use Symbol instead of IO::File.
+	(connect)  Reuse session files for logging if a temporary password
+	is supplied.
+	(_site_config_get, _global_config_get, _make_list) Move ubiquitous 
+	methods above the autoload line.
+	(_re_match) Move this routine to Mj::Util::re_match.
+	(_get_stock) Use the FileSpace module instead of loading INDEX.pl.
+	(_createlist) Include the new priority configuration setting
+	when aliases are created.
+	(_showtokens) Support the new "async" mode, which displays
+	asynchronous tokens.  These tokens are created when a posted
+	message is accepted, then delivered in the background.
+	
+	* lib/mj_cf_defs.pl, mj_cf_data.pl:  Support the archive_date
+	and priority configuration settings.
+
+	* lib/Bf/Sender.pm:  (open_abbrev_database)  Commented out.
+
+	* lib/Mj/Access.pm:  (list_access_check)  Comment out
+	Data::Dumper dependency.
+	(_a_forward)  Use MIME::Entity::build instead of MIME::Entity::new.
+	Use Symbol instead of IO::File.
+	(_a_replyfile)  Remove Mj::File dependency.
+	(_d_advertise)  Use Mj::Util::re_match.
+
+	* lib/Mj/Addr.pm:  (_xform)  Only use the Safe module if needed.
+
+	* lib/Mj/Archive.pm:  Only use the Mj::File module if needed.
+
+	* lib/Mj/BounceHandler.pm:  (handle_bounce)  Use Symbol instead
+	of IO::File.
+	(handle_bounce_removal)  Call inform() to log the removal.
+	(_gen_bounce_message)  Allow the possibility of multiple actions.
+
+	* lib/Mj/CommandProps.pm:  Remove access_vars_desc_en hash.
+	Support the "async" mode for the showtokens command.
+
+	* lib/Mj/Config.pm:  (_load_new, _load_dfl)  Use Mj::Lock
+	instead of Mj::File.
+	(_save_new, unlock)  Use Data::Dumper only if necessary.
+	(compile_pattern)  Use Mj::Util::re_match.
+
+	* lib/Mj/Deliver.pm:  (deliver, setup)  Use Mj::Util::re_match.
+	Pass the local host name (from the whereami GLOBAL setting)
+	down to the other delivery modules.
+
+	* lib/Mj/Digest.pm:  (_open_state) Use Mj::FileRepl explicitly.
+
+	* lib/Mj/File.pm:  (search)  Use Mj::Util::re_match.
+
+	* lib/Mj/FileRepl.pm:  (search_copy)  Use Mj::Util::re_match.
+
+	* lib/Mj/FileSpace.pm:  Use Symbol instead of IO::File.
+
+	* lib/Mj/Format.pm:  (lists)  Display the error if one occurs.
+	Noticed by David Miller.
+
+	* lib/Mj/Inform.pm:  Use Mj::Lock and Symbol instead of Mj::File.
+
+	* lib/Mj/List.pm:  (_fill_config, _fill_aux)  Use Symbol instead
+	of IO::Handle.
+
+	* lib/Mj/Lock.pm:  Use Symbol instead of IO::Handle.
+
+	* lib/Mj/Log.pm:  Use Symbol instead of IO::Handle.  Only load
+	Sys::Syslog if necessary.
+
+	* lib/Mj/MTAConfig.pm:  (add_alias)  Include the priorities
+	from the priority configuration setting if queue_mode is
+	enabled.
+
+	* lib/Mj/MailOut.pm:  (mail_message, deliver, probe)  Pass
+	the host name from the whereami configuration setting to
+	the delivery modules for use in the EHLO/HELO SMTP commands.
+	This avoids having to load Net::Domain to determine the local
+	host name.
+	(owner_start, owner_chunk, owner_done)  Use Symbol instead
+	of IO::File.
+
+	* lib/Mj/Parser.pm:  Load modules only as needed.
+	(parse_part)  Use Mj::Util::re_match.
+
+	* lib/Mj/Resend.pm:  (post) Store the arrival time in the
+	access variables hash.
+	(_post)  Add a random string to the temporary file names.
+	Use the archive_date configuration setting to determine which
+	date should be used to archive a message:  time of arrival,
+	or time of delivery.
+	(_check_poster, _r_ck_body)  Use Mj::Util::re_match.
+	
+	* lib/Mj/SimpleDB.pm:  Remove unneeded dependencies.
+
+	* lib/Mj/Token.pm:  (t_accept) Allow asynchronous delivery
+	of posted messages using an "async" token.  A message
+	containing an accept command is mailed to the server, which
+	then performs the actual delivery.
+
+	* lib/Mj/Util.pm:  (re_match)  Rename Majordomo::_re_match().
+
+	* lib/Mj/Deliver/Connection.pm:  Use Socket instead of IO::Socket.
+
+	* lib/Mj/Deliver/Dest.pm:  (new)  Include the local host name.
+	(flush)  Use Symbol instead of IO::File.
+
+	* lib/Mj/Deliver/Envelope.pm:  Use Symbol instead of IO::File.
+
+	* lib/Mj/Deliver/Prober.pm:  (new) Include the local host name.
+
+	* lib/Mj/Deliver/SMTP.pm: (new)  Only use Net::Domain if a
+	local host name was not supplied.
+
+	* lib/Mj/Deliver/Sorter.pm:  (new) Include the local host name.
+
+	* lib/Mj/SimpleDB/Base.pm:  Remove unneeded dependencies.
+
+	* lib/Mj/SimpleDB/DB.pm:  Use Mj::Util::re_match.
+
+	* lib/Mj/SimpleDB/Text.pm:  Use Mj::Util::re_match.  Remove
+	IO::File dependency.
+
+	* setup/config_commands:  Add a template, DEFAULT:rfc2369,
+	to support the addition of RFC 2369 message headers, such
+	as List-Post and List-Subscribe.
+
 2001-02-16  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (connect) Use SHA-1 hex digest for session
