@@ -1,0 +1,28 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname bounce_max_count = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : 100
+Data Type     : integer
+Variable Group: resend, bounce
+Password Notes: Visible only with password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+
+The maximum number of bounce data kept for a user.
+
+The bounce_max_count and bounce_max_age settings are just used for
+expiring old bounce data; we don't want to keep too much of it around
+and so we delete a bounce datum if it is too old or we have too many
+(in which case, the oldest are tossed).
+
+
+See Also:
+   help configset bounce_max_age         (how long a user's bounce data will be tracked)
+   help configset bounce_probe_frequency (how often bounce probes are sent out)
+   help configset bounce_probe_pattern   (force probes of matching addresses)
+   help configset bounce_recipients      (who receives bounce error messages)
+   help show                             (get info on a user, including bounce data)
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

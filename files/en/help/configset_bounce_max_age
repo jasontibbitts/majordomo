@@ -1,0 +1,34 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname bounce_max_age = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : 31
+Data Type     : integer
+Variable Group: resend, bounce
+Password Notes: Visible only with password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+
+The length of time in days that a user's bounce data will be tracked.
+
+The bounce_max_count and bounce_max_age settings are just used for
+expiring old bounce data; we don't want to keep too much of it around
+and so we delete a bounce datum if it is too old or we have too many
+(in which case, the oldest are tossed).
+
+Expiry of bounce data happens daily.  You can see a summary of a user's
+bounce data using the show command, and the body of the bounce is stored
+in the session file (retrievable with the sessioninfo command and expired
+as normal).
+
+
+See Also:
+   help configset bounce_max_count       (maximum number of bounce data kept for a user)
+   help configset bounce_probe_frequency (how often bounce probes are sent out)
+   help configset bounce_probe_pattern   (force probes of matching addresses)
+   help configset bounce_recipients      (who receives bounce error messages)
+   help sessioninfo                      (get info on a 'session' based on an ID number)
+   help show                             (get info on a user, including bounce data)
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
