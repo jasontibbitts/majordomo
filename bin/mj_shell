@@ -765,7 +765,7 @@ Majordomo, execute
 
   mj_shell -P help admin_passwords
 
-The "-P" option will cause the help file to be displayed using an
+The C<-P> option will cause the help file to be displayed using an
 external pager program, making it easier to read.
 
 =head2 Command modes

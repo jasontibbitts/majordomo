@@ -112,6 +112,7 @@ use Mj::CommandProps qw(:function :command);
 Returns a list of domains served by Majordomo at a site.
 
 =cut
+
 sub domains {
   my $topdir = shift;
   my (@domains, $fh);
@@ -139,6 +140,7 @@ each list belonging to the Majordomo object.  This hash is initially empty,
 and is filled in lazily.
 
 =cut
+
 sub new {
   my $type   = shift;
   my $class  = ref($type) || $type;
@@ -241,6 +243,7 @@ session should now be fine, but we want to enforce timeouts and other
 interesting things.
 
 =cut
+
 use Digest::SHA1 qw(sha1_hex); 
 sub connect {
   my $self = shift;
@@ -369,6 +372,7 @@ Note that the _chunk and _done iterator functions have 'noaddr' implied.
 processing done at the beginning.
 
 =cut
+
 sub dispatch {
   my ($self, $request, $extra) = @_;
   my (@addr, @modes, @res, @tmp, $addr, $base_fun, $comment, $continued, $data, 
@@ -579,6 +583,7 @@ sub dispatch {
 Returns a value from the site config.
 
 =cut
+
 sub _site_config_get {
   my $self = shift;
   my $var  = shift;
@@ -591,6 +596,7 @@ sub _site_config_get {
 This is an unchecked interface to the global config, for internal use only.
 
 =cut
+
 sub _global_config_get {
   my $self = shift;
   my $var  = shift;
@@ -608,6 +614,7 @@ actually call any list methods without doing this to the list first.
 Returns true if it actually made the list, false otherwise.
 
 =cut
+
 sub _make_list {
   my $self = shift;
   my $list = shift;
@@ -662,6 +669,7 @@ This grabs all of the lists that are accessible by the user
 and that match the regular expression, and returns them in an array.
 
 =cut
+
 sub get_all_lists {
   my ($self, $user, $passwd, $regexp) = @_;
   my $log = new Log::In 100;
@@ -714,6 +722,7 @@ XXX The interface should already know, since _it_ told _us_.  This is only
 used by deep objects making calls to us.
 
 =cut
+
 sub domain {
   my $self = shift;
   return $self->{'domain'};
@@ -732,6 +741,7 @@ This routine relies on information from Mj::CommandProps
 to determine how a command is parsed.
 
 =cut
+
 sub gen_cmdline {
   my ($request) = shift;
   my (@tmp, $arguments, $base, $cmdline, $hereargs, $variable);
@@ -807,6 +817,7 @@ This routine returns a hash of a standard set of variable
 substitutions, used in various places in the Mj modules.
 
 =cut
+
 sub standard_subs {
   my $self = shift;
   my $olist = shift;
@@ -860,6 +871,7 @@ This routine iterates over a file and expands embedded "variables".  It
 takes a file and a hash, the keys of which are the tags to be expanded.
 
 =cut
+
 sub substitute_vars {
   my $self = shift;
   my $file = shift;
@@ -926,6 +938,7 @@ substitution value is an array reference instead of
 a scalar value.
 
 =cut
+
 sub substitute_vars_format {
   my $self = shift;
   my $str  = shift;
@@ -1099,6 +1112,7 @@ operated on instead.  Note that in this case, the array elements are
 modified.  The operation is recursive.
 
 =cut
+
 sub substitute_vars_string {
   my $self = shift;
   my $str  = shift;
@@ -1136,6 +1150,7 @@ The list name is used to obtain the standard substitutions,
 which are also available.
 
 =cut
+
 sub format_error {
   my $self = shift;
   my $name = shift;
@@ -1157,6 +1172,7 @@ Add a parser event to the parser database, and return the parsed
 data.
 
 =cut
+
 sub record_parser_data {
   my($self, $user, $time, $type, $number) = @_;
   my $log = new Log::In 150, "$user $time $number ";
@@ -1206,6 +1222,7 @@ filenames; use unique2 to generate parser tags and such.  Use tempname
 to generate temporary filenames in the configured temporary directory.
 
 =cut
+
 sub unique {
   my $tmp = "$$.$unique";
   $unique++;
@@ -1247,6 +1264,7 @@ this can happen all in one pass.  But this results in the old data being
 overrwitten.
 
 =cut
+
 sub _reg_add {
   my $self = shift;
   my $addr = shift;
@@ -1323,6 +1341,7 @@ lists under the 'subs' tag.
 Returns the registration data that was looked up.
 
 =cut
+
 sub _reg_lookup {
   my $self = shift;
   my $addr = shift;
@@ -1372,6 +1391,7 @@ global lock, perhaps?) or add a lock primitive to the database backends so
 that we can modify both atomically.
 
 =cut
+
 sub _reg_remove {
   my $self = shift;
   my $addr = shift;
@@ -1406,6 +1426,7 @@ this routine will normally be used as keys for alias removal (upon
 deregistration) or for display to the user, this isn''t a concern.
 
 =cut
+
 sub _alias_reverse_lookup {
   my $self    = shift;
   my $addr    = shift;
@@ -1435,6 +1456,7 @@ have to consult any lists, nor do we have to even create the lists.
 Returns true if the user is a member of the given list.
 
 =cut
+
 sub is_subscriber {
   my $self = shift;
   my $addr = shift;
@@ -1471,6 +1493,7 @@ Find the subscribers that are common to more than one mailing
 list, and present the data from the first list.
 
 =cut
+
 sub common_subs {
   my $self = shift;
   my (@tmp) = @_;
@@ -1512,6 +1535,7 @@ used to keep track of requests without valid commands, to prevent
 mail loops.
 
 =cut
+
 sub p_expire {
   my $self = shift;
   my $log = new Log::In 60;
@@ -1559,6 +1583,7 @@ This removes all spooled sessions older than 'session_lifetime' days old.
 We stat all of the files in the sessions directory and delete the old ones.
 
 =cut
+
 use DirHandle;
 sub s_expire {
   my $self = shift;
@@ -1598,6 +1623,7 @@ Retrieve the value of a global config variable by passing the appropriate
 parameters to list_config_get.
 
 =cut
+
 sub global_config_get {
   my ($self, $user, $passwd, $var, $raw) = @_;
   $self->list_config_get($user, $passwd, 'GLOBAL', 'MAIN', $var, $raw);
@@ -1614,6 +1640,7 @@ way.
 For other variables, the standard security rules apply.
 
 =cut
+
 sub list_config_get {
   my ($self, $user, $passwd, $list, $sublist, $var, $raw) = @_;
   my $log = new Log::In 170, "$list, $var";
@@ -1664,6 +1691,7 @@ Alters the value of a list''s config variable.  Returns a list:
  message - to be shown to user if present
 
 =cut
+
 sub list_config_set {
   my ($self, $request) = @_;
   my $log = new Log::In 150, "$request->{'list'}, $request->{'setting'}";
@@ -1814,6 +1842,7 @@ Compare the contents of two arrays.
 Taken from perlfaq4.  Thanks to the authors of the perl documentation.
 
 =cut
+
 sub compare_arrays {
   my ($first, $second) = @_;
   return 0 unless @$first == @$second;
@@ -1829,6 +1858,7 @@ Removes any definition of a config variable, causing it to track the
 default.
 
 =cut
+
 sub list_config_set_to_default {
   my ($self, $user, $passwd, $list, $sublist, $var) = @_;
   my (@groups, @out, $ok, $mess, $level);
@@ -1896,6 +1926,7 @@ any internal data structures need to be rebuilt in order to maintain
 consistency with the saved state.
 
 =cut
+
 sub _list_config_get {
   my $self = shift;
   my $list = shift;
@@ -1980,6 +2011,7 @@ and DEFAULT:_install configuration files, which are used
 to provide default values for all configuration settings.
 
 =cut
+
 sub _list_config_regen {
   my $self = shift;
   my $list = shift;
@@ -1998,6 +2030,7 @@ This private function adjusts the GLOBAL:owners auxiliary
 list when the owner addresses for one list are changed.
 
 =cut
+
 sub _list_sync_owners {
   my $self = shift;
   my $list = shift;
@@ -2092,6 +2125,7 @@ local overrides and translations (since the search list and LANG are
 honored.
 
 =cut
+
 sub config_get_allowed {
   my $self = shift;
   my $var  = shift;
@@ -2185,6 +2219,7 @@ sub config_get_mutable {
 This returns the default value of a lists variable.
 
 =cut
+
 sub config_get_default {
   my ($self, $user, $passwd, $list, $var) = @_;
   my ($i, $ok);
@@ -2217,6 +2252,7 @@ returns no variables, there are none visible to the supplied password.
 &list->config_get_vars
 
 =cut
+
 sub config_get_vars {
   my ($self, $user, $passwd, $list, $sublist, $var) = @_;
   my (@groups, @out, $hidden, $i, $error, $lvar, $ok);
@@ -2288,6 +2324,7 @@ there.  The downside is that then a client can hold a lock indefinitely,
 which could screw things up worse.
 
 =cut
+
 sub get_start {
   my ($self, $request) = @_;
   my $log = new Log::In 50, "$request->{'list'}, $request->{'user'}, $request->{'path'}";
@@ -2416,6 +2453,7 @@ from the file storage.  They exist because we want to allow different
 access restrictions and list/GLOBAL visibilities for certain sets of files,
 
 =cut
+
 sub faq_start {
   my ($self, $request) = @_;
   my $log = new Log::In 50, "$request->{'list'}, $request->{'user'}";
@@ -2641,6 +2679,7 @@ This changes a user''s password.  If mode is 'gen' or 'rand' (generate or
 random) a password is randomly generated.
 
 =cut
+
 use Mj::Util qw(gen_pw);
 sub password {
   my ($self, $request) = @_;
@@ -2728,6 +2767,7 @@ sub _password {
 This starts the file put operation.
 
 =cut
+
 sub put_start {
   my ($self, $request) = @_;
   my ($filedesc, $ok, $mess);
@@ -2793,6 +2833,7 @@ sub _put {
 Adds a bunch of data to the file.
 
 =cut
+
 sub put_chunk {
   my ($self, $request, @chunk) = @_;
   $self->{'lists'}{$request->{'list'}}->fs_put_chunk(@chunk);
@@ -2803,6 +2844,7 @@ sub put_chunk {
 Stops the put operation.
 
 =cut
+
 sub put_done {
   my ($self, $request) = @_;
   
@@ -2817,6 +2859,7 @@ intent is for it to be called from an email interface without returning any
 status.)
 
 =cut
+
 sub request_response {
   my ($self, $request) = @_;
   my $log = new Log::In 50, "$request->{'list'}, $request->{'victim'}";
@@ -2941,6 +2984,7 @@ generated by substitute_vars.  The caller is responsible for cleaning up
 this temporary.
 
 =cut
+
 sub _list_file_get {
   my $self  = shift;
   my $list  = shift;
@@ -3046,6 +3090,7 @@ returned just as _list_file_get returns it in a list context, or is ignored
 in a scalar context.
 
 =cut
+
 sub _list_file_get_string {
   my $self = shift;
   my (%data, $fh, $file, $line, $out);
@@ -3075,6 +3120,7 @@ content-type, charset, content-transfer-encoding, permissions)
 Calls the lists fs_put function.
 
 =cut
+
 sub _list_file_put {
   my $self = shift;
   my $list = shift;
@@ -3087,6 +3133,7 @@ sub _list_file_put {
 Calls the lists fs_delete function.
 
 =cut
+
 sub _list_file_delete {
   my $self  = shift;
   my $list  = shift;
@@ -3107,6 +3154,7 @@ Returns the file name and a hash like that of FileSpace::get containing the
 pertinent data, or undef if the file does not exist.
 
 =cut
+
 use Mj::FileSpace;
 sub _get_stock {
   my $self = shift;
@@ -3147,7 +3195,8 @@ sub _get_stock {
 Fill in the lists hash with the names of the lists.  This doesn''t
 actually allocate any List objects.
 
-=cut 
+=cut
+
 sub _fill_lists {
   my $self = shift;
 
@@ -3194,6 +3243,7 @@ names and to include periods.  Whether the MTA can deal with the necessary
 aliases is another matter.
 
 =cut
+
 sub legal_list_name {
   my $name = shift || "";
 
@@ -3215,6 +3265,7 @@ If allok, then ALL will be accepted as a list name.
 If globalok, then GLOBAL will be accepted as a list name.
 
 =cut
+
 sub valid_list {
   my $self   = shift;
   my $name   = shift || "";
@@ -3319,6 +3370,7 @@ There is no bottom half, because while an accept can generate other tokens
 can never be a token for the 'accept' command.
 
 =cut
+
 sub accept {
   my ($self, $request) = @_;
   my $log = new Log::In 30, scalar(@{$request->{'tokens'}}) . " tokens";
@@ -3430,6 +3482,7 @@ processing done here, but it''s possible that something external or code
 elsewhere will want to add aliases, so the checks still make sense.
 
 =cut
+
 sub alias {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'newaddress'}, $request->{'user'}";
@@ -3648,6 +3701,7 @@ Useful modes include:
   (probably an array of everything stored within the archive index).
 
 =cut
+
 sub archive_start {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}, $request->{'args'}";
@@ -3851,6 +3905,7 @@ Unset one or more values in a configuration file, which
 causes the settings to use their default values.
 
 =cut
+
 sub configdef {
   my ($self, $request) = @_;
   my ($var, @out, $ok, $mess);
@@ -3884,6 +3939,7 @@ sub configdef {
 Change a configuration setting to a particular value
 
 =cut
+
 sub configset {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}, $request->{'setting'}";
@@ -3906,6 +3962,7 @@ the default values are ignored.
 of the configset commands that are displayed.
 
 =cut
+
 sub configshow {
   my ($self, $request) = @_;
   my (%all_vars, %category, @hereargs, @out, @tmp, @vars, 
@@ -4010,6 +4067,7 @@ sub configshow {
 This replaces an entry in the master address database.  
 
 =cut
+
 sub changeaddr {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'victim'}, $request->{'user'}";
@@ -4095,6 +4153,7 @@ it goes in an extra argument slot and not the normal list slot.  The victim
 is the owner, since this is who will be sent introductory information.
 
 =cut
+
 use Mj::MTAConfig;
 sub createlist {
   my ($self, $request) = @_;
@@ -4466,6 +4525,7 @@ This implements an interface to various digest functionality:
     digest parameters)
 
 =cut
+
 sub digest {
   my ($self, $request) = @_;
   $request->{'args'} ||= 'ALL';
@@ -4570,6 +4630,7 @@ Enhanded mode:
   returns extra data  
 
 =cut
+
 sub lists {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'mode'}";
@@ -4773,6 +4834,7 @@ information code doesn''t give the owner enough info to figure out
 what happened, and the token number is meaningless later.
 
 =cut
+
 use MIME::Entity;
 use IO::File;
 sub reject {
@@ -4964,6 +5026,7 @@ else a password is a required argument.
 XXX Add a way to take additional data, like the language.
 
 =cut
+
 sub register {
   my ($self, $request) = @_;
   my ($ok, $error);
@@ -5033,6 +5096,7 @@ address transformations.  This must be done when the transformations
 change, else address matching will fail to work properly.
 
 =cut
+
 sub rekey {
   my ($self, $request) = @_;
   my $log = new Log::In 30;
@@ -5137,6 +5201,7 @@ sub _rekey {
 Display statistics about logged actions for one or more lists.
 
 =cut
+
 sub report_start {
   my ($self, $request) = @_;
   my $log = new Log::In 50, 
@@ -5297,6 +5362,7 @@ sub report_done {
 Returns the stored text for a given session id.
 
 =cut
+
 use IO::File;
 sub sessioninfo_start {
   my ($self, $request) = @_;
@@ -5365,6 +5431,7 @@ The classes are:
   datespec is anything Date::Manip can parse.
 
 =cut
+
 sub set {
   my ($self, $request) = @_;
   my ($force, $ok, $mess, $mismatch, $regexp);
@@ -5552,6 +5619,7 @@ Returns:
 )
 
 =cut
+
 sub show {
   my ($self, $request) = @_;
   my ($error, $ok, @out);
@@ -5651,6 +5719,7 @@ fetched.  Otherwise only data on the specified list''s tokens (or GLOBAL
 tokens) will be returned.
 
 =cut
+
 sub showtokens {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
@@ -5726,6 +5795,7 @@ case the failure was due to an access failure that did not return a
 message.
 
 =cut
+
 sub subscribe {
   my ($self, $request) = @_;
   my ($ok, $error, $i, $matches_list, $mismatch, $tmp, $whereami);
@@ -5834,6 +5904,7 @@ Returns all available information about a token, including the session data
 (unless the mode includes "nosession").
 
 =cut
+
 sub tokeninfo {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'token'}";
@@ -5877,6 +5948,7 @@ doing periodic digest triggers.
 There are two modes: hourly, daily.
 
 =cut
+
 use Mj::Lock;
 use Mj::Parser;
 use Mj::Util qw(in_clock);
@@ -6026,6 +6098,7 @@ database, making sure that it aliases to the the user (for access checking)
 and deleting it from the alias database.
 
 =cut
+
 sub unalias {
   my ($self, $request) = @_;
   my $log = new Log::In 27, "$request->{'victim'}";
@@ -6063,6 +6136,7 @@ This removes a user from the master address database.  It also deletes the
 registration entry, in effect wiping the user from all databases.
 
 =cut
+
 sub unregister {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'victim'}";
@@ -6148,6 +6222,7 @@ Returns a list:
  if failure, a message, else a list of removed addresses.
 
 =cut
+
 sub unsubscribe {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
@@ -6285,6 +6360,7 @@ XXX Require that for any match to succeed, the match must match a small
     match limit can prevent this.)
 
 =cut
+
 use Mj::Config;
 sub which {
   my ($self, $request) = @_;
@@ -6388,6 +6464,7 @@ _who is the bottom half; it just calls the internal get_start routine to
 initialize the registry, alias database, or subscriber list.  
 
 =cut
+
 use Mj::Config;
 sub who_start {
   my ($self, $request) = @_;
