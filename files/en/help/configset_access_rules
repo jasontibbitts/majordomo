@@ -32,54 +32,61 @@ more convenient configuration settings, such as the subscribe_policy
 setting, are available to control access to common commands.  The
 access_rules setting will override any of these other settings.
 
+The commands, actions, and conditions are described in detail in the
+following sections of this document.
+
+
+                                Commands
+
 Access rules for the GLOBAL pseudo-list do not apply to regular mailing
 lists; they primarily apply to commands that are not list-specific.  The
 following table illustrates which access rules and other settings
 apply to which commands:
 
 
-Command         Which rules apply  Other settings for this command
+Command     Which rules apply  Other settings for this command
 ---------------------------------------------------------------------
-accept          none               none
-access          GLOBAL             block_headers
-alias           GLOBAL             none
-announce        list-specific*     none
-approve         none               none
-archive         list-specific      archive_access
-changeaddr      GLOBAL             none
-configdef       none               none
-configset       none               none
-configshow      none               none
-createlist      GLOBAL             none
-default         none               none
-digest          list-specific      none
-end             none               none
-faq             list-specific*     faq_access
-get             list-specific*     get_access
-help            GLOBAL             none
-index           list-specific*     index_access
-info            list-specific*     info_access
-intro           list-specific*     intro_access
-lists           GLOBAL             advertise, noadvertise
-owner           list-specific*     none
-password        GLOBAL             none
-post            list-specific      moderate, restrict_post, etc.
-put             list-specific*     none
-register        GLOBAL             none
-reject          none               none
-rekey           GLOBAL             none
-sessioninfo     none               none
-set             list-specific*     set_policy
-show            GLOBAL             none
-showtokens      list-specific*     none
-subscribe       list-specific*     subscribe_policy
-tokeninfo       none               none
-trigger         none               none
-unalias         GLOBAL             none
-unregister      GLOBAL             none
-unsubscribe     list-specific*     unsubscribe_policy
-which           list-specific      which_access
-who             list-specific*     who_access
+accept      none               none
+access      GLOBAL             block_headers
+advertise   list-specific**    advertise, noadvertise
+alias       GLOBAL             none
+announce    list-specific*     none
+approve     none               none
+archive     list-specific      archive_access
+changeaddr  GLOBAL             none
+configdef   none               none
+configset   none               none
+configshow  none               none
+createlist  GLOBAL             none
+default     none               none
+digest      list-specific      none
+end         none               none
+faq         list-specific*     faq_access
+get         list-specific*     get_access
+help        GLOBAL             none
+index       list-specific*     index_access
+info        list-specific*     info_access
+intro       list-specific*     intro_access
+lists       GLOBAL**           advertise, noadvertise
+owner       list-specific*     none
+password    GLOBAL             none
+post        list-specific      moderate, restrict_post, etc.
+put         list-specific*     none
+register    GLOBAL             none
+reject      none               none
+rekey       GLOBAL             none
+sessioninfo none               none
+set         list-specific*     set_policy
+show        GLOBAL             none
+showtokens  list-specific*     none
+subscribe   list-specific*     subscribe_policy
+tokeninfo   none               none
+trigger     none               none
+unalias     GLOBAL             none
+unregister  GLOBAL             none
+unsubscribe list-specific*     unsubscribe_policy
+which       list-specific      which_access
+who         list-specific*     who_access
 ---------------------------------------------------------------------
 * Some list-specific commands can be affected by GLOBAL access rules.
   For example, a GLOBAL access rule for the set command would affect the
@@ -87,13 +94,29 @@ who             list-specific*     who_access
   subscriptions to be changed at once.  Please refer to the help file for
   each command for more details on the exceptions.
 
-You should notice that the table lists several commands for which the
-access rules have no effect.  There are basically two cases in which
-this is true.  For some administrative commands (configdef, configset,
-configshow), an administrative password is always required.  For other
-commands, no password is ever needed; for example, to use the tokeninfo
-or sessioninfo command, it is only necessary to know the token or
-session number.
+** List-specific rules for the lists command should use the word 
+   "advertise" instead of the word "lists" on the first line of
+   each rule.
+
+The table lists several commands for which the access rules have no
+effect.  There are basically two cases in which this is true.  For some
+administrative commands (configdef, configset, configshow), an
+administrative password is always required.  For other commands, no
+password is ever needed:  for example, to use the tokeninfo or
+sessioninfo command, it is only necessary to know the token or session
+number.
+
+In general, any command that is issued with a valid administrative
+password will succeed immediately, and the access_rules setting will
+have no effect.  There are two exceptions to this rule for commands that
+are affected by the access rules:  if the access_password_override
+setting is turned off, or if the "rule" command mode is used.  For
+example, the following command:
+
+  subscribe-rule LISTNAME
+
+would be subject to the access rules for the LISTNAME mailing list,
+regardless of whether an administrative password were used.
 
 It is possible to use comments before, between, and after the individual
 rules, but not within rules.  Comments are lines that begin with a '#'.
@@ -103,303 +126,315 @@ created automatically (see "help auxiliary_list" for an introduction to
 auxiliary lists.)
 
 
-Table of contents for the information below:
-  Introduction - this section.
-  Section 1 - Working description of the access_rules config variable
-          1.1 - First line - request
-          1.2 - Second line - action
-             1.2.1 - allow=N
-             1.2.2 - confirm=file
-             1.2.3 - confirm2=file1,file2,group,M
-             1.2.4 - confirm_consult=file1,file2,group,M
-             1.2.5 - consult=file,M,group,N
-             1.2.6 - delay=file,time
-             1.2.7 - deny
-             1.2.8 - forward=address
-             1.2.9 - mailfile=file
-             1.2.10 - reason
-             1.2.11 - reply=message
-             1.2.12 - replyfile=file
-             1.2.13 - set=(variable=value)
-             1.2.14 - unset
-             1.2.15 - notify=(variable=val,...)
-          1.3 - Up to next blank line - code
-          1.4 - Semantics
-          1.5 - Moderator Groups
-          1.6 - Supported keyword substitution variables
-  Section 2 - Hints and suggestions for how and why to use access_rules
-          2.1 - how to test access_rules quickly
-          2.2 - why deny is much more drastic than consult or confirm
-          2.3 - restricting non-subscriber posts
-          2.4 - files and subjects for 'replyfile's or 'mailfile's
-          2.5 - variables you can use in 'replyfile's or 'mailfile's
-          2.6 - examples of useful access_rules, general hints
-             2.6.1 - An alternative to admin_body or taboo_body, with specific reply
-             2.6.2 - Provide a non-default reply for violations of admin_* and taboo_*
-             2.6.3 - Inverted test (allow post ONLY if you find a specific string)
-             2.6.4 - Moderate a known abuser so they can post only with owner approval
-             2.6.5 - Reject all posts that have attachments
-             2.6.6 - Allow a list owner to post without subscribing
-             2.6.7 - Equivalent to moderate=yes
-             2.6.8 - Ban some users from subscribing
-             2.6.9 - Deny all access to off-site users
-             2.6.10 - Remove confirmation requirement from 'set'
-             2.6.11 - Prevent duplicate message checksums from being used
-             2.6.12 - Change how many addresses "which" commands will return
-             2.6.13 - Prevent posts on auxiliary lists (sublists)
-             2.6.14 - Limiting how often a person can post
-             2.6.15 - Suppressing "duplicate checksum" traps for specific users
-             2.6.16 - delaying 'unregister' so users can save their passwords
-             2.6.17 - delaying posts to spread out the system load
-          2.7 - improving the default "confirm" and "consult" files
+                                Actions
 
-There are some interactions between your choice of replyfile or mailfile
-and the subscriber's setting of ack/noack (via the "set" or "configset
-default_flags" commands). Error messages can vanish (for noack with
-replyfile) or can be lacking information because variables are not always
-evaluated (for mailfile). Refer to "help set" for more details.
+The following table summarizes every action that can be used on
+the second line of an access rule.  The first rule that matches the
+command and conditions and that contains a "terminal" action will cause
+all succeeding rules to be ignored.
 
-In general mailfile is almost never the right thing to do since the
-user will already be receiving an acknowledgement through either an
-explicit ack message (for posts) or the regular command return. Using
-mailfile can produce multiple messages for a single event, and mailfiles
-cannot contain as much information as replyfiles (because some variables
-are not evaluated).
+Action     Terminal?     Default Reply File         
+-------------------------------------------------------------------
+allow            yes     none
+confirm          yes     repl_confirm
+confirm2         yes     repl_confirm2
+confirm_consult  yes     repl_confcons
+consult          yes     repl_consult or ack_stall
+default          yes     none
+delay            yes     repl_delay or ack_delay
+deny             yes     repl_deny or ack_denial
+forward          yes     repl_forward
+mailfile          no     none
+notify            no     none
+replyfile         no     none
+set               no     none
+unset             no     none
+-------------------------------------------------------------------
 
-If you put a pattern in access_rules, it is matched against the user's
-address and nothing more.  If you want to match parts of the message
-(or other parts of the header) use taboo_* or admin_*, since access_rules
-does not get fed any part of the message.
+The default reply file is used to display the result of a command.  The
+ack_delay, ack_denial, and ack_stall files are only used in response to
+posted messages.  See "help reply_files" and the Reply Files section of
+this document for more information.
 
-All these access_rules can be bypassed with a password - this is
-important for the list-owner and others who help with administrating
-the mailing list. For details of how to do this please refer to
-"help configset access_password_override".
+In the descriptions of each action that follow, the "victim" is the
+address of the person affected by a command, and the "requester" is the
+address of the person who issued the command.  For example, if
+jane@example.net issues the following command:
+
+  subscribe LISTNAME ruth@example.com
+
+the requester is jane@example.net, and the victim is ruth@example.com.
+In many cases, the requester and the victim will be identical.
+
+Each action can optionally be customized by following its name with an
+equals sign and one or more parameters, separated by commas.  The
+purpose of the parameters varies from action to action.
 
 
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+allow
+-----
+The allow action causes the command to succeed immediately.
 
-Section 1 - Working description of the access_rules config variable:
+The allow action takes one parameter, a number, for example:
+  allow=3
+The default value of this parameter is 1.
 
-Any command that doesn't take a list uses GLOBAL access_rules. Commands
-that do take a list use the list's access_rules. There are some weird ones:
+Using a higher number can influence the result of the which and who
+commands.  See the Illustrative Examples section of this document for
+more details.
 
-  which - for the GLOBAL pseudo-list, this allows or disallows use
-          of "which" and sets the maximum number of hits (by default
-          only one address will be returned without the site password).
+The "default" action for the post command includes checks that prevent
+large messages and mail loops from appearing on the list.  Use the
+allow action with caution in rules for the post command, because these
+checks will be bypasswed.
 
-  which - for a regular list, this overrides the GLOBAL defaults
 
-  lists - GLOBAL check for 'lists', but each list is individually checked
-          for the 'advertise' request and may not be reported even if
-          'lists' is allowed.
+confirm
+-------
+The confirm action causes a confirmation notice to be mailed to the
+address of the victim.
 
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+The confirm action takes one parameter, the name of the file that is
+mailed to the victim.  The default value is "confirm".
 
-Section 1.1 - First line - request 
-  This determines the request(s) that a rule applies to.
 
-  Comma-separated list of server requests (or commands) including
-  advertise, alias, post, subscribe, etc. For a complete list of
-  commands, see "help topics". For a complete list of commands
-  which are considered requests (on which access_rules can operate),
-  see "help access_variables".
+confirm2
+--------
+The confirm2 action depends upon the identities of the requester and the
+victim, according to the following three rules:
 
-  Note the special requests of "access" and "post", which
-  are not technically commands but can be trapped as requests.
+* If requester and victim are identical, send a confirmation message to
+  the victim.
 
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* If requester and victim are different, but the victim's password
+  was supplied, confirm with the requester. The confirmation message 
+  will state that the command was requested by the victim.
 
-Section 1.2 - Second line - action
-  This determines the actions to be taken if the rule matches.
+* Otherwise, send a confirmation message to the victim, and if the
+  victim confirms the command, send a confirmation message to the
+  requester.
 
-  Comma separated list of allow, confirm, confirm2, confirm_consult,
-  consult, delay, deny, forward, mailfile, reason, reply, replyfile,
-  set, unset.
+The confirm2 action takes up to two parameters:
 
-  If the action is reply, replyfile, or mailfile, the message or file
-  can contain embedded variables which will be expanded before the
-  message or file is sent. Otherwise, a default reply will be used
-  depending on what the primary action is.
+The first parameter is the name of the file sent to the victim.
+The default value is "confirm".
 
-  The 'set' and 'unset' actions operate on the variables listed
-  in "help access_variables", so tests can be chained in order. 
-  The blank lines which separate rules do not reset variables.
+The second parameter is the name of the file sent to the requester.
+The default value is "confirm".
 
-1.2.1 - allow=N - the request succeeds.  If given an argument (allow=N) then N
-    will be passed back to the calling routine (used in 'which' requests to
-    limit the number of returned hits, and in 'who' to determine whether or
-    not the user can see even hidden addresses).  If N is not given, it
-    defaults to 1.  Be careful; this can render the 'which' command almost
-    useless.
+This is the default action for the changeaddr command, but it may 
+also be used for other commands where the user and victim are
+different.
 
-1.2.2 - confirm=file - a confirmation token is sent to the user who will be 
-    affected by the request.  If given an argument (confirm=file), the given
-    file will be used as the confirmation message.  If not, the standard
-    file "confirm" is used.
 
-1.2.3 - confirm2=file1,file2,group,M - a confirmation token is sent to BOTH
-    users who will be affected by the request. This is the default access
-    action only for changeaddr, but may also be used for other commands
-    where requester (the address which sent the email or came from a
-    "default user" command) and victim (the address given on the command
-    line) may not match.
-      * If requester and victim are the same, confirm with the victim.
-      * If requester and victim are different, but the victim's password
-        was supplied, confirm with the requester. The roles are swapped,
-        so the confirmation message will say that the request was
-        originated by the victim.
-      * Otherwise, confirm with both, using a chained token, much
-        like confirm_consult.  The victim receives the confirmation
-        token before the requester.  If the victim accepts the token, the 
-        roles are swapped when the token is sent to the requester.
-    The following comma-separated arguments are taken:
-      file1 - the file used for the first confirmation message (sent to
-        the first person (the victim). If a file is not specified here
-        the standard "confirm" file is used.
-      file2 - the file used for the second confirmation message (sent to
-        the requestor or the moderator. If a file is not specified here
-        the standard "confirm" file is used again.
-      M - the number of approvals that are required.  This permits a
-        rudimentary form of group moderation (default 1).
-      group - See 1.5 (Moderator Groups) below.
+confirm_consult
+---------------
+The confirm_consult action causes a confirmation message to be sent to
+the victim.  If the victim approves the message, a confirmation message
+is sent to the moderators of the list.
 
-1.2.4 - confirm_consult=file1,file2,group,M - first confirms the action
-    with the victim, then consults the list owner. Both tokens must be
-    returned before the action which triggered the rule will take place.
-    The following comma-separated arguments are taken:
-      file1 - the file used for the confirmation message (sent to the
-        victim. If a file is not specified here the standard "confirm"
-        file is used.
-      file2 - the file used for the consultation message (sent to the
-        moderators. If a file is not specified here the standard "consult"
-        file is used.
-      M - the number of approvals that are required.  This permits a
-        rudimentary form of group moderation (default 1).
-      group - See 1.5 (Moderator Groups) below.
+The confirm_consult action takes up to four parameters:
 
-1.2.5 - consult=file,M,group,N - a token is sent to a moderator/group of
-    moderators/randomly chosen subset of a group of moderators.  The token
-    must be returned before the action which triggered the rule will take
-    place. The following comma-separated arguments are taken:
-      file - the file used for the consultation message (if a file is
-        not specified here the standard file "consult" is used).
-      M - the number of approvals that are required.  This permits a
-        rudimentary form of group moderation (default 1).
-      group - See 1.5 (Moderator Groups) below.
-      N - the number of members of the moderator group to send to, chosen at
-        random (defaults to all of the group).
+The first parameter is the name of the file sent to the victim.
+The default value is "confirm".
 
-1.2.6 - delay=(file,time) - The delay action takes a file name and delay
-    time as optional arguments. See the "Time Period" section of "help times"
-    for time specification format. The command which is the subject of this
-    action is postponed for the specified period of time. See the example
-    in Section 2.6.16 for how this can be used with 'unregister'. Delays
-    can also be specified before commands are issued: see "help default"
-    where there is more detail about the operation of delays.
+The second parameter is the name of the file sent to the moderators.
+The default value is "consult".
 
-    Note that access rules have BOTH a 'delay' action AND a 'delay' variable!
-    In the first case, described here, the action is considered final, and 
-    any following rules are not used.  In the second case, the 'delay' variable
-    is set but the action is delayed only if it would otherwise succeed based
-    on other access rules. Delays have no impact upon requests which result in a 
-    confirm, consult, or deny action.
+The third parameter is the name of an auxiliary list which contains the
+addresses of the moderators.   The default value is "moderators".  If
+the auxiliary list does not contain any addresses, the moderators, and
+whoami_owner configuration settings are examined until a valid address
+is found.
 
-1.2.7 - deny - disallows the action (with a default message unless reply,
-    replyfile, or mailfile is also specified to customize the response)
+The fourth parameter is the number of moderator approvals required.
+The default value is 1.
 
-1.2.8 - forward=address - forwards the command to another Majordomo server
-    running at the specified address.
 
-    The "forward" access rule action now works for 
-    posted messages as well.  For example,
-      post
-      forward=someone@example.org
-      ALL
-    would cause each message to be sent to someone@example.org,
-    and not posted to the main list.  At present, it
-    is possible to combine "terminal" actions, so
-      post
-      forward=someone@example.org, default
-      ALL
-    would cause the message to be sent to someone and to
-    the main list.  One interesting side-effect of the implementation 
-    is that it possible to do strange things like this:
-      subscribe
-      consult,confirm,reason="Either the victim or the moderators must approve."
-      ALL
-    A confirm token would be sent to the victim, and a consult
-    token would be sent to the moderators.  Either could approve
-    the action.  If both approved, the last to do so would see an
-    "already subscribed" error.
+consult
+-------
+The consult action causes a confirmation notice to be sent to a
+group of moderators.
 
-1.2.9 - mailfile=file - sends the contents of the given file back in a
-    separate message (e.g. not with the command return).
+The consult action takes up to four parameters.
 
-1.2.10 - reason - allows additional information to be added to reply files
-    for denied and stalled requests. Reason is similar to reply, but it is
-    substituted for $REASONS in any reply file or reply that is used by the
-    access rules. Each reason is appended to reasons that already exist,
-    such as "Duplicate Message Checksum". All reasons will appear in the
-    subject header of CONSULT messages to the list owners.  
+The first parameter is the name of the file sent to the moderators.
+The default value is "consult".
 
-1.2.11 - reply=message - sends a one-line message back as part of the command
-    return.  Enclose the message in quotes to embed commas.  Multiple reply
-    messages are concatenated with newlines.
+The second parameter is the number of approvals required to confirm
+the command.  The default value is 1.
 
-1.2.12 - replyfile=file - sends the contents of the given file back as part
-    of the command return.
+The third parameter is the name of an auxiliary list which contains the
+addresses of the moderators.   The default value is "moderators".  If
+the auxiliary list does not contain any addresses, the moderators, and
+whoami_owner configuration settings are examined until a valid address
+is found.
 
-1.2.13 - set=(variable=value) - sets a variable to a given value
-    The "set" action can take an argument if the variable and the value
-    are enclosed in parentheses as in "set=(delay=4h)". If no value is
-    given, as in "set=delay", a value of '1' will be assigned. Setting the
-    'delay' variable has the same effect as using "default delay" before
-    the command was issued - see "help default" for details, and refer to
-    the "delay" action above for notes on the difference between the
-    action and the variable of the same name.  
+The fourth parameter is the size of the pool of moderators who receive
+the confirmation message.  If this number is smaller than the total
+number of moderators and greater than zero, the moderators who receive
+the confirmation are chosen randomly.  If this number is 0, all of the
+moderators receive the confirmation message.  If this number is -1,
+the pool size is taken from the moderator_group configuration setting.
+The default value is -1.
 
-1.2.14 - unset - sets a variable to zero (for boolean, numeric, and
-    timespan variables) or the empty string (for string variables).
 
-    See "help access_variables" for a complete list of variables and
-    types.
+default
+-------
+The default action causes all succeeding access rules to be ignored.
+The default result for the command is used; see "help access_variables"
+for a description of the default actions for each command.
 
-1.2.15 - notify=(variable=value,...) - allows various attributes of
-    a token identifier to be changed when a request requires approval.  
-    See the last section of "help access_variables" for a description 
-    of the notification variables.  Up to four notify actions can be
-    used by one rule.
+The default action takes no parameters.
 
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Section 1.3 - Up to next blank line - code
-  This is code in a simple language that is used to determine whether or
-  not the action (line 2) should be taken.
+delay
+-----
+The delay action causes a command to be postponed until a later time.
 
-  The following can be used in rules:
+The delay action takes up to two parameters:
 
-  Logical Connectives:
+The first parameter is the name of the file that is sent to the victim.
+The default value is "delay".
+
+The second parameter is the amount of time to delay the command.
+See the "Time Period" section of "help times" for the time specification 
+format.  The default value is 0.
+
+The access rules have both a delay action and a delay variable.
+See "help access_variables" for a description of the delay variable.
+
+See "help delay" for an explanation of how delayed commands are
+completed.
+
+
+deny
+----
+The deny action causes the command to be discarded.
+
+The deny action takes one parameter, the name of the reply file to be
+sent to the requester.  The default value is "ack_denial" for posted
+messages and "repl_deny" for all other commands.
+
+
+forward
+-------
+The forward action causes the command or posted message to be mailed to
+another address.
+
+The forward action takes one parameter, the address to which the command
+is forwarded.  The default value is the address in the whoami_owner
+configuration setting.
+
+
+mailfile
+--------
+The mailfile action causes a file to be mailed to the address of the
+victim.  This file is sent in addition to any reply message that would
+ordinarily be sent to the requester.
+
+The mailfile action takes one parameter, the name of the file to mail.
+The default is a "file not found" error message.
+
+
+notify
+------
+The notify action allows fine-grained control of the attributes of a
+confirmation notice for the confirm, confirm2, confirm_consult, and
+consult actions.  Up to four notify actions can be used by one rule.
+
+The notify action takes one or more parameters of the form
+  variable=value
+The supported "notify variables" are documented in the 
+"help access_variables" document.
+
+
+reason
+------
+The reason action allows additional information to be included in the
+reply message that is sent to the requester.  The collection of reasons
+is made available in the \$REASONS keyword substitution in the reply
+file.  Reasons are also displayed in confirmation messages.
+
+The reason action takes one parameter, a brief, free text message.
+The default value is empty.  
+
+
+reply
+-----
+The reply action replaces the text of the default reply file that is
+sent to the requester with a brief message.
+
+The reply action takes one parameter, a brief, free text message.
+The default value is empty.
+
+
+replyfile
+---------
+The replyfile action replaces the name of the default reply file that
+is sent to the requester.
+
+The replyfile action takes one parameter, a file name.  The default
+value is "file_not_found".
+
+
+set
+---
+The set action changes the value of an access variable.  See 
+"help access_variables" for a list of the variables that are supported.
+
+The set action takes one parameter, of the following form:
+  variable=value
+If only the variable name is used, the variable is set to the value 1.
+
+
+unset
+-----
+The set action resets the value of an access variable.  See 
+"help access_variables" for a list of the variables that are supported.
+
+The set action takes one parameter, the name of an access variable.
+The variable is set to 0 (for boolean, numeric, and timespan variables) 
+or the empty string (for string variables).
+
+
+
+                               Conditions
+
+An access rule will only be applicable to a particular command if the
+rule's conditions match the characteristics of the command.
+
+If no rules match, the "default" action is taken, which results in a
+reasonable emulation of the Majordomo 1 behavior using *_access,
+moderate, restrict_post, etc. The default actions for all requests are
+listed in "help access_variables".
+
+Several special features are supported by the condition syntax:
+
+Logical
+-------
   AND, && - the conditions on both sides must be true
   OR, ||  - any one or both of the conditions must be true.
   NOT, !  - the following condition must be false
   
-  Grouping:
-  (, ) - enclose groups of conditions
+Grouping
+--------
+  (, ) - parentheses may be used to enclose groups of conditions.
 
-  Username match:
-  /expression/ - a Perl regular expression applied to the requesting user's
-    address.
+Address match
+-------------
+  /expression/ - true if the e-mail address of the victim matches 
+  the regular expression.  See "help patterns" for an introduction to
+  regular expressions.
 
-  Membership check:
-  @, @MAIN - these are equivalent, and check to see that the user is a
-    list subscriber.
-  @auxlist - checks to see that the user is a member of the named auxiliary
-    list. (see "help createlist" and "help auxiliary_list" for how to 
-           create lists and sublists, respectively)
+Membership check
+----------------
+  @MAIN - true if the victim is a subscriber to the mailing list.
+  @SUBLIST - true if the victim is a member of the SUBLIST auxiliary
+    list. (See "help auxiliary_list" for an introduction to sublists.)
 
-  Comparisons:
-
+Comparisons
+-----------
   \$variable          
     is true if the supplied variable has a true value.
     True values are neither 0 nor a zero-length string.
@@ -437,530 +472,291 @@ Section 1.3 - Up to next blank line - code
   ALL
     is always true.
 
-See "help access_variables" for a list of variables that can be used
+See "help access_variables" for a list of the variables that can be used
 in comparisons.
 
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Section 1.4 - Semantics: 
-  Rules for a particular request are processed in order.  The first 
-  rule that matches and contains a terminal action (allow, confirm,
-  confirm2, consult, confirm_consult, default, delay, deny, forward) 
-  causes all succeeding rules to be ignored.
-
-  If no rules match, the "default" action is taken, which results in a
-  reasonable emulation of the Majordomo 1 behavior using *_access, moderate,
-  restrict_post, etc. The default actions for all requests are listed
-  in "help access_variables".
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Section 1.5 - Moderator Groups:
-
-  The access rules support moderator groups for the "consult"
-  and "conf_cons" actions. The addresses of a moderator group are
-  expected to be stored in an auxiliary list. The default moderator
-  group is called "moderators."  When a message is sent to the
-  -moderator alias, the addresses in the "moderators" auxiliary list
-  are the recipients, if that sublist exists. If not, the "moderators,"
-  "moderator," and "whoami_owner" configuration settings are checked in
-  turn until an address is found.
-
-  If you use the "moderators" auxiliary list to store your moderators'
-  addresses, it is possible to choose which of them will receive mail
-  sent to the -moderator alias, using the set command.
-
-  The moderator group to send the confirmation request to defaults
-  to sending to moderator. The moderator group influences whether
-  the second person to see the message is a list moderator or the
-  requester.  If it is set to 'requester', the second person
-  consulted is the requester; otherwise, the second person to be
-  consulted is a list moderator.  Moderator groups are otherwise
-  another unfinished idea.
-
-  When mentioned above, the moderator group receives the consultation
-  or confirmation request (defaults to sending to moderator). The
-  moderator group influences whether the person to see the message
-  is a list moderator or the requester.  If it is set to 'requester',
-  the person consulted is the requester; otherwise, the list moderator
-  is consulted.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Section 1.6 - Supported keyword substituion variables:
-  In messages returned by the mailfile, reply, and replyfile actions, the
-  standard substitutions plus CMDLINE, FULFILL, NOTIFY, REASONS,
-  REQUESTER, and VICTIM are supported.
-
-  See "help variables" for a description of each variable. 
-
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 2 - Hints and suggestions for how and why to use access_rules
-
-
-Section 2.1 - how to test access_rules quickly
-
-  To test things out, try restricting the 'who' request in the same way
-  as 'post', with access_rules, but leave out any 'mailfile' or 'replyfile'
-  actions.  Then use the mj_shell command with the -u option to spoof a
-  username for testing various addresses:
-     mj_shell -u someone@example.com who listname
-
-  Testing addresses with mj_shell is much easier and faster than using
-  email to reach the command parser. Be careful, however, that you do
-  not use REAL email addresses unless you check with the person first.
-  It is possible to generate error messages or confirmation requests
-  that will alarm the person actually at the email address you tested.
-
-  If you see anomalous behavior, tack on the '-D' option when starting
-  mj_shell and review the spew or save it to contact the author. The
-  syntax of access_rules is complex but powerful. Be sure to test it.
-
-  If you have parsing errors, remember to escape the "@" in addresses:
-     post
-     deny
-     /joe\\@blow.com/
-
-  If your rules don't match expected addresses, watch case sensitivity:
-     post
-     deny
-     /nowhere.com/i
-
-  See "help patterns" for more information on Perl regular expressions.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Section 2.2 - why deny is much more drastic than consult or confirm
-
-  deny    - post never shows up at all when expression matches
-  consult - post goes to list owner for "accept" when expression matches
-  confirm - post MAY go to message originator for "accept"
-
-  The problem with "deny" is that neither the owner nor the person trying
-  to post gets a notice. The post just evaporates since there isn't
-  generally any kind of reply channel when doing a post. (Unlike when you
-  send commands, where there is a message set up for the purpose of sending
-  back the results of the commands.) There are additional actions that the
-  "mailfile" and "replyfile" options can provide in some cases.
-
-  If what you need is for the owner to review and approve the post, not for
-  it to just vanish, use "consult". The "confirm" option is when the person
-  making the post needs to be asked, while "consult" asks the list owner.
-
-  In some cases, "confirm" cannot know who the originator was. In others,
-  it will ask the "victim" for approval (like when you send from one
-  account to subscribe a second account). It is possible, but not certain,
-  that some confirmations will go the list owner or the site administrator
-  (essentially the "consult" behavior but when "confirm" is used).
-
-  Using deny with "set listname noack" and replyfile in access_rules can
-  mean the user gets no message, the owner gets no message, and the list
-  gets no post. Errors simply vanish in some cases. If you are using "deny",
-  make sure to use "configset default_flags" or else use "set" to add
-  "ackall" flags to each user's subscription. See "help who" for a
-  technique to change user flags for the entire list.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Section 2.3 - restricting non-subscriber posts
-
-  Majordomo has its roots in an innocent time, when spam came in a can.
-  Anyone can post to a Majordomo list, whether or not they are subscribed,
-  by default. If you leave your list that way, the spammers may find out
-  and bury you with unsolicited email (causing people to unsubscribe and/or
-  complain to you).
-
-  Previous versions of Majordomo (1.9x) used the restrict_post
-  configuration variable to restrict posting to a mailing list.
-  If you put the name of your list in it, only subscribers were
-  allowed to post directly, and messages from other folks would
-  be sent to the list-owner or moderators for approval.
-
-  The Majordomo2 way to deal with it is to use access_rules:
-     post
-     consult, replyfile=NonSubscriberPost
-     !@MAIN
-  where the file "NonSubscriberPost" can be created under the GLOBAL
-  pseudo-list (so it is available to all lists) with
-     put GLOBAL /NonSubscriberPost
-  (see "help put" for details).
-
-  You (as the list owner) will then be consulted on all post requests sent
-  by anyone whose address is not on the main list.  There are other things
-  you can do, too; replace 'consult' with 'deny' and the list owner will
-  never have a chance to allow non-subscriber posts even if they make sense
-  (but will not be bothered with spammer posts at all).
-
-  It is unquestionably better to "deny" non-subscribers than to "allow"
-  subscribers. The deny method still filters posts through admin_body and
-  taboo_body, whereas the allow method doesn't. See the example section
-  below for more about "allow", and refer to "help configset admin_body"
-  for details of admin_* and taboo_* settings.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Section 2.4 - files and subjects for 'replyfile's or 'mailfile's
-
-  Please refer to "help put" for message files that are used by default!
-
-  Whether you are storing "access_rules" for the GLOBAL pseudo-list or an
-  actual list, you should use the "put" command to create the file in the
-  right place and with the right file ownership and access. Don't attempt
-  to provide a full pathname in the operating system! The file pathname
-  used by "access_rules" is scoped by the list the rule applies to (refer
-  to "help put" for more information on file scoping and directories).
-
-  Replyfile and mailfile also allow you to specify the subject
-  of the message sent by the server. Refer to "help put" for the
-  complete syntax of the put command, but here is an example that
-  would supply the file "NonPost" used in the deny rule below:
-     put GLOBAL /NonPost non-subscribers cannot post to \$LIST <<ENDNONPOST
-     You must subscribe to \$LIST before you can send messages to it.
-     NOTE: YOUR MESSAGE DID NOT GO TO THE LIST OR THE LIST OWNER.
-           No one will see it unless you take further action!
-     Your current header shows you are: \$VICTIM
-     ENDNONPOST
-
-  Don't put quotes around the subject, or they will show up in the
-  email the poster receives. The final subject may be just the words
-  you supply, or in some cases Majordomo will add other words. In a
-  few cases, Majordomo will replace your subject with a stock one.
-  Test all access_rules messages as soon as you create them!
-
-  If you use a reply or replyfile of "NONE" no ack is sent.  This is a
-  feature which will not be used often, but there are limited cases where
-  you may actually want to send absolutely no message. For example, if you
-  are having users confirm their own messages, you might want to suppress
-  the ack.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Section 2.5 - variables you can use in 'replyfile's or 'mailfile's
-
-  If you want to replace Majordomo's error or explanatory message with
-  one you write, use "replyfile" or "mailfile" options on access_rules.
-  When composing the message, keep in mind that the person reading it
-  may or may not remember what they did... so you need to give them as
-  much information as possible in the message.
-
-  Always create the error and get a copy of the message back before
-  unleashing it on the list subscribers!
-
-  Sometimes a pre-written message will be perfectly clear, but most
-  of the time it will be MORE clear if you include the list name, the
-  command, etc. Some people do not know what is in their mail headers,
-  so it often helps (oddly enough) to tell them who you think they are!
-  This type of information (list name, user name, command) can be put
-  into the message using variables.
-
-  There is a complete list of available variables in "help variables",
-  which can be used to insert information into the replyfile or mailfile
-  which is specific to a particular user or a particular message. Keep
-  in mind that these variables can occur in both the subject and the
-  message body.
-
-  Refer to "help put" for how to store the files with subjects, but
-  the general form is "put GLOBAL /file subject <<". The "subject"
-  string on the "put" command will be the subject (or part of the
-  subject) of the message sent by the server.
-
-  See the next section for an example file using variables in both
-  the subject line and the message itself.
-
-  WARNING: In some cases replyfile works differently than mailfile. For
-  example, trapping "configset taboo_header" violations and using
-  access_rules to deny the post produces more fully evaluated variables
-  with replyfile than with mailfile. On the other hand, replyfile can
-  be skipped if the subscriber's flags are set to "noack", which is
-  the Majordomo default unless "configset default_flags" changes it.
-  When writing access_rules, test each one!
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Section 2.6 - general hints and examples of useful access_rules
-
-  Note that first matching rule truncates the testing of other rules,
-  and if an address matches a permissive rule first then restrictive
-  rules which come later will not prevent the request (post, etc).
-
-  An "allow" command will override almost everything! If you have
-  administrivia enabled, and are using admin_body or taboo_body to
-  trap server commands that are accidentally sent to the list, the
-  "allow" command in access_rules will bypass the *_body traps for
-  the listed address(es).
-
-  Remember that "@MAIN" is a magic string that matches all list
-  subscribers, while "!@MAIN" matches all non-subscribers. There
-  are subtle differences between allowing subscribers to post and
-  denying non-subscribers the right to post - see below for an example.
-
-  Use replyfile, NOT mailfile, so poster gets back only ONE message
-  when a confirmation message is sent. Using "mailfile" for non-
-  subscriber posts, for example, will result in the poster getting
-  one message that says the post is stalled and ANOTHER message
-  asking for confirmation via accept. Replyfile is less confusing.
-
-
-2.6.1 - An alternative to admin_body or taboo_body, with specific reply:
-     post
-     deny, replyfile=ThisThreadIsDead
-     /string from thread/i
-  which bounces the post *IF* it finds a matching phrase in the message.
-
-  Note the trailing "i", which makes the match case insensitive. Without
-  that, the upper and lower characters in the string are significant.
-
-
-2.6.2 - Provide a non-default reply for violations of admin_* and taboo_*:
-  The admin_body, taboo_body, admin_header, and taboo_header commands
-  can trap posts and provide a default message. Using access_rules, you
-  can customize the message without re-writing the rule.
-     post
-     deny, replyfile=SacredWordsUsed
-     \$admin_body
-  Please refer to "help configset admin_body" for a list of variable
-  names which can be set when various patterns match. These are all
-  numeric variables that can be tested with "<" and ">" or "==" to
-  evaluate the "score" of a message against various rules.
-
-
-2.6.3 - Inverted test (allow post ONLY if you find a specific string):
-  It is possible to negate or invert the test with a leading "bang", so
-  that any post WITHOUT the string will fail:
-     post
-     deny, replyfile=ThisPhraseRequired
-     !/string you want to require/
-  which bounces the post *UNLESS* it finds a matching phrase in the message.
-
-
-2.6.4 - Moderate a known abuser so they can post only with owner approval:
-     post
-     consult, mailfile=BannedOrModerated
-     /abuser\\@WHERE.com/i
-  remember to escape the "@" and add "i" for case insensitivity!
-
-
-2.6.5 - Reject all posts that have attachments:
-     post
-     deny, replyfile=NoAttachmentAllowed
-     \$mime_deny
-  Please refer to "help configset_attachment_rules" for details.
-
-
-2.6.6 - Allow a list owner to post without subscribing:
-     configset MYLIST access_rules << ENDACCESSRULES
-     post
-     allow
-     theowner\\@domain.org
-
-     post
-     deny, replyfile=NonPost
-     !@MAIN
-     ENDACCESSRULES
-
-2.6.7 - Equivalent to moderate=yes:
+Time constraints
+----------------
+  *time* - true if the current time matches the time specification
+  between the asterisks.  See the "Scheduled times" section of the
+  "help times" document for a description of the syntax.
+
+
+                             Reply Messages
+
+Reply messages indicating the result of a command or posted message are
+not always sent to the requester.  A reply will not be sent under the
+following circumstances:
+
+* A posted message requires confirmation, is delayed, or is forwarded,
+  and the "ackstall" flag is not set for the author of the message.
+
+* A posted message is denied and the "ackdeny" flag is not set for the
+  author of the message.
+
+* A posted message is allowed and the "ackpost" flag is not set for the 
+  author of the message.
+
+See "help set" and "help configset_nonmember_flags" for more information
+about the acknowledgement flags.
+
+In messages returned by the mailfile, reply, and replyfile actions, the
+standard substitution variables plus CMDLINE, FULFILL, NOTIFY, REASONS,
+REQUESTER, and VICTIM are supported.  See "help variables" for a
+description of each variable. 
+
+The syntax for specifying file names with access variables is different
+from the put and get commands.  If a file name is specified without a
+leading '/', the slash is automatically prefixed.  In other
+words,"consult" and "/consult" are identical.  This is also true for the
+"file" and "chainfile" notify variables.
+
+
+                            Default Actions
+
+If no access rules with terminal actions (other than the "default"
+action) apply to a command or posted message, Majordomo will apply the
+default action for the command, as described by the following table:
+
+Command           Default action
+--------------------------------
+access            allow
+advertise         special
+alias             confirm
+announce          deny
+archive           access
+changeaddr        confirm2
+createlist        deny
+digest            deny
+faq               access
+get               access
+help              allow
+index             access
+info              access
+intro             access
+lists             allow
+password          confirm
+post              special
+put               deny
+register          confirm
+rekey             deny
+report            deny
+request_response  allow
+set               policy
+show              mismatch
+showtokens        deny
+subscribe         policy
+unalias           confirm
+unregister        confirm
+unsubscribe       policy
+which             access
+who               access
+
+In addition to the actions already described, the default actions
+include the following possibilities:
+
+access
+  Default access is determined by a configuration setting.  For example,
+  the "which" command is controlled by the "which_access" setting.
+
+mismatch
+  The command will succeed unless the requester and victim do not match,
+  or if someone is posing using the "default user" command.  See
+  "help default" for more information.
+
+policy
+  Default access is determined by a configuration setting.  For example, the
+  "subscribe" command is controlled by the "subscribe_policy" setting.
+
+special
+  Default access is determined by a variety of configuration settings.
+
+The "special" default access for the lists ("advertise") command is
+determined by the advertise and noadvertise configuration settings.
+See "help configset_advertise" and "help configset_noadvertise" for more
+details.
+
+The "special" default access for the post command causes several
+configuration settings, including the moderate, restrict_post,
+taboo_body, and taboo_headers settings, to be examined.  See "help
+admin_moderate" for more details.
+
+
+                         Illustrative Examples                                
+
+Moderate posts from non-subscribers
+-----------------------------------
 post
-consult
-ALL
+consult, reason="A message was posted by a non-subscriber"
+!@MAIN
+
+The "!@MAIN" condition matches any address in the "From" header of a message that
+is not subscribed to your mailing list.
 
 
-2.6.8 - Ban some users from subscribing:
+Customize the reply message for admin and taboo violations
+----------------------------------------------------------
+If a message violates the checks in the admin_body or admin_headers
+setting, the "admin" access variable will be set.  The same applies to
+the "taboo" access variable and the taboo_body and taboo_headers
+settings.  The following rule customizes the reply file that is sent
+when a message violates any of these settings.
+
+post
+deny, replyfile=SacredWordsUsed
+$admin OR $taboo
+
+The "SacredWordsUsed" file should already exist in the file space of
+your mailing list.  See "help admin_documents" and "help put" for more
+information about the file space.
+
+
+Moderate new subscribers
+------------------------
+The following rule would cause posted messages from people who have been
+subscribed less than 14 days to be moderated.  The days_since_subscribe
+access variable will be set to -1 for non-subscribers; only subscribers
+will have a value of 0 or greater.
+
+post
+consult, reason="New subscribers are moderated"
+$days_since_subscribe >= 0 AND $days_since_subscribe < 14
+
+
+Confirm "mismatched" subscriptions with both addresses
+------------------------------------------------------
+Usually, a subscribe command with a requester and victim that vary will
+require the approval of the moderators of a mailing list.  The following
+rule causes a confirmation message to be sent to the requester and
+victim at the same time.
+
 subscribe
-deny,reply="You are banned."
-@banned
-
-
-2.6.9 - Deny all access to off-site users:
-access
-deny
-NOT /my.site.com/
-
-or:
-
-access
-allow
-/my.site.com/
-
-access
-deny
-ALL
-
-
-2.6.10 - Remove confirmation requirement from 'set':
-set
-allow
-ALL
-
-  You can also remove confirmation requirement from 'set' ONLY IF
-  the 'From:' header (easily forged) matches the request:
-set
-confirm
+confirm2, chain=0
 $mismatch
 
-set
-allow
+
+Ban posted messages from abusers
+--------------------------------
+The addresses of abusers can be stored in an auxiliary list using the
+subscribe command.  The name of the auxiliary list is arbitrary.
+
+post
+deny, reason="Messages posted from this address are banned"
+@banned
+
+To receive a brief notice when posted messages are denied, you may need
+to adjust the inform configuration setting.  See "help configset_inform"
+for more details.
+
+
+Allow posted messages from a small group
+----------------------------------------
+The following two rules would allow all members of the heroes auxiliary
+list to post without interference, while everyone else is moderated.
+
+post
+default
+@heroes
+
+post
+consult, reason="The mailing list is moderated"
 ALL
 
+Using the "default" action instead of the "allow" action for members of
+the heroes sublist will keep duplicate message checks, size limits, and
+other protective measures intact.
 
-2.6.11 - Prevent duplicate message checksums from being used:
-  This will turn off total and partial message checksumming
-  off while leaving duplicate message ID checking on:
+
+Mail a questionnaire to prospective subscribers
+-----------------------------------------------
+The questionnaire file should already be present in your list's file
+space before you add this rule.  The name of the file is arbitrary.
+
+subscribe
+mailfile="/questions", reply="A questionnaire is being mailed to you."
+!@MAIN
+
+
+Mail a questionnaire to prospective subscribers after confirmation
+------------------------------------------------------------------
+Consider the following scenario:  a subscription to a mailing list
+requires the confirmation of both the victim and the moderators of the
+list.  After the victim confirms the subscription, a questionnaire is
+mailed to the victim.  The moderators will approve the subscription only
+when the completed questionnaire is mailed to them.
+
+The following access rule will make this possible:
+
+subscribe
+confirm_consult, notify, notify=(fulfill=1,expire=0,chainfile=more_info,file=questions,group=victim), notify
+ALL
+
+The first notify action sends the default confirmation message to the
+victim.  
+
+The second notify action includes "fulfill" and "expire" variables which
+cause a delay token to be created which will expire immediately.  The
+"more_info" reply file is sent to the victim, and the "questions" file
+is mailed separately. 
+
+The third notify action causes a confirmation message to be sent to the
+moderators of the mailing list.
+
+
+Prevent duplicate message checksums from being used
+---------------------------------------------------
+Normally, a posted message with a body that matches a previously posted
+message will be sent to the moderators for confirmation.  The following
+rule will turn the body checks off, but leave intact the duplicate
+message-ID check.
+
 post
 unset=dup_checksum, unset=dup_partial_checksum
 ALL
 
 
-2.6.12 - Change how many addresses "which" commands will return:
-  The default is one match unless the site password is used, this
-  will allow regular users to obtain up to 5 matches unless the
-  "which" command is otherwise restricted by access_rules:
+Adjust the output of the which command
+--------------------------------------
+Unless a site or domain administrative password is used, a maximum of 1
+address will be returned for each mailing list when someone uses the
+which command.  The following rule will change the maximum to 5
+addresses.
+
 which
 allow=5
 ALL
 
 
-2.6.13 - Prevent posts on auxiliary lists (sublists)
-  To ban posts to all auxiliary lists, one would use the
-  following access rule:
-post
-deny
-$sublist=~/./
+Delaying unsubscriptions
+------------------------
+In the following example, the unsubscribe-rule command, used in
+conjunction with an administrative password, would cause the "expiring"
+file to be mailed to the victim.  The victim would have four days to
+reject the unsubscribe command and preserve the subscription.
 
-
-2.6.14 - Limiting how often a person can post
-  To keep a problem subscriber from responding to EVERY post on your
-  list, you can set hard (deny the post) limits and soft (consult the
-  list owner) limits. See "help configset post_limits" for details:
-limit_soft
-consult, mailfile=post_limit_warning
-ALL
-
-limit_hard
-deny, mailfile=you_talk_to_much
-ALL
-
-
-2.6.15 - Suppressing "duplicate checksum" traps for specific users
-  If you have a routine post, made by software or the list owner for
-  example, you can disable the duplicate checking just for one
-  user instead of turning it all the way off for the whole list:
-post
-unset=dup_partial_checksum
-"address@host.dom"
-
-  This unsets the dup_partial_checksum variable if the posting address
-  matches "address@host.com".  (Patterns in quotes are simple substring
-  matches; append an 'i' if you want case insensitivity.)  All other
-  checks are done as normal.
-
-
-2.6.16 - delaying 'unregister' so users can save their passwords
-  The "rule" mode influences how commands are processed.
-  "rule" mode is a way of temporarily setting access_password_override
-  to zero.  That is, commands are not automatically approved when
-  the master password is used.  Instead, the master_password access
-  variable is set, and the access rules are consulted as usual.
-
-  Consider the following rule, used for expiring registry entries.
-
-unregister
+unsubscribe
 delay=(expiring,4d)
 $master_password
 
-  Once the file "expiring" has been created in the GLOBAL file space,
-  you now have a way of expiring old registry entries.  Just use
-    unregister-rule someone@example.com
-  to send a notice, and expire after four days, or
-    unregister someone@example.net
-  to remove an address immediately.
 
-  If the subscriber rejects the delay token within the the delay time
-  specified, the command does not execute and they remain registered.
+Delaying posts to spread out the system load
+--------------------------------------------
+The following rule would delay for four hours all messages that are
+posted between 8:00 and 17:59.  The delay only affects posted messages that
+would otherwise be distributed immediately.
 
-
-2.6.17 - delaying posts to spread out the system load
-  One last example...if you want to configure a list to only deliver
-  posted messages between 6pm and 6am, first change the "triggers"
-  setting for the list to only process delay triggers at those times:
-configset tangerine triggers <<LLL
-delay | 0-5,18-23
-LLL
-
-  Then create an access rule to delay the posts:
-post
-set=(delay=1)
-ALL
-
-  Using a longer delay than one second will cause the delivery to
-  be distributed more evenly.
-
-  Another way to do this is
 post
 set=(delay=4h), reason="Daytime messages are delayed."
 *08-17*
-  which would delay all "allow"ed messages posted between 8:00 and 17:59.
 
-
-See "help default" for more details on delays.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Section 2.7 - improving the default system message files
-
-  Majordomo has a default message file for many actions. This example
-  is for "confirm" (when the user is asked for an accept/reject token),
-  but the concept is applicable to any of the files distributed in the
-  "files/en/config" directory of the source release.
-
-  The standard system message files may not contain enough information for
-  the person being asked to make an intelligent choice, or you may wish
-  to provide information customized to your site. You can replace the
-  default files with whatever text you choose.
-
-  Below is one example, using the 'confirm' file, formatted into the "put"
-  command you would send to Majordomo. Refer to "help put" for the
-  full syntax of that command, but note that this command stores a
-  file in the GLOBAL pseudo-list - be sure to supply a useful subject
-  line to accompany the message text:
-
-put GLOBAL /confirm $TOKEN : CONFIRM from \$LIST - reply with accept or reject <<ENDCONFIRM
-Dear email list subscriber - the server needs your advice!
-(you may be the target of a spammer, so if you did not
-send the request below, DO NOT IGNORE this message)
-
-This request apparently came  from account: \$REQUESTER
-This request apparently applies to account: \$VICTIM
-If these lines don't match, you should probably change the command below!
-
-The command you (or someone else) sent is on the following line:
-  \$CMDLINE
-
-If you didn't send the command above, contact \$OWNER right away!
-
-If you want this action to be taken, please reply to this message
-with the word "accept" (without quotes) on a line by itself.
-
-If you do not wish to allow this request, you may reject it by replying to
-this message with the word "reject" (without quotes) on a line by itself.
-
-When you reply to this message it should go to "\$MJ".
-You must keep the magic number in the subject line (do not edit the
-reply subject). If you do not respond within \$EXPIRE days, this token
-will expire (e.g. doing nothing is the same as rejecting, but slower).
-If you do not respond within \$REMIND days, a reminder will be sent.
-
-To contact the list owner, send email to \$OWNER
-
-ENDCONFIRM
-
-
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+See "help delay" for more details on delays.
 
 
 See Also:
    help access    (for the special case of granting/denying all access)
    help access_variables              (for requests, variables, defaults)
+   help admin_moderate
+   help configset_access_password_override
    help configset_archive_access      (for     archive command access_rules)
    help configset_block_headers       (for how to filter out server requests)
    help configset_faq_access          (for         faq command access_rules)
@@ -976,10 +772,9 @@ See Also:
    help configset_unsubscribe_policy  (for unsubscribe command access_rules)
    help configset_which_access        (for       which command access_rules)
    help configset_who_access          (for         who command access_rules)
-   help default   (for details on the non-access-rules "delay" option)
-   help post      (for the special case of restricting who can post msgs)
-   help subscribe (for how to add addresses to auxiliary lists)
-   help times     (for how to specify times for "delay")
-   help variables (for a list of all possible variables and what they mean)
+   help delay
+   help subscribe (How to add addresses to auxiliary lists)
+   help times     (How to specify a delay)
+   help variables (A description of keyword substitutions variables)
 
 $INCLUDE-help/foot
