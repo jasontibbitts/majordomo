@@ -1,3 +1,11 @@
+Tue Jan 26 21:15:36 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Config.pm (compile_pattern): Add method of forcing
+ 	undelimited patterns into proper patterns with either substring or
+ 	exact match semantics.
+	(parse_attachment_rules): Call compile_pattern to get a regexp out
+ 	of the MIME-type argument.
+
 Mon Jan 25 23:39:50 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/MTAConfig.pm: Add beginnings of qmail code.  Not actually

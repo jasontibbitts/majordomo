@@ -1257,32 +1257,32 @@ sub parse_attachment_rules {
   # to the appropriate strings.  (allow adds code to both strings.)
   # Bomb on unrecognized actions.
   for ($i=0; $i<@$table; $i++) {
-      $err = (Majordomo::_re_match($safe,
-				   "m!$table->[$i][0]!",
-				   "justateststring")
-	     )[1];
-      if ($err) {
-	  return (0, "Error in regexp '$table->[$i][0]', $err.");
-      }
-      if ($table->[$i][1] eq 'deny') {
-	  $check .= qq^return 'deny' if m!$table->[$i][0]!;\n^;
+   
+    # First item is either an unquoted string or a pattern.  Convert the former to the latter.
+    ($ok, $err, $pat) = compile_pattern($table->[$i][0], 0, 'iexact');
 
-      }
-      elsif ($table->[$i][1] =~ /^(allow|consult)(?:=(\S+))?$/) {
-	  $check  .= qq^return '$1' if m!$table->[$i][0]!;\n^;
-	  if (defined($2)) {
-	      $change .= qq^return ('allow', '$2') if m!$table->[$i][0]!;\n^;
-	  }
-	  else {
-	      $change .= qq^return ('allow', undef) if m!$table->[$i][0]!;\n^;
-	  }
-      }
-      elsif ($table->[$i][1] eq 'discard') {
-	  $change .= qq^return ('discard', undef) if m!$table->[$i][0]!;\n^;
+    if ($err) {
+      return (0, "Error in regexp '$table->[$i][0]', $err.");
+    }
+    if ($table->[$i][1] eq 'deny') {
+      $check .= qq^return 'deny' if m!$table->[$i][0]!;\n^;
+      
+    }
+    elsif ($table->[$i][1] =~ /^(allow|consult)(?:=(\S+))?$/) {
+      $check  .= qq^return '$1' if $pat;\n^;
+      if (defined($2)) {
+	$change .= qq^return ('allow', '$2') if $pat;\n^;
       }
       else {
-	  return (0, "Unrecognized action: $table->[$i][1].");
+	$change .= qq^return ('allow', undef) if $pat;\n^;
       }
+    }
+    elsif ($table->[$i][1] eq 'discard') {
+      $change .= qq^return ('discard', undef) if $pat;\n^;
+    }
+    else {
+      return (0, "Unrecognized action: $table->[$i][1].");
+    }
   }
   
   $check  .= "return 'allow';\n";
@@ -1363,7 +1363,7 @@ sub parse_delivery_rules {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150;
-  my(@dr, $data, $err, $i, $re, $rule, $seen_all, $table);
+  my(@dr, $data, $err, $i, $ok, $re, $rule, $seen_all, $table);
 
   $data = [];
 
@@ -2467,7 +2467,7 @@ sub parse_keyed {
   return (undef, "$err\n  $done __${_}__ $list");
 }
 
-=head2 compile_pattern(pattern, multiple)
+=head2 compile_pattern(pattern, multiple, force)
 
 This takes a generalized pattern and turns it into a regular expression.
 If multiple is true, the returned expression is allowed to be a listref
@@ -2475,12 +2475,21 @@ containing regexps that are to be 'and'ed.  ('or'ing is easy in one regexp,
 but 'and'ing is difficult so the matcher can save state between regexps.
 This is not yet implemented.)
 
+If force is 'substring', convert an undelimited pattern into a substring
+pattern.  If force is 'exact', convert an undelimited pattern into an
+equality match.  Prefixing either with 'i' maeks the match
+case-inseneitive.
+
 Returns a flag, an error, and the compiled pattern.
 
-Right now we only parse two kinds of generalized expressions:
+Right now we only parse three kinds of generalized expressions:
 
  substring, delimited by double quotes, in which all metacharacters are
    escaped.
+
+ csh/DOS like, delimited by percent signs, in which the characters ? and *
+ have their usual meaning in the shell and character classes using '[' and
+ ']' are supported.
 
  perl-like, delimited by forward slashes, in which nothing is escaped
    _unless_ the original expression fails because of an array deref error.
@@ -2491,6 +2500,7 @@ Right now we only parse two kinds of generalized expressions:
 sub compile_pattern {
   my $str  = shift;
   my $mult = shift;
+  my $force= shift;
   my ($err, $id1, $id2, $mod, $pat, $re);
 
   # Mapping of shell specials to regexp specials
@@ -2506,8 +2516,23 @@ sub compile_pattern {
                                        \s*$     # Trailing whitespacce
 				     /x;
 
-  return (0, "Unrecognized pattern '$str':\nNot enclosed in pattern delimiters.\n")
-    unless $id1;
+  # Handle case where there are no delimiters
+  unless ($id1) {
+    if ($force =~ /i(.*)/) {
+      $mod = 'i';
+      $force = $1;
+    }
+    if ($force eq 'substring') {
+      $id1 = $id2 = '"';
+    }
+    elsif ($force eq 'exact') {
+      $id1 = $id2 = '/';
+      $pat = '^' . quotemeta($str) . "\$";
+    }
+    else {
+      return (0, "Unrecognized pattern '$str':\nNot enclosed in pattern delimiters.\n")
+    }
+  }
 
   $mod ||= '';
 
