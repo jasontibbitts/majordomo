@@ -1253,6 +1253,7 @@ sub parse_access_rules {
 		  join("\n",sort(@tmp)));
 	}
 	if ($tmp2) {
+          $tmp2 =~ s/^\((.*)\)/$1/;
 	  for $k (action_files($tmp, $tmp2)) {
 	    ($file) =
 	      &{$self->{callbacks}{'mj.list_file_get'}}($self->{list}, $k);
