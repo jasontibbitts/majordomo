@@ -47,7 +47,7 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; $a=~s/\.p.$//; ("lib/$_" => "\$(INS
    'Date::Manip'    => [5.10 , 1],
    'CGI'            => [2.36,  1],
    'Digest::SHA1'   => [0,     1],
-   'IO::Socket'     => [1.1602,1],
+   'Socket'         => [0,     1],
    'IO::File'       => [0,     1],
    'IO::Handle'	    => [0,     1],
    'Date::Format'   => [0,     1],
@@ -182,7 +182,7 @@ After the software has been installed, save a copy of .mj_config,
   which contains your answers to the configuration questions.
 
 Finally, read the help file for domain administrators with this command:
-  $config->{'install_dir'}/bin/mj_shell help admin_domain | more
+  $config->{'install_dir'}/bin/mj_shell -P help admin_domain
 
 EOM
 
