@@ -358,6 +358,13 @@ réponses
   Contraintes sur la délivrance d'une compilation, comme déterminée
   par le paramètre "digests".
 
+\$MAXLENGTH
+  La taille limite d'un message posté, determiné par le paramètre
+  "maxlength".
+
+\$MESSAGE_ID
+  Le message ID, de l'en-t^ete "Message-ID", d'un message posté.
+
 \$MSGNO
   Le non de l'archive ainsi que le numéro du message posté, par
   exemple "200008/12". Ce n'est pas le même numéro que le numéro de
