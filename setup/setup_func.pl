@@ -147,9 +147,9 @@ sub do_default_config {
   };
 
   if ($config->{cgi_bin}) {
-    $subs->{'confirm_url'} = "$config->{'cgi_url'}mj_confirm?d=$dom&t=\$TOKEN";
+    $subs->{'confirm_url'} = "$config->{'cgi_url'}mj_confirm/domain=$dom?t=\$TOKEN";
     $subs->{'wwwadm_url'} = "$config->{'cgi_url'}mj_wwwadm/domain=$dom";
-    $subs->{'wwwusr_url'} = "$config->{cgi_url}mj_wwwusr/domain=$dom";
+    $subs->{'wwwusr_url'} = "$config->{'cgi_url'}mj_wwwusr/domain=$dom";
   }
   else {
     $subs->{'confirm_url'} = "no server configured";
@@ -188,6 +188,7 @@ sub do_default_config {
 }
 
 # Dump out the initial site config
+use Digest::SHA1 qw(sha1_base64);
 sub do_site_config {
   my($data, $mtaopts);
 
@@ -197,6 +198,7 @@ sub do_site_config {
     $pw = get_str($msg4);
     $config->{'site_password'} = $pw;
   }
+  $pw = sha1_base64($pw);
 
   print "Configuring site-wide parameters:";
 
