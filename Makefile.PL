@@ -166,10 +166,44 @@ WriteMakefile
 
 print <<EOM;
 
-Now you should do the following:
+A NOTE ON BEING ROOT: You never NEED TO BE "root" to install Majordomo2.
+You can EITHER become root, OR you can become the user under which the
+server processes are intended to run, before you install. All of the
+permission setting and setuid wrapper generation will work the same way
+if you are either uid, but if you are not root there are several steps
+which may need to be done before and after install. In addition, the
+majordomo user may not have write access to the cgi-bin directory, so
+it may be impossible to install the CGI wrappers except as root.  
+
+Replace "/var/mj" with the temporary directory you specify to install,
+and replace "/usr/local/majordomo" with the destination directory you
+specify to install, in this example:
+
+   su majordomo_user_id
+   mkdir     /var/mj
+   chmod 770 /var/mj
+   mkdir     /usr/local/majordomo
+   chmod 755 /usr/local/majordomo
+   perl Makefile.PL
+   make
+   # sanity check: make test
+   make install
+   chmod +x /usr/local/majordomo
+   exit
+   # smoke test: /usr/local/majordomo/bin/mj_shell
+
+Whether you install as root or the majordomo user, the wrapper scripts
+will be 'setuid majordomo', not 'setuid root', so there are potentially
+fewer security concerns once the software is installed. Not being root
+allows more safe delegation of install tasks, and the majordomo user
+password can be changed (by root) once installation is complete to keep
+the non-root user from tweaking the system later.
+
+Now you should run the following shell commands:
   make (expect several warnings about truncation to 8 characters)
   make test (if you wish to run the paltry tests)
-  make install (as root) and answer any questions that appear
+  make install (usually as root, answering any questions that appear)
+  (finally, archive a copy of .mj_config which contains your answers)
 
 EOM
 
