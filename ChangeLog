@@ -1,3 +1,33 @@
+2001-09-27  Michael Yount <csf@moscow.com>
+
+	* Makefile.PL:  Work around MakeMaker bug by using '$(PREFIX)'
+	in place of the actual prefix in makefile variables.
+
+	* bin/mj_wwwusr:  Remove white space from new passwords.
+
+	* lib/Majordomo.pm:  (reject)  Allow an explanation to be
+	used when confirm tokens are rejected.  Use the whoami_owner
+	setting address instead of the sender setting address to
+	receive rejection notices.  Allow the ack_attach_original
+	setting to determine if a posted message should be attached
+	to the rejection acknowledgement.  Display the session
+	file as an attachment.
+
+	* lib/mj_cf_data.pl:  Support the "reject" option in the
+	ack_attach_original configuration setting.
+
+	* lib/Mj/CommandProps.pm:  Support the "blind_copy" access
+	variable for the post command.
+
+	* lib/Mj/Format.pm:  (report)  Spell out "kilobytes."
+	(password)  Format error message consistently.
+
+	* lib/Mj/Resend.pm:  (post)  Supply a default subject if
+	the access rules do not supply a reply file.
+	(_ck_theader)  Add support for the blind_copy access variable,
+	which is set if the list's full address is not present in
+	a To or Cc header.
+
 2001-09-25  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (archive_chunk)  Use listref as
