@@ -77,9 +77,9 @@ sub t_gen {
   my ($i, $token);
   
   $token = "";
-  for (my $i=0; $i<6; $i++) {
+  for ($i = 0; $i < 6; $i++) {
     # Perl 5.004 automatically does srand
-    $token .= uc(unpack('h2', pack('c',rand 256)));
+    $token .= uc(unpack ('h2', pack('C', rand (256) & 255)));
     $token .= "-" if ($i==1||$i==3);
   }
   return $token;
