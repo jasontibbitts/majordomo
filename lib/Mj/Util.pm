@@ -16,15 +16,28 @@ package Mj::Util;
 use Mj::Log;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(ep_convert ep_recognize gen_pw in_clock process_rule 
-                re_match str_to_time time_to_str);
+@EXPORT_OK = qw(condense ep_convert ep_recognize gen_pw in_clock n_build
+                n_defaults n_validate process_rule re_match reconstitute
+                str_to_time time_to_str);
 
 use AutoLoader 'AUTOLOAD';
 
 $VERSION = "0.0";
 use strict;
-use vars(qw(%args %memberof $current $safe $skip));
+use vars(qw(%args %memberof %notify_var $current $safe $skip));
 $Mj::Util::safe = '';
+
+%Mj::Util::notify_var =
+  (
+   'approvals'  => 'integer',
+   'attach'     => 'bool',
+   'bounce'     => 'bool',
+   'file'       => 'string',
+   'fulfill'    => 'bool',
+   'group'      => 'string',
+   'pool'       => 'integer',
+   'remind'     => 'timespan',
+  );
 
 1;
 __END__
@@ -106,25 +119,35 @@ sub process_rule {
 	# Set a variable.
 	($arg, $value) = split(/[=-]/, $arg, 2);
 	if ($arg and ($ok = rules_var($params{request}, $arg))) {
-	  if ($value and $arg eq 'delay') {
+	  if ($value and ($ok eq 'timespan')) {
 	    my ($time) = time;
-	    $args{'delay'} = str_to_time($value) || $time + 1;
-	    $args{'delay'} -= $time;
+	    $args{$arg} = str_to_time($value) || $time + 1;
+	    $args{$arg} -= $time;
 	  }
-	  elsif ($value and $ok > 1) {
+	  elsif ($value and ($ok ne 'bool')) {
 	    $args{$arg} = $value;
 	  }
 	  else {
-	    $args{$arg} ||= 1;
+            # obtain boolean value with double-negation.
+	    $args{$arg} = !!$value;
 	  }
 	}
 	next ACTION;
       }
       elsif ($func eq 'unset') {
 	# Unset a variable.
-	if ($arg and rules_var($params{request}, $arg)) {
-	  $args{$arg} = 0;
+	if ($arg and ($ok = rules_var($params{request}, $arg))) {
+          if ($ok eq 'bool') {
+            $args{$arg} = 0;
+          }
+          else {
+            $args{$arg} = '';
+          }
 	}
+	next ACTION;
+      }
+      elsif ($func eq 'notify') {
+        push @{$args{'notify'}}, $arg;
 	next ACTION;
       }
       elsif ($func eq 'reason') {
@@ -149,6 +172,194 @@ sub process_rule {
     $params{'args'}->{$i} = $args{$i};
   }
   @final_actions;
+}
+
+=head2 n_build(notify, default1, default2)
+
+Create a notification hashref using an access rule and 
+default values.
+
+=cut
+sub n_build {
+  my ($notify, $d1, $d2) = @_;
+  my ($i, $j, $r, $result, $rule, $s, $use_d2);
+  my $log = new Log::In 350;
+
+  $d2 ||= '';
+  unless (ref($d2) eq 'HASH') {
+    $use_d2 = -1;
+  }
+  else {
+    $use_d2 = 0;
+  }
+
+  $s = $d1;
+  $result = [];
+
+  # Use the default values to fill in each element of the
+  # notify array.  Use the d2 defaults for the 2nd and succeeding 
+  # elements if d2 was supplied.
+  for ($i = 0; $i < scalar @$notify ; $i++) {
+
+    # Turn each rule into a hashref.
+    $r = n_validate($notify->[$i]);
+    unless (defined($r) and ref $r eq 'HASH') {
+      $log->message(1, 'info', "_build_notify error: $r");
+      $r = {};
+    }
+
+    # Supply default values for missing elements.
+    for $j (keys %notify_var) {
+      unless (exists $r->{$j}) {
+        $r->{$j} = $s->{$j};
+      }
+    }
+    $result->[$i] = $r;
+
+    # use Data::Dumper;  $log->message(1, 'debug', Dumper $r);
+
+    # Use the second set of defaults for succeeding rules. 
+    if ($i == 1 and $use_d2 == 0) {
+      $s = $d2;
+    }
+  }
+
+  # If there are no valid notify directives, add the default values
+  # immediately and return.
+  unless (ref($notify) eq 'ARRAY' and scalar @$notify) {
+    push (@$result, $d1) if (ref $d1 eq 'HASH');
+  }
+  unless (ref($notify) eq 'ARRAY' and (scalar(@$notify) > 1)) {
+    push (@$result, $d2) if (ref $d2 eq 'HASH');
+  }
+
+  $result;
+}
+
+=head2 n_defaults(type)
+
+Construct a hashref of default values corresponding to
+the way a request is held (confirm, consult, or delay).
+
+=cut
+sub n_defaults {
+  my ($type) = shift;
+  my ($defaults);
+
+  $defaults = {
+                'approvals'     => 1,
+                'attach'        => 0,
+                'bounce'        => 1,
+                'file'          => 'confirm',
+                'fulfill'       => 0,
+                'group'         => 'victim',
+                'pool'          => -1,
+                'remind'        => -1,
+              };
+
+  if ($type eq 'consult') {
+    $defaults->{'attach'}    = 1;
+    $defaults->{'bounce'}    = 0;
+    $defaults->{'file'}      = 'consult';
+    $defaults->{'group'}     = 'moderators';
+  }
+  elsif ($type eq 'delay') {
+    $defaults->{'bounce'} = 0;
+    $defaults->{'file'} = 'delay';
+    $defaults->{'fulfill'} = 1;
+  }
+
+  $defaults;
+}
+
+=head2 n_validate(rule)
+
+Validate the contents of a "notify" action in an access rule.
+Returns a hashref containing the values
+
+=cut
+sub n_validate {
+  my ($str) = shift;
+  my (@grp, @tmp, $i, $mess, $ok, $struct, $tmp, $var, $val);
+  my $log = new Log::In 350, $str;
+
+  @grp = ('moderators', 'none', 'requester', 'victim');
+  $mess = '';
+  $struct = {};
+
+  @tmp = split /\s*,\s*/, $str;
+
+  for $i (@tmp) {
+    if ($i =~ /^([^=]+)=([^=]+)$/) {
+      $var = $1;
+      $val = $2;
+      unless (exists $notify_var{$var}) {
+        $tmp = join " ", sort(keys(%notify_var));
+        return (0, qq(The variable "$var" was not recognized.\n) .
+                   qq(Supported variables include:\n  $tmp\n));
+      }
+      $struct->{$var} = $val;
+    }
+    elsif ($i =~ /^[\w.-]+$/) {
+      # most likely a group name
+      unless (grep {$_ eq $i} @grp) {
+        $mess .= qq(Make sure that the auxiliary list "$i" exists.\n);
+      }
+      $struct->{'group'} = $i;
+    }
+    else {
+      return (0, qq(The notify variable "$i" was not recognized.));
+    }
+  }
+
+  if (length $mess) {
+    return (-1, $mess, $struct);
+  }
+  return (1, '', $struct);
+}
+
+=head2 condense(datahash, fieldlist)
+
+Convert a hashref of data to packed form.
+
+=cut
+sub condense {
+  my ($data, $fields, $sep) = @_;
+  my (@tmp, $field, $str, $word);
+  $sep = "\002" unless (defined $sep);
+
+  return unless (ref($data) eq 'HASH' and ref($fields) eq 'ARRAY');
+
+  for $field (@$fields) {
+    $word = $data->{$field};
+    $word = '' unless (defined $word);
+    $word =~ s/$sep/ /g if (length $sep);
+    push @tmp, $word;
+  }
+
+  $str = join $sep, @tmp;
+}
+    
+=head2 reconstitute(string, fieldlist)
+
+Convert a packed data string into a hashref
+
+=cut
+sub reconstitute {
+  my ($str, $fields, $sep) = @_;
+  my (@tmp, $data, $i);
+  $sep = "\002" unless (defined $sep);
+
+  return unless (ref($fields) eq 'ARRAY');
+
+  $i = 0;
+  $data = {};
+  @tmp = split $sep, $str;
+  for ($i = 0; $i < scalar(@tmp) ; $i++) {
+    $data->{$fields->[$i]} = $tmp[$i];
+  }
+
+  $data;
 }
 
 =head2 ep_convert (string)
