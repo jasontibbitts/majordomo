@@ -1,5 +1,8 @@
 Wed Jul 29 19:37:25 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Majordomo.pm: Bump version number in preparation for another
+ 	snapshot.  (Finally!)
+
 	* files/en/help/admin_commands: Document 'force' flag to
  	createlist.
 
