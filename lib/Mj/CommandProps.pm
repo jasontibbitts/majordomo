@@ -339,7 +339,7 @@ my %commands =
    },
    'rekey' =>
    {
-    'parser'   => [qw(email shell list global all real)],
+    'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1},
     'access'   => {
 		   'default' => 'deny',

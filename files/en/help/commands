@@ -190,7 +190,7 @@ set list value address
               set scooters nomail-4d
 
   You can specify times like '1week', '2months', '3days' and you can leave
-  off all but the last letter.
+  off all but the first letter.
 
   In addition, there are several flags which you can manipulate to control
   various Majordomo functions.

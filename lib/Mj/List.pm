@@ -721,9 +721,12 @@ sub subscriber_rekey {
     sub {
       my $key  = shift;
       my $data = shift;
-      my (@out, $newkey, $changekey);
-      
-      $newkey = $self->transform($data->{'stripaddr'});
+      my (@out, $addr, $newkey, $changekey);
+
+      # Allocate an Mj::Addr object from stripaddr and transform it.  XXX
+      # Why not canon instead?
+      $addr = new Mj::Addr($data->{'stripaddr'});
+      $newkey = $addr->xform;
       $changekey = ($newkey ne $key);
       
       return ($changekey, 0, $newkey);
@@ -879,9 +882,12 @@ sub aux_rekey {
     sub {
       my $key  = shift;
       my $data = shift;
-      my (@out, $newkey, $changekey);
-      
-      $newkey = $self->transform($data->{'stripaddr'});
+      my (@out, $addr, $newkey, $changekey);
+
+      # Allocate an Mj::Addr object from stripaddr and transform it.  XXX
+      # Why not canon instead?
+      $addr = new Mj::Addr($data->{'stripaddr'});
+      $newkey = $addr->xform;
       $changekey = ($newkey ne $key);
       
       return ($changekey, 0, $newkey);

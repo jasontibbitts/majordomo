@@ -416,10 +416,10 @@ sub rekey {
   my $log = new Log::In 29, "$type";
  
  if ($ok>0) {
-   eprint($out, $type, "$list rekeyed.\n");
+   eprint($out, $type, "Databases rekeyed.\n");
  }
  else {
-   eprint($out, $type, "$list not rekeyed.\n");
+   eprint($out, $type, "Databases not rekeyed.\n");
    eprint($out, $type, &indicate($mess, $ok));
  }
  $ok;

@@ -724,11 +724,11 @@ XXX Handle 'ALL'
 =cut
 sub rekey {
   my ($mj, $name, $user, $passwd, $auth, $interface,
-      $infh, $outfh, $mode, $list, $args, @arglist) = @_;
+      $infh, $outfh, $mode, $d, $args, @arglist) = @_;
   my $log = new Log::In 27, "$args";
 
   my @stuff = ($user, $passwd, $auth, $interface,
-	       "rekey".($mode?"=$mode":"")." $list", $mode, $list, '');
+	       "rekey".($mode?"=$mode":""), $mode, '', '');
 
   Mj::Format::rekey($mj, $outfh, $outfh, 'text', @stuff, '', '', '',
 		    $mj->dispatch('rekey', @stuff)

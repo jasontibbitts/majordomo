@@ -431,7 +431,7 @@ sub _re_match {
   local($^W) = 0;
   $match = $safe->reval("$re");
   $warn = $@;
-  $::log->message(10,'info',"_re_match error: $warnstring: $_\nregexp: $re") if $warn;
+  $::log->message(10,'info',"_re_match error: $warn string: $_\nregexp: $re") if $warn;
   if (wantarray) {
     return ($match, $warn);
   }
@@ -2555,8 +2555,7 @@ sub auxremove {
   ($ok, $error) =
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
 			     $list, 'auxremove', $user, $addr, $subl
-			     ,'','', 'regexp' => $regexp,
-			    );
+			     ,'','');
   unless ($ok>0) {
     $log->out("noaccess");
     return ($ok, $error);
@@ -3086,7 +3085,7 @@ sub _register {
 }
 
 
-=head2 rekey(..., list)
+=head2 rekey(...)
 
 This causes the list to rekey itself.  In other words, this recomputes the
 keys for all of the rows of all of the databases based on the current
@@ -3095,29 +3094,49 @@ change, else address matching will fail to work properly.
 
 =cut
 sub rekey {
-  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
-      $list) = @_;
-  my $log = new Log::In 30, "$list";
-  $self->_make_list($list);
+  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode) = @_;
+  my $log = new Log::In 30;
 
   my ($ok, $error) = 
-    $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
-			     $list, "rekey", $user);
+    $self->global_access_check($passwd, $auth, $interface, $mode, $cmdline,
+			       "rekey", $user);
+
 
   unless ($ok > 0) {
     $log->out("noaccess");
     return ($ok, $error);
   }
 
-  $self->_rekey($list, $user, $user, $mode, $cmdline);
+  $self->_rekey('', $user, $user, $mode, $cmdline);
 }
 
 sub _rekey {
-  my($self, $list, $requ, $vict, $mode, $cmd) = @_;
-  my $log = new Log::In 35, "$list";
+  my($self, $d, $requ, $vict, $mode, $cmd) = @_;
+  my $log = new Log::In 35;
+  my ($list);
 
-  $self->_make_list($list);
-  $self->{'lists'}{$list}->rekey;
+  # Do a rekey operation on the regustration databass
+  my $sub =
+    sub {
+      my $key  = shift;
+      my $data = shift;
+      my (@out, $addr, $newkey, $changekey);
+
+      # Allocate an Mj::Addr object from stripaddr and transform it.  XXX
+      # Why not canon instead?
+      $addr = new Mj::Addr($data->{'stripaddr'});
+      $newkey = $addr->xform;
+      $changekey = ($newkey ne $key);
+      return ($changekey, 0, $newkey);
+    };
+  $self->{reg}->mogrify($sub);
+
+  # loop over all lists and do the following:
+  $self->_fill_lists;
+  for $list (keys(%{$self->{lists}})) {
+    $self->_make_list($list);
+    $self->{'lists'}{$list}->rekey;
+  }
   return 1;
 }
 

@@ -62,7 +62,7 @@ access variables.
 ---- Alpha 2 Release ----
 
 ! Auto-maintain aliases:
-  Add 'del_one' in Mj::MTAConfig::Sendmail; opensa filerepl and copies the
+  Add 'del_one' in Mj::MTAConfig::Sendmail; opens a filerepl and copies the
   alias file until the opening comment is hit, then it skips until after the
   closing comment, then prints the rest of the file.  Use this for a
   'createlist-delete' routine.
@@ -661,6 +661,20 @@ We already support translated long documents.
    address and a timestamp and ignore/purge old requests?
   How to store this data?  Probably not in the config file.
 
+reregister/resubscribe
+- Need a way to change a user's address.  At mimimum, need to change to
+  something that is equivalent (i.e. add or change comments).
+
+  Problems: cannot break link between registration and subscriber
+  databases, since we are keyed on address and not some unique ID and we
+  look up whatever database is most convenient, not always the registration
+  database first.
+
+Changing the subscription address could create a new registration or move
+from one registration to the other.  Changing the registration address
+could update all subscriptions.
+
+  
 
 Categorized ideas:
 -----------------
@@ -680,9 +694,6 @@ Email Interface
   help.
 - make sure that no internal routine gets called with an undefined list:
   "subscribe" sent with no deflist set.
-
-Majordomo.pm
-- resubscribe (change address)
 
 TextOutput
 - rekey ALL or GLOBAL

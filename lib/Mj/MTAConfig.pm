@@ -164,7 +164,7 @@ EOB
     $fh->print("$block\n");
     $fh->close;
     if ($vut) {
-      $fh = new Mj::File($args{aliasfile}, '>>');
+      $fh = new Mj::File($args{vutfile}, '>>');
       $fh->print("$vblock\n");
       $fh->close;
     }

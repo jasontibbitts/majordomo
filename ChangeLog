@@ -1,4 +1,22 @@
+Sat Jan  9 12:45:17 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/CommandProps.pm: rekey doesn't take a list.
+
+	* lib/Mj/TextOutput.pm (rekey): Ditto.
+
+	* lib/Mj/Format.pm (rekey): Ditto.
+
+	* lib/Majordomo.pm (_re_match): Fix fypo.
+	(auxremove): Fix typo.
+
+	* lib/Mj/List.pm (subscriber_rekey): Update to properly transform
+ 	using Mj::Addr.
+	(aux_rekey): Ditto.
+
 Fri Jan  8 00:19:40 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/MTAConfig.pm (add_alias): Fix dumb typo; meant vutfile,
+ 	wrote aliasfile.
 
 	* lib/Mj/Format.pm (lists): Remove length limit; just show it all
  	if that's what they want.  Add some blank lines between lists in

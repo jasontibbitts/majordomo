@@ -2,7 +2,10 @@ Majordomo2 Administrative Commands
 ==================================
 
 This is a basic overview of the commands and features available for use by
-the list owner.
+the list owner.  Note that all commands available to users are covered in
+the 'commands' help document; only commands with additional functionality
+not useful to users or commands not available at all to users are covered
+here.
 
 Many commands have options available to modify their behavior.  Options
 will appear next to the command names in (parentheses).  Commands with
@@ -292,6 +295,20 @@ reject [token]
   site owner, the list owner, and the victim of the rejection.
 
     See Also:  accept
+
+
+rekey
+-----
+  This regenerates the database keys.  The database keys depend on the
+  setting of addr_xforms, so when that variable is changed the database
+  must be rekeyed or some addresses may become inaccessible.
+
+  Be _very careful_ with this command.  It is possible, with a bad setting
+  of addr_xforms, to severely damage your address database.  If there were
+  addresses on any list (or registered) that were different but are now the
+  same, the duplicate entries will be silently dropped.  It is generally
+  possible to get them back by removing the bad setting from addr_xforms
+  and rekeying.
 
 
 set list flag address
