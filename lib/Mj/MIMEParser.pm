@@ -105,8 +105,10 @@ sub collect_data {
     $tmp = $rcv[-1];
   }
   $tmp ||= $head->get('date');
-  chomp $tmp;
-  $tmp = &str2time($tmp);
+  if (defined $tmp) {
+    chomp $tmp;
+    $tmp = &str2time($tmp);
+  }
   $tmp = time unless (defined ($tmp) and $tmp > 0 and $tmp < time);
   $data->{'date'} = $tmp;
   
@@ -131,6 +133,8 @@ sub _r_ct_lines {
     }
     return;
   }
+
+  return unless $entity->bodyhandle;
   $body = $entity->bodyhandle->open('r');
   return unless $body;
 
