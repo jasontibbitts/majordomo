@@ -597,6 +597,8 @@ EOM
     ($ok, @lines) = @{$mj->dispatch($request, $chunksize)};
     
     last unless $ok > 0;
+    print "<tr><td cols=4>No matching addresses were found.\n"
+      unless (@lines);
     for $i (@lines) {
       next unless (ref ($i) eq 'HASH');
       if ($request->{'list'} ne 'GLOBAL') {
