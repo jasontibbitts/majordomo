@@ -28,18 +28,27 @@ ENDTAG
 These headers will be appended to the headers of a posted message
 when a regular list is specified, or to the headers of replies
 from the server (such as token confirmation requests) when the
-GLOBAL pseudo-list is specified.
+GLOBAL pseudo-list is specified.  They will not replace any
+existing headers.  However, it is possible to use the delete_headers
+setting or purge_received setting in combination with the 
+message_headers setting if you wish to replace certain headers
+in posted messages.
 
-WARNING: A "Reply-to" header is required for the GLOBAL pseudo-list
-to function properly. Make sure you don't delete it if you replace
-the defaults! This will be the address that confirmation tokens
-(for commands like subscribe and set) go to with a default reply,
-and without it confirmations may go to the list owner, depending
-on the values in the sender and whoami configuration settings.
+A "Reply-To" header is required for the GLOBAL pseudo-list to 
+function properly.  Do not delete it if you change this setting.
+Majordomo will normally put
+  $MJOWNER 
+in the "From" header, and 
+  $MJ
+in the "Reply-To" header to prevent mail loops between servers.
+The "Reply-To" header allows people to respond to the server more
+easily.
 
-There are header traps in place: See "help configset_block_headers"
-for a description of headers which will cause Majordomo to 
-reject a message without examining it for commands.
+There are header traps in place:  see "help configset_block_headers"
+for a description of headers which will cause Majordomo to reject 
+a message without examining it for commands.  Using the GLOBAL 
+block_headers and message_headers settings in tandem can reduce 
+the likelihood of mail loops.
 
 Whenever a posted message is approved by the moderators using the 
 accept command, it is re-mailed to the list address with an Approved: 
@@ -47,14 +56,12 @@ header included.  This causes the message to be delivered immediately
 without undergoing any access checks.  Any existing Delivered-To headers 
 are removed from the message to reduce the chance of a bounce.
 
-For regular lists, there are other header fields that can be added or changed
-using different configuration settings. See "help configset_reply_to",
+For regular lists, there are other settings that can be used to change
+the headers of a message.  See "help configset_reply_to",
 "help configset_sender", "help configset_precedence", and 
-"help configset_subject_prefix"  for additional information. You normally
-will not need to control your mailing list's reply address with the
-message_headers setting.
+"help configset_subject_prefix"  for additional information. 
 
-This header text will undergo variable substitution as it is added
+The text of each added header will undergo variable substitution as it is added
 to the message.   The variables supported include the standard substitutions,
 plus ARCHIVE, ARCURL, DATE, SENDER, SEQNO, SUBJECT, SUBSCRIBED, and USER.
 See "help variables" for more information.
@@ -62,9 +69,12 @@ See "help variables" for more information.
 
 See Also:
    help configset_block_headers (for how to block server commands)
+   help configset_delete_headers
    help configset_precedence    (for how to add a special header)
+   help configset_purge_received
    help configset_reply_to
    help configset_sender
+   help configset_subject_prefix
    help variables (for a list of all possible variables and what they mean)
 
 For a list of all help topics send this one-line message
