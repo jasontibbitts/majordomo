@@ -21,9 +21,9 @@ Logs are stored in a simple one-line-per-entry format.
 
 package Mj::Inform;
 use Mj::CommandProps qw(:command);
-use Mj::File;
-use Mj::FileRepl;
+use Mj::Lock;
 use Mj::Log;
+use Symbol;
 use strict;
 
 use AutoLoader 'AUTOLOAD';
@@ -67,13 +67,17 @@ sub inform {
   my($self, $list, $req, $requ, $user, $cmd, $int, 
      $stat, $pass, $over, $comment, $elapsed) = @_;
   my $log  = new Log::In 150, "$list, $req";
+  my $lf = gensym();
 
   my $file = "$self->{'ldir'}/GLOBAL/_log";
 
   # Open the logfile
-  my $fh = new Mj::File $file, '>>';
-  $log->abort("Cannot open $file, $!")
+  my $fh = new Mj::Lock($file, 'exclusive');
+  $log->abort("Cannot lock $file, $!")
     unless $fh;
+  open ($lf, ">>$file") or
+    $log->abort("Cannot open $file, $!");
+
 
   $user ||= ''; $requ ||= '';
   $elapsed = sprintf("%.3f", $elapsed);
@@ -86,16 +90,16 @@ sub inform {
   my $line = join("\001", $list, $req, $requ, $user, $cmd, $int, $stat,
 		  $pass, $self->{'sessionid'}, time, $elapsed);
   $line =~ tr/\n\t//d;
-  $fh->print("$line\n") ||
+  print($lf "$line\n") ||
     $log->abort("Cannot append to $file, $!");
 
   # Close the logfile
-  $fh->close ||
+  close($lf) ||
     $log->abort("Cannot close $file, $!");
 
   # Update the session
   if ($self->{sessionfh}) {
-    $self->{sessionfh}->print("$stat: $cmd\n");
+    print {$self->{sessionfh}} ("$stat: $cmd\n");
   }
 
   # Decide whether or not to inform the owner
@@ -186,6 +190,7 @@ sub _inform_owner {
 This will eliminate all log entries older than the log_lifetime setting.  
 
 =cut
+use Mj::FileRepl;
 sub l_expire {
   my $self = shift;
   my $log = new Log::In 60;
