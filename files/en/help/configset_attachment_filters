@@ -1,0 +1,148 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname attachment_filters <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : no default
+Data Type     : attachment_filters
+Category      : deliver
+Password Notes: Visible only with password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset listname attachment_filters << ENDTAG
+text/plain | allow
+/.+/       | discard
+ENDTAG
+
+$INCLUDE-config/attachment_filters
+
+Each message that is posted to a mailing list consists of one or more
+body parts.  Each body part has a particular type, sometimes called a
+"MIME type," which gives some indication about the contents of the part.
+For example, a body part containing a WWW document might have a
+"text/html" MIME type.  (MIME is an abbreviation for the name of the
+Internet standard for giving names to types) 
+
+Most plain text messages consist of one body part whose type is
+"text/plain".  When a message has more than one body part, the second
+and succeeding parts are usually called "attachments."  The
+"attachment_filters" setting is somewhat misnamed, because the allow
+and format actions apply to every body part, including the first part.
+
+Each attachment filter occupies one line.  It is possible to place
+comments before, between, and after the individual filters, to indicate to
+other administrators what each filter is intended to accomplish.
+Comments are lines that begin with a '#'.
+
+The first rule that matches a particular body part takes precedence.
+For example, in the following two filters:
+
+  text/html | allow
+  /^text/i  | discard
+
+any "text/html" body part will not be changed; any other kind of text
+body part, for instance "text/plain" or "text/enriched," will be
+discarded.  Each part of a message body is examined separately.  If no
+rule matches, the part will not be altered.
+
+The type on the left-hand side of an access rule can be an exact MIME
+type, or it can be a pattern that potentially matches many different
+MIME types (see "help patterns" for an explanation of how to write
+patterns).  For example, to discard all GIF images, use the following
+filter:
+
+  image/gif | discard
+
+and to discard all images of any type, use this filter:
+
+  /^image/i | discard
+
+Exact MIME type matches are case-insensitive; for instance, "image/jpeg"
+and "Image/JPEG" are considered identical.
+
+
+The allow action
+----------------
+The allow action causes a body part to be passed untouched.
+
+
+The discard action
+------------------
+The discard action causes body parts to be discarded entirely,
+from every message posted to a mailing list.  For example, many messages
+have "multipart/alternative" bodies, with a "text/plain" part and a
+"text/html" part.  Because "text/html" parts can contain a malicious
+computer virus, list owners may want to use the following attachment
+rule to remove them:
+
+text/html | discard
+
+The discard action only applies to messages with more than one body
+part.  As a result, if someone posts a message that consists only of a
+"text/html" body part, the discard rule in the previous example will
+have no effect.  In the following example, both filters will have an
+effect, even though they both match the "text/html" MIME type:
+
+text/html | discard
+text/html | format
+
+The first rule will cause text/html parts in multi-part messages to be
+removed.  The second rule will cause text/html parts in single-part
+messages to have their HTML formatting removed.
+
+For each body part removed due to a discard action, an X-Content-Discarded
+header will be added to the message when it is delivered.
+
+The discard action should be used with caution, because it is possible
+to discard every part of a multipart message.
+
+
+The format action
+-----------------
+The format action alters message contents in two ways.  It removes
+hypertext markup tags from "text/html" or "text/enriched" body parts,
+and converts them into "text/plain" body parts.  It can also establish
+the position of the width of the resulting text; by default, the width
+of the text is 72 characters.  For example, to turn all rich text
+body parts into plain text, use the following rule:
+
+text/enriched | format
+
+To turn all HTML body parts into text with an 80 character width,
+use this rule:
+
+text/html | format=80
+
+For each body part changed due to a format action, an 
+X-Content-Reformatted header will be added to the message when it is 
+delivered.
+
+The reformatted text will be left-justified, regardless of its original
+placement.
+
+
+Avoiding the filters
+--------------------
+If a moderated message is approved by the moderators with the
+"accept-intact" command, or if a message is posted with the
+"post-intact" command, none of the filters in this setting will be
+applied when the message is delivered.
+
+
+Unimplemented features
+----------------------
+The "attachment_filters" setting does not alter portions of text messages
+that contain non-MIME attachments, such as uuencoded documents. 
+
+
+See Also:
+   help accept
+   help admin_delivery
+   help configset_access_rules
+   help configset_admin_body
+   help configset_attachment_rules
+   help configset_taboo_body
+   help post
+
+$INCLUDE-help/foot

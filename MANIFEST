@@ -227,6 +227,7 @@ files/en/config/.archive_dir
 files/en/config/.archive_size
 files/en/config/.archive_split
 files/en/config/.archive_url
+files/en/config/.attachment_filters
 files/en/config/.attachment_rules
 files/en/config/.block_headers
 files/en/config/.bounce_max_age
@@ -354,6 +355,7 @@ files/en/config/archive_dir
 files/en/config/archive_size
 files/en/config/archive_split
 files/en/config/archive_url
+files/en/config/attachment_filters
 files/en/config/attachment_rules
 files/en/config/block_headers
 files/en/config/bounce_max_age
@@ -834,6 +836,7 @@ files/en/help/.configset_archive_dir
 files/en/help/.configset_archive_size
 files/en/help/.configset_archive_split
 files/en/help/.configset_archive_url
+files/en/help/.configset_attachment_filters
 files/en/help/.configset_attachment_rules
 files/en/help/.configset_block_headers
 files/en/help/.configset_bounce_max_age
@@ -1048,6 +1051,7 @@ files/en/help/configset_archive_dir
 files/en/help/configset_archive_size
 files/en/help/configset_archive_split
 files/en/help/configset_archive_url
+files/en/help/configset_attachment_filters
 files/en/help/configset_attachment_rules
 files/en/help/configset_block_headers
 files/en/help/configset_bounce_max_age

@@ -1,0 +1,21 @@
+The attachment_rules setting contains a table of rules, which describe 
+how to process the different body parts of a posted message. 
+
+A rule consists of a MIME type (or pattern matching a MIME type) 
+and an action to perform when a message with this type or containing 
+a part of this type is delivered to the subscribers of a mailing list.  
+Each rule looks something like this:
+
+mime/type | action=argument
+
+Some common MIME types include text/plain, text/html, and image/jpeg.
+
+Possible actions are:
+
+  allow     - let the body part pass untouched.
+  discard   - remove the part from the message and pass the rest.
+              (This has no effect upon single-part messages.)
+  format    - convert the body part to plain text.  A numerical
+              argument will adjust the right margin of the text,
+              which occurs at position 72 by default.
+
