@@ -162,6 +162,17 @@ sub parse {
     $msgno  = $1;
     $user   = undef;
   }
+    # Digest probes have volume and issue number
+  elsif ($info =~ /^DV(\d{1,5})N(\d{1,5})=([^=]+)=([^=]+)/i) {
+    $type   = 'M';
+    $msgno  = $1 . $2;
+    $user   = "$4\@$3";
+  }
+  elsif ($info =~ /^DV(\d{1,5})N(\d{1,5})/i) {
+    $type   = 'M';
+    $msgno  = $1 . $2;
+    $user   = undef;
+  }
   elsif ($info =~ /^T(.*)/i) {
     $type  = 'T';
     $msgno = $1;
