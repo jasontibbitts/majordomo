@@ -665,7 +665,7 @@ my %commands =
                                    'data'        => {'exclude' => 'delete|dir'},
                                    'delete'      => {'exclude' => 'dir'},
                                    'dir'         => 1,
-                                   'force'       => {'include' => 'delete'},
+                                   'force'       => 1,
                                   },
                    'tokendata' => { 'arg1'   => 'spool' }
                   },
