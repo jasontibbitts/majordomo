@@ -2,7 +2,7 @@
 configset listname archive_split = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : monthly
-Data Type     : enum, choose from: yearly monthly weekly daily
+Data Type     : enum, choose from: yearly quarterly monthly weekly daily
 Category      : archive
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -10,22 +10,24 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset listname archive_split = monthly
 
+$INCLUDE-config/archive_split
 
-A word describing how the archive files should be split.  Here are the
-possibilities, along with sample names of the archive files:
+If you wish to rename archive files after they have been created, it
+will be necessary to use the put command to store the messages in new
+files.  The archive-delete and put-delete commands should be used  to 
+delete the old archive files.  Finally, the archive-sync command should
+be used to regenerate the archive databases for the new archive files.
 
-  yearly  - 1999.00
-  monthly - 199903.00
-  weekly  - 20021031.00
-  daily   - 21121002.00
-
-Note that archives will be further split by size; see the archive_size
-variable.  This gives rise to the two trailing digits, which may not be
-present depending on the archive_size setting.
-
-Also note that changing this variable will only change the settings for new
-messages; old archives will not be renamed or altered in any way.
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+ 
+See Also:
+   help admin_delivery
+   help archive
+   help configset_archive_access
+   help configset_archive_date
+   help configset_archive_dir
+   help configset_archive_size
+   help configset_archive_url
+   help get
+   help put
+  
+$INCLUDE-help/foot
