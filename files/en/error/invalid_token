@@ -1,0 +1,7 @@
+The "$TOKEN" token identifier is invalid.
+
+A token identifier is a temporary password that consists of 
+12 digits (0 to 9) or letters ('A' to 'F'), broken into three
+groups by dashes.  For example, the following identifier is valid:
+
+  ABCD-EF34-5678
