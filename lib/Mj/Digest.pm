@@ -336,6 +336,42 @@ sub examine {
   return ($data);
 }  
 
+=head2 sync(data)
+
+Replace the data for one or more digests.
+
+=cut
+sub sync {
+  my $self = shift;
+  my $data = shift;
+  my $log = new Log::In 200;
+  my ($i, $j, $state);
+
+  $state = $self->_open_state;
+  for $i (keys %$data) {
+    if (exists $data->{$i}->{'messages'}) {
+      $data->{$i}->{'oldest'} = 0;
+      $data->{$i}->{'newest'} = 0;
+      $data->{$i}->{'bytecount'} = 0;
+      for $j (@{$data->{$i}->{'messages'}}) {
+        $data->{$i}->{'oldest'} = $j->[1]->{'date'}
+          if (!$data->{$i}->{'oldest'} or 
+              $j->[1]->{'date'} < $data->{$i}->{'oldest'});
+        $data->{$i}->{'newest'} = $j->[1]->{'date'}
+          if (!$data->{$i}->{'newest'} or 
+              $j->[1]->{'date'} > $data->{$i}->{'newest'});
+        $data->{$i}->{'bytecount'} += $j->[1]->{'bytes'};
+      }
+    }
+    if (exists $state->{$i}) {
+      for $j (keys %{$data->{$i}}) {
+        $state->{$i}->{$j} = $data->{$i}->{$j};
+      }
+    }
+  }
+  $self->_close_state($state, 1);
+}
+
 =head2 _open_state, _close_state(data, dirty)
 
 These manage the file holding the digest state.  This file is handled
@@ -388,7 +424,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
