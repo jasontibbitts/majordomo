@@ -16,9 +16,9 @@ package Mj::Util;
 use Mj::Log;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(condense enriched_to_hyper ep_convert ep_recognize 
-                find_thread_root gen_pw in_clock n_build n_defaults 
-                n_validate plain_to_hyper process_rule re_match 
+@EXPORT_OK = qw(clean_html condense enriched_to_hyper ep_convert 
+                ep_recognize find_thread_root gen_pw in_clock n_build 
+                n_defaults n_validate plain_to_hyper process_rule re_match 
                 reconstitute reflow_plain sort_msgs str_to_bool str_to_time 
                 str_to_offset time_to_str);
 
@@ -985,6 +985,91 @@ sub plain_to_hyper {
       $repl->{'newhandle'}->print("<br>" . &escape($line));
     }
   }
+
+  $repl->commit;
+}
+
+=head2 clean_html (file, attributes, elements)
+
+This function removes unwanted elements and attributes from 
+an HTML file.
+
+=cut
+use Mj::FileRepl;
+use HTML::Parser;
+sub clean_html {
+  my ($file, $attr, $elem) = @_;
+  my $log = new Log::In 350;
+  my ($line, $parser, $repl);
+
+  return unless (-f $file);
+  return unless ((ref $elem eq 'ARRAY' and scalar @$elem) or
+                 (ref $attr eq 'ARRAY' and scalar @$attr));
+
+  
+  $repl = new Mj::FileRepl($file);
+  return unless $repl;
+
+  # Ideas borrowed from HTML::Parser example code.
+  $parser = 
+    HTML::Parser->new(
+      api_version     => 3,
+      start_h         => [
+                          sub {
+                            my ($pos, $text) = @_;
+                            my ($changes, $key, $key_len, $key_off, 
+                                $next, $val_len, $val_off);
+                            $changes = 0;
+
+                            while (scalar @$pos >= 4) {
+                              ($key_off, $key_len, $val_off, $val_len) 
+                                = splice @$pos, -4;
+                              $key = lc substr($text, $key_off, $key_len);
+                              last unless (length $key);
+
+                              # Find position of next attribute
+                              if ($val_off) {
+                                $next =  $val_off + $val_len;
+                              }
+                              else {
+                                $next =  $key_off + $key_len;
+                              }
+
+                              if (grep {lc $_ eq $key} @$attr) {
+                                substr($text, $key_off, $next - $key_off) = "";
+                                $changes++;
+                              }
+                            }
+
+                            # Remove trailing white space
+                            $text =~ s/^(<\w+)\s+>$/$1>/ if $changes;
+                            $repl->{'newhandle'}->print($text);
+                          },
+                          "tokenpos, text",
+                         ],
+      comment_h       => ["", ""],
+      declaration_h   => [
+                          sub {
+                            my ($type, $text) = @_;
+                            $repl->{'newhandle'}->print($text)
+                              if $type eq "doctype";
+                          },
+                          "tagname, text",
+                         ],
+      default_h       => [
+                          sub { 
+                            my $text = shift;
+                            $repl->{'newhandle'}->print($text);
+                          },  
+                          "text"
+                         ],
+      process_h       => ["", ""],
+      ignore_tags     => [],
+      ignore_elements => $elem,
+    );
+
+  return unless $parser;
+  return unless $parser->parse_file($repl->{'oldhandle'});
 
   $repl->commit;
 }
