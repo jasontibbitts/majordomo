@@ -20,6 +20,7 @@ README.DIRECTORIES
 README.FILES
 README.INTERNALS
 README.QMAIL
+README.QUEUEING
 README.QUICKSTART
 README.SENDMAIL
 README.UPGRADE
@@ -28,7 +29,11 @@ TODO
 al.patch
 bin/mj_confirm
 bin/mj_email
+bin/mj_enqueue
+bin/mj_queuerun
+bin/mj_queueserv
 bin/mj_shell
+bin/mj_shutdown
 bin/mj_trigger
 convertfs.pl
 files/INDEX.pl
@@ -198,6 +203,7 @@ files/en/consult
 files/en/consult_noweb
 files/en/digest_preindex
 files/en/faq
+files/en/file_not_found
 files/en/file_sent
 files/en/help/accept
 files/en/help/access
@@ -522,8 +528,11 @@ misc/approve6
 misc/bad.message.1
 misc/bad1
 misc/chunk.stats
+misc/client.pl
 misc/domain.regexp
 misc/mime1
+misc/runner.pl
+misc/server.pl
 misc/test-message.1
 misc/test-message.2
 misc/test-message.3
@@ -536,9 +545,12 @@ postinstall
 report
 setup/ask_basic.pl
 setup/ask_domain.pl
-setup/ask_qmail.pl
-setup/ask_sendmail.pl
+setup/ask_queueing.pl
+setup/ask_sendsep.pl
 setup/install_util.pl
+setup/mta_exim.pl
+setup/mta_qmail.pl
+setup/mta_sendmail.pl
 setup/postinstall.pl
 setup/query_util.pl
 setup/setup_func.pl
