@@ -1,69 +1,181 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-tokeninfo[-full][-nosession][-remind] token
+tokeninfo[-nosession]  token
+tokeninfo-remind       token
+tokeninfo-part         token part_number
+tokeninfo-part-delete  token part_number
+tokeninfo-part-edit    token part_number
+tokeninfo-part-replace token part_number <<ENDTAG
+[New Contents]
+ENDTAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
--full, if specified, shows contents of a post waiting for approval
+-delete,  if specified, will remove part of a posted message
+-edit,    if specified, allows part of a posted message to be changed
 -nosession, if specified, prevents session info from being displayed
--remind, if specified, causes a reminder message to be mailed
-token, required, is a 12-character id for an action that needs approval
+-part,    if specified, displays part of a posted message
+-remind,  if specified, causes a reminder message to be mailed
+-replace, if specified, replaces part of a posted message with new content
+part_number, if specified, refers to a portion of a posted message
+token, required, is a 12-character id for a command that needs approval
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
  
-Majordomo has a flexible framework for deciding who is allowed to 
-use majordomo's many features.  Some requests, such as using the
-"help" command to learn about majordomo, may be permitted to anyone.
-Other actions, such as reviewing the registry of all subscribers
-at a site, may be denied outright to everyone except the site administrators.
- 
-Between these two extremes are actions that require the approval of
-at least one person before they take place.  Such actions
-are considered "stalled" until the person approves the request
-or turns it down.  Whenever an action is stalled, majordomo creates
-a token, composed of 12 characters, which will uniquely identify
-the action.
- 
-If the request requires the approval of the person who made the
-request, the token is called a "confirm" token.  If someone 
-else must approve the request, the token is called a "consult"
-token. If the action has been delayed (see "help default" and
-"help configset access_rules") the token is called a "delayed token"
-and some action will be taken when the delay is over UNLESS the
-token is explicitly accepted or rejected first.
+The tokeninfo command gives information about a Majordomo command
+or posted message that is awaiting confirmation.
 
-Anyone who is aware of the existence of a token can use the "tokeninfo"
-command to see the request that is stalled. This is a potential security
-risk, since a password may have been used with the command, so keep
-the tokens securely private! Anyone with the token string can then
-use the "accept" or "reject" command to approve or deny the request.
-Most of the data that the "tokeninfo" command displays is also available
-through the "sessioninfo" command.
+Some Majordomo commands require confirmation from at least one person
+before they take place.  These commands are considered "stalled" until
+the person accepts or reject the command.  Whenever a command is
+stalled, majordomo creates a token identifier, or "token" for short,
+composed of 12 characters.  The token consists of digits and capital
+letters separated into three groups of four characters, for example:
 
-If "full" mode is used, and a token refers to a posted message,
-the full message will be shown in the results.  Otherwise, 
-only the message headers will be shown.
+  4AD2-07FC-8985
 
-If "nosession" mode is used, the session information will not be
-displayed.  The session information usually consists of message headers
-when the e-mail interface is used, or the remote host address and port
-number if one of the web interfaces is used.
+Each token acts as a password that authorizes someone to accept or
+reject a command, and should be kept secret.
+
+A stalled command can be confirmed using the accept command, or
+discarded using the reject command.  See "help accept" and "help reject"
+for more details.
+
+If the command requires the confirmation from the person who made the
+request, the token is called a "confirm" token.  If an administrator
+must approve the request, the token is called a "consult" token.  There
+are several other, specialized token types; see "help showtokens" for
+more details.
+
+If the "nosession" command mode is used, the session information will
+not be displayed.  The session information gives details about the
+origins of a Majordomo command.  This is useful for locating the source
+of subscription forgeries and other kinds of abuse.  The session
+information usually consists of message headers for commands sent via
+e-mail, or the internet address and port number if the command was made
+from one of the web interfaces.
 
 If "remind" mode is used, a reminder message will be mailed to the
 address of the person who issued the tokeninfo command.  This is useful
 when people who moderate a mailing list using a web interface wish
-to obtain a copy of a moderated, posted message.
+to obtain a copy of a moderated, posted message via e-mail.
 
-Tokens generally have a limited lifetime.  If nobody explicitly 
-approves a request, after a few days the token will automatically
-be removed from majordomo's database, causing the request to 
-be denied.
+Tokens generally have a limited lifetime.  If nobody explicitly approves
+a request, after a few days the token will automatically be removed from
+majordomo's database, causing the request to be denied.
+
+
+Special features for posted messages
+------------------------------------
+Although the tokeninfo command is normally used to display information
+about Majordomo commands, it can also be used to change the contents of
+posted messages.  If the tokeninfo command is used to display
+information about a posted message, the message will be formatted to
+make reading easier.  Only the most important message headers, such as
+From, To, Date, and Subject, will be displayed.  Also, any message
+attachments will be represented by a brief summary of each attachment.
+The summary will have a part number, the content type of the attachment,
+and the size of the attachment.
+
+For example, consider the following summary of a moderated message:
+
+[1 multipart/mixed]
+
+From: jane@example.com
+To: fred@example.com
+Subject: Birthday party photo
+Date: Sat, 10 Nov 2001 08:47:41 PST
+
+[1.1 text/plain (0.1 kilobytes)]
+
+Fred,
+
+Here is the phonograph you wanted from Laura's birthday party.
+
+Love, Jane
+
+[1.2 image/jpeg (24.2 kilobytes)]
+
+In this example, the message has type "multipart/mixed" and has two body
+parts.  Part number 1.1 is a brief plain text message, and part number
+1.2 is a JPEG photographic image.  Making use of message part numbers,
+a moderator can see individual parts of a message, remove parts, and
+adjust the headers of a message, using the following commands.  These 
+commands are only applicable to tokens for posted messages; they do not
+affect tokens for Majordomo commands.
+
+In the examples that follow, substitute a valid token identifier
+wherever you see the word TOKEN.
+
+
+The tokeninfo-part command
+--------------------------
+The tokeninfo-part command will display part of a posted message.  In
+the example in the previous section, the command
+
+  tokeninfo-part TOKEN 1.2
+
+would display the data from the JPEG image in section 1.2.  Adding an
+'h' or 'H' to the part number will cause the headers to be displayed
+instead.  For example, the command
+
+  tokeninfo-part TOKEN 1h
+
+will display all of the message headers.
+
+Also, part number '0' can be used to see the entire original message.
+
+This command should be used with caution; if a body part contains a
+malicious worm or virus, Majordomo will make no attempt to shield your
+computer against its effects when you view it.
+
+
+The tokeninfo-part-delete command
+---------------------------------
+The tokeninfo-part-delete command will remove part of a posted message,
+with some restrictions.  The top-level part (part 1) cannot be deleted,
+because that would leave the message empty.  The headers of a part
+cannot be deleted, because that would make the part invalid.
+
+An "X-Content-Discarded" header will be added to the message indicating
+that the part was removed.
+
+
+The tokeninfo-part-edit command
+-------------------------------
+The tokeninfo-part-edit command will cause a part or its headers to be
+presented in a way that allows the part or headers to be edited and
+replaced.  For example,
+
+tokeninfo-part-edit TOKEN 1h
+
+would allow you to edit and replace the headers of a message.
+Part number 0 (the whole message) cannot be replaced.
+
+
+The tokeninfo-part-replace command
+----------------------------------
+The tokeninfo-part-replace command makes use of a "here document" to 
+replace the contents of a message part or its headers.  For instance,
+in the birthday example earlier in this document, the moderator may
+wish to change the word "phonograph" to "photograph" with the following
+command:
+
+tokeninfo-part-replace TOKEN 1.1 <<ABC
+Fred,
+
+Here is the photograph you wanted from Laura's birthday party.
+
+Love, Jane
+
+ABC
+
 
 See Also:
-   help accept                   (which can eliminate the need to use "accept")
-   help reject                   (the opposite action of "accept")
-   help sessioninfo              (see the e-mail message that contains the request)
-   help showtokens               (for a list of unapproved requests)
-   help configset access_rules   (site-wide or per-list permission)
-   help configset token_lifetime (site-wide or per-list expiration period)
-   help configset token_remind   (site-wide or per-list reminder before expiration)
+   help accept
+   help admin_moderate
+   help configset_access_rules
+   help configset_token_lifetime
+   help configset_token_remind
+   help here_document
+   help reject
+   help sessioninfo
+   help showtokens
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
