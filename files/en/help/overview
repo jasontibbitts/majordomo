@@ -29,7 +29,7 @@ mailing list at this domain
 $MJ
 
   This is the list server address, the address to which 
-  Majordomo commands (such as "subscribe," "help," or "lists")
+  Majordomo commands (such as "subscribe", "help", or "lists")
   should ALWAYS be sent.  Mail sent to this address is processed
   automatically; do not expect a human being ever to read it.
 
