@@ -1038,8 +1038,8 @@ sub _check_poster {
                               $rules->[$i]->{'lower'});
       if ($ok) {
         $avars->{limit} = 1;
-        $avars->{limit_soft}  = 1 if ($ok & 1);
-        $avars->{limit_hard}  = 1 if ($ok & 2);
+        $avars->{limit_hard}  = 1 if ($ok & 1);
+        $avars->{limit_soft}  = 1 if ($ok & 2);
         $avars->{limit_lower} = 1 if ($ok & 4);
         push (@$reasons, @$mess) if (ref $mess eq 'ARRAY');
       }
@@ -1069,7 +1069,7 @@ sub _within_limits {
   $seqno = $self->_list_config_get($list, 'sequence_number');
 
   $i = 1;
-  for $var (($soft, $hard, $lower)) {
+  for $var (($hard, $soft, $lower)) {
     for $cond (@$var) {
       if ($cond->[0] eq 't') {
         # time-dependent
@@ -1084,7 +1084,8 @@ sub _within_limits {
           if ($count >= $cond->[1]) {
             push (@$reasons, 
                   sprintf ("More than %d messages posted in the last %s",
-                  $cond->[1], &str_to_offset($cond->[2], 0, 1)));
+                  $cond->[1], &str_to_offset($cond->[2], 0, 1)))
+              unless ($i == 2 and $out & 1);
             $out |= $i;
           }
         }
@@ -1111,7 +1112,8 @@ sub _within_limits {
           if ($count >= $cond->[1]) {
             push (@$reasons, 
                   sprintf ("More than %d messages posted out of the last %d",
-                           $cond->[1], $cond->[2]));
+                           $cond->[1], $cond->[2]))
+              unless ($i == 2 and $out & 1);
             $out |= $i;
           }
         }
