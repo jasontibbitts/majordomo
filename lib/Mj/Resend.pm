@@ -1845,6 +1845,7 @@ Returns two entities: one with the prefix, one with any existing prefix
 removed.
 
 =cut
+use Mj::Util qw(re_match);
 sub _munge_subject {
   my ($self, $ent1, $list, $seqno) = @_;
   my ($ent2, $gprefix, $head1, $head2, $prefix, $re_mods, $re_regexp,

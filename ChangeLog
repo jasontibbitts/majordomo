@@ -1,5 +1,8 @@
 2001-03-02  Michael Yount <csf@moscow.com>
 
+	* lib/Mj/Resend.pm:  (_munge_subject)  Bugfix:  Add missing library
+	requirement.
+
 	* lib/Mj/Token.pm:  (t_accept)  Bugfix:  Create an Mj::Addr object
 	before testing whether or not to send an acknowledgment to that 
 	address.
