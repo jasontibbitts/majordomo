@@ -58,9 +58,18 @@ sub mail_message {
     'addrs'  => \@a;
 
   unless ($env) {
-    $::log->abort("Failed to build envelope for mailing.")
+    # log the failure, but do not notify anyone by mail, since
+    # inform() calls mail_entity().
+    $self->inform("GLOBAL", "mail_message", $sender, $addrs[0], 
+                  "(envelope $tmpfile)", "mailout", 0, 0, 1);
+    return 0;
   }
-  $env->send || $::log->abort("Failed to send message!");
+  unless ($env->send) {
+    $self->inform("GLOBAL", "mail_message", $sender, $addrs[0], 
+                  "(message $tmpfile)", "mailout", 0, 0, 1);
+    return 0;
+  }
+  1;
 }
 
 =head2 mail_entity(sender, entity, addresses)
@@ -85,8 +94,9 @@ sub mail_entity {
   $entity->print($fh);
   $fh->close;
 
-  $self->mail_message($sender, $tmpfile, @addrs);
-  unlink $tmpfile || $::log->abort("Can't unlink $tmpfile, $!");
+  if ($self->mail_message($sender, $tmpfile, @addrs)) {
+    unlink $tmpfile || $::log->abort("Can't unlink $tmpfile, $!");
+  }
 }
 
 =head2 deliver(list, sender, sequence_number, class_hashref)
