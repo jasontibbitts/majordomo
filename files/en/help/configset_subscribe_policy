@@ -2,7 +2,7 @@
 configset listname subscribe_policy = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : open+confirm
-Data Type     : enum, choose from: open closed auto open+confirm closed+confirm auto+confirm
+Data Type     : enum, choose from: open closed auto open+confirm closed+confirm auto+confirm open+password auto+password
 Category      : access
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -18,37 +18,34 @@ WARNING: Using "open" alone is not safe: Many mail tools allow easy
          field. The default setting (open+confirm) allows anyone to
          start the process, but it must be confirmed by the 'victim'.
 
-One of three values: open, closed, auto; plus an optional modifier:
-'+confirm'.  Open allows people to subscribe themselves to the list,
-but attempts to subscribe addresses diferent than where the request is
-coming from will require approval.  Auto allows anybody to subscribe
-anybody to the list without maintainer approval.  Closed requires
-maintainer approval for all subscribe requests to the list.  Adding
-'+confirm', (i.e. 'open+confirm') will cause majordomo to send a reply
-back to the subscriber which includes a authentication number which
-must be sent back in with another subscribe command.
+$INCLUDE-config/subscribe_policy
 
-This functionality of subscribe_policy is completely encapsulated in
-the access_rules mechanism, but it exists for backwards compatibility
-and because it's simpler to use.
+This setting determines who can use the subscribe command to participate
+in a mailing list.  It has no effect upon auxiliary lists.
+
+An administrative password can be used to issue the subscribe command,
+regardless of the value of this setting.
+
+Any rules in the access_rules setting related to the subscribe command
+will take precedence over the value of this setting.
 
 
 See Also:
-   help subscribe (for the command that this policy regulates)
    help access    (for the special case of granting/denying all access)
+   help configset_access_rules           (to restrict access to any command)
+   help configset_access_rules_variables (for requests, variables, defaults)
+   help configset_archive_access      (for     archive command access_rules)
+   help configset_faq_access          (for         faq command access_rules)
+   help configset_get_access          (for         get command access_rules)
+   help configset_index_access        (for       index command access_rules)
+   help configset_info_access         (for        info command access_rules)
+   help configset_intro_access        (for       intro command access_rules)
+   help configset_set_policy          (for         set command access_rules)
+   help configset_unsubscribe_policy  (for unsubscribe command access_rules)
+   help configset_which_access        (for       which command access_rules)
+   help configset_who_access          (for         who command access_rules)
    help post      (for the special case of restricting who can post msgs)
-   help configset access_rules           (to restrict access to any command)
-   help configset access_rules_variables (for requests, variables, defaults)
-   help configset archive_access      (for     archive-related access_rules)
-   help configset faq_access          (for         faq-related access_rules)
-   help configset get_access          (for         get command access_rules)
-   help configset index_access        (for       index command access_rules)
-   help configset info_access         (for        info-related access_rules)
-   help configset intro_access        (for       intro-related access_rules)
-   help configset which_access        (for       which command access_rules)
-   help configset who_access          (for         who command access_rules)
-   help configset set_policy          (for         set command access_rules)
-   help configset unsubscribe_policy  (for unsubscribe command access_rules)
+   help subscribe (for the command that this policy regulates)
 
 For a list of all help topics send this one-line message
    help topics

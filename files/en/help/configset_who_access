@@ -12,31 +12,38 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset listname who_access = open
 
+$INCLUDE-config/who_access
 
-One of three values: open, list, closed.  Open allows anyone access to this
-command.  List allows only list members access, while closed completely
-disables the command for everyone.
+This setting determines who can use the who command to see 
+the addresses that are subscribed to a mailing list.  In
+the case of the GLOBAL pseudo-list, it restricts access to
+the central registry for a domain.
 
-This functionality of this variable is completely encapsulated within
-the access_rules mechanism, but it exists because it's simpler to use.
+An administrative password can be used to issue the who command,
+regardless of the value of this setting.
+
+Any rules in the access_rules setting related to the who command
+will take precedence over the value of this setting.
 
 
 See Also:
    help access    (for the special case of granting/denying all access)
+   help configset_access_rules           (to restrict access to any command)
+   help configset_access_rules_variables (for requests, variables, defaults)
+   help configset_archive_access      (for     archive-related access_rules)
+   help configset_faq_access          (for         faq-related access_rules)
+   help configset_get_access          (for         get command access_rules)
+   help configset_index_access        (for       index command access_rules)
+   help configset_info_access         (for        info-related access_rules)
+   help configset_intro_access        (for       intro-related access_rules)
+   help configset_set_policy          (for         set command access_rules)
+   help configset_subscribe_policy    (for   subscribe command access_rules)
+   help configset_unsubscribe_policy  (for unsubscribe command access_rules)
+   help configset_which_access        (for       which command access_rules)
    help post      (for the special case of restricting who can post msgs)
+   help register  (to add an address to the registry)
+   help subscribe (to add an address to a mailing list and the registry)
    help who       (the command that this policy regulates)
-   help configset access_rules           (to restrict access to any command)
-   help configset access_rules_variables (for requests, variables, defaults)
-   help configset archive_access      (for     archive-related access_rules)
-   help configset faq_access          (for         faq-related access_rules)
-   help configset get_access          (for         get command access_rules)
-   help configset index_access        (for       index command access_rules)
-   help configset info_access         (for        info-related access_rules)
-   help configset intro_access        (for       intro-related access_rules)
-   help configset which_access        (for       which command access_rules)
-   help configset set_policy          (for         set command access_rules)
-   help configset subscribe_policy    (for   subscribe command access_rules)
-   help configset unsubscribe_policy  (for unsubscribe command access_rules)
 
 For a list of all help topics send this one-line message
    help topics
