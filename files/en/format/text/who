@@ -1,5 +1,5 @@
-$FULLADDR:-48 $FLAGS:-9 $CLASS
-Diagnostic message from the last bounce: ?BOUNCE_DIAGNOSTIC
-Bounces in the past week: ?BOUNCE_WEEK
-Bounces in the past month: ?BOUNCE_MONTH
-Bounce numbers: ?BOUNCE_NUMBERS
+  $FULLADDR:-48 $FLAGS:-9 $CLASS
+    Diagnostic message from the last bounce: ?BOUNCE_DIAGNOSTIC
+    Bounces in the past week: ?BOUNCE_WEEK
+    Bounces in the past month: ?BOUNCE_MONTH
+    Bounce numbers: ?BOUNCE_NUMBERS

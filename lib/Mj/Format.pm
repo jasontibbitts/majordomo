@@ -1719,7 +1719,7 @@ sub who {
           $fullclass .= "-" . $i->{'classarg2'} if ($i->{'classarg2'});
           $subs->{'CLASS'} = $fullclass;
         }
-        $subs->{'LISTS'} =~ s/\002/ /g;
+        $subs->{'LISTS'} =~ s/\002/ /g if (exists $subs->{'LISTS'});
         if ($i->{'changetime'}) {
           @time = localtime($i->{'changetime'});
           $subs->{'LASTCHANGE'} = 
@@ -1752,6 +1752,8 @@ sub who {
               "<input name=\"$i->{'stripaddr'};$flag\" type=\"checkbox\" $str>";
         }
         for ($j = 0; $j < @{$settings->{'classes'}}; $j++) {
+          last if ($request->{'list'} eq 'GLOBAL' and 
+                   $request->{'sublist'} eq 'MAIN');
           $flag = $settings->{'classes'}[$j]->{'name'};
           if ($flag eq $i->{'class'} or 
               $flag eq "$i->{'class'}-$i->{'classarg'}") 
@@ -1857,7 +1859,7 @@ sub g_get {
     ($ok, $chunk) = @{$mj->dispatch($request, $chunksize)};
     last unless defined $chunk;
     $lastchar = substr $chunk, -1;
-    eprint($out, $type, escape($chunk, $type));
+    eprint($out, $type, $chunk);
   }
 
   # Print the end of the here document in "edit" mode.
@@ -1944,7 +1946,7 @@ sub cgidata {
   $out = sprintf 'domain=%s&user=%s&passw=%s',
            $mj->{'domain'}, $addr, $request->{'password'};
 
-  $out =~ s/ /%20/g;
+  $out = &uescape($out);
   return $out;
 }
 
@@ -1983,6 +1985,21 @@ sub escape {
   $_;
 }
 
+# Basic idea from URI::Escape.
+sub uescape {
+  local $_ = shift;
+  my $type = shift || '';
+  my (%esc, $i);
+
+  return $_ if ($type eq 'text');
+
+  for $i (0..255) {
+    $esc{chr($i)} = sprintf("%%%02X", $i);
+  }
+
+  s/([^;\/?:@&=+\$,A-Za-z0-9\-_.!~*'()])/$esc{$1}/g;
+  $_;
+}
 
 # Prepends a string to every line of a string
 sub prepend {
