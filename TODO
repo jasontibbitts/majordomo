@@ -27,6 +27,11 @@ Top of the list
   comes with the sessioninfo command and the database lookup when opening a
   new session is too slow.
 
+  sessions directory directly in GLOBAL directory instead of under files.
+  Change sessioninfo command to deal.
+  Change connect to deal.  inform just uses the handle.
+  Change expiry process to deal.
+
 - Figure out how to pass the access variables through to the _post function
   so that we can use things like the byte and line counts for cool things.
   Probably just flatten the hash and join by the secret separator and stuff
@@ -641,3 +646,6 @@ Somehow attach the parsed defaults to the config file.  Problem: we have to
 Allow access control language to make modifications to outgoing messages,
  perhaps by passing a list of actions back to the access check routine
  before the message is spooled.
+Keep a list of banned domains, compare against them in resend and fail all
+ commands from them in the email interface (or, perhaps, in the
+ dispatcher).

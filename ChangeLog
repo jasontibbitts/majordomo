@@ -1,4 +1,14 @@
+Tue Apr 21 00:31:45 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (_r_ck_body, _check_header): Give info about
+ 	date of original when duplicates are found.
+
 Mon Apr 20 01:54:00 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/List.pm (check_dup): Return the actual data in case of a
+ 	duplicate, just in case someone wants it.
+
+	* lib/mj_cf_defs.pl: apply_global_xforms should default to 'yes'.
 
 	* lib/Mj/List.pm (default_flags): Another dumb thinko.
 

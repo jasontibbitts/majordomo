@@ -538,14 +538,14 @@ sub _check_header {
   my $head    = shift;
   my $reasons = shift;
   my $avars   = shift;
-  my ($id, $maxhdrl, $maxthdr, $msg);
+  my ($data, $id, $maxhdrl, $maxthdr, $msg);
   
   $self->_make_list($list);
 
   # Check for duplicate message ID
   chomp($id = $head->get('Message-ID') || '(none)');
-  if ($id = $self->{'lists'}{$list}->check_dup($id, 'id')) {
-    $msg = "Duplicate Message-ID - $id";
+  if ($data = $self->{'lists'}{$list}->check_dup($id, 'id')) {
+    $msg = "Duplicate Message-ID - $id (".localtime($data->{changetime}).")";
     push @$reasons, $msg;
     $avars->{dup_msg_id} = $msg;
   }
@@ -640,7 +640,7 @@ sub _r_ck_body {
       $inv, $max, $part, $first) = @_;
   my $log  = new Log::In 150;
   my (@parts, $body, $i, $sum1, $sum2);
-  local($text, $line);
+  local($data, $text, $line);
 
   # If we have parts, we don't have any text so we process the parts and
   # exit.  Note that we try to preserve the first setting down the chain if
@@ -687,13 +687,15 @@ sub _r_ck_body {
 
   if ($first) {
     $sum1 = $sum1->hexdigest;
-    if($self->{'lists'}{$list}->check_dup($sum1, 'sum')) {
-      push @$reasons, "Duplicate Message Checksum";
+    if($data = $self->{'lists'}{$list}->check_dup($sum1, 'sum')) {
+      push @$reasons,
+      "Duplicate Message Checksum (".localtime($data->{changetime}).")";
       $avars->{dup_checksum} = 1;
     }
     $sum2 = $sum2->hexdigest;
-    if($self->{'lists'}{$list}->check_dup($sum2, 'partial')) {
-      push @$reasons, "Duplicate Partial Message Checksum";
+    if($data = $self->{'lists'}{$list}->check_dup($sum2, 'partial')) {
+      push @$reasons,
+      "Duplicate Partial Message Checksum (".localtime($data->{changetime}).")";
       $avars->{dup_partial_checksum} = 1;
     }
   }

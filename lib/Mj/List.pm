@@ -1351,11 +1351,13 @@ sub check_dup {
   my $rec  = shift; # ID or checksum to check
   my $type = shift; # "id", "sum" or "partial"
   my $log  = new Log::In 150, "$rec";
-  my ($ok);
+  my ($data, $ok);
 
   $self->_make_dup($type);
-  ($ok) = $self->{'dup'}{$type}->add("", $rec, {});
-  return !$ok;
+  ($ok, $data) = $self->{'dup'}{$type}->add("", $rec, {});
+
+  # Inverted logic here; we return nothing only if we didn't get a match
+  return $data;
 }
 
 =head2 expire_dup
