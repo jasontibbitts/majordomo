@@ -22,11 +22,15 @@ without domain names, for example:
 In this case, the contents of the whereami setting will be appended to
 the e-mail address automatically.
 
-The value of this setting is used in the EHLO/HELO command during conversations
-between Majordomo and the message transport agent.
+The value of this setting is used in the EHLO/HELO command during
+conversations between Majordomo and the message transport agent.
 
-The whereami setting is also substituted for the \$WHEREAMI variable wherever
-substitutions are used.  See "help variables" for more details.
+The whereami setting is also substituted for the \$WHEREAMI variable
+wherever substitutions are used.  See "help variables" for more details.
+
+If you change the value of this setting, you should run the
+createlist-regen command afterward to regenerate the configuration files
+and aliases for each mailing list.
 
 
 See Also:
@@ -39,6 +43,7 @@ See Also:
    help configset_sender
    help configset_whoami
    help configset_whoami_owner
+   help createlist
    help variables
 
 $INCLUDE-help/foot
