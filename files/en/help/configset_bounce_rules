@@ -85,6 +85,11 @@ days_since_subscribe:
   perhaps set a lower threeshold for new subscribers, or a higher one for
   long-time subscribers.
 
+digest:
+  If the user is subscribed and receives messages in a digest, this
+  variable will contain the name of the digest.  Otherwise, it will
+  contain an empty string.
+
 consecutive:
   The number of consecutive messages bounced.  This records the length of
   the most recent consecutive run of bounced messages.  So if messages
@@ -152,6 +157,14 @@ they are).
   remove
   $consecutive > 100 &&
   $consecutive_days > 7
+
+  # Digests are posted less often than individual messages, so make
+  # the consecutive bounce limits for digest subscribers more
+  # restrictive, except for the "hourly" digest.
+  remove
+  $consecutive > 15 && 
+  $digest && 
+  $digest != "hourly"
 
   # Deal with users bouncing lots of messages but not ever building up a
   # big consecutive run.  Consult the owner once the probe fails.

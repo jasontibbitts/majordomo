@@ -507,6 +507,12 @@ sub handle_bounce_user {
   $args{days_since_subscribe} = $sdata? ((time - $sdata->{subtime})/86400): 0;
   $args{notify}               = [];
 
+  if (defined $sdata and $sdata->{class} eq 'digest') {
+    $args{'digest'} = $sdata->{'classarg'};
+  }
+  else {
+    $args{'digest'} = '';
+  }
   $args{'addr'}     = $user->strip || '';
   $args{'fulladdr'} = $user->full || '';
   if ($args{'addr'} =~ /.*\@(.*)$/) {
@@ -784,8 +790,8 @@ sub _gen_bounce_message {
 
 =head1 COPYRIGHT
 
-Copyright (c) 2000, 2002 Jason Tibbitts for The Majordomo Development Group.  All
-rights reserved.
+Copyright (c) 2000, 2002, 2003 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

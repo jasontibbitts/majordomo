@@ -1013,6 +1013,7 @@ my %commands =
 			       'fulladdr'             => 'string',
 			       'host'                 => 'string',
 			       'diagnostic'           => 'string',
+			       'digest'               => 'string',
 			       'subscribed'           => 'bool',
 			       'days_since_subscribe' => 'integer',
 			       'consecutive'          => 'integer',
@@ -1261,8 +1262,8 @@ sub command_default {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2003 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

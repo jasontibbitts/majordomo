@@ -1,3 +1,17 @@
+2003-04-12  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/BounceHandler.pm:  (handle_bounce_user)  Add a
+	"digest" bounce variable to support special bounce rules
+	for digest users.  The variable will contain the name of
+	the digest or an empty string.  Suggested by John Levine.
+
+	* lib/Mj/CommandProps.pm:  Add support for the "digest"
+	bounce variable.
+
+	* lib/Mj/Digest/Build.pm:  (build)  Omit the leading "From "
+	line when extracting messages from the archive.
+	Thanks to Roger Klorese.
+
 2003-04-11  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_announce)  Use the whoami_owner
