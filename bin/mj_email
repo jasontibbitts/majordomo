@@ -88,18 +88,12 @@ if (! -t STDERR) {
 
 # We must untaint the top level dir and the domain because they are used to
 # generate filenames; it's safe since they were supplied by the site owner.
-$opts{d} =~ /(.*)/;
-$opts{d} = $1;
+
 $opts{t} ||= $::LISTDIR;
-$opts{t} =~ /(.*)/;
-$opts{t} = $1;
-if ($opts{l}) {
-  $opts{l} =~ /(.*)/;
-  $opts{l} = $1;
-}
-if ($opts{c}) {
-  $opts{c} =~ /(.*)/;
-  $opts{c} = $1;
+for ('c', 'd', 'l', 't', 'x') {
+  next unless exists $opts{$_};
+  $opts{$_} =~ /(.*)/;
+  $opts{$_} = $1;
 }
 
 $opts{v} ||= 0;
