@@ -1635,7 +1635,9 @@ sub parse_access_rules {
           $tmp2 =~ s/^\((.*)\)/$1/;
 	  for $k (action_files($tmp, $tmp2)) {
 	    ($file) =
-	      &{$self->{callbacks}{'mj.list_file_get'}}($self->{list}, $k);
+	      &{$self->{callbacks}{'mj.list_file_get'}}(list => $self->{list},
+							file => $k,
+						       );
 	    unless ($file) {
 	      $warn .= "  Req. $i, action $tmp: file '$k' could not be found.\n";
 	    } # XLANG
@@ -1652,7 +1654,9 @@ sub parse_access_rules {
             else {
               for $m (keys %$l) {
                 if ($Mj::Util::notify_var{$m} eq 'filename') {
-                  ($file) = &{$self->{callbacks}{'mj.list_file_get'}}($self->{list}, $l->{$m});
+                  ($file) = &{$self->{callbacks}{'mj.list_file_get'}}(list => $self->{list},
+								      file => $l->{$m},
+								     );
                   unless ($file) {
                     $warn .= "  Req. $i, action $tmp: $m '$l->{$m}' could not be found.\n";
                   } # XLANG
@@ -1998,7 +2002,9 @@ sub parse_bounce_rules {
 	$tmp2 =~ s/^\((.*)\)/$1/;
 	for $k (action_files($tmp, $tmp2)) {
 	  ($file) =
-	    &{$self->{callbacks}{'mj.list_file_get'}}($self->{list}, $k);
+	    &{$self->{callbacks}{'mj.list_file_get'}}(list => $self->{list},
+						      file => $k,
+						     );
 	  unless ($file) {
 	    $warn .= "  Action $tmp: file '$k' could not be found.\n";
 	  }
@@ -2877,8 +2883,9 @@ sub parse_relocated_lists {
     }
     if (length $table->[$i][2]) {
       ($file) =
-        &{$self->{callbacks}{'mj.list_file_get'}}($self->{list},
-                                                  $table->[$i][2]);
+        &{$self->{callbacks}{'mj.list_file_get'}}(list => $self->{list},
+                                                  file => $table->[$i][2],
+						 );
       unless ($file) {
         return (0, qq(The file "$table->[$i][2]" could not be found.));
       }

@@ -137,7 +137,9 @@ sub _inform_owner {
   my $sender   = $self->_global_config_get('whoami');
   my $statdesc = $stat < 0 ? 'stall' : $stat > 0 ? 'success' : 'failure';
 
-  my ($message, %data) = $self->_list_file_get($list, 'inform');
+  my ($message, %data) = $self->_list_file_get(list => $list,
+					       file => 'inform',
+					      );
   if (ref $user) { 
     $strip = $user->strip;
   }

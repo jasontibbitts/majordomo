@@ -1120,7 +1120,10 @@ sub _a_replyfile {
   return (undef, undef, '') if $arg eq 'NONE';
 
   # Retrieve the file, but don't fail
-  ($file, %file) = $self->_list_file_get($td->{'list'}, $arg, undef, 1);
+  ($file, %file) = $self->_list_file_get(list   => $td->{'list'},
+					 file   => $arg,
+					 nofail => 1,
+					);
 
   $fh = gensym();
   open ($fh, "< $file")
@@ -1148,7 +1151,11 @@ sub _a_mailfile {
     'VICTIM'  => $td->{'victim'} || '',
   };
 
-  ($file, %file) = $self->_list_file_get($td->{'list'}, $arg, $subs, 1);
+  ($file, %file) = $self->_list_file_get(list   => $td->{'list'},
+					 file   => $arg,
+					 subs   => $subs,
+					 nofail => 1,
+					);
 
   $ent = build MIME::Entity
     (

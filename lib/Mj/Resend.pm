@@ -814,9 +814,10 @@ sub _post {
 
   if ($self->{'lists'}{$list}->should_ack($sl, $user, 'f')) {
     ($ackfile, %ackinfo) = 
-      $self->_list_file_get($list, 
-                            ($mode =~ /archive/)? 'ack_archive' : 'ack_success', 
-                            $subs);
+      $self->_list_file_get(list => $list,
+                            file => ($mode =~ /archive/)? 'ack_archive' : 'ack_success',
+                            subs => $subs,
+			   );
     if ($ackfile) {
       $desc = $self->substitute_vars_string($ackinfo{'description'}, $subs);
       $ack_attach = $self->_list_config_get($list, 'ack_attach_original');
@@ -2452,7 +2453,10 @@ sub do_digests {
 	  for $k (qw(preindex postindex footer)) {
 	    $subs->{DIGESTTYPE} = $j;
 	    for $l ("digest_${i}_${j}_${k}", "digest_${i}_${k}", "digest_${j}_${k}", "digest_${k}") {
-	      ($file, %file) = $self->_list_file_get($list, $l, $subs);
+	      ($file, %file) = $self->_list_file_get(list => $list,
+						     file => $l,
+						     subs => $subs,
+						    );
 	      if($file) {
 	        # We're guaranteed to have something if we got here; if the user
 	        # didn't provide a file, the build routine will just leave

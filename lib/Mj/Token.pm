@@ -408,7 +408,9 @@ sub confirm {
 
     $repl->{'APPROVALS'} = $dest->{'approvals'};
     $repl->{'REMIND'} = $remind[$i]->[2];
-    ($file, %file) = $self->_list_file_get($list, $dest->{'file'}, '', 1);
+    ($file, %file) = $self->_list_file_get(list   => $list,
+					   file   => $dest->{'file'},
+					   nofail => 1);
 
     for $j (@recip) {
       if ($dest->{'approvals'} > 1 or scalar(@notify) > 1) {
@@ -728,7 +730,11 @@ sub t_accept {
       $rf = 'repl_chain';
     }
 
-    ($file) = $self->_list_file_get($data->{'list'}, $rf, $repl, 1);
+    ($file) = $self->_list_file_get(list   => $data->{'list'},
+				    file   => $rf,
+				    subs   => $repl,
+				    nofail => 1,
+				   );
     $fh = new Mj::File "$file";
     $log->abort("Cannot read file $file, $!") unless ($fh);
 
@@ -824,7 +830,10 @@ sub t_accept {
   if ($func ne '_post') {
 
     # First make a tempfile
-    ($tmp, %file) = $self->_list_file_get($data->{'list'}, "repl_fulfill", $repl);
+    ($tmp, %file) = $self->_list_file_get(list => $data->{'list'},
+					  file => "repl_fulfill",
+					  subs => $repl,
+					 );
     $outfh = new IO::File ">>$tmp";
     return (1, $token, $data, [@out]) unless $outfh;
 
@@ -1016,7 +1025,9 @@ sub r_gen {
       $repl, $url);
 
   # Extract the file from storage
-  ($file, %file) = $self->_list_file_get($data->{'list'}, "token_remind");
+  ($file, %file) = $self->_list_file_get(list => $data->{'list'},
+					 file => "token_remind",
+					);
   return unless $file;
 
   # Extract some list-specific variables

@@ -348,7 +348,9 @@ sub handle_bounce_token {
            'VICTIM'     => $data->{'victim'},
           };
 
-  ($file, %file) = $self->_list_file_get($data->{'list'}, 'token_bounce');
+  ($file, %file) = $self->_list_file_get(list => $data->{'list'},
+					 file => 'token_bounce',
+					);
   return 1 unless $file;
 
   # Expand variables

@@ -1005,7 +1005,7 @@ sub substitute_vars {
       # substitute_vars on it, printing to the already opened handle.  If
       # we don't get a file, print some amusing text.
       $inc = $2; $inc =~ s/\s*$//;
-      ($inc) =  $self->_list_file_get($list, $inc);
+      ($inc) =  $self->_list_file_get(list => $list, file => $inc);
 
       if ($inc) {
 	if ($depth > 3) {
@@ -1273,7 +1273,7 @@ sub format_error {
             %subs
           };
 
-  $tmp = $self->_list_file_get_string('GLOBAL', "error/$name");
+  $tmp = $self->_list_file_get_string(list => 'GLOBAL', file => "error/$name");
   $self->substitute_vars_format($tmp, $subs);
 }
 
@@ -2279,7 +2279,7 @@ sub config_get_comment {
   my $var  = shift;
 #  $self->{'lists'}{'GLOBAL'}->config_get_comment($var);
   # No substitutions, so no tempfile here
-  $self->_list_file_get_string('GLOBAL', "config/$var");
+  $self->_list_file_get_string(list => 'GLOBAL', file => "config/$var");
 }
 
 sub format_get_string {
@@ -2288,7 +2288,9 @@ sub format_get_string {
   my $file = shift;
   my $out;
 
-  $out = $self->_list_file_get_string('GLOBAL', "format/$type/$file");
+  $out = $self->_list_file_get_string(list => 'GLOBAL',
+				      file => "format/$type/$file",
+				     );
   chomp($out) if (defined $out);
   $out;
 }
@@ -2505,11 +2507,13 @@ sub _get {
     return (0, qq(The path "/$name" is not valid.\n));
   }
 
-  ($file, %data) = $self->_list_file_get($list, $nname);
+  ($file, %data) = $self->_list_file_get(list => $list, file => $nname);
 
   unless ($file) {
     if ($mode =~ /immediate|edit/) {
-      ($file, %data) = $self->_list_file_get($list, 'unknown_file');
+      ($file, %data) = $self->_list_file_get(list => $list,
+					     file => 'unknown_file',
+					    );
     }
     unless ($file) {
       return (0, qq(The file "$name" does not exist or is a directory.\n)); #XLANG
@@ -2531,7 +2535,7 @@ sub _get {
 
   # and be sneaky and return another file to be read; this keeps the code
   # simpler and lets the owner customize the transmission message
-  ($file, %data) = $self->_list_file_get($list, 'file_sent');
+  ($file, %data) = $self->_list_file_get(list => $list, file => 'file_sent');
   $self->{'get_subst'} = {
                           $self->standard_subs($list),
                           'FILE'     => $name,
@@ -2629,7 +2633,7 @@ sub _faq {
   return (0, "Unable to initialize list $list.\n") #XLANG
     unless $self->_make_list($list);
 
-  ($file, %fdata) = $self->_list_file_get($list, 'faq');
+  ($file, %fdata) = $self->_list_file_get(list => $list, file => 'faq');
 
   unless ($file) {
     return (0, "No FAQ available.\n"); #XLANG
@@ -2695,19 +2699,26 @@ sub help_start {
      'USER'     => "$request->{'user'}",
     };
 
-  ($file) =  $self->_list_file_get('GLOBAL', "help/$request->{'topic'}", $subs);
+  ($file) =  $self->_list_file_get(list => 'GLOBAL',
+				   file => "help/$request->{'topic'}",
+				   subs => $subs,
+				  );
 
   # Allow abbreviations for configuration settings.  For example,
   # "help configset_access_rules" can be abbreviated to "help access_rules"
   unless ($file) {
     $subs->{'TOPIC'} = "configset_$request->{'topic'}";
-    ($file) =  $self->_list_file_get('GLOBAL',
-                                     "help/configset_$request->{'topic'}",
-                                      $subs);
+    ($file) =  $self->_list_file_get(list => 'GLOBAL',
+                                     file => "help/configset_$request->{'topic'}",
+				     subs => $subs,
+				    );
   }
   unless ($file) {
     $subs->{'TOPIC'} = "unknowntopic";
-    ($file) =  $self->_list_file_get('GLOBAL', "help/unknowntopic", $subs);
+    ($file) =  $self->_list_file_get(list => 'GLOBAL',
+				     file => "help/unknowntopic",
+				     subs => $subs,
+				    );
   }
   unless ($file) {
     return (0, "No help for that topic.\n"); #XLANG
@@ -2750,7 +2761,7 @@ sub _info {
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list); #XLANG
 
-  ($file, %fdata) = $self->_list_file_get($list, 'info');
+  ($file, %fdata) = $self->_list_file_get(list => $list, file => 'info');
 
   unless ($file) {
     return (0, "No info available.\n"); #XLANG
@@ -2804,7 +2815,7 @@ sub _intro {
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list); #XLANG
 
-  ($file, %fdata) = $self->_list_file_get($list, 'intro');
+  ($file, %fdata) = $self->_list_file_get(list => $list, file => 'intro');
 
   unless ($file) {
     return (0, "No intro available.\n"); #XLANG
@@ -2909,7 +2920,9 @@ sub _password {
 	      'VICTIM'    => "$vict",
 	     };
 
-    ($file, %file) = $self->_list_file_get('GLOBAL', 'new_password');
+    ($file, %file) = $self->_list_file_get(list => 'GLOBAL',
+					   file => 'new_password',
+					  );
     return (1, '') unless $file;
 
     # Expand variables
@@ -3080,7 +3093,9 @@ sub _request_response {
     return (0, "Loop detected.\n");
   }
 
-  ($file, %file) = $self->_list_file_get($list, 'request_response');
+  ($file, %file) = $self->_list_file_get(list => $list,
+					 file => 'request_response',
+					);
   return unless $file;
 
   # Build the entity and mail out the file
@@ -3173,7 +3188,9 @@ sub _index {
 }
 
 
-=head2 _list_file_get(list, file, subs, nofail, lang, force)
+=head2 _list_file_get(args)
+
+Takes named arguments list, file, subs, nofail, lang, force.
 
 This forms the basic internal interface to a list''s (virtual) filespace.
 All core routines which need to retrieve files should use this function as
@@ -3198,16 +3215,16 @@ this temporary.
 =cut
 
 sub _list_file_get {
-  my $self  = shift;
-  my $list  = shift;
-  my $file  = shift;
-  my $subs  = shift;
-  my $nofail= shift;
-  my $lang  = shift;
-  my $force = shift;
-  my $log  = new Log::In 130, "$list, $file";
+  my $self = shift;
+  my %args = @_;
+
+  my $log  = new Log::In 130, "$args{list}, $args{file}";
   my (%paths, @langs, @out, @paths, @search, @share, $ok, $d, $f, $i, $j,
       $l, $p, $tmp);
+
+  my $list = $args{list};
+  my $file = $args{file};
+  my $lang = $args{lang};
 
   $list = 'GLOBAL' if ($list eq 'ALL');
   return unless $self->_make_list($list);
@@ -3268,14 +3285,14 @@ sub _list_file_get {
       @out = $self->_get_stock($f);
     }
     else {
-      @out = $self->{'lists'}{$l}->fs_get($f, $force);
+      @out = $self->{'lists'}{$l}->fs_get($f, $args{force});
     }
 
     # Now, if we got something
     if (@out) {
       # Substitute if necessary; $out[0] is thefilename
-      if ($subs) {
-	$out[0] = $self->substitute_vars($out[0], $subs, $list);
+      if ($args{subs}) {
+	$out[0] = $self->substitute_vars($out[0], $args{subs}, $list);
       }
       return @out;
     }
@@ -3283,11 +3300,11 @@ sub _list_file_get {
 
   # If we get here, we didn't find anything that matched at all so if so
   # instructed we pull out the file of last resort.
-  if ($nofail) {
+  if ($args{nofail}) {
     @out = $self->_get_stock('en/file_not_found');
-    $subs ||= {};
-    $subs->{'UNKNOWNFILE'} = $file;
-    $out[0] = $self->substitute_vars($out[0], $subs, $list);
+    $args{subs} ||= {};
+    $args{subs}->{'UNKNOWNFILE'} = $file;
+    $out[0] = $self->substitute_vars($out[0], $args{subs}, $list);
     $log->complain("Requested file $file not found"); #XLANG
     return @out;
   }
@@ -3534,8 +3551,9 @@ sub valid_list {
                 'NEWLIST' => $name,
               };
 
-      $tmp = $self->_list_file_get_string('GLOBAL',
-                                          $reloc->{$oname}->{'file'});
+      $tmp = $self->_list_file_get_string(list => 'GLOBAL',
+                                          file => $reloc->{$oname}->{'file'},
+					 );
       $mess .= $self->substitute_vars_format($tmp, $subs);
     }
   }
@@ -3845,7 +3863,10 @@ sub _announce {
      'USER'      => $user,
     };
 
-  ($mailfile, %data) = $self->_list_file_get($list, $file, $subs);
+  ($mailfile, %data) = $self->_list_file_get(list => $list,
+					     file => $file,
+					     subs => $subs,
+					    );
 
   return (0, "The file $file is unavailable.\n")
     unless $mailfile; #XLANG
@@ -4432,8 +4453,9 @@ sub configshow {
 
   if ($request->{'mode'} =~ /categories/) {
     for $var (sort keys %category) {
-      $comment = $self->_list_file_get_string('GLOBAL',
-                                              "config/categories/$var");
+      $comment = $self->_list_file_get_string(list => 'GLOBAL',
+                                              file => "config/categories/$var",
+					     );
       push @out, [1, $comment, $data, $var, $category{$var}];
     }
     return (1, @out);
@@ -4950,7 +4972,10 @@ sub _createlist {
 
       for $owner (@owners) {
         $subs->{'USER'} = $owner->strip;
-        ($file, %data) = $self->_list_file_get('GLOBAL', 'new_list', $subs);
+        ($file, %data) = $self->_list_file_get(list => 'GLOBAL',
+					       file => 'new_list',
+					       subs => $subs,
+					      );
         $desc = $self->substitute_vars_string($data{'description'}, $subs);
 
         if ($file) {
@@ -5604,10 +5629,16 @@ sub reject {
        )
     {
       $data->{'ack'} = 1;
-      ($file, %file) = $self->_list_file_get($data->{'list'}, $rfile, $repl);
+      ($file, %file) = $self->_list_file_get(list => $data->{'list'},
+					     file => $rfile,
+					     subs => $repl,
+					    );
       unless (defined $file) {
         ($file, %file) =
-          $self->_list_file_get($data->{'list'}, "token_reject", $repl);
+          $self->_list_file_get(list => $data->{'list'},
+				file => "token_reject",
+				subs => $repl,
+			       );
       }
       $desc = $self->substitute_vars_string($file{'description'}, $repl);
 
@@ -5660,8 +5691,9 @@ sub reject {
     if ($data->{'type'} eq 'confirm'
         and $request->{'mode'} !~ /nolog|noinform/)
     {
-      ($file, %file) = $self->_list_file_get($data->{'list'},
-                                             "token_reject_owner");
+      ($file, %file) = $self->_list_file_get(list => $data->{'list'},
+                                             file => "token_reject_owner",
+					    );
       $file = $self->substitute_vars($file, $repl);
       $desc = $self->substitute_vars_string($desc, $repl);
 
@@ -6218,7 +6250,7 @@ sub s_recognize {
   }
   return;
 }
-  
+
 =head2 set
 
 Perform the set command.  This changes various pieces of subscriber data.
@@ -7151,7 +7183,10 @@ use IO::File;
 sub _list_file_execute {
   my ($self, $list, $file, $subs) = @_;
   my ($infh, $int);
-  ($file) = $self->_list_file_get($list, $file, $subs);
+  ($file) = $self->_list_file_get(list => $list,
+				  file => $file,
+				  subs => $subs,
+				 );
   return unless $file;
 
   $infh = new IO::File "<$file";
@@ -7394,7 +7429,9 @@ sub _unsubscribe {
   }
 
   if ($mode =~ /farewell/) {
-    ($file, %fdata) = $self->_list_file_get($list, 'farewell');
+    ($file, %fdata) = $self->_list_file_get(list => $list,
+					    file => 'farewell',
+					   );
     $subs = { $self->standard_subs($flist) };
     $bye = &tempname;
     $desc = $fdata{'description'};

@@ -361,7 +361,9 @@ sub welcome {
     if ($i!=0 && $table->[$i][2] =~ /N/) {
       $count++;
     }
-    ($file, %file) = $self->_list_file_get($list, $table->[$i][1]);
+    ($file, %file) = $self->_list_file_get(list => $list,
+					   file => $table->[$i][1],
+					  );
     # XXX Need to complain here
     next unless $file;
 

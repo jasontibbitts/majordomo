@@ -1,3 +1,16 @@
+2002-06-10  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm (_list_file_get): New calling convention.
+	Adapt all _list_file_get callers to new calling convention.
+
+	* lib/Mj/Token.pm:
+	* lib/Mj/Resend.pm:
+	* lib/Mj/MailOut.pm:
+	* lib/Mj/Inform.pm:
+	* lib/Mj/Config.pm:
+	* lib/Mj/BounceHandler.pm:
+	* lib/Mj/Access.pm: New _list_file_get calling convention.
+
 2002-06-10  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  The configdef, configset, and sessioninfo
