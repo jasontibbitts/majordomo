@@ -1,3 +1,8 @@
+2004-04-29  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Bugfix:  Remove white space from list names.
+	Thanks to SRE.
+
 2004-04-07  Michael Yount <csf@moscow.com>
 
 	* bin/mj_email, mj_enqueue:  (do_qmail)  Bugfix:  

@@ -162,6 +162,10 @@ if ((! @lists) and @mlists) {
   @lists = @mlists;
 }
 $lists[0] ||= '';
+# Strip white space
+for ($i = 0; $i <= $#lists; $i++) {
+  $lists[$i] =~ s/\s+//g;
+}
 
 #----- Determine what service was requested -----#
 # Extract "mode" from command name
