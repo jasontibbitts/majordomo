@@ -8,73 +8,78 @@ value, if specified, is the string to be used in following commands
 NOTE: This help file is for the command called "default". To get
       basic help, just send "help" to the server (not "help default").
 
+WARNING: This command is not implemented in mj_shell, it is available
+         ONLY when sending commands via email.
+
 The 'default' command sets certain defaults used by the command parser
-for processing one or more commands. It is most often used by list
-owners and administrators, but can also be used by subscribers.
+for processing one or more commands. The more commands you have, the
+more "default" helps you. It is most often used by list owners and
+administrators, but can also be used by subscribers.
+
 This is not a general variable mechanism, it is ONLY for providing
 the listed values. If the value is omitted, the default setting is
 removed. This allows you to have a default for some commands but
 not for others.
 
- The following defaults can be set:
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    language:  (Not implemented.) Sets the default language preference
+The following defaults can be set, as explained below:
+
+ 1. language:  (Not implemented.) Sets the default language preference
                list to the comma-separated list of two-letter language
                abbreviations.
 
-    list:      Sets the default list for commands to the provided list.
+ 2. list:      Sets the default list for commands to the provided list.
                To clear the default list, don't supply one.
 
-    password:  Approves all following commands with the given password.
+ 3. password:  Approves all following commands with the given password.
                To clear the password, don't supply one.
 
-    prefix:    (Not implemented.) Sets a prefix that (if present) will be
+ 4. prefix:    (Not implemented.) Sets a prefix that (if present) will be
                deleted from the beginning of all following lines.
 
-    user:      Replaces the address found in the "From:" field of your
+ 5. user:      Replaces the address found in the "From:" field of your
                email headers.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Section 1: default language XX
+
+  Not implemented!
 
 The 'language' command (not implemented) is equivalent to the 'default
 language' command, and is supplied for the benefit of those who do not
 wish to see server messages in English.
 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Section 2: default list LISTNAME
+
 Setting a default list makes the list an optional argument for all
-commands which take one (excepting the createlist command).  Note that
-this is not without ambiguity, as the parser cannot always tell when
-the default list is implied.  When running at the -request address,
-the parser generally starts with a default list in place.
+commands which take one (excepting the createlist command). To clear
+the default list for additional commands, don't supply one.
+
+Note that this is not without ambiguity, as the parser cannot always
+tell when the default list is implied.  When running at the -request
+address, the parser generally starts with a default list in place.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Section 3: default password STRING
 
 Setting a default password will implicitly do the equivalent of
-'approve password' at the beginning of all following command lines.
+'approve password' at the beginning of each following command.
+
 List subscribers will find little use for "default", except that
-it can make command lines shorter. List administrators will find
-it especially useful when returning the output of a 'configshow'
-command to the parser to change some variables; simply add the
-'default password' command to the beginning of the message or file,
-and the parser will accept the 'configset' commands exactly as
-dumped by the configshow command.
+it can make command lines shorter.
 
-Setting a default user is primarily useful when resubscribing
-(see "help changeaddr"), and then only if the "From:" field of
-the request message is incorrect. It can also be used by an
-expert to send info files, show output, etc. to someone who
-simply can't figure out how to do it for themselves.
+List administrators will find it especially useful when returning
+the output of a 'configshow' command to the parser to change some
+variables; simply add the 'default password' command to the beginning
+of the message or file, and the parser will accept the 'configset'
+commands exactly as dumped by the configshow command.
 
-When a "default user" command is in effect, any command that looks
-at your headers to see who sent the command will behave differently.
-For example, a message sent from the server to the user's address
-will have the "From" field address showing who sent the request
-(rather than the server's address or the defaulted user's address).
-The person sending the message to the server will still see the
-result of the command (succeed, stall, fail) but none of the output.
-
-You can put different "default user" commands in a single email,
-each applying to other commands which follow. Since confirm
-messages go to the address being altered, defaulting has no
-impact on their destination unless the requester (which is set
-by the default user command) is identical to the 'victim'.
-
-These default commands make it much simpler to submit multiple
+Defaulting a password make it much simpler to submit multiple
 commands to the parser in one fell swoop.  For example, it makes
 the following sets of commands equivalent:
     approve MYPASSWORD subscribe ONE-LIST someone@example.com
@@ -84,12 +89,72 @@ or:
     subscribe ONE-LIST someone@example.com
     subscribe TWO-LIST someone@example.com
 
-The more commands you have, the more "default" helps you.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Section 4: default prefix STRING
+
+  Not implemented!
+
+Sets a prefix that (if present) will be DELETED, not ADDED, from the
+beginning of all following lines before the commands are processed.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Section 5: default user ADDRESS
+
+ADDRESS is a regular email address, optionally containing comments.
+For example:
+  joe@blow.com
+  Joe Blow <joe@blow.com>
+  joe@blow.com (Joe Blow)
+
+When a "default user" command is in effect, any command that looks
+at your headers to see who sent the command will behave as if your
+headers had contained the defaulted ADDRESS instead. To cancel the
+command, and cause the command parser to look at your headers again,
+issue the command with no ADDRESS.
+
+You can put several different "default user" commands in a single
+email, each applying to other commands which follow.
+
+Since confirm tokens always go to the address being altered, 'default'
+will not allow someone to alter another person's subscription. Some
+commands, such as changeaddr, require confirmation tokens from two
+addresses (the address being changed and the address making the
+request) so 'default user' can cause a token to be sent to an address
+other than the one which sent the request.
+
+Setting a default user is primarily useful when resubscribing
+(see "help changeaddr"), and then only if the "From:" field of
+the request message is incorrect. It can also be used by a list
+owner to send info files, show output, etc. to someone who
+simply can't figure out how to do it for themselves.
+
+For example, a message sent from the server to the user's address
+will have the "From" field address showing who sent the request
+(rather than the server's address or the defaulted user's address).
+The person sending the message to the server will still see the
+result of the command (succeed, stall, fail) but none of the output.
+
+Defaulting a user can make it much simpler to submit multiple
+commands to the parser in one fell swoop.  For example, it makes
+the following sets of commands equivalent:
+    approve MYPASSWORD subscribe ONE-LIST someone@example.com
+    approve MYPASSWORD subscribe TWO-LIST someone@example.com
+or:
+    default password MYPASSWORD
+    default password Real Name <someone@example.com>
+    subscribe ONE-LIST
+    subscribe TWO-LIST
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 See Also:
-   help accept   (which may be required if default is not used)
-   help approve  (like "default", but for only one command)
-   help password (which changes an individual's password)
+   help accept     (which may be required if default is not used)
+   help approve    (like "default", but for only one command)
+   help changeaddr (for how to replace one address with another)
+   help password   (which changes an individual's password)
+   help set        (for how to change some or all subscriptions)
 
 For a list of all help topics send this one-line message
    help topics

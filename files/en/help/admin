@@ -35,6 +35,7 @@ Here are the main sections in this file:
           7.3 - keeping certain users or a certain domain from posting
           7.4 - stopping massive crossposting between lists
           7.5 - making people read my list for a few days before they post
+          7.6 - replacing an old subscriber address with a new one
 
 If you have suggestions or corrections for this or other help files,
 please contact the maintainer as indicated at the end of this message.
@@ -621,6 +622,43 @@ END
   wait for the list owner to approve their messages.
 
 ---------------------------
+
+7.6 - Problem: One of the subscribers wants to change her address from 
+      jane@example.com to ruth@example.net.  How can she do this?
+
+
+7.6.1 - Solution when she still has access to the old account:
+
+Sending email from 'ruth@example.net', she can send this one-line command:
+  changeaddr jane@example.com
+
+
+7.6.2 - Solution when email cannot be sent from the old account:
+
+Anyone, including 'jane@example.net' can send the following two commands:
+  default user ruth@example.net
+  changeaddr jane@example.com
+following which both accounts will be required to return a token before
+the change takes effect. This will work when the old account is set to
+forward somewhere else, because the token can be returned from any address.
+It will NOT work if the old account is completely gone, since the user
+will not know what token to send back.
+
+If the site administrator uses the master password, neither address will
+need to confirm the change:
+  default password SITEPASSWORD
+  default user ruth@example.net
+  changeaddr jane@example.com
+
+If the password for the old address is used, only the new address will
+need to confirm by returning a token:
+  default password RUTHSPASSWORD
+  default user ruth@example.net
+  changeaddr jane@example.com
+
+
+---------------------------
+
 
 If you don't find the answer to your problem here, PLEASE send it to
 majordomo-workers@GreatCircle.com so we can build commonly needed
