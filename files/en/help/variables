@@ -347,6 +347,9 @@ See "help reply_files" for a description of each of the reply files.
   The date at which a delayed request will be completed
   (see "help delay" for more information).
 
+\$FULLPATH
+  The name of a file, including the directory that holds it.
+
 \$HANDLER
   When a bounce message is presented in a recognizable format, this
   variable contains the name of the format (e.g., "DSN" or
@@ -475,6 +478,9 @@ See "help reply_files" for a description of each of the reply files.
 \$PASSWORD
   The personal password corresponding to a particular e-mail address,
   or the master password of a newly created mailing list.
+
+\$PATH
+  The name of a directory.
 
 \$PATTERN
   A pattern listed in the taboo_headers configuration setting, or

@@ -1379,6 +1379,7 @@ sub index {
       $subs->{'DESCRIPTION'}  = &escape($i->{'description'});
       $subs->{'ENCODING'}     = &escape($i->{'c-t-encoding'});
       $subs->{'FILE'}         = &escape($i->{'file'});
+      $subs->{'FULLPATH'}     = $subs->{'PATH'} . $subs->{'FILE'};
       $subs->{'LANGUAGE'}     = &escape($i->{'language'});
       $subs->{'PERMISSIONS'}  = &escape($i->{'permissions'});
       $subs->{'SIZE'}         = &escape($i->{'size'});
@@ -1704,6 +1705,7 @@ sub put {
            'CMDPASS'  => &escape($request->{'password'}, $type),
            'COMMAND'  => $act,
            'FILE'     => &escape($file),
+           'FULLPATH' => &escape($dir . $file),
            'PARENT'   => &escape($parent),
            'PATH'     => &escape($dir),
            'USER'     => &escape("$request->{'user'}", $type),
@@ -3523,6 +3525,7 @@ sub g_get {
              'COMMAND' => &escape($base),
              'ERROR'   => &escape($mess || ''),
              'FILE'    => &escape($file),
+             'FULLPATH'=> &escape($dir . $file),
              'PARENT'  => &escape($parent),
              'PATH'    => &escape($dir),
             };
@@ -3542,9 +3545,10 @@ sub g_get {
              'CMDPASS'  => &escape($request->{'password'}, $type),
              'COMMAND'  => &escape($base),
              'DESCRIPTION' => &escape($mess->{'description'}, $type),
-             'FILE'    => &escape($file),
-             'PARENT'  => &escape($parent),
-             'PATH'    => &escape($dir),
+             'FILE'     => &escape($file),
+             'FULLPATH' => &escape($dir . $file),
+             'PARENT'   => &escape($parent),
+             'PATH'     => &escape($dir),
              'USER'     => &escape("$request->{'user'}", $type),
             };
 

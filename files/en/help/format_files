@@ -712,7 +712,7 @@ end of a put command, or an HTML form, that allows a document
 to be edited and replaced easily.
 
 (standard plus CGIDATA, CGIURL, CMDARGS, CMDLINE, CMDPASS, COMMAND,
- DESCRIPTION, FILE, PARENT, PATH, REPLACECMD, USER)
+ DESCRIPTION, FILE, FULLPATH, PARENT, PATH, REPLACECMD, USER)
 
 
 get_edit_head
@@ -722,7 +722,7 @@ beginning of a put command, or an HTML form, that allows a document
 to be edited and replaced easily.
 
 (standard plus CGIDATA, CGIURL, CMDARGS, CMDLINE, CMDPASS, COMMAND,
- DESCRIPTION, FILE, PARENT, PATH, REPLACECMD, USER)
+ DESCRIPTION, FILE, FULLPATH, PARENT, PATH, REPLACECMD, USER)
 
 
 get_error
@@ -730,7 +730,7 @@ get_error
 (text, wwwadm, wwwusr)  This file displays an error when the faq,
 get, info, or intro command fails.
 
-(standard plus COMMAND, ERROR, FILE, PARENT, PATH)
+(standard plus COMMAND, ERROR, FILE, FULLPATH, PARENT, PATH)
 
 
 get_foot
@@ -739,7 +739,7 @@ get_foot
 a document is displayed by the faq, get, info, or intro command.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DESCRIPTION, FILE,
- PARENT, PATH, USER)
+ FULLPATH, PARENT, PATH, USER)
 
 
 get_head
@@ -748,7 +748,7 @@ get_head
 a document is displayed by the faq, get, info, or intro command.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, DESCRIPTION, FILE,
- PARENT, PATH, USER)
+ FULLPATH, PARENT, PATH, USER)
 
 
 head
@@ -794,8 +794,8 @@ index_binary
 file in the file space of a mailing list.
 
 (standard plus CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE,
- DESCRIPTION, ENCODING, FILE, LANGUAGE, PARENT, PATH, PERMISSIONS, SIZE,
- USER, VICTIM)
+ DESCRIPTION, ENCODING, FILE, FULLPATH, LANGUAGE, PARENT, PATH, 
+ PERMISSIONS, SIZE, USER, VICTIM)
 
 
 index_dir
@@ -804,8 +804,8 @@ index_dir
 the file space of a mailing list.
 
 (standard plus CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE,
- DESCRIPTION, ENCODING, FILE, LANGUAGE, PARENT, PATH, PERMISSIONS, SIZE, 
- USER, VICTIM)
+ DESCRIPTION, ENCODING, FILE, FULLPATH, LANGUAGE, PARENT, PATH, 
+ PERMISSIONS, SIZE, USER, VICTIM)
 
 
 index_error
@@ -848,8 +848,8 @@ index_text
 the file space of a mailing list.
 
 (standard plus CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE,
- DESCRIPTION, ENCODING, FILE, LANGUAGE, PARENT, PATH, PERMISSIONS, SIZE, 
- USER, VICTIM)
+ DESCRIPTION, ENCODING, FILE, FULLPATH, LANGUAGE, PARENT, PATH, 
+ PERMISSIONS, SIZE, USER, VICTIM)
 
 
 lists
@@ -1039,7 +1039,8 @@ put
 (text, wwwadm)  This file is displayed when the put command succeeds in
 creating or updating a file.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, FILE, PARENT, PATH, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, FILE, FULLPATH, PARENT, 
+ PATH, USER)
 
 
 put_delete
@@ -1047,7 +1048,8 @@ put_delete
 (text, wwwadm)  This file is displayed when the put command succeeds in
 deleting a file or directory.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, FILE, PARENT, PATH, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, FILE, FULLPATH, PARENT, 
+ PATH, USER)
 
 
 put_dir
@@ -1055,15 +1057,16 @@ put_dir
 (text, wwwadm)  This file is displayed when the put command succeeds in
 creating or updating a directory.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, FILE, PARENT, PATH, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, FILE, FULLPATH, PARENT, 
+ PATH, USER)
 
 
 put_error
 ---------
 (text, wwwadm)  This file is displayed when the put command fails.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, ERROR, FILE, PARENT,
- PATH, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, ERROR, FILE, FULLPATH,
+ PARENT, PATH, USER)
 
 
 register
