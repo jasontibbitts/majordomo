@@ -11,10 +11,14 @@ EXAMPLE:
 configset GLOBAL description_max_lines = 20
 
 
-Sets the maximum number of lines of list description that will be
-shown in a long or extended listing.  Setting this to zero will impose
-no limit.
+$INCLUDE-config/description_max_lines
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+
+See Also:
+   help admin_monitor
+   help configset_default_lists_format
+   help configset_description
+   help configset_description_long
+   help lists
+
+$INCLUDE-help/foot
