@@ -626,6 +626,11 @@ sub showtokens {
     eprint($out, $type, "No tokens for $list.\n");
     return 1;
   }
+  unless ($ok>0) {
+    eprint($out, $type, "No tokens shown.\n");
+    eprint($out, $type, &indicate("$tokens[0]\n", $ok, 1));
+    return 1;
+  }
 
   eprint($out, $type, "Pending tokens for $list:\n");
   if ($list eq 'ALL') {
