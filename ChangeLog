@@ -1,3 +1,52 @@
+2002-02-21  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Add formatting for the set command.
+	Support separate name and address fields (name and victims)
+	for subscriptions.
+
+	* bin/mj_wwwusr:  Support separate name and address
+	fields in the subscription form.  Suggested by David Miller.
+
+	* lib/Majordomo.pm:  Version number is now 0.1200202210.
+	(gen_cmdline)  Include the token ID in the command line
+	of the accept or reject command.  Suggested by Roger Klorese.
+
+	* lib/Mj/Addr.pm:  (setcomment)  New routine.  Change
+	the name/comment of an address.
+	(local_part)  New routine.  Return the local part of an
+	address.
+	(domain)  New routine.  Return the full domain of an address.
+
+	* lib/Mj/Archive.pm:  (_sort_archives)  New routine.
+	Sort archives chronologically.
+	(sync)  Bugfix:  sort the archives if a new archive was
+	added.  Thanks to Brock Rozen.
+
+	* lib/Mj/Config.pm:  (parse_inform)  Include "newtoken"
+	in the list of actions.
+
+	* lib/Mj/Format.pm:  (set)  Add wwwadm support for the
+	expanded "set-check" page.
+	(report)  Show the command line in the output of the
+	report-full command.
+
+	* lib/Mj/Inform.pm:  (inform)  Do not record "newtoken"
+	events in the session log.
+
+	* lib/Mj/List.pm:  (make_setting)  Bugfix:  avoid
+	hideaddress/hideall conflicts; allow both settings to be
+	turned on.
+	(expire_bounce_data)  Bugfix:  remove old data from the
+	subscriber database.
+	(bounce_gen_stats)  Bugfix:  always count bounces this
+	month, for the benefit of the who-bounce command.
+
+	* lib/Mj/Token.pm:  (t_add)  Log the creation of the token
+	for diagnostic purposes.  Suggested by Roger Klorese.
+
+	* lib/Mj/SimpleDB/DB.pm:  Bugfix:  always obtain the lock 
+	before opening the database, to avoid caching stale data.
+	
 2002-02-16  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (standard_subs)  Incorporate

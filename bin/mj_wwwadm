@@ -70,7 +70,7 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
                 'reject'        => [1, 0, 1, 'showtokens'],
                 'report'        => [1, 1, 1, 'command'],
                 'sessioninfo'   => [1, 0, 1, 'showtokens'],
-                'set'           => [1, 1, 1, 'who'],
+                'set'           => [1, 1, 0, 'who'],
                 'showtokens'    => [1, 1, 0, 'showtokens'],
                 'subscribe'     => [1, 1, 1, 'who'],
                 'tokeninfo'     => [1, 0, 0, 'showtokens'],
@@ -248,7 +248,14 @@ unless ($truelist) {
 unless ($passw) {
   &login($mj, $subs, '');
 }
+
 $addr = new Mj::Addr($user);
+
+($ok, $mess) = $addr->valid;
+unless ($ok) {
+  &login($mj, $subs, "The address $user is invalid.\n$mess\n");
+}
+
 unless ($mj->validate_passwd($addr, $passw, $truelist, 'ALL')) {
   &login($mj, $subs, $mj->format_error('invalid_password',
                          $truelist, 'VICTIM' => $user));
@@ -303,7 +310,7 @@ $request = {
     'sublist'   => $sublist,
     'mode'      => $mode,
     'password'  => $passw, 
-    'user'      => $user,
+    'user'      => $addr,
 };
 
 # Deal with result sets
@@ -450,6 +457,17 @@ elsif ($func ne 'showtokens') {
         unless (grep { $_ eq $j } @extra) {
           $request->{'setting'} .= ",no$j";
         }
+      }
+    }
+    elsif ($func eq 'subscribe' and scalar @extra == 1) {
+      $tmp = $cgi->param('name');
+      if (defined $tmp) {
+        $addr = new Mj::Addr($extra[0]);
+        ($ok, $mess) = $addr->setcomment($tmp);
+        unless ($ok) {
+          &login($mj, $subs, "The name $tmp is invalid.\n$mess\n");
+        }
+        $request->{'victims'} = [ $addr ];
       }
     }
   }
