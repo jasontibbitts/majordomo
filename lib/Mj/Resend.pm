@@ -140,8 +140,7 @@ sub post {
   # is the one who made the command happen; that may be unset if
   # called from mj_resend but will exist if calling from the post
   # command.
-  chomp($user = $thead->get('reply-to') ||
-	$thead->get('from') ||
+  chomp($user = $thead->get('from') ||
 	$thead->get('apparently-from'));
   $user = new Mj::Addr($user);
   $reasons = []; $avars = {};
