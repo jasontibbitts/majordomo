@@ -98,7 +98,7 @@ sub new {
       if ($1) {
 	$self->{'archives'}{$1} = {};
       }
-      elsif ($size eq 'unlimited') {
+      else {
 	$self->{'archives'}{$_} = {};
       }
     }
@@ -155,7 +155,10 @@ sub add_start {
   $data->{'split'} = '';
 
   $dir = $self->{'dir'};
-  $arc = _arc_name($self->{'split'}, $data->{'time'});
+  $arc = _arc_name($self->{'split'}, $data->{'date'});
+  if (length $data->{'sublist'}) {
+    $arc = "$data->{'sublist'}.$arc";
+  }
 
   # A note on possible races here: we are trying to find the proper file to
   # add the message to.  A race results in too many messages being added to
@@ -434,6 +437,12 @@ sub get_data {
 
   # Figure out appropriate index database and message number
   ($arc, $msg) = $msg =~ m!([^/]+)/(.*)!;
+
+  # Restore sublist name if needed.
+  if ($self->{'sublist'} and $arc !~ /^$self->{'sublist'}/) {
+    $arc = "$self->{'sublist'}.$arc";
+  }
+
   $self->_make_index($arc);
 
   # Look up the data for the message
@@ -455,7 +464,13 @@ sub last_message {
   unless ($arc) {
     # Pick out the last archive in the list and strip the count and list
     # from it
-    $arc = (sort(keys(%{$self->{'archives'}})))[-1];
+    $arc = (sort(grep {$_ =~ /^$self->{'sublist'}\.?\d/}
+                 keys(%{$self->{'archives'}})))[-1];
+  }
+  
+  # Restore sublist name if needed.
+  if ($self->{'sublist'} and $arc !~ /^$self->{'sublist'}/) {
+    $arc = "$self->{'sublist'}.$arc";
   }
 
   # Read the counts for this archive
@@ -477,12 +492,17 @@ sub first_n {
   my $arc  = shift;
   my (@arcs, @msgs, $msg, $final, $num);
 
-  # @arcs will hold all archives newer than $arc, if given
+  if ($arc and $self->{'sublist'}) {
+    $arc = "$self->{'sublist'}.$arc";
+  }
+  # @arcs will hold all archives older than $arc, if given
   if ($arc) {
-    @arcs  = sort(grep {$_ gt $arc} keys(%{$self->{'archives'}}));
+    @arcs  = sort(grep {$_ gt $arc and $_ =~ /^$self->{'sublist'}\.?\d/} 
+                   keys(%{$self->{'archives'}}));
   }
   else {
-    @arcs  = sort(keys(%{$self->{'archives'}}));
+    @arcs  = sort(grep {$_ =~ /^$self->{'sublist'}\.?\d/}               
+                   keys(%{$self->{'archives'}}));
   }
 
   $arc ||= shift @arcs;
@@ -528,12 +548,17 @@ sub last_n {
   my $arc  = shift;
   my (@arcs, @msgs, $msg, $final, $num);
 
+  if ($arc and $self->{'sublist'}) {
+    $arc = "$self->{'sublist'}.$arc";
+  }
   # @arcs will hold all archives older than $arc, if given
   if ($arc) {
-    @arcs  = sort(grep {$_ lt $arc} keys(%{$self->{'archives'}}));
+    @arcs  = sort(grep {$_ lt $arc and $_ =~ /^$self->{'sublist'}\.?\d/} 
+                   keys(%{$self->{'archives'}}));
   }
   else {
-    @arcs  = sort(keys(%{$self->{'archives'}}));
+    @arcs  = sort(grep {$_ =~ /^$self->{'sublist'}\.?\d/} 
+                   keys(%{$self->{'archives'}}));
   }
 
   $arc ||= pop @arcs;
@@ -579,16 +604,21 @@ sub expand_date {
   my $s = shift;
   my $e = shift || $s;
   my $ct = shift || 65535;
-  my (@arcs, $arc, @matches, @tmp, $ea, $i, $j, $k, $l, $match, $sa);
+  my (@arcs, $arc, $date, @matches, @tmp, $ea, $i, $j, $k, $l, $match, $sa);
   my (@out) = ();
+ 
   # Extract the names of all archives overlapping requested interval
+  # Use only archives corresponding to the sublist.
   for $arc (sort keys(%{$self->{'archives'}})) {
-    $sa = _secs_start($arc, 1);
+    next unless $arc =~ /^$self->{'sublist'}\.?\d/;
+    # separate sublist from archive name
+    $date = $arc;  $date =~ s/$self->{'sublist'}\.?(\d.+)/$1/;
+    $sa = _secs_start($date, 1);
     if ($sa >= $s && $sa <= $e) {
       $ct > 0 ? push @arcs, $arc : unshift @arcs, $arc;
     }
     else {
-      $ea = _secs_end($arc, 1);
+      $ea = _secs_end($date, 1);
       if (($ea >= $s && $ea <= $e) or ($s >= $sa && $e <= $ea)) {
         $ct > 0 ? push @arcs, $arc : unshift @arcs, $arc;
       }
@@ -944,8 +974,15 @@ sub expand_range {
     next if $i eq ',';
     return if $i eq '-';
 
-    # Remove date separators.
-    $i =~ s/[\.\-]//g;
+    if ($i =~ /^([\w\.\d]+)\.([\d\/\-]+)$/) {
+      $self->{'sublist'} = $1;
+      $i = $2;
+    }
+    else {
+      $self->{'sublist'} = '';
+    }
+    # Remove date separator.
+    $i =~ s/(\d)[\-](\d)/$1$2/g;
 
     # Do we have a count, a date or a message?
     ($a1, $m1) = $self->_parse_archive_arg($i);
@@ -976,8 +1013,11 @@ sub expand_range {
       }
       else {
         # message number
-        my $tmp = $self->get_data($i);
-        push (@out, [$i, $tmp]) if (defined $tmp);
+        # Restore sublist if necessary
+        if ($self->{'sublist'}) {
+          $i = "$self->{'sublist'}.$i";
+        }
+        push (@out, [$i, $tmp]) if ($self->get_data($i));
       }
       next;
     }
@@ -1030,6 +1070,7 @@ sub expand_range {
       push @out, $self->expand_date($i, $j, $ct);
     }
   }
+  $self->{'sublist'} = '';
   @out;
 }
 
@@ -1050,6 +1091,7 @@ sub _parse_archive_arg {
     my $self = shift;
     my $arg = shift;
     my ($archive, $msg) = (0, 0);
+    
     if ($arg =~ m#(\d+)/(\d+)#) {
       $archive = $1;
       $msg = $2;
@@ -1093,8 +1135,16 @@ sub _parse_message_range {
     }
     else {
       # message - message; 
+      # Restore sublist name if needed.
+      if ($self->{'sublist'} and $arch1 !~ /^$self->{'sublist'}/) {
+        $arc = "$self->{'sublist'}.$arch1";
+      }
+      if ($self->{'sublist'} and $arch2 !~ /^$self->{'sublist'}/) {
+        $arc = "$self->{'sublist'}.$arch2";
+      }
       # @arcs will hold all archives newer than $arc, if given
-      @arcs  = sort(grep {$_ ge $arch1} keys(%{$self->{'archives'}}));
+      @arcs  = sort(grep {$_ ge $arch1 and  $_ =~ /^$self->{'sublist'}\.?\d/} 
+                    keys(%{$self->{'archives'}}));
 
       $arc = shift @arcs;
 

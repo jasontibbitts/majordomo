@@ -359,6 +359,7 @@ sub post_done {
 }
 
 use Mj::MIMEParser;
+use Date::Parse;
 sub _post {
   my($self, $list, $user, $victim, $mode, $cmdline, $file, $arg2,
      $avars, $ent) = @_;
@@ -377,9 +378,19 @@ sub _post {
   
   %avars = split("\002", $avars);
   # Is the message being sent to a sublist?
-  $sl = (exists $avars{'sublist'}) && ($avars{'sublist'} ne '');
+  $sl = $avars{'sublist'};
+  if ($sl ne '') {
+    ($i, $j) = $self->{'lists'}{$list}->validate_aux($sl);
+    if (!$i) {
+      $self->inform($list, "post", $user, $victim, $cmdline, "resend", 
+        0, 0, -1, "Auxiliary list $sl does not exist; unable to post message."); 
+      return (0, "The message was not delivered: $j.\n");
+    }
+    # untaint
+    $sl =~ /(.*)/; $sl = $1; 
+  }
 
-  unless ($sl) {
+  if (!$sl) {
     # Atomically update the sequence number
     $self->_list_config_lock($list);
     $seqno  = $self->_list_config_get($list, 'sequence_number');
@@ -389,8 +400,8 @@ sub _post {
     $self->{sessionfh}->print("Post: sequence #$seqno.\n");
   }
   else {
-    $log->message(35,'info',"Sending message to $avars{'sublist'}");
-    $self->{sessionfh}->print("Post: sublist $avars{'sublist'}.\n");
+    $log->message(35,'info',"Sending message to $sl");
+    $self->{sessionfh}->print("Post: auxiliary list $sl.\n");
   }
 
   # trick: we take a pre-parsed entity as an extra argument; if it's
@@ -422,11 +433,9 @@ sub _post {
   $rtnhdr = $user->full;
 
   # Make duplicate archive/digest entity
-  unless ($sl) {
-    $arcent = $ent[0]->dup;
-    $archead = $arcent->head;
-    $archead->modify(0);
-  }
+  $arcent = $ent[0]->dup;
+  $archead = $arcent->head;
+  $archead->modify(0);
 
   # Convert/drop MIME parts.  Bill?
   
@@ -436,41 +445,45 @@ sub _post {
   push @skip, 'Received' if $self->_list_config_get($list, 'purge_received');
   for $i (@skip) {
     $head->delete($i);
-    $archead->delete($i) unless ($sl);
+    $archead->delete($i);
   }
 
   # Pass to archiver; first extract all references
-  unless ($sl) {
-    $tmp = $archead->get('references') || '';
-    while ($tmp =~ s/<([^>]*)>//) {
-      push @refs, $1;
-    }
-    $tmp = $archead->get('in-reply-to') || '';
-    while ($tmp =~ s/<([^>]*)>//) {
-      push @refs, $1;
-    }
+  $tmp = $archead->get('references') || '';
+  while ($tmp =~ s/<([^>]*)>//) {
+    push @refs, $1;
+  }
+  $tmp = $archead->get('in-reply-to') || '';
+  while ($tmp =~ s/<([^>]*)>//) {
+    push @refs, $1;
+  }
 
-    # Strip the subject prefix from the archive copy.  Note that this
-    # function can have odd side effects because it plays with the entities,
-    # so we re-extract $archead at this point.
-    (undef, $arcent) = $self->_munge_subject($arcent, $list, $seqno);
-    $archead = $arcent->head;
+  # Strip the subject prefix from the archive copy.  Note that this
+  # function can have odd side effects because it plays with the entities,
+  # so we re-extract $archead at this point.
+  (undef, $arcent) = $self->_munge_subject($arcent, $list, $seqno);
+  $archead = $arcent->head;
 
-    # Pass to archive.  XXX Is $user good enough, or should we re-extract?
-    $subject = $archead->get('subject') || ''; chomp $subject;
-    $date = $archead->get('date') || ''; chomp $date;
-    ($msgnum) = $self->{'lists'}{$list}->archive_add_start
-      ($sender,
-       {
-        'body_lines' => $avars{lines},
-        'from'       => "$user", # Stringify on purpose
-        'quoted'     => $avars{quoted_lines},
-        'refs'       => join("\002",@refs),
-        'subject'    => $subject,
-        'bytes'      => (stat($file))[7],
-       },
-      );
-  } # !$sl
+  # Pass to archive.  XXX Is $user good enough, or should we re-extract?
+  $subject = $archead->get('subject') || ''; chomp $subject;
+  $subject = /(.*)/; $subject = $1;
+  # Convert the message date into a time value.
+  $date = $archead->get('date') || ''; chomp $date;
+  $date = &str2time($date);
+  $date = time unless ($date < time);
+  ($msgnum) = $self->{'lists'}{$list}->archive_add_start
+    ($sender,
+     {
+      'body_lines' => $avars{lines},
+      'bytes'      => (stat($file))[7],
+      'date'       => $date,
+      'from'       => "$user", # Stringify on purpose
+      'quoted'     => $avars{quoted_lines},
+      'refs'       => join("\002", @refs),
+      'subject'    => $subject,
+      'sublist'    => $sl,
+     },
+    );
 
   # Only call this if we got back a message number because there isn't an
   # archive around if we didn't.
@@ -580,7 +593,7 @@ sub _post {
     }
 
     # Invoke delivery routine
-    $self->deliver($list, $avars{'sublist'}, $sender, $seqno, \%deliveries);
+    $self->deliver($list, $sl, $sender, $seqno, \%deliveries);
 
     # Inform sender of successful delivery
     

@@ -1,3 +1,11 @@
+2000-07-27  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Archive.pm:  Make archives of auxiliary lists available.
+	(add_start)  Use time derived from the Date: header.
+	
+	* lib/Mj/Resend.pm (_post):  Archive messages sent to 
+	auxiliary lists.
+
 2000-07-26  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Add support for multiple domains.
