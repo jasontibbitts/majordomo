@@ -857,10 +857,10 @@ sub _a_forward {
   
 
   if ($request ne 'post') {
-    $whoami = $self->global_config_get(undef, undef, 'whoami');
+    $whoami = $self->_global_config_get('whoami');
     if (lc $whoami eq lc $arg) {
       # Mail Loop!  Send to owners instead.
-      $arg = $self->list_config_get(undef, undef, $list, 'whoami_owner');
+      $arg = $self->_list_config_get($list, 'whoami_owner');
       $cmdline .= "\nUnable to forward to $arg due to apparent mail loop.";
     }
       
@@ -880,7 +880,7 @@ sub _a_forward {
     if ($avars{'sublist'} ne '') {
       $whoami .=  "-$avars{'sublist'}";
     }
-    $whoami .=  '@' . $self->list_config_get(undef, undef, $list, 'whereami');
+    $whoami .=  '@' . $self->_list_config_get($list, 'whereami');
 
     # Create an entity from the spool file.
     $tmpdir = $self->_global_config_get("tmpdir");
@@ -903,7 +903,7 @@ sub _a_forward {
         $subject = "Forwarding loop detected for $arg (was $subject)";
         $ent->head->replace('subject', $subject);
       }
-      $arg = $self->list_config_get(undef, undef, $list, 'whoami_owner');
+      $arg = $self->_list_config_get($list, 'whoami_owner');
     }
   }
   $self->mail_entity($mj_owner, $ent, $arg) if ($ent and $arg);
@@ -1063,7 +1063,8 @@ sub _a_default {
     elsif ($args{'mismatch'} or $args{'posing'}) {
       $action = "_a_consult"   if $policy eq 'open';
       $action = "_a_conf_cons" if $policy eq 'open+confirm';
-      $reason = "The requester ($requester) and victim ($victim) do not match."
+      $reason = "$requester made a request that affects\n" .
+                "another address ($victim)."
         if $args{'mismatch'};
       $reason = "$self->{'sessionuser'} is masquerading as $requester."
         if $args{'posing'};
@@ -1075,11 +1076,11 @@ sub _a_default {
       $action = "_a_confirm"   if $policy eq 'auto+confirm';
       $action = "_a_consult"   if $policy eq 'closed';
       $action = "_a_conf_cons" if $policy eq 'closed+confirm';
-      $reason = "${request}_policy requires confirmation from the list owner."
+      $reason = "The ${request}_policy setting requires confirmation."
         if $action eq "_a_consult";
-      $reason = "${request}_policy requires confirmation from the victim."
+      $reason = "The ${request}_policy setting requires confirmation."
         if $action eq "_a_confirm";
-      $reason = "${request}_policy requires confirmation from the list owner and the victim."
+      $reason = "The ${request}_policy setting requires confirmation from the subscriber and the list owner."
         if $action eq "_a_conf_cons";
     }
 
@@ -1096,7 +1097,8 @@ sub _a_default {
     }
     elsif ($args{'mismatch'} && !$args{'user_password'}) {
       $action = "_a_confirm";
-      $reason = "The requester ($requester) and victim ($victim) do not match.";
+      $reason = "$requester made a request that affects\n" .
+                "a different address ($victim).\n";
     }
     else {
       $action = "_a_allow";
