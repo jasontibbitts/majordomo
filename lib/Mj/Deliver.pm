@@ -145,9 +145,13 @@ sub deliver {
     while (($canon, $datref) = splice(@data, 0, 2)) {
       $eclass = _eclass($datref);
 
-      # Stupid autovivification
-      next unless $args{classes}{$eclass};
-      next if $args{classes}{$eclass}{exclude}{$canon};
+      # If you're in 'all', you get everything and are never excluded.
+      unless ($eclass eq 'all') {
+	# If we're not delivering to your class, you're skipped.
+	next unless $args{classes}{$eclass};
+	# If you're in an exclude list, you're skipped.
+	next if $args{classes}{$eclass}{exclude}{$canon};
+      }
 
       $addr = $datref->{'stripaddr'};
       # Do we probe? XXX Also check bounce status and probe

@@ -1,5 +1,15 @@
 Fri Jan 29 00:11:52 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Deliver/Connection.pm (new): Display any errors opening
+ 	sockets.
+
+	* lib/Mj/Deliver/Sorter.pm (new): Old bug: Somehow forgot to put
+ 	the filename into $self.
+
+	* lib/Mj/Deliver.pm (deliver): Don't skip folks with class 'all'.
+
+	* lib/Mj/Config.pm (compile_pattern): Make sure $force is defined.
+
 	* lib/Mj/Access.pm (_a_replyfile): Aargh!  Don't delete the
  	replyfile arguments!  We want to keep those around!
 

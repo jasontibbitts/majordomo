@@ -174,7 +174,7 @@ sub new {
   $self->{'lastdom'}    = '';
   $self->{'stragglers'} = [];
   $self->{'addrs'}      = [];
-  
+
   $self;
 }
 
@@ -487,11 +487,9 @@ sub add {
   # Maxaddrs; always split batches after N addresses
   if ($self->{'method'} eq 'maxaddrs') {
     push @{$self->{'addrs'}}, $addr;
-#    print "  $addr\n";
     $self->{'count'}++;
     if ($self->{'count'} >= $self->{'size'}) {
       $self->sendenvelope;
-#      print "Sending...\n";
       $self->{'count'} = 0;
       $self->{'addrs'} = [];
     }

@@ -48,7 +48,10 @@ sub new {
     PeerPort => $self->{'port'},
     Proto    => 'tcp',
     Timeout  => $self->{'timeout'};
-  return undef unless $self->{'outhandle'};
+  unless ($self->{'outhandle'}) {
+    warn $@ if $@;
+    return undef;
+  }
   $self->{'outhandle'}->autoflush(1);
   $self->{'outsel'} = new IO::Select $self->{'outhandle'};
   $self->{buffer} = '';

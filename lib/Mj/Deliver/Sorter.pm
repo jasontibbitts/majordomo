@@ -35,6 +35,7 @@ sub new {
   bless $self, $class;
 
   $self->{'data'}   = $data;
+  $self->{'file'}   = $file;
   $self->{'nosort'} = $nosort;
   $self->{'addrs'}  = [];
   $self;

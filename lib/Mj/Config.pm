@@ -2499,7 +2499,7 @@ Right now we only parse three kinds of generalized expressions:
 sub compile_pattern {
   my $str  = shift;
   my $mult = shift;
-  my $force= shift;
+  my $force= shift || '';
   my ($err, $id1, $id2, $mod, $pat, $re);
 
   # Mapping of shell specials to regexp specials

@@ -484,8 +484,6 @@ sub _post {
     }
   }
 
-  use Data::Dumper; print Dumper \%deliveries;
-
   # Invoke delivery routine
   $self->deliver($list, $sender, $seqno, \%deliveries);
 
