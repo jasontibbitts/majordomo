@@ -359,6 +359,14 @@ Text-to-DB and DB-to-text conversions for all databases would allow
 backups and list or domain relocation to proceed more smoothly.
 
 
+Remove hard-coded English
+-------------------------
+A variety of error messages, moderation reasons, and results from the
+mail parser are still hard-coded in English.  For example, the
+documents stored  by the newfaq, newinfo, and newintro commands
+use hard-coded English descriptions.
+
+
 =======================
 Totally out there stuff
 =======================
