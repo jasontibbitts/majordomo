@@ -6,16 +6,16 @@ require Exporter;
 @ISA = qw(Exporter);
 
 @EXPORT_OK = qw(access_def command_legal command_prop
-		commands_matching command_list function_prop function_legal
-		rules_request rules_requests rules_var rules_vars
-		rules_action rules_actions action_files action_terminal);
+                commands_matching command_list function_prop function_legal
+                rules_request rules_requests rules_var rules_vars
+                rules_action rules_actions action_files action_terminal);
 %EXPORT_TAGS = ('command'  => [qw(command_legal command_prop
-				  commands_matching command_list)],
-		'function' => [qw(function_legal function_prop)],
-		'rules'    => [qw(rules_request rules_requests rules_var
-				  rules_vars rules_action
-				  rules_actions action_files)],
-		'access'   => [qw(access_def)],
+                                  commands_matching command_list)],
+                'function' => [qw(function_legal function_prop)],
+                'rules'    => [qw(rules_request rules_requests rules_var
+                                  rules_vars rules_action
+                                  rules_actions action_files)],
+                'access'   => [qw(access_def)],
        );
 use strict;
 
@@ -24,7 +24,7 @@ use strict;
 my %actions =
   ('allow'           => {files => [],    terminal => 1,},
    'confirm'         => {files => [0],   terminal => 1,},
-   'confirm2'         => {files => [0],   terminal => 1,},
+   'confirm2'        => {files => [0],   terminal => 1,},
    'consult'         => {files => [0],   terminal => 1,},
    'confirm_consult' => {files => [0,1], terminal => 1,},
    'default'         => {files => [],    terminal => 1,},
@@ -43,6 +43,7 @@ my %reg_legal =
   ('master_password'=>1,
    'user_password'  =>1,
    'mismatch'       =>1,
+   'posing'         =>1,
    'addr'           =>3,
    'fulladdr'       =>3,
    'host'           =>3,
@@ -87,38 +88,38 @@ my %commands =
    {
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'allow',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'allow',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
 
    # Pure access methods not related to core functions
    'access' =>
    {
     'access'   => {
-		   'default' => 'allow',
-		   'legal'   =>\%reg_legal,
-		   'actions' =>{
-				'allow'     =>1,
-				'deny'      =>1,
-				'mailfile'  =>1,
-				'reply'     =>1,
-				'replyfile' =>1,
-			      },
-		},
+                   'default' => 'allow',
+                   'legal'   =>\%reg_legal,
+                   'actions' =>{
+                                'allow'     =>1,
+                                'deny'      =>1,
+                                'mailfile'  =>1,
+                                'reply'     =>1,
+                                'replyfile' =>1,
+                              },
+                },
    },
    'advertise' =>
    {
     'access'   => {
-		   'default' => 'special',
-		   'legal'   => \%reg_legal,
-		   'actions' => {
-				 'allow'   =>1,
-				 'deny'    =>1,
-				 'mailfile'=>1,
-				},
-		  },
+                   'default' => 'special',
+                   'legal'   => \%reg_legal,
+                   'actions' => {
+                                 'allow'   =>1,
+                                 'deny'    =>1,
+                                 'mailfile'=>1,
+                                },
+                  },
    },
 
    # Normal core commands
@@ -133,220 +134,222 @@ my %commands =
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'confirm',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'confirm',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'archive' =>
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
-		   'default' => 'allow',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'mismatch',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'auxadd' =>
    {
     'parser' => [qw(email shell list global real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'deny',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'deny',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'auxremove' =>
    {
     'parser' => [qw(email shell list global all real)],
     'dispatch' => {'top' => 1, 'noaddr' => 1},
     'access'   => {
-		   'default' => 'deny',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'deny',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'auxwho' =>
    {
     'parser' => [qw(email shell list global real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
-		   'default' => 'deny',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'deny',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'createlist' =>
    {
     'parser' => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'deny',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'deny',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'digest' =>
    {
     'parser' => [qw(email shell list nohereargs real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'deny',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'deny',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'faq' =>
    {
     'parser'   => [qw(email shell list global real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
-		   'default' => 'access',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'access',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'get' =>
    {
     'parser'   => [qw(email shell list global real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
-		   'default' => 'access',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'access',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'help' =>
    {
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
-		   'default' => 'allow',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'allow',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'index' =>
    {
     'parser'   => [qw(email shell list global real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'access',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'access',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'info' =>
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
-		   'default' => 'access',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'access',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'intro' =>
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
-		   'default' => 'access',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'access',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'lists' =>
    {
     'parser'   => [qw(email shell noargs real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'allow',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'allow',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    # mkdigest is fake; it just calls digest-force, but aliases don't work
    # for modes
    'mkdigest'       => {'parser' => [qw(email shell list)],
-   		       },
+                          },
    'password' =>
    {
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'special',
-		   'legal'   => {
-				 'master_password'  => 1,
-				 'user_password'    => 1, 
-				 'mismatch'         => 1,
-				 'password_length'  => 2,
-				 'addr'             => 3,
-				 'fulladdr'         => 3,
-				 'host'             => 3,
-				},
-		   'actions' => \%actions,
-		  },
+                   'default' => 'special',
+                   'legal'   => {
+                                 'master_password'  => 1,
+                                 'user_password'    => 1, 
+                                 'mismatch'         => 1,
+                                 'posing'           => 1,
+                                 'password_length'  => 2,
+                                 'addr'             => 3,
+                                 'fulladdr'         => 3,
+                                 'host'             => 3,
+                                },
+                   'actions' => \%actions,
+                  },
    },
    'post' =>
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1, 'noaddr' => 1},
     'access'   => {
-		   'default' => 'special',
-		   'legal'   =>
-		   {
-		    'master_password'              => 1,
-		    'user_password'                => 1,
-		    'mismatch'                     => 1,
-		    'any'                          => 1,
-		    'bytes'                        => 2,
-		    'bad_approval'                 => 1,
-		    'taboo'                        => 2,
-		    'admin'                        => 2,
-		    'days_since_subscribe'         => 2,
-		    'dup'                          => 1,
-		    'dup_msg_id'                   => 1,
-		    'dup_checksum'                 => 1,
-		    'dup_partial_checksum'         => 1,
-		    'lines'                        => 2,
-		    'max_header_length'            => 2,
-		    'max_header_length_exceeded'   => 1,
-		    'mime_consult'                 => 1,
-		    'mime_deny'                    => 1,
-		    'mime'                         => 1,
-		    'percent_quoted'               => 2,
-		    'quoted_lines'                 => 2,
-		    'total_header_length'          => 2,
-		    'total_header_length_exceeded' => 1,
-		    'addr'                         => 3,
-		    'fulladdr'                     => 3,
-		    'host'                         => 3,
-		   },
-		   'actions' => \%actions,
-		  },
+                   'default' => 'special',
+                   'legal'   =>
+                   {
+                    'master_password'              => 1,
+                    'user_password'                => 1,
+                    'mismatch'                     => 1,
+                    'posing'                       => 1,
+                    'any'                          => 1,
+                    'bytes'                        => 2,
+                    'bad_approval'                 => 1,
+                    'taboo'                        => 2,
+                    'admin'                        => 2,
+                    'days_since_subscribe'         => 2,
+                    'dup'                          => 1,
+                    'dup_msg_id'                   => 1,
+                    'dup_checksum'                 => 1,
+                    'dup_partial_checksum'         => 1,
+                    'lines'                        => 2,
+                    'max_header_length'            => 2,
+                    'max_header_length_exceeded'   => 1,
+                    'mime_consult'                 => 1,
+                    'mime_deny'                    => 1,
+                    'mime'                         => 1,
+                    'percent_quoted'               => 2,
+                    'quoted_lines'                 => 2,
+                    'total_header_length'          => 2,
+                    'total_header_length_exceeded' => 1,
+                    'addr'                         => 3,
+                    'fulladdr'                     => 3,
+                    'host'                         => 3,
+                   },
+                   'actions' => \%actions,
+                  },
    },
    'put' =>
    {
     'parser'   => [qw(email shell list global real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
-		   'default' => 'deny',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'deny',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'register' =>
    {
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'confirm',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'confirm',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'reject' =>
    {
@@ -359,10 +362,10 @@ my %commands =
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'deny',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'deny',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'sessioninfo' =>
    {
@@ -375,48 +378,49 @@ my %commands =
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'confirm',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'mismatch',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'show' =>
    {
     'parser' => [qw(email shell real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'confirm',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'mismatch',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'showtokens' =>
    {
     'parser'   => [qw(email shell list global all real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'deny',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'deny',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'subscribe' =>
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'special',
-		   'legal'   => {
-				 'master_password'=> 1,
-				 'user_password'  => 1,
-				 'mismatch'       => 1,
-				 'matches_list'   => 1,
-				 'addr'           => 3,
-				 'fulladdr'       => 3,
-				 'host'           => 3,
-				},
-		   'actions' => \%actions,
-		  },
+                   'default' => 'special',
+                   'legal'   => {
+                                 'master_password'=> 1,
+                                 'user_password'  => 1,
+                                 'mismatch'       => 1,
+                                 'posing'         => 1,
+                                 'matches_list'   => 1,
+                                 'addr'           => 3,
+                                 'fulladdr'       => 3,
+                                 'host'           => 3,
+                                },
+                   'actions' => \%actions,
+                  },
    },
    'tokeninfo' =>
    {
@@ -429,54 +433,54 @@ my %commands =
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'confirm',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'confirm',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'unregister' =>
    {
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1, 'noaddr' => 1},
     'access'   => {
-		   'default' => 'confirm2',
-		   'legal'   =>\%reg_legal,
-		   'actions' =>\%actions,
-		  },
+                   'default' => 'confirm2',
+                   'legal'   =>\%reg_legal,
+                   'actions' =>\%actions,
+                  },
    },
    'unsubscribe' =>
    {
     'parser'   => [qw(email shell list all real)],
     'dispatch' => {'top' => 1, 'noaddr' => 1},
     'access'   => {
-		   'default' => 'special',
-		   'legal'   =>\%reg_legal,
-		   'actions' =>\%actions,
-		  },
+                   'default' => 'special',
+                   'legal'   =>\%reg_legal,
+                   'actions' =>\%actions,
+                  },
    },
    'which' =>
    {
     'parser'   => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-		   'default' => 'access',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'access',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
    'who' =>
    {
     'parser'   => [qw(email shell global list real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
-		   'default' => 'access',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%actions,
-		  },
+                   'default' => 'access',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
    },
 #   'writeconfig'    => {'parser' => [qw(email shell list obsolete real)],
-#			'dispatch' => {'top' => 1},
-#		       },
+#                        'dispatch' => {'top' => 1},
+#                       },
   );
 
 # The %aliases hash maps aliases to the commands they really are.  This is
@@ -556,9 +560,9 @@ sub commands_matching {
     for $i (@tmp) {
       $ok = 1;
       for $j (@$proplist) {
-	unless (command_prop($i, $j)) {
-	  $ok = 0
-	}
+        unless (command_prop($i, $j)) {
+          $ok = 0
+        }
       }
       push @out, $i if $ok;
     }
@@ -635,7 +639,7 @@ sub rules_vars {
   if (defined $type) {
     return grep {$commands{$req}{'access'}{'legal'}{$_} == $type} 
       keys %{$commands{$req}{'access'}{'legal'}}
-	if rules_request($req);
+        if rules_request($req);
   }
   else {
     return keys %{$commands{$req}{'access'}{'legal'}}

@@ -529,7 +529,7 @@ sub t_accept {
     my ($file) = $self->_list_file_get($data->{'list'}, $data->{'chain4'});
     $file = $self->substitute_vars($file, $repl);
     my $fh = new Mj::File "$file"
-      || $log->abort("Cannot read file $file, $!");
+      or $log->abort("Cannot read file $file, $!");
     while (defined ($line = $fh->getline)) {
       $mess .= $line;
     }

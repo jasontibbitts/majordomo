@@ -242,6 +242,8 @@ sub connect {
 
   return (undef, "Invalid address: $user\n$err") unless $ok;
 
+  $self->{sessionuser} = $user;
+
   # Generate a session ID; hash the session, the time and the PID
   $id = MD5->hexhash($sess.scalar(localtime).$$);
   $id =~ /(.*)/; $id = $1; # Safe to untaint because it's nearly impossible
@@ -500,13 +502,13 @@ sub substitute_vars {
 
   # always open a new input file
   $in  = new Mj::File "$file"
-    || $::log->abort("Cannot read file $file, $!");
+    or $::log->abort("Cannot read file $file, $!");
 
   # open a new output file if one is not already open (should be at $depth of 0)
   $tmp = $tmpdir;
   $tmp = "$tmp/mj-tmp." . unique();
   $out ||= new IO::File ">$tmp"
-    || $::log->abort("Cannot write to file $tmp, $!");
+    or $::log->abort("Cannot write to file $tmp, $!");
   
   while (defined ($i = $in->getline)) {
     # Don't process INCLUDE after a backslashed $
@@ -1425,7 +1427,7 @@ sub _get_mailfile {
      Type     => $data{'c-type'},
      Charset  => $data{'charset'},
      Encoding => $data{'c-t-encoding'},
-     Subject  => $data{'desctiption'} || "Requested file $name from $list",
+     Subject  => $data{'description'} || "Requested file $name from $list",
      Top      => 1,
      Filename => undef,
      'Content-Language:' => $data{'language'},
@@ -2549,7 +2551,7 @@ sub archive_start {
   $self->_make_list($list);
   ($ok, $out) =
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
-                             $list, 'get', $user, $vict, @args);
+                             $list, 'archive', $user, $vict, @args);
 
   unless ($ok > 0) {
     return ($ok, $out);

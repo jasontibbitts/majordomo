@@ -437,6 +437,10 @@ sub list_access_check {
   $args{'mismatch'} = !($requester eq $victim)
     unless defined($args{'mismatch'});
 
+  # Figure out if the user's identity has changed during this session.
+  $args{'posing'} = !($requester eq $self->{'sessionuser'})
+    unless defined($args{'posing'});
+
   $list = 'GLOBAL' if $list eq 'ALL';
   $self->_make_list($list);
   $password_override =
@@ -867,7 +871,7 @@ sub _a_replyfile {
   ($file, %file) = $self->_list_file_get($list, $arg, undef, 1);
 
   $fh = new Mj::File "$file"
-    || $log->abort("Cannot read file $file, $!");
+    or $log->abort("Cannot read file $file, $!");
   while (defined ($line = $fh->getline)) {
     $out .= $line;
   }
@@ -972,7 +976,10 @@ sub _a_default {
   # If the suplied password was correct for the victim, we don't need to
   # confirm.
   if (access_def($request, 'mismatch')) {
-    if ($args{'mismatch'} && !$args{'user_password'}) {
+    if ($args{'posing'}) {
+      return $self->_a_confirm2(@_);
+    }
+    elsif ($args{'mismatch'} && !$args{'user_password'}) {
       return $self->_a_confirm(@_);
     }
     return $self->_a_allow(@_);
@@ -1166,7 +1173,7 @@ sub _d_subscribe {
   return $self->_a_conf_cons(@_) if $policy eq 'closed+confirm';
   
   # Now, open.  This depends on whether there's a mismatch.
-  if ($args{'mismatch'}) {
+  if ($args{'mismatch'} or $args{'posing'}) {
     return $self->_a_consult(@_)   if $policy eq 'open';
     return $self->_a_conf_cons(@_) if $policy eq 'open+confirm';
   }
@@ -1204,7 +1211,7 @@ sub _d_unsubscribe {
   return $self->_a_conf_cons(@_) if $policy eq 'closed+confirm';
   
   # Now, open.  This depends on whether there's a mismatch.
-  if ($args{'mismatch'}) {
+  if ($args{'mismatch'} or $args{'posing'}) {
     return $self->_a_consult(@_)   if $policy eq 'open';
     return $self->_a_conf_cons(@_) if $policy eq 'open+confirm';
   }

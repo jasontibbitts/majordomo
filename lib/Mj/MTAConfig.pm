@@ -158,8 +158,8 @@ sub add_alias {
   my $log  = new Log::In 150;
   my %args = @_;
   my ($block, $debug, $fh, $vblock, $vut);
-  my $bin  = $args{bindir} || $log->abort("bindir not specified");
-  my $dom  = $args{domain} || $log->abort("domain not specified");
+  my $bin  = $args{bindir} or $log->abort("bindir not specified");
+  my $dom  = $args{domain} or $log->abort("domain not specified");
   my $list = $args{list}   || 'GLOBAL';
   my $who  = $args{whoami} || 'majordomo'; 
   my $umask= umask; # Stash the umask away
@@ -347,11 +347,11 @@ sub regen_aliases {
 #   my $log = new Log::In 150;
 #   my %args = @_;
 #   my($fn,$debug,$base,$file);
-#   my $bin  = $args{bindir} || $log->abort("bindir not specified");
-#   my $dom  = $args{domain} || $log->abort("domain not specified");
+#   my $bin  = $args{bindir} or $log->abort("bindir not specified");
+#   my $dom  = $args{domain} or $log->abort("domain not specified");
 #   my $list = $args{list}   || 'GLOBAL';
 #   my $who  = $args{whoami} || 'majordomo'; 
-#   my $aliasdir = $args{aliasdir} || $log->abort("qmail aliasdir not specified");
+#   my $aliasdir = $args{aliasdir} or $log->abort("qmail aliasdir not specified");
 #   my $domainprefix = "-$args{aliasprefix}" || ''; 
 
 #   if ($args{debug}) {
@@ -402,7 +402,7 @@ sub regen_aliases {
 #   my %args = @_;
 #   my $list = $args{list};
 #   my $log = new Log::In 150;
-#   my $aliasdir = $args{aliasdir} || $log->abort("qmail aliasdir not specified");
+#   my $aliasdir = $args{aliasdir} or $log->abort("qmail aliasdir not specified");
 #   my $domainprefix = "-$args{aliasprefix}" || '';
 
 #   unlink "$aliasdir/.qmail$domainprefix" . "-$list";

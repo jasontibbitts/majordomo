@@ -89,7 +89,7 @@ sub parse_entity {
   else {
     # We have a plain text part; parse it.
     $body = $entity->bodyhandle;
-    $infh = $body->open("r") ||
+    $infh = $body->open("r") or
       $::log->abort("Hosed! Couldn't open body part, $!");
     
     # Open handles for all of the attachments to this part
@@ -102,7 +102,7 @@ sub parse_entity {
 
     # Open a file to stuff the output in
     $name = "$tmpdir/mje." . Majordomo::unique() . ".out";
-    $outfh = new IO::File "> $name" ||
+    $outfh = new IO::File "> $name" or
       $::log->abort("Hosed! Couldn't open output file $name, $!");
     
     $ok = parse_part($mj, $infh, $outfh, \@attachments,
@@ -155,11 +155,12 @@ sub parse_part {
   my $extra       = shift;
   my $log         = new Log::In 50, "$interface, $title";
   my (@arglist, @help, $action, $args, $attachhandle, $command, $count,
-      $fail_count, $function, $garbage, $list, $mode, $ok, $ok_count, $out,
-      $password, $pend_count, $replacement, $sigsep, $tlist, $true_command,
-      $unk_count);
+      $ent, $fail_count, $function, $garbage, $list, $mode, $name, 
+      $ok, $ok_count, $out, $outfh, $password, $pend_count, $replacement, 
+      $sigsep, $tlist, $true_command, $unk_count, $user);
 
   $count = $ok_count = $pend_count = $fail_count = $unk_count = $garbage = 0;
+  $user = $extra->{'reply_to'};
   $sigsep = $mj->global_config_get(undef, undef, undef, $interface,
 				   'signature_separator');
 
@@ -314,8 +315,13 @@ sub parse_part {
 	print $outhandle "Default password set to \"$extra->{'password'}\".\n";
       }
       elsif ($action eq 'user') {
-        $extra->{'reply_to'} = $args;
-	    print $outhandle "User set to \"$extra->{'reply_to'}\".\n";
+        if ($args) {
+          $user = $args;
+        }
+        else { 
+          $user = $extra->{'reply_to'};
+        }
+	    print $outhandle "User set to \"$user\".\n";
       }
       else {
 	print $outhandle "Illegal action \"$action\" for default.\n";
@@ -330,13 +336,47 @@ sub parse_part {
       }
       $args ||= '';
       no strict 'refs';
+
+      # If a new identity has been assumed, send the output
+      # of the command to the new address.
+      if ($user ne $extra->{'reply_to'}) {
+        my $tmpdir = $mj->_global_config_get('tmpdir');
+        $name = "$tmpdir/mje." . Majordomo::unique() . ".out";
+        $outfh = new IO::File "> $name" or
+          $::log->abort("Hosed! Couldn't open output file $name, $!");
+      }
+      else {
+        $outfh = $outhandle;
+      }
+
       ($ok, @help) =
 	&{"Mj::TextOutput::$true_command"}($mj, $command,
-					   $extra->{'reply_to'},
+					   $user,
 					   $password || $extra->{'password'},
 					   undef, $interface,
-					   $attachhandle, $outhandle,
+					   $attachhandle, $outfh,
 					   $mode, $list, $args, @arglist);
+
+      # Mail the result if posing.
+      if ($user ne $extra->{'reply_to'}) {
+        $outfh->close;
+        my $sender = $mj->_global_config_get('sender');
+        $ent = build MIME::Entity
+          (
+           From     => $extra->{'reply_to'},
+           Path     => $name,
+           To       => $user,
+           'Reply-To' => $sender,
+           Subject  => "Results from Majordomo Command \"$true_command\"",
+           'MIME-Version' => "1.0",
+          );
+        $mj->mail_entity($sender, $ent, $user) if $ent;
+        $ent->purge;
+        unlink $name;
+        print $outhandle $ok>0? "Succeeded" : $ok<0 ? "Stalled" : "Failed";
+        print $outhandle ".  The results were mailed to $user.\n";
+      }
+
       if (!defined $ok) {
 	$unk_count++;
       }
