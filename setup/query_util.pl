@@ -252,7 +252,7 @@ sub get_passwd {
     $ans =~ s/^\s+//;
     $ans =~ s/\s+$//;
 
-    if ($ans =~ /\s/) {
+    if ($ans =~ /[\s,]/) {
       $msg = retr_msg('invalid_password', $lang, 'PASSWORD' => $ans);
       next;
     }

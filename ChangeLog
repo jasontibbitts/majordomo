@@ -1,3 +1,13 @@
+2004-07-11  Michael Yount <csf@moscow.com>
+
+	* setup/query_util.pl:  (get_passwd)  Do not allow commas
+	in passwords.
+	Thanks to Darren Stalder.
+
+	* setup/setup_func.pl:  (install_response_files)  Install
+	the setup scripts to allow site/domain reconfiguration
+	outside the source directory.
+
 2004-07-10  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  Version number is now 0.1200407100.
