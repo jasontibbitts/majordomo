@@ -38,7 +38,7 @@ $Mj::Config::default_string = q(
  'addr_strict_domain_check' => 1,
  'aliases'              => 'ORQ',
  'allowed_classes'      => [qw(each digest nomail)],
- 'allowed_flags'        => 'ACHPRS',
+ 'allowed_flags'        => 'ACHPRSW',
  'archive_dir'          => '',
  'archive_size'         => 'unlimited',
  'archive_split'        => 'monthly',
@@ -192,7 +192,6 @@ $Mj::Config::default_string = q(
  'request_answer'       => 'majordomo',
  'owners'               => ($list eq 'GLOBAL' or $list eq 'DEFAULT') ? ['SITE_DFLT'] : [],
  'signature_separator'  => '/^[-_]/',
- 'ack_denials_always'   => 1,
  'ack_attach_original'  => [qw(fail stall)],
 };
 );

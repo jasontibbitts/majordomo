@@ -7,6 +7,7 @@ need only include the uppercase flags here:
   P - prefix
   R - replyto
   S - selfcopy
+  W - rewritefrom
 
 If this is completely empty, users cannot adjust any of their flags.
 The list owner can of course do so.

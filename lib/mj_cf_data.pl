@@ -137,15 +137,6 @@ EOC
     'visible'=> 0,
     'global' => 1,
    },
-   'ack_denials_always' =>
-   {
-    'type'   => 'bool',
-    'groups' => [qw(resend)],
-    'visible'=> 0,
-    'local'  => 1,
-    'global' => 0,
-    'mutable'=> 1,
-   },
    'ack_attach_original' =>
    {
     'type'   => 'enum_array',
@@ -194,7 +185,8 @@ EOC
    },
    'aliases' =>
    {
-    'type'   => 'string',
+    'type'   => 'flags',
+    'values' => [qw(A M O R Q S U)],
     'groups' => [qw(mtaconfig)],
     'visible'=> 0,
     'local'  => 1,
@@ -202,7 +194,8 @@ EOC
    },
    'default_flags' =>
    {
-    'type'   => 'string',
+    'type'   => 'flags',
+    'values' => [qw(a A b C d f H j P R S W)],
     'groups' => [qw(flags)],
     'visible'=> 0,
     'local'  => 1,
@@ -210,7 +203,8 @@ EOC
    },
    'nonmember_flags' =>
    {
-    'type'   => 'string',
+    'type'   => 'flags',
+    'values' => [qw(a A b C d f H j P R S W)],
     'groups' => [qw(flags)],
     'visible'=> 0,
     'local'  => 1,
@@ -218,7 +212,8 @@ EOC
    },
    'allowed_flags' =>
    {
-    'type'   => 'string',
+    'type'   => 'flags',
+    'values' => [qw(A C H P R S W)],
     'groups' => [qw(flags)],
     'visible'=> 0,
     'local'  => 1,
