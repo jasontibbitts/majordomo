@@ -1,3 +1,17 @@
+2000-06-30  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm: Formatting rewrite; override Mj::Format 
+	routines for the showtokens, tokeninfo, and who commands.
+
+	* lib/Majordomo.pm:
+	(faq_start, info_start, intro_start) Remove temporary files.
+	(createlist) Use "newlist" variable instead of "list."
+    (sessioninfo) Rename to sessioninfo_start.  Treat
+	sessioninfo as an iterated core routine.
+    (showtokens) Allow tokens shown to be limited to a
+	particular command.  Include the size of the spool
+	file in the output for posted messages.
+
 2000-06-27  Michael Yount <csf@moscow.com>
 
 	Use new core function calling conventions.
