@@ -1,0 +1,49 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  latchkey_lifetime = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : 60
+Type de donnée    : entier
+Catégorie         : access
+Mot de passe      : Visible avec un mot de passe. Modifiable avec le
+		    mot de passe global.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset GLOBAL latchkey_lifetime = 30
+
+
+$INCLUDE-config/latchkey_lifetime
+
+Les vieux "latchkeys" sont supprimées de la base de données par le
+trigger "token" du paramètre de configuration "triggers" de la pseudo
+liste GLOBAL. Par défaut, cela se produit tous les jours.
+
+La base de données est dans le fichier "_latchkeys.D" ou
+"_latchkeys.T" dans le dossier de la pseudo liste GLOBAL.
+
+Un "latchkey", tout comme un ticket de confirmation est composé de 12
+caractères hexadécimaux, séparés en trois groupes par des tirets, par
+exemple :
+
+  B34F-78A1-9023
+
+Référez vous à "help admin_moderate" pour plus d'informations à propos
+des tickets.
+
+
+Référez vous aussi à :
+   help admin_domain
+   help configset_bounce_max_age
+   help configset_dup_lifetime
+   help configset_inactive_lifetime
+   help configset_log_lifetime
+   help configset_post_lifetime
+   help configset_post_limits
+   help configset_session_lifetime
+   help configset_token_lifetime
+   help configset_triggers
+   help mj_confirm
+   help mj_wwwadm
+   help mj_wwwusr
+
+$INCLUDE-help/foot

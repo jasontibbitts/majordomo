@@ -1,0 +1,55 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  noadvertise <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+configset liste noadvertise <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : aucune
+Type de donnée    : tableau d'expressions rationnelles.
+Catégorie         : lists
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset GLOBAL noadvertise << ENDTAG
+/hotbot/i
+ENDTAG
+
+$INCLUDE-config/noadvertise
+
+
+Les paramètres de configuration "noadvertise" et "advertise" pourront
+être rendus inactifs par l'action "advertise" des règles d'accès.
+
+Si le paramètre GLOBAL "advertise_subscribed" est actif, une liste
+sera affichée par la commande "lists" si la personne faisant la
+requête est abonnée a la liste. C'est vrai quelque soit la valeur du
+paramètre "noadvertise", "advertise" ou les règles d'accès.
+
+Voila des règles d'accès qui implémentent la même fonctionnalité
+qu'"advertise" et "noadvertise" :
+
+configset liste access_rules <<ENDACCESSRULES
+advertise
+deny
+/noadvertise pattern/
+
+advertise
+deny
+!/advertise pattern/
+
+advertise
+allow
+ALL
+ENDACCESSRULES
+
+Référez vous aussi à :
+   help configset_advertise
+   help configset_advertise_subscribed
+   help lists
+   help patterns
+
+$INCLUDE-help/foot

@@ -1,0 +1,45 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  token_lifetime = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+configset liste token_lifetime = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : 7
+Type de donnée    : entier
+Catégorie         : access
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset GLOBAL token_lifetime = 4
+
+
+$INCLUDE-config/token_lifetime
+
+Les tickets sont supprimés périodiquement, comme indiqués par l'entrée
+"token" du paramètre "triggers" de GLOBAL. Par défaut, cela se produit
+chaque jours.
+
+Il est possible de modifier la valeur de "token_lifetime" dans
+certains cas avec la variable d'accès "expire" et le paramètre
+"access_rules". Référez vous à "help access_variables" et "help
+configset_access_rules" pour plus de détails.
+
+
+Référez vous aussi à :
+   help accept
+   help access_variables
+   help admin_moderate
+   help configset_access_rules
+   help configset_dup_lifetime
+   help configset_inactive_lifetime
+   help configset_latchkey_lifetime
+   help configset_log_lifetime
+   help configset_post_lifetime
+   help configset_session_lifetime
+   help configset_token_remind
+   help configset_triggers
+   help reject
+   help showtokens
+   help tokeninfo
+
+$INCLUDE-help/foot

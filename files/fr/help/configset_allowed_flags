@@ -1,0 +1,48 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste allowed_flags <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : ackdeny...
+Type de donnée    : tableau énuméré
+Catégorie         : reply deliver
+Mot de passe      : aucun
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset liste allowed_flags <<AMN
+ackstall
+eliminatecc
+prefix
+replyto
+selfcopy
+AMN
+
+$INCLUDE-config/allowed_flags
+
+Normalement, les abonnés peuvent modifier leurs réglages personnels
+avec la commande "set". Dans certaines situations, les gestionnaires
+de listes veulent empêcher certains paramètres d'être modifiés. Par
+exemple, si les gestionnaires d'une liste d'annonce veulent que les
+réponses n'aillent pas vers la liste, ils peuvent enlever le réglage
+"replyto" des réglages permis.
+
+Le réglage "postblock" ne devrais jamais être inclus dans la liste des
+réglages permis. Ce réglage est utilisé pour des raisons
+administratives, pour empêcher un utilisateur particulier de poster
+des messages sur une liste sans l'approbation des modérateurs.
+
+
+Référez vous aussi à :
+   help admin_delivery
+   help admin_documents
+   help configset_allowed_classes (pour restreindre les modes de
+                                   réceptions)
+   help configset_default_class   (les modes de réceptions des
+                                   nouveaux abonnés)
+   help configset_default_flags   (réglages donnés aux nouveaux abonnés)
+   help configset_nonmember_flags (réglages donnés aux non abonnés)
+   help here_document
+   help set    (afficher ou modifier les réglages d'un abonné)
+
+$INCLUDE-help/foot
