@@ -533,9 +533,9 @@ sub _post {
 
   # Pass to archive.  XXX Is $user good enough, or should we re-extract?
   $subject = $archead->get('subject') || ''; chomp $subject;
-  $subject =~ /(.*)/; $subject = $1;
+  $subject =~ /(.*)/s; $subject = $1;
   $date = $archead->get('date') || scalar localtime; chomp $date;
-  $date =~ /(.*)/; $date = $1;
+  $date =~ /(.*)/s; $date = $1;
   $arcdate = $self->_list_config_get($list, 'archive_date');
   if ($arcdate eq 'arrival') {
     $arcdate = $avars{'time'};
@@ -642,8 +642,7 @@ sub _post {
 
       $i = $self->{'lists'}{'GLOBAL'}->check_dup($avars{'checksum'}, 'sum', $list);
       # Do not check for duplicates of a message with an empty body.
-      if ($i and exists $i->{'lists'} and 
-          $avars{'checksum'} ne 'd41d8cd98f00b204e9800998ecf8427e') {
+      if ($i and exists ($i->{'lists'}) and $avars{'body_length'} > 0) {
         push @tmp, split ("\002", $i->{'lists'});
       }
 
@@ -1871,6 +1870,7 @@ sub _munge_subject {
   # save any modifiers.
   $re_regexp =~ s!^/(.*)/([ix]*)$!$1!;
   $re_mods = $2 || '';
+  $re_mods .= 's';
 
   $subs = {
 	   $self->standard_subs($list),
