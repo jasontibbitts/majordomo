@@ -14,12 +14,38 @@ Bugs?
 
 Messages with empty first part always checksum the same?
 
-Createlist doesn't validate owner address?
-
 Top of the list 
 ---------------
 
+! RBL queries:
+  parse all Received: headers, look for IP addresses.
+  Look them up in the RBL..
+  Add an exemption list (addrs?  IPs?)
+  Set access variable; bounce to owner by default if set.
+  DOn't ever do any checks if some config variable not set.
+
 ! mj_trigger _must_ clean up some locks.
+  Even if you hold a lockfile, you cannot delete it because there may be
+  other lockers queued on the inode.  So when you delete you may allow
+  someone else to open and lock a new file/inode, and when you unlock you
+  allow someone else to get in.  This leaves two different operators on a
+  critical resource, which is bad.
+
+  The solution is a global lock.  Normal operations just lock it shared
+  (perhaps during connect) while the cleanup program locks it exclusively.
+  Then as long as you don't remove the global lockfile, everything will
+  work without conflict.
+
+! remove questions from postinstall; instead consult environment
+   variables.  Of course, still need to ask for passwords.
+
+! Somehow fix problems with vi editors that exit with error codes even if
+  everything is OK.  Perhaps prompt after an error?
+
+! Interactive mode; when input is STDIN and a terminal, prompt.  Perhaps
+  use Term::Readline.
+
+--- Snapshot
 
 ! Make sure that $SENDER is reset properly after _trim_approval is called,
   so we pick up the real sender, not the approver.

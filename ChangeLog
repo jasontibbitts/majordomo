@@ -1,3 +1,22 @@
+Tue Aug  4 13:05:57 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Format.pm (createlist): It's noheader, not quiet to
+ 	suppress headers.
+
+	* files/en/help/admin_commands: More doc tweaks.
+
+	* lib/Mj/Format.pm (createlist): Move a newline to pretty output a
+ 	bit when there's no header.
+
+	* lib/Majordomo.pm (_createlist): Add 'ALL' functionality to
+ 	suggest aliases for 'ALL'.
+
+	* lib/Mj/MTAConfig.pm: Don't take 'owner' at all; we no longer
+ 	need to know about it.
+
+	* lib/Majordomo.pm (_createlist): Don't pass $owner to the
+ 	MTAConfig module.
+
 Mon Aug  3 18:30:56 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Majordomo.pm: Bump version number.

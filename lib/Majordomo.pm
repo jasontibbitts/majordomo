@@ -1961,14 +1961,17 @@ is the owner, since this is who will be sent introductory information.
 use Mj::MTAConfig;
 sub createlist {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode, $d1, 
-      $owner, $list) = @_;
-  my($mess, $ok);
+      $uowner, $list) = @_;
+  my($mess, $ok, $owner);
 
-  return (0, "Must supply a list name.")
+  return (0, '', "Must supply a list name.\n")
     unless $list;
 
-  return (0, "Must supply an address for the owner.")
-    unless $owner;
+  return (0, '', "Must supply an address for the owner.\n")
+    unless $uowner || $list eq 'ALL';
+
+  ($ok, $owner) = $self->{av}->validate($uowner);
+  return (0, '', "Owner address is invalid:\n$owner") unless $ok;
 
   my $log = new Log::In 50, "$list, $owner";
 
@@ -1997,14 +2000,14 @@ sub createlist {
 sub _createlist {
   my($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list) = @_;
   my $log = new Log::In 35, "$list";
-  my($bdir, $dir, $dom, $head, $mess, $mta);
+  my(@lists, $bdir, $dir, $dom, $head, $mess, $mta, $rmess);
 
   $mta  = $self->_global_config_get('mta');
   $dom  = $self->{'domain'};
   $bdir = $self->_global_config_get('install_dir');
   $bdir .= "/bin";
-    
-  if ($mode !~ /nocreate/) {
+
+  if ($mode !~ /nocreate/ && $list ne 'GLOBAL' && $list ne 'ALL') {
     # Untaint $list - we know it's a legal name, so no slashes, so it's safe
     $list =~ /(.*)/; $list = $1;
     $dir  = "$self->{'ldir'}/$list";
@@ -2028,17 +2031,23 @@ sub _createlist {
     return (1, '', "Unsupported MTA $mta, can't suggest configuration.");
   }
   
+  @lists = ($list);
+  @lists = sort(keys(%{$self->{'lists'}})) if ($list eq 'ALL');
+    
   {
     no strict 'refs';
-    ($head, $mess) = &{"Mj::MTAConfig::$mta"}(
-					      'list'   => $list,
-					      'owner'  => $owner,
-					      'bindir' => $bdir,
-					      'domain' => $dom,
-					     );
+    for my $i (@lists) {
+      $rmess .= "\n" if $rmess;
+      ($head, $mess) = &{"Mj::MTAConfig::$mta"}(
+						'list'   => $i,
+						'bindir' => $bdir,
+						'domain' => $dom,
+					       );
+    $rmess .= $mess
+    }
   }
 
-  if ($mode !~ /nocreate/) {
+  if ($mode !~ /nocreate/ && $list ne 'ALL') {
     # Now do some basic configuration
     $self->_make_list($list);
     $self->_list_config_set($list, 'owners', $owner);
@@ -2046,7 +2055,7 @@ sub _createlist {
     # XXX mail the owner some useful information
   }
 
-  return (1, $head, $mess);
+  return (1, $head, $rmess);
 }
 
 =head2 lists

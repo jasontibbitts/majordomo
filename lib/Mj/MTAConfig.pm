@@ -39,7 +39,6 @@ aliases file, along with a bit of explanation.
 
 Things we need:
 
-  owner  => name of list owner
   list   => name of list (no list -> produce global aliases)
   bindir => path to executables
   domain => domain this list or majordomo is to serve
@@ -51,7 +50,6 @@ sub sendmail {
 
   my $bin  = $args{'bindir'} || $log->abort("bindir not specified");
   my $dom  = $args{'domain'} || $log->abort("domain not specified");
-  my $own  = $args{'owner'}  || $log->abort("owner not specified");
   my $list = $args{'list'}   || 'GLOBAL';
 
   my $head = <<EOS;

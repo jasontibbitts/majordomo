@@ -53,13 +53,18 @@ configshow list variable (comments)
   Finally, note that not all per-list variables can be modified by the list
     owner.  Some require global priviliges.
 
-createlist list owner (nocreate, force)
+createlist list owner (nocreate, noheader, force, quiet)
   Creates the internal structures needed to maintain a list with the given
     name.  This will also suggest the necessary MTA configuration if the
     MTA in use is supported.
   This will fail if the list exists unless 'force' is given.
   The 'nocreate' mode will simply suggest MTA configuration and will not
     fail if the list exists.
+  'noheader' will suppress the instructional header.
+  'quiet' will suppress the sending of any introductory mail to the list
+    owner.  (This is not currently implemented in any case.)
+  If the list is 'GLOBAL', the setup for the Majordomo address is given.
+  If the list is 'ALL, a complete set of aliases is given.
   Note that Majordomo does not (yet) handle configuring the MTA itself,
     although it generally provides data which can simply be pasted into the
     necessary configuration file.

@@ -176,7 +176,7 @@ sub createlist {
   # results of all of the successful creates are contained in $head
   # and $mess.  So we first report on the status of the create
   # requests, then output the head and the results.
-  if (@$arg1 && $mode !~ /quiet/) {
+  if (@$arg1 && $mode !~ /noheader/) {
     eprintf $out, $type, ("The following list%s %s:\n",
 			  @$arg1==1 ? " was" : "s were",
 			  $mode =~ /nocreate/ ? "generated" : "created");
@@ -202,8 +202,8 @@ sub createlist {
   # Now print out the header and the aliases/instructions/whatever, if
   # we had any successful creations.
   if (@$arg1) {
-    eprint $out, $type, "\n$head" unless $mode =~ /noheader/;
-    eprint $out, $type, "\n$mess";
+    eprint $out, $type, "\n$head\n" unless $mode =~ /noheader/;
+    eprint $out, $type, "$mess";
   }
   return scalar(@$arg1) ? 1 : 0;
 }
