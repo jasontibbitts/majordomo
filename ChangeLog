@@ -1,3 +1,12 @@
+2000-07-21  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm (connect): Call inform() if a connection
+	attempt fails due to access restrictions.
+ 
+	* lib/Mj/Resend.pm (_add_fters): Avoid adding footers
+	and fronters to multipart/alternative messages.
+	(Thanks to Joe Tremblay.)
+
 2000-07-18  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm (reject):  Allow an explanation or a file to

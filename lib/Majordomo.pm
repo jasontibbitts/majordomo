@@ -270,6 +270,8 @@ sub connect {
   # If the access check failed we tell the client to sod off.  Clearing the
   # sessionid prevents further actions.
   unless ($ok > 0) {
+    $self->inform('GLOBAL', 'connect', $user, $user, 'connect',
+                  $int, $ok, '', 0, $err);
     undef $self->{sessionfh};
     undef $self->{sessionid};
     return (undef, $err);
@@ -3189,7 +3191,7 @@ sub _createlist {
   # Should the MTA configuration be regenerated?
   if ($mode =~ /regen/) {
     unless ($mta && $Mj::MTAConfig::supported{$mta}) {
-      return [1, "Unsupported MTA $mta, can't regenerate configuration.\n"];
+      return (1, "Unsupported MTA $mta, can't regenerate configuration.\n");
     }
 
     # Extract lists and owners
