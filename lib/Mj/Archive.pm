@@ -330,7 +330,9 @@ sub get_message {
 
   # Open FH on appropriate split
   if (length($data->{'split'})) {
-    $fh = new Mj::File "$file-$data->{'split'}";
+    # Untaint
+    $data->{'split'} =~ /(\d+)/;  $arc = $1;
+    $fh = new Mj::File "$file-$arc";
   }
   else {
     $fh = new Mj::File "$file";
@@ -505,6 +507,7 @@ sub last_message {
   # Take the maximum count and build a message name
   return "$arc/$self->{'splits'}{$arc}{'msgs'}";
 }
+
 =head2 first_n(count, m, archive)
 
 Returns the first count message names from the archive, excluding
@@ -517,6 +520,7 @@ sub first_n {
   my $ct   = shift || 0;
   my $arc  = shift;
   my (@arcs, @data, @msgs, $final, $key, $msg, $value);
+  @msgs = ();
 
   if ($arc and $self->{'sublist'}) {
     $arc = "$self->{'sublist'}.$arc";
@@ -532,6 +536,7 @@ sub first_n {
   }
 
   $arc ||= shift @arcs;
+  return unless $arc;
 
   $final = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
 
@@ -572,6 +577,7 @@ sub last_n {
   my $ct   = shift || 0;
   my $arc  = shift;
   my (@arcs, @data, @msgs, $final, $key, $msg, $value);
+  @msgs = ();
 
   if ($arc and $self->{'sublist'}) {
     $arc = "$self->{'sublist'}.$arc";
@@ -587,6 +593,7 @@ sub last_n {
   }
 
   $arc ||= pop @arcs;
+  return unless $arc;
 
   $final = $self->last_message($arc);
   ($num) = $final =~ m!\d+/(\d+)!;
@@ -1181,6 +1188,7 @@ sub _parse_message_range {
                     keys(%{$self->{'archives'}}));
 
       $arc = shift @arcs;
+      return @out unless $arc;
 
       $num = 1;
       ($final) = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
