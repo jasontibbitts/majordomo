@@ -24,8 +24,10 @@ kind of event occurred, and without the switch each event is reported.
 
 The specified "listname" can be any regular list, or "ALL" to report
 on all regular lists, or one of the pseudo-lists "DEFAULT" or "GLOBAL".
-Reporting on GLOBAL will inform you about ???????, while reporting
-on a list will inform you about things like subscription requests
+Reporting on "GLOBAL" will inform you about commands such as accept,
+reject, lists, which, help. Reporting on "DEFAULT" shows commands that
+act on the system defaults, like "configset DEFAULT". Reporting on a
+regular list will inform you about things like subscription requests
 and attempts to post.
 
 If you specify majordomo commands in a comma-separated list of actions,
@@ -42,7 +44,7 @@ specified with the report command:
 
 If you specify a "date" field, the report will be restricted to a
 period of time. Without "date", all events since the software was
-installed will be reported. Dates can be specified in a many formats:
+installed will be reported. Dates can be specified in many formats:
  1. for the last N hours, days, weeks, months, or years, use:
    3h for 3 hours
    7d for 7 days
@@ -56,7 +58,8 @@ installed will be reported. Dates can be specified in a many formats:
  3. for a given week, use "yyyymmw" as follows:
    2000011 for the first week of January 2000
 NOTE: There is a subtle difference between day and week time periods...
-days are always two digits, weeks are always one digit!
+days are always two digits, weeks are always one digit! (this is the
+same date syntax found in "help archive")
 
 
 See Also:
