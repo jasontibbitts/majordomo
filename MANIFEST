@@ -296,6 +296,7 @@ files/en/config/.precedence
 files/en/config/.priority
 files/en/config/.purge_received
 files/en/config/.quote_pattern
+files/en/config/.relocated_lists
 files/en/config/.reply_to
 files/en/config/.request_answer
 files/en/config/.resend_host
@@ -443,6 +444,7 @@ files/en/config/precedence
 files/en/config/priority
 files/en/config/purge_received
 files/en/config/quote_pattern
+files/en/config/relocated_lists
 files/en/config/reply_to
 files/en/config/request_answer
 files/en/config/resend_host
@@ -487,6 +489,7 @@ files/en/digest_preindex
 files/en/error/.absolute_path
 files/en/error/.digest_mode
 files/en/error/.invalid_command
+files/en/error/.invalid_list
 files/en/error/.invalid_mode
 files/en/error/.invalid_password
 files/en/error/.make_list
@@ -496,12 +499,15 @@ files/en/error/.not_extracted
 files/en/error/.password_length
 files/en/error/.password_level
 files/en/error/.pending_delivery
+files/en/error/.relocated_list
+files/en/error/.unknown_list
 files/en/error/.unknown_setting
 files/en/error/.unknown_token
 files/en/error/.unregistered
 files/en/error/absolute_path
 files/en/error/digest_mode
 files/en/error/invalid_command
+files/en/error/invalid_list
 files/en/error/invalid_mode
 files/en/error/invalid_password
 files/en/error/make_list
@@ -511,6 +517,8 @@ files/en/error/not_extracted
 files/en/error/password_length
 files/en/error/password_level
 files/en/error/pending_delivery
+files/en/error/relocated_list
+files/en/error/unknown_list
 files/en/error/unknown_setting
 files/en/error/unknown_token
 files/en/error/unregistered
@@ -905,6 +913,7 @@ files/en/help/.configset_precedence
 files/en/help/.configset_priority
 files/en/help/.configset_purge_received
 files/en/help/.configset_quote_pattern
+files/en/help/.configset_relocated_lists
 files/en/help/.configset_reply_to
 files/en/help/.configset_request_answer
 files/en/help/.configset_resend_host
@@ -1121,6 +1130,7 @@ files/en/help/configset_precedence
 files/en/help/configset_priority
 files/en/help/configset_purge_received
 files/en/help/configset_quote_pattern
+files/en/help/configset_relocated_lists
 files/en/help/configset_reply_to
 files/en/help/configset_request_answer
 files/en/help/configset_resend_host

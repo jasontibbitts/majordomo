@@ -1,0 +1,9 @@
+**** The list name "$LIST" is invalid.  Valid list names consist only of
+**** letters, digits, underscores, periods, or hyphens.
+
+To see a complete list of valid public mailing lists at
+  $SITE
+send a message to
+  $MJ
+In the body of the message, put this command:
+  lists

@@ -1,0 +1,11 @@
+The relocated_lists setting allows customized messages to be displayed
+when someone issues a Majordomo command for a mailing list that has been
+renamed, discontinued, or relocated.
+
+Each line in this setting consists of three fields, separated by colons
+or pipe symbols.  
+  old_name | new_name | file
+The first field is the name of a mailing list that is no longer valid.
+The second, optional field is the new name of the mailing list.
+The third, optional field is the path of a file that gives information
+about the mailing list.

@@ -1,0 +1,45 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  relocated_lists <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : none
+Data Type     : relocated_lists
+Category      : miscellany
+Password Notes: Visible only with password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset GLOBAL relocated_lists <<ENDTAG
+conference_2001 : conference_2002 : 
+ENDTAG
+
+$INCLUDE-config/relocated_lists
+
+Both the new list name and the file name are optional.  If a new list
+name is supplied, Majordomo will substitute it for the old list name in
+each command that uses the old list name, and attempt to execute the
+command.  If the new list name is omitted, Majordomo will not attempt to
+execute any command that uses the old list name.  This makes it possible
+to disable all commands for an existing mailing list, so use this
+feature with caution.
+
+In every case, when someone uses a Majordomo command the old list name,
+a warning message will be displayed.  If a file name is supplied, the
+contents of that file will be displayed.  If no file name is supplied,
+and a new list name is supplied, the "relocated_list" error file will be
+displayed.  This error file indicates that the name of the list has
+changed.  If no file name is supplied, and no new list name is supplied,
+the "unknown_list" error file will be displayed.  This error file
+indicates that the mailing list is not supported at this domain.
+
+The GLOBAL, DEFAULT, and ALL pseudo-lists are not affected by this
+setting.
+
+
+See Also:
+   help admin_domain
+   help createlist
+   help error_files
+
+$INCLUDE-help/foot
