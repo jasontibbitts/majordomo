@@ -730,7 +730,7 @@ FINISH:
       ($mess,
        {
         $self->standard_subs($list),
-        'FULFILL' => scalar localtime (time + $delay),
+        'FULFILL' => scalar localtime (time + $data->{'delay'}),
         'NOTIFY'  => $victim,
 	'REASONS' => $reasons,
 	'VICTIM'  => $victim,
@@ -909,7 +909,7 @@ sub _a_consult {
 # Accepts a filename and a delay
 sub _a_delay {
   my ($self, $arg, $td, $args) = @_;
-  my $log = new Log::In 150, $td->{'command'};
+  my $log = new Log::In 150, "$td->{'command'}, $arg";
   my ($delay, $file);
 
   ($file, $arg) = split (/\s*,\s*/, $arg || "");
@@ -1083,12 +1083,12 @@ sub _a_default {
   shift @_;
 
   # First check the hash of allowed requests.
-  if (access_def($td->{'command'}, 'allow')) {
+  if (access_def($request, 'allow')) {
     return $self->_a_allow(@_);
   }
 
   # Allow these if the user supplied their password, else confirm them.
-  if (access_def($td->{'command'}, 'confirm')) {
+  if (access_def($request, 'confirm')) {
     return $self->_a_allow(@_) if $args->{'user_password'};
     $action = "_a_confirm";
     $reason = "By default, $request must be confirmed by the person affected."
