@@ -1106,6 +1106,8 @@ sub alias_add {
     return (0, "$target is not a member of $self->{'name'}\n"); # XLANG
   }
 
+  $self->_make_aliaslist;
+
   # Check list membership for source; suppress aliasing
   (undef, $ok) = $self->get_member($tsource, 1);
 
@@ -1157,6 +1159,7 @@ sub alias_remove {
   my $addr = shift;
   
   $addr = $self->transform($addr) unless $mode =~ /regexp/;
+  $self->_make_aliaslist;
   $self->{'aliases'}->remove($mode, $addr);
 }
 
@@ -1259,6 +1262,7 @@ sub alias_rekey {
      }
       return ($changekey, $changedata, $newkey);
     };
+  $self->_make_aliaslist;
   $self->{'aliases'}->mogrify($sub);
 }
 

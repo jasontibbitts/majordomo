@@ -25,6 +25,15 @@ Messages with empty first part always checksum the same?
 Top of the list 
 ---------------
 
+! Make addresses first class objects.  Make Addr.pm a real module.
+  Configure package defaults to set up parser variables then allocate
+  addresses.  Any time a Majordomo function takes an address, it should new
+  a Mj::Addr and use it instead.
+
+  Mj::Addr should internally cache stripped and canonical forms.  Mj::Addr
+  will need an alias database to work off of (if aliasing is to be used),
+  and should be passed in as a parameter (or set as a class default).
+
 ! Master address database:
   One global database storing some information on each address subscribed
   to any list in the domain.  Maintains the following info:

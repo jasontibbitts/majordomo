@@ -126,8 +126,10 @@ sub lock {
 
   # Here check for EWOULDBLOCK and return undef, else abort on error.
 
-  $self->{'master_handle'} = $mhandle;
-  $self->{'master_name'}   = $mname;
+  if ($mname) {
+    $self->{'master_handle'} = $mhandle;
+    $self->{'master_name'}   = $mname;
+  }
   $self->{'handle'} = $handle;
   $self->{'lname'}  = $lname;
 

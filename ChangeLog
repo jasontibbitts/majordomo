@@ -1,5 +1,11 @@
 Sat Aug 15 16:33:58 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Mj/Lock.pm (lock): Don't save master_handle if not doing
+ 	master locking.
+
+	* lib/Mj/List.pm: Add calls to _make_aliaslist to several alias
+ 	commands.
+
 	* lib/Mj/RegList.pm: New file to hold registration database.
 
 Fri Aug 14 17:03:15 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
