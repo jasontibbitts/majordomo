@@ -3,7 +3,7 @@ attached (as a MIME attachment) to acknowlegements sent out to inform
 the user of delivery progress (as set by the user''s ack setting and
 the value of the 'ack_denials_always' variable).
 
-Each element of this array myst be one of the following:
+Each element of this array must be one of the following:
 
   fail  - acks for failed messages will include the original message
   stall - acks for stalls (confirmations or consultations) will

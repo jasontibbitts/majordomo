@@ -22,22 +22,4 @@ Possible actions are:
   (more are planned)
 
 allow and consult take an argument; if present, it should be a
-content-transfer-encoding.  Majordomo will change the encoding of the
-part to match before it is sent.  Some valid encodings are "8bit",
-"base64", "quoted-printable", "x-uuencode" and "x-gzip64".  If an
-argument is not provided, the encoding will be left as is.  Due to the
-nature of MIME, be aware that the encoding can be changed at any
-machine that the message passes through, so the encoding you choose
-will not necessarily be the encoding that list members will see (and
-some may see different encodings than the others).
-
-Note that the first matching rule is the one that is used and types
-are by default allowed if no rule matches.  Deny and consult rules are
-applied first, and discard rules always apply, even for approved
-messages.
-
-Note also that deny and consult just set variables that can be checked
-in access_rules.  The default rule for posting normally takes care of
-these, but if you add any additional rules is is possible to override
-the checks made here.
-
+content-transfer-encoding.

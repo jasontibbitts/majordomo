@@ -1,21 +1,9 @@
 This variable controls how often bounce probes are sent out.
 
-Bounce probing entails sending specially formatted messages such that the
-address causing a bounce is immediately obvious when the bounce is
-received.  This requires that each mail transaction send to only one
-address, which places additional load on the mail server.  To counter this,
-bounce probing is implemented in an incremental fashion.
-
 The address list is split into 'bounce_probe_frequency' pieces, and a
 different piece is probed for each message sent to the list.  This lowers
 the overall load while still allowing complete probes to be done in a
 reasonable amount of time.
-
-The proper setting depends on a number of factors; it is generally
-desireable to probe the entire list once every several days and definitely
-not more frequently than once a day.  Thus this should not be set lower
-than the expected number of messages per day.  The upper bound depends on
-how much additional load the mail server(s) can tolerate.
 
 Setting this to zero disables regular bounce probing.  Setting this to one
 probes every address for every message and may place an extreme load on the

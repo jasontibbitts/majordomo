@@ -1,32 +1,16 @@
 
 A table containing a list of files and descriptions that should be
-sent to new subscribers, like so:
-
-Welcome to the mailing list!
-welcome
-Picture of the list owner!
-owner.jpg : P
-Mailing list FAQ
-faq.txt
+sent to new subscribers.
 
 Each table record takes two lines.  The first should be an explanatory
 message, which will go in the subject or content-description header as
 appropriate.  (If this is empty, the file's description will be used.)
 The second is broken into fields by ":" or "|".
 
-The first field is the name of the file, in the file space of the
-list.
+The first field is the name of the file, in the file space of the list.  
 
 The second should be either "N", meaning that the file will be sent as
 a separate piece of mail, or "P", meaning that the file will be
 attached to the previous file.  The default is "N".  In addition, an
 "S" can be added, indicating that the file should undergo variable
-substitution.  Currently the following substitutions are supported:
-
- $USER    - the address of the user
- $LIST    - the list name
- $REQUEST - the list-request address
- $MJ      - the address of the majordomo server
- $OWNER   - the address of the list owner
- $MJOWNER - the address of the list owner
-
+substitution.

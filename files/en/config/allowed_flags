@@ -2,7 +2,7 @@ A string containing the flags that users are allowed to adjust.  You
 need only include the uppercase flags here:
 
   A - ack
-  C - elimatecc
+  C - eliminatecc
   H - hide
   P - prefix
   R - replyto
