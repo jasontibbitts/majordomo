@@ -1,123 +1,31 @@
-<pre>$ERROR</pre>
+<pre>?ERROR</pre>
 
-Welcome to the Majordomo 2 administrative interface at $SITE!
-The links at the top and bottom of this document will help you to 
-manage one or more of your mailing lists.  The following paragraphs
-describe each of the links in turn.
-
-<h3 align=center>Instructions</h3>
-
-To return to this introduction at any time, use the 
-<b>Instructions</b> link at the top or bottom
-of the page.  For a general introduction to Majordomo 
-administration, see the $HELP:ADMIN and $HELP:ADMIN_COMMANDS help pages.
-
-<h3 align=center>Moderation</h3>
-
-If the <b>Moderation</b> link is clicked, 
-the pending requests for your list will be displayed
-There are several kinds of request, for example: 
-<ul>
-  <li>a subscription or set request that a subscriber has not yet confirmed.
-
-  <li>a request to unsubscribe that was sent to the mailing list 
-      address by mistake.
-
-  <li>any message posted to a fully moderated mailing list that has not
-      yet been approved.
-
-</ul>
-
-This feature makes use of the $HELP:SHOWTOKENS command.
-
-<p>
-If there are requests pending, you will see a form
-that looks something like this:
-<form method=POST action="/cgi-bin/test-cgi">
-  <input type=submit name=func value="tokeninfo-full">
-  <input type=submit name=func value="tokeninfo">
-  <input type=submit name=func value="accept">
-  <input type=submit name=func value="accept-archive">
-  <input type=submit name=func value="reject">
-  <input type=hidden name=domain value="$DOMAIN">
-  <input type=hidden name=list value="$LIST">
-  <input type=hidden name=passw value="yourpassword">
-<br>
-Choose one or more requests from the following list,
-then press one of the buttons.
-
-<table>
+<table cellspacing=15 width="100%">
 <tr>
-  <td colspan=5>Requests for the $LIST list
+  <td valign=top>Introduction
+  <td>
+Welcome to $SITE.
+The links at the top and bottom of the page will help you to 
+manage one or more of your mailing lists.  You can return
+to this introduction at any time by pressing <b>Introduction</b>.
+
 <tr>
-  <td><input type=checkbox name=extra value=13D7-C445-6A37>13D7-C445-6A37
-  <td>consult
-  <td>post (5 kB)
-  <td>05-12 20:27:46
-  <td>Someone You Know &lt;someone@example.com&gt;
+  <td valign=top>Sign In
+  <td>
+
+If you finish administering the $LIST list and wish to change
+to another list, press <b>Sign In</b>.  You will be prompted
+for a new mailing list name and password.
+
 <tr>
-  <td><input type=checkbox name=extra value=8E49-E388-BADC>8E49-E388-BADC
-  <td>confirm
-  <td>subscribe
-  <td>05-13 10:27:46
-  <td>Someone New &lt;unknown@example.org&gt;
-</table>
-
-</form>
-
-<ul>
-  <li>The first column has a checkbox and
-  the "token identifier," which is unique to that request.
-  Checkboxes allow more than one request to be handled at once.
-
-  <li>Generally, <b>subscribe</b> and <b>set</b> requests need
-  to be confirmed by the subscribers themselves, but any other request
-  should be handled by the list owners.  This is indicated
-  in the second column by <b>consult</b> (the owners should approve)
-  or <b>confirm</b> (the subscriber should approve).  There
-  also may be $HELP:DELAY requests, which will be completed
-  automatically by majordomo, and do not require your attention.
-
-  <li>The third column shows the type of request.  If the
-  request is a <b>post</b>ed message, the size of the message is
-  also shown.
-
-  <li>The remaining columns contain the date of
-  the request and the e-mail address of the person who made it.
-</ul>
-
-<p>
-There are five buttons available to deal with pending requests.
-
-<ol>
-  <li>The <b>tokeninfo-full</b> button will show the headers of the message
-  that caused the request, plus the message itself if the request
-  is a <b>post</b>.
-
-  <li>The <b>tokeninfo</b> button will show the headers of the message
-  and a summary of the request.
-
-  <li>The <b>accept</b> button will approve the request.
-
-  <li>The <b>accept-archive</b> button will approve the request, but
-  if it is a <b>post</b>, the message will be stored in
-  the archive but not distributed to the subscribers.
-
-  <li>The <b>reject</b> button will cause the request to be discarded.
-  A reply message may be sent to the person who made the request.
-</ol>
-
-<p>
-If there are no pending requests, you will see the following message:
-
-<pre>
-There are no pending requests for the $LIST list.
-Requests found: 0.
-</pre>
-
-<p>
-Requests will eventually expire unless someone handles them.
-By default, the lifetime of a request is one week.
+  <td valign=top>Moderation
+  <td>
+Occasionally, posted messages, subscriptions, and other requests
+will need your approval before they are completed.  Press 
+<b>Moderation</b> to see all of the unfinished requests for your
+lists.  The requests labeled <b>consult</b> will need your attention,
+whereas the requests labeled <b>confirm</b> need the attention of
+the people who made them.
 
 <p>
 More than one mailing list can be moderated at the same time, if you use
@@ -129,63 +37,97 @@ For example, if you manage mailing lists named
 <pre>
   $CGIURL
 </pre>
-the script URL would look like this:
+the location of this page would look like this:
 <pre>
   $CGIURL/broccoli/rhubarb
 </pre>
 
-<h3 align=center>Subscribers</h3>
+<tr>
+  <td valign=top>Subscribers
+  <td>
 
-This feature, which uses the $HELP:WHO command, 
-allows you to view or change the current list of subscribers
-for your mailing list.  Each subscriber has several individual
-<i>settings</i> (sometimes called <i>flags</i>), including a 
-<i>delivery class</i> that determines how posted messages are
-sent to that subscriber.  These settings can be changed using
-the $HELP:SET command.  New e-mail addresses can be added to
-the subscriber list using the $HELP:SUBSCRIBE command.
-Existing subscribers can be removed using the $HELP:UNSUBSCRIBE command.
+Press <b>Subscribers</b> to see the first 20 addresses of
+people who have subscribed to your mailing list.  From there,
+you can add or remove addresses, or change the personal settings
+of the subscribers.
 
-<h3 align=center>Configuration</h3>
+<tr>
+  <td valign=top>Configuration
+  <td>
 
-Majordomo has over 100 configuration settings; to manage them 
+Majordomo has over 100 configuration settings which you can
+use to fine-tune the performance of your mailing list.  To manage them 
 more easily, they have been divided into several categories.
-If the <b>Configuration</b> link is clicked, 
-a list of these categories will be displayed.  By selecting
-one or more categories, and using the $HELP:CONFIGSHOW command,
-you can view and change the current settings.
+Press <b>Configuration</b> to see a list of these categories.
+You can then view and change the current settings.
 
-<h3 align=center>Lists</h3>
+<tr>
+  <td valign=top>Lists
+  <td>
 
-All majordomo mailing lists for the $DOMAIN domain can be
-displayed by choosing the <b>view all mailing lists</b> task.
-This task uses the $HELP:LISTS command.  By viewing the 
-mailing lists, you can see how your mailing list appears to
-the public from Majordomo's subscriber interface.  Information
-about your mailing list is visible there, such as the number
-of subscribers, the digests available, the description of
-the list, and the $HELP:FAQ, $HELP:INFO, and $HELP:INTRO documents.
+If your mailing list is public, pressing <b>Lists</b> will show
+you how it will appear when people visit the 
+<a href="$WWWUSR_URL">web page for subscribers</a>.
 
-<h3 align=center>Help</h3>
-
-Majordomo has an extensive collection of help documents.
-If managing Majordomo lists is a new experience for you, the
-$HELP:ADMIN, $HELP:ADMIN_COMMANDS, and $HELP:HELP pages are
-the best places to start.
-
-<h3 align=center>Command Form</h3>
+<tr>
+  <td valign=top>Command Form
+  <td>
 
 Although the other features of this WWW service will allow you
-to perform many of the tasks, not every task is supported yet.
+to perform many common tasks, not every task is supported yet.
 However, the <b>Command Form</b> offers a primitive way of 
 issuing commands that may be easier for experienced administrators.
 <p>
 In particular, the $HELP:ARCHIVE, $HELP:DIGEST, and $HELP:REPORT
 commands are supported only by the command form.
 
-<h3 align=center>Sign In</h3>
+<tr>
+  <td valign=top>Help
+  <td>
 
-If you finish administering a particular list and wish to change
-to another, use the <b>Sign In</b> link.  You will be prompted
-for a new mailing list name and password.
+Majordomo has over 100 cross-referenced help files, which you
+can browse by pressing <b>Help</b>.
+They describe how to email commands to Majordomo at
+<a href="mailto:$MJ">$MJ</a>.
+The following files give a good introduction.
+<dl>
+  <dt>$HELP:ADMIN
+    <dd>A basic introduction to list administration, including hints
+    for solving common problems.
 
+  <dt>$HELP:ADMIN_COMMANDS
+    <dd>A summary of all of the commands available to list administrators.
+
+  <dt>$HELP:ADMIN_PASSWORDS (important!)
+    <dd>How to use passwords when you email commands to Majordomo.
+
+  <dt>$HELP:COMMANDS
+    <dd>A summary of commands for list subscribers
+
+  <dt>$HELP:CONFIGSHOW
+    <dd>How to see the current configuration settings for your list.
+
+  <dt>$HELP:CONFIGSET and $HELP:CONFIGDEF
+    <dd>How to change the configuration settings.
+
+  <dt>$HELP:SET
+    <dd>How to change the personal settings of your list's subscribers.
+
+  <dt>$HELP:SUBSCRIBE
+    <dd>How to add people to your mailing list.
+
+  <dt>$HELP:UNSUBSCRIBE
+    <dd>How to remove people from your mailing list.
+
+  <dt>$HELP:SHOWTOKENS
+    <dd>How to see a summary of requests that require moderation.
+
+  <dt>$HELP:TOKENINFO
+    <dd>How to obtain more information about one request that
+        requires moderation
+
+  <dt>$HELP:WHO
+    <dd>How to see who is subscribed to your mailing list.
+
+</dl>
+</table>

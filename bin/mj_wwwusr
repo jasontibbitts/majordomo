@@ -83,6 +83,23 @@ $cgiurl = $cgi->script_name . $cgi->path_info;
 $cgiurl = Mj::Format::uescape($cgiurl);
 
 $domain = $cgi->param('domain');
+
+$pathinfo = '';
+if (exists $ENV{'PATH_INFO'}) {
+  $pathinfo = $ENV{'PATH_INFO'};
+  if ($pathinfo =~ s/(domain=)([a-zA-Z0-9\.\-]+)//) {
+    $domain = $2;
+  }
+  $pathinfo =~ s#^/+##;
+  $pathinfo =~ s#/+$##;
+  if ($pathinfo =~ m#(.+\@[^/]+)#) {
+    $pathinfo = $1;
+  }
+  else {
+    $pathinfo = '';
+  }
+}
+
 unless ($domain) {
   ($domain) = Majordomo::domains($::LISTDIR);
 }
@@ -99,16 +116,6 @@ for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
 $sess .= scalar(localtime(time)) . "\n";
 
 #----- Determine the address of the user. -----#
-$pathinfo = '';
-if (exists $ENV{'PATH_INFO'}) {
-  $pathinfo = $ENV{'PATH_INFO'};
-  if ($pathinfo =~ m#/([^/]+)#) {
-    $pathinfo = $1;
-  }
-  else {
-    $pathinfo = '';
-  }
-}
 $falseuser   = "x$ENV{'REMOTE_ADDR'}\@example.com";
 $user    = $cgi->param('user') || $pathinfo || $falseuser;
 
@@ -123,7 +130,8 @@ unless ($ok) {
             'COMMAND'  => 'welcome',
             'DOMAIN'   => $domain,
             'PASSWORD' => '',
-            'USER'     => Mj::Format::escape($user),
+            'USER'     => ($falseuser eq $user) ? '':
+                          Mj::Format::escape($user),
         };
 
   $tmp = $mj->format_get_string('wwwusr', 'head');
@@ -141,15 +149,16 @@ if ($passw) {
 }
 
 $ofunc   = $cgi->param('func') || 'welcome';
-$falseuser = Mj::Format::uescape($user);
-$cgidata = sprintf 'domain=%s&passw=%s&user=%s', $domain, $passw, $falseuser;
+$tmp     = Mj::Format::uescape($user);
+$cgidata = sprintf 'domain=%s&passw=%s&user=%s', $domain, $passw, $tmp;
 $subs = { $mj->standard_subs('GLOBAL'),
           'CGIDATA'  => $cgidata,
           'CGIURL'   => $cgiurl,
           'COMMAND'  => $ofunc,
           'DOMAIN'   => $domain,
           'PASSWORD' => $passw,
-          'USER'     => Mj::Format::escape($user),
+          'USER'     => ($falseuser eq $user) ? '':
+                        Mj::Format::escape($user),
         };
 
 #----- Print the generic page header -----#

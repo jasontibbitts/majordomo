@@ -2,28 +2,42 @@
 "http://www.w3.org/TR/REC-html40/strict.dtd">
 <!-- Majordomo head format file -->
 <html><head>
-<title>Majordomo 2 Subscribers: $COMMAND</title>
+<title>Majordomo at $DOMAIN: $COMMAND</title>
 </head>
 <body>
 
-<table border>
+<table cellspacing=8 width="100%">
 <tr>
-  <td>
+  <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=welcome">
-     Instructions</a>
-  <td>
+     <font color="#f0f0f0">
+     Introduction</font></a>
+
+  <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=login">
-     Sign In</a>
-  <td>
+     <font color="#f0f0f0">
+     Sign In</font></a>
+
+  <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=lists-long">
-     Subscribe to Mailing Lists</a>
-  <td>
+     <font color="#f0f0f0">
+     Subscribe to Mailing Lists</font></a>
+
+  <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=show">
-     Unsubscribe or Change Settings</a>
-  <td>
+     <font color="#f0f0f0">
+     Unsubscribe or Change Settings</font></a>
+
+  <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=help">
-     Help</a>
+     <font color="#f0f0f0">
+     Help</font></a>
+
 </table>
 
-<h4 align=center>$USER at $SITE</h4>
+<p align=center>
+  <big>$SITE</big><br>
+  ?USER<br>
+
+
 

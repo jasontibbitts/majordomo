@@ -1,18 +1,28 @@
+<pre>?ERROR</pre>
 <form method=POST action="$CGIURL">
-<input type=hidden name=domain value="$DOMAIN">
-<input type=hidden name=user value="$USER">
-<input type=hidden name=func value="$COMMAND">
-Mailing List:  <input name=list value="$LIST">
-Password: <input type=password name=passw size=15 value="$PASSWORD">
+  <input type=hidden name=domain value="$DOMAIN">
+  <input type=hidden name=func value="$COMMAND">
+  <input type=hidden name=user value="$USER">
 
-<input type=submit value="Sign In">
+<table cellspacing=15 width="100%">
+<tr>
+  <td valign=top>
+    <input size=36 name=list value="$LIST">
+  <td>
+    Type the name of your mailing list into the box unless it is already present.
+<tr>
+  <td valign=top>
+    Password: <input type=password name=passw size=15 value="$PASSWORD">
+  <td valign=top>
+    Type your list's administrative password into the box.  
+    If you see fourteen stars in this box, it may already be present.
+<tr>
+  <td valign=top>
+    <input type=submit value="Go"><br>
+    <input type=reset value="Clear">
+  <td>
+    To sign in, press the <b>Go</b> button.
+    <p>
+    To reset the values of this form, press <b>Clear</b>.
+</table>
 </form>
-$ERROR
-<p>
-You must sign in using a valid mailing list name and password.
-<ul>
-<li>Type the list name into the <b>Mailing List</b> box.
-<li>Type the list's administrative password into the <b>Password</b> box.
-<li>Press the <b>Sign In</b> button.
-</ul>
-

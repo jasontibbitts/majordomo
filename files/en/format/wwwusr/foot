@@ -1,26 +1,36 @@
 <!-- Majordomo foot format file -->
-<hr>
+<p>
 For assistance, please contact
-<a href="mailto:$MJOWNER">$MJOWNER</a>.
+<a href="mailto:$MJOWNER">the $DOMAIN administrators</a>.
 <p>
 
-<table border>
+<table cellspacing=8 width="100%">
 <tr>
-  <td>
+  <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=welcome">
-     Instructions</a>
-  <td>
+     <font color="#f0f0f0">
+     Introduction</font></a>
+
+  <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=login">
-     Sign In</a>
-  <td>
+     <font color="#f0f0f0">
+     Sign In</font></a>
+
+  <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=lists-long">
-     Subscribe to Mailing Lists</a>
-  <td>
+     <font color="#f0f0f0">
+     Subscribe to Mailing Lists</font></a>
+
+  <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=show">
-     Unsubscribe or Change Settings</a>
-  <td>
+     <font color="#f0f0f0">
+     Unsubscribe or Change Settings</font></a>
+
+  <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=help">
-     Help</a>
+     <font color="#f0f0f0">
+     Help</font></a>
+
 </table>
 
 </body></html>

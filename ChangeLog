@@ -1,3 +1,9 @@
+2001-01-31  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm, bin/mj_wwwusr:  Various cosmetic changes,
+	plus the ability to include "domain=example.com" in the 
+	path_info part of the URL, to make aliasing the URL easier.
+
 2001-01-30  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Majordomo.pm (sync_owners): Set the override flag so that

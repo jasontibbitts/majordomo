@@ -2,37 +2,47 @@
 "http://www.w3.org/TR/REC-html40/strict.dtd">
 <!-- Majordomo head format file -->
 <html><head>
-<title>Majordomo 2 Administration: $COMMAND</title>
+<title>$LIST List Administration: $COMMAND</title>
 </head>
 <body>
 
-<table border>
+<table cellspacing=8 width="100%">
 <tr>
-  <td>
+  <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=welcome">
-     Instructions</a>
-  <td>
-    <a href="$CGIURL?$CGIDATA&func=showtokens-delay">
-     Moderation</a>
-  <td>
-    <a href="$CGIURL?$CGIDATA&func=who&chunksize=20">
-     Subscribers</a>
-  <td>
-    <a href="$CGIURL?$CGIDATA&func=configshow-categories">
-     Configuration</a>
-  <td>
-    <a href="$CGIURL?$CGIDATA&func=lists-long">
-     Lists</a>
-  <td>
-    <a href="$CGIURL?$CGIDATA&func=help">
-     Help</a>
-  <td>
-    <a href="$CGIURL?$CGIDATA&func=command">
-     Command Form</a>
-  <td>
+     <font color="#f0f0f0">
+     Introduction</font></a>
+  <td align=center bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=login">
-     Sign In</a>
+     <font color="#f0f0f0">
+     Sign In</font></a>
+  <td align=center bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=showtokens-delay">
+     <font color="#f0f0f0">
+     Moderation</font></a>
+  <td align=center bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=who&chunksize=20">
+     <font color="#f0f0f0">
+     Subscribers</font></a>
+  <td align=center bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=configshow-categories">
+     <font color="#f0f0f0">
+     Configuration</font></a>
+  <td align=center bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=lists-full-long&extra=$LIST">
+     <font color="#f0f0f0">
+     Lists</font></a>
+  <td align=center bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=command">
+     <font color="#f0f0f0">
+     Command Form</font></a>
+  <td align=center bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=help&extra=help">
+     <font color="#f0f0f0">
+     Help</font></a>
 </table>
 
-<h3 align=center>$LIST list administration at $SITE</h3>
+<p align=center>
+  <big>$SITE</big><br>
+  $LIST list administration<br>
 

@@ -1,43 +1,35 @@
 <!-- Majordomo welcome format file -->
-<pre>$ERROR</pre>
-<h4 align=center>Instructions</h4>
+<pre>?ERROR</pre>
+<table cellspacing=15 width="100%">
+<tr>
+  <td valign=top>Introduction
+  <td>
+Welcome to $SITE.  
+The links at the top and bottom of the page will help you to 
+join or leave our public electronic mailing lists. 
+You can return to this introduction at any time by pressing
+<b>Introduction</b>.
 
-Welcome to the Majordomo 2 subscriber interface at $SITE.  
-The links at the top and bottom of this document will help you to 
-join or leave our public mailing lists.  The following 
-paragraphs describe each of the links in turn.
-You can return to this page at any time by clicking the <b>Instructions</b>
-link.
-
-<h4 align=center>Sign In</h4>
-
+<tr>
+  <td valign=top>Sign In
+  <td>
 If you wish to subscribe to a mailing list or change your settings, you
 will need to sign in with your e-mail address, and a password if Majordomo
-has already assigned one to you.  Click the <b>Sign In</b> link, then
-follow the instructions to sign in.
+has already assigned one to you.  Press <b>Sign In</b>, then
+follow the instructions.
 
-<h4 align=center>Subscribe to Mailing Lists</h4>
-
-There are two ways to subscribe to a mailing list.
-
-<p>
-The first way is to take the following steps:
-<ul>
-  <li>Click the <b>Subscribe to Mailing Lists</b> link. 
-  This will cause a list of public mailing lists at $SITE to
-  be displayed.
-
-  <li>Click the name of the list to which you want to subscribe.
-  This will cause details about the mailing list to be shown,
-  such as the list owners' address and the number of subscribers.
-
-  <li>Find the subscription form at the bottom of the page,
-  and follow the instructions there.
-</ul>
-
-<p>
-The second way is, if you know the name of the list, to type
-it into the <b>Mailing List</b> box in the following form,
+<tr>
+  <td valign=top>Subscribe<br> to Mailing Lists
+  <td>
+If you press <b>Subscribe to Mailing Lists</b>, you
+will see a list of public mailing lists at $SITE.  Clicking
+the name of any of the mailing lists will take you to a
+page with more details about the list.  You can subscribe
+to the list using a form at the bottom of that page.
+  <p>
+If you know the name of a list, you can go immediately
+to its page.
+Type the name of the list into the <b>Mailing List</b> box, 
 then press the <b>search</b> button.
 
 <form method=POST action="$CGIURL">
@@ -50,67 +42,58 @@ then press the <b>search</b> button.
   <input type=submit value="search">
 </form>
 
-Experienced subscribers can use a Majordomo pattern to search the list
+You can also use a pattern to search the list
 of mailing lists.  See the $HELP:PATTERNS help page for details
 on Majordomo patterns.
 
-<h4 align=center>Unsubscribe or Change Settings</h4>
+<tr>
+  <td valign=top>Unsubscribe or <br>Change Settings
+  <td>
+If you have already subscribed to a mailing list at $DOMAIN,
+you can unsubscribe, unregister, or change the settings of
+your subscriptions.  Press <b>Unsubscribe or Change Settings</b>
+to see your current subscriptions.
+<b>A valid password is required.</b>
 
-This link will allow you to adjust your settings, change your address,
-add an alias, unsubscribe from one or more mailing lists, or
-to unregister your address from this site entirely.
-<b>A valid password is necessary to use this feature.</b>
 
-<h5>Obtaining a password</h5>
-
-When you subscribe to a Majordomo mailing list, your e-mail address
-is recorded in Majordomo's registration database, and a password
-is assigned to your address.  Regardless of how many subscriptions
-you have at this site, you will have only one password.
-
-<p>
-If you have subscribed to at least one mailing list here, you
-should have received your password in an e-mail welcome message.
-If you do not know your password, you can obtain a new one using the 
-$HELP:PASSWORD 
-command.  
-
-<p>
-If you have not already subscribed to a mailing list at this
-site, it is possible to obtain a password using the 
-$HELP:SUBSCRIBE 
-command to join a mailing list, or using the 
-$HELP:REGISTER
-command to add your address to the registration database.
-
-<p>
-You can obtain a new password or register using the following
-form.  Type your e-mail address into the box, then press
-the <b>password-gen</b> or the <b>register</b> button.
-
-<form method=POST action="$CGIURL">
-  <input type=hidden name=domain value="$DOMAIN">
-  <input type=hidden name=passw value="$PASSWORD">
-address:
-  <input type=text size=32 name=user value="$USER">
-  <input type=submit name=func value="password-gen">
-  <input type=submit name=func value="register">
-</form>
-
-A confirmation message will be sent to your e-mail address.
-
-<h4 align=center>Help</h4>
-
-Majordomo has over 100 linked help pages, which you can browse
-by clicking the <b>help</b> link.
-They describe how to send commands to Majordomo at 
+<tr>
+  <td valign=top>Help
+  <td>
+Majordomo has over 100 cross-referenced help files, which you can 
+browse by pressing <b>Help</b>.
+They describe how to email commands to Majordomo at 
 <a href="mailto:$MJ">$MJ</a>.  
-The following pages provide a good introduction.
+The following files give a good introduction.
 
-<ul>
-  <li>$HELP:COMMANDS
-  <li>$HELP:OVERVIEW
-  <li>$HELP:LISTS
-  <li>$HELP:REGISTER
-  <li>$HELP:SUBSCRIBE
-</ul>
+<dl>
+  <dt>$HELP:OVERVIEW
+    <dd>Gives examples of basic commands:  how to subscribe, unsubscribe,
+        and view or change your settings.
+    
+  <dt>$HELP:COMMANDS
+    <dd>Shows all of the commands available to you.
+
+  <dt>$HELP:LISTS
+    <dd>How to get a list of mailing lists at $DOMAIN.
+
+  <dt>$HELP:REGISTER
+    <dd>How to get a password without subscribing to a list.
+
+  <dt>$HELP:SET
+    <dd>How to view or change the settings of your subscriptions.
+
+  <dt>$HELP:SHOW
+    <dd>How to see your current subscriptions and settings.
+
+  <dt>$HELP:SUBSCRIBE
+    <dd>How to subscribe to a list, and initialize your settings at
+    the same time.
+
+  <dt>$HELP:UNREGISTER
+    <dd>How to cancel all of your subscriptions at once.
+
+  <dt>$HELP:UNSUBSCRIBE
+    <dd>How to unsubscribe from a list, without using a password.
+
+</dl>
+</table>

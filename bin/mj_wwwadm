@@ -94,7 +94,25 @@ print $cgi->header;
 $cgiurl = $cgi->script_name . $cgi->path_info;
 $cgiurl = Mj::Format::uescape($cgiurl);
 
+#----- Multiple-list specification (used for showtokens) -----#
 $domain = $cgi->param('domain');
+$pathinfo = '';
+if (exists $ENV{'PATH_INFO'}) {
+  $pathinfo = $ENV{'PATH_INFO'};
+  if ($pathinfo =~ s/(domain=)([a-zA-Z0-9\.\-]+)//) {
+    $domain = $2;
+  }
+
+  $pathinfo =~ s#^/+##;
+  $pathinfo =~ s#/+$##;
+  if ($pathinfo =~ m#/([\w\/\-\.]+)#) {
+    $pathinfo = $1;
+  }
+  else {
+    $pathinfo = '';
+  }
+  @mlists = split '/', $pathinfo;
+}
 unless ($domain) {
   ($domain) = Majordomo::domains($::LISTDIR);
 }
@@ -120,19 +138,6 @@ unless ($ok) {
   &surrender($mess);
 } 
 
-#----- Multiple-list specification (used for showtokens) -----#
-$pathinfo = '';
-if (exists $ENV{'PATH_INFO'}) {
-  $pathinfo = $ENV{'PATH_INFO'};
-  if ($pathinfo =~ m#/([\w\/\-\.]+)#) {
-    $pathinfo = $1;
-  }
-  else {
-    $pathinfo = '';
-  }
-  @mlists = split '/', $pathinfo;
-}
-
 #----- Print the generic page header -----#
 $ofunc   = $cgi->param('func') || 'welcome';
 @lists   = $cgi->param('list');
@@ -140,7 +145,6 @@ if ((! @lists) and @mlists) {
   @lists = @mlists;
 }
 $lists[0] ||= 'GLOBAL';
-
 
 #----- Create a temporary password -----#
 $passw   = $cgi->param('passw') || '';
@@ -469,7 +473,7 @@ sub initialize_log {
      method      => 'handle',
      id          => 'wwwadm',
      handle      => \*STDERR,
-     level       => 550,
+     level       => 50,
      subsystem   => 'mail',
      log_entries => 1,
      log_exits   => 1,
