@@ -29,6 +29,7 @@ vertical bars ('|') or colons, as in:
 The six trigger names (bounce, checksum, log, post, session, token)
 and full syntax are described in "help configset triggers".
 
+Here are the available actions which can be triggered:
 bounce   - Expire subscriber data, such as bounces and vacation settings.
 checksum - Expire posted message checksums and message-id data.
 log      - Expire entries from the main log.
@@ -36,14 +37,26 @@ post     - Expire data from the "post_limits" database.
 session  - Expire old session data.
 token    - Issue reminders and remove expired tokens and temporary passwords.
 
+When the software was installed, a cron job should have been set up to
+call mj_trigger periodically. The suggested setting is to do this on an
+hourly basis ONLY, to avoid doing the same thing multiple times. When
+that cron job triggers a check of various time-based actions, any
+action which is due or overdue will be performed. Digests are ALWAYS
+checked during the hourly trigger. The other triggers (bounce, checksum,
+log, post, session, token) are still checked during the daily trigger,
+if it is run by cron, for backward compatibility. The default "triggers"
+setting when the software was installed will also cause them to be checked
+daily, so any daily cron trigger should be turned off unless the
+"configset triggers" setting is emptied.
+
 The times follow the same syntax as the "times" portion of the digests
 configuration setting.  There are several ways to indicate times:
 
-always or anytime  - Always issue this trigger.
-never or none      - Never issue this trigger.
+always or anytime  - Always issue this trigger whenever cron runs any trigger.
+never or none      - Never issue this trigger regardless of calls to mj_trigger.
 yearly             - Issue this trigger once on the first of January.
-quarterly          - Issue this trigger once on the first of January,
-                     April, July, and October.
+quarterly          - Issue this trigger once on the first day of each quarter
+                     (the first of January, April, July, and October)
 monthly            - Issue this trigger once on the first of every month.
 weekly             - Issue this trigger once every Sunday.
 daily              - Issue this trigger early every morning.
@@ -51,7 +64,7 @@ hour or hour range - Hours during which to run the trigger every day
                      (for example, 6,12-14 would invoke the trigger
                       every day at 6 am, noon, and 2 pm.)
 day of the week    - The English name of the weekday, or a number 
-                     by the letter "w", optionally followed
+                     followed by the letter "w", optionally followed
                      by hours or hour ranges within parentheses.
 day of the month   - The English abbreviation of the day of the month,
                      or a number followed by the letter "m", 
@@ -59,9 +72,6 @@ day of the month   - The English abbreviation of the day of the month,
                      parentheses (for example, 2nd,10th,18th,26th
                      would invoke the trigger every hour during the second,
                      tenth, eighteenth, and twenty-fourth day of every month.)
-
-Note that each of the five individual triggers will be run by
-the "daily" trigger, regardless of the values of this setting.
 
 
 See Also:
