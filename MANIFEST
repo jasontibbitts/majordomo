@@ -236,6 +236,7 @@ files/en/delay
 files/en/delay_noweb
 files/en/digest_preindex
 files/en/error/invalid_command
+files/en/error/invalid_mode
 files/en/error/password_length
 files/en/error/unregistered
 files/en/faq

@@ -83,6 +83,10 @@ $files =
    ['Error format.  Warns that a command is invalid.',
     'us-ascii', '7bit'],
 
+   'en/error/invalid_mode'                     => 
+   ['Error format.  Warns that a command mode is invalid.',
+    'us-ascii', '7bit'],
+
    'en/error/password_length'                  => 
    ['Error format.  Warns that a password is too short.',
     'us-ascii', '7bit'],
