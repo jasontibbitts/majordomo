@@ -1,39 +1,48 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 default variable value
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-variable, required, must be either "list" or "password"
-value, if specified, is the name of the list or the password string
+variable, required, must be either "list", "password", or "user"
+value, if specified, is the string to be used in following commands
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 NOTE: This help file is for the command called "default". To get
       basic help, just send "help" to the server (not "help default").
 
-Sets a default value for a variable used by the command parser when
-processing a batch of commands.  Currently, you may set a default
-approval password or a default list name. This is not a general
-variable mechanism, it is ONLY for defaulting lists and passwords.
+The 'default' command sets certain defaults used by the command parser
+for processing one or more commands. It is most often used by list
+owners and administrators, but can also be used by subscribers.
+This is not a general variable mechanism, it is ONLY for providing
+the listed values. If the value is omitted, the default setting is
+removed. This allows you to have a default for some commands but
+not for others.
 
-The 'default' command sets certain defaults for the duration of the
-parsing.  The following defaults can be set:
+ The following defaults can be set:
 
-    password:  approves all following commands with the given password.
-               To clear the password, don't supply one.
-
-    list:      sets the default list for commands to the provided list.
-               To clear the default list, don't supply one.
-
-    language:  (Not implemented) sets the default language preference list
-               to the comma-separated list of two-letter language
+    language:  (Not implemented.) Sets the default language preference
+               list to the comma-separated list of two-letter language
                abbreviations.
 
-    prefix:    (Not implemented) sets a prefix that (if present) will be
+    list:      Sets the default list for commands to the provided list.
+               To clear the default list, don't supply one.
+
+    password:  Approves all following commands with the given password.
+               To clear the password, don't supply one.
+
+    prefix:    (Not implemented.) Sets a prefix that (if present) will be
                deleted from the beginning of all following lines.
 
-The 'language' command (not implemented) is equivalent to the 'default
-language' command above, and is supplied for the benefit of users.
+    user:      Replaces the address found in the "From:" field of your
+               email headers.
 
-If the value is omitted, the default setting is removed. This allows
-you to have a default for some commands but not for others.
+The 'language' command (not implemented) is equivalent to the 'default
+language' command, and is supplied for the benefit of those who do not
+wish to see server messages in English.
+
+Setting a default list makes the list an optional argument for all
+commands which take one (excepting the createlist command).  Note that
+this is not without ambiguity, as the parser cannot always tell when
+the default list is implied.  When running at the -request address,
+the parser generally starts with a default list in place.
 
 Setting a default password will implicitly do the equivalent of
 'approve password' at the beginning of all following command lines.
@@ -45,13 +54,27 @@ command to the parser to change some variables; simply add the
 and the parser will accept the 'configset' commands exactly as
 dumped by the configshow command.
 
-Setting a default list makes the list an optional argument for all
-commands which take one (excepting the createlist command).  Note that
-this is not without ambiguity, as the parser cannot always tell when
-the default list is implied.  When running at the -request address,
-the parser generally starts with a default list in place.
+Setting a default user is primarily useful when resubscribing
+(see "help changeaddr"), and then only if the "From:" field of
+the request message is incorrect. It can also be used by an
+expert to send info files, show output, etc. to someone who
+simply can't figure out how to do it for themselves.
 
-Both of these commands make it much simpler to submit multiple
+When a "default user" command is in effect, any command that looks
+at your headers to see who sent the command will behave differently.
+For example, a message sent from the server to the user's address
+will have the "From" field address showing who sent the request
+(rather than the server's address or the defaulted user's address).
+The person sending the message to the server will still see the
+result of the command (succeed, stall, fail) but none of the output.
+
+You can put different "default user" commands in a single email,
+each applying to other commands which follow. Since confirm
+messages go to the address being altered, defaulting has no
+impact on their destination unless the requester (which is set
+by the default user command) is identical to the 'victim'.
+
+These default commands make it much simpler to submit multiple
 commands to the parser in one fell swoop.  For example, it makes
 the following sets of commands equivalent:
     approve MYPASSWORD subscribe ONE-LIST someone@example.com

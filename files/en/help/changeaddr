@@ -6,8 +6,11 @@ address, required, is a previously registered address
 
 The "changeaddr" command replaces an "address" in the registration
 database with the address in the sender's "From:" or "Apparently-from:"
-header, including any comments. Address comments are ignored if they
-exist in the command. These are all equivalent:
+header, including any comments. If a "default user" command is issued
+first, the "From:" field of the requesting email is ignored.
+
+Address comments in "default user" or "From:" are respected, but
+comments are ignored if used in the command. These are all equivalent:
   changeaddr joe@blow.org
   changeaddr Joe Blow <joe@blow.org>
   changeaddr joe@blow.org (Joe Blow)
@@ -31,9 +34,14 @@ headers and send this command "From: Joe Blow <joe@blow.org>":
   changeaddr joe@blow.org
 to re-register and re-subscribe, changing all occurrances of the
 old address (and comments) to the same address (with new comments).
+Alternately, sending these TWO commands "From: Jane Doe <jane@doe.org>":
+  default user Joe Blow <joe@blow.org>
+  changeaddr joe@blow.org
+will have the same effect if everyone returns the confirmation tokens.
 
 See Also:
    help alias       (which makes two addresses equivalent)
+   help default     (for how to override the "From:" address)
    help register    (which adds an address to the database)
    help subscribe   (which adds an address to a list)
    help unregister  (which removes an address from all lists)
