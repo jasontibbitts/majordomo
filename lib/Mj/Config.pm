@@ -53,6 +53,7 @@ $VERSION = "1.0";
    'access_array'     => 1,
    'access_rules'     => 2,
    'address_array'    => 1,
+   'attachment_filters' => 2,
    'attachment_rules' => 2,
    'bounce_rules'     => 2,
    'config_array'     => 1,
@@ -85,6 +86,7 @@ $VERSION = "1.0";
    'access_rules'     => 1,
    'address'          => 1,
    'address_array'    => 1,
+   'attachment_filters' => 1,
    'attachment_rules' => 1,
    'bool'             => 1,
    'bounce_rules'     => 1,
@@ -1658,44 +1660,41 @@ sub parse_address_array {
   (1, '', $out);
 }
 
-=head2 parse_attachment_rules
+=head2 parse_attachment_filters
 
-This parses the attachment_rules variable.  This variable holds lines
+This parses the attachment_filters variable.  This variable holds lines
 looking like:
 
 mime/type : action=argument
 
-This builds a piece of code that when matched against a MIME type
-returns either 'allow', 'deny' or 'consult'.  This code is applied to
-each of the MIME types present in the message and is used to determine
-if the message should bounce.
-
-Another piece of code is built which returns a list.  The first
-element is either 'discard', 'allow'; the second is a
-content-transfer-encoding or undef.  This code is applied before
-posting to remove illegal types and to alter the encoding of various
-parts.  If the action is "format," the argument represents the
-width of the text, which is 72 characters by default.
+The filters will alter or discard parts of a message.  
+The supported actions include
+  allow 
+    Let the message part pass untouched
+  discard
+    Throw the message part away.  This only applies to multipart 
+    messages.
+  format[=width]
+    Convert the message part, if it has a "text" content type, into
+    plain text.  The optional width gives the position of the right
+    margin of the text.
 
 =cut
-sub parse_attachment_rules {
+sub parse_attachment_filters {
   my $self = shift;
   my $arr  = shift;
   my $log  = new Log::In 150;
-  my(%allowed_actions, $check, $change, $data, $err, $i, $ok, $pat, 
+  my(%allowed_actions, $change, $data, $err, $i, $ok, $pat, 
      $table);
 
   %allowed_actions =
     (
      'allow'   => 1,
-     'consult' => 1,
-     'deny'    => 0,
      'discard' => 0,
      'format'  => 1,
-     'require' => 1,
     );
 
-  $check = "\n"; $change = "\n";
+  $change = "\n";
 
   # Parse the table.
   ($table, $err) = parse_table('fss', $arr);
@@ -1714,16 +1713,9 @@ sub parse_attachment_rules {
       return (0, "Error in regexp '$table->[$i][0]', $err.");
     }
 
-    if ($table->[$i][1] eq 'deny') {
-      $check .= qq^return 'deny' if $pat;\n^;
-    }
-    elsif ($table->[$i][1] eq 'require') {
-      $check .= qq^return 'require' if $pat;\n^;
-    }
-    elsif ($table->[$i][1] =~ /^(allow|consult)(?:=(\S+))?$/) {
-      $check  .= qq^return '$1' if $pat;\n^;
-      if (defined($2)) {
-	$change .= qq^return ('allow', '$2') if $pat;\n^;
+    if ($table->[$i][1] =~ /^allow(?:=(\S+))?$/) {
+      if (defined($1)) {
+	$change .= qq^return ('allow', '$1') if $pat;\n^;
       }
       else {
 	$change .= qq^return ('allow', undef) if $pat;\n^;
@@ -1746,12 +1738,90 @@ sub parse_attachment_rules {
     }
   }
 
-  $check  .= "return 'allow';\n";
   $change .= "return ('allow', undef);\n";
 
   $data = {
-	   'check_code'  => $check,
 	   'change_code' => $change,
+	  };
+
+  return (1, '', $data);
+}
+=head2 parse_attachment_rules
+
+This parses the attachment_rules variable.  This variable holds lines
+looking like:
+
+mime/type : action=argument
+
+This builds a piece of code that when matched against a MIME type
+returns either 'allow', 'deny', 'consult', or 'require'.  This code is
+applied to each of the MIME types present in the message and is used to
+determine if the message should be held for moderation or discarded.
+
+=cut
+sub parse_attachment_rules {
+  my $self = shift;
+  my $arr  = shift;
+  my $log  = new Log::In 150;
+  my(%allowed_actions, $check, $data, $err, $i, $ok, $pat, 
+     $table);
+
+  %allowed_actions =
+    (
+     'allow'   => 1,
+     'consult' => 1,
+     'deny'    => 0,
+     'require' => 1,
+    );
+
+  $check = "\n";
+
+  # Parse the table.
+  ($table, $err) = parse_table('fss', $arr);
+  return (0, "Error parsing table: $err")
+    if $err;
+
+  # Run through entries.  Figure out action, add the appropriate code
+  # to the appropriate strings.  (allow adds code to both strings.)
+  # Bomb on unrecognized actions.
+  for ($i=0; $i<@$table; $i++) {
+
+    # First item is either an unquoted string or a pattern.  Convert the former to the latter.
+    ($ok, $err, $pat) = compile_pattern($table->[$i][0], 0, 'iexact');
+
+    if ($err) {
+      return (0, "Error in regexp '$table->[$i][0]', $err.");
+    }
+
+    if ($table->[$i][1] eq 'deny') {
+      $check .= qq^return 'deny' if $pat;\n^;
+    }
+    elsif ($table->[$i][1] =~ /^(allow|consult|require)(?:=(\S+))?$/) {
+      $check  .= qq^return '$1' if $pat;\n^;
+    }
+    elsif ($table->[$i][1] eq 'discard') {
+      warn <<EOM;
+The "discard" action is not supported by the attachment_rules setting.
+Please move all "discard" rules from the attachment_rules setting
+to the attachment_filters setting of the $self->{'list'} list.
+EOM
+    }
+    elsif ($table->[$i][1] =~ /^format(?:=(\d+))?$/) {
+      warn <<EOM;
+The "format" action is not supported by the attachment_rules setting.
+Please move all "format" rules from the attachment_rules setting
+to the attachment_filters setting of the $self->{'list'} list.
+EOM
+    }
+    else {
+      return (0, "Unrecognized action: $table->[$i][1].");
+    }
+  }
+
+  $check  .= "return 'allow';\n";
+
+  $data = {
+	   'check_code'  => $check,
 	  };
   return (1, '', $data);
 }
