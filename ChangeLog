@@ -1,3 +1,16 @@
+2004-09-02  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Add support for an archive search form
+	on the archive summary page.
+
+	* lib/Majordomo.pm:  Version number is now 0.1200409020.
+	(archive_chunk)  Mail messages retrieved with the archive-get
+	command to the victim, not to the user.
+
+	* lib/Mj/Format.pm:  (archive)  Support the YEARS substitution
+	in summary mode, which contains a list of the years for
+	which archives are available.
+
 2004-09-01  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Bugfix:  Process configshow arguments

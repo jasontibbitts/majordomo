@@ -41,11 +41,11 @@ use Mj::Log;
 use Mj::Parser;
 
 my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists, 
-    @settings, @values, $addr, $cgi, $cgidata, $cgiurl, $cs, $domain, 
-    $falseuser, $fh, $func, $i, $j, $line, $list, $loc, $mess, $mode, 
-    $mj, $ofunc, $ok, $opass, $passw, $pathinfo, $raw, $req, $request, 
-    $result, $sess, $str, $sublist, $subs, $tmp, $token, $truelist, 
-    $user);
+    @settings, @values, @victims, $addr, $cgi, $cgidata, $cgiurl, 
+    $cs, $domain, $end, $falseuser, $fh, $func, $i, $j, $line, $list, 
+    $loc, $mess, $mj, $mode, $ofunc, $ok, $opass, $passw, $pathinfo, 
+    $raw, $req, $request, $result, $sess, $start, $str, $sublist, $subs, 
+    $tmp, $token, $truelist, $user);
 
 #----- Which commands are supported ?  -----#
 # First value:  Is a list required?
@@ -208,22 +208,53 @@ $cgidata = Mj::Format::cgidata($mj, { 'user' => ($user eq $falseuser) ?
                                       '' : $user, 
                                       'password' => $passw });
 
+$tmp = '';
+if (defined $func and length $func) {
+  $tmp = $func;
+  if (defined $mode and length $mode) {
+    $tmp .= "-$mode";
+  }
+}
+
 $subs = { $mj->standard_subs($lists[0]),
           'CGIDATA'   => $cgidata,
           'CGIURL'    => $cgiurl,
           'CHUNKSIZE' => Mj::Format::escape($cgi->param('chunksize') || ''),
           'CMDPASS'   => '',
-          'COMMAND'   => Mj::Format::escape($ofunc),
+          'COMMAND'   => Mj::Format::escape($tmp),
           'EXTRA'     => '',
+          'HEREARGS'  => '',
           'USER'      => ($user eq $falseuser) ? '' : 
                          Mj::Format::escape($user),
+          'VICTIMS'   => '',
         };
 
 @extra = $cgi->param('extra');
 if (defined $extra[0]) {
-  $subs->{'EXTRA'} = Mj::Format::escape($extra[0]);
+  $subs->{'EXTRA'} = [];
+  for $tmp (@extra) {
+    next unless (defined $tmp and length $tmp);
+    push @{$subs->{'EXTRA'}}, Mj::Format::escape($tmp);
+  }
 }
 
+@hereargs = $cgi->param('hereargs');
+if (defined $hereargs[0]) {
+  $subs->{'HEREARGS'} = [];
+  for $tmp (@extra) {
+    next unless (defined $tmp and length $tmp);
+    push @{$subs->{'HEREARGS'}}, Mj::Format::escape($tmp);
+  }
+}
+
+@victims = $cgi->param('victims');
+if (defined $victims[0]) {
+  $subs->{'VICTIMS'} = [];
+  for $tmp (@extra) {
+    next unless (defined $tmp and length $tmp);
+    push @{$subs->{'VICTIMS'}}, Mj::Format::escape($tmp);
+  }
+}
 
 #----- Remove the temporary password if the admin is signing out. -----#
 if ($ofunc eq 'logout') {
@@ -364,15 +395,6 @@ elsif (! exists $commands{$func}) {
          '');
 }
 
-# The archive-get and get commands must use immediate mode,
-# to display the results instead of mailing them.
-if (($func eq 'archive' and $mode =~ /get/ and $mode !~ /part/) 
-    or ($func eq 'get' and $mode !~ /edit/)) {
-  # XXX Change to allow messages to be mailed
-  # Add support for "victims"
-  $mode .= $mode? "-immediate" : "immediate";
-}
-
 #----- Password check -----#
 if (! $passw) {
   &usage($mj, $subs, 
@@ -396,6 +418,7 @@ $request = {
     'mode'      => $mode,
     'password'  => $passw, 
     'user'      => $addr,
+    'victims'   => [ @victims ],
 };
 
 # Deal with result sets
@@ -439,13 +462,15 @@ if (function_prop($func, 'iter')) {
 # can include a group of list owners, a password, and possibly
 # a new list name.
 #
+# The ninth exception is for the archive search form.
+#
 # In each of these cases, the basic command form requires that the
 # "extra" variable still be handled if it was used.
 if (@extra and $func ne 'showtokens') {
   $i = 0;
   for $req (@extra) {
     $i++;
-    Mj::Parser::parse_args($request, $req, '');
+    Mj::Parser::parse_args($request, $req, \@hereargs);
 
     # Deal with accept/reject reasons and other values from textareas.
     if ($func =~ /accept|reject/) {
@@ -639,6 +664,34 @@ elsif ($func ne 'showtokens') {
     }
     @extra = split "\r?\n", $tmp;
     $request->{'owners'} = [@extra];
+  }
+  elsif ($func eq 'archive') {
+    ($start, $end) = cgi_get_dates($cgi);
+    if (length $start and length $end) {
+      $request->{'args'} = "$start - $end";
+    }
+    else {
+      $request->{'args'} = "$start$end";
+    }
+
+    $request->{'contents'} = [];
+    $tmp = $cgi->param('author');
+    if (defined $tmp and length $tmp) {
+      push @{$request->{'contents'}}, "~a$tmp";
+    }
+    $tmp = $cgi->param('subject');
+    if (defined $tmp and length $tmp) {
+      push @{$request->{'contents'}}, "~s$tmp";
+    }
+    if ($mode =~ /get/) {
+      $tmp = $victims[0];
+      unless (defined $tmp and length $tmp) {
+        $subs->{'EXTRA'} = Mj::Format::escape($request->{'args'});
+        $subs->{'HEREARGS'} = $request->{'contents'};
+        &usage($mj, $subs, $mj->format_error('undefined_address', 
+                             $lists[0]), 'choose_email');
+      }
+    }
   }
     
   $result = $mj->dispatch($request); 
@@ -926,6 +979,53 @@ EOM
   exit 0;
 }
 
+sub cgi_get_dates {
+  my $cgi = shift;
+  my ($cm, $cy, $ed, $em, $end, $ey, $sd, $sm, $start, $sy);
+
+  $start = $end = '';
+  return unless (defined $cgi);
+
+  $cm = sprintf "%.2d", (localtime)[4];
+  $cy = (localtime)[5] + 1900;
+
+  # days and months are assumed to have leading zeroes.
+  # years are assumed to have four digits.
+  $sd = $cgi->param('start_day') || '';
+  $sm = $cgi->param('start_month') || '';
+  $sy = $cgi->param('start_year') || '';
+  $ed = $cgi->param('end_day') || '';
+  $em = $cgi->param('end_month') || '';
+  $ey = $cgi->param('end_year') || '';
+ 
+  if (length $sd) {
+    $sm ||= $cm;
+    $sy ||= $cy;
+    $start = "$sy$sm$sd";
+  } 
+  elsif (length $sm) {
+    $sy ||= $cy;
+    $start = "$sy$sm";
+  }
+  elsif (length $sy) {
+    $start = $sy;
+  }
+
+  if (length $ed) {
+    $em ||= $cm;
+    $ey ||= $cy;
+    $end = "$ey$em$ed";
+  } 
+  elsif (length $em) {
+    $ey ||= $cy;
+    $end = "$ey$em";
+  }
+  elsif (length $ey) {
+    $end = $ey;
+  }
+ 
+  ($start, $end);
+} 
 
 =head1 COPYRIGHT
 
