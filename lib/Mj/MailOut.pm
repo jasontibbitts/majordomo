@@ -175,11 +175,10 @@ sub owner_done {
   $self->{'owner_fh'}->close;
   $self->_make_list($list);
 
-  # Extract the owners
-  $sender = $self->_list_config_get('GLOBAL', 'sender');
-  @owners = @{$self->_list_config_get($list, 'owners')};
-
-  $tmpdir = $self->_global_config_get("tmpdir");
+  # Extract the some config data
+  $sender  = $self->_list_config_get('GLOBAL', 'sender');
+  $tmpdir  = $self->_global_config_get("tmpdir");
+  @owners  = @{$self->_list_config_get($list, 'owners')};
 
   $parser = new Mj::MIMEParser;
   $parser->output_to_core($self->_global_config_get("max_in_core"));
@@ -190,7 +189,11 @@ sub owner_done {
   $ent = $parser->read($fh);
   $fh->close;
 
-  ($bounce, $baduser, $mess) = Bf::Parser::parse($ent);
+  ($bounce, $baduser, $mess) =
+    Bf::Parser::parse($ent,
+		      $list,
+		      $self->_site_config_get('mta_separator')
+		     );
 
   if ($bounce eq 'warning' || $bounce eq 'bounce') {
     # Build a new message which includes the explanation from the bounce

@@ -25,23 +25,37 @@ posible.
 
 Takes:
 
-  a parsed entity containing the potential bounce message.
+  A parsed entity containing the potential bounce message.
+  The list name.
+  The MTA's sender separator, for parsing the To: header.
 
 Returns:
 
   type - type of message this was identified to be ('bounce', 'warning',
          'unknown').
   address - address which is identified to be bouncing.
-  message - a descriptive message for the list owner.
+  msgno   - the message number of the bouncing message, if known
+  info    - a descriptive message for the list owner.
 
 Please note that this is just a skeleton hack to get some functionality
 going.
 
 =cut
 
+use Bf::Sender;
 sub parse {
-  my $log = new Log::In 50;
-  my $ent = shift;
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $list = shift;
+  my $sep  = shift;
+
+  my ($left, $right, $to);
+
+  # Look for useful bits in the To: header
+  $to = $ent->head->get('To');
+
+  # Should use Bf::Sender::parse_to($to)
+  ($left) = $to =~ /\Q${list}\E-owner\Q${sendsep}\E([^@]+)\@/;
 
   return ('unknown');
 #  return ('bounce', '', "Detected a bounce.\n");
