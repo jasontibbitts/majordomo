@@ -718,5 +718,7 @@ t/core.t
 t/db-dbmbtree.t
 t/db-dbmhash.t
 t/db-text.t
+t/default_config
+t/global_config
 t/harness
 t/shell.t
