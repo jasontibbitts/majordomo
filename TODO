@@ -31,10 +31,6 @@ Top of the list
   output, while the victim will receive instructions.  Or look up the
   language preference of the user when sending out end-user information.
 
-! Update help texts from recent contributions.
-
--- Snapshot
-
 - Extension mechanism:  one file, in $::TOPDIR/$domain, called
   local_extensions.pl.  Pulled in after all properties are defined and
    mj_cf_data is loaded (so the two important hashes have been defined).

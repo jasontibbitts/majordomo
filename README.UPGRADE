@@ -11,9 +11,7 @@ be imported later:
 #!/bin/sh
 for i in `mj_shell -p password lists-tiny`;
 do
-  mj_shell -p password who $i |
-  perl -e '$e = <>;$l = ""; while (<>) {print $l; $l=$_}'
-  > $i
+  mj_shell -p password who $i | perl -e '<>;$l = ""; while (<>) {$l =~ s/^\s//;print $l; $l=$_}' > $i
 done
 
 Then cd to $::LISTDIR (the directory holding all of your domains) and

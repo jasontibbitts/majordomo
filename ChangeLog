@@ -1,3 +1,9 @@
+Fri Sep 18 00:29:12 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* README.UPGRADE: Minor tweak in the instructions.
+
+	* lib/Majordomo.pm: Bump version number.  Snapshot time!
+
 Thu Sep 17 01:29:10 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/TextOutput.pm (put): Chunk lines together instead of
