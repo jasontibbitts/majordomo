@@ -647,7 +647,7 @@ sub allowed {
   my $self = shift;
   my $var  = shift;
 
-  if ($self->{'vars'}{$var} && $self->{'vars'}{$var}{'values'}) {
+  if (exists $self->{'vars'}{$var} && $self->{'vars'}{$var}{'values'}) {
     return $self->{'vars'}{$var}{'type'};
   }
   return undef;
@@ -662,6 +662,7 @@ sub groups {
   my $self = shift;
   my $var  = shift;
 
+  return unless (exists $self->{'vars'}{$var});
   if ($self->{'vars'}{$var}{'groups'}) {
     return @{$self->{'vars'}{$var}{'groups'}};
   }
@@ -678,7 +679,7 @@ sub comment {
   my $self = shift;
   my $var  = shift;
 
-  if ($self->{'vars'}{$var}) {
+  if (exists $self->{'vars'}{$var}) {
     return $self->{'vars'}{$var}{'comment'};
   }
   return undef;
@@ -708,13 +709,15 @@ group membership and allowed values.
 sub intro {
   my $self = shift;
   my $var  = shift;
-  my ($default, $enums, $groups, $type);
+  my (@tmp, $default, $enums, $groups, $type);
 
   $::log->in(180, "$self->{'list'}, $var");
 
   unless ($self->{'loaded'}) {
     $self->load;
   }
+
+  return unless(exists $self->{'vars'}{$var});
 
   $type = $self->{'vars'}{$var}{'type'};
 
@@ -783,7 +786,7 @@ sub isarray {
   my $self = shift;
   my $var  = shift;
 
-  if ($self->{'vars'}{$var}) {
+  if (exists $self->{'vars'}{$var}) {
     return $is_array{$self->{'vars'}{$var}{'type'}};
   }
   return;
@@ -799,7 +802,7 @@ sub isauto {
   my $self = shift;
   my $var  = shift;
 
-  if ($self->{'vars'}{$var}) {
+  if (exists $self->{'vars'}{$var}) {
     return $self->{'vars'}{$var}{'auto'};
   }
   return;
@@ -836,7 +839,7 @@ sub visible {
     return $access->{$var}{'show'};
   }
   
-  if ($self->{'vars'}{$var}) {
+  if (exists $self->{'vars'}{$var}) {
     return $self->{'vars'}{$var}{'visible'};
   }
   return;
@@ -857,7 +860,7 @@ sub mutable {
     return $access->{$var}{'set'};
   }
   
-  if ($self->{'vars'}{$var}) {
+  if (exists $self->{'vars'}{$var}) {
     return $self->{'vars'}{$var}{'mutable'};
   }
   return;
@@ -872,10 +875,10 @@ sub type {
   my $self = shift;
   my $var  = shift;
 
-  if ($self->{'vars'}{$var}) {
+  if (exists $self->{'vars'}{$var}) {
     return $self->{'vars'}{$var}{'type'};
   }
-  return undef;
+  return;
 }
 
 =head2 vars(group/var, hidden, global)
@@ -927,7 +930,7 @@ sub vars {
   }
 
   # Try a single variable
-  elsif ($self->{'vars'}{$var}) {
+  elsif (exists $self->{'vars'}{$var}) {
     if (($hidden >= $self->visible($var)) &&
 	($global ? $self->{'vars'}{$var}{'global'} : $self->{'vars'}{$var}{'local'}))
       {
@@ -1671,7 +1674,8 @@ Another piece of code is built which returns a list.  The first
 element is either 'discard', 'allow'; the second is a
 content-transfer-encoding or undef.  This code is applied before
 posting to remove illegal types and to alter the encoding of various
-parts.
+parts.  If the action is "format," the argument represents the
+width of the text, which is 72 characters by default.
 
 =cut
 sub parse_attachment_rules {
@@ -1687,6 +1691,8 @@ sub parse_attachment_rules {
      'consult' => 1,
      'deny'    => 0,
      'discard' => 0,
+     'format'  => 1,
+     'require' => 1,
     );
 
   $check = "\n"; $change = "\n";
@@ -1707,9 +1713,12 @@ sub parse_attachment_rules {
     if ($err) {
       return (0, "Error in regexp '$table->[$i][0]', $err.");
     }
+
     if ($table->[$i][1] eq 'deny') {
       $check .= qq^return 'deny' if $pat;\n^;
-
+    }
+    elsif ($table->[$i][1] eq 'require') {
+      $check .= qq^return 'require' if $pat;\n^;
     }
     elsif ($table->[$i][1] =~ /^(allow|consult)(?:=(\S+))?$/) {
       $check  .= qq^return '$1' if $pat;\n^;
@@ -1721,7 +1730,16 @@ sub parse_attachment_rules {
       }
     }
     elsif ($table->[$i][1] eq 'discard') {
-      $change .= qq^return ('discard', undef) if $pat;\n^;
+      $change .= qq^return ('discard', undef) if ($pat and \$level > 1);\n^;
+    }
+    elsif ($table->[$i][1] =~ /^format(?:=(\d+))?$/) {
+      if (defined($1)) {
+        # right margin position is the second value.
+	$change .= qq^return ('format', '$1') if $pat;\n^;
+      }
+      else {
+	$change .= qq^return ('format', undef) if $pat;\n^;
+      }
     }
     else {
       return (0, "Unrecognized action: $table->[$i][1].");
@@ -3374,10 +3392,10 @@ Right now we only parse three kinds of generalized expressions:
  have their usual meaning in the shell and character classes using '[' and
  ']' are supported.
 
- perl-like, delimited by forward slashes, in which nothing is escaped
-   _unless_ the original expression fails because of an array deref error.
-   In that case, all unescaped @ symbols are escaped and the regexp is
-   tried again.
+ perl-like, delimited by forward slashes, in which only dollar signs
+   and slashes are escaped _unless_ the original expression fails 
+   because of an array dereference error.  In that case, all 
+   unescaped @ symbols are escaped and the regexp is tried again.  
 
 =cut
 use Mj::Util qw(re_match);
@@ -3441,13 +3459,17 @@ sub compile_pattern {
     # Perl pattern; fail if the closing '/' is missing
     return (0, "Error in pattern '$str': no closing '/'.\n")
       unless $id2 eq '/';
+
+    # Escape dollar signs and solidi.
+    $pat =~ s/((?:^|[^\\\$])(?:\\\\)*)\$(\S)/$1\\\$$2/g; 
+    $pat =~ s#((?:^|[^\\])(?:\\\\)*)/#$1\\/#g; 
+
     $re = "/$pat/$mod";
 
     # Check validity of the regexp
     $err = (re_match($re, "justateststring"))[1];
 
-    # If we got an array deref error, try escaping '@' signs and trying
-    # again
+    # If we got an array deref error, escape '@' signs and try again.
     if ($err =~ /array deref/) {
       $re =~ s/((?:^|[^\\\@])(?:\\\\)*)\@/$1\\\@/g; # Ugh
       $err = (re_match($re, "justateststring"))[1];
