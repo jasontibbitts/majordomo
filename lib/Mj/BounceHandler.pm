@@ -172,8 +172,15 @@ sub handle_bounce_message {
       $diag   = $data->{$user}{diag} || 'unknown';
     }
     else {
-      $status = 'failure';
-      $diag   = 'unknown';
+      my ($other) = keys %$data;
+      if (defined($other)) {
+        $status = $data->{$other}{status};
+        $diag   = $data->{$other}{diag} || 'unknown';
+        $diag   = $other . ' : ' . $diag;
+      } else {
+       $status = 'failure';
+       $diag   = 'unknown';
+      }
     }
     $data = {$user => {status => $status, diag => $diag}};
   }
