@@ -38,7 +38,8 @@ sub out {
   my $w = ''; 
   vec($w, fileno($_[0]), 1) = 1; 
   logmsg "Out: $_[1]"; 
-  syswrite($_[0], $_[1]) if select(undef, $w, undef, .25) == 1; 
+  syswrite($_[0], $_[1], length($_[1])) 
+    if (select(undef, $w, undef, .25) == 1); 
 }
 
 sub in { 

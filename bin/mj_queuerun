@@ -55,8 +55,17 @@ message is received, the queue runner will examine each of the queue
 directories again.  Otherwise, the queue runner will exit.
 
 =cut
-sub out { my $w = ''; vec($w, fileno(STDOUT), 1) = 1; syswrite(STDOUT, $_[0]) if select(undef, $w, undef, .25) == 1; }
-sub in  { sysread(STDIN, $_, 1024); $_};
+sub out { 
+  my $w = ''; 
+  vec($w, fileno(STDOUT), 1) = 1; 
+  syswrite(STDOUT, $_[0], length($_[0])) 
+    if select(undef, $w, undef, .25) == 1; 
+}
+
+sub in { 
+  sysread(STDIN, $_, 1024); 
+  $_;
+}
 
 use lib "$::LIBDIR";
 use Getopt::Std;

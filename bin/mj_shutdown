@@ -27,7 +27,7 @@ BEGIN {
 use Socket;
 use Getopt::Long;
 use strict;
-my (%opts, $ok, $rendezvous, $time);
+my (%opts, $msg, $ok, $rendezvous, $time);
 
 umask oct($::UMASK);
 $ENV{PATH} = '';
@@ -46,7 +46,8 @@ unless (socket(SOCK, PF_UNIX, SOCK_STREAM, 0)) {
 
 if ($ok = connect(SOCK, sockaddr_un($rendezvous))) {
   # Connected to the server; 
-  syswrite(SOCK, "quit $time\n");
+  $msg = "quit $time\n";
+  syswrite(SOCK, $msg, length($msg));
   print "The queue server has been asked to shut down in $time seconds.\n";
 }
 else {
