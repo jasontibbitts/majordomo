@@ -1,5 +1,8 @@
 Thu Apr 23 01:14:16 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Mj/Token.pm (t_remind): Send consult reminders to the right
+ 	place.
+
 	* lib/Majordomo.pm: Bump version number.
 
 Wed Apr 22 02:24:12 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>

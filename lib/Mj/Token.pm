@@ -718,7 +718,7 @@ sub t_remind {
 	       ARG2       => $data->{'arg2'},
 	       ARG3       => $data->{'arg3'},
 	      );
-      
+
       # Substitute values in the file and the description
       $file = $self->substitute_vars($file, %repl);
       $desc = $self->substitute_vars_string($desc, %repl);
@@ -736,9 +736,15 @@ sub t_remind {
 	 -Subject    => "$token : $desc",
 	);
       
-      # Mail it out
-      $self->mail_entity($mj_owner, $ent, $data->{'victim'});
-      
+      # Mail it out; the victim gets confirm notices, otherwise the owner
+      # gets them
+      if ($data->{type} eq 'confirm') {
+	$self->mail_entity($mj_owner, $ent, $data->{'victim'});
+      }
+      else {
+	$self->mail_entity($mj_owner, $ent, $sender);
+      }
+	
       # Purge the entity
       $ent->purge;
     }

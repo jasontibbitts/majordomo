@@ -651,3 +651,5 @@ Keep a list of banned domains, compare against them in resend and fail all
  dispatcher).
 Purge archive files after a certain period of time.
 Make archiver add files into filespace with useful descriptions.
+Change commands executed/successful to counts of
+ total/executed/pending/failed or somesuch.
