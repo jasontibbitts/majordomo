@@ -379,7 +379,7 @@ sub parse_part {
       $request->{'mode'} = $mode;
       $request->{'list'} = $list;
       # deal with arguments
-      parse_args($request, $cmdargs, @arglist);
+      parse_args($request, $cmdargs, \@arglist, $attachhandle);
 
       # XXX if there are no arguments, read attachment from attachhandle
       no strict 'refs';
@@ -688,7 +688,7 @@ sub add_deflist {
 }
 
 sub parse_args {
-  my ($request, $args, @arglist) = @_;
+  my ($request, $args, $arglist, $attachh) = @_;
   my ($variable, $varcount, $useopts, $om, $k, $arguments, @splitargs);
   my ($hereargs);
 
@@ -744,7 +744,22 @@ sub parse_args {
     unless (exists $request->{$hereargs}) {
       $request->{$hereargs} = [];
     }
-    push @{$request->{$hereargs}}, @arglist;
+    if (@$arglist) {
+      push @{$request->{$hereargs}}, @$arglist;
+    }
+    elsif (ref $attachh eq 'IO::File' or ref $attachh eq 'IO::Handle') {
+      # For iterated functions, pass the handle.
+      if (function_prop($request->{'command'}, 'iter')) {
+        $request->{$hereargs} = $attachh;
+      }
+      # Otherwise, read the contents into memory.
+      else {
+        while ($k = $attachh->getline) {
+          chomp $k;
+          push @{$request->{$hereargs}}, $k;
+        }
+      }  
+    }
   }
   1;
 }
