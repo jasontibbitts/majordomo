@@ -832,7 +832,7 @@ sub usage {
   print STDOUT "$str\n";
 
   if ($subs->{'LIST'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
-    $tmp = $mj->format_get_string('wwwadm', 'foot_global', "GLOBAL');
+    $tmp = $mj->format_get_string('wwwadm', 'foot_global', 'GLOBAL');
   }
   else {
     $tmp = $mj->format_get_string('wwwadm', 'foot', $subs->{'LIST'});
