@@ -768,7 +768,7 @@ sub flag_set {
   $log->out('no');
   my ($flags, $data);
   return unless $flags{$flag};
-  return unless $addr->isvalid;
+  return 0 unless $addr->isvalid;
 
   $flags = $addr->retrieve("$self->{name}-flags")
     unless ($sublist eq 'MAIN');
@@ -785,7 +785,7 @@ sub flag_set {
       unless defined $sublist;
   }
 
-  return unless $flags =~ /$flags{$flag}[3]/;
+  return 0 unless $flags =~ /$flags{$flag}[3]/;
   $log->out('yes');
   1;
 }
@@ -1430,7 +1430,7 @@ sub expire_dup {
     $self->{'dup'}{$i}->mogrify($mogrify);
   }
 
-  return @nuked
+  return @nuked;
 }
 
 =head2 post_add
