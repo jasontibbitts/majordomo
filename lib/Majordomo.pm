@@ -477,7 +477,6 @@ sub substitute_vars {
   
   while (defined ($i = $in->getline)) {
     if ($i =~ /\$INCLUDE-(.*)$/) {
-      warn "Including $1";
       # Do a _list_file_get.  If we get a file, open it and call
       # substitute_vars on it, printing to the already opened handle.  If
       # we don't get a file, print some amusing text.
