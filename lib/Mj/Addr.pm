@@ -1053,7 +1053,7 @@ sub _validate {
   my $addr = join("", @words);
   my $comm = join(" ", @comment) || "";
   my $lp   = substr $addr, 0, $lhs_length;
-  my $dom  = substr $addr, -1, $rhs_length;
+  my $dom  = substr $addr, -$rhs_length, $rhs_length;
 
 #  $log->out('ok');
   (1, $addr, $comm, $lp, $dom);

@@ -1,3 +1,8 @@
+2003-11-16  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Addr.pm:  (_validate)  Bugfix:  Return the full domain.
+	Thanks to Roger Klorese.
+
 2003-11-12  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/BounceHandler.pm:  (handle_bounce_message)  Override
@@ -9,9 +14,9 @@
 
 2003-11-08  Michael Yount <csf@moscow.com>
 
-        * lib/Mj/MailOut.pm:  (welcome)  Increase the message count
-        only if a welcome file has already been processed.
-        Thanks to Roger Klorese.
+	* lib/Mj/MailOut.pm:  (welcome)  Increase the message count
+	only if a welcome file has already been processed.
+	Thanks to Roger Klorese.
 
 2003-11-04  Michael Yount <csf@moscow.com>
 
