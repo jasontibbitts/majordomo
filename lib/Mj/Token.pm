@@ -241,7 +241,7 @@ sub confirm {
      -To         => "$args{'notify'}", 
      -From       => $mj_addr,
      '-Reply-To' => $mj_addr,
-     -Subject    => "$token : $desc",
+     -Subject    => $desc,
      'Content-Language:' => $file{'language'},
     );
 
@@ -401,7 +401,7 @@ sub consult {
      -To         => $sender,
      -From       => $sender,
      '-Reply-To' => $mj_addr,
-     -Subject    => "$token : $desc",
+     -Subject    => $desc,
      'Content-Language:' => $file{'language'},
     );
 
@@ -771,7 +771,7 @@ sub t_remind {
          Filename    => undef,
          -From       => $mj_addr,
          '-Reply-To' => $mj_addr,
-         -Subject    => "$token : $desc",
+         -Subject    => $desc,
          'Content-Language:' => $file{'language'},
         );
       

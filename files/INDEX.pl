@@ -30,7 +30,7 @@ $files =
    'en/subscribe_to_self'                             => ['Attempt to subscribe $LIST to itself',     'us-ascii', '7bit'],
    'en/token_reject'                                  => ['Rejected token $TOKEN',                    'us-ascii', '7bit'],
    'en/token_reject_owner'                            => ['Token rejected by $REJECTER',              'us-ascii', '7bit'],
-   'en/token_remind'                                  => ['REMINDER from $LIST',                      'us-ascii', '7bit'],
+   'en/token_remind'                                  => ['$TOKEN : REMINDER from $LIST',                      'us-ascii', '7bit'],
    'en/welcome'                                       => ['Welcome',                                  'us-ascii', '7bit'],
    'en/who_registry'                                  => ['registry data template',                   'us-ascii', '7bit'],
    'en/who_subscriber'                                => ['subscriber data template',                 'us-ascii', '7bit'],
@@ -368,7 +368,7 @@ $files =
    'de/subscribe_to_self'       => 'Attempt to subscribe $LIST to itself',
    'de/token_reject'            => 'Rejected token $TOKEN',
    'de/token_reject_owner'      => 'Token rejected by $REJECTER',
-   'de/token_remind'            => 'REMINDER from $LIST',
+   'de/token_remind'            => '$TOKEN : REMINDER from $LIST',
 #    'de/help/default'            => 'Default help file',
 #    'de/help/commands'           => 'Overview of available commands',
 #    'de/help/parser'             => 'Information about the text parser',
@@ -401,7 +401,7 @@ $files =
    'de/informal/subscribe_to_self'       => 'Attempt to subscribe $LIST to itself',
    'de/informal/token_reject'            => 'Rejected token $TOKEN',
    'de/informal/token_reject_owner'      => 'Token rejected by $REJECTER',
-   'de/informal/token_remind'            => 'REMINDER from $LIST',
+   'de/informal/token_remind'            => '$TOKEN : REMINDER from $LIST',
 #    'de/informal/help/default'            => 'Default help file',
 #    'de/informal/help/commands'           => 'Overview of available commands',
 #    'de/informal/help/parser'             => 'Information about the text parser',
@@ -415,24 +415,24 @@ $files =
 
 # Files that are conditional on a working web server
 if ($indexflags & 1) {
-  $files->{'en/confirm'} = ['CONFIRM from $LIST ($REQUEST)', 'us-ascii', '7bit'];
-  $files->{'en/consult'} = ['CONSULT from $LIST ($REQUEST)', 'us-ascii', '7bit'];
+  $files->{'en/confirm'} = ['$TOKEN : CONFIRM from $LIST ($REQUEST)', 'us-ascii', '7bit'];
+  $files->{'en/consult'} = ['$TOKEN : CONSULT from $LIST ($REQUEST)', 'us-ascii', '7bit'];
 
-  $files->{'de/confirm'} = 'CONFIRM from $LIST';
-  $files->{'de/consult'} = 'CONSULT from $LIST';
+  $files->{'de/confirm'} = '$TOKEN : CONFIRM from $LIST';
+  $files->{'de/consult'} = '$TOKEN : CONSULT from $LIST';
 
-  $files->{'de/informal/confirm'} = 'CONFIRM from $LIST';
-  $files->{'de/informal/consult'} = 'CONSULT from $LIST';
+  $files->{'de/informal/confirm'} = '$TOKEN : CONFIRM from $LIST';
+  $files->{'de/informal/consult'} = '$TOKEN : CONSULT from $LIST';
 }
 else {
-  $files->{'en/confirm'} = ['CONFIRM from $LIST ($REQUEST)', 'us-ascii', '7bit', 'en/confirm_noweb'];
-  $files->{'en/consult'} = ['CONSULT from $LIST ($REQUEST)', 'us-ascii', '7bit', 'en/consult_noweb'];
+  $files->{'en/confirm'} = ['$TOKEN : CONFIRM from $LIST ($REQUEST)', 'us-ascii', '7bit', 'en/confirm_noweb'];
+  $files->{'en/consult'} = ['$TOKEN : CONSULT from $LIST ($REQUEST)', 'us-ascii', '7bit', 'en/consult_noweb'];
 
-  $files->{'de/confirm'} = ['CONFIRM from $LIST', 'ISO-8859-1', '8bit', 'de/confirm_noweb'];
-  $files->{'de/consult'} = ['CONSULT from $LIST', 'ISO-8859-1', '8bit', 'de/consult_noweb'];
+  $files->{'de/confirm'} = ['$TOKEN : CONFIRM from $LIST', 'ISO-8859-1', '8bit', 'de/confirm_noweb'];
+  $files->{'de/consult'} = ['$TOKEN : CONSULT from $LIST', 'ISO-8859-1', '8bit', 'de/consult_noweb'];
 
-  $files->{'de/informal/confirm'} = ['CONFIRM from $LIST', 'ISO-8859-1', '8bit', 'de/informal/confirm_noweb'];
-  $files->{'de/informal/consult'} = ['CONSULT from $LIST', 'ISO-8859-1', '8bit', 'de/informal/consult_noweb'];
+  $files->{'de/informal/confirm'} = ['$TOKEN : CONFIRM from $LIST', 'ISO-8859-1', '8bit', 'de/informal/confirm_noweb'];
+  $files->{'de/informal/consult'} = ['$TOKEN : CONSULT from $LIST', 'ISO-8859-1', '8bit', 'de/informal/consult_noweb'];
 }
 
 # Directories; no longer useful but left here in case they are subsequently
