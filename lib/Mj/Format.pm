@@ -1031,18 +1031,82 @@ sub reject {
 
 sub rekey {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, "$type";
+  my $log = new Log::In 29, "$type, $request->{'mode'}";
+  my ($changed, $count, $i, $list, $unreg, $unsub);
 
-  my ($ok, $mess) = @$result; 
-  if ($ok>0) {
-    eprint($out, $type, "Databases rekeyed.\n");
-    eprint($out, $type, &indicate($mess, $ok)) if $mess;
+  my ($ok, $ra, $rca, $aa, $aca) = @$result; 
+  if ($ok > 0) {
+    if ($request->{'mode'} =~ /repair/) {
+      eprint($out, $type, "Repairing the registry and subscriber databases.\n");
+      eprint($out, $type, "Mailing List         Number of repaired addresses\n");
+      eprint($out, $type, "------------         ----------------------------\n");
+    }
+    elsif ($request->{'mode'} =~ /verify/) {
+      eprint($out, $type, "Verifying the registry and subscriber databases.\n");
+      eprint($out, $type, "Mailing List         Number of invalid addresses\n");
+      eprint($out, $type, "------------         ---------------------------\n");
+    }
+    elsif ($request->{'mode'} =~ /noxform/) {
+      eprint($out, $type, "Examining the registry and subscriber databases.\n\n");
+      eprint($out, $type, "Mailing List         Number of miskeyed addresses\n");
+      eprint($out, $type, "------------         ----------------------------\n");
+      eprintf($out, $type, "global registry      %4d out of %d\n",
+              $rca, $ra);
+      eprintf($out, $type, "global aliases       %4d out of %d\n",
+              $aca, $aa);
+
+    }
+    else {
+      eprint($out, $type, "Applying address transformations.\n\n");
+      eprint($out, $type, "Mailing List         Number of updated addresses\n");
+      eprint($out, $type, "------------         ---------------------------\n");
+      eprintf($out, $type, "global registry      %4d out of %d\n",
+              $rca, $ra);
+      eprintf($out, $type, "global aliases       %4d out of %d\n",
+              $aca, $aa);
+    }
+
+    $request->{'command'} = "rekey_chunk";
+    
+    while (1) {
+      ($ok, $list, $count, $unsub, $unreg, $changed) = 
+        @{$mj->dispatch($request)};
+
+      last unless (defined $ok);
+
+      unless ($ok > 0) {
+        eprint($out, $type, &indicate($count, $ok));
+        next;
+      }
+
+      eprintf($out, $type, "%-20s %4d out of %d\n", $list, $changed, $count);
+      if ($request->{'mode'} =~ /repair/) {
+        for $i (keys %$unreg) {
+          eprint($out, $type, "  The registry entry for $i was repaired.\n");
+        }
+        for $i (keys %$unsub) {
+          eprint($out, $type, "  The subscription for $i was repaired.\n");
+        }
+      }
+      elsif ($request->{'mode'} =~ /verify/) {
+        for $i (keys %$unreg) {
+          eprint($out, $type, "  The registry entry for $i is incorrect.\n");
+        }
+        for $i (keys %$unsub) {
+          eprint($out, $type, "  The subscription for $i is missing.\n");
+        }
+      }
+    }
   }
   else {
-    eprint($out, $type, "Databases not rekeyed.\n");
-    eprint($out, $type, &indicate($mess, $ok));
+    eprint($out, $type, "The registry and subscriber databases were not rekeyed.\n");
+    eprint($out, $type, &indicate($ra, $ok));
+    return 0;
   }
-  $ok;
+  
+  $request->{'command'} = "rekey_done";
+  $mj->dispatch($request);
+  1;
 }
 
 use Date::Format;
