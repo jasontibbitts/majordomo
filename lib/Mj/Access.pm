@@ -32,7 +32,7 @@ use AutoLoader 'AUTOLOAD';
 1;
 __END__
 
-=head2 validate_passwd(user, passwd, auth, interface, list, action)
+=head2 validate_passwd(user, passwd, list, action)
 
 This checks the validity of a password and whether or not it permits a
 certain action.
