@@ -37,7 +37,7 @@
       <option> who-bounce
     </select>
   <td colspan=2>
-    <input size=36 name=extra value="">
+    <input size=40 name=extra value="">
 <tr>
   <td>
     Mailing List:&nbsp;&nbsp;
