@@ -1764,7 +1764,7 @@ sub _list_config_set {
 
   $type = $self->config_get_type($var);
   if ($out[0] == 1) {
-    # Now do some special stuff depending on the variable
+    # Now do some special stuff depending on the variable:
 
     # Regenerate password
     if ($type eq 'pw' || $type eq 'passwords') {
@@ -1775,6 +1775,12 @@ sub _list_config_set {
     # Store new addr_xforms in the address parser
     elsif ($var eq 'addr_xforms') {
       Mj::Addr::set_params('xforms' => $out[2]);
+    }
+
+    # Synchronize the GLOBAL:owners sublist if the owners
+    # setting was changed.
+    elsif ($var eq 'owners') {
+      $self->sync_owners($self->{'sessionuser'});
     }
   }
   @out;
@@ -3940,6 +3946,10 @@ sub _createlist {
       return (1, "Unsupported MTA $mta, can't regenerate configuration.\n");
     }
 
+    # Synchronize the GLOBAL:owners auxiliary list with the current group
+    # of list owners.
+    $self->sync_owners($requ) if ($mode =~ /regen/);
+
     # Extract lists and owners
     $args{'regenerate'} = 1;
     $args{'lists'} = [];
@@ -4062,6 +4072,73 @@ sub _createlist {
 
   return (1, $mess);
 }
+
+=head2 sync_owners
+
+A complete list of mailing list owners is kept in the GLOBAL::owners
+auxiliary list.  This routine synchronizes the auxiliary list with
+the contents of each "owners" configuration setting.
+
+=cut
+
+sub sync_owners {
+  my ($self, $requ) = @_;
+  my (@deletions, @tmp, $addr, $i, $j, $out, $owners, $strip, $time);
+  $self->_fill_lists;
+  $out = {};
+  for $i (sort keys %{$self->{'lists'}}) {
+    $owners = $self->_list_config_get($i, 'owners');
+    for $j (@$owners) {
+      $time = $::log->elapsed;
+      $addr = new Mj::Addr($j);
+      next unless $addr->isvalid;
+      $strip = $addr->strip;
+      if (exists $out->{$strip}) {
+        push @{$out->{$strip}}, $i;
+      }
+      else {
+        $out->{$strip} = [$i];
+      }
+      unless ($self->{'lists'}{'GLOBAL'}->is_subscriber($addr, 'owners')) {
+        $self->_subscribe('GLOBAL', $requ, $addr, '', 
+                          "subscribe GLOBAL:owners $addr", '', 'owners');
+        $self->inform('GLOBAL', 'subscribe', $requ, $addr,
+                      "subscribe GLOBAL:owners $addr",
+                      $self->{'interface'}, 1, 1, 0, 
+                      '',
+                      $::log->elapsed - $time);
+
+      }
+    }
+  }
+  # Synchronize the GLOBAL::owners sublist with the current
+  # set of owners by iterating over all of the addresses and
+  # removing those that are not currently list owners.
+  $self->{'lists'}{'GLOBAL'}->get_start('owners');
+  while (1) {
+    @tmp = $self->{'lists'}{'GLOBAL'}->get_chunk('owners', 1000);
+    last unless @tmp;
+    for $i (@tmp) {
+      unless (exists $out->{$i->{'canon'}}) {
+        push @deletions, $i->{'canon'};
+      }
+    }
+  }
+  $self->{'lists'}{'GLOBAL'}->get_done('owners');
+  for $i (@deletions) {
+    $time = $::log->elapsed;
+    $addr = new Mj::Addr($i);
+    next unless $addr;
+    $self->_unsubscribe('GLOBAL', $requ, $addr, '', 
+                        "unsubscribe GLOBAL:owners $addr", 'owners');
+    $self->inform('GLOBAL', 'unsubscribe', $requ, $addr,
+                  "unsubscribe GLOBAL:owners $addr",
+                  $self->{'interface'}, 1, 1, 0, '',
+                  $::log->elapsed - $time);
+  }
+  return (1, $out);
+}
+    
 
 =head2 digest
 
@@ -5964,62 +6041,8 @@ sub _who {
       unless $self->{'alias'}->get_start;
   }
   elsif ($list eq 'GLOBAL' and $mode =~ /owners/) {
-    $self->_fill_lists;
-    $out = {};
-    for $i (sort keys %{$self->{'lists'}}) {
-      $owners = $self->_list_config_get($i, 'owners');
-      for $j (@$owners) {
-        $ok = $::log->elapsed;
-        $addr = new Mj::Addr($j);
-        next unless $addr->isvalid;
-        $strip = $addr->strip;
-        if (exists $out->{$strip}) {
-          push @{$out->{$strip}}, $i;
-        }
-        else {
-          $out->{$strip} = [$i];
-        }
-        unless ($self->{'lists'}{'GLOBAL'}->is_subscriber($addr, 'owners')) {
-          $self->_subscribe('GLOBAL', $requ, $addr, '', 
-                            "subscribe GLOBAL:owners $addr", '', 'owners');
-          $self->inform('GLOBAL', 'subscribe', $requ, $addr,
-                        "subscribe GLOBAL:owners $addr",
-                        $self->{'interface'}, 1, 1, 0, 
-                        '',
-                        $::log->elapsed - $ok);
-
-        }
-      }
-    }
-    # Synchronize the GLOBAL::owners sublist with the current
-    # set of owners by iterating over all of the addresses and
-    # removing those that are not currently list owners.
-    $self->{'lists'}{'GLOBAL'}->get_start('owners');
-    while (1) {
-      @tmp = $self->{'lists'}{'GLOBAL'}->get_chunk('owners', 1000);
-      last unless @tmp;
-      for $i (@tmp) {
-        unless (exists $out->{$i->{'canon'}}) {
-          push @deletions, $i->{'canon'};
-        }
-      }
-    }
-    $self->{'lists'}{'GLOBAL'}->get_done('owners');
-    for $i (@deletions) {
-      $ok = $::log->elapsed;
-      $addr = new Mj::Addr($i);
-      next unless $addr;
-      $self->_unsubscribe('GLOBAL', $requ, $addr, '', 
-                          "unsubscribe GLOBAL:owners $addr", 'owners');
-      $self->inform('GLOBAL', 'unsubscribe', $requ, $addr,
-                    "unsubscribe GLOBAL:owners $addr",
-                    $self->{'interface'}, 1, 1, 0, '',
-                    $::log->elapsed - $ok);
-    }
-    
-    return (1, $out);
+    return $self->sync_owners($requ);
   }
-    
   elsif ($list eq 'DEFAULT' and $sublist eq 'MAIN') {
     return (0, "The DEFAULT list never has subscribers");
   }
