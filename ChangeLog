@@ -1,3 +1,11 @@
+Fri Sep  4 23:36:01 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* t/shell.t: Adjust to new lists-tiny output.
+
+	* lib/Mj/Format.pm (lists): Take into account categories; change
+ 	tiny output slightly to remove leading spaces.  (Better for shell
+ 	scripts that way.)
+
 Thu Sep  3 18:29:23 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Majordomo.pm (lists): Return the category variable.

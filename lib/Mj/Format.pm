@@ -301,7 +301,7 @@ sub index {
 sub lists {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
       $list, $vict, $arg1, $arg2, $arg3, $ok, @lists) = @_;
-  my (%legend, @desc, $category, $site, $count, $desc, $flags);
+  my (%lists, %legend, @desc, $category, $count, $desc, $flags, $site);
   select $out;
   $count = 0;
 
@@ -314,22 +314,34 @@ sub lists {
       unless $mode =~ /short|tiny/;
     
     while (($list, $category, $desc, $flags) = splice(@lists, 0, 4)) {
-      $count++;
-      if ($mode =~ /tiny/) {
-	eprint($out, $type, "  $list\n");
-	next;
+      # Build the data structure cat->list->[desc, flags]
+      $lists{$category}{$list} = [$desc, $flags];
+    }
+
+    for $category (sort keys %lists) {
+      if (length $category && $mode !~ /tiny/) {
+	eprint($out, $type, "$category:\n");
       }
-      $desc ||= "";
-      @desc = split(/\n/,$desc);
-      $desc[0] ||= "(no description)";
-      for (@desc) {
-	$legend{'+'} = 1 if $flags =~ /S/;
-	eprintf($out, $type, " %s%-23s %-.56s\n", 
-	$flags=~/S/ ? '+' : ' ',
-	$list,
-	$_);
-	$list  = " .";
-	$flags = "";
+      for $list (sort keys %{$lists{$category}}) {
+	$desc  = $lists{$category}{$list}[0];
+	$flags = $lists{$category}{$list}[1];
+	$count++;
+	if ($mode =~ /tiny/) {
+	  eprint($out, $type, "$list\n");
+	  next;
+	}
+	$desc ||= "";
+	@desc = split(/\n/,$desc);
+	$desc[0] ||= "(no description)";
+	for (@desc) {
+	  $legend{'+'} = 1 if $flags =~ /S/;
+	  eprintf($out, $type, " %s%-23s %-.56s\n", 
+		  $flags=~/S/ ? '+' : ' ',
+		  $list,
+		  $_);
+	  $list  = " .";
+	  $flags = "";
+	}
       }
     }
   }

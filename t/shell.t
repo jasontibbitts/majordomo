@@ -37,7 +37,7 @@ $r = run('-p gonzo createlist bleeargh nobody@example.com');
 ok($e, $r);
 
 # Make sure it's there
-$e = "\Q  bleeargh\n";
+$e = "\Qbleeargh\n";
 $r = run('lists=tiny');
 ok($e, $r);
 
