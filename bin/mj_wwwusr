@@ -66,7 +66,7 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, $domain, $extra
                 'lists'         => [0, 0, 0, 0, 'lists'],
                 'password'      => [0, 1, 0, 1, 'login'],
                 'register'      => [0, 1, 0, 1, 'welcome'],
-                'set'           => [1, 1, 1, 1, 'show'],
+                'set'           => [1, 1, 1, 0, 'set'],
                 'show'          => [1, 1, 0, 0, 'show'],
                 'subscribe'     => [0, 1, 1, 1, 'list'],
                 'unregister'    => [1, 1, 0, 1, 'welcome'],
