@@ -1,3 +1,10 @@
+2002-06-05  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwusr:  The alias and unalias commands now have
+	format file support.
+
+	* lib/Mj/Format.pm:  (alias, unalias)  Add format file support.
+
 2002-06-04  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwusr:  The password command now has format file
@@ -13,7 +20,7 @@
 	command.
 
 	* lib/Mj/Deliver.pm:  (_setup)  Bugfix:  Initialize the
-	sender variable properly when setting upon Probers.
+	sender variable properly when setting up Probers.
 
 	* lib/Mj/Format.pm:  (accept)  Add support for the accept_stall
 	format file.  Thanks to Roger Klorese.

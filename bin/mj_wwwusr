@@ -58,7 +58,7 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl,
 # Fourth value:  Should the result be preformatted?
 # Fifth value:  Page to display after the result.
 %commands = (   
-                'alias'         => [1, 1, 0, 1, 'show'],
+                'alias'         => [1, 1, 0, 0, 'show'],
                 'archive'       => [0, 0, 1, 0, 'list'],
                 'changeaddr'    => [1, 1, 0, 1, 'show'],
                 'faq'           => [0, 0, 1, 0, 'list'],
@@ -71,7 +71,7 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl,
                 'set'           => [1, 1, 1, 0, 'show'],
                 'show'          => [1, 1, 0, 0, 'show'],
                 'subscribe'     => [0, 1, 1, 0, 'list'],
-                'unalias'       => [1, 1, 0, 1, 'show'],
+                'unalias'       => [1, 1, 0, 0, 'show'],
                 'unregister'    => [1, 1, 0, 0, 'welcome'],
                 'unsubscribe'   => [1, 1, 1, 0, 'show'],
                 'welcome'       => [0, 0, 0, 0, 'welcome'],
