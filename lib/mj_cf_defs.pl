@@ -123,6 +123,12 @@ $Mj::Config::default_string = q(
 			       X-Pmrqc
 			       Return-Path
 			       Delivered-To
+			       List-Archive
+			       List-Help
+			       List-Owner
+			       List-Post
+			       List-Subscribe
+			       List-Unsubscribe
 			      )],
  'delivery_rules'       => [],
  'description'          => '',
