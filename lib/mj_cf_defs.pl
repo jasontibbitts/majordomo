@@ -240,20 +240,20 @@ $Mj::Config::default_string = q(
 			    ]
 			    :
 			    [
-			     'Farewell from the $LIST list',
+			     'default',
 			     'farewell | NS',
 			    ]),
  'welcome'              => 1,
  'welcome_files'        => (($list eq 'GLOBAL') ?
 			    [
-			     'You have been registered at $SITE.',
+			     'default',
 			     'registered | NS',
 			    ]
 			    :
 			    [
-			     'Welcome to the $LIST mailing list!',
+			     'default',
 			     'welcome | NS',
-			     'List introductory information',
+			     'default',
 			     'info | SE',
 			    ]),
  'whereami'             => $subs->{'whereami'},
