@@ -221,6 +221,7 @@ sub parse_compuserve {
 
   # The message must come from postmaster@compuserve.com
   $from = $ent->head->get('from'); chomp $from;
+  return unless defined $from;
   return unless $from =~ /postmaster\@compuserve.com/i;
 
   # Compuserve only sends single-part bounces
@@ -266,6 +267,7 @@ sub parse_compuserve2 {
 
   # The message must come from postmaster@compuserve.com
   $from = $ent->head->get('from'); chomp $from;
+  return unless defined $from;
   return unless $from =~ /postmaster\@compuserve.com/i;
 
   # Compuserve only sends single-part bounces

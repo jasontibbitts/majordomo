@@ -1,3 +1,8 @@
+2002-05-07  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/BounceParser.pm (parse_compuserve, parse_compuserve2):
+	Make sure that there actually is a From: header.
+
 2002-05-06  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/Deliver/Dest.pm (_gen_bounces): New function: generate a
