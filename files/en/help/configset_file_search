@@ -40,12 +40,13 @@ to the following entries:
   DEFAULT:
   STOCK:\$LANG
   STOCK:en
+  STOCK:
 
 Thus, any default files are searched, followed by domain-local files in
 the preferred language, followed by any domain-local files not in any
 specific language directory, followed by stock files in the preferred
-language, finally followed by English files.  An English version of any
-file which Majordomo uses internally will always be present.
+language, finally followed by generic stock files.  An English version
+of any file which Majordomo uses internally will always be present.
 
 
 See Also:

@@ -1,3 +1,13 @@
+2002-06-21  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_list_file_get)  Add "STOCK:"
+	to the tail end of the file search path.
+	Thanks to Roger Klorese.
+
+	* lib/Mj/Config.pm:  (parse_access_array)  Bugfix:
+	validate the wizard level correctly.
+	Thanks to Roger Klorese.
+
 2002-06-20  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Bugfix:  do not give an error if a

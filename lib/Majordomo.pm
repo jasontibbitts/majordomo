@@ -3237,8 +3237,10 @@ sub _list_file_get {
   return unless $self->_make_list($list);
   @search  = $self->_list_config_get($list, 'file_search');
   @dsearch = ();
-  @dsearch = ('DEFAULT:$LANG', 'DEFAULT:', 'STOCK:$LANG', 'STOCK:en')
-    unless $args{nodefsearch};
+  unless ($args{nodefsearch}) {
+    @dsearch = ('DEFAULT:$LANG', 'DEFAULT:', 'STOCK:$LANG',
+                'STOCK:en', 'STOCK:');
+  }
 
   $lang ||= $self->_list_config_get($list, 'default_language');
   @langs = split(/\s*,\s*/, $lang) if $lang;
@@ -6834,6 +6836,7 @@ sub tokeninfo_start {
 
   if ($request->{'mode'} =~ /part/ and
       $data->{'command'} ne 'post') {
+    # XLANG
     return (0, "The part command mode only applies to moderated messages.\n");
   }
 
@@ -6931,6 +6934,7 @@ sub _get_msg_data {
     }
 
     $part =~ s/[hH]$//;
+    # XLANG
     return (0, "The message has no part numbered $part.\n")
       if ($mode =~ /part/ and ! exists $table->{$part});
   }
