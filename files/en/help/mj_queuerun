@@ -1,0 +1,28 @@
+NAME
+    mj_queuerun - process outstanding queue entries.
+
+DESCRIPTION
+    The Majordomo queue runner program, mj_queuerun, examines a series of
+    queue directories for messages. Each message that it finds will be
+    processed unless another queue runner process is already processing that
+    message. When a queue directory has more than one messages, the messages
+    will be processed in a random order.
+
+    A sequence counter is kept for each message in a queue directory. If a
+    technical problem causes a queue runner to abort, a particular message
+    may be examined more than once. If a message cannot be processed after
+    three tries, a special emergency log will be kept for the fourth try. If
+    the message cannot be processed on the fourth try, it will be discarded.
+
+    After all of the messages have been processed, the queue runner will
+    wait for a message from the queue server program, mj_queueserv. If a
+    message is received, the queue runner will examine each of the queue
+    directories again. Otherwise, the queue runner will exit.
+
+See Also:
+   help mj_email
+   help mj_enqueue
+   help mj_queueserv
+   help mj_shutdown
+
+$INCLUDE-help/foot

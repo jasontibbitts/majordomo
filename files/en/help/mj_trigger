@@ -1,0 +1,80 @@
+NAME
+    mj_trigger - Simple Majordomo event trigger
+
+SYNOPSIS
+    mj_trigger -t trigger_type
+
+DESCRIPTION
+    mj_trigger is a program designed to be put into the Majordomo user''s
+    crontab and called periodically to inform Majordomo that it is time to
+    execute its periodic functions.
+
+    Majordomo currently understands hourly and daily functions.
+
+    A sample crontab entry looks like:
+
+      # Expire locks at midnight
+      0 0 * * * /path/to/mj_trigger -t lock
+      # Run the hourly trigger at the top of each hour
+      0 * * * * /path/to/mj_trigger -t hourly
+
+    Several functions are performed by the triggers, and each has a separate
+    argument to the `-t' switch:
+
+    bounce
+        Expire bounce data, which is controlled by the *bounce_max_age*
+        configuration setting.
+
+    checksum
+        Expire duplicate message checksums and message-ids, as indicated by
+        the *dup_lifetime* configuration setting.
+
+    delay
+        Complete delayed requests.
+
+    digest
+        Issue digests, as indicated by the *digests* configuration setting.
+
+    inactive
+        Remove registered addresses and subscriptions that have been
+        inactive for too long. The maximum period of inactivity is
+        determined by the *inactive_lifetime* configuration setting.
+
+    log Remove log entries older in days than the *log_lifetime*
+        configuration setting.
+
+    post
+        Remove old statistics for posted messages. The expiration age is
+        determined by the *post_lifetime* configuration setting.
+
+    session
+        Remove session data older than the *session_lifetime* setting.
+
+    token
+        Send reminders, and expire old requests and temporary passwords (as
+        required by the *token_remind*, *token_lifetime*, and
+        *latchkey_lifetime* settings).
+
+    vacation
+        Restore the delivery mode of subscribers whose vacation periods have
+        expired.
+
+    Excepting digest, which has its own setting, these triggers are invoked
+    by the daily trigger, or by the hourly trigger at the times indicated by
+    the *triggers* configuration setting.
+
+See Also:
+   help admin_domain
+   help configset_digests
+   help configset_dup_lifetime
+   help configset_inactive_lifetime
+   help configset_latchkey_lifetime
+   help configset_log_lifetime
+   help configset_post_lifetime
+   help configset_session_lifetime
+   help configset_token_lifetime
+   help configset_triggers
+   help delay
+   help set
+
+$INCLUDE-help/foot

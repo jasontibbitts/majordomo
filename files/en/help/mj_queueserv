@@ -1,0 +1,35 @@
+NAME
+    mj_queueserv - Overseer of mj_queuerun processes.
+
+SYNOPSIS
+    Started only from mj_enqueue; not to be run by hand.
+
+DESCRIPTION
+    mj_queueserv, the Majordomo mail queue server, is a small process that
+    oversees a collection of queue runner processes. It is intended to be
+    started by the mj_enqueue program; no more than one mj_queueserv process
+    should be active at any time.
+
+    mj_queueserv immediately forks and disassociates itself from its parent
+    process so it can run as a daemon. It opens a socket and awaits
+    connections from other Majordomo programs, such as mj_enqueue,
+    mj_queuerun, or mj_shutdown. If it sits idle for a period of time or if
+    instructed to shut down (see the mj_shutdown manpage) it will exit.
+
+    Whenever an mj_enqueue process stores an e-mail message in the message
+    queue, it contacts the queue server and indicates that the message
+    should be processed. If the queue server is already managing one or more
+    queue runners, it will attempt to contact each queue runner in turn
+    until it finds one that is not busy. If no existing queue runner is
+    available, and the maximum number of queue runners will not be exceeded,
+    the queue server will start a new queue runner. If a new queue runner
+    cannot be started, the queue server notes that the system is busy, and
+    waits for the next incoming message from the mj_enqueue program.
+
+See Also:
+   help mj_email
+   help mj_enqueue
+   help mj_queuerun
+   help mj_shutdown
+
+$INCLUDE-help/foot

@@ -1,0 +1,38 @@
+NAME
+    mj_email - email interface to Majordomo
+
+DESCRIPTION
+    The Majordomo e-mail interface, mj_email, handles four different kinds
+    of message:
+
+    list
+        The message is intended to be distributed to the subscribers of a
+        mailing list.
+
+    majordomo
+        The message contains commands that will be processed by the
+        Majordomo server.
+
+    owner
+        The message is intended to be sent to the owners or moderators of a
+        mailing list.
+
+    request
+        The purpose of the message will depend upon the GLOBAL
+        *request_answer* configuration setting. By default, commands in the
+        message will be processed by the server.
+
+    The mj_email command has been superseded by three programs that comprise
+    the Majordomo e-mail queueing system: mj_enqueue, mj_queueserv, and
+    mj_queuerun. The queueing system limits the number of programs that are
+    employed in message processing at any given time. As a result, the
+    queueing system responds to periods of high activity more evenly.
+
+See Also:
+   help configset_aliases
+   help configset_request_answer
+   help mj_enqueue
+   help mj_queuerun
+   help mj_queueserv
+
+$INCLUDE-help/foot

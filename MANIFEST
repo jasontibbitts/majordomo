@@ -1413,7 +1413,13 @@ files/en/help/intro
 files/en/help/lists
 files/en/help/man
 files/en/help/mj_confirm
+files/en/help/mj_email
+files/en/help/mj_enqueue
+files/en/help/mj_queuerun
+files/en/help/mj_queueserv
 files/en/help/mj_shell
+files/en/help/mj_shutdown
+files/en/help/mj_trigger
 files/en/help/mj_wwwadm
 files/en/help/mj_wwwusr
 files/en/help/mkdigest

@@ -1,0 +1,57 @@
+NAME
+    mj_enqueue - Add a message to the incoming message queue.
+
+DESCRIPTION
+    The mj_enqueue program is a small process that performs two tasks in the
+    Majordomo queueing system for e-mail messages. First, it stores a copy
+    of the message in the appropriate queue subdirectory for later
+    processing by the queue runner program. Second, it attempts to contact
+    the queue server program, mj_queueserv, to indicate that a message has
+    arrived. If a queue server is not already running, mj_enqueue will
+    attempt to start the mj_queueserv program.
+
+    The subdirectory in which an e-mail message is stored will depend upon
+    several things:
+
+    Domain priority
+        The priority of the domain to which the message was sent.
+
+    Domain name
+        The name of the domain to which the message was sent.
+
+    Mailing list priority
+        The priority of the mailing list to which the message was sent.
+
+    Message type
+        The type of message that was sent. There are four basic types:
+
+        list
+            The message is intended to be distributed to the subscribers of
+            a mailing list.
+
+        majordomo
+            The message contains commands that will be processed by the
+            Majordomo server.
+
+        owner
+            The message is intended to be sent to the owners or moderators
+            of a mailing list.
+
+        request
+            The purpose of the message will depend upon the GLOBAL
+            request_answer configuration setting. By default, commands in
+            the message will be processed by the server.
+
+    Use the "help admin_domain" and "help configset_priority" commands to
+    learn more about Majordomo domains and priority numbers.
+
+See Also:
+   help admin_domain
+   help configset_priority
+   help configset_request_answer
+   help mj_email
+   help mj_queueserv
+   help mj_queuerun
+   help mj_shutdown
+
+$INCLUDE-help/foot

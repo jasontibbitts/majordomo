@@ -1,0 +1,32 @@
+NAME
+    mj_shutdown - Ask a running queue server to exit.
+
+SYNOPSIS
+    mj_shutdown
+
+DESCRIPTION
+    The mj_shutdown program sends a message to the mj_queueserv program
+    which asks the queue server to exit. The mj_queueserv process is not
+    killed. Any existing queue runners are allowed to finish (They will
+    notice that the queue server has stopped running when they request more
+    work.)
+
+    The mj_shutdown program must be run by the majordomo user.
+
+  Options
+
+    The mj_shutdown program supports the following command line option:
+
+    -t *delay*
+        Normally, the queue server will be asked to shut down immediately.
+        If this option is used, the queue server will wait for *delay*
+        seconds before exiting. This option is useful for delaying message
+        processing while the software is being upgraded.
+
+See Also:
+   help mj_email
+   help mj_enqueue
+   help mj_queuerun
+   help mj_queueserv
+
+$INCLUDE-help/foot

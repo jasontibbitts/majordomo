@@ -40,12 +40,22 @@ These help files are introductory documents:
    help admin_subscribers
    help command_line
    help commands
-   help mj_confirm
-   help mj_shell
-   help mj_wwwadm
-   help mj_wwwusr
    help overview
    help topics
+
+These help files discuss individual programs, which are used to provide
+interfaces to Majordomo from the command line, the worldwide web, or
+e-mail messages:
+
+   help mj_confirm
+   help mj_email
+   help mj_enqueue
+   help mj_queuerun
+   help mj_queueserv
+   help mj_shell
+   help mj_trigger
+   help mj_wwwadm
+   help mj_wwwusr
 
 These help files discuss advanced topics in detail:
 
