@@ -40,7 +40,8 @@ sub create_dirs {
   safe_mkdir($tmp,         0777 & ~oct($um), $uid, $gid);dot();
   safe_mkdir("$tmp/locks", 0777 & ~oct($um), $uid, $gid);dot();
 
-  safe_mkdir("$l/scripts",    0777 & ~oct($um), $uid, $gid);dot();
+  safe_mkdir("$config->{'install_dir'}/scripts", 0777 & ~oct($um), 
+             $uid, $gid);dot();
   safe_mkdir("$l/LIB",        0777 & ~oct($um), $uid, $gid);dot();
   safe_mkdir("$l/SITE",       0777 & ~oct($um), $uid, $gid);dot();
   safe_mkdir("$l/SITE/files", 0777 & ~oct($um), $uid, $gid);dot();
