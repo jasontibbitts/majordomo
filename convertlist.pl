@@ -5,6 +5,7 @@ use Fcntl;
 use Data::Dumper;
 require "./setup/query_util.pl";
 use vars qw(%opts $mjcfg);
+$|=1;
 
 $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 
@@ -22,10 +23,6 @@ my %delete = (
 	      mungedomain       => 1,
 	      strip             => 1,
 	     );
-
-#	     admin_passwd      => \&fix_passwd,
-#	     debug             => \&fix_debug,
-
 
 # Pull in configuration
 $mjcfg = eval { require ".mj_config"};
@@ -180,12 +177,10 @@ EOM
   sysopen CMD, $file, O_RDWR|O_CREAT|O_EXCL, 0600
     or die "Can't open $file, $!";
 
+  # Initial arguments
   @args = ("$mjcfg->{'install_dir'}/bin/mj_shell", "-d", "$opts{d}", "-F",
 	   "-");
 
-# "-f", "$opts{o}/$list");
-#  @args = ("$mjcfg->{'install_dir'}/bin/mj_shell", "-d", "$opts{d}", "-F",
-#	   "$file", "-f", "$opts{o}/$list");
 
   # Pull out the password or prompt for it if necessary
   $pw = $mjcfg->{'site_password'};
@@ -298,17 +293,17 @@ EOM
 
   get_str("Ready to execute script; press enter\n");
 
-  # Pass it to mj_shell.
-  $pid = open(SHELL, "|-");
+   # Pass it to mj_shell.
+   $pid = open(SHELL, "|-");
 
-  if ($pid) {
-    # in parent
-    open CMD, "<$file";
-    while (defined($_ = <CMD>)) {
-      print SHELL $_;
+   if ($pid) {
+     # in parent
+     open CMD, "<$file";
+     while (defined($_ = <CMD>)) {
+       print SHELL $_;
     }
     close CMD;
-    close CHILD;
+    close SHELL;
     waitpid $pid, 0;
   }
   else {
@@ -341,7 +336,7 @@ sub load_old {
     s/\s+$//;
     ($key, $op, $val) = split(" ", $_, 3);
     $key = lc($key);
-    
+
     if ($op eq "\<\<") {
       $hash->{$key} = [];
       while (defined($_ = <CF>)) {
