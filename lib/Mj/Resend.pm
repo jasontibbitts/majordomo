@@ -641,16 +641,18 @@ sub _check_approval {
 
   # Check in the body
   unless ($password) {
-    # If multipart, grab first part
-    $part = $ent->parts(0);
-    unless ($part) {
-      # Else use the entity itself
-      $part = $ent;
+    # If multipart, grab first part.  Cope with nested multipart messages.
+    $part = $ent;
+    while (defined $part->parts(0)) {
+      last if $part->bodyhandle;
+      $part = $part->parts(0);
     }
-    
+   
+    return unless $part->bodyhandle; 
     # Check in first few of lines of that entity; skip blank lines but
     # stop as soon as we see any text
     $fh = $part->bodyhandle->open('r');
+    return unless $fh;
     while (defined ($line = $fh->getline)) {
       last if $line =~ /\S/;
     }
