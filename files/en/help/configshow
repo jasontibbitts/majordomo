@@ -1,25 +1,30 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configshow-nocomments listname [variable[,variable]]
+configshow[-append][-declared][-extract][-nocomments] listname [settings]
+configshow-merge[-append][-extract][-nocomments] listname listname [settings]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname, required, is an email list at this site
-variable, if specified, is one or more "configset" items with commas between
--nocomments, if specified, hides explanatory comments with the variable
+listname,    required, is an email list at this site
+settings,    if specified, are one or more comma-separated configuration settings
+-append,     if specified, causes "configset-append" commands to be displayed
+-declared,   if specified, displays settings that have been changed by the owners
+-extract,    if specified, causes "configset-extract" commands to be displayed
+-merge,      if specified, displays configset commands for the second list.
+-nocomments, if specified, hides explanatory comments with the setting
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-Retrieves the value of the given variable(s). Multiple variables can
+Retrieves the value of the given setting(s). Multiple settings can
 be retrieved by listing them separated by commas or spaces. Listing no
-variable name at all retrieves the complete list of variables. In addition
-to single variables or combinations of variables, the names of variable
-groups can be given in upper case to show all of the variables
+setting name at all retrieves the complete list of settings. In addition
+to single settings or combinations of settings, the names of setting
+groups can be given in upper case to show all of the settings
 belonging to the group. The ALL group is supported, and shows every
-variable currently visible.
+setting currently visible.
 
 Unless the '-nocomments' option is used, explanatory information about
-the variable(s) will be returned as well. The default values is shown
+the setting(s) will be returned as well. The default values is shown
 in parentheses, the data type is shown in square brackets, the allowed
 values (for 'enum' types) is shown between slashes, and the group(s)
-that the variable belongs to are shown in angle brackets. More syntax
-and usage information about each configset variable, including the
+that the setting belongs to are shown in angle brackets. More syntax
+and usage information about each configset setting, including the
 list of possible values, who can change it, etc,  can be found in
 the corresponding help file, such as "help configset which_access".
 
@@ -29,26 +34,78 @@ which may be edited at will and sent back to the parser. You will need
 to put a "default password" line before most configshow outputs before
 using them as configset commands since they are altering the list.
 
+Whenever a list owner uses a configset command to alter a configuration
+setting, the new value is recorded in the list's configuration file.
+As a result, any default value for the setting will be overridden,
+even if the new value is the same as the default value.
+
+The "declared" mode causes only those settings which have overridden 
+the default values to be displayed.  In effect, this gives list
+owners the opportunity to see only those values that they have
+personally changed.
+
+The "append" mode causes the configset commands to be displayed
+as "configset-append" commands, if the value of the setting can
+occupy more than one line.  The "extract" mode causes the configset
+commands to be displayed as "configset-extract" commands.  See
+"help configset" for an explanation of these two command modes.
+
+The "merge" mode causes the configset commands to be displayed
+as if they were intended to alter the second mailing list on
+the command line.  This is useful for people who want to apply
+the current settings for one list to another list.  If the first
+list is a DEFAULT list, any non-password settings will be shown.
+This feature allows list owners to view the settings in public
+configuration templates.
+
+The "append," "extract," and "merge" modes all have the same effect
+as "declared" mode:  they only display values that have been
+explicitly set by the list owners.
+
 Occasionally the produced configset commands will be broken across
 lines with a backslash; this is intended to reduce the change of line
 wrapping by some mailers which do not allow it to be turned off.
 
-Note also that only the variables that can be seen by the current
+Note also that only the settings that can be seen by the current
 authorization level will be returned.  This means that with no
-authentication at all, a small list of variables will still be visible
+authentication at all, a small list of settings will still be visible
 (though of course they cannot be modified). Finally, note that not
-all per-list variables can be modified by the list owner - some
+all per-list settings can be modified by the list owner - some
 require global priviliges. Refer to the help file for each configset
-variable for about passwords and visibility.
+setting for about passwords and visibility.
 
-A complete list of variables is included in "help topics".
+It is possible to store more than one collection of configuration
+settings in a mailing list using a configuration "template."  
+Templates have the same naming conventions as a mailing list:
+only letters, numbers, period, hyphen, and underscore are allowed.
+The template name is case-insensitive.  Templates are used to
+store a collection of settings for later use.  For example,
+the message_headers, delete_headers, and bounce_probe_frequency
+settings could be used to cause the messages to a list to have
+personalized To: headers.  Instead of having to remember the
+necessary settings, a list owner could simply refer to a
+template by name, using the "configshow-merge" command to apply
+the settings to his mailing list.
+
+To refer to a template, append a colon and the name of the template
+to the name of the mailing list.  For example, to see a template
+named "personalize" with the DEFAULT pseudo-list, use the following
+command:
+
+configshow-declared DEFAULT:personalize
+
+This will cause all existing settings in the template to be displayed.
+If the template does not exist, you will receive a message indicating
+that no settings were found.  
+
+A complete list of settings is included in "help topics".
 
 See Also:
    help commands      (for syntax of all commands, and 'here documents')
-   help configedit    (to set the variable to a non-default value)
-   help configset     (to set the variable to a non-default value)
-   help configdefault (to have the variable track the default value)
-   help topics        (for a complete list of configset variables)
+   help configedit    (to set the setting to a non-default value)
+   help configset     (to set the setting to a non-default value)
+   help configdefault (to have the setting track the default value)
+   help topics        (for a complete list of configuration settings)
 
 For a list of all help topics send this one-line message
    help topics
