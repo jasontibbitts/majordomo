@@ -1,5 +1,5 @@
 <!-- Majordomo lists_none format file -->
-<big>
-Aucunes liste n'a été trouvée
-qui correspondait au motif &quot;?PATTERN&quot;
-</big>
+<p><big>
+Il n'y a pas de liste publique sur $DOMAIN
+qui corresponde au motif &quot;?PATTERN&quot;.
+</big></p>

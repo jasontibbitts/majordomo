@@ -208,6 +208,9 @@ réponses
   interfaces WWW pour afficher les reglages personnels d'un abonnement
   particulier.
 
+\$ADDRESS
+  Une adresse email.
+
 \$ALIASES
   Les alias requis par votre serveur de courrier pour une ou
   plusieurs listes.
@@ -335,6 +338,10 @@ réponses
   Le statut d'une compilation : lorsqu'elle a été envoyée la dernière
   fois, quand est ce que la prochaine peut être sera envoyée, et l'âge
   des premier et dernier messages qui attendent d'être envoyés.
+ 
+\$LOCATION
+  Dans un message d'erreur pour une adresse email invalide, cette
+  variable contient la portion invalide de cette adresse.
 
 \$MAX_AGE
 \$MAX_MSGS

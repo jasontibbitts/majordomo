@@ -87,13 +87,25 @@
 <tr>
   <td>Activité récente</td>
   <td>
-    (<a href="$CGIURL?$CGIDATA&amp;func=report-full&amp;list=$LIST&amp;extra=1cd">Aujourd'hui</a>)
-
-    (<a href="$CGIURL?$CGIDATA&amp;func=report-summary&amp;list=$LIST&amp;extra=7cd">Résumé
-      sur 7 jours</a>)
-
-    (<a href="$CGIURL?$CGIDATA&amp;func=report-summary&amp;list=$LIST&amp;extra=30cd">Résumé
-      sur 30 jours</a>)
+  <form method="POST" action="$CGIURL">
+    <input type="hidden" name="user" value="$USER">
+    <input type="hidden" name="passw" value="$CMDPASS">
+    <input type="hidden" name="list" value="$LIST">
+    <select name="mode">
+      <option value="full">Complet
+      <option value="summary">Sommaire
+    </select>
+    rapport pour
+    <select name="extra">
+      <option value="1cd">le dernier jour calendaire
+      <option value="24h">les dernieres 24 heures
+      <option value="2d">les deux derniers jours
+      <option value="7d">la semaine derniere
+      <option value="14d">les deux dernieres semaines
+      <option value="30d">les 30 derniers jours
+    </select>
+    <input type="submit" name="func" value="report">
+  </form>
   </td>
 </tr>
 

@@ -858,6 +858,14 @@ l'interface wwwusr, l'adresse email et le mot de passe sont requis.
  EXTRA, USER)
 
 
+logout
+------
+(wwwadm, wwwusr)  Ce fichier affiche un message indiquant que la
+commande logout a réussi.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
+
+
 newlist
 -------
 (wwwadm)  Ce fichier affiche un formulaire qui permet de créer,

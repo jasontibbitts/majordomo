@@ -14,6 +14,8 @@ Quelques types MIME communs sont text/plain, text/html et image/jpeg.
 Les actions possibles sont :
 
   allow     - laisse le message passer sans être modifié.
+  clean     - Supprime des morceaux de volets HTML qui pourraient
+              poser des problemes de sécurité.
   discard   - supprime le volet du message et laisse passer le reste.
               (Cela n'a aucun effet sur les messages avec un seul
                volet.)

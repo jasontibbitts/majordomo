@@ -29,6 +29,9 @@ le domaine du paramètre de configuration "whereami" de la pseudo liste
 GLOBAL sera utilisé. Si le domaine est "exemple.fr", l'adresse
 deviendra "webmaster@exemple.fr".
 
+Ce paramètre ne doit pas etre utilisé pour modifier l'adresse de la
+liste, des boucles d'emails pourrait survenir.
+
 
 Référez vous aussi à :
    help configset_bounce_recipients

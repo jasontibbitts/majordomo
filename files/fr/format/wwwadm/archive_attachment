@@ -11,7 +11,7 @@
     (Éditer)
   </a>
 
-  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PARTh&amp;func=archive-get-part" target="_part">
+  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PARTh&amp;func=archive-get-part-clean" target="_part">
     (Voir les en-têtes dans une fenêtre
     séparée)
   </a>

@@ -2,13 +2,10 @@
 <h4 align=center>Paramètres de configuration</h4>
 
 <p>
-Cochez la case à côté de chaque paramètre que
-vous souhaitez modifier ou étudier, ensuite, pressez l'un des
-trois boutons.
+Cochez la case à côté de chaque paramètre que vous souhaitez
+modifier ou étudier, ensuite, pressez l'un des boutons.
 </p>
 <ul>
-  <li>Pour accéder à la page d'aide des
-  paramètres, cliquez sur le bouton <b>help</b>.</li>
   <li>Pour remettre les paramètres a leur valeur par
   défaut, cliquez sur le bouton <b>configdef</b>.</li>
   <li>Pour changer les valeurs des paramètres que vous avez
@@ -32,5 +29,4 @@ nouvelle fenêtre.
   <input type="hidden" name="user" value="$USER">
   <input type="submit" name="func" value="configdef">
   <input type="submit" name="func" value="configset">
-  <input type="submit" name="func" value="help">
 <dl>

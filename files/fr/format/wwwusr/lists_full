@@ -59,7 +59,7 @@
   <td>Pour s'abonner, entrez votre adresse email dans le champ
     <b>Adresse</b> a moins qu'il y soit déjà. Vous
     pouvez aussi entrer votre nom dans le champ <b>Nom</b>. Cliquez
-    ensuite sur le bouton <b>S'abonner</b>.
+    ensuite sur le bouton <b>S'abonner</b> une seule fois.
 
 <form method="POST" action="$CGIURL">
   <input type="hidden" name="passw" value="$CMDPASS">
