@@ -19,8 +19,8 @@ The address "jane@example.edu" is the source, and the address
 "jane@example.org" is the target.
 
 Whenever a new alias is created, two entries are added to the alias
-database.  The key of the first entry is the canonical address of the
-source; the key of the second ("bookkeeping") entry is the canonical
+database.  The key of the first entry is the xformed address of the
+source; the key of the second ("bookkeeping") entry is the xformed
 address of the target.  Each of the two entries has identical data.
 
 The following data are stored for each alias:
