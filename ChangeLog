@@ -1,3 +1,9 @@
+Tue Oct 27 19:20:07 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/MTAConfig.pm (sendmail): Quiet Perl 5.004 warnings.
+
+	* lib/Majordomo.pm (_createlist): Quiet Perl 5.004 warnings.
+
 Sat Oct 24 18:52:51 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* postinstall (do_config): Set 'whereami' before setting 'whoami'.

@@ -60,7 +60,7 @@ sub sendmail {
   if ($args{regenerate}) {
     return Mj::MTAConfig::Sendmail::regen_aliases(%args);
   }
-  elsif ($args{delete}) {
+  elsif ($args{'delete'}) {
     return Mj::MTAConfig::Sendmail::del_alias(%args);
   }
   Mj::MTAConfig::Sendmail::add_alias(%args);

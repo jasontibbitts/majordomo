@@ -2625,9 +2625,9 @@ sub _createlist {
   $who   = $self->_global_config_get('whoami');
   $who   =~ s/@.*$//; # Just want local part
 
-  %args = (bindir => $bdir,
-	   domain => $dom,
-	   whoami => $who,
+  %args = ('bindir' => $bdir,
+	   'domain' => $dom,
+	   'whoami' => $who,
 	  );
 
   if ($self->_site_config_get('maintain_mtaconfig')) {
@@ -2647,10 +2647,10 @@ sub _createlist {
 
     # Extract lists and owners
     $args{regenerate} = 1;
-    $args{lists} = [];
+    $args{'lists'} = [];
     $self->_fill_lists;
-    for my $i (keys %{$self->{lists}}) {
-      push @{$args{lists}}, [$i, $self->_list_config_get($i, 'debug')];
+    for my $i (keys %{$self->{'lists'}}) {
+      push @{$args{'lists'}}, [$i, $self->_list_config_get($i, 'debug')];
     }
     {
       no strict 'refs';
