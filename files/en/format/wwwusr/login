@@ -17,9 +17,9 @@
     Password: <input type="password" name="passw" size="15" value="$CMDPASS">
   </td>
   <td valign="top">
-    Type your password into the box, but only if Majordomo has already
-    assigned one to you.  It is not necessary to use a password to
-    subscribe to mailing lists.
+    If you have a Majordomo password at the $DOMAIN domain, type
+    it into the <b>Password</b> box.  It is not necessary to use 
+    a password to subscribe to mailing lists.
   </td>
 </tr>
 <tr>
