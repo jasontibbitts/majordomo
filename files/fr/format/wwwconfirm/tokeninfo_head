@@ -1,0 +1,96 @@
+<!-- Majordomo tokeninfo_head format file -->
+<p>
+La commande suivante a &eacute;t&eacute; envoy&eacute;e &agrave; $SITE&nbsp;:
+<blockquote>
+$CMDLINE
+</blockquote>
+Plus de d&eacute;tails ci dessous.
+</p>
+
+<table>
+  <tr><td>Ticket&nbsp;:</td><td>$TOKEN</td></tr>
+  <tr><td>Cr&eacute;e&nbsp;:</td><td>$DATE</td></tr>
+  <tr><td>Par&nbsp;:</td><td>$REQUESTER</td></tr>
+  <tr><td>Type&nbsp;:</td><td>$TYPE</td></tr>
+  <tr><td>Expire&nbsp;:</td><td>$EXPIRE</td></tr>
+  <tr><td>Raison&nbsp;:</td><td>$REASONS</td></tr>
+</table>
+
+<form method="POST" action="$CGIURL">
+?CONSULT?WILLACK Si vous d&eacute;sirez expliquer vos raisons
+?CONSULT?WILLACK d'$HELP:ACCEPTer ou de $HELP:REJECTer la commande,
+?CONSULT?WILLACK entrez la ici&nbsp;:
+?CONSULT?WILLACK <textarea rows="4" cols="70" name="xplanation">
+?CONSULT?WILLACK </textarea>
+?CONSULT?WILLACK </p>
+
+<table>
+  <tr>
+    <td>
+      <input type="submit" name="a" value="accept">
+    </td>
+    <td>
+      Cliquez sur le bouton <b>accept</b> pour approuver la commande.
+    </td>
+    </tr>
+?ISPOST  <tr>
+?ISPOST    <td>
+?ISPOST      <input type="submit" name="a" value="accept-archive">
+?ISPOST    </td>
+?ISPOST    <td>
+?ISPOST      Cliquez sur le bouton <b>accept-archive</b> pour
+?ISPOST      approuver la requ&ecirc;te. Le message sera stock&eacute; dans les
+?ISPOST      archives mais ne sera pas distribu&eacute; aux abonn&eacute;s.
+?ISPOST    </td>
+?ISPOST  </tr>
+?ISPOST  <tr>
+?ISPOST    <td>
+?ISPOST      <input type="submit" name="a" value="accept-hide">
+?ISPOST    </td>
+?ISPOST    <td>
+?ISPOST      Cliquez sur le bouton <b>accept-hide</b> pour approuver
+?ISPOST      la requ&ecirc;te. Le message ne sera pas affich&eacute; dans les
+?ISPOST      archives publiques.
+?ISPOST    </td>
+?ISPOST  </tr>
+  <tr>
+    <td>
+      <input type="submit" name="a" value="reject">
+    </td>
+    <td>
+      Cliquez sur le bouton <b>reject</b> pour rejeter la requ&ecirc;te.
+?CONSULT?WILLACK      Une explication sera envoy&eacute;e a $VICTIM.
+?CONSULT?WILLACK    </td>
+?CONSULT?WILLACK  </tr>
+?CONSULT?WILLACK  <tr>
+?CONSULT?WILLACK    <td>
+?CONSULT?WILLACK      <input type="submit" name="a" value="reject-quiet">
+?CONSULT?WILLACK    </td>
+?CONSULT?WILLACK    <td>
+?CONSULT?WILLACK      Cliquez sur le bouton <b>reject-quiet</b> pour
+?CONSULT?WILLACK      rejeter la requ&ecirc;te. Aucune explication ne sera
+?CONSULT?WILLACK      envoy&eacute;e a $VICTIM.
+    </td>
+  </tr>
+</table>
+  
+<input type="hidden" name="t" value="$TOKEN">
+<input type="hidden" name="d" value="$DOMAIN">
+</form>
+
+<p>
+Un seul clic est n&eacute;cessaire pour activer un bouton. <b>Ne
+  double cliquez pas.</b>
+</p>
+
+<p>
+Pour obtenir des instructions, cliquez sur le lien <b>Introduction</b>
+en haut ou en bas de la page.<br> Pour confirmer une autre
+requ&ecirc;te, cliquez sur le lien <b>Confirmez une nouvelle
+  requ&ecirc;te</b>.<br> Pour revenir a ce document, cliquez sur
+<b>Afficher tous les d&eacute;tails</b>.
+</p>
+<p>
+Plus d'informations sur la requ&ecirc;te ci dessous&nbsp;:
+</p>
+<pre>

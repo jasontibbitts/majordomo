@@ -1,0 +1,121 @@
+            Guide pour les nouveaux gestionnaires de liste
+
+La liste $LIST a été crée sur
+   $SITE
+et vous ($USER) avez été nommé gestionnaire de la liste.
+
+Le mot de passe de la liste $LIST est $PASSWORD.
+
+Ce guide explique comment configurer une nouvelle liste Majordomo 2.
+Lisez le attentivement, et gardez le pour référence future.
+
+
+                               Adresses
+
+Voici différentes adresses en relation avec votre liste.
+
+  $WHOAMI
+Est l'adresse de la liste. Les messages envoyés a cette adresse seront
+distribués a tous les abonnés.
+
+  $MJ
+Est l'adresse du serveur. Envoyez toutes les commandes administratives
+a cette adresse. Mettez toujours les commandes dans le corps du
+message, jamais dans le sujet.
+
+  $OWNER
+Est l'adresse des gestionnaires de la liste. Les abonnés peuvent vous
+contacter en envoyant un email a cette adresse.
+
+  $MJOWNER
+Est l'adresse des gestionnaires du serveur. Vous pouvez leur envoyer
+des messages si vous avez des questions a propos de votre liste.
+
+
+                            Système d'aide
+
+Majordomo 2 contient une vraie mine d'information a travers toutes ses
+pages d'aides. Pour en savoir écrivez a $MJ
+et dans le corps du message, entrez les commandes suivantes :
+
+  help admin
+  help overview
+  help topics
+
+
+                            Mots de passe
+
+Majordomo support deux types de mots de passe : les mots de passe
+administratifs et les mots de passe personnels. Votre mot de passe
+administratif est nécessaire pour modifier la configuration de votre
+liste ou pour exécuter d'autres taches de maintenance. Les mots de
+passe personnels sont utilisés par les abonnés pour modifier leurs
+réglages personnels.
+
+Il y a deux moyens d'utiliser un mot de passe. Le premier est
+d'utiliser la commande "default" pour dire a Majordomo d'appliquer le
+mot de passe a toutes les commandes qui suivent. Comme dans la
+commande suivante :
+
+  default password $PASSWORD
+  subscribe $LIST someone@example.com
+
+Majordomo appliquera le mot de passe de la première commande a la
+deuxième commande.
+
+La seconde façon est de préfixer chaque commande avec la commande
+"approve". Par exemple,
+
+  approve $PASSWORD subscribe $LIST someone@example.com
+
+aura le même effet que les deux commandes du paragraphe précédent.
+
+
+                            Documentation
+
+Les nouvelles listes requirent en général quelques modifications dans
+leur documentation.
+
+Nous vous recommençons d'utiliser la commande "newinfo" pour adapter
+le message de bienvenue. Le document "info" est envoyé a tous les
+nouveaux abonnés lorsqu'ils s'abonnent a votre liste.
+
+Tout d'abord, affichez le document "info" existant avec la commande :
+
+  info-edit $LIST
+
+Majordomo vous enverra une copie du document entouré d'une commande
+"newinfo". Pour modifier ce document, éditer son contenu et réenvoyer
+la commande "newinfo" a $MJ.
+
+
+                     Paramètres de configuration
+
+Majordomo a beaucoup de paramètres de configuration qui contrôlent le
+fonctionnement de votre liste. Ces paramètres peuvent être affichés en
+utilisant la commande "configshow", et changés en utilisant la
+commande "configset".
+
+Pour afficher les paramètres de configuration principaux de votre
+liste, utilisez la commande :
+
+  configshow-noforce $LIST 1
+
+Pour modifier les paramètres, éditez les résultat de cette commande,
+et ensuite réenvoyez les "configset" à $MJ.
+
+
+                          Administration WWW
+
+Majordomo a une interface web pour les administrateurs et les
+utilisateurs. Pour administrer votre liste, visitez le site suivant :
+
+  $WWWADM_URL
+
+Pour afficher l'interface web pour les utilisateurs, visitez le site :
+
+  $WWWUSR_URL
+
+
+Si vous avez besoin d'aide pour administrer votre liste, écrivez a
+l'administrateur du domaine à $MJOWNER.

@@ -1,0 +1,7 @@
+Votre message sur la liste $LIST, envoyé le :
+  $DATE
+
+ayant comme sujet :
+  $SUBJECT
+
+a été archivé mais pas envoyé a tous les destinataires.

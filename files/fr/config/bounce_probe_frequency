@@ -1,0 +1,5 @@
+Lorsqu'un message est envoyé aux abonnés d'une liste, la liste des
+abonnés est découpée en plusieurs groupes, et un différent groupe
+d'adresse est testé a chaque message envoyé sur la liste. Par exemple,
+si la valeur est 8, approximativement un huitième des abonnés sera
+testé a chaque fois.

@@ -1,0 +1,3 @@
+Le paramètre "message_footer_frequency" contient un pourcentage. Cette
+valeur, comprise entre 0 et 100, contrôle la fréquence d'ajout d'un
+footer du paramètre "message_footer".

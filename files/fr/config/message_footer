@@ -1,0 +1,6 @@
+Ce paramètre contient un bloc de texte, appelé "footer", qui peut être
+ajouté à la fin des messages sortant. Vous pouvez inclure plusieurs
+footers ici en les séparant par une ligne vide. Lorsqu'un footer est
+ajouté, il est choisi au hasard parmi les footers présents ici. La
+fréquence avec laquelle un footer est ajouté peut être contrôlée par
+le paramètre "message_footer_frequency".

@@ -1,0 +1,4 @@
+Le paramètre "latchkey_lifetime" contient un nombre de minutes pendant
+lequel un mot de passe temporaire (latchkey == verrou) reste valide.
+Les verrous sont utilisés par l'interface web pour éviter que les mots
+de passe soient gardés en cache par les navigateurs.

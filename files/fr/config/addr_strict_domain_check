@@ -1,0 +1,4 @@
+Si actif, vérifie que les adresses appartiennent bien à un domaine
+racine. Il arrive que de nouveaux domaines racines soient ajoutés; si
+la liste interne de Majordomo devient obsolète, désactivez ce
+paramètre.

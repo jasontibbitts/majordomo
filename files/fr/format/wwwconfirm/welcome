@@ -1,0 +1,75 @@
+
+<pre>?ERROR</pre>
+
+<h4 align="center">Introduction &agrave; l'interface de
+  confirmation</h4>
+<p>
+Lorsque des gens envoient des requ&ecirc;tes au serveur de listes de
+diffusions Majordomo de $SITE, certaines requ&ecirc;tes doivent
+&ecirc;tre confirm&eacute;es avant d'&ecirc;tre
+compl&eacute;t&eacute;es. Une confirmation peut &ecirc;tre requise
+pour diff&eacute;rentes raisons. Les deux plus communes sont&nbsp;:
+</p>
+<ul>
+  <li>Quelqu'un d&eacute;sire s'abonner a une liste. Une confirmation
+  est requise pour v&eacute;rifier que ce n'est pas une
+  contrefa&ccedil;on.</li>
+  <li>Un message a &eacute;t&eacute; post&eacute; a une liste par
+  quelqu'un qui n'est pas abonn&eacute;. La confirmation d'un des
+  mod&eacute;rateur de la liste est requise pour s'assurer que le
+  contenu du message est appropri&eacute;.</li>
+</ul>
+
+<p>
+Majordomo assigne un identificateur unique nomm&eacute; <b>ticket</b>
+(token) &agrave; chaque requ&ecirc;te qui requi&egrave;re une
+approbation. Un ticket est compos&eacute; de 12 caract&egrave;res
+alphanum&eacute;riques s&eacute;par&eacute;s par des tirets, par
+exemple&nbsp;:</p>
+<pre>
+87E4-995C-BF31
+</pre>
+<p>
+Si vous avez re&ccedil;u des instructions de confirmation par email,
+l'identificateur du ticket devrais appara&icirc;tre dans le sujet et
+le corps de ce message.
+</p>
+
+<p>
+Il y a trois commandes de bases disponibles pour g&eacute;rer les
+tickets&nbsp;:
+</p>
+<ol>
+  <li>La commande <b>accept</b> confirmera la requ&ecirc;te et fera en
+  sorte qu'elle soit ex&eacute;cut&eacute;e.</li>
+  <li>La commande <b>reject</b> rejette la requ&ecirc;te et
+  l'emp&ecirc;che d'&ecirc;tre ex&eacute;cut&eacute;e.</li>
+  <li>La commande <b>tokeninfo</b> affichera plus d'informations a
+  propos de la requ&ecirc;te.</li>
+</ol>
+<p>
+Si vous d&eacute;sirez que la requ&ecirc;te ne soit pas
+ex&eacute;cut&eacute;e, vous pouvez juste l'ignorer. Si vous ignorez
+la requ&ecirc;te, Majordomo vous enverra peut &ecirc;tre un rappel
+dans quelques jours. La requ&ecirc;te expirera lorsque la limite de
+temps sera &eacute;coul&eacute;e.
+</p>
+
+<p>
+Si vous d&eacute;sirez accepter ou rejeter une commande Majordomo ou
+un message post&eacute;, cliquez sur <b>Confirmez une nouvelle
+  requ&ecirc;te</b> et suivez les instructions pour donner le ticket
+d'identification pour la requ&ecirc;te.
+</p>
+
+<p>
+Une fois que vous avez <b>accept</b>&eacute; ou <b>reject</b>&eacute;
+le ticket, son num&eacute;ro est supprim&eacute; de la base de
+donn&eacute;es et devient invalide.  Ne cliquez sur <b>accept</b> ou
+<b>reject</b> qu'une seule fois&nbsp;: la seconde fois
+g&eacute;n&eacute;rerais un message d'erreur.
+</p>
+
+<p>
+Pour revenir a cette page, cliquez sur le lien <b>Introduction</b>.
+</p>

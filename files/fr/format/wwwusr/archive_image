@@ -1,0 +1,6 @@
+<!-- Majordomo archive_image format file -->
+<p>
+[Volet $PART $CONTENT_TYPE ($SIZE kilo octets)]<br>
+
+<img src="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PART&func=archive-get-part">
+</p>

@@ -1,0 +1,13 @@
+<p>
+La liste $NEWLIST a &eacute;t&eacute; d&eacute;truite.
+</p>
+
+<p>
+Si cela est n&eacute;cessaire, les alias a supprimer sont
+sp&eacute;cifier ci dessous&nbsp;:
+</p>
+
+<pre>
+  ?OLDALIASES
+</pre>
+

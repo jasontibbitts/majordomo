@@ -1,0 +1,9 @@
+      $LIST:
+        Abonn&eacute; comme      $FULLADDR
+        Abonn&eacute; le         $SUBTIME
+        Dernier changement $CHANGETIME
+        Mode de r&eacute;ception  $CLASSDESC
+        Messages en erreur : ?NUMBERED_BOUNCES
+        ?UNNUMBERED_BOUNCES messages en erreur sans num&eacute;ro d'identification.
+        Param&egrave;tres d'abonnement :
+          $FLAGDESC 

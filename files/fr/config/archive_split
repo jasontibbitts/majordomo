@@ -1,0 +1,12 @@
+Un mot décrivant comment les archives devraient être découpées. Voici
+les possibilités, ainsi que quelques exemples de noms de fichiers
+d'archives :
+
+  yearly    - LISTE.1999        un fichier par an
+  quarterly - LISTE.19993       un fichier par trimestre
+  monthly   - LISTE.200003      un fichier par mois
+  weekly    - LISTE.2002102     un fichier par semaine
+  daily     - LISTE.20011101    un fichier par jour
+
+La modification de ce paramètre n'affectera que les nouveaux fichier
+d'archives ; les anciens ne seront pas altérés.

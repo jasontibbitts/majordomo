@@ -1,0 +1,5 @@
+Pour les listes normales, un message de bienvenue sera envoyé aux
+nouveaux abonnés si le paramètre "welcome" est actif.
+
+Pour la pseudo liste GLOBAL, un message de bienvenue est envoyé aux
+personnes nouvellement arrivés si le paramètre "welcome" est actif.

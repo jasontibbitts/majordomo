@@ -1,0 +1,5 @@
+Le paramètre "sequence_number" contient le numéro de messages qui ont
+été envoyés a la liste, plus un. Ce paramètre est automatiquement
+incrémenté d'un à chaque fois qu'un message est envoyé. Le fait de
+numéroter les messages permet a Majordomo de suivre les messages qui
+reviennent en erreur plus efficacement.

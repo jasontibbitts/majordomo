@@ -1,0 +1,4 @@
+Si une en-tête d'un message posté correspond a l'un de ces motifs, et
+que le message est stocké dans l'archive de la liste, la commande
+"archive" n'affichera ce message que si un message administratif est
+utilisé.

@@ -1,0 +1,4 @@
+Le paramètre "allowed_classes" liste les différents modes de
+réceptions qui sont disponibles pour les abonnés. Un abonné qui
+tentera de choisir un mode de réception, via la commande "set", qui
+n'est pas listé ici recevra un message d'erreur.

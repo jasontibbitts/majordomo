@@ -1,0 +1,9 @@
+Le ticket $TOKEN a été rejeté pour la commande :
+  Commande : $CMDLINE
+  Date :     $DATE
+  Session :  $SESSIONID
+
+?NOTIFIED Un message de notice a été envoyé à $VICTIM.
+
+?ERROR
+

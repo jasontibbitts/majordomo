@@ -1,0 +1,10 @@
+<!-- Majordomo lists format file -->
+<tr>
+<td>
+<a href="$CGIURL?$CGIDATA&amp;func=lists-long-full&amp;list=$LIST&amp;extra=$LIST">
+$LIST
+</a>
+</td>
+<td>
+$DESCRIPTION
+</td>

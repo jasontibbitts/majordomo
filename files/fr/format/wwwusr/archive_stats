@@ -1,0 +1,16 @@
+<!-- Majordomo archive_stats format file -->
+<p align="center">
+Statistiques des messages post&eacute;s sur la liste $LIST<br>
+du $START au $FINISH
+</p>
+<table border>
+  <tr><th>Messages</th><th>Taille</th><th>Auteur</th></tr>
+  <tr><td align="right">$TOTAL_POSTS</td><td align="right">$TOTAL_KILOBYTES ko</td><td>Total</td></tr>
+  <tr><td align="right">$POSTS</td><td align="right">$KILOBYTES ko</td><td>$AUTHORS</td></tr>
+</table>
+
+<p>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=archive-summary">
+  Index de l'archive
+</a>
+</p>

@@ -1,0 +1,41 @@
+__ 
+La requête suivante :
+
+  "$CMDLINE"
+
+a été envoyé à $SITE
+par $REQUESTER.
+
+Cette requête sera effectuée le ou après le :
+
+  $FULFILL
+
+a moins que vous arrêtiez.
+
+Pour accepter ou rejeter cette requête, choisissez l'une des
+possibilités suivantes :
+
+1. Si vous avez la possibilité de naviguer sur le web, allez sur :
+   <URL:$URL>
+   et suivez les instructions.
+
+2. Répondez a $MJ 
+   avec l'une des commandes suivantes dans le corps du message :
+
+    accept
+    reject
+
+   (Le numéro $TOKEN doit être dans le sujet du message)
+
+3. Répondez à $MJ 
+   avec l'une des commandes suivantes dans le corps du message :
+
+    accept $TOKEN
+    reject $TOKEN
+
+La requête a été mise en attente pour la raison suivante :
+
+  $REASONS
+
+Si vous désirez communiquer avec une personne, envoyez un email à
+$OWNER.

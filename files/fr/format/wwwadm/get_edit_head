@@ -1,0 +1,14 @@
+<!-- Majordomo get_edit_head format file -->
+<form method="POST" action="$CGIURL">
+<p><b>$DESCRIPTION</b><br>
+Pour modifier ce document, &eacute;ditez le et ensuite, cliquez sur le
+bouton
+<b>$REPLACECMD</b>.<br>
+</p>
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+  <input type="submit" name="func" value="$REPLACECMD">
+  <input size="68" name="args" value="?CMDARGS">
+  <br>
+  <textarea name="contents" rows="20" cols="72">

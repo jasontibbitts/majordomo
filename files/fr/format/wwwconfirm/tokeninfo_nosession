@@ -1,0 +1,75 @@
+<!-- Majordomo tokeninfo_nosession format file -->
+<p>
+Le $DATE, $REQUESTER &agrave; fait la requ&ecirc;te suivante
+sur $SITE:
+<blockquote>
+$CMDLINE
+</blockquote>
+</p>
+
+<form method="POST" action="$CGIURL">
+?CONSULT?WILLACK <p>Si vous d&eacute;sirez expliquer vos raisons
+?CONSULT?WILLACK d'$HELP:ACCEPTer ou de $HELP:REJECTer la commande,
+?CONSULT?WILLACK entrez la ici&nbsp;:
+?CONSULT?WILLACK <br>
+?CONSULT?WILLACK <textarea rows="4" cols="70" name="xplanation">
+?CONSULT?WILLACK </textarea>
+
+<table>
+  <tr>
+    <td>
+      <input type="submit" name="a" value="accept">
+    </td>
+    <td>
+      Cliquez sur le bouton <b>accept</b> pour approuver la requ&ecirc;te.
+?ISPOST  <tr>
+?ISPOST    <td>
+?ISPOST      <input type="submit" name="a" value="accept-archive">
+?ISPOST    </td>
+?ISPOST    <td>
+?ISPOST      Cliquez sur le bouton <b>accept-archive</b> pour
+?ISPOST      approuver la requ&ecirc;te. Le message sera stock&eacute; dans les
+?ISPOST      archives mais ne sera pas distribu&eacute; aux abonn&eacute;s.
+?ISPOST    </td>
+?ISPOST  <tr>
+?ISPOST    <td>
+?ISPOST      <input type="submit" name="a" value="accept-hide">
+?ISPOST    </td>
+?ISPOST    <td>
+?ISPOST      Cliquez sur le bouton <b>accept-hide</b> pour approuver
+?ISPOST      la requ&ecirc;te. Le message ne sera pas affich&eacute; dans les
+?ISPOST      archives publiques.
+?ISPOST    </td>
+    </td>
+  <tr>
+    <td>
+      <input type="submit" name="a" value="reject">
+    </td>
+    <td>
+      Cliquez sur le bouton <b>reject</b> pour rejeter la requ&ecirc;te.
+?CONSULT?WILLACK      Une explication sera envoy&eacute;e a $VICTIM.
+    </td>
+?CONSULT?WILLACK  <tr>
+?CONSULT?WILLACK    <td>
+?CONSULT?WILLACK      <input type="submit" name="a" value="reject-quiet">
+?CONSULT?WILLACK    </td>
+?CONSULT?WILLACK    <td>
+?CONSULT?WILLACK      Cliquez sur le bouton <b>reject-quiet</b> pour
+?CONSULT?WILLACK      rejeter la requ&ecirc;te. Aucune explication ne sera
+?CONSULT?WILLACK      envoy&eacute;e a $VICTIM.
+?CONSULT?WILLACK    </td>
+</table>
+  
+<input type="hidden" name="t" value="$TOKEN">
+<input type="hidden" name="d" value="$DOMAIN">
+</form>
+
+<p>
+Pour obtenir des instructions, cliquez sur le lien <b>Introduction</b>
+en haut ou en bas de la page.<br> Pour confirmer une autre
+requ&ecirc;te, cliquez sur le lien <b>Confirmez une nouvelle
+  requ&ecirc;te</b>.<br> Pour revenir &agrave; ce document, cliquez
+sur le lien <b>Afficher les d&eacute;tails</b>.  Pour obtenir plus
+d'informations sur cette requ&ecirc;te, cliquez sur <b>Afficher tous
+  les d&eacute;tails</b>.
+<p>

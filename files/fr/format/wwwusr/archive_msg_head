@@ -1,0 +1,59 @@
+</pre>
+<!-- Majordomo archive_msg_head format file -->
+<table>
+<tr>
+<td>
+Index des messages pour $ARCHIVE, tri&eacute;s par...
+</td>
+
+<td>
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-index-author&amp;extra=?ARCHIVE">Auteur</a>)
+
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-index-date&amp;extra=?ARCHIVE">Date</a>)
+
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-index-subject&amp;extra=?ARCHIVE">Sujet</a>)
+
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-index-thread&amp;extra=?ARCHIVE">Discussion</a>)
+</td>
+</tr>
+
+<tr>
+<td>
+Messages pr&eacute;c&eacute;dents, par...
+</td>
+
+<td>
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get-part&amp;extra=?AUTHOR_PREV">Auteur</a>)
+
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get-part&amp;extra=?DATE_PREV">Date</a>)
+
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get-part&amp;extra=?SUBJECT_PREV">Sujet</a>)
+
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get-part&amp;extra=?THREAD_PREV">Discussion</a>)
+</td>
+</tr>
+
+<tr>
+<td>
+Messages suivants, par...
+</td>
+
+<td>
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get-part&amp;extra=?AUTHOR_NEXT">Auteur</a>)
+
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get-part&amp;extra=?DATE_NEXT">Date</a>)
+
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get-part&amp;extra=?SUBJECT_NEXT">Sujet</a>)
+
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get-part&amp;extra=?THREAD_NEXT">Discussion</a>)
+</td>
+</tr>
+</table>
+
+<p>
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get&amp;extra=$MSGNO" 
+  target="_part">Voir le message complet, dans une fen&ecirc;tre s&eacute;par&eacute;e</a>)<br>
+
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=archive-delete&amp;extra=$MSGNO">Supprimer
+ce message</a>)
+</p>

@@ -1,0 +1,4 @@
+Le paramètre "config_defaults" est une liste de modèles de
+configuration. Les modèles doivent exister et être accessibles via
+la pseudo liste DEFAULT. Si des paramètres entrent en conflit, le
+modèle qui est en premier dans la liste sera utilisé.

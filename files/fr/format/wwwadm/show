@@ -1,0 +1,10 @@
+<!-- Majordomo show format file -->
+      $LIST:
+        Abonné comme      $FULLADDR
+        Abonné le         $SUBTIME
+        Dernier changement $CHANGETIME
+        Mode de réception  $CLASSDESC
+        Messages en erreur : ?NUMBERED_BOUNCES
+        ?UNNUMBERED_BOUNCES messages en erreur sans numéro d'identification.
+        Paramètres d'abonnement :
+          $FLAGDESC

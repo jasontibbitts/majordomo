@@ -1,0 +1,19 @@
+Bienvenue sur la liste $LIST !
+Votre mot de passe sur $SITE est
+
+$PASSWORD
+
+Pour quitter la liste, envoyez la commande suivante dans le corps d'un
+message à $MJ :
+
+approve $PASSWORD unsubscribe $LIST $STRIPADDR
+
+Cette commande fonctionnera même si vous changez d'adresse. Pour cette
+raison, parmi d'autres, il est important que vous gardiez une copie
+de ce message.
+
+Si vous avez besoin d'aide ou que vous avez des questions a propos de
+la liste, contactez les gestionnaires de la liste en envoyant un
+message à
+  $OWNER
+

@@ -1,0 +1,8 @@
+Le message $MSGNO n'a pas été supprimé.
+Le message est toujours en attente d'être envoyé dans une ou plusieurs
+compilations pour la liste $LIST. Pour forcer la suppression, utilisez
+la commande :
+  archive-delete-force $LIST $MSGNO
+Pour afficher le statut des compilations, utilisez la commande :
+  digest-status $LIST ALL
+

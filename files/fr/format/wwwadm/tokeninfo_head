@@ -1,0 +1,58 @@
+<!-- Majordomo tokeninfo_head format file -->
+<p>
+Le $DATE, $REQUESTER a envoy&eacute; la commande suivante &agrave; $SITE&nbsp;:
+<blockquote>
+$CMDLINE
+</blockquote>
+</p>
+<p>
+<form method="POST" action="$CGIURL">
+?WILLACK Si vous d&eacute;sirez expliquer vos raisons d'$HELP:ACCEPTer
+?WILLACK ou de $HELP:REJECTer la commande, entrez la ici&nbsp;:
+?WILLACK <br>
+?WILLACK <textarea rows="4" cols="70" name="xplanation">
+?WILLACK </textarea>
+
+<table>
+  <tr>
+    <td>
+      <input type="submit" name="func" value="accept">
+    </td>
+    <td>
+      Cliquez sur le bouton <b>accept</b> pour approuver la commande.
+?CONSULT  Le r&eacute;sultat de la commande sera envoy&eacute;
+?CONSULT  &agrave; $VICTIM.
+    </td>
+  <tr>
+    <td>
+      <input type="submit" name="func" value="reject">
+    </td>
+    <td>
+      Cliquez sur le bouton <b>reject</b> pour rejeter la commande.
+?WILLACK Une explication sera envoy&eacute;e &agrave; $VICTIM.
+    </td>
+?WILLACK  <tr>
+?WILLACK    <td>
+?WILLACK      <input type="submit" name="func" value="reject-quiet">
+?WILLACK    </td>
+?WILLACK    <td>
+?WILLACK      Cliquez sur le bouton <b>reject-quiet</b> pour rejeter
+?WILLACK      la commande. Aucune explication ne sera envoy&eacute;e
+?WILLACK      a $VICTIM.
+?WILLACK    </td>
+</table>
+  
+<input type="hidden" name="extra" value="$TOKEN">
+<input type="hidden" name="list" value="$LIST">
+<input type="hidden" name="passw" value="$CMDPASS">
+</p>
+<p>
+Plus de d&eacute;tail a propos de cette commande&nbsp;
+<table>
+  <tr><td>Ticket&nbsp;:</td><td>$TOKEN</td></tr>
+  <tr><td>Type&nbsp;:  </td><td>$TYPE</td></tr>
+  <tr><td>Expire&nbsp;:</td><td>$EXPIRE</td></tr>
+  <tr><td>Raison&nbsp;:</td><td>$REASONS</td></tr>
+</table>
+
+<pre>

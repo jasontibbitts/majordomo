@@ -1,0 +1,13 @@
+<!-- Majordomo configshow_array format file -->
+<dt>
+  <input type=checkbox name=extra value="$SETTING">
+  $HELPLINK
+  (niveau $LEVEL)
+
+</dt>
+<dd>
+  <pre>?COMMENT</pre>
+<textarea cols=70 rows=$LINES name="$SETTING">
+?VALUE
+</textarea><br>
+</dd>

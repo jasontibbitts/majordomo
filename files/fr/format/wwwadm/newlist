@@ -1,0 +1,101 @@
+<pre>$ERROR</pre>
+
+<h4 align=center>Cr&eacute;er une liste</h4>
+<p>
+<ol>
+
+  <li>
+    Entrez le nom de la nouvelle liste dans le champ <b>Nom de la
+      liste</b>. Les noms de listes peuvent &ecirc;tre compos&eacute;s
+    de lettres, chiffres, tiret (-), soulign&eacute; (_), ou point
+    (.). Les noms de listes ne sont pas sensibles a la casse&nbsp;:
+    les minuscules et les majuscules sont trait&eacute;es de
+    mani&egrave;re identique.
+
+  <li>
+    Si vous avez envie de sp&eacute;cifier un mot de passe pour cette
+    nouvelle liste, entrez le dans le champ <b>mot de passe</b>. Le
+    mot de passe doit au moins faire $PWLENGTH de long.
+
+  <li>
+    Entrez l'adresse email des propri&eacute;taires dans le grand
+    champ.  Mettez une adresse email par ligne.
+
+  <li>
+    Appuyez sur le bouton <b>createlist</b> pour cr&eacute;er la
+    liste.
+
+</ol>
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+
+  Nom de la liste&nbsp;: <input name="newlist" size="40"><br>
+
+  mot de passe&nbsp;:  <input type="password" name="newpasswd" size="18"><br>
+
+  <textarea cols="70" rows="6" name="owners"></textarea><br>
+
+  <input type="submit" name="func" value="createlist">
+</form>
+
+<h4 align="center">Renommer une liste</h4>
+<p>
+<ol>
+  <li>
+    Entrez l'ancien nom de la liste dans le champ <b>Ancien nom</b>.
+
+  <li>
+    Entrez le nouveau nom de la liste dans le champ <b>Nouveau
+      nom</b>.
+
+  <li>
+    Appuyez sur le bouton <b>createlist-rename</b> pour renommer la
+    liste.
+
+</ol>
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+
+  Ancien nom&nbsp;: <input name="newlist" size="40"><br>
+  Nouveau nom&nbsp;: <input name="newname" size="40"><br>
+
+  <input type="submit" name="func" value="createlist-rename">
+</form>
+
+<h4 align="center">D&eacute;truire une liste</h4>
+<p>
+<ol>
+  <li>
+    Entrez le nom de la liste dans le champ <b>Liste</b>.
+
+  <li>
+    Appuyez sur le bouton <b>createlist-destroy</b> pour
+    d&eacute;truire la liste.
+
+</ol>
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+
+  Liste&nbsp;: <input name="newlist" size="40"><br>
+
+  <input type="submit" name="func" value="createlist-destroy">
+</form>
+
+<p>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=lists">Liste des
+  Listes</a>
+</p>
+
+

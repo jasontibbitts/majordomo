@@ -1,0 +1,13 @@
+Ce paramètre contient une liste de paramètres que les non inscrits a
+la liste ont. Seuls paramètres d'informations, hidepost et postblock
+ont un sens ici. Ces paramètres sont :
+
+  ackdeny
+  ackpost
+  ackreject
+  ackstall
+  hidepost
+  postblock
+
+Utilisez la commande "help set" pour avoir une description détaillée
+de ces paramètres.

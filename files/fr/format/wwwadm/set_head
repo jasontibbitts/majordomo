@@ -1,0 +1,6 @@
+<!-- Majordomo set_head format file -->
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="list" value="$LIST">
+

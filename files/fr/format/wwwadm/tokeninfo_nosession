@@ -1,0 +1,70 @@
+<!-- Majordomo tokeninfo_nosession format file -->
+<p>
+Le $DATE, $REQUESTER a fait la requ&ecirc;te suivante sur $SITE&nbsp;:
+<blockquote>
+$CMDLINE
+</blockquote>
+</p>
+
+<form method="POST" action="$CGIURL">
+?WILLACK Si vous d&eacute;sirez expliquer les raisons pour
+?WILLACK $HELP:ACCEPTer ou $HELP:REJECTer la requ&ecirc;te, entrez la
+?WILLACK ici&nbsp;:
+?WILLACK <br>
+?WILLACK <textarea rows="4" cols="70" name="xplanation">
+?WILLACK </textarea>
+
+<table>
+  <tr>
+    <td>
+      <input type="submit" name="func" value="accept">
+    </td>
+    <td>
+      Cliquez sur le bouton <b>accept</b> pour approuver la
+      requ&ecirc;te.
+?ISPOST  <tr>
+?ISPOST    <td>
+?ISPOST      <input type="submit" name="func" value="accept-archive">
+?ISPOST    </td>
+?ISPOST    <td>
+?ISPOST      Cliquez sur le bouton <b>accept-archive</b> pour
+?ISPOST      approuver la requ&ecirc;te. Le message sera
+?ISPOST      stock&eacute;e dans les archives mais ne sera pas
+?ISPOST      distribu&eacute;e aux abonn&eacute;s
+?ISPOST    </td>
+?ISPOST  <tr>
+?ISPOST    <td>
+?ISPOST      <input type="submit" name="func" value="accept-hide">
+?ISPOST    </td>
+?ISPOST    <td>
+?ISPOST      Cliquez sur le bouton <b>accept-hide</b> pour approuver
+?ISPOST      la requ&ecirc;te. Le message ne sera pas affich&eacute;
+?ISPOST      dans les archives publiques.
+?ISPOST    </td>
+    </td>
+  <tr>
+    <td>
+      <input type="submit" name="func" value="reject">
+    </td>
+    <td>
+      Cliquez sur le bouton <b>reject</b> pour rejeter la
+      requ&ecirc;te.
+?WILLACK Une explication sera envoy&eacute;e &agrave; $VICTIM.
+    </td>
+?WILLACK  <tr>
+?WILLACK    <td>
+?WILLACK      <input type="submit" name="func" value="reject-quiet">
+?WILLACK    </td>
+?WILLACK    <td>
+?WILLACK      Cliquez sur <b>reject-quiet</b> pour rejeter la
+?WILLACK      requ&ecirc;te. Aucune explication ne sera
+?WILLACK      envoy&eacute;e &agrave; $VICTIM.
+?WILLACK    </td>
+</table>
+  
+<input type="hidden" name="extra" value="$TOKEN">
+<input type="hidden" name="list" value="$LIST">
+<input type="hidden" name="user" value="$USER">
+<input type="hidden" name="passw" value="$CMDPASS">
+</form>
+

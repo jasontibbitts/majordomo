@@ -1,0 +1,4 @@
+Le paramètre "whoami" contient une adresse email. Pour les listes
+normales, il contient l'adresse à laquelle les message devraient être
+postés. Pour la pseudo liste GLOBAL, il contient l'adresse à laquelle
+les commande doivent être envoyés.

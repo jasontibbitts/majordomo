@@ -1,0 +1,23 @@
+<!-- Majordomo archive_text_head format file -->
+<p>
+[Volet $PART $CONTENT_TYPE ($SIZE kilo octets)]<br>
+
+  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PARTh&amp;func=archive-get-part" target="_part">
+    (Voir les en-t&ecirc;tes dans une fen&ecirc;tre
+    s&eacute;par&eacute;e)
+  </a>
+
+  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PARTh&amp;func=archive-part-edit">
+    (&Eacute;diter les en-t&ecirc;tes)
+  </a>
+
+  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PART&amp;func=archive-part-edit">
+    (&Eacute;diter le texte)
+  </a>
+
+?SUBPART  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PART&amp;func=archive-part-delete">
+?SUBPART    (Supprimer cet volet)
+?SUBPART  </a>
+
+</p>
+<pre>

@@ -1,0 +1,5 @@
+Une personne ayant une adresse email qui correspond a au moins un
+motif dans cette liste de motifs ne verra pas cette liste en utilisant
+la commande "lists". Référez vous a "help patterns" pour plus
+d'informations a propos des motifs. Ce réglage permet de passer outre
+le paramètre "advertise".

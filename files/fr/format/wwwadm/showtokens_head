@@ -1,0 +1,36 @@
+<!-- Majordomo showtokens_head format file -->
+<h4 align="center">Requ&ecirc;tes disponibles pour
+  mod&eacute;ration</h4>
+
+<p>
+Choisissez une ou plusieurs requ&ecirc;tes dans cette liste en cochant
+leur case associ&eacute;e, cliquez ensuite sur l'un des boutons.
+[<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=welcome_showtokens">aide</a>]
+</p>
+
+<p>
+Cliquez sur un num&eacute;ro de <b>ticket</b> pour afficher les
+informations le concernant dans une fen&ecirc;tre
+s&eacute;par&eacute;e.
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="submit" name="func" value="tokeninfo">
+  <input type="submit" name="func" value="accept">
+  <input type="submit" name="func" value="accept-archive">
+  <input type="submit" name="func" value="accept-hide">
+  <input type="submit" name="func" value="reject">
+  <input type="submit" name="func" value="reject-quiet">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+
+<table width="100%">
+<tr>
+  <th>Ticket</th>
+  <th>Requ&ecirc;te</th>
+  <th>Type</th>
+  <th>Date</th>
+  <th>Adresse</th>
+</tr>
+

@@ -1,0 +1,53 @@
+<pre>?ERROR</pre>
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="func" value="$COMMAND">
+  <input type="hidden" name="chunksize" value="?CHUNKSIZE">
+  <input type="hidden" name="extra" value="?EXTRA">
+
+<table cellspacing="15" width="100%">
+<tr>
+  <td valign="top">
+    Liste&nbsp;: <input size="36" name="list" value="$LIST">
+  </td>
+  <td>
+    Entrez le nom de votre liste dans le champ <b>Liste</b> a moins
+    qu'il soit d&eacute;j&agrave; pr&eacute;sent.
+  </td>
+</tr>
+<tr>
+  <td valign="top">
+    Mot de passe&nbsp;: <input type="password" name="passw" size="15" value="$CMDPASS">
+  </td>
+  <td valign="top">
+    Entrez le mot de passe administratif de la liste dans le champ
+    <b>Mot de passe</b>. Si vous voyez 14 ast&eacute;risques dans ce
+    champ, il se peut qu'il soit d&eacute;j&agrave; pr&eacute;sent
+    (ces 14 &eacute;toiles sont un mot de passe temporaire qui ne
+    s'applique qu'a cette cession.)
+  </td>
+</tr>
+<tr>
+  <td valign="top">
+    Adresse&nbsp;: <input name="user" size="32" value="$USER">
+  </td>
+  <td valign="top">
+    Vous pouvez aussi entrer votre adresse email dans le champ
+    <b>Adresse</b>.
+  </td>
+<tr>
+  <td valign="top">
+    <input type="submit" value="Go"><br>
+    <input type="reset" value="Effacer">
+  </td>
+  <td>
+    <p>
+    Pour vous connecter, cliquez sur le bouton <b>Go</b>
+    </p>
+    <p>
+    Pour remettre a z&eacute;ro les valeurs de ce formulaire, cliquez
+    sur le bouton <b>Effacer</b>.
+    </p>
+  </td>
+</tr>
+</table>
+</form>

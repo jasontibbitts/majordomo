@@ -1,0 +1,5 @@
+<!-- Majordomo tokeninfo_remind format file -->
+<pre>
+  Un rappel du ticket $TOKEN a &eacute;t&eacute; envoy&eacute; &agrave;
+  $USER.
+</pre>

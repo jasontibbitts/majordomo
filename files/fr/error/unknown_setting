@@ -1,0 +1,6 @@
+Le paramètre "$SETTING" n'existe pas.
+
+Certains paramètres de configuration ne sont valides que pour la
+pseudo liste GLOBAL. Utilisez la commande "help topics" pour avoir une
+liste complète des paramètres de configurations.
+

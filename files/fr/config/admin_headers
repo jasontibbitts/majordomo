@@ -1,0 +1,3 @@
+Le paramètre "admin_headers" contient une liste de motifs. Si l'une
+des en-têtes du message corresponds a l'un de ces motifs, le message
+sera envoyé aux modérateurs pour approbation.

@@ -1,0 +1,9 @@
+Informations sur le ticket $TOKEN :
+Généré le :       $DATE
+Par :             $REQUESTER
+Type :            $TYPE
+Par la commande : $CMDLINE
+Approbations :    $APPROVALS
+Expiration :      $EXPIRE
+Raison :          ?REASONS
+ 

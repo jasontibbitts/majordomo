@@ -1,0 +1,4 @@
+Le paramètre "resend_host" est substitué à la variable HOST dans les
+paramètres "reply_to", "message_headers", et les autres paramètres de
+configuration. Référez vous à "help variables" pour une introduction
+aux variables internes de Majordomo.

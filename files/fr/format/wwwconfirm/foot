@@ -1,0 +1,41 @@
+<!-- Majordomo foot format file -->
+<p>
+  Si vous avez besoin d'aide, contactez
+  <a href="mailto:$MJOWNER">les administrateur de $DOMAIN</a>.
+
+<table width="100%" cellspacing="8">
+<tr>
+  <td align="center" bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=welcome&t=$TOKEN">
+  <font color="#f0f0f0">
+    Introduction
+  </font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=login&t=$TOKEN">
+  <font color="#f0f0f0">
+    Confirmez une nouvelle requ&ecirc;te
+  </font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=tokeninfo-nosession&t=$TOKEN">
+  <font color="#f0f0f0">
+    Afficher les d&eacute;tails
+  </font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=tokeninfo&t=$TOKEN">
+  <font color="#f0f0f0">
+    Afficher <b>tous</b> les d&eacute;tails
+  </font></a>
+  </td>
+</tr>
+</table>
+</p>
+
+</body>
+</html>
+

@@ -1,0 +1,8 @@
+Statistiques des messages postés sur la liste $LIST
+  du $START au $FINISH
+
+Messages     Taille     Auteur
+  $TOTAL_POSTS:5    $TOTAL_KILOBYTES:5      Total
+  $POSTS:5    $KILOBYTES:5      $AUTHORS
+
+Les tailles sont affichées en kilo octets.

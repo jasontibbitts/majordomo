@@ -1,0 +1,4 @@
+Si actif, Majordomo autorisera des points à la fin des noms de
+domaines. C'est une syntaxe légale dans un nom de domaine, mais pas
+dans une adresse email. Malheureusement, certains sites les ajoutent
+de temps en temps.

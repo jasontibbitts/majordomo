@@ -1,0 +1,4 @@
+Le paramètre "default_class" contient un mode de réception. Lorsqu'un
+nouvel abonné arrive sur la liste, il aura ce mode par défaut. Référez
+vous au document d'aide "help set" pour une introduction sur les modes
+de réception.

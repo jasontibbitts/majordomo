@@ -1,0 +1,13 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd">
+<!-- Majordomo error format file -->
+<html>
+  <head>
+    <title>Majordomo 2 WWW pour abonn&eacute;s&nbsp;: Erreur</title>
+  </head>
+  <body>
+    <h2>Erreur Majordomo</h2>
+    $ERROR
+  </body>
+</html>
+

@@ -1,0 +1,20 @@
+<!-- Majordomo tokeninfo_foot_post format file -->
+
+<form method="POST" action="$CGIURL">
+  <input type="submit" name="a" value="accept">
+  <input type="submit" name="a" value="accept-archive">
+  <input type="submit" name="a" value="accept-hide">
+  <input type="submit" name="a" value="reject">
+?CONSULT?WILLACK <input type="submit" name="a" value="reject-quiet">
+  <input type="hidden" name="t" value="$TOKEN">
+  <input type="hidden" name="d" value="$DOMAIN">
+</form>
+
+<p>
+Pour obtenir des instructions, cliquez sur le lien <b>Introduction</b>
+en haut ou en bas de la page.<br> Pour confirmer une autre
+requ&ecirc;te, cliquez sur le lien <b>Confirmez une nouvelle
+  requ&ecirc;te</b> en haut ou en bas.<br> Pour revenir a ce document,
+cliquez sur <b>Afficher tous les d&eacute;tails</b> en haut ou en bas.
+</p>
+

@@ -1,0 +1,10 @@
+La liste $OLDLIST a &eacute;t&eacute; renomm&eacute;e en $NEWLIST.
+
+Si les anciens alias de la liste doivent &ecirc;tre supprim&eacute;s,
+ils apparaissent ci dessous :
+?OLDALIASES
+
+Si les alias doivent &ecirc;tre mis a jour, ils sont
+sp&eacute;cifi&eacute;s ci dessous :
+?ALIASES
+

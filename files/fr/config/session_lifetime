@@ -1,0 +1,5 @@
+Le paramètre "session_lifetime" contient le nombre de jours pendant
+lesquels les informations sur une session sont conservés. Une session
+consiste en l'ensembles des commandes qui ont été envoyés lorsqu'un
+message, un message posté ou une série de commandes dans l'une des
+interface web.

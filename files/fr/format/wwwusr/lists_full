@@ -1,0 +1,76 @@
+<!-- Majordomo lists_full format file -->
+<tr>
+  <td>Nom</td>
+  <td>$LIST</td>
+</tr>
+<tr>
+  <td>Description</td>
+  <td>$DESCRIPTION</td>
+</tr>
+
+<tr><td>Emplacement de l'archive</td><td><a href="?ARCURL">?ARCURL</a></td></tr>
+
+<tr>
+  <td valign="top">Compilations</td>
+  <td>$DIGESTS</td>
+</tr>
+
+<tr>
+  <td>Abonn&eacute;s</td>
+  <td>$SUBS</td>
+</tr>
+<tr>
+  <td>Posts dans les 30 derniers jours</td>
+  <td>$POSTS</td>
+</tr>
+
+<tr>
+  <td>Adresse de la liste</td>
+  <td><a href="mailto:$WHOAMI">$WHOAMI</a></td>
+</tr>
+<tr>
+  <td>Propri&eacute;taires de la liste</td>
+  <td><a href="mailto:$OWNER">$OWNER</a></td>
+</tr>
+
+<tr>
+  <td valign="top">Documentation</td>
+  <td><a href="$CGIURL?$CGIDATA&func=faq&list=$LIST">
+      Questions fr&eacute;quemment pos&eacute;es</a> 
+    <br>
+
+    <a href="$CGIURL?$CGIDATA&amp;func=intro&amp;list=$LIST">
+      Introduction &agrave; la liste</a> 
+
+    <br>
+
+    <a href="$CGIURL?$CGIDATA&amp;func=info&amp;list=$LIST">
+      Message de bienvenue</a> 
+
+?CAN_READ    <p>
+?CAN_READ    <a href="$CGIURL?$CGIDATA&amp;func=archive-summary-reverse&amp;list=$LIST">
+?CAN_READ      Message d'archives</a>
+
+</td>
+</tr>
+
+<tr>
+  <td valign=top>Abonnements</td>
+  <td>Pour s'abonner, entrez votre adresse email dans le champ
+    <b>Adresse</b> a moins qu'il y soit d&eacute;j&agrave;. Vous
+    pouvez aussi entrer votre nom dans le champ <b>Nom</b>. Cliquez
+    ensuite sur le bouton <b>S'abonner</b>.
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="domain" value="$DOMAIN">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="func" value="subscribe">
+  Adresse&nbsp;: <input size="36" name="user" value="$USER"><br>
+  Nom&nbsp;: <input size="36" name="name" value="">
+  <input type="submit" name="submit" value="S'abonner">
+</form>
+
+</td>
+</tr>
+

@@ -1,0 +1,3 @@
+Le paramètre "bounce_max_count" contient le nombre maximum
+d'enregistrement de messages en erreurs qui seront sauvegardés dans la
+base pour une adresse.

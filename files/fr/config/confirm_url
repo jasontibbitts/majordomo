@@ -1,0 +1,3 @@
+Le paramètre "confirm_url" défini l'emplacement de l'interface WWW de
+confirmation. Cette adresse est affichée dans les messages email de
+confirmation.

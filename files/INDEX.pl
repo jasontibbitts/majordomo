@@ -14,5 +14,13 @@ $noweb_files = {
   'de/consult'          => 1,
   'de/informal/confirm' => 1,
   'de/informal/consult' => 1,
+  'fr/confirm'          => 1,
+  'fr/consult'          => 1,
+  'fr/delay'            => 1,
+  'fr/farewell'         => 1,
+  'fr/new_password'     => 1,
+  'fr/registered'       => 1,
+  'fr/token_remind'     => 1,
+  'fr/welcome'          => 1,
 };
 

@@ -1,0 +1,8 @@
+Si le réglage "administrativia" est actif, les messages postés qui
+correspondent à un motif d'"admin_body" ou "admin_headers" seront
+envoyés aux modérateurs pour approbation. Ces réglages sont utilisés
+pour empêcher les commandes, comme "remove" ou "unsubscribe",
+d'arriver jusqu'à la liste.
+
+Si inactif, les paramètres "admin_body" et "admin_headers" sont
+inactifs.

@@ -1,0 +1,15 @@
+<p>
+[Volet $PART $CONTENT_TYPE ($SIZE kilo octets)]<br>
+Lorsque vous avez termin&eacute; d'&eacute;diter le contenu de ce
+volet, cliquez sur le bouton <b>remplacer</b> pour rendre vos
+changements permanents.
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="d" value="$DOMAIN">
+  <input type="hidden" name="a" value="tokeninfo-replace-part">
+  <input type="hidden" name="t" value="$TOKEN">
+  <input type="hidden" name="p" value="$PART">
+  <input type="submit" value="remplacer">
+
+<textarea name="contents" rows="20" cols="80">

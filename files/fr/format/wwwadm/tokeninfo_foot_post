@@ -1,0 +1,50 @@
+<!-- Majordomo tokeninfo_foot_post format file -->
+
+<form method="POST" action="$CGIURL">
+  <input type="submit" name="func" value="accept">
+  <input type="submit" name="func" value="accept-archive">
+  <input type="submit" name="func" value="accept-hide">
+  <input type="submit" name="func" value="reject">
+?WILLACK <input type="submit" name="func" value="reject-quiet">
+  <input type="submit" name="func" value="tokeninfo-remind">
+  <input type="hidden" name="extra" value="$TOKEN">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+<p>
+Pour envoyer un email de rappel a propos de cette commande, entrez une
+adresse email dans le champ <b>Adresse</b>, et cliquez ensuite sur le
+bouton <b>tokeninfo-remind</b>.<br>
+  Adresse&nbsp;:
+  <input size="48" name="user" value="$USER">
+</p>
+
+<p>
+Cliquez sur le bouton <b>accept</b> pour approuver le message et
+l'envoyer aux abonn&eacute;s de la liste $LIST.
+</p>
+
+<p>
+Cliquez sur le bouton <b>accept-archive</b> pour approuver le message.
+Le message sera stock&eacute; dans les archives mais ne sera pas
+distribu&eacute; aux abonn&eacute;s.
+</p>
+
+<p>
+Cliquez sur le bouton <b>accept-hide</b> Pour approuver le message et
+l'envoyer aux abonn&eacute;s de la liste $LIST. Ce message ne sera pas
+affich&eacute; dans les archives publiques.
+</p>
+
+<p>
+Cliquez sur le bouton <b>reject</b> pour rejeter ce message.
+?WILLACK Une explication sera envoy&eacute;e &agrave; $VICTIM.
+</p>
+
+<p>
+?WILLACK Cliquez sur le bouton <b>reject-quiet</b> pour rejeter le
+?WILLACK message. Aucune explication ne sera envoy&eacute;e &agrave;
+?WILLACK $VICTIM.
+</p>
+
+</form>
+

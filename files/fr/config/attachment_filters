@@ -1,0 +1,23 @@
+Le paramètre "attachment_filters" contient une table de règles, qui
+décrivent comment traiter le différents volet MIME du corps des
+messages postés.
+
+Une règle consiste en un type MIME (ou un motif correspondant a des
+types MIME) et une action a effectuer quand un message avec ce type ou
+contenant une partie de ce type est délivré aux abonnés d'une liste.
+Chaque règle ressemble a ceci :
+
+mime/type | action=argument
+
+Quelques types MIME communs sont text/plain, text/html et image/jpeg.
+
+Les actions possibles sont :
+
+  allow     - laisse le message passer sans être modifié.
+  discard   - supprime le volet du message et laisse passer le reste.
+              (Cela n'a aucun effet sur les messages avec un seul
+               volet.)
+  format    - converti le volet en texte brut. Un argument numérique
+              ajustera la marge de droite du texte, qui est a 72 par
+              défaut.
+

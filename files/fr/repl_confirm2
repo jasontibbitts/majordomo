@@ -1,0 +1,10 @@
+La requête
+  "$CMDLINE"
+doit être confirmé par
+  $VICTIM
+et
+  $REQUESTER
+
+Des instructions de confirmation ont été envoyées à
+  $VICTIM 
+dans un message séparé.

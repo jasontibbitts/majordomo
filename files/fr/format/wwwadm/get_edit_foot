@@ -1,0 +1,8 @@
+</textarea> <!-- Majordomo get_edit_foot format file --><br>
+  <input type=submit name=func value="$REPLACECMD">
+</form>
+<p>
+Certains documents peuvent utiliser des substitutions, comme \$MJ pour
+l'adresse du Majordomo, $MJ. R&eacute;f&eacute;rez vous aux pages
+d'aides $HELP:VARIABLES et $HELP:REPLY_FILES pour plus d'informations.
+</p>

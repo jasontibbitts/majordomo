@@ -1,0 +1,14 @@
+Le paramètre "access_rules" contrôle qui a le droit d'utiliser des
+commandes Majordomo ou de poster des messages sur une liste. Chaque
+règle contient au moins trois lignes.
+
+La première ligne contient au moins une commande Majordomo, séparées
+par des virgules.
+
+La seconde ligne contient une ou plusieurs actions a effectuer,
+séparées par des virgules.
+
+La troisièmes et les suivantes spécifient les conditions d'utilisation
+de la règle.
+
+On utilisera des lignes vides pour séparer les règles.

@@ -1,0 +1,13 @@
+<!-- Majordomo show_head format file -->
+  Adresse : $VICTIM
+    Adresse est valide.
+      Adresse de la boite aux lettres : $STRIPADDR
+      Commentaire de l'adresse : ?COMMENT
+    L'adresse se transforme en: ?XFORM
+    Adresse aliasée à:         ?ALIAS
+    Alias vers cette adresse : ?ALIASES
+    Enregistrée comme          ?FULLADDR
+    Enregistrée le             ?REGTIME
+    Dernier changement         ?RCHANGETIME
+    Administrateur de          ?OWNERSHIPS liste
+    Abonné à                   ?COUNT listes

@@ -1,0 +1,86 @@
+<!-- Majordomo tokeninfo_head_post format file -->
+<p>
+Un message a &eacute;t&eacute; post&eacute; sur la liste $LIST sur
+$SITE. Un r&eacute;sum&eacute; du message appara&icirc;t ci
+dessous&nbsp;:
+</p>
+
+<table>
+  <tr><td>Ticket&nbsp;:</td><td>$TOKEN</td></tr>
+  <tr><td>Type&nbsp;:</td><td>$TYPE</td></tr>
+  <tr><td>Expire&nbsp;:</td><td>$EXPIRE</td></tr>
+  <tr><td>Raison&nbsp;:</td><td>$REASONS</td></tr>
+</table>
+
+<form method="POST" action="$CGIURL">
+?CONSULT?WILLACK <p>Si vous d&eacute;sirez expliquer vos raisons
+?CONSULT?WILLACK d'$HELP:ACCEPTer ou de $HELP:REJECTer la commande,
+?CONSULT?WILLACK entrez la ici&nbsp;:
+?CONSULT?WILLACK </p>
+?CONSULT?WILLACK <textarea rows="4" cols="70" name="xplanation">
+?CONSULT?WILLACK </textarea>
+
+<table>
+  <tr>
+    <td>
+      <input type="submit" name="a" value="accept">
+    </td>
+    <td>
+      Cliquez sur le bouton <b>accept</b> pour approuver le message et
+      l'envoyer aux abonn&eacute;s de la liste $LIST.
+    </td>
+    </tr>
+  <tr>
+    <td>
+      <input type="submit" name="a" value="accept-archive">
+    </td>
+    <td>
+      Cliquez sur le bouton <b>accept-archive</b> pour approuver le
+      message. Le message sera stock&eacute; dans les archives mais ne sera
+      pas distribu&eacute; aux abonn&eacute;s.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <input type="submit" name="a" value="accept-hide">
+    </td>
+    <td>
+      Cliquez sur le bouton <b>accept-hide</b> pour approuver le
+      message et l'envoyer aux abonn&eacute;s de la liste. Le message ne sera
+      pas affich&eacute; dans la archive publiques.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <input type="submit" name="a" value="reject">
+    </td>
+    <td>
+      Cliquez sur le bouton <b>reject</b> pour rejeter le message.
+?CONSULT?WILLACK  Une explication sera envoy&eacute;e a $VICTIM.
+?CONSULT?WILLACK    </td>
+?CONSULT?WILLACK  </tr>
+?CONSULT?WILLACK  <tr>
+?CONSULT?WILLACK    <td>
+?CONSULT?WILLACK      <input type="submit" name="a" value="reject-quiet">
+?CONSULT?WILLACK    </td>
+?CONSULT?WILLACK    <td>
+?CONSULT?WILLACK      Cliquez sur le bouton <b>reject-quiet</b> pour
+?CONSULT?WILLACK      rejeter le message.
+?CONSULT?WILLACK      Aucune explication ne sera envoy&eacute;e &agrave; $VICTIM.
+    </td>
+  </tr>
+</table>
+  
+<input type="hidden" name="t" value="$TOKEN">
+<input type="hidden" name="d" value="$DOMAIN">
+</form>
+
+<p>
+<a href="$CGIURL?$CGIDATA&t=$TOKEN&p=0&a=tokeninfo-part" target="_part">
+  (Voir le message complet dans une fen&ecirc;tre
+  s&eacute;par&eacute;e)
+</a><br>
+<a href="$CGIURL?$CGIDATA&t=$TOKEN&p=0&a=tokeninfo-part-edit">
+  (&Eacute;diter le message)
+</a>
+</p>

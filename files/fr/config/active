@@ -1,0 +1,4 @@
+Le paramètre "active" doit être activé pour qu'une liste fonctionne
+normalement. Si ce réglage est désactivé, tous les messages postés,
+demandes d'instructions, et autres requêtes pour la liste seront
+rejetées.

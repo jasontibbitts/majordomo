@@ -1,0 +1,6 @@
+La requête 
+  "$CMDLINE"
+doit être confirmé par
+  $NOTIFY
+et approuvé par le modérateur. Des instructions de confirmation ont
+été envoyées dans un message séparé.

@@ -1,0 +1,5 @@
+Le document ou répertoire :
+  $PATH
+possède un chemin absolu, commençant par un slash '/'. Un mot de passe
+administratif est nécessaire pour accéder a des documents ou
+répertoires avec un chemin absolu.

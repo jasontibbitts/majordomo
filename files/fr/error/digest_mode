@@ -1,0 +1,10 @@
+Les compilations suivantes sont supportées par la liste $LIST :
+  $DIGESTS:-20 $DIGEST_DESCRIPTIONS
+
+La commande "digest" devrait être envoyée avec l'un des modes
+suivants :
+  $MODES
+
+Utilisez la commande "help digest" pour en savoir plus à propos de ces
+modes de commandes.
+

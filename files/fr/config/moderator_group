@@ -1,0 +1,3 @@
+Les messages requérant une approbation seront envoyés a ce nombre de
+modérateurs au hasard. Si cette valeur est a zéro, le message sera
+envoyé a toutes les adresses des modérateurs.

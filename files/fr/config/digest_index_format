@@ -1,0 +1,15 @@
+Le paramètre "digest_index_format" est utilisé pour choisir les
+informations qui seront affichées pour chaque message dans le sommaire
+d'une compilation.
+
+  Choix disponibles :
+numbered       - affiche le numéro du message, le sujet et l'adresse
+		 de l'auteur.
+numbered_name  - affiche le numéro du message, le sujet et le nom de
+		 l'auteur.
+subject        - affiche le sujet du message.
+subject_author - affiche le sujet du message et l'adresse de l'auteur.
+subject_name   - affiche le sujet du message et le nom de l'auteur.
+
+Cette valeur peut être outrepassée par les paramètres de la
+compilation en question.

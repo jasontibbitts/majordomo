@@ -1,0 +1,97 @@
+<h4 align="center">Formulaire de commandes de Majordomo</h4>
+<form method="POST" action="$CGIURL">
+<input type="hidden" name="command" value="on">
+<input type="hidden" name="user" value="$USER">
+<table>
+<tr>
+  <td>
+    Commande&nbsp;:&nbsp;&nbsp;
+    <select name=func>
+      <option>help</option>
+      <option>accept</option>
+      <option>archive-get</option>
+      <option>archive-index</option>
+      <option>archive-stats</option>
+      <option>configdef</option>
+      <option>configset</option>
+      <option>configshow</option>
+      <option>digest-force</option>
+      <option>digest-incvol</option>
+      <option>digest-status</option>
+      <option>get</option>
+      <option>get-edit</option>
+      <option>index-recursive</option>
+      <option>reject</option>
+      <option>report</option>
+      <option>report-full</option>
+      <option>report-summary</option>
+      <option>sessioninfo</option>
+      <option>set</option>
+      <option>showtokens</option>
+      <option>subscribe</option>
+      <option>subscribe-nowelcome</option>
+      <option>tokeninfo</option>
+      <option>unregister</option>
+      <option>unsubscribe</option>
+      <option>unsubscribe-farewell</option>
+      <option>which</option>
+      <option>who</option>
+      <option>who-bounce</option>
+    </select>
+  </td>
+  <td colspan=2>
+    <input size=40 name=extra value="">
+  </td>
+</tr>
+<tr>
+  <td>
+    Liste&nbsp;:&nbsp;&nbsp;
+    <input size=20 name=list value="$LIST">
+  </td>
+  <td>
+    Mot de passe&nbsp;:&nbsp;&nbsp;
+    <input size=15 name=passw type=password value="$CMDPASS">
+  </td>
+  <td>
+    <input type=submit value="Executer la commande">
+  </td>
+</tr>
+</table>
+</form>
+
+<p>
+Ce formulaire de commandes vous permet d'envoyer des commandes
+administratives &agrave; Majordomo. Certaines de ces commandes, comme
+<b>report-summary</b>, ont un tiret dans leur nom. Le morceau qui suit
+le tiret est appel&eacute; le <i>mode de commande</i>.
+</p>
+<p>
+Il y a plusieurs &eacute;tapes requises pour utiliser ce formulaire.
+</p>
+<ol>
+  <li>Choisir la commande dans le menu <b>Commande</b>.</li>
+
+  <li>Assurez vous que la liste sp&eacute;cifi&eacute;e dans
+  <b>Liste</b> est correcte.</li>
+
+  <li>Un mot de passe administratif est requis pour utiliser ce
+  formulaire. Le mot de passe de votre liste doit d&eacute;j&agrave;
+  &ecirc;tre marqu&eacute; par 14 ast&eacute;risques dans le champ
+  <b>Mot de passe</b>. Si ce n'est pas le cas, entrez un mot de passe
+  administratif dans le champ.  An administrative password is required
+  to use this form.</li>
+
+  <li>Si il y a besoin de plus d'informations pour cette commande,
+  ajoutez ces informations dans le champ juste &agrave; droite du
+  menu.</li>
+
+  <li>Appuyez sur le bouton <b>Executer la commande</b>.</li>
+</ol>
+
+<p>
+Pour en savoir plus a propos d'une commande particuli&egrave;re,
+s&eacute;lectionnez <b>help</b> dans le menu de commandes, tapez le
+nom de la commande (sans le mode) dans le champ &agrave; droit, et
+appuyez sur le bouton <b>Executer la commande</b>. Vous verrez une
+description de ce que fait la commande en question.
+</p>

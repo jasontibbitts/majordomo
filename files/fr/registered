@@ -1,0 +1,48 @@
+L'adresse
+
+  $USER
+
+a été enregistrée a $SITE.
+Votre mot de passe personnel est :
+
+  $PASSWORD
+
+Pour interagir avec le serveur Majordomo, envoyez un email a :
+
+  $MJ
+
+Mettez toujours les commandes dans le corps du message. Les commandes
+placées dans le sujet seront ignorées.
+
+Habituellement, lorsque vous vous abonnez a une liste, Majordomo vous
+enverra des instructions de confirmation pour compléter votre
+abonnement, pour des raisons de sécurité. Vous pouvez passer outre la
+confirmation lorsque vous vous abonnez a une liste ou changer vos
+paramètres d'abonnements. Utilisez la commande "approve" pour donner
+votre mot de passe. Dans l'exemple suivant, substituez le nom de la
+liste a chaque fois que vous voyez LISTE.
+
+Pour voir la liste des listes publiques, utilisez la commande :
+  lists
+
+Pour vous abonner a une liste, utilisez la commande :
+  approve $PASSWORD subscribe LISTE
+
+Pour vous désabonner d'une liste, la commande :
+  approve $PASSWORD unsubscribe LISTE $USER
+
+Si vous désirez modifier votre mot de passe, utilisez la commande :
+  approve $PASSWORD password NOUVEAUMOTDEPASSE
+(Remplacer le mot de passe que vous voulez a la place de
+  NOUVEAUMOTDEPASSE.)
+
+Pour avoir un sommaire des commandes de Majordomo, utilisez la
+commande :
+  help commands
+
+Si l'interface web de Majordomo est activée ici, vous pouvez gérer
+votre enregistrement en visitant le site :
+  <URL:$WWWUSR_URL/$QSADDR>
+
+Si vous avez besoin de l'aide de quelqu'un, envoyez un message à :
+  $OWNER

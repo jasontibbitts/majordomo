@@ -1,0 +1,13 @@
+<!-- Majordomo set_head format file -->
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="domain" value="$DOMAIN">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" value="$CMDPASS">
+
+<p>
+Une fois que vous avez modifi&eacute; vos param&egrave;tres, cliquez
+sur le bouton <b>set</b> pour rendre les modifications
+permanentes.<br>
+  <input type="submit" name="func" value="set">
+</p>
+<p>

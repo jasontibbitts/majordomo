@@ -1,0 +1,20 @@
+<!-- Majordomo configshow_enum format file -->
+<dt>
+  <input type=checkbox name=extra value="$SETTING">
+  $HELPLINK
+  (niveau $LEVEL)
+
+</dt>
+<dd>
+  <pre>?COMMENT</pre>
+
+  <select name="$SETTING">
+    <option value="yes"
+     ?YES selected
+     > oui
+    <option value="no"
+     ?NO selected
+     > non
+  </select>
+
+</dd>

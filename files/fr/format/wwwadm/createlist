@@ -1,0 +1,49 @@
+<p>
+La liste $NEWLIST a &eacute;t&eacute; cr&eacute;&eacute;e.
+</p>
+
+<p>
+Les propri&eacute;taires sont&nbsp;
+<ul>
+<li> $OWNERS
+</ul>
+
+<p>
+Le mot de passe de la liste est <b>$PASSWORD</b>.
+</p>
+
+<p>
+?WELCOME Le guide concernant les nouveaux propri&eacute;taires a
+?WELCOME &eacute;t&eacute; envoy&eacute; &agrave; chaque
+?WELCOME gestionnaire.<br>
+?NOARCHIVE La liste n'a pas encore de r&eacute;pertoire pour contenir
+?NOARCHIVE les archives.<br>
+?INACTIVE Le param&egrave;tre de configuration &quot;active&quot; doit
+?INACTIVE &ecirc;tre activ&eacute; pour pouvoir uiliser cette
+?INACTIVE liste.<br>
+</p>
+
+<p>
+Si les alias ont besoin d'&ecirc;tre mis a jours, ils sont
+affich&eacute;s ci dessous&nbsp;:
+</p>
+
+<pre>
+  ?ALIASES
+</pre>
+
+<p>
+Appuyez sur le bouton <b>configshow</b> pour passer en revue et/ou
+modifier les param&egrave;tres de configuration de la liste. Vous
+pourriez avoir a rentrer le mot de passe de la nouvelle liste.
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="list" value="$NEWLIST">
+  <input type="hidden" name="func" value="configshow-categories">
+  <input type="submit" value="configshow">
+</form>
+
+</p>
+

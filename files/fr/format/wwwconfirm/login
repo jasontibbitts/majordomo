@@ -1,0 +1,66 @@
+<form method="POST" action="$CGIURL">
+
+<pre>?ERROR</pre>
+
+<table width="100%">
+<tr>
+  <td valign="top">
+    <input size="16" name="t" value="$TOKEN">
+  </td>
+  <td>
+    <p>Entrez l'identificateur du ticket dans champ ci dessous. Un
+    identificateur de ticket  est une combinaison de 12
+    caract&egrave;res alphanum&eacute;riques s&eacute;par&eacute;s par
+    des tirets, par exemple&nbsp;:</p>
+    <pre>3DF8-644A-B923</pre>
+    <p>Cliquez ensuite sur l'un des trois boutons.</p>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <input type="submit" name="a" value="tokeninfo">
+  </td>
+  <td>
+    Cliquez sur le bouton <b>tokeninfo</b> pour avoir tous les
+    d&eacute;tails a propos de la commande ou du message qui attends
+    votre approbation.
+  </td>
+</tr>
+  
+<tr>
+  <td>
+    <input type="submit" name="a" value="accept">
+  </td>
+  <td>
+    Cliquez sur le bouton <b>accept</b> pour approuver la commande ou
+    le message qui attends votre approbation.
+  </td>
+</tr>
+  </td>
+
+<tr>
+  <td>
+    <input type="submit" name="a" value="reject">
+  </td>
+  <td>
+    Cliquez sur le bouton <b>reject</b> pour rejeter la commande ou le
+    message qui attends votre approbation.
+  </td>
+</tr>
+</table>
+
+  <input type="hidden" name="d" value="$DOMAIN">
+</form>
+
+<p>
+Une fois que le bouton <b>accept</b> ou <b>reject</b> a
+&eacute;t&eacute; cliqu&eacute;, le ticket devient
+imm&eacute;diatement invalide, ne cliquez pas sur <b>accept</b> ou
+<b>reject</b> plus d'une fois.
+</p>
+
+<p>
+Cliquez sur le lien <b>Introduction</b> en haut ou en bas de la page
+pour avoir de plus d'instructions.
+</p>

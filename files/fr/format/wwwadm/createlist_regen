@@ -1,0 +1,14 @@
+<p>
+Les alias du domaine $DOMAIN ont &eacute;t&eacute;
+r&eacute;g&eacute;n&eacute;r&eacute;s.
+</p>
+
+<p>
+Si les alias doivent &ecirc;tre mis a jour, ils sont
+sp&eacute;cifi&eacute;s ci dessous&nbsp;:
+</p>
+
+<pre>
+  ?ALIASES
+</pre>
+

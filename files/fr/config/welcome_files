@@ -1,0 +1,9 @@
+Le paramètre "welcome_files" détermine quels documents sont envoyés
+lorsque quelqu'un arrive sur une liste avec la commande "subscribe" ou
+quand quelqu'un s'enregistre avec la commande "register".
+
+Chaque fichier contiendra deux lignes. La première devrait contenir
+un message explicatif qui apparaîtra dans le sujet ou l'en-tête
+"Content-Description" du message qui est envoyé au nouvel abonné. La
+deuxième ligne consiste en un nom de fichier et un champ de paramètre,
+qui sont séparés par des ':' ou des '|'.

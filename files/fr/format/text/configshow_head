@@ -1,0 +1,9 @@
+?COMMENTS Chaque réglage a sa propre page d'aide. Par exemple, pour
+?COMMENTS avoir l'aide sur le paramètre access_rules, utilisez la
+?COMMENTS commande :
+?COMMENTS   help configset_access_rules
+?COMMENTS  
+?COMMENTS Il y a 5 niveaux de mots de passe, pour plus d'info, référez
+?COMMENTS vous à :
+?COMMENTS   help admin_passwords
+ 

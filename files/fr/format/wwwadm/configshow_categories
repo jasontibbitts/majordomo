@@ -1,0 +1,15 @@
+<!-- Majordomo configshow_categories format file -->
+  <dt><input type="checkbox" name="extra" value="$SETTING">$CATEGORY
+  </dt>
+  <dd>
+    <p>
+    $COMMENT
+    </p>
+    
+    <p> 
+    La cat&eacute;gorie $CATEGORY contient les $COUNT
+    param&egrave;tres suivants&nbsp;:<br>
+      $SETTINGS &nbsp;
+    </p>
+  </dd>
+

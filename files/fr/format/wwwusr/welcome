@@ -1,0 +1,140 @@
+<!-- Majordomo welcome format file -->
+<pre>?ERROR</pre>
+
+<p>
+Bienvenue sur $SITE.  Les liens en ent&ecirc;te et pied de page vous
+aideront a participer ou quitter des listes de diffusions
+&eacute;lectroniques. Vous pouvez retourner a ce message
+d'introduction en cliquant sur <b>Aide</b>.
+</p>
+
+<table cellspacing=15 width="100%">
+<tr>
+  <td valign="top">Connexion</td>
+  <td>
+    Si vous d&eacute;sirez vous abonner a une liste ou changer vos
+    param&egrave;tres, vous aurez besoin de vous connecter avec votre
+    adresse email, et un mot de passe si Majordomo vous en a
+    d&eacute;j&agrave; affect&eacute; un.  Cliquez sur
+    <b>Connexion</b> et suivez les instructions.
+  </td>
+</tr>
+
+<tr>
+  <td valign="top">D&eacute;connexion</td>
+  <td>
+    Lorsque vous avez termin&eacute; votre session, cliquez sur
+    <b>D&eacute;connexion</b>.
+  </td>
+</tr>
+
+<tr>
+  <td valign="top">S'abonner<br>&agrave; une liste</td>
+  <td>
+    Si vous cliquez sur <b>S'abonner &agrave; une liste</b>, vous
+    aurez la liste des listes publiques de $SITE. En cliquant sur l'un
+    de leurs noms, vous aurez plus de d&eacute;tails sur une liste.
+    Vous pouvez vous abonner a une liste en utilisant le formulaire en
+    bas des pages.
+    <p>
+    Si vous connaissez d&eacute;j&agrave; le nom de la liste a
+    laquelle vous d&eacute;sirez vous abonner, vous pouvez aller
+    directement a sa page. Entrez le nom de la liste dans le champ
+    <b>Liste</b>, cliquez ensuite sur le bouton <b>Recherche</b>
+
+    <form method="POST" action="$CGIURL">
+      <input type="hidden" name="domain" value="$DOMAIN">
+      <input type="hidden" name="func" value="lists-full-long">
+      <input type="hidden" name="passw" value="$CMDPASS">
+      <input type="hidden" name="user" value="$USER">
+      Liste&nbsp;:
+      <input type="text" name="extra">
+      <input type="submit" value="Recherche">
+    </form>
+
+    Vous pouvez aussi utiliser un motif pour chercher dans la liste
+    des listes. R&eacute;f&eacute;rez vous a la page d'aide
+    $HELP:PATTERNS pour plus de d&eacute;tails sur les motifs de
+    Majordomo.
+  </td>
+</tr>
+
+<tr>
+  <td valign="top">Se d&eacute;sabonner ou<br>modifier ses param&egrave;tres</td>
+  <td>
+    Si vous &ecirc;tes d&eacute;j&agrave; abonn&eacute; a une liste de
+    $DOMAIN, vous pouvez vous d&eacute;sabonner, supprimer votre
+    adresse du site, ou modifier vos param&egrave;tres d'abonnement.
+    Cliquez sur <b>Se d&eacute;sabonner ou modifier ses
+      param&egrave;tres</b> pour voir vos abonnements. <b>Un mot de
+      passe valide est requis</b>.
+  </td>
+</tr>
+
+<tr>
+  <td valign="top">Aide</td>
+  <td>
+    Majordomo a plus de 100 documents d'aides li&eacute;s. Ils
+    d&eacute;crivent comment envoyer des commandes par email &agrave;
+    Majordomo &agrave;
+    <a href="mailto:$MJ">$MJ</a>.
+    Les pages d'aides peuvent &ecirc;tre affich&eacute;e dans une
+    nouvelle fen&ecirc;tre de votre navigateur.
+
+    <p>
+    Pour afficher le document d'aide d'un sujet pr&eacute;cis, entrez
+    son nom dans le champ <b>Sujet</b>, cliquez ensuite sur le bouton
+    <b>Aide</b>.
+    </p>
+
+    <form method="POST" action="$CGIURL">
+      <input type="hidden" name="user" value="$USER">
+      <input type="hidden" name="passw" value="$CMDPASS">
+      <input type="hidden" name="list" value="$LIST">
+      <input type="hidden" name="func" value="help">
+      Sujet&nbsp;: 
+      <input name="extra" value="">
+      <input type="submit" name="f" value="Aide">
+    </form>
+
+    Les documents suivants vous donneront une bonne introduction
+
+    <dl>
+      <dt>$HELP:OVERVIEW</dt>
+        <dd>Vous donne des exemple de commandes de base&nbsp;: comment
+        s'abonner, se d&eacute;sabonner ou modifier ses
+        param&egrave;tres.</dd>
+        
+      <dt>$HELP:COMMANDS</dt>
+        <dd>Un sommaire des commandes &agrave; votre disposition.</dd>
+
+      <dt>$HELP:LISTS</dt>
+        <dd>Comment avoir la liste des listes de $DOMAIN.</dd>
+
+      <dt>$HELP:REGISTER</dt>
+        <dd>Comment s'enregistrer sans s'abonner a une liste.</dd>
+
+      <dt>$HELP:SET</dt>
+        <dd>Comment afficher ou modifier les param&egrave;tres de ses
+        abonnements.</dd>
+
+      <dt>$HELP:SHOW</dt>
+        <dd>Comment afficher ses diff&eacute;rents param&egrave;tres
+        d'abonnement.</dd>
+
+      <dt>$HELP:SUBSCRIBE</dt>
+        <dd>Comment s'abonner a une liste, et mettre a z&eacute;ro ses
+        param&egrave;tres en m&ecirc;me temps.</dd>
+
+      <dt>$HELP:UNREGISTER</dt>
+        <dd>Comment se d&eacute;sabonner de partout en une seule
+        fois.</dd>
+
+      <dt>$HELP:UNSUBSCRIBE</dt>
+        <dd>Comment se d&eacute;sabonner d'une liste, sans utiliser de
+        mot de passe.</dd>
+
+    </dl>
+  </td>
+</tr>
+</table>

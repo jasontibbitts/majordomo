@@ -1,0 +1,16 @@
+La commande :
+  "$CMDLINE"
+
+envoyée par :
+  $REQUESTER
+
+a été exécutée avec le statut :
+  $STATUS ($STATDESC)
+
+dans la session :
+  $SESSIONID
+
+de l'interface $INTERFACE, et a pris $TIME secondes.
+
+$COMMENT
+

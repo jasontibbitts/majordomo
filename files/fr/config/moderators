@@ -1,0 +1,4 @@
+Le paramètre "moderators" contient une ou plusieurs adresses email.
+Lorsqu'une commande (comme "subscribe" ou "unsubscribe") ou un message
+posté requiert une approbation, une ou plusieurs de ces adresses
+recevront une demande de confirmation.

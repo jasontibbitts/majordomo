@@ -1,0 +1,5 @@
+Lorsque Majordomo finit de traiter les commandes d'un message, un
+message de réponse contenant les résultats est envoyé à la personne
+qui a envoyé les commandes. Le paramètre "return_subject" détermine si
+le sujet du message original apparaît ou non dans le sujet du message
+de réponse.

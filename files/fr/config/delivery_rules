@@ -1,0 +1,12 @@
+Le paramètre "delivery_rules" détermine la manière dont Majordomo
+contactera le serveur SMTP qui sera utiliser pour envoyer les mails.
+Le paramètre "delivery_rules" s'applique a tous les messages qui sont
+envoyés par Majordomo.
+
+Les règles définies pour une liste gouvernent l'envoi des messages
+postés (incluant les compilations) et les annonces envoyées avec la
+commande "announce". Les règles de la pseudo liste GLOBAL s'appliquent
+a tous les autres messages envoyés par Majordomo, incluant les
+réponses aux commandes, les messages de confirmation, les rappels de
+ticket, et les messages d'information envoyés aux propriétaires de
+liste.

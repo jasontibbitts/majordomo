@@ -1,0 +1,19 @@
+<!-- Majordomo archive_foot format file -->
+</table>
+<p>
+Messages trouv&eacute;s&nbsp;: $TOTAL_POSTS
+</p>
+
+<p>
+Cliquez sur le sujet d'un message pour voir son contenu non
+format&eacute; dans une fen&ecirc;tre s&eacute;par&eacute;e. Les
+messages marqu&eacute;s d'une ast&eacute;risque sont
+<b>cach&eacute;s</b> au public.
+</p>
+
+<p>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=archive-summary">
+  Autres archives
+</a>
+</p>
+

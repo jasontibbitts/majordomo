@@ -1,0 +1,30 @@
+<!-- Majordomo who_registry_head format file -->
+<p>
+Pour supprimer des adresses du registre, cochez leur case
+associ&eacute;e, et cliquez sur le bouton $HELP:UNREGISTER. Supprimer
+une adresse la d&eacute;sabonne de toutes les listes automatiquement.
+</p>
+
+<p>
+Cliquez sur une adresse email pour avoir les d&eacute;tails a propos
+de ses abonnements dans une autre fen&ecirc;tre en utilisant l'
+<a href="$WWWUSR_URL">
+  interface WWW pour les abonn&eacute;s
+</a>.
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="chunksize" value="$CHUNKSIZE">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="start" value="$START">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="pattern" value="$PATTERN">
+  <input type="submit" name="func" value="unregister">
+
+<table>
+<tr>
+  <th>Adresse</th>
+  <th>Derni&egrave;re modification</th>
+  <th>Abonnements</th>
+</tr>

@@ -1,0 +1,62 @@
+<!-- Majordomo who_registry_foot format file -->
+<tr><td colspan="3">Adresses trouv&eacute;es&nbsp;: $COUNT.</td></tr>
+</table>
+<input type="submit" name="func" value="$REMOVE">
+</form>
+<p>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;extra=$PATTERN&amp;start=?PREVIOUS&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses Pr&eacute;c&eacute;dentes</a><br>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;extra=$PATTERN&amp;start=?NEXT&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses Suivantes</a>
+</p>
+<h4 align=center>Rechercher le registre</h4>
+
+<form method="POST" action="$CGIURL">
+  <input name="list" type="hidden" value="$LIST">
+  <input name="passw" type="hidden" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+
+  <input type="radio" name="func" value="who" checked>
+  Rechercher le registre.
+    (en utilisant la commande $HELP:WHO)<br>
+  <input type="radio" name="func" value="which">
+  Rechercher les toutes les listes.
+    (en utilisant la commande $HELP:WHICH)<br>
+
+Motif de recherche&nbsp;: <input name="pattern" value=".">
+<br>
+Nombre d'adresses&nbsp;:
+  <input name="chunksize" size="10" value="$CHUNKSIZE">
+  <input type="submit" value="search">
+</form>
+
+<h4 align=center>Ajouter ou supprimer des adresses du registre</h4>
+
+<ol>
+  <li>Choisissez l'une des trois m&eacute;thodes en cochant le bouton
+  appropri&eacute;.</li>
+  <li>Entrez les adresses email dans le champ, une par ligne.</li>
+  <li>Cliquez sur le bouton <b>ajouter ou supprimer des
+    adresses</b>.</li>
+</ol>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+  
+  <input type="radio" name="func" value="register-welcome" checked> 
+  Ajouter des adresses au registre.
+  Leur envoyer un message de bienvenue.<br>
+
+  <input type="radio" name="func" value="register-nowelcome"> 
+  Ajouter des adresses au registre.
+  <b>Ne pas</b> leur envoyer un message de bienvenue.<br>
+
+  <input type="radio" name="func" value="unregister"> 
+  Supprimer des adresses du registre.
+
+  <textarea name="victims" rows="8" cols="70">
+  </textarea>
+
+  <input type="submit" value="ajouter ou supprimer des adresses">
+</form>
+

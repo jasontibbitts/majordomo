@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd">
+<!-- Majordomo head format file -->
+<html><head>
+  <title>Interface de confirmation de Majordomo 2</title>
+</head>
+<body>
+
+<table width="100%" cellspacing="8">
+<tr>
+  <td align="center" bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=welcome&t=$TOKEN">
+  <font color="#f0f0f0">
+    Introduction
+  </font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=login&t=$TOKEN">
+  <font color="#f0f0f0">
+    Confirmez une nouvelle requ&ecirc;te
+  </font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=tokeninfo-nosession&t=$TOKEN">
+  <font color="#f0f0f0">
+    Afficher les d&eacute;tails
+  </font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=tokeninfo&t=$TOKEN">
+  <font color="#f0f0f0">
+    Afficher <b>tous</b> les d&eacute;tails
+  </font></a>
+  </td>
+
+</tr>
+</table>
+
+<p align="center">
+    <font size=+1>$SITE</font><br>
+    Confirmation de requ&ecirc;te
+</p>

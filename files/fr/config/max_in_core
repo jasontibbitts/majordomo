@@ -1,0 +1,4 @@
+Le paramètre "max_in_core" contient la taille maximum en octets qui
+pourra être utilisé en mémoire pour stocker les volets des message.
+Les volets plus grand que cette taille seront stockés dans des
+fichiers temporaires pendant que le message sera traité.

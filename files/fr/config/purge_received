@@ -1,0 +1,2 @@
+Le paramètre "purge_received" cause la suppression de toutes les
+en-têtes "Received" de tous les messages postés.

@@ -1,0 +1,23 @@
+L'adresse
+  $VICTIM
+a été supprimé de la liste $LIST.
+
+Vous ne recevrez plus de messages de la liste, mais votre mot de passe
+sur $SITE est toujours valide.
+
+Si vous désirez vous abonner de nouveau a la liste $LIST, écrivez à :
+  $MJ
+Et dans le corps du message, entrez la commande :
+  approve $PASSWORD subscribe $LIST $VICTIM
+
+Pour voir le statut de votre enregistrement, utilisez la commande :
+  approve $PASSWORD show $VICTIM
+
+Si vous désirez supprimer votre adresse de notre registre, et
+invalider votre mot de passe, utilisez cette commande :
+  approve $PASSWORD unregister $VICTIM
+Cela supprimera aussi les autres abonnements que vous avez sur ce
+site.
+
+Contactez $OWNER si vous avez des questions.
+

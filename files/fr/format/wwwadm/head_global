@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd">
+<!-- Majordomo head_global format file -->
+<html><head>
+  <title>Administration de $LIST : $COMMAND</title>
+</head>
+<body>
+
+<table cellspacing="8" width="100%">
+<tr>
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=login">
+     <font size="-1" color="#f0f0f0">
+     Connexion</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=logout">
+     <font size="-1" color="#f0f0f0">
+     D&eacute;connexion</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=ALL&amp;func=showtokens">
+     <font size="-1" color="#f0f0f0">
+     Mod&eacute;ration</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=GLOBAL&amp;func=who&amp;chunksize=20">
+     <font size="-1" color="#f0f0f0">
+     Registre</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=GLOBAL&amp;func=configshow-categories">
+     <font size="-1" color="#f0f0f0">
+     Configuration</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=DEFAULT&amp;func=configshow-categories">
+     <font size="-1" color="#f0f0f0">
+     D&eacute;fauts</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=newlist">
+     <font size="-1" color="#f0f0f0">
+     Cr&eacute;ation de Liste</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=command">
+     <font size="-1" color="#f0f0f0">
+     Formulaire de commandes</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&list=$LIST&func=welcome">
+     <font size="-1" color="#f0f0f0">
+     Aide</font></a>
+  </td>
+
+</tr>
+</table>
+
+<p align=center>
+  <big>$SITE</big><br>
+  Administration de $LIST<br>
+</p>

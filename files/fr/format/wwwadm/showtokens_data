@@ -1,0 +1,25 @@
+<!-- Majordomo showtokens_data format file -->
+<tr>
+   <td><input type="checkbox" name="extra" 
+        value="$TOKEN"><a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=tokeninfo&amp;extra=$TOKEN&amp;brief=on" 
+        target="_token">$TOKEN</a>
+  </td>
+
+  <td>
+    $COMMAND
+    (?SIZE&nbsp;ko)
+  </td>
+
+  <td>
+    $TYPE
+  </td>
+
+  <td>
+    $ADATE
+  </td>
+
+  <td> 
+    $REQUESTER
+  </td>
+
+</tr>

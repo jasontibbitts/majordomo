@@ -1,0 +1,5 @@
+Si actif, les adresses devront avoir un nom de domaine complet et
+valide, souvent appelé "adressage strict". Comme Majordomo ne le vérifie
+pas en utilisant des requêtes DNS, cela signifie que l'adresse doit
+contenir un '@' et que la partie a droite de '@' contient au moins un
+point.

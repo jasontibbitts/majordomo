@@ -1,0 +1,7 @@
+Le ticket $TOKEN a été accepté pour la commande :
+  Commande : $CMDLINE
+  Date :     $DATE
+  Session :  $SESSIONID
+
+Le résultat de la commande est :
+

@@ -1,0 +1,7 @@
+Le paramètre "default_language" contient une liste d'abréviations de
+langages séparée par des virgules. Les langues suivantes sont
+disponibles
+
+  en    Anglais
+  fr	Français
+

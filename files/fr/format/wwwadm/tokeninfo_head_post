@@ -1,0 +1,41 @@
+<!-- Majordomo tokeninfo_head_post format file -->
+<p>
+Un message a &eacute;t&eacute; post&eacute; a la liste $LIST &agrave;
+$SITE. Un r&eacute;sum&eacute; du message appara&icirc;t ci dessous.
+</p>
+
+<table>
+  <tr><td>Ticket&nbsp;:</td><td>$TOKEN</td></tr>
+  <tr><td>Type&nbsp;:  </td><td>$TYPE</td></tr>
+  <tr><td>Expire&nbsp;:</td><td>$EXPIRE</td></tr>
+  <tr><td>Raison&nbsp;:</td><td>$REASONS</td></tr>
+</table>
+
+<p>
+<form method="POST" action="$CGIURL">
+?WILLACK Si vous d&eacute;sirez expliquer vos raisons d'$HELP:ACCEPTer
+?WILLACK ou de $HELP:REJECTer la commande, entrez la ici&nbsp;:
+?WILLACK <textarea rows="4" cols="70" name="xplanation">
+?WILLACK </textarea>
+?WILLACK <br>
+<input type="submit" name="func" value="accept">
+<input type="submit" name="func" value="accept-archive">
+<input type="submit" name="func" value="accept-hide">
+<input type="submit" name="func" value="reject">
+?WILLACK <input type="submit" name="func" value="reject-quiet">
+<br>
+<input type="hidden" name="extra" value="$TOKEN">
+<input type="hidden" name="list" value="$LIST">
+<input type="hidden" name="user" value="$USER">
+<input type="hidden" name="passw" value="$CMDPASS">
+</form>
+</p>
+
+<p>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$TOKEN%200&amp;func=tokeninfo-part" target="_part">
+  (Afficher le message complet dans une fen&ecirc;tre s&eacute;par&eacute;e)
+</a><br>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$TOKEN%200&amp;func=tokeninfo-part-edit">
+  (&Eacute;diter le message complet)
+</a>
+</p>

@@ -1,0 +1,7 @@
+<!-- Majordomo accept_stall format file -->
+<p>
+La commande "accept" pour le ticket $TOKEN a r&eacute;ussi,
+toutefois, une autre approbation est requise.
+</p>
+
+<pre>?ERROR</pre>

@@ -1,0 +1,6 @@
+<!-- Majordomo get_error format file -->
+<pre>
+  La commande $COMMAND a &eacute;chou&eacute;.
+
+  $ERROR
+</pre>

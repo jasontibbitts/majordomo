@@ -1,0 +1,7 @@
+<!-- Majordomo configshow_foot format file -->
+</dl>
+  <input type="submit" name="func" value="configdef">
+  <input type="submit" name="func" value="configset">
+  <input type="submit" name="func" value="help">
+</form>
+

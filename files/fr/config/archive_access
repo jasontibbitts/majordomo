@@ -1,0 +1,19 @@
+Le paramètre "archive_access" est utilisé pour restreindre l'accès a
+la commande "archive".
+
+Les valeurs suivantes sont supportées :
+
+  open          -  Tout le monde à accès
+
+  open+password -  Toutes les personnes enregistrées sur ce domaine si
+                   leur mot de passe est spécifié.
+
+  list          -  Tous les abonnés de la liste peuvent y accéder.
+
+  list+password -  Tous les abonnés de la liste peuvent y accéder.
+
+  closed        -  Seul les administrateurs de la liste peuvent y
+                   accéder.
+
+Le paramètre "access_rules" permet de créer des règles pour passer
+outre ce paramètre.

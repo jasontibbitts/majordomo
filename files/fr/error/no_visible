@@ -1,0 +1,16 @@
+Aucuns paramètres de configurations correspondant a $SETTING n'a été
+trouvé.
+
+Très peu de paramètres sont visibles si vous n'utilisez pas de mot de
+passe.
+
+Si vous avez fourni un mot de passe, vous n'avez peut être pas
+l'autorité nécessaire pour afficher la valeur de ce réglage.
+
+Les noms de paramètres sont sensibles a la casse. Utilisez uniquement
+des minuscules dans les noms des paramètres. et uniquement des
+majuscules pour les catégories.
+
+Le document "help topics" contient une liste complète des réglages.
+Le document "help configshow" contient la liste complète des
+catégories.

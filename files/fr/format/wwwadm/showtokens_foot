@@ -1,0 +1,27 @@
+<!-- Majordomo showtokens_foot format file -->
+</table>
+<p>
+Requ&ecirc;tes trouv&eacute;es&nbsp;: $COUNT<br>
+</p>
+  <input type="submit" name="func" value="tokeninfo">
+  <input type="submit" name="func" value="accept">
+  <input type="submit" name="func" value="accept-archive">
+  <input type="submit" name="func" value="accept-hide">
+  <input type="submit" name="func" value="reject">
+  <input type="submit" name="func" value="reject-quiet">
+</form>
+
+<p>
+Il est possible de mod&eacute;rer plus d'une liste en m&ecirc;me temps
+si vous avez un mot de passe administratif qui est valide pour ces
+listes. Pour mod&eacute;rer d'autres listes, tapez son nom dans la
+liste et appuyez ensuite sur le bouton <b>Go</b>.
+<form method="POST" action="$CGIURL/$LIST">
+  <input type="hidden" name="func" value="showtokens-delay">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+  <input size=40 name="list" value="">
+  <input type="submit" value="Go">
+</form>
+</p>
+

@@ -1,0 +1,26 @@
+Le paramètre "attachment_rules" contient une liste de règles, qui
+décrivent quels types de contenus sont acceptables dans un message.
+
+Une règle consiste en un type MIME (ou on motif correspondant a des
+types MIME) et une action a exécuter lorsqu'un message contenant un
+volet de ce type arrive sur la liste. Chaque règle ressemble a ceci :
+
+mime/type | action=argument
+
+Quelques types MIME communs sont text/plain, text/html et image/jpeg.
+
+Les actions possibles sont :
+
+  allow   - Accepte le volet
+  consult - Active la variable d'acces "mime_consult". Par défaut,
+            cela entraînera un envoi du message aux modérateurs de la
+            liste pour approbation.
+  deny    - Active la variable d'acces "mime_deny". Par défaut, cela
+            entraînera le rejet du message.
+  require - Active la variable d'acces "mime_require". Par défaut,
+            cela n'a aucun effet.
+
+Référez vous à "help configset_access_rules" et "help
+access_variables" pour une explication sur l'utilisation des variables
+d'acces dans les règles d'acces.
+

@@ -1,0 +1,3 @@
+Le paramètre "subject_prefix" contient un ou plusieurs mots qui seront
+mis en préfixe du sujet de chaque message. Le préfixe ne sera pas
+ajouté si il est déjà présent.

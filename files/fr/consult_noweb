@@ -1,0 +1,33 @@
+__ 
+La requête suivante
+
+  "$CMDLINE"
+
+à été envoyée a $SITE
+par $REQUESTER.
+
+votre confirmation est requise pour les raisons suivante :
+
+  $REASONS
+
+Pour accepter ou rejeter cette requête, choisissez l'une de ces
+possibilités :
+
+1. Répondez à $MJ 
+   avec l'une de ces commandes dans le corps du message :
+
+    accept
+    reject
+
+   (Le numéro $TOKEN doit être dans le sujet du message)
+
+2. Répondez à $MJ 
+   avec l'une de ces commandes dans le corps du message :
+   
+    accept $TOKEN
+    reject $TOKEN
+
+Si vous ne répondez pas dans les $EXPIRE jours, ce ticket expirera, et
+la requête ne sera pas complétée
+
+

@@ -1,0 +1,10 @@
+<!-- Majordomo configshow_short format file -->
+<dt>
+  <input type="checkbox" name="extra" value="$SETTING">
+  $HELPLINK
+  (niveau $LEVEL)
+</dt>
+<dd>
+  <pre>?COMMENT</pre>
+  <input size="28" name="$SETTING" value="$VALUE">
+</dd>

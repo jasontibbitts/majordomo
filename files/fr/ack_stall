@@ -1,0 +1,9 @@
+Votre message sur la liste $LIST a été mis en attente, et requiert
+l'approbation des modérateurs pour les raisons suivantes :
+
+$REASONS
+
+Si vous ne désirez pas que votre message soit posté, ou que vous avez
+d'autres questions a ce propos, envoyez un message aux propriétaires
+de la liste a l'adresse suivante :
+  $OWNER

@@ -1,0 +1,3 @@
+Le paramètre "maxlength" contient la taille maximum en octets d'un
+message posté. Par défaut, les messages avec un corps qui excèdent
+cette limite seront envoyés aux modérateurs pour approbation.

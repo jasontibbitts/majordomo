@@ -1,0 +1,19 @@
+<!-- Majordomo show format file -->
+<tr>
+  <td colspan="4">
+    <input type="checkbox" name="list" value="$LIST">
+    <a href="$CGIURL?$CGIDATA&list=$LIST&func=set-check">$LIST</a>
+    (<a href="$CGIURL?$CGIDATA&extra=$LIST&func=lists-full-long">info</a>)
+  </td>
+  <td colspan="9">
+    <select name="$LIST;delivery">
+      <option value="$CLASSES" $SELECTED>$CLASS_DESCRIPTIONS
+    </select>
+  </td>
+</tr>
+<tr>
+  <td><font size="-1">$SETTINGS</font></td>
+</tr>
+<tr>
+  <td align="center">$CHECKBOX</td>
+</tr>

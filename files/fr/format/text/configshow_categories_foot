@@ -1,0 +1,10 @@
+Pour afficher les paramètres d'une catégorie particulière, utilisez la
+commande "configshow" et mettez le nom de la catégorie en lettres
+capitales, par exemple :
+  configshow $LIST ACCESS
+
+Chaque paramètre de configuration possède son propre fichier d'aide.
+Par exemple, pour obtenir l'aide du réglage "whoami", utilisez la
+commande :
+  help configset_whoami
+

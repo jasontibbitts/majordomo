@@ -1,0 +1,8 @@
+<!-- Majordomo set_foot format file -->
+  <input type="submit" name="func" value="set">
+</form>
+<p>
+R&eacute;f&eacute;rez vous &agrave; la page d'aide
+$HELP:SET 
+pour de plus amples explications sur ce r&eacute;glage.
+</p>

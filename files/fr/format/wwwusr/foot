@@ -1,0 +1,41 @@
+<!-- Majordomo foot format file -->
+<p>
+  Si vous avez besoin d'aide, contactez
+  <a href="mailto:$MJOWNER">les administrateurs de $DOMAIN</a>.
+
+<table cellspacing="8" width="100%">
+<tr>
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=login">
+     <font size="-1" color="#f0f0f0">
+     Connexion</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=logout">
+     <font size="-1" color="#f0f0f0">
+     D&eacute;connexion</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=lists-long">
+     <font size="-1" color="#f0f0f0">
+     S'abonner a une liste</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=show">
+     <font size="-1" color="#f0f0f0">
+     Se d&eacute;sabonner ou modifier ses param&egrave;tres</font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&func=welcome">
+     <font size="-1" color="#f0f0f0">
+     Aide</font></a>
+  </td>
+</tr>
+</table>
+</p>
+
+</body></html>

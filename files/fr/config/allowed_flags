@@ -1,0 +1,12 @@
+Le paramètre "allowed_flags" contient la liste des réglages personnels
+que l'abonné a le droit de modifier. Les 13 suivants sont reconnus :
+
+  ackdeny      ackpost      ackreject  ackstall
+  eliminatecc  hideaddress  hideall    hidepost
+  postblock    prefix       replyto    rewritefrom  selfcopy
+
+Les administrateurs de liste peuvent toujours modifier tous les
+paramètres en utilisant un mot de passe administratif.
+
+Utilisez la commande "help set" pour avoir une description détaillée
+des réglages personnels.

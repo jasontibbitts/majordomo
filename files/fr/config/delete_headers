@@ -1,0 +1,4 @@
+Le paramètre "delete_headers" contient une liste d'en-tête de
+messages. Les en-têtes apparaissant ici seront automatiquement
+supprimées des messages avant qu'il ne soit envoyés aux abonnés ou
+placés dans l'archive.

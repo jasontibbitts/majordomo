@@ -1,0 +1,9 @@
+La requête suivante :
+
+  "$CMDLINE"
+
+a été mise en attente, et sera exécutée lorsque 
+
+  $FULFILL
+
+$REASONS

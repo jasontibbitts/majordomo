@@ -1,0 +1,108 @@
+<!-- Majordomo lists_full format file -->
+<tr>
+  <td>Nom</td>
+  <td>$LIST</td>
+</tr>
+
+<tr>
+  <td>Description</td>
+  <td>$DESCRIPTION</td>
+</tr>
+
+<tr><td>Emplacement de l'archive</td><td><a href="?ARCURL">?ARCURL</a></td></tr>
+
+<tr>
+  <td valign="top">
+    Compilations
+    (<a href="$CGIURL?$CGIDATA&amp;func=digest-status&amp;list=$LIST&amp;extra=ALL">Statuts</a>)
+  </td>
+  <td>
+    $DIGESTS
+  </td>
+</tr>
+
+<tr>
+  <td>Abonn&eacute;s</td>
+  <td>$SUBS</td>
+</tr>
+
+<tr>
+  <td>Posts dans les 30 derniers jours</td>
+  <td>$POSTS 
+    (<a href="$CGIURL?$CGIDATA&amp;func=archive-stats&amp;list=$LIST&amp;extra=30d">Statistiques</a>)</td>
+</tr>
+
+<tr>
+  <td>Adresse de la liste</td>
+  <td><a href="mailto:$WHOAMI">$WHOAMI</a></td>
+</tr>
+
+<tr>
+  <td>Propri&eacute;taires de la liste</td>
+  <td><a href="mailto:$OWNER">$OWNER</a></td>
+</tr>
+
+<tr>
+  <td valign="top">Documentation</td>
+  <td><a href="$CGIURL?$CGIDATA&amp;func=faq&amp;list=$LIST">
+      Questions fr&eacute;quemment pos&eacute;es</a> 
+    (<a href="$CGIURL?$CGIDATA&amp;func=faq-edit&amp;list=$LIST">&Eacute;diter</a>)
+    <br>
+
+    <a href="$CGIURL?$CGIDATA&amp;func=intro&amp;list=$LIST">
+      Introduction &agrave; la liste</a> 
+    (<a href="$CGIURL?$CGIDATA&amp;func=intro-edit&amp;list=$LIST">&Eacute;diter</a>)
+
+    <br>
+
+    <a href="$CGIURL?$CGIDATA&amp;func=info&amp;list=$LIST">
+      Message de bienvenue</a> 
+    (<a href="$CGIURL?$CGIDATA&amp;func=info-edit&amp;list=$LIST">&Eacute;diter</a>)
+
+    <p>
+    <a href="$CGIURL?$CGIDATA&amp;func=archive-summary-reverse&amp;list=$LIST">
+      Message d'archives</a>
+    </p>
+  </td>
+</tr>
+
+<tr>
+  <td valign=top>Abonnements</td>
+  <td>Pour ajouter un nouvel abonn&eacute;, entrez une adresse email
+    dans le champ <b>Adresse</b>. Vous pouvez aussi ajouter le nom de
+    l'abonn&eacute; dans le champ <b>Nom</b>. Ensuite, cliquez sur le
+    bouton <b>subscribe</b>.
+
+    <form method="POST" action="$CGIURL">
+      <input type="hidden" name="user" value="$USER">
+      <input type="hidden" name="passw" value="$CMDPASS">
+      <input type="hidden" name="list" value="$LIST">
+      Adresse&nbsp;: <input size="36" name="victims" value=""><br>
+      Nom&nbsp;: <input size="36" name="name" value="">
+      <input type="submit" name="func" value="subscribe">
+    </form>
+  </td>
+</tr>
+
+<tr>
+  <td>Activit&eacute; r&eacute;cente</td>
+  <td>
+    (<a href="$CGIURL?$CGIDATA&amp;func=report-full&amp;list=$LIST&amp;extra=1cd">Aujourd'hui</a>)
+
+    (<a href="$CGIURL?$CGIDATA&amp;func=report-summary&amp;list=$LIST&amp;extra=7cd">R&eacute;sum&eacute;
+      sur 7 jours</a>)
+
+    (<a href="$CGIURL?$CGIDATA&amp;func=report-summary&amp;list=$LIST&amp;extra=30cd">R&eacute;sum&eacute;
+      sur 30 jours</a>)
+  </td>
+</tr>
+
+<tr>
+  <td>Liste des listes</td>
+  <td>
+    <a href="$CGIURL?$CGIDATA&amp;func=lists-long&amp;list=$LIST">Afficher
+      toutes les listes pour lesquelles l'acc&egrave;s est autoris&eacute;.</a><br>
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=newlist">Cr&eacute;er,
+      renommer ou d&eacute;truire une liste.</a>
+  </td>
+</tr>

@@ -1,0 +1,17 @@
+<!-- Majordomo tokeninfo_edit_head format file -->
+<p>
+[Volet $PART $CONTENT_TYPE ($SIZE kilo octets)]<br>
+Lorsque vous avez termin&eacute; d'&eacute;diter le contenu de ce
+volet, cliquez sur le bouton <b>remplacer</b> pour rendre vos
+changements permanents.
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="func" value="tokeninfo-replace-part">
+  <input type="hidden" name="extra" value="$TOKEN $PART">
+  <input type="submit" value="remplacer">
+
+<textarea name="contents" rows="20" cols="80">

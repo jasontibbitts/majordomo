@@ -1,0 +1,11 @@
+le paramètre "archive_size" contient la taille maximum en kilo octets,
+ou le nombre maximum de messages qu'un fichier d'archive peut
+contenir. Lorsqu'un message qui qui ferai dépasser la taille de
+l'archive, arrive, une nouvelle archive est créée pour y mettre les
+nouveaux messages.
+
+La taille est un chiffre suivi d'un 'k' pour kilo octets ou d'un 'm'
+pour messages. La valeur 'unlimited' est aussi autorisée.
+
+La modification de ce paramètre affectera uniquement les nouveaux
+messages ; les anciennes archives ne seront pas altérées.

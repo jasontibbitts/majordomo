@@ -1,0 +1,40 @@
+<!-- Majordomo show_head format file -->
+<h4 align="center">Abonnements de $FULLADDR</h4>
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="domain" value="$DOMAIN">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" type=password value="$CMDPASS">
+
+<p>
+Le tableau suivant liste tous les abonnements de $STRIPADDR sur $SITE.
+Pour vous d&eacute;sabonner, cochez la case correspondante a la liste
+que vous d&eacute;sirez quitter, et cliquez sur le bouton
+<b>$HELP:UNSUBSCRIBE</b>.
+</p>
+
+<p>
+Pour modifier les r&eacute;glages de vos abonnements, cochez la case
+correspondante a la liste dont vous souhaitez modifier les
+param&egrave;tres, modifier ce que vous voulez, et cliquez sur le
+bouton <b>$HELP:SET</b>. Pour avoir une explication
+d&eacute;taill&eacute;e de chaque r&eacute;glage, cliquez sur le nom
+de la liste. Les r&eacute;glages que vous ne pouvez modifier sont
+marqu&eacute;s par un <b>X</b> pour "on" et un <b>O</b> pour "off".
+</p>
+
+<p>
+Pour avoir plus d'informations a propos d'une liste, comme le nombre
+d'abonn&eacute;s ou les archives, cliquez sur le lien <b>info</b> a
+cot&eacute; du nom de la liste.
+</p>
+
+<p>
+  <input type="submit" name="func" value="unsubscribe">
+  <input type="submit" name="func" value="set">
+</p>
+
+<table border>
+<tr>
+  <td colspan="4">Liste</td>
+  <td colspan="9">Mode de r&eacute;ception</td>
+</tr>

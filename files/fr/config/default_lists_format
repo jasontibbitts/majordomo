@@ -1,0 +1,4 @@
+Le paramètre "default_lists_format" détermine le formatage par défaut
+de la commande "lists" si aucun mode n'est précisé. Par exemple, si la
+valeur de ce paramètre est "long", les commandes "lists" et
+"lists-long" afficheront les mêmes informations.

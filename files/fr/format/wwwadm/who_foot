@@ -1,0 +1,106 @@
+<!-- Majordomo who_foot format file -->
+<tr><td colspan="13">Adresses trouv&eacute;es&nbsp;: $COUNT </td></tr>
+</table>
+  <input type="submit" name="func" value="unsubscribe">
+  <input type="submit" name="func" value="unsubscribe-farewell">
+  <input type="submit" name="func" value="set">
+</form>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;extra=$PATTERN&amp;start=?PREVIOUS&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses pr&eacute;c&eacute;dentes</a><br>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;extra=$PATTERN&amp;start=?NEXT&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses suivantes</a>
+
+<h4 align=center>cherchez la liste des abonn&eacute;s</h4>
+
+<ol>
+  <li>Choisissez l'une des m&eacute;thodes de recherche en cliquant le
+  bouton appropri&eacute;.</li>
+  <li>Entrez le motif de recherche dans le champ <b>Motif de
+    recherche</b>. (r&eacute;f&eacute;rez vous au document d'aide
+  $HELP:PATTERNS pour apprendre a &eacute;crire des motifs de
+  recherche.)
+  <li>Entrez le nombre d'adresses que vous voulez voir afficher par
+  pages dans le champ <b>Nombre d'adresses</b>.</li>
+  <li>Cliquez sur le bouton <b>search</b>.</li>
+</ol>
+
+<form method="POST" action="$CGIURL">
+  <input name="list" type="hidden" value="$LIST">
+  <input name="passw" type="hidden" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+
+  <input type="radio" name="func" value="who" checked>
+  Recherchez la liste des abonn&eacute;s &agrave; $LIST 
+    (en utilisant la commande $HELP:WHO)<br>
+
+  <input type="radio" name="func" value="who-bounce">
+  Recherchez dans la liste des erreurs des abonn&eacute;s a $LIST.
+    (en utilisant la commande $HELP:WHO-bounce)<br>
+
+  <input type="radio" name="func" value="which">
+  Rechercher dans toutes les listes
+    (En utilisant la commande $HELP:WHICH)<br>
+
+Motif de recherche&nbsp;: <input name="pattern" value=".">
+Nombre d'adresses&nbsp;:
+  <input name="chunksize" size="6" value="$CHUNKSIZE">
+  <input type="submit" value="search">
+</form>
+
+<h4 align=center>Ajouter ou supprimer des abonn&eacute;s</h4>
+
+<ol>
+  <li>Choisir l'une des m&eacute;thodes d'ajout/suppression en
+  s&eacute;lectionnant le bouton appropri&eacute;.</li>
+  <li>Entrez les adresses dans le champ, une par ligne.</li>
+  <li>Si vous ajoutez des adresses, choisissez les param&egrave;tres
+  personnels pour ces adresses, ainsi que leur mode de
+  r&eacute;ceptions.  (R&eacute;f&eacute;rez vous au document d'aide
+  $HELP:SET pour plus de d&eacute;tails sur les modes de
+  r&eacute;ceptions ainsi que les autres param&egrave;tres.)</li>
+  <li>Cliquez sur le bouton <b>Ajouter ou supprimer des
+    abonn&eacute;s</b>.</li>
+</ol>
+
+<form method="POST" action="$CGIURL">
+  <input name="list" type="hidden" value="$LIST">
+  <input name="passw" type="hidden" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+  
+  <input type="radio" name="func" value="subscribe-set-welcome" checked> 
+  Ajouter des abonn&eacute;s a la liste $LIST. Leur envoyer un message
+  de bienvenue.<br>
+
+  <input type="radio" name="func" value="subscribe-set-nowelcome"> 
+  Ajouter des abonn&eacute;s a la liste $LIST. <b>Ne pas</b> leur
+  envoyer un message de bienvenue.<br>
+
+  <input type="radio" name="func" value="unsubscribe-farewell"> 
+  Supprimer des abonn&eacute;s de la liste $LIST. Leur envoyer un
+  message d'adieu.<br>
+
+  <input type="radio" name="func" value="unsubscribe"> 
+  Supprimer des abonn&eacute;s de la liste $LIST. <b>Ne pas</b> leur
+  envoyer un message d'adieu.<br>
+
+  <textarea name="victims" rows="8" cols="70">
+  </textarea>
+
+  <p>
+
+R&eacute;glages pour les nouveaux abonn&eacute;s&nbsp;:
+  <table>
+  <tr>
+    <td><small>$SETTINGS</small></td>
+  </tr>
+  <tr>
+    <td align="center"><input name=setting type=checkbox value="$SETTINGS" $SETTING_CHECKED></td>
+  </tr>
+  </table>
+
+  Mode de r&eacute;ception&nbsp;: 
+  <select name="setting">
+    <option value="$CLASSES" $CLASS_SELECTED>$CLASSES: $CLASS_DESCRIPTIONS</small>
+  </select>
+
+  <input type="submit" value="Ajouter ou supprimer des abonn&eacute;s">
+</form>
+

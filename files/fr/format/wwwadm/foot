@@ -1,0 +1,57 @@
+<!-- Majordomo foot format file -->
+<p>
+  Si vous avez besoin d'aide, contactez
+  <a href="mailto:$MJOWNER">les administrateurs de $DOMAIN</a>.
+<table cellspacing="8" width="100%">
+<tr>
+  <td align="center" bgcolor="#706060">
+     <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=login">
+     <font size="-1" color="#f0f0f0">
+     Connexion</font></a>
+
+  </td>
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=logout">
+     <font size="-1" color="#f0f0f0">
+     D&eacute;connexion</font></a>
+
+  </td>
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=showtokens">
+     <font size="-1" color="#f0f0f0">
+     Mod&eacute;ration</font></a>
+
+  </td>
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;chunksize=20">
+     <font size="-1" color="#f0f0f0">
+     Abonn&eacute;s</font></a>
+
+  </td>
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=configshow-categories">
+     <font size="-1" color="#f0f0f0">
+     Configuration</font></a>
+
+  </td>
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=lists-full-long&amp;extra=$LIST">
+     <font size="-1" color="#f0f0f0">
+     Info Liste</font></a>
+
+  </td>
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=command">
+     <font size="-1" color="#f0f0f0">
+     Formulaire de Commandes</font></a>
+
+  </td>
+  <td align="center" bgcolor="#706060">
+    <a href="$CGIURL?$CGIDATA&list=$LIST&func=welcome">
+     <font size="-1" color="#f0f0f0">
+     aide</font></a>
+  </td>
+</tr>
+</table>
+</p>
+</body></html>

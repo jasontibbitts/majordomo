@@ -1,0 +1,5 @@
+C'est une description rapide (une ligne) de la liste. Elle est
+affichée par la commande "lists". Ce paramètre ne devrais pas excéder
+50 caractères. Si aucune valeur n'est spécifiée, la première ligne du
+paramètre "description_long" est utilisée. Si ce paramètre est vide,
+la ligne affichée est : "(no description)".

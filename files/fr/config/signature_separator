@@ -1,0 +1,8 @@
+Le parser de commandes s'arrêtera de chercher des commandes lorsqu'il
+rencontrera une ligne qui corresponds au motif.
+
+Le séparateur de signature standard est une ligne consistant juste en
+deux tirets suivi d'un espace. Toutefois, beaucoup d'utilisateurs ne
+connaissent pas ce standard, et beaucoup de sites utilisent des
+underscores a la place des tirets. Par conséquent, un motif plus large
+est généralement utilisé.

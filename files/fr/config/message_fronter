@@ -1,0 +1,6 @@
+Ce paramètre contient un bloc de texte, appelé "fronter", qui peut être
+ajouté au début des messages sortant. Vous pouvez inclure plusieurs
+fronters ici en les séparant par une ligne vide. Lorsqu'un fronter est
+ajouté, il est choisi au hasard parmi les fronters présents ici. La
+fréquence avec laquelle un fronter est ajouté peut être contrôlée par
+le paramètre "message_fronter_frequency".

@@ -1,0 +1,65 @@
+Ce message est automatiquement envoyé en réponse a votre récent
+message à $REQUEST.
+
+Toutes les requêtes administratives, abonnement et désabonnement
+inclus, sont gérées par un serveur automatisé. Lisez ce message avec
+attention, vous y trouverez certainement les informations qui vous
+intéressent.
+
+
+ABONNEMENTS
+===========
+
+Pour vous abonner de la liste $LIST, envoyez un message à
+  $MJ
+Dans le corps (pas dans le sujet) du message, mettez la commande :
+  subscribe $LIST
+
+Si vous désirez vous abonner avec une adresse différente de celle avec
+laquelle vous écrivez, utilisez la commande suivante :
+  subscribe $LIST ADRESSE
+(Remplacez ADRESSE par l'adresse avec laquelle vous désirez vous
+ abonner.)
+
+
+DÉSABONNEMENTS
+==============
+
+Pour vous désabonner de la liste $LIST, envoyez un message à
+  $MJ
+Dans le corps (pas dans le sujet) du message, mettez la commande :
+  unsubscribe $LIST
+
+Si vous désirez vous désabonner avec une adresse différente de celle
+avec laquelle vous écrivez, utilisez la commande suivante :
+  unsubscribe $LIST ADRESSE
+(Remplacez ADRESSE par l'adresse avec laquelle vous désirez vous
+ abonner.)
+
+Si vous ne connaissez pas l'adresse de votre abonnement, vous pouvez
+envoyer la commande pour voir la liste complète des abonnés, si
+toutefois cette fonctionnalité a peut être été restreinte par les
+administrateurs :
+  who $LIST
+
+Si vous désirez chercher toutes les listes publiques du domaine pour
+vos abonnements, utilisez la commande suivante :
+  which MOTIF
+Remplacez MOTIF par un morceau de votre adresse. Par exemple, si vous
+avec comme adresse jane@example.org, utilisez la commande :
+  which jane
+
+
+AIDE
+====
+
+Pour en connaître plus a propos du serveur et les commandes qu'il
+comprends, envoyez un message à
+  $MJ
+Et dans le corps du message, mettez la commande :
+  help
+
+Pour contacter les administrateurs de la liste $LIST, envoyez un
+message à :
+  $OWNER
+

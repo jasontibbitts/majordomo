@@ -1,0 +1,10 @@
+<!-- Majordomo archive_index format file -->
+  <tr>
+    <td><a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-get-part&extra=$MSGNO"
+         target="_message">
+        $SUBJECT</a>$HIDDEN
+    </td>
+    <td>$FROM</td>
+    <td>$DATE</td>
+    <td align="right">$SIZE&nbsp;ko</td>
+  </tr>

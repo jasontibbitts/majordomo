@@ -1,0 +1,5 @@
+Le paramètre "debug" contrôle le volume d'information de débogage
+sauvegardé lorsqu'un email est traité. La valeur varie de 0 (aucune
+information sauvée) à 1000 (un gros volume d'information est
+sauvegardé, incluant la totalité des conversations SMTP entre
+Majordomo et votre serveur de courrier (MTA)).

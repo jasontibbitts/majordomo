@@ -1,0 +1,24 @@
+<!-- Majordomo reject format file -->
+<p>
+Le ticket $TOKEN a &eacute;t&eacute; rejet&eacute; pour la commande
+suivante&nbsp;:
+</p>
+<table>
+<tr>
+  <td>Commande</td>
+  <td>$CMDLINE</td>
+</tr>
+<tr>
+  <td>Date</td>
+  <td>$DATE</td>
+</tr>
+<tr>
+  <td>Session</td>
+  <td>$SESSIONID</td>
+</tr>
+</table>
+
+?NOTIFIED <p>Un message d'information a &eacute;t&eacute;
+?NOTIFIED envoy&eacute; a $VICTIM. </p>
+
+<pre>?ERROR</pre>

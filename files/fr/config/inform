@@ -1,0 +1,14 @@
+Le paramètre "inform" contrôle la manière dont les gestionnaires de
+listes peuvent être tenus au courant de l'activité d'une liste.
+Chaque ligne est divisée en trois parties, séparées par des barres
+verticales ou des deux points ('|' ou ':')
+
+  requête | résultat | actions
+
+La requête peut être n'importe quelle commande Majordomo (ex :
+"subscribe", "post" ou "archive"). Le résultat peut être composé d'une
+ou plusieurs valeurs entre "succeed" (succès), "fail" (échec), et
+"stall" (attente) ou "all" (tous) pour les 3. Les actions sont
+composées d'un ou plusieurs entre "ignore" (ignorer), "inform"
+(informer) et "report" (faire un rapport). De multiples résultats ou
+actions doivent être séparés par des virgules.

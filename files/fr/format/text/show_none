@@ -1,0 +1,9 @@
+  Adresse: $VICTIM
+    L'adresse est valide.
+      Boite email : $STRIP
+      Commentaire : $COMMENT
+    L'adresse se transforme en: ?XFORM
+    Adresse aliasée à:         ?ALIAS
+    Alias vers cette adresse : ?ALIASES
+    Cette adresse n'est pas enregistrée à $SITE.
+

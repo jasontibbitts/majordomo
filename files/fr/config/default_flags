@@ -1,0 +1,19 @@
+Voici la liste des paramètres qu'un nouvel abonné recevra. Ces
+paramètres incluent :
+
+  ackdeny
+  ackpost
+  ackreject
+  ackstall
+  eliminatecc
+  hideaddress
+  hideall  
+  hidepost
+  postblock
+  prefix
+  replyto
+  rewritefrom
+  selfcopy
+
+Référez vous au document d'aide "help set" pour une plus ample
+description de ces paramètres.

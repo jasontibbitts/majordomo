@@ -1,0 +1,24 @@
+Le paramètre "aliases" détermine quels adresses email sont disponibles
+pour le public pour une liste spécifique. Les valeurs suivantes sont
+reconnues :
+
+  Alias                Adresses email pour cette alias
+  -----                -------------------------------
+  auxiliary            un alias pour chaque sous liste dans les "sublists".
+  moderator            LISTE-moderator
+  owner                LISTE-owner
+  request              LISTE-request
+  resend               LISTE
+  subscribe            LISTE-subscribe
+  subscribe-digest     LISTE-subscribe-digest
+  subscribe-digest-all Un alias pour chaque compilation dans les "digests".
+  subscribe-each       LISTE-subscribe-each
+  subscribe-nomail     LISTE-subscribe-nomail
+  subscribe-unique     LISTE-subscribe-unique
+  unsubscribe          LISTE-unsubscribe
+
+Pour l'instant, les aliases owner, request et resend sont
+obligatoires.
+
+Lorsque la valeur de ce paramètre a été changé, la commande
+"createlist-regen" doit être lancée pour régénérer les alias.

@@ -1,0 +1,5 @@
+Le paramètre $SETTING n'a pas été modifié. La valeur
+  $EXPECTED
+étais attendue, mais le paramètre avait la valeur suivante :
+  $VALUE
+

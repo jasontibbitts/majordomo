@@ -1,0 +1,5 @@
+  $FULLADDR:-48 $FLAGS:-9 $CLASS
+    Diagnostique du dernier message en erreur : ?BOUNCE_DIAGNOSTIC
+    Erreurs dans la semaine &eacute;coul&eacute;e : ?BOUNCE_WEEK
+    Erreurs dans le mois &eacute;coul&eacute; : ?BOUNCE_MONTH
+    Nombre d'erreurs: ?BOUNCE_NUMBERS
