@@ -694,7 +694,7 @@ sub substitute_vars {
 
       if ($inc) {
 	if ($depth > 3) {
-	  $out->print("Recursive inclusion depth exceeded.\n");
+	  $out->print("Recursive inclusion depth exceeded\n ($depth levels: may be a loop, now reading $1)\n");
 	}
 	else {
 	  # Got the file; substitute in it, perhaps recursively
@@ -710,8 +710,10 @@ sub substitute_vars {
     $i = $self->substitute_vars_string($i, $subs);
     $out->print($i);
   }
+  # always close the INPUT file
   $in->close;
-  $out->close;
+  # ONLY close the OUTPUT file at zero depth - else recursion gives 'print to closed file handle'
+  $out->close if(!$depth); # it will automatically close itself when it goes out of scope
   $tmp;
 }
 
