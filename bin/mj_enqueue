@@ -45,7 +45,7 @@ sub out { logmsg("Out: $_[1]"); syswrite($_[0], $_[1], length($_[1])) }
 sub in  { logmsg("In..."); sysread($_[0], $_, 1024); logmsg("In: $_"); $_ };
 
 my (%opts, $dom, $i, $line, $ok, $pid, $rendezvous, $q1, $q2, $q3, $qdir,
-    $qfile, $qfunc);
+    $qfile, $qfunc, $abandoned);
 
 umask oct($::UMASK);
 $ENV{PATH} = '';
@@ -116,11 +116,14 @@ while (1) {
 $ok = flock(OUT, $::LOCK_EX);
 
 # Fill the queue file, skipping mailbox separator if present.
+$abandoned = 0;
 $line = <STDIN>;
 print OUT $line unless $line =~ /^From /;
 while (defined($line = <STDIN>)) {
-  $ok = print OUT $line;
-  last unless $ok;
+  unless ($abandoned) {
+    $ok = print OUT $line;
+    $abandoned = 1 unless $ok;
+  }
 }
 $ok = close OUT;  # Also unlocks.
 
@@ -132,7 +135,7 @@ $ok = close OUT;  # Also unlocks.
 # problem as a temporary failure and defer delivery.
 unless ($ok) {
   # untaint
-  my ($abandoned) = "$qdir/$qfile";
+  $abandoned = "$qdir/$qfile";
   $abandoned =~ /(.*)/;
   $abandoned = $1;
   unlink $abandoned;
