@@ -1,8 +1,8 @@
   Adresse : $VICTIM
     Adresse est valide.
-      Adresse de la boîte aux lettres : $STRIPADDR
+      Adresse de destination   : $STRIPADDR
       Commentaire de l'adresse : ?COMMENT
-    L'adresse se transforme en: ?XFORM
+    L'adresse se transforme en : ?XFORM
     Adresse aliasée à:         ?ALIAS
     Alias vers cette adresse : ?ALIASES
     Enregistrée comme          ?FULLADDR
