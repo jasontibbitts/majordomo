@@ -27,8 +27,12 @@ This table will only contain values if the list owners have explicitly
 added them with the configset command.  In contrast, the configdef command 
 is used to remove values from the table.  If a configuration setting has no 
 entry in the list's table, the DEFAULT list is checked next.  If the setting has 
-no entry in table for the DEFAULT list, a default value is supplied by the 
-software.
+no entry in table for the DEFAULT list, the installation values are
+used.  For regular lists, the installation values are supplied by the
+DEFAULT:_install configuration settings.  For the GLOBAL pseudo-list,
+installation values are supplied by the GLOBAL:_install settings.
+It is possible to change the installation defaults, but any changes
+will be lost when you upgrade the software.
 
 The DEFAULT list is valuable because it allows you to change the settings
 of all of the mailing lists within a domain at once.  It has been suggested
@@ -42,7 +46,7 @@ The most important use of the DEFAULT list is to configure each domain
 to supply at least one digest to each mailing list, using the "digests"
 configuration setting.  Majordomo does not define any digests by default
 (see "help configset_digests" for more details).
-  
+
 The DEFAULT and GLOBAL lists can also be used to make files available
 to all of the mailing lists within a domain.  See "help get" and 
 "help configset file_share" for more details.  There is also a Stock
