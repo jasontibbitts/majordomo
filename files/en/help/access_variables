@@ -137,6 +137,7 @@ The post command also uses these variables:
   invalid_from                  boolean
   limit                         boolean
   limit_hard                    boolean
+  limit_lower                   boolean
   limit_soft                    boolean
   lines                         number
   max_header_length             number
@@ -314,12 +315,17 @@ interface
   request, such as 'email', 'shell', or 'wwwadm'.
 
 limit
-  This variable is set if either of the limit_hard or limit_soft variables
-  is set.
+  This variable is set if any of the limit_hard, limit_lower, or
+  limit_soft variables is set.
 
 limit_hard
   This variable is set if a posted message exceeded a hard limit, as
   determined by the post_limits configuration setting.
+
+limit_lower
+  This variable is set if the author of a message has not posted
+  frequently enough to meet a lower limit, as determined by the
+  post_limits configuration setting.
 
 limit_soft
   This variable is set if a posted message exceeded a soft limit, as

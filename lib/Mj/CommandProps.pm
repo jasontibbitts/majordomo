@@ -599,6 +599,7 @@ my %commands =
                     'invalid_from'                 => 'bool',
                     'limit'                        => 'bool',
                     'limit_hard'                   => 'bool',
+                    'limit_lower'                  => 'bool',
                     'limit_soft'                   => 'bool',
                     'lines'                        => 'integer',
                     'max_header_length'            => 'integer',
