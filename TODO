@@ -1,690 +1,88 @@
--*- Text -*-
-
-Roadmap
--------
-
-The primary features holding up a true release are Bounce handling and a
-web interface.
-
-Simplistic bounce handling is a relatively easy project; just write a
-module that looks for bounces and tap into the _owner function.  Code for
-the module is already written.  Some additional support is needed, though;
-the user-id stuff and the support for it in the envelope generator is
-essential in making the system foolproof.
-
-There are two basic ways to do the web interface: build up a set of small
-CGIs that perform basic functions (subscribe, unsubscribe, get info, etc.)
-or port MajorCool.  The latter is pretty tough given the perl4/perl5
-impedance mismatch but could pay off in a big way.
-
-Bugs?
------
-
-Messages with empty first part always checksum the same?
-The interface can pass bad passwords to some functions (config_get_vars)
-  and get a result indistinguishable from using no password. 
-Untainting sometimes happens in the wrong place; in a C/S model, we won't
-  trust what comes in over the network.
-
-Requests from SRE
------------------
-Add an 'address' argument to the inform variable; address to send
- information to.
+Various items discussed recently (2000.10.25) on mj2-dev.  Items should get
+added here when it is decided that something needs to be done, and removed
+when the folks who asked for the feature/fix have agreed that the feature
+is in/problem is fixed, or that the feature is not needed/problem really
+isn't a problem.
 
 
-Doc changes needed
-------------------
-(none)
+List Templates
+--------------
 
-Top of the list 
+Paul Hancock: [...] I specifically wanted something that would allow groups
+of lists to be managed with a given DEFAULT file... not necessarily
+domain-wide, which is now possible just by changing DEFAULT.
+
+One proposal is to have multiple DEFAULT lists, named DEFAULT-template.
+Another is to allow multiple configuration files per list.
+
+Some of the code necessary for multiple configuration files per list is
+already in CVS.  It is not certain that it will remain there, or whether
+the end result will satisfy the request.  The "multiple DEFAULT list"
+concept may be orthogonal to it.
+
+
+Duplicate Elimination
+---------------------
+
+Some code is in place to globally eliminate duplicates; when a message is
+posted to multiple lists, users who are on more than one of them only get
+one message if their class is set to "unique".  If the class is not unique
+on all lists, the behavior is variable depending on which list gets the
+message first.  If the user is in digest mode on one list and unique on the
+other, they will get a separate copy and a copy in the digest.  This is not
+technically difficult to change.
+
+The requesters of this feature have not commented on whether it satisfies
+their requirements.
+
+
+Better Queue Handling
+---------------------
+
+If a message causes Majordomo to crash, it remains in the queue and will
+continue to cause crashes.  Thus it is a good idea to rename queue files so
+they don't get rerun.  However, in the case of system crashes/random
+Majordomo crashes/other nonrepeatable issues, you _do_ want the queue file
+processed.  This it is advantageous to have a processing count and to only
+process files some number of times normally before giving up on the file.
+
+Also, giving up on a file is not good, as it can lead to problems not being
+noticed.  Thus the idea procedure would be to process a queue file normally
+twice (or thrice) and then on the next try, to turn up debugging and log to
+a special file.  The next try, delete the queue file.  The owner also needs
+to be informed somehow.
+
+
+Configuration Rewrite
+---------------------
+
+The current configuration process is incompatible with modern package
+managers.  Defaults cannot be hardcoded into the scripts.  Only two things
+can be: the path to Perl and the location of the config file.  Everything
+else should be put into a separate configuration file.  This cound (should)
+subsume the SITE config file currently used for defaults that aren't
+hardcoded.
+
+The config file should probably be raw Perl code so that it is as fast as
+possible to load.  The Q&A section of Makefile.PL can be extracted and
+turned into an "easy setup" script.
+
+Also, the temporary directory (and probably several other variables) needs
+to be made part of the site config instead of a per-domain configurable.
+
+
+Wrapper Security
+----------------
+
+The wrapper needs to sanitize as much of its environment as possible.  This
+involves making a list of needed env variables and deleting everything else.
+
+
+Bounce Handling
 ---------------
 
-List converter:
+Hook up bounce_rules execution when a bounce comes in.  Most of the
+infrastructure is in place for this.
 
-    if -digest, offer to create non-digest version and add subscribers to digest.
 
-New stored token format:
-  Data::Dumper to store a hash.  The contents are essentially opaque to the
-  token system; upon extraction certain elements are passed to the bottom
-  half in order.
 
-  Pass token routines a hash.  Store it verbatim in the database.  Note
-  that we can't use SimpleDB for this because the stringification breaks
-  opacity.
-
-  Token::t_add needs to take a hash.  In fact, it shouldn't even look at
-  its hash, it should just store it.
-
-  Token::t_remove should just return the hash uninterpreted.
-
-We do want speed, so Storable is warranted, but not for token storage and
-we require Data::Dumper for other things anyway.  For the list stuff, it is
-nice to be able to compare without unstringifying, so it is probably
-simpler to keep the current ^A and ^B separators to get a fast two-level
-stringifier and just use Data::Dumper for when we want to store a hash.
-
-
-Convert the following to take hashes:
-
-  Access::_a_deny, _a_denymess, _a_allow, _a_conf_cons, _a_confirm,
-    _a_consult, _a_forward, _a_reply, _a_replyfile, _a_mailfile, _a_default
-
-  Access::_d_advertise, _d_password, _d_post, _d_subscribe
-
-Need to pass additional context-specific data to consult/confirm routines.
-First make Token routines take hashes, then pass an additional hashref of
-subs.  Then Access::_a_* should accept this and pass it on.  
-
-Mj::TokenDB - need some kind of multilevel structure and a way to store
-arbitrary data in a token.  Perhaps can the entire database thing and start
-from scratch with a DB-based system.  Use Storable?
-
-Have a separate file for post consultation/confirmation reminders.
-
-Queueing:
-
-  Runners automatically exit after processing some number of messages (to
-  prevent the accumulation of memory leaks).
-
-  Server does the same, only some much larger number as it does no
-  allocations.
-
-  Upon start of processing, move message into 'hold queue'.  If not
-  deleted or moved elsewhere, there must have been a crash of some kind.
-  Have trigger process deal with these by making specific debug files and
-  storing them along with the generated debug files in some specific place.
-
-Allow mj_email/mj_enqueue to be setuid under qmail, if the user wants it.
-
-Make sure cached configurations don't persist past config file changes.
-
-Add option to set umask of generated alias files.
-
-Don't show the user variables that they can't change.  (Make their values
-visible to the interface but don't have configshow display them).
-
-Move all aliases into one file, and all vut entries into one file, to make
-  sendmail configuration easier.
-Move t_accept messages into external files.
-Return additional information from _post so that t_accept can provide
-  additional data.
-Update FILES.
-Delay allocation of Dest/Sorter objects until something actually goes into
-  them.
-Make Deliver take a list of delivery hashes, so you can pass in a whole
-  pile of class/message sets (including multiple files to the same class,
-  as long as they're in a different delivery hash).  This would allow a
-  queue runner to deliver multiple messages to one list with only one
-  database scan.
-Do more substitutions in mailfile actions.  Allow a hashref of
-  substitutions to be passed in.
-
-Move to a more module-based system; allow various filtering pieces of resend:
-
-  mime filters
-  checksumming
-  taboo/admin
-  
-to be moved into modules; have per-message modules and per-line modules.
-Allow modules to be added; have a variable listing modules to be run.
-Define module interface.  Move lesser-used commands out of Majordomo.pm
-(and Format.pm) and into separate modules.
-
-
-
-! Digest:
-
-Way to force the users to use the digest version:
-  allowed_subscribtion_classes - array of names of subscription classes that
-  users can join without owner's password approval.  'digest' covers all
-  digests, 'digest-blah' allows only 'blah' digest.
-
-
-
-
-Access: call Mj::is_subscriber instead of List::is_subscriber.
-
-Check validity of addresses in Resend::post and pass the results in as
-access variables.
-
-General munging framework (as part of _post):
-  Make only one pass over body.
-    Trim approvals, attach fronter/footer, do HTML->text conversion and
-     munging all at once.
-  Get back archive and (4) normal entities.
-
-  Structure (munge body first):
-    Traverse mime tree.
-      Delete parts if necessary.
-      Flatten multipart/alternative
-      Flatten single-part multiparts
-      -Now we know if we need to attach fronters/footers or munge them in-
-      Convert parts (richtext/html) to text, possibly munging.
-      Add fronters/footers and munge.
-    Munge headers.
-      Delete headers.
-      Reply-To:, subject_prefix
-
-F'ter stuff:
- Since _add_fters is the only copy operation in the normasl path, overload
-   it to do proposed elimination of various body lines (rename to
-   _munge_body).
- Add /^-/ intelligence to embed newlines in a string_2darray.
-
- If fronter/footer contains only FILE-some/file/path then pull in that file
-  to use as the fronter/footer and use its MIME data for the attachment
-  info (i.e. enable easy HTML attachment footers)
-
- Need a variable to always attach fronters/footers.
-
-
-! Auto-maintain aliases:
-  Call out to commands to rebuild aliases and VUT files.
-
-! Archiver:
-    Build index from existing file (sync)
-    Delete message from archive?
-    Automatically add meaningful description to created archive files.
-    Automatically create a symlink from archive_dir to files/public/archive
-     if necessary.
-
-    Search the archive
-    How to specify the time period here?  Two dates?  Leave one and it goes
-     from then to now.
-
-! Utility method to set the default language from the interface.
-  Check the user's chosen language.  Should the language used be that of
-  the victim or the requester?  The requester will see the immediate
-  output, while the victim will receive instructions.  Or look up the
-  language preference of the user when sending out end-user information.
-
-- Extension mechanism:  one file, in $::TOPDIR/$domain, called
-  local_extensions.pl.  Pulled in after all properties are defined and
-   mj_cf_data is loaded (so the two important hashes have been defined).
-
-  Provide methods to call in local_extensions.pl:
-
-  add_feature: adds a feature to the feature list (to advertise the
-  extension if necessary)
-
-  add_command: adds a command to the big function structure.  Takes lots of
-  data to be filled in.
-
-  add_alias: adds an alias for a command (localization, I suppose).
-
-  add_variable: pushes a variable into the big config hash.
-
-  Adding a function: need three functions:
-    output formatter
-    top half (if not generic)
-    bottom half
-    plus data in CommandProps
-  These have to go in the proper packages.  Rely on the writer to get this right?
-
-- Add generic top half functionality, now that the dispatcher does so much.
- Would eliminate top halves for:
-   alias (with additional parameter for validating additional positional
-     arguments as addresses.
-   auxadd
-   auxremove
-   auxwho_start
-   register
-   rekey
-   set
-   show
-   showtokens
-   unalias
-  Add to dispatcher:
-   exactly which positional arguments to validate as addresses.
-   generic_top_half item
-  Write generic_top_half function:
-    Log in; display some args
-    Make list if necessary.
-    Call access check.
-    Log result.
-    Call bottom half if necessary.
-
-! Dispatch should log password failures for overriding logging.
-
-- Make 'default' work in interactive shell.
-
-! Investigate other locking methods.
-
-! Make sure that $SENDER is reset properly after _trim_approval is called,
-  so we pick up the real sender, not the approver.
-
-! Make sure all sent mails have To: headers.
-
-! Continue generalization of database mechanism.
-  
-  Write generic export and import functions.
-
-  Write autoconversion function.
-
-  Write backends: BerkeleyDB, MySQL.
-
-! Finish archive interface.
-
-! Make sure that archives get a separate umask, so that people can
-  download them.
-
-- Add Makefile.PL section to look for features in addition to
-  prerequisites; if the necessary modules are present, the features will be
-  enabled.
-
-  Features: Time::HiRes
-            DB_File (or BerkeleyDB?)
-            whatever the MySQL module is
-
-- Tool to incorporate mbox files into an archive.
-  Can run from alias (like archive2.pl) or can slurp an entire folder.
-  Can take a list (in which case it sucks things from the list's config) or
-    the necessary variables (dir, split, size) directly.
-
-  Import from files:
-   mj_archive -d domain -l list file1 file2
-
-  In an alias (read 1 message from stdin):
-   mj_archive -d domain -l list
-
-  Without a list, import from files:
-   mj_archive -r directory -p split -z size file1 file2
-
-  Without a list, import from stdin:
-   mj_archive -r directory -p split -z size
-
-! Make mail_message go through the same delivery functions as normal
-  delivery.
-
-! Add a banned_domains list; just ignore connections from these hosts.
-
-- Implement rejection (and perhaps acceptance) messages for tokens, and add
-  a box to type them in to the web interface.
-
-? Move spool files out of filespace like sessions?  Use filespace only for
-  things needing remote access (not spooled files) or things needing i18n
-  (not spooled files) or things you want an index of (perhaps spooled
-  files).  Maybe an open token report is warranted.
-
-! Code to force 2047-encoding of headers.  Function should take an entity
-  and a charset and call MIME::Words::encode_mimewords on each header.
-  What will e_mw do with embedded newlines?  If the charset is not provided
-  (undef), the routine should try to figure one out from the charset of the
-  body, or if one can't be figured out, it should use ISO-8859-1.
-
-! Implement separate user-readable and owner-readable bounce reasons.
-
-! Format: finish rewriting the following
-    filesync
-    configshow
-    configdef
-
-- allow mime-match classes just like taboo classes.
-
-- rewrite lots of routines to take named arguments instead of positionals.
-
-- Allow end user to set language preference.  Add language choice as extra
-  parser variable.  Export a core set_language routine.  Reference a
-  Majordomo class variable inside of internationalization routines.
-
-- Resend:
-    Front-end filtering stuff - 
-      header improprieties (not in To or CC header, etc.)
-
-   Back end mime-modification functions come later.
-
-- Add some variable expansions in message_fronters/footers like in
-  message_headers. 
-
-! Write up truncation logic to keep envelope sizes down for bounce probes.
-
-- inform and consult uses moderators variable, listing named groups of
-  moderators:
-
-  namea
-  addra1
-  addra2
-
-  nameb
-  addrb1
-  addrb2
-
-
-- list owner information (on hold until I collect more logs to process)
-    A 'report' command used to give several list metrics:
-      summary of activity (from inform_owner routine)
-      message statistics generated from the archive index (from Dave's
-        stats code)
-      symmary of existing tokens
-    
-   Two reports:
-      list report: summary of activity for one list.  Includes detailed
-        breakdowns on who did what to whom.  Categorize all subscriptions,
-        all unsubscriptions, and indeed all activity broken down per
-        request type.  Summarize activity at beginning of report.  Include
-        posting activity at a later date, since this is logged separately.
-        (Should this be logged separately?)
-        Shows all open, non-permanent tokens for the list.
-
-      GLOBAL report: report on all things global.  Give a breakdown on all
-        GLOBAL commands and tokens.  No postings here.  Also give summary
-        of all requests broken down by list.
-
-   Command takes zero, one or two dates.  No dates makes a report since the
-     last no-date report.  One date makes a report from that date forward.
-     Two dates makes a report between the two dates.
-     
-   Modes can be used to specify only tokens, only actions or only traffic
-     (or notokens, notraffic, noactions) and only failed, only stalls, only
-     success, only passworded, etc.
-
-- subscriber flag "novice/expert" passed in as a parameter to "post" access
-    control.
-
-- Rewrite shell.t to just build the file, call mj_shell once (or perhaps
-  just a few times) and check the output.  This should improve test times
-  quite a bit.
-
-- RBL/ORBS/DUL queries:
-  parse all Received: headers, look for IP addresses.
-  Look them up in the RBL..
-  Add an exemption list (addrs?  IPs?)
-  Set access variable; bounce to owner by default if set.
-  Don't ever do any checks if some config variable not set.
-
-
-Well thought out stuff:
-----------------------
-
-- Internationalization.  File search list is already done.  Have the core
-  provide internationmalization functions.  Place, in the normal filespace,
-  a file containing translations for messages too short to warrant their
-  own files.  Use the current file search list to locate this file, then
-  read it into a per-list data structure.  The file's format should look
-  something like this:
-
-  # Comments
-  language
-  message_tag
-  Translation $A of $C tag $B!
-
-  another_message_tag
-  Translation Line 1
-  $A $B $B line 2
-
-  [...]
-
-  The data structure looks like this:
-
-  $self->{trans}{$lang} =
-    {
-      message_tag => 'Translation string',
-      [...]
-    };
-
-  Variables to be replaced in the string are of the form $A, $B, etc.
-
-  Translstion involves looking up the message tag, making the substitution
-  with the given variables and returning the string.
-
-  If the necessary translation tag does not exist, what to do?  Back off to
-  the global entry under the same language, then to English, and then to
-  some default string?  Or try to "fill in the blanks" (parse another file,
-  pulling in only those language tags not in the data structure) from the
-  next thing in the search list?
-
-  Right now, back off to global makes the most sense.
-
-  The data structure can also hold a timestamp; the search path is
-  consulted to find the first matching file which is then statted and
-  compared; if it has changed (at all, perhaps only due to a changed search
-  list finding an older file), it is reparsed.
-
-  The stored translation data structure are stored (via Date::Dumper) in
-  _trans in the list's root.
-
-  The default English translations can be placed in the code and used on
-  the client side.
-
-From a message to mj-translators:
-
-What remains is the language preference stuff (the file retrieval mechanism
-can deal with a preferred language but nothing ever passes it one) and a
-method for dealing with the short responses.
-
-Short responses are the one or two line messages scattered throughout the
-code.  The way to handle it will be to have an internal three-level hash
-keyed on language, list and 'message tag' which will be loaded
-(incrementally, as languages are needed) from message files.  Those files
-will be retrieved like any response file, which allows global defaults and
-per-list customization even by remote list owners.
-
-The messages in the code will need to be identified and replaced with
-'message tags' concatenated with data; the interface code can take the tags
-and data, look things up in the message hash, expand embedded variables in
-the returned strings and present the result (prettied and wrapped,
-probably) to the user.
-
-In other words, if in the code you see:
-
-return (0, "User $user is a bozo because $list is not a valid list!\n");
-
-and turn it into:
-
-return (0, "user_is_bozo_bad_list\t$user\t$list");
-
-The interface (really the code in Format.pm, which runs on the interface
-side) looks up user_is_bozo_bad_list and gets:
-
-User $A is a bozo because $B is not a valid list!\n
-or
-Yuusano $A ga bakadakara $B ga iyano risuto desu!\n
-
-$A and $B are replaced by the values attached to the tag, resulting in the
-original string (or a really bad but mildly polite Japanese translation of
-it).
-
-At least, that's the plan.
-
-Ramp up to translation slowly:
-
-    'translate' core call.
-    One multilevel hash, static, in a require'd file:
-
-    %trans = (
-      'english' =>
-        {
-         'tag' => "Subst string",
-        }
-    )
-
-Expand to hardcoded translations of other languages, fall back to English,
-fall back to just printing the returned string (so if no messages are
-changed, you always get English).
-
-Interface needs to be able to tell the core what the user is or otherwise
-figure out what the user's language preference is _if_ one is not passed to
-the interface somehow (prefer-language: header, 'default language' command,
-etc.)  This gets pulled out of the registration database, which allows us
-to not need a list object to get a language preference, which greatly
-simplifies things.
-
-Then the 'translate' call just takes a language parameter and do the proper
-lookup.
-
-_Then_ extend things to weird per-list loading _only if_ someone decided
-they want it.
-
-We already support translated long documents.
-
-
-- Daemon model.  Startup time is always going to plague us.  The solution
-  is to eliminate it.  Have daemons run in the background as necessary to
-  serve requests.
-
-  Ignore the complex stuff that was here; use one of the RPC modules instead.
-
-- Figure out how to more closely link bounce reasons with access control
-  actions.  Problem: we can only generate bounce reasons before we call
-  access_check.  We can't generate all possible reasons and we might not
-  want to generate any.  The owner can't choose which reasons to use, and
-  can't add any.
-
-  can add a clear_reasons action, and a reason action to erase the reasons
-  list and add additional bounce reasons.  This makes the access_control
-  stuff look uglier than it needs to be, although continuation lines can
-  help.
-
-- uniquify function names
-    Make function names unique to 8 characters, to appease AutoSplit.
-
-- Verify that non-wrapper configuration is correct
-      create a dummy script, make it setuid, and run it.  If it errors, we
-      know it's bad.
-
-- store some data on each user-request so we can limit abusers.  Basically
-  we want to store enough data to see if an address is sending too many
-  requests to us.  a circular list of a fixed size would probably be good;
-  we save it between sessions and if an address shows up too many times we
-  set an access flag before running the access check.
-    One big global queue?
-    One queue per request?
-    One queue per list?
-    One queue per list per request?
-    Something else?  Some kind of time average per address per request?
-  How do we allow things like someone who works offline and dumps a pile of
-   email every couple of days?
-  How do we back off when a user gets close to the limit?  We don't want to
-   just start ignoring requests.  We could sleep, then sleep some more,
-   then bounce, then reject, then ignore progressively as the traffic
-   increases.
-  How to make sure that a slow server that has only a few users doesn't
-   fill up a queue with only a few addresses causing them to bounce?  Store
-   address and a timestamp and ignore/purge old requests?
-  How to store this data?  Probably not in the config file.
-
-Categorized ideas:
------------------
-
-Config Stuff
-- passwords <<  asdf : !config (exclude a variable)
-
-Email Interface
-- prescan for bad situations: unmatched tokens, too many subscribes in one
-  message, etc.
-- prescan for access restriction override.
-- context-sensitive help: Format routines return list of help topics
-  with error; email interface looks up topics and mails back appropriate
-  help.
-- make sure that no internal routine gets called with an undefined list:
-  "subscribe" sent with no deflist set.
-
-Format
-- info ALL for hyper-long lists output
-- auxshow list ALL
-
-Confirmation/Approval engine
-- Ability to append or prepend information to approved messages
-- list tokens, expire old tokens.
-
-Resend
-- MIME transformations
-
-Mj::Log
-- Log classes; too much debug info now
-- Have aborts and warnings stuffed into some tempfile and process that file
-  after the fact.  This allows aborts to propogate even if we've hosed the
-  mail delivery system.
-
-Meta
-- Add proper $VERSION tags for all modules.
-- Figure out the proper names for functions and clean them all up.
-- Figure out how do make all messages configurable.
-- Make sure that addresses are validated/stripped as little as possible.
-  If a routine can return an error string and needs to strip the address,
-  it can save upstream functions the trouble.
-- Try to avoid aborting when there is another way.  Unfortunately, aborting
-  happens at the lowest levels of the code (that would have to be working
-  anyway in order to send abort messages).
-- Make stub modules that inherit from the real modules so people have a
-  place to put their extension/overriding code without copying things
-  around.
-
-GTK client
-telnet client
-Finish all commands
-Figure out client-server spec.
-
-
-Uncategorized random thinkos:
-----------------------------
-
-retrieve and replace individual subscriber field data, for hard-core admin
- stuff.
-Subscription policy patch -> sponsored subscribes.
-archive search engine?
-Integrate Dave's logmail stuff -> stats command.
-Support for multipart/alternative when sending welcome messages.
-Periodically sort lists for proper batching.
-Spellcheck the documentation and messages.
-PGP verification for email.  How to trust a client?
-Internally equate meta-lists * and ALL (valid_list)
-Limit message delivery/email request processing to certain times/load
-  averages
-Some way to store some data until the next time a user communicates with
-  us.  So if, say, they are unsubscribed due to bounces but later try to
-  send a message or check their subscription status they will be informed.
-  Obviously we can't inform them when remove them, since that message would
-  bounce, too.
-Objectify the parser, then register legal methods with it?
-Bounce handling:  hack on BounceFilter and AutoBounce.
-Novice_level variable that affects getting documentation for config
-  variables?  Novice set of config variables?  Novice config documentation?
-Expiration of subscriptions.
-Last posting date.
-Have who expand lists subscribed to current list.
-Access_rules methods for checking against requesting user instead of victim.
-Forward to other (or same) server, but change the list name.
--c option to mj_email (or new mj_command script) to always execute a
-  command when a mail is received.
-Have 'help command xxx' look up config comment string for xxx.
-Support X-No-Archive.  _post should look for headers and pseudo-headers,
-  but not remove pseudos if found.
-Createlist should mail information to the list owner.  This should be
-  some distilled version of list-owner-info, containing pointers to
-  additional documents that can be retrieved with the help command.
-  Of course, all of these documents need to be written.
-Add Majordomo version info to the X-Mailer header that MIME-Tools adds.
-Make a separate repository for the backup default files so that we can
- upload them without worrying about overwriting local modifications.
-Handle stupid crap like "subscribe to list" and "subscribe list digest".
-Some kind of pseudo-anonymizer so that users' addresses are replaced by
- some anonymous token; when the message hits the archives, the headers are
- replaced by this.  This prevents harvesting of addresses from the
- archives.  Majordomo can handle the mapping between tokens and addresses.
-Allow a 'default prefix' command to specify a prefix to strip from all
- lines in the text parser.  This allows replies to be yanked and quoted, as
- long as they aren't line wrapped.
-Add additional sender information to things like confirmations so that if
- they bounce, the bounce processor can take care of the generated token and
- not forward the bounce to the owner.
-Allow access control language to make modifications to outgoing messages,
- perhaps by passing a list of actions back to the access check routine
- before the message is spooled.
-Keep a list of banned domains, compare against them in resend and fail all
- commands from them in the email interface (or, perhaps, in the
- dispatcher).
-Purge archive files after a certain period of time.
-Make archiver add files into filespace with useful descriptions.
-Allow headers to vary depending on access variables.
-Have an action attach text to an outgoing message (warning about quotes,
- deleted parts, etc.)
-Always allocating address objects for every core call costs for iterators;
- invent some handle method instead so we can cache state between calls.
-If processing a command yields an invalid address error and following line
- does not hold a legal command, join the two lines and try again.
-Export information from the registration database to .htaccess files, so
- owners can restrict access to web archives or whatever.
- digest-headers variable?
-Keep a count of addresses delivered to and return this out of the delivery
- module.
