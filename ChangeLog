@@ -1,3 +1,14 @@
+2002-06-28  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/SimpleDB/MySql.pm:  New module, unfinished.
+	Thanks to Racheli Neuberger.
+
+	* setup/ask_basic.pl:  Allow the domain list to 
+	be empty.
+
+	* setup/newdomain.pl:  Fix domain name typo.  Thanks to
+	Brock Rozen.
+
 2002-06-26  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (new) Add domain validity test.

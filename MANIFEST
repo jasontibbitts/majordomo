@@ -3602,6 +3602,7 @@ lib/Mj/Resend.pm
 lib/Mj/SimpleDB.pm
 lib/Mj/SimpleDB/Base.pm
 lib/Mj/SimpleDB/DB.pm
+lib/Mj/SimpleDB/MySql.pm
 lib/Mj/SimpleDB/Pg.pm
 lib/Mj/SimpleDB/Text.pm
 lib/Mj/SubscriberList.pm

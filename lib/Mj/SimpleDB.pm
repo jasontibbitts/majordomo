@@ -61,7 +61,9 @@ use vars qw(%beex %exbe);
    'none' => '',
    'text' => 'T',
 #   'berkdb'   => 'B',
-   'db'  => 'D'
+   'db'  => 'D',
+#   'pgsql' => 'P',
+#   'mysql' => 'M',
   );
 
 %exbe = reverse(%beex);
@@ -139,6 +141,11 @@ sub _c_db {
 use Mj::SimpleDB::Pg;
 sub _c_pgsql {
   new Mj::SimpleDB::Pg(@_);
+}
+
+use Mj::SimpleDB::MySql;
+sub _c_mysql {
+  new Mj::SimpleDB::MySql(@_);
 }
 
 =head2 _find_existing(path)
