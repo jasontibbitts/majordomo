@@ -104,7 +104,7 @@ sub new {
   my $class = ref($type) || $type;
   my $log   = new Log::In 150, "$args{'dir'}, $args{'name'}, $args{'backend'}";
 
-  my ($subfile);
+  my $subfile;
 
   my $self = {};
   bless $self, $class;
@@ -293,9 +293,10 @@ sub remove {
   $self->{'sublists'}{$sublist}->remove($dbmode, $a);
 }
 
-=head2 is_subscriber(addr)
+=head2 is_subscriber(addr, sublist)
 
-Returns the subscriber data if the address subscribes to the list.
+Returns the subscriber data if the address is subscribed to a list
+or auxiliary list.
 
 =cut
 sub is_subscriber {
@@ -720,9 +721,20 @@ sub should_ack {
   my $sublist = shift || 'MAIN';
   my $victim  = shift; 
   my $flag    = shift;
-  my ($data);
+  my ($data, $whereami, $whoami);
 
-  return 0 unless $victim->isvalid;
+  return 0 unless (ref ($victim) and $victim->isvalid);
+
+  # Do not ack if the message is allegedly from the list's address.
+  $whoami = $self->config_get('whoami');
+  return 0 if ($victim->canon eq $whoami);
+
+  if ($sublist ne 'MAIN') {
+    $whereami = $self->config_get('whereami');
+    return 0 
+      if ($victim->canon eq "$self->{'name'}-$sublist\@$whereami");
+  }
+
   $data = $self->get_member($victim, $sublist);
 
   unless (defined $data) {
