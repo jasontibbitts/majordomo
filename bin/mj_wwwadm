@@ -277,6 +277,7 @@ $request = {
     'mode'      => $mode,
     'password'  => ($func =~ /help|which|lists/)? '' : $passw, 
     'user'      => $user,
+    'st'        => $st,
 };
 if (function_prop($func, 'iter')) {
   $request->{'command'} .= '_start';
@@ -285,25 +286,34 @@ if (function_prop($func, 'iter')) {
 
 $file = Majordomo::tempname();
 $fh = new IO::File ">$file";
-for $req (@extra) {
-  Mj::Parser::parse_args($request, $req);
-  &{"Mj::Format::$func"}($mj, $fh, $fh, 'mjadm', $request,
-    $mj->dispatch($request));
-  print $fh "\n";
+if ($func ne 'showtokens') {
+  $fh->print("<pre><small>\n") unless ($func eq 'tokeninfo' or $func eq 'who');
+  if (function_prop($func, 'iter')) {
+    $request->{'command'} .= '_start';
+  }
+  for $req (@extra) {
+    Mj::Parser::parse_args($request, $req);
+    &{"Mj::Format::$func"}($mj, $fh, $fh, 'html', $request,
+      $mj->dispatch($request));
+    print $fh "\n";
+  }
+  $fh->print("</small></pre>\n") unless ($func eq 'tokeninfo' or $func eq 'who');
 }
 
-if ($st eq 'checked' and $passw ne '' and $func ne 'showtokens') {
+if ($passw and ($st eq 'checked' or $func eq 'showtokens')) {
+  # The password may have been omitted earlier.
   $request->{'password'} = $passw;
   $request->{'command'} = 'showtokens';
-  # present the result of the showtokens command
-  &{"Mj::Format::showtokens"}($mj, $fh, $fh, 'mjadm', $request,
+  Mj::Parser::parse_args($request, $req);
+  &{"Mj::Format::showtokens"}($mj, $fh, $fh, 'html', $request,
     $mj->dispatch($request));
 }
+$fh->print("<hr>For assistance, contact <a href=\"mailto:$serveradmin\">$serveradmin</a>\n");
 $fh->close();
 
-# process results of TextOutput
 &format_print($file);
 unlink $file;
+
 
 $::log->out;
 exit 0;
@@ -320,38 +330,111 @@ sub format_print {
     print STDOUT "<h3>Unable to get results</h3>\n";
     exit 0;
   }
-  print STDOUT "<pre>\n";
-  my %esc = ( '&'=>'amp', '"'=>'quot', '<'=>'lt', '>'=>'gt');
-  while ($line = <$fh>) {
-    $line =~ s/([<>\"&])/\&$esc{$1};/mg; 
-    $line =~ s/([\x80-\xFF])/'&#'.unpack('C',$1).';'/eg;
-    if ($line =~ /(Token  )(.*)/) {
-      print STDOUT <<EOM;
-</pre>
+  while ($fh->read($line, 4096)) {
+    print STDOUT $line;
+  }
+  1;
+}
+ 
+sub Mj::Format::showtokens {
+  my ($mj, $out, $err, $type, $request, $result) = @_;
+  my $log = new Log::In 29, "$request->{'list'}";
+  my ($cgiurl, $created, $data, $ok, $size, @time, $token, @tokens);
+  select STDOUT;
+  $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
+
+      print <<EOM;
 <form method=POST action=$cgiurl>
 <input type=submit name=func value="tokeninfo-full">
 <input type=submit name=func value="tokeninfo">
 <input type=submit name=func value="accept">
 <input type=submit name=func value="accept-archive">
 <input type=submit name=func value="reject">
-<input type=hidden name=st value=$st>
-<input type=hidden name=list value=$list>
-<input type=hidden name=passw value=$passw>
+<input type=hidden name=st value=$request->{'st'}>
+<input type=hidden name=list value=$request->{'list'}>
+<input type=hidden name=passw value=$request->{'password'}>
 <br>
-Choose one or more requests from the list below,
-then press one of the buttons above.
-<pre>
+Choose one or more requests from the following list,
+then press one of the buttons.
 EOM
-      $summarize = 1;
-      next;
+  ($ok, @tokens) = @$result;
+  print "<table>\n";
+  unless ($ok) {
+    print "<p>Error.  $tokens[0]\n";
+    return;
+  }
+  unless (@tokens) {
+    print "<p>No tokens for $request->{'list'}\n";
+    return;
+  }
+  while (@tokens) {
+    ($token, $data) = splice @tokens, 0, 2;
+    print "<tr>\n";
+    print "<td><input type=checkbox name=extra value=\"$token\">$token\n";
+    print "<td>$data->{'list'}\n" if ($request->{'list'} eq 'ALL');
+    if ($data->{'type'} eq 'consult') {
+      print "<td>O\n";
     }
-    elsif ($func eq 'tokeninfo' and $line =~ /^Information about the session /) {
-      print STDOUT "<small>\n";
-      $hdrs = 1;
+    else {
+      print "<td>S\n";
     }
-    elsif ($hdrs and $line =~ /^$/) {
-      print STDOUT "</small></pre>\n";
-      print STDOUT <<EOM;
+    $size = '';
+    if ($data->{'command'} eq 'post' and $data->{'size'}) {
+      $size = sprintf "(%d kB)", ($data->{'size'} + 512) / 1024;
+    }
+    print "<td>$data->{'command'} $size\n";
+    @time = localtime($data->{'time'});
+    $created = sprintf "%.2d-%.2d %.2d:%.2d:%.2d", 
+      $time[4]+1, $time[3], $time[2], $time[1], $time[0];
+    print "<td>$created\n";
+    print "<td>" . Mj::Format::escape($data->{'user'}) . "\n";
+  }
+      print <<EOM;
+</table>
+<input type=submit name=func value="tokeninfo-full">
+<input type=submit name=func value="tokeninfo">
+<input type=submit name=func value="accept">
+<input type=submit name=func value="accept-archive">
+<input type=submit name=func value="reject">
+</form>
+EOM
+} 
+
+sub Mj::Format::tokeninfo {
+  my ($mj, $out, $err, $type, $request, $result) = @_;
+  my $log = new Log::In 29, "$request->{'token'}";
+  my ($body, $chunk, $chunksize, $cgiurl, @reasons, $showspool, $time, $tmp, $user);
+  $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
+  my ($ok, $data, $sess) = @$result;
+  select STDOUT;
+
+  unless ($ok > 0) {
+    print "<p>Error. $data\n";
+    return $ok;
+  }
+  
+  $time = localtime($data->{'time'});
+  $user = Mj::Format::escape($data->{'user'});
+
+  print <<EOM;
+<table>
+<tr><td>Token  <td>$request->{'token'}
+<tr><td>Created<td>$time
+<tr><td>By     <td>$user
+<tr><td>Type   <td>$data->{'type'}
+<tr><td>Command<td>$data->{'cmdline'}
+EOM
+
+  if ($data->{'arg2'}) {
+    @reasons = split "\002", $data->{'arg2'};
+    for (@reasons) {
+      print "<tr><td>Reason<td>$_\n";
+    }
+  }
+
+  print "</table>\n";
+
+  print <<EOM;
 <form action=$cgiurl method=POST>
 <input type=submit name=func value=accept>
 <input type=submit name=func value=accept-archive>
@@ -360,48 +443,116 @@ EOM
 <input type=hidden name=list value=$list>
 <input type=hidden name=passw value=$passw>
 <input type=hidden name=st value=$st>
-</form>
-<pre>
 EOM
-      $hdrs = 0;
+
+  if ($sess) {
+    $request->{'command'} = "get_chunk";
+    $body = $showspool = 0;
+    $chunksize = $tmp =
+      $mj->global_config_get($request->{'user'}, $request->{'password'},
+                             $request->{'auth'}, 'mjadm', "chunksize");
+    if ($request->{'mode'} eq 'full' and $data->{'command'} eq 'post') {
+      $chunksize = 1;
+      $showspool = 1;
     }
-    # add link to tokeninfo if a token is present
-    elsif ($line =~ /^([0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4})/) {
-      $token = $1;
-      if ($token eq $extra) {
-        $line = "<input type=checkbox name=extra value=$token selected>$line";
+    print "<pre><small>\n";
+    while (1) {
+      ($ok, $chunk) = @{$mj->dispatch($request, $chunksize)};
+      last unless defined $chunk;
+      if ($showspool and !$body and $chunk =~ /^\r?\n/) {
+        $body = 1;
+        $chunksize = $tmp;
+        print "</small>\n";
       }
-      else {
-        $line = "<input type=checkbox name=extra value=$token>$line";
-      }
+      print $chunk;
     }
-    elsif ($func eq 'who' and $line =~ /(\S.*\@\S+)/) {
-      $line = "<input type=checkbox name=extra value=\"$1\">$line";
+    print "</small>" unless $showspool;
+    print "</pre>\n";
+
+    $request->{'command'} = "get_done";
+    $mj->dispatch($request);
+
+    if ($data->{'command'} eq 'post') {
+      print <<EOM;
+<input type=submit name=func value=accept>
+<input type=submit name=func value=accept-archive>
+<input type=submit name=func value=reject>
+EOM
     }
-    elsif ($func eq 'who' and $line =~ /^Members of list/) {
-      $line = <<EOM;
-</pre>
+
+  }
+
+  print "</form>\n";
+
+} 
+
+sub Mj::Format::who {
+  my ($mj, $out, $err, $type, $request, $result) = @_;
+  my $log = new Log::In 29, "$request->{'list'}";
+  my ($cgiurl, $chunksize, $count, $fullclass, $i, $lastchange);
+  my (@lines, $remove, @time, $user);
+  $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
+  $remove = $request->{'list'} eq 'GLOBAL' ? "unregister" : "unsubscribe";
+  select STDOUT;
+
+  my ($ok, $regexp, $tmpl) = @$result;
+  if ($ok <= 0) {
+    print "<p>Could not access $request->{'list'}:\n";
+    return $ok;
+  }
+  print <<EOM;
 <form action=$cgiurl method=POST>
 <input type=submit name=func value=$remove>
-<input type=hidden name=list value=$list>
-<input type=hidden name=passw value=$passw>
+<input type=hidden name=list value=$request->{'list'}>
+<input type=hidden name=passw value=$request->{'password'}>
 <input type=hidden name=st value=$st>
 <br>To remove addresses, choose one or more 
 addresses from the list below, then press the <b>$remove</b> button.
-<pre>
+<table>
 EOM
+  # We know we succeeded
+  $count = 0;
+  $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'}, 
+                                      $request->{'auth'}, $request->{'interface'},
+                                      "chunksize");
+  return unless $chunksize;  
+  while (1) {
+    ($ok, @lines) = @{$mj->dispatch($request, $chunksize)};
+    
+    last unless $ok > 0;
+    for $i (@lines) {
+      next unless (ref ($i) eq 'HASH');
+      if ($request->{'list'} ne 'GLOBAL') {
+        $fullclass = $i->{'class'};
+        $fullclass .= "-" . $i->{'classarg'} if ($i->{'classarg'});
+        $fullclass .= "-" . $i->{'classarg2'} if ($i->{'classarg2'});
+      }
+      else {
+        $i->{'lists'} =~ s/\002/ /g;
+      }
+      $user = Mj::Format::escape($i->{'fulladdr'});
+      @time = localtime($i->{'changetime'});
+      $lastchange = sprintf "%4d-%.2d-%.2d", $time[5]+1900, $time[4]+1, $time[3];
+
+      $count++;
+      print "<tr><td><input type=checkbox name=extra value=\"$i->{'stripaddr'}\">$user\n";
+      print "<td>$lastchange\n";
+
+      if ($request->{'list'} eq 'GLOBAL') {
+        print "<td>$i->{'lists'}\n";
+      }
+      else {
+        print "<td>$i->{'flags'}<td>$fullclass\n";
+      }
+        
+      if ($request->{'mode'} =~ /bounces/ && exists $i->{'bouncestats'}) {
+        print "<tr><td cols=4>Bounces in the past week: $i->{'bouncestats'}->{'week'}\n";
+      }
     }
-    elsif ($func eq 'who' and $line =~ /listed subscriber/) {
-      $line .= "</form>\n";
-    }
-    print STDOUT $line;
   }
-  $fh->close();
-  print STDOUT "</pre>\n";
-  print STDOUT "</form>\n" if $summarize;
-  print STDOUT <<EOM;
-</body></html>
-EOM
+  $request->{'command'} = "who_done";
+  $mj->dispatch($request);
+  print "</table></form>\n";
 }
 
 sub usage {
@@ -460,20 +611,46 @@ like this:
 <input type=hidden name=list value=$list>
 <input type=hidden name=passw value=yourpassword>
 <br>
-Choose one or more requests from the list below,
-then press one of the buttons above.
-<pre>
-<input type=checkbox name=extra value=13D7-C445-6A37>13D7-C445-6A37 post   2000-05-12 20:27:46 Someone You Know &lt;someone\@example.com&gt;
-<input type=checkbox name=extra value=8E49-E388-BADC>8E49-E388-BADC post   2000-05-13 10:27:46 Someone New &lt;unknown\@example.org&gt;
-2 tokens shown.
-</pre>
+Choose one or more requests from the following list,
+then press one of the buttons.
+<table>
+<tr>
+<td><input type=checkbox name=extra value=13D7-C445-6A37>13D7-C445-6A37
+<td>O
+<td>post (5 kB)
+<td>05-12 20:27:46 
+<td>Someone You Know &lt;someone\@example.com&gt;
+<tr>
+<td><input type=checkbox name=extra value=8E49-E388-BADC>8E49-E388-BADC
+<td>S
+<td>subscribe
+<td>05-13 10:27:46 
+<td>Someone New &lt;unknown\@example.org&gt;
+</table>
+<input type=submit name=func value="tokeninfo-full">
+<input type=submit name=func value="tokeninfo">
+<input type=submit name=func value="accept">
+<input type=submit name=func value="accept-archive">
+<input type=submit name=func value="reject">
 </form>
-In the list of requests, the first column lists the "token ID," which 
-is unique to that request.  Next is the type of request.  Generally,
-<b>subscribe</b> and <b>set</b> requests need to be confirmed by
-the subscribers themselves, but any other request should be handled 
-by the list owners.  The remaining columns contain the date of
+
+<ul>
+<li>The first column has a checkbox and
+the "token identifier," which is unique to that request.  
+Checkboxes allow more than one request to be handled at once.
+
+<li>Generally, <b>subscribe</b> and <b>set</b> requests need 
+to be confirmed by the subscribers themselves, but any other request 
+should be handled by the list owners.  This is indicated 
+in the second column by an <b>O</b> (the owners must approve) 
+or an <b>S</b> (the subscriber must approve). 
+
+<li>The third column shows the type of request.
+
+<li>The remaining columns contain the date of
 the request and the e-mail address of the person who made it.
+</ul>
+
 <p>
 There are five buttons available to deal with pending requests.
 <ol>
