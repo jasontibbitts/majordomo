@@ -360,8 +360,15 @@ sub showdata {
     <td align=center><select name="$i:delivery">
 EOM
     for $j (qw (each digest nomail)) {
-      print $class eq $Mj::List::classes{$j}->[2] ? 
-        "<option selected> $j\n" : "<option> $j\n";
+      if ($class eq $Mj::List::classes{$j}->[2]) {
+        print "<option selected> $j\n"; 
+      }
+      elsif ($class =~ /text|index|mime/ and $j eq 'digest') {
+        print "<option selected> $j\n";
+      }
+      else {
+        print "<option> $j\n";
+      }
     }
     print "</select>\n";
     for $j (split(',',$lflags)) {
