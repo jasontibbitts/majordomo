@@ -3,27 +3,33 @@ configset  GLOBAL  archive_url = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset listname archive_url = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : 
+Default Value : empty
 Data Type     : string
 Category      : archive
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname archive_url = http://www.mydomain.org/archives/
+configset listname archive_url = http://www.example.org/archives/
 
 
-The URL at which public list archives are made accessible.
+$INCLUDE-config/archive_url
 
-The URL can be used in variable substitution if the ARCURL variable
-is added to message headers (see "help configset message_headers"),
-to support RFC 2369. It is also used by the WWW interface (mj_wwwusr).
+If your mailing list has an internet-accessible archive that is not
+maintained by Majordomo, the archive_url setting can be used to display
+its location.  The location is usually a uniform resource locator for a
+WWW page or FTP directory.
+
+The archive_url location is displayed by the lists-full command.  It can
+also be used in the message_headers configuration setting using the
+ARCURL substitution variable.
 
 
 See Also:
-   help variables (for a list of all possible variables and what they mean)
-   help configset message_headers    (to put this string into post headers)
+   help admin_delivery
+   help archive
+   help configset_message_headers 
+   help lists
+   help variables (for a description of the ARCURL variable)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
