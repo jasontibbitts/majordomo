@@ -21,9 +21,9 @@ use IO::File;
 use Mj::Log;
 use strict;
 
-#use AutoLoader 'AUTOLOAD';
+use AutoLoader 'AUTOLOAD';
 1;
-#__END__
+__END__
 
 =head2 build
 
@@ -96,11 +96,11 @@ sub build_mime {
     {
       no strict 'refs';
       $func = "idx_$args{'index_line'}";
-      $indexh->print(&$func($args{'type'}, $i, $data));
+      $indexh->print(&$func($args{'type'}, $msg, $data));
     }
     $tmp = build MIME::Entity
       (Type        => 'message/rfc822',
-       Description => "$i",
+       Description => "$msg",
        Path        => $file,
        Filename    => undef,
       );
@@ -243,4 +243,3 @@ detailed information.
 ### Local Variables: ***
 ### cperl-indent-level:2 ***
 ### End: ***
-

@@ -326,6 +326,7 @@ sub _post {
   # Make duplicate archive/digest entity
   $arcent = $ent->dup;
   $archead = $arcent->head;
+  $archead->unfold;
 
   # Convert/drop MIME parts.  Bill?
   
@@ -356,7 +357,7 @@ sub _post {
   close FINAL;
 
   # Pass to archive.  XXX Is $user good enough, or should we re-extract?
-  $subject = $archead->get('subject'); chomp $subject;
+  $subject = $archead->get('subject') || ''; chomp $subject;
   ($msgnum, $arcdata) = $self->{'lists'}{$list}->archive_add
     ($file,
      undef,

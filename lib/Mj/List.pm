@@ -140,9 +140,9 @@ sub _file_path {
   }
 }
 
-#use AutoLoader 'AUTOLOAD';
+use AutoLoader 'AUTOLOAD';
 1;
-#__END__
+__END__
 
 #################################
 

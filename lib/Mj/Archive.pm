@@ -42,9 +42,9 @@ use vars qw(@index_fields);
 @index_fields = qw(byte bytes line lines body_lines quoted split date from
 		   subject refs);
 
-#use AutoLoader 'AUTOLOAD';
+use AutoLoader 'AUTOLOAD';
 1;   
-#__END__
+__END__
 
 =head2 new(directory, listname, split, size)
 

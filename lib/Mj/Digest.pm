@@ -25,9 +25,9 @@ use IO::File;
 use Mj::Log;
 use strict;
 
-#use AutoLoader 'AUTOLOAD';
+use AutoLoader 'AUTOLOAD';
 1;
-#__END__
+__END__
 
 =head2 new(archive, dir, digestdata)
 

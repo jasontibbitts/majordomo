@@ -1,3 +1,16 @@
+Wed Oct 14 16:51:35 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* Various: turn autoloading back on.
+	
+	* lib/Mj/Digest/Build.pm (build_mime): Print the message number
+ 	instead of the raw message, which might be a listref instead of a
+ 	string.
+	
+	* lib/Mj/Resend.pm (_post): Allow for the possibility of an
+ 	undefined subject.
+	(_post): Unfold the archive header to prevent newlines from
+ 	sneaking in.
+
 Tue Oct 13 15:53:46 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Majordomo.pm (config_get_vars): Neglected to make Mj::Addr
