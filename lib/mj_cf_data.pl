@@ -487,7 +487,7 @@ EOC
     'groups' => ['lists'],
     'visible'=> 0,
     'local'  => 1,
-    'mutable'=> 0,
+    'mutable'=> 1,
     'comment'=> <<EOC,
 This is the list description that appears in the long listing.  Each line
 should be no longer than 50 characters in order to fit on the average
@@ -577,7 +577,7 @@ EOC
    'max_mime_header_length' =>
    {
     'type'   => 'integer',
-    'groups' => 'resend',
+    'groups' => ['resend'],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,

@@ -247,7 +247,7 @@ sub post_start  {
   my $log  = new Log::In 30, "$list";
 
   my $tmp  = $self->_global_config_get('tmpdir');
-  my $file = "$tmp/post." . $self->unique;
+  my $file = "$tmp/post." . Majordomo::unique();
   $self->{'post_file'} = $file;
   $self->{'post_fh'} = new IO::File ">$file" or
     $log->abort("Can't open $file, $!");

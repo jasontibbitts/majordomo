@@ -556,7 +556,7 @@ sub t_accept {
   
   # First make a tempfile
   $tmp = $self->_global_config_get("tmpdir");
-  $tmp = "$tmp/mj-tmp." . $self->unique;
+  $tmp = "$tmp/mj-tmp." . Majordomo::unique();
   $outfh = new IO::File ">$tmp";
 
   # Print some introductory info into the file, so the user is not

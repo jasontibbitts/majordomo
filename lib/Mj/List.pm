@@ -20,7 +20,7 @@ handling all archiving and digesting aspects of the list.
 =cut
 
 package Mj::List;
-use AutoLoader 'AUTOLOAD';
+#use AutoLoader 'AUTOLOAD';
 
 use strict;
 use Safe;  # For evaluating the address transforms
@@ -142,7 +142,7 @@ sub _file_path {
 }
 
 1;
-__END__
+#__END__
 
 #################################
 
@@ -1091,8 +1091,8 @@ sub _make_digest {
   return 1 if $self->{'digest'};
   $self->_make_archive;
 
-  $self->{'digest'} = new Mj::Digest($self->{'ldir'},
-				     $self->{'archive'},
+  $self->{'digest'} = new Mj::Digest($self->{'archive'},
+				     $self->{'ldir'},
 				     $self->config_get('digests'),
 				    );
 }
@@ -1288,9 +1288,20 @@ sub archive_expand_range {
 
 These functions interface with the list''s Digest object.
 
+=head2 build_digest
+
+Builds a digest.
+XXXX Currently a hack.
+
+=cut
+sub build_digest {
+  my $self = shift;
+  $self->_make_digest;
+
+  $self->{'digest'}->build_mime(messages => [@_])
+}
+
 =head1 COPYRIGHT
-
-
 
 Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.

@@ -98,7 +98,7 @@ sub parse_entity {
     }
     
     # Open a file to stuff the output in
-    $name = "$tmpdir/mje." . $mj->unique . ".out";
+    $name = "$tmpdir/mje." . Majordomo::unique() . ".out";
     $outfh = new IO::File "> $name" ||
       $::log->abort("Hosed! Couldn't open output file $name, $!");
     
@@ -156,7 +156,7 @@ sub parse_part {
       $password, $pend_count, $replacement, $tlist, $true_command,
       $unk_count);
 
-  $count = $ok_count = $pend_count = $fail_count = $unkj_count = $garbage = 0;
+  $count = $ok_count = $pend_count = $fail_count = $unk_count = $garbage = 0;
 
  CMDLINE:
   while (defined($_ = $inhandle->getline)) {

@@ -68,7 +68,7 @@ sub mail_entity {
   my ($fh, $tmpdir, $tmpfile);
 
   $tmpdir = $self->_global_config_get("tmpdir");
-  $tmpfile = "$tmpdir/mj-tmp." . $self->unique;
+  $tmpfile = "$tmpdir/mj-tmp." . Majordomo::unique();
   
   $fh = new IO::File "> $tmpfile" || $::log->abort("Can't open $tmpfile, $!");
   $entity->print($fh);
@@ -142,7 +142,7 @@ sub owner_start {
   my $log  = new Log::In 30, "$list";
 
   my $tmp  = $self->_global_config_get('tmpdir');
-  my $file = "$tmp/post." . $self->unique;
+  my $file = "$tmp/post." . Majordomo::unique();
   $self->{'owner_file'} = $file;
   $self->{'owner_fh'} = new IO::File ">$file" or
     $log->abort("Can't open $file, $!");
@@ -268,7 +268,7 @@ sub welcome {
     $head->replace('to',      $addr);
     $head->replace('subject', $mess[$i]{'subject'});
     $head->replace('from',    $whoami);
-    $final = "$tmpdir/mj-tmp." . $self->unique;
+    $final = "$tmpdir/mj-tmp." . Majordomo::unique();
     open FINAL, ">$final" ||
       $::log->abort("Cannot open file $final, $!");
     $top->print(\*FINAL);

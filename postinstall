@@ -251,7 +251,6 @@ sub create_dirs {
 # Set basic config vars
 sub do_config {
   my $dom = shift;
-  # Do everything from the global $config
   my(@args, $arg, $errcount, $i, $ignore, $msg, $pw);
 
   # Prompt for the password if necessary
@@ -291,7 +290,7 @@ sub do_config {
     print if $verb;
     dot if /^>>>> / && !$verb;
     if (/^\*\*\*\* / && !/Password does not authorize .* to alter master_password./) {
-      print;
+      print unless $verb;
       $errcount++;
     }
   }

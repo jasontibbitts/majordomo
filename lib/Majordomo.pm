@@ -78,10 +78,11 @@ package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform);
 $VERSION = "0.1199809201";
+$unique = 'AAA';
 
 use strict;
 no strict 'refs';
-use vars (qw($safe $indexflags));
+use vars (qw($indexflags $safe $tmpdir $unique));
 use IO::File;
 use Mj::Log;
 use Mj::List;
@@ -131,8 +132,6 @@ sub new {
   $self->{'sitedir'}= "$topdir/SITE";
   $self->{'domain'} = $domain;
   $self->{'lists'}  = {};
-  $self->{'unique'} = 'AAA';
-
 
   unless (-d $self->{'ldir'}) {
     return "The domain '$domain' does not exist!";
@@ -171,6 +170,9 @@ sub new {
     $safe = new Safe;
 #    $safe->reval('$^W=0');
     $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
+  }
+  unless (defined($tmpdir)) {
+    $tmpdir = $self->_global_config_get('tmpdir');
   }
 
   $self;
@@ -435,8 +437,8 @@ sub substitute_vars {
   my %subs = @_;
   my ($tmp, $in, $out, $i);
 
-  $tmp = $self->_global_config_get("tmpdir");
-  $tmp = "$tmp/mj-tmp." . $self->unique;
+  $tmp = $tmpdir;
+  $tmp = "$tmp/mj-tmp." . unique();
   $in  = new Mj::File "$file"
     || $::log->abort("Cannot read file $file, $!");
   $out  = new IO::File ">$tmp"
@@ -474,26 +476,18 @@ to generate temporary filenames in the configured temporary directory.
 
 =cut
 sub unique {
-  my $self = shift;
-
-  my $unique = "$$.$self->{'unique'}";
-  $self->{'unique'}++;
-  $unique;
+  my $tmp = "$$.$unique";
+  $unique++;
+  $tmp;
 }
 
 sub unique2 {
-  my $self = shift;
-
-  my $unique = $self->{'unique'};
-  $self->{'unique'}++;
+  $unique++;
   $unique;
 }
 
 sub tempname {
-  my $self = shift;
-
-  my $tmp = $self->_global_config_get("tmpdir");
-  return "$tmp/mj-tmp." . $self->unique;
+ "$tmpdir/mj-tmp." . unique();
 }
 
 =head2 _reg_add($addr, %args)
@@ -1012,15 +1006,16 @@ sub _list_config_set {
   my $self = shift;
   my $list = shift;
   my $var  = shift;
-  my (@out);
+  my (@out, $type);
 
   $list = 'GLOBAL' if $list eq 'ALL';
   $self->_make_list($list);
   @out = $self->{'lists'}{$list}->config_set($var, @_);
 
+  $type = $self->config_get_type($var);
   if ($out[0] == 1) {
     # Now do some special stuff depending on the variable
-    if ($self->config_get_type($var) eq 'password') {
+    if ($type eq 'pw' || $type eq 'passwords') {
       $self->_build_passwd_data($list, 'force');
     }
   }
@@ -2347,7 +2342,7 @@ sub archive {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $vict, @args) = @_;
   my $log = new Log::In 30, "$list, @args";
-  my (@msgs, $i, $out);
+  my (@msgs, $ent, $i, $msgs, $out);
 
   $self->_make_list($list);
 
@@ -2362,9 +2357,17 @@ sub archive {
       $self->{'lists'}{$list}->archive_get_done;
       return (1, $out);
     }
-    else { # Not immediate
-      @msgs = $self->{'lists'}{$list}->archive_expand_range(@args);
-    }
+    # Else not immediate
+    @msgs = $self->{'lists'}{$list}->archive_expand_range(0, @args);
+
+    # Build a digest; gives back an entity
+    ($ent, $msgs) = $self->{'lists'}{$list}->build_digest(@msgs);
+
+    # Mail the entity out to the victim
+    $owner = $self->_list_config_get($list, 'sender');
+    $self->mail_entity($owner, $ent, $vict);
+    $ent->purge;
+    return (1, "A digest containing $msgs messages has been mailed.\n");
   }
 
   elsif ($mode =~ /index/) {

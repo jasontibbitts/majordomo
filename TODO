@@ -23,11 +23,15 @@ Top of the list
 ---------------
 
 ! Archiver:
-    Retrieve message given archive name and number
     Retrieve last N messages/message numbers from archive
     Build index from existing file (sync)
     Delete message from archive?
     Automatically add meaningful description to created archive files.
+
+    Search the archive
+    Get an index of the archive.
+    How to specify the time period here?  Two dates?  Leave one and it goes
+     from then to now.
 
 ! Digest:
     Trigger parameters:

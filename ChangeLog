@@ -1,3 +1,42 @@
+Wed Sep 30 16:55:40 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (_list_config_set): The type of the
+ 	master_password variable is 'pw' not 'password'.  Also compare
+ 	against 'passwords' to catch sub-password changes.
+
+	* lib/Mj/Parser.pm (parse_part): Fix typo.
+
+	* postinstall (do_config): Don't print errors a second time if in
+ 	verbose mode.
+
+	* lib/mj_cf_data.pl: Fix typo in max_header_line_length.  Make
+ 	description_long mutable.
+
+Tue Sep 29 00:11:39 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (archive): Split arguments on spaces.
+
+	* lib/Majordomo.pm (new):
+	  (substitute_vars):
+	  (tempname): 
+            Make $tmpdir a package global.
+
+Mon Sep 28 21:11:28 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Archive.pm (get_to_file): New function: extract a message into a file.
+
+	* lib/Majordomo.pm:
+	  (substitute_vars): 
+	  (unique): 
+	* lib/Mj/Token.pm (t_accept): 
+	* lib/Mj/TextOutput.pm (configshow): 
+	* lib/Mj/Resend.pm (post_start): 
+	* lib/Mj/Parser.pm (parse_entity): 
+	* lib/Mj/MailOut.pm (mail_entity): 
+	  (welcome): 
+	  (owner_start): 
+             Make $unique a package global.
+
 Thu Sep 24 22:39:19 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* bin/mj_shell: Die if Majordomo::new gave back a string instead

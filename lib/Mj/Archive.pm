@@ -92,8 +92,15 @@ sub new {
   $dh = new DirHandle $dir;
   return undef unless defined $dh;
   while (defined($_ = $dh->read)) {
-    if (/^$list\./) {
-      $self->{'archives'}{$_} = {};
+    if (s/^$list\.//) {
+      $self->{'splits'}{$_} = {};
+      $_ =~ /(.*)-\d\d/;
+      if ($1) {
+	$self->{'archives'}{$1} = {};
+      }
+      elsif ($split eq 'unlimited') {
+	$self->{'archives'}{$_} = {};
+      }
     }
   }
   return $self;
@@ -141,21 +148,20 @@ sub add {
   $data->{'split'} = '';
 
   $dir = $self->{'dir'};
-  $arc = $self->{list}. '.'. _arc_name($self->{'split'}, $data->{'time'});
+  $arc = _arc_name($self->{'split'}, $data->{'time'});
 
   # Determine the proper count if necessary; don't bother if unlimited;
   # otherwise, take the last existing one and check to make sure it will
   # fit.
   unless ($self->{size} eq 'unlimited') {
     $count = "00";
-
     # Check to see whether we already have archives from this month
-    if ($self->{'archives'}{"$arc-$count"}) {
+    if ($self->{'splits'}{"$arc-$count"}) {
 
       # Figure out which count to use; take the last file in the list and
       # extract the count from it
       $sub = (grep(/^$arc-\d\d/,
-		   sort(keys(%{$self->{'archives'}})))
+		   sort(keys(%{$self->{'splits'}})))
 	     )[-1] || "$arc-$count";
 
       $sub =~ /.*-(\d\d)/; $count = $1;
@@ -164,12 +170,12 @@ sub add {
       # description if creating a new one.
       $self->_read_counts($sub);
       if ($self->{size} =~ /(\d+)k/) {
-	$count++ if $self->{archives}{$sub}{bytes} &&
-	  $data->{bytes} + $self->{archives}{$sub}{bytes} > $1 * 1024;
+	$count++ if $self->{splits}{$sub}{bytes} &&
+	  $data->{bytes} + $self->{splits}{$sub}{bytes} > $1 * 1024;
       }
       if ($self->{size} =~ /(\d+)m/) {
-	$count++ if $self->{archives}{$sub}{msgs} &&
-	  $self->{archives}{$sub}{msgs}+1 > $1;
+	$count++ if $self->{splits}{$sub}{msgs} &&
+	  $self->{splits}{$sub}{msgs}+1 > $1;
       }
     }
   }
@@ -182,7 +188,7 @@ sub add {
 
   # Open and lock the subarchive; we're now in a critical section
   $fh = new Mj::File;
-  $fh->open("$dir/$sub", ">>");
+  $fh->open("$dir/$self->{'list'}.$sub", ">>");
   $data->{'byte'} = $fh->tell;
 
   # Grab the overall counts for the archive XXX Add force option to
@@ -192,15 +198,15 @@ sub add {
 
   # Figure out the proper message number, which is from the unsplit count
   # file.
-  $msgno = $self->{archives}{$arc}{msgs}+1;
+  $msgno = $self->{splits}{$arc}{msgs}+1;
 
   # Find the starting line of the new message
-  $data->{line} = $self->{archives}{$sub}{lines}+1;
+  $data->{line} = $self->{splits}{$sub}{lines}+1;
 
   # Instantiate the index; implicitly use text (or 'none' if we supported
   # it) here
   unless ($self->{'indices'}{$arc}) {
-    $self->{'indices'}{$arc} = new Mj::SimpleDB("$dir/.index/I$arc",
+    $self->{'indices'}{$arc} = new Mj::SimpleDB("$dir/.index/I$self->{'list'}.$arc",
 						'text', \@index_fields);
   }
 
@@ -220,7 +226,7 @@ sub add {
 
   # Copy in the message
   $th = new IO::File "<$file";
-  $log->abort("Coundn't read message file $file: $!") unless $th;
+  $log->abort("Couldn't read message file $file: $!") unless $th;
   while (defined ($_ = $th->getline)) {
     # XXX Error check the print
     $fh->print($_);
@@ -238,12 +244,12 @@ sub add {
 
   # Print out the new count files; additionally do the main archive if
   # splitting by size.
-  $self->{archives}{$sub}{lines} += $data->{lines};
-  $self->{archives}{$sub}{msgs}++;
+  $self->{splits}{$sub}{lines} += $data->{lines};
+  $self->{splits}{$sub}{msgs}++;
   $self->_write_counts($sub);
   if ($arc ne $sub) {
-    $self->{archives}{$arc}{lines} += $data->{lines};
-    $self->{archives}{$arc}{msgs}++;
+    $self->{splits}{$arc}{lines} += $data->{lines};
+    $self->{splits}{$arc}{msgs}++;
     $self->_write_counts($arc);
   }
 
@@ -357,6 +363,96 @@ sub get_done {
   undef $self->{get_handle};
 }
 
+=head2 get_to_file(message, filename)
+
+Retrieves a message from the archive and places it in the given file, which
+must be writable.  If a filename is not provided, one is generated
+randomly.
+
+=cut
+sub get_to_file {
+  my $self = shift;
+  my $msg  = shift;
+  my $file = shift || Majordomo::tempname();
+  my $data = $self->get_message($msg);
+  return unless $data;
+  my $fh =   new IO::File ">$file";
+  my $chunk;
+
+  while (defined($chunk = $self->get_chunk(1000))) {
+    $fh->print($chunk);
+  }
+  $self->get_done;
+  $fh->close;
+  ($data, $file);
+}
+
+=head2 last_message(archive)
+
+Returns the name of the last message in an archive.
+
+If $archive is undef, this looks up the last message in the archive,
+period.
+
+=cut
+sub last_message {
+  my $self = shift;
+  my $arc  = shift;
+
+  unless ($arc) {
+    # Pick out the last archive in the list and strip the count and list
+    # from it
+    $arc = (sort(keys(%{$self->{'archives'}})))[-1];
+  }
+
+  # Read the counts for this archive
+  $self->_read_counts($arc);
+
+  # Take the maximum count and build a message name
+  return "$arc/$self->{'splits'}{$arc}{'msgs'}";
+}
+
+=head2 last_n(count, archive)
+
+Returns the last count message names from the archive.
+
+=cut
+sub last_n {
+  my $self = shift;
+  my $n    = shift;
+  my $arc  = shift;
+  my (@arcs, @msgs, $msg, $num);
+
+  if ($arc) {
+    @arcs  = sort(grep {$_ < $arc} keys(%{$self->{'archives'}}));
+  }
+  else {
+    @arcs  = sort(keys(%{$self->{'archives'}}));
+  }
+
+  use Data::Dumper; print Dumper \@arcs;
+  
+  $arc ||= pop @arcs;
+
+  $msg = $self->last_message($arc);
+  ($num) = $msg =~ m!\d+/(\d+)!;
+  while (1) {
+    unshift @msgs, "$arc/$num";
+    $n--;
+    last unless $n>0;
+    $num--;
+    unless ($num > 0) {
+      # Move to previous archive.
+      $arc = pop @arcs;
+      # Set $num to its last message
+      $num = $self->last_message($arc);
+    }
+  }
+  @msgs;
+}
+
+  
+
 =head2 find_line
 
 Returns the number of the message containing the given line.
@@ -440,26 +536,28 @@ sub _read_counts {
   my $file = shift;
   my $dir = $self->{dir};
   my $log = new Log::In 200, "$file";
-  my ($fh, $tmp);
+  my ($fh, $list, $tmp);
 
-  return if defined $self->{archives}{$file}{bytes};
+  return if defined $self->{splits}{$file}{bytes};
 
-  if (-f "$dir/.index/C$file") {
-    $self->{archives}{$file}{bytes} = (stat("$dir/$file"))[7];
-    $fh = new IO::File "<$dir/.index/C$file";
-    $log->abort("Can't read count file $dir/.index/C$file: $!") unless $fh;
+  $list = $self->{'list'};
+
+  if (-f "$dir/.index/C$list.$file") {
+    $self->{splits}{$file}{bytes} = (stat("$dir/$list.$file"))[7];
+    $fh = new IO::File "<$dir/.index/C$list.$file";
+    $log->abort("Can't read count file $dir/.index/C$list.$file: $!") unless $fh;
     $tmp = $fh->getline;
     chomp $tmp;
-    $self->{archives}{$file}{lines} = $tmp;
+    $self->{splits}{$file}{lines} = $tmp;
     $tmp = $fh->getline;
     chomp $tmp;
-    $self->{archives}{$file}{msgs} = $tmp;
+    $self->{splits}{$file}{msgs} = $tmp;
     $fh->close;
   }
   else {
-    $self->{'archives'}{$file}{bytes} = 0;    
-    $self->{'archives'}{$file}{lines} = 0;
-    $self->{'archives'}{$file}{msgs}  = 0;
+    $self->{'splits'}{$file}{bytes} = 0;    
+    $self->{'splits'}{$file}{lines} = 0;
+    $self->{'splits'}{$file}{msgs}  = 0;
   }
 }
 
@@ -474,14 +572,15 @@ sub _write_counts {
   my $file  = shift;
   my $dir   = $self->{dir};
   my $log   = new Log::In 200, "$file";
-  my ($fh);
+  my ($fh, $list);
 
-  $fh = new IO::File ">$dir/.index/C$file";
-  $log->abort("Can't write count file $dir/.index/C$file: $!") unless $fh;
-  $fh->print("$self->{archives}{$file}{lines}\n") ||
-    $log->abort("Can't write count file $dir/.index/C$file: $!");
-  $fh->print("$self->{archives}{$file}{msgs}\n") ||
-    $log->abort("Can't write count file $dir/.index/C$file: $!");
+  $list = $self->{'list'};
+  $fh = new IO::File ">$dir/.index/C$list.$file";
+  $log->abort("Can't write count file $dir/.index/C$list.$file: $!") unless $fh;
+  $fh->print("$self->{splits}{$file}{lines}\n") ||
+    $log->abort("Can't write count file $dir/.index/C$list.$file: $!");
+  $fh->print("$self->{splits}{$file}{msgs}\n") ||
+    $log->abort("Can't write count file $dir/.index/C$list.$file: $!");
   $fh->close;
 }
 
@@ -502,9 +601,15 @@ Takes a range of articles and expands it into a list of articles.
 * By named messages:
     199805/12 199805/15
 
+  By a message count:
+     10
+
   By a range of names:
     199805/12 - 199805/20
 
+  By a message and a count:
+     199805/12 - 10
+  
   Ranges of names can span dates:
     199805/12 - 199806/2
 
@@ -529,7 +634,6 @@ sub expand_range {
   # Walk the arg list
   while (defined($i = shift(@args))) {
     return @out if $lim && $#out > $lim;
-
     # Skip commas and bomb on dashes
     next if $i eq ',';
     return if $i eq '-';
@@ -540,7 +644,7 @@ sub expand_range {
     # Do we have a message or a date?
     if ($i =~ m!/!) {
       # Message: look beyond for a range, grab it, expand it
-      if ($args[0] eq '-') {
+      if (@args && $args[0] eq '-') {
 	# Parse message range
 	shift @args; $j = shift @args;
 	push @out, $self->_parse_message_range($i, $j);
@@ -550,7 +654,7 @@ sub expand_range {
       }
     }
     else {
-      if ($args[0] eq '-') {
+      if (@args && $args[0] eq '-') {
 	# Date range: expand to list of dates, unshift dates into args
 	shift @args; $j = shift @args;
 	unshift @args, $self->_expand_date_range($i, $j);

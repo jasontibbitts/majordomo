@@ -20,14 +20,14 @@ and turned into a digest message which is sent to the proper recipients.
 =cut
 
 package Mj::Digest;
-use AutoLoader 'AUTOLOAD';
 
-use Mj::File;
+use IO::File;
 use Mj::Log;
 use strict;
 
+#use AutoLoader 'AUTOLOAD';
 1;
-__END__
+#__END__
 
 =head2 new(archive, dir, datahashref)
 
@@ -51,6 +51,8 @@ sub new {
 
   # Open state file if it exists
 
+  $self->{'archive'} = $arc;
+  $self->{'dir'}     = $dir;
   return $self;
 }
 
@@ -93,34 +95,91 @@ sub trigger {
 
 }
 
-=head2 build
+=head2 build(%args)
 
 This actually builds the digest, given a list of message numbers.
 
-First the index block is created, then this is passed to the individual
-build_start methods.  Then each message is extracted form the archive and
-passed to the build_one methods.  Then the build_done methods are called,
-and the resultant filenames are passed out for eventual delivery.
+
+ type     => the type of digest to build: MIME, 1153, HTML, index
+ subject  => the subject header to be used
+ messages => a listref of messages to build the digest out of 
 
 =cut
-;
+sub build {
 
-=head2 build_mime_start
+
+
+
+
+}
+
+=head2 build_mime
+
+This builds a MIME digest.  These have the following structure:
+
+  multipart/mixed
+    text/plain       - Index
+    multipart/digest - Messages
+      message/rfc822
+      message/rfc822
+      ...
 
 =cut
-;
+use MIME::Entity;
+use Data::Dumper;
+sub build_mime {
+ my $self = shift; 
+ my %args = @_;
+ my (@msgs, $count, $data, $digest, $file, $i, $index, $indexf, $indexh,
+     $tmp, $top);
 
-=head2 build_mime_one
+ $count = 0;
+ $top = build MIME::Entity
+   (Type     => 'multipart/mixed',
+    Subject  => $args{'subject'} || '',
+    Filename => undef,
+    # More fields here
+   );
+ $digest = build MIME::Entity
+   (Type     => 'multipart/digest',
+    Filename => undef,
+   );
 
-=cut
-;
+ $indexf = Majordomo::tempname();
+ $indexh = new IO::File ">$indexf";
+ $indexh->print("Custom digest\n\n");
 
-=head2 build_mime_done
+ # Extract all messages from the archive into files, building them into
+ # entities and generating the index file.
+ for $i (@{$args{'messages'}}) {
+   ($data, $file) = $self->{'archive'}->get_to_file($i);
+   unless ($data) {
+     $indexh->print("Message $i not in archive.\n\n");
+     next;
+   }
+   $count++;
+   $indexh->print("Message $i:\n", Dumper($data), "\n\n");
+   $tmp = build MIME::Entity
+     (Type        => 'message/rfc822',
+      Description => "$i",
+      Path        => $file,
+      Filename    => undef,
+     );
+   $digest->add_part($tmp);
+ }
 
-This builds a MIME-style digest.
-
-=cut
-;
+ # Build index entry.
+ $indexh->close;
+ $index = build MIME::Entity
+   (Type        => 'text/plain',
+    Description => 'Index',
+    Path        => $indexf,
+    Filename    => undef,
+   );
+ $top->add_part($index);
+ $top->add_part($digest);
+ ($top, $count);
+}
 
 =head2 build_1153_start
 =head2 build_1153_one

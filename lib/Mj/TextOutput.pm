@@ -124,13 +124,13 @@ sub archive {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27;
-
+  my @args  = split(" ", $args);
   my @stuff = ($user, $passwd, $auth, $interface,
 	       "archive".($mode?"-$mode":"")." $args", $mode, $list,
 	       $user);
 
   Mj::Format::archive($mj, $outfh, $outfh, 'text', @stuff, $args, '', '',
-		      $mj->dispatch('archive', @stuff, $args));
+		      $mj->dispatch('archive', @stuff, @args));
 }
 
 
@@ -305,7 +305,7 @@ sub configshow {
     }
     if ($mj->config_get_isarray($var)) {
       # Process as an array
-      $tag = $mj->unique2;
+      $tag = Majordomo::unique2();
       print $outfh "configset $list $var \<\< END$tag\n";
       for ($mj->list_config_get($user, $passwd, $auth, $interface,
 				$list, $var, 1))
