@@ -35,7 +35,7 @@ use IO::File;
 use Getopt::Long;
 
 use vars qw(%opts $log_entries $log_level $program_name);
-my (@cmdfiles, @in, $dom, $editor, $fh, $go, $i, $id, $infile, 
+my (@cmdfiles, @in, $dom, $editor, $fh, $go, $i, $id, $infile, $infh,
     $lang, $list, $mess, $ok, $passw, $result, $tlist, $tmpg, $tmpu, $top);
 
 $| = 1;
@@ -63,8 +63,8 @@ umask oct($::UMASK);
 Getopt::Long::config('no_ignore_case', 'bundling');
 
 %opts = (ornaments => 1, aliascomplete => 0);
-GetOptions(\%::opts, 'D', 'd=s', 'F=s' => \@cmdfiles, 'f=s@', 'l=s@', 
-           'p=s', 'R', 't=s', 'u=s', 'Z', 'id', 
+GetOptions(\%::opts, 'D', 'd=s', 'F=s' => \@cmdfiles, 'f=s@', 'l=s@',
+           'p=s', 'R', 't=s', 'u=s', 'Z', 'id',
            'lockdir=s', 'ornaments!', 'aliascomplete!');
 
 #print Dumper \%opts;
@@ -159,7 +159,10 @@ if ($opts{f}) {
       die "Can't open STDIN??? $!" unless $in[$i];
     }
     else {
-      $in[$i] = IO::File->new($opts{f}[$i]) || die "Can't open $opts{f}[$i]: $!";
+      privs_user();
+      $in[$i] = IO::File->new($opts{f}[$i]);
+      privs_mj();
+      die "Can't open $opts{f}[$i]: $!" unless $in[$i];
     }
   }
 }
@@ -191,10 +194,14 @@ unless ($id) {
 # parsing now.
 if (@cmdfiles) {
   for $i (@cmdfiles) {
-    my $infh = IO::File->new($i) || die "Can't open $i $!";
+    privs_user();
+    $infh = IO::File->new($i);
+    privs_mj();
+    die "Can't open $i: $!" unless $infh;
     $result = parse_file($infh, $i, \@in, $user, $passw);
   }
 }
+
 # If we don't have any arguments left and we weren't given a command file,
 # we're to run interactively
 elsif (@ARGV == 0) {
@@ -218,7 +225,7 @@ exit 1;
 # A simple interactive routine.
 sub parse_interactive {
   my ($in, $pass) = @_;
-  my ($args, @arglist, $cmd, $cmdline, $defaults, $features, $go, 
+  my ($args, @arglist, $cmd, $cmdline, $defaults, $features, $go,
       $prompt, $res, $term);
 
   $^W = 0;
@@ -230,7 +237,7 @@ sub parse_interactive {
   $features = $term->Features;
   $term->ornaments(1) if $features->{ornaments} && $opts{ornaments};
   $readline::rl_completion_function = # Shut up warnings...
-    $readline::rl_completion_function = '::completer'; 
+    $readline::rl_completion_function = '::completer';
   # values from default commands;
   $defaults = {
                'delay'    => 0,
@@ -281,8 +288,8 @@ sub parse_command {
   my $dfl     = shift;
   my @arglist = @_;
   my ($list, $mode, $request, $sublist, $tlist);
-  $pass ||= '';  $pass =~ /(.*)/; $pass = $1; 
-  
+  $pass ||= '';  $pass =~ /(.*)/; $pass = $1;
+
   unless ($command) {
     print STDERR "**** No command specified!\n";
     return (1, 0);
@@ -290,7 +297,7 @@ sub parse_command {
 
   ($command, $mode) = $command =~ /([^=-]+)[=-]?(.*)/;
   $mode ||= "";
-  
+
   my $true_command = command_legal($command);
   unless (defined($true_command) &&
 	  command_prop($true_command, "shell"))
@@ -298,7 +305,7 @@ sub parse_command {
       print STDERR "**** Illegal command: $command!\n";
       return (1, 0);
     }
-  
+
   if ($true_command eq 'end') {
     print "Exiting.\n"; return (0, 0);
   }
@@ -372,20 +379,20 @@ sub parse_command {
     $args = "/intro List Introductory Information";
     $true_command = "put";
   }
-    
-  if ($true_command eq "configedit" or 
+
+  if ($true_command eq "configedit" or
       $true_command eq "get" and $mode =~ /edit/) {
-    
+
     # Pull the editor out of the environment and untaint it. This is safe
     # because we only exec the editor as the calling user.
     $editor = $ENV{EDITOR} || $ENV{VISUAL} || '/bin/vi';
     $editor =~ /(.*)/;
     $editor = $1;
-    
+
     # Switch UIDs, open a file, restore
-    $tmpu = $>; $> = $<;  $tmpg = $); $) = $(;
+    privs_user();
     $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA", O_WRONLY|O_CREAT, 0600;
-    $> = $tmpu; $) = $tmpg;
+    privs_mj();
 
     die "Cannot open $::WTMPDIR/mjs.$$.AAA: $!" unless $fh;
 
@@ -402,7 +409,7 @@ sub parse_command {
 
     $i = ($true_command eq 'configedit') ? 'configshow' : 'get';
 
-    $result = 
+    $result =
       &{"Mj::Format::$i"}($mj, $fh, $fh, 'text', $request,
         $mj->dispatch($request));
 
@@ -410,10 +417,10 @@ sub parse_command {
     if ($result) {
       my $modtime = (stat("$::WTMPDIR/mjs.$$.AAA"))[9];
       # Switch UIDs, run the editor, restore
-      $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
+      privs_user();
       $ok = system("$editor $::WTMPDIR/mjs.$$.AAA");
-      $> = $tmpu; $) = $tmpg;
-      
+      privs_mj();
+
       if ($ok) {  # system has reversed semantics...
 	print "Editor returned an error: $?\n";
 	$ok = prompt('Abort configedit?', 'yes');
@@ -427,10 +434,10 @@ sub parse_command {
       if (!$ok) {
 	if ((stat("$::WTMPDIR/mjs.$$.AAA"))[9] != $modtime) {
 	  # Switch, open, restore
-	  $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
+	  privs_user();
 	  $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA";
-	  $> = $tmpu; $) = $tmpg;
-	  
+	  privs_mj();
+
 	  $result = parse_file($fh, '', [], $user, $pass || $dfl->{'password'});
 	  $fh->close;
 	}
@@ -442,16 +449,17 @@ sub parse_command {
     else {
       # Got bad result!
       # Switch, open, restore
-      $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
+      privs_user();
       $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA";
-      $> = $tmpu; $) = $tmpg;
+      privs_mj();
+
       print while <$fh>;
     }
-    
+
     # Switch, delete the tempfile, restore
-    $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
+    privs_user();
     unlink "$::WTMPDIR/mjs.$$.AAA";
-    $> = $tmpu; $) = $tmpg;
+    privs_mj();
   }
 
   else {
@@ -479,7 +487,7 @@ sub parse_command {
       print Dumper($result);
     }
 
-    &{"Mj::Format::$true_command"}($mj, \*STDOUT, \*STDOUT, 
+    &{"Mj::Format::$true_command"}($mj, \*STDOUT, \*STDOUT,
                                    'text', $request, $result);
     return (1, $result);
   }
@@ -492,7 +500,7 @@ sub parse_file {
   my $user = shift;
   my $pass = shift;
 
-  my $result = 
+  my $result =
     Mj::Parser::parse_part($::mj,
 			   infh        => $infh,
 			   outfh       => \*STDOUT,
@@ -507,7 +515,7 @@ sub parse_file {
 sub prompt ($;$) {
   my($mess,$def)=@_;
   my $ISA_TTY = -t STDIN && -t STDOUT ;
-  Carp::confess("prompt function called without an argument") 
+  Carp::confess("prompt function called without an argument")
     unless defined $mess;
   my $dispdef = defined $def ? "[$def] " : " ";
   $def = defined $def ? $def : "";
@@ -564,6 +572,17 @@ sub completer {
   ();
 }
 
+
+# Switch to and from the calling user privileges
+sub privs_user {
+  $tmpu = $>; $> = $<;  $tmpg = $); $) = $(;
+}
+
+sub privs_mj {
+  $> = $tmpu; $) = $tmpg;
+}
+
+
 =head1 NAME
 
 mj_shell - Majordomo command line interface
@@ -618,7 +637,7 @@ which turn off owner information and logging, respectively.  The
 B<subscribe> command takes the 'nowelcome' mode, which prevents the
 introductory welcome message from being sent out to new subscribers.
 
-To specify one or more modes, separate them from the command with 
+To specify one or more modes, separate them from the command with
 hyphens, as follows:
 
   mj_shell -p pass subscribe-noinform-nowelcome mylist user@example.com
@@ -738,7 +757,7 @@ previous example can be replaced by:
   configset inform <@2
 
 The default list or password can be cleared by using 'default list' or
-'default password' with no list or password.  
+'default password' with no list or password.
 
 In interactive mode, multiline arguments and the 'default delay,'
 'default password,' and 'default user' commands are supported.

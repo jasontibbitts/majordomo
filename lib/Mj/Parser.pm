@@ -249,7 +249,7 @@ sub parse_part {
     # a message if we skipped any garbage
     if ($garbage > 1) {
       printf $outhandle ("**** Skipped %d additional line%s of unrecognized text.\n\n",
-                         $garbage-1, $garbage==1?"":"s")
+                         $garbage-1, $garbage==2?"":"s")
     }
     $garbage = 0;
     print $outhandle $out;
@@ -458,6 +458,10 @@ sub parse_part {
       }
     }
     print $outhandle "\n";
+  } # CMDLINE
+  if ($garbage > 1) {
+    printf $outhandle ("**** Skipped %d line%s of trailing unparseable text.\n\n",
+		       $garbage-1, $garbage==2?"":"s")
   }
   printf $outhandle "%s valid command%s processed",
     ("$count" || "No"), $count==1?"":"s";
@@ -466,7 +470,7 @@ sub parse_part {
     $mj->inform('GLOBAL', 'parse', $user, $user, '(no valid commands)',
                 $mj->{'interface'}, 0, 0, 0, "No valid commands were found.",
                 $::log->elapsed);
-   
+
   }
   elsif ($count == 1) {
     if ($fail_count == 1) {
@@ -724,7 +728,7 @@ sub parse_args {
                and $request->{'mode'} =~ /$arguments->{$_}->{'exclude'}/);
       push @argnames, $_;
     }
-       
+
     @splitargs = split /$arguments->{'split'}/, $args, scalar @argnames;
 
     for $argname (@argnames) {
@@ -770,7 +774,7 @@ sub parse_args {
           chomp $k;
           push @{$request->{$hereargs}}, $k;
         }
-      }  
+      }
     }
   }
   1;

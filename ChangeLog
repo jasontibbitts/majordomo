@@ -1,3 +1,17 @@
+2001-02-03  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_shell (privs_user, privs_mj): New functions to drop and
+	regain permissions.
+
+	Call them throughout the code where permissions were switched.
+
+	Add permission-changing calls around all code that opens files
+	specified on the command line.
+
+	* lib/Mj/Parser.pm (parse_part): Note if we skipped any garbage at
+	the end of the part.
+	Fix minor bug where we said "Skipped 1 lines..."
+	
 2001-02-02  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* t/shell.t: Copy the mj_shell script and take out the 'use lib'
