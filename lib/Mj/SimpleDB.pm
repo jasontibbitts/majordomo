@@ -31,6 +31,12 @@ This allocates the SimpleDB with a particular name.  This will create the
 data file if it does not exist.  The file is not locked in any way by this
 operation.
 
+XXX Add an argument 'method' and move the rest of this into
+Mj::SimpleDB::Text.  Make a Mj::SimpleDB::DB and a Mj::SimpleDB::MySQL (or
+DBI, I suppose) later.  Add export routines to produce a neutral file
+format and an inport routine to read it.  This makes it possible to
+convert, or even to adjust for changes in field order.
+
 =cut
 sub new {
   my $type  = shift;

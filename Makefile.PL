@@ -30,29 +30,34 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\
 #### Prerequisite checking
 
 check_syslog();
-check_prereq(
-	     'MIME::Parser'	=> 4.102,
-	     'MIME::Entity'	=> 4.114,
-	     'MIME::Base64'	=> 2.00,
-	     'Data::Dumper'	=> 2.07,
-#	     'Data::ShowTable'  => 0,  # Want 3.3, but the stupid module
-                                       # doesn't have a version number
-	     'Date::Manip'	=> 5.10,
-	     'HTML::Stream'     => 1.42,
-	     'CGI'              => 2.36,
-	     'MD5'		=> 1.7,
-	     'IO::Socket'	=> 1.1602,
-	     'IO::File'		=> 0,
-	     'IO::Handle'	=> 0,
-	     'Date::Format'     => 0,
-	     'DirHandle'	=> 0,
-	     'Safe'		=> 0,
-	     'POSIX'		=> 0,
-	     'Net::Domain'	=> 0,
-	     'File::Copy'	=> 0,
-	     'Fcntl'		=> 0,
-	     'Carp'		=> 0,
-	    );
+unless (check_prereq
+	(
+	 'MIME::Parser'	=> 4.102,
+	 'MIME::Entity'	=> 4.114,
+	 'MIME::Base64'	=> 2.00,
+	 'Data::Dumper'	=> 2.07,
+	 #	     'Data::ShowTable'  => 0,  # Want 3.3, but the stupid module
+	 # doesn't have a version number
+	 'Date::Manip'	=> 5.10,
+	 'HTML::Stream' => 1.42,
+	 'CGI'          => 2.36,
+	 'MD5'		=> 1.7,
+	 'IO::Socket'	=> 1.1602,
+	 'IO::File'	=> 0,
+	 'IO::Handle'	=> 0,
+	 'Date::Format' => 0,
+	 'DirHandle'	=> 0,
+	 'Safe'		=> 0,
+	 'POSIX'	=> 0,
+	 'Net::Domain'	=> 0,
+	 'File::Copy'	=> 0,
+	 'Fcntl'	=> 0,
+	 'Carp'		=> 0,
+	))
+  {
+    print "Majordomo cannot run without its prerequisite modules.\n";
+    exit(1);
+  }
 
 #### Interactive configuration
 
@@ -179,10 +184,12 @@ EOW
 }
       
 sub check_prereq {
-  my ($pkg, $ver);
+  my ($pkg, $ver, $ok);
+  $ok = 1;
 
   while (($pkg, $ver) = splice(@_, 0, 2)) {
     unless (have_vers($pkg => $ver)) {
+      $ok = 0;
       warn <<EOW
 
 **** Majordomo requires $pkg version $ver or greater!
@@ -190,6 +197,7 @@ sub check_prereq {
 EOW
     }
   }
+  $ok;
 }
 
 # This was clipped from the libnet Makefile.PL.
@@ -604,4 +612,5 @@ detailed information.
 ### Local Variables: ***
 ### cperl-indent-level:2 ***
 ### cperl-label-offset:-1 ***
+### indent-tabs-mode: nil ***
 ### End: ***
