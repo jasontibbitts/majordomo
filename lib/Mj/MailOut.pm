@@ -314,7 +314,8 @@ sub owner_done {
   my ($self, $request) = @_;
   $request->{'list'} ||= 'GLOBAL';
   my $log  = new Log::In 30, "$request->{'list'}";
-  my (@owners, $badaddr, $handled, $sender, $type, $user);
+  my (@owners, $avars, $badaddr, $handled, $ok, $mess, $sender, 
+      $type, $user);
   $badaddr = $type = $user = '';
 
   close ($self->{'owner_fh'})
@@ -328,6 +329,18 @@ sub owner_done {
   }
 
   if (!$handled) {
+    # The access rules only apply to messages that the bounce parser
+    # could not handle.
+    $avars = { 'block' => 0 };
+
+    ($ok, $mess) = $self->list_access_check($request, %$avars);
+    unless ($ok) {
+      unlink $self->{'owner_file'};
+      undef $self->{'owner_fh'};
+      undef $self->{'owner_file'};
+      return ($ok, $mess);
+    }
+    
     # Nothing from the bounce parser (or parser wasn't called)
     # Just mail out the file as if we never saw it
     if ($request->{'modes'}{'m'}) {
