@@ -301,23 +301,14 @@ if (@extra and $func ne 'showtokens') {
 elsif ($func eq 'set') {
   @extra = $cgi->param('victims');
   for $addr (@extra) {
-    for $j (qw(delivery ackdeny ackpost ackreject ackstall eliminatecc hideaddress
- hideall prefix replyto selfcopy rewritefrom)) {
-      $i = "$addr;$j";
-      if ($j eq 'delivery') {
-        push @settings, $cgi->param($i);
-      }
-      else {
-        if ($cgi->param($i) eq 'on') {
-          push @settings, $j;
-        }
-        elsif (! $cgi->param($i)) {
-          push @settings, "no$j";
-        }
-        # If the setting is disabled, ignore it.
+    @values = $cgi->param($addr);
+    $request->{'setting'} .= join ",", @values;
+    for $j (qw(ackdeny ackpost ackreject ackstall eliminatecc hideaddress
+               hideall postblock prefix replyto selfcopy rewritefrom)) {
+      unless (grep { $_ eq $j } @values) {
+        $request->{'setting'} .= ",no$j";
       }
     }
-    $request->{'setting'} = join ",", @settings;
     $request->{'victims'} = [ $addr ];
     $result = $mj->dispatch($request); 
     &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
@@ -337,13 +328,11 @@ elsif ($func ne 'showtokens') {
     @extra = $cgi->param('victims');
     $request->{'victims'} = [ @extra ];
     if ($func eq 'subscribe' and $mode =~ /set/) {
-      $request->{'setting'} = $cgi->param('setting');  
+      @extra = $cgi->param('setting');
+      $request->{'setting'} = join ',', @extra;
       for $j (qw(ackdeny ackpost ackreject ackstall eliminatecc hideaddress
-                 hideall prefix replyto selfcopy rewritefrom)) {
-        if ($cgi->param($j)) {
-          $request->{'setting'} .= ",$j";
-        }
-        else {
+                 hideall postblock prefix replyto selfcopy rewritefrom)) {
+        unless (grep { $_ eq $j } @extra) {
           $request->{'setting'} .= ",no$j";
         }
       }
