@@ -39,27 +39,14 @@ for this session will be invalidated.
   <td valign="top">Moderation
   </td>
   <td>
+
 Occasionally, posted messages, subscriptions, and other requests
 will need your approval before they are completed.  Press 
 <b>Moderation</b> to see all of the unfinished requests for your
 lists.  The requests labeled <b>consult</b> will need your attention,
 whereas the requests labeled <b>confirm</b> need the attention of
-the people who made them.
-
-<p>
-More than one mailing list can be moderated at the same time, if you use
-a password that applies to all of the lists.  To moderate more
-than one list, add each list name in the name by which this
-script is called, and place forward slashes between the list names.  
-For example, if you manage mailing lists named 
-<b>broccoli</b> and <b>rhubarb</b>, instead of 
-<pre>
-  $CGIURL
-</pre>
-the location of this page would look like this:
-<pre>
-  $CGIURL/broccoli/rhubarb
-</pre>
+the people who made them.  The requests labeled <b>delay</b> will
+be completed automatically at a later time.
 
   </td>
 </tr>
@@ -98,9 +85,9 @@ you how it will appear when people visit the
 <a href="$WWWUSR_URL">web interface for subscribers</a>.
 <p>
 You can also edit the welcome message and other documents, see
-statistics for recent posted messages, or check the status 
-of message digests through the links on the <b>List Info</b> page.
-
+statistics for recent posted messages, browse the message archives, or
+check the status of message digests through the <b>List Info</b> page.
+<p>
   </td>
 </tr>
 <tr>
