@@ -156,6 +156,15 @@ EOC
     'global' => 1,
     'mutable'=> 1,
    },
+   'post_limits' =>
+   {
+    'type'   => 'limits',
+    'groups' => [qw(resend)],
+    'visible'=> 0,
+    'local'  => 1,
+    'global' => 0,
+    'mutable'=> 1,
+   },
    'access_password_override' =>
    {
     'type'   => 'bool',
@@ -671,7 +680,7 @@ EOC
    'triggers' =>
    {
     'type'   => 'triggers',
-    'values' => [qw(bounce checksum log session token)],
+    'values' => [qw(bounce checksum log post session token)],
     'groups' => [qw(majordomo)],
     'visible'=> 0,
     'local'  => 0,

@@ -185,6 +185,7 @@ files/en/config/override_reply_to
 files/en/config/owners
 files/en/config/password_min_length
 files/en/config/passwords
+files/en/config/post_limits
 files/en/config/precedence
 files/en/config/purge_received
 files/en/config/quote_pattern

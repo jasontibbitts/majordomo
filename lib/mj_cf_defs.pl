@@ -193,6 +193,7 @@ $Mj::Config::default_string = q(
  'token_remind'         => 4,
  'mta'                  => undef,
  'inform'               => [],
+ 'post_limits'          => [],
  'sequence_number'      => 1,
  'bounce_probe_frequency' => 0,
  'bounce_probe_pattern' => '',

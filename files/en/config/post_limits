@@ -1,0 +1,10 @@
+This controls the per-address limits for posting messages to a list.
+The format of each line is:
+  pattern | conditions | conditions
+The pattern will be matched against the e-mail address of the author
+of the message.  The conditions will be applied if the pattern matches.
+
+The conditions determine the "soft" and "hard" limits, respectively.
+Each set of conditions is a comma-separated list of proportions
+("3/10" means three messages out of the last ten) and frequencies
+("5/2d12h" means five messages in the last two and a half days).  

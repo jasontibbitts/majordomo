@@ -323,6 +323,7 @@ $files =
    'en/config/owners'                          => ['The owners variable',                          'us-ascii', '7bit'],
    'en/config/password_min_length'             => ['The password_min_length variable',             'us-ascii', '7bit'],
    'en/config/passwords'                       => ['The passwords variable',                       'us-ascii', '7bit'],
+   'en/config/post_limits'                     => ['The post_limits variable',                     'us-ascii', '7bit'],
    'en/config/precedence'                      => ['The precedence variable',                      'us-ascii', '7bit'],
    'en/config/purge_received'                  => ['The purge_received variable',                  'us-ascii', '7bit'],
    'en/config/quote_pattern'                   => ['The quote_pattern variable',                   'us-ascii', '7bit'],
