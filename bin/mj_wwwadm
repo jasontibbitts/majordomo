@@ -285,7 +285,7 @@ if (@extra and $func ne 'showtokens') {
   for $req (@extra) {
     Mj::Parser::parse_args($request, $req, '');
     if ($func eq 'configset') {
-      @values = split "\n", $cgi->param($req);
+      @values = split "\r?\n", $cgi->param($req);
       $request->{'value'} = [@values];
     }  
     $result = $mj->dispatch($request); 
@@ -326,6 +326,9 @@ elsif ($func ne 'showtokens') {
   }
   elsif ($func eq 'subscribe' or $func eq 'unsubscribe') {
     @extra = $cgi->param('victims');
+    if (scalar @extra == 1) {
+      @extra = split "\r?\n", $extra[0];
+    }
     $request->{'victims'} = [ @extra ];
     if ($func eq 'subscribe' and $mode =~ /set/) {
       @extra = $cgi->param('setting');
