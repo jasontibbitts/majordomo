@@ -72,12 +72,14 @@ sub mail_message {
     # log the failure, but do not notify anyone by mail, since
     # inform() calls mail_entity().
     $self->inform("GLOBAL", "mail_message", $sender, $addrs[0],
-                  "(envelope $file)", "mailout", 0, 0, 1);
+                  "(envelope $file)", "mailout", 0, 0, 1, '',
+                  $::log->elapsed);
     return 0;
   }
   unless ($env->send) {
     $self->inform("GLOBAL", "mail_message", $sender, $addrs[0],
-                  "(message $file)", "mailout", 0, 0, 1);
+                  "(message $file)", "mailout", 0, 0, 1, '',
+                  $::log->elapsed);
     return 0;
   }
   1;
