@@ -1,3 +1,8 @@
+Tue Jul 28 16:37:02 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/FileRepl.pm (open): Create the original file if it
+ 	doesn't exist.
+
 Mon Jul 27 23:07:12 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/Access.pm (_a_default): Request_response is normally

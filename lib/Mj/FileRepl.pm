@@ -102,8 +102,9 @@ sub AUTOLOAD {
 =head2 open(name, mode)
 
 This locks (exclusively) and opens the old file, and opens a unique
-temporary file (unlocked, since it''s unique) which will be moved into place
-if the operation is committed.  
+temporary file (unlocked, since it''s unique) which will be moved into
+place if the operation is committed.  The source file will be created if it
+does not exist.
 
 =cut
 sub open {
@@ -115,8 +116,14 @@ sub open {
 
   my $tempname = _tempname($name);
   $self->{'lock'} = new Mj::Lock($lock, "exclusive");
-  
+
   # We have a lock now; the file is ours to do with as we please.
+  # First, create the old file if it doesn't exist.
+  unless (-f $name) {
+    $self->{'oldhandle'}->open("> $name");
+    $self->{'oldhandle'}->close;
+  }
+  # Now get down to business
   $self->{'oldhandle'}->open("+< $name") ||
     $::log->abort("Couldn't open $name, $!");
   $self->{'newhandle'}->open("+> $tempname") ||
@@ -342,6 +349,5 @@ detailed information.
 1;
 #
 ### Local Variables: ***
-### mode:cperl ***
 ### cperl-indent-level:2 ***
 ### End: ***
