@@ -1,0 +1,17 @@
+<!-- Majordomo report_summary_head format file -->
+
+<p align="center">
+  Activité sur $SITE<br>
+  Du $START au $FINISH
+</p>
+
+<table width="100%">
+<tr>
+  <th>Commande</th>
+  <th align="center">Liste</th>
+  <th align="center">Succès</th>
+  <th align="center">en attente</th>
+  <th align="center">Échec</th>
+  <th align="center">Temps écoulé</th>
+</tr>
+
