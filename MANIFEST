@@ -963,6 +963,9 @@ files/en/format/text/.which_head
 files/en/format/text/.which_none
 files/en/format/text/.which_warning
 files/en/format/text/.who
+files/en/format/text/.who_alias
+files/en/format/text/.who_alias_foot
+files/en/format/text/.who_alias_head
 files/en/format/text/.who_error
 files/en/format/text/.who_foot
 files/en/format/text/.who_head
@@ -1137,6 +1140,9 @@ files/en/format/text/which_head
 files/en/format/text/which_none
 files/en/format/text/which_warning
 files/en/format/text/who
+files/en/format/text/who_alias
+files/en/format/text/who_alias_foot
+files/en/format/text/who_alias_head
 files/en/format/text/who_error
 files/en/format/text/who_foot
 files/en/format/text/who_head
@@ -1330,6 +1336,9 @@ files/en/format/wwwadm/.which_head
 files/en/format/wwwadm/.which_none
 files/en/format/wwwadm/.which_warning
 files/en/format/wwwadm/.who
+files/en/format/wwwadm/.who_alias
+files/en/format/wwwadm/.who_alias_foot
+files/en/format/wwwadm/.who_alias_head
 files/en/format/wwwadm/.who_error
 files/en/format/wwwadm/.who_foot
 files/en/format/wwwadm/.who_head
@@ -1524,6 +1533,9 @@ files/en/format/wwwadm/which_head
 files/en/format/wwwadm/which_none
 files/en/format/wwwadm/which_warning
 files/en/format/wwwadm/who
+files/en/format/wwwadm/who_alias
+files/en/format/wwwadm/who_alias_foot
+files/en/format/wwwadm/who_alias_head
 files/en/format/wwwadm/who_error
 files/en/format/wwwadm/who_foot
 files/en/format/wwwadm/who_head
@@ -1679,6 +1691,9 @@ files/en/format/wwwconfirm/.which_head
 files/en/format/wwwconfirm/.which_none
 files/en/format/wwwconfirm/.which_warning
 files/en/format/wwwconfirm/.who
+files/en/format/wwwconfirm/.who_alias
+files/en/format/wwwconfirm/.who_alias_foot
+files/en/format/wwwconfirm/.who_alias_head
 files/en/format/wwwconfirm/.who_error
 files/en/format/wwwconfirm/.who_foot
 files/en/format/wwwconfirm/.who_head
@@ -1834,6 +1849,9 @@ files/en/format/wwwconfirm/which_head
 files/en/format/wwwconfirm/which_none
 files/en/format/wwwconfirm/which_warning
 files/en/format/wwwconfirm/who
+files/en/format/wwwconfirm/who_alias
+files/en/format/wwwconfirm/who_alias_foot
+files/en/format/wwwconfirm/who_alias_head
 files/en/format/wwwconfirm/who_error
 files/en/format/wwwconfirm/who_foot
 files/en/format/wwwconfirm/who_head

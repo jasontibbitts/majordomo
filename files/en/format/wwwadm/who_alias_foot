@@ -1,0 +1,9 @@
+<!-- Majordomo who_alias_foot format file -->
+<tr><td colspan="2">Aliases found: $COUNT </td></tr>
+</table>
+<input type="submit" name="func" value="unalias">
+</form>
+
+<a href="$CGIURL?$CGIDATA&amp;list=GLOBAL&amp;func=who&amp;mode=$MODE&amp;extra=$PATTERN&amp;start=?PREVIOUS&amp;chunksize=$CHUNKSIZE">Previous $CHUNKSIZE Addresses</a><br>
+<a href="$CGIURL?$CGIDATA&amp;list=GLOBAL&amp;func=who&amp;mode=$MODE&amp;extra=$PATTERN&amp;start=?NEXT&amp;chunksize=$CHUNKSIZE">Next $CHUNKSIZE Addresses</a>
+

@@ -1673,6 +1673,33 @@ if the export command mode is used.
  SETTINGS, START, USER and others)
 
 
+who_alias
+---------
+(text, wwwadm, wwwconfirm)  This file displays information about one
+alias.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, QSADDR, REMOVE, 
+ SOURCE, START, TARGET, USER)
+
+
+who_alias_foot
+--------------
+(text, wwwadm, wwwconfirm)  This file displays supplementary information
+at the bottom of the output.  This file is not displayed if the export
+or short command mode is used.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, MODE, NEXT, PATTERN,
+PREVIOUS, REMOVE, START, USER)
+
+
+who_alias_head
+--------------
+(text, wwwadm, wwwconfirm)  This file displays supplementary information
+at the top of the list of aliases.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, REMOVE, START, USER)
+
+
 who_error
 ---------
 (text, wwwadm, wwwconfirm)  This file displays an error message if the
@@ -1685,17 +1712,18 @@ who command stalls or fails.
 who_foot
 --------
 (text, wwwadm, wwwconfirm)  This file displays supplementary information
-at the top of the output.  This file is not displayed if the alias,
-export, or short command mode is used.
+at the bottom of the output.  This file is not displayed if the export
+or short command mode is used.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, REMOVE, START, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, MODE, NEXT, PATTERN,
+PREVIOUS, REMOVE, START, USER)
 
 
 who_head
 --------
 (text, wwwadm, wwwconfirm)  This file displays supplementary information
-at the top of the output.  This file is not displayed if the alias,
-export, or short command mode is used.
+at the top of the output.  This file is not displayed if the export or
+short command mode is used.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, REMOVE, START, USER)
 
@@ -1713,7 +1741,7 @@ who_registry
 ------------
 (text, wwwadm, wwwconfirm)  This file displays data for one registry
 entry.  It is used only for the GLOBAL pseudo-list.  This file is not
-displayed if the alias or export command mode is used.
+displayed if the export or short command mode is used.
 
 (standard plus CANON, CGIDATA, CGIURL, CMDPASS, FULLADDR, LASTCHANGE, LISTS,
  MODE, PATTERN, QSADDR, REMOVE, START, STRIPADDR, USER and others)
@@ -1723,10 +1751,11 @@ who_registry_foot
 -----------------
 (text, wwwadm, wwwconfirm)  This file displays supplementary information
 at the bottom of the output.  It is used only for the GLOBAL
-pseudo-list.  This file is not displayed if the alias, export, or short
-command mode is used.
+pseudo-list.  This file is not displayed if the export or short command
+mode is used.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, REMOVE, START, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, MODE, NEXT, PATTERN,
+ PREVIOUS, REMOVE, START, USER)
 
 
 who_registry_summary

@@ -1,0 +1,32 @@
+<!-- Majordomo who_alias_head format file -->
+
+<p>
+To remove aliases, check the box next to each alias you wish to remove 
+in the following list, then press the 
+$HELP:UNALIAS button.
+</p>
+
+<p>
+Click the actual address to see details about the subscriptions for
+that address in another window, using the 
+<a href="$WWWUSR_URL">
+  WWW interface for subscribers</a>.
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="chunksize" value="$CHUNKSIZE">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="start" value="$START">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="pattern" value="$PATTERN">
+  <input type="submit" name="func" value="unalias">
+
+<table border>
+<tr>
+  <th>Alias
+  </th>
+  <th>Actual Address
+  </th>
+</tr>
+

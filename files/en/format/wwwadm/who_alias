@@ -1,0 +1,11 @@
+<!-- Majordomo who_alias format file -->
+<tr>
+  <td><input type="checkbox" name="victims" value="$SOURCE">
+    $SOURCE
+  </td>
+  <td>
+  <a href="$WWWUSR_URL/$QSADDR?passw=$CMDPASS&amp;func=show"
+   target="_wwwusr">$TARGET</a>
+  </td>
+</tr>
+

@@ -528,6 +528,10 @@ See "help reply_files" for a description of each of the reply files.
 \$SIZE
   The size of a file, a message, or part of a message.
 
+\$SOURCE
+  The source of an alias.  For example, if mary@example.com is an alias
+  for joe@example.edu, mary@example.com is the source.
+
 \$STALL
   " " if a command invoked with the "accept" or "default user" command 
   requires further approval; '' otherwise.
@@ -564,6 +568,10 @@ See "help reply_files" for a description of each of the reply files.
 \$TAG
   The tag that is used to mark the end of a here document.
   See "help here_document" for more details.
+
+\$TARGET
+  The target of an alias.  For example, if mary@example.com is an alias
+  for joe@example.edu, joe@example.edu is the target.
 
 \$TIME
   The time of day at which a request was processed.
