@@ -513,7 +513,7 @@ sub flag_set {
   else {
     $flags = $self->config_get('nonmember_flags');
   }
-  return unless $data->{'flags'} =~ /$flags{$flag}[3]/;
+  return unless $flags =~ /$flags{$flag}[3]/;
   1;
 }
 

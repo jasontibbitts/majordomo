@@ -1,3 +1,7 @@
+Sun Apr 19 16:58:30 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/List.pm (flag_set): Fix dumb thinko.
+
 Sat Apr 18 12:05:06 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/Resend.pm (post): Add separate entities for notification
