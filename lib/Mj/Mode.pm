@@ -73,7 +73,7 @@ Returns the canonical string representation of the mode.
 =cut
 sub stringify {
   my $self = shift;
-  return join('-', keys($self->{'modes'}));
+  return join('-', keys(%{$self->{'modes'}}));
 }
 
 =head1 COPYRIGHT
