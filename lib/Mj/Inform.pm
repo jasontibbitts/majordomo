@@ -92,7 +92,7 @@ sub inform {
   my $data = $self->_list_config_get($list, 'inform');
   my $inf = $data->{$req}{'all'} || $data->{$req}{$stat} || 0;
 
-  # Inform the owner (1 is log, 2 is inform); we inform on accepts
+  # Inform the owner (1 is report, 2 is inform); we inform on accepts
   # elsewhere.
   if (((($inf & 2) && !$over) || ($over < 0)) && $req ne 'reject') {
     $self->_inform_owner($list, $req, $requ, $user, $cmd, $int, $stat, $pass, $comment);
@@ -103,7 +103,7 @@ sub inform {
 1;
 __END__
 
-=head2 _mail_inform(list, request, requester, user, cmdline, interface, success, passworded)
+=head2 _mail_inform(list, request, requester, user, cmdline, interface, success, passworded, comment, )
 
 This is a helper function for inform; it constructs a mesage and mails it
 to the owner.  This is removed from inform so that MIME::Entity does not
@@ -144,7 +144,7 @@ sub _inform_owner {
 				     'STATDESC'  => $statdesc,
 				     'INTERFACE' => $int,
 				     'SESSIONID' => $self->{'sessionid'},
-                     'COMMENT'   => $comment,
+                                     'COMMENT'   => $comment,
 				     },
 				   );
   my $ent = build MIME::Entity
@@ -168,32 +168,36 @@ sub _inform_owner {
   $out;
 }
 
-=head2 report(logfile, inform_data, list, start_time, stop_time)
+=head2 l_expire 
 
-This formats and returns (in a string) a report of list activity.  The
-report will include data from between start_time and stop_time.  start_time
-defaults to 0 and end_time defaults to now.
-
-If list is GLOBAL, only global ststistics (help, lists, and access
-requests) will be reported.  If list is ALL, a summary report for all
-activity will be generated.  Otherwise a report for the particular list
-given will be generated.
-
-XXX This should arguably return some complicated data structure containing
-all of the statistics to be formatted by the interface.
+This will eliminate all log entries older than the log_lifetime setting.  
 
 =cut
+sub l_expire {
+  my $self = shift;
+  my $log = new Log::In 60;
+  my (@entry, $count, $cutoff, $days, $fh, $line);
 
+  $days = $self->_global_config_get('log_lifetime');
+  return unless (defined $days and $days >= 0);
 
+  $count = 0;
+  $cutoff = time - ($days * 86400);
 
-=head2 truncate_log(logfile, time)
+  $fh = new Mj::FileRepl("$self->{'ldir'}/GLOBAL/_log");
+  return unless $fh;
 
-This will eliminate all log entries older than time.  This assumes that the
-file is strictly ordered by date, which it should be unless something is
-very wrong.
-
-=cut
-
+  while ($line = $fh->{'oldhandle'}->getline) {
+    @entry = split "\001", $line;
+    if ($entry[9] and $entry[9] > $cutoff) {
+      $fh->copy;
+      $fh->commit;
+      last;
+    }
+    $count++;
+  }
+  $count;
+}
 
 =head1 COPYRIGHT
 
