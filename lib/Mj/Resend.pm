@@ -191,7 +191,7 @@ sub post {
   $avars->{mime} = $avars->{mime_consult} || $avars->{mime_deny} || '';
 
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
-    $avars->{admin} || $avars->{bad_approval} ||
+    $avars->{admin} || $avars->{bad_approval} || $avars->{post_block} ||
     $avars->{body_length_exceeded} || $avars->{invalid_from} ||
     $avars->{mime_header_length_exceeded} || $avars->{limit} ||
     $avars->{total_header_length_exceeded} || 
