@@ -1,5 +1,5 @@
 <!-- Majordomo show_head format file -->
-<h4 align=center>Personal Settings for $USER</h4>
+<h4 align=center>Personal Settings for $FULLADDR</h4>
 <form method=POST action="$CGIURL">
   <input type=hidden name=domain value="$DOMAIN">
   <input type=hidden name=user value="$USER">
@@ -7,7 +7,7 @@
 
 <p>
 The following table lists all of the subscriptions for
-$USER
+$STRIPADDR
 at $SITE.
 To change settings, press the checkbox next to the name of each 
 list you wish to change, choose the settings you want, then press 
