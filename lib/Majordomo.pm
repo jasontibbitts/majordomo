@@ -3650,6 +3650,7 @@ sub lists {
       $data->{'owner'}    = $self->_list_config_get($list, 'whoami_owner');
       $data->{'address'}  = $self->_list_config_get($list, 'whoami');
       $data->{'subs'}     = $self->{'lists'}{$list}->count_subs;
+      $data->{'posts'}    = $self->{'lists'}{$list}->count_posts(30);
       $data->{'archive'}  = $self->_list_config_get($list, 'archive_url');
       $data->{'digests'}  = {};
       $digests = $self->_list_config_get($list, 'digests');
@@ -4743,6 +4744,11 @@ sub trigger {
     # Mode: daily or bounce or vacation - expire vacation settings and bounces
     if ($mode =~ /^(da|b|v)/ or grep {$_ eq 'bounce'} @ready) {
       $self->{'lists'}{$list}->expire_subscriber_data;
+    }
+
+    # Mode: daily or post - expire post data
+    if ($mode =~ /^(da|p)/ or grep {$_ eq 'post'} @ready) {
+      $self->{'lists'}{$list}->expire_post_data;
     }
 
     # Mode: hourly or digest - issue digests 
