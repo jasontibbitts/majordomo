@@ -41,7 +41,7 @@ sub new {
   $self->{dest}    = Mj::Deliver::Dest->new(data   => $args{data},
 					    file   => $args{file},
 					    sender => $self->{sender},
-					    lhost  => $lhost,
+					    lhost  => $args{lhost},
 					    single => 1,
 					   );
   $self;
@@ -91,7 +91,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
