@@ -1,10 +1,12 @@
 A string containing the flags to be given to new subscribers unless they
 choose otherwise.  Possible flags are:
-  A - ackall
-  a - ackimportant
+  b - ackstall
   C - eliminatecc
+  d - ackdeny
+  f - ackpost
   H - hideall
   h - hideaddress
+  j - ackreject
   P - prefix
   R - replyto
   S - selfcopy

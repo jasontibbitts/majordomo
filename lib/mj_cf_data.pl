@@ -195,7 +195,7 @@ EOC
    'default_flags' =>
    {
     'type'   => 'flags',
-    'values' => [qw(a A b C d f H j P R S W)],
+    'values' => [qw(b C d f h H j P R S W)],
     'groups' => [qw(flags)],
     'visible'=> 0,
     'local'  => 1,
@@ -204,7 +204,7 @@ EOC
    'nonmember_flags' =>
    {
     'type'   => 'flags',
-    'values' => [qw(a A b C d f H j P R S W)],
+    'values' => [qw(b d f j)],
     'groups' => [qw(flags)],
     'visible'=> 0,
     'local'  => 1,
@@ -364,7 +364,7 @@ EOC
    },
    'moderator' =>
    {
-    'type'   => 'word',
+    'type'   => 'address',
     'groups' => [qw(resend access)],
     'visible'=> 0,
     'local'  => 1,
@@ -783,15 +783,15 @@ EOC
     'local'  => 1,
     'visible'=> 1,
    },
-    'whoami_owner' =>
-    {
-     'type'   => 'address',
-     'groups' => [qw(majordomo)],
-     'global' => 1,
-     'local'  => 1,
-     'visible'=> 1,
-     'mutable'=> 1,
-    },
+   'whoami_owner' =>
+   {
+    'type'   => 'address',
+    'groups' => [qw(majordomo)],
+    'global' => 1,
+    'local'  => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+   },
    'bounce_recipients' =>
    {
     'type'   => 'address_array',
@@ -812,7 +812,7 @@ EOC
    },
    'tmpdir' =>
    {
-    'type'   => 'word',
+    'type'   => 'directory',
     'groups' => ['majordomo'],
     'global' => 1,
     'visible'=> 0,
