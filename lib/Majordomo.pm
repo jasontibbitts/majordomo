@@ -5926,12 +5926,13 @@ sub set {
 sub _set {
   my ($self, $list, $user, $vict, $mode, $cmd, $setting, $d, $sublist, $force) = @_;
   my (@addrs, @lists, @out, @tmp, $addr, $check, $chunksize, $count, 
-      $data, $db, $file, $format, $k, $l, $ok, $owner, $res, $v);
+      $data, $db, $file, $format, $k, $l, $ok, $owner, $res, $sd, $v);
 
   $check = 0;
   if ($mode =~ /check/ or ! $setting) {
     $check = 1;
   }
+  $sd = {};
 
   if ($mode =~ /regex|pattern/) {
     # Initialize the database
@@ -5993,6 +5994,7 @@ sub _set {
         push @out, (0, "The $l list apparently does not exist.\n");
         next;
       }
+
       if ($sublist) {
         unless ($ok = $self->{'lists'}{$l}->valid_aux($sublist)) {
           push @out, (0, "There is no sublist $sublist of the $l list.\n");
@@ -6000,16 +6002,25 @@ sub _set {
         }
         $sublist = $ok;
       }
+
+      unless (exists $sd->{$l}) {
+        $sd->{$l} = $self->{'lists'}{$l}->get_setting_data;
+      }
+
       ($ok, $res) = 
         $self->{'lists'}{$l}->set($addr, $setting, $sublist, $check, $force);
+
       if ($ok) {
-        $res->{'victim'}   = $addr;
+        $res->{'victim'}   = $addr->strip;
+        $res->{'fulladdr'} = $addr->full;
         $res->{'list'}     = $l;
         $res->{'sublist'}  = $sublist;
         $res->{'flagdesc'} = 
           [$self->{'lists'}{$l}->describe_flags($res->{'flags'})];
         $res->{'classdesc'} = 
           $self->{'lists'}{$l}->describe_class(@{$res->{'class'}});
+        $res->{'settings'} = $sd->{$l};
+        $res->{'partial'} = 0;
 
         # Issue a partial digest if changing from digest mode
         # to nomail or single mode.
@@ -6036,6 +6047,7 @@ sub _set {
             $owner = $self->_list_config_get($l, 'sender');
             $self->mail_message($owner, $file, $addr);
             unlink $file;
+            $res->{'partial'} = 1;
           }
         } 
       }
@@ -6135,10 +6147,9 @@ sub _show {
     # It is possible that the registration database is hosed, and the user
     # really isn't on the list.  Just skip it in this case.
     if ($data) {
-      # Extract some useful data
       $out{'lists'}{$i} =
 	{
-	 changetime => $data->{changetime},
+	 changetime => $data->{'changetime'},
          class      => $data->{'class'},
          classarg   => $data->{'classarg'},
          classarg2  => $data->{'classarg2'},
@@ -6148,14 +6159,16 @@ sub _show {
 							   ),
          flags      => $data->{'flags'},
 	 flagdesc   => [$self->{'lists'}{$i}->describe_flags($data->{'flags'})],
-	 fulladdr   => $data->{fulladdr},
+	 fulladdr   => $data->{'fulladdr'},
          settings   => $self->{'lists'}{$i}->get_setting_data,
-	 subtime    => $data->{subtime},
+	 subtime    => $data->{'subtime'},
 	};
+
       $bouncedata = $self->{'lists'}{$i}->bounce_get($addr);
       if ($bouncedata) {
-	$out{'lists'}{$i}{bouncedata}  = $bouncedata;
-	$out{'lists'}{$i}{bouncestats} = $self->{'lists'}{$i}->bounce_gen_stats($bouncedata);
+	$out{'lists'}{$i}{'bouncedata'}  = $bouncedata;
+	$out{'lists'}{$i}{'bouncestats'} = 
+          $self->{'lists'}{$i}->bounce_gen_stats($bouncedata);
       }
     }
   }
