@@ -26,13 +26,19 @@ list's administrative password.  Please review "help admin_passwords",
 if you have not already done so.  In each example, replace LISTNAME
 with the name of your mailing list.
 
+Each configuration setting has its own help file.  For example, to see
+the help file for the subscribe_policy setting, use the 
+"help configset_subscribe_policy" command.  All of the configuration
+settings are listed in the "help topics" document.
+
+
 Look before you leap
 --------------------
 
 Every configuration setting has a default value.  Every time a list
 administrator uses the configset command, the default value for the
 setting is overridden, even if the old and new values are identical.
-For this reason, we recommend that you always "show before you set," use
+For this reason, we recommend that you always "show before you set."  Use
 the configshow command to see the current value of a setting before you
 change it with the configset command.  By overriding the settings that
 were configured by the domain administrators, a list owner might miss
@@ -41,16 +47,16 @@ out on wise present and future default values.
 A technical discussion of default values is presented later, in
 the "Configuration templates and default values" section.
 
+
 Important settings for new mailing lists
 ----------------------------------------
 
-Every mailing list shares the same default values.  Because there are so
+Every new mailing list shares the same default values.  Because there are so
 many kinds of mailing list (private or public, moderated or unmoderated,
 with open or closed membership, etc.), it is likely that most new lists
 will need some configuration before they are ready to run.  This section
 gives examples for the "top ten" settings that are likely to need
-attention, in reverse order of importance.  Each setting has its own
-help page, to which you can refer if you need to learn more.
+attention, in reverse order of importance.
 
 10. category
 
