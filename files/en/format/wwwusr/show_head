@@ -43,7 +43,8 @@ you wish to leave, then press the <b>unsubscribe</b> button.
 
 <table border>
 <tr>
-  <td><small>list</small>
-  <td><small>delivery class</small>
-  <td><small>$SETTINGS</small>
+  <td colspan=4>mailing list
+  <td colspan=9>delivery class
+<tr>
+  <td><font size=-1>$SETTINGS</font>
 
