@@ -552,8 +552,8 @@ sub Mj::Format::tokeninfo {
 <tr><td>Expires<td>$expire
 EOM
 
-  if ($data->{'arg2'}) {
-    @reasons = split "\002", $data->{'arg2'};
+  if ($data->{'reasons'}) {
+    @reasons = split "\002", $data->{'reasons'};
     for (@reasons) {
       printf "<tr><td>Reason<td>%s\n", Mj::Format::escape($_);
     }
