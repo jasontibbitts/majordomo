@@ -2,10 +2,24 @@
 
 Section 1 - Introduction to Patterns
 
-There are three supported types of pattern:
+There are three supported types of pattern, described below:
   Section 2 - Substring Patterns
   Section 3 - Shell-Like Patterns
   Section 4 - Perl-Like Regular Expressions
+
+There are a number of examples of Perl regexps below:
+  Example 4.1  - a list of special characters
+  Example 4.2  - escaping '.' is required
+  Example 4.3  - escaping '@' is required
+  Example 4.4  - matching the beginning and end of string
+  Example 4.5  - matching anything and everything
+  Example 4.6  - escaping '*' is required
+  Example 4.7  - case sensitivity
+  Example 4.8  - overly safe escaping doesn't hurt
+  Example 4.9  - matching (or NOT matching) white space
+  Example 4.10 - negated or inverted matches
+
+Perl Regexps in Depth - a list of special characters
 
 They differ in their delimiters and the number and function of various
 special characters (the so called metacharacters). This section will
@@ -85,13 +99,17 @@ they are all escaped and the pattern is checked again.  This solves the
 bulk of the problems.  Be careful, though, when writing Perl code; the
 enhanced Majordomo regexps will only provide you with syntax errors.
 
+Perl regexps in Majordomo can OFTEN (but not necessarily always) be
+negated with a leading "!". See the example below, and contact the
+developers if you believe there is a place where inverted matching
+makes sense but doesn't seem to work.
+
 What follows is a basic discussion of Perl regular expressions.  All '@'
 symbols will be shown escaped for correctness.  For more information,
 consult the Perl documentation or any reasonable book on Perl.
 
 
-Perl Regexps in Depth
-=====================
+Example 4.1 - a list of special characters
 
 For some of the configuration options, a rudimentary knowledge of
 Perl-style regular expressions will help you run Majordomo through
@@ -106,6 +124,7 @@ The character / is used to mark the beginning and end of a regular
 expression.  Letters and numbers stand for themselves.  Many of the
 other characters are symbolic.  Some commonly used ones are:
 
+  !     negates what follows, matching when the expression does NOT
   \\@    the `@' found in nearly all addresses; it must be preceeded
         by a backslash to avoid errors in Perl
   .     (period) any character
@@ -121,8 +140,8 @@ other characters are symbolic.  Some commonly used ones are:
   a\$    a string ending with letter "a"
 
 
-Example 1
----------
+
+Example 4.2 - escaping '.' is required
 
      /foo\\.example\\.com/
 
@@ -140,8 +159,7 @@ such as:
      users%bar.foo.example.com@example.com
 
 
-Example 2
----------
+Example 4.3 - escaping '@' is required
 
      /johndoe\\@.*foo\\.example\\.com/
 
@@ -151,7 +169,7 @@ times".  So this matches:
 
      johndoe@foo.example.com
      johndoe@terminus.foo.example.com
-     ajohndoe@terminus.foo.example.com@example.com
+    ajohndoe@terminus.foo.example.com
 
 But it doesn't match:
 
@@ -159,40 +177,38 @@ But it doesn't match:
      brent@foo.example.com
 
 
-Example 3
----------
+Example 4.4 - matching the beginning and end of string
 
      /^johndoe\\@.*cs\\.example\\.org\$/
 
-This is similar to Example 2, and matches the same first two strings:
+This is similar to Example 4.3, and matches the same first two strings:
 
      johndoe@foo.example.org
      johndoe@terminus.foo.example.org
 
 But it doesn't match:
 
-     ajohndoe@terminus.foo.example.org@example.com
+     ajohndoe@terminus.foo.example.org
 
 ...because the regular expression says the string has to begin with
 letter "j" and end with letter "g", by using the ^ and \$ symbols, and
 neither of those is true for ajohndoe@terminus.foo.example.org@example.com.
 
 
-Example 4
----------
+Example 4.5 - matching anything and everything
 
      /.*/
 
-This is the regular expression that matches anything.
+This is the regular expression that matches anything
+(any character, zero or more times).
 
 
-Example 5
----------
+Example 4.6 - escaping '*' is required
 
      /.\\*johndoe/
 
 Here the * is preceded by a \\, so it refers literally to an asterisk
-character and not the symbolic meaning "zero or more times".  The . still
+character and not the symbolic meaning "zero or more times".  The '.' still
 has its symbolic meaning of "any one character", so it would match:
 
      a*johndoe
@@ -203,8 +219,7 @@ Because the . by itself implies one character, it would not match:
      *johndoe
 
 
-Example 6
----------
+Example 4.7 - case sensitivity
 
 Normally all matches are case sensitive; you can make any match case
 insensitive by appending an `i' to the end of the expression.
@@ -218,6 +233,8 @@ This would match example.com, EXAMPLE.com, ExAmPlE.cOm, etc.  Removing the `i':
 ...would match example.com but not EXAMPLE.com or any other capitalization.
 
 
+Example 4.8 - overly safe escaping doesn't hurt
+
 To be on the safe side put a \\ in front of any characters in the
 regular expressions that are not numbers or letters.  In order to put
 a / into the regular expression, the same rule holds: precede it
@@ -229,8 +246,7 @@ with a \\.  Thus, with \\ in front of the / and = characters, this:
 who need to deal with X.400 addresses that contain / characters.
 
 
-Example 7
----------
+Example 4.9 - matching (or NOT matching) white space
 
 Normally, all whitespace within a pattern is matched verbatim, but it is
 sometimes desirable to add some additional space within a pattern to make
@@ -251,11 +267,20 @@ Note that the 'x' modifier provides additional functionality to Perl code
 relating to comments, but because Majordomo requires patterns to lie all on
 a single line, this is not significant here.
 
-Negated matches (like !/^sub/) are a function of the taboo expression matcher,
-which has lots of complicated logic to handle them. Majordomo patterns just get
-sent through a function that turns them into regular expressions. Inverting a
-regular expression is nontrivial, so in general negation by a leading '!' is
-not supported by commands like "who".
+
+Example 4.10 - negated or inverted matches
+
+Negated matches (like !/^sub/) work in places where they have meaning, such
+as the taboo expression matcher which has lots of complicated logic to handle
+them, but not all places. Majordomo patterns just get sent through a function
+that turns them into regular expressions... which may or may not make sense
+in the context you want to use them.
+
+For example
+   who-regexp listname !/xxx\\.com/
+will produce a list of subscribers to "listname" that are NOT from the
+'xxx.com' domain. Be careful to escape the period, which otherwise becomes
+a wild card with potentially unexpected results.
 
 
 For a list of all help topics send this one-line message
