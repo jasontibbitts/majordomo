@@ -160,11 +160,6 @@ See "help reply_files" for a description of each of the reply files.
   This is not the same as the sequence number;  see "help archive"
   for more details.
 
-\$ARCNO
-  The archive name and number of a posted message, for example
-  "200008/12".  This is not the same as the sequence number.  
-  See "help archive" for more details.
-
 \$ARCURL
   The URL that allows access to an external archive.  This value is
   determined by the archive_url configuration setting;  see 
@@ -234,6 +229,11 @@ See "help reply_files" for a description of each of the reply files.
 \$ISPOST
   " " if a token refers to a stalled posted message; '' if a token
   refers to a Majordomo command.
+
+\$MSGNO
+  The archive name and number of a posted message, for example
+  "200008/12".  This is not the same as the sequence number.  
+  See "help archive" for more details.
 
 \$PASSWORD
   The personal password corresponding to a particular e-mail address.
