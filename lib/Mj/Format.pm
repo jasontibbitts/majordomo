@@ -762,7 +762,7 @@ sub set {
            .  "  Receiving $change->{'classdesc'}\n"
            .  "  Flags:\n    "
            .  join("\n    ", @{$change->{'flagdesc'}})
-           . "\n(see 'help set' for a full explanation)\n", $ok, 1)
+           . "\n(see 'help set' for a full explanation)\n\n", $ok, 1)
         );
     }
     # deal with partial failure
