@@ -194,7 +194,7 @@ sub remove {
        $status = $db->seq($try, $value, R_NEXT)
       )
     {
-      if (_re_match($key, $try)) {
+      if (Majordomo::_re_match($key, $try)) {
         push @deletions, $try;
         push @out, ($try, $self->_unstringify($value));
         last if $mode !~ /allmatching/;
@@ -267,7 +267,7 @@ sub replace {
        $status = $db->seq($k, $v, R_NEXT)
       )
     {
-      if (_re_match($key, $k)) {
+      if (Majordomo::_re_match($key, $k)) {
 	if (ref($field) eq 'HASH') {
 	  $data = $field;
 	}
@@ -503,7 +503,7 @@ sub get_matching_quick {
     last unless $k;
 
     # We may be able to skip the unstringification step
-    redo unless _re_match(/\001\Q$value\E/, $v);
+    redo unless Majordomo::_re_match(/\001\Q$value\E/, $v);
 
     $data = $self->_unstringify($v);
     if (defined($data->{$field}) && 
@@ -530,7 +530,7 @@ sub get_matching_quick_regexp {
     last unless $k;
 #    redo unless _re_match($value, $v);
     $data = $self->_unstringify($v);
-    if (defined($data->{$field}) && _re_match($value, $data->{$field})) {
+    if (defined($data->{$field}) && Majordomo::_re_match($value, $data->{$field})) {
       push @keys, $k;
       next;
     }
@@ -552,7 +552,7 @@ sub get_matching {
   for ($i=0; ($count ? ($i<$count) : 1); $i++) {
     ($k, $v) = $self->_get;
     last unless $k;
-    redo if (!$code && ! _re_match("/\001\Q$value\E/", $v));
+    redo if (!$code && ! Majordomo::_re_match("/\001\Q$value\E/", $v));
     $data = $self->_unstringify($v);
     if ($code) {
       $tmp = &$field($k, $data);
@@ -583,7 +583,7 @@ sub get_matching_regexp {
     last unless $k;
 #    redo unless _re_match($value, $v);
     $data = $self->_unstringify($v);
-    if (defined($data->{$field}) && _re_match($value, $data->{$field})) {
+    if (defined($data->{$field}) && Majordomo::_re_match($value, $data->{$field})) {
       push @keys, ($k, $data);
       next;
     }
@@ -649,7 +649,7 @@ sub lookup_quick_regexp {
        $status == 0 ;
        $status = $db->seq($key, $value, R_NEXT) )
     {
-      if (_re_match($reg, $key)) {
+      if (Majordomo::_re_match($reg, $key)) {
 	return ($key, $value);
       }
     }
@@ -668,20 +668,20 @@ sub lookup_quick_regexp {
 #   return $match;
 # }
 
-sub _re_match {
-  my    $re = shift;
-  local $_  = shift;
-  my $match;
-  return 1 if $re eq 'ALL';
+#  sub _re_match {
+#    my    $re = shift;
+#    local $_  = shift;
+#    my $match;
+#    return 1 if $re eq 'ALL';
 
-  local($^W) = 0;
-  $match = $safe->reval("$re");
-  $::log->complain("_re_match error: $@\nstring: $_\nregexp: $re") if $@;
-  if (wantarray) {
-    return ($match, $@);
-  }
-  return $match;
-}
+#    local($^W) = 0;
+#    $match = $safe->reval("$re");
+#    $::log->complain("_re_match error: $@\nstring: $_\nregexp: $re") if $@;
+#    if (wantarray) {
+#      return ($match, $@);
+#    }
+#    return $match;
+#  }
 
 1;
 

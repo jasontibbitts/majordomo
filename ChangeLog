@@ -1,3 +1,13 @@
+2000-09-30  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/SimpleDB/Text.pm: Use Majordomo::_re_match instead of
+	local version.  Delete local copy.
+
+	* lib/Majordomo.pm: Declare various undeclared variables.
+
+	* lib/Mj/SimpleDB/DB.pm: Use Majordomo::_re_match for all regexp
+	work.  Delete the local copy.
+
 2000-09-29  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* bin/mj_shell: Add commented out code to get backtraces on

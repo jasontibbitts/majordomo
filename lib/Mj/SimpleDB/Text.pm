@@ -508,7 +508,7 @@ sub get_matching_quick_regexp {
     last unless $key;
     ($key, $data) = split("\001", $key, 2);
     $data = $self->_unstringify($data);
-    if (defined($data->{$field}) && _re_match($value, $data->{$field})) {
+    if (defined($data->{$field}) && Majordomo::_re_match($value, $data->{$field})) {
       push @keys, $key;
       next;
     }
@@ -567,7 +567,7 @@ sub get_matching_regexp {
     last unless $key;
     ($key, $data) = split("\001", $key, 2);
     $data = $self->_unstringify($data);
-    if (defined($data->{$field}) && _re_match($value, $data->{$field})) {
+    if (defined($data->{$field}) && Majordomo::_re_match($value, $data->{$field})) {
       push @keys, ($key, $data);
       next;
     }
@@ -616,7 +616,7 @@ sub lookup_quick_regexp {
   while (defined ($line = $fh->search($reg))) {
     chomp $line;
     ($key, $match) = split("\001", $line, 2);
-    if (_re_match($reg, $key)) {
+    if (Majordomo::_re_match($reg, $key)) {
       return ($key, $match);
     }
     elsif ($wb) {
@@ -638,20 +638,20 @@ sub lookup_quick_regexp {
 #   return $match;
 # }
 
-sub _re_match {
-  my    $re = shift;
-  local $_  = shift;
-  my $match;
-  return 1 if $re eq 'ALL';
+#  sub _re_match {
+#    my    $re = shift;
+#    local $_  = shift;
+#    my $match;
+#    return 1 if $re eq 'ALL';
 
-  local($^W) = 0;
-  $match = $safe->reval("$re");
-  $::log->complain("_re_match error: $@\nstring: $_\nregexp: $re") if $@;
-  if (wantarray) {
-    return ($match, $@);
-  }
-  return $match;
-}
+#    local($^W) = 0;
+#    $match = $safe->reval("$re");
+#    $::log->complain("_re_match error: $@\nstring: $_\nregexp: $re") if $@;
+#    if (wantarray) {
+#      return ($match, $@);
+#    }
+#    return $match;
+#  }
 
 1;
 

@@ -2743,6 +2743,7 @@ the message will be set to the subscriber's address.
 sub announce {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}, $request->{'file'}";
+  my ($mess, $ok);
 
   return (0, "A file name was not supplied.\n")
     unless $request->{'file'};
@@ -2765,7 +2766,7 @@ sub _announce {
   my ($self, $list, $user, $vict, $mode, $cmdline, $file) = @_;
   my $log = new Log::In 30, "$list, $file";
   my (@classlist, %data); 
-  my ($baseclass, $classes, $desc, $ent, $mailfile, $sender, $tmpfile);
+  my ($baseclass, $classes, $desc, $ent, $mailfile, $sender, $subs, $tmpfile);
 
   $sender = $self->_list_config_get($list, 'sender');
   return (0, "Unable to obtain sender address.\n")
@@ -3081,7 +3082,7 @@ sub auxremove {
     $log->message(30, "info", "$addr: noaccess");
     return ($ok, $error);
   }
-  
+
   $self->_auxremove($request->{'list'}, $request->{'user'}, 
                     $request->{'victim'}, $request->{'mode'}, 
                     $request->{'cmdline'}, $request->{'auxlist'});
@@ -3157,8 +3158,8 @@ sub configset {
 
 sub configshow {
   my ($self, $request) = @_;
-  my (%all_vars, @vars, $auto, $comment, $flag, $group, $groups,
-      $message, $tag, $val, $var, $vars, @whence, @out, @hereargs);
+  my (%all_vars, @hereargs, @out, @vars, $auto, $comment, $flag, $group,
+      $groups, $message, $tag, $val, $var, $vars, $whence);
 
   if (! defined $request->{'groups'}->[0]) {
     $request->{'groups'} = ['ALL'];
@@ -4452,9 +4453,10 @@ sub show {
   my ($self, $request) = @_;
   my ($error, $ok, @out);
   my $log = new Log::In 30;
+  my ($addr);
 
   $request->{'list'} = 'GLOBAL';
- 
+
   # We know each address is valid; the dispatcher took care of that for us.
   $addr = $request->{'victim'};
   ($ok, $error) = $self->global_access_check($request);
@@ -4754,7 +4756,8 @@ use Mj::Digest qw(in_clock);
 sub trigger {
   my ($self, $request) = @_;
   my $log = new Log::In 27, "$request->{'mode'}";
-  my (@ready, $data, $key, $list, $ok, $mess, $mode, $times, $tmp);
+
+  my (@ready, @req, $data, $key, $list, $ok, $mess, $mode, $times, $tmp);
   $mode = $request->{'mode'};
   @ready = ();
 
@@ -4966,10 +4969,10 @@ Returns a list:
 sub unsubscribe {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
-  my (@out, @removed, $mismatch, $ok, $regexp, $error);
+  my (@out, @removed, $addr, $error, $mismatch, $ok, $regexp);
 
   $addr = $request->{'victim'};
-  
+
   if ($request->{'mode'} =~ /regex/) {
     $mismatch = 0;
     $regexp   = 1;
