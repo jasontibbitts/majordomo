@@ -574,22 +574,13 @@ sub welcome {
       $top, $i, $j);
 
   # Extract some necessary variables from the config files
-  my $mj        = $self->_global_config_get('whoami');
-  my $mj_owner  = $self->_global_config_get('sender');
-  my $whereami  = $self->_global_config_get('whereami');
   my $tmpdir    = $self->_global_config_get('tmpdir');
-  my $site      = $self->_global_config_get('site_name');
   my $sender    = $self->_list_config_get($list, 'sender');
   my $table     = $self->_list_config_get($list, 'welcome_files');
 
-  $subs = {'LIST' => $list,
-	   'REQUEST'  => "$list-request\@$whereami",
-	   'MAJORDOMO'=> $mj,
-	   'MJ'       => $mj,
+  $subs = {
+           $self->standard_subs($list),
 	   'USER'     => $addr,
-	   'SITE'     => $site,
-	   'MJOWNER'  => $mj_owner,
-	   'OWNER'    => $sender,
 	   %args,
 	  };
 

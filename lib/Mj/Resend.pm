@@ -238,16 +238,12 @@ sub post {
 
   # Some substitutions will be done by the access routine, but we have
   # extensive information about the message here so we can do some more.
-  $subs = {LIST     => $list,
+  $subs = {
+           $self->standard_subs($list),
+           DATE     => $date,
 	   HEADERS  => $ent->head->stringify,
 	   SUBJECT  => $subject,
-           DATE     => $date,
            USER     => $user->full,
-	   VERSION  => $Majordomo::VERSION,
-	   MJ       => $self->_global_config_get('whoami'),
-	   MJOWNER  => $self->_global_config_get('sender'),
-	   SITE     => $self->_global_config_get('site_name'),
-	   WHEREAMI => $self->_global_config_get('whereami'),
 	  };
 
   $desc = $fileinfo->{description};
@@ -518,22 +514,15 @@ sub _post {
 
   # Cook up a substitution hash
   $subs = {
-         LIST     => $list,
-         OWNER    => $self->_list_config_get($list, 'whoami_owner'),
-         WHOAMI   => $self->_list_config_get($list, 'whoami'),
-         ARCURL   => $self->_list_config_get($list, 'archive_url'),
-         VERSION  => $Majordomo::VERSION,
-         SENDER   => "$user",
-         USER     => "$user",
-         SUBSCRIBED => ($avars{'days_since_subscribe'} < 0) ? "not" : "",
-         SEQNO    => $seqno,
+         $self->standard_subs($list),
          ARCHIVE  => $msgnum,
-         SUBJECT  => $subject,
+         ARCURL   => $self->_list_config_get($list, 'archive_url'),
          DATE     => scalar localtime($date),
-         WHEREAMI => $whereami,
-         MJ       => $self->_global_config_get('whoami'),
-         MJOWNER  => $self->_global_config_get('sender'),
-         SITE     => $self->_global_config_get('site_name'),
+         SENDER   => "$user",
+         SEQNO    => $seqno,
+         SUBJECT  => $subject,
+         SUBSCRIBED => ($avars{'days_since_subscribe'} < 0) ? "not" : "",
+         USER     => "$user",
   };
 
   if ($mode !~ /archive/) {
@@ -1598,8 +1587,8 @@ sub _munge_subject {
 
   $prefix = $self->_list_config_get($list, 'subject_prefix');
 
-  $subs = {'LIST'    => $list,
-	   'VERSION' => $Majordomo::VERSION,
+  $subs = {
+	   $self->standard_subs($list),
 	   'SEQNO'   => $seqno,
 	  };
 
@@ -1664,11 +1653,11 @@ sub _reply_to {
 	$self->substitute_vars_string
 	  ($replyto,
 	   {
+            $self->standard_subs($list),
 	    'HOST'    => $self->_list_config_get($list, 'resend_host'),
-	    'LIST'    => $list,
-	    'USER'    => $user,
 	    'SENDER'  => $user,
 	    'SEQNO'   => $seqno,
+	    'USER'    => $user,
 	   },
 	  );
       $head->set('Reply-To', $replyto);
