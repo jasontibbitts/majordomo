@@ -1,3 +1,15 @@
+2003-11-02  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Addr.pm:  (_xform)  Add safe ops for perl 5.8.1
+	compatability.
+
+	* lib/Mj/Resend.pm:  (_check_header, _check_body, _r_strip_body)
+	Add safe ops for perl 5.8.1 compatibility.
+
+	* lib/Mj/Util.pm:  (process_rule, re_match)  Add safe ops
+	for perl 5.8.1 compatibility.
+	Thanks to Brock Rozen.
+
 2003-11-01  Michael Yount <csf@moscow.com>
 
 	* Makefile.PL:  Compensate for changes in the MakeMaker
