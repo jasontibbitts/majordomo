@@ -1,7 +1,7 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 createlist[-force][-inactive][-noarchive][-nowelcome] listname owner
 createlist-destroy listname
-createlist-nocreate listname owner
+createlist-nocreate listname
 createlist-pass[-force][-inactive][-noarchive][-nowelcome] listname password owner
 createlist-regen
 createlist-rename listname newlistname
@@ -30,6 +30,9 @@ to build a list, and
 
 to destroy it, where LISTNAME is a valid list name, and OWNER is the
 e-mail address of the person who will be managing the mailing list.  
+If no owner address is given, the address of the person who issues the
+createlist command will be placed in the "owners" configuration setting
+of the new mailing list.
 
 A site or domain password is usually required to use this command (see
 "help admin_passwords" for more information about administrative
