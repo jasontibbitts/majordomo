@@ -160,7 +160,7 @@ sub post {
   if (! $user) {
     $spool = "$tmpdir/unparsed." . Majordomo::unique();
     mv ($request->{'file'}, $spool);
-    $self->inform("GLOBAL", "post", $user, $user, $cmd, "resend",
+    $self->inform("GLOBAL", "post", $user, $user, $request->{'cmdline'}, "resend",
         0, 0, -1, "Unable to determine sender; moved to $spool.");
     return (0, "Unable to parse message.");
   }
@@ -254,7 +254,6 @@ sub post {
   # We handled the OK case, so we have either a stall or a denial.
   # If we got an empty return message, this is a signal not to ack anything
   # and so we just return;
-  $rtnhdr = $user->full;
   return ($ok, '')
     unless defined $mess && length $mess;
 
@@ -363,7 +362,7 @@ sub _post {
      @files, @refs, @tmp, @skip, $ack_attach, $ackfile, $arcdata, 
      $arcent, $archead, $date, $desc, $digests, $dissues, $dup,
      $exclude, $head, $i, $j, $msgnum, $nent, $precedence, $prefix, 
-     $replyto, $rtnhdr, $safe, $sender, $seqno, $subject, $sl, $subs, 
+     $replyto, $safe, $sender, $seqno, $subject, $sl, $subs, 
      $tmp, $tmpdir, $tprefix, $whereami);
 
   return (0, "Unable to access list $list.\n")
@@ -424,7 +423,6 @@ sub _post {
   $ent[0] = $self->_trim_approved($ent[0]);
   $head = $ent[0]->head;
   $head->modify(0);
-  $rtnhdr = $user->full;
 
   # Convert/drop MIME parts.  
   $i      = $self->_list_config_get($list, 'attachment_rules');
