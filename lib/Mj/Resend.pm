@@ -768,8 +768,8 @@ sub _check_body {
   my $reasons = shift;
   my $avars   = shift;
   my $log     = new Log::In 150;
-  my (@inv, $class, $data, $i, $inv, $j, $l, $max, $maxlen, $mcode, $qreg,
-      $rule, $safe, $sev, $tcode, $var);
+  my (@inv, $class, $data, $i, $inv, $j, $l, $max, $maxbody, $maxlen, 
+      $mcode, $qreg, $rule, $safe, $sev, $tcode, $var);
   $inv = {}; $mcode = {}; $tcode = {};
 
   # Extract the code from the config variables XXX Move to separate func
@@ -807,6 +807,11 @@ sub _check_body {
   $self->_r_ck_body($list, $ent, $reasons, $avars, $safe, $qreg, $mcode, 
             $tcode, $inv, $max, , $maxlen, 'toplevel', 1);
 
+  $maxbody = $self->_list_config_get($list, 'maxlength');
+  if ($maxbody && $maxbody < $avars->{'bytes'}) {
+    push @$reasons, "The message body is too long ($avars->{bytes} > $maxbody)";
+    $avars->{body_length_exceeded} = 1;
+  }
   # Now look at what's left in %$inv and build reasons from it
   for $i (keys %$inv) {
     ($l, $var, $rule, $sev, $class) = split('\t', $i);

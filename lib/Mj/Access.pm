@@ -1125,7 +1125,7 @@ sub _d_post {
      $tmp, $tmpl, $tmps);
   shift @_;
 
-  @consult_vars = qw(bad_approval dup_msg_id dup_checksum
+  @consult_vars = qw(bad_approval body_length_exceeded dup_msg_id dup_checksum
 		     dup_partial_checksum global_taboo_body
 		     global_taboo_header max_header_length_exceeded
 		     mime_consult taboo_body taboo_header

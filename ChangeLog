@@ -1,3 +1,11 @@
+2000-05-23  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Resend.pm (_check_body): Make use of maxlength
+	variable to check message body size.
+
+	* lib/Mj/Access.pm, lib/Mj/CommandProps.pm: Add new
+	"body_length_exceeded" access variable.
+
 2000-05-23  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/MailOut.pm (owner_done): Include bouncing users in
