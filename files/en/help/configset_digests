@@ -11,13 +11,19 @@ Password Notes: none
 
 EXAMPLE:
 configset listname digests << ENDTAG
-weekly    | mo(3)  |    1m    |   99m    |        |  1d      |   1d   | index
-The listname weekly digest, generated early Monday morning.
+daily   | 5     | 20K, 5m  | 40K, 10m | 3d     | 1d       |        | mime
+The pre-dawn daily digest for listname.
+weekly  | fr(23) |20k, 5m   | 100k,30m |        |          |        | index
+The listname weekly index, generated late friday night.
 ENDTAG
 
 
-Data on the various digests that the list supports.
-Digest mode is not supported for sublists!
+Data on the various digests that the list supports (not supported for sublists!).
+Each digest is defined by two lines.  The first line contains data in the
+following order, separated by vertical bars ('|') or colons:
+  name    | times  | minsizes | maxsizes | maxage | separate | minage | deftype
+The second line holds a description of the digest. The full syntax is described
+in "help configset digests".
 
 A digest is defined by a name, a description, and several pieces of data that
 tell Majordomo when an issue should be generated. The following data can be given:
@@ -26,8 +32,10 @@ name     - A one-word name given to the digest.  It is unwise to name
            the digest "mime", "text" or "index".
 
 times    - The times that digests are allowed to be created.  Times are
-           specified as an integer from 0 to 23, the string "always" or
-           the string "never".  The default is "always".
+           specified as day of the week, day of the month, hour, etc
+           (see below for details), the string "always" or the string
+           "never".  The default is "always", which allows digest creation
+           any time it is needed (based on maxsizes, maxage).
 
 minsizes - The minimum amount of data (measured in messages or
            kilobytes) which must be collected before a digest will be
@@ -53,13 +61,6 @@ minage   - A digest will not be created if it most recent article is
 deftype -- This specifies the type of digest that new subscribers get
            by default.  Currently only MIME, text and index digests are
            supported.  The default is MIME.
-
-Each digest is defined by two lines.  The first contains data in the
-following order, separated by vertical bars ('|') or colons:
-
-name    | times  | minsizes | maxsizes | maxage | separate | minage | deftype
-
-The second line holds a description of the digest.
 
 These settings take precedence in the following order:
 
@@ -115,14 +116,8 @@ You can choose to "separate" digests by delaying them:
      some amound of time.  To generate as many digests as
      necessary to clear out the backlog, leave this unset.
 
-Here is an example, defining two digests:
+At the top of this help is an example which defines two digests.
 
-configset listname digests <<END
-daily   | 23     | 20K, 5m  | 40K, 10m | 3d     | 1d       |        | mime
-The test-list daily digest
-weekly  | fr(23) |20k, 5m   | 100k,30m |        |          |        | index
-The test-list weekly index
-END
 
 See Also:
    help digest   (for managing digests once enabled)

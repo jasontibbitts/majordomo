@@ -1,44 +1,6 @@
-Data on the various digests that the list supports.
-Digest mode is not supported for sublists!
-
-A digest is defined by a name, a description, and several pieces of data that
-tell Majordomo when an issue should be generated. The following data can be given:
-
-name     - A one-word name given to the digest.  It is unwise to name
-           the digest "mime", "text" or "index".
-
-times    - The times that digests are allowed to be created.  Times are
-           specified as an integer from 0 to 23, the string "always" or
-           the string "never".  The default is "always".
-
-minsizes - The minimum amount of data (measured in messages or
-           kilobytes) which must be collected before a digest will be
-           generated.  The default is no minimum.
-
-maxsizes - The maximum size of digest that will be created.  Specify
-           either messages or kilobytes or both as with minsizes.  The
-           default is no maximum.
-
-maxage   - If an article is older than this, a digest will be created
-           even if enough messages have not been collected.  This
-           prevents messages from becoming "stale" on low traffic
-           lists.  Specify hours like 12h, days like 4d and weeks like
-           2w.  The default is no maximum age.
-
-separate - The minimum amount of time that separates digests.
-
-minage   - A digest will not be created if it most recent article is
-           younger than this.  This is intended to prevent digest
-           creation in the middle of active discussion.  The default
-           is no minimum age.
-
-deftype -- This specifies the type of digest that new subscribers get
-           by default.  Currently only MIME, text and index digests are
-           supported.  The default is MIME.
-
-Each digest is defined by two lines.  The first contains data in the
+Data on the various digests that the list supports (not supported for sublists!).
+Each digest is defined by two lines.  The first line contains data in the
 following order, separated by vertical bars ('|') or colons:
-
-name    | times  | minsizes | maxsizes | maxage | separate | minage | deftype
-
-The second line holds a description of the digest.
+  name    | times  | minsizes | maxsizes | maxage | separate | minage | deftype
+The second line holds a description of the digest. The full syntax is described
+in "help configset digests".

@@ -1,47 +1,7 @@
 Triggers are used to send reminders and to remove expired data from
 the databases.  Each trigger consists of a name and a set of times
 during which the trigger is issued.  The data are separated by
-vertical bars ('|') or colons, for example:
-
-session  | monday(6,12,18), thursday(8)
-token    | always  
-checksum | 3rd(17),10th(9),17th(11),24th(19)
-
-There are five trigger names:
-
-bounce   - Expire subscriber data, such as bounces and vacation settings.
-
-checksum - Expire posted message checksums and message-id data.
-
-log      - Expire entries from the main log.
-
-session  - Expire old session data.
-
-token    - Issue reminders and remove expired tokens and temporary passwords.
-
-The times follow the same syntax as the "times" portion of the digests
-configuration setting.  There are several ways to indicate times:
-
-always or anytime  - Always issue this trigger.
-never or none      - Never issue this trigger.
-yearly             - Issue this trigger once on the first of January.
-quarterly          - Issue this trigger once on the first of January,
-                     April, July, and October.
-monthly            - Issue this trigger once on the first of every month.
-weekly             - Issue this trigger once every Sunday.
-daily              - Issue this trigger early every morning.
-hour or hour range - Hours during which to run the trigger every day
-                     (for example, 6,12-14 would invoke the trigger
-                      every day at 6 am, noon, and 2 pm.)
-day of the week    - The English name of the weekday, or a number 
-                     by the letter "w", optionally followed
-                     by hours or hour ranges within parentheses.
-day of the month   - The English abbreviation of the day of the month,
-                     or a number followed by the letter "m", 
-                     optionally followed by hours or hour ranges within
-                     parentheses (for example, 2nd,10th,18th,26th
-                     would invoke the trigger every hour during the second,
-                     tenth, eighteenth, and twenty-fourth day of every month.)
-
-Note that each of the five individual triggers will be run by
-the "daily" trigger, regardless of the values of this setting.
+vertical bars ('|') or colons, as in:
+  session  | monday(6,12,18), thursday(8)
+The five trigger names (bounce, checksum, log, session, token) and
+full syntax is described in "help configset triggers".

@@ -4,7 +4,11 @@ trigger
 
 The "trigger" command is not intended to be used by end users;
 it's what the mj_trigger utility uses to kick off periodic functions.
+You probably intended to ask for "help configset triggers"!
 
+
+See Also:
+   help configset triggers (for how to configure periodic tasks)
 
 For a list of all help topics send this one-line message
    help topics

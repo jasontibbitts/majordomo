@@ -359,6 +359,7 @@ files/en/help/configset_taboo_headers
 files/en/help/configset_tmpdir
 files/en/help/configset_token_lifetime
 files/en/help/configset_token_remind
+files/en/help/configset_triggers
 files/en/help/configset_unsubscribe_policy
 files/en/help/configset_welcome
 files/en/help/configset_welcome_files

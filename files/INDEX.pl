@@ -173,6 +173,7 @@ $files =
    'en/help/configset_tmpdir'                         => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_token_lifetime'                 => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_token_remind'                   => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
+   'en/help/configset_triggers'                       => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_unsubscribe_policy'             => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_welcome'                        => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_welcome_files'                  => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
