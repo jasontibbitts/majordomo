@@ -333,6 +333,15 @@ mailing list's address to that same mailing list.
 (standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
 
 
+token_bounce
+------------
+This file is sent when confirmation instructions could not be delivered.  
+The token identifier for the request may have been deleted as a result.
+
+(standard plus CMDLINE, COMMAND, DATE, DELETED, HANDLER, REASONS, 
+REQUESTER, SESSIONID, TOKEN, VICTIM)
+
+
 token_reject
 ------------
 This file is sent when a "confirm" request is rejected.  It contains
