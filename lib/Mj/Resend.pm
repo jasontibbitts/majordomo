@@ -84,9 +84,9 @@ use strict;
 
 use vars qw($line $text $type);
 
-#use AutoLoader 'AUTOLOAD';
+use AutoLoader 'AUTOLOAD';
 1;
-#__END__
+__END__
 
 use MIME::Parser;
 sub post {
