@@ -145,12 +145,12 @@ that no settings were found.
 A complete list of settings is included in "help topics".
 
 See Also:
+   help admin_config
+   help admin_domain  (for an explanation of default configuration values)
    help commands      (for syntax of all commands, and 'here documents')
    help configedit    (to set the setting to a non-default value)
    help configset     (to set the setting to a non-default value)
-   help configdefault (to have the setting track the default value)
+   help configdef     (to have the setting track the default value)
    help topics        (for a complete list of configuration settings)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
