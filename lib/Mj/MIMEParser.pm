@@ -151,6 +151,7 @@ sub replace_headers {
   }
 
   $ent->print($repl->{'newhandle'});
+  $ent->purge;
   $repl->commit;
   1;
 }
