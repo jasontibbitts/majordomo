@@ -1,6 +1,4 @@
-ACCESS_RULES
 BUGS
-COOKBOOK
 CREDITS
 ChangeLog
 DESIGN
@@ -18,7 +16,6 @@ README
 README.CONVERSION
 README.DEBUGGING
 README.DIRECTORIES
-README.FILES
 README.INTERNALS
 README.POSTFIX
 README.QMAIL
@@ -456,7 +453,6 @@ lib/Mj/Token.pm
 lib/Mj/TokenDB.pm
 lib/mj_cf_data.pl
 lib/mj_cf_defs.pl
-lib/parser_data.pl
 misc/addr.file
 misc/addr.file.1
 misc/addr.file.2
