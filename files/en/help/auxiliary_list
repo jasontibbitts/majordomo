@@ -100,14 +100,14 @@ of the kohlrabi sublist to post messages to that sublist.
   @kohlrabi AND $sublist=kohlrabi
 
 Any sublist that appears in the "sublists" setting is considered
-public, whether or not messages can be posted to it.  Using
-the "aux" mode of the lists command, any public list will have
-its public sublists displayed as well:
+public, whether or not messages can be posted to it.  The "lists-aux" or
+"lists-aux-full" command can be used to display the public sublists of a
+mailing list.  For example, the following command will display the
+public sublists of the cabbage mailing list:
 
-  lists-aux-full
+  lists-aux cabbage
 
-"full" mode is used to display extra statistics, such as the number
-of addresses in the sublist.
+See "help lists" for more information.
 
 Auxiliary lists play an important role in list moderation.  In the
 access rules, it is possible to specify a moderator group that will be
@@ -124,8 +124,11 @@ who is allowed to post messages to the mailing list.
 See Also:
    help admin
    help configset_access_rules
+   help configset_aliases
    help configset_moderators
    help configset_restrict_post
+   help configset_sublists
+   help lists
    help set
    help subscribe
    help unsubscribe
