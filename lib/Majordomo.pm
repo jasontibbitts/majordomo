@@ -317,7 +317,7 @@ processing done at the beginning.
 =cut
 sub dispatch {
   my ($self, $request, $extra) = @_;
-  my ($out, $base_fun, $func, $continued, $mess, $ok, $over);
+  my ($base_fun, $continued, $data, $func, $mess, $ok, $out, $over);
   my ($level) = 29;
   $level = 500 if ($request->{'command'} =~ /_chunk$/);
 
@@ -327,6 +327,19 @@ sub dispatch {
   $request->{'user'} ||= 'unknown@anonymous';
   $request->{'mode'} ||= '';
   $request->{'mode'} = lc $request->{'mode'};
+  if ($request->{'password'} =~ /^[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}$/) {
+    # The password given appears to be a latchkey, a temporary password.
+    # If the latchkey exists and has not expired, convert the latchkey
+    # to a permanent password for the call to dispatch().
+    $self->_make_latchkeydb;
+    if (defined $self->{'latchkeydb'}) {
+      $data = $self->{'latchkeydb'}->lookup($request->{'password'});
+      if (defined $data) {
+        $request->{'password'} = $data->{'arg1'}
+          if (time <= $data->{'expire'});
+      }
+    }
+  }
 
   my $log  = new Log::In $level, "$request->{'command'}, $request->{'user'}";
 
@@ -486,7 +499,12 @@ sub gen_cmdline {
     return 1;
   }
   if ($request->{'command'} =~ /post/) {
-    $request->{'cmdline'} = "(post to $request->{'list'})";
+    if (defined $request->{'sublist'}) {
+      $request->{'cmdline'} = "(post to $request->{'list'}:$request->{'sublist'})";
+    }
+    else {
+      $request->{'cmdline'} = "(post to $request->{'list'})";
+    }
     return 1;
   }
   # The command line is  COMMAND[-MODE] [LIST] [ARGS]
@@ -1854,6 +1872,7 @@ sub put_start {
   my ($ok, $mess);
 
   # Initialize optional parameters.
+  $request->{'xdesc'}     ||= '';
   $request->{'ocontype'}  ||= '';
   $request->{'ocset'}     ||= '';
   $request->{'oencoding'} ||= '';
@@ -2810,6 +2829,7 @@ sub _auxadd {
 
   unless ($ok) {
     $log->out("failed, existing");
+    return ($ok, $data);
   }
 
   return ($ok, [$victim]);
@@ -3162,8 +3182,8 @@ sub _createlist {
   my ($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list) = @_;
   $list ||= '';
   my $log = new Log::In 35, "$mode, $list";
-  my (%args, @lists, $bdir, $dir, $dom, $mess, $mta, $mtaopts, $rmess,
-     $who);
+  my (%args, @lists, $aliases, $bdir, $dir, $dom, $debug, $mess, $mta, 
+      $mtaopts, $rmess, $sublists, $who);
 
   $owner = new Mj::Addr($owner);
   $mta   = $self->_site_config_get('mta');
@@ -3179,6 +3199,7 @@ sub _createlist {
 	   'domain' => $dom,
 	   'whoami' => $who,
 	   'options'=> $mtaopts,
+	   'aliases'=> $self->_list_config_get('DEFAULT', 'aliases'),
 	   'queue_mode' => $self->_site_config_get('queue_mode'),
 	  );
 
@@ -3195,11 +3216,19 @@ sub _createlist {
     }
 
     # Extract lists and owners
-    $args{regenerate} = 1;
+    $args{'regenerate'} = 1;
     $args{'lists'} = [];
     $self->_fill_lists;
     for my $i (keys %{$self->{'lists'}}) {
-      push @{$args{'lists'}}, [$i, $self->_list_config_get($i, 'debug')];
+      $debug = $self->_list_config_get($i, 'debug');
+      $aliases = $self->_list_config_get($i, 'aliases');
+      $sublists = '';
+      if ($aliases =~ /A/) {
+        $self->_make_list($i);
+        $self->{'lists'}{$i}->_fill_aux;
+        $sublists = join "\002", keys %{$self->{'lists'}{$i}->{'auxlists'}};
+      }
+      push @{$args{'lists'}}, [$i, $debug, $aliases, $sublists];
     }
     {
       no strict 'refs';
@@ -3314,7 +3343,7 @@ sub _digest {
 
     # Deliver then clean up
     if (keys %$deliveries) {
-      $self->deliver($list, $sender, undef, $deliveries);
+      $self->deliver($list, '', $sender, undef, $deliveries);
       for $i (keys %$deliveries) {
 	unlink $deliveries->{$i}{file}
 	  if $deliveries->{$i}{file};
@@ -3518,6 +3547,7 @@ sub reject {
       $sess = "Session info has expired.\n";
     }
 
+    $data->{'ack'} = 0;
     $repl = {
          'OWNER'      => $list_owner,
          'MJ'         => $mj_addr,
@@ -3543,6 +3573,7 @@ sub reject {
           or
         $self->{'lists'}{$data->{'list'}}->flag_set('ackall', $victim)) 
     {
+      $data->{'ack'} = 1;
       ($file, %file) = $self->_list_file_get($data->{'list'}, $rfile, $repl);
       unless (defined $file) {
         ($file, %file) = $self->_list_file_get($data->{'list'}, "token_reject", $repl);
@@ -3824,10 +3855,12 @@ sub set {
   return (0, "The set command is not supported for the $request->{'list'} list.\n")
     if ($request->{'list'} eq 'GLOBAL' or $request->{'list'} eq 'DEFAULT'); 
 
+  $request->{'sublist'} = '' unless $request->{'mode'} =~ /aux/;
+
   ($ok, $mess) =
     $self->list_access_check($request->{'password'}, $request->{'mode'}, 
      $request->{'cmdline'}, $request->{'list'}, 'set', $request->{'user'}, 
-     $request->{'addr'}, $request->{'setting'}, '', '');
+     $request->{'addr'}, $request->{'setting'}, $request->{'auxlist'}, '');
   unless ($ok > 0) {
     $log->out("noaccess");
     return ($ok, $mess);
@@ -3835,11 +3868,12 @@ sub set {
 
   $self->_make_list($request->{'list'});
   $self->_set($request->{'list'}, $request->{'user'}, $request->{'victim'}, 
-              $request->{'mode'}, $request->{'cmdline'}, $request->{'setting'});
+              $request->{'mode'}, $request->{'cmdline'}, $request->{'setting'},
+              $request->{'auxlist'});
 }
 
 sub _set {
-  my ($self, $list, $user, $addr, $mode, $cmd, $setting) = @_;
+  my ($self, $list, $user, $addr, $mode, $cmd, $setting, $sublist) = @_;
   my (@lists, @out, $data, $l, $ok, $res);
 
   if ($list eq 'ALL') {
@@ -3853,10 +3887,11 @@ sub _set {
 
   for $l (@lists) {
     $self->_make_list($l);
-    ($ok, $res) = $self->{'lists'}{$l}->set($addr, $setting);
+    ($ok, $res) = $self->{'lists'}{$l}->set($addr, $setting, $sublist);
     if ($ok) {
-      $res->{'victim'} = $addr;
-      $res->{'list'} = $l;
+      $res->{'victim'}   = $addr;
+      $res->{'list'}     = $l;
+      $res->{'sublist'}  = $sublist;
       $res->{'flagdesc'} = [$self->{'lists'}{$l}->describe_flags($res->{'flags'})];
       $res->{'classdesc'} = $self->{'lists'}{$l}->describe_class(@{$res->{'class'}});
     }
@@ -3928,7 +3963,7 @@ sub _show {
 
   # Registration data
   $data = $self->{'reg'}->lookup($addr->canon);
-  return (1, %out) unless $data;
+  return (1, \%out) unless $data;
   $out{regdata} = {
 		   fulladdr   => $data->{'fulladdr'},
 		   stripaddr  => $data->{'stripaddr'},
@@ -4665,6 +4700,7 @@ sub who_chunk {
           next unless $i->{'bouncedata'};
           $i->{'bouncestats'} = 
             $self->{'lists'}{$request->{'list'}}->bounce_gen_stats($i->{'bouncedata'});
+          next unless ($i->{'bouncestats'}->{'month'} > 0);
         }
 	$i->{'flagdesc'} =
 	  join(',',$self->{'lists'}{$request->{'list'}}->describe_flags($i->{'flags'}));
