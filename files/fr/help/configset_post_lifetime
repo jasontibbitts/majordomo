@@ -1,0 +1,33 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste post_lifetime = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : 60
+Type de donnée    : entier
+Catégorie         : moderate
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset liste post_lifetime = -1
+
+
+$INCLUDE-config/post_lifetime
+
+Le trigger "post" dans la configuration des triggers détermine la
+fréquence d'effacement des anciennes statistiques.
+
+Les statistiques ne seront jamais effacées si ce paramètre est négatif.
+
+
+Référez vous aussi à :
+   help admin_moderate
+   help configset_dup_lifetime
+   help configset_inactive_lifetime
+   help configset_latchkey_lifetime
+   help configset_log_lifetime
+   help configset_post_limits
+   help configset_session_lifetime
+   help configset_token_lifetime
+   help configset_triggers
+
+$INCLUDE-help/foot

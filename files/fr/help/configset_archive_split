@@ -1,0 +1,35 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste archive_split = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : monthly
+Type de donnée    : enuméré, entre : yearly quarterly monthly weekly daily
+Catégorie         : archive
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset liste archive_split = monthly
+
+$INCLUDE-config/archive_split
+
+Si vous désirez renommer les fichiers d'archive après qu'ils été
+créés, il sera nécessaire d'utiliser la commande put pour stocker les
+messages dans de nouveaux fichiers. Les commandes "archive-delete" et
+"put-delete" doivent être utilisées uniquement pour supprimer les
+anciens fichiers d'archives. Enfin, la commande "archive-sync" doit
+être utilisée pour régénérer les bases de données des archives pour
+les nouveaux fichiers.
+
+ 
+Référez vous aussi à :
+   help admin_delivery
+   help archive
+   help configset_archive_access
+   help configset_archive_date
+   help configset_archive_dir
+   help configset_archive_size
+   help configset_archive_url
+   help get
+   help put
+  
+$INCLUDE-help/foot

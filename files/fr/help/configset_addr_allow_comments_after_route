@@ -1,0 +1,34 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  addr_allow_comments_after_route = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : no
+Type de donnée    : booléen, entre : 0 n no, 1 y yes
+Catégorie         : address
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset GLOBAL addr_allow_comments_after_route = 1
+
+
+$INCLUDE-config/addr_allow_comments_after_route
+
+Ceci est toujours légal :
+   Joe Blow <joe@blow.com>
+
+Cela est uniquement accepté si "addr_allow_comments_after_route" est
+actif :
+   <joe@blow.com> Joe Blow
+
+
+Référez vous aussi à :
+   help admin_domain
+   help admin_subscribers
+   help configset_addr_allow_at_in_phrase
+   help configset_addr_allow_bang_paths
+   help configset_addr_allow_ending_dot
+   help configset_addr_limit_length
+   help configset_addr_require_fqdn
+   help configset_addr_strict_domain_check
+
+$INCLUDE-help/foot
