@@ -58,14 +58,12 @@ sub add {
   my $canon = shift;
 #  my $log   = new Log::In 150, "$addr, $dom";
 
-  # Generate an appropriate sender; we use the canonical address because
-  # it's always shorter and it is the actual key to the database, making
-  # the lookup quicker later.
+  # Generate an appropriate sender.
   my $sender =
     Bf::Sender::M_probe_sender($self->{data}{sender},
 			       $self->{sendsep},
 			       $self->{seqnum},
-			       $canon,
+			       $addr,
 			      );
 
   # Set the dest's sender

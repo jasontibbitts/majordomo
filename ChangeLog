@@ -1,5 +1,16 @@
 2000-11-15  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Deliver/Prober.pm (add): Don't use the canonical address
+	in the envelope, since it makes it difficult to get back to the
+	real address later.
+
+	* lib/Mj/List.pm (_make_post_data): New function to create the
+	posts database.
+	(post_add, get_post_data, expire_post_data): Call _make_post_data.
+
+	* lib/Mj/BounceHandler.pm (handle_bounce_message): Incorrectly
+	used "bounce" instead of "failure" for bounce status.
+
 	* lib/Mj/BounceParser.pm (parse_mms): Accept WorldSecure SMTP
 	Relay bounces as well.
 	(check_dsn_netscape): Handle an additional format.

@@ -133,18 +133,23 @@ sub handle_bounce_message {
   @bouncers = @{$self->_list_config_get($list, 'bounce_recipients')};
   @bouncers = @owners unless @bouncers;
 
-  # If we have an address from the envelope, we can only have one and we
-  # know it's correct.  Parsing may have been able to extract a status
-  # and diagnostic, so grab them then overwrite the data hash with a new
-  # one containing just that user.  The idea is to ignore any addresses
+  # If we have an address or subscriber ID from the envelope, we can only
+  # have one and we know it's correct.  First we have to get from that to
+  # the actual user email address.  Parsing may have been able to extract a
+  # status and diagnostic, so grab them then overwrite the data hash with a
+  # new one containing just that user.  The idea is to ignore any addresses
   # that parsing extracted but aren't relevant.
   if ($user) {
+
+    # Get back to the real email address; loop up subscriber ID if we have
+    # one.
+
     if ($data->{$user}) {
       $status = $data->{$user}{status};
       $diag   = $data->{$user}{diag} || 'unknown';
     }
     else {
-      $status = 'bounce';
+      $status = 'failure';
       $diag   = 'unknown';
     }
     $data = {$user => {status => $status, diag => $diag}};
@@ -285,7 +290,9 @@ sub handle_bounce_user {
     );
 
   $status = $params{status};
+
   $params{msgno} = '' if $params{msgno} eq 'unknown';
+
   if ($status eq 'unknown' || $status eq 'warning' || $status eq 'failure') {
     $user = new Mj::Addr($user);
 
@@ -303,6 +310,7 @@ sub handle_bounce_user {
       $sdata = $self->{lists}{$list}->is_subscriber($user);
       $bdata = $self->{lists}{$list}->bounce_add($user, time, $params{type}, $params{msgno}, $params{diag});
     }
+
     $mess .= "  User:        $user\n";
     $mess .= "  Subscribed:  " .($sdata?'yes':'no')."\n" if $list ne 'GLOBAL';
     $mess .= "  Status:      $params{status}\n";

@@ -1404,30 +1404,25 @@ sub post_add {
   my $log = new Log::In 150, "$time #$number";
   my($data, $event, $ok);
 
-  unless (exists $self->{'posts'}) {
-    $self->{'posts'} = new Mj::AddressList $self->_file_path("_posts"), 
-                                           $self->{'backend'};
-  }
-
+  $self->_make_post_data;
   return unless $self->{'posts'};
-    
+
   $event = "$time$type$number";
   $data = $self->{'posts'}->lookup($addr->canon);
   if ($data) {
-    $data->{'comment'} .= " $event";
+    $data->{'postdata'} .= " $event";
     $self->{'posts'}->replace('', $addr->canon, $data);
   }
   else {
     $data = {};
-    $data->{'comment'} = $event;
+    $data->{'postdata'} = $event;
     $self->{'posts'}->add('', $addr->canon, $data);
   }
 }
 
 =head2 get_post_data
 
-This converts members with timed nomail classes back to their old class
-when the vacation time is passed and removes old bounce data.
+
 
 =cut
 use Mj::AddressList;
@@ -1436,15 +1431,12 @@ sub get_post_data {
   my $addr = shift;
   my (@msgs);
 
-  unless (exists $self->{'posts'}) {
-    $self->{'posts'} = new Mj::AddressList $self->_file_path("_posts"), 
-                                           $self->{'backend'};
-  }
-
+  $self->_make_post_data;
   return unless $self->{'posts'};
+
   my $data = $self->{'posts'}->lookup($addr->canon);
   if ($data) {
-    @msgs = split ' ', $data->{'comment'};
+    @msgs = split ' ', $data->{'postdata'};
     $data = {};
     for (@msgs) {
       if ($_ =~ /(\d+)\w(\d+)/) {
@@ -1466,11 +1458,7 @@ sub expire_post_data {
   # XXX Use twice the lifetime of duplicates.
   my $expiretime = time - $self->config_get('dup_lifetime') * 2*60*60*24;
 
-  unless (exists $self->{'posts'}) {
-    $self->{'posts'} = new Mj::AddressList $self->_file_path("_posts"), 
-                                           $self->{'backend'};
-  }
-
+  $self->_make_post_data;
   return unless $self->{'posts'};
 
   my $mogrify = sub {
@@ -1478,18 +1466,18 @@ sub expire_post_data {
     my $data = shift;
     my (@b1, @b2, $b, $t);
 
-    # Fast exit if we have no expired timers and no bounce data
-    return (0, 0) if !$data->{comment};
+    # Fast exit if we have no post data
+    return (0, 0) if !$data->{postdata};
 
     # Expire old posted message data.
-    @b1 = split(/\s+/, $data->{comment});
+    @b1 = split(/\s+/, $data->{postdata});
     while (1) {
       $b = pop @b1; last unless defined $b;
       ($t) = $b =~ /^(\d+)\w/;
       next if $t < $expiretime;
       push @b2, $b; 
     }
-    $data->{comment} = join(' ', @b2);
+    $data->{postdata} = join(' ', @b2);
 
     # Update if necessary
     if (@b2) {
@@ -1741,6 +1729,28 @@ sub _make_archive {
 					$self->config_get('archive_size'),
 				       );
   1;
+}
+
+=head2 _make_post_data
+
+This opens the post database.
+
+Note that we really should not be specifying a comparison function, but
+since originally this was build on a Mj::AddressList and the post data
+stored in the comment field, the format of the database needed to be
+preserved.
+
+=cut
+sub _make_post_data {
+  my $self = shift;
+  return 1 if $self->{'posts'};
+
+  $self->{'posts'} =
+    new Mj::SimpleDB(filename => $self->_file_path("_posts"),
+		     backend  => $self->{'backend'},
+		     compare  => sub {reverse($_[0]) cmp reverse($_[1])},
+		     fields   => [qw(dummy postdata changetime)],
+		    );
 }
 
 =head1 Miscellaneous functions
