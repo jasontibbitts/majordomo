@@ -6998,7 +6998,8 @@ sub _showtokens {
   while (1) {
     ($token, $data) = $self->{'tokendb'}->get(1);
     last unless $token;
-    next unless $data->{'list'} eq $list || $list eq 'ALL';
+    next unless ($data->{'list'} eq $list or $list eq 'ALL'
+                 or ($data->{'list'} eq 'ALL' and $list eq 'GLOBAL'));
     next if ($action and ($data->{'command'} ne $action));
     next if ($data->{'type'} eq 'async'   and $mode !~ /async/);
     next if ($data->{'type'} eq 'alias'   and $mode !~ /alias/);
