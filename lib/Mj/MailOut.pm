@@ -317,7 +317,7 @@ sub welcome {
   my %args = @_;
   my $log = new Log::In 150, "$list, $addr";
   my (%file, @mess, @temps, $count, $fh, $file, $final, $head,
-      $i, $j, $subj, $subs, $top);
+      $i, $j, $reg, $subj, $subs, $top);
 
   # Extract some necessary variables from the config files
   my $tmpdir    = $self->_global_config_get('tmpdir');
@@ -330,9 +330,20 @@ sub welcome {
 	   %args,
 	  };
 
+  if (exists $args{'REGISTERED'} and $args{'REGISTERED'}) {
+    $reg = 1;
+  }
+  else {
+    $reg = 0;
+  }
+
   # Loop over the table, processing parts and substituting values
   $count = 0;
   for($i=0; $i<@{$table}; $i++) {
+    # skip this file if the registration flags do not match.
+    next if ($table->[$i][2] =~ /U/ and $reg);
+    next if ($table->[$i][2] =~ /R/ and ! $reg);
+
     # Are we starting a new message?
     if ($i!=0 && $table->[$i][2] =~ /N/) {
       $count++;
@@ -370,6 +381,8 @@ sub welcome {
 
   # Now we can go over the @mess array, build messages and deliver them
   for ($i=0; $i<@mess; $i++) {
+    next unless (@{$mess[$i]{'ents'}} > 0);
+
     # If we have a single-part message...
     if (@{$mess[$i]{'ents'}} == 1) {
       $top = shift @{$mess[$i]{'ents'}};
