@@ -27,11 +27,11 @@
   <input name="passw" type="hidden" value="$CMDPASS">
   <input type="hidden" name="user" value="$USER">
 
-  <input type="radio" name="func" value="who" checked>
+  <input type="radio" name="func" value="who-enhanced" checked>
   Recherchez la liste des abonnés à $LIST 
     (en utilisant la commande $HELP:WHO)<br>
 
-  <input type="radio" name="func" value="who-bounce">
+  <input type="radio" name="func" value="who-bounce-enhanced">
   Recherchez dans la liste des erreurs des abonnés a $LIST.
     (en utilisant la commande $HELP:WHO-bounce)<br>
 

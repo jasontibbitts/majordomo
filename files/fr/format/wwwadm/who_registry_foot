@@ -14,7 +14,7 @@
   <input name="passw" type="hidden" value="$CMDPASS">
   <input type="hidden" name="user" value="$USER">
 
-  <input type="radio" name="func" value="who" checked>
+  <input type="radio" name="func" value="who-enhanced" checked>
   Rechercher le registre.
     (en utilisant la commande $HELP:WHO)<br>
   <input type="radio" name="func" value="which">
