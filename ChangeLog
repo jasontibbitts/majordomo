@@ -1,3 +1,18 @@
+2000-08-15  Michael Yount <csf@moscow.com>
+
+	* files/en/config/log_lifetime:  New variable.  Log
+	entries older than this age (default 31 days) will be
+	deleted during the daily trigger.
+
+	* lib/Majordomo.pm (set):  Support "check" mode, which
+	allows settings to be reviewed but not changed.
+
+	* lib/Mj/CommandProps.pm, lib/Mj/Parser.pm (parse_args):  
+	Rearrange 'arguments' data to make per-mode adjustments easier.
+
+	* lib/Mj/Inform.pm (l_expire):  New routine.  Remove log
+	entries older than the log_lifetime setting.
+
 2000-08-13  Michael Yount <csf@moscow.com>
 
 	* files/en/ack_archive:  New file, sent when a post is

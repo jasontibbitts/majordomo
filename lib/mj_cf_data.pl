@@ -884,13 +884,20 @@ EOC
     'global' => 0,
     'local'  => 1,
     'visible'=> 0,
-  },
+   },
    'save_denial_checksums' =>
    {
     'type'   => 'integer',
     'groups' => [qw(resend majordomo)],
     'global' => 0,
     'local'  => 1,
+    'visible'=> 0,
+   },
+   'log_lifetime' =>
+   {
+    'type'   => 'integer',
+    'groups' => [qw(majordomo)],
+    'global' => 1,
     'visible'=> 0,
    },
    'session_lifetime' =>

@@ -292,6 +292,7 @@ $files =
    'en/config/info_access'                     => ['The info_access variable',                     'us-ascii', '7bit'],
    'en/config/inform'                          => ['The inform variable',                          'us-ascii', '7bit'],
    'en/config/intro_access'                    => ['The intro_access variable',                    'us-ascii', '7bit'],
+   'en/config/log_lifetime'                    => ['The log_lifetime variable',                    'us-ascii', '7bit'],
    'en/config/master_password'                 => ['The master_password variable',                 'us-ascii', '7bit'],
    'en/config/max_header_line_length'          => ['The max_header_line_length variable',          'us-ascii', '7bit'],
    'en/config/max_in_core'                     => ['The max_in_core variable',                     'us-ascii', '7bit'],
