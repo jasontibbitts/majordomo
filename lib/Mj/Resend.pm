@@ -493,8 +493,8 @@ sub _post {
   
   # Invoke delivery routine on the file, first to high-priority folks, then
   # to the rest
-  $self->deliver($list, $sender, $file, 'high');
-  $self->deliver($list, $sender, $file, 'each');
+  $self->deliver($list, $sender, $file, $seqno, 'high');
+  $self->deliver($list, $sender, $file, $seqno, 'each');
   
   # Pass to archiver; first extract all references
 #  print Dumper $head;

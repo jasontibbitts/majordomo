@@ -648,8 +648,8 @@ sub which {
 # XXX Merge this with sub auxwho above.
 sub who {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
-      $list, $vict, $arg1, $arg2, $arg3, $ok, $mess) = @_;
-  my $log = new Log::In 29, "$type, $list";
+      $list, $vict, $regexp, $arg2, $arg3, $ok, $mess) = @_;
+  my $log = new Log::In 29, "$type, $list, $regexp";
   my (@lines, @out, @stuff, $chunksize, $count, $error, $i, $ret);  
 
   if ($ok <= 0) {
@@ -667,7 +667,7 @@ sub who {
   eprint $out, $type, "Members of list \"$list\":\n";
   
   while (1) {
-    ($ret, @lines) = $mj->dispatch('who_chunk', @stuff, $chunksize);
+    ($ret, @lines) = $mj->dispatch('who_chunk', @stuff, $regexp, $chunksize);
     
     last unless $ret > 0;
     for $i (@lines) {

@@ -100,7 +100,7 @@ put=data list file content-type charset content-transfer-encoding subject
   Uploads a file to the given list's filespace.
   The file will be assumed to be text/plain with 8bit encoding.
   If the "data" mode is given, the command expects additional data about
-  the file; these should be legal MIME values for those fields.
+    the file; these should be legal MIME values for those fields.
 
 rekey list
   Regenerates the canonical forms of addresses in all of list's address
@@ -121,3 +121,8 @@ rekey list
   Note that if multiple addresses transform to the same thing under the new
     transformation rules, the duplicates may be lost.
   See the 'config addr_xforms' topic for more information on transforms.
+
+who list regexp
+  Returns all members of the list whose addresses match the given regular
+    expression.  The match is done insensitive to case, and the surrounding
+    '/' delimiters are not required.

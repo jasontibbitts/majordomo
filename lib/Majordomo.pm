@@ -2786,13 +2786,13 @@ the setup and returns.
 =cut
 sub who_start {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
-      $list) = @_;
+      $list, $vict, $regexp) = @_;
   my $log = new Log::In 30, "$list";
   my ($ok, $error);
 
   ($ok, $error) = 
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
-			     $list, "who", $user);
+			     $list, "who", $user, $regexp);
 
   unless ($ok > 0) {
     $log->out("noaccess");
@@ -2815,11 +2815,14 @@ sub _who {
 }
 
 use Mj::Addr;
+use Safe;
 sub who_chunk {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
-      $list, $d1, $chunksize) = @_;
-  my $log = new Log::In 100, "$list";
-  my (@chunk, @out, $i, $ok, $addr, $com);
+      $list, $d1, $regexp, $chunksize) = @_;
+  my $log = new Log::In 100, "$list, $regexp, $chunksize";
+  my (@chunk, @out, $i, $ok, $addr, $com, $safe);
+
+  $regexp = "/$regexp/i" if $regexp;
 
   @chunk = $self->{'lists'}{$list}->get_chunk($chunksize);
   
@@ -2828,8 +2831,13 @@ sub who_chunk {
     return 0;
   }
  
-  # Here eliminate addresses that are unlisted
+  if ($regexp) {
+    $safe = new Safe;
+    $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
+  }
+
   for $i (@chunk) {
+    next if $regexp && !_re_match($safe, $regexp, $i->{fulladdr}); 
     # If we're to show it all...
     if ($self->{'unhide_who'}) {
       push @out, $i->{'fulladdr'};

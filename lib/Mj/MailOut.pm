@@ -9,7 +9,7 @@ Mj::MailOut.pm - simple mailing functions for Majorodmo
 
  # Send a file to all members of $lists's digest class except for
  # "addressa"
- $mj->deliver($list, $sender, $file, "digest", "addressa");
+ $mj->deliver($list, $sender, $file, $seqno, "digest", "addressa");
 
 =head1 DESCRIPTION
 
@@ -86,13 +86,8 @@ a list who are in a certain class, except for some users.
 list should be a list name.  Addresses in exclude_list should be in
 canonical form.
 
-Look at bounce_probe_frequency to get 'buckets', them take
-
-sequence_number % bounce_probe_frequency to get 'bucket'.
-
-This essentially completes bounce filtering on the delivery side.
-
-XXX Security?  Some sort of password may be needed; shared secret data?
+We take the sequence number here because _post will have already changed it
+in the config by the time we are called.
 
 =cut
 use Mj::Deliver;
@@ -102,14 +97,14 @@ sub deliver {
   my $list    = shift;
   my $sender  = shift;
   my $file    = shift;
+  my $seqno   = shift;
   my $class   = shift;
   my @exclude = @_;
   my $log = new Log::In 30, $file;
-  my(%args, $bucket, $buckets, $mta, $seqno);
+  my(%args, $bucket, $buckets, $mta);
 
   # Figure out some data related to bounce probing
   $mta     = $self->_global_config_get('mta');
-  $seqno   = $self->_list_config_get($list, 'sequence_number');
   $buckets = $self->_list_config_get($list, 'bounce_probe_frequency');
   $bucket  = $seqno % $buckets if $buckets;
 

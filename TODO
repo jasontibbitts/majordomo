@@ -15,6 +15,9 @@ Switch over one of my lists.  (How?  Manually maintain subscription
 Top of the list 
 ---------------
 
+! Make who command take a regexp as an argument; useful for owners to
+  search just their own lists without running into global which limits.
+
 ! Make sure all sent mails have To: headers.
 
 - Implement rejection (and perhaps acceptance) messages for tokens, and add
@@ -479,7 +482,6 @@ Separate directory for lock files, or locking that doesn't need them.
 Have who expand lists subscribed to current list.
 Clean up the flag and class setting code.
 Access_rules methods for checking against requesting user instead of victim.
-Make who take a regexp.
 Forward to other (or same) server, but change the list name.
 -c option to mj_email (or new mj_command script) to always execute a
   command when a mail is received.

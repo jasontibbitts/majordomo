@@ -874,8 +874,8 @@ sub who {
   my @stuff = ($user, $pass, $auth, $int,
                "who".($mode?"=$mode":"")." $list", $mode, $list, '');
 
-  Mj::Format::who($mj, $outfh, $outfh, 'text', @stuff, '','','',
-		  $mj->dispatch('who_start', @stuff)
+  Mj::Format::who($mj, $outfh, $outfh, 'text', @stuff, $args,'','',
+		  $mj->dispatch('who_start', @stuff, $args)
 		 );
 }
 

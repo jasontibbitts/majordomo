@@ -1,5 +1,17 @@
 Wed Apr  1 00:36:00 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Mj/Format.pm (who): Pass regexp properly.
+
+	* lib/Majordomo.pm (who_chunk): Skip addresses matching regexp.
+
+	* lib/Mj/TextOutput.pm (who): Pass arguments in.
+
+	* lib/Mj/Resend.pm (_post): Pass sequence number to
+ 	Mailout::deliver.
+
+	* lib/Mj/MailOut.pm (deliver): Take sequence number as an
+ 	argument, since the confg file is unreliable at this point.
+
 	* lib/Mj/Deliver.pm (deliver): Do extended sender manipulation if
  	asked.
 
