@@ -1,3 +1,4 @@
+<!-- Majordomo set_check format file -->
 <h4 align=center>Settings for the $LIST mailing list</h4>
   <input type="hidden" name="list" value="$LIST">
 

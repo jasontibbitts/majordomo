@@ -1,4 +1,5 @@
-  <input type="submit" name="func" value="set">
+<!-- Majordomo set_foot format file -->
+ <input type="submit" name="func" value="set">
 </form>
 <p>
 See the 
