@@ -4244,6 +4244,7 @@ sub report_chunk {
   while (1) { 
     $line = $self->{'report_fh'}->getline;
     last unless $line;
+    chomp $line;
     @data = split "\001", $line;
     # check time, list, and action constraints
     next unless (defined $data[9] and $data[9] >= $request->{'begin'} 
