@@ -50,6 +50,11 @@
 	HTML and lists of unwanted attributes and elements, remove
 	them from the file.
 
+2002-06-11  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm (_list_file_get): Accept nodefsearch argument,
+	which turns off searching default locations for files.
+
 2002-06-10  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Filespace.pm:  (index)  Return data in a hashref
