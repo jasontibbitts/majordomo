@@ -6164,8 +6164,9 @@ use IO::File;
 sub sessioninfo_start {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'sessionid'}";
-  my $file;
+  my ($file, $sess);
 
+  # XLANG
   return (0, "You must supply a session identifier.\n")
     unless ($request->{'sessionid'});
 
@@ -6173,11 +6174,18 @@ sub sessioninfo_start {
 
   # The session identifier can be a 32-character MD5 digest, or
   # a 40-character SHA-1 digest.
-  unless ($self->s_recognize($request->{'sessionid'})) {
+  $sess = $self->s_recognize($request->{'sessionid'});
+  unless (defined $sess) {
+    # XLANG
     return (0, qq(The session ID "$request->{'sessionid'}" is invalid.\n));
   }
 
-  $file = "$self->{ldir}/GLOBAL/sessions/$request->{'sessionid'}" ;
+  if ($sess == 0) {
+    # XLANG
+    return (0, qq(The session ID "$request->{'sessionid'}" has expired.\n));
+  }
+
+  $file = "$self->{ldir}/GLOBAL/sessions/$sess" ;
 
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
@@ -6205,7 +6213,7 @@ sub s_recognize {
   my $log  = new Log::In 60;
 
   if ($id =~ /^([0-9a-f]{32}([0-9a-f]{8})?)$/) {
-    return unless (-f "$self->{ldir}/GLOBAL/sessions/$id");
+    return 0 unless (-f "$self->{ldir}/GLOBAL/sessions/$id");
     return $1;
   }
   return;
