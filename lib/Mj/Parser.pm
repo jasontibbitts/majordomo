@@ -606,6 +606,7 @@ sub parse_part {
                       'FAIL'  => $fail_count,
                       'STALL' => $pend_count,
                       'SUCCEED' => $ok_count,
+                      'SESSIONID' => $mj->{'sessionid'},
                      );
   if ($count == 0) {
     # No commands were found; log as an error under "parse".

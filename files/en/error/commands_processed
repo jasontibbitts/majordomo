@@ -1,3 +1,8 @@
 Valid commands processed: $COUNT
 $SUCCEED succeeded, $STALL stalled, and $FAIL failed.
 
+
+Use the following command: 
+  sessioninfo $SESSIONID
+to see technical information about this session.
+
