@@ -167,3 +167,39 @@ When modifying the body, if the above fake mime types are marked as
 and drop the whole body part up to and including the ending sequence.
 Insert a message indicating that the data was deleted.
 
+
+MTA configuration hook
+----------------------
+Many MTAs need special programs to be called to build database files out of
+the aliases and associated files which we generate.  This is not generally
+possible to do within Majordomo for two reasons: 1) it is site-dependent
+and 2) it requires priviliges that Majordomo doesn't have (frequently
+root).
+
+To solve this add a "hook": look for a program in a specified place and, if
+it exists, call it with some defined calling convention.
+
+For many sendmail installations, it suffices to call newaliases, although
+on newer sendmails this must be done as root.  Other installations need
+calls to makemap as well.
+
+Possibilities: 1) setuid program to exec newaliases 2) touch a file, which
+is checked by a root-owned cron job that runs newaliases and makemap if
+it's present.
+
+Exim can use this feature to use databases instead of flat files, which
+would speed up installations with large numbers of domains or lists.
+
+Suggested script location: $install_dir/libexec/build_databases.  Not in
+  the normal bin directory, because this is not a user executable.
+
+libexec chould be mode 700, owner majordomo, group majordomo.  (This is
+  security sensitive, and should be restricted beyond normal majordomo
+  files.)
+
+Arguments taken: none; the script gets called any time a change is made and
+  should generate all databases.
+
+Permissions: 700, owned by majordomo or 750, owned by root, in majordomo
+  group.
+
