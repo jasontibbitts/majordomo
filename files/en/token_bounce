@@ -1,0 +1,15 @@
+The following request:
+  "$CMDLINE"
+was sent to $SITE on
+  $DATE
+by $REQUESTER.
+    
+The request was not completed because instructions 
+for the token $TOKEN could not be delivered to
+  $VICTIM
+for the following reasons:
+$REASONS
+
+$DELETED
+The error message that describes the delivery failure is attached.
+(The message was processed by the $HANDLER bounce handler.)
