@@ -70,7 +70,7 @@ Number of addresses:
   Remove subscribers from the $LIST mailing list.
   Send a farewell message. <br>
 
-  <input type="radio" name="func" value="unsubscribe"> 
+  <input type="radio" name="func" value="unsubscribe-nofarewell"> 
   Remove subscribers from the $LIST mailing list.
   <b>Do not</b> send a farewell message. <br>
 

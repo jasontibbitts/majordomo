@@ -77,7 +77,7 @@ Nombre d'adresses&nbsp;:
   Supprimer des abonnés de la liste $LIST. Leur envoyer un
   message d'adieu.<br>
 
-  <input type="radio" name="func" value="unsubscribe"> 
+  <input type="radio" name="func" value="unsubscribe-nofarewell"> 
   Supprimer des abonnés de la liste $LIST. <b>Ne pas</b> leur
   envoyer un message d'adieu.<br>
 
