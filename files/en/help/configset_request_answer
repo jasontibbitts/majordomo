@@ -11,14 +11,46 @@ EXAMPLE:
 configset GLOBAL request_answer = owner
 
 
-This variable controls what happens to messages sent to the
-'listname-request' address.  The possible valies, and their effects:
+$INCLUDE-config/request_answer
 
-majordomo - the message will be processed for commands
-owner     - the message will be sent to the list owner
-response  - the contents of the file 'request_reply' will be returned
-            to the sender of the message.
+The effects of this setting will vary according to its value:
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+majordomo
+---------
+Commands in the body of the message will be processed as if they were
+sent to the server address, $MJ.  When commands are sent to a "request"
+address, Majordomo will attempt to insert the list name into a command
+if it is not already present.
+
+A similar effect can be produced by using the "default list" command.
+See "help default" for details.
+
+owner
+-----
+The message will be sent to the addresses in the owners configuration
+setting.
+
+response
+--------
+The request_response document can be customized on a list-by-list basis.
+See "help admin_documents" for more details.  The stock document gives
+basic instructions for using the subscribe and unsubscribe commands to
+join or leave the mailing list.
+
+Access to this document can be restricted using rules for the
+"request_response" command in the access_rules setting.  
+See "help configset_access_rules" for more details.
+
+The headers from the GLOBAL message_headers setting will be added to the 
+response message, to reduce the likelihood of mail loops.
+
+
+See Also:
+   help admin_documents
+   help configset_access_rules
+   help configset_aliases
+   help configset_message_headers
+   help configset_owners
+   help default
+
+$INCLUDE-help/foot

@@ -8,22 +8,20 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname purge_received = y
+configset listname purge_received = yes
 
 
-Remove all received lines before resending the message.
+$INCLUDE-config/purge_received
 
-NOTE: This command can be duplicated with the more general command
-"configset delete_headers", which for the example above would look
-like this:
-configset listname delete_headers <<END
-Received
-END
+A more general way to remove headers from posted messages is to use the
+delete_headers configuration setting.
 
 
 See Also:
-   help configset delete_headers (for how to remove arbitrary headers)
+   help admin_delivery
+   help configset_delete_headers
+   help configset_message_headers
+   help configset_reply_to
+   help configset_subject_prefix
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

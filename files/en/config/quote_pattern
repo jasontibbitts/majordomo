@@ -1,2 +1,4 @@
-A regular expression used to match quoted text in message bodies.
-This is used to generate the counts and percentages of quoted text.
+The quote_pattern contains a pattern that is used to match lines of
+text in the bodies of posted messages.  Lines that match the pattern are
+considered "quoted," meaning that they originated in earlier messages to
+which the author of the current message is responding.

@@ -11,9 +11,26 @@ EXAMPLE:
 configset listname quote_pattern = /^( - | : | > | [a-z]+> )/xi
 
 
-A regular expression used to match quoted text in message bodies.
-This is used to generate the counts and percentages of quoted text.
+$INCLUDE-config/quote_pattern
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+Sometimes, people will "quote" an entire, earlier message in their 
+replies.  Doing this makes the message much longer than necessary. 
+If the conversation continues, the discussion can become difficult to
+read because of the amount of quoted text from earlier messages.
+
+The percent_quoted access variable contains the percentage of lines in
+the body of the message that match the quote pattern.  The quoted_lines
+access variable contains the total number of lines that match the quote
+pattern.  Access variables can be used in the access_rules setting to
+establish limits for quoting.  See "help access_variables" and 
+"help configset_access_rules" for more details.  By default, there are
+no limits for quoting.
+
+
+See Also:
+   help access_variables
+   help admin_moderate
+   help configset_access_rules
+   help patterns
+
+$INCLUDE-help/foot

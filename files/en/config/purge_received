@@ -1,1 +1,2 @@
-Remove all received lines before resending the message.
+The purge_received setting causes all Received headers to be removed
+from every posted message.

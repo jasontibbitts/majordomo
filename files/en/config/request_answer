@@ -1,7 +1,8 @@
-This variable controls what happens to messages sent to the
-'listname-request' address.  The possible valies, and their effects:
+The request_answer setting controls what happens to messages sent to the
+"listname-request" address of every mailing list in a domain.  Three 
+values are supported:
 
-majordomo - the message will be processed for commands
-owner     - the message will be sent to the list owner
-response  - the contents of the file 'request_reply' will be returned
-            to the sender of the message.
+majordomo - Commands in the message body will be processed
+owner     - The message will be sent to the list owners
+response  - The contents of the "request_response" document will be
+            delivered to the sender of the message.
