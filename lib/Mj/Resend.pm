@@ -2126,13 +2126,15 @@ sub do_digests {
 	    $subs->{DIGESTTYPE} = $j;
 	    for $l ("digest_${i}_${j}_${k}", "digest_${i}_${k}", "digest_${j}_${k}", "digest_${k}") {
 	      ($file, %file) = $self->_list_file_get($list, $l, $subs);
-	      next unless $file;
-	      # We're guaranteed to have something by now; if the user
-	      # didn't provide a file, the build routine will just leave
-	      # the appropriate spot blank.
-	      $dtext->{$j}{$k}{'name'} = $file;
-	      $dtext->{$j}{$k}{'data'} = \%file;
-	      push @nuke, $file;
+	      if($file) {
+	        # We're guaranteed to have something if we got here; if the user
+	        # didn't provide a file, the build routine will just leave
+	        # the appropriate spot blank.
+	        $dtext->{$j}{$k}{'name'} = $file;
+	        $dtext->{$j}{$k}{'data'} = \%file;
+	        push @nuke, $file;
+	        last; # missing until 5/22/01 --> always used least specific file
+	      }
 	    }
 	  }
 	}
