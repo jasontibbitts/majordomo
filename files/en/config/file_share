@@ -1,2 +1,2 @@
-This should contain the names (one per line) of every list which is
+The file_share setting contains a list of mailing lists which are
 allowed to access files from this list's filespace.

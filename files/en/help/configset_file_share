@@ -16,9 +16,17 @@ otherlistname
 ENDTAG
 
 
-This should contain the names (one per line) of every list which is
-allowed to access files from this list's filespace.
+$INCLUDE-config/file_share
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+For each mailing list mentioned in this setting, the file_search setting
+should be changed to include the current mailing list.
+
+
+See Also:
+   help admin_documents
+   help configset_file_search
+   help get
+   help index
+   help put
+
+$INCLUDE-help/foot
