@@ -1,3 +1,14 @@
+2004-07-10  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  Version number is now 0.1200407100.
+
+	* lib/Mj/Parser.pm:  (parse_part)  Support the SESSIONID
+	substitution in the command summary.
+
+	* lib/Mj/Resend.pm:  (_check_approval)  Issue an error
+	if an "Approved" line is not followed by a blank line
+	or a valid e-mail header.
+
 2004-06-28  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_changeaddr)  Allow two addresses
