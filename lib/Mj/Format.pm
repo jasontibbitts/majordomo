@@ -1080,13 +1080,31 @@ sub intro {g_get("intro", @_)}
 sub help {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, $request->{'topic'};
-  my ($cgidata, $cgiurl, $chunk, $chunksize, $domain, 
-      $hwin, $list, $tmp, $topic);
-  my ($ok, $mess) = @$result;
+  my ($cgidata, $cgiurl, $chunk, $chunksize, $domain, $hwin, $list, $mess, 
+      $ok, $str, $subs, $tmp, $topic);
+
+  ($ok, $mess) = @$result;
+
+  $subs = { $mj->standard_subs('GLOBAL'),
+           'CGIDATA'  => $request->{'cgidata'},
+           'CGIURL'   => $request->{'cgiurl'},
+           'CMDPASS'  => &escape($request->{'password'}, $type),
+           'TOPIC'    => &escape($request->{'topic'}, $type),
+           'USER'     => &escape("$request->{'user'}", $type),
+          };
 
   unless ($ok > 0) {
-    print $out &indicate($type, "Help $request->{'topic'} failed.\n$mess", $ok);
+    $subs->{'ERROR'} = &escape($mess, $type);
+    $tmp = $mj->format_get_string($type, 'help_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok);
     return $ok;
+  }
+
+  $tmp = $mj->format_get_string($type, 'help_head');
+  if (defined $tmp and length $tmp) {
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n" if (length $str);
   }
 
   $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
@@ -1116,6 +1134,13 @@ sub help {
 
   $request->{'command'} = "help_done";
   $mj->dispatch($request);
+
+  $tmp = $mj->format_get_string($type, 'help_foot');
+  if (defined $tmp and length $tmp) {
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n" if (length $str);
+  }
+
   1;
 }
 
@@ -1163,6 +1188,7 @@ sub index {
   $width{'size'}         ||= 5;
 
   if (@index) {
+    # index_head
     eprint($out, $type, length($request->{'path'}) ?"Files in $request->{'path'}:\n" : "Public files:\n")
       unless $request->{'mode'} =~ /short/;
     for $i (@index) {
@@ -1369,12 +1395,20 @@ sub password {
 
 sub post {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($i, $ok, $mess, $handled); 
+  my ($handled, $i, $mess, $ok, $str, $subs, $tmp);
+
   $handled = 0;
   $handled = 1 if (ref ($request->{'message'}) =~ /^IO/);
- 
+
+  $subs = { $mj->standard_subs($request->{'list'}),
+           'CGIDATA'  => $request->{'cgidata'},
+           'CGIURL'   => $request->{'cgiurl'},
+           'CMDPASS'  => &escape($request->{'password'}, $type),
+           'USER'     => &escape("$request->{'user'}", $type),
+          };
+   
   # The message will have been posted already if this subroutine
-  # is called by Mj::Token::t_accept . 
+  # is called by Mj::Token::t_accept(). 
   if (exists $request->{'message'}) { 
     $request->{'command'} = "post_chunk"; 
     while (1) {
@@ -1389,7 +1423,6 @@ sub post {
       ($ok, $mess) = @{$mj->dispatch($request, $i)};
       last unless $ok;
     }
-    
 
     $request->{'command'} = "post_done"; 
     ($ok, $mess) = @{$mj->dispatch($request)};
@@ -1398,34 +1431,46 @@ sub post {
     ($ok, $mess) = @$result;
   }
 
-  if ($ok>0) {
-    eprint($out, $type, "Post succeeded.\n");
-  }
-  elsif ($ok<0) {
-    eprint($out, $type, "Post stalled, awaiting approval.\nDetails:\n");
+  if ($ok > 0) {
+    $tmp = $mj->format_get_string($type, 'post');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
   }
   else {
-    eprint($out, $type, "Post failed.\nDetails:\n");
+    $subs->{'ERROR'} = &escape($mess, $type);
+    $tmp = $mj->format_get_string($type, 'post_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok);
   }
-  # The "message" given by a success is only the poster's address.
-  eprint($out, $type, indicate($type, $mess, $ok, 1)) if ($mess and ($ok <= 0));
 
   return $ok;
 }
 
 sub put {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($act, $chunk, $chunksize, $handled, $i);
-  my ($ok, $mess) = @$result;
+  my ($act, $chunk, $chunksize, $handled, $i, $mess, $ok, $str,
+      $subs, $tmp);
+  ($ok, $mess) = @$result;
 
   if    ($request->{'file'} eq '/info' ) {$act = 'newinfo' }
   elsif ($request->{'file'} eq '/intro') {$act = 'newintro'}
   elsif ($request->{'file'} eq '/faq'  ) {$act = 'newfaq'  }
   else                                   {$act = 'put'     }
 
+  $subs = { $mj->standard_subs($request->{'list'}),
+           'CGIDATA'  => $request->{'cgidata'},
+           'CGIURL'   => $request->{'cgiurl'},
+           'CMDPASS'  => &escape($request->{'password'}, $type),
+           'COMMAND'  => $act,
+           'FILE'     => &escape($request->{'file'}, $type),
+           'USER'     => &escape("$request->{'user'}", $type),
+          };
+
   unless ($ok) {
-    eprint($out, $type, &indicate($type, "The $act command failed.\n", $ok));
-    eprint($out, $type, &indicate($type, $mess, $ok)) if $mess;
+    $subs->{'ERROR'} = &escape($mess, $type);
+    $tmp = $mj->format_get_string($type, 'put_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok);
     return $ok;
   }
 
@@ -1462,15 +1507,16 @@ sub put {
   }
 
   if ($ok > 0) {
-    eprint($out, $type, "The $act command succeeded.\n");
-  }
-  elsif ($ok < 0) {
-    eprint($out, $type, &indicate($type, "The $act command stalled.\n", $ok));
+    $tmp = $mj->format_get_string($type, 'put');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
   }
   else {
-    eprint($out, $type, &indicate($type, "The $act command failed.\n", $ok));
+    $subs->{'ERROR'} = &escape($mess, $type);
+    $tmp = $mj->format_get_string($type, 'put_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok);
   }
-  eprint($out, $type, &indicate($type, $mess, $ok, 1)) if $mess;
 
   return $ok;
 } 
@@ -1983,7 +2029,7 @@ sub show {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
   my (@lists, $bouncedata, $error, $flag, $gsubs, $i, $j, $lsubs,
-      $settings, $show, $str, $subs, $tmp);
+      $settings, $show, $str, $subs, $tmp, $tmp2);
   my ($ok, $data) = @$result;
   $error = [];
 
@@ -2123,21 +2169,23 @@ sub show {
 
         # Is this setting allowed?
         if ($settings->{'flags'}[$j]->{'allow'} or $type eq 'wwwadm') {
-          push @{$lsubs->{'CHECKBOX'}}, 
-            "<input name=\"$i;$flag\" type=\"checkbox\" $str>";
+          $tmp = "<input name=\"$i;$flag\" type=\"checkbox\" $str>";
         }
         else {
           # Use an X or O to indicate a setting that has been disabled
-          # by the allowed_flags configuration value.
+          # by the allowed_flags configuration setting.
           if ($str eq 'checked') {
             $str = 'X';
           }
           else {
             $str = 'O';
           }
-          push @{$lsubs->{'CHECKBOX'}}, 
-            "<input name=\"$i;$flag\" type=\"hidden\" value=\"disabled\">$str";
+          
+          $tmp = "<input name=\"$i;$flag\" type=\"hidden\" value=\"disabled\">$str";
         }
+        push @{$lsubs->{'CHECKBOX'}}, $tmp;
+        $tmp2 = uc($flag) . '_CHECKBOX';
+        $lsubs->{$tmp2} = $tmp;
       }
       for ($j = 0; $j < @{$settings->{'classes'}}; $j++) {
         $flag = $settings->{'classes'}[$j]->{'name'};
@@ -3257,7 +3305,7 @@ sub eprintf {
 sub escape {
   local $_ = shift;
   my $type = shift || '';
-  return unless (defined $_);
+  return '' unless (defined $_);
   return $_ if ($type eq 'text');
   my %esc = ( '&'=>'amp', '"'=>'quot', '<'=>'lt', '>'=>'gt');
   s/([<>\"&])/\&$esc{$1};/mg; 
@@ -3279,6 +3327,7 @@ sub qescape {
   my $type = shift || '';
   my (%esc, $i);
 
+  return '' unless (defined $_);
   return $_ if ($type eq 'text');
 
   for $i (0..255) {
@@ -3295,6 +3344,7 @@ sub uescape {
   my $type = shift || '';
   my (%esc, $i);
 
+  return '' unless (defined $_);
   return $_ if ($type eq 'text');
 
   for $i (0..255) {
