@@ -1,7 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-accept [token]
+accept [-archive] [token]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-token, if specified, is the magic number sent to you by Majordomo
+-archive, if specified, archives a message without distributing it
+token,    if specified, is the magic number sent to you by Majordomo
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The 'accept' command tells Majordomo to allow or approve some requested
@@ -34,6 +35,16 @@ Majordomo will try to remind you that it is about to give up before
 timing out. The list owner or site administrator sets the number of
 days for token reminders and expirations.
 
+If the stalled command is a message that someone wishes to see
+distributed on a mailing list, the "accept-archive" command may
+be used to store the message in the mailing list archive,  but
+not distribute it on the list.  This feature has proven useful
+in short-term, moderated discussions, when messages that would
+be acceptable under other circumstances are not distributed, to
+keep the discussion from overwhelming the participants.  The
+"archive only" messages may be seen by the public at a later time,
+through a WWW archive, or using majordomo's "archive" command.
+
 Site administrators should refer to "help configset access_rules" for
 ways to change the message which asks for accept/reject tokens.
 
@@ -41,6 +52,7 @@ See Also:
    help approve                  (which can eliminate the need to use "accept")
    help reject                   (the opposite action of "accept")
    help showtokens               (for a list of unhandled requests)
+   help tokeninfo                (for details about a particular request)
    help configset token_lifetime (site-wide or per-list expiration period)
    help configset token_remind   (site-wide or per-list reminder before expiration)
 
