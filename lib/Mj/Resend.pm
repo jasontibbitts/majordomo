@@ -525,7 +525,14 @@ sub _post {
       }
     }
   }
-  
+ 
+  # Generate the exclude and membership lists
+  # before the headers have been altered.
+  if ($mode !~ /archive/) { 
+    ($exclude, $members, $nonmembers) = 
+      $self->_exclude($ent[0], $list, $sl, $user);
+  }
+
   # Remove skippable headers, including Approved:.
   @skip = ('Approved');
   push @skip, $self->_list_config_get($list, 'delete_headers');
@@ -673,9 +680,6 @@ sub _post {
     }
 
     $subs->{'USER'} = $head->get('From');
-
-    # Generate the exclude and membership lists
-    ($exclude, $members, $nonmembers) = $self->_exclude($ent[0], $list, $sl, $user);
 
     # Add fronter and footer.
     $self->_add_fters($ent[0], $list, $subs);
@@ -1261,6 +1265,8 @@ sub _check_header {
     _describe_taboo($reasons, $avars, $k, $l, $rule, undef, undef, $sev,
 		    $class, 1)
   }
+
+  1;
 }
 
 =head2 _r_ck_header
@@ -1270,8 +1276,8 @@ sub _r_ck_header {
   my ($self, $list, $ent, $reasons, $avars, $safe, $code,
       $invars, $part) = @_;
   my $log  = new Log::In 150, "$part";
-  my (@matches, @parts, $class, $data, $head, $i, $id, $inv, $j, $k, $l, 
-      $listaddr, $match, $msg, $rule, $sev, $spart);
+  my (@addrs, @headers, @matches, @parts, $class, $data, $head, $i, 
+      $id, $inv, $j, $k, $l, $listaddr, $match, $msg, $rule, $sev, $spart);
   local($text);
 
   $listaddr = $self->_list_config_get($list, 'whoami');
@@ -1307,6 +1313,15 @@ sub _r_ck_header {
       push @$reasons, $msg;
       $avars->{dup_msg_id} = $msg;
     }
+
+    # Count the number of addresses in the To and Cc headers.
+    push @headers, $head->get('To');
+    push @headers, $head->get('Cc');
+    for $i (@headers) {
+      chomp $i;
+      push @addrs, Mj::Addr::separate($i) if $i;
+    }
+    $avars->{'recipients'} = scalar @addrs;
   }
 
   # Process the header
@@ -1364,6 +1379,7 @@ sub _r_ck_header {
       }
     }
   }
+  1;
 }
 
 =head2 _check_body
@@ -2417,7 +2433,7 @@ to various lists if appropriate:
 =cut
 sub _exclude {
   my($self, $ent, $list, $sublist, $user) = @_;
-  my(@addrs, $addr, $cc, $exclude, $i, $members, $nonmembers, $to);
+  my(@addrs, @headers, $addr, $exclude, $i, $members, $nonmembers);
 
   $exclude    = {};
   $members    = {};
@@ -2434,12 +2450,14 @@ sub _exclude {
     $nonmembers->{$user->canon} = $user->full;
   }
 
-  # Extract addresses from headers
-  $to = $ent->head->get('To', 0); chomp $to if $to;
-  $cc = $ent->head->get('CC', 0); chomp $cc if $cc;
+  # Extract recipient addresses from headers
+  push @headers, $ent->head->get('To');
+  push @headers, $ent->head->get('Cc');
 
-  push @addrs, Mj::Addr::separate($to) if $to;
-  push @addrs, Mj::Addr::separate($cc) if $cc;
+  for $i (@headers) {
+    chomp $i;
+    push @addrs, Mj::Addr::separate($i) if $i;
+  }
 
   for $i (@addrs) {
     $addr = new Mj::Addr($i);
