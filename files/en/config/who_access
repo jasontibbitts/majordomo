@@ -1,3 +1,13 @@
-One of three values: open, list, closed.  Open allows anyone access to this
-command.  List allows only list members access, while closed completely
-disables the command for everyone.
+One of five values: open, open+password, list, list+password, closed.  
+
+Open allows anyone access to the who command.  
+
+Open+password allows anyone registered at this domain access
+if they use their personal password.
+
+List allows only list members access. 
+
+List+password allows list members to issue this command, but only
+if they use their personal password.
+
+Closed disables the who command for everyone but the list administrators. 

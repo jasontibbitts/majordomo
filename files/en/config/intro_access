@@ -1,7 +1,13 @@
-One of three values: open, list, closed.  Open allows anyone access to this
-command.  List allows only list members to get "intro" files associated with
-the named list or GLOBAL pseudo-list, while closed completely disables the
-"intro" command for everyone. The "get" command can be used for files which
-are also available via "faq", "intro", etc., depending on how your file
-system is configured, and get_access does NOT restrict use of those other
-ways to retrieve special files.
+One of five values: open, open+password, list, list+password, closed.  
+
+Open allows anyone access to the intro command.  
+
+Open+password allows anyone registered at this domain access
+if they use their personal password.
+
+List allows only list members access. 
+
+List+password allows list members to issue this command, but only
+if they use their personal password.
+
+Closed disables the intro command for everyone but the list administrators. 

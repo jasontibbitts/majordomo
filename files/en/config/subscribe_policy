@@ -1,9 +1,16 @@
 One of three values: open, closed, auto; plus an optional modifier:
-'+confirm'.  Open allows people to subscribe themselves to the list,
-but attempts to subscribe addresses diferent than where the request is
-coming from will require approval.  Auto allows anybody to subscribe
-anybody to the list without maintainer approval.  Closed requires
-maintainer approval for all subscribe requests to the list.  Adding
-'+confirm', (i.e. 'open+confirm') will cause majordomo to send a reply
-back to the subscriber which includes a authentication number which
-must be sent back in with another subscribe command.
+'+confirm' or '+password'.  
+
+Open allows people to subscribe themselves, but attempts to subscribe
+one address from a different address will require administrative approval.  
+
+Auto allows anybody to subscribe anyone else to the list. 
+
+Closed requires maintainer approval for all subscription requests.  
+
+Adding '+confirm', (i.e. 'open+confirm') will cause majordomo to send 
+a message to the affected address, asking for that person's approval.
+The subscriber must then reply with 'accept' for the command to succeed.
+
+open+password or auto+password requires that the command be issued using
+the personal password for the affected address, or an admin password.
