@@ -60,9 +60,9 @@ stopping when it finds a valid address:
 
   2. It looks in the "moderators" configuration setting for the list.
 
-  3. It looks in the "whoami_owner" configuration setting.  This value is
-     usually the list owners' address, so in the last resort, the 
-     owners and the moderators are the same people.
+  3. It looks in the "owners" configuration setting.
+
+  4. It looks in the "whoami_owner" configuration setting.
 
 If the moderators and the owners are different people, and the owners
 want the moderators to be able to perform other duties, such as
