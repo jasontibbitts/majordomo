@@ -364,9 +364,11 @@ sub dispatch {
     return [0, "Illegal command \"$request->{'command'}\".\n"];
   }
 
-  unless (defined $self->valid_list($request->{'list'}, 1, 1)) {
+  unless ($ok = $self->valid_list($request->{'list'}, 1, 1)) {
     return [0, "Illegal list: \"$request->{'list'}\".\n"];
   }
+  # Untaint
+  $request->{'list'} = $ok;
 
   # XXX Move this to Mj::Access.
   if ($request->{'password'} =~ /^[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}$/) {
