@@ -43,22 +43,22 @@ close SITE;
 
 # 2-3. Relax some domain checks so you can run these tests on a machine not
 # directly on the Internet.
-$e = qq!\Qaddr_require_fqdn set to "0".\n!;
+$e = qq!\Qwas changed to "0".\n!;
 $r = run('-u nobody@anonymous -p hurl configset GLOBAL addr_require_fqdn = 0');
 ok($e, $r);
 
-$e = qq!\Qaddr_strict_domain_check set to "0".\n!;
+$e = qq!\Qwas changed to "0".\n!;
 $r = run('-u nobody@anonymous -p hurl configset GLOBAL addr_strict_domain_check = 0');
 ok($e, $r);
 
 # 4. Set a password
-$e = qq!\Qmaster_password set to "gonzo".\n!;
+$e = qq!\Qwas changed to "gonzo".\n!;
 $r = run('-p hurl configset GLOBAL master_password = gonzo');
 ok($e, $r);
 
 
 # 5. Set the whereami variable; we have to have this or else some things warn
-$e = qq!\Qwhereami set to "example.com".\n!;
+$e = qq!\Qwas changed to "example.com".\n!;
 $r = run('-p gonzo configset GLOBAL whereami = example.com');
 ok($e, $r);
 
@@ -89,7 +89,7 @@ subscribe   : all : ignore
 unsubscribe : all : ignore
 EOT
 close TEMP;
-$e = qq!\Qinform set to "subscribe   : all : ignore...".\n!;
+$e = qq!\Qwas changed to "subscribe   : all : ignore...".\n!;
 $r = run("-p gonzo -f var.$$ configset bleeargh inform");
 ok($e, $r);
 unlink "var.$$";
