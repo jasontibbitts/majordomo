@@ -586,7 +586,7 @@ sub createlist {
   $ok;
 }
 
-use Mj::Util 'time_to_str';
+use Mj::Util qw(str_to_offset time_to_str);
 sub digest {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my ($comm, $digest, $i, $msgdata);
@@ -610,19 +610,20 @@ sub digest {
                  scalar localtime($digest->{'lastrun'})
                  if $digest->{'lastrun'};
       $comm .= sprintf "Next delivery on or after  %s\n",
-                 scalar localtime($digest->{'lastrun'} + $digest->{'separate'}) 
+        scalar localtime($digest->{'lastrun'} + 
+          str_to_offset($digest->{'separate'}, 1, 0, $digest->{'lastrun'})) 
                  if ($digest->{'lastrun'} and $digest->{'separate'});
       $comm .= sprintf "Age of oldest message      %s\n", 
                  time_to_str(time - $digest->{'oldest'}, 1)
                  if ($digest->{'oldest'});
       $comm .= sprintf "Oldest age allowed         %s\n", 
-                 time_to_str($digest->{'maxage'}, 1)
+                 str_to_offset($digest->{'maxage'}, 0, 1)
                  if ($digest->{'maxage'});
       $comm .= sprintf "Age of newest message      %s\n", 
                  time_to_str(time - $digest->{'newest'}, 1)
                  if ($digest->{'newest'});
       $comm .= sprintf "Minimum age required       %s\n", 
-                 time_to_str($digest->{'minage'}, 1) 
+                 str_to_offset($digest->{'minage'}, 0, 1)
                  if ($digest->{'minage'});
       $comm .= sprintf "Messages awaiting delivery %d\n", 
                  scalar @{$digest->{'messages'}} if ($digest->{'messages'});
