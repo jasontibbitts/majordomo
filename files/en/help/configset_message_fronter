@@ -35,8 +35,8 @@ frequency with which fronters appear can be controlled with
 
 The fronter text will undergo variable substitution as it is added
 to the message.   The variables supported include the standard substitutions,
-plus ARCHIVE, ARCURL, DATE, SENDER, SEQNO, SUBJECT, SUBSCRIBED, and USER.
-See "help variables" for more information.
+plus ARCHIVE, ARCURL, DATE, HOST, SENDER, SEQNO, SUBJECT, SUBSCRIBED, and 
+USER.  See "help variables" for more information.
 
 
 Within the here document (between the tags), the '-' character takes
@@ -58,6 +58,7 @@ destroying the content of structured messages.)
 
 
 See Also:
+   help admin_delivery
    help commands          (for backslash replacement notes)
    help configset_attachment_rules (to remove unwanted body parts from a message)
    help configset_message_footer (to add a footer to the message)
@@ -65,6 +66,4 @@ See Also:
    help configset_message_fronter_frequency (for how often the fronter is sent)
    help variables         (for an explanation of substitution variables) 
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
