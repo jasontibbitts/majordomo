@@ -1,9 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 digest                listname
-digest-check[-repeat] listname [digestname]
-digest-force[-repeat] listname [digestname]
-digest-incvol         listname [digestname]
-digest-status         listname [digestname]
+digest-check[-repeat] listname [digestname[,digestname]]
+digest-force[-repeat] listname [digestname[,digestname]]
+digest-incvol         listname [digestname[,digestname]]
+digest-status         listname [digestname[,digestname]]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -check,  if specified, pushes a digest if necessary
 -force,  if specified, pushes a digest needed or not
@@ -63,6 +63,11 @@ the "ALL" keyword.  The following two commands are identical:
 
   digest-status LISTNAME
   digest-status LISTNAME ALL
+
+To apply the digest command to more than one digest, use commas to 
+separate the names.  For example:
+
+  digest-status LISTNAME daily,weekly
 
   
 The check, force, and repeat command modes
