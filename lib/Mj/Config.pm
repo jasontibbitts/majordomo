@@ -453,9 +453,18 @@ sub regen {
   my $config = $self->{'source'}{'MAIN'};
 
   for $var (keys %{$config->{'raw'}}) {
-    next unless $self->isparsed($var);
-    $config->{'parsed'}{$var} =
-      $self->parse($var, $config->{'raw'}{$var});
+    next unless ($self->isparsed($var) or 
+                 $self->{'vars'}{$var}{'type'} eq 'passwords');
+   
+    if ($self->{'vars'}{$var}{'type'} eq 'passwords' or
+        $self->{'vars'}{$var}{'type'} eq 'pw') {
+      $config->{'raw'}{$var} =
+        $self->parse($var, $config->{'raw'}{$var});
+    }
+    else {
+      $config->{'parsed'}{$var} =
+        $self->parse($var, $config->{'raw'}{$var});
+    }
   }
 
   $self->{'dirty'} = 1;
@@ -877,9 +886,18 @@ sub set {
   }
 
   # We parsed OK; stash the data.
-  $self->{'source'}{'MAIN'}{'raw'}{$var} = $data;
-  $self->{'source'}{'MAIN'}{'parsed'}{$var} = $parsed
-    if $self->isparsed($var);
+  # The master_password and passwords settings are transformed
+  # into a secure form
+  if (($self->{'vars'}{$var}{'type'} eq 'pw') or
+      ($self->{'vars'}{$var}{'type'} eq 'passwords')) {
+    $self->{'source'}{'MAIN'}{'raw'}{$var} = $parsed;
+    delete $self->{'source'}{'MAIN'}{'parsed'}{$var};
+  }
+  else {
+    $self->{'source'}{'MAIN'}{'raw'}{$var} = $data;
+    $self->{'source'}{'MAIN'}{'parsed'}{$var} = $parsed
+      if $self->isparsed($var);
+  }
 
   $self->{'dirty'} = 1;
   (1, $error, $parsed);
@@ -2174,7 +2192,10 @@ default password then sets master_password; the following commands
 shouldn''t fail in this case, so the old password must continue to be
 valid, but the new password must be valid also.
 
+If the password is stored as clear text, it will be converted to 
+an encrypted password.
 =cut
+use Mj::Util qw(ep_convert ep_recognize);
 sub parse_pw {
   my $self = shift;
   my $str  = shift;
@@ -2184,8 +2205,14 @@ sub parse_pw {
   return (0, "Administrative passwords cannot contain whitespace or commas.")
     if $str =~ /[\s,]/;
 
+  return (1, undef, $str) if ($self->{'list'} =~ /^DEFAULT/);
+
   # Substitute the name of the list for "$LIST"
   $str =~ s/([^\\]|^)\$\QLIST\E(\b|$)/$1$self->{'list'}/g;
+
+  unless (ep_recognize($str)) {
+    $str = ep_convert($str);
+  }
 
   (1, undef, $str);
 }
@@ -2197,19 +2224,46 @@ Currently a placeholder; because of the special nature of passwords
 (their definition must stick around until flushed) we don''t actually
 parse them here.  We can do some syntax checking, though.
 
+Clear text passwords are converted to encrypted passwords, and the
+table is reconstructed and passed back to the calling routine.
+
 =cut
+use Mj::Util qw(ep_convert ep_recognize);
 sub parse_passwords {
   my $self = shift;
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
+  my ($acts, $addrs, $i, $pw, $rd);
 
   my ($table, $error) = parse_table('fsmp', $arr);
 
   return (0, "Error parsing table: $error.")
     if $error;
 
-  (1, undef, undef);
+  $rd = [];
+
+  # Reassemble the table with encrypted passwords.
+  if ($table) {
+    for ($i=0; $i<@{$table}; $i++) {
+      $acts = $addrs = '';
+
+      $pw = $table->[$i][0];
+      unless (ep_recognize($pw)) {
+        $pw = ep_convert($pw);
+      }
+      if (@{$table->[$i][1]}) {
+        $acts = join ',', @{$table->[$i][1]};
+      }
+      if (@{$table->[$i][2]}) {
+        $addrs = join ',', @{$table->[$i][2]};
+      }
+      push @{$rd}, "$pw | $acts | $addrs";
+    }
+  }
+
+  
+  (1, undef, $rd);
 }
 
 =head2 parse_regexp

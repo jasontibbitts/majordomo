@@ -5,7 +5,10 @@
 	(_lists)  Add back end to allow the lists command to stall.
 	Change version number to 0.1200102160.
 
-	* lib/Mj/Confirm.pm:  (parse_passwords, parse_pw)  Convert clear
+	* lib/Mj/Access.pm:  (validate_passwd)  Compare SHA-1 digests
+	instead of clear text passwords.
+
+	* lib/Mj/Config.pm:  (parse_passwords, parse_pw)  Convert clear
 	text admin passwords to SHA-1 digests.
 
 	* lib/Mj/Token.pm:  (validate_latchkey)  Removed.
