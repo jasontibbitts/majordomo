@@ -1,3 +1,4 @@
-$DIGESTDESC ($DIGESTTYPE)  -   Volume $VOLUME : Issue $ISSUE
+$DIGESTDESC 
+Volume $VOLUME : Issue $ISSUE : "$DIGESTTYPE" Format
 
-Today's Topics:
+Messages in this Issue:
