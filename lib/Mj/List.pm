@@ -391,7 +391,7 @@ sub set {
   unless ($data) {
     $log->out("failed, nonmember");
     # XLANG
-    return (0, "$addr is not subscribed to the $self->{'name'}:$subl subscriber list.\n"); 
+    return (0, "$addr is not subscribed to the $self->{'name'}:$subl list.\n"); 
   }
 
   # If we were checking and didn't bail, we're done
@@ -930,12 +930,13 @@ Returns an array of subscriber data hashrefs of a certain maximum size.
 sub get_chunk {
   my $self    = shift;
   my $sublist = shift || 'MAIN';
-  my (@addrs, @out, $i);
+  my (@addrs, @out, $k, $v);
 
   return unless (exists $self->{'sublists'}{$sublist});
   @addrs = $self->{'sublists'}{$sublist}->get(@_);
-  while ((undef, $i) = splice(@addrs, 0, 2)) {
-    push @out, $i;
+  while (($k, $v) = splice(@addrs, 0, 2)) {
+    $v->{'canon'} = $k;
+    push @out, $v;
   }
   return @out;
 }
@@ -983,7 +984,7 @@ sub search {
   my $mode    = shift;
 
   return unless (exists $self->{'sublists'}{$sublist});
-  if ($mode =~ /regexp/) {
+  if ($mode =~ /regex/) {
     return ($self->{'sublists'}{$sublist}->get_matching_regexp(1, 
                                              'fulladdr', $string))[0];
   }
@@ -1075,7 +1076,7 @@ sub aux_rekey {
   %regent = ();
   %unreg = ();
 
-  if ($name eq 'MAIN') {
+  if (ref $reg and $name eq 'MAIN') {
     if ($reg->get_start) {
       while (1) {
         @subs = $reg->get_matching_quick_regexp($chunksize, 
@@ -1107,7 +1108,7 @@ sub aux_rekey {
       $data->{'class'}    ||= 'each';
       $data->{'flags'}    ||= $self->default_flags;
 
-      if ($name eq 'MAIN') {
+      if (ref $reg and $name eq 'MAIN') {
         if (exists $regent{$newkey}) {
           delete $regent{$newkey};
           $count++;
@@ -1115,6 +1116,9 @@ sub aux_rekey {
         else {
           $unreg{$newkey}++;
         }
+      }
+      else {
+        $count++; 
       }
 
       return ($changekey, $data, $newkey);
