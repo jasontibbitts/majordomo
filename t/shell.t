@@ -152,10 +152,11 @@ sub ok {
 
 sub run {
   $cmd = "$^X -T -I. -Iblib/lib tmp.$$/bin/mj_shell -Z --lockdir tmp.$$/locks -t tmp.$$ -d test " . shift;
+  my $debug = shift;
 
-  $cmd .= " -D" if (shift());
+  $cmd .= " -D" if $debug;
 
-  warn "$cmd\n";
+  warn "$cmd\n" if $debug;
   return `$cmd`;
 }
 
