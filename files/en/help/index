@@ -12,6 +12,10 @@ a list, which the list owner must have previously stored there. If no
 files or directories exist, or if you are not authorized to index the
 list, the "index" command returns an error message.
 
+Normally, archived posts are retrieved with "archive-get", and the
+index and get commands will not allow archive retrieval if "archive_dir"
+is set to somewhere outside the list's file space.
+
 Note that "pathname" may include one or more levels of directories
 (also called folders). For example, if list "MYLIST" contains a
 directory called "TOPDIR" and in that directory is another directory
@@ -25,8 +29,10 @@ itself is the same as using no pathname at all.
 
 See Also:
    help configset access_rules_variables (set/test for this command)
+   help configset archive_index  (to restrict indexing of special files)
+   help configset index_access (determines who can index files under a list)
+   help archive      (for how to index special files)
    help get          (retrieve files by email)
-   help index_access (determines who can index files under a list)
    help put          (to create files or directories under a list)
 
 For a list of all help topics send this one-line message

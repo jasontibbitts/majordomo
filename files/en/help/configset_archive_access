@@ -8,13 +8,26 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname subscribe_policy = open
+configset listname archive_access = open
 
 
 One of three values: open, list, closed.  Open allows anyone access to this
 command.  List allows only list members access, while closed completely
 disables the command for everyone. Archives are accessed with either the
 'archive-index' and 'archive-get' commands, or with 'index' and 'get'.
+
+ The "get" command can be used for files which
+are also available via "faq", "info", etc., depending on how your file
+system is configured, and get_access does NOT restrict use of those other
+ways to retrieve special files.
+
+One of three values: open, list, closed.  Open allows anyone access to this
+command.  List allows only list members to get post archive files associated
+with the named list, while closed completely disables the "archive-get" and
+"archive-index" commands for everyone. The "get" command can be used for
+files which are also available via "archive-get", depending on how your file
+system is configured, and archive_access does NOT restrict use of "get".
+
 
 This functionality of this variable is completely encapsulated within
 the access_rules mechanism, but it exists because it's simpler to use.

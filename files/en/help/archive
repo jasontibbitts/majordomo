@@ -8,7 +8,9 @@ pattern,  required, is a single value or range of values (see below)
 
 If a Majordomo mailing list is configured to store messages in
 an archive, those messages may be retrieved using the "archive-get"
-and "archive-index" commands.
+and "archive-index" commands. The index and get commands will not
+allow archive retrieval if "archive_dir" is set to somewhere outside
+the list's file space, but in many cases it will be possible to.
 
 Majordomo archives are given names which indicate the dates of
 the messages in the archive.  For example, the "test" list's archive
@@ -77,6 +79,9 @@ would retrieve an index of the first 10 messages.
 See Also:
    help configset access_rules_variables (set/test for this command)
    help configset archive_dir (to store archives in a non-default dir)
+   help configset archive_access (to restrict access to these files)
+   help configset archive_index  (to restrict indexing of these files)
+   help get   (which may be used in some cases to retrieve archives)
    help index (which may be used to show which archives are available)
    help put   (which is used to create the archive directory)
 

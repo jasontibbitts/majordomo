@@ -10,6 +10,9 @@ address,    if specified, is where the file should be sent via email
 This command returns a file from the list, which the list owner must
 have previously stored there. If no such file exists, or if you are
 not authorized to get it, the "get" command returns an error message.
+(Normally archived posts are retrieved with "archive-get", and the
+index and get commands will not allow archive retrieval if "archive_dir"
+is set to somewhere outside the list's file space.)
 
 Files retrieved with the 'get' command are normally mailed to you
 in a separate message (one per file); 'get-immediate' will return the
@@ -38,12 +41,15 @@ where a slash "/" separates the directory name from the file name.
 
 See Also:
    help configset access_rules_variables (set/test for this command)
+   help configset archive_access (to restrict access to special files)
+   help configset get_access (determines who can get files from a list)
+   help archive    (for how to get special files)
    help faq        (shortcut for 'get' with specific arguments)
-   help get_access (determines who can get files from a list)
    help index      (find out which files are available for "get")
    help info       (shortcut for 'get' with specific arguments)
    help intro      (shortcut for 'get' with specific arguments)
    help put        (to create files or directories under a list)
+
 
 For a list of all help topics send this one-line message
    help topics
