@@ -1,18 +1,27 @@
-You have recently rejected token $TOKEN from
-$MJ.
+The request
+  "$CMDLINE"
+for token $TOKEN, which was made on 
+  $DATE 
+by 
+  $REQUESTER
+has been rejected.
 
 Because rejected tokens can be the result of attempted forgery or
-mailbombing, this message is being sent to inform you of everything that is
-known about the transaction which caused the token to be generated in the
-first place.  If you initiated the request you can probably ignore this
-notice.  If you did not initiate the original request then the information
-below may be of use to you or your system administrator in tracking the
-source of the problem.
+mailbombing, this message is being sent to inform you of everything that
+is known about the transaction which caused the token to be generated in
+the first place.  If you initiated the request you can probably ignore
+this notice.  If you did not initiate the original request then the
+information below may be of use to you or your system administrator in
+tracking the source of the problem.
+
+If a reason was given for the rejection, it appears here:
+$MESSAGE
 
 This information is also being sent to responsible parties at
-$SITE.
+$SITE.  
 
-Here is the saved data for the session $SESSIONID:
+If you need help, please write to the administrators at
+$OWNER.
 
-$SESSION
-
+Anything that is known about session $SESSIONID 
+will be included in an attachment.
