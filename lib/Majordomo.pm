@@ -5177,6 +5177,12 @@ sub who_start {
     return ($ok, $error) unless $ok;
   }
 
+  if ($request->{'mode'} =~ /alias/ and 
+      ($request->{'list'} ne 'GLOBAL' or
+       $request->{'sublist'} ne 'MAIN')) {
+    return (0, "Alias mode is only supported for the GLOBAL list.\n");
+  }
+
   ($ok, $error) = $self->list_access_check($request);
 
   unless ($ok > 0) {
@@ -5202,8 +5208,10 @@ sub _who {
     return (0, "Unable to initialize alias list.\n") 
       unless $self->{'alias'}->get_start;
     $listing = [
-                '$SOURCE ($STRIPSOURCE)',
-                '    is aliased to $TARGET ($STRIPTARGET)',
+                'default user $TARGET',
+                '  alias $STRIPSOURCE',
+                '',
+                ''
                ];
   }
   elsif ($list eq 'DEFAULT' and $sublist eq 'MAIN') {
@@ -5259,8 +5267,9 @@ sub who_chunk {
   elsif ($request->{'list'} eq 'GLOBAL' and $request->{'mode'} =~ /alias/) {
     @tmp = $self->{'alias'}->get($chunksize);
     while (($j, $i) = splice(@tmp, 0, 2)) {
+      # Do not show bookkeeping aliases.
+      next if ($j eq $i->{'striptarget'});
       $i->{'fulladdr'} = $j;
-      $i->{'source'} = $j;
       push @chunk, $i;
     }
   }

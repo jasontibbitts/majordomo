@@ -1,3 +1,10 @@
+2000-10-18  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm (_who):  Display aliasing commands
+	in "alias" mode for the GLOBAL list.  Display register
+	commands with passwords with the "who-export GLOBAL"
+	command.  Add sublist support to "export" mode.
+
 2000-10-15  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (auxadd, auxremove, auxwho) Merge

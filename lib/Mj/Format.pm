@@ -1177,7 +1177,7 @@ sub which {
 
 sub who {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my (@lines, @out, @stuff, $chunksize, $count, $error, $i, $ind, $ret);
+  my (@lines, @out, @stuff, $chunksize, $count, $error, $i, $ind, $list, $ret);
   my ($template, $tmp, $subs, $fh, $line, $mess, $numbered, $source);
   my ($ok, $regexp, $tmpl) = @$result;
 
@@ -1202,7 +1202,7 @@ sub who {
 
   $ind = $template = '';
 
-  unless ($request->{'mode'} =~ /export|short/) {
+  unless ($request->{'mode'} =~ /export|short|alias/) {
     eprint($out, $type, "Members of list \"$source\":\n");
     $ind = '  ';
   }
@@ -1218,6 +1218,10 @@ sub who {
   }
  
   $request->{'command'} = "who_chunk";
+  $list = $request->{'list'};
+  if ($request->{'sublist'} ne 'MAIN') {
+    $list .= ":$request->{'sublist'}";
+  }
  
   while (1) {
     ($ok, @lines) = @{$mj->dispatch($request, $chunksize)};
@@ -1251,12 +1255,19 @@ sub who {
         $line = $mj->substitute_vars_string($template, $subs);
         chomp $line;
       }
-      elsif ($request->{'mode'} =~ /export/ && $i->{'classdesc'} && $i->{'flagdesc'}) {
-	$line = "subscribe-nowelcome $i->{'fulladdr'}\n";
+      elsif ($request->{'mode'} =~ /export/ &&
+             $request->{'list'} eq 'GLOBAL' &&
+             $request->{'sublist'} eq 'MAIN') {
+        $line = "register-pass $i->{'password'} $i->{'fulladdr'}";
+      }
+      elsif ($request->{'mode'} =~ /export/ && $i->{'classdesc'} 
+             && $i->{'flagdesc'}) 
+      {
+	$line = "subscribe-nowelcome $list $i->{'fulladdr'}\n";
 	if ($i->{'origclassdesc'}) {
-	  $line .= "set $i->{'origclassdesc'} $i->{'stripaddr'}\n";
+	  $line .= "set $list $i->{'origclassdesc'} $i->{'stripaddr'}\n";
 	}
-	$line .= "set $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
+	$line .= "set $list $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
       }
       else {
         $line = $i->{'fulladdr'};
@@ -1282,7 +1293,7 @@ sub who {
   $request->{'command'} = "who_done";
   $mj->dispatch($request);
   
-  unless ($request->{'mode'} =~ /short|export/) {
+  unless ($request->{'mode'} =~ /short|export|alias/) {
     eprintf($out, $type, "%s listed subscriber%s\n", 
             ($count || "No"),
             ($count == 1 ? "" : "s"));
