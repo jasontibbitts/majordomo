@@ -1,4 +1,4 @@
-$UCOMMAND $LIST
+$UCOMMAND $LIST $STRIPUSER
 R
 text/plain
 us-ascii
