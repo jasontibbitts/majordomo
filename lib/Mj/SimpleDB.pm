@@ -64,8 +64,7 @@ use vars qw(%beex %exbe);
    'none' => '',
    'text' => 'T',
 #   'berkdb'   => 'B',
-   'db'  => 'D',
-   'pgsql'  => 'P',
+   'db'  => 'D'
   );
 
 %exbe = reverse(%beex);
@@ -100,16 +99,17 @@ sub new {
 
   # $name, $backend, $fields, $indices, $sorter) = @_;
 
-  my $log  = new Log::In 200, "$args{filename}, $args{backend}";
   my ($exist, $lock, $ver, $name);
+
+  if(!defined($args{filename})) {
+    $args{filename} = $args{listdir} . $args{list} . $args{file};
+  }
+
+  my $log  = new Log::In 200, "$args{filename}, $args{backend}";
 
   # Fix up arguments
   if(($args{backend} eq "db") || ($args{backend} eq "text")) {
-    if(defined($args{file})) {
-      $name = $args{listdir} . $args{list} . $args{file};
-    } else {
-      $name = $args{filename};
-    }
+    $name = $args{filename};
     $args{lockfile} = $name;
     $args{filename} = "$name.$beex{$args{backend}}";
   }
