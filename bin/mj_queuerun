@@ -656,9 +656,9 @@ sub parse_commands {
     $file = &Majordomo::tempname();
     $fh = gensym();
     if (open ($fh, ">$file")) {
-      no strict 'refs';
-      &{"Mj::Format::$command"}($mj, $fh, $fh, 'text', $request,
-                           $mj->dispatch($request));
+      call_format($command,
+		  $mj, $fh, $fh, 'text', $request,
+		  $mj->dispatch($request));
       close $fh;
     }
     else {
@@ -782,6 +782,14 @@ sub debug_to {
       die "Can't redirect debug output to $::TMPDIR/mj_$name.debug: $!";
     $::log->message(0, 'info', 'Switched logging at '.localtime().'.');
   }
+}
+
+sub call_format {
+  my $command = shift;
+  require Mj::Format;
+
+  no strict 'refs';
+  &{"Mj::Format::$command"}(@_);
 }
 
 sub shuffle {

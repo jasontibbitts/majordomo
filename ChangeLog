@@ -1,3 +1,8 @@
+2001-03-20  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* bin/mj_queuerun (call_format): New function to load the
+        Mj::Format library and call the formatter.
+
 2001-03-13  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Util.pm:  (n_validate)  Bugfix:  Convert "remind"
