@@ -240,6 +240,11 @@ if ($func and $func =~ /info|intro|faq|subscribe/) {
   unlink $file;
 }
 elsif ($func eq 'set' and $goodpass) {
+  if ($list eq 'GLOBAL') {
+    print "<h2>Please choose a list when changing settings</h2>\n";
+    &usage($mj);
+    exit 0;
+  }
   my ($i, $j, @settings);
   my @params = $cgi->param;
   for $j (qw(delivery ack eliminatecc hide prefix replyto selfcopy rewritefrom)) {
@@ -355,7 +360,8 @@ sub showdata {
     <td align=center><select name="$i:delivery">
 EOM
     for $j (qw (each digest nomail)) {
-      print $class =~ /$j/ ? "<option selected> $j\n" : "<option> $j\n";
+      print $class eq $Mj::List::classes{$j}->[2] ? 
+        "<option selected> $j\n" : "<option> $j\n";
     }
     print "</select>\n";
     for $j (split(',',$lflags)) {

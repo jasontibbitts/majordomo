@@ -1,5 +1,10 @@
 2000-05-28  Michael Yount  <csf@moscow.com>
 	* lib/Majordomo.pm:
+	(_reg_add, _reg_remove) Sort the list names when storing
+	    a subscriber's registry data.
+	(_password, _request_response) Do not append a domain name to
+	    'whoami' and other addresses when substituting; 
+	    Mj::Config does this already.
 	(get_all_lists)  Return a sorted list of lists.
 	(_password)  Allow $VICTIM to be substituted in new_password.
 	(_rekey) Skip registration records for which an Mj::Addr could not
