@@ -72,7 +72,9 @@ $::log->startup_time();
 
 # Start up the page and parse the URL
 $cgi = new CGI;
-print $cgi->header(-expires => '+10s');
+
+$tmp = '+10s';
+print $cgi->header(-expires => $tmp);
 
 $ptoken = $cgi->param('t');
 $action = $cgi->param('a') || 'welcome';
@@ -179,6 +181,10 @@ $request = {
   'tokens'    => [$token],
   'user'      => $user,
 };
+
+if ($func =~ /accept|reject/) {
+  $request->{'xplanation'} = $cgi->param('xplanation') || '';
+}
 
 no strict 'refs';
 $result = $mj->dispatch($request); 
