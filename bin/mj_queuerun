@@ -222,9 +222,11 @@ sub run_queue {
           # Grab the queue files from the queue
           opendir(QDIR, "$::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func") ||
             $::log->abort("Can't opendir $::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func: $!");
-          # Read the list of queued messages.
+          # Read the list of queued messages.  Sort by date, oldest
+          # first.
           @msgs = readdir QDIR;
           closedir QDIR;
+          @msgs = sort { (-M $b) <=> (-M $a) } @msgs;
           # &shuffle(\@msgs);
 
           # Loop over queue files
