@@ -568,6 +568,7 @@ files/en/format/text/.lists_head
 files/en/format/text/.lists_none
 files/en/format/text/.password
 files/en/format/text/.set
+files/en/format/text/.set_check
 files/en/format/text/.set_error
 files/en/format/text/.set_foot
 files/en/format/text/.set_head
@@ -638,6 +639,7 @@ files/en/format/text/lists_head
 files/en/format/text/lists_none
 files/en/format/text/password
 files/en/format/text/set
+files/en/format/text/set_check
 files/en/format/text/set_error
 files/en/format/text/set_foot
 files/en/format/text/set_head
@@ -711,6 +713,7 @@ files/en/format/wwwadm/.lists_none
 files/en/format/wwwadm/.login
 files/en/format/wwwadm/.password
 files/en/format/wwwadm/.set
+files/en/format/wwwadm/.set_check
 files/en/format/wwwadm/.set_error
 files/en/format/wwwadm/.set_foot
 files/en/format/wwwadm/.set_head
@@ -788,6 +791,7 @@ files/en/format/wwwadm/lists_none
 files/en/format/wwwadm/login
 files/en/format/wwwadm/password
 files/en/format/wwwadm/set
+files/en/format/wwwadm/set_check
 files/en/format/wwwadm/set_error
 files/en/format/wwwadm/set_foot
 files/en/format/wwwadm/set_head
@@ -853,6 +857,7 @@ files/en/format/wwwconfirm/.lists_none
 files/en/format/wwwconfirm/.login
 files/en/format/wwwconfirm/.password
 files/en/format/wwwconfirm/.set
+files/en/format/wwwconfirm/.set_check
 files/en/format/wwwconfirm/.set_error
 files/en/format/wwwconfirm/.set_foot
 files/en/format/wwwconfirm/.set_head
@@ -915,6 +920,7 @@ files/en/format/wwwconfirm/lists_none
 files/en/format/wwwconfirm/login
 files/en/format/wwwconfirm/password
 files/en/format/wwwconfirm/set
+files/en/format/wwwconfirm/set_check
 files/en/format/wwwconfirm/set_error
 files/en/format/wwwconfirm/set_foot
 files/en/format/wwwconfirm/set_head
@@ -968,6 +974,7 @@ files/en/format/wwwusr/.lists_none
 files/en/format/wwwusr/.login
 files/en/format/wwwusr/.password
 files/en/format/wwwusr/.set
+files/en/format/wwwusr/.set_check
 files/en/format/wwwusr/.set_error
 files/en/format/wwwusr/.set_foot
 files/en/format/wwwusr/.set_head
@@ -995,6 +1002,7 @@ files/en/format/wwwusr/lists_none
 files/en/format/wwwusr/login
 files/en/format/wwwusr/password
 files/en/format/wwwusr/set
+files/en/format/wwwusr/set_check
 files/en/format/wwwusr/set_error
 files/en/format/wwwusr/set_foot
 files/en/format/wwwusr/set_head

@@ -1,0 +1,156 @@
+<h4 align=center>Settings for the $LIST mailing list</h4>
+  <input type="hidden" name="list" value="$LIST">
+
+<dl>
+  <dt>
+  Delivery class:
+  <select name="$LIST;delivery">
+    <option value="$CLASSES" $SELECTED>$CLASS_DESCRIPTIONS
+  </select>
+  </dt>
+  <dd>The delivery class determines how the messages which are
+      posted to the $LIST list are delivered to $VICTIM.
+      The following choices are available from the menu:</dd>
+    <dl>
+      <dt><b>each message as it is posted</b> (each)</dt>
+      <dd>You will receive a separate copy of each message.</dd>
+
+      <dt><b>each unduplicated message</b> (unique)</dt>
+      <dd>You will receive a separate copy of each message,
+      unless it has already been posted to another mailing
+      list at $SITE to which you are subscribed.</dd>
+
+      <dt><b>no messages</b> (nomail)</dt>
+      <dd>You will receive no mail at all from the $LIST list.</dd>
+
+      <dt><b>resume receiving messages</b> (mail)</dt>
+      <dd>If you are currently receiving <b>no messages</b>, you
+      will begin receiving messages again.  Otherwise, this
+      option has no effect.</dd>
+
+      <dt><i>anything else...</i> (digest)</dt>
+      <dd>You will receive the messages bundled in a digest.  
+      Each digest has three formats:</dd>
+      <dl>
+        <dt>index</dt>
+        <dd>You will receive a summary of the messages in the
+        digest, but not the messages themselves.</dd>
+
+        <dt>mime</dt>
+        <dd>Each message will be included as an attachment.</dd>
+
+        <dt>text</dt>
+        <dd>Only the text of each message will be included in the digest.
+        No message attachments (web pages, images, etc.) will be
+        sent to you.</dd>
+      </dl>
+       
+    </dl>
+
+    <p>
+    See the $HELP:SET help page 
+    for more information about digests and other delivery classes.
+    </p>
+
+  </dd>
+</dl>
+
+<p>
+The delivery class offers several choices, but your other personal 
+settings have only two values, <b>on</b> or <b>off</b>.  Press
+the checkbox next to the name of a setting to change its value.
+</p>
+
+<dl>
+  <dt>$ACKDENY_CHECKBOX ackdeny</dt>
+  <dd>
+    Select this to be notified when your posted messages 
+    are denied by the access restrictions  of a list.
+  </dd>
+
+  <dt>$ACKPOST_CHECKBOX ackpost</dt>
+  <dd>
+    Select this to be notified when your
+    posted messages have been accepted and are being delivered.
+  </dd>
+
+  <dt>$ACKREJECT_CHECKBOX ackreject</dt>
+  <dd>
+    Select this to be notified when your posted messages 
+    or majordomo commands are rejected by one of
+    the moderators.
+  </dd>
+
+  <dt>$ACKSTALL_CHECKBOX ackstall</dt>
+  <dd>
+    Select this to be notified when your
+    posted messages are being reviewed by the moderators
+    before they appear on a mailing list.
+  </dd>
+
+  <dt>$ELIMINATECC_CHECKBOX eliminatecc</dt>
+  <dd>
+    Select this if you do not want two copies
+    when someone sends a message both to you and to the list.
+  </dd>
+
+  <dt>$HIDEADDRESS_CHECKBOX hideaddress</dt>
+  <dd>
+    Select this if you do not want your address to appear
+    when someone reviews the list of subscribers with the 
+    $HELP:WHO command.
+  </dd>
+
+  <dt>$HIDEALL_CHECKBOX hideall</dt>
+  <dd>
+    Select this if you do not want your name or address 
+    to appear when someone reviews the list of subscribers
+    with the $HELP:WHO command.
+  </dd>
+
+  <dt>$HIDEPOST_CHECKBOX hidepost</dt>
+  <dd>
+    Select this is you do not want messages that you post
+    to the mailing list to appear in a public archive.
+  </dd>
+
+  <dt>$POSTBLOCK_CHECKBOX postblock</dt>
+  <dd>
+    If the postblock setting is <b>on</b>, the list administrators 
+    have decided to moderate or deny your posted messages.  Normally,
+    only the administrators can change this setting.  Questions
+    about the postblock setting should be addressed to 
+    <a href="mailto:$OWNER">$OWNER</a>.
+  </dd>
+
+  <dt>$PREFIX_CHECKBOX prefix</dt>
+  <dd>
+    Select this if you want to see a prefix which indicates
+    the name of the mailing list in the Subject header of every message.
+  </dd>
+
+  <dt>$REPLYTO_CHECKBOX replyto</dt>
+  <dd>
+    Select this if you want your replies to be sent to the
+    $LIST mailing list.  Otherwise, your replies may only be 
+    sent to the authors of the messages to which you reply.
+  </dd>
+
+  <dt>$REWRITEFROM_CHECKBOX rewritefrom</dt>
+  <dd>
+    Select this if you want to change the From header
+    in messages you send to the list.  The From header will then be
+    rewritten to appear as it did when you subscribed to the list.
+  </dd>
+
+  <dt>$SELFCOPY_CHECKBOX selfcopy</dt>
+  <dd>
+    Select this if you want to receive a copy of each message
+    that you post to the mailing list.
+  </dd>
+</dl>
+<p>
+$VICTIM has been subscribed to the $LIST list since 
+$SUBTIME.<br>
+This subscription was last changed on $CHANGETIME.
+</p>
