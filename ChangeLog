@@ -1,3 +1,17 @@
+2004-09-08  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm:  Clear the token after the accept or
+	reject command is issued.  Thanks to Steven Orr.
+
+	* lib/Majordomo.pm:  (_faq, help_start, _info, _intro)
+	Allow files to be mailed from the wwwadm interface.
+
+	* lib/Mj/Format.pm:  (help, g_get)  Allow files to be
+	mailed from the wwwadm interface.
+
+	* lib/Mj/Parser.pm:  (parse_part)  Add blank lines for
+	readability.
+
 2004-09-06  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_changeaddr)  Preserve 
