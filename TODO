@@ -30,80 +30,7 @@ message filename with a '.'.  In it is stored a single line with a single
 number: the attempt count.  No locking of the status file is necessary.
 
 This is implemented as requested, but still needs tweaking.  The queue file
-should be saved off somewhere, and there needs to be some method of seeing
-just what's in the queue.
-
-
-Bounce Handling
----------------
-
-Bounce handling is fully implemented, modulo bugs and tweaks.
-
-bounce_rules actions:
-
-ignore - don't tell the owner and don't remove the user
-inform - inform the list owner of the bounce but don't remove the user
-remove - remove the bouncing user and inform the owner
-  Modes for remove:
-    -quiet - don't inform the owner
-    -noprobe - don't send a bounce probe
-    -consult - ask the list owner before actually doing any removals
-    -noattach - don't attach a copy of the bounce (not implemented)
-
-Two kinds of messages:
-
- 1) specify something to be sent to the owner
- 2) specify the form of a bounce probe
-
-Statistics are always gathered when appropriate.
-
-bounce_rules variables:
-
-$failure - true if bounce indicates a failure
-$warning - true if bounce indicates a warning
-$consecutive - count of consecutive messages bounced
-
-$consecutive_days - number of days between first and last consecutive
-  bounces.  Use to ensure that not only is an address bouncing consecutive
-  messages, but that they are bouncing them over a long enough range of
-  time.
-
-$bouncedpct - percentage of messages bounced, determined by look at how
-  many messages have bounced between the first known bounce and the last.
-  Note that this is not an absolute indicator of how many messages have
-  bounced, since it make take a week or more to see bounces.  This means
-  that if an address bounces once, $bouncedpct is will be 100.  So, only
-  use $bouncedpct in conjunction with some other measure of bounces, such
-  as $month.  When used this way, $bouncedpct is quite useful in handling
-  addresses that bounce some constant percentage of messages but that you
-  don't want removed automatically.
-$day - the number of bounces in the past 24 hours.
-$week - the number of bounces in the past seven days.
-$month - the number of bounces in the last thirty days.
-$subscribed - true if the user is subscribed to the list
-$days_since_subscribe - the number of days since the address was added to
-  the list.
-$numbered - the number of numbered bounces seen.
-$span - the difference between the lowest and highest message bounced.
-
-$diagnostic - the actual diagnostic; match against this to try and
-  special-case certain types of bounces (not implenented)
-
-default:
-
-# Don't bother the owner with warnings
-ignore
-$warning
-
-# Delete users after 50 consecutive bounces
-remove
-$consecutive > 50
-
-# The default action is 'inform'; all bounces not matched by the above will
-# cause an informative message to be sent to the owner.
-
-
-
+should be saved off somewhere.
 
 
 ===========================
@@ -227,3 +154,29 @@ because it runs through all of the slots looking for a live and unbusy
 runner, cleaning up dead ones along the way.  But it needs to restart the
 search if it's cleaned up any dead ones but has run out of slots without
 finding any waiting runners.
+
+
+Making use of FastCGI or something like it
+------------------------------------------
+Startup time is painful, and startup time of the web interfaces is
+especially painful since every button click will open another URL and
+compile another script.
+
+There are tools which maintain pools of service threads to handle incoming
+requests; FastCGI is just one.  Some don't work with setuid programs.  I'm
+pretty sure that one of them will work for us.
+
+
+Stale queue entries
+-------------------
+It is rare but possible for a message to sit in the incoming queue with no
+active queue runners; the message will sit around until another message
+comes in and kicks off a queue runner, which will then take care of both
+messages.  There should be a way to force a queue run without sending a
+message.
+
+
+Queue view
+----------
+There should be a way to view the message queue.  A separate program,
+mj_mailq, would be sufficient.
