@@ -88,7 +88,7 @@ sub accept {
     for $tmp (keys %$data) {
       next if (ref $data->{$tmp} eq 'HASH');
       if ($tmp eq 'user') {
-        $subs->{'REQUESTER'} = &escape($data->{'user'}, $type);
+        $subs->{'REQUESTER'} = &escape("$data->{'user'}", $type);
       }
       elsif ($tmp eq 'time') {
         $subs->{'DATE'} = scalar localtime($data->{'time'});
@@ -1463,7 +1463,7 @@ sub reject {
     for $tmp (keys %$data) {
       next if (ref $data->{$tmp} eq 'HASH');
       if ($tmp eq 'user') {
-        $subs->{'REQUESTER'} = &escape($data->{'user'}, $type);
+        $subs->{'REQUESTER'} = &escape("$data->{'user'}", $type);
       }
       elsif ($tmp eq 'time') {
         $subs->{'DATE'} = scalar localtime($data->{'time'});
@@ -1805,6 +1805,9 @@ sub set {
         next if (ref $change->{$j} eq 'HASH');
         next if ($j eq 'partial' or $j eq 'settings');
         $lsubs->{uc $j} = &escape($change->{$j}, $type);
+        if ($j eq 'stripaddr') {
+          $lsubs->{'QSADDR'} = &qescape($change->{$j}, $type);
+        }
       }
 
       $lsubs->{'CHANGETIME'} = scalar localtime($change->{'changetime'});
@@ -2581,68 +2584,83 @@ sub unsubscribe {
 sub which {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type";
-  my ($last_list, $list_count, $match, $total_count, $whoami, $list);
-
+  my ($fmt, $last_list, $gsubs, $lfmt, $list, $match, $str, 
+      $subs, $tmp, $total);
   my ($ok, @matches) = @$result;
+
+  $gsubs = { $mj->standard_subs('GLOBAL'),
+            'CGIDATA'  => $request->{'cgidata'},
+            'CGIURL'   => $request->{'cgiurl'},
+            'CHUNKSIZE'=> '',
+            'CMDPASS'  => $request->{'password'},
+            'PATTERN'  => &escape($request->{'regexp'}, $type),
+            'USER'     => &escape("$request->{'user'}", $type),
+           };
+
+  if (exists $request->{'chunksize'} and $request->{'chunksize'} > 0) {
+    $gsubs->{'CHUNKSIZE'} = $request->{'chunksize'};
+  }
+
   # Deal with initial failure
   if ($ok <= 0) {
-    eprint($out, $type, &indicate($type, $matches[0], $ok)) if $matches[0];
+    $gsubs->{'ERROR'} = &escape($matches[0], $type);
+    $tmp = $mj->format_get_string($type, 'which_error');
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out &indicate($type, "$str\n", $ok);
     return $ok;
   }
 
-  $whoami = $mj->global_config_get($request->{'user'}, $request->{'password'}, 
-                                   'whoami') || 'this site';
-  $last_list = ''; $list_count = 0; $total_count = 0;
+  $last_list = ''; 
+  $total = 0;
 
-  # Print the header if we got anything back.  Note that this list is
-  # guaranteed to have some addresses if it is nonempty, even if it
-  # contains messages.
-  if (@matches) {
-    if ($request->{'mode'} =~ /regex/) {
-      eprint($out, $type, "The expression \"$request->{'regexp'}\" matches the following\n");
-    }
-    else {
-      eprint($out, $type, "The string \"$request->{'regexp'}\" appears in the following\n");
-    }
-    eprint($out, $type, "entries in lists served by $whoami:\n");
-    eprintf($out, $type, "\n%-23s %s\n", "List", "Address");
-    eprintf($out, $type, "%-23s %s\n",   "----", "-------");
+  unless (scalar @matches) {
+    $tmp = $mj->format_get_string($type, 'which_none');
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out "$str\n";
+    return $ok;
   }
+
+  $tmp = $mj->format_get_string($type, 'which_head');
+  $str = $mj->substitute_vars_format($tmp, $gsubs);
+  print $out &indicate($type, "$str\n", $ok);
+
+  $subs = { %$gsubs };
+  $fmt = $mj->format_get_string($type, 'which_data');
+  $lfmt = $mj->format_get_string($type, 'which');
 
   while (@matches) {
     ($list, $match) = @{shift @matches};
 
-    # If $list is undef, we have a message instead.
-    if (!$list) {
-      eprint($out, $type, $match);
+    # If $list is undefined, we have a message instead.
+    unless (defined $list and length $list) {
+      $subs->{'ERROR'} = $match;
+      $tmp = $mj->format_get_string($type, 'which_warning');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
       next;
     }
 
+    $subs->{'LIST'} = $list;
+    $subs->{'STRIPADDR'} = &escape($match, $type);
+    $subs->{'QSADDR'} = &qescape($match, $type);
+
     if ($list ne $last_list) {
-      if ($list_count > 3) {
-        eprint($out, $type, "-- $list_count matches this list\n");
-      }
-      $list_count = 0;
+      $str = $mj->substitute_vars_format($lfmt, $subs);
+      print $out "$str\n";
     }
-    eprintf($out, $type, "%-23s %s\n", $list, $match);
-    $list_count++;
-    $total_count++;
+
+    $str = $mj->substitute_vars_format($fmt, $subs);
+    print $out "$str\n";
+
+    $total++;
     $last_list = $list;
   }
 
-  if ($total_count) {
-    eprintf($out, $type, "--- %s match%s total\n\n",
-    $total_count, ($total_count == 1 ? "" : "es"));
-  }
-  else {
-    if ($request->{'mode'} =~ /regex/) {
-      eprint($out, $type, "The expression \"$request->{'regexp'}\" appears in no lists\n");
-    }
-    else {
-      eprint($out, $type, "The string \"$request->{'regexp'}\" appears in no lists\n");
-    }
-    eprint($out, $type, "served by $whoami.\n");
-  }
+  $gsubs->{'COUNT'} = $total;
+  $tmp = $mj->format_get_string($type, 'which_foot');
+  $str = $mj->substitute_vars_format($tmp, $gsubs);
+  print $out "$str\n";
+
   $ok;
 }
 
@@ -2755,7 +2773,6 @@ sub who {
     $chunksize ||= 1000;  
     $gsubs->{'CHUNKSIZE'} = '';
   }
-
 
   unless ($request->{'mode'} =~ /export|short|alias|summary/) {
     $str = $mj->substitute_vars_format($head, $gsubs);
