@@ -12,6 +12,9 @@ MIMEdata, if specified with the -data option, must contain MIME info
 <<TAG, if specified, provides more than one line of data (here file)
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
+NOTE: A leading slash on the filename is NOT the same as the root
+      directory of your computer's file system! See other notes below.
+
 This command stores a file under the list, which can then be retrieved
 with "get" by those who are authorized to do so. If you are not
 authorized to put a file, the "put" command returns an error message.
@@ -192,12 +195,12 @@ welcome
 
 See Also:
    help configset access_rules (for confirm, consult, deny, allow clauses)
+   help configset filedir      (to create files in a non-default location)
    help accept    (for how to OK a token)
    help access    (for the special case of granting/denying all access)
    help digest    (for additional file names and usage)
    help get       (retrieve files by email)
    help index     (find out which files are available for "put")
-   help filedir   (to create files in a non-default location)
    help filesync  (which must be used if you create files without "put")
    help newfaq    (a shortcut way to put the file "faq")
    help newinfo   (a shortcut way to put the file "info")
