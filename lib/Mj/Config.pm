@@ -2008,6 +2008,7 @@ Parses the digests variable.  Returns a hash containing:
 
 =cut
 use Mj::List;
+use Mj::Util qw(str_to_offset);
 sub parse_digests {
   my $self = shift;
   my $arr  = shift;
@@ -2073,18 +2074,18 @@ sub parse_digests {
     }
 
     # maxage
-    $elem->{'maxage'} = _str_to_offset($table->[$i][4]);
+    $elem->{'maxage'} = str_to_offset($table->[$i][4]);
     # default to zero (no limit) to avoid warnings in decide().
     $elem->{'maxage'} ||= 0;
 
     # separate
-    $elem->{'separate'} = _str_to_offset($table->[$i][5]);
+    $elem->{'separate'} = str_to_offset($table->[$i][5]);
     unless (defined $elem->{'separate'}) {
       $elem->{'separate'} = 900;
     }
 
     # minage
-    $elem->{'minage'} = _str_to_offset($table->[$i][6]);
+    $elem->{'minage'} = str_to_offset($table->[$i][6]);
 
     # type
     $elem->{'type'} = $table->[$i][7] || 'mime';
@@ -2321,7 +2322,7 @@ the second set of conditions defines a "hard" limit (by default,
 the message will be denied).
 
 =cut
-use Mj::Util 'str_to_time';
+use Mj::Util 'str_to_offset';
 sub parse_limits {
   my $self = shift;
   my $arr  = shift;
@@ -2349,9 +2350,9 @@ sub parse_limits {
     # Parse soft limit conditions
     for ($j = 0; $j < @{$table->[$i][1]}; $j++) {
       $stat = $table->[$i][1]->[$j];
-      if ($stat =~ m#(\d+)/(\d+)([\da-z]+)$#) {
+      if ($stat =~ m#(\d+)/(\d*)([\da-z]+)$#i) {
         $part = $1;
-        $whole = str_to_time(($2 || 1) . $3) - time;
+        $whole = str_to_offset(($2 || 1) . $3);
         return (0, "Unable to parse time span $stat.") 
           unless (defined($whole) and $whole > 0);
         push @{$out[$i]->{'soft'}}, ['t', $part, $whole];
@@ -2370,9 +2371,9 @@ sub parse_limits {
     # Parse hard limit conditions
     for ($j = 0; $j < @{$table->[$i][2]}; $j++) {
       $stat = $table->[$i][2]->[$j];
-      if ($stat =~ m#(\d+)/(\d*)([a-z]+)#) {
+      if ($stat =~ m#(\d+)/(\d*)([\da-z]+)$#i) {
         $part = $1;
-        $whole = _str_to_offset(($2 || 1) . $3);
+        $whole = str_to_offset(($2 || 1) . $3);
         return (0, "Unable to parse time span $stat.") unless ($whole > 0);
         push @{$out[$i]->{'hard'}}, ['t', $part, $whole];
       }
@@ -3896,34 +3897,6 @@ Legal variables which you can pattern match against are:\n".
   return (1, $w, $o, $check_aux, $check_time);
 }
 
-=head2 _str_to_offset(string)
-
-This converts a string to a number of seconds.  If it doesn''t recognize the
-string, it will return undef.
-
-=cut
-sub _str_to_offset {
-  my $arg = shift || '';
-  my $log = new Log::In 150, $arg;
-  my $time;
-
-  if ($arg =~ /(\d+)d/) {
-    $time = 86400 * $1;
-  }
-  elsif ($arg =~ /(\d+)w/) {
-    $time = 86400 * 7 * $1;
-  }
-  elsif ($arg =~ /(\d+)mo/) {
-    $time = 86400 * 30 * $1;
-  }
-  elsif ($arg =~ /(\d+)h/) {
-    $time = 3600 * $1;
-  }
-  elsif ($arg =~ /(\d+)m/) {
-    $time = 60 * $1;
-  }
-  $time;
-}
 
 =head2 _str_to_clock(string)
 
