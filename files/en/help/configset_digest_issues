@@ -10,12 +10,18 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-# This variable is automatically maintained by Majordomo.
-
+# configset honey digest_issues <<ENDAAC
+# weekly : 1  : 36
+# daily : 1  : 200
+# ENDAAC
 
 A table of digest name, volume, issue.  This is maintained
 automatically by the digest system, and should be changed
 only with care.
+
+See Also:
+   help configset_digests (for how to configure digests)
+   help digest     (to check digest status or force digests to be delivered)
 
 For a list of all help topics send this one-line message
    help topics
