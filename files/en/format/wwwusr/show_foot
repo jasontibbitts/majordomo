@@ -27,7 +27,7 @@ password, if you wish to make any other changes to your
 subscriptions.<br> 
 
 New password: 
-<input size=16 name=newpasswd> 
+<input size=16 type=password name=newpasswd> 
 <input type=submit name=func value="password">
 
 <p>
