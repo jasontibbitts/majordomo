@@ -98,7 +98,7 @@ eval '
   use Mj::Parser;
   use Mj::Deliver::Envelope;
   use Mj::MIMEParser;
-  use Mj::CommandProps qw(command);
+  use Mj::CommandProps qw(:command);
   use Data::Dumper;
   use IO::File;
 #  use Devel::Symdump;
@@ -139,9 +139,9 @@ exit;
 
 sub run_queue {
   my $log = new Log::In 25, 'Running queue';
-  my(@domains, @functions, @pri1, @pri2, $arg, $debug1, $debug2, $dom, $file,
-     $func, $list, $mj, $msg, $ok, $pri1, $pri2, $start, $end,
-     @fhstatus, @status);
+  my(@domains, @functions, @msgs, @pri1, @pri2, $arg, $debug1, $debug2, 
+     $dom, $file, $func, $list, $mj, $msg, $ok, $pri1, $pri2, $start, 
+     $end, @fhstatus, @status);
 
   # Grab the domain priorities from the queue, high priorities first
   opendir(PRI1, "$::LISTDIR/QUEUE") ||
@@ -159,7 +159,8 @@ sub run_queue {
     @domains = grep { $_ !~ /^\./ } readdir DOMS;
     closedir DOMS;
 
-    # XXX Ramdomize domain list to avoid starvation
+    # Randomize domain list to avoid starvation
+    &shuffle(\@domains);
 
     # Loop over domains
   DOM:
@@ -178,168 +179,171 @@ sub run_queue {
 
       # Loop over list priorities
       for $pri2 (@pri2) {
-    $pri2 =~ /(.*)/; $pri2 = $1;
+        $pri2 =~ /(.*)/; $pri2 = $1;
 
-    # Grab the functions from the queue
-    opendir(FUNCS, "$::LISTDIR/QUEUE/$pri1/$dom/$pri2") ||
-      $::log->abort("Can't opendir $::LISTDIR/QUEUE/$pri1/$dom/$pri2: $!");
-    @functions = grep { $_ !~ /^\./ } readdir FUNCS;
-    closedir FUNCS;
+        # Grab the functions from the queue
+        opendir(FUNCS, "$::LISTDIR/QUEUE/$pri1/$dom/$pri2") ||
+          $::log->abort("Can't opendir $::LISTDIR/QUEUE/$pri1/$dom/$pri2: $!");
+        @functions = grep { $_ !~ /^\./ } readdir FUNCS;
+        closedir FUNCS;
 
-    # XXX Randomize function list to avoid starvation???
+        # Randomize function list to avoid starvation
+        &shuffle(\@functions);
 
-    # Loop over functions
-      FUNC:
-    for $func (@functions) {
-      # Untaint $func; this is safe because only we are able to write to
-      # that directory.
-      $func =~ /(.*)/; $func = $1;
+        # Loop over functions
+          FUNC:
+        for $func (@functions) {
+          # Untaint $func; this is safe because only we are able to write to
+          # that directory.
+          $func =~ /(.*)/; $func = $1;
 
-      # Grab the queue files from the queue
-      opendir(QDIR, "$::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func") ||
-        $::log->abort("Can't opendir $::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func: $!");
+          # Grab the queue files from the queue
+          opendir(QDIR, "$::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func") ||
+            $::log->abort("Can't opendir $::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func: $!");
+          # Read and randomly reorder the messages
+          @msgs = readdir QDIR;
+          closedir QDIR;
+          &shuffle(\@msgs);
 
-      # Loop over queue files (no need to randomize; they're in a random
-      # order and there may be many of them)
-    MSG:
-      while (defined($msg = readdir QDIR)) {
-        next MSG if $msg =~ /^\./;
+          # Loop over queue files 
+        MSG:
+          while (defined($msg = shift @msgs)) {
+            next MSG if $msg =~ /^\./;
 
-        # Untaint $msg; this is safe because only we are able to write
-        # stuff in that directory
-        $msg =~ /(.*)/; $msg = $1;
-        $file = "$::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func/$msg";
-        unless (open(MSG, "+< $file")) {
-          # Some other runner may have deleted the file while we were
-          # iterating through the directory.  That's OK; note it and go
-          # on.
-          $log->message(20, 'info', "Can't open queue file $file: $!");
-          next MSG;
-        }
+            # Untaint $msg; this is safe because only we are able to write
+            # stuff in that directory
+            $msg =~ /(.*)/; $msg = $1;
+            $file = "$::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func/$msg";
+            unless (open(MSG, "+< $file")) {
+              # Some other runner may have deleted the file while we were
+              # iterating through the directory.  That's OK; note it and go
+              # on.
+              $log->message(20, 'info', "Can't open queue file $file: $!");
+              next MSG;
+            }
 
-        # Lock a file, non-blocking; next if we didn't get it.
-        $ok = flock(MSG, &LOCK_EX|&LOCK_NB);
-        unless ($ok) {
-          close MSG;
-          next MSG;
-        }
-        @fhstatus = stat MSG;
-        @status = stat $file;
-        # Make sure file has nonzero size to avoid a race with mj_enqueue
-        # Make sure no modification has occurred to the file 
-        # between open() and flock().
-        unless ($status[7] && (@status eq @fhstatus) && (-r $file)) {
-          close MSG;
-          next MSG;
-        }
+            # Lock a file, non-blocking; next if we didn't get it.
+            $ok = flock(MSG, &LOCK_EX|&LOCK_NB);
+            unless ($ok) {
+              close MSG;
+              next MSG;
+            }
+            @fhstatus = stat MSG;
+            @status = stat $file;
+            # Make sure file has nonzero size to avoid a race with mj_enqueue
+            # Make sure no modification has occurred to the file 
+            # between open() and flock().
+            unless ($status[7] && (@status eq @fhstatus) && (-r $file)) {
+              close MSG;
+              next MSG;
+            }
 
-        # OK, have something to process.  Lazily create a Majordomo object
-        # for the domain we're processing.
-        unless (defined $mj) {
-          $::mj = new Majordomo $opts{t}, $dom; $mj = $::mj;
-          unless (ref $::mj) {
-        $::log->abort("Cannot create Majordomo object: $::mj");
-          }
-          $debug1 = $mj->global_config_get(undef, undef, 'debug');
-          if ($opts{'v'} > $debug1) {$debug1 = $opts{'v'}};
-          $::log->set_level($debug1);
-        }
+            # OK, have something to process.  Lazily create a Majordomo object
+            # for the domain we're processing.
+            unless (defined $mj) {
+              $::mj = new Majordomo $opts{t}, $dom; $mj = $::mj;
+              unless (ref $::mj) {
+                $::log->abort("Cannot create Majordomo object: $::mj");
+              }
+              $debug1 = $mj->global_config_get(undef, undef, 'debug');
+              if ($opts{'v'} > $debug1) {$debug1 = $opts{'v'}};
+              $::log->set_level($debug1);
+            }
 
-        # If we're at the Majordom address, just parse commands
-        if ($func eq 'majordomo') {
-          $log->message(50, 'info', 'Processing commands');
-          debug_to('majord');
-          parse_commands($mj);
-          debug_to('queuerun');
-          unlink $file;
-          close MSG;
-          next MSG;
-        }
+            # If we're at the Majordom address, just parse commands
+            if ($func eq 'majordomo') {
+              $log->message(50, 'info', 'Processing commands');
+              debug_to('majord');
+              parse_commands($mj);
+              debug_to('queuerun');
+              unlink $file;
+              close MSG;
+              next MSG;
+            }
 
-        # Messages to the Majordomo owner address don't have a list on
-        # the end
-        if ($func eq 'owner' && $msg =~ /^\w\w\w-\d+$/) {
-          $log->message(50, 'info', 'Forwarding to majordomo-owner');
-          debug_to('owner');
-          forward_to_owner($mj, 'GLOBAL');
-          debug_to('queuerun');
-          unlink $file;
-          close MSG;
-          next MSG;
-        }
+            # Messages to the Majordomo owner address don't have a list on
+            # the end
+            if ($func eq 'owner' && $msg =~ /^\w\w\w-\d+$/) {
+              $log->message(50, 'info', 'Forwarding to majordomo-owner');
+              debug_to('owner');
+              forward_to_owner($mj, 'GLOBAL');
+              debug_to('queuerun');
+              unlink $file;
+              close MSG;
+              next MSG;
+            }
 
-        # Else we have something that is associated with a list;
-        # extract the list name
-        $msg =~ /^\w\w\w-\d+-([^,]*),?([^,]*)$/; 
-        $list = $1; 
-        $arg  = $2 || '';
+            # Else we have something that is associated with a list;
+            # extract the list name
+            $msg =~ /^\w\w\w-\d+-([^,]*),?([^,]*)$/; 
+            $list = $1; 
+            $arg  = $2 || '';
 
-        # Now set the logging level to that of the list.
-        $debug2 = $mj->list_config_get(undef, undef, $list, 'debug');
-        if ($debug1 > $debug2) {$debug2 = $debug1};
-        $::log->set_level($debug2);
+            # Now set the logging level to that of the list.
+            $debug2 = $mj->list_config_get(undef, undef, $list, 'debug');
+            if ($debug1 > $debug2) {$debug2 = $debug1};
+            $::log->set_level($debug2);
 
-        # Perform the appropriate function
-        # If at list address, resend.
-        if ($func eq 'list' || $func eq 'resend') {
-          $log->message(50, 'info', 'Posting message');
-          debug_to('resend');
-          resend($mj, $list, $file, $arg);
-          debug_to('queuerun');
-        }
+            # Perform the appropriate function
+            # If at list address, resend.
+            if ($func eq 'list' || $func eq 'resend') {
+              $log->message(50, 'info', 'Posting message');
+              debug_to('resend');
+              resend($mj, $list, $file, $arg);
+              debug_to('queuerun');
+            }
 
-        # if at -request pull out global 'request_answer' variable and
-        # figure out what to do
-        elsif ($func eq 'request') {
-          $request_ans = $mj->global_config_get(undef, undef, 'request_answer');
-          if ($request_ans eq 'majordomo') {
-        $log->message(50, 'info', 'Processing commands');
-        debug_to('majord');
-        parse_commands($mj, $list, $arg);
-        debug_to('queuerun');
-          }
-          elsif ($request_ans eq 'owner') {
-        $log->message(50, 'info', 'Forwarding to owner');
-        debug_to('owner');
-        forward_to_owner($mj, $list);
-        debug_to('queuerun');
-          }
-          else {
-        $log->message(50, 'info', 'Responding with file');
-        debug_to('request');
-        respond_with_file($mj, $list);
-        debug_to('queuerun');
-          }
-        }
+            # if at -request pull out global 'request_answer' variable and
+            # figure out what to do
+            elsif ($func eq 'request') {
+              $request_ans = $mj->global_config_get(undef, undef, 'request_answer');
+              if ($request_ans eq 'majordomo') {
+                $log->message(50, 'info', 'Processing commands');
+                debug_to('majord');
+                parse_commands($mj, $list, $arg);
+                debug_to('queuerun');
+              }
+              elsif ($request_ans eq 'owner') {
+                $log->message(50, 'info', 'Forwarding to owner');
+                debug_to('owner');
+                forward_to_owner($mj, $list);
+                debug_to('queuerun');
+              }
+              else {
+                $log->message(50, 'info', 'Responding with file');
+                debug_to('request');
+                respond_with_file($mj, $list);
+                debug_to('queuerun');
+              }
+            }
 
-        # if at -owner look for bounces and forward everything else to the
-        # owner
-        elsif ($func eq 'owner') {
-          # forward to owner; if -l is present, forward to that list else assume
-          # we're majordomo-owner.
-          $log->message(50, 'info', 'Forwarding to owner');
-          debug_to('owner');
-          forward_to_owner($mj, $list || 'GLOBAL', $arg);
-          debug_to('queuerun');
-        }
+            # if at -owner look for bounces and forward everything else to the
+            # owner
+            elsif ($func eq 'owner') {
+              # forward to owner; if -l is present, forward to that list else assume
+              # we're majordomo-owner.
+              $log->message(50, 'info', 'Forwarding to owner');
+              debug_to('owner');
+              forward_to_owner($mj, $list || 'GLOBAL', $arg);
+              debug_to('queuerun');
+            }
 
-        # Remove the file, but keep in mind that it may have already
-        # been moved to some other location (if it was spooled, for
-        # instance).
-        if (-s $file) {
-          unlink $file; 
-        }
-        close MSG;
-        $::log->set_level($debug1);
-      } # $msg
-      closedir QDIR;
-    } # $func
+            # Remove the file, but keep in mind that it may have already
+            # been moved to some other location (if it was spooled, for
+            # instance).
+            if (-s $file) {
+              unlink $file; 
+            }
+            close MSG;
+            $::log->set_level($debug1);
+          } # $msg
+        } # $func
       } # $pri2
       # undef Majordomo object
       if ($mj) {
-    $::log->message(50, "info", "-----Calling destructors-----");
-    undef $mj;
-    undef $::mj;
+        $::log->message(50, "info", "-----Calling destructors-----");
+        undef $mj;
+        undef $::mj;
       }
 #      $end = Devel::Symdump->rnew();
 #      warn($start->diff($end));
@@ -563,7 +567,7 @@ sub parse_commands {
 
   # -subscribe and -unsubscribe aliases have the command in
   # the queue file name.  The message body is not parsed.
-  if (defined $command and Mj::CommandProps::command_legal($command)) {
+  if (defined $command and command_legal($command)) {
     # Iterated or aliased commands are not yet considered.
     $request = {
       'command'   => $command,
@@ -655,6 +659,21 @@ sub debug_to {
     close STDERR;
     open STDERR, ">>$::TMPDIR/mj_$name.debug" or
       die "Can't redirect debug output to $::TMPDIR/mj_$name.debug: $!";
+  }
+}
+
+sub shuffle {
+  my $list = shift;
+  my ($i, $j);
+
+  return unless (ref $list eq 'ARRAY');
+
+  $i = scalar @$list;
+  while ($i > 0) {
+    $j = int rand ($i+1);
+    next if $i == $j;
+    @$list[$i,$j] = @$list[$j,$i];
+    $i--;
   }
 }
 
