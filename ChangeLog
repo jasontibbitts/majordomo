@@ -1,3 +1,9 @@
+2000-10-26  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/BounceHandler.pm (handle_bounce_message): Include info on
+	what list the bounce is from, for folks who filter all owner mail
+	to one place.
+
 2000-10-22  Michael Yount <csf@moscow.com>
 
 	* CREDITS, README:  Suggest mj2-dev instead of majordomo-workers.

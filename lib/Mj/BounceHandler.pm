@@ -124,7 +124,7 @@ sub handle_bounce_message {
   # Dump the body to the session file
   $args{entity}->print_body($self->{sessionfh});
 
-  $mess  = "Detected a bounce of message #$args{msgno}.\n";
+  $mess  = "Detected a bounce of message #$args{msgno}, list $list.\n";
   $mess .= "  (bounce type $args{handler})\n\n";
 
   $sender   = $self->_list_config_get('GLOBAL', 'sender');
@@ -162,7 +162,7 @@ sub handle_bounce_message {
       $subj .= ", $i";
     }
     else {
-      $subj  = "Bounce detected from $i";
+      $subj  = "Bounce detected (list $list) from $i";
     }
     push @$addrs, $i;
   }
