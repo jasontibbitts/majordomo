@@ -1,3 +1,8 @@
+2002-05-10  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* bin/mj_shell (tempfile): Include directory name in error
+	message.
+	
 2002-05-08  Michael Yount <csf@moscow.com>
 
 	* t/*.t  Change "perl-latest" to "perl" in test files to 

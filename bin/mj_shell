@@ -742,7 +742,7 @@ sub tempfile {
     $handle = new IO::File($name, O_CREAT | O_EXCL | O_RDWR, 0600);
     return ($name, $handle) if $handle;
   }
-  die "Couldn't open a temporary file after ten tries: $!";
+  die "Couldn't open a temporary file in $::WTMPDIR after ten tries:\n  $!\n  Cannot continue; exiting";
 }
 
 =head1 NAME
