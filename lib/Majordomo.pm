@@ -88,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200202050";
+$VERSION = "0.1200202210";
 $unique = 'AAA';
 
 use strict;
@@ -856,6 +856,11 @@ sub gen_cmdline {
       if ($variable eq 'victims' and defined $request->{'victim'}) {
         $cmdline .= " $request->{'victim'}";
         next;
+      }
+
+      if ($variable eq 'tokens' and scalar @{$request->{'tokens'}}) {
+        $cmdline .= " $request->{'tokens'}->[0]";
+        last;
       }
 
       last if (defined $hereargs and ($variable eq $hereargs));
