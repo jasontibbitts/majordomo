@@ -1,3 +1,59 @@
+2000-08-04  Michael Yount <csf@moscow.com>
+
+	* bin/mj_email, bin/mj_enqueue:  delete unneeded envvars.
+
+	* bin/mj_queuerun:  randomize directories and files. 
+	Fix indentation.
+
+	* bin/mj_wwwadm:  simplify command form maintenance.
+
+	* files/en/consult, files/en/consult_noweb:  Suggest
+	that the accepter type an explanation.
+
+	* lib/Majordomo.pm: (new) Treat the registry as
+	a subscriber list for the GLOBAL list.  This allows
+	the Deliver module to distribute messages to addresses
+	in the registry.
+	(announce) New command.  Distribute a file to one
+	or more classes of subscribers.  Each message is
+	sent as a probe, with the recipient in the To: header.
+	This could be used for periodic reminders, or 
+	announcements that need to reach 'digest' and 'nomail'
+	subscribers immediately.
+	(archive_chunk) Allow the type of digest for the
+	archive-get command to be specified in the mode ("-mime"
+	for mime; text otherwise.)
+	(report) New, iterated command.  Obtain raw or summarized
+	data for recent log entries for a mailing list.
+	The data can be constrained by action or by date.
+
+	* lib/mj_cf_defs.pl: Add 'MSGRCPT' to admin_header checks.
+
+	* lib/Mj/CommandProps.pm, lib/Mj/Format.pm:  Support new
+	announce and report commands.
+
+	* lib/Mj/Deliver.pm:  (deliver) Support delivery to 
+	addresses in the registry.  Addresses subscribed to 
+	at least one list are in the "each" class.  Addresses
+	not subscribed to any lists are in the "nomail" class.
+
+	* lib/Mj/List.pm:  (digest_classes) New routine.  Return
+	a list of all possible digest classes.
+
+	* lib/Mj/MailOut.pm:  (probe) New routine.  Probe all
+	addresses in the classes provided.  This is used by
+	the announce command.
+
+	* lib/Mj/Parser.pm:  (parse_entity) Test for existence
+	of a bodyhandle before using it.  (Thanks to Paul Hancock.)
+
+	* lib/Mj/Deliver/Dest.pm:  (make_envelope)  Add 'personal'
+	variable, which is set if there is only one recipient.
+
+	* lib/Mj/Deliver/Envelope.pm:  (new, address, send)
+	If a message is personal, substitute the recipient's
+	address for the variable $MSGRCPT during delivery.
+
 2000-07-30  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm: (dispatch) Inform on post_done, but not

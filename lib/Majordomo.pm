@@ -163,6 +163,8 @@ sub new {
 				     $self->{backend});
   $self->{reg}   = new Mj::RegList("$self->{ldir}/GLOBAL/_register",
 				     $self->{backend});
+  # XXX Allow addresses to be drawn from the registry for delivery purposes.
+  $self->{'lists'}{'GLOBAL'}->{'subs'} = $self->{'reg'};
 
   # Pull in the constants for our address validator
   Mj::Addr::set_params
@@ -2673,6 +2675,126 @@ sub _alias {
   return (1, '');
 }
 
+=head2 announce
+
+This command allows a message to be sent to all or a portion
+of the subscribers of a mailing list, optionally including
+the subscribers in "nomail" mode.
+
+The message is sent as a probe, meaning that each subscriber
+will receive a customized copy.  The "To:" header in
+the message will be set to the subscriber's address.
+
+=cut
+
+sub announce {
+  my ($self, $request) = @_;
+  my $log = new Log::In 30, "$request->{'list'}, $request->{'file'}";
+
+  return (0, "A file name was not supplied.\n")
+    unless $request->{'file'};
+
+  return (0, "Announcements to the DEFAULT list are not supported.\n")
+    if ($request->{'list'} eq 'DEFAULT');
+
+  ($ok, $mess) =
+    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
+                             $request->{'cmdline'}, $request->{'list'}, 
+                             'announce', $request->{'user'}, $request->{'user'}, 
+                             $request->{'file'});
+
+  unless ($ok > 0) {
+    return ($ok, $mess);
+  }
+  $self->_announce($request->{'list'}, $request->{'user'}, $request->{'user'}, 
+                   $request->{'mode'}, $request->{'cmdline'}, $request->{'file'});
+
+}
+
+use MIME::Entity;
+sub _announce {
+  my ($self, $list, $user, $vict, $mode, $cmdline, $file) = @_;
+  my $log = new Log::In 30, "$list, $file";
+  my (@classlist, %data); 
+  my ($baseclass, $classes, $desc, $ent, $mailfile, $sender, $tmpfile);
+
+  $sender = $self->_list_config_get($list, 'sender');
+  return (0, "Unable to obtain sender address.\n")
+    unless $sender;
+
+  $subs =
+    {
+     VERSION  => $Majordomo::VERSION,
+     WHEREAMI => $self->_global_config_get('whereami'),
+     WHOAMI   => $self->_list_config_get($list, 'whoami'),
+     MJ       => $self->_global_config_get('whoami'),
+     MJOWNER  => $self->_global_config_get('sender'),
+     OWNER    => $sender,
+     SITE     => $self->_global_config_get('site_name'),
+     USER     => $user,
+     LIST     => $list,
+    };
+  
+  ($mailfile, %data) = $self->_list_file_get($list, $file, $subs);
+ 
+  return (0, "The file $file is unavailable.\n")
+    unless $mailfile;
+
+  $desc = $self->substitute_vars_string($data{'description'}, $subs);
+  
+  $ent = build MIME::Entity
+    (
+     'Path'     => $mailfile,
+     'Type'     => $data{'c-type'},
+     'Charset'  => $data{'charset'},
+     'Encoding' => $data{'c-t-encoding'},
+     'Subject'  => $desc || "Announcement from the $list list",
+     'Top'      => 1,
+     '-To'      => '$MSGRCPT',
+     '-From'    => $sender,
+     'Filename' => undef,
+     'Content-Language:' => $data{'language'},
+    );
+ 
+  return (0, "Unable to create mail entity.\n")
+    unless $ent;
+
+  $tmpfile = "$tmpdir/mja" . unique();
+  open FINAL, ">$tmpfile" ||
+    return(0, "Could not open temporary file, $!");
+  $ent->print(\*FINAL);
+  close FINAL;
+
+  # Construct classes from the mode.  If none was given,
+  # use all classes.
+  $classes = {};
+  if ($list eq 'GLOBAL') {
+    @classlist = qw(each nomail);
+  }
+  else {
+    @classlist = qw(nomail each-noprefix-noreplyto each-prefix-noreplyto 
+                    each-noprefix-replyto each-prefix-replyto);
+    push @classlist, $self->{'lists'}{$list}->_digest_classes;
+  }
+  for (@classlist) {
+    ($baseclass = $_) =~ s/\-.+//;
+    if (!$mode or $mode =~ /$baseclass/) {
+      $classes->{$_} =
+        {
+         'exclude' => {},
+         'file'    => $tmpfile,
+        };
+    }
+  }
+  return (0, "No valid subscriber classes were found.\n")
+    unless (scalar keys %$classes);
+
+  # Send the message.
+  $self->probe($list, $sender, $classes);
+  unlink $tmpfile;
+  1;
+}
+
 =head2 archive(..., list, args)
 
 This is a general archive interface.  It checks access, then looks at the
@@ -2718,7 +2840,6 @@ sub archive_start {
   my $log = new Log::In 30, "$request->{'list'}, $request->{'args'}";
   my ($out, $ok);
 
-  $self->_make_list($request->{'list'});
   ($ok, $out) =
     $self->list_access_check($request->{'password'}, $request->{'mode'}, 
                              $request->{'cmdline'}, $request->{'list'}, 
@@ -2745,7 +2866,7 @@ sub _archive {
 sub archive_chunk {
   my ($self, $request, $result) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
-  my (@msgs, $data, $list, $ent, $file, $i, $out, $owner, $fh, $buf);
+  my (@msgs, $data, $ent, $file, $i, $list, $out, $owner, $fh, $buf);
 
   if (scalar(@$result) <= 0) {
     return (1, "No messages were found which matched your request.\n");
@@ -2768,9 +2889,10 @@ sub archive_chunk {
     return (1, $buf);
   }
   else {
+    $out = ($request->{'mode'} =~ /mime/) ? "mime" : "text";
     ($file) = $list->digest_build
     (messages      => $result,
-     type          => "text",
+     type          => $out,
      subject       => "Results from $request->{'cmdline'}",
      tmpdir        => $tmpdir,
      index_line    => $self->_list_config_get($request->{'list'}, 'digest_index_format'),
@@ -3744,6 +3866,134 @@ sub _rekey {
     $self->{'lists'}{$list}->rekey;
   }
   return (1, '');
+}
+
+=head2 report(..., $sessionid)
+
+Display statistics about logged actions for one or more lists.
+
+=cut
+sub report_start {
+  my ($self, $request) = @_;
+  my $log = new Log::In 50, 
+     "$request->{'list'}, $request->{'user'}, $request->{'action'}";
+  my ($mess, $ok);
+
+  ($ok, $mess) =
+    $self->list_access_check($request->{'password'}, $request->{'mode'}, 
+                             $request->{'cmdline'}, $request->{'list'}, 'report', 
+                             $request->{'user'}, $request->{'user'}, 
+                             $request->{'action'}, '', $request->{'date'});
+
+
+  unless ($ok > 0) {
+    return ($ok, $mess);
+  }
+  $self->_report($request->{'list'}, $request->{'user'}, $request->{'user'}, 
+              $request->{'mode'}, $request->{'cmdline'}, $request->{'action'},
+              '', $request->{'date'});
+}
+
+use Mj::Archive qw(_secs_start _secs_end);
+sub _report {
+  my ($self, $list, $requ, $victim, $mode, $cmdline, $action, $d, $date) = @_;
+  my $log = new Log::In 35, "$list, $action";
+  my (@actions, @legal, $begin, $count, $end, $file, $span);
+
+  if (defined $action) {
+    @actions = split /\s*,\s*/, $action;
+    @legal = command_list();
+    push @legal, ('badtoken', 'consult', 'connect', 'ALL');
+    for $action (@actions) {
+      unless (grep {$_ eq $action} @legal) {
+        return (0, "Action $action is unknown.\n");
+      }
+    }
+  }
+
+  $begin = 0; $end = time;
+
+  if (length $date) {
+    $date =~ s/[\-]//g;
+    # date in yyyymmdd or yyyymmw format
+    if ($date =~ /^\d+$/) {
+      $begin = &Mj::Archive::_secs_start($date, 1);
+      $end = &Mj::Archive::_secs_end($date, 1);
+      return (0, "Unable to parse date $date.\n")
+        unless ($begin <= $end);
+    }
+    # 5m for last five months, 2h for last two hours
+    elsif ($date =~ /^(\d+)([hdwmy])$/) {
+      $count = $1 * 3600; $span = $2;
+      if    ($span eq 'h') { $begin = $end - $count; }
+      elsif ($span eq 'd') { $begin = $end - ($count*24); }
+      elsif ($span eq 'w') { $begin = $end - ($count*24*7); }
+      elsif ($span eq 'm') { $begin = $end - ($count*24*30); }
+      elsif ($span eq 'y') { $begin = $end - ($count*24*365); }
+    }
+    else {
+      return (0, "Unable to parse date $date.\n");
+    }
+  }
+  $self->_make_list($list);
+
+  $file = "$self->{'ldir'}/GLOBAL/_log";
+  
+  $self->{'report_fh'} = new IO::File $file;
+  unless ($self->{'report_fh'}) {
+    return (0, "Cannot access the log.\n");
+  }
+  return (1, [$begin, $end]);
+}
+
+sub report_chunk {
+  my ($self, $request) = @_;
+  my $log = new Log::In 500, 
+     "$request->{'list'}, $request->{'user'}, $request->{'action'}";
+  my (@data, @out, $count, $line, $owner, $trigger);
+  my @actions = split /\s*,\s*/, $request->{'action'};
+  unless (@actions) {
+    $actions[0] = 'ALL';
+  }
+  $owner   = grep { $_ eq 'owner' } @actions;
+  $trigger = grep { $_ eq 'trigger' } @actions;
+
+  $request->{'begin'} ||= 0;
+  $request->{'end'} ||= time;
+  $request->{'chunksize'} ||= 1;
+  return (0, "Invalid chunk size given.\n")
+    unless ($request->{'chunksize'} > 0);
+  return (0, "Unable to read data.\n") 
+    unless ($self->{'report_fh'});
+
+  $count = 0;
+
+  while (1) { 
+    $line = $self->{'report_fh'}->getline;
+    last unless $line;
+    @data = split "\001", $line;
+    # check time, list, and action constraints
+    next unless (defined $data[9] and $data[9] >= $request->{'begin'} 
+                 and $data[9] <= $request->{'end'});
+    next unless ($data[0] eq $request->{'list'} 
+                 or $request->{'list'} eq 'ALL');
+    next if ($data[1] eq 'owner' and ! $owner);
+    next if ($data[1] eq 'trigger' and ! $trigger);
+    next unless ($actions[0] eq 'ALL' or grep {$_ eq $data[1]} @actions);
+    push @out, [@data];
+    $count++;  last if ($count >= $request->{'chunksize'});
+  }
+
+  (1, [@out]);
+}
+
+sub report_done {
+  my ($self, $request) = @_;
+  my $log = new Log::In 50, 
+     "$request->{'list'}, $request->{'user'}, $request->{'action'}";
+  return unless $self->{'report_fh'};
+  undef $self->{'report_fh'};
+  (1, '');
 }
 
 =head2 sessioninfo(..., $sessionid)
