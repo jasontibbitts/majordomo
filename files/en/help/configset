@@ -12,14 +12,18 @@ NOTE: The list of possible configset variables is in "help topics".
 
 Only savvy list administrators will need to know what follows...
 and if you just want a brief description of all the configset options
-you can send "configshow-comments listname ALL" to the server.
+currently in effect for your list, you can send the command
+  configshow YOUR_LIST 
+to the server, substituting the name of your mailing list for YOUR_LIST.
 
-Configset sets the given variable to the given value.  A single value can
-be specified directly on the command line after an equals sign, and that
-value can sometimes be null by putting nothing after the "=". Configedit
-runs only from the mj_shell command line, and displays the configshow
-output in an editor: your changes will be automatically accepted as
-configset commands when you save them and exit the editor. Configdefault
+The configset command sets a variable to a given value.  A single value 
+can be specified directly on the command line after an equals sign, and 
+that value can sometimes be undefined, if which case nothing appears
+after the "=".
+
+Configedit runs only from the mj_shell command line, and displays the
+configshow output in an editor: your changes will be automatically accepted
+as configset commands when you save them and exit the editor. Configdefault
 causes a variable to track the software defaults, and is not always the
 same as setting the variable to a null value.
 
@@ -46,7 +50,7 @@ The 'default password' command can make it much easier to submit several
 configset commands at once. The 'configshow' and 'configshow-comments'
 commands are how you find out the current settings and get hints for
 other ways to set variables. The response from configshow is in such a
-form (namely configset commands) that it can be fed back to the parser
+form (namely configset commands) that it can be fed back to Majordomo
 verbatim. You will need to put a "default password" line before most
 configshow outputs before using them as configset commands since they
 are altering the list and require the list password. You can review
@@ -58,7 +62,10 @@ authentication at all, a small list of variables may be visible
 to configshow even though they cannot be modified with configset.
 
 Finally, note that not all per-list variables can be modified by the
-list owner. Some require global priviliges.
+list owner. Some require global privileges. (By default, these
+variables include archive_dir, bounce_probe_frequency, debug, 
+default_language, delivery_rules, dup_lifetime, filedir, file_search, 
+file_share, token_lifetime, and token_remind.)
 
 There no explanation here of WHY a configset might be needed or how
 they interact with each other. For that type of information, send
@@ -69,11 +76,13 @@ For syntax or option information for each variable, send
 to $MJ
 
 Note that "configset GLOBAL variable" sets values for the entire site,
-while "configset listname variable" sets values for a single list. In
-some cases, GLOBAL values can be over-ridden by setting the same
+while "configset listname variable" sets values for a single list.
+In some cases, GLOBAL values can be over-ridden by setting the same
 variable to a different value for a given list. In other cases, the
 GLOBAL pseudo-list has different variables: these cases will be
-indicated by the help file.
+indicated by the help files. There are four variables for which the
+GLOBAL settings are combined with the list's settings. They are
+admin_body,  admin_headers, taboo_body, and taboo_headers.
 
 For a complete list of variables that can be altered with the configset
 or configedit commands, or reset with the configdefault commands (or can
