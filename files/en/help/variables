@@ -255,6 +255,9 @@ the error, format, and reply files will be presented here.
   affected by the request must confirm the command, or "consult" if 
   the moderators must confirm the command.
 
+\$URL
+  Identical to \$CONFIRM_URL
+
 \$USER
   The e-mail address from which a Majordomo request was originally sent.
   (this needs to be reconciled with \$REQUESTER)
