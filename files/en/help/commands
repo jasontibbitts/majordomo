@@ -1,9 +1,9 @@
                       Summary of Commands for Subscribers
 
-This document briefly describes every command available to list subscribers, 
-but no explanation of why they are needed.  For a gentler introduction, 
-please see "help overview".  To learn about Majordomo commands from the 
-perspective of a list administrator, see "help admin" and "help admin_commands".
+This document briefly describes every command available to list
+subscribers.  For a gentler introduction, please see "help overview".
+To learn about Majordomo commands from the perspective of a list
+administrator, see "help admin" and "help admin_commands".
 
 To issue a command, send it in the body of an e-mail message to
   $MJ
@@ -15,10 +15,9 @@ appropriate value.  For example, LISTNAME should be replaced with the
 name of a mailing list.
 
 accept [TOKEN]
-  The accept command is used to confirm a posted message or other 
-  request that was being held for approval.  Confirmation is
-  often required when you subscribe to a mailing list, to verify your
-  identity.
+  The accept command is used to confirm a posted message or other
+  request that is being held for approval.  Confirmation is often 
+  required when you subscribe to a mailing list, to verify your identity.
   See "help accept" for more details.
 
 
@@ -186,6 +185,9 @@ who LISTNAME [PATTERN]
 
 
 See Also:
+   help admin
+   help admin_commands
+   help auxiliary_list
    help command_parser (signatures, attachments, and splitting long commands)
    help help
    help overview
