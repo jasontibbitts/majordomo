@@ -31,6 +31,9 @@ failure is stored in a session files.  Session files can be viewed using
 the sessioninfo command.  To find the session number for a particular
 bounce, use the report-full command.
 
+The bounce database is stored in the main directory of a mailing list,
+and is named "_bounce.D" or "_bounce.T".
+
 
 See Also:
    help admin_subscribers

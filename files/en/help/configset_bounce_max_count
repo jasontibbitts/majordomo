@@ -8,24 +8,44 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname bounce_max_count = 20
+configset listname bounce_max_count = 50
 
 
-The maximum number of bounce data kept for a user.
+$INCLUDE-config/bounce_max_count
 
 The bounce_max_count and bounce_max_age settings are just used for
 expiring old bounce data; we don't want to keep too much of it around
 and so we delete a bounce datum if it is too old or we have too many
 (in which case, the oldest are tossed).
 
+Expiration of bounce data happens daily by default.  The frequency can
+be changed by adjusting the "triggers" configuration setting.  
+
+Subscribers and domain administrators can see a summary of a
+subscriber's bounce data using the show command.  List administrators
+can see a complete list of addresses with bounces using the who-bounce
+command.
+
+The error message that contains a complete description of the delivery
+failure is stored in a session files.  Session files can be viewed using
+the sessioninfo command.  To find the session number for a particular
+bounce, use the report-full command.
+
+The bounce database is stored in the main directory of a mailing list,
+and is named "_bounce.D" or "_bounce.T".
+
 
 See Also:
-   help configset bounce_max_age         (how long a user's bounce data will be tracked)
-   help configset bounce_probe_frequency (how often bounce probes are sent out)
-   help configset bounce_probe_pattern   (force probes of matching addresses)
-   help configset bounce_recipients      (who receives bounce error messages)
-   help show                             (get info on a user, including bounce data)
+   help admin_subscribers
+   help configset_bounce_max_age
+   help configset_bounce_probe_frequency
+   help configset_bounce_probe_pattern
+   help configset_bounce_recipients
+   help configset_bounce_rules
+   help configset_triggers
+   help report
+   help sessioninfo
+   help show
+   help who
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
