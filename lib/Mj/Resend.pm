@@ -1366,6 +1366,7 @@ sub _add_fters {
 
   # We take different actions if the message is multipart
   if ($ent->is_multipart) {
+      return 0 if $ent->effective_type eq 'multipart/alternative';
       if ($front) {
 	  $front_ent = build MIME::Entity(Type       => "text/plain",
 					  Data       => $front,
