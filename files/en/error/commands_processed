@@ -1,0 +1,3 @@
+Valid commands processed: $COUNT
+$SUCCEED succeeded, $STALL stalled, and $FAIL failed.
+

@@ -1,0 +1,5 @@
+The command succeeded. ?SUCCEED
+The command stalled. ?STALL
+The command failed. ?FAIL
+The results of the command were mailed to $USER.
+

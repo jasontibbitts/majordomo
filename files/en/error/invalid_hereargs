@@ -1,0 +1,3 @@
+The $COMMAND command does not accept multi-line arguments ("<< TAG") 
+or input from a message attachment ("<@").
+
