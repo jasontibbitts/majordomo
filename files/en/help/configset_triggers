@@ -32,10 +32,7 @@ post     | thursday
 vacation | hourly
 ENDLIST
 
-Triggers are actions that occur periodically.  Each trigger consists 
-of a name and a set of times during which the trigger is issued.  
-The name and times are separated by vertical bars ('|') or colons, as in:
-  session  | monday(6,12,18), thursday(8)
+$INCLUDE-config/triggers
 
 When the software was installed, a cron job should have been set up to
 call the mj_trigger program on an hourly basis.  During the hourly
