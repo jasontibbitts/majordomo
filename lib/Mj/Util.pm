@@ -16,15 +16,16 @@ package Mj::Util;
 use Mj::Log;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(condense ep_convert ep_recognize gen_pw in_clock n_build
-                n_defaults n_validate process_rule re_match reconstitute
+@EXPORT_OK = qw(condense enriched_to_hyper ep_convert ep_recognize 
+                gen_pw in_clock n_build n_defaults n_validate 
+                plain_to_hyper process_rule re_match reconstitute
                 str_to_time time_to_str);
 
 use AutoLoader 'AUTOLOAD';
 
 $VERSION = "0.0";
 use strict;
-use vars(qw(%args %memberof %notify_var $current $safe $skip));
+use vars(qw(%args %memberof %notify_var %rt2ht $current $safe $skip));
 $Mj::Util::safe = '';
 
 %Mj::Util::notify_var =
@@ -38,6 +39,48 @@ $Mj::Util::safe = '';
    'pool'       => 'integer',
    'remind'     => 'timespan',
   );
+
+%Mj::Util::rt2ht =
+  (
+   'bigger'     => '',
+   'bold'       => '',
+   'center'     => { 
+                     'start' => 'p align=center',
+                     'end'   => 'p',
+                   },
+   'color'      => '',
+   'excerpt'    => { 
+                     'start' => 'blockquote',
+                     'end'   => 'blockquote',
+                   },
+   'fixed'      => '',
+   'flushboth'  => { 
+                     'start' => 'p align=both',
+                     'end'   => 'p',
+                   },
+   'flushleft'  => { 
+                     'start' => 'p align=left',
+                     'end'   => 'p',
+                   },
+   'flushright' => { 
+                     'start' => 'p align=right',
+                     'end'   => 'p',
+                   },
+   'fontfamily' => '',
+   'italic'     => '',
+   'lang'       => '',
+   'nofill'     => { 
+                     'start' => 'pre',
+                     'end'   => 'pre',
+                   },
+   'paraindent' => { 
+                     'start' => 'blockquote',
+                     'end'   => 'blockquote',
+                   },
+   'smaller'    => '',
+   'underline'  => '',
+  );
+
 
 1;
 __END__
@@ -69,10 +112,10 @@ sub process_rule {
   my $log = new Log::In 70;
 
   my @permitted_ops = qw(
-     anonlist  aelem    concat const  enter  
+     anonlist  aelem    const  enter  
      eq        ge       gt     helem  le
      leaveeval lt       ne     not
-     null      pushmark refgen regcreset 
+     null      pushmark refgen
      return    rv2av    rv2sv  seq    sne
     );
 
@@ -496,8 +539,8 @@ sub re_match {
   unless (ref $safe eq 'Safe') {
     eval ("use Safe");
     $safe = new Safe;
-    $safe->permit_only(qw(concat const leaveeval not null pushmark 
-                          regcreset return rv2sv stub));
+    $safe->permit_only(qw(const leaveeval not null pushmark 
+                          return rv2sv stub));
   }
 
   # Hack; untaint things.  That's why we're running inside a safe
@@ -626,4 +669,76 @@ sub time_to_str {
   }
 
   $out;
+}
+
+=head2 enriched_to_hyper(text_file)
+
+This function converts a file from enriched text to HTML
+without regard for fonts or colors. 
+
+=cut
+use Mj::FileRepl;
+sub enriched_to_hyper {
+  my $txtfile = shift;
+  my $log = new Log::In 350;
+  return unless (-f $txtfile);
+
+  my ($et, $line, $repl, $st, $tag, $tmp);
+  
+  $repl = new Mj::FileRepl($txtfile);
+  return unless ($repl);
+
+  while (defined($line = $repl->{'oldhandle'}->getline)) {
+    # Convert blank lines into paragraphs.
+    if ($line =~ /^\s*$/) {
+      $repl->{'newhandle'}->print("<p>\n");
+      next;
+    }
+
+    # Delete parameter values.
+    $line =~ s#<param>[^<]*</param>##i;
+    $line =~ s/<</&lt;/g;
+
+    # Replace tags.
+    for $tag (keys %rt2ht) {
+      if (ref $rt2ht{$tag} eq 'HASH') {
+        $line =~ s#<$tag>#<$rt2ht{$tag}->{'start'}>#gi;
+        $line =~ s#</$tag>#</$rt2ht{$tag}->{'end'}>#gi;
+      }
+      else {
+        $line =~ s#<(/)?$tag>##gi;
+      }
+    }
+    $repl->{'newhandle'}->print($line);
+  }
+
+  $repl->commit;
+}
+
+=head2 plain_to_hyper(text_file)
+
+This function converts a plain text file into a simple HTML file.
+
+=cut
+use Mj::FileRepl;
+sub plain_to_hyper {
+  my $txtfile = shift;
+  my $log = new Log::In 350;
+  return unless (-f $txtfile);
+
+  my ($line, $repl);
+  
+  $repl = new Mj::FileRepl($txtfile);
+  return unless ($repl);
+  
+  while (defined($line = $repl->{'oldhandle'}->getline)) {
+    if ($line =~ /^\s*$/) {
+      $repl->{'newhandle'}->print("<p>\n");
+    }
+    else {
+      $repl->{'newhandle'}->print("<br>$line");
+    }
+  }
+
+  $repl->commit;
 }
