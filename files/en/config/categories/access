@@ -1,9 +1,3 @@
-
-
-The access category includes the following settings:
-   access_rules, archive_access, block_headers, 
-   confirm_url, faq_access, get_access, index_access, info_access, 
-   intro_access, latchkey_lifetime, set_policy, 
-   subscribe_policy, token_lifetime, token_remind, unsubscribe_policy, 
-   which_access, who_access
-
+Settings in the ACCESS category are used to restrict access to
+list server features such as the subscribe, set, and archive
+commands.

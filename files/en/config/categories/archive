@@ -1,6 +1,2 @@
-
-
-The archive category includes the following settings:
-   archive_access, archive_date, archive_dir, archive_size, archive_split, 
-   archive_url
-
+Settings in the ARCHIVE category determine how posted messages
+are archived.

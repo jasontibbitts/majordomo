@@ -1,9 +1,3 @@
-
-
-The moderate category includes the following settings:
-   access_rules, admin_body, admin_headers, administrivia, attachment_rules, 
-   dup_lifetime, max_header_line_length, max_mime_header_length, 
-   max_total_header_length, maxlength, moderate, moderator_group, 
-   moderators, owners, post_lifetime,post_limits, quote_pattern, 
-   restrict_post, save_denial_checksums, taboo_body, taboo_headers
-
+Settings in the MODERATE category determine who can post messages;
+whether messages are sent to the subscribers immediately, discarded,
+or moderated; and the addresses of the list owners and moderators.

@@ -1,8 +1,16 @@
 The config_access setting loosens or tightens access to configuration
-settings.  Each line consists of a setting name, followed by an access
-level for viewing the setting (with the configshow command) and an
-access level for changing the setting (with the configset or configdef
-command).  The access level for is a whole number between 0 and 5 for
+settings.  Each line consists of a setting name, followed by three
+levels:
+
+1. An access level for viewing the setting (with the configshow command). 
+
+2. An access level for changing the setting (with the configset or 
+   configdef command). 
+
+3. A wizard level that describes the importance of a setting and the
+   skill level required to understand it.  
+
+The access level for is a whole number between 0 and 5 for
 viewing, and between 1 and 5 for changing.
 
 Higher numbers give greater restrictions.  The access levels include:
@@ -13,8 +21,13 @@ Higher numbers give greater restrictions.  The access levels include:
   1 - A list auxiliary password
   0 - No password
 
+The wizard level is a whole number between 1 and 9.  Level 1 settings
+are considered "essential" and should be configured by all new list
+owners.  Settings with higher "wizard" levels are more complicated and
+have a more specific scope.
+
 For example, an entry like
-  token_lifetime |  1  |  3
+  token_lifetime |  1  |  3  | 4
 would allow anyone with an administrative password to see the
 token_lifetime setting, but only the domain or site managers could
 change it.

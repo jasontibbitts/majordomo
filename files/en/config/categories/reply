@@ -1,7 +1,3 @@
-
-
-The reply category includes the following settings:
-   ack_attach_original, allowed_flags, default_flags, default_language, 
-   file_search, file_share, inform, nonmember_flags, 
-   request_answer, return_subject, welcome, welcome_files
-
+Settings in the REPLY category determine whether or not notices,
+acknowledgements, and welcome messages are sent; the files that contain
+the notices; and the language of the notices.

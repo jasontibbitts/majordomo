@@ -1,11 +1,2 @@
-
-
-The deliver category includes the following settings:
-   allowed_classes, allowed_flags, attachment_filters, default_class, 
-   default_flags, delete_headers, delivery_rules, digest_index_format, 
-   digest_issues, digests, inactive_lifetime, message_footer,
-   message_footer_frequency, message_fronter, message_fronter_frequency,
-   message_headers, override_reply_to, precedence, purge_received,
-   reply_to, resend_host, sender, sequence_number, subject_prefix,
-   subject_re_pattern, subject_re_strip
-
+Settings in the DELIVER category can alter the contents and control
+the delivery of posted messages.

@@ -1,6 +1,2 @@
-
-
-The bounce category includes the following settings:
-   bounce_max_age, bounce_max_count, bounce_probe_frequency, 
-   bounce_probe_pattern, bounce_recipients, bounce_rules
-
+Settings in the BOUNCE category control the processing of error
+messages caused by delivery failures.

@@ -1,4 +1,5 @@
-This is a short description of the list, used in the short listing.
-It should be no more than 50 characters in order to fit on the average
-terminal.  If this is empty, the first line of 'description_long' is
-used.  If both are empty, the string "(no description)" is used.
+This is a one-line description of a mailing list.  It is displayed by
+the "lists" command.  The description should be no more than 50
+characters long.  If no value is given, the first line of the
+"description_long" setting is used.  If that setting is empty, the
+line "(no description)" is displayed.
