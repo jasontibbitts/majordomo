@@ -437,6 +437,7 @@ sub _post {
   close FINAL;
 
   # Pass to archive.  XXX Is $user good enough, or should we re-extract?
+  $subject = $archead->get('subject'); chomp $subject;
   $msgnum = $self->{'lists'}{$list}->archive_add
     ($file,
      undef,
@@ -445,7 +446,7 @@ sub _post {
       'from'       => $user,
       'quoted'     => $avars{quoted_lines},
       'refs'       => join(',',@refs),
-      'subject'    => $archead->get('subject'),
+      'subject'    => $subject,
      },
     );
 

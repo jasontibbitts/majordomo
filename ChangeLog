@@ -3,6 +3,8 @@ Sun Oct  4 09:52:57 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 	* lib/Mj/Resend.pm (_post): Use $arcent, $archead to extract
  	information about the message about to be archived, instead of
  	using the entity that is posted.
+	(_post): Forgot to strip newlines from the subject before passing
+ 	to archive.
 
 	* lib/Mj/Archive.pm (new): Typo: $size can be unlimited, not
  	$split.
