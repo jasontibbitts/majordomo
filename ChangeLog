@@ -1,3 +1,8 @@
+2000-06-19  Michael Yount  <csf@moscow.com>
+	* bin/mj_wwwadm:  Clarify help page.
+	Allow multiple tokens to be processed at once.
+	Allow multiple addresses to be unsubscribed/unregistered at once.
+
 2000-06-18  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/MailOut.pm (handle_bounce_user): Now provide per-user

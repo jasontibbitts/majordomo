@@ -48,13 +48,13 @@ use Mj::Addr;
 
 my ($cgi, $domain, $mj, $ok, $mess, $serveradmin, $sess, $token);
 my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, $vict, $extra);
-my ($line, $st, $file, $fh, $cgiurl, $cmdform, $localpart);
+my ($line, $st, $file, $fh, $cgiurl, $cmdform, $localpart, $req, @extra);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
 umask oct($::UMASK);
 
-# Change the log level to a higher number (200) for complete debugging
+# Change the log level to a higher number (600) for complete debugging.
 $::log = new Mj::Log;
 $::log->add
   (
@@ -68,7 +68,8 @@ $::log->add
    log_args    => 1,
   );
 
-$::log->in(20, undef, "info", "Majordomo WWW Admin - ".scalar(localtime)." from $ENV{'REMOTE_ADDR'}");
+$::log->in(20, undef, "info", 
+  "Majordomo WWW Admin - ".scalar(localtime)." from $ENV{'REMOTE_ADDR'}");
 $::log->startup_time();
 
 # Start up the page and parse the URL
@@ -133,9 +134,11 @@ $localpart = $ENV{'REMOTE_ADDR'} || "mj_wwwadm";
 $user    = new Mj::Addr("$localpart\@example.com");
 $passw   = $cgi->param('passw') || '';
 $list    = $cgi->param('list') || $pathinfo;
-$extra   = $cgi->param('extra') || '';
+@extra   = $cgi->param('extra');
 $st      = $cgi->param('st') || '';
 if ($st eq 'on') { $st = 'checked'; }
+$extra[0] ||= '';
+$extra   = $extra[0];
 
 # Extract "mode" from command name
 if ($ofunc =~ /([^\s=-]+)[=-](.*)/) {
@@ -149,7 +152,8 @@ else {
 
 $cmdform = <<EOM;
 <form method=POST action=$cgiurl>
-command:
+<table><tr><td>
+Command:&nbsp;&nbsp;
 <select name=func>
 <option> accept
 <option> archive-index
@@ -177,13 +181,19 @@ command:
 <option> who-enhanced
 <option> about this service
 </select>
-<input size=24 name=extra value="$extra">
-<input type=checkbox name=st $st>show pending requests<br>
-password:
-<input size=14 name=passw type=password value="$passw">
-mailing list:
-<input size=14 name=list value="$list">
-<input type=submit value="Issue command">
+<td>
+<input size=26 name=extra value="$extra">
+<td>
+<input type=checkbox name=st $st> Show Pending Requests
+<tr><td>
+Mailing List:&nbsp;&nbsp;
+<input size=20 name=list value="$list">
+<td>
+Password:&nbsp;&nbsp;
+<input size=16 name=passw type=password value="$passw">
+<td>
+<input type=submit value="Issue Command">
+</table>
 </form>
 EOM
 
@@ -259,13 +269,15 @@ if ($func eq 'auxadd' or $func eq 'auxremove') {
 
 $file = Majordomo::tempname();
 $fh = new IO::File ">$file";
-&{"Mj::TextOutput::$func"}($mj, $func, $user, 
+for $req (@extra) {
+  &{"Mj::TextOutput::$func"}($mj, $func, $user, 
                            ($func =~ /help|which|lists/)? '' : $passw, 
                            undef, "mjadm",
-                           undef, $fh, $mode, $list, $extra, ());
+                           undef, $fh, $mode, $list, $req, ());
+  print $fh "\n";
+}
 
 if ($st eq 'checked' and $passw ne '' and $func ne 'showtokens') {
-  print $fh "\n";
   # present the result of the showtokens command
   &{"Mj::TextOutput::showtokens"}($mj, $func, $user, $passw, 
                                   undef, "mjadm",
@@ -283,8 +295,9 @@ exit 0;
 #---------------- Subroutines -----------------#
 sub format_print {
   my $file = shift;
-  my ($line, $token, $summarize, $hdrs);
+  my ($line, $token, $summarize, $hdrs, $remove);
   $summarize = $hdrs = 0;
+  $remove = $list eq 'GLOBAL' ? "unregister" : "unsubscribe";
 
   $fh = new IO::File "<$file";
   if (! $fh) { 
@@ -309,7 +322,7 @@ sub format_print {
 <input type=hidden name=list value=$list>
 <input type=hidden name=passw value=$passw>
 <br>
-Choose one request from the list below,
+Choose one or more requests from the list below,
 then press one of the buttons above.
 <pre>
 EOM
@@ -339,7 +352,31 @@ EOM
     # add link to tokeninfo if a token is present
     elsif ($line =~ /^([0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4})/) {
       $token = $1;
-      $line = "<input type=radio name=extra value=$token>$line";
+      if ($token eq $extra) {
+        $line = "<input type=checkbox name=extra value=$token selected>$line";
+      }
+      else {
+        $line = "<input type=checkbox name=extra value=$token>$line";
+      }
+    }
+    elsif ($func eq 'who' and $line =~ /(\S.*\@\S+)/) {
+      $line = "<input type=checkbox name=extra value=\"$1\">$line";
+    }
+    elsif ($func eq 'who' and $line =~ /^Members of list/) {
+      $line = <<EOM;
+</pre>
+<form action=$cgiurl method=POST>
+<input type=submit name=func value=$remove>
+<input type=hidden name=list value=$list>
+<input type=hidden name=passw value=$passw>
+<input type=hidden name=st value=$st>
+<br>To remove addresses, choose one or more 
+addresses from the list below, then press the <b>$remove</b> button.
+<pre>
+EOM
+    }
+    elsif ($func eq 'who' and $line =~ /listed subscribers/) {
+      $line .= "</form>\n";
     }
     print STDOUT $line;
   }
@@ -358,49 +395,45 @@ sub usage {
   my $serveradmin = $mj->_global_config_get('whoami_owner');
 
   print <<EOM;
-Welcome to $site!  This is the Majordomo 2 administrative interface
-for the $list mailing list.  Below you will learn how it works.
-It is always possible to return to this introduction by choosing
-"about this service" from the menu above and pressing the 
-"Issue command" button.
+Welcome to the Majordomo 2 administrative interface at $site!
+To return to this introduction at any time, select
+<b>about this service</b> from the menu above and press the 
+<b>Issue Command</b> button.
 <p>
-At the top of this page is a form that will allow you to issue 
-most of the commands you will need to administrate a mailing list.
-To use it, first choose a command from the command menu.
-Some commands, like "lists-aux," have a hyphen in their names.
-The part that comes after the hyphen is called the "command mode."
-Some of the commands may be unfamiliar to you.
+At the top of this page is a command form that will allow you to issue 
+commands to administrate the $list mailing list.
+Some commands, like <b>lists-aux</b>, have a hyphen in their names.
+The part that follows the hyphen is called the "command mode."
 <p>
-To learn more about a particular command, choose "help" in 
-the menu above, then type the name of the command without
-the command mode in the box immediately to the right.
-Finally, press the "Issue command" button, and you will
-see a summary of how the command works.  You can get the
-same summary by sending the <b>help</b> command in the body of
-an e-mail message to 
+To learn more about a particular command, select <b>help</b> in 
+the command menu, type the name of the command (without
+the command mode) in the box immediately to the right,
+and press the <b>Issue Command</b> button. You will
+see a summary of how the command works.  
+The same commands may be issued by sending electronic mail to
 <a href="mailto:$serveraddr">$serveraddr</a>.
 <p>
-Most commands require a password, so please type the password
-for the $list mailing list into the <b>password:</b> box at the 
-top of the page.  If you wish to administer a different list,
-simply type its name into the <b>mailing list:</b> box.
+Choose a command from the command menu.
+Since most commands require a password, type the password
+for the $list mailing list into the <b>Password:</b> box.
+To administer a different list,
+type its name into the <b>Mailing List:</b> box.
+If additional information is needed to issue
+a command, type that information into the box
+immediately to the right of the command menu.
+Finally, press the "Issue Command" button.
 <p>
-The command form at the top of the page will always appear
-when you issue a command.  If the <b>show pending requests</b>
-button is pressed, you will also see at the bottom of the page
-all of the pending requests for your list.  Requests can
-be any number of things:  a subscription or set request that
-one of your subscribers has not yet confirmed, a request
-for help that was sent to the mailing list by mistake, or
+If the <b>Show Pending Requests</b>
+button is pressed, the pending requests for your list will
+appear at the bottom of the page.  There are many kinds of
+requests:  a subscription or set request that
+a subscriber has not yet confirmed; a request
+for help that was sent to the mailing list by mistake; or
 a posted message that is held for your approval because a
 header line was too long, for example.
 <p>
-If there are no pending requests, you will see a message like
-<pre>
-No tokens for $list.
-</pre>
-However, if there are requests available, you will see a form
-that looks like this:
+If there are requests, you will see a form
+like this:
 <form method=POST action="/cgi-bin/test-cgi">
 <input type=submit name=func value="tokeninfo-full">
 <input type=submit name=func value="tokeninfo">
@@ -411,11 +444,11 @@ that looks like this:
 <input type=hidden name=list value=$list>
 <input type=hidden name=passw value=yourpassword>
 <br>
-Choose one request from the list below,
+Choose one or more requests from the list below,
 then press one of the buttons above.
 <pre>
-<input type=radio name=extra value=13D7-C445-6A37>13D7-C445-6A37 post   2000-05-12 20:27:46 Someone You Know &lt;someone\@example.com&gt;
-<input type=radio name=extra value=8E49-E388-BADC>8E49-E388-BADC post   2000-05-13 10:27:46 Someone New &lt;unknown\@example.org&gt;
+<input type=checkbox name=extra value=13D7-C445-6A37>13D7-C445-6A37 post   2000-05-12 20:27:46 Someone You Know &lt;someone\@example.com&gt;
+<input type=checkbox name=extra value=8E49-E388-BADC>8E49-E388-BADC post   2000-05-13 10:27:46 Someone New &lt;unknown\@example.org&gt;
 2 tokens shown.
 </pre>
 </form>
@@ -426,23 +459,29 @@ the subscribers themselves, but any other request should be handled
 by the list owners.  The remaining columns contain the date of
 the request and the e-mail address of the person who made it.
 <p>
-There are five buttons available to deal with a pending request.
+There are five buttons available to deal with pending requests.
 <ol>
-<li>The tokeninfo-full button will show the headers of the message
+<li>The <b>tokeninfo-full</b> button will show the headers of the message
 that caused the request, plus the message itself if the request
 is a <b>post</b>.
-<li>The tokeninfo button will show the headers of the message
+<li>The <b>tokeninfo</b> button will show the headers of the message
 and a summary of the request.
-<li>The accept button will approve the request.
-<li>The accept-archive button will approve the request, but
+<li>The <b>accept</b> button will approve the request.
+<li>The <b>accept-archive</b> button will approve the request, but
 if it is a <b>post</b>, the message will be stored in
 the archive but not distributed to the subscribers.
-<li>The reject button will deny the request.
+<li>The <b>reject</b> button will deny the request.
 </ol>
-Requests will eventually expire unless someone handles them.
-By default, the lifetime of a token is one week.
 <p>
-If you have questions about this interface, send mail to your
+If there are no pending requests, you will see the following message:
+<pre>
+No tokens for $list.
+</pre>
+<p>
+Requests will eventually expire unless someone handles them.
+By default, the lifetime of a request is one week.
+<p>
+If you have questions about this interface, contact your
 site administrator at 
 <a href="mailto:$serveradmin">$serveradmin</a>.
 </body>
