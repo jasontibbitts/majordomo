@@ -162,7 +162,7 @@ sub done {
     # Header separator
     $self->{body}->print("\n");
 
-    get_text($ent, $self->{body});
+    get_text($ent, $self->{body}, 0);
 
     # Print a separator
     $self->{body}->print("\n". '-'x30, "\n\n");
@@ -208,12 +208,13 @@ entities.
 sub get_text {
   my $ent = shift;
   my $fh  = shift;
+  my $level = shift || 0;
   my ($body, $i, $type);
 
   # If we have a multipart, parse it recursively
   if ($ent->parts) {
     for $i ($ent->parts) {
-      get_text($i, $fh);
+      get_text($i, $fh, $level + 1);
     }
     return;
   }
@@ -223,18 +224,24 @@ sub get_text {
     dump_body($ent, $fh);
   }
   elsif ($type eq 'message/rfc822') {
+    # XLANG
     $fh->print("---- Begin Included Message ----\n\n");
     dump_body($ent, $fh);
+    # XLANG
     $fh->print("\n----- End Included Message -----\n");
   }
+  elsif ($type eq 'text/html' and ! $level) {
+    reformat_body($ent, $fh);
+  }
   else {
+    # XLANG
     $fh->print("\n\n[Attachment of type $type removed.]\n");
   }
 }
 
 =head2 dump_body
 
-This prints the body of an entity verbatim to a filehandle, excaping only
+This prints the body of an entity verbatim to a filehandle, escaping only
 lines of 30 dashes.
 
 =cut
@@ -244,6 +251,7 @@ sub dump_body {
   my ($body, $line);
 
   $body = $ent->open('r');
+  return unless (defined $body);
   while (defined($line = $body->getline)) {
     if ($line eq '-'x30 . "\n") {
       $fh->print(" " . "-" x 29 . "\n");
@@ -254,9 +262,48 @@ sub dump_body {
   }
 }
 
+=head2 reformat_body
+
+Convert an HTML body part into plain text with 72 character width,
+escaping lines of 30 dashes if necessary.
+
+=cut
+sub reformat_body {
+  my $ent = shift;
+  my $fh  = shift;
+  my ($body, $formatter, $line, $tree);
+
+  require HTML::TreeBuilder;
+  $tree = HTML::TreeBuilder->new;
+  return unless (defined $tree);
+
+  $body = $ent->open('r');
+  return unless (defined $body);
+
+  while (defined($line = $body->getline)) {
+    $tree->parse($line);
+  } 
+
+  require HTML::FormatText;
+  $formatter = HTML::FormatText->new(leftmargin => 0, rightmargin => 72);
+  return unless $formatter;
+
+  for $line (split (/\r*\n/,  $formatter->format($tree))) {
+    if ($line eq '-'x30 . "\n") {
+      $fh->print(" " . "-" x 29 . "\n");
+    }
+    else {
+      $fh->print("$line\n");
+    }
+  }
+  
+  $tree->delete;
+  1;
+}
+
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it

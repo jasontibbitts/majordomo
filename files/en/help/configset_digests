@@ -319,8 +319,9 @@ used by default.  Three formats are supported:
 
   mime  - Each message is included in its entirety.
 
-  text  - Only plain text message parts are included.  All attachments
-          are omitted.
+  text  - Only plain text message parts are included.  Single-part
+          HTML messages are converted into plain text automatically.
+          All other attachments are omitted.
 
                                 Caution
 
