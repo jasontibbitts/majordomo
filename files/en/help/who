@@ -1,12 +1,15 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 who[-short][-enhanced][-export][-bounces] listname [pattern]
-who[-short][-enhanced][-export][-bounces] GLOBAL   [pattern]
+who[-short][-enhanced][-export][-bounces][-alias] GLOBAL   [pattern]
+who-common[-short][-enhanced][-export][-bounces] listname listname [pattern]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (or the word "GLOBAL")
 -enhanced, if specified, displays flags and mail mode for each subscriber
 -short,    if specified, produces just a simple list of email addresses
 -export,   if specified, produces commands needed to recreate the list
 -bounces,  if specified, shows only addresses with bounces
+-common,   if specified, shows addresses that appear on both lists
+-alias,    if specified, produces commands needed to recreate the alias database
 pattern,   if specified, is an address matching string
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -40,25 +43,35 @@ option is only available to people using administrative passwords.
 If "-export" is specified, with a password but without the need for
 a wildcard pattern, the information will be provided in the form of
 commands which will recreate the list (locally or at another site).
-For the GLOBAL pseudo-list, the "-export" option does nothing: you
-simply get a list of registered users, as with "who GLOBAL". For
-regular lists, "-export" yields a bunch of subscribe and set commands.
+For the GLOBAL pseudo-list, the "-export" causes a group of 
+"register" commands to be displayed. For regular lists, 
+"-export" yields a bunch of subscribe and set commands.
 Flag state and class (see "help set") are exported, as are nomail
-expiration times. The commands don't include any mention of the list
-they apply to, so just stick 'default password' and 'default list'
-at the top and you're ready to go. Interaction with registration
-isn't done; this means that passwords must be reissued at the new
-site. Aliases can not be seen with "-export".
+expiration times. 
+
+If "-alias" is specified in combination with the GLOBAL list, commands
+will be displayed that would allow the GLOBAL aliases database to
+be reconstructed.
 
 If "-bounces" is specified, only those addresses with bounces being
 processed will be shown. Refer to "help configset bounce_max_age"
 for additional information on bounce processing (including other
 commands related to bounces).
 
+The "who-common" command displays addresses that appear on two
+different mailing lists.  The data shown with the addresses,
+if "enhanced" mode is used, are only relevant to the first of
+the two lists.  This feature is useful for viewing the registration
+data for people subscribed to a particular list:
+  who-common-enhanced GLOBAL listname
+
+List owners can also view addresses in collections called "auxiliary 
+subscriber lists" (see "help auxiliary_list" for more details.)
+
 
 See Also:
    help alias    (not revealed by "who-export")
-   help auxwho   (for checking auxiliary lists)
+   help auxiliary_list (which is used to manage a set of addresses)
    help patterns (for simple and complex regular expressions)
    help set      (for details on subscription flags and classes)
    help show     (for information about a given subscriber)
