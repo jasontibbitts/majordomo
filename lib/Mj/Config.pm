@@ -1284,7 +1284,7 @@ sub parse_access_array {
     }
   }
   
-  $out;    
+  (1, '', $out);    
 }
 
 =head2 parse_access_rules
@@ -1977,12 +1977,13 @@ by e-mail when a request succeeds, stalls, or fails.
 
 
 =cut
+use Mj::CommandProps qw(:command);
 sub parse_inform {
   my $self = shift;
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-  my (%out, %stats, $err, $i, $j, $k, $l, $stat, $table);
+  my (%out, %stats, @cmds, $err, $i, $j, $k, $l, $stat, $table);
 
   %stats =
     (
@@ -1995,6 +1996,9 @@ sub parse_inform {
      'stall'   => [-1],
     );
 
+  @cmds = (command_list(),
+           'badtoken', 'bounce', 'connect', 'consult', 'parse', 'ALL');
+
   ($table, $err) = parse_table('fsmm', $arr);
 
   return (0, "Error parsing table: $err.")
@@ -2003,6 +2007,9 @@ sub parse_inform {
   # Iterate over the table
   for ($i = 0; $i < @$table; $i++) {
     for ($j = 0; $j < @{$table->[$i][1]}; $j++) {
+
+      return (0, qq(Unknown action: "$table->[$i][0]"))
+        unless (grep { $_ eq $table->[$i][0] } @cmds);
 
       # Syntax check
       return (0, "Unknown condition $table->[$i][1][$j].")
@@ -2940,7 +2947,7 @@ This routine parses out lines containing nested key, value pairs separated
 by delimiters.  A key may have values that are themselves nested key, value
 pairs.  All delimiters and parsing details are configurable.
 
-As an exapmple, take the string
+As an example, take the string
 
 key1="a b c", key2 = (d=e, f)
 
