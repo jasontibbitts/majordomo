@@ -675,6 +675,61 @@ sub get_message {
   $data;
 }
 
+=head2 get_neighbors(msg, data, re_pattern, private)
+
+Obtain information about the preceding and succeeding messages
+for a particular message within an archive for each sort order 
+(numeric, author, date, subject, and thread).
+
+=cut
+use Mj::Util qw(sort_msgs);
+sub get_neighbors {
+  my $self = shift;
+  my $msg  = shift;
+  my $data = shift;
+  my $pattern = shift;
+  my $private = shift;
+  my $log = new Log::In 150, $msg;
+  my (@msgs, @tmp, $arc, $i, $j, $msgno, $sort);
+
+  # Figure out appropriate index database and message number
+  ($arc, $msgno) = $msg =~ m!([^/]+)/(.*)!;
+
+  $data->{'archive'} = $arc;
+  @tmp = $self->get_all_data($arc);
+  while (($i, $j) = splice @tmp, 0, 2) {
+    push @msgs, ["$arc/$i", $j];
+  }
+
+  for $sort (qw(numeric author date thread subject)) {
+    $data->{"${sort}_prev"} = '';
+    $data->{"${sort}_next"} = '';
+    unless ($sort eq 'numeric') {
+      @msgs = sort_msgs(\@msgs, $sort, $pattern);
+    }
+    for ($i = 0; $i <= $#msgs; $i++) {
+      if ($msgs[$i]->[0] eq $msg) {
+        for ($j = $i - 1 ; $j >= 0 ; $j--) {
+          unless ($private and $msgs[$j]->[1]->{'hidden'}) {
+            $data->{"${sort}_prev"} = $msgs[$j]->[0];
+            last;
+          }
+        }
+        for ($j = $i + 1 ; $j <= $#msgs ; $j++) {
+          unless ($private and $msgs[$j]->[1]->{'hidden'}) {
+            $data->{"${sort}_next"} = $msgs[$j]->[0];
+            last;
+          }
+        }
+        last;
+      }
+    }
+  }
+      
+  # Return the altered data
+  $data;
+}
+
 =head2 get_line(file, line)
 
 Starts the iterator on the message containing the given line from the given file.
@@ -1321,6 +1376,8 @@ sub _make_index {
 						fields   => \@index_fields,
 					       );
   }
+
+  return $self->{'indices'}{$arc};
 }
 
 =head2 expand_range
