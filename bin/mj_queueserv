@@ -30,9 +30,22 @@ use strict;
 $|=1;
 $ENV{PATH} = '';
 
-sub logmsg { print STDERR "[$$].Queueserv: @_\n"; }
-sub out { my $w = ''; vec($w, fileno($_[0]), 1) = 1; logmsg "Out: $_[1]"; syswrite($_[0], $_[1]) if select(undef, $w, undef, .25) == 1; }
-sub in  { logmsg "In..."; sysread($_[0], $_, 1024); logmsg "In: $_"; $_ };
+sub logmsg { 
+  print STDERR "[$$].Queueserv: @_\n"; 
+}
+
+sub out { 
+  my $w = ''; 
+  vec($w, fileno($_[0]), 1) = 1; 
+  logmsg "Out: $_[1]"; 
+  syswrite($_[0], $_[1]) if select(undef, $w, undef, .25) == 1; 
+}
+
+sub in { 
+  logmsg "In..."; 
+  sysread($_[0], $_, 1024); 
+  logmsg "In: $_"; $_ 
+};
 
 my(@child, @parent, $ein, $eout, $expire, $i, $in, $line, $nfound, $out,
     $pid, $ping, $rin, $rout, $status, $use_child, $wait, $win, $wout);
@@ -108,10 +121,10 @@ while (1) {
   logmsg "Accepted connection";
 
   $line = in(*Client);
+  close Client;
 
   if ($expire and (time < $expire)) {
-    out(*Client, "The queue server is waiting to shut down; queueing");
-    close Client;
+    logmsg "The queue server is waiting to shut down; queueing";
     next;
   }
 
@@ -147,7 +160,6 @@ while (1) {
 
       #logmsg "Starting runner";
       close $child[$i];
-      close Client; # Otherwise the runner holds it open
 
       # Reset SIGCHLD handler to avoid a perl warning
       $SIG{CHLD} = 'DEFAULT';
@@ -179,15 +191,11 @@ while (1) {
       else {
 	# The child never said hello...
 	logmsg "Runner did not respond.";
-	out(*Client, "Problems starting queue runner; queueing");
-	close Client;
 	next;
       }
     }
   }
   if (!defined($use_child)) {
-    out(*Client, "Excessive load; queueing");
-    close Client;
     next;
   }
 
@@ -195,17 +203,11 @@ while (1) {
   unless (out($child[$use_child], "Parent $$ sending")) {
     # It was alive just a second ago, but now it's dead or not responding.
     # So we just pretend we have high load.
-    out(*Client, "Excessive load; queueing");
-    close Client;
     next;
   }
 
   # Get the response back from the client
   $line = in($child[$use_child]);
-  
-  # Hand it back to the client
-  out(*Client, $line);
-  close Client;
 }
 
 # Out of while() loop; time to die.
@@ -274,7 +276,7 @@ sub ping_runners {
 	# If we got the ping back, we're set
 	elsif ($line =~ /$message$/) {
 	  logmsg "$i pinged successfully";
-	  last;
+          return $i;
 	}
 	else {
 	  logmsg "$i had stale response";
@@ -283,13 +285,12 @@ sub ping_runners {
       }
       else {
 	logmsg "$i is busy";
+        return $i if ($ping eq 'Bye');
 	last;
       }
     }
-    logmsg "Using child $i";
-    $use_child = $i;
   }
-  return $use_child;
+  return;
 }
 
 =head1 NAME
