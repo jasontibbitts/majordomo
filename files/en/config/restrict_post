@@ -1,4 +1,4 @@
 The restrict_post setting contains a list of lists and sublists.  If
-list is not empty, and the author of a posted message is not a
+this list is not empty, and the author of a posted message is not a
 subscriber to at least one of the lists and sublists, the message will
 be sent to the moderators for approval.
