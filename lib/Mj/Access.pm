@@ -393,8 +393,9 @@ Outline:
   Take the action string and do what it says:
     default - do normal processing using old variables to decide what
       to do.
-    confirm   - send a tag to the appropriate user
-    consult   - consult the list owner
+    confirm   - send a notice to the victim
+    confirm_consult  - send a notice to the victim and the moderators
+    consult   - consult the list moderators
     ignore    - forget the request ever happened
     delay     - delay the request and offer the victim a chance to stop it.
     deny      - reject the request with a message
@@ -403,6 +404,10 @@ Outline:
     reply     - use this message as the command acknowlegement
     replyfile - use this file as the command acknowlegement
     mailfile  - mail this file to the user separately
+    set       - change an access variable
+    unset     - reset an access variable
+    notify    - change some characteristics of an approval notice
+    reason    - give a reason for a particular action
 
 reply and replyfile are cumulative; the contents of all of the reply
 strings and all of the files are strung together.  Variable substitution is
@@ -584,10 +589,6 @@ sub list_access_check {
 
   if ($access->{$request}) {
     # Populate the memberships hash
-    # check_main is supported for backward compatibility only.
-    if ($access->{$request}{'check_main'}) {
-      $memberof{'MAIN'} = $self->{'lists'}{$list}->is_subscriber($victim, 'MAIN');
-    }
     if ($access->{$request}{'check_aux'}) {
       for $i (keys %{$access->{$request}{'check_aux'}}) {
 	# Handle list: and list:sublist syntaxes; if the list doesn't
@@ -910,7 +911,7 @@ sub _a_consult {
 }
 
 # Accepts a filename and a delay
-use Mj::Util qw(str_to_time n_build n_defaults);
+use Mj::Util qw(str_to_offset n_build n_defaults);
 sub _a_delay {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150, "$td->{'command'}, $arg";
@@ -920,7 +921,7 @@ sub _a_delay {
 
   ($file, $arg) = split (/\s*,\s*/, $arg || "");
   if (defined($arg) and length($arg)) {
-    $delay = str_to_time($arg) - time;
+    $delay = str_to_offset($arg);
     if ($delay > 0) {
       $args->{'expire'} = $delay;
       # For the result message
