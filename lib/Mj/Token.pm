@@ -178,7 +178,7 @@ sub confirm {
       $data, $desc, $dest, $ent, $envext, $expire, $expire_days, $file,
       $hdr, $i, $j, $list, $mj_addr, $mj_owner, $owner, $permanent,
       $realtoken, $reasons, $recip, $remind, $remind_days, $reminded,
-      $repl, $rd, $sender, $tmp, $tmpf, $token, $ttype, $url);
+      $repl, $rd, $tmp, $tmpf, $token, $ttype, $url);
 
   $log->abort("confirm called with no notify structures.\n")
     unless (exists $args{'notify'} and 
@@ -223,7 +223,7 @@ sub confirm {
   $approvals = 0;
   $ttype = 'confirm';
   @remind = ();
-  $rd = $self->_list_config_get($list, "token_remind") || 0;
+  $rd = $self->_list_config_get($list, 'token_remind') || 0;
 
   for $i (@notify) {
     # use Data::Dumper; $log->message(3, 'debug', Dumper $i);
@@ -268,7 +268,6 @@ sub confirm {
  
   # Initialize variables and make substitutions.
   ($reasons = $args{'reasons'}) =~ s/\002/\n  /g;
-  $sender   = $self->_list_config_get($list, 'sender');
   $owner    = $self->_list_config_get($list, 'whoami_owner');
   $mj_addr  = $self->_global_config_get('whoami');
   $mj_owner = $self->_global_config_get('sender');
@@ -393,7 +392,7 @@ sub confirm {
                         # Note explicit stringification
                         # victim's address, requester's address, sender.
          -To         => $recip, 
-         -From       => $sender,
+         -From       => $owner,
          -Subject    => $desc,
          'Content-Language:' => $file{'language'},
         );
@@ -466,7 +465,7 @@ sub get_moderators {
   # was specified, the addresses are taken from the auxiliary
   # list of the same name.  If no such list exists, the
   # "moderators" auxiliary list and the "moderators," "moderator,"
-  # and "sender" configuration setting are each consulted
+  # and "whoami_owner" configuration setting are each consulted
   # in turn until an address is found.
   return unless ($self->_make_list($list));
   @mod1  = $self->{'lists'}{$list}->moderators($group);
