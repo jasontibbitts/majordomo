@@ -48,7 +48,7 @@ use Getopt::Std;
 use vars qw($program_name);
 
 my(%opts, @mess, $approved, $dom, $fh, $fname, $head, $in_body,
-   $inmsg, $list, $mess, $mj, $ok, $sender, $sess, $tlist, $top);
+   $inmsg, $list, $mess, $mj, $ok, $request, $sender, $sess, $tlist, $top);
 
 die("Not running as UID $::UID") unless $> == $::UID;
 die("Not running as GID $::GID") unless $) == $::GID;
@@ -91,6 +91,16 @@ if ($opts{d}) {
   @::DOMAINS=($dom);
 }
 
+$request = {
+    'auth'      => '',
+    'command'   => 'trigger',
+    'interface' => 'trigger',
+    'list'      => 'GLOBAL',
+    'mode'      => $opts{t},
+    'password'  => '',
+    'user'      => 'unknown@anonymous',
+};
+
 for my $i (@::DOMAINS) {
   $::log->in(21, undef, "info", "Triggering domain $i");
 
@@ -98,8 +108,7 @@ for my $i (@::DOMAINS) {
   $mj = $::mj;  # for config default access to globals
 
   $mj->connect('trigger', 'no info available');
-  $mj->dispatch('trigger', '', '', '', 'trigger', 'trigger', $opts{t},
-		'GLOBAL', '');
+  $mj->dispatch($request);
 
   $::log->message(50, "info", "-----Calling destructors-----");
   undef $mj;

@@ -42,13 +42,14 @@ use strict;
 use CGI;
 use Majordomo;
 use Mj::Format;
+use Mj::Parser;
+use Mj::CommandProps qw(:command :function);
 use Mj::Log;
-use Mj::TextOutput;
 use Mj::Addr;
 
 my ($cgi, $domain, $mj, $ok, $mess, $serveradmin, $sess, $token);
 my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, $vict, $extra);
-my ($line, $st, $file, $fh, $cgiurl, $cmdform, $localpart, $req, @extra);
+my ($line, $st, $file, $fh, $cgiurl, $cmdform, $localpart, $request, $req, @extra);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
@@ -146,6 +147,7 @@ if ($ofunc =~ /([^\s=-]+)[=-](.*)/) {
   $mode = $2;
 }
 else { 
+  $ofunc =~ /(.*)/; $ofunc = $1;
   $func = $ofunc;
   $mode = '';
 }
@@ -219,7 +221,7 @@ if (! $cgi->param('func') or $func =~ /about/) {
 
 no strict 'refs';
 # Make sure the command is valid
-unless (defined ${Mj::TextOutput::}{$func}) {
+unless (command_legal($func)) {
   print "Illegal command: $func\n";
   $::log->message(50, "info",  "Invalid command $func in form data.");
   exit 0;
@@ -267,22 +269,35 @@ if ($func eq 'auxadd' or $func eq 'auxremove') {
   }
 }
 
+$request = {
+    'auth'      => '',
+    'command'   => $func,
+    'interface' => 'mjadm',
+    'list'      => $list,
+    'mode'      => $mode,
+    'password'  => ($func =~ /help|which|lists/)? '' : $passw, 
+    'user'      => $user,
+};
+if (function_prop($func, 'iter')) {
+  $request->{'command'} .= '_start';
+}
+
 
 $file = Majordomo::tempname();
 $fh = new IO::File ">$file";
 for $req (@extra) {
-  &{"Mj::TextOutput::$func"}($mj, $func, $user, 
-                           ($func =~ /help|which|lists/)? '' : $passw, 
-                           undef, "mjadm",
-                           undef, $fh, $mode, $list, $req, ());
+  Mj::Parser::parse_args($request, $req);
+  &{"Mj::Format::$func"}($mj, $fh, $fh, 'mjadm', $request,
+    $mj->dispatch($request));
   print $fh "\n";
 }
 
 if ($st eq 'checked' and $passw ne '' and $func ne 'showtokens') {
+  $request->{'password'} = $passw;
+  $request->{'command'} = 'showtokens';
   # present the result of the showtokens command
-  &{"Mj::TextOutput::showtokens"}($mj, $func, $user, $passw, 
-                                  undef, "mjadm",
-                                  undef, $fh, $mode, $list, $extra, ());
+  &{"Mj::Format::showtokens"}($mj, $fh, $fh, 'mjadm', $request,
+    $mj->dispatch($request));
 }
 $fh->close();
 

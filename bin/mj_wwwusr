@@ -41,14 +41,16 @@ use lib "$::LIBDIR";
 use strict;
 use CGI;
 use Majordomo;
+use Mj::CommandProps qw(:command :function);
+use Mj::Parser;
 use Mj::Format;
 use Mj::Log;
-use Mj::TextOutput;
 use Mj::Addr;
 
 my ($cgi, $domain, $mj, $ok, $mess, $serveradmin, $sess, $goodpass, $isreg);
 my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, $vict, $extra);
 my ($line, $site, $file, $fh, $cgiurl, $admurl, $cmdform, $serveraddr, $falseuser);
+my ($request, $result);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
@@ -78,32 +80,20 @@ $domain = $::DEFDOM;
 
 # Make the Majordomo object
 $mj = new Majordomo $::LISTDIR, $domain;
-unless (ref $mj) {
-  print <<EOM;
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
-"http://www.w3.org/TR/REC-html40/strict.dtd"> 
-<html><head>
-<title>Majordomo 2 WWW for Subscribers: Error</title>
-</head>
-<body>
-<h2>Error: $mj</h2>
-</body></html>
-EOM
-  exit 0;
-}
+&surrender($mj) unless (ref $mj);
 
 $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwusr";
 $admurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
+$serveradmin = $mj->_global_config_get('whoami_owner');
+$pathinfo = '';
 
 # Generate the session information
 for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
   $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
 }
 $sess .= scalar(localtime(time)) . "\n";
-$serveradmin = $mj->_global_config_get('whoami_owner');
 
 
-$pathinfo = '';
 if (exists $ENV{'PATH_INFO'}) {
   $pathinfo = $ENV{'PATH_INFO'};
   $pathinfo =~ m#/([^/\s]+)#;
@@ -115,7 +105,7 @@ $serveraddr  = $mj->_global_config_get('whoami');
 $falseuser   = "x$ENV{'REMOTE_ADDR'}\@example.com";
 # GET poses a security risk due to passwords being visible
 # Set HTML form variables
-$ofunc   = $cgi->param('func') || "";
+$ofunc   = $cgi->param('func') || "lists";
 $user    = $cgi->param('user') || $pathinfo || $falseuser;
 $user    = new Mj::Addr($user) if $user;
 $isreg   = $mj->{'reg'}->lookup($user->canon) if $user;
@@ -125,21 +115,9 @@ $extra   = $cgi->param('extra') || '';
 
 ($ok, $mess) = $mj->connect('mj_wwwusr', $sess, $user);
 unless ($ok) {
-  print <<EOM;
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
-"http://www.w3.org/TR/REC-html40/strict.dtd"> 
-<html><head>
-<title>Majordomo 2 WWW for Subscribers: Error</title>
-</head>
-<body>
-<h2>Error: $mess</h2>
-Please contact
-<a href="mailto:$serveradmin">$serveradmin</a> and report
-this error.
-</body></html>
-EOM
-  exit 0;
-}
+  $mess .= "Please contact <a href=\"mailto:$serveradmin\">$serveradmin</a> for assistance\n";
+  &surrender($mess);
+} 
 
 # Extract "mode" from command name
 if ($ofunc =~ /([^\s=-]+)[=-](.*)/) {
@@ -147,41 +125,12 @@ if ($ofunc =~ /([^\s=-]+)[=-](.*)/) {
   $mode = $2;
 }
 else { 
+  $ofunc =~ /(.*)/; $ofunc = $1;
   $func = $ofunc;
   $mode = '';
 }
 
-$cmdform = <<EOM;
-<form method=POST action=$cgiurl>
-address:
-<input size=34 name=user value="$user">
-password:
-<input size=10 name=passw type=password value="$passw"><br>
-<input type=submit name=func value="about this service">
-<input type=submit name=func value="lists">
-<input type=submit name=func value="show">
-EOM
-
-print <<EOM;
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
-"http://www.w3.org/TR/REC-html40/strict.dtd"> 
-<html><head>
-<title>Majordomo 2 WWW for Subscribers</title>
-</head>
-<body>
-<h2 align=center>List Information and Account Maintenance</h2>
-Welcome to $site!  Here you will find information about our
-mailing lists and your account on our Majordomo 2 list server.
-<ul>
-<li>Press <b>about this service</b> to see a detailed
-help page.
-<li>Press <b>lists</b> to see a list of mailing lists
-at $site.
-<li>Press <b>show</b> to see details about your account.
-(password required)
-</ul>
-$cmdform
-EOM
+&print_header($user, $passw, $site, $cgiurl);
 
 # Print help information if it was requested
 if ($func =~ /about/) {
@@ -190,64 +139,74 @@ if ($func =~ /about/) {
 }
 
 no strict 'refs';
-
-# Verify address
+##
+## Validation section: address, command, list, password 
+##
 ($ok, $mess) = $user->valid;
 unless ($ok) {
-  print "$user is an invalid address: $mess";
-  exit 0;
+  $::log->message(50, "info",  "Invalid address $user in form data.");
+  &surrender("$user is an invalid address: $mess\n");
 }
 
 # Make sure the command is valid
-if ($func and not defined ${Mj::TextOutput::}{$func}) {
-  print "Illegal command: $func\n";
+if (not $func = command_legal($func)) {
   $::log->message(50, "info",  "Invalid command $func in form data.");
-  exit 0;
+  &surrender("Illegal command: $func\n");
+}
+if ($func =~ /subscribe/ and $user->strip =~ /example.com$/i) {
+  print "<h2>Please do not (un)subscribe example.com addresses.</h2>\n";
+  &usage($mj);
+}
+if ($func =~ /subscribe|set/ and $list eq 'GLOBAL') {
+  print "<h2>Please select a mailing list before pressing the (un)subscribe or set button.</h2>\n";
+  &usage($mj);
 }
 
 # Make sure the list name is valid
-if ($list ne '') {
-  unless ((-d "$mj->{'ldir'}/$list" and $mj->legal_list_name($list))
-           or $list eq 'ALL') {
+if ($list) {
+  unless ($list = $mj->valid_list($list, 0, 1)) {
     print "<h3>Invalid list name: $list</h3>\n";
     $::log->message(50, "info",  "Invalid list $list in form data.");
-    exit 0; 
+    &surrender("Invalid list name: $list\n");
   }
-  $list =~ /(.*)/; $list = $1;
 }
 
 if ($user and $passw) {
+  $passw =~ /(.+)/; $passw = $1;
   $goodpass = 
     $mj->validate_passwd($user, $passw, '', 'mj_wwwusr', 'GLOBAL', 'show'); 
 }
+##
+## Construct the request
+##
+$request = {
+  'auth'      => '',
+  'command'   => $func,
+  'interface' => 'mjusr',
+  'list'      => $list,
+  'mode'      => $mode,
+  'password'  => $passw,
+  'user'      => $user,
+};
+Mj::Parser::parse_args ($request, $extra);
+if (function_prop($func, 'iter')) {
+  $request->{'command'} .= '_start';
+}
 
 if ($func and $func =~ /info|intro|faq|subscribe/) {
-  if ($func =~ /subscribe/ and $user->strip =~ /example.(com|net|org)/) {
-    print "<h2>Please do not (un)subscribe example.com addresses.</h2>\n";
-    &usage($mj);
-    exit 0;
-  }
-  if ($func =~ /subscribe/ and $list eq 'GLOBAL') {
-    print "<h2>Please select a mailing list before pressing the (un)subscribe button.</h2>\n";
-    &usage($mj);
-    exit 0;
-  }
+  $result = $mj->dispatch($request); 
+  &surrender("Unable to obtain result from Majordomo.\n") unless $result;
+
   $file = Majordomo::tempname();
   $fh = new IO::File ">$file";
-  &{"Mj::TextOutput::$func"}($mj, $func, $user, $passw, 
-                           undef, "mjusr",
-                           undef, $fh, $mode, $list, $extra, ());
+  &surrender("Unable to create temporary file.\n") unless defined $fh;
+
+  &{"Mj::Format::$func"}($mj, $fh, $fh, 'html', $request, $result);
   $fh->close();
-  # process results of TextOutput
   &format_print($file);
   unlink $file;
 }
 elsif ($func eq 'set' and $goodpass) {
-  if ($list eq 'GLOBAL') {
-    print "<h2>Please choose a list when changing settings</h2>\n";
-    &usage($mj);
-    exit 0;
-  }
   my ($i, $j, @settings);
   my @params = $cgi->param;
   for $j (qw(delivery ack eliminatecc hide prefix replyto selfcopy rewritefrom)) {
@@ -267,10 +226,9 @@ elsif ($func eq 'set' and $goodpass) {
     }
   }
   for $i (@settings) {
-    (undef, $ok, $mess) =
-      $mj->dispatch('set', $user, $passw, '', 
-                    'mj_wwwusr', "set $list $i", '', $list, '', $i);
-    print "<pre>Error for \"$i\" setting:  $mess</pre>\n" unless $ok;
+    $request->{'setting'} = $i;
+    ($ok, $mess) = @{$mj->dispatch($request)};
+    print "<pre>Error for \"$i\" setting:  $mess</pre>\n" unless ($ok > 0);
   }
   print "<pre>Your \"set\" command was completed.</pre>\n";
 }
@@ -283,7 +241,8 @@ elsif ($func eq 'set' and $goodpass) {
 
 if ($user and $isreg and $goodpass) {
   if ($func !~ /^(lists|faq|info|intro|subscribe)/) {  
-    &showdata($mj, $user, $passw);
+    $request->{'command'} = "show";
+    &showdata($mj, $request);
 
     print  <<EOM;
 </form>
@@ -297,7 +256,8 @@ EOM
   }
 }
 
-&showlists($mj, $user, $passw);
+$request->{'command'} = "lists";
+&showlists($mj, $request);
 
 print <<EOM;
 <hr>
@@ -311,11 +271,10 @@ exit 0;
 #---------------- Subroutines -----------------#
 sub showlists {
   my $mj = shift;
-  my $user = shift;
-  my $passw = shift;
+  my $request = shift;
   my ($list, $cat, $desc, $flags);
   my ($ok, $mess, @listdata) = 
-    $mj->dispatch('lists', $user, $passw, '', 'mj_wwwusr', 'lists', '');
+    @{$mj->dispatch($request)};
   # Iterate over lists and add form buttons
   select STDOUT;
   if (! $ok) {
@@ -341,10 +300,13 @@ EOM
 <input type=submit name=func value=faq>
 <input type=submit name=func value=info>
 <input type=submit name=func value=intro><br>
-<b>Select a mailing list, then press one of the buttons above.</b>
+<b>Select a mailing list, then press one of the buttons above.
+Leave the password box empty unless you have already been
+assigned a password by majordomo at this site.</b>
 <pre>
 EOM
-  while (($list, $cat, $desc, $flags) = splice @listdata, 0, 4) {
+  for (@listdata) {
+    ($list, $cat, $desc, $flags) =  @$_;
     $desc ||= "(no description)";
     print "<input type=radio name=list value=$list>";
     printf "%-24s %-12s %s\n", $list, $cat, $desc;
@@ -354,12 +316,11 @@ EOM
 
 sub showdata {
   my $mj = shift;
-  my $user = shift;
-  my $passw = shift;
+  my $request = shift;
   my ($i, $j, @lists, $lfull, $class, $subtime); 
   my ($lflags, $lchangetime, $changetime);
   my ($ok, $listdata) =
-    $mj->dispatch('show', $user, $passw, '', 'mj_wwwusr', 'show', '');
+    @{$mj->dispatch($request)};
   # Present the data, including form buttons.
   if ($ok < 1) {
     print "<h2>Error: $listdata->{'error'}</h2>\n";
@@ -423,7 +384,7 @@ EOM
   print "$user was registered on ".gmtime($listdata->{'regdata'}->{'regtime'})." UTC.<br>\n";
 
   print <<EOM;
-<h2>What do the settings mean?</h2>
+<h2 align=center>What do the settings mean?</h2>
 <ul>
 <li>Delivery Mode: "each" means that you will receive each
 message.  "digest" means that messages will be bundled into
@@ -467,12 +428,7 @@ sub format_print {
     exit 0;
   }
   print  "<pre>\n";
-  my %esc = ( '&'=>'amp', '"'=>'quot', '<'=>'lt', '>'=>'gt');
-  while ($line = <$fh>) {
-    $line =~ s/([<>\"&])/\&$esc{$1};/mg; 
-    $line =~ s/([\x80-\xFF])/'&#'.unpack('C',$1).';'/eg;
-    print $line;
-  }
+  1 while ($fh->print());
   $fh->close();
   print "</pre>\n";
 }
@@ -545,14 +501,68 @@ Instructions for changing your account appear at the bottom of the
 screen after you press the <b>show</b> button.
 </ul>
 <hr>
-Majordomo 2 also has an
-<a href="$admurl">interface for list owners</a>.
-<p>
 If you have questions about this service, please write to
 the site administrator at
 <a href="mailto:$serveradmin">$serveradmin</a>.
 EOM
+
+  exit 0;
 }
+
+sub surrender {
+  my ($message) = shift;
+  print <<EOM;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd"> 
+<html><head>
+<title>Majordomo 2 WWW for Subscribers: Error</title>
+</head>
+<body>
+<h2>Error</h2>
+$message;
+</body></html>
+EOM
+  exit 0;
+}
+
+# XXX Move this to a template file.
+sub print_header {
+  my ($user, $passw, $site, $cgiurl) = @_;
+  print <<EOM;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd"> 
+<html><head>
+<title>Majordomo 2 WWW for Subscribers</title>
+</head>
+<body>
+<h2 align=center>List Information and Account Maintenance</h2>
+Welcome to $site!  Here you will find information about our
+mailing lists and your account on our Majordomo 2 list server.
+<ul>
+<li>Press <b>about this service</b> to see a detailed
+help page.
+<li>Press <b>lists</b> to see a list of mailing lists
+at $site.
+<li>Press <b>show</b> to see details about your account.
+(password required)
+</ul>
+EOM
+
+print "<h4 align=center>Type your address into the first box</h4>\n"
+  if ($user =~ /example.com$/);
+
+  print <<EOM;
+<form method=POST action=$cgiurl>
+address:
+<input size=34 name=user value="$user">
+password:
+<input size=10 name=passw type=password value="$passw"><br>
+<input type=submit name=func value="about this service">
+<input type=submit name=func value="lists">
+<input type=submit name=func value="show">
+EOM
+}
+
 =head1 COPYRIGHT
 
 Copyright (c) 2000 Jason Tibbitts for The Majordomo Development

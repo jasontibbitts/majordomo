@@ -120,20 +120,20 @@ $site_name =
 # Parse the token and extract some useful data from it
 $token = $mj->t_recognize($ptoken) || "";
 $ok = 0;
-($ok, $mess, @data) =
-  $mj->dispatch('tokeninfo', 'unknown@anonymous', '', '', 'wconfirm',
-		'tokeninfo $token', '', '', '', $token)
-  if $token;
 
-if ($ok) {
-  $request   = $data[0];
-  $requester = escape($data[1]);
-  $cmdline   = escape($data[2]);
-  $type      = $data[9];
-  $approvals = $data[10];
-  $time      = localtime($data[11]);
-  $sess      = escape($data[13]);
-
+$request = {
+    'auth'      => '',
+    'command'   => 'tokeninfo',
+    'interface' => 'wconfirm',
+    'list'      => '',
+    'mode'      => '',
+    'password'  => '',
+    'user'      => 'unknown@anonymous',
+    'token'     => $token,
+    'tokens'    => [$token]
+};
+if ($token) {
+  ($ok, $data, $sess) = @{$mj->dispatch($request)};
 }
 
 # We head the page with an error if we have one
@@ -160,13 +160,13 @@ if (!$token || !$action) {
 <td><tt>$token</tt></td>
 <tr>
 <td align=right><b>Request:</b></td>
-<td><tt>$cmdline</tt></td>
+<td><tt>$data->{'cmdline'}</tt></td>
 <tr>
 <td align=right><b>Submitted:</b></td>
-<td><i>$time</i></td>
+<td><i>$data->{'time'}</i></td>
 <tr>
 <td align=right><b>By:</b></td>
-<td><i>$requester</i></td>
+<td><i>$data->{'user'}</i></td>
 </table>
 
 EOF
@@ -217,23 +217,20 @@ else {
 <h1>Majordomo Request Confirmation Results</h1>
 EOF
 
-  @args = ('unknown@anonymous', '', '', 'wconfirm', "accept $token", '', '', '');
-
   # Call the appropriate function
   if ($action eq "accept") {
     print '<pre>';
-    $ok =
-      Mj::Format::accept($mj, \*STDOUT, \*STDOUT, 'html', @args,
-			 $token, '', '',
-			 $mj->dispatch('accept', @args, $token));
+    $request->{'command'} = "accept";
+    ($ok) = @{
+      Mj::Format::accept($mj, \*STDOUT, \*STDOUT, 'html', $request,
+			 $mj->dispatch($request))};
   }
   elsif ($action eq "reject") {
-    $args[4] = "reject $token";
     print '<pre>';
-    $ok =
-      Mj::Format::reject($mj, \*STDOUT, \*STDOUT, 'html', @args,
-			 $token, '', '',
-			 $mj->dispatch('reject', @args, $token));
+    $request->{'command'} = "reject";
+    ($ok) =
+      Mj::Format::reject($mj, \*STDOUT, \*STDOUT, 'html', $request,
+			 $mj->dispatch($request));
   }
   elsif ($action eq "info") {
     print <<EOF;
@@ -243,19 +240,19 @@ EOF
 <td><tt>$token</tt></td>
 <tr>
 <td align=right><b>Type:</b></td>
-<td><i>$type</i></td>
+<td><i>$data->{'type'}</i></td>
 <tr>
 <td aligh=right><b>Approvals required:</b></td>
-<td><i>$approvals</i></td>
+<td><i>$data->{'approvals'}</i></td>
 <tr>
 <td align=right><b>Request:</b></td>
-<td><tt>$cmdline</tt></td>
+<td><tt>$data->{'cmdline'}</tt></td>
 <tr>
 <td align=right><b>Submitted:</b></td>
-<td><i>$time</i></td>
+<td><i>$data->{'time'}</i></td>
 <tr>
 <td align=right><b>By:</b></td>
-<td><i>$requester</i></td>
+<td><i>$data->{'user'}</i></td>
 </table>
 <hr>
 <b>Session information:</b><p>

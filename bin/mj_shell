@@ -22,9 +22,9 @@ use strict;
 no strict "refs";
 use Majordomo;
 use Mj::Log;
-use Mj::TextOutput;
+use Mj::Format;
 use Mj::Parser;
-use Mj::CommandProps ':command';
+use Mj::CommandProps qw(:command :function);
 use Net::Domain qw(hostfqdn);
 use IO::File;
 use Getopt::Long;
@@ -149,6 +149,7 @@ unless (ref $::mj) {
 my $mj = $::mj;
 my $host = hostfqdn;
 my $user = $opts{'u'} || "$ENV{LOGNAME}\@$host";
+$user =~ /(.*)/; $user = $1;
 
 ($id, $mess) = $mj->connect('shell', "\$LOGNAME  = $ENV{LOGNAME}
 \$SHELL    = $ENV{SHELL}
@@ -217,7 +218,7 @@ sub parse_interactive {
       }
     }
     print "\n";
-    ($cmd, $args) = $cmdline =~ /(\S*)\s*(.*)/;
+    ($cmd, $args) = $cmdline =~ /(\S+)\s*(.*)/;
     if ($cmd) {
       ($go, $res) = parse_command($cmd, $args, $pass, @arglist);
       return 1 unless $go;
@@ -234,7 +235,8 @@ sub parse_command {
   my $args    = shift;
   my $pass    = shift;
   my @arglist = @_;
-  my ($mode, $tlist);
+  my ($mode, $request, $tlist);
+  $pass ||= '';  $pass =~ /(.*)/; $pass = $1; 
   
   unless ($command) {
     print STDERR "**** No command specified!\n";
@@ -277,6 +279,18 @@ sub parse_command {
 	  return (1, 0);
 	}
   }
+  if ($true_command =~ /newfaq/) {
+    $args = "/faq Frequently Asked Questions";
+    $true_command = "put";
+  }
+  elsif ($true_command =~ /newinfo/) {
+    $args = "/info List Information";
+    $true_command = "put";
+  }
+  elsif ($true_command =~ /newintro/) {
+    $args = "/intro List Introductory Information";
+    $true_command = "put";
+  }
     
   if ($true_command eq "configedit") {
     
@@ -290,11 +304,19 @@ sub parse_command {
     $tmpu = $>; $> = $<;  $tmpg = $); $) = $(;
     $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA", O_WRONLY|O_CREAT, 0600;
     $> = $tmpu; $) = $tmpg;
+    $request = {
+      'auth'      => '',
+      'command'   => 'configshow',
+      'interface' => 'shell',
+      'list'      => $list,
+      'mode'      => $mode,
+      'password'  => $pass,
+      'user'      => $user,
+    };
+    Mj::Parser::parse_args($request, $args, @arglist);
     $result = 
-      Mj::TextOutput::configshow($mj, $command,
-				 $user, $pass, undef, "shell",
-				 undef, $fh,
-				 $mode, $list, $args, @arglist);
+      Mj::Format::configshow($mj, $fh, $fh, 'shell', $request,
+        $mj->dispatch($request));
     $fh->close;
     if ($result) {
       my $modtime = (stat("$::WTMPDIR/mjs.$$.AAA"))[9];
@@ -344,12 +366,23 @@ sub parse_command {
   }
 
   else {
-    $result = 
-      &{"Mj::TextOutput::$true_command"}($mj, $command,
-					 $user,
-					 $pass, undef, "shell",
-					 $in[0], \*STDOUT,
-					 $mode, $list, $args, @arglist);
+    $request = {
+      'auth'      => '',
+      'command'   => $true_command,
+      'interface' => 'shell',
+      'list'      => $list,
+      'mode'      => $mode,
+      'password'  => $pass,
+      'user'      => $user,
+    };
+    Mj::Parser::parse_args($request, $args, @arglist);
+    if (function_prop($true_command, 'iter')) {
+      $request->{'command'} .= '_start';
+    }
+
+
+    $result = $mj->dispatch($request);
+    &{"Mj::Format::$true_command"}($mj, \*STDOUT, \*STDOUT, 'text', $request, $result);
     return (1, $result);
   }
 }

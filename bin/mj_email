@@ -193,9 +193,8 @@ exit ($opts{'S'} ? 99 : 0);
 # owner_done passing in all of the message.
 sub forward_to_owner {
   my ($mj, $list) = @_;
-  my (@stuff, $sess);
+  my ($ok, $mess, $sess, $request);
 
-  @stuff = ('', '', '', 'owner', "(message to $list-owner)", '', $list, '');
   $sess = connect_no_parse($mj, 'owner');
   return unless $sess;
 
@@ -203,17 +202,28 @@ sub forward_to_owner {
   # Sending this on as part of the headers can hose some MTAs, so we strip
   # it.  The regexp doesn't harm the body $sess contains only the headers.
   $sess =~ s/^From .*?\r?\n//;
-  ($ok) = $mj->dispatch('owner_start', @stuff);
+  $request = {
+    'auth'      => '',
+    'command'   => 'owner_start',
+    'interface' => 'owner',
+    'list'      => $list,
+    'mode'      => '',
+    'password'  => '',
+    'user'      => '',
+  };
+  ($ok, $mess) = $mj->dispatch($request);
   return unless $ok;
 
   $_ = $sess;
+  $request->{'command'} = 'owner_chunk';
   while (1) {
     last unless defined $_;
-    ($ok) = $mj->dispatch('owner_chunk', @stuff, $_);
+    ($ok, $mess) = @{$mj->dispatch($request, $_)};
     return unless $ok;
     $_ = <STDIN>;
   }
-  ($ok) = $mj->dispatch('owner_done', @stuff);
+  $request->{'command'} = 'owner_done';
+  ($ok, $mess) = @{$mj->dispatch($request)};
   return unless $ok;
   1;
 }
@@ -222,7 +232,7 @@ sub forward_to_owner {
 # of the message.
 sub resend {
   my ($mj, $list) = @_;
-  my (@out, @stuff, $sess);
+  my ($ok, $mess, @out, $request, $sess);
 
   $sess = connect_no_parse($mj, 'resend');
   return unless $sess;
@@ -231,20 +241,29 @@ sub resend {
   # Sending this on as part of the headers can hose some MTAs, so we strip
   # it.  The regexp doesn't harm the body $sess contains only the headers.
   $sess =~ s/^From .*?\r?\n//;
+  $request = {
+    'auth'      => '',
+    'command'   => 'post_start',
+    'interface' => 'resend',
+    'list'      => $list,
+    'mode'      => '',
+    'password'  => '',
+    'user'      => '',
+  };
 
-  @stuff = ('', '', '', 'resend', "(post to $list)", '', $list, '');
-
-  ($ok) = $mj->dispatch('post_start', @stuff);
+  ($ok, $mess) = @{$mj->dispatch($request)};
   return unless $ok;
 
   $_ = $sess;
+  $request->{'command'} = 'post_chunk';
   while (1) {
     last unless defined $_;
-    ($ok) = $mj->dispatch('post_chunk', @stuff, $_);
+    ($ok, $mess) = @{$mj->dispatch($request, $_)};
     return unless $ok;
     $_ = <STDIN>;
   }
-  ($ok) = $mj->dispatch('post_done', @stuff);
+  $request->{'command'} = 'post_done';
+  ($ok, $mess) = @{$mj->dispatch($request)};
   return unless $ok;
   1;
 }
@@ -252,11 +271,20 @@ sub resend {
 # Just call the response_file method.
 sub respond_with_file {
   my ($mj, $list) = @_;
-  my $user;
-
+  my ($request, $user);
+  
   (undef, undef, $user) = connect_and_parse($mj, 'request');
-  $mj->dispatch('request_response', $user, '', '', 'email', '', '', $list,
-		$user);
+  $request = {
+    'auth'      => '',
+    'command'   => 'request_response',
+    'interface' => 'email',
+    'list'      => $list,
+    'mode'      => '',
+    'password'  => '',
+    'user'      => $user,
+  };
+
+  $mj->dispatch($request);
   1;
 }
 
