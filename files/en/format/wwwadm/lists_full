@@ -74,7 +74,28 @@ button.  A confirmation message may be sent to your address.<br>
 </td>
 </tr>
 
-<tr><td>List of Lists</td><td>
+<tr>
+<td>
+Recent Activity
+</td>
+
+<td>
+(<a href="$CGIURL?$CGIDATA&func=report-full&list=$LIST&extra=1cd">Today</a>)
+
+(<a href="$CGIURL?$CGIDATA&func=report-summary&list=$LIST&extra=7cd">7
+Day Summary</a>)
+
+(<a href="$CGIURL?$CGIDATA&func=report-summary&list=$LIST&extra=30cd">30
+Day Summary</a>)
+</td>
+</tr>
+
+<tr>
+<td>
+List of Lists
+</td>
+
+<td>
 <a href="$CGIURL?$CGIDATA&func=lists-long&list=$LIST">View every mailing list
 for which access is authorized.</a>
 </td>
