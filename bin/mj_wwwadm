@@ -163,14 +163,13 @@ if ((! @lists) and @mlists) {
 }
 $lists[0] ||= 'GLOBAL';
 
-#----- Create a temporary password -----#
+#----- Initialize the variable substitutions -----#
 $passw   = $cgi->param('passw') || '';
 if ($passw) {
   $passw =~ /(.+)/; $passw = $1;
 }
 
-$cgidata = sprintf 'user=%s&passw=%s&list=%s', 
-                   $user, $passw, $lists[0];
+$cgidata = sprintf 'user=%s&list=%s', $user, $lists[0];
 $cgidata = Mj::Format::uescape($cgidata);
 
 $subs = { $mj->standard_subs($lists[0]),
@@ -210,6 +209,9 @@ else {
   $passw = $mj->gen_latchkey($passw) 
     if ($passw and !$mj->t_recognize($passw));
   $subs->{'PASSWORD'} = $passw;
+  $cgidata = sprintf 'user=%s&passw=%s&list=%s', $user, $passw, $lists[0];
+  $cgidata = Mj::Format::uescape($cgidata);
+  $subs->{'CGIDATA'} = $cgidata;
 }
 
 #----- Print the generic page header -----#
