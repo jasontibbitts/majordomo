@@ -1,3 +1,9 @@
+2001-04-13  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Access.pm:  (list_access_check)  Bugfix:  ensure
+	that address-related access variables are initialized.
+	(Thanks to Peter Ajamian)
+
 2001-04-11  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/FileSpace.pm:  (put_chunk, put_done)  Bugfix:

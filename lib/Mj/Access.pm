@@ -499,11 +499,15 @@ sub list_access_check {
   $args{'sublist'}         = $sublist;
 
   # Add some chunks of the address to the set of matchable variables
-  if (! $args{'regexp'}) {
-    $victim->strip =~ /.*\@(.*)$/;
-    $args{'host'}     = $1;
-    $args{'addr'}     = $victim->strip;
-    $args{'fulladdr'} = $victim->full;
+  if (! $args{'regexp'}) { 
+    $args{'addr'}     = $victim->strip || '';
+    $args{'fulladdr'} = $victim->full || '';
+    if ($args{'addr'} =~ /.*\@(.*)$/) {
+      $args{'host'}   = $1;
+    }
+    else {
+      $args{'host'}   = '';
+    }
   }
   else {
     $args{'addr'}     = '';
