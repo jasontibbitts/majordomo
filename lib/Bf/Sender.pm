@@ -18,8 +18,9 @@ kinds of mail.
 =cut
 
 package Bf::Sender;
-$VERSION = "2.1004";
+$VERSION = "2.1005";
 use strict;
+use vars qw(%trans %detrans);
 
 =head2 envelope sender format
 
@@ -151,16 +152,18 @@ sub M_regular_sender ($$$) {
 }
 
 sub M_probe_sender ($$$$) {
-  my $sender=shift;
-  my $tag=shift;
-  my $msg_num=shift;
-  my $addr=shift;
+  my $sender  = shift;
+  my $tag     = shift;
+  my $msg_num = shift;
+  my $addr    = shift;
+  my ($dom, $info, $loc, $type);
+  $type = 'M';
 
   # Trim any existing mailbox argument
   $sender =~ s/\Q$tag\E[^@]*//;
 
-  $addr=~/(.*)\@(.*)/;
-  my $info="${tag}M$msg_num=$2=$1";
+  ($loc, $dom) = &encode_verp($addr);
+  $info="$tag$type=$dom=$loc";
   $sender=~/([^@]*)(.*)/;
 
   # We might have to shorten something here
@@ -172,21 +175,61 @@ sub M_probe_sender ($$$$) {
 }
 
 sub any_probe_sender ($$$$) {
-  my $sender=shift;
-  my $tag=shift;
-  my $type=shift;
-  my $addr=shift;
+  my $sender = shift;
+  my $tag    = shift;
+  my $type   = shift;
+  my $addr   = shift;
+  my ($dom, $info, $loc);
 
   # Trim any existing mailbox argument
   $sender =~ s/\Q$tag\E[^@]*//;
 
-  $addr=~/(.*)\@(.*)/;
-  my $info="$tag$type=$2=$1";
+  ($loc, $dom) = &encode_verp($addr);
+  $info="$tag$type=$dom=$loc";
   $sender=~/([^@]*)(.*)/;
   if (length($1)+length($info)>63) {
     $info="$tag$type=".make_abbrev($addr);
   }
   return "$1$info$2";
+}
+
+%trans = (
+          '!' => '21',
+          '%' => '25',
+          '+' => '2B',
+          '-' => '2D',
+          ':' => '3A',
+          '@' => '40',
+          '[' => '5B',
+          ']' => '5D',
+         );
+
+%detrans = reverse %trans;
+
+sub encode_verp {
+  my $addr = shift;
+  my (%esc, $dom, $i, $loc); 
+  return unless (defined $addr and length $addr);
+
+  $addr =~ /(.*)\@(.*)/;
+  $loc = $1 || '';
+  $dom = $2 || '';
+
+  $loc =~ s/([\@:\%!\-\[\]\+])/+$trans{$1}/g;
+  return ($loc, $dom);
+}
+  
+sub decode_verp {
+  my $addr = shift;
+  my (%esc, $dom, $i, $j, $loc); 
+  return unless (defined $addr and length $addr);
+
+  $addr =~ /(.*)\@(.*)/;
+  $loc = $1 || '';
+  $dom = $2 || '';
+
+  $loc =~ s/\+([\da-fA-F]{2})/$detrans{uc $1}/g;
+  return "$loc\@$dom";
 }
 
 sub any_regular_sender ($$$) {
@@ -248,6 +291,8 @@ sub open_abbrev_database {
 
 =head1 RECENT CHANGES
 
+MY, 28-07-2001: - Add encoding and decoding routines based upon code
+                  by Jason Tibbitts.
 NB, 18-03-1998: - Mj2-compliant copyright notice
                 - updated to use global Bouncefilter object ::Bf
                 - runs under 'use strict' now
