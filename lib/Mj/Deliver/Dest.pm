@@ -372,11 +372,15 @@ dictate that the batch should be sent, the sendenvelope function is called
 automatically.  Note that the sendenvelope function deals with
 $self->{'addrs'} implicitly.  Ugh, more side effects.
 
+The second argument is used to extract a domain for use as a sort key; this
+allows domains to sort together because of transforms even though they
+normally wouldn't.  It is acceptable to leave it undefined.
+
 =cut
 sub add {
   my $self  = shift;
   my $addr  = shift;
-  my $dom   = shift; # Actually the canonical address
+  my $dom   = shift || $addr; # Actually the canonical address
   my $flush = shift; 
 #  my $log   = new Log::In 200, "$addr, $dom";
   my($ch, $env, $host, $i, $ok, $sendit);

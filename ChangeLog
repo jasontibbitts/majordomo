@@ -1,3 +1,10 @@
+2000-11-14  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/BounceParser.pm (parse_postoffice): Restructure to fix
+	several warnings.
+
+	* lib/Mj/Deliver/Dest.pm (add): Accept null second argument.
+
 2000-11-01  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Parser.pm (parse_part): Fix undef warning with "default

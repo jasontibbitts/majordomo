@@ -832,16 +832,18 @@ sub parse_postoffice {
   return unless $bh;
 
   # Look for the line introducing the diagnostic
-  while (defined($line = $bh->getline)) {
+  while (1) {
+    $line = $bh->getline;
+    return unless defined $line;
     next if $line =~ /^\s*$/;
-#warn "A $line";
     last if $line =~ /^\s*this message was undeliverable due to the following reason:\s*$/i;
   }
 
-  while (defined($line = $bh->getline)) {
+  while (1) {
+    $line = $bh->getline;
+    return unless defined $line;
     next if $line =~ /^\s*$/ && !$diag;
     last if $line =~ /^\s*$/;
-#warn "B $line";
     chomp $line; $diag .= ($diag?' ':'').$line;
   }
 
@@ -849,17 +851,19 @@ sub parse_postoffice {
   $diag =~ s/([^\.]+\.).*/$1/;
 
   # Look for the line introducing the users
-  while (defined($line = $bh->getline)) {
+  while (1) {
+    $line = $bh->getline;
+    return unless defined $line;
     next if $line =~ /^\s*$/;
-#warn "C $line";
     last if $line =~ /^\s*the following recipients did not receive this message:\s*$/i;
   }
 
-  while (defined($line = $bh->getline)) {
+  while (1) {
+    $line = $bh->getline;
+    return unless defined $line;
     next if $line =~ /^\s*$/ && !$user;
     last if $line =~ /^\s*$/;
-#warn "D $line";
-    last unless $line =~ /^\s*<(.*)>\s*$/;
+    last unless $line =~ /^(?:SMTP)?\s*<(.*)>\s*$/;
     $user = $1;
 
     if ($user) {
