@@ -424,6 +424,12 @@ sub _load_dfl {
   my $log  = new Log::In 160;
   my ($file, $name);
 
+  # The GLOBAL list never uses the DEFAULT data.
+  if ($self->{'list'} eq 'GLOBAL') {
+    $self->{'dfldata'} = {};
+    return;
+  }
+
   $name = "$self->{'ldir'}/DEFAULT/_config";
   if (-r $name) {
     $file = new Mj::File $name, "<";
@@ -1396,7 +1402,7 @@ sub parse_attachment_rules {
     );
 
   $safe = new Safe;
-  $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
+  $safe->permit_only(qw(const leaveeval not null pushmark return rv2sv stub));
 
   $check = "\n"; $change = "\n";
 
@@ -1897,7 +1903,7 @@ sub parse_inform {
 
   my %stats =
     (
-     'all'     => 1,
+     'all'     => 2,
      'succeed' => 1,
      'success' => 1,
      'ok'      => 1,
@@ -1926,7 +1932,8 @@ sub parse_inform {
       return (0, "Unknown condition $table->[$i][1][$j].")
 	unless exists $stats{$table->[$i][1][$j]};
 
-      $stat = $stats{$table->[$i][1][$j]};
+      $stat = $table->[$i][1][$j] eq 'all' ? 'all' :
+              $stats{$table->[$i][1][$j]};
 
       for (my $k = 0; $k < @{$table->[$i][2]}; $k++) {
 	if ($table->[$i][2][$k] eq 'report') {
@@ -2397,7 +2404,7 @@ sub parse_taboo_headers {
 
     # Compile the pattern
     ($ok, $err, $re) = compile_pattern($pat, 1);
-    return (0, "Error parsing taboo_body line:\n$err")
+    return (0, "Error parsing taboo_headers line:\n$err")
       unless $ok;
 
     if ($inv) {
@@ -2973,7 +2980,7 @@ sub compile_pattern {
   my $str  = shift;
   my $mult = shift;
   my $force= shift || '';
-  my ($err, $id1, $id2, $mod, $pat, $re);
+  my ($err, $id1, $id2, $inv, $mod, $pat, $re);
 
   # Mapping of shell specials to regexp specials
   my %sh = ('?'=>'.', '*'=>'.*', '['=>'[', ']'=>']');
@@ -2982,17 +2989,21 @@ sub compile_pattern {
 
   # Extract leading and trailing characters and the pattern; remove
   # whitespace
-  ($id1, $pat, $id2, $mod) = $str =~ /^\s*      # Leading whitespace
+  ($inv, $id1, $pat, $id2, $mod) = 
+                             $str =~ /^\s*      # Leading whitespace
                                       (?:
+                                       (\!?)     # Inversion
                                        ([\/\"\%]?) # Opening delimiter
                                        (.*)      # The pattern
-                                       (\1)      # Closing delimiter
+                                       (\2)      # Closing delimiter
                                        ([ix]+)?  # Allowed modifiers
                                        |         # or nothing
                                       )
                                        \s*$     # Trailing whitespace
 				     /x;
 
+  # Prefix "not " to the resulting pattern if inverted.
+  $inv = length $inv ? "not " : "";
   # Handle case where there are no delimiters
   unless ($id1) {
     if ($force =~ /^i(.*)/) {
@@ -3019,7 +3030,7 @@ sub compile_pattern {
     return (0, "Error in pattern '$str': no closing '\"'.\n")
       unless $id2 eq '"';
     $re = "/\Q$pat\E/$mod";
-    return (1, '', $re);
+    return (1, '', $inv . $re);
   }
   if ($id1 eq '/') {
     # Perl pattern; fail if the closing '/' is missing
@@ -3037,7 +3048,7 @@ sub compile_pattern {
       $err = (Majordomo::_re_match($re, "justateststring"))[1];
     }
     return (0, "Error in regexp '$str'\n$err") if $err;
-    return (1, '', $re);
+    return (1, '', $inv . $re);
   }
   if ($id1 eq '%') {
     # Shell-like pattern; fail if the closing '%' is absent
@@ -3052,7 +3063,7 @@ sub compile_pattern {
     # Check validity of the regexp
     $err = (Majordomo::_re_match($re, "justateststring"))[1];
     return (0, "Error in regexp '$str'\n$err") if $err;
-    return (1, '', $re);
+    return (1, '', $inv . $re);
   }
   return (0, "Unrecognized pattern '$str'.\n");
 }
