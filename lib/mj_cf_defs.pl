@@ -29,6 +29,8 @@ $Mj::Config::default_string = q(
  'addr_xforms'          => [],
  'admin_body'           => (($list eq 'GLOBAL') ?
 			    [
+                             '/^accept$/i',
+                             '/^reject$/i',
 			     '/\bcancel\b/i',
 			     '/\badd me\b/i',
 			     '/\bdelete me\b/i',
