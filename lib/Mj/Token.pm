@@ -521,14 +521,17 @@ sub t_accept {
   my $mode = shift;
   my $comment = shift;
   my $delay = shift;
-  my $log   = new Log::In 50, $token;
+  my $log   = new Log::In 60, $token;
   my (%file, @out, @tmp, $data, $ent, $ffunc, $func, $line, $mess, 
       $notify, $ok, $outfh, $repl, $req, $rf, $sender, $server, 
       $tmp, $tmpdir, $vict, $whoami);
 
-  $self->_make_tokendb;
+  return (0, "The token database could not be initialized.\n")
+    unless $self->_make_tokendb;
   $data = $self->{'tokendb'}->lookup($token);
-  return (0, "Nonexistent token \"$token\"!\n") unless $data;
+  return (0, $self->format_error('unknown_token', 'GLOBAL', 
+          'TOKEN' => $token))
+    unless $data;
 
   # Tick off one approval
   $data->{'approvals'}--;
@@ -728,7 +731,7 @@ sub t_accept {
   # bodyhandle.  Then we send it.  Then we return some token info and
   # pretend we did a 'consult' (in $rreq) command so that the accept
   # routine will format it as we want for the reply to the owner.
-  # Acknowledgements of posts take place in Mj::Resend::_post.
+  # Acknowledgments of posts take place in Mj::Resend::_post.
   if ($func ne '_post') {
 
     # First make a tempfile
@@ -777,13 +780,14 @@ This takes a token and eradicates it.
 sub t_reject {
   my $self = shift;
   my $token = shift;
-  my $log   = new Log::In 60, "$token";
+  my $log   = new Log::In 60, $token;
   my ($data);
 
   $self->_make_tokendb;
 
   (undef, $data) = $self->t_remove($token, 1);
-  return (0, "Token $token is unavailable.\n")
+  return (0, $self->format_error('unknown_token', 'GLOBAL', 
+          'TOKEN' => $token))
     unless $data;
 
   # If we are removing an alias token, find the real
@@ -826,8 +830,8 @@ sub t_remind {
   my $self = shift;
   my $log  = new Log::In 60;
   my $time = time;
-  my (%file, @mod, @reminded, @tmp, $data, $desc, $ent, $expire, $file, $gurl, 
-      $i, $mj_addr, $mj_owner, $reasons, $repl, $sender, $tmp, $token, $url);
+  my (%file, @mod, @reminded, @tmp, $data, $ent, $gurl, 
+      $mj_addr, $mj_owner, $sender, $tmp, $token, $url);
 
   my $mogrify = sub {
     my $key  = shift;
@@ -864,64 +868,11 @@ sub t_remind {
           next;
         }
       }
-      # Extract the file from storage
-      ($file, %file) = $self->_list_file_get($data->{'list'}, "token_remind");
 
-      # Extract some list-specific variables
       $sender = $self->_list_config_get($data->{'list'}, 'sender');
-      $url    = $self->substitute_vars_string($gurl,
-        				      {'TOKEN' => $token,},
-        				     );
-
-      # Find number of days left until it dies
-      $expire = int(($data->{'expire'}+43200-time)/86400);
-
-      ($reasons = $data->{'reasons'}) =~ s/\002/\n  /g;
-
-      # Generate replacement hash
-      $repl = {
-               $self->standard_subs($data->{'list'}),
-               TOKEN      => $token,
-               URL        => $url,
-               EXPIRE     => $expire,
-               FULFILL    => scalar localtime($data->{'expire'}),
-               REQUESTER  => $data->{'user'},
-               REQUESTOR  => $data->{'user'},
-               VICTIM     => $data->{'victim'},
-               APPROVALS  => $data->{'approvals'},
-               CMDLINE    => $data->{'cmdline'},
-               COMMAND    => $data->{'command'},
-               REASONS    => $reasons,
-               SESSIONID  => $data->{'sessionid'},
-               ARG1       => $data->{'arg1'},
-               ARG2       => $data->{'arg2'},
-               ARG3       => $data->{'arg3'},
-              };
-
-      # Substitute values in the file and the description
-      $file = $self->substitute_vars($file, $repl);
-      $desc = $self->substitute_vars_string($file{'description'}, $repl);
-      
-      # Build an entity
-      $ent = build MIME::Entity
-        (
-         Path        => $file,
-         Type        => $file{'c-type'},
-         Charset     => $file{'charset'},
-         Encoding    => $file{'c-t-encoding'},
-         Filename    => undef,
-         -From       => $sender,
-         -Subject    => $desc,
-         'Content-Language:' => $file{'language'},
-        );
-
+      $ent = $self->r_gen($token, $data, $gurl, $sender);
       next unless $ent;
 
-      for $i ($self->_global_config_get('message_headers')) {
-        $i = $self->substitute_vars_string($i, $repl);
-        $ent->head->add(undef, $i);
-      }
-      
       # Mail it out; the victim gets confirm notices, otherwise the owner
       # gets them
       if ($data->{type} eq 'confirm') {
@@ -954,6 +905,84 @@ sub t_remind {
     }
   }
   return @reminded;
+}
+
+=head2 r_gen (token, data, gurl, sender)
+
+Based upon the data for a token, create a reminder message.
+
+This routine is used both in automated reminders, and by the
+tokeninfo-remind command.
+
+=cut
+use MIME::Entity;
+sub r_gen {
+  my $self = shift;
+  my $token = shift;
+  my $data = shift;
+  my $gurl = shift;
+  my $sender = shift;
+  my $log  = new Log::In 260, $token;
+  my $time = time;
+  my (%file, $desc, $ent, $expire, $file, $i, $origmsg, $reasons, 
+      $repl, $url);
+
+  # Extract the file from storage
+  ($file, %file) = $self->_list_file_get($data->{'list'}, "token_remind");
+  return unless $file;
+
+  # Extract some list-specific variables
+  $url    = $self->substitute_vars_string($gurl, {'TOKEN' => $token,});
+
+  # Find number of days left until it dies
+  $expire = int(($data->{'expire'} + 43200 - $time)/86400);
+
+  ($reasons = $data->{'reasons'}) =~ s/\002/\n  /g;
+
+  # Generate replacement hash
+  $repl = {
+           $self->standard_subs($data->{'list'}),
+           TOKEN      => $token,
+           URL        => $url,
+           EXPIRE     => $expire,
+           FULFILL    => scalar localtime($data->{'expire'}),
+           REQUESTER  => $data->{'user'},
+           REQUESTOR  => $data->{'user'},
+           VICTIM     => $data->{'victim'},
+           APPROVALS  => $data->{'approvals'},
+           CMDLINE    => $data->{'cmdline'},
+           COMMAND    => $data->{'command'},
+           REASONS    => $reasons,
+           SESSIONID  => $data->{'sessionid'},
+           ARG1       => $data->{'arg1'},
+           ARG2       => $data->{'arg2'},
+           ARG3       => $data->{'arg3'},
+          };
+
+  # Substitute values in the file and the description
+  $file = $self->substitute_vars($file, $repl);
+  $desc = $self->substitute_vars_string($file{'description'}, $repl);
+  
+  # Build an entity
+  $ent = build MIME::Entity
+    (
+     Path        => $file,
+     Type        => $file{'c-type'},
+     Charset     => $file{'charset'},
+     Encoding    => $file{'c-t-encoding'},
+     Filename    => undef,
+     -From       => $sender,
+     -Subject    => $desc,
+     'Content-Language:' => $file{'language'},
+    );
+
+  for $i ($self->_global_config_get('message_headers')) {
+    $i = $self->substitute_vars_string($i, $repl);
+    $ent->head->add(undef, $i);
+  }
+  $data->{'tmpfile'} = $file;
+
+  return $ent;
 }
 
 =head2 t_expire
