@@ -52,7 +52,7 @@ __END__
 
 sub accept { 
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
-      $list, $vict, $arg1, $arg2, $arg2, $ok, $mess, $rreq, $ruser, $rcmd,
+      $list, $vict, $arg1, $arg2, $arg3, $ok, $mess, $rreq, $ruser, $rcmd,
       $rmode, $rlist, $rvict, $rarg1, $rarg2, $rarg3, $rtime, $rsessionid,
       @extra) = @_;
   $rreq ||= '';
