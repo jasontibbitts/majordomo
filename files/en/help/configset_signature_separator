@@ -11,14 +11,23 @@ EXAMPLE:
 configset GLOBAL signature_separator = /^[-_]/
 
 
-The command parser will stop looking for commands when it sees a
-line matching this pattern.
+$INCLUDE-config/signature_separator
 
 The standard signature separator is a line consisting only of
 two dashes followed by one space. However, many users ignore
 this standard and many sites use underscores instead of dashes.
 Hence a more lenient pattern is generally more useful.
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+Some documents, such as the confirmation messages that are sent to
+the moderators of a mailing list, start with "__ ".  This prevents
+Majordomo from processing the commands in the confirmation message
+instructions by accident.  Keep this in mind if you change the value 
+of the signature_separator setting.
+
+
+See Also:
+   help admin
+   help admin_domain
+   help patterns
+
+$INCLUDE-help/foot
