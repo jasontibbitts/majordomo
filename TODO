@@ -140,7 +140,7 @@ Move to a more module-based system; allow various filtering pieces of resend:
 to be moved into modules; have per-message modules and per-line modules.
 Allow modules to be added; have a variable listing modules to be run.
 Define module interface.  Move lesser-used commands out of Majordomo.pm
-(and TextOutput.pm and Format.pm) and into separate modules.
+(and Format.pm) and into separate modules.
 
 
 
@@ -208,7 +208,6 @@ F'ter stuff:
      if necessary.
 
     Search the archive
-    Get an index of the messages in the archive.
     How to specify the time period here?  Two dates?  Leave one and it goes
      from then to now.
 
@@ -234,11 +233,11 @@ F'ter stuff:
 
   add_variable: pushes a variable into the big config hash.
 
-  Adding a function: need four functions:
-    arg marshaller
+  Adding a function: need three functions:
     output formatter
     top half (if not generic)
     bottom half
+    plus data in CommandProps
   These have to go in the proper packages.  Rely on the writer to get this right?
 
 - Add generic top half functionality, now that the dispatcher does so much.
@@ -616,8 +615,6 @@ Config Stuff
 - passwords <<  asdf : !config (exclude a variable)
 
 Email Interface
-- add a listname-subscribe and listname-unsubscribe alias for each list that
-  will un/subscribe a person to the list without the need for a message body.
 - prescan for bad situations: unmatched tokens, too many subscribes in one
   message, etc.
 - prescan for access restriction override.
@@ -696,7 +693,6 @@ Access_rules methods for checking against requesting user instead of victim.
 Forward to other (or same) server, but change the list name.
 -c option to mj_email (or new mj_command script) to always execute a
   command when a mail is received.
-Switch $mode and $cmdline in public Majordomo functions.
 Have 'help command xxx' look up config comment string for xxx.
 Support X-No-Archive.  _post should look for headers and pseudo-headers,
   but not remove pseudos if found.
@@ -721,7 +717,6 @@ New 'append' mode to configset to append additional data from a variable
 Add additional sender information to things like confirmations so that if
  they bounce, the bounce processor can take care of the generated token and
  not forward the bounce to the owner.
-Allow referencing sublists of other lists in access_rules.
 Allow access control language to make modifications to outgoing messages,
  perhaps by passing a list of actions back to the access check routine
  before the message is spooled.
