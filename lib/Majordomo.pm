@@ -4210,10 +4210,11 @@ sub _createlist {
   my ($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list) = @_;
   $list ||= '';
   my $log = new Log::In 35, "$mode, $list";
-  my (%args, %data, @lists, @owners, @sublists, @tmp, $aliases, $bdir, $desc, 
-      $dir, $dom, $debug, $ent, $file, $i, $j, $k, $mess, $mta, $mtaopts, 
-      $ok, $priority, $pw, $rmess, $sender, $setting, $shpass, $subs, 
-      $sublists, $who);
+
+  my (%args, %data, @lists, @owners, @tmp, $aliases, $bdir, $desc,
+      $digests, $dir, $dom, $debug, $ent, $file, $i, $j, $k, $mess, $mta,
+      $mtaopts, $ok, $priority, $pw, $rmess, $sender, $setting, $shpass,
+      $sublists, $subs, $who);
 
   unless ($mode =~ /regen|destroy/) {
     @tmp = split "\002\002", $owner;
@@ -4340,19 +4341,30 @@ sub _createlist {
         $aliases = $self->_list_config_get($i, 'aliases');
       }
 
-      @sublists = ();
+      # Extract the list of sublists that should have aliases generated
+      $sublists = [];
       if (defined $aliases->{'auxiliary'}) {
         if ($self->_make_list($i)) {
           @tmp = $self->_list_config_get($i, 'sublists');
           for my $j (@tmp) {
             ($j, undef) = split /[\s:]+/, $j, 2;
-            push @sublists, $j;
+            push @{$sublists}, $j;
           }
-          $sublists = join "\002", @sublists;
-          $sublists ||= '';
         }
       }
-      push @{$args{'lists'}}, [$i, $debug, $aliases, $sublists, $priority];
+
+      # Extract the list of digests
+      $digests = $self->_list_config_get($i, 'digests');
+      delete($digests->{'default_digest'});
+      $digests = [keys(%{$digests})];
+
+      push @{$args{'lists'}}, {list     => $i,
+			       aliases  => $aliases,
+			       debug    => $debug,
+			       digests  => $digests,
+			       priority => $priority,
+			       sublists => $sublists,
+			      };
     }
     {
       no strict 'refs';

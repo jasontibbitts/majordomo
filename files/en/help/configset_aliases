@@ -23,17 +23,25 @@ A list of aliases that will be made available for this list.
 After this value has been changed, the createlist-regen command 
 must be run to recreate the aliases.
 
-  auxiliary   An alias for each auxiliary list in the "sublists" setting.
-  moderate    LIST-moderator
-  owner       LIST-owner
-  request     LIST-request
-  resend      LIST
-  subscribe   LIST-subscribe
-  unsubscribe LIST-unsubscribe
+  auxiliary            An alias for each auxiliary list in the "sublists"
+                       setting.
+  moderator            LIST-moderator
+  owner                LIST-owner
+  request              LIST-request
+  resend               LIST
+  subscribe            LIST-subscribe (adds user to the list in the default
+                       class, as given by the default_class setting)
+  subscribe-digest     LIST-subscribe-digest (adds user to the list,
+                       receiving the default digest)
+  subscribe-digest-all An alias for each existing digest, for example
+                       LIST-subscribe-digest-daily.
+  subscribe-nomail     LIST-subscribe-nomail (adds user, but they will
+                       receive no mail)
+  unsubscribe          LIST-unsubscribe
 
 Currently, owner, resend, and request are mandatory.
 
-NOTE:  Do not confuse this command (used by list owners) with the
+NOTE:  Do not confuse this setting (used by list owners) with the
 "alias" command (intended for regular subscribers).
 
 This configuration does not determine the address pointed to by the
@@ -71,6 +79,9 @@ See Also:
    help announce
    help createlist (for the -regen option that creates new aliases)
    help post
+   help configset_default_class (for setting the default class for newly
+     subscribed users)
+   help configset_digests (for configuring digests for subscribe-digest)
    help configset_moderator
    help configset_moderators
    help configset_owners

@@ -215,8 +215,9 @@ package Mj::Config;
    'aliases' =>
    {
     'type'   => 'enum_array',
-    'values' => [qw(auxiliary moderator owner request 
-                    resend subscribe unsubscribe)],
+    'values' => [qw(auxiliary moderator owner request resend subscribe
+                    subscribe-digest subscribe-digest-all subscribe-each
+                    subscribe-nomail unsubscribe)],
     'groups' => [qw(miscellany)],
     'local'  => 1,
     'visible'=> 1,

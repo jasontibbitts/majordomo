@@ -445,9 +445,6 @@ sub list_access_check {
 
   my $log = new Log::In 60, "$list, $request, $requester, $victim";
 
-  # use Data::Dumper;
-  # $log->message(450, "info", "Access variables: ". Dumper \%args);
-
   # Convert the hash arguments into token data
   my ($td) = function_prop ($data->{'command'}, 'tokendata');
   for (keys %$td) {
@@ -614,6 +611,9 @@ sub list_access_check {
         }
       }
     }
+
+    # use Data::Dumper;
+    # $log->message(450, "info", "Access variables: ". Dumper \%args);
 
     @final_actions =
       process_rule(name     => 'access_rules',

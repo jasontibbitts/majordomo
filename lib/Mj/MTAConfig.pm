@@ -142,7 +142,7 @@ package Mj::MTAConfig::Sendmail;
 use Mj::File;
 use Mj::FileRepl;
 
-=head2 one_alias
+=head2 add_alias
 
 This produces a block of aliases suitable for cut and paste into a sendmail
 aliases file, along with a bit of explanation.
@@ -231,6 +231,7 @@ EOB
   # request      LIST-request
   # resend       LIST
   # subscribe    LIST-subscribe
+  # subscribe-*  LIST-subscribe-(various stuff)
   # unsubscribe  LIST-unsubscribe
   #
   # As implemented, owner, requiest, and resend are mandatory.
@@ -258,18 +259,37 @@ EOB
       $block .= sprintf $aliasfmt, '-subscribe:', '-c subscribe';
       $vblock .= "$list-subscribe\@$dom      $list$vut-subscribe\n";
     }
+    if (exists $args{'aliases'}->{'subscribe-digest'} and @{$args{'digests'}}) {
+      $block .= sprintf $aliasfmt, '-subscribe-digest:', '-c subscribe --req setting=digest';
+      $vblock .= "$list-subscribe-digest\@$dom    $list$vut-subscribe-digest\n";
+    }
+    if (exists $args{'aliases'}->{'subscribe-digest-all'} and @{$args{'digests'}}) {
+      for my $i (@{$args{'digests'}}) {
+        $block .= sprintf $aliasfmt, "-subscribe-digest-$i:", "-c subscribe --req setting=digest-$i";
+        $vblock .= "$list-subscribe-digest-$i\@$dom    $list$vut-subscribe-digest-$i\n";
+      }
+    }
+    if (exists $args{'aliases'}->{'subscribe-each'}) {
+      $block .= sprintf $aliasfmt, '-subscribe-each:', '-c subscribe --req setting=each';
+      $vblock .= "$list-subscribe-each\@$dom    $list$vut-subscribe-each\n";
+    }
+    if (exists $args{'aliases'}->{'subscribe-nomail'}) {
+      $block .= sprintf $aliasfmt, '-subscribe-nomail:', '-c subscribe --req setting=nomail';
+      $vblock .= "$list-subscribe-nomail\@$dom    $list$vut-subscribe-nomail\n";
+    }
     if (exists $args{'aliases'}->{'unsubscribe'}) {
       $block .= sprintf $aliasfmt, '-unsubscribe:', '-c unsubscribe';
       $vblock .= "$list-unsubscribe\@$dom    $list$vut-unsubscribe\n";
     }
 
-    if (exists $args{'aliases'}->{'auxiliary'} and $args{'sublists'}) {
-      for $sublist (split "\002", $args{'sublists'}) {
+    if (exists $args{'aliases'}->{'auxiliary'} and @{$args{'sublists'}}) {
+      for $sublist (@{$args{'sublists'}}) {
         next if ($sublist =~ /^(request|owner|subscribe|unsubscribe|moderator)$/);
         $block .= sprintf $aliasfmt, "-$sublist:", "-x $sublist";
         $vblock .= "$list-$sublist\@$dom    $list$vut-$sublist\n";
       }
     }
+
     $block .= "# End aliases for $list at $dom\n";
     $vblock .= "# End VUT entries for $list at $dom\n";
   }
@@ -330,10 +350,8 @@ sub regen_aliases {
   }
 
   # Sort the list of lists, for aesthetic purposes.
-  for $i (sort {$a->[0] cmp $b->[0]} @{$args{lists}}) {
-    $block = add_alias(%args, 'list' => $i->[0], 'debug' => $i->[1], 
-                              'aliases' => $i->[2], 'sublists' => $i->[3],
-                              'priority' => $i->[4]);
+  for $i (sort {$a->{list} cmp $b->{list}} @{$args{lists}}) {
+    $block = add_alias(%args, %{$i});
     $body .= "$block\n" if $block;
   }
 

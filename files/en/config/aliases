@@ -1,13 +1,21 @@
 The aliases setting contains a list of mail aliases to which electronic
 mail can be sent.  The following values are supported:
 
-  auxiliary   An alias for each auxiliary list in the "sublists" setting.
-  moderator   LIST-moderator
-  owner       LIST-owner
-  request     LIST-request
-  resend      LIST
-  subscribe   LIST-subscribe
-  unsubscribe LIST-unsubscribe
+  auxiliary            An alias for each auxiliary list in the "sublists"
+                       setting.
+  moderator            LIST-moderator
+  owner                LIST-owner
+  request              LIST-request
+  resend               LIST
+  subscribe            LIST-subscribe (adds user to the list in the default
+                       class, as given by the default_class setting)
+  subscribe-digest     LIST-subscribe-digest (adds user to the list,
+                       receiving the default digest)
+  subscribe-digest-all An alias for each existing digest, for example
+                       LIST-subscribe-digest-daily.
+  subscribe-nomail     LIST-subscribe-nomail (adds user, but they will
+                       receive no mail)
+  unsubscribe          LIST-unsubscribe
 
 Currently, owner, request, and resend are mandatory.
 
