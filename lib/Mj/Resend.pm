@@ -338,9 +338,9 @@ sub _post {
   # badly if you do...  Much of this pain is brought to you by people who
   # simply must have sequence numbers in the subject.
   $prefix = $self->_list_config_get($list, 'subject_prefix');
-  $tprefix = "\Q$prefix";
-  $tprefix =~ s/\\\$SEQNO/\\d+/;
   if ($prefix) {
+    $tprefix = "\Q$prefix";
+    $tprefix =~ s/\\\$SEQNO/\\d+/;
     $prefix =
       $self->substitute_vars_string($prefix,
 				    'LIST'    => $list,

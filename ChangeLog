@@ -1,5 +1,11 @@
 Sun Apr 12 00:03:57 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Majordomo.pm (_re_match): Prevent problems with specials in
+ 	matched string.
+
+	* lib/Mj/Resend.pm (_post): Fix undef bug in subject_prefix
+ 	manipulation.
+
 	* Makefile.PL (check_prereq): Print info on how to use CPAN to
  	install missing modules.
 
