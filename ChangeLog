@@ -1,3 +1,8 @@
+2000-12-03  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/List.pm (expire_subscriber_data): Bug fix: when all
+	bounces expired, all were kept.
+
 2000-12-02  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm (dispatch):  Add simple command mode validation.

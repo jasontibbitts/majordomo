@@ -1600,15 +1600,19 @@ sub expire_subscriber_data {
 
     # Expire old bounce data.
     if ($data->{bounce}) {
+      warn "Old bounce data: $data->{bounce}";
       @b1 = split(/\s+/, $data->{bounce});
+      @b2 = ();
       $c = 0;
       while (1) {
 	last if $c >= $maxbouncecount;
 	$b = pop @b1; last unless defined $b;
 	($t) = $b =~ /^(\d+)\w/;
-	next if $t < $bounceexpiretime;
+	if ($t < $bounceexpiretime) {
+	  $u2 = 1;
+	  next;
+	}
 	push @b2, $b; $c++;
-	$u2 = 1;
       }
       $data->{bounce} = join(' ', @b2) if $u2;
     }
