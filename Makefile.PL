@@ -156,6 +156,7 @@ WriteMakefile
    EXE_FILES      => [@EXES],
    INSTALLDIRS    => 'perl',
    PREFIX         => $prefix,
+   INSTALLSCRIPT  => "$prefix/bin",
    INSTALLPRIVLIB => "$prefix/lib",
    MAN1PODS       => {map {("bin/$_"=>"\$(INST_MAN1DIR)/$_.\$(MAN1EXT)")} @SIDSCRIPTS, @SCRIPTS},
    INSTALLMAN1DIR => "$prefix/man/man1",

@@ -1,3 +1,64 @@
+2001-07-29  Michael Yount <csf@moscow.com>
+
+	* Makefile.PL:  Bugfix:  make certain that the scripts are
+	stored in the "bin" directory.  Thanks to David Reid.
+
+	* bin/mj_confirm, bin/mj_wwwadm, bin/mj_wwwusr:  Store
+	IP Address and other information in a form that resembles
+	mail headers.
+
+	* bin/mj_email:  Bring up to date with recent changes to
+	mj_enqueue and mj_queuerun, including support for request
+	data in aliases.
+
+	* files/en/digest_preindex:  Minor formatting changes.
+	Thanks to SRE.
+
+	* lib/Majordomo.pm:  (tokeninfo)  Add support for the 
+	"remind" command mode, which causes a reminder message to
+	be mailed to the requester's address.
+
+	* lib/Bf/Sender.pm:  (encode_verp, decode_verp)  Add support
+	for encoding and decoding of special characters, based upon
+	code by Jason Tibbitts.
+
+	* lib/Mj/Access.pm:  (list_access_check)  Give a more
+	informative error message if an invalid password is used.
+	Thanks to Duncan Hill.
+
+	* lib/Mj/BounceHandler.pm:  (handle_bounce_token)  Bugfix:
+	only indicate that a token has been deleted if it actually
+	happened.
+
+	* lib/Mj/BounceParser.pm:  (parse)  Decode special characters
+	in address extensions.
+
+	* lib/Mj/Format.pm:  Consistency:  Use local time instead
+	of UTC.  Thanks to Anand Narayan.
+	(tokeninfo) Add "WILLACK" substitution to cause the 
+	"reasons" box to be omitted if an acknowledgement will not
+	be sent.
+
+	* lib/Mj/List.pm:  (make_setting)  Add support for the
+	"mail" setting, which is the opposite of "nomail".
+
+	* lib/Mj/MTAConfig.pm:  (add_alias)  Add the "set" mode
+	to subscribe-digest and related aliases to allow the
+	command line to be reconstructed correctly for confirm
+	and consult messages.
+
+	* lib/Mj/Resend.pm:  (_post)  Bugfix:  do not update the 
+	sequence number if the message is only archived.
+
+	* lib/Mj/Token.pm:  (t_accept, t_reject)  Give a more
+	detailed explanation if a nonexistent token is given.
+	Thanks to SRE.
+	(r_gen)  Create a reminder entity; this code is used
+	by the tokeninfo-remind command, as well as in automated
+	reminders.
+
+
+
 2001-07-27  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/MTAConfig.pm (add_alias): Create lots of additional
