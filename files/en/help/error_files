@@ -273,6 +273,13 @@ This message is displayed when an e-mail address ends in a '@'.
 
 (standard substitutions only)
 
+existing_sublist
+----------------
+This message is displayed when an attempt is made to create a sublist
+that already exists.
+
+(standard substitutions only)
+
 found_tag
 ---------
 This message is displayed when the command parser finds a tag that ends
@@ -591,7 +598,7 @@ no_list
 This message is displayed when a command that requires a list name is
 used, but no list name has been specified.
 
-(standard substitutions only)
+(standard plus COMMAND)
 
 no_local_part
 -------------
@@ -627,6 +634,13 @@ This message is displayed when a command is not allowed to stall
 because the "nostall" access variable is set.
 
 (standard substitutions only)
+
+no_sublist
+----------
+This message is displayed when a command that requires a sublist name is
+used, but no sublist name has been specified.
+
+(standard plus COMMAND)
 
 no_token
 --------
@@ -762,6 +776,13 @@ probe_bounce
 ------------
 This message is displayed when a bounce probe message cannot be
 delivered to the address that is being probed.
+
+(standard substitutions only)
+
+public_sublist
+--------------
+This message is displayed when a sublist cannot be destroyed because it
+is public (listed in the "sublists" configuration setting).
 
 (standard substitutions only)
 

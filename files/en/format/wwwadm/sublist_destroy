@@ -1,0 +1,10 @@
+<!-- Majordomo sublist_destroy format file -->
+<p>
+The "$LIST:$SUBLIST" sublist has been destroyed.
+</p>
+
+<p>
+<a href="$CGIURL?$CGIDATA&amp;func=lists-aux&amp;list=$LIST&amp;extra=$PLIST">
+View the list of auxiliary lists</a>
+</p>
+

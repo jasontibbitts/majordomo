@@ -1,0 +1,24 @@
+<!-- Majordomo sublist_create format file -->
+<p>
+The "$LIST:$SUBLIST" sublist has been created.
+</p>
+
+<p>
+To make this sublist public, add its name and a description to the
+<a href="$CGIURL?$CGIDATA&amp;func=configshow&amp;list=$LIST:$SUBLIST&amp;extra=sublists">
+sublists configuration setting</a>.
+</p>
+
+<p>
+Visit the 
+<a href="$CGIURL?$CGIDATA&amp;func=who-summary&amp;list=$LIST:$SUBLIST">
+subscribers page</a>
+to add subscribers to the sublist.
+</p>
+
+<p>
+View the
+<a href="$CGIURL?$CGIDATA&amp;func=lists-aux&amp;list=$LIST&amp;extra=$PLIST">
+list of auxiliary lists</a>
+</p>
+

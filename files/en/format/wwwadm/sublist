@@ -1,0 +1,53 @@
+<!-- Majordomo sublist format file -->
+<p>
+Click the <b>Subscribers</b> link to search this sublist, or to add or
+remove subscribers.
+</p>
+
+<table>
+
+<tr>
+  <td>
+Sublist     
+  </td>
+  <td>
+$SUBLIST
+  </td>
+</tr>
+
+<tr>
+  <td>
+Description 
+  </td>
+  <td>
+$DESCRIPTION
+  </td>
+</tr>
+
+<tr>
+  <td>
+<a href="$CGIURL?$CGIDATA&amp;func=who-summary&amp;list=$PLIST:$SUBLIST">
+Subscribers 
+</a>
+  </td>
+  <td>
+$SUBS:4
+  </td>
+</tr>
+
+<tr>
+  <td>
+Posts in the last 30 days
+  </td>
+  <td>
+$POSTS
+  </td>
+</tr>
+
+</table>
+
+<p>
+<a href="$CGIURL?$CGIDATA&amp;func=sublist-destroy&amp;list=$PLIST:$SUBLIST">
+Destroy this sublist</a>
+</p>
+ 

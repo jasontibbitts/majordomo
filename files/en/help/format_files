@@ -1358,6 +1358,38 @@ showtokens_none
 (standard plus CGIDATA, CGIURL, CMDPASS, USER)
 
 
+sublist
+-------
+(text, wwwadm, wwwconfirm)  This file displays information about 
+an existing sublist.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, DESCRIPTION, POSTS, SUBS, USER)
+
+
+sublist_create
+--------------
+(text, wwwadm, wwwconfirm)  This file is displayed when a new sublist is
+created.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+sublist_destroy
+-------
+(text, wwwadm, wwwconfirm)  This file is displayed when a sublist is
+destroyed.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+sublist_error
+-------------
+(text, wwwadm, wwwconfirm)  This file displays an error message when the
+sublist command stalls or fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
 subscribe
 ---------
 (ALL)  This file is displayed when the subscribe command succeeds.

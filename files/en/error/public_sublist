@@ -1,0 +1,5 @@
+The "$LIST:$SUBLIST" auxiliary list is public, because it is listed in
+the "sublists" configuration setting.  To destroy a public sublist,
+first remove it from this setting.  If the sublist has an e-mail alias,
+ask your domain manager to rebuild the aliases with the "createlist-regen"
+command after you change the setting.

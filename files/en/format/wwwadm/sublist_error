@@ -1,0 +1,15 @@
+<!-- Majordomo sublist_error format file -->
+<p>
+The sublist command did not succeed.
+</p>
+
+<pre>
+$ERROR
+</pre>
+
+<p>
+View the
+<a href="$CGIURL?$CGIDATA&amp;func=lists-aux&amp;list=$LIST&amp;extra=$PLIST">
+list of auxiliary lists</a>
+</p>
+

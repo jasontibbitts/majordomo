@@ -551,6 +551,7 @@ files/en/error/.empty_command
 files/en/error/.end_command
 files/en/error/.ending_at
 files/en/error/.ending_period
+files/en/error/.existing_sublist
 files/en/error/.found_tag
 files/en/error/.host_length
 files/en/error/.ignored_part
@@ -601,6 +602,7 @@ files/en/error/.no_messages
 files/en/error/.no_password
 files/en/error/.no_route
 files/en/error/.no_stall
+files/en/error/.no_sublist
 files/en/error/.no_token
 files/en/error/.no_user_password
 files/en/error/.no_visible
@@ -620,6 +622,7 @@ files/en/error/.pattern_mode
 files/en/error/.pending_delivery
 files/en/error/.post_block
 files/en/error/.probe_bounce
+files/en/error/.public_sublist
 files/en/error/.relocated_list
 files/en/error/.replacement_header
 files/en/error/.restrict_post
@@ -690,6 +693,7 @@ files/en/error/empty_command
 files/en/error/end_command
 files/en/error/ending_at
 files/en/error/ending_period
+files/en/error/existing_sublist
 files/en/error/found_tag
 files/en/error/host_length
 files/en/error/ignored_part
@@ -740,6 +744,7 @@ files/en/error/no_messages
 files/en/error/no_password
 files/en/error/no_route
 files/en/error/no_stall
+files/en/error/no_sublist
 files/en/error/no_token
 files/en/error/no_user_password
 files/en/error/no_visible
@@ -759,6 +764,7 @@ files/en/error/pattern_mode
 files/en/error/pending_delivery
 files/en/error/post_block
 files/en/error/probe_bounce
+files/en/error/public_sublist
 files/en/error/relocated_list
 files/en/error/replacement_header
 files/en/error/restrict_post
@@ -934,6 +940,10 @@ files/en/format/text/.showtokens_all
 files/en/format/text/.showtokens_data
 files/en/format/text/.showtokens_error
 files/en/format/text/.showtokens_none
+files/en/format/text/.sublist
+files/en/format/text/.sublist_create
+files/en/format/text/.sublist_destroy
+files/en/format/text/.sublist_error
 files/en/format/text/.subscribe
 files/en/format/text/.subscribe_error
 files/en/format/text/.subscribe_none
@@ -1114,6 +1124,10 @@ files/en/format/text/showtokens_all
 files/en/format/text/showtokens_data
 files/en/format/text/showtokens_error
 files/en/format/text/showtokens_none
+files/en/format/text/sublist
+files/en/format/text/sublist_create
+files/en/format/text/sublist_destroy
+files/en/format/text/sublist_error
 files/en/format/text/subscribe
 files/en/format/text/subscribe_error
 files/en/format/text/subscribe_none
@@ -1309,6 +1323,10 @@ files/en/format/wwwadm/.showtokens_error
 files/en/format/wwwadm/.showtokens_foot
 files/en/format/wwwadm/.showtokens_head
 files/en/format/wwwadm/.showtokens_none
+files/en/format/wwwadm/.sublist
+files/en/format/wwwadm/.sublist_create
+files/en/format/wwwadm/.sublist_destroy
+files/en/format/wwwadm/.sublist_error
 files/en/format/wwwadm/.subscribe
 files/en/format/wwwadm/.subscribe_error
 files/en/format/wwwadm/.subscribe_none
@@ -1508,6 +1526,10 @@ files/en/format/wwwadm/showtokens_error
 files/en/format/wwwadm/showtokens_foot
 files/en/format/wwwadm/showtokens_head
 files/en/format/wwwadm/showtokens_none
+files/en/format/wwwadm/sublist
+files/en/format/wwwadm/sublist_create
+files/en/format/wwwadm/sublist_destroy
+files/en/format/wwwadm/sublist_error
 files/en/format/wwwadm/subscribe
 files/en/format/wwwadm/subscribe_error
 files/en/format/wwwadm/subscribe_none
@@ -1673,6 +1695,10 @@ files/en/format/wwwconfirm/.showtokens_all
 files/en/format/wwwconfirm/.showtokens_data
 files/en/format/wwwconfirm/.showtokens_error
 files/en/format/wwwconfirm/.showtokens_none
+files/en/format/wwwconfirm/.sublist
+files/en/format/wwwconfirm/.sublist_create
+files/en/format/wwwconfirm/.sublist_destroy
+files/en/format/wwwconfirm/.sublist_error
 files/en/format/wwwconfirm/.subscribe
 files/en/format/wwwconfirm/.subscribe_error
 files/en/format/wwwconfirm/.subscribe_none
@@ -1834,6 +1860,10 @@ files/en/format/wwwconfirm/showtokens_all
 files/en/format/wwwconfirm/showtokens_data
 files/en/format/wwwconfirm/showtokens_error
 files/en/format/wwwconfirm/showtokens_none
+files/en/format/wwwconfirm/sublist
+files/en/format/wwwconfirm/sublist_create
+files/en/format/wwwconfirm/sublist_destroy
+files/en/format/wwwconfirm/sublist_error
 files/en/format/wwwconfirm/subscribe
 files/en/format/wwwconfirm/subscribe_error
 files/en/format/wwwconfirm/subscribe_none
@@ -2267,6 +2297,7 @@ files/en/help/.showtokens
 files/en/help/.signoff
 files/en/help/.stop
 files/en/help/.sub
+files/en/help/.sublist
 files/en/help/.subscribe
 files/en/help/.times
 files/en/help/.tokeninfo
@@ -2498,6 +2529,7 @@ files/en/help/showtokens
 files/en/help/signoff
 files/en/help/stop
 files/en/help/sub
+files/en/help/sublist
 files/en/help/subscribe
 files/en/help/times
 files/en/help/tokeninfo
