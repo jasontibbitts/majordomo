@@ -261,9 +261,9 @@ Personal limits
 There are two moderation checks that depend upon the address of the
 author of a posted message.  A message will be moderated if the author's
 "postblock" personal setting is turned on.  Only subscribers have
-personal settings, so if a non-subscriber posts a message, a message
-will be moderated if the "postblock" flag is included in the
-nonmember_flags configuration setting.
+personal settings, so if a non-subscriber posts a message, it will be
+moderated if the "postblock" flag is included in the nonmember_flags
+configuration setting.
 
 Unless the postblock setting is listed in the default_flags
 configuration setting, a subscriber can unsubscribe, then subscribe
