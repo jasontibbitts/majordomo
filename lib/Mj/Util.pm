@@ -198,6 +198,11 @@ sub process_rule {
 	# Set a variable.
 	($arg, $value) = split(/[=-]/, $arg, 2);
 	if ($arg and ($ok = rules_var($params{request}, $arg))) {
+          # set=varname should set a boolean variable to a true value
+          # if no value is supplied explicitly.
+          if ($ok eq 'bool' and ! defined $value) {
+            $value = 1;
+          }
 	  if ($value and ($ok eq 'timespan')) {
 	    my ($time) = time;
 	    $args{$arg} = str_to_time($value) || $time + 1;
@@ -207,6 +212,7 @@ sub process_rule {
 	    $args{$arg} = $value;
 	  }
 	  else {
+            
             # obtain boolean value with double-negation.
 	    $args{$arg} = !!$value;
 	  }
