@@ -490,6 +490,7 @@ sub dispatch {
     }
     $request->{'victims'} = [@addr];
   }
+
   if (exists ($request->{'victims'}) and @{$request->{'victims'}}) {
     @addr = @{$request->{'victims'}};
   }
@@ -561,6 +562,9 @@ sub dispatch {
                     $request->{'victim'}, $request->{'cmdline'}, 
                     $self->{'interface'}, $res[0], 
                     !!$request->{'password'}+0, $over, $comment, $elapsed);
+
+      # reset timer in case multiple commands are being issued.
+      $request->{'time'} = $::log->elapsed;
     }
   }
   $out;
@@ -6489,6 +6493,7 @@ sub who_chunk {
       # Do not show bookkeeping aliases.
       next if ($j eq $i->{'striptarget'});
       $i->{'fulladdr'} = $j;
+      $i->{'canon'} = $i->{'striptarget'};
       push @chunk, $i;
     }
   }
@@ -6540,8 +6545,9 @@ CHUNK:
   for $i (@chunk) {
     if ($request->{'mode'} =~ /common/) {
       last unless scalar keys %{$self->{'commoners'}};
-      next unless exists $self->{'commoners'}->{$i->{'canon'}};
-      delete $self->{'commoners'}->{$i->{'canon'}};
+      next unless exists ($self->{'commoners'}->{$i->{'canon'}});
+      delete $self->{'commoners'}->{$i->{'canon'}}
+        unless ($request->{'mode'} =~ /alias/);
     }
       
     # If we're to show it all, obtain descriptions of the settings.
