@@ -14,8 +14,12 @@ Bugs?
 
 Messages with empty first part always checksum the same?
 
+Createlist doesn't validate owner address?
+
 Top of the list 
 ---------------
+
+! mj_trigger _must_ clean up some locks.
 
 ! Make sure that $SENDER is reset properly after _trim_approval is called,
   so we pick up the real sender, not the approver.
@@ -29,6 +33,65 @@ Top of the list
   Write autoconversion function.
 
   Write backends: BerkeleyDB, MySQL.
+
+! Master address database:
+  One global database storing some information on each address subscribed
+  to any list in the domain.  Maintains the following info:
+
+    addtime
+    changetime
+    full address
+    stripped address
+    encrypted password
+    preferred language
+    bounce data
+    warnings data
+    lists (colon separated list of lists)
+
+  remove redundant data from subscriber database, maintain all
+   list-specific stuff there.
+
+  Following routines affected:
+
+    Majordomo::new - open the database appropriately.
+    subscribe - add or update master database entry
+    unsub - update (or optionally remove) master database entry
+    show - don't take a list, do global access check.  just dump all data.
+       Traverse list of lists, looking up data on each.
+    lists - don't need to check membership in each list, just use master
+    who - can take GLOBAL, return additional data
+    which - just search master database
+
+    functions like is_list_member should still operate on the list database
+    as they're smaller and this doesn't require parsing out the list of
+    lists.  (Caching may actually negate this.)
+
+    need routine to add and remove to/from master database.  remove
+    function should also kill aliases.
+
+! Master alias database.
+
+  Aliasing moves to being a global entity.
+
+  Routines affected:
+    The whole module: doesn't sit at the list level any more; sits under
+    GLOBAL.
+
+    Majordomo::new - allocate it appropriately.
+    List::new - _don't_ allocate it at all.
+    canon - move to Majordomo method, don't take a list.
+    addr_match - move to Majordomo method
+    (un)alias - do global access check.
+    _(un)alias - don't _make_list, don't take a list, don't call through a
+      list object, subsume List::alias_add/remove.
+    List::remove - don't worry about aliases
+
+    Anything which calls canon at the list level cannot; these routines
+    must assume that a canonical address has been passed, and upstream
+    routines are responsible for canonizing appropriately.
+
+- Need a deletelist command.  Should update the master address database,
+  removing all of the entries.
 
 ! Finish archive interface.
 

@@ -781,7 +781,7 @@ sub _d_post {
     if $args{'admin'} && $self->_list_config_get($list, 'administrivia');
 
   for $i (@consult_vars) {
-    return $self->_a_consult(@_) if $args{$i} > 0;
+    return $self->_a_consult(@_) if defined($args{$i}) && $args{$i} > 0;
   }
 
   return $self->_a_allow(@_);

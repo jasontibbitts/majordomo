@@ -33,15 +33,8 @@ compliation overhead.
 
 Alpha 2:
 
-Put in place the basic short-message internationalization framework, with
-the trans file and caching.  Translate some messages, but flag everything
-needing translation.  Install contributed translations.
-
-Make single-message retrieval from the archive work.  This lays the
-foundation for digests.
-
-Build the framework for database backends.
-
+Master address and alias databases.
+Working BerkDB backend.
 
 Alpha 3:
 

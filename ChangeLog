@@ -1,3 +1,10 @@
+Thu Jul 30 22:45:01 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Access.pm (_d_post): Make sure the variable is defined
+ 	before comparing it to zero.
+
+	* postinstall: Tweak response files message.
+
 Wed Jul 29 19:37:25 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Majordomo.pm: Bump version number in preparation for another

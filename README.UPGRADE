@@ -1,5 +1,9 @@
 Notes on upgrading from alpha1 or before:
 
+New aliases are required and a new config variable must be set properly.
+Use createlist-force on each list with its proper owner to do this, and
+update your aliases from the returned information.
+
 Before installing, the sessions directory must be moved to its new
 location.  (This provides a performance improvement.)  Rename
 GLOBAL/files/sessions to GLOBAL/files in each domain.  Then make;make
