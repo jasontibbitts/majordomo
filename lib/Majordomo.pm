@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200109180";
+$VERSION = "0.1200111130";
 $unique = 'AAA';
 
 use strict;
@@ -382,9 +382,10 @@ processing done at the beginning.
 
 sub dispatch {
   my ($self, $request, $extra) = @_;
-  my (@addr, @modes, @res, @tmp, $addr, $base_fun, $comment, $continued, $data, 
-      $elapsed, $func, $l, $mess, $ok, $out, $over, $sl, $validate);
-  my ($level) = 29;
+  my (@addr, @canon, @modes, @res, @tmp, $addr, $base_fun, $comment, 
+      $continued, $data, $elapsed, $func, $l, $modelist, $mess, $ok, $out, 
+      $over, $sl, $validate);
+  my $level = 29;
   $level = 500 if ($request->{'command'} =~ /_chunk$/);
 
   ($base_fun = $request->{'command'}) =~ s/_(start|chunk|done)$//;
@@ -452,9 +453,11 @@ sub dispatch {
   # from Mj::CommandProps.
   if ($request->{'mode'} and !$continued) {
     @tmp = split /[=-]/, $request->{'mode'};
-    @modes = sort keys %{function_prop($request->{'command'}, 'modes')};
+    $modelist = function_prop($request->{'command'}, 'modes');
+    @modes = sort keys %$modelist;
     for $l (@tmp) {
-      unless (grep { $l =~ /^$_/ } @modes) {
+      @canon = grep { $l =~ /^$_/ } @modes;
+      unless (scalar @canon) {
         return [0, $self->format_error('invalid_mode', $request->{'list'},
                    'MODE' => $l,
                    'MODES' => \@modes)];
@@ -464,10 +467,27 @@ sub dispatch {
                    'MODE' => $l,
                    'MODES' => \@modes)];
       }
+      if (ref $modelist->{$canon[0]}) {
+        if (exists $modelist->{$canon[0]}->{'include'}) {
+          unless ($request->{'mode'} =~ /(^|\b)$modelist->{$canon[0]}->{'include'}/) {
+            return [0, $self->format_error('missing_mode', $request->{'list'},
+                         'MODE' => $l,
+                         'MODES' => [split "\\|", $modelist->{$canon[0]}->{'include'}],)
+                   ];
+          }
+        }
+        if (exists $modelist->{$canon[0]}->{'exclude'}) {
+          if ($request->{'mode'} =~ /(^|\b)$modelist->{$canon[0]}->{'exclude'}/) {
+            return [0, $self->format_error('incompatible_mode', $request->{'list'},
+                     'MODE' => $l,
+                     'MODES' => [split "\\|", $modelist->{$canon[0]}->{'exclude'}],)
+                   ];
+          }
+        }
+      }
     }
   }
         
-
   # Turn some strings into addresses and check their validity; never with a
   # continued function (they never need it) and only if the function needs
   # validated addresses.
@@ -2174,7 +2194,7 @@ sub format_get_string {
   my $out;
 
   $out = $self->_list_file_get_string('GLOBAL', "format/$type/$file");
-  chomp $out;
+  chomp($out) if (defined $out);
   $out;
 }
 
@@ -5791,7 +5811,7 @@ use IO::File;
 sub sessioninfo_start {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'sessionid'}";
-  my ($file);
+  my $file;
 
   return (0, "You must supply a session identifier.\n")
     unless ($request->{'sessionid'});
@@ -5804,17 +5824,7 @@ sub sessioninfo_start {
     return (0, qq(The session ID "$request->{'sessionid'}" is invalid.\n));
   }
 
-  # spoolfile should only be defined if invoked by tokeninfo. 
-  if (exists $request->{'spoolfile'}) { 
-    # use the base name to untaint the file.
-    $request->{'spoolfile'} =~ s#.+/([^/]+)$#$1#;
-    $request->{'spoolfile'} = "$self->{ldir}/GLOBAL/spool/$request->{'spoolfile'}";
-    if ($request->{'command'} eq 'post' and (-f $request->{'spoolfile'})) {
-      $file = $request->{'spoolfile'};
-    }
-  }
-  $file = "$self->{ldir}/GLOBAL/sessions/$request->{'sessionid'}" 
-    unless defined $file;
+  $file = "$self->{ldir}/GLOBAL/sessions/$request->{'sessionid'}" ;
 
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
@@ -6342,28 +6352,28 @@ sub _subscribe {
   return (1, [$vict]);
 }
 
-=head2 tokeninfo(..., token)
+=head2 tokeninfo_start (request)
 
 Returns all available information about a token, including the session data
 (unless the mode includes "nosession").
 
 =cut
 
-sub tokeninfo {
+sub tokeninfo_start {
   my ($self, $request) = @_;
-  my $log = new Log::In 30, $request->{'token'};
-  my ($ok, $ent, $error, $data, $gurl, $mj_owner, $origmsg, $sender, 
-      $sess, $spool, $victim);
+  my $log = new Log::In 30, $request->{'id'};
+  my ($ok, $ent, $error, $data, $gurl, $mj_owner, $origmsg, $parser,
+      $part, $sender, $sess, $spool, $victim);
 
   # Don't check access for now; users should always be able to get
   # information on tokens.  When we have some way to prevent lots of
   # consecutive requests, we could call the access check routine.
 
   return (0, "No token identifier was found.\n")
-    unless (length $request->{'token'}); #XLANG
+    unless (length $request->{'id'}); #XLANG
 
   # Call t_info to extract the token data hash
-  ($ok, $data) = $self->t_info($request->{'token'});
+  ($ok, $data) = $self->t_info($request->{'id'});
   return ($ok, $data) unless ($ok > 0);
 
   return (0, "Cannot initialize the list \"$data->{'list'}\".\n")
@@ -6380,23 +6390,31 @@ sub tokeninfo {
     $data->{'willack'} = " ";
   }
 
-  $spool = $sess = '';
-  if ($data->{'command'} eq 'post' and 
-      $request->{'mode'} =~ /full|remind/) {
-    # spool file; use basename
-    $spool = $data->{'arg1'};
-    $spool =~ s#.+/([^/]+)$#$1#;
-    $data->{'spoolfile'} = $spool;
+  if ($request->{'mode'} =~ /part/ and
+      $data->{'command'} ne 'post') {
+    return (0, "The part command mode only applies to moderated messages.\n");
   }
-  # Pull out the session data
-  $sess = '';
+
+  $spool = $sess = '';
+  if ($data->{'command'} eq 'post') {
+
+    ($ok, $sess) = $self->_get_msg_data($request, $data);
+    return ($ok, $sess) unless ($ok);
+
+    $self->{'msg_data'} = $sess;
+  }
+  elsif ($request->{'mode'} !~ /nosession/ && $data->{'sessionid'}) {
+    # Pull out the session data
+    ($sess) =
+      $self->sessioninfo_start($data);
+  }
+
   if ($request->{'mode'} =~ /remind/) {
     $gurl = $self->_global_config_get('confirm_url');
     $sender = $self->_list_config_get($data->{'list'}, 'sender');
-    $sess = "A reminder has been mailed to $request->{'user'}.\n";
     $mj_owner = $self->_global_config_get('sender');
 
-    $ent = $self->r_gen($request->{'token'}, $data, $gurl, $sender);
+    $ent = $self->r_gen($request->{'id'}, $data, $gurl, $sender);
     if ($ent and exists $data->{'spoolfile'}) {
       $origmsg = "$self->{ldir}/GLOBAL/spool/$data->{'spoolfile'}";
       $ent->make_multipart;
@@ -6409,7 +6427,7 @@ sub tokeninfo {
     if ($ent) {
       $self->mail_entity({ addr => $mj_owner,
                            type => 'D',
-                           data => $request->{'token'},
+                           data => $request->{'id'},
                          },
                          $ent,
                          $request->{'user'}
@@ -6418,14 +6436,116 @@ sub tokeninfo {
     if (exists $data->{'tmpfile'} and -f $data->{'tmpfile'}) {
       unlink $data->{'tmpfile'};
     }
-  }   
-  elsif ($request->{'mode'} !~ /nosession/ && $data->{'sessionid'}) {
-    ($sess) =
-      $self->sessioninfo_start($data);
-  }    
+  }
 
-  # Return the lot.
+  # Return the token data and session or message information.
   return (1, $data, $sess);
+}
+
+use Mj::MIMEParser;
+sub _get_msg_data {
+  my ($self, $request, $data) = @_;
+  my $log = new Log::In 30;
+  my ($ent, $ok, $parser, $part, $spool, $table);
+
+  # spool file; use basename
+  $spool = $data->{'arg1'};
+  $spool =~ s#.+/([^/]+)$#$1#;
+  $data->{'spoolfile'} = $spool;
+
+  $spool = "$self->{'ldir'}/GLOBAL/spool/$spool";
+  return (0, "The message spool file is unavailable.\n")
+    unless (-f $spool);
+  $request->{'part'} ||= '0';
+
+  $parser = new Mj::MIMEParser;
+  return (0, "Unable to initialize message parser.\n")
+    unless ($parser);
+
+  $parser->output_to_core(0);
+  $parser->output_dir($tmpdir);
+  $parser->output_prefix("mjt");
+
+  if ($request->{'mode'} =~ /delete/) {
+    ($ok, $table) = $parser->remove_part($spool, $request->{'part'});
+  }
+  elsif ($request->{'mode'} =~ /replace/) {
+    ($ok, $table) = 
+      $parser->replace_part($spool, $request->{'part'},
+                            $request->{'contents'});
+  }
+  else {
+    # no mode, "part" mode, or "part-edit" mode
+    $ent = $parser->parse_open($spool);
+    $table = {};
+    $ok = Mj::MIMEParser::get_entity_structure($ent, 1, $table);
+    if (exists $table->{'1'}) {
+        $table->{'0'} = { 
+                          'file' => $spool,
+                          'type' => $table->{'1'}->{'type'},
+                          'size' => sprintf("%.1f", ((-s ($spool)) + 51) / 1024),
+                        };
+    }
+
+    $part = $request->{'part'};
+    $part =~ s/[hH]$//;
+    return (0, "The message has no part numbered $request->{'part'}.\n")
+      if ($request->{'mode'} =~ /part/ and ! exists $table->{$part});
+  }
+
+  if ($ok) {
+    $self->{'msg_parser'} = $parser;
+  }
+  return ($ok, $table);
+}
+
+sub tokeninfo_chunk {
+  my ($self, $request, $chunksize) = @_;
+  my $log = new Log::In 550, $request->{'id'};
+  my ($i, $line, $out, $part);
+
+  return (0, undef) unless (exists $self->{'msg_data'});
+
+  return (0, undef) 
+    unless (defined $request->{'part'} and 
+            exists $self->{'msg_data'}->{$request->{'part'}});
+
+  $part = $self->{'msg_data'}->{$request->{'part'}};
+  unless (exists $part->{'fh'}) {
+    if ($request->{'part'} eq '0') {
+      $i = gensym();
+      open ($i, "< $part->{'file'}");
+      $part->{'fh'} = $i;
+    }
+    else {
+      $part->{'fh'} = $part->{'entity'}->open("r");
+    }
+    return (0, undef)
+      unless ($part->{'fh'});
+  }
+
+  for ($i = 0; $i < $chunksize; $i++) {
+    $line = $part->{'fh'}->getline;
+    last unless defined $line;
+    $out = '' unless $out;
+    $out .= $line;
+  } 
+
+  delete ($part->{'fh'}) unless (defined $out);
+  return (1, $out);
+}
+
+sub tokeninfo_done {
+  my ($self, $request) = @_;
+  my $log = new Log::In 550, $request->{'id'};
+
+  if (exists $self->{'msg_parser'}) {
+    $self->{'msg_parser'}->filer->purge;
+    delete ($self->{'msg_parser'});
+    delete ($self->{'msg_data'});
+  }
+
+  1;
 }
 
 =head2 trigger(...)
