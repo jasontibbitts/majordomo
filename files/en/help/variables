@@ -163,6 +163,11 @@ the error, format, and reply files will be presented here.
   determined by the archive_url configuration setting;  see 
   "help configset_archive_url" for more information.
 
+\$CAN_READ
+  This boolean variable is true if the person making a request has
+  permission to use the archive command for a particular mailing
+  list.
+
 \$CGIDATA
   A supplementary part of the URL of the current CGI script, for use
   in the web interfaces when the URL is used in an anchor 
