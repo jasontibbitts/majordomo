@@ -241,35 +241,57 @@ sub add {
   $msgno;
 }
 
-=head2 get_start(message)
+=head2 get_message(message_num)
 
 This takes a message number and sets up the archive''s iterator to read it.
 
-This returns the size of the given message.
+What to return?  Perhaps all useful message data, in a listref?
 
 =cut
 sub get_message {
+  my $self = shift;
+  my $msg  = shift;
+
+  # Figure out appropriate index file
+
+  # If cached data, look at end to see if what we want is contained within.
+  # If so, binary search for it.
+
+  # Otherwise, open index file, seek to where we left off (if we've looked
+  # here before, iterate until we hit the right message number, pushing
+  # data into cache.
+
+  # Open FH on appropriate archive file
+
+  # Seek to byte offset
+
+  # Return
 
 }
 
-=head2 get_line
+=head2 get_line(file, line)
 
-Starts the iterator on the message containing the given line.
-
-=head2 get_byte
-
-Starts the iterator on the message containing the given byte.
-
-=head2 find_line
-
-Returns the number of the message containing the given line.
-
-=head2 find_byte
-
-Returns the number of the message containing the given byte.
+Starts the iterator on the message containing the given line from the given file.
 
 =cut
+sub get_line {
 
+  # Figure out appropriate index file
+
+  # Iterate until we hit the right line (msg_line <= line, msg_line +
+  # total_lines > line)
+
+  # Open FH on appropaiate archive file
+
+  # Seek to byte offset
+
+  # Return
+
+}
+
+=head2 get_byte(file, byte)
+
+Starts the iterator on the message containing the given byte.
 
 =head2 get_chunk(size)
 
@@ -289,6 +311,50 @@ Closes the iterator.
 sub get_done {
 
 }
+
+=head2 find_line
+
+Returns the number of the message containing the given line.
+
+=head2 find_byte
+
+Returns the number of the message containing the given byte.
+
+=cut
+
+
+=head2 index_name(file)
+
+Given the name of an archive file, return the path to the index file.
+
+=cut
+sub index_name {
+  my $self = shift;
+  my $file = shift;
+
+  # Look up archive directory; tack it on, with .I
+
+}
+
+sub count_name {
+  my $self = shift;
+  my $file = shift;
+
+  # Look up archive dir, tack on with .C
+
+}
+
+
+=head2 load_index
+
+Loads the index for a given archive.  This must be done as a precursor to
+any by-message retrieval.  Indexes are small when compared to the archive
+and give exact line and bute counts enabling messages to be read in with a
+seek and a sysread.
+
+=cut
+
+
 
 =head1 COPYRIGHT
 

@@ -1,3 +1,11 @@
+Tue Apr 28 18:28:26 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* postinstall (suggest_mta): Beautify output somewhat.
+
+	* lib/Mj/Format.pm (createlist): Add noheader and quiet options.
+
+	* lib/Mj/MTAConfig.pm (sendmail): Include domain information.
+
 Tue Apr 28 17:30:58 1998  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
 
 	* postinstall: Copy files into wtmpdir and make them readable

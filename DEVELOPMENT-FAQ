@@ -128,6 +128,17 @@ Yes, Majordomo 2 saves the important data from every session, including
   a session can be retrieved from within Majordomo.
 
 
+Are Majordomo 2's tokens hackable like Majordomo 1's auth command?
+
+No.  Majordomo 2 uses random numbers as confirmation tokens and stores them
+  in a database.  The token itself is not in any way derived from the
+  command, so is is not possible to generate the appropriate token to
+  authenticate a command.  Besides security, this gives Majordomo 2 the
+  ability to expire tokens and mail reminders about them, in addition to
+  making approval a simple process (even as simple as visiting a web page)
+  for both the end user and the list owner.
+
+
 How do I ... ?
 
 When you can actually ..., I'll answer questions about it in a real

@@ -10,7 +10,7 @@ bugs encountered during testing have been fixed.
 
 Note: this requires Perl 5.004_01 to run.  This is due to bugs in
 5.004, and the fact that lesser versions are both lacking in features
-and security.  Most of the testing is done using 0perl 5.004_04.
+and security.  Most of the testing is done using Perl 5.004_04.
 
 The following modules are required.  These may have prerequisites which
 have not been listed; please inform majordomo-workers (see below) of these.
@@ -105,20 +105,28 @@ It's still painful because it's not finished.  Try to imagine how easy it
 will be when it's finished.
 
 To install:
-  unpack (you did that if you're reading this).
+  unpack (you did that if you're reading this).  Make certain that root is
+    able to read all of the distribution files.
   type "perl Makefile.PL".
-  follow the onscreen directions (to the letter!)
 
-See the 'Makefile.PL questions' section at the end of this document for
-more detailed discussion on the questions that Makefile.PL asks.
+You will be asked several questions as Majordomo configures itself for your
+system.  See the 'Makefile.PL questions' section at the end of this
+document for more detailed discussion on the questions that Makefile.PL
+asks.
 
-Make certain that the Majordomo user can actually see the distribution
-files during installation; the installation may fail if the files are
-unreadable.  And or course root should be able to see the files.  (This is
-not the case with some NFS setups.)
+When the configuration process finishes, you will be asked to run 'make'
+and 'make install'.  'make' will prepare the files for installation, and
+can be done without special priviliges.  'make install' must be done as
+root, as it will need permission to make directories and change ownership
+of files.  You will be asked more questions; it is safe to answer yes to
+all of them.  (These questions are asked to speed up the installation
+process for developers who will install several versions many times.)
 
-When it's done, that will be all.  But it's not done...  It's getting
-better, though.
+Finally Majordomo2 will be installed, and some configuration information
+will be suggested.  Be aware that this configuration information may not be
+correct for all sites; especially sites running virtual domains.  Virtual
+domain users and users of other MTAs, please let us know how to confugure
+things for you.
 
 
 Interacting with Majordomo:
@@ -148,8 +156,11 @@ this:
 mj_shell -p password createlist list-name owner@address
 
 This will give you the necessary aliases to add to the appropriate file, if
-you're running Sendmail.  You can pull in a set of addresses from a
-Majordomo 1.9x list like this:
+you're running Sendmail.  Note that for sites running virtual domains the
+suggestions may not be completely correct and additions to other files (the
+virtusertable, most likely).
+
+You can pull in a set of addresses from a Majordomo 1.9x list like this:
 
 mj_shell -p password -f old-list-file subscribe=quiet,noinform list-name
 

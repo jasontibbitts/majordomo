@@ -68,6 +68,13 @@ Majordomo incorporates its own advanced delivery mechanism, similar to
 that in bulk_mailer or TLB, rendering those programs obsolete.  It can
 also interface directly into qmail.
 
+Majordomo conducts approval by issuing random tokens and storing them in a
+database; it is essentially impossible to forge a subscription request and
+then guess the token needed to authenticate it.  This elminiates a certain
+kind of hacking possible with Majordomo1 and in addition makes it possible
+to track outstanding confirmations, issue reminders about them and expire
+them.
+
 For the list owner:
 
 The list configuration mechanism has changed.  You can still retrieve

@@ -61,20 +61,20 @@ to enable these aliases.
 EOS
 
   if ($list eq 'GLOBAL') {
-    return ($head, qq(# Aliases for Majordomo
+    return ($head, qq(# Aliases for Majordomo at $dom
 majordomo:       "|$bin/mj_email -d $dom"
 owner-majordomo: $own,
 majordomo-owner: $own,
-# End aliases for Majordomo
+# End aliases for Majordomo at $dom
 ));
   }
   else {
-    return ($head, qq(# Aliases for $list
+    return ($head, qq(# Aliases for $list at $dom
 $list:         "|$bin/mj_resend -d $dom -l $list"
 $list-request: "|$bin/mj_email  -d $dom -l $list"
 $list-owner:   $own,
 owner-$list:   $own,
-# End aliases for $list
+# End aliases for $list at $dom
 ));
   }
 }

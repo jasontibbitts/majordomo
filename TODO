@@ -19,11 +19,25 @@ Top of the list
 
 ! Make sure all sent mails have To: headers.
 
-! Make sure that our temporary directory exists.
-  Have each interface create it if it doesn't exist.
-
 ! Retrieve message given archive name and number
   Retrieve last N messages/message numbers from archive
+
+  Need to deal with indices:
+    Retrieving a single message is best done by scanning the index line-by
+      line, then getting the byte offset and seeking into the archive file.
+    Same for a set of messages, as long as they're in order.
+    Random retrievals or retrievals by byte can do the same, since
+      everything is strictly ordered.
+
+    These should cache their data; an initial search should check to see:
+      1) that there is data in memory
+      2) that the maximum element in memory exceeds the value being
+         searched for.
+    A binary search can ensue if we know the value is in memory.  Else it's
+      a linear search through the disk file.
+    Need to store the byte location in the file that we last parsed, so
+      that we can seek to it immediate when we need more data from the
+      index.
 
 - Figure out how to pass the access variables through to the _post function
   so that we can use things like the byte and line counts for cool things.

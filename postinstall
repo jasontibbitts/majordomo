@@ -137,8 +137,10 @@ if (get_bool($msg3)) {
 # Give some basic MTA configuration
 if (-t STDIN) {
   print "\n\nHere is some basic configuration information:\n";
+  my $nhead = 0;
   for my $i (@{$config->{'domains'}}) {
-    suggest_mta($i);
+    suggest_mta($i, $nhead);
+    $nhead = 1;
   }
 }
 
@@ -245,7 +247,10 @@ sub install_response_files {
   my $pass  = shift;
   my $files = shift;
   my $dirs  = shift;
-  my(@args, $dir, $file, $i, $subj);
+  my(@args, @dirs, $dir, $file, $i, $subj);
+
+  # Copy dirs so we don't destroy the original array
+  @dirs = @$dirs;
 
   @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F",
 	   "$config->{wtmpdir}/inst.$$");
@@ -254,7 +259,7 @@ sub install_response_files {
   print FILE "default password $config->{'domain'}{$dom}{'master_password'}\n";
 
   # Make the directories
-  while (($dir, $subj) = splice(@{$dirs}, 0, 2)) {
+  while (($dir, $subj) = splice(@dirs, 0, 2)) {
     print FILE "put=dir GLOBAL /$dir $subj\n";
   }
 
@@ -279,13 +284,15 @@ sub install_response_files {
 }
 
 sub suggest_mta {
-  my $dom  = shift;
+  my $dom   = shift;
+  my $nhead = shift;
 
   my @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-p",
 	      "$config->{'domain'}{$dom}{'master_password'}",
-	      "createlist=nocreate", "GLOBAL");
+	      "createlist=nocreate,quiet" . ($nhead ? ",noheader" : ''),
+	      "GLOBAL");
 
-  print "(@args)\n";
+#  print "(@args)\n";
   system(@args) == 0 or die "Error executing $args[0], $?";
 }
 

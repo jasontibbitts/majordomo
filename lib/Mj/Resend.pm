@@ -287,7 +287,7 @@ sub post_done {
 # Maintain two separate copies of the entity and munge them both
 # except where appropriate?  Ugh.
 use MIME::Parser;
-sub _post {  
+sub _post {
   my($self, $list, $user, $victim, $mode, $cmdline, $file, $arg2,
      $arg3) = @_;
   my $log  = new Log::In 35, "$list, $user, $file";
