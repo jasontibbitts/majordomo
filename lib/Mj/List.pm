@@ -1724,6 +1724,8 @@ sub bounce_gen_stats {
   my $now   = time;
   my (@numbered, @times, $maxbounceage, $stats);
 
+  return unless $bdata;
+
   # We don't do a monthly view unless we're collecting a month's worth of
   # data
   $maxbounceage = 31 * 60*60*24; # XXXX

@@ -254,7 +254,7 @@ sub connect {
   $self->{sessionid} = $id;
   $self->{sessionfh} =
     new IO::File(">$self->{ldir}/GLOBAL/sessions/$id");
-  
+
   $log->abort("Can't write session file to $self->{ldir}/GLOBAL/sessions/$id, $!")
     unless $self->{sessionfh};
 
@@ -3666,7 +3666,11 @@ sub show {
 			     'show', $user, $addr, '', '', '');
   unless ($ok > 0) {
     $log->out("noaccess");
-    return ($ok, $addr->strip, $addr->comment, $error);
+    return ($ok, {strip   => $addr->strip,
+		  comment => $addr->comment,
+		  error   => $error,
+		 },
+	   );
   }
   $self->_show('', $user, $addr, $mode, $cmdline);
 }
@@ -3674,26 +3678,31 @@ sub show {
 sub _show {
   my ($self, $dummy, $user, $addr, $mode, $cmd) = @_;
   my $log = new Log::In 35;
-  my (@out, $aliases, $comm, $data, $i, $mess, $ok);
+  my (%out, $aliases, $comm, $data, $i, $mess, $ok);
 
-  # Extract mailbox and comment
-  push @out, (1, $addr->strip, $addr->comment);
-
-  # Transform
-  push @out, $addr->xform;
-
-  # Alias, inverse aliases
-  push @out, $addr->alias;
-  $aliases = join("\002",$self->_alias_reverse_lookup($addr));
-  push @out, $aliases;
+  # Extract mailbox and comment, transform and aliases
+  $out{strip}   = $addr->strip;
+  $out{comment} = $addr->comment;
+  $out{xform}   = $addr->xform;
+  $out{alias}   = $addr->alias;
+  $out{aliases} = [$self->_alias_reverse_lookup($addr)];
 
   # Registration data
   $data = $self->{reg}->lookup($addr->canon);
-  return @out unless $data;
-  push @out, (1, $data->{'fulladdr'}, $data->{'stripaddr'},
-	      $data->{'language'}, $data->{'data1'}, $data->{'data2'},
-	      $data->{'data3'}, $data->{'data4'}, $data->{'data5'},
-	      $data->{'regtime'}, $data->{'changetime'}, $data->{'lists'});
+  return (1, \%out) unless $data;
+  $out{regdata} = {
+		   fulladdr   => $data->{'fulladdr'},
+		   stripaddr  => $data->{'stripaddr'},
+		   language   => $data->{'language'},
+		   data1      => $data->{'data1'},
+		   data2      => $data->{'data2'},
+		   data3      => $data->{'data3'},
+		   data4      => $data->{'data4'},
+		   data5      => $data->{'data5'},
+		   regtime    => $data->{'regtime'},
+		   changetime => $data->{'changetime'},
+		   lists      => [split("\002", $data->{'lists'})],
+		  };
 
   # Lists
   for $i (split("\002", $data->{'lists'})) {
@@ -3706,25 +3715,23 @@ sub _show {
     # really isn't on the list.  Just skip it in this case.
     if ($data) {
       # Extract some useful data
-      push @out, ($data->{'fulladdr'},
-		  $self->{'lists'}{$i}->describe_class($data->{'class'},
-						       $data->{'classarg'},
-						       $data->{'classarg2'},
-						      ),
-		  $data->{'subtime'}, $data->{'changetime'},
-		 );
-
-      # Deal with flags
-      push @out, (join(',',
-		       $self->{'lists'}{$i}->describe_flags($data->{'flags'})
-		      )
-		 );
-    }
-    else {
-      push @out, ('Database error') x 2, 0, 0, 'Database error';
+      $out{lists}{$i} =
+	{
+	 fulladdr   => $data->{fulladdr},
+	 classdesc  => $self->{'lists'}{$i}->describe_class($data->{'class'},
+							    $data->{'classarg'},
+							    $data->{'classarg2'},
+							   ),
+	 subtime    => $data->{subtime},
+	 changetime => $data->{changetime},
+	 flags      => [$self->{'lists'}{$i}->describe_flags($data->{'flags'})],
+	 bouncedata => $self->{lists}{$i}->bounce_get($addr),
+	};
+      $out{bouncestats} = $self->{lists}{$i}->bounce_gen_stats($out{bouncedata})
+	if $out{bouncedata};
     }
   }
-  @out;
+  (1, \%out);
 }
 
 =head2 showtokens(..., list)

@@ -1,3 +1,14 @@
+2000-06-20  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/MailOut.pm (handle_bounce): Send the bounce body to the
+	session file.
+	(handle_bounce_user): Clean up the bounce statistics display.
+
+	* lib/Majordomo.pm (_show): Rewrite to return a reasonable data
+	structure.
+
+	* lib/Mj/Format.pm (show): Rewrite.
+
 2000-06-19  Michael Yount  <csf@moscow.com>
 	* bin/mj_wwwadm:  Clarify help page.
 	Allow multiple tokens to be processed at once.

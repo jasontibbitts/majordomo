@@ -38,26 +38,10 @@ Add an 'address' argument to the inform variable; address to send
 
 Doc changes needed
 ------------------
-Document special substitutions in addr_xforms:
-
-  trim mbox           : tibbs+blah@math.uh.edu     => tibbs@math.uh.edu
-  ignore case         : TiBbS@math.uh.edu          => tibbs@math.uh.edu
-  mungedomain         : tibbs@karazm.math.uh.edu   => tibbs@uh.edu
-  two level           : equivalent to mungedomain
-  three level         : tibbs@a.b.c.math.uh.edu    => tibbs@math.uh.edu
-  flatten domain a.b.c: tibbs@w.x.y.a.b.c          => tibbs@a.b.c
-  map a.b.c to d.e.f  : tibbs@z.a.b.c              => tibbs@z.d.e.f
-
-Removal of database_backend variable.
+(none)
 
 Top of the list 
 ---------------
-
-Make sure permissions on created directories and files reach some minimum
-level (for Exim support, at least).
-
-Add useful bounce reasons for failed restrict_post match.  Allow reason
-specification (how?) for access_rules consults.
 
 Implement naive list deletion functionality:
   createlist-delete listname
@@ -582,36 +566,6 @@ We already support translated long documents.
   stuff look uglier than it needs to be, although continuation lines can
   help.
 
-- bounce handling
-    Parse all mail to owner alias, looking for bounces.
-    Do periodic single-address-probes.
-    When bouncing address detected, put on bounce status.
-    Send bounce probe daily(?) with token that changes status back to
-     active.
-    Remove from list after N days.
-
-    Use sequence numbers in envelopes to determine when to put an address
-    on the bounce list: after N consecutive bounced messages (N
-    configurable, of course; low-traffic lists will want to remove after
-    one bounce?
-
-    Make additional piece of subscriber data indicating that an address
-    should be explicitly bounce probed (perhaps if the address was found to
-    be bouncing from a bounce parse or if an explicit bounce probe came
-    back).  The idea is to make sure that we continue to probe a bouncing
-    message until it no longer bounces or until we see enough true bounces
-    to remove the address.  We don't want to remove for intermittent
-    failures, because the user will complain about having to return himself
-    from bounce status often.
-
-    We already have a bounce field in the subscriber database; use it to
-    store message numbers that bounce or a generic "found a bounce" tag,
-    along with timestamps.  If this field is non-null, always probe the
-    address.  The bounce handler can look at this field and determine what
-    to do when it gets a bounce based upon the history there.
-
-    Periodic trigger can remove old bounce data after so many days.
-
 - uniquify function names
     Make function names unique to 8 characters, to appease AutoSplit.
 
@@ -704,16 +658,8 @@ Meta
   place to put their extension/overriding code without copying things
   around.
 
-SimpleDB
-- Keep list in sorted order to speed up searches (use seek and binary
-  search?) and pull out rows in sorted order (for domain-based grouping in
-  the delivery engine).  Or just recode the thing to use BTrees.
-- Clean up lookup methods; they're a mess.  Collapse duplicated code.
-- Code to sort list given a coderef to a compare function.
-
 GTK client
 telnet client
-web client - Bill
 Finish all commands
 Figure out client-server spec.
 
@@ -739,19 +685,10 @@ Some way to store some data until the next time a user communicates with
   send a message or check their subscription status they will be informed.
   Obviously we can't inform them when remove them, since that message would
   bounce, too.
-Make access_check for "access" return some sort of session key, so that it
-  can be passed in $auth?
 Objectify the parser, then register legal methods with it?
 Bounce handling:  hack on BounceFilter and AutoBounce.
-Simple patterns: just '*' as "match any"; set "simple_patterns" variable,
-  and if set do $var =~ s/\*/\001/g; $var = qm($var); $var =~ s/\001/.*/g;
-  on every list config read that doesn't default when type =~ /regexp/.
 Novice_level variable that affects getting documentation for config
   variables?  Novice set of config variables?  Novice config documentation?
-Extra access variables for post method; any_admin, any_taboo, any_dup, etc.
-Header length and body length limits.  (body is easy; compute content-length).
-digestvolume command to increment (default) or set the volume number for a
-  digest.
 Expiration of subscriptions.
 Last posting date.
 Have who expand lists subscribed to current list.

@@ -2279,11 +2279,11 @@ are useful for operating on config information.
 
 =head2 parse_table(specifier_string, arrayref)
 
-This splits up a config table. 
+This splits up a config table.
 
   Input: specifier string, ref to array of lines.
     The specifier string can contain the following characters:
-      
+
      \s - space is ignored
       l - line of free text (a line containing a single field)
       f - line split into fields (a line containing multiple fields)

@@ -535,73 +535,75 @@ sub set {
 
 sub show {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
-      $list, $vict, $arg1, $arg2, $arg3, $ok, $addr, $comm, $xform, $alias,
-      $aliases, $flag1, $fulladdr, $stripaddr, $lang, $data1, $data2,
-      $data3, $data4, $data5, $regtime, $changetime, $lists) =
-	splice(@_, 0, 33);
+      $list, $vict, $arg1, $arg2, $arg3, $ok, $data) = @_;
   my $log = new Log::In 29, "$type, $vict";
-  my (@lists, $class, $fl, $i, $lchangetime, $lclass, $lflags, $lfull,
-      $subtime);
+  my (@lists, $strip);
+  $strip = $data->{strip};
+
+#  use Data::Dumper; print $out Dumper $data;
 
   eprint($out, $type, "  Address: $vict\n");
 
   # For validation failures, the dispatcher will do the verification and
-  # return the error as the second argument.
-  # For normal denials, $ok is also 0, but the error is returned where
-  # $xform would be.
+  # return the error as the second argument.  For normal denials, $ok is
+  # also 0, but a hashref is returned containing what information we could
+  # get from the address.
   if ($ok == 0) {
-    if ($xform) {
+    if (ref($data)) {
       eprint($out, $type, "    Show failed.\n");
-#      $addr = prepend('      ', $xform);
-      eprint($out, $type, prepend('    ',"$xform\n"));
+      eprint($out, $type, prepend('    ',"$data->{error}\n"));
     }
     else {
       eprint($out, $type, "    Address is invalid.\n");
-      eprint($out, $type, prepend('    ',"$addr\n"));
+      eprint($out, $type, prepend('    ',"$data\n"));
     }
     return $ok;
   }
   elsif ($ok < 0) {
     eprint($out, $type, "    Address is valid.\n");
-    eprint($out, $type, "      Mailbox: $addr\n") if $addr ne $vict;
-    eprint($out, $type, "      Comment: $comm\n") if defined $comm && $comm ne "";
-    eprint($out, $type, indicate($xform, $ok));
+    eprint($out, $type, "      Mailbox: $strip\n")
+      if $strip ne $vict;
+    eprint($out, $type, "      Comment: $data->{comment}\n")
+      if defined $data->{comment} && length $data->{comment};
+    eprint($out, $type, indicate($data->{error}, $ok));
     return $ok;
   }
-   
+
   eprint($out, $type, "    Address is valid.\n");
-  eprint($out, $type, "      Mailbox: $addr\n") if $addr ne $vict;
-  eprint($out, $type, "      Comment: $comm\n") if defined $comm && $comm ne "";
-  if ($addr ne $xform) {
+  eprint($out, $type, "      Mailbox: $strip\n")
+    if $strip ne $vict;
+  eprint($out, $type, "      Comment: $data->{comment}\n")
+    if defined $data->{comment} && length $data->{comment};
+
+  if ($strip ne $data->{xform}) {
     eprint($out, $type, "    Address transforms to:\n");
-    eprint($out, $type, "      $xform\n");
+    eprint($out, $type, "      $data->{xform}\n");
   }
 #  if ($xform ne $alias && $addr ne $alias && $stripaddr && $stripaddr ne $alias) {
-  if ($addr ne $alias) {
+  if ($strip ne $data->{alias}) {
     eprint($out, $type, "    Address aliased to:\n");
-    eprint($out, $type, "      $alias\n");
+    eprint($out, $type, "      $data->{alias}\n");
   }
-  if ($aliases) {
-    $fl=0;
-    for $i (split("\002",$aliases)) {
-      next if $i eq $addr;
-      eprint($out, $type, "    Address(es) aliased to this address:\n")
-	unless ($fl);
-      eprint($out, $type, "      $i\n");
-      $fl=1;
-    }
+  $fl=0;
+  for $i (@{$data->{aliases}}) {
+    next if $i eq $strip;
+    eprint($out, $type, "    Address(es) aliased to this address:\n")
+      unless ($fl);
+    eprint($out, $type, "      $i\n");
+    $fl=1;
   }
-  
-  unless ($flag1) {
+
+  unless ($data->{regdata}) {
     eprint($out, $type, "    Address is not registered.\n");
     return 1;
   }
   eprint($out, $type, "    Address is registered as:\n");
-  eprint($out, $type, "      $fulladdr\n");
-  eprint($out, $type, "    Registered at ".gmtime($regtime)." GMT.\n");
-  eprint($out, $type, "    Registration data last changed at ".gmtime($changetime)." GMT.\n");
+  eprint($out, $type, "      $data->{regdata}{fulladdr}\n");
+  eprint($out, $type, "    Registered at ".gmtime($data->{regdata}{regtime})." GMT.\n");
+  eprint($out, $type, "    Registration data last changed at ".
+	 gmtime($data->{regdata}{changetime})." GMT.\n");
 
-  @lists = split("\002", $lists);
+  @lists = keys %{$data->{lists}};
   unless (@lists) {
     eprint($out, $type, "    Address is not subscribed to any lists\n");
     return 1;
@@ -610,18 +612,18 @@ sub show {
 	  scalar(@lists), @lists == 1?'':'s');
 
   for $i (@lists) {
-    ($lfull, $class, $subtime, $lchangetime, $lflags) = splice(@_, 0, 5);
     eprint($out, $type, "      $i:\n");
-    eprint($out, $type, "        Subscribed as $lfull.\n") if $lfull ne $addr;
-    eprint($out, $type, "        Subscribed at ".gmtime($subtime)." GMT.\n");
-    eprint($out, $type, "        Receiving $class.\n");
+    eprint($out, $type, "        Subscribed as $data->{lists}{$i}{fulladdr}.\n")
+      if $data->{lists}{$i}{fulladdr} ne $strip;
+    eprint($out, $type, "        Subscribed at ".gmtime($data->{lists}{$i}{subtime})." GMT.\n");
+    eprint($out, $type, "        Receiving $data->{lists}{$i}{classdesc}.\n");
     eprint($out, $type, "        Subscriber flags:\n");
-    for $i (split(',',$lflags)) {
+    for $i (@{$data->{lists}{$i}{flags}}) {
       eprint($out, $type, "          $i\n");
     }
     eprint($out, $type, "        Data last changed at ".
-	   gmtime($lchangetime)." GMT.\n");
-    
+	   gmtime($data->{lists}{$i}{changetime})." GMT.\n");
+
   }
   return 1;
 }
@@ -658,7 +660,7 @@ sub showtokens {
 	 splice(@tokens, 0, 15))
     {
       $count++;
-      
+
       if ($list eq 'ALL') {
 	eprintf($out, $type,
 		"%13s %-12s %-7s %19s %s\n",
@@ -693,7 +695,7 @@ sub tokeninfo {
     eprint($out, $type, &indicate($mess, $ok));
     return ($ok>0);
   }
-  
+
   $time = localtime($ttime);
 
   eprint($out, $type, <<EOM);
@@ -710,7 +712,7 @@ EOM
       eprint($out, $type, "Reason: $_\n");
     }
   }
-    
+
   if ($tsess) {
     eprint($out, $type, "\nInformation about the session ($tsessid):\n$tsess");
   }
@@ -771,13 +773,13 @@ sub which {
   }
 
   while (($list, $match) = splice @matches, 0, 2) {
-    
+
     # If $list is undef, we have a message instead.
     if (!$list) {
       eprint($out, $type, $match);
       next;
     }
-    
+
     if ($list ne $last_list) {
       if ($list_count > 3) {
 	eprint($out, $type, "-- $list_count matches this list\n");
@@ -1082,14 +1084,14 @@ sub indicate {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997-2000 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.

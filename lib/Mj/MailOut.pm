@@ -236,6 +236,10 @@ sub handle_bounce {
   # If we know we have a message
   if ($type eq 'M') {
     $handled = 1;
+
+    # Dump the body to the session file
+    $ent->print_body($self->{sessionfh});
+
     $mess  = "Detected a bounce of message #$msgno.\n";
     $mess .= "  (bounce type $handler)\n\n";
 
@@ -360,9 +364,9 @@ sub handle_bounce_user {
 #      use Data::Dumper; $mess .= Dumper $bdata;
 
       $mess .= "  Bounce statistics for this user:\n";
-      $mess .= "    Bounces Today:                  $stats->{day}\n";
-      $mess .= "    Bounces this Week:              $stats->{week}\n";
-      $mess .= "    Bounces this Month:             $stats->{month}\n"
+      $mess .= "    Bounces last 24 hours:          $stats->{day}\n";
+      $mess .= "    Bounces last 7 days:            $stats->{week}\n";
+      $mess .= "    Bounces last 30 days:           $stats->{month}\n"
 	if $stats->{month};
       $mess .= "    Consecutive messages bounced:   $stats->{consecutive}\n"
 	if $stats->{consecutive};
@@ -371,7 +375,8 @@ sub handle_bounce_user {
 
       # Make triage decision
       if (($stats->{consecutive} && $stats->{consecutive} > 10) ||
-	  ($stats->{bouncedpct}  && $stats->{bouncedpct} > 70))
+	  ($stats->{bouncedpct}      && $stats->{numbered} &&
+	   $stats->{bouncedpct} > 70 && $stats->{numbered} > 20))
 	{
 	  $mess .= "  It is recommended that this user be removed.\n";
 	}
@@ -382,9 +387,6 @@ sub handle_bounce_user {
   }
   "$mess\n";
 }
-
-
-
 
 =head2 welcome(list, address)
 
