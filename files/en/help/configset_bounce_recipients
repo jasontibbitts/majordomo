@@ -15,17 +15,32 @@ Password Notes: Visible only with password.
 
 EXAMPLE:
 configset listname bounce_recipients << ENDTAG
-joe@blow.org
+joe@example.org
 ENDTAG
 
 $INCLUDE-config/bounce_recipients
 
+Many domains have an e-mail address (e.g., "nobody") for which incoming
+mail is automatically discarded.  If you wish to stop receiving bounce
+notices, change the bounce_recipients setting to direct bounces to that
+address.
+
+Bounce messages are recorded in full in the session log.  To see a list
+of recent bounces and their session numbers, use the report-full
+command.  Then, use the sessioninfo command to retrieve individual bounce
+messages.
+
+
 See Also:
+   help admin_delivery
    help admin_subscribers
    help configset_bounce_max_age   (how long a user's bounce data will be tracked)
    help configset_bounce_max_count (maximum number of bounce data kept for a user)
    help configset_bounce_probe_frequency (how often bounce probes are sent out)
    help configset_bounce_probe_pattern   (force probes of matching addresses)
+   help configset_bounce_rules
    help configset_owners                 (for how to specify the list owner)
+   help report
+   help sessioninfo
 
 $INCLUDE-help/foot
