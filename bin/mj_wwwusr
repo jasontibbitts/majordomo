@@ -462,7 +462,7 @@ EOM
 sub Mj::Format::show {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my ($i, $j, @lists, $lfull, $class, $subtime); 
-  my ($lflags, $lchangetime, $changetime);
+  my (@flaglist, $lflags, $lchangetime, $changetime);
   my ($ok, $listdata) = @$result;
   select $out;
 
@@ -542,10 +542,15 @@ EOM
       }
     }
     print "</select>\n";
-    for $j (@{$lflags}) {
-      $j =~ /(no)?(.+)/;  print $1 ?
-          "<td align=center><input type=checkbox name=\"$i:$2\">\n"
-        : "<td align=center><input type=checkbox name=\"$i:$2\" checked>\n";
+    @flaglist = qw(ackdeny ackpost ackreject ackstall eliminatecc 
+                   hide prefix replyto selfcopy rewritefrom);
+    for $j (@flaglist) {
+      if (grep { $_ eq "no$j" } @{$lflags}) {
+        print "<td align=center><input type=checkbox name=\"$i:$j\">\n";
+      }
+      else {
+        print "<td align=center><input type=checkbox name=\"$i:$j\" checked>\n";
+      }
     }
   }
   print "</table></form>\n";
