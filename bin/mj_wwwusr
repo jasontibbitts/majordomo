@@ -45,7 +45,7 @@ use Mj::Format;
 use Mj::Log;
 use Mj::Parser;
 
-my (%commands, @domains, @lists, $cgi, $cgidata, $cgiurl, $domain, $extra, 
+my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, $domain, $extra, 
     $falseuser, $func, $list, $mj, $mess, $mode, $ofunc, $ok, $passw, 
     $pathinfo, $request, $result, $sess, $str, $subs, $tmp, $user);
 
@@ -222,6 +222,12 @@ unless (exists $commands{$func}) {
 if (! $passw) {
   &login($mj, $subs, "A password is required to use the $func command.")
     if ($commands{$func}->[0]);
+}
+else {
+  $addr = new Mj::Addr($user);
+  unless ($mj->validate_passwd($addr, $passw, 'GLOBAL', 'show')) {
+    &login($mj, $subs, 'Invalid password.');
+  }
 }
 
 #----- Address check -----#
