@@ -35,7 +35,7 @@ First, the requests which can be processed:
 16 - info              default access is access
 17 - intro             default access is access
 18 - lists             default access is allow
-19 - password          default access is special
+19 - password          default access is confirm
 20 - post              default access is special
 21 - put               default access is deny
 22 - register          default access is confirm
@@ -58,6 +58,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 1 - variables for access
   addr
+  delay
   fulladdr
   host
   master_password
@@ -68,6 +69,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 2 - variables for advertise
   addr
+  delay
   fulladdr
   host
   master_password
@@ -78,6 +80,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 3 - variables for alias
   addr
+  delay
   fulladdr
   host
   master_password
@@ -88,6 +91,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 4 - variables for announce
   addr
+  delay
   fulladdr
   host
   master_password
@@ -98,6 +102,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 5 - variables for archive
   addr
+  delay
   fulladdr
   host
   master_password
@@ -108,6 +113,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 6 - variables for auxadd
   addr
+  delay
   fulladdr
   host
   master_password
@@ -118,6 +124,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 7 - variables for auxremove
   addr
+  delay
   fulladdr
   host
   master_password
@@ -128,6 +135,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 8 - variables for auxwho
   addr
+  delay
   fulladdr
   host
   master_password
@@ -138,6 +146,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 9 - variables for changeaddr
   addr
+  delay
   fulladdr
   host
   master_password
@@ -148,6 +157,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 10 - variables for createlist
   addr
+  delay
   fulladdr
   host
   master_password
@@ -158,6 +168,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 11 - variables for digest
   addr
+  delay
   fulladdr
   host
   master_password
@@ -168,6 +179,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 12 - variables for faq
   addr
+  delay
   fulladdr
   host
   master_password
@@ -178,6 +190,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 13 - variables for get
   addr
+  delay
   fulladdr
   host
   master_password
@@ -188,6 +201,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 14 - variables for help
   addr
+  delay
   fulladdr
   host
   master_password
@@ -198,6 +212,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 15 - variables for index
   addr
+  delay
   fulladdr
   host
   master_password
@@ -208,6 +223,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 16 - variables for info
   addr
+  delay
   fulladdr
   host
   master_password
@@ -218,6 +234,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 17 - variables for intro
   addr
+  delay
   fulladdr
   host
   master_password
@@ -228,6 +245,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 18 - variables for lists
   addr
+  delay
   fulladdr
   host
   master_password
@@ -238,10 +256,12 @@ Second, the variables available for each request (see bottom for explanations):
 
 19 - variables for password
   addr
+  delay
   fulladdr
   host
   master_password
   mismatch
+  mode
   password_length
   posing
   user_password
@@ -254,6 +274,7 @@ Second, the variables available for each request (see bottom for explanations):
   body_length
   body_length_exceeded
   days_since_subscribe
+  delay
   dup
   dup_checksum
   dup_msg_id
@@ -273,6 +294,7 @@ Second, the variables available for each request (see bottom for explanations):
   mime_header_length
   mime_header_length_exceeded
   mismatch
+  mode
   percent_quoted
   posing
   quoted_lines
@@ -284,6 +306,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 21 - variables for put
   addr
+  delay
   fulladdr
   host
   master_password
@@ -294,6 +317,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 22 - variables for register
   addr
+  delay
   fulladdr
   host
   master_password
@@ -304,6 +328,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 23 - variables for rekey
   addr
+  delay
   fulladdr
   host
   master_password
@@ -314,6 +339,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 24 - variables for report
   addr
+  delay
   fulladdr
   host
   master_password
@@ -324,6 +350,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 25 - variables for request_response
   addr
+  delay
   fulladdr
   host
   master_password
@@ -334,6 +361,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 26 - variables for set
   addr
+  delay
   fulladdr
   host
   master_password
@@ -344,6 +372,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 27 - variables for show
   addr
+  delay
   fulladdr
   host
   master_password
@@ -354,6 +383,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 28 - variables for showtokens
   addr
+  delay
   fulladdr
   host
   master_password
@@ -374,6 +404,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 30 - variables for unalias
   addr
+  delay
   fulladdr
   host
   master_password
@@ -384,6 +415,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 31 - variables for unregister
   addr
+  delay
   fulladdr
   host
   master_password
@@ -394,6 +426,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 32 - variables for unsubscribe
   addr
+  delay
   fulladdr
   host
   master_password
@@ -404,6 +437,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 33 - variables for which
   addr
+  delay
   fulladdr
   host
   master_password
@@ -414,6 +448,7 @@ Second, the variables available for each request (see bottom for explanations):
 
 34 - variables for who
   addr
+  delay
   fulladdr
   host
   master_password
@@ -449,6 +484,9 @@ Third, an explanation of each variable:
         days_since_subscribe - contains the number of days since the user
                                signed up (used for a cooling off period
                                before allowing posting)
+
+                       delay - a string specifying the amount of time to
+                               delay a command
 
                          dup - is set if any of dup_checksum,
                                dup_partial_checksum, or dup_msg_id are set

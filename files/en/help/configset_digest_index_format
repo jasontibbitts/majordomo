@@ -2,7 +2,7 @@
 configset listname digest_index_format = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : subject
-Data Type     : enum, choose from: subject subject_author
+Data Type     : enum, choose from: numbered subject subject_author
 Variable Group: digest
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
