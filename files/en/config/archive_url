@@ -1,0 +1,5 @@
+The URL at which public list archives are made accessible.
+
+The URL will undergo variable substitution if it is added to
+message headers, to support RFC 2369.  It is also used by
+the WWW interface.

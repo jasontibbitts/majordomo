@@ -124,6 +124,7 @@ files/en/config/archive_access
 files/en/config/archive_dir
 files/en/config/archive_size
 files/en/config/archive_split
+files/en/config/archive_url
 files/en/config/attachment_rules
 files/en/config/bounce_max_age
 files/en/config/bounce_max_count
@@ -199,6 +200,7 @@ files/en/config/set_policy
 files/en/config/signature_separator
 files/en/config/site_name
 files/en/config/subject_prefix
+files/en/config/sublists
 files/en/config/subscribe_policy
 files/en/config/taboo_body
 files/en/config/taboo_headers

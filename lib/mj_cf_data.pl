@@ -861,6 +861,24 @@ EOC
     'global' => 1,
     'visible'=> 0,
    },
+   'sublists' =>
+   {
+    'type'   => 'sublist_array',
+    'groups' => ['lists'],
+    'global' => 0,
+    'local'  => 1,
+    'visible'=> 0,
+    'mutable'=> 1,
+   },
+   'archive_url' =>
+   {
+    'type'   => 'string',
+    'groups' => [qw(archive)],
+    'local'  => 1,
+    'global' => 1,
+    'visible'=> 0,
+    'mutable'=> 1,
+   },
    'confirm_url' =>
    {
     'type'   => 'string',

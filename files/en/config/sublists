@@ -1,0 +1,7 @@
+A list of auxiliary lists that are considered public.  Each
+line must contain an existing auxiliary list name, followed
+by an optional ':' and a description.  The description is
+used in the output of the lists-aux command.
+
+If the 'A' flag is used in the aliases setting, only auxiliary
+lists mentioned here will be given aliases. 

@@ -1,3 +1,43 @@
+2000-08-21  Michael Yount <csf@moscow.com>
+
+	* files/en/config/archive_url:  New configuration
+	variable, used by mj_wwwusr and the message_headers
+	setting (ARCURL substitution in Mj::Resend::_post.)
+
+	* files/en/config/sublists:  New configuration variable.
+	The lists-aux command will only display auxiliary lists
+	explicity mentioned in this setting.  The createlist-regen
+	command will only create mail aliases for sublists included
+	in this setting.  Each line of the array consists of
+	a sublist name, followed by an optional description.
+	The description appears in the output of the lists-aux 
+	command.
+
+	* bin/mj_wwwusr:  Overhaul formatting.  The introductory
+	page is now very simple, offering only instructions.  The
+	lists page contains a link to a separate page for each mailing 
+        list.
+
+	* lib/Majordomo.pm: (get_all_lists) Take a regular expression,
+	to allow the list names to be searched.
+	(list_config_set_to_default) Remove calls to inform().
+	(_createlist) Create aliases only for auxiliary lists
+	named in the "sublists" configuration setting.
+	(lists) Allow a regular expression to be used, to search
+	the list of lists.  Add new data (list address, owner
+	address, number of subscribers, archive URL) to the 
+	output of the lists-aux command.
+	(report_done) Include a list of auxiliary lists in
+	summary mode, to compensate for the new restrictions
+	to the lists-aux command.
+	
+	* lib/Mj/Config.pm (parse_sublist_array):  New routine.
+	Used with the "sublists" variable.  Each line consists
+	of a list name, followed by an optional description.
+
+	* lib/Mj/List.pm (count_subs):  New routine.  Count
+	the number of subscribers in a list or auxiliary list.
+
 2000-08-20  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Resend.pm: Strip trailing whitespace in code.
@@ -34,6 +74,16 @@
 
 	* lib/Mj/Config.pm (_compile_rule): Fix broken operator comparison
 	regexp.
+
+2000-08-19  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm (_digest):  Add "status" mode,
+	which allows the current state of the digests to be 
+	viewed.
+
+	* lib/Mj/Token.pm (gen_latchkey):  Use new "latchkey_lifetime"
+	global configuration variable, which gives the lifetime of
+	a temporary password in minutes.
 
 2000-08-18  Michael Yount <csf@moscow.com>
 
