@@ -231,10 +231,17 @@ sub add {
   $data{'flags'} ||= $self->get_flags('default_flags');
 
   unless ($data{'class'}) {
-    ($class, $carg, $carg2) = $self->default_class;
-    $data{'class'}     = $class;
-    $data{'classarg'}  = $carg;
-    $data{'classarg2'} = $carg2;
+    if ($sublist eq 'MAIN') {
+      ($class, $carg, $carg2) = $self->default_class;
+      $data{'class'}     = $class;
+      $data{'classarg'}  = $carg;
+      $data{'classarg2'} = $carg2;
+    }
+    else {
+      $data{'class'}     = 'each';
+      $data{'classarg'}  = '';
+      $data{'classarg2'} = '';
+    }
   }
 
   $data{'fulladdr'}  = $addr->full;
