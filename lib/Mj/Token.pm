@@ -581,10 +581,16 @@ sub t_accept {
 
   return (0, "The token database could not be initialized.\n")
     unless $self->_make_tokendb;
+
   $data = $self->{'tokendb'}->lookup($token);
   return (0, $self->format_error('unknown_token', 'GLOBAL', 
           'TOKEN' => $token))
     unless $data;
+
+  return (0, $self->format_error('make_list', 'GLOBAL', 
+                                 'LIST' => $data->{'list'}))
+    unless $self->_make_list($data->{'list'});
+
 
   # Tick off one approval
   $data->{'approvals'}--;
@@ -1149,6 +1155,7 @@ sub _make_tokendb {
   unless ($self->{'tokendb'}) {
     $self->{'tokendb'} =
       new Mj::TokenDB "$self->{'ldir'}/GLOBAL/_tokens", $self->{backend};
+    return 0 unless $self->{'tokendb'};
   }
   1;
 }
@@ -1160,6 +1167,7 @@ sub _make_latchkeydb {
   unless ($self->{'latchkeydb'}) {
     $self->{'latchkeydb'} =
       new Mj::TokenDB "$self->{'ldir'}/GLOBAL/_latchkeys", $self->{backend};
+    return 0 unless $self->{'latchkeydb'};
   }
   1;
 }
@@ -1172,14 +1180,14 @@ Create a temporary password for improved security.
 use Mj::Util qw(ep_convert);
 sub gen_latchkey {
   my ($self, $password) = @_;
-  my ($data, $duration, $ok, $token);
+  my ($data, $duration, $expire, $ok, $token);
 
-  $self->_make_latchkeydb;
-  return unless defined $self->{'latchkeydb'};
-  return unless length $password;
+  return unless $self->_make_latchkeydb;
+  return unless defined $password;
   $duration = $self->_global_config_get('latchkey_lifetime');
   $duration ||= 60;
   return unless ($duration > 0);
+  $expire = time + $duration * 60;
 
   $data = {
      'type'       => 'latchkey',
@@ -1197,7 +1205,7 @@ sub gen_latchkey {
      'arg1'       => ep_convert($password),
      'arg2'       => '',
      'arg3'       => '',
-     'expire'     => time + $duration * 60,
+     'expire'     => $expire,
      'remind'     => '',
      'reminded'   => 1,
      'permanent'  => '',
@@ -1209,7 +1217,7 @@ sub gen_latchkey {
     ($ok, undef) = $self->{'latchkeydb'}->add("",$token,$data);
     last if $ok;
   }
-  return $token;
+  return wantarray ? ($token, $expire) : $token;
 }
 
 =head2 del_latchkey(latchkey)
