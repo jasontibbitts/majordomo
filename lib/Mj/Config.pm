@@ -1717,7 +1717,7 @@ sub parse_enum {
   for my $i (@{$self->{'vars'}{$var}{'values'}}) {
     return 1 if $str eq $i;
   }
-  
+
   $log->out('illegal value');
   return (0, "Illegal value '$str'.\nLegal values are:\n".
 	  join(' ', @{$self->{'vars'}{$var}{'values'}}));

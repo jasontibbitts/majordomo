@@ -1,5 +1,22 @@
 2000-06-24  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/List.pm (make_setting): Make sure that $flags is defined.
+
+	* lib/Majordomo.pm (_subscribe): Use proper calling sequence for
+	List::add.
+
+	* lib/Mj/List.pm (default_class): Take default class from already
+	existing default_class variable.
+	(add): Different argument ordering, call default_class and get
+	back all parts of the class.
+
+	* lib/Mj/MailOut.pm (handle_bounce_user): Indicate when a bounce
+	count is lower than it should be due to expiry.
+
+	* lib/Mj/List.pm (bounce_gen_stats): Add overload stats indicating
+	whether or not the count exceeded the maximum allowable,
+	indicating that the real value is higher.
+
 	* lib/Mj/MailOut.pm (handle_bounce): Call handle_bounce_token for
 	type T bounces.
 

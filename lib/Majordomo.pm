@@ -3860,7 +3860,7 @@ sub _subscribe {
   my $class = shift;
   my $flags = shift;
   my $log   = new Log::In 35, "$list, $vict";
-  my ($ok, $classarg, $cstr, $data, $exist, $rdata, $welcome);
+  my ($ok, $classarg, $classarg2, $cstr, $data, $exist, $rdata, $welcome);
 
   $self->_make_list($list);
 
@@ -3870,18 +3870,18 @@ sub _subscribe {
   # that aren't legal subscriber flags, so that make_setting() doesn't
   # yell at us.  XXX Make this a variable somewhere.
   ($cstr = $mode) =~ s/(quiet|(no)?(welcome|inform|log))[-,]?//g;
-  
-  ($ok, $flags, $class, $classarg) =
+
+  ($ok, $flags, $class, $classarg, $classarg2) =
     $self->{'lists'}{$list}->make_setting($cstr, '');
-  
+
   unless ($ok) {
     return (0, $class);
   }
 
   # Add to list
   ($ok, $data) =
-    $self->{'lists'}{$list}->add($mode, $vict, $class, $classarg, $flags);
-  
+    $self->{'lists'}{$list}->add($mode, $vict, $flags, $class, $classarg, $classarg2);
+
   unless ($ok) {
     $log->out("failed, existing");
     return (0, "Already subscribed as $data->{'fulladdr'}.\n");

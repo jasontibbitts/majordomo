@@ -183,12 +183,16 @@ sub add {
   my $self  = shift;
   my $mode  = shift || '';
   my $addr  = shift;
-  my $class = shift || $self->default_class;
-  my $carg  = shift || '';
   my $flags = shift || $self->default_flags;
+  my $class = shift;
+  my $carg  = shift;
+  my $carg2 = shift;
   my (@out, $i, $ok, $data);
 
   $::log->in(120, "$mode, $addr");
+
+  ($class, $carg, $carg2) = $self->default_class
+    unless $class;
 
   $data = {
 	   'fulladdr'  => $addr->full,
@@ -197,9 +201,10 @@ sub add {
 	   # Changetime handled automatically
 	   'class'     => $class,
 	   'classarg'  => $carg,
+	   'classarg2' => $carg2,
 	   'flags'     => $flags,
 	  };
-  
+
   @out = $self->{'subs'}->add($mode, $addr->canon, $data);
   $::log->out;
   @out;
@@ -369,6 +374,7 @@ in the string.
 =cut
 sub make_setting {
   my($self, $str, $flags, $class, $carg1, $carg2) = @_;
+  $flags ||= '';
   my $log   = new Log::In 150, "$str, $flags";
   my($arg, $dig, $i, $inv, $isflag, $rset, $set, $time, $type);
 
@@ -541,7 +547,12 @@ This should be a per-list variable.
 
 =cut
 sub default_class {
-  return "each";
+  my $self = shift;
+  my $class = $self->config_get('default_class');
+
+  ($ok, undef, $class, $carg1, $carg2) = $self->make_setting($class);
+  return ($class, $carg1, $carg2) if $ok;
+  return ('each', '', '');
 }
 
 =head2 default_flags
@@ -1773,8 +1784,11 @@ sub bounce_gen_stats {
       $stats->{month}++;
     }
   }
-  $stats;
+  $stats->{day_overload}   = ($stats->{day}   >= $max_bounce_count)?'>':'';
+  $stats->{week_overload}  = ($stats->{week}  >= $max_bounce_count)?'>':'';
+  $stats->{month_overload} = ($stats->{month} >= $max_bounce_count)?'>':'';
 
+  $stats;
 }
 
 =head1 COPYRIGHT

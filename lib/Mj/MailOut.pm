@@ -446,9 +446,9 @@ sub handle_bounce_user {
 #      use Data::Dumper; $mess .= Dumper $bdata;
 
       $mess .= "  Bounce statistics for this user:\n";
-      $mess .= "    Bounces last 24 hours:          $stats->{day}\n";
-      $mess .= "    Bounces last 7 days:            $stats->{week}\n";
-      $mess .= "    Bounces last 30 days:           $stats->{month}\n"
+      $mess .= "    Bounces last 24 hours:          $stats->{day_overload}$stats->{day}\n";
+      $mess .= "    Bounces last 7 days:            $stats->{week_overload}$stats->{week}\n";
+      $mess .= "    Bounces last 30 days:           $stats->{month_overload}$stats->{month}\n"
 	if $stats->{month};
       $mess .= "    Consecutive messages bounced:   $stats->{consecutive}\n"
 	if $stats->{consecutive};
