@@ -466,20 +466,22 @@ sub make_setting {
 	}
 
 	# Convert arg to time;
-	elsif ($arg) {
-	  # Eliminate recursive stacking if a user already on timed
-	  # vacation sets timed vacation again; just update the time and
+	else {
+	  # Eliminate recursive stacking if a user already on 
+	  # vacation sets vacation again; just update the time and
 	  # don't save away the class info.
 	  if ($classes{$class}->[0] ne 'nomail') {
-	    $carg2 = join("\002", $class, $carg1, $carg2); # Save the old class info
+            # Save the old class info
+	    $carg2 = join("\002", $class, $carg1, $carg2); 
 	  }
-	  $carg1 = _str_to_time($arg);
-	  return (0, "Invalid time $arg.\n") unless $carg1; # XLANG
+          if ($arg) {
+            $carg1 = _str_to_time($arg);
+            return (0, "Invalid time $arg.\n") unless $carg1; # XLANG
+          }
+          else {
+            $carg1 = '';
+          }
 	  $class = $rset;
-	}
-	else {
-	  $class = $rset;
-	  $carg1 = $carg2 = '';
 	}
       }
 

@@ -1,3 +1,8 @@
+2000-08-05  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/List.pm (make_setting):  Allow nomail-return to
+	work for vacations that are not timed.
+
 2000-08-04  Michael Yount <csf@moscow.com>
 
 	* bin/mj_email, bin/mj_enqueue:  delete unneeded envvars.
