@@ -1,11 +1,11 @@
-The moderator of the $LIST list has rejected your request:
-
-"$CMDLINE"
-
+The request
+  "$CMDLINE"
 which you made on
+  $DATE
+has been rejected by the moderators of the $LIST list.
 
-$DATE
-
-If a reason was given, it appears below:
-
+If a reason was given for the rejection, it appears here:
 $MESSAGE
+
+Anything that is known about session $SESSIONID 
+will be included in an attachment.
