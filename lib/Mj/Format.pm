@@ -167,12 +167,30 @@ sub archive {
     }
   }
   elsif ($request->{'mode'} =~ /summary/) {
+    if ($request->{'mode'} =~ /reverse/) {
+      @msgs = reverse @msgs;
+    }
+
+    $tmp = $mj->format_get_string($type, 'archive_summary_head');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
+
+    $tmp = $mj->format_get_string($type, 'archive_summary');
+
     for $i (@msgs) {
       ($mess, $data) = @$i;
-      eprintf($out, $type, "%-18s %5d messages, %5d lines, %5d kilobytes\n",
-              $mess, $data->{'msgs'}, $data->{'lines'}, 
-              int($data->{'bytes'}/1024));
+      for $j (keys %$data) {
+        $subs->{uc $j} = $data->{$j};
+      }
+      $subs->{'FILE'} = $mess;
+      $subs->{'SIZE'} = sprintf "%.1f", ($data->{'bytes'} / 1024);
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
     }
+
+    $tmp = $mj->format_get_string($type, 'archive_summary_foot');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
   }
   elsif ($request->{'mode'} =~ /get|delete/) {
     $tmp = $mj->format_get_string($type, 'archive_get_head');
@@ -257,7 +275,7 @@ sub archive {
       @tmp = localtime $data->{'date'};
       $subs->{'DATE'}  = strftime("%Y-%m-%d %H:%M", @tmp);
       $subs->{'MSGNO'} = $i->[0];
-      $subs->{'SIZE'}  = sprintf "(%d kB)",  int(($data->{'bytes'} + 512)/1024);
+      $subs->{'SIZE'}  = sprintf "%.1f", (($data->{'bytes'})/1024);
       $subs->{'FROM'}  = &escape($data->{'from'}, $type);
       if (exists($data->{'hidden'}) and $data->{'hidden'}) {
         $subs->{'HIDDEN'} = '*';
@@ -872,6 +890,7 @@ sub lists {
         $subs = { 
                   %{$global_subs},
                   'ARCURL'        => $data->{'archive'} || "",
+                  'CAN_READ'      => $data->{'can_read'} ? " " : '',
                   'CATEGORY'      => $category || "?",
                   'CGIURL'        => $request->{'cgiurl'} || "",
                   'CMDPASS'       => $request->{'password'},
