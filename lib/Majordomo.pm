@@ -6697,8 +6697,8 @@ sub _set {
     }
     $db->get_done;
     unless ($count) {
-      # XLANG
-      return (0, qq(No addresses were found that match "$vict".\n));
+      return (0, $self->format_error('not_subscribed', $list, 
+                                     'VICTIM' => $vict));
     }
   }
   else {
@@ -6717,8 +6717,8 @@ sub _set {
 
   while (($addr, $data) = splice @addrs, 0, 2) {
     @lists = split("\002", $data);
-    # XLANG
-    push @out, (0, "$addr is not subscribed to any lists.\n")
+    push @out, (0, $self->format_error('not_subscribed', $list,
+                                       'VICTIM' => $vict->full))
       unless @lists;
     for $l (sort @lists) {
       unless ($self->_make_list($l)) {
@@ -7255,7 +7255,7 @@ sub tokeninfo_start {
   return (1, $data, $sess);
 }
 
-use Mj::MIMEParser;
+use Mj::MIMEParser qw(get_entity_structure);
 sub _get_msg_data {
   my ($self, $data, $part, $mode, $contents) = @_;
   my $log = new Log::In 30;
@@ -7290,7 +7290,7 @@ sub _get_msg_data {
     return (0, "Unable to parse message.\n") unless ($ent);
 
     $table = {};
-    $ok = Mj::MIMEParser::get_entity_structure($ent, 1, $table);
+    $ok = get_entity_structure($ent, 1, $table);
     if (exists $table->{'1'}) {
         $table->{'0'} = 
           {
@@ -7818,12 +7818,12 @@ sub _unsubscribe {
     $flist .= ":$sublist";
   }
 
-  (@removed) = $self->{'lists'}{$list}->remove($mode, $vict, $sublist);
+  @removed = $self->{'lists'}{$list}->remove($mode, $vict, $sublist);
 
   unless (@removed) {
-    # XLANG
     $log->out("failed, nomatching");
-    return (0, "Cannot unsubscribe $vict: no matching addresses.");
+    return (0, $self->format_error('not_subscribed', $list, 
+                                   'VICTIM' => "$vict"));
   }
 
   while (($key, $data) = splice(@removed, 0, 2)) {

@@ -15,9 +15,12 @@ See MIME::Parser.
 =cut
 package Mj::MIMEParser;
 use strict;
-use vars qw(@ISA $output_path_counter);
+use vars qw(@EXPORT_OK @ISA $output_path_counter);
 use MIME::Parser;
-@ISA = qw(MIME::Parser);
+require Exporter;
+
+@ISA = qw(MIME::Parser Exporter);
+@EXPORT_OK = qw(collect_data get_entity_structure);
 
 # This is based on MIME::Parser::output_path
 sub output_path {
