@@ -517,6 +517,14 @@ leading '/', the slash is automatically prefixed.  In other
 words,"consult" and "/consult" are identical.  This is also true for the
 "file" and "chainfile" notify variables.
 
+The actions
+  reply=NONE
+and
+  replyfile=NONE
+will override the "ackstall" or "ackdeny" flag and prevent a reply
+message from being sent if a posted message is delayed, denied,
+forwarded, or requires confirmation.
+
 
                             Default Actions
 
