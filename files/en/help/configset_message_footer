@@ -42,7 +42,7 @@ This syntax applies only to the message_fronter and message_footer
 settings.
 
 For multipart/mixed messages, footers appear as separate parts at the
-beginning of the message.  Message footers are never added to other
+end of the message.  Message footers are never added to other
 kinds of multipart messages.
 
 Footers are not added at all to single-part messages that are not of
