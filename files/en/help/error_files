@@ -42,6 +42,29 @@ address.
 
 (standard substitutions only)
 
+body_length
+-----------
+This message is displayed when the body of a posted message is larger
+than the size in the maxlength configuration setting.
+
+(standard plus MAXLENGTH, SIZE)
+
+body_part_consult
+-----------------
+This message is displayed when a posted message contains a body part
+type that causes the message to be moderated, as determined by the
+attachment_filters configuration setting.
+
+(standard plus CONTENT_TYPE, PART)
+
+body_part_deny
+--------------
+This message is displayed when a posted message contains a body part
+type that causes the message to be discarded, as determined by the
+attachment_filters configuration setting.
+
+(standard plus CONTENT_TYPE, PART)
+
 bracketed_addresses
 -------------------
 This message is displayed when more than one e-mail address is included
@@ -65,6 +88,27 @@ This message is displayed if the digest command is issued without one
 of the required command modes.
 
 (standard plus DIGEST_DESCRIPTIONS, DIGESTS, MODES)
+
+dup_checksum
+------------
+This message is displayed when a posted message has the same body
+checksum as a previously posted message.
+
+(standard plus DATE)
+
+dup_msg_id
+----------
+This message is displayed when a posted message has the same message ID
+as a previously posted message.
+
+(standard plus DATE, MESSAGE_ID)
+
+dup_partial_checksum
+--------------------
+This message is displayed when a posted message has the same body
+checksum for the first 10 lines as a previously posted message.
+
+(standard plus DATE)
 
 ending_at
 ---------

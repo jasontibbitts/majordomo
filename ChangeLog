@@ -1,3 +1,10 @@
+2003-03-11  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Archive.pm:  (_sync_msgs)  Declare undeclared variables.
+
+	* lib/Mj/Resend.pm:  (_check_mime)  Change calling conventions
+	to support format files.
+
 2003-03-09  Jason Tibbitts <tibbs@math.uh.edu>
 
 	* lib/Mj/Deliver/Dest.pm (make_bsmtpenvelope): 
