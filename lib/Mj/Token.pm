@@ -673,7 +673,7 @@ sub t_accept {
   $vict = new Mj::Addr($data->{'victim'});
   $req  = new Mj::Addr($data->{'user'});
 
-  if ($func ne 'post') {
+  if ($func ne 'post' or $mode =~ /archive/) {
   
     $func = "_$func";
     @out = $self->$func($data->{'list'},
