@@ -1,0 +1,97 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+accept[-archive][-hide][-intact] [ticket] [commentaire]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-archive,    Si spécifié, met le message dans l'archive sans le distribuer
+-hide,       Si spécifié, ne met pas le message dans l'archive publique
+-intact,     Si spécifié, empêche l'altération des volets MIME
+ticket,      Si spécifié, un identificateur de ticket
+commentaire, Si spécifié, est envoyé du modérateur à l'abonné.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+La commande 'accept' indique a Majordomo qu'une action doit être
+autorisée ou permise. Notez que le ticket peut être retourné depuis
+n'importe quelle adresse, pas seulement celle a laquelle il a été
+envoyé. Si vous n'avez pas envoyé la demande, faites attention a ce
+que fera la personne qui l'a faite après avoir accepté ou refusé ce
+ticket.
+
+Certaines commandes requerront votre confirmation avant d'être
+exécutées ; cela vous permet de vous protéger en empêchant d'autres
+personnes d'envoyer des commandes en votre nom. Dans ce cas, un
+'ticket' vous sera envoyé pour approbation. Par exemple
+'jean@nullepart.com' essaye d'abonner 'marie@ailleurs.net' à une liste
+- il se peut que soit après la demande de Marie, ou pour lui causer du
+tort - dans tous les cas, Marie recevra un ticket qui lui permettra
+soit de rejeter ou d'accepter l'abonnement avant qu'il soit effectif.
+
+Un ticket est aussi appelé un chiffre magique, car vous recevrez un
+email avec un long chiffre dans le sujet. Ce chiffre est connu de
+Majordomo. Lorsque vous lui renverrez, Majordomo saura que vous l'avez
+reçu car ce ticket est en quelque sorte un mot de passe a usage
+unique.
+
+Si le ticket est omit de la commande, Majordomo le cherchera dans
+l'en-tête sujet. Par conséquent, l'acceptation d'un ticket ne nécessite
+en général qu'une simple réponse dans votre logiciel de courrier
+contenant le mot "accept".
+
+Une fois que Majordomo reçoit votre approbation, la commande en
+attente sera exécutée et le résultat sera renvoyé en réponse. Si vous
+n'acceptez ni rejetez le ticket, Majordomo finira par le détruire au
+bout d'un temps déterminé par la configuration du site ou de la liste.
+Par défaut, si aucune réponse n'est reçue, le ticket sera rejeté.
+Ceci est le comportement par défaut, et il peut être modifié par
+l'administrateur du site ou par le propriétaire de la liste en
+utilisant le paramètre "access_rules". Majordomo tentera de vous
+rappeler que vous avez un ticket en attente avant de le détruire. Le
+propriétaire de la liste ou l'administrateur du site règlent le nombre
+de jours pour les rappels et les expirations.
+
+Si la commande en attente est un message qui devrait être placé dans
+les archives de la liste, mais pas distribué au abonnés, utilisez la
+commande "accept-archive". Cette fonctionnalité à prouvé être très
+utile en deux mots, discussion modérée, lorsque des messages qui
+auraient pu être acceptables dans d'autres circonstances ne sont pas
+distribués pour empêcher la conversation de submerger les participant.
+Les messages qui seront uniquement archivés pourront toujours être vus
+par le public plus tard, via l'interface WWW de Majordomo ou en
+utilisant la commande "archive".
+
+De manière similaire, la commande "accept-hide" peut être utilisée
+pour cacher un message dans les archives de la liste. Une en-tête
+"X-no-archive: yes" sera ajoutée au message, et le message ne sera
+visible que via l'archive par les gens qui ont un accès administratif.
+
+La commande "accept-intact" peut être utilisée pour éviter que le
+contenu d'un message ne soit altéré a cause d'un filtre de fichier
+attaché. Référez vous a "help configset_attachment_filters" pour plus
+de détails sur la manière de modifier les messages.
+
+Pour les ticket de type "consult", la présence d'un délai convertira
+le ticket en type "delay", l'acceptation d'un après la durée spécifiée
+dans une commande "delay" précédente (référez vous a "help default" et
+descendez jusqu'à la section délais), et réduit le nombre
+d'approbation dont il a besoin d'un.
+
+En plus de modifier le comportement par défaut des ticket expirés, la
+commande "access_rules" peut être utilisé pour spécifier le message
+qui est envoyé a un utilisateur lorsqu'une requête nécessite une
+approbation.
+
+Le paramètre "commentaire" est uniquement utilisé pour les ticket de
+type "consult", et seulement si l'action a été acceptée.
+
+Référez vous aussi à :
+   help admin_moderate           (comment modérer une liste)
+   help configset_access_rules   (modifier le comportement d'une liste)
+   help configset_attachment_filters
+   help configset_token_lifetime (période d'expiration)
+   help configset_token_remind   (rappel avant expiration)
+   help default                  (pour l'option "delay")
+   help delay                    (pour savoir comment les requêtes
+				  sont mises en attente)
+   help reject                   (l'action opposée à "accept")
+   help showtokens               (pour une liste des ticket en attente)
+   help tokeninfo                (pour plus de détails sur une requête)
+
+$INCLUDE-help/foot
