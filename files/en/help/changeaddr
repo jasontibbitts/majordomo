@@ -62,6 +62,17 @@ commands:
 to change the comments in his address, for all of his subscriptions.
 
 
+                     Notes for list administrators
+
+For each subscription that is affected by the changeaddr command, an
+"unsubscribe" event for the old address is recorded in the log.  If the
+new address was not already subscribed to the mailing list in question,
+a "subscribe" event is also recorded.  See "help configset_inform" for
+more information about events and the log.
+
+$INCLUDE-help/admin_modes
+
+
 See Also:
    help admin_domain
    help auxiliary_list
