@@ -1,3 +1,9 @@
+2002-04-16  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_request_response)  Add headers
+	to the response message and safeguards against mail
+	loops.
+
 2002-04-08  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Allow special-purpose welcome files to

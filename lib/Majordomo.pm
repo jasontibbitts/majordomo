@@ -3019,17 +3019,22 @@ use Mj::MailOut;
 sub _request_response {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my (%file, $cset, $desc, $enc, $ent, $file, $list_own, 
+  my (%file, $cset, $desc, $dom, $enc, $ent, $file, $hdr, $list_own, 
       $mess, $sender, $subst, $type);
 
   return unless $self->_make_list($list);
 
+  $dom = $self->_global_config_get('whereami');
+  if ($victim->strip eq "$list-request\@$dom") {
+    return (0, "Loop detected.\n");
+  }
+  
   ($file, %file) = $self->_list_file_get($list, 'request_response');
   return unless $file;
 
   # Build the entity and mail out the file
   $sender = $self->_list_config_get($list, 'sender');
-  $list_own   = $self->_list_config_get($list, 'sender');
+  $list_own   = $self->_list_config_get($list, 'whoami_owner');
 
   $subst = {
             $self->standard_subs($list),
@@ -3048,13 +3053,25 @@ sub _request_response {
      Charset  => $file{'charset'},
      Encoding => $file{'c-t-encoding'},
      Subject  => $desc || "Your message to $list-request",
+     -From    => $list_own,
+     -To      => "$victim",
      Top      => 1,
      Filename => undef,
      'Content-Language:' => $file{'language'},
     );
 
-  $self->mail_entity($sender, $ent, $victim) if $ent;
-  (1, '');
+  if ($ent) {
+    for $hdr ($self->_global_config_get('message_headers')) {
+      $hdr = $self->substitute_vars_string($hdr, $subst);
+      $ent->head->add(undef, $hdr);
+    }
+
+    $self->mail_entity($sender, $ent, $victim);
+    return (1, '');
+  }
+  else {
+    return (0, "Unable to create message entity.\n");
+  }
 }
 
 
