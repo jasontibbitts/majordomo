@@ -359,6 +359,7 @@ sub post_done {
 
 use Mj::MIMEParser;
 use Date::Parse;
+use Safe;
 sub _post {
   my($self, $list, $user, $victim, $mode, $cmdline, $file, $arg2,
      $avars, $ent) = @_;
@@ -368,7 +369,7 @@ sub _post {
      @files, @refs, @tmp, @skip, $ack_attach, $ackfile, $arcdata, 
      $arcent, $archead, $date, $desc, $digests, $dissues, 
      $exclude, $head, $i, $j, $msgnum, $nent, $precedence, $prefix, 
-     $replyto, $rtnhdr, $sender, $seqno, $subject, $sl, $subs, 
+     $replyto, $rtnhdr, $safe, $sender, $seqno, $subject, $sl, $subs, 
      $tmp, $tmpdir, $tprefix, $whereami);
 
   return (0, "Unable to access list $list.\n")
@@ -431,12 +432,21 @@ sub _post {
   $head->modify(0);
   $rtnhdr = $user->full;
 
+  # Convert/drop MIME parts.  
+  $i      = $self->_list_config_get($list, 'attachment_rules');
+  if (exists $i->{'change_code'}) {
+    # Create a Safe compartment
+    $safe = new Safe;
+    $safe->permit_only(qw(aassign const le leaveeval null padany push
+                          pushmark return rv2sv stub undef));
+    $self->_r_strip_body($list, $ent[0], $safe, $i->{'change_code'});
+    $ent[0]->sync_headers;
+  }
+
   # Make duplicate archive/digest entity
   $arcent = $ent[0]->dup;
   $archead = $arcent->head;
   $archead->modify(0);
-
-  # Convert/drop MIME parts.  Bill?
 
   # Remove skippable headers, including Approved:.
   @skip = ('Approved');
@@ -474,6 +484,7 @@ sub _post {
   $date = &str2time($date);
   $date = time unless ($date > 0 and $date < time);
   $date =~ /(\d+)/; $date = $1;
+  # XXX-no-archive (alter sublist)
   ($msgnum) = $self->{'lists'}{$list}->archive_add_start
     ($sender,
      {
@@ -602,8 +613,6 @@ sub _post {
     # Invoke delivery routine
     $self->deliver($list, $sl, $sender, $seqno, \%deliveries);
 
-    # Inform sender of successful delivery
-
     # Clean up and say goodbye
     for $i (keys %deliveries) {
       unlink $deliveries{$i}{file}
@@ -611,6 +620,7 @@ sub _post {
     }
   } # not archive mode
  
+  # Inform sender of successful delivery
   if ($self->{'lists'}{$list}->should_ack($sl, $user, 'f')) {
     ($ackfile, %ackinfo) = 
       $self->_list_file_get($list, 
@@ -977,6 +987,51 @@ sub _r_ck_body {
       push @$reasons,
       "Duplicate Partial Message Checksum (".localtime($data->{changetime}).")";
       $avars->{dup_partial_checksum} = 1;
+    }
+  }
+}
+
+=head2 _r_strip_body (list, ent, safe, code)
+
+Recursive examine the body parts, and remove those slated
+to be discarded by the attachment_rules setting.  
+
+Encoding changes are not yet implemented.
+
+The ability to store a particular body part and
+make it available through FTP, HTTP, or other means
+is not yet implemented.
+
+=cut
+sub _r_strip_body {
+  my ($self, $list, $ent, $safe, $code) = @_;
+  my $log = new Log::In 50;
+  my (@newparts, @parts, $i, $verdict, $xform);
+  local ($_);
+  @newparts = ();
+
+  @parts = $ent->parts;
+  if (@parts) {
+    for $i (@parts) {
+      $_ = $i->effective_type;
+      ($verdict, $xform) = $safe->reval($code);
+      if ($verdict eq 'allow') {
+        push @newparts, $i;
+      }
+      elsif ($verdict eq 'discard') {
+        $log->message(50, 'info', "Stripping MIME type $_");
+      }
+      else {
+        # If the attachment rules code does not work properly, log
+        # the error and keep the part in question.
+        $log->message(50, 'info', "Attachment Rules error: $@");
+        push @newparts, $i;
+      }
+    } 
+    $ent->parts(\@newparts);
+    $ent->make_singlepart if (@newparts <= 1);
+    for ($i=0; $i<@newparts; $i++) {
+      $self->_r_strip_body($list, $newparts[$i], $safe, $code);
     }
   }
 }
