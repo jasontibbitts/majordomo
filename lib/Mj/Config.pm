@@ -447,21 +447,27 @@ sub regen {
   my $self = shift;
   my $log  = new Log::In 150, $self->{'list'};
   return unless $self->lock;
+  my (@result, $var);
 
   my $config = $self->{'source'}{'MAIN'};
 
   for $var (keys %{$config->{'raw'}}) {
     next unless ($self->isparsed($var) or 
                  $self->{'vars'}{$var}{'type'} eq 'passwords');
-   
+
+    @result = $self->parse($var, $config->{'raw'}{$var});   
+    if ($result[0] == 0) {
+      warn qq(Error parsing "$var" for the $self->{'list'} list:\n$result[1]\n)
+        if (defined $result[1]);
+      next;
+    }
+
     if ($self->{'vars'}{$var}{'type'} eq 'passwords' or
         $self->{'vars'}{$var}{'type'} eq 'pw') {
-      $config->{'raw'}{$var} =
-        $self->parse($var, $config->{'raw'}{$var});
+      $config->{'raw'}{$var} = $result[$#result];
     }
     else {
-      $config->{'parsed'}{$var} =
-        $self->parse($var, $config->{'raw'}{$var});
+      $config->{'parsed'}{$var} = $result[$#result];
     }
   }
 
