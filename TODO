@@ -179,4 +179,4 @@ message.
 Queue view
 ----------
 There should be a way to view the message queue.  A separate program,
-mj_mailq, would be sufficient.
+mj_mailq, would be sufficient. 
