@@ -43,7 +43,7 @@ ok($e, $r);
 
 # 4. Create a list
 $e = ".*";
-$r = run('-p gonzo createlist bleeargh nobody@example.com');
+$r = run('-p gonzo createlist-nowelcome bleeargh nobody@example.com');
 ok($e, $r);
 
 # 5. Make sure it's there
@@ -79,7 +79,7 @@ $r = run('-p gonzo auxadd bleeargh harumph deadline\@example.com');
 ok($e, $r);
 
 # 10. Make sure it showed up
-$e = qq!\QMembers of auxiliary list "bleeargh:harumph":\n  deadline\@example.com\n1 listed member\n!;
+$e = qq!\QMembers of list "bleeargh:harumph":\n  deadline\@example.com\n1 listed subscriber\n!;
 $r = run('-p gonzo auxwho bleeargh harumph');
 ok($e, $r);
 
