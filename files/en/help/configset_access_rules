@@ -552,6 +552,7 @@ set               policy
 show              mismatch
 showtokens        deny
 subscribe         policy
+tokeninfo         allow
 unalias           confirm
 unregister        confirm
 unsubscribe       policy
