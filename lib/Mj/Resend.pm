@@ -2314,10 +2314,10 @@ digest_add, so this function can be used to trigger a digest.
 sub do_digests {
   my ($self, %args) = @_;
   my $log = new Log::In 40;
-  my (%digest, %file, @dfiles, @dtypes, @headers, @nuke, @tmp, 
-      $digests, $dissues, $dtext, $elapsed, $file, $i, 
-      $index_format, $j, $k, $l, $list, $seqnum, $subs, $subject,
-      $whoami);
+  my (%digest, %file, @dfiles, @dtypes, @headers, @msgs, @nuke, @tmp, 
+      $dfl_format, $digests, $dissues, $dtext, $elapsed, $file, $i, 
+      $index_format, $j, $k, $l, $list, $pattern, $seqnum, 
+      $sort, $subs, $subject, $whoami);
 
   $list = $args{'list'}; $subs = $args{'substitute'}; $subs->{LIST} = $list;
 
@@ -2344,7 +2344,8 @@ sub do_digests {
       push @headers, ['Reply-To', $i];
     }
 
-    $index_format = $self->_list_config_get($list, 'digest_index_format');
+    $dfl_format = $self->_list_config_get($list, 'digest_index_format')
+                  || 'subject';
     $whoami = $self->_list_config_get($list, 'whoami');
 
     if ($args{'msgnum'}) {
@@ -2399,9 +2400,20 @@ sub do_digests {
 	}
 
 	$subject = $self->substitute_vars_string($digests->{$i}{subject}, $subs);
+        $index_format = $digests->{$i}{'index'} || $dfl_format;
+
+        $sort = $digests->{$i}{'sort'} || 'numeric';
+        if ($sort ne 'numeric') {
+          eval ("use Mj::Util qw(sort_msgs)");
+          $pattern = $self->_list_config_get($list, 'subject_re_pattern');
+          @msgs = &sort_msgs($digest{$i}, $sort, $pattern);
+        }
+        else {
+          @msgs = @{$digest{$i}};
+        }
 
 	@dfiles = $self->{'lists'}{$list}->digest_build
-	  (messages     => $digest{$i},
+	  (messages     => [@msgs],
 	   types        => [@dtypes],
 	   files        => $dtext,
 	   subject      => $subject,
