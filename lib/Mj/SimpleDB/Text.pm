@@ -497,10 +497,14 @@ sub get_matching_quick_regexp {
   my $count = shift;
   my $field = shift;
   my $value = shift;
-  my (@keys, $key, $data, $i);
+  my (@keys, $key, $data, $i, $pattern);
+
+  # Remove anchors from the pattern before searching
+  $pattern = $value;
+  $pattern =~ s/([^\\]|^)[\^\$]/$1/g;
 
   for ($i=0; $i<$count; $i++) {
-    $key = $self->{'get_handle'}->search("$value");
+    $key = $self->{'get_handle'}->search("$pattern");
     last unless $key;
     ($key, $data) = split("\001", $key, 2);
     $data = $self->_unstringify($data);
@@ -557,10 +561,14 @@ sub get_matching_regexp {
   my $field = shift;
   my $value = shift;
   my $log   = new Log::In 121, "$self->{'name'}, $count, $field, $value";
-  my (@keys, $key, $data, $i);
+  my (@keys, $key, $data, $i, $pattern);
+
+  # Remove anchors from the pattern before searching
+  $pattern = $value;
+  $pattern =~ s/([^\\]|^)[\^\$]/$1/g;
 
   for ($i=0; $i<$count; $i++) {
-    $key = $self->{'get_handle'}->search("$value");
+    $key = $self->{'get_handle'}->search("$pattern");
     last unless $key;
     ($key, $data) = split("\001", $key, 2);
     $data = $self->_unstringify($data);
