@@ -3241,14 +3241,14 @@ sub _fill_lists {
   if ($self->{'sdirs'}) {
     while (defined($list = readdir $dirh)) {
       $self->{'lists'}{$list} ||= undef
-	if legal_list_name($list) && -d "$listdir/$list";
+	if (legal_list_name($list) && -d "$listdir/$list");
     }
   }
   else {
     while (defined($list = readdir $dirh)) {
       # Make a hash entry for the list if it doesn't already exist
       $self->{'lists'}{$list} ||= undef
-	if legal_list_name($list);
+	if (legal_list_name($list));
     }
   }
   closedir($dirh);
@@ -3280,7 +3280,8 @@ sub legal_list_name {
   return undef if $name eq '.';
   return undef if $name eq '..';
   return undef if $name =~/^(RCS|core)$/;
-  return 1;
+  $name =~ /(.*)/; $name = lc $1;
+  return $name;
 }
 
 =head2 valid_list(list, allok, globalok)
@@ -4167,13 +4168,16 @@ sub _changeaddr {
   my $log = new Log::In 35, "$vict, $requ";
   my(@out, @aliases, @lists, %uniq, $data, $key, $l, $lkey, $ldata);
 
+  if ($vict->canon eq $requ->canon) {
+    return (0, $requ->full . " and " . $vict->full . " are aliases.\n");
+  }
+
   ($key, $data) = $self->{'reg'}->remove($mode, $vict->canon);
 
   unless ($key) {
     $log->out("failed, nomatching");
     return (0, "No address matched $vict->{'canon'}.\n");
   }
-
 
   push @out, $data->{'fulladdr'};
   $data->{'fulladdr'} = $requ->full;
@@ -4250,15 +4254,16 @@ sub createlist {
     my $log = new Log::In 50, "$request->{'newlist'}, $request->{'owners'}->[0]";
 
     return (0, "Illegal list name: $request->{'newlist'}")
-      unless legal_list_name($request->{'newlist'});
+      unless ($ok = legal_list_name($request->{'newlist'}));
+   
+    $request->{'newlist'} = $ok;
   }
 
   $request->{'newpasswd'} ||= '';
   $request->{'newlist'} = lc $request->{'newlist'}; 
-  $self->_fill_lists;
 
   # Check the password XXX Think more about where the results are
-  # sent.  Noemally we expect that the majordomo-owner will be the
+  # sent.  Normally we expect that the majordomo-owner will be the
   # only one running this command, but if site policy allows other
   # users to run it, the information about the MTA configuration will
   # need to be sent to a different place than the results of the
@@ -4306,6 +4311,8 @@ sub _createlist {
 	   'domain_priority' => $self->_global_config_get('priority') || 0,
 	  );
 
+  $self->_fill_lists;
+
   # Destroy mode: remove the list, but only if it has no subscribers.
   if ($mode =~ /destroy/) {
     return (0, "The GLOBAL and DEFAULT lists cannot be destroyed.\n")
@@ -4335,11 +4342,77 @@ sub _createlist {
     return (0, "Unable to remove all of the files for $list.\n")
       if (-d "$self->{'ldir'}/$list");
     delete $self->{'lists'}{$list};
-    $mess .= "The $list list was destroyed.\n";
+    $mess .= "The $list list has been destroyed.\n";
+  }
+  elsif ($mode =~ /rename/) {
+    my $newlist;
+
+    return (0, "The GLOBAL and DEFAULT lists cannot be renamed.\n")
+      if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
+
+    # old list must exist
+    $i = $list;
+    return (0, qq(The "$i" list does not exist.\n))
+      unless (($list) = $self->valid_list($i));
+
+    # new list name must be valid
+    return (0, "Illegal list name: $pw\n")
+      unless ($newlist = legal_list_name($pw));
+
+    # new list must not exist
+    return (0, "The \"$newlist\" list already exists.\n")
+      if (exists $self->{'lists'}{$newlist});
+
+    # replace the entries in the registry
+    my $regsub =
+      sub {
+        my $key = shift;
+        my $data = shift;
+        my (@lists, @tmp, $change);
+        $change = 0;
+
+        @tmp = split ("\002", $data->{'lists'});
+        @lists = map { if ($_ eq $list) { 
+                         $_ = $newlist;
+                         $change++;
+                       }
+                       $_;
+                     } @tmp;
+
+
+        if ($change) {
+          $data->{'lists'} = join ("\002", @lists);
+          return (0, $data, '');
+        }
+        return (0, 0, 0);
+      };
+
+    $self->{'reg'}->mogrify($regsub);
+
+    # rename directory
+    rename("$self->{'ldir'}/$list", "$self->{'ldir'}/$newlist");
+
+    # instantiate new list
+    return (0, $self->format_error('make_list', 'GLOBAL', 
+                                   'LIST' => $newlist))
+      unless ($self->_make_list($newlist));
+
+    # re-parse the configuration files
+    for $j ($self->{'lists'}{$newlist}->_fill_config) {
+      $self->_list_config_regen($newlist, $j);
+    }
+
+    # rename archive files
+    $self->{'lists'}{$newlist}->rename_archive($list);
+
+    # delete old list
+    delete $self->{'lists'}{$list};
+
+    $mess .= qq(The "$list" list has been renamed to "$newlist".\n);
   }
 
   # Should the MTA configuration be regenerated?
-  if ($mode =~ /regen/ or $mode =~ /destroy/) {
+  if ($mode =~ /regen|destroy|rename/) {
     unless ($mta && $Mj::MTAConfig::supported{$mta}) {
       return (1, "Unsupported MTA $mta, can't regenerate configuration.\n");
     }
@@ -4685,20 +4758,44 @@ sub digest {
 sub _digest {
   my ($self, $list, $requ, $vict, $mode, $cmd, $digest) = @_;
   my $log  = new Log::In 35, "$mode, $list, $digest";
-  my ($d, $deliveries, $digests, $force, $i, $sender, $subs, $tmpdir,
-      $whereami);
+  my (@desc, @req, @sup, $d, $deliveries, $digests, $force, $i, $issues, 
+      $mess, $sender, $subs, $tmpdir, $whereami);
 
-  $d = [$digest];
-  $d = undef if $digest eq 'ALL';
+  $digests = $self->_list_config_get($list, 'digests');
+  return (0, "No digests have been configured for the $list list.\n")
+    unless (ref ($digests) eq 'HASH' and scalar (keys %$digests));
+
+  for $i (keys(%$digests)) {
+    next if ($i eq 'default_digest');
+    push (@sup, $i);
+    push (@desc, $digests->{$i}->{'desc'});
+  }
+
+  # Obtain the list of requested digests by splitting on commas.
+  @req = split (/\s*,\s*/, $digest);
+  if (grep ({$_ eq 'ALL'} @req) or ! scalar (@req)) {
+    # Use all digests if "ALL" was requested.
+    @req = @sup;
+  }
+  else {
+    map { $_ = lc $_ } @req;
+    for $i (@req) {
+      unless (grep { $_ eq $i } @sup) {
+        return (0, "The $i digest is not supported for the $list list.\n");
+      }
+    }
+  }
+
+  $d = [ @req ];
 
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
 
   # status:  return data but make no changes.
   if ($mode =~ /status/) {
-    $i = $self->{'lists'}{$list}->digest_examine($digest);
+    $i = $self->{'lists'}{$list}->digest_examine($d);
     return (1, $i) if $i;
-    return (0, "Unable to obtain digest data.\n");
+    return (0, qq(Nothing is known about the "$digest" digest.\n"));
   }
 
   # check, force: call do_digests
@@ -4710,31 +4807,52 @@ sub _digest {
     $subs = {
               $self->standard_subs($list),
 	    };
-    $deliveries = {};
     if ($mode =~ /force/) {
       $force = 1;
+      $mess = "Digests forced.\n";
     }
     else {
       $force = 0;
+      $mess = "Digests triggered.\n";
     }
 
-    $self->do_digests('list'       => $list,     'run'        => $d,
-		      'force'      => $force,    'deliveries' => $deliveries,
-		      'substitute' => $subs,     'sender'     => $sender,
-		      'whereami'   => $whereami, 'tmpdir'     => $tmpdir,
-		      # 'msgnum' => undef, 'arcdata' => undef,
-		     );
+    $issues = {};
 
-    # Deliver then clean up
-    if (keys %$deliveries) {
-      $self->deliver($list, '', $sender, $deliveries);
-      for $i (keys %$deliveries) {
-	unlink $deliveries->{$i}{file}
-	  if $deliveries->{$i}{file};
+    while (1) {
+      $deliveries = {};
+      $self->do_digests('list'       => $list,     'run'        => $d,
+                        'force'      => $force,    'deliveries' => $deliveries,
+                        'substitute' => $subs,     'sender'     => $sender,
+                        'whereami'   => $whereami, 'tmpdir'     => $tmpdir,
+                        # 'msgnum' => undef, 'arcdata' => undef,
+                       );
+
+      # Deliver then clean up
+      if (keys %$deliveries) {
+        $self->deliver($list, '', $sender, $deliveries);
+        for $i (keys %$deliveries) {
+          unlink $deliveries->{$i}{file}
+            if $deliveries->{$i}{file};
+          $issues->{$i}++;
+        }
+      }
+      else {
+        last;
+      }
+      last unless ($mode =~ /repeat/);
+    }
+
+    # Indicate which digests were issued. 
+    # (XXX Move to Mj::Format::digest.)
+    if (scalar keys %$issues) {
+      for $i (keys %$issues) {
+        $mess .= qq("$i" issues: $issues->{$i}\n);
       }
     }
-    return (1, "Digests forced.\n") if $force;
-    return (1, "Digests triggered.\n");
+    else {
+      $mess .= "No digests were issued.\n";
+    }
+    return (1, $mess);
   }
 
   # incvol: call list->digest_incvol
@@ -4742,7 +4860,13 @@ sub _digest {
     $self->{'lists'}{$list}->digest_incvol($d);
     return (1, "Volume numbers for $digest incremented.\n");
   }
-  return (0, "No digest operation performed.\n");
+
+  $mess = $self->format_error('digest_mode', $list, 
+                              'DIGESTS' => \@sup,
+                              'DIGEST_DESCRIPTIONS' => \@desc,
+                              'MODES' => [qw(check force incvol status)]);
+
+  return (1, $mess);
 }
 
 
@@ -5756,7 +5880,8 @@ sub _set {
         # Issue a partial digest if changing from digest mode
         # to nomail or single mode.
         if (exists $res->{'digest'} and ref $res->{'digest'}
-            and exists $res->{'digest'}->{'messages'}) {
+            and exists $res->{'digest'}->{'messages'}
+            and scalar(@{$res->{'digest'}->{'messages'}})) {
 
           ($file) = $self->{'lists'}{$l}->digest_build
             (messages      => $res->{'digest'}->{'messages'},
@@ -6286,10 +6411,10 @@ sub trigger {
 
     # Mode: hourly or digest - issue digests 
     if ($mode =~ /^(h|di)/) {
-      # Call digest-check; this will do whatever is necessary to tickle the
-      # digests.
+      # Call digest-check-repeat; this will do whatever is necessary 
+      # to tickle the digests.
       $self->_digest($list, $request->{'user'}, 
-                     $request->{'user'}, 'check', '', 'ALL');
+                     $request->{'user'}, 'check-repeat', '', 'ALL');
     }
 
     # Mode: hourly.  Check for files in the filespace containing commands
