@@ -755,7 +755,10 @@ sub standard_subs {
 
   $whereami  = $self->_global_config_get('whereami');
 
-  if (length $sublist) {
+  if ($list =~ /^DEFAULT/ or $list eq 'GLOBAL') {
+    $whoami = $self->_global_config_get('whoami');
+  }
+  elsif (length $sublist) {
     $whoami = "$list-$sublist\@$whereami";
   }
   else {
@@ -766,16 +769,17 @@ sub standard_subs {
     'CONFIRM_URL' => $self->_global_config_get('confirm_url'),
     'DOMAIN'      => $self->{'domain'},
     'LIST'        => $olist,
-    'MJ'          => $self->_global_config_get('whoami'),
     'MAJORDOMO'   => $self->_global_config_get('whoami'),
+    'MJ'          => $self->_global_config_get('whoami'),
     'MJOWNER'     => $self->_global_config_get('whoami_owner'),
-    'OWNER'       => $self->_list_config_get($list, 'whoami_owner'),
+    'OWNER'       => $self->_list_config_get($list, 'whoami_owner')
+                     || $self->_global_config_get('whoami_owner'),
     'PWLENGTH'    => $self->_global_config_get('password_min_length') || 6,
     'REQUEST'     => ($list eq 'GLOBAL' or $list eq 'DEFAULT') ?
                      $whoami :
                      "$list-request\@$whereami",
-    'SUBLIST'     => $sublist,
     'SITE'        => $self->_global_config_get('site_name'),
+    'SUBLIST'     => $sublist,
     'VERSION'     => $Majordomo::VERSION,
     'WHEREAMI'    => $whereami,
     'WHOAMI'      => $whoami,
@@ -1073,6 +1077,51 @@ sub format_error {
 
   $tmp = $self->_list_file_get_string('GLOBAL', "error/$name");
   $self->substitute_vars_format($tmp, $subs);
+}
+
+=head2 record_parser_data
+
+Add a parser event to the parser database, and return the parsed
+data.
+
+=cut
+sub record_parser_data {
+  my($self, $user, $time, $type, $number) = @_;
+  my $log = new Log::In 150, "$user $time $number ";
+  my($addr, $data, $event, $ok);
+
+  $self->_make_parser_data;
+  return unless $self->{'parserdata'};
+
+  $addr = new Mj::Addr($user);
+  return unless $addr;
+
+  $event = "$time$type$number";
+  $data = $self->{'parserdata'}->lookup($addr->canon);
+  if ($data) {
+    $data->{'events'} .= " $event";
+    $self->{'parserdata'}->replace('', $addr->canon, $data);
+  }
+  else {
+    $data = {};
+    $data->{'events'} = $event;
+    $self->{'parserdata'}->add('', $addr->canon, $data);
+  }
+  return $data->{'events'};
+}
+
+use Mj::SimpleDB;
+sub _make_parser_data {
+  my $self = shift;
+  return 1 if $self->{'parserdata'};
+
+  $self->{'parserdata'} =
+    new Mj::SimpleDB(filename => 
+                       $self->{'lists'}{'GLOBAL'}->_file_path("_parser"),
+                     backend  => $self->{'backend'},
+                     compare  => sub {reverse($_[0]) cmp reverse($_[1])},
+                     fields   => [qw(events changetime)],
+                    );
 }
 
 =head2 unique, unique2, tempname
@@ -5421,9 +5470,11 @@ sub _subscribe {
   $ml = $self->_global_config_get('password_min_length');
 
   # dd to/update registration database
-  ($exist, $rdata) =
-    $self->_reg_add($vict, 'password' => Mj::Access::_gen_pw($ml), 'list' =>
-		    $list);
+  if ($sublist eq 'MAIN') {
+    ($exist, $rdata) =
+      $self->_reg_add($vict, 'password' => Mj::Access::_gen_pw($ml), 
+                      'list' => $list);
+  }
 
   $welcome = $self->_list_config_get($list, "welcome");
   $welcome = 1 if $mode =~ /welcome/;
@@ -5760,12 +5811,18 @@ sub _unsubscribe {
   my($self, $list, $requ, $vict, $mode, $cmd, $sublist) = @_;
   my $log = new Log::In 35, "$list, $vict";
   my(%fdata, @out, @removed, $bye, $data, $desc, $fh, $file, 
-     $key, $subs);
+     $flist, $key, $subs);
 
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
   return (0, "Unable to access subscriber list \"$sublist\".\n")
     unless $self->{'lists'}{$list}->valid_aux($sublist);
+
+  # Use both the list and sublist in file substitutions.
+  $flist = $list;
+  if ($sublist ne 'MAIN') {
+    $flist .= ":$sublist";
+  }
 
   (@removed) = $self->{'lists'}{$list}->remove($mode, $vict, $sublist);
 
@@ -5776,7 +5833,7 @@ sub _unsubscribe {
 
   if ($mode =~ /farewell/) {
     ($file, %fdata) = $self->_list_file_get($list, 'farewell');
-    $subs = { $self->standard_subs($list) };
+    $subs = { $self->standard_subs($flist) };
     $bye = &tempname;
     $desc = $fdata{'description'};
   }
@@ -5784,9 +5841,11 @@ sub _unsubscribe {
   while (($key, $data) = splice(@removed, 0, 2)) {
     # Convert to an Addr object and remove the list from 
     # the registration entry for that address.
-    $key = new Mj::Addr($key);
-    $self->_reg_remove($key, $list);
-    push (@out, $data->{'fulladdr'});
+    if ($sublist eq 'MAIN') {
+      $key = new Mj::Addr($key);
+      $self->_reg_remove($key, $list);
+      push (@out, $data->{'fulladdr'});
+    }
 
     # Send a farewell message
     if ($mode =~ /farewell/) {
