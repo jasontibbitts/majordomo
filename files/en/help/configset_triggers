@@ -59,6 +59,17 @@ The times field follows the standard Majordomo syntax (see "help times").
 "always" and "hourly" are identical:  the specified trigger is always run.  
 "never" skips the specified trigger.
 
+In addition to the named triggers, commands in files in the private
+file space of a list can be run.  The file name must start with
+a solidus, /.  The file must not reside in the public or help directory.
+The commands in the file will undergo variable substitution using
+the standard substitutions before they are run (see "help variables" for
+more details).  For example, within a file, the commands
+  default user \$OWNER
+  lists-full \$LIST
+would contain the actual list owners' address and list name when the
+commands are run.  
+
 It is possible to use comments before, between, and after the individual
 triggers, Comments are lines that begin with a '#'.  You can use 
 comments as a reminder of what a trigger does or why it was chosen, 
