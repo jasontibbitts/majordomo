@@ -353,6 +353,7 @@ sub handle_bounce_probe {
       return $self->_hbr_consult(%args,
 			         user   => $user,
 			         list   => $data->{'list'},
+                                 notify => [],
                                  reasons => $data->{'reasons'},
 			        );
     }
@@ -383,13 +384,15 @@ sub handle_bounce_token {
       $subs, $time);
 
   # Dump the body to the session file
-  # XXX Check validity
+  return unless (defined $args{'entity'} and defined $self->{'sessionfh'});
   $args{entity}->print_body($self->{sessionfh});
 
   # If we parsed out a failure, delete the token
   # unless it is for a delayed action.
   $del = '';
   $reasons = '';
+  $sender = $self->_list_config_get('GLOBAL', 'sender');
+
   for $i (keys %{$args{'data'}}) {
     last if $args{'type'} eq 'D';
     if ($args{'data'}{$i}{'diag'}) {
@@ -402,7 +405,7 @@ sub handle_bounce_token {
       if (ref ($data) eq 'HASH' and exists $data->{'victim'}) {
         $mess = $self->format_error('probe_bounce', $data->{'list'});
         $self->inform('GLOBAL', 'reject',
-                  qq("Automatic Bounce Processor" <$args{'sender'}>),
+                  qq("Automatic Bounce Processor" <$sender>),
                   $data->{'victim'}, "reject $args{'token'}",
                   $self->{'interface'}, $ok, 0, 0, 
                   $mess, $::log->elapsed - $time);
