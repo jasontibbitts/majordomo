@@ -162,7 +162,7 @@ sub post {
 
   if (! $user) {
     $spool = "$tmpdir/unparsed." . Majordomo::unique();
-    mv ($file, $spool);
+    mv ($request->{'file'}, $spool);
     $self->inform("GLOBAL", "post", $user, $user, $cmd, "resend",
         0, 0, -1, "Unable to determine sender; moved to $spool.");
     return (0, "Unable to parse message.");
@@ -213,8 +213,8 @@ sub post {
       $spool = $self->t_gen;
       last unless -f "$self->{ldir}/GLOBAL/spool/$spool";
     }
-    mv($file, "$self->{'ldir'}/GLOBAL/spool/$spool");
-    $file = "$self->{'ldir'}/GLOBAL/spool/$spool";
+    mv($request->{'file'}, "$self->{'ldir'}/GLOBAL/spool/$spool");
+    $request->{'file'} = "$self->{'ldir'}/GLOBAL/spool/$spool";
 
     ($ok, $mess, $fileinfo) =
       $self->list_access_check
@@ -288,7 +288,7 @@ sub post {
         $nent->make_multipart;
         $nent->attach(Type        => 'message/rfc822',
                       Description => 'Original message',
-                      Path        => $file,
+                      Path        => $request->{'file'},
                       Filename    => undef,
                      );
       }
@@ -297,7 +297,7 @@ sub post {
 
   # If the request failed, we need to unlink the file.
   if (!$ok) {
-    unlink $file;
+    unlink $request->{'file'};
   }
 
   # Purging will unlink the spool file.
@@ -349,7 +349,7 @@ sub post_done {
   $request->{'file'} = $self->{'post_file'};
 
   ($ok, $mess) =
-    @{$self->post($request)};
+    $self->post($request);
 
   unlink $self->{'post_file'};
   undef $self->{'post_fh'};
