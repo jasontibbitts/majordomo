@@ -65,7 +65,7 @@ sub accept {
     $command = $data->{'command'};
     # Print some basic data
     eprint($out, $type, "Token for command:\n    $data->{'cmdline'}\n");
-    eprint($out, $type, "issued at: ", scalar gmtime($data->{'time'}), " GMT\n");
+    eprint($out, $type, "issued at: ", scalar localtime($data->{'time'}), "\n");
     eprint($out, $type, "from sessionid: $data->{'sessionid'}\n");
 
     # If we accepted a consult token, we can stop now.
@@ -288,7 +288,7 @@ sub configdef {
 
     eprint ($out, $type, indicate($mess,$ok)) if $mess;
     if ($ok > 0) {
-      eprintf($out, $type, "%s set to default value.\n", $var);
+      eprint($out, $type, "The $var setting was reset to its default value.\n");
     }
   }
   $ok;
@@ -996,7 +996,7 @@ sub reject {
     }
     ($token, $data) = @$res;
     eprint($out, $type, "Token '$token' for command:\n    $data->{'cmdline'}\n");
-    eprint($out, $type, "issued at: ", scalar gmtime($data->{'time'}), " GMT\n");
+    eprint($out, $type, "issued at: ", scalar localtime($data->{'time'}), "\n");
     eprint($out, $type, "from session: $data->{'sessionid'}\n");
     eprint($out, $type, "has been rejected.\n");
     if ($data->{'type'} eq 'consult') {
@@ -1324,8 +1324,8 @@ sub show {
     $subs->{uc $i} = $data->{'regdata'}{$i};
   }
 
-  $subs->{'REGTIME'}    = gmtime($data->{'regdata'}{'regtime'});
-  $subs->{'RCHANGETIME'} = gmtime($data->{'regdata'}{'changetime'});
+  $subs->{'REGTIME'}    = localtime($data->{'regdata'}{'regtime'});
+  $subs->{'RCHANGETIME'} = localtime($data->{'regdata'}{'changetime'});
 
   @lists = sort keys %{$data->{lists}};
   $subs->{'COUNT'} = scalar @lists;
@@ -1354,10 +1354,10 @@ sub show {
       $lsubs->{uc $j} = $data->{'lists'}{$i}{$j};
     }
 
-    $lsubs->{'CHANGETIME'} = gmtime($data->{'lists'}{$i}{'changetime'});
+    $lsubs->{'CHANGETIME'} = localtime($data->{'lists'}{$i}{'changetime'});
     $lsubs->{'LIST'} = $i;
     $lsubs->{'NUMBERED_BOUNCES'} = '';
-    $lsubs->{'SUBTIME'}    = gmtime($data->{'lists'}{$i}{'subtime'});
+    $lsubs->{'SUBTIME'}    = localtime($data->{'lists'}{$i}{'subtime'});
     $lsubs->{'UNNUMBERED_BOUNCES'} = '';
 
     $bouncedata = $data->{lists}{$i}{bouncedata};
@@ -1560,6 +1560,7 @@ sub tokeninfo {
   $subs->{'REQUESTER'}  = escape($data->{'user'}, $type);
   $subs->{'TOKEN'}  = $request->{'token'};
   $subs->{'TYPE'}  = $data->{'type'};
+  $subs->{'WILLACK'}  = $data->{'willack'};
 
   # Indicate reasons
   $subs->{'REASONS'} = [];
@@ -1572,10 +1573,15 @@ sub tokeninfo {
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
 
-  if ($sess) {
+  if ($sess and $request->{'mode'} !~ /nosession|remind/) {
     eprint($out, $type, "\n");
     $request->{'sessionid'} = $data->{'sessionid'};
     Mj::Format::sessioninfo($mj, $out, $err, $type, $request, [1, '']);
+  }
+
+  if ($request->{'mode'} =~ /remind/) {
+    # XLANG
+    print $out "A reminder was mailed to $request->{'user'}.\n";
   }
 
   # Restore the command name.
