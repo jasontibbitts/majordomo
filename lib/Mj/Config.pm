@@ -3079,13 +3079,14 @@ sub parse_taboo_body {
     # Format: !/match/i 10,20,blah
     ($inv, $pat, $stop, undef, undef, $sev, undef, $class) =
       $j =~ /^(\!?)(.*?)\s*(\d*)((,([+-]?\d+)?)(,(\w+))?)?\s*$/;
+    next unless (defined($pat) and $pat =~ /\S/);
     $sev = 10 unless defined $sev && length $sev;
     $class ||= 'body';
     $data->{'classes'}{$class} = 1;
 
     # Compile the pattern
     ($ok, $err, $re) = compile_pattern($pat, 1);
-    return (0, "Error parsing taboo_body line:\n$err")
+    return (0, "Error parsing $var line:\n$err")
       unless $ok;
 
     # Make an escaped version of the pattern
@@ -3158,13 +3159,14 @@ sub parse_taboo_headers {
   $data->{'code'} = "my \@out = ();\n";
   for $j (@$arr) {
     ($inv, $pat, $sev, undef, $class) = $j =~ /^(\!?)(.*?)\s*([+-]?\d+)?(,(\w+))?$/;
+    next unless (defined($pat) and $pat =~ /\S/);
     $sev = 10 unless defined $sev;
     $class ||= 'header';
     $data->{'classes'}{$class} = 1;
 
     # Compile the pattern
     ($ok, $err, $re) = compile_pattern($pat, 1);
-    return (0, "Error parsing taboo_headers line:\n$err")
+    return (0, "Error parsing $var line:\n$err")
       unless $ok;
 
     # Make an escaped version of the pattern
