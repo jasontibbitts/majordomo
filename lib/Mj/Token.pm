@@ -532,6 +532,8 @@ sub t_accept {
     while (defined ($line = $fh->getline)) {
       $mess .= $line;
     }
+    $fh->close;
+    unlink $file;
     return (-1, $mess, $data, -1);
   }
 
