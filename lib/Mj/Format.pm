@@ -1301,10 +1301,12 @@ sub show {
   $subs->{'COUNT'} = scalar @lists;
 
   $subs->{'SETTINGS'} = [];
-  $settings = $data->{'lists'}{$lists[0]}{'settings'};
-  if ($settings) {
-    for ($j = 0; $j < @{$settings->{'flags'}}; $j++) {
-      push @{$subs->{'SETTINGS'}}, $settings->{'flags'}[$j]->{'name'};
+  if (@lists) {
+    $settings = $data->{'lists'}{$lists[0]}{'settings'};
+    if ($settings) {
+      for ($j = 0; $j < @{$settings->{'flags'}}; $j++) {
+        push @{$subs->{'SETTINGS'}}, $settings->{'flags'}[$j]->{'name'};
+      }
     }
   }
 
