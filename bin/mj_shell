@@ -36,7 +36,8 @@ use Getopt::Long;
 
 use vars qw(%opts $log_entries $log_level $program_name);
 my (@cmdfiles, @in, $dom, $editor, $fh, $go, $i, $id, $infile, $infh,
-    $lang, $list, $mess, $ok, $passw, $result, $tlist, $tmpg, $tmpu, $top);
+    $lang, $list, $mess, $ok, $passw, $result, $tempfile, $tlist, $tmpg,
+    $tmpu, $top);
 
 $| = 1;
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
@@ -391,10 +392,8 @@ sub parse_command {
 
     # Switch UIDs, open a file, restore
     privs_user();
-    $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA", O_WRONLY|O_CREAT, 0600;
+    ($tempfile, $fh) = tempfile();
     privs_mj();
-
-    die "Cannot open $::WTMPDIR/mjs.$$.AAA: $!" unless $fh;
 
     $i = ($true_command eq 'configedit') ? 'configshow' : 'get_start';
 
@@ -415,10 +414,10 @@ sub parse_command {
 
     $fh->close;
     if ($result) {
-      my $modtime = (stat("$::WTMPDIR/mjs.$$.AAA"))[9];
+      my $modtime = (stat("$tempfile"))[9];
       # Switch UIDs, run the editor, restore
       privs_user();
-      $ok = system("$editor $::WTMPDIR/mjs.$$.AAA");
+      $ok = system("$editor $tempfile");
       privs_mj();
 
       if ($ok) {  # system has reversed semantics...
@@ -432,10 +431,10 @@ sub parse_command {
       # (reversed semantics) or we cleared that after the abort prompt
       # above.
       if (!$ok) {
-	if ((stat("$::WTMPDIR/mjs.$$.AAA"))[9] != $modtime) {
+	if ((stat("$tempfile"))[9] != $modtime) {
 	  # Switch, open, restore
 	  privs_user();
-	  $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA";
+	  $fh = new IO::File "$tempfile";
 	  privs_mj();
 
 	  $result = parse_file($fh, '', [], $user, $pass || $dfl->{'password'});
@@ -450,7 +449,7 @@ sub parse_command {
       # Got bad result!
       # Switch, open, restore
       privs_user();
-      $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA";
+      $fh = new IO::File "$tempfile";
       privs_mj();
 
       print while <$fh>;
@@ -458,7 +457,7 @@ sub parse_command {
 
     # Switch, delete the tempfile, restore
     privs_user();
-    unlink "$::WTMPDIR/mjs.$$.AAA";
+    unlink $tempfile;
     privs_mj();
   }
 
@@ -582,6 +581,25 @@ sub privs_mj {
   $> = $tmpu; $) = $tmpg;
 }
 
+# Generate a temporary filename and return it and a filehandle open on it
+sub tempfile {
+  my $chr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890_';
+  my $base = "$::WTMPDIR/mjs.$$.";
+  my($handle, $name);
+
+  # Try to open a file ten times
+  for (my $i = 0; $i < 10; $i++) {
+
+    # Append ten random characters
+    $name = $base;
+    for (my $j = 0; $i < 10; $i++) {
+      $name .= substr($chr, rand(length($chr)), 1);
+    }
+    $handle = new IO::File($name, O_CREAT | O_EXCL | O_RDWR, 0600);
+    return ($name, $handle) if $handle;
+  }
+  die "Couldn't open a temporary file after ten tries: $!";
+}
 
 =head1 NAME
 
