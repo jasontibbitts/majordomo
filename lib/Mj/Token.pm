@@ -152,8 +152,8 @@ This adds a token to the database and mails out a message to the
 moderators, requester, or victim.
 
 Moderator addresses can be taken from auxiliary lists, from the
-moderators configuration setting, the moderator configuration
-setting, or the whoami_owner configuration setting.
+moderators configuration setting, or from the whoami_owner configuration
+setting.
 
 This function relies upon the existence of a list reference
 of "notify" hash references, and several other pieces of data.
@@ -500,8 +500,8 @@ sub get_moderators {
   # This extracts a list of moderators.  If a moderator group
   # was specified, the addresses are taken from the auxiliary
   # list of the same name.  If no such list exists, the
-  # "moderators" auxiliary list and the "moderators," "moderator,"
-  # and "whoami_owner" configuration setting are each consulted
+  # "moderators" auxiliary list and the "moderators" 
+  # and "whoami_owner" configuration settings are consulted
   # in turn until an address is found.
   return unless ($self->_make_list($list));
   @mod1  = $self->{'lists'}{$list}->moderators($group);
