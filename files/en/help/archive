@@ -1,8 +1,82 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-archive
+archive-get   listname pattern
+archive-index listname pattern
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-not implemented as of 3/99
+listname, required, is the name of a list at this site
+pattern,  required, is a single value or range of values (see below)
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+If a Majordomo mailing list is configured to store messages in
+an archive, those messages may be retrieved using the "archive-get"
+and "archive-index" commands.
+
+Majordomo archives are given names which indicate the dates of
+the messages in the archive.  For example, the "test" list's archive
+for the month of March, 1999, would be called
+  test.199903
+Archives may be organized by year, month, week, or day, at the 
+discretion of the list owners.
+
+Within each archive, each message will have a number.  For instance,
+the seventh message in the March, 1999, archive would have the following
+number:
+  199903/7
+
+It is possible to retrieve messages (with the "archive-get" command)
+or a list of messages, with each message's subject and message
+number (using the "archive-index" command).  There are several
+ways for you to indicate which messages you want to see, using
+three kinds of patterns.
+
+One pattern is a simple message count.  For example,
+  archive-index test 20
+would retrieve an index of the last 20 messages sent to the "test" list.
+
+Another pattern is a message number.  For example,
+  archive-get test 199903/4
+would retrieve the fourth message in the March, 1999, archive of
+the "test" list.
+
+The final pattern is a number which expresses a date.  The command
+  archive-index plum 19990814
+would retrieve an index of messages posted to the "plum" list
+on August 14, 1999.  Similarly, the command
+  archive-get peach 2000021
+will cause all of the messages posted to the "peach" list during
+the first week of February, 2000, to be sent to you.
+
+These three patterns may be combined to indicate ranges of messages.
+The command
+  archive-get almond 20000205 - 20000207
+would retrieve all messages distributed on the "almond" list
+during the 5th, 6th, and 7th of February, 2000.  It is very
+important to leave spaces around the hyphen.  The command
+  archive-get almond 20000205-20000207
+will NOT work.
+
+Any combination of the three patterns may be used.  However, some
+of the combinations produce unusual effects.  For example,
+  archive-index lime 15 - 3
+would retrieve an index of the 15 messages immediately preceding
+the third most recent message sent to the "lime" list.
+
+The command
+  archive-get lemon 200001/3 - 15
+will retrieve the third message in the January, 2000, archive of
+the "lemon" list, and 14 messages following it, even if those
+messages are found in other archives, such as February, 2000, or
+later.
+
+Whereas
+  archive-index tangerine 10 - 1998
+would retrieve an index of the last 10 messages posted to the
+"tangerine" list during 1998, 
+  archive-index tangerine 1998 - 10
+would retrieve an index of the first 10 messages.
+
+See Also:
+   help index (which may be used to show which archives are available)
+   help put   (which is used to create the archive directory)
 
 For a list of all help topics send this one-line message
    help topics
