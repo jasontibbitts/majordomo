@@ -44,8 +44,17 @@ request_answer setting and  (list-specific) request_response file.
   owner                message is forwarded to the list owners
   anything else        the request_response file is sent back.
 
+If the 'A' flag in the "configset aliases" is used, an alias will
+be created for each auxiliary list.  For example, to reach the
+"testers" sublist of the mj2-dev list, a message could be sent
+to the (fictitious) address mj2-dev-testers@csf.colorado.edu
+Without the 'A' flag, the "post" command is the only way to send
+messages to a sublist.
+
 
 See Also:
+   help announce
+   help post
    help configset moderator
    help configset moderators
    help configset owners
