@@ -88,11 +88,22 @@ sub rcopy {
 # Don't call this for directories that aren't intended to be owned solely
 # by Majordomo.  (Which would be foolish anyway, because we wouldn't be
 # able to make any reasonable guess at what the permissions should be.)
+
+# Make sure all of the created directory's parents exist as well. -DS
+
+use File::Basename ();
+
 sub safe_mkdir {
   my $dir  = shift;
   my $mode = shift;
   my $uid  = shift;
   my $gid  = shift;
+
+  # dirname will not return the last element of a directory tree even if
+  # it ends in a "/".  Use this to create all the parents.
+  my $parent = File::Basename::dirname($dir);
+  safe_mkdir($parent, $mode, $uid, $gid) unless (-d $parent);
+
   unless (-d $dir) {
     mkdir $dir, $mode or die "Can't make $dir, $!";
   }
