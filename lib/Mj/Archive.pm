@@ -628,7 +628,8 @@ sub sync {
     $self->_write_counts($sub);
   }
 
-  (1, "Archive \"$sub\" has been synchronized.\n");
+  (1, "Archive \"$sub\", containing $self->{'splits'}{$sub}{'msgs'} messages,"
+   . " has been synchronized.\n");
 }
 
 =head2 _sync_msgs(file, tmpdir, split, message_count, quote_pattern) 
@@ -699,7 +700,7 @@ sub _sync_msgs {
         return (0, "Unable to open temporary file.\n") unless $tmpfh;
       }
       else {
-        $mbox->{'newhandle'}->print($line);
+        $mbox->{'newhandle'}->print($line) if ($line);
       }
       $seen++;
       $blank = 0;
@@ -1386,7 +1387,9 @@ sub summary {
 
   for $arc (sort keys %{$self->{'splits'}}) {
     $self->_read_counts($arc, 0);
-    push @out, [$arc, $self->{'splits'}{$arc}];
+    push @out, [$arc, $self->{'splits'}{$arc}]
+      if (exists($self->{'splits'}{$arc}) and 
+          $self->{'splits'}{$arc}{'msgs'});
   }
 
   @out;
@@ -1445,6 +1448,13 @@ sub _write_counts {
   my ($fh, $list);
 
   $list = $self->{'list'};
+
+  unless ($self->{splits}{$file}{msgs}) {
+    unlink "$dir/.index/C$list.$file";
+    unlink "$dir/.index/I$list.$file";
+    return 1;
+  }
+
   $fh = new IO::File ">$dir/.index/C$list.$file";
     # XLANG
   $log->abort("Can't write count file $dir/.index/C$list.$file: $!") unless $fh;
