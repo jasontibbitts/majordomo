@@ -35,11 +35,11 @@ frequency with which fronters appear can be controlled with
 
 The fronter text will undergo variable substitution as it is added to
 the message.   The variables supported include the standard
-substitutions, plus ARCURL, DATE, HOST, MSGNO, SENDER, SEQNO, SUBJECT,
+substitutions, plus DATE, HOST, MSGNO, SENDER, SEQNO, SUBJECT,
 SUBSCRIBED, and USER.  See "help variables" for more information.  If
 the "rewritefrom" flag is set for the author of the message, the USER
-substitution will contain the author's rewritten address.  See "help
-set" for more information on the rewritefrom flag.
+substitution will contain the author's rewritten address.  See 
+"help set" for more information on the rewritefrom flag.
 
 Within the here document (between the tags), the '-' character takes
 on a special significance if it is the first character on the line.

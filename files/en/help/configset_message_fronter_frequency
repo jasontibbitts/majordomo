@@ -21,6 +21,8 @@ Note that this only makes sense if one or more fronters have been set
 in message_fronter.  Note also that this only controls the probability
 that a fronter will be added; the process itself is random.
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+See Also:
+   help admin_delivery
+   help configset_message_fronter
+
+$INCLUDE-help/foot

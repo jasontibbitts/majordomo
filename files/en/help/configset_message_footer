@@ -22,11 +22,11 @@ $INCLUDE-config/message_footer
 
 The footer text will undergo variable substitution as it is added to the
 message.  The variables supported include the standard substitutions,
-plus ARCURL, DATE, HOST, MSGNO, SENDER, SEQNO, SUBJECT, SUBSCRIBED,
-and USER.  See "help variables" for more information.  If the
-"rewritefrom" flag is set for the author of the message, the USER
-substitution will contain the author's rewritten address.  See "help
-set" for a description of the rewritefrom flag.
+plus DATE, HOST, MSGNO, SENDER, SEQNO, SUBJECT, SUBSCRIBED, and USER.
+See "help variables" for more information.  If the "rewritefrom" flag is
+set for the author of the message, the USER substitution will contain
+the author's rewritten address.  See "help set" for a description of the
+rewritefrom flag.
 
 Within the here document (between the tags), the '-' character takes on
 a special significance if it is the first character on the line.  If it

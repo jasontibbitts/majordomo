@@ -61,10 +61,10 @@ the headers of a message.  See "help configset_reply_to",
 "help configset_sender", "help configset_precedence", and 
 "help configset_subject_prefix"  for additional information. 
 
-The text of each added header will undergo variable substitution as it is added
-to the message.   The variables supported include the standard substitutions,
-plus ARCURL, DATE, HOST, MSGNO, SENDER, SEQNO, SUBJECT, SUBSCRIBED, 
-and USER.  See "help variables" for more information.
+The text of each added header will undergo variable substitution as it
+is added to the message.   The variables supported include the standard
+substitutions, plus DATE, HOST, MSGNO, SENDER, SEQNO, SUBJECT,
+SUBSCRIBED, and USER.  See "help variables" for more information.
 
 Any headers with leading spaces, with control characters or spaces in
 their names, or without a colon (':') will be ignored.

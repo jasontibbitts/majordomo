@@ -21,6 +21,8 @@ Note that this only makes sense if one or more footers have been set
 in message_footer.  Note also that this only controls the probability
 that a footer will be added; the process itself is random.
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+See Also:
+   help admin_delivery
+   help configset_message_footer
+
+$INCLUDE-help/foot
