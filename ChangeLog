@@ -1,5 +1,8 @@
 2002-04-18  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
+	* Makefile.PL (generate_wrappers): Use standard C instead of
+	obsolete K&R.
+
 	* lib/Majordomo.pm (connect): Turn on autoflush for the session
 	info file.
 
