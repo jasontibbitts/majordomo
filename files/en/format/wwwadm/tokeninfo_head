@@ -10,10 +10,11 @@
 </table>
 
 <form method=POST action="$CGIURL">
-  <input type=submit name=func value=accept>
-  <input type=submit name=func value=accept-archive>
-  <input type=submit name=func value=reject>
-  <input type=submit name=func value=tokeninfo-remind>
+  <input type=submit name=func value="accept">
+  <input type=submit name=func value="accept-archive">
+  <input type=submit name=func value="accept-hide">
+  <input type=submit name=func value="reject">
+  <input type=submit name=func value="tokeninfo-remind">
   <input type=hidden name=extra value="$TOKEN">
   <input type=hidden name=list value="$LIST">
   <input type=hidden name=passw value="$PASSWORD">

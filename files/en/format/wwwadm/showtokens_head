@@ -11,6 +11,8 @@ five buttons.
   <li>Press <b>accept-archive</b> to approve each chosen request.  <b>Post</b>ed
       messages will be stored in the list archive, but will not be distributed
       to the subscribers.
+  <li>Press <b>accept-hide</b> to approve each chosen request.  <b>Post</b>ed
+      messages will not be displayed in a public archive. 
   <li>Press <b>reject</b> to disallow each chosen request.
 </ul>
 
@@ -19,6 +21,7 @@ five buttons.
   <input type=submit name=func value="tokeninfo">
   <input type=submit name=func value="accept">
   <input type=submit name=func value="accept-archive">
+  <input type=submit name=func value="accept-hide">
   <input type=submit name=func value="reject">
   <input type=hidden name=list value="$LIST">
   <input type=hidden name=passw value="$PASSWORD">

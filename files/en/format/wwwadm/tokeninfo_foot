@@ -1,7 +1,8 @@
 <!-- Majordomo tokeninfo_foot format file -->
 </pre>
-<input type=submit name=func value=accept>
-<input type=submit name=func value=accept-archive>
-<input type=submit name=func value=reject>
+<input type=submit name=func value="accept">
+<input type=submit name=func value="accept-archive">
+<input type=submit name=func value="accept-hide">
+<input type=submit name=func value="reject">
 </form>
 

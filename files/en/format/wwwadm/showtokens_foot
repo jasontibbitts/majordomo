@@ -5,6 +5,7 @@ Requests found: $COUNT<br>
 <input type=submit name=func value="tokeninfo">
 <input type=submit name=func value="accept">
 <input type=submit name=func value="accept-archive">
+<input type=submit name=func value="accept-hide">
 <input type=submit name=func value="reject">
 </form>
 
