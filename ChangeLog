@@ -1,3 +1,8 @@
+2002-03-17 Michael Yount <csf@moscow.com>
+
+	* bin/mj_queuerun:  Sort messages within a queue directory
+	in date order, oldest first.  Suggested by Brock Rozen.
+
 2002-03-16 Michael Yount <csf@moscow.com>
 
 	* bin/mj_queuerun:  Shut down if a "Bye" ping is received 
