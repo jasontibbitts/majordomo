@@ -686,8 +686,8 @@ sub add_deflist {
 
 sub parse_args {
   my ($request, $args, $arglist, $attachh) = @_;
-  my ($variable, $varcount, $useopts, $om, $k, $arguments, @splitargs);
-  my ($hereargs);
+  my ($k, $arguments, @splitargs);
+  my ($hereargs, @argnames, $argname, $pattern);
 
   $hereargs  = function_prop($request->{'command'}, 'hereargs');
   $request->{$hereargs} = [] if $hereargs;
@@ -695,45 +695,31 @@ sub parse_args {
   if (defined $arguments) {
     $arguments->{'split'} ||= ' ';
     $arguments->{'optmode'} ||= '';
-    # account for "optmode" and "split" when counting variables
-    $varcount = scalar (keys %$arguments) - 2;
-    $useopts = 1;
-    my $om = $arguments->{'optmode'};
+    $pattern = "A-Z";
 
-    # Do not use optional variables unless required
-    if ($arguments->{'optmode'} and ($request->{'mode'} !~ /$om/)) {
-      $useopts = 0;
-      for $variable (keys %$arguments) {
-        $varcount--
-          if ($arguments->{$variable} =~ /OPT/);
-      }
-    }
+    # Do not use optional variables unless the mode is correct
+    if ($arguments->{'optmode'} and 
+       ($request->{'mode'} !~ /$arguments->{'optmode'}/)) 
+      { $pattern = "A-NP-Z"; }
+ 
+    @argnames = sort grep { $arguments->{$_} =~ /^[$pattern]/ } keys %$arguments;
+       
+    @splitargs = split /$arguments->{'split'}/, $args, scalar @argnames;
 
-    @splitargs = ();
-    if ($varcount > 1) {
-      @splitargs = split /$arguments->{'split'}/, $args, $varcount;
-    }
-    else {
-      @splitargs = ($args);
-    }
-    $k = 0;
-    for $variable (sort keys %$arguments) {
-      next if ($variable eq 'optmode' or $variable eq 'split');
-      next if (!$useopts and ($arguments->{$variable} =~ /OPT/));
-      last unless defined ($splitargs[$k]);
-      if ($arguments->{$variable} =~ /SCALAR/) {
-        $request->{$variable} = $splitargs[$k];
+    for $argname (@argnames) {
+      $k = shift @splitargs || '';
+      if ($arguments->{$argname} =~ /SCALAR/) {
+        $request->{$argname} = $k;
       }
-      elsif ($arguments->{$variable} eq 'ARRAYELEM') {
-        $request->{$variable} = [$splitargs[$k]];
+      elsif ($arguments->{$argname} eq 'ARRAYELEM') {
+        $request->{$argname} = [$k];
       }
-      elsif ($arguments->{$variable} eq 'ARRAY') {
-        unless (exists $request->{$variable}) {
-          $request->{$variable} = [];
+      elsif ($arguments->{$argname} eq 'ARRAY') {
+        unless (exists $request->{$argname}) {
+          $request->{$argname} = [];
         }
-        push @{$request->{$variable}}, split (" ", $splitargs[$k]);
+        push @{$request->{$argname}}, split (" ", $k);
       }
-      $k++;
     }
   }
   # deal with hereargs
@@ -741,7 +727,7 @@ sub parse_args {
     unless (exists $request->{$hereargs}) {
       $request->{$hereargs} = [];
     }
-    if (@$arglist) {
+    if (scalar @$arglist) {
       push @{$request->{$hereargs}}, @$arglist;
     }
     elsif (ref $attachh eq 'IO::File' or ref $attachh eq 'IO::Handle') {
