@@ -72,7 +72,7 @@ use vars qw(%beex %exbe);
 
 This creates and returns a SimpleDB object, or undef if the given backend
 is not supported.  The object returned will actually be blessed into the
-package of one of the submodules which implement the various backends.
+ package of one of the submodules which implement the various backends.
 
 field_list_ref is a listref of fields (columns) in the database.
 
@@ -95,25 +95,31 @@ arguments (for remote databases, etc.)
 =cut
 sub new {
   my ($type, %args) = @_;
-  my ($exist, $lock, $ver, $name);
+  my ($exist, $lock, $ver, $name, $backend);
 
   if(!defined($args{filename})) {
     $args{filename} = "$args{listdir}/$args{list}/$args{file}";
   }
 
-  my $log  = new Log::In 200, "$args{filename}, $args{backend}";
+  if (ref($args{backend})) {
+    $backend = $args{backend}{type};
+  } else {
+    $backend = $args{backend};
+  }
+
+  my $log  = new Log::In 200, "$args{filename}, $backend";
 
   # Fix up arguments
-  if(($args{backend} eq "db") || ($args{backend} eq "text")) {
+  if(($backend eq "db") || ($backend eq "text")) {
     $name = $args{filename};
     $args{lockfile} = $name;
-    $args{filename} = "$name.$beex{$args{backend}}";
+    $args{filename} = "$name.$beex{$backend}";
   }
 
   # Create and return the database
   {
     no strict 'refs';
-    &{"_c_$args{backend}"}(%args)
+    &{"_c_$backend"}(%args)
   }
 }
 

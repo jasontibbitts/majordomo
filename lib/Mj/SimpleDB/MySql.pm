@@ -53,7 +53,10 @@ sub _make_db {
   my $log   = new Log::In 200, "$self->{filename}";
 
   unless (defined $dbh) {
-    $dbh = DBI->connect("DBI:mysql:majordomo", "majordomo", "majordomo", {PrintError => 0, RaiseError => 0, AutoCommit => 0} );
+    $dbh = DBI->connect("dbi:mysql:database=$self->{backend_opts}{name};host=$self->{backend_opts}{srvr};port=$self->{backend_opts}{port}",
+			$self->{backend_opts}{user},
+		       	$self->{backend_opts}{pass},
+		       	{PrintError => 0, RaiseError => 0, AutoCommit => 0});
     warn "Problem allocating database" unless $dbh;
   }
 

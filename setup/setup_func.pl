@@ -219,7 +219,7 @@ sub do_site_config {
   if ($config->{'database_backend'} ne 'sql') {
     $data->{'database_backend'} = $config->{'database_backend'};
   } else {
-    $data->{'database_backend'} = $config->{'database'}{'type'};
+    $data->{'database_backend'} = $config->{'database'};
   }
 
   # Open the site config file

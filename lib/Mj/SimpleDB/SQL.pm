@@ -40,6 +40,10 @@ sub new {
   $self->{backend}  = undef;
   $self->{fields}   = $args{fields};
 
+  if (ref($args{backend})) {
+    $self->{backend_opts} = $args{backend};
+  }
+
   # We parse what we need from the filename XXX
   # work for the DBs in the list dir, but not for the ones in the files/ directory
   if ($args{filename} =~ m/\/([^\/]+)\/([^\/]+)\/([^\/]+)$/) {
