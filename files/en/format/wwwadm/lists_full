@@ -11,7 +11,7 @@ $DESCRIPTION
 
 <tr><td valign=top>
 Digests
-(<a href="$CGIURL?$CGIDATA&func=digest-status&list=$LIST&extra=ALL">Status</a>)
+(<a href="$CGIURL?$CGIDATA&amp;func=digest-status&amp;brief=on&amp;list=$LIST&amp;extra=ALL">Status</a>)
 </td>
 <td>
 $DIGESTS<br>
@@ -24,7 +24,7 @@ $DIGESTS<br>
 <tr><td>Posts in the last 30 days</td><td>
 $POSTS
 
-(<a href="$CGIURL?$CGIDATA&func=archive-stats&list=$LIST&extra=30d">Statistics</a>)
+(<a href="$CGIURL?$CGIDATA&amp;func=archive-stats&amp;list=$LIST&amp;extra=30d">Statistics</a>)
 
 
 </td>
@@ -36,24 +36,24 @@ $POSTS
 
 <tr><td valign=top>Documentation</td><td>
 
-  <a href="$CGIURL?$CGIDATA&func=faq&list=$LIST">
+  <a href="$CGIURL?$CGIDATA&amp;func=faq&amp;list=$LIST">
   Frequently Asked Questions</a> 
-  (<a href="$CGIURL?$CGIDATA&func=faq-edit&list=$LIST">Edit</a>)
+  (<a href="$CGIURL?$CGIDATA&amp;func=faq-edit&amp;list=$LIST">Edit</a>)
 
 <br>
 
-  <a href="$CGIURL?$CGIDATA&func=intro&list=$LIST">
+  <a href="$CGIURL?$CGIDATA&amp;func=intro&amp;list=$LIST">
   Introduction to the List</a> 
-  (<a href="$CGIURL?$CGIDATA&func=intro-edit&list=$LIST">Edit</a>)
+  (<a href="$CGIURL?$CGIDATA&amp;func=intro-edit&amp;list=$LIST">Edit</a>)
 
 <br>
 
-  <a href="$CGIURL?$CGIDATA&func=info&list=$LIST">
+  <a href="$CGIURL?$CGIDATA&amp;func=info&amp;list=$LIST">
   Welcome Message</a> 
-  (<a href="$CGIURL?$CGIDATA&func=info-edit&list=$LIST">Edit</a>)
+  (<a href="$CGIURL?$CGIDATA&amp;func=info-edit&amp;list=$LIST">Edit</a>)
 
 <p>
-  <a href="$CGIURL?$CGIDATA&func=archive-summary-reverse&list=$LIST">
+  <a href="$CGIURL?$CGIDATA&amp;func=archive-summary-reverse&amp;list=$LIST">
   Message Archive</a>
 </p>
 
@@ -85,12 +85,12 @@ Recent Activity
 </td>
 
 <td>
-(<a href="$CGIURL?$CGIDATA&func=report-full&list=$LIST&extra=1cd">Today</a>)
+(<a href="$CGIURL?$CGIDATA&amp;func=report-full&amp;list=$LIST&amp;extra=1cd">Today</a>)
 
-(<a href="$CGIURL?$CGIDATA&func=report-summary&list=$LIST&extra=7cd">7
+(<a href="$CGIURL?$CGIDATA&amp;func=report-summary&amp;list=$LIST&amp;extra=7cd">7
 Day Summary</a>)
 
-(<a href="$CGIURL?$CGIDATA&func=report-summary&list=$LIST&extra=30cd">30
+(<a href="$CGIURL?$CGIDATA&amp;func=report-summary&amp;list=$LIST&amp;extra=30cd">30
 Day Summary</a>)
 </td>
 </tr>
@@ -101,9 +101,9 @@ List of Lists
 </td>
 
 <td>
-<a href="$CGIURL?$CGIDATA&func=lists-long&list=$LIST">
+<a href="$CGIURL?$CGIDATA&amp;func=lists-long&amp;list=$LIST">
  View every mailing list for which access is authorized.</a><br>
-<a href="$CGIURL?$CGIDATA&list=$LIST&func=newlist">
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=newlist">
  Create, Rename, or Destroy a mailing list.
 </a>
 </td>

@@ -1,6 +1,6 @@
 <!-- Majordomo archive_index format file -->
   <tr>
-    <td><a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-get-part&extra=$MSGNO"
+    <td><a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get-part&amp;extra=$MSGNO"
          target="_message">
         $SUBJECT</a>$HIDDEN
     </td>
