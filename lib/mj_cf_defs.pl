@@ -123,6 +123,7 @@ $Mj::Config::default_string = q(
 			       X-Pmrqc
 			       Return-Path
 			       Delivered-To
+                               Errors-To
 			       List-Archive
 			       List-Help
 			       List-Owner
