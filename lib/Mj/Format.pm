@@ -278,7 +278,8 @@ sub configset {
 sub configshow {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
-  my ($auto, $gsubs, $list, $mess, $mode, $mode2, $ok, $str, $subs,
+  my ($array, $auto, $enum, $flags, $gen, $gsubs, $list, $mess, 
+      $mode, $mode2, $ok, $short, $str, $subs,
       $tag, $tmp, $val, $var, $varresult);
 
   $request->{'cgiurl'} ||= '';
@@ -323,18 +324,24 @@ sub configshow {
     return $ok;
   }
 
-  $subs = { %$gsubs };
-
   if ($request->{'mode'} !~ /categories/) {
+    $subs = {};
     $tmp = $mj->format_get_string($type, 'configshow_head');
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     eprint($out, $type, "$str\n");
   }
   else {
+    $subs = { %$gsubs };
     $subs->{'CATEGORIES'} = [];
     $subs->{'COMMENT'} = [];
     $subs->{'COUNT'} = [];
   }
+
+  $gen   = $mj->format_get_string($type, 'configshow');
+  $array = $mj->format_get_string($type, 'configshow_array');
+  $enum  = $mj->format_get_string($type, 'configshow_enum');
+  $flags = $mj->format_get_string($type, 'configshow_flags');
+  $short = $mj->format_get_string($type, 'configshow_short');
 
   for $varresult (@$result) {
     ($ok, $mess, $var, $val) = @$varresult;
@@ -367,7 +374,6 @@ sub configshow {
     $auto = '';
     if ($ok < 1) {
       $auto = '# ';
-      $mess = "# This variable is automatically maintained by Majordomo.  Uncomment to change.\n";
     }
 
     if (ref ($val) eq 'ARRAY') {
@@ -387,53 +393,63 @@ sub configshow {
         }
       }
 
-      $subs->{'AUTO'} = $auto;
-      $subs->{'SETCOMMAND'} = "configset$mode";
-      $subs->{'TAG'} = "END" . Majordomo::unique2();
-      $subs->{'VALUE'} = $val;
-      $tmp = $mj->format_get_string($type, 'configshow_array');
+      $tag = "END" . Majordomo::unique2();
+      $subs->{'SETCOMMAND'} = 
+        $auto . "configset$mode $list $var <<$tag\n";
+
+      for $i (@$val) {
+        $subs->{'SETCOMMAND'} .= "$i\n";
+      }
+
+      $subs->{'SETCOMMAND'} .= "$auto$tag\n";
+      $subs->{'VALUE'} = join "\n", @$val; 
+
+      $tmp = $array;
       $str = $mj->substitute_vars_format($tmp, $subs);
       eprint($out, $type, "$str\n");
     }
     else {
       # Process as a simple variable
-      $subs->{'SETCOMMAND'} = "configset$mode2";
+      $subs->{'SETCOMMAND'} = 
+        $auto . "configset$mode2 $list $var = ";
+
       $val = "" unless defined $val;
       $val = escape($val) if ($type =~ /^www/);
-      $subs->{'VALUE'} = $val;
 
       if ($type eq 'text' and length $val > 40) {
-        $subs->{'AUTO'} = "\\\n    $auto";
+        $auto = "\\\n    $auto";
       }
-      else {
-        $subs->{'AUTO'} = $auto;
-      }
+
+      $subs->{'SETCOMMAND'} .= "$auto$val\n";
+      $subs->{'VALUE'} = $val;
 
       # Determine the type of the variable
       $vardata = $Mj::Config::vars{$var};
 
       if ($vardata->{'type'} =~ /^(integer|word|pw|bool)$/) {
-        $tmp = $mj->format_get_string($type, 'configshow_short');
+        $tmp = $short;
       }
       elsif ($vardata->{'type'} =~ /^(enum|flags)$/) {
-        $tmp = $mj->format_get_string($type, "configshow_$vardata->{'type'}");
+        $tmp = ($vardata->{'type'} eq 'enum') ? $enum : $flags;
         @possible = sort @{$vardata->{'values'}};
-        $subs->{'SETTINGS'} = [@possible];
-        $subs->{'SELECTED'} = [];
-        $subs->{'CHECKED'}  = [];
-        for $str (@possible) {
-          if ($val =~ /$str/) {
-            push @{$subs->{'SELECTED'}}, "selected";
-            push @{$subs->{'CHECKED'}}, "checked";
-          }
-          else {
-            push @{$subs->{'SELECTED'}}, "";
-            push @{$subs->{'CHECKED'}},  "";
+        if ($type =~ /^www/) {
+          $subs->{'SETTINGS'} = [@possible];
+          $subs->{'SELECTED'} = [];
+          $subs->{'CHECKED'}  = [];
+          for $str (@possible) {
+            if ($val =~ /$str/) {
+              push @{$subs->{'SELECTED'}}, "selected";
+              push @{$subs->{'CHECKED'}}, "checked";
+            }
+            else {
+              push @{$subs->{'SELECTED'}}, "";
+              push @{$subs->{'CHECKED'}},  "";
+            }
           }
         }
       }
       else {
-        $tmp = $mj->format_get_string($type, 'configshow');
+        $tmp = $gen;
       }
   
       $str = $mj->substitute_vars_format($tmp, $subs);
