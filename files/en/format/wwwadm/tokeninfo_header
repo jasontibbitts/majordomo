@@ -1,0 +1,7 @@
+<table>
+  <tr><td>From    </td><td>?HEADER_FROM</td>
+  <tr><td>To      </td><td>?HEADER_TO</td>
+  <tr><td>Cc      </td><td>?HEADER_CC</td>
+  <tr><td>Subject </td><td>?HEADER_SUBJECT</td>
+  <tr><td>Date    </td><td>?HEADER_DATE</td>
+</table>

@@ -18,14 +18,21 @@
   <td align="center" bgcolor="#706060">
   <a href="$CGIURL?$CGIDATA&a=login&t=$TOKEN">
   <font color="#f0f0f0">
-    Sign In
+    Confirm New Request
   </font></a>
   </td>
 
   <td align="center" bgcolor="#706060">
-  <a href="$CGIURL?$CGIDATA&a=tokeninfo-full&t=$TOKEN">
+  <a href="$CGIURL?$CGIDATA&a=tokeninfo-nosession&t=$TOKEN">
   <font color="#f0f0f0">
-    Show Details
+    Show Brief Details
+  </font></a>
+  </td>
+
+  <td align="center" bgcolor="#706060">
+  <a href="$CGIURL?$CGIDATA&a=tokeninfo&t=$TOKEN">
+  <font color="#f0f0f0">
+    Show Full Details
   </font></a>
   </td>
 

@@ -4,7 +4,7 @@
 
 <table width="100%">
 <tr>
-  <td valign=top>
+  <td valign="top">
     <input size="16" name="t" value="$TOKEN">
   </td>
   <td>
@@ -15,17 +15,18 @@
     <p>Then press one of the three buttons.</p>
   </td>
 </tr>
+
 <tr>
   <td>
-    <input type="submit" name="a" value="tokeninfo-full">
+    <input type="submit" name="a" value="tokeninfo">
   </td>
   <td>
-    Press the <b>tokeninfo-full</b> button to see full details
+    Press the <b>tokeninfo</b> button to see full details
     about the Majordomo command or posted message that is awaiting
     your approval.
   </td>
-  
 </tr>
+  
 <tr>
   <td>
     <input type="submit" name="a" value="accept">
@@ -34,17 +35,17 @@
     Press the <b>accept</b> button to approve the Majordomo command
     or posted message that is awaiting your approval.
   </td>
-
 </tr>
+  </td>
+
 <tr>
   <td>
     <input type="submit" name="a" value="reject">
   </td>
   <td>
-    Press the <b>reject</b> button to disapprove the Majordomo command
+    Press the <b>reject</b> button to discard the Majordomo command
     or posted message that is awaiting your approval.
   </td>
-
 </tr>
 </table>
 

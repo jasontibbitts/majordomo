@@ -1,27 +1,36 @@
 <!-- Majordomo showtokens_head format file -->
-<h4 align=center>Requests that Require Approval</h4>
+<h4 align="center">Requests that Require Approval</h4>
+
 <p>
 Choose one or more requests from the following list by pressing
 the checkbox to the left of each request, then press one of the
-seven buttons.
+six buttons.
 </p>
+
 <ul>
-  <li>Press <b>tokeninfo-full</b> to display a summary of each chosen request,
-      including the bodies of any <b>post</b>ed messages.</li>
-  <li>Press <b>tokeninfo</b> to display a summary of each chosen request.</li>
-  <li>Press <b>accept</b> to approve each chosen request.</li>
+  <li>Press <b>tokeninfo</b> to display a summary of each chosen request.
+  </li>
+  <li>Press <b>accept</b> to approve each chosen request.
+  </li>
   <li>Press <b>accept-archive</b> to approve each chosen request.  <b>Post</b>ed
       messages will be stored in the list archive, but will not be distributed
-      to the subscribers.</li>
+      to the subscribers.
+  </li>
   <li>Press <b>accept-hide</b> to approve each chosen request.  <b>Post</b>ed
-      messages will not be displayed in a public archive. </li>
-  <li>Press <b>reject</b> to disallow each chosen request.</li>
+      messages will not be displayed in a public archive. 
+  </li>
+  <li>Press <b>reject</b> to disallow each chosen request.
+  </li>
   <li>Press <b>reject-quiet</b> to disallow each chosen request without sending
-      an acknowledgement to the user.</li>
+      an acknowledgement to the user.
+  </li>
 </ul>
+<p>
+Click the token ID of a request to display information about that
+request in a separate window.
+</p>
 
 <form method="POST" action="$CGIURL">
-  <input type="submit" name="func" value="tokeninfo-full">
   <input type="submit" name="func" value="tokeninfo">
   <input type="submit" name="func" value="accept">
   <input type="submit" name="func" value="accept-archive">

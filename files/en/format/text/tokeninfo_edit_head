@@ -1,0 +1,2 @@
+# [$PART $CONTENT_TYPE ($SIZE kilobytes)]
+tokeninfo-part-replace $TOKEN $PART <<AEBFCG

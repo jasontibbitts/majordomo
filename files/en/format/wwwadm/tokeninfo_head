@@ -1,34 +1,58 @@
 <!-- Majordomo tokeninfo_head format file -->
+<p>
+On $DATE, $REQUESTER sent the following command
+to $SITE:
+<blockquote>
+$CMDLINE
+</blockquote>
+</p>
+<p>
+<form method="POST" action="$CGIURL">
+?WILLACK If you wish to explain your reasons for $HELP:ACCEPTing
+?WILLACK or $HELP:REJECTing the command, type them here:
+?WILLACK <br>
+?WILLACK <textarea rows="4" cols="70" name="xplanation">
+?WILLACK </textarea>
+
+<table>
+  <tr>
+    <td>
+      <input type="submit" name="func" value="accept">
+    </td>
+    <td>
+      Press the <b>accept</b> button to approve the command.
+?CONSULT  The results of the command will be sent to $VICTIM.
+    </td>
+  <tr>
+    <td>
+      <input type="submit" name="func" value="reject">
+    </td>
+    <td>
+      Press the <b>reject</b> button to discard the command.
+?WILLACK An explanation will be sent to $VICTIM.
+    </td>
+?WILLACK  <tr>
+?WILLACK    <td>
+?WILLACK      <input type="submit" name="func" value="reject-quiet">
+?WILLACK    </td>
+?WILLACK    <td>
+?WILLACK      Press the <b>reject-quiet</b> button to discard the command.
+?WILLACK      No explanation will be sent to $VICTIM.
+?WILLACK    </td>
+</table>
+  
+<input type="hidden" name="extra" value="$TOKEN">
+<input type="hidden" name="domain" value="$DOMAIN">
+<input type="hidden" name="list" value="$LIST">
+<input type="hidden" name="passw" value="$CMDPASS">
+</p>
+<p>
+More details about the command are shown here:
 <table>
   <tr><td>Token:  </td><td>$TOKEN</td></tr>
-  <tr><td>Created:</td><td>$DATE</td></tr>
-  <tr><td>By:     </td><td>$REQUESTER</td></tr>
   <tr><td>Type:   </td><td>$TYPE</td></tr>
-  <tr><td>Command:</td><td>$CMDLINE</td></tr>
   <tr><td>Expires:</td><td>$EXPIRE</td></tr>
   <tr><td>Reason: </td><td>$REASONS</td></tr>
 </table>
 
-<form method="POST" action="$CGIURL">
-  <input type="submit" name="func" value="accept">
-?ISPOST <input type="submit" name="func" value="accept-archive">
-?ISPOST <input type="submit" name="func" value="accept-hide">
-  <input type="submit" name="func" value="reject">
-?WILLACK <input type="submit" name="func" value="reject-quiet">
-  <input type="submit" name="func" value="tokeninfo-remind">
-  <input type="hidden" name="extra" value="$TOKEN">
-  <input type="hidden" name="list" value="$LIST">
-  <input type="hidden" name="passw" value="$CMDPASS">
-?WILLACK <br>
-?WILLACK If you wish to make known your reasons for $HELP:ACCEPTing
-?WILLACK or $HELP:REJECTing the request, type them here:
-?WILLACK <br>
-?WILLACK <textarea rows="4" cols="70" name="xplanation">
-?WILLACK </textarea>
-<br>
-To mail a reminder message about this request, type an address into the
-<b>address</b> box, then press the <b>tokeninfo-remind</b> button.<br>
-address:
-<input size="48" name="user" value="$USER">
 <pre>
-

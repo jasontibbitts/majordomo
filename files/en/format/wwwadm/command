@@ -29,7 +29,7 @@
       <option> set
       <option> showtokens
       <option> subscribe
-      <option> tokeninfo-full
+      <option> tokeninfo
       <option> unsubscribe
       <option> unsubscribe-farewell
       <option> unregister

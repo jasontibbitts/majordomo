@@ -1,0 +1,73 @@
+<!-- Majordomo tokeninfo_nosession format file -->
+<p>
+On $DATE, $REQUESTER made the following request 
+at $SITE:
+<blockquote>
+$CMDLINE
+</blockquote>
+</p>
+
+<form method="POST" action="$CGIURL">
+?CONSULT?WILLACK If you wish to explain your reasons for $HELP:ACCEPTing
+?CONSULT?WILLACK or $HELP:REJECTing the request, type them here:
+?CONSULT?WILLACK <br>
+?CONSULT?WILLACK <textarea rows="4" cols="70" name="xplanation">
+?CONSULT?WILLACK </textarea>
+
+<table>
+  <tr>
+    <td>
+      <input type="submit" name="a" value="accept">
+    </td>
+    <td>
+      Press the <b>accept</b> button to approve the request.
+?ISPOST  <tr>
+?ISPOST    <td>
+?ISPOST      <input type="submit" name="a" value="accept-archive">
+?ISPOST    </td>
+?ISPOST    <td>
+?ISPOST      Press the <b>accept-archive</b> button to approve the request.
+?ISPOST      The message will be stored in the archive but not distributed
+?ISPOST      to the subscribers.
+?ISPOST    </td>
+?ISPOST  <tr>
+?ISPOST    <td>
+?ISPOST      <input type="submit" name="a" value="accept-hide">
+?ISPOST    </td>
+?ISPOST    <td>
+?ISPOST      Press the <b>accept-hide</b> button to approve the request.
+?ISPOST      The message will not be displayed in a public archive.
+?ISPOST    </td>
+    </td>
+  <tr>
+    <td>
+      <input type="submit" name="a" value="reject">
+    </td>
+    <td>
+      Press the <b>reject</b> button to discard the request.
+?CONSULT?WILLACK An explanation will be sent to $VICTIM.
+    </td>
+?CONSULT?WILLACK  <tr>
+?CONSULT?WILLACK    <td>
+?CONSULT?WILLACK      <input type="submit" name="a" value="reject-quiet">
+?CONSULT?WILLACK    </td>
+?CONSULT?WILLACK    <td>
+?CONSULT?WILLACK      Press the <b>reject-quiet</b> button to discard the request.
+?CONSULT?WILLACK      No explanation will be sent to $VICTIM.
+?CONSULT?WILLACK    </td>
+</table>
+  
+<input type="hidden" name="t" value="$TOKEN">
+<input type="hidden" name="d" value="$DOMAIN">
+</form>
+
+<p>
+To get instructions, click the <b>Introduction</b> link at the top
+or bottom of this document.<br>
+To confirm a different request, click the <b>Confirm New Request</b> link at
+the top or bottom.<br>
+To return to this document at any time, click the <b>Show Brief Details</b>
+link at the top or bottom.<br>
+To see more information about this request, click the <b>Show Full Details</b>
+link at the top or bottom.
+<p>

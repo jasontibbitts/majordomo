@@ -1,0 +1,21 @@
+<p>
+[Part $PART $CONTENT_TYPE ($SIZE kilobytes)]<br>
+
+  <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$TOKEN%20$PARTh&func=tokeninfo-part" target="_part">
+  (View Headers in a separate window)
+  </a>
+
+  <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$TOKEN%20$PARTh&func=tokeninfo-part-edit">
+  (Edit Headers)
+  </a>
+
+  <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$TOKEN%20$PART&func=tokeninfo-part-edit">
+  (Edit Text)
+  </a>
+
+?SUBPART <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$TOKEN%20$PART&func=tokeninfo-part-delete">
+?SUBPART (Delete This Part)
+?SUBPART </a>
+
+</p>
+<pre>

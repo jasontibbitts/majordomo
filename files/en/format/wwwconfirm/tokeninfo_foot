@@ -3,8 +3,6 @@
 
 <form method="POST" action="$CGIURL">
   <input type="submit" name="a" value="accept">
-?ISPOST  <input type="submit" name="a" value="accept-archive">
-?ISPOST  <input type="submit" name="a" value="accept-hide">
   <input type="submit" name="a" value="reject">
 ?CONSULT?WILLACK <input type="submit" name="a" value="reject-quiet">
   <input type="hidden" name="t" value="$TOKEN">

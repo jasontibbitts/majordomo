@@ -46,9 +46,12 @@ the time limit on the request will expire.
 </p>
 
 <p>
-If you wish to accept or reject a request, click the <b>Sign In</b>
-link at the top or bottom of this document and follow the instructions
-to tell Majordomo the token identifier for the request.
-To return to this introduction at any time, click the <b>Introduction</b>
-link at the top or bottom.
+If you wish to accept or reject a Majordomo command or posted message, 
+click the <b>Confirm New Request</b> link at the top or bottom of 
+this document and follow the instructions to tell Majordomo the token 
+identifier for the request.  
+</p>
+<p>
+To return to this introduction at any time, click the
+<b>Introduction</b> link at the top or bottom.
 </p>

@@ -1,18 +1,28 @@
 <!-- Majordomo tokeninfo_head format file -->
 <p>
-On $DATE, $REQUESTER made the following request 
-at $SITE:
-</p>
+The following command has been sent to
+$SITE:
 <blockquote>
 $CMDLINE
 </blockquote>
+Details about the command appear below.
+</p>
+
+<table>
+  <tr><td>Token:  </td><td>$TOKEN</td></tr>
+  <tr><td>Created:</td><td>$DATE</td></tr>
+  <tr><td>By:     </td><td>$REQUESTER</td></tr>
+  <tr><td>Type:   </td><td>$TYPE</td></tr>
+  <tr><td>Expires:</td><td>$EXPIRE</td></tr>
+  <tr><td>Reason: </td><td>$REASONS</td></tr>
+</table>
 
 <form method="POST" action="$CGIURL">
 ?CONSULT?WILLACK <p>If you wish to explain your reasons for $HELP:ACCEPTing
 ?CONSULT?WILLACK or $HELP:REJECTing the request, type them here:
-?CONSULT?WILLACK </p>
 ?CONSULT?WILLACK <textarea rows="4" cols="70" name="xplanation">
 ?CONSULT?WILLACK </textarea>
+?CONSULT?WILLACK </p>
 
 <table>
   <tr>
@@ -47,7 +57,7 @@ $CMDLINE
       <input type="submit" name="a" value="reject">
     </td>
     <td>
-      Press the <b>reject</b> button to disapprove the request.
+      Press the <b>reject</b> button to discard the request.
 ?CONSULT?WILLACK An explanation will be sent to $VICTIM.
 ?CONSULT?WILLACK    </td>
 ?CONSULT?WILLACK  </tr>
@@ -56,7 +66,7 @@ $CMDLINE
 ?CONSULT?WILLACK      <input type="submit" name="a" value="reject-quiet">
 ?CONSULT?WILLACK    </td>
 ?CONSULT?WILLACK    <td>
-?CONSULT?WILLACK      Press the <b>reject-quiet</b> button to disapprove the request.
+?CONSULT?WILLACK      Press the <b>reject-quiet</b> button to discard the request.
 ?CONSULT?WILLACK      No explanation will be sent to $VICTIM.
     </td>
   </tr>
@@ -69,9 +79,9 @@ $CMDLINE
 <p>
 To get instructions, click the <b>Introduction</b> link at the top
 or bottom of this document.<br>
-To confirm a different request, click the <b>Sign In</b> link at
+To confirm a different request, click the <b>Confirm New Request</b> link at
 the top or bottom.<br>
-To return to this document at any time, click the <b>Show Details</b>
+To return to this document at any time, click the <b>Show Full Details</b>
 link at the top or bottom.
 </p>
 <p>

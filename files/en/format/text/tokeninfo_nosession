@@ -1,0 +1,9 @@
+Information about token $TOKEN:
+Generated at: $DATE
+By:           $REQUESTER
+Type:         $TYPE
+From command: $CMDLINE
+Approvals:    $APPROVALS
+Expires:      $EXPIRE
+Reason:       ?REASONS
+

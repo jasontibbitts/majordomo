@@ -1,0 +1,66 @@
+<!-- Majordomo tokeninfo_nosession format file -->
+<p>
+On $DATE, $REQUESTER made the following request 
+at $SITE:
+<blockquote>
+$CMDLINE
+</blockquote>
+</p>
+
+<form method="POST" action="$CGIURL">
+?WILLACK If you wish to explain your reasons for $HELP:ACCEPTing
+?WILLACK or $HELP:REJECTing the request, type them here:
+?WILLACK <br>
+?WILLACK <textarea rows="4" cols="70" name="xplanation">
+?WILLACK </textarea>
+
+<table>
+  <tr>
+    <td>
+      <input type="submit" name="func" value="accept">
+    </td>
+    <td>
+      Press the <b>accept</b> button to approve the request.
+?ISPOST  <tr>
+?ISPOST    <td>
+?ISPOST      <input type="submit" name="func" value="accept-archive">
+?ISPOST    </td>
+?ISPOST    <td>
+?ISPOST      Press the <b>accept-archive</b> button to approve the request.
+?ISPOST      The message will be stored in the archive but not distributed
+?ISPOST      to the subscribers.
+?ISPOST    </td>
+?ISPOST  <tr>
+?ISPOST    <td>
+?ISPOST      <input type="submit" name="func" value="accept-hide">
+?ISPOST    </td>
+?ISPOST    <td>
+?ISPOST      Press the <b>accept-hide</b> button to approve the request.
+?ISPOST      The message will not be displayed in a public archive.
+?ISPOST    </td>
+    </td>
+  <tr>
+    <td>
+      <input type="submit" name="func" value="reject">
+    </td>
+    <td>
+      Press the <b>reject</b> button to discard the request.
+?WILLACK An explanation will be sent to $VICTIM.
+    </td>
+?WILLACK  <tr>
+?WILLACK    <td>
+?WILLACK      <input type="submit" name="func" value="reject-quiet">
+?WILLACK    </td>
+?WILLACK    <td>
+?WILLACK      Press the <b>reject-quiet</b> button to discard the request.
+?WILLACK      No explanation will be sent to $VICTIM.
+?WILLACK    </td>
+</table>
+  
+<input type="hidden" name="extra" value="$TOKEN">
+<input type="hidden" name="domain" value="$DOMAIN">
+<input type="hidden" name="list" value="$LIST">
+<input type="hidden" name="user" value="$USER">
+<input type="hidden" name="passw" value="$CMDPASS">
+</form>
+

@@ -1,0 +1,42 @@
+<!-- Majordomo tokeninfo_head_post format file -->
+<p>
+A message was posted to the $LIST mailing list
+at $SITE.  A summary of the message appears below.
+</p>
+
+<table>
+  <tr><td>Token:  </td><td>$TOKEN</td></tr>
+  <tr><td>Type:   </td><td>$TYPE</td></tr>
+  <tr><td>Expires:</td><td>$EXPIRE</td></tr>
+  <tr><td>Reason: </td><td>$REASONS</td></tr>
+</table>
+
+<p>
+<form method="POST" action="$CGIURL">
+?CONSULT?WILLACK If you wish to explain your reasons for $HELP:ACCEPTing
+?CONSULT?WILLACK or $HELP:REJECTing the request, type them here:
+?CONSULT?WILLACK <textarea rows="4" cols="70" name="xplanation">
+?CONSULT?WILLACK </textarea>
+?CONSULT?WILLACK <br>
+<input type="submit" name="func" value="accept">
+<input type="submit" name="func" value="accept-archive">
+<input type="submit" name="func" value="accept-hide">
+<input type="submit" name="func" value="reject">
+?CONSULT?WILLACK <input type="submit" name="func" value="reject-quiet">
+<br>
+<input type="hidden" name="extra" value="$TOKEN">
+<input type="hidden" name="domain" value="$DOMAIN">
+<input type="hidden" name="list" value="$LIST">
+<input type="hidden" name="user" value="$USER">
+<input type="hidden" name="passw" value="$CMDPASS">
+</form>
+</p>
+
+<p>
+<a href="$CGIURL?$CGIDATA&list=$LIST&extra=$TOKEN%200&func=tokeninfo-part" target="_part">
+(View the Complete Message in a separate window)<br>
+</a>
+<a href="$CGIURL?$CGIDATA&list=$LIST&extra=$TOKEN%200&func=tokeninfo-part-edit">
+(Edit the Complete Message)
+</a>
+</p>

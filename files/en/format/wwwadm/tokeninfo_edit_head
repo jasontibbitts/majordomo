@@ -1,0 +1,16 @@
+<p>
+[Part $PART $CONTENT_TYPE ($SIZE kilobytes)]<br>
+When you have finished editing the contents of this message part, press 
+the <b>replace</b> button to make the changes permanent.
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="domain" value="$DOMAIN">
+  <input type="hidden" name="func" value="tokeninfo-replace-part">
+  <input type="hidden" name="extra" value="$TOKEN $PART">
+  <input type="submit" value="replace">
+
+<textarea name="contents" rows="20" cols="80">
