@@ -1,3 +1,116 @@
+2001-08-14  Michael Yount <csf@moscow.com>
+
+	* bin/mj_shell:  Invoke an editor automatically when
+	the faq-edit, get-edit, info-edit, or intro-edit commands
+	are used.
+
+	* bin/mj_wwwadm:  Add support for the newfaq, newinfo, newintro,
+	and put commands.  Use format files with the faq, get, info, and 
+	intro commands.
+
+	* lib/Majordomo.pm:  Version number is now 0.1200108140.
+	(_get, _put, _index)  Improve error checking on file names.
+	(_get)  Make use of substitutions in the file_sent file.
+	(_faq, _info, _intro)  Add support for the "edit" command mode.
+	This will, for example, wrap the faq document in a newfaq
+	command to make editing and replacing the document easier.
+	(_put)  Add support for the "delete" command mode, which
+	will remove files or empty directories, and the "force"
+	command mode, which will recursively delete directories.
+	(_archive) Add support for the "hidden" command mode, which
+	displays only hidden messages (those that were posted by
+	people with the "hidepost" flag set, for example).
+	(archive_chunk)  Change the use of the "delete" command mode
+	to avoid deleting messages from the archive that are awaiting
+	delivery in a digest unless the "force" command mode is also used.  
+	This allows the archive-delete-hidden command to be used to 
+	clean "hidden" messages from the archive using a trigger.
+	(_set)  Bugfix:  do not send a partial digest of messages
+	if no messages are scheduled for delivery.  Also, use
+	only the message numbers in constructing the digest, to
+	cause the correct information to be extracted.
+
+	* lib/mj_cf_data.pl, mj_cf_defs.pl:  Add support for the "mail" 
+	delivery class, the "hidepost" personal setting, and the 
+	noarchive_body and noarchive_headers configuration settings.
+
+	* lib/Mj/Archive.pm:  Add the "hidden" field to the archive
+	database, which indicates whether or not a message should be
+	made public.
+	(expand_range)  Allow "hidden" messages to be excluded from
+	the results.
+	(remove)  Bugfix:  correct off-by-one error in revised byte
+	count.
+
+	* lib/Mj/CommandProps.pm:  Add support for the following
+	commands:  accept-hide, archive-delete-force, archive-hidden,
+	faq-edit, info-edit, intro-edit, post-hide, put-delete and
+	put-delete-force, as well as the hide_post and noarchive
+	access variables.
+
+	* lib/Mj/Config.pm:  (parse_access_rules, _compile_rule):
+	Add support for the noarchive_body and noarchive_headers
+	configuration settings.
+
+	* lib/Mj/Digest.pm:  (sync)  New routine.  Replace the
+	state data for one or more digests.  This is used to update
+	the digest data after the archives have been changed by
+	the archive-delete or archive-sync command.
+
+	* lib/Mj/FileSpace.pm:  (legal_file_name)  Rename
+	_legal_file_name (it is now used by the Mj::List module.)
+	Bugfix:  do not allow a leading dot in any component of a path.
+	(delete, index) Improve error checking.
+	(_empty_dir) New function:  remove the contents of a 
+	directory recursively.
+
+	* lib/Mj/Format.pm:  (accept)  Display the token number
+	in the result.
+	(archive)  Mark "hidden" messages with an asterisk.
+	(g_get)  Use format files to display the results.
+
+	* lib/Mj/List.pm:  Add support for the hidepost personal
+	setting.
+	(describe_class)  Include the digest format in the 
+	description.
+	(get_setting_data)  Include information about each digest
+	format in the result.
+	(fs_legal_file_name)  New routine.  Determine if a path
+	is potentially valid for file space purposes.
+	(archive_delete_msg, archive_sync)  Call digest_sync
+	to update digest information after an archive change.
+	(digest_sync)  New routine.  Obtain a message list for
+	each digest, extract the current information from the
+	archives, and update the digest information.
+
+	* lib/Mj/MIMEParser.pm:  (collect_data)  Mark a message as
+	"hidden" if it has an "x-no-archive: yes" or 
+	"restrict: no-external-archive" header.
+
+	* lib/Mj/Resend.pm:  (_post)  Add support for "hidden" messages,
+	which occur when:  (1) the "hide" command mode is used;
+	(2) the "hidepost" flag is set; or (3) when the message matches
+	one of the patterns in the noarchive_body and noarchive_headers
+	settings.  Add an "X-No-Archive: yes" header to every hidden
+	message, in both the archived and the distributed copy.
+	(_check_approval)  Log/inform a rejection of a token
+	using the "Approved" feature.
+	(_check_poster)  Add support for the hide_post access variable,
+	which is set if the "hidepost" setting applies to the author
+	of a message.
+	(_check_body, _ck_tbody_line)  Add support for the 
+	noarchive_body configuration setting.
+	(_ck_theader)  Add support for the noarchive_headers setting.
+
+	* lib/Mj/Token.pm:  (confirm)  Improve comments about
+	the notify structures.
+	
+	* lib/Mj/SimpleDB/DB.pm:  (lookup_quick)  Bugfix:  return
+	immediately if the key is absent.
+
+	* lib/Mj/SimpleDB/Text.pm:  (lookup_quick)  Bugfix:
+	issue a warning and return if the key is absent.
+
 2001-08-14  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/MTAConfig.pm (add_alias): Bugfix - remove extra dash in
@@ -70,9 +183,6 @@
 	* lib/Mj/Format.pm:  (report)  Display the session ID
 	and interface in "full" mode.
 	(g_sub) Make list substitutions only once.
-
-	* lib/Mj/Resend.pm:  (_check_approval)  Log the rejection
-	of a token via the "approved" feature.
 
 	* lib/Mj/Token.pm:  (t_accept)  Acceptance of an alias
 	token with a negative number of approvals required will
@@ -215,7 +325,7 @@
 2001-07-12  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Config.pm (parse_access_rules, parse_bounce_rules,
-        _compile_rule): Slightly better error messages.
+	_compile_rule): Slightly better error messages.
 
 	* lib/Mj/BounceHandler.pm (handle_bounce_user): Pass the
 	'diagnostic' variable to the rules parser.
@@ -239,7 +349,7 @@
 
 	* lib/Mj/Format.pm:  (lists)  Use an empty string instead
 	of a question mark in variable expansions to avoid incorrect
-        URLs.  Thanks to Gavin Walker.
+	URLs.  Thanks to Gavin Walker.
 
 2001-06-23  Jason Tibbitts  <tibbs@math.uh.edu>
 
@@ -326,7 +436,7 @@
 2001-06-05  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* bin/mj_shell: Don't rely on $ENV{LOGNAME}; use getpwuid($<)
-        instead.
+	instead.
 
 2001-06-05  Michael Yount <csf@moscow.com>
 
@@ -412,10 +522,10 @@
 2001-05-03  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/CommandProps.pm: nonempty_lines is a legal access
-        variable.
+	variable.
 
 	* lib/Mj/Resend.pm (_r_ck_body): Count lines containing something
-        other than whitespace in the "nonempty_lines" variable.
+	other than whitespace in the "nonempty_lines" variable.
 
 2001-04-17  Michael Yount <csf@moscow.com>
 
@@ -528,7 +638,7 @@
 2001-03-20  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* bin/mj_queuerun (call_format): New function to load the
-        Mj::Format library and call the formatter.
+	Mj::Format library and call the formatter.
 
 2001-03-13  Michael Yount <csf@moscow.com>
 
@@ -628,8 +738,8 @@
 2001-03-02  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/BounceParser.pm (parse_exim): Adapt to new exim bounce
-        format: X-Failed-Recipients: may have more than one address.
-        Addresses in body may or may not be followed by a colon.
+	format: X-Failed-Recipients: may have more than one address.
+	Addresses in body may or may not be followed by a colon.
 
 2001-03-02  Michael Yount <csf@moscow.com>
 
@@ -689,19 +799,19 @@
 2001-02-27  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Resend.pm (_munge_subject): Bugfix: don't delete subjects
-        not matching $re_regexp.
+	not matching $re_regexp.
 
 2001-02-25  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/Resend.pm (_munge_subject): Make use of
-        subject_re_pattern and subject_re_strip settings.  Put the prefix
-        after any existing Re: part.
+	subject_re_pattern and subject_re_strip settings.  Put the prefix
+	after any existing Re: part.
 
 	* lib/Mj/Util.pm (re_match): Accept a third argument and return
-        the match array if present.
+	the match array if present.
 
 	* lib/mj_cf_data.pl: Add subject_re_pattern and subject_re_strip
-        variables.
+	variables.
 
 2001-02-24  Michael Yount <csf@moscow.com>
 

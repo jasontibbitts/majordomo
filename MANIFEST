@@ -240,6 +240,7 @@ files/en/config/.category
 files/en/config/.chunksize
 files/en/config/.comments
 files/en/config/.config_access
+files/en/config/.config_defaults
 files/en/config/.confirm_url
 files/en/config/.database_backend
 files/en/config/.debug
@@ -282,6 +283,8 @@ files/en/config/.moderator
 files/en/config/.moderator_group
 files/en/config/.moderators
 files/en/config/.noadvertise
+files/en/config/.noarchive_body
+files/en/config/.noarchive_headers
 files/en/config/.nonmember_flags
 files/en/config/.override_reply_to
 files/en/config/.owners
@@ -426,6 +429,8 @@ files/en/config/moderator
 files/en/config/moderator_group
 files/en/config/moderators
 files/en/config/noadvertise
+files/en/config/noarchive_body
+files/en/config/noarchive_headers
 files/en/config/nonmember_flags
 files/en/config/override_reply_to
 files/en/config/owners
@@ -487,6 +492,7 @@ files/en/error/.no_visible
 files/en/error/.not_extracted
 files/en/error/.password_length
 files/en/error/.password_level
+files/en/error/.pending_delivery
 files/en/error/.unknown_setting
 files/en/error/.unknown_token
 files/en/error/.unregistered
@@ -500,6 +506,7 @@ files/en/error/no_visible
 files/en/error/not_extracted
 files/en/error/password_length
 files/en/error/password_level
+files/en/error/pending_delivery
 files/en/error/unknown_setting
 files/en/error/unknown_token
 files/en/error/unregistered
@@ -528,6 +535,11 @@ files/en/format/text/.configshow_foot
 files/en/format/text/.configshow_head
 files/en/format/text/.configshow_none
 files/en/format/text/.configshow_short
+files/en/format/text/.get_edit_foot
+files/en/format/text/.get_edit_head
+files/en/format/text/.get_error
+files/en/format/text/.get_foot
+files/en/format/text/.get_head
 files/en/format/text/.lists
 files/en/format/text/.lists_category
 files/en/format/text/.lists_enhanced
@@ -572,6 +584,11 @@ files/en/format/text/configshow_foot
 files/en/format/text/configshow_head
 files/en/format/text/configshow_none
 files/en/format/text/configshow_short
+files/en/format/text/get_edit_foot
+files/en/format/text/get_edit_head
+files/en/format/text/get_error
+files/en/format/text/get_foot
+files/en/format/text/get_head
 files/en/format/text/lists
 files/en/format/text/lists_category
 files/en/format/text/lists_enhanced
@@ -617,6 +634,11 @@ files/en/format/wwwadm/.configshow_head
 files/en/format/wwwadm/.configshow_none
 files/en/format/wwwadm/.configshow_short
 files/en/format/wwwadm/.foot
+files/en/format/wwwadm/.get_edit_foot
+files/en/format/wwwadm/.get_edit_head
+files/en/format/wwwadm/.get_error
+files/en/format/wwwadm/.get_foot
+files/en/format/wwwadm/.get_head
 files/en/format/wwwadm/.head
 files/en/format/wwwadm/.lists
 files/en/format/wwwadm/.lists_category
@@ -663,6 +685,11 @@ files/en/format/wwwadm/configshow_head
 files/en/format/wwwadm/configshow_none
 files/en/format/wwwadm/configshow_short
 files/en/format/wwwadm/foot
+files/en/format/wwwadm/get_edit_foot
+files/en/format/wwwadm/get_edit_head
+files/en/format/wwwadm/get_error
+files/en/format/wwwadm/get_foot
+files/en/format/wwwadm/get_head
 files/en/format/wwwadm/head
 files/en/format/wwwadm/lists
 files/en/format/wwwadm/lists_category
@@ -704,6 +731,9 @@ files/en/format/wwwconfirm/tokeninfo_head
 files/en/format/wwwconfirm/welcome
 files/en/format/wwwusr/.error
 files/en/format/wwwusr/.foot
+files/en/format/wwwusr/.get_error
+files/en/format/wwwusr/.get_foot
+files/en/format/wwwusr/.get_head
 files/en/format/wwwusr/.head
 files/en/format/wwwusr/.lists
 files/en/format/wwwusr/.lists_category
@@ -723,6 +753,9 @@ files/en/format/wwwusr/.welcome
 files/en/format/wwwusr/accept
 files/en/format/wwwusr/error
 files/en/format/wwwusr/foot
+files/en/format/wwwusr/get_error
+files/en/format/wwwusr/get_foot
+files/en/format/wwwusr/get_head
 files/en/format/wwwusr/head
 files/en/format/wwwusr/lists
 files/en/format/wwwusr/lists_category
@@ -807,6 +840,7 @@ files/en/help/.configset_category
 files/en/help/.configset_chunksize
 files/en/help/.configset_comments
 files/en/help/.configset_config_access
+files/en/help/.configset_config_defaults
 files/en/help/.configset_confirm_url
 files/en/help/.configset_database_backend
 files/en/help/.configset_debug
@@ -849,6 +883,8 @@ files/en/help/.configset_moderator
 files/en/help/.configset_moderator_group
 files/en/help/.configset_moderators
 files/en/help/.configset_noadvertise
+files/en/help/.configset_noarchive_body
+files/en/help/.configset_noarchive_headers
 files/en/help/.configset_nonmember_flags
 files/en/help/.configset_override_reply_to
 files/en/help/.configset_owners
@@ -1061,6 +1097,8 @@ files/en/help/configset_moderator
 files/en/help/configset_moderator_group
 files/en/help/configset_moderators
 files/en/help/configset_noadvertise
+files/en/help/configset_noarchive_body
+files/en/help/configset_noarchive_headers
 files/en/help/configset_nonmember_flags
 files/en/help/configset_override_reply_to
 files/en/help/configset_owners
