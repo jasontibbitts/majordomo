@@ -1,0 +1,7 @@
+Message $MSGNO was not deleted.
+The message is still awaiting delivery in one or more digests for
+the $LIST list.  To force deletion, use the following command:
+  archive-delete-force $LIST $MSGNO
+To see the current status of message digests, use the following command:
+  digest-status $LIST ALL
+
