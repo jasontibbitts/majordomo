@@ -351,9 +351,10 @@ sub configset {
 sub configshow {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
-  my (@possible, $array, $auto, $cgidata, $cgiurl, $data, $enum, $gen, $gsubs, 
-      $i, $isauto, $list, $mess, $mode, $mode2, $ok, $short, $str, $subs,
-      $tag, $tmp, $val, $var, $vardata, $varresult);
+  my (@possible, $array, $auto, $bool, $cgidata, $cgiurl, $data, 
+      $enum, $gen, $gsubs, $i, $isauto, $list, $mess, $mode, $mode2, 
+      $ok, $short, $str, $subs, $tag, $tmp, $val, $var, $vardata, 
+      $varresult);
 
   $request->{'cgiurl'} ||= '';
 
@@ -417,6 +418,7 @@ sub configshow {
 
   $gen   = $mj->format_get_string($type, 'configshow');
   $array = $mj->format_get_string($type, 'configshow_array');
+  $bool  = $mj->format_get_string($type, 'configshow_bool');
   $enum  = $mj->format_get_string($type, 'configshow_enum');
   $short = $mj->format_get_string($type, 'configshow_short');
 
@@ -513,13 +515,22 @@ sub configshow {
       # Determine the type of the variable
       $vardata = $Mj::Config::vars{$var};
 
-      if ($vardata->{'type'} =~ /^(integer|word|pw|bool)$/) {
+      if ($vardata->{'type'} =~ /^(integer|word|pw)$/) {
         $tmp = $short;
+      }
+      elsif ($vardata->{'type'} eq 'bool') {
+        $tmp = $bool;
+        if ($type =~ /^www/) {
+          require Mj::Util;
+          $str = &Mj::Util::str_to_bool($val);
+          $subs->{'YES'} = ($str > 0) ? " " : '';
+          $subs->{'NO'} = ($str == 0) ? " " : '';
+        }
       }
       elsif ($vardata->{'type'} eq 'enum') {
         $tmp = $enum;
-        @possible = sort @{$vardata->{'values'}};
         if ($type =~ /^www/) {
+          @possible = sort @{$vardata->{'values'}};
           $subs->{'SETTINGS'} = [@possible];
           $subs->{'SELECTED'} = [];
           $subs->{'CHECKED'}  = [];

@@ -1,3 +1,16 @@
+2001-11-19  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Config.pm:  (parse_bool)  Move code to
+	Mj::Util::str_to_bool for external use.
+	(parse_delivery_rules)  Bugfix:  rearrange loops.  Thanks
+	to Roger Klorese.
+
+	* lib/Mj/Format.pm:  (configshow)  Format boolean settings
+	separately.  Thanks to Gavin Walker.
+
+	* lib/Mj/Util.pm:  (str_to_bool)  New routine.  Convert
+	a string to a true or false value (1 or 0).
+
 2001-11-18  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/Resend.pm (_check_poster): Get post stats and fill in
