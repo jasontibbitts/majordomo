@@ -697,7 +697,7 @@ sub dispatch {
     $comment = '';
     # owner_done returns the address of the originator,
     # and bouncing addresses if any were identified.
-    if ($base_fun eq 'owner' and $res[1]) {
+    if ($base_fun eq 'owner' and $res[0] and $res[1]) {
       if ($request->{'command'} eq 'owner_done' and length $res[1]) {
         if (ref $res[3] eq 'ARRAY' and scalar @{$res[3]}) {
           $mess = " from " . join(" ", @{$res[3]});
@@ -4961,7 +4961,8 @@ sub _changeaddr {
     $data = $ldata;
   }
   else {
-    unless ($alias and $vict->xform ne $key->xform) {
+    $addr = new Mj::Addr($data->{'fulladdr'});
+    unless ($alias and defined $addr and $vict->xform ne $addr->xform) {
       $data->{'fulladdr'} = $requ->full;
       $data->{'stripaddr'} = $requ->strip;
     }
