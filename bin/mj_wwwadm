@@ -65,7 +65,7 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
                 'info'          => [1, 'lists'],
                 'intro'         => [1, 'lists'],
                 'lists'         => [0, 'lists'],
-                'put'           => [1, 'lists'],
+                'put'           => [1, 'index'],
                 'register'      => [1, 'who'],
                 'reject'        => [0, 'showtokens'],
                 'report'        => [1, 'lists'],
@@ -463,6 +463,9 @@ if (function_prop($func, 'iter')) {
 #
 # The ninth exception is for the archive search form.
 #
+# The tenth exception is for the name of a file retrieved by
+# the get command.
+#
 # In each of these cases, the basic command form requires that the
 # "extra" variable still be handled if it was used.
 if (@extra and $func ne 'showtokens') {
@@ -627,6 +630,15 @@ elsif ($func ne 'showtokens') {
       $request->{'file'} = "/$1";
       $request->{'xdesc'} = 'default';
     }
+    elsif ($mode =~ /dir|delete/) {
+      $tmp = $cgi->param('path');
+      $tmp = '' unless (defined $tmp);
+      $tmp .= $cgi->param('file');
+      $request->{'file'} = $tmp;
+      if ($mode =~ /dir/) {
+        $request->{'xdesc'} = $cgi->param('description') || '(dir)';
+      }
+    }
     elsif ($ofunc =~ /^put/ and $cgi->param('args')) {
       Mj::Parser::parse_args($request, $cgi->param('args'), '');
     }
@@ -688,6 +700,12 @@ elsif ($func ne 'showtokens') {
       }
     }
   }
+  elsif ($func eq 'get') {
+    $tmp = $cgi->param('path');
+    $tmp = '' unless (defined $tmp);
+    $tmp .= $cgi->param('file');
+    $request->{'path'} = $tmp;
+  }
     
   $result = $mj->dispatch($request); 
   &usage($mj, $subs, "Unable to obtain result from Majordomo.", '') 
@@ -696,10 +714,11 @@ elsif ($func ne 'showtokens') {
 }
 
 #----- Display supplementary information -----#
-# There are seven supplementary screens which this script displays. 
+# There are several supplementary screens which this script displays. 
 #   command    - Display a command menu
 #   configshow - Allow easy access to collections of settings.
 #   newlist    - Allow lists to be created, renamed, or destroyed.
+#   index      - Display an index of files and directories.
 #   lists      - Show details about a list, or a collection of lists.
 #   showtokens - Display a list of pending requests
 #   which      - Search all subscriber lists or (un)register addresses
@@ -786,6 +805,18 @@ elsif ($commands{$func}->[1] ne $func) {
     $request->{'chunksize'} = $cgi->param('chunksize') || 10;
     $request->{'regexp'} = $cgi->param('pattern');
     $request->{'victims'} = '';
+  }
+  elsif ($commands{$func}->[1] eq 'index') {
+    $func = 'index';
+    $request->{'command'} = 'index';
+    $request->{'mode'} = '';
+    $request->{'victims'} = '';
+    if (exists $request->{'file'}) {
+      $tmp = $request->{'file'};
+      delete $request->{'file'};
+      $tmp =~ s#[^/]+/*$##;
+      $request->{'path'} = $tmp;
+    }
   }
   $result = $mj->dispatch($request); 
   &usage($mj, $subs, "Unable to obtain result from Majordomo.", '') 
