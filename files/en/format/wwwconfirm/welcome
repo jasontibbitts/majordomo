@@ -18,9 +18,14 @@ into the box.   There are four buttons you can use to manage requests.
     type your reasons into the large box.
 
   <li>
-    To disapprove the request, press the <b>reject</b> button.
-    If you would like to explain why the request was rejected,
-    type your reasons into the large box.
+    To disapprove the request, press the <b>reject</b> button.  If you
+    would like to explain why the request was rejected, type your reasons
+    into the large box.  This may result in various acknowledgements being
+    sent.
+
+  <li>
+    To disapprove the request without sending acknowledgments, press the
+    <b>reject-quiet </b> button.
 
   <li>
     To get more information about a pending request (who made
@@ -30,7 +35,5 @@ into the box.   There are four buttons you can use to manage requests.
   <li>
     To return to this introduction at any time, press the 
     <b>welcome</b> button at the top of the page. 
-
-
 </ul>
 

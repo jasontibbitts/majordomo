@@ -8,7 +8,7 @@
 
 <form method=POST action="$CGIURL">
 
-<table width="100%" cellspacing=10>
+<table width="100%" cellspacing=0>
 <tr>
   <td align=center bgcolor="#706060">
   <font color="#f0f0f0">
@@ -27,6 +27,11 @@
 
   <td align=center bgcolor="#706060">
   <font color="#f0f0f0">
+    <input type=submit name="a" value="reject-quiet">
+  </font>
+
+  <td align=center bgcolor="#706060">
+  <font color="#f0f0f0">
     <input type=submit name="a" value="tokeninfo-full">
   </font>
 
@@ -36,7 +41,7 @@
   </font>
 
 <tr>
-  <td align=center bgcolor="#706060" colspan=5>
+  <td align=center bgcolor="#706060" colspan=6>
   <font color="#f0f0f0">
     Your reasons for accepting or 
     rejecting the request (optional):<br>
