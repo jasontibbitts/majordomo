@@ -393,10 +393,10 @@ If only the variable name is used, the variable is set to the value 1.
 
 unset
 -----
-The set action resets the value of an access variable.  See 
+The unset action resets the value of an access variable.  See 
 "help access_variables" for a list of the variables that are supported.
 
-The set action takes one parameter, the name of an access variable.
+The unset action takes one parameter, the name of an access variable.
 The variable is set to 0 (for boolean, numeric, and timespan variables) 
 or the empty string (for string variables).
 
