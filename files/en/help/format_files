@@ -79,6 +79,20 @@ token which has been accepted requires further approval.
 (standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOKEN, USER)
 
 
+alias
+-----
+(ALL)  This file is displayed when the alias command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER, VICTIM)
+
+
+alias_error
+-----------
+(ALL)  This file is displayed when the alias command stalls or fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER, VICTIM)
+
+
 archive_attachment
 ------------------
 (ALL)  This file displays summary information
@@ -1031,6 +1045,20 @@ of a plain text message part.
 
 (standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT, 
  DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
+
+
+unalias
+-------
+(ALL)  This file is displayed when the unalias command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER, VICTIM)
+
+
+unalias_error
+-------------
+(ALL)  This file is displayed when the unalias command stalls or fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER, VICTIM)
 
 
 unregister
