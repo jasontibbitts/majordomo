@@ -111,7 +111,7 @@ sub t_add {
      'chain1'     => shift,
      'chain2'     => shift,
      'chain3'     => shift,
-     'chain4'     => shift,
+     'approver'   => shift,
      'arg1'       => shift,
      'arg2'       => shift,
      'arg3'       => shift,
@@ -259,10 +259,10 @@ sub confirm {
       }
     }
     @tmp = @Mj::Util::notify_fields;
-    for ($i = 1; $i < scalar(@{$args{'notify'}}) && $i < 5 ; $i++) {
+    for ($i = 1; $i < scalar(@{$args{'notify'}}) && $i < 4 ; $i++) {
       $args{"chain$i"} = condense($args{'notify'}->[$i], \@tmp);
     }
-    for ( ; $i < 5 ; $i++) {
+    for ( ; $i < 4 ; $i++) {
       $args{"chain$i"} ||= '';
     }
   }
@@ -272,6 +272,10 @@ sub confirm {
       $args{"chain$i"} ||= '';
     }
   }
+
+  # Store the group that was notified in the "approver" field to
+  # allow reminder notices to be sent to the proper place.
+  $args{'approver'} = $notify[0]->{'group'};
 
   $approvals = 0;
   $ttype = 'confirm';
@@ -332,9 +336,9 @@ sub confirm {
     $self->t_add($ttype, $args{'list'}, $args{'command'}, $args{'user'}, 
                  $args{'victim'}, $args{'mode'}, $args{'cmdline'}, 
                  $approvals, $args{'chain1'}, $args{'chain2'}, $args{'chain3'},
-                 $args{'chain4'}, $args{'arg1'}, $args{'arg2'}, $args{'arg3'}, 
+                 $args{'approver'}, $args{'arg1'}, $args{'arg2'}, $args{'arg3'}, 
                  $expire, $remind[0]->[0], $remind[0]->[1], 
-                 $permanent, $args{'reasons'});
+                 $permanent, $args{'reasons'}, $dest);
 
   $url = $self->substitute_vars_string($curl,
         			       {'TOKEN' => $realtoken,},
@@ -657,8 +661,7 @@ sub t_accept {
       $tmp = reconstitute($data->{'chain1'}, \@tmp);
       $data->{'chain1'} = $data->{'chain2'};
       $data->{'chain2'} = $data->{'chain3'};
-      $data->{'chain3'} = $data->{'chain4'};
-      $data->{'chain4'} = '';
+      $data->{'chain3'} = '';
     }
     # Old style
     else {
@@ -682,7 +685,7 @@ sub t_accept {
       delete $data->{'chain1'};
       delete $data->{'chain2'};
       delete $data->{'chain3'};
-      delete $data->{'chain4'};
+      $data->{'approver'} = $tmp->{'group'};
       delete $data->{'remind'};
     }
 
@@ -702,13 +705,15 @@ sub t_accept {
     # XXX What if the confirm method fails?
     $self->t_remove($token);
 
-    # Determine which file to send.  chain4 or repl_something
-    # based upon notify->{'group'}.
+    # Determine which file to send based upon notify->{'group'}.
 
     if (exists $tmp->{'chainfile'} and length($tmp->{'chainfile'})) {
       $rf = $tmp->{'chainfile'};
     }
     elsif ($tmp->{'group'} eq 'requester') {
+      $rf = 'repl_confirm_req';
+    }
+    elsif ($tmp->{'group'} eq 'victim') {
       $rf = 'repl_confirm';
     }
     else {
@@ -911,7 +916,7 @@ sub t_remind {
   my $self = shift;
   my $log  = new Log::In 60;
   my $time = time;
-  my (%file, @mod, @reminded, @tmp, $data, $ent, $gurl, 
+  my (%file, @mod, @reminded, @tmp, $data, $dest, $ent, $gurl, 
       $mj_addr, $mj_owner, $owner, $tmp, $token, $url);
 
   my $mogrify = sub {
@@ -943,43 +948,44 @@ sub t_remind {
     while (($token, $data) = splice(@tmp, 0, 2)) {
       # For alias tokens, remove the token unless the original exists.
       if ($data->{'type'} eq 'alias') {
+        $dest = $data->{'chain2'};
         $tmp = $self->{'tokendb'}->lookup($data->{'chain1'});
         unless (defined $tmp) {
           $self->t_remove($token);
           next;
         }
       }
+      else {
+        $dest = $data->{'approver'};
+        unless (defined $dest and length $dest) {
+          if ($data->{'type'} eq 'confirm') {
+            $dest = 'victim';
+          }
+          else {
+            $dest = 'moderators';
+          }
+        }
+      }
+
+      next if ($dest eq 'none');
 
       $owner = $self->_list_config_get($data->{'list'}, 'whoami_owner');
       $ent = $self->r_gen($token, $data, $gurl, $owner);
       next unless $ent;
 
-      # Mail it out; the victim gets confirm notices, otherwise the owner
-      # gets them
-      if ($data->{type} eq 'confirm') {
+      if ($dest eq 'victim') {
+        @mod = ($data->{'victim'});
         $ent->head->replace('To', $data->{'victim'});
-        $self->mail_entity($mj_owner, $ent, $data->{'victim'});
       }
-      elsif ($data->{'type'} eq 'alias') {
-        $ent->head->replace('To', $owner);
-        if ($data->{'chain2'} eq 'none') {
-          next;
-        }
-        elsif ($data->{'chain2'} eq 'victim') {
-          @mod = ($data->{'victim'});
-        }
-        elsif ($data->{'chain2'} eq 'requester') {
-          @mod = ($data->{'user'});
-        }
-        else {
-          @mod = $self->get_moderators($data->{'list'}, $data->{'chain2'}, -1);
-        }
-        $self->mail_entity($mj_owner, $ent, @mod) if (scalar @mod);
-      }  
+      elsif ($dest eq 'requester') {
+        @mod = ($data->{'user'});
+        $ent->head->replace('To', $data->{'user'});
+      }
       else {
+        @mod = $self->get_moderators($data->{'list'}, $dest, -1);
         $ent->head->replace('To', $owner);
-        $self->mail_entity($mj_owner, $ent, $owner);
       }
+      $self->mail_entity($mj_owner, $ent, @mod) if (scalar @mod);
         
       # Purge the entity
       $ent->purge;
@@ -992,7 +998,7 @@ sub t_remind {
 
 Based upon the data for a token, create a reminder message.
 
-This routine is used both in automated reminders, and by the
+This method is used in automated reminders and by the
 tokeninfo-remind command.
 
 =cut
@@ -1072,8 +1078,6 @@ This goes through all of the tokens and removes the ones which are older
 than their 'expire' time.
 
 Returns a list of (key, data) pairs that were deleted.
-
-XXX Need to notify owner of implicit rejection if a consult token expires.
 
 =cut
 sub t_expire {
@@ -1198,17 +1202,18 @@ sub gen_latchkey {
      'mode'       => '',
      'cmdline'    => '',
      'approvals'  => '',
-     'chain1'     => '',
+     'chain1'     => ep_convert($password),
      'chain2'     => '',
      'chain3'     => '',
-     'chain4'     => '',
-     'arg1'       => ep_convert($password),
+     'approver'   => '',
+     'arg1'       => '',
      'arg2'       => '',
      'arg3'       => '',
      'expire'     => $expire,
      'remind'     => '',
      'reminded'   => 1,
      'permanent'  => '',
+     'reasons'    => '',
      'time'       => time,
      'sessionid'  => $self->{'sessionid'},
   };
@@ -1256,7 +1261,7 @@ sub _del_spooled_files {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
