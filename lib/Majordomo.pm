@@ -3023,7 +3023,7 @@ sub configshow {
       {
         push (@hereargs, "$_\n") if defined $_;
       }
-      push @out, [$auto, $comment, $var, \@hereargs];
+      push @out, [$auto, $comment, $var, [@hereargs]];
     }
     else {
       # Process as a simple variable
