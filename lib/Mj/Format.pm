@@ -87,7 +87,7 @@ sub accept {
     my $fun = "Mj::Format::$command";
     {
       no strict 'refs';
-      $ok = &$fun($mj, $out, $err, $type, $data, $rresult);
+      $ok = &$fun($mj, $out, $err, 'text', $data, $rresult);
     }
   }
   $ok;
