@@ -1,9 +1,11 @@
-A list of transformations to be applied to ALL addresses before comparing
-them for equivalency or storing them in the internal database. This can
-be used to remove the '+mailbox' part of an address, or to remove the
-machine name from addresses in a domain, or even to make all addresses
-fully case insensitive. Transforms should listed one per line, and should
-be in the form /pattern/replacement/ unless a special string is used. 
+This list of transformations is applied to all addresses before
+comparing them for equivalency or storing them in the internal database.
+This can be used to remove address extensions, to remove part of the
+domain name, or to convert capital letters into small letters, for
+example.
 
-NOTE: These transforms must continue to give the same result when applied
-to the same email address multiple times in succession.
+Each transform must appear on a separate line and should be in the form
+/pattern/replacement/ unless a special string is used. 
+
+Each transform must continue to give the same result when applied to the
+same email address multiple times in succession.

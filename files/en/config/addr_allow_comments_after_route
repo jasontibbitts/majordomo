@@ -1,2 +1,6 @@
-If this is true, Majordomo will allow addresses with comments after the <>
-bracked route portion of an address.
+If this is true, Majordomo will allow addresses with comments after the
+"<>" bracketed route portion of an address.  For example, the address
+
+  <jane@example.com> (Jane Smith)
+
+would be considered valid.

@@ -1,14 +1,15 @@
-This variable controls how often bounce probes are sent out.
+When a message is delivered to the subscribers of a mailing list, the
+list of subscribers is split into several groups, and a different group
+of addresses is probed for each message sent to the list.  For example,
+if this value is 8, approximately one-eighth of the subscribers'
+addresses will be probed every time.
 
-The address list is split into 'bounce_probe_frequency' pieces, and a
-different piece is probed for each message sent to the list.  This lowers
-the overall load while still allowing complete probes to be done in a
-reasonable amount of time.  For example, if the value is 8, approximately
-one-eighth of the subscribers' addresses will be probed every time.
+Probing allows Majordomo to determine more easily which subscribers are
+not receiving mail from a mailing list.
 
-Setting this to zero disables regular bounce probing.  Setting this to one
-probes every address for every message and may place an extreme load on the
-server(s).  
+Setting this value to zero disables regular bounce probing.  Setting
+this value to one probes every address for every message, and may place
+an extreme load on the server.  
 
-Note that this variable will be ignored if the MTA is qmail, because qmail 
-does an equivalent kind of bounce probing itself.
+This setting will be ignored if the MTA is qmail, because qmail does an
+equivalent kind of bounce probing automatically.

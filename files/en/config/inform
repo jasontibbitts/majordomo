@@ -1,10 +1,11 @@
-The inform setting controls the ways in which list owners can keep abreast of 
-activity on a mailing list.  Each line consists of three sections, separated
-by pipes or colons ('|' or ':')
+The inform setting controls the ways in which list owners can keep
+abreast of activity on a mailing list.  Each line consists of three
+sections, separated by pipes or colons ('|' or ':')
 
   request | results | actions
 
-The request is any majordomo command (e.g., subscribe, post, or archive).
-The results are one or more of "succeed," "fail," and "stall," or "all" for 
-all three.  The actions are one or more of "ignore," "inform," and "report."
-Multiple results or actions should be separated by commas.
+The request is any majordomo command (e.g., subscribe, post, or
+archive).  The results are one or more of "succeed," "fail," and
+"stall," or "all" for all three.  The actions are one or more of
+"ignore," "inform," and "report." Multiple results or actions should be
+separated by commas.

@@ -1,3 +1,4 @@
-If this is true, addresses are verified to be in one of the legal top-level
-domains.  New domains are occasionally added; if Majordomo's internal list
-becomes outdated, set this to false to turn off strict domain checking.
+If this is true, addresses are verified to be in one of the legal
+top-level domains.  New domains are occasionally added; if Majordomo's
+internal list becomes outdated, set this to false to turn off strict
+domain checking.

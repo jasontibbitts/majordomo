@@ -1,6 +1,5 @@
-A list of aliases that will be made available for this list.  
-After this value has been changed, the createlist-regen command 
-must be run to recreate the aliases.
+The aliases setting contains a list of mail aliases to which electronic
+mail can be sent.  The following values are supported:
 
   auxiliary   An alias for each auxiliary list in the "sublists" setting.
   moderator   LIST-moderator
@@ -10,4 +9,7 @@ must be run to recreate the aliases.
   subscribe   LIST-subscribe
   unsubscribe LIST-unsubscribe
 
-Currently, owner, resend, and request are mandatory.
+Currently, owner, request, and resend are mandatory.
+
+After the value  of this setting has been changed, the createlist-regen
+command must be run to recreate the aliases.

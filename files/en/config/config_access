@@ -1,9 +1,9 @@
 The config_access setting loosens or tightens access to configuration
-settings.  Each line consists of a setting name, followed by an
-access level for viewing the setting (with the configshow command)
-and an access level for changing the setting (with the configset or
-configdef command).  The access level for is a whole number between 
-0 and 5 for viewing, and between 1 and 5 for changing.
+settings.  Each line consists of a setting name, followed by an access
+level for viewing the setting (with the configshow command) and an
+access level for changing the setting (with the configset or configdef
+command).  The access level for is a whole number between 0 and 5 for
+viewing, and between 1 and 5 for changing.
 
 Higher numbers give greater restrictions.  The access levels include:
   5 - The site password
@@ -15,6 +15,7 @@ Higher numbers give greater restrictions.  The access levels include:
 
 For example, an entry like
   token_lifetime |  1  |  3
-would allow anyone with an administrative password to see the token_lifetime
-setting, but only the domain or site managers could change it.
+would allow anyone with an administrative password to see the
+token_lifetime setting, but only the domain or site managers could
+change it.
 

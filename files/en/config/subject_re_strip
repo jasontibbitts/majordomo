@@ -1,2 +1,2 @@
 Should the portion of the subject header matched by the subject_re_pattern
-setting will be removed and replaced with the string "Re:"?
+setting be removed and replaced with the string "Re:" ?

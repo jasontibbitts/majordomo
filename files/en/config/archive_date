@@ -1,5 +1,5 @@
-The archive_date setting determines which date is used when posted messages
-are stored in the archive.  There are two possibilities, "arrival" for the
-date of arrival, and "delivery" for the date of delivery.  These two dates
-will differ if a message is moderated, and the moderators approve it a day
-or more after it arrives.
+The archive_date setting determines which date is used when posted
+messages are stored in the archive.  There are two possibilities,
+"arrival" for the date of arrival, and "delivery" for the date of
+delivery.  These two dates will differ if a message is moderated, and
+the moderators approve it a day or more after it arrives.
