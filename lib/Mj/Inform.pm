@@ -20,6 +20,7 @@ Logs are stored in a simple one-line-per-entry format.
 =cut
 
 package Mj::Inform;
+use Mj::CommandProps qw(:command);
 use Mj::File;
 use Mj::FileRepl;
 use Mj::Log;
@@ -76,6 +77,10 @@ sub inform {
 
   $user ||= ''; $requ ||= '';
   $elapsed = sprintf("%.3f", $elapsed);
+
+  if (command_prop($req, 'real') and not command_prop($req, 'list')) {
+    $list = 'GLOBAL';
+  }
 
   # Log the data
   my $line = join("\001", $list, $req, $requ, $user, $cmd, $int, $stat,
