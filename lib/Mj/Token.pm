@@ -455,7 +455,7 @@ sub t_accept {
   my $mode = shift;
   my $log   = new Log::In 50, "$token";
   my (@out, $data, $ent, $ffunc, $func, $line, $mess, $ok, $outfh,
-      $req, $sender, $tmp, $vict);
+      $req, $sender, $tmp, $vict, $repl);
 
   $self->_make_tokendb;
   $data = $self->{'tokendb'}->lookup($token);
@@ -481,10 +481,26 @@ sub t_accept {
   # chained token where we need to generate yet another token and send it
   # to another source.
   if ($data->{'chain1'}) {
+    if ($data->{'chain2'} eq 'requester') {
+      $self->confirm('chained'   => 1,
+        'file'      => $data->{'chain1'},
+        'group'     => $data->{'chain2'},
+        'list'      => $data->{'list'},
+        'request'   => $data->{'request'},
+        'requester' => $data->{'victim'},
+        'victim'    => $data->{'requester'},
+        'mode'      => $data->{'mode'},
+        'cmdline'   => $data->{'cmdline'},
+        'sessionid' => $data->{'sessionid'},
+        'approvals' => $data->{'chain3'},
+        'args'      => [$data->{'arg1'}, $data->{'arg2'}, $data->{'arg3'}],
+      );
+    }
 
     # We have a confirm+consult token, the first half was just accepted.
     # Generate the new consult token
-    $self->consult('chained'   => 1,
+    else {
+      $self->consult('chained'   => 1,
 		   'file'      => $data->{'chain1'},
 		   'group'     => $data->{'chain2'},
 		   'list'      => $data->{'list'},
@@ -497,10 +513,21 @@ sub t_accept {
 		   'approvals' => $data->{'chain3'},
 		   'args'      => [$data->{'arg1'}, $data->{'arg2'}, $data->{'arg3'}],
 		  );
+    }
     $self->t_remove($token);
 
     # and build the return message string from the replyfile
+    $repl = {
+             'REQUESTER'  => $data->{'requester'},
+             'VICTIM'     => $data->{'victim'},
+             'CMDLINE'    => $data->{'cmdline'},
+             'REQUEST'    => $data->{'request'},
+             'LIST'       => $data->{'list'},
+             'SESSIONID'  => $data->{'sessionid'},
+            };
+
     my ($file) = $self->_list_file_get($data->{'list'}, $data->{'chain4'});
+    $file = $self->substitute_vars($file, $repl);
     my $fh = new Mj::File "$file"
       || $log->abort("Cannot read file $file, $!");
     while (defined ($line = $fh->getline)) {

@@ -20,6 +20,7 @@ $files =
    'en/repl_chain'                                    => ['Default chained mailreply file',           'us-ascii', '7bit'],
    'en/repl_confcons'                                 => ['Default confirm+consult mailreply file',   'us-ascii', '7bit'],
    'en/repl_confirm'                                  => ['Default confirm mailreply file',           'us-ascii', '7bit'],
+   'en/repl_confirm2'                                 => ['Default double-confirm mailreply file',    'us-ascii', '7bit'],
    'en/repl_consult'                                  => ['Default consult mailreply file',           'us-ascii', '7bit'],
    'en/repl_deny'                                     => ['Default denial replyfile',                 'us-ascii', '7bit'],
    'en/repl_forward'                                  => ['Default forward replyfile',                'us-ascii', '7bit'],

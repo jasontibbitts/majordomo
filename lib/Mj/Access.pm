@@ -565,7 +565,7 @@ sub list_access_check {
       if ($arg) {
         my $reason = $arg;
         $reason =~ s/^\"(.*)\"$/$1/;
-        $arg2 .= "\002$reason";
+        $arg2 = "$reason\002" . $arg2;
       }
 	  next ACTION;
 	}
@@ -630,6 +630,7 @@ sub list_access_check {
        {
 	'LIST'    => $list,
 	'REQUEST' => $request,
+	'REQUESTER' => $requester,
 	'VICTIM'  => $victim,
 	'REASONS' => $reasons,
        },
@@ -759,6 +760,43 @@ sub _a_confirm {
   return (-1, 'repl_confirm');
 }
 
+# Confirm with both the requester and the victim, victim first.
+sub _a_confirm2 {
+  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
+      $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
+
+  my ($chain, $tmp, $reply);
+  $reply = "repl_confirm";
+  # Confirm file, consult file, consult group, consult approvals
+  my ($file1, $file2, $group, $approvals) = split(/\s*,\s*/,$arg);
+  if ($args{'mismatch'}) {
+    if (!$args{'user_password'}) {
+      $chain  = [$file2 || 'confirm', $group || 'requester',
+               $approvals || 1, $file2 || 'repl_confirm' ];
+      $reply = "repl_confirm2";
+    }
+    # Swap roles if the victim's password was supplied.
+    else {
+      $tmp = $requester;
+      $requester = $victim;
+      $victim = $tmp;
+    }
+  }
+ 
+  $self->confirm('file'      => $file1 || 'confirm',
+		 'list'      => $list,
+		 'request'   => $request,
+		 'requester' => $requester,
+		 'victim'    =>	$victim,
+		 'mode'      => $mode,
+		 'cmdline'   => $cmdline,
+		 'approvals' => 1,
+         'chain'     => $chain,
+		 'args'      => [$arg1, $arg2, $arg3],
+		);
+
+  return (-1, $reply);
+}
 # Accepts four parameters: filename, approvals, the moderator group, the
 # number of moderators.  XXX Possibly allow the push of a bounce reason, or
 # can the whole moderator group thing.
@@ -898,6 +936,10 @@ sub _a_default {
   if (access_def($request, 'confirm')) {
     return $self->_a_allow(@_) if $args{'user_password'};
     return $self->_a_confirm(@_)
+  }
+
+  if (access_def($request, 'confirm2')) {
+    return $self->_a_confirm2(@_)
   }
 
   if (access_def($request, 'access')) {
