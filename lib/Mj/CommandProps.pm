@@ -401,7 +401,9 @@ my %commands =
    'lists' =>
    {
     'parser'   => [qw(email shell noargs nohereargs real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1,
+                   'arguments' => { 'regexp' => {'type' => 'SCALAR'}}
+                  },
     'access'   => {
                    'default' => 'allow',
                    'legal'   => \%reg_legal,
@@ -442,7 +444,7 @@ my %commands =
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1, 'noaddr' => 1,
-                   'arguments' => { 'auxlist' => {'type' => 'SCALAR',} },
+                   'arguments' => { 'auxlist' => {'type' => 'SCALAR'} },
                    'hereargs'  =>   'message',
                   },
     'access'   => {
