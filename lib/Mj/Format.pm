@@ -605,10 +605,10 @@ sub digest {
   $ok;
 }
 
-sub faq   {g_get("FAQ failed.",   @_)}
-sub get   {g_get("Get failed.",   @_)}
-sub info  {g_get("Info failed.",  @_)}
-sub intro {g_get("Intro failed.", @_)}
+sub faq   {g_get("faq",   @_)}
+sub get   {g_get("get",   @_)}
+sub info  {g_get("info",  @_)}
+sub intro {g_get("intro", @_)}
 
 sub help {
   my ($mj, $out, $err, $type, $request, $result) = @_;
@@ -1193,8 +1193,10 @@ sub sessioninfo {
     eprint($out, $type, &indicate($sess, $ok)) if $sess;
     return ($ok>0);
   }
-  eprint($out, $type, "Stored information from session $request->{'sessionid'}\n");
-  g_get("Sessioninfo failed.", @_);
+  eprint($out, $type, 
+         "Stored information from session $request->{'sessionid'}:\n");
+
+  g_get("sessioninfo", @_);
 }
 
 
@@ -1579,6 +1581,9 @@ sub tokeninfo {
     Mj::Format::sessioninfo($mj, $out, $err, $type, $request, [1, '']);
   }
 
+  # Restore the command name.
+  $request->{'command'} = 'tokeninfo';
+
   $tmp = $mj->format_get_string($type, 'tokeninfo_foot');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
@@ -1959,15 +1964,12 @@ sub who {
 }
 
 sub g_get {
-  my ($fail, $mj, $out, $err, $type, $request, $result) = @_;
-  my ($base, $chunk, $chunksize, $lastchar);
+  my ($base, $mj, $out, $err, $type, $request, $result) = @_;
+  my ($chunk, $chunksize, $lastchar);
   my ($ok, $mess) = @$result;
 
-  $base = $request->{'command'};
-  $base =~ s/_start//;
-
   unless ($ok > 0) {
-    eprint($out, $type, "$fail\n");
+    eprint($out, $type, "The $base command failed\n");
     eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
     return $ok;
   }

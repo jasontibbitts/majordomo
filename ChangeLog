@@ -3,6 +3,10 @@
 	* README.LINUX:  Describe a workaround for a MakeMaker module
 	bug in some versions of linux.
 
+	* lib/Mj/Format.pm:  (g_get)  Bugfix:  Changing the request hash
+	for sessioninfo commands prevented mj_wwwadm from executing more
+	than one tokeninfo command.
+
 	* lib/Mj/Token.pm:  (confirm)  Bugfix:  Testing the 'ackstall'
 	flag could in some cases cause CONSULT notices not to be mailed.
 
