@@ -299,12 +299,12 @@ sub configshow {
   elsif ($request->{'mode'} =~ /extract/) {
     $mode = $mode2 = '-extract';
   }
-  
-   
+
   $gsubs = { $mj->standard_subs($list),
+            'CGIDATA'  => cgidata($mj, $request),
             'CGIURL'   => $request->{'cgiurl'},
             'PASSWORD' => $request->{'password'},
-            'USER'     => "$request->{'user'}",
+            'USER'     => escape("$request->{'user'}", $type),
           };
 
   $ok = shift @$result;
@@ -674,12 +674,14 @@ sub lists {
 
   $global_subs = {
            $mj->standard_subs('GLOBAL'),
+           'CGIDATA' => cgidata($mj, $request),
+           'CGIURL' => $request->{'cgiurl'};
           };
 
   if ($ok <= 0) {
     $tmp = $mj->format_get_string($type, 'lists_error');
     $str = $mj->substitute_vars_format($tmp, $global_subs);
-    eprint($out, $type, indicate("$str\n", $ok, 1));
+    print $out indicate("$str\n", $ok, 1);
     return 1;
   }
   
@@ -687,7 +689,7 @@ sub lists {
     unless ($request->{'mode'} =~ /compact|tiny/) {
       $tmp = $mj->format_get_string($type, 'lists_head');
       $str = $mj->substitute_vars_format($tmp, $global_subs);
-      eprint($out, $type, "$str\n");
+      print $out "$str\n");
     }
  
     if ($request->{'mode'} =~ /full/ and $request->{'mode'} !~ /config/) { 
@@ -709,14 +711,14 @@ sub lists {
       if (length $category && $request->{'mode'} !~ /tiny/) {
         $subs->{'CATEGORY'} = $category;
         $str = $mj->substitute_vars_format($cat_format, $subs);
-        eprint($out, $type, "$str\n");
+        print $out "$str\n";
       }
       for $list (sort keys %{$lists{$category}}) {
         $count++ unless ($list =~ /:/);
         $data = $lists{$category}{$list};
         $flags = $data->{'flags'} ? "+" : " ";
         if ($request->{'mode'} =~ /tiny/) {
-          eprint($out, $type, "$list\n");
+          print $out "$list\n";
           next;
         }
         $legend++ if $data->{'flags'};
@@ -743,12 +745,12 @@ sub lists {
                   'PASSWORD'      => $request->{'password'},
                   'POSTS'         => $data->{'posts'},
                   'SUBS'          => $data->{'subs'},
-                  'USER'          => "$request->{'user'}",
+                  'USER'          => escape("$request->{'user'}", $type),
                   'WHOAMI'        => $data->{'address'},
                 };
                   
         $str = $mj->substitute_vars_format($basic_format, $subs);
-        eprint($out, $type, "$str\n");
+        print $out "$str\n";
       }
     }
   }
@@ -759,11 +761,11 @@ sub lists {
               'CGIURL'        => $request->{'cgiurl'} || "?",
               'PASSWORD'      => $request->{'password'},
               'PATTERN'       => $request->{'regexp'},
-              'USER'          => "$request->{'user'}",
+              'USER'          => escape("$request->{'user'}", $type),
             };
     $tmp = $mj->format_get_string($type, 'lists_none');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    eprint($out, $type, "$str\n");
+    print $out "$str\n";
   }
 
   return 1 if $request->{'mode'} =~ /compact|tiny/;
@@ -774,18 +776,18 @@ sub lists {
           };
   $tmp = $mj->format_get_string($type, 'lists_foot');
   $str = $mj->substitute_vars_format($tmp, $subs);
-  eprint($out, $type, "$str\n");
+  print $out "$str\n";
 
   if ($request->{'mode'} =~ /enhanced/) {
     $subs = {
               %{$global_subs},
               'COUNT'         =>  $count,
               'SUBSCRIPTIONS' =>  $legend,
-              'USER'          => "$request->{'user'}",
+              'USER'          => escape("$request->{'user'}", $type),
             };
     $tmp = $mj->format_get_string($type, 'lists_enhanced');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    eprint($out, $type, "$str\n");
+    print $out "$str\n";
   }
   1;
 }
@@ -1130,10 +1132,12 @@ sub show {
       $settings, $str, $subs, $tmp);
   my ($ok, $data) = @$result;
   $error = [];
+
   $global_subs = {
     $mj->standard_subs('GLOBAL'),
-    'CGIURL' => $request->{'cgiurl'} || '',
-    'VICTIM' => "$request->{'victim'}",
+    'CGIDATA' => cgidata($mj, $request),
+    'CGIURL'  => $request->{'cgiurl'},
+    'VICTIM'  => escape("$request->{'victim'}"),
   };
  
   # use Data::Dumper; print $out Dumper $data;
@@ -1158,7 +1162,7 @@ sub show {
 
     $tmp = $mj->format_get_string($type, 'show_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    eprint($out, $type, indicate("$str\n", $ok, 1));
+    print $out indicate("$str\n", $ok, 1);
 
     return $ok;
   }
@@ -1176,13 +1180,13 @@ sub show {
 
     $tmp = $mj->format_get_string($type, 'show_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    eprint($out, $type, indicate("$str\n", $ok, 1));
+    print $out indicate("$str\n", $ok, 1);
 
     return $ok;
   }
 
   $subs = { %$global_subs };
-  $subs->{'USER'}     = "$request->{'user'}";
+  $subs->{'USER'}     = escape("$request->{'user'}", $type);
   $subs->{'PASSWORD'} = $request->{'password'};
 
   for $i (keys %$data) {
@@ -1200,7 +1204,7 @@ sub show {
   unless ($data->{regdata}) {
     $tmp = $mj->format_get_string($type, 'show_none');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    eprint($out, $type, "$str\n");
+    print $out "$str\n";
     return 1;
   }
   for $i (keys %{$data->{'regdata'}}) {
@@ -1223,7 +1227,7 @@ sub show {
 
   $tmp = $mj->format_get_string($type, 'show_head');
   $str = $mj->substitute_vars_format($tmp, $subs);
-  eprint($out, $type, "$str\n");
+  print $out "$str\n";
 
   for $i (@lists) {
     $lsubs = { %$subs };
@@ -1311,12 +1315,12 @@ sub show {
 
     $tmp = $mj->format_get_string($type, 'show');
     $str = $mj->substitute_vars_format($tmp, $lsubs);
-    eprint($out, $type, "$str\n");
+    print $out "$str\n";
   }
 
   $tmp = $mj->format_get_string($type, 'show_foot');
   $str = $mj->substitute_vars_format($tmp, $subs);
-  eprint($out, $type, "$str\n");
+  print $out "$str\n";
 
   1;
 }
@@ -1335,13 +1339,15 @@ sub showtokens {
 
   $global_subs = {
            $mj->standard_subs($request->{'list'}),
+           'CGIDATA' => cgidata($mj, $request),
+           'CGIURL'  => $request->{'cgiurl'},
           };
 
   my ($ok, @tokens) = @$result;
   unless (@tokens) {
     $tmp = $mj->format_get_string($type, 'showtokens_none');
     $str = $mj->substitute_vars_format($tmp, $global_subs);
-    eprint($out, $type, indicate("$str\n", $ok, 1));
+    print $out indicate("$str\n", $ok, 1);
     return $ok;
   }
   unless ($ok > 0) {
@@ -1351,7 +1357,7 @@ sub showtokens {
             };
     $tmp = $mj->format_get_string($type, 'showtokens_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    eprint($out, $type, indicate("$str\n", $ok, 1));
+    print $out indicate("$str\n", $ok, 1);
     return $ok;
   }
 
@@ -1374,12 +1380,7 @@ sub showtokens {
       $size = sprintf "(%d kB)",  int(($data->{'size'} + 512)/1024);
     }
 
-    if ($type ne 'text') {
-      $user = escape($data->{'user'});
-    }
-    else {
-      $user = $data->{'user'};
-    }
+    $user = escape($data->{'user'}, $type);
 
     $subs = { 
               %{$global_subs},
@@ -1404,7 +1405,7 @@ sub showtokens {
           };
               
   $str = $mj->substitute_vars_format($basic_format, $subs);
-  eprint($out, $type, "$str\n");
+  print $out "$str\n";
   1;
 }
 
@@ -1417,14 +1418,17 @@ sub tokeninfo {
   my $log = new Log::In 29, "$request->{'token'}";
   my (@tmp, $expire, $str, $subs, $time, $tmp);
   my ($ok, $data, $sess) = @$result;
-
-  $subs = { $mj->standard_subs('GLOBAL') };
+ 
+  $subs = { $mj->standard_subs('GLOBAL'),
+            'CGIDATA' => cgidata($mj, $request),
+            'CGIURL'  => $request->{'cgiurl'},
+           };
 
   unless ($ok > 0) {
     $subs->{'ERROR'} = $data;
     $tmp = $mj->format_get_string($type, 'tokeninfo_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    eprint($out, $type, indicate("$str\n", $ok, 1));
+    print $out indicate("$str\n", $ok, 1);
     return $ok;
   }
 
@@ -1445,7 +1449,7 @@ sub tokeninfo {
 
   $tmp = $mj->format_get_string($type, 'tokeninfo_head');
   $str = $mj->substitute_vars_format($tmp, $subs);
-  eprint($out, $type, "$str\n");
+  print $out "$str\n";
 
   if ($sess) {
     eprint($out, $type, "\n");
@@ -1455,7 +1459,7 @@ sub tokeninfo {
 
   $tmp = $mj->format_get_string($type, 'tokeninfo_foot');
   $str = $mj->substitute_vars_format($tmp, $subs);
-  eprint($out, $type, "$str\n");
+  print $out "$str\n";
 
   1;
 }
@@ -1584,11 +1588,12 @@ sub who {
 
   $gsubs = { 
             $mj->standard_subs($source),
+            'CGIDATA'  => cgidata($mj, $request),
             'CGIURL'   => $request->{'cgiurl'},
             'PASSWORD' => $request->{'password'},
             'PATTERN'  => $request->{'regexp'},
             'REMOVE'   => $remove,
-            'USER'     => "$request->{'user'}",
+            'USER'     => escape("$request->{'user'}", $type),
            };
 
   ($ok, $regexp, $settings) = @$result;
@@ -1931,10 +1936,27 @@ sub g_sub {
   $ok;
 }
 
+sub cgidata {
+  my $mj = shift;
+  my $request = shift;
+  my ($addr, $out);
+
+  return unless (ref $mj and ref $request);
+  $addr = escape("$request->{'user'}");
+  
+  $out = sprintf 'domain=%s&user=%s&passw=%s',
+           $mj->{'domain'}, $addr, $request->{'password'};
+
+  $out =~ s/ /%20/g;
+  return $out;
+}
+
+
+  
 sub eprint {
   my $fh   = shift;
   my $type = shift;
-  if ($type eq 'html') {
+  if ($type eq 'html' or $type =~ /^www/) {
     print $fh &escape(join('', @_));
   }
   else {
