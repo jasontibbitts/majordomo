@@ -208,7 +208,7 @@ sub run_queue {
 	    # stuff in that directory
 	    $msg =~ /(.*)/; $msg = $1;
 	    $file = "$::TMPDIR/queue/$pri1/$dom/$pri2/$func/$msg";
-	    unless (open(MSG, $file)) {
+	    unless (open(MSG, "+< $file")) {
 	      warn "Can't open queue file $file: $!";
 	      next MSG;
 	    }

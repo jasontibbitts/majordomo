@@ -1,6 +1,10 @@
 Sat Apr 17 00:48:17 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* bin/mj_queuerun (run_queue): Solaris fix: file must be opened
+ 	for writing for LOCK_EX to work.
+
 	* bin/mj_enqueue: Default -v to 0; cure warning.
+	Log messages returned by mj_queueserv.
 
 	* lib/Mj/Token.pm (consult): When consulting with no bounce
  	reasons, make sure the subject is not hosed.

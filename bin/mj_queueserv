@@ -173,15 +173,17 @@ while (1) {
       # Parent...
       $parent[$i]->close;
 
-      # Get back the greeting
+      # Get back the greeting. XXX The timeout is arbitrary and should be
+      # tuneable.
       $rin = $win = $ein = ''; vec($rin,fileno($child[$i]),1) = 1; $ein = $rin | $win;
-      if(select($rout=$rin, $wout=$win, $eout=$ein, 5)) {
+      if(select($rout=$rin, $wout=$win, $eout=$ein, 10)) {
 	$line = in($child[$i]);
 	logmsg "Runner is awake, said $line";
 	$use_child = $i;
       }
       else {
 	# The child never said hello...
+	logmsg "Runner did not respond."
 	print Client "Problems starting queue runner; queueing";
 	close Client;
 	next;

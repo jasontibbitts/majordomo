@@ -143,6 +143,7 @@ for ($i = 0; $i < 10 || die "connect: $!"; $i++) {
   $ok ||= connect(SOCK, sockaddr_un($rendezvous));
 }
 while (defined($line = <SOCK>)) {
+  logmsg "$line";
 }
 
 exit;
