@@ -873,10 +873,10 @@ aliased to one other address, there is no need to specify a target
 sub unalias {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
-  my $log = new Log::In 27, "$list, $args";
+  my $log = new Log::In 27, "$args";
 
   my @stuff = ($user, $passwd, $auth, $interface,
-	       "alias".($mode?"=$mode":"")." $list $args", $mode, $list,
+	       "alias".($mode?"=$mode":"")." $args", $mode, $list,
 	       $user);
   
   Mj::Format::unalias($mj, $outfh, $outfh, 'text', @stuff, $args, '','',

@@ -58,7 +58,7 @@
    'showtokens'     => [qw(email shell list global all real)],
    'subscribe'      => [qw(email shell list real)],
    'tokeninfo'      => [qw(email shell real)],
-   'unalias'        => [qw(email shell list global all real)],
+   'unalias'        => [qw(email shell real)],
    'unsubscribe'    => [qw(email shell list all real)],
 # XXX Is this too draconian?  It's here to discourage abuse of which.
    'which'          => [qw(email shell nohereargs real)],

@@ -1,4 +1,22 @@
+Mon Aug 31 00:04:59 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Token.pm (confirm): Make sure that we pass
+ 	MIME::Entity::build a string for an address instead of an Addr
+ 	object; it can't deal with it.
+
+	* lib/Majordomo.pm (alias): Don't generate or pass 'mismatch'.
+	(_unalias): New function.
+	(unalias): Convert to work with new global alias list and do
+ 	security checking.
+
 Sun Aug 30 00:04:51 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/parser_data.pl: 'unalias' no longer takes a list.
+
+	* lib/Majordomo.pm (connect): The trigger command doesn't take
+ 	addresses.
+
+	* lib/Mj/Token.pm (t_info): Untaint the token.
 
 	* lib/Majordomo.pm (set): No need to validate the addresses.
 	(sessioninfo): No locking on session files.

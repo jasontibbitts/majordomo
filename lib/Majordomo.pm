@@ -244,7 +244,7 @@ my %functions =
    'showtokens'  => {'top' => 1},
    'subscribe'   => {'top' => 1},
    'tokeninfo'   => {'top' => 1},
-   'trigger'     => {'top' => 1},
+   'trigger'     => {'top' => 1, 'noaddr' => 1},
    'unalias'     => {'top' => 1},
    'unsubscribe' => {'top' => 1, 'noaddr' => 1},
    'which'       => {'top' => 1},
@@ -2146,13 +2146,12 @@ sub alias {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $to, $from) = @_;
   my $log = new Log::In 30, "$to, $from";
-  my ($a2, $ok, $mess, $mismatch);
+  my ($a2, $ok, $mess);
 
   $from = new Mj::Addr($from);
   ($ok, $mess) = 
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
-			     $list, 'alias', $user, $to, $from, '','',
-			     'mismatch' => $mismatch);
+			     $list, 'alias', $user, $to, $from, '','');
   unless ($ok > 0) {
     $log->out("noaccess");
     return ($ok, $mess);
@@ -3225,27 +3224,40 @@ sub trigger {
 }
 
 
-=head2 unalias(..., list, source)
+=head2 unalias(..., source)
 
 Removes an alias pointing from one address.
 
-XXX Security???
+This just involves looking up the stripped, transformed address in the
+database, making sure that it aliases to the the user (for access checking)
+and deleting it from the alias database.
 
 =cut
 sub unalias {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $source) = @_;
-  my (@out);
+  my $log = new Log::In 27, "$source";
+  my ($ok, $mess, $mismatch);
 
-  $::log->in(27, $source);
-  
-  $self->_make_list($list);
-  @out = $self->{'lists'}{$list}->alias_remove($mode, $source);
-
-  $::log->out;
-  @out;
+  $mismatch = !($user->alias eq $source->alias);
+  ($ok, $mess) = 
+    $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
+			     $list, 'unalias', $user, $source, '', '','',
+			     'mismatch' => $mismatch);
+  unless ($ok > 0) {
+    $log->out("noaccess");
+    return ($ok, $mess);
+  }
+  $self->_unalias($list, $user, $source, $mode, $cmdline);
 }
 
+sub _unalias {
+  my ($self, $list, $requ, $source, $mode, $cmdline) = @_;
+  my $log = new Log::In 35, "$requ, $source";
+
+  $self->{'alias'}->remove('', $source->transform);
+  1;
+}
 
 =head2 unsubscribe(..., mode, list, address)
 

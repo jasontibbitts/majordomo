@@ -238,7 +238,7 @@ sub confirm {
      Charset     => $cset,
      Encoding    => $c_t_encoding,
      Filename    => undef,
-     To          => $victim,
+     To          => "$victim",
      -From       => $mj_addr,
      '-Reply-To' => $mj_addr,
      -Subject    => "$token : $desc",
@@ -649,6 +649,7 @@ sub t_info {
   my $log = new Log::In 60, "$token";
 
   $self->_make_tokendb;
+  $token =~ /(.*)/; $token = $1; # Untaint
   my $data = $self->{'tokendb'}->lookup($token);
 
   return (0, "Illegal token!\n") unless $data;
