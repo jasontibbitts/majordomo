@@ -4,6 +4,10 @@
 	definition test, which was preventing reply messages
 	from being sent.
 
+	* lib/Mj/Format.pm:  (who)  Support a "who_none" format
+	file, which indicates that no addresses were found.
+	Thanks to SRE.
+
 	* lib/Mj/Resend.pm:  (post)  Do not send an ack if the
 	reply is NONE.  Thanks to SRE.
 

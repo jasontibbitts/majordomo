@@ -1678,7 +1678,7 @@ who_error
 (text, wwwadm, wwwconfirm)  This file displays an error message if the
 who command stalls or fails.
 
-(standard plus CGIDATA, CGIURL, ERROR, CMDPASS, MODE, PATTERN, REMOVE, 
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, MODE, PATTERN, REMOVE, 
  START, USER)
 
 
@@ -1698,6 +1698,15 @@ at the top of the output.  This file is not displayed if the alias,
 export, or short command mode is used.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, REMOVE, START, USER)
+
+
+who_none
+--------
+(text, wwwadm, wwwconfirm)  This file displays an error message if the
+who command returns no addresses.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, MODE, PATTERN, REMOVE, 
+ START, USER)
 
 
 who_registry

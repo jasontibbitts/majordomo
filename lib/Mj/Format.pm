@@ -3097,7 +3097,7 @@ sub which {
 
 sub who {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my (%stats, @lines, @out, @time, @tmp, $chunksize, $count, 
+  my (%stats, @lines, @out, @time, @tmp, $chunk, $chunksize, $count, 
       $error, $fh, $flag, $foot, $fullclass, $gsubs, $head, $i, 
       $j, $line, $mess, $numbered, $ok, $regexp, $remove, $ret, 
       $settings, $source, $str, $subs, $tmp);
@@ -3207,6 +3207,21 @@ sub who {
     $gsubs->{'CHUNKSIZE'} = '';
   }
 
+  $request->{'command'} = "who_chunk";
+  if (exists ($request->{'start'}) and ($request->{'start'} > 1)) {
+    # discard results
+    $mj->dispatch($request, $request->{'start'} - 1);
+  }
+
+  $chunk = 1;
+  ($ok, @lines) = @{$mj->dispatch($request, $chunksize)};
+  unless (($ok > 0 and scalar @lines) or $request->{'mode'} =~ /summary/) {
+    $tmp = $mj->format_get_string($type, 'who_none', $request->{'list'});
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out "$str\n";
+    return 1;
+  }
+
   unless ($request->{'mode'} =~ /export|short|alias|summary/) {
     $str = $mj->substitute_vars_format($head, $gsubs);
     print $out "$str\n";
@@ -3216,18 +3231,15 @@ sub who {
     print $out "<pre>\n";
   }
 
-  $request->{'command'} = "who_chunk";
-  if (exists ($request->{'start'}) and ($request->{'start'} > 1)) {
-    # discard results
-    $mj->dispatch($request, $request->{'start'} - 1);
-  }
-
   $subs = { %$gsubs };
 
-  while (1) {
-    ($ok, @lines) = @{$mj->dispatch($request, $chunksize)};
-    
+  while ($chunk) {
+    unless ($chunk == 1) {
+      ($ok, @lines) = @{$mj->dispatch($request, $chunksize)};
+    }
+
     last unless $ok > 0;
+    $chunk++;
     for $i (@lines) {
       $count++;
       next unless (ref ($i) eq 'HASH');
