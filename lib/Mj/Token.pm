@@ -1062,7 +1062,7 @@ sub _make_latchkeydb {
 Create a temporary password for improved security.
 
 =cut
-
+use Mj::Util qw(ep_convert);
 sub gen_latchkey {
   my ($self, $password) = @_;
   my ($data, $duration, $ok, $token);
@@ -1087,7 +1087,7 @@ sub gen_latchkey {
      'chain2'     => '',
      'chain3'     => '',
      'chain4'     => '',
-     'arg1'       => $password,
+     'arg1'       => ep_convert($password),
      'arg2'       => '',
      'arg3'       => '',
      'expire'     => time + $duration * 60,
@@ -1123,25 +1123,6 @@ sub del_latchkey {
   $self->{'latchkeydb'}->remove("", $lkey);
 }
 
-=head2 validate_latchkey(user, passwd, list, command)
-
-Check the validity of a password to which a latchkey refers.
-
-=cut
-sub validate_latchkey {
-  my ($self, $user, $passwd, $list, $command) = @_;
-  my ($data, $realpass);
-  $self->_make_latchkeydb;
-  if (defined $self->{'latchkeydb'}) {
-    $data = $self->{'latchkeydb'}->lookup($passwd);
-    if (defined $data) {
-        return if (time > $data->{'expire'});
-        $realpass = $data->{'arg1'};
-        return $self->validate_passwd($user, $realpass, $list, $command);
-    }
-  }
-  0;
-}
 
 =head1 COPYRIGHT
 
