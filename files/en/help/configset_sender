@@ -18,7 +18,7 @@ $INCLUDE-config/sender
 Formally, this is the address used in "MAIL FROM" SMTP commands.  As a
 result, most "bounce" messages caused by delivery failures will be sent
 to this address.  Once the bounce messages have been processed, any
-bounce messages that areintended to be read by a person will be sent to
+bounce messages that are intended to be read by a person will be sent to
 the addresses in the bounce_recipients configuration setting.
 
 The sender configuration setting is only used internally by Majordomo.
