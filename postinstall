@@ -122,12 +122,7 @@ print $ct if -t STDIN && (!$skip && !$quiet);
 print OUT $ct;
 
 close OUT;
-chown (scalar getpwnam($config->{'uid'}),
-       scalar getgrnam($config->{'gid'}),
-       "$config->{install_dir}/majordomo.crontab") or
-  die "Can't chown $config->{install_dir}/majordomo.crontab, $!";
-chmod (0755, "$config->{install_dir}/majordomo.crontab") or
-  die "Can't chmod $config->{install_dir}/majordomo.crontab, $!";
+chownmod(scalar getpwnam($config->{'uid'}), scalar getgrnam($config->{'gid'}), 0755, "$config->{install_dir}/majordomo.crontab");
 
 exit;
 

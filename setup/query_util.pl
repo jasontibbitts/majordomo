@@ -12,6 +12,7 @@ sub prompt ($;$) {
     print "$mess $dispdef->";
     chomp($ans = <STDIN>);
   }
+  # and if it's NOT a tty? return undef?
   return $ans if(length $ans);
   return $def;
 }

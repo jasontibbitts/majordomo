@@ -36,7 +36,15 @@ Your installation does not seem to be correct.
 
   #---- Ask for UID
   $msg = <<EOM;
-Basic Security Configuration
+Basic Security Configuration (user)
+
+NOTE: If you are 'root' when installing, you can
+have Majordomo run as any user you wish. If you
+are logged in as anyone else when installing,
+only that account can be the one you enter here!
+The files and directories created by the final
+installation step will be owned by this user, and
+cron jobs for digests must be run as this user.
 
 What is the user ID that Majordomo will run as?
  Either the numeric ID or the user name is fine.
@@ -48,7 +56,11 @@ EOM
 
   #---- Ask for GID
   $msg = <<EOM;
-Basic Security Configuration
+Basic Security Configuration (group)
+
+NOTE: If and ONLY if you are 'root' when installing,
+you can have Majordomo run as any group you wish.
+See user ID note above.
 
 What is the group ID that Majordomo will run as?
  Either the numeric ID or the group name is fine.
@@ -60,7 +72,7 @@ EOM
 
   #---- Ask about wrappers
   $msg = <<EOM;
-Basic Security Configuration
+Basic Security Configuration (setuid)
 
 Should the SETID wrappers be installed?
  Majordomo needs to be able to run as the proper user no matter who is
@@ -80,7 +92,7 @@ EOM
 
   #---- Ask for umask
   $msg = <<EOM;
-Basic Security Configuration
+Basic Security Configuration (umask)
 
 What umask should Majordomo use?
  The umask is the Unix method of restricting the permissions on newly
@@ -99,7 +111,7 @@ EOM
 
   #---- Ask for insecure stored passwords
   $msg = <<EOM;
-Basic Security Configuration
+Basic Security Configuration (passwords)
 
 For developers: the install process needs to know various passwords.
  They can either be saved along with the rest of your install

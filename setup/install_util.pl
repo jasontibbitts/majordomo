@@ -1,6 +1,9 @@
 # This file contains routines used by the postinstall script to do basic
 # file copying and ownership manipulation.
 
+# this variable is used ONLY in chownmod, but needs to persist across calls
+my $whatnext = "ask";
+
 # Copies or links a file from one directory to another, preserving
 # ownership and permissions.
 use File::Copy "cp";
@@ -18,8 +21,7 @@ sub copy_file {
     cp("$source/$script", "$dest/$script") ||
       die "Can't copy $source/$script to $dest/$script, $!.";
     # Set the owner and mode on the copied file
-    chown((stat("$source/$script"))[4,5], "$dest/$script");
-    chmod((stat(_))[2], "$dest/$script");
+    chownmod((stat("$source/$script"))[4,5], (stat(_))[2], "$dest/$script");
   }
 }
 
@@ -27,7 +29,41 @@ sub dot () {
   print "." unless $quiet;
 }
 
-# Recursively chown a directory
+# chown and chmod a directory or a file, complete with stroking and error handling
+# NOTE: this is the ONLY call to chown or chmod which should be used for Mj2 installing
+#       so failed commands can be transcripted and handled later by the installer
+# (older implementations didn't check chmod status, always died on first failure, etc)
+sub chownmod {
+  my $uid = shift; # if missing, or non-numeric, don't call chown
+  my $gid = shift; # if missing, or non-numeric, don't call chown
+  my $mod = shift; # if missing, or non-numeric, don't call chmod
+  my @fil = @_;
+  $cntown = $cntmod = 1;
+  $cntown = chown($uid, $gid, @fil) if(defined($uid) && defined($gid) && ($uid =~ /[0-9]/) && ($uid !~ /[^0-9]/) && ($gid =~ /[0-9]/) && ($gid !~ /[^0-9]/));
+  $cntmod = chmod($mod, @fil)       if(defined($mod) && ($mod =~ /[0-9]/) && ($mod !~ /[^0-9]/));
+  if(!$cntown || !$cntmod) {
+    if($whatnext eq "ask") {
+      print "\nERROR! Trying to change owner to user $uid, group $gid, permission $mod\n";
+      print "       chown=$cntown, chmod=$cntmod, file(s)=@fil\n";
+      print "You can abort the install, ignore all such failures, or list failures and continue.\n";
+      print "What would you like to do next ? [abort/ignore/list] ";
+      $whatnext = <STDIN>;
+      if   ($whatnext =~ /^i/i) { $whatnext = "ignore"; }
+      elsif($whatnext =~ /^l/i) { $whatnext = "list"; }
+      else                      { die("Failed to chown or chmod @fil"); }
+    }
+    if($whatnext eq "list") {
+      print "\n# FAILED COMMAND: please issue these commands from an authorized account:\n";
+      my $tmpfil;
+      foreach $tmpfil ( @fil ) {
+        print "  chown $uid $gid $tmpfil\n" if(defined($uid) && defined($gid));
+        print "  chmod $mod $tmpfil\n"      if(defined($mod) && ($mod =~ /[0-9]/) && ($mod !~ /[^0-9]/));
+      }
+    }
+  } # if there was a problem
+}
+
+# Recursively chown and chmod a directory, calling chownmod to do the work
 sub rchown {
   my $uid = shift;
   my $gid = shift;
@@ -40,12 +76,10 @@ sub rchown {
     $dir =~ s!/$!!;
     
     $dh = DirHandle->new($dir);
-    chown($uid, $gid, $dir) || die("Couldn't chown $dir, $!");
-    chmod($dmod, $dir);
+    chownmod($uid, $gid, $dmod, $dir);
     for my $i ($dh->read) {
       next if $i eq '.' || $i eq '..';
-      chown($uid, $gid, "$dir/$i") || die("Couldn't chown $dir/$i, $!");
-      chmod($mod, "$dir/$i") || die("Couldn't chmod $dir/$i, $!");
+      chownmod($uid, $gid, $mod, "$dir/$i");
       if (-d "$dir/$i") {
 	rchown($uid, $gid, $mod, $dmod, "$dir/$i");
       }
@@ -107,12 +141,7 @@ sub safe_mkdir {
   unless (-d $dir) {
     mkdir $dir, $mode or die "Can't make $dir, $!";
   }
-  if (defined($uid) && defined($gid)) {
-    chown ($uid, $gid, $dir) or die "Can't chown $dir, $!";
-  }
-  if (defined($mode)) {
-    chmod ($mode, $dir) or die "Can't chmod $dir, $!";
-  }
+  chownmod($uid, $gid, $mode, $dir);
 }
 
 1;

@@ -87,13 +87,8 @@ sub create_dirs_dom {
   print DF "Spooled Files\nd\n\n\n\n\n";
   close DF;
   dot;
-  chown (scalar getpwnam($config->{'uid'}),
-	 scalar getgrnam($config->{'gid'}),
-	 "$l/$d/GLOBAL/files/.spool")
-    or die "Can't chown $l/$d/GLOBAL/files/.spool: $!";
-  dot;
-  chmod ((0777 & ~oct($config->{'umask'}), "$l/$d/GLOBAL/files/.spool"))
-    or die "Can't chown $l/$d/GLOBAL/files/.spool: $!";
+  chownmod(scalar getpwnam($config->{'uid'}), scalar getgrnam($config->{'gid'}),
+           (0777 & ~oct($config->{'umask'})), "$l/$d/GLOBAL/files/.spool");
   dot;
   
   open DF, ">$l/$d/GLOBAL/files/.public"
@@ -101,13 +96,8 @@ sub create_dirs_dom {
   print DF "Public Files\nd\n\n\n\n\n";
   close DF;
   dot;
-  chown (scalar getpwnam($config->{'uid'}),
-	 scalar getgrnam($config->{'gid'}),
-	 "$l/$d/GLOBAL/files/.public")
-    or die "Can't chown $l/$d/GLOBAL/files/.public: $!";
-  dot;
-  chmod ((0777 & ~oct($config->{'umask'}), "$l/$d/GLOBAL/files/.public"))
-    or die "Can't chown $l/$d/GLOBAL/files/.public: $!";
+  chownmod(scalar getpwnam($config->{'uid'}), scalar getgrnam($config->{'gid'}),
+           (0777 & ~oct($config->{'umask'})), "$l/$d/GLOBAL/files/.public");
   dot;
 }
 
@@ -170,14 +160,8 @@ sub do_default_config {
   close DEFS;
 
   # Change ownership and permissions
-  chown (scalar getpwnam($config->{'uid'}),
-	 scalar getgrnam($config->{'gid'}),
-	 "$config->{'lists_dir'}/LIB/cf_defs_$dom.pl")
-    or die "Can't chown $config->{'lists_dir'}/LIB/cf_defs_$dom.pl: $!";
-  dot;
-
-  chmod ((0777 & ~oct($config->{'umask'}), "$config->{'lists_dir'}/LIB/cf_defs_$dom.pl"))
-    or die "Can't chmod $config->{'lists_dir'}/LIB/cf_defs_$dom.pl: $!";
+  chownmod(scalar getpwnam($config->{'uid'}), scalar getgrnam($config->{'gid'}),
+           (0777 & ~oct($config->{'umask'})), "$config->{'lists_dir'}/LIB/cf_defs_$dom.pl");
   print "ok.\n" unless $quiet;
 }
 
@@ -231,15 +215,8 @@ sub do_site_config {
   dot;
 
   # Change ownership and permissions
-  chown (scalar getpwnam($config->{'uid'}),
-	 scalar getgrnam($config->{'gid'}),
-	 "$config->{'lists_dir'}/SITE/config.pl")
-    or die "Can't chown $config->{'lists_dir'}/SITE/config.pl: $!";
-  dot;
-
-  chmod ((0777 & ~oct($config->{'umask'}), "$config->{'lists_dir'}/SITE/config.pl"))
-    or die "Can't chmod $config->{install_dir}/majordomo.crontab, $!";
-
+  chownmod(scalar getpwnam($config->{'uid'}),	scalar getgrnam($config->{'gid'}),
+           (0777 & ~oct($config->{'umask'})), "$config->{'lists_dir'}/SITE/config.pl");
   print ".ok.\n" unless $quiet;
 }
 
@@ -254,8 +231,7 @@ sub install_response_files {
   $uid = getpwnam($config->{'uid'});
   $gid = getgrnam($config->{'gid'});
   $um  = oct($config->{'umask'});
-  rchown($uid, $gid, 0666 & ~$um, 0777 & ~$um,
-	 "$config->{'lists_dir'}/SITE/files");
+  rchown($uid, $gid, 0666 & ~$um, 0777 & ~$um, "$config->{'lists_dir'}/SITE/files");
   print "ok.\n" unless $quiet;
 }
 
@@ -288,17 +264,16 @@ sub set_script_perms {
   $gid = getgrnam($config->{'gid'});
 
   # Properly set ownerships on everything.
-  chown($uid, $gid, @$sidscripts, @$scripts) || die "Couldn't change ownership: $!";
+  chownmod($uid, $gid, "", @$sidscripts, @$scripts);
   dot;
-  chown($uid, $gid, $id) || die "Couldn't change ownership: $id";
+  chownmod($uid, $gid, "", $id);
   dot;
 
   # Change permissions on the top-level installation directory, but make
   # sure that anyone can look in it to run programs.
   die "Can't change permission, directory does not exist!\n  $id\n  $id/bin\n  $id/man\n  $id/lib"
     if(!(-d "$id") || !(-d "$id/bin") || !(-d "$id/man") || !(-d "$id/lib"));
-  chmod((0777 & ~oct($config->{'umask'})) | 0555, $id)
-    || die "Couldn't change protection: $!";
+  chownmod("", "", (0777 & ~oct($config->{'umask'})) | 0555, $id);
   dot;
   rchown($uid, $gid, 0644, 0755, "$id/bin", "$id/man", "$id/lib");
   dot;
@@ -306,13 +281,13 @@ sub set_script_perms {
   # Make executables setuid; the scripts must be readable while the the
   # wrappers need only be executable.
   if ($config->{'wrappers'}) {
-    chmod(06511, @$sidscripts) || die "Couldn't change mode: $!";
+    chownmod("", "", 06511, @$sidscripts);
   }
   else {
-    chmod(06555, @$sidscripts) || die "Couldn't change mode: $!";
+    chownmod("", "", 06555, @$sidscripts);
   }
   dot;
-  chmod(0555, @$scripts) || die "Couldn't change mode: $!";
+  chownmod("", "", 0555, @$scripts);
   dot;
   print "ok\n" unless $quiet;
 }

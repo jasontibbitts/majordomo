@@ -1,2 +1,4 @@
 If an address matches this pattern (see "help patterns"), it
 will be probed for bounces each time mail goes through the list.
+After one message, you can empty this variable because the
+automated system will handle the rest.
