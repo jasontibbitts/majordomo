@@ -88,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200410090";
+$VERSION = "0.1200410180";
 $unique = 'AAA';
 
 use strict;
@@ -1046,6 +1046,7 @@ sub standard_subs {
     'MJOWNER'     => $self->_global_config_get('whoami_owner'),
     'OWNER'       => $self->_list_config_get($list, 'whoami_owner')
                      || $self->_global_config_get('whoami_owner'),
+    'PLIST'       => $olist,
     'PWLENGTH'    => $self->_global_config_get('password_min_length') || 6,
     'REQUEST'     => ($list eq 'GLOBAL' or $list eq 'DEFAULT') ?
                      $whoami :
@@ -5824,20 +5825,18 @@ sub lists {
 }
 
 sub _lists {
-  my $self     = shift;
-  my $d        = shift;
-  my $user     = shift;
-  my $vict     = shift;
-  my $mode     = shift;
-  my $cmd      = shift;
-  my $regexp   = shift;
-  my $password = shift;
-  my $ok       = shift || 0;
-
+  my $self = shift;
+  my ($d, $user, $vict, $mode, $cmd, $regexp, $password, $ok) = @_;
   my $log = new Log::In 35, $mode;
   my (@lines, @lists, @out, @tmp, $cat, $compact, $count, $data,
       $desc, $digests, $expose, $flags, $i, $j, $limit, $list,
-      $mess, $ok2, $osublists, $sublist, $sublists, $testreq);
+      $mess, $ok2, $sublist, $sublists, $testreq);
+
+  $ok ||= 0;
+
+  if ($mode =~ /aux/) {
+    return $self->_lists_aux(@_);
+  }
 
   if ($regexp) {
     ($ok2, $mess, $regexp)
@@ -5863,6 +5862,9 @@ sub _lists {
     if (re_match($regexp, 'DEFAULT')) {
       push @lists, 'DEFAULT';
     }
+    if (re_match($regexp, 'GLOBAL')) {
+      push @lists, 'GLOBAL';
+    }
   }
 
   for $list (@lists) {
@@ -5871,7 +5873,7 @@ sub _lists {
     # and private auxiliary list names.  To accommodate this,
     # the password is checked against each list, and the "ok"
     # result is upgraded.
-    if ($mode =~ /aux|config/) {
+    if ($mode =~ /config/) {
       $expose = $self->validate_passwd($user, $password, $list, 'ALL', 0);
       $expose = ($expose > $ok) ? $expose : $ok;
     }
@@ -5913,7 +5915,7 @@ sub _lists {
                          if $self->is_subscriber($user, $list);
     }
     # "full" mode:  return digests, post and subscriber counts, archive URL.
-    if ($mode =~ /full/) {
+    if ($mode =~ /full/ and $list !~ /^(DEFAULT|GLOBAL)/) {
       $data->{'owner'}    = $self->_list_config_get($list, 'whoami_owner');
       $data->{'address'}  = $self->_list_config_get($list, 'whoami');
       $data->{'subs'}     = $self->{'lists'}{$list}->count_subs;
@@ -5942,45 +5944,8 @@ sub _lists {
           $self->{'lists'}{$list}->describe_class('digest', $i, '');
       }
     }
-    push (@out, $data) unless ($list =~ /^DEFAULT/);
+    push (@out, $data) unless ($list =~ /^(DEFAULT|GLOBAL)/);
 
-    # "aux" mode: return information about auxiliary lists
-    if ($mode =~ /aux/) {
-      $self->{'lists'}{$list}->_fill_aux;
-      # If a master password was given, show all auxiliary lists by merging
-      # together those in the sublist setting with those that aren't.
-      if ($expose > 1) {
-	$osublists = $self->_list_config_get($list, 'sublists');
-	$sublists = {};
-        for $i (keys %{$self->{'lists'}{$list}->{'sublists'}}) {
-          next if ($i eq 'MAIN');
-          next if $sublists->{$i};
-	  $sublists->{$i} = "private auxiliary list";
-        }
-      }
-      else {
-        $sublists = $self->_list_config_get($list, "sublists");
-      }
-      for $i (keys %{$sublists}) {
-        next if ($i eq 'MAIN');
-	$desc = $sublists->{$i};
-        $flags = '';
-        if ($mode =~ /enhanced/) {
-          $flags = 'S'
-            if ($self->{'lists'}{$list}->is_subscriber($user,
-                                                       $i));
-        }
-        push @out, {
-                    'category'    => $cat,
-                    'description' => $desc,
-                    'flags'       => $flags,
-                    'list'        => "$list:$i",
-                    'posts' => $self->{'lists'}{$list}->count_posts(30, $i),
-                    'subs'  =>
-                      $self->{'lists'}{$list}->count_subs($i) || 0,
-                   };
-      }
-    }
     # Config mode:  display information about configuration templates.
     if ($mode =~ /config/ and ($expose > 1 or $list =~ /^DEFAULT/)) {
       for $sublist ($self->{'lists'}{$list}->_fill_config) {
@@ -5996,11 +5961,92 @@ sub _lists {
         }
 
         push @out, { 'list'        => "$list:$sublist",
-                     'category'    => 'configuration settings',
+                     'category'    => 'settings',
                      'description' => $desc,
                      'flags'       => '',
                    };
       }
+    }
+  }
+
+  return (1, @out);
+}
+
+use Mj::Util qw(re_match);
+sub _lists_aux {
+  my $self = shift;
+  my ($d, $user, $vict, $mode, $cmd, $regexp, $password, $ok) = @_;
+  my $log = new Log::In 35, $mode;
+  my (@lists, @out, $desc, $expose, $flags, $i, 
+      $list, $mess, $ok2, $sublists);
+
+  $ok ||= 0;
+
+  if ($regexp) {
+    ($ok2, $mess, $regexp)
+      = Mj::Config::compile_pattern($regexp, 0, 'iexact');
+    return ($ok2, $mess) unless $ok2;
+    if (re_match($regexp, 'DEFAULT')) {
+      push @lists, 'DEFAULT';
+    }
+    if (re_match($regexp, 'GLOBAL')) {
+      push @lists, 'GLOBAL';
+    }
+  }
+
+  $expose = 0;
+
+  # Stuff the registration information to save lots of database lookups
+  $self->_reg_lookup($user);
+
+  push @lists, $self->get_all_lists($user, $password, $regexp);
+
+  for $list (@lists) {
+    # Only list owners and site administrators should be able
+    # to see private auxiliary list names.  To accommodate this,
+    # the password is checked against each list, and the "ok"
+    # result is upgraded.
+    $expose = $self->validate_passwd($user, $password, $list, 'ALL', 0);
+    $expose = ($expose > $ok) ? $expose : $ok;
+
+    $self->{'lists'}{$list}->_fill_aux;
+    $sublists = {};
+
+    # If a master password was given, show all auxiliary lists by merging
+    # together those in the sublist setting with those that aren't.
+    if ($expose > 1) {
+      $sublists = { %{$self->_list_config_get($list, "sublists")}};
+      for $i (keys %{$self->{'lists'}{$list}->{'sublists'}}) {
+        next if ($i eq 'MAIN');
+        next if exists $sublists->{$i};
+        $sublists->{$i} = '';
+      }
+    }
+    elsif ($list ne 'DEFAULT' and $list ne 'GLOBAL') {
+      $sublists = { %{$self->_list_config_get($list, "sublists")}};
+    }
+    else {
+      # DEFAULT and GLOBAL have no public sublists
+      return (1, '');
+    }
+    
+    for $i (keys %{$sublists}) {
+      next if ($i eq 'MAIN');
+      $desc = $sublists->{$i};
+      $flags = '';
+      if ($mode =~ /enhanced/) {
+        $flags = 'S'
+          if ($self->{'lists'}{$list}->is_subscriber($user, $i));
+      }
+      push @out, {
+                  'category'    => 'sublist',
+                  'description' => $desc,
+                  'flags'       => $flags,
+                  'list'        => "$list:$i",
+                  'posts' => $self->{'lists'}{$list}->count_posts(30, $i),
+                  'subs'  =>
+                    $self->{'lists'}{$list}->count_subs($i) || 0,
+                 };
     }
   }
 
@@ -8545,7 +8591,7 @@ sub who_chunk {
 
   # who for DEFAULT returns nothing
   # XLANG
-  if ($request->{'list'} eq 'DEFAULT') {
+  if ($request->{'list'} eq 'DEFAULT' and $request->{'sublist'} eq 'MAIN') {
     return (0, "The DEFAULT list never has subscribers");
   }
   # who-alias for GLOBAL will search the alias list
