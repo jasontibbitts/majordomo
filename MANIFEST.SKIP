@@ -1,0 +1,13 @@
+blib
+^old
+\.old
+hpc.uh.edu
+wrap
+tar
+\.mj
+try.*
+Makefile$
+.*\~
+\#.*\#
+.*.bak
+\.L.*

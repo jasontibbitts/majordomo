@@ -1,0 +1,446 @@
+-*- Text -*-
+
+Plan
+----
+
+Finish what is required to run my lists:
+  archives
+
+Test the hell out of it.
+
+Switch over one of my lists.  (How?  Manually maintain subscription
+  list?  Put Mj2 at the normal address and forward requests to other
+  lists to the old server?  (Hmmm.)
+
+Top of the list 
+---------------
+
+! Make sure all sent mails have To: headers.
+
+! Implement rejection (and perhaps acceptance) messages for tokens, and add
+  a box to type them in to the web interface.
+
+! Rewrite the web interface to use proper design techniques.
+
+! Code to force 2047-encoding of headers.  Function should take an entity
+  and a charset and call MIME::Words::encode_mimewords on each header.
+  What will e_mw do with embedded newlines?  If the charset is not provided
+  (undef), the routine should try to figure one out from the charset of the
+  body, or if one can't be figured out, it should use ISO-8859-1.
+
+! Implement separate user-readable and owner-readable bounce reasons.
+
+! Format: finish rewriting the following
+    filesync
+    configshow
+    configset
+    configdef
+
+- taboo match classes: Allow an additional tag, "class", which gives a name
+  to a taboo matcher.  Pass these matchers into the access routine as
+  variables like "$taboo_NAME".  The default name is "header" for headers
+  and "body" for bodies, so that the class looks like $taboo_header and
+  $taboo_body unless set otherwise.  Names in all caps don't generate
+  bounce reasons.
+
+  patch parsing code to return the new values.
+  patch the check code to pass out the new values.
+    _check_taboo and _r_ck_taboo
+  update inversion code all around if necessary.
+  update the resend code to set the right variables, but not push on
+    reasons except when necessary
+  update the legal variable stuff to not complain about anything like
+    (global_)?(taboo|admin)_.* instead of checking explicitly.
+
+- Turn Addr.pm globals into global configuration options.
+  Make an address validator object; allocate it at Majordomo startup and
+  pull the appropriate config variables into the new Mj::Addr call.
+
+- Resend:
+    Front-end filtering stuff - 
+      header improprieties (not in To or CC header, etc.)
+
+   Back end mime-modification functions come later.
+   Message size limits
+   Header line length limits
+   Quoted text limits
+
+   Get rid of specific message checks and instead have four basic
+   functions:
+     header checks
+     non-multipart body checks
+     part tree traversal
+     multipart body checks
+
+   The idea is to recurse the part tree and read through each body
+   part only once.  Right now the checksum routines do it, the taboo
+   routines do it and the mime checking routines do it, all
+   separately.  (It might be possible to also do the approval trimming
+   in with this, too, but it would be more difficult.)
+
+! Simple mail forwarder:
+   A precursor to real bounce handling, a routine that received mail at
+   owner-list and distributes it to one or many owners.  Should be easy.
+
+  Write bounce_start, bounce_chunk, bounce_done which accept a bounce and
+    figure out what to do with it.
+
+! Write up truncation logic to keep envelope sizes down for bounce probes.
+
+- Access:
+    Document it better.
+
+    Interfaces should make an access_check for "connect".  Here we can
+    wedge in neat things like free disk space checks.  This should be
+    independent of the call to "access", because by that time we've
+    already done message parsing.  The idea is that before we do
+    anything that could consume disk space or CPU, we make sure that
+    we have enough disk space or CPU.  
+
+    Decide on a scheme to delay/consult/deny frequent or repeated
+    requests with output sent to a specific address.  Dig out my
+    conversations with Chuq on this issue.
+
+    Default action for 'post':
+      fail if moderated.
+      check restrict_post; if entry has same name as list, look in
+        that file else look in the given sublist if it exists.
+      check all of the taboo_* admin_* dup_* and *_mime variables and
+        do the appropriate thing.
+
+! umask setting in interfaces? or in core?
+
+! Clean up all Majordomo-level commands.  Add
+  access checking and split across the token barrier properly.
+
+  auxwho
+  auxremove
+  unalias
+  which
+  get
+  put
+
+- Make sure generated command lines properly include arguments.  When
+  processing here args, the command line should properly include the
+  arg.  (This is a TextOutput issue; in the loop reading from the
+  arglist, need to make sure that the current argument is placed
+  somewhere on the $cmdline that the core function is called with.
+
+- inform and consult uses moderators variable, listing named groups of
+  moderators:
+
+  namea
+  addra1
+  addra2
+
+  nameb
+  addrb1
+  addrb2
+
+
+- list owner information (on hold until I collect more logs to process)
+    A 'report' command used to give several list metrics:
+      summary of activity (from inform_owner routine)
+      message statistics generated from the archive index (from Dave's
+        stats code)
+      symmary of existing tokens
+    
+   Two reports:
+      list report: summary of activity for one list.  Includes detailed
+        breakdowns on who did what to whom.  Categorize all subscriptions,
+        all unsubscriptions, and indeed all activity broken down per
+        request type.  Summarize activity at beginning of report.  Include
+        posting activity at a later date, since this is logged separately.
+        (Should this be logged separately?)
+        Shows all open, non-permanent tokens for the list.
+
+      GLOBAL report: report on all things global.  Give a breakdown on all
+        GLOBAL commands and tokens.  No postings here.  Also give summary
+        of all requests broken down by list.
+
+   Command takes zero, one or two dates.  No dates makes a report since the
+     last no-date report.  One date makes a report from that date forward.
+     Two dates makes a report between the two dates.
+     
+   Modes can be used to specify only tokens, only actions or only traffic
+     (or notokens, notraffic, noactions) and only failed, only stalls, only
+     success, only passworded, etc.
+
+-  Get rid of the rekey function altogether and trigger a change of
+    the addr_xforms variables (or anything else that would require a rekey)
+    to do it automatically.
+   Add some intelligence to the rekey routine, to check for collisions.
+
+
+Well thought out stuff:
+----------------------
+
+- mj_resend should call inform.
+    
+- Archiver:
+    Retrieve message given archive name and number
+    Retrieve last N messages/message numbers from archive
+    Build index from existing file (sync)
+    Delete message from archive?
+    Automatically add meaningful description to created archive files.
+
+- Digest:
+    Trigger parameters:
+      maximum size
+      maximum messages
+      minimum size
+      minimum messages
+      max age of 1st message
+      min age of last message
+      time(s)
+      runone, runall
+
+if ($age1st > $maxage) {
+  trigger;
+}
+else {
+  if ($size >= $minsize || $msg >= $minmsg) {
+    if ($agelast > $minage) {
+      if (time > $triggertime && $nottriggeredrecently) {
+        trigger;
+      }
+    }
+  }
+}
+
+persistent digest_info:
+ @messages
+ $volume
+ $issue
+ $last_triggered
+ $last_triggered_clock
+
+saved via Data::Dumper.
+
+- Digestifier:
+    Add message number to digest
+    Trigger - ?
+    Build digest given message numbers.
+
+- bounce handling
+    Parse all mail to owner alias, looking for bounces.
+    Do periodic single-address-probes.
+    When bouncing address detected, put on bounce status.
+    Send bounce probe daily(?) with token that changes status back to
+     active.
+    Remove from list after N days.
+
+    Use sequence numbers in envelopes to determine when to put an address
+    on the bounce list: after N consecutive bounced messages (N
+    configurable, of course; low-traffic lists will want to remove after
+    one bounce?
+
+    Make additional piece of subscriber data indicating that an address
+    should be explicitly bounce probed (perhaps if the address was found to
+    be bouncing from a bounce parse or if an explicit bounce probe came
+    back).  The idea is to make sure that we continue to probe a bouncing
+    message until it no longer bounces or until we see enough true bounces
+    to remove the address.  We don't want to remove for intermittent
+    failures, because the user will complain about having to return himself
+    from bounce status often.
+
+    We already have a bounce field in the subscriber database; use it to
+    store message numbers that bounce or a generic "found a bounce" tag,
+    along with timestamps.  If this field is non-null, always probe the
+    address.  The bounce handler can look at this field and determine what
+    to do when it gets a bounce based upon the history there.
+
+    Periodic trigger can remove old bounce data after so many days.
+
+- uniquify function names
+    Make function names unique to 8 characters, to appease AutoSplit.
+
+- Verify that non-wrapper configuration is correct
+      create a dummy script, make it setuid, and run it.  If it errors, we
+      know it's bad.
+
+
+Categorized ideas:
+-----------------
+
+Config Stuff
+- list default_flags, default_class
+- Variables for default_class, default_digest, all of the various digest
+  modes, all of the default flag settings.
+- passwords <<  asdf : !config
+- proper checking of non-optional args in table-parse
+
+Email Interface
+- prescan for bad situations: unmatched tokens, too many subscribes in one
+  message, etc.
+- prescan for access restriction override.
+- context-sensitive help: TextOutput routines return list of help topics
+  with error; email interface looks up topics and mails back appropriate
+  help.
+- make sure that no internal routine gets called with an undefined list:
+  "subscribe" sent with no deflist set.
+
+Majordomo.pm
+- resubscribe (change address)
+
+TextOutput
+- rekey ALL or GLOBAL
+- info ALL for hyper-long lists output
+- auxshow list ALL
+- aux lists for GLOBAL?
+- alias ALL.
+
+Finish access restriction mechanism 
+- need better syntax checking
+- mondo documentation
+
+Confirmation/Approval engine
+- Ability to append or prepend information to approved messages
+- list tokens, expire old tokens.
+
+Resend
+- MIME transformations
+- Address exclusion on CC or nocopy.
+
+Mj::Log
+- Log classes; too much debug info now
+- Have aborts and warnings stuffed into some tempfile and process that file
+  after the fact.  This allows aborts to propogate even if we've hosed the
+  mail delivery system.
+
+Aliasing
+- Should aliases be global only?
+  To do this, we need a global database of all addresses with aliases
+  and all of the lists they belong to.  Maybe we need a global
+  database of all addresses on any lists.  This may be a bad thing.
+  Perhaps we could get away with complete list membership checking for
+  alias ops, but that looks like a bad thing.  Global actions that
+  potentially affect all lists are not good; they probably shouldn't
+  be triggerable by anyone on the net.
+
+  After more thought, it seems that checking list memberships for every
+  alias call isn't that bad an idea; alias calls probably won't be that
+  common and we to it anyway for extended lists output.  We have to check
+  that the destination is subscribed to at least one list, and that the
+  source is not subscribed to any lists.  The unalias call just needs to
+  remove the alias if it exists, and shouldn't require any additional
+  checking.
+
+Aux address lists
+???
+
+Meta
+- Add proper $VERSION tags for all modules.
+- Figure out the proper names for functions and clean them all up.
+- Figure out how do make all messages configurable.
+- Make sure that addresses are validated/stripped as little as possible.
+  If a routine can return an error string and needs to strip the address,
+  it can save upstream functions the trouble.
+- Try to avoid aborting when there is another way.  Unfortunately, aborting
+  happens at the lowest levels of the code (that would have to be working
+  anyway in order to send abort messages).
+- Try to decide at just which level should the address be validated.
+- Make stub modules that inherit from the real modules so people have a
+  place to put their extension/overriding code without copying things
+  around.
+
+List
+- Make sure that tabs don't leak in from the interfaces.
+- Cache is_subscriber data, since some operations may check this more than
+  once per run.  (lists=enhanced with some advertise settings, e.g.)
+- Cache flag data, since flags can get set in chunks.  Alternately,
+  make flag_set take a list of flags.
+
+SimpleDB
+- Keep list in sorted order to speed up searches (use seek and binary
+  search?) and pull out rows in sorted order (for domain-based grouping in
+  the delivery engine).  Or just recode the thing to use BTrees.
+- Clean up lookup methods; they're a mess.  Collapse duplicated code.
+- Code to sort list given a coderef to a compare function.
+
+GTK client
+telnet client
+web client - Bill
+Finish all commands
+Figure out client-server spec.
+
+
+Uncategorized random thinkos:
+----------------------------
+
+retrieve and replace individual subscriber field data, for hard-core admin
+ stuff.
+Subscription policy patch -> sponsored subscribes.
+Waiting period for new subscribers?
+Partial digests when converting to single message receipt.
+archive search engine?
+Integrate Dave's logmail stuff -> stats command.
+Support for multipart/alternative when sending welcome messages.
+Periodically sort lists for proper batching.
+Spellcheck the documentation and messages.
+PGP verification for email.  How to trust a client?
+Internally equate meta-lists * and ALL (valid_list)
+Limit message delivery/email request processing to certain times/load
+  averages
+Some way to store some data until the next time a user communicates with
+  us.  So if, say, they are unsubscribed due to bounces but later try to
+  send a message or check their subscription status they will be informed.
+  Obviously we can't inform them when remove them, since that message would
+  bounce, too.
+Make access_check for "access" return some sort of session key, so that it
+  can be passed in $auth?
+Objectify the parser, then register legal methods with it?
+Bounce handling:  hack on BounceFilter and AutoBounce.
+Simple patterns: just '*' as "match any"; set "simple_patterns" variable,
+  and if set do $var =~ s/\*/\001/g; $var = qm($var); $var =~ s/\001/.*/g;
+  on every list config read that doesn't default when type =~ /regexp/.
+Novice_level variable that affects getting documentation for config
+  variables?  Novice set of config variables?  Novice config documentation?
+Extra access variables for post method; any_admin, any_taboo, any_dup, etc.
+Header length and body length limits.  (body is easy; compute content-length).
+digestvolume command to increment (default) or set the volume number for a
+  digest.
+store some data on each user-request so we can limit abusers.
+Expiration of subscriptions.
+Last posting date.
+Resend sequence numbers: keep a state file per list with the current
+  sequence.  Allow setting of the sequence number.
+Separate directory for lock files, or locking that doesn't need them.
+Have who expand lists subscribed to current list.
+Clean up the flag and class setting code.
+Access_rules methods for checking against requesting user instead of victim.
+Make who take a regexp.
+Forward to other (or same) server, but change the list name.
+-c option to mj_email (or new mj_command script) to always execute a
+  command when a mail is received.
+Tokens with infinite lifetime bound to addresses; use this for a permanent
+  unsubscribe token that works if addresses change or whatever.  Scan
+  occasionally for bound tokens and eliminate them if the address is no
+  longer subscribed.
+Switch $mode and $cmdline in public Majordomo functions.
+Have 'help command xxx' look up config comment string for xxx.
+Support X-No-Archive.  _post should look for headers and pseudo-headers,
+  but not remove pseudos if found.
+Internationalization.  I'd like a gettext library for some things, but
+  perhaps it can be done another way.  Perhaps we could switch based
+  on the requesters email address, but that could also have bixarre
+  problems (and is presumptuous).  A 'language' command might not be a
+  bad idea.
+Createlist should mail information to the list owner.  This should be
+  some distilled version of list-owner-info, containing pointers to
+  additional documents that can be retrieved with the help command.
+  Of course, all of these documents need to be written.
+Add Majordomo version info to the X-Mailer header that MIME-Tools adds.
+Make a separate repository for the backup default files so that we can
+ upload them without worrying about overwriting local modifications.
+Handle stupid crap like "subscribe to list" and "subscribe list digest".
+Some kind of pseudo-anonymizer so that users' addresses are replaced by
+ some anonymous token; when the message hits the archives, the headers are
+ replaced by this.  This prevents harvesting of addresses from the
+ archives.  Majordomo can handle the mapping between tokens and addresses.
+Allow a 'default prefix' command to specify a prefix to strip from all
+ lines in the text parser.  This allows replies to be yanked and quoted, as
+ long as they aren't line wrapped.
+Allow 'approve password' on the line before the command to be approved.
+New 'append' mode to configset to append additional data from a variable
+ instead of replacing the existing data.

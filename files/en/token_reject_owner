@@ -1,0 +1,11 @@
+The user $REJECTER has rejected
+token $TOKEN from $MJ.
+
+Because rejected tokens can be the result of attempted forgery or
+mailbombing, this message is being sent to inform you of everything that is
+known about the transaction which caused the token to be generated in the
+first place.
+
+Here is the saved data for the session $SESSIONID:
+
+$SESSION

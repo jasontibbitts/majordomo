@@ -1,0 +1,1178 @@
+Thu Mar 26 00:35:48 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/SubscriberList.pm: Add new 'warnings' and 'classarg2'
+ 	fields, for future use.
+
+	* lib/Majordomo.pm (_list_file_get): Tweak to search /stock/en
+ 	last.  No more non-language-specific stock directories.
+
+	* lib/Mj/FileSpace.pm (mkdir): New function.
+	(_find_legal_files): Tweak to not add trailing slash to
+ 	directories.
+
+	* lib/Mj/List.pm (fs_mkdir): New function.
+
+	* lib/Majordomo.pm (_put): Make directories given appropriate
+ 	mode.
+
+	* lib/Mj/TextOutput.pm (put): Deal with making directories.
+
+Tue Mar 24 00:06:36 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/SubscriberList.pm: Added password and language fields for
+ 	future use.
+
+	* lib/mj_cf_data.pl: Minor doc tweaks.
+	
+	* lib/Majordomo.pm (help_start): Call _list_file_get to get the
+ 	file instead of manipulating the list directly.
+
+Mon Mar 23 02:30:29 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/MailOut.pm (deliver): Pay attention to
+ 	bounce_probe_frequency and calculate buckets accordingly.
+
+	* lib/mj_cf_data.pl: Add bounce_probe_frequency and lame
+ 	explanation.
+
+	* lib/mj_cf_defs.pl: Added bounce_probe_frequency defaulting off.
+
+Sun Mar 22 13:40:31 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Implement sequence numbering.
+
+	* lib/Majordomo.pm (_list_config_set): New function.
+
+	* lib/mj_cf_data.pl: Add sequence_number variable.
+
+	* lib/mj_cf_defs.pl: Add sequence_number default to 1.
+
+Sat Mar 21 14:20:55 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Format.pm (index): Fix a typo.
+
+	* lib/Majordomo.pm (_list_file_get): Many changes to implement
+ 	enhanced search functionality.
+	(list_config_set_to_default): Broken from long ago.
+
+	* lib/mj_cf_data.pl: New description.
+
+	* lib/Mj/Config.pm (parse_list_array): Add colon-separated
+ 	comment/path goody.
+
+	* lib/Mj/Resend.pm (_post): Args to _list_file_get changed.
+
+	* lib/Majordomo.pm (_list_file_get): New lang parameter, comes
+ 	_before_ force parameter.
+
+Thu Mar 19 03:04:01 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Deliver.pm (deliver): Bunch o' changes to support bounce
+ 	probing.
+
+	* lib/Mj/Deliver/Prober.pm: New file; handle bounce probes.
+
+	* lib/Mj/MailOut.pm (mail_message): Specifically set the host.
+
+Wed Mar 18 00:07:06 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Deliver/Dest.pm (new): Add force_single input argument;
+ 	ignores any batching parameters and instead uses maxaddrs=1.  Use
+ 	this instead of trying to build a fake ruleset.
+
+	* lib/Mj/Deliver/QQEnvelope.pm (sender): Ditto.
+
+	* lib/Mj/Deliver/Envelope.pm (sender): New function to set sender.
+
+	* lib/Mj/Deliver/SMTP.pm (getresp): Recognize 452 like 552.
+
+Mon Mar 16 02:59:40 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* bin/mj_trigger: It's the trigger, not the delivery agent.
+	Make everything go to stdout.
+
+Sun Mar 15 18:24:31 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Deliver/Dest.pm (sendenvelope): Update comments to make
+ 	note of ehat needs to be done to eliminate some problems.
+	(openenvelope): Add super-emergency mode, try every host three
+ 	times before killing it, and clean up code path.
+
+	* postinstall (suggest_crontab): Give necessary crontab entries.
+
+Sat Mar 14 22:55:15 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Deliver/Dest.pm (openenvelope): Oops; could use zero
+ 	modulus.
+
+Tue Mar 10 00:57:05 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm: Added copyright notice to all files.
+
+Mon Mar  9 00:11:29 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/List.pm (expire_dup): New function.
+
+	* lib/mj_cf_defs.pl: Add default dup_lifetime value of 28 days.
+
+	* lib/mj_cf_data.pl: Add dup_lifetime variable.
+
+	* lib/Mj/Parser.pm (parse_entity): Accept Content-Type: text along
+ 	with text/plain to accommodate broken Sun mailer.  Better to not
+ 	do this if no MIME-Version header, but that would require keeping
+ 	around the top-level head somewhere.
+
+	* lib/Mj/Resend.pm (_post): Add a Sender: header.
+
+	* lib/Majordomo.pm (accept): Construct some useful logging data
+ 	for nonexistant tokens.
+
+Sun Mar  8 01:01:05 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Token.pm (confirm): Add a To: header to messages.
+	(t_accept): Return 0 on nonexistant token, not -1.
+
+	* lib/Majordomo.pm (s_expire): Fix dumb bug; we nuked the record
+ 	from the database, then called fs_delete on it (which failed.)
+
+	* bin/mj_trigger: Change debugging output location.
+
+	* lib/Mj/FileSpace.pm (mogrify): New function.
+
+	* lib/mj_cf_defs.pl: Add default value for session_lifetime of 14
+ 	days.
+
+	* lib/mj_cf_data.pl: Add session_lifetime variable.
+
+	* lib/Mj/List.pm (fs_mogrify): New function.
+
+Fri Mar  6 23:12:16 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (put): Left of an argument to final Format
+ 	call.
+
+	* lib/Mj/SimpleDB.pm (mogrify): Untaint the read half of the
+ 	FileRepl.
+
+Mon Mar  2 01:38:32 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* bin/mj_trigger: New file; must run as majordomo user to invoke
+ 	trigger function.
+
+	* lib/Mj/Log.pm (add): Couldn't set level to 0.
+
+	* postinstall (set_script_perms): Add support for non-setid
+ 	scripts.
+
+	* Makefile.PL: Add mj_trigger and support for non-wrapped scripts.
+
+Sun Mar  1 00:51:05 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* bin/mj_resend: Add time/date output to log.
+
+	* lib/Mj/Token.pm (t_add): Add expire and remind times.
+	(consult): Purge the entity instead of unlinking the tempfile.
+
+Sat Feb 28 16:26:58 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/TokenDB.pm: Add expire and remind fields.
+
+	* lib/mj_cf_data.pl: confirm_url is a global because tokens are
+ 	global.  List owners don't have the power to add additional
+ 	confirmation interfaces.
+
+Fri Feb 27 00:25:00 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Format.pm (lists): Accept and ignore the OK flag.
+
+	* lib/Majordomo.pm (lists): Return an OK flag.
+
+	* lib/Mj/TextOutput.pm (put): Take 'data' mode and accept
+ 	content-type, charset and content-transfer-encoding.
+
+	* lib/Mj/Addr.pm: Various doc tweaks, fix left -> right, and bang
+ 	path regexp error.  Patch from NB.
+
+Thu Feb 26 02:20:05 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (_put): Extract charset from $stuff, and pass
+ 	it into fs_put.
+	(_get): Deal with charset.
+
+	* lib/Mj/FileSpace.pm: Several changes to take, maintain and
+ 	return charset field.
+
+	* lib/Mj/FileSpaceDB.pm: Add charset field.
+
+	* lib/Mj/SimpleDB.pm (_stringify): Fix logic error.
+
+	* lib/Mj/Token.pm (t_expire): Minor fixes; pay attention to
+ 	permanent flag.
+
+Wed Feb 25 00:08:57 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Access.pm (_d_post): Implement 'administrivia' bailout.
+
+Tue Feb 24 00:03:16 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Format.pm (showtokens): Deal with ALL; show list name
+ 	too.
+
+	* lib/Majordomo.pm (_make_list): Do nothing on 'ALL'.
+	(_showtokens): Tweak for ALL.
+	(_list_config_get): Ditto.
+
+	* lib/Mj/Access.pm (list_access_check): ALL -> GLOBAL.
+
+	* lib/parser_data.pl: Allow ALL list for showtokens.
+
+	* lib/Mj/Deliver/Envelope.pm: Tweak docs.
+
+	* lib/Majordomo.pm: The following pain brought to you by
+ 	microsoft.
+	(tokeninfo): Fix undef warnings if no sessionid.
+
+	* lib/Mj/Token.pm (confirm): Nuke suggested filename.
+	(consult): Ditto.
+	(consult): Ditto.
+	(t_accept): Ditto.
+
+	* lib/Mj/Access.pm (_a_mailfile): Nuke suggested filename.
+
+	* lib/Mj/MailOut.pm (welcome): Nuke suggested filename.
+
+	* lib/Mj/Parser.pm (parse_entity): Nuke suggested filename.
+
+	* lib/Mj/Resend.pm (post): Nuke suggested filename.
+
+	* lib/Mj/Inform.pm (_inform_owner): Nuke suggested filename.
+
+	* lib/Majordomo.pm (_get_mailfile): Nuke suggested filename.
+	(reject): Ditto.
+
+Mon Feb 23 00:17:44 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (_showtokens): New function.
+
+	* lib/Mj/Format.pm (showtokens): New function.
+
+	* lib/Mj/TextOutput.pm (showtokens): New function.
+
+	* lib/Majordomo.pm: Add showtokens command to dispatcher.
+
+	* lib/parser_data.pl: Add 'showtokens' command.
+
+	* lib/Mj/TokenDB.pm: Add an additional 'reminded' field to
+ 	TokenDB.
+
+Sun Feb 22 00:00:48 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (subscribe): Minor tweaks.
+
+	* lib/Mj/Config.pm: Add showtokens as a legal request.
+
+	* lib/Majordomo.pm (help_start): Fill out substitution hash.
+	(get_done): Clear subst hash.
+	(get_chunk): Make use of subst hash if it exists.
+	(substitute_vars_string): Need to replace all occurrences on a
+ 	line.
+
+	* lib/Mj/Format.pm (index): Tweak output a bit.
+	(g_sub): Fix return value; return true if anything succeeded.
+
+Sat Feb 21 22:28:05 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (post): Added additional logging.
+
+Fri Feb 20 23:39:47 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/mj_cf_data.pl: Changed comments of 'description' and
+ 	'description_long'.
+
+Thu Feb 19 00:15:24 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (post): Added $mime = $mime_consult ||
+ 	$mime_deny access variable.
+
+	* lib/Mj/Access.pm (global_access_check): Add 'not' to permitted
+ 	ops list.
+
+	* lib/Mj/Parser.pm (parse_part): Make the command count something
+ 	people can understand.
+
+	* lib/Majordomo.pm (accept): Left an argument ouf of the inform
+ 	call.
+
+Wed Feb 18 01:50:20 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Token.pm (confirm): Spool the message properly for
+ 	confirming post requests, just like we do when consulting them.
+
+	* bin/mj_resend: Call &post with something useful as a command
+ 	line.
+
+	* lib/Mj/Resend.pm (post): Properly pass the data we were called
+ 	with on to list_access_check so it gets into the token properly.
+
+	* bin/mj_resend: Use message header as session data and call
+ 	connect properly.
+
+	* lib/Mj/Config.pm (_compile_rule): Forgot to turn off $invert
+ 	after @ expansion.
+
+	* lib/Mj/Addr.pm (validate): Special message for commas in
+ 	route-addrs; warn about source routes instead of multiple
+ 	addresses.  #17
+
+	* lib/Mj/Format.pm (escape): New function.  #20
+	(eprintf): New function.  #20
+	(eprint): New function.  #20
+	Change all functions to use eprint and eprintf.  #20
+
+	* lib/Mj/Addr.pm (validate): Add .cd domain. #18
+
+	* lib/Mj/Format.pm (show): Clean up error printing.  Need to do a
+ 	bunch more of this elsewhere.
+	(accept): $sessionid should be $rsessionid.  #19
+
+	* lib/Mj/Addr.pm (validate): Set $" and change some error messages
+ 	to show more info.  #16
+
+	* lib/Majordomo.pm (accept): Call inform here instead.
+
+	* lib/Mj/Token.pm (t_accept): We weren't informing about the
+ 	actions done because of token accepts.
+	(t_accept): Changed my mind.
+
+	* lib/Mj/Archive.pm (add): Month was one off.
+
+	* lib/Mj/Resend.pm (_post): Actually remove prefix from subject,
+ 	so that the archive gets a clean version.
+	(_check_approval): This is no longer unfinished.
+
+Tue Feb 17 02:28:48 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* bin/mj_email: Call Majordomo::addr_validate instead of talking
+ 	to Mj::Addr.
+
+	* lib/Majordomo.pm (addr_validate): New utility function.
+
+	* Makefile.PL: Require MIME::Entity 4.114 because of bugs.
+
+Mon Feb 16 00:51:20 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (substitute_vars_string): Add word boundary to
+ 	regex to prevent expansion of $A in $ABC.
+
+Sun Feb 15 18:34:52 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Config.pm: Add matches_list subscribe access variable. #2
+
+	* lib/Mj/Addr.pm (validate): Tweak an error message.
+
+	* lib/Mj/Format.pm (reject): Add notice that notifications are
+ 	being sent.
+
+	* lib/Majordomo.pm (reject): Fix lack of To: header in owner info.
+
+	* t/addr.t: New test; exercise the address parser. #4
+
+	* Makefile.PL (configure): Changed wrapper prompt to something
+ 	truthful.
+
+Fri Feb 13 02:27:24 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/List.pm (new): Take an address validator and pass it into
+ 	the Mj::Config::new.
+	Lots of changes to call $self->{'av'}->validate.
+
+	* lib/Mj/Config.pm (new): Take an address validator object.
+	(parse_address): Make use of it.
+
+Thu Feb 12 03:07:49 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Addr.pm (addr_validate): Added logic to check for
+ 	excessively long user and host names and for illegal characters in
+ 	either.
+
+Wed Feb 11 01:16:03 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Parser.pm (parse_line): Nuke tabs in command line input.
+
+Mon Feb  9 01:03:56 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Inform.pm (inform): Don't bother with 'reject' actions.
+
+	* lib/Majordomo.pm (reject): Also send session data to list owner
+ 	and majordomo-owner, depending on their inform settings.
+
+Sun Feb  1 00:11:02 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (sessioninfo): New function; give back the
+ 	stored session data for a sessionid.
+
+	* lib/Mj/Format.pm (reject): Take and print out sessionid.
+	(accept): Take and print out sessionid.
+
+	* lib/Mj/Token.pm (t_add): Write out sessionid.
+	(confirm): Add sessionid expansion token.
+	(consult): Add optional sessionid argument.
+	(t_accept): Pass sessionid along for chained consults.
+	(t_accept): Pass out sessionid to the calling function.
+
+	* lib/Mj/TokenDB.pm: Added sessionid field.
+
+	* lib/Mj/Config.pm (_compile_rule): Tweak comparison recognizer.
+	(_compile_rule): Even more tweaks to the comparison recognizer.
+
+Sat Jan 31 23:49:18 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Config.pm (parse_taboo_body): If the line limit is 0, we
+ 	would always fail taboo matches.
+	(_compile_rule): Fully support numeric comparisons.
+
+	* lib/Mj/Access.pm (global_access_check): Added extra ops for
+ 	comparison to @permitted_ops.
+
+Wed Jan 28 02:24:47 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Config.pm (parse_access_rules): Check for legal %requests
+ 	and %actions.
+	Added %actions.
+	(_compile_rule): Use new %requests structure.
+
+Tue Jan 27 00:27:26 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Config.pm: Fleshed out %requests hash.
+
+	* lib/Mj/Resend.pm (post): Add some extra access variables.
+
+Mon Jan 26 23:40:18 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/MailOut.pm (welcome): OWNER should refer to the list
+ 	owner, not the majordomo owner.
+
+Sun Jan 25 00:01:13 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (createlist): Place header and body in the
+ 	proper order.
+
+	* lib/Majordomo.pm (createlist): Return messages in the proper
+ 	position.
+
+	* lib/Mj/MTAConfig.pm (sendmail): Removed extra space from
+ 	returned messages.
+
+	* lib/Majordomo.pm (_global_config_get): Remove old majordomo.cf
+ 	hack.
+
+	* lib/Mj/Config.pm (get): Tweaked to return a defined value when
+ 	defaulting.
+
+	* lib/Mj/Parser.pm (parse_part): Tweak so that args is never
+ 	passed as a read-only value.
+
+	* lib/parser_data.pl: new* are not obsolete any longer.
+
+	* lib/Mj/FileSpace.pm (put_start): Return some additional errors
+ 	for nonexistent directories.
+
+	* lib/Mj/Resend.pm (_r_ck_taboo): Clean up debugging crap.
+
+	* lib/Mj/Config.pm (parse_string_2darray): Tweak to fix undefined
+ 	warnings.
+
+	* lib/Mj/TextOutput.pm (put): Decide just how many arguments we
+ 	are going to pass into the internal put routine.
+
+	* lib/Mj/Format.pm: Added routines to feed newinfo, newintro and
+ 	newfaq into put.  Made put special case some files to output
+ 	different messages.
+
+Sat Jan 24 01:28:30 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Format.pm (index): Various tweaking.
+
+	* lib/Mj/Parser.pm (parse_entity): Modified to look for text part
+ 	types case-insensitively, and to report ignored parts instead of
+ 	ignoring them.
+
+	* lib/Mj/Access.pm (_a_default): Modified *_access targets to look
+ 	for a 'root' parameter and always deny if present.  This locks out
+ 	non-passworded access to all but the public filespaces.  Also
+ 	changed get and index to set and pass in this parameter.
+
+	* lib/Majordomo.pm (faq_start): Lots of new functions to support
+ 	the faq command.
+
+	* lib/Mj/TextOutput.pm (index): Yet another new function.
+
+	* lib/Mj/Format.pm (index): Pretty-print indices.
+
+	* lib/Majordomo.pm (index): Internal index support.
+
+	* lib/Mj/List.pm (fs_index): New function.
+
+	* lib/Mj/FileSpace.pm (index): New function to prepare an index.
+
+	* lib/Majordomo.pm: Several new functions to support info, intro,
+ 	get (with file mailout and immediate mode).
+	
+	* lib/Mj/Format.pm (g_get): Generic way to handle info, intro,
+ 	help.
+
+	* lib/Mj/TextOutput.pm (createlist): Properly default $owner.
+
+	* lib/Mj/Access.pm (_a_default): Fix list access for GLOBAL.
+
+	* lib/Majordomo.pm (dispatch): Add get to dispatch array.
+
+	* lib/Mj/Format.pm (get): Format the get thing.
+
+	* lib/Mj/TextOutput.pm (get): Do the get thing.
+
+	* lib/Majordomo.pm (get_start): New set of functions to handle
+ 	file retrieval.
+
+Fri Jan 23 01:27:38 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Token.pm (t_remove): Force deletion of spooled files.
+
+	* lib/Mj/Resend.pm (_post): Add force parameter when retrieving
+ 	spooled files.
+
+	* lib/Majordomo.pm (_list_file_get): Add force parameter.
+
+	* lib/Mj/Token.pm (consult): put spool files without read
+ 	permission.  They should be security protected.
+
+	* lib/Majordomo.pm (help_start): Clean up.
+
+	* DESIGN: Fixed some typos and corrected a few things.
+
+	* lib/Mj/TextOutput.pm (createlist): Clean up output a bit.
+
+	* bin/mj_confirm: Make it work again.  Add a few goodies and some
+ 	comments.
+
+	* lib/Mj/Token.pm (t_info): Rewrite to preserve interface
+ 	boundary.
+
+Thu Jan 22 00:29:02 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Access.pm (_d_subscribe): open+confirm would consult.
+  	Oops.
+
+	* bin/mj_email: Log properly to a handle when requested.
+
+	* lib/Mj/Log.pm (message): Put PID in handle output.
+
+Wed Jan 21 01:43:19 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* postinstall (do_config): Removed debugging switches.  Oops.
+
+Tue Jan 20 23:34:54 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (post): Properly ack denials if an appropriate
+ 	flag is set.
+
+	* lib/Mj/Access.pm (_d_post): New function; provide default action
+ 	for posting.
+	(_a_deny): Return better default message for post action.
+	(list_access_check): Bugfig: pass %args to access function.
+
+Sun Jan 18 12:35:54 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (_r_ck_taboo): Renamed from _check_taboo_1 to
+ 	quiet autosplit.
+
+Sat Jan 17 00:55:21 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Config.pm (parse_attachment_rules): New function.
+	(parse_attachment_rules): Return default values at end of list.
+
+	* lib/Mj/Access.pm (_d_advertise): Fixed a couple of bugs.
+
+	* lib/Majordomo.pm (_re_match): Now return any errors encountered
+ 	during the match if wanted so that the routine can be used as a
+ 	regexp syntax checker.
+
+Sun Jan 11 01:54:38 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (_add_fters): New function; add fronters and
+ 	footers.
+	(_add_fters): Get rid of X-Mailer in fters.
+	(_add_fters): Make sure we have a text/plain part before we mess
+ 	with it.
+	(_add_fters): Frequencies are now percentages; this makes more
+ 	sense and is simpler to write.
+
+	* lib/Mj/Config.pm (parse_string_2darray): New routine to parse
+ 	footers and fronters (and possibly other things).
+
+	* Makefile.PL: Now require MIME-tools 4.109 (for deep copy).
+
+Fri Jan  9 00:19:28 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (_check_approval): Fix lower bounds on preamble
+ 	search.
+
+	* lib/Mj/Deliver.pm (_re_match): Put back in.
+
+	* Makefile.PL: Require MIME-tools 4.107.
+
+	* lib/Mj/Resend.pm (_trim_approved): Call seek properly, call the
+ 	proper config_get routine.
+	(_trim_approved): Fix more typos.
+
+	* bin/mj_resend: Pass full arg list to post();
+
+	* lib/Mj/Resend.pm (_check_approval): Take care of newlines at the
+ 	end of Approved: lines.
+	(post): Now takes full argument list.
+
+	* lib/Mj/Access.pm (validate_passwd): Called canon with the wrong
+ 	list.
+
+Thu Jan  8 20:29:29 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (_trim_approved): New function: extract
+ 	approved message from approval message.
+	(_post): Call _trim_approved.
+
+Wed Jan  7 00:03:52 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (tempname): New function; generate a unique
+ 	temporary filename.
+
+Mon Jan  5 00:56:30 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (post): Now use severity values for taboo
+ 	failures.  Can't use them in the access language yet, though.
+	(_check_approval): Do more extensive approval checks.
+
+Fri Jan  2 00:37:41 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Token.pm (t_add): The database remove must come last,
+ 	else we have to save its output.  We need to return this to the
+ 	calling routine, and the unspooling was hosing that return value.
+  	I had weird problems with this in the past for reasons I could
+ 	never pin down, but it seems to be OK now.
+	
+Thu Jan  1 15:14:25 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (_createlist): New function.
+	(createlist): Split off bottom half; do proper security checks.
+
+	* lib/Mj/Format.pm (createlist): New function.
+
+	* lib/Mj/TextOutput.pm (createlist): Rewrite.
+
+	* lib/Mj/Format.pm (indicate): Fixed * -> - mixup.
+
+Wed Dec 31 19:21:07 1997  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (_rekey): New.
+	(rekey): Do real access checks.
+
+	* lib/Mj/Access.pm (_d_advertise): New function.
+	(_a_default): Now does what it's supposed to.
+
+	* lib/Mj/Deliver.pm (deliver): No need to share $addr with the
+ 	Safe compartment.
+
+	* lib/Majordomo.pm (_re_match): Moved from Deliver.pm; it's useful.
+
+Sat Dec 20 00:45:03 1997  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (lists): Move everything to Format.
+
+	* lib/Mj/Format.pm (lists): New function.
+
+	* lib/Mj/TextOutput.pm (help): Rewrite.
+
+	* lib/Mj/Format.pm (help): New function.
+
+	* lib/Mj/TextOutput.pm (post): Rewrite.
+
+	* lib/Mj/Format.pm (post): New function.
+
+Thu Dec 18 00:44:19 1997  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* Makefile.PL: Require new MIME-tools versions.
+
+	* lib/Mj/Format.pm (put): New function.
+
+Wed Dec 17 00:43:51 1997  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Token.pm (t_accept): Use different approval message when
+	request is 'post'.
+
+Mon Dec 15 01:52:47 1997  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Deliver/SMTP.pm (enddata): Send an extra line ending if
+	we didn't send one as part of the data.
+
+	* lib/Mj/List.pm (flag_set): Fix typos and warnings.
+
+	* lib/Majordomo.pm (accept): Fix tainting issue with tokens.
+
+	* lib/Mj/Token.pm (consult): Don't add info about the bounce
+	reasons if they are none; doing so resulted in a newline in the
+	headers.  Bad.
+
+	* lib/Mj/Format.pm (set): Fix undef warning.
+
+	* lib/Mj/List.pm (set): Fixed up messages.
+
+Sun Dec 14 13:27:58 1997  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Token.pm (t_accept): Reorganize and add replyfile
+	functionality for chained tokens.
+
+	* lib/Mj/Access.pm (list_access_check): Now track a default
+	replyfile and use it if no reply string is specified.
+	(_a_conf_cons): Use 4th chain arg as replyfile.
+
+	* lib/Majordomo.pm: Bumped version for internal snapshot.
+
+	* lib/Mj/Format.pm (prepend): New function.
+	(indicate): New function.
+	(accept): Use them.
+	Convert all functions to use them.
+
+	* lib/Mj/Access.pm (_a_replyfile): New function.
+
+Sat Dec 13 15:41:49 1997  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Access.pm (list_access_check): Allow + as _ in actions.
+
+Thu Dec 11 23:25:02 1997  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Token.pm (t_accept): Big fix; now send results of consult
+	tokens to the victim.
+
+	* lib/Mj/Format.pm (accept): Add some logging; special case
+	acceptance of consult tokens.
+
+	* lib/Mj/Inform.pm (_inform_owner): Purge the entity to get rid of
+	tempfile droppings.
+
+Tue Dec  9 01:36:14 1997  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Token.pm: token routines take four chain fields now.
+
+	* lib/Mj/Format.pm (g_sub): reorg.
+
+	* lib/Majordomo.pm (accept): vict -> victim.
+
+	* lib/Mj/Token.pm (consult): Fixed bugs; got rid of extra
+	$requester variable.  (Why was it there?)
+
+	* lib/Mj/TokenDB.pm: Changed field order.
+
+Mon Dec  8 00:50:23 1997  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Config.pm (parse_table): Compress multiple blank lines
+	for multiline elements.
+
+	* lib/Majordomo.pm (reject): Return the extracted token.
+
+	* lib/Mj/TextOutput.pm (reject): Rewrite; call format function.
+
+	* lib/Mj/Config.pm (parse_inform): Added reject as
+	inform-by-default.
+
+	* lib/Mj/Format.pm (reject): New function.
+
+	* lib/Mj/Token.pm (t_reject): Removed quiet flag; we go through
+	the dispatcher now, so we have the generic noinform mode.
+
+	* lib/Majordomo.pm (reject): New function.
+
+1997-12-07  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (rekey): Cleanup and call formatter.
+
+	* lib/Mj/Format.pm (rekey): New function.
+
+	* lib/Mj/TextOutput.pm (set): Cleanup and call formatter.
+
+	* lib/Mj/Format.pm (set): New function.
+
+1997-12-06  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Format.pm (show): New function.
+
+	* lib/Mj/TextOutput.pm (unalias): Cleanup and call formatting
+	function.
+	(show):  Cleanup and call formatter.
+
+	* lib/Mj/Format.pm (unalias): New function.
+
+	* lib/Mj/TextOutput.pm (auxwho): Cleanup and call format function.
+	(which): Cleanup.
+	(who): Cleanup.
+	(unsubscribe): Cleanup.
+
+	* lib/Majordomo.pm (auxwho_start): Add check for legal sublist name.
+
+	* lib/Mj/Format.pm (auxwho): New function.
+
+	* lib/Mj/TextOutput.pm (auxunsubscribe): Cleanup.
+	(auxsubscribe): Cleanup.
+	(alias): Cleanup.
+
+	* lib/Mj/Config.pm (parse_restrict_post): Fixed undefined value
+	warning.
+
+	* lib/Mj/TextOutput.pm (g_add): Call into formatting routine
+	instead of doing it ourselves.
+	(g_add): Handle both arglist and argfile in one loop.  No code
+	duplication!
+	(g_remove): Call into formatting routine, plus various changes to
+	make this possible.
+
+	* lib/Mj/Format.pm (g_sub): Duh.  ARRAY instead of LIST.
+
+1997-12-05  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm: Now handles caching old password values and
+	incorporating new passwords properly.  Install on home development
+	machine works now.
+
+1997-12-04  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Access.pm (_build_passwd_data): Take $force flag.
+
+	* lib/Mj/Config.pm (rebuild_passwd): New routine.
+	(parse_list_array): New routine.
+	(set): Call rebuild_passwd as necessary to handle password
+	changes.
+	(parse_passwords): Return rebuild flag.
+
+Wed Dec  3 01:54:36 1997  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (auxunsubscribe): Modernized logging.
+
+	* lib/Majordomo.pm (_unsubscribe): Removed inform calls.
+	(unsubscribe): Removed inform calls.
+	(_subscribe): Ditto.
+	(subscribe): g.
+
+Mon Dec  1 01:37:51 1997  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm: Got rid of some apostrophes in pods do satisfy
+	emacs highlighting.
+
+Thu Oct 16 02:27:48 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/Format.pm (accept): Use three stored args from the
+		  token.
+
+	* lib/Majordomo.pm (accept): Return the three stored arguments.
+
+	* lib/Mj/TextOutput.pm: Convert to Format functions with three
+		  free parameters.
+
+	* lib/Mj/Format.pm: Convert to three free parameters.
+
+Tue Oct 14 01:50:39 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (which): Now prepare args, call core, and
+		  format.
+
+	* lib/Majordomo.pm (which): Completely rewritten; now implement
+		  all functionality internally.
+
+	* lib/Mj/List.pm (search): IMPORTANT: search now returns key/data
+		  pairs, not just matching keys.
+
+Sun Oct 12 01:49:08 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Majordomo.pm (accept): New function; internaliaze some of
+		  the acceptance routine.  Update dispatcher to handle
+		  it.
+
+	* lib/Mj/Token.pm (token_accept): Modify to handle new accept
+		  sequence.
+
+	* postinstall: Hack: skip MTA suggestions if no STDIN.
+
+	* lib/Mj/TextOutput.pm: Removed more 8 char clashes.
+
+	* lib/Mj/Format.pm: New file: core return formatting functions.
+
+Sat Oct 11 22:52:49 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* Makefile.PL: Clean up @SCRIPTS, @EXES declaration just for fun.
+
+Fri Oct 10 20:55:46 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* Makefile.PL (MY::postamble): Add install->postinstall
+		  dependency.
+
+	* postinstall (suggest_mta): New function.
+
+Wed Oct  8 00:02:24 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* Makefile.PL: Data::ShowTable 3.3 is now required.
+
+	* lib/Majordomo.pm (dispatch): Pass additional data to inform
+		  routine.
+
+	* lib/Mj/Inform.pm (inform): Added passworded and interface log
+		  items.
+
+	* bin/mj_confirm: Added rudimentary docs to keep build process
+		  quiet.
+
+	* lib/Mj/Access.pm: Adjusted many function names to stay within
+		  the stupid 8 character uniqueness limit.
+
+	* lib/Mj/TextOutput.pm (help): Fix to get list value from
+		  dispatcher.
+	
+	* lib/Majordomo.pm (help_chunk): Fix to return OK flag so the
+		  dispatcher can deal with it.
+
+Tue Oct  7 02:00:05 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (put): Use dispatcher and put_*.
+
+	* lib/Majordomo.pm: Rename list_file_put_* to put_*.  Made
+		  dispatcher aware of this.
+
+Sun Oct  5 01:19:50 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm: Adjust all routines to deal with
+		  dispatcher.
+
+	* lib/Majordomo.pm (dispatch): New function: dispatcher.
+	adjust all routines to deal with dispatcher.
+
+Tue Sep 30 23:16:48 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (help): downcase the topics.
+
+Mon Sep 29 00:37:53 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/Inform.pm (inform): Add override parameter.
+
+Fri Sep 26 19:01:25 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* bin/mj_shell (parse_command): Fix typo.
+
+	* Makefile.PL: Piles of additions to deal with wrappers.
+
+	* installbin: Don't substitute vars in the wrappers.
+
+Sun Sep 21 19:34:44 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* bin/mj_shell (parse_command): Provide default for EDITOR.
+
+	* lib/Majordomo.pm (createlist): Added nocreate mode; just
+		  suggests configuration.
+		  (createlist): Error out if list already exists.
+		  (createlist): Fix some more bugs.
+
+	* lib/Mj/Config.pm: Removed visible tag from some variables that
+		  should not be visible.
+
+Sat Sep 20 12:09:37 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/Addr.pm (addr_validate): Force items on rhs of stripped
+		  address to lower case.  (Can't do this for the lhs,
+		  though.)
+
+	* lib/Mj/Config.pm (intro): varlabie -> variable
+
+Mon Sep 15 21:25:18 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* bin/mj_shell (parse_command): Error out if no command was
+		  given.
+
+Sun Sep 14 22:51:15 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Majordomo.pm (list_config_set): Slight tweak to failed
+		  password message.
+
+	* postinstall (install_response_files): Take advantage of file
+		  parsing and multiple -f arguments.
+		  (do_config): Take advantage of file parsing.
+
+Sat Sep 13 22:09:50 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* bin/mj_shell: new -F option to parse many commands from a file,
+		  and major code cleanup.
+		  Now using Getopt::Long.
+
+Fri Sep 12 00:23:56 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/Access.pm (list_access_check): Change in behavior: if a
+		  password is given, it _must_ be valid.
+
+	* lib/Majordomo.pm (createlist): Incorrectly called
+		  global_access_check.
+		  Various other global_access_check screwups.
+
+	* lib/parser_data.pl: Enabled help command.
+
+	* lib/Mj/TextOutput.pm (help): New help command.
+
+	* lib/Majordomo.pm (help_start): New function - help retrieval.
+	(help_chunk): New function.
+	(help_done): New function.
+
+	* lib/mj_cf_data.pl: Message_fronter -> message_fronter.
+	mumbatches -> numbatches.
+	Better description of 'global' attribute.
+
+	* lib/Mj/Parser.pm (parse_part): Tiny == -> = bug.
+
+Thu Sep 11 00:49:01 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (post): New interface to iterative
+		  posting.
+
+	* lib/Mj/Resend.pm (post_start): New function- iterative posting.
+	(post_chunk): New function.
+	(post_done): New function.
+	(post): Fixed access check and removed warnings.
+
+Wed Sep 10 00:51:19 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Majordomo.pm (who_start): Add functionality to show hidden
+		  addreses with who if approved.
+
+Tue Sep  9 00:17:25 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/mj_cf_data.pl: Improved docs for inform variable.
+
+	* lib/Majordomo.pm (_alias): Fixed error return.
+
+	* lib/Mj/List.pm (alias_add): Fixed error return.
+
+	* lib/Mj/Access.pm (list_access_check): Moved come config variable
+		  retrievals farther down, so they don't have to be done
+		  if a password is given.
+
+	* t/shell.t: Added tests for auxlists and configset.
+
+Mon Sep  8 16:38:54 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (configset): Added filehandle input method.
+	
+	* lib/Mj/Config.pm (parse_inform): Now uses 'report' instead of
+		  'log'.  Everything gets logged.
+
+	* lib/Majordomo.pm (who_start): Added calls to inform.
+	(who_done): Added call to inform.
+	(lists): Added calls to inform.
+	(unsubscribe): Split out bottom half, added inform calls.
+
+	* lib/mj_cf_defs.pl: Changed default for sender.
+
+	* lib/Mj/MailOut.pm (welcome): Expand variables in descriptions
+		  and subjects.
+		  (welcome): Fixed bugs in variable expansion.
+
+	* lib/Mj/Inform.pm (_inform_owner): left $list off of
+		  list_config_get.
+	
+Sat Sep  6 14:36:50 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/mj_cf_data.pl: new variable 'inform'.
+
+	* lib/Mj/Config.pm (parse_inform): New function to parse inform
+		  variable.
+	
+	* postinstall (set_script_perms): Rearrange chown and chmod to
+		  hopefully fix Linux problems.
+
+Fri Sep  5 00:34:11 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Majordomo.pm: Released version 0199709050.
+
+Sun Aug 24 00:06:55 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/Config.pm: Allowed undef for many variables.
+	(parse_address): Look up domain and tack it on if necessary.
+	(parse_address_array): Call parse_address to do work.
+
+	* bin/mj_email: Add MIME-Version header to toplevel if necessary.
+	
+	* lib/Mj/Deliver/Dest.pm: Documented most of the class data.
+
+Sat Aug 23 00:28:52 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* bin/mj_email: Now log to STDERR if it's a terminal.  Call
+		  mail_message instead of dealing with the Envelope
+		  manually.
+	
+	* t/shell.t: renamed from basics.t.  Added several more tests.
+
+Fri Aug 22 01:02:49 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* Makefile.PL: Dumb formatting changes.
+
+	* lib/Mj/Config.pm: Fixed up several config data references.
+
+	* lib/Mj/TextOutput.pm (configset): Fix undef warning.
+
+	* lib/Mj/List.pm (_file_path): Moved up before END token.
+
+	* postinstall (rchown): New function.  Do chown -R, basically.
+	(set_script_perms): Use it on install_dir, else we can't do the
+		configset later on.
+
+Thu Aug 21 16:50:42 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/List.pm: Removed references to _build_digest_data.  Use
+		  parsed version from config instead.
+
+	* postinstall: Set owner/group before mode; Linux requires this.
+	
+	* lib/Mj/Config.pm: Finished most of parsing rewrite; now in
+		  testing.
+	
+Sun Aug 17 13:28:47 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/Access.pm (list_access_check): Ripped out all of rule
+		  compilation stuff.  Now gets data pre-parsed from the
+		  list config.
+	
+Fri Aug 15 00:53:53 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Mj/Config.pm: Parsing/syntax-checking rewrite started.
+
+	* lib/Mj/Parser.pm (parse_part): Set $mode to '' if not defined to
+		  prevent lots of undef warnings.
+
+	* lib/Mj/Log.pm (abort): Set CarpLevel so that we complain about
+		  where we were called.
+
+	* bin/mj_email: Added UID and GID checks.  Got rid of extra flag
+		  on Majordomo allocation.
+	
+
+Thu Aug 14 21:34:48 1997  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
+
+	* lib/Majordomo.pm: Released version 0.0199708140.
+
+	* TASKS: Added info on MTAConfig module.
+
+	* BUGS: The race condition in SimpleDB seems to be history.
+
+	* Makefile.PL (configure): Mention createlist command for
+		  conversion.
+	
+	* lib/Majordomo.pm (legal_list_name): Made legal_list_name take
+		  periods, but not '.' and '..'.
+
+	* README (Note): Added warning about setuid not working on broken
+		  systems.
+	
+	* Makefile.PL: Added require to check for 5.00401.  Removed prereq
+		  check and special code to check perl version.
+

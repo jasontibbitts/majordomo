@@ -1,0 +1,49 @@
+The Text Parser
+---------------
+
+The text parser is the part of Majordomo that takes a body of text and
+extracts the commands from it.  In the simplest case it just parses
+commands, one per line.  It can, however, do much more.
+
+The parser only looks in text/plain parts for commands.  Other parts are
+discarded.  Lines beginning with '#' are considered to be comments, and are
+ignored.  Lines ending in '\' are joined to the next line.
+
+The parser will check for the validity of each command and report errors.
+It will also skip large amounts of errors, reporting the count of lines
+skipped.  If necessary, a default list will be added based on the default
+list supplied to the parser.  If the command line ends in '<<' and a word
+in upper case, all lines between the command line and one consisting only
+of the specified word are taken as additional arguments to the command.
+Then the command routine is called and the results are reported.
+
+There are a few additional features of the parser:
+
+The 'approve' command is implemented internally and sets a password for the
+  following command.
+The 'default' command sets certain defaults for the duration of the
+  parsing; the following defaults can be set:
+    password - approves all following commands with the given password.  To
+               clear the password, don't supply one.
+    list     - sets the default list for commands to the provided list.  To
+               clear the default list, don't supply one.
+    language - (Not implemented) sets the default language preference list
+               to the comma-separated list of two-letter language
+               abbreviations.
+    prefix   - (Not implemented) sets a prefix that (if present) will be
+               deleted from the beginning of all following lines.
+The 'language' command (not implemented) is equivalent to the 'default
+  language' command above, and is supplied for the benefit of users
+
+In addition to the '<<' syntax for supplying arguments to a command, there
+is the '<@' syntax.  When followed by a number, this references the
+numbered attachment.  (Number 1 being the attachment following the part
+containing the commands.)  From the shell interface, this references the
+numbered '-f' argument.  (Read the mj_shell manual page for more
+information.  Note that the shell interface is only available to users
+local to the machine running Majordomo.)
+
+This enables the upload of binary files and the like by attaching them to
+the command message and doing something like the following:
+
+approve password put=data mylist image/jpeg none base64 A Picture <@ 1

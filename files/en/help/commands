@@ -1,0 +1,101 @@
+This is a basic overview of the supported Majordomo commands.
+
+The modes a command accepts (if any) are listed in parentheses after the
+command.  Modes are generally specified by placing them after the command
+with an equals sign, as follows:
+
+  subscribe=nowelcome mylist
+
+An address can generally be omitted from the command.  If omitted, your
+address will be used if it can be determined.  Note that the address is not
+optional for the alias and unalias commands.
+
+For messages sent to the -request address, the list can also be omitted
+from the commands.  The list cannot be omitted from commands sent to the
+majordomo address.
+
+accept token
+  This accepts a confirmation or consultation token.
+  The stalled command will be executed and the results returned in the
+    response message.
+  If the token is omitted, the Subject: header will be searched for one.
+
+alias list address
+  This adds an address as an alias for the current address.
+  Send this command from an address that is subscribed to the list; the
+    given address is then considered to be equivalent to the subscribed
+    address,
+
+faq list
+  This returns a Frequently Asked Questions document for the current list,
+    if one is available
+
+get list file
+  This retrieves the given file from the list's file storage.
+
+help topic subtopic ...
+  This retrieves the given help topic.
+
+index list path (recursive, long)
+  This retrieves an index of available files.
+
+info list
+  This retrieves the given list's informational document, if one is available.
+
+intro list
+  This retrieves the given list's introductory document, if one is
+    available.
+  Note that this is not (currently) the same as the welcome document that
+    is sent to new subscribers.
+
+lists (enhanced, short, tiny)
+  This retrieves a list of lists on this server which are available to you.
+  The enhanced mode includes long descriptions and additional list
+    information, including an indication of whether you are subscribed to
+    each list.
+  The short mode uses only short descriptions.
+  The tiny mode includes only hte list names and nothing else.
+
+reject token
+  This rejects a token, causing it to be deleted from the database without
+    its action being taken.
+ 
+set list flag address
+  This sets various subscription parameters.
+  More documentation to come.
+
+show list address
+  This displays various information about an address:
+    Whether or not the given address is legal.
+    The mailbox and comment, extracted from the address.
+    What the address transforms to, under the various address
+      equivalencies.
+    What the address is aliases to.
+    Whether or not the address is subscribed to the given list, and what it
+      is subscribed as.
+    The time that the address was subscribed to the list.
+    The subscription class.
+    The subscriber flags.
+    The time the record was last updated.
+
+subscribe list address (nowelcome)
+  This adds the address to the given list.
+  The nowelcome mode suppresses the welcome message that is usually sent to
+    new subscribers.
+
+unalias list address
+  This removes the given address as an alias for the current address.
+
+unsubscribe list address
+  This removes the address from the given list.
+
+which string (regex)
+  This shows which lists contain addresses which contain the given string.
+  The regex mode causes the string to be used as a Perl regular expression.
+
+who list
+  This gives a list of all subscribers to the given list.
+
+
+For a list of administrative commands and additional modes, see the
+'admin commands' help topic.

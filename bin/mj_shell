@@ -1,0 +1,556 @@
+#!/usr/local/bin/perl-latest -wT
+BEGIN {
+  $::LIBDIR = "/path/to/lib";
+  $::LISTDIR= "/path/to/lists";
+  $::DEFDOM = "some.dom.ain";
+  $::TMPDIR = "/tmp";
+  $::UID    = "baduid";
+  $::GID    = "badgid";
+#  $Exporter::Verbose = 1;
+#  $AutoLoader::Verbose = 1;
+#  $AutoLoader::Notruncate = 1;
+  $SIG{__WARN__} = sub {print "--== $_[0]"};
+}
+
+use lib "$::LIBDIR";
+use strict;
+no strict "refs";
+use Majordomo;
+use Mj::Log;
+use Mj::TextOutput;
+use Mj::Parser;
+use Net::Domain qw(hostfqdn);
+use IO::File;
+use Getopt::Long;
+
+use vars qw(%opts $log_entries $log_level $program_name);
+my (@in, $dom, $editor, $fh, $i, $infile, $list, $mess, $ok, $result,
+    $tlist, $tmpg, $tmpu, $top);
+
+$ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
+# Options:
+#  -D : enable debugging to STDOUT
+#  -d : specify domain to operate on
+#  -F : parse commands from given file
+#  -f : give attachment file
+#  -p : specify password
+#  -t : specify directory containing domains
+#  -u : specify user (for testing only)
+#  -Z : For testing: wimp put of UID/GID tests
+#  --id : print UID and GIDs.
+
+#getopts('Dd:F:f:p:t:u:Z', \%::opts);
+
+Getopt::Long::config('no_ignore_case', 'bundling');
+GetOptions(\%::opts,
+	   'D', 'd=s', 'F=s', 'f=s@', 'p=s', 't=s', 'u=s', 'Z', 'id');
+
+#use Data::Dumper;
+#print Dumper \%opts;
+
+if ($::opts{'id'}) {
+  print "Eff. UID: $>\n";
+  print "Real UID: $<\n";
+  print "Eff. GID: $(\n";
+  print "Real GID: $)\n";
+}
+
+unless ($opts{'Z'}) {
+  die("Not running as UID $::UID") unless $> == $::UID;
+  die("Not running as GID $::GID") unless $) == $::GID;
+}
+
+# Open a log
+$::log = new Mj::Log;
+$::log->add
+  (
+   method      => 'syslog',
+   id          => 'mjs',
+   level       => 50,
+   subsystem   => 'mail',
+   log_entries => 1,
+   log_exits   => 1,
+   log_args    => 1,
+  );
+
+if ($opts{D}) {
+  $::log->add	
+    (	
+     method      => 'handle',
+     id          => 'mjs',
+     handle      => \*STDOUT,
+     level       => 5000,
+     subsystem   => 'mail',
+     log_entries => 1,
+     log_exits   => 1,
+     log_args    => 1,
+    );
+};
+
+$::log->in(20, undef, "info", "Majordomo Shell client - ".scalar(localtime));
+$::log->startup_time();
+
+# Untaint the top directory and the domain.  It may not be completely safe
+# to do this.
+$top = $opts{t} || $::LISTDIR;
+$dom = $opts{d} || $::DEFDOM;
+$top =~ /(.*)/;
+$top = $1;
+$dom =~ /(.*)/;
+$dom = $1;
+
+# Deal with the file argument
+if ($opts{f}) {
+  for (my $i = 0; $i < @{$opts{f}}; $i++) {
+    if ($opts{f}[$i] eq '-') {
+      $in[$i] = IO::Handle->new;
+      $in[$i]->fdopen(fileno(STDIN),"r");
+      die "Can't open STDIN??? $!" unless $in[$i];
+    }
+    else {
+      $in[$i] = IO::File->new($opts{f}[$i]) || die "Can't open $opts{f}[$i]: $!";
+    }
+  }
+}
+
+$::mj = new Majordomo $top, $dom, 1;
+
+my $mj = $::mj;
+my $host = hostfqdn;
+
+$mj->connect('shell', "\$LOGNAME  = $ENV{LOGNAME}
+\$SHELL    = $ENV{SHELL}
+\$HOME     = $ENV{HOME}
+");
+
+my $user = $opts{'u'} || "$ENV{LOGNAME}\@$host";
+
+# If we're going to parse from a file instead of from arguments, do the
+# parsing now.
+if ($opts{F}) {
+  my $infh = IO::File->new("$opts{F}") || die "Can't open $opts{F}: $!";
+  $result = parse_file($infh, $opts{F}, \@in, $user, $opts{p});
+}
+# Else we're working with the command line
+else {
+  $result = parse_command(shift @ARGV, (join(' ', @ARGV)), $opts{p});
+}
+
+$::log->message(50, "info", "-----Calling destructors-----");
+undef $mj;
+undef $::mj;
+$::log->out;
+if ($result) {
+  exit 0;
+}
+exit 1;
+
+sub parse_command {
+  my $command = shift;
+  my $args    = shift;
+  my $pass    = shift;
+  my ($mode, $tlist);
+  
+  unless ($command) {
+    print STDERR "**** No command specified!\n";
+    return 0;
+  }
+
+  ($command, $mode) = split('=', $command, 2);
+  $mode ||= "";
+  
+  my $true_command = Mj::Parser::command_legal($command);
+  unless (defined($true_command) &&
+	  Mj::Parser::command_property($true_command, "shell"))
+    {
+      print STDERR "**** Illegal command!\n";
+      return 0;
+    }
+  
+  if (Mj::Parser::command_property($true_command, "list")) {
+    ($tlist, $args) = split(" ", $args, 2);
+    $tlist ||= "";
+    $args ||= "";
+    unless
+      (defined
+       ($list =
+	$::mj->valid_list($tlist,
+			  Mj::Parser::command_property($true_command, 'all'),
+			  Mj::Parser::command_property($true_command, 'global'))))
+	{
+	  print STDERR "**** Illegal list \"$tlist\".\n";
+	  return 0;
+	}
+  }
+  
+  
+  if ($true_command eq "configedit") {
+    
+    # Pull the editor out of the environment and untaint it. This is save
+    # because we only exec the editor as the calling user.
+    $editor = $ENV{EDITOR} || $ENV{VISUAL} || '/bin/vi';
+    $editor =~ /(.*)/;
+    $editor = $1;
+    
+    # Switch UIDs, open a file, restore
+    $tmpu = $>; $> = $<;  $tmpg = $); $) = $(;
+    $fh = new IO::File "$::TMPDIR/mjs.$$.AAA", O_WRONLY|O_CREAT, 0600;
+    $> = $tmpu; $) = $tmpg;
+    $result = 
+      Mj::TextOutput::configshow($mj, $command,
+				 $user, $pass, undef, "shell",
+				 undef, $fh,
+				 $mode, $list, $args);
+    $fh->close;
+    if ($result) {
+      my $modtime = (stat("$::TMPDIR/mjs.$$.AAA"))[9];
+      # Switch UIDs, run the editor, restore
+      $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
+      $ok = system("$editor $::TMPDIR/mjs.$$.AAA");
+      $> = $tmpu; $) = $tmpg;
+      
+      if ($ok) {  # system has reversed semantics...
+	print "Editor failed: $?\n";
+      }
+      else {
+	if ((stat("$::TMPDIR/mjs.$$.AAA"))[9] != $modtime) {
+	  # Switch, open, restore
+	  $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
+	  $fh = new IO::File "$::TMPDIR/mjs.$$.AAA";
+	  $> = $tmpu; $) = $tmpg;
+	  
+	  $result = parse_file($fh, '', [], $user, $pass);
+	  $fh->close;
+	}
+	else {
+	  print "\nFile unchanged; not executing.\n";
+	}
+      }
+    }
+    else {
+      # Got bad result!
+      # Switch, open, restore
+      $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
+      $fh = new IO::File "$::TMPDIR/mjs.$$.AAA";
+      $> = $tmpu; $) = $tmpg;
+      print while <$fh>;
+    }
+    
+    # Switch, delete the tempfile, restore
+    $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
+    unlink "$::TMPDIR/mjs.$$.AAA";
+    $> = $tmpu; $) = $tmpg;
+  }
+
+  else {
+    $result = 
+      &{"Mj::TextOutput::$true_command"}($mj, $command,
+					 $user,
+					 $opts{p}, undef, "shell",
+					 $in[0], \*STDOUT,
+					 $mode, $list, $args);
+    return $result;
+  }
+}
+
+sub parse_file {
+  my $infh = shift;
+  my $file = shift;
+  my $att  = shift;
+  my $user = shift;
+  my $pass = shift;
+  my $result = 
+    Mj::Parser::parse_part($::mj, $infh, \*STDOUT, $att,
+			   $file, 'shell', 
+			   {
+			    'reply_to' => $user,
+			    'password' => $pass,
+			   }
+			  );
+  return $result;
+}
+
+=head1 NAME
+
+mj_shell - Majordomo command line interface
+
+=head1 SYNOPSIS
+
+B<mj_shell> [B<-D>] [B<-d> domain] [B<-t> topdir] [B<-p> password] [command [args]]
+
+=head1 DESCRIPTION
+
+B<mj_shell> provides a command line interface to the Majordomo core
+functionality.  It provides both a single command interface, where a
+command is given directly on the command line, and an interface into the
+full text parser, where commands are parsed out of a file.  Anything that
+can be done through the email interface can be done through the shell
+interface.
+
+B<mj_shell> also provides a convenient 'configedit' command that opens an
+editor on a set of config variables and allows them to be edited directly.
+
+=head2 Executing single commands
+
+B<mj_shell> allows the user to execute a single command directly, just by
+placing it and its arguments on the command line:
+
+  mj_shell who mylist
+  mj_shell subscribe mylist whoever@example.com
+
+For a list of supported commands, execute
+
+  mj_shell help commands
+
+=head2 Passwords
+
+The B<-p> switch specifies that the command should be executed with the
+given password.  For general information on how passwords work in
+Majordomo, execute
+
+  mj_shell help admin passwords
+
+=head2 Command modes
+
+The specific behavior of most of the commands can be altered through the
+use of command modes.  Most commands take the 'noinform' and 'nolog' modes,
+which turn off owner information and logging, respectively.  The
+B<subscribe> command takes the 'nowelcome' mode, which prevents the
+introductory welcome message from being sent out to new subscribers.
+
+To specify one or more modes, separate them with commas and attach them to
+the command with an equals sign, as follows:
+
+  mj_shell -p pass subscribe=noinform,nowelcome mylist user@example.com
+
+For information on which commands take which modes, execute
+
+  mj_shell help admin commands
+
+=head2 Commands taking multiple or array arguments
+
+Some commands, like B<subscribe>, can take multiple arguments (in this
+case, a list of addresses to subscribe).  Others, like B<configset>,
+sometimes take array arguments.  These are handled in B<mj_shell> by
+placing the multiline part of the command in a file and specifying the file
+using the B<-f> switch.  For example, if 'addr_file' contains a list of
+addresses, one per line, you can do the following:
+
+  mj_shell -p pass -f addr_file subscribe=noinform,nowelcome mylist
+
+For another example, if the file 'inform_file' contains the following:
+
+  subscribe   : all : ignore
+  unsubscribe : all : ignore
+
+Then
+
+  mj_shell -p pass -f inform_file configset mylist inform
+
+would set the inform variable such that the list owner would not be
+informed of subscribe and unsubscribe requests.  (Execute
+
+  mj_shell help admin config
+
+for more information about configuration variables.)
+
+=head2 Executing multiple commands
+
+For performing more involved tasks, B<mj_shell> gives access to the full
+Majordomo text parser, which is also used to parse commands from the body
+of an email message.  Place multiple commands in a file, and pass the
+filename to B<mj_shell> using the B<-F> switch.
+
+For example, if 'cmd_file' contains the following lines:
+
+  subscribe mylist usera@example.com
+  subscribe mylist userb@example.com
+  show mylist usera@example.com
+  show mylist userb@example.com
+
+all of the commands can be executed by calling B<mj_shell> as follows:
+
+  mj_shell -p pass -F cmd_file
+
+The text parser also allows some advanced features.  Multiline arguments
+can be specified by a syntax similar to the shell 'here document' feature.
+An example is simpler than a description; you could place the following in
+'cmd_file':
+
+  subscribe mylist << ENDA
+  usera@example.com
+  userb@example.com
+  ENDA
+
+  show mylist << ENDB
+  usera@example.com
+  userb@example.com
+  ENDB
+
+  configset mylist inform << AAA
+  subscribe   : all : ignore
+  unsubscribe : all : ignore
+  AAA
+
+to additionally set the 'inform' variable.  (In this example the syntax is
+not much shorter, but for longer address lists it can save much typing.)
+The '<<' begins the multiline argument, and must be at the end of the
+command line.  The tag must consist of at least three uppercase letters,
+and appears both directly after the '<<' and alone on a line after all of
+the data.
+
+Multiline arguments can also be included in external files.  The external
+files given using one or more B<-f> options on the B<mj_shell> command
+line, and their contents are referenced by placing '<@' followed by a
+number; using '3' would reference the file named by the third B<-f> option.
+For example, if the file 'addrs' contains:
+
+  usera@example.com
+  userb@example.com
+
+'inform' contains:
+
+  subscribe   : all : ignore
+  unsubscribe : all : ignore
+
+and 'commands' contains:
+
+  subscribe mylist <@1
+  show mylist <@1
+  configset mylist inform <@2
+
+then the command
+
+  mj_shell -F commands -f addrs -f inform
+
+would do the same as the previous example.
+
+In addition, the text parser supports the special 'default' command, which
+sets some default parameter for following commands.  The 'default list'
+command (followed by a list name) sets the default list, while the 'default
+password' command sets the password.  Thus the 'commands' file in the
+previous example can be replaced by:
+
+  default list mylist
+  subscribe <@1
+  show <@1
+  configset inform <@2
+
+The default list or password can be cleared by using 'default list' or
+'default password' with no list or password.
+
+=head2 The configedit command
+
+There is one command which is exclusive to B<mj_shell>, the B<configedit>
+command.  This enables a list owner to retrieve the values of one or more
+configuration variables, modify them in an editor, and save the new values
+in a single operation.
+
+Note that the configedit command is not supported on all platforms, but can
+be emulated by the following set of operations:
+
+  mj_shell -p pass configshow list vars > tempfile
+  (edit tempfile)
+  mj_shell -p pass -F tempfile
+
+=head2 Switches
+
+Here are all of the command line switches that B<mj_shell> takes:
+
+=over 4
+
+=item B<-D>
+
+Specifies that full debugging information will be sent to standard output.
+
+=item B<-d> I<domain>
+
+Specifies the domain of lists to operate on.  The default domain is chosen
+at install time; for installations supporting more than one domain, this
+switch must be used to distinguish between them.
+
+=item B<-F> I<filename>
+
+Specifies that the text parser will be run on I<filename>.  All non-option
+arguments on the B<mj_shell> command line will be ignored.
+
+=item B<-f> I<filename>
+
+Specifies that the contents of I<filename> will be used either as a
+multiline argument for a given command, or for an external argument for a
+'<@' specifier in the text parser.
+
+More than one B<-f> argument is permitted, though multiple instances are
+only used by the text parser.
+
+I<filename> can also be the string '-', in which case standard input is
+read.
+
+=item B<-p> I<password>
+
+Specifies a password that a command will be run with, or the default
+password for commands run by the text parser.
+
+=item B<-t> I<directory>
+
+This specifies the directory which is the top level of the Majordomo lists
+directory structure.  This is generally compiled in at installation time,
+but some sites may have different directory structures.
+
+=item B<-u> I<user>
+
+Specifies the user that commands will run as.  Note that this does not
+change the system UID, but only affects the user (really the email address)
+that is passed to the Majordomo core for access checking and which is used
+as the default for certain commands.  Normally the user is determined from
+a combination of environment variables and the result of the 'hostname'
+function, but this information is not always accurate.
+
+Please note that this can be used for nefarious purposes, but that it does
+not pose any additional security risk since mail sent to the email
+processor can be trivially forged.  List owners are strongly urged not to
+rely on users and email addresses for security, but instead to rely on
+passwords and to enable confirmation on all security sensitive commands.
+
+=item B<-Z>
+
+Specifies that UID/GID tests will not be done.  Normally B<mj_shell> will
+check to make sure that it is running as the user and group specified
+during installation.  Failure of this test generally indicates an
+installation error; either the wrappers or the scripts themselves shouldf
+be installed setuid and setgid to the Majordomo user and group.  Using the
+B<-Z> option enables B<mj_shell> to run even with this misconfiguration,
+though other operations may fail and file ownerships will not be set
+correctly.
+
+This option is mainly used by the test scripts, so that they can run before
+the software has been completely installed.
+
+=item B<--id>
+
+Forces B<mj_shell> to print out the real and effective user and group IDs
+at the beginning of execution.  Used for debugging.
+
+=head1 COPYRIGHT
+
+Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+his program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+#
+### Local Variables: ***
+### mode:cperl ***
+### cperl-indent-level:2 ***
+### End: ***

@@ -1,0 +1,137 @@
+ -*- Text -*-
+
+This is the beginnings of a Q&A document about Majordomo 2
+development.  Note that this talks about a few things that don't yet
+work and may not pan out.  It's too early to tell for sure, but these
+are the answers that I'd like to be able to give to these questions.
+
+
+When will it be done?
+
+When it's done.  Development is proceeding, albeit slowly.  The core
+  functionality works and many familiar features are implemented.  A test
+  server is running and lists are given out to those who wish to search for
+  bugs.
+
+
+How will it compare to Majordomo 1.9x?
+
+It depends on your perspective.  If you are a developer, you're
+  dealing with an entirely new piece of software.  No knowlege of 1.9x
+  will help you.
+
+  If you're an installer, gone are the old wrapper and Makefile.  Just
+  answer the questions and Majordomo should take care of itself.
+
+  If you're a list owner, many things are the same and many things are
+  different.  Approvals are much simpler, so those behind less
+  featureful mailers will have a much easier time approving messages.
+  List configuration no longer requires that you deal with the entire
+  file; you can set a single variable at a time if you want.  Many
+  variables are new, but most of the old variables still perform their
+  old functions.  You have much finer control over who gets to do what
+  on your lists.  Many commands (i.e. subscribe) can operate on more
+  than one address at a time.
+
+  If you're a list member, very little should change unless you want
+  it to.  All of the familiar commands are there, with the same
+  syntax.  You will get better feedback about your requests and what
+  happens to them when the list owner has to approve something.
+  Confirming your own requests is much simpler; you can just reply to
+  the message and type "accept", or even visit a web page.  If you
+  want to do advanced things, you can set various flags do hide your
+  address from a who request, elect to not receive copies if your own
+  messages, or ask not to be sent mail until some date.
+
+
+Is it comparible with 1.94.4?
+
+There are many different kinds of compatibility.  For Majordomo 2, the goal
+  is for list members to see very much the same interface.  In other words,
+  any directions given to list members should still be valid.  The same
+  goes for list owners, but there will be more visible changes there.  Of
+  course, there is a pile of additional functionality waiting to be used,
+  but it is not required and can be ignored.
+
+
+Is it bigger/smaller/slower/faster than 1.9x?
+
+Yes.  The code is much larger (such is the price of progress) but due
+  to AutoLoading not all of it is pulled in at once (unlike 1.9x).
+  The internal organization was designed for flexibility, not speed,
+  so the code will on its face be slower than the 1.9x code.  This
+  flexibility, however, allows the use of true databases to store
+  address lists and such, making access much faster for large lists,
+  so it should be faster.  (This has yet to be implemented, though.)
+  Majordomo has much more advanced delivery system which avoids
+  outgoing aliases and allows multiple-host parallelism and remote
+  exploders, so if tuned delivery should be faster, if not, just the
+  same.
+
+
+Why did you do this?  Why not just clean up 1.9x?
+
+I tried.  At one point I was to write 1.95 but it didn't pan out.  The
+  code was not enjoyable to work with, having suffered from patch upon
+  hack upon hacked patch.  I decided that for it to be worth it to me
+  at all, I would have to start over.  I could have used some of the
+  existing code, but I wanted to move to a fully OO approach and I
+  wanted to have the ability to release the code under a different
+  license (Artistic or GPL, most probably both).
+
+
+MIME Tools is big.  Why not use MIME-Lite?
+
+Because while MIME-Lite can create messages, it cannot parse them.
+  Majordomo needs to parse lots of MIME, both for accepting commands
+  and for taking part postings to evaluate their fitness.  Thus
+  MIME-Lite is out.
+
+
+Why not write your own MIME parsers?
+
+Are you kidding?  Sure, there's a minor chance that after a few months
+  I could come up with something that might work better for
+  Majordomo's purposes than what Eryq has written, but I'm willing to
+  accept a wheel that's an inch larger than what I expected rather
+  than reinvent it altogether.  And quite honestly, there is very
+  little in the MIME tools that isn't used somewhere within Majordomo
+  at this point.
+
+
+Is Majordomo 2 Y2K compliant?
+
+I have made every effort to use proper date formats whenever dates are to
+  be shown in human-readable format.  File names that are based on dates
+  use four digit years.  Otherwise, Majordomo 2 should be as Y2K compliant
+  as Perl and your operating system are.
+
+
+Is Majordomo 2 secure?
+
+It should be more secure than 1.94.x is.  Majordomo affords trust to
+  neither users nor list owners.  There is only a single "eval" call, which
+  is used to evaluate the defaults provided by someone with enough access
+  to edit the files themselves.  All other code evaluation happens within
+  Perl's Safe mechanism.  The Safe mechanism has yet to be broken.
+
+  Majordomo 2 does support the uploading of files by list owners, however,
+  and this may open a way to denial-of-service attacks.  Methods of
+  preventing this are being considered.
+
+
+Does Majordomo 2 save the headers of incoming messages?
+
+Yes, Majordomo 2 saves the important data from every session, including
+  headers from incoming mail messages, the CGI state from web requests and
+  select environment variables from the shell interface.  Information about
+  a session can be retrieved from within Majordomo.
+
+
+How do I ... ?
+
+When you can actually ..., I'll answer questions about it in a real
+  FAQ.
+
+
+

@@ -1,0 +1,81 @@
+-*- text -*-
+
+No project with the history and magnitude of Majordomo can be completed by
+one person.  The following have each contributed something to the Majordomo
+effort:
+
+Brent Chapman
+  who came up with Majordomo in the first place.
+John Rouillard
+  who did much work on the original Majordomo1 code.
+Chan Wilson
+  who maintained Majordomo into the 1.94 days.
+Dave Wolfe
+  who gives constant comments, input, stats gathering code, and a pile of
+  other things.
+Eryq
+  who wrote the MIME modules, without which most of the cool things
+  Majordomo2 does would be very much more difficult.
+Graham Barr
+  who wrote the MAIL modules, without which the MIME modules would be very
+  much more difficult.
+Dave Barr
+  (no relation, apparently) who maintains the Majordomo1 FAQ.
+Jerry Peek
+  who wrote the Majordomo chapters of the O'Reilly MIIS book, let Jason
+  review it, and injected some sensibility into the development process.
+Michael Berch
+  who tirelessly runs the majordomo-users and majordomo-workers lists.
+Jason Tibbitts
+  who designed and implemented the original Majordomo2 codebase and
+  maintains the searchable Majordomo-(users|workers) archives.
+Matt Mackall/Oliver Xymoron
+  who wrote the original confirmation token patches and the extended lists
+  output patch and who wrote most of the web-based token confirmation front
+  end.
+Norbert Bollow
+  who mas contributed many fixes and suggestions, and who of course wrote
+  the bouncefilter code.
+Alan Millar
+  who came up with the idea for the config(set|show) operation.
+Brian Heess
+  who originally wrote the setid wrapper code.
+Shane McCarron
+  who wrote the Majordomo1 resend message sequencing patches.
+Joe Jah
+  who contributed many ideas and maintains the patches archive.
+Kevin Kelleher
+  who contributed ideas on linking resend, digest and archive.
+Brock Rosen
+  who gave constant input.
+Brandon Browning
+  who made the first ever Mj2 patch contribution and who was the first
+  known Mj2 tester.
+Chael Hall
+  who made many suggestions, suggested the resubscribe command, and gave
+  input on qmail's workings.
+Bill Campbell
+  who wrote the original patches to eliminate duplicate mesage-IDs.
+Ryan Tadlock
+  who made the second (and third) bug reports and wrote the QQEnvelope
+  qmail-queue interface.
+Vince Skahan
+  who made many contributions.
+Mike Langley
+  who did some quick bug-snooping.
+Andrew McNamara
+  who found several bugs and pointed out a few improprieties.
+
+Note that this list is basically unordered and is not intended to convey
+the magnitude of any individual contribution.  Everyone who helps is
+responsible for making the whole better.
+
+Be sure to notify majordomo-workers@greatcircle.com of any omissions, and
+please accept our apologies in advance.
+
+Jason's personal thanks:
+Jennifer
+  who put up with Jason and didn't begrudge him the 20+ hours per week that
+  rewriting Majordomo entailed.
+Pat and Gunnar
+  for giving us Jennifer.

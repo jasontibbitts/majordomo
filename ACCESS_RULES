@@ -1,0 +1,133 @@
+ -*- Text -*-
+
+Working description of the access-rules config variable:
+
+First line - request 
+  Comma-separated list of advertise, alias, post, subscribe, unsubscribe,
+  ...
+
+  This determines the request(s) that this rule applies to
+
+Second line - action
+  Comma separated list of allow, confirm, consult, confirm_consult, deny,
+  forward, reply, replyfile, mailfile.
+
+  This determines the actions to be taken if the rule matches.
+
+  allow=N - the request succeeds.  If given an argument (allow=N) then N
+    will be passed back to the calling routine (used in 'which' requests to
+    limit the number of returned hits, and in 'who' to determine whether or
+    not the user can see even hidden addresses).  If N is not given, it
+    defaults to 1.  Be careful; this can render the 'which' command almost
+    useless.
+
+  confirm=file - a confirmation token is sent to the user who will be affected
+    by the request.  If given an argument, the given file will be used as
+    the confirmation message.  If not, the file "confirm" is used.
+
+  consult=file,M,group,N - a token is sent to a moderator/group of
+    moderators/randomly chosen subset of a group of moderators.  The
+    following comma-separated arguments are taken:
+      file - the file used for the consultation message (not used if
+        request=post).
+     M - the number of approvals that are required.  This permit a
+       rudimentary form of group moderation (default 1).
+     group - the moderator group to send the confirmation request to
+       (defaults to sending to moderator).
+     N - the number of members of the moderator group to send to, chosen at
+       random (defaults to all of the group).
+     (some of this is unimplemented)
+
+  confirm_consult - first confirms the action with the victim, then
+    consults the list owner.
+
+  deny - disallows the action.
+
+  forward=address - forwards the command to another Majordomo server
+    running at address.
+
+  reply=message - sends a one-line message back as part of the command
+    return.  Enclose the message in quotes to embed commas.  Multiple reply
+    messages are concatenated with newlines.
+
+  replyfile=file - sends the contents of the given file back as part
+    of the command return.
+
+  mailfile=file - sends a message back in a separate reply.
+
+  The message or file in the previous three actions can contain
+    embedded variables which will be expanded before the message is
+    sent.
+
+  If neither of the previous three are given, a default reply will be
+    used depending on what the primary action is.
+
+Up to next blank line - code
+  This is code in a simple language that is used to determine whether or
+  not the action (line 2) should be taken.
+
+  The following can be used in rules:
+
+  Logical Connectives:
+  AND, && - the conditions on both sides must be true
+  OR, ||  - any one or both of the conditions must be true.
+  NOT, !  - the following condition must be false
+  
+  Grouping:
+  (, ) - enclose groups of conditions
+
+  Username match:
+  /expression/ - a Perl regular expresion applied to the requesting user's
+    address.
+
+  Membership check:
+  @, @MAIN - these are equivalent, and check to see that the user is a
+    list subscriber.
+  @auxlist - checks to see that the user is a member of the named auxiliary
+    list.
+
+  Variable check:
+  $variable - checks to see that the supplied variable is true.
+  $variable=value - checks that the variable equals (stringwise) the given
+    value.
+
+Semantics: 
+  Rules for a particular request are processed in order; the _first_ rule
+  that matches is taken.
+
+  If no rules match, the "default" action is taken, which results in a
+  reasonable emulation of the 1.94.3 behavior using *_access, moderate,
+  restrict_post, etc.
+
+Supported variables:
+...
+
+Example rules:
+
+Equivalent to moderate=yes:
+post
+consult
+ALL
+
+Ban some users from subscribing:
+subscribe
+deny,reply="You are banned."
+@banned
+
+Deny all access to off-site users:
+access
+deny
+NOT /my.site.com/
+
+or:
+
+access
+allow
+/my.site.com/
+
+access
+deny
+ALL
+
+
+

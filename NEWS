@@ -1,0 +1,56 @@
+-*- Text -*-
+
+Here you'll find information on major changes.  (Read the ChangeLog
+for the boring stuff.)  Items at the top are newer.
+
+The address validator is a little smarter about illegal characters and long
+host and user names.  The configurable parameters are now settable through
+global config variables.
+
+Information on each "connection to the server" (called a session) is stored
+and referenced in the logs and in each token.  When a token is rejected,
+information (including the session contents) is sent to the victim, the
+list owner and majordomo-owner.  The tokeninfo and sessioninfo commands
+return data on tokens and sessions.
+
+get, index, put, info, intro, faq, newinfo, newintro, and newfaq all work.
+Majordomo includes a simple "virtual filesystem"; get, put and index work
+with pathnames within this filesystem.  When "absolute paths" are not
+provided, everything defaults to a public directory which means that nobody
+notices the change.
+
+Posting denials are now acked if the proper flag is set (ackall or
+ackimportant).  The returned message for posting denial is much better
+and includes the denial reasons.  (Actually it includes all of the
+things wrong with the message, even if some of them wouldn't have
+caused a denial.)
+
+Preliminary support for attachment_rules are in.  So far the checks
+for illegal types are implemented, which means that you can set
+attachment_rules such that messages containing certain MIME types can
+be bounced or denied.
+
+Fronters and footers are now implemented.  The provsion is made to
+have several fronters and several footers and to randomly choose
+between them.  Also, additional variables controlling how often
+fronters and footers are added are implemented.  Care is taken so that
+multipart messages are properly dealt with and that types other than
+text/plain are not mangled.
+
+Posting and approval are now functional; all of the old approval
+methods are supported, in addition to several new MIME-aware methods
+and the token based method and the post command.
+
+Most of the access system works correctly, including many the default
+actions.  subscribe_policy and (no)?advertise work in a backwardly
+compatible manner.
+
+Default replies from the access restriction system are implemented and
+give useful information.
+
+confirm and consult now work properly.  Results go to the right place
+(the victim always sees them, even if the victim wasn't the one
+accepting the token).
+
+Lots of stuff that is lost in time.
+

@@ -1,0 +1,39 @@
+Date: Thu, 8 Jan 1998 20:37:21 -0600
+From: Jason L Tibbitts <tibbs@morpheus.hpc.uh.edu>
+Message-Id: <199801090237.UAA09068@morpheus.hpc.uh.edu>
+To: test-list@morpheus.hpc.uh.edu
+Subject: testing
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUND"
+
+This is a multi-part message in MIME format.
+
+--BOUND
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Approved: gonzo
+
+--BOUND
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Date: Thu, 8 Jan 1998 20:37:21 -0600
+From: Jason L Tibbitts <tibbs@morpheus.hpc.uh.edu>
+Message-Id: <199801090237.UAA09068@morpheus.hpc.uh.edu>
+To: test-list@morpheus.hpc.uh.edu
+Subject: A different subject!
+
+Just testing.
+1
+2
+.
+3
+4
+.
+
+.
+
+
+--BOUND--

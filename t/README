@@ -1,0 +1,33 @@
+-*- text -*-
+
+Some things to think about for a test suite.  We have to have one; there's
+too much for me to test as it is and deep changes are still being made.
+This means that a change in, say, list_access_check can break just about
+everything that a user sees.
+
+The email interface in particular is quite complicated with all of the
+parsing of attachments and such.  Testing all of these is not easy.
+
+The shell interface provides a convenient interface for testing out the
+core functions.
+
+The concept of separate domains provides a simple mechanism for setting up
+a controlled environment for testing.
+
+So a simple test suite should:
+
+1. create a 'test' domain and some lists in it.
+2. perform operations directly on that set of lists:
+    lists
+    add some users
+    alias
+    lists
+    lists=enhanced
+    who
+    which
+    set access_table (limit lists, which, etc.)
+    lists
+    which
+    remove some users, including one through an alias
+    who
+    which

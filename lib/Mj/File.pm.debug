@@ -1,0 +1,238 @@
+=head1 NAME
+
+Mj::File  - Majordomo file operations
+
+=head1 SYNOPSIS
+
+blah
+
+
+=head1 DESCRIPTION
+
+This implements a two kinds of file object, which contain the machinery
+used by Majordomo to perform all of its file operations.  All files are
+implicitly locked as needed.  
+
+The RFile class implements a form of safe file updates; instead of closing
+a file the replacement can either be committed or abandoned; this allows a
+copy and a search concurrently, saving time.
+
+
+ get_start     - iterator routines
+ get_line
+ get_chunk
+ get_done
+ get_all       - snarf a file into an array of lines
+ name_for_list - return the name of the file containing a list
+
+=cut
+
+use strict;
+use IO::File;
+use Mj::Lock;
+
+package Mj::File;
+use vars qw($AUTOLOAD $VERSION);
+$VERSION = "1.0";
+
+=head1 Mj::File functions
+
+These functions implement the MJ::File class.
+
+=head2 new
+
+Allocates an Mj::File object.  If given parameters, calls open.
+
+=cut
+sub new {
+  my $type = shift;
+  my $class = ref($type) || $type;
+
+  $::log->in(150, "info", "Mj::File::new");
+
+  my $self = {};
+  $self->{'handle'} = new IO::File;
+  bless $self, $class;
+  
+  if (@_) {
+    $self->open(@_)
+      or return undef;
+  }
+
+  $::log->out;
+
+  $self;
+}
+
+=head2 DESTROY
+
+A simple destructor.  If the File is open, close it.
+
+=cut
+sub DESTROY {
+  my $self = shift;
+  if ($self->{'open'}) {
+    $self->close;
+  }
+  1;
+}
+
+=head2 AUTOLOAD
+
+This implements all other IO::File methods by proxy.  Tricky, tricky.  We
+can't just inherit, because the internal storage mechanism of IO::* is not
+a hash, and since we have to store object data somewhere...
+
+=cut
+sub AUTOLOAD {
+  my $self = shift;
+  my $name = $AUTOLOAD;
+  $name =~ s/.*://; 
+  $::log->in(200, "info", "Mj::File proxy call", "$name");
+  
+  unless ($self->{'handle'}->can($name)) {
+    $::log->abort("Attempting to call unimplemented function by proxy");
+  }
+
+  if (wantarray) {
+    my @out = $self->{'handle'}->$name(@_);
+    $::log->out;
+    @out;
+  }
+  else {
+    my $out = $self->{'handle'}->$name(@_);
+    $::log->out;
+    $out;
+  }
+}
+
+=head2 open
+
+This locks and opens a file.
+
+ In:    A filename
+        Mode to open the file with.  Either the perl mnemonic, or "r", "w",
+        "rw", or "a", default is "<".
+ Out:   a filehandle
+
+=cut
+sub open {
+  my $self   = shift;
+  my $name   = shift;
+  my $mode   = shift || "<";
+  my ($lmode, $handle);
+
+  $::log->in(110, "info", "file_open", "$name, $mode");
+
+  if    ($mode =~ /rw/i) { $mode = "+<";}
+  elsif ($mode =~ /^r/i) { $mode = "<" ;}
+  elsif ($mode =~ /^a/i) { $mode = ">>";}
+  elsif ($mode =~ /^t/i) { $mode = ">" ;}
+
+  $lmode = "shared";
+  if ($mode =~ /[>+]/) {
+    $lmode = "exclusive";
+  }
+
+  $self->{'lock'} = new Mj::Lock($name, $lmode);
+  
+  # We have a lock now; the file is ours to do with as we please.
+  $self->{'handle'}->open("$mode $name") || $::log->abort("Couldn't open $name, $!");
+  
+  $::log->out;
+  1;
+}
+
+=head2 close
+
+Closes a handle previously opened with file_open.
+
+ In:    the file handle
+ Out:   success
+
+=cut
+sub close {
+  my $self = shift;
+  
+  $::log->in(120, "info", "file_close", "$self");
+  unless ($self->{'lock'}) {
+    log_abort("Mj::File::close called on unopened handle");
+  }
+  
+  $self->{'handle'}->close || $::log->abort("Couldn't close $self, $!");
+  $self->{'open'} = 0;
+
+  $self->{'lock'}->unlock;
+
+  delete $self->{'lock'};
+
+  $::log->out;
+  1;
+}
+
+=head2 commit
+
+This is just an alias for close, so that a replaced file and an opened file
+can be closed in the same manner.
+
+=cut
+sub commit {
+  my $self = shift;
+  $self->close;
+}
+
+=head2 search
+
+Goes through a file line-by-line, looking for a match.  If given a string,
+uses that string as a regexp and matches insensitive to case.  If given a
+list, uses each element as a regexp and searches for any match.  If given a
+coderef, calls the subroutine once per line with the line as the argument
+and stops searching when that sub returns a defined value.  Returns undef
+if no match is found (i.e. if it runs off the end of the file).  Call
+repeatedly to return all matching lines from a file.
+
+ In:  either one or more regexps, or a coderef
+ Out: a matching line from the file, or undef
+
+This doesn't really belong in Mj::File, since it works perfectly well on
+RFiles (though it doesn't make much sense there) and on regular
+IO::Handles.  If it gets moved, it needs to be generalized to not call
+methods om the handles themselves.  (It does this to avoid a jump through
+AUTOLOAD.)
+
+=cut
+sub search {
+  my $self = shift;
+  my ($re, $sub, $temp);
+  
+  $::log->in(110, "info", "Mj::File::search", "@_");
+  if (ref $_[0] eq 'CODE') {
+    $sub = shift;
+    while ($_ = $self->{'handle'}->getline) {
+      chomp;
+      $temp = &$sub($_);
+      return $temp if defined $temp;
+    }
+    $::log->out;
+    return undef;
+  }
+  
+  # Else we have an array of regexps.  Will making a special case for one improve speed?
+  while ($_ = $self->{'handle'}->getline) {
+    for $re (@_) {
+      if (/$re/i) {
+	$::log->out;
+	return $_;
+      }
+    }
+  }
+  $::log->out;
+  return undef;
+}
+
+1;
+#
+### Local Variables: ***
+### mode:cperl ***
+### cperl-indent-level:2 ***
+### End: ***

@@ -1,0 +1,182 @@
+-*- Text -*-
+
+This document gives an overview of the Majordomo 2.0 system and the
+relationships of the various objects.
+
+All of the core functionality of Majordomo is encapsulated into a single
+object of type "Majordomo".  All interaction with Majordomo core routines
+is through method calls on this object.  A new Majordomo instance is
+created through a simple constructor which takes a configuration name as an
+argument.  The configuration name is intended to allow simple support for
+virtual domains by keeping several configurations completely separate while
+allowing the interfaces to easily specify which configuration they need.
+
+The Majordomo object itself has a set of List objects (one for each list
+and one to hold global data) and a TokenDB object.
+
+The TokenDB object handles the confirmation token functionality, which
+makes approvals simpler for both users and list owners.
+
+The List object contains a Config object, a FileSpace, a SubscriberList, an
+AliasList, and one or more AddressLists, and encapsulates all list
+information.
+
+A Config object encapsulates a simple configuration system, supporting both
+old-style (Majordomo 1.x) files (essentially read only) and a new, simpler
+and faster format.  Methods for setting and retrieving values are
+implemented, along with methods which access information about the use of
+each config variable.  The old majordomo.cf file for global configuration
+data is not supported; instead the Config object handles both list-specific
+and global data.
+
+A FileSpace provides a simple file system to a list, with a simplified set
+of permissions.  This allows remote list owners to place files on the
+server and to manage the various informational messages which are sent out.
+An important benefit is that no informational files are hardcoded into
+Majordomo, and the owner can create new informational files.  There is a
+simple path mechanism, so that a list owner can make use of the site
+defaults and the files set up by another list and override them piecemeal.
+
+The SubscriberList object provides methods for adding and removing addresses 
+a pattern, and iterating over the list membership in a controlled fashion.
+(Lists can be huge, and thus no method is provided to retrieve into an
+array all of the list members in order to discourage code which will not
+scale well.)
+
+SubscriberLists, AliasLists and AddressLists all inherit from a simple
+database module, SimpleDB.  The interface is intended to scale to real DB
+files and perhaps SQL engines.
+
+The File object encapsulates file operations.  The FileRepl object
+encapsulates file operations where a replacement action is taking place; a
+replacement can be abandoned at any time leaving a consistent state
+emulating a simple transaction mechanism.  The File and FileRepl objects
+seem for most purposes to be normal filehandles (except where Perl design
+inconsistencies do not permit this).  File locking is done implicitly.
+
+Locking is encapsulated in the Lock object, which implements a simple
+locking mechanism allowing shared and exclusive locks.  The Majordomo code
+does not require a certain implementation, so that any module which
+follows the locking API will work.  The mechanism is not required to allow
+shared locks, but it must allow the locked file to be deleted and renamed
+without breaking the lock.  (Thus regular flock will not work.)
+
+The core code expects only a two global variables:
+
+A Log object, open for logging, in $::log.  It is simpler to declare this
+as a global than to pass it around; nearly every routine requires it in
+some way.
+
+A Majordomo object, in $::mj, holding the top-level Majordomo object.  This
+allows the code to access the global configuration, which is an unfortunate
+side effect of having a global configuration in the first place.  Other
+solutions which arrive at the same ends are equally distasteful.  This
+mechanism may also be used to access other global resources from within
+submodule code, but the code does not yet do this.
+
+The email and shell interfaces make use of the TextOutput module, which
+formats results from the Majordomo module in plain text suitable for
+display to the user, and the Parser module, which reads commands from a
+text file.  The Parser module uses the parser_data.pl file to determine
+legal commands and parameters.
+
+The Config module makes use of the mj_cf_data.pl and mj_cf_defs.pl files,
+but these will probably turn into something else eventually.
+
+Adding a new command/feature:
+-----------------------------
+
+(Note that there will probably be a separate procedure for sites to
+extend the Majordomo commands in a simpler manner.)
+
+Adding a command to Majordomo 2 is more involved than doing so to 1.9x
+because of the issue of multiple interfaces and the core/interface
+barrier.  That said, it isn't horribly complicated.  We'll use the
+example of a 'resubscribe' command, which changes a users address
+without involving an unsubscribe/subscribe pair.  The process
+involves:
+
+The internal functionality (List::resub)
+
+  The actual work must be done.  Some of this work must be done at the
+  List.pm level because we want to work directly with the subscriber
+  data.  So we'd write an addrchange function which removes the old
+  entry, adds the new one, and updates the alias database.
+
+The core functions (Majordomo::resubscribe, resubscribe)
+
+  We need two Majordomo.pm-level function to handle the operation.
+  The first performs any argument and access checking (validating
+  addresses and such).  The second actually does the work by calling
+  the List.pm routine.  (We use two functions because the second will
+  only be called after access validation succeeds, which may take an
+  indefinite amount of time because of confirmation.)
+
+The formatter (Format::resubscribe)
+
+  A routine in Format.pm which handles producing useful output for the
+  return from the core function.
+
+The argument mangler (TextOutput::resubscribe)
+
+  A routine in TextOutput.pm which takes a command line and extracts
+  the arguments from it, then calls the core routine and passes the
+  result to the formatter.  Note that for the specific case of the
+  resubscribe function, we'll have 
+
+Internal tables.
+
+  parser_data.pl needs the information about the command and its
+  properties.  The %requests hash in Config.pm will need an additional
+  key so that the 'resubscribe' action can be specified in the
+  access_control language.  Any additional config variables needed (in
+  this case there probably aren't any) should be specified in
+  mj_cf_data.pl, with their defaults in mj_cf_defs.pl.
+
+That's it.  Note that a web interface would probably need something
+additional to tell it how to set up the proper forms and such.  Also the
+help texts would all need to be updated.
+
+Now all that's required is to make this simpler.  Some of this could be
+done semi-automatically, so that the config and access stuff could be
+handled in one place.  It would be nice to allow a single file to hold one
+or more extensions.  (Perhaps this can be done already, if we decide to
+include an extension file at startup.)
+
+
+An Email's Trip through the System:
+-----------------------------------
+
+An incoming email gets into the system either by being piped to mj_resend
+or by someone/thing running the post command.  Either way, the text of the
+email is stored in a file and this filename is passed to the post function
+in Resend.pm.
+
+This function takes apart the file and does MIME parsing on it.  Then it
+looks for approval passwords in the header and body (and a planned approval
+MIME block with an attached message).
+
+Then it looks for bad things.  admin_* and taboo_* are applied, illegal
+MIME parts are searched out, duplicates are checked for (message-id, body
+checksum, partial body checksum), quoting limits are checked (not yet) and
+length limits are applied (not done yet).
+
+The the message is bounced if necessary.  The message is spooled in an
+approval spool area until it is approved (or rejected).
+
+Then the _post function is called.  The message is re-parsed if necessary
+and the munging begins.  MIME parts are dropped or converted (not done
+yet), headers, footers and fronters are added and the message is deposited
+into a file.  A separate version of the message with possibly different
+changes is also deposited into the archives.
+
+This file is sent to the delivery engine along with information about what
+class of subscribers are to receive the message and which specific users
+are _not_ to receive the message (not yet) (this is so that users can elect
+no to receive copies, or users who are mentioned in the To or CC headers
+can elect not to receive an additional copy from the list server).  The
+delivery engine takes all of its delivery parameters and decides how to
+split up the address list among all of the SMTP servers it knows about.
+Then it sends out the message.
+
+ - J<

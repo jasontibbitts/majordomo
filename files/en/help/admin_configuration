@@ -1,0 +1,88 @@
+List Configuration
+------------------
+
+All aspects of list configuration and most aspects of Majordomo
+configuration are alterable remotely using the configuration interface.
+This interface allows single variables or sets of variables to be retrieved
+and modified individually, and for variables to be set without first
+retrieving their value.  The result of a variable retrieval is a set of
+commands ready to be edited and mailed back.
+
+The Commands
+
+The configuration interface makes use of three commands: configshow,
+configset and configdefault.  In addition, the shell interface (for local
+users) supports the configedit command.
+
+Configset
+
+configset changes the value of the given variable.  It takes as arguments
+the list (or GLOBAL for global configuration), the variable to be changed,
+and the value.  The value for scalar variables (those containing only a
+single value) are supplied with an equals sign; array and table values are
+set with the << TAG syntax (see below).
+
+Configshow
+
+configshow displays the value of a configuration variable.  This display
+includes the commands necessary to set the variable; this makes it simple
+to issue a configshow, edit the result and send it back to the server.
+configshow takes the list name and a list of variables to display.  In
+addition to single variables, the names of variable groups can be given in
+upper case to show all of the variables belonging to the group.  The ALL
+group is supported, and shows every variable currently visible.  configshow
+also supports the 'comments' mode, which displays explanatory comments
+(including instructions, allowed values, etc.) before the values of the
+variables.
+
+A sample set of configshow commands:
+
+>>>> configshow test-list delivery_rules
+configset test-list delivery_rules << ENDAAA
+ALL
+numbatches=1
+ENDAAA
+
+>>>> configshow=comments test-list token_lifetime
+# token_lifetime       
+# (7)                  [integer] <access,token>
+# The number of days that a token will be allowed to live without being
+# acknowledged (either approved or rejected).  Tokens existing longer
+# than this many days are deleted at every daily trigger.
+configset test-list token_lifetime = 7
+
+The default values is shown in parentheses, the data type is shown in square
+brackets, the allowed values (for 'enum' types) is shown between slashes,
+and the groups that the variable belongs to are shown in angle brackets.
+
+Note that this can be pasted directly into a reply and edited; the only
+additional command required is a "default password your-password" command
+at the beginning of the reply to set a default password for all of the
+configset commands.  (This is required because each configset command is
+not shown with a leading "approve your-password", as this would make the
+lines too long.)
+
+Note also that occasionally the produced configset commands will be broken
+across lines with a backslash; this is intended to reduce the change of
+line wrapping by some mailers which do not allow it to be turned off.
+
+Configdefault
+
+The configdefault command sets the value of a variable back to its default
+value.  Not only that, but variables set to their default values will track
+changes made to the defaults file, so that a change made to the defaults
+file will update the values of the relevant variables in all lists that
+have not set the variables otherwise.  The configdefault command takes the
+list and the name of the variable to be defaulted.
+
+
+The Old Interface
+
+Note that the old Majordomo1 commands are not yet supported, but they
+essentially translate like so:
+
+  config      -> configshow=comments list ALL
+  newconfig   -> not required; output of configshow contains appropriate
+                 commands 
+  writeconfig -> not required; config file is stored internally in a manner
+                 that makes this unnecessary

@@ -1,0 +1,123 @@
+This is a basic overview of the commands and features available for use by
+the list owner.
+
+approve password command
+  This runs the given command (and arguments) with the supplied password.
+  Essentially any command can be executed with privileges using the approve
+    command.
+
+auxsubscribe list sublist address
+auxunsubscribe list sublist address (regex, allmatching)
+auxwho list sublist
+  Adds/removes address to/from the named sublist of the given list, or
+    shows the contents of the named sublist..
+  See the 'admin sublists' topic for more information on sublists.
+  
+configdef list variable
+  Sets the variable back to the default value.
+  Note that this causes the variable to track changes in the default value
+    whenever they are made; a variable can be fixed to the current default
+    value by setting it to that value.
+
+configedit list variable (comments)
+  (Shell only)
+  Retrieves the value of the variable and opens an editor on it.  When the
+    editor is exited, the variable is set to the new value.
+  Multiple variables can be edited by listing them separated by commas, and
+    groups can be specified with upper case letters.
+  The editor to use is chosen from the EDITOR environment variable.
+
+configset list variable = value
+configset list variable
+  Sets the given variable to the given value.  A single value can be
+    specified directly on the command line after an equals sign, or the
+    usual '<< TAG' include until tag or '<@ part' include from part
+    syntaxes can be used.  (See the 'parser' help topic for more
+    information on this.)
+  The value will be syntax-checked against the allowable values for the
+    given variable.
+
+configshow list variable (comments)
+  Displays the value of the given variable.
+  If the 'comments' mode is given, explanatory information about the
+    variable will also be emitted.
+  The display is in such a form that it can be fed back to the parser
+    verbatim.  It is essentially a series of configset commands.
+  Note that if the variable is in all caps, it is taken to be the name of a
+    group of variables and so all of the variables in the group are
+    returned.  To see all variables, retrieve the variable 'ALL'.
+  Note also that only the variables that can be seen by the current
+    authorization level will be displayed.  This means that with no
+    authentication at all, a small list of variables will still be visible
+    (though then of course cannot be modified).
+  Finally, note that not all per-list variables can be modified by the list
+    owner.  Some require global priviliges.
+
+createlist list owner (nocreate)
+  Creates the internal structures needed to maintain a list with the given
+    name.  This will also suggest the necessary MTA configuration if the
+    MTA in use is supported.
+  This will fail if the list exists.
+  The nocreate mode will simply suggest MTA configuration and will not fail
+    if the list exists.
+  Note that Majordomo does not (yet) handle configuring the MTA itself,
+    although it generally provides data which can simply be pasted into the
+    necessary configuration file.
+
+default variable value
+  (email and text parser only)
+  Sets a default variable for the parser.
+  Variable can be either password or list.
+  Setting a default password will implicitly do the equivalent of
+    'approve password' on all following commands.
+  Setting a default list makes the list an optional argument for all
+    commands which take one (excepting the createlist command).  Note that
+    this is not without ambiguity, as the parser cannot always tell when
+    the default list is implied.  When running at the -request address, the
+    parser generally starts with a default list in place.
+  If the value is omitted, the default setting is removed.
+
+filesync list
+  This updates the filespace information database.
+  Since Majordomo needs to know more information about a file than is
+    provided by the file system (a description and the required MIME types,
+    for instance) it keeps additional data in a simple database.  If files
+    are added or removed by means other than Majordomo commands, the
+    database must be updated with the new information by way of this
+    command.
+
+post list
+  Sends a message to the given list.
+  Note that the message must be fully formed, with all necessary headers.
+    Majordomo will not add omitted headers, nor does it check the validity
+    of the message.  All of the normal resend access checks apply.
+  This enables a Majordomo list to be run without doing any MTA
+    configuration at all.  The list will not, however, be terribly
+    functional.  This will probably work for announcement lists, though. 
+
+put list file subject
+put=data list file content-type charset content-transfer-encoding subject
+  Uploads a file to the given list's filespace.
+  The file will be assumed to be text/plain with 8bit encoding.
+  If the "data" mode is given, the command expects additional data about
+  the file; these should be legal MIME values for those fields.
+
+rekey list
+  Regenerates the canonical forms of addresses in all of list's address
+    databases.
+  A list keeps three forms of a subscriber's address:
+    The full form, including comments.  This is what shows in who reports
+      (unless the user elects to hide parts of his adores).
+    The stripped form (comments removed).  This is what mail is sent to.
+    The canonical form.  This is the result after various address
+      transformations have occurred.  The transformations are
+      owner-specified and can do such things as specify that all hosts
+      under a domain are equivalent, that everything in the user portion of
+      an address after a plus sign is ignored (so the sendmail mailbox
+      specifier works) and that case is unimportant.
+  When the set of transformations is changed, the databases need to be
+    regenerated with this command so that the canonical forms reflect the
+    different transformations.
+  Note that if multiple addresses transform to the same thing under the new
+    transformation rules, the duplicates may be lost.
+  See the 'config addr_xforms' topic for more information on transforms.

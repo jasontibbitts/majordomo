@@ -1,0 +1,11 @@
+Available Help Topics
+---------------------
+
+commands    - Overview of available commands
+default     - Default help file
+parser      - Information about the text parser
+subscribing - Help on subscribing
+
+admin commands      - Overview of available administrative commands
+admin configuration - Overview of configuration variables and methods
+admin passwords     - Information on Majordomo security and passwords

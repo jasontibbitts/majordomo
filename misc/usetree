@@ -1,0 +1,111 @@
+#!/usr/local/bin/perl-latest -w
+
+# A hack to generate an XVCG graph description for the module useage of a
+# module/script/program.
+#
+# Todo:
+
+#  Handle requires.
+
+#  Decide which modules are 'system modules' and which are part of the
+#  program, and push the system modules closer to the bottom or color them
+#  differently.
+
+#  Add color.
+
+#  Color requires/uses differently.
+
+#  Make all system modules hideable.
+
+#  Actually read the VCG documentation so I know what's going on.
+
+#  Number nodes instead of referring to titles, and have a full useage
+#  graph where modules appear everywhere they're used.
+
+# Expand to cover function definition/calls.
+
+use strict;
+use IO::File;
+use Getopt::Long;
+my(%seen, %nodes, %edges, @inc, $dir, $file, $i);
+
+Getopt::Long::config('no_ignore_case', 'bundling');
+GetOptions(\%::opts, 'l=s@', 'c=s@', 't');
+
+#use Data::Dumper;
+#print Dumper \%::opts;
+
+@inc = @INC;
+push @inc, @{$::opts{l}} if $::opts{l};
+
+for $i (@ARGV) {
+  ($dir, $file) = ($i =~ m!(.*)/?(.*)?!);
+  unless ($file) {
+    $file = $dir;
+    $dir = '.';
+  }
+  $nodes{$file} = [$file, 1];
+  uses($file, $dir);
+}
+
+print <<EOP;
+graph: {
+title: "Module Usage Graph"
+
+EOP
+
+for $i (values %nodes) {
+  if ($i->[1]) {
+    print qq!node: { title: "$i->[0]" level: $i->[1] }\n!;
+  }
+  else {
+    print qq!node: { title: "$i->[0]" }\n!;
+  }
+}
+print "\n";
+  
+for $i (values %edges) {
+  print qq!edge: { sourcename: "$i->[0]" targetname: "$i->[1]" class: $i->[2] }\n!;
+}
+
+print "}\n";
+exit;
+
+sub uses {
+  my $file  = shift;
+  my $dir   = shift || '';
+  my $depth = shift || 0;
+  my (@uses, $class, $i, $j, $mod);
+
+  my $fh = new IO::File("$dir/$file");
+  while (defined($_ = $fh->getline)) {
+    if (/^use\s+([\w:]+)\s*(\w*)/) {
+      next if lc($1) eq $1;
+      $i = $1;
+      $nodes{$i} = [$i]; #, $depth+2];
+      next if $edges{"$file->$i"};
+      print "//", "  "x$depth, "$file uses $i\n";
+      ($mod = $file) =~ s!/!::!g;
+      $mod =~ s!\.pm$!!;
+
+      $class = 1;
+      if ($::opts{c}) {
+	for ($j = 0; $j < @{$::opts{c}}; $j++) {
+	  $class = $j+2 if eval qq!"$i" =~ /$::opts{c}[$j]/!;
+	}
+      }
+
+      $edges{"$file->$i"} = [$mod, $i, $class];
+     
+      $i =~ s!::!/!g;
+      for $j (@inc) {
+	if (-f "$j/$i.pm") {
+	  uses("$i.pm", $j, $depth+1);
+	  last;
+	}
+      }
+    }
+  }
+  $fh->close;
+}
+

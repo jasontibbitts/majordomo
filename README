@@ -1,0 +1,132 @@
+-*- Text -*-
+
+This is a pre-alpha release of Majordomo 2.0.  It does quite a few things
+and (modulo bugs) could easily be used to run a number of lists.  Many
+pieces of functionality that are present in 1.94.x are missing from this
+release.  There is much work to be done.
+
+Note: this requires Perl 5.004_01 to run.  This is due to bugs in
+5.004, and the fact that lesser versions are both lacking in features
+and security.
+
+The following modules are required:
+
+the libnet package
+Data::Dumper   v2.07
+MD5            v1.7
+MIME::Base64   v2.0
+Mail::Internet        (part of the MailTools package)
+Mail::Header          (part of the MailTools package)
+MIME::Parser   v4.102 (part of the MIME-Tools package)
+MIME::Entity   v4.114 (part of the MIME-Tools package)
+Date::Manip    v5.1
+Date::Format
+
+The Time::HiRes module is recommended if you want to generate accurate
+timings, but is not required.
+
+All of these modules are available from CPAN, the Comprehensive Perl
+Archive Network.  To find a CPAN site nearest you, look at
+<URL:http://www.perl.org/> or <URL:http://www.perl.com/>.  You may also use
+the CPAN module which comes with Perl; check the Perl documentation for
+more info.
+
+Majordomo 2 now includes its own setuid wrapper generation, so setuid
+scripts are no longer required.  Things are slightly simpler without
+them, but all functionality is preserved.
+
+Note: if you have any input on this software, even if you have not
+tested it, please let majordomo-workers@greatcircle.com know.  All
+feedback is appreciated.
+
+Reporting bugs:
+
+Please report bugs to mj-bugs@hpc.uh.edu, or use the online reporting form
+at <URL:http://www.hpc.uh.edu/cgi-bin/majordomo/wreq/req>.  These are
+processed by an automated tracking facility; you will be periodically
+informed of your bug report's status.
+
+Similarities with 1.94.x:
+
+A major design goal of Majordomo 2 is to provide something that looks
+exactly like Majordomo 1.94.4 to the users.  All existing instructions for
+end users of Majordomo-managed lists should still be applicable, excepting
+places where changes in previous behavior were required to fix bugs or plug
+security holes.  (Note that the changes in the confirmation process both
+fix bugs and improve security and also make things much easier on the
+users.)
+
+The situation is much the same for list owners, but the approval and config
+procedures have changed.  There is some backwards compatibility here,
+though, and more may be forthcoming.  There are, of course, many more
+variables that can be set.
+
+Differences from 1.94.x:
+
+Everything.  No code has survived.  It was flea-bitten, full of warnings
+and didn't have a hope of running under -w, use strict, or taint checks.  I
+found it simpler to write it all anew than to try to fix the old code and
+make it do what I wanted.  I tried for a long time; half-rewriting it at
+least twice.
+
+Majordomo now communicates with a delivery agent via standard
+protocols; there is no reliance on being able to call something that
+looks like sendmail.  It can also speak the protocol used by
+qmail-queue to inject mail directly.
+
+Majordomo keeps a database of subscribers, and so can keep lots of extra
+state information.  Because of this, digests can be incorporated into the
+main list, along with vacation mode and other goodies.
+
+Majordomo has a completely different file layout, with one directory per
+virtual domain containing one directory per list.
+
+The interfaces are completely separate from the core.  There are interfaces
+for email and shell access, with plans for more.
+
+Piles of other stuff.  Too much to list.  Read all of the pods and the TODO
+list, and the hundred or so pages of notes I have on real paper which you
+probably couldn't read even if you could get to them.
+
+
+
+Installation:
+
+Much blood has been shed to make installation as painless as possible.
+It's still painful because it's not finished.  Try to imagine how easy it
+will be when it's finished.
+
+To install:
+  unpack (you did that if you're reading this).
+  type "perl Makefile.PL".
+  follow the onscreen directions (to the letter!)
+
+When it's done, that will be all.  But it's not done...  It's getting
+better, though.
+
+You can make your own lists just by calling the creatlist command, like
+this:
+
+mj_shell -p password createlist list-name owner@address
+
+This will give you the necessary aliases to add to the appropriate file, if
+you're running Sendmail.  You can pull in a set of addresses from a
+Majordomo 1.9x list like this:
+
+mj_shell -p password -f old-list-file subscribe=quiet list-name
+
+If you copy the old configuration file into the directory for the new list,
+it will be automatically created.
+
+This should all be automated in a future release.
+
+If you want archives, you must set the list's 'archive_dir' variable to an
+existing, writable directory.  Everything will happen automatically after
+that.  Nothing will happen until you do that.  Archives aren't completely
+working, but they have about as much functionality as archive2.pl (and have
+no Y2K problems).
+
+Read the source.  Write a better readme.  Join in and help.  Read the TASKS
+list.  Get involved.  It won't get finished unless people pitch in.
+
+ - J<

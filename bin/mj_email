@@ -1,0 +1,263 @@
+#!/usr/local/bin/perl-latest -wT
+BEGIN {
+  $::LIBDIR = "/home/tibbs/mj/2.0/blib/lib";
+  $::LISTDIR= "/home/tibbs/mj/2.0-lists";
+  $::TMPDIR = "/tmp";
+  $::UID    = "baduid";
+  $::GID    = "badgid";
+  $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
+
+  # Redirect standard error output.
+  if (! -t STDERR) {
+    close STDERR;
+    open (STDERR, ">>$::TMPDIR/mj_email.debug");
+  }
+
+  # Croak if install was botched
+  die("Not running as UID $::UID") unless $> == $::UID;
+  die("Not running as GID $::GID") unless $) == $::GID;
+
+}
+
+=head1 NAME
+
+mj_email - email interface to Majordomo
+
+=head1 DESCRIPTION
+
+This is an email front end for the Majordomo system.  It takes an email
+message on standard input, parses it according to MIME semantics (including
+subparts, with automatic base64 and quoted-printable decoding) and acts on
+each command therein.
+
+=cut
+use lib "$::LIBDIR";
+use strict;
+no strict "refs";
+use Majordomo;
+use Mj::Parser;
+use Mj::Deliver::Envelope;
+use Mj::Log;
+use Getopt::Std;
+use Data::Dumper;
+use MIME::Parser;
+use IO::File;
+my (%opts, @entities, $args, $av, $command, $debug_file, $debug_log,
+    $debug_reply, $deflist, $entity, $head, $i, $line, $list, $ok,
+    $reply_to, $reply_to_strip, $sender, $sub_addin, $subject, $tag,
+    $tlist, $top, $token);
+
+# Redirect standard error output.
+if (! -t STDERR) {
+  close STDERR;
+  open (STDERR, ">>$::TMPDIR/mj_email.debug");
+}
+
+$ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb"; # Needed for Syslog to get hostname.
+
+# Parse the command line arguments.
+# -d - specify domain to serve (arg)
+# -l - specify deflist (arg)
+# -t - specify directory containing domains
+# -v - specify debug verbosity (arg), default 50.
+getopts('d:l:t:v:', \%opts);
+
+# We must untaint the top level dir and the domain because they are used to
+# generate filenames; it's safe since they were supplied by the site owner.
+$opts{d} =~ /(.*)/;
+$opts{d} = $1;
+$opts{t} ||= $::LISTDIR;
+$opts{t} =~ /(.*)/;
+$opts{t} = $1;
+
+$opts{v} ||= 0;
+$deflist = $opts{l};
+
+# Open a log
+$::log = new Mj::Log;
+$::log->add
+  (
+   # If we can pront the messages somewhere, print them, else we dump them
+   # to syslog.
+#   method      => (-t STDERR)?'handle':'syslog',
+   method      => 'handle',
+   handle      => \*STDERR,
+   id          => 'mje',
+   level       => ($opts{v} =~ /^(\d+)$/)[0] || 50,
+   subsystem   => 'mail',
+   log_exits   => 1,
+   log_entries => 1,
+   log_args    => 1, 
+  );
+
+$::log->in(20, undef, "info", "Majordomo Email client - ".scalar(localtime));
+$::log->startup_time();
+
+# Make a Majordomo object
+$::mj = new Majordomo $opts{t}, $opts{d};
+my $mj = $::mj;
+
+$::log->in(85, undef, "info", "Seting MIME parser properties");
+my $mime_parser = new MIME::Parser;
+$mime_parser->output_to_core($mj->global_config_get(undef, undef, undef,
+						    "email", "max_in_core"));
+$mime_parser->output_dir($::TMPDIR);
+$mime_parser->output_prefix("mje");
+$::log->out;
+
+# One line does all of the parsing!
+$::log->in(80, undef, "info", "Taking apart the incoming message");
+$entity = $mime_parser->read(\*STDIN);
+$::log->out;
+
+# Connect
+$mj->connect('email', $entity->head->as_string);
+
+# Get the header.
+$::log->in(80, undef, "info", "Parsing the header");
+$head = $entity->head;
+$head->unfold;
+$::log->out;
+
+# Parse commands in the subject here; we do this early to get the debug log
+# going.  XXX Support ACCEPT, DENY, LIST and PASS in the subject, too.  The
+# first two for quick confirmation token processing; the latter two for
+# bypassing failed "access" checks.
+
+$subject = $head->get('subject') || "";
+
+# Look for a possible token
+$token = $mj->t_recognize($subject);
+
+if ($subject =~ s/DEBUG\s*(\d+)\s*//) {
+  $debug_reply = $1;
+  $debug_file  = "$::TMPDIR/mje.$$.debug";
+  $debug_log =
+    $::log->add(method      => 'file',
+		filename    => $debug_file,
+		id          => 'mje',
+		level       => $debug_reply,
+		subsystem   => 'mail',
+		log_entries => 1,
+		log_exits   => 1,
+		log_args    => 1,
+	       );
+}
+
+
+# Now we try to figure out who to send the replies to.
+# $reply_to also becomes the default target for subscribe/unsubscribe
+# 
+$reply_to = $head->get('reply-to') ||
+  $head->get('from') ||
+  $head->get('apparently-from');
+chomp $reply_to;
+($ok, $reply_to_strip, undef) = $mj->addr_validate($reply_to);
+unless ($ok) {
+  # We can't get the stripped address, so we can't reply
+  # We should send something to the owner or something
+  $::log->abort("Invalid return address: $reply_to, $reply_to_strip");
+}
+
+$::log->message(35, "info", "Message from $reply_to.");
+
+# Need to bail if we're talking to outselves, either here (it's convenient)
+# or when checking access.
+
+if ($mj->global_config_get(undef, undef, undef, "email", "return_subject") &&
+    defined($head->get('subject')) && $head->get('subject') =~ /\S/)
+  {
+    $sub_addin = ": " . (substr($head->get('subject'), 0, 40));
+    chomp $sub_addin;
+  } 
+else {
+  $sub_addin = '';
+}
+
+(undef, @entities) = 
+  Mj::Parser::parse_entity($mj, "", , "email", $::TMPDIR, 
+			   {
+			    'reply_to' => $reply_to,
+			    'deflist'  => $deflist,
+			    'token'    => $token,
+			   },
+			   $entity,
+			  );
+if ($debug_reply) {
+  push @entities, build MIME::Entity
+    (
+     Path        => "$debug_file",
+     Description => "Debugging information",
+     Top         => 0,
+   );
+}
+
+# Somehow we need to put together all of the entities and the debug info.
+# If we just have one entity, we add the necessary headers and send it
+# (this avoids attaching useless MIME crap).  If we have multiple entities
+# then we build a top and attach them all to it.
+if (@entities == 1) {
+  $top = shift @entities;
+  # XXX This is nasty, because MIME-Tools might start supporting a newer
+  # MIME version at any time, but we have to do this until we get
+  # MIME::Entity::make_top.
+  $top->head->replace('MIME-Version', '1.0');
+}
+else {
+  $top = build MIME::Entity
+    Type => "multipart/mixed";
+
+  for $i (@entities) {
+    $top->add_part($i);
+  }
+}
+
+$head = $top->head;
+$head->replace('to'     , $reply_to);
+$head->replace('subject', "Majordomo results$sub_addin");
+$head->replace('from'   , $mj->global_config_get(undef, undef, undef,
+						 "email", "whoami"));
+
+$sender = $mj->global_config_get(undef, undef, undef, "email", "whoami_owner");
+$::log->delete($debug_log) if defined $debug_log;
+open BLAH, ">$::TMPDIR/mje.$$.final" ||
+  $::log->abort("Couldn't open final output file, $!");
+$top->print(\*BLAH);
+close BLAH;
+
+$mj->mail_message($sender, "$::TMPDIR/mje.$$.final", $reply_to_strip);
+
+# Purge all tempfiles created by the entities.  XXX Ugh, need to clean up
+# the variable names.
+$entity->purge;
+$top->purge;
+unlink "$::TMPDIR/mje.$$.final";
+
+$::log->message(50, "info", "-----Calling destructors-----");
+undef $mj;
+undef $::mj;
+
+$::log->out;  
+exit 0;
+
+=head1 COPYRIGHT
+
+Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+his program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+#
+### Local Variables: ***
+### mode:cperl ***
+### cperl-indent-level:2 ***
+### End: ***

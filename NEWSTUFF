@@ -1,0 +1,113 @@
+ -*- text -*-
+
+Here are a few of the things that differ between 1.9x and 2.0.  Things that
+are planned but not yet implemented are noted; otherwise everything
+mentioned actually works (modulo bugs, of course).
+
+General:
+
+Perl 5.004_01 (or later) is required, along with several modules.  Perl
+4.036 is no longer supported.  Majordomo now relies heavily on perl5
+features.
+
+Majordomo fully understands MIME at all levels, will not bomb on or
+mangle MIME message, and can make use of special MIME goodies where
+appropriate.
+
+Majordomo runs with full taint checks, warnings, and strict checking
+enabled.  Any warning is considered a bug (during development; these
+will probably be turned off to protect against perl progress once
+release time comes).
+
+The internal Majordomo routines have been decoupled from the interface,
+making multiple interfaces possible. 
+
+
+For the installer:
+
+Installation is prompt-driven; there is no Makefile editing required.
+Majordomo tries to figure out for itself what your system needs, and will
+check for its prerequisites and ask you questions.
+
+Reliance on the wrapper is mostly eliminated on platforms which support
+it.  This includes Solaris, Linux, and Digital Unix but not HP-UX.  On
+platforms where perl supports it, the small Majordomo executables run
+setuid and setgid.
+
+Majordomo will create all necessary directories and install all files in
+their proper locations.
+
+
+For the site maintainer/majordomo-owner:
+
+Majordomo supports virtual domains; it supports many completely separate
+collections of lists.  This appears to users as several separate Majordomo
+installations.
+
+Majordomo can create its own lists.  If using a supported MTA, Majordomo
+can provide all required aliases or give configuration instructions.
+(Currently only support for Sendmail is implemented.)
+
+Fewer aliases are required; Majordomo no longer needs (and can no longer
+make use of) the insecure outgoing alias to deliver mail.  Majordomo can
+even work entirely without aliases by using the shell interface and the
+'post' command.
+
+Majordomo keeps its lists in databases; currently these are still text
+files but they are not meant to be edited or generated externally.
+Majordomo provides facilities to convert lists of addresses into its
+database format easily; it also provides for removal of addresses by
+regular expressions and for removing all matching addresses.  The
+reasons why address list editing was needed with 1.9x have been
+eliminated.
+
+Majordomo can run with very strict permissions; the list files no
+longer have to be made world-readable.
+
+Majordomo incorporates its own advanced delivery mechanism, similar to
+that in bulk_mailer or TLB, rendering those programs obsolete.  It can
+also interface directly into qmail.
+
+For the list owner:
+
+The list configuration mechanism has changed.  You can still retrieve
+the config file, edit it, and send it back, but you can also retrieve
+a subset of the variables and set them without first retrieving them.
+You can also choose to see the comments or not.
+
+The approval process has been made much simpler; you can simply reply
+to the consultation message (or type a shell command or visit a web
+page) if you do not wish to edit the message before it is sent.
+Consultations can now be sent safely to a group of people without fear
+that more than one will approve the message (though actually sending
+to a group is not yet implemented).  If old-style approval is still
+required, it will work and has been extended to cope with MIME.
+
+You can choose exactly what notifications you want to receive.
+Notifications can be sent immediately, or summarized in a periodic
+report.  (Reports not yet implemented.)
+
+You can set up multiple fronters and footers which will be randomly
+chosen to be added.  (This could be used for advertisements or a
+number of other things.)  You can also choose to have fronters or
+footers to be added to some percentage of all messages.
+
+You can choose to filter out messages containing MIME parts that you
+don't want appearing on the list.
+
+For the end user:
+
+The confirmation process has been made much simpler; instead of sending
+back a line verbatim and worrying about line wrapping and such, the user
+can simply reply to the message or visit a web page.
+
+The email interface supports MIME, so even if you have to send through a
+gateway that converts your messages to quoted-printable, Majorodmo can
+still read your commands.
+
+Easy access to FAQ lists are provided via the faq command.
+
+When someone tries to forge subscribe requests in your name and you
+explicitly reject the confirmation tokens, you and other responsible
+parties will be sent a record of the forgery including what is hopefully
+enough for your sysadmin to track down the perpetrator.

@@ -1,0 +1,46 @@
+From: tibbs@morpheus.hpc.uh.edu
+To: test-list@morpheus.hpc.uh.edu
+Subject: Testing of MIME Messaging
+Date: Thu, 22 Jan 1998 11:04:41 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.1960.3)
+Content-Type: multipart/alternative;
+	boundary="---- =_NextPart_001_01BD274F.75EC38F0"
+
+
+------ =_NextPart_001_01BD274F.75EC38F0
+Content-Type: text/plain
+
+This message should be a multi-part MIME with a bunch of parts.
+
+ <<...>> 
+
+
+ <<...>> 
+
+
+------ =_NextPart_001_01BD274F.75EC38F0
+Content-Type: text/html
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=us-ascii">
+<META NAME="Generator" CONTENT="MS Exchange Server version 5.5.1960.3">
+<TITLE>Testing of MIME Messaging</TITLE>
+</HEAD>
+<BODY>
+
+<P><FONT SIZE=2 FACE="Arial">This message should be a multi-part MIME with a bunch of parts.</FONT>
+</P>
+
+<P><FONT FACE="Arial" SIZE=2 COLOR="#000000"> &lt;&lt;...&gt;&gt; </FONT>
+</P>
+<BR>
+
+<P><FONT FACE="Arial" SIZE=2 COLOR="#000000"> &lt;&lt;...&gt;&gt; </FONT>
+</P>
+
+</BODY>
+</HTML>
+------ =_NextPart_001_01BD274F.75EC38F0--

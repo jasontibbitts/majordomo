@@ -1,0 +1,116 @@
+#!/usr/local/bin/perl-latest -wT
+BEGIN {
+  $::LIBDIR = "/nowhere";
+  $::LISTDIR= "/nowhere";
+  $::DEFDOM = "nowhere";
+  $::TMPDIR = "/nowhere";
+  $::UID    = "baduid";
+  $::GID    = "badgid";
+  $SIG{__WARN__} = sub {print STDOUT "--== $_[0]"};
+
+  # Redirect STDERR as soon as possible to catch errors and warnings
+  if (! -t STDOUT) {
+    close STDOUT;
+    open (STDOUT, ">>$::TMPDIR/mj_trigger.debug");
+  }
+}
+
+=head1 NAME
+
+mj_trigger - Simple Majordomo event trigger
+
+=head1 DESCRIPTION
+
+mj_trigger is a program designed to be put into the Majordomo user''s
+crontab and called periodically to inform Majordomo that it is time to
+execute its periodic functions.
+
+Majordomo currently understands hourly, daily and weekly functions.
+
+A sample crontab entry looks like:
+
+# Run the daily trigger at midnight
+0 0 * * * /path/to/mj_trigger -d domain -t daily
+# Run the hourly trigger at the top of each hour
+0 * * * * /path/to/mj_trigger -d domain -t hourly
+
+=cut
+
+use lib "$::LIBDIR";
+use strict;
+use Majordomo;
+use Mj::Log;
+use Getopt::Std;
+use vars qw($program_name);
+
+my(%opts, @mess, $approved, $dom, $fh, $fname, $head, $in_body, $inmsg,
+   $list, $mess, $mj, $ok, $sender, $sess, $tlist, $top);
+
+die("Not running as UID $::UID") unless $> == $::UID;
+die("Not running as GID $::GID") unless $) == $::GID;
+
+$ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
+
+# Parse the command line arguments.
+# -d - specify the domain
+# -t - specify the trigger type
+# -v - debug level
+getopts('d:t:v:', \%opts);
+
+# Untaint the domain
+$dom  =  $opts{d} || $::DEFDOM;
+$dom  =~ /(.*)/;
+$dom  =  $1;
+$opts{v} ||= 0;
+
+# Open a log
+$::log = new Mj::Log;
+$::log->add
+  (method      => 'handle',
+   handle      => \*STDOUT,
+   id          => "mjr",
+   level       => ($opts{v} =~ /^(\d+)$/)[0] || 0,
+   subsystem   => 'mail',
+   log_entries => 1,
+   log_exits   => 1,
+   log_args    => 1,
+  );
+
+$::log->in(20, undef, "info", "Majordomo periodic trigger - ".scalar(localtime));
+$::log->startup_time();
+
+$::mj = new Majordomo $::LISTDIR, $dom;
+$mj = $::mj;  # for config default access to globals
+
+$mj->connect('trigger', 'no info available');
+$mj->dispatch('trigger', '', '', '', 'trigger', 'trigger', $opts{t},
+	      'GLOBAL', '');
+
+$::log->message(50, "info", "-----Calling destructors-----");
+undef $mj;
+undef $::mj;
+$::log->out;
+
+exit 0;
+
+=head1 COPYRIGHT
+
+Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+his program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+#
+### Local Variables: ***
+### mode:cperl ***
+### cperl-indent-level:2 ***
+### End: ***

@@ -1,0 +1,327 @@
+# Post-installation script for Majordomo
+
+# Basic functions:
+#   1. Create the list hierarchy if necessary.
+#   2. Make sure the permissions and ownerships are proper.
+#   3. Convert 1.x lists.
+#   (etc.  Perhaps spit out aliases?)
+
+use DirHandle;
+
+# We call mj_shell (which we make sure has the right permissions) to do the
+# dirty work; it would be possible to include the routines directly, but
+# this makes sure that everything was installed correctly.  It's better to
+# bomb here than to let a bad installation slip by.
+
+$config = eval { require ".mj_config" };
+
+die "Can't do postinstall unless Makefile.PL has been run!"
+  unless $config;
+
+# List of script files to be installed.
+@sidscripts = (qw(mj_resend mj_shell mj_email mj_confirm));
+@scripts = (qw(mj_trigger));
+
+# List of default reply files and subjects to be installed in the GLOBAL
+# filespace
+%files =
+  ('en/ack_denial'	        => 'Denial',
+   'en/ack_rejection'	        => 'Rejection',
+   'en/ack_stall'	        => 'Stall',
+   'en/ack_success'	        => 'Success',
+   'en/ack_timeout'	        => 'Timeout',
+   'en/confirm'			=> 'CONFIRM from $LIST',
+   'en/consult'			=> 'CONSULT from $LIST',
+   'en/faq'			=> 'Default faq reply',
+   'en/file_sent'		=> 'File has been sent',
+   'en/info'			=> 'Info',
+   'en/intro'			=> 'Intro',
+   'en/welcome'			=> 'Welcome',
+   'en/inform'			=> '$UREQUEST $LIST',
+   'en/repl_consult'		=> 'Default consult mailreply file',
+   'en/repl_confirm'		=> 'Default confirm mailreply file',
+   'en/repl_confcons'		=> 'Default confirm+consult mailreply file',
+   'en/repl_chain'		=> 'Default chained mailreply file',
+   'en/repl_deny'		=> 'Default denial replyfile',
+   'en/repl_forward'		=> 'Default forward replyfile',
+   'en/subscribe_to_self'	=> 'Attempt to subscribe $LIST to itself',
+   'en/token_reject'		=> 'Rejected token $TOKEN',
+   'en/token_reject_owner'      => 'Token rejected by $REJECTER',
+   'en/token_remind'            => 'REMINDER from $LIST',
+   'en/help/default'   	        => 'Default help file',
+   'en/help/commands'		=> 'Overview of available commands',
+   'en/help/parser'		=> 'Information about the text parser',
+   'en/help/subscribe'		=> 'Help on subscribing',
+   'en/help/topics'		=> 'Available help topics',
+   'en/help/admin_commands'	=> 'Overview of available administrative commands',
+   'en/help/admin_configuration'=> 'Overview of configuration variables and methods',
+   'en/help/admin_passwords'	=> 'Information on Majordomo security and passwords',
+  );
+
+# These have to be ordered...
+@dirs =
+  ('stock'         => 'Majordomo-supplied files',
+   'stock/en'	   => 'English',
+   'stock/en/help' => 'Help files',
+   'spool'         => 'Spooled files',
+   'sessions'      => 'Session data',
+   'public'        => 'Public files',
+  );
+
+$msg1 = <<EOM;
+
+Majordomo stores its lists in a hiearachy of directories.  These can be
+ created for you now.  The various list files will be created as needed.
+
+Create directories?
+EOM
+
+$msg2 = <<EOM;
+
+The installation can do some basic global configuration using the questions
+ answered before installation began.
+
+If you do not do this, the rest of the installation may not proceed
+ correctly, since the global password needs to be set in order for this
+ program to make configuration changes.
+
+Do basic global configuration now?
+EOM
+
+$msg3 = <<EOM;
+
+Majorodmo stores response files (the confirmation message, the various help
+ texts, etc.) separately instead of placing them into the program code.
+ These files must be installed into the Majordomo system.
+Answer 'no' to skip this step; any existing files will be preserved.
+
+Install response files?
+EOM
+
+set_script_perms(\@sidscripts, \@scripts);
+
+# Create list directories and such
+if (get_bool($msg1)) {
+  create_dirs($config->{'lists_dir'},
+	      scalar getpwnam($config->{'uid'}),
+	      scalar getgrnam($config->{'gid'}),
+	      $config->{'domains'});
+}
+
+# Configure a few global parameters
+if (get_bool($msg2)) {
+  for my $i (@{$config->{'domains'}}) {
+    do_config($i);
+  }
+}
+
+# Convert lists if desired
+
+# Install response files
+if (get_bool($msg3)) {
+  for my $i (@{$config->{'domains'}}) {
+    install_response_files($i, $config->{'domain'}{$i}{'password'},
+			   \%files, \@dirs);
+  }
+}
+
+# Give some basic MTA configuration
+if (-t STDIN) {
+  print "\n\nHere is some basic configuration information:\n";
+  for my $i (@{$config->{'domains'}}) {
+    suggest_mta($i);
+  }
+}
+
+if (-t STDIN) {
+  print <<"EOM";
+
+You may also wish to add the following entries to the $config->{'uid'}
+account\'s crontab:
+EOM
+  for my $i (@{$config->{'domains'}}) {
+    suggest_crontab($i);
+  }
+}
+
+exit;
+
+sub set_script_perms {
+  my $sidscripts = shift;
+  my $scripts    = shift;
+  print "Setting permissions...";
+  $id = $config->{'install_dir'};
+  map {$_ = "$id/bin/$_"} @$sidscripts, @$scripts;
+  $uid = getpwnam($config->{'uid'});
+  $gid = getgrnam($config->{'gid'});
+  chown($uid, $gid, @$sidscripts, @$scripts) || die "Couldn't change ownership: $!";
+  rchown($id, $uid, $gid);
+  if ($config->{'wrappers'}) {
+    chmod(06111, @$sidscripts) || die "Couldn't change mode: $!";
+  }
+  else {
+    chmod(06555, @$sidscripts) || die "Couldn't change mode: $!";
+  }
+  print "ok\n";
+}
+
+sub create_dirs {
+  my $l    = shift;
+  my $uid  = shift;
+  my $gid  = shift;
+  my $doms = shift;
+  my($i);
+
+  print "$l, $uid, $gid\n";
+
+  safe_mkdir($l, 0770, $uid, $gid);
+  
+  for $i (@$doms) {
+    print "Making directories for $i.\n";
+    safe_mkdir("$l/$i", 0770, $uid, $gid);
+    safe_mkdir("$l/$i/GLOBAL", 0770, $uid, $gid);
+    safe_mkdir("$l/$i/GLOBAL/files", 0770, $uid, $gid);
+  }    
+}
+
+# Set basic config vars
+sub do_config {
+  my $dom = shift;
+  # Do everything from the global $config
+  my(@args, $arg, $i, $ignore, $pw);
+
+  @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F", "inst.$$");
+
+  open FILE, ">inst.$$";
+
+  $pw = $config->{'domain'}{$dom}{'master_password'};
+  print FILE "approve GLOBAL.pass configset GLOBAL master_password = $pw\n";
+  print FILE "default password $pw\n";
+
+  for $i (qw(tmpdir site_name install_dir lists_dir mta)) {
+    $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};
+    print FILE "configset GLOBAL $i = $arg\n";
+  }    
+
+  print FILE "configset GLOBAL whereami = $dom\n";
+  close FILE;
+
+  print "\nDo not be alarmed if the first command fails.\n\n";
+  print "@args\n";
+  system(@args) == 0 or die "Error executing $args[0], $?";
+  unlink "inst.$$";
+}
+    
+sub install_response_files {
+  my $dom   = shift;
+  my $pass  = shift;
+  my $files = shift;
+  my $dirs  = shift;
+  my(@args, $dir, $file, $i, $subj);
+
+  @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F", "inst.$$");
+
+  open FILE, ">inst.$$";
+  print FILE "default password $config->{'domain'}{$dom}{'master_password'}\n";
+
+  # Make the directories
+  while (($dir, $subj) = splice(@{$dirs}, 0, 2)) {
+    print FILE "put=dir GLOBAL /$dir $subj\n";
+  }
+
+  # Put the files
+  $i = 1;
+  while (($file, $subj) = each %{$files}) {
+    print FILE "put GLOBAL /stock/$file $subj <\@$i\n";
+    push @args, ("-f", "files/$file");
+    $i++;
+  }
+  close FILE;
+  chmod(0644, "inst.$$");
+  print "@args\n";
+  system(@args) == 0 or die "Error executing $args[0], $?";
+  unlink "inst.$$";
+}
+
+sub suggest_mta {
+  my $dom  = shift;
+
+  my @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-p",
+	      "$config->{'domain'}{$dom}{'master_password'}",
+	      "createlist=nocreate", "GLOBAL");
+
+  print "(@args)\n";
+  system(@args) == 0 or die "Error executing $args[0], $?";
+}
+
+sub suggest_crontab {
+  my $dom = shift;
+  print <<"EOM";
+
+# Daily and hourly triggers for $dom
+0 0 * * * $config->{'install_dir'}/bin/mj_trigger -d $dom -t daily
+0 * * * * $config->{'install_dir'}/bin/mj_trigger -d $dom -t hourly
+EOM
+}
+
+  
+
+
+sub get_bool {
+  my ($msg, $def) = @_;
+  chomp $msg;
+  my $val = prompt($msg, $def ? "yes" : "no");
+  $val =~ /^y/i ? 1:0;
+}
+
+sub prompt ($;$) {
+  my($mess,$def)=@_;
+  my $ISA_TTY = -t STDIN && -t STDOUT ;
+  Carp::confess("prompt function called without an argument") unless defined $mess;
+  my $dispdef = defined $def ? "[$def] " : " ";
+  $def = defined $def ? $def : "";
+  my $ans;
+  if ($ISA_TTY) {
+    local $|=1;
+    print "$mess $dispdef->";
+    chomp($ans = <STDIN>);
+  }
+  return $ans || $def;
+}
+	    
+sub safe_mkdir {
+  my $dir  = shift;
+  my $mode = shift;
+  my $uid  = shift;
+  my $gid  = shift;
+  unless (-d $dir) {
+    mkdir $dir, $mode or die "Can't make $dir, $!";
+    chown ($uid, $gid, $dir) or die "Can't chown $dir, $!";
+  }
+}
+
+sub rchown {
+  my $dir = shift;
+  my $uid = shift;
+  my $gid = shift;
+
+  $dir =~ s!/$!!;
+
+  my $dh = DirHandle->new($dir);
+  chown($uid, $gid, $dir) || die("Couldn't chown $dir, $!");
+  for my $i ($dh->read) {
+    next if $i eq '.' || $i eq '..';
+    chown($uid, $gid, "$dir/$i") || die("Couldn't chown $dir/$i, $!");
+    if (-d "$dir/$i") {
+      rchown("$dir/$i", $uid, $gid);
+    }
+  }
+}
+
+1;
+#
+### Local Variables: ***
+### mode:cperl ***
+### cperl-indent-level:2 ***
+### End: ***
+

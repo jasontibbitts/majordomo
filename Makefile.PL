@@ -1,0 +1,600 @@
+use ExtUtils::MakeMaker;
+use File::Copy;
+use strict;
+$^W = 1;
+$|  = 1;
+use Carp;
+use Config;
+
+BEGIN {
+  require 5.00401;
+}
+
+my @SIDSCRIPTS = qw(mj_email mj_shell mj_resend mj_confirm);
+my @SCRIPTS = qw(mj_trigger);
+my @EXES = map {"./bin/$_"} @SIDSCRIPTS, @SCRIPTS;
+
+# MakeMaker has begun to displease me
+my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\$(MAN3EXT)")}
+
+   qw(Majordomo.pm Mj/Access.pm Mj/Addr.pm Mj/AddressList.pm
+      Mj/AliasList.pm Mj/Archive.pm Mj/Config.pm Mj/Deliver.pm
+      Mj/Deliver/Connection.pm Mj/Deliver/Dest.pm Mj/Deliver/Envelope.pm
+      Mj/Deliver/Prober.pm Mj/Deliver/QQEnvelope.pm Mj/Deliver/SMTP.pm
+      Mj/Deliver/Sorter.pm Mj/Digest.pm Mj/File.pm Mj/FileRepl.pm
+      Mj/FileSpace.pm Mj/FileSpaceDB.pm Mj/Format.pm Mj/Inform.pm
+      Mj/List.pm Mj/Lock.pm Mj/Log.pm Mj/MailOut.pm Mj/Parser.pm
+      Mj/Resend.pm Mj/SimpleDB.pm Mj/SubscriberList.pm Mj/TextOutput.pm
+      Mj/Token.pm Mj/TokenDB.pm Bf/Sender.pm mj_cf_data.pl mj_cf_defs.pl );
+
+#### Prerequisite checking
+
+check_syslog();
+check_prereq(
+	     'MIME::Parser'	=> 4.102,
+	     'MIME::Entity'	=> 4.114,
+	     'MIME::Base64'	=> 2.00,
+	     'Data::Dumper'	=> 2.07,
+#	     'Data::ShowTable'  => 0,  # Want 3.3, but the stupid module
+                                       # doesn't have a version number
+	     'Date::Manip'	=> 5.10,
+	     'HTML::Stream'     => 1.42,
+	     'CGI'              => 2.36,
+	     'MD5'		=> 1.7,
+	     'IO::Socket'	=> 1.1602,
+	     'IO::File'		=> 0,
+	     'IO::Handle'	=> 0,
+	     'Date::Format'     => 0,
+	     'DirHandle'	=> 0,
+	     'Safe'		=> 0,
+	     'POSIX'		=> 0,
+	     'Net::Domain'	=> 0,
+	     'File::Copy'	=> 0,
+	     'Fcntl'		=> 0,
+	     'Carp'		=> 0,
+	    );
+
+#### Interactive configuration
+
+my $config = configure();
+my $prefix = $config->{'install_dir'};
+
+#### Build the wrapper binaries if necessary
+
+if ($config->{'wrappers'}) {
+  generate_wrappers();
+}
+
+#### Override the installbin target
+sub MY::installbin {
+  package MY;
+  my $str = shift->SUPER::installbin(@_);
+  $str =~ s/^\tcp\s/\t\$(PERL) installbin /mg;
+  return $str;
+}
+
+#### The makefile postamble.  This differs depending on what options the
+#### user has chosen; we add rules to build the wrappers if necessary.  We
+#### also add the postinstall target and some extra cleanup rules.
+sub MY::postamble {
+  my $a = '';
+
+  if ($config->{'wrappers'}) {
+    $a .= '
+
+all :: wrappers
+
+clean ::
+	$(RM_RF) wrappers
+';
+    for my $i (@SIDSCRIPTS) {
+      $a .= "\t\$(RM_F) ./bin/.$i\n";
+    }
+
+    $a .= 'wrappers :';
+    for my $i (@SIDSCRIPTS) {
+      $a .= " wrappers/$i";
+    }
+
+    $a .= "\n";
+
+#    for my $i (@SIDSCRIPTS) {
+#      $a .= "\t\$(CC) -o wrappers/$i wrappers/$i.c\n";
+#      $a .= "\tstrip wrappers/$i\n";
+#    }
+  }
+
+  $a .= '
+
+install :: postinstall
+
+postinstall ::
+	$(PERL) -w postinstall
+';
+
+  $a;
+}
+
+#### Write out the Makefile
+print "\n";
+WriteMakefile
+  (
+   NAME           => 'Majordomo',
+   VERSION_FROM   => './lib/Majordomo.pm',
+   DISTNAME       => "Majordomo",
+   EXE_FILES      => [@EXES],
+   INSTALLDIRS    => 'perl',
+   PREFIX         => $prefix,
+   INSTALLPRIVLIB => "$prefix/lib",
+   MAN1PODS       => {map {("bin/$_"=>"\$(INST_MAN1DIR)/$_.\$(MAN1EXT)")} @SIDSCRIPTS, @SCRIPTS},
+   INSTALLMAN1DIR => "$prefix/man/man1",
+   MAN3PODS       => \%MODULES,
+   INSTALLMAN3DIR => "$prefix/man/man3",
+   'dist'         => {
+		      COMPRESS => 'gzip',
+		      DIST_CP  => 'cp',
+		      SUFFIX   => 'gz',
+		     }
+  );
+
+
+print <<EOM;
+
+Now you should do the following:
+  make
+  make test (if you wish to run the paltry tests)
+  make install (as root) and answer the questions
+EOM
+
+exit;
+
+#### Subroutines
+
+sub check_syslog {
+  print "Checking for Sys::Syslog and syslog.ph ";
+  eval {require Sys::Syslog;};
+  if ($@) {
+    warn <<EOW
+
+**** Majordomo needs a properly configured Perl system.
+
+We tried to use the Sys::Syslog module, but it failed with the following
+error:
+
+$@
+
+This is probably because the person who installed Perl on your system
+neglected to run the h2ph command to install the Perl header files.  This
+is usually done like this:
+
+cd /usr/include;h2ph * sys/*
+
+Majordomo will not run until this is fixed.
+
+EOW
+  }
+  else {
+    print "ok\n";
+  }
+}
+      
+sub check_prereq {
+  my ($pkg, $ver);
+
+  while (($pkg, $ver) = splice(@_, 0, 2)) {
+    unless (have_vers($pkg => $ver)) {
+      warn <<EOW
+
+**** Majordomo requires $pkg version $ver or greater!
+
+EOW
+    }
+  }
+}
+
+# This was clipped from the libnet Makefile.PL.
+sub have_vers {
+ my($pkg,$wanted,$msg) = @_;
+ no strict 'refs';
+ printf("Checking for %15s %-9s ", $pkg, $wanted==0?'(any)':"(v$wanted)");
+
+ eval { my $p; ($p = $pkg . ".pm") =~ s!::!/!g; require $p; };
+
+ my $vnum = ${"${pkg}::VERSION"} || ${"${pkg}::Version"} || 0;
+ my $vstr = $vnum ? "found v$vnum" : "not found";
+
+ print $vnum >= $wanted ? "ok\n" : " " . $vstr . "\n";
+ $vnum >= $wanted;
+}
+
+sub configure {
+  my ($i, $key, $val, $msg, $def);
+  require Data::Dumper; import Data::Dumper 'Dumper';
+
+  # Pull in an existing configuration.
+  print "Checking for     Net::Config";
+  eval {require Net::Config};
+  print ' 'x11 . "ok\n";
+
+  print "Checking for      .mj_config";
+  $config = eval { require ".mj_config" };
+  print ' 'x11 . "ok\n";
+
+  if (defined $config) {
+    print "\nFound existing configuration:\n";
+    printhash($config);
+    print "\n";
+    $msg = "Do you want to modify your configuration?\n";
+    return $config unless get_bool($msg, 0);
+  }
+  else {
+    $config = {};
+    print <<EOM
+
+Welcome to the Majordomo automatic configuration system!
+
+This script will guide you through some of the Majordomo configuration
+process.  Of course, it isn\'t finished....
+
+EOM
+  }
+
+  #---- Ask for UID
+  $msg = <<EOM;
+
+What is the user ID that Majordomo will run as?
+ Either the numeric ID or the user name is fine.
+EOM
+  $def = $config->{'uid'} ||
+    (getpwnam("majordom") && "majordom") ||
+      (getpwnam("lists") && "lists");
+  $config->{'uid'} = get_uid($msg, $def);
+
+  #---- Ask for GID
+  $msg = <<EOM;
+
+What is the group ID that Majordomo will run as?
+ Either the numeric ID or the group name is fine.
+EOM
+  $def = $config->{'gid'} ||
+    (getgrnam("majordom") && "majordom") ||
+      (getgrnam("lists") && "lists");
+  $config->{gid} = get_gid($msg, $def);
+
+  #---- Ask about wrappers
+  $msg = <<EOM;
+
+Should the SETID wrappers be installed?
+ Majordomo needs to be able to run as the proper user no matter who is
+  running it.  This requires that it be installed SETID.  On some systems,
+  the Majordomo programs can be installed SETID, but this requires both
+  that the operating system support it ant that perl be built to support
+  it.  If this is not possible, a set of tiny wrapper programs can be built
+  which will take care of the SETID needs of Majordomo.
+ If you\'re not sure of how to answer this question, just answer YES.
+  There is no loss of functionality when the wrappers are enabled.  Curious
+  users may want to answer NO; if wrappers are required, the installation
+  process will fail later.
+
+Install the wrappers? 
+EOM
+  $def = $config->{'wrappers'};
+  $config->{'wrappers'} = get_bool($msg, $def);
+
+  #---- Ask for default install location
+  $msg = <<EOM;
+
+Where will the Majordomo libraries, executables and documentation be kept?
+ Note that this is not necessarily where your lists will be stored.
+EOM
+  $def = $config->{'install_dir'};
+  $config->{'install_dir'} = get_dir($msg, $def);
+
+  #---- Ask for list directory
+  $msg = <<EOM;
+
+Where will the Majordomo list data be kept?
+ Note that under this directory will be a directory for each domain your
+   site supports, and under that a directory for each list at your site.
+ Note also that this should _not_ be a directory containing lists
+   maintained by Majordomo 1.x, as Majordomo 2 stores its lists in a
+   different format.
+EOM
+  $def = $config->{'lists_dir'};
+  $config->{'lists_dir'} = get_dir($msg, $def);
+
+  #---- Ask for temporary dir
+  $msg = <<EOM;
+
+Where can Majordomo place temporary files?
+EOM
+  $def = $config->{'tmpdir'} ||
+    (-d '/tmp' && '/tmp') ||
+    (-d '/var/tmp' && '/var/tmp') ||
+    (-d '/usr/tmp' && '/usr/tmp');
+  $config->{'tmpdir'} = get_dir($msg, $def);
+
+  #---- Ask for MTA
+  $msg = <<EOM;
+
+What Mail Transfer Agent will be feeding mail to Majordomo?
+ Majordomo needs to know the MTA that you\'re running so that it can suggest
+  configuration details.
+ Currently supported MTAs are:
+  sendmail
+  (sorry, no more!  Look in MTAConfig.pm and write your own!)
+EOM
+
+  $def = $config->{'mta'} ||
+    (-x '/usr/lib/sendmail'  && 'sendmail') ||
+    (-x '/usr/sbin/sendmail' && 'sendmail');
+  $config->{'mta'} = get_str($msg, $def);
+
+  #---- Ask for virtual domains
+  $msg = <<EOM;
+
+Which domains will this Majordomo installation support?
+  Majordomo 2 includes support for virtual domain setups, where one machine
+    serves several distinct sets of lists.  You can name these collections
+    of lists anything you choose, but it is customary to name them after
+    the domains which they serve.
+  If you have too many domains to list here, you may add them later.
+    Consult the documentation.
+  If you do not intend to make use of virtual domains, just enter your
+    domain.
+  Enter a single domain at a time, or a blank line to end.  Enter a space
+    to cancel a default value.
+EOM
+  $def = $config->{'domains'} || [$Net::Config::NetConfig{'inet_domain'}] || undef;
+  $config->{'domains'} = get_list($msg, $def);
+
+  for $i (@{$config->{'domains'}}) {
+    print "\nConfiguring the domain: $i\n";
+
+    #---- Ask for global configuration information:
+    #---- name of majordomo
+    $msg = <<EOM;
+    
+What is the name of Majordomo installation at $i?
+ The installation can be given a name that is used as a title for reports,
+   the output of the lists command, and elsewhere.
+EOM
+    $def = $config->{'domain'}{$i}{'site_name'};
+    $config->{'domain'}{$i}{'site_name'} = get_str($msg, $def);
+  
+    #---- owner address, for alias construction
+    $msg = <<EOM;
+
+What is the email address of the owner of this Majordomo installation?
+EOM
+    $def = $config->{'domain'}{$i}{'owner'};
+    # XXX Should probably have a get_addr routine, but we might have
+    # problems requiring Mj::Addr.pm.
+    $config->{'domain'}{$i}{'owner'} = get_str($msg, $def);
+
+    #---- Get global password
+    $msg = <<EOM;
+
+Please choose a password.
+ Each domain is given a single global password that can be used for all
+   list functions.  This password is independent of the individual list
+   passwords.
+EOM
+    $def = $config->{'domain'}{$i}{'master_password'};
+    $config->{'domain'}{$i}{'master_password'} = get_str($msg, $def);
+
+    #---- Ask for location of old (1.x) lists
+    $msg = <<EOM;
+
+Where are the Majordomo 1.x lists for $i stored?
+ If you have lists that were maintained by Majordomo 1.x, you can convert
+   them for use by Majordomo 2.0.  You will be given the option to do this
+   during the "make postinstall" step at the end of the installation.
+ If you have no 1.x lists to convert, enter nothing.
+EOM
+    $def = $config->{'domain'}{$i}{'old_lists_dir'};
+    $config->{'domain'}{$i}{'old_lists_dir'} = get_dir($msg, $def, 1);
+  
+    # Try to get list of lists; for each list found, ask enough questions
+    # about it to enable a conversion.
+
+    print "\nSorry, old list conversion not yet implemented.  Use:\n";
+    print "mj_shell -p password creatlist list owner\@address\n";
+    print "mj_shell -p password -f old_list_file subscribe=quiet new_list\n";
+    print "To convert lists.\n";
+  }
+
+  #---- Write out the config
+  print "\n";
+  open CONFIG, ">.mj_config";
+  print CONFIG Dumper($config);
+  close CONFIG;
+  return $config;
+}
+
+# Query functions
+
+sub get_str {
+  return prompt(shift, shift);
+}
+
+sub get_file {
+  my ($msg, $def, $exist, $exe, $path) = @_;
+  my ($file);
+ OUTER:
+  while (1) {
+    my $ans = prompt($msg, $def);
+    $file = ($ans =~ /(\S*)/)[0];
+    last if !length $file && !$exist;
+    next unless length $file;
+    last if -f $file && !$exe;
+    last if -x $file;
+    if ($path) {
+      for my $i (split(':', $ENV{PATH})) {
+	last OUTER if -x "$i/$file";
+      }
+    }
+    last if get_bool("$file does not exist; use anyway?");
+  }
+  $file;
+}
+
+sub get_dir {
+  my ($msg, $def, $empty) = @_;
+  my ($dir);
+  while (1) {
+    my $ans = prompt($msg, $def);
+    $dir = ($ans =~ /(\S*)/)[0];
+    last if !length $dir && $empty;
+    next unless length $dir;
+    last if -d $dir;
+    last if get_bool("$dir does not exist; use anyway?");
+  }
+  $dir;
+}
+
+sub get_uid {
+  my ($msg, $def) = @_;
+  my ($uid);
+
+  while (1) {
+    my $ans = prompt($msg, $def);
+    $uid = ($ans =~ /(\S*)/)[0];
+    next unless length $uid;
+    last if getpwnam $uid ;
+    last if $uid =~ /\d+/ && ($uid = getpwuid($uid));
+  }
+  $uid;
+}
+
+sub get_gid {
+  my ($msg, $def) = @_;
+  my ($gid);
+
+  while (1) {
+    my $ans = prompt($msg, $def);
+    $gid = ($ans =~ /(\S*)/)[0];
+    next unless length $gid;
+    last if getgrnam $gid;
+    last if $gid =~ /\d+/ && ($gid = getgrgid($gid));
+  }
+  $gid;
+}
+
+sub get_bool {
+  my ($msg, $def) = @_;
+  chomp $msg;
+  my $val = prompt($msg, $def ? "yes" : "no");
+  $val =~ /^y/i ? 1:0;
+}
+
+sub get_list {
+  my ($msg, $def, $empty) = @_;
+  my ($elem, $list);
+  $list = [];
+  print $msg;
+
+  while (1) {
+    my $ans = prompt("", (@{$def} ? shift @{$def} : undef));
+    $elem = ($ans =~ /(\S*)/)[0];
+    unless (length $elem) {
+      last if $empty;
+      last if @{$list};
+      print "Empty list not allowed!\n";
+      next;
+    }
+    push @{$list}, $elem;
+  }
+  $list;
+}
+  
+
+# Nipped from MakeMaker.
+sub prompt ($;$) {
+  my($mess,$def)=@_;
+  my $ISA_TTY = -t STDIN && -t STDOUT ;
+  Carp::confess("prompt function called without an argument") unless defined $mess;
+  my $dispdef = defined $def ? "[$def] " : " ";
+  $def = defined $def ? $def : "";
+  my $ans;
+  if ($ISA_TTY) {
+    local $|=1;
+    print "$mess $dispdef->";
+    chomp($ans = <STDIN>);
+  }
+  return $ans || $def;
+}
+
+# Recursively print out a hash
+sub printhash {
+  my $arg = shift;
+  my $indent = shift || 0;
+  my($key, $msg, $val);
+  for $key (sort keys %$arg) {
+    $val = $arg->{$key};
+    if (UNIVERSAL::isa($val, 'ARRAY')) {
+      $msg = join(', ', @{$val});
+    }
+    elsif (UNIVERSAL::isa($val, 'HASH')) {
+      print "    "x$indent;
+      printf ("%15s => ...\n", $key);
+      printhash($val, $indent+1);
+      next;
+    }
+    else {
+      $msg = $val;
+    }
+    print "    "x$indent;
+    printf ("%15s => %s\n", $key, $msg);
+  }
+}
+
+# Make the wrapper source files.  The make step will compile them.  Note
+# that we nuke the EXES array and build a new one, and that we make extra
+# copies of the real scripts because MakeMaker isn't quite as flexible as
+# I'd like.  XXX This could probably use some error checking.
+sub generate_wrappers {
+  print "\nGenerating the wrappers...";
+  @EXES = ();
+
+  mkdir 'wrappers', 0777;
+
+  for my $i (@SIDSCRIPTS) {
+    link("./bin/$i", "./bin/.$i");
+    open WRAP, ">wrappers/$i.c";
+    print WRAP "main(ac, av)
+    char **av;
+{
+  execv(\"$config->{'install_dir'}/bin/.$i\", av);
+}
+";
+    close WRAP;
+    push @EXES, "./bin/.$i";
+    push @EXES, "./wrappers/$i";
+    push @EXES, map {"./bin/$_"} @SCRIPTS;
+  }
+  print "done.\n";
+}
+
+=head1 COPYRIGHT
+
+Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+his program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+1;
+#
+### Local Variables: ***
+### cperl-indent-level:2 ***
+### cperl-label-offset:-1 ***
+### End: ***

@@ -1,0 +1,108 @@
+#!/usr/local/bin/perl-latest -w
+
+use Data::Dumper;
+use strict;
+use Date::Manip;
+use Data::ShowTable;
+use IO::File;
+
+$Date::Manip::PersonalCnf="";
+
+my $file = '/home/tibbs/mj/2.0-snap/lists/hpc.uh.edu/GLOBAL/_log';
+my $fh = new IO::File $file;
+
+my $date1 = ParseDate(\@ARGV);
+my $date2 = ParseDate(\@ARGV);
+my $start = UnixDate(ParseDate($date1),"%s");
+my $end   = UnixDate(ParseDate($date2),"%s") || 0;
+
+die "Illegal date!" unless $date1;
+
+report_all($fh, $start, $end);
+exit 0;  
+
+sub report_list {
+  my ($fh, $rlist, $start, $end) = @_;
+  my ($list, $req, $requ, $vict, $cmd, $int, $stat, $pass, $time);
+
+  # Structure is request -> [ all other data X cmd ]
+
+}
+
+sub report_all {
+  my ($fh, $start, $end) = @_;
+  my ($list, $req, $requ, $vict, $cmd, $int, $stat, $pass, $time);
+  my (%list_req, @list_req, %rep, %req, $i, $j, $o);
+  my (@titles, @col1, @col2, @coln, $row, $rowsub);
+
+  while (<$fh>) {
+    ($list, $req, $requ, $vict, $cmd, $int, $stat, $pass, $time) = split("\t",$_);
+    next unless ($time > $start) && (!$end || ($time < $end));
+    $rep{$list}{$req}{$stat}++;
+    $req{$req}++ if $stat>0;
+    $list_req{$req} = 1 if $list ne 'GLOBAL';
+  }
+  @list_req = sort keys %list_req;
+  
+  print join(':', (sort keys %req)), "\n";
+  print join(':', (@req{sort keys %req})), "\n";
+  
+  print "Summary of successful Actions:\n";
+  
+  @titles = qw(Request Count);
+  @col1 = sort keys %req;
+  @col2 = @req{@col1};
+  $rowsub = sub { &ShowRow( $_[0], \$row, \@col1, \@col2 ); };
+
+  ShowTable 
+    {  
+      show_mode     => 'table',
+      titles        => \@titles,
+      types         => ['string', 'int'],
+      row_sub       => $rowsub,
+      widths        => [20, 5],
+    };
+  
+  print "Requests by list:\n";
+
+
+  @titles = ('List', @list_req);
+  @col1 = sort grep {$_ ne 'GLOBAL' } keys %rep;
+  $j = 0;
+  for $i (@list_req) {
+    print "$i\n";
+    $coln[$j] = 
+      [
+       map {
+	 ($rep{$_}{$i}{1}  || '0') . '/' .
+	 ($rep{$_}{$i}{-1} || '0') . '/' .
+	 ($rep{$_}{$i}{0}  || '0')
+       }
+       @col1
+     ];
+    $j++;
+  }
+
+  print Dumper \@titles;
+  print Dumper \@col1;
+  print Dumper \@coln;
+
+  $rowsub = sub { &ShowRow( $_[0], \$row, \@col1, @coln ); };
+
+  ShowTable
+    {
+      show_mode     => 'table',
+      titles        => \@titles,
+      types         => [('char') x @titles ],
+      row_sub       => $rowsub,
+      widths        => [20 x @titles],
+    };
+
+
+  $o;
+}
+
+
+
+
+

@@ -1,0 +1,68 @@
+ -*- Text -*-
+
+These are a few tasks that I hope others can complete.  I will eventually
+get to them if nobody else does, but that will take time.
+
+Beautify the logfile code:
+  The current logging code was written for simplicity; this results in
+  a logfile which is neither pretty nor human-readable.  While the
+  intention is for Majordomo to be able to make reports from its
+  logfile, there is is still reason to make it browseable by those who
+  want to look at the file itself.  Many recommendations for the
+  common logfile format were made, but I know little of it and I am
+  unsure that it can handle all of the specific data elements that
+  Majordomo keeps.  This needs to be investigated and better code
+  needs to be written.
+
+Read the code:
+  It would help immensely if someone could just read over the code and see
+  what is sufficiently commented and documented and what is not.  If a
+  construct is not understandable on its face, tell me and I will comment
+  or rewrite it to be clearer.  This project is for naught if after I'm
+  dome with it others can't work on it.  This could be done module by
+  module.
+
+Write some docs:
+  One of Majordomo's largest problems has been its lack of good
+  documentation.  The installation will be made much simpler in 2.0, so
+  that problem is somewhat mitigated, but there's still the problem of
+  general list administration, a whole new category of advanced list
+  administration (multiple moderators, peer review, access_rules and the
+  weird things you can do with it, etc) and the always painful subscriber
+  documentation.  We need new online docs (help text, config variable
+  descriptions) and offline docs (install guide, list-owner-info, FAQ).
+
+Design the Web interface:
+  We have been offered MajorCool, but it will need some work to be fit into
+  toe new object framework.  There are also many new possibilities now that
+  all parts of the core are easily accessible to an interface, and the MC
+  code will need some redesign to take care of this.  And then there's the
+  'clean Perl5' rule.  Before someone can start coding, we need to
+  determine at least the basics of what the new design will look like.
+
+Design the client-server protocol:
+  The Majordomo module was designed to be split into two parts, each
+  serving a diferent side of a connection.  The return values from core
+  calls are always simple lists; there are no complex data structures
+  passed out.  This was designed to make the protocol simpler.  (There are
+  also functions that aren't indented to be visible to an interface; the
+  names of these are prefixed with an underscore.)  Come up with a simple
+  communication protocol to handle the connection.  Bonus points for
+  thinking out the security issues (though I have done some of the work by
+  requiring security information for most every core call).
+
+Implement the Digest module:
+  I have done some work on getting the Digest mechanism started; the
+  trigger mechanism is described in the documentation for the 'digests'
+  variable and this variable is completely parsed down into all of the
+  necessary information.  The interface to the archive is documented, but
+  not yet implemented.  Various other important pieces of the digest
+  functionality are detailed in the TODO file.  This all needs code.
+
+Categorize the configuration needed to interface with the various MTAs.
+  The module Mj::MTAConfig contains routines that suggest MTA-specific
+  configuration procedures.  Write a function for your favorite MTA.  Look
+  to the sendmail method for a guide.  If you need additional parameters,
+  please let me know.
+
+ - J<

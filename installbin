@@ -1,0 +1,46 @@
+$^W = 1;
+use Config;
+use File::Copy;
+$config = eval {require ".mj_config"};
+die "Invalid .mj_config" unless $config;
+
+my $uid = getpwnam($config->{'uid'});
+my $gid = getgrnam($config->{'gid'});
+
+$start = $Config{'startperl'};
+while (($src,$dst) = splice(@ARGV,0,2)) {
+
+  # We just copy the file if we're moving a wrapper
+  if ($src =~ /wrappers/) {
+    copy($src, $dst);
+  }
+
+  # but if we're moving a script, we need to wedge in some constants.
+  else {
+    open(SRC,"<$src") || die "Cannot open $src:$!";
+    chmod(0755,$dst) if (-f $dst);
+    open(DST,">$dst") || die "Cannot open $dst:$!";
+    while (defined($line = <SRC>)) {
+      $line =~ s/^#!\s*\S+/$start/;
+      $line =~ s!(^  \$::LIBDIR\s*= ).*!\1\"$config->{'install_dir'}/lib\";!;
+      $line =~ s!(^  \$::LISTDIR\s*= ).*!\1\"$config->{'lists_dir'}\";!;
+      $line =~ s!(^  \$::TMPDIR\s*= ).*!\1\"$config->{'tmpdir'}\";!;
+      $line =~ s!(^  \$::DEFDOM\s*= ).*!\1\"$ {$config->{'domains'}}[0]\";!;
+      $line =~ s!(^  \$::UID\s*= ).*!\1\"$uid\";!;
+      $line =~ s!(^  \$::GID\s*= ).*!\1\"$gid\";!;
+      print DST $line;
+    }
+    close(SRC);
+    close(DST);
+    chmod(0555,$dst);
+  }
+  print "installbin $src => $dst\n";
+}
+
+
+#^L
+### Local Variables: ***
+### mode:cperl ***
+### cperl-indent-level:2 ***
+### cperl-label-offset:-1 ***
+### End: ***

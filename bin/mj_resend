@@ -1,0 +1,130 @@
+#!/usr/local/bin/perl-latest -wT
+BEGIN {
+  $::LIBDIR = "/home/tibbs/mj/2.0";
+  $::LISTDIR= "/home/tibbs/mj/2.0-lists";
+  $::DEFDOM = "hpc.uh.edu";
+  $::TMPDIR = "/nowhere";
+  $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
+
+  # Redirect STDERR as soon as possible to catch errors and warnings
+  if (! -t STDERR) {
+    close STDERR;
+    open (STDERR, ">>$::TMPDIR/mj_resend.debug");
+  }
+}
+
+=head1 NAME
+
+mj_resend - List delivery front-end for Majordomo.
+
+=head1 DESCRIPTION
+
+mj_resend is the program that is invoked by the MTA with a message on
+standard input; its job is to feed this message to the Majordomo core so
+that it can be processed and sent on.
+
+The job of mj_resend is exceedingly simple: it opens logs, connects to the
+core, and feeds its input to the core.
+
+=cut
+
+use lib "$::LIBDIR";
+use strict;
+use Majordomo;
+use Mj::Log;
+use Getopt::Std;
+use vars qw($program_name);
+
+my(%opts, @mess, $approved, $dom, $fh, $fname, $head, $in_body, $inmsg,
+   $list, $mess, $mj, $ok, $sender, $sess, $tlist, $top);
+
+# Redirect STDERR as soon as possible to catch errors and warnings
+if (! -t STDERR) {
+  close STDERR;
+  open (STDERR, ">>$::TMPDIR/mj_resend.debug");
+}
+
+$ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
+
+# Parse the command line arguments.
+# -d - specify the domain
+# -l - specify the list
+getopts('d:l:t:v:', \%opts);
+
+# Untaint the domain and the list.
+$dom  =  $opts{d} || $::DEFDOM;
+$list =  $opts{l};
+$dom  =~ /(.*)/;
+$dom  =  $1;
+$list =~ /(.*)/;
+$list =  $1;
+$opts{v} ||= 0;
+$opts{t} ||= $::LISTDIR;
+$opts{t} =~ /(.*)/;
+$opts{t} = $1;
+
+# Open a log
+$::log = new Mj::Log;
+$::log->add
+  (
+#   method      => 'syslog',
+   method      => 'handle',
+   handle      => \*STDERR,
+#   id          => "mjr-$opts{d}-$opts{l}",
+   id          => "mjr",
+   level       => ($opts{v} =~ /^(\d+)$/)[0] || 50,
+   subsystem   => 'mail',
+   log_entries => 1,
+   log_exits   => 1,
+   log_args    => 1,
+  );
+
+$::log->in(20, undef, "info", "Majordomo Delivery agent - ".scalar(localtime));
+$::log->startup_time();
+
+$::mj = new Majordomo $opts{t}, $dom;
+$mj = $::mj;  # for config default access to globals
+
+# For now, copy to a file and call $mj->post(list, file)
+$fname = "$::TMPDIR/mjr." . $mj->unique;
+$fh = new IO::File ">$fname";
+while (<STDIN>) {
+  $fh->print($_);
+  $in_body = 1 if /^\n/;
+  $sess .= $_ unless $in_body;
+}
+$fh->close;
+
+$mj->connect('resend', $sess);
+
+$mj->post('', '', '', 'resend', "(post to $list)", '', $list, $fname);
+
+$::log->message(50, "info", "-----Calling destructors-----");
+undef $mj;
+undef $::mj;
+unlink $fname;
+$::log->out;
+
+exit 0;
+
+=head1 COPYRIGHT
+
+Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+his program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+#
+### Local Variables: ***
+### mode:cperl ***
+### cperl-indent-level:2 ***
+### End: ***

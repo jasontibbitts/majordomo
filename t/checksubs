@@ -1,0 +1,39 @@
+sub okif {
+  if (shift) {
+    print "ok $count\n";
+  }
+  else {
+    print "not ok $count\n";
+  }
+  $count++;
+}
+
+sub okunless {
+  if (shift) {
+    print "not ok $count\n";
+  }
+  else {
+    print "ok $count\n";
+  }
+  $count++;
+}
+
+sub okeq {
+  if (shift eq shift) {
+    print "ok $count\n";
+  }
+  else {
+    print "not ok $count\n";
+  }
+  $count++;
+}
+
+sub oke {
+  if (shift == shift) {
+    print "ok $count\n";
+  }
+  else {
+    print "not ok $count\n";
+  }
+  $count++;
+}

@@ -1,0 +1,268 @@
+#!/usr/local/bin/perl-latest -wT
+BEGIN {
+  $::LIBDIR = 'unset';
+  $::LISTDIR= 'unset';
+  $::DEFDOM = 'unset';
+  $::TMPDIR = 'unset';
+  $SIG{__WARN__} = sub {print "--== $_[0]"};
+
+  # Redirect standard error output.
+  if (! -t STDERR) {
+    close STDERR;
+    open (STDERR, ">>$::TMPDIR/mj_confirm.debug");
+  }
+}
+
+=head1 NAME
+
+mj_confirm - simple web-based token acceptor
+
+=head1 SYNOPSIS
+
+Place a link in cgi-bin and configure Majordomo with the proper URL.
+
+=head1 DESCRIPTION
+
+When issuing tokens, Majordomo can provide the user with a URL to
+visit to accept the token easily.  This script sits at that URL and
+receives tokens to accept or deny.  If no token is provided, a text
+field is presented where a token can be typed.  If no action is
+provided, a radio control will be presented.
+
+=cut
+use lib "$::LIBDIR";
+use strict;
+use CGI;
+use HTML::Stream qw(html_escape);
+use Majordomo;
+use Mj::Format;
+use Mj::Log;
+
+my (@data, @args, $action, $approvals, $cgi, $cmdline, $date, $domain,
+    $error, $mess, $mj, $ok, $ptoken, $result, $request, $requester, $sess,
+    $site_name, $token, $time, $tprefix, $ttype, $type);
+
+$ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
+
+# Set up the log
+$::log = new Mj::Log;
+$::log->add
+  (
+   method      => 'handle',
+   id          => 'mjwc',
+   handle      => \*STDERR,
+   level       => 500,
+   subsystem   => 'mail',
+   log_entries => 1,
+   log_exits   => 1,
+   log_args    => 1,
+  );
+
+$::log->in(20, undef, "info", "Majordomo webcomfirm client - ".scalar(localtime));
+$::log->startup_time();
+
+# Start up the page and parse the URL
+$cgi = new CGI;
+print $cgi->header;
+$ptoken = $cgi->param('t');
+$action = $cgi->param('a');
+$domain = $cgi->param('d') || $::DEFDOM;
+
+# Make the Majordomo object
+$::mj = new Majordomo $::LISTDIR, $domain;
+$mj = $::mj;
+
+# Generate the session information
+for my $i (keys(%ENV)) {
+  $sess .= "$i = $ENV{$i}\n";
+}
+$sess .= $cgi->dump('true');
+$mj->connect('webconfirm', $sess);
+
+# Extract some useful configuration variables
+$site_name =
+  $mj->global_config_get(undef, undef, undef, "wconfirm",
+			 "site_name");
+
+# Parse the token and extract some useful data from it
+$token = $mj->t_recognize($ptoken) || "";
+($ok, $mess, @data) =
+  $mj->dispatch('tokeninfo', 'unknown', '', '', 'wconfirm', 'tokeninfo
+		$token', '', '', '', $token)
+  if $token;
+
+if ($ok) {
+  $request   = $data[0];
+  $requester = html_escape($data[1]);
+  $cmdline   = html_escape($data[2]);
+  $type      = $data[9];
+  $approvals = $data[10];
+  $time      = localtime($data[11]);
+  $sess      = html_escape($data[13]);
+
+}
+
+# We head the page with an error if we have one
+$error = "";
+if ($ptoken && (!$token || !$ok)) {
+  $error = "Invalid token \"$ptoken\"!";
+  $token = "";
+}
+
+# Now build a page
+if (!$token || !$action) {
+  if ($error) {
+    $error="<b><i>Error: $error</i></b><p>\n";
+  }
+  
+  # If we have a legal token, we can show some information about it
+  # and hide the entry box
+  if ($ok) {
+    $ttype="hidden";
+    $tprefix =<<EOF;
+<table>
+<tr>
+<td align=right><b>Token:</b></td>
+<td><tt>$token</tt></td>
+<tr>
+<td align=right><b>Request:</b></td>
+<td><tt>$cmdline</tt></td>
+<tr>
+<td align=right><b>Submitted:</b></td>
+<td><i>$time</i></td>
+<tr>
+<td align=right><b>By:</b></td>
+<td><i>$requester</i></td>
+</table>
+
+EOF
+  }  
+  else {
+    $tprefix="<b>Confirmation token:</b>";
+    $ttype="text";
+  }
+  
+  print <<EOF;
+<html>
+<head>
+<title>
+Request Confirmation
+</title>
+</head>
+<body>
+$error
+<h1>Majordomo Request Confirmation</h1>
+<form method=post>
+$tprefix <input name=\"t\" type=\"$ttype\" value=\"$token\"><p>
+<table>
+<tr>
+<td><b>Action:</b><br></td>
+<td><input type=\"radio\" value=\"info\" name=\"a\"> Get more info<br>
+    <input type=\"radio\" value=\"accept\" name=\"a\"> Accept<br>
+    <input type=\"radio\" value=\"reject\" name=\"a\"> Reject<br>
+</td></tr></table>
+<input type=\"submit\" value=\"Click here to process\">
+</form>
+</body>
+</html>
+EOF
+  
+}
+
+# We have all the arge we need; accept or reject and display the
+# results
+else {
+
+  # Start the page
+  print <<EOF;
+<html>
+<head>
+<title>Request Confirmation Results</title>
+</head>
+<body>
+<h1>Majordomo Request Confirmation Results</h1>
+EOF
+
+  @args = ('unknown', '', '', 'wconfirm', "accept $token", '', '', '');
+
+  # Call the appropriate function
+  if ($action eq "accept") {
+    print '<pre>';
+    $ok =
+      Mj::Format::accept($mj, \*STDOUT, \*STDOUT, 'html', @args,
+			 $token, '', '',
+			 $mj->dispatch('accept', @args, $token));
+  }
+  elsif ($action eq "reject") {
+    $args[4] = "reject $token";
+    print '<pre>';
+    $ok =
+      Mj::Format::reject($mj, \*STDOUT, \*STDOUT, 'html', @args,
+			 $token, '', '',
+			 $mj->dispatch('reject', @args, $token));
+  }
+  elsif ($action eq "info") {
+    print <<EOF;
+<table>
+<tr>
+<td align=right><b>Token:</b></td>
+<td><tt>$token</tt></td>
+<tr>
+<td align=right><b>Type:</b></td>
+<td><i>$type</i></td>
+<tr>
+<td aligh=right><b>Approvals required:</b></td>
+<td><i>$approvals</i></td>
+<tr>
+<td align=right><b>Request:</b></td>
+<td><tt>$cmdline</tt></td>
+<tr>
+<td align=right><b>Submitted:</b></td>
+<td><i>$time</i></td>
+<tr>
+<td align=right><b>By:</b></td>
+<td><i>$requester</i></td>
+</table>
+<hr>
+<b>Session information:</b><p>
+<pre>
+$sess
+</pre>
+EOF
+  }
+  else {
+    print "Undefined action!\n";
+  }
+  print <<EOF;
+</pre>
+</body>
+</html>
+EOF
+  
+}
+
+$::log->out;
+exit 0;
+
+=head1 COPYRIGHT
+
+Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+his program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+#
+### Local Variables: ***
+### mode:cperl ***
+### cperl-indent-level:2 ***
+### End: ***
+
