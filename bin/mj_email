@@ -196,7 +196,7 @@ sub forward_to_owner {
   # Some MTAs hand the message to us with the mbox separator prepended.
   # Sending this on as part of the headers can hose some MTAs, so we strip
   # it.  The regexp doesn't harm the body $sess contains only the headers.
-  $sess =~ s/^From .*?\n//;
+  $sess =~ s/^From .*?\r?\n//;
   ($ok) = $mj->dispatch('owner_start', @stuff);
   return unless $ok;
 
@@ -223,7 +223,7 @@ sub resend {
   # Some MTAs hand the message to us with the mbox separator prepended.
   # Sending this on as part of the headers can hose some MTAs, so we strip
   # it.  The regexp doesn't harm the body $sess contains only the headers.
-  $sess =~ s/^From .*?\n//;
+  $sess =~ s/^From .*?\r?\n//;
 
   @stuff = ('', '', '', 'resend', "(post to $list)", '', $list, '');
 

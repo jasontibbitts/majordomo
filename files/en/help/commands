@@ -273,8 +273,7 @@ subscribe list address
 unalias address
 ---------------
   This removes the given address as an alias for the current address.  Send
-  this command from an address that is registered with the server; thehow much information the list server gives you about
-  messages that you post:
+  this command from an address that is registered with the server; the
   given address will then be removed from the database an no longer
   considered equivalent to the registered address.
 
