@@ -1,3 +1,9 @@
+Wed Aug 18 19:58:48 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* setup/setup_func.pl (do_default_config): Replace addr_xforms.
+
+	* setup/ask_basic.pl (ask_basic): Ask about case smashing.
+
 Thu Aug 12 00:33:58 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* Makefile.PL: Bump config file version.

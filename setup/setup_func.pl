@@ -98,7 +98,7 @@ sub create_dirs_dom {
 # responses to the configurator.
 sub do_default_config {
   my $dom = shift;
-  my(@args, $arg, $errcount, $i, $ignore, $msg, $owner, $pw);
+  my(@args, $arg, $errcount, $i, $ignore, $msg, $owner, $pw, $tmp);
 
   # Prompt for the password if necessary
   $pw = $config->{'domain'}{$dom}{'master_password'};
@@ -137,6 +137,8 @@ sub do_default_config {
     else {
       s!(^ \'confirm_url\'.*)DEFAULT(.*)!$1no server configured$2!;
     }
+    $tmp = $config->{ignore_case} ? "'ignore case'" : '';
+    s!(^ \'addr_xforms\'.*)\'DEFAULT\'(.*)!$1$tmp$2!;
 
     for $i (qw(tmpdir site_name)) {
       $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};

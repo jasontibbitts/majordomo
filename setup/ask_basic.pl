@@ -324,6 +324,22 @@ EOM
     ask_queueing($config);
   }
 
+  #---- Ask about case smashing
+  $msg = <<EOM;
+Mail Handling Setup
+
+Would you like Majoromo to ignore case in addresses by default?
+  The user portion of an address is not usually case sensitive, though on
+    some systems it is.  By default Majordomo pays attention to case when
+    comparing addresses in order to follow all relevant standards and be
+    completely safe when faced with the innumerable number of addresses it
+    must deal with, but this may be surprising to those who expect the
+    opposite behavior.
+
+EOM
+  $def = $config->{ignore_case};
+  $config->{ignore_case} = get_bool($msg, $def);
+
   #---- Ask for MTA
   $msg = <<EOM;
 Mail Handling Setup

@@ -13,7 +13,7 @@ BEGIN {
 
 # A version variable we can use to force users to reconfigure when we add
 # new questions.
-my $config_version = 9;
+my $config_version = 10;
 my(@SIDSCRIPTS, @SCRIPTS, @EXES, $ok);
 use vars qw(%have);
 
