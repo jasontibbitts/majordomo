@@ -450,7 +450,7 @@ if (@extra and $func ne 'showtokens') {
 
     # Deal with accept/reject reasons and other values from textareas.
     if ($func =~ /accept|reject/) {
-      $request->{'xplanation'} ||= $cgi->param('xplanation');
+      $request->{'xplanation'} ||= $cgi->param('xplanation') || '';
     }
     elsif ($func eq 'configset' and not $cgi->param('command')) {
       @values = $cgi->param($req);
@@ -546,7 +546,7 @@ elsif ($func ne 'showtokens') {
   if ($func eq 'accept' or $func eq 'reject') {
     @extra = $cgi->param('tokens');
     $request->{'tokens'} = [ @extra ];
-    $request->{'xplanation'} = join "\n", $cgi->param('xplanation');
+    $request->{'xplanation'} = join ("\n", $cgi->param('xplanation')) || '';
   }
   elsif ($func eq 'subscribe' or $func eq 'unsubscribe' 
          or $func eq 'register' or $func eq 'unregister') 
