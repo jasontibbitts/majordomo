@@ -99,6 +99,20 @@ the "route" (the actual address).
 
 (standard substitutions only)
 
+approve_no_command
+------------------
+This message is displayed when the approve command is not followed by
+another Majordomo command on the same line.
+
+(standard substitutions only)
+
+approve_no_password
+-------------------
+This message is displayed when the approve command is not followed by a
+password.
+
+(standard substitutions only)
+
 at_symbol
 ---------
 This message is displayed when more than one '@' appears in an e-mail
@@ -166,6 +180,34 @@ within a single pair of angle brackets.
 
 (standard substitutions only)
 
+commands_processed
+------------------
+This message summarizes the results of a group of commands that were
+processed by the command parser.
+
+(standard plus COUNT, FAIL, STALL, SUCCEED)
+
+command_results
+---------------
+This message is displayed in the Subject header of a message containing
+the results of a Majordomo command.
+
+(standard plus COMMAND)
+
+default_reset
+-------------
+This message is displayed when the "default" command resets a default
+setting to an empty value.
+
+(standard plus SETTING)
+
+default_set
+-----------
+This message is displayed when the "default" command changes a
+default setting (delay, list, password, or user).
+
+(standard plus SETTING, VALUE)
+
 denied_post
 -----------
 This message is displayed in the Subject header of an acknowledgement
@@ -204,11 +246,32 @@ checksum for the first 10 lines as a previously posted message.
 
 (standard plus DATE)
 
+empty_command
+-------------
+This message is displayed when the command parser finds an empty
+command.
+
+(standard substitutions only)
+
+end_command
+-----------
+This message is displayed when the command parser recognizes the "end"
+command and stops processing commands.
+
+(standard substitutions only)
+
 ending_at
 ---------
 This message is displayed when an e-mail address ends in a '@'.
 
 (standard substitutions only)
+
+found_tag
+---------
+This message is displayed when the command parser finds a tag that ends
+a multi-line "here document."
+
+(standard plus TAG)
 
 host_length
 -----------
@@ -216,6 +279,13 @@ This message is displayed when the host name in an e-mail address is
 longer than 64 characters.
 
 (standard substitutions only)
+
+ignored_part
+------------
+This message is displayed when the command parser ignores a message part
+that is not plain text or HTML.
+
+(standard plus CONTENT_TYPE)
 
 inactive_list
 -------------
@@ -252,6 +322,21 @@ information about the "Approved" feature.
 
 (standard substitutions only)
 
+invalid_arguments
+-----------------
+This message is displayed when the message parser ignores arguments for
+a command that is not designed to accept arguments.
+
+(standard plus COMMAND)
+
+invalid_attachment
+------------------
+This message is displayed when the command parser processes an
+attachment number that is greater than the number of attachments in a
+message.
+
+(standard plus COUNT)
+
 invalid_char
 ------------
 This message is displayed when an e-mail address contains an invalid
@@ -280,12 +365,27 @@ recognized as either a comment or a route.
 
 (standard substitutions only)
 
+invalid_default
+---------------
+This message is displayed when the "default" command is used with an
+invalid setting.
+
+(standard plus SETTING)
+
 invalid_entity
 --------------
 This message is displayed when the message parser is unable to
 understand the structure of a posted message.
 
 (standard substitutions only)
+
+invalid_hereargs
+----------------
+This message is displayed when the message parser is asked to process
+a here document or input from a message attachment for a command that is
+not designed to accept such input.
+
+(standard plus COMMAND)
 
 invalid_list
 ------------
@@ -383,6 +483,13 @@ archive-immediate command is invalid because "get" mode must be used
 with "immediate" mode.
 
 (standard plus MODE, MODES)
+
+missing_tag
+-----------
+This message is displayed when the command parser reaches the bottom of
+a message part without finding a "here document" tag that was expected.
+
+(standard plus TAG)
 
 moderate
 --------
@@ -503,6 +610,13 @@ subscription that does not exist.
 
 (standard plus VICTIM)
 
+obsolete_command
+----------------
+This message is displayed when the command parser processes a Majordomo
+command that is obsolete.
+
+(standard plus COMMAND, NEWCOMMAND)
+
 over_message_limit
 ------------------
 This message is displayed when a proportional soft or hard limit in the
@@ -580,6 +694,13 @@ restrict_post configuration setting.
 
 (standard plus USER, VICTIM)
 
+results_mailed
+--------------
+This message is displayed when the "default user" command causes the
+results of a Majordomo command to be mailed to a different person.
+
+(standard plus FAIL, STALL, SUCCEED, USER)
+
 rhs_domain_literal
 ------------------
 This message is displayed when a domain literal (an IP address enclosed
@@ -595,12 +716,26 @@ angle bracket.
 
 (standard substitutions only)
 
+signature_separator
+-------------------
+This message is displayed when the command parser finds a signature
+separator and stops processing commands.
+
+(standard plus SEPARATOR)
+
 single_header_length
 --------------------
 This message is displayed when one or more of the headers of a posted
 message is longer than the limit in the max_header_line_length setting.
 
 (standard plus LIMIT, SIZE)
+
+skipped_lines
+-------------
+This message is displayed when the command parser skips lines that do
+not appear to be part of a command.
+
+(standard plus LINES)
 
 source_route
 ------------

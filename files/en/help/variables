@@ -266,6 +266,9 @@ See "help reply_files" for a description of each of the reply files.
 \$CMDPASS
   The password with which the current command was issued.
 
+\$COMMAND
+  The name of a Majordomo command.
+
 \$COMMENT
   A description of a configuration setting or category.
 
@@ -282,6 +285,9 @@ See "help reply_files" for a description of each of the reply files.
 
 \$COUNT
   The number of settings in a particular configuration category.
+  Also, the number of commands processed by the command parser.
+  Also, the number of attachments in a message processed by the
+  command parser.
 
 \$DESCRIPTION
   A description of a mailing list, as determined by the description
@@ -313,7 +319,8 @@ See "help reply_files" for a description of each of the reply files.
   An error message which describes why a command failed.
 
 \$FAIL
-  " " if a command invoked by the "accept" command failed; '' otherwise.
+  " " if a command invoked with the "accept" or "default user" command 
+  failed; '' otherwise.
   Also, a count of commands that failed.
 
 \$FINISH
@@ -361,6 +368,13 @@ See "help reply_files" for a description of each of the reply files.
   The line number at which a pattern matched part of the body of a 
   posted message.
 
+\$LINES
+  For the configshow command, this is the number of lines occupied
+  by a multi-line configuration setting value.
+  In the command parser, this is a number of unrecognized lines
+  that are skipped because the parser does not recognize them as
+  part of a command.
+
 \$LOCATION
   In error messages for invalid e-mail addresses, this variable contains
   the invalid portion of the address.  In taboo match descriptions, this
@@ -395,6 +409,10 @@ See "help reply_files" for a description of each of the reply files.
 
 \$NEWADDRESS
   The e-mail address to which a command or posted message is forwarded.
+
+\$NEWCOMMAND
+  The Majordomo command that should be used instead of an obsolete
+  command (e.g., "configset" instead of the obsolete "newconfig").
 
 \$NEWLIST
   The most recent name of a mailing list that has been created,
@@ -457,6 +475,11 @@ See "help reply_files" for a description of each of the reply files.
   envelope address used by a mailing list to deliver messages to the
   subscribers.
 
+\$SEPARATOR
+  A line, in an e-mail message, that the command parser considers
+  a signature separator (see "help configset_signature_separator"
+  for more information).
+
 \$SEQNO
   The sequence number of a message posted to a mailing list.  This
   value comes from the sequence_number configuration setting (see
@@ -467,15 +490,15 @@ See "help reply_files" for a description of each of the reply files.
 
 \$SETTING
   The name of a configuration setting category, in capital letters,
-  or the name of a configuration setting.
+  or the name of a configuration setting or default setting.
 
 \$SETTINGS
   The names of the configuration settings within a particular 
   configuration category.
 
 \$STALL
-  " " if a command invoked by the "accept" command requires further
-  approval; '' otherwise.
+  " " if a command invoked with the "accept" or "default user" command 
+  requires further approval; '' otherwise.
   Also, a count of commands that stalled.
 
 \$START
@@ -502,9 +525,13 @@ See "help reply_files" for a description of each of the reply files.
   value is empty.  If not, it is the word "not".
 
 \$SUCCEED
-  " " if a command invoked by the "accept" command succeeded; 
-  '' otherwise.
+  " " if a command invoked with the "accept" or "default user" command 
+  succeeded; '' otherwise.
   Also, a count of commands that succeeded.
+
+\$TAG
+  The tag that is used to mark the end of a here document.
+  See "help here_document" for more details.
 
 \$TIME
   The time of day at which a request was processed.
@@ -532,6 +559,9 @@ See "help reply_files" for a description of each of the reply files.
 \$USER
   The e-mail address from which a Majordomo request was originally sent.
   (this needs to be reconciled with \$REQUESTER)
+
+\$VALUE
+  The value of a default setting.
 
 \$VICTIM 
   The e-mail address of the person affected by a Majordomo command.
@@ -604,6 +634,7 @@ See Also:
    help format_files
    help get                     (obtain existing files)
    help help
+   help here_document
    help put                     (create or update files by email)
    help reply_files
 
