@@ -46,8 +46,8 @@ use Mj::Log;
 use Mj::Parser;
 
 my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, $domain, $extra, 
-    $falseuser, $func, $list, $mj, $mess, $mode, $ofunc, $ok, $passw, 
-    $pathinfo, $request, $result, $sess, $str, $subs, $tmp, $user);
+    $falseuser, $func, $list, $mj, $mess, $mode, $ofunc, $ok, $part, $passw, 
+    $pathinfo, $raw, $request, $result, $sess, $str, $subs, $tmp, $user);
 
 
 #----- Which commands are supported  -----#
@@ -58,7 +58,7 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, $domain, $extra
 # Fifth value:  Page to display after the result.
 %commands = (   
                 'alias'         => [1, 1, 0, 1, 'show'],
-                'archive'       => [0, 1, 1, 0, 'list'],
+                'archive'       => [0, 0, 1, 0, 'list'],
                 'changeaddr'    => [1, 1, 0, 1, 'show'],
                 'faq'           => [0, 0, 1, 0, 'list'],
                 'help'          => [0, 0, 0, 1, 'help'],
@@ -81,9 +81,6 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, $domain, $extra
 
 #----- Initialize the CGI object -----#
 $cgi = new CGI;
-
-$tmp = '+10s';
-print $cgi->header(-expires => $tmp);
 
 $pathinfo = $domain = '';
 if (exists $ENV{'PATH_INFO'}) {
@@ -127,12 +124,12 @@ if ($domain =~ /([a-zA-Z0-9\.\-]+)/) {
   $domain = $1;
 }
 else {
-  &surrender(qq("$domain" is an invalid domain.));
+  &surrender(qq("$domain" is an invalid domain.), $cgi);
 }
 
 #----- Make the Majordomo object -----#
 $mj = new Majordomo $::LISTDIR, $domain;
-&surrender($mj) unless (ref $mj);
+&surrender($mj, $cgi) unless (ref $mj);
 
 #----- Generate the session information. -----#
 for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
@@ -158,6 +155,7 @@ unless ($ok) {
                           Mj::Format::escape($user),
         };
 
+  print $cgi->header(-expires => '+10s');
   $tmp = $mj->format_get_string('wwwusr', 'head');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
@@ -187,23 +185,7 @@ $subs = { $mj->standard_subs('GLOBAL'),
                         Mj::Format::escape($user),
         };
 
-#----- Print the generic page header -----#
-$tmp = $mj->format_get_string('wwwusr', 'head');
-$str = $mj->substitute_vars_format($tmp, $subs);
-print STDOUT "$str\n";
-
 #----- Determine what service was requested -----#
-if ($ofunc eq 'logout') {
-  $mj->del_latchkey($passw);
-  $subs->{'CMDPASS'} = '';
-  $subs->{'COMMAND'} = 'welcome';
-  &usage($mj, $subs, 'You have successfully signed out.');
-}
-elsif ($ofunc eq 'login') {
-  $subs->{'COMMAND'} = 'welcome';
-  &login($mj, $subs, '');
-}
-
 # Extract "mode" from command name
 if ($ofunc =~ /([^\s=-]+)[=-](.*)/) {
   $func = $1;
@@ -215,7 +197,23 @@ else {
   $mode = '';
 }
 
-if ($func eq 'archive' and $mode =~ /get/) {
+$raw = 0;
+if ($func eq 'archive' and $mode =~ /get/ and $mode =~ /part/) {
+  $raw = 1;
+}
+
+if ($func eq 'logout') {
+  $mj->del_latchkey($passw);
+  $subs->{'CMDPASS'} = '';
+  $subs->{'COMMAND'} = 'welcome';
+  &usage($mj, $subs, 'You have successfully signed out.');
+}
+elsif ($func eq 'login') {
+  $subs->{'COMMAND'} = 'welcome';
+  &login($mj, $subs, '');
+}
+
+if ($func eq 'archive' and $mode =~ /get/ and ! $raw) {
   $mode .= $mode? "-immediate" : "immediate";
 }
 
@@ -279,8 +277,15 @@ if ($func eq 'changeaddr') {
   
 no strict 'refs';
 #----- Convert the arguments into the appropriate request values -----#
-Mj::Parser::parse_args ($request, $extra) if ($extra);
+Mj::Parser::parse_args ($request, $extra, '') if ($extra);
 
+#----- Print the generic page header -----#
+unless ($raw) {
+  print $cgi->header(-expires => '+10s');
+  $tmp = $mj->format_get_string('wwwusr', 'head');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+}
 
 for $list (@lists) {
   $request->{'list'} = $list;
@@ -327,9 +332,29 @@ for $list (@lists) {
     }
   }
 
-
   $result = $mj->dispatch($request); 
   &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
+
+  # Display part of a message when the archive-get-part command is used.
+  if ($raw) {
+    $part = $request->{'part'};
+
+    if (! $result->[0] or $part eq '0') {
+      print $cgi->header(-expires => '+10s');
+      $tmp = $mj->format_get_string('wwwusr', 'head');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print STDOUT "$str\n";
+      $raw = 0;
+    }
+    elsif ($part =~ /[hH]$/) {
+      print $cgi->header('-type' => 'text/plain', '-expires' => '+10s');
+    }
+    else {
+      $tmp = $result->[1]->[2]->{$part}->{'type'} || 'text/plain';
+      print $cgi->header('-type' => $tmp, '-expires' => '+10s');
+    }
+  }
+
   print "<pre>\n" if ($commands{$func}->[3]);
   &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwusr', $request, $result);
   print "</pre>\n" if ($commands{$func}->[3]);;
@@ -350,7 +375,11 @@ if ($commands{$func}->[4] ne $func and $ofunc ne 'set-check') {
     undef $request->{'victim'};
     undef $request->{'victims'};
   }
-  if ($commands{$func}->[4] eq 'list') {
+
+  if ($cgi->param('brief') or $raw) {
+    # Display nothing.
+  }
+  elsif ($commands{$func}->[4] eq 'list') {
     $request->{'command'} = 'lists';
     $request->{'mode'} = 'full-long';
     $request->{'list'} = 'GLOBAL';
@@ -388,9 +417,11 @@ if ($commands{$func}->[4] ne $func and $ofunc ne 'set-check') {
 }
 
 #----- Print the Footer -----#
-$tmp = $mj->format_get_string('wwwusr', 'foot');
-$str = $mj->substitute_vars_format($tmp, $subs);
-print STDOUT "$str\n";
+unless ($raw) {
+  $tmp = $mj->format_get_string('wwwusr', 'foot');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+}
 
 #----- Subroutines -----#
 
@@ -424,6 +455,12 @@ sub login {
   $subs->{'ERROR'} = $message;
   $::log->message(50, "info", $message) if $message;
 
+  print $cgi->header(-expires => '+10s');
+  $tmp = $mj->format_get_string('wwwusr', 'head');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+
+  print STDOUT "$str\n";
   $tmp = $mj->format_get_string('wwwusr', 'login');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
@@ -442,6 +479,11 @@ sub usage {
   $subs->{'ERROR'} = $message;
   $::log->message(50, "info", $message) if $message;
 
+  print $cgi->header(-expires => '+10s');
+  $tmp = $mj->format_get_string('wwwusr', 'head');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+
   $tmp = $mj->format_get_string('wwwusr', 'welcome');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
@@ -454,9 +496,11 @@ sub usage {
 }
 
 sub surrender {
-  my ($message) = shift;
+  my ($message, $cgi) = shift;
   $::log->message(50, "info", $message) if $message;
   my ($url) = $cgi->script_name;
+
+  print $cgi->header(-expires => '+10s');
 
   print <<EOM;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"

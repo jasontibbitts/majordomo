@@ -42,8 +42,8 @@ use Mj::Parser;
 
 my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists, 
     @settings, @values, $addr, $cgi, $cgidata, $cgiurl, $domain, 
-    $falseuser, $fh, $func, $i, $j, $line, $list, 
-    $mess, $mode, $mj, $ofunc, $ok, $passw, $pathinfo, $req, $request, 
+    $falseuser, $fh, $func, $i, $j, $line, $list, $mess, $mode, 
+    $mj, $ofunc, $ok, $passw, $pathinfo, $raw, $req, $request, 
     $result, $sess, $str, $sublist, $subs, $tmp, $token, $truelist, $user);
 
 #----- Which commands are supported ?  -----#
@@ -187,7 +187,7 @@ $subs = { $mj->standard_subs($lists[0]),
 # Extract "mode" from command name
 if ($ofunc =~ /([^\s=-]+)[=-](.*)/) {
   $func = $1;
-  $mode = $2;
+  $mode = lc $2;
 }
 else { 
   $ofunc =~ /(.*)/; $ofunc = $1;
@@ -216,8 +216,16 @@ else {
   $subs->{'CGIDATA'} = $cgidata;
 }
 
+#----- Should the header and footer be displayed? -----#
+$raw = 0;
+if ($ofunc eq 'tokeninfo-part' or 
+    ($func eq 'archive' and $mode =~ /get/ and $mode =~ /part/))
+{
+  $raw = 1;
+}
+
 #----- Print the generic page header -----#
-unless ($ofunc eq 'tokeninfo-part') {
+unless ($raw) {
   print $cgi->header('-expires' => '+50s');
   $tmp = $mj->format_get_string('wwwadm', 'head');
   $str = $mj->substitute_vars_format($tmp, $subs);
@@ -266,11 +274,11 @@ unless (exists $commands{$func}) {
 
 # The archive-get and archive-index commands must use immediate mode,
 # to display the results instead of mailing them.
-if (($func eq 'archive' and $mode =~ /get/) 
+if (($func eq 'archive' and $mode =~ /get/ and $mode !~ /part/) 
     or ($func eq 'get' and $mode !~ /edit/)) {
   $mode .= $mode? "-immediate" : "immediate";
 }
-elsif ($func eq 'who') {
+elsif ($func eq 'who' and $mode !~ /enhanced/) {
   $mode .= $mode? "-enhanced" : "enhanced";
 }
 
@@ -352,30 +360,37 @@ if (@extra and $func ne 'showtokens') {
       @values = split ("\r?\n", $values[0]) unless ($#values);
       $request->{'value'} = [@values];
     }
-    elsif ($func eq 'tokeninfo' and $mode =~ /replace/) {
+    elsif ($mode =~ /replace/) {
       @values = split "\r?\n", $cgi->param('contents');
       $request->{'contents'} = [@values];
     }
 
     $result = $mj->dispatch($request); 
 
-    if ($ofunc eq 'tokeninfo-part' and $i == 1) {
-      if (! $result->[0]) {
+    if ($raw and $i == 1) {
+      if (! $result->[0] or 
+          ($func eq 'archive' and ! $request->{'part'}))
+      {
         print $cgi->header('-expires' => '+50s');
         $tmp = $mj->format_get_string('wwwadm', 'head');
         $str = $mj->substitute_vars_format($tmp, $subs);
         print STDOUT "$str\n";
+        $raw = 0;
       }
       elsif ($request->{'part'} =~ /[hH]$/) {
         print $cgi->header('-type' => 'text/plain',
                            '-expires' => '+50s');
       }
       else {
-        if ($request->{'part'} eq '0') {
+        if ($func eq 'tokeninfo' and ! $request->{'part'}) {
           $tmp = 'text/plain';
         }
-        else {
+        elsif ($func eq 'tokeninfo') {
           $tmp = $result->[2]->{$request->{'part'}}->{'type'} || 'text/plain';
+        }
+        else {
+          $tmp = $result->[1]->[2]->{$request->{'part'}}->{'type'} 
+            || 'text/plain';
         }
 
         print $cgi->header('-type' => $tmp, 'expires' => '+50s');
@@ -486,12 +501,12 @@ elsif ($func ne 'showtokens') {
 #   who        - Search the subscriber list or (un)subscribe addresses
 
 $tmp = $cgi->param('command') || '';
-if (($tmp eq 'on' and $func ne 'showtokens')
+if ($cgi->param('brief') or $raw) {
+  # do not display supplemental information.
+}
+elsif (($tmp eq 'on' and $func ne 'showtokens')
     or $commands{$func}->[3] eq 'command') {
   &command($mj, $subs, '');
-}
-elsif ($cgi->param('brief') or ($func eq 'tokeninfo' and $mode =~ /part/)) {
-  # do not display supplemental information.
 }
 elsif ($commands{$func}->[3] eq 'showtokens') {
   # A separate head and foot are needed because this interface
@@ -556,7 +571,7 @@ elsif ($commands{$func}->[3] ne $func) {
 }
 
 #----- Print the Footer -----#
-unless ($ofunc eq 'tokeninfo-part' and $result->[0]) {
+unless ($raw and $result->[0]) {
   $tmp = $mj->format_get_string('wwwadm', 'foot');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
