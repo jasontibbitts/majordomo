@@ -715,9 +715,10 @@ sub parse_smtp32 {
   my $log  = new Log::In 50;
   my $ent  = shift;
   my $data = shift;
-  my ($bh, $diag, $line, $user);
+  my ($bh, $diag, $line, $user, $xmailer);
 
-  return unless $ent->head->get('X-Mailer') =~ /SMTP32/i;
+  $xmailer = $ent->head->get('X-Mailer');
+  return unless $xmailer && $xmailer =~ /SMTP32/i;
 
   return if $ent->parts;
   $bh = $ent->bodyhandle->open('r');
