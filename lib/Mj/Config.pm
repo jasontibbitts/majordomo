@@ -52,6 +52,7 @@ $VERSION = "1.0";
 # should be used as separators when adding to the array.
 %is_array =
   (
+   'access_array'     => 1,
    'access_rules'     => 2,
    'address_array'    => 1,
    'attachment_rules' => 2,
@@ -81,6 +82,7 @@ $VERSION = "1.0";
 # when the structure is completely replaced.
 %is_parsed =
   (
+   'access_array'     => 1,
    'access_rules'     => 1,
    'address'          => 1,
    'address_array'    => 1,
@@ -551,7 +553,7 @@ sub intro {
 
   $::log->in(180, "$self->{'list'}, $var");
 
-  $self->_defaults unless $self->{'source'}{'installation'};
+  $self->load unless exists $self->{'source'}{'installation'}{'raw'};
 
   $type = $self->{'vars'}{$var}{'type'};
 
@@ -582,9 +584,7 @@ sub intro {
   }
 
   $::log->out;
-  return sprintf("%-20s %s\n%-20s %s\n",
-		 $var, $enums, "($default)",
-		 "[$type] <$groups>");
+  return [$enums, $default, $type, $groups];
 }
 
 =head2 isarray(variable)
@@ -649,6 +649,11 @@ sub visible {
   my $self = shift;
   my $var  = shift;
 
+  my ($access) = $self->get('config_access');
+  if (exists $access->{$var} and exists $access->{$var}{'show'}) {
+    return $access->{$var}{'show'};
+  }
+  
   if ($self->{'vars'}{$var}) {
     return $self->{'vars'}{$var}{'visible'};
   }
@@ -665,6 +670,11 @@ sub mutable {
   my $self = shift;
   my $var  = shift;
 
+  my ($access) = $self->get('config_access');
+  if (exists $access->{$var} and exists $access->{$var}{'set'}) {
+    return $access->{$var}{'set'};
+  }
+  
   if ($self->{'vars'}{$var}) {
     return $self->{'vars'}{$var}{'mutable'};
   }
@@ -711,7 +721,7 @@ sub vars {
   # Expand ALL tag
   if ($var eq 'ALL') {
     for $i (keys %{$self->{'vars'}}) {
-      if (($hidden ? 1 : $self->{'vars'}{$i}{'visible'}) &&
+      if (($hidden >= $self->visible($i)) &&
 	  ($global ? $self->{'vars'}{$i}{'global'} : $self->{'vars'}{$i}{'local'}))
 	{
 	  push @vars, $i;
@@ -724,7 +734,7 @@ sub vars {
     $var = lc($var);
     for $i (keys %{$self->{'vars'}}) {
       if (grep {$var eq $_} @{$self->{'vars'}{$i}{'groups'}}) {
-	if (($hidden ? 1 : $self->{'vars'}{$i}{'visible'}) &&
+	if (($hidden >= $self->visible($i)) &&
 	    ($global ? $self->{'vars'}{$i}{'global'} : $self->{'vars'}{$i}{'local'}))
 	  {
 	    $seen = 1;
@@ -736,7 +746,7 @@ sub vars {
 
   # Try a single variable
   elsif ($self->{'vars'}{$var}) {
-    if (($hidden ? 1 : $self->{'vars'}{$var}{'visible'}) &&
+    if (($hidden >= $self->visible($var)) &&
 	($global ? $self->{'vars'}{$var}{'global'} : $self->{'vars'}{$var}{'local'}))
       {
 	push @vars, $var;
@@ -1182,6 +1192,70 @@ sub parse {
     no strict 'refs';
     return $self->$parser($val, $var);
   }
+}
+
+=head2 parse_access_array
+
+The config_access setting allows fine-tuning of the authorization
+required to see or change a configuration setting.  The levels
+of authorization are
+
+5 - site password
+4 - domain master password
+3 - domain auxiliary password
+2 - list master password
+1 - list auxiliary password
+
+The table that this routine returns is a hashref with setting
+names as keys and "show" and "set" values.  Not all settings
+need be present in the table.
+
+=cut
+sub parse_access_array {
+  my $self = shift;
+  my $arr  = shift;
+  my $var  = shift;
+  my $log  = new Log::In 150;
+
+  my ($err, $i, $name, $out, $set, $show, $table);
+
+  ($table, $err) = parse_table('fsoo', $arr);
+
+  return (0, "Error parsing access table: $err.")
+    if $err; # XLANG
+
+  $out = {};
+
+  for (my $i = 0; $i < @$table; $i++) {
+    $name = $table->[$i][0];
+    $show = $table->[$i][1];
+    $set  = $table->[$i][2];
+    unless (exists $self->{'vars'}{$name}) {
+      return (0, "The $name configuration setting is invalid."); #XLANG
+    }
+
+    if ($self->{'list'} eq 'GLOBAL') {
+      return (0, "The $name configuration setting is not GLOBAL.")
+        unless ($self->{'vars'}{$name}{'global'}); #XLANG
+    }
+    else {
+      return (0, "The $name configuration setting is GLOBAL.")
+        unless ($self->{'vars'}{$name}{'local'}); #XLANG
+    }
+
+    if (defined $show) {
+      return (0, "Level $show for $name is unsupported.  Use 0 1 2 3 4 or 5.")
+        unless ($show =~ /^[012345]$/);
+      $out->{$name}{'show'} = $show;
+    }
+    if (defined $set) {
+      return (0, "Level $set for $name is unsupported.  Use 1 2 3 4 or 5.")
+        unless ($set =~ /^[12345]$/);
+      $out->{$name}{'set'} = $set;
+    }
+  }
+  
+  $out;    
 }
 
 =head2 parse_access_rules
@@ -1973,18 +2047,16 @@ sub parse_limits {
   my $self = shift;
   my $arr  = shift;
   my $var  = shift;
-  my $log  = new Log::In 150, "$var";
-  my ($ok, $part, $regex, $stat, $whole);
+  my $log  = new Log::In 150, $var;
+  my (@out, $err, $i, $j, $ok, $part, $regex, $stat, $table, $whole);
 
-  my ($table, $err) = parse_table('fspp', $arr);
+  ($table, $err) = parse_table('fspp', $arr);
 
   return (0, "Error parsing table: $err.")
     if $err;
 
-  my @out = ();
-
   # Iterate over the table
-  for (my $i = 0; $i < @$table; $i++) {
+  for ($i = 0; $i < @$table; $i++) {
     $out[$i] = {};
 
     ($ok, $err, $regex) = compile_pattern($table->[$i][0], 0, "isubstring");
@@ -1996,7 +2068,7 @@ sub parse_limits {
     $out[$i]->{'hard'} = [];
 
     # Parse soft limit conditions
-    for (my $j = 0; $j < @{$table->[$i][1]}; $j++) {
+    for ($j = 0; $j < @{$table->[$i][1]}; $j++) {
       $stat = $table->[$i][1]->[$j];
       if ($stat =~ m#(\d+)/([\dymwdh]*)([ymwdh])$#) {
         $part = $1;
@@ -2016,7 +2088,7 @@ sub parse_limits {
       }
     }
     # Parse hard limit conditions
-    for (my $j = 0; $j < @{$table->[$i][2]}; $j++) {
+    for ($j = 0; $j < @{$table->[$i][2]}; $j++) {
       $stat = $table->[$i][2]->[$j];
       if ($stat =~ m#(\d+)/(\d*)([a-z]+)#) {
         $part = $1;
@@ -2497,6 +2569,7 @@ sub parse_xform_array {
 	  );
 
   for $i (@$arr) {
+    next unless $i;
     if ($repl{$i}) {
       push @$data, $repl{$i};
     }
@@ -2769,14 +2842,21 @@ sub parse_triggers {
 
   for ($i=0; $i<@{$table}; $i++) {
     # Ensure that each trigger name is valid.
-    if (! grep {$table->[$i][0] eq $_} @names) {
+    if ($table->[$i][0] =~ m#^/#) {
+      if ($table->[$i][0] =~ m#^/public#) {
+        $log->out('attempt to use commands from public file');
+        return (0, "The file '$table->[$i][0]' is public.\n" .
+                   "Commands in public files cannot be executed by a trigger.");
+      }
+    }
+    elsif (! grep {$table->[$i][0] eq $_} @names) {
       $log->out('illegal value');
-      return (0, "Illegal trigger '$table->[$i][0]'.\nLegal triggers are:\n".
-        join(' ', @names));
+      return (0, "Illegal trigger '$table->[$i][0]'.\nLegal triggers are:\n  ".
+        join(' ', @names) . "\n  or a private file whose name begins with '/'.");
     }
     delete $needed{$table->[$i][0]};
-    $data->{lc $table->[$i][0]} = [];
-    $elem = $data->{lc $table->[$i][0]};
+    $data->{$table->[$i][0]} = [];
+    $elem = $data->{$table->[$i][0]};
 
     if (@{$table->[$i][1]}) {
       for $j (@{$table->[$i][1]}) {
