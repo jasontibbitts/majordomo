@@ -5,7 +5,7 @@
   <input type="submit" name="func" value="accept-archive">
   <input type="submit" name="func" value="accept-hide">
   <input type="submit" name="func" value="reject">
-?CONSULT?WILLACK <input type="submit" name="func" value="reject-quiet">
+?WILLACK <input type="submit" name="func" value="reject-quiet">
   <input type="submit" name="func" value="tokeninfo-remind">
   <input type="hidden" name="extra" value="$TOKEN">
   <input type="hidden" name="domain" value="$DOMAIN">
@@ -17,5 +17,33 @@ To send an e-mail reminder about this message, type an address into the
 address:
   <input size="48" name="user" value="$USER">
 </p>
+
+<p>
+  Press the <b>accept</b> button to approve the message
+  and deliver it to the subscribers of the $LIST mailing list.
+</p>
+
+<p>
+  Press the <b>accept-archive</b> button to approve the message.
+  The message will be stored in the archive but not distributed
+  to the subscribers.
+</p>
+
+<p>
+  Press the <b>accept-hide</b> button to approve the message
+  and deliver it to the subscribers of the $LIST mailing list.
+  The message will not be displayed in a public archive.
+</p>
+
+<p>
+  Press the <b>reject</b> button to discard the message.
+?WILLACK An explanation will be sent to $VICTIM.
+</p>
+
+<p>
+?WILLACK Press the <b>reject-quiet</b> button to discard the request.
+?WILLACK No explanation will be sent to $VICTIM.
+</p>
+
 </form>
 
