@@ -1,9 +1,5 @@
-If this is on, users that are subscribed to a list will always be
-shown that list, regardless of any advertise restriction; the list's
-advertise restrictions will not even be consulted.  This can result in
-a performance increase.
-
-If this is off, the list's advertise restrictions will be consulted
-normally.  This will still result in the same behavior unless an
-access_rules entry is used to override the normal processing of
-advertise/noadvertise, but list owners will then have the choice.
+The advertise_subscribed setting affects the visibility of mailing lists
+when the "lists" command is used.  If this setting is turned on, a
+mailing list will always be visible to its subscribers.  If this setting
+is turned off, a mailing list may not be visible to its subscribers,
+depending upon the values of other settings.

@@ -1,6 +1,7 @@
-The directory where the mailing list archive is kept.
+The archive_dir setting contains the full path of the directory in which
+archives of posted messages are kept.
 
-If this is not set, Majordomo will look for a directory named "archive" in
-the public directory of the filespace.  If it exists, archives will be
-placed there.  If not, archives will not be generated and digests will not
-function.
+If this setting is empty, Majordomo will store messages in the
+"/public/archive" directory in the file space of the mailing list, if
+that directory exists.  If the directory does not exist, messages will
+not be archived, and message digests will not be delivered.
