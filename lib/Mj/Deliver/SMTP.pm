@@ -150,7 +150,8 @@ sub getresp {
     $resp = $self->{'connection'}->getline($tomult);
     # Guard against read timeouts
     unless (defined $resp) {
-      warn "Timed out getting response?" if ($tomult);
+      warn "Timed out getting response from $self->{'host'}:$self->{'port'}" 
+        if ($tomult);
       return;
     }
 
