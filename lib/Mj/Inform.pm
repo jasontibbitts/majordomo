@@ -105,10 +105,12 @@ sub inform {
   my $data = $self->_list_config_get($list, 'inform');
   my $inf = $data->{$req}{$stat} || 0;
 
-  # Inform the owner (1 is report, 2 is inform); we inform on accepts
-  # elsewhere.
-  if (((($inf & 2) && !$over) || ($over < 0)) && $req ne 'reject') {
-    $self->_inform_owner($list, $req, $requ, $user, $cmd, $int, $stat, $pass, $comment, $elapsed);
+  # The reject and tokenbounce events are handled elsewhere.
+  if ($req eq 'reject' or $req eq 'tokenbounce') {
+  }
+  elsif ((($inf & 2) && !$over) || ($over < 0)) {
+    $self->_inform_owner($list, $req, $requ, $user, $cmd, $int, $stat, 
+                         $pass, $comment, $elapsed);
   }
   1;
 }
@@ -234,7 +236,7 @@ sub l_expire {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
