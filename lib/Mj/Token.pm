@@ -28,7 +28,6 @@ after token confirmation.
 package Mj::Token;
 use Mj::CommandProps qw(:function);
 use Mj::Log;
-use Mj::TokenDB;
 use strict;
 
 =head2 t_recognize(string)
@@ -558,6 +557,7 @@ to load the MIME stuff.
 
 =cut
 use Mj::MIMEParser;
+use Mj::File;
 use Mj::Format;
 use Mj::MailOut;
 sub t_accept {
@@ -1035,6 +1035,7 @@ sub t_fulfill {
 These subroutines generate and initialize the token and latchkey databases.
 
 =cut
+use Mj::TokenDB;
 sub _make_tokendb {
   my $self = shift;
   
@@ -1045,6 +1046,7 @@ sub _make_tokendb {
   1;
 }
 
+use Mj::TokenDB;
 sub _make_latchkeydb {
   my $self = shift;
   
@@ -1101,6 +1103,24 @@ sub gen_latchkey {
     last if $ok;
   }
   return $token;
+}
+
+=head2 del_latchkey(latchkey)
+
+Removes a latchkey from the database.
+
+=cut
+sub del_latchkey {
+  my $self = shift;
+  my $lkey  = shift;
+  my $log  = new Log::In 150, $lkey;
+
+  return unless $lkey;
+
+  $self->_make_latchkeydb;
+  return unless defined $self->{'latchkeydb'};
+
+  $self->{'latchkeydb'}->remove("", $lkey);
 }
 
 =head2 validate_latchkey(user, passwd, list, command)
