@@ -1,12 +1,10 @@
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 1 - Introduction to Patterns
+                            Introduction to Patterns
 
 Patterns are used by various commands and configuration settings:
 
   By the archive-sync command, to match archive names.
   By the lists command, to match list names.
-  By the set-regex, unregister-regex, unsubscribe-regex, which, 
+  By the set-pattern, unregister-pattern, unsubscribe-pattern, which, 
     and who commands, to match e-mail addresses.
 
   By the access_rules, advertise, bounce_probe_pattern, bounce_rules,
@@ -23,116 +21,90 @@ Patterns are used by various commands and configuration settings:
     an e-mail signature.
 
 
-There are three supported types of pattern, described below:
-  Section 2 - Substring Patterns
-  Section 3 - Shell-Like Patterns
-  Section 4 - Perl-Like Regular Expressions
-  Section 5 - Undelimited Patterns
+There are four supported types of pattern, described below:
+  Substring Patterns,   like         "example"
+  Glob Patterns,        like         %example% 
+  Regular Expressions,  like         /example/
+  Undelimited Patterns, like          example
 
-There are a number of examples of Perl regexps below:
-  Example 4.1  - a list of special characters
-  Example 4.2  - escaping '.' is required
-  Example 4.3  - escaping '@' is required
-  Example 4.4  - matching the beginning and end of string
-  Example 4.5  - matching anything and everything
-  Example 4.6  - escaping '*' is required
-  Example 4.7  - case sensitivity
-  Example 4.8  - overly safe escaping doesn't hurt
-  Example 4.9  - matching (or NOT matching) white space
-  Example 4.10 - negated or inverted matches
+Several examples of regular expressions are illustrated:
+  Example 1  - a list of special characters
+  Example 2  - escaping '.' is required
+  Example 3  - escaping '@' is required
+  Example 4  - matching the beginning and end of string
+  Example 5  - matching anything and everything
+  Example 6  - escaping '*' is required
+  Example 7  - case sensitivity
+  Example 8  - overly safe escaping doesn't hurt
+  Example 9  - matching (or NOT matching) white space
+  Example 10 - negated or inverted matches
 
-Perl Regexps in Depth - a list of special characters
+Majordomo is written in the Perl programming language.  Perl regular 
+expressions are a powerful but complicated tool for pattern matching.
+To eliminate some of the complexity, three simpler forms of pattern 
+matching are provided, in addition to full Perl regular expressions.
 
-They differ in their delimiters and the number and function of various
-special characters (the so called metacharacters). This section will
-describe the basic differences, and you can scroll down to the section
-which describes the kind of pattern you need to understand.
+A pattern is usually enclosed in "delimiters," with optional "modifiers"
+outside the delimiters.  The delimiters indicate where the pattern begins 
+and ends, and the modifiers change how matches are found.  For example, 
+in the pattern:
 
-Where you can use a SIMPLE pattern, enclose it in "double quotes":
-  "user@example.com"
-  "example.com"i
-where the trailing 'i' specifies case insensitivity, and without
-it upper and lower case characters are considered to be distinct.
+  "example.net"i
 
-Patterns in Majordomo can always be negated with a leading "!". 
+the delimiters are quotes, and the 'i' is a modifier.  The most common
+modifier, the letter 'i', makes the matching case-insensitive, meaning 
+that small and capital letters are considered identical.
 
-If you need more complicated matching, enclose it in %percent signs%:
-  %user@*example.com%i
-where an asterisk matches any number of any character.
-
-If you need more powerful patterns, you can use a Perl regular
-expression enclosed in /slashes/:
-  /(someone|nobody)\\@.*example.com/i
+The negation modifier, '!', may be used to invert any of the four
+kinds of pattern.  For example,
+  !edu
+would match any string of characters that does not contain "edu".
 
 
-Majordomo is written in Perl and exposes the power of the Perl pattern
-matching language to the user.  Unfortunately, Perl regular expressions
-(regexps for short) are somewhat complicated and difficult to learn.
-They also have their own quirks which can get in the way of doing simple
-pattern matching tasks.
-
-To eliminate some of the complexity, Majordomo provides two simpler forms
-of pattern matching in addition to full Perl regular expressions.
-
-A Majordomo pattern is composed of enclosing delimiters, modifiers, and the
-pattern itself.  Majordomo uses the delimiters to determine the type of the
-pattern.  The modifiers change the behavior of the pattern; generally, the
-only useful modifier makes the match insensitive to case.  
-
-
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 2 - Substring Patterns
+Substring Patterns
+------------------
 
   Examples: "example.com"
             "user@somewhere.example.com"i
 
 The delimiter is a double quote.  There are no special characters; the
-pattern matches if the given string occurs anywhere within the string to be
-matched.  A trailing 'i' specifies that the match is done insensitive to
-case.
+pattern matches if the pattern occurs anywhere within the text to be
+matched.  A trailing 'i' specifies that the matching is case-insensitive.
+For instance,
+  "bsc"          would match        unsubscribe
+  "bsc"          would not match    unsuBsCribe
+  "bsc"i         would match        unsuBsCribe
 
 
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 3 - Shell-Like Patterns
+Glob Patterns
+-------------
 
   Examples: %user@*example.com%i
             %u-???@*example.com%i
 
-The delimiter is a percent sign.  These patterns are reminicent of csh or
-DOS patterns in that a question mark matches any single character and an
-asterisk matches any number (including zero) of any character.  Character
-classes with '[' and ']' are also supported.
+The delimiter is a percent sign.  These patterns are reminiscent of
+file-matching patterns from the DOS and Unix command line interfaces.
+Special characters include:
+
+  ?    matches any single character
+  *    matches any number (including zero) of any character. 
+  []   are used to define character classes.  For instance,
+       [abc] will match any one of the letters a, b, or c.  This
+       style of grouping has the same effect as in regular expressions.
 
 
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+Regular Expressions
+-------------------
 
-Section 4 - Perl-Like Regular Expressions
+What follows is a basic discussion of Perl regular expressions. 
+There is one important difference between Majordomo regular expressions
+and Perl regular expressions: in Perl version 5 and above, the
+'@' character should be "escaped" with a backslash, \@.  Majordomo
+will compensate if you forget to add the backslash, but for
+the sake of correctness you should always include it when you
+are trying to match a literal '@' symbol.
 
-More extreme power is available by using the regular expression language
-available through Perl.  These patterns are called 'Perl-like' because
-there is one important difference between them and real Perl regexps: in
-Perl version 5 and above, unescaped '@' symbols are not allowed in
-patterns.  This is a constant source of problems for Majordomo users
-because '@' signs are obviously very common in Internet mail addresses.
-
-To ease this difficulty, Majordomo checks the syntax of user-supplied
-regexps and if they have syntax errors relating to unescaped '@' symbols,
-they are all escaped and the pattern is checked again.  This solves the
-bulk of the problems.  Be careful, though, when writing Perl code; the
-enhanced Majordomo regexps will only provide you with syntax errors.
-
-What follows is a basic discussion of Perl regular expressions.  All '@'
-symbols will be shown escaped for correctness.  For more information,
-consult the Perl documentation or any reasonable book on Perl.
-
-
-Example 4.1 - a list of special characters
-
-For some of the configuration options, a rudimentary knowledge of
-Perl-style regular expressions will help you run Majordomo through
-its tricks.  
+Example 1 - a list of special characters
 
 A regular expression is a concise way of expressing a pattern in
 a series of characters.  The full power of regular expressions can
@@ -144,15 +116,15 @@ expression.  Letters and numbers stand for themselves.  Many of the
 other characters are symbolic.  Some commonly used ones are:
 
   !     negates what follows, matching when the expression does NOT
-  \\@    the `@' found in nearly all addresses; it must be preceeded
-        by a backslash to avoid errors in Perl
+  \@    the `@' found in nearly all addresses; it must be preceded
+        by a backslash to avoid errors.
   .     (period) any character
   *     previous character, zero or more times; note especially...
   .*    any character, zero or more times
   +     previous character, one or more times; so for example...
   a+    letter "a", one or more times
-  \\     next character stands for itself; so for example...
-  \\.     literally a period, not meaning "any character"
+  \     next character stands for itself; so for example...
+  \.     literally a period, not meaning "any character"
   ^     beginning of the string; so for example...
   ^a    a string beginning with letter "a"
   \$     end of the string; so for example...
@@ -160,9 +132,9 @@ other characters are symbolic.  Some commonly used ones are:
 
 
 
-Example 4.2 - escaping '.' is required
+Example 2 - escaping '.' is required
 
-     /foo\\.example\\.com/
+     /foo\.example\.com/
 
 Notice that the periods are preceded by a backslash so that they are
 interpreted as periods, rather than wildcards.  This matches any string
@@ -178,9 +150,9 @@ such as:
      users%bar.foo.example.com@example.com
 
 
-Example 4.3 - escaping '@' is required
+Example 3 - escaping '@' is required
 
-     /johndoe\\@.*foo\\.example\\.com/
+     /johndoe\@.*foo\.example\.com/
 
 The `@' has special meaning to Perl and should be prefixed with a backslash
 to avoid errors.  The string ".*" means "any character, zero or more
@@ -196,9 +168,9 @@ But it doesn't match:
      brent@foo.example.com
 
 
-Example 4.4 - matching the beginning and end of string
+Example 4 - matching the beginning and end of string
 
-     /^johndoe\\@.*cs\\.example\\.org\$/
+     /^johndoe\@.*cs\.example\.org\$/
 
 This is similar to Example 4.3, and matches the same first two strings:
 
@@ -214,7 +186,7 @@ letter "j" and end with letter "g", by using the ^ and \$ symbols, and
 neither of those is true for ajohndoe@terminus.foo.example.org@example.com.
 
 
-Example 4.5 - matching anything and everything
+Example 5 - matching anything and everything
 
      /.*/
 
@@ -222,11 +194,11 @@ This is the regular expression that matches anything
 (any character, zero or more times).
 
 
-Example 4.6 - escaping '*' is required
+Example 6 - escaping '*' is required
 
-     /.\\*johndoe/
+     /.\*johndoe/
 
-Here the * is preceded by a \\, so it refers literally to an asterisk
+Here the * is preceded by a \, so it refers literally to an asterisk
 character and not the symbolic meaning "zero or more times".  The '.' still
 has its symbolic meaning of "any one character", so it would match:
 
@@ -238,34 +210,34 @@ Because the . by itself implies one character, it would not match:
      *johndoe
 
 
-Example 4.7 - case sensitivity
+Example 7 - case sensitivity
 
 Normally all matches are case sensitive; you can make any match case
 insensitive by appending an `i' to the end of the expression.
 
-     /example\\.com/i
+     /example\.com/i
 
 This would match example.com, EXAMPLE.com, ExAmPlE.cOm, etc.  Removing the `i':
 
-     /example\\.com/
+     /example\.com/
 
 ...would match example.com but not EXAMPLE.com or any other capitalization.
 
 
-Example 4.8 - overly safe escaping doesn't hurt
+Example 8 - overly safe escaping doesn't hurt
 
-To be on the safe side put a \\ in front of any characters in the
+To be on the safe side put a \ in front of any characters in the
 regular expressions that are not numbers or letters.  In order to put
 a / into the regular expression, the same rule holds: precede it
-with a \\.  Thus, with \\ in front of the / and = characters, this:
+with a \.  Thus, with \ in front of the / and = characters, this:
 
-     /\\/CO\\=US/
+     /\/CO\=US/
 
 ...matches /CO=US and may be a useful regular expression to those of you
 who need to deal with X.400 addresses that contain / characters.
 
 
-Example 4.9 - matching (or NOT matching) white space
+Example 9 - matching (or NOT matching) white space
 
 Normally, all whitespace within a pattern is matched verbatim, but it is
 sometimes desirable to add some additional space within a pattern to make
@@ -280,14 +252,14 @@ This can be a bit difficult to follow, so we can space it out a bit:
 
 The 'x' modifier specifies that whitespace is to be ignored, and makes the
 pattern a bit easier to read.  If you want to match actual whitespace, use
-'\\s'.
+'\s'.
 
 Note that the 'x' modifier provides additional functionality to Perl code
 relating to comments, but because Majordomo requires patterns to lie all on
 a single line, this is not significant here.
 
 
-Example 4.10 - negated or inverted matches
+Example 10 - negated or inverted matches
 
 Negated matches (like !/^sub/) work in places where they have meaning, such
 as the taboo expression matcher which has lots of complicated logic to handle
@@ -296,14 +268,13 @@ that turns them into regular expressions... which may or may not make sense
 in the context you want to use them.
 
 For example
-   who-regexp listname !/xxx\\.com/
+   who-regexp listname !/xxx\.com/
 will produce a list of subscribers to "listname" that are NOT from the
 'xxx.com' domain. Be careful to escape the period, which otherwise will
 match any character, not just a period.
 
-+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-
-Section 5 - Undelimited Patterns
+Undelimited Patterns
+--------------------
 
 In the previous sections, all of the patterns were considered to be
 enclosed in quotes, slashes, or percent signs.  It is legitimate 
@@ -319,10 +290,12 @@ the pattern is used.
   In the post_limits setting, a case-insensitive substring match.
 
   In all of the other cases mentioned in the first section, pattern
-  delimiters are required.
+  delimiters are required.  Using a pattern without delimiters will
+  cause an error.
 
 
 See Also:
+  help admin
   help archive
   help configset_access_rules
   help configset_advertise
@@ -339,12 +312,11 @@ See Also:
   help configset_taboo_body
   help configset_taboo_headers
   help lists
+  help overview
   help set
   help unregister
   help unsubscribe
   help which
   help who
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
