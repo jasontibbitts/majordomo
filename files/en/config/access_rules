@@ -1,5 +1,12 @@
-A table containing access rules. Access to any command (such as "set"
-or "subscribe") can be limited, and there are two special cases
-(see "help post" and "help access"). This is a very powerful and
-unfortunately somewhat complicated mechanism for precisely restricting
-access to Majordomo functions.
+The access_rules setting controls who is permitted to use Majordomo
+commands or to post messages to a mailing list.  Each rule consists of
+three or more lines.  
+
+The first line is one or more Majordomo commands, separated by commas.
+
+The second line is one or more actions to take, separated by commas.
+
+The third and succeeding lines specify the conditions under which the
+rule is used.
+
+Blank lines are used to separate individual rules from one another.
