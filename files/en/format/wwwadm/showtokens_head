@@ -2,7 +2,7 @@
 <h4 align=center>Requests that Require Approval</h4>
 Choose one or more requests from the following list by pressing
 the checkbox to the left of each request, then press one of the
-five buttons.
+seven buttons.
 <ul>
   <li>Press <b>tokeninfo-full</b> to display a summary of each chosen request,
       including the bodies of any <b>post</b>ed messages.
