@@ -1515,7 +1515,8 @@ list, and present the data from the first list.
 sub common_subs {
   my $self = shift;
   my (@tmp) = @_;
-  my (%subs, @lists, $chunksize, $i, $k, $list, $out, $tlist, $v);
+  my (%subs, @lists, $chunksize, $i, $k, $list, $mess,
+      $out, $tlist, $v);
   my $log = new Log::In 150, "$tmp[0], $tmp[1]";
 
   $out = {};
@@ -3328,7 +3329,7 @@ sub valid_list {
   my $all    = shift;
   my $global = shift;
   my $log    = new Log::In 120, $name;
-  my ($file, $mess, $oname, $reloc, $sublist, $tmp);
+  my ($file, $mess, $oname, $reloc, $sublist, $subs, $tmp);
   $sublist = $mess = '';
 
   if ($name =~ /^([\w.-]+):([\w.-]+)$/) {

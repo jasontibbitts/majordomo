@@ -2718,7 +2718,7 @@ sub parse_relocated_lists {
   my $log  = new Log::In 150, $var;
   my $table = [];
   my $lists = {};
-  my $file;
+  my ($err, $file, $i);
 
   if (@$arr) {
     ($table, $err) = parse_table('fsoo', $arr);
