@@ -40,15 +40,15 @@ accept
 when a "consult" token is accepted.
 
 (standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, 
- FAIL, MODE, NOTIFY, REQUESTER, SESSIONID, STALL, SUCCEED, TOKEN, 
+ FAIL, MODE, NOTIFIED, REQUESTER, SESSIONID, STALL, SUCCEED, TOKEN, 
  USER, VICTIM)
 
 
 accept_error
------------
+------------
 (text, wwwadm, wwwconfirm)  This file is displayed when the accept
 command fails entirely, or when an individual token which has been 
-accepted fails or stalls.
+accepted fails.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOKEN, USER)
 
@@ -59,7 +59,7 @@ accept_foot
 results when a non-"consult" token is accepted.
 
 (standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, 
- MODE, NOTIFY, REQUESTER, SESSIONID, TOKEN, USER, VICTIM)
+ MODE, NOTIFIED, REQUESTER, SESSIONID, TOKEN, USER, VICTIM)
 
 
 accept_head
@@ -68,7 +68,15 @@ accept_head
 when a non-"consult" token is accepted.
 
 (standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, 
- MODE, NOTIFY, REQUESTER, SESSIONID, TOKEN, USER, VICTIM)
+ MODE, NOTIFIED, REQUESTER, SESSIONID, TOKEN, USER, VICTIM)
+
+
+accept_stall
+------------
+(text, wwwadm, wwwconfirm)  This file is displayed when an individual 
+token which has been accepted requires further approval.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOKEN, USER)
 
 
 archive_attachment
@@ -650,10 +658,18 @@ be created, renamed, or destroyed.
 
 password
 --------
-(text, wwwusr)  This file indicates that a new personal password has
+(ALL)  This file indicates that the personal password has
 been mailed to the victim's address.
 
 (standard plus VICTIM)
+
+
+password_error
+--------------
+(ALL)  This file indicates that the password command stalled or failed.
+
+(standard plus CGIDATA, CGIURL, CHANGED, CMDPASS, QSADDR, STRIPADDR,
+ USER, VICTIM)
 
 
 register
@@ -676,7 +692,7 @@ reject
 when a token is rejected.
 
 (standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, 
- MODE, NOTIFY, REQUESTER, SESSIONID, TOKEN, USER, VICTIM)
+ MODE, NOTIFIED, REQUESTER, SESSIONID, TOKEN, USER, VICTIM)
 
 
 reject_error

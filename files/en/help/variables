@@ -205,6 +205,11 @@ See "help reply_files" for a description of each of the reply files.
   The URL of the current CGI script, when one of the web interfaces
   is being used.
 
+\$CHANGED
+  This substitution is used by the password command to indicate whether
+  or not the password was changed or merely reported.  Its value is " "
+  if the password was changed, and '' otherwise.
+
 \$CHUNKSIZE
   The number of addresses displayed at one time by the who command
   in the wwwadm interface.
@@ -275,6 +280,10 @@ See "help reply_files" for a description of each of the reply files.
 \$NOARCHIVE
   " " if the archive for a new mailing list was not created
   automatically; '' otherwise.
+
+\$NOTIFIED
+  " " if an acknowledgement message was sent to the victim of a
+  command; '' otherwise.
 
 \$OLDALIASES
   The original aliases of a mailing list that has been renamed with
