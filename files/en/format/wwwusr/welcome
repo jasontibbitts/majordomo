@@ -1,18 +1,15 @@
 <!-- Majordomo welcome format file -->
 <pre>?ERROR</pre>
-<table cellspacing=15 width="100%">
-<tr>
-  <td valign="top">Introduction
-  </td>
-  <td>
+
+<p>
 Welcome to $SITE.  
 The links at the top and bottom of the page will help you to 
 join or leave our public electronic mailing lists. 
 You can return to this introduction at any time by pressing
-<b>Introduction</b>.
+<b>Help</b>.
+</p>
 
-  </td>
-</tr>
+<table cellspacing=15 width="100%">
 <tr>
   <td valign="top">Sign In
   </td>
@@ -80,12 +77,29 @@ to see your current subscriptions.
   <td valign="top">Help
   </td>
   <td>
-Majordomo has over 100 cross-referenced help files, which you can 
+
+Majordomo has over 100 cross-referenced help documents, which you can 
 browse by pressing <b>Help</b>.
 They describe how to email commands to Majordomo at 
-<a href="mailto:$MJ">$MJ</a>.  The help pages may be displayed in
-a new window in your web browser.
-The following files give a good introduction.
+<a href="mailto:$MJ">$MJ</a>.  
+The help pages may be displayed in a new window in your web browser.
+
+<p>
+To see the help document for a particular topic, type its
+name into the <b>Topic</b> box, then press the <b>help</b>
+button.
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="func" value="help">
+  Topic: 
+  <input name="extra" value="">
+  <input type="submit" name="f" value="help">
+</form>
+
+The following documents give a good introduction.
 
 <dl>
   <dt>$HELP:OVERVIEW</dt>

@@ -1,17 +1,13 @@
 <pre>?ERROR</pre>
 
-<table cellspacing="15" width="100%">
-<tr>
-  <td valign="top">Introduction
-  </td>
-  <td>
+<p>
 Welcome to $SITE.
 The links at the top and bottom of the page will help you to 
 manage one or more of your mailing lists.  You can return
-to this introduction at any time by pressing <b>Introduction</b>.
+to this introduction at any time by pressing <b>Help</b>.
+</p>
 
-  </td>
-</tr>
+<table cellspacing="15" width="100%">
 <tr>
   <td valign="top">Sign In
   </td>
@@ -47,7 +43,7 @@ lists.  The requests labeled <b>consult</b> will need your attention,
 whereas the requests labeled <b>confirm</b> need the attention of
 the people who made them.  The requests labeled <b>delay</b> will
 be completed automatically at a later time.
-[<a href="$CGIURL?$CGIDATA&func=welcome&doc=showtokens">more</a>]
+[<a href="$CGIURL?$CGIDATA&list=$LIST&func=welcome&doc=showtokens">more</a>]
 
   </td>
 </tr>
@@ -111,12 +107,28 @@ commands are supported only by the command form.
   </td>
   <td>
 
-Majordomo has over 100 cross-referenced help files, which you
-can browse by pressing <b>Help</b>.
+Majordomo has over 100 cross-referenced help documents.
 They describe how to email commands to Majordomo at
-<a href="mailto:$MJ">$MJ</a>.  The help pages may be displayed in a new
-window in your web browser.
-The following files give a good introduction.
+<a href="mailto:$MJ">$MJ</a>.  
+The help pages may be displayed in a new window in your web browser.
+
+<p>
+To see the help document for a particular topic, type its
+name into the <b>Topic</b> box, then press the <b>help</b>
+button.
+</p>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="func" value="help">
+  Topic: 
+  <input name="extra" value="">
+  <input type="submit" name="f" value="help">
+</form>
+
+The following documents give a good introduction.
 <dl>
   <dt>$HELP:ADMIN</dt>
     <dd>A basic introduction to list administration, including hints
@@ -152,6 +164,9 @@ The following files give a good introduction.
   <dt>$HELP:TOKENINFO</dt>
     <dd>How to obtain more information about one request that
         requires moderation.</dd>
+
+  <dt>$HELP:TOPICS</dt>
+    <dd>An index of all of the help documents provided by Majordomo.</dd>
 
   <dt>$HELP:WHO</dt>
     <dd>How to see who is subscribed to your mailing list.</dd>
