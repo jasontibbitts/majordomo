@@ -394,46 +394,52 @@ If you use the special pseudo-list name "ALL", this command changes
 each place where the specified address is subscribed.
 
 1. Subscription class:                                (see default_class)
-   set LISTNAME each EmailAddress
-   set LISTNAME digest[-name][-index][-text][-mime] EmailAddress
-   set LISTNAME   nomail[-time] EmailAddress
-   set LISTNAME vacation[-time] EmailAddress
+   set LISTNAME each Address
+   set LISTNAME digest[-name][-index][-text][-mime] Address
+   set LISTNAME   nomail[-time] Address
+   set LISTNAME vacation[-time] Address
 NOTE: "nomail" and "vacation" are identical, use whichever you like.
 
-2. Informative messages about your post:     (see default_flags of b,d,f,j)
-   set LISTNAME ackall       EmailAddress (all of b,d,f,j in default_flags)
-   set LISTNAME ackimportant EmailAddress (all of b,d,f,j in default_flags)
-   set LISTNAME ackstall     EmailAddress            ('b' in default_flags)
-   set LISTNAME ackdeny      EmailAddress            ('d' in default_flags)
-   set LISTNAME ackpost      EmailAddress            ('f' in default_flags)
-   set LISTNAME ackreject    EmailAddress            ('j' in default_flags)
-   set LISTNAME noack EmailAddress       (none of b,d,f,j in default_flags)
+2. Informative messages about your post:   (see default_flags of b,d,f,j)
+   set LISTNAME   ackall       Address  (all of b,d,f,j in default_flags)
+   set LISTNAME   ackdeny      Address             ('d' in default_flags)
+   set LISTNAME noackdeny      Address          (no 'd' in default_flags)
+   set LISTNAME   ackimportant Address  (all of b,d,f,j in default_flags)
+   set LISTNAME   ackpost      Address             ('f' in default_flags)
+   set LISTNAME noackpost      Address          (no 'f' in default_flags)
+   set LISTNAME   ackreject    Address             ('j' in default_flags)
+   set LISTNAME noackreject    Address          (no 'j' in default_flags)
+   set LISTNAME   ackstall     Address             ('b' in default_flags)
+   set LISTNAME noackstall     Address          (no 'b' in default_flags)
+   set LISTNAME noack          Address (none of b,d,f,j in default_flags)
 NOTE: "ackall" and "ackimportant" are identical, use whichever you like.
 
-3. Whether you want a copy of your own posts:         (default_flags of S)
-   set LISTNAME   selfcopy EmailAddress             ('S' in default_flags)
-   set LISTNAME noselfcopy EmailAddress            (no S in default_flags)
+3. Whether you want a copy of your own posts:        (default_flags of S)
+   set LISTNAME   selfcopy     Address             ('S' in default_flags)
+   set LISTNAME noselfcopy     Address            (no S in default_flags)
 
-4. Whether you want to be visible with "who":       (default_flags of H,h)
-   set LISTNAME   hideall     EmailAddressl         ('H' in default_flags)
-   set LISTNAME   hideaddress EmailAddress          ('h' in default_flags)
-   set LISTNAME nohide        EmailAddress  (none of H,h in default_flags)
+4. Whether you want to be visible with "who":      (default_flags of H,h)
+   set LISTNAME   hideall      Addressl            ('H' in default_flags)
+   set LISTNAME   hideaddress  Address             ('h' in default_flags)
+   set LISTNAME nohide         Address     (none of H,h in default_flags)
+   set LISTNAME   showall      Address     (none of H,h in default_flags)
+NOTE: "showall" and "nohide" are identical, use whichever you like.
 
-5. Suppress list mail if you already got a CC:        (default_flags of C)
-   set LISTNAME   eliminatecc EmailAddress          ('C' in default_flags)
-   set LISTNAME noeliminatecc EmailAddress         (no C in default_flags)
+5. Suppress list mail if you already got a CC:       (default_flags of C)
+   set LISTNAME   eliminatecc Address              ('C' in default_flags)
+   set LISTNAME noeliminatecc Address           (no 'C' in default_flags)
 
-6. Suppress subject prefix added by owner:            (default_flags of P)
-   set LISTNAME   prefix EmailAddress               ('P' in default_flags)
-   set LISTNAME noprefix EmailAddress              (no P in default_flags)
+6. Suppress subject prefix added by owner:           (default_flags of P)
+   set LISTNAME   prefix      Address              ('P' in default_flags)
+   set LISTNAME noprefix      Address           (no 'P' in default_flags)
 
-7. Suppress replyto header added by owner:            (default_flags of R)
-   set LISTNAME   replyto EmailAddress              ('R' in default_flags)
-   set LISTNAME noreplyto EmailAddress             (no R in default_flags)
+7. Suppress replyto header added by owner:           (default_flags of R)
+   set LISTNAME   replyto     Address              ('R' in default_flags)
+   set LISTNAME noreplyto     Address           (no 'R' in default_flags)
 
-8. Rewrite the comment in the From: header:           (default_flags of W)
-   set LISTNAME   rewritefrom EmailAddress          ('W' in default_flags)
-   set LISTNAME norewritefrom EmailAddress         (no W in default_flags)
+8. Rewrite the comment in the From: header:          (default_flags of W)
+   set LISTNAME   rewritefrom Address              ('W' in default_flags)
+   set LISTNAME norewritefrom Address           (no 'W' in default_flags)
 
 
 See Also:
