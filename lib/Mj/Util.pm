@@ -583,6 +583,8 @@ sub str_to_offset {
   my $log = new Log::In 150, $arg;
   my $time;
 
+  return unless ($arg =~ /\S/);
+ 
   # Treat a plain number as a count of seconds.
   if ($arg =~ /^(\d+)$/) {
     return $arg;
