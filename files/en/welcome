@@ -7,9 +7,9 @@ Please save this message for future reference.  Thank you.
 
 If you ever want to remove yourself from this mailing list,
 send the following command in email to
-$REQUEST:
+$MJ:
 
-approve $PASSWORD unsubscribe $USER
+approve $PASSWORD unsubscribe $LIST $USER
 
 Note that this works even if your address changes; for that reason (among
 others) it is important that you have this message handy when it comes time
