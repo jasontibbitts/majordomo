@@ -40,8 +40,8 @@ my %MODULES =
       Mj/File.pm Mj/FileRepl.pm Mj/FileSpace.pm Mj/Format.pm Mj/Inform.pm
       Mj/List.pm Mj/Lock.pm Mj/Log.pm Mj/MailOut.pm Mj/MIMEParser.pm
       Mj/Parser.pm Mj/Resend.pm Mj/SimpleDB.pm Mj/SimpleDB/DB.pm
-      Mj/SimpleDB/Text.pm Mj/SubscriberList.pm Mj/Token.pm Mj/TokenDB.pm
-      Mj/Util.pm Bf/Sender.pm mj_cf_data.pl mj_cf_defs.pl );
+      Mj/SimpleDB/SQL.pm Mj/SimpleDB/Text.pm Mj/SubscriberList.pm Mj/Token.pm
+      Mj/TokenDB.pm Mj/Util.pm Bf/Sender.pm mj_cf_data.pl mj_cf_defs.pl );
 
 get_str(retr_msg('check_modules', $lang));
 
