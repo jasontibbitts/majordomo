@@ -1,3 +1,17 @@
+2002-06-10  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  The configdef, configset, and sessioninfo
+	commands have format file support.
+	Bugfix:  Do not require a valid owner for the createlist
+	command unless a list is created.  Thanks to Duncan Hill.
+
+	* lib/Majordomo.pm:  (sessioninfo_start, s_recognize)
+	Distinguish invalid session IDs from missing session files.
+
+	* lib/Mj/Format.pm:  Escape CMDPASS data.
+	(announce, configdef, configset, sessioninfo)  Add format
+	file support.
+
 2002-06-08  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Add format file and supplementary display
