@@ -223,16 +223,16 @@ $Mj::Config::default_string = q(
                              'delay    | hourly',
                              'inactive | daily',
                              'log      | daily',
-                             'session  | daily',
-                             'token    | daily'
+                             'session  | 23',
+                             'token    | 23'
                            ] :
                            [
-                             'bounce   | daily',
+                             'bounce   | 22',
                              'checksum | daily',
                              'delay    | hourly',
                              'inactive | daily',
                              'post     | daily',
-                             'vacation | daily',
+                             'vacation | 22',
                            ],
  'unsubscribe_policy'   => "open",
  'farewell'             => 0,
