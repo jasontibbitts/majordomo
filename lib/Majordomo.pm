@@ -4794,7 +4794,7 @@ sub _changeaddr {
   my (@out, @aliases, @lists, %uniq, $data, $key, $l, $lkey, $ldata,
       $over, $time, $tmp);
 
-  if (($vict->canon eq $requ->canon) and ($vict->strip ne $requ->strip)) {
+  if (($vict->canon eq $requ->canon) and ($vict->xform ne $requ->xform)) {
     # XLANG
     return (0, $requ->full . " and " . $vict->full . " are aliases.\n");
   }

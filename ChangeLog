@@ -1,3 +1,9 @@
+2004-06-28  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_changeaddr)  Allow two addresses
+	with identical xforms, which are not aliases, to be
+	used.  Thanks to SRE.
+
 2004-06-26  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/BounceParser.pm:  Add various sanity checks.
