@@ -38,8 +38,9 @@ might show the following result:
 
 The letters in the second column are "flags," abbreviations for personal
 settings.  The words in the third column are the "delivery class."
-The "help set" file describes each of the flags.  "help admin_delivery"
-presents a simple introduction to delivery classes.
+The "help who" document shows a table of the flags and their
+abbreviations.  The "help set" file describes each of the flags.  
+"help admin_delivery" presents a simple introduction to delivery classes.
 
 If there are many addresses subscribed to a mailing list, some of
 them inevitably will have trouble receiving  mail.  Error messages about 
