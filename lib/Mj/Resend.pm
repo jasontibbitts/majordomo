@@ -197,7 +197,7 @@ sub post {
   $avars->{mime} = $avars->{mime_consult} || $avars->{mime_deny} || '';
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
     $avars->{admin} || $avars->{bad_approval} || '';
-  $avars->{'sublist'} = $request->{'sublist'};
+  $avars->{'sublist'} = $request->{'auxlist'};
 
   # Bounce if necessary: concatenate all possible reasons with \002, call
   # access_check with filename as arg1 and reasons as arg2.  XXX Victim
@@ -380,11 +380,10 @@ sub _post {
   # Is the message being sent to a sublist?
   $sl = $avars{'sublist'};
   if ($sl ne '') {
-    ($i, $j) = $self->{'lists'}{$list}->validate_aux($sl);
-    if (!$i) {
+    if (!$self->{'lists'}{$list}->validate_aux($sl)) {
       $self->inform($list, "post", $user, $victim, $cmdline, "resend", 
-        0, 0, -1, "Auxiliary list $sl does not exist; unable to post message."); 
-      return (0, "The message was not delivered: $j.\n");
+        0, 0, -1, "Unknown auxiliary list \"$sl\".  Unable to post message."); 
+      return (0, "Unknown auxiliary list \"$sl\".  Unable to post message."); 
     }
     # untaint
     $sl =~ /(.*)/; $sl = $1; 

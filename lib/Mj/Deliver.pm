@@ -142,8 +142,9 @@ sub deliver {
 
   if (length $sublist) {
     # Ensure that a new sublist is not created.
-    ($ok, $error) = $list->validate_aux($sublist);
-    return ($ok, $error) unless $ok;
+    return (0, "Unknown auxiliary list name \"$sublist\".") 
+      unless $list->validate_aux($sublist);
+
     ($ok, $error) = $list->aux_get_start($sublist);
   }
   else {

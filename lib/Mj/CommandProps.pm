@@ -221,11 +221,11 @@ my %commands =
    {
     'parser' => [qw(email shell list global real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'sublist' => 'SCALAR',
+                   'arguments' => {'auxlist' => 'SCALAR',
                                    'victims' => 'ARRAYELEM'},
                    'hereargs' => 'victims',
                    'tokendata' => {'victim' => 'victims',
-                                   'arg1'   => 'sublist' }
+                                   'arg1'   => 'auxlist' }
                   },
     'access'   => {
                    'default' => 'deny',
@@ -237,11 +237,11 @@ my %commands =
    {
     'parser' => [qw(email shell list global all real)],
     'dispatch' => {'top' => 1, 
-                   'arguments' => {'sublist' => 'SCALAR',
+                   'arguments' => {'auxlist' => 'SCALAR',
                                    'victims' => 'ARRAYELEM'},
                    'hereargs' => 'victims',
                    'tokendata' => {'victim' => 'victims',
-                                   'arg1'   => 'sublist' }
+                                   'arg1'   => 'auxlist' }
                   },
     'access'   => {
                    'default' => 'deny',
@@ -253,8 +253,10 @@ my %commands =
    {
     'parser' => [qw(email shell list global nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
-                   'arguments' => {'sublist' => 'SCALAR'},
-                   'tokendata' => {'arg1'    => 'sublist'}
+                   'arguments' => {'auxlist' => 'SCALAR',
+                                   'regexp'  => 'SCALAR'},
+                   'tokendata' => {'arg2'    => 'auxlist',
+                                   'arg1'    => 'regexp'}
                   },
     'access'   => {
                    'default' => 'deny',
@@ -416,9 +418,9 @@ my %commands =
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1, 'noaddr' => 1,
-                   'arguments' => { 'sublist' => 'SCALAR' },
+                   'arguments' => { 'auxlist' => 'SCALAR' },
                    'hereargs'  =>   'message',
-                   'tokendata' => { 'arg2'    => 'sublist'},
+                   'tokendata' => { 'arg2'    => 'auxlist'},
                   },
     'access'   => {
                    'default' => 'special',
