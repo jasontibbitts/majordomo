@@ -1,5 +1,23 @@
         Notes on upgrading from previous versions of Majordomo 2
 
+2002.06.04 (CVS):
+
+The "accept" and "reject" format files used the NOTIFY substitution from
+2002-05-27 to 2002-06-04.  That substitution has been replaced with the
+NOTIFIED substitution.  If you customized any of the accept or reject
+format files, you will need to edit them (using the get-edit and put
+commands) and correct this substitution.
+
+2002.05.25 (CVS):
+
+Formerly, the CGIDATA substitution for the wwwadm format files included
+the list name; now it does not.  If you customized any of the wwwadm
+format files that use the CGIDATA substitution, in particular the
+foot, foot_global, head, and head_global format files, you will need
+to edit them (using the get-edit and put commands) and correct this
+substitution.  The text "&list=$LIST" should be added to each URL that
+contains the CGIDATA substitution.
+
 2002.04.08 (CVS):
 
 The "showtokens" command has a new syntax.  If a command mode specifies
