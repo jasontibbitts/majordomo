@@ -1,6 +1,5 @@
-Triggers are used to send reminders and to remove expired data from
-the databases.  Each trigger consists of a name and a set of times
-during which the trigger is issued.  The data are separated by
-vertical bars ('|') or colons, as in:
+Triggers are actions that occur periodically.  Each trigger consists 
+of a name and a set of times during which the trigger is issued.  
+The name and times are separated by vertical bars ('|') or colons, as in:
   session  | monday(6,12,18), thursday(8)
 Full syntax and possible names are described in "help configset triggers".
