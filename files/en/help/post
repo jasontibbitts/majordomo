@@ -1,53 +1,61 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-post[-archive] listname <<TAG
+post[-archive][-hide] listname <<TAG
 [Message Contents]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-post-addhdr[-archive] listname subject <<TAG
+post-addhdr[-archive][-hide] listname subject <<TAG
 [Message Contents]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname,    required,     is the name of a regular or auxiliary list
-subject,     if specified, gives the contents of the subject header.
--addhdr,     if specified, automatically adds mail headers.
--archive,    if specified, archives a message without distributing it
+listname, required,     is the name of a regular or auxiliary list
+subject,  if specified, gives the contents of the subject header
+-addhdr,  if specified, automatically adds mail headers
+-archive, if specified, archives a message without distributing it
+-hide,    if specified, omits a message from public archives
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The post command sends a message to a mailing list, or to an auxiliary
 list.  A password is normally required to use this command.  Unlike
 other commands, using a password with the post command does not
-guarantee that the message is distributed to the subscribers immediately.
-The message will undergo the same access checks as if it were sent
-using e-mail.
+guarantee that the message is distributed to the subscribers
+immediately.  The message will undergo the same access checks as if it
+were sent using e-mail.
 
-If the "addhdr" command mode is used, Majordomo will consider the 
+If the "addhdr" command mode is used, Majordomo will consider the
 contents you supply to be a plain text message body, and will
 automatically add the From, To, Date, Subject, Message-Id, and
-Content-type headers.  The message subject is taken from the 
-first command line.
+Content-type headers.  The message subject is taken from the first
+command line.
 
-The post command enables a Majordomo list to be run without doing
-any MTA configuration, such as creating aliases.  The list will not, 
-however, be very functional.  This will probably work for announcement 
+If the "archive" command mode is used, the message will be stored in the
+list archive, but not distributed to the subscribers.
+
+If the "hide" command mode is used, the message will be marked as
+"hidden" in the archive, and an "X-no-archive: yes" header will be added
+to the message.  This will help to keep anyone without administrative
+access from seeing the message in a public archive.
+
+The post command enables a Majordomo list to be run without doing any
+MTA configuration, such as creating aliases.  The list will not,
+however, be very functional.  This will probably work for announcement
 lists, though.
 
-The post command could be used on a moderated list, if the moderators 
-wish to edit a message before distributing it.  The edited message 
-would still need to be approved with the "accept" command, and the 
-original post would have to be denied with the "reject" command.
-A better approach is to add an "Approved" header to the message;
-see "help admin_moderate" for more details.
+The post command could be used on a moderated list, if the moderators
+wish to edit a message before distributing it.  The edited message would
+still need to be approved with the "accept" command, and the original
+post would have to be denied with the "reject" command.  A better
+approach is to add an "Approved" header to the message; see "help
+admin_moderate" for more details.
 
-The post-archive command may be used to store a message in the
-mailing list archive, but not distribute it to the subscribers.
-If you maintain a WWW archive of your mailing lists, you might
-wish to archive a message that describes how to subscribe to
-the mailing list.  Obviously, you would not want that message to 
-be distributed on the list, since the list's participants are
-already subscribed to the list.
+The post-archive command may be used to store a message in the mailing
+list archive, but not distribute it to the subscribers.  If you maintain
+a WWW archive of your mailing lists, you might wish to archive a message
+that describes how to subscribe to the mailing list.  Obviously, you
+would not want that message to be distributed on the list, since the
+list's participants are already subscribed to the list.
 
-To send a message to an auxiliary list, the "auxiliary" option must be 
-included in the 'aliases' configuration setting, and the auxiliary list 
+To send a message to an auxiliary list, the "auxiliary" option must be
+included in the 'aliases' configuration setting, and the auxiliary list
 name must be included in the "sublists" configuration setting.  
 
 
