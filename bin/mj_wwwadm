@@ -49,36 +49,35 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
 
 #----- Which commands are supported ?  -----#
 # First value:  Is a list required?
-# Second value: Should the result be preformatted?
-# Third value:  Page to display after the result.
+# Second value:  Page to display after the result.
 %commands = (   
-                'accept'        => [0, 0, 'showtokens'],
-                'archive'       => [1, 0, 'archive'],
-                'configdef'     => [1, 0, 'configshow'],
-                'configset'     => [1, 0, 'configshow'],
-                'configshow'    => [1, 0, 'configshow'],
-                'createlist'    => [0, 0, 'newlist'],
-                'digest'        => [1, 0, 'lists'],
-                'faq'           => [1, 0, 'lists'],
-                'get'           => [1, 0, 'lists'],
-                'help'          => [0, 0, 'help'],
-                'index'         => [1, 1, 'lists'],
-                'info'          => [1, 0, 'lists'],
-                'intro'         => [1, 0, 'lists'],
-                'lists'         => [0, 0, 'lists'],
-                'put'           => [1, 0, 'lists'],
-                'register'      => [1, 0, 'who'],
-                'reject'        => [0, 0, 'showtokens'],
-                'report'        => [1, 0, 'lists'],
-                'sessioninfo'   => [0, 0, 'showtokens'],
-                'set'           => [1, 0, 'who'],
-                'showtokens'    => [1, 0, 'showtokens'],
-                'subscribe'     => [1, 0, 'who'],
-                'tokeninfo'     => [0, 0, 'showtokens'],
-                'unregister'    => [1, 0, 'who'],
-                'unsubscribe'   => [1, 0, 'who'],
-                'which'         => [1, 0, 'which'],
-                'who'           => [1, 0, 'who'],
+                'accept'        => [0, 'showtokens'],
+                'archive'       => [1, 'archive'],
+                'configdef'     => [1, 'configshow'],
+                'configset'     => [1, 'configshow'],
+                'configshow'    => [1, 'configshow'],
+                'createlist'    => [0, 'newlist'],
+                'digest'        => [1, 'lists'],
+                'faq'           => [1, 'lists'],
+                'get'           => [1, 'lists'],
+                'help'          => [0, 'help'],
+                'index'         => [1, 'index'],
+                'info'          => [1, 'lists'],
+                'intro'         => [1, 'lists'],
+                'lists'         => [0, 'lists'],
+                'put'           => [1, 'lists'],
+                'register'      => [1, 'who'],
+                'reject'        => [0, 'showtokens'],
+                'report'        => [1, 'lists'],
+                'sessioninfo'   => [0, 'showtokens'],
+                'set'           => [1, 'who'],
+                'showtokens'    => [1, 'showtokens'],
+                'subscribe'     => [1, 'who'],
+                'tokeninfo'     => [0, 'showtokens'],
+                'unregister'    => [1, 'who'],
+                'unsubscribe'   => [1, 'who'],
+                'which'         => [1, 'which'],
+                'who'           => [1, 'who'],
             );
 
 #----- Initialize the Log -----#
@@ -533,9 +532,7 @@ if (@extra and $func ne 'showtokens') {
     &usage($mj, $subs, "Unable to obtain result from Majordomo.", '') 
       unless $result;
 
-    print "<pre>\n" if ($commands{$func}->[1]);
     &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
-    print "</pre>\n" if ($commands{$func}->[1]);;
 
     if (function_prop($func, 'iter')) {
       $request->{'command'} =~ s/done/start/;
@@ -560,9 +557,7 @@ elsif ($func eq 'set') {
     $result = $mj->dispatch($request); 
     &usage($mj, $subs, "Unable to obtain result from Majordomo.", '') 
       unless $result;
-    print "<pre>\n" if ($commands{$func}->[1]);
     &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
-    print "</pre>\n" if ($commands{$func}->[1]);;
   }
 }
 # The remaining exceptions, other than showtokens, require only one dispatch call.
@@ -697,9 +692,7 @@ elsif ($func ne 'showtokens') {
   $result = $mj->dispatch($request); 
   &usage($mj, $subs, "Unable to obtain result from Majordomo.", '') 
     unless $result;
-  print "<pre>\n" if ($commands{$func}->[1]);
   &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
-  print "</pre>\n" if ($commands{$func}->[1]);;
 }
 
 #----- Display supplementary information -----#
@@ -717,17 +710,17 @@ if ($cgi->param('brief') or $raw) {
   # do not display supplemental information.
 }
 elsif (($tmp eq 'on' and $func ne 'showtokens')
-    or $commands{$func}->[2] eq 'command') {
+    or $commands{$func}->[1] eq 'command') {
   &command($mj, $subs, '');
 }
-elsif ($commands{$func}->[2] =~ /^welcome_(\S*)/) {
+elsif ($commands{$func}->[1] =~ /^welcome_(\S*)/) {
   $tmp = $1 || '';
   &usage($mj, $subs, '', $tmp);
 }
-elsif ($commands{$func}->[2] eq 'newlist') {
+elsif ($commands{$func}->[1] eq 'newlist') {
   &newlist($mj, $subs, '');
 }
-elsif ($commands{$func}->[2] eq 'showtokens') {
+elsif ($commands{$func}->[1] eq 'showtokens') {
   # A separate head and foot are needed because this interface
   # can display tokens for any number of mailing lists.
   $tmp = $mj->format_get_string('wwwadm', 'showtokens_head', $lists[0]);
@@ -763,19 +756,19 @@ elsif ($commands{$func}->[2] eq 'showtokens') {
     &command($mj, $subs, '');
   }
 }
-elsif ($commands{$func}->[2] ne $func) {
-  if ($commands{$func}->[2] eq 'configshow') {
+elsif ($commands{$func}->[1] ne $func) {
+  if ($commands{$func}->[1] eq 'configshow') {
     $func = $request->{'command'} = 'configshow';
     $request->{'mode'} = 'categories';
     $request->{'list'} = $lists[0];
   }
-  elsif ($commands{$func}->[2] eq 'lists') {
+  elsif ($commands{$func}->[1] eq 'lists') {
     $func = $request->{'command'} = 'lists';
     $request->{'mode'} = 'full-long';
     $request->{'list'} = 'GLOBAL';
     $request->{'regexp'} = $lists[0];
   }
-  elsif ($commands{$func}->[2] eq 'who') {
+  elsif ($commands{$func}->[1] eq 'who') {
     $func = 'who';
     $request->{'command'} = 'who_start';
     $request->{'mode'} = 'summary';
@@ -785,7 +778,7 @@ elsif ($commands{$func}->[2] ne $func) {
     $request->{'regexp'} = $cgi->param('pattern');
     $request->{'victims'} = '';
   }
-  elsif ($commands{$func}->[2] eq 'which') {
+  elsif ($commands{$func}->[1] eq 'which') {
     $func = 'which';
     $request->{'command'} = 'which';
     $request->{'mode'} = '';
