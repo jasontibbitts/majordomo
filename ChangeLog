@@ -1,3 +1,15 @@
+2000-07-26  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Add support for multiple domains.
+
+	* bin/mj_wwwusr:  Restructure to override Mj::Format routines
+	for the help, lists, and show commands.  
+	Add support for multiple domains.
+	Add support for the help and changeaddr commands.
+
+	* lib/Majordomo.pm (subscribe):  Set the matches_list variable
+	if someone attempts to add the -unsubscribe alias to the list.
+
 2000-07-25  Michael Yount <csf@moscow.com>
 
 	* bin/mj_email, bin/mj_enqueue: Add options for new aliases
