@@ -1,3 +1,40 @@
+2001-05-08  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/BounceHandler.pm (_hbr_consult): Make sure that the
+	bounce data does not indicate that the owners have already been
+	consulted.  If not, consult as normal and add a type 'C' bounce
+	event.
+
+	* lib/Mj/Token.pm (confirm): Return the token ID which was
+	generated.
+
+	* lib/Mj/List.pm (bounce_add): Add 'P' and 'C' events at the head
+	of the list.  Change argument names to reflect that the function
+	takes bounce event data, not just info on bounced messages.
+	(expire_bounce_data): Don't count 'C' or 'P' events.
+
+2001-05-07  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/Util.pm (n_defaults): The default for 'attach' should
+	only be '1' for posts; take a 'command' argument to determine
+	this.
+
+2001-05-06  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/Token.pm (confirm): Rework how attach works, so actions
+	other than post can have attachments and so that so that the
+	attachment parameters can be specified.
+
+	* lib/Mj/BounceParser.pm (parse_exim): Tweak.
+
+	* lib/Mj/BounceHandler.pm: Lay groundwork for consulted and probed
+	removals.
+
+	* lib/Mj/CommandProps.pm: Add 'notify' as a legal action for
+	_bounce.
+
+	* lib/Mj/Config.pm (parse_bounce_rules): Add notify processing.
+
 2001-05-03  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/CommandProps.pm: nonempty_lines is a legal access

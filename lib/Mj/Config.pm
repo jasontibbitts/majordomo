@@ -1710,6 +1710,15 @@ sub parse_bounce_rules {
 	    $warn .= "  Action $tmp: file '$k' could not be found.\n";
 	  }
 	}
+	if ($tmp eq 'notify') {
+	  ($ok, $error) = n_validate($tmp2);
+	  if ($ok < 0) {
+	    $warn .= "Req. $i, action notify:  $error\n";
+	  }
+	  elsif ($ok == 0) {
+	    return ($ok, $error);
+	  }
+	}
       }
 
       # Compile the rule

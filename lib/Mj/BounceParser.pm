@@ -543,8 +543,8 @@ recipients. The following address(es) failed:
 
 followed by the entire message.
 
-The indentation is important.  Two spaces = address followed by colon.
-Four spaces = diagnostic.
+The indentation is important.  Two spaces = address possibly followed by
+colon.  Four spaces = diagnostic.
 
 Failure is indicated by the string "could not be delivered"; a warning has
 "has not yet been delivered".  Warnings also have a different in-body
@@ -587,6 +587,8 @@ sub parse_exim {
   }
 
   # We've just seen the line, so we know we have an Exim-format bounce.
+  $ok = 'Exim';
+
   # Eat stuff until we see an address:
   $status = 'unknown';
   while (1) {
@@ -609,7 +611,6 @@ sub parse_exim {
     # Stop before we get into the bounced message
     if ($line =~ /^-/) {
       if ($user) {
-	$ok = 'Exim';
 	$data->{$user}{'status'} = $status;
 	$data->{$user}{'diag'}   = $diag;
       }
@@ -634,7 +635,6 @@ sub parse_exim {
     elsif ($status eq 'warning' && $line =~ /^  (\S.*\@.*)\s*$/) {
       $data->{$1}{'status'} = $status;
       $data->{$1}{'diag'}   = 'none included in bounce';
-      $ok = 'Exim';
       next;
     }
   }

@@ -2311,24 +2311,30 @@ data.
 Takes a hash:
 
 addr   - bouncing address
-time   - time of bounced message
-type   - type of bounced message
-msgno  - message number of bouncing message
+time   - time of bounce event
+type   - type of bounce event
+evdata - event data (message number, token, etc.)
 subbed - true if user is subscribed
 
 =cut
 sub bounce_add {
   my($self, %args) = @_;
-  my $log = new Log::In 150, "$args{time} T$args{type} #$args{msgno}";
+  my $log = new Log::In 150, "$args{time} T$args{type} #$args{evdata}";
 
   my($bouncedata, $event, $ok);
 
-  $event = "$args{time}$args{type}$args{msgno}";
+  $event = "$args{time}$args{type}$args{evdata}";
   my $repl = sub {
     my $data = shift;
 
     if ($data->{bounce}) {
-      $data->{bounce} .= " $event";
+      # Some types go first, to make expiry simpler
+      if ($args{type} eq 'C' or $args{type} eq 'P') {
+	$data->{bounce} = "$event $data->{bounce}";
+      }
+      else {
+	$data->{bounce} .= " $event";
+      }
     }
     else {
       $data->{bounce} = $event;
@@ -2368,9 +2374,14 @@ also be other data there depending on what bounces were detected.
 An incident is formatted like:
 
 timeMnumber
+timeCtoken
+timePtoken
 
 where 'time' is the numeric cound of seconds since the epoch, 'M' indicates
-a message bounce and 'number' indicates the message number.
+a message bounce and 'number' indicates the message number.  'C' indicates
+that a consult token was issued for the deletion of the bouncing address,
+while 'P' indicates that a probe was issued against the bounding address.
+'token' indicates the token number used for the consultation or probe.
 
 Some bounces have a type but no message number.  There are stored under
 separate hash keys ("U$type") in flat lists.
@@ -2508,7 +2519,7 @@ sub expire_bounce_data {
   my $mogrify = sub {
     my $key  = shift;
     my $data = shift;
-    my (@b1, @b2, $b, $c, $u, $t);
+    my (@b1, @b2, $b, $c, $k, $u, $t);
 
     if ($data->{bounce}) {
       @b1 = split(/\s+/, $data->{bounce});
@@ -2522,12 +2533,14 @@ sub expire_bounce_data {
 	  last;
 	}
 	$b = pop @b1; last unless defined $b;
-	($t) = $b =~ /^(\d+)\w/;
+	($t, $k) = $b =~ /^(\d+)(\w)/;
 	if ($t < $bounceexpiretime) {
 	  $u = 1;
 	  next;
 	}
-	unshift @b2, $b; $c++;
+	# Don't count 'C' or 'P' events
+	$c++ if $k ne 'C' && $k ne 'P';
+	unshift @b2, $b;
       }
       $data->{bounce} = join(' ', @b2) if $u;
     }

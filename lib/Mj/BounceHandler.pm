@@ -334,7 +334,7 @@ sub handle_bounce_user {
        subbed => !!$sdata,
        time   => time,
        type   => $params{type},
-       msgno  => $params{msgno},
+       evdata => $params{msgno},
        diag   => $params{diag},
       );
   }
@@ -362,6 +362,7 @@ sub handle_bounce_user {
   $args{warning}              = ($params{status} eq 'warning');
   $args{subscribed}           = !!$sdata;
   $args{days_since_subscribe} = $sdata? ((time - $sdata->{subtime})/86400): 0;
+  $args{notify}               = [];
 
   # Now run the rule
   @final_actions =
@@ -398,6 +399,7 @@ sub handle_bounce_user {
     # Remove user if necessary
     $tmp = $self->handle_bounce_removal(%params,
 					mode   => $arg,
+					notify => $args{notify},
 					subbed => !!$sdata,
 					user   => $user,
 				       );
@@ -433,6 +435,7 @@ normal action for bouncing tokens).
 sub handle_bounce_removal {
   my $self = shift;
   my %args = @_;
+  my $log = new Log::In 50;
   my ($time) = $::log->elapsed;
   my ($mess, $ok);
 
@@ -440,33 +443,115 @@ sub handle_bounce_removal {
     return "  Cannot remove addresses which are not subscribed.\n";
   }
 
-  # Currently, this is all we support
-  if ($args{mode} =~ /noprobe/) {
-    ($ok, $mess) =
-      $self->_unsubscribe($args{list},
-			  "$args{sender} (Automatic Bounce Processor)",
-			  $args{user},
-			  '',
-			  'automatic removal',
-			  'MAIN',
-			 );
+  my $consult = 0;
+  my $probe   = 1;
 
-    $self->inform($args{list}, 'unsubscribe',
-                  qq("Automatic Bounce Processor" <$args{'sender'}>),
-                  $args{'user'}, "unsubscribe $args{'list'} $args{'user'}",
-                  $self->{'interface'}, $ok, 0, 0, 
-                  qq(The bounce_rules setting says "remove-noprobe"),
-                  $::log->elapsed - $time);
+  $probe = 0   if $args{mode} =~ /noprobe/;
+  $consult = 1 if $args{mode} =~ /consult/;
 
-    if ($ok) {
-      return "  User was removed.\n";
-    }
-    else {
-      return "  User could not be removed: $mess\n";
-    }
+  # warn "$probe, $consult";
+
+  # Direct removal, no token involved
+  if (!$probe && !$consult) {
+    return $self->_hbr_noprobe(%args);
   }
+
+  # Generate a simple consult token
+  if (!$probe && $consult) {
+    return $self->_hbr_consult(%args);
+  }
+
+  # We're probing; the only issue is whether or not the owner is consulted
+  # when the probe bounces
+
   return "  Only doing -noprobe removals at this time.\n";
 }
+
+=head2 _hbr_noprobe
+
+Directly remove a bouncing user, no consultation, no probing.
+
+=cut
+sub _hbr_noprobe {
+  my $self = shift;
+  my %args = @_;
+  my $log = new Log::In 100;
+
+  ($ok, $mess) =
+    $self->_unsubscribe($args{list},
+			"$args{sender} (Automatic Bounce Processor)",
+			$args{user},
+			'',
+			'automatic removal',
+			'MAIN',
+		       );
+  $self->inform($args{list}, 'unsubscribe',
+		qq("Automatic Bounce Processor" <$args{'sender'}>),
+		$args{'user'}, "unsubscribe $args{'list'} $args{'user'}",
+		$self->{'interface'}, $ok, 0, 0, 
+		qq(The bounce_rules setting says "remove-noprobe"),
+		$::log->elapsed - $time);
+
+  if ($ok) {
+    return "  User was removed.\n";
+  }
+  return "  User could not be removed: $mess\n";
+}
+
+=head2 _hbr_consult
+
+Send a consultation token to the owners; if accepted, the address is
+removed.
+
+We must also make a note that we have acted on a bounce from this address
+so that succeeding bounces don't generate additional tokens.  (They should
+generate statistics, however.)
+
+=cut
+use Mj::Token;
+use Mj::Util qw(n_build n_defaults);
+sub _hbr_consult {
+  my $self = shift;
+  my %args = @_;
+  my $log = new Log::In 100;
+  my ($bdata, $defaults, $notify, $token);
+
+  # Check that a type 'C' bounce event does not exist for this address
+  $bdata = $self->{lists}{$args{list}}->bounce_get($args{user});
+  return if $bdata->{'C'};
+
+  $defaults = n_defaults('consult');
+  $notify = n_build($args{notify}, $defaults);
+  $notify->[0]{attach} = {file => $args{file}} if $notify->[0]{attach};
+  # XXX Should replace $notify->[0]{file} as well.
+
+  $token =
+    $self->confirm(
+		   command  => 'unsubscribe',
+		   list     => $args{list},
+		   victim   => $args{user},
+		   user     => $self->_list_config_get($args{list}, 'sender'),
+		   mode     => '',
+		   cmdline  => "unsubscribe $args{list} $args{user}",
+		   notify   => $notify,
+		   chain    => 0,
+		   expire   => 0,
+		   arg1     => 'MAIN',
+		   #XXX Include some info from statistics
+		   reasons  => 'Address has bounced too many messages.',
+		  );
+
+  # Now add a type C bounce event
+  $self->{lists}{$args{list}}->bounce_add
+    (addr   => $args{user},
+     subbed => 1,
+     time   => time,
+     type   => 'C',
+     evdata => $token,
+    );
+}
+
+
 
 sub _gen_bounce_message {
   my ($user, $args, $params, $actions) = @_;

@@ -403,17 +403,15 @@ sub confirm {
       }
 
       # Attach the message file if necessary.
-      if ($args{'command'} eq 'post' and exists($dest->{'attach'})
-          and $dest->{'attach'} == 1) 
-      {
-        $ent->make_multipart;
-        $ent->attach(Type        => 'message/rfc822',
-                     Description => 'Original message',
-                     Path        => $args{'arg1'},
+      if ($dest->{'attach'}) {
+	$dest->{attach} = {} if ref($dest->{attach}) ne 'HASH';
+	$ent->make_multipart;
+        $ent->attach(Type        => $dest->{attach}{type} || 'message/rfc822',
+                     Description => $dest->{attach}{desc} || 'Original message',
+                     Path        => $dest->{attach}{file} || $args{'arg1'},
                      Filename    => undef,
                     );
       }
-
 
       # Determine whether or not a bounce of the token would result
       # in the token being deleted.
@@ -438,6 +436,7 @@ sub confirm {
       # $ent->purge;
     }
   }
+  $realtoken;
 }
 
 =head2 get_moderators(list, moderator_group, pool_size)

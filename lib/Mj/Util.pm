@@ -243,7 +243,7 @@ the way a request is held (confirm, consult, or delay).
 
 =cut
 sub n_defaults {
-  my ($type) = shift;
+  my ($type, $command) = @_;
   my ($defaults);
 
   $defaults = {
@@ -258,7 +258,7 @@ sub n_defaults {
               };
 
   if ($type eq 'consult') {
-    $defaults->{'attach'} = 1;
+    $defaults->{'attach'} = 1 if $command && $command eq 'post';
     $defaults->{'bounce'} = 0;
     $defaults->{'file'}   = 'consult';
     $defaults->{'group'}  = 'moderators';

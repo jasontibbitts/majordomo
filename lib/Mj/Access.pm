@@ -754,8 +754,8 @@ sub _a_conf_cons {
   my ($defaults, $dfl2, $file1, $file2, $group, $approvals, $notify);
   my $log = new Log::In 150, $td->{'command'};
 
-  $defaults = n_defaults('confirm');
-  $dfl2 = n_defaults('consult');
+  $defaults = n_defaults('confirm', $td->{command});
+  $dfl2 = n_defaults('consult', $td->{command});
 
   # Confirm file, consult file, consult group, consult approvals
   ($file1, $file2, $group, $approvals) = split /\s*,\s*/, $arg;
@@ -792,7 +792,7 @@ sub _a_confirm {
   my $log = new Log::In 150, $td->{'command'};
   my ($defaults, $notify);
 
-  $defaults = n_defaults('confirm');
+  $defaults = n_defaults('confirm', $td->{command});
 
   if (defined($arg) and length($arg)) {
     $defaults->{'file'} = $arg;
@@ -823,7 +823,7 @@ sub _a_confirm2 {
     return 1;
   }
 
-  $defaults = n_defaults('confirm');
+  $defaults = n_defaults('confirm', $td->{command});
   $reply = "repl_confirm";
   $dfl2 = '';
 
@@ -878,8 +878,8 @@ sub _a_consult {
   my $log = new Log::In 150, $td->{'command'};
   my ($defaults, $file, $group, $notify, $size);
 
-  $defaults = n_defaults('consult');
-                
+  $defaults = n_defaults('consult', $td->{command});
+
   ($file, $arg, $group, $size) = split (/\s*,\s*/, $arg || "");
 
   if (defined($file) and length($file)) {
@@ -914,7 +914,7 @@ sub _a_delay {
   my $log = new Log::In 150, "$td->{'command'}, $arg";
   my ($defaults, $delay, $file, $notify);
 
-  $defaults = n_defaults('delay');
+  $defaults = n_defaults('delay', $td->{command});
 
   ($file, $arg) = split (/\s*,\s*/, $arg || "");
   if (defined($arg) and length($arg)) {

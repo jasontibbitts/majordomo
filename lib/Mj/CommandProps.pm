@@ -925,6 +925,7 @@ my %commands =
 			       'remove' => 1,
 			       'ignore' => 1,
 			       'inform' => 1,
+			       'notify' => 1,
 			      },
 		},
    },
