@@ -68,10 +68,15 @@ use Mj::Util qw(ep_convert ep_recognize);
 sub validate_passwd {
   my ($self, $user, $passwd, $list, $action, $global_only) = @_;
   my (@try, $c, $i, $j, $k, $pdata, $reg, $shpass, $tmp);
-  return 0 unless defined $passwd;
+  return 0 unless (defined $passwd and defined $list and length $list);
   my $log = new Log::In 100, "$user, $list, $action";
 
   $shpass = '';
+
+  unless ($self->_make_list($list)) {
+    $log->out('invalid list');
+    return 0;
+  }
 
   if ($self->t_recognize($passwd)) {
     # The password given appears to be a latchkey, a temporary password.
