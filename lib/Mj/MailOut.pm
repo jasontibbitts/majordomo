@@ -179,8 +179,8 @@ sub owner_done {
       $list) = @_;
   $list ||= 'GLOBAL';
   my $log  = new Log::In 30, "$list";
-  my (@owners, $data, $ent, $fh, $i, $mess, $msgno, $nent, $parser,
-      $sender, $tmpdir);
+  my (@owners, @bouncers, $data, $ent, $fh, $i, $mess, $msgno, $nent, $parser,
+      $sender, $lsender, $tmpdir);
 
   $self->{'owner_fh'}->close;
   $self->_make_list($list);
@@ -209,6 +209,10 @@ sub owner_done {
   # If we know we have a message
   if ($type eq 'M') {
     $mess = "Detected a bounce of message #$msgno.\n";
+
+    $lsender  = $self->_list_config_get($list, 'sender');
+    @bouncers = @{$self->_list_config_get($list, 'bounce_recipients')};
+    @bouncers = @owners unless @bouncers;
 
     # If we have an address from the envelope, we can only have one.
     # Always trust it but try to look for a more specific bounce status in
@@ -244,7 +248,7 @@ sub owner_done {
 		     "The bounce message is attached below.\n\n",
 		   ],
        -Subject => "Bounce detected",
-       -To      => $sender,
+       -To      => $lsender,
        -From    => $sender,
       );
     $nent->attach(Type        => 'message/rfc822',
@@ -252,7 +256,7 @@ sub owner_done {
 		  Path        => $self->{owner_file},
                   Filename    => undef,
 		 );
-    $self->mail_entity($sender, $nent, @owners);
+    $self->mail_entity($sender, $nent, @bouncers);
   }
 
   else {

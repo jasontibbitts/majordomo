@@ -1,0 +1,4 @@
+Who will receive error messages for this list?  Majordomo will internally
+forward mail received at the -owner address to all of these addresses if
+the mail is identified as a bounce message.  If this variable is unset,
+bounces will be forwarded to the list owners.

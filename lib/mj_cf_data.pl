@@ -769,6 +769,15 @@ EOC
      'visible'=> 1,
      'mutable'=> 1,
     },
+   'bounce_recipients' =>
+   {
+    'type'   => 'address_array',
+    'groups' => [qw(majordomo)],
+    'global' => 1,
+    'local'  => 1,
+    'visible'=> 0,
+    'mutable'=> 1,
+   },
    'owners' =>
    {
     'type'   => 'address_array',

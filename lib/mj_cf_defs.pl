@@ -41,6 +41,7 @@ $Mj::Config::default_string = q(
  'archive_size'         => 'unlimited',
  'archive_split'        => 'monthly',
  'attachment_rules'     => [],
+ 'bounce_recipients'    => [],
  'category'             => '',
  'install_dir'          => undef,
  'lists_dir'            => undef,

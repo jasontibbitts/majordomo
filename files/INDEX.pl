@@ -242,6 +242,7 @@ $files =
    'en/config/archive_split'                   => ['The archive_split variable',                   'us-ascii', '7bit'],
    'en/config/attachment_rules'                => ['The attachment_rules variable',                'us-ascii', '7bit'],
    'en/config/bounce_probe_frequency'          => ['The bounce_probe_frequency variable',          'us-ascii', '7bit'],
+   'en/config/bounce_recipients'               => ['The bounce_recipients variable',               'us-ascii', '7bit'],
    'en/config/category'                        => ['The category variable',                        'us-ascii', '7bit'],
    'en/config/chunksize'                       => ['The chunksize variable',                       'us-ascii', '7bit'],
    'en/config/comments'                        => ['The comments variable',                        'us-ascii', '7bit'],
