@@ -589,6 +589,7 @@ files/en/error/.moderate
 files/en/error/.multiple_addresses
 files/en/error/.nested_brackets
 files/en/error/.no_address
+files/en/error/.no_alias
 files/en/error/.no_body
 files/en/error/.no_domain
 files/en/error/.no_entity
@@ -727,6 +728,7 @@ files/en/error/moderate
 files/en/error/multiple_addresses
 files/en/error/nested_brackets
 files/en/error/no_address
+files/en/error/no_alias
 files/en/error/no_body
 files/en/error/no_domain
 files/en/error/no_entity

@@ -538,6 +538,13 @@ in more than one pair of angle brackets.
 
 (standard substitutions only)
 
+no_alias
+--------
+This message is displayed when an e-mail address is not listed in the
+aliases database.
+
+(standard plus SOURCE, TARGET)
+
 no_address
 ----------
 This error message is displayed if the register, set, subscribe, or
