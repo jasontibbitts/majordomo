@@ -1,5 +1,8 @@
 Wed Jan 27 21:39:09 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* bin/mj_email (forward_to_owner): Remove errant mailbox
+ 	separator from the message.
+
 	* lib/Mj/MTAConfig.pm (add_alias): Fix typo.
 
 Tue Jan 26 21:15:36 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
