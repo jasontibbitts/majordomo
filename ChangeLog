@@ -1,3 +1,14 @@
+2002-06-15  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  The digest command has format file support.
+
+	* lib/Majordomo.pm:  (_digest)  Reduce the number of 
+	hard-coded response messages.
+
+	* lib/Mj/Format.pm:  (digest)  Add format file support.
+
+	* lib/Mj/List.pm:  (digest_incvol)  Comment out debug info.
+
 2002-06-13  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  
