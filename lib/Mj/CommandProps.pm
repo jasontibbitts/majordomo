@@ -208,7 +208,7 @@ my %commands =
    },
    'announce' =>
    {
-    'parser'   => [qw(email shell list global real)],
+    'parser'   => [qw(email shell list global nohereargs real)],
     'dispatch' => {'top' => 1, 
                    'arguments' => {'file', 'SCALAR'},
                    'tokendata' => {'arg1' => 'file'}
