@@ -56,7 +56,14 @@ A confirmation token will be sent to the given "address" to verify
 this action, and must be replied to with an "accept" command before
 the registration is completed and the password can be used.
 
+If a subscriber changes from one email address to another, it is
+not necessary to unregister and re-subscribe to all the lists.
+The "changeaddr" command can update the registry and subscriber
+databases all at one time.
+
+
 See Also:
+   help changeaddr  (which replaces one address with another)
    help configset access_rules_variables (set/test for this command)
    help password   (which changes an individual's password)
    help subscribe  (does an automatic registration)

@@ -87,6 +87,11 @@ the policies, send this message to $MJ
         intro LISTNAME
 (substituting, of course, the real name of your list for "LISTNAME").
 
+If a subscriber changes from one email address to another, it is
+not necessary to unregister and re-subscribe to all the lists.
+The "changeaddr" command can update the registry and subscriber
+databases all at one time.
+
 
 See Also:
    help approve     (which can eliminate the need to use "accept")
