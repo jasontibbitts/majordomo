@@ -271,7 +271,14 @@ sub parse_interactive {
   # multi-line commands, save the whole command as one history entry.
   $term->MinLine(0);
 
-  $term->ornaments(1) if $features->{ornaments} && $opts{ornaments};
+  if ($features->{ornaments}) {
+    if ($opts{ornaments}) {
+      $term->ornaments(1);
+    }
+    else {
+      $term->ornaments(0);
+    }
+  }
 
   # Support command, list, and configuration setting completion.
   if ($features->{'attribs'}) {
