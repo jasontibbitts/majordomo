@@ -966,7 +966,7 @@ sub configshow {
 sub createlist {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29;
-  my ($i, $j, $str, $subs, $tmp);
+  my (@tmp, $i, $j, $str, $subs, $tmp);
   my ($ok, $mess) = @$result;
 
   $subs = {
@@ -987,7 +987,16 @@ sub createlist {
 
   for $j (keys %$mess) {
     next if (ref $mess->{$j} eq 'HASH');
-    $subs->{uc $j} = &escape($mess->{$j}, $type);
+    if (ref $mess->{$j} eq 'ARRAY') {
+      @tmp = @{$mess->{$j}};
+      for ($i = 0; $i < @tmp; $i++) {
+        $tmp[$i] = &escape("$tmp[$i]", $type);
+      }
+      $subs->{uc $j} = [ @tmp ];
+    }
+    else {
+      $subs->{uc $j} = &escape($mess->{$j}, $type);
+    }
   }
 
   if ($request->{'mode'} =~ /destroy/) {
@@ -1395,10 +1404,13 @@ sub lists {
         $tmp  = $data->{'description'}
                  || "(no description)";
         $desc = [ split ("\n", $tmp) ];
+        for ($i = 0; $i < @$desc; $i++) {
+          $desc->[$i] = &escape($desc->[$i], $type);
+        }
 
         $digests = [];
         for $i (sort keys %{$data->{'digests'}}) {
-          push @$digests, "$i: $data->{'digests'}->{$i}";
+          push @$digests, &escape("$i: $data->{'digests'}->{$i}", $type);
         }
         $digests = ["(none)\n"] if ($list =~ /:/);
 
@@ -1407,8 +1419,8 @@ sub lists {
                   'ARCURL'        => $data->{'archive'} || "",
                   'CAN_READ'      => $data->{'can_read'} ? " " : '',
                   'CATEGORY'      => &escape($category, $type) || "?",
-                  'DESCRIPTION'   => &escape($desc, $type),
-                  'DIGESTS'       => &escape($digests, $type),
+                  'DESCRIPTION'   => $desc,
+                  'DIGESTS'       => $digests,
                   'FLAGS'         => $flags,
                   'LIST'          => $list,
                   'OWNER'         => &escape($data->{'owner'}, $type),
@@ -2000,8 +2012,8 @@ sub sessioninfo {
 sub set {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
-  my (@changes, $change, $count, $files, $flag, $init, $j, $list, 
-      $lsubs, $ok, $settings, $str, $subs);
+  my (@changes, @tmp, $change, $count, $files, $flag, $i, $init, 
+      $j, $list, $lsubs, $ok, $settings, $str, $subs);
  
   @changes = @$result; 
   $count = $init = 0;
@@ -2045,7 +2057,18 @@ sub set {
       for $j (keys %$change) {
         next if (ref $change->{$j} eq 'HASH');
         next if ($j eq 'partial' or $j eq 'settings');
-        $lsubs->{uc $j} = &escape($change->{$j}, $type);
+
+        if (ref $change->{$j} eq 'ARRAY') {
+          @tmp = @{$change->{$j}};
+          for ($i = 0; $i < @tmp; $i++) {
+            $tmp[$i] = &escape("$tmp[$i]", $type);
+          }
+          $lsubs->{uc $j} = [ @tmp ];
+        }
+        else {
+          $lsubs->{uc $j} = &escape($change->{$j}, $type);
+        }
+
         if ($j eq 'stripaddr') {
           $lsubs->{'QSADDR'} = &qescape($change->{$j}, $type);
         }
@@ -2145,8 +2168,8 @@ sub set {
 sub show {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
-  my (@lists, $bouncedata, $error, $flag, $gsubs, $i, $j, $lsubs,
-      $settings, $show, $str, $subs, $tmp, $tmp2);
+  my (@lists, @tmp, $bouncedata, $error, $flag, $gsubs, $i, $j, $k,
+      $lsubs, $settings, $show, $str, $subs, $tmp, $tmp2);
   my ($ok, $data) = @$result;
   $error = [];
 
@@ -2194,7 +2217,16 @@ sub show {
   for $i (keys %$data) {
     next if (ref $data->{$i} eq 'HASH');
     next if ($i eq 'lists' or $i eq 'regdata');
-    $subs->{uc $i} = &escape($data->{$i}, $type);
+    if (ref $data->{$i} eq 'ARRAY') {
+      @tmp = @{$data->{$i}};
+      for ($j = 0; $j < @tmp; $j++) {
+        $tmp[$j] = &escape("$tmp[$j]", $type);
+      }
+      $subs->{uc $i} = [ @tmp ];
+    }
+    else {
+      $subs->{uc $i} = &escape($data->{$i}, $type);
+    }
   }
 
   if ($data->{strip} eq $data->{xform}) {
@@ -2212,7 +2244,16 @@ sub show {
   }
   for $i (keys %{$data->{'regdata'}}) {
     next if (ref $data->{'regdata'}{$i} eq 'HASH');
-    $subs->{uc $i} = &escape($data->{'regdata'}{$i}, $type);
+    if (ref $data->{'regdata'}{$i} eq 'ARRAY') {
+      @tmp = @{$data->{'regdata'}{$i}};
+      for ($j = 0; $j < @tmp; $j++) {
+        $tmp[$j] = &escape("$tmp[$j]", $type);
+      }
+      $subs->{uc $i} = [ @tmp ];
+    }
+    else {
+      $subs->{uc $i} = &escape($data->{'regdata'}{$i}, $type);
+    }
   }
 
   $subs->{'REGTIME'}    = scalar localtime($data->{'regdata'}{'regtime'});
@@ -2245,7 +2286,16 @@ sub show {
     for $j (keys %{$data->{'lists'}{$i}}) {
       next if (ref $data->{'lists'}{$i}{$j} eq 'HASH');
       next if ($j eq 'bouncedata' or $j eq 'settings');
-      $lsubs->{uc $j} = &escape($data->{'lists'}{$i}{$j}, $type);
+      if (ref $data->{'lists'}{$i}{$j} eq 'ARRAY') {
+        @tmp = @{$data->{'lists'}{$i}{$j}};
+        for ($k = 0; $k < @tmp; $k++) {
+          $tmp[$k] = &escape("$tmp[$k]", $type);
+        }
+        $lsubs->{uc $j} = [ @tmp ];
+      }
+      else {
+        $lsubs->{uc $j} = &escape($data->{'lists'}{$i}{$j}, $type);
+      }
     }
 
     $lsubs->{'CHANGETIME'} = scalar localtime($data->{'lists'}{$i}{'changetime'});
@@ -3454,6 +3504,13 @@ sub escape {
   local $_ = shift;
   my $type = shift || '';
   return '' unless (defined $_);
+
+  if (ref $_) {
+    my $r = ref $_;
+    warn "Mj::Format::escape cannot process $r objects.\n";
+    return '';
+  }
+
   return $_ if ($type eq 'text');
   my %esc = ( '&'=>'amp', '"'=>'quot', '<'=>'lt', '>'=>'gt');
   s/([<>\"&])/\&$esc{$1};/mg; 
