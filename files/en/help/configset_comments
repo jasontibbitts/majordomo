@@ -15,13 +15,20 @@ Password Notes: Visible only with password.
 
 EXAMPLE:
 configset GLOBAL comments << ENDTAG
-# 9 May 99 - initial creation of list
+9 May 1999 - initial creation of list
 ENDTAG
 
 
-Comment string that will be retained across config file rewrites.
-Note that '#' characters inside here documents are NOT comment characters!
+$INCLUDE-config/comments
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+The comments setting is used in configuration templates to provide
+instructions.  For example, the DEFAULT:personal template has
+instructions for applying the other settings in the template to a
+mailing list with the configset command.
+
+
+See Also:
+   help admin_config   (for a description of configuration templates)
+   help here_document
+
+$INCLUDE-help/foot

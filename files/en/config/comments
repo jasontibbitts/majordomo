@@ -1,1 +1,3 @@
-Comment string that will be retained across config file rewrites.
+The comments setting can be used to describe why a list is configured
+in a particular way, or other information that the list owners wish to
+remember.

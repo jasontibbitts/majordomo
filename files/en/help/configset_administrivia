@@ -8,12 +8,18 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname administrivia = 1
+configset listname administrivia = no
+
+$INCLUDE-config/administrivia
+
+It might be helpful to turn this setting off if words, like
+"unsubscribe," that are also Majordomo commands are often used in the
+discussion.
 
 
-Look for administrative requests (e.g. subscribe/unsubscribe) and
-forward them to the list maintainer instead of the list.
+See Also:
+   help admin_moderate
+   help configset_admin_body
+   help configset_admin_headers
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

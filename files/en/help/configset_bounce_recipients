@@ -18,20 +18,14 @@ configset listname bounce_recipients << ENDTAG
 joe@blow.org
 ENDTAG
 
-
-Specifies who will receive error messages for the named list, or for
-the GLOBAL pseudo-list.  Majordomo will internally forward mail
-received at the -owner address to all of these addresses if the
-mail is identified as a bounce message. If this variable is unset,
-or specified without data, bounces will be sent to the list owners.
+$INCLUDE-config/bounce_recipients
 
 See Also:
-   help configset bounce_max_age         (how long a user's bounce data will be tracked)
-   help configset bounce_max_count       (maximum number of bounce data kept for a user)
-   help configset bounce_probe_frequency (how often bounce probes are sent out)
-   help configset bounce_probe_pattern   (force probes of matching addresses)
-   help configset owners                 (for how to specify the list owner)
+   help admin_subscribers
+   help configset_bounce_max_age   (how long a user's bounce data will be tracked)
+   help configset_bounce_max_count (maximum number of bounce data kept for a user)
+   help configset_bounce_probe_frequency (how often bounce probes are sent out)
+   help configset_bounce_probe_pattern   (force probes of matching addresses)
+   help configset_owners                 (for how to specify the list owner)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

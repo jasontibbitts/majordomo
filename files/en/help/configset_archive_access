@@ -16,7 +16,7 @@ This setting determines who can use the archive command to retrieve
 messages that have been posted to a mailing list in the past.  The
 archive normally resides in a list's public file space, and therefore
 can also be accessed by the get and index commands.  If the archive_dir
-configuration setting is used to store the archive outside of the list's 
+configuration setting is used to store the archive outside of the list's
 file space, the get and index commands cannot be used to access it.
 
 An administrative password can be used to issue the archive command,

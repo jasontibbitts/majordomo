@@ -20,12 +20,26 @@ AMN
 
 $INCLUDE-config/allowed_flags
 
-See Also:
-   help configset_allowed_classes (restricts other subscription options)
-   help configset_default_flags   (sets per-list defaults before subscribing)
-   help configset_nonmember_flags (sets non-subscriber defaults for ack messages)
-   help set    (for how a user can set these and other options after subscribing)
+Normally, subscribers can change their personal settings with the set
+command.  In some situations, the list managers might want to keep
+certain settings from being changed.  For example, if the managers of an
+announcement mailing list do not want replies to be sent to the mailing
+list, they could omit the "replyto" flag from the list of allowed flags.
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+The "postblock" flag should never be included in the list of allowed
+flags.  This flag is used for administrative purposes, to keep a
+particular subscriber from posting messages to a mailing list without
+the approval of the moderators.
+
+
+See Also:
+   help admin_delivery
+   help admin_documents
+   help configset_allowed_classes (to restrict delivery classes)
+   help configset_default_class   (the delivery class of new subscribers)
+   help configset_default_flags   (settings given to new subscribers)
+   help configset_nonmember_flags (settings given to non-subscribers)
+   help here_document
+   help set    (to change or view the settings for a subscriber)
+
+$INCLUDE-help/foot

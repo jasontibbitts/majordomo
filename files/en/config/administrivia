@@ -1,2 +1,8 @@
-Look for administrative requests (e.g. subscribe/unsubscribe) and
-forward them to the list maintainer instead of the list.
+If the administrivia setting is set to "yes", posted messages which
+match the patterns in the admin_body and admin_headers settings
+will be sent to the moderators for review.  These two settings
+are used to keep commands, such as "remove" or "unsubscribe", from
+being posted to a mailing list.
+
+If the administrivia setting is set to "no", the admin_body and
+admin_headers settings will have no effect.

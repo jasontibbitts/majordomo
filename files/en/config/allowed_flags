@@ -1,20 +1,12 @@
 The allowed_flags setting contains a list of personal settings that
-subscribers are allowed to adjust.  The following values are supported:
+subscribers are allowed to change.  The following 13 settings are 
+supported:
 
-  ackdeny
-  ackpost
-  ackreject
-  ackstall
-  eliminatecc
-  hideaddress
-  hideall  
-  hidepost
-  postblock
-  prefix
-  replyto
-  rewritefrom
-  selfcopy
+  ackdeny      ackpost      ackreject  ackstall
+  eliminatecc  hideaddress  hideall    hidepost
+  postblock    prefix       replyto    rewritefrom  selfcopy
 
-If this list is completely empty, users cannot adjust any of their flags.
-List owners can always adjust any flag with an administrative password.
-Use the "help set" command to see a detailed description of the flags.
+List owners can always adjust any setting by using an administrative 
+password.  
+
+Use the "help set" command to see a detailed description of the settings.

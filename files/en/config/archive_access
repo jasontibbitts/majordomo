@@ -13,6 +13,7 @@ List+password allows list members to issue this command, but only
 if they use their personal password.
 
 Closed disables the archive command for everyone but the list
-administrators.  Note that some command modes (archive-sync,
-archive-delete) are only available to administrators, regardless of the
-value of this setting.
+administrators.  
+
+Some command modes (archive-sync, archive-delete) are only available to
+administrators, regardless of the value of this setting.
