@@ -35,6 +35,8 @@ $Mj::Config::default_string = q(
  'addr_limit_length'    => 1,
  'addr_require_fqdn'    => 1,
  'addr_strict_domain_check' => 1,
+ 'allowed_classes'      => [qw(each digest nomail)],
+ 'allowed_flags'        => 'ACHPRS',
  'archive_dir'          => '',
  'archive_size'         => 'unlimited',
  'archive_split'        => 'monthly',
@@ -43,6 +45,8 @@ $Mj::Config::default_string = q(
  'install_dir'          => undef,
  'lists_dir'            => undef,
  'database_backend'     => 'text',
+ 'default_class'        => 'each',
+ 'default_flags'        => 'SPR',
  'delivery_rules'       => [],
  'description'          => undef,
  'description_long'     => [],
@@ -163,8 +167,8 @@ $Mj::Config::default_string = q(
  'max_total_header_length'=> 2048,
  'max_mime_header_length'=> 128,
  'nonmember_flags'      => '',
- 'default_flags'        => 'S',
  'request_answer'       => 'majordomo',
  'owners'               => [],
+ 'signature_separator'  => '/^[-_]/',
 };
 );

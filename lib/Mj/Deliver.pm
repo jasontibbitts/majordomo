@@ -56,8 +56,8 @@ This routine takes the following named arguments:
   classes - a hashref: each key is an extended class name; each value is a
             hashref with the following keys:
             file    - the name of the file to mail
-            exclude - a listref of canonical addresses that mail won''t be
-                      sent to.
+            exclude - a hashrtef of canonical addresses (the values are not
+                      used but should be true) that mail won''t be sent to.
   rules   - hashref containing parsed delivery rules
   chunk   - size of various structures
   seqnum  - message sequence number
@@ -86,11 +86,11 @@ will be used if not provided.
 
 chunk controls the size of some internal lists.
 
-The exclude list is a list of addresses in canonical form; mail will not be
-sent to them even if they otherwise match.  This is to allow people not to
-receive their own messages, or for those who receive a copy via CC to not
-receive one via the list.  Run these through alias processing before
-calling this routine.
+The exclude hash contains keys of addresses in canonical form; mail will
+not be sent to them even if they otherwise match.  (The values are unused
+but should be true.) This is to allow people not to receive their own
+messages, or for those who receive a copy via CC to not receive one via the
+list.  Run these through alias processing before calling this routine.
 
 sendsep should be set to a single character, used to separate the user from
 the "mailbox argument".  This is '+' for sendmail and '-' for qmail.
@@ -118,15 +118,16 @@ sub deliver {
   my %args = @_;
   my $log  = new Log::In 150;
 
-  my (%classes, %exclude, @addrs, @data, $addr, $canon, $classes, $datref,
-      $dests, $eclass, $error, $i, $j, $matcher, $ok, $probeit, $probes,
-      $sender);
+  my (@data, $addr, $canon, $classes, $datref, $dests, $eclass, $error, $i,
+      $j, $matcher, $ok, $probeit, $probes );
 
   my $rules  = $args{rules};
   my $list   = $args{list};
 
   # Allocate destinations and probers and do some other setup stuff
   ($classes, $dests, $probes) = _setup($rules, %args);
+
+  use Data::Dumper; print Dumper $args{classes};
 
   $matcher = sub {
     shift;
@@ -148,7 +149,7 @@ sub deliver {
 
       # Stupid autovivification
       next if $args{classes}{$eclass} &&
-	$args{classes}{$eclass}{excludehash}{$canon};
+	$args{classes}{$eclass}{exclude}{$canon};
 
       $addr = $datref->{'stripaddr'};
       # Do we probe? XXX Also check bounce status and probe
@@ -222,12 +223,6 @@ sub _setup {
 
   # Loop over all of the classes.
   for $i (keys %{$args{classes}}) {
-    # Generate hashes out of the exclude lists, so lookups are quick.
-    $args{classes}{$i}{excludehash} = {};
-    for $j (@{$args{classes}{$i}{exclude}}) {
-      $args{classes}{$i}{excludehash}{$i} = 1;
-    }
-
     # Get the base class and stuff it in a hash for quick lookups.
     $i =~ /([^-]+).*/;
     $classes->{$1} = 1;

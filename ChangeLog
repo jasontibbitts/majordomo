@@ -1,3 +1,39 @@
+Mon Nov 30 20:46:23 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Parser.pm (parse_part): Make signature separator
+ 	configurable.
+
+	* lib/mj_cf_defs.pl: Add default for 'signature_separator'.
+
+	* lib/mj_cf_data.pl: Add 'signature_separator' variable.
+
+Sun Nov 29 00:24:12 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/mj_cf_defs.pl: Added defaults for 'allowed_flags',
+ 	'allowed_classes' and 'default_class'.  Change default for
+ 	'default_flags'.
+
+	* lib/mj_cf_data.pl: Added 'allowed_flags', 'allowed_classes' and
+ 	'default_class' variables.
+
+	* lib/Mj/Resend.pm (_exclude): Fix typo.
+	(_exclude): Make $exclude a hashref.
+
+	* lib/Mj/Deliver.pm (_setup): Fix bug when generating exclude
+ 	hash.
+
+	* files/INDEX.pl: Reflect name change regexp => patterns.
+
+	* lib/Mj/Resend.pm (_exclude): New function: build up the exclude
+ 	list.
+
+	* lib/Mj/List.pm (flag_set): Stash the flags in the address and
+ 	skip database retrieval if present and the new force parameter is
+ 	not true.
+	(is_subscriber): Clean up; always needs to return list data
+ 	instead of just truth value.  Cache data and use cached data when
+ 	possible.
+
 Sat Nov 28 00:03:32 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Resend.pm (_post): Make sure the subject_prefix never

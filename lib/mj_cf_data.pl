@@ -301,7 +301,7 @@ EOC
    'default_flags' =>
    {
     'type'   => 'string',
-    'groups' => [qw(general)],
+    'groups' => [qw(flags)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -311,10 +311,76 @@ choose otherwise.  Possible flags are:
 
   A - ackall
   a - ackimportant
-  S - selfcopy
+  C - elimatecc
   H - hideall
   h - hideaddress
+  P - prefix
+  R - replyto
+  S - selfcopy
+EOC
+   },
+   'nonmember_flags' =>
+   {
+    'type'   => 'string',
+    'groups' => [qw(flags)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+A string containing the flags which apply to users who are not list members
+when they send messages to the list.  Only a very few flags make sense in
+this case.  They are:
+
+  A - ackall
+  a - ackimportant
+EOC
+   },
+   'allowed_flags' =>
+   {
+    'type'   => 'string',
+    'groups' => [qw(flags)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+A string containing the flags that users are allowed to adjust.  You
+need only include the uppercase flags here:
+
+  A - ack
   C - elimatecc
+  H - hide
+  P - prefix
+  R - replyto
+  S - selfcopy
+
+If this is completely empty, users cannot adjust any of their flags.
+The list owner can of course do so.
+EOC
+   },
+   'default_class' =>
+   {
+    'type'   => 'string',
+    'groups' => [qw(class)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+When users first subscribe, they will be placed into this class.  If
+the class given does not exist, they will be placed into the \'each\'
+class, where they receive each message.
+EOC
+   },
+   'allowed_classes' =>
+   {
+    'type'   => 'string_array',
+    'groups' => [qw(class)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+A list of the classes that a user is allowed to put themselves into.
+If a less specific class like \'digest\' is given, users are allowed
+to put themselves into any of the more specific classes.
 EOC
    },
    'delivery_rules' =>
@@ -325,7 +391,6 @@ EOC
     'local'  => 1,
     'mutable'=> 0,
     'comment'=> <<EOC,
-
 A table containing delivery rules, which describe how Majordomo will
 deliver mail.  In the simplest form, you can specify a host to use for
 delivery and a batch size.  (This duplicates much of the functionality
@@ -667,22 +732,6 @@ EOC
 List messages requiring consulataion will be sent to this many of the
 addresses in \'moderators\', chosen at random.  If this is zero, the
 message will be sent to all of the addresses in \'moderators\'.
-EOC
-   },
-   'nonmember_flags' =>
-   {
-    'type'   => 'string',
-    'groups' => [qw(general)],
-    'visible'=> 0,
-    'local'  => 1,
-    'mutable'=> 1,
-    'comment'=> <<EOC,
-A string containing the flags which apply to users who are not list members
-when they send messages to the list.  Only a very few flags make sense in
-this case.  They are:
-
-  A - ackall
-  a - ackimportant
 EOC
    },
    'sender' =>
@@ -1833,6 +1882,23 @@ majordomo - the message will be processed for commands
 owner     - the message will be sent to the list owner
 response  - the contents of the file 'request_reply' will be returned
             to the sender of the message.
+EOC
+   },
+   'signature_separator' =>
+   {
+    'type'   => 'regexp',
+    'groups' => [qw(parser)],
+    'local'  => 0,
+    'global' => 1,
+    'visible'=> 1,
+    'comment'=> <<EOC,
+The text parser will stop looking for commands when it sees a line
+matching this pattern.
+
+The standard signature separator is a line consisting only of two
+dashes followed by one space.  However, many users ignore this
+standard and many sites use underscores instead of dashes.  Hence a
+more lenient pattern is generally more useful.
 EOC
    },
    );

@@ -435,6 +435,7 @@ sub _re_match {
   if (wantarray) {
     return ($match, $warn);
   }
+#  $log->out('matched') if $match;
   return $match;
 }
 
@@ -3132,7 +3133,6 @@ are:
 The classes are:
 
   each,single (single messages)
-  high (single messages, high piority)
   digest (default digest)
   digest-x (the named digest x)
   nomail,vacation (no mail at all)

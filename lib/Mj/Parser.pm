@@ -153,10 +153,12 @@ sub parse_part {
   my $log         = new Log::In 50, "$interface, $title";
   my (@arglist, @help, $action, $args, $attachhandle, $command, $count,
       $fail_count, $function, $garbage, $list, $mode, $ok, $ok_count, $out,
-      $password, $pend_count, $replacement, $tlist, $true_command,
+      $password, $pend_count, $replacement, $sigsep, $tlist, $true_command,
       $unk_count);
 
   $count = $ok_count = $pend_count = $fail_count = $unk_count = $garbage = 0;
+  $sigsep = $mj->global_config_get(undef, undef, undef, $interface,
+				   'signature_separator');
 
  CMDLINE:
   while (defined($_ = $inhandle->getline)) {
@@ -167,10 +169,11 @@ sub parse_part {
     # Skip blank lines
     next if /^\s*$/;
     
-    # Stop parsing at a signature separator.  This has been relaxed to work
-    # like Mj1 works, but it may be wise to make it configurable.
-    # if (/^\s*-+\s*$/) {
-    if (/^-/) {
+    # Stop parsing at a signature separator. XXX It is of dubious legality
+    # to call a function in the Majordomo namespace from here.  We know the
+    # module has been loaded because we have a valid Majordomo object, but
+    # still, this is client-side.
+    if (Majordomo::_re_match($sigsep, $_)) {
       print $outhandle ">>>> $_";
       print $outhandle "Stopping at signature separator.\n\n";
       last CMDLINE;

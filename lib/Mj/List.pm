@@ -220,23 +220,34 @@ sub is_subscriber {
   my $log = new Log::In 170, "$self->{'name'}, $addr";
   my ($ok, $out, $subs);
 
-  return 0 unless $addr->isvalid;
-  return 0 if $addr->isanon;
+  return unless $addr->isvalid;
+  return if $addr->isanon;
 
   # If we have cached data within the addr, use it
+  $data = $addr->retrieve("$self->{name}-subs");
+  return $data if $data;
+
+  # Otherwise see if we have enough cached data to tell us whether they're
+  # subscribed or not, so we can dave a database lookup
   $subs = $addr->retrieve('subs');
   if ($subs) {
     if ($subs->{$self->{name}}) {
+      # We know they're a subscriber, so we can actually look up the data
+      $out = $self->{'subs'}->lookup($addr->canon);
+      $addr->cache("$self->{name}-subs", $out);
       $log->out('yes-fast');
-      return 1;
+      return $out;
     }
     else {
       $log->out('no-fast');
-      return 0;
+      return;
     }
   }
+
+  # We know nothing about the address so we do the lookup
   $out = $self->{'subs'}->lookup($addr->canon);
   if ($out) {
+    $addr->cache("$self->{name}-subs", $out);
     $log->out("yes");
     return $out;
   }
@@ -244,9 +255,12 @@ sub is_subscriber {
   return;
 }
 
-=head2 set(addr, setting, arg)
+=head2 set(addr, setting, arg, check)
 
 This sets various subscriber data.
+
+If $check is true, we check the validity of the settings but don''t
+actually change any values.
 
 =cut
 sub set {
@@ -254,8 +268,10 @@ sub set {
   my $addr = shift;
   my $set  = shift;
   my $arg  = shift;
+  my $force= shift;
   my $log  = new Log::In 150, "$addr, $set";
-  my ($data, $dig, $inv, $isflag, $key, $mime, $rset, $subflags, $time);
+  my (@classes, $data, $dig, $inv, $isflag, $key, $mask, $mime, $rset,
+      $subflags, $time);
 
   ($inv = $set) =~ s/^no//;
 
@@ -269,7 +285,24 @@ sub set {
     $log->out("failed, invalidaction");
     return (0, "Invalid setting: $set.\n"); # XLANG
   }
-  
+
+  if ($check) {
+    # Check the setting against the allowed flag mask.
+    if ($isflag) {
+      $mask = $self->config_get('allowed_flags');
+      # Make sure base flag is in the set.
+    }
+
+    # Else it's a class
+    else {
+      @classes = $self->config_get('allowed_classes');
+      # Make sure that one of the allowed classes is at the beginning of
+      # the given class.
+
+    }
+    return 1;
+  }
+
   # Grab subscriber data
   ($key, $data) = $self->get_member($addr);
 
@@ -486,22 +519,35 @@ sub default_flags {
 =head2 flag_set(flag, address)
 
 Returns true if the address is a subscriber and has the given flag set.
+Don''t ask for flags in the off state (noprefix, etc.) because this will
+not provide a useful result.
+
+This stashes the flags within the address so that repeated lookups will be
+cheap.
 
 =cut
 sub flag_set {
   my $self = shift;
   my $flag = shift;
   my $addr = shift;
+  my $force= shift;
   my $log  = new Log::In 150, "$flag, $addr";
   my ($flags, $data);
   return unless $flags{$flag};
-  $data = $self->is_subscriber($addr);
-  if ($data) {
-    $flags = $data->{flags};
+
+  $flags = $addr->retrieve("$self->{name}-flags");
+
+  if ($force || !defined($flags)) {
+    $data = $self->is_subscriber($addr);
+    if ($data) {
+      $flags = $data->{flags};
+    }
+    else {
+      $flags = $self->config_get('nonmember_flags');
+    }
+    $addr->cache("$self->{name}-flags", $flags);
   }
-  else {
-    $flags = $self->config_get('nonmember_flags');
-  }
+
   return unless $flags =~ /$flags{$flag}[3]/;
   1;
 }

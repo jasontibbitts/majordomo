@@ -192,7 +192,7 @@ sub post {
     # gross like return a filename as the message and process it here, but
     # it's cleaner this way even with the bit of added conditional code in
     # Access.pm.  We could also substitute some variables in the access
-    # routine and some here, but since we already passes in the essential
+    # routine and some here, but since we already passed in the essential
     # information there's no reason not to take care of it all at once.
     if ($self->{'lists'}{$list}->flag_set('ackall', $user)) {
       $nent = build MIME::Entity
@@ -290,8 +290,8 @@ sub _post {
   my $log  = new Log::In 35, "$list, $user, $file";
 
   my(%avars, %digest, @ent, @files, @refs, @skip, $arcdata, $arcent,
-     $archead, $head, $i, $msgnum, $prefix, $replyto, $sender, $seqno,
-     $subject, $tmp, $tmpdir, $tprefix);
+     $archead, $exclude, $head, $i, $msgnum, $prefix, $replyto, $sender,
+     $seqno, $subject, $tmp, $tmpdir, $tprefix);
 
   $self->_make_list($list);
   $tmpdir = $self->_global_config_get('tmpdir');
@@ -403,6 +403,9 @@ sub _post {
   $ent[2] = $self->_reply_to($ent[0]->dup, $list, $seqno, $user);
   $ent[3] = $self->_reply_to($ent[1]->dup, $list, $seqno, $user);
 
+  # Generate the exclude list
+  $exclude = $self->_exclude($ent[0], $list, $user);
+
   # Unlink archive copy and print delivery messages to files
   unlink "$file";
   for ($i = 0; $i < @ent; $i++) {
@@ -424,22 +427,22 @@ sub _post {
   $self->deliver($list, $sender, $seqno,
 		 {'each-prefix-noreplyto' =>
 		  {
-		   exclude => [],
+		   exclude => $exclude,
 		   file    => $files[0],
 		  },
 		  'each-noprefix-noreplyto' =>
 		  {
-		   exclude => [],
+		   exclude => $exclude,
 		   file    => $files[1],
 		  },
 		  'each-prefix-replyto' =>
 		  {
-		   exclude => [],
+		   exclude => $exclude,
 		   file    => $files[2],
 		  },
 		  'each-noprefix-replyto' =>
 		  {
-		   exclude => [],
+		   exclude => $exclude,
 		   file    => $files[3],
 		  },
 		 },
@@ -1313,6 +1316,44 @@ sub _reply_to {
   $ent;
 }
   
+=head2 _exclude
+
+Figure out who to exclude.
+
+This looks at the To: and CC: headers of the given entity, plus the provded
+user.  It checks the settings for those addresses and adds them to the
+exclude list if appropriate:
+
+  $user is excluded if it has flags 'noselfcopy'.
+  To: and CC: are excluded if they have flags 'eliminatecc'.
+
+=cut
+sub _exclude {
+  my($self, $ent, $list, $user) = @_;
+  my(@addrs, $addr, $cc, $exclude, $i, $to);
+  $exclude = {};
+
+  # The user doesn't get a copy if they don't have 'selfcopy' set.
+  $exclude->{$user->canon} = 1
+    if !$self->{'lists'}{$list}->flag_set('selfcopy', $user);
+
+  # Extract addresses from headers
+  $to = $ent->head->get('To', 0); chomp $to if $to;
+  $cc = $ent->head->get('CC', 0); chomp $cc if $cc;
+
+  push @addrs, Mj::Addr::separate($to) if $to;
+  push @addrs, Mj::Addr::separate($cc) if $cc;
+
+  for $i (@addrs) {
+    $addr = new Mj::Addr($i);
+    next unless $addr->isvalid;
+    $exclude->{$addr->canon} = 1
+      if $self->{'lists'}{$list}->flag_set('eliminatecc', $addr);
+  }
+  $exclude;
+}
+
+
 
 
 =head1 COPYRIGHT

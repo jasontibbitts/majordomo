@@ -89,13 +89,12 @@ sub mail_entity {
   unlink $tmpfile || $::log->abort("Can't unlink $tmpfile, $!");
 }
 
-=head2 deliver(list, sender, file, class, exclude_list)
+=head2 deliver(list, sender, sequence_number, class_hashref)
 
 This calls the delivery routine to deliver a message to all subscribers to
 a list who are in a certain class, except for some users.
 
-list should be a list name.  Addresses in exclude_list should be in
-canonical form.
+list should be a list name.
 
 We take the sequence number here because _post will have already changed it
 in the config by the time we are called.

@@ -14,9 +14,14 @@ Untainting sometimes happens in the wrong place; in a C/S model, we won't
 Top of the list 
 ---------------
 
+Move t_accept messages into external files.
+Return additional information from _post so that t_accept can provide
+ additional data.
+Finish work on allosed_flags and allowed_classes.
+
 ! Digest:
 
-RFC1153 (test) digests:
+RFC1153 (text) digests:
 
   Flatten all multiparts.  Strip all images.  Reduce to text _only_.
   Change message/rfc822 parts to plain text bracketed by "---- Begin
