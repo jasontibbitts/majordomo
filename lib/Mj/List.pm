@@ -674,6 +674,9 @@ sub _str_to_time {
   if ($arg =~ /(\d+)m(onths?)?/) {
     $time += (86400 * 30 * $1);
   }
+  if ($arg =~ /(\d+)y(ears?)?/) {
+    $time += (86400 * 365 * $1);
+  }
   if ($time) {
     $time += time;
   }
