@@ -61,6 +61,7 @@ sub accept {
     $ok = shift @tokens;
     if ($ok == 0) {
       $mess = shift @tokens;
+      next if ($mess eq 'NONE');
       $gsubs->{'ERROR'} = $mess;
 
       $tmp = $mj->format_get_string($type, 'accept_error', $request->{'list'});
@@ -154,6 +155,7 @@ sub alias {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my ($mess, $ok, $str, $subs, $tmp);
   ($ok, $mess) = @$result;
+  return $ok if ($mess eq 'NONE');
 
   $subs = { $mj->standard_subs('GLOBAL'),
            'CGIDATA'  => $request->{'cgidata'},
@@ -183,6 +185,7 @@ sub announce {
   my ($mess, $ok, $str, $subs, $tmp);
 
   ($ok, $mess) = @$result;
+  return $ok if ($mess eq 'NONE');
 
   $subs = { $mj->standard_subs($request->{'list'}),
            'CGIDATA'  => $request->{'cgidata'},
@@ -229,6 +232,7 @@ sub archive {
           };
 
   if ($ok <= 0) { 
+    return $ok if ($msgs[0] eq 'NONE');
     $subs->{'ERROR'} = $msgs[0];
     $tmp = $mj->format_get_string($type, 'archive_error', $list);
     $str = $mj->substitute_vars_format($tmp, $subs);
@@ -660,6 +664,7 @@ sub changeaddr {
     print $out &indicate($type, "$str\n", $ok, 1);
   }
   else {
+    return $ok if ($mess eq 'NONE');
     $subs->{'ERROR'} = &escape($mess, $type);
     $tmp = $mj->format_get_string($type, 'changeaddr_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
@@ -1013,6 +1018,7 @@ sub createlist {
           };
 
   unless ($ok > 0) {
+    return $ok if ($mess eq 'NONE');
     $subs->{'ERROR'} = $mess;
     $tmp = $mj->format_get_string($type, 'createlist_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
@@ -1074,6 +1080,7 @@ sub digest {
           };
 
   unless ($ok > 0) {
+    return $ok if ($mess eq 'NONE');
     $gsubs->{'ERROR'} = $mess;
     $tmp = $mj->format_get_string($type, 'digest_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
@@ -1236,6 +1243,7 @@ sub help {
           };
 
   unless ($ok > 0) {
+    return $ok if ($mess eq 'NONE');
     $subs->{'ERROR'} = &escape($mess, $type);
     $tmp = $mj->format_get_string($type, 'help_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
@@ -1298,6 +1306,7 @@ sub index {
 
   ($ok, @index) = @$result;
   unless ($ok > 0) {
+    return $ok if ($index[0] eq 'NONE');
     eprint($out, $type, &indicate($type, "The index command failed.\n", $ok));
     eprint($out, $type, &indicate($type, $index[0], $ok)) if $index[0];
     return $ok;
@@ -1329,7 +1338,13 @@ sub index {
   $width{'language'}     ||= 5; 
   $width{'size'}         ||= 5;
 
-  if (@index) {
+  if (! scalar @index) {
+    # XLANG
+    eprint($out, $type, qq(The "$request->{'path'}" directory is empty .\n));
+  }
+  elsif ($type eq 'wwwadm' or $type eq 'wwwusr') {
+  }
+  else {
     # index_head
     eprint($out, $type, length($request->{'path'}) ?"Files in $request->{'path'}:\n" : "Public files:\n")
       unless $request->{'mode'} =~ /short/;
@@ -1357,10 +1372,6 @@ sub index {
     return 1 if $request->{'mode'} =~ /short/;
     eprint($out, $type, "\n");
     eprintf($out, $type, "%d file%s.\n", $count,$count==1?'':'s');
-  }
-  else {
-    # XLANG
-    eprint($out, $type, qq(The "$request->{'path'}" directory is empty .\n));
   }
   1;
 }
@@ -1392,6 +1403,7 @@ sub lists {
           };
 
   if ($ok <= 0) {
+    return $ok if ($lists[0] eq 'NONE');
     $gsubs->{'ERROR'} = &escape($lists[0], $type);
     $tmp = $mj->format_get_string($type, 'lists_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
@@ -1534,6 +1546,7 @@ sub password {
     }
   }
   else {
+    return $ok if ($mess eq 'NONE');
     $tmp = $mj->format_get_string($type, 'password_error', $request->{'list'});
     $subs->{'ERROR'} = $mess;
   }
@@ -1587,6 +1600,7 @@ sub post {
     print $out "$str\n";
   }
   else {
+    return $ok if ($mess eq 'NONE');
     $subs->{'ERROR'} = &escape($mess, $type);
     $tmp = $mj->format_get_string($type, 'post_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
@@ -1617,6 +1631,7 @@ sub put {
           };
 
   unless ($ok) {
+    return $ok if ($mess eq 'NONE');
     $subs->{'ERROR'} = &escape($mess, $type);
     $tmp = $mj->format_get_string($type, 'put_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
@@ -1822,6 +1837,7 @@ sub rekey {
     }
   }
   else {
+    return 0 if ($ra eq 'NONE');
     eprint($out, $type, "The registry and subscriber databases were not rekeyed.\n");
     eprint($out, $type, &indicate($type, $ra, $ok));
     return 0;
@@ -1850,6 +1866,7 @@ sub report {
            };
 
   unless ($ok > 0) {
+    return $ok if ($mess eq 'NONE');
     $gsubs->{'ERROR'} = &escape($mess, $type);
     $tmp = $mj->format_get_string($type, 'report_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
@@ -2189,6 +2206,7 @@ sub set {
 
     # deal with partial failure
     else {
+      next if ($change eq 'NONE');
       $lsubs->{'ERROR'} = &escape($change, $type);
       $str = $mj->substitute_vars_format($files->{'error'}, $lsubs);
       print $out "$str\n";
@@ -2239,6 +2257,7 @@ sub show {
     else {
       $error = $data;
     }
+    return $ok if ($error eq 'NONE');
 
     $subs = { %$gsubs,
               'ERROR' => $error,
@@ -2456,6 +2475,7 @@ sub showtokens {
   }
 
   unless ($ok > 0) {
+    return $ok if ($tokens[0] eq 'NONE');
     $subs = {
              %{$gsubs},
              'ERROR'  => $tokens[0],
@@ -2535,6 +2555,7 @@ sub tokeninfo {
   my ($ok, $data, $sess) = @$result;
 
   unless ($ok > 0) {
+    return $ok if ($data eq 'NONE');
     $subs = { $mj->standard_subs($request->{'list'}),
               'CGIDATA' => $request->{'cgidata'} || '',
               'CGIURL'  => $request->{'cgiurl'} || '',
@@ -2897,6 +2918,7 @@ sub unalias {
     print $out &indicate($type, "$str\n", $ok, 1);
   }
   else {
+    return $ok if ($mess eq 'NONE');
     $subs->{'ERROR'} = &escape($mess, $type);
     $tmp = $mj->format_get_string($type, 'unalias_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
@@ -2936,6 +2958,7 @@ sub which {
 
   # Deal with initial failure
   if ($ok <= 0) {
+    return $ok if ($matches[0] eq 'NONE');
     $gsubs->{'ERROR'} = &escape($matches[0], $type);
     $tmp = $mj->format_get_string($type, 'which_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
@@ -3045,6 +3068,7 @@ sub who {
   ($ok, $regexp, $settings) = @$result;
 
   if ($ok <= 0) {
+    return $ok if ($regexp eq 'NONE');
     $gsubs->{'ERROR'} = &indicate($type, $regexp, $ok);
     $tmp = $mj->format_get_string($type, 'who_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
@@ -3349,6 +3373,7 @@ sub g_get {
   my ($ok, $mess) = @$result;
 
   unless ($ok > 0) {
+    return $ok if ($mess eq 'NONE');
     $subs = {
              $mj->standard_subs($request->{'list'}),
              'COMMAND' => $base,
@@ -3488,6 +3513,7 @@ sub g_sub {
     ($ok, $addr) = splice @res, 0, 2;
 
     unless ($ok > 0) {
+      next if ($addr eq 'NONE');
       $subs->{'ERROR'} = &escape($addr, $type);
       $str = $mj->substitute_vars_format($fail, $subs);
       print $out &indicate($type, "$str\n", $ok);
