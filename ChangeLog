@@ -1,4 +1,34 @@
+Sun Apr 18 00:31:30 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_queueserv: Change the name of the socket.
+
+	* bin/mj_queuerun (run_queue): Move destruction of Majordomo
+ 	object; always do it after running a domain, instead of lazily, in
+ 	order to show a sensible destructor sequence.
+
+  	It is not really an error to fail opening a queue file because
+ 	another runner may have deleted it while we were processing.
+
+	The largest of domain, list, -v debugging options wins.
+
+	* bin/mj_enqueue (logmsg): Change socket name to
+ 	mj_queueserv.sock.
+  	
+	Not being able to create the socket is not a warning.
+  	
+	Do locking to make sure only one mj_enqueue is starting a server;
+ 	if another process has locked a file, don't bother to try to start
+ 	a server.
+
 Sat Apr 17 00:48:17 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_queueserv (logmsg): Log to STDERR, not STDOUT.
+
+	* bin/mj_enqueue (logmsg): Log to STDERR, not STDOUT.
+
+	* bin/mj_queuerun (debug_to): New function; redirect debugging
+ 	info.
+	(run_queue): Send debug info to an appropriate file.
 
 	* bin/mj_enqueue (logmsg): Add logging function.
 

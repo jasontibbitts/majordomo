@@ -34,15 +34,15 @@ use strict;
 $|=1;
 $ENV{PATH} = '';
 
-sub logmsg { print STDOUT "[$$].Queueserv: @_\n"; }
+sub logmsg { print STDERR "[$$].Queueserv: @_\n"; }
 sub out { logmsg "Out: $_[1]"; syswrite($_[0], $_[1], length($_[1])) }
 sub in  { sysread($_[0], $_, 1024); logmsg "In: $_"; $_ };
 
 my(@child, @parent, $ein, $eout, $i, $in, $line, $nfound, $out, $pid,
    $ping, $rin, $rout, $use_child, $win, $wout);
 
-my $NAME = "$::TMPDIR/mj_queueserv";
-my $uaddr = sockaddr_un($NAME);
+my $sock = "$::TMPDIR/mj_queueserv.sock";
+my $uaddr = sockaddr_un($sock);
 my $proto = getprotobyname('tcp');
 my $debug = '';
 $debug = " -v $ARGV[0]" if defined $ARGV[0];
@@ -58,11 +58,11 @@ $SIG{CHLD} = 'IGNORE';
 $SIG{PIPE} = 'IGNORE';
 
 socket(Server,PF_UNIX,SOCK_STREAM,0)        || die "socket: $!";
-unlink($NAME);
+unlink($sock);
 bind  (Server, $uaddr)                      || die "bind: $!";
 listen(Server,SOMAXCONN)                    || die "listen: $!";
 
-logmsg "server started on $NAME";
+logmsg "Server started on $sock";
 
 # Loop until we exit explicitly
 MAIN:
@@ -183,7 +183,7 @@ while (1) {
       }
       else {
 	# The child never said hello...
-	logmsg "Runner did not respond."
+	logmsg "Runner did not respond.";
 	print Client "Problems starting queue runner; queueing";
 	close Client;
 	next;

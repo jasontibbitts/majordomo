@@ -32,7 +32,7 @@ use Socket;
 use Fcntl qw(:flock :DEFAULT);
 use Getopt::Std;
 use strict;
-sub logmsg { print STDOUT "[$$].Enqueue: @_\n"; }
+sub logmsg { print STDERR "[$$].Enqueue: @_\n"; }
 my (%opts, $dom, $i, $line, $ok, $pid, $rendezvous, $q1, $q2, $q3, $qdir,
     $qfile, $qfunc);
 
@@ -114,14 +114,23 @@ close OUT;  # Also unlocks.
 # because the file has already been queued and a runner will pick it up
 # later.  From the MTA's standpoint, delivery was successful.
 
-$rendezvous = "$::TMPDIR/mj_queueserv";
+$rendezvous = "$::TMPDIR/mj_queueserv.sock";
 unless (socket(SOCK, PF_UNIX, SOCK_STREAM, 0)) {
-  warn "Couldn't create socket: $!";
+  logmsg "Couldn't create socket: $!";
   exit 0;
 }
 
 if (!($ok = connect(SOCK, sockaddr_un($rendezvous)))) {
-  # No connection; start the primary server
+  # Couldn't connect to the server.  First, exclude other mj_enqueue
+  # programs from starting one.
+  open LOCK, ">> $::TMPDIR/mj_queueserv.lock" ||
+    die "Couldn't open lockfile $::TMPDIR/mj_queueserv.lock: $!";
+
+  unless (flock(LOCK, LOCK_EX|LOCK_NB)) {
+    logmsg "Another process is starting the server";
+    exit 0;
+  }
+
   unless ($pid = fork) {
     unless (defined $pid) {
       warn "Couldn't fork: $!";

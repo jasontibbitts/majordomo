@@ -152,7 +152,7 @@ sub run_queue {
 
     # Grab the domains from the queue
     opendir DOMS, "$::TMPDIR/queue/$pri1" ||
-      $::log->abort("Can't opendir $::TMPDIR/queue]${pri1}: $!");
+      $::log->abort("Can't opendir $::TMPDIR/queue/$pri1: $!");
     @domains = grep { $_ !~ /^\./ } readdir DOMS;
 
     # XXX Ramdomize domain list to avoid starvation
@@ -163,13 +163,6 @@ sub run_queue {
       # Untaint $dom; this is safe because only we are able to write to that
       # directory.
       $dom =~ /(.*)/; $dom = $1;
-
-      # undef Majordomo object
-      if ($mj) {
-	$::log->message(50, "info", "-----Calling destructors-----");
-	undef $mj;
-	undef $::mj;
-      }
 
       # Grab list priorities from the queue, high priorities first
       opendir PRI2, "$::TMPDIR/queue/$pri1/$dom" ||
@@ -209,7 +202,10 @@ sub run_queue {
 	    $msg =~ /(.*)/; $msg = $1;
 	    $file = "$::TMPDIR/queue/$pri1/$dom/$pri2/$func/$msg";
 	    unless (open(MSG, "+< $file")) {
-	      warn "Can't open queue file $file: $!";
+	      # Some other runner may have deleted the file while we were
+	      # iterating through the directory.  That's OK; note it and go
+	      # on.
+	      $log->message(20, 'info', "Can't open queue file $file: $!");
 	      next MSG;
 	    }
 
@@ -235,12 +231,15 @@ sub run_queue {
 	      }
 	      $debug1 = $mj->global_config_get(undef, undef, undef,
 					       'queuerun', 'debug');
+	      if ($opts{'v'} > $debug1) {$debug1 = $opts{'v'}};
 	      $::log->set_level($debug1);
 	    }
 
 	    # If we're at the Majordom address, just parse commands
 	    if ($func eq 'majordomo') {
+	      debug_to('majord');
 	      parse_commands($mj);
+	      debug_to('queuerun');
 	      next;
 	    }
 
@@ -250,14 +249,15 @@ sub run_queue {
 	    # Now set the logging level to that of the list.
 	    $debug2 = $mj->list_config_get(undef, undef, undef, 'queuerun',
 					   $list, 'debug');
-	    if ($debug2 > $debug1) {
-	      $::log->set_level($debug2);
-	    }
+	    if ($debug1 > $debug2) {$debug2 = $debug1};
+	    $::log->set_level($debug2);
 
 	    # Perform the appropriate function
 	    # If at list address, resend.
 	    if ($func eq 'list' || $func eq 'resend') {
+	      debug_to('resend');
 	      resend($mj, $list);
+	      debug_to('queuerun');
 	    }
 
 	    # if at -request pull out global 'request_answer' variable and
@@ -266,13 +266,19 @@ sub run_queue {
 	      $request_ans = $mj->global_config_get(undef, undef, undef, 'queuerun',
 						    'request_answer');
 	      if ($request_ans eq 'majordomo') {
+		debug_to('majord');
 		parse_commands($mj, $list);
+		debug_to('queuerun');
 	      }
 	      elsif ($request_ans eq 'owner') {
+		debug_to('owner');
 		forward_to_owner($mj, $list);
+		debug_to('queuerun');
 	      }
 	      else {
+		debug_to('request');
 		respond_with_file($mj, $list);
+		debug_to('queuerun');
 	      }
 	    }
 
@@ -281,17 +287,25 @@ sub run_queue {
 	    elsif ($func eq 'owner') {
 	      # forward to owner; if -l is present, forward to that list else assume
 	      # we're majordomo-owner.
+	      debug_to('owner');
 	      forward_to_owner($mj, $list || 'GLOBAL');
+	      debug_to('queuerun');
 	    }
 	    unlink $file;
 	    close MSG;
 	    $::log->set_level($debug1);
-	  }
-	}
+	  } # $msg
+	} # $func
+      } # $pri2
+      # undef Majordomo object
+      if ($mj) {
+	$::log->message(50, "info", "-----Calling destructors-----");
+	undef $mj;
+	undef $::mj;
       }
-    }  
-  }
-}
+    } # $dom
+  } # $pri1
+} # sub run_queue
 
 # Forward the message to the list owner.  Call owner_start, owner_chunk,
 # owner_done passing in all of the message.
@@ -609,6 +623,15 @@ sub do_qmail {
   $fun eq 'list'    and $opts{'r'} = 1;
   $fun eq 'owner'   and $opts{'o'} = 1;
   $fun eq 'request' and $opts{'q'} = 1;
+}
+
+sub debug_to {
+  my $name = shift;
+
+  if (! -t STDERR) {
+    close STDERR;
+    open STDERR, ">>$::TMPDIR/mj_$name.debug";
+  }
 }
 
 =head1 COPYRIGHT
