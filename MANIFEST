@@ -504,6 +504,7 @@ files/en/error/.password_length
 files/en/error/.password_level
 files/en/error/.pending_delivery
 files/en/error/.relocated_list
+files/en/error/.setting_unchanged
 files/en/error/.unknown_list
 files/en/error/.unknown_setting
 files/en/error/.unknown_token
@@ -524,6 +525,7 @@ files/en/error/password_length
 files/en/error/password_level
 files/en/error/pending_delivery
 files/en/error/relocated_list
+files/en/error/setting_unchanged
 files/en/error/unknown_list
 files/en/error/unknown_setting
 files/en/error/unknown_token
