@@ -1,3 +1,12 @@
+2002-06-02  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Format.pm:  Bugfix:  ignore hashrefs in data 
+	structures when creating substitution lists.
+	Thanks to Roger Klorese.
+
+	* lib/Mj/List.pm:  (make_setting)  Bugfix:  return
+	immediately if no setting was provided.
+
 2002-06-01  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Use CHUNKSIZE and EXTRA substitutions to

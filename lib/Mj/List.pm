@@ -542,10 +542,13 @@ in the string.
 =cut
 use Mj::Util 'str_to_time';
 sub make_setting {
-  my($self, $str, $flags, $class, $carg1, $carg2) = @_;
+  my ($self, $str, $flags, $class, $carg1, $carg2) = @_;
   $flags ||= '';
   my $log   = new Log::In 150, "$str, $flags";
   my($arg, $dig, $i, $inv, $isflag, $rset, $set, $time, $type);
+
+  return (0, 'No settings were provided') 
+    unless (defined ($str) and $str =~ /\S/);
 
   # Split the string on commas; discard empties.  XXX This should probably
   # ignore commas within parentheses.
@@ -1002,6 +1005,7 @@ sub get_setting_data {
 
     if ($flag eq 'digest') {
       $dig = $self->config_get('digests');
+      next unless $dig;
       
       for $class (sort keys %$dig) {
         next if ($class eq 'default_digest');
