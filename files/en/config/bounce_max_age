@@ -1,1 +1,2 @@
-The length of time in days that a user's bounce data will be tracked.
+The bounce_max_age setting contains the length of time in days that
+information about a subscriber's delivery failures will be saved.

@@ -11,27 +11,38 @@ EXAMPLE:
 configset listname bounce_max_age = 14
 
 
-The length of time in days that a user's bounce data will be tracked.
+$INCLUDE-config/bounce_max_age
 
 The bounce_max_count and bounce_max_age settings are just used for
 expiring old bounce data; we don't want to keep too much of it around
 and so we delete a bounce datum if it is too old or we have too many
 (in which case, the oldest are tossed).
 
-Expiry of bounce data happens daily.  You can see a summary of a user's
-bounce data using the show command, and the body of the bounce is stored
-in the session file (retrievable with the sessioninfo command and expired
-as normal).
+Expiration of bounce data happens daily by default.  The frequency can be
+changed by adjusting the "triggers" configuration setting.  
+
+Subscribers and domain administrators can see a summary of a
+subscriber's bounce data using the show command.  List administrators
+can see a complete list of addresses with bounces using the who-bounce
+command.
+
+The error message that contains a complete description of the delivery
+failure is stored in a session files.  Session files can be viewed using
+the sessioninfo command.  To find the session number for a particular
+bounce, use the report-full command.
 
 
 See Also:
-   help configset bounce_max_count       (maximum number of bounce data kept for a user)
-   help configset bounce_probe_frequency (how often bounce probes are sent out)
-   help configset bounce_probe_pattern   (force probes of matching addresses)
-   help configset bounce_recipients      (who receives bounce error messages)
-   help sessioninfo                      (get info on a 'session' based on an ID number)
-   help show                             (get info on a user, including bounce data)
+   help admin_subscribers
+   help configset_bounce_max_count
+   help configset_bounce_probe_frequency
+   help configset_bounce_probe_pattern
+   help configset_bounce_recipients
+   help configset_bounce_rules
+   help configset_triggers
+   help report
+   help sessioninfo
+   help show
+   help who
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
