@@ -484,10 +484,18 @@ sub show {
 
   # For validation failures, the dispatcher will do the verification and
   # return the error as the second argument.
+  # For normal denials, $ok is also 0, but the error is returned where
+  # $xform would be.
   if ($ok == 0) {
-    eprint($out, $type, "    Address is invalid.\n");
-    $addr = prepend('      ', $addr);
-    eprint($out, $type, "$addr\n");
+    if ($xform) {
+      eprint($out, $type, "    Show failed.\n");
+#      $addr = prepend('      ', $xform);
+      eprint($out, $type, prepend('    ',"$xform\n"));
+    }
+    else {
+      eprint($out, $type, "    Address is invalid.\n");
+      eprint($out, $type, prepend('    ',"$addr\n"));
+    }
     return $ok;
   }
   elsif ($ok < 0) {

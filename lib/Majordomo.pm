@@ -3706,8 +3706,20 @@ sub trigger {
   }
 
   # Mode: hourly
-  # Loop over lists
-  #   Trigger digests
+  if ($mode =~ /^h/) {
+    # Loop over lists
+    $self->_fill_lists;
+    for $list (keys %{$self->{'lists'}}) {
+      # Nothing to do to GLOBAL
+      next if $list eq 'GLOBAL';
+      $self->_make_list($list);
+
+      # Call digest-check; this will do whatever is necessary to tickle the
+      # digests.
+      $self->_digest($list, $user, $user, 'check', '', 'ALL');
+    }
+  }      
+
   1;
 }
 

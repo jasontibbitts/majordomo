@@ -1,5 +1,13 @@
 Wed Mar 10 00:02:23 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Majordomo.pm (trigger): Add hourly tickling of digests.
+
+	* lib/Mj/TextOutput.pm (mkdigest): Take last argument given as a
+ 	password.
+
+	* lib/Mj/Format.pm (show): Return proper error in the case of a
+ 	denial, as opposed to an invalid address failure.
+
 	* lib/Majordomo.pm (_digest): Delete tempfiles.
 
 	* lib/Mj/Resend.pm (do_digests): Delete tempfiles.

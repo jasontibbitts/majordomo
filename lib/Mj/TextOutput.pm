@@ -514,11 +514,17 @@ with old installations that have crontab kicking off mkdigest.  It runs
 every digest because in this situation, we expect that only one digest
 exists.
 
+Since traditional mkdigest takes a password as its final argument; an
+optional outgoing alias (which we ignore) appears between list and
+password.  We just use the last argument given.
+
 =cut
 sub mkdigest {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27;
+  my @args  = split(" ", $args);
+  $passwd ||= $args[$#args];
   my @stuff = ($user, $passwd, $auth, $interface,
 	       "digest-force ALL", 'force', $list, $user);
 
