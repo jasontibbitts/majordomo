@@ -50,17 +50,17 @@ use vars (qw($addr %alias %flags %noflags %classes %digest_types
    'ackreject'    => ['ackall',       0,1,'j'],
    'ackstall'     => ['ackall',       0,1,'b'],
    'noack'        => ['ackall',       1,0,'' ],
-   'selfcopy'     => ['selfcopy',     0,1,'S'],
+   'eliminatecc'  => ['eliminatecc',  0,1,'C'],
    'hideall'      => ['hideall',      0,1,'H'],
    'hideaddress'  => ['hideall',      0,1,'h'],
    'nohide'       => ['hideall',      1,0,'' ],
    'showall'      => ['hideall',      1,0,'' ],
-   'eliminatecc'  => ['eliminatecc',  0,1,'C'],
    'hidepost'     => ['hidepost',     0,1,'N'],
+   'postblock'    => ['postblock',    0,1,'O'],
    'prefix'       => ['prefix',       0,1,'P'],
    'replyto'      => ['replyto',      0,1,'R'],
    'rewritefrom'  => ['rewritefrom',  0,1,'W'],
-   'postblock'    => ['postblock',    0,1,'O'],
+   'selfcopy'     => ['selfcopy',     0,1,'S'],
   );
 
 # Special inverse descriptions
@@ -490,6 +490,8 @@ sub set {
 	        class => [$data->{'class'}, 
                           $data->{'classarg'}, 
                           $data->{'classarg2'}],
+                changetime => $data->{'changetime'},
+                subtime => $data->{'subtime'},
 	       },
 	   );
   }
@@ -521,9 +523,12 @@ sub set {
   }
 
   $self->{'sublists'}{$subl}->replace("", $key, $data);
-  return (1, {flags  => $flags,
-	      class  => [$class, $carg1, $carg2],
-              digest => $digest,
+  return (1, {
+              changetime => $data->{'changetime'},
+	      class      => [$class, $carg1, $carg2],
+              digest     => $digest,
+              flags      => $flags,
+              subtime    => $data->{'subtime'},
 	     },
 	 );
 }
