@@ -14,7 +14,7 @@ BEGIN {
 
 # A version variable we can use to force users to reconfigure when we add
 # new questions.
-my $config_version = 12;
+my $config_version = 13;
 my (@SIDSCRIPTS, @SCRIPTS, @EXES, $ok);
 use vars qw(%have $lang);
 $lang = ask_lang();

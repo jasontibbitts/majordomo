@@ -26,7 +26,7 @@ $Mj::Config::default_string = q(
  'addr_allow_ending_dot'=> 0,
  'addr_limit_length'    => 1,
  'addr_require_fqdn'    => 1,
- 'addr_strict_domain_check' => 1,
+ 'addr_strict_domain_check' => $subs->{'addr_strict_domain_check'},
  'addr_xforms'          => [$subs->{'addr_xforms'}],
  'admin_body'           => (($list eq 'GLOBAL') ?
 			    [
@@ -242,7 +242,7 @@ $Mj::Config::default_string = q(
 			    :
 			    [
 			     'Welcome to the $LIST mailing list!',
-			     'welcome | NS',
+			     'welcome | NSE',
 			     'List introductory information',
 			     'info | S',
 			    ]),

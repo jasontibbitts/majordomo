@@ -242,6 +242,8 @@ sub ask_basic {
   $def = ($config->{'mta'} ||
           (-x '/var/qmail/bin/qmail-inject' && 'qmail')    ||
           (-x '/usr/sbin/qmail-inject'      && 'qmail')    ||
+          (-x '/usr/sbin/exim'              && 'exim')     ||
+          (-x '/usr/lib/exim'               && 'exim')     ||
           # Sendmail goes last because most MTAs have some sendmail-like
           # wrapper there
           (-x '/usr/lib/sendmail'           && 'sendmail') ||

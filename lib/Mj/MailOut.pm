@@ -325,7 +325,7 @@ sub welcome {
   my %args = @_;
   my $log = new Log::In 150, "$list, $addr";
   my (%file, @mess, @temps, $count, $fh, $file, $final, $head,
-      $i, $j, $reg, $subj, $subs, $top);
+      $i, $j, $nodefsearch, $reg, $subj, $subs, $top);
 
   return unless (ref($addr) and $addr->isvalid);
 
@@ -361,8 +361,12 @@ sub welcome {
     if ($i!=0 && $table->[$i][2] =~ /N/) {
       $count++;
     }
-    ($file, %file) = $self->_list_file_get(list => $list,
-					   file => $table->[$i][1],
+    $nodefsearch = 0;
+    $nodefsearch = 1 if $table->[$i][2] =~ /E/;
+
+    ($file, %file) = $self->_list_file_get(list        => $list,
+					   file        => $table->[$i][1],
+					   nodefsearch => $nodefsearch,
 					  );
     # XXX Need to complain here
     next unless $file;

@@ -3878,6 +3878,7 @@ setup/messages/en/sig_chld
 setup/messages/en/site_config
 setup/messages/en/site_name
 setup/messages/en/site_password
+setup/messages/en/strict_domain_checks
 setup/messages/en/supported_domains
 setup/messages/en/syslog_error
 setup/messages/en/tmp_dir

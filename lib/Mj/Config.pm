@@ -3146,7 +3146,7 @@ sub parse_welcome_files {
 
   for ($i=0; $i < @$table; $i++) {
     return (0, "Illegal welcome files flags: $table->[$i][2]")
-      if $table->[$i][2] =~ /[^NPRSU]/;
+      if $table->[$i][2] =~ /[^ENPRSU]/;
     return (0, "The 'R' and 'U' flags cannot be used together.")
       if ($table->[$i][2] =~ /R/ and $table->[$i][2] =~ /U/);
   }

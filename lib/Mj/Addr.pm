@@ -197,7 +197,8 @@ sub new {
   while (($key, $val) = each %defaults) {
     $self->{p}{$key} = $val;
   }
-  while (($key, $val) = each %_) {
+  while (@_) {
+    ($key, $val) = splice(@_, 0, 2);
     $self->{p}{$key} = $val;
   }
   $self;

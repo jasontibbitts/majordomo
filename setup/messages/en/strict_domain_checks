@@ -1,0 +1,12 @@
+Configuring the "$DOMAIN" domain
+
+Should Majordomo do strict domain checking?
+
+Majordomo can perform checks to verify that email addresses include
+valid top-level domains.
+
+Normally this should be "yes".  However, if Majordomo is to be running
+strictly on an internal network, email addresses may not be required to
+have domain names which are valid for the Internet at large.  If that
+is the case, answer "no".
+

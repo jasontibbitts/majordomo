@@ -39,6 +39,11 @@ Files can be created in the file space using the "put" command.
 The second field of the second line of a file description is an optional
 flag field.  Four flags are supported:  
 
+  * 'E' causes the file to be included only if it exists in the list's
+     explicit search path (as specified by the file_search setting).  The
+     default locations will not be searched.  If the file does not exist,
+     it will be completely ignored.
+
   * 'N' indicates that the file should be the first part of a new welcome 
      message; 
 
@@ -68,13 +73,16 @@ welcome
 Picture of the list owner!
 owner.jpg 
 Q and A for the $LIST mailing list
-/faq : NS
+/faq : NSE
 END
 
 In this example, two welcome messages will be sent to new subscribers.
 The first welcome message consists of a file called "welcome" and an
 attached photograph called "owner.jpg".  The second welcome message
-consists of a single file called "/faq".
+consists of a single file called "/faq".  If no file named "/faq" exists
+for this list, the second message will not be sent.  (If 'E' was not
+present, the default FAQ file would be sent, which simply informs the user
+that no FAQ document exists.)
 
 
 The following example uses the 'U' flag to send extra information to
@@ -104,6 +112,7 @@ it was chosen, but comments have no impact on how the setting works.
 
 See Also:
    help admin_documents   (for an introduction to the file space)
+   help configset_file_search (determines how files are looked for)
    help configset_welcome (determines if welcome messages are sent)
    help get               (to retrieve files from the list's file space)
    help put               (to store files in the list's file space)

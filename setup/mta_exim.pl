@@ -4,7 +4,7 @@ sub ask_exim {
 
   #---- Determine version number
   $msg = retr_msg('exim_version', $lang);
-  $def = $config->{'exim_version'} || 3;
+  $def = $config->{'exim_version'} || get_exim_version();
   $config->{'exim_version'} = get_enum($msg, $def, [qw(3 4)]);
 
   #---- Ask if aliases should be maintained
@@ -71,6 +71,18 @@ sub setup_exim_domain {
                      'UID'       => $config->{'uid'},
                      'WHEREAMI'  => $whereami,
                     );
+    }
+  }
+}
+
+sub get_exim_version {
+  my ($i, $verstr);
+  for $i ('/usr/sbin/exim', '/usr/lib/exim') {
+    if (-x $i) {
+      $verstr = `$i -bV`;
+      if ($verstr && $verstr =~ /version ([34])/) {
+	return $1;
+      }
     }
   }
 }

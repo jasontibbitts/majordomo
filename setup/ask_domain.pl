@@ -1,6 +1,6 @@
 sub ask_domain {
   my ($config, $dom) = @_;
-  my ($cfg, $def, $msg, $tmp);
+  my ($cfg, $def, $msg, $strict, $tmp);
 
   $config->{'domain'}{$dom} ||= {};
   $cfg = $config->{'domain'}{$dom};
@@ -11,28 +11,34 @@ sub ask_domain {
   $msg = retr_msg('internet_domain', $lang, 'DOMAIN' => $dom);
   $def = $cfg->{'whereami'} || $dom;
   $cfg->{'whereami'} = get_str($msg, $def);
-  
+
+  #---- Strict checking (Intranet use)
+  $msg = retr_msg('strict_domain_checks', $lang, 'DOMAIN' => $dom);
+  $def = $cfg->{'addr_strict_domain_check'} || $Mj::Addr::top_level_domains{$cfg->{whereami}};
+  $strict = get_bool($msg, $def);
+  $cfg->{'addr_strict_domain_check'} = $strict;
+
   #---- The Majordomo server address
   $msg = retr_msg('server_address', $lang, 'DOMAIN' => $dom,
                   'WHEREAMI' => $cfg->{'whereami'});
   $def = $cfg->{'whoami'} || 'majordomo';
-  $cfg->{'whoami'} = get_addr($msg, $def, $cfg->{'whereami'});
+  $cfg->{'whoami'} = get_addr($msg, $def, $cfg->{'whereami'}, $strict);
 
   #---- The domain owner's address
   $tmp = $cfg->{'whoami'};
   $tmp =~ s/\@[\w+.-]+$//;
 
   $msg = retr_msg('domain_owner', $lang, 'DOMAIN' => $dom,
-                  'WHEREAMI' => $cfg->{'whereami'}, 
+                  'WHEREAMI' => $cfg->{'whereami'},
                   'WHOAMI' => $tmp);
   $def = $cfg->{'owner'};
-  $cfg->{'owner'} = get_addr($msg, $def, $cfg->{'whereami'});
-  
+  $cfg->{'owner'} = get_addr($msg, $def, $cfg->{'whereami'}, $strict);
+
   #---- A brief title for the domain
   $msg = retr_msg('site_name', $lang, 'DOMAIN' => $dom);
   $def = $cfg->{'site_name'};
   $cfg->{'site_name'} = get_str($msg, $def);
-  
+
   #---- Get global password
   $msg = retr_msg('domain_password', $lang, 'DOMAIN' => $dom);
   $def = $cfg->{'master_password'};

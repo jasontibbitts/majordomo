@@ -36,6 +36,7 @@ sub get_addr {
   my $msg = shift;
   my $def = shift;
   my $dom = shift;
+  my $strict = shift;
   my ($addr, $ans, $full, $mess, $ok);
 
   while (1) {
@@ -46,7 +47,7 @@ sub get_addr {
       }
     }
 
-    $addr = new Mj::Addr $full;
+    $addr = new Mj::Addr $full, 'strict_domain_check' => $strict;
     if (! defined $addr) {
       $msg = retr_msg('invalid_address', $lang, 'ADDRESS' => $ans,
                       'ERROR' => '');
@@ -61,7 +62,7 @@ sub get_addr {
                         'ERROR' => $mess);
       }
     }
-  }  
+  }
 }
 
 sub get_enum {

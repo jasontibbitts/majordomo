@@ -121,7 +121,8 @@ sub do_default_config {
   require 'lib/mj_cf_data.pl';
 
   $subs = {
-           'addr_xforms'     => $config->{ignore_case} ? "ignore case" : '',
+	   'addr_strict_domain_check' => $config->{domain}{$dom}{addr_strict_domain_check},
+	   'addr_xforms'     => $config->{ignore_case} ? "ignore case" : '',
            'master_password' => $config->{'domain'}{$dom}{master_password},
            'owners'          => $config->{'domain'}{$dom}{owner},
            'resend_host'     => $config->{'domain'}{$dom}{whereami},

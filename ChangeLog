@@ -1,3 +1,41 @@
+2002-07-07  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* files/en/help/configset_welcome_files: Updated to reference 'E'
+	flag.
+	
+	* setup/setup_func.pl (do_default_config): Substitute
+	addr_strict_domain_check as appropriate.
+
+	* setup/query_util.pl (get_addr): New $strict parameter; pass
+	'strict_domain_check' to Mj::Addr::new() as appropriate.
+
+	* setup/mta_exim.pl (get_exim_version): New function to detect
+	Exim version by calling exim -bV.
+	(ask_exim): Use it.
+
+	* setup/ask_domain.pl (ask_domain): Ask about strict domain
+	checks, and turn off strict address parsing as appropriate.
+
+	* setup/ask_basic.pl (ask_basic): Suggest Exim as an MTA if its
+	binaries exist.
+
+	* lib/Mj/MailOut.pm (welcome): Obey new 'E' flag: force file to
+	exist in explicit search path, else just ignore it.
+
+	* lib/Mj/Config.pm (parse_welcome_files): Support new 'E' flag.
+
+	* lib/Mj/Addr.pm (new): Fix long-standing bug: named arguments
+	passed along with the address didn't work at all.
+
+	* lib/mj_cf_defs.pl: Make addr_strict_domain_check conditional on
+	the install process.
+	New default for welcome_files includes 'E' flag for the info
+	document, so the useless "no info document exists" message will
+	not be sent by default.  If an info document is specified, it will
+	be sent as normal.
+
+	* Makefile.PL: Bump config version to 13.
+
 2002-07-06  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_changeaddr)  Log "subscribe" and
