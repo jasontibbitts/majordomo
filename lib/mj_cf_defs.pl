@@ -101,6 +101,7 @@ $Mj::Config::default_string = q(
 			     '/^subject:\s.*\bchange\b.*\baddress\b/i',
 			     '/^subject:\s*request\b(.*\b)?addition\b/i',
 			     '/^subject:\s*cancel\b/i',
+                             '/MSGRCPT/',
 			    ] : []),
  'admin_body'           => (($list eq 'GLOBAL' or $list eq 'DEFAULT') ?
 			    [
