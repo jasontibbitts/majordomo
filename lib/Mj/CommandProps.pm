@@ -639,6 +639,7 @@ my %commands =
 		    'posts_this_week'              => 'integer',
  		    'posts_this_month'             => 'integer',
                     'quoted_lines'                 => 'integer',
+                    'recipients'                   => 'integer',
                     'taboo'                        => 'integer',
                     'total_header_length'          => 'integer',
                     'total_header_length_exceeded' => 'bool',

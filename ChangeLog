@@ -1,3 +1,14 @@
+2003-04-30  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/CommandProps.pm:  Add support for the "recipients"
+	access variable, which contains the number of e-mail addresses
+	in the To and Cc headers of a posted message.
+
+	* lib/Mj/Resend.pm:  (_r_ck_header)  Count the number of
+	recipients in the To and Cc headers of a message.
+        (_exclude)  Check all To and Cc headers.
+	(_post)  Create exclusion list before the headers are munged.
+	
 2003-04-29  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Resend.pm:  (_post)  Apply "From" header changes

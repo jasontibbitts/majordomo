@@ -87,6 +87,7 @@ The post command also uses these variables:
   posts_this_week		number
   posts_today			number
   quoted_lines                  number
+  recipients                    number
   taboo                         number
   total_header_length           number
   total_header_length_exceeded  boolean
@@ -393,6 +394,10 @@ quoted_lines
   quote is a marker, such as '>', which is used to indicate that part
   of a posted message was originally written by someone else. See
   "help configset_quote_pattern" for more details.
+
+recipients
+  This variable contains a count of the number of e-mail addresses
+  that appear in the "To" and "Cc" headers of a posted message.
 
 sublist
   This variable is set to the name of an auxiliary list, if a request

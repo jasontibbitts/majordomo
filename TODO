@@ -272,15 +272,6 @@ cannot turn it off.  It should be very easy to make bounce_rules apply to
 GLOBAL.  Tracking of bounces may need to be turned off for GLOBAL, though.
 
 
-Counting recipients
--------------------
-In addition to using header length limits for posts, it should be
-possible to limit access based upon the number of recipients in the To
-and Cc headers.  In addition, the "References" header should be given
-special consideration, because it most frequently surpasses the header
-length limits.
-
-
 Automatic backup and recovery of subscriber databases
 -----------------------------------------------------
 The who-export command could be executed periodically to save the
