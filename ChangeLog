@@ -19,7 +19,7 @@
 	* lib/Mj/Config.pm (parse_triggers):  New routine.  Each line
 	of the triggers setting contains a trigger name and set of
 	times at which the trigger should be invoked.
-	(_str_to_clock)  Parse "yearly" "quarterly" "monthly" "daily"
+	(_str_to_clock)  Parse "yearly" "quarterly" "monthly" "weekly" "daily"
 	and a new abbreviated format (e.g., 7m3d(8) for July 3, 8 am).
 
 	* lib/Mj/Digest.pm (in_clock):  Handle hours relative to the 
@@ -27,6 +27,9 @@
 
 	* lib/Mj/Resend.pm (_r_strip_body):  New routine.  Discard
 	attachments as required by the attachment_rules setting.
+
+	* lib/Mj/Token.pm (confirm, consult, remind): Add 
+	X-Loop: majordomo@example.com  header, to prevent loops.
 
 2000-08-24  Darren Stalder  <torin@daft.com>
 

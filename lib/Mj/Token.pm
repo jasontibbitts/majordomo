@@ -239,9 +239,10 @@ sub confirm {
      Filename    => undef,
                     # Note explicit stringification
      -To         => "$args{'notify'}", 
-     -From       => $mj_addr,
+     -From       => $sender,
      '-Reply-To' => $mj_addr,
      -Subject    => $desc,
+     '-X-Loop'   => $mj_addr,
      'Content-Language:' => $file{'language'},
     );
 
@@ -402,6 +403,7 @@ sub consult {
      -From       => $sender,
      '-Reply-To' => $mj_addr,
      -Subject    => $desc,
+     '-X-Loop'   => $mj_addr,
      'Content-Language:' => $file{'language'},
     );
 
@@ -771,9 +773,10 @@ sub t_remind {
          Charset     => $file{'charset'},
          Encoding    => $file{'c-t-encoding'},
          Filename    => undef,
-         -From       => $mj_addr,
+         -From       => $sender,
          '-Reply-To' => $mj_addr,
          -Subject    => $desc,
+         '-X-Loop'   => $mj_addr,
          'Content-Language:' => $file{'language'},
         );
       
@@ -923,7 +926,7 @@ sub validate_latchkey {
   if (defined $self->{'latchkeydb'}) {
     $data = $self->{'latchkeydb'}->lookup($passwd);
     if (defined $data) {
-        return -1 if (time > $data->{'expire'});
+        return if (time > $data->{'expire'});
         $realpass = $data->{'arg1'};
         return $self->validate_passwd($user, $realpass, $list, $command);
     }
