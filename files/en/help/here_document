@@ -1,0 +1,86 @@
+                              Here Documents
+            writing commands that require more than one line
+
+Many Majordomo commands can be written on a single line, for example:
+   help admin_commands
+
+Other commands can sometimes require information that spans several
+or dozens of lines.  For example, the newinfo command is used
+to store a welcome message that is seen by new subscribers:
+
+newinfo cabbage <<ABC123
+Welcome to the cabbage mailing list.
+
+The cabbage family has many members, including
+collard greens, kale, broccoli, and cauliflower.
+ABC123
+
+In this case, the "here document" is the text of the welcome message that
+appears between the first command line and the final "ABC123".  The
+two "ABC123" markers are called "tags."  The two tags must be identical.  
+The tags must conform to the following rules:
+
+  * Tags always begin with three capital letters.
+
+  * Following the first three letters can be any number of
+    capital letters or digits.
+
+  * The first tag must be preceded by (only) two less-than symbols,
+    '<<'.  The less-than symbols must be separated from the preceding
+    part of the command by one or more spaces or tabs.
+
+  * The second tag must be on a line by itself, without leading
+    or trailing spaces or tabs.
+
+Usually, the contents of a here document are handled just as you
+type them, but there are some exceptions:
+
+  * In the message_footer and message_fronter configuration settings, 
+    lines beginning with hyphens are treated specially.  Please see
+    "help configset_message_footer" and "help configset_fronter"
+    for more information.
+
+  * Any line in a here document that ends with a single backslash '\'
+    will be catenated with the next line.  This can have unusual effects
+    unless some effort is made to double the backslashes, '\\', in
+    which case the extra backslash is removed, and the lines are not
+    catenated.
+
+The contents of the here document will vary from command to command.
+For instance, a list administrator using the subscribe command can
+place a list of addresses in a here document, to subscribe more than
+one person at a time:
+
+subscribe-noinform cabbage <<BIG
+Jane <sister@example.com>
+Joe <brother@example.com>
+BIG
+
+Here is a summary of what here documents contain in different 
+Majordomo commands.
+
+  * accept, reject          a list of token identifiers.
+  * configdef, configshow   a list of settings or setting categories.
+  * configset               the new value of a configuration setting.
+  * createlist              e-mail addresses of the list owners.
+  * post                    the contents of a mail message.
+  * newfaq, newinfo         the contents of a new file.
+  * newintro, put           the contents of a new file.
+  * subscribe, unsubscribe  e-mail addresses of subscribers.
+  * set, show               e-mail addresses of subscribers.
+  * register, unregister    e-mail addresses of subscribers.
+
+Here documents are supported for commands sent in e-mail messages,
+and also by the mj_shell command-line program.
+
+
+See Also:
+   help admin  (an introduction to list administration)
+   help configset_message_footer
+   help configset_message_fronter
+   help mj_shell (the command-line interface)
+
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

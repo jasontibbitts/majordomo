@@ -759,6 +759,7 @@ $files =
    'en/help/format_files'                             => ['description of Majordomo format files',    'us-ascii', '7bit'],
    'en/help/get'                                      => ['detailed help for get command',            'us-ascii', '7bit'],
    'en/help/help'                                     => ['default help file',                        'us-ascii', '7bit'],
+   'en/help/here_document'                            => ['introduction to here documents',           'us-ascii', '7bit'],
    'en/help/index'                                    => ['detailed help for index command',          'us-ascii', '7bit'],
    'en/help/info'                                     => ['detailed help for info command',           'us-ascii', '7bit'],
    'en/help/intro'                                    => ['detailed help for intro command',          'us-ascii', '7bit'],
