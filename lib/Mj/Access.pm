@@ -628,6 +628,14 @@ sub list_access_check {
   # Build the reasons list by splitting $arg2. 
   $reasons .= join("\n", split("\002", $arg2));
 
+  # Append the sublist for variable substitutions.
+  if ($request eq 'post') {
+    my %avars = split("\002", $arg3);
+    if ($avars{'sublist'}) {
+      $list .= ':' . $avars{'sublist'};
+    }
+  }
+
   # Expand variables in the returned message.  XXX Obviously add some
   # more useful substitutions here.  taboo information (taboo_rule,
   # taboo_match), etc.
