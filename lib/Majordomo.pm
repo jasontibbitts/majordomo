@@ -4955,7 +4955,7 @@ sub _changeaddr {
     $data = $ldata;
   }
   else {
-    unless ($alias and $vict->strip ne $data->{'stripaddr'}) {
+    unless ($alias and $vict->xform ne $key->xform) {
       $data->{'fulladdr'} = $requ->full;
       $data->{'stripaddr'} = $requ->strip;
     }
@@ -4972,17 +4972,14 @@ sub _changeaddr {
 
     ($lkey, $ldata) = $self->{'lists'}{$l}->remove('', $key);
     if ($ldata) {
-      unless ($alias and $vict->strip ne $ldata->{'stripaddr'}) {
+      $addr = new Mj::Addr($ldata->{'fulladdr'});
+      unless (defined $addr and $vict->xform ne $addr->xform
+              and ($alias or $addr->xform ne $addr->canon)) {
         # If A is an alias for B, and A is subscribed to a list,
         # changeaddr B->C preserves A's subscription, whereas
         # changeaddr A->C changes A's subscription to C. 
-        $addr = new Mj::Addr($ldata->{'fulladdr'});
-        unless (!$alias and defined $addr and $addr->xform ne $addr->canon
-                and $vict->xform ne $addr->xform)
-        {
-          $ldata->{'fulladdr'} = $requ->full;
-          $ldata->{'stripaddr'} = $requ->strip;
-        }
+        $ldata->{'fulladdr'} = $requ->full;
+        $ldata->{'stripaddr'} = $requ->strip;
       }
       $self->{'lists'}{$l}->{'sublists'}{'MAIN'}->add('', $requ->canon, $ldata);
       if ($mode !~ /nolog/) {
@@ -5002,11 +4999,15 @@ sub _changeaddr {
   for $tmp (@aliases) {
     if ($alias) {
       ($lkey, $ldata) = $self->{'alias'}->remove('', $tmp);
+      next unless defined $ldata;
 
-      if ($ldata->{'stripsource'} eq $vict->strip) {
+      $addr = new Mj::Addr($ldata->{'stripsource'});
+      if (defined $addr and $addr->xform eq $vict->xform) {
         $ldata->{'stripsource'} = $requ->strip;
       }
-      if ($ldata->{'striptarget'} eq $vict->strip) {
+
+      $addr = new Mj::Addr($ldata->{'striptarget'});
+      if (defined $addr and $addr->xform eq $vict->xform) {
         $ldata->{'striptarget'} = $requ->strip;
       }
 
@@ -7964,20 +7965,23 @@ sub _unalias {
   my $log = new Log::In 35, "$requ, $source";
   my (@aliases, @lists, $addr, $data, $key, $l, $rdata, $reg, $sdata);
 
-  return (0, qq(The address "$source" is not an alias.\n))
-    if ($source->xform eq $source->alias); #XLANG
+  return (0, $self->format_error('no_alias', $list, 
+                                 'SOURCE' => "$source",
+                                 'TARGET' => "$requ"))
+    if ($source->xform eq $source->alias);
 
   ($key, $data) = $self->{'alias'}->remove('', $source->xform);
   unless (defined $key and defined $data) {
-    # XLANG
-    return (0, "$source is not aliased to $requ.\n");
+    return (0, $self->format_error('no_alias', $list, 
+                                   'SOURCE' => "$source",
+                                   'TARGET' => "$requ"));
   }
 
   $reg = new Mj::Addr($source->canon);
-  return (1, $key) unless defined $reg;
+  return (1, [$key]) unless defined $reg;
 
   $rdata = $self->_reg_lookup($reg);
-  return (1, $key) unless defined $rdata;
+  return (1, [$key]) unless defined $rdata;
  
   @lists = split ("\002", $rdata->{'lists'});
   for $l (@lists) {
@@ -8010,7 +8014,7 @@ sub _unalias {
     }
   }
 
-  return (1, $key);
+  return (1, [$key]);
 }
 
 =head2 unregister
