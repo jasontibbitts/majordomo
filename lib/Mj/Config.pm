@@ -1385,10 +1385,10 @@ sub parse_attachment_rules {
      'deny'    => 0,
      'discard' => 0,
     );
-  
+
   $safe = new Safe;
   $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
-  
+
   $check = "\n"; $change = "\n";
 
   # Parse the table.
@@ -1400,7 +1400,7 @@ sub parse_attachment_rules {
   # to the appropriate strings.  (allow adds code to both strings.)
   # Bomb on unrecognized actions.
   for ($i=0; $i<@$table; $i++) {
-   
+
     # First item is either an unquoted string or a pattern.  Convert the former to the latter.
     ($ok, $err, $pat) = compile_pattern($table->[$i][0], 0, 'iexact');
 
@@ -1409,7 +1409,7 @@ sub parse_attachment_rules {
     }
     if ($table->[$i][1] eq 'deny') {
       $check .= qq^return 'deny' if $pat;\n^;
-      
+
     }
     elsif ($table->[$i][1] =~ /^(allow|consult)(?:=(\S+))?$/) {
       $check  .= qq^return '$1' if $pat;\n^;
@@ -1427,7 +1427,7 @@ sub parse_attachment_rules {
       return (0, "Unrecognized action: $table->[$i][1].");
     }
   }
-  
+
   $check  .= "return 'allow';\n";
   $change .= "return ('allow', undef);\n";
 
@@ -1512,7 +1512,7 @@ sub parse_delivery_rules {
 
   # Parse the table.  A single line field followed by a multiline field.
   ($table, $err) = parse_table('lx', $arr);
-  
+
   return (0, "Error parsing table: $err")
     if $err;
 
@@ -1520,7 +1520,7 @@ sub parse_delivery_rules {
 
   # The multiline field has keyed data; parse it out
   for ($i=0; $i<@$table; $i++) {
-    
+
     # If we've seen an ALL tag, there's no need to parse any more
     if ($seen_all) {
       $err = "Ignoring rules after ALL tag.";
@@ -1551,7 +1551,7 @@ sub parse_delivery_rules {
 		   'data' => {},
 		  };
   }
-  
+
   return (1, $err, $data);
 }
 
@@ -3267,14 +3267,14 @@ sub _str_to_clock {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 1999 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997-2000 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.

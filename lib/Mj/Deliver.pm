@@ -135,11 +135,11 @@ sub deliver {
 
   ($ok, $error) = $list->get_start;
   return ($ok, $error) unless $ok;
-  
+
   while (1) {
     @data = $list->get_matching_chunk($args{chunk}, $matcher);
     last unless @data;
-    
+
     # Add each address to the appropriate destination.
   ADDR:
     while (($canon, $datref) = splice(@data, 0, 2)) {
@@ -154,11 +154,11 @@ sub deliver {
       }
 
       $addr = $datref->{'stripaddr'};
-      # Do we probe? XXX Also check bounce status and probe
-      # possibly-bouncing addresses.
+      # Do we probe?
       $probeit =
 	($args{probe} &&
-	 ($args{probeall} ||
+	 ($args{probeall}   ||
+	  $datref->{bounce} ||
 	  ($args{regexp} && Majordomo::re_match($args{regexp}, $addr)) ||
 	  (defined $args{bucket} &&
 	   $args{bucket} == (unpack("%16C*", $addr) % $args{buckets})
@@ -191,7 +191,7 @@ sub deliver {
       }
     }
   }
-  
+
   # Close the iterator.
   ($ok, $error) = $list->get_done;
   return ($ok, $error);
@@ -259,7 +259,7 @@ sub _setup {
 	}
       }
     }
-  
+
     # If we're probing, allocate a separate set of destinations for the probes
     if ($args{probe}) {
       for ($j=0; $j<@{$rules}; $j++) {

@@ -912,7 +912,34 @@ EOC
     'local'  => 1,
     'global' => 0,
     'visible'=> 0,
-    'mutable'=> 0,
+    'mutable'=> 1,
+   },
+   'bounce_probe_pattern' =>
+   {
+    'type'   => 'regexp',
+    'groups' => [qw(resend deliver bounce)],
+    'local'  => 1,
+    'global' => 0,
+    'visible'=> 0,
+    'mutable'=> 1,
+   },
+   'bounce_max_age' =>
+   {
+    'type'   => 'integer',
+    'groups' => [qw(resend bounce)],
+    'local'  => 1,
+    'global' => 0,
+    'visible'=> 0,
+    'mutable'=> 1,
+   },
+   'bounce_max_count' =>
+   {
+    'type'   => 'integer',
+    'groups' => [qw(resend bounce)],
+    'local'  => 1,
+    'global' => 0,
+    'visible'=> 0,
+    'mutable'=> 1,
    },
    'request_answer' =>
    {

@@ -1203,7 +1203,7 @@ sub config_get_comment {
 sub config_get_groups {
   my $self = shift;
   my $var  = shift;
-  $self->{'lists'}{'GLOBAL'}->config_get_groups($var);    
+  $self->{'lists'}{'GLOBAL'}->config_get_groups($var);
 }
 
 sub config_get_intro {
@@ -1217,13 +1217,13 @@ sub config_get_intro {
 sub config_get_isarray {
   my $self = shift;
   my $var  = shift;
-  $self->{'lists'}{'GLOBAL'}->config_get_isarray($var);    
+  $self->{'lists'}{'GLOBAL'}->config_get_isarray($var);
 }
 
 sub config_get_isauto {
   my $self = shift;
   my $var  = shift;
-  $self->{'lists'}{'GLOBAL'}->config_get_isauto($var);    
+  $self->{'lists'}{'GLOBAL'}->config_get_isauto($var);
 }
 
 sub config_get_type {
@@ -1994,7 +1994,7 @@ sub _list_file_get {
 
   $self->_make_list($list);
   @search = $self->_list_config_get($list, 'file_search');
-  
+
   $lang ||= $self->_list_config_get($list, 'default_language'); 
   @langs = split(/\s*,\s*/, $lang);
 
@@ -2005,10 +2005,10 @@ sub _list_file_get {
       # Split and supply defaults
       ($l, $d) = split(':', $i);
       $l ||= $list; $d ||= '';
-    
+
       # Build filename; no leading slashes allowed
       $f = "$d/$file"; $f =~ s!^/!!;
-    
+
       # Expand if necessary; push into @paths array
       if ($f =~ /\$LANG/) {
 	for $j (@langs) {
@@ -2087,8 +2087,10 @@ sub _list_file_get_string {
 
   ($file, %data) = $self->_list_file_get(@_);
 
+  return "No such file: \"$_[1]\".\n" unless $file;
+
   $fh = new Mj::File($file);
-  
+
   while (defined($line = $fh->getline)) {
     $out .= $line;
   }

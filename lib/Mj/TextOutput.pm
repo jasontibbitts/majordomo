@@ -302,7 +302,7 @@ sub configshow {
 
   $groups = $args;
   $groups .= join(',',@arglist);
-  
+
   $groups ||= 'ALL';
   $mode   ||= 'comments';
 
@@ -318,8 +318,8 @@ sub configshow {
         $all_vars{$var}++;
       }
     }
-  }                        
-  
+  }
+
   for $var (sort keys %all_vars) {
     # Process the options
     if ($mode !~ /nocomments/) {
@@ -330,7 +330,10 @@ sub configshow {
         print $outfh $comment;
       }
       $whence = $mj->config_get_whence($list, $var);
-      if ($whence > 0) {
+      if (!defined($whence)) {
+	print $outfh "# Hmm, couldn't tell where this was set.\n";
+      }
+      elsif ($whence > 0) {
         print $outfh "# This value was set by the DEFAULT list.\n";
       }
       elsif ($whence < 0) {

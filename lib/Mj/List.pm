@@ -1131,8 +1131,8 @@ when the vacation time is passed and removes old bounce data.
 sub expire_subscriber_data {
   my $self = shift;
   my $time = time;
-  my $maxbouncecount = 100; # XXXX Make configurable
-  my $maxbounceage   = 31 * 60*60*24; # XXXX ditto
+  my $maxbouncecount = $self->config_get('bounce_max_count');
+  my $maxbounceage   = $self->config_get('bounce_max_age') * 60*60*24;
   my $bounceexpiretime = $time - $maxbounceage;
 
   my $mogrify = sub {

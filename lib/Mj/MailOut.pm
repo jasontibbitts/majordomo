@@ -126,6 +126,7 @@ sub deliver {
   $mta     = $self->_site_config_get('mta');
   $buckets = $self->_list_config_get($list, 'bounce_probe_frequency');
   $bucket  = $seqno % $buckets if $buckets;
+  $regexp  = $self->_list_config_get($list, 'bounce_probe_pattern');
 
   %args =
     (list    => $self->{'lists'}{$list},
@@ -142,6 +143,10 @@ sub deliver {
     $args{probe}   = 1;
     $args{buckets} = $buckets;
     $args{bucket}  = $bucket;
+  }
+  if ($regexp) {
+    $args{probe}   = 1;
+    $args{regexp}  = $regexp;
   }
 
   Mj::Deliver::deliver(%args);

@@ -1,5 +1,20 @@
 2000-06-20  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/mj_cf_data.pl: Add bounce_max_age (31) and bounce_max_count
+	(100) variables.
+
+	* lib/Majordomo.pm (_list_file_get_string): If the file doesn't
+	exist, just say so insteaf of trying to open and read nothing.
+
+	* lib/Mj/MailOut.pm (deliver): Pass bounce_probe_pattern to
+	delivery routine.
+
+	* lib/mj_cf_data.pl: Add bounce_probe_pattern variable.
+
+	* lib/Mj/Deliver.pm (deliver): If there is stored bounce data for
+	this address, always probe it.  The bounce data will eventually
+	expire and the probes will stop if the address stops bouncing.
+
 	* lib/Majordomo.pm (who_chunk): Fix some bustedness in
 	who-enhanced GLOBAL that I introduced with who-export.
 
