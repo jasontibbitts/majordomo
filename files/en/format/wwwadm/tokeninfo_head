@@ -13,24 +13,20 @@
   <input type=submit name=func value=accept>
   <input type=submit name=func value=accept-archive>
   <input type=submit name=func value=reject>
+  <input type=submit name=func value=tokeninfo-remind>
   <input type=hidden name=extra value="$TOKEN">
   <input type=hidden name=list value="$LIST">
   <input type=hidden name=passw value="$PASSWORD">
-  <input type=hidden name=user value="$USER">
+?WILLACK <br>
+?WILLACK If you wish to make known your reasons for $HELP:ACCEPTing
+?WILLACK or $HELP:REJECTing the request, type them here:
+?WILLACK <br>
+?WILLACK <textarea rows=4 cols=70 name=xplanation>
+?WILLACK </textarea>
 <br>
-If you wish to make known your reasons for $HELP:ACCEPTing
-or $HELP:REJECTing the request, type them here:
-<br>
-
-  <textarea rows=4 cols=70 name=xplanation>
-  </textarea>
-
-<ul>
-  <li>The reasons are never shown for accepted, posted messages.
-  <li>The reasons are never shown for rejected <b>confirm</b> requests.
-  <li>Acknowledgements for rejected <b>consult</b> requests are sent only
-      if the <b>ackreject</b> flag is set.  See the $HELP:SET and 
-      $HELP:CONFIGSET_NONMEMBER_FLAGS help pages for more details.
-</ul>
+To mail a reminder message about this request, type an address into the
+<b>address</b> box, then press the <b>tokeninfo-remind</b> button.<br>
+address:
+<input size=48 name=user value="$USER">
 <pre>
 
