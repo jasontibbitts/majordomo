@@ -130,7 +130,8 @@ sub new {
   # $self->{'file_header'}    = \$Mj::Config::file_header;
   $self->{'default_string'} = \$Mj::Config::default_string;
   $self->{'source'}{'DEFAULT'} = $args{'defaultdata'};
-  $self->{'source'}{'installation'} = $args{'installdata'};
+  $self->{'source'}{'installation'} = $args{'installdata'}
+    unless ($list eq 'GLOBAL');
   $self->{'locked'}         = 0;
   $self->{'mtime'}          = 0;
   $self->load               if ($list eq 'DEFAULT');
@@ -518,17 +519,17 @@ sub intro {
   $type = $self->{'vars'}{$var}{'type'};
 
   if ($self->isarray($var)) {
-    if (defined $self->{'source'}{'installation'}{$var} && 
-        @{$self->{'source'}{'installation'}{$var}}) {
-      $default = "$self->{'source'}{'installation'}{$var}[0] ...";
+    if (defined $self->{'source'}{'installation'}{'raw'}{$var} && 
+        @{$self->{'source'}{'installation'}{'raw'}{$var}}) {
+      $default = "$self->{'source'}{'installation'}{'raw'}{$var}[0] ...";
     }
     else {
       $default = "empty";
     }
   }
   else {
-    $default = (defined $self->{'source'}{'installation'}{$var}) ?
-      $self->{'source'}{'installation'}{$var} :
+    $default = (defined $self->{'source'}{'installation'}{'raw'}{$var}) ?
+      $self->{'source'}{'installation'}{'raw'}{$var} :
 	"undef";
     if ($type eq 'bool') {
       $default = ('no', 'yes')[$default];
