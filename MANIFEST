@@ -177,6 +177,7 @@ files/en/.intro
 files/en/.new_list
 files/en/.new_password
 files/en/.registered
+files/en/.registered_noweb
 files/en/.repl_chain
 files/en/.repl_confcons
 files/en/.repl_confirm
@@ -195,6 +196,7 @@ files/en/.token_remind
 files/en/.token_remind_noweb
 files/en/.unknown_file
 files/en/.welcome
+files/en/.welcome_noweb
 files/en/ack_archive
 files/en/ack_delay
 files/en/ack_denial
@@ -502,6 +504,7 @@ files/en/error/.invalid_token
 files/en/error/.make_list
 files/en/error/.message_number
 files/en/error/.missing_mode
+files/en/error/.no_address
 files/en/error/.no_password
 files/en/error/.no_token
 files/en/error/.no_visible
@@ -528,6 +531,7 @@ files/en/error/invalid_token
 files/en/error/make_list
 files/en/error/message_number
 files/en/error/missing_mode
+files/en/error/no_address
 files/en/error/no_password
 files/en/error/no_token
 files/en/error/no_visible
@@ -609,6 +613,8 @@ files/en/format/text/.lists_full
 files/en/format/text/.lists_head
 files/en/format/text/.lists_none
 files/en/format/text/.password
+files/en/format/text/.register
+files/en/format/text/.register_error
 files/en/format/text/.reject
 files/en/format/text/.reject_error
 files/en/format/text/.set
@@ -626,6 +632,9 @@ files/en/format/text/.showtokens_all
 files/en/format/text/.showtokens_data
 files/en/format/text/.showtokens_error
 files/en/format/text/.showtokens_none
+files/en/format/text/.subscribe
+files/en/format/text/.subscribe_error
+files/en/format/text/.subscribe_none
 files/en/format/text/.tokeninfo_attachment
 files/en/format/text/.tokeninfo_container
 files/en/format/text/.tokeninfo_delete
@@ -643,6 +652,10 @@ files/en/format/text/.tokeninfo_remind
 files/en/format/text/.tokeninfo_replace
 files/en/format/text/.tokeninfo_text_foot
 files/en/format/text/.tokeninfo_text_head
+files/en/format/text/.unregister
+files/en/format/text/.unregister_error
+files/en/format/text/.unsubscribe
+files/en/format/text/.unsubscribe_error
 files/en/format/text/.who
 files/en/format/text/.who_error
 files/en/format/text/.who_foot
@@ -707,6 +720,8 @@ files/en/format/text/lists_full
 files/en/format/text/lists_head
 files/en/format/text/lists_none
 files/en/format/text/password
+files/en/format/text/register
+files/en/format/text/register_error
 files/en/format/text/reject
 files/en/format/text/reject_error
 files/en/format/text/set
@@ -724,6 +739,9 @@ files/en/format/text/showtokens_all
 files/en/format/text/showtokens_data
 files/en/format/text/showtokens_error
 files/en/format/text/showtokens_none
+files/en/format/text/subscribe
+files/en/format/text/subscribe_error
+files/en/format/text/subscribe_none
 files/en/format/text/tokeninfo_attachment
 files/en/format/text/tokeninfo_container
 files/en/format/text/tokeninfo_delete
@@ -741,6 +759,10 @@ files/en/format/text/tokeninfo_remind
 files/en/format/text/tokeninfo_replace
 files/en/format/text/tokeninfo_text_foot
 files/en/format/text/tokeninfo_text_head
+files/en/format/text/unregister
+files/en/format/text/unregister_error
+files/en/format/text/unsubscribe
+files/en/format/text/unsubscribe_error
 files/en/format/text/who
 files/en/format/text/who_error
 files/en/format/text/who_foot
@@ -812,6 +834,8 @@ files/en/format/wwwadm/.lists_none
 files/en/format/wwwadm/.login
 files/en/format/wwwadm/.newlist
 files/en/format/wwwadm/.password
+files/en/format/wwwadm/.register
+files/en/format/wwwadm/.register_error
 files/en/format/wwwadm/.reject
 files/en/format/wwwadm/.reject_error
 files/en/format/wwwadm/.set
@@ -831,6 +855,9 @@ files/en/format/wwwadm/.showtokens_error
 files/en/format/wwwadm/.showtokens_foot
 files/en/format/wwwadm/.showtokens_head
 files/en/format/wwwadm/.showtokens_none
+files/en/format/wwwadm/.subscribe
+files/en/format/wwwadm/.subscribe_error
+files/en/format/wwwadm/.subscribe_none
 files/en/format/wwwadm/.tokeninfo_attachment
 files/en/format/wwwadm/.tokeninfo_container
 files/en/format/wwwadm/.tokeninfo_delete
@@ -848,6 +875,10 @@ files/en/format/wwwadm/.tokeninfo_remind
 files/en/format/wwwadm/.tokeninfo_replace
 files/en/format/wwwadm/.tokeninfo_text_foot
 files/en/format/wwwadm/.tokeninfo_text_head
+files/en/format/wwwadm/.unregister
+files/en/format/wwwadm/.unregister_error
+files/en/format/wwwadm/.unsubscribe
+files/en/format/wwwadm/.unsubscribe_error
 files/en/format/wwwadm/.welcome
 files/en/format/wwwadm/.welcome_global
 files/en/format/wwwadm/.welcome_showtokens
@@ -922,6 +953,8 @@ files/en/format/wwwadm/lists_none
 files/en/format/wwwadm/login
 files/en/format/wwwadm/newlist
 files/en/format/wwwadm/password
+files/en/format/wwwadm/register
+files/en/format/wwwadm/register_error
 files/en/format/wwwadm/reject
 files/en/format/wwwadm/reject_error
 files/en/format/wwwadm/set
@@ -941,6 +974,9 @@ files/en/format/wwwadm/showtokens_error
 files/en/format/wwwadm/showtokens_foot
 files/en/format/wwwadm/showtokens_head
 files/en/format/wwwadm/showtokens_none
+files/en/format/wwwadm/subscribe
+files/en/format/wwwadm/subscribe_error
+files/en/format/wwwadm/subscribe_none
 files/en/format/wwwadm/template
 files/en/format/wwwadm/tokeninfo_attachment
 files/en/format/wwwadm/tokeninfo_container
@@ -959,6 +995,10 @@ files/en/format/wwwadm/tokeninfo_remind
 files/en/format/wwwadm/tokeninfo_replace
 files/en/format/wwwadm/tokeninfo_text_foot
 files/en/format/wwwadm/tokeninfo_text_head
+files/en/format/wwwadm/unregister
+files/en/format/wwwadm/unregister_error
+files/en/format/wwwadm/unsubscribe
+files/en/format/wwwadm/unsubscribe_error
 files/en/format/wwwadm/welcome
 files/en/format/wwwadm/welcome_global
 files/en/format/wwwadm/welcome_showtokens
@@ -1016,6 +1056,8 @@ files/en/format/wwwconfirm/.lists_head
 files/en/format/wwwconfirm/.lists_none
 files/en/format/wwwconfirm/.login
 files/en/format/wwwconfirm/.password
+files/en/format/wwwconfirm/.register
+files/en/format/wwwconfirm/.register_error
 files/en/format/wwwconfirm/.reject
 files/en/format/wwwconfirm/.reject_error
 files/en/format/wwwconfirm/.set
@@ -1033,6 +1075,9 @@ files/en/format/wwwconfirm/.showtokens_all
 files/en/format/wwwconfirm/.showtokens_data
 files/en/format/wwwconfirm/.showtokens_error
 files/en/format/wwwconfirm/.showtokens_none
+files/en/format/wwwconfirm/.subscribe
+files/en/format/wwwconfirm/.subscribe_error
+files/en/format/wwwconfirm/.subscribe_none
 files/en/format/wwwconfirm/.tokeninfo_attachment
 files/en/format/wwwconfirm/.tokeninfo_container
 files/en/format/wwwconfirm/.tokeninfo_delete
@@ -1050,6 +1095,10 @@ files/en/format/wwwconfirm/.tokeninfo_remind
 files/en/format/wwwconfirm/.tokeninfo_replace
 files/en/format/wwwconfirm/.tokeninfo_text_foot
 files/en/format/wwwconfirm/.tokeninfo_text_head
+files/en/format/wwwconfirm/.unregister
+files/en/format/wwwconfirm/.unregister_error
+files/en/format/wwwconfirm/.unsubscribe
+files/en/format/wwwconfirm/.unsubscribe_error
 files/en/format/wwwconfirm/.welcome
 files/en/format/wwwconfirm/.who
 files/en/format/wwwconfirm/.who_error
@@ -1105,6 +1154,8 @@ files/en/format/wwwconfirm/lists_head
 files/en/format/wwwconfirm/lists_none
 files/en/format/wwwconfirm/login
 files/en/format/wwwconfirm/password
+files/en/format/wwwconfirm/register
+files/en/format/wwwconfirm/register_error
 files/en/format/wwwconfirm/reject
 files/en/format/wwwconfirm/reject_error
 files/en/format/wwwconfirm/set
@@ -1122,6 +1173,9 @@ files/en/format/wwwconfirm/showtokens_all
 files/en/format/wwwconfirm/showtokens_data
 files/en/format/wwwconfirm/showtokens_error
 files/en/format/wwwconfirm/showtokens_none
+files/en/format/wwwconfirm/subscribe
+files/en/format/wwwconfirm/subscribe_error
+files/en/format/wwwconfirm/subscribe_none
 files/en/format/wwwconfirm/tokeninfo_attachment
 files/en/format/wwwconfirm/tokeninfo_container
 files/en/format/wwwconfirm/tokeninfo_delete
@@ -1139,6 +1193,10 @@ files/en/format/wwwconfirm/tokeninfo_remind
 files/en/format/wwwconfirm/tokeninfo_replace
 files/en/format/wwwconfirm/tokeninfo_text_foot
 files/en/format/wwwconfirm/tokeninfo_text_head
+files/en/format/wwwconfirm/unregister
+files/en/format/wwwconfirm/unregister_error
+files/en/format/wwwconfirm/unsubscribe
+files/en/format/wwwconfirm/unsubscribe_error
 files/en/format/wwwconfirm/welcome
 files/en/format/wwwconfirm/who
 files/en/format/wwwconfirm/who_error
@@ -1183,6 +1241,8 @@ files/en/format/wwwusr/.lists_head
 files/en/format/wwwusr/.lists_none
 files/en/format/wwwusr/.login
 files/en/format/wwwusr/.password
+files/en/format/wwwusr/.register
+files/en/format/wwwusr/.register_error
 files/en/format/wwwusr/.set
 files/en/format/wwwusr/.set_check
 files/en/format/wwwusr/.set_error
@@ -1193,6 +1253,13 @@ files/en/format/wwwusr/.show_error
 files/en/format/wwwusr/.show_foot
 files/en/format/wwwusr/.show_head
 files/en/format/wwwusr/.show_none
+files/en/format/wwwusr/.subscribe
+files/en/format/wwwusr/.subscribe_error
+files/en/format/wwwusr/.subscribe_none
+files/en/format/wwwusr/.unregister
+files/en/format/wwwusr/.unregister_error
+files/en/format/wwwusr/.unsubscribe
+files/en/format/wwwusr/.unsubscribe_error
 files/en/format/wwwusr/.welcome
 files/en/format/wwwusr/accept
 files/en/format/wwwusr/archive_attachment
@@ -1234,6 +1301,8 @@ files/en/format/wwwusr/lists_head
 files/en/format/wwwusr/lists_none
 files/en/format/wwwusr/login
 files/en/format/wwwusr/password
+files/en/format/wwwusr/register
+files/en/format/wwwusr/register_error
 files/en/format/wwwusr/set
 files/en/format/wwwusr/set_check
 files/en/format/wwwusr/set_error
@@ -1244,7 +1313,14 @@ files/en/format/wwwusr/show_error
 files/en/format/wwwusr/show_foot
 files/en/format/wwwusr/show_head
 files/en/format/wwwusr/show_none
+files/en/format/wwwusr/subscribe
+files/en/format/wwwusr/subscribe_error
+files/en/format/wwwusr/subscribe_none
 files/en/format/wwwusr/template
+files/en/format/wwwusr/unregister
+files/en/format/wwwusr/unregister_error
+files/en/format/wwwusr/unsubscribe
+files/en/format/wwwusr/unsubscribe_error
 files/en/format/wwwusr/welcome
 files/en/help/.accept
 files/en/help/.access
@@ -1698,6 +1774,7 @@ files/en/intro
 files/en/new_list
 files/en/new_password
 files/en/registered
+files/en/registered_noweb
 files/en/repl_chain
 files/en/repl_confcons
 files/en/repl_confirm
@@ -1716,6 +1793,7 @@ files/en/token_remind
 files/en/token_remind_noweb
 files/en/unknown_file
 files/en/welcome
+files/en/welcome_noweb
 installbin
 lib/Bf/Sender.pm
 lib/Majordomo.pm
