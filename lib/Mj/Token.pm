@@ -301,7 +301,7 @@ sub consult {
   my ($self, %args) = @_;
   my $log  = new Log::In 50;
   my (%file, @mod1, @mod2, $data, $desc, $ent, $expire, $expire_days,
-      $file, $group, $mj_addr, $mj_owner, $remind, $remind_days, $repl,
+      $file, $group, $i, $mj_addr, $mj_owner, $remind, $remind_days, $repl,
       $sender, $subject, $tmp, $token, $url, $reminded, $permanent, $reasons);
   my $list = $args{'list'};
 
@@ -338,24 +338,29 @@ sub consult {
         			       {'TOKEN' => $token,},
         			      );
 
-  # This extracts the moderator. XXX We want to rewrite this so that it
-  # extracts the appropriate moderator group and picks a sample of the
-  # appropriate size.  I think this can come much later, though.
-  @mod1 = @{$self->_list_config_get($list, 'moderators')};
-  if (@mod1) {
-    $group = $self->_list_config_get($list, 'moderator_group');
-    if ($group) {
-      for (my $i=0; $i<$group && @mod1; $i++) {
-        push(@mod2, splice(@mod1, rand @mod1, 1));
-      }
-    }
-    else {
-      @mod2 = @mod1;
+  # This extracts a list of moderators.  If a moderator group
+  # was specified, the addresses are taken from the auxiliary
+  # list of the same name.  If no such list exists, the
+  # "moderators" auxiliary list and the "moderators," "moderator,"
+  # and "sender" configuration setting are each consulted
+  # in turn until an address is found.
+  $self->_make_list($list);
+  $group = $args{'group'} or 'moderators';
+  @mod1  = $self->{'lists'}{$list}->moderators($group);
+
+  # The number of moderators consulted can be limited to a
+  # certain (positive) number, in which case moderators
+  # are chosen randomly.
+  $size  = $args{'size'} or $self->_list_config_get($list, 'moderator_group');
+  if (($size > 0) and (scalar @mod1 > $size)) {
+    for ($i = 0; $i < $size && @mod1; $i++) {
+      push(@mod2, splice(@mod1, rand @mod1, 1));
     }
   }
   else {
-    $mod2[0] = $self->_list_config_get($list, 'moderator') || $sender;
+    @mod2 = @mod1;
   }
+
   ($reasons = $args{'args'}[1]) =~ s/\002/\n  /g;
 
   # Not doing a post, so we send a form letter.
@@ -613,9 +618,7 @@ sub t_accept {
     $ent->purge;
   }
 
-  # Now convince the formatter to give the accepter some info about
-  # the token, but not the command return.
-  return (1, '', $data, \@out);
+  return (1, '', $data, [@out]);
 }
 
 =head2 t_reject(token)
@@ -796,7 +799,7 @@ sub t_expire {
     }
     return (0, 0);
   };
-
+  
   $self->_make_tokendb;
   $self->{'tokendb'}->mogrify($mogrify);
 
@@ -807,12 +810,15 @@ sub t_expire {
       unlink "$self->{ldir}/GLOBAL/spool/$data->{arg1}";
     }
   }
-  return @nuked;
+  $self->_make_latchkeydb;
+  $self->{'latchkeydb'}->mogrify($mogrify);
+
+  return @kill;
 }
 
-=head2 _make_tokendb private
+=head2 _make_tokendb, _make_latchkeydb private
 
-This generates and initializes the token database.
+These subroutines generate and initialize the token and latchkey databases.
 
 =cut
 sub _make_tokendb {
@@ -823,6 +829,80 @@ sub _make_tokendb {
       new Mj::TokenDB "$self->{'ldir'}/GLOBAL/_tokens", $self->{backend};
   }
   1;
+}
+
+sub _make_latchkeydb {
+  my $self = shift;
+  
+  unless ($self->{'latchkeydb'}) {
+    $self->{'latchkeydb'} =
+      new Mj::TokenDB "$self->{'ldir'}/GLOBAL/_latchkeys", $self->{backend};
+  }
+  1;
+}
+
+=head2 gen_latchkey(passwd)
+
+Create a temporary password for improved security.
+
+=cut
+
+sub gen_latchkey {
+  my ($self, $password) = @_;
+  my ($token);
+
+  $self->_make_latchkeydb;
+  return unless defined $self->{'latchkeydb'};
+  return unless length $password;
+  $data = {
+     'type'       => 'latchkey',
+     'list'       => '',
+     'command'    => '',
+     'user'       => $self->{'sessionuser'},
+     'victim'     => '',
+     'mode'       => '',
+     'cmdline'    => '',
+     'approvals'  => '',
+     'chain1'     => '',
+     'chain2'     => '',
+     'chain3'     => '',
+     'chain4'     => '',
+     'arg1'       => $password,
+     'arg2'       => '',
+     'arg3'       => '',
+     'expire'     => time + 3600,
+     'remind'     => '',
+     'reminded'   => 1,
+     'permanent'  => '',
+     'time'       => time,
+     'sessionid'  => $self->{'sessionid'},
+  };
+  while (1) {
+    $token = $self->t_gen;
+    ($ok, undef) = $self->{'latchkeydb'}->add("",$token,$data);
+    last if $ok;
+  }
+  return $token;
+}
+
+=head2 validate_latchkey(user, passwd, list, command)
+
+Check the validity of a password to which a latchkey refers.
+
+=cut
+sub validate_latchkey {
+  my ($self, $user, $passwd, $list, $command) = @_;
+  my ($data, $realpass);
+  $self->_make_latchkeydb;
+  if (defined $self->{'latchkeydb'}) {
+    $data = $self->{'latchkeydb'}->lookup($passwd);
+    if (defined $data) {
+        return -1 if (time > $data->{'expire'});
+        $realpass = $data->{'arg1'};
+        return $self->validate_passwd($user, $realpass, $list, $command);
+    }
+  }
+  0;
 }
 
 =head1 COPYRIGHT
