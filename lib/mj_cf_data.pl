@@ -1738,7 +1738,7 @@ EOC
    'default_lists_format' =>
    {
     'type'   => 'enum',
-    'values' => [qw(tiny compact short long enhanced]],
+    'values' => [qw(tiny compact short long enhanced)],
     'groups' => ['lists'],
     'global' => 1,
     'visible'=> 0,
