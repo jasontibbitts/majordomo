@@ -1,3 +1,4 @@
-A list of the classes that a user is allowed to put themselves into.
-There are currently four classes (each, unique, digest, nomail), and
-the digest class may have list-owner-defined subclasses.
+The allowed_classes setting lists the delivery choices that are
+available to subscribers.  Subscribers who attempt to choose a class,
+with the set command, that is not listed here will receive an error
+message.
