@@ -99,6 +99,7 @@ $VERSION = "1.0";
    'regexp_array'     => 1,
    'restrict_post'    => 1,
    'string_2darray'   => 1,
+   'sublist_array'    => 1,
    'taboo_body'       => 1,
    'taboo_headers'    => 1,
    'triggers'         => 1,
@@ -2267,17 +2268,28 @@ sub parse_sublist_array {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-  my($i, $l, $e);
-  for $i (@$arr) {
-    ($l, $e) = split /[: ]+/, $i, 2;
-    next unless length($l);
+  my($desc, $err, $out, $sublist, $table);
+
+  ($table, $err) = parse_table('fso', $arr);
+
+  return (0, "Error parsing sublists: $err.")
+    if $err;
+
+  $out = {};
+
+  for (my $i = 0; $i < @$table; $i++) {
+    $sublist = $table->[$i][0];
+    $desc    = $table->[$i][1];
+
     # XXX Assumes .D or .T suffix for sublist database.
-    return (0, "Illegal or unknown list $l.")
-      unless ((-f "$self->{'ldir'}/$self->{'list'}/X$l.D" ||
-               -f "$self->{'ldir'}/$self->{'list'}/X$l.T")
-               && (Majordomo::legal_list_name($l)));
+    return (0, "Illegal or unknown sublist $sublist.")
+      unless ((-f "$self->{'ldir'}/$self->{'list'}/X$sublist.D" ||
+               -f "$self->{'ldir'}/$self->{'list'}/X$sublist.T")
+               && (Majordomo::legal_list_name($sublist)));
+    $out->{$sublist} = $desc;
   }
-  (1, undef, $arr);
+
+  (1, undef, $out);
 }
 
 =head2 parse_pw
@@ -2289,8 +2301,9 @@ default password then sets master_password; the following commands
 shouldn''t fail in this case, so the old password must continue to be
 valid, but the new password must be valid also.
 
-If the password is stored as clear text, it will be converted to 
+If the password is stored as clear text, it will be converted to
 an encrypted password.
+
 =cut
 use Mj::Util qw(ep_convert ep_recognize);
 sub parse_pw {
@@ -2359,7 +2372,6 @@ sub parse_passwords {
     }
   }
 
-  
   (1, undef, $rd);
 }
 

@@ -4384,16 +4384,7 @@ sub _createlist {
       }
 
       # Extract the list of sublists that should have aliases generated
-      $sublists = [];
-      if (exists $aliases->{'auxiliary'}) {
-        if ($self->_make_list($i)) {
-          @tmp = $self->_list_config_get($i, 'sublists');
-          for $j (@tmp) {
-            ($j, undef) = split /[\s:]+/, $j, 2;
-            push @{$sublists}, $j;
-          }
-        }
-      }
+      $sublists = $self->_list_config_get($i, 'sublists');
 
       # Extract the list of digests
       $digests = $self->_list_config_get($i, 'digests');
@@ -4404,7 +4395,7 @@ sub _createlist {
 			       debug    => $debug,
 			       digests  => [keys(%{$digests})],
 			       priority => $priority,
-			       sublists => $sublists,
+			       sublists => [keys(%{$sublists})],
 			      };
     }
     {
@@ -4518,15 +4509,7 @@ sub _createlist {
     $digests = $self->_list_config_get($list, 'digests');
     delete($digests->{'default_digest'});
 
-    $sublists = [];
-    if (exists $aliases->{'auxiliary'}) {
-      @tmp = $self->_list_config_get($list, 'sublists');
-      for $i (@tmp) {
-        ($i, undef) = split /[\s:]+/, $i, 2;
-        push (@{$sublists}, $i) if (length($i));
-      }
-    }
-
+    $sublists = $self->_list_config_get($list, 'sublists');
     $priority = $self->_list_config_get($list, 'priority');
     $debug = $self->_list_config_get($list, 'debug');
   }
@@ -4558,14 +4541,9 @@ sub _createlist {
     $digests = $self->_list_config_get('DEFAULT', 'digests');
     delete($digests->{'default_digest'});
 
-    $sublists = [];
     if (exists $aliases->{'auxiliary'}) {
       $self->_list_set_config('DEFAULT', $sources->{'sublists'});
-      @tmp = $self->_list_config_get('DEFAULT', 'sublists');
-      for $i (@tmp) {
-        ($i, undef) = split /[\s:]+/, $i, 2;
-        push (@{$sublists}, $i) if (length($i));
-      }
+      $sublists = $self->_list_config_get('DEFAULT', 'sublists');
     }
 
     $self->_list_set_config('DEFAULT', $sources->{'priority'});
@@ -4579,7 +4557,7 @@ sub _createlist {
   $args{'debug'}    = $debug;
   $args{'digests'}  = [keys(%{$digests})];
   $args{'priority'} = $priority || 0;
-  $args{'sublists'} = $sublists;
+  $args{'sublists'} = [keys(%{$sublists})];
 
   {
     no strict 'refs';
@@ -4823,9 +4801,9 @@ sub _lists {
   my $ok       = shift || 0;
 
   my $log = new Log::In 35, $mode;
-  my (@lines, @lists, @out, @sublists, @tmp, $cat, $compact, 
+  my (@lines, @lists, @out, @tmp, $cat, $compact, 
       $count, $data, $desc, $digests, $flags, $i, $limit, $list, 
-      $expose, $mess, $sublist);
+      $expose, $mess, $sublist, $sublists);
 
   $expose = 0;
   $mode ||= $self->_global_config_get('default_lists_format');
@@ -4910,44 +4888,43 @@ sub _lists {
       }
     }
     push @out, $data unless ($list =~ /^DEFAULT/);
- 
+
     # "aux" mode: return information about auxiliary lists
     if ($mode =~ /aux/) {
       $self->{'lists'}{$list}->_fill_aux;
-      # If a master password was given, show all auxiliary lists.
+      # If a master password was given, show all auxiliary lists by merging
+      # together those in the sublist setting with those that aren't.
       if ($expose > 1) {
-        @sublists = $self->_list_config_get($list, "sublists");
-        @tmp = ();
+        $sublists = $self->_list_config_get($list, 'sublists');
         for $i (keys %{$self->{'lists'}{$list}->{'sublists'}}) {
           next if ($i eq 'MAIN');
-          next if grep { $_ =~ /^$i(?![\w\-\.])/ } @sublists;
-          push @tmp, "$i:private auxiliary list";
+          next if $sublists->{$i};
+	  $sublists->{$i} = "private auxiliary list";
         }
-        push @sublists, @tmp;
       }
       else {
-        @sublists = $self->_list_config_get($list, "sublists");
+        $sublists = $self->_list_config_get($list, "sublists");
       }
-      for $sublist (@sublists) {
-        next if ($sublist eq 'MAIN');
-        ($sublist, $desc) = split /[\s:]+/, $sublist, 2;
+      for $i (keys %{$sublists}) {
+        next if ($i eq 'MAIN');
+	$desc = $sublists->{$i};
         $flags = '';
         if ($mode =~ /enhanced/) {
-          $flags = 'S'  
+          $flags = 'S'
             if ($self->{'lists'}{$list}->is_subscriber($user,
-                                                       $sublist));        
+                                                       $i));
         }
-        push @out, { 
-                    'category'    => $cat, 
-                    'description' => $desc, 
+        push @out, {
+                    'category'    => $cat,
+                    'description' => $desc,
                     'flags'       => $flags,
-                    'list'        => "$list:$sublist", 
-                    'posts' => $self->{'lists'}{$list}->count_posts(30, $sublist),
-                    'subs'  => $self->{'lists'}{$list}->count_subs($sublist),
+                    'list'        => "$list:$i",
+                    'posts' => $self->{'lists'}{$list}->count_posts(30, $i),
+                    'subs'  => $self->{'lists'}{$list}->count_subs($i),
                    };
       }
     } 
-    # Only display a list of templates if a master password was given. 
+    # Only display a list of templates if a master password was given.
     if ($mode =~ /config/ and 
         ($expose > 1 or $list =~ /^DEFAULT/)) {
       for $sublist ($self->{'lists'}{$list}->_fill_config) {
@@ -4963,13 +4940,13 @@ sub _lists {
           last if $limit && $count > $limit;
         }
 
-        push @out, { 'list'        => "$list:$sublist", 
-                     'category'    => 'configuration settings', 
-                     'description' => $desc, 
+        push @out, { 'list'        => "$list:$sublist",
+                     'category'    => 'configuration settings',
+                     'description' => $desc,
                      'flags'       => '',
                    };
-      } 
-    } 
+      }
+    }
   }
 
   return (1, @out);

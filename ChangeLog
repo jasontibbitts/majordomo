@@ -1,3 +1,13 @@
+2001-08-18  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm (_createlist): Use new parsed version of
+	'sublists' to eliminate a bunch of redundant parsing code
+	scattered throughout.
+	(_lists): Use parsed version of 'sublists' and clean up a bit.
+
+	* lib/Mj/Config.pm (parse_sublist_array): Make the sublist_array
+	type parsed; parse it as a table.
+
 2001-08-17  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/List.pm (_fill_config): Return the list of available
