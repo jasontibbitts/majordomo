@@ -483,8 +483,7 @@ sub global_access_check {
 
 use Data::Dumper;
 use Mj::CommandProps qw(:function action_terminal);
-use Mj::Util 'process_rule';
-use Mj::Digest qw(in_clock);
+use Mj::Util qw(process_rule in_clock);
 sub list_access_check {
   # We must share some of these variables with the compartment, so they
   # can't be lexicals.
@@ -659,7 +658,7 @@ sub list_access_check {
       for ($i = 0; $i < scalar @{$access->{'check_time'}}; $i++) {
         for ($j = 0; $j < scalar @{$access->{'check_time'}[$i]}; $j++) {
           $current->[$i][$j] = 
-            Mj::Digest::in_clock($access->{'check_time'}[$i][$j]);
+            Mj::Util::in_clock($access->{'check_time'}[$i][$j]);
         }
       }
     }

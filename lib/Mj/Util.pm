@@ -16,7 +16,7 @@ package Mj::Util;
 use Mj::Log;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(process_rule str_to_time time_to_str);
+@EXPORT_OK = qw(in_clock process_rule str_to_time time_to_str);
 
 use AutoLoader 'AUTOLOAD';
 
@@ -147,6 +147,58 @@ sub process_rule {
     $params{'args'}->{$i} = $args{$i};
   }
   @final_actions;
+}
+
+=head2 in_clock(clock, time)
+
+This determines if a given time (defaulting to the current time) falls
+within the range of times given in clock, which is expected to be in the
+format returned by Mj::Config::_str_to_clock.
+
+A clock is a list of lists:
+
+[
+ flag: day of week (w), day of month (m), free date (a)
+ start
+ end
+]
+
+Start and end can be equivalent; since the granularity is one hour, this
+gives a range of exactly one hour.
+
+=cut
+sub in_clock {
+  my $clock = shift;
+  my $time  = shift || time;
+  my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday) = localtime($time);
+  $mday--; # Clock values start at 0
+
+  for my $i (@$clock) {
+    # Handle hour of day
+    if ($i->[0] eq 'a') {
+      return 1 if $hour  >= $i->[1] && $hour  <= $i->[2];
+    }
+    elsif ($i->[0] eq 'w') {
+      # Handle day/hour of week
+      my $whour = $wday*24 + $hour;
+      return 1 if $whour >= $i->[1] && $whour <= $i->[2];
+    }
+    elsif ($i->[0] =~ /^m(\d{0,2})/) {
+      # Handle day/hour of month
+      unless (length $1 and ($mon + 1 != $1)) {
+        my $mhour = $mday*24 + $hour;
+        return 1 if $mhour >= $i->[1] && $mhour <= $i->[2];
+      }
+    }
+    elsif ($i->[0] eq 'y') {
+      # Handle day/hour of year
+      my $yhour = $yday*24 + $hour;
+      return 1 if $yhour >= $i->[1] && $yhour <= $i->[2];
+    }
+    # Else things are really screwed
+  }
+  # None of the intervals include the time, so no match.
+  0;
 }
 
 =head2 str_to_time(string)
