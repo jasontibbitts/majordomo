@@ -76,7 +76,7 @@ sub new {
 
   return undef unless $self->{'smtp'};
 
-  unless ($args{'sender'}) {
+  unless (defined $args{'sender'}) {
     warn "Must provide a sender when opening an envelope; using bogus default.";
     $args{'sender'} = 'misconfigured@example.com';
   }
