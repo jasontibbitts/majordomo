@@ -131,8 +131,6 @@ sub new {
   $self->{'callbacks'}      = $args{'callbacks'};
   $self->{'sdirs'}          = 1;
   $self->{'vars'}           = \%Mj::Config::vars;
-  # $self->{'file_header'}    = \$Mj::Config::file_header;
-  $self->{'default_string'} = \$Mj::Config::default_string;
   $self->{'source'}{'DEFAULT'} = $args{'defaultdata'};
   $self->{'source'}{'installation'} = $args{'installdata'}
     unless ($list eq 'GLOBAL');
@@ -308,16 +306,26 @@ sub load {  # XXX unfinished
   $self->{'sources'} = ['MAIN'];
 
   # The GLOBAL list does not use the DEFAULT settings.
-  if ($self->{'list'} ne 'GLOBAL') {
-    $self->_load_dfl('DEFAULT') 
+  if ($self->{'list'} ne 'GLOBAL' and $self->{'list'} ne 'DEFAULT') {
+    $self->{'source'}{'DEFAULT'} = $self->_load_dfl('DEFAULT') 
       unless (exists $self->{'source'}{'DEFAULT'}{'raw'});
     push @{$self->{'sources'}}, 'DEFAULT';
   }
 
-  $self->_defaults unless (exists $self->{'source'}{'installation'}{'raw'});
+  # Load the standard default values
+  unless (exists $self->{'source'}{'installation'}{'raw'}) {
+    if ($self->{'list'} eq 'GLOBAL') {
+      $self->{'source'}{'installation'} = 
+        $self->_load_dfl('GLOBAL', '_install');
+    }
+    else { 
+      $self->{'source'}{'installation'} = 
+        $self->_load_dfl('DEFAULT', '_install');
+    }
+  }
   push @{$self->{'sources'}}, 'installation';
 
-  $self->{loaded} = 1;
+  $self->{'loaded'} = 1;
   1;
 }
 
@@ -343,39 +351,42 @@ sub _load_new {
 
 =head2 _load_dfl
 
-Get the configuration values for the DEFAULT list.
-This data has higher precedence than the
-settings in mj_cf_defs.pl, but lower than the
-individual lists' settings.
+Get the configuration values from another configuration file.
+At present, the DEFAULT and DEFAULT:_install configuration
+files are used for regular lists, and the GLOBAL:_install
+configuration file is used for the GLOBAL pseudo-list.
 
 =cut
 
 sub _load_dfl {
   my $self = shift;
-  my $template = shift || 'DEFAULT';
+  my $list = shift || 'DEFAULT';
+  my $sublist = shift || '';
   my $log  = new Log::In 160;
-  my ($file, $name);
+  my ($file, $name, $out);
 
-  if ($template eq 'DEFAULT') {
-    # The GLOBAL list never uses the DEFAULT data.
-    if ($self->{'list'} eq 'GLOBAL') {
-      $self->{'source'}{'DEFAULT'} = {};
-      return;
-    }
-    $name = "$self->{'ldir'}/DEFAULT/_config";
+  # The GLOBAL list never uses the DEFAULT data.
+  if ($list =~  /^DEFAULT/ and $self->{'list'} eq 'GLOBAL') {
+    $self->{'source'}{'DEFAULT'}{'raw'} = {};
+    return;
   }
-#  else {
-#    $name = "$self->{'ldir'}/DEFAULT/C$template";
-#    $name = "$self->{'ldir'}/$template/_config";
-#  }
+  # Valid list names only
+  return if ($list =~ /[^\w\.\-]/);
+  return if ($sublist =~ /[^\w\.\-]/);
+  if (! length($sublist) or $sublist eq 'MAIN'){
+    $name = "$self->{'ldir'}/$list/_config";
+  }
+  else {
+    $name = "$self->{'ldir'}/$list/C" . lc $sublist;
+  }
 
   if (-r $name) {
     $file = new Mj::File $name, "<";
-    $self->{'source'}{$template} = do $name;
+    $out = do $name;
     $file->close;
   }
 
-  1;
+  $out;
 }
 
 use AutoLoader 'AUTOLOAD';
@@ -426,6 +437,29 @@ sub whence {
   return;
 }
 
+=head2 regen
+
+Parse all of the raw data and replace the configuration file.
+This is used to bootstrap the installation defaults.
+
+=cut
+sub regen {
+  my $self = shift;
+  my $log  = new Log::In 150, $self->{'list'};
+  return unless $self->lock;
+
+  my $config = $self->{'source'}{'MAIN'};
+
+  for $var (keys %{$config->{'raw'}}) {
+    next unless $self->isparsed($var);
+    $config->{'parsed'}{$var} =
+      $self->parse($var, $config->{'raw'}{$var});
+  }
+
+  $self->{'dirty'} = 1;
+  $self->unlock;
+}
+
 =head2 default(variable)
 
 Returns the default value of the given variable.
@@ -436,8 +470,8 @@ sub default {
 
   $::log->in(180, "$var");
 
-  if ($self->{'source'}{'installation'}{$var}) {
-    return $self->{'source'}{'installation'}{$var};
+  if ($self->{'source'}{'installation'}{'raw'}{$var}) {
+    return $self->{'source'}{'installation'}{'raw'}{$var};
   }
   return undef;
 }
@@ -586,12 +620,19 @@ sub isauto {
 
 =head2 isparsed(variable)
 
-Returns trus if the variable is of a parsed type; undef otherwise.
+Returns true if the variable is of a parsed type; undef otherwise.
 
 =cut
 sub isparsed {
   my $self = shift;
   my $var  = shift;
+
+  return unless (exists $self->{'vars'}{$var});
+
+  # DEFAULT templates cannot expand $LIST in addresses, so
+  # address and address_array variables must remain unparsed.
+  return if ($self->{'list'} =~ /^DEFAULT/ and 
+             $self->{'vars'}{$var}{'type'} =~ /^address/);
 
   if ($self->{'vars'}{$var}) {
     return $is_parsed{$self->{'vars'}{$var}{'type'}};
@@ -1019,10 +1060,10 @@ Note that the default will print wrongly if it's an array value having any
 value other than undef.
 
 This code is kind of gross, but it's just there to support the obsolete
-files.
+files.  Currently, the code is commented out.
 
 =cut
-# sub _save_old {
+sub _save_old {
 #   my $self = shift;
 #   my ($comment, $default, $enums, $file, $groups, $instructions,
 #       $key, $lval, $name, $op, $tag, $type, $value);
@@ -1043,8 +1084,6 @@ files.
 
 #   # Just in case
 #   $self->_defaults unless $self->{'defaults'};
-
-#   $file->print($ {$self->{'file_header'}});
 
 #   foreach $key (sort keys %{$self->{'vars'}}) {
 #     # First set up the values to put into the format
@@ -1084,31 +1123,6 @@ files.
 #   }
 #   $file->commit;
 #   $::log->out;
-# }
-
-=head2 _defaults (private)
-
-=head2
-
-Load the default values for a list.  This evals the string containing the
-code to determine the default values in the current context.
-
-=cut
-sub _defaults {
-  my $self = shift;
-  local($list) = $self->{'list'};
-  my $log = new Log::In 250, "$list";
-
-  $self->{'defaulting'} = 1;
-
-  $self->{'source'}{'installation'}{'raw'} = 
-    eval ${$self->{'default_string'}};
-  if ($@) {
-    $::log->abort("Eval of config defaults failed: $@\nDefaults string is:\n${$self->{'default_string'}}");
-  }
-
-  delete $self->{'defaulting'};
-  1;
 }
 
 sub _filename {
@@ -1332,9 +1346,7 @@ sub parse_address {
 
   # We try to tack on a hostname if one isn't given
   unless ($str =~ /\@/) {
-    if (exists ($self->{'source'}{'installation'}{'raw'}{'whereami'})) {
-      $str .= "\@" . $self->{'source'}{'installation'}{'raw'}{'whereami'};
-    }
+    $str .= "\@" . $self->get('whereami');
   }
 
   my $addr = new Mj::Addr($str);
@@ -1382,12 +1394,11 @@ posting to remove illegal types and to alter the encoding of various
 parts.
 
 =cut
-use Safe;
 sub parse_attachment_rules {
   my $self = shift;
   my $arr  = shift;
   my $log  = new Log::In 150;
-  my(%allowed_actions, $check, $change, $data, $err, $i, $ok, $pat, $safe,
+  my(%allowed_actions, $check, $change, $data, $err, $i, $ok, $pat, 
      $table);
 
   %allowed_actions =
@@ -1397,9 +1408,6 @@ sub parse_attachment_rules {
      'deny'    => 0,
      'discard' => 0,
     );
-
-  $safe = new Safe;
-  $safe->permit_only(qw(const leaveeval not null pushmark return rv2sv stub));
 
   $check = "\n"; $change = "\n";
 
