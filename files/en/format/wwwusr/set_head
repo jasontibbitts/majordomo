@@ -1,14 +1,11 @@
-<p>
-To change your delivery class, select a new class from the menu.
-To change your personal settings, press the button next to
-the name of each setting you wish to change.
-</p>
-<p>
-Press the <b>set</b> button to make the changes permanent.
-</p>
-<p>
 <form method="POST" action="$CGIURL">
   <input type="hidden" name="domain" value="$DOMAIN">
   <input type="hidden" name="user" value="$USER">
   <input type="hidden" name="passw" type=password value="$CMDPASS">
+
+<p>
+Once you have changed your personal settings,
+press the <b>set</b> button to make the changes permanent.<br>
   <input type="submit" name="func" value="set">
+</p>
+<p>
