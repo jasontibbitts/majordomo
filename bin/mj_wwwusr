@@ -46,10 +46,10 @@ use Mj::Format;
 use Mj::Log;
 use Mj::Parser;
 
-my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, $domain, $extra, 
-    $falseuser, $func, $list, $mj, $mess, $mode, $ofunc, $ok, $part, $passw, 
-    $pathinfo, $raw, $request, $result, $sess, $str, $subs, $tmp, $user);
-
+my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, 
+    $domain, $extra, $falseuser, $func, $list, $mj, $mess, $mode, 
+    $ofunc, $ok, $opass, $part, $passw, $pathinfo, $raw, $request, 
+    $result, $sess, $str, $subs, $tmp, $user);
 
 #----- Which commands are supported  -----#
 # First  value:  Is a password required?
@@ -160,14 +160,14 @@ unless ($ok) {
 }
 
 #----- Create a temporary password -----#
-$passw   = $cgi->param('passw') || '';
-if ($passw) {
-  $passw =~ /(.+)/; $passw = $1;
+$opass = $passw = $cgi->param('passw') || '';
+if (length $opass) {
+  $opass =~ /(\S+)/; $passw = $1;
   $passw = $mj->gen_latchkey($passw) 
     unless ($mj->t_recognize($passw));
 }
 
-$ofunc   = $cgi->param('func') || 'welcome';
+$ofunc = $cgi->param('func') || 'welcome';
 
 $cgidata = Mj::Format::cgidata($mj, { 'password' => $passw,
                                       'user'     => $user });
@@ -246,6 +246,10 @@ if (! $passw) {
 }
 else {
   unless ($mj->validate_passwd($addr, $passw, 'GLOBAL', 'show')) {
+    if ($mj->t_recognize($opass)) {
+      $subs->{'CMDPASS'} = '';
+      &login($mj, $subs, '');
+    }
     $subs->{'CMDPASS'} = '';
     &login($mj, $subs, $mj->format_error('invalid_password',
                          'GLOBAL', 'VICTIM' => $user));
@@ -267,6 +271,7 @@ $lists[0] ||= 'GLOBAL';
 
 #----- Construct the request -----#
 $request = {
+  'cgidata'   => $cgidata,
   'cgiurl'    => $cgiurl,
   'command'   => $func,
   'list'      => $lists[0],

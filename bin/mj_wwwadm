@@ -43,13 +43,14 @@ use Mj::Parser;
 my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists, 
     @settings, @values, $addr, $cgi, $cgidata, $cgiurl, $domain, 
     $falseuser, $fh, $func, $i, $j, $line, $list, $mess, $mode, 
-    $mj, $ofunc, $ok, $passw, $pathinfo, $raw, $req, $request, 
-    $result, $sess, $str, $sublist, $subs, $tmp, $token, $truelist, $user);
+    $mj, $ofunc, $ok, $opass, $passw, $pathinfo, $raw, $req, $request, 
+    $result, $sess, $str, $sublist, $subs, $tmp, $token, $truelist, 
+    $user);
 
 #----- Which commands are supported ?  -----#
 # First  value:  Is a password required?
 # Second value:  Is a list required?
-# Third value:  Should the result be preformatted?
+# Third value:   Should the result be preformatted?
 # Fourth value:  Page to display after the result.
 %commands = (   
                 'accept'        => [1, 0, 1, 'showtokens'],
@@ -165,14 +166,13 @@ for ($i = 0 ; $i < scalar @lists ; $i++) {
 $lists[0] ||= '';
 
 #----- Initialize the variable substitutions -----#
-$passw   = $cgi->param('passw') || '';
-if ($passw) {
-  $passw =~ /(.+)/; $passw = $1;
+$opass = $passw = $cgi->param('passw') || '';
+if (length $opass) {
+  $opass =~ /(\S+)/; $passw = $1;
 }
 
 $cgidata = Mj::Format::cgidata($mj, { 'user' => $user, 
                                       'password' => $passw });
-$cgidata .= "&list=$lists[0]";
 
 $subs = { $mj->standard_subs($lists[0]),
           'CGIDATA'   => $cgidata,
@@ -199,13 +199,19 @@ else {
 ($ok, $mess) = $mj->connect('wwwadm', $sess, $user, $passw);
 unless ($ok) {
   &surrender($cgi, $mess);
-} 
+}
 
 #----- Remove the temporary password if the admin is signing out. -----#
 if ($ofunc eq 'logout') {
   $mj->del_latchkey($passw) if ($mj->t_recognize($passw));
   $subs->{'CMDPASS'} = '';
   $subs->{'COMMAND'} = 'welcome';
+  $cgidata = Mj::Format::cgidata($mj, 
+               { 
+                 'user' => ($user eq $falseuser) ? '' : $user,
+                 'password' => '',
+               });
+  $subs->{'CGIDATA'} = $cgidata;
 }
 else {
   $passw = $mj->gen_latchkey($passw) 
@@ -213,13 +219,17 @@ else {
   $subs->{'CMDPASS'} = $passw;
   $cgidata = Mj::Format::cgidata($mj, { 'user' => $user, 
                                       'password' => $passw});
-  $cgidata .= "&list=$lists[0]";
+  $cgidata = Mj::Format::cgidata($mj, 
+               { 
+                 'user' => ($user eq $falseuser) ? '' : $user,
+                 'password' => $passw,
+               });
   $subs->{'CGIDATA'} = $cgidata;
 }
 
 #----- Should the header and footer be displayed? -----#
 $raw = 0;
-if ($ofunc eq 'tokeninfo-part' or 
+if (($func eq 'tokeninfo' and $mode =~ /part/) or 
     ($func eq 'archive' and $mode =~ /get/ and $mode =~ /part/))
 {
   $raw = 1;
@@ -275,6 +285,10 @@ if ($ofunc =~ /newfaq|newinfo|newintro/) {
 }
 
 unless ($mj->validate_passwd($addr, $passw, $truelist, 'ANY')) {
+  $subs->{'CMDPASS'} = '';
+  if ($mj->t_recognize($opass)) {
+    &login($mj, $subs, '');
+  }
   &login($mj, $subs, $mj->format_error('invalid_password',
                          $truelist, 'VICTIM' => $user));
 }
@@ -296,7 +310,7 @@ elsif (! exists $commands{$func}) {
   &usage($mj, $subs, "$func is an unsupported command.", '');
 }
 
-# The archive-get and archive-index commands must use immediate mode,
+# The archive-get and get commands must use immediate mode,
 # to display the results instead of mailing them.
 if (($func eq 'archive' and $mode =~ /get/ and $mode !~ /part/) 
     or ($func eq 'get' and $mode !~ /edit/)) {
@@ -305,7 +319,6 @@ if (($func eq 'archive' and $mode =~ /get/ and $mode !~ /part/)
 elsif ($func eq 'who' and $mode !~ /enhanced/) {
   $mode .= $mode? "-enhanced" : "enhanced";
 }
-
 
 #----- Password check -----#
 if (! $passw) {
@@ -321,6 +334,7 @@ if ($commands{$func}->[2] and ! scalar @lists) {
 no strict 'refs';
 
 $request = {
+    'cgidata'   => $cgidata,
     'cgiurl'    => $cgiurl,
     'command'   => $func,
     'list'      => $truelist,
@@ -548,6 +562,9 @@ elsif ($func ne 'showtokens') {
     }
     $tmp = $cgi->param('owners');
     $tmp =~ s/\r?\n$//;
+    if ($tmp !~ /\S/ and $user =~ /example.com/) {
+      &newlist($mj, $subs, "A valid list owner address was not supplied.\n")
+    }
     @extra = split "\r?\n", $tmp;
     $request->{'owners'} = [@extra];
   }
@@ -797,13 +814,13 @@ sub surrender {
 <title>Majordomo 2 WWW for List Owners: Error</title>
 </head>
 <body>
-<h2 align=center>Majordomo Error</h2>
+<h2 align="center">Majordomo Error</h2>
 $message
-<form method=POST action="$url">
-  <input type=hidden name=func value="login">
+<form method="POST" action="$url">
+  <input type="hidden" name="func" value="login">
   Enter the domain name into the box, then press the <b>Sign In</b> button.<br>
-  <input name=domain size=45>
-  <input type=submit value="Sign In">
+  <input name="domain" size="45">
+  <input type="submit" value="Sign In">
 </form>
 EOM
 
