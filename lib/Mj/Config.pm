@@ -213,7 +213,8 @@ sub get {
       # Return the raw data
       if (exists $self->{'source'}{$file}{'raw'}{$var}) {
         $log->out("raw, $file");
-        if ($self->isarray($var)) {
+        if ($self->isarray($var) and 
+            ref $self->{'source'}{$file}{'raw'}{$var}) {
           return @{$self->{'source'}{$file}{'raw'}{$var}};
         }
         return $self->{'source'}{$file}{'raw'}{$var};
@@ -1291,8 +1292,7 @@ sub parse_access_rules {
       $warn .= $error if $error;
 
       $data->{$i}{'code'}        .= $part;
-      push @{$data->{$i}{'check_time'}},  @$check_time
-           if @$check_time;
+      $data->{$i}{'check_time'}[$count-1] = $check_time;
       for $j (@{$check_aux}) {
 	$data->{$i}{'check_aux'}{$j} = 1;
       }
@@ -1837,43 +1837,14 @@ sub parse_enum_array {
   my $log  = new Log::In 150, "$var";
   my (%out, $i, $mess, $ok);
 
+  return (0, "Not an array") unless (ref $arr eq 'ARRAY');
+
   for $i (@$arr) {
     ($ok, $mess) = $self->parse_enum($i, $var);
     return (0, $mess) unless $ok;
     $out{$i}++;
   }
   return (1, '', \%out);
-}
-
-=head2 parse_flags
-
-Parses a string of flags.
-
-=cut
-sub parse_flags {
-  my $self = shift;
-  my $str  = shift;
-  my $var  = shift;
-  my $log  = new Log::In 150, "$var, $str";
-  my ($i, $j, $reason, $seen, $values);
- 
-  $reason = ''; $seen = {};
-  $values = join '', @{$self->{'vars'}{$var}{'values'}};
-
-  for ($i = 0 ; $i < length $str ; $i++) {
-    $j = substr($str, $i, 1);
-    if ($j =~ /^[$values]*$/) {
-      if (exists $seen->{lc $j}) {
-        $reason .= "The $j flag is a duplicate.\n";
-      }
-      $seen->{lc $j} = 1;
-    }
-    else {
-      $reason .= "The $j flag is not supported.\n";
-    }
-  }
-  return (0, $reason) if $reason;
-  1;
 }
 
 =head2 parse_inform
@@ -3125,7 +3096,7 @@ Returns:
  code in a string
  check_aux  - listref: list of aux lists to check for membership,
               including MAIN for the main subscriber list.
- check_time - listref: list of time specs against which the 
+ check_time - listref: lists of time specs against which the 
               current date and time are compared.
 
 About the ID:
@@ -3153,6 +3124,7 @@ sub _compile_rule {
       $e,         # Accumulates errors encountered.
       $w,         # Accumulates warnings encountered.
       $i,         # General iterator thingy.
+      $t,         # Time rule counter.
       $op,        # Variable comparison operator
       $iop,       # holder for inverted op
       $re,        # Current regexp operator
@@ -3166,6 +3138,7 @@ sub _compile_rule {
   $e = "";
   $o = "";
   $w = "";
+  $t = 0;
   $indent = 0;
   $invert = 0;
   $need_or = 0;
@@ -3454,15 +3427,17 @@ sub _compile_rule {
       $o .= "\n    "."  "x$indent;
       @tmp = split /\s*,\s*/, $arg;
       for $i (@tmp) {
-        push @{$check_time}, _str_to_clock($i);
+        push @{$check_time->[$t]}, _str_to_clock($i);
       }
+      $i = $id - 1;
       if ($invert) {
-	$o .= '(!\$current)';
+	$o .= "(!\$current->[$i][$t])";
 	$invert = 0;
       }
       else {
-	$o .= '($current)';
+	$o .= "(\$current->[$i][$t])";
       }
+      $t++;
       $need_or = 1;
       next;
     }
