@@ -396,6 +396,10 @@ See "help reply_files" for a description of each of the reply files.
 \$MESSAGE_ID
   The message ID, from the "Message-Id" header, of a posted message.
 
+\$MESSAGECOUNT
+  The number of e-mail messages mailed in a digest, or mailed
+  individually using the archive-get command.
+
 \$MODE
   The command mode.  For example, the command mode of the "who-enhanced"
   command would be "enhanced."
@@ -547,6 +551,9 @@ See "help reply_files" for a description of each of the reply files.
 \$TOPIC
   When a help file is displayed, this value is replaced by the 
   name of the help file.
+
+\$TOTAL_POSTS
+  The total number of messages affected by the archive command.
 
 \$TYPE
   The type of a stalled command, such as "confirm" if the person
