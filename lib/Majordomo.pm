@@ -2530,7 +2530,7 @@ sub accept {
 
     # Now call inform so the results are logged
     $self->inform($data->{'list'},
-          $data->{'command'},
+          'consult',
           $data->{'user'},
           $data->{'victim'},
           $data->{'cmdline'},
