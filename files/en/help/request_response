@@ -26,7 +26,7 @@ command:
 configset GLOBAL access_rules <<LLL
 request_response
 deny
-/example.edu/
+!/example.edu/
 LLL
 
 would deny access to everyone outside of the example.edu domain.
@@ -34,6 +34,7 @@ would deny access to everyone outside of the example.edu domain.
 
 See Also:
    help access_variables 
+   help admin_documents
    help configset_access_rules
    help configset_request_answer
 
