@@ -216,6 +216,7 @@ In addition, information about the request must be supplied:
 =cut
 use MIME::Entity;
 use Mj::Util qw(condense str_to_offset);
+use Mj::CommandProps qw(:command);
 sub confirm {
   my ($self, %args) = @_;
   my $log  = new Log::In 50, "$args{'chain'}, $args{'expire'}";
@@ -230,11 +231,12 @@ sub confirm {
             ref($args{'notify'}) eq 'ARRAY' and
             scalar(@{$args{'notify'}}) >= 1);
 
-  $list = $args{'list'};
-  $list = 'GLOBAL' if ($list eq 'ALL');
-
   return unless $self->_make_tokendb;
   $args{'command'} =~ s/_(start|chunk|done)$//;
+
+  $list = $args{'list'};
+  $list = 'GLOBAL' if ($list eq 'ALL');
+  $list = 'GLOBAL' unless command_prop(\%args, 'list');
 
   $permanent = 0;
   if (exists $args{'expire'} and $args{'expire'} >= 0) {
@@ -333,7 +335,7 @@ sub confirm {
 
   # Make a token and add it to the database
   $realtoken = 
-    $self->t_add($ttype, $args{'list'}, $args{'command'}, $args{'user'}, 
+    $self->t_add($ttype, $list, $args{'command'}, $args{'user'}, 
                  $args{'victim'}, $args{'mode'}, $args{'cmdline'}, 
                  $approvals, $args{'chain1'}, $args{'chain2'}, $args{'chain3'},
                  $args{'approver'}, $args{'arg1'}, $args{'arg2'}, $args{'arg3'}, 
@@ -392,7 +394,7 @@ sub confirm {
       $recip = "$args{'victim'}";
     }
     else {
-      @tmp = $self->get_moderators($args{'list'}, $dest->{'group'},
+      @tmp = $self->get_moderators($list, $dest->{'group'},
                                    $dest->{'pool'});
 
       if ($dest->{'approvals'} > 1) {
@@ -403,7 +405,7 @@ sub confirm {
       else {
         @recip = ([@tmp]);
       }
-      $recip = $self->get_moderator_alias($args{'list'}, $dest->{'group'});
+      $recip = $self->get_moderator_alias($list, $dest->{'group'});
       $recip ||= $owner;
     }
 
@@ -416,7 +418,7 @@ sub confirm {
     for $j (@recip) {
       if ($dest->{'approvals'} > 1 or scalar(@notify) > 1) {
         $token = 
-          $self->t_add('alias', $args{'list'}, $args{'command'}, $args{'user'}, 
+          $self->t_add('alias', $list, $args{'command'}, $args{'user'}, 
                  $args{'victim'}, $args{'mode'}, $args{'cmdline'}, 
                  1, $realtoken, $dest->{'group'}, '',
                  '', $args{'arg1'}, $args{'arg2'}, $args{'arg3'}, 
