@@ -178,10 +178,6 @@ sub archive {
     }
   }
   elsif ($request->{'mode'} =~ /summary/) {
-    if ($request->{'mode'} =~ /reverse/) {
-      @msgs = reverse @msgs;
-    }
-
     $tmp = $mj->format_get_string($type, 'archive_summary_head');
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
