@@ -2,7 +2,10 @@
 <h4 align=center>Unsubscribe Addresses or Change Settings</h4>
 
 <br>To remove addresses, press the button next to one or more
-addresses from the following list, then press the $HELP:UNSUBSCRIBE button.
+addresses from the following list.  If you wish to remove the addresses
+quietly, press the $HELP:UNSUBSCRIBE button.  If you want each
+person who is removed to receive a farewell message, press the 
+<b>unsubscribe-farewell</b> button instead.
 
 <br>To change settings, press the buttons next to the addresses
 whose settings you wish to change, select the appropriate settings,
@@ -10,6 +13,7 @@ then press the $HELP:SET button.
 
 <form method=POST action="$CGIURL">
   <input type=submit name=func value="unsubscribe">
+  <input type=submit name=func value="unsubscribe-farewell">
   <input type=submit name=func value="set">
   <input type=hidden name=chunksize value="$CHUNKSIZE">
   <input type=hidden name=list value="$LIST">
