@@ -4,6 +4,7 @@
 <a href="$CGIURL?$CGIDATA&func=lists-long-full&list=$LIST&extra=$LIST">
 $LIST
 </a>
+</td>
 <td>
 $DESCRIPTION
-
+</td>

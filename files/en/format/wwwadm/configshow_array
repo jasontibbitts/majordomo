@@ -4,9 +4,10 @@
   $HELPLINK
   (level $LEVEL)
 
+</dt>
 <dd>
   <pre>?COMMENT</pre>
 <textarea cols=70 rows=$LINES name="$SETTING">
 ?VALUE
 </textarea><br>
-
+</dd>

@@ -1,16 +1,19 @@
 <!-- Majordomo who_registry_head format file -->
-<form method=POST action="$CGIURL">
-  <input type=submit name=func value="unregister">
-  <input type=hidden name=chunksize value="$CHUNKSIZE">
-  <input type=hidden name=list value="$LIST">
-  <input type=hidden name=start value="$START">
-  <input type=hidden name=passw value="$CMDPASS">
-  <input type=hidden name=user value="$USER">
-  <input type=hidden name=pattern value="$PATTERN">
+<form method="POST" action="$CGIURL">
+  <input type="submit" name="func" value="unregister">
+  <input type="hidden" name="chunksize" value="$CHUNKSIZE">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="start" value="$START">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="pattern" value="$PATTERN">
 
-<br>To remove addresses, choose one or more
+<p>To remove addresses, choose one or more
 addresses from the list below, then press the $HELP:UNREGISTER button.
+</p>
 <table>
-  <th>address
-  <th>last changed
-  <th>lists
+<tr>
+  <th>address</th>
+  <th>last changed</th>
+  <th>lists</th>
+</tr>

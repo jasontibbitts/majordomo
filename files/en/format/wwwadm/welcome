@@ -1,16 +1,20 @@
 <pre>?ERROR</pre>
 
-<table cellspacing=15 width="100%">
+<table cellspacing="15" width="100%">
 <tr>
-  <td valign=top>Introduction
+  <td valign="top">Introduction
+  </td>
   <td>
 Welcome to $SITE.
 The links at the top and bottom of the page will help you to 
 manage one or more of your mailing lists.  You can return
 to this introduction at any time by pressing <b>Introduction</b>.
 
+  </td>
+</tr>
 <tr>
-  <td valign=top>Sign In
+  <td valign="top">Sign In
+  </td>
   <td>
 
 If you finish administering the $LIST list and wish to change
@@ -18,16 +22,22 @@ to another list, press <b>Sign In</b>.  You will be prompted
 for a new mailing list name and password.  Your temporary password 
 for this session will continue to be valid.
 
+  </td>
+</tr>
 <tr>
-  <td valign=top>Sign Out
+  <td valign="top">Sign Out
+  </td>
   <td>
 
 If you finish administering the $LIST list and wish to end
 this session, press <b>Sign Out</b>.  Your temporary password
 for this session will be invalidated.
 
+  </td>
+</tr>
 <tr>
-  <td valign=top>Moderation
+  <td valign="top">Moderation
+  </td>
   <td>
 Occasionally, posted messages, subscriptions, and other requests
 will need your approval before they are completed.  Press 
@@ -51,8 +61,11 @@ the location of this page would look like this:
   $CGIURL/broccoli/rhubarb
 </pre>
 
+  </td>
+</tr>
 <tr>
-  <td valign=top>Subscribers
+  <td valign="top">Subscribers
+  </td>
   <td>
 
 Press <b>Subscribers</b> to see the first 20 addresses of
@@ -60,8 +73,11 @@ people who have subscribed to your mailing list.  From there,
 you can add or remove addresses, or change the personal settings
 of the subscribers.
 
+  </td>
+</tr>
 <tr>
-  <td valign=top>Configuration
+  <td valign="top">Configuration
+  </td>
   <td>
 
 Majordomo has over 100 configuration settings which you can
@@ -70,8 +86,11 @@ more easily, they have been divided into several categories.
 Press <b>Configuration</b> to see a list of these categories.
 You can then view and change the current settings.
 
+  </td>
+</tr>
 <tr>
-  <td valign=top>List Info
+  <td valign="top">List Info
+  </td>
   <td>
 
 If your mailing list is public, pressing <b>List Info</b> will show
@@ -82,8 +101,11 @@ You can also edit the welcome message and other documents, see
 statistics for recent posted messages, or check the status 
 of message digests through the links on the <b>List Info</b> page.
 
+  </td>
+</tr>
 <tr>
-  <td valign=top>Command Form
+  <td valign="top">Command Form
+  </td>
   <td>
 
 Although the other features of this WWW service will allow you
@@ -94,8 +116,11 @@ issuing commands that may be easier for experienced administrators.
 In particular, the $HELP:ARCHIVE, $HELP:DIGEST, and $HELP:REPORT
 commands are supported only by the command form.
 
+  </td>
+</tr>
 <tr>
-  <td valign=top>Help
+  <td valign="top">Help
+  </td>
   <td>
 
 Majordomo has over 100 cross-referenced help files, which you
@@ -105,46 +130,48 @@ They describe how to email commands to Majordomo at
 window in your web browser.
 The following files give a good introduction.
 <dl>
-  <dt>$HELP:ADMIN
+  <dt>$HELP:ADMIN</dt>
     <dd>A basic introduction to list administration, including hints
-    for solving common problems.
+    for solving common problems.</dd>
 
-  <dt>$HELP:ADMIN_COMMANDS
-    <dd>A summary of all of the commands available to list administrators.
+  <dt>$HELP:ADMIN_COMMANDS</dt>
+    <dd>A summary of all of the commands available to list administrators.</dd>
 
-  <dt>$HELP:ADMIN_PASSWORDS (important!)
-    <dd>How to use passwords when you email commands to Majordomo.
+  <dt>$HELP:ADMIN_PASSWORDS (important!)</dt>
+    <dd>How to use passwords when you email commands to Majordomo.</dd>
 
-  <dt>$HELP:COMMANDS
-    <dd>A summary of commands for list subscribers
+  <dt>$HELP:COMMANDS</dt>
+    <dd>A summary of commands for list subscribers</dd>
 
-  <dt>$HELP:CONFIGSHOW
-    <dd>How to see the current configuration settings for your list.
+  <dt>$HELP:CONFIGSHOW</dt>
+    <dd>How to see the current configuration settings for your list.</dd>
 
-  <dt>$HELP:CONFIGSET and $HELP:CONFIGDEF
-    <dd>How to change the configuration settings.
+  <dt>$HELP:CONFIGSET and $HELP:CONFIGDEF</dt>
+    <dd>How to change the configuration settings.</dd>
 
-  <dt>$HELP:SET
-    <dd>How to change the personal settings of your list's subscribers.
+  <dt>$HELP:SET</dt>
+    <dd>How to change the personal settings of your list's subscribers.</dd>
 
-  <dt>$HELP:SUBSCRIBE
-    <dd>How to add people to your mailing list.
+  <dt>$HELP:SUBSCRIBE</dt>
+    <dd>How to add people to your mailing list.</dd>
 
-  <dt>$HELP:UNSUBSCRIBE
-    <dd>How to remove people from your mailing list.
+  <dt>$HELP:UNSUBSCRIBE</dt>
+    <dd>How to remove people from your mailing list.</dd>
 
-  <dt>$HELP:SHOWTOKENS
-    <dd>How to see a summary of requests that require moderation.
+  <dt>$HELP:SHOWTOKENS</dt>
+    <dd>How to see a summary of requests that require moderation.</dd>
 
-  <dt>$HELP:TOKENINFO
+  <dt>$HELP:TOKENINFO</dt>
     <dd>How to obtain more information about one request that
-        requires moderation.
+        requires moderation.</dd>
 
-  <dt>$HELP:WHO
-    <dd>How to see who is subscribed to your mailing list.
+  <dt>$HELP:WHO</dt>
+    <dd>How to see who is subscribed to your mailing list.</dd>
 
-  <dt>$HELP:MJ_WWWADM
-    <dd>Technical details about this web interface.
+  <dt>$HELP:MJ_WWWADM</dt>
+    <dd>Technical details about this web interface.</dd>
 
 </dl>
+  </td>
+</tr>
 </table>

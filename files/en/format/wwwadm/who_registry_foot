@@ -1,29 +1,29 @@
 <!-- Majordomo who_registry_foot format file -->
-<tr><td colspan=3>Addresses found: $COUNT.
+<tr><td colspan="3">Addresses found: $COUNT.</td></tr>
 </table>
-<input type=submit name=func value="$REMOVE">
+<input type="submit" name="func" value="$REMOVE">
 </form>
-
+<p>
 <a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?PREVIOUS&chunksize=$CHUNKSIZE">Previous $CHUNKSIZE Addresses</a><br>
 <a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?NEXT&chunksize=$CHUNKSIZE">Next $CHUNKSIZE Addresses</a>
-
+</p>
 <h4 align=center>Search the Registry</h4>
 
-<form method=POST action="$CGIURL">
-  <input name=list type=hidden value="$LIST">
-  <input name=passw type=hidden value="$CMDPASS">
-  <input type=hidden name=user value="$USER">
+<form method="POST" action="$CGIURL">
+  <input name="list" type="hidden" value="$LIST">
+  <input name="passw" type="hidden" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
 
-  <input type=radio name=func value="who" checked>
+  <input type="radio" name="func" value="who" checked>
   Search the registry
     (using the $HELP:WHO command)<br>
-  <input type=radio name=func value="which">
+  <input type="radio" name="func" value="which">
   Search all of the mailing lists
     (using the $HELP:WHICH command)<br>
 
-Search pattern: <input name=pattern value=".">
+Search pattern: <input name="pattern" value=".">
 <br>
 Number of addresses to show:
-  <input name=chunksize size=10 value="$CHUNKSIZE">
-  <input type=submit value="search">
+  <input name="chunksize" size="10" value="$CHUNKSIZE">
+  <input type="submit" value="search">
 </form>

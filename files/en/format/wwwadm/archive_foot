@@ -1,6 +1,8 @@
 <!-- Majordomo archive_foot format file -->
 </table>
+<p>
 Messages Found: $TOTAL_POSTS
+</p>
 <p>
 The subject of each message is a link to the contents of the message.
-
+</p>

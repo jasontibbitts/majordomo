@@ -1,10 +1,14 @@
 <!-- Majordomo show format file -->
 <tr>
-  <td colspan=4><input type=checkbox name=list value=$LIST>$LIST
-  <td colspan=9>
+  <td colspan="4">
+    <input type="checkbox" name="list" value="$LIST">$LIST
+  </td>
+  <td colspan="9">
     <select name="$LIST;delivery">
       <option value="$CLASSES" $SELECTED>$CLASS_DESCRIPTIONS
     </select>
+  </td>
+</tr>
 <tr>
-  <td align=center>$CHECKBOX
-
+  <td align="center">$CHECKBOX</td>
+</tr>

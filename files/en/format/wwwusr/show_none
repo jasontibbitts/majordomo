@@ -1,18 +1,19 @@
 <!-- Majordomo show_none format file -->
-<h4 align=center>Personal Settings for $USER</h4>
-<form method=POST action="$CGIURL">
-<input type=hidden name=domain value="$DOMAIN">
-<input type=hidden name=user value="$USER">
-<input type=hidden name=passw type=password value="$CMDPASS">
+<h4 align="center">Personal Settings for $USER</h4>
+<form method="POST" action="$CGIURL">
+<input type="hidden" name="domain" value="$DOMAIN">
+<input type="hidden" name="user" value="$USER">
+<input type="hidden" name="passw" type=password value="$CMDPASS">
 <p>$USER is not subscribed to any lists.
 <br>
-<input size=48 name=extra>
-<input type=submit name=func value="alias">
-<input type=submit name=func value="changeaddr"><br>
+<input size="48" name="extra">
+<input type="submit" name="func" value="alias">
+<input type="submit" name="func" value="changeaddr"><br>
 To add an alias (another e-mail address from which
 you send messages), or to change addresses, type your new address into the box
 and press the <b>alias</b> or <b>changeaddr</b> button.  Majordomo may send
 a message to your new address asking for confirmation.
+</p>
 </form>
 
 

@@ -3,9 +3,10 @@
   <input type=checkbox name=extra value="$SETTING">
   $HELPLINK
   (level $LEVEL)
-
+</dt>
 <dd>
   <pre>
   ?COMMENT
   </pre>
   <input size=80 name="$SETTING" value="$VALUE">
+</dd>

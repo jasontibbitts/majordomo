@@ -1,11 +1,13 @@
 <!-- Majordomo archive_stats format file -->
-<p align=center>
+<p align="center">
 Posted message statistics for the $LIST list<br>
 $START to $FINISH
-<p>
+</p>
 <table border>
-  <tr><th>Messages<th>Size<th>Author
-  <tr><td align=right>$POSTS<td align=right>$KILOBYTES<td>$AUTHORS
-  <tr><td align=right>$TOTAL_POSTS<td align=right>$TOTAL_KILOBYTES<td>Total
+  <tr><th>Messages</th><th>Size</th><th>Author</th></tr>
+  <tr><td align="right">$POSTS</td><td align="right">$KILOBYTES</td><td>$AUTHORS</td></tr>
+  <tr><td align="right">$TOTAL_POSTS</td><td align="right">$TOTAL_KILOBYTES</td><td>Total</td></tr>
 </table>
+<p>
 The sizes displayed are in kilobytes.
+</p>

@@ -1,46 +1,49 @@
 
 <pre>?ERROR</pre>
 
-<h4 align=center>Introduction to the Confirmation Interface</h4>
+<h4 align="center">Introduction to the Confirmation Interface</h4>
 <p>
 When people make requests of the Majordomo mailing list server at
 $SITE, some requests must be confirmed before they will be completed.
 Confirmation may be needed for any number of different reasons.  Two
-of the more common reasons are:
+of the more common reasons are:</p>
 <ul>
   <li>Someone wishes to subscribe to a mailing list.  Confirmation
   is required to make sure that the subscription request is not a
-  forgery.
+  forgery.</li>
   <li>A message is posted to a mailing list by someone who is not
   a subscriber.  Confirmation from the moderators of the mailing 
   list is required to make sure that the contents of the message are
-  appropriate for the mailing list.
+  appropriate for the mailing list.</li>
 </ul>
 
 <p>
 Majordomo assigns a unique <b>token identifier</b> to every request
 that requires someone's approval.  Token identifiers are fourteen
-characters long, for example:
+characters long, for example:</p>
 <pre>
 87E4-995C-BF31
 </pre>
-If you received confirmation instructions in an e-mail message, the
+<p>If you received confirmation instructions in an e-mail message, the
 token identifier should appear in the subject and body of that message.
+</p>
 
 <p>
 There are three basic commands available for dealing with a request.
+</p>
 <ol>
   <li>The <b>accept</b> command will confirm the request 
-  and cause it to be completed.
+  and cause it to be completed.</li>
   <li>The <b>reject</b> command will discard the request and
-  prevent it from being completed.
+  prevent it from being completed.</li>
   <li>The <b>tokeninfo</b> command will display more information
-  about the request.
+  about the request.</li>
 </ol>
-If you do not wish the request to be completed, you can simply
+<p>If you do not wish the request to be completed, you can simply
 ignore it.  If you ignore the request, Majordomo may send one reminder
 message to your e-mail address in a few days.  Eventually,
 the time limit on the request will expire.
+</p>
 
 <p>
 If you wish to accept or reject a request, click the <b>Sign In</b>
@@ -48,4 +51,4 @@ link at the top or bottom of this document and follow the instructions
 to tell Majordomo the token identifier for the request.
 To return to this introduction at any time, click the <b>Introduction</b>
 link at the top or bottom.
-
+</p>

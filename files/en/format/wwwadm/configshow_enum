@@ -4,6 +4,7 @@
   $HELPLINK
   (level $LEVEL)
 
+</dt>
 <dd>
   <pre>
   ?COMMENT
@@ -12,3 +13,5 @@
   <select name="$SETTING">
     <option $SELECTED> $SETTINGS
   </select>
+
+</dd>

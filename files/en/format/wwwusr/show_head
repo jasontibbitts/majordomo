@@ -1,9 +1,9 @@
 <!-- Majordomo show_head format file -->
-<h4 align=center>Personal Settings for $FULLADDR</h4>
-<form method=POST action="$CGIURL">
-  <input type=hidden name=domain value="$DOMAIN">
-  <input type=hidden name=user value="$USER">
-  <input type=hidden name=passw type=password value="$CMDPASS">
+<h4 align="center">Personal Settings for $FULLADDR</h4>
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="domain" value="$DOMAIN">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" type=password value="$CMDPASS">
 
 <p>
 The following table lists all of the subscriptions for
@@ -13,19 +13,20 @@ To change settings, press the checkbox next to the name of each
 list you wish to change, choose the settings you want, then press 
 the $HELP:SET button.  The settings are described at the bottom 
 of this page.
-
+</p>
 <p>
 To $HELP:UNSUBSCRIBE, press the checkbox next to the name of
 each list you wish to leave, then press the <b>unsubscribe</b> button.
-
+</p>
 <p>
-  <input type=submit name=func value="set">
-  <input type=submit name=func value="unsubscribe">
-
+  <input type="submit" name="func" value="set">
+  <input type="submit" name="func" value="unsubscribe">
+</p>
 <table border>
 <tr>
-  <td colspan=4>mailing list
-  <td colspan=9>delivery class
+  <td colspan="4">mailing list</td>
+  <td colspan="9">delivery class</td>
+</tr>
 <tr>
-  <td><font size=-1>$SETTINGS</font>
-
+  <td><font size="-1">$SETTINGS</font></td>
+</tr>

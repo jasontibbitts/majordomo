@@ -1,32 +1,34 @@
 <!-- Majordomo showtokens_head format file -->
 <h4 align=center>Requests that Require Approval</h4>
+<p>
 Choose one or more requests from the following list by pressing
 the checkbox to the left of each request, then press one of the
 seven buttons.
+</p>
 <ul>
   <li>Press <b>tokeninfo-full</b> to display a summary of each chosen request,
-      including the bodies of any <b>post</b>ed messages.
-  <li>Press <b>tokeninfo</b> to display a summary of each chosen request.
-  <li>Press <b>accept</b> to approve each chosen request.
+      including the bodies of any <b>post</b>ed messages.</li>
+  <li>Press <b>tokeninfo</b> to display a summary of each chosen request.</li>
+  <li>Press <b>accept</b> to approve each chosen request.</li>
   <li>Press <b>accept-archive</b> to approve each chosen request.  <b>Post</b>ed
       messages will be stored in the list archive, but will not be distributed
-      to the subscribers.
+      to the subscribers.</li>
   <li>Press <b>accept-hide</b> to approve each chosen request.  <b>Post</b>ed
-      messages will not be displayed in a public archive. 
-  <li>Press <b>reject</b> to disallow each chosen request.
+      messages will not be displayed in a public archive. </li>
+  <li>Press <b>reject</b> to disallow each chosen request.</li>
   <li>Press <b>reject-quiet</b> to disallow each chosen request without sending
-      an acknowledgement to the user.
+      an acknowledgement to the user.</li>
 </ul>
 
-<form method=POST action="$CGIURL">
-  <input type=submit name=func value="tokeninfo-full">
-  <input type=submit name=func value="tokeninfo">
-  <input type=submit name=func value="accept">
-  <input type=submit name=func value="accept-archive">
-  <input type=submit name=func value="accept-hide">
-  <input type=submit name=func value="reject">
-  <input type=submit name=func value="reject-quiet">
-  <input type=hidden name=list value="$LIST">
-  <input type=hidden name=passw value="$CMDPASS">
-  <input type=hidden name=user value="$USER">
+<form method="POST" action="$CGIURL">
+  <input type="submit" name="func" value="tokeninfo-full">
+  <input type="submit" name="func" value="tokeninfo">
+  <input type="submit" name="func" value="accept">
+  <input type="submit" name="func" value="accept-archive">
+  <input type="submit" name="func" value="accept-hide">
+  <input type="submit" name="func" value="reject">
+  <input type="submit" name="func" value="reject-quiet">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
 

@@ -7,23 +7,35 @@
 <tr>
   <td valign=top>
     <input size=36 name=list value="$LIST">
+  </td>
   <td>
     Type the name of your mailing list into the box unless it is already present.
+  </td>
+</tr>
 <tr>
   <td valign=top>
     Password: <input type=password name=passw size=15 value="$CMDPASS">
+  </td>
   <td valign=top>
     Type your list's administrative password into the box.  
     If you see fourteen stars in this box, it may already be present.
     (The fourteen stars are a temporary password that applies only to
     this session.)
+  </td>
+</tr>
 <tr>
   <td valign=top>
     <input type=submit value="Go"><br>
     <input type=reset value="Clear">
+  </td>
   <td>
+    <p>
     To sign in, press the <b>Go</b> button.
+    </p>
     <p>
     To reset the values of this form, press <b>Clear</b>.
+    </p>
+  </td>
+</tr>
 </table>
 </form>

@@ -2,6 +2,11 @@
   <tr>
     <td><a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get&extra=$MSGNO">
         $SUBJECT</a>
+    </td>
     <td>$FROM
+    </td>
     <td>$DATE $SIZE
+    </td>
     <td>$MSGNO&nbsp;$HIDDEN
+    </td>
+  </tr>

@@ -2,7 +2,8 @@
 <pre>?ERROR</pre>
 <table cellspacing=15 width="100%">
 <tr>
-  <td valign=top>Introduction
+  <td valign="top">Introduction
+  </td>
   <td>
 Welcome to $SITE.  
 The links at the top and bottom of the page will help you to 
@@ -10,21 +11,30 @@ join or leave our public electronic mailing lists.
 You can return to this introduction at any time by pressing
 <b>Introduction</b>.
 
+  </td>
+</tr>
 <tr>
-  <td valign=top>Sign In
+  <td valign="top">Sign In
+  </td>
   <td>
 If you wish to subscribe to a mailing list or change your settings, you
 will need to sign in with your e-mail address, and a password if Majordomo
 has already assigned one to you.  Press <b>Sign In</b>, then
 follow the instructions.
 
+  </td>
+</tr>
 <tr>
-  <td valign=top>Sign Out
+  <td valign="top">Sign Out
+  </td>
   <td>
 When you finish this session, press <b>Sign Out</b>.
 
+  </td>
+</tr>
 <tr>
-  <td valign=top>Subscribe<br> to Mailing Lists
+  <td valign="top">Subscribe<br> to Mailing Lists
+  </td>
   <td>
 If you press <b>Subscribe to Mailing Lists</b>, you
 will see a list of public mailing lists at $SITE.  Clicking
@@ -37,22 +47,25 @@ to its page.
 Type the name of the list into the <b>Mailing List</b> box, 
 then press the <b>search</b> button.
 
-<form method=POST action="$CGIURL">
-  <input type=hidden name=domain value="$DOMAIN">
-  <input type=hidden name=func value="lists-full-long">
-  <input type=hidden name=passw value="$CMDPASS">
-  <input type=hidden name=user value="$USER">
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="domain" value="$DOMAIN">
+  <input type="hidden" name="func" value="lists-full-long">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
   Mailing List:
-  <input type=text name=extra>
-  <input type=submit value="search">
+  <input type="text" name="extra">
+  <input type="submit" value="search">
 </form>
 
 You can also use a pattern to search the list
 of mailing lists.  See the $HELP:PATTERNS help page for details
 on Majordomo patterns.
 
+  </td>
+</tr>
 <tr>
-  <td valign=top>Unsubscribe or <br>Change Settings
+  <td valign="top">Unsubscribe or <br>Change Settings
+  </td>
   <td>
 If you have already subscribed to a mailing list at $DOMAIN,
 you can unsubscribe, unregister, or change the settings of
@@ -61,8 +74,11 @@ to see your current subscriptions.
 <b>A valid password is required.</b>
 
 
+  </td>
+</tr>
 <tr>
-  <td valign=top>Help
+  <td valign="top">Help
+  </td>
   <td>
 Majordomo has over 100 cross-referenced help files, which you can 
 browse by pressing <b>Help</b>.
@@ -72,34 +88,36 @@ a new window in your web browser.
 The following files give a good introduction.
 
 <dl>
-  <dt>$HELP:OVERVIEW
+  <dt>$HELP:OVERVIEW</dt>
     <dd>Gives examples of basic commands:  how to subscribe, unsubscribe,
-        and view or change your settings.
+        and view or change your settings.</dd>
     
-  <dt>$HELP:COMMANDS
-    <dd>Shows all of the commands available to you.
+  <dt>$HELP:COMMANDS</dt>
+    <dd>Shows all of the commands available to you.</dd>
 
-  <dt>$HELP:LISTS
-    <dd>How to get a list of mailing lists at $DOMAIN.
+  <dt>$HELP:LISTS</dt>
+    <dd>How to get a list of mailing lists at $DOMAIN.</dd>
 
-  <dt>$HELP:REGISTER
-    <dd>How to get a password without subscribing to a list.
+  <dt>$HELP:REGISTER</dt>
+    <dd>How to get a password without subscribing to a list.</dd>
 
-  <dt>$HELP:SET
-    <dd>How to view or change the settings of your subscriptions.
+  <dt>$HELP:SET</dt>
+    <dd>How to view or change the settings of your subscriptions.</dd>
 
-  <dt>$HELP:SHOW
-    <dd>How to see your current subscriptions and settings.
+  <dt>$HELP:SHOW</dt>
+    <dd>How to see your current subscriptions and settings.</dd>
 
-  <dt>$HELP:SUBSCRIBE
+  <dt>$HELP:SUBSCRIBE</dt>
     <dd>How to subscribe to a list, and initialize your settings at
-    the same time.
+    the same time.</dd>
 
-  <dt>$HELP:UNREGISTER
-    <dd>How to cancel all of your subscriptions at once.
+  <dt>$HELP:UNREGISTER</dt>
+    <dd>How to cancel all of your subscriptions at once.</dd>
 
-  <dt>$HELP:UNSUBSCRIBE
-    <dd>How to unsubscribe from a list, without using a password.
+  <dt>$HELP:UNSUBSCRIBE</dt>
+    <dd>How to unsubscribe from a list, without using a password.</dd>
 
 </dl>
+  </td>
+</tr>
 </table>

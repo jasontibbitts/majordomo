@@ -1,7 +1,13 @@
 <!-- Majordomo showtokens_data format file -->
 <tr>
-<td><input type=checkbox name=extra value="$TOKEN">$TOKEN
+<td><input type="checkbox" name="extra" value="$TOKEN">$TOKEN
+</td>
 <td>$TYPE
+</td>
 <td>$COMMAND&nbsp;$SIZE
+</td>
 <td>$ADATE
+</td>
 <td>$REQUESTER
+</td>
+</tr>

@@ -6,30 +6,33 @@
 </head>
 <body>
 
-<table width="100%" cellspacing=8>
+<table width="100%" cellspacing="8">
 <tr>
-  <td align=center bgcolor="#706060">
+  <td align="center" bgcolor="#706060">
   <a href="$CGIURL?$CGIDATA&a=welcome&t=$TOKEN">
   <font color="#f0f0f0">
     Introduction
   </font></a>
+  </td>
 
-  <td align=center bgcolor="#706060">
+  <td align="center" bgcolor="#706060">
   <a href="$CGIURL?$CGIDATA&a=login&t=$TOKEN">
   <font color="#f0f0f0">
     Sign In
   </font></a>
+  </td>
 
-  <td align=center bgcolor="#706060">
+  <td align="center" bgcolor="#706060">
   <a href="$CGIURL?$CGIDATA&a=tokeninfo-full&t=$TOKEN">
   <font color="#f0f0f0">
     Show Details
   </font></a>
+  </td>
 
+</tr>
 </table>
 
-<center>
+<p align="center">
     <font size=+1>$SITE</font><br>
     request confirmation
-</center>
-
+</p>

@@ -1,15 +1,18 @@
 <!-- Majordomo who format file -->
 <tr>
-  <td colspan=7>
-    <input type=checkbox name=victims value="$STRIPADDR">$FULLADDR
-  <td colspan=6>
+  <td colspan="7">
+    <input type="checkbox" name="victims" value="$STRIPADDR">$FULLADDR
+  </td>
+  <td colspan="6">
     <select name="$STRIPADDR">
       <option value="$CLASSES" $CLASS_SELECTED>$CLASS_DESCRIPTIONS
     </select>
+  </td>
+</tr>
 <tr>
-  <td align=center><input type=checkbox name="$ADDRESS" value="$SETTINGS" $SETTING_CHECKED>
-
-<tr><td colspan=12>Diagnostic message from the last bounce: ?BOUNCE_DIAGNOSTIC
-<tr><td colspan=12>Bounces in the past week: ?BOUNCE_WEEK
-<tr><td colspan=12>Bounces in the past month: ?BOUNCE_MONTH
-<tr><td colspan=12>Bounce numbers: ?BOUNCE_NUMBERS
+  <td align="center"><input type="checkbox" name="$ADDRESS" value="$SETTINGS" $SETTING_CHECKED>
+</tr>
+<tr><td colspan="12">Diagnostic message from the last bounce: ?BOUNCE_DIAGNOSTIC </td></tr>
+<tr><td colspan="12">Bounces in the past week: ?BOUNCE_WEEK </td></tr>
+<tr><td colspan="12">Bounces in the past month: ?BOUNCE_MONTH </td></tr>
+<tr><td colspan="12">Bounce numbers: ?BOUNCE_NUMBERS </td></tr>

@@ -1,7 +1,7 @@
-<h4 align=center>Majordomo Command Form</h4>
-<form method=POST action="$CGIURL">
-<input type=hidden name=command value="on">
-<input type=hidden name=user value="$USER">
+<h4 align="center">Majordomo Command Form</h4>
+<form method="POST" action="$CGIURL">
+<input type="hidden" name="command" value="on">
+<input type="hidden" name="user" value="$USER">
 <table>
 <tr>
   <td>
@@ -37,43 +37,51 @@
       <option> who
       <option> who-bounce
     </select>
+  </td>
   <td colspan=2>
     <input size=40 name=extra value="">
+  </td>
+</tr>
 <tr>
   <td>
     Mailing List:&nbsp;&nbsp;
     <input size=20 name=list value="$LIST">
+  </td>
   <td>
     Password:&nbsp;&nbsp;
     <input size=15 name=passw type=password value="$CMDPASS">
+  </td>
   <td>
     <input type=submit value="Issue Command">
+  </td>
+</tr>
 </table>
 </form>
 
-This command form will allow you to issue Majordomo administrative
+<p>This command form will allow you to issue Majordomo administrative
 commands by name.  Some commands, like <b>report-summary</b>, 
 have a hyphen in their names.  The part that follows the hyphen 
 is called the <i>command mode</i>.
+</p>
 <p>
 There are several steps required to use the command form.
-
+</p>
 <ol>
-  <li>Choose a command from the <b>Command</b> menu.
+  <li>Choose a command from the <b>Command</b> menu.</li>
 
   <li>Make sure the mailing list in the <b>Mailing List</b> box
-  is correct.
+  is correct.</li>
 
   <li>An administrative password is required to use this form.
   The password for your mailing list should already be marked by 
   14 asterisks in the <b>Password:</b> box.  If this is not true, 
-  type an administrative password into the box.
+  type an administrative password into the box.</li>
 
   <li>If additional information is needed to issue
   a command, type that information into the box
-  immediately to the right of the command menu.
+  immediately to the right of the command menu.</li>
 
-  <li>Press the <b>Issue Command</b> button.
+  <li>Press the <b>Issue Command</b> button.</li>
 </ol>
 
 <p>
@@ -81,4 +89,4 @@ To learn more about a particular command, select <b>help</b> in the
 command menu, type the name of the command (without the command mode) 
 into the box immediately to the right, and press the <b>Issue Command</b> 
 button.  You will see a summary of how the command works.
-
+</p>

@@ -1,8 +1,8 @@
 <!-- Majordomo show_foot format file -->
 <tr>
-  <td colspan=13>$FULLADDR was registered on $REGTIME
-<tr><td colspan=13>Alias: ?ALIASES
-<tr><td colspan=13>Administrator of the ?OWNERSHIPS list
+  <td colspan="13">$FULLADDR was registered on $REGTIME
+<tr><td colspan="13">Alias: ?ALIASES
+<tr><td colspan="13">Administrator of the ?OWNERSHIPS list
 </table>
 
 <p>
@@ -13,9 +13,9 @@ and press the <b>alias</b> or <b>$HELP:CHANGEADDR</b> button.
 Majordomo may send a message to your new address asking for
 confirmation.<br>
 New address:
-  <input size=36 name=extra>
-  <input type=submit name=func value="alias">
-  <input type=submit name=func value="changeaddr">
+  <input size="36" name="extra">
+  <input type="submit" name="func" value="alias">
+  <input type="submit" name="func" value="changeaddr">
 
 <p>
 To change your $HELP:PASSWORD, type a password into the <b>New
@@ -28,14 +28,14 @@ password, if you wish to make any other changes to your
 subscriptions.<br> 
 
 New password: 
-<input size=16 type=password name=newpasswd> 
-<input type=submit name=func value="password">
+<input size="16" type="password" name="newpasswd"> 
+<input type="submit" name="func" value="password">
 
 <p>
 To $HELP:UNREGISTER, leave the box empty and press the <b>unregister</b>
 button.  All of your subscriptions and aliases will be removed, and
 your password will be invalidated.<br>
-  <input type=submit name=func value="unregister">
+  <input type="submit" name="func" value="unregister">
 </form>
 
 <h4 align=center>What do the settings mean?</h4>
@@ -132,12 +132,13 @@ your password will be invalidated.<br>
   <dt>selfcopy
   <dd> Select this if you want to receive a copy of messages
   that you post to the mailing list.
-</ul>
+</dl>
 
+<p>
 Normally, each setting is represented by a checkbox, but the 
 list owners can use the
 $HELP:ALLOWED_FLAGS 
 configuration setting to keep you from changing your settings.
 In that case, the setting will be marked with an <b>X</b> if the flag
 is set, and an <b>O</b> if it is not.
-
+</p>

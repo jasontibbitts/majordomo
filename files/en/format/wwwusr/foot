@@ -2,40 +2,46 @@
 <p>
 For assistance, please contact
 <a href="mailto:$MJOWNER">the $DOMAIN administrators</a>.
-<p>
+</p>
 
-<table cellspacing=8 width="100%">
+<table cellspacing="8" width="100%">
 <tr>
-  <td align=center bgcolor="#706060">
+  <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=welcome">
-     <font size=-1 color="#f0f0f0">
+     <font size="-1" color="#f0f0f0">
      Introduction</font></a>
-
-  <td align=center bgcolor="#706060">
+  </td>
+  
+  <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=login">
-     <font size=-1 color="#f0f0f0">
+     <font size="-1" color="#f0f0f0">
      Sign In</font></a>
+  </td>
 
-  <td align=center bgcolor="#706060">
+  <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=logout">
-     <font size=-1 color="#f0f0f0">
+     <font size="-1" color="#f0f0f0">
      Sign Out</font></a>
+  </td>
 
-  <td align=center bgcolor="#706060">
+  <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=lists-long">
-     <font size=-1 color="#f0f0f0">
+     <font size="-1" color="#f0f0f0">
      Subscribe to Mailing Lists</font></a>
+  </td>
 
-  <td align=center bgcolor="#706060">
+  <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=show">
-     <font size=-1 color="#f0f0f0">
+     <font size="-1" color="#f0f0f0">
      Unsubscribe or Change Settings</font></a>
+  </td>
 
-  <td align=center bgcolor="#706060">
+  <td align="center" bgcolor="#706060">
     <a href="$CGIURL?$CGIDATA&func=help">
-     <font size=-1 color="#f0f0f0">
+     <font size="-1" color="#f0f0f0">
      Help</font></a>
-
+  </td>
+</tr>
 </table>
 
 </body></html>

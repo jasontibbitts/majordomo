@@ -1,43 +1,54 @@
 
 <pre>?ERROR</pre>
-<form method=POST action="$CGIURL">
-    <input type=hidden name=domain value="$DOMAIN">
-    <input type=hidden name=list value="$LIST">
-<table cellspacing=15 width="100%">
+<form method="POST" action="$CGIURL">
+    <input type="hidden" name="domain" value="$DOMAIN">
+    <input type="hidden" name="list" value="$LIST">
+<table cellspacing="15" width="100%">
 <tr>
-  <td valign=top>
-    <input size=36 name=user value="$USER">
+  <td valign="top">
+    <input size="36" name="user" value="$USER">
+  </td>
   <td>
     Type your e-mail address into the box unless it is already present.
+  </td>
+</tr>
 <tr>
-  <td valign=top>
-    Password: <input type=password name=passw size=15 value="$CMDPASS">
-  <td valign=top>
+  <td valign="top">
+    Password: <input type="password" name="passw" size="15" value="$CMDPASS">
+  </td>
+  <td valign="top">
     Type your password into the box, but only if Majordomo has already
     assigned one to you.  It is not necessary to use a password to
     subscribe to mailing lists.
+  </td>
+</tr>
 <tr>
-  <td valign=top>
-    <input type=radio name=func value="$COMMAND" checked>
+  <td valign="top">
+    <input type="radio" name="func" value="$COMMAND" checked>
       Sign in<br>
-    <input type=radio name=func value="password-gen">
+    <input type="radio" name="func" value="password-gen">
       I forgot my password<br>
-    <input type=radio name=func value="register">
+    <input type="radio" name="func" value="register">
       Register my address<br> 
-    <input type=submit value="Go">
-   <td>
-     To sign in, press the <b>Go</b> button.
-     <p>
-     If you have already registered or subscribed to a $DOMAIN mailing list, 
-     but do not know your password, Majordomo can send you a new password.
-     Press the button next to <b>I forgot my password</b>, 
-     then press the <b>Go</b> button.  A confirmation message may
-     be sent to your e-mail address.
-     <p>
-     If you have not already subscribed to a mailing list at $DOMAIN,
-     you can register here and obtain a password.  Press the button
-     next to <b>Register my address</b>, then press the <b>Go</b> button. 
-     A confirmation message may be sent to your e-mail address.
+    <input type="submit" value="Go">
+  </td>
+  <td>
+    To sign in, press the <b>Go</b> button.
+    <p>
+    If you have already registered or subscribed to a $DOMAIN mailing list, 
+    but do not know your password, Majordomo can send you a new password.
+    Press the button next to <b>I forgot my password</b>, 
+    then press the <b>Go</b> button.  A confirmation message may
+    be sent to your e-mail address.
+    </p>
+    <p>
+    If you have not already subscribed to a mailing list at $DOMAIN,
+    you can register here and obtain a password.  Press the button
+    next to <b>Register my address</b>, then press the <b>Go</b> button. 
+    A confirmation message may be sent to your e-mail address.
+    </p>
+  </td>
+</tr>
 </table>
 </form>
 

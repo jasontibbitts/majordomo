@@ -1,16 +1,20 @@
 <!-- Majordomo lists_full format file -->
-<tr><td>Name<td>$LIST
-<tr><td>Description<td>
+<tr><td>Name</td><td>$LIST</td></tr>
+<tr><td>Description</td><td>
 $DESCRIPTION
-<tr><td>Archive Location<td><a href="?ARCURL">?ARCURL</a>
-<tr><td valign=top>Digests<td>
+</td>
+</tr>
+<tr><td>Archive Location</td><td><a href="?ARCURL">?ARCURL</a></td></tr>
+<tr><td valign="top">Digests</td><td>
 $DIGESTS<br>
-<tr><td>Subscribers<td>$SUBS
-<tr><td>Posts in the last 30 days<td>$POSTS
-<tr><td>List address<td><a href="mailto:$WHOAMI">$WHOAMI</a>
-<tr><td>List owner address<td><a href="mailto:$OWNER">$OWNER</a>
+</td>
+</tr>
+<tr><td>Subscribers</td><td>$SUBS</td></tr>
+<tr><td>Posts in the last 30 days</td><td>$POSTS</td></tr>
+<tr><td>List address</td><td><a href="mailto:$WHOAMI">$WHOAMI</a></td></tr>
+<tr><td>List owner address</td><td><a href="mailto:$OWNER">$OWNER</a></td></tr>
 
-<tr><td valign=top>Documentation<td>
+<tr><td valign="top">Documentation</td><td>
 
   <a href="$CGIURL?$CGIDATA&func=faq&list=$LIST">
   Frequently Asked Questions</a><br>
@@ -20,19 +24,22 @@ $DIGESTS<br>
 
   <a href="$CGIURL?$CGIDATA&func=info&list=$LIST">
   Welcome Message</a><br>
-
-<tr><td valign=top>Subscribe or Unsubscribe<td>
+</td>
+</tr>
+<tr><td valign="top">Subscribe or Unsubscribe</td><td>
 To (un)subscribe, type your address into the box and press the (un)subscribe
 button.  A valid password is required to unsubscribe.  A confirmation message 
 may be sent to your address.  (See the $HELP:UNSUBSCRIBE help page if
 you wish to unsubscribe without using your password.)<br>
 
-<form method=POST action="$CGIURL">
-  <input type=hidden name=domain value="$DOMAIN">
-  <input type=hidden name=passw value="$CMDPASS">
-  <input type=hidden name=list value="$LIST">
-  <input size=36 name=user value="$USER">
-  <input type=submit name=func value="subscribe">
-  <input type=submit name=func value="unsubscribe">
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="domain" value="$DOMAIN">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="list" value="$LIST">
+  <input size="36" name="user" value="$USER">
+  <input type="submit" name="func" value="subscribe">
+  <input type="submit" name="func" value="unsubscribe">
 </form>
+</td>
+</tr>
 

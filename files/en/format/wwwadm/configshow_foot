@@ -1,58 +1,60 @@
 <!-- Majordomo configshow_foot format file -->
 </dl>
-  <input type=submit name=func value="configdef">
-  <input type=submit name=func value="configset">
-  <input type=submit name=func value="help">
+  <input type="submit" name="func" value="configdef">
+  <input type="submit" name="func" value="configset">
+  <input type="submit" name="func" value="help">
 </form>
 
 <h4 align=center>Configuration Categories</h4>
 
+<p>
 The configuration settings are arranged into several categories.
 Press the check boxes next to one or more category names, then 
 press one of the <b>configshow</b> buttons.
+</p>
 
-<form method=POST action="$CGIURL">
-  <input type=hidden name=list  value="$LIST">
-  <input type=hidden name=passw value="$CMDPASS">
-  <input type=hidden name=user value="$USER">
-  <input type=submit name=func value="configshow">
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="list"  value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+  <input type="submit" name="func" value="configshow">
 
 <dl>
-  <dt><input type=checkbox name=extra value="ACCESS">Access
+  <dt><input type="checkbox" name="extra" value="ACCESS">Access</dt>
   <dd>Settings that affect who can issue a command, and
   whether a command is completed immediately, stalled, or
-  discarded.
+  discarded.</dd>
 
-  <dt><input type=checkbox name=extra value="ARCHIVE">Archive
-  <dd>Settings that affect the archiving of posted messages.
+  <dt><input type="checkbox" name="extra" value="ARCHIVE">Archive</dt>
+  <dd>Settings that affect the archiving of posted messages.</dd>
 
-  <dt><input type=checkbox name=extra value="BOUNCE">Bounce
-  <dd>Settings that control the processing of error messages.
+  <dt><input type="checkbox" name="extra" value="BOUNCE">Bounce</dt>
+  <dd>Settings that control the processing of error messages.</dd>
 
-  <dt><input type=checkbox name=extra value="DELIVER">Deliver
+  <dt><input type="checkbox" name="extra" value="DELIVER">Deliver</dt>
   <dd>Settings that alter the contents and control the delivery
-  of posted messages.
+  of posted messages.</dd>
 
-  <dt><input type=checkbox name=extra value="LISTS">Lists
-  <dd>Settings related to the output of the <b>lists</b> command.
+  <dt><input type="checkbox" name="extra" value="LISTS">Lists</dt>
+  <dd>Settings related to the output of the <b>lists</b> command.</dd>
 
-  <dt><input type=checkbox name=extra value="MISCELLANY">Miscellany
-  <dd>Settings that do not fit one of the other categories.
+  <dt><input type="checkbox" name="extra" value="MISCELLANY">Miscellany</dt>
+  <dd>Settings that do not fit one of the other categories.</dd>
 
-  <dt><input type=checkbox name=extra value="MODERATE">Moderate
+  <dt><input type="checkbox" name="extra" value="MODERATE">Moderate</dt>
   <dd>Settings that determine who can post messages, whether
   posts are distributed immediately, discarded, or moderated, and
-  the addresses of the moderators.
+  the addresses of the moderators.</dd>
 
-  <dt><input type=checkbox name=extra value="PASSWORD">Password
-  <dd>The master_password and passwords settings.
+  <dt><input type="checkbox" name="extra" value="PASSWORD">Password</dt>
+  <dd>The master_password and passwords settings.</dd>
 
-  <dt><input type=checkbox name=extra value="REPLY">Reply
+  <dt><input type="checkbox" name="extra" value="REPLY">Reply</dt>
   <dd>Settings that determine whether or not notices are sent,
   the files that contain the reply messages, and the language of the
-  notices.
+  notices.</dd>
 </dl>
 
-<input type=submit name=func value="configshow">
+<input type="submit" name="func" value="configshow">
 </form>
 
