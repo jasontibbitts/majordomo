@@ -61,11 +61,13 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; $a=~s/\.p.$//; ("lib/$_" => "\$(INS
    'Fcntl'          => [0,     1],
    'Carp'      	    => [0,     1],
    'Time::Local'    => [0,     1],
-   'HTML::TreeBuilder' => [0,     1],
-   'HTML::FormatText'  => [0,     1],
+   'HTML::FormatText'  => [0,  1],
+   'HTML::TreeBuilder' => [0,  1],
+   'Text::Reflow'   => [1.04,  0],
+   'Time::HiRes'    => [0,     0],
    'DB_File'        => [1.63,  0],
-   'DBI'            => [1.14,  0],
-   'DBD::Pg'        => [0.95,  0],
+   # 'DBI'            => [1.14,  0],
+   # 'DBD::Pg'        => [0.95,  0],
   );
 
 unless (check_syslog() && $ok) {
