@@ -1,6 +1,16 @@
 2002-06-26  Michael Yount <csf@moscow.com>
 
+	* lib/Majordomo.pm:  (new) Add domain validity test.
+	(reject) Use "IP address" substitution for anonymous
+	rejections.  Thanks to Mohamed Lrhazi and Nick Simicich.
+
+	* lib/Mj/Inform.pm:  (_inform_owner)  Use "IP address"
+	substitution for anonymous requesters.
+
 	* setup/ask_domain.pl:  Fix typos.  Thanks to Brock Rozen.
+
+	* setup/newdomain.pl:  Ask if the domain should be installed
+	or just recorded in the .mj_config file.
 
 2002-06-24  Michael Yount <csf@moscow.com>
 

@@ -175,9 +175,14 @@ sub new {
   $self->{'domain'} = $domain;
   $self->{'lists'}  = {};
 
+  $basename = $domain;  
+  $basename =~ s#.+/([^/\s]+)#$1#;
+  if ($basename =~ /[^A-Za-z0-9\.\-]/) {
+    return qq(The domain name "$basename" is invalid.);
+  }
+
   unless (-d $self->{'ldir'}) {
     @domains = domains($topdir);
-    $basename = $domain;  $basename =~ s#.+/([^/\s]+)##;
     @tmp = grep { lc $_ eq lc $basename } @domains;
     if (defined $tmp[0] and $tmp[0] =~ /(.+)/) {
       $basename = $1;
@@ -5535,7 +5540,8 @@ sub reject {
   my $log = new Log::In 30, "@{$request->{'tokens'}}";
   my (%file, @out, $ack_attach, $data, $desc, $ent, $file, $in, $inf,
       $inform, $line, $list_owner, $mess, $mj_addr, $mj_owner, $ok,
-      $owner, $reason, $repl, $rfile, $sess, $site, $t, $token, $victim);
+      $owner, $reason, $rejecter, $repl, $rfile, $sess, $site, 
+      $t, $token, $victim);
 
   return (0, $self->format_error('no_token', 'GLOBAL'))
     unless (scalar(@{$request->{'tokens'}}));
@@ -5600,6 +5606,11 @@ sub reject {
       next;
     }
 
+    $rejecter = "$request->{'user'}";
+    if ($rejecter =~ /^.([\d\.]+)\@example.com$/) {
+      $rejecter = "IP address $1";
+    }
+    
     $data->{'ack'} = 0;
     $repl = {
          $self->standard_subs($data->{'list'}),
@@ -5607,7 +5618,7 @@ sub reject {
          'COMMAND'    => $data->{'command'},
          'DATE'       => scalar localtime($data->{'time'}),
          'MESSAGE'    => $reason,
-         'REJECTER'   => $request->{'user'},
+         'REJECTER'   => $rejecter,
          'REQUESTER'  => $data->{'user'},
          'SESSIONID'  => $data->{'sessionid'},
          'TOKEN'      => $token,
