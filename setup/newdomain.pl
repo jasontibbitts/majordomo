@@ -62,7 +62,7 @@ while (1) {
   ask_domain($config, $newdomain);
 
   $install = 
-    get_bool(retr_msg('install_domain', $lang, 'DOMAIN' => $dom), 1);
+    get_bool(retr_msg('install_domain', $lang, 'DOMAIN' => $newdomain), 1);
 
   if ($install) {
 
