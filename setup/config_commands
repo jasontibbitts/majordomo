@@ -64,6 +64,7 @@ headers to posted messages:
 
 List-Archive
 List-Help
+List-ID
 List-Owner
 List-Post
 List-Subscribe
@@ -86,6 +87,7 @@ KLMN
 configset DEFAULT:rfc2369 message_headers <<OPQR
 List-Archive: <$ARCURL>
 List-Help: <mailto:$MJ?body=help>
+List-ID: <$LIST.$HOST>
 List-Owner: <mailto:$OWNER>
 List-Post: <mailto:$WHOAMI>
 List-Subscribe: <mailto:$MJ?body=sub%20$LIST>
