@@ -42,6 +42,13 @@ a password is issued without one.
 
 (standard plus COMMAND)
 
+no_visible
+----------
+This error message is displayed when a configshow command displays
+no settings at all.
+
+(standard plus SETTING)
+
 not_extracted
 -------------
 This error message is displayed when a configset-extract command attempts
@@ -57,6 +64,17 @@ attempt to create a personal password that is too small (see "help password"
 and "help configset_password_min_length" for more details).
 
 (standard substitutions only)
+
+password_level
+--------------
+
+This error message is displayed when a list administrator uses a 
+valid password that has insufficient privileges.  It applies only
+to the configdef and configset commands, which require varying
+privileges according to which setting is being changed.  The 
+config_access setting may be used to change the requirements.
+
+(standard plus LEVEL, NEEDED, SETTING, USER)
 
 unknown_setting
 ------------
