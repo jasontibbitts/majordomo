@@ -8,7 +8,7 @@
   </a>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$TOKEN%20$PART&amp;func=tokeninfo-part" target="_part">
-    (Voir le texte dans une fen^etre séparée)
+    (Voir le texte dans une fenêtre séparée)
   </a>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$TOKEN%20$PARTh&amp;func=tokeninfo-part-edit">

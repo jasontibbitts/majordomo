@@ -205,7 +205,7 @@ réponses
 \$REWRITEFROM_CHECKBOX
 \$SELFCOPY_CHECKBOX
   Cases à cocher pour les formulaires HTML utilisés dans les
-  interfaces WWW pour afficher les reglages personnels d'un abonnement
+  interfaces WWW pour afficher les réglages personnels d'un abonnement
   particulier.
 
 \$ADDRESS
@@ -359,11 +359,11 @@ réponses
   par le paramètre "digests".
 
 \$MAXLENGTH
-  La taille limite d'un message posté, determiné par le paramètre
+  La taille limite d'un message posté, déterminé par le paramètre
   "maxlength".
 
 \$MESSAGE_ID
-  Le message ID, de l'en-t^ete "Message-ID", d'un message posté.
+  Le message ID, de l'en-tête "Message-ID", d'un message posté.
 
 \$MSGNO
   Le non de l'archive ainsi que le numéro du message posté, par
