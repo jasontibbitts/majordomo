@@ -47,7 +47,7 @@ scratch.
 sub sendmail {
   my %args = @_;
   my $log = new Log::In 150;
-  my $dom = $args{domain};
+  my $dom = $args{mj_domain};
 
   if ($args{options}{maintain_config}) {
     $args{aliasfile} = "$args{topdir}/ALIASES/mj-alias-$dom";
@@ -75,7 +75,7 @@ Sendmail routines.
 sub exim {
   my %args = @_;
   my $log = new Log::In 150;
-  my $dom = $args{domain};
+  my $dom = $args{mj_domain};
 
   if ($args{options}{maintain_config}) {
     $args{aliasfile} = "$args{topdir}/ALIASES/mj-alias-$dom";
@@ -111,7 +111,7 @@ The code is very similar to that for sendmail.
 sub postfix {
   my %args = @_;
   my $log = new Log::In 150;
-  my $dom = $args{domain};
+  my $dom = $args{mj_domain};
 
   if ($args{options}{maintain_config}) {
     $args{aliasfile} = "$args{topdir}/ALIASES/mj-alias-$dom";
@@ -154,6 +154,7 @@ sub add_alias {
       $pri, $program, $sublist, $vblock, $vut);
   my $bin  = $args{bindir} or $log->abort("bindir not specified");
   my $dom  = $args{domain} or $log->abort("domain not specified");
+  my $mdom = $args{mj_domain} or $log->abort("Mj2 domain not specified");
   my $list = $args{list}   || 'GLOBAL';
   my $who  = $args{whoami} || 'majordomo'; 
   my $umask= umask; # Stash the umask away
@@ -194,19 +195,19 @@ sub add_alias {
 
   if ($list eq 'GLOBAL') {
     $block = <<"EOB";
-# Aliases for Majordomo at $dom
-$who$vut:       "|$bin/$program -m -d $dom$debug$dpri$pri"
-$who$vut-owner: "|$bin/$program -o -d $dom$debug$dpri$pri"
+# Aliases for Majordomo at $mdom
+$who$vut:       "|$bin/$program -m -d $mdom$debug$dpri$pri"
+$who$vut-owner: "|$bin/$program -o -d $mdom$debug$dpri$pri"
 owner-$who$vut: $who$vut-owner
-# End aliases for Majordomo at $dom
+# End aliases for Majordomo at $mdom
 EOB
 
     $vblock = <<"EOB";
-# VUT entries for Majordomo at $dom
+# VUT entries for Majordomo at $mdom
 $who\@$dom         $who$vut
 $who-owner\@$dom   $who$vut-owner
 owner-$who\@$dom  owner-$who$vut
-# End VUT entries for Majordomo at $dom
+# End VUT entries for Majordomo at $mdom
 EOB
   }
   #
@@ -227,15 +228,15 @@ EOB
   #
   # As implemented, owner, requiest, and resend are mandatory.
   else {
-    $aliasfmt = "$list$vut%-12s \"|$bin/$program %s -d $dom -l $list$debug$dpri$pri\"\n";
-    $block  = "# Aliases for $list at $dom\n";
+    $aliasfmt = "$list$vut%-12s \"|$bin/$program %s -d $mdom -l $list$debug$dpri$pri\"\n";
+    $block  = "# Aliases for $list at $mdom\n";
     $block .= sprintf $aliasfmt, ':', '-r';
     $block .= sprintf $aliasfmt, '-request:', '-q';
     $block .= sprintf $aliasfmt, '-owner:', '-o';
     $block .= "owner-$list$vut:   $list$vut-owner\n";
 
     $vblock = <<"EOB";
-# VUT entries for $list at $dom
+# VUT entries for $list at $mdom
 $list\@$dom              $list$vut
 $list-request\@$dom      $list$vut-request
 $list-owner\@$dom        $list$vut-owner
@@ -291,8 +292,8 @@ EOB
       }
     }
 
-    $block .= "# End aliases for $list at $dom\n";
-    $vblock .= "# End VUT entries for $list at $dom\n";
+    $block .= "# End aliases for $list at $mdom\n";
+    $vblock .= "# End VUT entries for $list at $mdom\n";
   }
   if ($args{aliashandle}) {
     $args{aliashandle}->print("$block\n");
