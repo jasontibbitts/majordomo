@@ -12,12 +12,15 @@ Some common MIME types include text/plain, text/html, and image/jpeg.
 
 Possible actions are:
 
-  allow     - let the body part pass untouched.
-  clean     - remove portions of a HTML part that could pose a
+  allow     - Let the body part pass untouched.  Any subparts of 
+              this part will be processed as usual.
+  clean     - Remove portions of a HTML part that could pose a
               security hazard.
-  discard   - remove the part from the message and pass the rest.
+  discard   - Remove the part from the message and pass the rest.
               (This has no effect upon single-part messages.)
-  format    - convert the body part to plain text.  A numerical
+  format    - Convert the body part to plain text.  A numerical
               argument will adjust the right margin of the text,
               which occurs at position 72 by default.
+  keep      - Let this body part, including any subparts, 
+              pass untouched.
 

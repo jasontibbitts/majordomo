@@ -1867,6 +1867,7 @@ sub parse_attachment_filters {
      'clean'   => 1,
      'discard' => 0,
      'format'  => 1,
+     'keep'    => 1,
     );
 
   $change = "\n";
@@ -1896,6 +1897,14 @@ sub parse_attachment_filters {
       }
       else {
 	$change .= qq^return ('allow', undef) if $pat;\n^;
+      }
+    }
+    elsif ($table->[$i][1] =~ /^keep(?:=(\S+))?$/) {
+      if (defined($1)) {
+	$change .= qq^return ('keep', '$1') if $pat;\n^;
+      }
+      else {
+	$change .= qq^return ('keep', undef) if $pat;\n^;
       }
     }
     elsif ($table->[$i][1] eq 'clean') {
@@ -2789,6 +2798,9 @@ sub parse_sublist_array {
     $sublist = $table->[$i][0];
     $desc    = $table->[$i][1];
 
+    # XXX Should also check for conflict with existing lists and
+    # their aliases. 
+  
     # XXX Assumes .D or .T suffix for sublist database.
     return (0, "Illegal or unknown sublist $sublist.")
       unless ((-f "$self->{'ldir'}/$self->{'list'}/X$sublist.D" ||
@@ -4525,7 +4537,7 @@ sub _str_to_clock {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997-2000 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997-2000, 2004 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it

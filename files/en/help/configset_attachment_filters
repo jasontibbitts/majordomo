@@ -65,7 +65,9 @@ and "Image/JPEG" are considered identical.
 
 The allow action
 ----------------
-The allow action causes a body part to be passed untouched.
+The allow action causes a body part to be passed untouched.  If the body
+part has subparts, they will be checked, and may be altered by the other
+rules.
 
 
 The clean action
@@ -147,6 +149,16 @@ delivered.
 
 The reformatted text will be left-justified, regardless of its original
 placement.
+
+
+The keep action
+---------------
+The keep action causes a body part to be passed untouched.  If the body
+part has subparts, those also will remain untouched.  For example,
+to allow a signed message to be posted without alterations, use the
+following rule:
+
+multipart/signed | keep
 
 
 Effect upon the archives
