@@ -153,7 +153,7 @@ else {
 
 $cmdform = <<EOM;
 <form method=POST action=$cgiurl>
-e-mail address:
+address:
 <input size=34 name=user value="$user">
 password:
 <input size=10 name=passw type=password value="$passw"><br>
@@ -172,16 +172,14 @@ print <<EOM;
 <h2 align=center>List Information and Account Maintenance</h2>
 Welcome to $site!  Here you will find information about our
 mailing lists and your account on our Majordomo 2 list server.
-Type your e-mail address into the first box.  If you are
-already registered at this site, typing your password into
-the second box will allow you to change your account.
-<p>
-This service offers three different pages: a list of
-mailing lists, details about your account, and a help
-page.  These pages may be reached by pressing the "lists,"
-"show," or "about this service" buttons at any time.
-"show" will only work if your address is registered here
-and you have typed your password into the password box.
+<ul>
+<li>Press <b>about this service</b> to see a detailed
+help page.
+<li>Press <b>lists</b> to see a list of mailing lists
+at $site.
+<li>Press <b>show</b> to see details about your account.
+(password required)
+</ul>
 $cmdform
 EOM
 
@@ -287,13 +285,28 @@ elsif ($func eq 'set' and $goodpass) {
 if ($user and $isreg and $goodpass) {
   if ($func !~ /^(lists|faq|info|intro|subscribe)/) {  
     &showdata($mj, $user, $passw);
-    print  "</form></body></html>\n";
+
+    print  <<EOM;
+</form>
+<hr>
+For assistance, please contact 
+<a href="mailto:$serveradmin">$serveradmin</a>.
+</body></html>
+EOM
+
     exit 0;
   }
 }
 
 &showlists($mj, $user, $passw);
-print  "</body></html>\n";
+
+print <<EOM;
+<hr>
+For assistance, please contact 
+<a href="mailto:$serveradmin">$serveradmin</a>.
+</body></html>
+EOM
+
 exit 0;
 
 #---------------- Subroutines -----------------#
@@ -307,11 +320,24 @@ sub showlists {
   # Iterate over lists and add form buttons
   select STDOUT;
   if (! $ok) {
-    print "<h2>Error: $mess</h2>\n";
+    print <<EOM;
+<h2>Error: $mess</h2>
+If you received an "Invalid password" error, here are 
+the possible causes:
+<ul>
+<li>The address in the <b>address</b> box is not registered at this site.
+<li>The password in the <b>password</b> box is incorrect.
+</ul>
+A password is necessary if you wish to use the <b>show, set,</b>
+or <b>unsubscribe</b> command.
+<p>
+A password is probably not necessary if you wish to use the <b>subscribe,
+faq, info, intro, lists</b>, or <b>about this service</b> command.
+EOM
+
     return;
   }
   print <<EOM;
-<br>
 <input type=submit name=func value=subscribe>
 <input type=submit name=func value=faq>
 <input type=submit name=func value=info>
@@ -356,6 +382,20 @@ sub showdata {
     print "Address is not subscribed to any lists\n";
     return 1;
   }
+
+  print <<EOM;
+<input type=submit name=func value="set">
+<input type=submit name=func value="unsubscribe">
+<p>
+To unsubscribe, press the radio button for the 
+appropriate list, then press the <b>unsubscribe</b> button above.
+<br>
+To change settings, press the radio button for a
+list, choose the settings you want, then press the <b>set</b> button
+above.  The settings are described at the bottom of this page.
+<p>
+EOM
+
   print "<table border><th>Mailing List<th>Delivery Mode<th>Ack<th>EliminateCC\n";
   print "<th>Hide<th>Prefix<th>ReplyTo<th>SelfCopy<th>RewriteFrom\n";
   for $i (@lists) {
@@ -382,16 +422,11 @@ EOM
         : "<td align=center><input type=checkbox name=\"$i:$2\" checked>\n";
     }
   }
+  print "</table>\n";
+  print "Registered at ".gmtime($listdata[14])." UTC.<br>\n";
+  print "Last changed at ".gmtime($listdata[15])." UTC.<br>\n";
+
   print <<EOM;
-</table>
-To unsubscribe, press the radio button for the 
-appropriate list, then press the "unsubscribe" button below.
-<br>
-To change settings, press the radio button for a
-list, choose the settings you want, then press the "set" button
-below.<br>
-<input type=submit name=func value="set">
-<input type=submit name=func value="unsubscribe">
 <h2>What do the settings mean?</h2>
 <ul>
 <li>Delivery Mode: "each" means that you will receive each
@@ -421,10 +456,7 @@ that you post to the mailing list.
 in messages you send to the list.  The From header will then be
 rewritten to appear as it did when you subscribed to the list.
 </ul>
-<hr>
 EOM
-  print "Registered at ".gmtime($listdata[14])." UTC.<br>\n";
-  print "Last changed at ".gmtime($listdata[15])." UTC.<br>\n";
 }
   
 sub format_print {
@@ -457,10 +489,7 @@ sub usage {
 
   print <<EOM;
 <p>
-Welcome to $site!  This is the Majordomo 2 subscriber interface.
-Below you will learn how it works.
-It is always possible to return to this introduction by pressing 
-the "about this service" button.
+This is the help page for the Majordomo 2 subscriber interface.
 <p>
 This interface serves two main purposes.  The first is to 
 allow the public to learn about and subscribe to the mailing 
@@ -468,31 +497,58 @@ lists at $site.  The second is to allow subscribers to change
 the settings for their subscriptions and to remove themselves
 from mailing lists.
 <p>
-If you simply wish to get information about the mailing lists,
-the URL for this service is: <br>
- <a href="$cgiurl">$cgiurl</a><br>
-However, if you want to access your account, add a solidus ("/")
-and your e-mail address: <br>
+Three buttons are always present:
+<ul>
+<li><b>about this service</b> shows this help page.
+<li><b>lists</b> shows all public mailing lists at this site.  
+<br>Four buttons will be added when viewing this page:
+<ul>
+<li><b>subscribe</b> causes your address to be added
+to the mailing list you have chosen.  Make sure
+that your e-mail address appears in the "address:" box.
+Unless you have already subscribed to at least one
+list at this site, pressing this button will cause
+a confirmation e-mail message to be sent to your address.
+Follow the instructions in that message to complete
+your subscription.
+<li><b>faq</b> displays a list of frequently asked questions
+and answers for a mailing list, if one exists.
+<li><b>info</b> displays the "welcome message" that all
+new subscribers receive.  It usually describes the policies
+of the list owners.
+<li><b>intro</b> displays an introduction to the topics
+which are discussed on the mailing list, if one exists.
+</ul>
+
+Each mailing list has a radio button to the left
+of its name.  It is important that you choose a mailing
+list before pressing the <b>subscribe, faq, info</b> or
+<b>intro</b> buttons.
+<li><b>show</b> displays information about your account
+if you have already subscribed and if you have typed your
+password into the "password:" box.  If you press the 
+<b>show</b> button without using your password, you 
+will see the list of mailing lists instead.
+<p>
+If you want to access your account, add a solidus ("/")
+and your e-mail address to this URL, for example: <br>
  <a href="$cgiurl/$user">$cgiurl/$user</a><br>
+and bookmark that page for future reference.
 When the list of lists appears, type in your password and
-press the show button.  Your password appears in the 
+press the <b>show</b> button.  Your password appears in the 
 welcome message you receive every time you subscribe to 
 a mailing list, so be sure to save those messages.
 <p>
 It is possible for you to subscribe to mailing lists without
-using a password.  However, you will probably need to go
-through an extra confirmation step.  Confirmation instructions
-will be sent via e-mail to your address.
+using a password.  However, using your password may
+save you an extra step.  Confirmation instructions
+will be sent via e-mail to your address if you do not
+use your password.
 <p>
-Before pressing the "subscribe," "unsubscribe," or "set" button, 
-you must first choose a mailing list by pressing the button
-for that list. 
-<p>
-The "faq," "info," and "intro" documents may or may not exist
-for a particular list.  It may be possible to see general
-information about $site by pressing one of these buttons
-without choosing a list first.  "faq
-<p>
+Instructions for changing your account appear at the bottom of the 
+screen after you press the <b>show</b> button.
+</ul>
+<hr>
 Majordomo 2 also has an
 <a href="$admurl">interface for list owners</a>.
 <p>
