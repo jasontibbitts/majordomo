@@ -31,6 +31,7 @@ sub new {
   my $sender= shift;
   my $snum  = shift;
   my $sep   = shift;
+  my $lhost = shift;
   my $log   = new Log::In 150, "$sender, $snum, $sep";
 
   my $self = {};
@@ -38,7 +39,7 @@ sub new {
 
   $self->{'data'}    = $data;
   $self->{'dest'}    = Mj::Deliver::Dest->new($self->{'data'}, $file, 
-                                              '', 'single');
+                                              '', $lhost, 'single');
   $self->{'sender'}  = $sender;
   $self->{'seqnum'}  = $snum;
   $self->{'sendsep'} = $sep;
