@@ -1,16 +1,51 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-showtokens listname
+showtokens-delay listname action
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is the name of a list at this site
+action, optional, is the name of a request, such as post or subscribe.
+-delay, if used, causes "delay" tokens to be shown.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The "showtokens" command provides a list of all outstanding tokens
-(e.g. pending "accept" or "reject" requests). If there are many such
-unhandled tokens, it may be due to an absent list owner or a spammer.
+A token is an identification number (for example, "0B18-996F-76ED")
+that refers to a request that has not yet been completed.
+
+There are three kinds of token:  confirm, consult, and delay.
+
+Confirm tokens need to be approved by the person whom the request
+affects before they can take place.
+
+Consult tokens need to be approved by one or more of a mailing list's
+owners or moderators before they can take place.
+
+Delay tokens are automatically approved after a certain amount
+of time.  Delay tokens are only displayed if the "delay" command mode
+is used.
+
+The "showtokens" command provides a list of all outstanding tokens.
+If there are many such unhandled tokens, it may be due to an absent 
+list owner or a spammer.
 
 Anyone with a password that authorizes them to show the tokens can
-use the "accept" or "reject" command to send these tokens to the
-server for immediate action, thereby clearing the backlog.
+use the "accept" or "reject" command to immediately approve or
+discard one or more requests, thereby clearing the backlog.
+
+All tokens have a "lifetime," typically one week, after which they expire.  
+Confirm and consult tokens vanish when they expire.  Delay tokens'
+requests are fulfilled when they expire. 
+
+Depending upon the "token_remind" setting, reminder messages
+are sent if a token has not been explicitly accepted or rejected 
+after a certain number of days.
+
+The command
+  showtokens ALL
+can be used by site administrators to see the unfulfilled requests
+for all of the mailing lists in a domain.
+
+The tokens shown can be limited to one kind of request.  For example,
+  showtokens ALL subscribe
+would display every uncompleted subscription request for a domain.
+
 
 See Also:
    help accept     (approving  action)
@@ -18,7 +53,8 @@ See Also:
    help tokeninfo  (for more details about a particular token)
    help configset access_rules_variables (set/test for this command)
    help configset token_lifetime (site-wide or per-list expiration period)
-   help configset token_remind   (site-wide or per-list reminder before expiration)
+   help configset token_remind (site-wide or per-list reminder before expiration)
+   help configset triggers 
 
 For a list of all help topics send this one-line message
    help topics
