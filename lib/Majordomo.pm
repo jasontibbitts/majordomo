@@ -4131,10 +4131,12 @@ sub _rekey {
           }
           unless ($data->{'lists'} =~ /\b$list\b/) {
             $mess .= "$addr is subscribed to $list; registry says otherwise.\n";
-            @lists = split("\002", $data->{'lists'});
-            push @lists, $list;
-            $data->{'lists'} = join("\002", @lists);
-            $self->{'reg'}->replace('', $addr->canon, $data);
+            if ($mode =~ /repair/) { 
+              @lists = split("\002", $data->{'lists'});
+              push @lists, $list;
+              $data->{'lists'} = join("\002", @lists);
+              $self->{'reg'}->replace('', $addr->canon, $data);
+            }
             next;
           }
           $count++;
