@@ -33,8 +33,18 @@ way, all of the features of Majordomo are restricted, including messages
 sent to the list owners using the <list>-owner alias, messages posted to
 mailing lists, or commands sent to the server.
 
+Two special cases have to be considered when GLOBAL access is
+restricted.  The mj_trigger program, which causes digests to be
+delivered and expired data to be removed, runs with an anonymous
+address, "unknown@anonymous".  The WWW interfaces use the IP address of
+the client and the "example.com" domain, for example,
+"127.0.0.1@example.com".  If these addresses are not permitted access,
+the interfaces that use them will not work.
+
+
 See Also:
    help admin_domain
+   help admin_moderate
    help auxiliary_list
    help configset_access_rules        (to restrict access to any command)
    help configset_archive_access      (for     archive command access_rules)
@@ -49,6 +59,7 @@ See Also:
    help configset_subscribe_policy    (for   subscribe command access_rules)
    help configset_unsubscribe_policy  (for unsubscribe command access_rules)
    help post      (for the special case of restricting who can post msgs)
+   help trigger
    help variables (for a description of substitution variables)
 
 $INCLUDE-help/foot
