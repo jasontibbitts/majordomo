@@ -1,70 +1,110 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-unsubscribe[-pattern[-allmatching]][-farewell] listname [address]
+unsubscribe[-farewell] listname [address]
+unsubscribe[-pattern[-allmatching]][-farewell] listname pattern
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-address,  if specified, is an email address current subscribed to listname
-listname, required, is the name of a list at this site
--pattern, if specified, treats the address as a pattern (see "help patterns")
--allmatching, if specified, operates on every address that matches
--farewell,   if specified, sends a "farewell" message to each address.
+address,  if specified, is an email address 
+listname, required, is the name of a mailing list at this domain
+pattern,  if specified, is a Majordomo pattern (see "help patterns")
+-pattern,     if specified, removes addresses matching a pattern
+-allmatching, if specified, unsubscribes every address that matches
+-farewell,    if specified, sends a "farewell" message to each address.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-By default, the "unsubscribe" command removes an "address" from the
-named list. Unless the command is "approve"d in advance, a confirmation
-token may be sent to the given "address" (based on unsubscribe_policy
-or the access_rules settings for "listname") to verify this action,
-and must be replied to with an "accept" command before the address is
-removed from the list.
+The unsubscribe command will remove one or more addresses from a 
+mailing list.
 
-To unsubscribe from the LISTNAME mailing list at this site,
-as simply as possible, send this one-line message to $MJ:
-    unsubscribe LISTNAME 
-replacing "LISTNAME" with the name of the list.
+The simplest way to remove your address from a mailing list is
+to send the following command in the body of an e-mail message to
+$MJ:
+  unsubscribe LISTNAME 
+Replace "LISTNAME" with the name of the list you wish to leave.
 
 If the address you wish to remove from the list is different from
 the address from which you are sending the message, the command
 may be written instead as:
-    unsubscribe LISTNAME EmailAddress
-replacing "EmailAddress" with the address you want to remove from
-the list.
+  unsubscribe LISTNAME ADDRESS
+Replace "ADDRESS" with the e-mail address you want to remove from
+the list.  A confirmation message may be sent to that address or to
+the list administrators.
 
-A message may be sent to each address being removed acknowledging
-the removal of the subscription.  This "farewell" message will only
-be sent if the "-farewell" option is used.  
+When your address is removed from a mailing list with the unsubscribe
+command, your address will remain in Majordomo's registration database
+unless you use the unregister command to remove it.  As long as your
+address is registered, you can continue to use your personal password
+to join mailing lists.  See "help unregister" and "help password" for
+more details.
 
-The unregister command will automatically remove an address from all
-lists at this site, or the unsubscribe command can be used to
-selectively remove an address from one list at a time.  Even after the
-address has been unsubscribed from all lists one at a time, it will
-still exist in the registration database unless "unregister" is used. 
+If you wish to change your address, you can use the changeaddr command
+instead of unsubscribing your old address and subscribing your new
+address separately.  See "help changeaddr" for more details.
 
-Without the "-pattern" option, "address" is matched literally with
-no interpretation of special characters. Matching is case sensitive.
-The address must be a valid e-mail address.
+If you wish to stop receiving mail temporarily, you can change all of 
+your subscriptions to "nomail" mode with the following command:
+  set ALL nomail
 
-If the "-pattern" option is used, "address" is interpreted as a
-Majordomo matching pattern. Review the "help patterns" file carefully.
-Patterns can be very simple or full-blown Perl regular expressions.
-When -pattern is used to unsubscribe addresses with wild cards, the
-list password is required and confirmations will not be requested.
-Without "-allmatching", only the first matching address is removed.
+When you are ready to start receiving mail again, use the following
+command:
+  set ALL nomail-return
+See "help set" for more details.
 
-If the "-allmatching" option is used with "-pattern", then every
-address that matches the pattern will be removed from the list.
 
+                    The unsubscribe-farewell command
+
+The "farewell" command mode can be used to send a "farewell" message to
+each address that is removed from the list.  The farewell message
+contains the personal password for that address and instructions for
+resubscribing or unregistering.
+
+
+                     Notes for list administrators
+
+Patterns
+--------
+If the "pattern" command mode is used, you must specify a pattern on the
+command line.  See "help patterns" for an introduction Majordomo
+matching pattern.  An administrative password is required to use the
+"pattern" mode.  The "regex" mode is identical to the "pattern" mode.
+
+If the "allmatching" command mode is also used, every address that
+matches the pattern will be removed from the list.  Otherwise, only the
+first address that matches the pattern will be removed.
+
+
+Pattern examples
+----------------
+The following command will remove the first address that matches
+"example.net" from the LISTNAME mailing list:
+
+  unsubscribe-pattern LISTNAME example.net
+
+
+The following command will remove every address that matches
+"example.edu" from the LISTNAME mailing list:
+
+  unsubscribe-pattern-allmatching LISTNAME example.edu
+
+
+The following command will remove all of the subscribers from the
+LISTNAME mailing list:
+
+  unsubscribe-pattern-allmatching LISTNAME ALL
+
+
+Canonical Addresses
+-------------------
 Each address has an original and a canonical form.  Usually these
-addresses are the same, but if the original address (the one
-that was used to subscribe to a mailing list) is an alias for
-another address, the latter address is the canonical address.
+addresses are the same, but if the original address (the one that was
+used to subscribe to a mailing list) is an alias for another address,
+the latter address is the canonical address.
 
-When the "-pattern" option is used, the canonical addresses are 
-compared to the pattern.  This may cause some surprising results
-when an original address that does not match the pattern is
-reported to have been unsubscribed.
+When the "pattern" mode is used, the canonical addresses are compared to
+the pattern.  This may cause some surprising results when an original
+address that does not match the pattern is reported to have been
+unsubscribed.
 
-The "-pattern" option always requires the list password, and does not
-apply patterns to list names.  The "-regex" option is identical 
-to the "-pattern" option.
 
+Here documents
+--------------
 List owners can unsubscribe more than one address or pattern from a 
 mailing list using a "here document" or "here file" (see "help commands" 
 for a description of here files.)  For example, to remove the
@@ -76,11 +116,14 @@ a@example.com
 b@example.com
 ABC
 
-List owners can also remove addresses from a collection called an "auxiliary
-subscriber list" (see "help auxiliary_list" for more details.)  The
-farewell command mode works with auxiliary lists, but only if the address
-in question is registered in this domain (see "help register" for more
-information about the Majordomo registry).
+
+Auxiliary lists
+---------------
+List owners can also remove addresses from a collection called an
+"auxiliary list" (see "help auxiliary_list" for more details.)  The
+farewell command mode works with auxiliary lists, but only if the
+address in question is registered in this domain (see "help register"
+for more information about the Majordomo registry).
 
 It is only possible to unsubscribe an invalid address using the
 "pattern" or "regex" command mode.  Subscribers' addresses can become
@@ -91,12 +134,13 @@ $INCLUDE-help/admin_modes
 
 
 See Also:
-   help access_variables
+   help admin_documents
    help admin_subscribers
-   help approve     (which can eliminate the need to use "accept")
    help auxiliary_list (which is used to manage a set of addresses)
    help changeaddr  (which replaces one address with another)
    help commands    (for an explanation of "here files")
+   help configset_access_rules  (to restrict access to this command)
+   help configset_unsubscribe_policy
    help password    (which changes an individual's password)
    help patterns    (for simple and complex regular expressions)
    help register    (which adds an address to the Majordomo registry)
