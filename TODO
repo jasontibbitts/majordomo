@@ -35,17 +35,19 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
-F'ter stuff:
- Since _add_fters is the only copy operation in the normasl path, overload
-   it to do proposed elimination of various body lines (rename to
-   _munge_body).
- Add /^-/ intelligence to embed newlines in a string_2darray.
+Mechanism to set defaults for all lists:
+  New DEFAULT pseudo-list.
+  DEFAULT is checked before mj_cf_defs.pl.
+  Just don't set DEFAULT is you want neat behavior from mj_cf_data.
+  configdefault on DEFAULT will revert to mj_cf_data behavior.
 
- If fronter/footer contains only FILE-some/file/path then pull in that file
-  to use as the fronter/footer and use its MIME data for the attachment
-  info (i.e. enable easy HTML attachment footers)
-
- Need a variable to always attach fronters/footers.
+  Modify:  Majordomo.pm -> allocate DEFAULT list along with GLOBAL.
+           List::new -> needs to know about the DEFAULT list
+           Config::new -> needs the config object from the default list.
+           Config::get -> if not set, look in DEFAULT (if given),
+             then fall back to an eval of mj_cf_defs.pl.
+           Lots of additional exceptions for DEFAULT.
+           New pseudo-list markers on CommandProps.pm.
 
 Move all aliases into one file, and all vut entries into one file, to make
   sendmail configuration easier.
@@ -92,7 +94,36 @@ access variables.
 
   Provide tied interface?
   
- 
+General munging framework (as part of _post):
+  Make only one pass over body.
+    Trim approvals, attach fronter/footer, do HTML->text conversion and
+     munging all at once.
+  Get back archive and (4) normal entities.
+
+  Structure (munge body first):
+    Traverse mime tree.
+      Delete parts if necessary.
+      Flatten multipart/alternative
+      Flatten single-part multiparts
+      -Now we know if we need to attach fronters/footers or munge them in-
+      Convert parts (richtext/html) to text, possibly munging.
+      Add fronters/footers and munge.
+    Munge headers.
+      Delete headers.
+      Reply-To:, subject_prefix
+
+F'ter stuff:
+ Since _add_fters is the only copy operation in the normasl path, overload
+   it to do proposed elimination of various body lines (rename to
+   _munge_body).
+ Add /^-/ intelligence to embed newlines in a string_2darray.
+
+ If fronter/footer contains only FILE-some/file/path then pull in that file
+  to use as the fronter/footer and use its MIME data for the attachment
+  info (i.e. enable easy HTML attachment footers)
+
+ Need a variable to always attach fronters/footers.
+
 
 ! Auto-maintain aliases:
   Add 'del_one' in Mj::MTAConfig::Sendmail; opens a filerepl and copies the

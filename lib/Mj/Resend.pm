@@ -391,9 +391,9 @@ sub _post {
 
   # Pass to archive.  XXX Is $user good enough, or should we re-extract?
   $subject = $archead->get('subject') || ''; chomp $subject;
-  ($msgnum, $arcdata) = $self->{'lists'}{$list}->archive_add
-    ($file,
-     $sender,
+  ($msgnum) = $self->{'lists'}{$list}->archive_add_start
+    ($sender,
+     (stat($file))[7],
      {
       'body_lines' => $avars{lines},
       'from'       => "$user", # Stringify on purpose
@@ -402,6 +402,7 @@ sub _post {
       'subject'    => $subject,
      },
     );
+ ($msgnum, $arcdata) = $self->{'lists'}{$list}->archive_add_done($file);
 
   # Cook up a substitution hash
   $subs = {

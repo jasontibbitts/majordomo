@@ -459,7 +459,9 @@ sub do_qmail {
 
   my($list, $fun);
 
-  # First look at majordomo addresses
+  # First look at majordomo addresses XXX These are hardcoded to
+  # 'majordomo', but it would take too much time to load Majordomo.pm so
+  # that we can extract the real majordomo address.
   if ($addr eq 'majordomo') {
     $opts{'m'} = 1;
     return;

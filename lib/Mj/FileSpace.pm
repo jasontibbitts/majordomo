@@ -136,13 +136,13 @@ sub getdata {
   $data = {
 	   'description' => '(none)',
 	   'permissions' => $perm,
-	   'c-type'      => $file =~ m!/$! ? '(dir)' : 'text/plain',
-	   'c-t-encoding'=> '8bit',
-	   'charset'     => 'ISO-8859-1',
-	   'language'    => 'en',
+	   'c-type'      => $perm eq 'd' ? '(dir)' : 'text/plain',
+	   'c-t-encoding'=> $perm eq 'd' ? '' : '8bit',
+	   'charset'     => $perm eq 'd' ? '' : 'ISO-8859-1',
+	   'language'    => $perm eq 'd' ? '' : 'en',
 	  };
 
-  if (-f $name && -r _) {
+  if ((-f $name || -d _) && -r _) {
     $fh = new IO::File("<$name");
     for $i (qw(description permissions c-type charset c-t-encoding language)) {
       $line = $fh->getline;
@@ -151,6 +151,10 @@ sub getdata {
       $data->{$i} = $line if length($line);
     }
   }
+
+  # Force permissions on directories
+  $data->{permissions} = 'd' if -d $path && -r $path;
+
   $data;
 }
 
@@ -445,25 +449,26 @@ sub index {
   my $log = new Log::In 200, "$dir";
   my (@files, @out, $data, $file, $i, $name);
 
-  @files = $self->_find_legal_files($self->{'dir'}, !$recurse);
+  @files = $self->_find_legal_files("$self->{'dir'}/$dir", !$recurse);
 
   for $file (@files) {
-    next unless $file =~ m!$dir/! || !$dir;
-    ($name = $file) =~ s!^$dir/!!;
-    next unless $name;
-
     # Add the file data unless it's a directory and we don't want them or
     # it's a file in a directory (contains something after a slash) and we
     # don't want to recurse.
-    $data = $self->getdata($file);
+    $name = "$dir/$file";
+    $data = $self->getdata($name);
+
+    # Tack on a visible identifier of a directory
+    $file .= '/' if $data->{'permissions'} eq 'd';
     unless (($nodirs && $data->{'permissions'} eq 'd') ||
-	    (!$recurse && $name =~ m!/.+!))
+	    (!$recurse && $file =~ m!/.+!))
       {
-	push @out, ($name, $data->{'permissions'}, $data->{'description'},
+	push @out, ($file, $data->{'permissions'}, $data->{'description'},
 		    $data->{'c-type'}, $data->{'charset'},
 		    $data->{'c-t-encoding'},
 		    $data->{'language'},
-		    (stat("$self->{'dir'}/$file"))[7]);
+		    (stat("$self->{'dir'}/$name"))[7],
+		   );
       }
   }
   @out;

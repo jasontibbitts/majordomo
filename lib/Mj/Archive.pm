@@ -106,14 +106,19 @@ sub new {
   return $self;
 }
 
-=head2 add(file, sender, datahashref)
+=head2 add_start(sender, bytes, datahashref), add_done(file)
 
-This adds a message contained in a file to the archive.  A standard mbox
+These adds a message contained in a file to the archive.  A standard mbox
 header is appended to the archive, followed by the file''s contents.
 
 sender contains information for the mbox separator that is not contained in
 the message.  If blank or undef, it is assumed that the message to be
 appended already has an mbox separator prepended.
+
+bytes contains an estimate of the number of bytes in the message, since it
+may not yet exist in its final form.  This is used as a hint in computing
+whether or not the message will exceed the maximum size of an archive as
+specified in the given configuration.
 
 $data->{'date'} should be in seconds since 1970 and is used in determining
 the proper archive to add the message to.  If it is blank or undef, the
@@ -128,27 +133,37 @@ $data->{'refs'} should contain the data from the References: header (a
 comma-separated list of message-IDs in brackets), or the single message-ID
 from the In-Reply-To: header.  Or nothing...
 
-Throughout this routine, $arc is the name of the main archive while $sub is
-the name of the subarchive (the archive with the split count appended).
+Throughout these routine, $arc is the name of the main archive while $sub
+is the name of the subarchive (the archive with the split count appended).
 $data holds info about the message being added.
 
+This is split into two routines so tat the message number can be known
+before the actual message is generated.  This enables the archive number of
+a message to be included in a message sent to the archives (so that a
+separate copy of the message for the archives isn''t necessary).
+
 =cut
-sub add {
+sub add_start {
   my $self   = shift;
-  my $file   = shift;
   my $sender = shift;
+  my $bytes  = shift;
   my $data   = shift || {};
-  my $log    = new Log::In 150, "$file";
+  my $log    = new Log::In 150;
 
-  my($arc, $count, $dir, $fh, $from_line, $month, $msgno, $msgs, $sub, $th,
-     $time, $tmp, $year);
+  my($arc, $count, $dir, $fh, $month, $msgno, $msgs, $sub, $tmp, $year);
 
-  $data->{'bytes'} = (stat($file))[7];
+  $data->{'bytes'} = $bytes;
   $data->{'date'} ||= time;
   $data->{'split'} = '';
 
   $dir = $self->{'dir'};
   $arc = _arc_name($self->{'split'}, $data->{'time'});
+
+  # A note on possible races here: we are trying to find the proper file to
+  # add the message to.  A race results in too many messages being added to
+  # an archive, which is a problem but not one considered serious enough to
+  # add the locking required to prevent it.  (To do so, lock the index file
+  # and don't unlock it until the end.)
 
   # Determine the proper count if necessary; don't bother if unlimited;
   # otherwise, take the last existing one and check to make sure it will
@@ -198,10 +213,36 @@ sub add {
 
   # Figure out the proper message number, which is from the unsplit count
   # file.
-  $msgno = $self->{splits}{$arc}{msgs}+1;
+  $self->{state}{msgno} = $self->{splits}{$arc}{msgs}+1;
+
+  # Save some state
+  $self->{state}{'sub'}  = $sub;
+  $self->{state}{arc}    = $arc;
+  $self->{state}{data}   = $data;
+  $self->{state}{fh}     = $fh;
+  $self->{state}{sender} = $sender;
+
+  # Return the message number
+  $self->{state}{msgno};
+}
+
+sub add_done {
+  my $self = shift;
+  my $file = shift;
+  my $log    = new Log::In 150, "$file";
+  my ($time, $from_line, $th);
+
+  # Restore some things from saved state
+  my $arc    = $self->{'state'}{'arc'};
+  my $sub    = $self->{'state'}{'sub'};
+  my $data   = $self->{'state'}{'data'};
+  my $sender = $self->{'state'}{'sender'};
+  my $fh     = $self->{'state'}{'fh'};
+  my $msgno  = $self->{'state'}{'msgno'};
 
   # Find the starting line of the new message
-  $data->{line} = $self->{splits}{$sub}{lines}+1;
+  $data->{'line'}  = $self->{splits}{$sub}{lines}+1;
+  $data->{'bytes'} = (stat($file))[7];
 
   $self->_make_index($arc);
 

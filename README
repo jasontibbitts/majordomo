@@ -1,19 +1,32 @@
 -*- Text -*-
 
-If upgrading from alpha 1 or earlier, please read README.UPGRADE.
+For some brief instructions on getting a list started, see
+REAMDE.QUICKSTART.
+
+If upgrading an existing Majordomo2 installation, always read
+README.UPGRADE for instructions on dealing with inter-version changes.
+
+For specific instructions on using Majordomo2 with various MTAs (Mail
+Transfer Agents) see README.SENDMAIL or README.QMAIL (or assist us in
+writing additional instructions for other MTAs).
+
+Check README.DIRECTORIES if you'd like to know the complete layout of a
+running Majordomo2 system, or README.INTERNALS for some information about
+the internal layout of Majordomo2.  See README.DEBUGGING for some tips on
+degugging.
 
 This is an alpha release of Majordomo 2.0.  It can easily be used to run a
-number of lists.  Many pieces of functionality that are present in 1.94.x
-(most prominent being digests) are missing from this release and there is
-much work to be done.  There are definitely many bugs although all critical
-bugs encountered during testing have been fixed.
+number of lists.  Nearly all Majordomo 1.94.4 functionality is available
+(including archives and digests).  There is still much work to be done and
+bugs surely remain to be found.  It is also 
 
-Note: this requires Perl 5.004_01 to run.  This is due to bugs in 5.004,
-and the fact that lesser versions are both lacking in features and
-security.  Most of the testing is done using Perl 5.004_04.  Currently a
-Perl built with threading support will fail to run Majordomo2 code
-properly.  Please use only non-threaded builds for the time being (or help
-track down what the problem is).
+Note: this requires Perl 5.004_01 or later to run.  This is due to bugs in
+5.004, and the fact that lesser versions are both lacking in features and
+security.  Most of the testing is done using Perl 5.004_04 and 5.005_02.
+Currently a Perl built with threading support will fail to run Majordomo2
+code properly due to bugs in the Perl threading support (which is in a
+development state).  Please use only non-threaded builds for the time
+being.
 
 The following modules are required.  These may have prerequisites which
 have not been listed; please inform majordomo-workers (see below) of these.
@@ -40,13 +53,17 @@ more info.  The installation process will suggest ways to use CPAN to
 install missing packages, but these require that the CPAN module be
 configured and running properly first.
 
-Majordomo 2 includes its own setuid wrapper generation, so setuid shell
+Majordomo2 includes its own setuid wrapper generation, so setuid shell
 scripts are not required.  (Some versions of Unix do not support them; Perl
 can work around this on some Unices but it must be configured to do so.  If
 needed, the wrappers are compiled using the information from the Perl
 configuration, in particular the configured location of the system C
 compiler.  If this information is incorrect, then the wrappers will not
-build.  If the wrappers are not required, neither is a C compiler.
+build.  If the wrappers are not required, neither is a C compiler.  Note
+that even if you have an MTA that does not require the Majordomo1 wrapper
+there are still Majordomo2 programs that need to be setuid, namely the
+shell and web-confirm interfaces.  These are setuid majordomo only, not
+setuid root.
 
 You need a complete and proper Perl installation in order to run Majordomo.
 Some vendors ship Perl but do not configure it correctly.  Majordomo will

@@ -1,0 +1,51 @@
+-*- Text -*-
+
+Some basic information on debugging a Majordomo2 installation.
+
+Mj2 can produce extensive debugging logs.  The easiest way to see this
+information is by using the shell interface.  When the -D option is given
+on the command line, a profuse amount of information is sent to standard
+error.  If you find a way to send a command to Mj2 that exhibits a bug,
+please send that command with mj_shell -D and capture the debugging output.
+(The method depends on the shell; with sh-like shells (sh, bash, zsh) you
+can do
+
+  mj_shell -D command 2>debug.out
+
+Debugging for the email interface is also available, but it is more
+difficult to get it.  Here are some methods:
+
+The -v option to mj_email sets the debugging level.  For MTAs which use an
+alias file (currently just Sendmail) the aliases are automatically
+maintained so just editing the file doesn't preserve the setting.  In this
+case, set the 'debug' config variable to the list to some value (500 is
+appropriate) and run createlist-regen.  This will regenerate the aliases
+with the new debug level in place.
+
+Debugging information from mj_email will be stored in Mj2's private temp
+directory, wherever that was configured to be.  There is one exception: if
+mj_shell detects that something is watching the debug output, it will be
+sent to standard out.  This means that you can send files to 'mail -v' (on
+many systems, at least) to see the debug output.  You cannot,
+unfortunately, redirect this to a file.
+
+If you send a message containing commands to the majordomo address and use
+the subject DEBUG gollowed by a number, you will receive debug information
+as an attachment.  Of course, if Majordomo crashes you won't receive any
+reply, so this is of limited utility and will be removed before release as
+debug info is not security-screened.
+
+One user has suggested making a symlink from the GLOBAL filespace
+(GLOBAL/files) to the various debug logs so that they can be retrieved by a
+remote admin.  This can be useful (though in most cases it isn't much
+better than the alternatives) but keep in mind that debug logs may contain
+sensitive information or other things you don't want revealed, and that all
+virtual domains at a site share a single set of debug logs.
+
+When reporting bugs, please remember to include version of Majordomo2
+(including the date of your last CVS update if you did one), version of
+Perl, and your OS and its version.  Also include some debug logs; usually
+the 100 lines before and including the error/backtrace/warning/whatever is
+sufficient.  Send these reports to majordomo-workers@greatcircle.com and CC
+a copy to tibbs@math.uh.edu for faster response.
+

@@ -252,7 +252,8 @@ sub index {
   $width[6] ||= 5; $width[7] ||= 5;
 
   if (@index) {
-    eprint($out, $type, "Files in $dir:\n") unless $mode =~ /short/;
+    eprint($out, $type, length($dir) ?"Files in $dir:\n" : "Public files:\n")
+      unless $mode =~ /short/;
     for $i (@index) {
       $count++;
       if ($mode =~ /short/) {

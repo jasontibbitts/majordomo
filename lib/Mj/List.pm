@@ -1317,15 +1317,23 @@ sub config_get_vars {
 
 These interface with the list''s Archive object.
 
-=head2 archive_add
+=head2 archive_add_start(sender, data), archive_add_done(file)
 
-This adds a message contained in a file to the archive.
+This adds a message contained in a file to the archive.  _start gives you a
+message number, _done actually commits the add.  The archive is
+write-locked between calls to these functions, so it is important to
+minimise the elapsed time between the two calls.
 
 =cut
-sub archive_add {
+sub archive_add_start {
   my $self = shift;
   return unless $self->_make_archive;
-  $self->{'archive'}->add(@_);
+  $self->{'archive'}->add_start(@_);
+}
+
+sub archive_add_done {
+  my $self = shift;
+  $self->{'archive'}->add_done(@_);
 }
 
 =head2 archive_get_start,chunk,done
