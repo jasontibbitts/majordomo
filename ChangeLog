@@ -1,5 +1,8 @@
 2000-05-04  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
+	* lib/Bf/Parser.pm (parse): Allow lower case types because some
+	sites will actually downcase them.
+
 	* lib/Mj/Config.pm (parse_access_rules): Remove spurious debugging
 	code.
 

@@ -95,14 +95,14 @@ sub parse {
   # M\d{1,5}=user=host
   # various other special types which we don't use right now.
 
-  elsif ($info =~ /M(\d{1,5})=([^=]+)=([^=]+)/) {
+  elsif ($info =~ /M(\d{1,5})=([^=]+)=([^=]+)/i) {
     $type   = 'M';
     $msgno  = $1;
     $user   = "$3\@$2";
 #    $status = 'bounce';
 #    $mess   = "VERPing detected a bounce of message #$msgno from $user.\n";
   }
-  elsif ($info =~ /M(\d{1,5})/) {
+  elsif ($info =~ /M(\d{1,5})/i) {
     $type   = 'M';
     $msgno  = $1;
     $user   = undef;
