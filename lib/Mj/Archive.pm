@@ -1408,7 +1408,7 @@ use Time::Local;
 sub _secs_end {
   my $d = shift;
   my $local = shift;
-  my ($i, $tmp);
+  my ($i, $tmp, $y);
 
   # Convert the data into yyyymmmdd format
   if ($d =~ /^\d$/) {
@@ -1427,6 +1427,7 @@ sub _secs_end {
       $d = '20' . $d;
     }
   }
+  $y = substr($d, 0, 4);
 
   if ($d =~ /^\d{4}$/) {
     $d .= '1231';
@@ -1435,15 +1436,15 @@ sub _secs_end {
     $d = $1; $tmp = $2;
     $tmp = 1 if ($tmp < 1);
     $tmp = 4 if ($tmp > 4);
-    $d .= sprintf "%.2d%.2d", $tmp * 3, _dim($tmp * 3);
+    $d .= sprintf "%.2d%.2d", $tmp * 3, _dim($tmp * 3, $y);
   }
   elsif ($d =~ /^(\d{4})(\d{2})$/) {
-    $d .= _dim($2);
+    $d .= _dim($2, $y);
   }
   elsif ($d =~ /^(\d{4})(\d{2})(\d)$/) {
     # Turn week 1, 2, 3, 4 into day 7, 14, 21, (28, 30, 31)
     if ($3 >= 4) {
-      $d = $1 . $2 . _dim($2);
+      $d = $1 . $2 . _dim($2, $y);
     }
     else {
       $d = $1 . $2 . ($3<=1? "07": $3 * 7);
@@ -1470,8 +1471,13 @@ sub _secs_end {
 # Days in month.
 sub _dim {
   my $m = shift;
-  return 28 if $m == 2;
-  return 30 if $m == 2 || $m == 4 || $m == 6 || $m == 9 || $m == 11;
+  my $y = shift;
+
+  if ($m == 2) {
+    return 28 if ($y % 4 or ($y % 400 and not $y % 100));
+    return 29;
+  }  
+  return 30 if $m == 4 || $m == 6 || $m == 9 || $m == 11;
   31;
 }
 
