@@ -292,8 +292,8 @@ sub _post {
      $arg3) = @_;
   my $log  = new Log::In 35, "$list, $user, $file";
 
-  my(@refs, @skip, $arcent, $archead, $ent, $head, $i, $msgnum,
-     $prefix, $sender, $seqno, $subject, $tmp, $tmpdir, $tprefix);
+  my(@refs, @skip, $arcent, $archead, $ent, $head, $i, $msgnum, $prefix,
+     $replyto, $sender, $seqno, $subject, $tmp, $tmpdir, $tprefix);
 
   $self->_make_list($list);
   $tmpdir = $self->_global_config_get('tmpdir');
@@ -371,6 +371,22 @@ sub _post {
     }
   }
 
+  # Add Reply-To: header.
+  $replyto = $self->_list_config_get($list, 'reply_to');
+  if ($replyto && (!$head->get('Reply-To') ||
+		   $self->_list_config_get($list, 'override_reply_to')))
+    {
+      $replyto =
+	$self->substitute_vars_string
+	  ($replyto,
+	   'HOST'    => $self->_list_config_get($list, 'resend_host'),
+	   'LIST'    => $list,
+	   'SENDER'  => $user,
+	   'SEQNO'   => $seqno,
+	  );
+      $head->set('Reply-To', $replyto);
+    }
+  
   # Determine sender
   $sender = $self->_list_config_get($list, "sender");
   

@@ -1,3 +1,9 @@
+Fri May  1 23:01:19 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Add Reply-To: headers.
+
+	* lib/mj_cf_data.pl: Redo reply_to description.
+
 Thu Apr 30 01:48:04 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/Deliver/Dest.pm (sendenvelope): Sleep for an additional

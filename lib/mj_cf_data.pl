@@ -652,10 +652,17 @@ EOC
     'local'  => 1,
     'mutable'=> 1,
     'comment'=> <<EOC,
-Put a reply-to header with value <value> into the outgoing message. If
-the token \$SENDER is used, then the address of the sender is used as
-the value of the reply-to header.  This is the value of the reply-to
-header for digest lists.
+Put a reply-to header with value <value> into the outgoing message.  If the
+following strings appear here, they will be converted to the appropriate
+text when the header is inserted into the message:
+
+  \$HOST   - the hostname of the server (from the resend_host variable)
+  \$LIST   - the name of the list
+  \$SENDER - the address of person who sent the message
+  \$SEQNO  - the message sequence number
+
+Note that a preexisting Reply-To: header will not be replaced unless
+override_reply_to is true.
 EOC
    },
    'override_reply_to' =>
