@@ -309,10 +309,10 @@ EOM
     }
     close CMD;
     close CHILD;
-    wait $pid;
+    waitpid $pid, 0;
   }
   else {
-    # in chiild
+    # in child
     exec (@args) or die "Error executing $args[0], $!";
   }
 
