@@ -1,5 +1,9 @@
 Fri Jan  8 00:19:40 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Format.pm (lists): Remove length limit; just show it all
+ 	if that's what they want.  Add some blank lines between lists in
+ 	the long output modes.
+
 	* lib/Mj/Resend.pm (_post): Big changes to accommodate digest
  	generation.  Now working!
 

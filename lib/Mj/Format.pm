@@ -304,18 +304,19 @@ sub lists {
 	$desc[0] ||= "(no description)";
 	for (@desc) {
 	  $legend{'+'} = 1 if $flags =~ /S/;
-	  eprintf($out, $type, " %s%-23s %-.56s\n", 
+	  eprintf($out, $type, " %s%-23s %s\n", 
 		  $flags=~/S/ ? '+' : ' ',
 		  $list,
 		  $_);
-	  $list  = " .";
-	  $flags = "";
+	  $list  = '';
+	  $flags = '';
 	}
+	eprint($out, $type, "\n") if $mode =~ /long|enhanced/;
       }
     }
   }
   return 1 if $mode =~ /compact|tiny/;
-  eprint($out, $type, "\n");
+  eprint($out, $type, "\n") unless $mode =~ /long|enhanced/;
   eprintf($out, $type, "There %s %s list%s.\n", $count==1?("is",$count,""):("are",$count==0?"no":$count,"s"));
   if (%legend) {
     eprint($out, $type, "\n");
