@@ -4184,15 +4184,21 @@ sub _set {
 
   if ($list eq 'ALL') {
     $data = $self->{'reg'}->lookup($addr->canon);
-    return (0, "The address $addr is not registered.\n") unless $data;
+    return (0, "$addr is not registered.\n") 
+      unless $data;
     @lists = split("\002", $data->{'lists'});
+    return (0, "$addr is not subscribed to any lists.\n")
+      unless @lists;
   }
   else {
     @lists = ($list);
   }
-
+    
   for $l (@lists) {
-    next unless $self->_make_list($l);
+    unless ($self->_make_list($l)) {
+      push @out, (0, "The $l list apparently does not exist.\n");
+      next;
+    }
     ($ok, $res) = $self->{'lists'}{$l}->set($addr, $setting, $sublist);
     if ($ok) {
       $res->{'victim'}   = $addr;
