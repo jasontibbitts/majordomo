@@ -37,7 +37,7 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(open closed list)],
-    'groups' => [qw(access majordomo)],
+    'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -47,7 +47,7 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(open closed list)],
-    'groups' => [qw(access majordomo)],
+    'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -57,7 +57,7 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(open closed list)],
-    'groups' => [qw(access majordomo)],
+    'groups' => [qw(access archive)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 0,
@@ -67,7 +67,7 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(open closed list)],
-    'groups' => [qw(access majordomo)],
+    'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -77,7 +77,7 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(open closed list)],
-    'groups' => [qw(access majordomo)],
+    'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -87,7 +87,7 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(open closed list)],
-    'groups' => [qw(access majordomo)],
+    'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -97,7 +97,7 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(open closed list)],
-    'groups' => [qw(access majordomo)],
+    'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -107,7 +107,7 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(open closed list)],
-    'groups' => [qw(access majordomo)],
+    'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -116,7 +116,7 @@ EOC
    'advertise' =>
    {
     'type'   => 'regexp_array',
-    'groups' => [qw(majordomo access advertise lists)],
+    'groups' => [qw(lists)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -125,7 +125,7 @@ EOC
    'noadvertise' =>
    {
     'type'   => 'regexp_array',
-    'groups' => [qw(majordomo access advertise lists)],
+    'groups' => [qw(lists)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -134,7 +134,7 @@ EOC
    'advertise_subscribed' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(majordomo access advertise lists)],
+    'groups' => [qw(lists)],
     'visible'=> 0,
     'global' => 1,
    },
@@ -142,7 +142,7 @@ EOC
    {
     'type'   => 'enum_array',
     'values' => [qw(fail stall succeed all)],
-    'groups' => [qw(resend)],
+    'groups' => [qw(reply)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 0,
@@ -151,7 +151,7 @@ EOC
    'inform' =>
    {
     'type'   => 'inform',
-    'groups' => [qw(inform)],
+    'groups' => [qw(reply)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -160,7 +160,7 @@ EOC
    'post_limits' =>
    {
     'type'   => 'limits',
-    'groups' => [qw(resend)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 0,
@@ -169,7 +169,7 @@ EOC
    'access_password_override' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(access)],
+    'groups' => [qw(password)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -178,7 +178,7 @@ EOC
    'access_rules' =>
    {
     'type'   => 'access_rules',
-    'groups' => [qw(access)],
+    'groups' => [qw(access moderate)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -187,7 +187,7 @@ EOC
    'attachment_rules' =>
    {
     'type'   => 'attachment_rules',
-    'groups' => [qw(resend)],
+    'groups' => [qw(moderate deliver)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 0,
@@ -197,7 +197,7 @@ EOC
    {
     'type'   => 'flags',
     'values' => [qw(A M O R Q S U)],
-    'groups' => [qw(mtaconfig)],
+    'groups' => [qw(miscellany)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 0,
@@ -206,7 +206,7 @@ EOC
    {
     'type'   => 'flags',
     'values' => [qw(b C d f h H j P R S W)],
-    'groups' => [qw(flags)],
+    'groups' => [qw(reply deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -215,7 +215,7 @@ EOC
    {
     'type'   => 'flags',
     'values' => [qw(b d f j)],
-    'groups' => [qw(flags)],
+    'groups' => [qw(reply)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -224,7 +224,7 @@ EOC
    {
     'type'   => 'flags',
     'values' => [qw(A C H P R S W)],
-    'groups' => [qw(flags)],
+    'groups' => [qw(reply deliver)],
     'visible'=> 1,
     'local'  => 1,
     'mutable'=> 1,
@@ -232,7 +232,7 @@ EOC
    'default_class' =>
    {
     'type'   => 'string',
-    'groups' => [qw(class)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -241,7 +241,7 @@ EOC
    {
     'type'   => 'enum_array',
     'values' => [qw(all digest each nomail unique)],
-    'groups' => [qw(class)],
+    'groups' => [qw(deliver)],
     'visible'=> 1,
     'local'  => 1,
     'mutable'=> 1,
@@ -249,7 +249,7 @@ EOC
    'delivery_rules' =>
    {
     'type'   => 'delivery_rules',
-    'groups' => [qw(delivery)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 0,
@@ -257,7 +257,7 @@ EOC
    'comments' =>
    {
     'type'   => 'string_array',
-    'groups' => [qw(comments)],
+    'groups' => [qw(miscellany)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -266,7 +266,7 @@ EOC
    'category' =>
    {
     'type'   => 'string',
-    'groups' => [qw(majordomo lists)],
+    'groups' => [qw(lists)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -274,7 +274,7 @@ EOC
    'description' =>
    {
     'type'   => 'string',
-    'groups' => [qw(majordomo lists)],
+    'groups' => [qw(lists)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -282,7 +282,7 @@ EOC
    'description_long' =>
    {
     'type'   => 'string_array',
-    'groups' => ['lists'],
+    'groups' => [qw(lists)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -291,7 +291,7 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(open closed auto open+confirm closed+confirm auto+confirm)],
-    'groups' => [qw(majordomo access subscribe)],
+    'groups' => [qw(access)],
     'visible'=> 0,
     'global' => 1,
     'local'  => 1,
@@ -301,7 +301,7 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(open closed auto open+confirm closed+confirm auto+confirm)],
-    'groups' => [qw(majordomo access subscribe)],
+    'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -310,7 +310,7 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(open closed auto open+confirm closed+confirm auto+confirm)],
-    'groups' => [qw(majordomo access subscribe)],
+    'groups' => [qw(access)],
     'local'  => 1,
     'visible'=> 0,
     'mutable'=> 1,
@@ -318,7 +318,7 @@ EOC
    'date_info' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(majordomo messages)],
+    'groups' => [qw(reply)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -327,7 +327,7 @@ EOC
    'date_intro' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(majordomo messages)],
+    'groups' => [qw(reply)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -336,7 +336,7 @@ EOC
    'max_header_line_length' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(resend)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -344,7 +344,7 @@ EOC
    'max_mime_header_length' =>
    {
     'type'   => 'integer',
-    'groups' => ['resend'],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -352,7 +352,7 @@ EOC
    'max_total_header_length' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(resend)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -360,7 +360,7 @@ EOC
    'maxlength' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(resend)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -368,7 +368,7 @@ EOC
    'moderate' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(resend access)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -376,7 +376,7 @@ EOC
    'moderator' =>
    {
     'type'   => 'address',
-    'groups' => [qw(resend access)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -384,7 +384,7 @@ EOC
    'moderators' =>
    {
     'type'   => 'address_array',
-    'groups' => [qw(resend access)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -392,7 +392,7 @@ EOC
    'moderator_group' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(resend access)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -400,7 +400,7 @@ EOC
    'sender' =>
    {
     'type'   => 'address',
-    'groups' => [qw(resend)],
+    'groups' => [qw(deliver)],
     'visible'=> 1,
     'global' => 1,
     'local'  => 1,
@@ -409,7 +409,7 @@ EOC
    'precedence' =>
    {
     'type'   => 'word',
-    'groups' => [qw(resend)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -417,7 +417,7 @@ EOC
    'reply_to' =>
    {
     'type'   => 'word',
-    'groups' => [qw(resend)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -425,7 +425,7 @@ EOC
    'override_reply_to' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(resend)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -433,7 +433,7 @@ EOC
    'purge_received' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(resend)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -441,7 +441,7 @@ EOC
    'quote_pattern' =>
    {
     'type'   => 'regexp',
-    'groups' => [qw(resend)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -449,7 +449,7 @@ EOC
    'resend_host' =>
    {
     'type'   => 'word',
-    'groups' => [qw(resend)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -457,7 +457,7 @@ EOC
    'restrict_post' =>
    {
     'type'   => 'restrict_post',
-    'groups' => [qw(resend access)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -465,7 +465,7 @@ EOC
    'sequence_number' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(resend)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 0,
@@ -475,7 +475,7 @@ EOC
    'administrivia' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(resend)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -483,7 +483,7 @@ EOC
    'debug' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(mtaconfig)],
+    'groups' => [qw(miscellany)],
     'visible'=> 1,
     'mutable'=> 0,
     'local'  => 1,
@@ -492,7 +492,7 @@ EOC
    'addr_allow_at_in_phrase' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(addr)],
+    'groups' => [qw(address)],
     'visible'=> 0,
     'local'  => 0,
     'global' => 1,
@@ -501,7 +501,7 @@ EOC
    'addr_allow_bang_paths' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(addr)],
+    'groups' => [qw(address)],
     'visible'=> 0,
     'local'  => 0,
     'global' => 1,
@@ -510,7 +510,7 @@ EOC
    'addr_allow_comments_after_route' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(addr)],
+    'groups' => [qw(address)],
     'visible'=> 0,
     'local'  => 0,
     'global' => 1,
@@ -519,7 +519,7 @@ EOC
    'addr_allow_ending_dot' => 
    {
     'type'   => 'bool',
-    'groups' => [qw(addr)],
+    'groups' => [qw(address)],
     'visible'=> 0,
     'local'  => 0,
     'global' => 1,
@@ -528,7 +528,7 @@ EOC
    'addr_limit_length' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(addr)],
+    'groups' => [qw(address)],
     'visible'=> 0,
     'local'  => 0,
     'global' => 1,
@@ -537,7 +537,7 @@ EOC
    'addr_require_fqdn' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(addr)],
+    'groups' => [qw(address)],
     'visible'=> 0,
     'local'  => 0,
     'global' => 1,
@@ -546,7 +546,7 @@ EOC
    'addr_strict_domain_check' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(addr)],
+    'groups' => [qw(address)],
     'visible'=> 0,
     'local'  => 0,
     'global' => 1,
@@ -580,7 +580,7 @@ EOC
    'message_fronter' =>
    {
     'type'   => 'string_2darray',
-    'groups' => [qw(resend digest)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -588,7 +588,7 @@ EOC
    'message_fronter_frequency' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(resend)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -596,7 +596,7 @@ EOC
    'message_footer' =>
    {
     'type'   => 'string_2darray',
-    'groups' => [qw(resend digest)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -604,7 +604,7 @@ EOC
    'message_footer_frequency' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(resend)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -612,7 +612,7 @@ EOC
    'message_headers' =>
    {
     'type'   => 'string_array',
-    'groups' => [qw(resend digest)],
+    'groups' => [qw(deliver)],
     'visible'=> 1,
     'local'  => 1,
     'global' => 1,
@@ -621,7 +621,7 @@ EOC
    'delete_headers' =>
    {
     'type'   => 'string_array',
-    'groups' => [qw(resend)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -629,7 +629,7 @@ EOC
    'subject_prefix' =>
    {
     'type'   => 'string',
-    'groups' => [qw(resend)],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
@@ -637,7 +637,7 @@ EOC
    'admin_headers' =>
    {
     'type'   => 'taboo_headers',
-    'groups' => [qw(resend)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -646,7 +646,7 @@ EOC
    'admin_body' =>
    {
     'type'   => 'taboo_body',
-    'groups' => [qw(resend)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -655,7 +655,7 @@ EOC
    'taboo_headers' =>
    {
     'type'   => 'taboo_headers',
-    'groups' => [qw(resend)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -664,7 +664,7 @@ EOC
    'taboo_body' =>
    {
     'type'   => 'taboo_body',
-    'groups' => [qw(resend)],
+    'groups' => [qw(moderate)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -673,7 +673,7 @@ EOC
    'block_headers' =>
    {
     'type'   => 'taboo_headers',
-    'groups' => [qw(majordomo)],
+    'groups' => [qw(access)],
     'visible'=> 0,
     'global' => 1,
     'mutable'=> 1,
@@ -682,7 +682,7 @@ EOC
    {
     'type'   => 'triggers',
     'values' => [qw(bounce checksum delay log post session token)],
-    'groups' => [qw(majordomo)],
+    'groups' => [qw(miscellany)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -690,7 +690,7 @@ EOC
    'digests' =>
    {
     'type'   => 'digests',
-    'groups' => [qw(digest)],
+    'groups' => [qw(deliver)],
     'visible'=> 1,
     'local'  => 1,
     'mutable'=> 1,
@@ -699,7 +699,7 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(numbered subject subject_author)],
-    'groups' => ['digest'],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'global' => 0,
     'local'  => 1,
@@ -708,7 +708,7 @@ EOC
    'digest_issues' =>
    {
     'type'   => 'digest_issues',
-    'groups' => ['digest'],
+    'groups' => [qw(deliver)],
     'visible'=> 0,
     'global' => 0,
     'local'  => 1,
@@ -718,7 +718,7 @@ EOC
    'addr_xforms' =>
    {
     'type'   => 'xform_array',
-    'groups' => [qw(addr)],
+    'groups' => [qw(address)],
     'visible'=> 0,
     'global' => 1,
     'local'  => 0,
@@ -752,7 +752,7 @@ EOC
    'welcome' =>
    {
     'type'   => 'bool',
-    'groups' => [qw(majordomo welcome)],
+    'groups' => [qw(reply)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -761,7 +761,7 @@ EOC
    'welcome_files' =>
    {
     'type'   => 'welcome_files',
-    'groups' => [qw(majordomo welcome)],
+    'groups' => [qw(reply)],
     'visible'=> 0,
     'local'  => 1,
     'global' => 1,
@@ -770,7 +770,7 @@ EOC
    'filedir' =>
    {
     'type'   => 'directory',
-    'groups' => [qw(filespace)],
+    'groups' => [qw(reply)],
     'global' => 1,
     'local'  => 1,
     'mutable'=> 0,
@@ -779,13 +779,13 @@ EOC
    'file_search' =>
    {
     'type'   => 'list_array',
-    'groups' => [qw(filespace)],
+    'groups' => [qw(reply)],
     'local'  => 1,
    },
    'file_share' =>
    {
     'type'   => 'list_array',
-    'groups' => [qw(filespace)],
+    'groups' => [qw(reply)],
     'local'  => 1,
    },
 # Purely global configuration variables below
@@ -793,21 +793,21 @@ EOC
    'site_name' =>
    {
     'type'   => 'string',
-    'groups' => [qw(majordomo)],
+    'groups' => [qw(miscellany)],
     'global' => 1,
     'visible'=> 1,
    },
    'whereami' =>
    {
     'type'   => 'word',
-    'groups' => [qw(majordomo)],
+    'groups' => [qw(miscellany)],
     'global' => 1,
     'visible'=> 0,
    },
    'whoami' =>
    {
     'type'   => 'address',
-    'groups' => [qw(majordomo)],
+    'groups' => [qw(miscellany)],
     'global' => 1,
     'local'  => 1,
     'visible'=> 1,
@@ -815,7 +815,7 @@ EOC
    'whoami_owner' =>
    {
     'type'   => 'address',
-    'groups' => [qw(majordomo)],
+    'groups' => [qw(miscellany)],
     'global' => 1,
     'local'  => 1,
     'visible'=> 1,
@@ -824,7 +824,7 @@ EOC
    'bounce_recipients' =>
    {
     'type'   => 'address_array',
-    'groups' => [qw(majordomo)],
+    'groups' => [qw(bounce)],
     'global' => 1,
     'local'  => 1,
     'visible'=> 0,
@@ -833,7 +833,7 @@ EOC
    'owners' =>
    {
     'type'   => 'address_array',
-    'groups' => [qw(majordomo)],
+    'groups' => [qw(moderate)],
     'global' => 1,
     'local'  => 1,
     'visible'=> 0,
@@ -842,35 +842,35 @@ EOC
    'tmpdir' =>
    {
     'type'   => 'directory',
-    'groups' => ['majordomo'],
+    'groups' => [qw(miscellany)],
     'global' => 1,
     'visible'=> 0,
    },
    'max_in_core' =>
    {
     'type'   => 'integer',
-    'groups' => ['email'],
+    'groups' => [qw(miscellany)],
     'global' => 1,
     'visible'=> 1,
    },
    'return_subject' =>
    {
     'type'   => 'bool',
-    'groups' => ['email'],
+    'groups' => [qw(reply)],
     'global' => 1,
     'visible'=> 1,
    },
    'chunksize' =>
    {
     'type'   => 'integer',
-    'groups' => ['majordomo'],
+    'groups' => [qw(miscellany)],
     'global' => 1,
     'visible'=> 1,
    },
    'default_language' =>
    {
     'type'   => 'string',
-    'groups' => [qw(language)],
+    'groups' => [qw(reply)],
     'global' => 1,
     'local'  => 1,
     'visible'=> 1,
@@ -879,21 +879,21 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(tiny compact short long enhanced)],
-    'groups' => ['lists'],
+    'groups' => [qw(lists)],
     'global' => 1,
     'visible'=> 0,
    },
    'description_max_lines' =>
    {
     'type'   => 'integer',
-    'groups' => ['lists'],
+    'groups' => [qw(lists)],
     'global' => 1,
     'visible'=> 0,
    },
    'sublists' =>
    {
     'type'   => 'sublist_array',
-    'groups' => ['lists'],
+    'groups' => [qw(lists)],
     'global' => 0,
     'local'  => 1,
     'visible'=> 0,
@@ -911,7 +911,7 @@ EOC
    'confirm_url' =>
    {
     'type'   => 'string',
-    'groups' => [qw(access token)],
+    'groups' => [qw(access)],
     'local'  => 0,
     'global' => 1,
     'visible'=> 0,
@@ -919,7 +919,7 @@ EOC
    'token_remind' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(access token)],
+    'groups' => [qw(access)],
     'local'  => 1,
     'global' => 1,
     'visible'=> 0,
@@ -927,7 +927,7 @@ EOC
    'dup_lifetime' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(resend majordomo)],
+    'groups' => [qw(moderate)],
     'global' => 1,
     'local'  => 1,
     'visible'=> 0,
@@ -935,7 +935,7 @@ EOC
    'save_denial_checksums' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(resend majordomo)],
+    'groups' => [qw(moderate)],
     'global' => 0,
     'local'  => 1,
     'visible'=> 0,
@@ -943,28 +943,28 @@ EOC
    'latchkey_lifetime' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(password)],
+    'groups' => [qw(access)],
     'global' => 1,
     'visible'=> 0,
    },
    'log_lifetime' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(majordomo)],
+    'groups' => [qw(miscellany)],
     'global' => 1,
     'visible'=> 0,
    },
    'session_lifetime' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(majordomo)],
+    'groups' => [qw(miscellany)],
     'global' => 1,
     'visible'=> 0,
   },
    'token_lifetime' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(access token)],
+    'groups' => [qw(access)],
     'local'  => 1,
     'global' => 1,
     'visible'=> 0,
@@ -972,7 +972,7 @@ EOC
    'bounce_probe_frequency' =>
    {
     'type'   => 'integer',
-    'groups' => [qw(resend deliver bounce)],
+    'groups' => [qw(bounce)],
     'local'  => 1,
     'global' => 0,
     'visible'=> 0,
@@ -981,7 +981,7 @@ EOC
    'bounce_probe_pattern' =>
    {
     'type'   => 'regexp',
-    'groups' => [qw(resend deliver bounce)],
+    'groups' => [qw(bounce)],
     'local'  => 1,
     'global' => 0,
     'visible'=> 0,
@@ -1018,7 +1018,7 @@ EOC
    {
     'type'   => 'enum',
     'values' => [qw(majordomo owner response)],
-    'groups' => [qw(general)],
+    'groups' => [qw(reply)],
     'local'  => 0,
     'global' => 1,
     'visible'=> 1,
@@ -1027,7 +1027,7 @@ EOC
    'signature_separator' =>
    {
     'type'   => 'regexp',
-    'groups' => [qw(parser)],
+    'groups' => [qw(miscellany)],
     'local'  => 0,
     'global' => 1,
     'visible'=> 1,
