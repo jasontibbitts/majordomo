@@ -720,7 +720,7 @@ ALL
 
 -------------
 
-put GLOBAL /confirm CONFIRM from \$LIST - reply with accept or reject <<ENDCONFIRM
+put GLOBAL /confirm $TOKEN : CONFIRM from \$LIST - reply with accept or reject <<ENDCONFIRM
 Dear email list subscriber - the server needs your advice!
 (you may be the target of a spammer, so if you did not
 send the request below, DO NOT IGNORE this message)
@@ -752,7 +752,7 @@ ENDCONFIRM
 
 -------------
 
-put GLOBAL /consult CONSULT from \$LIST - reply with accept or reject <<ENDCONSULT
+put GLOBAL /consult $TOKEN : CONSULT from \$LIST - reply with accept or reject <<ENDCONSULT
 Dear list owner - the server needs your advice!
 
 This request apparently came  from account: \$REQUESTER

@@ -5,6 +5,10 @@ will bypass the delays associated with email. All functionality of
 the mj_shell is provided by the email parser. For more information,
 send "help admin" to $MJ
 
+BEWARE: Using the "-p" option to specify a password will make your
+password visible to other shell users, who can issue a command like
+"ps -ax" to see your full command line.
+
 The text which follows is simply a copy of the man page:
 
 ------------------------------------------------------------------------
