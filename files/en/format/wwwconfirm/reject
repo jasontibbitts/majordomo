@@ -2,7 +2,7 @@
 <p>
 Token $TOKEN has been rejected for the following request:
 </p>
-<table>
+<table width="100%">
 <tr>
   <td>Command</td>
   <td>$CMDLINE</td>
