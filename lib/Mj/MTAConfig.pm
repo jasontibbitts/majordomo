@@ -91,6 +91,7 @@ sub add_alias {
   my $dom  = $args{domain} || $log->abort("domain not specified");
   my $list = $args{list}   || 'GLOBAL';
   my $who  = $args{whoami} || 'majordomo'; 
+  my $umask= umask; # Stash the umask away
 
   if ($args{debug}) {
     $debug = " -v$args{debug}";
@@ -123,9 +124,11 @@ EOB
     return;
   }
   elsif ($args{aliasfile}) {
+    umask oct("077"); # Must have restrictive permissions
     $fh = new Mj::File($args{aliasfile}, '>>');
     $fh->print("$block\n");
     $fh->close;
+    umask $umask;
     return '';
   }
   return $block;
@@ -151,11 +154,13 @@ called repeatedly to generate all of the necessary aliases.
 =cut
 sub regen_aliases {
   my %args = @_;
-  my ($block, $body, $i);
+  my ($block, $body, $i, $umask);
   $body = '';
+  $umask = umask;
 
   # Open the file
   if ($args{aliasfile}) {
+    umask oct("077");
     $args{aliashandle} = new Mj::FileRepl($args{aliasfile});
   }
 
@@ -174,7 +179,10 @@ sub regen_aliases {
   }
 
   # Close the file.
-  $args{aliashandle}->commit if $args{aliashandle};
+  if ($args{aliashandle}) {
+    $args{aliashandle}->commit;
+    umask $umask;
+  }
   $body;
 }
 

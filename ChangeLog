@@ -1,5 +1,8 @@
 Wed Oct 28 10:27:26 1998  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
 
+	* lib/Mj/MTAConfig.pm (add_alias, regen_aliases): Restrict umask
+        when writing out aliases.
+
 	* lib/mj_cf_data.pl: Update description of te 'debug' variable.
 
 	* lib/Mj/MTAConfig.pm (add_alias): Use actual value of debug parameter.
