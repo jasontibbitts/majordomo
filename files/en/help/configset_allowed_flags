@@ -13,16 +13,16 @@ configset listname allowed_flags = ACHPRS
 
 A string containing the flags that users are allowed to adjust.  You
 need only include the uppercase flags here:
-
   A - ack
   C - eliminatecc
   H - hide
   P - prefix
   R - replyto
   S - selfcopy
-
+  W - rewritefrom
 If this is completely empty, users cannot adjust any of their flags.
 The list owner can of course do so.
+
 NOTE: These allow or disallow changes by subscribers themselves on a
 per-list per-subscriber basis. See "help set" for more information,
 including digest and nomail settings.
@@ -34,6 +34,7 @@ These flags correspond to these "set" commands:
           P  - set listname prefix
           R  - set listname replyto
           S  - set listname selfcopy
+          W  - set listname rewritefrom
 
 See Also:
    help set        (for how a user can set these options after subscribing)
