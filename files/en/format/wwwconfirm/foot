@@ -2,7 +2,6 @@
 <p>
 For assistance, contact 
 <a href="mailto:$MJOWNER">the $DOMAIN administrators</a>.
-</p>
 
 <table width="100%" cellspacing="8">
 <tr>
@@ -35,6 +34,7 @@ For assistance, contact
   </td>
 </tr>
 </table>
+</p>
 
 </body>
 </html>
