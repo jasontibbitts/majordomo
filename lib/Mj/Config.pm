@@ -2451,7 +2451,7 @@ sub compile_pattern {
                                        ([\/\"]) # Opening delimiter
                                        (.*)     # The pattern
                                        ([\/\"]) # Closing delimiter
-                                       ([ix])?  # Allosed modifiers
+                                       ([ix]+)?  # Allosed modifiers
                                        \s*$     # Trailing whitespacce
 				     /x;
 

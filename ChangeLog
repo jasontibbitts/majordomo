@@ -1,5 +1,8 @@
 Thu Nov 12 00:33:44 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Config.pm (compile_pattern): Allow more than one
+ 	modifier.
+
 	* lib/Mj/TextOutput.pm (who): Modify to properly pass the compile
  	RE that the core passes back to us.
 
