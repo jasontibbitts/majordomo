@@ -60,16 +60,21 @@ $POSTS
 </td>
 </tr>
 
-<tr><td valign=top>Subscribe</td><td>
-To subscribe, type your address into the box and press the <b>subscribe</b>
-button.  A confirmation message may be sent to your address.<br>
+<tr>
+<td valign=top>Subscribe</td>
 
-<form method=POST action="$CGIURL">
-  <input type=hidden name=domain value="$DOMAIN">
-  <input type=hidden name=passw value="$CMDPASS">
-  <input type=hidden name=list value="$LIST">
-  <input size=36 name=user value="$USER">
-  <input type=submit name=func value="subscribe">
+<td>
+To add a new subscriber, type an address into the <b>Address</b> box.
+Optionally, type the subscriber's name into the <b>Name</b> box.
+Then press the <b>subscribe</b> button.  
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="domain" value="$DOMAIN">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="list" value="$LIST">
+  Address: <input size="36" name="victims" value=""><br>
+  Name: <input size="36" name="name" value="">
+  <input type="submit" name="func" value="subscribe">
 </form>
 </td>
 </tr>
@@ -96,7 +101,7 @@ List of Lists
 </td>
 
 <td>
-<a href="$CGIURL?$CGIDATA&func=lists-long&list=$LIST">View every mailing list
-for which access is authorized.</a>
+<a href="$CGIURL?$CGIDATA&func=lists-long&list=$LIST">
+ View every mailing list for which access is authorized.</a>
 </td>
 </tr>
