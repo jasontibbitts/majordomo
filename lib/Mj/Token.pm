@@ -557,7 +557,7 @@ XXX Perhaps break out acceptance of a consult token so we don''t have
 to load the MIME stuff.
 
 =cut
-use MIME::Entity;
+use Mj::MIMEParser;
 use Mj::Format;
 use Mj::MailOut;
 sub t_accept {
