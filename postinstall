@@ -150,7 +150,7 @@ You may also wish to add the following entries to the $config->{'uid'}
 account\'s crontab:
 EOM
   for my $i (@{$config->{'domains'}}) {
-    suggest_crontab($i);
+    print suggest_crontab($i);
   }
 }
 
@@ -314,7 +314,7 @@ sub suggest_mta {
 
 sub suggest_crontab {
   my $dom = shift;
-  print <<"EOM";
+  return <<"EOM";
 
 # Daily and hourly triggers for $dom
 0 0 * * * $config->{'install_dir'}/bin/mj_trigger -d $dom -t daily
