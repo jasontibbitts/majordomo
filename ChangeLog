@@ -1,3 +1,27 @@
+2001-01-29  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm: (trigger)  Allow private files from a 
+	list's file space to be parsed for commands.  The files
+        must be specified in the list's "triggers" configuration
+	setting, with names beginning with a forward slash.
+	(configdef, configset, configshow)  Support a five-level
+	password approach.  The ability to see or change a setting
+	is based upon the kind of password used, and upon any changes
+	to the default levels in the new config_access setting.
+	(_list_file_get)  Remove GLOBAL from the default file search path.
+
+	* lib/Mj/Config.pm:  (mutable, visible)  Check the config_access
+	setting for access level changes.
+	(intro)  Return a listref of data instead of a formatted string.
+	(parse_access_array) New routine.  Parse a table that controls
+	what level of password is necessary to see or change configuration
+	settings.
+	(parse_xform_array)  Cope with blank lines.  Thanks to David
+	Miller.
+
+	* lib/Mj/Util.pm:  (in_clock) Move routine from Mj::Digest
+	to Mj::Util.
+
 2001-01-27  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/BounceParser.pm:  (parse)  Parse addresses with

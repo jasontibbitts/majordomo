@@ -1551,7 +1551,7 @@ For other variables, the standard security rules apply.
 sub list_config_get {
   my ($self, $user, $passwd, $list, $sublist, $var, $raw) = @_;
   my $log = new Log::In 170, "$list, $var";
-  my (@out, $i, $ok);
+  my (@out, $i, $level, $ok);
   $sublist ||= 'MAIN';
 
   # Verify the list and sublist, and adjust the list to
@@ -1560,8 +1560,11 @@ sub list_config_get {
   return unless $self->{'lists'}{$list}->valid_config($sublist);
   return unless $self->_list_set_config($list, $sublist);
 
+  # Find the level of access required to see a variable.
+  $level = $self->config_get_visible($var); 
+
   # Anyone can see it if it is visible or part of a DEFAULT template.
-  if ($self->config_get_visible($var)) {
+  if ($level == 0) {
     @out = $self->_list_config_get($list, $var, $raw);
     $self->_list_set_config($list, 'MAIN');
     return wantarray ? @out : $out[0];
@@ -1573,14 +1576,15 @@ sub list_config_get {
 
   for $i ($self->config_get_groups($var)) {
     if ($i ne 'password' and $list =~ /^DEFAULT/) {
-      $ok = 1; last;
+      $ok = 1; $level = 0; last;
     }
     $ok = $self->validate_passwd($user, $passwd, $list, "config_$i");
     last if $ok > 0;
   }
-  unless ($ok > 0) {
+  unless ($ok > 0 and $level <= $ok) {
     return;
   }
+
   @out = $self->_list_config_get($list, $var, $raw);
   $self->_list_set_config($list, 'MAIN');
   return wantarray ? @out : $out[0];
@@ -1597,7 +1601,7 @@ Alters the value of a list''s config variable.  Returns a list:
 sub list_config_set {
   my ($self, $request) = @_;
   my $log = new Log::In 150, "$request->{'list'}, $request->{'setting'}";
-  my (@groups, @tmp, @tmp2, $i, $j, $join, $mess, $ok, $global_only);
+  my (@groups, @tmp, @tmp2, $i, $j, $join, $level, $mess, $ok);
 
   unless ($self->_make_list($request->{'list'})) {
     return (0, $self->format_error('make_list', 'GLOBAL', 
@@ -1614,10 +1618,7 @@ sub list_config_set {
     return (0, $self->format_error('unknown_setting', $request->{'list'}, 
                                    'SETTING' => $request->{'setting'}));
   }
-  $global_only = 1;
-  if ($self->config_get_mutable($request->{'setting'})) {
-    $global_only = 0;
-  }
+  $level = $self->config_get_mutable($request->{'setting'});
   
   # Validate passwd
   for $i (@groups) {
@@ -1625,16 +1626,20 @@ sub list_config_set {
                                  $request->{'password'}, 
 				 $request->{'list'}, 
                                  "config_\U$i", $global_only);
-    last if $ok > 0;
+    last if $ok >= $level;
   }
-  unless ($ok > 0) {
+  unless ($ok >= $level) {
     $ok = $self->validate_passwd($request->{'user'}, 
                                  $request->{'password'}, 
 				 $request->{'list'}, 
                                  "config_$request->{'setting'}", $global_only);
   }
-  unless ($ok > 0) {
-    return (0, "Password does not authorize $request->{'user'} to alter $request->{'setting'}.\n"); #XLANG
+  unless ($ok >= $level) {
+    return (0, $self->format_error('password_level', $request->{'list'},
+                                   'SETTING' => $request->{'setting'},
+                                   'LEVEL'   => $ok,
+                                   'NEEDED'  => $level,
+                                   'USER'    => "$request->{'user'}")); 
   }
 
   # Untaint the stuff going in here.  The security implications: this
@@ -1776,6 +1781,7 @@ sub list_config_set_to_default {
     return (0, $self->format_error('unknown_setting', $request->{'list'}, 
                                    'SETTING' => $request->{'setting'}));
   }
+  $level = $self->config_get_mutable($var);
 
   $user = new Mj::Addr($user);
   ($ok, $mess) = $user->valid;
@@ -1785,10 +1791,14 @@ sub list_config_set_to_default {
 
   # Validate by category.
   # Validate passwd, check for proper auth level.
-  ($ok, $mess, $level) =
+  $ok =
     $self->validate_passwd($user, $passwd, $list, "config_$var");
-  if (!($ok>0)) {
-    @out = (0, "Password does not authorize $user to alter $var.\n"); #XLANG
+  unless ($ok >= $level) {
+    return (0, $self->format_error('password_level', $list,
+                                   'SETTING' => $var,
+                                   'LEVEL'   => $ok,
+                                   'NEEDED'  => $level,
+                                   'USER'    => "$user")); 
   }
   else {
     $self->_list_set_config($list, $sublist);
@@ -2201,7 +2211,7 @@ sub config_get_vars {
     }
   }
 
-  $hidden = ($ok > 0) ? 1 : 0; 
+  $hidden = ($ok > 0) ? $ok : 0; 
   @out = $self->{'lists'}{$list}->config_get_vars($var, $hidden,
                                                   ($list eq 'GLOBAL'));
   $::log->out(($ok>0)?"validated":"not validated"); #XLANG
@@ -2900,7 +2910,7 @@ sub _list_file_get {
   @langs = split(/\s*,\s*/, $lang) if $lang;
 
   # Build @paths list; maintain %paths hash to determine uniqueness.
-  for $i (@search, 'DEFAULT:', 'GLOBAL:$LANG', 'GLOBAL:',
+  for $i (@search, 'DEFAULT:', 'DEFAULT:$LANG', 
 	  'STOCK:$LANG', 'STOCK:en')
     {
       # Split and supply defaults
@@ -2935,7 +2945,7 @@ sub _list_file_get {
     ($l, $f) = @{$i};
 
     # Consult the share list if necessary
-    if ($l ne $list && $l ne 'DEFAULT' && $l ne 'GLOBAL' && $l ne 'STOCK') {
+    if ($l ne $list && $l ne 'DEFAULT' && $l ne 'STOCK') {
      SHARE:
       for $j ($self->_list_config_get($l, "file_share")) {
 	if ($j =~ /^\s*$list\s*$/) {
@@ -3866,8 +3876,8 @@ of the configset commands that are displayed.
 sub configshow {
   my ($self, $request) = @_;
   my (%all_vars, %category, @hereargs, @out, @tmp, @vars, 
-      $auto, $comment, $config, $flag, $group, $groups, $message, 
-      $tag, $val, $var, $vars, $whence);
+      $auto, $comment, $config, $data, $flag, $group, $groups, $intro,
+      $level, $message, $val, $var, $vars, $whence);
 
   if (! defined $request->{'groups'}->[0]) {
     $request->{'groups'} = ['ALL'];
@@ -3886,19 +3896,22 @@ sub configshow {
   }
 
   for $group (@{$request->{'groups'}}) {
+    $data = {};
     # This expands groups and checks visibility and existence of variables
     @vars = $self->config_get_vars($request->{'user'}, $request->{'password'}, 
                                    $config, $request->{'sublist'},
                                    $group);
     unless (@vars) {
-      push @out, [0, "No visible variables matching $group", $group, ''];
+      push @out, [0, $self->format_error('no_visible', $request->{'list'},
+                                         'SETTING' => $group), 
+                  $data, $group, ''];
     }
     else {
       for $var (@vars) {
         $all_vars{$var}++;
         @tmp = $self->config_get_groups($var);
-        for $tag (@tmp) {
-          $category{$tag}++;
+        for $i (@tmp) {
+          $category{$i}++;
         }
       }
     }
@@ -3908,19 +3921,14 @@ sub configshow {
     for $var (sort keys %category) {
       $comment = $self->_list_file_get_string('GLOBAL', 
                                               "config/categories/$var");
-      push @out, [1, $comment, $var, $category{$var}];
+      push @out, [1, $comment, $data, $var, $category{$var}];
     }
     return (1, @out);
   }
 
   for $var (sort keys %all_vars) {
-    $auto = 2;
-    if ($self->config_get_isauto($var)) {
-      $auto = -1;
-    }
-    elsif ($self->config_get_mutable($var)) {
-      $auto = 1;
-    }
+    $level = $self->config_get_mutable($var);
+    $auto = $self->config_get_isauto($var);
     # Process the options
     $comment = '';
     if ($request->{'mode'} !~ /nocomments/) {
@@ -3928,32 +3936,37 @@ sub configshow {
                                          $request->{'sublist'}, $var);
       if (defined $whence and $whence ne 'MAIN') {
         next if ($request->{'mode'} =~ /declared|merge|append/);
-        $comment = "This value was determined by the $whence settings.\n";
+        $comment = "This value was determined by the $whence settings.\n"; #XLANG
       }
-      $comment = $self->config_get_intro($request->{'list'}, $var) .
-        $self->config_get_comment($var) . $comment;
-      if ($auto == 2) {
-        $comment .= "A global password is required to change this value.\n";
-      }
+      $intro = $self->config_get_intro($request->{'list'}, $var);
+      $comment = $self->config_get_comment($var) . $comment;
     }
+
+    $data = {
+             'auto' => $auto,
+             'default' => $intro->[1],
+             'enum' => $intro->[0],
+             'groups' => $intro->[2],
+             'type' => $intro->[3],
+            };
+
     if ($self->config_get_isarray($var)) {
       @hereargs = ();
       # Process as an array
-      $tag = Majordomo::unique2();
       for ($self->list_config_get($request->{'user'}, $request->{'password'}, 
                                   $request->{'list'}, $request->{'sublist'},
                                   $var, 1))
       {
         push (@hereargs, "$_\n") if defined $_;
       }
-      push @out, [$auto, $comment, $var, [@hereargs]];
+      push @out, [$level, $comment, $data, $var, [@hereargs]];
     }
     else {
       # Process as a simple variable
       ($val) = $self->list_config_get($request->{'user'}, $request->{'password'}, 
                                     $request->{'list'}, $request->{'sublist'},
                                     $var, 1);
-      push @out, [$auto, $comment, $var, $val];
+      push @out, [$level, $comment, $auto, $var, $val];
     }
   }
   return (1, @out);
@@ -5759,15 +5772,15 @@ There are two modes: hourly, daily.
 
 =cut
 use Mj::Lock;
-use Mj::Digest qw(in_clock);
+use Mj::Parser;
+use Mj::Util qw(in_clock);
 sub trigger {
   my ($self, $request) = @_;
   my $log = new Log::In 27, "$request->{'mode'}";
 
-  my (@ready, @req, $data, $elapsed, $key, $list, $ok, 
-      $mess, $mode, $times, $tmp);
+  my (%subs, @files, @ready, @req, $cmdfile, $data, $elapsed, $infh, $key, 
+      $list, $ok, $mess, $mode, $times, $tmp);
   $mode = $request->{'mode'};
-  @ready = ();
 
   # Right now the interfaces can't call this function (it's not in the
   # parser tables) so we don't check access on it.
@@ -5777,7 +5790,7 @@ sub trigger {
   if ($mode =~ /^h/) {
     $times = $self->_global_config_get('triggers');
     for (keys %$times) {
-       if (Mj::Digest::in_clock($times->{$_})) {
+       if (Mj::Util::in_clock($times->{$_})) {
          push @ready, $_;
        }
     }
@@ -5796,7 +5809,7 @@ sub trigger {
       ($key, $data) = splice @req, 0, 2;
       $times = $self->_list_config_get($data->{'list'}, 'triggers');
       next unless (exists $times->{'delay'} and
-                   Mj::Digest::in_clock($times->{'delay'}));
+                   Mj::Util::in_clock($times->{'delay'}));
       
       ($ok, $mess, $data, $tmp) =
         $self->t_accept($key, '', 'The request was completed after a delay', 0);
@@ -5832,7 +5845,7 @@ sub trigger {
     @ready = ();
     $times = $self->_list_config_get($list, 'triggers');
     for (keys %$times) {
-       if (Mj::Digest::in_clock($times->{$_})) {
+       if (Mj::Util::in_clock($times->{$_})) {
          push @ready, $_;
        }
     }
@@ -5860,6 +5873,38 @@ sub trigger {
       $self->_digest($list, $request->{'user'}, 
                      $request->{'user'}, 'check', '', 'ALL');
     }
+
+    # Mode: hourly.  Check for files in the filespace containing commands
+    # to execute.
+    if ($mode =~ /^h/) {
+      @files = grep { $_ =~ m#^/# } @ready; 
+      %subs = $self->standard_subs($list);
+      for $cmdfile (@files) {
+        ($tmp) = $self->_list_file_get($list, $cmdfile, \%subs);
+        next unless $tmp;
+
+        $infh = new IO::File "<$tmp";
+        next unless $infh;
+
+        # XXX Alter interface to allow command parsing.
+        $self->{'interface'} = 'shell';
+
+        # XXX What if failure occurs?
+        Mj::Parser::parse_part(
+              $self, 
+              'attachments' => '', 
+              'infh' => $infh, 
+              'outfh' => \*STDOUT, 
+              'password' => '',
+              'reply_to' => '',
+              'title' => $tmp,
+        );
+
+        $self->{'interface'} = 'trigger';
+
+        unlink $tmp;
+      }
+    }  
   }
   (1, '');
 }
