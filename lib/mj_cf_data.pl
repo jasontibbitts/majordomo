@@ -600,7 +600,7 @@ package Mj::Config;
    'archive_split' =>
    {
     'type'   => 'enum',
-    'values' => [qw(yearly monthly weekly daily)],
+    'values' => [qw(yearly quarterly monthly weekly daily)],
     'groups' => [qw(archive)],
     'local'  => 1,
     'visible'=> 1,
