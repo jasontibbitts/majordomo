@@ -1,4 +1,18 @@
+2000-12-13  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/BounceHandler.pm (handle_bounce_user): Actually call
+	handle_bounce_removal to delete users.
+	(handle_bounce_removal): Delete users only when -noprobe is
+	specified.
+
+	* lib/Mj/Config.pm (parse_access_rules, parse_bounce_rules):
+	Accept '-' separating actions from modes in addition to '='.
+
 2000-12-12  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/mj_cf_defs.pl: Now that reply_do and subject_prefix default
+	to nonempty values, default_flags should not include replyto or
+	prefix.
 
 	* lib/Mj/BounceHandler.pm (handle_bounce_removal): New function:
 	handle deleting of users or constructing tokens to do so.

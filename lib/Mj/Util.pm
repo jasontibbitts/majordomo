@@ -97,7 +97,7 @@ sub process_rule {
       # Remove enclosing parentheses
       if ($arg) {
 	$arg =~ s/^\((.*)\)$/$1/;
-	$i = "$func=$arg";
+	$i = "$func-$arg";
       }
 
       if ($func eq 'set') {

@@ -106,9 +106,10 @@ inform - inform the list owner of the bounce but don't remove the user
 remove - remove the bouncing user and inform the owner
   Modes for remove:
     -quiet - don't inform the owner
-    -noprobe - don't send a bounce probe (currently, this is always on)
+    -noprobe - don't send a bounce probe
     -consult - ask the list owner before actually doing any removals (not implemented)
     -noattach - don't attach a copy of the bounce (not implemented)
+  Currently, you must use remove-noprobe if you want users to be deleted.
 
 Two kinds of messages:
 

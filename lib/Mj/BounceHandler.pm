@@ -171,7 +171,7 @@ sub handle_bounce_message {
 
     # If we got something back, we need to inform the owners
     if (defined($tmp)) {
-      $mess .= $tmp;
+      $mess .= "$tmp\n";
 
       if ($subj) {
 	$subj .= ", $i";
@@ -287,7 +287,7 @@ sub handle_bounce_user {
   my $log  = new Log::In 35;
 
   my (%args, %memberof, @final_actions, $bdata, $i, $mess, $rules, $sdata,
-      $status, $tmpa, $tmpl);
+      $status, $tmp, $tmpa, $tmpl);
 
   my $user   = $params{user};
   my $list   = $params{list};
@@ -394,9 +394,12 @@ sub handle_bounce_user {
     }
 
     # Remove user if necessary
-#    $self->handle_bounce_removal(%params,
-#				);
-
+    $tmp = $self->handle_bounce_removal(%params,
+					mode   => $arg,
+					subbed => !!$sdata,
+					user   => $user,
+				       );
+    $mess .= $tmp if $tmp;
   }
 
   $mess;
@@ -417,8 +420,9 @@ There are several possibilities:
 #1 is easy; just call the core unsubscribe routine.
 
 #2 is more difficult; we construct the message and send it with a special
-#sender.  We also generate a token.  When a bounce is seen with the special
-#sender, the token is accepted (instead of being deleted, which is the normal action for bouncing tokens).
+sender.  We also generate a token.  When a bounce is seen with the special
+sender, the token is accepted (instead of being deleted, which is the
+normal action for bouncing tokens).
 
 #3 involves the same as #2, except that the token is generate with chain
 #fields indicating a consult token is to be generated upon its acceptance.
@@ -428,16 +432,21 @@ sub handle_bounce_removal {
   my $self = shift;
   my %args = @_;
 
+  if (!$args{subbed}) {
+    return "  Cannot remove addresses which are not subscribed.\n";
+  }
+
   # Currently, this is all we support
-  if ($args{mode} =~ /noprobe/ || 1) {
+  if ($args{mode} =~ /noprobe/) {
     ($ok, $mess) =
       $self->_unsubscribe($args{list},
 			  "$args{sender} (Automatic Bounce Processor)",
 			  $args{user},
 			  '',
 			  'automatic removal',
-			  '',
+			  'MAIN',
 			 );
+    # XXX Call inform here
     if ($ok) {
       return "  User was removed.\n";
     }
@@ -445,6 +454,7 @@ sub handle_bounce_removal {
       return "  User could not be removed: $mess\n";
     }
   }
+  return "  Only doing -noprobe removals at this time.\n";
 }
 
 sub _gen_bounce_message {
@@ -466,7 +476,6 @@ sub _gen_bounce_message {
     if $args->{bouncedpct} && $args->{numbered} >= 5;
 
   $mess .= "  Bounce rules said: @$actions.\n";
-  $mess .= "\n";
 
   $mess;
 }

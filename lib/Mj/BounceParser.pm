@@ -601,7 +601,7 @@ sub parse_exim {
       $user = $1;
     }
     elsif ($line =~ /^ {4}(.*)$/) {
-      $diag .= ' ' if length($diag);
+      $diag .= ' ' if defined($diag) && length($diag);
       $diag .= $1;
     }
     # In warnings, we just get a list of addresses indented by two spaces

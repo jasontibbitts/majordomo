@@ -1243,7 +1243,7 @@ sub parse_access_rules {
       for ($j=0; $j<@{$action}; $j++) {
 
 	# Unpack action=arg,arg set
-	($tmp, $tmp2) = ($action->[$j] =~ /([^=]*)(?:=(.*))?/);
+	($tmp, $tmp2) = ($action->[$j] =~ /([^=-]*)(?:[=-](.*))?/);
 	unless (rules_action($i, $tmp)) {
 	  @tmp = rules_actions($i);
 	  return (0, "\nIllegal action: $action->[$j].\nLegal actions for '$i' are:\n".
@@ -1543,7 +1543,7 @@ sub parse_bounce_rules {
     for ($j=0; $j<@{$acts}; $j++) {
 
       # Unpack action=arg,arg set
-      ($tmp, $tmp2) = ($acts->[$j] =~ /([^=]*)(?:=(.*))?/);
+      ($tmp, $tmp2) = ($acts->[$j] =~ /([^=-]*)(?:[=-](.*))?/);
       unless (rules_action('_bounce', $tmp)) {
 	@tmp = rules_actions('_bounce');
 	return (0, "\nIllegal action: $acts->[$j].\nLegal actions for bounce_rules are:\n".
