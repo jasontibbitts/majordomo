@@ -17,34 +17,21 @@ Top of the list
 
 ! Test forwarding mechanism.
 
-! Set up shadow list to funnel all of my list traffic through.
-
 ! Make sure all sent mails have To: headers.
 
 ! Auto-configure global defaults instead of relying on defaults file, so
   that we can minimize config file access time (because defaults must be
   parsed).
 
-! Resend: Get rid of specific message checks and instead have four basic
-   functions:
-     header checks
-     non-multipart body checks
-     part tree traversal
-     multipart body checks
-
-   The idea is to recurse the part tree and read through each body
-   part only once.  Right now the checksum routines do it, the taboo
-   routines do it and the mime checking routines do it, all
-   separately.  (It might be possible to also do the approval trimming
-   in with this, too, but it would be more difficult.)
-
-! Message size limits
-  Header line length limits
-  Quoted text limits
-
 - Put sessions somewhere other than the GLOBAL filespace; nobody ever needs
   remote access and the database lookup when opening a new session is too
   slow.
+
+- Figure out how to pass the access variables through to the _post function
+  so that we can use things like the byte and line counts for cool things.
+  Probably just flatten the hash and join by the secret separator and stuff
+  the result in arg3, which happens to be free. Otherwise we could stuff it
+  in the reasons array somewhere.
 
 - Implement rejection (and perhaps acceptance) messages for tokens, and add
   a box to type them in to the web interface.
@@ -336,9 +323,20 @@ Well thought out stuff:
   between these types of functions; dispatch functions all take the same
   arguments.
 
+- Figure out how to moreclosely link bounce reasons with access control
+  actions.  Problem: we can only generate bounce reasons before we call
+  access_check.  We can't generate all possible reasons and we might not
+  want to generate any.  The owner can't choose which reasons to use, and
+  can't add any.
+
+  can add a clear_reasons action, and a reason action to erase the reasons
+  list and add additional bounce reasons.  This makes the access_control
+  stuff look uglier than it needs to be, although continuation lines can
+  help.
+
 - mj_resend should go through the dispatcher and use the iterative
   interface instead of the direct post function.
-    
+
 - Archiver:
     Retrieve message given archive name and number
     Retrieve last N messages/message numbers from archive
@@ -626,3 +624,10 @@ Add additional sender information to things like confirmations so that if
 Allow referencing sublists of other lists in access_rules.
 Digests with detached bodies; send just a table of contents and let the
  client retrieve the messages they want.
+Do RBL lookups on hosts found in received headers.
+Somehow attach the parsed defaults to the config file.  Problem: we have to
+ pull in mj_cf_defs and eval it to get the defaults if we hit a defaulted
+ variable, but in order to parse it we have to suck in mj_cf_data and
+ chunks of Config.pm.  This is slow.  We could eval the defaults ones,
+ stick them in the config file along with a timestamp, then just do a stat
+ on the defaults file to see if we need to update.

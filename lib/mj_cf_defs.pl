@@ -152,5 +152,8 @@ $Mj::Config::default_string = q(
  'sequence_number'      => 1,
  'bounce_probe_frequency' => 0,
  'default_language'     => 'en',
+ 'quote_regexp'         => '/^( - | : | > | [a-z]+> )/xi',
+ 'max_header_line_length'=> 256,
+ 'max_total_header_length'=> 2048,
 };
 );

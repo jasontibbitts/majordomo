@@ -45,7 +45,8 @@ $VERSION = "1.0";
 @EXPORT_OK = qw(global_get parse_table parse_keyed);
 
 # This contains all of the legal requests, along with all of the access
-# variables that are relevant for each request.
+# variables that are relevant for each request.  Variables with a hash
+# value of '2' can be used in mumeric comparisons.
 %requests =
   (
    'accept'      => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
@@ -77,26 +78,26 @@ $VERSION = "1.0";
    {
     'legal' =>
     {
-     'password_valid'        => 1,
-     'mismatch'              => 1,
-     'any'                   => 1,
-     'bad_approval'          => 1,
-     'taboo'                 => 2,
-     'admin'                 => 2,
-     'taboo_header'          => 2,
-     'taboo_body'            => 2,
-     'admin_header'          => 2,
-     'admin_body'            => 2,
-     'global_taboo_header'   => 2,
-     'global_taboo_body'     => 2,
-     'global_admin_header'   => 2,
-     'global_admin_body'     => 2,
-     'dup'                   => 1,
-     'dup_msg_id'            => 1,
-     'dup_checksum'          => 1,
-     'dup_partial_checksum'  => 1,
-     'mime_consult'          => 1,
-     'mime_deny'             => 1,
+     'password_valid'               => 1,
+     'mismatch'                     => 1,
+     'any'                          => 1,
+     'bytes'                        => 2,
+     'bad_approval'                 => 1,
+     'taboo'                        => 2,
+     'admin'                        => 2,
+     'dup'                          => 1,
+     'dup_msg_id'                   => 1,
+     'dup_checksum'                 => 1,
+     'dup_partial_checksum'         => 1,
+     'lines'                        => 2,
+     'max_header_length'            => 2,
+     'max_header_length_exceeded'   => 1,
+     'mime_consult'                 => 1,
+     'mime_deny'                    => 1,
+     'percent_quoted'               => 2,
+     'quoted_lines'                 => 2,
+     'total_header_length'          => 2,
+     'total_header_length_exceeded' => 1,
     }
    },
   );
@@ -1759,25 +1760,48 @@ sub parse_passwords {
   (1, undef, undef, 1);
 }
 
+=head2 parse_regexp
+
+This parses a regular expression.
+
+=cut
+use Safe;
+sub parse_regexp {
+  my $self = shift;
+  my $str  = shift;
+  my $var  = shift;
+  my $log  = new Log::In 150, "$var, $str";
+  my ($err, $safe);
+  
+  $safe = new Safe;
+  $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
+
+  $err = (Majordomo::_re_match($safe, $str, "justateststring"))[1];
+  return (0, "Error in regexp '$str'\n$err.") if $err;
+  1;
+}
+
 =head2 parse_regexp_array
 
 This parses an array of regular expressions.  These look like
 
 /.*/i?
 
-XXX We don''t actually try to do any security checks here, though we
-could do some by comparing each expression against a random string.
-
 =cut
+use Safe;
 sub parse_regexp_array {
   my $self = shift;
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
+  my ($safe, $err);
+
+  $safe = new Safe;
+  $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
 
   for my $i (@$arr) {
-    return (0, "Illegal regexp $i.")
-      unless $i =~ m!/.*/i?!;
+    $err = (Majordomo::_re_match($safe, $i, "justateststring"))[1];
+    return (0, "Error in regexp '$i'\n$err") if $err;
   }
   1;
 }
@@ -1921,7 +1945,7 @@ sub parse_taboo_body {
 	$data->{'code'} .=
 	  "\$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 1));\n";
       }
-	push @{$data->{'inv'}}, "$list\t$var\t$re\t$sev\t$class";
+	push @{$data->{'inv'}}, "$self->{list}\t$var\t$re\t$sev\t$class";
     }
 
     # Build a line of code for a normal match
@@ -1975,7 +1999,7 @@ sub parse_taboo_headers {
 
     if ($inv) {
       $data->{'code'} .= "\$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 1));\n";
-      push @{$data->{'inv'}}, "$list\t$var\t$re\t$sev\t$class";
+      push @{$data->{'inv'}}, "$self->{list}\t$var\t$re\t$sev\t$class";
     }
     else {
       $data->{'code'} .= "\$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 0));\n";
@@ -2671,7 +2695,7 @@ sub _compile_rule {
  	\$                      # $ designates a variable
  	(\w*)                   # the variable name
  	\s*
- 	(:?
+ 	(?:
  	 (=|!=|<|>|>=|<=|==|<>) # any legal op
  	 \s*                    # possible whitespace
  	 ([^\s]+)               # the value, ends at space
@@ -2681,6 +2705,7 @@ sub _compile_rule {
  	//x)                    # or a close
       {
 	($var, $op, $arg) = ($1, $2, $3);
+warn "$var:$op:$arg";
 	$op ||= '';
 	
 	# Weed out bad variables, but allow some special cases
@@ -2705,7 +2730,7 @@ sub _compile_rule {
 	    $o .= "(\$args{'$var'})";
 	  }
 	}
-
+	
 	# String equality comparisons
 	elsif ($op eq '!=' || $op eq '=') {
 	  $op eq '!=' and $op = 'ne' and $iop = 'eq';
@@ -2722,6 +2747,12 @@ sub _compile_rule {
 	  }
 	}
 	else {
+	  if ($var !~ /(global_)?(admin_|taboo_)\w+/ &&
+	      $requests{$request}{'legal'}{$var} != 2) {
+	    $e .= "Variable '$var' does not allow numeric comparisons.\n";
+	    last;
+	  }
+
 	  # Numeric comparisons
 	  $op eq '<=' and $iop = '>';
 	  $op eq '>'  and $iop = '<=';

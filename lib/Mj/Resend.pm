@@ -78,24 +78,20 @@ exactly once, doing all the copying and checksumming that is required.
 =cut
 
 package Mj::Resend;
-use AutoLoader 'AUTOLOAD';
 use Mj::Log;
 use IO::File;
 use strict;
 
 use vars qw($line $text $type);
 
+#use AutoLoader 'AUTOLOAD';
 1;
-__END__
+#__END__
 
 use MIME::Parser;
 sub post {
   my($self, $user, $passwd, $auth, $int, $cmd, $mode, $list, $file) = @_;
-
-  my (
-      $owner,                # The list owner address
-#      $user,                 # User name lifted from headers
-#      $passwd,               # Password lifted from approval check
+  my ($owner,                # The list owner address
       $token,                # Token lifted from approval check, to be deleted
       $parser,               # MIME::Parser
       $tmpdir,               # duh
@@ -103,38 +99,13 @@ sub post {
       $ent,                  # Parsed entity
       $head,                 # Message headers
       $thead,                # Temporary copy of message headers
-      $id,                   # The Message-ID
+      $avars,                # Hashref containing access variables
+      $reasons,              # Listref containing bounce reasons
       $ok,
       $mess, 
-      @taboo,                # Returned taboo list
-      %matches,              # Hash of all matched classes
-      $type,
-      $rule,
-      $match,
-      $at,                   # Is the match admin or taboo?
-      $global,               # Is the match from a global variable?
-      $line,
-      $sev,
-      $class,
       $desc,
       $c_type,
       $c_t_encoding,
-      # Bounce reasons
-      $reason,               # Used to compose a reason
-      $var,                  # Used to build a bounce variable
-      @reasons,              # Array of all possible message faults
-      $bad_approval,         # Invalid password or munged Approve header
-      $taboo,                # Generic taboo variable
-      $admin,                # Generic admin variable
-      $dup,                  # Generic duplicate variable
-      $dup_msg_id,           # Message ID was recently seen
-      $dup_checksum,         # Body checksums to something recently seen
-      $dup_partial_checksum, # First N lines of body checksum seen
-      $mime,                 # Anything wrong with MIME
-      $mime_consult,         # A MIME part was on the no-no list
-      $mime_deny,            # A MIME part was on the really-bad list
-      $any,                  # Any impropriety at all
-      @tmp,
      );
   my $log = new Log::In 30, "$list, $user, $file"; 
   $tmpdir = $self->_global_config_get("tmpdir");
@@ -163,12 +134,11 @@ sub post {
   # is the one who made the command happen; that may be unset if
   # called from mj_resend but will exist if calling from the post
   # command.
-  $user = $thead->get('reply-to') ||
-    $thead->get('from') ||
-    $thead->get('apparently-from');
-  chomp $user;
+  chomp($user = $thead->get('reply-to') ||
+	$thead->get('from') ||
+	$thead->get('apparently-from'));
 
-  @reasons = ();
+  $reasons = []; $avars   = {};
 
   # XXX Pass in the password we were called with, so that passwords
   # can be passed out-of-band.
@@ -177,79 +147,30 @@ sub post {
   # No need to do any more (expensive) checks if we're approved.  This
   # might turn out to be a bad idea.  If passwords don't always
   # override access restrictions then we need to do our checks.
-  if ($ok > 0 &&
-      $passwd &&
+  if ($ok > 0 && $passwd &&
       $self->_list_config_get($list, 'access_password_override'))
     {
       return $self->_post($list, $user, $user, $mode, $cmd, $ent);
     }
   
-  $bad_approval = "Invalid Approve Header" unless $ok;
-  push @reasons, $bad_approval if $bad_approval;
-
-  # Check taboo stuff
-  @taboo = $self->_check_taboo($list, $thead, $ent);
-
-  while (($type, $at, $global, $rule, $match, $line, $sev, $class) =
-    splice(@taboo, 0, 8))
-      {
-	# No reason if all upper-case class
-	unless ($class eq uc($class)) {
-	  # Set bounce variables; construct and push @reasons
-	  if ($type =~ /inverted/i) {
-	    $reason = "$type: $rule failed to match";
-	  }
-	  elsif ($line) {
-	    $reason = "$type: $rule matched \"$match\" at $line";
-	  }
-	  else {
-	    $reason = "$type: $rule matched \"$match\"";
-	  }
-	  push @reasons, $reason;
-
-	  # Bump the combined match variables
-	  if ($at) {
-	    $admin += $sev;
-	  }
-	  else {
-	    $taboo += $sev;
-	  }
-	}
-
-	# Build the match variable; we keep them in a hash because we have
-	# no idea what their names will be.
-	$match  = $global? 'global_': '';
-	$match .= $at? 'admin_': 'taboo_';
-	$match .= $class;
-	$matches{$match} += $sev;
-      }
-  
-  # Check the message-ID cache
-  $dup_msg_id = $self->_check_id($list, $thead);
-  if ($dup_msg_id) {
-    $dup_msg_id = "Duplicate Message-ID - $dup_msg_id";
-    push @reasons, $dup_msg_id;
+  # We're not approved; get on with life
+  unless ($ok) {
+    $avars->{bad_approval} = "Invalid Approve Header";
+    push @$reasons, "Invalid Approve Header";
   }
 
-  # Checksum the body
-  ($dup_checksum, $dup_partial_checksum) = $self->_check_sums($list, $ent);
-  if ($dup_checksum) {
-    $dup_checksum = "Duplicate Message Checksum";
-    push @reasons, $dup_checksum;
-  }
-  if ($dup_partial_checksum) {
-    $dup_partial_checksum = "Duplicate Partial Message Checksum";
-    push @reasons, $dup_partial_checksum;
-  }
+  # Check header
+  $self->_check_header($list, $thead, $reasons, $avars);
 
-  # Check for illegal MIME types.
-  ($mime_consult, $mime_deny, @tmp) = $self->_check_mime($list, $ent);
-  push @reasons, @tmp;
+  # Recursively check bodies
+  $self->_check_body($list, $ent, $reasons, $avars);
 
-  # Make some extra access variables
-  $dup = $dup_msg_id || $dup_checksum || $dup_partial_checksum;
-  $mime = $mime_consult || $mime_deny;
-  $any = $taboo || $admin || $dup || $bad_approval || $mime;
+  # Construct some aggregate variables;
+  $avars->{dup} = $avars->{dup_msg_id} || $avars->{dup_chesksum} ||
+    $avars->{dup_partial_checksum};
+  $avars->{mime} = $avars->{mime_consult} || $avars->{mime_deny};
+  $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
+    $avars->{admin} || $avars->{bad_approval};
 
   # Bounce if necessary: concatenate all possible reasons with %~%, call
   # access_check with filename as arg1 and reasons as arg2.  XXX Victim
@@ -259,20 +180,7 @@ sub post {
   ($ok, $mess) =
     $self->list_access_check
       ($passwd, undef, $int, $mode, $cmd, $list, "post", $user, '',
-       $file, join('%~%', @reasons), undef,
-       'bad_approval'        => $bad_approval,
-       'taboo'               => $taboo,
-       'admin'               => $admin,
-       'dup'                 => $dup,
-       'dup_msg_id'          => $dup_msg_id,
-       'dup_checksum'        => $dup_checksum,
-       'dup_partial_checksum'=> $dup_partial_checksum,
-       'mime'                => $mime,
-       'mime_consult'        => $mime_consult,
-       'mime_deny'           => $mime_deny,
-       'any'                 => $any,
-       %matches,
-      );
+       $file, join('%~%', @$reasons), undef, %$avars);
 
   $owner = $self->_list_config_get($list, 'sender');
   if ($ok > 0) {
@@ -281,14 +189,13 @@ sub post {
   elsif ($ok < 0) {
     # ack the stall if necessary.  Note that we let the access call
     # generate the message even though we have better access to the
-    # information because the list owner can control the message using
-    # the access language while we can't do that here.  We could do
-    # something gross like return a filename as the message an
-    # dprocess it here, but it's cleaner this way, even with the bit
-    # of added conditional code in Access.pm.  We could also
-    # substitute some variables in the access routine and some here,
-    # but since we already passes in the essential information there's
-    # no reason not to take care of it all at once.
+    # information because the list owner can control the message using the
+    # access language while we can't do that here.  We could do something
+    # gross like return a filename as the message and process it here, but
+    # it's cleaner this way even with the bit of added conditional code in
+    # Access.pm.  We could also substitute some variables in the access
+    # routine and some here, but since we already passes in the essential
+    # information there's no reason not to take care of it all at once.
     if ($self->{'lists'}{$list}->flag_set('ackall', $user)) {
       $ent = build MIME::Entity
 	(
@@ -375,7 +282,6 @@ sub post_done {
 # Maintain two separate copies of the entity and munge them both
 # except where appropriate?  Ugh.
 use MIME::Parser;
-use Data::Dumper;
 sub _post {  
   my($self, $list, $user, $victim, $mode, $cmdline, $file, $arg2,
      $arg3) = @_;
@@ -493,7 +399,6 @@ sub _post {
   $self->deliver($list, $sender, $file, $seqno, 'each');
   
   # Pass to archiver; first extract all references
-#  print Dumper $head;
   $tmp = $head->get('references') || '';
   while ($tmp =~ s/<([^>]*)>//) {
     push @refs, $1;
@@ -617,121 +522,77 @@ sub _check_approval {
   return (1, $passwd, $token);
 }
 
-=head2 _check_sums(list, entity)
+=head2 _check_header(list, head)
 
-This takes a MIME::Entity and does two checksums on its first body part.
-The first sum is done over the first (checksum_lines) lines, the second
-over the entire body.
-
-Should this be the first text/.* part?  Should it checksum every part (bad
-for signatures)?
+This investigates all header improprieties.
 
 =cut
-use MD5;
-sub _check_sums {
-  my $self = shift;
-  my $list = shift;
-  my $ent  = shift; # MIME::Entity
-  my $log  = new Log::In 40;
-  my $sum1 = new MD5;
-  my $sum2 = new MD5;
+sub _check_header {
+  my $self    = shift;
+  my $list    = shift;
+  my $head    = shift;
+  my $reasons = shift;
+  my $avars   = shift;
+  my ($id, $maxhdrl, $maxthdr, $msg);
+  
+  $self->_make_list($list);
 
-  my ($body, $i, $io, $line);
-
-  # Find the first body part
-  while (1) {
-    last unless $ent->parts;
-    $ent = ($ent->parts)[0];
+  # Check for duplicate message ID
+  chomp($id = $head->get('Message-ID') || '(none)');
+  if ($id = $self->{'lists'}{$list}->check_dup($id, 'id')) {
+    $msg = "Duplicate Message-ID - $id";
+    push @$reasons, $msg;
+    $avars->{dup_msg_id} = $msg;
   }
 
-  # Do the checksums.  Ouch, wastes a bunch of comparisons.
-  $body = $ent->bodyhandle;
-  $io = $body->open('r');
-  $i = 0;
-  while (defined ($line = $io->getline)) {
-    $sum1->add($line);
-    $sum2->add($line) if $i < 10;#$check_lines;
-    $i++;
+  # Taboo check the header; this also computes the header size since it
+  # iterates over the whole thing.
+  $self->_ck_theader($list, $head, $reasons, $avars);
+
+  # Comb the Received: headers for IP addresses to RBL.
+  # Make sure we have a subject
+  # Make sure the list shows up somewhere in To: or CC:.
+
+  # Check size of header
+  $maxhdrl = $self->_list_config_get($list, 'max_header_line_length');
+  if ($maxhdrl && $maxhdrl <= $avars->{max_header_length}) {
+    push @$reasons, "A header line is too long ($avars->{max_header_length} > $maxhdrl)";
+    $avars->{max_header_length_exceeded} = 1;
   }
-
-  $sum1 = $sum1->hexdigest;
-  $sum2 = $sum2->hexdigest;
-
-  # Do the checksum database manipulations
-  $self->_make_list($list);
-  return($self->{'lists'}{$list}->check_dup($sum1, 'sum'),
-	 $self->{'lists'}{$list}->check_dup($sum2, 'partial'));
+  $maxthdr = $self->_list_config_get($list, 'max_total_header_length');
+  if ($maxthdr && $maxthdr <= $avars->{total_header_length}) {
+    push @$reasons, "The header is too large ($avars->{total_header_length} > $maxthdr)";
+    $avars->{total_header_length_exceeded} = 1;
+  }
+  
+  # Run user-supplied procedures to check the headers.
 }
 
-=head2 _check_id(list, head)
+=head2 _check_body
 
-Checks to see if the message-id has been seen before.
-
-=cut
-sub _check_id {
-  my $self = shift;
-  my $list = shift;
-  my $head   = shift;
-  $self->_make_list($list);
-  my $id = $head->get('Message-ID') || '(none)';
-  chomp $id;
-  return $self->{'lists'}{$list}->check_dup($id, 'id');
-}
-
-=head2 _check_taboo(list, head, entity) UNFINISHED
-
-Takes a MIME::Head and a MIME::Entity and checks them against the list''s
-(admin|taboo)_(headers|body).
-
-Returns a list of lists:
- (
-  type of match (taboo, admin)
-  taboo rule that matched
-  text that matched
-  matching line number (for body rules)
-  the severity of the match
- )
+This investigates a body part for improprieties.  Builds all preliminary
+code and data, then calls _r_ck_body to do the dirty work, then builds any
+bounce reasons due to missed inverted matches.
 
 =cut
 use Safe;
-sub _check_taboo {
-  my $self = shift;
-  my $list = shift;
-  my $head = shift;
-  my $ent  = shift;
-  my $log  = new Log::In 40;
-  my (@inv,     # List of inverted rules (list\ttype\trule)
-      %inv,     # Existence hash used to track inversions
-      $inv,     # Was this an inverted match?
-      $max,     # Maximum line to check
-      $safe,    # Safe compartment
-      $type,    # The type of the taboo match
-      $rule,    # The rule that matched
-      $global,  # Is this match from a global matcher?
-      $at,      # Is this an admin match (1) or a taboo match (0)?
-      $match,   # The actual matched string
-      $sev,     # The severity of the matched string
-      $class,   # The class of the match
-      @matches, # The list of matches returned from the header matcher
-      @taboo,   # Accumulated list of bad things
-      $data,    # Used for extracting the config data
-      $code,    # Holding the various bits of matcher code
-      @t, $i, $j, $k, $l, $t);
-  local ($text);
-  
-  # Extract the parsed taboo data from the configs.  Build up the $code
-  # hash and the @inv list and figure out $max.
-  $code = {};
+sub _check_body {
+  my $self    = shift;
+  my $list    = shift;
+  my $ent     = shift;
+  my $reasons = shift;
+  my $avars   = shift;
+  my $log  = new Log::In 150;
+  my (@inv, $class, $data, $i, $inv, $j, $l, $max, $mcode, $qreg, $rule,
+      $safe, $sev, $tcode, $var);
+  $inv = {}; $mcode = {}; $tcode = {};
+
+  # Extract the code from the config variables XXX Move to separate func
   for $i ('GLOBAL', $list) {
-    for $j ('admin_headers', 'taboo_headers') {
-      $data = $self->_list_config_get($i, $j);
-      push @inv, @{$data->{'inv'}};
-      $code->{$j}{$i} = $data->{'code'};
-    }
     for $j ('admin_body', 'taboo_body') {
       $data = $self->_list_config_get($i, $j);
       push @inv, @{$data->{'inv'}};
-      $code->{$j}{$i} = $data->{'code'};
+      $tcode->{$i}{$j} = $data->{'code'};
 
       # Sigh.  max = 0 means unlimited, so we must preserve it
       if ($data->{'max'} == 0 ||
@@ -742,7 +603,125 @@ sub _check_taboo {
 	}
     }
   }
-  
+  # Build a hash for fast lookup
+  for $i (@inv) {
+    $inv->{$i} = $i;
+  }
+
+  $i = $self->_list_config_get($list, 'attachment_rules');
+  $mcode = $i->{check_code};
+  $qreg = $self->_list_config_get($list, 'quote_regexp');
+
+  # Create a Safe comaprtment
+  $safe = new Safe;
+  $safe->permit_only(qw(aassign const le leaveeval null padany push
+			pushmark return rv2sv stub));
+
+  # Recursively check the body
+  $self->_r_ck_body($list, $ent, $reasons, $avars, $safe, $qreg, $mcode, $tcode,
+		    $inv, $max, 'toplevel', 1);
+
+  # Now look at what's left in %$inv and build reasons from it
+  for $i (keys %$inv) {
+    ($l, $var, $rule, $sev, $class) = split('\t', $i);
+    _describe_taboo($reasons, $avars, $list, $var, $rule, undef, undef,
+		    $sev, $class, 1)
+  }
+}
+
+use MD5;
+sub _r_ck_body {
+  my ($self, $list, $ent, $reasons, $avars, $safe, $qreg, $mcode, $tcode,
+      $inv, $max, $part, $first) = @_;
+  my $log  = new Log::In 150;
+  my (@parts, $body, $i, $sum1, $sum2);
+  local($text, $line);
+
+  # If we have parts, we don't have any text so we process the parts and
+  # exit.  Note that we try to preserve the first setting down the chain if
+  # appropriate.
+  @parts = $ent->parts;
+  for ($i=0; $i<@parts; $i++) {
+    $self->_r_ck_body($list, $parts[$i], $reasons, $avars, $safe, $qreg,
+		      $mcode, $tcode, $inv, "$part, subpart " . ($i+1),
+		      ($first && $i==0));
+    return;
+  }
+
+  # Now do some inits
+  $sum1 = new MD5; $sum2 = new MD5;
+
+  # Check MIME status and any other features of the entity as a whole
+  _check_mime($reasons, $avars, $safe, $ent->mime_type, $mcode);
+
+  # Now the meat.  Open the body
+  $body = $ent->bodyhandle->open('r');
+  $line = 1;
+
+  # Iterate over the lines
+  while (defined($text = $body->getline)) {
+    # Call the taboo matcher on the line if we're not past the max line
+    if ($line <= $max) {
+      _ck_tbody_line($list, $reasons, $avars, $safe, $tcode, $inv, $line,
+		     $text);
+    }
+
+    # Update checksum counters
+    if ($first) {$sum1->add($text); $sum2->add($text) if $line <= 10;}    
+    
+    # Calculate a few message metrics
+    $avars->{lines}++;
+    $avars->{bytes} += length($text);
+    $avars->{quoted_lines}++ if Majordomo::_re_match($safe, $qreg, $text);
+    $line++;
+  }
+
+  # Do final calculations
+  $avars->{percent_quoted} =
+    int(100*($avars->{quoted_lines} / ($avars->{lines} || 1)));
+
+  if ($first) {
+    $sum1 = $sum1->hexdigest;
+    if($self->{'lists'}{$list}->check_dup($sum1, 'sum')) {
+      push @$reasons, "Duplicate Message Checksum";
+      $avars->{dup_checksum} = 1;
+    }
+    $sum2 = $sum2->hexdigest;
+    if($self->{'lists'}{$list}->check_dup($sum2, 'partial')) {
+      push @$reasons, "Duplicate Partial Message Checksum";
+      $avars->{dup_partial_checksum} = 1;
+    }
+  }
+}
+
+=head2 _ck_theader
+
+This checks for taboo and admin headers, based upon the various
+taboo_header and admin_header variables.
+
+No returns; implicitly modifies the the list referenced by reasons and the
+hash referenced by avars.
+
+=cut
+sub _ck_theader {
+  my $self    = shift;
+  my $list    = shift;
+  my $head    = shift;
+  my $reasons = shift;
+  my $avars   = shift;
+  my (%inv, @inv, @matches, $class, $code, $data, $i, $inv, $j, $k, $l,
+      $match, $maxthdr, $maxhdrl, $rule, $safe, $sev);
+  local ($text);
+
+  $code = {};
+  for $i ('GLOBAL', $list) {
+    for $j ('admin_headers', 'taboo_headers') {
+      $data = $self->_list_config_get($i, $j);
+      push @inv, @{$data->{'inv'}};
+      $code->{$j}{$i} = $data->{'code'};
+    }
+  }
+
   # Make a hash of these for fast lookup
   for $i (@inv) {
     $inv{$i} = $i;
@@ -753,203 +732,188 @@ sub _check_taboo {
   $safe->permit_only(qw(aassign const leaveeval null padany push pushmark
 			return rv2sv stub));
   $safe->share('$text');
-
+  $avars->{total_header_length} = 0;
+  $avars->{max_header_length}   = 0;
+  
   # Process the header; mega-nesting!  Iterate over each tag present in the
   # header.
   for $i ($head->tags) {
-
+    
     # Skip the mailbox separator, if we get one
     next if $i eq 'From ';
-
+    
     # Grab all of the occurrences of that tag and iterate over them
     for $j ($head->get($i)) {
       chomp $j;
+      $text = "$i: $j";
+
+      # Check lengths
+      $avars->{total_header_length}+= length($text)+1;
+      $avars->{max_header_length}   = length($text)+1
+	if $avars->{max_header_length} < length($text)+1;
+
+      # Now run all of the taboo codes
       for $k ('GLOBAL', $list) {
 	for $l ('admin_headers', 'taboo_headers') {
-
-	  # Construct a header from the tag and the text and check it
-	  $text = "$i: $j";
-
+	  
 	  # Eval the code
 	  @matches = $safe->reval($code->{$l}{$k});
 	  warn $@ if $@;
-
+	  
 	  # Run over the matches that resulted
 	  while (($rule, $match, $sev, $class, $inv) = splice(@matches, 0, 5)) {
-
+	    
 	    # An inverted match; remove it from the list
 	    if ($inv) {
 	      delete $inv{"$k\t$l\t$rule\t$sev\t$class"};
 	    }
-
-	    # A normal match; build a failure notice for it
 	    else {
-	      # Mega-gross match-type construction
-	      if ($k eq 'GLOBAL') {
-		$global = 1;
-		$type = uc("global $l");
-	      }
-	      else {
-		$global = 0;
-		$type = uc($l);
-	      }
-	      $at = ($l eq 'admin_headers');
-	      $type =~ s/S$//;   # Nuke that pesky trailing S
-	      $type =~ s/\_/ /g; # underscores to spaces
-	      push @taboo, ($type, $at, $global, $rule, $match, undef,
-			    $sev, $class);
+	      _describe_taboo($reasons, $avars, $k, $l, $rule, $match,
+			      undef, $sev, $class, $inv);
 	    }
 	  }
 	}
       }
     }
   }
-  
-  # Recursively process the body
-  push @taboo, $self->_r_ck_taboo($list, $code, $max, $ent, \%inv);
-
-  # Deal with remaining (i.e. failed) inverted matches
+  # Now complain about missed inverted matches
   for $i (keys %inv) {
-    ($l, $type, $rule, $sev, $class) = split('\t', $i);
-    $at = ($type eq 'admin_headers');
-    if ($l eq 'GLOBAL') {
-      $global = 1;
-      $type = uc("inverted global $type");
-    }
-    else {
-      $global = 0;
-      $type = uc("inverted $type");
-    }
-    $type =~ s/S$//;
-    $type =~ s/\_/ /g;
-    push @taboo, ($type, $at, $global, $rule, undef, undef, $sev, $class);
+    ($k, $l, $rule, $sev, $class) = split('\t', $i);
+    _describe_taboo($reasons, $avars, $k, $l, $rule, undef, undef, $sev,
+		    $class, 1)
   }
-  return @taboo;
 }
 
-sub _r_ck_taboo {
-  my $self = shift;
-  my $list = shift; # Name of the list
-  my $code = shift; # Hash containing match functions
-  my $max  = shift; # Maximum line to check; max = 0 or undef means check all
-  my $ent  = shift; # Entity to check
-  my $inv  = shift; # Ref to hash of inverted matches (to be modified)
-  my $part = shift || "toplevel";
-  my $log  = new Log::In 150, "$part";
-  my(@matches, @parts, @taboo, $body, $class, $global, $i, $invert, $j,
-     $match, $rule, $safe, $sev, $type);
-  local($text, $line);
+=head2 _ck_tbody_line
 
-  @parts = $ent->parts;
+This checks a line from the message against the prebuilt taboo code from
+the config file.
 
-  if (@parts) {
-    for ($i=0; $i<@parts; $i++) {
-      push @taboo, $self->_r_ck_taboo($list, $code, $max, $parts[$i], $inv,
-					 "$part, subpart " . ($i+1));
-    }
-  }
-  else {
-    # Deal with the body.  Open the bodyhandle.
-    $body = $ent->bodyhandle->open('r');
-    $line = 1;
-    $safe = new Safe;
-    $safe->permit_only(qw(aassign const le leaveeval null padany push
-			  pushmark return rv2sv stub));
-    $safe->share(qw($text $line));
-    
-    # Loop over the lines, apply matchers to each; we loop until either we
-    # don't get a line or, if we have a maximum line limit, we exceed it
-    while (defined($text = $body->getline) && (!$max || $line <= $max)) {
-      for $i ('GLOBAL', $list) {
-	for $j ('admin_body', 'taboo_body') {
-	  @matches = $safe->reval($code->{$j}{$i});
-	  warn $@ if $@;
-	  while (($rule, $match, $sev, $class, $invert) = splice(@matches, 0, 5)) {
-	    if ($rule) {
-	      if ($invert) {
-		delete $inv->{"$i\t$j\t$rule\t$sev\t$class"};
-	      }
-	      else {
-		# Mega-gross match-type construction
-		$at = ($j eq 'admin_body');
-		if ($i eq 'GLOBAL') {
-		  $global = 1;
-		  $type = uc("global $j");
-		}
-		else {
-		  $global = 0;
-		  $type = uc($j);
-		}
-		$type =~ s/S$//;   # Nuke that pesky trailing S
-		$type =~ s/\_/ /g; # underscores to spaces
+=cut
+sub _ck_tbody_line {
+  my $list    = shift;
+  my $reasons = shift;
+  my $avars   = shift;
+  my $safe    = shift;
+  my $code    = shift;
+  my $inv     = shift;
+  local $line = shift;
+  local $text = shift;
+  my $log = new Log::In 250, "$list, $line, $text";
+  my (@matches, $class, $i, $invert, $j, $k, $l, $match, $rule, $sev);
 
-		push @taboo, ($type, $at, $global, $rule, $match,
-			      "$part, line $line", $sev, $class);
-	      }
-	    }
-	  }
+  # Share some variables with the compartment
+  $safe->share(qw($text $line));
+  
+  for $i ('GLOBAL', $list) {
+    for $j ('admin_body', 'taboo_body') {
+      # Eval the code
+      @matches = $safe->reval($code->{$i}{$j});
+      warn $@ if $@;
+      
+      # Run over the matches that resulted
+      while (($rule, $match, $sev, $class, $invert) = splice(@matches, 0, 5)) {
+	# An inverted match; remove it from the list
+	if ($invert) {
+	  delete $inv->{"$i\t$j\t$rule\t$sev\t$class"};
+	}
+	else {
+	  _describe_taboo($reasons, $avars, $i, $j, $rule, $match,
+			  $line, $sev, $class, $invert);
 	}
       }
-      $line++;
     }
-    $body->close;
   }
-  @taboo;
 }
 
-=head2 _check_mime(list, entity)
+=head2 _check_mime
 
-This recursively descends the part tree looking applying the part
-matching code from the parsed attachment_rules variable.  We always
-get back an action; when it is anything but 'allow' we construct a
-reason and set an appropriate variable.
-
-The _check_mime function is just a wrapper; the recursion is done by
-_r_ck_mime;
+This checks a given MIME type against the mime matching code built from
+attachment_rules and modifies the bounce reasons and access variables as
+appropriate.
 
 =cut
 sub _check_mime {
-  my($self, $list, $ent) = @_;
-  my $log = new Log::In 150;
-  my(@reasons, $consult, $deny, $i, $rules, $safe);
+  my $reasons = shift;
+  my $avars   = shift;
+  my $safe    = shift;
+  my $type    = shift;
+  my $code    = shift;
+  my $log = new Log::In 250, "$type";
+  local($_);
+  my ($action);
 
-  $safe = new Safe;
-  $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
-  $consult = [];
-  $deny    = [];
-  $rules = $self->_list_config_get($list, 'attachment_rules');
-  _r_ck_mime($safe, $ent, $rules->{'check_code'}, $consult, $deny);
-  
-  # Make reasons; iterate over @$consult and @$deny and make a message
-  # "Illegal MIME part: $type" and push it onto @reasons.
-  for $i (@$consult) {
-    push @reasons, "Questionable MIME part: $i";
+  $_ = $type;
+  $action = $safe->reval($code);
+  $::log->complain($@) if $@;
+
+  if ($action eq 'consult') {
+    push @$reasons, "Questionable MIME part: $type";
+    $avars->{mime_consult} = 1;
+    $avars->{mime} = 1;
   }
-
-  for $i (@$deny) {
-    push @reasons, "Illegal MIME part: $i";
-  }
-
-  return(!!@$consult, !!@$deny, @reasons);
+  elsif ($action eq 'deny') {
+    push @$reasons, "Illegal MIME part: $type";
+    $avars->{mime_deny} = 1;
+    $avars->{mime} = 1;
+  }    
 }
 
-sub _r_ck_mime {
-  my($safe, $ent, $code, $consult, $deny) = @_;
-  my(@parts, $action, $i);
-  my $log = new Log::In 160;
-  local($_);
+=head2 _describe_taboo
 
-  for $i ($ent->parts) {
-    _r_ck_mime($safe, $i, $code, $consult, $deny);
+Takes the various results from a taboo match (i.e. what an eval of thematch
+code returns), builds the proper descriptions and such, and modifies the
+supplied array and hashrefs to reflect the reasons and the variables given
+in the match data.
+
+Note that there is no return value, other than the modification of reasons
+and avars.
+
+=cut
+sub _describe_taboo {
+  my $reasons = shift;
+  my $avars   = shift;
+  my ($list, $var, $rule, $match, $line, $sev, $class, $inv) = @_;
+  my $log = new Log::In 300, "$list, $var, $class";
+  my ($admin, $global, $reason, $type);
+  
+  # Build match type and set the appropriate access variable
+  if ($list eq 'GLOBAL') {
+    $type .= "global_";
+    $global = 1;
   }
-  
-  $_ = $ent->mime_type;
-  $action = $safe->reval($code);
-  $log->complain($@) if $@;
-  
-  push @$consult, $_ if $action eq 'consult';
-  push @$deny   , $_ if $action eq 'deny'   ;
-  return;    
+  if ($var =~ /^admin/i) {
+    $type .= "admin_$class";
+    $admin = 1;
+  }
+  else {
+    $type .= "taboo_$class";
+  }
+  $avars->{$type} += $sev;
+
+  # Set bounce variables and push a reason; note that classes in upper case
+  # don't generate reasons.
+  unless ($class eq uc($class)) {
+    $type =~ s/\_/ /g; # underscores to spaces
+    if ($inv) {
+      $reason = uc("inverted $type") . ": $rule failed to match";
+    }
+    elsif ($line) {
+      $reason = uc($type) . ": $rule matched \"$match\" at line $line";
+    }
+    else {
+      $reason = uc($type) . ": $rule matched \"$match\"";
+    }
+    push @$reasons, $reason;
+    
+    # Bump the combined match variables
+    if ($admin) {
+      $avars->{admin} += $sev;
+    }
+    else {
+      $avars->{taboo} += $sev;
+    }
+  }
 }
 
 =head2 _trim_approved
@@ -988,7 +952,6 @@ the course of this function.
 
 =cut
 use MIME::Parser;
-use Data::Dumper;
 sub _trim_approved {
   my $self  = shift;
   my $oent  = shift;

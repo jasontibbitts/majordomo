@@ -481,6 +481,8 @@ sub _a_allow {
 }
 
 # The confirm+consult action, appreviated to appease the autoloader.
+# Accepts four parameters: file for confirmation, file for consultation,
+# moderator group to consult, number of approvals to require.
 sub _a_conf_cons {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
@@ -497,6 +499,7 @@ sub _a_conf_cons {
   return (-1, 'repl_confcons');
 }
 
+# Accepts just a filename
 sub _a_confirm {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
@@ -507,6 +510,9 @@ sub _a_confirm {
   return (-1, 'repl_confirm');
 }
 
+# Accepts four parameters: filename, approvals, the moderator group, the
+# number of moderators.  XXX Possibly allow the push of a bounce reason, or
+# can the whole moderator group thing.
 sub _a_consult {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
@@ -719,9 +725,13 @@ sub _d_post {
   my(@consult_vars, @deny_vars, $i, $member, $moderate, $restrict,
      $tmp);
   shift @_;
-  @consult_vars = qw(bad_approval taboo_header taboo_body
-		     global_taboo_header global_taboo_body dup_meg_id
-		     dup_checksum dup_partial_checksum mime_consult);
+
+  @consult_vars = qw(bad_approval dup_msg_id dup_checksum
+		     dup_partial_checksum global_taboo_body
+		     global_taboo_header max_header_length_exceeded
+		     mime_consult taboo_body taboo_header
+		     total_header_length_exceeded);
+
   @deny_vars = qw(mime_deny);
 
   # Deny is stronger than consult, so process denials first

@@ -1,3 +1,46 @@
+Sun Apr 12 00:03:57 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Parser.pm (parse_line): Add ability to backslash lines
+ 	within a here document.
+
+	* lib/Mj/Config.pm: Add new legal access variables.
+	(_compile_rule): Fix dumb typo in regexp.
+
+Sat Apr 11 20:08:26 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/mj_cf_data.pl: Tweak maxlength description.
+
+	* lib/Mj/Access.pm (_d_post): Typo: dup_meg_id => dup_msg_id.
+	(_d_post): Add checks for total_header_length_exceeded and
+ 	max_header_length_exceeded.
+
+	* lib/Mj/Resend.pm (_check_header): Add header size checks.
+
+	* lib/mj_cf_defs.pl: Added defaults for max_header_line_length and
+ 	max_total_header_length.
+
+	* lib/mj_cf_data.pl: Added max_header_line_length and
+ 	max_total_header_length.
+
+	* lib/Mj/Resend.pm (post): _Major_ rewrite.
+	(_check_header): New function to check the header.
+	(_check_body): New function to set up the body checks.
+	(_r_ck_body): Recursively check the body tree.
+	(_ck_theader): Check the header for taboo things.
+	(_ck_tbody_line): Check a line of the body for taboo matches.
+	(_check_mime): Check a body entity for bad MIME parts.
+	(_describe_taboo): Generate descriptions of taboo matches and
+ 	update the hash of bounce variables.
+
+	* lib/mj_cf_defs.pl: Add default for quote_regexp.
+
+	* lib/mj_cf_data.pl: Add quote_regexp variable.
+
+	* lib/Mj/Config.pm (parse_regexp_array): Use a Safe compartment to
+ 	evaluate the regexps.
+	(parse_regexp): New function; check a regexp in a Safe
+ 	compartment.
+
 Thu Apr  9 17:32:25 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/Config.pm (new): It's 'mtime', not 'timestamp'.

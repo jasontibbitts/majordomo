@@ -439,6 +439,13 @@ sub parse_line {
       
       $log->message(90, "info", "grabbed line $line");
       
+      # Process backslashes
+      while ($line =~ /\\\s*$/) {
+	$line =~ s/\\\s*$/ /;		
+	$line .= $inhandle->getline;	
+	chomp $line;
+      }
+
       # Did we find the tag?
       if ($line eq $tag) {
 	$out .= ">>>> Found tag $tag.\n";

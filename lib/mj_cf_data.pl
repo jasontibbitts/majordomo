@@ -496,6 +496,44 @@ useful if the file is being looked at by some means other than
 majordomo (e.g. finger).
 EOC
    },
+   'max_header_line_length' =>
+   {
+    'type'   => 'integer',
+    'groups' => [qw(resend)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+Sets the maximum length of a single header in an unapproved message.
+This can be used to prevent excessive CC\'ing or to cur down on some
+types of spam.  Set to zero to disable length checks on single
+headers.
+EOC
+   },
+   'max_total_header_length' =>
+   {
+    'type'   => 'integer',
+    'groups' => [qw(resend)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+Sets the maximum length of the headers in an unapproved message.  Set to
+zero to disable the total length check.
+EOC
+   },
+   'maxlength' =>
+   {
+    'type'   => 'integer',
+    'groups' => [qw(resend)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+The maximum size of an unapproved message in characters.  Set to zero to
+disable the message length check.
+EOC
+   },
    'moderate' =>
    {
     'type'   => 'bool',
@@ -560,17 +598,6 @@ address.  For majordomo, it provides the sender address for the
 welcome mail message generated as part of the subscribe command.
 EOC
    },
-   'maxlength' =>
-   {
-    'type'   => 'integer',
-    'groups' => [qw(resend)],
-    'visible'=> 0,
-    'local'  => 1,
-    'mutable'=> 1,
-    'comment'=> <<EOC,
-The maximum size of an unapproved message in characters.
-EOC
-   },
    'precedence' =>
    {
     'type'   => 'word',
@@ -610,6 +637,41 @@ with the list\'s?  If set to no, the list will not add its reply-to
 header if one is already present.
 EOC
    },
+   'purge_received' =>
+   {
+    'type'   => 'bool',
+    'groups' => [qw(resend)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+Remove all received lines before resending the message.
+EOC
+   },
+   'quote_regexp' =>
+   {
+    'type'   => 'regexp',
+    'groups' => [qw(resend)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+A regular expression used to match quoted text in message bodies.
+This is used to generate the counts and percentages of quoted text.
+EOC
+   },
+   'resend_host' =>
+   {
+    'type'   => 'word',
+    'groups' => [qw(resend)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+The host name that is appended to all address strings specified for
+resend.
+EOC
+   },
    'restrict_post' =>
    {
     'type'   => 'restrict_post',
@@ -641,29 +703,6 @@ EOC
 This is the sequence number used to number messages which pass through the
 list.  It is automatically incremented by one for each message.  It may be
 manually set here.
-EOC
-   },
-   'resend_host' =>
-   {
-    'type'   => 'word',
-    'groups' => [qw(resend)],
-    'visible'=> 0,
-    'local'  => 1,
-    'mutable'=> 1,
-    'comment'=> <<EOC,
-The host name that is appended to all address strings specified for
-resend.
-EOC
-   },
-   'purge_received' =>
-   {
-    'type'   => 'bool',
-    'groups' => [qw(resend)],
-    'visible'=> 0,
-    'local'  => 1,
-    'mutable'=> 1,
-    'comment'=> <<EOC,
-Remove all received lines before resending the message.
 EOC
    },
    'administrivia' =>

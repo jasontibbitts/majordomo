@@ -782,7 +782,7 @@ sub _re_match {
   my $safe = shift;
   my $re   = shift;
   my $str  = shift;
-  my $log  = new Log::In 200, "$re, $str";
+#  my $log  = new Log::In 200, "$re, $str";
   my $match;
   return 1 if $re eq 'ALL';
 
@@ -793,7 +793,6 @@ sub _re_match {
   $re =~ /(.*)/;
   $re = $1;
 
-  
   $match = $safe->reval("'$str' =~ $re");
   if (wantarray) {
     return ($match, $@);
