@@ -92,7 +92,10 @@ $mj = $::mj;  # for config default access to globals
 $fname = "$::TMPDIR/mjr." . $mj->unique;
 $fh = new IO::File ">$fname";
 while (<STDIN>) {
-  $fh->print($_) unless /^From / && !$in_body;
+  unless (/^From / && !$in_body) {
+    $fh->print($_);
+warn "$_";
+  }
   $in_body = 1 if /^\n/;
   $sess .= $_ unless $in_body;
 }

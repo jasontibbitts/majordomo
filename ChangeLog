@@ -1,5 +1,11 @@
 Thu Feb  4 15:46:23 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Deliver/Dest.pm (sendenvelope): Fix precedence problem
+ 	with sleep delay calculation.
+
+	* bin/mj_email (resend): Strip off mailbox separator before
+ 	posting.
+
 	* lib/Mj/Deliver/Dest.pm (sendenvelope): Increase number of
  	retries before giving up.
 

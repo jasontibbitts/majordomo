@@ -456,7 +456,7 @@ sub sendenvelope {
     }
     
     # Wait a while, waiting longer the more we fail.
-    sleep (10 * $i * $self->{'emergency'}) + 2 + rand(5);
+    sleep ((10 * $i * $self->{'emergency'}) + 2 + rand(5));
   }
   
   # We delivered an envelope OK, so move to the next host

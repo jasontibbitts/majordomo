@@ -203,6 +203,11 @@ sub resend {
 
   $sess = connect_no_parse($mj, 'resend');
 
+  # Some MTAs hand the message to us with the mbox separator prepended.
+  # Sending this on as part of the headers can hose some MTAs, so we strip
+  # it.  The regexp doesn't harm the body $sess contains only the headers.
+  $sess =~ s/^From .*?\n//;
+
   @stuff = ('', '', '', 'resend', "(post to $list)", '', $list, '');
 
   ($ok) = $mj->dispatch('post_start', @stuff);
