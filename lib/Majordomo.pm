@@ -146,6 +146,7 @@ sub new {
   my $class  = ref($type) || $type;
   my $topdir = shift;
   my $domain = shift;
+  my (@domains, @tmp, $basename);
 
   my $log = new Log::In 50, "$topdir, $domain";
 
@@ -163,7 +164,16 @@ sub new {
   $self->{'lists'}  = {};
 
   unless (-d $self->{'ldir'}) {
-    return "The domain '$domain' does not exist!"; #XLANG
+    @domains = domains($topdir);
+    $basename = $domain;  $basename =~ s#.+/([^/\s]+)##;
+    @tmp = grep { lc $_ eq lc $basename } @domains;
+    if (defined $tmp[0]) {
+      $self->{'ldir'} = "$topdir/$tmp[0]";
+      $self->{'domain'} = $tmp[0];
+    }
+    else {
+      return "The domain '$domain' is not supported!"; #XLANG
+    }
   }
 
   # Pull in the site configuration file
@@ -178,7 +188,7 @@ sub new {
     unless $self->_make_list('DEFAULT'); 
 
   $self->{alias} = new Mj::AliasList(backend => $self->{backend},
-                                      domain => $domain,
+                                      domain => $self->{domain},
                                      listdir => $self->{ldir},
                                         list => "GLOBAL",
                                         file => "_aliases");
@@ -186,7 +196,7 @@ sub new {
     unless ($self->{'alias'}); #XLANG
 
   $self->{reg}   = new Mj::RegList(backend => $self->{backend},
-                                    domain => $domain,
+                                    domain => $self->{domain},
                                    listdir => $self->{ldir},
                                       list => "GLOBAL",
                                       file => "_register");
@@ -5732,7 +5742,7 @@ sub _report {
         unless ($begin <= $end);
     }
     # 5m for last five months, 1d2h for last 26 hours
-    elsif ($span = str_to_offset($date)) {
+    elsif ($span = str_to_offset($date, 0, 0)) {
       $begin = $end - $span;
     }
     else {
