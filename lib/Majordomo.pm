@@ -5960,7 +5960,7 @@ use Safe;
 sub who_chunk {
   my ($self, $request, $chunksize) = @_;
   my $log = new Log::In 100, "$request->{'list'}, $request->{'regexp'}, $chunksize";
-  my (@chunk, @out, @tmp, $addr, $i, $j, $strip);
+  my (@chunk, @out, @tmp, $addr, $i, $j, $k, $strip);
 
   # Common mode: stop now if no addresses remain to be matched.
   return (0, '')
@@ -5997,14 +5997,32 @@ sub who_chunk {
     }
   }
   else {
+CHUNK:
     @tmp = 
       $self->{'lists'}{$request->{'list'}}->search($request->{'sublist'},
                                                    $request->{'regexp'},
                                                    'regex', $chunksize);
+    $k = scalar @tmp;
     while (($j, $i) = splice(@tmp, 0, 2)) {
+      if ($request->{'mode'} =~ /bounces/) {
+        # use Data::Dumper; warn Dumper $i;
+        next unless $i->{'bounce'};
+        $i->{'bouncedata'} = $self->{'lists'}{$request->{'list'}}->_bounce_parse_data($i->{'bounce'});
+        next unless $i->{'bouncedata'};
+        $i->{'bouncestats'} = 
+          $self->{'lists'}{$request->{'list'}}->bounce_gen_stats($i->{'bouncedata'});
+        next unless ($i->{'bouncestats'}->{'month'} > 0);
+      }
       $i->{'canon'} = $j;
       push @chunk, $i;
     }
+
+    if ($request->{'mode'} =~ /bounces/ and $k and
+        scalar @chunk < $chunksize) 
+    {
+      goto CHUNK;
+    }
+       
   }
 
   unless (@chunk) {
@@ -6023,17 +6041,8 @@ sub who_chunk {
       
     # If we're to show it all...
     if ($self->{'unhide_who'}) {
-      # GLOBAL has no flags or classes or bounces
+      # GLOBAL has no flags or classes
       if ($request->{'list'} ne 'GLOBAL') {
-        if ($request->{'mode'} =~ /bounces/) {
-	  # use Data::Dumper; warn Dumper $i;
-          next unless $i->{'bounce'};
-          $i->{'bouncedata'} = $self->{'lists'}{$request->{'list'}}->_bounce_parse_data($i->{'bounce'});
-          next unless $i->{'bouncedata'};
-          $i->{'bouncestats'} = 
-            $self->{'lists'}{$request->{'list'}}->bounce_gen_stats($i->{'bouncedata'});
-          next unless ($i->{'bouncestats'}->{'month'} > 0);
-        }
 	$i->{'flagdesc'} =
 	  join(',',$self->{'lists'}{$request->{'list'}}->describe_flags($i->{'flags'}));
 	$i->{'classdesc'} =
