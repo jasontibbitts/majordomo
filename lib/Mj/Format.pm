@@ -124,7 +124,7 @@ use Date::Format;
 sub archive {
   my ($mj, $out, $err, $type, $request, $result) = @_;
  
-  my ($chunksize, $data, $first, $i, $last, $line, $lines, 
+  my ($chunksize, $data, $first, $i, $j, $last, $line, $lines, 
       $mess, $msg, $str, $subs, $tmp,  %stats, @tmp);
   my ($ok, @msgs) = @$result;
 
@@ -324,9 +324,9 @@ sub configset {
 sub configshow {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
-  my ($array, $auto, $cgidata, $cgiurl, $enum, $gen, $gsubs, $isauto, 
-      $list, $mess, $mode, $mode2, $ok, $short, $str, $subs,
-      $tag, $tmp, $val, $var, $varresult);
+  my (@possible, $array, $auto, $cgidata, $cgiurl, $data, $enum, $gen, $gsubs, 
+      $i, $isauto, $list, $mess, $mode, $mode2, $ok, $short, $str, $subs,
+      $tag, $tmp, $val, $var, $vardata, $varresult);
 
   $request->{'cgiurl'} ||= '';
 
@@ -725,8 +725,8 @@ sub index {
 sub lists {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my (%lists, $basic_format, $cat_format, $category, $count, $data, 
-      $desc, $flags, $global_subs, $i, $legend, $list, $site, $str, 
-      $subs, $tmp);
+      $desc, $digests, $flags, $global_subs, $i, $legend, $list, $site, 
+      $str, $subs, $tmp);
   my $log = new Log::In 29, $type;
   select $out;
   $count = 0;
@@ -1035,7 +1035,8 @@ use Date::Format;
 sub report {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type";
-  my (%outcomes, %stats, @tmp, $begin, $chunk, $chunksize, $data, $end, $victim);
+  my (%outcomes, %stats, @tmp, $begin, $chunk, $chunksize, 
+      $data, $day, $end, $today, $victim);
   my ($ok, $mess) = @$result;
 
   unless ($ok > 0) {
@@ -1241,7 +1242,7 @@ EOM
 sub show {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
-  my (@lists, $bouncedata, $error, $global_subs, $i, $j, $lsubs,
+  my (@lists, $bouncedata, $error, $flag, $global_subs, $i, $j, $lsubs,
       $settings, $str, $subs, $tmp);
   my ($ok, $data) = @$result;
   $error = [];
@@ -1445,8 +1446,10 @@ sub showtokens {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$request->{'list'}";
   my ($basic_format, $count, $data, $data_format, $global_subs, 
-      $size, $str, $subs, $tmp, $token, $user);
+      $size, $str, $subs, $tmp, $token, $tokendata, $user);
   my (%type_abbrev) = (
+                        'alias'   => 'L',
+                        'async'   => 'A',
                         'confirm' => 'S',
                         'consult' => 'O',
                         'delay'   => 'D',
@@ -1678,8 +1681,8 @@ sub who {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my (%stats, @lines, @out, @stuff, @time, $chunksize, $count, 
       $error, $fh, $flag, $foot, $fullclass, $gsubs, $head, $i, 
-      $j, $line, $mess, $numbered, $ok, $regexp, $ret, 
-      $settings, $source, $subs, $tmp);
+      $j, $line, $mess, $numbered, $ok, $regexp, $remove, $ret, 
+      $settings, $source, $str, $subs, $tmp);
 
   $request->{'sublist'} ||= 'MAIN';
   $request->{'start'} ||= 1;
@@ -2058,7 +2061,10 @@ sub g_sub {
     for (@$addr) {
       my ($verb) = ($ok > 0)?  $act : "not $act";
       $verb =~ s/LIST/$request->{'list'}/;
-      if (exists $request->{'sublist'} and $request->{'sublist'} ne 'MAIN') {
+      if ((exists $request->{'sublist'}) and 
+          length ($request->{'sublist'}) and
+          $request->{'sublist'} ne 'MAIN') 
+      {
         $verb .= ":$request->{'sublist'}";
       }
       eprint($out, $type, "$_ was $verb.\n");
