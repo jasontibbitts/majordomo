@@ -238,6 +238,7 @@ on your list have been doing.  Majordomo can send you notices
 automatically, or you can ask Majordomo for a report when the need
 arises.  For example, the following command will show a summary of all
 activity on a list for the past seven days:
+
   report-summary LISTNAME 7d ALL
 
 Also, if your list is public, anyone can learn more about it with the
