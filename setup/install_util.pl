@@ -13,7 +13,7 @@ sub copy_file {
   my $link   = shift;
 
   if ($link) {
-    link "$source/$script", "$dest/$script" ||
+    link("$source/$script", "$dest/$script") ||
       die "Can't make link in $dest, $!.";
   }
   else {

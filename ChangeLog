@@ -1,3 +1,8 @@
+2002-10-22  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* setup/install_util.pl (copy_file): Fix precedence error causing
+	problems making hard links to be ignored.
+
 2002-10-14  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/SimpleDB/Base.pm:  (_unstringify)  Untaint the data
