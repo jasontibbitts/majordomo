@@ -99,7 +99,7 @@ sub add {
 
   $self->{count}++;
 
-  # Store the entity
+  # Store the file
   push @{$self->{files}}, $args{file};
 
   # Generate the index entry;
@@ -121,12 +121,12 @@ sub done {
   # Print preamble separator
   $self->{body}->print("\n", '-'x70, "\n\n");
 
-  # Loop over entities
+  # Loop over files
   for $i (@{$self->{files}}) {
     $fh = new IO::File($i);
     $ent = $self->{parser}->read($fh);
 
-    # Extract necessary fields form the header
+    # Extract necessary fields from the header
     for $j (qw(Date From To Cc Subject Message-ID Keywords Summary)) {
       if ($ent->head->get($j)) {
         $self->{body}->print("$j: ". $ent->head->get($j));
@@ -138,7 +138,10 @@ sub done {
     get_text($ent, $self->{body});
 
     # Print a separator
-    $self->{body}->print("\n". '-'x30, "\n\n")
+    $self->{body}->print("\n". '-'x30, "\n\n");
+
+    # Clean up
+    $ent->purge;
   }
 
   # Print ending matter
@@ -163,7 +166,6 @@ entities.
 sub get_text {
   my $ent = shift;
   my $fh  = shift;
-  my $top = shift;
   my ($body, $i, $type);
 
   # If we have a multipart, parse it recursively

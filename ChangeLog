@@ -1,5 +1,13 @@
 Sat Jan  9 12:45:17 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Digest/Text.pm (done): Clean up stale entities.
+
+	* lib/Mj/Digest/Index.pm: Fix perl 5.004 warnings.
+
+	* lib/Mj/Digest/MIME.pm: Ditto.
+
+	* lib/Mj/Resend.pm (_post): Unlink some files.
+
 	* lib/Mj/CommandProps.pm: rekey doesn't take a list.
 
 	* lib/Mj/TextOutput.pm (rekey): Ditto.
