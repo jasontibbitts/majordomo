@@ -76,11 +76,11 @@ dessous&nbsp;:
 </form>
 
 <p>
-<a href="$CGIURL?$CGIDATA&t=$TOKEN&p=0&a=tokeninfo-part" target="_part">
+<a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=0&amp;a=tokeninfo-part" target="_part">
   (Voir le message complet dans une fenêtre
   séparée)
 </a><br>
-<a href="$CGIURL?$CGIDATA&t=$TOKEN&p=0&a=tokeninfo-part-edit">
+<a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=0&amp;a=tokeninfo-part-edit">
   (Éditer le message)
 </a>
 </p>

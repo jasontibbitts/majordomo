@@ -35,7 +35,7 @@
 
 <tr>
   <td valign="top">Documentation</td>
-  <td><a href="$CGIURL?$CGIDATA&func=faq&list=$LIST">
+  <td><a href="$CGIURL?$CGIDATA&amp;func=faq&amp;list=$LIST">
       Questions fréquemment posées</a> 
     <br>
 

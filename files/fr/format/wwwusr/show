@@ -2,8 +2,8 @@
 <tr>
   <td colspan="4">
     <input type="checkbox" name="list" value="$LIST">
-    <a href="$CGIURL?$CGIDATA&list=$LIST&func=set-check">$LIST</a>
-    (<a href="$CGIURL?$CGIDATA&extra=$LIST&func=lists-full-long">info</a>)
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=set-check">$LIST</a>
+    (<a href="$CGIURL?$CGIDATA&amp;extra=$LIST&amp;func=lists-full-long">info</a>)
   </td>
   <td colspan="9">
     <select name="$LIST;delivery">

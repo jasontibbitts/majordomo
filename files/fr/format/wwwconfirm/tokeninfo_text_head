@@ -1,20 +1,20 @@
 <p>
 [Volet $PART $CONTENT_TYPE ($SIZE kilo octets)]<br>
 
-  <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PARTh&a=tokeninfo-part" target="_part">
+  <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PARTh&amp;a=tokeninfo-part" target="_part">
     (Afficher les en-têtes dans une fenêtre
     séparée)
   </a>
 
-  <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PARTh&a=tokeninfo-part-edit">
+  <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PARTh&amp;a=tokeninfo-part-edit">
     (Éditer les en-têtes)
   </a>
 
-  <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PART&a=tokeninfo-part-edit">
+  <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PART&amp;a=tokeninfo-part-edit">
     (Éditer le texte)
   </a>
 
-?SUBPART  <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PART&a=tokeninfo-part-delete">
+?SUBPART  <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PART&amp;a=tokeninfo-part-delete">
 ?SUBPART    (Supprimer cet volet)
 ?SUBPART  </a>
 </p>
