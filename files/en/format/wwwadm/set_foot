@@ -1,3 +1,8 @@
 <!-- Majordomo set_foot format file -->
-Subscriptions affected: $COUNT
-Use the 'help set' command to see an explanation of the settings.
+  <input type="submit" name="func" value="set">
+</form>
+<p>
+See the 
+$HELP:SET 
+help page for a detailed explanation of the settings.
+</p>
