@@ -4,3 +4,9 @@ No messages were retrieved from the archive for the $LIST list.
 
 $ERROR
 </pre>
+
+<p>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=archive-summary-reverse">
+Summary</a> of Message Archives
+</p>
+

@@ -2,3 +2,9 @@
 <p>
 No matching messages were found in the archive for the $LIST list.
 </p>
+
+<p>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=archive-summary-reverse">
+Summary</a> of Message Archives
+</p>
+

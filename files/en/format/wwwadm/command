@@ -10,7 +10,7 @@
     <select name="func">
       <option> help
       <option> accept
-      <option> archive-get
+      <option> archive-get-immediate
       <option> archive-index
       <option> archive-stats
       <option> configdef

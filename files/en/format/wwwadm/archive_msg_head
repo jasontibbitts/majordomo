@@ -51,7 +51,7 @@ Next message, by...
 </table>
 
 <p>
-(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get&amp;extra=$MSGNO" 
+(<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;brief=on&amp;func=archive-get-immediate&amp;extra=$MSGNO" 
   target="_part">View the Complete Message in a separate window</a>)<br>
 
 (<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=archive-delete&amp;extra=$MSGNO">Delete

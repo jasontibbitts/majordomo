@@ -5,3 +5,187 @@
 Click an archive number to see an index of messages in that
 archive, in the order of delivery.  
 </p>
+<h4 align="center">Search the Archives</h4>
+
+<ul>
+  <li>Choose a start date and/or end date for the messages you wish
+  to search.
+  <li>To search for messages posted from matching e-mail addresses, type 
+  a pattern into the <b>Author</b> box.
+  <li>To search for messages with matching subject lines, type a
+  pattern into the <b>Subject</b> box.
+  <li>Choose to display or mail the messages by pressing the
+  appropriate button.
+  <li>If you mail the messages, type an e-mail address into
+  the last box.
+  <li>Press the <b>Search</b> button.
+</ul>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+
+Start Date:
+  <select name="start_year">
+    <option value=""> &nbsp;
+    <option value="$YEARS"> $YEARS
+  </select>
+
+  <select name="start_month">
+    <option value=""> &nbsp;
+    <option value="01"> January
+    <option value="02"> February
+    <option value="03"> March
+    <option value="04"> April
+    <option value="05"> May
+    <option value="06"> June
+    <option value="07"> July
+    <option value="08"> August
+    <option value="09"> September
+    <option value="10"> October
+    <option value="11"> November
+    <option value="12"> December
+  </select>
+
+  <select name="start_day">
+    <option value=""> &nbsp;
+    <option value="01"> 1
+    <option value="02"> 2
+    <option value="03"> 3
+    <option value="04"> 4
+    <option value="05"> 5
+    <option value="06"> 6
+    <option value="07"> 7
+    <option value="08"> 8
+    <option value="09"> 9
+    <option value="10"> 10
+    <option value="11"> 11
+    <option value="12"> 12
+    <option value="13"> 13
+    <option value="14"> 14
+    <option value="15"> 15
+    <option value="16"> 16
+    <option value="17"> 17
+    <option value="18"> 18
+    <option value="19"> 19
+    <option value="20"> 20
+    <option value="21"> 21
+    <option value="22"> 22
+    <option value="23"> 23
+    <option value="24"> 24
+    <option value="25"> 25
+    <option value="26"> 26
+    <option value="27"> 27
+    <option value="28"> 28
+    <option value="29"> 29
+    <option value="30"> 30
+    <option value="31"> 31
+  </select>
+<br>
+
+End Date:
+  <select name="end_year">
+    <option value=""> &nbsp;
+    <option value="$YEARS"> $YEARS
+  </select>
+
+  <select name="end_month">
+    <option value=""> &nbsp;
+    <option value="01"> January
+    <option value="02"> February
+    <option value="03"> March
+    <option value="04"> April
+    <option value="05"> May
+    <option value="06"> June
+    <option value="07"> July
+    <option value="08"> August
+    <option value="09"> September
+    <option value="10"> October
+    <option value="11"> November
+    <option value="12"> December
+  </select>
+
+  <select name="end_day">
+    <option value=""> &nbsp;
+    <option value="01"> 1
+    <option value="02"> 2
+    <option value="03"> 3
+    <option value="04"> 4
+    <option value="05"> 5
+    <option value="06"> 6
+    <option value="07"> 7
+    <option value="08"> 8
+    <option value="09"> 9
+    <option value="10"> 10
+    <option value="11"> 11
+    <option value="12"> 12
+    <option value="13"> 13
+    <option value="14"> 14
+    <option value="15"> 15
+    <option value="16"> 16
+    <option value="17"> 17
+    <option value="18"> 18
+    <option value="19"> 19
+    <option value="20"> 20
+    <option value="21"> 21
+    <option value="22"> 22
+    <option value="23"> 23
+    <option value="24"> 24
+    <option value="25"> 25
+    <option value="26"> 26
+    <option value="27"> 27
+    <option value="28"> 28
+    <option value="29"> 29
+    <option value="30"> 30
+    <option value="31"> 31
+  </select>
+<br>
+
+Author:
+  <input size="36" name="author" value="">
+<br>
+
+Subject:
+  <input size="36" name="subject" value="">
+<br>
+
+  <input type="radio" name="func" value="archive-index" checked>
+Display an index of the messages
+<br>
+
+  <input type="radio" name="func" value="archive-get">
+Mail the messages 
+  <select name="mode">
+    <option value="">individually
+    <option value="digest">in a plain text digest
+    <option value="digest-mime">in a MIME digest
+  </select>
+
+to
+  <input name="victims" size="36" value="">
+<br>
+
+  <input type="submit" value="Search">
+</form>
+<p>
+You do not always need to choose the day, month, and year at which to
+start and end the search.  For example, if you choose a start date of
+"June" and an end date of "August," messages posted between June 1 and
+August 31 of this year will be searched.
+</p>
+<p>
+If you choose a start date but no end date, messages posted during 
+the time frame of the start date will be searched.  For example,
+if you choose a start date of March 2003, messages between March 1
+and March 31, 2003, will be searched.
+</p>
+<p>
+The author and subject search patterns are optional.  If you do
+not use a pattern, all of the messages in the time frame you chose
+will be shown or mailed.  See the
+$HELP:PATTERNS
+help document to learn more about search patterns.
+</p>
+
+

@@ -4,13 +4,14 @@
   <input type="hidden" name="func" value="$COMMAND">
   <input type="hidden" name="chunksize" value="?CHUNKSIZE">
   <input type="hidden" name="extra" value="?EXTRA">
+  <input type="hidden" name="hereargs" value="?HEREARGS">
 
 <table cellspacing="15" width="100%">
 <tr>
   <td valign="top">
     List: <input size="36" name="list" value="$LIST">
   </td>
-  <td>
+  <td valign="top">
     Type the name of your mailing list into the <b>List</b> box 
     unless it is already present.
   </td>
@@ -20,7 +21,7 @@
     Password: <input type="password" name="passw" size="15" value="$CMDPASS">
   </td>
   <td valign="top">
-    Type your list's administrative password into the <b>Password</b> box.  
+    Type an administrative password for your list into the <b>Password</b> box.  
     If you see fourteen stars in this box, it may already be present.
     (The fourteen stars are a temporary password that applies only to
     this session.)
@@ -39,7 +40,7 @@
     <input type="submit" value="Go"><br>
     <input type="reset" value="Clear">
   </td>
-  <td>
+  <td valign="top">
     <p>
     To sign in, press the <b>Go</b> button.
     </p>
