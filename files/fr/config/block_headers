@@ -1,3 +1,3 @@
-Si l'une des en-têtes d'un message envoyé a l'une des liste du serveur
-correspond a l'une de ces expressions rationnelles, le message sera
-transmis aux administrateurs de la liste au lieu d'être analysé.
+Si l'une des en-têtes d'un message envoyé au serveur correspond a
+l'une de ces expressions rationnelles, le message sera transmis aux
+administrateurs de la liste au lieu d'être analysé.

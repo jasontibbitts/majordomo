@@ -15,23 +15,40 @@ Mot de passe      : Visible avec un mot de passe.
 
 EXEMPLE :
 configset liste bounce_recipients << ENDTAG
-joe@blow.org
+joe@example.org
 ENDTAG
 
 $INCLUDE-config/bounce_recipients
 
+Beaucoup de domaines ont une adresse (par exemple "nobody" ou
+"devnull") pour qui les messages entrant sont automatiquement
+supprimés. Si vous désirez arrêter de recevoir les notifications de
+messages en erreurs, modifiez le paramètre "bounce_recipients" pour
+rediriger les messages en erreurs sur cette adresse.
+
+Les messages en erreurs sont enregistrés entièrement dans les logs de
+la session. Pour avoir la liste des messages en erreurs récents, avec
+leurs numéros de sessions, utilisez la commande "report-full".
+Ensuite, utilisez la commande "sessioninfo" pour récupérer les
+messages individuellement.
+
+
 Référez vous aussi à :
+   help admin_delivery
    help admin_subscribers
    help configset_bounce_max_age   (combien de temps les erreurs d'un
-				    utilisateur seront gardées)
+                                    utilisateur seront gardées)
    help configset_bounce_max_count (nombre maximum de messages en
-				    erreur qui seront gardées pour un
-				    abonné)
+                                    erreur qui seront gardées pour un
+                                    abonné)
    help configset_bounce_probe_frequency (combien de temps entre
-					  chaque test)
+                                          chaque test)
    help configset_bounce_probe_pattern   (force les tests pour les
-					  adresses correspondantes)
+                                          adresses correspondantes)
+   help configset_bounce_rules
    help configset_owners                 (comment spécifier le
-					  gestionnaire de la liste)
+                                          gestionnaire de la liste)
+   help report
+   help sessioninfo
 
 $INCLUDE-help/foot

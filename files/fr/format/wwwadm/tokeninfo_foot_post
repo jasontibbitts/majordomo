@@ -6,7 +6,6 @@
   <input type="submit" name="func" value="accept-hide">
   <input type="submit" name="func" value="reject">
 ?WILLACK <input type="submit" name="func" value="reject-quiet">
-  <input type="submit" name="func" value="tokeninfo-remind">
   <input type="hidden" name="extra" value="$TOKEN">
   <input type="hidden" name="list" value="$LIST">
   <input type="hidden" name="passw" value="$CMDPASS">
@@ -16,6 +15,7 @@ adresse email dans le champ <b>Adresse</b>, et cliquez ensuite sur le
 bouton <b>tokeninfo-remind</b>.<br>
   Adresse&nbsp;:
   <input size="48" name="user" value="$USER">
+  <input type="submit" name="func" value="tokeninfo-remind">
 </p>
 
 <p>

@@ -1,0 +1,5 @@
+Cette commande ne peut pas être mise en attente d'approbation ou mise
+en attente pour une autre raison car la variable d'accès "nostall" est
+activée. Un résultat qui ne sera pas un succès immédiat sera considéré
+comme un échec.
+

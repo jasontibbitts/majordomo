@@ -73,6 +73,7 @@ Ces fichiers d'aide parlent de sujets avancés en détails :
    help here_document
    help patterns
    help reply_files
+   help shell_hook
    help times
    help variables
 

@@ -18,6 +18,71 @@ pour plus de détails.)
 Les variables de substitutions supportées par chaque fichier est
 donnée entre parenthèses.
 
+access_closed
+-------------
+Ce message est affiché lorsque la commande est refusée parce que l'un
+des paramètres "*_access" est réglé à "closed".
+
+(Standard plus COMMAND, SETTING)
+
+access_confcons
+---------------
+Ce message est affiché lorsque la commande requiers une confirmation
+parce que l'un des paramètres "*_policy" est réglé à "closed+confirm".
+
+(Standard plus COMMAND, SETTING)
+
+access_confirm
+--------------
+Ce message est affiché lorsque la commande requiers une confirmation
+par défaut ou parce que l'un des paramètres "*_policy" contient le mot
+"confirm".
+
+(Standard plus COMMAND, SETTING)
+
+access_confirm2
+---------------
+Ce message est affiché lorsque la commande requiers une confirmation
+de l'utilisateur et de la victime par défaut.
+
+(Standard plus COMMAND)
+
+access_consult
+--------------
+Ce message est affiché lorsque la commande est modérée parce que l'un
+des paramètres "*_policy" est réglé a "closed".
+
+(Standard plus COMMAND, SETTING)
+
+access_mismatch
+---------------
+Ce message est affiché lorsque l'utilisateur et la victime d'une
+commande sont différents.
+
+(Standard plus COMMAND, USER, VICTIM)
+
+access_password
+---------------
+Ce message est affiché lorsque l'un des paramètres "*_access" ou
+"*_policy" contient le mot "password" et que la commande est utilisée
+sans mot de passe.
+
+(Standard plus COMMAND)
+
+access_posing
+-------------
+Ce message est affiché si l'utilisateur de la session et l'utilisateur
+d'une commande diffèrent.
+
+(Standard plus COMMAND, SESSIONUSER, USER)
+
+access_sublist
+--------------
+Ce message est affiché lorsque la commande qui affecte une sous liste
+est envoyée sans mot de passe administratif.
+
+(Standard plus COMMAND)
+
 add_headers
 -----------
 Ce message est affiché si l'ajout d'une en-tête a un message par la
@@ -39,6 +104,20 @@ email après la "route" (l'adresse en elle même).
 
 (Substitutions standard uniquement)
 
+approve_no_command
+------------------
+Ce message est affiché lorsque la commande "approve" n'est pas suivie
+d'une autre commande Majordomo sur la même ligne.
+
+(Substitutions standard uniquement)
+
+approve_no_password
+-------------------
+Ce message est affiché lorsque la commande "approve n'est pas suivie
+d'un mot de passe.
+
+(Substitutions standard uniquement)
+
 at_symbol
 ---------
 Ce message est affiché lorsque plus d'un symbole '@' apparaît dans une
@@ -46,12 +125,70 @@ adresse email.
 
 (Substitutions standard uniquement)
 
+bounce_error
+------------
+Ce message est affiché lorsque un problème technique est apparu
+lorsque la lecture des informations contenues dans un message revenu en
+erreur.
+
+(Standard plus ERROR, VICTIM)
+
+bounce_rule
+-----------
+Ce message fournis une explication par défaut pour une action prise
+par une règle du paramètre "bounce_rules".
+
+(Standard plus COMMAND)
+
+bounce_unsub
+------------
+Ce message explique qu'une adresse a été désabonnée à cause d'un
+message revenu en erreur.
+
+(Standard plus VICTIM)
+
+bounce_user
+-----------
+Ce message affiche un diagnostique et des statistiques pour une
+adresse pour laquelle un message posté n'a pu être délivré.
+
+(Standard plus BOUNCE_PERCENT, BOUNCES_DAY, BOUNCES_MONTH, BOUNCES_WEEK,
+ CONSECUTIVE, DIAGNOSTIC, NONMEMBER, REASONS, STATUS, VICTIM)
+
 bracketed_addresses
 -------------------
 Ce message est affiché lorsque plus d'une adresse email est incluse
 dans une seule pair de '<' et '>'.
 
 (Substitutions standard uniquement)
+
+commands_processed
+------------------
+Ce message résume les résultats d'un groupe de commandes qui ont été
+traitées par le parser de commandes.
+
+(Standard plus COUNT, FAIL, STALL, SUCCEED)
+
+command_results
+---------------
+Ce message est affiché dans le Sujet du message contenant les
+résultats d'une commande Majordomo.
+
+(Standard plus COMMAND)
+
+default_reset
+-------------
+Ce message est affiché lorsque la commande "default" remet un
+paramètre à sa valeur par défaut et que cette dernière est vide.
+
+(Standard plus SETTING)
+
+default_set
+-----------
+Ce message est affiché lorsque la commande "default" change un
+paramètre par défaut ("delay", "list", "password" ou "user").
+
+(Standard plus SETTING, VALUE)
 
 denied_post
 -----------
@@ -70,11 +207,32 @@ des modes de commande requis.
 
 (Standard plus DIGEST_DESCRIPTIONS, DIGESTS, MODES)
 
+empty_command
+-------------
+Ce message est affiché lorsque le parser de commandes ne trouve aucune
+commande.
+
+(Substitutions standard uniquement)
+
+end_command
+-----------
+Ce message est affiché lorsque le parser de commandes reconnait la
+commande "end" et arrete de traiter les commandes.
+
+(Substitutions standard uniquement)
+
 ending_at
 ---------
 Ce message est affiché lorsqu'une adresse email se termine par un '@'.
 
 (Substitutions standard uniquement)
+
+found_tag
+---------
+Ce message est affiché lorsque le parser de commandes trouve un tag
+qui termine une "here document" multi ligne.
+
+(Standard plus TAG)
 
 host_length
 -----------
@@ -82,6 +240,13 @@ Ce message est affiché lorsque le nom d'hôte dans une adresse email
 est supérieur a 64 caractères.
 
 (Substitutions standard uniquement)
+
+ignored_part
+------------
+Ce message est affiché lorsque le parser de commandes ignore une
+partie de message qui n'est pas du texte pur ou du HTML.
+
+(Standard plus CONTENT_TYPE)
 
 inactive_list
 -------------
@@ -118,6 +283,21 @@ admin_moderate" pour plus de détails sur la fonctionnalité "Approved".)
 
 (Substitutions standard uniquement)
 
+invalid_arguments
+-----------------
+Ce message est affiché lorsque le parser de commandes ignore les
+arguments d'une commande qui n'est pas sensée accepter des arguments.
+
+(Standard plus COMMAND)
+
+invalid_attachment
+------------------
+Ce message est affiché lorsque le parser de commandes traite un
+numéro fichier attaché qui est plus grand que le nombre de fichier
+attachés au message.
+
+(Standard plus COUNT)
+
 invalid_char
 ------------
 Ce message est affiché lorsqu'une adresse email contient des
@@ -146,12 +326,27 @@ reconnu ni en tant que commentaire ni en tant que "route".
 
 (Substitutions standard uniquement)
 
+invalid_default
+---------------
+Ce message est affiché lorsque la commande "default" est utilisée avec
+un paramètre invalide.
+
+(Standard plus SETTING)
+
 invalid_entity
 --------------
 Ce message est affiché lorsque l'analyseur de messages est incapable
 de comprendre la structure d'un message posté.
 
 (Substitutions standard uniquement)
+
+invalid_hereargs
+----------------
+Ce message est affiché lorsque le parser de commandes trouve une
+commande pour laquelle un "here document" est fourni alors qu'elle
+n'accepte pas ce genre d'entrée.
+
+(Standard plus COMMAND)
 
 invalid_list
 ------------
@@ -251,6 +446,20 @@ avec le mode de "immediate".
 
 (Standard plus MODE, MODES)
 
+missing_tag
+-----------
+Ce message est affiché lorsque le parser de commandes atteint la fin
+d'un message sans avoir trouvé le tag "here document" qu'il cherchais.
+
+(standard plus TAG)
+
+moderate
+--------
+Ce message est affiché lorsqu'un message est modéré parce que le
+paramètre "moderate" est activé.
+
+(Substitutions standard uniquement)
+
 multiple_addresses
 ------------------
 Ce message est affiché lorsqu'une seule adresse email étais attendue,
@@ -277,6 +486,24 @@ no_domain
 ---------
 Ce message est affiché lorsqu'une adresse email ne contient pas de nom
 d'hôte.
+
+(Substitutions standard uniquement)
+
+no_entity
+---------
+Ce message est affiché lorsqu'une entité MIME n'a pu être créée.
+
+(Substitutions standard uniquement)
+
+no_file
+-------
+Ce message est affiché lorsqu'un fichier n'a pu être lu ou créé.
+
+(Standard plus FILE)
+
+no_headers
+----------
+Ce message est affiché lorsqu'un message ne contient aucune en-têtes.
 
 (Substitutions standard uniquement)
 
@@ -308,6 +535,13 @@ des commentaires.
 
 (Substitutions standard uniquement)
 
+no_stall
+--------
+Ce message est affiché lorsqu'une commande ne peut pas rester en
+attente parce que la variable d'accès "nostall" est activée.
+
+(Substitutions standard uniquement)
+
 no_token
 --------
 Ce message d'erreur est affiché lorsque l'une des commandes "accept",
@@ -330,6 +564,20 @@ a essayé de supprimer un fragment de configuration qui occupe plus de
 lignes que la valeur actuelle du paramètre.
 
 (Standard plus EXPECTED, SETTING, VALUE)
+
+not_subscribed
+--------------
+Ce message est affiché si on tente de modifier un abonnement qui
+n'existe pas.
+
+(Standard plus VICTIM)
+
+obsolete_command
+----------------
+Ce message est affiché lorsque le parser de commandes trouve une
+commande Majordomo qui est obsolète.
+
+(Standard plus COMMAND, NEWCOMMAND)
 
 over_message_limit
 ------------------
@@ -365,6 +613,14 @@ modifier ces pré requis.
 
 (Standard plus LEVEL, MODE, NEEDED, SETTING, USER)
 
+pattern_mode
+------------
+Ce message est affiché lorsque le mode "pattern" ou "regex" est
+utilisé avec l'une des commandes "set", "unregister", ou "unsubscribe"
+sans mot de passe administratif.
+
+(Substitutions standard uniquement)
+
 pending_delivery
 ----------------
 Ce message d'erreur est affiché si la commande "archive-delete" est
@@ -380,6 +636,13 @@ paramètre "postblock" est activé pour l'auteur d'un message posté.
 
 (Standard plus USER)
 
+probe_bounce
+------------
+Ce message est affiché lorsqu'un message sonde n'a pu être délivré a
+l'adresse qu'il sondait.
+
+(Substitutions standard uniquement)
+
 relocated_list
 --------------
 Ce message d'erreur est affiché lorsqu'une liste du paramètre de
@@ -387,6 +650,22 @@ configuration GLOBAL "relocated_lists" est utilisé dans l'une des
 commandes de Majordomo.
 
 (Standard plus NEWLIST)
+
+restrict_post
+-------------
+Ce message est affiché lorsque le message est modéré parce que
+l'auteur du message n'est membre d'aucun des groupes listés dans le
+paramètre "restrict_post".
+
+(Standard plus USER, VICTIM)
+
+results_mailed
+--------------
+Ce message est affiché lorsque la commande "default user" fait que les
+résultats d'une commande Majordomo sont envoyé a une personne
+différente.
+
+(Standard plus FAIL, STALL, SUCCEED, USER)
 
 rhs_domain_literal
 ------------------
@@ -402,12 +681,26 @@ Ce message est affiché lorsqu'une adresse email a un '>' de trop.
 
 (Substitutions standard uniquement)
 
+signature_separator
+-------------------
+Ce message est affiché lorsque le parser de commandes trouve un
+séparateur de signature et arrete de traîter les commandes.
+
+(Standard plus SEPARATOR)
+
 single_header_length
 --------------------
 Ce message est affiché lorsqu'une ou plusieurs en-tête d'un message
 posté est plus longue que le paramètre "max_header_line_length".
 
 (Standard plus LIMIT, SIZE)
+
+skipped_lines
+-------------
+Ce message est affiché lorsque le parser de commandes passe des lignes
+qui ne semblent pas faire part d'une commande.
+
+(Standard plus LINES)
 
 source_route
 ------------
@@ -442,6 +735,38 @@ auxiliaire qui n'est pas considérée comme publique. (Référez vous à
 publiques.)
 
 (Substitutions standard uniquement)
+
+taboo_body
+----------
+Ce message est affiché lorsque l'un des motifs du paramètre
+"taboo_body" ou un paramètre similaire correspond au corps d'un
+message.
+
+(Standard plus LINE, LOCATION, PATTERN, TYPE)
+
+taboo_header
+------------
+Ce message est affiché lorsque l'un des motifs du paramètre
+"taboo_headers" ou un paramètre similaire correspond aux en-têtes d'un
+message.
+
+(Standard plus LOCATION, PATTERN, TYPE)
+
+taboo_inverted
+--------------
+Ce message est affiché lorsque l'un des motifs du paramètre
+"taboo_body" ou "taboo_headers" ou un paramètre similaire ne
+correspond pas au corps ou aux en-têtes d'un message. Les paramètres
+inverses commencent avec un "!".
+
+(Standard plus PATTERN, TYPE)
+
+token_deleted
+-------------
+Ce message est affiché lorsque un message de confirmation ne peut être
+délivré, engendrant la suppression du jeton de confirmation.
+
+(Standard plus TOKEN)
 
 top_level_domain
 ----------------
@@ -478,6 +803,14 @@ Ce message est affiché lorsqu'une limite temporaire basse du paramètre
 
 (Standard plus COUNT, TIME)
 
+unknown_bounce
+--------------
+Ce message est affiché lorsque le type de problème de messagerie
+(échec ou avertissement) ne peut être déterminé par le message en
+erreur.
+
+(Substitutions standard uniquement)
+
 unknown_list
 ------------
 Ce message d'erreur est affiché lorsqu'une liste ayant un nom légal,
@@ -509,6 +842,13 @@ unmatched_paren
 ---------------
 Ce message est affiché lorsqu'il manque dans une adresse une ou
 plusieurs parenthèses fermantes.
+
+(Substitutions standard uniquement)
+
+unparsed_entity
+---------------
+Ce message est affiché lorsque le parser de commande ne peut trouver
+une entité MIME valide dans le message.
 
 (Substitutions standard uniquement)
 

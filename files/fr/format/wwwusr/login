@@ -1,57 +1,47 @@
 
 <pre>?ERROR</pre>
+<p>
+<b>Utilisateurs enregistrés :</b>
+Si vous vous êtes déjà enregistrés ou si vous vous êtes déjà abonné a
+une liste sur $SITE, et que vous avez votre mot de passe, inscrivez
+vous ici.<br>
+
 <form method="POST" action="$CGIURL">
-    <input type="hidden" name="list" value="$LIST">
-<table cellspacing="15" width="100%">
-<tr>
-  <td valign="top">
-    <input size="36" name="user" value="$USER">
-  </td>
-  <td>
-    Entrez votre adresse email dans le champ a moins qu'elle soit
-    déjà présent.
-  </td>
-</tr>
-<tr>
-  <td valign="top">
-    Mot de passe&nbsp;: <input type="password" name="passw" size="15" value="$CMDPASS">
-  </td>
-  <td valign="top">
-    Si vous avez déjà un mot de passe Majordomo sur le
-    domaine $DOMAIN, entrez le dans le champ <b>Mot de passe</b>. Il
-    n'est pas nécessaire d'avoir un mot de passe pour s'abonner
-    aux listes.
-  </td>
-</tr>
-<tr>
-  <td valign="top">
-    <input type="radio" name="func" value="$COMMAND" checked>
-      Connexion<br>
-    <input type="radio" name="func" value="password-show">
-      J'ai oublié mon mot de passe<br>
-    <input type="radio" name="func" value="register">
-      Enregistrer mon adresse<br>
-    <input type="submit" value="Go">
-  </td>
-  <td>
-    Pour vous connecter, cliquez sur le bouton <b>Go</b>.
-    <p>
-    Si vous êtes déjà enregistré ou
-    abonné a une liste de $DOMAIN, mais que vous n'avez pas
-    votre mot de passe, Majordomo peut vous envoyer votre mot de
-    passe. Cochez <b>J'ai oublié mon mot de passe</b>, et
-    cliquez ensuite sur le bouton <b>Go</b>. Un message de
-    confirmation sera peut être envoyé a votre adresse.
-    </p>
-    <p>
-    Si vous n'êtes pas encore abonné a une liste de
-    $DOMAIN, vous pouvez vous enregistrer et obtenir un mot de passe.
-    Cliquez sur le bouton <b>Enregistrer mon adresse</b>, et cliquez
-    sur le bouton <b>Go</b>. Un message de confirmation sera peut
-    être envoyé a votre adresse.
-    </p>
-  </td>
-</tr>
-</table>
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="func" value="$COMMAND">
+  Adresse e-mail : <input size="36" name="user" value="$USER"><br>
+  Mot de passe : <input type="password" name="passw" size="15" value="$CMDPASS">
+  <input type="submit" value="Sign In">
+</form>
+
+<p>
+<b>Nouveaux utilisateurs :</b>
+Si vous ne vous êtes pas enregistrés, ou que vous n'êtes abonné a
+aucunne liste sur $SITE, enregistrez vous pour obtenir un mot de
+passe. Un message de confirmation sera envoyé a votre adresse
+email.<br>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="func" value="register">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  Adresse email : <input size="36" name="user" value="$USER">
+  <input type="submit" value="Register">
+</form>
+
+<p>
+<b>Mot de passe perdu ?</b>
+Si vous êtes enregistrés ou que vous êtes abonné a une liste sur
+$SITE, mais que vous ne connaissez pas votre mot de passe, utilisez ce
+formulaire pour qu'il vous soit envoyé a votre adresse email. Pour des
+raisons de sécurité, un message de confirmation vous sera tout d'abord
+envoyé.<br>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="func" value="password-show">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  Adresse email : <input size="36" name="user" value="$USER">
+  <input type="submit" value="Mail My Password">
 </form>
 

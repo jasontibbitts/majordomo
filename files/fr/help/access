@@ -15,24 +15,48 @@ peut créer une liste auxiliaire, mechants, et utiliser cette
 
 configset GLOBAL access_rules << ENDTAG
 access
-deny, reply="Requête refusée. Votre adresse est sur la liste noire."
+deny, reply="Votre adresse est sur la liste noire."
 @mechants
 ENDTAG
 
-Vous pouvez aussi spécifier les utilisateurs bannis dans la commande
-elle même :
+Vous pouvez aussi spécifier les utilisateurs bannis dans la règle elle
+même :
 
 configset GLOBAL access_rules << ENDTAG
 access
-deny, reply="Requête refusée. Votre adresse est sur la liste noire."
+deny, reply="Votre adresse est sur la liste noire."
 /joe\@example.com/i OR /jane\@example.com/i
 ENDTAG
 
-Par conséquent, quelqu'un qui violerais les règles des administrateurs
-pourrait être banni de Majordomo. Lorsque l'accès est refusé de cette
-manière, toutes les fonctions de Majordomo sont restreintes, incluant
-le fait de poster des messages sur les listes, d'en envoyer aux alias
-des gestionnaires (list-owner), ou les commandes envoyées au serveur.
+Par conséquent, ceux qui violent régulièrement les règles établies par
+les gestionnaires du domaine peuvent être bannis totalement. Lorsque
+l'accès est interdit de cette manière, toutes les fonctionnalités de
+Majordomo sont restreintes, les messages envoyés aux modérateurs, ceux
+postés sur les listes, ou les commandes envoyées au serveur.
+
+Les actions suivantes sont supportées pour la commande "access" dans
+le paramètre "access_rules" : "allow", "deny", "mailfile", "reason",
+"reply", et "replyfile".
+
+Lorsque l'accès est refusé, aucun message de réponse n'est en général
+renvoyé a la personne dont l'accès a été refusé. À la place, une
+explication donnée par les actions "reason", "reply" ou "replyfile" de
+la règle seront ajoutées au message "inform" qui sera envoyé aux
+administrateurs de la liste.
+
+L'action "mailfile" peut être utilisée pour pour renvoyer un message à
+l'adresse a qui l'accès a été refusé. Par exemple, la règle suivante
+peut être utiliser pour envoyer le fichier "/acces_refuse" a n'importe
+qui dont l'accès a été refusé par le paramètre de configuration
+"block_headers" :
+
+access
+mailfile=/acces_refuse
+$block
+
+Par défaut, l'accès sera permis a moins que le message ne corresponde
+a l'un des motifs du paramètre "block_headers". Référez vous à "help
+configset_block_headers" pour plus de détails.
 
 Deux case doivent être pris en compte lorsque l'accès GLOBAL est
 restreint. Le programme mj_trigger, qui envoie les compilations et qui
@@ -44,35 +68,14 @@ ne fonctionneront pas.
 
 
 Référez vous aussi à :
+   help access_variables
    help admin_domain
    help admin_moderate
    help auxiliary_list
-   help configset_access_rules        (pour restreindre l'accès aux
-				       commandes)
-   help configset_archive_access      (pour la commande     archive et
-				       access_rules)
-   help configset_faq_access          (pour la commande         faq et
-				       access_rules)
-   help configset_get_access          (pour la commande         get et
-				       access_rules)
-   help configset_index_access        (pour la commande       index et
-				       access_rules)
-   help configset_info_access         (pour la commande        info et
-				       access_rules)
-   help configset_intro_access        (pour la commande       intro et
-				       access_rules)
-   help configset_which_access        (pour la commande       which et
-				       access_rules)
-   help configset_who_access          (pour la commande         who et
-				       access_rules)
-   help configset_set_policy          (pour la commande         set et
-				       access_rules)
-   help configset_subscribe_policy    (pour la commande   subscribe et
-				       access_rules)
-   help configset_unsubscribe_policy  (pour la commande unsubscribe et
-				       access_rules)
-   help post      (pour le cas spécial de restreindre qui peut poster)
+   help configset_access_rules   (pour restreindre l'accès aux commandes)
+   help configset_block_headers  (refus base sur les en-têtes)
+   help configset_inform
+   help mj_trigger
    help trigger
-   help variables (pour une description des variables substituées)
 
 $INCLUDE-help/foot

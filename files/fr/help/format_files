@@ -847,6 +847,13 @@ trouvée.
 (standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
 
 
+logged_in
+---------
+(wwwusr)  Ce message indique que le login a réussi.
+
+(Standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, ERROR, USER)
+
+
 login
 -----
 (wwwadm, wwwusr)  Ce fichier affiche un formulaire HTML qui permet
@@ -1192,7 +1199,8 @@ showtokens_data
 (text, wwwadm)  Ce fichier affiche le contenu d'un ticket.
 
 (standard plus ADATE, ATYPE, CGIDATA, CGIURL, CMDLINE, CMDPASS,
- COMMAND, DATE, ERROR, LIST, SIZE, TOKEN, TYPE, USER)
+ COMMAND, DATE, ERROR, LIST, REQUESTER, SIZE, TOKEN, TYPE, USER,
+ VICTIM)
 
 
 showtokens_error
