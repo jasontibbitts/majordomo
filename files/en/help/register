@@ -7,22 +7,31 @@ address,     required,     is a previously unregistered address
 newpassword, if specified, is the initial password for address
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
+EXAMPLE:
+register-password XXX Joe Blow <joe@blow.org>
+
 The "register" command adds an "address" to the registration database
 without adding it to any lists. It is possible to register, get a
 password, and then use "approve" to subscribe to several lists instead
 of using "accept" to confirm each subscription.
 
-NOTE: There is, as of 1/99, no formal way to review the register or
-      alias databases. Please contact the maintainer shown at the
-      bottom of this file for a Perl script that assumes shell access.
-
-You may either use the "-password" option OR use "newpassword", not
-both. If you use "-password" but don't put "newpassword" between the
-option and the address, Majordomo will grab the first word of your
-address for use as the password (and the command may fail).
+NOTE: There is, as of 9/2000, no formal way to review the full register
+      or alias databases. The "who GLOBAL" command lists registered
+      addresses, but without passwords.
 
 Unless the "-password" option is used, Majordomo will invent one and
 send it to "address" with a request for confirmation.
+
+If you use the "-password" option, you MUST use "newpassword". If you
+use "-password" but don't put "newpassword" between the option and the
+address, Majordomo will grab the first word of your address (quite
+possibly a comment field like your real name) for use as the password
+(and the command may fail). In the example above, "XXX" is stripped off
+as the password and "Joe Blow" is stored as a comment with the address
+"joe@blow.org". If the "XXX" had been forgotten, the password would be
+"Joe" and the user would be registered as "Blow <joe@blow.org>". Your
+password must be at least as long as the system administrator wants
+it (admins should refer to "help configset password_min_length").
 
 Unless the "-nowelcome" option is used, Majordomo will send a message
 to "address" with an explanation of how to use the password.
@@ -65,9 +74,12 @@ databases all at one time.
 See Also:
    help changeaddr  (which replaces one address with another)
    help configset access_rules_variables (set/test for this command)
+   help configset password_min_length    (set minimum password length)
    help password   (which changes an individual's password)
+   help rekey      (for how to repair the registry)
    help subscribe  (does an automatic registration)
    help unregister (which removes an address from the database)
+   help who        (for a list of addresses in the registry)
 
 For a list of all help topics send this one-line message
    help topics
