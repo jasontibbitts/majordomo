@@ -264,7 +264,7 @@ sub post {
       ||
       $self->{'lists'}{$request->{'list'}}->flag_set('ackall', $user)
       ||
-      ($ok == 0 && $self->_list_config_get($list, 'ack_denials_always'))
+      ($ok == 0 && $self->_list_config_get($request->{'list'}, 'ack_denials_always'))
      )
     {
       $nent = build MIME::Entity
