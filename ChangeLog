@@ -1,3 +1,18 @@
+2000-04-21  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/MailOut.pm (owner_done): Handle new return from
+	Bf::parse.  Build an intelligible message from all of the data we
+	have available.
+
+	* lib/Bf/Parser.pm (parse): Redo data passing.  Return information
+	gleaned from envelope as well as hashref to data pulled from
+	parsed bounces.
+	(parse_dsn): Clean up and return bad address instead of complete
+	content of final-/original-recipient line.
+
+	* lib/Mj/MailOut.pm (owner_start): Name temp files $tmp/owner.*
+	instead of $tmp/post.*.
+
 2000-04-20  Michael Yount  <csf@moscow.com>
 
 	* lib/Mj/CommandProps.pm, lib/Majordomo.pm:

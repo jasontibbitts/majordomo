@@ -40,6 +40,33 @@ Returns:
 Please note that this is just a skeleton hack to get some functionality
 going.
 
+We are supposed to give enough information to the calling layer so that it
+can make a reasonable decision about what to do with the bounce.
+
+If we can get a message number, pass it back.  There can only be one per
+bounce, so that covers it.  If we could parse the bounce message to get
+info, we need to communicate that.  Otherwise, we could only find the
+address from the munged envelope and so the upper level needs to start
+probing this address every run for some time.
+
+If we can obtain disposition information (warning, failure, etc.) by
+parsing a bounce, we must return it.  Otherwise the calling layer won't
+know if we're just seeing warnings that it should just ignore.
+
+A bounce can contain information about multiple addresses.  We have to pass
+information about all of them.  This is more common than it may seem at
+first.  The dispositions might not be the same for all addresses.
+
+So we must return information gleaned from the envelope (message number,
+poster) along with information from the parsed bounce, if any.
+
+Technically, if there is no message number in the envelope then the message
+is not a bounce.  Modulo really broken MTAs out there, of course.
+
+A bounce could be in response to a post or to something like a confirmation
+message.  For a post, the type will be M and a message number will be
+included.  Other information will be present for other kinds of bounces.
+
 =cut
 
 sub parse {
@@ -48,94 +75,154 @@ sub parse {
   my $list = shift;
   my $sep  = shift;
 
-  my (%data, $info, $mess, $msgno, $to, $status, $type, $user);
+  my ($data, $info, $msgno, $ok, $to, $type, $user);
 
-  # Look for useful bits in the To: header
+  # Look for useful bits in the To: header (assuming we even have one)
   $to = $ent->head->get('To');
+  $to ||= '';
 
   # Look at the left hand side.  We expect to see the list name, followed
   # by '-owner', followed by the MTA-dependent separator followed by some
   # stuff.
-  ($info) = $to =~ /\Q${list}\E-owner\Q${sep}\E([^@]+)\@/;
+  ($info) = $to =~ /\Q$list\E-owner\Q$sep\E([^@]+)\@/;
 
-  return ('none') unless $info;
+  if (!defined($info)) {
+ #   $status = 'none';
+  }
 
   # We know the message is special.  Look for:
   # M\d{1,5}
   # M\d{1,5}=user=host
   # various other special types which we don't use right now.
-  if ($info =~ /M(\d{1,5})=([^=]+)=([^=]+)/) {
+
+  elsif ($info =~ /M(\d{1,5})=([^=]+)=([^=]+)/) {
     $type   = 'M';
     $msgno  = $1;
     $user   = "$3\@$2";
-    $status = 'bounce';
-    $mess   = "Detected a bounce of message #$msgno from $user.\n";
+#    $status = 'bounce';
+#    $mess   = "VERPing detected a bounce of message #$msgno from $user.\n";
   }
   elsif ($info =~ /M(\d{1,5})/) {
     $type   = 'M';
     $msgno  = $1;
     $user   = undef;
-    $status = 'bounce';
-    $mess   = "Detected a bounce of message #$msgno but could not determine the user.\n";
+#    $status = 'bounce';
+#    $mess   = "Detected a bounce of message #$msgno.\n";
   }
   else {
-    $status = 'unknown';
-    $mess   = "Detected a special return message but could not discern its type.\n";
+#    $status = 'unknown';
+#    $mess   = "Detected a special return message but could not discern its type.\n";
   }
 
   # Now try to identify the type of bounce
-  # ($ok, %data) = parse_dsn($ent);
+  $data = {};
+  $ok or ($ok = parse_dsn($ent, $data));
+# $ok or ($ok = parse_exim($ent, $data));
 
-  return ($status, $user, $mess);
+  # So now we have a hash of users and actions plus one possibly determined
+  # from a VERP.  If the user in the VERP is already in the hash, trust
+  # what's in the hash since it was determined by actually picking apart
+  # the bounce.  Otherwise we just assume it's a bounce.
+#  if ($user && !$data{$user}) {
+#    $data{$user} = $status;
+#  }
+
+  return ($type, $msgno, $user, $data);
 }
 
 =head2 parse_dsn
 
-Attempt to identify an RFC1894 DSN, as sent by Sendmail.
+Attempt to identify an RFC1894 DSN, as sent by Sendmail and Zmailer.
+
+Returns:
+
+  a flag; if true, we found a bounce of the appropriate format.  This does
+  not mean that we have any bouncing address, only that there's no reason
+  to check other formats.
+
+  a hash, containing the bouncing users (as keys) and the type of bounce
+  (failure, warning, none, unknown) as values.
+
+  Note that this has may contain users that are not actually subscribe, or
+  could even contain gueses at the bouncing address obtained by applying
+  heuristics.  Don't assume that every address returned here will be a
+  subscriber to any list.
+
+=cut
 
 sub parse_dsn {
-  my $ent = shift;
-  my (@status, $fh, $i, $to, $type);
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my (@status, $action, $fh, $i, $line, $to, $type, $user);
 
   # Check the Content-Type
-  $type = $ent->mime_type;
+  $type = $ent->head->get('content-type');
 
-  # We can quit now if we don't have a type of multipart/report and a 
-  unless ($type =~ !multipart/report!i &&
-	  $type =~ !report-type=delivery-status!i)
+  # We can quit now if we don't have a type of multipart/report and a
+  # subtype of delivery-status
+  unless ($type =~ m!multipart/report!i &&
+	  $type =~ m!report-type=delivery-status!i)
     {
       return 0;
     }
 
   # So we must have a DSN.  The second part has the info we want.
   $type = $ent->parts(1)->mime_type;
-  if ($type !~ !message/delivery-status!i) {
-    # Weird, the second part is always supposed to be of this type.
-    # Well, who cares; perhaps we can get something out of it anyway.
+  if ($type !~ m!message/delivery-status!i) {
+    # Weird, the second part is always supposed to be of this type.  But
+    # nothing else is going to be able to parse this message, so just
+    # assume that we couldn't find a bouncing address.
+    return 1;
   }
 
-  # Pull apart the delivery-status part
-  $fh = $ent->bodyhandle->open('r');
+  # Pull apart the delivery-status part, which consists of groups of
+  # header-like lines followed by blank lines.  The first contains info
+  # about the message, the following groups contain information about each
+  # bouncing address in the DSN.  The standard doesn't seem to allow
+  # continuation lines, so this is pretty simple.
+  $fh = $ent->parts(1)->bodyhandle->open('r');
+
  REC:
   for ($i = 0; 1; $i++) {
     $status[$i] = {};
-    while (defined($line = $fh->getline)) {
+    while (1) {
+      $line = $fh->getline;
+      last REC unless defined $line;
       chomp $line;
       next REC if $line =~ /^\s*$/;
-      $line =~ /([^:]):\s*(.*)/;
-      $status[$i]->{$1} = $2;
+      $line =~ /([^:]+):\s*(.*)/;
+      $status[$i]->{lc($1)} = $2;
     }
   }
 
-  use Data::Dumper; print Dumper $status;
+  # There's lots of info here, but we only want couple of things:
+  # Original-Recipient: lines if we can get them, Final-Recipient: lines
+  # otherwise, and Action: fields. And we don't want anything from the
+  # first group of status entries.
+  for ($i = 1; $i < @status; $i++) {
+    if ($status[1]->{'original-recipient'}) {
+      $user = $status[1]->{'original-recipient'};
+    }
+    else {
+      $user = $status[1]->{'final-recipient'};
+    }
+    $user =~ s/.*?;\s*(.*?)\s*/$1/;
+    $user =~ s/^<(.*)>$/$1/;
 
+    if (lc($status[1]->{'action'}) eq 'failed') {
+      $action = 'failure';
+    }
+    elsif (lc($status[1]->{'action'}) eq 'delayed') {
+      $action = 'warning';
+    }
+    else {
+      $action = 'none';
+    }
+    $data->{$user}{'status'} = $action;
+  }
 
-  # Start pulling apart the second part.  There's lots of info here, but we
-  # only want couple of things: Original-Recipient: lines if we can get
-  # them, Final-Recipient: lines otherwise, and Action: fields.
-  
-  return 0;
-
+  return 1;
 }
 
 =head1 COPYRIGHT

@@ -159,7 +159,7 @@ sub owner_start {
   my $log  = new Log::In 30, "$list";
 
   my $tmp  = $self->_global_config_get('tmpdir');
-  my $file = "$tmp/post." . Majordomo::unique();
+  my $file = "$tmp/owner." . Majordomo::unique();
   $self->{'owner_file'} = $file;
   $self->{'owner_fh'} = new IO::File ">$file" or
     $log->abort("Can't open $file, $!");
@@ -179,7 +179,7 @@ sub owner_done {
       $list) = @_;
   $list ||= 'GLOBAL';
   my $log  = new Log::In 30, "$list";
-  my (@owners, $baduser, $bounce, $ent, $fh, $mess, $nent, $parser,
+  my (@owners, $data, $ent, $fh, $i, $mess, $msgno, $nent, $parser,
       $sender, $tmpdir);
 
   $self->{'owner_fh'}->close;
@@ -199,19 +199,49 @@ sub owner_done {
   $ent = $parser->read($fh);
   $fh->close;
 
-  ($bounce, $baduser, $mess) =
+  # Extract information from the envelope, if any, and parse the bounce.
+  ($type, $msgno, $user, $data) =
     Bf::Parser::parse($ent,
 		      $list,
 		      $self->_site_config_get('mta_separator')
 		     );
 
-  if ($bounce eq 'unknown' || $bounce eq 'warning' || $bounce eq 'bounce') {
+  # If we know we have a message
+  if ($type eq 'M') {
+    $mess = "Detected a bounce of message #$msgno.\n";
+
+    # If we have an address from the envelope, we can only have one.
+    # Always trust it but try to look for a more specific bounce status in
+    # the $data hash
+    if ($user) {
+      if ($data->{$user}) {
+	$status = $data->{$user}{status};
+      }
+      else {
+	$status = "bounce";
+      }
+      $mess .= "  User:   $user.\n";
+      $mess .= "  Status: $status\n\n";
+    }
+
+    # If we don't have a specific user from the envelope, we might have
+    # several that we got from parsing the bounce
+    else {
+      for $i (keys %$data) {
+	$status = $data->{$i}{status};
+	if ($status eq 'unknown' || $status eq 'warning' || $status eq 'failure') {
+	  $mess .= "  User:   $i\n";
+	  $mess .= "  Status: $data->{$i}{status}\n\n";
+	}
+      }
+    }
+
     # Build a new message which includes the explanation from the bounce
     # parser and attach the original message.
     $nent = build MIME::Entity
-      (
-       Data     => [ $mess,
-		     "The message is attached below.\n\n",
+	(
+	 Data     => [ $mess,
+		     "The bounce message is attached below.\n\n",
 		   ],
        -Subject => "Bounce detected",
        -To      => $sender,
@@ -227,7 +257,7 @@ sub owner_done {
 
   else {
     # Just mail out the file as if we never saw it
-    $self->mail_message($sender, $self->{'owner_file'}, @owners);
+      $self->mail_message($sender, $self->{'owner_file'}, @owners);
   }
 
   unlink $self->{'owner_file'};
