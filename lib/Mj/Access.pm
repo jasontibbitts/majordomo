@@ -870,11 +870,11 @@ sub _a_confirm2 {
   }
 
   $defaults = n_defaults('confirm', $td->{command});
-  $reply = "repl_confirm";
+  $reply = 'repl_confirm';
   $dfl2 = '';
 
   # Confirm file, consult file, consult group, consult approvals
-  my ($file1, $file2, $group, $approvals) = split /\s*,\s*/, $arg;
+  my ($file1, $file2) = split /\s*,\s*/, $arg;
 
   if (defined($file1) and length($file1)) {
     $defaults->{'file'} = $file1;
@@ -888,17 +888,14 @@ sub _a_confirm2 {
       if (defined($file2) and length($file2)) {
         $dfl2->{'file'} = $file2;
       }
-      if (defined($group) and length($group)) {
-        $dfl2->{'group'} = $group;
-      }
-      if (defined($approvals) and $approvals > 0) {
-        $dfl2->{'approvals'} = $approvals;
-      }
       $reply = "repl_confirm2";
     }
     else {
       # confirm with the requester if the victim's password was supplied.
       $defaults->{'group'} = 'requester';
+      if (defined($file2) and length($file2)) {
+        $defaults->{'file'} = $file2;
+      }
     }
   }
   # else no mismatch and no password:  fall through.
@@ -1017,6 +1014,7 @@ sub _a_forward {
     return $self->_a_deny('', $td, $args);
   }
   
+  $arg ||= $self->_list_config_get($td->{'list'}, 'whoami_owner');
   $cmdline = $td->{'cmdline'};
 
   if ($td->{'command'} !~ /post/) {
@@ -1143,7 +1141,7 @@ sub _a_mailfile {
      Charset     => $file{'charset'},
      Encoding    => $file{'c_t_encoding'},
      Filename    => undef,
-     -From       => $sender,
+     -From       => $subs->{'OWNER'},
      -To         => $td->{'user'},
      -Date       => time2str("%a, %d %b %Y %T %z", time),
      -Subject    => $file{'description'},
