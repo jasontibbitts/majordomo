@@ -1,5 +1,5 @@
-A table containing attachment rules, which describe how various MIME
-types are to be treated when they appear in messages sent to the list.
+The attachment_rules setting contains a table of rules, which describe 
+how to treat the different body parts of a posted message. 
 
 A rule consists of a MIME type (or regular expression matching a MIME
 type) and a list of actions to perform when a message with this type
@@ -14,11 +14,13 @@ text/plain, text/html, image/jpeg, video/mpeg
 
 Possible actions are:
 
-  allow     - let the part pass
-  deny      - reject the entire message
-  discard   - remove the part from the message and pass the rest
-  consult   - send the entire message to the list owner for approval
-  (more are planned)
+  allow     - let the body part pass untouched.
+  consult   - send the entire message to the list owner for approval.
+  deny      - reject the entire message.
+  discard   - remove the part from the message and pass the rest.
+  format    - convert the body part to plain text.  A numerical
+              argument will adjust the right margin of the text,
+              which occurs at position 72 by default.
+  require   - let the body part pass untouched.  Set the "mime_require"
+              access variable for use in the access rules.
 
-allow and consult take an argument; if present, it should be a
-content-transfer-encoding.
