@@ -86,10 +86,10 @@ automatically forwarded to various responsible parties.
 
 The address need not be a simple email address. Comment fields are
 preserved in the registration database. These are all valid addresses:
-   joe@blow.com
-   Joe Blow <joe@blow.com>
-   "Joe Blow 555-1212" joe@blow.com
-   joe@blow.com (Joe Blow)
+   joe@example.com
+   Joe Blow <joe@example.com>
+   "Joe Blow 555-1212" joe@example.com
+   joe@example.com (Joe Blow)
 Note that registering with a name or other comment field is not
 required, but it may help a site administrator find your address
 in the event you need help later. The name or comment portion must

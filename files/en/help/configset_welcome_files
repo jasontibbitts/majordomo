@@ -15,9 +15,9 @@ Password Notes: Visible only with password.
 
 EXAMPLE:
 configset listname welcome_files << ENDTAG
-Welcome to listname@nowhere.org, save this message!
+Welcome to listname@example.org, save this message!
 public/charter.txt : N
-Common Sense Rules at Nowhere.Org - please save!
+Common Sense Rules at Example.Org - please save!
 public/rules.txt : NS
 ENDTAG
 

@@ -15,12 +15,12 @@ configset listname message_fronter << ENDTAG
 --------------------------(start of broadcast)--------------------------
 -
 
-TIP 1: subscribe and unsubscribe commands go to majordomo@nonwhere.org
+TIP 1: subscribe and unsubscribe commands go to majordomo@example.org
 --------------------------(start of broadcast)--------------------------
 -
 
 TIP 2: you can get off all lists at once with the unregister command
--    (send "unregister YourEmailAddressHere" to majordomo@nonwhere.org)
+-    (send "unregister YourEmailAddressHere" to majordomo@example.org)
 --------------------------(start of broadcast)--------------------------
 -
 ENDTAG

@@ -38,12 +38,12 @@ Here is a sample output:
   | Source: owner
   | PID:    20818
   | 
-  | Received: from tibbs by nowhere.org with local (Exim 3.13 #1)
+  | Received: from tibbs by example.org with local (Exim 3.13 #1)
   |         id 12YH0C-0005Md-00
-  |         for test-owner@nowhere.org; Thu, 23 Mar 2000 17:26:56 -0600
-  | To: test-owner@nowhere.org
+  |         for test-owner@example.org; Thu, 23 Mar 2000 17:26:56 -0600
+  | To: test-owner@example.org
   | Message-Id: <E12YH0C-0005Md-00@malifon.math.uh.edu>
-  | From: Joe Blow <joe@nowhere.org>
+  | From: Joe Blow <joe@example.org>
   | Date: Thu, 23 Mar 2000 17:26:56 -0600
   | 
   | 1: (message to test-owner)
