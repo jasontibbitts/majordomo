@@ -192,10 +192,12 @@ sub archive {
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
-  elsif ($request->{'mode'} =~ /get|delete/) {
-    $tmp = $mj->format_get_string($type, 'archive_get_head');
-    $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out "$str\n";
+  elsif ($request->{'mode'} =~ /get|delete|edit|replace/) {
+    if ($request->{'mode'} !~ /part|edit/) {
+      $tmp = $mj->format_get_string($type, 'archive_get_head');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
+    }
 
     $chunksize = 
       $mj->global_config_get($request->{'user'}, $request->{'password'}, 
@@ -207,43 +209,28 @@ sub archive {
     # and print the result.
     for ($i = 0; $i <= $#msgs; $i++) {
       ($msg, $data) = @{$msgs[$i]};
-      push @tmp, [$msg, $data];
+      push @tmp, $msgs[$i];
       $lines += $data->{'lines'};
       if (($request->{'mode'} =~ /digest/ and $lines > $chunksize) 
           or $i == $#msgs) {
-        
-        if ($request->{'mode'} =~ /immediate/) {
-          $subs->{'MSGNO'} = $tmp[0]->[0];
-          for $j (keys %{$tmp[0]->[1]}) {
-            $subs->{uc $j} = &escape($tmp[0]->[1]->{$j}, $type);
-          }
 
-          $tmp = $mj->format_get_string($type, 'archive_msg_head');
-          $str = $mj->substitute_vars_format($tmp, $subs);
-          print $out "$str\n";
+        if ($request->{'mode'} =~ /part|edit/) {
+          _archive_part($mj, $out, $err, $type, $request, [@tmp]);
         }
-
-        ($ok, $mess) = @{$mj->dispatch($request, [@tmp])};
-        eprint($out, $type, indicate($mess, $ok));
-
-        if ($request->{'mode'} =~ /immediate/) {
-          $subs->{'MSGNO'} = $tmp[$#tmp]->[0];
-          for $j (keys %{$tmp[$#tmp]->[1]}) {
-            $subs->{uc $j} = $tmp[$#tmp]->[1]->{$j};
-          }
-
-          $tmp = $mj->format_get_string($type, 'archive_msg_foot');
-          $str = $mj->substitute_vars_format($tmp, $subs);
-          print $out "$str\n";
+        else {
+          ($ok, $mess) = @{$mj->dispatch($request, [@tmp])};
+          eprint($out, $type, indicate($mess, $ok));
         }
 
         $lines = 0; @tmp = ();
       }
     }
 
-    $tmp = $mj->format_get_string($type, 'archive_get_foot');
-    $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out "$str\n";
+    if ($request->{'mode'} !~ /part|edit/) {
+      $tmp = $mj->format_get_string($type, 'archive_get_foot');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
+    }
   }
   elsif ($request->{'mode'} =~ /stats/) {
     $first = time;
@@ -320,6 +307,218 @@ sub archive {
   $mj->dispatch($request); 
  
   $ok;
+}
+
+use MIME::Head;
+sub _archive_part {
+  my ($mj, $out, $err, $type, $request, $result) = @_;
+  my $log = new Log::In 29, $request->{'args'};
+  my (@tmp, $arc, $data, $expire, $fh, $head, $hsubs, $i, $j, $lastchar, 
+      $msgdata, $msgno, $ok, $part, $showhead, $str, $subs, $tmp);
+
+  $msgno   = $result->[0]->[0];
+  $data    = $result->[0]->[1];
+  $msgdata = $result->[0]->[2];
+  ($arc) = $msgno =~ m!([^/]+)/.*!;
+
+  unless (ref $msgdata eq 'HASH') {
+    $subs = { $mj->standard_subs($request->{'list'}),
+              'ARCHIVE' => $arc,
+              'CGIDATA' => &cgidata($mj, $request),
+              'CGIURL'  => $request->{'cgiurl'},
+              'CMDPASS' => $request->{'password'},
+              'ERROR'   => "The structure of the message $msgno is invalid.\n",
+              'MSGNO'   => $msgno,
+              'USER'    => &escape("$request->{'user'}", $type),
+            };
+    $tmp = $mj->format_get_string($type, 'archive_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate("$str\n", 0, 1);
+    return 0;
+  }
+ 
+  $subs = { $mj->standard_subs($request->{'list'}),
+            'ARCHIVE' => $arc,
+            'CGIDATA' => &cgidata($mj, $request),
+            'CGIURL'  => $request->{'cgiurl'},
+            'CMDPASS' => &escape($request->{'password'}, $type),
+            'MSGNO'   => $msgno,
+            'PART'    => $request->{'part'},
+            'USER'    => &escape("$request->{'user'}", $type),
+          };
+
+  # archive-get-part for a part other than 0
+  # or archive-edit-part:
+  # display the results without formatting.
+  if (($request->{'mode'} =~ /get/ and $request->{'part'} ne '0') or
+      $request->{'mode'} =~ /edit/
+     ) {
+
+    $part = $request->{'part'} || 0;
+    if ($part =~ s/[hH]$//) {
+      $subs->{'CONTENT_TYPE'} = "header";
+      $subs->{'SIZE'} = 
+        sprintf("%.1f", (length($msgdata->{$part}->{'header'}) + 51) / 1024);
+      $showhead = 1;
+    }
+    else {
+      $subs->{'CONTENT_TYPE'} = $msgdata->{$part}->{'type'};
+      $subs->{'SIZE'} = $msgdata->{$part}->{'size'};
+      $showhead = 0;
+    }
+
+    if ($request->{'mode'} =~ /edit/) {
+      $tmp = $mj->format_get_string($type, 'archive_edit_head');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
+    }
+
+    # Display formatted part/header contents.
+    if ($showhead) {
+      print $out "$msgdata->{$part}->{'header'}\n";
+      $lastchar = substr $msgdata->{$part}->{'header'}, -1;
+    }
+    else {
+      $request->{'command'} = 'archive_chunk';
+
+      # In "edit" mode, determine if the text ends with a newline,
+      # and add one if not.
+      $lastchar = "\n";
+
+      ($ok, $tmp) = @{$mj->dispatch($request, $result)};
+      $lastchar = substr $tmp, -1;
+      print $out $tmp;
+      last unless $ok;
+    }
+
+    if ($request->{'mode'} =~ /edit/) {
+      $tmp = $mj->format_get_string($type, 'archive_edit_foot');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
+    }
+  }
+
+  # archive-replace-part or archive-delete-part 
+  # or archive-get-part for part 0
+  else {
+    $request->{'command'} = 'archive_chunk';
+
+    if ($request->{'mode'} =~ /delete/) {
+      ($ok, $tmp) = @{$mj->dispatch($request, $result)};
+      if ($ok) {
+        $tmp = $mj->format_get_string($type, 'archive_part_delete');
+      }
+      else {
+        $subs->{'ERROR'} = $tmp;
+        $tmp = $mj->format_get_string($type, 'archive_error');
+      }
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
+    }
+    elsif ($request->{'mode'} =~ /replace/) {
+      ($ok, $tmp) = @{$mj->dispatch($request, $result)};
+      if ($ok) {
+        $tmp = $mj->format_get_string($type, 'archive_part_replace');
+      }
+      else {
+        $subs->{'ERROR'} = $tmp;
+        $tmp = $mj->format_get_string($type, 'archive_error');
+      }
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
+    }
+ 
+    for $j (keys %$data) {
+      $subs->{uc $j} = &escape($data->{$j}, $type);
+    }
+
+    $tmp = $mj->format_get_string($type, 'archive_msg_head');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
+
+
+    for $i (sort keys %$msgdata) {
+      next if ($i eq '0');
+      $subs->{'CONTENT_TYPE'} = $msgdata->{$i}->{'type'};
+      $subs->{'PART'}         = $i;
+      $subs->{'SIZE'}         = $msgdata->{$i}->{'size'};
+      $subs->{'SUBPART'}      = $i eq '1' ? '' : " ";
+
+      # Display formatted headers for the top-level part 
+      # and for any nested messages.
+      if ($i eq '1' or $msgdata->{$i}->{'header'} =~ /received:/i) {
+        @tmp = split ("\n", $msgdata->{$i}->{'header'});
+        $head = new MIME::Head \@tmp;
+        if ($head) {
+          $hsubs = { 
+                    'HEADER_CC'      => '',
+                    'HEADER_DATE'    => '',
+                    'HEADER_FROM'    => '',
+                    'HEADER_SUBJECT' => '',
+                    'HEADER_TO'      => '',
+                    'HEADER_X_ARCHIVE_NUMBER'  => '',
+                    'HEADER_X_SEQUENCE_NUMBER' => '',
+                   };
+          for $j (map { uc $_ } $head->tags) {
+            @tmp = map { chomp $_; &escape($_, $type) } $head->get($j);
+            $j =~ s/[^A-Z]/_/g;
+            if (scalar @tmp > 1) {
+              $hsubs->{"HEADER_$j"} = [ @tmp ];
+            }
+            else {
+              $hsubs->{"HEADER_$j"} = $tmp[0];
+            }
+          }
+          $tmp = $mj->format_get_string($type, 'archive_header');
+          $str = $mj->substitute_vars_format($tmp, $subs);
+          $str = $mj->substitute_vars_format($str, $hsubs);
+          print $out "$str\n";
+        }
+      }
+
+      # Display the contents of plain text parts.
+      if ($msgdata->{$i}->{'type'} =~ m#^text/plain#i) {
+        $request->{'part'} = $i;
+        $request->{'mode'} = 'get-part';
+        $tmp = $mj->format_get_string($type, 'archive_text_head');
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print $out "$str\n";
+
+        ($ok, $tmp) = @{$mj->dispatch($request, $result)};
+        eprint($out, $type, $tmp);
+
+        $tmp = $mj->format_get_string($type, 'archive_text_foot');
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print $out "$str\n";
+      }
+      
+      # Display images.
+      elsif ($msgdata->{$i}->{'type'} =~ /^image/i) {
+        $tmp = $mj->format_get_string($type, 'archive_image');
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print $out "$str\n";
+      }
+
+      # Display containers, such as multipart types.
+      elsif (! length ($msgdata->{$i}->{'size'})) {
+        $tmp = $mj->format_get_string($type, 'archive_container');
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print $out "$str\n";
+      }
+
+      # Display summaries of other body parts.
+      else {
+        $tmp = $mj->format_get_string($type, 'archive_attachment');
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print $out "$str\n";
+      }
+    }
+
+    $tmp = $mj->format_get_string($type, 'archive_msg_foot');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
+
+  }
 }
 
 sub changeaddr {
@@ -2082,8 +2281,9 @@ sub _tokeninfo_post {
                     'HEADER_SUBJECT' => '',
                     'HEADER_TO'      => '',
                    };
-          for $j (map { $_ =~ s/-/_/g; uc $_ } $head->tags) {
+          for $j (map { uc $_ } $head->tags) {
             @tmp = map { chomp $_; &escape($_, $type) } $head->get($j);
+            $j =~ s/[^A-Z]/_/g;
             if (scalar @tmp > 1) {
               $hsubs->{"HEADER_$j"} = [ @tmp ];
             }
@@ -2582,7 +2782,8 @@ sub g_get {
   }
 
   $chunksize = $mj->global_config_get($request->{'user'}, 
-                                      $request->{'password'}, "chunksize");
+                                      $request->{'password'}, "chunksize")
+                                     || 1000;
 
   $request->{'command'} = "get_chunk";
 
