@@ -5518,12 +5518,6 @@ sub lists {
   my $log = new Log::In 30, "$request->{'mode'}";
   my ($mess, $ok);
 
-  if ($request->{'regexp'}) {
-    ($ok, $mess, $request->{'regexp'})
-      = Mj::Config::compile_pattern($request->{'regexp'}, 0, 'iexact');
-    return ($ok, $mess) unless $ok;
-  }
-
   # Check access
   ($ok, $mess) = $self->global_access_check($request);
 
@@ -5550,7 +5544,13 @@ sub _lists {
   my $log = new Log::In 35, $mode;
   my (@lines, @lists, @out, @tmp, $cat, $compact, $count, $data,
       $desc, $digests, $expose, $flags, $i, $j, $limit, $list,
-      $mess, $osublists, $sublist, $sublists, $testreq);
+      $mess, $ok2, $osublists, $sublist, $sublists, $testreq);
+
+  if ($regexp) {
+    ($ok2, $mess, $regexp)
+      = Mj::Config::compile_pattern($regexp, 0, 'iexact');
+    return ($ok2, $mess) unless $ok2;
+  }
 
   $expose = 0;
   $mode ||= $self->_global_config_get('default_lists_format');
