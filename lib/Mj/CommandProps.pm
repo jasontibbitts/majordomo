@@ -317,7 +317,10 @@ my %commands =
                                    'nomail'      => 1,
                                    'unique'      => 1,
                                   },
-                   'tokendata' => {'arg1' => 'file'}
+                   'tokendata' => {
+                                   'arg1' => 'file',
+                                   'arg2' => 'sublist'
+                                  }
                   },
     'access'   => {
                    'default' => 'deny',
@@ -681,11 +684,13 @@ my %commands =
    'rekey' =>
    {
     'parser'   => [qw(email shell nohereargs real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1,
                    'modes'    =>  {
                                    %generic_modes,
                                    'repair'      => 1,
-                                  },
+                                   'verify'      => 1,
+                                  },   
+                  },
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
@@ -915,6 +920,7 @@ my %commands =
                                    'common'      => 1,
                                    'enhanced'    => 1,
                                    'export'      => 1,
+                                   'owners'      => 1,
                                    'short'       => 1,
                                   },
                    'tokendata' => {'arg1'   => 'regexp',
