@@ -14,6 +14,13 @@ into the appropriate format file for the command that generated the error
 
 The variable substitutions supported by each file are listed in parentheses.
 
+add_headers
+-----------
+This message is displayed if an attempt to add headers to a message
+for the post-addhdr command failed.
+
+(standard substitutions only)
+
 already_subscribed
 ------------------
 This message is displayed if an attempt is made to subscribe an address
@@ -42,6 +49,16 @@ within a single pair of angle brackets.
 
 (standard substitutions only)
 
+denied_post
+-----------
+This message is displayed in the Subject header of an acknowledgement
+message when a posted message is denied by the access checks and the
+resulting message has no description.  This is usually caused by the
+"reply" action in an access rule; see "help configset_access_rules" for
+more details.
+
+(standard substitutions only)
+
 digest_mode
 -----------
 This message is displayed if the digest command is issued without one
@@ -61,6 +78,7 @@ This message is displayed when the host name in an e-mail address is
 longer than 64 characters.
 
 (standard substitutions only)
+
 inactive_list
 -------------
 This error message is displayed if access to a list is denied because
@@ -84,9 +102,17 @@ one subdomain.
 
 invalid_address
 ---------------
-This error message is displayed if an e-mail address is invalid.
+This message is displayed if an e-mail address is invalid.
 
 (standard plus ADDRESS, ERROR, LOCATION)
+
+invalid_approval
+----------------
+This message is displayed if an "Approved" line in a posted message
+contains an invalid password.  See "help admin_moderate" for more
+information about the "Approved" feature.
+
+(standard substitutions only)
 
 invalid_char
 ------------
@@ -116,6 +142,13 @@ recognized as either a comment or a route.
 
 (standard substitutions only)
 
+invalid_entity
+--------------
+This message is displayed when the message parser is unable to
+understand the structure of a posted message.
+
+(standard substitutions only)
+
 invalid_list
 ------------
 This error message is displayed if a list name is used that contains
@@ -137,6 +170,13 @@ This error message is displayed when an invalid administrative or
 personal password, or expired temporary password, is used.
 
 (standard plus VICTIM)
+
+invalid_sublist
+---------------
+This message is displayed when a message is posted to an auxiliary list
+that does not exist.
+
+(standard substitutions only)
 
 invalid_token
 -------------
@@ -286,14 +326,6 @@ and "help configset_password_min_length" for more details).
 
 (standard substitutions only)
 
-pending_delivery
-----------------
-This error message is displayed if the archive-delete command is used to
-attempt to remove a message that is scheduled for delivery in one or
-more digests.
-
-(standard plus MSGNO)
-
 password_level
 --------------
 This error message is displayed when a list administrator uses a 
@@ -303,6 +335,21 @@ privileges according to which setting is being changed.  The
 config_access setting may be used to change the requirements.
 
 (standard plus LEVEL, MODE, NEEDED, SETTING, USER)
+
+pending_delivery
+----------------
+This error message is displayed if the archive-delete command is used to
+attempt to remove a message that is scheduled for delivery in one or
+more digests.
+
+(standard plus MSGNO)
+
+post_block
+----------
+This message is displayed in confirmation notices when the "postblock"
+setting is enabled for the author of a posted message.
+
+(standard plus USER)
 
 relocated_list
 --------------
@@ -331,6 +378,31 @@ source_route
 This message is displayed if an e-mail address contains a source route
 (a leading series of host names separated by commas that indicates how
 an e-mail message should be routed to its destination).
+
+(standard substitutions only)
+
+spool_file
+----------
+This message is displayed when the file containing a posted message that
+is about to be delivered is missing.
+
+(standard substitutions only)
+
+stalled_post
+------------
+This message is displayed in the Subject header of acknowledgement
+notices when a posted message is delayed or requires confirmation and
+the resulting message has no description.  This is usually caused by the
+"reply" action in an access rule; see "help configset_access_rules" for
+more details.
+
+(standard substitutions only)
+
+sublist_post
+------------
+This message is displayed when a message is posted to an auxiliary list
+which is not considered public.  See "help auxiliary_list" for a
+description of public auxiliary lists.
 
 (standard substitutions only)
 

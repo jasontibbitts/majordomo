@@ -89,6 +89,16 @@ more details).  However, it is not presently used, because this feature
 has not been implemented.
 
 
+approved_reject
+---------------
+This file indicates that a confirmation token has been rejected using
+an "Approved" command in the headers or body of a message that was
+posted by the moderators of a mailing list.  See "help admin_moderate"
+for more details on the "Approved" feature.
+
+(no substitutions)
+
+
 confirm
 -------
 This file is sent when a request requires confirmation of the victim
@@ -376,6 +386,7 @@ details).
 See Also:
    help access_variables (for access_rules variables)
    help admin_documents  (introduction to document management)
+   help admin_moderate
    help configset_access_rules  (for mailfile and deny usage)
    help configset_welcome_files (for additional files that can be sent)
    help digest                  (for additional file names and usage)
