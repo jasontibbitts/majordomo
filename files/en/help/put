@@ -111,28 +111,13 @@ List archives, if they are being created and if archive_dir is not
 set, go into ".../listname/files/public/archive/archive-file-name",
 where they appear to commands like "index listname archive".
 
-See Also:
-   help get      (retrieve files by email)
-   help index    (find out which files are available for "put")
-   help filedir  (to create files in a non-default location)
-   help filesync (which must be used if you create files without "put")
-   help newfaq   (a shortcut way to put the file "faq")
-   help newinfo  (a shortcut way to put the file "info")
-   help newintro (a shortcut way to put the file "intro")
-
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-The remainder of this help file is the contents of
-'README.FILES' from the Mj2 distribution tree, as of 18 Mar 2000
-
--*- Text -*-
-
-Note that this information is not complete, and may be inaccurate.
+The remainder of this help file was originally from 'README.FILES'
+from the Mj2 distribution tree. Note that this information is not
+complete, and may be inaccurate... please let us know if you find
+anything that can be improved!
 
 These are all of the files that should exist somewhere in a list's (or
 GLOBAL's) filespace.  They will be variable-substituted and mailed out at
@@ -300,3 +285,18 @@ the type.  Similarly for postindex and footer.
 
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+See Also:
+   help get      (retrieve files by email)
+   help index    (find out which files are available for "put")
+   help filedir  (to create files in a non-default location)
+   help filesync (which must be used if you create files without "put")
+   help newfaq   (a shortcut way to put the file "faq")
+   help newinfo  (a shortcut way to put the file "info")
+   help newintro (a shortcut way to put the file "intro")
+
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
+
