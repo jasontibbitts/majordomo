@@ -15,13 +15,6 @@ Switch over one of my lists.  (How?  Manually maintain subscription
 Top of the list 
 ---------------
 
-!! Warnings from inform (2, at line 70, 1 at line 86) after chained
-   consultation?
-   $req is undef, 
-
-!! Fix expiry time in consultation tokens.  Uses computed seconds value for
-  expiration instead of the number of days.
-
 ! Test forwarding mechanism.
 
 ! Set up shadow list to funnel all of my list traffic through.

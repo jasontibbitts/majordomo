@@ -1,4 +1,13 @@
+Wed Apr  8 01:21:20 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Token.pm (consult): Fix expiry and reminder substitution
+ 	strings.
+	(confirm): Ditto.
+
 Tue Apr  7 18:56:09 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Token.pm (t_accept): Add necessary return values so that
+ 	consult and chained tokens don't generate errors in inform.
 
 	* Makefile.PL (check_syslog): Revamp error message and return
  	false if it bombed.

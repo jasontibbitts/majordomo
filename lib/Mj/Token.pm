@@ -169,13 +169,16 @@ sub confirm {
       $arg2, $arg3) = @_;
   my $log  = new Log::In 50;
   my (%repl, $token, $cset, $data, $ent, $sender, $url, $file, $mj_addr,
-      $mj_owner, $expire, $desc, $c_type, $c_t_encoding, $remind);
+      $mj_owner, $expire, $expire_days, $desc, $c_type, $c_t_encoding,
+      $remind, $remind_days);
 
   $self->_make_tokendb;
 
   # Figure out when a token will expire
-  $expire = time+86400*$self->_list_config_get($list, "token_lifetime");
-  $remind = time+86400*$self->_list_config_get($list, "token_remind");
+  $expire_days = $self->_list_config_get($list, "token_lifetime");
+  $expire = time+86400*$expire_days;
+  $remind_days = $self->_list_config_get($list, "token_remind");
+  $remind = time+86400*$remind_days;
 
   # Make a token and add it to the database
   $token = $self->t_add('confirm', $list, $request, $requester,
@@ -210,8 +213,8 @@ sub confirm {
 	   'MJOWNER'    => $mj_owner,
 	   'TOKEN'      => $token,
 	   'URL'        => $url,
-	   'EXPIRE'     => $expire,
-	   'REMIND'     => $remind,
+	   'EXPIRE'     => $expire_days,
+	   'REMIND'     => $remind_days,
 	   'REQUESTER'  => $requester,
 	   'VICTIM'     => $victim,
 	   'APPROVALS'  => $approvals,
@@ -297,16 +300,18 @@ sub consult {
       $arg1, $arg2, $arg3, $sessionid) = @_;
   my $log  = new Log::In 50;
   my (%repl, @mod1, @mod2, $c_t_encoding, $c_type, $cset, $data, $desc,
-      $ent, $expire, $file, $mj_addr, $mj_owner, $remind, $sender,
-      $subject, $token, $url);
+      $ent, $expire, $expire_days, $file, $mj_addr, $mj_owner, $remind,
+      $remind_days, $sender, $subject, $token, $url);
 
   $self->_make_tokendb;
 
 #  $cmdline = "(post to $list)" if $request eq "post";
   $sessionid ||= $self->{'sessionid'};
 
-  $expire = time+86400*$self->_list_config_get($list, "token_lifetime");
-  $remind = time+86400*$self->_list_config_get($list, "token_remind");
+  $expire_days = $self->_list_config_get($list, "token_lifetime");
+  $expire = time+86400*$expire_days;
+  $remind_days = $self->_list_config_get($list, "token_remind");
+  $remind = time+86400*$remind_days;
 
   # Make a token and add it to the database
   $token = $self->t_add('consult', $list, $request, $requester,
@@ -391,7 +396,8 @@ sub consult {
 	   'MJOWNER'    => $mj_owner,
 	   'TOKEN'      => $token,
 	   'URL'        => $url,
-	   'EXPIRE'     => $expire,
+	   'EXPIRE'     => $expire_days,
+	   'REMIND'     => $remind_days,
 	   'REQUESTER'  => $requester,
 	   'VICTIM'     => $victim,
 	   'APPROVALS'  => $approvals,
@@ -465,10 +471,11 @@ sub t_accept {
   return (0, "Nonexistant token \"$token\"!\n") unless $data;
   
   # Tick off one approval
+  # XXX Note that more approvals are stull required.
   $data->{'approvals'}--;
   if ($data->{'approvals'} > 0) {
     $self->{'tokendb'}->replace("", $token, $data);
-    return (-1, '', $data);
+    return (-1, '', $data, -1);
   }
 
   # All of the necessary approvals have been gathered.  Make sure we don't
@@ -502,7 +509,7 @@ sub t_accept {
     while (defined ($line = $fh->getline)) {
       $mess .= $line;
     }
-    return (-1, $mess, $data);
+    return (-1, $mess, $data, -1);
   }
 
   # We know we want to carry out the action, so call the core routine
@@ -596,7 +603,7 @@ sub t_accept {
   # Now convince the formatter to give the accepter some info about
   # the token, but not the command return.
   $data->{'request'} = 'consult';
-  return (1, '', $data);
+  return (1, '', $data, @out);
 }
 
 =head2 t_reject(token)
