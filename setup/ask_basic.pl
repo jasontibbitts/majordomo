@@ -3,7 +3,7 @@ use vars (qw($nosep $sepclear));
 
 sub ask_basic {
   my $config = shift;
-  my (%have, $db, $def, $i, $msg, $tmpgid, $tmpnam, $tmppwd, $tmpuid);
+  my ($db, $def, $i, $msg, $tmpgid, $tmpnam, $tmppwd, $tmpuid);
 
   #---- Ask about clearing screen
   $nosep = 1; $sepclear = 0;
