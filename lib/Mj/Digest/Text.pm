@@ -39,6 +39,7 @@ The following args are required:
 index_header, index_fronter, fronter, footer
 
 =cut
+use Date::Format;
 sub new {
   my $type = shift;
   my %args = @_;
@@ -53,6 +54,7 @@ sub new {
      Subject  => $args{'subject'} || '',
      From     => $args{'from'},
      To       => $args{'to'},
+     Date     => time2str("%a, %d %b %Y %T %z", time),
      Filename => undef,
      Data     => '',
      # More fields here

@@ -102,6 +102,7 @@ Generates the digest and returns a filename containing it.  Be sure to
 delete this file when finished.
 
 =cut
+use Date::Format;
 sub done {
   my $self = shift;
   my ($fh, $file, $i, $index);
@@ -120,6 +121,7 @@ sub done {
      Subject  => $self->{subject},
      From     => $self->{'from'},
      To       => $self->{'to'},
+     Date     => time2str("%a, %d %b %Y %T %z", time),
      Filename => undef,
      Data     => $self->{'index'},
      # More fields here
