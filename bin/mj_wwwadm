@@ -239,7 +239,7 @@ $request = {
 
 # Deal with accept/reject reasons.
 if ($func =~ /accept|reject/) {
-  $request->{'xplanation'} ||= join '', $cgi->param('explanation');
+  $request->{'xplanation'} ||= join '', $cgi->param('xplanation');
 }
 # Deal with result sets
 elsif ($func eq 'who') {
