@@ -265,6 +265,8 @@ files/en/config/.digest_index_format
 files/en/config/.digest_issues
 files/en/config/.digests
 files/en/config/.dup_lifetime
+files/en/config/.farewell
+files/en/config/.farewell_files
 files/en/config/.faq_access
 files/en/config/.file_search
 files/en/config/.file_share
@@ -415,6 +417,8 @@ files/en/config/digest_issues
 files/en/config/digests
 files/en/config/dup_lifetime
 files/en/config/faq_access
+files/en/config/farewell
+files/en/config/farewell_files
 files/en/config/file_search
 files/en/config/file_share
 files/en/config/get_access
@@ -1736,6 +1740,8 @@ files/en/help/.configset_digest_issues
 files/en/help/.configset_digests
 files/en/help/.configset_dup_lifetime
 files/en/help/.configset_faq_access
+files/en/help/.configset_farewell
+files/en/help/.configset_farewell_files
 files/en/help/.configset_file_search
 files/en/help/.configset_file_share
 files/en/help/.configset_get_access
@@ -1955,6 +1961,8 @@ files/en/help/configset_digests
 files/en/help/configset_dup_lifetime
 files/en/help/configset_faq_access
 files/en/help/configset_file_search
+files/en/help/configset_farewell
+files/en/help/configset_farewell_files
 files/en/help/configset_file_share
 files/en/help/configset_get_access
 files/en/help/configset_inactive_lifetime

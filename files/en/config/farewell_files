@@ -1,0 +1,8 @@
+The farewell_files setting determines which documents are mailed when
+someone leaves a mailing list with the "unsubscribe" command.
+
+Each file takes two lines.  The first should be an explanatory message
+which will appear in the Subject or Content-description header of the
+e-mail message that is sent to the ex-subscriber.  The second line
+consists of a file name and a flag field, which are separated by a colon
+(':') or pipe symbol ('|').

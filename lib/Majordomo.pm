@@ -5888,7 +5888,7 @@ sub _register {
   my $cmd   = shift;
   my $pw    = shift;
   my $log   = new Log::In 35, "$vict";
-  my ($data, $exist, $ok, $welcome);
+  my ($data, $exist, $ok, $welcome, $welcome_table);
 
   if (!defined $pw || !length($pw)) {
     $d = $self->_global_config_get('password_min_length');
@@ -5910,7 +5910,9 @@ sub _register {
   $welcome = 0 if $mode =~ /(nowelcome|quiet)/;
 
   if ($welcome) {
-    $ok = $self->welcome('GLOBAL', $vict, 'PASSWORD' => $pw,
+    $welcome_table = $self->_global_config_get('welcome_files')
+    $ok = $self->welcome('GLOBAL', $vict, $welcome_table,
+			 'PASSWORD'   => $pw,
                          'REGISTERED' => 0);
     unless ($ok) {
       # Perhaps complain to the list owner?
@@ -6827,7 +6829,7 @@ sub _subscribe {
   my $sublist = shift || 'MAIN';
   my $log   = new Log::In 35, "$list, $vict";
   my ($ok, $class, $classarg, $classarg2, $data, $exist, $flags, $ml,
-      $rdata, $welcome);
+      $rdata, $welcome, $welcome_table);
 
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
@@ -6874,7 +6876,9 @@ sub _subscribe {
   $welcome = 0 if ($sublist ne 'MAIN');
 
   if ($welcome) {
-    $ok = $self->welcome($list, $vict, 'PASSWORD' => $rdata->{'password'},
+    $welcome_table = $self->_list_config_get($list, 'welcome_files');
+    $ok = $self->welcome($list, $vict, $welcome_table,
+			 'PASSWORD'   => $rdata->{'password'},
                          'REGISTERED' => $exist);
     unless ($ok) {
       # Perhaps complain to the list owner?
@@ -7502,8 +7506,8 @@ use IO::File;
 sub _unsubscribe {
   my($self, $list, $requ, $vict, $mode, $cmd, $sublist) = @_;
   my $log = new Log::In 35, "$list, $vict";
-  my(%fdata, @out, @removed, $bye, $data, $desc, $fh, $file,
-     $flist, $key, $subs);
+  my(%fdata, @out, @removed, $data, $desc, $farewell, $farewell_table, $fh,
+     $file, $flist, $key, $subs);
 
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
@@ -7526,15 +7530,6 @@ sub _unsubscribe {
     return (0, "Cannot unsubscribe $vict: no matching addresses.");
   }
 
-  if ($mode =~ /farewell/) {
-    ($file, %fdata) = $self->_list_file_get(list => $list,
-					    file => 'farewell',
-					   );
-    $subs = { $self->standard_subs($flist) };
-    $bye = &tempname;
-    $desc = $fdata{'description'};
-  }
-
   while (($key, $data) = splice(@removed, 0, 2)) {
     # Convert to an Addr object and remove the list from
     # the registration entry for that address.
@@ -7547,27 +7542,20 @@ sub _unsubscribe {
     push (@out, $data->{'fulladdr'});
 
     # Send a farewell message
-    if ($mode =~ /farewell/) {
+    $farewell = $self->_list_config_get($list, "farewell");
+    $farewell = 1 if $mode =~ /farewell/;
+    $farewell = 0 if $mode =~ /(nofarewell|quiet)/;
+    $farewell = 0 if ($sublist ne 'MAIN');
+
+    if ($farewell) {
+      $farewell_table = $self->_list_config_get($list, 'farewell_files');
       $data = $self->_reg_lookup($key);
       next unless $data;
-      $subs->{'USER'} = "$key";
-      $subs->{'VICTIM'} = "$key";
-      $subs->{'PASSWORD'} = $data->{'password'};
-      $subs->{'STRIPADDR'} = $data->{'stripaddr'};
-      $subs->{'QSADDR'} = Mj::Format::qescape($data->{'stripaddr'});
-
-      $fh = new IO::File ">$bye";
-      next unless $fh;
-      $self->substitute_vars($file, $subs, $list, $fh);
-      # $fh is closed by substitute_vars()
-
-      $fdata{'description'} = $self->substitute_vars_string($desc, $subs);
-      $self->_get_mailfile($list, $key, 'farewell', $bye, %fdata);
-      unlink $bye;
+      $ok = $self->welcome($list, $key, $farewell_table,
+			   'PASSWORD' => $data->{'password'},
+			  );
     }
-
   }
-
   return (1, [@out]);
 }
 

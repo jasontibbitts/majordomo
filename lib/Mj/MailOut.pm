@@ -312,7 +312,8 @@ specified in the 'welcome_files' variable. If one of the files in the
 welcome message does not exist, it is ignored.
 
 It also is used to mail files to someone whose address has been added to
-the global registry using the "register" command.
+the global registry using the "register" command, and to someone whose
+address has been removed from a list.
 
 =cut
 use Date::Format;
@@ -322,6 +323,7 @@ sub welcome {
   my $self = shift;
   my $list = shift;
   my $addr = shift;
+  my $table= shift;
   my %args = @_;
   my $log = new Log::In 150, "$list, $addr";
   my (%file, @mess, @temps, $count, $fh, $file, $final, $head, $i, $j,
@@ -332,7 +334,6 @@ sub welcome {
   # Extract some necessary variables from the config files
   my $tmpdir    = $self->_global_config_get('tmpdir');
   my $sender    = $self->_list_config_get($list, 'sender');
-  my $table     = $self->_list_config_get($list, 'welcome_files');
 
   $subs = {
            $self->standard_subs($list),

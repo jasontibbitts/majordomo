@@ -1,0 +1,74 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname farewell_files <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : Farewell from the $LIST list ... (only first item is shown)
+Data Type     : welcome_files
+Category      : reply
+Password Notes: Visible only with password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset listname farewell_files << ENDTAG
+Farewell from the $LIST list
+farewell : NS
+Instructions in case you wish to rejoin
+rejoin-info : NS
+ENDTAG
+
+$INCLUDE-config/farewell_files
+
+The first line of each file description will be displayed in the Subject
+header of a message if the file is the first file to appear in a farewell
+message.  Otherwise, the first line will appear in a Content-Description
+header of an attachment to the farewell message.
+
+The first field of the second line of a file description is a file name.
+The file must already be present in the file space of your mailing list.
+The "get" command can be used to verify that the file exists:
+
+  get-immediate LISTNAME FILENAME
+
+Files can be created in the file space using the "put" command.
+
+The second field of the second line of a file description is an optional
+flag field.  Three flags are supported:  
+
+  * 'E' causes the file to be included only if it exists in the list's
+     explicit search path (as specified by the file_search setting).  The
+     default locations will not be searched.  If the file does not exist,
+     it will be completely ignored.
+
+  * 'N' indicates that the file should be the first part of a new farewell 
+     message; 
+
+  * 'S' causes the file to undergo variable substitution (and possibly 
+     auto-inclusion of additional files).  The variables supported include
+     the standard substitutions, plus USER, PASSWORD, FRONTER, FOOTER,
+     RANDOM_FRONTER, RANDOM_FOOTER, ALL_FRONTERS, and ALL_FOOTERS.  See
+     "help variables" for a description of each substitution variable.
+
+Regardless of whether the 'S' flag is present, the substitutions will be
+applied to the subject from the first line of the description.
+
+
+It is possible to use comments before, between, and after the individual
+rules, but not within rules.  Comments are lines that begin with a '#'.
+You can use comments as a reminder of what a file does or why
+it was chosen, but comments have no impact on how the setting works.
+
+
+See Also:
+   help admin_documents   (for an introduction to the file space)
+   help configset_file_search (determines how files are looked for)
+   help configset_farewell (determines if farewell messages are sent)
+   help get               (to retrieve files from the list's file space)
+   help put               (to store files in the list's file space)
+   help register
+   help subscribe
+   help unregister
+   help unsubscribe
+   help variables         (for an explanation of substitution variables)
+
+$INCLUDE-help/foot

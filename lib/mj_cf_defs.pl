@@ -233,6 +233,15 @@ $Mj::Config::default_string = q(
                              'vacation | daily',
                            ],
  'unsubscribe_policy'   => "open",
+ 'farewell'             => 0,
+ 'farewell_files'       => (($list eq 'GLOBAL') ?
+			    [
+			    ]
+			    :
+			    [
+			     'Farewell from the $LIST list',
+			     'farewell | NS',
+			    ]),
  'welcome'              => 1,
  'welcome_files'        => (($list eq 'GLOBAL') ?
 			    [

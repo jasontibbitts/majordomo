@@ -917,6 +917,26 @@ package Mj::Config;
     'mutable'=> 3,
     'wizard' => 9,
    },
+   'farewell' =>
+   {
+    'type'   => 'bool',
+    'groups' => [qw(reply)],
+    'local'  => 1,
+#    'global' => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+    'wizard' => 9,
+   },
+   'farewell_files' =>
+   {
+    'type'   => 'welcome_files',
+    'groups' => [qw(reply)],
+    'local'  => 1,
+#    'global' => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+    'wizard' => 9,
+   },
    'welcome' =>
    {
     'type'   => 'bool',

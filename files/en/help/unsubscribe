@@ -1,5 +1,5 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-unsubscribe[-farewell] listname [address]
+unsubscribe[-farewell][-nofarewell] listname [address]
 unsubscribe-pattern[-allmatching][-farewell] listname pattern
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 address,  if specified, is an email address 
@@ -8,6 +8,7 @@ pattern,  if specified, is a Majordomo pattern (see "help patterns")
 -pattern,     if specified, removes addresses matching a pattern
 -allmatching, if specified, unsubscribes every address that matches
 -farewell,    if specified, sends a "farewell" message to each address.
+-nofarewell,  if specified, suppresses the farewell message.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The unsubscribe command will remove one or more addresses from a 
@@ -47,12 +48,11 @@ following command:
 See "help set" for more details.
 
 
-                    The unsubscribe-farewell command
-
-The "farewell" command mode can be used to send a "farewell" message to
-each address that is removed from the list.  The farewell message
-contains the personal password for that address and instructions for
-resubscribing or unregistering.
+If the "farewell" setting is "yes", Majordomo will send a farewell message
+to each address that is removed from the list.  The contents of this
+message is determined by the "farewell_files" setting.  The "farewell"
+command mode can be used to force this farewell message to be sent, and the
+"nofarewell" mode will suppress it.
 
 
                      Notes for list administrators
@@ -147,6 +147,8 @@ See Also:
    help auxiliary_list (which is used to manage a set of addresses)
    help changeaddr  (which replaces one address with another)
    help configset_access_rules  (to restrict access to this command)
+   help configset_farewell (determines if farewell messages are sent)
+   help configset_farewell_files (determines the contents of farewell messages)
    help configset_unsubscribe_policy
    help here_document
    help password    (which changes an individual's password)
