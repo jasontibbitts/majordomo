@@ -298,6 +298,10 @@ sub n_validate {
         return (0, qq(The variable "$var" was not recognized.\n) .
                    qq(Supported variables include:\n  $tmp\n));
       }
+      if ($notify_var{$var} eq 'timespan') {
+        $val = str_to_time($val);
+        $val -= time;
+      }
       $struct->{$var} = $val;
     }
     elsif ($i =~ /^[\w.-]+$/) {
@@ -522,6 +526,7 @@ sub re_match {
 
 This converts a string to a number of seconds since 1970 began.
 
+
 =cut
 sub str_to_time {
   my $arg = shift;
@@ -533,6 +538,9 @@ sub str_to_time {
     return time + $arg;
   }
 
+  if ($arg =~ /(\d+)s(econds?)?/) {
+    $time += $1;
+  }
   if ($arg =~ /(\d+)h(ours?)?/) {
     $time += (3600 * $1);
   }

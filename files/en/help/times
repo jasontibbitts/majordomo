@@ -1,44 +1,61 @@
-This file contains information for both subscribers and administrators,
-but subscribers will probably find only the first two sections useful!
+               Time spans, Time frames, and Scheduled times
 
-Below are several general formats that Majordomo uses for specifying
-the time at which an event happens, how long to wait for something to
-happen, when it did happen, etc.
+Majordomo supports three different time formats.
 
-Section 1 - Time Periods (for 'set nomail', 'default delay', etc)
-Section 2 - Time Stamps (for 'archive-get', 'report', etc)
-Section 3 - Time Specs (for administrators and list configuration)
+The first format is used to indicate a time span, such as 5 hours.  
+This format is used in the following contexts:
+  delays                        (see "help delay")
+  the archive command           (see "help archive")
+  the report command            (see "help report")
+  the nomail personal setting   (see "help set")
+  the access_rules setting      (see "help access_variables")
+  the post_limits setting       (see "help configset_post_limits")
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+The second format is used to indicate a particular date or time frame, 
+such as the second week of June, 2000, or the 5th day of May, 1996.
+This format is used in the following contexts:
+  the archive command           (see "help archive")
+  the report command            (see "help report")
 
-Section 1 - Time Periods (for 'set nomail', 'default delay', etc)
+The third format is used to indicate a scheduled time, such as 8 PM
+every Friday.  This format is used in the following contexts:
+  the access_rules setting      (see "help configset_access_rules")
+  the digests setting           (see "help configset_digests")
+  the triggers setting          (see "help configset_triggers")
+  
+The rest of this document describes how to write each format.
 
-The period of time before something happens can be specified in
-hours, days, weeks, months, or years. For example, use:
+
+Time spans
+----------
+
+A period of time can be specified in seconds, hours, days, weeks, months, 
+or years, but not minutes.  For example, use:
+
+  30s for 30 seconds
    3h for 3 hours
    7d for 7 days
    2w for 2 weeks
    6m for 6 months
    2y for 2 years
 
-The single-letter abbreviations h/d/w/m/y can be expanded into full
-words if you want: only one character is required, but the words shown
-above (hours/days/weeks/months/years) are equivalent. If you are using
-full words, remember NOT to use a space: "2weeks" is OK, but NOT "2 weeks".
+If you need more flexibility in specifying time spans, you can combine 
+time periods, as in 2w3d for two weeks and three days.
 
-If you need more flexibility in specifying time spans, you
-can combine these, as in 2w3d for two weeks and three days.
+The single-letter abbreviations s/h/d/w/m/y can be expanded into full words.
+Only the first letter is required, but the words shown above are equivalent. 
+If you are using full words, do not use a space: "2weeks" is correct, but 
+"2 weeks" is incorrect.  For example, "4w3d" can be written as "4weeks3days".
 
-If no character follows the number, different portions of the software
-make different decisions: For example, the delay command interprets
-unqualified numbers as seconds out of a minute, and the post_limits
-configuration setting interprets them as number of posts. Be careful
-to check the help file for any command on which you don't include
-a qualifier like "d".
+If the time specification is a whole number without any letters, it is 
+treated as a number of seconds.  The one exception to this rule occurs 
+in the post_limits configuration setting, where a whole number is
+considered a message count (see "help configset_post_limits" for more
+details).
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-Section 2 - Time Stamps (for 'archive-get', 'report', etc)
+Dates and time frames
+---------------------
 
 You can specify a four-digit year, a two--digit month, a two-digit
 day, or a one-digit week:
@@ -47,29 +64,28 @@ day, or a one-digit week:
   yyyymmdd
   yyyymmw
 
-NOTE: There is a subtle difference between day and week time stamps...
-days are always two digits, weeks are always one digit! Be careful
-not to forget the leading zero on a day stamp or you might wind up
-getting the wrong data.
+NOTE: There is a subtle difference between day and week time stamps:
+days are always two digits, and weeks are always one digit!  Be careful
+to remember the leading zero if the day of the month is less than 10.
 
-To include an entire year, use a four-digit number. For example:
+To include an entire year, use a four-digit number.  For example:
    1999 for the entire year of 1999
 
 To include only one month of a specific year, use a four-digit year
 plus a two-digit month (with a leading '0' if needed):
-   200007 for the month of July 2000
+   200007 for the month of July, 2000
 
-To include a specific WEEK use a four-digit year, plus a two-digit
-month (with a leading '0' if needed), plus a ONE-DIGIT week:
-   2000011 for the first week of January 2000
+To include a specific week use a four-digit year, plus a two-digit
+month (with a leading '0' if needed), plus a one-digit week:
+   2000011 for the first week of January, 2000
 
-To include a specific DAY use a four-digit year, a two-digit month,
-and a TWO-DIGIT day (with a leading '0' on day and month if needed):
-   20000802 for the day of 2 August 2000
+To include a specific day use a four-digit year, a two-digit month,
+and a two-digit day (with a leading '0' on day and month if needed):
+   20000802 for the 2nd day of August, 2000
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-Section 3 - Time Specs (for administrators and list configuration)
+Scheduled times
+---------------
 
 For list configurations that need a time specification, you can use any
 of the following forms. Note that ranges are ONLY allowed for hours,
@@ -88,11 +104,8 @@ try to extend the patterns (like tacking an hour on a day-of-year spec).
 
 1b. HOUR RANGE: two HOURs separated by a dash
    - the action will be taken each hour between these two hours each day
-   - if the second number is less than the first, the range continues
-      into the next day (wraps around midnight)
    - EXAMPLE: "12-13" is around noon, action taken at 12noon and 1pm
    - EXAMPLE: "8-17" is the work day, once per hour from 8am to 5pm
-   - EXAMPLE: "22-6" most people are asleep, once per hour from 10pm to 6am
 
 1c. HOUR LIST: two or more HOURs and/or HOUR RANGEs separated by commas
    - the action will be taken during each of these hours each day, as needed
@@ -167,18 +180,16 @@ try to extend the patterns (like tacking an hour on a day-of-year spec).
    - yearly:    the action is taken on every first of January at 5am
 
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
 See Also:
+   help access_variables
    help archive
-   help configset digests
-   help configset post_limits
-   help configset triggers
+   help configset_access_rules
+   help configset_digests
+   help configset_post_limits
+   help configset_triggers
    help default
+   help delay
    help report
    help set
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
-
+$INCLUDE-help/foot
