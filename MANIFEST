@@ -557,6 +557,7 @@ files/en/error/.multiple_addresses
 files/en/error/.nested_brackets
 files/en/error/.no_address
 files/en/error/.no_domain
+files/en/error/.no_headers
 files/en/error/.no_list
 files/en/error/.no_local_part
 files/en/error/.no_password
@@ -582,6 +583,9 @@ files/en/error/.source_route
 files/en/error/.spool_file
 files/en/error/.stalled_post
 files/en/error/.sublist_post
+files/en/error/.taboo_body
+files/en/error/.taboo_header
+files/en/error/.taboo_inverted
 files/en/error/.top_level_domain
 files/en/error/.total_header_length
 files/en/error/.undefined_address
@@ -647,6 +651,7 @@ files/en/error/multiple_addresses
 files/en/error/nested_brackets
 files/en/error/no_address
 files/en/error/no_domain
+files/en/error/no_headers
 files/en/error/no_list
 files/en/error/no_local_part
 files/en/error/no_password
@@ -672,6 +677,9 @@ files/en/error/source_route
 files/en/error/spool_file
 files/en/error/stalled_post
 files/en/error/sublist_post
+files/en/error/taboo_body
+files/en/error/taboo_header
+files/en/error/taboo_inverted
 files/en/error/top_level_domain
 files/en/error/total_header_length
 files/en/error/undefined_address
