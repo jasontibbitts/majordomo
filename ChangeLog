@@ -1,3 +1,8 @@
+2003-06-06  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Config.pm:  (parse_bounce_rules)  Bugfix:  Add
+	missing "use" declaration.
+
 2003-05-29  Michael Yount <csf@moscow.com>
 
 	* bin/mj_email, mj_queuerun:  (connect_and_parse)  Discard the
@@ -12,7 +17,7 @@
 	(_d_access)  Deny connections if one of the block_headers
 	patterns matched.
 	(_d_post)  Consult the owners if any non-capitalized taboo
-	pattern matched.
+	variable matched.
 	(describe_taboo)  Rename Mj::Resend::_describe_taboo and
 	add error file support.
 

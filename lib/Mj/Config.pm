@@ -2034,6 +2034,7 @@ Returns a hash with the following elements:
  code        - a string ready to be evaled.
 
 =cut
+use Mj::Util qw(n_validate);
 sub parse_bounce_rules {
   my $self = shift;
   my $arr  = shift;
