@@ -162,9 +162,13 @@ command.  An auxiliary list is created by adding an address to it with
 the subscribe command, or by mentioning it in the access rules (see
 "help auxiliary_list" for more details). 
 
+Whenever the createlist command succeeds, the createlist-regen shell
+hook is run.  See "help shell_hook" for more details.
+
 
 See Also:
    help admin                 (how to manage a list after it is created)
+   help admin_domain
    help auxiliary_list        (introduction to sublists)
    help configset             (to configure the list after it is created)
    help configset_active      (to activate an "inactive" list)
@@ -174,5 +178,6 @@ See Also:
    help configset_password_min_length
    help configset_relocated_lists
    help configset_sublists  (to make cause alias generation for aux lists)
+   help shell_hook
 
 $INCLUDE-help/foot

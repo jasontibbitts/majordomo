@@ -47,6 +47,8 @@ user.  If this token is accepted, then the user is removed.
 
 The remove-noprobe action will immediately remove the user, without sending
 the probing test message to verify that the user is indeed bouncing.
+This action will also cause the bouncehandler-unsubscribe shell hook to
+be run.  See "help shell_hook" for more details.
 
 The remove-noprobe-consult action is also valid; it causes the owners to be
 consulted but no probing test message to be sent to the bouncing user.
@@ -208,5 +210,6 @@ See Also:
    help configset_bounce_probe_pattern
    help configset_bounce_recipients
    help configset_inform
+   help shell_hook
 
 $INCLUDE-help/foot
