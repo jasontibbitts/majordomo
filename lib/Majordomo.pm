@@ -1709,6 +1709,7 @@ sub _password {
        Charset  => $file{'charset'},
        Encoding => $file{'c-t-encoding'},
        Subject  => $desc,
+       -To      => $vict->canon,
        Top      => 1,
        Filename => undef,
        'Content-Language:' => $file{'language'},
