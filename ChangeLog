@@ -1,3 +1,9 @@
+2003-03-09  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Config.pm:  (lock)  Bugfix:  Load the configuration
+	file immediately if it has not already been loaded.
+	Thanks to Robert.
+
 2003-03-06  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Accommodate IPv6
@@ -13,7 +19,7 @@
 
 	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Include the character
 	set when displaying part of a message with the archive or
-        tokeninfo command.  Thanks to Roger Klorese.
+	tokeninfo command.  Thanks to Roger Klorese.
 
 	* lib/Majordomo.pm:  (_get_msg_data)  Set the charset for
 	message part 0.
@@ -28,7 +34,7 @@
 	if a message is denied and no reply is necessary.
 	Thanks to Mathieu Arnold.
 	(_within_limits, _check_header)  Use error files 
-        instead of hard-coded English.
+	instead of hard-coded English.
 
 	* lib/Mj/Util.pm:  (process_rule)  Place reply and replyfile
 	actions last to prevent other actions from overriding them.

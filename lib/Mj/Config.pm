@@ -1135,7 +1135,9 @@ sub lock {
   return if $self->{'locked'};
 
   # Load the file if necessary
-  if ((-r $name) && $self->{mtime} <= (stat($name))[9]) {
+  if (! $self->{'loaded'} or 
+      ((-r $name) && $self->{mtime} <= (stat($name))[9])) 
+  {
     $log->message(150, 'info', 'reloading');
     $self->load;
   }
