@@ -28,15 +28,18 @@ sub new {
   my $class = ref($type) || $type;
   my $data  = shift;
   my $file  = shift;
+  my $sender= shift;
   my $snum  = shift;
   my $sep   = shift;
-  my $log   = new Log::In 150, "$data->{sender}, $snum, $sep";
+  my $log   = new Log::In 150, "$sender, $snum, $sep";
 
   my $self = {};
   bless $self, $class;
 
   $self->{'data'}    = $data;
-  $self->{'dest'}    = Mj::Deliver::Dest->new($self->{'data'}, $file, 'single');
+  $self->{'dest'}    = Mj::Deliver::Dest->new($self->{'data'}, $file, 
+                                              '', 'single');
+  $self->{'sender'}  = $sender;
   $self->{'seqnum'}  = $snum;
   $self->{'sendsep'} = $sep;
   $self->{'addrs'} = [];
@@ -60,7 +63,7 @@ sub add {
 
   # Generate an appropriate sender.
   my $sender =
-    Bf::Sender::any_probe_sender($self->{data}{sender},
+    Bf::Sender::any_probe_sender($self->{sender},
 			       $self->{sendsep},
 			       $self->{seqnum},
 			       $addr,

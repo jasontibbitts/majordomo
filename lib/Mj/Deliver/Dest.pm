@@ -78,6 +78,7 @@ sub new {
   my $class  = ref($type) || $type;
   my $data   = shift;
   my $file   = shift;
+  my $sender = shift;
   my $single = shift;
   my $log   = new Log::In 150;
   my (@tmp1, $code, $fail, $i, $mess, $val);
@@ -86,7 +87,7 @@ sub new {
   bless $self, $class;
 
   # Pull in sender and file
-  $self->{'sender'} = $data->{'sender'};
+  $self->{'sender'} = $sender;
   $self->{'file'}   = $file || $data->{'file'};
 
   # Figure out method and args; 
