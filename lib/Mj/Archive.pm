@@ -359,7 +359,8 @@ sub remove {
   # Always look up the data for the message
   $self->_make_index($arc);
   $data = $self->{'indices'}{$arc}->lookup($msg);
-  return unless $data;
+  return (0, "Unable to lookup message data") 
+    unless $data;
   
   $self->_read_counts($arc, 1);
   if ($self->{'splits'}{$arc}{'msgs'} == $msg) {
@@ -389,7 +390,7 @@ sub remove {
     $file= "$dir/$self->{'list'}.$arc";
   }
   $fh = new Mj::FileRepl $file;
-  return unless $fh;
+  return (0, "Unable to open the new archive: $!") unless $fh;
 
   # Copy the original archive up to the beginning of the deleted message.
   for ($count = $data->{byte} ; $count > 0; ) {
@@ -397,7 +398,7 @@ sub remove {
     $res = $fh->{'oldhandle'}->read($buf, $size);
     if (!$res) {
       $fh->abandon;
-      return;
+      return (0, "Unable to read from the archive: $!");
     }
     $count -= $res;
     $fh->{'newhandle'}->print($buf);
@@ -431,7 +432,101 @@ sub remove {
   }
 
   # Return
-  $data;
+  (1, $data);
+}
+
+=head2 replace(message_num, message_file, tmpdir, quote_pattern)
+
+This takes a message number (as "archive/number") and replaces it
+with the contents of a new file. 
+
+=cut
+use Mj::FileRepl;
+sub replace {
+  my $self = shift;
+  my $msg  = shift;
+  my $msgfile = shift;
+  my $tmpdir = shift;
+  my $qp = shift;
+  my $owner = shift;
+  my $log = new Log::In 150, $msg;
+  my ($arc, $buf, $count, $data, $dir, $fh, $file, $i, $newfh, 
+      $res, $size, $sub);
+
+  # Figure out appropriate index database and message number
+  ($arc, $msg) = $msg =~ m!([^/]+)/(.*)!;
+  $dir = $self->{dir};
+
+  # Always look up the data for the message
+  $self->_make_index($arc);
+  $data = $self->{'indices'}{$arc}->lookup($msg);
+  return (0, "Unable to lookup message data") 
+    unless $data;
+  return (0, "Unable to locate the replacement message") 
+    unless (defined $msgfile and -f $msgfile);
+  
+  $self->_read_counts($arc, 1);
+  if ($self->{'splits'}{$arc}{'msgs'} == $msg) {
+    for ($i = $msg - 1; $i > 0; $i--) {
+      last if $self->{'indices'}{$arc}->lookup($i);
+    }
+    $self->{'splits'}{$arc}{'msgs'} = $i;
+  }
+  $self->{'splits'}{$arc}{'lines'} -= $data->{'lines'};
+
+  # Open FH on appropriate split
+  if (length $data->{'split'} and $data->{'split'} ne '0') {
+    # Untaint
+    if ($data->{'split'} =~ /(\d+)/) {  
+      $sub = "$arc-$1";
+      $self->_read_counts($sub, 1);
+      $self->{'splits'}{$sub}{'msgs'}--;
+      $self->{'splits'}{$sub}{'lines'} -= $data->{'lines'};
+      $file= "$dir/$self->{'list'}.$sub";
+    }
+    else {
+      $sub = $arc;
+    }
+  }
+  else {
+    $sub = $arc;
+    $file= "$dir/$self->{'list'}.$arc";
+  }
+
+  $newfh = new IO::File $msgfile;
+  return (0, "Unable to open the archive: $!") unless $newfh;
+
+  $fh = new Mj::FileRepl $file;
+  return (0, "Unable to open the new archive: $!") unless $fh;
+
+  # Copy the original archive up to the beginning of the deleted message.
+  for ($count = $data->{byte} ; $count > 0; ) {
+    $size = $count > 4096 ? 4096 : $count;
+    $res = $fh->{'oldhandle'}->read($buf, $size);
+    if (!$res) {
+      $fh->abandon;
+      return (0, "Unable to read from the archive: $!");
+    }
+    $count -= $res;
+    $fh->{'newhandle'}->print($buf);
+  }
+
+  $buf = "From $owner  " . localtime($data->{'date'}) . "\n";
+  $fh->{'newhandle'}->print($buf);
+  
+  while ($buf = $newfh->getline) {
+    $fh->{'newhandle'}->print($buf);
+  }
+
+  # Seek to message end and copy the remainder of the file.
+  $fh->{'oldhandle'}->seek($data->{byte} + $data->{bytes} + 1, 0);
+  $fh->copy;
+  $fh->commit;
+
+  $self->sync($arc, $tmpdir, $qp);
+
+  # Return the data for the replacement message
+  return (1, $self->{'indices'}{$arc}->lookup($msg));
 }
 
 =head2 sync(archive_file, temporary_dir, quote_pattern)
