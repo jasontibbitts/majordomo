@@ -628,7 +628,6 @@ sub _post {
   # Cook up a substitution hash
   $subs = {
          $self->standard_subs($list),
-         ARCURL   => $self->_list_config_get($list, 'archive_url'),
          DATE     => $date,
          HOST     => $self->_list_config_get($list, 'resend_host'),
          MSGNO    => $msgnum,

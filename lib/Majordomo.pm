@@ -902,6 +902,7 @@ sub standard_subs {
   $curl = $self->_global_config_get('confirm_url');
 
   my %subs = (
+    'ARCURL'      => $self->_list_config_get($list, 'archive_url'),
     'CONFIRM_URL' => $self->substitute_vars_string(
                        $curl, {'TOKEN' => ''}),
     'DOMAIN'      => $self->{'domain'},
@@ -5053,7 +5054,6 @@ sub _digest {
     $tmpdir   = $self->_global_config_get('tmpdir');
     $subs = {
               $self->standard_subs($list),
-              ARCURL   => $self->_list_config_get($list, 'archive_url'),
               DATE     => scalar(localtime()),
               HOST     => $self->_list_config_get($list, 'resend_host'),
               SENDER   => $sender,
