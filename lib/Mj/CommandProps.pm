@@ -5,11 +5,11 @@ package Mj::CommandProps;
 require Exporter;
 @ISA = qw(Exporter);
 
-@EXPORT_OK = qw(access_def command_legal command_prop
+@EXPORT_OK = qw(access_def command_legal command_default command_prop
                 commands_matching command_list function_prop function_legal
                 rules_request rules_requests rules_var rules_vars
                 rules_action rules_actions action_files action_terminal);
-%EXPORT_TAGS = ('command'  => [qw(command_legal command_prop
+%EXPORT_TAGS = ('command'  => [qw(command_legal command_default command_prop
                                   commands_matching command_list)],
                 'function' => [qw(function_legal function_prop)],
                 'rules'    => [qw(rules_request rules_requests rules_var
@@ -705,6 +705,15 @@ sub access_def {
   1;
 }
   
+# This returns the default access for a command.
+# Returns undef if command is not listed above, does NOT expand aliases.
+sub command_default {
+  my $command = lc(shift);
+  # $command = command_legal($command);
+  return undef if(!defined($commands{$command}));
+  return $commands{$command}{'access'}{'default'};
+}
+
 1;
 
 
