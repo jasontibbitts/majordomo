@@ -1,0 +1,31 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  block_headers <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : /X-Loop:.*majordomo/i ... (only first item is shown)
+Data Type     : taboo_headers
+Variable Group: majordomo
+Password Notes: Visible only with password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset GLOBAL block_headers <<ENDTAG
+/^X-Loop/i
+/^subject:\s*spam\b/i
+ENDTAG
+
+
+If any of the headers in a message sent to one of the list server addresses
+matches one of these regular expressions, the message will be forwarded to
+the list owners instead of being parsed for commands.
+
+
+See Also:
+   help configset access_rules  (for how to block posts)
+   help configset admin_headers (for how to block posts)
+   help configset taboo_headers (for how to block posts)
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

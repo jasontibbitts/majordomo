@@ -29,6 +29,12 @@ to the server. All syntax and information is identical, but the "nn"
 option (and its comma) which restricts matches to the first few lines is
 not present for headers.
 
+
+See Also:
+   help configset block_headers (for how to block server commands)
+   help configset access_rules  (for how to block posts)
+   help configset taboo_headers (for how to block posts)
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ

@@ -30,6 +30,13 @@ see "admin_" in that help file.
 
 See "help configset access_rules" for how to send informative messages
 when one of the taboo_headers lines matches.
+
+
+See Also:
+   help configset block_headers (for how to block server commands)
+   help configset access_rules  (for how to block posts)
+   help configset admin_headers (for how to block posts)
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ

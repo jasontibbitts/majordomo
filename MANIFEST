@@ -278,6 +278,7 @@ files/en/help/configset_archive_size
 files/en/help/configset_archive_split
 files/en/help/configset_archive_url
 files/en/help/configset_attachment_rules
+files/en/help/configset_block_headers
 files/en/help/configset_bounce_max_age
 files/en/help/configset_bounce_max_count
 files/en/help/configset_bounce_probe_frequency

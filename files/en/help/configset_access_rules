@@ -774,6 +774,7 @@ See Also:
    help variables (for a list of all possible variables and what they mean)
    help configset access_rules_variables (for requests, variables, defaults)
    help configset archive_access      (for     archive-related access_rules)
+   help configset block_headers       (for how to filter out server requests)
    help configset faq_access          (for         faq-related access_rules)
    help configset get_access          (for         get command access_rules)
    help configset index_access        (for       index command access_rules)
