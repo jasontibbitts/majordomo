@@ -113,13 +113,14 @@ sub t_add {
      'chain2'     => shift,
      'chain3'     => shift,
      'chain4'     => shift,
-     'arg1'          => shift,
-     'arg2'          => shift,
-     'arg3'          => shift,
+     'arg1'       => shift,
+     'arg2'       => shift,
+     'arg3'       => shift,
      'expire'     => shift,
      'remind'     => shift,
      'reminded'   => shift,
      'permanent'  => shift,
+     'reasons'    => shift,
      'time'       => time,
      'sessionid'  => $self->{'sessionid'},
     };
@@ -170,7 +171,8 @@ sub confirm {
       $reminded, $permanent, $reasons, $i);
   my $list = $args{'list'};
 
-  $self->_make_tokendb;
+  return unless $self->_make_tokendb;
+  $args{'command'} =~ s/_(start|chunk|done)$//;
 
   # Figure out when a token will expire
   $permanent = 0;
@@ -192,7 +194,8 @@ sub confirm {
         		$args{'user'}, $args{'victim'}, $args{'mode'},
         		$args{'cmdline'}, $args{'approvals'},
         		@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
-			    $expire, $remind, $reminded, $permanent);
+			$expire, $remind, $reminded, $permanent,
+                        $args{'reasons'});
 
   $sender   = $self->_list_config_get($list, 'sender');
   $mj_addr  = $self->_global_config_get('whoami');
@@ -202,7 +205,7 @@ sub confirm {
         			       {'TOKEN' => $token,},
         			      );
 
-  ($reasons = $args{'args'}[1]) =~ s/\002/\n  /g;
+  ($reasons = $args{'reasons'}) =~ s/\002/\n  /g;
   $repl = {
            $self->standard_subs($list),
            'TOKEN'      => $token,
@@ -309,8 +312,8 @@ sub consult {
       $sender, $subject, $tmp, $token, $url, $reminded, $permanent, $reasons);
   my $list = $args{'list'};
 
-  $self->_make_tokendb;
-
+  return unless $self->_make_tokendb;
+  $args{'command'} =~ s/_(start|chunk|done)$//;
   $args{'sessionid'} ||= $self->{'sessionid'};
 
   $permanent = 0;
@@ -332,7 +335,8 @@ sub consult {
         		$args{'user'}, $args{'victim'}, $args{'mode'},
         		$args{'cmdline'}, $args{'approvals'},
         		@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
-                $expire, $remind, $reminded, $permanent);
+                        $expire, $remind, $reminded, $permanent,
+                        $args{'reasons'});
 
   $sender = $self->_list_config_get($list, 'sender');
   $mj_addr  = $self->_global_config_get('whoami');
@@ -365,7 +369,7 @@ sub consult {
     @mod2 = @mod1;
   }
 
-  ($reasons = $args{'args'}[1]) =~ s/\002/\n  /g;
+  ($reasons = $args{'reasons'}) =~ s/\002/\n  /g;
 
   # Not doing a post, so we send a form letter.
   # First, build our big hash of substitutions.
@@ -427,6 +431,104 @@ sub consult {
   unlink $file || $::log->abort("Couldn't unlink $file, $!");
 }
 
+=head2 delay(file, arghash)
+
+This adds a delay token to the database and mails out the delay notice.
+Requests in delay tokens are carried out when the token expires.
+
+=cut
+use MIME::Entity;
+sub delay {
+  my ($self, %args) = @_;
+
+  my $log  = new Log::In 50;
+  my (%file, $repl, $token, $data, $ent, $sender, $url, $file, $mj_addr,
+      $mj_owner, $expire, $expire_days, $desc, $permanent, $reasons, $i);
+  my $list = $args{'list'};
+
+  return unless $self->_make_tokendb;
+  $args{'command'} =~ s/_(start|chunk|done)$//;
+
+  # Figure out when a token will expire
+  $permanent = 0;
+  $expire = time + $args{'delay'};
+
+  # Make a token and add it to the database
+  $token = $self->t_add('delay', $list, $args{'command'},
+        		$args{'user'}, $args{'victim'}, $args{'mode'},
+        		$args{'cmdline'}, $args{'approvals'},
+        		@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
+			$expire, 0, 1, $permanent, $args{'reasons'});
+
+  # Do not inform the victim if "quiet" mode was specified
+  # or if the request was a posted message.
+  return 1 if ($args{'mode'} =~ /quiet/ or $args{'command'} eq 'post');
+
+  $sender   = $self->_list_config_get($list, 'sender');
+  $mj_addr  = $self->_global_config_get('whoami');
+  $mj_owner = $self->_global_config_get('sender');
+  $url = $self->_global_config_get('confirm_url');
+  $url = $self->substitute_vars_string($url,
+        			       {'TOKEN' => $token,},
+        			      );
+
+  ($reasons = $args{'reasons'}) =~ s/\002/\n  /g;
+  $repl = {
+           $self->standard_subs($list),
+           'TOKEN'      => $token,
+           'URL'        => $url,
+           'FULFILL'    => scalar localtime ($expire),
+           'REQUESTER'  => $args{'user'},
+           'REQUESTOR'  => $args{'user'},
+           'VICTIM'     => $args{'victim'},
+           'NOTIFY'     => $args{'notify'},
+           'APPROVALS'  => $args{'approvals'},
+           'CMDLINE'    => $args{'cmdline'},
+           'COMMAND'    => $args{'command'},
+	   'REASONS'    => $reasons,
+           'SESSIONID'  => $self->{'sessionid'},
+           'ARG1'       => $args{'args'}->[0],
+           'ARG2'       => $args{'args'}->[1],
+           'ARG3'       => $args{'args'}->[2],
+          };
+
+  # Extract the file from storage
+  ($file, %file) = $self->_list_file_get($list, $args{'file'}, $repl, 1);
+  $desc = $self->substitute_vars_string($file{'description'}, $repl);
+
+  # Send it off
+  $ent = build MIME::Entity
+    (
+     Path        => $file,
+     Type        => $file{'c_type'},
+     Charset     => $file{'charset'},
+     Encoding    => $file{'c_t_encoding'},
+     Filename    => undef,
+                    # Note explicit stringification
+     -To         => "$args{'notify'}", 
+     -From       => $sender,
+     -Subject    => $desc,
+     'Content-Language:' => $file{'language'},
+    );
+
+  return unless $ent;
+
+  for $i ($self->_global_config_get('message_headers')) {
+    $i = $self->substitute_vars_string($i, $repl);
+    $ent->head->add(undef, $i);
+  }
+
+  $self->mail_entity({addr => $mj_owner,
+		      type => 'D',
+		      data => $token,
+		     },
+		     $ent,
+		     $args{'notify'}
+		    );
+
+  $ent->purge;
+}
+
 =head2 t_accept(token)
 
 This accepts a token.  It verifies that the token exists and if so
@@ -457,8 +559,8 @@ sub t_accept {
   my $mode = shift;
   my $comment = shift;
   my $log   = new Log::In 50, $token;
-  my (@out, $data, $ent, $ffunc, $func, $line, $mess, $ok, $outfh,
-      $req, $sender, $tmp, $vict, $repl);
+  my (%file, @out, $data, $ent, $ffunc, $func, $line, $mess, $ok, $outfh,
+      $req, $sender, $tmp, $tmpdir, $vict, $repl, $whoami);
 
   $self->_make_tokendb;
   $data = $self->{'tokendb'}->lookup($token);
@@ -481,6 +583,17 @@ sub t_accept {
   }
 
   $data->{'ack'} = 0;
+
+  $repl = {
+           $self->standard_subs($data->{'list'}),
+           'CMDLINE'    => $data->{'cmdline'},
+           'DATE'       => scalar localtime ($data->{'time'}),
+           'NOTIFY'     => $data->{'user'},
+           'COMMAND'    => $data->{'command'},
+           'REQUESTER'  => $data->{'user'},
+           'SESSIONID'  => $data->{'sessionid'},
+           'VICTIM'     => $data->{'victim'},
+          };
 
   # All of the necessary approvals have been gathered.  Now, this may be a
   # chained token where we need to generate yet another token and send it
@@ -522,16 +635,6 @@ sub t_accept {
     }
     $self->t_remove($token);
 
-    # and build the return message string from the replyfile
-    $repl = {
-             $self->standard_subs($data->{'list'}),
-             'CMDLINE'    => $data->{'cmdline'},
-             'NOTIFY'     => $data->{'user'},
-             'COMMAND'    => $data->{'command'},
-             'REQUESTER'  => $data->{'user'},
-             'SESSIONID'  => $data->{'sessionid'},
-             'VICTIM'     => $data->{'victim'},
-            };
 
     my ($file) = $self->_list_file_get($data->{'list'}, $data->{'chain4'});
     $file = $self->substitute_vars($file, $repl);
@@ -543,35 +646,76 @@ sub t_accept {
     $fh->close;
     unlink $file;
     return (-1, $mess, $data, -1);
-  }
+  } # chain1 
 
-  $func = $data->{'command'};
-  $req  = new Mj::Addr($data->{'user'});
+  ($func = $data->{'command'}) =~ s/_(start|chunk|done)$//;
   $vict = new Mj::Addr($data->{'victim'});
-  
-  $func = "_$func";
-  @out = $self->$func($data->{'list'},
-        	       $req,
-        	       $vict,
-        	       $data->{'mode'},
-        	       $data->{'cmdline'},
-        	       $data->{'arg1'},
-        	       $data->{'arg2'},
-        	       $data->{'arg3'},
-        	      );
+  $req  = new Mj::Addr($data->{'user'});
 
+  if ($func ne 'post') {
+  
+    $func = "_$func";
+    @out = $self->$func($data->{'list'},
+                        $req,
+                        $vict,
+                        $data->{'mode'},
+                        $data->{'cmdline'},
+                        $data->{'arg1'},
+                        $data->{'arg2'},
+                        $data->{'arg3'},
+                       );
+  }
+  else {
+    if (! -r $data->{'arg1'}) {
+      # missing spool file; inform and quit.
+      $self->inform("GLOBAL", "post", $data->{'user'}, $data->{'user'},
+        $data->{'cmdline'}, "resend",
+        0, 0, -1, "Spool file $data->{'arg1'} is missing; cannot requeue.");
+      @out = (0, "Unable to locate the posted message.\n");
+    }
+    else {
+      # To respond to the request faster, add an Approved header
+      # and requeue the message.  
+
+      # Obtain sender and list (with possible sublist) addresses.
+      $sender = $self->_list_config_get($data->{'list'}, 'sender');
+      $tmpdir = $self->_global_config_get('tmpdir');
+
+      # Reconstruct the list address.
+      my %avars = split("\002", $data->{'arg3'});
+      $whoami = $data->{'list'};
+      $data->{'auxlist'} = $avars{'sublist'} || '';
+      if ($avars{'sublist'} ne '') {
+        $whoami .=  "-$avars{'sublist'}";
+      }
+      $whoami .=  '@' . $self->_list_config_get($data->{'list'}, 'whereami');
+
+      # Set up a parser to add headers to the message.
+      my $parser = new Mj::MIMEParser;
+      $parser->output_to_core($self->_global_config_get("max_in_core"));
+      $parser->output_dir($tmpdir);
+      $parser->output_prefix("mjq");
+
+      my $pw = $self->_list_config_get($data->{'list'}, "master_password"); 
+      # Add or replace the Approved header, and mail the message. 
+      $ok = $parser->replace_headers($data->{'arg1'}, 
+                                     'Approved' => $pw,
+                                     '-Delivered-To' => '');
+      if ($ok and $sender and $whoami) {
+        $self->mail_message($sender, $data->{'arg1'}, $whoami);
+        @out = (1, "The message was requeued and will be delivered soon.\n");
+      }
+      else {
+        @out = (0, "The message could not be requeued.\n");
+      }
+    }
+  }
   # Nuke the token
   $self->t_remove($token);
 
   # If we're accepting a confirm token, we can just return the results
   # so that they'll be formatted by the core accept routine.
   return (1, '', $data, \@out) if ($data->{'type'} eq 'confirm');
-
-  # Extract the sublist
-  if ($data->{'command'} eq 'post') {
-    my %avars = split("\002", $data->{'arg3'});
-    $data->{'auxlist'} = $avars{'sublist'} || '';
-  }
 
   # So we're accepting a consult token. We need to give back some
   # useful info the the accept routine so the owner will know that the
@@ -588,17 +732,9 @@ sub t_accept {
     $data->{'ack'} = 1;
 
     # First make a tempfile
-    $tmp = $self->_global_config_get("tmpdir");
-    $tmp = "$tmp/mj-tmp." . Majordomo::unique();
-    $outfh = new IO::File ">$tmp";
-
-    # Print some introductory info into the file, so the user is not
-    # surprised.  XXX This all should probably be in a file somewhere.
-    # Even better, this should somehow be settable by the owner, either
-    # when the request is approved or when the original comsult action
-    # was generated.
-    print $outfh "The list owner has approved your request.\n";
-    print $outfh "Here are the results:\n\n";
+    ($tmp, %file) = $self->_list_file_get($data->{'list'}, "repl_fulfill", $repl);
+    $outfh = new IO::File ">>$tmp";
+    return (1, '', $data, [@out]) unless $outfh;
 
     # Convert the token data into the appropriate hash entries
     # that would have appeared in the original $request hash
@@ -623,22 +759,11 @@ sub t_accept {
 
     close $outfh;
 
-    $sender = $self->_list_config_get($data->{'list'}, "sender");
-    
-    # Construct a message.  (MIME-tools is cool.)
-    $ent = build MIME::Entity
-      (
-       Path     => $tmp,
-       Filename => undef,
-       -To      => $data->{'victim'},
-       -From    => $sender, 
-       -Subject => "Results from delayed command",
-      );
+    $self->_get_mailfile($data->{'list'}, $data->{'victim'}, 
+                         'fulfill', $tmp, %file)
+      if ($data->{'victim'});
 
-    # Mail out what we just generated
-    $self->mail_entity($sender, $ent, $data->{'victim'});
-
-    $ent->purge;
+    unlink $tmp;
   }
   else {
     # determine whether or not the victim was notified.
@@ -665,7 +790,7 @@ sub t_reject {
   $self->_make_tokendb;
 
   (undef, $data) = $self->t_remove($token, 1);
-  return (0, "Token $token is unavailable")
+  return (0, "Token $token is unavailable.\n")
     unless $data;
 
   # XXX Notify/requester the owner unless $quiet
@@ -745,7 +870,8 @@ sub t_remind {
       # Find number of days left until it dies
       $expire = int(($data->{'expire'}+43200-time)/86400);
 
-      ($reasons = $data->{'arg2'}) =~ s/\002/\n  /g;
+      ($reasons = $args{'reasons'}) =~ s/\002/\n  /g;
+
       # Generate replacement hash
       $repl = {
                $self->standard_subs($data->{'list'}),
@@ -758,10 +884,10 @@ sub t_remind {
                APPROVALS  => $data->{'approvals'},
                CMDLINE    => $data->{'cmdline'},
                COMMAND    => $data->{'command'},
+               REASONS    => $reasons,
                SESSIONID  => $data->{'sessionid'},
                ARG1       => $data->{'arg1'},
                ARG2       => $data->{'arg2'},
-               REASONS    => $reasons,
                ARG3       => $data->{'arg3'},
               };
 
@@ -827,7 +953,8 @@ sub t_expire {
     my $key  = shift;
     my $data = shift;
 
-    if (!$data->{'permanent'} && $time > $data->{'expire'}) {
+    if (!$data->{'permanent'} && $time > $data->{'expire'} 
+        && $data->{'type'} ne 'delay') {
       push @nuked, ($key, $data);
       return (1, 1, undef);
     }
@@ -848,6 +975,34 @@ sub t_expire {
   $self->{'latchkeydb'}->mogrify($mogrify);
 
   return @kill;
+}
+
+=head2 t_fulfill
+
+Expire "delay" tokens, completing their requests
+
+=cut
+sub t_fulfill {
+  my $self = shift;
+  my $log  = new Log::In 60;
+  my $time = time;
+  my (@waiting, $key, $data);
+
+  my $extract = sub {
+    my $key  = shift;
+    my $data = shift;
+
+    if (!$data->{'permanent'} && $time > $data->{'expire'} 
+        && $data->{'type'} eq 'delay') {
+      push @waiting, ($key, $data);
+    }
+    return (0, 0);
+  };
+  
+  return unless $self->_make_tokendb;
+  $self->{'tokendb'}->mogrify($extract);
+
+  return @waiting;
 }
 
 =head2 _make_tokendb, _make_latchkeydb private
