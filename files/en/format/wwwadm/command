@@ -7,7 +7,7 @@
 <tr>
   <td>
     Command:&nbsp;&nbsp;
-    <select name=func>
+    <select name="func">
       <option> help
       <option> accept
       <option> archive-get
@@ -28,32 +28,32 @@
       <option> sessioninfo
       <option> set
       <option> showtokens
-      <option> subscribe
+      <option> subscribe-welcome
       <option> subscribe-nowelcome
       <option> tokeninfo
       <option> unregister
-      <option> unsubscribe
+      <option> unsubscribe-nofarewell
       <option> unsubscribe-farewell
       <option> which
       <option> who
       <option> who-bounce
     </select>
   </td>
-  <td colspan=2>
-    <input size=40 name=extra value="">
+  <td colspan="2">
+    <input size="40" name="extra" value="">
   </td>
 </tr>
 <tr>
   <td>
     Mailing List:&nbsp;&nbsp;
-    <input size=20 name=list value="$LIST">
+    <input size="20" name="list" value="$LIST">
   </td>
   <td>
     Password:&nbsp;&nbsp;
-    <input size=15 name=passw type=password value="$CMDPASS">
+    <input size="15" name="passw" type="password" value="$CMDPASS">
   </td>
   <td>
-    <input type=submit value="Issue Command">
+    <input type="submit" value="Issue Command">
   </td>
 </tr>
 </table>

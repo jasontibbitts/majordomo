@@ -28,32 +28,32 @@
       <option>sessioninfo</option>
       <option>set</option>
       <option>showtokens</option>
-      <option>subscribe</option>
+      <option>subscribe-welcome</option>
       <option>subscribe-nowelcome</option>
       <option>tokeninfo</option>
       <option>unregister</option>
-      <option>unsubscribe</option>
+      <option>unsubscribe-nofarewell</option>
       <option>unsubscribe-farewell</option>
       <option>which</option>
       <option>who</option>
       <option>who-bounce</option>
     </select>
   </td>
-  <td colspan=2>
-    <input size=40 name=extra value="">
+  <td colspan="2">
+    <input size="40" name="extra" value="">
   </td>
 </tr>
 <tr>
   <td>
     Liste&nbsp;:&nbsp;&nbsp;
-    <input size=20 name=list value="$LIST">
+    <input size="20" name="list" value="$LIST">
   </td>
   <td>
     Mot de passe&nbsp;:&nbsp;&nbsp;
-    <input size=15 name=passw type=password value="$CMDPASS">
+    <input size="15" name="passw" type="password" value="$CMDPASS">
   </td>
   <td>
-    <input type=submit value="Executer la commande">
+    <input type="submit" value="Executer la commande">
   </td>
 </tr>
 </table>
