@@ -115,7 +115,8 @@ sub post {
     mv ($request->{'file'}, $spool);
     $mess = $self->format_error('invalid_entity', $request->{'list'});
     $self->inform('GLOBAL', 'post', $request->{'user'}, $request->{'user'},
-        $request->{'cmdline'}, 'resend', 0, 0, -1, $mess, $::log->elapsed);
+        $request->{'cmdline'}, $self->{'interface'}, 0, 0, -1, $mess, 
+        $::log->elapsed);
     return (0, $mess);
   }
 
@@ -234,6 +235,7 @@ sub post {
   # and so we just return;
   unless (defined $mess && length $mess) {
     # Unlink the spool file if the post was denied.
+    # XXX The file should be unlinked if the message was forwarded.
     unlink $request->{'file'} unless $ok; 
     return ($ok, '');
   }
@@ -304,6 +306,7 @@ sub post {
 
   # If the request failed, we need to unlink the file.
   if (!$ok) {
+    # XXX The file should be unlinked if the message was forwarded.
     unlink $request->{'file'};
   }
 
@@ -463,8 +466,9 @@ sub _post {
     unless ($sl = $self->{'lists'}{$list}->valid_aux($avars{'sublist'})) {
       $mess = $self->format_error('invalid_sublist', $list, 'SUBLIST' =>
                                   $avars{'sublist'});
-      $self->inform($list, "post", $user, $victim, $cmdline, "resend",
-        0, 0, -1, $mess, $::log->elapsed);
+      $self->inform($list, "post", $user, $victim, $cmdline, 
+                    $self->{'interface'}, 0, 0, -1, $mess, 
+                    $::log->elapsed);
       return (0, $mess);
     }
   }
@@ -505,8 +509,8 @@ sub _post {
       # The spool file, containing the message to be posted, is missing.
       # Inform the site owner, and return.
       $mess = $self->format_error('spool_file', $list);
-      $self->inform("GLOBAL", "post", $user, $victim, $cmdline, "resend",
-        0, 0, -1, $mess, $::log->elapsed);
+      $self->inform("GLOBAL", "post", $user, $victim, $cmdline, 
+                    $self->{'interface'}, 0, 0, -1, $mess, $::log->elapsed);
       return (0, $mess);
     }
     my $mime_parser = new Mj::MIMEParser;
@@ -2695,7 +2699,7 @@ sub do_digests {
 	}
         # XXX The status and password values (1, 0) may be inaccurate.
 	$self->inform($list, "digest", 'unknown@anonymous', 'unknown@anonymous',
-           "digest $list $i", "resend", 1, 0, 0, 
+           "digest $list $i", $self->{'interface'}, 1, 0, 0, 
            "Volume $dissues->{$i}{'volume'}, Issue $dissues->{$i}{'issue'}", 
             $::log->elapsed - $elapsed);
       }

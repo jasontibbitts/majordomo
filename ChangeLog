@@ -1,3 +1,9 @@
+2004-01-20  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Resend.pm:  (post, _post, _check_approval, do_digests)  
+        Bugfix:  Record the correct interface in the log.
+	Thanks to Brock Rozen.
+
 2004-01-19  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Access.pm:  (check_headers)  Bugfix:
