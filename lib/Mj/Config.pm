@@ -1232,7 +1232,7 @@ sub parse_access_rules {
     unless (rules_request($i)) {
       @tmp = rules_requests();
       return (0, "\nIllegal request name: $i.\nLegal requests are:\n".
-	      join(' ', sort(@tmp)))
+	      join(' ', sort(@tmp))); # XLANG
     }
 
     # Iterate over the action/rule pairs
@@ -1247,7 +1247,7 @@ sub parse_access_rules {
 	unless (rules_action($i, $tmp)) {
 	  @tmp = rules_actions($i);
 	  return (0, "\nIllegal action: $action->[$j].\nLegal actions for '$i' are:\n".
-		  join("\n",sort(@tmp)));
+		  join("\n",sort(@tmp))); # XLANG
 	}
 	if ($tmp2) {
           $tmp2 =~ s/^\((.*)\)/$1/;
@@ -1256,7 +1256,7 @@ sub parse_access_rules {
 	      &{$self->{callbacks}{'mj.list_file_get'}}($self->{list}, $k);
 	    unless ($file) {
 	      $warn .= "  Req. $i, action $tmp: file '$k' could not be found.\n";
-	    }
+	    } # XLANG
 	  }
 	}
       }
@@ -1287,7 +1287,7 @@ sub parse_access_rules {
 
       # If the compilation failed, we return the error
       return (0, "\nError compiling rule for $i: $error")
-	unless $ok;
+	unless $ok; # XLANG
 
       $warn .= $error if $error;
 
@@ -2574,6 +2574,12 @@ sub parse_table {
   my $data = shift;
   my (@out, @row, @group, $line, $elem, $s, $f, $error, $sc, $temp);
   my $log = new Log::In 150, $spec;
+
+  # Strip white space from the beginning and end of each data item.
+  for ($line = 0; $line <= $#$data; $line++) {
+    $data->[$line] =~ s/^\s*//;
+    $data->[$line] =~ s/\s*$//;
+  }
 
   # Line loops over the elements of the $data arrayref
   $line = 0;
