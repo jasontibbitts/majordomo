@@ -191,7 +191,7 @@ while (1) {
       # Get back the greeting. XXX The timeout is arbitrary and should be
       # tuneable.
       $rin = $win = $ein = ''; vec($rin,fileno($child[$i]),1) = 1; $ein = $rin | $win;
-      if(select($rout=$rin, $wout=$win, $eout=$ein, 10)) {
+      if(select($rout=$rin, $wout=$win, $eout=$ein, 30)) {
 	$line = in($child[$i]);
 	logmsg "Runner is awake, said $line";
 	$use_child = $i;

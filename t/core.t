@@ -1,6 +1,10 @@
 # Test Majordomo by calling core routines.
 $debug = 0;
 
+END {
+  system("/bin/rm -rf tmp.$$");
+}
+
 use lib "blib/lib";
 use Carp qw(cluck);
 $SIG{__WARN__} = sub {cluck "--== $_[0]"};
@@ -54,14 +58,13 @@ close SITE;
 
 # Set up variables that need to be set; avoid warnings
 $::LOCKDIR = $::LOCKDIR = "tmp.$$/locks";
-%proto = (user     => 'unknown@anonymous',
-	 );
 
+#1 - Load the module
 eval "require Majordomo";
 ok(1, !$@);
 
+#2 - Load the logging module
 eval "require Mj::Log";
-
 ok(1, !$@);
 
 # Open a log
@@ -79,16 +82,16 @@ if ($debug) {
 	     );
 }
 
-# Allocate a Majordomo
+#3 - Allocate a Majordomo object
 $mj = new Majordomo "tmp.$$", 'test';
 ok(1, !!$mj);
 
-# Connect to it
+#4 - Connect to it
 $ok = $mj->connect('testsuite', "Testing, pid $$\n");
 ok(1, !!$ok);
 
-# Use the site password to set the domain's master password.  Screw it up
-# once just to check.
+#5 - Use the site password to set the domain's master password.  Screw it
+#up once just to check.
 $request = {%proto,
 	    password => 'badpass',
 	    command  => 'configset',
@@ -96,7 +99,6 @@ $request = {%proto,
 	    setting  => 'master_password',
 	    value    => ['gonzo'],
 	   };
-
 
 $result = $mj->dispatch($request);
 ok(0, $result->[0]);
@@ -128,6 +130,16 @@ $result = $mj->dispatch({user     => 'unknown@anonymous',
 			 command  => 'lists'});
 ok('bleeargh', $result->[1]{list});
 
+$result = $mj->dispatch({user     => 'unknown@anonymous',
+			 password => 'gonzo',
+			 command  => 'configset',
+			 setting  => 'inform',
+			 value    => ['subscribe   : all : ignore',
+				      'unsubscribe : all : ignore'],
+			 });
+ok(1, $result->[0]);
+
+$result = 
 
 sub ok {
   my $expected = shift;
@@ -144,23 +156,6 @@ sub ok {
 }
 
 __END__
-
-# 5. Make sure it's there
-$e = "\Qbleeargh\n";
-$r = run('lists=tiny');
-ok($e, $r);
-
-# 6. Have to turn off information or we die trying to inform the nonexistant owner
-open(TEMP, ">var.$$");
-print TEMP <<EOT;
-subscribe   : all : ignore
-unsubscribe : all : ignore
-EOT
-close TEMP;
-$e = qq!\Qinform set to "subscribe   : all : ignore...".\n!;
-$r = run("-p gonzo -f var.$$ configset bleeargh inform");
-ok($e, $r);
-unlink "var.$$";
 
 # 7. Subscribe an address, being careful not to send mail
 $e = qq!\Qzork\@example.com was added to bleeargh.\n!;
