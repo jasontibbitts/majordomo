@@ -655,6 +655,20 @@ been mailed to the victim's address.
 (standard plus VICTIM)
 
 
+register
+--------
+(ALL)  This file is displayed when the register command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER, VICTIM)
+
+
+register_error
+--------------
+(ALL)  This file is displayed when the register command stalls or fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
 reject
 ------
 (text, wwwadm, wwwconfirm)  This file displays a summary of the result
@@ -823,6 +837,28 @@ showtokens_none
 (standard plus CGIDATA, CGIURL, CMDPASS, USER)
 
 
+subscribe
+---------
+(ALL)  This file is displayed when the subscribe command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER, VICTIM)
+
+
+subscribe_error
+--------------
+(ALL)  This file is displayed when the subscribe command stalls or fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
+subscribe_none
+--------------
+(ALL)  This file is displayed when the register, subscribe, unregister,
+or unsubscribe command does not generate any results.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
 tokeninfo_attachment
 --------------------
 (text, wwwadm, wwwconfirm)  This file displays summary information
@@ -979,6 +1015,34 @@ of a plain text message part.
  DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM, WILLACK)
 
 
+unregister
+----------
+(ALL)  This file is displayed when the unregister command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER, VICTIM)
+
+
+unregister_error
+----------------
+(ALL)  This file is displayed when the unregister command stalls or fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
+unsubscribe
+-----------
+(ALL)  This file is displayed when the unsubscribe command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER, VICTIM)
+
+
+unsubscribe_error
+-----------------
+(ALL)  This file is displayed when the unsubscribe command stalls or fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
 welcome
 -------
 (wwwadm, wwwconfirm, wwwusr)  This file displays basic instructions 
@@ -1010,9 +1074,9 @@ subscription to a mailing list.  This file is not displayed if
 the export command mode is used.
 
 (standard plus CLASSDESC, CGIDATA, CGIURL, CHUNKSIZE, CLASS, CLASS_DESCRIPTIONS, 
- CLASS_SELECTED, CLASSDESC, CLASSES, FLAGS, FLAGDESC, FULLADDR, LASTCHANGE,
- CMDPASS, PATTERN, REMOVE, SETTING_CHECKED, SETTING_SELECTED, SETTINGS, START, 
- USER and others)
+ CLASS_SELECTED, CLASSDESC, CLASSES, CMDPASS, FLAGS, FLAGDESC, FULLADDR, 
+ LASTCHANGE, PATTERN, QSADDR, REMOVE, SETTING_CHECKED, SETTING_SELECTED, 
+ SETTINGS, START, USER and others)
 
 
 who_error
@@ -1048,7 +1112,7 @@ It is used only for the GLOBAL pseudo-list.  This file is not displayed
 if the alias or export command mode is used.
 
 (standard plus CANON, CGIDATA, CGIURL, FULLADDR, LASTCHANGE, LISTS
- CMDPASS, PATTERN, REMOVE, START, STRIPADDR, USER and others)
+ CMDPASS, PATTERN, QSADDR, REMOVE, START, STRIPADDR, USER and others)
 
 
 who_registry_foot

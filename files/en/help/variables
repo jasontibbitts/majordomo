@@ -235,6 +235,9 @@ See "help reply_files" for a description of each of the reply files.
 \$ERROR
   An error message which describes why a command failed.
 
+\$FAIL
+  " " if a command invoked by the "accept" command failed; '' otherwise.
+
 \$FULFILL
   The date at which a delayed request will be completed
   (see "help delay" for more information).
@@ -277,6 +280,10 @@ See "help reply_files" for a description of each of the reply files.
   The personal password corresponding to a particular e-mail address,
   or the master password of a newly created mailing list.
 
+\$QSADDR
+  An e-mail address, altered to allow it to be included safely in the
+  query string of a URL.
+
 \$REMIND 
   The number of days before a reminder for a request that requires
   confirmation, is sent to the person whom the request affects.
@@ -307,6 +314,15 @@ See "help reply_files" for a description of each of the reply files.
   The names of the configuration settings within a particular 
   configuration category.
 
+\$STALL
+  " " if a command invoked by the "accept" command requires further
+  approval; '' otherwise.
+
+\$STRIPADDR
+\$STRIPUSER
+  A stripped address does not include any comments, such as the person's
+  full name.
+
 \$SUBJECT
   The Subject header of a posted message.
 
@@ -317,6 +333,10 @@ See "help reply_files" for a description of each of the reply files.
 \$SUBSCRIBED
   If a message was posted by a subscriber to the mailing list, this
   value is empty.  If not, it is the word "not".
+
+\$SUCCEED
+  " " if a command invoked by the "accept" command succeeded; 
+  '' otherwise.
 
 \$TOKEN
   The twelve-character identifier that is used to accept or reject
