@@ -184,13 +184,14 @@ refer to the same file.
 
 For more information, see "help configset_welcome_files".
 
-There is no farewell_files configuration setting.  People who unsubscribe
-do not normally receive a farewell file; it requires the farewell command
-mode.  For example, the command:
+There is also a farewell_files configuration setting.  People who
+unsubscribe do not normally receive a farewell file; it requires the
+farewell command mode.  For example, the command:
 
   unsubscribe-farewell LISTNAME someone@example.com
 
-would cause the farewell message to be sent to someone@example.com.
+would cause the farewell message to be sent to someone@example.com
+if the unsubscribe command succeeds.
 
 
 Sending documents to other people
@@ -258,6 +259,10 @@ See Also:
    help admin_passwords
    help admin_subscribers
    help archive
+   help configset_farewell
+   help configset_farewell_files
+   help configset_welcome
+   help configset_welcome_files
    help faq
    help get
    help index

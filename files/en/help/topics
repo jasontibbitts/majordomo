@@ -214,6 +214,8 @@ These help files describe configuration settings:
    help configset_digest_index_format
    help configset_digest_issues
    help configset_digests
+   help configset_farewell
+   help configset_farewell_files
    help configset_file_search
    help configset_file_share
    help configset_max_header_line_length

@@ -113,6 +113,8 @@ it was chosen, but comments have no impact on how the setting works.
 
 See Also:
    help admin_documents   (for an introduction to the file space)
+   help configset_farewell
+   help configset_farewell_files
    help configset_file_search (determines how files are looked for)
    help configset_welcome (determines if welcome messages are sent)
    help get               (to retrieve files from the list's file space)
