@@ -1,5 +1,5 @@
 <!-- Majordomo lists_none format file -->
-<big>
-No lists were found
-that matched the pattern &quot;?PATTERN&quot;
-</big>
+<p><big>
+There are no public mailing lists at $DOMAIN
+that match the pattern &quot;?PATTERN&quot;.
+</big></p>
