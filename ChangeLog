@@ -1,3 +1,27 @@
+2001-01-12  Michael Yount <csf@moscow.com>
+
+	* bin/mj_queuerun:  (parse_commands)  Record data for messages
+	which contain no valid commands.  After a threshold is reached,
+	send the results to the domain owner instead of replying to
+	the originator.  This will prevent an autoresponder mail loop
+	with Majordomo if the message contains no valid commands.
+
+	* lib/Majordomo.pm:  (record_parser_data, _make_parser_data)  
+	Store a record containing the date and count of commands issued by a 
+	particular address.  At the moment, this is only used to
+	restrict autoresponder loops.
+	(_subscribe, _unsubscribe)  Do not alter the registry when
+	an address is subscribed to or unsubscribed from an auxiliary 
+	list.
+
+	* setup/setup_func.pl:  (install_config_templates)  Run the
+	Majordomo commands in the setup/config_commands file.  These
+	commands currently establish the DEFAULT:personal template,
+	which causes a separate copy of a posted message to be sent
+	to each recipient of a mailing list.  The recipient's address
+	is contained in the To: header, and a message footer with
+	unsubscription instructions is added.
+
 2001-01-05  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (announce) Add support for sending
