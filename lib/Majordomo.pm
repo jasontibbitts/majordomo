@@ -1106,11 +1106,16 @@ sub substitute_vars_format {
         $subcount{$i} = 1;
       }
     }
-    else {
+    elsif (ref ($subs->{$i}) eq 'ARRAY')  {
       next unless ($str =~ /([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(\b|$)/);
       $value = scalar @{$subs->{$i}};
       $maxiter = $value if ($value > $maxiter);
       $subcount{$i} = $value;
+    }
+    else {
+      warn ("The $i substitution is a " . ref($subs->{$i}) . 
+            " reference.\n");
+      next;
     }
   }
 
