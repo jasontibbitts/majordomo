@@ -1093,6 +1093,7 @@ sub parse_smtp32 {
 
   while (1) {
     $line = $bh->getline;
+    return unless defined $line;
     last unless $line =~ /^\s*$/;
   }
   return unless $line =~ /([^:]+):\s+(.*)/;
