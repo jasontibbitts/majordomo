@@ -56,6 +56,7 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; $a=~s/\.p.$//; ("lib/$_" => "\$(INS
    'Safe'           => [0,     1],
    'POSIX'          => [0,     1],
    'Net::Domain'    => [0,     1],
+   'File::Basename' => [0,     1],
    'File::Copy'     => [0,     1],
    'Fcntl'          => [0,     1],
    'Carp'      	    => [0,     1],
@@ -168,52 +169,109 @@ WriteMakefile
   );
 
 
+&check_nr_install;
+
 print <<EOM;
 
-A NOTE ON BEING ROOT: You never NEED TO BE "root" to install Majordomo2.
-You can EITHER become root, OR you can become the user under which the
-server processes are intended to run, before you install. All of the
-permission setting and setuid wrapper generation will work the same way
-if you are either uid, but if you are not root there are several steps
-which may need to be done before and after install. In addition, the
-majordomo user may not have write access to the cgi-bin directory, so
-it may be impossible to install the CGI wrappers except as root.  
-
-Replace "/var/mj" with the temporary directory you specify to install,
-and replace "/usr/local/majordomo" with the destination directory you
-specify to install, in this example:
-
-   su majordomo_user_id
-   mkdir     /var/mj
-   chmod 770 /var/mj
-   mkdir     /usr/local/majordomo
-   chmod 755 /usr/local/majordomo
-   perl Makefile.PL
-   make
-   # sanity check: make test
-   make install
-   chmod +x /usr/local/majordomo
-   exit
-   # smoke test: /usr/local/majordomo/bin/mj_shell
-
-Whether you install as root or the majordomo user, the wrapper scripts
-will be 'setuid majordomo', not 'setuid root', so there are potentially
-fewer security concerns once the software is installed. Not being root
-allows more safe delegation of install tasks, and the majordomo user
-password can be changed (by root) once installation is complete to keep
-the non-root user from tweaking the system later.
-
 Now you should run the following shell commands:
-  make (expect several warnings about truncation to 8 characters)
-  make test (if you wish to run the paltry tests)
+  make         (expect several warnings about truncation to 8 characters)
+  make test    (report any problems to mj2-dev\@csf.colorado.edu)
   make install (usually as root, answering any questions that appear)
-  (finally, archive a copy of .mj_config which contains your answers)
+  
+After the software has been installed, save a copy of .mj_config, 
+  which contains your answers to the configuration questions.
+
+Finally, read the help file for domain administrators with this command:
+  $config->{'install_dir'}/bin/mj_shell help admin_domain | more
 
 EOM
 
 exit;
 
 #### Subroutines
+
+use File::Basename;
+sub check_nr_install {
+  my (@dirstat, @grent, @pwent, @tmp, $dir, $dirg, $dirm, $diru,
+      $g, $i, $major, $ok, $u);
+
+  print <<EOM;
+
+Majordomo 2 can be installed as the root user, or as the majordomo
+user ($config->{'uid'}).  If there are any barriers to doing this,
+they are listed here:
+EOM
+
+  # Does the uid exist?
+  @pwent = getpwnam($config->{'uid'});
+  $u = $pwent[2];
+  $g = $pwent[3];
+  $major = ($u == $<);
+  unless (@pwent) {
+    print qq(* There is no password entry for the $config->{'uid'} user.\n);
+    return;
+  }
+
+  # Does the gid exist?
+  @grent = getgrnam($config->{'gid'});
+  unless (@grent) {
+    print qq(* There is no group entry for the $config->{'gid'} group.\n);
+    return;
+  }
+
+  # Is the user in the group?
+  @tmp = split " ", $grent[3];
+  unless ((grep { $_ eq $config->{'uid'} } @tmp) or $g == $grent[2]) {
+    print qq(* $config->{'uid'} is not in the $config->{'gid'} group.\n);
+    return;
+  }
+
+  # Do the installation directories exist, and are they writable
+DIR:
+  for $i (qw(install_dir lists_dir tmpdir wtmpdir cgi_bin)) {
+    next unless (defined $config->{$i});
+    $dir = $config->{$i};
+    while (! -d $dir) {
+      if ($! =~ /Permission denied/) {
+        if ($major) {
+          print qq(* $config->{'uid'} cannot write to $dir.\n);
+        }
+        else {
+          print qq(* Unknown if $config->{$i} is writable or not.\n);
+        }
+        next DIR;
+      }
+      last unless (length $dir and $dir ne '/');
+      $dir = File::Basename::dirname($dir);
+    }
+
+    next unless (-d $dir);
+    # Stat the dir. Does it have user or group permissions that would
+    # allow the majordomo user to install directories under it?
+
+    @dirstat = stat $dir;
+    $dirg = $dirstat[5];
+    $diru = $dirstat[4];
+    $dirm = $dirstat[2];
+    if ((($dirm & 0700) == 0700) and ($diru == $u)) {
+      # print qq(+ $dir is user-accessible, okay.\n);
+      next;
+    }
+    if (($dirm & 070) == 070) {
+      @dirstat = getgrgid($dirg);
+      @tmp = split " ", $dirstat[3];
+      if (grep { $_ eq $config->{'gid'} } @tmp) {
+        # print qq(+ $dir is group-accessible, okay.\n);
+        next;
+      }
+    }
+    if (($dirm & 07) == 07) {
+      # print qq(+ $dir is world-accessible, okay.\n);
+      next;
+    }
+    print qq(- $dir is not accessible to the majordomo user.\n);
+  }
+}
 
 sub check_syslog {
   my ($failed) = "the Sys::Syslog module";
