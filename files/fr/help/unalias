@@ -1,0 +1,22 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+unalias adresse
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+adresse, requis, est l'adresse alternative que vous désirez supprimer.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+Si vous avez plus d'un compte email, vous aimerez peut être avoir la
+possibilité de poster depuis plus de l'un d'entre eux, tout en
+recevant les messages de la liste sur seulement l'un d'entre eux. La
+commande "alias" vous le permet.
+
+Envoyez la commande "unalias" depuis l'un des comptes qui est
+enregistré sur ce serveur ; l'adresse en question sera supprimée de la
+base et ne sera plus considérée comme étant équivalente à votre
+compte.
+
+Référez vous aussi à :
+   help access_variables
+   help alias     (abonnement unique, envoi de plusieurs adresses)
+   help subscribe (s'abonner avant d'utiliser la commande alias)
+
+$INCLUDE-help/foot

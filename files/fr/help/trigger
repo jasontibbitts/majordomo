@@ -1,0 +1,18 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+trigger
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+La commande trigger n'est utilisable qu'en lançant le programme
+mj_trigger. Ce programme est exécuté une fois par heure pour exécuter
+diverses taches, comme l'envoi de digests et la suppression des
+données expirées. Les paramètres de configuration "triggers" et
+"digests" contrôlent quel tâches seront effectuées et a quelle heure.
+
+Référez vous aussi à :
+   help admin_config
+   help configset_digests
+   help configset_triggers (sur la manière de configurer les tâches
+			    périodiques)
+   help mj_trigger
+
+$INCLUDE-help/foot

@@ -1,0 +1,14 @@
+L'interface WWW pour la confirmation de ticket est disponible à :
+  $CONFIRM_URL
+
+Des instructions y sont disponibles.
+
+Référez vous aussi à :
+   help configset_confirm_url
+   help configset_wwwadm_url
+   help configset_wwwusr_url
+   help mj_wwwadm
+   help mj_wwwusr
+
+$INCLUDE-help/foot
+

@@ -1,0 +1,15 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+mkdigest liste [compilation]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+liste,       requis, le nom de la liste.
+compilation, si spécifié, le nom de la compilation
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+mkdigest est un alias de la commande "digest".
+
+Référez vous aussi à :
+   help admin_delivery
+   help configset_digests
+   help digest
+
+$INCLUDE-help/foot

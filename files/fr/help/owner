@@ -1,0 +1,17 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+owner
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+La commande "owner" est exécutée lorsqu'un message est envoyé aux
+adresses LISTE-owner ou LISTE-moderator pour une liste. L'accès a ces
+deux adresses peut être restreint en utilisant le paramètre de
+configuration "block_headers".
+
+Référez vous aussi à :
+   help admin_moderate
+   help configset_aliases
+   help configset_block_headers
+   help configset_moderators
+   help configset_owners
+
+$INCLUDE-help/foot
