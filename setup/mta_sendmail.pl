@@ -50,7 +50,9 @@ Mail Handling Setup
 
 Where should these links be made?
  This needs to be a root-owned directory with sufficiently restrictive
-  permissions to appease Sendmail.
+  permissions to appease Sendmail.  The installation process will not
+  create this directory for you; you must make sure that it exists and
+  has the proper permissions yourself.
 EOM
       $def = $config->{'sendmail_symlink_location'} ||
         (-d "/etc/mail" && "/etc/mail") ||
