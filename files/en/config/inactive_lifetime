@@ -1,0 +1,10 @@
+The inactive_lifetime setting specifies a number of days; inactive
+subscriptions and registered addresses older than this age will be
+removed.
+
+A subscription is considered inactive if it has been in the "nomail"
+delivery class and no date for the resumption of delivery was
+specified.
+
+A registered address is considered inactive if the address has no
+subscriptions.  

@@ -262,6 +262,7 @@ files/en/config/.faq_access
 files/en/config/.file_search
 files/en/config/.file_share
 files/en/config/.get_access
+files/en/config/.inactive_lifetime
 files/en/config/.index_access
 files/en/config/.info_access
 files/en/config/.inform
@@ -290,6 +291,7 @@ files/en/config/.override_reply_to
 files/en/config/.owners
 files/en/config/.password_min_length
 files/en/config/.passwords
+files/en/config/.post_lifetime
 files/en/config/.post_limits
 files/en/config/.precedence
 files/en/config/.priority
@@ -409,6 +411,7 @@ files/en/config/faq_access
 files/en/config/file_search
 files/en/config/file_share
 files/en/config/get_access
+files/en/config/inactive_lifetime
 files/en/config/index_access
 files/en/config/info_access
 files/en/config/inform
@@ -437,6 +440,7 @@ files/en/config/override_reply_to
 files/en/config/owners
 files/en/config/password_min_length
 files/en/config/passwords
+files/en/config/post_lifetime
 files/en/config/post_limits
 files/en/config/precedence
 files/en/config/priority
@@ -1101,6 +1105,7 @@ files/en/help/.configset_faq_access
 files/en/help/.configset_file_search
 files/en/help/.configset_file_share
 files/en/help/.configset_get_access
+files/en/help/.configset_inactive_lifetime
 files/en/help/.configset_index_access
 files/en/help/.configset_info_access
 files/en/help/.configset_inform
@@ -1129,6 +1134,7 @@ files/en/help/.configset_override_reply_to
 files/en/help/.configset_owners
 files/en/help/.configset_password_min_length
 files/en/help/.configset_passwords
+files/en/help/.configset_post_lifetime
 files/en/help/.configset_post_limits
 files/en/help/.configset_precedence
 files/en/help/.configset_priority
@@ -1317,6 +1323,7 @@ files/en/help/configset_faq_access
 files/en/help/configset_file_search
 files/en/help/configset_file_share
 files/en/help/configset_get_access
+files/en/help/configset_inactive_lifetime
 files/en/help/configset_index_access
 files/en/help/configset_info_access
 files/en/help/configset_inform
@@ -1345,6 +1352,7 @@ files/en/help/configset_override_reply_to
 files/en/help/configset_owners
 files/en/help/configset_password_min_length
 files/en/help/configset_passwords
+files/en/help/configset_post_lifetime
 files/en/help/configset_post_limits
 files/en/help/configset_precedence
 files/en/help/configset_priority

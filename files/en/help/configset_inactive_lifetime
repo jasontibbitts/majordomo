@@ -1,0 +1,56 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  inactive_lifetime = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+configset listname inactive_lifetime = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : -1
+Data Type     : integer
+Category      : deliver
+Password Notes: Visible only with password.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset listname inactive_lifetime = 30
+
+
+$INCLUDE-config/inactive_lifetime
+
+If this setting has a negative value, inactive subscriptions and registrations 
+will never be removed.
+
+Registrations are only affected by the inactive_lifetime setting for the
+GLOBAL pseudo-list.  
+
+The "inactive" trigger in the triggers configuration setting determines
+how often inactive addresses will be removed.
+
+Inactive registrations occur when people use the unsubscribe command to
+leave a mailing list, but do not use the unregister command to remove
+their registration information.  Inactive subscriptions occur when
+people suspend delivery while they are on vacation, then forget to
+resume delivery when they return.  Removing inactive addresses makes the
+subscription databases smaller, which helps Majordomo to run faster.
+
+Some mailing lists are configured to allow only subscribers to post
+messages.  Some people who wish to post messages from more than one
+address may subscribe all of their addresses, then put all but one of
+them into the "nomail" delivery class.  A better approach for people
+with more than one address is to use the alias command to tell Majordomo
+that two or more addresses belong to the same person.
+
+
+See Also:
+   help admin_delivery
+   help admin_domain
+   help alias
+   help configset_latchkey_lifetime
+   help configset_log_lifetime
+   help configset_post_lifetime
+   help configset_session_lifetime
+   help configset_token_lifetime
+   help configset_triggers
+   help set  (to suspend and resume message delivery)
+   help unregister
+   help unsubscribe
+
+$INCLUDE-help/foot

@@ -1,0 +1,33 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname post_lifetime = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : 60
+Data Type     : integer
+Category      : moderate
+Password Notes: Visible only with password.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset listname post_lifetime = -1
+
+
+$INCLUDE-config/post_lifetime
+
+The "post" trigger in the triggers configuration setting determines how
+often old statistics are erased.
+
+Statistics will never be erased if this setting has a negative value.
+
+
+See Also:
+   help admin_moderate
+   help configset_dup_lifetime
+   help configset_inactive_lifetime
+   help configset_latchkey_lifetime
+   help configset_log_lifetime
+   help configset_post_limits
+   help configset_session_lifetime
+   help configset_token_lifetime
+   help configset_triggers
+
+$INCLUDE-help/foot
