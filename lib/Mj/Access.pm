@@ -246,7 +246,7 @@ sub _build_passwd_data {
   return;
 }
 
-=head2 _gen_pw
+=head2 _gen_pw (length)
 
 Generate a password randomly.
 
@@ -254,8 +254,13 @@ One of the implementations is cribbed from an email to majordomo-workers
 sent by OXymoron.  The other is trivial anyway.  I don''t know which I like
 more.
 
+The new password will be at least six characters long.
+
 =cut
 sub _gen_pw {
+  my $length = shift || 6;
+  $length = 6 if ($length < 6);
+
   my $log = new Log::In 200;
 #   my @forms = qw(
 # 		 xxxxxxx
@@ -291,7 +296,7 @@ sub _gen_pw {
   my $chr = 'ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnpqrstyvwxyz23456789';
   my $pw;
   
-  for my $i (1..6) {
+  for my $i (1..$length) {
     $pw .= substr($chr, rand(length($chr)), 1);
   }
   $pw;
@@ -331,7 +336,7 @@ sub check_headers {
 
   # Set up the Safe compartment
   $safe = new Safe;
-  $safe->permit_only(qw(aassign const leaveeval null padany push pushmark
+  $safe->permit_only(qw(aassign const leaveeval not null padany push pushmark
                         return rv2sv stub));
   $safe->share('$text');
 
@@ -408,6 +413,7 @@ Outline:
     confirm   - send a tag to the appropriate user
     consult   - consult the list owner
     ignore    - forget the request ever happened
+    delay     - delay the request and offer the victim a chance to stop it.
     deny      - reject the request with a message
     allow     - let the request happen as normal
     forward   - pass the request on to a different majordomo server
@@ -423,11 +429,10 @@ Note that if you do confirm and mailfile, the user will get two messages.
 =cut
 sub global_access_check {
   my $self = shift;
-  splice(@_, 3, 0, 'GLOBAL');
   $self->list_access_check(@_);
 }
 
-=head2 list_access_check(..., list, request, arghash)
+=head2 list_access_check(request, arghash)
 
 =cut
 # These are the ops we allow our generated code to perform.  Even though we
@@ -456,26 +461,38 @@ sub global_access_check {
     );
 
 use Data::Dumper;
-use Mj::CommandProps 'action_terminal';
+use Mj::CommandProps qw(:function action_terminal);
 sub list_access_check {
   # We must share some of these variables with the compartment, so they
-  # can't be lexicals
+  # can't be lexicals.
   my    $self      = shift;
-  local $passwd    = shift;
-  my    $mode      = shift || '';
-  my    $cmdline   = shift;
-  my    $list      = shift;
-  my    $request   = shift;
-  my    $requester = shift;
-  local $victim    = shift || $requester;
-  my    $arg1      = shift;
-  my    $arg2      = shift;
-  my    $arg3      = shift;
+  my    $data      = shift;
   local %args      = @_;
+
+  local $passwd    = $data->{'password'};
+  my    $mode      = $data->{'mode'};
+  my    $cmdline   = $data->{'cmdline'};
+  my    $delay     = $data->{'delay'} || 0;
+  my    $list      = $data->{'list'};
+  my    $request   = $data->{'command'}; 
+        $request   =~ s/_(start|chunk|done)$//;
+  my    $requester = $data->{'user'};
+  local $victim    = $data->{'victim'} || $requester;
+  my    $arg1      = exists $data->{'arg1'} ? $data->{'arg1'} : '';
+  my    $arg2      = exists $data->{'arg2'} ? $data->{'arg2'} : '';
+  my    $arg3      = exists $data->{'arg3'} ? $data->{'arg3'} : '';
 
   my $log = new Log::In 60, "$list, $request, $requester, $victim";
 
   $log->message(450, "info", "Access variables: ". Dumper \%args);
+
+  # Convert the hash arguments into token data
+  my ($td) = function_prop ($data->{'command'}, 'tokendata');
+  for (keys %$td) {
+    next if ($_ eq 'victim');
+    $$_ = $data->{$td->{$_}};
+    $data->{$_} = $data->{$td->{$_}};
+  }
 
   my (@final_actions,       # The final list of actions dictated by the rules
       $password_override,   # Does a supplied password always override
@@ -483,15 +500,12 @@ sub list_access_check {
       $access,              # To save typing
       $actions,             # The action to be performed
       $cpt,                 # A safe compartment for running the code in
-      $act,                 # Base action
       $arg,                 # Action argument
       $allow,               # Return code: is operation allowed?
       $stat,                # Description of return code
       $mess,                # Message to be returned (from 'reply' action)
       $ent,                 # MIME Entity for actions needing to send mail
       $deffile,             # The default replyfile if none is given
-      $sender,              # Sender for this list's mail
-      $mj_owner,
       $saw_terminal,        # Flag: did a rule emit a terminal action
       $reasons,             # The \n separated list of bounce reasons
       $i,                   # duh
@@ -546,9 +560,11 @@ sub list_access_check {
 	$args{'user_password'} = 1;
       }
     }
-    # It's invalid unless one of the flags was set
+    # It's invalid unless one of the flags was set, excepting
+    # the help command.
     return (0, "Invalid password.\n")
-      unless $args{'master_password'} || $args{'user_password'};
+      unless $args{'master_password'} || $args{'user_password'}
+             || $request eq 'help';
   }
   return (0, "The master password is required to use regular expressions.\n")
     if ($args{'regexp'} and not $args{'master_password'});
@@ -561,12 +577,17 @@ sub list_access_check {
   
     # Return some huge value, because this value is also used as a count
     # for some routines.
-    return 2**30 if $password_override;
+    if ($password_override) {
+      if ($data->{'delay'} > 0) {
+        @final_actions = ('delay');
+        goto FINISH;
+      }
+      return $self->_a_allow(2**30, $data, $args);
+    }
   }
 
   $access = $self->_list_config_get($list, 'access_rules');
-  $reasons = '';
-  $arg2 = '' unless (defined $arg2);
+  $args{'reasons'} ||= '';
 
   if ($access->{$request}) {
     # Populate the memberships hash
@@ -576,20 +597,15 @@ sub list_access_check {
     if ($access->{$request}{'check_aux'}) {
       for $i (keys %{$access->{$request}{'check_aux'}}) {
 	# Handle list: and list:auxlist syntaxes; if the list doesn't
-	# exist, just skip the entry entirely. XXX Can't this be tidied up?
+	# exist, just skip the entry entirely. 
 	if ($i =~ /(.+):(.*)/) {
 	  ($tmpl, $tmpa) = ($1, $2);
 	  next unless $self->_make_list($tmpl);
-	  if ($tmpa) {
-	    $memberof{$i} = $self->{'lists'}{$tmpl}->aux_is_member($tmpa, $victim);
-	  }
-	  else {
-	    $memberof{$i} = $self->{'lists'}{$tmpl}->is_subscriber($victim);
-	  }
-	}
-	else {
-	  $memberof{$i} = $self->{'lists'}{$list}->aux_is_member($i, $victim);
-	}
+        }
+        else {
+          ($tmpl, $tmpa) = ($list, $i);
+        }
+	$memberof{$i} = $self->{'lists'}{$tmpl}->is_subscriber($victim, $tmpa);
       }
     }
 
@@ -599,11 +615,8 @@ sub list_access_check {
     $args{'addr'}     = $victim->strip;
     $args{'fulladdr'} = $victim->full;
     $args{'mode'}     = $mode;
+    $args{'delay'}    = $delay;
    
-    # Pull in some useful variables
-    $sender = $self->_list_config_get($list, 'sender');
-    $mj_owner = $self->_global_config_get('sender');
-
     # Prepare to execute the rules
     $skip = 0;
     $cpt = new Safe;
@@ -628,7 +641,7 @@ sub list_access_check {
       # terminal action we stop rerunning rules.
      ACTION:
       for $i (@{$actions}) {
-	($func, $arg) = split(/[=-]/,$i,2);
+	($func, $arg) = split(/[=-]/, $i, 2);
         # Remove enclosing parentheses
         if ($arg) {
             $arg =~ s/^\((.*)\)$/$1/;
@@ -651,9 +664,8 @@ sub list_access_check {
 	}
         elsif ($func eq 'reason') {
           if ($arg) {
-            my $reason = $arg;
-            $reason =~ s/^\"(.*)\"$/$1/;
-            $arg2 = "$reason\002" . $arg2;
+            $arg =~ s/^\"(.*)\"$/$1/;
+            $args{'reasons'} = "$arg\002" . $args{'reasons'};
           }
           next ACTION;
         }
@@ -675,6 +687,7 @@ sub list_access_check {
     @final_actions = ('default');
   }
 
+FINISH:
   # Now figure out what to do
   for $i (@final_actions) {
     no strict 'refs';
@@ -685,29 +698,24 @@ sub list_access_check {
     # Handle stupid 8 character autoload uniqueness limit
     $func = '_a_conf_cons' if $func eq '_a_confirm_consult';
     ($ok, $deffile, $text, $fileinfo, $temp) =
-      $self->$func($arg, $mj_owner, $sender, $list, $request, $requester,
-		   $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args);
+      $self->$func($arg, $data, \%args);
     $allow = $ok if defined $ok;
     $mess .= $text if defined $text;
     push @temps, $temp if defined $temp;
   }
 
-
-
   # If we ran out of actions and didn't generate any reply text, we
   # should replyfile the default (for the last action we ran).
   if (!$mess && $deffile) {
     (undef, undef, $mess, $fileinfo) =
-      $self->_a_replyfile($deffile, $mj_owner, $sender, $list,
-			  $request, $requester, $victim, $mode,
-			  $cmdline, $arg1, $arg2, $arg3, %args);
+      $self->_a_replyfile($deffile, $data, \%args);
   }
 
-  # Build the reasons list by splitting $arg2. 
-  $reasons .= join("\n", split("\002", $arg2));
+  # Build the reasons list. 
+  $reasons .= join("\n", split("\002", $args{'reasons'}));
 
   # Append the sublist for variable substitutions.
-  if ($request eq 'post') {
+  if ($request =~ /post/) {
     my %avars = split("\002", $arg3);
     if ($avars{'sublist'}) {
       $list .= ':' . $avars{'sublist'};
@@ -722,6 +730,7 @@ sub list_access_check {
       ($mess,
        {
         $self->standard_subs($list),
+        'FULFILL' => scalar localtime (time + $delay),
         'NOTIFY'  => $victim,
 	'REASONS' => $reasons,
 	'VICTIM'  => $victim,
@@ -742,8 +751,6 @@ They each take the following:
 
   arg       - the argument passed to the action, i.e. 
                 allow=2
-  mj_owner  - the majordomo-owner
-  sender    - the sender (list-owner, usually)
   list      - the list name
   request   - the various request parameters
   requester
@@ -768,34 +775,29 @@ a tempfile; if defined, all returned tempfiles will be unlinked at the end
 =cut
 
 sub _a_deny {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
-  my $log = new Log::In 150, $request;
+  my ($self, $arg, $td, $args) = @_;
+  my $log = new Log::In 150, $td->{'command'};
 
-  if ($request eq 'post' 
-       and not $self->_list_config_get($list, 'save_denial_checksums')) {
-    unless(exists $args{'dup_checksum'}) {
-      $self->{'lists'}{$list}->remove_dup($args{'checksum'}, 'sum')
-        if $args{'checksum'};
+  if ($td->{'command'} =~ /post/
+       and not $self->_list_config_get($td->{'list'}, 'save_denial_checksums')) {
+    unless (exists $args->{'dup_checksum'}) {
+      $self->{'lists'}{$td->{'list'}}->remove_dup($args->{'checksum'}, 'sum')
+        if $args->{'checksum'};
     }
-    unless(exists $args{'dup_partial_checksum'}) {
-      $self->{'lists'}{$list}->remove_dup($args{'partial_checksum'}, 'partial')
-        if $args{'partial_checksum'};
+    unless (exists $args->{'dup_partial_checksum'}) {
+      $self->{'lists'}{$td->{'list'}}->remove_dup($args->{'partial_checksum'}, 'partial')
+        if $args->{'partial_checksum'};
     }
   }
-  return (0, $request eq 'post' ? 'ack_denial' : 'repl_deny');
+  if ($arg) {
+    return (0, $arg);
+  }
+  return (0, $td->{'command'} =~ /post/ ? 'ack_denial' : 'repl_deny');
 }
 
-sub _a_denymess {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
-  my $log = new Log::In 150, $request;
-  return (0, undef, $arg);
-}
- 
 sub _a_allow {
-  my $self = shift;
-  my $arg  = shift;
+  my ($self, $arg, $td, $args) = @_;
+
   return $arg || 1;
 }
 
@@ -803,28 +805,24 @@ sub _a_allow {
 # Accepts four parameters: file for confirmation, file for consultation,
 # moderator group to consult, number of approvals to require.
 sub _a_conf_cons {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
+  my ($self, $arg, $td, $args) = @_;
   my ($file1, $file2, $group, $approvals);
+  my $log = new Log::In 150, $td->{'command'};
 
   # Confirm file, consult file, consult group, consult approvals
-  ($file1, $file2, $group, $approvals) = split(/\s*,\s*/,$arg);
+  ($file1, $file2, $group, $approvals) = split /\s*,\s*/, $arg;
 
-  $self->confirm('file'      => $file1 || "confirm",
-		 'list'      => $list,
-		 'command'   => $request,
-		 'user'      => $requester,
-		 'victim'    =>	$victim,
-		 'notify'    =>	$victim,
-		 'mode'      => $mode,
-		 'cmdline'   => $cmdline,
+  $self->confirm(%$td,
+                 'file'      => $file1 || "confirm",
+		 'notify'    =>	$td->{'victim'},
+                 'reasons'   => $args->{'reasons'},
 		 'approvals' => 1,
 		 'chain'     => [$file2 || 'consult',
 				 $group || 'default',
 				 $approvals || 1,
 				 'repl_chain',
 				],
-		 'args'      => [$arg1, $arg2, $arg3],
+		 'args'      => [$td->{'arg1'}, $td->{'arg2'}, $td->{'arg3'}],
 		);
 
   return (-1, 'repl_confcons');
@@ -832,131 +830,140 @@ sub _a_conf_cons {
 
 # Accepts just a filename
 sub _a_confirm {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
+  my ($self, $arg, $td, $args) = @_;
+  my $log = new Log::In 150, $td->{'command'};
 
-  $self->confirm('file'      => $arg || 'confirm',
-		 'list'      => $list,
-		 'command'   => $request,
-		 'user'      => $requester,
-		 'victim'    =>	$victim,
-		 'notify'    =>	$victim,
-		 'mode'      => $mode,
-		 'cmdline'   => $cmdline,
+  $self->confirm(%$td,
+                 'file'      => $arg || 'confirm',
+		 'notify'    =>	$td->{'victim'},
+                 'reasons'   => $args->{'reasons'},
 		 'approvals' => 1,
-		 'args'      => [$arg1, $arg2, $arg3],
+		 'args'      => [$td->{'arg1'}, $td->{'arg2'}, $td->{'arg3'}],
 		);
-
-#  $self->confirm($arg || ($request eq 'post' ? 'confirm_post' : 'confirm'),
-#		 $list, $request, $requester, $victim, $mode, $cmdline, 1,
-#		 '', '', '', '', $arg1, $arg2, $arg3,);
 
   return (-1, 'repl_confirm');
 }
 
 # Confirm with both the requester and the victim, victim first.
 sub _a_confirm2 {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
-
+  my ($self, $arg, $td, $args) = @_;
   my ($chain, $tmp, $reply, $notify);
+  my $log = new Log::In 150, $td->{'command'};
+
   $reply = "repl_confirm";
-  $notify = $victim;
+  $notify = $td->{'victim'};
 
   # Confirm file, consult file, consult group, consult approvals
-  my ($file1, $file2, $group, $approvals) = split(/\s*,\s*/,$arg);
-  if ($args{'mismatch'}) {
-    if (!$args{'user_password'}) {
+  my ($file1, $file2, $group, $approvals) = split /\s*,\s*/, $arg;
+  if ($args->{'mismatch'}) {
+    if (!$args->{'user_password'}) {
       $chain  = [$file2 || 'confirm', $group || 'requester',
                $approvals || 1, 'repl_confirm' ];
       $reply = "repl_confirm2";
     }
     # confirm with the requester if the victim's password was supplied.
     else {
-      $notify = $requester;
+      $notify = $td->{'user'};
     }
   }
-  elsif ($args{'user_password'}) {
+  elsif ($args->{'user_password'}) {
     # The requester and victim are identical
     # and the password was supplied, so allow the command.
     return 1;
   }
  
-  $self->confirm('file'      => $file1 || 'confirm',
-		 'list'      => $list,
-		 'command'   => $request,
-		 'user'      => $requester,
-		 'victim'    =>	$victim,
+  $self->confirm(%$td,
+                 'file'      => $file1 || 'confirm',
 		 'notify'    =>	$notify,
-		 'mode'      => $mode,
-		 'cmdline'   => $cmdline,
 		 'approvals' => 1,
+                 'reasons'   => $args->{'reasons'},
 		 'chain'     => $chain,
-		 'args'      => [$arg1, $arg2, $arg3],
+		 'args'      => [$td->{'arg1'}, $td->{'arg2'}, $td->{'arg3'}],
 		);
 
   return (-1, $reply);
 }
+
 # Accepts four parameters: filename, approvals, the moderator group, the
 # number of moderators.  XXX Possibly allow the push of a bounce reason, or
 # can the whole moderator group thing.
 
 sub _a_consult {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %extra) = @_;
-  my $log = new Log::In 150, $request;
+  my ($self, $arg, $td, $args) = @_;
+  my $log = new Log::In 150, $td->{'command'};
   my ($file, $group, $size);
 
-  ($file, $arg, $group, $size) = split(/\s*,\s*/,$arg || "");
-  $self->consult('file'      => $file || "consult",
+  ($file, $arg, $group, $size) = split (/\s*,\s*/, $arg || "");
+  $self->consult(%$td,
+                 'file'      => $file || 'consult',
 		 'group'     => $group || 'default',
 		 'size'      => $size || 0,
-		 'list'      => $list,
-		 'command'   => $request,
-		 'user'      => $requester,
-		 'victim'    => $victim,
-		 'mode'      => $mode,
-		 'cmdline'   => $cmdline,
+                 'reasons'   => $args->{'reasons'},
 		 'approvals' => $arg || 1,
-		 'args'      => [$arg1, $arg2, $arg3],
+		 'args'      => [$td->{'arg1'}, $td->{'arg2'}, $td->{'arg3'}],
 		);
 
-  return (-1, $request eq 'post' ? 'ack_stall' : 'repl_consult');
+  return (-1, $td->{'command'} =~ /post/ ? 'ack_stall' : 'repl_consult');
+}
+
+# Accepts a filename and a delay
+sub _a_delay {
+  my ($self, $arg, $td, $args) = @_;
+  my $log = new Log::In 150, $td->{'command'};
+  my ($delay, $file);
+
+  ($file, $arg) = split (/\s*,\s*/, $arg || "");
+  if ($arg) {
+    $delay = Mj::List::_str_to_time($arg) - time;
+    if ($delay > 0) {
+      $td->{'delay'} = $delay;
+    }
+  }
+  $self->delay(%$td,
+               'file'      => $file || 'delay',
+               'notify'    => $td->{'victim'},
+               'approvals' => 1,
+               'reasons'   => $args->{'reasons'} || '',
+               'args'      => [$td->{'arg1'}, $td->{'arg2'}, $td->{'arg3'}],
+              );
+
+  return (-1, $td->{'command'} =~ /post/ ? 'ack_delay' : 'repl_delay');
 }
 
 use MIME::Entity;
 sub _a_forward {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
+  my ($self, $arg, $td, $args) = @_;
 
-  my (%avars, $ent, $fh, $parser, $subject, $tmpdir, $whoami);
+  my (%avars, $cmdline, $ent, $fh, $mj_owner, $parser, 
+      $subject, $tmpdir, $whoami);
+  my $log = new Log::In 150, $arg;
+  $cmdline = $td->{'cmdline'};
   
-
-  if ($request ne 'post') {
+  if ($td->{'command'} !~ /post/) {
     $whoami = $self->_global_config_get('whoami');
     if (lc $whoami eq lc $arg) {
       # Mail Loop!  Send to owners instead.
-      $arg = $self->_list_config_get($list, 'whoami_owner');
+      $arg = $self->_list_config_get($td->{'list'}, 'whoami_owner');
       $cmdline .= "\nUnable to forward to $arg due to apparent mail loop.";
     }
       
     $ent = new MIME::Entity 
       [
-       "Subject: Forwarded request from $requester\n",
-       "From: $requester\n",
-       "Reply-To: $requester\n",
+       "Subject: Forwarded request from $td->{'user'}\n",
+       "From: $td->{'user'}\n",
+       "Reply-To: $td->{'user'}\n",
        "\n",
        "$cmdline\n",
       ];
   } 
   else {
     # Reconstruct the list address
-    %avars = split("\002", $arg3);
-    $whoami = $list;
+    %avars = split("\002", $td->{'vars'});
+    $whoami = $td->{'list'};
     if ($avars{'sublist'} ne '') {
       $whoami .=  "-$avars{'sublist'}";
     }
-    $whoami .=  '@' . $self->_list_config_get($list, 'whereami');
+    $whoami .=  '@' . $self->_list_config_get($td->{'list'}, 'whereami');
 
     # Create an entity from the spool file.
     $tmpdir = $self->_global_config_get("tmpdir");
@@ -964,7 +971,7 @@ sub _a_forward {
     $parser = new Mj::MIMEParser;
     $parser->output_to_core($self->_global_config_get("max_in_core"));
     $parser->output_dir($tmpdir);
-    $parser->output_prefix("mjr");
+    $parser->output_prefix("mjf");
     
     $fh = new IO::File "<$arg1";
     $ent = $parser->read($fh);
@@ -982,6 +989,7 @@ sub _a_forward {
       $arg = $self->_list_config_get($list, 'whoami_owner');
     }
   }
+  $mj_owner = $self->_global_config_get('sender');
   $self->mail_entity($mj_owner, $ent, $arg) if ($ent and $arg);
   $ent->purge if $ent;
   # Cannot unlink spool file now, because it may be attached
@@ -1002,8 +1010,7 @@ sub _a_reply {
 }    
 
 sub _a_replyfile {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
+  my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150, $arg;
   my (%file, $file, $fh, $line, $out);
 
@@ -1012,7 +1019,7 @@ sub _a_replyfile {
   return (undef, undef, '') if $arg eq 'NONE';
 
   # Retrieve the file, but don't fail
-  ($file, %file) = $self->_list_file_get($list, $arg, undef, 1);
+  ($file, %file) = $self->_list_file_get($td->{'list'}, $arg, undef, 1);
 
   $fh = new Mj::File "$file"
     or $log->abort("Cannot read file $file, $!");
@@ -1024,15 +1031,14 @@ sub _a_replyfile {
 
 use MIME::Entity;
 sub _a_mailfile {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
-  my (%file, $ent, $file, $subs);
+  my ($self, $arg, $td, $args) = @_;
+  my (%file, $ent, $file, $sender, $subs);
 
   $subs = {
-    $self->standard_subs($list),
+    $self->standard_subs($td->{'list'}),
   };
 
-  ($file, %file) = $self->_list_file_get($list, $arg, $subs, 1);
+  ($file, %file) = $self->_list_file_get($td->{'list'}, $arg, $subs, 1);
 
   $ent = build MIME::Entity
     (
@@ -1044,7 +1050,11 @@ sub _a_mailfile {
      -Subject    => $file{'description'},
      'Content-Language:' => $file{'language'},
     );
-  $self->mail_entity($sender, $ent, $requester);
+
+  $sender = _list_config_get($td->{'list'}, 'sender');
+  if ($sender and $ent) {
+    $self->mail_entity($sender, $ent, $td->{'user'});
+  }
   return (undef, undef, undef, undef, $file);
 }
 
@@ -1064,22 +1074,22 @@ XXX Some of these actions require further scrutiny.
 =cut
 use Mj::CommandProps ':access';
 sub _a_default {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
-  my $log = new Log::In 150, $request;
-  my ($access, $policy, $action, $reason);
+  my ($self, $arg, $td, $args) = @_;
+  my $log = new Log::In 150, $td->{'command'};
+  my ($access, $policy, $action, $reason, $request);
+  ($request = $td->{'command'}) =~ s/_(start|chunk|done)$//g;
 
   # We'll use the arglist almost verbatim in several places.
   shift @_;
 
   # First check the hash of allowed requests.
-  if (access_def($request, 'allow')) {
+  if (access_def($td->{'command'}, 'allow')) {
     return $self->_a_allow(@_);
   }
 
   # Allow these if the user supplied their password, else confirm them.
-  if (access_def($request, 'confirm')) {
-    return $self->_a_allow(@_) if $args{'user_password'};
+  if (access_def($td->{'command'}, 'confirm')) {
+    return $self->_a_allow(@_) if $args->{'user_password'};
     $action = "_a_confirm";
     $reason = "By default, $request must be confirmed by the person affected."
   }
@@ -1090,15 +1100,15 @@ sub _a_default {
   }
 
   elsif (access_def($request, 'access')) {
-    $access = $self->_list_config_get($list, "${request}_access");
+    $access = $self->_list_config_get($td->{'list'}, "${request}_access");
 
     # 'list' access doesn't make sense for GLOBAL; assume nobody's
     # subscribed, which implies 'closed'.
-    $access = 'closed' if $access eq 'list' && $list eq 'GLOBAL';
+    $access = 'closed' if $access eq 'list' && $td->{'list'} eq 'GLOBAL';
     $action = '_a_deny';
 
     # Always deny rooted requests (only happens for get and index)
-    if ($args{'root'}) {
+    if ($args->{'root'}) {
       $action = "_a_deny";
       $reason = "Requests which specify absolute paths are denied."
     }
@@ -1110,37 +1120,37 @@ sub _a_default {
       $reason = "${request}_access is set to 'closed'";
     }
     elsif ($access eq 'list' &&
-	   $self->{'lists'}{$list}->is_subscriber($victim))
+	   $self->{'lists'}{$td->{'list'}}->is_subscriber($victim))
       {
 		$action = "_a_allow";
       }
   }
 
   elsif (access_def($request, 'policy')) {
-    $policy = $self->_list_config_get($list, "${request}_policy");
+    $policy = $self->_list_config_get($td->{'list'}, "${request}_policy");
 
     # First make sure that someone isn't trying to subscribe the list to
     # itself
     return (0, 'subscribe_to_self') 
-      if $request eq 'subscribe' and $args{'matches_list'};
+      if $request eq 'subscribe' and $args->{'matches_list'};
 
     # If the user has supplied their password, we never confirm.  We also
     # don't have to worry about mismatches, since we know we saw the victim's
     # password.  So we allow it unless the list is closed, and we ignore
     # confirm settings.
-    if ($args{'user_password'}) {
+    if ($args->{'user_password'}) {
       $action = "_a_allow"   if $policy =~ /^(auto|open)/;
     }
 
     # Now, open.  This depends on whether there's a mismatch.
-    elsif ($args{'mismatch'} or $args{'posing'}) {
+    elsif ($args->{'mismatch'} or $args->{'posing'}) {
       $action = "_a_consult"   if $policy eq 'open';
       $action = "_a_conf_cons" if $policy eq 'open+confirm';
-      $reason = "$requester made a request that affects\n" .
-                "another address ($victim)."
-        if $args{'mismatch'};
-      $reason = "$self->{'sessionuser'} is masquerading as $requester."
-        if $args{'posing'};
+      $reason = "$td->{'user'} made a request that affects\n" .
+                "another address ($td->{'victim'})."
+        if $args->{'mismatch'};
+      $reason = "$self->{'sessionuser'} is masquerading as $td->{'user'}."
+        if $args->{'posing'};
     }
     unless ($action) {
       $action = "_a_allow"   if $policy eq 'open';
@@ -1164,14 +1174,14 @@ sub _a_default {
   # If the suplied password was correct for the victim, we don't need to
   # confirm.
   elsif (access_def($request, 'mismatch')) {
-    if ($args{'posing'}) {
+    if ($args->{'posing'}) {
       $action = "_a_confirm2";
-      $reason = "$self->{'sessionuser'} is masquerading as $requester.";
+      $reason = "$self->{'sessionuser'} is masquerading as $td->{'user'}.";
     }
-    elsif ($args{'mismatch'} && !$args{'user_password'}) {
+    elsif ($args->{'mismatch'} && !$args->{'user_password'}) {
       $action = "_a_confirm";
-      $reason = "$requester made a request that affects\n" .
-                "a different address ($victim).\n";
+      $reason = "$td->{'user'} made a request that affects\n" .
+                "a different address ($td->{'victim'}).\n";
     }
     else {
       $action = "_a_allow";
@@ -1191,7 +1201,7 @@ sub _a_default {
   }
 
   if (defined $reason) {
-    $_[10] = "$reason\002" . $_[10];
+    $args->{'reasons'} = "$reason\002" . $args->{'reasons'}; 
   }
   return $self->$action(@_);
 }
@@ -1203,24 +1213,23 @@ sub _a_default {
 # subscribed to the list), else we succeed.
 use Safe;
 sub _d_advertise {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
+  my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150;
   my ($adv, $i, $noadv);
   shift @_;
 
-  $adv = $self->_list_config_get($list, 'advertise');
+  $adv = $self->_list_config_get($td->{'list'}, 'advertise');
 
   for $i (@$adv) {
-    return $self->_a_allow(@_) if Majordomo::_re_match($i, $requester->strip);
+    return $self->_a_allow(@_) if Majordomo::_re_match($i, $td->{'user'}->strip);
   }
 
   # Somewhat complicated; we try not to check membership unless we
   # need to; we do so only if we would otherwise deny.
-  $noadv = $self->_list_config_get($list, 'noadvertise');
+  $noadv = $self->_list_config_get($td->{'list'}, 'noadvertise');
   for $i (@$noadv) {
-    if (Majordomo::_re_match($i, $requester->strip)) {
-      if ($self->{'lists'}{$list}->is_subscriber($requester)) {
+    if (Majordomo::_re_match($i, $td->{'user'}->strip)) {
+      if ($self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'user'})) {
 	return $self->_a_allow(@_);
       }
       return $self->_a_deny(@_);
@@ -1230,35 +1239,11 @@ sub _d_advertise {
   return $self->_a_allow(@_);
 }  
 
-# Need to do minimum length checking
-sub _d_password {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
-  my $log = new Log::In 150;
-  my ($minlength);
-  shift @_;
-
-  $minlength = $self->_global_config_get('password_min_length');
-
-  if ($args{'password_length'} < $minlength) {
-    shift @_;
-    return $self->_a_denymess("Your new password must be at least $minlength characters long.\n", @_);
-  }
-
-  if ($args{'user_password'}) {
-    return $self->_a_allow(@_);
-  }
-
-  $_[10] = "By default, the password command requires confirmation.\002" . $_[10];
-  return $self->_a_confirm(@_);
-}
-
 # Provide the expected behavior for the post command.  This means we
 # have to check moderate and restrict_post, and all of the appropriate
 # variables passed into the access_check routine.
 sub _d_post {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
+  my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150;
   my(@consult_vars, @deny_vars, $i, $member, $moderate, $restrict,
      $tmp, $tmpl, $tmps);
@@ -1274,29 +1259,24 @@ sub _d_post {
 
   # Deny is stronger than consult, so process denials first
   for $i (@deny_vars) {
-    return $self->_a_deny(@_) if $args{$i};
+    return $self->_a_deny(@_) if $args->{$i};
   }
 
   # Immediately consult for moderated lists
-  $moderate = $self->_list_config_get($list, 'moderate');
-  $_[10] = "The $list list is moderated.\002" . $_[10] if $moderate;
+  $moderate = $self->_list_config_get($td->{'list'}, 'moderate');
+  $args->{'reasons'} = "The $td->{'list'} list is moderated.\002" . 
+                  $args->{'reasons'} if $moderate;
   return $self->_a_consult(@_) if $moderate;
 
   # Check restrict_post
-  $restrict = $self->_list_config_get($list, 'restrict_post');
+  $restrict = $self->_list_config_get($td->{'list'}, 'restrict_post');
   $member = 0;
   for $i (@$restrict) {
     # First, check to see that we don't have a "list:" or "list:auxlist" string
     if ($i =~ /(.+):(.*)/) {
       ($tmpl, $tmps) = ($1, $2);
       next unless $self->_make_list($tmpl);
-      if ($tmps) {
-	if ($self->{'lists'}{$tmpl}->aux_is_member($tmps, $requester)) {
-	  $member = 1;
-	  last;
-	}
-      }
-      elsif ($self->{'lists'}{$tmpl}->is_subscriber($requester)) {
+      if ($self->{'lists'}{$tmpl}->is_subscriber($td->{'user'}, $tmps)) {
 	$member = 1;
 	last;
       }
@@ -1304,8 +1284,8 @@ sub _d_post {
 
     # For backwards compatibility, look for "list", "list.digest",
     # "list-digest", etc.
-    if ($i =~ /\Q$list\E([.-_]digest)?/) {
-      if ($self->{'lists'}{$list}->is_subscriber($requester)) {
+    if ($i =~ /\Q$td->{'list'}\E([.-_]digest)?/) {
+      if ($self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'user'})) {
 	$member = 1;
 	last;
       }
@@ -1313,14 +1293,14 @@ sub _d_post {
     # Otherwise we have to check both the exact restrict_post file and
     # try to remove the list name and a separator from it and try that
     else {
-      if ($self->{'lists'}{$list}->aux_is_member($i, $requester)) {
+      if ($self->{'lists'}{$td->{'list'}}->aux_is_member($i, $td->{'user'})) {
 	$member = 1;
 	last;
       }
       else {
 	$tmp = $i;
 	$tmp =~ s/\Q$list\E[.-_]?//;
-	if ($self->{'lists'}{$list}->aux_is_member($i, $requester)) {
+	if ($self->{'lists'}{$list}->aux_is_member($i, $td->{'user'})) {
 	  $member = 1;
 	  last;
 	}
@@ -1328,21 +1308,21 @@ sub _d_post {
     }
   }
   if (@$restrict && !$member) {
-    # XXX Hack; add something to the bounce reasons
-    $_[10] = "Non-Member Submission from $victim\002" . $_[10];
+    $args->{'reasons'} = "Non-Member Submission from $victim\002" 
+                        . $args->{'reasons'};
     return $self->_a_consult(@_);
   }
 
   # Now check all of the variables passed in from resend and consult
   # if necessary
   return $self->_a_consult(@_)
-    if $args{'admin'} && $self->_list_config_get($list, 'administrivia');
+    if $args->{'admin'} && $self->_list_config_get($td->{'list'}, 'administrivia');
 
   for $i (@consult_vars) {
     # Consult only if the value is defined and is either a string or a
     # positive integer.
     return $self->_a_consult(@_)
-      if defined($args{$i}) && ($args{$i} =~ /\D/ || $args{$i} > 0);
+      if defined($args->{$i}) && ($args->{$i} =~ /\D/ || $args->{$i} > 0);
   }
 
   return $self->_a_allow(@_);
