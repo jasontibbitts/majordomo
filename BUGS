@@ -13,7 +13,3 @@ Messages with unparseable MIME are ignored by the code.  I've requested
 Visiting an external link from the WWW interfaces can cause a temporary
   password ("latchkey") to be revealed in the "Referer" information.
 
-When the "who-bounce" command displays a list of addresses in the wwwadm
-  interface, the "Next" link ignores the "bounce" mode and displays
-  addresses that don't have bounces.
-
