@@ -16,7 +16,7 @@ package Mj::Util;
 use Mj::Log;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(gen_pw in_clock process_rule str_to_time time_to_str);
+@EXPORT_OK = qw(ep_convert ep_recognize gen_pw in_clock process_rule str_to_time time_to_str);
 
 use AutoLoader 'AUTOLOAD';
 
@@ -147,6 +147,32 @@ sub process_rule {
     $params{'args'}->{$i} = $args{$i};
   }
   @final_actions;
+}
+
+=head2 ep_convert (string)
+
+Convert a string to an "encrypted" form.  At present this is
+an SHA-1 message digest.
+
+=cut
+use Digest::SHA1 qw(sha1_base64);
+sub ep_convert {
+  my $str = shift || '';
+ 
+  return sha1_base64($str);
+}
+
+=head2 ep_recognize (string)
+
+Returns a true or false value, depending upon whether or not a
+string appears to be an encrypted password, in this case an
+SHA-1 digest.
+
+=cut
+sub ep_recognize {
+  my $str = shift || '';
+
+  return ($str =~ m#^[A-Za-z0-9+/=]{27}$#);
 }
 
 =head2 gen_pw (length)
