@@ -87,7 +87,7 @@ sub accept {
     my $fun = "Mj::Format::$command";
     {
       no strict 'refs';
-      $ok = &$fun($mj, $out, $err, 'text', $data, $rresult);
+      $ok = &$fun($mj, $out, $err, $type, $data, $rresult);
     }
   }
   $ok;
@@ -1669,14 +1669,16 @@ sub tokeninfo {
 
   $subs->{'APPROVALS'}  = $data->{'approvals'};
   $subs->{'CMDLINE'} = escape($data->{'cmdline'}, $type);
-  $subs->{'DATE'} = localtime($data->{'time'});
-  $subs->{'EXPIRE'} = localtime($data->{'expire'});
-  $subs->{'ISPOST'} = ($data->{'command'} eq 'post') ? " " : '';
-  $subs->{'REQUESTER'}  = escape($data->{'user'}, $type);
-  $subs->{'TOKEN'}  = $request->{'token'};
-  $subs->{'TYPE'}  = $data->{'type'};
+  $subs->{'CONSULT'} = ($data->{'type'} eq 'consult') ? " " : '';
+  $subs->{'DATE'}    = localtime($data->{'time'});
+  $subs->{'EXPIRE'}  = localtime($data->{'expire'});
+  $subs->{'ISPOST'}  = ($data->{'command'} eq 'post') ? " " : '';
+  $subs->{'LIST'}    = $data->{'list'};
+  $subs->{'REQUESTER'} = escape($data->{'user'}, $type);
+  $subs->{'TOKEN'}   = $request->{'token'};
+  $subs->{'TYPE'}    = $data->{'type'};
   $subs->{'VICTIM'}  = escape($data->{'victim'}, $type);
-  $subs->{'WILLACK'}  = $data->{'willack'};
+  $subs->{'WILLACK'} = $data->{'willack'};
 
   # Indicate reasons
   $subs->{'REASONS'} = [];
@@ -1685,7 +1687,10 @@ sub tokeninfo {
     $subs->{'REASONS'} = [@tmp];
   }
 
-  $tmp = $mj->format_get_string($type, 'tokeninfo_head');
+  $tmp = $mj->format_get_string($type, "tokeninfo_head_$data->{'command'}");
+  unless ($tmp) {
+    $tmp = $mj->format_get_string($type, 'tokeninfo_head');
+  }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
 
@@ -1703,7 +1708,10 @@ sub tokeninfo {
   # Restore the command name.
   $request->{'command'} = 'tokeninfo';
 
-  $tmp = $mj->format_get_string($type, 'tokeninfo_foot');
+  $tmp = $mj->format_get_string($type, "tokeninfo_foot_$data->{'command'}");
+  unless ($tmp) {
+    $tmp = $mj->format_get_string($type, 'tokeninfo_foot');
+  }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
 
