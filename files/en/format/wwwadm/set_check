@@ -72,7 +72,7 @@ the checkbox next to the name of a setting to change its value.
 <dl>
   <dt>$ACKDENY_CHECKBOX ackdeny</dt>
   <dd>
-    Select this to be notify the subscriber when posted messages 
+    Select this to notify the subscriber when posted messages 
     are denied by the access restrictions of a list.
   </dd>
 
