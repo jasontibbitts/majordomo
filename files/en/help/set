@@ -42,14 +42,14 @@ will cause the delivery class for the LISTNAME mailing list to be
 changed to the default digest for the mailing list.
 
 Normally, the set command will allow you to view or change the settings
-for one subscriber on one mailing list.  However, the "set-pattern"
-command may be used by list owners to change the settings for more than
-one address at once.  Also, the "set ALL" command may be used by
-subscribers to change the settings for all of their subscriptions at
-once.
+for one subscriber on one mailing list.  However, the
+"set-pattern-allmatching" command can be used by list owners to change
+the settings for more than one address at once.  Also, the "set ALL"
+command can be used by subscribers to change the settings for all of
+their subscriptions at once.
 
 Example:
-  set-pattern LISTNAME replyto /./
+  set-pattern-allmatching LISTNAME replyto ALL
 will turn on the "replyto" flag for every address subscribed to a
 mailing list.
 
