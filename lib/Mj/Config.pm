@@ -29,9 +29,8 @@ use strict;
 no strict 'refs';
 
 package Mj::Config;
-use Data::Dumper;
 use Mj::Log;
-use Mj::File;
+use Mj::Lock;
 use Mj::CommandProps ':rules';
 
 use vars qw(@EXPORT_OK @ISA $VERSION %is_array %is_parsed $list);
@@ -343,9 +342,9 @@ sub _load_new {
   $name = $self->_filename;
 
   # We have to lock the file
-  $file = new Mj::File $name, "<";
+  $file = new Mj::Lock $name, 'Shared';
+  return unless $file;
   $self->{'source'}{'MAIN'} = do $name;
-  $file->close;
 
   1;
 }
@@ -382,10 +381,9 @@ sub _load_dfl {
   }
 
   if (-r $name) {
-    # The Mj::File module obtains a lock on the file.
-    $file = new Mj::File $name, "<";
+    $file = new Mj::Lock $name, 'Shared';
+    return unless $file;
     $out = do $name;
-    $file->close;
   }
 
   $out;
@@ -830,7 +828,9 @@ sub unlock {
   $self->{mtime} = time;
   if ($self->{dirty}) {
     # Save (print out) the file and commit
-    $ok = $self->{fh}->print(Dumper $self->{'source'}{'MAIN'});
+    require Data::Dumper; 
+    import Data::Dumper qw(Dumper);
+    $ok = $self->{fh}->print(Dumper($self->{'source'}{'MAIN'}));
     $ok ? $self->{fh}->commit : $self->{fh}->abandon;
   }
   else {
@@ -1008,6 +1008,7 @@ This parses an old-style config file and places its values in the
 Config object''s data hash.
 
 =cut
+use Mj::File;
 sub _load_old {
   my $self = shift;
   my ($file, $key, $name, $op, $val);
@@ -1060,6 +1061,8 @@ Dumps out the non-default variables in the Config object.
 
 =cut
 use Mj::FileRepl;
+use Mj::File;
+use Data::Dumper;
 sub _save_new {
   my $self = shift;
   my ($file, $name, $ok);
@@ -3132,6 +3135,7 @@ Right now we only parse three kinds of generalized expressions:
    tried again.
 
 =cut
+use Mj::Util qw(re_match);
 sub compile_pattern {
   my $str  = shift;
   my $mult = shift;
@@ -3195,13 +3199,13 @@ sub compile_pattern {
     $re = "/$pat/$mod";
 
     # Check validity of the regexp
-    $err = (Majordomo::_re_match($re, "justateststring"))[1];
+    $err = (re_match($re, "justateststring"))[1];
 
     # If we got an array deref error, try escaping '@' signs and trying
     # again
     if ($err =~ /array deref/) {
       $re =~ s/((?:^|[^\\\@])(?:\\\\)*)\@/$1\\\@/g; # Ugh
-      $err = (Majordomo::_re_match($re, "justateststring"))[1];
+      $err = (re_match($re, "justateststring"))[1];
     }
     return (0, "Error in regexp '$str'\n$err") if $err;
     return (1, '', $inv . $re);
@@ -3217,7 +3221,7 @@ sub compile_pattern {
     $re = "/$pat/$mod";
 
     # Check validity of the regexp
-    $err = (Majordomo::_re_match($re, "justateststring"))[1];
+    $err = (re_match($re, "justateststring"))[1];
     return (0, "Error in regexp '$str'\n$err") if $err;
     return (1, '', $inv . $re);
   }
