@@ -8,6 +8,11 @@
 	message is archived; it may have been changed.
 	Thanks to Brock Rozen.
 
+2003-04-16  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/List.pm (is_subscriber): Add better logging for invalid
+	and anonymous addresses.
+
 2003-04-12  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/BounceHandler.pm:  (handle_bounce_user)  Add a

@@ -339,8 +339,15 @@ sub is_subscriber {
   my $log = new Log::In 170, "$self->{'name'}, $addr";
   my ($data, $ok, $out, $subs);
 
-  return unless $addr->isvalid;
-  return if $addr->isanon;
+  if (!$addr->isvalid) {
+    $log->out('invalid');
+    return;
+  }
+
+  if ($addr->isanon) {
+    $log->out('anon');
+    return;
+  }
 
   # If we have cached data within the addr, use it.
   # Only the main subscriber list data is cached.
