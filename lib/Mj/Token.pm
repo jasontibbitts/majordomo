@@ -345,7 +345,7 @@ sub consult {
   # and "sender" configuration setting are each consulted
   # in turn until an address is found.
   $self->_make_list($list);
-  $group = $args{'group'} or 'moderators';
+  $group = $args{'group'} || 'moderators';
   @mod1  = $self->{'lists'}{$list}->moderators($group);
 
   # The number of moderators consulted can be limited to a
