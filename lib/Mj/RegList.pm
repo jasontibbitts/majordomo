@@ -54,7 +54,7 @@ use vars qw(@ISA);
 my @fields = (qw(stripaddr fulladdr changetime regtime password language
 		 lists flags bounce warnings data01 data02 data03 data04
 		 data05 data06 data07 data08 data09 data10 data11 data12
-		 data13 data14 data15));
+		 data13 data14 data15 rewritefrom));
 
 =head2 new(path)
 

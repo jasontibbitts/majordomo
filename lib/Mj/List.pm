@@ -46,6 +46,7 @@ use vars (qw($addr %flags %noflags %classes %digest_types));
    'eliminatecc'  => ['eliminatecc',  0,1,'C'],
    'prefix'       => ['prefix',       0,1,'P'],
    'replyto'      => ['replyto',      0,1,'R'],
+   'rewritefrom'  => ['rewritefrom',  0,1,'W'],
   );
 
 # Special inverse descriptions

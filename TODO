@@ -32,12 +32,24 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 (and TextOutput.pm and Format.pm) and into separate modules.
 
 
+Doc changes needed
+------------------
+Document special 'trim mbox' and 'ignore case' substitutions in addr_xforms.
+
+Removal of database_backend variable.
+
 Top of the list 
 ---------------
 
 Query for Confirm_url at install time.
 
 Implement rewritefrom flag.
+
+  set list rewritefrom string
+
+But is this setting a rewrite on the current address of string or the
+rewritefrom flag on the address "string"?
+
 
 New stored token format:
   Data::Dumper to store a hash.  The contents are essentially opaque to the

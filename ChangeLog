@@ -1,4 +1,17 @@
+Sun Jul 18 14:12:55 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (new): addr_xforms is now a parsed variable, so
+ 	conig_get returns a ref, not an array.
+
+	* lib/Mj/Config.pm (parse_xform_array): Make xform_array a parsed
+ 	type; do some simple substitutions so folks can write 'ignore
+ 	case' instead of /(.*)/\L$1/.
+
 Sat Jul 17 10:13:15 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/RegList.pm:
+	* lib/Mj/SubscriberList.pm:
+		Add rewritefrom field.
 
 	* t/shell.t: Store database_backend in the temp site config.
 

@@ -91,6 +91,7 @@ $VERSION = "1.0";
    'taboo_body'       => 1,
    'taboo_headers'    => 1,
    'welcome_files'    => 1,
+   'xform_array'      => 1,
   );
 
 =head2 new(list, listdir, separate_list_dirs)
@@ -2109,12 +2110,25 @@ sub parse_xform_array {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
+  my(%repl, $data, $i);
 
-  for my $i (@$arr) {
-    return (0, "Invalid xform: $i")
-      unless $i =~ m!^/.*/.*/i?$!;
+  $data = ();
+  %repl = ('trim mbox'   => '/(.*?)\+.*(\@.*)/$1$2/',
+	   'ignore case' => '/(.*)/\L$1/',
+	  );
+
+  for $i (@$arr) {
+    if ($repl{$i}) {
+      push @$data, $repl{$i};
+    }
+    elsif ($i =~ m!^/.*/.*/i?$!) {
+      push @$data, $i;
+    }
+    else {
+      return (0, "Invalid transform: $i")
+    }
   }
-  return 1;
+  return (1, '', $data);
 }
 
 =head1 Utility Routines

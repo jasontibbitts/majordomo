@@ -172,7 +172,7 @@ sub new {
      'allow_ending_dot' => $self->_global_config_get('addr_allow_ending_dot'),
      'limit_length'     => $self->_global_config_get('addr_limit_length'),
      'require_fqdn'     => $self->_global_config_get('addr_require_fqdn'),
-     'xforms'           => [$self->_global_config_get('addr_xforms')],
+     'xforms'           => $self->_global_config_get('addr_xforms'),
      'allow_at_in_phrase'
        => $self->_global_config_get('addr_allow_at_in_phrase'),
      'allow_comments_after_route'
