@@ -1,9 +1,7 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-digest-check  listname [digestname]
-digest-force  listname [digestname]
-digest-incvol listname [digestname]
+digest[-check][-force][-incvol][-status] listname [digestname]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-must specify exactly one of -check, -force, or -incvol
+must specify exactly one of -check, -force, -incvol, or -status
    -check,  if specified, pushes a digest if necessary
    -force,  if specified, pushes a digest needed or not
    -incvol, if specified, increments the volume number
@@ -27,6 +25,21 @@ digest-force listname digestname
   forces a digest push _now_, even if it doesn't have enough messages in it
   to go normally.  This is for people who want a digest to go at midnmight,
   regardless or whether or not it will be full.
+
+digest-status listname digestname
+  shows the current data for one or more digests.
+  Here is sample of the output:
+    Digest Name                weekly
+    Last delivered on          Mon Aug 14 21:15:06 2000
+    Age of oldest message      407014 seconds
+    Oldest age allowed         518400 seconds
+    Age of newest message      2402 seconds
+    Messages awaiting delivery 194
+    Message total size         2006561 bytes
+    Maximum size of a digest   102400 bytes
+    200008/660     On the road to a PGM panic...........
+     by "THC" <thchi@xxxxxxx.xx.jp>                      Mon Aug 14 23:15:20 2000
+    (summaries of the other 193 messages elided)
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
