@@ -115,7 +115,8 @@ desc
 ----
 The description of the digest usually appears at the top of the table of
 contents of each digest issue and in the Subject header of the digest
-(as determined by the subject field).  
+(as determined by the subject field).  The description does not support
+variable substitutions (e.g., "\$LIST").
 
 The default value is "Message Digest".
 
