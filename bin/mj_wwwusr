@@ -428,7 +428,7 @@ sub format_print {
     exit 0;
   }
   print  "<pre>\n";
-  1 while ($fh->print());
+  while ($line = $fh->getline()) { print $line; }
   $fh->close();
   print "</pre>\n";
 }
@@ -528,6 +528,7 @@ EOM
 # XXX Move this to a template file.
 sub print_header {
   my ($user, $passw, $site, $cgiurl) = @_;
+  $user = Mj::Format::escape($user);
   print <<EOM;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
 "http://www.w3.org/TR/REC-html40/strict.dtd"> 
@@ -549,7 +550,7 @@ at $site.
 EOM
 
 print "<h4 align=center>Type your address into the first box</h4>\n"
-  if ($user =~ /example.com$/);
+  if ($user =~ /example.com/);
 
   print <<EOM;
 <form method=POST action=$cgiurl>
