@@ -791,6 +791,7 @@ files/en/help/.admin_delivery
 files/en/help/.admin_documents
 files/en/help/.admin_domain
 files/en/help/.admin_moderate
+files/en/help/.admin_modes
 files/en/help/.admin_monitor
 files/en/help/.admin_passwords
 files/en/help/.admin_subscribers
@@ -1006,6 +1007,7 @@ files/en/help/admin_delivery
 files/en/help/admin_documents
 files/en/help/admin_domain
 files/en/help/admin_moderate
+files/en/help/admin_modes
 files/en/help/admin_monitor
 files/en/help/admin_passwords
 files/en/help/admin_subscribers
