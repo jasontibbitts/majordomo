@@ -17,11 +17,18 @@ New address:
   <input type=submit name=func value="changeaddr">
 
 <p>
-To change your $HELP:PASSWORD, press the <b>password-gen</b> button.
-Majordomo will create a new password and mail it to you.
-You will need to sign in again, using your new password, if
-you wish to make any other changes to your subscriptions.<br>
-  <input type=submit name=func value="password-gen">
+To change your $HELP:PASSWORD, type a password into the <b>New
+password</b> box, then press the <b>password</b> button.  If you leave
+the <b>New password</b> box empty, Majordomo will select a new password
+for you.  Otherwise, the password you type must be at least $PWLENGTH
+characters long.  Majordomo will send a copy of your new password to
+your e-mail address.  You will need to sign in again, using your new
+password, if you wish to make any other changes to your
+subscriptions.<br> 
+
+New password: 
+<input size=16 name=newpasswd> 
+<input type=submit name=func value="password">
 
 <p>
 To $HELP:UNREGISTER, leave the box empty and press the <b>unregister</b>
