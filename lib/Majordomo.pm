@@ -407,7 +407,10 @@ sub connect {
   unless ($ok > 0) {
     $self->inform('GLOBAL', 'connect', $user, $user, 'connect',
                   $int, $ok, '', 0, $err, $::log->elapsed);
-    undef $self->{sessionfh};
+    if (exists $self->{'sessionfh'}) {
+      close $self->{sessionfh};
+      undef $self->{sessionfh};
+    }
     undef $self->{sessionid};
     return (undef, $err);
   }
