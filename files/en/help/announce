@@ -27,10 +27,10 @@ introduction to delivery classes.
 
 When an announcement is sent to the GLOBAL pseudo-list, the recipients
 are chosen from Majordomo's central registry (see "help register" and
-"help admin_domain" for an introduction to the registry).  The "each" 
-and "nomail" classes are used to distinguish people who are subscribed 
-to one or more mailing lists from those who are registered but not 
-subscribed to any mailing lists.)
+"help admin_domain" for an introduction to the registry).  The "each"
+and "nomail" classes are used to distinguish people who are subscribed
+to one or more mailing lists from those who are registered but not
+subscribed to any mailing lists.
 
 The file that is distributed is a template that supports keyword
 variable substitutions.  The variables supported include the standard 
