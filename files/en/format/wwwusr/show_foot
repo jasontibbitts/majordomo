@@ -32,12 +32,12 @@ Majordomo will treat commands or messages that you send from
 your alias addresses as if they were sent from your original
 address.
 <form method="POST" action="$CGIURL">
-  <input type="hidden" name="domain" value="$DOMAIN">
   <input type="hidden" name="user" value="$USER">
   <input type="hidden" name="passw" type=password value="$CMDPASS">
+  <input type="hidden" name="func" value="alias">
 Other address:
   <input size="36" name="extra">
-  <input type="submit" name="func" value="alias">
+  <input type="submit" name="f" value="alias">
 <br>
 To remove an existing alias, select it from the following menu
 and press the <b>unalias</b> button.<br>
@@ -57,12 +57,12 @@ for your new address.  Majordomo may send a message to your new address
 asking for confirmation.
 
 <form method="POST" action="$CGIURL">
-  <input type="hidden" name="domain" value="$DOMAIN">
   <input type="hidden" name="user" value="$USER">
   <input type="hidden" name="passw" type=password value="$CMDPASS">
+  <input type="hidden" name="func" value="changeaddr">
 New address:
   <input size="36" name="extra">
-  <input type="submit" name="func" value="changeaddr">
+  <input type="submit" name="f" value="changeaddr">
 </form>
 </p>
 
@@ -78,12 +78,12 @@ password, if you wish to make any other changes to your
 subscriptions.
 
 <form method="POST" action="$CGIURL">
-  <input type="hidden" name="domain" value="$DOMAIN">
   <input type="hidden" name="user" value="$USER">
   <input type="hidden" name="passw" type=password value="$CMDPASS">
+  <input type="hidden" name="func" value="password">
 New password: 
   <input size="16" type="password" name="newpasswd"> 
-  <input type="submit" name="func" value="password">
+  <input type="submit" name="f" value="password">
 </form>
 </p>
 
@@ -94,9 +94,8 @@ All of your subscriptions and aliases will be removed, and
 your password will be invalidated.
 
 <form method="POST" action="$CGIURL">
-  <input type="hidden" name="domain" value="$DOMAIN">
   <input type="hidden" name="user" value="$USER">
-  <input type="hidden" name="passw" type=password value="$CMDPASS">
+  <input type="hidden" name="passw" value="$CMDPASS">
   <input type="submit" name="func" value="unregister">
 </form>
 </p>

@@ -45,7 +45,6 @@ Type the name of the list into the <b>Mailing List</b> box,
 then press the <b>search</b> button.
 
 <form method="POST" action="$CGIURL">
-  <input type="hidden" name="domain" value="$DOMAIN">
   <input type="hidden" name="func" value="lists-full-long">
   <input type="hidden" name="passw" value="$CMDPASS">
   <input type="hidden" name="user" value="$USER">
