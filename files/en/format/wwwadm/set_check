@@ -19,6 +19,8 @@
   <input type="submit" name="func" value="set">
   <input type="submit" name="func" value="unsubscribe">
   <input type="submit" name="func" value="unsubscribe-farewell">
+</p>
+
 <dl>
   <dt>
   Delivery class:
@@ -148,7 +150,7 @@ the checkbox next to the name of a setting to change its value.
   <dd>
     Select this to cause the subscriber's replies to be sent to the
     $LIST mailing list.  Otherwise, the subscriber's replies may be 
-    sent to the authors of the messages to which the subscriber reply.
+    sent to the authors of the messages to which the subscriber replies.
   </dd>
 
   <dt>$REWRITEFROM_CHECKBOX rewritefrom</dt>

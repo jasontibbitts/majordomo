@@ -111,7 +111,7 @@ the checkbox next to the name of a setting to change its value.
 
   <dt>$HIDEPOST_CHECKBOX hidepost</dt>
   <dd>
-    Select this is you do not want messages that you post
+    Select this if you do not want messages that you post
     to the mailing list to appear in a public archive.
   </dd>
 
@@ -150,6 +150,7 @@ the checkbox next to the name of a setting to change its value.
     that you post to the mailing list.
   </dd>
 </dl>
+
 <p>
 $VICTIM has been subscribed to the $LIST list since 
 $SUBTIME.<br>
