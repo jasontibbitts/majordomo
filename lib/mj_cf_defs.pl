@@ -95,6 +95,7 @@ $Mj::Config::default_string = q(
  'attachment_rules'     => [],
  'block_headers'        => ['/X-Loop:.*majordomo/i',
                             '/Precedence:.*(bulk|junk|list)/i',
+                            '/List-Server:.*Minimalist/i',
                            ],
  'bounce_max_age'       => 31,
  'bounce_max_count'     => 100,
