@@ -1,3 +1,33 @@
+2000-08-27  Michael Yount <csf@moscow.com>
+
+	* bin/mj_*, setup/query_util.pl :  Allow only letters, digits, 
+	period and hyphen in domain names when untainting.
+
+	* bin/mj_email, bin/mj_queuerun:  Look for the "x-loop" header
+	in messages containing commands, and forward such a message to the 
+	list owner.
+
+	* bin/mj_wwwusr:  Add a button for the alias command.
+
+	* files/en/config/triggers:  New file.  Describe the new
+	triggers configuration setting, which determines at what
+	times the hourly trigger will invoke a particular trigger.
+
+	* lib/Majordomo.pm (trigger):  Evaluate the triggers configuration
+	setting during the hourly trigger.
+
+	* lib/Mj/Config.pm (parse_triggers):  New routine.  Each line
+	of the triggers setting contains a trigger name and set of
+	times at which the trigger should be invoked.
+	(_str_to_clock)  Parse "yearly" "quarterly" "monthly" "daily"
+	and a new abbreviated format (e.g., 7m3d(8) for July 3, 8 am).
+
+	* lib/Mj/Digest.pm (in_clock):  Handle hours relative to the 
+	start of a year, or relative to the start of a particular month.
+
+	* lib/Mj/Resend.pm (_r_strip_body):  New routine.  Discard
+	attachments as required by the attachment_rules setting.
+
 2000-08-24  Darren Stalder  <torin@daft.com>
 
 	* README: After the setup questions are asked, mention that you

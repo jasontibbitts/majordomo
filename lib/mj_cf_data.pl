@@ -659,6 +659,15 @@ EOC
     'global' => 1,
     'mutable'=> 1,
    },
+   'triggers' =>
+   {
+    'type'   => 'triggers',
+    'values' => [qw(bounce checksum log session token)],
+    'groups' => [qw(majordomo)],
+    'visible'=> 0,
+    'local'  => 0,
+    'global' => 1,
+   },
    'digests' =>
    {
     'type'   => 'digests',

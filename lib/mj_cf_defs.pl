@@ -49,6 +49,12 @@ $Mj::Config::default_string = q(
  'install_dir'          => undef,
  'lists_dir'            => undef,
  'sublists'             => [],
+ 'triggers'             => ($list eq 'GLOBAL') ? 
+                           [ 'bounce   | daily', 
+                             'checksum | daily', 
+                             'log      | daily',
+                             'session  | daily', 
+                             'token    | daily' ] : [],
  'database_backend'     => 'text',
  'default_class'        => 'each',
  'default_flags'        => 'SPR',
@@ -94,7 +100,7 @@ $Mj::Config::default_string = q(
 			      )],
  'subject_prefix'       => undef,
  'admin_headers'        => (#'
-			    ($list eq 'GLOBAL' or $list eq 'DEFAULT') ? 
+			    ($list eq 'GLOBAL') ? 
 			    ['/^subject:\s*subscribe\b/i',
 			     '/^subject:\s*unsubscribe\b/i',
 			     '/^subject:\s*uns\w*b/i',
@@ -105,7 +111,7 @@ $Mj::Config::default_string = q(
 			     '/^subject:\s*cancel\b/i',
                              '/MSGRCPT/',
 			    ] : []),
- 'admin_body'           => (($list eq 'GLOBAL' or $list eq 'DEFAULT') ?
+ 'admin_body'           => (($list eq 'GLOBAL') ?
 			    [
 			     '/\bcancel\b/i',
 			     '/\badd me\b/i',
@@ -137,8 +143,8 @@ $Mj::Config::default_string = q(
 			     '/^\s*writeconfig\b/i',
 			     '/^\s*mkdigest\b/i',
 			    ] : []),
- 'taboo_headers'        => ($list eq 'GLOBAL' or $list eq 'DEFAULT') ? [] : [],
- 'taboo_body'           => ($list eq 'GLOBAL' or $list eq 'DEFAULT') ? [] : [],
+ 'taboo_headers'        => ($list eq 'GLOBAL') ? [] : [],
+ 'taboo_body'           => ($list eq 'GLOBAL') ? [] : [],
  'override_reply_to'    => 0,
  'comments'             => [],
  'addr_xforms'          => [],

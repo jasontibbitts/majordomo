@@ -343,6 +343,7 @@ $files =
    'en/config/tmpdir'                          => ['The tmpdir variable',                          'us-ascii', '7bit'],
    'en/config/token_lifetime'                  => ['The token_lifetime variable',                  'us-ascii', '7bit'],
    'en/config/token_remind'                    => ['The token_remind variable',                    'us-ascii', '7bit'],
+   'en/config/triggers'                        => ['The triggers variable',                        'us-ascii', '7bit'],
    'en/config/unsubscribe_policy'              => ['The unsubscribe_policy variable',              'us-ascii', '7bit'],
    'en/config/welcome'                         => ['The welcome variable',                         'us-ascii', '7bit'],
    'en/config/welcome_files'                   => ['The welcome_files variable',                   'us-ascii', '7bit'],

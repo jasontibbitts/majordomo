@@ -207,6 +207,7 @@ files/en/config/taboo_headers
 files/en/config/tmpdir
 files/en/config/token_lifetime
 files/en/config/token_remind
+files/en/config/triggers
 files/en/config/unsubscribe_policy
 files/en/config/welcome
 files/en/config/welcome_files
