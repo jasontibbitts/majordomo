@@ -595,6 +595,7 @@ my %commands =
                     'mime_deny'                    => 'bool',
                     'mime_header_length'           => 'integer',
                     'mime_header_length_exceeded'  => 'bool',
+                    'mime_require'                 => 'bool',
                     'mime'                         => 'bool',
                     'mode'                         => 'string',
 		    'nonempty_lines'               => 'integer',
@@ -677,9 +678,10 @@ my %commands =
    'rekey' =>
    {
     'parser'   => [qw(email shell nohereargs real)],
-    'dispatch' => {'top' => 1,
+    'dispatch' => {'top' => 1, 'iter' => 1,
                    'modes'    =>  {
                                    %generic_modes,
+                                   'noxform'     => 1,
                                    'repair'      => 1,
                                    'verify'      => 1,
                                   },   
