@@ -30,7 +30,7 @@ $DESCRIPTION
 <br>
 
   <a href="$CGIURL?$CGIDATA&amp;func=intro&amp;list=$LIST">
-  Introduction to the Group</a>
+  Introduction to the List</a>
 
 <br>
 

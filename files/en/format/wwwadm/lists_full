@@ -27,7 +27,7 @@ $POSTS
       Summary</a> of the Available Archives
     </td></tr>
 
-<tr><td valign="top">Post to the Group</td>
+<tr><td valign="top">Post to the List</td>
     <td><a href="mailto:$WHOAMI">$WHOAMI</a></td></tr>
 
 <tr><td valign="top">Contact the Owners</td>
@@ -42,7 +42,7 @@ $POSTS
 <br>
 
   <a href="$CGIURL?$CGIDATA&amp;func=intro&amp;list=$LIST">
-  Introduction to the Group</a> 
+  Introduction to the List</a> 
   (<a href="$CGIURL?$CGIDATA&amp;func=intro-edit&amp;list=$LIST">Edit</a>)
 
 <br>
