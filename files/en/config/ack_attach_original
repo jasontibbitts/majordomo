@@ -1,8 +1,13 @@
-This controls under what circumstances the original message will be
-attached (as a MIME attachment) to acknowlegements sent out to inform
-the user of delivery progress (as set by the user''s ack setting).
-Each element of this array must be one of the following:
-  fail  - acks for failed messages will include the original message
-  stall - acks for stalls (confirmations or consultations) will
-          include the original message.
-  all   - acks sent for any reason will include the original message.
+The ack_attach_original setting determines whether an acknowledgement
+message will include (as a MIME attachment) the original posted message.
+Acknowledgement messages are sent to give the authors of posted messages
+details about the progress of their posts.  Whether or not an
+acknowledgement message is sent depends upon the ackdeny, ackpost, and
+ackstall flags for the person who posted the message (see "help set" and
+"help configset_nonmember_flags" for more details.)
+
+There are four values which can be listed for this setting:
+  fail    - acks for denied messages will include the original.
+  stall   - acks for moderated messages will include the original.
+  succeed - acks for successful posts will include the original.
+  all     - all acknowledgements will include the original message.

@@ -3,7 +3,7 @@ configset listname ack_attach_original <<TAG
 [VALUE LINES]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : fail ... (only first item is shown)
+Default Value : fail stall
 Data Type     : enum_array, choose from: fail stall succeed all
 Category      : reply
 Password Notes: Visible only with password. 
@@ -12,36 +12,25 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset listname ack_attach_original << ENDTAG
 fail
-stall
 ENDTAG
 
+$INCLUDE-config/ack_attach_original
 
-This controls under what circumstances the original message will be
-attached (as a MIME attachment) to acknowlegements sent out to inform
-the user of delivery progress (as set by the user''s ack setting).
-Each element of this array must be one of the following:
-  fail  - acks for failed messages will include the original message
-  stall - acks for stalls (confirmations or consultations) will
-          include the original message.
-  all   - acks sent for any reason will include the original message.
+Including the original message with an acknowledgement message can give
+the recipient a better idea to which posted message the acknowledgement
+refers.
 
-This command can be used to enhance replyfile or mailfile messages, it
-does not generate new messages.
-
-When a subscriber receives an acknowledgement message (a post is stalled
-for owner confirmation or a post is denied), they will also receive a copy
-of their post back (as a MIME attachment). This can help clarify which post
-the error (deny or stall) message applies to.
-
-If users are posting huge files, returning it may be good (they realize
-how long it took to receive) or bad (you load up your server returning it).
-
+The acknowledgement message itself can be chosen using the "replyfile"
+action in the access_rules setting for the "fail" and "stall" results.
+By default, the acknowledgement files used are ack_success, ack_stall, 
+and ack_denial.  See "help reply_files" for a description of each file.
 
 See Also:
-   help configset access_rules  (for how to specify replyfiles)
-   help configset default_flags (for pre-setting the "ack" flag)
+   help admin_moderate
+   help configset_access_rules  (for how to specify replyfiles)
+   help configset_default_flags (for pre-setting the "ack" flag)
+   help configset_nonmember_flags
+   help reply_files
    help set                     (for subscribers to set the "ack" flag)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
