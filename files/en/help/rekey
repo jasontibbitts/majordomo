@@ -103,7 +103,7 @@ to assume the identity of the Majordomo user.
    subscribers the correct personal settings.
 
 Because database corruption is a serious problem, it is recommended that
-the site or domain administrator run the "rekey-repair" command
+the site or domain administrator run the "rekey-verify" command
 periodically to monitor the status of the databases.  In addition, the
 system administrator should periodically back up the registry database
 (_register.D or _register.T in the GLOBAL directory) and the subscriber

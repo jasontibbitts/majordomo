@@ -1,4 +1,4 @@
-The attachment_rules setting contains a table of rules, which describe 
+The attachment_filters setting contains a table of rules, which describe
 how to process the different body parts of a posted message. 
 
 A rule consists of a MIME type (or pattern matching a MIME type) 
