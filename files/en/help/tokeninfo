@@ -1,7 +1,51 @@
-WARNING: 'tokeninfo' is a valid command, but has no help as of 18 Mar 2000
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+tokeninfo[-full] token
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-full, if specified, shows contents of a post waiting for approval
+token, required, is a 12-character id for an action that needs approval
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+ 
+Majordomo has a flexible framework for deciding who is allowed to 
+use majordomo's many features.  Some requests, such as using the
+"help" command to learn about majordomo, may be permitted to anyone.
+Other actions, such as reviewing the registry of all subscribers
+at a site, may be denied outright to everyone except the site administrators.
+ 
+Between these two extremes are actions that require the approval of
+at least one person before they take place.  Such actions
+are considered "stalled" until the person approves the request
+or turns it down.  Whenever an action is stalled, majordomo creates
+a token, composed of 12 characters, which will uniquely identify
+the action.
+ 
+If the request requires the approval of the person who made the
+request, the token is called a "confirm" token.  If someone 
+else must approve the request, the token is called a "consult"
+token.
 
-This command may not be implemented, or may be undocumented for a reason!
+Anyone who is aware of the existence of a token can use the "tokeninfo"
+command to see the request that is stalled.  They can then use the
+"accept" or "reject" command to approve or deny the request.
+Most of the data that the "tokeninfo" command displays is also
+available through the "sessioninfo" command.
 
+If "full" mode is used, and a token refers to a posted message,
+the full message will be shown in the results.  Otherwise, 
+only the message headers will be shown.
+
+Tokens generally have a limited lifetime.  If nobody explicitly 
+approves a request, after a few days the token will automatically
+be removed from majordomo's database, causing the request to 
+be denied.
+
+See Also:
+   help accept                   (which can eliminate the need to use "accept")
+   help reject                   (the opposite action of "accept")
+   help sessioninfo              (see the e-mail message that contains the request)
+   help showtokens               (for a list of unapproved requests)
+   help configset access_rules   (site-wide or per-list permission)
+   help configset token_lifetime (site-wide or per-list expiration period)
+   help configset token_remind   (site-wide or per-list reminder before expiration)
 
 For a list of all help topics send this one-line message
    help topics
