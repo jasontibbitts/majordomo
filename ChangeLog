@@ -1,3 +1,10 @@
+2004-09-06  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_changeaddr)  Preserve 
+	subscriptions from aliased addresses.
+	(_unalias)  Correct subscription addresses and alias
+        targets.
+
 2004-09-05  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_alias_reverse_lookup)  Base the
