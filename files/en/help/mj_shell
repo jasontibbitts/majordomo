@@ -416,7 +416,7 @@ MJ_SHELL(1)    User Contributed Perl Documentation    MJ_SHELL(1)
        and/or modify it under the terms of the license detailed
        in the LICENSE file of the Majordomo2 distribution.
 
-       his program is distributed in the hope that it will be
+       This program is distributed in the hope that it will be
        useful, but WITHOUT ANY WARRANTY; without even the implied
        warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
        PURPOSE.  See the Majordomo2 LICENSE file for more
@@ -424,6 +424,7 @@ MJ_SHELL(1)    User Contributed Perl Documentation    MJ_SHELL(1)
 
 
 6/Feb/99               perl 5.004, patch 04                     7
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ
