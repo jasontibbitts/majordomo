@@ -3,6 +3,7 @@ archive-delete   listname pattern
 archive-get      listname pattern
 archive-get-mime listname pattern
 archive-index    listname pattern
+archive-stats    listname pattern
 archive-sync     listname pattern
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is the name of a regular list at this site
@@ -133,6 +134,12 @@ header will be given a new number, one greater than the highest
 number in the archive, and a new header.  Any archive number that
 does not correspond to the archive in question will be replaced by
 one that does (in this way, it is possible to combine archives).
+
+List owners can use the "archive-stats" command to get a sorted
+report of the number of messages posted by each address to the named
+list for the period of time specified by "pattern". For instance,
+to find out who posted the most on mj2-dev during September 2000:
+  archive-stats mj2-dev 200009
 
 
 See Also:
