@@ -22,58 +22,7 @@ This will complete the installation.  See the appropriate README file for
 your MTA for any additional configutation instructions required to get
 things going.
 
-Now you have a complete Majordomo installation on one or more virtual
-domains.  You still need to create lists.  Assuming you have a virtual
-domain 'example.com' with global password 'passwd', first open an
-interactive session:
-
-  mj_shell -d example.com -p passwd
-
-You will probably have to add something to PATH or type the full path to
-mj_shell for this to work.  This will respond with some instructions and a
-'Majordomo>' prompt.  If you have the appropriate modules installed, you
-may have interactive editing capabilities although those modules often have
-some trouble on some OSes.
-
-Help is always available; do 
-
-  Majordomo> help topics
-
-to see a list of available help topics.
-
-Now make a list called 'test-list' owned by someone@example.com:
-
-  Majordomo> createlist test-list someone@example.com
-
-Now to configure this list.  This should do everything necessary, although
-some aspects of your MTA configuration may cause the list addresses to not
-be immediately availabile.
-
-The default configuration of this list may be reasonable (as the defaults
-are designed to mirror Majordomo 1.94.4 behavior), but there are some
-variables you will want to play with:
-
-  Majordomo> configedit test-list subject_prefix
-
-This will open an editor on the subject_prefix variable, with a short
-description of the variable present.  Note that in Mj2, users have the
-choice of receiving a subject prefix so you probably want to configure
-one.  The same goes for 'reply_to'.  You probably also want to take a look
-at these variables:
-
-  (add some variables here)
-
-If you want digests or archiving, you must make a directory to store
-archives:
-
-  Majordomo> put-dir test-list /public/archive Message Archives
-
-Now archives will accumulate, and are accessible using the get command.  If
-you want some digests, do
-
-  Majordomo> configedit test-list digests
-
-and set up one or more.  Users can use the 'set' command to choose whether
-they want each message or a digest.  They can choose which of the digests
-you've defined and what kind of digest they want (text, MIME, or index).
-They can also set various other parameters using this command.
+Now you have a complete Majordomo installation on one or more
+virtual domains.  You still need to create lists.... as described
+in "help admin", which you can send through the email interface
+(to the server) or by starting mj_shell.
