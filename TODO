@@ -284,6 +284,13 @@ Hey, there's a program for dealing with TNEF crap as well, but these days
 we don't see all that much of it.
 
 
+Renaming a mailing list
+-----------------------
+Automatically handle archive file renaming, registry updates, and
+alias and configuration file regeneration to allow a list to change 
+names within a domain.
+
+
 =======================
 Totally out there stuff
 =======================
