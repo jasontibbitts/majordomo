@@ -147,9 +147,9 @@ sub do_default_config {
   };
 
   if ($config->{cgi_bin}) {
-    $subs->{'confirm_url'} = "$config->{cgi_url}mj_confirm?d=$dom&t=\$TOKEN";
-    $subs->{'wwwadm_url'} = "$config->{cgi_url}mj_wwwadm";
-    $subs->{'wwwusr_url'} = "$config->{cgi_url}mj_wwwusr";
+    $subs->{'confirm_url'} = "$config->{'cgi_url'}mj_confirm?d=$dom&t=\$TOKEN";
+    $subs->{'wwwadm_url'} = "$config->{'cgi_url'}mj_wwwadm/domain=$dom";
+    $subs->{'wwwusr_url'} = "$config->{cgi_url}mj_wwwusr/domain=$dom";
   }
   else {
     $subs->{'confirm_url'} = "no server configured";
