@@ -896,7 +896,7 @@ sub get_setting_data {
   for $flag (sort keys %flags) {
     next unless ($flags{$flag}->[1] == 0);
 
-    $class = $flags{$flags{$flag}->[0]}->[3];
+    $class = $flags{$flag}->[3];
     $allowed = ($flagmask =~ /$class/)? $flag : '';
     $out->{'flags'}[$i]->{'allow'}  = $allowed;
     $allowed = ($dfl =~ /$class/)? 1 : 0;
