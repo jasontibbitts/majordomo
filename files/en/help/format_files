@@ -766,8 +766,8 @@ help_head
 
 lists
 -----
-(text, wwwadm, wwwusr)  Displays information about a mailing list
-when "full" command mode is not used.
+(ALL)  Displays information about a mailing list when the "full" command
+mode is not used.
 
 (standard plus CATEGORY, CGIDATA, CGIURL, CMDPASS, DESCRIPTION, 
  DIGESTS, FLAGS, LIST, OWNER, PATTERN, POSTS, SUBS, USER, WHOAMI)
@@ -775,7 +775,7 @@ when "full" command mode is not used.
 
 lists_category
 --------------
-(text, wwwadm, wwwusr)  This file displays each category name
+(ALL)  This file displays each category name
 (see "help configset_category" for more details).  It is not
 displayed if the "tiny" command mode is used.
 
@@ -784,52 +784,67 @@ displayed if the "tiny" command mode is used.
 
 lists_enhanced
 --------------
-(text, wwwadm, wwwusr)  This file displays supplementary information
-at the end of the output when the "enhanced" command mode is used.
+(ALL)  This file displays supplementary information at the end of the
+output when the "enhanced" command mode is used.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
 
 
 lists_error
 -----------
-(text, wwwadm, wwwusr) This file displays an error message if the 
-lists command fails.
+(ALL) This file displays an error message if the lists command fails.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
 
 
 lists_foot
 ----------
-(text, wwwadm, wwwusr)  This file displays supplementary information
-at the bottom of the output.  It is not displayed if the compact
-or tiny command modes are used.
+(ALL)  This file displays supplementary information at the bottom of the
+output.  It is not displayed if the full, compact, or tiny command modes
+are used.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, COUNT, PATTERN, USER)
 
 
 lists_full
 ----------
-(text, wwwadm, wwwusr)  This file displays a wealth of information
-about a mailing list (name, description, digests, etc.) when the
-"full" command mode is used.
+(ALL)  This file displays a wealth of information about a mailing list
+(name, description, digests, etc.) when the "full" command mode is used.
 
 (standard plus CAN_READ, CATEGORY, CGIDATA, CGIURL, CMDPASS, 
  DESCRIPTION, DIGESTS, FLAGS, LIST, OWNER, PATTERN, POSTS, SUBS, USER, 
  WHOAMI)
 
 
+lists_full_foot
+---------------
+(ALL)  This file displays supplementary information at the bottom of the
+output when the "full" command mode is used.  It is not displayed when
+the "compact" or "tiny" command mode is used.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, PATTERN, USER)
+
+
+lists_full_head
+---------------
+(ALL)  This file displays supplementary information at the top of the
+output when the "full" command mode is used. It is not displayed when
+the "compact" or "tiny" command mode is used.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
+
+
 lists_head
 ----------
-(text, wwwadm, wwwusr)  This file displays supplementary information
-at the top of the output, but not in compact or tiny mode.
+(ALL)  This file displays supplementary information at the top of the
+output, but not in full, compact, or tiny mode.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
 
 
 lists_none
 ----------
-(text, wwwadm, wwwusr)  This file indicates that no mailing lists were
-found.
+(ALL)  This file indicates that no mailing lists were found.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
 

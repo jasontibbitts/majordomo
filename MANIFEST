@@ -850,6 +850,8 @@ files/en/format/text/.lists_enhanced
 files/en/format/text/.lists_error
 files/en/format/text/.lists_foot
 files/en/format/text/.lists_full
+files/en/format/text/.lists_full_foot
+files/en/format/text/.lists_full_head
 files/en/format/text/.lists_head
 files/en/format/text/.lists_none
 files/en/format/text/.password
@@ -1010,6 +1012,8 @@ files/en/format/text/lists_enhanced
 files/en/format/text/lists_error
 files/en/format/text/lists_foot
 files/en/format/text/lists_full
+files/en/format/text/lists_full_foot
+files/en/format/text/lists_full_head
 files/en/format/text/lists_head
 files/en/format/text/lists_none
 files/en/format/text/password
@@ -1175,6 +1179,8 @@ files/en/format/wwwadm/.lists_enhanced
 files/en/format/wwwadm/.lists_error
 files/en/format/wwwadm/.lists_foot
 files/en/format/wwwadm/.lists_full
+files/en/format/wwwadm/.lists_full_foot
+files/en/format/wwwadm/.lists_full_head
 files/en/format/wwwadm/.lists_head
 files/en/format/wwwadm/.lists_none
 files/en/format/wwwadm/.login
@@ -1348,6 +1354,8 @@ files/en/format/wwwadm/lists_enhanced
 files/en/format/wwwadm/lists_error
 files/en/format/wwwadm/lists_foot
 files/en/format/wwwadm/lists_full
+files/en/format/wwwadm/lists_full_foot
+files/en/format/wwwadm/lists_full_head
 files/en/format/wwwadm/lists_head
 files/en/format/wwwadm/lists_none
 files/en/format/wwwadm/login
@@ -1500,6 +1508,8 @@ files/en/format/wwwconfirm/.lists_enhanced
 files/en/format/wwwconfirm/.lists_error
 files/en/format/wwwconfirm/.lists_foot
 files/en/format/wwwconfirm/.lists_full
+files/en/format/wwwconfirm/.lists_full_foot
+files/en/format/wwwconfirm/.lists_full_head
 files/en/format/wwwconfirm/.lists_head
 files/en/format/wwwconfirm/.lists_none
 files/en/format/wwwconfirm/.login
@@ -1643,6 +1653,8 @@ files/en/format/wwwconfirm/lists_enhanced
 files/en/format/wwwconfirm/lists_error
 files/en/format/wwwconfirm/lists_foot
 files/en/format/wwwconfirm/lists_full
+files/en/format/wwwconfirm/lists_full_foot
+files/en/format/wwwconfirm/lists_full_head
 files/en/format/wwwconfirm/lists_head
 files/en/format/wwwconfirm/lists_none
 files/en/format/wwwconfirm/login
@@ -1763,6 +1775,8 @@ files/en/format/wwwusr/.lists_enhanced
 files/en/format/wwwusr/.lists_error
 files/en/format/wwwusr/.lists_foot
 files/en/format/wwwusr/.lists_full
+files/en/format/wwwusr/.lists_full_foot
+files/en/format/wwwusr/.lists_full_head
 files/en/format/wwwusr/.lists_head
 files/en/format/wwwusr/.lists_none
 files/en/format/wwwusr/.logged_in
@@ -1837,6 +1851,8 @@ files/en/format/wwwusr/lists_enhanced
 files/en/format/wwwusr/lists_error
 files/en/format/wwwusr/lists_foot
 files/en/format/wwwusr/lists_full
+files/en/format/wwwusr/lists_full_foot
+files/en/format/wwwusr/lists_full_head
 files/en/format/wwwusr/lists_head
 files/en/format/wwwusr/lists_none
 files/en/format/wwwusr/logged_in
