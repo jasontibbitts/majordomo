@@ -3917,13 +3917,20 @@ sub unregister {
 sub _unregister {
   my($self, $list, $requ, $vict, $mode, $cmd) = @_;
   my $log = new Log::In 35, "$list, $vict";
-  my(@out, @removed, $data, $key, $l);
+  my(@out, @removed, $data, $key, $l, $lkey, $ldata);
 
   (@removed) = $self->{'reg'}->remove($mode, $vict->canon);
 
   unless (@removed) {
     $log->out("failed, nomatching");
     return (0, "No matching addresses.\n");
+  }
+  if ($mode =~ /replace/ and $mode !~ /regex/) {
+    $ldata = $removed[1];
+    push @out, $ldata->{'fulladdr'};
+    $ldata->{'fulladdr'} = $requ->full;
+    $ldata->{'stripaddr'} = $requ->strip;
+    $self->{'reg'}->add('', $requ->canon, $ldata);
   }
 
   while (($key, $data) = splice(@removed, 0, 2)) {
@@ -3932,9 +3939,15 @@ sub _unregister {
     # Remove from all subscribed lists
     for $l (split("\002", $data->{'lists'})) {
       $self->_make_list($l);
-      $self->{'lists'}{$l}->remove('', $key);
+      ($lkey, $ldata) = $self->{'lists'}{$l}->remove('', $key);
+      if ($mode =~ /replace/ and $mode !~ /regex/ and $ldata) {
+        $ldata->{'fulladdr'} = $requ->full;
+        $ldata->{'stripaddr'} = $requ->strip;
+        $self->{'lists'}{$l}->{'subs'}->add('', $requ->canon, $ldata);
+      }
     }
-    push (@out, $data->{'fulladdr'});
+    push (@out, $data->{'fulladdr'})
+      unless ($mode =~ /replace/ and $mode !~ /regex/);
   }
 
   return (1, @out);

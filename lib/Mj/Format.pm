@@ -879,7 +879,12 @@ sub g_sub {
     $act = 'registered'; $list = '';
   }
   elsif ($act eq 'unreg') {
-    $act = 'unregistered and removed from all lists'; $list = '';
+    if ($mode =~ /replace/ and $mode !~ /regex/) {
+      $act = "replaced by $user"; $list = '';
+    }
+    else {
+      $act = 'unregistered and removed from all lists'; $list = '';
+    }
   }
   else {
     $act = 'removed from ';

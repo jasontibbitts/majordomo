@@ -313,6 +313,10 @@ sub parse_part {
 	$extra->{'password'} = $args;
 	print $outhandle "Default password set to \"$extra->{'password'}\".\n";
       }
+      elsif ($action eq 'user') {
+        $extra->{'reply_to'} = $args;
+	    print $outhandle "User set to \"$extra->{'reply_to'}\".\n";
+      }
       else {
 	print $outhandle "Illegal action \"$action\" for default.\n";
 	$ok_count--;
