@@ -1,3 +1,27 @@
+2002-05-29  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Add support for the register command.
+	Bugfix:  Issue an error if no addresses are specified
+	for the set, subscribe, and related commands.
+	Thanks to Deb Heller-Evans.
+
+	* bin/mj_wwwusr:  The register, unregister, subscribe, and
+	unsubscribe commands have format files.
+
+	* lib/Majordomo.pm:  (substitute_vars_format)  Issue a
+	warning if a non-ARRAY substitution reference is used.
+
+	* lib/mj_cf_defs.pl:  The default block_headers setting will
+	cause messages with "bulk" or "junk" precedence which are sent 
+	to the server to be discarded, to prevent mail loops.
+
+	* lib/Mj/Format.pm:  (g_sub)  Add format file support for
+	the subscribe, unsubscribe, register, and unregister commands.
+
+	* lib/Mj/MailOut.pm:  (welcome)  Add support for the QSADDR
+	substitution, which presents a stripped address in a format
+	suitable for URL query strings.
+
 2002-05-27  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm, mj_wwwadm:  The accept and reject commands
