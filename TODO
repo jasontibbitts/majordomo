@@ -365,16 +365,21 @@ To support hourly reports, extend the time syntax.
 Also, allow compound time specs in the "report" command syntax.
 
 
-Respond gracefully to list admin credentials for GLOBAL commands
-----------------------------------------------------------------
-Currenly, if a list admin issues a GLOBAL command using a list
-administrative password, an "invalid password" error will be generated.
-
-
 Improve domain adjustments
 --------------------------
 The "make domain" command should allow a domain to be removed or
 renamed.
+
+
+Web posting
+-----------
+The wwwadm and wwwusr interfaces cannot currently be used to post
+a message or reply to an archived message.
+
+
+WWW support for alias database
+------------------------------
+The wwwadm interface does not support the who-alias command.
 
 
 =======================
