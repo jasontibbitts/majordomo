@@ -313,7 +313,7 @@ sub createlist {
 
 sub digest {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-
+  my ($comm, $digest, $i, $msgdata);
   my ($ok, $mess) = @$result;
   unless ($ok > 0) {
     eprint($out, $type, "Digest-$request->{'mode'} failed.\n");
@@ -321,8 +321,46 @@ sub digest {
     return $ok;
   }
 
-  eprint($out, $type, "$mess") if $mess;
-
+  if ($request->{'mode'} !~ /status/) {
+    eprint($out, $type, "$mess") if $mess;
+  }
+  else {
+    for $i (sort keys %$mess) {
+      next if ($i eq 'default_digest');
+      $digest = $mess->{$i};
+      $comm =          "Digest Name                $i\n";
+      $comm .= sprintf "Last delivered on          %s\n", 
+                 scalar localtime($digest->{'lastrun'}) 
+                 if $digest->{'lastrun'};
+      $comm .= sprintf "Next delivery on or after  %s\n", 
+                 scalar localtime($digest->{'lastrun'} + $digest->{'separate'}) 
+                 if ($digest->{'lastrun'} and $digest->{'separate'});
+      $comm .= sprintf "Age of oldest message      %d seconds\n", 
+                 time - $digest->{'oldest'} if ($digest->{'oldest'});
+      $comm .= sprintf "Oldest age allowed         %d seconds\n", 
+                 $digest->{'maxage'} if ($digest->{'maxage'});
+      $comm .= sprintf "Age of newest message      %d seconds\n", 
+                 time - $digest->{'newest'} if ($digest->{'newest'});
+      $comm .= sprintf "Minimum age required       %d seconds\n", 
+                 $digest->{'minage'} if ($digest->{'minage'});
+      $comm .= sprintf "Messages awaiting delivery %d\n", 
+                 scalar @{$digest->{'messages'}} if ($digest->{'messages'});
+      $comm .= sprintf "Minimum message count      %d\n", 
+                 $digest->{'minmsg'} if ($digest->{'minmsg'});
+      $comm .= sprintf "Message total size         %d bytes\n", 
+                 $digest->{'bytecount'} if ($digest->{'bytecount'});
+      $comm .= sprintf "Maximum size of a digest   %d bytes\n", 
+                 $digest->{'maxsize'} if ($digest->{'maxsize'});
+      for $msgdata (@{$digest->{'messages'}}) {
+        $comm .= sprintf "%-14s %s\n", $msgdata->[0], 
+                   substr($msgdata->[1]->{'subject'}, 0, 62); 
+        $comm .= sprintf " by %-48s %s\n", 
+                   substr($msgdata->[1]->{'from'}, 0, 48), 
+                   scalar localtime($msgdata->[1]->{'date'}); 
+      }
+      eprint($out, $type, "$comm\n");
+    } 
+  }
   $ok;
 }
 
