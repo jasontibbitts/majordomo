@@ -86,9 +86,7 @@ do_site_config();
 if (!$skip && (!$ask || get_bool($msg2))) {
   for my $i (@{$config->{'domains'}}) {
     do_default_config($i);
-    print "Installing configuration templates for $i...";
     install_config_templates($config, $i);
-    print "ok.\n";
   }
 }
 
