@@ -568,7 +568,7 @@ sub t_accept {
   my $delay = shift;
   my $log   = new Log::In 50, $token;
   my (%file, @out, $data, $ent, $ffunc, $func, $line, $mess, $ok, $outfh,
-      $req, $sender, $tmp, $tmpdir, $vict, $repl, $whoami);
+      $req, $sender, $server, $tmp, $tmpdir, $vict, $repl, $whoami);
 
   $self->_make_tokendb;
   $data = $self->{'tokendb'}->lookup($token);
@@ -670,19 +670,45 @@ sub t_accept {
   } # chain1 
 
   ($func = $data->{'command'}) =~ s/_(start|chunk|done)$//;
-  $vict = new Mj::Addr($data->{'victim'});
-  $req  = new Mj::Addr($data->{'user'});
 
-  $func = "_$func";
-  @out = $self->$func($data->{'list'},
-                      $req,
-                      $vict,
-                      $data->{'mode'},
-                      $data->{'cmdline'},
-                      $data->{'arg1'},
-                      $data->{'arg2'},
-                      $data->{'arg3'},
-                     );
+  # Hack to cause deliveries to happen asynchronously:
+  # an "accept" message is mailed to the server, with
+  # the server address in the From header.  No reply will be
+  # sent.
+  if ($func eq 'post' and $data->{'type'} ne 'async'
+      and $data->{'mode'} !~ /archive/) {
+    $data->{'type'} = 'async';
+    $data->{'reminded'} = 1;
+    $self->{'tokendb'}->replace('', $token, $data);
+
+    $sender = $self->_global_config_get('sender');
+    $server = $self->_global_config_get('whoami');
+    $ent = build MIME::Entity
+      (
+       'Subject'  => "Forwarded approval from $server\n",
+       'From'     => "$server\n",
+       'Reply-To' => "$server\n",
+       'Data'     => ["accept $token\n"],
+      );
+
+    $self->mail_entity($sender, $ent, $server) if ($server and $ent);
+
+    return (1, '', $data, [1]);
+  }
+  else {
+    $vict = new Mj::Addr($data->{'victim'});
+    $req  = new Mj::Addr($data->{'user'});
+    $func = "_$func";
+    @out = $self->$func($data->{'list'},
+                        $req,
+                        $vict,
+                        $data->{'mode'},
+                        $data->{'cmdline'},
+                        $data->{'arg1'},
+                        $data->{'arg2'},
+                        $data->{'arg3'},
+                       );
+  }
 
   # Nuke the token
   $self->t_remove($token);
