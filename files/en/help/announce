@@ -9,12 +9,16 @@ filename, required, is the file to distribute
 -unique, if specified, limits delivery to subscribers using "set unique"
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-Distribute a file individually to some or all classes of subscribers
-of a (full, not auxiliary) mailing list. Each message is sent as a
-probe, with the recipient in the "To:" header, so "announce" takes
-more resources than "post". This could be used for periodic reminders,
-announcements that need to reach 'digest' subscribers immediately, or
-just a way to ask 'nomail' subscribers why they are still on the list.
+This command sends a file to some or all classes of subscribers
+of a full or auxiliary mailing list.  Delivering an announcement
+may require more resources than a typical posted message:  a separate
+copy of the announcement is sent to every recipient.  The recipient's 
+address appears in the "To:" header, and the list owner's address 
+(from the sender configuration setting) appears in the "From:" header.
+
+The announce command could be used to deliver periodic reminders, announcements 
+that need to reach only 'digest' subscribers, or to ask 'nomail' subscribers 
+if they wish to stay on the list, for example.
 
 The mode (each, nomail, digest, unique) specifies which class of subscribers
 will receive the  message. The default is all classes. (When delivering
@@ -42,6 +46,7 @@ for an explanation of the different delivery classes).
 
 See Also:
    help configset_access_rules (to limit access to this command)
+   help configset_sender (the address that appears in the From: header)
    help set (for how to switch subscriptions between delivery classes)
    help variables (for substitutions that can be made in "filename")
 
