@@ -241,11 +241,13 @@ $Mj::Config::default_string = q(
  'farewell'             => 0,
  'farewell_files'       => (($list eq 'GLOBAL') ?
 			    [
+			     'default',
+			     'unregistered | NS',
 			    ]
 			    :
 			    [
 			     'default',
-			     'farewell | NS',
+			     'farewell | RNS',
 			    ]),
  'welcome'              => 1,
  'welcome_files'        => (($list eq 'GLOBAL') ?
