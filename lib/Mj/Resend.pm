@@ -92,7 +92,7 @@ sub post {
   my ($ack_attach, $approved, $avars, $c_t_encoding, $c_type, $desc,
       $ent, $fh, $fileinfo, $head, $i, $list, $mess, $nent, $ok, $owner,
       $parser, $passwd, $reasons, $sender, $spool, $subject, $subs,
-      $thead, $token, $tmpdir, $user);
+      $thead, $tmp, $tmpdir, $token, $user);
   my $log = new Log::In 30, 
        "$request->{'list'}, $request->{'user'}, $request->{'file'}";
   $tmpdir = $self->_global_config_get("tmpdir");
@@ -135,8 +135,22 @@ sub post {
   chomp $user;
   $user = new Mj::Addr($user);
 
-  if (! ($user and $user->isvalid)) {
+  if (!(defined $user and ref $user)) {
     $avars->{'invalid_from'} = 1;
+    push @$reasons, 
+      $self->format_error('undefined_address', $request->{'list'});
+  }
+  else {
+    ($ok, $mess, $desc) = $user->valid;
+    unless ($ok) {
+      $avars->{'invalid_from'} = 1;
+      $tmp = $self->format_error($mess, 'GLOBAL');
+      chomp $tmp if (defined $tmp);
+      push @$reasons, 
+        $self->format_error('invalid_address', $request->{'list'}, 
+                            'ADDRESS' => "$user", 'ERROR' => $tmp,
+                            'LOCATION' => $desc);
+    }
   }
 
   # XXX Pass in the password we were called with, so that passwords
@@ -197,7 +211,8 @@ sub post {
 
     # Untaint
     for ($i = 0; $i < @$reasons; $i++) {
-      $reasons->[$i] =~ /(.*)/; $reasons->[$i] = $1;
+      # The reasons may contain newline characters
+      $reasons->[$i] =~ /(.*)/s; $reasons->[$i] = $1;
     }
 
     $avars->{'reasons'} = join("\003", @$reasons);

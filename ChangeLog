@@ -1,3 +1,12 @@
+2003-05-20  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Format.pm:  (showtokens)  Add support for the 
+	VICTIM substitution.  Suggested by Cory Daehn.
+
+	* lib/Mj/Resend.pm:  (post)  Bugfix:  Allow newlines
+	when untainting moderation reasons.
+	Supply a reason when an author's address is invalid.
+
 2003-05-07  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Access.pm:  (_a_default)  Add error file support 
