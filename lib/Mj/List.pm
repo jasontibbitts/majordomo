@@ -485,12 +485,20 @@ sub make_setting {
     if ($isflag) {
       # Process flag setting; remove the flag from the list
       if (exists $flags{$inv} and $flags{$inv}->[1] == 0) {
-        # Ordinary flags are treated individually.
-        $flags =~ s/$flags{$inv}->[3]//ig;
-        # Clear umbrella flags (ackstall will clear ackall or ackimportant)
-        if ($flags{$rset}->[1] == 2) {
+        # Convert umbrella flag (ackall or ackimportant) to
+        # its constituent flags.
+        if ($flags{$rset}->[1] == 2 and $flags =~ /$flags{$rset}->[3]/i) {
           $flags =~ s/$flags{$rset}->[3]//ig;
+          for (keys %flags) {
+            if (($flags{$_}->[0] eq $flags{$rset}->[0])
+                and ($flags{$_}->[1] == 0)) {
+              $flags .= $flags{$_}->[3]
+                unless ($flags =~ /$flags{$_}->[3]/);
+            }
+          }
         }
+        # Ordinary flags are cleared individually.
+        $flags =~ s/$flags{$inv}->[3]//ig;
       }
       else {
         # Remove all in group ('noack' and 'ackall' clear all ack flags)
@@ -546,7 +554,7 @@ sub make_setting {
 	  # Eliminate recursive stacking if a user already on 
 	  # vacation sets vacation again; just update the time and
 	  # don't save away the class info.
-	  if ($classes{$class}->[0] ne 'nomail') {
+	  if ($class and $classes{$class}->[0] ne 'nomail') {
             # Save the old class info
 	    $carg2 = join("\002", $class, $carg1, $carg2); 
 	  }
