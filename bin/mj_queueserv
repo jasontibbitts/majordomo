@@ -36,6 +36,7 @@ sub logmsg {
 
 sub out { 
   my $w = ''; 
+  return unless defined $_[0];
   vec($w, fileno($_[0]), 1) = 1; 
   logmsg "Out: $_[1]"; 
   syswrite($_[0], $_[1], length($_[1])) 
@@ -44,6 +45,7 @@ sub out {
 
 sub in { 
   logmsg "In..."; 
+  return unless defined $_[0];
   sysread($_[0], $_, 1024); 
   logmsg "In: $_"; $_ 
 };

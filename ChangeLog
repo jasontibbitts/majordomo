@@ -1,3 +1,29 @@
+2004-02-03  Michael Yount <csf@moscow.com>
+
+	* convertdb.pl:  Remove parentheses in "grep" arguments.
+	Thanks to SRE.
+
+	* bin/mj_queueserv:  (in, out) Validate file handle.
+	Thanks to SRE.
+
+	* lib/Majordomo.pm:  (_make_list)  Add valid_list
+	callback.
+
+	* lib/Mj/Access.pm:  (_d_post)  Add anchors to restrict_post
+	tests.
+
+	* lib/Mj/Config.pm:  (parse_restrict_post)  Validate
+	the list names.
+	(_compile_rule)  Bugfix:  Separate right parens from
+	comparisons.  Thanks to SRE.
+
+	* lib/Mj/Util.pm:  (shell_hook)  Do not use ".." in
+	scripts directory name in consideration of symlinks.  
+	Thanks to SRE.
+
+	* setup/install_util.pl:  (copy_file, rcopy)  Unlink
+	the destination before copying.  Thanks to SRE.
+
 2004-01-27  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Config.pm:  (parse_keyed)  Bugfix:  Count
