@@ -2,7 +2,7 @@
 
 <h4 align="center">Configuration Categories</h4>
 
-<ol>
+<ul>
   <li>
   To choose all of the settings in one category, check the box next
   to the category's name.
@@ -18,7 +18,7 @@
   <li>
   After you have chosen the settings you want, press the
   <b>configshow</b> button to see their values.
-</ol>
+</ul>
 
 
 <form method="POST" action="$CGIURL">
