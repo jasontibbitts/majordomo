@@ -1449,6 +1449,14 @@ for the use of each WWW interface.
 (standard plus CGIDATA, CGIURL, COMMAND, CMDPASS, USER)
 
 
+welcome_choose_list
+-------------------
+(wwwusr)  This file asks for a list name when a command that requires
+a list name is issued without one.
+
+(standard plus CGIDATA, CGIURL, COMMAND, CMDPASS, EXTRA, USER)
+
+
 welcome_global
 --------------
 (wwwadm)  This file displays basic instructions for the use of the

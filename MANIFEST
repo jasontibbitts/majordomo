@@ -588,6 +588,7 @@ files/en/error/.no_password
 files/en/error/.no_route
 files/en/error/.no_stall
 files/en/error/.no_token
+files/en/error/.no_user_password
 files/en/error/.no_visible
 files/en/error/.not_extracted
 files/en/error/.not_subscribed
@@ -714,6 +715,7 @@ files/en/error/no_password
 files/en/error/no_route
 files/en/error/no_stall
 files/en/error/no_token
+files/en/error/no_user_password
 files/en/error/no_visible
 files/en/error/not_extracted
 files/en/error/not_subscribed
@@ -1790,6 +1792,7 @@ files/en/format/wwwusr/.unregister_error
 files/en/format/wwwusr/.unsubscribe
 files/en/format/wwwusr/.unsubscribe_error
 files/en/format/wwwusr/.welcome
+files/en/format/wwwusr/.welcome_choose_list
 files/en/format/wwwusr/accept
 files/en/format/wwwusr/alias
 files/en/format/wwwusr/alias_error
@@ -1863,6 +1866,7 @@ files/en/format/wwwusr/unregister_error
 files/en/format/wwwusr/unsubscribe
 files/en/format/wwwusr/unsubscribe_error
 files/en/format/wwwusr/welcome
+files/en/format/wwwusr/welcome_choose_list
 files/en/forward_loop
 files/en/forwarded_command
 files/en/help/.accept

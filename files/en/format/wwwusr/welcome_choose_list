@@ -1,0 +1,22 @@
+
+<p>
+Please type the name of an e-mail list into the
+<b>Mailing List</b> box, then press the <b>Choose List</b>
+button.
+
+<p>
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="func" value="$COMMAND">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="extra" value="?EXTRA">
+  Mailing List: <input size="36" name="list" value="">
+  <input type="submit" value="Choose List">
+</form>
+
+<p>
+If you are unsure of the name of the list you want, click the
+<b>Mailing Lists</b> link at the top or bottom of the page to
+see a directory of the e-mail lists supported at $SITE.
+
+
