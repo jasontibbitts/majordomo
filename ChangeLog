@@ -1,3 +1,15 @@
+2000-12-19  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm:  Rewrite to use format files, have instructions,
+	and be easier to navigate.
+
+	* lib/Mj/Format.pm:  (who) Use hard-coded formatting for the
+	plain who command for better speed.  The who-enhanced and who-bounces
+	commands will be 5 to 10 times slower for large lists due to the 
+	formatting substitutions.
+
+	* lib/Mj/List.pm:  (_make_fs)  Cease using the filedir setting.
+
 2000-12-17  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Parser: (parse_part)  Inform about "parse" failure if

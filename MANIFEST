@@ -166,7 +166,6 @@ files/en/config/dup_lifetime
 files/en/config/faq_access
 files/en/config/file_search
 files/en/config/file_share
-files/en/config/filedir
 files/en/config/get_access
 files/en/config/index_access
 files/en/config/info_access
@@ -240,6 +239,7 @@ files/en/digest_preindex
 files/en/error/invalid_command
 files/en/error/invalid_mode
 files/en/error/password_length
+files/en/error/unknown_setting
 files/en/error/unregistered
 files/en/faq
 files/en/farewell
@@ -320,6 +320,12 @@ files/en/format/wwwadm/who
 files/en/format/wwwadm/who_error
 files/en/format/wwwadm/who_foot
 files/en/format/wwwadm/who_head
+files/en/format/wwwconfirm/foot
+files/en/format/wwwconfirm/head
+files/en/format/wwwconfirm/tokeninfo_error
+files/en/format/wwwconfirm/tokeninfo_foot
+files/en/format/wwwconfirm/tokeninfo_head
+files/en/format/wwwconfirm/welcome
 files/en/format/wwwusr/accept
 files/en/format/wwwusr/error
 files/en/format/wwwusr/foot
@@ -417,7 +423,6 @@ files/en/help/configset_dup_lifetime
 files/en/help/configset_faq_access
 files/en/help/configset_file_search
 files/en/help/configset_file_share
-files/en/help/configset_filedir
 files/en/help/configset_get_access
 files/en/help/configset_index_access
 files/en/help/configset_info_access

@@ -92,6 +92,10 @@ $files =
    ['Error format.  Warns that a password is too short.',
     'us-ascii', '7bit'],
 
+   'en/error/unknown_setting'                     => 
+   ['Error format.  Displayed when an unknown configuration setting is changed.',
+    'us-ascii', '7bit'],
+
    'en/error/unregistered'                     => 
    ['Error format.  Warns that an address has not been registered.',
     'us-ascii', '7bit'],
@@ -419,6 +423,31 @@ $files =
    ['WWW admin who command format.',
     'us-ascii', '7bit'],
 
+   # English output formatting files (mj_wwwconfirm)
+   'en/format/wwwconfirm/foot'                          => 
+   ['WWW confirmation command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwconfirm/head'                          => 
+   ['WWW confirmation command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwconfirm/tokeninfo_error'               => 
+   ['WWW confirmation command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwconfirm/tokeninfo_foot'                => 
+   ['WWW confirmation command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwconfirm/tokeninfo_head'                => 
+   ['WWW confirmation command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwconfirm/welcome'                       => 
+   ['WWW confirmation command format.',
+    'us-ascii', '7bit'],
+
    # English output formatting files (mj_wwwusr)
    'en/format/wwwusr/error'                             => 
    ['WWW user error format file.  Displays an error.',
@@ -570,7 +599,6 @@ $files =
    'en/help/configset_faq_access'                     => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_file_search'                    => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_file_share'                     => ['detailed help for configset listname',     'us-ascii', '7bit'],
-   'en/help/configset_filedir'                        => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_get_access'                     => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_index_access'                   => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_info_access'                    => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
@@ -750,7 +778,6 @@ $files =
    'en/config/faq_access'                      => ['The faq_access variable',                      'us-ascii', '7bit'],
    'en/config/file_search'                     => ['The file_search variable',                     'us-ascii', '7bit'],
    'en/config/file_share'                      => ['The file_share variable',                      'us-ascii', '7bit'],
-   'en/config/filedir'                         => ['The filedir variable',                         'us-ascii', '7bit'],
    'en/config/get_access'                      => ['The get_access variable',                      'us-ascii', '7bit'],
    'en/config/index_access'                    => ['The index_access variable',                    'us-ascii', '7bit'],
    'en/config/info_access'                     => ['The info_access variable',                     'us-ascii', '7bit'],
