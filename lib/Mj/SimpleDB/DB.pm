@@ -500,7 +500,7 @@ sub get_matching_quick {
     last unless $k;
 
     # We may be able to skip the unstringification step
-    redo unless re_match("/\001\Q$value\E/", $v);
+    redo unless re_match("/(\001|^)\Q$value\E/", $v);
 
     $data = $self->_unstringify($v);
     if (defined($data->{$field}) && 
@@ -551,7 +551,7 @@ sub get_matching {
   for ($i=0; ($count ? ($i<$count) : 1); $i++) {
     ($k, $v) = $self->_get;
     last unless $k;
-    redo if (!$code && ! re_match("/\001\Q$value\E/", $v));
+    redo if (!$code && ! re_match("/(\001|^)\Q$value\E/", $v));
     $data = $self->_unstringify($v);
     if ($code) {
       $tmp = &$field($k, $data);
