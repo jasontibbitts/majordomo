@@ -6,13 +6,13 @@ Message Index for $ARCHIVE, sorted by...
 </td>
 
 <td>
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-index-author&extra=?ARCHIVE">Author</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-index-author&extra=?ARCHIVE">Author</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-index-date&extra=?ARCHIVE">Date</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-index-date&extra=?ARCHIVE">Date</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-index-subject&extra=?ARCHIVE">Subject</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-index-subject&extra=?ARCHIVE">Subject</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-index-thread&extra=?ARCHIVE">Thread</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-index-thread&extra=?ARCHIVE">Thread</a>)
 </td>
 </tr>
 
@@ -22,13 +22,13 @@ Previous message, by...
 </td>
 
 <td>
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?AUTHOR_PREV">Author</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-get-part&extra=?AUTHOR_PREV">Author</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?DATE_PREV">Date</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-get-part&extra=?DATE_PREV">Date</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?SUBJECT_PREV">Subject</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-get-part&extra=?SUBJECT_PREV">Subject</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?THREAD_PREV">Thread</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-get-part&extra=?THREAD_PREV">Thread</a>)
 </td>
 </tr>
 
@@ -38,13 +38,13 @@ Next message, by...
 </td>
 
 <td>
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?AUTHOR_NEXT">Author</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-get-part&extra=?AUTHOR_NEXT">Author</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?DATE_NEXT">Date</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-get-part&extra=?DATE_NEXT">Date</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?SUBJECT_NEXT">Subject</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-get-part&extra=?SUBJECT_NEXT">Subject</a>)
 
-(<a href="$CGIURL?$CGIDATA&list=$LIST&func=archive-get-part&extra=?THREAD_NEXT">Thread</a>)
+(<a href="$CGIURL?$CGIDATA&list=$LIST&brief=on&func=archive-get-part&extra=?THREAD_NEXT">Thread</a>)
 </td>
 </tr>
 </table>
