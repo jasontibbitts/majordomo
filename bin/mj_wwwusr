@@ -225,11 +225,9 @@ elsif ($func eq 'set' and $goodpass) {
         push @settings, "no$j";
     }
   }
-  for $i (@settings) {
-    $request->{'setting'} = $i;
-    ($ok, $mess) = @{$mj->dispatch($request)};
-    print "<pre>Error for \"$i\" setting:  $mess</pre>\n" unless ($ok > 0);
-  }
+  $request->{'setting'} = join ",", @settings;
+  ($ok, $mess) = @{$mj->dispatch($request)};
+  print "<pre>Error for \"$i\" setting:  $mess</pre>\n" unless ($ok > 0);
   print "<pre>Your \"set\" command was completed.</pre>\n";
 }
 
