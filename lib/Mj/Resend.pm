@@ -1362,7 +1362,11 @@ sub _r_strip_body {
       }
       elsif ($verdict eq 'discard') {
         if ($level == 2 and scalar(@parts) == 1) {
-          $log->message(50, 'info', "Cannot discard top-level single part.");
+          $log->message(50, 'info', "Cannot discard a top-level single part.");
+          push @newparts, $i;
+        }
+        elsif ($i->parts) {
+          $log->message(50, 'info', "Cannot discard a multipart subpart.");
           push @newparts, $i;
         }
         else {
@@ -1383,7 +1387,7 @@ sub _r_strip_body {
               'Type' => 'text/plain',
               'Path' => $txtfile,
               'Charset' => 'ISO-8859-1',  
-              'Description' => 'Reformatted $_ message',
+              'Description' => "Reformatted $_ message",
               'Encoding' => '8bit',
             );
           # Will the new entity be purged automatically?
@@ -1402,10 +1406,10 @@ sub _r_strip_body {
       }
     } 
     $ent->parts(\@newparts);
-    $ent->make_singlepart if (@newparts <= 1);
     for ($i = 0; $i < @newparts; $i++) {
       push @changes, $self->_r_strip_body($list, $newparts[$i], $code, $level);
     }
+    $ent->make_singlepart if (@newparts <= 1);
   }
   elsif ($level == 1) {
     # single-part messages cannot have parts discarded, but the 

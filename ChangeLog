@@ -1,3 +1,10 @@
+2001-09-22  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Resend.pm:  (_r_strip_body)  Do not allow multipart
+	subparts to be discarded wholesale.
+	Bugfix:  call make_singlepart after the subparts have been
+	processed.  Thanks to Roger Klorese.
+
 2001-09-20  Michael Yount <csf@moscow.com>
 
 	* lib/mj_cf_defs.pl, lib/mj_cf_data.pl:  add support for

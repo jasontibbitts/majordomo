@@ -94,8 +94,17 @@ messages to have their HTML formatting removed.
 For each body part removed due to a discard action, an X-Content-Discarded
 header will be added to the message when it is delivered.
 
+The discard action will not remove affect multipart subparts directly.
+Instead, the filters will be applied to each body part that is not a 
+multipart subpart.  For example, the following rule:
+
+# By design, this rule has no effect.
+multipart/alternative | discard
+
+will not work because a multipart/alternative body part cannot be discarded.
+
 The discard action should be used with caution, because it is possible
-to discard every part of a multipart message.
+to discard every individual part of a multipart message.
 
 
 The format action
