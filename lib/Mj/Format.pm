@@ -3108,7 +3108,13 @@ sub who {
   $remove = "unsubscribe";
   $stats{'TOTAL'} = 0;
 
-  if ($request->{'sublist'} ne 'MAIN') {
+  if ($request->{'mode'} =~ /alias/ and $source eq 'GLOBAL') {
+    $remove = "unalias";
+    $tmp = $mj->format_get_string($type, 'who_alias', $request->{'list'});
+    $head = $mj->format_get_string($type, 'who_alias_head', $request->{'list'});
+    $foot = $mj->format_get_string($type, 'who_alias_foot', $request->{'list'});
+  }
+  elsif ($request->{'sublist'} ne 'MAIN') {
     $source .= ":$request->{'sublist'}";
     $tmp = $mj->format_get_string($type, 'who', $request->{'list'});
     $head = $mj->format_get_string($type, 'who_head', $request->{'list'});
@@ -3222,12 +3228,12 @@ sub who {
     return 1;
   }
 
-  unless ($request->{'mode'} =~ /export|short|alias|summary/) {
+  unless ($request->{'mode'} =~ /export|short|summary/) {
     $str = $mj->substitute_vars_format($head, $gsubs);
     print $out "$str\n";
   }
 
-  if ($type =~ /^w/ and $request->{'mode'} !~ /enhanced|summary/) {
+  if ($type =~ /^w/ and $request->{'mode'} !~ /alias|enhanced|summary/) {
     print $out "<pre>\n";
   }
 
@@ -3244,12 +3250,13 @@ sub who {
       $count++;
       next unless (ref ($i) eq 'HASH');
 
-      #----- Hard-coded formatting for who, who-export, and who-alias -----#
-      if ($request->{'mode'} =~ /alias/ &&
-             $request->{'list'} eq 'GLOBAL') 
-      {
-        $line = "default user $i->{'target'}\n  alias-noinform $i->{'stripsource'}\n";
-        eprint($out, $type, "$line\n");
+      #----- Hard-coded formatting for who and who-export -----#
+      if ($request->{'mode'} =~ /alias/ && $source eq 'GLOBAL') {
+        $subs->{'TARGET'} = &escape($i->{'target'});
+        $subs->{'QSADDR'} = &qescape($i->{'target'}, $type),
+        $subs->{'SOURCE'} = &escape($i->{'stripsource'});
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print $out "$str\n";
         next;
       }
       elsif ($request->{'mode'} =~ /export/ &&
@@ -3393,7 +3400,7 @@ sub who {
   $request->{'command'} = "who_done";
   $mj->dispatch($request);
  
-  if ($type =~ /^w/ and $request->{'mode'} !~ /enhanced|summary/) {
+  if ($type =~ /^w/ and $request->{'mode'} !~ /alias|enhanced|summary/) {
     print $out "</pre>\n";
   }
  
@@ -3424,7 +3431,7 @@ sub who {
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
   }   
-  elsif ($request->{'mode'} !~ /export|short|alias/) {
+  elsif ($request->{'mode'} !~ /export|short/) {
     $gsubs->{'COUNT'} = $count;
     $gsubs->{'PREVIOUS'} = '';
     $gsubs->{'NEXT'} = '';
