@@ -59,7 +59,7 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl,
 # Fourth value:  Page to display after the result.
 %commands = (   
                 'alias'         => [1, 1, 0, 'show'],
-                'archive'       => [-1, 0, 1, 'archive'],
+                'archive'       => [-1, 1, 1, 'archive'],
                 'changeaddr'    => [1, 1, 0, 'show'],
                 'faq'           => [-1, 0, 1, 'list'],
                 'help'          => [-1, 0, 0, 'help'],
@@ -182,13 +182,15 @@ if ($mode  =~ /^([a-zA-Z=-]+)/) {
 $cgidata = Mj::Format::cgidata($mj, { 'password' => $passw,
                                       'user'     => ($user eq $falseuser) ? 
                                        '' : $user });
+$extra = $cgi->param('extra');
+$extra = '' unless (defined $extra);
 
 $subs = { $mj->standard_subs('GLOBAL'),
           'CGIDATA'  => $cgidata,
           'CGIURL'   => $cgiurl,
           'CMDPASS'  => Mj::Format::escape($passw),
           'COMMAND'  => Mj::Format::escape($ofunc),
-          'EXTRA'    => '',
+          'EXTRA'    => Mj::Format::escape($extra),
           'USER'     => ($user eq $falseuser) ? '':
                         Mj::Format::escape($user),
         };
@@ -237,29 +239,64 @@ if ($func eq 'archive' and $mode =~ /get/ and ! $raw) {
 
 # Make sure the command is valid
 unless (exists $commands{$func}) {
-  &usage($mj, $cgi, $subs, $mj->format_error('invalid_command', 'GLOBAL', 
-         'COMMAND' => $func), '');
+  $mess = $mj->format_error('invalid_command', 'GLOBAL', 'COMMAND' => $func);
+  &usage($mj, $cgi, $subs, $mess, '');
+}
+
+#----- List check -----#
+@lists = $cgi->param('list');
+if ($commands{$func}->[2] and ! scalar @lists) {
+  $mess = $mj->format_error('no_list', 'GLOBAL', 'COMMAND' => $func), 
+  &usage($mj, $cgi, $subs, $mess, 'choose_list');
+}
+$lists[0] ||= 'GLOBAL';
+if ($lists[0] ne 'GLOBAL') {
+  $subs = { %$subs,
+            $mj->standard_subs($lists[0]),
+          };
+}
+
+#----- Validate the list names -----#
+for ($i = 0 ; $i < scalar @lists ; $i++) {
+  $lists[$i] =~ s/\s+//g;
+  $str = $lists[$i];
+  $str =~ s/:[^:]*$//;
+
+  unless (Majordomo::legal_list_name($str)) {
+    $mess = $mj->format_error('invalid_list', 'GLOBAL', 'LIST' => $str);
+    &usage($mj, $cgi, $subs, $mess, 'choose_list');
+  }
+}
+
+($truelist, $sublist, $mess) = $mj->valid_list($lists[0], 1, 1);
+unless (defined $truelist and length $truelist) {
+  unless (defined $mess and length $mess) {
+    $mess = $mj->format_error('unknown_list', 'GLOBAL', 'LIST' => $lists[0]);
+  }
+  &usage($mj, $cgi, $subs, $mess, 'choose_list');
 }
 
 #----- Address check -----#
 if ($commands{$func}->[1] and (!$user or $user =~ /example\.com$/i)) {
-  &login($mj, $subs, $mj->format_error('undefined_address', 'GLOBAL'), 1);
+  &usage($mj, $cgi, $subs, $mj->format_error('undefined_address', 'GLOBAL'), 
+         'choose_email');
 }
 
 $addr = new Mj::Addr($user);
 
 unless (defined $addr) {
-  &login($mj, $subs, $mj->format_error('undefined_address', 'GLOBAL'), 1);
+  &usage($mj, $cgi, $subs, $mj->format_error('undefined_address', 'GLOBAL'), 
+         'choose_email');
 }
   
 ($ok, $mess, $loc) = $addr->valid;
 unless ($ok) {
   $mess = $mj->format_error($mess, 'GLOBAL');
-  &login($mj, $subs, 
+  &usage($mj, $cgi, $subs, 
          $mj->format_error('invalid_address', 'GLOBAL', 
                            'ADDRESS' => $user, 'ERROR' => $mess,
                            'LOCATION' => $loc),
-         1);
+         'choose_email');
 }
 
 $tmp = $cgi->param('name');
@@ -267,10 +304,10 @@ if (defined $tmp and $tmp =~ /\S/) {
   ($ok, $mess, $loc) = $addr->setcomment($tmp);
   unless ($ok) {
     $mess = $mj->format_error($mess, 'GLOBAL');
-    &login($mj, $subs, 
+    &usage($mj, $cgi, $subs,
            $mj->format_error('invalid_comment', 'GLOBAL', 'COMMENT' => $tmp, 
                              'ERROR' => $mess, 'LOCATION' => $loc), 
-           1);
+           'choose_email');
   }
 }
 
@@ -301,35 +338,6 @@ if ($func eq 'welcome') {
   &usage($mj, $cgi, $subs, '', $tmp);
 }
 
-#----- List check -----#
-@lists = $cgi->param('list');
-if ($commands{$func}->[2] and ! scalar @lists) {
-  &usage($mj, $cgi, $subs, 
-         $mj->format_error('no_list', 'GLOBAL', 'COMMAND' => $func), 
-         'choose_list');
-}
-$lists[0] ||= 'GLOBAL';
-
-#----- Validate the list names -----#
-for ($i = 0 ; $i < scalar @lists ; $i++) {
-  $lists[$i] =~ s/\s+//g;
-  $str = $lists[$i];
-  $str =~ s/:[^:]*$//;
-
-  unless (Majordomo::legal_list_name($str)) {
-    $tmp = $mj->format_error('invalid_list', 'GLOBAL', 'LIST' => $str);
-    &login($mj, $subs, $tmp, 1);
-  }
-}
-
-($truelist, $sublist, $mess) = $mj->valid_list($lists[0], 1, 1);
-unless (defined $truelist and length $truelist) {
-  unless (defined $mess and length $mess) {
-    $mess = $mj->format_error('unknown_list', 'GLOBAL', 'LIST' => $lists[0]);
-  }
-  &login($mj, $subs, $mess, 1);
-}
-
 #----- Construct the request -----#
 $request = {
   'cgidata'   => $cgidata,
@@ -342,11 +350,6 @@ $request = {
 };
 if (function_prop($func, 'iter')) {
   $request->{'command'} .= '_start';
-}
-
-$extra = $cgi->param('extra') || '';
-if (defined $extra) {
-  $subs->{'EXTRA'} = Mj::Format::escape($extra);
 }
 
 #----- For changeaddr to work, the user and victim must be exchanged. -----#
