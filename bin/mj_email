@@ -307,7 +307,7 @@ sub connect_no_parse {
   my (@hdr, $from, $head, $i, $id, $sess);
   $from = 'unknown@anonymous';
 
-  while (defined($i = <MSG>)) {
+  while (defined($i = <STDIN>)) {
     if ($i =~ /^\r?\n/) {
       @hdr = split /\n/, $sess;
       $head = new Mail::Header(\@hdr);
