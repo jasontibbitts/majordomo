@@ -1,9 +1,10 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-createlist-destroy listname
-createlist-regen
-createlist-nocreate listname owner
 createlist[-force][-noarchive][-noheader][-nowelcome] listname owner
+createlist-destroy listname
+createlist-nocreate listname owner
 createlist-pass[-force][-noarchive][-noheader][-nowelcome] listname password owner
+createlist-regen
+createlist-rename listname newlistname
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname,  required, is an email list at this site
 owner,     required, is an email address for who will manage the list
@@ -14,7 +15,7 @@ owner,     required, is an email address for who will manage the list
 -noheader, if specified, shortens the suggested aliases message
 -nowelcome,if specified, suppresses intro msg for new owner
 -pass,     if specified, allows the list's master password to be specified.
--regen,    if specified, re-generates the suggested MTA configurations
+-regen,    if specified, regenerates the mail aliases
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The createlist command is used to build or destroy an electronic
@@ -26,13 +27,12 @@ to build a list, and
 
   createlist-destroy LISTNAME
 
-to destroy it, where LISTNAME is a valid list name, and OWNER is
-the e-mail address of the person who will be managing the mailing
-list.  
+to destroy it, where LISTNAME is a valid list name, and OWNER is the
+e-mail address of the person who will be managing the mailing list.  
 
-A site or domain password is usually required to use this
-command (see "help admin_passwords" for more information about
-administrative passwords).
+A site or domain password is usually required to use this command (see
+"help admin_passwords" for more information about administrative
+passwords).
 
 A mailing list name can consist of small or capital letters from the
 English alphabet, digits, periods (.), hyphens (-), and underscores (_).
@@ -128,7 +128,18 @@ The command modes include the following:
     setting.
 
   -regen:
-    Display MTA configuration only, ignore all other options and args.
+    The regen command mode will cause the mail aliases for every list
+    within a domain to be regenerated.  In addition, every configuration
+    file will be reparsed, and warnings will be displayed if any of the
+    settings is incorrect.  The createlist-regen command is run
+    automatically every time the software is upgraded.
+
+  -rename:
+    The createlist-rename command will change the name of a mailing
+    list.  All subscription information, archive file names, and 
+    mail aliases will be updated automatically.  It may be necessary
+    to adjust the configuration settings and welcome message manually,
+    to reflect the new list name.
 
 NOTE: Auxiliary lists are not created by the createlist command.  
 An auxiliary list is created by adding an address to it with the 
