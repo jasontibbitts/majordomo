@@ -80,6 +80,7 @@ my (%commands, @lists, $cgi, $cgidata, $cgiurl, $domain, $extra, $falseuser,
 $cgi = new CGI;
 print $cgi->header;
 $cgiurl = $cgi->script_name . $cgi->path_info;
+$cgiurl = Mj::Format::uescape($cgiurl);
 
 $domain = $cgi->param('domain');
 unless ($domain) {
@@ -101,17 +102,35 @@ $sess .= scalar(localtime(time)) . "\n";
 $pathinfo = '';
 if (exists $ENV{'PATH_INFO'}) {
   $pathinfo = $ENV{'PATH_INFO'};
-  $pathinfo =~ m#/([^/\s]+)#;
-  $pathinfo = $1;
+  if ($pathinfo =~ m#/([^/]+)#) {
+    $pathinfo = $1;
+  }
+  else {
+    $pathinfo = '';
+  }
 }
 $falseuser   = "x$ENV{'REMOTE_ADDR'}\@example.com";
 $user    = $cgi->param('user') || $pathinfo || $falseuser;
 
 #----- Connect to the server -----#
 ($ok, $mess) = $mj->connect('wwwusr', $sess, $user);
+
 unless ($ok) {
-  &surrender($mess);
-} 
+  $cgidata = sprintf 'domain=%s&passw=&user=', $domain;
+  $subs = { $mj->standard_subs('GLOBAL'),
+            'CGIDATA'  => $cgidata,
+            'CGIURL'   => $cgi->script_name,
+            'COMMAND'  => 'welcome',
+            'DOMAIN'   => $domain,
+            'PASSWORD' => '',
+            'USER'     => Mj::Format::escape($user),
+        };
+
+  $tmp = $mj->format_get_string('wwwusr', 'head');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+  &login($mj, $subs, $mess);
+}
 
 #----- Create a temporary password -----#
 $passw   = $cgi->param('passw') || '';
@@ -121,10 +140,8 @@ if ($passw) {
     unless ($mj->t_recognize($passw));
 }
 
-#----- Print the generic page header -----#
 $ofunc   = $cgi->param('func') || 'welcome';
-$falseuser = Mj::Format::escape($user);
-$falseuser =~ s/ /%20/g;
+$falseuser = Mj::Format::uescape($user);
 $cgidata = sprintf 'domain=%s&passw=%s&user=%s', $domain, $passw, $falseuser;
 $subs = { $mj->standard_subs('GLOBAL'),
           'CGIDATA'  => $cgidata,
@@ -135,11 +152,10 @@ $subs = { $mj->standard_subs('GLOBAL'),
           'USER'     => Mj::Format::escape($user),
         };
 
-
+#----- Print the generic page header -----#
 $tmp = $mj->format_get_string('wwwusr', 'head');
 $str = $mj->substitute_vars_format($tmp, $subs);
 print STDOUT "$str\n";
-
 
 #----- Determine what service was requested -----#
 if ($ofunc eq 'welcome') {
