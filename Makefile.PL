@@ -99,7 +99,7 @@ else {
                 mj_setup);
 }
 
-@EXES = map {"./bin/$_"} @SIDSCRIPTS, @SCRIPTS;
+@EXES = map {" ./bin/$_"} @SIDSCRIPTS, @SCRIPTS;
 
 my $prefix = $config->{'install_dir'};
 
