@@ -232,6 +232,44 @@ e-mail.
 See "help configset_attachment_filters" for more details.
 
 
+Delivery failures (bounces)
+---------------------------
+
+Some of your list's subscribers may not receive every message.  A
+mailbox that is full, an expired e-mail address, or a technical
+malfunction can cause an error message (a "bounce") to be sent to the
+list administrators.  Majordomo has several features which allow you to
+cope with bounces automatically.
+
+When a bounce message arrives, Majordomo will try to identify the
+address of the recipient and collect statistics about recent bounces
+for that address.  Then, the bounce_rules setting will determine if
+the recipient should be removed from the mailing list, and whether or
+not the bounce message should be forwarded to the list administrators.
+See "help configset_bounce_rules" for more details.
+
+Usually, bounce messages are sent to the list owners.  The
+bounce_recipients setting can be used to forward the messages to a
+different address.  See "help configset_bounce_recipients" for more
+details.
+
+Is is not always possible for Majordomo to identify an address that is
+bouncing.  The bounce_probe_frequency and bounce_probe_pattern settings
+can be used to send individual copies of each posted message to some
+subscribers, which makes the identification of bounceing addresses
+easier.  See "help configset_bounce_probe_frequency" and 
+"help configset_bounce_probe_pattern" for more details.
+
+Information about bounces is stored in the subscriber database for a
+limited amount of time.  See "help configset_bounce_max_age" and 
+"help configset_bounce_max_count" for ways to control the amount of
+information stored in the database.
+
+The who-bounce command can be used to display information about
+subscribers whose addresses have been experiencing delivery failures.
+See "help who" for more details.
+
+
 Delivery rules (advanced topic)
 -------------------------------
 
@@ -270,5 +308,6 @@ See Also:
    help digest
    help post
    help set
+   help who
 
 $INCLUDE-help/foot
