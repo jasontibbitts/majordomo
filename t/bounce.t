@@ -145,3 +145,7 @@ for $file (@tests) {
   print "ok $count\n";
   $count++;
 }
+continue {
+  $ent->purge if (defined $ent);
+}
+

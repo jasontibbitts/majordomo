@@ -4480,4 +4480,5 @@ t/db-text.t
 t/default_config
 t/global_config
 t/harness
+t/post_1
 t/shell.t

@@ -12,7 +12,7 @@ $debug = 0;
 $tmpdir = "/tmp/mjtest.$$";
 $::LIBDIR = '.'; $::LIBDIR = '.'; # Nasty hack until config stuff is done
 
-print "1..35\n";
+print "1..38\n";
 
 print "Load the stashed configuration\n";
 eval('$config = require ".mj_config"');
@@ -36,20 +36,22 @@ open FILE, ">$tmpdir/SITE/files/en/config/whereami";
 print FILE "placeholder for whereami\n";
 close FILE;
 
-
 mkdir "$tmpdir/test", 0700 || die;
 mkdir "$tmpdir/test/GLOBAL", 0700 || die;
 mkdir "$tmpdir/test/DEFAULT", 0700 || die;
 mkdir "$tmpdir/test/GLOBAL/files", 0700 || die;
 mkdir "$tmpdir/test/GLOBAL/sessions", 0700 || die;
+mkdir "$tmpdir/test/GLOBAL/spool", 0700 || die;
 copy  "t/global_config", "$tmpdir/test/GLOBAL/C_install" || die;
 copy  "t/default_config", "$tmpdir/test/DEFAULT/C_install" || die;
-
+$post1   = "$tmpdir/test/GLOBAL/spool/post_1";
+copy  "t/post_1", $post1 || die;
 
 open SITE,">$tmpdir/SITE/config.pl";
 print SITE qq!
 \$VAR1 = {
           'mta'           => '$config->{mta}',
+          'mta_separator' => '$config->{mta_separator}',
           'cgi_bin'       => '$config->{cgi_bin}',
           'install_dir'   => '$config->{install_dir}',
           'site_password' => 'hurl',
@@ -59,7 +61,8 @@ print SITE qq!
 close SITE;
 
 # Set up variables that need to be set; avoid warnings
-$::LOCKDIR = $::LOCKDIR = "$tmpdir/locks";
+$LOCKDIR = $::LOCKDIR = "$tmpdir/locks";
+$TMPDIR = $::TMPDIR = "$tmpdir/locks";
 
 print "Load the module\n";
 eval "require Majordomo";
@@ -113,6 +116,13 @@ print "Set whereami\n";
 $request->{password} = 'gonzo';
 $request->{setting}  = 'whereami';
 $request->{value}    = ['example.com'];
+$result = $mj->dispatch($request);
+ok(1, $result->[0]);
+
+print "Set tmpdir\n";
+$request->{password} = 'gonzo';
+$request->{setting}  = 'tmpdir';
+$request->{value}    = [$tmpdir];
 $result = $mj->dispatch($request);
 ok(1, $result->[0]);
 
@@ -305,6 +315,27 @@ $result = $mj->dispatch({user     => 'enchanter@example.com',
 			 password => 'suspect',
 			 command  => 'unregister',
 			});
+ok(1, $result->[0]);
+
+print "Turn off administrivia.\n";
+$result = $mj->dispatch({user     => 'core_test@example.com',
+			 password => 'gonzo',
+			 command  => 'configset',
+			 list     => 'bleeargh',
+			 setting  => 'administrivia',
+			 value    => ['no'],
+			});
+ok(1, $result->[0]);
+
+print "Post a complete message.\n";
+$result = $mj->dispatch({user     => 'core_test@example.com',
+                         command  => 'post',
+			 list     => 'bleeargh',
+                         file     => $post1,
+                         mode     => '',
+                         password => '',
+                         sublist  => '',
+                        });
 ok(1, $result->[0]);
 
 # Things left to test:
