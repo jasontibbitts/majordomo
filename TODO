@@ -235,3 +235,112 @@ Add an optional third line to the digests setting specifying the format of
 the subject header to be used when the digest is generated.  Allow standard
 digest substitutions (already defined in Mj::Resend::do_digests).  Add
 MSGCOUNT substitution for completeness.
+
+
+BerkeleyDB database backend
+---------------------------
+Instead of DB_File, use the BerkeleyDB module to gain access to the
+interesting features of BerkeleyDB (CDB, mainly, to avoid some very
+expensive locking crud).
+
+This should be pretty easy to get started, but the more esoteric features
+will be interesting.
+
+
+Filesystem database backend
+---------------------------
+The filesystem _is_ a database.  Why not use it?  A database is a
+directory, a key is a filename and its value is its contents.  It may be
+possible to do away with lots of nasty locking (or to use record locking,
+or somesuch).  Space waste can be huge for large blocksizes on filesystems
+that don't do tail packing.  Reiserfs on Linux is optimized for precisely
+this kind of thing.
+
+
+Type I envelopes
+----------------
+We need an envelope type 'I'; any bounce received with this type is
+completely ignored.  General responses from majordomo should be sent out
+with this type.
+
+
+bounce_rules for GLOBAL 
+-----------------------
+If a message bounces to majordomo-owner, the domain owner sees it but
+cannot turn it off.  It should be very easy to make bounce_rules apply to
+GLOBAL.  Tracking of bounces may need to be turned off for GLOBAL, though.
+
+
+better MIME/attachment_rules handling
+-------------------------------------
+attachment_rules is not currently flexible enough to handle the kinds of
+transformations that folks want.  Most important is the flattening of
+multipart/alternative, but folks also want HTML->text and RTF->text, both
+of which should have Perl modules.  Hooking them up should not be
+difficult.  Making attachment_rules accept some reasonable syntax might be
+difficult.
+
+
+=======================
+Totally out there stuff
+=======================
+
+There are some things that I (Jason) have always wanted to experiment
+with.  One day I will.  Here are some of my ideas.
+
+
+server-side killfiles
+---------------------
+Allow users to make simple killfiles, like "subject contains blah" or
+"author is annoying@aol.com".  Very limited functionality: no pattern
+matching, don't match headers.
+
+Applying them efficiently is actually pretty easy.  When adding a new list,
+assign it a number, store a big list of them somewhere, and store only the
+number in the subscriber data.  Apply the whole lot of them at once.  Keep
+track of the ones that matched in a hash, then during delivery check to see
+if the numbers in the subscriber data are in the hash.  If so, don't
+deliver to them.
+
+
+issue tracking
+--------------
+Issue tracking and mailing lists are closely intertwined.  Any real
+issue tracker should read the list and keep track of discussion relating to
+open issues.
+
+issue tracking can be very simple.  Issues can be open or closed.  They may
+have reporters, owners, dispositions, categories, etc..  Basic operations
+on issues are: open, close, take, give and set some property.
+
+The cool part comes when you manipulate the issue tracker as part of the
+list discussion tracker, by including commands in the message body.  Say
+someone reports a bug.  You reply to it with your comments and stick "open
+issue" or something at the top of the body.  The list server sees this and
+sticks "[issue #23]" in the subject before the message is resent.  Replies
+that have this subject get archived with the issue.  When the issue is
+resolved, the message stating that (which could even be a CVS commit
+message) just needs to include "close issue 23" at the top of the body.
+
+Issues can be queried and manipulated via the normal command interface.
+The server can generate reports of open issues.
+
+
+polling/voting
+--------------
+There's a voting package which integrates with Mj1.  It would be
+interesting to see if something that works with Mj2 can't be cooked up.
+
+
+automatic taboo generation
+--------------------------
+I've seen mention of a system that automatically generates taboo roles for
+Mj1 based on spam received at various spamtrap addresses.  We should try to
+hook into this if possible.
+
+automatic newsgroup gatewaying
+------------------------------
+
+Folks have asked for injection of list messages into newsgroups.  There's a
+Perl module for this, so it shouldn't be a huge issue.  Bidirectional
+gatewaying is tougher, but it should be a solved problem.
