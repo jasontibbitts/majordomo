@@ -3,16 +3,7 @@
 These are a few tasks that I hope others can complete.  I will eventually
 get to them if nobody else does, but that will take time.
 
-Beautify the logfile code:
-  The current logging code was written for simplicity; this results in
-  a logfile which is neither pretty nor human-readable.  While the
-  intention is for Majordomo to be able to make reports from its
-  logfile, there is is still reason to make it browseable by those who
-  want to look at the file itself.  Many recommendations for the
-  common logfile format were made, but I know little of it and I am
-  unsure that it can handle all of the specific data elements that
-  Majordomo keeps.  This needs to be investigated and better code
-  needs to be written.
+These two are always important:
 
 Read the code:
   It would help immensely if someone could just read over the code and see
@@ -29,29 +20,41 @@ Write some docs:
   general list administration, a whole new category of advanced list
   administration (multiple moderators, peer review, access_rules and the
   weird things you can do with it, etc) and the always painful subscriber
-  documentation.  We need new online docs (help text, config variable
-  descriptions) and offline docs (install guide, list-owner-info, FAQ).
+  documentation.  SRE has done an amazing amount of work getting the
+  documentation that's there in place but documentation is a neverending
+  task.
 
-Design the Web interface:
-  We have been offered MajorCool, but it will need some work to be fit into
-  toe new object framework.  There are also many new possibilities now that
-  all parts of the core are easily accessible to an interface, and the MC
-  code will need some redesign to take care of this.  And then there's the
-  'clean Perl5' rule.  Before someone can start coding, we need to
-  determine at least the basics of what the new design will look like.
+Next, some things in the forefront:
 
-Implement the Digest module:
-  I have done some work on getting the Digest mechanism started; the
-  trigger mechanism is described in the documentation for the 'digests'
-  variable and this variable is completely parsed down into all of the
-  necessary information.  The interface to the archive is documented, but
-  not yet implemented.  Various other important pieces of the digest
-  functionality are detailed in the TODO file.  This all needs code.
+Write the report generator:
+  Majordomo keeps logs of everything that goes on, and the list owner can
+  choose how they will be informed of happenings.  One of those choices is
+  to receive a summary report, but the report generator isn't written.
 
-Categorize the configuration needed to interface with the various MTAs.
-  The module Mj::MTAConfig contains routines that suggest MTA-specific
-  configuration procedures.  Write a function for your favorite MTA.  Look
-  to the sendmail method for a guide.  If you need additional parameters,
-  please let me know.
+  We need to be able to generate reports of all kinds of list activity:
+
+  Posting activity, including breakdowns of who posted what, common
+   subjects, etc.  (Some of this was implemented in a list statistics
+   package that I have; the code could be reused since the message log
+   format is quite close to what this package used.)
+  Meta-list activity: who signed up, who left, a count of accessed commands
+   and files, etc.   
+  Bounce activity: what addresses are bouncing, which were removed because
+   of bouncing, etc.
+
+  Pieces of this report need to ge generated based on the owner's inform
+  settings.
+
+Work on the web interfaces:
+  Currently we have three interfaces: one for accepting confirmation
+  tokens, one for doing user tasks and one for doing admin tasks.  These
+  could all use some polish.
+
+Stress test the bounce parser:
+  We should be correctly parsing the great majority of all bounces now, but
+  it would be a great help if everyone could save all of their bounces (one
+  file per) and run misc/parsebounce.pl over them.  Any bounces which
+  aren't parsed but should be (i.e. they have to contain information that
+  we can reasonably parse) can be sent to me (tibbs@math.uh.edu).
 
  - J<
