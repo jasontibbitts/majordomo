@@ -315,24 +315,6 @@ EOC
     'visible'=> 0,
     'mutable'=> 1,
    },
-   'date_info' =>
-   {
-    'type'   => 'bool',
-    'groups' => [qw(reply)],
-    'visible'=> 0,
-    'local'  => 1,
-    'global' => 1,
-    'mutable'=> 1,
-   },
-   'date_intro' =>
-   {
-    'type'   => 'bool',
-    'groups' => [qw(reply)],
-    'visible'=> 0,
-    'local'  => 1,
-    'global' => 1,
-    'mutable'=> 1,
-   },
    'max_header_line_length' =>
    {
     'type'   => 'integer',

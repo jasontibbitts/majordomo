@@ -149,8 +149,6 @@ files/en/config/chunksize
 files/en/config/comments
 files/en/config/confirm_url
 files/en/config/database_backend
-files/en/config/date_info
-files/en/config/date_intro
 files/en/config/debug
 files/en/config/default_class
 files/en/config/default_flags
@@ -398,8 +396,6 @@ files/en/help/configset_chunksize
 files/en/help/configset_comments
 files/en/help/configset_confirm_url
 files/en/help/configset_database_backend
-files/en/help/configset_date_info
-files/en/help/configset_date_intro
 files/en/help/configset_debug
 files/en/help/configset_default_class
 files/en/help/configset_default_flags
@@ -487,7 +483,6 @@ files/en/help/digest
 files/en/help/end
 files/en/help/exit
 files/en/help/faq
-files/en/help/filesync
 files/en/help/get
 files/en/help/help
 files/en/help/index
