@@ -164,7 +164,8 @@ sub handle_bounce_message {
   # Now plow through the data from the parsers
   for $i (keys %$data) {
     $tmp = $self->handle_bounce_user(%args,
-				     user => $i,
+				     user   => $i,
+				     sender => $sender,
 				     %{$data->{$i}},
 				    );
 
@@ -218,7 +219,6 @@ sub handle_bounce_token {
   my($self, %args) = @_;
   my $log  = new Log::In 35;
   my(@owners, @bouncers, $from, $i, $mess, $nent, $sender);
-
 
   # Dump the body to the session file
   $args{entity}->print_body($self->{sessionfh});
@@ -394,11 +394,57 @@ sub handle_bounce_user {
     }
 
     # Remove user if necessary
-    #      $self->handle_bounce_removal(
-    #				  );
+#    $self->handle_bounce_removal(%params,
+#				);
+
   }
 
   $mess;
+}
+
+=head2 handle_bounce_removal
+
+Deal with the particulars of removing a bouncing user.
+
+There are several possibilities:
+
+1) Remove the user immediately.
+
+2) Generate a bounce probe; if it bounces, remove the user.
+
+3) #2, but consult the owner before removing.
+
+#1 is easy; just call the core unsubscribe routine.
+
+#2 is more difficult; we construct the message and send it with a special
+#sender.  We also generate a token.  When a bounce is seen with the special
+#sender, the token is accepted (instead of being deleted, which is the normal action for bouncing tokens).
+
+#3 involves the same as #2, except that the token is generate with chain
+#fields indicating a consult token is to be generated upon its acceptance.
+
+=cut
+sub handle_bounce_removal {
+  my $self = shift;
+  my %args = @_;
+
+  # Currently, this is all we support
+  if ($args{mode} =~ /noprobe/ || 1) {
+    ($ok, $mess) =
+      $self->_unsubscribe($args{list},
+			  "$args{sender} (Automatic Bounce Processor)",
+			  $args{user},
+			  '',
+			  'automatic removal',
+			  '',
+			 );
+    if ($ok) {
+      return "  User was removed.\n";
+    }
+    else {
+      return "  User could not be removed: $mess\n";
+    }
+  }
 }
 
 sub _gen_bounce_message {

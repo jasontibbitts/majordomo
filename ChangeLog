@@ -1,3 +1,8 @@
+2000-12-12  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/BounceHandler.pm (handle_bounce_removal): New function:
+	handle deleting of users or constructing tokens to do so.
+
 2000-12-11  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Majordomo.pm (trigger): Expire additional bounce data as

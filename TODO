@@ -106,8 +106,14 @@ inform - inform the list owner of the bounce but don't remove the user
 remove - remove the bouncing user and inform the owner
   Modes for remove:
     -quiet - don't inform the owner
-    -noprobe - don't send a bounce probe
-    -consult - ask the list owner before actually doing any removals.
+    -noprobe - don't send a bounce probe (currently, this is always on)
+    -consult - ask the list owner before actually doing any removals (not implemented)
+    -noattach - don't attach a copy of the bounce (not implemented)
+
+Two kinds of messages:
+
+ 1) specify something to be sent to the owner
+ 2) specify the form of a bounce probe
 
 Statistics are always gathered when appropriate.
 
@@ -140,6 +146,9 @@ $days_since_subscribe - the number of days since the address was added to
 $numbered - the number of numbered bounces seen.
 $span - the difference between the lowest and highest message bounced.
 
+$diagnostic - the actual diagnostic; match against this to try and
+  special-case certain types of bounces (not implenented)
+
 default:
 
 # Don't bother the owner with warnings
@@ -153,8 +162,6 @@ $consecutive > 50
 # The default action is 'inform'; all bounces not matched by the above will
 # cause an informative message to be sent to the owner.
 
-Need to expire old bounces in _bounce database, and to delete entries with
-no bounces.
 
 Uuencode and ms-tnef in the body as "attachments"
 -------------------------------------------------
