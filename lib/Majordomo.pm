@@ -414,17 +414,18 @@ sub dispatch {
 
   if (command_prop($base_fun, 'list') and 
       $request->{'command'} !~ /_chunk$/) {
-    ($l, $sl) = $self->valid_list($request->{'list'}, 
-                                  command_prop($base_fun, 'all'),
-                                  command_prop($base_fun, 'global'));
+    ($l, $sl, $mess) = 
+      $self->valid_list($request->{'list'}, 
+                        command_prop($base_fun, 'all'),
+                        command_prop($base_fun, 'global'));
 
   }
   else {
-    ($l, $sl) = $self->valid_list($request->{'list'}, 1, 1);
+    ($l, $sl, $mess) = $self->valid_list($request->{'list'}, 1, 1);
   }
 
-  return [0, "Illegal list: \"$request->{'list'}\".\n"]
-    unless $l; #XLANG
+  return [0, $mess]
+    unless $l; 
 
   # Untaint
   $request->{'list'} = $l;
@@ -1520,8 +1521,8 @@ sub common_subs {
   $out = {};
 
   for $tlist (@tmp) {
-    return (0, "Nonexistent list: \"$tlist\"\n") #XLANG
-      unless (($list) = $self->valid_list($tlist, 0, 1));
+    return (0, $mess) 
+      unless (($list, undef, $mess) = $self->valid_list($tlist, 0, 1));
     push @lists, $list unless ($list eq 'GLOBAL');
   }
 
@@ -3313,9 +3314,11 @@ sub legal_list_name {
 
 Checks to see that the list is valid, i.e. that it exists on the server.
 This has the nice side effect of returning the untainted list name.
+If the list is invalid or has been relocated, a message is returned.
 
-If allok, then ALL will be accepted as a list name.
-If globalok, then GLOBAL will be accepted as a list name.
+If allok is true, then ALL will be accepted as a list name.
+If globalok is true, then GLOBAL and DEFAULT will be accepted as 
+list names.
 
 =cut
 
@@ -3324,24 +3327,24 @@ sub valid_list {
   my $name   = shift || "";
   my $all    = shift;
   my $global = shift;
-  my $log    = new Log::In 120, "$name";
-  my ($sublist) = '';
+  my $log    = new Log::In 120, $name;
+  my ($file, $mess, $oname, $reloc, $sublist, $tmp);
+  $sublist = $mess = '';
 
   if ($name =~ /^([\w.-]+):([\w.-]+)$/) {
     $name = $1; $sublist = $2;
   }
 
   unless (legal_list_name($name)) {
-    return undef;
+    return (undef, undef, 
+            $self->format_error('invalid_list', 'GLOBAL', 'LIST' => $name));
   }
   if ($sublist) {
     unless (legal_list_name($sublist)) {
-      return undef;
+      return (undef, undef, qq(The sublist name "$sublist" is invalid.\n));
     }
   }
 
-#  $self->_fill_lists;
-  
   if (($name eq 'ALL' && $all) ||
       (($name eq 'GLOBAL' or $name eq 'DEFAULT') && $global))
     {
@@ -3350,22 +3353,47 @@ sub valid_list {
       $name = $1;
       $sublist =~ /(.*)/;
       $sublist = $1;
-      return ($name, $sublist);
+      return ($name, $sublist, '');
     }
 
   $name    = lc($name);
+  $oname   = $name;
   $sublist = lc($sublist) unless ($sublist eq 'MAIN');
-  if (-d "$self->{'ldir'}/$name") {
+
+  # Check the GLOBAL relocated_lists setting for list aliases.
+  $reloc = $self->_global_config_get('relocated_lists');
+  if ((ref $reloc eq 'HASH') and (exists $reloc->{$oname})) {
+    $name = $reloc->{$oname}->{'name'};
+    if ($name) {
+      $reloc->{$oname}->{'file'} ||= '/error/relocated_list';
+    }
+    if (length($reloc->{$oname}->{'file'})) {
+      $subs = { 
+                $self->standard_subs('GLOBAL'),
+                'LIST' => $oname,
+                'NEWLIST' => $name,
+              };
+
+      $tmp = $self->_list_file_get_string('GLOBAL',
+                                          $reloc->{$oname}->{'file'});
+      $mess .= $self->substitute_vars_format($tmp, $subs);
+    }
+  }
+
+  if ($name and -d "$self->{'ldir'}/$name") {
     # untaint
     $name =~ /(.*)/;
     $name = $1;
     $sublist =~ /(.*)/;
     $sublist = $1;
     $self->_make_list($name);
-    return ($name, $sublist) if ($self->{'lists'}{$name});
+    return ($name, $sublist, $mess) if ($self->{'lists'}{$name});
   }
 
-  return undef;
+  # The list is not supported at this site.
+  $mess ||= $self->format_error('unknown_list', 'GLOBAL',
+                                'LIST' => $oname);
+  return ('', '', $mess);
 }
 
 ##########################
@@ -4354,9 +4382,8 @@ sub _createlist {
 
     $desc = $list;
     # valid_list calls _make_list and untaints the name
-    ($list) = $self->valid_list($desc);
-    return (0, "The $desc list does not exist.\n")
-      unless ($list);
+    ($list, undef, $mess) = $self->valid_list($desc);
+    return (0, $mess) unless ($list);
 
     return (0, "Unable to open subscriber list for $list.\n")
       unless $self->{'lists'}{$list}->get_start('MAIN');
@@ -4386,8 +4413,8 @@ sub _createlist {
 
     # old list must exist
     $i = $list;
-    return (0, qq(The "$i" list does not exist.\n))
-      unless (($list) = $self->valid_list($i));
+    ($list, undef, $mess) = $self->valid_list($i);
+    return (0, $mess) unless ($list);
 
     # new list name must be valid
     return (0, "Illegal list name: $pw\n")
@@ -5437,20 +5464,29 @@ change, else address matching will fail to work properly.
 sub rekey_start {
   my ($self, $request) = @_;
   my $log = new Log::In 30;
+  my ($mess, $ok);
+  $request->{'regexp'} ||= '';
+
+  if ($request->{'regexp'}) {
+    ($ok, $mess, $request->{'regexp'}) 
+      = Mj::Config::compile_pattern($request->{'regexp'}, 0, 'iexact');
+    return ($ok, $mess) unless $ok;
+  }
   
-  my ($ok, $error) = $self->global_access_check($request);
+  ($ok, $mess) = $self->global_access_check($request);
 
   unless ($ok > 0) {
     $log->out("noaccess");
-    return ($ok, $error);
+    return ($ok, $mess);
   }
 
   $self->_rekey('', $request->{'user'}, $request->{'user'}, 
-                $request->{'mode'}, $request->{'cmdline'});
+                $request->{'mode'}, $request->{'cmdline'},
+                $request->{'regexp'});
 }
 
 sub _rekey {
-  my($self, $d, $requ, $vict, $mode, $cmd) = @_;
+  my($self, $d, $requ, $vict, $mode, $cmd, $regexp) = @_;
   my $log = new Log::In 35, $mode;
   my (@lists, $aa, $aca, $changed, $dry, $field, $list, $ra, $rca);
 
@@ -5504,10 +5540,21 @@ sub _rekey {
   $self->_fill_lists;
   @lists = sort keys(%{$self->{'lists'}});
   $self->{'rekey_lists'} = []; 
+  if ($regexp) {
+    require Mj::Util;
+    import Mj::Util qw(re_match);
+  }
+
   for $list (@lists) {
+    if ($regexp and $mode =~ /verify|repair/) {
+      next unless re_match($regexp, $list);
+    }
     push (@{$self->{'rekey_lists'}}, $list) 
       unless ($mode =~ /verify|repair/ and 
               ($list eq 'DEFAULT' or $list eq 'GLOBAL'));
+  }
+  unless (scalar @{$self->{'rekey_lists'}}) {
+    return (0, "No mailing lists were found for rekeying.\n");
   }
   return (1, $ra, $rca, $aa, $aca);
 }
@@ -6905,7 +6952,7 @@ sub who_start {
   $request->{'sublist'} ||= 'MAIN';
   $request->{'list2'} ||= '';
   my $log = new Log::In 30, "$request->{'list'}, $request->{'sublist'}";
-  my ($base, $list, $ok, $ok2, $error, $tmp);
+  my ($base, $list, $mess, $ok, $ok2, $error, $tmp);
 
   $base = $request->{'command'}; $base =~ s/_start//i;
 
@@ -6939,10 +6986,10 @@ sub who_start {
 
   # Common mode allows two subscriber lists to be compared.
   if ($request->{'mode'} =~ /common/) {
-    ($list) = $self->valid_list($request->{'list2'}, 0, 1);
+    ($list, undef, $mess) = $self->valid_list($request->{'list2'}, 0, 1);
     unless ($list) {
       $log->out("invalid second list \"$request->{'list2'}\"");
-      return (0, "Invalid or missing second list \"$request->{'list2'}\"");
+      return (0, $mess);
     }
     $tmp = $request->{'list'};
     $request->{'list'} = $request->{'list2'} = $list;
