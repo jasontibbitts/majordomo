@@ -7538,7 +7538,7 @@ sub _subscribe {
   my $sublist = shift || 'MAIN';
   my $log   = new Log::In 35, "$list, $vict";
   my ($class, $classarg, $classarg2, $data, $exist, $flags, $ml,
-      $ok, $rdata, $sl, $welcome, $welcome_table);
+      $ok, $over, $rdata, $sl, $tmp, $welcome, $welcome_table);
 
   return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
@@ -7591,9 +7591,20 @@ sub _subscribe {
 
   # dd to/update registration database
   if ($sublist eq 'MAIN') {
+    $tmp = $::log->elapsed;
+
     ($exist, $rdata) =
       $self->_reg_add($vict, 'password' => &gen_pw($ml),
                       'list' => $list);
+
+    if (! $exist and $rdata and $mode !~ /nolog/) {
+      $over = 0;
+      $over = 1 if ($mode =~ /noinform/);
+      $self->inform('GLOBAL', 'register', "$requ", "$vict", 
+                    $cmd, $self->{'interface'}, 
+                    1, '', $over, '', $::log->elapsed - $tmp);
+   
+    }
   }
 
   $welcome = $self->_list_config_get($list, "welcome");
