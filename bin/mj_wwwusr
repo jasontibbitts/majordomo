@@ -168,8 +168,10 @@ if ($passw) {
 }
 
 $ofunc   = $cgi->param('func') || 'welcome';
-$tmp     = Mj::Format::uescape($user);
-$cgidata = sprintf 'passw=%s&user=%s', $passw, $tmp;
+
+$cgidata = sprintf 'passw=%s&user=%s', $passw, $user;
+$cgidata = Mj::Format::uescape($cgidata);
+
 $subs = { $mj->standard_subs('GLOBAL'),
           'CGIDATA'  => $cgidata,
           'CGIURL'   => $cgiurl,

@@ -129,7 +129,8 @@ $sess .= scalar(localtime(time)) . "\n";
 
 #----- Collect some useful substitution variables -----#
 $user = "z$ENV{'REMOTE_ADDR'}\@example.com";
-$cgidata = sprintf 'domain=%s&user=%s', $domain, $user;
+
+$cgidata = Mj::Format::uescape("user=$user");
 
 $token = $mj->t_recognize($ptoken) || "";
 

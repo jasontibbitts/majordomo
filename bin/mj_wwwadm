@@ -178,6 +178,7 @@ if ($passw) {
 
 $cgidata = sprintf 'user=%s&passw=%s&list=%s', 
                    $user, $passw, $lists[0];
+$cgidata = Mj::Format::uescape($cgidata);
 
 $subs = { $mj->standard_subs($lists[0]),
           'CGIDATA'   => $cgidata,
