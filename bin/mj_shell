@@ -191,7 +191,8 @@ exit 1;
 # A simple interactive routine.
 sub parse_interactive {
   my ($in, $pass) = @_;
-  my ($args, @arglist, $cmd, $cmdline, $features, $go, $prompt, $res, $term);
+  my ($args, @arglist, $cmd, $cmdline, $defaults, $features, $go, 
+      $prompt, $res, $term);
   require Term::ReadLine;
 
   $term = Term::ReadLine->new('Interactive Majordomo Shell Interface');
@@ -200,9 +201,16 @@ sub parse_interactive {
   $term->ornaments(1) if $features->{ornaments} && $opts{ornaments};
   $readline::rl_completion_function = # Shut up warnings...
     $readline::rl_completion_function = '::completer'; 
+  # values from default commands;
+  $defaults = {
+               'delay'    => 0,
+               'password' => $pass,
+               'user'     => $user,
+              };
 
   # use Data::Dumper; print Dumper $features;
-  print "Entering Majordomo interactive mode.\nType majordomo commands; the 'end' command exits.\n\n";
+  print "Entering Majordomo interactive mode.\n"
+        . "Type majordomo commands.  Use the 'end' command to exit.\n\n";
 
   while (defined($cmdline = $term->readline($prompt))) {
     @arglist = ();
@@ -220,7 +228,7 @@ sub parse_interactive {
     print "\n";
     ($cmd, $args) = $cmdline =~ /(\S+)\s*(.*)/;
     if ($cmd) {
-      ($go, $res) = parse_command($cmd, $args, $pass, @arglist);
+      ($go, $res) = parse_command($cmd, $args, '', $defaults, @arglist);
       return 1 unless $go;
     }
     print "\n";
@@ -234,6 +242,7 @@ sub parse_command {
   my $command = shift;
   my $args    = shift;
   my $pass    = shift;
+  my $dfl     = shift;
   my @arglist = @_;
   my ($mode, $request, $tlist);
   $pass ||= '';  $pass =~ /(.*)/; $pass = $1; 
@@ -261,7 +270,7 @@ sub parse_command {
     ($pass, $command, $args) = $args =~ /(\S+)\s*(\S*)\s*(.*)/;
     print STDERR "**** approve requires a password!\n"
       unless $pass;
-    return parse_command($command, $args, $pass, @arglist);
+    return parse_command($command, $args, $pass, $dfl, @arglist);
   }
 
   if (command_prop($true_command, "list")) {
@@ -279,6 +288,38 @@ sub parse_command {
 	  return (1, 0);
 	}
   }
+  if ($true_command eq 'default') {
+    ($command, $args) = split(" ", $args, 2);
+    if ($command =~ /^password|passwd$/) {
+      $dfl->{'password'} = $args || '';
+      print STDERR "Default password set to \"$dfl->{'password'}\".\n";
+    }
+    elsif ($command eq 'user') {
+      if (defined $args) {
+        $dfl->{'user'} = $args;
+      }
+      else {
+        $dfl->{'user'} = $user;
+      }
+      print STDERR "User set to \"$dfl->{'user'}\".\n";
+    }
+    elsif ($command eq 'delay') {
+      my ($time) = time;
+      if (defined $args) {
+        $dfl->{'delay'} = Mj::List::_str_to_time($args) || $time;
+        $dfl->{'delay'} -= $time;
+      }
+      else {
+        $dfl->{'delay'} = 0;
+      }
+      print STDERR "Delay set to $dfl->{'delay'} seconds.\n";
+    }
+    else {
+      print STDERR "Illegal action \"$command\" for default.\n";
+    }
+    return 1;
+  }
+
   if ($true_command =~ /newfaq/) {
     $args = "/faq Frequently Asked Questions";
     $true_command = "put";
@@ -308,8 +349,8 @@ sub parse_command {
       'command'   => 'configshow',
       'list'      => $list,
       'mode'      => $mode,
-      'password'  => $pass,
-      'user'      => $user,
+      'password'  => $pass || $dfl->{'password'},
+      'user'      => $dfl->{'user'},
     };
     Mj::Parser::parse_args($request, $args, \@arglist);
     $result = 
@@ -340,7 +381,7 @@ sub parse_command {
 	  $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA";
 	  $> = $tmpu; $) = $tmpg;
 	  
-	  $result = parse_file($fh, '', [], $user, $pass);
+	  $result = parse_file($fh, '', [], $user, $pass || $dfl->{'password'});
 	  $fh->close;
 	}
 	else {
@@ -366,10 +407,11 @@ sub parse_command {
   else {
     $request = {
       'command'   => $true_command,
+      'delay'     => $dfl->{'delay'},
       'list'      => $list,
       'mode'      => $mode,
-      'password'  => $pass,
-      'user'      => $user,
+      'password'  => $pass || $dfl->{'password'},
+      'user'      => $dfl->{'user'},
     };
     # XXX $in[0] is an attachment from global variable @in.
     Mj::Parser::parse_args($request, $args, \@arglist, $in[0]);
@@ -377,9 +419,9 @@ sub parse_command {
       $request->{'command'} .= '_start';
     }
 
-
     $result = $mj->dispatch($request);
-    &{"Mj::Format::$true_command"}($mj, \*STDOUT, \*STDOUT, 'text', $request, $result);
+    &{"Mj::Format::$true_command"}($mj, \*STDOUT, \*STDOUT, 
+                                   'text', $request, $result);
     return (1, $result);
   }
 }
@@ -405,7 +447,8 @@ sub parse_file {
 sub prompt ($;$) {
   my($mess,$def)=@_;
   my $ISA_TTY = -t STDIN && -t STDOUT ;
-  Carp::confess("prompt function called without an argument") unless defined $mess;
+  Carp::confess("prompt function called without an argument") 
+    unless defined $mess;
   my $dispdef = defined $def ? "[$def] " : " ";
   $def = defined $def ? $def : "";
   my $ans;
