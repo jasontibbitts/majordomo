@@ -46,7 +46,7 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; $a=~s/\.p.$//; ("lib/$_" => "\$(INS
    # doesn't have a version number
    'Date::Manip'    => [5.10 , 1],
    'CGI'            => [2.36,  1],
-   'MD5'            => [1.7,   1],
+   'Digest::SHA1'   => [0,     1],
    'IO::Socket'     => [1.1602,1],
    'IO::File'       => [0,     1],
    'IO::Handle'	    => [0,     1],
