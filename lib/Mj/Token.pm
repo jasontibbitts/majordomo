@@ -295,7 +295,6 @@ sub confirm {
            'REQUESTER'  => $args{'user'},
            'REQUESTOR'  => $args{'user'},
            'VICTIM'     => $args{'victim'},
-           'NOTIFY'     => $args{'notify'},
            'APPROVALS'  => $approvals,
            'CMDLINE'    => $args{'cmdline'},
            'COMMAND'    => $args{'command'},
@@ -309,6 +308,15 @@ sub confirm {
   # Determine which of the notify structures actually receives a message
   for ($i = 0; $i < scalar @notify; $i++) {
     $dest = $notify[$i];
+    if ($dest->{'group'} eq 'victim') {
+      $repl->{'NOTIFY'} = "$args{'victim'}";
+    }
+    elsif ($dest->{'group'} eq 'requester') {
+      $repl->{'NOTIFY'} = "$args{'user'}";
+    }
+    else {
+      $repl->{'NOTIFY'} = 'the moderators';
+    }
     @recip = ();
     $recip = '';
     # Determine the destination address(es).  If the group is "none,"
@@ -364,14 +372,8 @@ sub confirm {
       # Determine if a notification should be sent.
       # It should not be sent for "delay" tokens if quiet mode is used.
       # Nor if the "none" group was specified.
-      # Nor in response to a posted message if the ackstall flag is not
-      # set and the requester or victim is being notified.
       next if (($ttype eq 'delay' and $args{'mode'} =~ /quiet/) or
-               (scalar(@$j) == 0) or
-               ($args{'command'} eq 'post' and 
-                (! $self->{'lists'}{$list}->should_ack(
-                     $args{'sublist'}, $args{'victim'}, 'b'))));
-   
+               (scalar(@$j) == 0));
 
       # Extract the file from storage
       $tmpf = $self->substitute_vars($file, $repl);

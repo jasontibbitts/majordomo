@@ -3,6 +3,9 @@
 	* README.LINUX:  Describe a workaround for a MakeMaker module
 	bug in some versions of linux.
 
+	* lib/Mj/Token.pm:  (confirm)  Bugfix:  Testing the 'ackstall'
+	flag could in some cases cause CONSULT notices not to be mailed.
+
 2001-03-09  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  Version number is now 0.1200103090.
