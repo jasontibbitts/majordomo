@@ -135,10 +135,15 @@ while (1) {
 
   $line = in();
   unless (defined $line && length $line) {
-    $::log->message(50, 'info', "Read undef or empty line; server must have died.");
+    $::log->message(50, 'info', "Read empty line; server must have died.");
     last;
   }
-  if ($line =~ /(Ping \d+)$/) {
+  if ($line =~ /Bye (\d+)$/) {
+    # The queue server has timed out and wishes to shut down.  It has
+    # requested that we stop processing the queue.
+    last;
+  }
+  elsif ($line =~ /(Ping \d+)$/) {
     # The server is pinging us to see if we're alive.  Return the ping and
     # wait again.  This lets the server know that we're just sitting here
     # and to refresh the timeout.  We chop off all but the last bit because
