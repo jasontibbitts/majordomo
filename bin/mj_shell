@@ -215,7 +215,7 @@ sub parse_command {
 	print "Editor failed: $?\n";
       }
       else {
-	if ((stat("$::TMPDIR/mjs.$$.AAA"))[9] != $modtime) {
+	if ((stat("$::WTMPDIR/mjs.$$.AAA"))[9] != $modtime) {
 	  # Switch, open, restore
 	  $tmpu = $>; $> = $<; $tmpg = $); $) = $(;
 	  $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA";
