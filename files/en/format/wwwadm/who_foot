@@ -7,7 +7,7 @@
 <a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?PREVIOUS&chunksize=$CHUNKSIZE">Previous $CHUNKSIZE Addresses</a><br>
 <a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?NEXT&chunksize=$CHUNKSIZE">Next $CHUNKSIZE Addresses</a>
 
-<h4 align=center>search the subscriber list</h4>
+<h4 align=center>Search the Subscriber List</h4>
 
 <form method=POST action="$CGIURL">
   <input name=list type=hidden value="$LIST">
@@ -31,7 +31,7 @@ Number of addresses to show:
   <input type=submit value="search">
 </form>
 
-<h4 align=center>add or remove subscribers</h4>
+<h4 align=center>Add or Remove Subscribers</h4>
 
 <form method=POST action="$CGIURL">
   <input name=list type=hidden value="$LIST">
