@@ -1,5 +1,14 @@
         Notes on upgrading from previous versions of Majordomo 2
 
+2001.09.20 (CVS):
+
+The attachment_rules configuration setting has been split into two 
+settings.  The attachment rules setting will continue to support rules
+that affect whether the message is accepted, held for moderation, or
+denied entirely.  If you wish to continue using rules that change 
+the contents of a message, you must change the attachment_filters setting 
+for each applicable list.
+
 2001.09.18 (CVS):
 
 A "msgid" field has been included in the archive databases to support

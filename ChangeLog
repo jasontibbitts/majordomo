@@ -1,3 +1,14 @@
+2001-09-20  Michael Yount <csf@moscow.com>
+
+	* lib/mj_cf_defs.pl, lib/mj_cf_data.pl:  add support for
+	the attachment_filters configuration setting.
+
+	* lib/Mj/Config.pm:  (parse_attachment_filters)  New routine.
+	Parse the attachment_filters configuration setting.
+
+	* lib/Mj/Resend.pm:  (_post)  Use the attachment_filters
+	setting to determine how messages should be altered.
+
 2001-09-19  Michael Yount <csf@moscow.com>
 
 	* bin/mj_shell:  Bugfix:  use str_to_offset to determine
@@ -9,7 +20,7 @@
 	* lib/mj_cf_data.pl:  support the "quarterly" option for
 	the archive_split setting.
 
-	* lib/Mj/Access.pl:  (list_access_check)  Remove unneeded 
+	* lib/Mj/Access.pm:  (list_access_check)  Remove unneeded 
 	support for the check_main condition.
 	(_a_delay)  Use Mj::Util::str_to_offset() to determine a
 	delay.
