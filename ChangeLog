@@ -1,3 +1,9 @@
+2005-03-06  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Resend.pm:  (_r_strip_body)  Mark the body as changed
+	when a multipart message is condensed to a single part.
+	Thanks to Richard Birkett.
+
 2005-02-26  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (dispatch)  Account for the possibility

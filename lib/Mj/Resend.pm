@@ -1777,7 +1777,11 @@ sub _r_strip_body {
     for ($i = 0; $i < @newparts; $i++) {
       push @changes, $self->_r_strip_body($list, $newparts[$i], $code, $level);
     }
-    $ent->make_singlepart if (@newparts <= 1);
+    if (@newparts <= 1) {
+      if ($ent->make_singlepart eq "DONE") {
+        $self->{'body_changed'} = 1;
+      }
+    }
   }
   elsif ($level == 1) {
     # single-part messages cannot have parts discarded, but the 
