@@ -22,30 +22,33 @@ ENDTAG
 
 $INCLUDE-config/admin_body
 
-NOTE 1: The information below applies to "taboo_body" also, just
-substitute the string "taboo_" wherever you see "admin_" below.
+The following information also applies to the "taboo_body" setting; 
+just substitute the prefix "taboo_" wherever you see "admin_".
 
-NOTE 2: The syntax below applies to "admin_headers" and "taboo_headers"
-also, but the "nn" option (and its comma) is not present for headers.
+The following information also applies to the "admin_headers" and
+"taboo_headers" settings, but the "nn" line number limit is not
+supported for these settings.
 
-The "admin_body" command causes the body of each message sent to a list to
-be searched for patterns that the list owner wants to require or disallow,
-and increments the value of a variable when one of the lines matches.
-All of the patterns specified by this command are tested for every
-message, and multiple matches increment (or decrement) the appropriate
-variable. During processing of a post, various variables can be
-tested by access_rules to determine how to handle the post. A default
-message can be sent, or the variables can be tested in order to select
-a very informative message as mentioned below and also explained fully
-in "help configset access_rules".
+For every message that is posted to a mailing list, the message is
+compared to both the list's admin_body patterns and the GLOBAL
+admin_body patterns.  All of the patterns are used for comparisons,
+regardless of the number of matches.
 
-WARNING: The admin_body command can be applied to the GLOBAL pseudo-list
-or an actual list. The variable match name will be different in these
-cases. GLOBAL matches will always be attempted even if per-list commands
-exist, so there can be speed issues if you double-specify patterns. You
-probably need a different password for GLOBAL and per-list settings.
+When a match is found, the value of an access variable corresponding to
+that match is changed.  By default, the name of the access variable
+is the same as the name of the configuration setting.  For example,
+a match against a pattern in the list's "admin_body" setting would
+increase the value of the "admin_body" access variable.  See
+"help configset_access_rules" and "help access_variables" for an
+explanation of how to use access variables.
 
--------------------------------------------------------------------------
+Access variable names for GLOBAL patterns have a "global_" prefix.  For
+example, when a message matches a pattern in the GLOBAL "admin_headers"
+setting, the value "global_admin_headers" access variable will be
+changed.
+
+
+                             Pattern Syntax
 
 Complete syntax of an admin_headers line:
    !pp ss,vv
@@ -80,143 +83,148 @@ An example may help explain the syntax:
   invert flag (immediately before pattern, if used)
 
 ! = invert flag:
-    if not used, success is when the pattern DOES match within "nn" lines
-      (e.g. the pattern is DISALLOWED in every message)
+    if not used, success is when the pattern does match within "nn" lines
+      (i.e. the pattern is disallowed in every message)
     if present,  success is when the pattern does NOT match in "nn" lines
-      (e.g. the pattern is REQUIRED in every message)
+      (i.e. the pattern is required in every message)
 
 pp = pattern: see "help patterns" for details
      a normal Majordomo pattern of the type indicated by the delimiters used
      ('/' Perl regexp with auto-escaped @, '%' csh/dos, '"' exact substring)
 
-nn = lines to match:
-     if used, only this many lines of the message will be searched for "pp"
+nn = number of lines to examine:
+     if used, only the first "nn" lines of the message will be compared.
       - '0' causes checking of entire message instead of just a few lines
       - negative values are nonsense and not allowed
       - defaults to '0' for taboo_body matches and '10' for admin_body
      if not used, you cannot specify a score or a variable match name
 
 ss = match severity/score:
-     if used, an integer (possibly negative) indicating the score to add
-      - the appropriate match variable is incremented or decremented
+     if used, a number (possibly negative) indicating the score to add
+     to the appropriate access variable when a match occurs
       - the total score of a message can be checked in access_rules
-      - default score is '10'
+      - the default score is '10'
      if not used, you cannot specify a variable match name
 
 vv = variable match name
-     the name of the match variable created for use in access_rules
+     the name of the access variable that is changed by a match
       - defaults to 'body'    for admin_body    and taboo_body
       - defaults to 'headers' for admin_headers and taboo_headers
-     upper case variable match names do not cause automatic bounces!
-     (e.g. you MUST use access_rules to take any action)
+      - the "admin_" or "taboo_" prefix will be added to it automatically.
+     Variable names with all capital letters will not cause a message
+     to be moderated by default when the variable has a nonzero score.
 
--------------------------------------------------------------------------
 
-When you use lower case variable match names, the default action when a
+
+                   What Happens When a Match is Found
+
+When you use lower case match variable names, the default action when a
 message matches an "admin_body" line is for the post to be sent to the list
-owner (as a "consult" request) with a somewhat cryptic message that shows
-the pattern which matched and the full text of the message. This will occur
+moderators for confirmation.  The confirmation message will show both the
+pattern that matched and the text that it matched.  This will occur
 if the sum of the scores is non-zero (positive or negative).
 
-By using upper case variable match names, you can bypass the default
-action so that a score is generated but no bounce occurs (the list owner
-is not "consult"ed) unless you trap the variable with "access_rules".
+If you use a "vv" variable name in all capitals, the score is kept for
+that pattern, but by default the message will not be moderated if the
+score is not zero.  You can then write access rules that make use of
+that access variable, if you wish.
 
 The final score for a variable is the sum of all the "ss" values for all
 of the "vv" variables which had matching rules. This gets a bit tricky,
 because lines are checked one at a time. You can have several rules match
 on the same line, but each rule can match only once per line. For example,
-if a message contains ONLY these two lines:
+if a message contains only these two lines:
   a b c
   c d d e f
 then the admin_body pattern "/a/" will match once and increment "vv" by
 the amount of "ss" just once. On the other hand, the pattern "/c/" will
 increment "vv" twice since it matches a portion of two lines. Finally,
-the pattern "/d/" will increment "vv" ONLY ONCE because it matches only
-ONE LINE, regardless of how often the pattern appears on that line. The
+the pattern "/d/" will increment "vv" only once because it matches only
+one line, regardless of how often the pattern appears on that line. The
 key is how many lines match the pattern, where the pattern is taken as
 a whole and the line is taken as a whole. The pattern "/[a-z] [a-z]/"
-will increment "vv" twice (once per line) as will the pattern "/(c|d)/".   
+will increment "ss" twice (once per line) as will the pattern "/(c|d)/".   
 
-
-With either upper or lower case variable match names, you can specify a
-"replyfile" option to "access_rules" and send a very precise message back
-to the poster whenever a match occurs. Depending on whether you specified
-"admin_body" for the GLOBAL pseudo-list or an actual list, Majordomo will
-make numeric variables available to access_rules using these names:
-   \$global_admin_VV
-   \$global_taboo_VV
-   \$admin_VV
-   \$taboo_VV
-where the "VV" portion of each variable name is replaced by the string you
-specified as the variable match name "vv". Below is an example.
-
-If you do not specify "vv" in any of your commands, but you do specify all
-four possible variations (admin_body, taboo_body, admin_headers, taboo_headers)
-for some lists and for GLOBAL, then "access_rules" will only be able to test
-these eight always-defined variables:
+The following access variables will always be defined:
    \$global_admin_body
-   \$global_taboo_body
-   \$admin_body
-   \$taboo_body
    \$global_admin_headers
+   \$global_taboo_body
    \$global_taboo_headers
+   \$admin_body
    \$admin_headers
+   \$taboo_body
    \$taboo_headers
+   \$admin
+   \$taboo
 
-It is possible to specify "vv" of "body" or "headers", and then use the
-always-defined variables in access_rules. This means you can actually
-test the body but set admin_headers, etc. (It works, but it's poor form
-because it's not self-documenting.)
+The values of the first four variables are determined by the patterns in
+the admin_body and related configuration settings for the GLOBAL
+pseudo-list.  The values of the next four variables are determined by an
+individual mailing list's settings.  The "admin" value is equal to the
+sum of the other four "admin" variables, plus the scores of any other
+customized "admin" variables whose names are not all capital letters.
+Similarly, the "taboo" value is the sum of all "taboo" variables
+excepting those whose names are all capitals.
 
-If, on the other hand, you have
-   configset listname admin_body <<ENDADMINBODY
-   /subscribe/i
-   /(nasty|dirty)/ 10,2,naughty
-   /ugly/ 0,3,naughty
-   ENDADMINBODY
-then in addition to the variables above you would also be able to test
-   \$admin_naughty
-Below are some sample values...
 
-In the example above, a message which contains the word "subscribe"
-anywhere in the body, but none of "nasty", "dirty", or "ugly" will have
-   \$admin_body == 10
-   \$admin_naughty == 0
-(note that if the word "subscribe" is used several times, ON SEPARATE
-LINES, the \$admin_body score may be 20, 30, 40 ... it increments on
-each line which matches, but not on extra matches within a line)
+                                Examples
 
-If the same message contains EITHER the word "nasty" OR the word
-"dirty" before the 10th line will have
-   \$admin_body == 10
-   \$admin_naughty == 2
+Assume in the following examples that your mailing list has the
+following three "admin_body" patterns:
 
-If the same message contains BOTH the word "nasty" AND the word
-"dirty" before the 10th line will have
-   \$admin_body == 10
-   \$admin_naughty == 2
-because the "nasty" and "dirty" matches are part of the same rule.
-If you had TWO rules, "/dirty/ 10,2,naughty" and "/nasty/ 10,2,naughty"
-then the \$admin_naughty score would be 4 in this case. Putting several
-fields in a single pattern can not result in more than one match.
+  /subscribe/i
+  /(nasty|dirty)/ 10,2,naughty
+  /ugly/ 0,3,naughty
 
-If a message contains both "nasty" and "ugly" in the first 10 lines
-   \$admin_naughty == 5
-because "ugly" is part of another rule but uses the same variable.
+The first pattern does not have a special variable name, so each
+line that it matches would cause the "admin_body" access variable
+to increase by 10.
+
+The second pattern will cause the "admin_naughty" variable to increase
+by 2 for each line that it matches.  Only the first 10 lines of the message
+will be compared to this pattern.
+
+A message which contains the word "subscribe" anywhere in the body, but
+none of "nasty", "dirty", or "ugly" will have the following access
+variable values: 
+   \$admin_body = 10
+   \$admin_naughty = 0
+
+If the message contains the word "subscribe" and either the word 
+"nasty" or the word "dirty" on or before the 10th line, the following
+values will result:
+  \$admin_body = 10
+  \$admin_naughty = 2
+
+If the same message contains both the word "nasty" and the word
+"dirty" on the same  line, the access variable values will be
+  \$admin_body = 10
+  \$admin_naughty = 2
+because the "nasty" and "dirty" matches are part of the same pattern.
+If you had two rules instead, 
+  /dirty/ 10,2,naughty 
+  /nasty/ 10,2,naughty
+then the "admin_naughty" score would be 4 in this case.
+
+If a message contains both "nasty" and "ugly" once in the first 10
+lines, the access variable values would be 
+  \$admin_body = 0
+  \$admin_naughty = 5
+The "nasty" match adds 2 to the score, and the "ugly" match adds 3.
 
 If a message contains both "nasty" and "ugly" on line 20
    \$admin_naughty == 3
 because "ugly" is matched anywhere in the message but "nasty" is only
-matched in the first 10 lines (as defined by the "nn" field of the rule).
+matched in the first 10 lines.
 
-To repeat, the variables generated for use by access_rules are all numeric,
-containing a total score for all the message or header lines which matched
-or '0' if no lines matched. Eight variables are always defined, but will
-have zero values unless there are *_body or *_taboo rules that do not have
-a specified variable match name.
+To repeat, the access variables for pattern matches have numeric values,
+containing a total score for all the body or header lines which matched,
+or zero if no lines matched.  Eight variables are always defined, but
+will have zero values unless there are matching admin_body or
+admin_headers patterns that do not have a specified variable match name.
 
--------------------------------------------------------------------------
+
+                         Matching Encoded Data
 
 Using taboo_body or admin_body to look for the "begin" tag of uuencoded
 data may fail, if there is a content-type header, because may be is seen as
@@ -244,7 +252,7 @@ See Also:
    help admin_moderate
    help configset_access_rules
    help configset_admin_headers
-   help configset_block_headers (for how to block server commands)
+   help configset_block_headers
    help configset_noarchive_body
    help configset_noarchive_headers
    help configset_taboo_body
