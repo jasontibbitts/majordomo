@@ -656,10 +656,12 @@ sub list_access_check {
       }
     }
     $current = [];
-    for ($i = 0; $i < scalar @{$access->{'check_time'}}; $i++) {
-      for ($j = 0; $j < scalar @{$access->{'check_time'}[$i]}; $j++) {
-        $current->[$i][$j] = 
-          Mj::Digest::in_clock($access->{'check_time'}[$i][$j]);
+    if (exists $access->{'check_time'}) {
+      for ($i = 0; $i < scalar @{$access->{'check_time'}}; $i++) {
+        for ($j = 0; $j < scalar @{$access->{'check_time'}[$i]}; $j++) {
+          $current->[$i][$j] = 
+            Mj::Digest::in_clock($access->{'check_time'}[$i][$j]);
+        }
       }
     }
 
