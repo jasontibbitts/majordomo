@@ -230,7 +230,7 @@ sub handle_bounce_token {
   for $i (keys %{$args{data}}) {
     last if $args{'type'} eq 'D';
     if ($args{data}{$i}{status} eq 'failure') {
-      $self->t_remove($args{token});
+      $self->t_reject($args{token});
       last;
     }
   }
@@ -288,8 +288,8 @@ sub handle_bounce_user {
   my %params = @_; # Can't use %args, because the access code uses it.
   my $log  = new Log::In 35;
 
-  my (%args, %memberof, @final_actions, $bdata, $i, $mess, $rules, $sdata,
-      $status, $tmp, $tmpa, $tmpl);
+  my (%args, %memberof, @final_actions, $arg, $bdata, $func, $i, 
+      $mess, $rules, $sdata, $status, $tmp, $tmpa, $tmpl);
 
   my $user   = $params{user};
   my $list   = $params{list};
@@ -434,6 +434,7 @@ sub handle_bounce_removal {
   my $self = shift;
   my %args = @_;
   my ($time) = $::log->elapsed;
+  my ($mess, $ok);
 
   if (!$args{subbed}) {
     return "  Cannot remove addresses which are not subscribed.\n";
