@@ -86,6 +86,7 @@ sub accept {
             };
 
     for $tmp (keys %$data) {
+      next if (ref $data->{$tmp} eq 'HASH');
       if ($tmp eq 'user') {
         $subs->{'REQUESTER'} = &escape($data->{'user'}, $type);
       }
@@ -232,6 +233,7 @@ sub archive {
     for $i (@msgs) {
       ($mess, $data) = @$i;
       for $j (keys %$data) {
+        next if (ref $data->{$j} eq 'HASH');
         $subs->{uc $j} = &escape($data->{$j}, $type);
       }
       $subs->{'FILE'} = $mess;
@@ -332,6 +334,7 @@ sub archive {
       $data->{'from'} ||= "(Unknown Author)";
       # Include all archive data in the substitutions.
       for $j (keys %$data) {
+        next if (ref $data->{$j} eq 'HASH');
         $subs->{uc $j} = &escape($data->{$j}, $type);
       }
 
@@ -481,6 +484,7 @@ sub _archive_part {
     }
  
     for $j (keys %$data) {
+      next if (ref $data->{$j} eq 'HASH');
       $subs->{uc $j} = &escape($data->{$j}, $type);
     }
 
@@ -910,6 +914,7 @@ sub createlist {
   }
 
   for $j (keys %$mess) {
+    next if (ref $mess->{$j} eq 'HASH');
     $subs->{uc $j} = &escape($mess->{$j}, $type);
   }
 
@@ -1424,6 +1429,7 @@ sub reject {
             };
 
     for $tmp (keys %$data) {
+      next if (ref $data->{$tmp} eq 'HASH');
       if ($tmp eq 'user') {
         $subs->{'REQUESTER'} = &escape($data->{'user'}, $type);
       }
@@ -1764,6 +1770,7 @@ sub set {
       }
 
       for $j (keys %$change) {
+        next if (ref $change->{$j} eq 'HASH');
         next if ($j eq 'partial' or $j eq 'settings');
         $lsubs->{uc $j} = &escape($change->{$j}, $type);
       }
@@ -1931,6 +1938,7 @@ sub show {
   $subs = { %$gsubs };
 
   for $i (keys %$data) {
+    next if (ref $data->{$i} eq 'HASH');
     next if ($i eq 'lists' or $i eq 'regdata');
     $subs->{uc $i} = &escape($data->{$i}, $type);
   }
@@ -1949,6 +1957,7 @@ sub show {
     return 1;
   }
   for $i (keys %{$data->{'regdata'}}) {
+    next if (ref $data->{'regdata'}{$i} eq 'HASH');
     $subs->{uc $i} = &escape($data->{'regdata'}{$i}, $type);
   }
 
@@ -1980,6 +1989,7 @@ sub show {
     #   changetime class classarg classarg2 classdesc flags flagdesc
     #   fulladdr subtime
     for $j (keys %{$data->{'lists'}{$i}}) {
+      next if (ref $data->{'lists'}{$i}{$j} eq 'HASH');
       next if ($j eq 'bouncedata' or $j eq 'settings');
       $lsubs->{uc $j} = &escape($data->{'lists'}{$i}{$j}, $type);
     }
@@ -2756,6 +2766,7 @@ sub who {
 
       #----- Flexible formatting for who-bounce and who-enhanced -----#
       for $j (keys %$i) {
+        next if (ref $i->{$j} eq 'HASH');
         if ($request->{'mode'} =~ /enhanced/) {
           $subs->{uc $j} = &escape($i->{$j}, $type);
         }
