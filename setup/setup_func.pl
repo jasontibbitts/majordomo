@@ -5,6 +5,7 @@ use vars(qw($config $lang $quiet $verb));
 
 # Create the necessary directories for an entire installation.
 use File::Basename;
+use File::Copy qw(mv);
 sub create_dirs {
   my $l    = shift;
   my $uid  = shift;
@@ -384,8 +385,8 @@ sub mta_setup {
   &{"setup_$config->{mta}"}($config);
 
   $df = "$config->{lists_dir}/ALIASES/mj-domains";
-  open (DOMAINS, "> $df") 
-    or die "Cannot open $df: $!";
+  open (DOMAINS, "> $df.$$") 
+    or die "Cannot open $df.$$: $!";
 
   $nhead = 0;
   for $i (@_) {
@@ -394,6 +395,9 @@ sub mta_setup {
     $nhead = 1;
   }
   close DOMAINS;
+
+  mv ("$df.$$", $df) 
+    or die "Cannot replace $df: $!";
 
   $uid = getpwnam($config->{'uid'});
   $gid = getgrnam($config->{'gid'});
