@@ -2510,14 +2510,15 @@ sub _exclude {
   $nonmembers = {};
 
   # The user doesn't get a copy if they don't have 'selfcopy' set.
-  $exclude->{$user->canon} = $user->full
-    if $user->isvalid && 
-       !$self->{'lists'}{$list}->flag_set('selfcopy', $user, $sublist);
-  if ($self->{'lists'}{$list}->is_subscriber($user)) {
-    $members->{$user->canon} = $user->full;
-  }
-  else {
-    $nonmembers->{$user->canon} = $user->full;
+  if ($user->isvalid) {
+    $exclude->{$user->canon} = $user->full
+      unless ($self->{'lists'}{$list}->flag_set('selfcopy', $user, $sublist));
+    if ($self->{'lists'}{$list}->is_subscriber($user)) {
+      $members->{$user->canon} = $user->full;
+    }
+    else {
+      $nonmembers->{$user->canon} = $user->full;
+    }
   }
 
   # Extract recipient addresses from headers
