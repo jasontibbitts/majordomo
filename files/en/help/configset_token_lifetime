@@ -22,8 +22,9 @@ See Also:
    help configset dup_lifetime
    help configset latchkey_lifetime
    help configset log_lifetime
+   help configset post_limits
    help configset session_lifetime
-   help configset token_lifetime
+   help configset triggers
 
 For a list of all help topics send this one-line message
    help topics

@@ -22,19 +22,14 @@ the databases.  Each trigger consists of a name and a set of times
 during which the trigger is issued.  The data are separated by
 vertical bars ('|') or colons, as in:
   session  | monday(6,12,18), thursday(8)
-The five trigger names (bounce, checksum, log, session, token) and
-full syntax is described in "help configset triggers".
-
-There are five trigger names:
+The six trigger names (bounce, checksum, log, post, session, token)
+and full syntax are described in "help configset triggers".
 
 bounce   - Expire subscriber data, such as bounces and vacation settings.
-
 checksum - Expire posted message checksums and message-id data.
-
 log      - Expire entries from the main log.
-
+post     - Expire data from the "post_limits" database.
 session  - Expire old session data.
-
 token    - Issue reminders and remove expired tokens and temporary passwords.
 
 The times follow the same syntax as the "times" portion of the digests
@@ -66,8 +61,13 @@ the "daily" trigger, regardless of the values of this setting.
 
 
 See Also:
-   help post_limits
    help configset access_rules
+   help configset dup_lifetime
+   help configset latchkey_lifetime
+   help configset log_lifetime
+   help configset post_limits
+   help configset session_lifetime
+   help configset token_lifetime
 
 For a list of all help topics send this one-line message
    help topics
