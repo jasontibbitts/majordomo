@@ -231,6 +231,7 @@ sub post {
   # extensive information about the message here so we can do some more.
   $subs = {
            $self->standard_subs($list),
+           CMDLINE  => "(post to $list)",
            DATE     => scalar localtime,
 	   HEADERS  => $ent->head->stringify,
 	   SUBJECT  => $subject,
@@ -369,8 +370,9 @@ sub _add_headers {
 
   # Add the Date header
   @now = gmtime;
-  $day = (Sun,Mon,Tue,Wed,Thu,Fri,Sat)[$now[6]];
-  $month = (Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec)[$now[4]];
+  $day = ('Sun','Mon','Tue','Wed','Thu','Fri','Sat')[$now[6]];
+  $month = ('Jan','Feb','Mar','Apr','May','Jun',
+            'Jul','Aug','Sep','Oct','Nov','Dec')[$now[4]];
   $tmp = sprintf "%s, %2d %s %d %.2d:%.2d:%.2d -0000", $day, $now[3], 
                  $month, $now[5] + 1900, $now[2], $now[1], $now[0];
   $head->add('Date', $tmp);
@@ -764,14 +766,14 @@ sub _post {
       $nent = build MIME::Entity
 	(
 	 Path        => $ackfile,
-	 Type        => $ackinfo->{'c-type'},
-	 Encoding    => $ackinfo->{'c-t-encoding'},
-	 Charset     => $ackinfo->{'charset'},
+	 Type        => $ackinfo{'c-type'},
+	 Encoding    => $ackinfo{'c-t-encoding'},
+	 Charset     => $ackinfo{'charset'},
 	 Filename    => undef,
 	 -From       => $sender,
 	 -To         => "$user", # Note stringification
 	 -Subject    => $desc,
-	 'Content-Language:' => $ackinfo->{'language'},
+	 'Content-Language:' => $ackinfo{'language'},
 	);
 
       if ($nent) {
@@ -889,7 +891,7 @@ sub _check_approval {
   }
 
   if ($token) {
-    $token = undef unless $self->t_remove($token);
+    $token = undef unless $self->t_reject($token);
   }
 
   return (1, $passwd, $token);
@@ -912,6 +914,7 @@ sub _check_poster {
   my $reasons = shift;
   my $avars   = shift;
   my $log     = new Log::In 40, "$user";
+  my ($i, $mess, $ok, $rules);
 
   # Grab the list data
   my $data = $self->{'lists'}{$list}->is_subscriber($user);
@@ -927,6 +930,9 @@ sub _check_poster {
 
   # Extract flags
   $avars->{post_block} = $self->{lists}{$list}->flag_set('postblock', $user);
+  if ($avars->{post_block}) {
+    push @$reasons, "The postblock flag is set for $user."; # XLANG
+  }
 
   $avars->{limit} = 0;
   $avars->{limit_soft} = 0;
@@ -967,7 +973,7 @@ and 0 for no limit.
 use Mj::Util 'time_to_str';
 sub _within_limits {
   my ($self, $list, $data, $soft, $hard) = @_;
-  my ($cond, $count, $seqno, $time);
+  my ($cond, $count, $msg, $seqno, $time);
   return unless (ref $soft eq 'ARRAY' and ref $hard eq 'ARRAY');
 
   $seqno = $self->_list_config_get($list, 'sequence_number');
@@ -1848,8 +1854,8 @@ removed.
 use Mj::Util qw(re_match);
 sub _munge_subject {
   my ($self, $ent1, $list, $seqno) = @_;
-  my ($ent2, $gprefix, $head1, $head2, $prefix, $re_mods, $re_regexp,
-      $re_strip, $rest, $subject1, $subject2, $subs);
+  my ($ent2, $gprefix, $head1, $head2, $prefix, $re_mods, $re_part,
+      $re_regexp, $re_strip, $rest, $subject1, $subject2, $subs);
 
   $ent2  = $ent1->dup;
   $head1 = $ent1->head;
