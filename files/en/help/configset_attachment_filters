@@ -131,6 +131,13 @@ The reformatted text will be left-justified, regardless of its original
 placement.
 
 
+Effect upon the archives
+------------------------
+The attachment_filters setting also filters the copy of each new message
+that is stored in the list's archive.  Otherwise, recipients of each
+message and recipients of MIME digests would receive different content.
+
+
 Avoiding the filters
 --------------------
 If a moderated message is approved by the moderators with the
