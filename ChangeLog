@@ -1,3 +1,8 @@
+2001-06-05  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* bin/mj_shell: Don't rely on $ENV{LOGNAME}; use getpwuid($<)
+        instead.
+
 2001-06-05  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Config.pm:  Do not parse the config_array data.

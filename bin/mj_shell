@@ -184,10 +184,13 @@ unless (ref $::mj) {
 
 my $mj = $::mj;
 my $host = hostfqdn;
-my $user = $opts{'u'} || "$ENV{LOGNAME}\@$host";
+my $logname = getpwuid($<);
+my $user = $opts{'u'} || "$logname\@$host";
 $user =~ /(.*)/; $user = $1;
 
-($id, $mess) = $mj->connect('shell', "\$LOGNAME  = $ENV{LOGNAME}
+($id, $mess) = $mj->connect('shell', "logname   = $logname
+host      = $host
+user      = $user
 \$SHELL    = $ENV{SHELL}
 \$HOME     = $ENV{HOME}
 ",
