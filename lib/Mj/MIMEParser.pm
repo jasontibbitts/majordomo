@@ -39,7 +39,7 @@ __END__
 
 Return information about a MIME entity:
 
-body_lines quoted date from subject refs;
+body_lines quoted date from subject refs hidden;
 
 =cut
 use Date::Parse;
@@ -51,6 +51,7 @@ sub collect_data {
                  'body_lines'  => 0,
                  'date'        => time,
                  'from'        => '',
+                 'hidden'      => 0,
                  'quoted'      => 0,
                  'refs'        => '',
                  'subject'     => '',
@@ -73,6 +74,20 @@ sub collect_data {
  
   $data->{'subject'} = $head->get('subject') || ''; 
   chomp $data->{'subject'};
+
+  # Look for "X-no-archive: yes" or "Restrict: no-external-archive"
+  # header to indicate that a  message should be considered hidden.
+  $tmp = $head->get('x-no-archive');
+  if (defined($tmp) and $tmp =~ /\byes\b/i) {
+    $data->{'hidden'} = 1;
+  }
+  else {
+    $tmp = $head->get('restrict');
+    if (defined($tmp) and $tmp =~ /\bno-external-archive\b/i) {
+      $data->{'hidden'} = 1;
+    }
+  }
+    
 
   # Convert the message date into a time value.
   # Use the earliest Received header, or the Date header.
