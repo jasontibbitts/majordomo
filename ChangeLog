@@ -1,3 +1,10 @@
+2002-11-14  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Token.pm:  (get_moderator_alias)  Determine the
+	mail address at which a group of moderators can be contacted.
+	(confirm)  Use the moderators' address in the To header of
+	CONSULT messages.  Suggested by SRE.
+
 2002-11-12  Michael Yount <csf@moscow.com>
 
 	* bin/mj_enqueue:  Untaint alias-dependent information to

@@ -403,7 +403,8 @@ sub confirm {
       else {
         @recip = ([@tmp]);
       }
-      $recip = $owner;
+      $recip = $self->get_moderator_alias($args{'list'}, $dest->{'group'});
+      $recip ||= $owner;
     }
 
     $repl->{'APPROVALS'} = $dest->{'approvals'};
@@ -547,6 +548,42 @@ sub get_moderators {
   }
 }
 
+=head2 get_moderator_alias(list, group)
+
+This method returns the mail address at which a group of moderators
+should be contacted.  If the group does not have an address, the
+-moderator or -owner address is returned.
+
+=cut
+sub get_moderator_alias {
+  my $self  = shift;
+  my $list  = shift;
+  my $group = shift || 'moderators';
+
+  my ($aliases, $sublists, $whereami);
+
+  return unless ($self->_make_list($list));
+
+  $whereami = $self->_global_config_get('whereami');
+  $aliases = $self->_list_config_get($list, 'aliases');
+  return unless (scalar keys %$aliases);
+
+  # If the group name corresponds to a sublist with an alias,
+  # return that alias.
+  if (exists $aliases->{'auxiliary'}) {
+    $sublists = $self->_list_config_get($list, 'sublists');
+    if (exists $sublists->{lc $group}) {
+      return "$list-$group\@$whereami";
+    }
+  }
+  
+  if (exists $aliases->{'moderator'}) {
+    return "$list-moderator\@$whereami";
+  }
+
+  return $self->_list_config_get($list, 'whoami_owner');
+}
+    
 =head2 t_accept(token)
 
 This accepts a token.  It verifies that the token exists and if so
