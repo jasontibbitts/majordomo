@@ -2795,6 +2795,13 @@ sub auxadd {
   my (@out, $addr, $ok, $mess);
 
   $self->_make_list($request->{'list'});
+
+  return (0, "Illegal sublist name \"$request->{'sublist'}\".")
+    unless $self->legal_list_name($request->{'sublist'});
+
+  $request->{'sublist'} =~ /(.*)/;  
+  $request->{'sublist'} = $1;  
+
   ($ok, $mess) =
     $self->list_access_check($request->{'password'}, $request->{'auth'}, 
                              $request->{'interface'}, $request->{'mode'}, 
@@ -2840,9 +2847,16 @@ sub auxremove {
 
   $self->_make_list($request->{'list'});
 
+  return (0, "Illegal sublist name \"$request->{'sublist'}\".")
+    unless $self->legal_list_name($request->{'sublist'});
+
+  $request->{'sublist'} =~ /(.*)/;  
+  $request->{'sublist'} = $1;  
+
   if ($request->{'mode'} =~ /regex/) {
-    ($ok, $error, $addr) = Mj::Config::compile_pattern($addr, 0);
-    return ($ok, $error, $request->{'victim'}) unless $ok;
+    ($ok, $error, $request->{'victim'}) 
+      = Mj::Config::compile_pattern($request->{'victim'}, 0);
+    return ($ok, $error) unless $ok;
   }
 
   ($ok, $error) =
@@ -2852,7 +2866,7 @@ sub auxremove {
                              $request->{'sublist'} ,'','');
   unless ($ok > 0) {
     $log->message(30, "info", "$addr: noaccess");
-    return ($ok, $error, $addr);
+    return ($ok, $error);
   }
   
   $self->_auxremove($request->{'list'}, $request->{'user'}, 
@@ -2871,13 +2885,13 @@ sub _auxremove {
 
   unless (@removed) {
     $log->out("failed, nomatching");
-    return (0, "No matching addresses.\n");
+    return (0, "Cannot remove $vict:  no matching addresses.");
   }
 
   while (($key, $data) = splice(@removed, 0, 2)) {
     push (@out, $data->{'stripaddr'});
   }
-  (1, @out);
+  (1, [@out]);
 }
 
 
@@ -2909,6 +2923,9 @@ sub auxwho_start {
   return (0, "Unknown sublist name \"$request->{'sublist'}\".")
     unless exists 
       ($self->{'lists'}{$request->{'list'}}->{'auxlists'}{$request->{'sublist'}});
+
+  $request->{'sublist'} =~ /(.*)/;  
+  $request->{'sublist'} = $1;  
 
   $self->{'lists'}{$request->{'list'}}->aux_get_start($request->{'sublist'});
 }
@@ -4311,7 +4328,7 @@ sub _unregister {
 
   unless (@removed) {
     $log->out("failed, nomatching");
-    return (0, "No matching addresses.\n");
+    return (0, "Cannot unregister $vict:  no matching addresses.");
   }
 
   while (($key, $data) = splice(@removed, 0, 2)) {
@@ -4329,7 +4346,7 @@ sub _unregister {
     push (@out, $data->{'fulladdr'});
   }
 
-  return (1, \@out);
+  return (1, [@out]);
 }
 
 =head2 unsubscribe(..., mode, list, address)
@@ -4398,7 +4415,7 @@ sub _unsubscribe {
 
   unless (@removed) {
     $log->out("failed, nomatching");
-    return (0, "No matching addresses.\n");
+    return (0, "Cannot unsubscribe $vict: no matching addresses.");
   }
 
   while (($key, $data) = splice(@removed, 0, 2)) {
@@ -4410,7 +4427,7 @@ sub _unsubscribe {
     push (@out, $data->{'fulladdr'});
   }
 
-  return (1, \@out);
+  return (1, [@out]);
 }
 
 =head2 which(..., string)
