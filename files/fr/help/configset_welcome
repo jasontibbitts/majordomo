@@ -1,0 +1,35 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  welcome = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+configset liste welcome = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : yes
+Type de donnée    : booléen, entre : 0 n no, 1 y yes
+Catégorie         : reply
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset GLOBAL welcome = 1
+
+INCLUDE-config/welcome
+
+Dans les deux cas, le paramètre de configuration "welcome_files"
+détermine quels documents sont affichés dans le message de bienvenue.
+
+Il est possible de passer outre la valeur de ce paramètre en ligne de
+commande. Si ce paramètre est désactivé, les commandes
+"register-welcome" ou "subscribe-welcome" enverront quand même le
+message de bienvenue. Si ce paramètre est activé, les commandes
+"register-nowelcome" ou "subscribe-nowelcome" empêcheront le message
+de bienvenue d'être envoyé.
+
+
+Référez vous aussi à :
+  help admin_documents
+  help configset_welcome_files
+  help register
+  help reply_files
+  help subscribe
+
+INCLUDE-help/foot

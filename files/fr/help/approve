@@ -1,0 +1,39 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+approve mot-de-passe commande-options [arguments]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+mot-de-passe, requis, le mot de passe qui autorise la commande
+commande,     requis, la commande qui requiert un mot de passe
+options,      si spécifiées, contient une ou plusieurs options pour la
+              commande
+arguments,    si spécifiés, contient les arguments de la commande
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+La commande "approve" est utilisée pour spécifier un mot de passe à
+utiliser pour une unique commande Majordomo. Le mot de passe peut être
+soit un mot de passe administratif, soit un mot de passe personnel. La
+commande pour laquelle le mot de passe est spécifié doit commencer sur
+la même ligne que la commande approve.
+
+EXEMPLE :
+   approve vespa unsubscribe liste-de-test bob@exemple.com
+
+Dans cet exemple, le mot de passe "vespa" est utilisé pour faire en
+sorte que la commande "unsubscribe" soit effectuée immédiatement.
+Habituellement, désabonner une personne sans utiliser de mot de passe
+entraînera l'envoi d'une demande de confirmation à l'adresse de la
+personne désabonnée ou aux administrateurs de la liste.
+
+La commande "default password" peut faciliter l'approbation de
+plusieurs commandes en une seule fois.
+
+Référez vous aussi à :
+   help admin_passwords (pour une explication sur les mots de passe
+                         administratifs)
+   help configset_access_password_override
+   help default  (qui permet de spécifier un mot de passe pour
+                  plusieurs commandes)
+   help password (pour une explication sur les mots de passe
+                  personnels)
+   help register
+
+$INCLUDE-help/foot

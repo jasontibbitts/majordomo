@@ -1,0 +1,35 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+show adresse
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+adresse, requise, est une adresse inscrite ou enregistrée sur ce site
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+La commande "show" fourni les informations suivantes :
+
+ - Si l'adresse est légale ou non
+ - Le nom de la boite, ainsi que le commentaire extraits de l'adresse
+ - Ce en quoi l'adresse se transforme, ainsi que les différentes
+   adresses équivalentes
+ - Les alias attachés à cette adresse
+ - Les listes auxquelles la personne est abonnée
+ - La date d'enregistrement de l'adresse
+ - La date de dernière modification de l'adresse
+ - Pour chaque liste à laquelle l'adresse est inscrite :
+      - Quelle adresse reçoit les messages
+      - La date d'abonnement à la liste
+      - Le mode de réception
+      - Les paramètres personnels
+      - La date de dernière modification
+
+La commande 'show' est exécutée si l'adresse faisant la demande et
+l'adresse demandée sont les mêmes. Dans le cas contraire, un ticket
+est généré et l'adresse demandée doit "accept"er la demande.
+
+Référez vous aussi à :
+   help access_variables
+   help commands
+   help configset_access_rules (pour restreindre l'utilisation de show)
+   help who   (pour tous les abonnés d'une liste)
+   help which (pour tous les abonnements d'une personne)
+
+$INCLUDE-help/foot

@@ -1,0 +1,36 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste save_denial_checksums = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : 0
+Type de donnée    : entier
+Catégorie         : moderate
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+  configset liste save_denial_checksums = 1
+
+
+$INCLUDE-config/save_denial_checksums
+
+Ce paramètre peut être utilisé pour corriger le problème suivante :
+Une personne envoie un message sur la liste, mais ce message est
+rejeté car la liste est configurée pour n'accepter que les messages de
+ses abonnés. La personne reçoit un message lui donnant les
+instructions pour devenir abonné. Une fois abonné, la personne envoie
+le message de nouveau, mais le message est rejeté car il est vu comme
+étant un message dupliqué. Mettez le paramètre
+"save_denial_checksums" à 0 pour éviter ce problème.
+
+Référez vous à "help configset_access_rules" pour de plus amples
+informations sur la manière de rejeter les messages postés.
+
+
+Référez vous aussi à :
+   help admin_moderate
+   help configset_access_rules
+   help configset_dup_lifetime (pour une explication sur les sommes de
+                                contrôle)
+   help configset_restrict_post
+
+$INCLUDE-help/foot

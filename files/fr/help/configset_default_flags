@@ -1,0 +1,39 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste default_flags <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : (prefix replyto selfcopy)
+Type de donnée    : énumérée, listes des paramètres personnels
+Catégorie         : reply deliver
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset liste default_flags <<LLL
+eliminatecc
+selfcopy
+LLL
+
+$INCLUDE-config/default_flags
+
+NOTE : Cela fournit les paramètres par défaut des nouveaux abonnés.
+Une fois abonné, la personne peut modifier ses paramètre pour chaque
+abonnement et pour chaque liste.
+
+Référez vous à "help set" pour plus d'informations, ainsi que sur les
+compilations et le mode de non réception de messages, et une meilleur
+description de ce que chaque option fait.
+
+
+Référez vous aussi à :
+   help configset_allowed_flags   (restreint les possibilités des
+                                   utilisateurs)
+   help configset_default_class   (contrôle le type de réception
+                                   'digest', 'each', etc)
+   help configset_nonmember_flags (règle les options par défaut des
+                                   non abonnés)
+   help set       (pour savoir comment un utilisateur peut règler ses
+                   options avec la commande "set")
+
+$INCLUDE-help/foot
