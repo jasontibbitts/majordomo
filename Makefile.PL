@@ -30,7 +30,7 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; $a=~s/\.p.$//; ("lib/$_" => "\$(INS
       Mj/Lock.pm Mj/Log.pm Mj/MailOut.pm Mj/MIMEParser.pm Mj/Parser.pm
       Mj/Resend.pm Mj/SimpleDB.pm Mj/SimpleDB/DB.pm Mj/SimpleDB/Text.pm
       Mj/SubscriberList.pm Mj/TextOutput.pm Mj/Token.pm Mj/TokenDB.pm
-      Bf/Sender.pm mj_cf_data.pl mj_cf_defs.pl );
+      Bf/Parser.pm Bf/Sender.pm mj_cf_data.pl mj_cf_defs.pl );
 
 #### Prerequisite checking
 ($ok, %have) = check_prereq

@@ -240,7 +240,7 @@ sub connect {
   $user = new Mj::Addr($user);
   ($ok, $err) = $user->valid;
 
-  return (undef, $err) unless $ok;
+  return (undef, "Invalid address: $user\n$err") unless $ok;
 
   # Generate a session ID; hash the session, the time and the PID
   $id = MD5->hexhash($sess.scalar(localtime).$$);
@@ -4312,7 +4312,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.

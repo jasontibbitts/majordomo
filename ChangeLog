@@ -1,6 +1,16 @@
 2000-03-23  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
+	* lib/Bf/Parser.pm: New file; handle bounce parsing.
+
+	* lib/Mj/MailOut.pm (owner_done): Add skeleton code for bounce
+	processing.
+
+	* Makefile.PL: Add Bf/Parser.pm to module list.
+
 	* lib/Majordomo.pm: Bump version for snapshot.
+        Fix copyright typo.
+	(connect): Add better error message for failed connection due to
+	bad address.
 
 	* setup/mta_exim.pl (ask_exim): Set mta_umask as necessary to open
 	permissions just a bit.

@@ -162,26 +162,67 @@ sub owner_chunk {
   $self->{'owner_fh'}->print($data);
 }
 
+use Mj::MIMEParser;
+use Bf::Parser;
 sub owner_done {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list) = @_;
   $list ||= 'GLOBAL';
   my $log  = new Log::In 30, "$list";
-  my (@owners, $owner);
+  my (@owners, $baduser, $bounce, $ent, $fh, $mess, $nent, $parser,
+      $sender, $tmpdir);
 
   $self->{'owner_fh'}->close;
   $self->_make_list($list);
 
   # Extract the owners
-  $owner  = $self->_list_config_get('GLOBAL', 'sender');
+  $sender = $self->_list_config_get('GLOBAL', 'sender');
   @owners = @{$self->_list_config_get($list, 'owners')};
 
-  # Mail the file
-  $self->mail_message($owner, $self->{'owner_file'}, @owners);
+  $tmpdir = $self->_global_config_get("tmpdir");
+
+  $parser = new Mj::MIMEParser;
+  $parser->output_to_core($self->_global_config_get("max_in_core"));
+  $parser->output_dir($tmpdir);
+  $parser->output_prefix("mjo");
+
+  $fh = new IO::File "<$self->{owner_file}";
+  $ent = $parser->read($fh);
+  $fh->close;
+
+  ($bounce, $baduser, $mess) = Bf::Parser::parse($ent);
+
+  if ($bounce eq 'warning' || $bounce eq 'bounce') {
+    # Build a new message which includes the explanation from the bounce
+    # parser and attach the original message.
+    $nent = build MIME::Entity
+      (
+       Data     => [ "Majordomo detected a bounce message.\n",
+		     $mess,
+		     "The message is attached below.\n\n",
+		   ],
+       -Subject => "Bounce detected",
+       -To      => $sender,
+       -From    => $sender,
+      );
+    $nent->attach(Type        => 'message/rfc822',
+		  Description => 'Original message',
+		  Path        => $self->{owner_file},
+                  Filename    => undef,
+		 );
+    $self->mail_entity($sender, $nent, @owners);
+  }
+
+  else {
+    # Just mail out the file as if we never saw it
+    $self->mail_message($sender, $self->{'owner_file'}, @owners);
+  }
 
   unlink $self->{'owner_file'};
   undef $self->{'owner_fh'};
   undef $self->{'owner_file'};
+  $ent->purge;
+  $nent->purge if $nent;
   1;
 }
 
@@ -292,7 +333,7 @@ sub welcome {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997-2000 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
