@@ -1,1 +1,2 @@
-The name of the site that this Majordomo runs at.
+The site_name setting is one-line description of the domain or site
+at which Majordomo is running.
