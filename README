@@ -30,7 +30,7 @@ development state).  Please use only non-threaded builds for the time
 being.
 
 The following modules are required.  These may have prerequisites which
-have not been listed; please inform majordomo-workers (see below) of any
+have not been listed; please inform mj2-dev (see below) of any
 modules which you had to load but which are NOT listed below.
 
 1) CGI version 2.36
@@ -112,13 +112,13 @@ try to detect trouble during the installation process but it will not
 do anything to fix it.
 
 Note: if you have any input on this software, even if you have not
-tested it, please let majordomo-workers@greatcircle.com know.  All
+tested it, please let mj2-dev@csf.colorado.edu know.  All
 feedback is appreciated.
 
 
 Reporting bugs:
 
-Please report bugs to majordomo-workers@greatcircle.com and CC a copy to
+Please report bugs to mj2-dev@csf.colorado.edu and CC a copy to
 tibbs@math.uh.edu (just in case).  Please be sure to include information on
 what version of Majordomo2 you're running (including the time you checked
 it out of CVS if you did so), the version of Perl you're using and the OS
@@ -128,6 +128,10 @@ modules and the configuration options you chose.
 The old bug reporting system did not prove to be useful; Jitterbug is being
 evaluated for a new one but has not yet been set up.
 
+To participate in the Majordomo 2 developers' mailing list, write to 
+  majordomo@csf.colorado.edu
+and in the body of the message, put this command:
+  sub mj2-dev
 
 Similarities with 1.94.x:
 
