@@ -37,7 +37,12 @@ you configure an access_rule that acts on the same request as one of
 the shortcuts, THE SHORTCUT COMMAND IS IGNORED! See the bottom of this
 file for a list of these shortcuts (*_access and *_policy).
 
-The "access_rules" command can be set for individual lists as well as
+Note that restricting simplified file retrieval commands such as "faq"
+(which send files to the user) does not automatically prevent using
+"get" to retrieve the same files. You should establish separate access
+rules for all of these commands: get, info, intro, faq.
+
+The "access_rules" variable can be set for individual lists as well as
 for the GLOBAL pseudo-list. There are different requests that can be
 trapped by each one.  If a command takes a list, it is restricted by
 the list-specific access_rules. If it doesn't, the GLOBAL rules are used.

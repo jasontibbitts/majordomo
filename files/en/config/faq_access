@@ -1,3 +1,5 @@
 One of three values: open, list, closed.  Open allows anyone access to this
 command.  List allows only list members access, while closed completely
-disables the command for everyone.
+disables the command for everyone. FAQ files can be accessed either with
+'faq' or with 'get', depending on how your filesystem is configured, and
+faq_access does NOT restrict use of 'get'.

@@ -459,7 +459,21 @@ total_header_length_exceeded - is set if total_header_length exceeds the
 + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 
 See Also:
-   help configset access_rules
+   help access    (for the special case of granting/denying all access)
+   help post      (for the special case of restricting who can post msgs)
+   help variables (for a list of all possible variables and what they mean)
+   help configset access_rules           (to restrict access to any command)
+   help configset archive_access      (for     archive-related access_rules)
+   help configset faq_access          (for         faq-related access_rules)
+   help configset get_access          (for         get command access_rules)
+   help configset index_access        (for       index command access_rules)
+   help configset info_access         (for        info-related access_rules)
+   help configset intro_access        (for       intro-related access_rules)
+   help configset which_access        (for       which command access_rules)
+   help configset who_access          (for         who command access_rules)
+   help configset set_policy          (for         set command access_rules)
+   help configset subscribe_policy    (for   subscribe command access_rules)
+   help configset unsubscribe_policy  (for unsubscribe command access_rules)
 
 For a list of all help topics send this one-line message
    help topics

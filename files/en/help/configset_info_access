@@ -14,17 +14,25 @@ configset GLOBAL info_access = open
 
 
 One of three values: open, list, closed.  Open allows anyone access to this
-command.  List allows only list members access, while closed completely
-disables the command for everyone.  INFO files are accessed either with
-'info' or with 'get'.
+command.  List allows only list members to get "info" files associated with
+the named list or GLOBAL pseudo-list, while closed completely disables the
+"info" command for everyone. The "get" command can be used for files which
+are also available via "faq", "info", etc., depending on how your file
+system is configured, and get_access does NOT restrict use of those other
+ways to retrieve special files.
 
 This functionality of this variable is completely encapsulated within
 the access_rules mechanism, but it exists because it's simpler to use.
 
 
 See Also:
+   help access    (for the special case of granting/denying all access)
+   help index     (for a command that this policy does NOT regulate)
+   help info      (the command that this policy regulates)
+   help get       (for a command that this policy does NOT regulate)
+   help post      (for the special case of restricting who can post msgs)
    help configset access_rules           (to restrict access to any command)
-   help configset access_rules_variables (other things you can test)
+   help configset access_rules_variables (for requests, variables, defaults)
    help configset archive_access      (for     archive-related access_rules)
    help configset faq_access          (for         faq-related access_rules)
    help configset get_access          (for         get command access_rules)

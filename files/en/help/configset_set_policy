@@ -36,9 +36,11 @@ list password. This can be useful for "probation" periods, etc.
 
 
 See Also:
-   help set (for the command that this policy regulates)
+   help set (the command that this policy regulates)
+   help access    (for the special case of granting/denying all access)
+   help post      (for the special case of restricting who can post msgs)
    help configset access_rules           (to restrict access to any command)
-   help configset access_rules_variables (other things you can test)
+   help configset access_rules_variables (for requests, variables, defaults)
    help configset archive_access      (for     archive-related access_rules)
    help configset faq_access          (for         faq-related access_rules)
    help configset get_access          (for         get command access_rules)
