@@ -65,6 +65,7 @@ sub mail_message {
     'sender' => $sender,
     'file'   => $file,
     'host'   => 'localhost',
+    'personal' => 0,
     'addrs'  => \@a;
 
   unless ($env) {
@@ -166,6 +167,37 @@ sub deliver {
     $args{probe}   = 1;
     $args{regexp}  = $regexp;
   }
+
+  Mj::Deliver::deliver(%args);
+}
+
+=head2 probe
+
+Send a customized message to a group of people.
+
+=cut
+use Mj::Deliver;
+sub probe {
+  my $self    = shift;
+  my $list    = shift;
+  my $sender  = shift;
+  my $classes = shift;
+
+  return unless $self->_make_list($list);
+
+  %args =
+    (list    => $self->{'lists'}{$list},
+     sublist => '',
+     sender  => $sender,
+     classes => $classes,
+     rules   => $self->_list_config_get($list,'delivery_rules'),
+     chunk   => $self->_global_config_get('chunksize'),
+     sendsep => $self->_site_config_get('mta_separator'),
+     manip   => 1,
+     seqnum  => 0,
+     probe   => 1,
+     probeall => 1,
+    );
 
   Mj::Deliver::deliver(%args);
 }
