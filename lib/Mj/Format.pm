@@ -180,7 +180,7 @@ sub archive {
     for $i (@msgs) {
       ($mess, $data) = @$i;
       for $j (keys %$data) {
-        $subs->{uc $j} = $data->{$j};
+        $subs->{uc $j} = &escape($data->{$j}, $type);
       }
       $subs->{'FILE'} = $mess;
       $subs->{'SIZE'} = sprintf "%.1f", ($data->{'bytes'} / 1024);
@@ -280,7 +280,7 @@ sub archive {
       $data->{'from'} ||= "(Unknown Author)";
       # Include all archive data in the substitutions.
       for $j (keys %$data) {
-        $subs->{uc $j} = $data->{$j};
+        $subs->{uc $j} = &escape($data->{$j}, $type);
       }
 
       @tmp = localtime $data->{'date'};
@@ -644,22 +644,21 @@ sub configshow {
     return $ok;
   }
 
+  $gsubs->{'COMMENTS'} = ($request->{'mode'} !~ /nocomments/) ? '#' : '';
+  $subs = { %$gsubs };
+  $subs->{'COMMENT'} = '';
+
   if ($request->{'mode'} !~ /categories/) {
-    $subs = {};
-    $gsubs->{'COMMENTS'} = ($request->{'mode'} !~ /nocomments/) ? '#' : '';
-    $subs->{'COMMENTS'} = ($request->{'mode'} !~ /nocomments/) ? '#' : '';
     $tmp = $mj->format_get_string($type, 'configshow_head');
-    $str = $mj->substitute_vars_format($tmp, $gsubs);
-    print $out "$str\n";
+    $gen   = $mj->format_get_string($type, 'configshow');
   }
   else {
-    $subs = { %$gsubs };
-    $subs->{'CATEGORIES'} = [];
-    $subs->{'COUNT'} = [];
+    $tmp = $mj->format_get_string($type, 'configshow_categories_head');
+    $gen = $mj->format_get_string($type, 'configshow_categories');
   }
-  $subs->{'COMMENT'} = [];
+  $str = $mj->substitute_vars_format($tmp, $gsubs);
+  print $out "$str\n";
 
-  $gen   = $mj->format_get_string($type, 'configshow');
   $array = $mj->format_get_string($type, 'configshow_array');
   $bool  = $mj->format_get_string($type, 'configshow_bool');
   $enum  = $mj->format_get_string($type, 'configshow_enum');
@@ -679,9 +678,14 @@ sub configshow {
     }
 
     if ($request->{'mode'} =~ /categories/) {
-      push @{$subs->{'CATEGORIES'}}, $var;
-      push @{$subs->{'COUNT'}}, $val;
-      push @{$subs->{'COMMENT'}}, $mess;
+      $subs->{'CATEGORY'} = $var;
+      $subs->{'COMMENT'}  = $mess;
+      next unless ($subs->{'COUNT'} = scalar (@$val));
+      $subs->{'SETTING'}  = uc $var;
+      @possible = sort @$val;
+      $subs->{'SETTINGS'} = [ @possible ];
+      $str = $mj->substitute_vars_format($gen, $subs);
+      print $out &indicate("$str\n", $ok);
       next;
     }
       
@@ -821,13 +825,12 @@ sub configshow {
   }
 
   if ($request->{'mode'} =~ /categories/) {
-    $tmp = $mj->format_get_string($type, 'configshow_categories');
-    $str = $mj->substitute_vars_format($tmp, $subs);
+    $tmp = $mj->format_get_string($type, 'configshow_categories_foot');
   }
   else {
     $tmp = $mj->format_get_string($type, 'configshow_foot');
-    $str = $mj->substitute_vars_format($tmp, $gsubs);
   }
+  $str = $mj->substitute_vars_format($tmp, $gsubs);
   print $out "$str\n";
 
   1;
@@ -836,17 +839,47 @@ sub configshow {
 sub createlist {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29;
-
+  my ($i, $j, $str, $subs, $tmp);
   my ($ok, $mess) = @$result;
 
+  $subs = {
+           $mj->standard_subs('GLOBAL'),
+           'CGIDATA'     => &cgidata($mj, $request),
+           'CGIURL'      => $request->{'cgiurl'},
+           'CMDPASS'     => $request->{'password'},
+           'USER'        => &escape("$request->{'user'}", $type),
+          };
+
   unless ($ok > 0) {
-    eprint($out, $type, 
-           &indicate("The createlist command failed.\n", $ok));
-    eprint($out, $type, &indicate($mess, $ok));
+    $subs->{'ERROR'} = $mess;
+    $tmp = $mj->format_get_string($type, 'createlist_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate("$str\n", $ok, 1);
     return $ok;
   }
 
-  eprint($out, $type, "$mess") if $mess;
+  for $j (keys %$mess) {
+    $subs->{uc $j} = &escape($mess->{$j}, $type);
+  }
+
+  if ($request->{'mode'} =~ /destroy/) {
+    $tmp = $mj->format_get_string($type, 'createlist_destroy');
+  }
+  elsif ($request->{'mode'} =~ /nocreate/) {
+    $tmp = $mj->format_get_string($type, 'createlist_nocreate');
+  }
+  elsif ($request->{'mode'} =~ /regen/) {
+    $tmp = $mj->format_get_string($type, 'createlist_regen');
+  }
+  elsif ($request->{'mode'} =~ /rename/) {
+    $tmp = $mj->format_get_string($type, 'createlist_rename');
+  }
+  else {
+    $tmp = $mj->format_get_string($type, 'createlist');
+  }
+
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print $out &indicate("$str\n", $ok, 1);
 
   $ok;
 }
@@ -1853,7 +1886,7 @@ sub show {
     #   fulladdr subtime
     for $j (keys %{$data->{'lists'}{$i}}) {
       next if ($j eq 'bouncedata' or $j eq 'settings');
-      $lsubs->{uc $j} = $data->{'lists'}{$i}{$j};
+      $lsubs->{uc $j} = &escape($data->{'lists'}{$i}{$j}, $type);
     }
 
     $lsubs->{'CHANGETIME'} = scalar localtime($data->{'lists'}{$i}{'changetime'});
@@ -2619,7 +2652,7 @@ sub who {
       #----- Flexible formatting for who-bounce and who-enhanced -----#
       for $j (keys %$i) {
         if ($request->{'mode'} =~ /enhanced/) {
-          $subs->{uc $j} = $i->{$j};
+          $subs->{uc $j} = &escape($i->{$j}, $type);
         }
         else {
           $subs->{uc $j} = '';
