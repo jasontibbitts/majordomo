@@ -702,7 +702,8 @@ elsif ($commands{$func}->[2] eq 'showtokens') {
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
 
-  if ($cgi->param('command') eq 'on' and $func eq 'showtokens') {
+  $tmp = $cgi->param('command') || '';
+  if ($tmp eq 'on' and $func eq 'showtokens') {
     &command($mj, $subs, '');
   }
 }

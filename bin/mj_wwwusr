@@ -370,9 +370,9 @@ for $list (@lists) {
   }
   elsif ($func eq 'password') {
     $tmp = $cgi->param('newpasswd');
-    $tmp =~ s/\s+//g;
-    if (defined $tmp and length $tmp) {
-      Mj::Parser::parse_args ($request, $tmp, '');
+    if (defined $tmp and $tmp =~ /\S/) {
+      $tmp =~ s/\s+//g;
+      Mj::Parser::parse_args($request, $tmp, '');
     }
     else {
       unless (length $request->{'mode'}) {
