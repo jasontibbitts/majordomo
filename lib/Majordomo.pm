@@ -2800,6 +2800,7 @@ sub _announce {
   # Send the message.
   $self->probe($list, $sender, $classes);
   unlink $tmpfile;
+  unlink $mailfile;
   1;
 }
 
@@ -3281,10 +3282,11 @@ sub _createlist {
   my ($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list) = @_;
   $list ||= '';
   my $log = new Log::In 35, "$mode, $list";
-  my (%args, @lists, $aliases, $bdir, $dir, $dom, $debug, $mess, $mta, 
-      $mtaopts, $rmess, $sublists, $who);
+  my (%args, %data, @lists, $aliases, $bdir, $desc, $dir, $dom, $debug, $ent, 
+      $file, $mess, $mta, $mtaopts, $pw, $rmess, $sender, $subs, $sublists, $who);
 
   $owner = new Mj::Addr($owner);
+  $pw    = Mj::Access::_gen_pw;
   $mta   = $self->_site_config_get('mta');
   $dom   = $self->{'domain'};
   $bdir  = $self->_site_config_get('install_dir');
@@ -3362,15 +3364,56 @@ sub _createlist {
     # Now do some basic configuration
     $self->_make_list($list);
     $self->_list_config_set($list, 'owners', "$owner");
+    $self->_list_config_set($list, 'master_password', $pw); 
     $self->_list_config_unlock($list);
-    
-    # XXX mail the owner some useful information
+
+    unless ($list eq 'GLOBAL' or $list eq 'DEFAULT' or $mode =~ /noarchive/) {
+      $self->{'lists'}{$list}->fs_mkdir('public/archive', 'List archives');
+    }
+
+    unless ($mode =~ /nowelcome/) {
+      $sender = $self->_global_config_get('sender');
+
+      $subs = {
+       VERSION  => $Majordomo::VERSION,
+       WHEREAMI => $self->_global_config_get('whereami'),
+       WHOAMI   => $self->_list_config_get($list, 'whoami'),
+       OWNER    => $self->_list_config_get($list, 'whoami_owner'),
+       MJ       => $self->_global_config_get('whoami'),
+       MJOWNER  => $sender,
+       USER     => $owner->strip,
+       SITE     => $self->_global_config_get('site_name'),
+       LIST     => $list,
+       PASSWORD => $pw,
+      };
+   
+      ($file, %data) = $self->_list_file_get('GLOBAL', 'new_list', $subs);
+      $desc = $self->substitute_vars_string($data{'description'}, $subs); 
+
+      if ($file) { 
+        $ent = build MIME::Entity
+          (
+           Path     => $file,
+           Type     => $data{'c-type'},
+           Charset  => $data{'charset'},
+           Encoding => $data{'c-t-encoding'},
+           Subject  => $desc,
+           Top      => 1,
+           Filename => undef,
+           '-To'    => $owner->full,
+           'Content-Language:' => $data{'language'},
+          );
+
+        $self->mail_entity($sender, $ent, $owner) if $ent;
+        unlink $file;
+      }
+    }
   }
 
   {
     no strict 'refs';
     $mess = &{"Mj::MTAConfig::$mta"}(%args, 'list' => $list);
-    $mess ||= "$list was created with owner $owner.\n";
+    $mess ||= "$list was created with owner $owner and password $pw.\n";
   }
 
   return (1, $mess);

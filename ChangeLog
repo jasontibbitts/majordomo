@@ -1,3 +1,10 @@
+2000-08-06  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm (_createlist):  Create the archive
+	directory unless "noarchive" mode is specified.  Generate
+	a password randomly.  Send the "new_list" file to the 
+	owner unless "nowelcome" mode was specified.
+
 2000-08-05  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/List.pm (make_setting):  Allow nomail-return to
