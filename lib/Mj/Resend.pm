@@ -462,9 +462,9 @@ sub _post {
      @dup, @ent, @files, @refs, @tmp, @skip, $ack_attach, $ackfile,
      $arcdata, $arcdate, $arcent, $archead, $date, $desc, $digests,
      $dissues, $dup, $exclude, $from, $head, $hidden, $i, $j, $k, 
-     $members, $mess, $msgid, $msgnum, $nent, $nonmembers, $precedence, 
-     $prefix, $rand, $replyto, $sender, $seqno, $subject, $sl, $subs, 
-     $tmp, $tmpdir, $tprefix, $whereami);
+     $members, $mess, $msgid, $msgnum, $nent, $nonmembers, $parser,
+     $precedence, $prefix, $rand, $replyto, $sender, $seqno, $subject, 
+     $sl, $subs, $tmp, $tmpdir, $tprefix, $whereami);
 
   return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list);
@@ -485,6 +485,8 @@ sub _post {
     }
   }
   else { $sl = ''; }
+
+  $self->{'body_changed'} = 0;
 
   # Issue a warning if any of the avars data are tainted.
   for $i (keys %avars) {
@@ -517,7 +519,8 @@ sub _post {
     $ent[0] = $ent;
   }
   else {
-    if (!open SPOOL, "<$file") {
+    $k = gensym();
+    unless (open $k,  "<$file") {
       # The spool file, containing the message to be posted, is missing.
       # Inform the site owner, and return.
       $mess = $self->format_error('spool_file', $list);
@@ -525,11 +528,11 @@ sub _post {
                     $self->{'interface'}, 0, 0, -1, $mess, $::log->elapsed);
       return (0, $mess);
     }
-    my $mime_parser = new Mj::MIMEParser;
-    $mime_parser->output_to_core($self->_global_config_get("max_in_core"));
-    $mime_parser->output_dir($tmpdir);
-    $mime_parser->output_prefix("mjr");
-    $ent[0] = $mime_parser->read(\*SPOOL);
+    $parser = new Mj::MIMEParser;
+    $parser->output_to_core($self->_global_config_get("max_in_core"));
+    $parser->output_dir($tmpdir);
+    $parser->output_prefix("mjr");
+    $ent[0] = $parser->read($k);
   }
 
   # Trim off approvals, get back a new entity
@@ -666,14 +669,31 @@ sub _post {
     $tmp = "$tmpdir/mjr.$$.$rand.arc";
     $k = gensym();
     open ($k, ">$tmp") or
-      $::log->abort("Couldn't open archive output file, $!");
-    $arcent->print($k);
+      $::log->abort("Cannot open archive output file:  $!");
+
+    if ($self->{'body_changed'}) {
+      $arcent->print($k);
+    }
+    else {
+      $j = gensym();
+      unless (open $j,  "<$file") {
+        $mess = $self->format_error('spool_file', $list);
+        $self->inform("GLOBAL", "post", $user, $victim, $cmdline, 
+                      $self->{'interface'}, 0, 0, -1, $mess, $::log->elapsed);
+        return (0, $mess);
+      }
+      $i = new Mail::Internet $j;
+      $::log->abort("Cannot parse spool file.") unless $i;
+      $arcent->head->print($k);
+      print $k "\n";
+      $i->print_body($k);
+    }
     close ($k) 
       or $::log->abort("Unable to close file $tmp: $!");
 
     ($msgnum, $arcdata) = $self->{'lists'}{$list}->archive_add_done($tmp);
 
-    unlink "$tmp";
+    unlink $tmp;
   }
 
   # Cook up a substitution hash
@@ -768,7 +788,23 @@ sub _post {
       $k = gensym();
       open ($k, ">$files[$i]") or
         $::log->abort("Couldn't open final output file, $!");
-      $ent[$i]->print($k);
+      if ($self->{'body_changed'}) {
+        $ent[$i]->print($k);
+      }
+      else {
+        $j = gensym();
+        unless (open $j,  "<$file") {
+          $mess = $self->format_error('spool_file', $list);
+          $self->inform("GLOBAL", "post", $user, $victim, $cmdline, 
+                        $self->{'interface'}, 0, 0, -1, $mess, $::log->elapsed);
+          return (0, $mess);
+        }
+        $tmp = new Mail::Internet $j;
+        $::log->abort("Cannot parse spool file.") unless $tmp;
+        $ent[$i]->head->print($k);
+        print $k "\n";
+        $tmp->print_body($k);
+      }
       close ($k)
         or $::log->abort("Unable to close file $files[$i]: $!");
     }
@@ -905,6 +941,7 @@ sub _post {
   # and the removal of the token, we will have a request in the
   # queue for a token with no associated spool file.
   unlink $file;
+  delete $self->{'body_changed'};
 
   (1, '');
 }
@@ -1642,7 +1679,15 @@ sub _r_strip_body {
   @newparts = ();
 
   @parts = $ent->parts;
+
   if (@parts) {
+    $_ = $mt = $ent->effective_type;
+    $enc = $ent->head->mime_encoding;
+    $char = $ent->head->mime_attr('content-type.charset') || 'iso-8859-1';
+    ($verdict, $xform) = $safe->reval($code);
+    warn "Error filtering type $mt:  $@" if $@;
+    return if ($verdict eq 'keep');
+
     $level++;
     for $i (@parts) {
       $_ = $mt = $i->effective_type;
@@ -1652,7 +1697,7 @@ sub _r_strip_body {
       ($verdict, $xform) = $safe->reval($code);
       warn "Error filtering type $mt:  $@" if $@;
 
-      if ($verdict eq 'allow') {
+      if ($verdict eq 'allow' or $verdict eq 'keep') {
         push @newparts, $i;
       }
       elsif ($verdict eq 'clean') {
@@ -1672,6 +1717,7 @@ sub _r_strip_body {
           if ($nent) { 
             push @newparts, $nent;
             push @changes, [$mt, 'clean'];
+            $self->{'body_changed'} = 1;
           }
           else {
             $log->message(50, 'info', "Unable to replace part $mt");
@@ -1694,6 +1740,7 @@ sub _r_strip_body {
         }
         else {
           push @changes, [$mt, 'discard'];
+          $self->{'body_changed'} = 1;
           $log->message(50, 'info', "Discarding MIME type $mt");
         }
       }
@@ -1719,6 +1766,7 @@ sub _r_strip_body {
           if ($nent) { 
             push @newparts, $nent;
             push @changes, [$mt, 'format'];
+            $self->{'body_changed'} = 1;
           }
           else {
             $log->message(50, 'info', "Unable to replace part $mt");
@@ -1763,6 +1811,7 @@ sub _r_strip_body {
         $i = $ent->head;
         $i->replace('Content-Type', "text/plain; charset=$char");
         push @changes, [$mt, 'format'];
+        $self->{'body_changed'} = 1;
       }
     }
     elsif ($verdict eq 'clean') {
@@ -1774,6 +1823,7 @@ sub _r_strip_body {
         $i = new MIME::Body::File "$txtfile";
         $ent->bodyhandle($i);
         push @changes, [$mt, 'clean'];
+        $self->{'body_changed'} = 1;
       }
     }
   }
@@ -2083,6 +2133,7 @@ sub _trim_approved {
       last unless $$pre[$i];
       if ($$pre[$i] && $$pre[$i] =~ /Approved:\s*([^\s,]+)\s*,?\s*(.*)/i) {
 	splice @$pre, $i, 1;
+        $self->{'body_changed'} = 1;
 	return $oent;
       }
       last if $$pre[$i] =~ /\S/;
@@ -2099,6 +2150,7 @@ sub _trim_approved {
 	last if $line =~ /\S/;
       }
       if (defined($line) && $line =~ /Approved:\s*([^\s,]+)\s*,?\s*(.*)/i) {
+        $self->{'body_changed'} = 1;
 	# Look a single additional part of type message/rfc822 and if so,
 	# parse it and return it.
 	if (scalar($oent->parts) == 2 &&
@@ -2140,6 +2192,7 @@ sub _trim_approved {
       }
       if (defined($line) && $line =~ /Approved:\s*([^\s,]+)\s*,?\s*(.*)/i) {
 	# Found it; save the file position and read one more line.
+        $self->{'body_changed'} = 1;
 	$pos = $ofh->tell;
 	$line = $ofh->getline;
 
@@ -2237,6 +2290,7 @@ sub _add_fters {
 					 );
 	  # Add the part at the beginning of the message
 	  $ent->add_part($front_ent, 0);
+          $self->{'body_changed'} = 1;
       }
       if ($foot) {
 	  $foot_ent = build MIME::Entity(Type       => "text/plain",
@@ -2246,6 +2300,7 @@ sub _add_fters {
 					);
 	  # Add the part at the end of the message
 	  $ent->add_part($foot_ent, -1);
+          $self->{'body_changed'} = 1;
       }
       return 1;
   }
@@ -2264,6 +2319,7 @@ sub _add_fters {
       for $line (@$front) {
 	  $nfh->print($line);
       }
+      $self->{'body_changed'} = 1;
   }
   # Copy the message
   while (defined ($line = $ofh->getline)) {
@@ -2274,6 +2330,7 @@ sub _add_fters {
       for $line (@$foot) {
 	  $nfh->print($line);
       }
+      $self->{'body_changed'} = 1;
   }
 
   # Put the new body in place.  We don't purge the old body because
@@ -2666,7 +2723,6 @@ sub do_digests {
           @msgs = @{$digest{$i}};
         }
 
-        # XXX Check the headers for "To" and "From" to avoid duplicates.
 	@dfiles = $self->{'lists'}{$list}->digest_build
 	  (messages     => [@msgs],
 	   types        => [@dtypes],
@@ -2715,8 +2771,8 @@ sub do_digests {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2002, 2004 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
