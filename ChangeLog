@@ -1,3 +1,14 @@
+2004-09-05  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_alias_reverse_lookup)  Base the
+	lookup on the target, not the striptarget, field.
+	(_changeaddr)  Issue an error if the old and new addresses
+	are identical.
+	Bugfix:  Adjust aliases properly when the changeaddr command
+	is issued from an alias.  Thanks to Roger Klorese.
+
+        * lib/Mj/Format.pm:  (show)  Substitution correction.
+
 2004-09-04  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/FileSpace.pm:  (index)  Return 1 instead of 0

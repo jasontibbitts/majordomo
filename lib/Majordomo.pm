@@ -1695,7 +1695,7 @@ sub _alias_reverse_lookup {
   $self->{'alias'}->get_start;
 
   # Grab _every_ matching entry
-  @data = $self->{'alias'}->get_matching(0, 'striptarget', $addr->canon);
+  @data = $self->{'alias'}->get_matching(0, 'target', $addr->canon);
   $self->{'alias'}->get_done;
 
   while (($key, $data) = splice(@data, 0, 2)) {
@@ -4866,14 +4866,20 @@ sub changeaddr {
 sub _changeaddr {
   my($self, $list, $requ, $vict, $mode, $cmd) = @_;
   my $log = new Log::In 35, "$vict, $requ";
-  my (@out, @aliases, @lists, %uniq, $data, $key, $l, $lkey, $ldata,
-      $over, $time, $tmp);
+  my (@out, @aliases, @lists, @olists, %uniq, $alias, $data, 
+      $key, $l, $lkey, $ldata, $over, $time, $tmp);
 
-  if (($vict->canon eq $requ->canon) and ($vict->xform ne $requ->xform)) {
-    # XLANG
-    return (0, $requ->full . " and " . $vict->full . " are aliases.\n");
+  $over = 0;
+  $over = 1 if ($mode =~ /noinform/);
+
+  if ((($vict->canon eq $requ->canon) and ($vict->xform ne $requ->xform))
+      or $requ->full eq $vict->full)
+  {
+    return (0, $self->format_error('same_address', 'GLOBAL', 
+                 'USER' => "$requ", 'VICTIM' => "$vict"));
   }
 
+  $alias = ($vict->canon ne $vict->xform and $requ->canon eq $vict->canon);
   ($key, $data) = $self->{'reg'}->remove($mode, $vict->canon);
 
   unless ($key) {
@@ -4883,34 +4889,45 @@ sub _changeaddr {
   }
 
   push @out, $data->{'fulladdr'};
-  $data->{'fulladdr'} = $requ->full;
-  $data->{'stripaddr'} = $requ->strip;
-  $over = 0;
-  $over = 1 if ($mode =~ /noinform/);
+  @olists = split ("\002", $data->{'lists'});
 
-  # Does the address already exist in the registry?
+  # Does the new address already exist in the registry?
   # If so, combine the list data.
   if ($ldata = $self->{'reg'}->lookup($requ->canon)) {
     @lists = split ("\002", $ldata->{'lists'});
-    push @lists, split ("\002", $data->{'lists'});
+    push @lists, @olists;
     @uniq{@lists} = ();
-    $data->{'lists'} = join "\002", sort keys %uniq;
+    $ldata->{'lists'} = join "\002", sort keys %uniq;
+    $data = $ldata;
   }
+  else {
+    unless ($alias and $vict->strip ne $data->{'stripaddr'}) {
+      $data->{'fulladdr'} = $requ->full;
+      $data->{'stripaddr'} = $requ->strip;
+    }
+  }
+
   $self->{'reg'}->add('force', $requ->canon, $data);
 
   $key = new Mj::Addr($key);
+  return (0, $self->format_error('no_address', 'GLOBAL'))
+    unless (defined $key);
 
   # Remove from all subscribed lists
-  for $l (split("\002", $data->{'lists'})) {
+  for $l (@olists) {
     $time = $::log->elapsed;
     next unless $self->_make_list($l);
 
-    $tmp = $self->{'lists'}{$l}->is_subscriber($requ);
+    unless ($alias) {
+      $tmp = $self->{'lists'}{$l}->is_subscriber($requ);
+    }
 
     ($lkey, $ldata) = $self->{'lists'}{$l}->remove('', $key);
     if ($ldata) {
-      $ldata->{'fulladdr'} = $requ->full;
-      $ldata->{'stripaddr'} = $requ->strip;
+      unless ($alias and $vict->strip ne $ldata->{'stripaddr'}) {
+        $ldata->{'fulladdr'} = $requ->full;
+        $ldata->{'stripaddr'} = $requ->strip;
+      }
       $self->{'lists'}{$l}->{'sublists'}{'MAIN'}->add('', $requ->canon, $ldata);
       if ($mode !~ /nolog/) {
         $self->inform($l, 'unsubscribe', $requ, $vict, "changeaddr $vict", 
@@ -4926,16 +4943,28 @@ sub _changeaddr {
   }
 
   @aliases = $self->_alias_reverse_lookup($key, 1);
-  for (@aliases) {
-    if ($_ eq $vict->canon) {
-      ($lkey, $ldata) = $self->{'alias'}->remove('', $_);
+  for $tmp (@aliases) {
+    if ($alias) {
+      ($lkey, $ldata) = $self->{'alias'}->remove('', $tmp);
+
+      if ($ldata->{'stripsource'} eq $vict->strip) {
+        $ldata->{'stripsource'} = $requ->strip;
+      }
+      if ($ldata->{'striptarget'} eq $vict->strip) {
+        $ldata->{'striptarget'} = $requ->strip;
+      }
+
+      $self->{'alias'}->add('', $tmp, $ldata);
+    }
+    elsif ($tmp eq $vict->canon) {
+      ($lkey, $ldata) = $self->{'alias'}->remove('', $tmp);
       $ldata->{'target'} = $requ->canon;
       $ldata->{'striptarget'} = $requ->strip;
       $self->{'alias'}->add('', $requ->canon, $ldata);
     }
     else {
-      $self->{'alias'}->replace('', $_, 'target', $requ->canon);
-      $self->{'alias'}->replace('', $_, 'striptarget', $requ->strip);
+      $self->{'alias'}->replace('', $tmp, 'target', $requ->canon);
+      $self->{'alias'}->replace('', $tmp, 'striptarget', $requ->strip);
     }
   }
 
@@ -7879,6 +7908,8 @@ sub _unalias {
   my $log = new Log::In 35, "$requ, $source";
   my ($key, $data);
 
+  # XXX Removing an alias will leave an orphaned subscription
+  # if the alias was used to subscribe to a list.
   return (0, qq(The address "$source" is not an alias.\n))
     if ($source->xform eq $source->alias); #XLANG
 
