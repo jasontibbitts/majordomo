@@ -1592,11 +1592,12 @@ attached to the previous file.  The default is "N".  In addition, an
 "S" can be added, indicating that the file should undergo variable
 substitution.  Currently the following substitutions are supported:
 
- \$USER      - the address of the user
- \$LIST      - the list name
- \$REQUEST   - the list-request address
- \$MAJORDOMO - the address of the majordomo server
- \$OWNER     - the address of the majordomo owner
+ \$USER    - the address of the user
+ \$LIST    - the list name
+ \$REQUEST - the list-request address
+ \$MJ      - the address of the majordomo server
+ \$OWNER   - the address of the list owner
+ \$MJOWNER - the address of the list owner
 
 EOC
    },

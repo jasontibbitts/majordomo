@@ -1442,7 +1442,7 @@ sub help_start {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $list, $mode, $vict,
       $topic) = @_;
   my $log = new Log::In 50, "$user, $topic";
-  my (@info, $file, $mess, $ok, $subs);
+  my (@info, $file, $mess, $ok, $subs, $whoami, $wowner);
   
   ($ok, $mess) =
     $self->global_access_check($passwd, $auth, $interface, $mode, $cmdline,
@@ -1453,12 +1453,17 @@ sub help_start {
     return ($ok, $mess);
   }
 
+  $whoami = $self->_global_config_get('whoami'),
+  $wowner = $self->_global_config_get('whoami_owner'),
+
   $subs =
     {VERSION  => $Majordomo::VERSION,
      WHEREAMI => $self->_global_config_get('whereami'),
-     WHOAMI   => $self->_global_config_get('whoami'),
-     OWNER    => $self->_global_config_get('whoami_owner'),
-     SITE     => $self->_global_config_get('site_name'),
+     WHOAMI   => $whoami,
+     MJ       => $whoami,
+     MJOWNER  => $wowner,
+     OWNER    => $wowner,
+     SITE     => $self->_global_config_get('site'),
      USER     => $user,
     };
 

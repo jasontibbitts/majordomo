@@ -214,6 +214,7 @@ sub welcome {
   $subs = {'LIST' => $list,
 	   'REQUEST'  => "$list-request\@$whereami",
 	   'MAJORDOMO'=> $whoami,
+	   'MJ'       => $whoami,
 	   'USER'     => $addr,
 	   'SITE'     => $site,
 	   'MJOWNER'  => $whoami_owner,

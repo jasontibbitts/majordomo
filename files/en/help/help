@@ -14,7 +14,7 @@ Majordomo is an automated system which allows users to subscribe and
 unsubscribe to mailing lists, and to retrieve files from list archives.
 
 You can interact with the Majordomo software by sending it commands in the
-body of mail messages addressed to "$WHOAMI".
+body of mail messages addressed to "$MJ".
 Please do not put your commands on the subject line; Majordomo does not
 process commands there.
 
@@ -41,7 +41,7 @@ Finding Out Which Lists Are On the System
 -----------------------------------------
 
   To get a list of lists on this system that are available to you, put the
-  following line in the body of your mail message to $WHOAMI:
+  following line in the body of your mail message to $MJ:
 
        lists
 
@@ -80,7 +80,7 @@ Subscribing To a List
   email by someone who forged requests from your address.  In this case,
   another message will be sent to the address to be subscribed containing
   the key, and directing the user to send a command found in that message
-  back to $WHOAMI.
+  back to $MJ.
 
   You may also get a message that your subscription is being forwarded to
   the list owner for approval; some lists have waiting lists, or policies
@@ -91,7 +91,7 @@ Subscribing To a List
   list policies and features.  Please SAVE THIS MESSAGE for future
   reference; it will also contain exact directions for unsubscribing.  If
   you lose the intro mail and would like another copy of the policies, send
-  this message to $WHOAMI:
+  this message to $MJ:
 
        intro example
 
@@ -115,13 +115,12 @@ Unsubscribing From Mailing LIsts
 
        unsubscribe example $USER
 
-  (The following is currently UNIMPLEMENTED!)
   In either of these cases, you can tell Majordomo to remove the address in
-  question from all lists on this server by using "*" in place of the list
-  name:
+  question from all lists on this server by using the "unregister" command
+  in place of the "subscribe" command:
 
-       unsubscribe *
-       unsubscribe * $USER
+       unregister
+       unregister $USER
 
 
 Help Topics
@@ -147,7 +146,7 @@ Help Topics
 Getting More Help
 -----------------
 
-  To contact a human site manager, send mail to $OWNER.
+  To contact a human site manager, send mail to $MJOWNER.
 
   To contact the owner of a specific list, send mail to that list's owner
   address, which is formed by adding "-owner" to the list name.  For
@@ -159,7 +158,7 @@ Getting More Help
 
        example-owner@$WHEREAMI
 
-  To get another copy of this help message, send mail to $WHOAMI
+  To get another copy of this help message, send mail to $MJ
   with a line saying:
 
        help

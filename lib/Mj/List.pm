@@ -40,6 +40,7 @@ use vars (qw($addr %flags %noflags %classes %digest_types));
    'selfcopy'     => ['selfcopy',     0,1,'S'],
    'hideall'      => ['hideall',      0,0,'H'],
    'hideaddress'  => ['hideall',      2,0,'h'],
+   'nohide'       => ['hideall',      1,0,'' ],
    'showall'      => ['hideall',      1,0,'' ],
    'eliminatecc'  => ['eliminatecc',  0,1,'C'],
    'prefix'       => ['prefix',       0,1,'P'],
@@ -49,7 +50,7 @@ use vars (qw($addr %flags %noflags %classes %digest_types));
 # Special inverse descriptions
 %noflags =
   (
-   'showall' => 'H',
+   'nohide'  => 'H',
    'noack'   => 'A',
   );
 

@@ -1,5 +1,17 @@
 Fri Feb 26 17:38:38 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/MailOut.pm (welcome): $MJ instead of $MAJORDOMO.
+
+	* lib/mj_cf_data.pl: Tweak 'welcome_files' description.
+
+	* files/en/help/help: Mention "unregister".  Use $MJ instead of
+ 	$WHOAMI and $MJOWNER instead of $OWNER.
+
+	* lib/Mj/List.pm: Add 'nohide' meaning the same thing as showall.
+
+	* lib/Mj/Resend.pm (post): Add some new substitutions in acks.
+	(_post): Add new substitutions for headers, fronters and footers.
+
 	* postinstall: Big changes; split out utility functions and
  	installation functions from the main file (which gets much smaller
  	now).

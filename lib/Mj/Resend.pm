@@ -191,8 +191,14 @@ sub post {
 
   # Some substitutions will be done by the access routine, but we have
   # extensive information about the message here so we can do some more.
-  $subs = {LIST    => $list,
-	   HEADERS => $ent->head->stringify,
+  $subs = {LIST     => $list,
+	   HEADERS  => $ent->head->stringify,
+	   SUBJECT  => $ent->head->get('subject') || '(none)',
+	   VERSION  => $Majordomo::VERSION,
+	   MJ       => $self->_global_config_get('whoami'),
+	   MJOWNER  => $self->_global_config_get('whoami_owner'),
+	   SITE     => $self->_global_config_get('site'),
+	   WHEREAMI => $self->_global_config_get('whereami'),
 	  };
 
   $desc = $fileinfo->{description};
@@ -306,8 +312,9 @@ sub _post {
      $subject, $subs, $tmp, $tmpdir, $tprefix, $whereami);
 
   $self->_make_list($list);
-  $tmpdir = $self->_global_config_get('tmpdir');
-  $sender = $self->_list_config_get($list, "sender");
+  $tmpdir   = $self->_global_config_get('tmpdir');
+  $whereami = $self->_global_config_get('whereami');
+  $sender   = $self->_list_config_get($list, "sender");
   
   %avars = split("\002", $avars);
 
@@ -394,11 +401,17 @@ sub _post {
 
   # Cook up a substitution hash
   $subs = {
-	   'LIST'    => $list,
-	   'VERSION' => $Majordomo::VERSION,
-	   'SENDER'  => $user,
-	   'SEQNO'   => $seqno,
-	   'ARCHIVE' => $msgnum,
+	   LIST     => $list,
+	   VERSION  => $Majordomo::VERSION,
+	   SENDER   => $user,
+	   USER     => $user,
+	   SEQNO    => $seqno,
+	   ARCHIVE  => $msgnum,
+	   SUBJECT  => $subject,
+	   WHEREAMI => $whereami,
+	   MJ       => $self->_global_config_get('whoami'),
+	   MJOWNER  => $self->_global_config_get('whoami_owner'),
+	   SITE     => $self->_global_config_get('site'),
 	  };
 
   # Add headers
@@ -469,7 +482,6 @@ sub _post {
       # Note that when we set the new value, we must do it in an unparsed
       # form.
       @tmp = ();
-      $whereami = $self->_global_config_get('whereami');
       $self->_list_config_lock($list);
       $dissues = $self->_list_config_get($list, 'digest_issues');
       
@@ -1384,6 +1396,7 @@ sub _reply_to {
 	   {
 	    'HOST'    => $self->_list_config_get($list, 'resend_host'),
 	    'LIST'    => $list,
+	    'USER'    => $user,
 	    'SENDER'  => $user,
 	    'SEQNO'   => $seqno,
 	   },
