@@ -125,7 +125,7 @@ $r = run('-p gonzo -u enchanter@example.com alias planetfall@example.com');
 ok($e, $r);
 
 # 15. Set a password
-$e = qq!The personal password.*changed!;
+$e = qq!The password command succeeded!;
 $r = run('-p gonzo -u enchanter@example.com password-quiet suspect');
 ok($e, $r);
 
