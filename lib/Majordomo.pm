@@ -413,7 +413,7 @@ sub connect {
                   $int, $ok, '', 0, $err, $elapsed);
     if (exists $self->{'sessionfh'}) {
       close $self->{sessionfh};
-      undef $self->{sessionfh};
+      delete $self->{sessionfh};
     }
     undef $self->{sessionid};
     return (undef, $err);

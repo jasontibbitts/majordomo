@@ -1,3 +1,8 @@
+2005-03-16  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (connect)  Use delete instead of undef
+	to quell a warning.  Thanks to SRE.
+
 2005-03-06  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Resend.pm:  (_r_strip_body)  Mark the body as changed
