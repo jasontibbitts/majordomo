@@ -1,15 +1,17 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-showtokens-delay listname action
+showtokens[-alias][-async][-delay] listname [action]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is the name of a list at this site
 action, optional, is the name of a request, such as post or subscribe.
+-alias, if used, causes "alias" tokens to be shown.
+-async, if used, causes "async" tokens to be shown.
 -delay, if used, causes "delay" tokens to be shown.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 A token is an identification number (for example, "0B18-996F-76ED")
 that refers to a request that has not yet been completed.
 
-There are three kinds of token:  confirm, consult, and delay.
+There are five kinds of token:  confirm, consult, delay, async, and alias.
 
 Confirm tokens need to be approved by the person whom the request
 affects before they can take place.
@@ -21,6 +23,23 @@ Delay tokens are automatically approved after a certain amount
 of time.  Delay tokens are only displayed if the "delay" command mode
 is used.
 
+Async tokens are used to speed Majordomo's response to an "accept"
+command.  Instead of completing the request immediately, Majordomo
+will convert a consult token for a posted message into an async
+token.  This makes moderation using the web interfaces much
+faster, because Majordomo does not have to wait for a posted message
+to be queued for delivery before sending a response to the moderator
+who approved the message.  Async tokens are only displayed if the
+"async" command mode is used.
+
+Alias tokens refer to other tokens.  They are used when the approval
+of more than one person is required.  If the same token identifier 
+was sent in a confirmation message to several moderators, there is a
+risk that an untrustworthy moderator could approve the same message
+more than once.  Sending a separate, alias token to each moderator
+avoids this problem.  Alias tokens are only displayed if the
+"alias" command mode is used.
+
 The "showtokens" command provides a list of all outstanding tokens.
 If there are many such unhandled tokens, it may be due to an absent 
 list owner or a spammer.
@@ -30,8 +49,9 @@ use the "accept" or "reject" command to immediately approve or
 discard one or more requests, thereby clearing the backlog.
 
 All tokens have a "lifetime," typically one week, after which they expire.  
-Confirm and consult tokens vanish when they expire.  Delay tokens'
-requests are fulfilled when they expire. 
+Confirm, consult, and async tokens vanish when they expire.  Delay tokens'
+requests are fulfilled when they expire.  When alias tokens expire, the
+result varies according to the token to which the alias token refers.
 
 Depending upon the "token_remind" setting, reminder messages
 are sent if a token has not been explicitly accepted or rejected 
@@ -49,13 +69,11 @@ would display every uncompleted subscription request for a domain.
 
 See Also:
    help accept     (approving  action)
+   help access_variables
+   help configset_token_lifetime (site-wide or per-list expiration period)
+   help configset_token_remind (site-wide or per-list reminder before expiration)
+   help configset_triggers 
    help reject     (cancelling action)
    help tokeninfo  (for more details about a particular token)
-   help configset access_rules_variables (set/test for this command)
-   help configset token_lifetime (site-wide or per-list expiration period)
-   help configset token_remind (site-wide or per-list reminder before expiration)
-   help configset triggers 
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
