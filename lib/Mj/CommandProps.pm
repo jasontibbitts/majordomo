@@ -507,7 +507,7 @@ my %commands =
    },
    'info' =>
    {
-    'parser'   => [qw(email shell list nohereargs real)],
+    'parser'   => [qw(email shell list global nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
                    'modes'    =>  {
                                    %generic_modes,
@@ -522,7 +522,7 @@ my %commands =
    },
    'intro' =>
    {
-    'parser'   => [qw(email shell list nohereargs real)],
+    'parser'   => [qw(email shell list global nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
                    'modes'    =>  {
                                    %generic_modes,
