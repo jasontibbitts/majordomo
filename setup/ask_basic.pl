@@ -193,7 +193,7 @@ EOM
       $msg .= <<EOM;
   You have the DB_File module installed, so Perl has access to advanced
   database routines that Majordomo can use to store the various data it
-  collects.
+  collects.  Type "db" at the prompt to use DB_File databases.
 
 EOM
     }
@@ -258,6 +258,9 @@ EOM
       $config->{database}->{pass} = get_str($msg, $def);
     }
   }
+  else {
+    $config->{database_backend} = 'text';
+  }
 
   #---- Ask for default install location
   $msg = <<EOM;
@@ -312,7 +315,7 @@ Where can Majordomo place secure temporary files?
   The installation process will create this directory if it does not exist,
     but will not enforce any permissions.
 EOM
-  $def = $config->{'tmpdir'} || "$config->{'wtmpdir'}/mj";
+  $def = $config->{'tmpdir'} || "$config->{'install_dir'}/tmp";
   $config->{'tmpdir'} = get_dir($msg, $def);
   $config->{'lockdir'} = "$config->{'tmpdir'}/locks";
 
