@@ -2007,11 +2007,12 @@ Parses the digests variable.  Returns a hash containing:
  one element per digest name
 
 =cut
+use Mj::List;
 sub parse_digests {
   my $self = shift;
   my $arr  = shift;
   my $var  = shift;
-  my $log  = new Log::In 150, "$var";
+  my $log  = new Log::In 150, $var;
   my(@tmp, $data, $elem, $error, $i, $j, $table);
 
   # %$data will hold the return hash
@@ -2078,12 +2079,22 @@ sub parse_digests {
 
     # separate
     $elem->{'separate'} = _str_to_offset($table->[$i][5]);
+    unless (defined $elem->{'separate'}) {
+      $elem->{'separate'} = 900;
+    }
 
     # minage
     $elem->{'minage'} = _str_to_offset($table->[$i][6]);
 
-    # type XXX Need some syntax checking here.
+    # type
     $elem->{'type'} = $table->[$i][7] || 'mime';
+    unless (grep { $elem->{'type'} =~ /$_/i }
+              keys (%Mj::List::digest_types))
+    {
+      return (0, qq(Digest type "$elem->{'type'}" is invalid.\n) .
+                 qq(Valid types include:\n  ) .
+                 join ("\n  ", keys (%Mj::List::digest_types)));
+    }
 
     # description
     $elem->{'desc'} = $table->[$i][8];
@@ -3891,8 +3902,8 @@ string, it will return undef.
 =cut
 sub _str_to_offset {
   my $arg = shift || '';
-  my $log = new Log::In 150, "$arg";
-  my($time);
+  my $log = new Log::In 150, $arg;
+  my $time;
 
   if ($arg =~ /(\d+)d/) {
     $time = 86400 * $1;
