@@ -1,0 +1,31 @@
+                             The Shell Hook
+
+In certain situations, Majordomo will call an external script or program
+which perform a specialized task.  The programming technique that makes
+this possible is called a "shell hook."  To make use of a shell hook,
+place a script or program with the name of the shell hook in the
+"scripts" directory where Majordomo is installed.
+
+bouncehandler-unsubscribe
+-------------------------
+The bouncehandler-unsubscribe hook is invoked when the bounce_rules
+setting requires that an address be removed from a mailing list without
+sending a probe message or consulting the list moderators.  The script
+is passed three parameters:  the domain name, the list name, and the
+e-mail address that was removed from the list.  Majordomo will not
+process the output of this script or program.
+
+createlist-regen
+----------------
+The createlist-regen hook is invoked whenever the createlist command is
+run successfully.  The script is passed one parameter:  the domain name.
+Majordomo will not process the output of this script or program.
+
+
+See Also:
+   help admin_domain
+   help admin_subscribers
+   help configset_bounce_rules
+   help createlist
+
+$INCLUDE-help/foot

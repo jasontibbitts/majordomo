@@ -2025,6 +2025,7 @@ files/en/help/.report
 files/en/help/.request_response
 files/en/help/.sessioninfo
 files/en/help/.set
+files/en/help/.shell_hook
 files/en/help/.show
 files/en/help/.showtokens
 files/en/help/.signoff
@@ -2255,6 +2256,7 @@ files/en/help/report
 files/en/help/request_response
 files/en/help/sessioninfo
 files/en/help/set
+files/en/help/shell_hook
 files/en/help/show
 files/en/help/showtokens
 files/en/help/signoff
