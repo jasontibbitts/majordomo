@@ -786,6 +786,11 @@ sub _a_confirm2 {
       $victim = $tmp;
     }
   }
+  elsif ($args{'user_password'}) {
+    # The requester and victim are identical
+    # and the password was supplied, so allow the command.
+    return 1;
+  }
  
   $self->confirm('file'      => $file1 || 'confirm',
 		 'list'      => $list,
