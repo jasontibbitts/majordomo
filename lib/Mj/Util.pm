@@ -255,7 +255,7 @@ sub process_rule {
       }
       else {
         # We'll process the function later.
-        push @final_actions, $i;
+        push (@final_actions, $i) unless ($i eq 'ignore');
       }
 
       $saw_terminal ||= action_terminal($func);
