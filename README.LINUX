@@ -20,9 +20,9 @@ and then run "make" and "make install" as usual.
 
 -----------------------------------------------------------------
 
-In Red Hat Linux 9, there appears to be a pattern matching bug in
-perl 5.8.0 that will cause all e-mail addresses to be considered
-invalid, giving error messages like the following: 
+In Red Hat Linux 9, there appears to be a pattern matching bug related
+to character sets in perl 5.8.0 that will cause all e-mail addresses to
+be considered invalid, giving error messages like the following: 
 
   The address "majordomo" is invalid.
 
@@ -30,8 +30,12 @@ invalid, giving error messages like the following:
 
   Location of the error: "majordomo@example.com"
 
-The simplest way to work around this problem is to install perl 5.6.1,
-then use it to configure and install Mj2.
+One way to work around this problem is to install perl 5.6.1,
+or perl 5.8.1 or later, then use it to configure and install Mj2.
+
+Another option is to change the file /etc/sysconfig/i18n so the
+LANG environment variable has a different default value, e.g.,
+  LANG=C
 
 -----------------------------------------------------------------
 
