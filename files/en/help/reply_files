@@ -196,9 +196,8 @@ inform
 This file is sent to the list owners as required by the inform
 configuration setting (see "help configset_inform" for more details).
 
-(COMMAND, LIST, and UCOMMAND in the Subject header)
-(CMDLINE, COMMAND, COMMENT, INTERFACE, LIST, REQUESTER, SESSIONID,
- STATUS, STATDESC, TIME, USER, VICTIM)
+(standard plus CMDLINE, COMMAND, COMMENT, INTERFACE, REQUESTER, 
+ SESSIONID, STATUS, STATDESC, STRIPUSER, TIME, UCOMMAND, USER, VICTIM)
 
 
 intro
