@@ -19,10 +19,6 @@ Bugs?
 
 Messages with empty first part always checksum the same?
 
-You can specify an illegal domain.  Majordomo should bomb and return a
-string (instead of an object ref) when this happens.  The interface should
-return this if it can.
-
 Top of the list 
 ---------------
 

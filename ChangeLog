@@ -1,3 +1,11 @@
+Thu Sep 24 22:39:19 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* bin/mj_shell: Die if Majordomo::new gave back a string instead
+ 	of a reference.
+
+	* lib/Majordomo.pm (new): Return some errors (in the form of
+ 	strings) if $topdir or $domain don't exist.
+
 Wed Sep 23 00:16:10 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/Inform.pm (inform): Change format of log to use \001 as

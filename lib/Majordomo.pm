@@ -120,6 +120,10 @@ sub new {
 
   my $log = new Log::In 50, "$topdir, $domain";
 
+  unless (-d $topdir) {
+    return "Top level directory $topdir does not exist!";
+  }
+
   my $self   = {};
   bless $self, $class;
   $self->{'sdirs'}  = 1;
@@ -128,6 +132,11 @@ sub new {
   $self->{'domain'} = $domain;
   $self->{'lists'}  = {};
   $self->{'unique'} = 'AAA';
+
+
+  unless (-d $self->{'ldir'}) {
+    return "The domain '$domain' does not exist!";
+  }
 
   $self->{'sitedata'}{'config'} = do "$topdir/SITE/config.pl";
   $log->abort("Can't find site config file $topdir/SITE/config.pl: $!")

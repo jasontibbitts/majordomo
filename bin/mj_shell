@@ -142,6 +142,10 @@ if ($opts{f}) {
 
 $::mj = new Majordomo $top, $dom, 1;
 
+unless (ref $::mj) {
+  die $::mj;
+}
+
 my $mj = $::mj;
 my $host = hostfqdn;
 
