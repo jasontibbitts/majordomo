@@ -120,180 +120,91 @@ complete, and may be inaccurate... please let us know if you find
 anything that can be improved!
 
 These are all of the files that should exist somewhere in a list's (or
-GLOBAL's) filespace.  They will be variable-substituted and mailed out at
-various times.  (Many customization possibilities have reduced the number
-of such files.)  Note that the list's search_list will be consulted, so
-GLOBAL should not contain files like faq or info (barring, of course,
-applications where this is warranted).
+GLOBAL's) filespace.  They will be mailed out at various times. (Many
+customization possibilities have reduced the number of such files.)
+Note that the list's search_list will be consulted, so GLOBAL should
+not contain files like faq or info (barring, of course, applications
+where this is warranted).
+
+These files may be modified 'on the fly' by using \$INCLUDE to
+auto-include other files as these are sent out, and also by
+evaluation of other variables (see "help variables" for details).
 
 ack_denial
+  Sent out instantaneously (at least to users who have requested posting
+  acknowledgments via the "set" command) when their attempted post is
+  bounced by a deny clause in access_rules. Note that these are only sent
+  for posts; for other requests, this information is communicated through
+  the normal command reply.
+
 ack_rejection
+  Sent out after a 'stall' has been resolved (at least to users who have
+  requested posting acknowledgments via the "set" command) when the list
+  owner or the moderator rejects a token.
+
 ack_stall
+  Sent out instantaneously (at least to users who have requested posting
+  acknowledgments via the "set" command) when their attempted post is
+  sent to the moderator or list owner for approval due to a consult
+  clause in access_rules or other list settings. Stalls usually occur as
+  a result of consult clauses in access_rules, but may be due to checksums
+  which trap duplicate messages, etc.
+
 ack_success
+  Sent to users who request all acknowlegements via the "set" command.
+  This should just inform them that their post was successfuly delivered.
+
 ack_timeout
+  Sent when a token or a spooled message is deleted after expiration
+  without being accepted or rejected.
+
 confirm
+  Sent out to inform a list subscriber of the confirmation token
+  they must return.
+
 consult
-digest files
-faq
-inform
-intro
-info
-welcome
-
-welcome
--------
-
-Sent out to welcome new subscribers if welcome_files is unset and welcome
-is on (modulo any specific welcome setting on the subscribe request).
-
-The following will be substituted:
-
-$LIST      => the name of the list
-$REQUEST   => the request address
-$MAJORDOMO => the address of the majordomo email interface
-$USER      => the user's address
-$OWNER     => the list owner's address
-
-inform
-------
-
-Sent out to the list owner to inform them of some list action (a new
-subscription, etc.)
-
-The following substiutions will be made to the subject of the message:
-
-$UREQUEST  => the _upcased_ request (to be like 1.9x)
-$REQUEST   => the request
-$LIST      => the list name
-
-The following substitutions will be made to the body:
-
-$VICTIM    => the user who will be effected by the request
-$LIST      => the list the request acted on
-$REQUEST   => the request that was made
-$REQUESTER => the user who made the request
-$CMDLINE   => the command that was sent
-$STATUS    => the status of the action (succeed, fail, stall)
-
-intro
------
-
-Sent out attached to the welcome message if welcome_files is unset and
-welcome is on.  No variable substitutions are done.
-
-
-info
-----
-
-Sent in response to an info request.  No variable substitutions are done.
-
-
-faq
----
-
-Sent in response to a faq request.  No variable substitutions are done.
-
-
-confirm, consult
-----------------
-
-Sent out to inform a user or the list owner of the confirmation token
-they must return.  The following substitutions will be performed in
-both the subject and body:
-
-$VICTIM    => The user who will be acted on by the request
-$REQUESTER => The user who made the request
-$CMDLINE   => The command that was sent (or would have been sent were the
-              command have come in via email)
-$REQUEST   => The type of request that was made
-$LIST      => The list the request was made to
-$TOKEN     => The token that is to be returned
-$URL       => The URL that can be visited to accept the token
-$EXPIRE    => The number of days until the token expires
-$OWNER     => The address of the list owner
-$MJ        => The address Majordomo receives commands at
-$MJOWNER   => The address of the owner of this Majordomo installation
-
-ack_stall, ack_denial
----------------------
-
-Sent out to users who request posting acknowledgments (though stalls are
-not acknowleged on moderated lists) when their message is sent to the
-moderator/denied/rejected.  Note that stalls and denials happen
-instantaneously due to a consult or deny clause in access_rules, while
-rejections happen _after_ a stall, when the moderator rejects the token.
-
-$LIST      => The list (duh).  This is substituted both in the subject and
-              the body of the message.
-$MESSAGE   => The stall/denial message returned from access_rules or the
-              rejection message given by the moderator when the token is
-              rejected.
-
-Note that these are only sent for posts; for other requests, this
-information is communicated through the normal command reply.
-
-ack_rejection
--------------
-
-Sent out to users when the list owner rejects a token.
-
-$REQUEST   => The submitted command line.
-$MESSAGE   => The rejection message given by the list owner, if any.
-
-ack_success
------------
-
-Sent to users who request all acknowlegements.  This should just inform
-them that their message was successfuly delivered.
-
-$LIST => The list.  Substituted in both the subject and body.
-
-ack_timeout
------------
-
-Sent when a token/spooled message is deleted after expiration without being
-accepted or rejected.
+  Sent out to inform a list owner of the confirmation token
+  they must return.
 
 digest files
-------------
+  Majordomo uses various files to fill in pieces of the digests.
+  See "help digest" for more info and the names of the files.
 
-Majordomo uses various files to fill in pieces of the digests.
+faq
+  Sent in response to a faq request.
 
-There are three places in where files are used in digests:
-  before the index (preindex)
-  after the index (postindex)
-  at the very end (footer)
+inform
+  Sent out to the list owner to inform them of some list action
+  (a new subscription, etc.)
 
-There are three types of digest:
-  text
-  mime
-  index  (index digests have no footers)
+intro
+  Sent out attached to the welcome message if welcome_files is
+  unset and welcome is on.
 
-The list owner can define any number of named digests with various
-generation parameters.
+info
+  Sent in response to an info request.
 
-Majordomo will look for the following files in the usual search list for
-the preindex text:
-
-   digest_name_type_preindex
-   digest_name_preindex
-   digest_type_preindex
-   digest_preindex
-
-Of course, 'name' is replaced by the digest name and 'type is replaced by
-the type.  Similarly for postindex and footer.
-
+welcome
+  Sent out to welcome new subscribers if welcome_files is unset
+  and welcome is on (unless -welcome was used on the sub request).
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 See Also:
-   help get      (retrieve files by email)
-   help index    (find out which files are available for "put")
-   help filedir  (to create files in a non-default location)
-   help filesync (which must be used if you create files without "put")
-   help newfaq   (a shortcut way to put the file "faq")
-   help newinfo  (a shortcut way to put the file "info")
-   help newintro (a shortcut way to put the file "intro")
+   help configset access_rules (for confirm, consult, deny, allow clauses)
+   help accept    (for how to OK a token)
+   help access    (for the special case of granting/denying all access)
+   help digest    (for additional file names and usage)
+   help get       (retrieve files by email)
+   help index     (find out which files are available for "put")
+   help filedir   (to create files in a non-default location)
+   help filesync  (which must be used if you create files without "put")
+   help newfaq    (a shortcut way to put the file "faq")
+   help newinfo   (a shortcut way to put the file "info")
+   help newintro  (a shortcut way to put the file "intro")
+   help post      (for the special case of restricting who can post msgs)
+   help reject    (for how to refuse a token)
+   help variables (for a list of all possible variables and what they mean)
 
 
 For a list of all help topics send this one-line message

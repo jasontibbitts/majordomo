@@ -28,12 +28,57 @@ digest-force listname digestname
   to go normally.  This is for people who want a digest to go at midnmight,
   regardless or whether or not it will be full.
 
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+There are three places where "put" files are used in digests:
+  preindex  - before the index
+  postindex - after the index
+  footer    - at the very end
+
+There are three types of digest:
+  text
+  mime
+  index  (an index digest has no footer)
+
+The list owner can define any number of named digests with various
+generation parameters, as explained above.
+
+If you have a digest called "weekly" and a "mime" digest is
+being sent out, Majordomo will look for the following files
+in the usual search list for the preindex text:
+   digest_weekly_mime_preindex
+   digest_weekly_preindex
+   digest_mime_preindex
+   digest_preindex
+
+Of course, 'weekly' is replaced by the actual digest name for the
+list and selected by the subscriber, and 'mime' is replaced by the
+type of digest the user has selected.
+
+Similarly for postindex:
+   digest_weekly_mime_postindex
+   digest_weekly_postindex
+   digest_mime_postindex
+   digest_postindex
+
+Finally, the footer follows the same pattern:
+   digest_weekly_mime_footer
+   digest_weekly_footer
+   digest_mime_footer
+   digest_footer
+
+Repeat these three groups of files (preindex, postindex, footer) for
+each digest name and each digest type, and potentially for each list
+on your server, and you have lots of files to "put"!
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 See Also:
    help configset archive_dir (to store archives in a non-default dir)
    help configset_digests     (for how to configure digesting)
    help mkdigest  (for another way to do "digest-force")
-   help put       (for how to create archive directory)
+   help put       (for how to create archive dir and pre/post/foot files)
+   help variables (for details on variable substitution and auto-include files)
 
 For a list of all help topics send this one-line message
    help topics
