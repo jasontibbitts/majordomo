@@ -290,6 +290,10 @@ sub handle_bounce_user {
     $user = new Mj::Addr($user);
 
     # No guarantees that an address pulled out of a bounce is valid
+    unless ($user) {
+      return "  User:       (unknown)\n\n";
+    }
+
     unless ($user->isvalid) {
       return "  User:       $user (invalid)\n\n";
     }
