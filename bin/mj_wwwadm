@@ -130,6 +130,7 @@ command:
 <option> subscribe-nowelcome
 <option> tokeninfo
 <option> unsubscribe
+<option> unregister
 <option> which
 <option> who-enhanced
 </select>
