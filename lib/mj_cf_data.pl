@@ -814,7 +814,7 @@ package Mj::Config;
     'type'   => 'integer',
     'groups' => [qw(password)],
     'global' => 1,
-    'visible'=> 1,
+    'visible'=> 0,
     'mutable'=> 3,
    },
    'welcome' =>
