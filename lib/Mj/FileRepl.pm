@@ -109,11 +109,12 @@ if the operation is committed.
 sub open {
   my $self   = shift;
   my $name   = shift;
+  my $lock   = shift || $name;
   
   $::log->in(110, "$name");
 
   my $tempname = _tempname($name);
-  $self->{'lock'} = new Mj::Lock($name, "exclusive");
+  $self->{'lock'} = new Mj::Lock($lock, "exclusive");
   
   # We have a lock now; the file is ours to do with as we please.
   $self->{'oldhandle'}->open("+< $name") ||

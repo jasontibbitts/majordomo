@@ -40,6 +40,7 @@ $Mj::Config::default_string = q(
  'attachment_rules'     => [],
  'install_dir'          => undef,
  'lists_dir'            => undef,
+ 'database_backend'     => 'text',
  'delivery_rules'       => [],
  'description'          => undef,
  'description_long'     => [],

@@ -46,7 +46,7 @@ $VERSION = "1.0";
 
 # This contains all of the legal requests, along with all of the access
 # variables that are relevant for each request.  Variables with a hash
-# value of '2' can be used in mumeric comparisons.
+# value of '2' can be used in numeric comparisons.
 %requests =
   (
    'accept'      => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
@@ -1934,7 +1934,7 @@ sub parse_taboo_body {
   for $j (@$arr) {
     # Format: !/match/i 10,20,blah
     ($inv, $re, $stop, undef, undef, $sev, undef, $class) =
-      $j =~ /^(\!?)(.*?)\s*(\d*)((,(\d*))(,(\w+))?)?\s*$/;
+      $j =~ /^(\!?)(.*?)\s*(\d*)((,([+-]?\d+)?)(,(\w+))?)?\s*$/;
     $sev = 10 unless defined $sev && length $sev;
     $class ||= 'body';
 
@@ -2002,7 +2002,7 @@ sub parse_taboo_headers {
 
   $data->{'code'} = "my \@out = ();\n";
   for $j (@$arr) {
-    ($inv, $re, $sev, undef, $class) = $j =~ /^(\!?)(.*?)\s*(\d*)(,(\w+))?$/;
+    ($inv, $re, $sev, undef, $class) = $j =~ /^(\!?)(.*?)\s*([+-]?\d+)?(,(\w+))?$/;
     $sev = 10 unless defined $sev;
     $class ||= 'header';
 
@@ -2714,7 +2714,7 @@ sub _compile_rule {
  	//x)                    # or a close
       {
 	($var, $op, $arg) = ($1, $2, $3);
-warn "$var:$op:$arg";
+#warn "$var:$op:$arg";
 	$op ||= '';
 	
 	# Weed out bad variables, but allow some special cases

@@ -137,7 +137,10 @@ sub new {
      'strict_domain_check'         => 1,
     );
   
+  $self->{backend} = ''; # Suppress warnings
   $self->_make_list('GLOBAL');
+
+  $self->{backend} = $self->_global_config_get('database_backend');
 
   # Pull in the constants for our address validator
   $self->{'av'}->params
@@ -157,7 +160,7 @@ sub new {
      'strict_domain_check'
      => $self->_global_config_get('addr_strict_domain_check'),
     );
-  
+
   $::log->out;
   $self;
 }
@@ -1488,7 +1491,8 @@ sub _make_list {
   return if $list eq 'ALL';
   unless ($self->{'lists'}{$list}) {
     $self->{'lists'}{$list} =
-      new Mj::List $list, $self->{'ldir'}, $self->{'sdirs'}, $self->{'av'};
+      new Mj::List($list, $self->{ldir}, $self->{sdirs}, $self->{av},
+		   $self->{backend});
   }
   1;
 }

@@ -81,34 +81,36 @@ sub new {
   my $ldir  = shift;
   my $sdirs = shift;
   my $av    = shift;
+  my $back  = shift;
   my $class = ref($type) || $type;
-  my $log   = new Log::In 150, "$ldir, $name";
+  my $log   = new Log::In 150, "$ldir, $name, $back";
 
-  my ($alifile, $subfile);
+  my ($subfile);
 
   my $self = {};
   bless $self, $class;
 
-  $self->{'name'}  = $name;
-  $self->{'sdirs'} = $sdirs;
-  $self->{'ldir'}  = $ldir;
-  $self->{'av'}    = $av;
-  $self->{'auxlists'} = {};
+  $self->{name}     = $name;
+  $self->{sdirs}    = $sdirs;
+  $self->{ldir}     = $ldir;
+  $self->{av}       = $av;
+  $self->{backend}  = $back;
+  $self->{auxlists} = {};
 
-  if ($sdirs) {
-    $subfile = $self->_file_path("_subscribers");
-    $alifile = $self->_file_path("_aliases");
-    $self->{'subs'} = new Mj::SubscriberList $subfile
-      unless $name eq "GLOBAL";
-    $self->{'aliases'}= new Mj::AliasList $alifile;
-  }
+  $subfile = $self->_file_path("_subscribers");
 
-  # Backwards compatibility?  Use some simple list of addresses.
-  else {
-    $subfile = $self->_file_path($self->{'name'});
+  # XXX This should probably be delayed
+  unless ($name eq "GLOBAL") {
+    $self->{subs} = new Mj::SubscriberList $subfile, $back;
   }
 
   $self->{'config'} = new Mj::Config $name, $ldir, $sdirs, $av;
+
+  # We have to figure out our database backend for ourselves if we're
+  # creating the GLOBAL list, since it couldn't be passed to us.
+  if ($name eq 'GLOBAL') {
+    $self->{backend} = $self->config_get('database_backend');
+  }
   $self;
 }
 
@@ -1168,8 +1170,9 @@ sub alias_lookup {
   my $self = shift;
   my $addr = shift;
   my $data;
-
+  
   $::log->in(120, $addr);
+  $self->_make_aliaslist;
   $data = $self->{'aliases'}->lookup($addr);
 
   $::log->out;
@@ -1188,6 +1191,8 @@ sub alias_reverse_remove {
   my $self = shift;
   my $addr = shift;
   my (@kill, @out, $i);
+
+  $self->_make_aliaslist;
 
   @kill = $self->alias_reverse_lookup($addr);
   
@@ -1211,6 +1216,7 @@ sub alias_reverse_lookup {
   my $addr = shift;
   my (@data, @out, $key, $args);
 
+  $self->_make_aliaslist;
   $self->{'aliases'}->get_start;
 
   # Grab _every_ matching entry
@@ -1367,7 +1373,7 @@ sub expire_dup {
   my $self = shift;
   my $time = time;
   my $days = $self->config_get('dup_lifetime');
-  my $i;
+  my (@nuked, $i);
 
   my $mogrify = sub {
     my $key  = shift;
@@ -1394,11 +1400,25 @@ sub expire_dup {
 These routines are used to allocate the various objects that a List has.
 These functions are moved out of the List constructor in order to cut down
 on startup time; if the objects are not used in a run, the support modules
-don't even have to be loaded.
+don''t even have to be loaded.
+
+=head2 _make_aliaslist
+
+Instantiate the alias list
+
+=cut
+sub _make_aliaslist {
+  my $self = shift;
+  
+  unless (defined $self->{aliaslist}) {
+    $self->{aliases} =
+      new Mj::AliasList $self->_file_path("_aliases"), $self->{backend};
+  }
+}
 
 =head2 _make_aux (private)
 
-This makes an AddressList object and stuff it into the List's collection.
+This makes an AddressList object and stuff it into the List''s collection.
 This must be called before any function which accesses the AddressList.
 
 =cut
@@ -1408,7 +1428,7 @@ sub _make_aux {
   
   unless (defined $self->{'auxlists'}{$name}) {
     $self->{'auxlists'}{$name} =
-      new Mj::AddressList $self->_file_path("X$name");
+      new Mj::AddressList $self->_file_path("X$name"), $self->{backend};
   }
   1;
 }
@@ -1424,7 +1444,7 @@ sub _make_fs {
   return 1 if $self->{'fs'};
   my $dir = $self->{'config'}->get("filedir");
   $dir = $self->_file_path("files") unless $dir;
-  $self->{'fs'} = new Mj::FileSpace($dir);
+  $self->{'fs'} = new Mj::FileSpace($dir, $self->{backend});
   return unless $self->{'fs'};
   1;
 }
@@ -1441,8 +1461,10 @@ sub _make_dup {
   my $self = shift;
   my $type = shift;
   return 1 if $self->{'dup'}{$type};
-  $self->{'dup'}{$type} = new Mj::SimpleDB $self->_file_path("_dup_$type"),
-    ['changetime'];
+
+  $self->{'dup'}{$type} =
+    new Mj::SimpleDB($self->_file_path("_dup_$type"), $self->{backend},
+		     ['changetime']);
   1;
 }
 

@@ -23,8 +23,8 @@ $count = 1;
 
 print "1..22\n";
 
-# Allocate a SimpleDB
-$db = new Mj::SimpleDB "testdb.$$", [qw(a b c d)];
+# Allocate a text SimpleDB
+$db = new Mj::SimpleDB "testdb.$$", 'text', [qw(a b c d)];
 okif($db);
 
 # Store a key

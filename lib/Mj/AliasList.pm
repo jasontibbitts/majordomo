@@ -29,16 +29,15 @@ blah
 package Mj::AliasList;
 use Mj::SimpleDB;
 use strict;
-use vars qw(@ISA);
-
-@ISA=qw(Mj::SimpleDB);
+use vars qw($AUTOLOAD);
 
 my @fields = qw(target fullsource fulltarget changetime);
 
 =head2 new(path)
 
-This allocates an AliasList by making a SimpleDB object with the fields
-we use.
+This allocates an AliasList by making a SimpleDB object with the fields we
+use.  We use delegation (a 'using' relationship instead of an 'is a'
+relationship) because of the nultiplexing nature of SimpleDB.
 
 =cut
 sub new {
@@ -46,9 +45,17 @@ sub new {
   my $class = ref($type) || $type;
 
   my $path = shift;
+  my $back = shift;
 
-  my $self = new Mj::SimpleDB $path, \@fields;
-  bless $self, $class;
+  my $ref = new Mj::SimpleDB $path, $back, \@fields;
+  bless {delegate => $ref}, $class;
+}
+
+sub AUTOLOAD {
+  no strict 'refs';
+  my $self = shift;
+  $AUTOLOAD =~ s/.*://;
+  $self->{delegate}->$AUTOLOAD(@_);
 }
 
 =head2 add
@@ -74,6 +81,9 @@ sub add {
   my ($data);
  
   $::log->in(120, "$key");
+
+  # Perform all operations on the real SimpleDB backend.
+  $self = $self->{delegate};
   
   # If the source is aliased to anything, die.
   if ($data = $self->lookup($key)) {
@@ -91,7 +101,7 @@ sub add {
   
   # Add the key to the database; we can force this because we already did
   # the lookup earlier.
-  $self->SUPER::add("force", $key, $args);
+  $self->add("force", $key, $args);
 }
 
 =head1 COPYRIGHT

@@ -70,6 +70,7 @@ sub new {
   my $type  = shift;
   my $class = ref($type) || $type;
   my $dir   = shift;
+  my $back  = shift;
   my $self  = {};
 
   my $log = new Log::In(200, $dir);
@@ -77,7 +78,7 @@ sub new {
   bless $self, $class;
   $dir =~ s|/$||;
   $self->{'dir'} = $dir;
-  $self->{'db'}  = new Mj::FileSpaceDB "$self->{'dir'}/_filespace";
+  $self->{'db'}  = new Mj::FileSpaceDB "$self->{'dir'}/_filespace", $back;
 
   $self;
 }

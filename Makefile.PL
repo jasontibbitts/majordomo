@@ -351,6 +351,30 @@ EOM
   $def = $config->{umask} || '077';
   $config->{umask} = get_str($msg, $def);
 
+  #---- Ask for insecure stored passwords
+  $msg = <<EOM;
+
+For developers: the install process needs to know your global passwords.
+ They can either be saved along with the rest of your install
+  configuration, or prompted for at the end of the installation.  Saving
+  your passwords can save typing if you are installing repeatedly (as
+  happens during development) but this leaves the passwords in the build
+  directory which can compromise security.
+ If you choose to save your passwords, the .mj_config file will be created
+  with strict permissions.
+
+Should the installer save your passwords?
+EOM
+  $def = $config->{save_passwords};
+  $config->{save_passwords} = get_bool($msg, $def);
+  unless ($config->{save_passwords}) {
+    # Just in case, clean out any stored passwords.
+    for my $i (@{$config->{'domains'}}, keys(%{$config->{'domain'}})) {
+      warn "Nuking $i";
+      delete $config->{'domain'}{$i}{'master_password'};
+    }
+  }
+
   #---- Ask for default install location
   $msg = <<EOM;
 
@@ -501,7 +525,12 @@ Please choose a password.
     passwords.
 EOM
     $def = $config->{'domain'}{$i}{'master_password'};
-    $config->{'domain'}{$i}{'master_password'} = get_str($msg, $def);
+    if ($config->{save_passwords}) {
+      $config->{'domain'}{$i}{'master_password'} = get_str($msg, $def);
+    }
+    else {
+      delete $config->{'domain'}{$i}{'master_password'};
+    }
 
     #---- Ask for location of old (1.x) lists
     $msg = <<EOM;
@@ -529,6 +558,9 @@ EOM
   open CONFIG, ">.mj_config";
   print CONFIG Dumper($config);
   close CONFIG;
+  if ($config->{save_passwords}) {
+    chmod(0600, '.mj_config');
+  }
   return $config;
 }
 
@@ -657,7 +689,7 @@ sub printhash {
     }
     elsif (UNIVERSAL::isa($val, 'HASH')) {
       print "    "x$indent;
-      printf ("%15s => ...\n", $key);
+      printf ("%20s => ...\n", $key);
       printhash($val, $indent+1);
       next;
     }
@@ -665,7 +697,7 @@ sub printhash {
       $msg = $val;
     }
     print "    "x$indent;
-    printf ("%15s => %s\n", $key, $msg);
+    printf ("%20s => %s\n", $key, $msg);
   }
 }
 

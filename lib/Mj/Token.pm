@@ -800,7 +800,7 @@ sub _make_tokendb {
   
   unless ($self->{'tokendb'}) {
     $self->{'tokendb'} =
-      new Mj::TokenDB "$self->{'ldir'}/GLOBAL/_tokens";
+      new Mj::TokenDB "$self->{'ldir'}/GLOBAL/_tokens", $self->{backend};
   }
   1;
 }

@@ -33,8 +33,6 @@ See Mj::SimpleDB.
 package Mj::TokenDB;
 use strict;
 use Mj::SimpleDB;
-use vars qw(@ISA);
-@ISA=qw(Mj::SimpleDB);
 
 my @fields = qw(type list request requester victim mode cmdline approvals
 		chain1 chain2 chain3 chain4 arg1 arg2 arg3 time
@@ -42,18 +40,17 @@ my @fields = qw(type list request requester victim mode cmdline approvals
 
 =head2 new(path)
 
-This allocates a TokenDB by making a SimpleDB object with the fields we
-use.
+This allocates a SimpleDB object with the fields we use.
 
 =cut
 sub new {
   my $type  = shift;
   my $class = ref($type) || $type;
  
-  my $path   = shift;
- 
-  my $self = new Mj::SimpleDB $path, \@fields;
-  bless $self, $class;
+  my $path = shift;
+  my $back = shift;
+
+  new Mj::SimpleDB $path, $back, \@fields;
 }
 
 =head1 COPYRIGHT

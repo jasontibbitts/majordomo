@@ -1,3 +1,57 @@
+Sun Jun 14 01:01:36 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/File.pm (open): Allow modes beginning with 'U' to specify
+ 	that no locking be done.
+
+	* lib/Mj/FileSpaceDB.pm (new), lib/Mj/AddressList.pm (new),
+ 	lib/Mj/SubscriberList.pm (new), lib/Mj/TokenDB.pm (new): Don't try
+ 	to inherit from SimpleDB.
+
+	* lib/mj_cf_defs.pl: Default database_backend to 'text'.
+
+	* lib/mj_cf_data.pl: New variable database_backend.
+
+	* lib/Majordomo.pm (new), (_make_list), lib/Mj/List.pm
+ 	(_make_aux), (_make_fs), (_make_dup), (new), lib/Mj/TokenDB.pm
+ 	(new), lib/Mj/FileSpaceDB.pm (new), lib/Mj/AddressList.pm (new),
+ 	lib/Mj/AliasList.pm (new), lib/Mj/SubscriberList.pm (new): Deal
+ 	with backend.
+
+Sat Jun 13 12:12:04 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/SimpleDB.pm: Complete revamp; all flat-file functionality
+ 	moved into SimpleDB::Text.  This now just acts as a converter and
+ 	backend selector.
+
+	* lib/Mj/File.pm (open): Accept additional 'lock' parameter.
+
+	* lib/Mj/SimpleDB/Text.pm: Change all functions over to using the
+ 	special lock files.
+
+	* lib/Mj/FileRepl.pm (open): Accept additional 'lock' parameter
+ 	giving the name of the phantom lockfile.
+
+Fri Jun 12 22:02:41 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* postinstall (install_response_files): Prompt for passwords if
+ 	they aren't in the configuration.
+	(do_config): Ditto.
+
+	* Makefile.PL (configure): Ask about storing passwords, and don't
+ 	ask for them if we're not storing them.
+	(configure): Restrict permissions on .mj_config if storing
+ 	passwords.
+
+Sat May 30 21:40:22 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Access.pm (_d_post): Require variables in @consult_vars
+ 	to be positive instead of just nonzero; this allows negative
+ 	severities to wipe out other severity accumulations.
+
+	* lib/Mj/Config.pm (parse_taboo_body): Allow + or - before taboo
+ 	matchers.
+	(parse_taboo_headers): Ditto.
+
 Sat May 23 01:19:23 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* misc/testsmtp (putline): Fix dumb typo.

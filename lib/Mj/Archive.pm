@@ -198,10 +198,11 @@ sub add {
   # Find the starting line of the new message
   $data->{line} = $self->{archives}{$sub}{lines}+1;
 
-  # Instantiate the index
+  # Instantiate the index; implicitly use text (or 'none' if we supported
+  # it) here
   unless ($self->{'indices'}{$arc}) {
     $self->{'indices'}{$arc} = new Mj::SimpleDB("$dir/.index/.I$arc",
-						\@index_fields);
+						'text', \@index_fields);
   }
 
   # Generate and append the mbox separator if necessary
@@ -279,7 +280,7 @@ sub get_message {
   # Open the database
   unless ($self->{'indices'}{$arc}) {
     $self->{'indices'}{$arc} = new Mj::SimpleDB("$dir/.index/.I$arc",
-						\@index_fields);
+						'text', \@index_fields);
   }
   
   # Look up the data for the message

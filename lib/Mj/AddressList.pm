@@ -38,10 +38,10 @@ sub new {
   my $type  = shift;
   my $class = ref($type) || $type;
 
-  my $path   = shift;
+  my $path = shift;
+  my $back = shift;
 
-  my $self = new Mj::SimpleDB $path, \@fields;
-  bless $self, $class;
+  new Mj::SimpleDB $path, $back, \@fields;
 }
 
 =head1 COPYRIGHT

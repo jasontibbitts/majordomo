@@ -75,6 +75,21 @@ else {
    'public'        => 'Public files',
   );
 
+$msg0 = <<EOM;
+
+Your global password must be known for some of the installation process,
+ but it is insecure to store it anywhere outside of Majordomo.  Thus you
+ must enter it now.  If you have not yet set a password, choose one and
+ enter it below.
+
+What is the global password for domain \$DOM?
+EOM
+
+$msg0s = <<EOM;
+
+What is the global password for domain \$DOM?
+EOM
+
 $msg1 = <<EOM;
 
 Majordomo stores its lists in a hiearachy of directories.  These can be
@@ -142,7 +157,7 @@ if (get_bool($msg3)) {
 
 # Give some basic MTA configuration
 if (-t STDIN) {
-  print "\n\nHere is some basic configuration information:\n";
+  print "\n\nWe will now generate some basic configuration information:\n";
   my $nhead = 0;
   for my $i (@{$config->{'domains'}}) {
     suggest_mta($i, $nhead);
@@ -255,7 +270,7 @@ sub create_dirs {
 sub do_config {
   my $dom = shift;
   # Do everything from the global $config
-  my(@args, $arg, $i, $ignore, $pw);
+  my(@args, $arg, $i, $ignore, $msg, $pw);
 
   @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F",
 	   "$config->{wtmpdir}/inst.$$");
@@ -263,6 +278,12 @@ sub do_config {
   open FILE, ">$config->{wtmpdir}/inst.$$";
 
   $pw = $config->{'domain'}{$dom}{'master_password'};
+  unless ($pw) {
+    ($msg = $msg0) =~ s/\$DOM/$dom/;
+    $pw = get_str($msg);
+    $config->{'domain'}{$dom}{'master_password'} = $pw;
+    $msg0 = $msg0s; # Switch to using the short prompt.
+  }
   print FILE "approve GLOBAL.pass configset GLOBAL master_password = $pw\n";
   print FILE "default password $pw\n";
 
@@ -288,6 +309,14 @@ sub install_response_files {
   my $dirs  = shift;
   my(@args, @dirs, $dir, $file, $i, $subj);
 
+  $pw = $config->{'domain'}{$dom}{'master_password'};
+  unless ($pw) {
+    ($msg = $msg0) =~ s/\$DOM/$dom/;
+    $pw = get_str($msg);
+    $config->{'domain'}{$dom}{'master_password'} = $pw;
+    $msg0 = $msg0s; # Switch to using the short prompt.
+  }
+
   # Copy dirs so we don't destroy the original array
   @dirs = @$dirs;
 
@@ -295,7 +324,7 @@ sub install_response_files {
 	   "$config->{wtmpdir}/inst.$$");
 
   open FILE, ">$config->{wtmpdir}/inst.$$";
-  print FILE "default password $config->{'domain'}{$dom}{'master_password'}\n";
+  print FILE "default password $pw\n";
 
   # Make the directories
   while (($dir, $subj) = splice(@dirs, 0, 2)) {
@@ -331,11 +360,19 @@ sub install_response_files {
 sub suggest_mta {
   my $dom   = shift;
   my $nhead = shift;
+  my $pw;
+
+  $pw = $config->{'domain'}{$dom}{'master_password'};
+  unless ($pw) {
+    ($msg = $msg0) =~ s/\$DOM/$dom/;
+    $pw = get_str($msg);
+    $config->{'domain'}{$dom}{'master_password'} = $pw;
+    $msg0 = $msg0s; # Switch to using the short prompt.
+  }
 
   my @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-p",
-	      "$config->{'domain'}{$dom}{'master_password'}",
-	      "createlist=nocreate,quiet" . ($nhead ? ",noheader" : ''),
-	      "GLOBAL");
+	      "$pw", "createlist=nocreate,quiet" . ($nhead ? ",noheader" :
+	      ''), "GLOBAL");
 
 #  print "(@args)\n";
   system(@args) == 0 or die "Error executing $args[0], $?";
@@ -353,6 +390,9 @@ EOM
 
   
 
+sub get_str {
+  return prompt(shift, shift);
+}
 
 sub get_bool {
   my ($msg, $def) = @_;

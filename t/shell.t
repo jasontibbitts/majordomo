@@ -1,5 +1,6 @@
 print "1..13\n";
 
+$| = 1;
 $counter = 1;
 
 eval('$config = require ".mj_config"');
@@ -9,6 +10,7 @@ ok(1, !$@);
 
 # Create the directory structure we need
 mkdir "tmp.$$", 0700 || die;
+mkdir "tmp.$$/locks", 0700 || die;
 mkdir "tmp.$$/test", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL/files", 0700 || die;
@@ -99,15 +101,15 @@ sub ok {
 
 sub run {
   if ($config->{'wrappers'}) {
-    $cmd = "$^X -T -I. -Iblib/lib blib/script/.mj_shell -Z -t tmp.$$ -d test " . shift;
+    $cmd = "$^X -T -I. -Iblib/lib blib/script/.mj_shell -Z --lockdir tmp.$$/locks -t tmp.$$ -d test " . shift;
   }
   else {
-    $cmd = "$^X -T -I. -Iblib/lib blib/script/mj_shell -Z -t tmp.$$ -d test " . shift;
+    $cmd = "$^X -T -I. -Iblib/lib blib/script/mj_shell -Z --lockdir tmp.$$/locks -t tmp.$$ -d test " . shift;
   }
   $cmd .= " -D"
     if (shift());
 
-#  print "$cmd\n";
+#  warn "$cmd\n";
   return `$cmd`;
 }
 

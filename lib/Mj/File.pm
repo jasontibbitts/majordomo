@@ -80,30 +80,39 @@ sub AUTOLOAD {
     $::log->abort("Attempting to call unimplemented function by proxy");
   }
 
-  if (wantarray) {
-    my @out = $self->{'handle'}->$name(@_);
+  $self->{'handle'}->$name(@_);
+
+#  if (wantarray) {
+#    my @out = $self->{'handle'}->$name(@_);
 #    $::log->out;
-    @out;
-  }
-  else {
-    my $out = $self->{'handle'}->$name(@_);
+#    @out;
+#  }
+#  else {
+#    my $out = $self->{'handle'}->$name(@_);
 #    $::log->out;
-    $out;
-  }
+#    $out;
+#  }
 }
 
 =head2 open(name, mode)
 
-This locks and opens a file.
+This locks and opens a file.  If the mode begins with 'U', no locking is
+done.
 
 =cut
 sub open {
   my $self   = shift;
   my $name   = shift;
   my $mode   = shift || "<";
-  my ($lmode, $handle);
+  my $lname  = shift || $name;
+  my ($lmode, $handle, $nolock);
 
   $::log->in(110, "$name, $mode");
+
+  if (substr($mode, 0, 1) eq 'U') {
+    $mode = substr($mode, 1);
+    $nolock = 1;
+  }
 
   if    ($mode =~ /rw/i) { $mode = "+<";}
   elsif ($mode =~ /^r/i) { $mode = "<" ;}
@@ -115,11 +124,11 @@ sub open {
     $lmode = "exclusive";
   }
 
-  $self->{'lock'} = new Mj::Lock($name, $lmode);
+  $self->{lock} = new Mj::Lock($lname, $lmode) unless $nolock;
   
   # We have a lock now; the file is ours to do with as we please.
-  $self->{'handle'}->open("$mode $name") || $::log->abort("Couldn't open $name, $!");
-  
+  $self->{handle}->open("$mode $name") || $::log->abort("Couldn't open $name, $!");
+  $self->{'open'} = 1;
   $::log->out;
   1;
 }
@@ -133,16 +142,16 @@ sub close {
   my $self = shift;
   
   $::log->in(120);
-  unless ($self->{'lock'}) {
+  unless ($self->{'open'}) {
     log_abort("Mj::File::close called on unopened handle");
   }
   
-  $self->{'handle'}->close || $::log->abort("Couldn't close $self, $!");
+  $self->{handle}->close || $::log->abort("Couldn't close $self, $!");
   $self->{'open'} = 0;
 
-  $self->{'lock'}->unlock;
+  $self->{lock}->unlock if $self->{lock};
 
-  delete $self->{'lock'};
+  delete $self->{lock};
 
   $::log->out;
   1;

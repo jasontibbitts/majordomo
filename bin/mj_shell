@@ -45,12 +45,13 @@ umask oct($::UMASK);
 #  -u : specify user (for testing only)
 #  -Z : For testing: wimp put of UID/GID tests
 #  --id : print UID and GIDs.
-
-#getopts('Dd:F:f:p:t:u:Z', \%::opts);
+#  --lockdir : specify the lock directory.  Only valid if -Z is set and the
+#    real and effective UIDs match (i.e. we're not running setuid).
 
 Getopt::Long::config('no_ignore_case', 'bundling');
-GetOptions(\%::opts,
-	   'D', 'd=s', 'F=s', 'f=s@', 'p=s', 't=s', 'u=s', 'Z', 'id');
+
+GetOptions(\%::opts, 'D', 'd=s', 'F=s', 'f=s@', 'p=s', 't=s', 'u=s', 'Z',
+	   'id', 'lockdir=s');
 
 #use Data::Dumper;
 #print Dumper \%opts;
@@ -65,6 +66,14 @@ if ($::opts{'id'}) {
 unless ($opts{'Z'}) {
   die("Not running as UID $::UID") unless $> == $::UID;
   die("Not running as GID $::GID") unless $) == $::GID;
+}
+
+if ($opts{'lockdir'} && opts{'Z'}) {
+  $opts{lockdir} =~ /(.*)/;
+  ;$::LOCKDIR = $1; # Wierdness to prevent installbin expansion.
+  if ($> != $< || $) != $( || -u $0) {
+    die("Can't specify lockdir when running setuid!");
+  }
 }
 
 # Open a log

@@ -22,21 +22,13 @@ Top of the list
 
 ! Make sure all sent mails have To: headers.
 
-! Begin generalization of database mechanism.
-  Move most of SimpleDB.pm into SimpleDB/Text.pm.  Make a new SimpleDD::new
-  that takes an additional argument ('method') and uses the appropriate
-  submodule.  Should probably also have a 'convert' method.  All submethods
-  should have an 'export' method that writes to a file.  Perhaps 'new'
-  should autoconvert.
+! Continue generalization of database mechanism.
+  
+  Write generic export and import functions.
 
-  Recode every simpledb::new call to provide a method.  Makefile.PL can
-  check for availability of certain modules and configure the backend
-  database appropriately.
+  Write autoconversion function.
 
-  t/db.t will need work; it should test everything that's available and
-  skip the rest.
-
-  Modules to be used: Text, BerkeleyDB, MySQL.
+  Write backends: BerkeleyDB, MySQL.
 
 ! Finish archive interface.
 
@@ -123,7 +115,6 @@ Top of the list
       header improprieties (not in To or CC header, etc.)
 
    Back end mime-modification functions come later.
-
 
 - Auto-configure global defaults instead of relying on defaults file, so
   that we can minimize config file access time (because defaults must be
@@ -223,6 +214,14 @@ Top of the list
     to do it automatically.
    Add some intelligence to the rekey routine, to check for collisions.
 
+- -request to owner or majordomo?  ite config option to choose, passed into
+    MTAConfig.
+
+- subscriber flag "novice/expert" passed in as a parameter to "post" access
+    control.
+
+- Database conversion tool.  Take a topdir, a password and a backend and
+  convert all databases to it.
 
 Well thought out stuff:
 ----------------------

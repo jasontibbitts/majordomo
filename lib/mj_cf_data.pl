@@ -266,6 +266,20 @@ the checks made here.
 
 EOC
    },
+   'database_backend' =>
+   {
+    'type'   => 'enum',
+    'values' => [qw(text)],
+    'groups' => [qw(general)],
+    'visible'=> 0,
+    'local'  => 0,
+    'global' => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+This controls the database format used to store various sets of data
+like subscriber lists.  Currently only a flat text database is supported.
+EOC
+   },
    'default_flags' =>
    {
     'type'   => 'string',
