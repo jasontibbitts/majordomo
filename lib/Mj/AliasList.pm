@@ -58,7 +58,7 @@ my @fields = qw(target stripsource striptarget changetime);
 
 This allocates an AliasList by making a SimpleDB object with the fields we
 use.  We use delegation (a 'using' relationship instead of an 'is a'
-relationship) because of the nultiplexing nature of SimpleDB.
+relationship) because of the multiplexing nature of SimpleDB.
 
 =cut
 sub new {
@@ -81,12 +81,6 @@ sub AUTOLOAD {
 
 This adds an alias.  We need to check several extra conditions in order to
 prevent cycles and chains.
-
-There are possible problems here.  If a user subscribes to a list, then
-aliases their address to something which is not subscribed, they may be
-unable to unsubscribe (or post, etc.).  A solution is to limit aliasing
-_to_ addresses which are already subscribed (but not here).  Unsubscription
-should remove any existing aliases.
 
 add a -> b :  a -> c? fail, already aliased (for any c)
               b -> c? fail, chain
