@@ -50,7 +50,14 @@ Here is a sample output:
   | 
 This output shows that a message was mailed to test-owner.  You have the
 headers, the PID of the injecting process, the action that was performed
-and its return status (1, meaning success).
+and its return status.  There are three possible values for the return
+status:
+
+  1     The command succeeded.
+  0     The command failed.
+ -1     The command stalled.  Commands can stall if they are
+        delayed or require confirmation.  See "help delay"
+        and "help configset_access_rules" for more information.
 
 In most cases, only the e-mail headers or other basic information about
 the session and command results are saved.  However, a bounce
