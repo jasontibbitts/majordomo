@@ -1,15 +1,15 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-set listname flag[,flag,flag...] address
-set ALL      flag[,flag,flag...] address
-set-check listname address
-set-aux   listname auxname flag[,flag,flag...] address
+set[-pattern][-regex][-allmatching] listname flag[,flag,flag...] address
+set[-pattern][-regex][-allmatching] ALL      flag[,flag,flag...] address
+set-check[-pattern][-regex][-allmatching] listname address
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (ALL is special case)
 flag,     required, is a subscription parameter (listed below)
 address,  required, is an address already subscribed to listname
 -check, if specified, displays settings instead of changing them
--aux,   if specified, causes the specified auxiliary list to be modified
-auxname,   specified with -aux only, is a sublist of 'listname'
+-pattern, if specified, treats the address as a pattern (see "help patterns")
+-regex,   if specified, treats the address as a pattern (see "help patterns")
+-allmatching, if specified, operates on every address that matches
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 This command sets the values of various subscription parameters, some
@@ -28,6 +28,26 @@ This can be very handy when you're going on (or returning from) vacation!
 You can supply a comma-separated list of flags and classes. If there
 are conflicts, the ones at the end of the list take precedence.  If
 any of the settings are illegal then none of the command takes effect.
+
+If the "-regex" option is used, "address" is interpreted as a
+Majordomo matching pattern. Review the "help patterns" file carefully.
+Patterns can be very simple or full-blown Perl regular expressions.
+When -regex is used to unsubscribe addresses with wild cards, the
+list password is required and confirmations will not be requested.
+Without "-allmatching", only the first matching address is removed.
+
+If the "-allmatching" option is used with "-regex", then every
+address that matches the pattern will have its settings affected.
+
+Each address has an original and a canonical form.  Usually these
+addresses are the same, but if the original address (the one
+that was used to subscribe to a mailing list) is an alias for
+another address, the latter address is the canonical address.
+
+When the "-regex" option is used, the canonical addresses are
+compared to the pattern.  This may cause some surprising results
+when an original address that does not match the pattern is
+reported to have been had its settings changed.
 
 
                          TABLE OF CONTENTS
