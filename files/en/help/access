@@ -11,7 +11,7 @@ by "help configset access_rules".
 
 The access command allows site managers to restrict access to all
 of majordomo's features to certain e-mail addresses. For example,
-a  site administrator could create an auxiliary group, badguys,
+a  site administrator could create an auxiliary list, badguys,
 and use this access_rule:
  
 configset GLOBAL access_rules << ENDTAG
@@ -21,7 +21,7 @@ deny, reply="Request denied.  Your address has been blacklisted."
 ENDTAG
 
 Then, anyone who repeatedly violated the site administrator's
-rules could be banned using the "auxadd" command. ALternatively,
+rules could be banned using the subscribe command. Alternatively,
 the banned users could be listed in the command itself, as with
 
 configset GLOBAL access_rules << ENDTAG
@@ -36,21 +36,21 @@ any feature can be limited by access_rules.
 
 
 See Also:
+   help configset_access_rules           (to restrict access to any command)
+   help configset_access_rules_variables (set/test for this command)
+   help configset_archive_access      (for     archive command access_rules)
+   help configset_faq_access          (for         faq command access_rules)
+   help configset_get_access          (for         get command access_rules)
+   help configset_index_access        (for       index command access_rules)
+   help configset_info_access         (for        info command access_rules)
+   help configset_intro_access        (for       intro command access_rules)
+   help configset_which_access        (for       which command access_rules)
+   help configset_who_access          (for         who command access_rules)
+   help configset_set_policy          (for         set command access_rules)
+   help configset_subscribe_policy    (for   subscribe command access_rules)
+   help configset_unsubscribe_policy  (for unsubscribe command access_rules)
    help post      (for the special case of restricting who can post msgs)
    help variables (for a list of all possible variables and what they mean)
-   help configset access_rules           (to restrict access to any command)
-   help configset access_rules_variables (set/test for this command)
-   help configset archive_access      (for     archive-related access_rules)
-   help configset faq_access          (for         faq-related access_rules)
-   help configset get_access          (for         get command access_rules)
-   help configset index_access        (for       index command access_rules)
-   help configset info_access         (for        info-related access_rules)
-   help configset intro_access        (for       intro-related access_rules)
-   help configset which_access        (for       which command access_rules)
-   help configset who_access          (for         who command access_rules)
-   help configset set_policy          (for         set command access_rules)
-   help configset subscribe_policy    (for   subscribe command access_rules)
-   help configset unsubscribe_policy  (for unsubscribe command access_rules)
 
 For a list of all help topics send this one-line message
    help topics
