@@ -1,5 +1,9 @@
 2000-10-05  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
+	* bin/mj_shell (parse_interactive): Term::ReadLine can spew
+        warnings over files we can't control; turn warnings off when
+        loading it.
+
 	* lib/Mj/Token.pm: Clean up various undeclared variable warnings.
 
 2000-10-04  Jason L Tibbitts III  <tibbs@math.uh.edu>

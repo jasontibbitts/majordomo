@@ -205,9 +205,12 @@ sub parse_interactive {
   my ($in, $pass) = @_;
   my ($args, @arglist, $cmd, $cmdline, $defaults, $features, $go, 
       $prompt, $res, $term);
-  require Term::ReadLine;
 
+  $^W = 0;
+  require Term::ReadLine;
   $term = Term::ReadLine->new('Interactive Majordomo Shell Interface');
+  $^W = 1;
+
   $prompt = "Majordomo>";
   $features = $term->Features;
   $term->ornaments(1) if $features->{ornaments} && $opts{ornaments};
