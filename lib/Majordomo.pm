@@ -531,7 +531,7 @@ acknowledgement messages such as confirmation requests.
 =cut
 sub gen_cmdline {
   my ($request) = shift;
-  my ($cmdline, $hereargs, $variable, $arguments, @tmp);
+  my (@tmp, $arguments, $base, $cmdline, $hereargs, $variable);
 
   return unless (ref $request eq 'HASH');
   if ($request->{'command'} =~ /owner/) {
@@ -548,18 +548,19 @@ sub gen_cmdline {
     return 1;
   }
   # The command line is  COMMAND[-MODE] [LIST] [ARGS]
-  $cmdline = "$request->{'command'}";
-  $cmdline =~ s/_(start|chunk|done)//;
+  $base = "$request->{'command'}";
+  $base =~ s/_(start|chunk|done)//;
+  $cmdline = $base;
   if ($request->{'mode'}) {
     $cmdline .= "-$request->{'mode'}";
   }
   # Add LIST if the command requires one
-  if (command_prop($request->{'command'}, "list")) {
+  if (command_prop($base, "list")) {
     $cmdline .= " $request->{'list'}";
   }
 
-  $hereargs  = function_prop($request->{'command'}, 'hereargs');
-  $arguments = function_prop($request->{'command'}, 'arguments');
+  $hereargs  = function_prop($base, 'hereargs');
+  $arguments = function_prop($base, 'arguments');
 
   if (defined $arguments) {
     for $variable (sort keys %$arguments) {
@@ -575,7 +576,8 @@ sub gen_cmdline {
       }
       last if (defined $hereargs and ($variable eq $hereargs));
       if ($arguments->{$variable} ne 'ARRAY') {
-        $cmdline .= " $request->{$variable}";
+        $cmdline .= " $request->{$variable}" 
+          if length $request->{$variable};
       }
     }
   }
@@ -2553,7 +2555,7 @@ sub accept {
   for $ttoken (@{$request->{'tokens'}}) {
     $token = $self->t_recognize($ttoken);
     if (! $token) {
-      push @out, 0, "Illegal token $ttoken.\n";
+      push @out, 0, "Illegal token \"$ttoken\".\n";
       next;
     }
 
@@ -2647,6 +2649,11 @@ sub alias {
 
   return (0, "No address was supplied.\n") 
     unless (exists $request->{'newaddress'});
+ 
+  $a2 = new Mj::Addr($request->{'newaddress'});
+  ($ok, $mess) = $a2->valid;
+  return (0, "$request->{'newaddress'} is an invalid address.\n$mess")
+    unless ($ok > 0);
 
   ($ok, $mess) = 
     $self->list_access_check($request->{'password'}, $request->{'mode'}, 
@@ -4839,7 +4846,10 @@ sub _unalias {
   my ($key, $data);
   
   ($key, $data) = $self->{'alias'}->remove('', $source->xform);
-  return (1, !!$key);
+  if (defined $key) {
+    return (1, $key);
+  }
+  return (0, "$source is not aliased to $requ.\n");
 }
 
 =head2 unregister
