@@ -510,7 +510,11 @@ sub password {
 
 sub post {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($i, $ok, $mess); 
+  my ($i, $ok, $mess, $handled); 
+  $handled = 0;
+  $handled = 1 
+    if (   ref $request->{'message'} eq 'IO::File'  
+        or ref $request->{'message'} eq 'IO::Handle');
  
   $request->{'command'} = "post_chunk"; 
  
@@ -518,10 +522,12 @@ sub post {
   # is called by Mj::Token::t_accept . 
   if (exists $request->{'message'}) { 
     while (1) {
-      $i = shift @{$request->{'message'}};
+      $i = $handled ? 
+        $request->{'message'}->getline :
+        shift @{$request->{'message'}};
       last unless defined $i;
       # Mj::Parser creates an argument list without line feeds.
-      $i .= "\n";
+      $i .= "\n" unless $handled;
      
       # YYY  Needs check for errors 
       ($ok, $mess) = @{$mj->dispatch($request, $i)};
@@ -551,8 +557,12 @@ sub post {
 
 sub put {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($act, $i);
+  my ($act, $handled, $i);
   my ($ok, $mess) = @$result;
+  $handled = 0;
+  $handled = 1 
+    if (   ref $request->{'contents'} eq 'IO::File'  
+        or ref $request->{'contents'} eq 'IO::Handle');
 
   my ($chunksize) = $mj->global_config_get(undef, undef, undef, 
                            $request->{'interface'}, "chunksize") * 80;
@@ -560,10 +570,12 @@ sub put {
   $request->{'command'} = "put_chunk"; 
 
   while (1) {
-    $i = shift @{$request->{'contents'}};
+    $i = $handled ? 
+      $request->{'contents'}->getline :
+      shift @{$request->{'contents'}};
     # Tack on a newline if pulling from a here doc
     if (defined($i)) {
-      $i .= "\n";
+      $i .= "\n" unless $handled;
       $chunk .= $i;
     }      
     if (length($chunk) > $chunksize || !defined($i)) {
