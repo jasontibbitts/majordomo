@@ -118,17 +118,22 @@ original reason for this module, but...)
 sub getline {
   my $self = shift;
   my $tomult = shift;
-  my ($len, $ein, $rin, $eout, $rout, $tmp);
+  my ($len, $ein, $fhn, $rin, $eout, $rout);
   $tomult = 1 unless (defined($tomult) and length($tomult));
 
-  $tmp = fileno($self->{'outhandle'});
+  $fhn = fileno($self->{'outhandle'});
   $rin = '';
-  vec($rin, $tmp, 1) = 1;
+  vec($rin, $fhn, 1) = 1;
   $ein = $rin;
 
   while(!length($self->{buffer}) || $self->{buffer} !~ /\n/) {
     return unless (select($rout=$rin, undef, $eout=$ein, 
                    $self->{'timeout'}*$tomult) > 0);
+    # Check that we didn't encounter an error on the filehandle
+    if (vec($eout, $fhn, 1)) {
+      warn "Error reading from MTA";
+      return;
+    }
     $len = sysread($self->{'outhandle'}, $self->{'buffer'}, 1024,
 				       length($self->{'buffer'}));
     return undef unless $len;
