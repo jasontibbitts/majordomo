@@ -3,7 +3,7 @@
 Patterns are used by various commands and configuration settings:
 
   By the archive-sync command, to match archive names.
-  By the lists command, to match list names.
+  By the lists and rekey commands, to match list names.
   By the set-pattern, unregister-pattern, unsubscribe-pattern, which, 
     and who commands, to match e-mail addresses.
 
@@ -284,7 +284,7 @@ cases.  However, the kind of matching done will depend upon where
 the pattern is used.
 
   In the archive-sync command, an exact match.
-  In the lists command, an exact, case-insensitive match.
+  In the lists and rekey commands, an exact, case-insensitive match.
   In the which and who commands, a case-sensitive substring match.
 
   In the attachment_filters setting, an exact, case-insensitive match.
@@ -316,6 +316,7 @@ See Also:
    help configset_taboo_headers
    help lists
    help overview
+   help rekey
    help set
    help unregister
    help unsubscribe
