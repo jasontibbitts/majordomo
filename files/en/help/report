@@ -62,6 +62,8 @@ following additional actions can be specified with the report command:
               and its token identifier was removed from the database.
   newtoken    A new token identifier has been added to the token database.
   parse       A message was sent to the server that contained no valid commands.
+  probebounce A bounce probe message could not be delivered.
+  tokenbounce A confirmation message could not be delivered.
   ALL         Report everything.
 
 The actions can optionally be followed by a colon or pipe (':', '|') and
@@ -169,6 +171,21 @@ parse
 -----
 A "parse" event is recorded when an e-mail message is processed for
 commands by the command parser, but no commands are found.
+
+probebounce
+-----------
+A "probebounce" event is recorded when a bounce probe message cannot be
+delivered to the intended recipient.  Bounce probe messages are created
+by the bounce rules; if the probebounce results in an address being
+removed from a mailing list, an "unsubscribe" event is also recorded.
+See "help configset_bounce_rules" for more information on probes.
+
+tokenbounce
+-----------
+A "tokenbounce" event is recorded when a confirmation message cannot be
+delivered to the intended recipient.  If the tokenbounce results in the
+token ID being removed from the database, a "reject" event is also
+recorded.
 
 
 See Also:

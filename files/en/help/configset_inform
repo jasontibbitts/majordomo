@@ -32,9 +32,9 @@ undertaken.
 
 The first field on each line can be any Majordomo command, or any of the
 following other events that are logged:  badtoken, bounce, connect,
-consult, expire, newtoken, or parse.  See "help report" for a
-description of each of these events.  The "help topics" document has a
-list of all of the commands.
+consult, expire, newtoken, parse, probebounce, or tokenbounce.  See
+"help report" for a description of each of these events.  The "help
+topics" document has a list of all of the commands.
 
 The second field on each line is one or more of these results:
   succeed  perform the actions if the request succeeds.
@@ -55,6 +55,21 @@ Some events, such as the accept, reject, and tokeninfo commands, do not
 apply to ordinary mailing lists, and can only be reported to domain
 administrators.  
 
+The "inform" action will usually cause a short notice to be mailed to
+the list owners.  This notice contains a summary of the event, including
+the command line, who issued the command, the status of the command, and
+the session number of the command.  See "help sessioninfo" for more
+information about sessions.
+
+For the "reject" and "tokenbounce" events, the "inform" action causes a
+detailed message to be sent to the list owners.  The message for the
+reject event contains the complete session information for the command
+that was rejected, to allow the owners to determine who was responsible
+for the original command.  The message for the tokenbounce event
+contains the error message that indicates why a confirmation message
+could not be delivered.  See "help admin_moderate" for more information
+about confirmation tokens.
+
 It is possible to use comments before, between, and after the individual
 lines in this setting.  Comments are lines that begin with a '#'.  You can 
 use comments as a reminder of what a setting does or why it was chosen, 
@@ -66,8 +81,8 @@ but comments have no impact on how the setting works.
 It is possible for site or domain administrators to issue commands that
 are not logged, using the "nolog" command mode.  It is also possible for
 list or domain administrators to issue commands that are not reported
-via e-mail, using the "noinform" command mode.  See "help
-admin_commands" for more details.
+via e-mail, using the "noinform" command mode.  See "help admin_commands"
+for more details.
 
 The log for a domain is stored in the "_log" file, in the directory for
 the GLOBAL pseudo-list.
@@ -76,8 +91,10 @@ the GLOBAL pseudo-list.
 See Also:
    help admin_commands
    help admin_domain
+   help admin_moderate
    help admin_monitor
    help commands
    help report
+   help sessioninfo
 
 $INCLUDE-help/foot
