@@ -1,0 +1,21 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  www_help_window = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : 0
+Data Type     : boolean
+Category      : miscellany
+Password Notes: Visible only with password. Set with global password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset GLOBAL www_help_window = 1
+
+$INCLUDE-config/www_help_window
+
+See Also:
+   help admin
+   help admin_domain
+   help mj_wwwadm
+   help mj_wwwusr
+
+$INCLUDE-help/foot
