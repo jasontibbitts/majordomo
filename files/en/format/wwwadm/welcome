@@ -179,6 +179,9 @@ Although the other features of this WWW service will allow you
 to perform many of the tasks, not every task is supported yet.
 However, the <b>Command Form</b> offers a primitive way of 
 issuing commands that may be easier for experienced administrators.
+<p>
+In particular, the $HELP:ARCHIVE, $HELP:DIGEST, and $HELP:REPORT
+commands are supported only by the command form.
 
 <h3 align=center>Sign In</h3>
 
