@@ -161,7 +161,7 @@ $ofunc   = $cgi->param('func') || 'welcome';
 if ((! @lists) and @mlists) {
   @lists = @mlists;
 }
-$lists[0] ||= 'GLOBAL';
+$lists[0] ||= '';
 
 #----- Initialize the variable substitutions -----#
 $passw   = $cgi->param('passw') || '';
@@ -221,6 +221,9 @@ print STDOUT "$str\n";
 
 if ($ofunc eq 'logout') {
   &usage($mj, $subs, 'You have successfully signed out.');
+}
+unless (length $lists[0]) {
+  &login($mj, $subs, '');
 }
 
 ($i) = $mj->valid_list($lists[0], 1, 1);

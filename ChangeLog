@@ -1,3 +1,20 @@
+2001-07-14  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Use an empty list name by default instead of
+	the GLOBAL list.  Suggested by Roger Klorese.
+
+	* lib/Majordomo.pm:  (accept)  When a posted message is
+	approved with the accept-archive command, log it as a "post"
+	instead of a "consult".
+	(configset)  Give an error immediately if the setting name
+	is not supplied.  Thanks to Roger Klorese.
+
+	* lib/Mj/List.pm:  (bounce_gen_stats)  Add missing dereference.
+
+	* lib/Mj/Resend.pm, lib/Mj/Util.pm:  Allow the "concat" and
+	"regcreset" actions in Safe compartments for greater flexibility
+	in regular expressions.  Thanks to Paul Hancock.
+	
 2001-07-12  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Config.pm (parse_access_rules, parse_bounce_rules,
