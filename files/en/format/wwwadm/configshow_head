@@ -3,11 +3,9 @@
 
 <p>
   Press the checkbox next to the name of each setting you wish 
-  to change or study, then press one of the three buttons. 
+  to change, then press one of the buttons. 
 </p>
 <ul>
-  <li>To see the help pages for the settings you chose, press
-      the <b>help</b> button.</li>
   <li>To reset the settings you chose to their default values,
       press the <b>configdef</b> button.</li>
   <li>To change the values of the settings you chose, modify the
@@ -29,5 +27,4 @@
   <input type="hidden" name="user" value="$USER">
   <input type="submit" name="func" value="configdef">
   <input type="submit" name="func" value="configset">
-  <input type="submit" name="func" value="help">
 <dl>
