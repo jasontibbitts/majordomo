@@ -326,6 +326,7 @@ sub check_headers {
   $code = {};
   $reasons = '';
   $data = $self->_global_config_get('block_headers');
+  # XLANG
   return (0, 'No patterns were provided by the block_headers setting.')
     unless (ref $data eq 'HASH');
   push @inv, @{$data->{'inv'}};
@@ -365,6 +366,7 @@ sub check_headers {
           delete $inv{"$k\t$l\t$rule\t$sev\t$class"};
         }
         else {
+          # XLANG
           $reasons .= "block_headers matched \"" .
                       substr($match, 0, 100) .  "\"\n";
         }
@@ -374,6 +376,7 @@ sub check_headers {
   # Now complain about missed inverted matches
   for $i (keys %inv) {
     ($k, $l, $rule, $sev, $class) = split('\t', $i);
+    # XLANG
     $reasons .= "block_headers failed to match $rule\n";
   }
   return (0, $reasons) if $reasons;
@@ -593,6 +596,7 @@ sub list_access_check {
 
   # Using regular expressions with the unsubscribe, unregister,
   # and set commands is allowed only for administrators.
+  # XLANG
   return (0, "An administrative password is required to use a pattern.\n")
     if ($args{'regexp'} and not $args{'master_password'});
 
@@ -800,6 +804,7 @@ sub _a_conf_cons {
   my $log = new Log::In 150, $td->{'command'};
 
   if ($args->{'nostall'}) {
+    # XLANG
     $args->{'reasons'} = "This command cannot be delayed.\n" . 
       "The 'nostall' access variable has been set.\003" .
        $args->{'reasons'};
@@ -845,6 +850,7 @@ sub _a_confirm {
   my ($defaults, $notify);
 
   if ($args->{'nostall'}) {
+    # XLANG
     $args->{'reasons'} = "This command cannot be delayed.\n" . 
       "The 'nostall' access variable has been set.\003" .
        $args->{'reasons'};
@@ -882,6 +888,7 @@ sub _a_confirm2 {
   my $log = new Log::In 150, $td->{'command'};
 
   if ($args->{'nostall'}) {
+    # XLANG
     $args->{'reasons'} = "This command cannot be delayed.\n" . 
       "The 'nostall' access variable has been set.\003" .
        $args->{'reasons'};
@@ -948,6 +955,7 @@ sub _a_consult {
   my ($defaults, $file, $group, $notify, $size);
 
   if ($args->{'nostall'}) {
+    # XLANG
     $args->{'reasons'} = "This command cannot be delayed.\n" . 
       "The 'nostall' access variable has been set.\003" .
        $args->{'reasons'};
@@ -991,6 +999,7 @@ sub _a_delay {
   my ($defaults, $delay, $file, $notify);
 
   if ($args->{'nostall'}) {
+    # XLANG
     $args->{'reasons'} = "This command cannot be delayed.\n" . 
       "The 'nostall' access variable has been set.\003" .
        $args->{'reasons'};
@@ -1034,6 +1043,7 @@ sub _a_forward {
   my $log = new Log::In 150, $arg;
 
   if ($args->{'nostall'}) {
+    # XLANG
     $args->{'reasons'} = "This command cannot be delayed.\n" . 
       "The 'nostall' access variable has been set.\003" .
        $args->{'reasons'};
@@ -1047,10 +1057,12 @@ sub _a_forward {
     $whoami = $self->_global_config_get('whoami');
     if (lc $whoami eq lc $arg) {
       # Mail Loop!  Send to owners instead.
+      # XLANG
       $cmdline .= "\nUnable to forward to $arg due to apparent mail loop.";
       $arg = $self->_list_config_get($td->{'list'}, 'whoami_owner');
     }
 
+    # XLANG
     $ent = build MIME::Entity
       (
        'Subject'  => "Forwarded request from $td->{'user'}",
@@ -1090,6 +1102,7 @@ sub _a_forward {
       # Mail Loop!  Send to owners instead.
       if ($ent) {
         $subject = $ent->head->get('subject');
+        # XLANG
         $subject = "Forwarding loop detected for $arg (was $subject)";
         $ent->head->replace('subject', $subject);
       }
@@ -1224,11 +1237,13 @@ sub _a_default {
   if (access_def($request, 'confirm')) {
     return $self->_a_allow(@_) if $args->{'user_password'};
     $action = "_a_confirm";
+    # XLANG
     $reason = "By default, $request must be confirmed by the person affected."
   }
 
   elsif (access_def($request, 'confirm2')) {
     $action = "_a_confirm2";
+    # XLANG
     $reason = "By default, $request must be confirmed by all persons involved."
   }
 
@@ -1249,10 +1264,12 @@ sub _a_default {
     elsif (exists $td->{'sublist'} and $td->{'sublist'}
            and $td->{'sublist'} !~ /MAIN/) {
       $action = "_a_deny";
+      # XLANG
       $reason = "Only list owners can make requests that involve sublists";
     }
     elsif ($access =~ /\+password$/ and ! $args->{'user_password'}) {
       $action = "_a_deny";
+      # XLANG
       $reason = "A personal or administrative password is required to issue this command.";
     }
     elsif ($access =~ /^open/) {
@@ -1260,6 +1277,7 @@ sub _a_default {
     }
     elsif ($access =~ /^closed/) {
       $action = "_a_deny";
+      # XLANG
       $reason = "${request}_access is set to 'closed'";
     }
     elsif ($access =~ /^list/ &&
@@ -1269,9 +1287,11 @@ sub _a_default {
              and ! $args->{'user_password'}) 
          {
            $action = "_a_confirm";
+           # XLANG
            $reason = "$td->{'user'} made a request that affects\n" .
                      "another address ($td->{'victim'})."
              if $args->{'mismatch'};
+           # XLANG
            $reason = "$self->{'sessionuser'} is masquerading as $td->{'user'}."
              if $args->{'posing'};
          }
@@ -1292,6 +1312,7 @@ sub _a_default {
     if (exists $td->{'sublist'} and $td->{'sublist'}
            and $td->{'sublist'} !~ /MAIN/) {
       $action = "_a_deny";
+      # XLANG
       $reason = "Only list owners can make requests that involve sublists";
     }
     # If the user has supplied their password, we never confirm.  We also
@@ -1304,6 +1325,7 @@ sub _a_default {
     # Deny the request if a password was required but not given.
     elsif ($policy eq 'auto+password' or $policy eq 'open+password') {
       $action = "_a_deny";
+      # XLANG
       $reason = "A personal or administrative password is required to issue this command.";
     }
 
@@ -1311,9 +1333,11 @@ sub _a_default {
     elsif ($args->{'mismatch'} or $args->{'posing'}) {
       $action = "_a_consult"   if $policy eq 'open';
       $action = "_a_conf_cons" if $policy eq 'open+confirm';
+      # XLANG
       $reason = "$td->{'user'} made a request that affects\n" .
                 "another address ($td->{'victim'})."
         if $args->{'mismatch'};
+      # XLANG
       $reason = "$self->{'sessionuser'} is masquerading as $td->{'user'}."
         if $args->{'posing'};
     }
@@ -1324,10 +1348,13 @@ sub _a_default {
       $action = "_a_confirm"   if $policy eq 'auto+confirm';
       $action = "_a_consult"   if $policy eq 'closed';
       $action = "_a_conf_cons" if $policy eq 'closed+confirm';
+      # XLANG
       $reason = "The ${request}_policy setting requires confirmation."
         if $action eq "_a_consult";
+      # XLANG
       $reason = "The ${request}_policy setting requires confirmation."
         if $action eq "_a_confirm";
+      # XLANG
       $reason = "The ${request}_policy setting requires confirmation from the subscriber and the list owner."
         if $action eq "_a_conf_cons";
     }
@@ -1341,10 +1368,12 @@ sub _a_default {
   elsif (access_def($request, 'mismatch')) {
     if ($args->{'posing'}) {
       $action = "_a_confirm2";
+      # XLANG
       $reason = "$self->{'sessionuser'} is masquerading as $td->{'user'}.";
     }
     elsif ($args->{'mismatch'} && !$args->{'user_password'}) {
       $action = "_a_confirm";
+      # XLANG
       $reason = "$td->{'user'} made a request that affects\n" .
                 "a different address ($td->{'victim'}).\n";
     }
@@ -1460,6 +1489,7 @@ sub _d_post {
 
   # Immediately consult for moderated lists
   $moderate = $self->_list_config_get($td->{'list'}, 'moderate');
+  # XLANG
   $args->{'reasons'} = "The $td->{'list'} list is moderated.\003" .
                   $args->{'reasons'} if $moderate;
   return $self->_a_consult(@_) if $moderate;
@@ -1504,6 +1534,7 @@ sub _d_post {
     }
   }
   if (@$restrict && !$member) {
+    # XLANG
     $args->{'reasons'} = "Non-Member Submission from $td->{'victim'}\003"
                         . $args->{'reasons'};
     return $self->_a_consult(@_);
