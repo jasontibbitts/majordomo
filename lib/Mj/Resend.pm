@@ -637,6 +637,9 @@ sub _post {
     # Generate the exclude list
     $exclude = $self->_exclude($ent[0], $list, $sl, $user);
 
+    # Incorporate the exclude list into the duplicate list.
+    $dup = { %$exclude, %$dup };
+
     # Print delivery messages to files
     for ($i = 0; $i < @ent; $i++) {
       $files[$i] = "$tmpdir/mjr.$$.final$i";
@@ -646,6 +649,7 @@ sub _post {
       close FINAL;
     }
 
+    $seqno = 'M' . $seqno;
     # These are the deliveries we always make.  If pushing digests, we'll add
     # those later.
     %deliveries =
@@ -654,41 +658,49 @@ sub _post {
        {
         exclude => $exclude,
         file    => $files[0],
+        seqnum  => $seqno,
        },
        'each-noprefix-noreplyto' =>
        {
         exclude => $exclude,
         file    => $files[1],
+        seqnum  => $seqno,
        },
        'each-prefix-replyto' =>
        {
         exclude => $exclude,
         file    => $files[2],
+        seqnum  => $seqno,
        },
        'each-noprefix-replyto' =>
        {
         exclude => $exclude,
         file    => $files[3],
+        seqnum  => $seqno,
        },
        'unique-prefix-noreplyto' =>
        {
         exclude => $dup,
         file    => $files[0],
+        seqnum  => $seqno,
        },
        'unique-noprefix-noreplyto' =>
        {
         exclude => $dup,
         file    => $files[1],
+        seqnum  => $seqno,
        },
        'unique-prefix-replyto' =>
        {
         exclude => $dup,
         file    => $files[2],
+        seqnum  => $seqno,
        },
        'unique-noprefix-replyto' =>
        {
         exclude => $dup,
         file    => $files[3],
+        seqnum  => $seqno,
        }
       );
 
@@ -705,7 +717,7 @@ sub _post {
     }
 
     # Invoke delivery routine
-    $self->deliver($list, $sl, $sender, $seqno, \%deliveries);
+    $self->deliver($list, $sl, $sender, \%deliveries);
 
     # Clean up and say goodbye
     for $i (keys %deliveries) {
@@ -1999,7 +2011,8 @@ sub do_digests {
   my $log = new Log::In 40;
   my (%digest, %file, @dfiles, @dtypes, @nuke, @tmp, 
       $digests, $dissues, $dtext, $elapsed, $file, $i, 
-      $j, $k, $l, $list, $subs);
+      $j, $k, $l, $list, $seqnum, $subs);
+
   $list = $args{'list'}; $subs = $args{'substitute'};
 
   # Pass to digest if we got back good archive data and there is something
@@ -2069,10 +2082,25 @@ sub do_digests {
 	# Unlink the temporaries.
 	unlink @nuke;
 
+        $seqnum = 'DV';
+        if ($dissues->{$i}{'volume'} =~ /(\d+)/) {
+          $seqnum .= "0$1N";
+        }
+        else {
+          $seqnum .= "01N";
+        }
+        if ($dissues->{$i}{'issue'} =~ /(\d+)/) {
+          $seqnum .= sprintf "%.5d", $1;
+        }
+        else {
+          $seqnum .= "01";
+        }
+
 	for $j (@dtypes) {
 	  # shifting off an element of @dfiles gives the corresponding digest
 	  $args{'deliveries'}->{"digest-$i-$j"} = {exclude => {},
-						   file => shift(@dfiles),
+						   file    => shift(@dfiles),
+                                                   seqnum  => $seqnum,
 						  };
 	}
         # XXX The status and password values (1, 0) may be inaccurate.
