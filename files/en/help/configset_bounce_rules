@@ -127,7 +127,7 @@ diagnostic:
   perform special handling.  This will contain the string "unknown" if no
   diagnostic could be extracted.
 
-Here's an in-depth example
+Here's an in-depth example:
 
   # When AOL says a user doesn't exist, drop it immediately
   remove-noprobe

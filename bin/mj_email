@@ -38,7 +38,7 @@ each command therein.
 use lib "$::LIBDIR";
 use strict;
 no strict "refs";
-use Getopt::Std;
+use Getopt::Long;
 my (%opts, $entity, $head, $list, $mime_parser, $mj, $ok, $request_ans, $user,
     $uuser);
 
@@ -71,8 +71,12 @@ delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 #      argument is $whoami for this domain
 # -S - when done, exit 99 instead of 0 (for qmail)
 # -T - for qmail versions prior to 1.03, trim this string from $ENV{LOCAL}.
+# -req - specifies argument for request structure (useful only with -c)
 
-getopts('c:d:l:mMoqQ:rSt:T:v:x:', \%opts);
+#getopts('c:d:l:mMoqQ:rSt:T:v:x:', \%opts);
+
+GetOptions(\%opts, 'c=s', 'd=s', 'l=s', 'm', 'M', 'o', 'q', 'Q=s', 'r',
+	   'S', 't=s', 'T=s', 'v=i', 'x=s', 'req=s%');
 
 # Deal with -Q option
 do_qmail() if $opts{'Q'};
@@ -156,7 +160,7 @@ if ($opts{'r'} or $opts{'x'}) {
 # if at -request (-q) pull out global 'request_answer' variable and figure
 # out what to do
 elsif ($opts{'q'} or $opts{'c'}) {
-  $::log->abort("mj_email called with -q and without -l!")
+  $::log->abort("mj_email called with -q or -c and without -l!")
     unless $opts{'l'};
   $request_ans = $mj->global_config_get(undef, undef, 'request_answer');
   if ($request_ans eq 'majordomo') {
@@ -379,10 +383,10 @@ sub connect_and_parse {
 # bypassing failed "access" checks.
 sub parse_commands {
   my ($mj, $deflist, $command) = @_;
-  my (@entities, @events, $args, $commands, $data, $debug_file, 
-      $debug_log, $debug_reply, $entity, $fh, $file, $head, $i, 
-      $list, $ok, $repl, $request, $sender, $server, $sub_addin, $subject, 
-      $sub_start, $time, $top, $token, $user, $uuser);
+  my (@entities, @events, $args, $commands, $data, $debug_file, $debug_log,
+      $debug_reply, $entity, $fh, $file, $head, $i, $list, $mode, $ok,
+      $repl, $request, $sender, $server, $sub_addin, $subject, $sub_start,
+      $time, $top, $token, $user, $uuser);
 
   ($entity, $head, $user, $uuser) = connect_and_parse($mj, 'email');
   # 65 is EX_DATAERR (error in input data)
@@ -408,10 +412,10 @@ sub parse_commands {
   }
 
   $::log->message(35, "info", "Message from $user.");
-  
+
   # Need to bail if we're talking to ourselves, either here (it's convenient)
   # or when checking access.
-  
+
   if ($mj->global_config_get(undef, undef, 'return_subject') &&
       defined($head->get('subject')) && $head->get('subject') =~ /\S/)
     {
@@ -423,17 +427,21 @@ sub parse_commands {
   }
   $sub_start = 'Majordomo results';
 
+  ($comand, $mode) = split('-', $command, 2) if defined($command);
+  $mode = '' unless defined $mode;
+
   $command = command_legal($command);
 
   if ($command) {
     # Iterated commands are not yet considered.
     $request = {
-      'command'   => $command,
-      'list'      => $deflist,
-      'mode'      => '',
-      'password'  => '',
-      'user'      => $uuser,
-    };
+		'command'   => $command,
+		'list'      => $deflist,
+		'mode'      => $mode,
+		'password'  => '',
+		'user'      => $uuser,
+		%{$opts{req}},
+		};
 
     $file = &Majordomo::tempname();
     $fh = gensym();
@@ -497,7 +505,7 @@ sub parse_commands {
        Top         => 0,
       );
   }
-  
+
   # Somehow we need to put together all of the entities and the debug info.
   # If we just have one entity, we add the necessary headers and send it
   # (this avoids attaching useless MIME crap).  If we have multiple
@@ -512,7 +520,7 @@ sub parse_commands {
   else {
     $top = build MIME::Entity
       Type => "multipart/mixed";
-    
+
     for $i (@entities) {
       $top->add_part($i);
     }
@@ -528,7 +536,7 @@ sub parse_commands {
     $i = $mj->substitute_vars_string($i, $repl);
     $head->add(undef, $i);
   }
-  
+
   $sender = $mj->global_config_get(undef, undef, 'sender');
   $server = $mj->global_config_get(undef, undef, 'whoami');
   if ($sender eq $user) {
@@ -541,10 +549,10 @@ sub parse_commands {
     $::log->abort("Couldn't open final output file, $!");
   $top->print(\*BLAH);
   close BLAH;
-  
+
   $mj->mail_message($sender, "$::TMPDIR/mje.$$.final", $user)
     unless ($user eq $server);
-  
+
   # Purge all tempfiles created by the entities.  XXX Ugh, need to clean up
   # the variable names.
   $entity->purge;

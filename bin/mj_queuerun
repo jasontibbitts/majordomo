@@ -140,9 +140,10 @@ exit;
 sub run_queue {
   my $log = new Log::In 25, 'Running queue';
 
-  my(@domains, @fhstatus, @functions, @msgs, @pri1, @pri2, @status, $arg,
-     $debug1, $debug2, $dom, $emerg_log, $end, $file, $func, $list, $mj,
-     $msg, $ok, $pri1, $pri2, $start, $statfile, $trycount);
+  my(%req, @args, @domains, @fhstatus, @functions, @msgs, @pri1, @pri2,
+     @status, $arg, $debug1, $debug2, $dom, $emerg_log, $end, $file, $func,
+     $key, $list, $mj, $msg, $ok, $pri1, $pri2, $start, $statfile,
+     $trycount, $val);
 
   # Grab the domain priorities from the queue, high priorities first
   opendir(PRI1, "$::LISTDIR/QUEUE") ||
@@ -317,10 +318,22 @@ sub run_queue {
             }
 
             # Else we have something that is associated with a list;
-            # extract the list name
-            $msg =~ /^\w\w\w-\d+-([^,]*),?([^,]*)$/;
+            # extract the list name and argument list
+            $msg =~ /^\w\w\w-\d+-([^,]*)(,(.*))?$/;
             $list = $1;
-            $arg  = $2 || '';
+            $arg  = $3 || '';
+
+	    # Split arglist on commas
+	    @args = split(',', $arg);
+
+	    # First item goes in $arg
+	    $arg = shift @args if @args;
+
+	    # Rest of arguments are split on '=', turned into a hash %req
+	    while (@args) {
+	      ($key, $val) = split('=', shift @args, 2);
+	      $req{$key} = $val;
+	    }
 
             # Now set the logging level to that of the list.
             ($debug2) = $mj->list_config_get(undef, undef, $list, 'MAIN', 'debug');
@@ -346,7 +359,7 @@ sub run_queue {
               if ($request_ans eq 'majordomo' || $arg) {
                 $log->message(50, 'info', 'Processing commands');
                 debug_to($emerg_log || 'majord');
-                parse_commands($mj, $list, $arg);
+                parse_commands($mj, $list, $arg, \%req);
                 debug_to('queuerun');
               }
               elsif ($request_ans eq 'owner') {
@@ -597,11 +610,11 @@ sub connect_and_parse {
 # first two for quick confirmation token processing; the latter two for
 # bypassing failed "access" checks.
 sub parse_commands {
-  my ($mj, $deflist, $command) = @_;
-  my (@entities, @events, $args, $commands, $data, $debug_file, 
-      $debug_log, $debug_reply, $entity, $fh, $file, $head, $i,
-      $list, $ok, $repl, $request, $sender, $server, $sub_addin, $subject, 
-      $sub_start, $time, $top, $token, $user, $uuser);
+  my ($mj, $deflist, $command, $req) = @_;
+  my (@entities, @events, $args, $commands, $data, $debug_file, $debug_log,
+      $debug_reply, $entity, $fh, $file, $head, $i, $list, $mode, $ok,
+      $repl, $request, $sender, $server, $sub_addin, $subject, $sub_start,
+      $time, $top, $token, $user, $uuser);
 
   ($entity, $head, $user, $uuser) = connect_and_parse($mj, 'email');
   return unless $entity;
@@ -644,15 +657,19 @@ sub parse_commands {
 
   # -subscribe and -unsubscribe aliases have the command in
   # the queue file name.  The message body is not parsed.
+  ($command, $mode) = split(/-/, $command, 2) if defined($command);
+  $mode = '' unless defined $mode;
+
   if (defined $command and command_legal($command)) {
     # Iterated or aliased commands are not yet considered.
     $request = {
-      'command'   => $command,
-      'list'      => $deflist,
-      'mode'      => '',
-      'password'  => '',
-      'user'      => $uuser,
-    };
+		'command'   => $command,
+		'list'      => $deflist,
+		'mode'      => $mode,
+		'password'  => '',
+		'user'      => $uuser,
+		%{$req},
+	       };
     $file = &Majordomo::tempname();
     $fh = gensym();
     if (open ($fh, ">$file")) {

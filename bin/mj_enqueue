@@ -33,7 +33,7 @@ BEGIN {
 
 use Socket;
 #use Fcntl qw(:flock :DEFAULT);
-use Getopt::Std;
+use Getopt::Long;
 use strict;
 
 
@@ -41,7 +41,7 @@ sub logmsg { print STDERR "[$$].Enqueue: @_\n"; }
 sub out { logmsg("Out: $_[1]"); syswrite($_[0], $_[1], length($_[1])) }
 sub in  { logmsg("In..."); sysread($_[0], $_, 1024); logmsg("In: $_"); $_ };
 
-my (%opts, $dom, $i, $line, $ok, $pid, $rendezvous, $q1, $q2, $q3,
+my (%opts, $dom, $i, $j, $line, $ok, $pid, $rendezvous, $q1, $q2, $q3,
     $qdir, $qfile, $qfunc, $abandoned);
 
 umask oct($::UMASK);
@@ -67,8 +67,16 @@ delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 #      argument is $whoami for this domain
 # -S - when done, exit 99 instead of 0 (for qmail)
 # -T - for qmail versions prior to 1.03, trim this string from $ENV{LOCAL}.
+# -req - specifies argument for request structure (useful only with -c)
 
-getopts('c:d:l:mMop:P:qQ:rSt:T:v:x:', \%opts);
+#getopts('c:d:l:mMop:P:qQ:rSt:T:v:x:', \%opts);
+
+Getopt::Long::Configure("bundling");
+GetOptions(\%opts, 'c=s', 'd=s', 'l=s', 'm', 'M', 'o', 'P=i', 'p=i', 'q',
+	   'Q=s', 't=s', 'T=s', 'v=i', 'x=s', 'req=s%');
+
+use Data::Dumper;
+logmsg Dumper \%opts;
 
 # Deal with -Q option
 do_qmail() if $opts{'Q'};
@@ -102,11 +110,16 @@ $q2 = 'AA';
 if ($opts{'l'}) { $q3 = "-$opts{'l'}"}
 else            { $q3 = '' }
 
-# Append the command, auxiliary list, or ",M" (for -moderator)
-# to the queue file name.
+# Append the command (plus any extra request entries, auxiliary list, or
+# ",M" (for -moderator) to the queue file name.
 if    ($opts{'M'}) { $q3 .= ",M"}
-elsif ($opts{'c'}) { $q3 .= ",$opts{'c'}"}
 elsif ($opts{'x'}) { $q3 .= ",$opts{'x'}"}
+elsif ($opts{'c'}) {
+  $q3 .= ",$opts{'c'}";
+  while (($i, $j) = each %{$opts{req}}) {
+    $q3 .= ",$i=$j";
+  }
+}
 
 # Loop through until we have a unique string.  If we loop until ZZ then
 # this will still work but we should be careful about the length of things.

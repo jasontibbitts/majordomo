@@ -1,3 +1,20 @@
+2001-07-15  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* bin/mj_queuerun (parse_commands): Unpack additional key=value
+	items from the queue filename and pass them as part of the request
+	structure.  Allow the command part of the queue filename to
+	contain a command-mode instead of just a mode.  Split and pass
+	this in the request structure.
+
+	* bin/mj_enqueue: Switch to Getopts::Long.  Accept a hash-type
+	argument --req which specifies additional items to be included in
+	the queue filename.
+
+	* bin/mj_email: Switch to Getopts::Long.  Accept a hash-type
+	argument --req which specifies additional elements for the request
+	structure.  Allow the -c option to specify a command-mode instead
+	of just a command.
+
 2001-07-14  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Use an empty list name by default instead of

@@ -4072,7 +4072,7 @@ sub configshow {
 
 =head2 changeaddr
 
-This replaces an entry in the master address database.  
+This replaces an entry in the master address database.
 
 =cut
 
@@ -4080,15 +4080,16 @@ sub changeaddr {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'victim'}, $request->{'user'}";
   my ($ok, $error);
-  
+
   ($ok, $error) = $self->global_access_check($request);
 
   unless ($ok > 0) {
     $log->out("noaccess");
     return ($ok, $error);
   }
-  
-  $self->_changeaddr($request->{'list'}, $request->{'user'}, $request->{'victim'},                     $request->{'mode'}, $request->{'cmdline'});
+
+  $self->_changeaddr($request->{'list'}, $request->{'user'}, $request->{'victim'},
+                     $request->{'mode'}, $request->{'cmdline'});
 }
 
 sub _changeaddr {
@@ -4108,7 +4109,7 @@ sub _changeaddr {
   $data->{'fulladdr'} = $requ->full;
   $data->{'stripaddr'} = $requ->strip;
 
-  # Does the address already exist in the registry?  
+  # Does the address already exist in the registry?
   # If so, combine the list data.
   if ($ldata = $self->{'reg'}->lookup($requ->canon)) {
     @lists = split ("\002", $ldata->{'lists'});
