@@ -2004,14 +2004,13 @@ sub _createlist {
   $bdir = $self->_global_config_get('install_dir');
   $bdir .= "/bin";
     
-  unless ($mode =~ /nocreate/) {
-
+  if ($mode !~ /nocreate/) {
     # Untaint $list - we know it's a legal name, so no slashes, so it's safe
     $list =~ /(.*)/; $list = $1;
     $dir  = "$self->{'ldir'}/$list";
 
-    return (0, "List already exists.\n")
-      if exists $self->{'lists'}{$list};
+    return (0, '', "List already exists.\n")
+      if exists $self->{'lists'}{$list} && $mode !~ /force/;
 
     $self->{'lists'}{$list} = undef;
 
@@ -2038,12 +2037,14 @@ sub _createlist {
 					      'domain' => $dom,
 					     );
   }
-  
-  # Now do some basic configuration
-  $self->_make_list($list);
-  $self->_list_config_set($list, 'owners', $owner);
 
-  # XXX mail the owner some useful information
+  if ($mode !~ /nocreate/) {
+    # Now do some basic configuration
+    $self->_make_list($list);
+    $self->_list_config_set($list, 'owners', $owner);
+    
+    # XXX mail the owner some useful information
+  }
 
   return (1, $head, $mess);
 }

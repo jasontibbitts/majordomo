@@ -53,13 +53,13 @@ configshow list variable (comments)
   Finally, note that not all per-list variables can be modified by the list
     owner.  Some require global priviliges.
 
-createlist list owner (nocreate)
+createlist list owner (nocreate, force)
   Creates the internal structures needed to maintain a list with the given
     name.  This will also suggest the necessary MTA configuration if the
     MTA in use is supported.
-  This will fail if the list exists.
-  The nocreate mode will simply suggest MTA configuration and will not fail
-    if the list exists.
+  This will fail if the list exists unless 'force' is given.
+  The 'nocreate' mode will simply suggest MTA configuration and will not
+    fail if the list exists.
   Note that Majordomo does not (yet) handle configuring the MTA itself,
     although it generally provides data which can simply be pasted into the
     necessary configuration file.

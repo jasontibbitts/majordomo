@@ -1,3 +1,11 @@
+Wed Jul 29 19:37:25 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* files/en/help/admin_commands: Document 'force' flag to
+ 	createlist.
+
+	* lib/Majordomo.pm (_createlist): Add 'force' parameter to force
+ 	creation/configuration even if the list already exists.
+
 Tue Jul 28 16:37:02 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/FileRepl.pm (open): Create the original file if it
