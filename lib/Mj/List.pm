@@ -1771,7 +1771,10 @@ sub bounce_gen_stats {
     $stats->{bouncedpct} = int(.5 + 100*($stats->{numbered} / $stats->{span}));
   }
 
-  $stata->{maxcount} = $maxbouncecount;
+  $stats->{maxcount} = $maxbouncecount;
+  $stats->{day} = 0;
+  $stats->{week} = 0;
+  $stats->{month} = 0;
 
   # Extract breakdown by time
   for $i (@{$bdata->{UM}}, @times) {
