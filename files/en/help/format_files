@@ -361,6 +361,16 @@ been mailed to the victim's address.
 
 set
 ---
+(text, wwwadm, wwwconfirm, wwwusr)  This file displays a message
+indicating that the settings for one mailing list have been changed.
+
+(standard plus CGIDATA, CGIURL, CHANGETIME, CLASS_DESCRIPTIONS, 
+ CLASSES, CMDPASS, PARTIAL, SELECTED, SETTINGS, SUBTIME, USER, 
+ VICTIM, and others)
+
+
+set_check
+---------
 (text, wwwadm, wwwconfirm, wwwusr)  This file displays the current 
 settings for one subscription on one mailing list.
 
