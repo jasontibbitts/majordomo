@@ -1,5 +1,11 @@
 2002-07-07  Jason Tibbitts  <tibbs@math.uh.edu>
 
+	* lib/Mj/Util.pm (shell_hook): New function: implement hooks by
+	calling out to shell scripts in a known directory.
+
+	* lib/Majordomo.pm (_createlist): Call a hook after aliases have
+	been regenerated.
+
 	* lib/Mj/Resend.pm (_exclude): Also generate lists of list members
 	and nonmembers appearing in the To: and CC: headers.
 	(_reply_to): Generate NEEDCOPY substitution based on the the

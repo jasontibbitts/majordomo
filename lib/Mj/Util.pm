@@ -16,11 +16,12 @@ package Mj::Util;
 use Mj::Log;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(clean_html condense enriched_to_hyper ep_convert 
-                ep_recognize find_thread_root gen_pw in_clock n_build 
-                n_defaults n_validate plain_to_hyper process_rule re_match 
-                reconstitute reflow_plain sort_msgs str_to_bool str_to_time 
-                str_to_offset time_to_str);
+
+@EXPORT_OK = qw(clean_html condense enriched_to_hyper ep_convert
+                ep_recognize find_thread_root gen_pw in_clock n_build
+                n_defaults n_validate plain_to_hyper process_rule re_match
+                reconstitute reflow_plain shell_hook sort_msgs str_to_bool
+                str_to_time str_to_offset time_to_str);
 
 use AutoLoader 'AUTOLOAD';
 
@@ -1333,6 +1334,65 @@ sub find_thread_root {
   }
   push @$seen, $id;
   return ($msgs->{$id}->{'root'}, $msgs->{$id}->{'level'});
+}
+
+=head2 shell_hook
+
+Implements a method of adding hooks implemented with shell scripts.
+
+In this, the simplest incarnation, we just look for an executable with a
+given name in a known location.  The environment needs to be sanitized.
+
+Argument passing needs to go via the environment.  Input to the script
+should go via the environment, command line, or a file in a known location.
+Output can go via the script's stdout.  Note that command line and
+environment are not secure channels; they can be seen by third parties just
+by running ps (at least with some operating systems).
+
+Takes named arguments:
+
+name: the name of the hook, used to determine what script to exec
+
+env: hash of environment variables.  These are the only variables the
+  process will see, unless it's a shell script and the shell adds its own.
+
+actsub: a subroutine to be called once per line of returned output from the
+  script.
+
+cmdargs: array of command line arguments to pass
+
+Could add attempts at calling scripts with domain and possibly list name
+appended.
+
+=cut
+
+use Symbol;
+sub shell_hook {
+  my %args = @_;
+  my $log  = new Log::In 120, "$args{name}";
+  my($fh, $pid, $scriptdir);
+
+  # Make sure the script exists
+
+  # XXX Ouch!  This is nasty
+  $scriptdir  = "$::LIBDIR/../scripts";
+  $scriptname = "$scriptdir/$args{name}";
+  return unless -x "$scriptname";
+
+  $args{env}     = {} unless $args{env};
+  $args{cmdargs} = [] unless $args{cmdargs};
+
+  # Do the fork/exec
+  $fh  = gensym();
+  $pid = open($fh, "-|");
+  if ($pid) { # parent
+    while (<$fh>) { &{$args{actsub}}($_) if $args{actsub}; };
+    close $fh or warn "Error $? when closing script";
+  }
+  else { # child
+    local %ENV = %{$args{env}};
+    exec("$scriptname", @{$args{cmdargs}}) || exit;
+  }
 }
 
 =head1 COPYRIGHT

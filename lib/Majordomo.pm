@@ -4698,7 +4698,7 @@ sub createlist {
 }
 
 use MIME::Entity;
-use Mj::Util qw(gen_pw);
+use Mj::Util qw(gen_pw shell_hook);
 sub _createlist {
   my ($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list, $pw) = @_;
   $list ||= '';
@@ -4932,6 +4932,7 @@ sub _createlist {
     }
 
     # Call out to a shell hook here
+    shell_hook(name => 'createlist-regen');
 
     return (1, $result);
   }
