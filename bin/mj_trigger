@@ -50,6 +50,10 @@ I<bounce_max_age> configuration variable) and vacation settings.
 Expire duplicate message checksums and message-ids, as
 indicated by the I<dup_lifetime> configuration setting.
 
+=item B<delay>
+
+Complete delayed requests.
+
 =item B<digest>
 
 Issue digests, as indicated by the I<digests> configuration setting.
@@ -133,21 +137,23 @@ $request = {
     'user'      => 'unknown@anonymous',
 };
 
-for my $i (@::DOMAINS) {
-  $::log->in(21, undef, "info", "Triggering domain $i");
+if ($opts{t} !~ /^lock/) {
+  for my $i (@::DOMAINS) {
+    $::log->in(21, undef, "info", "Triggering domain $i");
 
-  $::mj = new Majordomo $::LISTDIR, $i;
-  $mj = $::mj;  # for config default access to globals
+    $::mj = new Majordomo $::LISTDIR, $i;
+    $mj = $::mj;  # for config default access to globals
 
-  $mj->connect('trigger', 'no info available');
-  $mj->dispatch($request);
+    $mj->connect('trigger', 'no info available');
+    $mj->dispatch($request);
 
-  $::log->message(50, "info", "-----Calling destructors-----");
-  undef $mj;
-  undef $::mj;
+    $::log->message(50, "info", "-----Calling destructors-----");
+    undef $mj;
+    undef $::mj;
+  }
 }
-
-$::log->message(50, "info", "-----Expiring locks-----");
+else {
+  $::log->message(50, "info", "-----Expiring locks-----");
 # We have to do this while we aren't holding any locks at all.  That means
 # we can't even call it through a Majordomo object.  This is a layering
 # violation, but the simple act of connecting will lock a session, which
@@ -155,7 +161,8 @@ $::log->message(50, "info", "-----Expiring locks-----");
 # this will hang indefinitely while the global lock is held by someone
 # else.  On Linux this does not prevent other processes from acquiring the
 # global lock, but on some other OSes it might.  Sigh.
-Mj::Lock::expire_locks() if $opts{t} =~ /^d/;
+  Mj::Lock::expire_locks() 
+}
 
 $::log->out;
 
