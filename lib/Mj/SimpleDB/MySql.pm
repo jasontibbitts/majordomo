@@ -56,14 +56,14 @@ sub _make_db {
     warn "Problem allocating database" unless $dbh;
   }
 
-  unless (defined($tables->{$self->{file}})) {
+  unless (defined($tables->{$self->{table}})) {
     my @tables = map { $_ =~ s/.*\.//; $_ } $dbh->tables(); 
     foreach my $table(@tables) {
-      last if ($table =~ /^$self->{file}$/ && ($tables->{$self->{file}} = 1));
+      last if ($table =~ /^$self->{table}$/ && ($tables->{$self->{table}} = 1));
     }
-    unless ($tables->{$self->{file}}) {
+    unless ($tables->{$self->{table}}) {
       my ($query, @prim_key);
-      $query = "CREATE TABLE $self->{file} (";
+      $query = "CREATE TABLE $self->{table} (";
       for my $f ($self->SUPER::_make_db()) {
 	$query .= " $f->{NAME} $f->{TYPE}" .($f->{PRIM_KEY}?" NOT NULL":"") . ", ";
 	push (@prim_key, $f->{NAME}) if $f->{PRIM_KEY};
@@ -73,7 +73,7 @@ sub _make_db {
       my $ok = $dbh->do($query);
       my $error = $dbh->errstr;
       $dbh->commit();
-      warn "Unable to create table $self->{file} $error" unless (defined $ok);
+      warn "Unable to create table $self->{table} $error" unless (defined $ok);
     }
   }
   $dbh;

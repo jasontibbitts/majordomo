@@ -54,12 +54,12 @@ sub _make_db {
     warn "Problem allocating database" unless $dbh;
   }
 
-  unless (defined($tables->{$self->{file}})) {
-    $tables->{$self->{file}} = $dbh->func($self->{file}, 'table_attributes') ;
+  unless (defined($tables->{$self->{table}})) {
+    $tables->{$self->{table}} = $dbh->func($self->{table}, 'table_attributes') ;
 
-    unless (scalar @{$tables->{$self->{file}}}) {
+    unless (scalar @{$tables->{$self->{table}}}) {
       my ($query, @prim_key);
-      $query = "CREATE TABLE \"$self->{file}\" (";
+      $query = "CREATE TABLE \"$self->{table}\" (";
       for my $f ($self->SUPER::_make_db()) {
 	$query .= " \"$f->{NAME}\" $f->{TYPE}, ";
 	push (@prim_key, $f->{NAME}) if $f->{PRIM_KEY};
@@ -69,7 +69,7 @@ sub _make_db {
       my $ok = $dbh->do($query);
       my $error = $dbh->errstr;
       $dbh->commit();
-      warn "Unable to create table $self->{file} $error" unless (defined $ok);
+      warn "Unable to create table $self->{table} $error" unless (defined $ok);
     }
   }
 

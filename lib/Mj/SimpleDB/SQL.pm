@@ -46,6 +46,16 @@ sub new {
     $self->{domain} = $1;
     $self->{list} = $2;
     $self->{file} = $3;
+    $self->{table} = $self->{file};
+    if ($self->{table} =~ /^_/o) {
+      $self->{table} =~ s/^_//o;
+    } elsif ($self->{table} =~ /^X/o) {
+      $self->{table} =~ s/^X//o;
+      $self->{list} .= ":".$self->{table};
+      $self->{table} = 'subscribers';
+    } else {
+      die $self->{table};
+    }
     $self->{filename} = "$self->{domain}, $self->{list}, $self->{file}";
   } else {
     warn "Problem parsing filename $self->{filename}";
@@ -76,14 +86,62 @@ issue the proper "CREATE TABLE" statements.
 		     TYPE => "varchar(64)",
 		     PRIM_KEY => 1 }
 		 ],
+    'parser' => [
+		  { NAME => 'changetime',
+		    TYPE => 'integer' },
+		  { NAME => 'events',
+	    	    TYPE => 'varchar(255)' }
+		],
+    'bounce' => [
+		  { NAME => 'bounce',
+		    TYPE => 'integer' },
+		  { NAME => 'diagnostic',
+	    	    TYPE => 'varchar(255)' }
+		],
+    'dup_id' => [
+		  { NAME => 'changetime',
+		    TYPE => 'integer' },
+		  { NAME => 'lists',
+	    	    TYPE => 'varchar(255)' }
+		],
+    'dup_sum' => [
+		  { NAME => 'changetime',
+		    TYPE => 'integer' },
+		  { NAME => 'lists',
+	    	    TYPE => 'varchar(255)' }
+		],
+    'dup_partial' => [
+		  { NAME => 'changetime',
+		    TYPE => 'integer' },
+		  { NAME => 'lists',
+	    	    TYPE => 'varchar(255)' }
+		],
+    'posts' => [
+		  { NAME => 'changetime',
+		    TYPE => 'integer' },
+		  { NAME => 'postdata',
+	    	    TYPE => 'text' },
+		  { NAME => 'dummy',
+		    TYPE => 'char(1)' }
+		],
+    'aliases' => [
+		  { NAME => 'changetime',
+		    TYPE => 'integer' },
+		  { NAME => 'target',
+	    	    TYPE => 'varchar(255)' },
+		  { NAME => 'stripsource',
+	    	    TYPE => 'varchar(255)' },
+		  { NAME => 'striptarget',
+	    	    TYPE => 'varchar(255)' }
+		],
   };
   
   sub _make_db {
     my $self = shift;
     my $log   = new Log::In 200, "$self->{filename}";
 
-    if (defined($schema->{$self->{file}})) {
-      my @schema = (@{$schema->{default}},@{$schema->{$self->{file}}});
+    if (defined($schema->{$self->{table}})) {
+      my @schema = (@{$schema->{default}},@{$schema->{$self->{table}}});
 
       return @schema;
     } else {
@@ -110,12 +168,12 @@ sub put {
   my $flag = shift || 0;
   my $log    = new Log::In 200, "$self->{filename}, $key, $argref, $flag";
 
-  my $exist = $db->do("SELECT t_key FROM $self->{file} WHERE t_domain = ? AND t_list = ? AND t_key = ? FOR UPDATE",
+  my $exist = $db->do("SELECT t_key FROM $self->{table} WHERE t_domain = ? AND t_list = ? AND t_key = ? FOR UPDATE",
 		      undef,
 		      $self->{domain}, $self->{list}, $key);
 
   if ($exist == 0) {
-    my $r = $db->do("INSERT INTO $self->{file} (t_domain, t_list, t_key, ".
+    my $r = $db->do("INSERT INTO $self->{table} (t_domain, t_list, t_key, ".
 		     join(",", @{$self->{fields}}).
 		     ") VALUES (?, ?, ?, ".
 		     join(", ", map { "?" } @{$self->{fields}}).
@@ -124,7 +182,7 @@ sub put {
 
     return (defined($r) ? 0 : 1);
   } elsif ($exist and $flag == 0) {
-    my $r = $db->do("UPDATE $self->{file} SET ".
+    my $r = $db->do("UPDATE $self->{table} SET ".
 		     join(", ", map { "$_ = ? " } @{$self->{fields}}).
 		     " WHERE t_domain = ? AND t_list = ? AND t_key = ?", undef,
 		    @{%$argref}{@{$self->{fields}}}, $self->{domain}, $self->{list}, $key);
@@ -215,7 +273,7 @@ sub remove {
 
     # If we got something, delete, commit the transaction and return the old value.
     if ($data) {
-      $sth = $db->prepare_cached("DELETE FROM $self->{file} WHERE t_domain = ? AND t_list = ? AND t_key = ?");
+      $sth = $db->prepare_cached("DELETE FROM $self->{table} WHERE t_domain = ? AND t_list = ? AND t_key = ?");
       $status = $sth->execute($self->{domain}, $self->{list}, $key);
       $sth->finish();
       $db->commit();
@@ -234,7 +292,7 @@ sub remove {
 
   $sth = $db->prepare_cached("SELECT t_key, ".
 			      join(",", @{$self->{fields}}).
-			      " FROM $self->{file} WHERE t_domain = ? AND t_list = ? FOR UPDATE");
+			      " FROM $self->{table} WHERE t_domain = ? AND t_list = ? FOR UPDATE");
 
   $sth->execute($self->{domain}, $self->{list});
   
@@ -251,7 +309,7 @@ sub remove {
 
   $sth->finish();
 
-  $sth = $db->prepare_cached("DELETE FROM $self->{file} WHERE t_domain = ? AND t_list = ? AND t_key = ?");
+  $sth = $db->prepare_cached("DELETE FROM $self->{table} WHERE t_domain = ? AND t_list = ? AND t_key = ?");
   
   for $try (@deletions) {
     $sth->execute($self->{domain}, $self->{list}, $try)
@@ -324,7 +382,7 @@ sub replace {
   # So we're doing regex processing, which means we have to search.
   $sth = $db->prepare_cached("SELECT t_key, ".
 			      join(",", @{$self->{fields}}).
-			      " FROM $self->{file} WHERE t_domain = ? AND t_list = ? FOR UPDATE");
+			      " FROM $self->{table} WHERE t_domain = ? AND t_list = ? FOR UPDATE");
 
   $sth->execute($self->{domain}, $self->{list});
   
@@ -404,7 +462,7 @@ sub mogrify {
 
   $sth = $db->prepare_cached("SELECT t_key, ".
 			      join(",", @{$self->{fields}}).
-			      " FROM $self->{file} WHERE t_domain = ? AND t_list = ?");
+			      " FROM $self->{table} WHERE t_domain = ? AND t_list = ?");
 
   $sth->execute($self->{domain}, $self->{list});
   
@@ -454,7 +512,7 @@ sub mogrify {
   $sth->finish();
 
   for $k (@deletions) {
-    $db->do("DELETE FROM $self->{file} WHERE t_domain = ? AND t_list = ? AND t_key = ?",
+    $db->do("DELETE FROM $self->{table} WHERE t_domain = ? AND t_list = ? AND t_key = ?",
 	    undef,
 	    $self->{domain}, $self->{list}, $k);
   }
@@ -485,7 +543,7 @@ also returns the first element, we have a tiny bit of complexity in _get.
 
     $sth = $db->prepare_cached("SELECT t_key, ".
 				join(",", @{$self->{fields}}).
-				" FROM $self->{file} WHERE t_domain = ? AND t_list = ?");
+				" FROM $self->{table} WHERE t_domain = ? AND t_list = ?");
 
     $sth->execute($self->{domain}, $self->{list});
 
@@ -685,7 +743,7 @@ sub _lookup {
 
   my $sth = $db->prepare_cached("SELECT ".
 				  join(",", @{$self->{fields}}).
-				  " FROM $self->{file} WHERE t_domain = ? AND t_list = ? AND t_key = ? FOR UPDATE");
+				  " FROM $self->{table} WHERE t_domain = ? AND t_list = ? AND t_key = ? FOR UPDATE");
 
   $status = $sth->execute($self->{domain}, $self->{list}, $key);
 
@@ -770,8 +828,8 @@ key	varchar(255) not null
 
 table _parser :
 
-    events	varchar(20)
     changetime	integer
+    events	varchar(255)
 
 table _register :
 
