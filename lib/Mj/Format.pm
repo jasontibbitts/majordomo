@@ -680,7 +680,10 @@ sub show {
       eprint($out, $type, "    Address is invalid.\n");
       eprint($out, $type, prepend('    ',"$data\n"));
     }
-     
+    return $ok;
+  }
+
+  elsif ($ok < 0) {  
     eprint($out, $type, "    Address is valid.\n");
     eprint($out, $type, "      Mailbox: $strip\n")
       if $strip ne $request->{'victim'}->strip;
