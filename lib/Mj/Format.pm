@@ -324,8 +324,8 @@ sub configset {
 sub configshow {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
-  my ($array, $auto, $enum, $gen, $gsubs, $isauto, $list, $mess, 
-      $mode, $mode2, $ok, $short, $str, $subs,
+  my ($array, $auto, $cgidata, $cgiurl, $enum, $gen, $gsubs, $isauto, 
+      $list, $mess, $mode, $mode2, $ok, $short, $str, $subs,
       $tag, $tmp, $val, $var, $varresult);
 
   $request->{'cgiurl'} ||= '';
@@ -346,9 +346,12 @@ sub configshow {
     $mode = $mode2 = '-extract';
   }
 
+  $cgidata = cgidata($mj, $request);
+  $cgiurl  = $request->{'cgiurl'};
+
   $gsubs = { $mj->standard_subs($list),
-            'CGIDATA'  => cgidata($mj, $request),
-            'CGIURL'   => $request->{'cgiurl'},
+            'CGIDATA'  => $cgidata,
+            'CGIURL'   => $cgiurl,
             'PASSWORD' => $request->{'password'},
             'USER'     => escape("$request->{'user'}", $type),
           };
@@ -414,6 +417,10 @@ sub configshow {
     $subs->{'DEFAULTS'} = $data->{'defaults'};
     $subs->{'ENUM'}     = $data->{'enum'};
     $subs->{'GROUPS'}   = $data->{'groups'};
+    if ($mj->{'interface'} =~ /^www/) {
+      $subs->{'HELPLINK'} = 
+      qq(<a href="$cgiurl?$cgidata&list=$list&func=help&extra=$var" target="mj2help">$var</a>);
+    }
     $subs->{'LEVEL'}    = $ok;
     $subs->{'TYPE'}     = $data->{'type'};
 
@@ -606,7 +613,7 @@ sub intro {g_get("Intro failed.", @_)}
 sub help {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, $request->{'topic'};
-  my ($cgidata, $cgiurl, $chunk, $chunksize, $domain, $topic);
+  my ($cgidata, $cgiurl, $chunk, $chunksize, $domain, $hwin, $tmp, $topic);
   my ($ok, $mess) = @$result;
 
   select $out;
@@ -617,6 +624,10 @@ sub help {
 
   $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
                                       "chunksize");
+  $tmp = $mj->global_config_get($request->{'user'}, $request->{'password'},
+                                'www_help_window');
+  $hwin = $tmp ? ' target="mj2help"' : '';
+
   return unless $chunksize;
 
   $cgidata = cgidata($mj, $request);
@@ -632,7 +643,7 @@ sub help {
       $chunk = escape($chunk);
       $chunk =~ s/(\s{3}|&quot;)(help\s)(configset|admin|mj) (?=\w)/$1$2$3_/g;
       $chunk =~ 
-       s#(\s{3}|&quot;)(help\s)(\w+)#$1$2<a href="$cgiurl?\&${cgidata}\&func=help\&extra=$3">$3</a>#g;
+       s#(\s{3}|&quot;)(help\s)(\w+)#$1$2<a href="$cgiurl?\&${cgidata}\&func=help\&extra=$3"$hwin>$3</a>#g;
     }
     print $chunk;
   }
@@ -1125,6 +1136,10 @@ sub report {
       }
     }
   }
+
+  $request->{'command'} = "report_done";
+  ($ok, @tmp) = @{$mj->dispatch($request)};
+
   if ($request->{'mode'} =~ /summary/) {
     if (scalar keys %stats) {
       if ($request->{'list'} eq 'ALL') {
@@ -1166,8 +1181,6 @@ sub report {
     }
   }
 
-  $request->{'command'} = "report_done";
-  ($ok, @tmp) = @{$mj->dispatch($request)};
   1;
 }
 
@@ -2060,7 +2073,7 @@ sub cgidata {
   my ($addr, $out);
 
   return unless (ref $mj and ref $request);
-  $addr = escape("$request->{'user'}");
+  $addr = &escape("$request->{'user'}");
   
   $out = sprintf 'user=%s&passw=%s',
            $addr, $request->{'password'};
