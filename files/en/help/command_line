@@ -1,0 +1,124 @@
+                   Features of the mj_shell command line
+
+To make the mj_shell program easier to use, several features are available
+during interactive sessions.  These features include:
+
+  * Multi-line commands
+  * Convenient keystrokes and command history
+  * Command completion
+  * The pager and the editor
+
+This document discusses how commands are typed.  To see what commands are 
+available, read the "help commands" and "help admin_commands" documents.
+
+
+Multi-line commands
+-------------------
+
+There are two ways to type a command that takes up more than one line.
+The first way is to end each line of the command, except the last,
+with a backslash, '\'.  The second way is to use a here document.
+Please see "help command_parser" and "help here_document" for more
+information about these two approaches to multi-line commands.
+
+
+Convenient keystrokes and command history
+-----------------------------------------
+
+When you start mj_shell, you will see a message which indicates which
+library is being used to for the keystroke and history features.  There
+are three possible libraries:  Stub, Perl, and Gnu.  The Stub library
+has no special features.  The Perl and Gnu libraries both support 
+the keystroke and history features.  
+
+The history list keeps track of the commands you have used previously
+during the same session.  With the Perl and Gnu libraries, it is possible
+to use the up-arrow and down-arrow keys to move within the history
+list.
+
+Some of the common keystrokes are listed here, which are supported by the 
+Perl library and the Gnu library.  A leading "C" means to hold down 
+the control key while typing the second key.  Similarly, "M" stands for
+the meta key.  These bindings are from the "emacs" keymap; there is also a 
+"vi" keymap with different key bindings.
+
+C-_             Undo any changes to the current line.
+C-a             Move to the beginning of the line.
+C-b             Move backward one character.
+C-c             Terminate the program.
+C-d             Delete one character forward.
+C-e             Move to the end of the line.
+C-f             Move forward one character.
+C-h             Delete one character backward.
+C-k             Delete all characters forward.
+C-l             Clear the screen.
+C-n             Move to the next history item.
+C-p             Move to the previous history item.
+C-t             Transpose the current and previous characters.
+C-u             Clear the command line.
+C-w             Delete one word backward.
+M-b             Move backward one word.
+M-d             Delete one word forward.
+M-f             Move forward one word.
+M-t             Transpose the current and previous words.
+TAB             Command completion (see below).
+
+It is possible for you to do additional customization with the ".inputrc"
+file in your home directory.  With the Perl library, if the "EDITOR" 
+environment variable includes the string "vi", you will automatically
+be given the "vi" keymap.  To use the "emacs" keymap instead, add the 
+following line to your .inputrc file:
+
+  set editing-mode emacs
+
+
+Command completion
+------------------
+
+If you press the TAB key while typing a command, the mj_shell program
+will attempt to complete part of the command for you.  There are
+three times that completion is available:
+
+  * When you are typing a command name.
+  * When you are typing a list name.
+  * When you are typing a setting name with the configdef, configset,
+    or configshow command.
+
+If there is more than one possible completion, a list of all completions
+will be shown.
+
+
+The pager and the editor
+------------------------
+
+Some commands, such as the help command, usually show information that 
+takes up more than one page.  To view the output in a pager program
+like "more" or "less," use the following command:
+
+  default display pager
+
+On some occasions, you may want to change the output of a command and 
+use it to issue new commands.  For example, if you use the who command
+to see the list of subscribers, you could add "unsubscribe" commands
+before those addresses you want to remove from the list.  To cause
+the mj_shell program to process your changes, use this command:
+
+  default display editor
+
+(This feature is used automatically with the configedit and get-edit
+commands.)
+
+The pager or editor can be turned off with the following command:
+
+  default display
+
+
+See Also:
+   help admin
+   help command_parser
+   help default
+   help here_document
+   help mj_shell
+   help overview
+
+$INCLUDE-help/foot
