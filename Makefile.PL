@@ -341,7 +341,7 @@ EOM
   print CONFIG Dumper($config);
   close CONFIG;
   if ($config->{save_passwords}) {
-    chownmod("", "", 0600, '.mj_config');
+    chmod 0600, '.mj_config';
   }
   my $jnk = `pwd`;
   chomp $jnk;
