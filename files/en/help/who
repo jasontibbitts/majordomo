@@ -1,9 +1,10 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-who[-short][-enhanced] listname [pattern]
+who[-short][-enhanced][-export] listname [pattern]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site
 -enhanced, if specified, displays flags and mail mode for each subscriber
 -short,    if specified, produces just a simple list of email addresses
+-export,   if specified, produces commands needed to recreate the list
 pattern,   if specified, is a matching string (see "help patterns")
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -30,8 +31,20 @@ For any other list name, the subscriber flags and mail mode (each,
 digest, or nomail) will be shown in the result.  The "enhanced"
 option is only available to people using administrative passwords.
 
+If "-export" is specified, with a password but without the need for
+a wildcard pattern, the information will be provided in the form of
+commands which will recreate the list (locally or at another site).
+In other words, you get a big pile of subscribe and set commands.
+Flag state and class (see "help set") are exported, as are nomail
+expiration times. The commands don't include any mention of the list
+they apply to, so just stick 'default password' and 'default list'
+at the top and you're ready to go. Interaction with registration
+isn't done; this means that passwords must be reissued at the new site.
+
+
 See Also:
    help patterns (for simple and complex regular expressions)
+   help set      (for details on subscription flags and classes)
    help show     (for information about a given subscriber)
    help which    (for all lists a given subscriber is on)
    help configset access_rules (to restrict use of who)
