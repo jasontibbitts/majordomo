@@ -1752,6 +1752,37 @@ sub parse_enum_array {
   return (1, '', \%out);
 }
 
+=head2 parse_flags
+
+Parses a string of flags.
+
+=cut
+sub parse_flags {
+  my $self = shift;
+  my $str  = shift;
+  my $var  = shift;
+  my $log  = new Log::In 150, "$var, $str";
+  my ($i, $j, $reason, $seen, $values);
+ 
+  $reason = ''; $seen = {};
+  $values = join '', @{$self->{'vars'}{$var}{'values'}};
+
+  for ($i = 0 ; $i < length $str ; $i++) {
+    $j = substr($str, $i, 1);
+    if ($j =~ /^[$values]*$/) {
+      if (exists $seen->{lc $j}) {
+        $reason .= "The $j flag is a duplicate.\n";
+      }
+      $seen->{lc $j} = 1;
+    }
+    else {
+      $reason .= "The $j flag is not supported.\n";
+    }
+  }
+  return (0, $reason) if $reason;
+  1;
+}
+
 =head2 parse_inform
 
 Parses the contents of the inform variable.
