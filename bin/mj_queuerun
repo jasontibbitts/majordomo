@@ -283,7 +283,7 @@ sub run_queue {
             $arg  = $2 || '';
 
             # Now set the logging level to that of the list.
-            $debug2 = $mj->list_config_get(undef, undef, $list, 'debug');
+            ($debug2) = $mj->list_config_get(undef, undef, $list, 'MAIN', 'debug');
             if ($debug1 > $debug2) {$debug2 = $debug1};
             $::log->set_level($debug2);
 
@@ -475,6 +475,8 @@ sub connect_no_parse {
     }
     $sess .= $i;
   }
+
+  $from =~ /(.*)/; $from = $1;
   ($sess, $from);
 }
 
