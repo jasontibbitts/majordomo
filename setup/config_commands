@@ -22,10 +22,10 @@ header will contain the list's address.
 To apply these settings to a mailing list, 
 use the following command:
 
-configshow-merge-append DEFAULT:personal YOURLIST
+configshow-merge-append DEFAULT:personal LISTNAME
 
-(substitute the name of your mailing list 
-for YOURLIST). The "append" mode is necessary 
+(Substitute the name of your mailing list 
+for LISTNAME.) The "append" mode is necessary 
 because the delete_headers setting contains 
 existing values.
 
@@ -74,8 +74,10 @@ the settings of this template:
 
 configshow-merge-append DEFAULT:rfc2369 LISTNAME
 
-(substitute the name of your mailing list
-for LISTNAME)
+(Substitute the name of your mailing list 
+for LISTNAME.) The "append" mode is recommended
+because the message_headers setting may contain
+existing values.
 
 The archive_url setting should also be changed
 to reflect the location of the list archives.
@@ -89,4 +91,3 @@ List-Post: <mailto:$WHOAMI>
 List-Subscribe: <mailto:$MJ?body=sub%20$LIST>
 List-Unsubscribe: <mailto:$MJ?body=unsub%20$LIST>
 OPQR
-
