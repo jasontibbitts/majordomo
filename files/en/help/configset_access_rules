@@ -24,43 +24,84 @@ deny
 /msn/i OR /hotbot/i
 ENDTAG
 
+$INCLUDE-config/access_rules
 
-A table containing access rules. Access to any command (such as "set"
-or "subscribe" can be limited, and there are the two special cases
-(see "help post" and "help access"). This is a very powerful and
-unfortunately somewhat complicated mechanism for precisely restricting
-access to Majordomo functions.
+The access_rules setting is a powerful feature that can be used for
+fine-grained control of specific Majordomo commands.  In many cases,
+more convenient configuration settings, such as the subscribe_policy
+setting, are available to control access to common commands.  The
+access_rules setting will override any of these other settings.
 
-NOTE: Defining an access rule which refers to a sublist will CREATE
-that sublist (or auxiliary list). See "help subscribe" for how to create
-and/or put people on the sublist, see "help createlist" for regular lists.
+Access rules for the GLOBAL pseudo-list do not apply to regular mailing
+lists; they primarily apply to commands that are not list-specific.  The
+following table illustrates which access rules and other settings
+apply to which commands:
 
-There are a few shortcuts which can control access to common features,
-which are easier to set up than access_rules but not as powerful. If
-you configure an access_rule that acts on the same request as one of
-the shortcuts, THE SHORTCUT COMMAND IS IGNORED! See the bottom of this
-file for a list of these shortcuts (*_access and *_policy).
 
-Note that restricting simplified file retrieval commands such as "faq"
-(which send files to the user) does not automatically prevent using
-"get" to retrieve the same files. You should establish separate access
-rules for all of these commands: get, info, intro, faq, archive.
+Command         Which rules apply  Other settings for this command
+---------------------------------------------------------------------
+accept          none               none
+access          GLOBAL             block_headers
+alias           GLOBAL             none
+announce        list-specific*     none
+approve         none               none
+archive         list-specific      archive_access
+changeaddr      GLOBAL             none
+configdef       none               none
+configset       none               none
+configshow      none               none
+createlist      GLOBAL             none
+default         none               none
+digest          list-specific      none
+end             none               none
+faq             list-specific*     faq_access
+get             list-specific*     get_access
+help            GLOBAL             none
+index           list-specific*     index_access
+info            list-specific*     info_access
+intro           list-specific*     intro_access
+lists           GLOBAL             advertise, noadvertise
+owner           list-specific*     none
+password        GLOBAL             none
+post            list-specific      moderate, restrict_post, etc.
+put             list-specific*     none
+register        GLOBAL             none
+reject          none               none
+rekey           GLOBAL             none
+sessioninfo     none               none
+set             list-specific*     set_policy
+show            GLOBAL             none
+showtokens      list-specific*     none
+subscribe       list-specific*     subscribe_policy
+tokeninfo       none               none
+trigger         none               none
+unalias         GLOBAL             none
+unregister      GLOBAL             none
+unsubscribe     list-specific*     unsubscribe_policy
+which           list-specific      which_access
+who             list-specific*     who_access
+---------------------------------------------------------------------
+* Some list-specific commands can be affected by GLOBAL access rules.
+  For example, a GLOBAL access rule for the set command would affect the
+  "set ALL" command, which allows the settings for multiple list
+  subscriptions to be changed at once.  Please refer to the help file for
+  each command for more details on the exceptions.
 
-The "access_rules" variable can be set for individual lists as well as
-for the GLOBAL pseudo-list. There are different requests that can be
-trapped by each one.  If a command takes a list, it is restricted by
-the list-specific access_rules. If it doesn't, the GLOBAL rules are used.
-
-NOTE: Please refer to "help access_variables" for details on which 
-      requests and variables are available!
-
-WARNING: If you set access rules for the GLOBAL pseudo-list that attempt
-to trap per-list commands, those rules will be silently ignored! This
-includes things like "subscribe", which must be the target of a rule in
-each list's configuration if you want to keep someone from subscribing.
+You should notice that the table lists several commands for which the
+access rules have no effect.  There are basically two cases in which
+this is true.  For some administrative commands (configdef, configset,
+configshow), an administrative password is always required.  For other
+commands, no password is ever needed; for example, to use the tokeninfo
+or sessioninfo command, it is only necessary to know the token or
+session number.
 
 It is possible to use comments before, between, and after the individual
 rules, but not within rules.  Comments are lines that begin with a '#'.
+
+Any access rule which refers to an auxiliary list will cause it to be
+created automatically (see "help auxiliary_list" for an introduction to
+auxiliary lists.)
+
 
 Table of contents for the information below:
   Introduction - this section.
@@ -703,7 +744,7 @@ Section 2.6 - general hints and examples of useful access_rules
      post
      deny, replyfile=NoAttachmentAllowed
      \$mime_deny
-  Please refer to "help configset attachment_rules" for details.
+  Please refer to "help configset_attachment_rules" for details.
 
 
 2.6.6 - Allow a list owner to post without subscribing:
@@ -926,7 +967,9 @@ See Also:
    help configset_index_access        (for       index command access_rules)
    help configset_info_access         (for        info command access_rules)
    help configset_intro_access        (for       intro command access_rules)
+   help configset_moderate
    help configset_post_limits         (for how to restrict posting frequency)
+   help configset_restrict_post
    help configset_set_policy          (for         set command access_rules)
    help configset_subscribe_policy    (for   subscribe command access_rules)
    help configset_unsubscribe_policy  (for unsubscribe command access_rules)
