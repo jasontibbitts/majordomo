@@ -19,8 +19,6 @@ Bugs?
 
 Messages with empty first part always checksum the same?
 
-Dispatch should log password failures for overriding logging.
-
 Always allocating address objects for every core call costs for iterators;
 invent some handle method instead so we can cache state between calls.
 
@@ -41,31 +39,19 @@ Top of the list
    in the reg database should be updated from the actual membership lists.
    This makes this a global function and an extremely time consuming one.
 
-! Addr object
-
-regexp matching within access_rules code.  Does it work?  This happens only
-on the victim; if it is problematic, stringify $victim before evalling the
-code.
-
 ! Master address database:
 
 Need these functions to manipulate the reglist:
 
   password - change a password (later)
-  crypt - encrypt a password (just call MD5)
 
-! Rewrite shell.t to just build the file, call mj_shell once (or perhaps
-  just a few times) and check the output.  This should improve test times
-  quite a bit.
+! Update help texts from recent contributions.
+
+! Rewrite Format::lists to do proper sorting.
 
 -- Snapshot
 
-! RBL queries:
-  parse all Received: headers, look for IP addresses.
-  Look them up in the RBL..
-  Add an exemption list (addrs?  IPs?)
-  Set access variable; bounce to owner by default if set.
-  Don't ever do any checks if some config variable not set.
+! Dispatch should log password failures for overriding logging.
 
 ! Investigate other locking methods.
 
@@ -263,14 +249,20 @@ Need these functions to manipulate the reglist:
      (or notokens, notraffic, noactions) and only failed, only stalls, only
      success, only passworded, etc.
 
--  Get rid of the rekey function altogether and trigger a change of
-    the addr_xforms variables (or anything else that would require a rekey)
-    to do it automatically.
-   Add some intelligence to the rekey routine, to check for collisions.
-
-
 - subscriber flag "novice/expert" passed in as a parameter to "post" access
     control.
+
+- Rewrite shell.t to just build the file, call mj_shell once (or perhaps
+  just a few times) and check the output.  This should improve test times
+  quite a bit.
+
+- RBL queries:
+  parse all Received: headers, look for IP addresses.
+  Look them up in the RBL..
+  Add an exemption list (addrs?  IPs?)
+  Set access variable; bounce to owner by default if set.
+  Don't ever do any checks if some config variable not set.
+
 
 Well thought out stuff:
 ----------------------

@@ -39,6 +39,7 @@ $Mj::Config::default_string = q(
  'archive_size'         => 'unlimited',
  'archive_split'        => 'monthly',
  'attachment_rules'     => [],
+ 'catrgory'             => '',
  'install_dir'          => undef,
  'lists_dir'            => undef,
  'database_backend'     => 'text',

@@ -454,6 +454,19 @@ EOC
 Comment string that will be retained across config file rewrites.
 EOC
    },
+   'category' =>
+   {
+    'type'   => 'string',
+    'groups' => [qw(majordomo lists)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+A string used to categorize the list.  Any string can be chosen; the
+value is used only in the output of the lists command to group and
+sort lists.
+EOC
+   },
    'description' =>
    {
     'type'   => 'string',

@@ -301,7 +301,7 @@ sub index {
 sub lists {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
       $list, $vict, $arg1, $arg2, $arg3, $ok, @lists) = @_;
-  my (%legend, @desc, $site, $count, $desc, $flags);
+  my (%legend, @desc, $category, $site, $count, $desc, $flags);
   select $out;
   $count = 0;
 
@@ -313,7 +313,7 @@ sub lists {
 	   "$site serves the following lists:\n\n")
       unless $mode =~ /short|tiny/;
     
-    while (($list, $desc, $flags) = splice(@lists, 0, 3)) {
+    while (($list, $category, $desc, $flags) = splice(@lists, 0, 4)) {
       $count++;
       if ($mode =~ /tiny/) {
 	eprint($out, $type, "  $list\n");

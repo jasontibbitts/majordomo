@@ -33,7 +33,7 @@ use Data::Dumper;
 use Mj::Log;
 use Mj::File;
 use Mj::FileRepl;
-use vars qw(@EXPORT_OK @ISA $VERSION %actions %requests %is_array
+use vars qw(@EXPORT_OK @ISA $VERSION %reg_actions %reg_legal %requests %is_array
 	    %is_parsed $list);
 
 require Exporter;
@@ -44,37 +44,61 @@ $VERSION = "1.0";
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(global_get parse_table parse_keyed);
 
+# The regular set of actions
+%reg_actions =
+  ('allow'           => 1,
+   'confirm'         => 1,
+   'consult'         => 1,
+   'confirm_consult' => 1,
+   'default'         => 1,
+   'deny'            => 1,
+   'forward'         => 1,
+#  'log'             => 1,
+   'mailfile'        => 1,
+   'reply'           => 1,
+   'replyfile'       => 1,
+  );
+
+%reg_legal =
+  ('password_valid'=>1,
+   'mismatch'      =>1,
+  );
+
 # This contains all of the legal requests, along with all of the access
 # variables that are relevant for each request.  Variables with a hash
 # value of '2' can be used in numeric comparisons.
 %requests =
   (
-   'accept'      => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'access'      => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'advertise'   => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'alias'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'auxadd'      => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'auxwho'      => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'faq'         => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'get'         => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'help'        => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'index'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'info'        => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'intro'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'lists'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'put'         => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'register'    => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'rekey'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'request_response' => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'showtokens'  => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'unsubscribe' => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'which'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
-   'who'         => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
+   'access'      => {'legal'=>\%reg_legal,
+		     'actions'=>{'allow'=>1, 'deny'=>1, 'mailfile'=>1},
+		    },
+   'advertise'   => {'legal'=>\%reg_legal,
+		     'actions'=>{'allow'=>1, 'deny'=>1, 'mailfile'=>1},
+		    },
+   'alias'       => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'auxadd'      => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'auxwho'      => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'faq'         => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'get'         => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'help'        => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'index'       => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'info'        => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'intro'       => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'lists'       => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'put'         => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'register'    => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'rekey'       => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'request_response' => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'showtokens'  => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'unsubscribe' => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'which'       => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
+   'who'         => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
 
    'subscribe'   => {'legal'=>{'password_valid' => 1,
 			       'mismatch'       => 1,
 			       'matches_list'   => 1,
-			      }
+			      },
+		     'actions'=>\%reg_actions,
 		    },
 
    'post'        =>
@@ -101,24 +125,9 @@ $VERSION = "1.0";
      'quoted_lines'                 => 2,
      'total_header_length'          => 2,
      'total_header_length_exceeded' => 1,
-    }
+    },
+    'actions' => \%reg_actions,
    },
-  );
-
-# This holds all of the legal actions
-%actions =
-  (
-   'allow'           => 1,
-   'confirm'         => 1,
-   'consult'         => 1,
-   'confirm_consult' => 1,
-   'default'         => 1,
-   'deny'            => 1,
-   'forward'         => 1,
-#  'log'             => 1,
-   'mailfile'        => 1,
-   'reply'           => 1,
-   'replyfile'       => 1,
   );
 
 
@@ -1206,8 +1215,9 @@ sub parse_access_rules {
       # never notice) but that can wait.
       for ($k=0; $k<@{$action}; $k++) {
 	($tmp = $action->[$k]) =~ s/\=.*$//;
-	return (0, "Illegal action: $action->[$k].\n")
-	  unless $actions{$tmp};
+	return (0, "Illegal action: $action->[$k].\nLegal actions for '$i' are:\n".
+		join(' ',sort keys %{$requests{$i}{'actions'}}))
+	  unless $requests{$i}{'actions'}{$tmp};
       }
 
       # Compile the rule
@@ -2545,13 +2555,9 @@ sub _compile_rule {
       $re,        # Current regexp operator
       $pr,        # Element prologue
       $ep,        # Element epilogie
-      $safe,      # A safe compartment to do regexp checking
       $err,       # Generic error holder
    );
 
-  $safe = new Safe;
-  $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
-  
   $e = "";
   $o = "";
   $indent = 0;
@@ -2574,8 +2580,7 @@ sub _compile_rule {
     # Process /reg\/exp/
     if (s:^(/.*?(?!\\)./)::) {
       $re = $1;
-
-      $err = (Majordomo::_re_match($safe, $re, "justateststring"))[1];
+      $err = (Majordomo::_re_match($re, "justateststring"))[1];
       if ($err) {
 	$e .= "Error in regexp '$re',\n$err";
 	last;
@@ -2785,7 +2790,7 @@ sub _compile_rule {
     }    
     
     $e .= "unknown rule element at:\n";
-    $e .= "$_\n";
+    $e .= "$_";
     last;
   }
   

@@ -2536,7 +2536,7 @@ membership.
 sub lists {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode) = @_;
   my $log = new Log::In 30, "$mode";
-  my (@out, $list, $desc, $flags, $count, $limit, $ok, $err);
+  my (@out, $cat, $count, $desc, $err, $flags, $limit, $list, $ok);
 
   # Stuff the registration information to save lots of database lookups
   $self->_reg_lookup($user);
@@ -2557,8 +2557,9 @@ sub lists {
   }
 
   for $list ($self->get_all_lists($user, $passwd, $auth, $interface)) {
-    $desc = "";
-    $flags = "";
+    $cat   = $self->_list_config_get($list, 'category');;
+    $desc  = '';
+    $flags = '';
 
     $count = 1;
     for ($self->_list_config_get($list, "description_long")) {
@@ -2571,7 +2572,7 @@ sub lists {
     if ($mode =~ /enhanced/) {
       $flags .= 'S' if $self->is_subscriber($user, $list);
     }
-    push @out, $list, $desc, $flags;
+    push @out, $list, $cat, $desc, $flags;
   }
 
   return (1, @out);

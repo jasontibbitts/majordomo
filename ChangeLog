@@ -1,3 +1,14 @@
+Thu Sep  3 18:29:23 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (lists): Return the category variable.
+
+	* lib/mj_cf_data.pl: Added the 'catrgory' variable.
+
+	* lib/Mj/Config.pm (parse_access_rules): Restructure a bit to have
+ 	separate sets of legal actions per request and to orovide the list
+ 	of legal requests for an action in the event of a parsing error.
+	(_compile_rule): No longer needs to pass a Safe object to _re_match.
+
 Tue Sep  1 00:12:14 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/Format.pm (which): Fixes to give proper output for large
