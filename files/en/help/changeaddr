@@ -4,50 +4,69 @@ changeaddr address
 address, required, is a previously registered address
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The "changeaddr" command replaces an "address" in the registration
-database with the address in the sender's "From:" or "Apparently-from:"
-header, including any comments. If a "default user" command is issued
-first, the "From:" field of the requesting email is ignored.
+The changeaddr command changes a registered e-mail address to another
+e-mail address.  The personal password and all subscriptions and aliases
+for the old address will be transferred to the new address
+automatically.
 
-Address comments in "default user" or "From:" are respected, but
-comments are ignored if used in the command. These are all equivalent:
-  changeaddr joe@blow.org
-  changeaddr Joe Blow <joe@blow.org>
-  changeaddr joe@blow.org (Joe Blow)
+The old address must appear on the command line.  The new address will
+be taken from the "From:" header of the message containing the command.
+The "default user" command can be used to choose the new address
+explicitly, and will override the contents of the "From:" header.  For
+example, the following two commands:
 
-The registration database, and all lists to which the "address" is
-subscribed, are updated. As of April 2000, "changeaddr" adjusts
-aliases automatically, as does the unregister command, but it does
-not yet deal with auxiliary lists
+  default user Jane Johnson <newaddress@example.com>
+  changeaddr oldaddress@example.com
 
-Unless the password for "address" is used, or the request comes from
-"address", a confirmation token will be sent to the "address" given
-on the command line AND to the address making the request (based on
-the "From:" field or a "default user" command), to verify this action.
+will change "oldaddress@example.com" to "newaddress@example.com"
 
-If dual confirmation is required, BOTH tokens must be replied to
-with an "accept" command before the change will be made. In short:
- - Supplying the password of the new address doesn't help.
- - Supplying the password of the old address does.
+If the new address is already registered, the subscriptions and aliases
+for the two addresses will be merged.  In this case, the personal
+password for the new address will remain unchanged.  If both the old and
+new address are subscribed to a particular mailing list, the
+subscription of the new address will prevail.
 
-NOTE: If the command is sent from the same address as used in the
-command, only one confirmation will be required. This can be useful
-for changing the comment fields in all subscriptions at once. For
-example, if a user had previously subscribed as "Joe <joe@blow.org>"
-but wanted his last name to appear also, he could fix his email
-headers and send this command "From: Joe Blow <joe@blow.org>":
-  changeaddr joe@blow.org
-to re-register and re-subscribe, changing all occurrances of the
-old address (and comments) to the same address (with new comments).
-Alternately, sending these TWO commands "From: Jane Doe <jane@doe.org>":
-  default user Joe Blow <joe@blow.org>
-  changeaddr joe@blow.org
-will have the same effect if everyone returns the confirmation tokens.
+Comments, such as the name of the subscriber, are respected in the new
+address, but comments in the old address are ignored.  The following two
+commands are equivalent:
+
+  changeaddr joe@example.org
+  changeaddr Joe Blow <joe@example.org>
+
+The changeaddr command has no effect upon addresses in auxiliary lists.
+
+Unless the changeaddr command is issued by a domain administrator, at
+least one confirmation step will ordinarily be required, for the sake
+of security.
+
+  * If no password is supplied, a confirmation notice will be sent
+    to the old e-mail address, and once that confirmation is accepted,
+    a second confirmation notice will be sent to the new address.
+
+  * If the personal password of the old address is used, a confirmation
+    notice will only be sent to the new address.
+
+  * Using the personal password of the new address, if that address
+    is already registered, will have no effect.
+
+If the old and new addresses are identical except for the comments, only
+one confirmation will be required. This can be useful for changing the
+comment fields in all subscriptions at once. For example, if a
+subscriber had previously registered as "Joe <joe@example.org>" but
+wanted his last name to appear also, he could send the following two
+commands:
+
+  default user Joe Blow <joe@example.com>
+  changeaddr joe@example.org
+
+to change the comments in his address, for all of his subscriptions.
+
 
 See Also:
-   help access_variables
+   help auxiliary_list
    help alias       (which makes two addresses equivalent)
    help default     (for how to override the "From:" address)
+   help password    (for information on personal passwords)
    help register    (which adds an address to the database)
    help subscribe   (which adds an address to a list)
    help unregister  (which removes an address from all lists)
