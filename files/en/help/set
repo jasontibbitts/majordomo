@@ -1,10 +1,13 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 set listname flag[,flag,flag...] address
 set ALL      flag[,flag,flag...] address
+set-aux listname auxname flag[,flag,flag...] address
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (ALL is special case)
 flag,     required, is a subscription parameter (listed below)
 address,  required, is an address already subscribed to listname
+-aux, if specified, causes the specified auxiliary list to be modified
+auxname, specified with -aux only, is a sublist of 'listname'
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 This command sets the values of various subscription parameters, some

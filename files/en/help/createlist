@@ -1,14 +1,21 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-createlist-nocreate-noheader-force-quiet-regen listname owner
+createlist-destroy-force-nocreate-noheader-quiet-regen listname owner
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname,  required, is an email list at this site
 owner,     required, is an email address for who will manage the list
+-destroy,  if specified, deletes instead of creating the list
+-force,    if specified, takes action even if list already exists
 -nocreate, if specified, shows suggested aliases but takes no action
 -noheader, if specified, shortens the suggested aliases message
--force,    if specified, takes action even if list already exists
 -quiet,    if specified, suppresses intro msg for new owner (default)
 -regen,    if specified, re-generates the suggested MTA configurations
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+NOTE: The new_list file is sent to the list owner when a new list is
+created, unless "nowelcome" mode was specified. If you want to change
+this message, use "put". This command automatically creates the archive
+directory unless "noarchive" mode is specified, and also generates a
+random list password which can be replaced using "configset".
 
 Creates the internal structures needed to maintain a list with the given
 name, unless the "-nocreate" or "-regen" options are used or unless the
@@ -34,11 +41,16 @@ If "createlist-regen" is used, all other options and arguments are ignored.
 A complete list of suggested MTA configurations for the site and each list
 is displayed. This will be required after changing "configset debug".
 
-Once created, a list can only be deleted from the operating system
-shell prompt. Remove the directory associated with the list to delete
-it, as there is no Majordomo command to delete a list.
-
 Options include the following:
+
+  -destroy
+    Add createlist-destroy, which removes a list by renaming the list's
+    directory, including a generation number to prevent successive
+    destructions of the same list from overwriting one another. The list
+    must have no subscribers, to prevent inconsistencies in the registry,
+    and is not actually deleted from the file system until someone with
+    shell access goes in and deletes the files and the renamed directory
+    by hand. It renames the list's directory.
 
   -force:
     If the list already exists, the 'createlist' command will fail

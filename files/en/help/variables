@@ -80,6 +80,9 @@ only in the message body:
 
 In the "ack_timeout" file, no variable substitutions are done.
 
+In a file sent by the "announce" command, only this variable is evaluated:
+  \$MSGRCPT   => The address of the recipient (each msg individually addressed).
+
 In the "confirm" and "consult" files, these variables are evaluated
 in both the subject and message body:
   \$VICTIM    => The user who will be acted on by the request

@@ -74,7 +74,8 @@ This information is below:
              1.2.13 - unset
           1.3 - Up to next blank line - code
           1.4 - Semantics
-          1.5 - Supported variables
+          1.5 - Moderator Groups
+          1.6 - Supported variables
   Section 2 - Hints and suggestions for how and why to use access_rules
           2.1 - how to test access_rules quickly
           2.2 - why deny is much more drastic than consult or confirm
@@ -136,7 +137,6 @@ that do take a list use the list's access_rules. There are two weird ones:
 
   lists - GLOBAL check for 'lists', but each list is individually checked
           for the 'advertise' request.
-
 
 1.1 - First line - request 
   This determines the request(s) that a rule applies to.
@@ -203,13 +203,7 @@ that do take a list use the list's access_rules. There are two weird ones:
         the standard "confirm" file is used again.
       M - the number of approvals that are required.  This permits a
         rudimentary form of group moderation (default 1).
-      group - the moderator group to send the confirmation request to
-        (defaults to sending to moderator). The moderator group influences
-        whether the second person to see the message is a list moderator
-        or the requester.  If it is set to 'requester', the second person
-        consulted is the requester; otherwise, the second person to be
-        consulted is a list moderator.  Moderator groups are otherwise
-        another unfinished idea.
+      group - See 1.5 (Moderator Groups) below.
 
 1.2.4 - confirm_consult=file1,file2,group,M - first confirms the action
     with the victim, then consults the list owner. Both tokens must be
@@ -223,13 +217,7 @@ that do take a list use the list's access_rules. There are two weird ones:
         file is used.
       M - the number of approvals that are required.  This permits a
         rudimentary form of group moderation (default 1).
-      group - the moderator group to send the confirmation request to
-        (defaults to sending to moderator). The moderator group influences
-        whether the second person to see the message is a list moderator
-        or the requester.  If it is set to 'requester', the second person
-        consulted is the requester; otherwise, the second person to be
-        consulted is a list moderator.  Moderator groups are otherwise
-        another unfinished idea.
+      group - See 1.5 (Moderator Groups) below.
 
 1.2.5 - consult=file,M,group,N - a token is sent to a moderator/group of
     moderators/randomly chosen subset of a group of moderators.  The token
@@ -240,12 +228,7 @@ that do take a list use the list's access_rules. There are two weird ones:
         file "consult" is used).
       M - the number of approvals that are required.  This permits a
         rudimentary form of group moderation (default 1).
-      group - the moderator group to send the consultation request to
-        (defaults to sending to moderator). The moderator group influences
-        whether the person to see the message is a list moderator or the
-        requester.  If it is set to 'requester', the person consulted is
-        the requester; otherwise, the list moderator is consulted.
-        Moderator groups are otherwise another unfinished idea.
+      group - See 1.5 (Moderator Groups) below.
       N - the number of members of the moderator group to send to, chosen at
         random (defaults to all of the group).
      
@@ -254,6 +237,28 @@ that do take a list use the list's access_rules. There are two weird ones:
 
 1.2.7 - forward=address - forwards the command to another Majordomo server
     running at the specified address.
+
+    The "forward" access rule action now works for 
+    posted messages as well.  For example,
+      post
+      forward=someone@example.org
+      ALL
+    would cause each message to be sent to someone@example.org,
+    and not posted to the main list.  At present, it
+    is possible to combine "terminal" actions, so
+      post
+      forward=someone@example.org, default
+      ALL
+    would cause the message to be sent to someone and to
+    the main list.  One interesting side-effect of the implementation 
+    is that it possible to do strange things like this:
+      subscribe
+      consult,confirm,reason="Either the victim or the moderators must approve."
+      ALL
+    A confirm token would be sent to the victim, and a consult
+    token would be sent to the moderators.  Either could approve
+    the action.  If both approved, the last to do so would see an
+    "already subscribed" error.
 
 1.2.8 - mailfile=file - sends the contents of the given file back in a
     separate message (e.g. not with the command return).
@@ -317,7 +322,37 @@ that do take a list use the list's access_rules. There are two weird ones:
   in "help configset access_rules_variables".
 
 
-1.5 - Supported variables:
+1.5 - Moderator Groups:
+
+        The access rules now support moderator groups for the "consult"
+        and "conf_cons" actions. The addresses of a moderator group are
+        expected to be stored in an auxiliary list. The default moderator
+        group is called "moderators."  When a message is sent to the
+        -moderator alias, the addresses in the "moderators" auxiliary list
+        are the recipients, if that sublist exists. If not, the "moderators,"
+        "moderator," and "sender" configuration settings are checked in
+        turn until an address is found.
+
+        If you use the "moderators" auxiliary list to store your moderators'
+        addresses, it is possible to choose which of them will receive mail
+        sent to the -moderator alias, using the "set-aux" command.
+
+             the moderator group to send the confirmation request to
+        (defaults to sending to moderator). The moderator group influences
+        whether the second person to see the message is a list moderator
+        or the requester.  If it is set to 'requester', the second person
+        consulted is the requester; otherwise, the second person to be
+        consulted is a list moderator.  Moderator groups are otherwise
+        another unfinished idea.
+
+        When mentioned above, the moderator group receives the consultation
+        or confirmation request (defaults to sending to moderator). The
+        moderator group influences whether the person to see the message
+        is a list moderator or the requester.  If it is set to 'requester',
+        the person consulted is the requester; otherwise, the list moderator
+        is consulted. Moderator groups are otherwise another unfinished idea.
+
+1.6 - Supported variables:
   All variables are now listed in "help variables"
   and/or "help configset access_rules_variables".
 

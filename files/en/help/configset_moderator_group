@@ -15,6 +15,11 @@ List messages requiring consulataion will be sent to this many of the
 addresses in 'moderators', chosen at random.  If this is zero, the
 message will be sent to all of the addresses in 'moderators'.
 
+
+See Also:
+   help configset moderators (for more detailed info)
+   help configset moderator  (for a simple setting)
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ

@@ -1,6 +1,8 @@
-Data on the various digests that the list supports.  A digest is
-defined by a name, a description, and several pieces of data that tell
-Majordomo when an issue should be generated.  The following data can be given:
+Data on the various digests that the list supports.
+Digest mode is not supported for sublists!
+
+A digest is defined by a name, a description, and several pieces of data that
+tell Majordomo when an issue should be generated. The following data can be given:
 
 name     - A one-word name given to the digest.  It is unwise to name
            the digest "mime", "text" or "index".

@@ -20,35 +20,37 @@ First, the requests which can be processed:
  1 - access            default access is allow
  2 - advertise         default access is special
  3 - alias             default access is confirm
- 4 - archive           default access is access
- 5 - auxadd            default access is deny
- 6 - auxremove         default access is deny
- 7 - auxwho            default access is deny
- 8 - changeaddr        default access is confirm2
- 9 - createlist        default access is deny
-10 - digest            default access is deny
-11 - faq               default access is access
-12 - get               default access is access
-13 - help              default access is allow
-14 - index             default access is access
-15 - info              default access is access
-16 - intro             default access is access
-17 - lists             default access is allow
-18 - password          default access is special
-19 - post              default access is special
-20 - put               default access is deny
-21 - register          default access is confirm
-22 - rekey             default access is deny
-23 - request_response  default access is allow
-24 - set               default access is policy
-25 - show              default access is mismatch
-26 - showtokens        default access is deny
-27 - subscribe         default access is policy
-28 - unalias           default access is confirm
-29 - unregister        default access is confirm
-30 - unsubscribe       default access is policy
-31 - which             default access is access
-32 - who               default access is access
+ 4 - announce          default access is deny
+ 5 - archive           default access is access
+ 6 - auxadd            default access is deny
+ 7 - auxremove         default access is deny
+ 8 - auxwho            default access is deny
+ 9 - changeaddr        default access is confirm2
+10 - createlist        default access is deny
+11 - digest            default access is deny
+12 - faq               default access is access
+13 - get               default access is access
+14 - help              default access is allow
+15 - index             default access is access
+16 - info              default access is access
+17 - intro             default access is access
+18 - lists             default access is allow
+19 - password          default access is special
+20 - post              default access is special
+21 - put               default access is deny
+22 - register          default access is confirm
+23 - rekey             default access is deny
+24 - report            default access is deny
+25 - request_response  default access is allow
+26 - set               default access is policy
+27 - show              default access is mismatch
+28 - showtokens        default access is deny
+29 - subscribe         default access is policy
+30 - unalias           default access is confirm
+31 - unregister        default access is confirm
+32 - unsubscribe       default access is policy
+33 - which             default access is access
+34 - who               default access is access
 
 + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 
@@ -60,6 +62,7 @@ Second, the variables available for each request (see bottom for explanations):
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
@@ -69,6 +72,7 @@ Second, the variables available for each request (see bottom for explanations):
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
@@ -78,136 +82,161 @@ Second, the variables available for each request (see bottom for explanations):
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-4 - variables for archive
+4 - variables for announce
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-5 - variables for auxadd
+5 - variables for archive
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-6 - variables for auxremove
+6 - variables for auxadd
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-7 - variables for auxwho
+7 - variables for auxremove
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-8 - variables for changeaddr
+8 - variables for auxwho
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-9 - variables for createlist
+9 - variables for changeaddr
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-10 - variables for digest
+10 - variables for createlist
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-11 - variables for faq
+11 - variables for digest
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-12 - variables for get
+12 - variables for faq
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-13 - variables for help
+13 - variables for get
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-14 - variables for index
+14 - variables for help
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-15 - variables for info
+15 - variables for index
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-16 - variables for intro
+16 - variables for info
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-17 - variables for lists
+17 - variables for intro
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-18 - variables for password
+18 - variables for lists
+  addr
+  fulladdr
+  host
+  master_password
+  mismatch
+  mode
+  posing
+  user_password
+
+19 - variables for password
   addr
   fulladdr
   host
@@ -217,7 +246,7 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-19 - variables for post
+20 - variables for post
   addr
   admin
   any
@@ -244,75 +273,93 @@ Second, the variables available for each request (see bottom for explanations):
   percent_quoted
   posing
   quoted_lines
+  sublist
   taboo
   total_header_length
   total_header_length_exceeded
   user_password
 
-20 - variables for put
+21 - variables for put
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-21 - variables for register
+22 - variables for register
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-22 - variables for rekey
+23 - variables for rekey
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-23 - variables for request_response
+24 - variables for report
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-24 - variables for set
+25 - variables for request_response
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-25 - variables for show
+26 - variables for set
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-26 - variables for showtokens
+27 - variables for show
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-27 - variables for subscribe
+28 - variables for showtokens
+  addr
+  fulladdr
+  host
+  master_password
+  mismatch
+  mode
+  posing
+  user_password
+
+29 - variables for subscribe
   addr
   fulladdr
   host
@@ -322,48 +369,53 @@ Second, the variables available for each request (see bottom for explanations):
   posing
   user_password
 
-28 - variables for unalias
+30 - variables for unalias
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-29 - variables for unregister
+31 - variables for unregister
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-30 - variables for unsubscribe
+32 - variables for unsubscribe
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-31 - variables for which
+33 - variables for which
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
-32 - variables for who
+34 - variables for who
   addr
   fulladdr
   host
   master_password
   mismatch
+  mode
   posing
   user_password
 
@@ -454,6 +506,8 @@ Third, an explanation of each variable:
                                not the same (after aliasing,
                                transformation, etc.)
 
+                        mode - ?undocumented?
+
              password_length - contains the length in characters of the new
                                password the user is trying to set (can be
                                used to enforce a minimum length)
@@ -465,6 +519,8 @@ Third, an explanation of each variable:
 
                 quoted_lines - contains the number of lines that matched
                                the pattern in 'configset quote_pattern'
+
+                     sublist - ?undocumented?
 
                        taboo - is set if any taboo_* variable is set (note
                                that taboo configsets can create new

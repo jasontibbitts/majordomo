@@ -2,14 +2,15 @@
 configdefault listname variable[,variable]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site
-variable, required, is one or more "configset" items
+variable, required, is one or more "configset" items separated by commas
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-Sets the variable back to the default value.  Note that this causes the
-variable to track changes in the default value whenever they are made,
-rather than just setting it to the current default value. This is
-useful, for example, when the Majordomo defaults change and you want
-to remove a workaround "configset".
+Sets the variable back to the default value. Multiple variables can be
+reset by listing them separated by commas or spaces.  Note that this
+causes the variable to track changes in the default value whenever 
+they are made, rather than just setting it to the current default value.
+This is useful, for example, when the Majordomo defaults change and you
+want to remove a workaround "configset".
 
 The configuration settings for a mailing list are defined in
 three ways.  First, for every domain served by Majordomo at

@@ -49,6 +49,7 @@ commands related to bounces).
 
 
 See Also:
+   help auxwho   (for checking auxiliary lists)
    help patterns (for simple and complex regular expressions)
    help set      (for details on subscription flags and classes)
    help show     (for information about a given subscriber)

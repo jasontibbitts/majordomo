@@ -7,9 +7,9 @@ variable, if specified, is one or more "configset" items with commas between
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 Retrieves the value of the given variable(s). Multiple variables can
-be retrieved by listing them separated by commas. Listing no variable
-name at all retrieves the complete list of variables. In addition to
-single variables or combinations of variables, the names of variable
+be retrieved by listing them separated by commas or spaces. Listing no
+variable name at all retrieves the complete list of variables. In addition
+to single variables or combinations of variables, the names of variable
 groups can be given in upper case to show all of the variables
 belonging to the group. The ALL group is supported, and shows every
 variable currently visible.

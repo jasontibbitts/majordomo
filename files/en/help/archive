@@ -2,7 +2,7 @@
 archive-get   listname pattern
 archive-index listname pattern
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname, required, is the name of a list at this site
+listname, required, is the name of a regular list at this site
 pattern,  required, is a single value or range of values (see below)
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -23,6 +23,13 @@ Within each archive, each message will have a number.  For instance,
 the seventh message in the March, 1999, archive would have the following
 number:
   199903/7
+
+Messages sent to auxiliary lists are also archived, and made available
+using the archive command.  For example, the first message sent
+to test:bugs in July of 2000 could be retrieved with
+   archive-get test bugs.200007/1
+where the list name "test" is set off by spaces and the auxiliary list
+name "bugs" is separated from the date by a period.
 
 It is possible to retrieve messages (with the "archive-get" command)
 or a list of messages, with each message's subject and message

@@ -14,6 +14,11 @@ configset listname moderator = me@nowhere.org
 List messages requiring consultation will be sent to this address.
 This is overridden by the addresses in 'moderators'.
 
+
+See Also:
+   help configset moderators (for more detailed info)
+   help configset moderator_group
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ

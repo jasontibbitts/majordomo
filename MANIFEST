@@ -227,6 +227,7 @@ files/en/help/advertise
 files/en/help/alias
 files/en/help/aliasadd
 files/en/help/aliasremove
+files/en/help/announce
 files/en/help/approve
 files/en/help/archive
 files/en/help/auxadd
@@ -262,6 +263,7 @@ files/en/help/configset_admin_headers
 files/en/help/configset_administrivia
 files/en/help/configset_advertise
 files/en/help/configset_advertise_subscribed
+files/en/help/configset_aliases
 files/en/help/configset_allowed_classes
 files/en/help/configset_allowed_flags
 files/en/help/configset_archive_access
@@ -387,6 +389,7 @@ files/en/help/register
 files/en/help/reject
 files/en/help/rekey
 files/en/help/remove
+files/en/help/report
 files/en/help/request_response
 files/en/help/sessioninfo
 files/en/help/set
