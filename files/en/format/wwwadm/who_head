@@ -25,9 +25,8 @@ then press the $HELP:SET button.
   <input type="hidden" name="pattern" value="$PATTERN">
 
 <table border>
-  <tr>
-    <td colspan="7">address
-    <td colspan="6">delivery class
-  <tr>
-    <td align="center"><small>$SETTINGS</small>
+<tr>
+  <td colspan="7">address</td>
+  <td colspan="6">delivery class</td>
+</tr>
 
