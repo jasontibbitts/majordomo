@@ -1,5 +1,5 @@
 <!-- Majordomo archive_stats format file -->
-<h3 align=center>Posted Message Statistics for the $LIST list</h3>
+<h4 align=center>Posted Message Statistics for the $LIST list</h4>
 <table>
   <tr><td colspan=2>from $START to $FINISH
   <tr><th>Posts<th>Message Authors
