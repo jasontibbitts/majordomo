@@ -1,4 +1,0 @@
-Put the last updated date for the intro file at the top of the intro
-file rather than having it appended with an intro command.  This is
-useful if the file is being looked at by some means other than
-majordomo (e.g. finger).

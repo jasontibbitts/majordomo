@@ -1,4 +1,0 @@
-Put the last updated date for the info file at the top of the info
-file rather than having it appended with an info command.  This is
-useful if the file is being looked at by some means other than
-majordomo (e.g. finger).
