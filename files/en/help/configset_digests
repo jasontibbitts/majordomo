@@ -53,9 +53,10 @@ maxsize  - The maximum size of digest that will be created.  Specify
            either messages or kilobytes or both as with minsize.  The
            default is no maximum.
 
-maxage   - If an article is older than this, a digest will be created
-           even if enough messages have not been collected.  This
-           prevents messages from becoming "stale" on low traffic lists.
+maxage   - If an article is older than this awaits delivery, a digest 
+           will be created even if enough messages have not been 
+           collected.  This prevents messages from becoming "stale" 
+           on low traffic lists.
 
 separate - The minimum amount of time that separates digests.  The
            default is 15 minutes.
@@ -85,7 +86,7 @@ The following criteria are used to determine if a digest should be sent:
     + the combined size of the messages meets or exceeds the limit in the 
       "minsize" field, and
 
-    + the number of messages meets or exceed the limit in the "minsize" 
+    + the number of messages meets or exceeds the limit in the "minsize" 
       field, and
 
     + the newest message awaiting delivery is older than the "minage"
@@ -166,7 +167,6 @@ The default is no maximum age.
 
 separate
 --------
-
 When messages come in quickly, or when a body of messages builds up
 during the times that digests are not allowed to be generated, it is
 possible that there are too many messages to be sent in a single digest
@@ -191,7 +191,6 @@ The default value is no minimum age.
 
 deftype
 -------
-
 When subscribers choose to receive messages in a digest, but
 do not specify which format they prefer, this field determines
 which format is used by default.  Three formats are supported:
@@ -206,7 +205,8 @@ See "help digest" for a detailed description of how to customize each
 format.
 
 It is possible to use comments before, between, and after the individual
-digests, but not within digests.  Comments are lines that begin with a '#'.
+digest configuration settings, but not between the two lines that
+describe an individual digest.  Comments are lines that begin with a '#'.
 
 
 See Also:
