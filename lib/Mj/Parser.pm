@@ -789,7 +789,7 @@ sub parse_args {
   $request->{$hereargs} = [] if $hereargs;
   $arguments = function_prop($request->{'command'}, 'arguments');
   if (defined $arguments) {
-    $arguments->{'split'} ||= ' ';
+    $arguments->{'split'} ||= '\s+';
 
     for (sort keys %$arguments) {
       next if ($_ eq 'split');

@@ -7,6 +7,9 @@
 	* bin/mj_trigger:  Issue error if the "-t" option is absent.
 	Thanks to Brock Rozen.
 
+	* lib/Mj/Parser.pm:  (parse_args)  Split on multiple spaces
+	by default.  Thanks to Duncan Hill.
+
 2002-04-18  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* Makefile.PL (generate_wrappers): Use standard C instead of
