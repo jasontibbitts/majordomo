@@ -66,9 +66,10 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, $domain, $extra
                 'lists'         => [0, 0, 0, 0, 'lists'],
                 'password'      => [0, 1, 0, 1, 'login'],
                 'register'      => [0, 1, 0, 1, 'welcome'],
-                'set'           => [1, 1, 1, 0, 'set'],
+                'set'           => [1, 1, 1, 0, 'show'],
                 'show'          => [1, 1, 0, 0, 'show'],
                 'subscribe'     => [0, 1, 1, 1, 'list'],
+                'unalias'       => [1, 1, 0, 1, 'show'],
                 'unregister'    => [1, 1, 0, 1, 'welcome'],
                 'unsubscribe'   => [1, 1, 1, 1, 'show'],
                 'welcome'       => [0, 0, 0, 0, 'welcome'],
@@ -313,6 +314,14 @@ for $list (@lists) {
     $subs->{'CMDPASS'} = '';
     $subs->{'COMMAND'} = 'show';
   }
+  elsif ($func eq 'unalias') {
+    $tmp = $cgi->param('alias');
+    $tmp =~ s/\s+//g;
+    if (defined $tmp and length $tmp) {
+      Mj::Parser::parse_args ($request, $tmp, '');
+    }
+  }
+
 
   $result = $mj->dispatch($request); 
   &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
@@ -329,7 +338,7 @@ for $list (@lists) {
 #   show - Personal information about a subscriber
 #   welcome - A help file that describes how to use the interface.
 
-if ($commands{$func}->[4] ne $func) {
+if ($commands{$func}->[4] ne $func and $ofunc ne 'set-check') {
   if ($func eq 'changeaddr') {
     # restore original user if changeaddr did not succeed.
     $request->{'user'} = $user if ($result->[0] < 1);

@@ -1,3 +1,16 @@
+2001-11-29  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwusr:  Add support for the unalias command.
+
+	* lib/Majordomo.pm:  (_unalias)  Do not allow a 
+	bookkeeping alias to be removed.
+	(_unregister)  Consider the nolog and noinform modes
+	when informing about subscription removal.  
+	Thanks to Paul Hancock.
+
+	* lib/Mj/Format.pm:  (set)  Treat the output of the
+	set-check command specially.
+
 2001-11-28  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Restore sublist support.  Thanks to
