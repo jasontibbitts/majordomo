@@ -601,10 +601,10 @@ setting says a message should be thrown away.  Majordomo takes the
 following steps to determine what rules apply to each message:
 
 * The access_rules setting takes priority.  The first access rule with a
-  "final" outcome (consult, deny, confirm, and so on) that matches the
+  "terminal" outcome (consult, deny, confirm, and so on) that matches the
   message causes that outcome to happen immediately.
 
-If no "final" access rule applies, only then can the other configuration 
+If no "terminal" access rule applies, only then can the other configuration 
 settings have any effect, in the following order:
 
 * If the message exceeds a hard limit in the post_limits configuration
