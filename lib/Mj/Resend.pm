@@ -234,7 +234,7 @@ sub post {
            CMDLINE  => "(post to $list)",
            DATE     => scalar localtime,
 	   HEADERS  => $ent->head->stringify,
-	   SUBJECT  => $subject,
+	   SUBJECT  => $subject || '(no subject)',
            USER     => $user->full,
 	  };
 
@@ -596,7 +596,7 @@ sub _post {
          DATE     => $date,
          SENDER   => "$user",
          SEQNO    => $seqno,
-         SUBJECT  => $subject,
+         SUBJECT  => $subject || '(no subject)',
          SUBSCRIBED => ($avars{'days_since_subscribe'} < 0) ? "not" : "",
          USER     => "$user",
   };
