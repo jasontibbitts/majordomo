@@ -1,3 +1,7 @@
+Fri Sep 11 18:23:01 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* t/db.t: Unlink the proper lockfile.
+
 Thu Sep 10 00:10:08 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Majordomo.pm (_reg_add): Reference _gen_pw in its package.
