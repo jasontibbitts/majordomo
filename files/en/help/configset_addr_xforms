@@ -12,18 +12,27 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset GLOBAL addr_xforms << ENDTAG
 /\@.+\.msn.com$/\@msn.com/i
-/\@.+\.stanford.edu$/\@stanford.edu/i
+/(.*)/\L$1/
 ENDTAG
 
+
+NOTE: these transforms must give the same result when applied multiple
+times in succession.
 
 A list of transformations to be applied to addresses before comparing
 them for equivalency.  This can be used to remove the '+mailbox' part
 of an address, or to remove the machine name from addresses in a
-domain.  Transforms should listed one per line, and should be in the
-form /pattern/replacement/.  For example, /(.*?)\+.*(\@.*)/$1$2/
-removes the '+mailbox' specifier from an address.  NOTE: these
-transforms must give the same result when applied multiple times in
-succession.
+domain, or even to make all addresses fully case insensitive (which
+is technically a violation of the spec for addresses, but most domains
+do choose to be case insensitive).  Transforms should listed one per
+line, and should be in the form /pattern/replacement/. 
+
+To remove the "+mailbox" specifier from an address:
+  /(.*?)\+.*(\@.*)/$1$2/
+
+To make all addresses case insensitive (for purposes of subscribe,
+unsubscribe, access_rules, etc):
+  /(.*)/\L$1/
 
 For a list of all help topics send this one-line message
    help topics
