@@ -1,0 +1,12 @@
+$DIGESTDESC
+
+This is Digest Volume $VOLUME : Issue $ISSUE : Digest Style "$DIGESTTYPE"
+Below are the messages covered by this digest, where each line contains
+an archive message number, the subject of that post, and who posted it.
+
+To retrieve one of these messages, send this one-line command
+to the server at <$MJ>:
+  archive-get $LIST XXX
+where "XXX" is replaced with a message number from the first column.
+Email will be sent to you with the header "X-Archive-Number" matching
+the "XXX" in your request.
