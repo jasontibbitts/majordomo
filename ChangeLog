@@ -1,3 +1,11 @@
+2000-07-07  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Parser (parse_args):   Deal with attachments.  If a command 
+	accepts here arguments and is iterated,  set the appropriate request
+	variable to the attachment file handle.  Otherwise, read
+	the data from the file handle into the argument array.
+	(Only the post and put commands will use the file handle.)
+
 2000-07-03  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm:  Include domain in HTML form (from Olivier Prenant).
