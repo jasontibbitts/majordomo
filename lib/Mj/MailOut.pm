@@ -236,7 +236,8 @@ sub handle_bounce {
   # If we know we have a message
   if ($type eq 'M') {
     $handled = 1;
-    $mess = "Detected a bounce of message #$msgno.\n";
+    $mess  = "Detected a bounce of message #$msgno.\n";
+    $mess .= "  (bounce type $handler)\n\n";
 
     $sender   = $self->_list_config_get('GLOBAL', 'sender');
     $lsender  = $self->_list_config_get($list, 'sender');
@@ -263,7 +264,7 @@ sub handle_bounce {
 
     # Now plow through the data from the parsers
     for $i (keys %$data) {
-      $tmp = $self->handle_bounce_user($i, $list, %{$data->{$i}});
+      $tmp = $self->handle_bounce_user($i, $list, $handler, %{$data->{$i}});
       $mess .= $tmp if $tmp;
 
       if ($subj) {
@@ -328,11 +329,12 @@ Does the bounce processing for a single user.  This involves:
 
 =cut
 sub handle_bounce_user {
-  my $self = shift;
-  my $user = shift;
-  my $list = shift;
+  my $self   = shift;
+  my $user   = shift;
+  my $list   = shift;
+  my $parser = shift || 'unknown';
   my %args = @_;
-  my ($mess, $status);
+  my ($mess, $bdata, $status, $userdata);
 
   $status = $args{status};
   if ($status eq 'unknown' || $status eq 'warning' || $status eq 'failure') {
@@ -345,21 +347,73 @@ sub handle_bounce_user {
 
     # Call the list's is_subscriber routine so we get the per-list data
     # pre-cached for us.
-    $subbed = $self->{lists}{$list}->is_subscriber($user);
-    $mess .= "  User:       $user\n";
-    $mess .= "  Subscribed: " .($subbed?'yes':'no')."\n";
+    $userdata = $self->{lists}{$list}->is_subscriber($user);
+    $mess .= "  User:        $user\n";
+    $mess .= "  Subscribed:  " .($userdata?'yes':'no')."\n";
+    $mess .= "  Status:      $args{status}\n";
+    $mess .= "  Diagnostic:  $args{diag}\n";
 
     # If the user is subscribed
-    if ($subbed) {
-      # Not much, yet
-    }
+    if ($userdata) {
 
-    $mess .= "  Status:     $args{status}\n";
-    $mess .= "  Diagnostic: $args{diag}\n\n";
+#      $bounces = $self->bounce_data_parse($userdata->{'bounce'});
+#      $self->bounce_data_trim($bounces);
+
+      # Append new entry
+
+      # Generate statistics
+
+      # Make triage decision
+
+      # Remove user if necessary
+
+      # Add some additional report information on the statistics and what
+      # action was taken (if any)
+    }
   }
   $mess;
 }
 
+=head2 parse_bounce_data
+
+This takes apart a string of bounce data.  The string is simply a set of
+space-separated bounce incidents; each incident contains minimal
+information about a bounce: the time and the message numbers.  There may
+also be other data there depending on what bounces were detected.
+
+An incident is formatted like:
+
+timeMnumber
+
+where 'time' is the numeric cound of seconds since the epoch, 'M' indicates
+a message bounce and 'number' indicates the message number.
+
+Some bounces have type M but no message number.  There are tracked
+separately.
+
+=cut
+sub parse_bounce_data {
+  my $self = shift;
+  my $data = shift;
+  my (@incidents, $i, $out);
+
+  $out = {};
+  @incidents = split(/\s/, $data);
+
+  for $i (@incidents) {
+    ($time, $type, $number) = $i =~ /^(\d+)(\w)(.*)$/;
+    warn "$i, $time, $type, $number";
+    if ($number) {
+      $out->{$type} ||= [];
+      push @{$out->{$type}}, [$number, $time];
+    }
+    else {
+      $out->{"U$type"} ||= ();
+      push @{$out->{"U$type"}}, $time;
+    }
+  }
+  $out;
+}
 
 =head2 welcome(list, address)
 

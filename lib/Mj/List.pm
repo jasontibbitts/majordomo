@@ -1105,7 +1105,7 @@ sub expire_dup {
   my $mogrify = sub {
     my $key  = shift;
     my $data = shift;
-    
+
     if ($data->{'changetime'} + $days*86400 < $time) {
       push @nuked, $key;
       return (1, 1, undef);
@@ -1580,7 +1580,7 @@ sub digest_incissue {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997-2000 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
