@@ -39,16 +39,17 @@ moderator has all of the responsibility.  Only kidding.
 
 When a request is moderated, a message with CONSULT in the Subject
 header will be sent to the moderators.  Basically, all the moderators
-have to do is reply with the accept command to approve a request, or the 
-reject command to disallow it.  Neither of these commands requires a password,
-so in principle the moderators might not have permission to perform other 
-administrative tasks, such as unsubscribing people from the mailing list.
+have to do is reply with the accept command to approve a request, or the
+reject command to disallow it.  Neither of these commands requires a
+password, so in principle the moderators might not have permission to
+perform other administrative tasks, such as unsubscribing people from
+the mailing list.
 
-The list owners are the people whose e-mail addresses appear in the 
-"owners" configuration setting.  The list owners usually know the list's 
+The list owners are the people whose e-mail addresses appear in the
+"owners" configuration setting.  The list owners usually know the list's
 master password, and can issue any administrative command.
 
-Majordomo uses the following steps to determine who the moderators are, 
+Majordomo uses the following steps to determine who the moderators are,
 stopping when it finds a valid address:
 
   1. It looks in the LISTNAME:moderators auxiliary list, for addresses
@@ -66,9 +67,9 @@ stopping when it finds a valid address:
 
 If the moderators and the owners are different people, and the owners
 want the moderators to be able to perform other duties, such as
-subscribing and unsubscribing people, passwords with restricted privileges
-can be defined for the moderators using the "passwords" configuration
-setting (See "help configset_passwords" for more details).
+subscribing and unsubscribing people, passwords with restricted
+privileges can be defined for the moderators using the "passwords"
+configuration setting (See "help configset_passwords" for more details).
 
 
 Token identifiers
@@ -199,12 +200,12 @@ might be moderated:
   * The "postblock" personal setting for the author is turned on.
     (See "help set" for details on personal settings.)
 
-The rest of this document discusses how these settings can be tuned
-for effective moderation of posted messages.  Using the access_rules
+The rest of this document discusses how these settings can be tuned for
+effective moderation of posted messages.  Using the access_rules
 setting, any or all of the moderation checks can be turned off.
 Likewise, any of the moderation checks can cause a message to be
-discarded instead of moderated.  See "help configset_access_rules"
-for more details.
+discarded instead of moderated.  See "help configset_access_rules" for
+more details.
 
 
 Full moderation
@@ -216,6 +217,13 @@ to turn on the moderate configuration setting:
   configset LISTNAME moderate = 1
 
 See "help configset_moderate" for more details.
+
+The simplest way to moderate every message posted by one subscriber is
+to turn on the "postblock" setting for that subscriber:
+
+  set LISTNAME postblock someone@example.com
+
+See "help set" for more details about personal settings.
 
 
 Content filtering
@@ -249,20 +257,22 @@ see the following documents:
 Personal limits
 ---------------
 
-There are two moderation checks that can differ, depending upon who posted
-the message.  A message will be moderated if the "postblock" personal
-setting is turned on.  Only subscribers have personal settings, so if
-a non-subscriber posts a message, the setting is determined by the list's
+There are two moderation checks that depend upon the address of the
+author of a posted message.  A message will be moderated if the author's
+"postblock" personal setting is turned on.  Only subscribers have
+personal settings, so if a non-subscriber posts a message, a message
+will be moderated if the "postblock" flag is included in the
 nonmember_flags configuration setting.
 
-One weakness of the postblock setting is that, unless it is turned on
-by default in the default_flags configuration setting, a subscriber
-can unsubscribe, then subscribe again to turn the setting off.
-For more information, see "help set".
+Unless the postblock setting is listed in the default_flags
+configuration setting, a subscriber can unsubscribe, then subscribe
+again to turn the setting off.  For more information on the postblock
+setting, see "help set".
 
-The post_limits setting is used to moderate or deny messages from people
-who post too often.  The limits can vary from person to person or domain
-to domain.  For example, consider the following command:
+The post_limits configuration setting is used to moderate or deny
+messages from people who post too often.  The limits can vary from
+person to person or domain to domain.  For example, consider the
+following command:
 
 configset LISTNAME post_limits <<BLD
 /example.edu/  |  10/100  |  4/d
@@ -287,12 +297,18 @@ information, see "help configset_post_limits".
 Duplicates
 ----------
 
-A posted message that has a Message-ID header, body, or first 10 lines
-in the body that are the same as a previously posted message is 
-considered a duplicate.  These checks are useful for preventing mail
-loops; however, they can also unnecessarily moderate messages that
-have a first body part that is empty.  To turn off the body checks,
-use the following rule in the access_rules setting:
+Two posted messages are considered duplicates if at least one of the following
+three criteria is true:
+
+  * The messages have duplicate Message-ID headers.
+  * The first body parts of the messages are identical.
+  * The first 10 lines of each message's body are identical.
+
+By default, any message that duplicates a previously posted message will
+be moderated.  Although these checks are useful for preventing mail
+loops, they can also unnecessarily moderate messages that have a first
+body part that is empty.  To turn off the body checks, use the following
+rule in the access_rules setting:
 
 post
 unset=(dup_checksum,dup_partial_checksum)
@@ -302,11 +318,10 @@ ALL
 "Approved" messages
 -------------------
 
-Anyone who knows a list's master password can use the password to
-skip all of the access checks.  To do this, it is necessary to
-add an "Approved" line in the headers or body of the message.
-For example, if the list's master password is 4a5p6h7o, the line
-would look like this:
+Anyone who knows a list's master password can use the password to skip
+all of the access checks.  To do this, it is necessary to add an
+"Approved" line in the headers or body of the message.  For example, if
+the list's master password is 4a5p6h7o, the line would look like this:
 
 Approved: 4a5p6h7o
 
@@ -315,14 +330,16 @@ line in the body of the message.  Majordomo will automatically remove
 the Approved line when the message is delivered.
 
 Sometimes, a moderator may want to make corrections to a moderated
-message before it is delivered to the subscribers.   It is possible
-to do this using an extended form of the Approved line, using the 
-following steps:  
+message before it is delivered to the subscribers.   It is possible to
+do this using an extended form of the Approved line, using the following
+steps:  
 
   * Obtain the original posted message, either from the CONSULT message 
-    that was sent to the moderator, or using the tokeninfo-full command:
+    that was sent to the moderator, or using the tokeninfo-full or
+    tokeninfo-remind command:
 
       tokeninfo-full TOKEN
+      tokeninfo-remind TOKEN
 
   * Edit the message and make the desired corrections.
 
@@ -336,9 +353,16 @@ following steps:
 
 When these steps are taken, two things will happen.  First, the password
 will cause the moderation checks to be skipped.  Second, when Majordomo
-sees the token identifier on the Approved line, it will reject the 
+sees the token identifier on the Approved line, it will reject the
 token.  This will help to prevent another moderator from approving the
 delivery of the original posted message.
+
+The tokeninfo-full command displays information about a posted message, and
+the contents of the message, in the same block of text.  The
+tokeninfo-remind command, in contrast, includes the posted message as an
+attachment.  In some cases, the latter format may make editing and
+reposting a message easier; it depends upon the software that you use to
+read e-mail.
 
 
 Moderator groups (advanced topic)
@@ -517,8 +541,8 @@ $days_since_subscribe < 3
 END
 
 
-If you don't find the answers to your questions here, please write
-to the developers at mj2-dev@csf.colorado.edu. 
+If you don't find the answers to your questions here, please write to
+the software developers at mj2-dev@csf.colorado.edu. 
 
 
 See Also:
