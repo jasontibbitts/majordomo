@@ -56,7 +56,7 @@ for the address from which the request was made (see "help set" for a
 description of all flags.)
 
 (standard plus CMDLINE, COMMAND, DATE, MESSAGE, REJECTER, REQUESTER,
-SESSIONID, SESSION, TOKEN, VICTIM)
+SESSIONID, TOKEN, VICTIM)
 
 
 ack_stall
