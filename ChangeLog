@@ -1,3 +1,19 @@
+2000-12-07  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/BounceHandler.pm (handle_bounce_user): Remove rule
+	processing and call Mj::Util::process_rule instead.
+
+	* lib/Mj/Util.pm (process_rule): Accept and deal with $current.
+	Export process_rule.
+
+	* lib/Mj/Access.pm (list_access_check): Remove rule processing and
+	call Mj::Util::process_rule instead.
+
+2000-12-06  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/CommandProps.pm: Remove bounce actions from %actions;
+	they were in there only by mistake.
+
 2000-12-05  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* t/bounce.t: Make sure we process the tests in numerical order.

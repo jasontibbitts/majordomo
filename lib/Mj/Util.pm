@@ -14,22 +14,36 @@ blah
 
 package Mj::Util;
 use Mj::Log;
+require Exporter;
+@ISA = qw(Exporter);
+@EXPORT_OK = qw(process_rule);
+
 #use AutoLoader 'AUTOLOAD';
 
 $VERSION = "0.0";
 use strict;
-use vars(qw(%args %memberof $skip));
+use vars(qw(%args %memberof $current $skip));
 
 1;
 #__END__
 
 =head2 process_rule
 
-Runs an individual rule (from access_rules or boune_rules) and returns the
+Runs an individual rule (from access_rules or bounce_rules) and returns the
 result action.
 
 The caller is expected to fill in %memberof and supply appropriate %args
-and rules code.
+and rules code.  Named arguments:
+
+name - the name of the variable being run (for error string)
+code - the actual compiled rule code
+args - the arguments for the rule code
+memberof - the memberof hash, containing info on what list:sublist pairs
+  the user is on.
+request - the request that this rule refers to.  For bounce_rules, this
+  should be _bounce.  (Used to look up request data from CommandProps.)
+current - flag indicating whether or not time restrictions are currently on
+  or not.
 
 =cut
 use Safe;
@@ -48,15 +62,17 @@ sub process_rule {
     );
 
   my (@final_actions, $actions, $arg, $cpt, $func, $i, $ok, $saw_terminal, $value);
+  local(%args, %memberof, $current, $skip);
 
   # Initialize the safe compartment
   $cpt = new Safe;
   $cpt->permit_only(@permitted_ops);
-  $cpt->share(qw(%args %memberof $skip));
+  $cpt->share(qw(%args %memberof $current $skip));
 
   # Set up the shared variables
   %memberof = %{$params{memberof}};
   %args     = %{$params{args}};
+  $current  = $params{current} || 0;
   $skip     = 0;
 
   # Run the rule.  Loop until a terminal action is seen
@@ -87,7 +103,7 @@ sub process_rule {
       if ($func eq 'set') {
 	# Set a variable.
 	($arg, $value) = split(/[=-]/, $arg, 2);
-	if ($arg and ($ok = rules_var('_bounce', $arg))) {
+	if ($arg and ($ok = rules_var($params{request}, $arg))) {
 	  if ($value and $arg eq 'delay') {
 	    my ($time) = time;
 	    $args{'delay'} = Mj::List::_str_to_time($value) || $time + 1;
@@ -104,7 +120,7 @@ sub process_rule {
       }
       elsif ($func eq 'unset') {
 	# Unset a variable.
-	if ($arg and rules_var('_bounce', $arg)) {
+	if ($arg and rules_var($params{request}, $arg)) {
 	  $args{$arg} = 0;
 	}
 	next ACTION;

@@ -3448,6 +3448,7 @@ sub _compile_rule {
       next;
     }
 
+    # Process time restriction ("*time*") form
     if (s:^\*([^*]+)($|\*)::) {
       $arg = $1;
       $o .= "\n    "."  "x$indent;

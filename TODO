@@ -228,3 +228,21 @@ common rule-running code from BounceHandler::handle_bounce_user and
 
 These must be functions, not methods.  Methods should of course go in their
 class.
+
+
+mj_queuerun lifetime limiting
+-----------------------------
+In addition to an idle timeout, mj_queuerun needs a limit on how many
+messages it will process without exiting.  This keeps memory leaks under
+control.  The queue server will simply start another runner when one exits,
+so this is a safe cleanup mechanism.
+
+
+mj_queueserv bug with all dead queue runners
+--------------------------------------------
+mj_queueserv has a bug where it will queue the message due to excessive
+load when in reality every single queue runner has died.  This happens
+because it runs through all of the slots looking for a live and unbusy
+runner, cleaning up dead ones along the way.  But it needs to restart the
+search if it's cleaned up any dead ones but has run out of slots without
+finding any waiting runners.

@@ -602,6 +602,7 @@ lib/Mj/SimpleDB/Text.pm
 lib/Mj/SubscriberList.pm
 lib/Mj/Token.pm
 lib/Mj/TokenDB.pm
+lib/Mj/Util.pm
 lib/mj_cf_data.pl
 lib/mj_cf_defs.pl
 misc/addr.file

@@ -29,8 +29,9 @@ use Mj::Config qw(parse_table);
 use Mj::CommandProps qw(:rules);
 use Mj::MIMEParser;
 use strict;
-use vars qw($current $skip $text $victim $passwd @permitted_ops %args
-            %memberof %requests);
+use vars qw($text);
+#use vars qw($current $skip $text $victim $passwd @permitted_ops %args
+#            %memberof %requests);
 
 use AutoLoader 'AUTOLOAD';
 1;
@@ -86,9 +87,9 @@ sub validate_passwd {
     }
   }
 
-  $global_only = 1  
+  $global_only = 1
     if ($list =~ /^DEFAULT/);
- 
+
   if ($global_only) {
     @try = ('GLOBAL');
   }
@@ -98,7 +99,7 @@ sub validate_passwd {
 
   for $i (@try) {
     $self->_build_passwd_data($i);
-    
+
     # Check for access specific to this user, and to any user
     for $j ('ALL', $user) {
       if ($j eq 'ALL') {
@@ -225,13 +226,13 @@ sub _build_passwd_data {
   @pw = $self->_list_config_get($list, "passwords");
   ($table, $error) =
     parse_table('fsmp', \@pw);
-  
+
   # We expect that the table would have been syntax-checked when it was
   # accepted, so we can abort if we get an error.
   if ($error) {
     $log->abort("Received an error while parsing password table: $error");
   }
-    
+
   # The password table could be empty...
   if ($table) {
     # Iterate over the records
@@ -259,7 +260,7 @@ sub _build_passwd_data {
       }
     }
   }
-  
+
   $self->{'pw_loaded'}{$list} = 1;
   return;
 }
@@ -297,7 +298,7 @@ sub _gen_pw {
 # 		 Cvcvcvc0
 # 		 xxx00000
 # 		);
-  
+
 #   my %groups= (
 # 	       'x' => "abcdefghijkmnpqrstuvwxyz",
 # 	       'X' => "ABCDEFGHJKLMNPQRSTUVWXYZ",
@@ -313,7 +314,7 @@ sub _gen_pw {
 
   my $chr = 'ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnpqrstyvwxyz23456789';
   my $pw;
-  
+
   for my $i (1..$length) {
     $pw .= substr($chr, rand(length($chr)), 1);
   }
@@ -380,7 +381,7 @@ sub check_headers {
           delete $inv{"$k\t$l\t$rule\t$sev\t$class"};
         }
         else {
-          $reasons .= "block_headers matched \"" . 
+          $reasons .= "block_headers matched \"" .
                       substr($match, 0, 100) .  "\"\n";
         }
       }
@@ -394,7 +395,7 @@ sub check_headers {
   return (0, $reasons) if $reasons;
   (1, '');
 }
-  
+
 =head2 *_access_check(..., request, arghash)
 
 These check to see of a user is permitted to make a request.
@@ -449,7 +450,7 @@ sub global_access_check {
   my $request = shift;
   my (%data) = %$request;
   $data{'list'} = 'GLOBAL';
-  
+
   $self->list_access_check(\%data, @_);
 }
 
@@ -458,54 +459,53 @@ sub global_access_check {
 =cut
 # These are the ops we allow our generated code to perform.  Even though we
 # generated it, we go further and severely restrict what it can do.
-@permitted_ops =
-  qw(
-     anonlist
-     const
-     enter
-     eq
-     ge
-     gt
-     helem
-     le
-     leaveeval
-     lt
-     ne
-     not
-     null
-     pushmark
-     refgen
-     return
-     rv2sv
-     seq
-     sne
-    );
+#  @permitted_ops =
+#    qw(
+#       anonlist
+#       const
+#       enter
+#       eq
+#       ge
+#       gt
+#       helem
+#       le
+#       leaveeval
+#       lt
+#       ne
+#       not
+#       null
+#       pushmark
+#       refgen
+#       return
+#       rv2sv
+#       seq
+#       sne
+#      );
 
 use Data::Dumper;
 use Mj::CommandProps qw(:function action_terminal);
+use Mj::Util 'process_rule';
 use Mj::Digest qw(in_clock);
 sub list_access_check {
   # We must share some of these variables with the compartment, so they
   # can't be lexicals.
-  my    $self      = shift;
-  my    $data      = shift;
-  local %args      = @_;
+  my $self      = shift;
+  my $data      = shift;
+  my %args      = @_;
 
-  local $passwd    = $data->{'password'};
-  my    $mode      = $data->{'mode'};
-  my    $cmdline   = $data->{'cmdline'};
-  my    $list      = $data->{'list'};
-        $list      = 'GLOBAL'
-          if ($list =~ /^DEFAULT/);
-  my    $request   = $data->{'command'}; 
-        $request   =~ s/_(start|chunk|done)$//;
-  my    $requester = $data->{'user'};
-  my    $sublist   = (exists $data->{'sublist'}) ? 
-                       $data->{'sublist'} : 'MAIN';
-  local $victim    = $data->{'victim'} || $requester;
-  my    $arg1      = exists $data->{'arg1'} ? $data->{'arg1'} : '';
-  my    $arg2      = exists $data->{'arg2'} ? $data->{'arg2'} : '';
-  my    $arg3      = exists $data->{'arg3'} ? $data->{'arg3'} : '';
+  my $passwd    = $data->{'password'};
+  my $mode      = $data->{'mode'};
+  my $cmdline   = $data->{'cmdline'};
+  my $list      = $data->{'list'};
+     $list      = 'GLOBAL' if ($list =~ /^DEFAULT/);
+  my $request   = $data->{'command'};
+     $request   =~ s/_(start|chunk|done)$//;
+  my $requester = $data->{'user'};
+  my $sublist   = (exists $data->{'sublist'}) ? $data->{'sublist'} : 'MAIN';
+  my $victim    = $data->{'victim'} || $requester;
+  my $arg1      = exists $data->{'arg1'} ? $data->{'arg1'} : '';
+  my $arg2      = exists $data->{'arg2'} ? $data->{'arg2'} : '';
+  my $arg3      = exists $data->{'arg3'} ? $data->{'arg3'} : '';
 
   my $log = new Log::In 60, "$list, $request, $requester, $victim";
 
@@ -519,7 +519,8 @@ sub list_access_check {
     $data->{$_} = $data->{$td->{$_}};
   }
 
-  my (@final_actions,       # The final list of actions dictated by the rules
+  my (%memberof   ,         # Hash of sublists the user is in
+      @final_actions,       # The final list of actions dictated by the rules
       $password_override,   # Does a supplied password always override
                             # other restrictions?
       $access,              # To save typing
@@ -544,10 +545,6 @@ sub list_access_check {
       @temps,
       $value,               # Value to which the 'set' action changes a variable.
      );
-  
-  local (
-	 %memberof,         # Hash of sublists the user is in
-	);
 
   if ($self->t_recognize($passwd)) {
     # The password given appears to be a latchkey, a temporary password.
@@ -613,13 +610,13 @@ sub list_access_check {
   }
   return (0, "The master password is required to use regular expressions.\n")
     if ($args{'regexp'} and not $args{'master_password'});
-  
+
   # If we got a good master password _and_ it overrides access
   # restrictions, we're done.
   if ($args{'master_password'}) {
-    $password_override = 
+    $password_override =
       $self->_list_config_get($list, "access_password_override");
-  
+
     $args{'delay'} = $data->{'delay'};
     # Return some huge value, because this value is also used as a count
     # for some routines.  If a delay was used, delay the command.
@@ -645,7 +642,7 @@ sub list_access_check {
     if ($access->{$request}{'check_aux'}) {
       for $i (keys %{$access->{$request}{'check_aux'}}) {
 	# Handle list: and list:sublist syntaxes; if the list doesn't
-	# exist, just skip the entry entirely. 
+	# exist, just skip the entry entirely.
 	if ($i =~ /(.+):(.*)/) {
 	  ($tmpl, $tmpa) = ($1, $2);
 	  next unless $self->_make_list($tmpl);
@@ -667,83 +664,92 @@ sub list_access_check {
     $args{'addr'}     = $victim->strip;
     $args{'fulladdr'} = $victim->full;
     $args{'mode'}     = $mode;
-   
-    # Prepare to execute the rules
-    $skip = 0;
-    $cpt = new Safe;
-    $cpt->permit_only(@permitted_ops);
-    $cpt->share(qw(%args %memberof $current $skip));
 
-    # Loop until we get a terminal action
-   RULE:
-    while (1) {
-      $actions = $cpt->reval($access->{$request}{'code'});
-      warn "Error found when running access_rules code:\n$@" if $@;
+    @final_actions =
+      process_rule(name     => 'access_rules',
+		   request  => $request,
+		   code     => $access->{$request}{code},
+		   current  => $current,
+		   args     => \%args,
+		   memberof => \%memberof,
+		  );
 
-      # The first element of the action array is the ID of the matching
-      # rule.  If we have to rerun the rules, we will want to skip to the
-      # next one.
-      $actions ||= [0, 'default'];
-      $skip = shift @{$actions};
+#      # Prepare to execute the rules
+#      $skip = 0;
+#      $cpt = new Safe;
+#      $cpt->permit_only(@permitted_ops);
+#      $cpt->share(qw(%args %memberof $current $skip));
 
-      # Now go over the actions we received.  We must process 'set' and
-      # 'unset' here so that they'll take effect if we have to rerun the
-      # rules.  Other actions are pushed into @final_actions.  If we hit a
-      # terminal action we stop rerunning rules.
-     ACTION:
-      for $i (@{$actions}) {
-	($func, $arg) = split(/[=-]/, $i, 2);
-        # Remove enclosing parentheses
-        if ($arg) {
-            $arg =~ s/^\((.*)\)$/$1/;
-            $i = "$func=$arg";
-        }
+#      # Loop until we get a terminal action
+#     RULE:
+#      while (1) {
+#        $actions = $cpt->reval($access->{$request}{'code'});
+#        warn "Error found when running access_rules code:\n$@" if $@;
 
-	if ($func eq 'set') {
-	  # Set a variable.
-	  ($arg, $value) = split(/[=-]/, $arg, 2);
-	  if ($arg and ($ok2 = rules_var($request, $arg))) {
-            if ($value and $arg eq 'delay') {
-              my ($time) = time;
-              $args{'delay'} = Mj::List::_str_to_time($value) || $time + 1;
-              $args{'delay'} -= $time;
-            }
-            elsif ($value and $ok2 > 1) {
-              $args{$arg} = $value;
-            }
-            else {
-              $args{$arg} ||= 1;
-            }
-	  }
-	  next ACTION;
-	}
-	elsif ($func eq 'unset') {
-	  # Unset a variable.
-	  if ($arg and rules_var($request, $arg)) {
-	    $args{$arg} = 0;
-	  }
-	  next ACTION;
-	}
-        elsif ($func eq 'reason') {
-          if ($arg) {
-            $arg =~ s/^\"(.*)\"$/$1/;
-            $args{'reasons'} = "$arg\002" . $args{'reasons'};
-          }
-          next ACTION;
-        }
+#        # The first element of the action array is the ID of the matching
+#        # rule.  If we have to rerun the rules, we will want to skip to the
+#        # next one.
+#        $actions ||= [0, 'default'];
+#        $skip = shift @{$actions};
 
-	# We'll process the function later.
-	push @final_actions, $i;
+#        # Now go over the actions we received.  We must process 'set' and
+#        # 'unset' here so that they'll take effect if we have to rerun the
+#        # rules.  Other actions are pushed into @final_actions.  If we hit a
+#        # terminal action we stop rerunning rules.
+#       ACTION:
+#        for $i (@{$actions}) {
+#  	($func, $arg) = split(/[=-]/, $i, 2);
+#          # Remove enclosing parentheses
+#          if ($arg) {
+#              $arg =~ s/^\((.*)\)$/$1/;
+#              $i = "$func=$arg";
+#          }
 
-	$saw_terminal ||= action_terminal($func);
-      }
+#  	if ($func eq 'set') {
+#  	  # Set a variable.
+#  	  ($arg, $value) = split(/[=-]/, $arg, 2);
+#  	  if ($arg and ($ok2 = rules_var($request, $arg))) {
+#              if ($value and $arg eq 'delay') {
+#                my ($time) = time;
+#                $args{'delay'} = Mj::List::_str_to_time($value) || $time + 1;
+#                $args{'delay'} -= $time;
+#              }
+#              elsif ($value and $ok2 > 1) {
+#                $args{$arg} = $value;
+#              }
+#              else {
+#                $args{$arg} ||= 1;
+#              }
+#  	  }
+#  	  next ACTION;
+#  	}
+#  	elsif ($func eq 'unset') {
+#  	  # Unset a variable.
+#  	  if ($arg and rules_var($request, $arg)) {
+#  	    $args{$arg} = 0;
+#  	  }
+#  	  next ACTION;
+#  	}
+#          elsif ($func eq 'reason') {
+#            if ($arg) {
+#              $arg =~ s/^\"(.*)\"$/$1/;
+#              $args{'reasons'} = "$arg\002" . $args{'reasons'};
+#            }
+#            next ACTION;
+#          }
 
-      # We need to stop if we saw a terminal action in the results of the
-      # last rule
-      last RULE if $saw_terminal;
-    }
+#  	# We'll process the function later.
+#  	push @final_actions, $i;
+
+#  	$saw_terminal ||= action_terminal($func);
+#        }
+
+#        # We need to stop if we saw a terminal action in the results of the
+#        # last rule
+#        last RULE if $saw_terminal;
+#      }
+#    }
   }
-
   # What if we don't have a rule for this action?
   else {
     @final_actions = ('default');
@@ -773,7 +779,7 @@ FINISH:
       $self->_a_replyfile($deffile, $data, \%args);
   }
 
-  # Build the reasons list. 
+  # Build the reasons list.
   $reasons .= join("\n", split("\002", $args{'reasons'}));
 
   # Append the sublist for variable substitutions.
@@ -799,11 +805,11 @@ FINISH:
 	'VICTIM'  => $victim,
        },
       ) if $mess;
-  
+
   for $i (@temps) {
     unlink $i || $::log->abort("Failed to unlink $i, $!");
   }
-  
+
   return wantarray? ($allow, $mess, $fileinfo) : $allow;
 }
 
@@ -812,7 +818,7 @@ FINISH:
 These routines are called to actually carry out the various actions.
 They each take the following:
 
-  arg       - the argument passed to the action, i.e. 
+  arg       - the argument passed to the action, i.e.
                 allow=2
   list      - the list name
   request   - the various request parameters
@@ -934,7 +940,7 @@ sub _a_confirm2 {
     # and the password was supplied, so allow the command.
     return 1;
   }
- 
+
   $self->confirm(%$td,
                  'file'      => $file1 || 'confirm',
 		 'notify'    =>	$notify,
@@ -987,7 +993,7 @@ sub _a_delay {
   elsif ($args->{'delay'}) {
     $td->{'delay'} = $args->{'delay'};
   }
-    
+
   $self->delay(%$td,
                'file'      => $file || 'delay',
                'notify'    => $td->{'victim'},
@@ -1024,7 +1030,7 @@ sub _a_forward {
        "\n",
        "$cmdline\n",
       ];
-  } 
+  }
   else {
     # Reconstruct the list address
     %avars = split("\002", $td->{'vars'});
@@ -1076,7 +1082,7 @@ sub _a_reply {
 
   $arg =~ s/^\"(.*)\"$/$1/;
   return (undef, undef, "$arg\n");
-}    
+}
 
 sub _a_replyfile {
   my ($self, $arg, $td, $args) = @_;
@@ -1181,7 +1187,7 @@ sub _a_default {
       $action = "_a_deny";
       $reason = "Requests which specify absolute paths are denied."
     }
-    elsif (exists $td->{'sublist'} and $td->{'sublist'} 
+    elsif (exists $td->{'sublist'} and $td->{'sublist'}
            and $td->{'sublist'} !~ /MAIN/) {
       $action = "_a_deny";
       $reason = "Only list owners can make requests that involve sublists";
@@ -1205,10 +1211,10 @@ sub _a_default {
 
     # First make sure that someone isn't trying to subscribe the list to
     # itself
-    return (0, 'subscribe_to_self') 
+    return (0, 'subscribe_to_self')
       if $request eq 'subscribe' and $args->{'matches_list'};
 
-    if (exists $td->{'sublist'} and $td->{'sublist'} 
+    if (exists $td->{'sublist'} and $td->{'sublist'}
            and $td->{'sublist'} !~ /MAIN/) {
       $action = "_a_deny";
       $reason = "Only list owners can make requests that involve sublists";
@@ -1284,7 +1290,7 @@ sub _a_default {
   }
 
   if (defined $reason) {
-    $args->{'reasons'} = "$reason\002" . $args->{'reasons'}; 
+    $args->{'reasons'} = "$reason\002" . $args->{'reasons'};
   }
   return $self->$action(@_);
 }
@@ -1320,7 +1326,7 @@ sub _d_advertise {
   }
   # By default we allow
   return $self->_a_allow(@_);
-}  
+}
 
 # Provide the expected behavior for the post command.  This means we
 # have to check moderate and restrict_post, and all of the appropriate
@@ -1347,7 +1353,7 @@ sub _d_post {
 
   # Immediately consult for moderated lists
   $moderate = $self->_list_config_get($td->{'list'}, 'moderate');
-  $args->{'reasons'} = "The $td->{'list'} list is moderated.\002" . 
+  $args->{'reasons'} = "The $td->{'list'} list is moderated.\002" .
                   $args->{'reasons'} if $moderate;
   return $self->_a_consult(@_) if $moderate;
 
@@ -1391,7 +1397,7 @@ sub _d_post {
     }
   }
   if (@$restrict && !$member) {
-    $args->{'reasons'} = "Non-Member Submission from $td->{'victim'}\002" 
+    $args->{'reasons'} = "Non-Member Submission from $td->{'victim'}\002"
                         . $args->{'reasons'};
     return $self->_a_consult(@_);
   }

@@ -380,13 +380,15 @@ EOM
   $msg = <<EOM;
 Mail Handling Setup
 
-Would you like Majoromo to ignore case in addresses by default?
+Would you like Majordomo to ignore case in addresses by default?
   The user portion of an address is not usually case sensitive, though on
     some systems it is.  By default Majordomo pays attention to case when
     comparing addresses in order to follow all relevant standards and be
     completely safe when faced with the innumerable number of addresses it
-    must deal with, but this may be surprising to those who expect the
-    opposite behavior.
+    must deal with, but this may cause problems if the case of a user's
+    address changes after they join.
+  You should generally answer yes here unless you want to be absolutely
+    compliant with all relevant standards.
 
 EOM
   $def = $config->{ignore_case};

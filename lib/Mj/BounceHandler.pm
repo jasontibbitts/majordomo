@@ -20,7 +20,7 @@ use AutoLoader 'AUTOLOAD';
 
 $VERSION = "0.0";
 use strict;
-use vars qw(%args %memberof $skip);
+#use vars qw(%args %memberof $skip);
 
 1;
 __END__
@@ -272,29 +272,30 @@ Does the bounce processing for a single user.  This involves:
 
 =cut
 use Mj::CommandProps 'action_terminal';
+use Mj::Util 'process_rule';
 sub handle_bounce_user {
   my $self   = shift;
   my %params = @_; # Can't use %args, because the access code uses it.
   my $log  = new Log::In 35;
 
-  my (@final_actions, $actions, $arg, $bdata, $cpt, $func, $i,
-      $mess, $ok, $rules, $saw_terminal, $sdata, $status, $tmpa, $tmpl,
-      $value);
+  my (%args, %memberof, @final_actions, $actions, $arg, $bdata, $cpt,
+      $func, $i, $mess, $ok, $rules, $saw_terminal, $sdata, $status, $tmpa,
+      $tmpl, $value);
 
-  # We must share some things with a Safe compartment, so they must be in
-  # lexicals.
-  local(%args, %memberof, $skip);
+#    # We must share some things with a Safe compartment, so they must be in
+#    # lexicals.
+#    local(%args, %memberof, $skip);
 
   my $user   = $params{user};
   my $list   = $params{list};
   my $parser = shift || 'unknown';
-  my @permitted_ops = qw(
-     anonlist  const    enter  eq
-     ge        gt       helem  le
-     leaveeval lt       ne     not
-     null      pushmark refgen return
-     rv2sv     seq      sne
-    );
+#    my @permitted_ops = qw(
+#       anonlist  const    enter  eq
+#       ge        gt       helem  le
+#       leaveeval lt       ne     not
+#       null      pushmark refgen return
+#       rv2sv     seq      sne
+#      );
 
   $status = $params{status};
 
@@ -358,80 +359,88 @@ sub handle_bounce_user {
       # Add in extra arguments
       $args{days_since_subscribe} = (time - $sdata->{subtime})/86400;
 
-      # Prepare to execute the rules
-      $skip = 0;
-      $cpt = new Safe;
-      $cpt->permit_only(@permitted_ops);
-      $cpt->share(qw(%args %memberof $skip));
+      @final_actions =
+	process_rule(name     => 'bounce_rules',
+		     request  => '_bounce',
+		     code     => $rules->{code},
+		     args     => \%args,
+		     memberof => \%memberof,
+		    );
 
-      # Loop until we get a terminal action
-    RULE:
-      while (1) {
-	$actions = $cpt->reval($rules->{code});
-	warn "Error found when running bounce_rules code:\n$@" if $@;
+#        # Prepare to execute the rules
+#        $skip = 0;
+#        $cpt = new Safe;
+#        $cpt->permit_only(@permitted_ops);
+#        $cpt->share(qw(%args %memberof $skip));
 
-	# The first element of the action array is the ID of the matching
-	# rule.  If we have to rerun the rules, we will want to skip to the
-	# next one.
-	$actions ||= [0, 'ignore'];
-	$skip = shift @{$actions};
+#        # Loop until we get a terminal action
+#      RULE:
+#        while (1) {
+#  	$actions = $cpt->reval($rules->{code});
+#  	warn "Error found when running bounce_rules code:\n$@" if $@;
 
-	# Now go over the actions we received.  We must process 'set' and
-	# 'unset' here so that they'll take effect if we have to rerun the
-	# rules.  Other actions are pushed into @final_actions.  If we hit a
-	# terminal action we stop rerunning rules.
-      ACTION:
-	for $i (@{$actions}) {
-	  ($func, $arg) = split(/[=-]/, $i, 2);
-	  # Remove enclosing parentheses
-	  if ($arg) {
-            $arg =~ s/^\((.*)\)$/$1/;
-            $i = "$func=$arg";
-	  }
+#  	# The first element of the action array is the ID of the matching
+#  	# rule.  If we have to rerun the rules, we will want to skip to the
+#  	# next one.
+#  	$actions ||= [0, 'ignore'];
+#  	$skip = shift @{$actions};
 
-	  if ($func eq 'set') {
-	    # Set a variable.
-	    ($arg, $value) = split(/[=-]/, $arg, 2);
-	    if ($arg and ($ok = rules_var('_bounce', $arg))) {
-	      if ($value and $arg eq 'delay') {
-		my ($time) = time;
-		$args{'delay'} = Mj::List::_str_to_time($value) || $time + 1;
-		$args{'delay'} -= $time;
-	      }
-	      elsif ($value and $ok > 1) {
-		$args{$arg} = $value;
-	      }
-	      else {
-		$args{$arg} ||= 1;
-	      }
-	    }
-	    next ACTION;
-	  }
-	  elsif ($func eq 'unset') {
-	    # Unset a variable.
-	    if ($arg and rules_var('_bounce', $arg)) {
-	      $args{$arg} = 0;
-	    }
-	    next ACTION;
-	  }
-	  elsif ($func eq 'reason') {
-	    if ($arg) {
-	      $arg =~ s/^\"(.*)\"$/$1/;
-	      $args{'reasons'} = "$arg\002" . $args{'reasons'};
-	    }
-	    next ACTION;
-	  }
+#  	# Now go over the actions we received.  We must process 'set' and
+#  	# 'unset' here so that they'll take effect if we have to rerun the
+#  	# rules.  Other actions are pushed into @final_actions.  If we hit a
+#  	# terminal action we stop rerunning rules.
+#        ACTION:
+#  	for $i (@{$actions}) {
+#  	  ($func, $arg) = split(/[=-]/, $i, 2);
+#  	  # Remove enclosing parentheses
+#  	  if ($arg) {
+#              $arg =~ s/^\((.*)\)$/$1/;
+#              $i = "$func=$arg";
+#  	  }
 
-	  # We'll process the function later.
-	  push @final_actions, $i;
+#  	  if ($func eq 'set') {
+#  	    # Set a variable.
+#  	    ($arg, $value) = split(/[=-]/, $arg, 2);
+#  	    if ($arg and ($ok = rules_var('_bounce', $arg))) {
+#  	      if ($value and $arg eq 'delay') {
+#  		my ($time) = time;
+#  		$args{'delay'} = Mj::List::_str_to_time($value) || $time + 1;
+#  		$args{'delay'} -= $time;
+#  	      }
+#  	      elsif ($value and $ok > 1) {
+#  		$args{$arg} = $value;
+#  	      }
+#  	      else {
+#  		$args{$arg} ||= 1;
+#  	      }
+#  	    }
+#  	    next ACTION;
+#  	  }
+#  	  elsif ($func eq 'unset') {
+#  	    # Unset a variable.
+#  	    if ($arg and rules_var('_bounce', $arg)) {
+#  	      $args{$arg} = 0;
+#  	    }
+#  	    next ACTION;
+#  	  }
+#  	  elsif ($func eq 'reason') {
+#  	    if ($arg) {
+#  	      $arg =~ s/^\"(.*)\"$/$1/;
+#  	      $args{'reasons'} = "$arg\002" . $args{'reasons'};
+#  	    }
+#  	    next ACTION;
+#  	  }
 
-	  $saw_terminal ||= action_terminal($func);
-	}
+#  	  # We'll process the function later.
+#  	  push @final_actions, $i;
 
-	# We need to stop if we saw a terminal action in the results of the
-	# last rule
-	last RULE if $saw_terminal;
-      }
+#  	  $saw_terminal ||= action_terminal($func);
+#  	}
+
+#  	# We need to stop if we saw a terminal action in the results of the
+#  	# last rule
+#  	last RULE if $saw_terminal;
+#        }
 
       # XXX Don't actually do anything yet
       $mess .= "  Bounce rules said: @final_actions.\n";

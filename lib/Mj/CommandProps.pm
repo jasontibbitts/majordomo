@@ -38,11 +38,6 @@ my %actions =
    'replyfile'       => {files => [0],},
    'set'             => {files => [],},
    'unset'           => {files => [],},
-
-   # These are for bounce_rules
-   'remove'          => {files => [],    terminal => 1,},
-   'ignore'          => {files => [],    terminal => 1,},
-   'inform'          => {files => [],    terminal => 1,},
   );
 
 my %generic_modes =
