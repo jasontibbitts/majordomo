@@ -24,7 +24,8 @@ efficiently.
 The examples in this document assume that you know how to use your 
 list's administrative password.  Please review "help admin_passwords",
 if you have not already done so.  In each example, replace LISTNAME
-with the name of your mailing list.
+with the name of your mailing list.  Replace ADDRESS with a valid e-mail
+address.
 
 Delivery classes
 ----------------
@@ -78,10 +79,18 @@ and when digests are delivered.  Briefly, you can choose:
 
   * The default format of a digest.
 
-See "help configset_digests" for more details.
+  * What information to display about each message in the table
+    of contents.
+
+  * In what order the messages in the digest should be sorted.
+
+The digest command can be used to force a digest to be delivered
+immediately.  See "help configset_digests" and "help digest" for more
+details.
 
 
-The rest of this document deals with messages that are delivered separately.
+The rest of this document deals with messages that are delivered
+separately.
 
 
 Personal delivery settings
@@ -124,7 +133,7 @@ LLL
 The following command would turn on all four settings for someone who
 is already subscribed to the list:
 
-  set LISTNAME eliminatecc,prefix,replyto,selfcopy
+  set LISTNAME eliminatecc,prefix,replyto,selfcopy ADDRESS
 
 For more information, read the following documents:
    help configset_default_flags
@@ -141,13 +150,13 @@ Changing the headers
 
 Aside from the personal delivery settings in the last section, any
 changes made to a message will affect all of the people who receive
-separate copies of the message.  The message_headers and delete_headers 
-configuration settings can be used to add or remove any header in a posted 
-message.  The delete_headers changes are applied first, so the two
-settings can be used in tandem to replace existing headers. For example,
-the following commands will remove any existing To or Cc headers, and
-place the list address in the To header of the message.  This could
-be used to cut down on duplicates and prevent cross-posting.
+separate copies of the message.  The message_headers and delete_headers
+configuration settings can be used to add or remove any header in a
+posted message.  The delete_headers changes are applied first, so the
+two settings can be used in tandem to replace existing headers. For
+example, the following commands will remove any existing To or Cc
+headers, and place the list address in the To header of the message.
+This could be used to cut down on duplicates and prevent cross-posting.
 
 configset-append LISTNAME delete_headers <<JKL
 To
@@ -155,7 +164,7 @@ Cc
 JKL
 
 configset LISTNAME message_headers <<MNO
-To: $WHOAMI
+To: \$WHOAMI
 MNO
 
 See "help configset_delete_headers" and "help configset_message_headers"
@@ -233,6 +242,8 @@ See Also:
    help admin_moderate
    help admin_passwords
    help admin_subscribers
+   help digest
    help post
+   help set
 
 $INCLUDE-help/foot
