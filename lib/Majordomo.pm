@@ -385,6 +385,7 @@ sub dispatch {
       while (@{$request->{'victims'}}) {
         $addr = shift @{$request->{'victims'}};
         next unless $addr;
+        $addr =~ s/^\s+//;
         $addr = new Mj::Addr($addr);
         ($ok, $mess) = $addr->valid;
         return [0, "$addr is an invalid address:\n$mess"]
