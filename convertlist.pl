@@ -1,4 +1,4 @@
-#
+#!/usr/bin/perl
 use strict;
 use Getopt::Std;
 use Fcntl;
@@ -10,7 +10,10 @@ $|=1;
 $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 
 my %delete = (
+	      announcements     => 1,
 	      approve_passwd    => 1,
+	      date_info         => 1,
+	      date_intro        => 1,
 	      digest_archive    => 1,
 	      digest_issue      => 1,
 	      digest_maxdays    => 1,
@@ -82,8 +85,8 @@ sub convert_some_lists {
 sub convert_list {
   my $list = shift;
 
-  my(%config, @args, @rest, $aux, $editor, $err, $file, $filecount, $flags,
-     $i, $id, $j, $msg, $owner, $pid, $pw, $val, $var);
+  my(%config, @args, @rest, $aux, $digest, $editor, @editor, $err, $file,
+     $filecount, $i, $id, $j, $msg, $owner, $pid, $pw, $val, $var);
 
   $filecount = 1;
   print "Converting $list\n";
@@ -123,9 +126,9 @@ EOM
 
   # Figure out what default_flags should be based on reply_to and
   # subject_prefix.
-  $flags = 'S';
+  push @{$config{default_flags}}, 'selfcopy';
   if (length $config{reply_to} > 0) {
-    $flags .= 'R';
+    push @{$config{default_flags}}, 'replyto';
   }
   else {
     $msg = <<EOM;
@@ -137,11 +140,11 @@ choose to begin receiving it if they so desire?
 
 EOM
     unless (get_bool($msg, 1)) {
-      $flags .= 'R';
+      push @{$config{default_flags}}, 'replyto';
     }
   }
   if (length $config{subject_prefix} > 0) {
-    $flags .= 'P';
+    push @{$config{default_flags}}, 'prefix';
   }
   else {
     $msg = <<EOM;
@@ -153,11 +156,9 @@ to choose to begin receiving it if they so desire?
 
 EOM
     unless (get_bool($msg, 1)) {
-      $flags .= 'P';
+      push @{$config{default_flags}}, 'prefix';
     }
   }
-
-  $config{default_flags} = $flags;
 
   if (length $config{mungedomain}) {
     $msg = <<EOM;
@@ -255,6 +256,26 @@ EOM
     }
   }
 
+  # check for and convert digest subscribers
+  if ((-f "$opts{o}/$list-digest") && (-r "$opts{o}/$list-digest")) {
+    $msg = <<EOM;
+
+You appear to have a digest for this list as $list-digest.  If any list
+settings are different from the main list, they will be lost, however, we
+can import the subscriber list.  A digest called "daily" will be created
+and the $list-digest subscribers will be set up in 'digest-daily' mode.
+
+Would you list to import the subscribers from $list-digest?
+
+EOM
+
+    if (get_bool($msg, 1)) {
+      $digest = 1;
+      push @{$config{digests}},"daily   | 5     | 20K, 5m  | 40K, 10m | 3d | 1d       |        | mime";
+      push @{$config{digests}},"The daily digest for $list.";
+    }
+  }
+
   # Now dump out the configuration.
   $id = 'AA';
   for $i (sort keys %config) {
@@ -273,6 +294,11 @@ EOM
 
   print CMD "\nsubscribe-noinform-nowelcome $list <\@$filecount\n\n";
   push @args, "-f", "$opts{o}/$list";
+  if ($digest) {
+    $filecount++;
+    print CMD "subscribe-set-noinform-nowelcome $list digest-daily <\@$filecount\n\n";
+    push @args, "-f", "$opts{o}/$list-digest";
+  }
 
 
   print CMD "# mj_shell will be called with the following arguments:\n";
@@ -285,11 +311,12 @@ EOM
 
   # Offer to edit it
   $editor = $ENV{EDITOR} || $ENV{VISUAL} || '/bin/vi';
+  @editor = split(' ',$editor);
   if (get_bool("Do you want to edit the command file before executing it?\n", 1)) {
-    $err = system($editor, $file);
+    $err = system(@editor, $file);
   }
 
-  return if $err && get_bool("The editor indicated an error; continue?\n", 1);
+  return if $err && !get_bool("The editor indicated an error; continue?\n", 1);
 
   get_str("Ready to execute script; press enter\n");
 
@@ -335,6 +362,7 @@ sub load_old {
     s/#.*//;
     s/\s+$//;
     ($key, $op, $val) = split(" ", $_, 3);
+    if (!defined $val) { $val = "" }
     $key = lc($key);
 
     if ($op eq "\<\<") {
