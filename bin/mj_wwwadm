@@ -57,7 +57,7 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
                 'configdef'     => [1, 1, 1, 'configshow'],
                 'configset'     => [1, 1, 1, 'configshow'],
                 'configshow'    => [1, 1, 0, 'configshow'],
-                'createlist'    => [1, 0, 1, 'newlist'],
+                'createlist'    => [1, 0, 0, 'newlist'],
                 'digest'        => [1, 1, 1, 'lists'],
                 'faq'           => [1, 1, 0, 'lists'],
                 'get'           => [1, 1, 0, 'lists'],
@@ -66,7 +66,6 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
                 'info'          => [1, 1, 0, 'lists'],
                 'intro'         => [1, 1, 0, 'lists'],
                 'lists'         => [1, 0, 0, 'lists'],
-                'newlist'       => [1, 1, 1, 'newlist'],
                 'put'           => [1, 1, 1, 'lists'],
                 'reject'        => [1, 0, 1, 'showtokens'],
                 'report'        => [1, 1, 1, 'command'],
@@ -77,7 +76,6 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
                 'tokeninfo'     => [1, 0, 0, 'showtokens'],
                 'unregister'    => [1, 1, 1, 'who'],
                 'unsubscribe'   => [1, 1, 1, 'who'],
-                'welcome'       => [1, 1, 0, 'welcome'],
                 'which'         => [1, 1, 1, 'who'],
                 'who'           => [1, 1, 0, 'who'],
             );
@@ -243,9 +241,6 @@ unless ($raw) {
 if ($ofunc eq 'logout') {
   &usage($mj, $subs, 'You have successfully signed out.');
 }
-elsif ($ofunc eq 'newlist') {
-  &newlist($mj, $subs, '')
-}
 
 unless (length $lists[0]) {
   &login($mj, $subs, '');
@@ -266,12 +261,19 @@ unless ($ok) {
   &login($mj, $subs, "The address $user is invalid.\n$mess\n");
 }
 
-unless ($mj->validate_passwd($addr, $passw, $truelist, 'ALL')) {
+if ($ofunc =~ /newfaq|newinfo|newintro/) {
+  $func = "put";
+}
+
+unless ($mj->validate_passwd($addr, $passw, $truelist, 'ANY')) {
   &login($mj, $subs, $mj->format_error('invalid_password',
                          $truelist, 'VICTIM' => $user));
 }
 
-if ($ofunc eq 'login') {
+if ($ofunc eq 'newlist') {
+  &newlist($mj, $subs, '')
+}
+elsif ($ofunc eq 'login') {
   &login($mj, $subs, '');
 }
 elsif ($ofunc eq 'welcome') {
@@ -280,12 +282,7 @@ elsif ($ofunc eq 'welcome') {
 elsif ($ofunc eq 'command') {
   &command($mj, $subs, '');
 }
-elsif ($ofunc =~ /newfaq|newinfo|newintro/) {
-  $func = "put";
-}
-
-# Make sure the command is valid
-unless (exists $commands{$func}) {
+elsif (! exists $commands{$func}) {
   &usage($mj, $subs, "$func is an unsupported command.");
 }
 
