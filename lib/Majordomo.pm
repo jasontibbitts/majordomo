@@ -88,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200211280";
+$VERSION = "0.1200301180";
 $unique = 'AAA';
 
 use strict;
@@ -7205,7 +7205,8 @@ sub _get_msg_data {
     $part =~ s/[hH]$//;
     # XLANG
     return (0, "The message has no part numbered $part.\n")
-      if ($mode =~ /part/ and ! exists $table->{$part});
+      if ($mode =~ /part/ and 
+        (! exists $table->{$part} or $part eq '0h'));
   }
 
   if ($ok) {
