@@ -1,3 +1,13 @@
+2000-08-08  Michael Yount <csf@moscow.com>
+
+	* files/en/wwwadm_head, files/en/wwwadm_help:  Move the 
+	command form and introduction from mj_wwwadm to separate files
+	to allow easier customization.
+
+	* lib/Mj/CommandProps.pm, lib/Mj/Parser.pm (parse_args):
+	Split variable names in the configdef and configshow commands
+	on either commas or spaces.
+
 2000-08-07  Michael Yount <csf@moscow.com>
  
 	* lib/Mj/Config.pm (set):  Initialize value if it is not 

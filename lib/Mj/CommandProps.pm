@@ -115,7 +115,8 @@ my %commands =
    'config'     => {'parser' => [qw(email list obsolete=configshow real)]},
    'configshow' => {'parser' => [qw(email shell list global real)],
                     'dispatch' => {'top' => 1, 
-                                   'arguments' => {'groups', 'ARRAY'},
+                                   'arguments' => {'split', '[\s,]+',
+                                                   'groups', 'ARRAY'},
                                    'hereargs' => 'groups' 
                                   }
                    },
@@ -129,7 +130,8 @@ my %commands =
                    },
    'configdef'  => {'parser' => [qw(email shell list global real)],
                     'dispatch' => {'top' => 1, 
-                                   'arguments' => {'vars', 'ARRAY'},
+                                   'arguments' => {'split', '[\s,]+',
+                                                   'vars', 'ARRAY'},
                                    'hereargs' =>  'vars',
                                   }
                    },

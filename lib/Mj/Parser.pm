@@ -725,7 +725,9 @@ sub parse_args {
         unless (exists $request->{$argname}) {
           $request->{$argname} = [];
         }
-        push @{$request->{$argname}}, split (" ", $k);
+        if ($k) {
+          push @{$request->{$argname}}, split (/$arguments->{'split'}/, $k);
+        }
       }
     }
   }
