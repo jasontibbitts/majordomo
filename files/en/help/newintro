@@ -1,0 +1,11 @@
+WARNING: 'newintro' is a valid command, but has no help as of 8 Mar 1999
+
+This command may not be implemented, or may be undocumented for a reason!
+
+
+For a list of topics, or default help, send one of the next two lines
+   help topics
+   help help
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

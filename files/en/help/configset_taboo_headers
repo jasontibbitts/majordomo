@@ -1,0 +1,45 @@
+NOTE: Details/corrections are below the configshow output!
+
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname taboo_headers <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# taboo_headers
+# (empty)              [taboo_headers] <resend>
+# If any of the headers matches one of these regexps, then the message
+# will be bounced for review. XXX Ugh.
+configset listname taboo_headers << ENDABA
+ENDABA
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+==> see also: configset taboo_headers_GLOBAL (applies to GLOBAL pseudo-list)
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+addendum to Majordomo2 "configset taboo_header" File - updated 25 Jan 99
+
+NOTE: For help on taboo_headers, please send "help configset admin_body"
+to the server. All syntax and information is identical, but the "nn"
+option (and its comma) which restricts matches to the first few lines is
+not present for headers. Just substitute the string "taboo_" wherever you
+see "admin_" in that help file.
+
+See "help configset access_rules" for how to send informative messages
+when one of the taboo_headers lines matches.
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_taboo_headers
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

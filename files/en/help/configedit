@@ -1,0 +1,34 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configedit-nocomments listname variable[,variable]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site
+variable, required, is one or more "configset" items with commas between
+-nocomments, if specified, hides explanatory comments with the variable
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+NOTE: Implemented for shell interface only!
+
+Retrieves the value of the variable and opens an editor on it. The editor
+to use is chosen from the EDITOR environment variable. When the editor is
+exited, the variable is set to the new value assuming the editor contents
+have been modified and saved and assuming there are no syntax errors.
+
+Multiple variables can be edited by listing them separated by commas, and
+groups can be specified with upper case letters.  Listing no variable
+name at all retrieves the complete list of variables.
+
+Unless the '-nocomments' option is used, explanatory information about
+the variable(s) will be returned as well, as with "configshow".
+
+A complete list of variables is included in "help configset".
+
+==> see also: configdefault (to have the variable track the default value)
+==> see also: configset     (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configedit
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

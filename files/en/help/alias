@@ -1,0 +1,43 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+alias address
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+address, required, is the alternate address you want to post from
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+If you have more than one email account, you may wish to be able to
+post from more than one of them, while receiving list mail at only a
+single address. The 'alias' command allows this.
+
+To post from several accounts, first subscribe to any list with the
+address which appears in the mail headers where you want to receive
+posts. Then send this one-line msg to $MJ:
+       alias YourAlternateEmailAddress
+where YourAlternateEmailAddress is actually the address which will
+appear in the header of mail from your other account.
+
+Be sure to send that message from your main email address, not the
+one you are trying to alias. If "YourAlternateEmailAddress" is already
+subscribed to a list on the same server, this command will fail. You
+can use the "unregister" command above to remove it, then send the
+"alias" command again.
+
+NOTE: The address GIVEN on the alias command will be considered
+equivalent to the address from which you SENT the command when
+checking who can post to a list. Note that this applies to ALL lists
+at the site, so you only have to alias once per alternate email
+address, not once per list.
+
+There is, as of 2/99, no formal way to review the register or alias
+databases. Please contact the maintainer shown at the bottom of this
+file for a Perl script that assumes shell access.
+
+==> see also: register  (must occur before alias will work)
+==> see also: subscribe (does an automatic registration)
+==> see also: unalias   (to cancel an alias command)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help alias
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

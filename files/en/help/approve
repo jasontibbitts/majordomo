@@ -1,0 +1,38 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+approve password command-options [arguments]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+password, required, is a password which authorizes the command
+command,  required, is any command that requires a password
+options,   if specified, is one or more options for the command
+arguments, if specified, is one or more arguments for the command
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+The "approve" command executes another command (possibly with its own
+options and arguments). Majordomo checks the supplied password, and
+if it is authorized to approve the given command, that command will be
+executed without requiring a confirmation token to be accepted.
+
+List subscribers can use it to speed the subscribe and unsubscribe
+process, or to unsubscribe from a new email address when the old
+address is no longer usable (assuming they saved their password!).
+
+The 'default' command can make it much easier to approve several
+commands at once. Most admin commands are of little use without
+"approve" and the appropriate password. If an admin command fails,
+check to make sure you are approving it correctly.
+
+In the example below, "vespa" is the registered user's password.
+EXAMPLE:
+   approve vespa unsubscribe test-list tsmith@example.com
+
+
+==> see also: accept   (which may be required if approve is not used)
+==> see also: default  (which can supply a password for many commands)
+==> see also: password (which changes an individual's password)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help approve
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

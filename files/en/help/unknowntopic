@@ -1,3 +1,32 @@
-No help available for that topic.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+help [topic]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+all possible topics are listed in "help topics"
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-$INCLUDE-help/topics
+YOU RECEIVED THIS MESSAGE BECAUSE YOU SENT A HELP REQUEST THAT THE
+SERVER CANNOT RESPOND TO. Please check the spelling, and try again.
+
+The "help" command returns a help file from the server, if help is
+available for the requested topic. If the requested topic is not
+available, this file is returned.
+
+To get a list of all possible topics, send the message
+   help topics
+to the server at $MJ and read carefully.
+
+To get basic help, send this one-line message to $MJ
+   help
+
+All commands have help files, but you will probably want to start with
+   help user overview
+or
+   help admin overview
+to get an idea of which commands you want to use.
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help unknowntopic
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,22 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+intro listname
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+This command returns a Introduction file for the list named, if one
+is available. If no INTRO file exists, it returns an error message.
+
+Note that this may not be the same as the welcome document that is
+sent to new subscribers.
+
+==> see also: faq  (another document related to the list)
+==> see also: info (another document related to the list)
+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help intro
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,29 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname nonmember_flags = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# nonmember_flags
+# ()                   [string] <flags>
+# A string containing the flags which apply to users who are not list members
+# when they send messages to the list.  Only a very few flags make sense in
+# this case.  They are:
+#
+#   A - ackall
+#   a - ackimportant
+configset listname nonmember_flags =
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_nonmember_flags
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

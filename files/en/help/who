@@ -1,0 +1,36 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+who-short listname [pattern]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site
+-short,  if specified, produces just a simple list of email addresses
+pattern, if specified, is a matching string (see "help patterns")
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+The "who" command returns all or some subscribers to the named list,
+if you are authorized to review the subscribers. Each list owner may
+decide who is authorized, and you will receive an error message if
+you have been refused access.
+
+If "pattern" is not supplied, all subscribers are listed.
+
+If "pattern" is supplied, beware of case sensitivity, and review
+the "help patterns" file carefully. Patterns can be very simple or
+full-blown Perl regular expressions.
+
+If "-short" is specified, the simple list of addresses can be used
+for administrative changes in a pipe. For example:
+  mj_shell -p pass who-short | mj_shell -p pass -f - set listname ackimportant
+can be used to alter the subscription options of all list subscribers.
+
+==> see also: patterns (for simple and complex regular expressions)
+==> see also: show     (for information about a given subscriber)
+==> see also: which    (for all lists a given subscriber is on)
+==> see also: configset access_rules (to restrict use of who)
+==> see also: configset who_access   (to restrict use of who)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help who
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,23 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+auxadd -nowelcome listname sublist address
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is the name of a list at this site
+sublist,  required, is the name of a sublist of listname
+address,  required, is an email address not previously subscribed
+-nowelcome, if specified, suppresses the new subscriber message(s)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+The command "auxsubscribe" is identical to "auxadd".
+
+Adds an address to the named sublist of a given list.
+
+There is currently no help file for sublist usage.
+
+==>see also: subscribe (for syntax)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help auxadd
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

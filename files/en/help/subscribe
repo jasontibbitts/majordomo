@@ -1,66 +1,86 @@
-The Subscribe Command: Subscribing to a List
-============================================
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+subscribe-nowelcome listname address
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+address,    required, is an email address not previously subscribed
+listname,   required, is the name of a list at this site
+-nowelcome, if specified, suppresses the new subscriber message(s)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-Once you've determined that you wish to subscribe to one or more lists on
-this system, you can send commands to Majordomo to have it add you to the
-list, so you can begin receiving mailings.
+The "subscribe" command adds an "address" to the named list. Unless
+the command is "approve"d in advance, a confirmation token will be
+sent to the given "address" to verify this action, and must be
+replied to with an "accept" command before the subscription is done.
 
-To receive list mail at the address from which you're sending your mail,
-simply say "subscribe" followed by the list's name:
+When an address is first subscribed to any list at this site, it is
+automatically put in the registration database and the register command
+can not be used until that address is unregistered. Unregistering will
+automatically remove that address from all lists at this site, or the
+unsubscribe command can be used to selectively remove an address from
+one list at a time.
 
-        subscribe scooters
+It is possible to register, get a password, and then use "approve"
+to subscribe to several lists instead of using "accept" to confirm
+each subscription. List owners and site administrators with list
+passwords can also pre-approve subscriptions to bypass "accept".
+
+Unless the "-nowelcome" option is used, Majordomo will send a message
+to "address" with an explanation of how to use the list. Each list
+owner can decide how many files, if any, new subscribers will receive.
 
 If for some reason you wish to have the mailings go to a different address
 (a friend's address, a specific other system on which you have an account,
-or an address which is more correct than the one that automatically appears
+or an address which is more correct than the one that automatically appears 
 in the "From:" header on the mail you send), you would add that address to
-the command.  For instance, if you're sending a request from your work
-account, but wish to receive "scooters" mail at your personal account
-(for which we will use "jqpublic@example.com" as an example), you'd put
-the line:
+the command. The "accept" confirmation would then be sent to that address.
 
-        subscribe example jqpublic@example.com
-
-...in the mail message body.
-
-If you do not wish to receive the introductory welcome documents that are
-normally sent to new subscribers, you can send a command like:
-
-        subscribe-nowelcome example
-
-...to supress those documents.  Again, you may optionally including your
-address as above.
-
-
-Confirming Subscriptions
-------------------------
-
-Based on configuration decisions made by the list owners, you may be added
-to the mailing list automatically, you may be required to perform an
-additional confirmation action or you may have to wait for the list owner
-to allow your subscription.  If you are required to perform an additional
-action, you will be sent a message containing instructions that you must
-follow.  These basically amount to visiting a web page or replying to the
-message with the single word "accept".
-
-The reason that many lists require additional confirmation is that it isn't
-really possible to verify that the address being subscribed to the list
+The reason that many lists require additional confirmation is that it is in
+general impossible to verify that the address being subscribed to the list
 is indeed the person who sent the request.  This fact is frequently
 exploited to forge subscription requests which result in hassles for the
 victim and all of the list owners.  By sending a message to the subscriber
-address and requiring a valid reply, the abuse is limited to the single
+address and requiring a valid reply the abuse is limited to the single
 confirmation message; the victim does not have to go through the hassle of
 being removed from the list.  In addition, Majordomo2 stores information
 about the source of the forged requests and if a rejection is sent in
 response to the confirmation message, this stored information is
 automatically forwarded to various responsible parties.
 
+The address need not be a simple email address. Comment fields are
+preserved in the registration database. These are all valid addresses:
+   joe@blow.com
+   Joe Blow <joe@blow.com>
+   "Joe Blow 555-1212" joe@blow.com
+   joe@blow.com (Joe Blow)
+Note that registering with a name or other comment field is not
+required, but it may help a site administrator find your address
+in the event you need help later. The name or comment portion must
+be enclosed in quotes if it contains certain characters like periods
+or other puncutation.
+
+In addition, other technically illegal addresses can be used
+but only if the site administrator has enabled them. See these
+help files for details:
+   help configset addr_allow_at_in_phrase_GLOBAL
+   help configset addr_allow_bang_paths_GLOBAL
+   help configset addr_allow_comments_after_route_GLOBAL
+   help configset addr_allow_ending_dot_GLOBAL
+
 Upon subscribing, you should (unless you specified otherwise) receive an
 introductory message containing list policies and features.  Save this
 message for future reference; it will also contain exact directions for
 unsubscribing.  If you lose the intro mail and would like another copy of
-the policies, send this message to $MJ:
+the policies, send this message to $MJ
+        intro LISTNAME
+(substituting, of course, the real name of your list for "LISTNAME").
 
-        intro scooters
+==> see also: approve        (which can eliminate the need to use "accept")
+==> see also: password    (which changes an individual's password)
+==> see also: unsubscribe (which removes an address from just one list)
+==> see also: unregister  (which removes an address from all lists)
 
-(substituting, of course, the real name of your list for "scooters").
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help subscribe
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

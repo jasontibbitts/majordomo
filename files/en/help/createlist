@@ -1,0 +1,73 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+createlist-nocreate-noheader-force-quiet-regen listname owner
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname,  required, is an email list at this site
+owner,     required, is an email address for who will manage the list
+-nocreate, if specified, shows suggested aliases but takes no action
+-noheader, if specified, shortens the suggested aliases message
+-force,    if specified, takes action even if list already exists
+-quiet,    if specified, suppresses intro msg for new owner (default)
+-regen,    if specified, re-generates the suggested MTA configurations
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+Creates the internal structures needed to maintain a list with the given
+name, unless the "-nocreate" or "-regen" options are used or unless the
+list already exists and the "-force" option is not used. Be sure to review
+"help configset debug_flags" and "help set" - it is easier to set up the
+default values correctly than it is to have each subscriber alter them.
+Some items like replyfile specifications in "configset access_rules" may
+not function properly if default_flags are set wrong.
+
+The "createlist" command also suggests the necessary MTA configuration
+if the MTA in use is supported -- for example, if sendmail is the MTA in
+use, a set of sendmail aliases will be generated.  Note that Majordomo
+does not (yet) handle configuring the MTA itself, although it generally
+provides data which can simply be pasted into the necessary config file.
+
+NOTE: As of 1/99, the owner-listname alias has a trailing comma which must
+      be removed or the sendmail alias will not work.
+
+If "listname" is 'GLOBAL', the setup for the site-wide Majordomo address
+is given instead of the setup for a single list.
+
+If "createlist-regen" is used, all other options and arguments are ignored.
+A complete list of suggested MTA configurations for the site and each list
+is displayed. This will be required after changing "configset debug".
+
+Once created, a list can only be deleted from the operating system
+shell prompt. Remove the directory associated with the list to delete
+it, as there is no Majordomo command to delete a list.
+
+Options include the following:
+
+  -force:
+    If the list already exists, the 'createlist' command will fail
+    unless the 'force' argument is used.  Note that the owner address you
+    enter when you force the list creation will replace any previous owner
+    addresses associated with the list.
+
+  -nocreate:
+    This argument will cause 'createlist' to suggest the MTA
+    configuration without actually creating the list; the command will not
+    fail if the list already exists.
+
+  -noheader:
+    The instructional information that precedes the suggested
+    MTA configuration info will not be displayed.
+
+  -quiet:
+    No introductory mail will be sent to the list owner.
+    (Introductory mail is not currently implemented as of 1/99.)
+
+  -regen:
+    Display MTA configuration only, ignore all other options and args.
+
+==> see also: configset     (to configure the list once created)
+==> see also: default_flags (to configure default subscriptions)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help createlist
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

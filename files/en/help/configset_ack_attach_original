@@ -1,0 +1,62 @@
+NOTE: Details/corrections are below the configshow output!
+
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname ack_attach_original <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# ack_attach_original
+# (fail ...)           [enum_array] <resend>
+# This controls under what circumstances the original message will be
+# attached (as a MIME attachment) to acknowlegements sent out to inform
+# the user of delivery progress (as set by the user''s ack setting and
+# the value of the 'ack_denials_always' variable).
+#
+# Each element of this array must be one of the following:
+#
+#   fail  - acks for failed messages will include the original message
+#   stall - acks for stalls (confirmations or consultations) will
+#           include the original message.
+#   all   - acks sent for any reason will include the original message.
+configset listname ack_attach_original << ENDAAC
+fail
+stall
+ENDAAC
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+addendum to Majordomo2 "configset ack_attach_original" File - updated 24 Feb 99
+
+This command can be used to enhance replyfile or mailfile messages, it
+does not generate new messages.
+
+When a subscriber receives an acknowledgement message (a post is stalled
+for owner confirmation or a post is denied), they will also receive a copy
+of their post back (as a MIME attachment). This can help clarify which post
+the error (deny or stall) message applies to.
+
+If users are posting huge files, returning it may be good (they realize
+how long it took to receive) or bad (you load up your server returning it).
+
+==> see also: configset access_rules  (for how to specify replyfiles)
+==> see also: configset default_flags (for pre-setting the "ack" flag)
+==> see also: set                     (for subscribers to set the "ack" flag)
+
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_ack_attach_original
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

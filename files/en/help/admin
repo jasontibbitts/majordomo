@@ -1,6 +1,9 @@
-Available Admin Help Subtopics
-------------------------------
+This file has been deleted/replaced as of 8 Mar 1999
 
-admin commands      - Overview of available administrative commands
-admin configuration - Overview of configuration variables and methods
-admin passwords     - Information on Majordomo security and passwords
+
+For a list of topics, or default help, send one of the next two lines
+   help topics
+   help help
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

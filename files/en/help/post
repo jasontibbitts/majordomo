@@ -1,0 +1,26 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+post listname
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is the name of a list at this site
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+The "post" command sends a message to "listname". It may require a
+list or site password via "approve".
+
+Note that the message must be fully formed, with all necessary headers.
+Majordomo will not add omitted headers, nor does it check the validity
+of the message. All of the normal resend access checks apply.
+
+This enables a Majordomo list to be run without doing any MTA
+configuration at all.  The list will not, however, be terribly
+functional.  This will probably work for announcement lists, though.
+
+==> see also: approve  (which can eliminate the need to use "accept")
+==> see also: password (which changes an individual's password)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help post
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

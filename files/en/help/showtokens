@@ -1,0 +1,25 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+showtokens listname
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is the name of a list at this site
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+The "showtokens" command provides a list of all outstanding tokens
+(e.g. pending "accept" or "reject" requests). If there are many such
+unhandled tokens, it may be due to an absent list owner or a spammer.
+
+Anyone with a password that authorizes them to show the tokens can
+use the "accept" or "reject" command to send these tokens to the
+server for immediate action, thereby clearing the backlog.
+
+==> see also: accept (approving  action)
+==> see also: reject (cancelling action)
+==> see also: configset token_lifetime (site-wide or per-list expiration period)
+==> see also: configset token_remind   (site-wide or per-list reminder before expiration)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help showtokens
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

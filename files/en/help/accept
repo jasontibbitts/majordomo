@@ -1,0 +1,51 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+accept [token]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+token, if specified, is the magic number sent to you by Majordomo
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+The 'accept' command tells Majordomo to allow or approve some requested
+action. Note that the token can be returned from the address which made
+the request, or from another address! If you did not make the request, be
+sure you follow up with whoever did after accepting or rejecting the token.
+
+Some commands will require your confirmation before their actions will be
+taken; this can help protect you from mischief by preventing others from
+submitting commands in your name.  In such a case, a 'token' will be
+mailed to you for approval. (For example, joe@nowhere.com tries to
+subscribe mary@elsewhere.com to an email list - perhaps Joe is doing
+Mary a favor, or perhaps he's being malicious... either way, Mary gets
+a token so she can accept or reject the subscription before it happens.)
+
+A token is also called a magic number, because you are getting an email
+message with a long number in the subject line. That number is remembered
+by Majordomo. When you send the number back Majordomo knows it has reached
+you because the number acts like a one-time-only password.
+
+If the token is omitted from the command, the Subject: header will be
+searched for one; accepting a token therefore usually requires only that
+you hit "reply" on your mailer and type the word "accept".
+
+Once Majordomo receives your acceptance, the stalled command will be
+executed and the results returned in a response message. If you do not
+accept or reject the token, Majordomo eventually "times out" based on
+site or list settings. Waiting too long is the same as rejecting.
+Majordomo will try to remind you that it is about to give up before
+timing out. The list owner or site administrator sets the number of
+days for token reminders and expirations.
+
+Site administrators should refer to "help configset access_rules" for
+ways to change the message which asks for accept/reject tokens.
+
+==> see also: approve        (which can eliminate the need to use "accept")
+==> see also: reject         (the opposite action of "accept")
+==> see also: showtokens     (for a list of unhandled requests)
+==> see also: configset token_lifetime (site-wide or per-list expiration period)
+==> see also: configset token_remind   (site-wide or per-list reminder before expiration)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help accept
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

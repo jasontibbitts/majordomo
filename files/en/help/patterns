@@ -1,36 +1,41 @@
-Majordomo Patterns
-==================
+Majordomo2 "help patterns" File - updated 17 Jan 99
+This message is from $SITE
 
-The Short Story
----------------
 
-Where you can use a pattern, use something like:
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 
+Section 1 - Introduction to Patterns
+
+There are three supported types of pattern:
+  Section 2 - Substring Patterns
+  Section 3 - Shell-Like Patterns
+  Section 4 - Perl-Like Regular Expressions
+
+They differ in their delimiters and the number and function of various
+special characters (the so called metacharacters). This section will
+describe the basic differences, and you can scroll down to the section
+which describes the kind of pattern you need to understand.
+
+Where you can use a SIMPLE pattern, enclose it in "double quotes":
   "user@example.com"
   "example.com"i
+where the trailing 'i' specifies case insensitivity, and without
+it upper and lower case characters are considered to be unique.
 
-where the trailing 'i' specifies case insensitivity.
-
-If you need more complicated matching, you can use:
-
+If you need more complicated matching, enclose it in %percent signs%:
   %user@*example.com%i
-
 where an asterisk matches any number of any character.
 
-If you need more powerful patterns, you can use a Perl regular expression
-surrounded by '/':
-
+If you need more powerful patterns, you can use a Perl regular
+expression enclosed in /slashes/:
   /(someone|nobody)\\@.*example.com/i
 
 
-The Details
------------
-
 Majordomo is written in Perl and exposes the power of the Perl pattern
 matching language to the user.  Unfortunately, Perl regular expressions
-(regexps for short) are somewhat complicated and difficult to learn.  They
-also have their own quirks which can get in the way of doing simple pattern
-matching tasks.
+(regexps for short) are somewhat complicated and difficult to learn.
+They also have their own quirks which can get in the way of doing simple
+pattern matching tasks.
 
 To eliminate some of the complexity, Majordomo provides two simpler forms
 of pattern matching in addition to full Perl regular expressions.
@@ -38,19 +43,12 @@ of pattern matching in addition to full Perl regular expressions.
 A Majordomo pattern is composed of enclosing delimiters, modifiers, and the
 pattern itself.  Majordomo uses the delimiters to determine the type of the
 pattern.  The modifiers change the behavior of the pattern; generally, the
-only useful modifier makes the match insensitive to case.  There are three
-supported types of pattern:
-
-  substring
-  shell-like
-  Perl-like regular expressions
-
-They differ in their delimiters and the number and function of various
-special characters (the so called metacharacters).
+only useful modifier makes the match insensitive to case.  
 
 
-Substring Patterns
-==================
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+
+Section 2 - Substring Patterns
 
   Examples: "example.com"
             "user@somewhere.example.com"i
@@ -61,8 +59,9 @@ matched.  A trailing 'i' specifies that the match is done insensitive to
 case.
 
 
-Shell-Like Patterns
-===================
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+
+Section 3 - Shell-Like Patterns
 
   Examples: %user@*example.com%i
             %u-???@*example.com%i
@@ -73,8 +72,9 @@ asterisk matches any number (including zero) of any character.  Character
 classes with '[' and ']' are also supported.
 
 
-Perl-Like Regular Expressions
-=============================
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+
+Section 4 - Perl-Like Regular Expressions
 
 More extreme power is available by using the regular expression language
 available through Perl.  These patterns are called 'Perl-like' because
@@ -97,8 +97,12 @@ consult the Perl documentation or any reasonable book on Perl.
 Perl Regexps in Depth
 =====================
 
-A regular expression is a concise way of expressing a pattern
-in a series of characters.  The full power of regular expressions can
+For some of the configuration options, a rudimentary knowledge of
+Perl-style regular expressions will help you run Majordomo through
+its tricks.  
+
+A regular expression is a concise way of expressing a pattern in
+a series of characters.  The full power of regular expressions can
 make some difficult tasks quite easy, but we will only brush the
 surface here.
 
@@ -106,8 +110,8 @@ The character / is used to mark the beginning and end of a regular
 expression.  Letters and numbers stand for themselves.  Many of the
 other characters are symbolic.  Some commonly used ones are:
 
-  \\@    the `@' found in nearly all addresses; it must be preceeded by a
-        backslash to avoid errors in Perl
+  \\@    the `@' found in nearly all addresses; it must be preceeded
+        by a backslash to avoid errors in Perl
   .     (period) any character
   *     previous character, zero or more times; note especially...
   .*    any character, zero or more times
@@ -117,8 +121,8 @@ other characters are symbolic.  Some commonly used ones are:
   \\.     literally a period, not meaning "any character"
   ^     beginning of the string; so for example...
   ^a    a string beginning with letter "a"
-  $     end of the string; so for example...
-  a$    a string ending with letter "a"
+  \$     end of the string; so for example...
+  a\$    a string ending with letter "a"
 
 
 Example 1
@@ -162,7 +166,7 @@ But it doesn't match:
 Example 3
 ---------
 
-     /^johndoe\\@.*cs\\.example\\.org$/
+     /^johndoe\\@.*cs\\.example\\.org\$/
 
 This is similar to Example 2, and matches the same first two strings:
 
@@ -174,7 +178,7 @@ But it doesn't match:
      ajohndoe@terminus.foo.example.org@example.com
 
 ...because the regular expression says the string has to begin with
-letter "j" and end with letter "g", by using the ^ and $ symbols, and
+letter "j" and end with letter "g", by using the ^ and \$ symbols, and
 neither of those is true for ajohndoe@terminus.foo.example.org@example.com.
 
 
@@ -250,3 +254,10 @@ pattern a bit easier to read.  If you want to match actual whitespace, use
 Note that the 'x' modifier provides additional functionality to Perl code
 relating to comments, but because Majordomo requires patterns to lie all on
 a single line, this is not significant here.
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help patterns
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,66 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+register-nowelcome-password [newpassword] address
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+address,     required,     is a previously unregistered address
+-nowelcome,  if specified, suppresses the new registration message
+-password,   if specified, takes the first arg as the new password
+newpassword, if specified, is the initial password for address
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+The "register" command adds an "address" to the registration database
+without adding it to any lists. It is possible to register, get a
+password, and then use "approve" to subscribe to several lists instead
+of using "accept" to confirm each subscription.
+
+NOTE: There is, as of 1/99, no formal way to review the register or
+      alias databases. Please contact the maintainer shown at the
+      bottom of this file for a Perl script that assumes shell access.
+
+You may either use the "-password" option OR use "newpassword", not
+both. If you use "-password" but don't put "newpassword" between the
+option and the address, Majordomo will grab the first word of your
+address for use as the password (and the command may fail).
+
+Unless the "-password" option is used, Majordomo will invent one and
+send it to "address" with a request for confirmation.
+
+Unless the "-nowelcome" option is used, Majordomo will send a message
+to "address" with an explanation of how to use the password.
+
+When an address is first subscribed to any list at this site, it is
+automatically put in the registration database and the register command
+can not be used until that address is unregistered. Unregistering will
+automatically remove that address from all lists at this site.
+
+The address need not be a simple email address. Comment fields are
+preserved in the registration database. These are all valid addresses:
+   joe@blow.com
+   Joe Blow <joe@blow.com>
+   "Joe Blow 555-1212" joe@blow.com
+   joe@blow.com (Joe Blow)
+Note that registering with a name or other comment field is not
+required, but it may help a site administrator find your address
+in the event you need help later.
+
+In addition, other technically illegal addresses can be used
+but only if the site administrator has enabled them. See these
+help files for details:
+   help configset addr_allow_at_in_phrase_GLOBAL
+   help configset addr_allow_bang_paths_GLOBAL
+   help configset addr_allow_comments_after_route_GLOBAL
+   help configset addr_allow_ending_dot_GLOBAL
+
+A confirmation token will be sent to the given "address" to verify
+this action, and must be replied to with an "accept" command before
+the registration is completed and the password can be used.
+
+==> see also: password   (which changes an individual's password)
+==> see also: subscribe  (does an automatic registration)
+==> see also: unregister (which removes an address from the database)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help register
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,44 @@
+NOTE: Details/corrections are below the configshow output!
+
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL filedir = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+GLOBAL means you are setting site parameters, not just one list
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# filedir
+# (undef)              [directory] <filespace>
+# The directory where the filespace for the list is kept.
+configset GLOBAL filedir =
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+==> see also: configset filedir (applies to regular lists also)
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+addendum to Majordomo2 "configset filedir" File - updated 11 Feb 99
+
+If you leave this variable undefined (e.g. nothing after the "="),
+the "put" command will create files inside "listname/files/public"
+by default, and inside "listname/files" if you start the put path
+with a slash. See "help put" for details.
+
+If you define this variable, you must make sure that Majordomo has
+permission to access the directory and the files in it. Defining
+"filedir" may affect many commands like "get", "put", "index", and
+even "help" if you have stored files in the GLOBAL pseudo-list.
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_filedir_global
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

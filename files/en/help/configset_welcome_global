@@ -1,0 +1,26 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL welcome = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+GLOBAL means you are setting site parameters, not just one list
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# welcome
+# (yes)                [bool] <majordomo,welcome>
+# If this is on, new subscribers (or registered users) will be sent a welcome
+# message.
+configset GLOBAL welcome = 1
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+==> see also: configset welcome (applies to regular lists also)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_welcome_global
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,40 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+get listname filename [address]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site (or GLOBAL)
+filename, required, is the pathname of the file to be sent
+address, if specified, is where the file should be sent via email
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+This command returns a file from the list, which the list owner must
+have previously stored there. If no such file exists, or if you are
+not authorized to get it, the "get" command returns an error message.
+
+Each list may be set up so that different sets of people can "get"
+files from it. If get fails, contact the list owner to make sure you
+asked for the right file name or try "index-recursive listname" to
+get a list of all files you can access.
+
+List and file names are case sensitive! Be sure to type upper and
+lower case letters exactly as they are shown by "index".
+
+Note that "filename" is actually a file pathname, and may include
+one or more levels of directories (also called folders). The "index"
+command will show which entries are files and which are directories.
+For example, if list "MYLIST" contains a file called "TOPFILE" in
+addition to a directory "SUBDIR" and a file in that directory which
+is called "ANOTHERFILE", then these commands would be valid:
+  get MYLIST TOPFILE
+  get MYLIST SUBDIR/ANOTHERFILE
+where a slash "/" separates the directory name from the file name.
+
+==> see also: get_access (determines who can get files from a list)
+==> see also: index      (find out which files are available for "get")
+==> see also: put        (to create files or directories under a list)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help get
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

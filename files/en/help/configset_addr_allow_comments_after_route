@@ -1,0 +1,8 @@
+NOTE: This command applies only to the GLOBAL pseudo-list!
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset addr_allow_comments_after_route
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

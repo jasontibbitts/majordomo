@@ -1,0 +1,19 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+info listname
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+This command returns an Information file for the list named, if one
+is available. If no INFO file exists, it returns an error message.
+
+==> see also: faq   (another document related to the list)
+==> see also: intro (another document related to the list)
+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help info
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,75 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+default variable value
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+variable, required, must be either "list" or "password"
+value, if specified, is the name of the list or the password string
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+NOTE: This help file is for the command called "default". To get
+      basic help, just send "help" to the server (not "help default").
+
+Sets a default value for a variable used by the command parser when
+processing a batch of commands.  Currently, you may set a default
+approval password or a default list name. This is not a general
+variable mechanism, it is ONLY for defaulting lists and passwords.
+
+The 'default' command sets certain defaults for the duration of the
+parsing.  The following defaults can be set:
+
+    password:  approves all following commands with the given password.
+               To clear the password, don't supply one.
+
+    list:      sets the default list for commands to the provided list.
+               To clear the default list, don't supply one.
+
+    language:  (Not implemented) sets the default language preference list
+               to the comma-separated list of two-letter language
+               abbreviations.
+
+    prefix:    (Not implemented) sets a prefix that (if present) will be
+               deleted from the beginning of all following lines.
+
+The 'language' command (not implemented) is equivalent to the 'default
+language' command above, and is supplied for the benefit of users.
+
+If the value is omitted, the default setting is removed. This allows
+you to have a default for some commands but not for others.
+
+Setting a default password will implicitly do the equivalent of
+'approve password' at the beginning of all following command lines.
+List subscribers will find little use for "default", except that
+it can make command lines shorter. List administrators will find
+it especially useful when returning the output of a 'configshow'
+command to the parser to change some variables; simply add the
+'default password' command to the beginning of the message or file,
+and the parser will accept the 'configset' commands exactly as
+dumped by the configshow command.
+
+Setting a default list makes the list an optional argument for all
+commands which take one (excepting the createlist command).  Note that
+this is not without ambiguity, as the parser cannot always tell when
+the default list is implied.  When running at the -request address,
+the parser generally starts with a default list in place.
+
+Both of these commands make it much simpler to submit multiple
+commands to the parser in one fell swoop.  For example, it makes
+the following sets of commands equivalent:
+    approve MYPASSWORD subscribe ONE-LIST someone@example.com
+    approve MYPASSWORD subscribe TWO-LIST someone@example.com
+or:
+    default password MYPASSWORD
+    subscribe ONE-LIST someone@example.com
+    subscribe TWO-LIST someone@example.com
+
+The more commands you have, the more "default" helps you.
+
+==> see also: accept   (which may be required if default is not used)
+==> see also: approve  (like "default", but for only one command)
+==> see also: password (which changes an individual's password)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help default
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,39 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+which-regexp searchstring
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+searchstring, required, is an email address fragment you wish to find
+-regexp, if specified, makes searchstring a pattern (see "help patterns")
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+The "which" command returns all subscribers to all lists that have
+the "searchstring" you specified as part of their email address, if
+you are authorized to review the subscribers (not the real names that
+may be in comment fields, just the simple email addresses).
+
+Each list owner may decide who is authorized to use this command,
+and you will receive an error message if you have been refused access.
+
+If the "-regexp" option is used, "searchstring" is interpreted as a
+Majordomo matching pattern. Review the "help patterns" file carefully.
+Patterns can be very simple or full-blown Perl regular expressions.
+
+Without the "-regexp" option, "searchstring" is matched literally
+with no interpretation of special characters. Matching is case sensitive.
+
+Which can return a huge amount of data, so be as specific as possible
+when choosing the string to search for. Matches may be case sensitive,
+so if "Joe" does not match, try "joe" instead.
+
+==> see also: patterns (for simple and complex regular expressions)
+==> see also: show  (for information about a given subscriber)
+==> see also: who   (for all subscribers to a given list)
+==> see also: configset access_rules (to restrict use of which)
+==> see also: configset which_access (to restrict use of which)
+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help which
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

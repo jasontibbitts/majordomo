@@ -1,0 +1,27 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname moderators <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# moderators
+# (empty)              [address_array] <resend,access>
+# List messages requiring consultation will be sent to
+# 'moderator_group' (or all) of these addresses.  Any of them may
+# approve or reject the message.
+configset listname moderators << ENDAAU
+ENDAAU
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_moderators
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

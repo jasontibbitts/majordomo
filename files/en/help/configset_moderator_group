@@ -1,0 +1,26 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname moderator_group = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# moderator_group
+# (0)                  [integer] <resend,access>
+# List messages requiring consulataion will be sent to this many of the
+# addresses in 'moderators', chosen at random.  If this is zero, the
+# message will be sent to all of the addresses in 'moderators'.
+configset listname moderator_group =
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_moderator_group
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

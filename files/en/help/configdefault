@@ -1,0 +1,27 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configdefault listname variable
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site
+variable, required, is one "configset" item
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+Sets the variable back to the default value.  Note that this causes the
+variable to track changes in the default value whenever they are made,
+rather than just setting it to the current default value. This is
+useful, for example, when the Majordomo defaults change and you want
+to remove a workaround "configset".
+
+Multiple variables cannot be defaulted at once (unlike configshow).
+
+A complete list of variables is included in "help configset".
+
+==> see also: configedit (to set the variable to a non-default value)
+==> see also: configset  (to set the variable to a non-default value)
+==> see also: configshow (to display the variable's current value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configdefault
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

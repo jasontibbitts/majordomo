@@ -1,0 +1,51 @@
+NOTE: Details/corrections are below the configshow output!
+
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL admin_headers <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+GLOBAL means you are setting site parameters, not just one list
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# admin_headers
+# (/^subject:\\s*subscribe\\b/i ...) [taboo_headers] <resend>
+# If any of the headers matches one of these regexps, then the message
+# will be bounced for review. XXX Ugh.
+configset GLOBAL admin_headers << ENDAAE
+/X-Loop: / 1,xloop
+/^subject:\\s*subscribe\\b/i 1,headers
+/^subject:\\s*unsubscribe\\b/i 1,headers
+/^subject:\\s*uns\\w*b/i 1,headers
+/^subject:\\s*.*un-sub/i 1,headers
+/^subject:\\s*help\\b/i 1,headers
+/^subject:\\s.*\\bchange\\b.*\\baddress\\b/i 1,headers
+/^subject:\\s*request\\b(.*\\b)?addition\\b/i 1,headers
+/^subject:\\s*cancel\\b/i 1,headers
+ENDAAE
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+==> see also: configset admin_headers (applies to regular lists also)
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+addendum to Majordomo2 "configset admin_header" File - updated 25 Jan 99
+
+NOTE: For help on admin_headers, please send "help configset admin_body"
+to the server. All syntax and information is identical, but the "nn"
+option (and its comma) which restricts matches to the first few lines is
+not present for headers.
+
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_admin_headers_global
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

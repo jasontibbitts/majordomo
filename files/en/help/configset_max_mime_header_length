@@ -1,0 +1,35 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname max_mime_header_length = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# max_mime_header_length
+# (128)                [integer] <resend>
+# Sets the maximum length of any single header in a MIME part.  Some mail
+# reading programs are subject to crashing or security exploits when passed
+# messages with MIME headers that exceed a certain length.  While these
+# mailers are definitely flawed and their users should contact the
+# manufacturers for upgrades, this variable is provided to filter out such
+# messages.
+#
+# Note that this setting does not implement any filtering for the security
+# exploits that can occur in the contents of the various parts of the body of
+# a message; this must be done with appropriate settings of taboo_body and
+# attachment_rules.  (Filtering of HTML mail is recommended to help eliminate
+# exploits which lie in HTML tags.)
+configset listname max_mime_header_length = 128
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_max_mime_header_length
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,97 @@
+NOTE: Details/corrections are below the configshow output!
+
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname debug = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# debug
+# (0)                  [integer] <mtaconfig>
+# When MTA configuration is suggested, this value will be used as the
+# debug parameter.  It is used to generate debugging information for
+# this list.  Higher values cause more debugging information to be
+# generated.  Values of 500 are generally sufficient for bug reporting;
+# at 1000 a complete SMTP trace is generated which is useful for
+# debugging MTA problems.
+#
+# Note that this only effects the generation of the MTA configuration
+# information (i.e. suggested aliases) so that configuration information
+# will have to be updated for this value to have any effect.
+#
+# If the MTA configuration is being automatically maintained by
+# Majordomo, it should be regenerated (using createlist-regen).
+configset listname debug =
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+==> see also: configset debug_GLOBAL (applies to GLOBAL pseudo-list)
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+addendum to Majordomo2 "configset debug" File - updated 13 Feb 99
+
+WARNING: Debug files in the tmpdir are not screened for security!
+         They may contain sensitive information that even the
+         average list owner should not have access to.
+
+The "GLOBAL" pseudo-list setting refers to debugging of messages
+sent to Majordomo. The "listname" setting turns on debugging for
+resend and other per-list functions.
+
+The "createlist-regen" command must be used whenever the value of
+debug is changed. A complete list of suggested MTA configurations
+for the site and each list is displayed. These aliases must be
+installed for sendmail before debugging will become active.
+
+The "debug" setting is NOT required for temporary debugging. You
+can simply edit the aliases to add "-v500" instead of using
+"configset listname debug = 500", for example, but setting debug
+first has the advantage of keeping the debug setting the next
+time you run "createlist-regen". (This applies to sendmail MTA,
+others may vary in implementation.) See "help createlist" for
+information on displaying and using the required aliases.
+
+Once debugging is active, at the level of detail you choose, debug
+info (perhaps a LOT of it) will accumulate in the place that you
+told it to accumulate when you installed majordomo (probably /tmp
+or /var/mj or something similar - see "help configset tmpdir_GLOBAL"
+for how to change or set this directory). By default only a very
+little bit of info will accumulate there.
+
+These files are created in the Majordomo temporary directory when
+you set "debug":
+  mj_email.debug     - trace of actions related to subscriber commands
+  mj_majord.debug    - trace of actions related to list owner commands
+  mj_resend.debug    - trace of actions related to sending posts
+  mj_trigger.debug   - time-based actions, as with digests and tokens
+
+It is recommended that the *.debug log files should be reset by
+   cp logfile logfile.old
+   cat /dev/null > logfile
+This will leave the file ownership and protection "as is", both of
+which are crucial to collecting debug information. Use standard Unix
+utilities like "cron" to reset these files, since Majordomo does not
+EVER clean them up!
+
+If someone with Unix shell access sets up the system correctly, it
+is possible to "index" and "get" the debug files through the email
+interface. By default, only shell users can access the debug files.
+For a description of the contents and use of debug files and OTHER
+files which can be left in the "tmpdir" when problems occur, please
+refer to "help configset tmpdir_GLOBAL".
+
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_debug
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

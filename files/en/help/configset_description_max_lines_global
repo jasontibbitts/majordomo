@@ -1,0 +1,26 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL description_max_lines = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+GLOBAL means you are setting site parameters, not just one list
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# description_max_lines
+# (0)                  [integer] <lists>
+# Sets the maximum number of lines of list description that will be
+# shown in a long or extended listing.  Setting this to zero will impose
+# no limit.
+configset GLOBAL description_max_lines = 20
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_description_max_lines_global
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

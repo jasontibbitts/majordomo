@@ -1,0 +1,36 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+show address
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+address, required, is an address subscribed or registered at this site
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+The "show" command provides the following information:
+
+ - Whether or not the given address is legal
+ - The mailbox and comment, extracted from the address
+ - What the address transforms to, under the various address equivalencies
+ - Any aliases attached to the address
+ - Any lists the address is subscribed to
+ - The time the address was registered
+ - The time the registration data was last updated
+ - For each list the address is subscribed to:
+      - What address is receiving the list mail
+      - The time that the address was subscribed to the list
+      - The subscription class
+      - The subscriber flags
+      - The time the record was last updated
+
+The 'show' command allows the display if the requested address and the
+requesting address are the same; otherwise, a token is generated and
+the requested address must issue an "accept" command.
+
+==> see also: configset access_rules (to restrict use of show)
+==> see also: who   (for all subscribers to a given list)
+==> see also: which (for all lists a given subscriber is on)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help show
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

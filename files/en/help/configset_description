@@ -1,0 +1,27 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname description = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# description
+# (undef)              [string] <majordomo,lists>
+# This is a short description of the list, used in the short listing.
+# It should be no more than 50 characters in order to fit on the average
+# terminal.  If this is empty, the first line of 'description_long' is
+# used.  If both are empty, the string "(no description)" is used.
+configset listname description =
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_description
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

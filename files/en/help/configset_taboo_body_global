@@ -1,0 +1,44 @@
+NOTE: Details/corrections are below the configshow output!
+
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL taboo_body <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+GLOBAL means you are setting site parameters, not just one list
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# taboo_body
+# (empty)              [taboo_body] <resend>
+# If any line of the body matches one of these regexps, then the message
+# will be bounced for review. XXX Ugh.
+configset GLOBAL taboo_body << ENDAAL
+ENDAAL
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+==> see also: configset taboo_body (applies to regular lists also)
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+addendum to Majordomo2 "configset taboo_body" File - updated 25 Jan 99
+
+NOTE: For help on taboo_body, please send "help configset admin_body"
+to the server. All syntax and information is identical, just
+substitute the string "taboo_" wherever you see "admin_" in that file.
+
+See "help configset access_rules" for how to send informative messages
+when one of the taboo_body lines matches.
+
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_taboo_body_global
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

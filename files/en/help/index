@@ -1,0 +1,35 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+index-recursive-long listname [pathname]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site (or GLOBAL)
+-recursive, if specified, lists all files in all subdirectories
+-long,      if specified, lists more details about the files
+pathname,   if specified, is the directory path to be indexed
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+This command shows the files and directories that are available from
+a list, which the list owner must have previously stored there. If no
+files or directories exist, or if you are not authorized to index the
+list, the "index" command returns an error message.
+
+Note that "pathname" may include one or more levels of directories
+(also called folders). For example, if list "MYLIST" contains a
+directory called "TOPDIR" and in that directory is another directory
+called "SUBDIR", then these commands would be valid:
+  index MYLIST
+  index MYLIST /
+  index MYLIST /TOPDIR/SUBDIR
+  index-recursive MYLIST
+where a slash "/" separates the directory names, and a slash by
+itself is the same as using no pathname at all.
+
+==> see also: get          (retrieve files by email)
+==> see also: index_access (determines who can index files under a list)
+==> see also: put          (to create files or directories under a list)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help index
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

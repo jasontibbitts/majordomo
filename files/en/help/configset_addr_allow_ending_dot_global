@@ -1,0 +1,26 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL addr_allow_ending_dot = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+GLOBAL means you are setting site parameters, not just one list
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# addr_allow_ending_dot
+# (no)                 [bool] <addr>
+# If this is true, Majordomo will allow trailing dots on hostnames.  This is
+# legal syntax for a hostname, but not within an email address.
+# Unfortunately some sites addd them spuriously.
+configset GLOBAL addr_allow_ending_dot =
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_addr_allow_ending_dot_global
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,61 @@
+NOTE: Details/corrections are below the configshow output!
+
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname allowed_flags = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# allowed_flags
+# (ACHPRS)             [string] <flags>
+# A string containing the flags that users are allowed to adjust.  You
+# need only include the uppercase flags here:
+#
+#   A - ack
+#   C - eliminatecc
+#   H - hide
+#   P - prefix
+#   R - replyto
+#   S - selfcopy
+#
+# If this is completely empty, users cannot adjust any of their flags.
+# The list owner can of course do so.
+configset listname allowed_flags = ACHPRS
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+addendum to Majordomo2 "configset allowed_flags" File - updated 15 Feb 99
+
+NOTE: These allow or disallow changes by subscribers themselves on a
+per-list per-subscriber basis. See "help set" for more information,
+including digest and nomail settings.
+
+These flags correspond to these "set" commands:
+          A  - set listname ackall
+          C  - set listname eliminatecc
+          H  - set listname hideall
+          P  - set listname prefix
+          R  - set listname replyto
+          S  - set listname selfcopy
+
+
+==> see also: set (for how a user can set these options after subscribing)
+==> see also: configset default_flags (sets per-list defaults before subscribing)
+
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_allowed_flags
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

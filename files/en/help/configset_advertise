@@ -1,0 +1,44 @@
+NOTE: Details/corrections are below the configshow output!
+
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname advertise <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# advertise
+# (empty)              [regexp_array] <majordomo,access,advertise,lists>
+# If the requestor name matches one of these regexps, then the list will
+# not be listed in the output of a lists command.  Noadvertise overrides
+# advertise.
+configset listname advertise << ENDAAF
+ENDAAF
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+==> see also: configset advertise_GLOBAL (applies to GLOBAL pseudo-list)
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+addendum to Majordomo2 "configset advertise" File - updated 17 Feb 99
+
+If address matches in 'advertise', show the list no matter what
+settings are in place for 'noadvertise'.
+
+See "help configset noadvertise" for more details, including how to
+use access_rules to replace both advertise and noadvertise.
+
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_advertise
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

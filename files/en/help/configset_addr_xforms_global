@@ -1,0 +1,33 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL addr_xforms <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+GLOBAL means you are setting site parameters, not just one list
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# addr_xforms
+# (empty)              [xform_array] <addr>
+# A list of transformations to be applied to addresses before comparing
+# them for equivalency.  This can be used to remove the '+mailbox' part
+# of an address, or to remove the machine name from addresses in a
+# domain.  Transforms should listed one per line, and should be in the
+# form /pattern/replacement/.  For example, /(.*?)\\+.*(\\@.*)/\$1\$2/
+# removes the '+mailbox' specifier from an address.  NOTE: these
+# transforms must give the same result when applied multiple times in
+# succession.
+configset GLOBAL addr_xforms << ENDAAC
+/(.*)/\\L\$1/
+ENDAAC
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_addr_xforms_global
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

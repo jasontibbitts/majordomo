@@ -1,0 +1,74 @@
+NOTE: Details/corrections are below the configshow output!
+
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname whoami_owner = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# whoami_owner
+# (listname-owner)    [address] <majordomo>
+# Where to bounces from the whoami address go?
+configset listname whoami_owner = listname-owner
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+==> see also: configset whoami_owner_GLOBAL (applies to GLOBAL pseudo-list)
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+addendum to Majordomo2 "configset whoami_owner" File - updated 9 Feb 99
+
+These important help files are related:
+   help configset whereami_GLOBAL
+   help configset whoami
+   help configset whoami_GLOBAL
+   help configset whoami_owner
+   help configset whoami_owner_GLOBAL
+
+If you do not specify "whoami_owner", the string "-owner" will
+be appended to the value of "whoami" from the appropriate list.
+
+
+For normal lists:
+  The default value of "whoami_owner" is "listname-owner" for
+  the list "listname@nowhere.org". You can set "whoami_owner"
+  to be any local address, WITHOUT a domain specified, and the
+  "whereami" domain will be added.
+
+  As indicated in the configshow comments, bounces from the list
+  will be sent to the list owner. These addresses are common:
+     listname@nowhere.org         (the list itself, "whoami@whereami")
+     listname-owner@nowhere.org   (the human running the list)
+
+
+For the GLOBAL pseudo-list:
+  You should set "whoami_owner" to be "majordomo-owner" WITHOUT
+  a domain specified. The value of "configset whereami" will be
+  supplied as the domain. 
+
+  As indicated in the configshow comments, failed subscribe
+  commands and other actions which are not specific to a list
+  but which bounce or generate errors will go to this address.
+  For example, these are common addresses:
+     majordomo@nowhere.org        (the server, "whoami")
+     majordomo-owner@nowhere.org  (the human running the server)
+
+  WARNING:  If you fail to specify "whoami_owner" after supplying
+  a full email address (including domain) for "whoami", commands
+  like "lists" to die horribly due to a malformed email address.
+
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_whoami_owner
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,121 @@
+NOTE: Details/corrections are below the configshow output!
+
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname attachment_rules <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# attachment_rules
+# (empty)              [attachment_rules] <resend>
+#
+# A table containing attachment rules, which describe how various MIME
+# types are to be treated when they appear in messages sent to the list.
+#
+# A rule consists of a MIME type (or regular expression matching a MIME
+# type) and a list of actions to perform when a message with this type
+# or containing a part of this type passes through the list.  It looks
+# something like this:
+#
+# mime/type | action=argument
+#
+# Some MIME types are:
+#
+# text/plain, text/html, image/jpeg, video/mpeg
+#
+# Possible actions are:
+#
+#   allow     - let the part pass
+#   deny      - reject the entire message
+#   discard   - remove the part from the message and pass the rest
+#   consult   - send the entire message to the list owner for approval
+#   (more are planned)
+#
+# allow and consult take an argument; if present, it should be a
+# content-transfer-encoding.
+#
+configset listname attachment_rules << ENDAAH
+ENDAAH
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+addendum to Majordomo2 "configset attachment_rules" File - updated 8 Mar 99
+
+Majordomo will change the encoding of the
+part to match before it is sent.  Some valid encodings are "8bit",
+"base64", "quoted-printable", "x-uuencode" and "x-gzip64".  If an
+argument is not provided, the encoding will be left as is.  Due to the
+nature of MIME, be aware that the encoding can be changed at any
+machine that the message passes through, so the encoding you choose
+will not necessarily be the encoding that list members will see (and
+some may see different encodings than the others).
+
+Note that the first matching rule is the one that is used and types
+are by default allowed if no rule matches.  Deny and consult rules are
+applied first, and discard rules always apply, even for approved
+messages.
+
+Note also that deny and consult just set variables that can be checked
+in access_rules.  The default rule for posting normally takes care of
+these, but if you add any additional rules is is possible to override
+the checks made here.
+
+A typical rule for this command looks like this:
+   mime/type | action=argument
+
+The first field can be either an exact string (that is checked without regard
+to upper/lower case) or it can be a pattern (as defined by "help patterns").
+
+Do not confuse this syntax with that of "access_rules"! The "action" may be
+set to "consult", but you can not specify a replyfile with "attachment_rules".
+You can, however, use these variables in "access_rules" to send a very precise
+message to the list owner or back to the poster whenever a match occurs:
+   \$mime_consult - true if any "consult" attachment_rules matched
+   \$mime_deny    - true if any "deny"    attachment_rules matched
+   \$mime         - true if either of \$mime_consult or \$mime_deny are true
+
+NOTE: As of 2/99, \$mime was not implemented.
+
+Pay close attention to the note above that says "discard" rules always apply.
+This can be used to delete portions of a message while letting the rest go
+out. Unlike "access_rules", all "attachment_rules" are processed each time...
+and a message which is trapped for a "consult" action will be processed
+again (for possible "discard") when it is delivered.
+
+In the context of MIME, all messages have a tree structure, with each node
+(including the root) having a type. Even if the message doesn't have any
+MIME-like headers, it still has a MIME type. That type is 'text/plain'.
+
+The "attachment_rules" command doesn't trap raw uuencode or any other form
+of non-MIME attachment as of 2/99 - but it could, given patches. The original
+proposal encompassed uuencoded and MS-TNEF and other stuff but nobody has
+contributed the code. Feel free to do so! (By the way, using taboo_body or
+admin_body to look for the "begin" tag of uuencoded data may fail if there
+is a content-type header, because it is seen as part of MIME encoding, but
+refer to "help configset admin_body" for more information.)
+
+Simplistic mail clients cannot view anything other than plain text, and
+while there ways to unpack attachments (like the "munpack" tool) it can
+be enough of a hassle to discourage some readers. To disable ALL MIME
+attachments, allowing only plain text, use this attachment_rule:
+   text/plain | allow
+   /.*/       | deny
+but be sure to use "access_rules" to let the poster know what happened.
+
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_attachment_rules
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

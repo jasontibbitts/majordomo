@@ -1,0 +1,26 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL token_remind = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+GLOBAL means you are setting site parameters, not just one list
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# token_remind
+# (4)                  [integer] <access,token>
+# If a token exists longer than this many days, a reminder message will
+# be sent.  If this is unset or zero, no reminders will be sent.
+configset GLOBAL token_remind = 2
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+==> see also: configset token_remind (applies to regular lists also)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_token_remind_global
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

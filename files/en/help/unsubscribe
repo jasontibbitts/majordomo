@@ -1,0 +1,50 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+unsubscribe-regexp-allmatching listname address
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+address,    required, is an email address not previously subscribed
+listname,   required, is the name of a list at this site
+-regexp, if specified, makes address a pattern (see "help patterns")
+-allmatching, if specified, operates on every address that matches
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+By default, the "unsubscribe" command removes an "address" from the
+named list. Unless the command is "approve"d in advance, a confirmation
+token will be sent to the given "address" to verify this action, and
+must be replied to with an "accept" command before the address is
+removed from the list.
+
+Unregistering will automatically remove an address from all lists at
+this site, or the unsubscribe command can be used to selectively remove
+an address from one list at a time. Even after the address has been
+unsubscribed from all lists one at a time, it will still exist in the
+registration database unless "unregister" is used. This allows a user
+to leave one list and join another without obtaining a new password.
+
+It is possible to register, get a password, and then use "approve"
+to unsubscribe to several lists instead of using "accept" to confirm
+each unsubscribe. List owners and site administrators with list
+passwords can also pre-approve unsubscribe to bypass "accept".
+
+Without the "-regexp" option, "address" is matched literally with
+no interpretation of special characters. Matching is case sensitive.
+
+If the "-regexp" option is used, "address" is interpreted as a
+Majordomo matching pattern. Review the "help patterns" file carefully.
+Patterns can be very simple or full-blown Perl regular expressions.
+
+If the "-allmatching" option is used with "-regexp", then every
+address that matches the pattern will be removed from the list.
+Without "-allmatching", only the first matching address is removed.
+
+==> see also: approve     (which can eliminate the need to use "accept")
+==> see also: password    (which changes an individual's password)
+==> see also: patterns    (for simple and complex regular expressions)
+==> see also: subscribe   (which adds an address to a list)
+==> see also: unregister  (which removes an address from all lists)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help unsubscribe
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

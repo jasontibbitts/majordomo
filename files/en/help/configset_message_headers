@@ -1,0 +1,33 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname message_headers <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# message_headers
+# (empty)              [string_array] <resend,digest>
+# These headers will be appended to the headers of the posted message.
+# The text is expanded before being used.  The following expansion
+# tokens are defined:
+#   \$LIST    - the name of the current list,
+#   \$SENDER  - the sender as taken from the from line,
+#   \$SEQNO   - the contents of the sequence_number variable, which is
+#               automatically incremented each time a message is posted
+#   \$ARCHIVE - the number of this message in the archives
+#   \$VERSION - the version of Majordomo.
+configset listname message_headers << ENDAAT
+ENDAAT
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_message_headers
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,32 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname digest_index_format = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# digest_index_format  /subject,subject_author/
+# (subject)            [enum] <digest>
+# Selects one of the formats for each line in the index listing for the
+# digests.  The 'subject' format consists simply of the subjects of the
+# messages.  The 'subject_author' format, originally provided by Jeff
+# Wasilko, provides an index like the following:
+#
+#   A subject                                         [User <user@example.com>]
+#   Another subject                      [Another User <otheruser@example.org>]
+#   A really, really, really, really, really really long subject
+#                                        [A Verbose user <verbose@example.com>]
+configset listname digest_index_format = subject
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_digest_index_format
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

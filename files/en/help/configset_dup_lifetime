@@ -1,0 +1,29 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname dup_lifetime = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# dup_lifetime
+# (28)                 [integer] <resend,majordomo>
+# The number of days that entries in the duplicate databases will be
+# kept.  Majordomo saves information about Message-ID:s and various
+# checksums of messages that pass through the list in order to filter
+# out duplicates.  To limit database size and to cut down on the
+# possibility of false positives, these entries are periodically
+# trimmed after this number of days.
+configset listname dup_lifetime = 28
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_dup_lifetime
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

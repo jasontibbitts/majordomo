@@ -1,0 +1,24 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+rekey
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+This regenerates the database keys.  The database keys depend on the
+setting of addr_xforms, so when that variable is changed the database
+must be rekeyed or some addresses may become inaccessible.
+
+Be _very careful_ with this command.  It is possible, with a bad setting
+of addr_xforms, to severely damage your address database.  If there were
+addresses on any list (or registered) that were different but are now the
+same, the duplicate entries will be silently dropped.  It is generally
+possible to get them back by removing the bad setting from addr_xforms
+and rekeying.
+
+==> see also: configset addr_xforms (downcase or otherwise fix addresses)
+==> see also: filesync              (updates the filespace info database)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help rekey
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,397 +1,226 @@
-Majordomo2 Administrative Commands
-==================================
+Majordomo2 "help admin commands" File - updated 3 Mar 99
+This message is from $SITE
 
-This is a basic overview of the commands and features available for use by
-the list owner.  Note that all commands available to users are covered in
-the 'commands' help document; only commands with additional functionality
-not useful to users or commands not available at all to users are covered
-here.
 
-Many commands have options available to modify their behavior.  Options
-will appear next to the command names in (parentheses).  Commands with
-options should be sent in the format:
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 
-        command-option argument(s)
+Section 1 - Introduction to Admin Commands
 
-Multiple options may be strung together like so:
+Below are the commands a list administrator may need to use, but
+there is little or no explanation of WHY they might be needed or
+how they interact with each other. For that type of information,
+send "help admin overview" to $MJ
 
-        command-option1-option2-option3 argument(s)
+Each command is further explained by 'help COMMAND', but in this
+file you will see a VERY brief description of each command. Every
+administration-specific command should be mentioned here, with
+all options that pertain to administrators. Some commands have
+additional options that are more appropriate for subscribers, and
+some commands are only useful to subscribers - those commands are
+listed in "help user commands". For a complete list of help
+files, send "help topics". If you know of a command that is NOT
+in this file, but should be please contact the maintainer as
+indicated at the end of this message.
 
-Examples of the commands that follow will assume an imaginary list named
-'scooters' using the master password 'vespa'.
+For a complete list of ALL commands, see "help topics".
+
+
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+
+Section 2 - Command Syntax (same text is in "help user commands")
+
+All Majordomo commands should be sent to $MJ
+If you have shell access, refer to "help mj_shell" for an
+alternative to sending email to the server (this same text
+may be available from "man mj_shell" at the unix prompt).
+
+Please refer to "help end" for ways to ignore automatically inserted
+signature blocks, and remember that you MUST NOT allow any text to
+be inserted at the top of your email message if that's how you send
+commands to Majordomo.
+
+At some sites, there is a "listname-request" address which will also
+accept commands pertaining to "listname", but this address is not
+always present. (If it is present, and if you use it, you don't need
+to specify the list name as part of the command itself.)
+
+An email address can generally be omitted from a command even if one
+is required by the description below. If omitted, the address found
+in your email header will be used if it can be determined.
+
+Many commands have options available to modify their behavior, and
+may take arguments to supply additional information:
+ - Arguments are generally separated by spaces, but may use the "<<" syntax.
+ - Options start with a dash, and follow the command name without a space.
+    (you may use an equal instead of a dash - they are exactly equivalent)
+
+All of the Majordomo2 commands and options are LOWER CASE LETTERS with
+underscore also possible. Commands CAN NOT be typed in upper case,
+so commands you see below in all caps are for illustration only.
+
+A basic command might be:
+  COMMAND
+
+A command with an option would then be:
+   COMMAND-OPT
+or if you prefer seeing it this way
+   COMMAND=OPT
+
+Commands may also have arguments after a space:
+  COMMAND ARG
+
+Commands may have both options and arguments:
+  COMMAND-OPT ARG
+
+The general case, then, is a command with several dash-separated
+options and several space-separated arguments:
+   COMMAND-OPT1-OPT2-OPT3 ARG1 ARG2 ARG3
+or the alternative
+   COMMAND=OPT1=OPT2=OPT3 ARG1 ARG2 ARG3
+
+If options are allowed, the help file description of the command
+will show all options strung together. Keep in mind that some or
+all of the options can be dropped.
+
+If arguments are allowed, the help file description of the
+command will show REQUIRED arguments with plain names, and
+NON-REQUIRED arguments in square brackets. For example
+   COMMAND ARG1 [ARG2]
+indicates that COMMAND must have one argument, and may have two.
+Read the description carefully to find out what each arg does.
+
+If that's not enough complexity, some arguments require several
+lines of input, not just a word or two. In these cases a syntax
+is used that Unix people will recognize:
+   COMMAND-OPT <<TAG
+DATA1
+DATA2
+TAG
+
+This is sometimes called a "here file" because all argument lines
+after "<<TAG" and before the matching "TAG" (shown above as "DATA1"
+and "DATA2" are stored in the command as if they had been read from
+a file. You can use your own string for "TAG", with a few restrictions:
+  - the string must be letters only, no numbers or punctuation or spaces
+  - the string must be upper case only, no lower case letters
+  - the end "TAG" must be on a line by itself (no indents or comments)
+It is wise to use different tags for different commands, so they don't
+accidentally mismatch due to typing errors.
+
+In addition to the '<<' syntax for supplying arguments to a command, there
+is the '<@' syntax.  When followed by a number, this references the
+numbered attachment.  (Number 1 being the attachment following the part
+containing the commands.)  From the shell interface, this references the
+numbered '-f' argument.  (Read the mj_shell manual page for more
+information, or send "help mj_shell" to the server.  Note that the shell
+interface is only available to users local to the machine running Majordomo.)
+This enables the upload of binary files and the like by attaching them to
+the command message and doing something like the following:
+  approve password put-data mylist image/jpeg none base64 A Picture <@ 1
+
+
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+
+Section 3 - Admin Command Syntax & Summary
+
+Each admin command is described very briefly here. For other commands,
+send "help user commands" to the server. For more detail on a given
+command, send "help COMMAND" to the server. For ideas on which command
+to use, send "help admin overview" to the server.
+
+For basic help, just send "help" to the server at $MJ
+For a complete list of help files, send "help topics".
 
 
 accept [token]
---------------
-  Some commands will require  confirmation before their actions will be
-  taken; this can help protect subscribers and lists from mischief.  In
-  such a case, a 'token' may be mailed to the list owner for approval.
+==> sent back to the server as confirmation, tells server to take action
 
-  The 'accept' command tells Majordomo to accept a confirmation or
-  consultation token, thus approving the requested action.  The stalled
-  command will be executed and the results returned in the response
-  message.
+approve password command-options [arguments]
+==> allows Majordomo to execute a command without using an "accept" token
 
-  If the token is omitted from the command, the Subject: header will be
-  searched for one; accepting a token therefore usually requires only that
-  the user hit "reply" on his or her mailer and type the word "accept".
+auxsubscribe listname sublist address
+==> adds an address to the named sublist of a given list.
 
-    See Also:  reject
-
-
-approve password command
-------------------------
-  This runs the given command (and arguments) with the supplied password.
-  Essentially any command can be executed with privileges using the approve
-  command.  The 'default' command described below can make it much easier
-  to approve several commands at once.
-
-  Most admin commands are of little use without "approve" and the
-  appropriate password.  If an admin command fails, check to make sure
-  you are approving it correctly.
-
-    Example:  approve vespa subscribe scooters jdoe@example.com
-
-    See also:  default
-
-
-auxsubscribe list sublist address
----------------------------------
-  Adds an address to the named sublist of a given list.
-
-    Example:  auxsubscribe scooters posters buster@example.com
-
-    See also:  'admin sublists' help subtopic
-
-
-auxunsubscribe list sublist address (-regexp, -allmatching)
------------------------------------
-  Removes an address or addresses from the named sublist of a given list.
-
-  If the 'regexp' option is given, the address will be interpreted as a
-  pattern rather than an address; in this case, the first match found in
-  the list will be unsubscribed.  The 'allmatching' option will cause every
-  address that matches the pattern to be removed from the sublist.
-
-    Examples:  auxunsubscribe scooters posters buster@example.com
-               auxunsubscribe-regexp scooters posters buster\\@
-               auxunsubscribe-regexp-allmatching scooters posters
-                 \\@example\\.com
-
-    See also:  'admin sublists' help subtopic
-               'patterns' help topic
-
+auxunsubscribe-regexp-allmatching listname sublist address
+==> removes an address or addresses from the named sublist of a given list
 
 auxwho list sublist
--------------------
-  Return the contents of the named sublist of a given list.
-
-    Examples:  auxwho scooters posters
-
-    See also:  'admin sublists' help subtopic
-
+==> return the contents of the named sublist of a given list
 
 configdefault list variable
----------------------------
-  Sets the variable back to the default value.  Note that this causes the
-  variable to track changes in the default value whenever they are made; a
-  variable can be fixed to the current default value by setting it to that
-  value.
+==> sets the variable back to the default value
 
-    Example:  configdef scooters restrict_post
-
-    See also:  The 'admin configuration' help subtopic
-
-
-configedit list variable (-comments)            NOTE:  Shell interface only
-------------------------
-  Retrieves the value of the variable and opens an editor on it.  When the
-  editor is exited, the variable is set to the new value.  If the
-  'comments' argument is used, explanatory information about the variable
-  will be included in the output.
-
-  Multiple variables can be edited by listing them separated by commas, and
-  groups can be specified with upper case letters.  Listing no variable
-  name at all retrieves the complete list of variables.
-
-  The editor to use is chosen from the EDITOR environment variable.
-
-    Examples:  configedit-comments scooters restrict_post
-               configedit scooters
-               configedit scooters restrict_post,access_rules
-
+configedit-comments listname variable
+==> retrieves the value of the variable and opens an editor on it
 
 configset list variable = value
-configset list variable
------------------------
-  Sets the given variable to the given value.  A single value can be
-  specified directly on the command line after an equals sign, or the
-  usual '<< TAG' include until tag or '<@ part' include from part
-  syntaxes can be used.  (See the 'parser' help topic for more
-  information on this.)
+configset list variable <<TAG
+==> sets the given variable to the given value
 
-  The value will be syntax-checked against the allowable values for the
-  given variable.
+configshow-comments listname variable
+==> retrieves the value of the given variable
 
-  The 'default' command described below can make it much easier to submit
-  several configset commands at once.
+createlist-nocreate-noheader-force-quiet listname owner
+==> creates the internal structures needed to maintain a list
 
-    See also:  default
-               The 'admin configuration' help subtopic
-               The 'parser' help topic
+default variable value
+==> sets a default value for the remaining commands
 
+end
+==> stops reading Majordomo commands from email or the keyboard
 
-configshow list variable (-comments)
-------------------------
-  Retrieves the value of the given variable.  If the 'comments' argument
-  is given, explanatory information about the variable will be returned
-  as well.
+filesync listname
+==> updates the filespace information database for listname
 
-  Multiple variables can be retrieved by listing them separated by commas,
-  and groups can be specified with upper case letters.  Listing no variable
-  name at all retrieves the complete list of variables.
+get listname filename [address]
+==> retrieves the given file from the list's file storage
 
-  The response is in such a form that it can be fed back to the parser
-  verbatim.  It is essentially a series of configset commands, which may
-  be edited at will and sent back to the parser.
+help [topics]
+==> retrieves the requested help topic, if available
 
-  Note also that only the variables that can be seen by the current
-  authorization level will be returned.  This means that with no
-  authentication at all, a small list of variables will still be visible
-  (though of course they cannot be modified).
-
-  Finally, note that not all per-list variables can be modified by the list
-  owner.  Some require global priviliges.
-
-    Examples:  configshow-comments scooters
-               configshow-comments scooters restrict_post
-               configshow scooters restrict_post,access_rules
-
-    See also:  The 'admin configuration' help subtopic
-
-
-createlist list owner (-nocreate, -noheader, -force, -quiet)
----------------------
-  Creates the internal structures needed to maintain a list with the given
-  name.  This will also suggest the necessary MTA configuration if the MTA
-  in use is supported -- for example, if sendmail is the MTA in use, a
-  set of sendmail aliases will be generated.  Note that Majordomo does not
-  (yet) handle configuring the MTA itself, although it generally provides
-  data which can simply be pasted into the necessary configuration file.
-
-  If the list is 'GLOBAL', the setup for the Majordomo address is given.
-  If the list is 'ALL, a complete set of aliases is given.
-
-  Arguments include the following:
-
-    force:  If the list already exists, the 'createlist' command will fail
-    unless the 'force' argument is used.  Note that the owner address you
-    enter when you force the list creation will replace any previous owner
-    addresses associated with the list.
-
-    nocreate:  This argument will cause 'createlist' to suggest the MTA
-    configuration without actually creating the list; the command will not
-    fail if the list already exists.
-
-    noheader:  The instructional information that precedes the suggested
-    MTA configuration info will not be displayed.
-
-    quiet:  No introductory mail will be sent to the list owner.  (This
-    is not currently implemented in any case.)
-
-    Examples:  createlist scooters modgirl@example.com
-               createlist-noheader-quiet scooters modgirl@example.com
-
-
-default variable value                     NOTE: email and text parser only
-----------------------
-  Sets a default value for a variable used by the command parser when
-  processing a batch of commands.  Currently, you may set a default
-  approval password or a default list name.
-
-  Setting a default password will implicitly do the equivalent of 'approve
-  password' on all following commands.  This makes it especially useful
-  when returning the output of a 'configshow' command to the parser to
-  change some variables; simply add the 'default password' command to the
-  beginning of the message or file, and the parser will accept the
-  'configset' commands as written.
-
-  Setting a default list makes the list an optional argument for all
-  commands which take one (excepting the createlist command).  Note that
-  this is not without ambiguity, as the parser cannot always tell when
-  the default list is implied.  When running at the -request address, the
-  parser generally starts with a default list in place.
-
-  If the value is omitted, the default setting is removed.
-
-  Both of these commands make it much simpler to submit multiple commands
-  to the parser in one fell swoop.  Essentially, it makes all of the
-  following sets of commands equivalent:
-
-    approve vespa configset scooters reply_to = scooters@example.com
-    approve vespa configset scooters resend_host = example.com
-    approve vespa configset scooters subject_prefix = [Scooter List]
-    approve vespa subscribe scooters sadiej@example.com
-
-  Or:
-
-    default password vespa
-    configset scooters reply_to = scooters@example.com
-    configset scooters resend_host = example.com
-    configset scooters subject_prefix = [Scooter List]
-    subscribe scooters sadiej@example.com
-
-  Or even better:
-
-    default password vespa
-    default list scooters
-    configset reply_to = scooters@example.com
-    configset resend_host = example.com
-    configset subject_prefix = [Scooter List]
-    subscribe sadiej@example.com
-
-
-filesync list
--------------
-  This updates the filespace information database.  Since Majordomo needs
-  to know more information about a file than is provided by the file system
-  (a description and the required MIME types, for instance), it keeps
-  additional data in a simple database.  If files are added or removed by
-  means other than Majordomo commands, the database must be updated with
-  the new information by way of this command.
-
-    Example:  filesync scooters
-
+index-recursive-long listname [pathname]
+==> retrieves an index of available files in the list's file storage
 
 post list
----------
-  Sends a message to the given list.  Note that the message must be fully
-  formed, with all necessary headers.  Majordomo will not add omitted
-  headers, nor does it check the validity of the message.  All of the
-  normal resend access checks apply.
+==> sends a message to the given list.
 
-  This enables a Majordomo list to be run without doing any MTA
-  configuration at all.  The list will not, however, be terribly
-  functional.  This will probably work for announcement lists, though.
-
-
-put list file subject (-data)
-put-data list file content-type charset content-transfer-encoding subject
--------------------------------------------------------------------------
-  Uploads a file to the given list's filespace.  The file will be assumed
-  to be text/plain with 8bit encoding.
-
-  If the "data" mode is given, the command expects additional data about
-  the file; these should be legal MIME values for those fields.
-
+put      listname filename          [subject] <<TAG
+put-data listname filename MIMEdata [subject] <<TAG
+put-dir  listname filename          [subject]
+==> creates the given file or directory in the list's file storage
 
 reject [token]
---------------
-  This rejects a token, preventing the requested action from being taken.
-  If no 'accept' command is received, the token will eventually be rejected
-  by default.  Issuing a 'reject' command will immediately delete the token
-  and requested action from the server's database.  In either case, when
-  the token is rejected, notification of the rejection will be sent to the
-  site owner, the list owner, and the victim of the rejection.
-
-    See Also:  accept
-
+==> sent back to the server as denial, tells server to cancel action
 
 rekey
------
-  This regenerates the database keys.  The database keys depend on the
-  setting of addr_xforms, so when that variable is changed the database
-  must be rekeyed or some addresses may become inaccessible.
+==> regenerates the database keys after changing addr_xforms
 
-  Be _very careful_ with this command.  It is possible, with a bad setting
-  of addr_xforms, to severely damage your address database.  If there were
-  addresses on any list (or registered) that were different but are now the
-  same, the duplicate entries will be silently dropped.  It is generally
-  possible to get them back by removing the bad setting from addr_xforms
-  and rekeying.
-
-
-set list flag address
----------------------
-  This sets various subscription parameters.  More documentation to come.
-
+set listname flag address
+==> change subscriber options like digest, nomail, ack
 
 show address
-------------
-  This displays various information about the address:
+==> displays various information about the address
 
-    - Whether or not the given address is legal
-    - The mailbox and comment, extracted from the address
-    - What the address transforms to, under the various address
-      equivalencies
-    - Any aliases attached to the address
-    - Any lists the address is subscribed to
-    - The time the address was registered
-    - The time the registration data was last updated
-    - For each list the address is subscribed to:
-      - What address is receiving the list mail
-      - The time that the address was subscribed to the list
-      - The subscription class
-      - The subscriber flags
-      - The time the record was last updated
-
-    Example:  show joe@example.com
-
-
-subscribe list address (-nowelcome)
-----------------------
-  This adds the address to the given list and, if the address is not
-  already in the registration database, registers the address with the
-  list's domain.  The 'nowelcome' option prevents the server from sending
-  the welcome message that is usually mailed to new subscribers.
-
-    Examples:  subscribe scooters martha@example.com
-               subscribe-nowelcome scooters martha@example.com
-
+subscribe-nowelcome listname address
+==> adds the address to listname and to the registration database
 
 unregister address
-------------------
-  This removes the given address from the registration database and from
-  every list that it might be subscribed to.
+==> removes the address from the database and from every list at this site
 
-    Example:  unregister someone@example.com
+unsubscribe-regexp-allmatching listname address
+==> removes an address or addresses from the given list.
 
-    See Also:  register, unsubscribe
+which-regexp searchstring
+==> shows which lists contain addresses which contain the searchstring
 
+who listname [pattern]
+==> returns all or some subscribers to the named list
 
-unsubscribe list address (-regexp, -allmatching)
-------------------------
-  Removes an address or addresses from the given list.
+For a complete list of all help topics, see "help topics".
 
-  If the 'regexp' option is given, the address will be interpreted as a
-  pattern rather than an address; in this case, the first match found in
-  the list will be unsubscribed.  The 'allmatching' option will cause every
-  address that matches the pattern to be removed from the list.
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help admin_commands
+to the server at $MJ
 
-    Examples:  unsubscribe scooters buster@example.com
-               unsubscribe-regexp scooters /buster\\@/
-               unsubscribe-regexp-allmatching scooters "@example.com"
-
-    See also:  'patterns' help topic
-
-
-which string (-regexp)
-------------
-  This shows which lists contain addresses which contain the given string.
-  The regex option causes the string to be interpreted as a pattern.
-
-    Examples:  which buster@example.com
-               which-regexp "buster@"
-
-    See also:  'patterns' help topic
-
-
-who list [pattern]
------------------
-  Returns all members of the list.  If a pattern is given as an argument,
-  only matches will be returned.
-
-    Examples:  who scooters
-               who scooters %@*example.com%i
-
-    See also:  'pattern' help topic
+Generated 8 Mar 1999 by SRE, web version available

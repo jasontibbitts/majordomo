@@ -1,0 +1,47 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+lists-enhanced-long-compact-short-tiny
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-enhanced, if specified, shows all lists with maximal information
+-long,     if specified, shows all lists with paragraph descriptions
+-compact,  if specified, shows all lists without site information
+-short,    if specified, shows all lists with one-line descriptions
+-tiny,     if specified, shows all lists with minimal information
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+This command shows all the lists hosted at $MJ
+unless the owner of a list has configured it to be invisible to you.
+
+If no options are used, the kind of list you get is determined by
+the site administrator who can set the default to any option.
+Combinations may yield useful results or may produce garbage output.
+
+With the "-tiny" option, you get back only the list names no matter
+what other options you may add to the command.
+
+With the "-short" option, a one-line description of each list
+is provided, and lists are grouped by area of interest, as
+determined by the site administrator. Additional information
+about the site is provided.
+
+The "-long" option is similar to "-short", but a paragraph-length
+description is shown for each list.
+
+The "-compact" option is similar to "-long", but site information
+and all blank lines are removed.
+
+With the "-enhanced" option, you also get information about which
+lists you are subscribed to. If only this option is used, you get
+all the information from "-long".
+
+To find out where you are subscribed without descriptive paragraphs:
+  lists-enhanced-short
+
+==> see also: info      (to find out more about a list)
+==> see also: subscribe (to add your name to a list)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help lists
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,52 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configshow-nocomments listname [variable[,variable]]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site
+variable, if specified, is one or more "configset" items with commas between
+-nocomments, if specified, hides explanatory comments with the variable
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+Retrieves the value of the given variable(s). Multiple variables can
+be retrieved by listing them separated by commas. Listing no variable
+name at all retrieves the complete list of variables. In addition to
+single variables or combinations of variables, the names of variable
+groups can be given in upper case to show all of the variables
+belonging to the group. The ALL group is supported, and shows every
+variable currently visible.
+
+Unless the '-nocomments' option is used, explanatory information about
+the variable(s) will be returned as well. The default values is shown
+in parentheses, the data type is shown in square brackets, the allowed
+values (for 'enum' types) is shown between slashes, and the group(s)
+that the variable belongs to are shown in angle brackets.
+
+The response is in such a form that it can be fed back to the parser
+verbatim.  It is essentially a series of configset commands, which may
+be edited at will and sent back to the parser. You will need to put
+a "default password" line before most configshow outputs before
+using them as configset commands since they are altering the list.
+
+Occasionally the produced configset commands will be broken across
+lines with a backslash; this is intended to reduce the change of line
+wrapping by some mailers which do not allow it to be turned off.
+
+Note also that only the variables that can be seen by the current
+authorization level will be returned.  This means that with no
+authentication at all, a small list of variables will still be visible
+(though of course they cannot be modified).
+
+Finally, note that not all per-list variables can be modified by the
+list owner. Some require global priviliges.
+
+A complete list of variables is included in "help configset".
+
+==> see also: configedit (to set the variable to a non-default value)
+==> see also: configset  (to set the variable to a non-default value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configshow
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

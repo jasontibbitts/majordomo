@@ -1,0 +1,30 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname subject_prefix = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# subject_prefix
+# (undef)              [string] <resend>
+# This word will be prefixed to the subject line, if it is not already
+# in the subject.  The text is expanded before being used.  The following
+# expansion tokens are defined:
+#   \$LIST    - the name of the current list
+#   \$SEQNO   - the contents of the sequence_number variable, which is
+#               automatically incremented each time a message is posted
+#   \$VERSION - the version of Majordomo
+configset listname subject_prefix =
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_subject_prefix
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

@@ -1,0 +1,24 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+auxremove-regexp-allmatching listname sublist address
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is the name of a list at this site
+sublist,  required, is the name of a sublist of listname
+address,  required, is an email address not previously subscribed
+-regexp,      if specified, makes address a pattern (see "help patterns")
+-allmatching, if specified, operates on every address that matches
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+The commands "auxdel" and "auxunsubscribe" are identical to "auxremove".
+
+Removes an address or addresses from the named sublist of a given list.
+
+There is currently no help file for sublist usage.
+
+==>see also: unsubscribe (for syntax)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help auxremove
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

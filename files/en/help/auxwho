@@ -1,0 +1,20 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+auxwho listname sublist [pattern]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site
+sublist,  required, is the name of a sublist of listname
+pattern, if specified, is a matching string (see "help patterns")
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+Return the contents of the named sublist of a given list.
+
+There is currently no help file for sublist usage.
+
+==>see also: who (for syntax)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help auxwho
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

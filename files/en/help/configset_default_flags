@@ -1,0 +1,69 @@
+NOTE: Details/corrections are below the configshow output!
+
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname default_flags = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# default_flags
+# (SPR)                [string] <flags>
+# A string containing the flags to be given to new subscribers unless they
+# choose otherwise.  Possible flags are:
+#
+#   A - ackall
+#   a - ackimportant
+#   C - eliminatecc
+#   H - hideall
+#   h - hideaddress
+#   P - prefix
+#   R - replyto
+#   S - selfcopy
+configset listname default_flags = SPR
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+addendum to Majordomo2 "configset default_flags" File - updated 24 Feb 99
+
+NOTE: These supply defaults for new subscribers. Once subscribed, the
+user can change their own settings on a per-list per-subscriber basis.
+See "help set" for more information, including digest and nomail settings.
+
+These flags correspond to these "set" commands:
+          A  - set listname ackall          EmailAddress
+          a  - set listname ackimportant    EmailAddress
+(no a, no A) - set listname noack           EmailAddress
+          C  - set listname eliminatecc     EmailAddress
+      (no C) - set listname noeliminatecc   EmailAddress
+          H  - set listname hideall         EmailAddress
+          h  - set listname hideaddress     EmailAddress
+(no h, no H) - set listname nohide          EmailAddress
+          P  - set listname prefix          EmailAddress
+      (no P) - set listname noprefix        EmailAddress
+          R  - set listname replyto         EmailAddress
+      (no R) - set listname noreplyto       EmailAddress
+          S  - set listname selfcopy        EmailAddress
+      (no S) - set listname noselfcopy      EmailAddress
+
+
+==> see also: set  (for how a user can set these options after subscribing)
+==> see also: configset ack_denials_always  (overrides "noack" for denied posts)
+==> see also: configset allowed_flags (restricts subscribers ability to use set)
+
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_default_flags
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

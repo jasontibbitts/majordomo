@@ -1,0 +1,30 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname allowed_classes <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname is the name of a list at this site (other than GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# allowed_classes
+# (each ...)           [string_array] <class>
+# A list of the classes that a user is allowed to put themselves into.
+# If a less specific class like 'digest' is given, users are allowed
+# to put themselves into any of the more specific classes.
+configset listname allowed_classes << ENDAAG
+each
+digest
+nomail
+ENDAAG
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_allowed_classes
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available

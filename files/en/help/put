@@ -1,0 +1,270 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+put      listname filename          [subject] <<TAG
+put-data listname filename MIMEdata [subject] <<TAG
+put-dir  listname filename          [subject]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site (or GLOBAL)
+filename, required, is the pathname of the file or directory to create
+subject,  if specified, is a string that describes the file's contents
+-data,    if specified, tells Majordomo to look for MIMEdata
+-dir,     if specified, creates an empty directory, not a file
+MIMEdata, if specified with the -data option, must contain MIME info
+<<TAG, if specified, provides more than one line of data (here file)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+This command stores a file under the list, which can then be retrieved
+with "get" by those who are authorized to do so. If you are not
+authorized to put a file, the "put" command returns an error message.
+(only list owners and site administrators may put files) The error
+messages themselves are often files that can be replaced with "put",
+as described near the end of this help message.
+
+The subject field, if supplied, should be an unpunctuated string of
+words separated by spaces. It will show up in an "index" listing as
+a brief description of the file or directory, and in some cases for
+the GLOBAL pseudo-list the subject will be used as the subject line
+of email messages sent out by Majordomo.
+
+DO NOT ENCLOSE THE SUBJECT IN QUOTES, because the quotes will show
+up in the index listing and anywhere else the subject string is used.
+
+Without the "-data" option, and the accompanying "MIMEdata" fields,
+the file will be assumed to be text/plain with 8bit encoding. If the
+"-data" option is used, the command requires additional data about
+the file, and the MIMEdata fields must be legal MIME values
+(content-type charset content-transfer-encoding).
+
+With the "-dir" option, "filename" is interpreted to be a directory
+path, and a directory (also called a folder) is created. In this case,
+the "put" command does NOT require (or accept) data. Once created, the
+directory can be used to store files with "put dir/file" using the
+standard Unix file path syntax (directories are separated by slashes).
+It is also possible to use "put-dir top/next to create nested folders.
+
+Unless the "-dir" option is used, data must be supplied as the
+contents of the new file. This is done using a "here file" as
+explained in both "help user commands" and "help admin commands".
+For example, to create a file with two lines in it:
+
+  put MYLIST MYFILE MY SUBJECT STRING <<ENDOFMYFILE
+this is the first line of the file
+and this is the second line!
+ENDOFMYFILE
+
+List and file names are case sensitive! Be sure to type upper and
+lower case letters exactly as you want them to be shown by "index".
+
+Note that "filename" is actually a file pathname, and may include
+one or more levels of directories (also called folders). The "index"
+command will show which entries are files and which are directories.
+For example, if list "MYLIST" contains a file called "TOPFILE" in
+addition to a directory "SUBDIR" and a file in that directory which
+is called "ANOTHERFILE", then these commands would be valid:
+  put MYLIST TOPFILE
+  put MYLIST SUBDIR/ANOTHERFILE
+where a slash "/" separates the directory name from the file name
+and the "<<TAG" which supplies data is not shown.
+
+Site administrators can put files to the GLOBAL list as a way of
+providing files to all lists and all users at once. This should be
+done with caution, however, as it can damage the site, rendering
+some features useless, until the old file is put back. Examples of
+GLOBAL files would be "consult" and "confirm", which contain the
+messages used to ask for "accept" or "reject", plus help files
+(which will be found before the default help files are found if
+they are stored in GLOBAL's "/help" directory).
+
+Site administrators should refer to "help configset access_rules"
+for ways to change the message which asks for accept/reject tokens
+(sample "put" files for "consult" and "confirm").
+
+Once created, a file or directory can only be deleted from the
+operating system shell prompt. Remove the file or directory from
+the apropriate directory under the list to delete it, as there is
+no Majordomo command to delete a "put" item. Be sure to use the
+"filesync" command after manually deleting files.
+
+Directories for use by "put" are stored under the list's "files"
+directory if the file (or directory) path starts with a "/". To
+create a new help file for "help junk", use "put-dir GLOBAL /help"
+and then "put GLOBAL /help/junk". These commands actually create
+the directory ".../GLOBAL/files/help" and within that directory
+the file      ".../GLOBAL/files/help/junk", which is returned by
+the "help junk" command. This behavior (e.g. the location of the
+files and directories) can be altered with "configset filedir".
+
+NOTE: Some files are examined for variables that will be replaced
+with other text as the file used. See "help configset access_rules"
+for mailfile and replyfile variables, and refer to the text below
+for other system error message files. You cannot replace the system
+message files, but you can use "put GLOBAL /filename", so the server
+will find your file (of the same name) before the system file.
+
+Scoping keeps each list's filespace separate. If the file (or dir)
+path does NOT start with a slash, as in "put listname charter.txt",
+the file will go into the list's "files/public" directory, as in
+".../listname/files/public/charter.txt" where it will appear in
+index listings that do not specify a path (like "index listname").
+
+List archives, if they are being created and if archive_dir is not
+set, go into ".../listname/files/public/archive/archive-file-name",
+where they appear to commands like "index listname archive".
+
+==> see also: get      (retrieve files by email)
+==> see also: index    (find out which files are available for "put")
+==> see also: filedir  (to create files in a non-default location)
+==> see also: filesync (which must be used if you create files without "put")
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help put
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+The remainder of this help file is the contents of
+'README.FILES' from the Mj2 distribution tree, as of 8 Mar 1999
+
+-*- Text -*-
+
+Note that this information is not complete, and may be inaccurate.
+
+These are all of the files that should exist somewhere in a list's (or
+GLOBAL's) filespace.  They will be variable-substituted and mailed out at
+various times.  (Many customization possibilities have reduced the number
+of such files.)  Note that the list's search_list will be consulted, so
+GLOBAL should not contain files like faq or info (barring, of course,
+applications where this is warranted).
+
+ack_denial
+ack_rejection
+ack_stall
+ack_success
+ack_timeout
+confirm
+consult
+digest files
+faq
+inform
+intro
+info
+welcome
+
+welcome
+-------
+
+Sent out to welcome new subscribers if welcome_files is unset and welcome
+is on (modulo any specific welcome setting on the subscribe request).
+
+The following will be substituted:
+
+$LIST      => the name of the list
+$REQUEST   => the request address
+$MAJORDOMO => the address of the majordomo email interface
+$USER      => the user's address
+$OWNER     => the list owner's address
+
+inform
+------
+
+Sent out to the list owner to inform them of some list action (a new
+subscription, etc.)
+
+The following substiutions will be made to the subject of the message:
+
+$UREQUEST  => the _upcased_ request (to be like 1.9x)
+$REQUEST   => the request
+$LIST      => the list name
+
+The following substitutions will be made to the body:
+
+$VICTIM    => the user who will be effected by the request
+$LIST      => the list the request acted on
+$REQUEST   => the request that was made
+$REQUESTER => the user who made the request
+$CMDLINE   => the command that was sent
+$STATUS    => the status of the action (succeed, fail, stall)
+
+intro
+-----
+
+Sent out attached to the welcome message if welcome_files is unset and
+welcome is on.  No variable substitutions are done.
+
+
+info
+----
+
+Sent in response to an info request.  No variable substitutions are done.
+
+
+faq
+---
+
+Sent in response to a faq request.  No variable substitutions are done.
+
+
+confirm, consult
+----------------
+
+Sent out to inform a user or the list owner of the confirmation token
+they must return.  The following substitutions will be performed in
+both the subject and body:
+
+$VICTIM    => The user who will be acted on by the request
+$REQUESTER => The user who made the request
+$CMDLINE   => The command that was sent (or would have been sent were the
+              command have come in via email)
+$REQUEST   => The type of request that was made
+$LIST      => The list the request was made to
+$TOKEN     => The token that is to be returned
+$URL       => The URL that can be visited to accept the token
+$EXPIRE    => The number of days until the token expires
+$OWNER     => The address of the list owner
+$MJ        => The address Majordomo receives commands at
+$MJOWNER   => The address of the owner of this Majordomo installation
+
+ack_stall, ack_denial
+---------------------
+
+Sent out to users who request posting acknowledgments (though stalls are
+not acknowleged on moderated lists) when their message is sent to the
+moderator/denied/rejected.  Note that stalls and denials happen
+instantaneously due to a consult or deny clause in access_rules, while
+rejections happen _after_ a stall, when the moderator rejects the token.
+
+$LIST      => The list (duh).  This is substituted both in the subject and
+              the body of the message.
+$MESSAGE   => The stall/denial message returned from access_rules or the
+              rejection message given by the moderator when the token is
+              rejected.
+
+Note that these are only sent for posts; for other requests, this
+information is communicated through the normal command reply.
+
+ack_rejection
+-------------
+
+Sent out to users when the list owner rejects a token.
+
+$REQUEST   => The submitted command line.
+$MESSAGE   => The rejection message given by the list owner, if any.
+
+ack_success
+-----------
+
+Sent to users who request all acknowlegements.  This should just inform
+them that their message was successfuly delivered.
+
+$LIST => The list.  Substituted in both the subject and body.
+
+ack_timeout
+-----------
+
+Sent when a token/spooled message is deleted after expiration without being
+accepted or rejected.
+
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -1,0 +1,28 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL default_language = [value]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+GLOBAL means you are setting site parameters, not just one list
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+(extracted on 7 Mar 1999 from configshow-comments, default value is below)
+
+# default_language
+# (en)                 [string] <language>
+# This sets the default language for the list (or the installation).
+# This is overridable by the user in several ways.  Note that at this
+# time this is barely implemented.  (Only English messages are supported
+# at the moment.)
+configset GLOBAL default_language = en
+
+==> see also: configset     (for an overview and list of all variables)
+==> see also: configedit    (to set the variable to a non-default value)
+==> see also: configshow    (to display the variable's current value)
+==> see also: configdefault (to have the variable track the default value)
+==> see also: configset default_language (applies to regular lists also)
+
+For a list of topics, or this text, send one of the next two lines
+   help topics
+   help configset_default_language_global
+to the server at $MJ
+
+Generated 8 Mar 1999 by SRE, web version available
