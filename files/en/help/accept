@@ -1,8 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-accept [-archive] [token]
+accept [-archive] [token] [comment]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -archive, if specified, archives a message without distributing it
 token,    if specified, is the magic number sent to you by Majordomo
+comment,  if specified, is passed from the owner to the subscriber
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The 'accept' command tells Majordomo to allow or approve some requested
@@ -47,6 +48,11 @@ through a WWW archive, or using majordomo's "archive" command.
 
 Site administrators should refer to "help configset access_rules" for
 ways to change the message which asks for accept/reject tokens.
+
+The "comment" string is only used for "consult" tokens, and only if
+the action was acknowledged.  In the case of a rejection, the victim
+must have the "ackall" flag set to receive an acknowledgement.
+
 
 See Also:
    help approve                  (which can eliminate the need to use "accept")

@@ -520,7 +520,8 @@ Third, an explanation of each variable:
                 quoted_lines - contains the number of lines that matched
                                the pattern in 'configset quote_pattern'
 
-                     sublist - ?undocumented?
+                     sublist - is set when processing a 'post' that is
+                               going to an auxiliary list
 
                        taboo - is set if any taboo_* variable is set (note
                                that taboo configsets can create new
