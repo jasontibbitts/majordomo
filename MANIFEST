@@ -122,7 +122,10 @@ files/en/config/archive_dir
 files/en/config/archive_size
 files/en/config/archive_split
 files/en/config/attachment_rules
+files/en/config/bounce_max_age
+files/en/config/bounce_max_count
 files/en/config/bounce_probe_frequency
+files/en/config/bounce_probe_pattern
 files/en/config/bounce_recipients
 files/en/config/category
 files/en/config/chunksize
@@ -264,7 +267,10 @@ files/en/help/configset_archive_dir
 files/en/help/configset_archive_size
 files/en/help/configset_archive_split
 files/en/help/configset_attachment_rules
+files/en/help/configset_bounce_max_age
+files/en/help/configset_bounce_max_count
 files/en/help/configset_bounce_probe_frequency
+files/en/help/configset_bounce_probe_pattern
 files/en/help/configset_bounce_recipients
 files/en/help/configset_category
 files/en/help/configset_chunksize

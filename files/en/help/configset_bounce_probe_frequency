@@ -4,12 +4,16 @@ configset listname bounce_probe_frequency = [VALUE]
 Default Value : 0
 Data Type     : integer
 Variable Group: resend, deliver, bounce
-Password Notes: Visible only with password. Set with global password. 
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname bounce_probe_frequency = 0
 
+
+NOTE: If an address is bouncing (i.e. has bounced within bounce_max_age)
+it will be automatically probed on every message until all of its stored
+bounces expire.
 
 This variable controls how often bounce probes are sent out.
 
@@ -33,6 +37,13 @@ desireable to probe the entire list once every several days and definitely
 not more frequently than once a day.  Thus this should not be set lower
 than the expected number of messages per day.  The upper bound depends on
 how much additional load the mail server(s) can tolerate.
+
+
+See Also:
+   help configset bounce_max_age         (how long a user's bounce data will be tracked)
+   help configset bounce_max_count       (maximum number of bounce data kept for a user)
+   help configset bounce_probe_pattern   (force probes of matching addresses)
+   help configset bounce_recipients      (who receives bounce error messages)
 
 For a list of all help topics send this one-line message
    help topics

@@ -8,7 +8,9 @@ are all upper case words with a leading dollar sign (common in Unix).
 This file should contain ALL substitution variables, grouped by
 which file or command they apply to. This file does NOT contain ANY
 variables suitable for use in access_rules tests (for that kind of
-variable, see "help configset access_rules_variables").
+variable, see "help configset access_rules_variables"), although it
+does contain variables that can be evaluted in messages sent to the
+user by access_rules.
 
 As an example of a variable, using this string in a file
   \$MAJORDOMO
@@ -109,11 +111,16 @@ In the "inform" file, these variables are evaluated in the subject:
 
 In the "inform" file, these variables are evaluated in the msg body:
   \$VICTIM    => the user who will be effected by the request
+  \$USER      => same as \$VICTIM
   \$LIST      => the list the request acted on
   \$REQUEST   => the request that was made
   \$REQUESTER => the user who made the request
   \$CMDLINE   => the command that was sent
   \$STATUS    => the status of the action (succeed, fail, stall)
+  \$STATDESC  => no information is available
+  \$INTERFACE => no information is available
+  \$SESSIONID => no information is available
+  \$COMMENT   => no information is available
 
 In the "intro" file, no variable substitutions are done.
   (as of 6/2000 some substitutions are done, not sure which ones)
@@ -166,10 +173,12 @@ these variables are evaluated in the subject only:
 
 In the "welcome" file, these variables are evaluated in both the
 subject and message body:
-  \$LIST      => The name of the list
+  \$LIST      => the name of the list
   \$REQUEST   => the request address
   \$MAJORDOMO => the address of the majordomo email interface
   \$USER      => the user's address
+  \$SITE      => the name of the site
+  \$MJOWNER   => the site owner's address
   \$OWNER     => the list owner's address
 
 In files sent by "configset listname welcome_files", these variables
@@ -180,6 +189,17 @@ are evaluated in both the subject and message body:
   \$MJ        => the address of the majordomo server
   \$OWNER     => the address of the list owner
   \$MJOWNER   => the address of the domain owner
+
+In messages sent to the user as a result of "configset access_rules",
+as it applies to a list, but which are NOT generated from a replyfile
+or mailfile, these variables are evaluated in the message body:
+  \$LIST      => The name of the list
+  \$REQUEST   => the list-request address
+  \$REQUESTER => the address which initiated the action
+  \$VICTIM    => the address of the person affected by the action
+  \$NOTIFY    => same as \$VICTIM
+  \$REASONS   => why the access was denied
+
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 

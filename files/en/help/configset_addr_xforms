@@ -33,39 +33,94 @@ the same, the duplicate entries will be silently dropped.  It is generally
 possible to get them back by removing the bad setting from addr_xforms
 and issuing a "rekey" command.
 
+------------------------------------------------------------------------
 
-Instead of complicated regular expressions (see "help patterns"), you
-can use the following strings, one string per line:
-  ignore case - ignore case in local parts of all addresses
-  mungedomain - like Mj1, same as "two level" in Mj2
-  two level   - strips all but the first 2 domain levels from addresses
-  three level - strips all but the first 3 domain levels from addresses
-  trim mbox   - removes the +mailbox from the local part of all addresses
+Instead of complicated regular expressions (see "help patterns") you
+can use some special strings, one string per line. Here is a summary,
+details and examples are below:
 
+1. flatten domain - keeps only specified portion of domain name
+2. ignore case    - ignores case in local (left-hand) parts of all addresses
+3. map domain     - replaces specified portion of domain name with another string
+4. mungedomain    - like Mj1, same as "two level" in Mj2 (see below)
+5. three level    - strips all but the first 3 domain levels from addresses
+6. trim mbox      - removes the +mailbox from the local part of all addresses
+7. two level      - strips all but the first 2 domain levels from addresses
+
+------------------------------------------------------------------------
+
+1. flatten domain XXX - keeps only specified portion (XXX) of domain name
+
+EXAMPLE: tibbs@w.x.y.a.b.c => tibbs@a.b.c (for 'flatten domain a.b.c')
+
+This special string requires you to specify the part of the domain
+name you want to keep, the rest of the domain will be discarded.
+
+------------------------------------------------------------------------
+
+2. ignore case - ignores case in local (left-hand) parts of all addresses
+
+EXAMPLE: TiBbS@math.uh.edu => tibbs@math.uh.edu
 
 To make all addresses case insensitive (for purposes of subscribe,
 unsubscribe, access_rules, etc):
    /(.*)/\L$1/
 or just use the special string
    ignore case
-The user portion of an address is not usually case sensitive, though on
-some systems it is.  By default Majordomo pays attention to case when
-comparing addresses in order to follow all relevant standards and be
-completely safe when faced with the innumerable number of addresses it
-must deal with, but this may be surprising to those who expect the
-opposite behavior. Domain names are never case sensitive.
 
-Tostrip useless domain levels from an address at a single domain,
-making "jane@mail.xyz.com" equivalent to "jane@xyz.com":
-   /\@.+\.xyz.com$/\@xyz.com/i
-or to take the same action for ALL domains, just use the special string
-   two level
+The user portion of an address (left of the '@') is not usually case
+sensitive, though on some systems it is.  By default Majordomo pays
+attention to case when comparing addresses in order to follow all
+relevant standards and be completely safe when faced with the innumerable
+number of addresses it must deal with, but this may be surprising to
+those who expect the opposite behavior. Domain names (right of the '@')
+are never case sensitive.
+
+------------------------------------------------------------------------
+
+3. map domain XXX to YYY - replaces specified portion of domain name with another string
+
+EXAMPLE:  tibbs@z.a.b.c => tibbs@z.d.e.f (for 'map a.b.c to d.e.f')
+
+------------------------------------------------------------------------
+
+4. mungedomain - like Mj1, same as "two level" in Mj2 (see below)
+
+EXAMPLE: tibbs@karazm.math.uh.edu => tibbs@uh.edu
+
+------------------------------------------------------------------------
+
+5. three level - strips all but the first 3 domain levels from addresses
+
+EXAMPLE: tibbs@a.b.c.math.uh.edu => tibbs@math.uh.edu
+
+------------------------------------------------------------------------
+
+6. trim mbox - removes the +mailbox from the local part of all addresses
+
+EXAMPLE: tibbs+blah@math.uh.edu => tibbs@math.uh.edu
 
 To remove the "+mailbox" specifier from an address, changing from
 "joe+remote@xyz.com" to just "joe@xyz.com":
    /(.*?)\+.*(\@.*)/$1$2/
 or just use the special string
    trim mbox
+
+------------------------------------------------------------------------
+
+7. two level - strips all but the first 2 domain levels from addresses
+
+EXAMPLE: tibbs@karazm.math.uh.edu => tibbs@uh.edu
+
+To strip useless domain levels from an address at a single domain,
+making "jane@mail.xyz.com" equivalent to "jane@xyz.com":
+   /\@.+\.xyz.com$/\@xyz.com/i
+or to take the same action for ALL domains, just use the special string
+   two level
+which is the same as the special string
+   mungedomain
+
+------------------------------------------------------------------------
 
 
 See Also:

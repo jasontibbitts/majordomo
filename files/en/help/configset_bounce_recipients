@@ -26,7 +26,11 @@ mail is identified as a bounce message. If this variable is unset,
 or specified without data, bounces will be sent to the list owners.
 
 See Also:
-   help configset owners (for how to specify the list owner)
+   help configset bounce_max_age         (how long a user's bounce data will be tracked)
+   help configset bounce_max_count       (maximum number of bounce data kept for a user)
+   help configset bounce_probe_frequency (how often bounce probes are sent out)
+   help configset bounce_probe_pattern   (force probes of matching addresses)
+   help configset owners                 (for how to specify the list owner)
 
 For a list of all help topics send this one-line message
    help topics

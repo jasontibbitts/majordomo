@@ -1,10 +1,11 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-who[-short][-enhanced][-export] listname [pattern]
+who[-short][-enhanced][-export][-bounces] listname [pattern]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site
 -enhanced, if specified, displays flags and mail mode for each subscriber
 -short,    if specified, produces just a simple list of email addresses
 -export,   if specified, produces commands needed to recreate the list
+-bounces,  if specified, shows only addresses with bounces
 pattern,   if specified, is a matching string (see "help patterns")
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -41,6 +42,11 @@ they apply to, so just stick 'default password' and 'default list'
 at the top and you're ready to go. Interaction with registration
 isn't done; this means that passwords must be reissued at the new site.
 
+If "-bounces" is specified, only those addresses with bounces being
+processed will be shown. Refer to "help configset bounce_max_age"
+for additional information on bounce processing (including other
+commands related to bounces).
+
 
 See Also:
    help patterns (for simple and complex regular expressions)
@@ -49,6 +55,7 @@ See Also:
    help which    (for all lists a given subscriber is on)
    help configset access_rules (to restrict use of who)
    help configset access_rules_variables (set/test for this command)
+   help configset bounce_max_age (to force bounces to expire)
    help configset who_access   (to restrict use of who)
 
 For a list of all help topics send this one-line message
