@@ -3241,6 +3241,9 @@ sub _put {
   return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list))
     unless $self->_make_list($list); 
 
+  # Untaint the file name
+  $file =~ /(.*)/; $file = $1;
+
   # If given an "absolute path", trim it, else stick "public/" onto it
   unless ($file =~ s!^/!!) {
     $file = "public/$file";
