@@ -4155,7 +4155,7 @@ sub _set {
   }
 
   for $l (@lists) {
-    $self->_make_list($l);
+    next unless $self->_make_list($l);
     ($ok, $res) = $self->{'lists'}{$l}->set($addr, $setting, $sublist);
     if ($ok) {
       $res->{'victim'}   = $addr;
