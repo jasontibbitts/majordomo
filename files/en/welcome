@@ -11,7 +11,7 @@ approve $PASSWORD unsubscribe $LIST $STRIPADDR
 This command will work even if your address changes.  For that reason,
 among others, it is important that you keep a copy of this message.
 
-The address of the mailing list is
+To post a message to the mailing list, send it to
   $WHOAMI
 
 If you need help or have questions about the mailing list, please
