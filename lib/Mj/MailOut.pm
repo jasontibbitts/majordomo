@@ -35,53 +35,48 @@ If $sender is a hashref, an extended envelope sender is built if possible
 using the hash keys 'addr', 'type' and 'data'.
 
 =cut
-use Mj::Deliver::Envelope;
+use Mj::Deliver;
 sub mail_message {
   my $self   = shift;
   my $sender = shift;
   my $file   = shift;
   my @addrs  = @_;
   my $log = new Log::In 30, "$file, $sender, $addrs[0]";
-  my (@a, $i);
+  my (%args, @a, $i);
 
+  $args{'rules'} = $self->_global_config_get('delivery_rules');
+  $args{'dbtype'} = 'none';
+  $args{'regexp'} = '';
+  $args{'buckets'} = 0;
+  $args{'classes'} = { 'all' => { 
+                                 'file' => $file,
+                                 'exclude' => [],
+                                }
+                     };
+
+  $args{'addresses'} = [];
   # Make sure all addresses are stripped before mailing.  If we were given
   # no legal addresses, do nothing.
   for $i (@addrs) {
     $i = new Mj::Addr($i);
     next unless $i->isvalid;
     next if     $i->isanon;
-    push @a, $i->strip;
+    push @{$args{'addresses'}}, { 'canon' => $i->canon,
+                                  'strip' => $i->strip };
   }
-  return unless @a;
 
   if (ref($sender)) {
-    $sender = $self->extend_sender($sender->{addr},
-				   $sender->{type},
-				   $sender->{data}
-				  );
+    $args{'manip'}   = 1;
+    $args{'sender'}  = $sender->{'addr'};
+    $args{'sendsep'} = $self->_site_config_get('mta_separator'),
+    $args{'seqnum'}  = $sender->{'type'} . $sender->{'data'};
+  }
+  else {
+    $args{'manip'}   = 0;
+    $args{'sender'}  = $sender;
   }
 
-  my $env = new Mj::Deliver::Envelope
-    'sender' => $sender,
-    'file'   => $file,
-    'host'   => 'localhost',
-    'personal' => 0,
-    'addrs'  => \@a;
-
-  unless ($env) {
-    # log the failure, but do not notify anyone by mail, since
-    # inform() calls mail_entity().
-    $self->inform("GLOBAL", "mail_message", $sender, $addrs[0],
-                  "(envelope $file)", "mailout", 0, 0, 1, '',
-                  $::log->elapsed);
-    return 0;
-  }
-  unless ($env->send) {
-    $self->inform("GLOBAL", "mail_message", $sender, $addrs[0],
-                  "(message $file)", "mailout", 0, 0, 1, '',
-                  $::log->elapsed);
-    return 0;
-  }
+  Mj::Deliver::deliver(%args);
   1;
 }
 
@@ -124,7 +119,6 @@ in the config by the time we are called.
 
 =cut
 use Mj::Deliver;
-use Mj::MTAConfig;
 sub deliver {
   my $self    = shift;
   my $list    = shift;
@@ -134,10 +128,9 @@ sub deliver {
   my $classes = shift;
 
   my $log = new Log::In 30;
-  my(%args, $bucket, $buckets, $mta, $regexp, $subdb);
+  my(%args, $bucket, $buckets, $regexp, $subdb);
 
   # Figure out some data related to bounce probing
-  $mta     = $self->_site_config_get('mta');
   $buckets = $self->_list_config_get($list, 'bounce_probe_frequency');
   #
   if (defined $seqno) {
@@ -149,25 +142,48 @@ sub deliver {
   $regexp  = $self->_list_config_get($list, 'bounce_probe_pattern');
 
   %args =
-    (list    => $self->{'lists'}{$list},
-     sublist => $sublist,
-     sender  => $sender,
-     classes => $classes,
-     rules   => $self->_list_config_get($list,'delivery_rules'),
+    (
+     backend => $self->{'backend'},
      chunk   => $self->_global_config_get('chunksize'),
-     sendsep => $self->_site_config_get('mta_separator'),
+     classes => $classes,
+     domain  => $self->{'domain'},
+     listdir => $self->{'ldir'},
+     list    => $list,
      manip   => 1,
-     seqnum  => $seqno,
+     rules   => $self->_list_config_get($list, 'delivery_rules'),
+     sender  => $sender,
+     sendsep => $self->_site_config_get('mta_separator'),
+     seqnum  => "M" . $seqno,
     );
 
-  if ($buckets) {
-    $args{probe}   = 1;
-    $args{buckets} = $buckets;
-    $args{bucket}  = $bucket;
+  if ($list ne 'GLOBAL' or ($sublist and $sublist ne 'MAIN')) {
+    $args{'dbtype'} = 'sublist';
+    if ($sublist and $sublist ne 'MAIN') {
+      $args{'dbfile'} = "X$sublist";
+    }
+    else {
+      $args{'dbfile'} = '_subscribers';
+    }
   }
+  else {
+    $args{'dbtype'} = 'registry';
+    $args{'dbfile'} = '_register';
+  }
+
+  if ($buckets) {
+    $args{'buckets'} = $buckets;
+    $args{'bucket'}  = $bucket;
+  }
+  else {
+    $args{'buckets'} = 0;
+    $args{'bucket'}  = 0;
+  }
+
   if ($regexp) {
-    $args{probe}   = 1;
-    $args{regexp}  = $regexp;
+    $args{'regexp'}  = $regexp;
+  }
+  else {
+    $args{'regexp'}  = '';
   }
 
   Mj::Deliver::deliver(%args);
@@ -175,7 +191,8 @@ sub deliver {
 
 =head2 probe
 
-Send a customized message to a group of people.
+Send a customized message to a group of people, one copy
+per recipient.
 
 =cut
 use Mj::Deliver;
@@ -186,21 +203,37 @@ sub probe {
   my $classes = shift;
   my $sublist = shift || 'MAIN';
 
-  return unless $self->_make_list($list);
-
   my %args =
-    (list    => $self->{'lists'}{$list},
-     sublist => $sublist,
-     sender  => $sender,
-     classes => $classes,
-     rules   => $self->_list_config_get($list,'delivery_rules'),
+    (
+     backend => $self->{'backend'},
+     bucket  => 0,
+     buckets => 0,
      chunk   => $self->_global_config_get('chunksize'),
-     sendsep => $self->_site_config_get('mta_separator'),
+     classes => $classes,
+     domain  => $self->{'domain'},
+     list    => $list,
+     listdir => $self->{'ldir'},
      manip   => 1,
-     seqnum  => 0,
-     probe   => 1,
-     probeall => 1,
+     regexp  => 'ALL',
+     rules   => $self->_list_config_get($list,'delivery_rules'),
+     sender  => $sender,
+     sendsep => $self->_site_config_get('mta_separator'),
+     seqnum  => 'M0',
     );
+
+  if ($list ne 'GLOBAL' or ($sublist and $sublist ne 'MAIN')) {
+    $args{'dbtype'} = 'sublist';
+    if ($sublist and $sublist ne 'MAIN') {
+      $args{'dbfile'} = "X$sublist";
+    }
+    else {
+      $args{'dbfile'} = '_subscribers';
+    }
+  }
+  else {
+    $args{'dbtype'} = 'registry';
+    $args{'dbfile'} = '_register';
+  }
 
   Mj::Deliver::deliver(%args);
 }
