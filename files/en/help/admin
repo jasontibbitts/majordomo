@@ -29,6 +29,7 @@ Here are the main sections in this file:
           6.4 - Where the files are
           6.5 - List Archives
           6.6 - Access Control
+          6.7 - Administrative Command Modes
   Section 7 - Cookbook for common list owner problems
           7.1 - creating a list of who can and cannot post
           7.2 - requiring approval for posts from specific domains
@@ -421,7 +422,46 @@ Section 6 - Creating and Running Lists (all the other stuff you need)
 
   Information about a token can be retrieved as indicated in "help showtokens".
 
+6.7 - Administrative Command Modes:
 
+  The commands you send to Majordomo often have a command "mode" which
+  alters the behavior of the command.  For example, in the command
+    lists-short-enhanced 
+  the command mode is "short-enhanced".
+
+  Majordomo offers four command modes that can be applied to any 
+  command, and are only useful to list owners and site administrators.
+
+  noinform - Do not send an informational message to the list owners.
+    The "inform" configuration setting determines when a message
+    would normally be sent.  See "help configset inform" for more
+    details.
+
+  nolog - Do not log the result of this command.
+    For each Majordomo request, one line describing the request 
+    and its result is normally added to a global log file.  The 
+    contents of the log file can be displayed using the "report" command.
+    A site or domain password is required to use this mode.
+
+  quiet - Do not send a notice when a delay token is created.
+    It is possible for you to delay the completion of a request
+    until later;  see the description of the "default delay"
+    command in "help default" for details.  When a request is
+    delayed, a notice is usually sent to the person whom the 
+    request affects.  That person can follow the instructions
+    in the notice to keep the request from being fulfilled, or
+    to complete the request immediately. 
+
+  rule - Turn off the "access_password_override" setting temporarily.
+    Usually, when you use the master password for a mailing list,
+    your requests are completed right away.  This mode causes
+    the privileges of the master password to be suspended.  The
+    access rules and other restrictions are applied as usual.
+    See "help configset access_password_override" for a practical
+    example.
+    
+A site, domain, or list master password is required to use these
+four command modes.
 
 + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 
