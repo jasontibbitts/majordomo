@@ -689,12 +689,17 @@ my %commands =
    {
     'parser'   => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
+                   'arguments' => { 'regexp' => {'type'    => 'SCALAR',
+                                                 'include' => 'repair|verify',
+                                                }
+                                  },
                    'modes'    =>  {
                                    %generic_modes,
                                    'noxform'     => 1,
                                    'repair'      => 1,
                                    'verify'      => 1,
                                   },   
+                   'tokendata' => { 'arg1' => 'regexp',},
                   },
     'access'   => {
                    'default' => 'deny',
