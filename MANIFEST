@@ -577,6 +577,7 @@ files/en/error/.moderate
 files/en/error/.multiple_addresses
 files/en/error/.nested_brackets
 files/en/error/.no_address
+files/en/error/.no_body
 files/en/error/.no_domain
 files/en/error/.no_entity
 files/en/error/.no_file
@@ -600,6 +601,7 @@ files/en/error/.pending_delivery
 files/en/error/.post_block
 files/en/error/.probe_bounce
 files/en/error/.relocated_list
+files/en/error/.replacement_header
 files/en/error/.restrict_post
 files/en/error/.results_mailed
 files/en/error/.rhs_domain_literal
@@ -701,6 +703,7 @@ files/en/error/moderate
 files/en/error/multiple_addresses
 files/en/error/nested_brackets
 files/en/error/no_address
+files/en/error/no_body
 files/en/error/no_domain
 files/en/error/no_entity
 files/en/error/no_file
@@ -724,6 +727,7 @@ files/en/error/pending_delivery
 files/en/error/post_block
 files/en/error/probe_bounce
 files/en/error/relocated_list
+files/en/error/replacement_header
 files/en/error/restrict_post
 files/en/error/results_mailed
 files/en/error/rhs_domain_literal
@@ -4479,6 +4483,7 @@ setup/messages/en/mj1_convert
 setup/messages/en/mj1_dir
 setup/messages/en/mj_config_foot
 setup/messages/en/mj_config_head
+setup/messages/en/mj_config_installed
 setup/messages/en/mj_config_update
 setup/messages/en/mta
 setup/messages/en/no_chmod

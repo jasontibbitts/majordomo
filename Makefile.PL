@@ -363,12 +363,9 @@ sub configure {
   print ' 'x11 . "done, status not checked\n";
 
   print "Checking for        .mj_config";
-  $config = eval { require ".mj_config" };
+  $config = read_mj_config($lang);
 
-  if (defined $config) { 
-    print ' 'x11 . "found.\n"; 
-  }
-  else { 
+  unless (defined $config) { 
     print ' 'x11 . "missing.\n"; 
   }
 

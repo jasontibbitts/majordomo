@@ -1,0 +1,11 @@
+I have found a copy of the site-wide configuration information in
+  $LIBDIR/.mj_config
+
+Do you want to use the configuration information in that file?  
+
+If you answer yes, the configuration information in that file will
+be used to replace the configuration file in the source directory.
+
+Unless you have changed the site-wide configuration using the installed
+setup scripts, answer no.
+

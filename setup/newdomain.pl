@@ -16,7 +16,7 @@ require "setup/setup_func.pl";
 use vars qw($config $lang $nosep $sepclear);
 my (@domains, $dom, $install, $newdomain);
 
-$config = eval { require ".mj_config" };
+$config = read_mj_config($lang);
 die retr_msg('no_mj_config', $lang)
   unless $config;
 
@@ -145,8 +145,8 @@ sub get_domains {
 
 =head1 COPYRIGHT
 
-Copyright (c) 2002 Jason Tibbitts for The Majordomo Development Group.
-All rights reserved.
+Copyright (c) 2002, 2004 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

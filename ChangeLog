@@ -1,3 +1,9 @@
+2004-07-12  Michael Yount <csf@moscow.com>
+
+	* setup/setup_func.pl:  (read_mj_config)  Allow values
+	to be read from an installed .mj_config file.
+	Thanks to Peter Ajamian.
+
 2004-07-11  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_createlist)  Copy the MTA options

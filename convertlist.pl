@@ -3,7 +3,8 @@ use strict;
 use Getopt::Std;
 use Fcntl;
 use Data::Dumper;
-require "./setup/query_util.pl";
+require "setup/query_util.pl";
+require "setup/setup_func.pl";
 use vars qw(%opts $mjcfg);
 $|=1;
 
@@ -29,7 +30,7 @@ my %delete = (
 	     );
 
 # Pull in configuration
-$mjcfg = eval { require ".mj_config"};
+$mjcfg = read_mj_config();
 
 unless ($mjcfg) {
   print STDERR "This program should be run after Majordomo has been installed.\n";

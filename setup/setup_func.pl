@@ -432,6 +432,30 @@ sub tempfile {
   die "Cannot open a temporary file after ten tries: $!";
 }
 
+sub read_mj_config {
+  my $lang = shift;
+  my $msg;
+  require 'setup/query_util.pl';
+
+  $config = eval { require ".mj_config" };
+
+  if (defined $config &&
+      defined $config->{'install_dir'} &&
+      -r ("$config->{'install_dir'}/lib/.mj_config")) {
+    unless (defined $lang and length $lang) {
+      $lang = $config->{'language'};
+    }
+    $msg = retr_msg('mj_config_installed', $lang, 'LIBDIR' =>
+                    "$config->{'install_dir'}/lib");
+    if (get_bool($msg, 0)) {
+      $config = do "$config->{'install_dir'}/lib/.mj_config";
+      save_mj_config($config) if (defined $config);
+    }
+  }
+
+  $config;
+}
+
 use Data::Dumper;
 sub save_mj_config {
   my $config = shift;
@@ -446,8 +470,8 @@ sub save_mj_config {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1999, 2002, 2003 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1999, 2002, 2003, 2004 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
