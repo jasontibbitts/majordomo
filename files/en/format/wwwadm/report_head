@@ -1,0 +1,22 @@
+<!-- Majordomo report_head format file -->
+
+<p align="center">
+  Activity at $SITE<br>
+  from $START to $FINISH
+</p>
+
+<p>
+Click the command name of an event to see detailed session
+information for that event.
+</p>
+
+<table width="100%">
+<tr>
+  <th>Command</th>
+  <th>List</th>
+  <th>Address</th>
+  <th align="right">Status</th>
+  <th align="right">Time of Day</th>
+  <th align="right">Elapsed Time</th>
+</tr>
+

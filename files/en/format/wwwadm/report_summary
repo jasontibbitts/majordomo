@@ -1,0 +1,27 @@
+<!-- Majordomo report_summary format file -->
+<tr>
+  <td>
+    $COMMAND
+  </td>
+
+  <td align="right">
+    $LIST
+  </td>
+
+  <td align="right">
+    $SUCCEED
+  </td>
+
+  <td align="right">
+    $STALL
+  </td>
+
+  <td align="right">
+    $FAIL
+  </td>
+
+  <td align="right">
+    $ELAPSED seconds
+  </td>
+</tr>
+

@@ -931,6 +931,122 @@ rejected fails or stalls.
 (standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOKEN, USER)
 
 
+report
+------
+(text, wwwadm, wwwconfirm)  This file displays one event from the log.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, ELAPSED, 
+ FINISH, REQUESTER, SESSIONID, START, STATUS, TIME, USER, VICTIM)
+
+
+report_day
+----------
+(text, wwwadm, wwwconfirm)  This file is displayed at the beginning
+of a group of events for a particular day.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, ELAPSED, 
+ FINISH, REQUESTER, SESSIONID, START, STATUS, TIME, USER, VICTIM)
+
+
+report_error
+------------
+(text, wwwadm, wwwconfirm)  This file is displayed when the report
+command stalls or fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, FINISH, START, USER)
+
+
+report_foot
+-----------
+(text, wwwadm, wwwconfirm)  This file is displayed after a list
+of events.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, FINISH, START, USER)
+
+
+report_full
+-----------
+(text, wwwadm, wwwconfirm)  This file displays one event when the
+"report-full" command is used.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, ELAPSED, 
+ FINISH, REQUESTER, SESSIONID, START, STATUS, TIME, USER, VICTIM)
+
+
+report_head
+-----------
+(text, wwwadm, wwwconfirm)  This file is displayed before a list
+of events.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, FINISH, START, USER)
+
+
+report_none
+-----------
+(text, wwwadm, wwwconfirm)  This file is displayed when no
+events were found which match the parameters of the report
+command.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, FINISH, START, USER)
+
+
+report_summary
+--------------
+(text, wwwadm, wwwconfirm)  This file displays statistics for
+one command for one mailing list.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, COUNT, ELAPSED, 
+ FAIL, FINISH, STALL, START, SUCCEED, USER)
+
+
+report_summary_foot
+-------------------
+(text, wwwadm, wwwconfirm)  This file is displayed at the end
+of a summary report.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, FINISH, START, USER)
+
+
+report_summary_head
+-------------------
+(text, wwwadm, wwwconfirm)  This file is displayed at the beginning
+of a summary report.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, FINISH, START, USER)
+
+
+report_warning
+--------------
+(text, wwwadm, wwwconfirm)  This file is displayed when obtaining
+a chunk of events results in an error.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, FINISH, START, USER)
+
+
+sessioninfo_error
+-----------------
+(text, wwwadm, wwwconfirm)  This file is displayed when the sessioninfo
+command fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, SESSIONID, USER)
+
+
+sessioninfo_head
+----------------
+(text, wwwadm, wwwconfirm)  This file is displayed before the
+session data if the sessioninfo command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SESSIONID, USER)
+
+
+sessioninfo_foot
+----------------
+(text, wwwadm, wwwconfirm)  This file is displayed after the
+session data if the sessioninfo command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SESSIONID, USER)
+
+
 set
 ---
 (ALL)  This file displays a message indicating that the settings for one
@@ -1102,30 +1218,6 @@ subscribe_none
 or unsubscribe command does not generate any results.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, USER)
-
-
-sessioninfo_error
------------------
-(text, wwwadm, wwwconfirm)  This file is displayed when the sessioninfo
-command fails.
-
-(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, SESSIONID, USER)
-
-
-sessioninfo_head
-----------------
-(text, wwwadm, wwwconfirm)  This file is displayed before the
-session data if the sessioninfo command succeeds.
-
-(standard plus CGIDATA, CGIURL, CMDPASS, SESSIONID, USER)
-
-
-sessioninfo_foot
-----------------
-(text, wwwadm, wwwconfirm)  This file is displayed after the
-session data if the sessioninfo command succeeds.
-
-(standard plus CGIDATA, CGIURL, CMDPASS, SESSIONID, USER)
 
 
 tokeninfo_attachment

@@ -1,0 +1,28 @@
+<!-- Majordomo report_full format file -->
+<tr>
+  <td>
+    <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=sessioninfo&amp;extra=$SESSIONID">
+    $COMMAND
+    </a>
+  </td>
+
+  <td>
+    $LIST
+  </td>
+
+  <td>
+    $VICTIM
+  </td>
+
+  <td align="right">
+    $STATUS
+  </td>
+
+  <td align="right">
+    $TIME
+  </td>
+
+  <td align="right">
+    $ELAPSED
+  </td>
+</tr>

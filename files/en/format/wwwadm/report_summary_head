@@ -1,0 +1,17 @@
+<!-- Majordomo report_summary_head format file -->
+
+<p align="center">
+  Activity at $SITE<br>
+  from $START to $FINISH
+</p>
+
+<table width="100%">
+<tr>
+  <th>Command</th>
+  <th align="center">List</th>
+  <th align="center">Succeed</th>
+  <th align="center">Stall</th>
+  <th align="center">Fail</th>
+  <th align="center">Average Elapsed Time</th>
+</tr>
+

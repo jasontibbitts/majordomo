@@ -8,7 +8,7 @@ dollar sign, followed by capital letters and underscores.
 
 For example, when you use the command
    help overview
-The last line of the document says
+Near the end of the document, it says
    Majordomo 2, version \$VERSION
 However, what you see on your screen is
    Majordomo 2, version $VERSION
@@ -260,6 +260,9 @@ See "help reply_files" for a description of each of the reply files.
   The name of a digest, as determined by the digests configuration
   setting.
 
+\$ELAPSED
+  The amount of time, in seconds, required for a command to execute.
+
 \$EXPIRE   
   The number of days before a request that has been stalled expires, or
   in some cases the date at which it will expire.  This value is
@@ -275,6 +278,10 @@ See "help reply_files" for a description of each of the reply files.
 
 \$FAIL
   " " if a command invoked by the "accept" command failed; '' otherwise.
+  Also, a count of commands that failed.
+
+\$FINISH
+  The date of the latest of a group of messages or requests.
 
 \$FULFILL
   The date at which a delayed request will be completed
@@ -379,6 +386,13 @@ See "help reply_files" for a description of each of the reply files.
 \$STALL
   " " if a command invoked by the "accept" command requires further
   approval; '' otherwise.
+  Also, a count of commands that stalled.
+
+\$START
+  The date of the earliest of a group of messages or requests.
+
+\$STATUS
+  The result of a request:  succeed, stall, or fail.
 
 \$STRIPADDR
 \$STRIPUSER
@@ -399,6 +413,10 @@ See "help reply_files" for a description of each of the reply files.
 \$SUCCEED
   " " if a command invoked by the "accept" command succeeded; 
   '' otherwise.
+  Also, a count of commands that succeeded.
+
+\$TIME
+  The time of day at which a request was processed.
 
 \$TOKEN
   The twelve-character identifier that is used to accept or reject
