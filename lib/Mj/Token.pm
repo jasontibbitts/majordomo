@@ -170,6 +170,7 @@ sub confirm {
       $mj_owner, $expire, $expire_days, $desc, $remind, $remind_days,
       $reminded, $permanent, $reasons, $i);
   my $list = $args{'list'};
+  $list = 'GLOBAL' if ($list eq 'ALL');
 
   return unless $self->_make_tokendb;
   $args{'command'} =~ s/_(start|chunk|done)$//;
@@ -190,7 +191,7 @@ sub confirm {
   }
 
   # Make a token and add it to the database
-  $token = $self->t_add('confirm', $list, $args{'command'},
+  $token = $self->t_add('confirm', $args{'list'}, $args{'command'},
         		$args{'user'}, $args{'victim'}, $args{'mode'},
         		$args{'cmdline'}, $args{'approvals'},
         		@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
@@ -312,6 +313,7 @@ sub consult {
       $sender, $size, $subject, $tmp, $token, $url, $reminded, $permanent,
       $reasons);
   my $list = $args{'list'};
+  $list = 'GLOBAL' if ($list eq 'ALL');
 
   return unless $self->_make_tokendb;
   $args{'command'} =~ s/_(start|chunk|done)$//;
@@ -332,7 +334,7 @@ sub consult {
   }
 
   # Make a token and add it to the database
-  $token = $self->t_add('consult', $list, $args{'command'},
+  $token = $self->t_add('consult', $args{'list'}, $args{'command'},
         		$args{'user'}, $args{'victim'}, $args{'mode'},
         		$args{'cmdline'}, $args{'approvals'},
         		@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
@@ -449,6 +451,7 @@ sub delay {
   my (%file, $repl, $token, $data, $ent, $sender, $url, $file, $mj_addr,
       $mj_owner, $expire, $expire_days, $desc, $permanent, $reasons, $i);
   my $list = $args{'list'};
+  $list = 'GLOBAL' if ($list eq 'ALL');
 
   return unless $self->_make_tokendb;
   $args{'command'} =~ s/_(start|chunk|done)$//;
@@ -458,7 +461,7 @@ sub delay {
   $expire = time + $args{'delay'};
 
   # Make a token and add it to the database
-  $token = $self->t_add('delay', $list, $args{'command'},
+  $token = $self->t_add('delay', $args{'list'}, $args{'command'},
         		$args{'user'}, $args{'victim'}, $args{'mode'},
         		$args{'cmdline'}, $args{'approvals'},
         		@{$args{'chain'}}[0..3], @{$args{'args'}}[0..2],
