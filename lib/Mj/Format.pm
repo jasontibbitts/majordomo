@@ -563,8 +563,10 @@ sub put {
     last unless (defined $i and $ok > 0);
   }
 
-  $request->{'command'} = "put_done"; 
-  ($ok, $mess) = @{$mj->dispatch($request)};
+  unless ($request->{'mode'} =~ /dir/) {
+    $request->{'command'} = "put_done"; 
+    ($ok, $mess) = @{$mj->dispatch($request)};
+  }
 
   if    ($request->{'file'} eq '/info' ) {$act = 'Newinfo' }
   elsif ($request->{'file'} eq '/intro') {$act = 'Newintro'}
