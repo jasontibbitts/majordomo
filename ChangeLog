@@ -1,3 +1,21 @@
+Mon Feb  1 13:09:50 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Deliver/SMTP.pm (senddata): Don't print anything to the
+ 	debug log.
+
+	* lib/Mj/Resend.pm (_add_fters): Take a hashref of substitutions
+ 	and apply them to the fronters/footers before adding.
+	(_post): Pass a set of substitutions to _add_fters.
+
+	* bin/mj_resend: Don't include mailbox separator in messages sent
+ 	to post().
+
+	* lib/Mj/Resend.pm (_ck_tbody_line): Comment out logging; too much
+ 	verbosity.
+
+	* lib/Mj/Config.pm (parse_attachment_rules): Properly output code
+ 	for 'deny' action.
+
 Sun Jan 31 16:34:54 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Format.pm (who): Add 'short' mode that just prints the

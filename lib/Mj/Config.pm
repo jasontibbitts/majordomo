@@ -1265,7 +1265,7 @@ sub parse_attachment_rules {
       return (0, "Error in regexp '$table->[$i][0]', $err.");
     }
     if ($table->[$i][1] eq 'deny') {
-      $check .= qq^return 'deny' if m!$table->[$i][0]!;\n^;
+      $check .= qq^return 'deny' if $pat;\n^;
       
     }
     elsif ($table->[$i][1] =~ /^(allow|consult)(?:=(\S+))?$/) {

@@ -33,11 +33,12 @@ Order of operation:
  Strip out approvals to get the real article; parse it if necessary
  Make two copies of the entity
  Convert or drop MIME parts for list and archive/digest
+ Deposit in archive.
  Strip unwanted headers from list, archive/digest.
  Add headers, fronter and footer [3] to outgoing copy.
  Compose final message.
+ Pass to digest.
  Deliver.
- Deposit in archive.
 
 1. MIME parsing automatically handles QP and base64 decoding (and
    some other weird ones, like x-gzip64).
@@ -287,7 +288,7 @@ sub _post {
   my(%avars, %deliveries, %digest, @dfiles, @dtypes, @ent, @files, @refs,
      @tmp, @skip, $arcdata, $arcent, $archead, $digests, $dissues,
      $exclude, $head, $i, $j, $msgnum, $prefix, $replyto, $sender, $seqno,
-     $subject, $tmp, $tmpdir, $tprefix);
+     $subject, $subs, $tmp, $tmpdir, $tprefix);
 
   $self->_make_list($list);
   $tmpdir = $self->_global_config_get('tmpdir');
@@ -377,17 +378,18 @@ sub _post {
   # Determine sender
   $sender = $self->_list_config_get($list, "sender");
   
+  # Cook up a substitution hash
+  $subs = {
+	   'LIST'    => $list,
+	   'VERSION' => $Majordomo::VERSION,
+	   'SENDER'  => $user,
+	   'SEQNO'   => $seqno,
+	   'ARCHIVE' => $msgnum,
+	  };
+
   # Add headers
   for $i ($self->_list_config_get($list, 'message_headers')) {
-    $i = $self->substitute_vars_string($i,
-				       {
-					'LIST'    => $list,
-					'VERSION' => $Majordomo::VERSION,
-					'SENDER'  => $user,
-					'SEQNO'   => $seqno,
-					'ARCHIVE' => $msgnum,
-				       },
-				      );
+    $i = $self->substitute_vars_string($i, $subs);
     $head->add(undef, $i);
   }
   $head->add('Sender', $sender);
@@ -395,7 +397,7 @@ sub _post {
   # Add list-headers standard headers
 
   # Add fronter and footer.
-  $self->_add_fters($list, $ent[0]);
+  $self->_add_fters($list, $ent[0], $subs);
 
   # Add in subject prefix
   ($ent[0], $ent[1]) = $self->_subject_prefix($ent[0], $list, $seqno);
@@ -882,7 +884,7 @@ sub _ck_tbody_line {
   my $inv     = shift;
   local $line = shift;
   local $text = shift;
-  my $log = new Log::In 250, "$list, $line, $text";
+#  my $log = new Log::In 250, "$list, $line, $text";
   my (@matches, $class, $i, $invert, $j, $k, $l, $match, $rule, $sev);
 
   # Share some variables with the compartment
@@ -1169,7 +1171,7 @@ sub _trim_approved {
   return $oent;
 }
 
-=head2 _add_fters(entity)
+=head2 _add_fters(list, entity, subs)
 
 This adds fronters and footers to the entity.  If the message is
 multipart or the only part is not text/plain, then we have to do
@@ -1185,6 +1187,7 @@ sub _add_fters {
   my $self = shift;
   my $list = shift;
   my $ent  = shift;
+  my $subs = shift;
   my $log  = new Log::In 40;
   my($foot, $footers, $foot_ent, $foot_freq, $front, $fronters,
      $front_ent, $front_freq, $line, $nbody, $nfh, $obody, $ofh);
@@ -1213,6 +1216,10 @@ sub _add_fters {
 
   # Bail unless we're adding something
   return unless $front || $foot;
+
+  # Substitute values
+  $front = $self->substitute_vars_string($front, $subs);
+  $foot  = $self->substitute_vars_string($foot,  $subs);
 
   # We take different actions if the message is multipart
   if ($ent->is_multipart) {

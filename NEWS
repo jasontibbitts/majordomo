@@ -3,6 +3,14 @@
 Here you'll find information on major changes.  (Read the ChangeLog
 for the boring stuff.)  Items at the top are newer.
 
+Digests are supported.  Multiple digests can be defined per lists.  Users
+can elect to receive digests in test, MIME or index modes.
+
+Users can elect to receive copies of their own messages or not, to receive
+copies of messages from the server that were also carbon copied to them by
+the original sender, to receive messages with or without a Reply-To: header
+and with or without the subject_prefix.
+
 Simplified patterns are supported; currently Majordomo will auto-escape
 those pesky '@' signs that Perl now requires to be escaped (but only if the
 regexp is illegal without such escaping).  Substring patterns are also

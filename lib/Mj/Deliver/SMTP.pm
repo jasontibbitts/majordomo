@@ -169,7 +169,7 @@ sub senddata {
 
   $string =~ s/\n/\015\012/sgo;
   $string =~ s/^\./../;
-  $::log->message(551, "debug", ">>>$string");
+#  $::log->message(551, "debug", ">>>$string");
   $self->{'connection'}->print("$string");
 }
 
