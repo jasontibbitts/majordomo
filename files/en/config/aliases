@@ -1,23 +1,23 @@
-The aliases setting contains a list of mail aliases to which electronic
-mail can be sent.  The following values are supported:
+The aliases setting determines which e-mail addresses are available to
+the public for a particular mailing list.  The following values are
+supported:
 
-  auxiliary            An alias for each auxiliary list in the "sublists"
-                       setting.
+  Alias                E-mail addresses for this alias
+  -----                -------------------------------
+  auxiliary            An alias for each sublist in the "sublists" setting.
   moderator            LIST-moderator
   owner                LIST-owner
   request              LIST-request
   resend               LIST
-  subscribe            LIST-subscribe (adds user to the list in the default
-                       class, as given by the default_class setting)
-  subscribe-digest     LIST-subscribe-digest (adds user to the list,
-                       receiving the default digest)
-  subscribe-digest-all An alias for each existing digest, for example
-                       LIST-subscribe-digest-daily.
-  subscribe-nomail     LIST-subscribe-nomail (adds user, but they will
-                       receive no mail)
+  subscribe            LIST-subscribe
+  subscribe-digest     LIST-subscribe-digest
+  subscribe-digest-all An alias for each digest in the "digests" setting.
+  subscribe-each       LIST-subscribe-each
+  subscribe-nomail     LIST-subscribe-nomail
+  subscribe-unique     LIST-subscribe-unique
   unsubscribe          LIST-unsubscribe
 
-Currently, owner, request, and resend are mandatory.
+Currently, the owner, request, and resend aliases are mandatory.
 
 After the value of this setting has been changed, the createlist-regen
 command must be run to recreate the aliases.
