@@ -166,7 +166,7 @@ sub post {
   # can be passed out-of-band.
   ($ok, $request->{'password'}, $token) =
     $self->_check_approval($request->{'list'}, $thead, $ent, $user);
-  $approved = ($ok>0) && $passwd;
+  $approved = $ok && ($ok>0) && $passwd;
 
   unless ($ok) {
     $avars->{bad_approval} = "Invalid Approve Header";
@@ -786,14 +786,15 @@ sub _post {
     # Build digests if we have a message number from the archives
     # (%deliveries is modified)
     if ($msgnum and !$sl) {
-      $self->do_digests('list'       => $list,     
-                        'deliveries' => \%deliveries,
-                        'substitute' => $subs,     
-                        'msgnum'     => $msgnum,
+      $self->do_digests(
                         'arcdata'    => $arcdata,  
+                        'deliveries' => \%deliveries,
+                        'list'       => $list,     
+                        'msgnum'     => $msgnum,
                         'sender'     => $subs->{'OWNER'},
-                        'whereami'   => $whereami, 
+                        'substitute' => $subs,     
                         'tmpdir'     => $tmpdir,
+                        'whereami'   => $whereami, 
                         # 'run' => 0, 'force' => 0,
                        );
     }
@@ -1231,7 +1232,7 @@ sub _check_body {
   $qreg   = $self->_list_config_get($list, 'quote_pattern');
   $maxlen = $self->_list_config_get($list, 'max_mime_header_length');
 
-  # Create a Safe comaprtment
+  # Create a Safe compartment
   $safe = new Safe;
   $safe->permit_only(qw(aassign const le leaveeval not null padany push
 			pushmark return rv2sv stub));
