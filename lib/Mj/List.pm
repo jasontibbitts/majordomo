@@ -74,7 +74,7 @@ use vars (qw($addr %alias %flags %noflags %classes %digest_types));
   (
    'each'     => ['each',   0, "each message as it is posted"],
    'single'   => ['each',   0],
-   'all'      => ['all',    0, "all list traffic"],
+   'all'      => ['all',    0, "all list traffic (for debugging only)"],
    'digest'   => ['digest', 2, "messages in a digest"],
    'mail'     => ['mail',   1, "resume receiving messages"],
    'nomail'   => ['nomail', 1, "no messages"],
