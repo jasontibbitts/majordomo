@@ -839,24 +839,28 @@ sub substitute_vars_format {
   # the scalar substitution variables.  It is used to ease
   # iteration for array values.
   $ghost = $str;
+
   # Track the number of data elements in each substitution value
   for $i (keys %$subs) {
     if (! ref $subs->{$i}) {
       # handle simple substitutions immediately
-      while ($str =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(\b|$)/) {
-        $value = defined $2 ? "%$2s" : "%s";
-        $value =~ s/://; 
-        $line = sprintf $value, $subs->{$i};
-        $str =~ s/([^\\]|^)\$\Q$i\E(:-?\d+)?(\b|$)/$1$line/;
+      if (defined $subs->{$i} and length $subs->{$i}) {
+        while ($str =~ /([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/) {
+          $value = defined $3 ? "%$3s" : "%s";
+          $value =~ s/://; 
+          $line = sprintf $value, $subs->{$i};
+          $str =~ s/([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/;
+        }
       }
-      # substitute in the ghost with empty values
-      while ($ghost =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(\b|$)/) {
-        $value = defined $2 ? "%$2s" : "%s";
-        $value =~ s/://; 
-        $line = sprintf $value, " ";
-        $ghost =~ s/([^\\]|^)\$\Q$i\E(:-?\d+)?(\b|$)/$1$line/;
-      }
-      if ($str =~ /([^\\]|^)\?\Q$i\E(:-?\d+)?(\b|$)/) {
+      # empty value: mark for line-by-line processing
+      else {
+        while ($str =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/) {
+          $value = defined $2 ? "%$2s" : "%s";
+          $value =~ s/://;
+          $line = sprintf $value, $subs->{$i};
+          $str =~ s/([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/;
+        }
+        next unless ($str =~ /([^\\]|^)(\?)\Q$i\E(:-?\d+)?(?![A-Z_])/);
         $subcount{$i} = 1;
       }
     }
@@ -865,6 +869,34 @@ sub substitute_vars_format {
       $value = scalar @{$subs->{$i}};
       $maxiter = $value if ($value > $maxiter);
       $subcount{$i} = $value;
+    }
+  }
+
+  unless (keys %subcount) {
+    $str =~ s/\002\001/\n/g;
+    return $str;
+  }
+
+  # substitute in the ghost with empty values if arrays are present.
+  for $i (keys %$subs) {
+    last unless $maxiter > 1;
+    if (! ref $subs->{$i}) {
+      if (defined $subs->{$i} and length $subs->{$i}) {
+        while ($ghost =~ /([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/) {
+          $value = defined $3 ? "%$3s" : "%s";
+          $value =~ s/://; 
+          $line = sprintf $value, " ";
+          $ghost =~ s/([^\\]|^)(\$|\?)\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/;
+        }
+      }
+      else {
+        while ($ghost =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/) {
+          $value = defined $2 ? "%$2s" : "%s";
+          $value =~ s/://; 
+          $line = sprintf $value, " ";
+          $ghost =~ s/([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/$1$line/;
+        }
+      }
     }
   }
 
@@ -900,7 +932,7 @@ sub substitute_vars_format {
   # Split the input string into lines, and make substitutions
   # on each line. 
   LINE:
-  for ($j = 0; $j < @ghost; $j++) {
+  for ($j = 0; $j < @lines ; $j++) {
     $line = $lines[$j];
     $ghost = $ghost[$j];
     if ($line !~ /[\?\$][A-Z]/) {
@@ -911,15 +943,15 @@ sub substitute_vars_format {
     for $i (keys %subcount) {
       # Variables starting with question marks will cause
       # the line to be ignored if the variable is unset.
-      if ($line =~ /([^\\]|^)\?\Q$i\E(:|\b|$)/) {
+      if ($line =~ /([^\\]|^)\?\Q$i\E(?![A-Z_])/) {
         if ($table[0]->{$i} eq '') {
           next LINE;
         }
         # Convert the ? to $.
-        $line =~ s/([^\\]|^)\?\Q$i\E(:|\b|$)/$1\$$i$2/g;
-        $ghost =~ s/([^\\]|^)\?\Q$i\E(:|\b|$)/$1\$$i$2/g;
+        $line =~ s/([^\\]|^)\?\Q$i\E(?![A-Z_])/$1\$$i/g;
+        $ghost =~ s/([^\\]|^)\?\Q$i\E(?![A-Z_])/$1\$$i/g;
       }
-      if ($line =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(\b|$)/) {
+      if ($line =~ /([^\\]|^)\$\Q$i\E(:-?\d+)?(?![A-Z_])/) {
         $maxiter = $subcount{$i} if ($subcount{$i} > $maxiter);
       }
     }
@@ -4050,8 +4082,9 @@ Enhanded mode:
 sub lists {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'mode'}";
-  my (@lines, @lists, @out, @sublists, $cat, $compact, $count, $data, $desc, 
-      $digests, $flags, $i, $limit, $list, $expose, $mess, $ok, $sublist);
+  my (@lines, @lists, @out, @sublists, @tmp, $cat, $compact, 
+      $count, $data, $desc, $digests, $flags, $i, $limit, $list, 
+      $expose, $mess, $ok, $sublist);
 
   $request->{'list'} = 'GLOBAL';
 
@@ -4158,7 +4191,14 @@ sub lists {
       $self->{'lists'}{$list}->_fill_aux;
       # If a master password was given, show all auxiliary lists.
       if ($expose > 1) {
-        @sublists = keys %{$self->{'lists'}{$list}->{'sublists'}};
+        @sublists = $self->_list_config_get($list, "sublists");
+        @tmp = ();
+        for $i (keys %{$self->{'lists'}{$list}->{'sublists'}}) {
+          next if ($i eq 'MAIN');
+          next if grep { $_ =~ /^$i(?![\w\-\.])/ } @sublists;
+          push @tmp, "$i:private auxiliary list";
+        }
+        push @sublists, @tmp;
       }
       else {
         @sublists = $self->_list_config_get($list, "sublists");
