@@ -1,3 +1,5 @@
+use File::Copy 'copy';
+
 print "1..16\n";
 
 $| = 1;
@@ -18,7 +20,10 @@ mkdir "tmp.$$/test/GLOBAL", 0700 || die;
 mkdir "tmp.$$/test/DEFAULT", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL/files", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL/sessions", 0700 || die;
-symlink "../../files", "tmp.$$/SITE/files";
+symlink "../../files", "tmp.$$/SITE/files" || die;
+copy  "t/global_config", "tmp.$$/test/GLOBAL/C_install" || die;
+copy  "t/default_config", "tmp.$$/test/DEFAULT/C_install" || die;
+
 open SITE,">tmp.$$/SITE/config.pl";
 print SITE qq!
 \$VAR1 = {

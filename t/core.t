@@ -2,6 +2,7 @@
 use lib "blib/lib";
 use Carp qw(cluck);
 use Data::Dumper;
+use File::Copy 'copy';
 
 $SIG{__WARN__} = sub {cluck "--== $_[0]"};
 
@@ -40,6 +41,8 @@ mkdir "$tmpdir/test/GLOBAL", 0700 || die;
 mkdir "$tmpdir/test/DEFAULT", 0700 || die;
 mkdir "$tmpdir/test/GLOBAL/files", 0700 || die;
 mkdir "$tmpdir/test/GLOBAL/sessions", 0700 || die;
+copy  "t/global_config", "$tmpdir/test/GLOBAL/C_install" || die;
+copy  "t/default_config", "$tmpdir/test/DEFAULT/C_install" || die;
 
 
 open SITE,">$tmpdir/SITE/config.pl";
