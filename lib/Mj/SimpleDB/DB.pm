@@ -74,14 +74,14 @@ sub new {
 
 sub _make_db {
   my $self = shift;
-  return 1 if $self->{db};
-  my (%db);
+  my (%db, $db);
+
   # Now grab the DB object.  We don't care about the hash we're tying to,
   # because we're going to save the speed hit and use the API directly.
-  $self->{db} = tie %db, 'DB_File', $self->{filename},
+  $db = tie %db, 'DB_File', $self->{filename},
                          O_RDWR|O_CREAT, 0666, $self->{dbtype};
-  warn "Problem allocating database" unless $self->{db};
-  $self->{db};
+  warn "Problem allocating database" unless $db;
+  $db;
 }
 
 =head2 DESTROY
@@ -119,15 +119,17 @@ sub add {
   my $key    = shift;
   my $argref = shift;
   my $log    = new Log::In 120, "$self->{filename}, $mode, $key";
-  my ($data, $done, $flags, $status);
+  my ($data, $db, $done, $flags, $status);
 
   # Grab a lock up front; this elminiates the race between creation and
   # opening.
   my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
-  return 0 unless $self->_make_db;
+
+  $db = $self->_make_db;
+  return 0 unless $db;
 
   $flags = 0; $flags = R_NOOVERWRITE unless $mode =~ /force/;
-  $status = $self->{db}->put($key, $self->_stringify($argref), $flags);
+  $status = $db->put($key, $self->_stringify($argref), $flags);
 
   # If success...
   if ($status == 0) {
@@ -135,13 +137,14 @@ sub add {
   }
   # If the key existed and NOOVERWEITE was given...
   elsif ($status > 0) {
-    $data = $self->_lookup($key);
+    $data = $self->_lookup($db, $key);
     $done = 0;
   }
   # Else it just bombed
   else {
     $done = 0;
   }
+
   ($done, $data);
 }
 
@@ -161,8 +164,9 @@ sub remove {
   my $key  = shift;
   my $log  = new Log::In 120, "$self->{filename}, $mode, $key";
 
-  my (@nuke, @out, $data, $fh, $match, $status, $try, $value);
-  return unless $self->_make_db;
+  my (@nuke, @out, $data, $db, $fh, $match, $status, $try, $value);
+  $db = $self->_make_db;
+  return unless $db;
 
   my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
 
@@ -171,11 +175,11 @@ sub remove {
   # automatically removing all keys present.
   if ($mode !~ /regex/) {
     # Perhaps the key exists; look it up
-    $data = $self->_lookup($key);
+    $data = $self->_lookup($db, $key);
 
     # If we got something, delete and return it.
     if ($data) {
-      $status = $self->{db}->del($key);
+      $status = $db->del($key);
       return ($key, $data);
     }
     return;
@@ -185,13 +189,13 @@ sub remove {
   # SimpleDB::Text can make use of lookup and lookup_regexp but we can't
   # rely on the stability of the cursor across a delete.
   $try = $value = 0;
-  for ($status = $self->{db}->seq($try, $value, R_FIRST);
+  for ($status = $db->seq($try, $value, R_FIRST);
        $status == 0;
-       $status = $self->{db}->seq($try, $value, R_NEXT)
+       $status = $db->seq($try, $value, R_NEXT)
       )
     {
       if (_re_match($key, $try)) {
-	$self->{db}->del($try, R_CURSOR);
+	$db->del($try, R_CURSOR);
 	push @out, ($try, $self->_unstringify($value));
 	last if $mode !~ /allmatching/;
       }
@@ -227,15 +231,16 @@ sub replace {
   my $key   = shift;
   my $field = shift;
   my $value = shift;
-  $value = "" unless defined $value;
-  my $log   =  new Log::In 120, "$self->{filename}, $mode, $key, $field, $value";
-  return unless $self->_make_db;
   my (@out, $k, $match, $data, $status, $v);
+  $value = "" unless defined $value;
+  my $log = new Log::In 120, "$self->{filename}, $mode, $key, $field, $value";
+  my $db  = $self->_make_db;
+  return unless $db;
   my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
 
   # Take care of the easy case first.  Note that we don't allow duplicates, so there's no need to loop nere.
   if ($mode !~ /regex/) {
-    $data = $self->_lookup($key);
+    $data = $self->_lookup($db, $key);
     return unless $data;
     # Update the value, and the record.
     if (ref($field) eq 'HASH') {
@@ -247,15 +252,15 @@ sub replace {
     else {
       $data->{$field} = $value;
     }
-    $self->{db}->put($key, $self->_stringify($data));
+    $db->put($key, $self->_stringify($data));
     return ($key);
   }
   
   # So we're doing regex processing, which means we have to search.
   $k = $v = 0;
-  for ($status = $self->{db}->seq($k, $v, R_FIRST);
+  for ($status = $db->seq($k, $v, R_FIRST);
        $status == 0;
-       $status = $self->{db}->seq($k, $v, R_NEXT)
+       $status = $db->seq($k, $v, R_NEXT)
       ) 
     {
       if (_re_match($key, $k)) {
@@ -272,7 +277,7 @@ sub replace {
 	}
 
 	# Since we're not changing the key, we can just put the new data
-	$self->{db}->put($k, $self->_stringify($data));
+	$db->put($k, $self->_stringify($data));
 
 	push @out, $k;
 	last if $mode !~ /allmatching/;
@@ -313,16 +318,16 @@ sub mogrify {
   my $log  = new Log::In 120, "$self->{filename}";
   my (@new, $changed, $changedata, $changekey, $data, $encoded, $k,
       $newkey, $status, $v);
-
-  return unless $self->_make_db;
+  my $db = $self->_make_db;
+  return unless $db;
   my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
   $changed = 0;
   
   $k = $v = 0;
  RECORD:
-  for ($status = $self->{db}->seq($k, $v, R_FIRST);
+  for ($status = $db->seq($k, $v, R_FIRST);
        $status == 0;
-       $status = $self->{db}->seq($k, $v, R_NEXT)
+       $status = $db->seq($k, $v, R_NEXT)
       ) 
     {
       # Extract the data and call the coderef
@@ -356,14 +361,14 @@ sub mogrify {
 	if (defined $newkey) {
 	  push @new, $newkey, $encoded 
 	}
-	$status = $self->{db}->del($k, R_CURSOR);
+	$status = $db->del($k, R_CURSOR);
       }
       else {
-	$status = $self->{db}->put($k, $encoded, R_CURSOR);
+	$status = $db->put($k, $encoded, R_CURSOR);
       }
     }
   while (($k, $v) = splice(@new, 0, 2)) {
-    $status = $self->{db}->put($k, $v);
+    $status = $db->put($k, $v);
   }
   $log->out("changed $changed");
 }
@@ -377,15 +382,16 @@ also returns the first element, we have a tiny bit of complexity in _get.
 sub get_start {
   my $self = shift;
 
-  return unless $self->_make_db;
-
   $self->{get_lock}  = new Mj::Lock($self->{lockfile}, 'Shared');
   $self->{get_going} = 0;
+  $self->{db} = $self->_make_db;
+  return unless $self->{db};
   1;
 }
 
 sub get_done {
   my $self = shift;
+  $self->{db}        = undef;
   $self->{get_lock}  = undef;
   $self->{get_going} = 0;
 }
@@ -571,17 +577,17 @@ sub get_matching_regexp {
   return @keys;
 }
 
-=head2 _lookup(key)
+=head2 _lookup(db, key)
 
 An internal lookup function that does no locking; essentially, it is
 db->get with unstringification of the result.
 
 =cut
 sub _lookup {
-  my($self, $key) = @_;
+  my($self, $db, $key) = @_;
   my($status, $value, $data);
 
-  $status = $self->{db}->get($key, $value);
+  $status = $db->get($key, $value);
   if ($status == 0 && $value) {
     $data = $self->_unstringify($value);
   }
@@ -604,9 +610,10 @@ sub lookup_quick {
   }
   my $lock = new Mj::Lock($self->{lockfile}, 'Shared');
   my $value = 0;
-  return unless $self->_make_db;
+  my $db = $self->_make_db;
+  return unless $db;
 
-  my $status = $self->{db}->get($key, $value);
+  my $status = $db->get($key, $value);
   if ($status != 0) {
     return;
   }
@@ -617,14 +624,15 @@ sub lookup_quick_regexp {
   my $self = shift;
   my $reg  = shift;
   my $lock = new Mj::Lock($self->{lockfile}, 'Shared');
-  return unless $self->_make_db;
+  my $db   = $self->_make_db;
+  return unless $db;
 
   my ($key, $match, $status, $value);
 
   $key = $value = '';
-  for ($status = $self->{db}->seq($key, $value, R_FIRST) ;
+  for ($status = $db->seq($key, $value, R_FIRST) ;
        $status == 0 ;
-       $status = $self->{db}->seq($key, $value, R_NEXT) )
+       $status = $db->seq($key, $value, R_NEXT) )
     {
       if (_re_match($reg, $key)) {
 	return ($key, $value);

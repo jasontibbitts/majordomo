@@ -8,22 +8,23 @@ use vars qw(%opts $mjcfg);
 
 $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 
+my %delete = (
+	      approve_passwd    => 1,
+	      digest_archive    => 1,
+	      digest_issue      => 1,
+	      digest_maxdays    => 1,
+	      digest_maxlines   => 1,
+	      digest_name       => 1,
+	      digest_rm_footer  => 1,
+	      digest_rm_fronter => 1,
+	      digest_volume     => 1,
+	      digest_work_dir   => 1,
+	      mungedomain       => 1,
+	      strip             => 1,
+	     );
 
-my %munge = (
-	     admin_passwd      => \&fix_passwd,
-	     approve_passwd    => undef,
-	     debug             => \&fix_debug,
-	     digest_archive    => undef,
-	     digest_issue      => undef,
-	     digest_maxdays    => undef,
-	     digest_maxlines   => undef,
-	     digest_name       => undef,
-	     digest_rm_footer  => undef,
-	     digest_rm_fronter => undef,
-	     digest_volume     => undef,
-	     digest_work_dir   => undef,
-	     strip             => undef,
-	    );
+#	     admin_passwd      => \&fix_passwd,
+#	     debug             => \&fix_debug,
 
 
 # Pull in configuration
@@ -83,10 +84,13 @@ sub convert_some_lists {
 
 sub convert_list {
   my $list = shift;
-  my(%config, @args, $editor, $err, $file, $flags, $i, $id, $j, $msg,
-     $owner, $pid, $pw, $val, $var);
 
+  my(%config, @args, @rest, $aux, $editor, $err, $file, $filecount, $flags,
+     $i, $id, $j, $msg, $owner, $pid, $pw, $val, $var);
+
+  $filecount = 1;
   print "Converting $list\n";
+
 
   # Check to see if list exists already.  Prompt to exit or create it.
   # (Don't want to overwrite existing lists.)  Note that we do the bad
@@ -110,23 +114,16 @@ EOM
   $owner = get_str($msg);
 
   # Locate and load old config file.  Convert variables where necessary.
-  %config = load_old("$opts{o}/$list.config");
+  load_old("$opts{o}/$list.config", \%config);
 
   # Iterate over the keys, performing conversion or deletion if necessary.
   for $i (sort keys %config) {
-    if (exists $munge{$i}) {
-      if (defined $munge{$i}) {
-	warn "munging $i";
-	($var, $val) = &{$munge{$i}}($i, $config{$i});
-	delete $config{$i};
-	$config{$var} = $val;
-      }
-      else {
-	warn "deleting $i";
-	delete $config{$i};
-      }
+    if ($delete{$i}) {
+      warn "deleting $i";
+      delete $config{$i};
     }
   }
+  munge(\%config);
 
   # Figure out what default_flags should be based on reply_to and
   # subject_prefix.
@@ -153,7 +150,7 @@ EOM
   else {
     $msg = <<EOM;
 
-You do not have the subject_prefis variable set.  Majordomo2 allows users
+You do not have the subject_prefix variable set.  Majordomo2 allows users
 to choose to receive messages with a subject prefix.  Would you like the
 default settings to enable you to set a subject prefix and then allow users
 to choose to begin receiving it if they so desire?
@@ -166,9 +163,18 @@ EOM
 
   $config{default_flags} = $flags;
 
+  if (length $config{mungedomain}) {
+    $msg = <<EOM;
 
-  # Produce command file containing createlist command, configset commands
-  # and a mass subscribe command (with quiet flags)
+The list $list has the mungedomain variable set.  Majordomo2 supports a
+mechanism for performing the equivalent functionality and more through the
+addr_xforms variable, but note that this variable is set globally, not per
+list and so it will not be set here.
+
+Press enter to continue.
+EOM
+    get_str($msg);
+  }
 
   # Open the command file
   $file = "$mjcfg->{wtmpdir}/convertlist.$$";
@@ -176,7 +182,9 @@ EOM
     or die "Can't open $file, $!";
 
   @args = ("$mjcfg->{'install_dir'}/bin/mj_shell", "-d", "$opts{d}", "-F",
-	   "-", "-f", "$opts{o}/$list");
+	   "-");
+
+# "-f", "$opts{o}/$list");
 #  @args = ("$mjcfg->{'install_dir'}/bin/mj_shell", "-d", "$opts{d}", "-F",
 #	   "$file", "-f", "$opts{o}/$list");
 
@@ -194,6 +202,69 @@ EOM
 
   print CMD "createlist $list $owner\n";
 
+  # Pick apart the restrict_post variable and build auxlists.
+  if (length $config{restrict_post}) {
+    @rest = split(/[:,\s]/, $config{restrict_post});
+    $config{restrict_post} = [];
+    for $i (@rest) {
+
+      # Name of this list: just put it in
+      if ($i eq $list) {
+	push @{$config{restrict_post}}, $i;
+	next;
+      }
+
+      # Something that looks like a digest list; ignore it for now
+      if ($i eq "$list-digest") {
+	next;
+      }
+
+      # Something that doesn't look like a separate list.  It might be a
+      # file that "lives" under another list, but it's easier to ignore
+      # that fact for now.
+      if ($i =~ /\.(.*)$/) {
+	$msg = <<EOM;
+
+The old restrict_post variable includes: $i.
+This does not look like the name of another list, so we can set up an
+ auxiliary list and add the contents of this file to it.
+Do you want to do this?
+
+EOM
+	next unless get_bool($msg, 1);
+	$msg = <<EOM;
+
+What do you want to name this auxiliary list?
+
+EOM
+	$aux = get_str($i, $1);
+	print CMD "auxadd $list $aux <\@$filecount\n";
+	$filecount++;
+	push @args, ('-f', "$opts{o}/$i");
+	push @{$config{restrict_post}}, $aux;
+	next;
+      }
+
+      # Anything else references another list.  Just warn about it.
+      $msg = <<EOM;
+
+The old restrict_post variable includes: $i.
+
+This looks like a separate list, so it will not be automatically placed in
+ the new restrict_post variable.  If you had created a separate list for
+ this solely to enable the list owner to manage the restriction list
+ remotely, then you can just as well use an auxiliary list for that
+ purpose.
+
+You will need to do this manually.  Press enter to continue.
+
+EOM
+      get_str($msg);
+      next;
+    }
+  }
+
+  # Now dump out the configuration.
   $id = 'AA';
   for $i (sort keys %config) {
     if (ref($config{$i}) eq 'ARRAY') {
@@ -221,22 +292,25 @@ EOM
 
   return if $err && get_bool("The editor indicated an error; continue?\n", 1);
 
-  # Pass it to mj_shell.
-  $pid = open(SHELL, "|-");
+#   # Pass it to mj_shell.
+#   $pid = open(SHELL, "|-");
 
-  if ($pid) {
-    # in parent
-    open CMD, "<$file";
-    while (defined($_ = <CMD>)) {
-      print SHELL $_;
-    }
-    close CMD;
-    close CHILD;
-  }
-  else {
-    # in chiild
-    exec (@args) or die "Error executing $args[0], $!";
-  }
+#   if ($pid) {
+#     # in parent
+#     open CMD, "<$file";
+#     while (defined($_ = <CMD>)) {
+#       print SHELL $_;
+#     }
+#     close CMD;
+#     close CHILD;
+#     wait $pid;
+#   }
+#   else {
+#     # in chiild
+#     exec (@args) or die "Error executing $args[0], $!";
+#   }
+
+  unlink $file;
 
   # Done.
 }
@@ -244,8 +318,8 @@ EOM
 
 
 sub load_old {
-  my $file = shift;
-  my (%cf, $key, $op, $val);
+  my($file, $hash) = @_;
+  my ($key, $op, $val);
   print "Loading $file\n";
 
   unless (-r $file) {
@@ -263,29 +337,45 @@ sub load_old {
     $key = lc($key);
     
     if ($op eq "\<\<") {
-      $cf{$key} = [];
+      $hash->{$key} = [];
       while (defined($_ = <CF>)) {
 	chomp;
 	next unless $_;
 	s/^-//;
 	last if $_ eq $val;
-	push @{$cf{$key}}, $_;
+	push @{$hash->{$key}}, $_;
       }
     }
     else {
-      $cf{$key} = $val;
+      $hash->{$key} = $val;
     }
   }
-  %cf;
+  1;
 }
 
-sub fix_debug {
-  my($var, $val) = @_;
-  return ($var, 0) if lc($val) eq 'no';
-  ($var, 500);
-}
+sub munge {
+  my $cf = shift;
 
-sub fix_passwd {
-  my($dummy, $val) = @_;
-  ('master_password', $val);
+  if (exists $cf->{debug}) {
+    $a = $cf->{debug};
+    if (lc($a) eq 'no') {
+      $cf->{debug} = 0;
+    }
+    else {
+      $cf->{debug} = 500;
+    }
+  }
+
+  if (exists $cf->{admin_passwd}) {
+    $cf->{master_password} = $cf->{admin_passwd};
+    delete $cf->{admin_passwd};
+  }
+
+  if (exists $cf->{mungedomain}) {
+    $a = $cf->{mungedomain};
+    if (lc($a) eq 'yes') {
+      push @{$cf->{addr_xforms}}, 'mungedomain';
+    }
+    delete $cf->{mungedomain};
+  }
 }

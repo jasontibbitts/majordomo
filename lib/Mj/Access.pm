@@ -420,6 +420,7 @@ sub list_access_check {
       $text,
       $temp,
       $ok, $ok2,
+      $tmpl, $tmpa,         # Temporary list and auxlist holders
       @temps,
      );
   
@@ -487,11 +488,25 @@ sub list_access_check {
     }
     if ($access->{$request}{'check_aux'}) {
       for $i (keys %{$access->{$request}{'check_aux'}}) {
-	$memberof{$i} = $self->{'lists'}{$list}->aux_is_member($i, $victim);
+	# Handle list: and list:auxlist syntaxes; if the list doesn't
+	# exist, just skip the entry entirely. XXX Can't this be tidied up?
+	if ($i =~ /(.+):(.*)/) {
+	  ($tmpl, $tmpa) = ($1, $2);
+	  next unless $self->_make_list($tmpl);
+	  if ($tmpa) {
+	    $memberof{$i} = $self->{'lists'}{$tmpl}->aux_is_member($tmpa, $victim);
+	  }
+	  else {
+	    $memberof{$i} = $self->{'lists'}{$tmpl}->is_subscriber($victim);
+	  }
+	}
+	else {
+	  $memberof{$i} = $self->{'lists'}{$list}->aux_is_member($i, $victim);
+	}
       }
     }
 
-    # Add some addresses to 
+    # Add some chunks of the address to the set of matchable variables
     $victim->strip =~ /.*\@(.*)$/;
     $args{'host'}     = $1;
     $args{'addr'}     = $victim->strip;
@@ -828,7 +843,6 @@ sub _a_default {
       return $self->_a_allow(@_);
     }
     elsif ($access eq 'closed') {
-      
       return $self->_a_deny(@_);
     }
     elsif ($access eq 'list' &&
@@ -926,7 +940,7 @@ sub _d_post {
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
   my $log = new Log::In 150;
   my(@consult_vars, @deny_vars, $i, $member, $moderate, $restrict,
-     $tmp);
+     $tmp, $tmpl, $tmps);
   shift @_;
 
   @consult_vars = qw(bad_approval dup_msg_id dup_checksum
@@ -950,6 +964,22 @@ sub _d_post {
   $restrict = $self->_list_config_get($list, 'restrict_post');
   $member = 0;
   for $i (@$restrict) {
+    # First, check to see that we don't have a "list:" or "list:auxlist" string
+    if ($i =~ /(.+):(.*)/) {
+      ($tmpl, $tmps) = ($1, $2);
+      next unless $self->_make_list($tmpl);
+      if ($tmps) {
+	if ($self->{'lists'}{$tmpl}->aux_is_member($tmps, $requester)) {
+	  $member = 1;
+	  last;
+	}
+      }
+      elsif ($self->{'lists'}{$tmpl}->is_subscriber($requester)) {
+	$member = 1;
+	last;
+      }
+    }
+
     # For backwards compatibility, look for "list", "list.digest",
     # "list-digest", etc.
     if ($i =~ /\Q$list\E([.-_]digest)?/) {

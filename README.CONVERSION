@@ -45,6 +45,32 @@ there are notable changes:
    subject_prefix and reply_to and have users not see them unless they turn
    them on.  convertlist.pl will give you the opportunity to set this up.
 
+*) The mechanism for restricting posting (restrict_post) has changed a bit.
+   A list can have any number of subsidiary address lists (auxlists)
+   attached to it, and these can be used for any purpose.
+
+   So, if you set up address files that aren't real lists and use them in
+   restrict_post, the Majordomo2 method will suit you fine and you can even
+   administer them remotely.  convertlist.pl can handle these for you.
+
+   If you set up separate hidden lists such that only the list owner could
+   add to them in order to get remote manageability, then you don't really
+   need separate lists any longer because the auxlists are remotely
+   manageable.  You should add these addresses to an auxlist and add the
+   name of that auxlist to restrict_post.  convertlist.pl will not do this
+   for you, but it will warn you of the situation.
+
+   If you set up a special list for the purpose of allowing users to post
+   to a restricted list without receiving mail from it (a "post only" list)
+   then you have two options:
+
+     1) Add these users to the list manually and set them to "nomail".
+     2) Create a separate, real list (like you had before) and use the new
+        "list:" (short for "list:auxlist") notation for referencing members
+        of another list.
+
+  
+
 
 Running convertlist.pl
 ----------------------

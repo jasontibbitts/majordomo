@@ -1822,8 +1822,12 @@ sub parse_regexp_array {
 =head2 parse_restrict_post
 
 This parses a restrict_post array, which is like a string_array except that
-the first idem is split on spaces, tabs, and colons and the result inserted
-at the top of the list.
+the first idem is split on whitespace and the result inserted at the top of
+the list.
+
+Note that the old colon separation conflicts with the new list:auxlist
+notation.  Sigh.  I don''t see this as a huge problem, as convertlist will
+take care of it and whitespace is the commonly used separator.
 
 =cut
 sub parse_restrict_post {
@@ -1834,7 +1838,7 @@ sub parse_restrict_post {
 
   if (@$arr) {
     my $t = shift(@$arr);
-    unshift(@$arr, split(/[:\s]+/, $t));
+    unshift(@$arr, split(/\s+/, $t));
   }
   return (1, '', $arr);
 }
@@ -2113,13 +2117,22 @@ sub parse_xform_array {
   my(%repl, $data, $i);
 
   $data = ();
-  %repl = ('trim mbox'   => '/(.*?)\+.*(\@.*)/$1$2/',
-	   'ignore case' => '/(.*)/\L$1/',
+  %repl = ('trim mbox'     => '/(.*?)\+.*(\@.*)/$1$2/',
+	   'ignore case'   => '/(.*)/\L$1/',
+	   'mungedomain'   => '/(.*\@).*\.([^.]+\.[^.]+)/$1$2/',
+	   'two level'     => '/(.*\@).*\.([^.]+\.[^.]+)/$1$2/',
+	   'three level'   => '/(.*\@).*\.([^.]+\.[^.]+\.[^.]+)/$1$2/',
 	  );
 
   for $i (@$arr) {
     if ($repl{$i}) {
       push @$data, $repl{$i};
+    }
+    elsif ($i =~ /flatten domain\s+(.*)/) {
+      push @$data, "/(.*\\\@).*(\Q$1\E)/\$1\$2/";
+    }
+    elsif ($i =~ /map\s+(.*)\s+to\s+(.*)/) {
+      push @$data, "/(.*\\\@.*)\Q$1\E\$/\$1$2/";
     }
     elsif ($i =~ m!^/.*/.*/i?$!) {
       push @$data, $i;

@@ -2157,24 +2157,29 @@ sub _fill_lists {
 This makes a List object and stuffs it into the lists hash.  You can''t
 actually call any list methods without doing this to the list first.
 
+Returns true if it actually made the list, false otherwise.
+
 =cut
 sub _make_list {
   my $self = shift;
   my $list = shift;
+  my $tmp;
 
-  return if $list eq 'ALL';
-  unless ($self->{'lists'}{$list}) {
-    $self->{'lists'}{$list} =
-      new Mj::List(name      => $list,
-		   dir       => $self->{ldir},
-		   backend   => $self->{backend},
-		   callbacks =>
-		   {
-		    'mj.list_file_get' => 
-		    sub { $self->_list_config_get(@_) },
-		   },
-		  );
-  }
+  return 1 if $list eq 'ALL';
+  return 1 if $self->{'lists'}{$list};
+
+  $tmp =
+    new Mj::List(name      => $list,
+		 dir       => $self->{ldir},
+		 backend   => $self->{backend},
+		 callbacks =>
+		 {
+		  'mj.list_file_get' => 
+		  sub { $self->_list_config_get(@_) },
+		 },
+		);
+  return unless $tmp;
+  $self->{'lists'}{$list} = $tmp;
   1;
 }
 
@@ -3091,13 +3096,15 @@ what happened, and the token number is meaningless later.
 use MIME::Entity;
 sub reject {
   my ($self, $user, $pass, $auth, $int, $cmd, $mode, $list, $vict,
-      $token) = @_;
-  my $log = new Log::In 30, "$token";
+      $t) = @_;
+  my $log = new Log::In 30, "$t";
   my (%file, $data, $desc, $ent, $file, $in, $inf, $inform, $line,
-      $list_owner, $mj_addr, $mj_owner, $ok, $repl, $sess, $site);
+      $list_owner, $mj_addr, $mj_owner, $ok, $repl, $sess, $site, $token);
 
-  return (0, "Illegal token $token.\n")
-    unless !$token || ($token = $self->t_recognize($token));
+  if (defined $t) {
+    $token = $self->t_recognize($t);
+  }
+  return (0, "Illegal token $t.\n") unless $token;
 
   ($ok, $data) = $self->t_reject($token);
 
@@ -3562,7 +3569,7 @@ sub _showtokens {
 		$data->{'reminded'},
 	       );
   }
-
+  $self->{'tokendb'}->get_done;
   return (1, @out);
 }
 

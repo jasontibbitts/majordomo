@@ -242,7 +242,7 @@ sub is_subscriber {
   return $data if $data;
 
   # Otherwise see if we have enough cached data to tell us whether they're
-  # subscribed or not, so we can dave a database lookup
+  # subscribed or not, so we can save a database lookup
   $subs = $addr->retrieve('subs');
   if ($subs) {
     if ($subs->{$self->{name}}) {

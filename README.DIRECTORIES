@@ -56,6 +56,25 @@ This assumes a Majordomo system serving the imaginary domain "dom.ain".
   |   (so on for additional domains)
   |
   |
+  +-- QUEUE (directory holding incoming messages when in queueing mode)
+  |   |
+  |   +-- (one directory per domain priority)
+  |       |
+  |       +-- (one directory per domain with this priority)
+  |           |
+  |           +-- (one directory per list priority)
+  |               |
+  |               +-- list (directory holding queued list mail)
+  |               |   |
+  |               |   OAA-7033-mylist (one queue file per message) (+)
+  |               |
+  |               +-- majordomo (directory holding queued mail to majordomo)
+  |               |
+  |               +-- owner (directory holding queued mail to list owners)
+  |               |
+  |               +-- request (directory holding queued mail to -request addresses)
+  |            
+  |
   +-- SITE  (data shared between all domains)
   |   |
   |   +-- config.pl  (installation-wide configuration data)
@@ -186,4 +205,13 @@ This assumes a Majordomo system serving the imaginary domain "dom.ain".
  %) Majordomo saves information about every transaction (message headers,
     CGI environment, etc) in session files.  Sessions expire after some
     configurable time.
+
+ +) Format of queue file names, basically same as Sendmail:
+     OAA-12345-mylist
+     ||  |     |
+     ||  pid   list name
+     |unique id
+     hour of day, midnight=A
+
+    Messages queued to the majordomo address don't have '-listname' part.
 

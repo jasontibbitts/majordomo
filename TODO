@@ -34,9 +34,20 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 
 Doc changes needed
 ------------------
-Document special 'trim mbox' and 'ignore case' substitutions in addr_xforms.
+Document special substitutions in addr_xforms:
+
+  trim mbox           : tibbs+blah@math.uh.edu     => tibbs@math.uh.edu
+  ignore case         : TiBbS@math.uh.edu          => tibbs@math.uh.edu
+  mungedomain         : tibbs@karazm.math.uh.edu   => tibbs@uh.edu
+  two level           : equivalent to mungedomain
+  three level         : tibbs@a.b.c.math.uh.edu    => tibbs@math.uh.edu
+  flatten domain a.b.c: tibbs@w.x.y.a.b.c          => tibbs@a.b.c
+  map a.b.c to d.e.f  : tibbs@z.a.b.c              => tibbs@z.d.e.f
 
 Removal of database_backend variable.
+
+list:sublist notation for referencing subscribers of other lists.  (Works
+after @ in access_rules and in restrict_post.)
 
 Top of the list 
 ---------------

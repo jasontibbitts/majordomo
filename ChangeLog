@@ -1,3 +1,31 @@
+Mon Aug  2 19:20:18 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (reject): Don't clobber the given token string
+ 	if it doesn't turn out to be a real token.
+	(_showtokens): Call get_done when finished enumerating the tokens.
+
+	* lib/Mj/Token.pm (t_recognize): Don't return the random value in
+ 	$1 if the string doesn't look like a token.
+
+	* lib/Mj/SimpleDB/DB.pm: Create and destroy the database on _every
+ 	call_ to get rid of concurrency problems.
+
+Sat Jul 31 00:07:25 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Config.pm (parse_xform_array): Add 'equate domain1 and
+ 	domain2' syntax to addr_xforms.
+
+	* lib/Mj/Access.pm (_d_post): Deal with list:auxlist syntax in
+ 	restrict_post.
+
+Fri Jul 30 17:35:03 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Config.pm (parse_restrict_post): Remove ':' as a possible
+ 	separator.
+
+	* lib/Majordomo.pm (_fill_lists): Make return value a little more
+ 	meaningful.
+
 Tue Jul 27 00:53:35 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* setup/ask_domain.pl (ask_domain): Turn Mj1 conversion questions

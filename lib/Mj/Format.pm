@@ -408,6 +408,7 @@ sub reject {
       $list, $vict, $arg1, $arg2, $arg3, $ok, $mess, $token, $rreq,
       $ruser, $rcmd, $rmode, $rlist, $rvict, $rarg1, $rarg2, $rarg3,
       $rtime, $sessionid) = @_;
+  $token ||= '';
   my $log = new Log::In 29, "$type, $token";
   
   select $out;

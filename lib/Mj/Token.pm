@@ -45,8 +45,10 @@ sub t_recognize {
   my $str  = shift || "";
   my $log  = new Log::In 60;
 
-  $str =~ /([A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4})/;
-  $1;
+  if ($str =~ /([A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4})/) {
+    return $1;
+  }
+  return;
 }
 
 use AutoLoader 'AUTOLOAD';
