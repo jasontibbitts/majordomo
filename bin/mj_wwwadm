@@ -148,9 +148,9 @@ $mj = new Majordomo $::LISTDIR, $domain;
 
 #----- Generate the session information. -----#
 for my $i ('HTTP_HOST', 'REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
-  $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
+  $sess .= "X-$i: $ENV{$i}\n" if defined $ENV{$i};
 }
-$sess .= scalar(localtime(time)) . "\n";
+$sess .= "Date: " . scalar(localtime(time)) . "\n";
 
 #----- Determine the address of the user. -----#
 $falseuser = "y$ENV{'REMOTE_ADDR'}\@example.com";

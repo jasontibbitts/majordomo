@@ -78,7 +78,9 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, $domain, $extra
 
 #----- Initialize the CGI object -----#
 $cgi = new CGI;
-print $cgi->header(-expires => '+10s');
+
+$tmp = '+10s';
+print $cgi->header(-expires => $tmp);
 
 $pathinfo = $domain = '';
 if (exists $ENV{'PATH_INFO'}) {
@@ -131,9 +133,9 @@ $mj = new Majordomo $::LISTDIR, $domain;
 
 #----- Generate the session information. -----#
 for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
-  $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
+  $sess .= "X-$i: $ENV{$i}\n" if defined $ENV{$i};
 }
-$sess .= scalar(localtime(time)) . "\n";
+$sess .= "Date: " . scalar(localtime(time)) . "\n";
 
 #----- Determine the address of the user. -----#
 $falseuser   = "x$ENV{'REMOTE_ADDR'}\@example.com";

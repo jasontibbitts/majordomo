@@ -121,9 +121,9 @@ $mj = new Majordomo $::LISTDIR, $domain;
 
 #----- Generate the session information. -----#
 for $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
-  $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
+  $sess .= "X-$i: $ENV{$i}\n" if defined $ENV{$i};
 }
-$sess .= scalar(localtime(time)) . "\n";
+$sess .= "Date: " . scalar(localtime(time)) . "\n";
 
 #----- Connect to the server -----#
 ($ok, $mess) = $mj->connect('wwwconfirm', $sess);
