@@ -18,12 +18,15 @@ Unless the '-nocomments' option is used, explanatory information about
 the variable(s) will be returned as well. The default values is shown
 in parentheses, the data type is shown in square brackets, the allowed
 values (for 'enum' types) is shown between slashes, and the group(s)
-that the variable belongs to are shown in angle brackets.
+that the variable belongs to are shown in angle brackets. More syntax
+and usage information about each configset variable, including the
+list of possible values, who can change it, etc,  can be found in
+the corresponding help file, such as "help configset which_access".
 
 The response is in such a form that it can be fed back to the parser
-verbatim.  It is essentially a series of configset commands, which may
-be edited at will and sent back to the parser. You will need to put
-a "default password" line before most configshow outputs before
+verbatim.  It is essentially a series of comments and configset commands,
+which may be edited at will and sent back to the parser. You will need
+to put a "default password" line before most configshow outputs before
 using them as configset commands since they are altering the list.
 
 Occasionally the produced configset commands will be broken across
@@ -33,17 +36,19 @@ wrapping by some mailers which do not allow it to be turned off.
 Note also that only the variables that can be seen by the current
 authorization level will be returned.  This means that with no
 authentication at all, a small list of variables will still be visible
-(though of course they cannot be modified).
+(though of course they cannot be modified). Finally, note that not
+all per-list variables can be modified by the list owner - some
+require global priviliges. Refer to the help file for each configset
+variable for about passwords and visibility.
 
-Finally, note that not all per-list variables can be modified by the
-list owner. Some require global priviliges.
-
-A complete list of variables is included in "help configset".
+A complete list of variables is included in "help topics".
 
 See Also:
-   help configedit (to set the variable to a non-default value)
-   help configset  (to set the variable to a non-default value)
+   help commands      (for syntax of all commands, and 'here documents')
+   help configedit    (to set the variable to a non-default value)
+   help configset     (to set the variable to a non-default value)
    help configdefault (to have the variable track the default value)
+   help topics        (for a complete list of configset variables)
 
 For a list of all help topics send this one-line message
    help topics

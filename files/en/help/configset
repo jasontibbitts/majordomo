@@ -28,14 +28,17 @@ causes a variable to track the software defaults, and is not always the
 same as setting the variable to a null value.
 
 Unless the "= value" form of configset is used, one or more separate
-lines of data must be supplied as the new variable's value. This is
-done using a "here file" as explained in both "help admin commands"
-and "help commands". For example, to store two owners with the list
-called MYLIST:
+lines of data must be supplied as the new variable's value.  For
+example, to store two owners with the list called MYLIST:
 configset MYLIST owners <<ENDOWNERS
 joe@nowhere.com
 mary@elsewhere.com
 ENDOWNERS
+
+This is called a "here document", as explained in "help commands".
+Keep in mind that between the tags ("ENDOWNERS" in the example above)
+lines starting with dashes are special but the comment character
+loses its meaning.
 
 Some commands allow patterns or regular expressions as data fields,
 and you should review "help patterns" for an explanation of how
@@ -57,15 +60,22 @@ are altering the list and require the list password. You can review
 "help default" and "help passwords" for more details.
 
 Note also that only the variables that can be seen by the current
-authorization level can be altered. This means that with no
-authentication at all, a small list of variables may be visible
-to configshow even though they cannot be modified with configset.
+authorization level will be returned.  This means that with no
+authentication at all, a small list of variables will still be visible
+(though of course they cannot be modified). Finally, note that not
+all per-list variables can be modified by the list owner - some
+require global priviliges.
 
 Finally, note that not all per-list variables can be modified by the
 list owner. Some require global privileges. (By default, these
 variables include archive_dir, bounce_probe_frequency, debug, 
 default_language, delivery_rules, dup_lifetime, filedir, file_search, 
 file_share, token_lifetime, and token_remind.)
+
+Refer to the help file for each configset variable for about passwords
+and visibility.  More syntax and usage information about each configset
+variable, including the list of possible values, who can change it, etc,
+is in the corresponding help file, such as "help configset which_access".
 
 There no explanation here of WHY a configset might be needed or how
 they interact with each other. For that type of information, send
@@ -90,6 +100,7 @@ be viewed with the configshow command), send this to the server:
    help topics
 
 See Also:
+   help commands      (for syntax of all commands, and 'here documents')
    help configedit    (to display/set the variable from a shell prompt)
    help configshow    (to display the variable's current value)
    help configdefault (to have the variable track the default value)

@@ -21,97 +21,11 @@ For a complete list of ALL commands, see "help topics".
 
 + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 
-Section 2 - Command Syntax (same text is in "help commands")
+Section 2 - Command Syntax
 
-All Majordomo commands should be sent to $MJ
-If you have shell access, refer to "help mj_shell" for an
-alternative to sending email to the server (this same text
-may be available from "man mj_shell" at the unix prompt).
-
-Please refer to "help end" for ways to ignore automatically inserted
-signature blocks, and remember that you MUST NOT allow any text to
-be inserted at the top of your email message if that's how you send
-commands to Majordomo.
-
-At some sites, there is a "listname-request" address which will also
-accept commands pertaining to "listname", but this address is not
-always present. (If it is present, and if you use it, you don't need
-to specify the list name as part of the command itself.)
-
-An email address can generally be omitted from a command even if one
-is required by the description below. If omitted, the address found
-in your email header will be used if it can be determined.
-
-Many commands have options available to modify their behavior, and
-may take arguments to supply additional information:
- - Arguments are generally separated by spaces, but may use the "<<" syntax.
- - Options start with a dash, and follow the command name without a space.
-    (you may use an equal instead of a dash - they are exactly equivalent)
-
-All of the Majordomo2 commands and options are LOWER CASE LETTERS with
-underscore also possible. Commands CAN NOT be typed in upper case,
-so commands you see below in all caps are for illustration only.
-
-A basic command might be:
-  COMMAND
-
-A command with an option would then be:
-   COMMAND-OPT
-or if you prefer seeing it this way
-   COMMAND=OPT
-
-Commands may also have arguments after a space:
-  COMMAND ARG
-
-Commands may have both options and arguments:
-  COMMAND-OPT ARG
-
-The general case, then, is a command with several dash-separated
-options and several space-separated arguments:
-   COMMAND-OPT1-OPT2-OPT3 ARG1 ARG2 ARG3
-or the alternative
-   COMMAND=OPT1=OPT2=OPT3 ARG1 ARG2 ARG3
-
-If options are allowed, the help file description of the command
-will show all options strung together. Keep in mind that some or
-all of the options can be dropped.
-
-If arguments are allowed, the help file description of the
-command will show REQUIRED arguments with plain names, and
-NON-REQUIRED arguments in square brackets. For example
-   COMMAND ARG1 [ARG2]
-indicates that COMMAND must have one argument, and may have two.
-Read the description carefully to find out what each arg does.
-
-If that's not enough complexity, some arguments require several
-lines of input, not just a word or two. In these cases a syntax
-is used that Unix people will recognize:
-   COMMAND-OPT <<TAG
-DATA1
-DATA2
-TAG
-
-This is sometimes called a "here file" because all argument lines
-after "<<TAG" and before the matching "TAG" (shown above as "DATA1"
-and "DATA2" are stored in the command as if they had been read from
-a file. You can use your own string for "TAG", with a few restrictions:
-  - the string must be letters and numbers only, no punctuation or spaces
-  - the string must begin with at least three upper case letters
-  - the string must end with upper case letters and numbers [A-Z0-9]
-  - the end "TAG" must be on a line by itself (no indents or comments)
-It is wise to use different tags for different commands, so they don't
-accidentally mismatch due to typing errors.
-
-In addition to the '<<' syntax for supplying arguments to a command, there
-is the '<@' syntax.  When followed by a number, this references the
-numbered attachment.  (Number 1 being the attachment following the part
-containing the commands.)  From the shell interface, this references the
-numbered '-f' argument.  (Read the mj_shell manual page for more
-information, or send "help mj_shell" to the server.  Note that the shell
-interface is only available to users local to the machine running Majordomo.)
-This enables the upload of binary files and the like by attaching them to
-the command message and doing something like the following:
-  approve password put-data mylist image/jpeg none base64 A Picture <@ 1
+See "help commands" for information on how to format general commands.
+See "help configset" and "help configshow" for more information about
+the syntax of those commands (both input and output).
 
 
 + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +

@@ -23,7 +23,7 @@ For a complete list of ALL commands, see "help topics".
 
 + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 
-Section 2 - Command Syntax (same text is in "help admin commands")
+Section 2 - Command Syntax
 
 All Majordomo commands should be sent to $MJ
 If you have shell access, refer to "help mj_shell" for an
@@ -43,6 +43,12 @@ to specify the list name as part of the command itself.)
 An email address can generally be omitted from a command even if one
 is required by the description below. If omitted, the address found
 in your email header will be used if it can be determined.
+
+Comments can be included as lines before or after commands. Comments
+start with the first # on a line, and continue to the end  of the line.
+There is no way to "escape" the # character (e.g. to keep it from
+causing the rest of the line to be ignored). Within a here document
+(described below), the # sign is NOT a comment character.
 
 Many commands have options available to modify their behavior, and
 may take arguments to supply additional information:
@@ -90,7 +96,7 @@ lines of input, not just a word or two. In these cases a syntax
 is used that Unix people will recognize:
    COMMAND-OPT <<TAG
 DATA1
-DATA2
+DATA2 DATA3
 TAG
 
 This is sometimes called a "here file" because all argument lines
@@ -103,6 +109,15 @@ a file. You can use your own string for "TAG", with a few restrictions:
 It is wise to use different tags for different commands, so they don't
 accidentally mismatch due to typing errors.
 
+The "#" character is NOT a comment character between the tags! A blank
+line is allowed only as the last line in the here document.  Within a here
+document for a string_array, the '-' sign takes on a special significance.
+   To embed a blank line in the here document, put a '-' as the first
+       and ONLY character on the line.
+   To preserve whitespace at the beginning of a line, put a - on the
+       line before the whitespace to be preserved
+   To put a literal '-' at the beginning of a line, double it.
+
 In addition to the '<<' syntax for supplying arguments to a command, there
 is the '<@' syntax.  When followed by a number, this references the
 numbered attachment.  (Number 1 being the attachment following the part
@@ -114,6 +129,8 @@ This enables the upload of binary files and the like by attaching them to
 the command message and doing something like the following:
   approve password put-data mylist image/jpeg none base64 A Picture <@ 1
 
+See "help configset" and "help configshow" for more information about
+the syntax of those commands (both input and output).
 
 + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 
