@@ -8,32 +8,32 @@
     Command:&nbsp;&nbsp;
     <select name=func>
       <option> help
-      <option> archive-index
+      <option> accept
       <option> archive-get
+      <option> archive-index
       <option> archive-stats
+      <option> configdef
+      <option> configset
+      <option> configshow
       <option> digest-force
       <option> digest-incvol
       <option> digest-status
-      <option> report
-      <option> report-full
-      <option> report-summary
-      <option> accept
-      <option> configdef
-      <option> configshow
-      <option> configshow-categories
-      <option> configset
       <option> get
       <option> get-edit
       <option> index-recursive
       <option> reject
+      <option> report
+      <option> report-full
+      <option> report-summary
       <option> sessioninfo
       <option> set
       <option> showtokens
       <option> subscribe
+      <option> subscribe-nowelcome
       <option> tokeninfo
+      <option> unregister
       <option> unsubscribe
       <option> unsubscribe-farewell
-      <option> unregister
       <option> which
       <option> who
       <option> who-bounce
