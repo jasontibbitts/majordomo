@@ -1704,7 +1704,7 @@ sub help_start {
 
   $subs =
     {
-     $self->standard_subs($list),
+     $self->standard_subs('GLOBAL'),
      USER     => $request->{'user'},
     };
 
