@@ -361,6 +361,20 @@ sub createlist {
 				       $owner, $list));
 }
 
+sub digest {
+  my ($mj, $name, $user, $passwd, $auth, $interface,
+      $infh, $outfh, $mode, $list, $args, @arglist) = @_;
+  my $log = new Log::In 27;
+  my @args  = split(" ", $args);
+  my @stuff = ($user, $passwd, $auth, $interface,
+	       "digest".($mode?"-$mode":"")." $args", $mode, $list, $user);
+
+  Mj::Format::digest($mj, $outfh, $outfh, 'text', @stuff, $args, '', '',
+		      $mj->dispatch('digest', @stuff, @args));
+}
+
+
+
 sub faq {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;

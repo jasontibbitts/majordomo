@@ -1,4 +1,34 @@
+Mon Mar  8 00:00:51 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Format.pm (digest): New function.
+
+	* lib/Mj/TextOutput.pm (digest): New function.
+
+	* lib/Majordomo.pm (digest): New function: interface to digest.
+
 Sun Mar  7 00:40:37 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Digest.pm (trigger): Overhaul to force (override
+ 	decide()) and to accept a list of digests to trigger.
+	(add): Call the trigger function with new arguments.
+
+	* lib/Mj/List.pm (digest_incissue): New function.
+	(digest_incvol): New function.
+
+	* lib/Mj/Resend.pm (_do_digests): Excise issue incrementing code,
+ 	call digest_incissue.
+
+	* lib/Mj/Digest/Build.pm (idx_subject_author): Fix undef warning.
+	(idx_subject_author): Overhaul idx_subject_author.
+
+	* lib/Mj/Digest/MIME.pm (new): Remove problems with {index} =>
+ 	{'index'}.
+
+	* lib/Mj/Digest.pm (trigger): Updated to take a lists of digests
+ 	to trigger (default to all of them) and an argument to force
+ 	generation regardless of other limitations.
+
+	* lib/Mj/CommandProps.pm: Add 'digest' command.
 
 	* lib/Mj/Digest/MIME.pm: Handle 'preindex', 'postindex', and
  	'footer' correctly.

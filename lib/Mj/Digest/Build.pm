@@ -141,6 +141,10 @@ This formats an index line like the following:
 
 Original code by Jeff Wasilko. '
 
+The idea here is to try to show things on one line, but break otherwise.
+The original truncated the From: header; this just breaks the line instead.
+(There is no requirement that index entries take only one line.)
+
 =cut
 sub idx_subject_author {
   my ($type, $msg, $data) = @_;
@@ -148,16 +152,29 @@ sub idx_subject_author {
 
   $sub = $data->{'subject'};
   $sub = '(no subject)' unless length $sub;
+  $from = $data->{from};
 
-  if (length("$sub $from") > 74) {
-    return "  $sub\n" . (' ' x int(74-length($data->{'from'}))) .
-      "[$data->{'from'}]\n";
+  if (length("$sub $data->{'from'}") > 72) {
+    return "  $sub\n" . (' ' x int(74-length($from))) . "[$from]\n";
   }
 
-  $from = substr($data->{'from'},0,71-length($sub));
   $width = length($from) + length($sub);
   return "  $sub " . (' ' x int(71 - $width)) . "[$from]\n";
 }
+
+
+#   $sub = $data->{'subject'};
+#   $sub = '(no subject)' unless length $sub;
+
+#   if (length("$sub $data->{'from'}") > 74) {
+#     return "  $sub\n" . (' ' x int(74-length($data->{'from'}))) .
+#       "[$data->{'from'}]\n";
+#   }
+
+#   $from = substr($data->{'from'},0,71-length($sub));
+#   $width = length($from) + length($sub);
+#   return "  $sub " . (' ' x int(71 - $width)) . "[$from]\n";
+# }
 
 =head1 COPYRIGHT
 

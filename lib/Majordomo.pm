@@ -2866,6 +2866,55 @@ sub _createlist {
   return (1, $mess);
 }
 
+=head2 digest
+
+This implements an interface to various digest functionality:
+
+  incrementing the volume number (and resetting the issue number)
+  forcing a digest to be run
+  checking to see whether a digest should be run (according to the various
+    digest parameters)
+
+=cut
+sub digest {
+  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
+      $list, $vict, $digest) = @_;
+  my $log = new Log::In 30, "$mode, $list, $digest";
+
+  ($ok, $mess) =
+    $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
+			     $list, 'digest', $user, '', $digest, '','');
+
+  unless ($ok > 0) {
+    $log->out("noaccess");
+    return ($ok, $mess);
+  }
+  $self->_digest($list, $user, $vict, $mode, $cmdline, $digest);
+}
+
+sub _digest {
+  my ($self, $list, $requ, $vict, $mode, $cmd, $digest) = @_;
+  $digest ||= 'ALL';
+  my $log  = new Log::In 35, "$mode, $list, $digest";
+  my ($d, $digests, $i);
+
+  $d = [$digest];
+  $d = undef if $digest eq 'ALL';
+
+  $self->_make_list($list);
+
+  # check: call list->digest_trigger
+
+  # force: call list->digest_trigger?
+
+  # incvol: call list->digest_incvol
+  if ($mode =~ /incvol/) {
+    $self->{'lists'}{$list}->digest_incvol($d);
+    return (1, "Volume numbers for $digest incremented.\n");
+  }
+}
+
+
 =head2 lists
 
 Perform the lists command.  This gets the visible lists and their

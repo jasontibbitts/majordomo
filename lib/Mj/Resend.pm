@@ -1468,18 +1468,7 @@ sub _do_digests {
       # Extract volumes and issues, then write back the incremented values.
       # Note that when we set the new value, we must do it in an unparsed
       # form.  Hence the weird string-building code.
-      @tmp = ();
-      $self->_list_config_lock($list);
-      $dissues = $self->_list_config_get($list, 'digest_issues');
-      
-      for $i (keys %$digests) {
-	next if $i eq 'default_digest';
-	$dissues->{$i}{volume} ||= 1; $dissues->{$i}{issue} ||= 1;
-	push @tmp, "$i : $dissues->{$i}{volume} " .
-	  " : " . ($dissues->{$i}{issue}+($digest{$i} ? 1 : 0));
-      }
-      $self->_list_config_set($list, 'digest_issues', @tmp);
-      $self->_list_config_unlock($list);
+      $dissues = $self->{lists}{$list}->digest_incissue([keys(%digest)], $digests);
 
       # Now have a hash of digest name, listref of [article, data] pairs.
       # For each digest, build the three types and for each type and then
@@ -1522,6 +1511,8 @@ sub _do_digests {
 #	   index_header => "index header\n",
 #	   index_footer => "index footer\n",
 	  );
+
+	# Unlink the temporaries.
 
 	for $j (@dtypes) {
 	  # shifting off an element of @dfiles gives the corresponding digest

@@ -136,3 +136,32 @@ ack_timeout
 
 Sent when a token/spooled message is deleted after expiration without being
 accepted or rejected.
+
+digest files
+------------
+
+Majordomo uses various files to fill in pieces of the digests.
+
+There are three places in where files are used in digests:
+  before the index (preindex)
+  after the index (postindex)
+  at the very end (footer)
+
+There are three types of digest:
+  text
+  mime
+  index  (index digests have no footers)
+
+The list owner can define any number of named digests with various
+generation parameters.
+
+Majordomo will look for the following files in the usual search list for
+the preindex text:
+
+   digest_name_type_preindex
+   digest_name_preindex
+   digest_type_preindex
+   digest_preindex
+
+Of course, 'name' is replaced by the digest name and 'type is replaced by
+the type.  Similarly for postindex and footer.

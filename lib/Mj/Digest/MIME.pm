@@ -61,11 +61,11 @@ sub new {
   $self->{indexfn}   = $args{indexfn};
 
   # Pull in the index.
-  $self->{index} = "";
+  $self->{'index'} = "";
   if ($args{preindex}) {
     $fh = new IO::File "<$args{preindex}{name}";
     while (defined($i = <$fh>)) {
-      $self->{index} .= $i;
+      $self->{'index'} .= $i;
     }
   }
 
@@ -132,7 +132,7 @@ sub done {
   if ($self->{postindex}{name}) {
     $fh = new IO::File "<$self->{postindex}{name}";
     while (defined($i = <$fh>)) {
-      $self->{index} .= $i;
+      $self->{'index'} .= $i;
     }
   }
 

@@ -1410,8 +1410,114 @@ the same as digest_add.
 sub digest_trigger {
   my $self = shift;
   $self->_make_digest;
-  $self->{digest}->trigger;
+  $self->{digest}->trigger(@_);
 }
+
+=head2 digest_incvol(inc, digests)
+
+Increment the volume numbers and reset the issue numbers for the given
+digests.
+
+$inc is a list of digests to increment the volume numbers of.  All digests
+wil have their volume numbers incremented if this is not defined.
+
+$digests is the parsed 'digests' variable; it will be extracted if not
+defined.
+
+=cut
+sub digest_incvol {
+  my $self    = shift;
+  my $inc     = shift;
+  my $digests = shift;
+  my $log = new Log::In 150;
+  my (%inc, @tmp, $i, $issues);
+
+  $digests ||= $self->config_get('digests');
+  $inc     ||= [keys(%$digests)];
+
+  use Data::Dumper; print Dumper $inc;
+
+  # Build a quick lookup hash
+  for $i (@$inc) {
+    $inc{$i} = 1;
+  }
+
+  $self->config_lock;
+  # In critical section
+
+  $issues = $self->config_get('digest_issues');
+
+  # Note that we iterate over all defined digests (and skip the default
+  # entry) because we need to rebuild the complete structure, even for the
+  # items which aren't changing.
+  for $i (keys(%$digests)) {
+    next if $i eq 'default_digest';
+    $issues->{$i}{volume} ||= 1; $issues->{$i}{issue} ||= 1;
+    if ($inc{$i}) {
+      # If we're in the set to be changed, up the volume and reset the
+      # issue to 1
+      push @tmp, "$i : " . ($issues->{$i}{volume}+1) ." : 1";
+    }
+    else {
+      # Else leave it alone completely
+      push @tmp, "$i : $issues->{$i}{volume} : $issues->{$i}{issue}";
+    }
+  }
+  $self->config_set('digest_issues', @tmp);
+
+  # Exit critical section
+  $self->config_unlock;
+
+  return $issues;
+}
+
+=head2 digest_incissue(inc, digests)
+
+Increment the issue numbers for the given digests.
+
+$inc is a listref of digest names which will have their issue numbers
+incremented.  $digests is the parsed 'digests' variable; it is looked up if
+not provided.
+
+Returns the final 'digest_issues' structure.
+
+=cut
+sub digest_incissue {
+  my $self    = shift;
+  my $inc     = shift;
+  my $digests = shift;
+  my $log = new Log::In 150;
+  my (%inc, @tmp, $i, $issues);
+
+  $digests ||= $self->config_get('digests');
+
+  # Build a quick lookup hash
+  for $i (@$inc) {
+    $inc{$i} = 1;
+  }
+
+  $self->config_lock;
+  # In critical section
+
+  $issues = $self->config_get('digest_issues');
+
+  # Note that we iterate over all defined digests (and skip the default
+  # entry) because we need to rebuild the complete structure, even for the
+  # items which aren't changing.
+  for $i (keys(%$digests)) {
+    next if $i eq 'default_digest';
+    $issues->{$i}{volume} ||= 1; $issues->{$i}{issue} ||= 1;
+    push @tmp, "$i : $issues->{$i}{volume} " .
+      " : " . ($issues->{$i}{issue}+($inc{$i} ? 1 : 0));
+  }
+  $self->config_set('digest_issues', @tmp);
+
+  # Exit critical section
+  $self->config_unlock;
+
+  return $issues;
+}
+
 
 =head1 COPYRIGHT
 

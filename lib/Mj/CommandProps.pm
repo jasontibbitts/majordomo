@@ -180,6 +180,16 @@ my %commands =
 		   'actions' => \%reg_actions,
 		  },
    },
+   'digest' =>
+   {
+    'parser' => [qw(email shell list nohereargs real)],
+    'dispatch' => {'top' => 1},
+    'access'   => {
+		   'default' => 'deny',
+		   'legal'   => \%reg_legal,
+		   'actions' => \%reg_actions,
+		  },
+   },
    'faq' =>
    {
     'parser'   => [qw(email shell list global real)],

@@ -140,7 +140,7 @@ sub add {
   }
 
   # Trigger a run?
-  %out = $self->trigger($state);
+  %out = $self->trigger(undef, undef, $state);
 
   $self->_close_state($state, 1);
   %out;
@@ -152,41 +152,47 @@ This sets the volume number of the digest.  If number is not defined, the
 existing number is simply incremented.
 
 =cut
-sub volume {
-  my $self = shift;
-  my $num  = shift;
+# sub volume {
+#   my $self = shift;
+#   my $num  = shift;
   
-  if (defined $num) {
-    $self->{'state'}{'volume'} = $num;
-  }
-  else {
-    $self->{'state'}{'volume'}++;
-  }
-  1;
-}
+#   if (defined $num) {
+#     $self->{'state'}{'volume'} = $num;
+#   }
+#   else {
+#     $self->{'state'}{'volume'}++;
+#   }
+#   1;
+# }
 
-=head2 trigger(digest)
+=head2 trigger(digests, force, state))
 
-This triggers the decision algorithm by running through all defined digests
-and running 'decide'.  It also opens and closes the state file if
-necessary.
+This triggers the decision algorithm by running through the provided
+listref of digests (or, if undefined, all defined digests) and running
+'decide' (unless $force is true, in which case a digest is forced).  It
+also opens and closes the state file if necessary.
 
 Returns a hash keyed on digest names of lists of [article, data] lists.
 
 =cut
 sub trigger {
-  my $self  = shift;
-  my $state = shift;
+  my $self    = shift;
+  my $digests = shift;
+  my $force   = shift;
+  my $state   = shift;
   my $log = new Log::In 250;
-  my (%out, @msgs, $change, $close, $i, $push);
+  my (%out, @msgs, $change, $close, $i, $push, $run);
 
   unless ($state) {
     $state = $self->_open_state;
     $close = 1;
   }
 
-  for $i (@{$self->{digests}}) {
-    $push = $self->decide($state->{$i}, $self->{decision}{$i});
+  $run = $digests;
+  $run ||= $self->{digests};
+
+  for $i (@{$run}) {
+    $push = $force || $self->decide($state->{$i}, $self->{decision}{$i});
     $change ||= $push;
     if ($push) {
       @msgs = $self->choose($state->{$i}, $self->{decision}{$i});

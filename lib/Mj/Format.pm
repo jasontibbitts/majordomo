@@ -191,6 +191,21 @@ sub createlist {
   $ok;
 }
 
+sub digest {
+  my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
+      $list, $vict, $digest, $arg2, $arg3, $ok, $mess) = @_;
+
+  unless ($ok > 0) {
+    eprint($out, $type, "Digest-$mode failed.\n");
+    eprint($out, $type, &indicate($mess, $ok));
+    return $ok;
+  }
+
+  eprint($out, $type, "$mess") if $mess;
+
+  $ok;
+}
+
 sub filesync {}
 
 sub faq   {g_get("FAQ failed.",   @_)}
