@@ -1,0 +1,1628 @@
+                     Fichiers de format Majordomo
+
+Majordomo utilise des fichiers formatés pour permettre aux résultats
+des commandes d'être personnalisées suivant l'interface, et
+potentiellement, le langage utilisé par la personne faisant la
+requête.
+
+Les fichiers de format sont des patrons qui supportent des
+substitutions de variables. Référez vous à "help variables" pour plus
+d'informations sur l'utilisation de ces mots clés variables.
+
+Il y a maintenant quatre interfaces supportées : text, wwwadm,
+wwwconfirm et wwwusr. L'interface text est utilisée pour les réponses
+par email et via le programme "mj_shell". Les interfaces wwwadm,
+wwwconfirm et wwwusr sont utilisés par les CGI. La majorité des
+fichiers ne sont pas supportés par les quatre interfaces. Les
+interfaces intéressées sont listées entre parenthèses au début de la
+description de chaque fichiers.
+
+Il est possible de récupérer n'importe lequel de ces fichiers en
+utilisant la commande get, en relation avec le nom de l'interface. Par
+exemple, pour récupérer le fichier "configshow_categories" de
+l'interface wwwadm, utilisez la commande :
+  get-edit GLOBAL /format/wwwadm/configshow_categories
+
+La commande get-edit entoure le fichier d'une commande "put" rendant
+l'édition et le remplacement plus facile. Notez que les fichiers de
+format sont stockés dans un dossier qui est utilisé par tous les
+domaines sur ce site. Si vous utilisez la commande "put" pour
+améliorer des fichiers de formats, le fichier que vous créerez sera en
+fait une copie qui sera stockés dans l'espace de stockage de la liste
+spécifiée. Référez vous à "help admin_domain" pour plus de détails à
+propos des domaines gérés par Majordomo.
+
+Les dossiers qui contiennent ces fichiers modifiés ne sont pas créés
+automatiquement. Il sera peut être nécessaire de les créer avec la
+commande "put-dir" avant d'éditer des fichiers. Référez vous à "help
+put" et "help index" pour plus de détails.
+
+
+accept
+------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche un résumé du résultat
+lorsqu'un ticket "consult" a été accepté.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, FAIL,
+ MODE, NOTIFIED, REQUESTER, SESSIONID, STALL, SUCCEED, TOKEN, USER,
+ VICTIM)
+
+
+accept_error
+------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsqu'une commande
+"accept" échoue complètement, ou lorsqu'un ticket qui a été accepté
+échoue.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOKEN, USER)
+
+
+accept_foot
+-----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché à la fin du
+résultat lorsqu'un ticket non "consult" est accepté.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, MODE,
+ NOTIFIED, REQUESTER, SESSIONID, TOKEN, USER, VICTIM)
+
+
+accept_head
+-----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché avant le résultat
+lorsqu'un ticket non "consult" est accepté.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, MODE,
+ NOTIFIED, REQUESTER, SESSIONID, TOKEN, USER, VICTIM)
+
+
+accept_stall
+------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsqu'un ticket
+qui a été accepté requiert plus d'approbation.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOKEN, USER)
+
+
+alias
+-----
+(ALL)  Ce fichier est affiché lorsque la commande "alias" réussi.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER, VICTIM)
+
+
+alias_error
+-----------
+(ALL)  Ce fichier est affiché lorsque la commande "alias" est mise en
+attente ou échoue.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER, VICTIM)
+
+
+announce
+--------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsque la commande
+"annouce" a réussi.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, FILE, USER)
+
+
+announce_error
+--------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsque la commande
+"announce" est mise en attente ou échoue.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, FILE, USER)
+
+
+archive_attachment
+------------------
+(ALL)  Ce fichier affiche un résumé des informations à propos des
+parties de messages qui ne sont pas en texte brut, qui n'est pas un
+conteneur (comme multipart/mixed) ou une image.
+
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE,
+ BYTES, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, DATE_NEXT, DATE_PREV,
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, QUOTED,
+ REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART,
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+
+
+archive_container
+-----------------
+(ALL)  Ce fichier affiche un résumé des informations à propos des
+parties de messages qui est un conteneur (comme multipart/related).
+
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE,
+ BYTES, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, DATE_NEXT, DATE_PREV,
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, QUOTED,
+ REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART,
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+
+
+archive_edit_foot
+-----------------
+(ALL)  Ce fichier affiche la balise de fin qui permet à une partie
+d'un message ou à ses en-têtes d'être édité et remplacé.
+
+(standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, MSGNO,
+ PART, SIZE, USER)
+
+
+archive_edit_head
+-----------------
+(ALL)  Ce fichier affiche une commande ou un formulaire HTML qui
+permet à une partie d'un message ou à ses en-têtes d'être édité et
+remplacé.
+
+(standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, MSGNO,
+ PART, SIZE, USER)
+
+
+archive_error
+-------------
+(ALL)  Ce fichier est affiché lorsque la commande "archive" est mis en
+attente ou échoue.
+
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOTAL_POSTS, USER)
+
+
+archive_foot
+------------
+(ALL)  Ce fichier est affiché en bas de la sortie de la commande
+"archive-index".
+
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+
+
+archive_get_foot
+----------------
+(ALL)  Ce fichier est affiché en bas de la sortie des commandes
+"archive-get" et "archive-delete".
+
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+
+
+archive_get_head
+----------------
+(ALL)  Ce fichier est affiché avant la sortie des commandes
+"archive-get" et "archive-delete".
+
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+
+
+archive_head
+------------
+(ALL)  Ce fichier est affiché avant la sortie des commandes
+"archive-get" et "archive-delete".
+
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+
+
+archive_header
+--------------
+(ALL)  Ce fichier affiche les en-têtes de bases d'un message, comme le
+From, le Sujet et la Date.
+ 
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE,
+ BYTES, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, DATE_NEXT, DATE_PREV,
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, QUOTED,
+ REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART,
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER, et autres)
+
+
+archive_image
+-------------
+(ALL)  Ce fichier affiche un résumé des informations à propos d'une
+image attachée à un message. Dans les interfaces WWW, l'image est
+affichée dans la page.
+
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE,
+ BYTES, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, DATE_NEXT, DATE_PREV,
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, QUOTED,
+ REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART,
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+
+
+archive_index
+-------------
+(ALL)  Ce fichier est affiché pour chaque message résultant de la
+commande "archive-index".
+
+(standard plus BODY_LINES, BYTE, BYTES, CGIDATA, CGIURL, CMDPASS,
+ DATE, FROM, HIDDEN, LINE, LINES, MSGNO, QUOTED, REFS, SIZE, SPLIT,
+ SUBJECT, TOTAL_POSTS, USER)
+
+
+archive_msg_foot
+----------------
+(ALL)  Ce fichier est affiché à la fin d'un groupe de messages lorsque
+la commande "archive-get-immediate" est utilisée.
+
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE,
+ BYTES, CGIDATA, CGIURL, CMDPASS, DATE_NEXT, DATE_PREV, FROM, LINE,
+ LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, QUOTED, REFS, SIZE, SPLIT,
+ SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, THREAD_NEXT, THREAD_PREV,
+ TOTAL_POSTS, USER)
+
+
+archive_msg_head
+----------------
+(ALL)  Ce fichier est affiché au début d'un groupe de message lorsque
+la commande "archive-get-immediate" est utilisée.
+
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE,
+ BYTES, CGIDATA, CGIURL, CMDPASS, DATE_NEXT, DATE_PREV, FROM, LINE,
+ LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, QUOTED, REFS, SIZE, SPLIT,
+ SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, THREAD_NEXT, THREAD_PREV,
+ TOTAL_POSTS, USER)
+
+
+archive_none
+------------
+(ALL)  Ce fichier est affiché lorsqu'aucun message n'a été trouvé dans
+cette archive.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+
+
+archive_part_delete
+-------------------
+(ALL)  Ce fichier indique qu'une partie du corps d'un message a été
+supprimé.
+
+(standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, MSGNO, PART, USER)
+
+
+archive_part_replace
+--------------------
+(ALL)  Ce fichier indique qu'une partie du corps d'un message a été
+remplacée.
+
+(standard plus ARCHIVE, CGIDATA, CGIURL, CMDPASS, MSGNO, PART, USER)
+
+
+archive_stats
+-------------
+(ALL)  Ce fichier est affiché lorsque la commande "archive-stats" est
+utilisée.
+
+(standard plus AUTHORS, CGIDATA, CGIURL, CMDPASS, FINISH, KILOBYTES,
+ POSTS, START, TOTAL_KILOBYTES, TOTAL_POSTS, USER)
+
+
+archive_summary
+---------------
+(ALL)  Ce fichier affiche les statistiques d'une liste lorsque la
+commande "archive-summary" est utilisée.
+
+(standard plus BYTES, CGIDATA, CGIURL, CMDPASS, FILE, LINES, MSGS,
+ SIZE, TOTAL_POSTS, USER)
+
+
+archive_summary_foot
+--------------------
+(ALL)  Ce fichier est affiché en dessous de la sortie de la commande
+"archive-summary".
+
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+
+
+archive_summary_head
+--------------------
+(ALL)  Ce fichier est affiché au dessus de la sortie de la commande
+"archive-summary".
+
+(standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
+
+
+archive_text_foot
+-----------------
+(ALL)  Ce fichier est affiché à la suite d'une partie en texte brut
+d'un message.
+
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE,
+ BYTES, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, DATE_NEXT, DATE_PREV,
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, QUOTED,
+ REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART,
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+
+
+archive_text_head
+-----------------
+(ALL)  Ce fichier est affiché avant le début d'une partie en texte
+brut d'un message.
+
+(standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES, BYTE,
+ BYTES, CGIDATA, CGIURL, CMDPASS, CONTENT_TYPE, DATE_NEXT, DATE_PREV,
+ FROM, LINE, LINES, MSGNO, NUMERIC_NEXT, NUMERIC_PREV, PART, QUOTED,
+ REFS, SIZE, SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, SUBPART,
+ THREAD_NEXT, THREAD_PREV, TOTAL_POSTS, USER)
+
+
+changeaddr
+----------
+(ALL)  Ce fichier est affiché lorsque la commande "changeaddr" réussi.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, QSADDR, STRIPADDR, USER,
+ VICTIM)
+
+
+changeaddr_error
+----------------
+(ALL)  Ce fichier est affiché lorsque la commande "changeaddr" échoue
+ou est mise en attente.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, QSADDR, STRIPADDR,
+ USER, VICTIM)
+
+
+command
+-------
+(wwwadm)  Ce fichier affiche un formulaire de commandes, une manière
+simple d'exécuter des commandes qui ne sont pas supportées par
+l'interface.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
+
+
+configdef
+---------
+(text, wwwadm)  Ce fichier est affiché lorsqu'un paramètre de
+configuration est remis à sa valeur par défaut.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SETTING, USER)
+
+
+configdef_error
+---------------
+(text, wwwadm)  Ce fichier est affiché lorsqu'un paramètre de
+configuration n'est pas remis à sa valeur par défaut.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, SETTING, USER)
+
+
+configset
+---------
+(text, wwwadm)  Ce fichier est affiché lorsqu'un paramètre de
+configuration est modifié.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SETTING, USER, VALUE)
+
+
+configset_append
+----------------
+(text, wwwadm)  Ce fichier est affiché lorsqu'un paramètre de 
+configuration est modifié en lui ajoutant une valeur.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SETTING, USER, VALUE)
+
+
+configset_error
+---------------
+(text, wwwadm)  Ce fichier est affiché lorsque la commande "configset"
+échoue.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, SETTING, USER, VALUE)
+
+
+configset_extract
+-----------------
+(text, wwwadm)  Ce fichier est affiché lorsqu'un paramètre de
+configuration est modifié en lui enlevant une partie de sa valeur.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SETTING, USER, VALUE)
+
+
+configshow
+----------
+(text, wwwadm)  Ce fichier affiche le commentaire et la valeur d'un
+paramètre de configuration. Il est utilisé pour tous les paramètres
+qui n'entrent pas dans une catégorie plus spécifique (tableau,
+énumération, court; regardez ci dessous pour plus de détails).
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMENT, SETCOMMAND, USER,
+ VALUE, SETTING, LEVEL)
+
+
+configshow_array
+----------------
+(text, wwwadm)  Ce fichier affiche le commentaire et la valeur d'un 
+paramètre de configuration. Il est utilisé pour tous les paramètres
+qui requièrent un tableau de valeurs.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMENT, LINES, SETCOMMAND,
+ USER, VALUE, SETTING, LEVEL)
+
+
+configshow_bool
+---------------
+(text, wwwadm)  Ce fichier affiche le commentaire et la valeur d'un
+paramètre de configuration. Il est utilisé pour tous les paramètres,
+comme "moderate", qui ont deux valeurs, oui et non.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMENT, LEVEL, NO
+ SETCOMMAND, SETTING, USER, VALUE, YES)
+
+
+configshow_categories
+---------------------
+(text, wwwadm)  Ce fichier affiche les informations d'une catégorie de
+configuration.
+
+(standard plus CATEGORY, CGIDATA, CGIURL, CMDPASS, COMMENT, COUNT,
+ SETTING, SETTINGS, USER)
+
+
+configshow_categories_foot
+--------------------------
+(text, wwwadm)  Ce fichier affiche des informations supplémentaires
+après la liste des catégories de configurations.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+configshow_categories_head
+--------------------------
+(text, wwwadm)  Ce fichier affiche des informations préliminaires
+avant la liste des catégories de configurations.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+configshow_enum
+---------------
+(text, wwwadm)  Ce fichier affiche le commentaire et la valeur d'un
+paramètre de configuration. Il est utilisé pour tous les paramètres,
+comme "subscribe_policy", qui requièrent des valeurs spécifiques.
+
+(standard plus CGIDATA, CGIURL, CHECKED, CMDPASS, COMMENT, SELECTED,
+ SETCOMMAND, SETTINGS, USER, VALUE, SETTING, LEVEL)
+
+
+configshow_enum_array
+---------------------
+(text, wwwadm)  Ce fichier affiche le commentaire et la valeur d'un
+paramètre de configuration. Il est utilisé pour tous les paramètres,
+comme "aliases", qui requièrent une ou plusieurs valeurs spécifiques.
+
+(standard plus CGIDATA, CGIURL, CHECKED, CMDPASS, COMMENT, SELECTED,
+ SETCOMMAND, SETTINGS, USER, VALUE, SETTING, LEVEL)
+
+
+configshow_error
+----------------
+(text, wwwadm)  Ce fichier affiche un message d'erreur si la commande
+"configshow" échoue.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
+configshow_foot
+---------------
+(text, wwwadm)  Ce fichier affiche des informations supplémentaires en
+dessous de la sortie de la commande "configshow". Il n'est pas utilisé
+dans le mode par catégories.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMENT, USER)
+
+
+configshow_head
+---------------
+(text, wwwadm)  Ce fichier affiche des informations supplémentaires au
+dessus de la sortie de la commande "configshow". Il n'est pas utilisé
+dans le mode par catégories.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMENT, USER)
+
+
+configshow_none
+---------------
+(text, wwwadm)  Ce fichier affiche un message indiquant qu'aucun
+paramètre visible n'a été trouvé.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+configshow_short
+----------------
+(text, wwwadm)  Ce fichier affiche le commentaire et la valeur d'un
+paramètre de configuration. Il est utilisé pour tous les paramètres
+qui ont une valeur courte (numérique ou un mot).
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMENT, SETCOMMAND, USER,
+ VALUE, SETTING, LEVEL)
+
+
+createlist
+----------
+(text, wwwadm, wwwconfirm)  Ce fichier indique qu'une nouvelle liste a
+été créée, et affiche de nouvelles informations à propos de cette
+liste.
+
+(standard plus ALIASES, CGIDATA, CGIURL, CMDPASS, INACTIVE, NEWLIST,
+ NOARCHIVE, OWNERS, PASSWORD, USER, WELCOME)
+
+
+createlist_destroy
+------------------
+(text, wwwadm, wwwconfirm)  Ce fichier indique qu'une liste a été
+détruite, et affiche les informations à propos de cette liste.
+
+(standard plus ALIASES, CGIDATA, CGIURL, CMDPASS, NEWLIST, USER)
+
+
+createlist_error
+----------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche les raisons qui
+explique qu'une liste n'a pu être créée, détruite ou renommée.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, NEWLIST, USER)
+
+
+createlist_nocreate
+-------------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche les alias d'une liste.
+
+(standard plus ALIASES, CGIDATA, CGIURL, CMDPASS, NEWLIST, USER)
+
+
+createlist_regen
+----------------
+(text, wwwadm, wwwconfirm)  Ce fichier indique que les alias de chaque
+liste de ce domaine ont été régénérés.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+createlist_rename
+----------
+(text, wwwadm, wwwconfirm)  Ce fichier indique qu'une liste a été
+renommée, et affiche des informations à propos de cette liste.
+
+(standard plus ALIASES, CGIDATA, CGIURL, CMDPASS, NEWLIST, OLDALIASES,
+ OLDLIST, USER)
+
+
+digest
+------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche le nombre d'envois
+qu'une compilation a eu.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, DIGESTNAME, ISSUES, USER)
+
+
+digest_error
+------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsque la commande
+digest échoue ou est mise en attente.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
+digest_foot
+-----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché après la liste des
+envois de compilation réussies, lorsque les commandes "digest-check"
+ou "digest-force" aient été utilisées.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+digest_head
+-----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché avant que la liste
+des envois de compilation réussies, lorsque les commandes
+"digest-check" ou "digest-force" aient été utilisées.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+digest_incvol
+-------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsque la commande
+"digest-incvol" a réussi.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+digest_none
+-----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsqu'aucune
+compilation n'a été envoyée, car les compilations ou les messages
+n'étaient pas prêt a être envoyés.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+digest_status
+-------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche un résumé d'un message
+qui attend d'être envoyé dans une compilation en particulier.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, DATE, DESCRIPTION,
+ DIGESTNAME, FROM, LAST_RUN, MAX_AGE, MAX_MSGS, MAX_SIZE, MIN_AGE,
+ MIN_MSGS, MIN_SIZE, MSGNO, NEWEST_AGE, NEXT_RUN, OLDEST_AGE, SIZE,
+ SUBJECT, USER, et autres)
+
+
+digest_status_foot
+------------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche des informations à
+propos d'une compilation, après la liste des messages attendant d'être
+envoyés dans cette compilation.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, DESCRIPTION,
+ DIGESTNAME, LAST_RUN, MAX_AGE, MAX_MSGS, MAX_SIZE, MIN_AGE, MIN_MSGS,
+ MIN_SIZE, NEWEST_AGE, NEXT_RUN, OLDEST_AGE, SIZE, USER)
+
+
+digest_status_head
+------------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche des informations à 
+propos d'une compilation, avant la liste des messages attendant d'être 
+envoyés dans cette compilation.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, DESCRIPTION,
+ DIGESTNAME, LAST_RUN, MAX_AGE, MAX_MSGS, MAX_SIZE, MIN_AGE, MIN_MSGS,
+ MIN_SIZE, NEWEST_AGE, NEXT_RUN, OLDEST_AGE, SIZE, USER)
+
+
+error
+-----
+(wwwadm, wwwusr)  Ce fichier affiche un message d'erreur lorsque la
+requête WWW échoue pendant l'initialisation ou les tests de sécurité.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
+
+
+foot
+----
+(wwwadm, wwwconfirm, wwwusr)  Ce fichier affiche des informations
+supplémentaires en bas de chaque page web.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
+
+
+foot_global
+-----------
+(wwwadm)  Ce fichier affiche informations supplémentaires en bas de
+chaque page web pour les listes ALL, DEFAULT, ou GLOBAL.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
+
+
+get_edit_foot
+-------------
+(text, wwwadm)  Ce fichier affiche des informations sur la commande,
+soit à la fin d'une commande put, soit un formulaire HTML qui permet à
+un document d'être édité et remplacé facilement.
+
+(standard plus CGIDATA, CGIURL, CMDARGS, CMDLINE, CMDPASS,
+ DESCRIPTION, REPLACECMD, USER)
+
+
+get_edit_head
+-------------
+(text, wwwadm)  Ce fichier affiche des informations sur la commande, 
+soit avant une commande put, soit un formulaire HTML qui permet à un
+document d'être édité et remplacé facilement.
+
+(standard plus CGIDATA, CGIURL, CMDARGS, CMDLINE, CMDPASS,
+ DESCRIPTION, REPLACECMD, USER)
+
+
+get_error
+---------
+(text, wwwadm, wwwusr)  Ce fichier affiche une erreur lorsque les
+commandes "faq", "get", "info", ou "intro" échouent.
+
+(standard plus COMMAND, ERROR)
+
+
+get_foot
+--------
+(text, wwwadm, wwwusr)  Ce fichier affiche des informations
+supplémentaires lorsqu'un document est affiché par les commandes
+"faq", "get", "info", ou "intro".
+
+(standard plus CGIDATA, CGIURL, CMDPASS, DESCRIPTION, USER)
+
+
+get_head
+--------
+(text, wwwadm, wwwusr)  Ce fichier affiche des informations
+préliminaires lorsqu'un document est affiché par les commandes 
+"faq", "get", "info", ou "intro".
+
+(standard plus CGIDATA, CGIURL, CMDPASS, DESCRIPTION, USER)
+
+
+head
+----
+(wwwadm, wwwconfirm, wwwusr)  Ce fichier affiche des informations
+supplémentaires en haut de chaque page web.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
+
+
+head_global
+-----------
+(wwwadm)  Ce fichier affiche des informations supplémentaires en haut
+de chaque page web pour les listes ALL, DEFAULT, ou GLOBAL.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
+
+
+help_error
+----------
+(ALL)  Ce fichier est affiché lorsque la commande "help" échoue.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOPIC, USER)
+
+
+help_foot
+---------
+(ALL)  Ce fichier est affiché après le contenu des documents d'aide.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, TOPIC, USER)
+
+
+help_head
+---------
+(ALL)  Ce fichier est affiché avant le contenu d'un document d'aide.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, TOPIC, USER)
+
+
+lists
+-----
+(text, wwwadm, wwwusr)  Affiche des informations à propos des listes
+lorsque le mode "full" n'est pas utilisé
+
+(standard plus CATEGORY, CGIDATA, CGIURL, CMDPASS, DESCRIPTION,
+ DIGESTS, FLAGS, LIST, OWNER, PATTERN, POSTS, SUBS, USER, WHOAMI)
+
+
+lists_category
+--------------
+(text, wwwadm, wwwusr)  Ce fichier affiche chaque nom de catégorie
+(référez vous à "help configset_category" pour plus de détails). Il
+n'est pas affiché si le mode "tiny" est utilisé.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
+
+
+lists_enhanced
+--------------
+(text, wwwadm, wwwusr)  Ce fichier affiche des informations
+supplémentaires après la sortie lorsque le mode "enhanced" est
+utilisé.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
+
+
+lists_error
+-----------
+(text, wwwadm, wwwusr) Ce fichier affiche un message d'erreur si la
+commande "lists" échoue.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
+
+
+lists_foot
+----------
+(text, wwwadm, wwwusr)  Ce fichier affiche des informations
+supplémentaires en bas de la sortie de la commande "lists". Il n'est
+pas affiché lorsque le mode "tiny" est utilisé.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, PATTERN, USER)
+
+
+lists_full
+----------
+(text, wwwadm, wwwusr)  Ce fichier affiche un maximum d'informations à
+propos d'une liste (nom, description, compilations, etc.) lorsque le
+mode "full" est utilisé.
+
+(standard plus CAN_READ, CATEGORY, CGIDATA, CGIURL, CMDPASS,
+ DESCRIPTION, DIGESTS, FLAGS, LIST, OWNER, PATTERN, POSTS, SUBS, USER,
+ WHOAMI)
+
+
+lists_head
+----------
+(text, wwwadm, wwwusr)  Ce fichier affiche des informations
+complémentaires au avant le résultat, mais pas dans les modes
+"compact" et "tiny".
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
+
+
+lists_none
+----------
+(text, wwwadm, wwwusr)  Ce fichier indique qu'aucune liste n'a été
+trouvée.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
+
+
+login
+-----
+(wwwadm, wwwusr)  Ce fichier affiche un formulaire HTML qui permet
+d'entrer ou modifier des informations vitales. Pour l'interface
+wwwadm, le nom de la liste et le mot de passe sont demandés. Pour
+l'interface wwwusr, l'adresse email et le mot de passe sont requis.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, COMMAND, ERROR,
+ EXTRA, USER)
+
+
+newlist
+-------
+(wwwadm)  Ce fichier affiche un formulaire qui permet de créer,
+renommer ou détruire une liste.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
+
+
+password
+--------
+(ALL)  Ce fichier indique qu'un mot de passe personnel a été envoyé à
+l'adresse de la victime.
+
+(standard plus VICTIM)
+
+
+password_error
+--------------
+(ALL)  Ce fichier indique que la commande "password" a échouée ou est
+mise en attente.
+
+(standard plus CGIDATA, CGIURL, CHANGED, CMDPASS, QSADDR, STRIPADDR,
+ USER, VICTIM)
+
+
+post
+----
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsque la commande
+"post" a réussie.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+post_error
+----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsque la commande
+"post" a échouée ou est mise en attente.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
+put
+---
+(text, wwwadm)  Ce fichier est affiché lorsque la commande "put"
+réussi.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, FILE, USER)
+
+
+put_error
+---------
+(text, wwwadm)  Ce fichier est affiché lorsque la commande "put"
+échoue.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, ERROR, FILE, USER)
+
+
+register
+--------
+(ALL)  Ce fichier est affiché lorsque la commande "register" réussi.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER, VICTIM)
+
+
+register_error
+--------------
+(ALL)  Ce fichier est affiché lorsque la commande register échoue ou
+est mise en attente.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
+reject
+------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche un résumé du résultat
+d'un ticket qui est rejeté.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, MODE,
+ NOTIFIED, REQUESTER, SESSIONID, TOKEN, USER, VICTIM)
+
+
+reject_error
+-----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsque la commande
+"reject" a échouée, ou lorsqu'un ticket qui a été rejeté échoue ou est
+mis en attente.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOKEN, USER)
+
+
+report
+------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche un événement du log.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE,
+ ELAPSED, FINISH, REQUESTER, SESSIONID, START, STATUS, TIME, USER,
+ VICTIM)
+
+
+report_day
+----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché au début d'un
+groupe d'événement d'un jour particulier.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE,
+ ELAPSED, FINISH, REQUESTER, SESSIONID, START, STATUS, TIME, USER,
+ VICTIM)
+
+
+report_error
+------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsque la commande
+"report" échoue ou est mise en attente.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, FINISH, START, USER)
+
+
+report_foot
+-----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché après la liste des
+événements.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, FINISH, START, USER)
+
+
+report_full
+-----------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche un événement lorsque la
+commande "report-full" est utilisée.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE,
+ ELAPSED, FINISH, REQUESTER, SESSIONID, START, STATUS, TIME, USER,
+ VICTIM)
+
+
+report_head
+-----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché avant la liste des
+événements.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, FINISH, START, USER)
+
+
+report_none
+-----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsqu'aucun
+événement n'a été trouvé qui correspondait aux paramètres de la
+commande "report".
+
+(standard plus CGIDATA, CGIURL, CMDPASS, FINISH, START, USER)
+
+
+report_summary
+--------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche les statistiques pour
+une commande pour une liste.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, COUNT, ELAPSED,
+ FAIL, FINISH, STALL, START, SUCCEED, USER)
+
+
+report_summary_foot
+-------------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché à la fin du
+sommaire de rapport.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, FINISH, START, USER)
+
+
+report_summary_head
+-------------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché au début du 
+sommaire de rapport.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, FINISH, START, USER)
+
+
+report_warning
+--------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsque la
+récupération d'une partie des événements a généré une erreur.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, FINISH, START, USER)
+
+
+sessioninfo_error
+-----------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsque la commande
+"sessioninfo" échoue.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, SESSIONID, USER)
+
+
+sessioninfo_head
+----------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché avant que le
+contenu de la session soit affiché si la commande "sessioninfo"
+réussi.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SESSIONID, USER)
+
+
+sessioninfo_foot
+----------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché après le contenu de
+la session soit affiché si la commande "sessioninfo" réussi.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, SESSIONID, USER)
+
+
+set
+---
+(ALL)  Ce fichier affiche un message indiquant que les réglages pour
+une liste ont été modifiés.
+
+(standard plus CGIDATA, CGIURL, CHANGETIME, CLASS_DESCRIPTIONS,
+ CLASSES, CMDPASS, FULLADDR, PARTIAL, QSADDR, SELECTED, SETTINGS,
+ STRIPADDR, SUBTIME, USER, VICTIM, et autres)
+
+
+set_check
+---------
+(ALL)  Ce fichier affiche les réglages d'un abonnement sur une liste.
+
+(standard plus ACKDENY_CHECKBOX et autres cases à cocher, CGIDATA,
+ CGIURL, CHANGETIME, CLASS_DESCRIPTIONS, CLASSES, CMDPASS, FULLADDR,
+ PARTIAL, QSADDR, SELECTED, SETTINGS, STRIPADDR, SUBTIME, USER,
+ VICTIM, et autres)
+
+
+set_error
+---------
+(ALL)  Ce fichier affiche un message d'erreur lorsque la commande
+"set" échoue.
+
+(standard plus CGIDATA, CGIURL, CHANGETIME, CLASS_DESCRIPTIONS,
+ CLASSES, CMDPASS, PARTIAL, SELECTED, SETTINGS, SUBTIME, USER, VICTIM,
+ et autres)
+
+
+set_foot
+--------
+(ALL)  Ce fichier affiche des informations supplémentaires à la fin de
+la sortie de la commande "set".
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, et USER)
+
+
+set_head
+---
+(ALL)  Ce fichier affiche des informations supplémentaires avant la
+sortie de la commande "set".
+
+(standard plus CGIDATA, CGIURL, CMDPASS, et USER)
+
+
+show
+----
+(text, wwwusr)  Ce fichier affiche les données pour un abonnement sur
+une liste.
+
+(standard plus ACKDENY_CHECKBOX et autres cases à cocher, ALIAS,
+ ALIASES, CGIDATA, CGIURL, CHANGETIME, CHECKBOX, CLASS_DESCRIPTIONS,
+ CLASSES, CMDPASS, COUNT, LIST, NUMBERED_BOUNCES, RCHANGETIME,
+ OWNERSHIPS, PASSWORD, QSADDR, REGTIME, SELECTED, SETTINGS, STRIPADDR,
+ SUBLIST, UNNUMBERED_BOUNCES, USER, VICTIM, XFORM et autres)
+
+
+show_error
+----------
+(text, wwwusr)  Ce fichier est si la commande "show" échoue ou est
+mise en attente.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, QSADDR, STRIPADDR,
+ USER, VICTIM)
+
+
+show_foot
+---------
+(text, wwwusr)  Ce fichier affiche des données supplémentaires après
+la sortie de la commande "show".
+
+(standard plus ALIAS, ALIASES, CGIDATA, CGIURL, CMDPASS, COUNT,
+ RCHANGETIME, OWNERSHIPS, PASSWORD, QSADDR, REGTIME, SETTINGS,
+ STRIPADDR, USER, VICTIM, XFORM et autres)
+
+
+show_head
+---------
+(text, wwwusr)  Ce fichier affiche des données supplémentaires avant
+la sortie de la commande "show". 
+
+(standard plus ALIAS, ALIASES, CGIDATA, CGIURL, CMDPASS, COUNT,
+ OWNERSHIPS, PASSWORD, QSADDR, RCHANGETIME, REGTIME, SETTINGS,
+ STRIPADDR, USER, VICTIM, XFORM et autres)
+
+
+show_none
+---------
+(text, wwwusr)  Ce fichier est affiché si l'adresse n'est pas abonnée
+à une liste.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, QSADDR, STRIPADDR, USER,
+ VICTIM)
+
+
+showtokens
+----------
+(text, wwwadm)  Ce fichier affiche des informations préliminaires sur
+les tickets d'une liste.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+showtokens_all
+--------------
+(text, wwwadm)  Ce fichier affiche un sommaire des tickets affichés.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, USER)
+
+
+showtokens_data
+---------------
+(text, wwwadm)  Ce fichier affiche le contenu d'un ticket.
+
+(standard plus ADATE, ATYPE, CGIDATA, CGIURL, CMDLINE, CMDPASS,
+ COMMAND, DATE, ERROR, LIST, SIZE, TOKEN, TYPE, USER)
+
+
+showtokens_error
+----------------
+(text, wwwadm)  Ce fichier affiche un message d'erreur si la commande
+"showtokens" échoue.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
+showtokens_foot
+---------------
+(wwwadm)  Ce fichier affiche des informations supplémentaires en
+dessous de la sortie de la commande "showtokens". Il est utilisé par
+l'interface wwwadm pour permettre d'afficher les tickets de plus d'une
+liste à la fois.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
+
+
+showtokens_head
+---------------
+(wwwadm)  Ce fichier affiche des informations supplémentaires au
+dessus de la sortie de la commande "showtokens". Il est utilisé par 
+l'interface wwwadm pour permettre d'afficher les tickets de plus d'une  
+liste à la fois.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
+
+
+showtokens_none
+---------------
+(text, wwwadm)  Ce fichier affiche un message lorsqu'aucun ticket n'a
+été trouvé.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+subscribe
+---------
+(ALL)  Ce fichier est affiché lorsque la commande "subscribe" réussi.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER, VICTIM)
+
+
+subscribe_error
+--------------
+(ALL)  Ce fichier est affiché lorsque la commande "subscribe" échoue
+ou est mise en attente.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
+subscribe_none
+--------------
+(ALL)  Ce fichier est affiché lorsque les commandes "register",
+"subscribe", "unregister" et "unsubscribe", ne génèrent aucun
+résultat.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+tokeninfo_attachment
+--------------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche un résumé des
+informations à propos des parties de messages qui ne sont pas en texte
+brut, qui n'est pas un conteneur (comme multipart/mixed) ou une image.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_container
+--------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche un résumé des informations à propos des
+parties de messages qui est un conteneur (comme multipart/related).
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_delete
+----------------
+(text, wwwadm, wwwconfirm)  Ce fichier indique qu'un volet du message
+a été supprimé.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_edit_foot
+-------------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche la balise fermante
+permettant à un volet du message ou à ses entêtes d'être éditées et
+remplacées.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_edit_head
+-------------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche une ligne de commande
+ou un formulaire HTML  permettant à un volet du message ou à ses
+entêtes d'être éditées et remplacées. 
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_error
+---------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche un message d'erreur si
+la commande "tokeninfo" échoue.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
+tokeninfo_foot
+--------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche des informations
+supplémentaires en dessous de la sortie de la commande "tokeninfo".
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_foot_post
+-------------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche des informations
+supplémentaires en dessous d'un message posté.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_head
+--------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche des informations
+supplémentaires au dessus de la sortie de la commande "tokeninfo".
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_head_post
+-------------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche des informations
+supplémentaires au dessus d'un message posté. 
+
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_header
+----------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche les en-têtes de base,
+comme From, Sujet, To, CC et Date.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_image
+---------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche des informations à
+propos d'une image attachée à un message posté. Dans les interfaces
+WWW, l'image est affichée dans la page.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_nosession
+-------------------
+(text, wwwadm, wwwconfirm)  Ce fichier affiche des informations de
+base à propos d'une commande en attente ou d'un message posté.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_remind
+----------------
+(text, wwwadm, wwwconfirm)  Ce fichier indique qu'un rappel du ticket
+a été envoyé à une adresse email particulière.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_replace
+-----------------
+(text, wwwadm, wwwconfirm)  Ce fichier indique que le contenu d'un
+volet d'un message posté à été modifié.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_text_foot
+-------------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché à la fin d'un volet
+en texte pur d'un message.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+tokeninfo_text_head
+-------------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché avant un volet 
+en texte pur d'un message.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, CMDPASS, CONSULT,
+ DATE, ERROR, EXPIRE, ISPOST, REASONS, TOKEN, TYPE, USER, VICTIM,
+ WILLACK)
+
+
+unalias
+-------
+(ALL)  Ce fichier est affiché lorsque la commande "unalias" réussi.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER, VICTIM)
+
+
+unalias_error
+-------------
+(ALL)  Ce fichier est affiché lorsque la commande "unalias" échoue ou
+est mise en attente.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER, VICTIM)
+
+
+unregister
+----------
+(ALL)  Ce fichier est affiché lorsque la commande "unregister" réussi.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER, VICTIM)
+
+
+unregister_error
+----------------
+(ALL)  Ce fichier est affiché lorsque la commande "unregister" échoue
+ou est mise en attente.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
+unsubscribe
+-----------
+(ALL)  Ce fichier est affiché lorsque la commande "unsubscribe"
+réussi.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER, VICTIM)
+
+
+unsubscribe_error
+-----------------
+(ALL)  Ce fichier est affiché lorsque la commande "unsubscribe" échoue
+ou est mise en attente.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
+welcome
+-------
+(wwwadm, wwwconfirm, wwwusr)  Ce fichier affiche des instructions de
+base pour chacune des interfaces WWW.
+
+(standard plus CGIDATA, CGIURL, COMMAND, CMDPASS, USER)
+
+
+welcome_global
+--------------
+(wwwadm)  Ce fichier affiche des instructions de base dans l'interface
+wwwadm pour les listes ALL, DEFAULT ou GLOBAL.
+
+(standard plus CGIDATA, CGIURL, COMMAND, CMDPASS, USER)
+
+
+welcome_showtokens
+------------------
+(wwwadm)  Ce fichier affiche des instructions de bases pour utiliser
+la commande "showtokens" dans l'interface wwwadm.
+
+(standard plus CGIDATA, CGIURL, COMMAND, CMDPASS, USER)
+
+
+which
+-----
+(text, wwwadm, wwwconfirm) Ce fichier est affiché pour indiquer une
+liste dans laquelle des adresses correspondantes ont été trouvées.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, LIST, PATTERN,
+ USER)
+
+
+which_data
+----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché pour afficher une
+adresse correspondante.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, LIST, PATTERN,
+ QSADDR, STRIPADDR, USER)
+
+
+which_error
+-----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsque la commande
+"which" échoue ou est mise en attente.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, ERROR, PATTERN,
+ USER)
+
+
+which_foot
+----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché au dessous du
+résultat lorsque la commande "which" réussi.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, COUNT, PATTERN,
+ USER)
+
+
+which_head
+----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché avant le résultat
+lorsque la commande "which" réussi.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, PATTERN, USER)
+
+
+which_none
+----------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsqu'aucun
+résultat n'a été trouvé pour le motif de recherche.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, PATTERN, USER)
+
+
+which_warning
+-------------
+(text, wwwadm, wwwconfirm)  Ce fichier est affiché lorsque le résultat
+contient des avertissements. L'avertissement le plus souvent rencontré
+est que le nombre de résultats maximum pour une liste a été dépassé.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, ERROR, LIST,
+ PATTERN, USER)
+
+
+who
+---
+(text, wwwadm)  Ce fichier affiche l'adresse et d'autres données pour
+un abonnement à une liste. Ce fichier n'est pas affiché si le mode
+"export" est utilisé.
+
+(standard plus CLASSDESC, CGIDATA, CGIURL, CHUNKSIZE, CLASS,
+ CLASS_DESCRIPTIONS, CLASS_SELECTED, CLASSDESC, CLASSES, CMDPASS,
+ FLAGS, FLAGDESC, FULLADDR, LASTCHANGE, PATTERN, QSADDR, REMOVE,
+ SETTING_CHECKED, SETTING_SELECTED, SETTINGS, START, USER et autres)
+
+
+who_error
+---------
+(text, wwwadm)  Ce fichier affiche un message d'erreur si la commande
+"who" échoue ou est mise en attente.
+
+(standard plus CGIDATA, CGIURL, ERROR, CMDPASS, PATTERN, REMOVE,
+ START, USER)
+
+
+who_foot
+--------
+(text, wwwadm)  Ce fichier affiche des informations supplémentaires
+après la sortie de la commande. Ce fichier n'est pas affiché si les
+modes "alias", "export" ou "short" sont utilisés.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, REMOVE, START, USER)
+
+
+who_head
+--------
+(text, wwwadm)  Ce fichier affiche des informations supplémentaires
+avant la sortie de la commande. Ce fichier n'est pas affiché si les
+modes "alias", "export" ou "short" sont utilisés. 
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, REMOVE, START, USER)
+
+
+who_registry
+------------
+(text, wwwadm)  Ce fichier affiche les données d'une entrée dans le
+registre. C'est utilisé pour la pseudo liste GLOBAL. Ce fichier n'est
+pas affiché si les modes "alias" ou "export" sont utilisés.
+
+(standard plus CANON, CGIDATA, CGIURL, FULLADDR, LASTCHANGE, LISTS
+ CMDPASS, PATTERN, QSADDR, REMOVE, START, STRIPADDR, USER et autres)
+
+
+who_registry_foot
+-----------------
+(text, wwwadm)  Ce fichier affiche des informations supplémentaires en
+dessous de la sortie. Ce fichier n'est pas affiché si les modes
+"alias", "report", "export" ou "short" sont utilisés.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, REMOVE, START, USER)
+
+
+who_registry_head
+-----------------
+(text, wwwadm)  Ce fichier affiche des informations supplémentaires au
+dessus de la sortie. Ce fichier n'est pas affiché si les modes 
+"alias", "report", "export" ou "short" sont utilisés.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, REMOVE, START, USER)
+
+
+Référez vous aussi à :
+   help admin_domain
+   help error_files
+   help reply_files
+   help variables
+
+$INCLUDE-help/foot
