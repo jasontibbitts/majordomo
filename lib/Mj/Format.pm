@@ -308,14 +308,14 @@ sub configshow {
     $gsubs->{'ERROR'} = $mess;
     $tmp = $mj->format_get_string($type, 'configshow_error');
     $str = $mj->substitute_vars_format($tmp, $gsubs);
-    eprint($out, $type, indicate("$str\n", $ok));
+    print $out &indicate("$str\n", $ok);
     return $ok;
   }
 
   unless (scalar @$result) {
     $tmp = $mj->format_get_string($type, 'configshow_none');
     $mess = $mj->substitute_vars_format($tmp, $gsubs);
-    eprint($out, $type, indicate("$mess\n", $ok));
+    print $out &indicate("$mess\n", $ok);
     return $ok;
   }
 
@@ -323,7 +323,7 @@ sub configshow {
     $subs = {};
     $tmp = $mj->format_get_string($type, 'configshow_head');
     $str = $mj->substitute_vars_format($tmp, $gsubs);
-    eprint($out, $type, "$str\n");
+    print $out "$str\n";
   }
   else {
     $subs = { %$gsubs };
@@ -346,7 +346,7 @@ sub configshow {
       $subs->{'ERROR'} = $mess;
       $tmp = $mj->format_get_string($type, 'configshow_error');
       $str = $mj->substitute_vars_format($tmp, $subs);
-      eprint($out, $type, indicate("$str\n", $ok));
+      print $out &indicate("$str\n", $ok);
       next;
     }
 
@@ -401,7 +401,7 @@ sub configshow {
 
       $tmp = $array;
       $str = $mj->substitute_vars_format($tmp, $subs);
-      eprint($out, $type, "$str\n");
+      print $out "$str\n";
     }
     else {
       # Process as a simple variable
@@ -448,7 +448,7 @@ sub configshow {
       }
   
       $str = $mj->substitute_vars_format($tmp, $subs);
-      eprint($out, $type, "$str\n");
+      print $out "$str\n";
     }
   }
 
@@ -581,6 +581,7 @@ sub help {
   $request->{'command'} = "help_done";
   $mj->dispatch($request);
   select STDOUT;
+  1;
 }
 
 sub index {
