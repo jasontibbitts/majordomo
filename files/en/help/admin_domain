@@ -47,17 +47,18 @@ to supply at least one digest to each mailing list, using the "digests"
 configuration setting.  Majordomo does not define any digests by default
 (see "help configset_digests" for more details).
 
-The DEFAULT and GLOBAL lists can also be used to make files available
+The DEFAULT and list can also be used to make files available
 to all of the mailing lists within a domain.  See "help get" and 
 "help configset file_share" for more details.  There is also a Stock
 directory for files that are supplied by Majordomo, like this help
 file.  These files can be obtained using the get command, and replaced
 using the put command; however, there is no way to overwrite the files
 in the Stock directory.  If you use the get and put commands to edit
-and improve the files, your changes will only affect one domain at
-a site.  If you wish to make changes to Stock files that affect all
-domains, you will need to edit the files in the Majordomo source
-distribution and reinstall the software.
+and improve the files, your changes will be saved in the file space
+for one list.  Even DEFAULT files are only available to 
+lists within one domain at a site.  If you wish to make changes to 
+Stock files that affect all domains, you will need to edit the files 
+in the Majordomo source distribution and reinstall the software.
 
 Each domain has several databases which apply to all of the mailing
 lists within that domain.  

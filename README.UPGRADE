@@ -1,5 +1,12 @@
          Notes on upgrading from previous versions of Majordomo 2
 
+2000.01.29 (CVS):
+
+The files in the file space of the GLOBAL pseudo-list are no longer
+available automatically to the faq, get, info, and intro commands
+for ordinary lists.  To make a file available to all mailing lists,
+store it, with the put command, in the DEFAULT file space.
+
 2000.01.27 (CVS):
 
 Digest bounces are now numbered, to allow the bounce rules to apply
