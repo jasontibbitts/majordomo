@@ -20,10 +20,15 @@ subscribed, are updated. As of April 2000, "changeaddr" adjusts
 aliases automatically, as does the unregister command, but it does
 not yet deal with auxiliary lists
 
-Unless the password for "address" is used, a confirmation token will
-be sent to the given "address" AND to the address making the request,
-to verify this action. If confirmation is required, BOTH tokens must
-be replied to with an "accept" command before the change will be made.
+Unless the password for "address" is used, or the request comes from
+"address", a confirmation token will be sent to the "address" given
+on the command line AND to the address making the request (based on
+the "From:" field or a "default user" command), to verify this action.
+
+If dual confirmation is required, BOTH tokens must be replied to
+with an "accept" command before the change will be made. In short:
+ - Supplying the password of the new address doesn't help.
+ - Supplying the password of the old address does.
 
 NOTE: If the command is sent from the same address as used in the
 command, only one confirmation will be required. This can be useful

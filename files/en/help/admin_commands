@@ -62,7 +62,7 @@ configedit-comments listname variable
 
 configset list variable = value
 configset list variable <<TAG
-==> sets the given variable to the given value
+==> sets the given variable to the given value (see "help topics" for variables)
 
 configshow-comments listname variable
 ==> retrieves the value of the given variable

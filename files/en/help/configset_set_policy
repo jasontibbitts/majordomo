@@ -27,9 +27,8 @@ requires maintainer approval for all set requests to the list.  Adding
 back to the subscriber which includes a token.  The subscriber 
 must then reply with 'accept' for the command to succeed.
 
-This functionality of subscribe_policy is completely encapsulated within
-the access_rules mechanism, but it exists for backwards compatibility
-and because it's simpler to use.
+This functionality of this variable is completely encapsulated within
+the access_rules mechanism, but it exists because it's simpler to use.
 
 Using "closed" allows the list owner to set up list defaults which
 are permanent unless the owner changes a subscription with the
@@ -40,8 +39,16 @@ See Also:
    help set (for the command that this policy regulates)
    help configset access_rules           (to restrict access to any command)
    help configset access_rules_variables (other things you can test)
-   help configset subscribe_policy       (another shortcut on access control)
-   help configset unsubscribe_policy     (another shortcut on access control)
+   help configset archive_access      (for     archive-related access_rules)
+   help configset faq_access          (for         faq-related access_rules)
+   help configset get_access          (for         get command access_rules)
+   help configset index_access        (for       index command access_rules)
+   help configset info_access         (for        info-related access_rules)
+   help configset intro_access        (for       intro-related access_rules)
+   help configset which_access        (for       which command access_rules)
+   help configset who_access          (for         who command access_rules)
+   help configset subscribe_policy    (for   subscribe command access_rules)
+   help configset unsubscribe_policy  (for unsubscribe command access_rules)
 
 For a list of all help topics send this one-line message
    help topics

@@ -15,6 +15,24 @@ One of three values: open, list, closed.  Open allows anyone access to this
 command.  List allows only list members access, while closed completely
 disables the command for everyone.
 
+This functionality of this variable is completely encapsulated within
+the access_rules mechanism, but it exists because it's simpler to use.
+
+
+See Also:
+   help configset access_rules           (to restrict access to any command)
+   help configset access_rules_variables (other things you can test)
+   help configset archive_access      (for     archive-related access_rules)
+   help configset faq_access          (for         faq-related access_rules)
+   help configset get_access          (for         get command access_rules)
+   help configset index_access        (for       index command access_rules)
+   help configset info_access         (for        info-related access_rules)
+   help configset intro_access        (for       intro-related access_rules)
+   help configset which_access        (for       which command access_rules)
+   help configset set_policy          (for         set command access_rules)
+   help configset subscribe_policy    (for   subscribe command access_rules)
+   help configset unsubscribe_policy  (for unsubscribe command access_rules)
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ

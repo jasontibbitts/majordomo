@@ -31,6 +31,12 @@ or "subscribe" can be limited, and there are the two special cases
 unfortunately somewhat complicated mechanism for precisely restricting
 access to Majordomo functions.
 
+There are a few shortcuts which can control access to common features,
+which are easier to set up than access_rules but not as powerful. If
+you configure an access_rule that acts on the same request as one of
+the shortcuts, THE SHORTCUT COMMAND IS IGNORED! See the bottom of this
+file for a list of these shortcuts (*_access and *_policy).
+
 The "access_rules" command can be set for individual lists as well as
 for the GLOBAL pseudo-list. There are different requests that can be
 trapped by each one.  If a command takes a list, it is restricted by
@@ -167,10 +173,12 @@ that do take a list use the list's access_rules. There are two weird ones:
 1.2.3 - confirm2=file1,file2,group,M - a confirmation token is sent to BOTH
     users who will be affected by the request. This is the default access
     action only for changeaddr, but may also be used for other commands
-    where requester and victim may not match.
+    where requester (the address which sent the email or came from a
+    "default user" command) and victim (the address given on the command
+    line) may not match.
       * If requester and victim are the same, confirm with the victim.
       * If requester and victim are different, but the victim's password
-        was supplied, confirm with the requester.  The roles are swapped,
+        was supplied, confirm with the requester. The roles are swapped,
         so the confirmation message will say that the request was
         originated by the victim.
       * Otherwise, confirm with both, using a chained token, much
@@ -697,9 +705,20 @@ ENDCONSULT
 
 See Also:
    help access    (for the special case of granting/denying all access)
-   help configset access_rules_variables (for requests, variables, and defaults)
    help post      (for the special case of restricting who can post msgs)
    help variables (for a list of all possible variables and what they mean)
+   help configset access_rules_variables (for requests, variables, defaults)
+   help configset archive_access      (for     archive-related access_rules)
+   help configset faq_access          (for         faq-related access_rules)
+   help configset get_access          (for         get command access_rules)
+   help configset index_access        (for       index command access_rules)
+   help configset info_access         (for        info-related access_rules)
+   help configset intro_access        (for       intro-related access_rules)
+   help configset which_access        (for       which command access_rules)
+   help configset who_access          (for         who command access_rules)
+   help configset set_policy          (for         set command access_rules)
+   help configset subscribe_policy    (for   subscribe command access_rules)
+   help configset unsubscribe_policy  (for unsubscribe command access_rules)
 
 For a list of all help topics send this one-line message
    help topics
