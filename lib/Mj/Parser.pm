@@ -157,6 +157,7 @@ and token).
 
 =cut
 use Mj::Util 'str_to_time';
+use MIME::Entity;
 sub parse_part {
   my $mj         = shift;
   my %args       = @_;
