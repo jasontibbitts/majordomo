@@ -19,7 +19,7 @@ require Exporter;
 @EXPORT_OK = qw(condense enriched_to_hyper ep_convert ep_recognize 
                 gen_pw in_clock n_build n_defaults n_validate 
                 plain_to_hyper process_rule re_match reconstitute
-                str_to_time time_to_str);
+                reflow_plain str_to_time time_to_str);
 
 use AutoLoader 'AUTOLOAD';
 
@@ -697,6 +697,8 @@ sub enriched_to_hyper {
 
     # Delete parameter values.
     $line =~ s#<param>[^<]*</param>##i;
+    $line =~ s/&/&amp;/g;
+    $line =~ s/"/&quot;/g;
     $line =~ s/<</&lt;/g;
 
     # Replace tags.
@@ -721,6 +723,7 @@ This function converts a plain text file into a simple HTML file.
 
 =cut
 use Mj::FileRepl;
+use Mj::Format qw(escape);
 sub plain_to_hyper {
   my $txtfile = shift;
   my $log = new Log::In 350;
@@ -736,8 +739,109 @@ sub plain_to_hyper {
       $repl->{'newhandle'}->print("<p>\n");
     }
     else {
-      $repl->{'newhandle'}->print("<br>$line");
+      $repl->{'newhandle'}->print("<br>" . &escape($line));
     }
+  }
+
+  $repl->commit;
+}
+
+=head2 reflow_plain(text_file, width, long_lines_only)
+
+This function uses the Text::Reflow module to reformat a body part.
+Quoted parts of messages are taken into account.
+
+The width of the formatted text will be no longer than "width," which is
+72 characters by default.  Indented paragraphs and separators will not
+be altered.
+
+If long_lines_only is set, only paragraphs with lines longer than the
+width will be reformatted; otherwise, all unindented paragraphs will
+be reformatted.
+
+=cut
+use Mj::FileRepl;
+use Text::Reflow qw(reflow_array);
+sub reflow_plain {
+  my $txtfile = shift;
+  my $width = shift || 72;
+  my $llo = shift || 0;
+  my $log = new Log::In 350, "$txtfile, $width";
+  return unless (-f $txtfile);
+
+  my (@lines, $i, $line, $long, $oq, $out, $qb, $qc, $quote, 
+      $quotepattern, $repl, $separator, $size);
+  
+  $repl = new Mj::FileRepl($txtfile);
+  return unless ($repl);
+  
+  # Quote patterns based upon Text::Autoformat.
+  $qc = qq/[|:-]/;
+  $qb = qq/(?:$qc(?![a-z])|[a-z]*>+)/;
+  $quotepattern = qq/(?:(?i)(?:$qb(?:[ \\t]*$qb)*))/;
+  $separator = q/(?:[-_]{2,}|[=#*]{3,}|[+~]{4,})/;
+  $quote = $oq = '';
+  $long = 0;
+
+  while (defined($line = $repl->{'oldhandle'}->getline)) {
+    $line =~ s/[ \t]+$//;
+    $size = length($line);
+    $line =~ s/^\s*($quotepattern\s?)//i;
+    $quote = $1 || '';
+
+    # A separator or quote change will cause all stored lines to
+    # be reformatted and printed.
+    if ($line =~ /^\s*$separator$/ or $line =~ /^\s*$/ or ($quote ne $oq)) {
+      if (scalar(@lines)) {
+        # reflow if the paragraph contained a long line, or
+        # if the long_lines_only option is turned off.
+        if ($long or !$llo) {
+          $out = reflow_array(\@lines, 'maximum' => $width, 
+                              'indent' => $oq, 'frenchspacing' => 'y',
+                              'noreflow' => '\S(\t|    )');
+        }
+        else {
+          map { $_ = $oq . $_ } @lines;
+          $out = \@lines;
+        }
+
+        for $i (@$out) {
+          $repl->{'newhandle'}->print($i);
+        }
+      }
+
+      $long = 0;
+      # Print separators without modification.
+      if ($quote eq $oq) {
+        $repl->{'newhandle'}->print("$quote$line");
+        @lines = ();
+      }
+      else {
+        @lines = ($line);
+        $long = 1 if ($size > $width);
+      }
+    }
+    else {
+      push @lines, $line;
+      $long = 1 if ($size > $width);
+    }
+
+    $oq = $quote;
+  }
+
+  # Reformat any leftover lines.
+  if ($long or !$llo) {
+    $out = reflow_array(\@lines, 'maximum' => $width, 'indent' => $oq,
+                        'frenchspacing' => 'y', 
+                        'noreflow' => '\S(\t|    )');
+  }
+  else {
+    map { $_ = $oq . $_ } @lines;
+    $out = \@lines;
+  }
+
+  for $i (@$out) {
+    $repl->{'newhandle'}->print($i);
   }
 
   $repl->commit;
