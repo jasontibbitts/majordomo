@@ -189,7 +189,7 @@ sub post {
   $owner = $self->_list_config_get($list, 'sender');
   if ($ok > 0) {
     return $self->_post($list, $user, $user, $mode, $cmd,
-			$ent, '', join("\002", %$avars));
+			$file, '', join("\002", %$avars), $ent);
   }
 
   # Some substitutions will be done by the access routine, but we have
@@ -307,7 +307,7 @@ sub post_done {
 use Mj::MIMEParser;
 sub _post {
   my($self, $list, $user, $victim, $mode, $cmdline, $file, $arg2,
-     $avars) = @_;
+     $avars, $ent) = @_;
   my $log  = new Log::In 35, "$list, $user, $file";
 
   my(%avars, %deliveries, %digest, @dfiles, @dtypes, @ent, @files, @refs,
@@ -330,9 +330,12 @@ sub _post {
   $log->message(35,'info',"Sending message $seqno");
   $self->{sessionfh}->print("Post: sequence #$seqno.\n");
 
-  # trick: if $file is a ref to a MIME::Entity, we can skip the parse
-  if (ref($file) eq "MIME::Entity") {
-    $ent[0] = $file;
+  # trick: we take a pre-parsed entity as an extra argument; if it's
+  # defined, we can skip the parse step.  Note that after this, $file will
+  # refer to the source message file regardless of whether it was spooled
+  # or not.
+  if ($ent) {
+    $ent[0] = $ent;
   }
   else {
     ($file) = $self->_list_file_get('GLOBAL', "spool/$file", undef, undef, 1);
@@ -386,13 +389,13 @@ sub _post {
   $subject = $archead->get('subject') || ''; chomp $subject;
   ($msgnum) = $self->{'lists'}{$list}->archive_add_start
     ($sender,
-     (stat($file))[7],
      {
       'body_lines' => $avars{lines},
       'from'       => "$user", # Stringify on purpose
       'quoted'     => $avars{quoted_lines},
       'refs'       => join("\002",@refs),
       'subject'    => $subject,
+      'bytes'      => (stat($file))[7],
      },
     );
 

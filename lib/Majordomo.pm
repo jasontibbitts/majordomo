@@ -1457,7 +1457,7 @@ sub help_start {
   
   ($ok, $mess) =
     $self->global_access_check($passwd, $auth, $interface, $mode, $cmdline,
-                             'help', $user, $topic);
+                             'help', $user, $vict, $topic);
 
   # No stalls should be allowed...
   unless ($ok > 0) {

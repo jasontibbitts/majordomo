@@ -44,3 +44,23 @@ started, a queue runner will always run through the entire queue in an
 essentially random order.  This helps prevent starvation; if new files were
 serviced first, the old files would just get older without being
 processed.
+
+Format of the queue directory:
+
+  $TMPDIR/queue/xx/domain/yy/function/queue_file
+
+  xx = domain priority
+  yy = list priority
+  function is one of list, owner, request, majordomo
+
+Queue files have the format:
+
+  hour-unique-pid-listname
+
+  hour: A is midnight, B is 1AM, etc.
+  unique: Two letters, incrememted until the file is unique.
+  pid: the PID of the mj_enqueue process.
+  listname: the name of the list
+
+Queue files contain the text of the message with no mbox separator (From_
+line).

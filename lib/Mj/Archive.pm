@@ -146,13 +146,11 @@ separate copy of the message for the archives isn''t necessary).
 sub add_start {
   my $self   = shift;
   my $sender = shift;
-  my $bytes  = shift;
   my $data   = shift || {};
   my $log    = new Log::In 150;
 
   my($arc, $count, $dir, $fh, $month, $msgno, $msgs, $sub, $tmp, $year);
 
-  $data->{'bytes'} = $bytes;
   $data->{'date'} ||= time;
   $data->{'split'} = '';
 

@@ -43,12 +43,7 @@ Queueing:
   Server does the same, only some much larger number as it does no
   allocations.
 
-  Priorities: domain, list
-
-  $TMPDIR/queue/xx/DOMAIN/yy/function/queue_file
-
-  xx = domain priority
-  yy = list priority
+Allow mj_email/mj_euqueue to be setuid under qmail, if the user wants it.
 
 Add option to set umask of generated alias files.
 

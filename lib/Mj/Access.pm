@@ -395,7 +395,7 @@ sub list_access_check {
   my    $arg3      = shift;
   local %args      = @_;
 
-  my $log = new Log::In 60, "$list, $request";
+  my $log = new Log::In 60, "$list, $request, $requester, $victim";
 
   $log->message(450, "info", "Access variables: ". Dumper \%args);
 
