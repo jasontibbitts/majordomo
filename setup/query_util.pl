@@ -1,15 +1,20 @@
 # Nipped from MakeMaker.
 require Carp;
 use vars (qw($nosep $sepclear));
+use lib "./lib";
+use Mj::Addr;
 
 sub prompt ($;$) {
   sep();
-  my($mess,$def) = @_;
+  my ($mess, $def) = @_;
   my $ISA_TTY = -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT));
+
   Carp::confess("prompt function called without an argument") 
     unless defined $mess;
+
   my $dispdef = defined $def ? "[$def] " : " ";
   $def = defined $def ? $def : "";
+
   my $ans;
   if ($ISA_TTY || -s STDIN) {
     local $|=1;
@@ -27,35 +32,79 @@ sub get_str {
   return prompt(shift, shift);
 }
 
+sub get_addr {
+  my $msg = shift;
+  my $def = shift;
+  my $dom = shift;
+  my ($addr, $ans, $full, $mess, $ok);
+
+  while (1) {
+    $ans = $full = get_str($msg, $def);
+    unless ($full =~ /\@/) {
+      if (length $dom) {
+        $full .= "\@$dom";
+      }
+    }
+
+    $addr = new Mj::Addr $full;
+    if (! defined $addr) {
+      $msg = retr_msg('invalid_address', $lang, 'ADDRESS' => $ans,
+                      'ERROR' => '');
+    }
+    else {
+      ($ok, $mess) = $addr->valid;
+      if ($ok) {
+        return $ans;
+      }
+      else {
+        $msg = retr_msg('invalid_address', $lang, 'ADDRESS' => $ans,
+                        'ERROR' => $mess);
+      }
+    }
+  }  
+}
+
 sub get_enum {
   my $msg  = shift;
   my $def  = shift;
   my $vals = shift;
-  my $ans;
+  my (@tmp, $ans);
+
   while (1) {
     $ans = get_str($msg, $def);
-    if (grep {$ans eq $_} @$vals) {
+    if (grep { $ans eq $_ } @$vals) {
       return $ans;
     }
-    $msg = "Allowed values are:\n";
+
+    # Allow an abbreviation if it is unambiguous.
+    @tmp = grep { $_ =~ /^$ans/i } @$vals;
+    if (scalar @tmp == 1) {
+      return $tmp[0];
+    }
+
+    local $sepclear = 0;
+    local $nosep = 1;
+    $msg = retr_msg('enum_values', $lang, 'VALUE' => $ans);
     for my $i (@$vals) {
       $msg .= "  $i\n";
     }
+    $msg .= "\n";
   }
 }
 
 # Query for the existence of a file.
 sub get_file {
   my ($msg, $def, $exist, $exe, $path, $force) = @_;
-  my ($file);
+  my ($file, $loc);
  OUTER:
   while (1) {
     my $ans = prompt($msg, $def);
     $file = ($ans =~ /(\S*)/)[0];
+    $loc = $file;
 
     # We always require some input, else we wouldn't be asking
     unless (length $file) {
-      $msg = "You must enter something.\n";
+      $msg = retr_msg('no_value', $lang);
       next;
     }
 
@@ -71,7 +120,10 @@ sub get_file {
     # Now we can run over the path
     if ($path) {
       for my $i (split(':', $ENV{PATH})) {
-	last OUTER if -x "$i/$file";
+	if (-x "$i/$file") {
+          $loc = "$i/$file";
+          last OUTER;
+        } 
       }
     }
 
@@ -80,18 +132,18 @@ sub get_file {
     # round.  Otherwise we can just make sure that the user really intended
     # to type what they typed.
     if ($force) {
-      if ($exe) {
-        $msg = "You must enter the name of an existing executable file.\n";
+      if ($exe and -f $loc) {
+        $msg = retr_msg('not_executable', $lang, 'FILE' => $file);
         next;
       }
-      $msg = "You must enter the name of an existing file.\n";
+      $msg = retr_msg('nonexistent_file', $lang, 'FILE' => $file);
       next;
     }
-    if ($exe) {
-      last if get_bool("$file does not exist or is not executable; use anyway?");
+    if ($exe and -f $loc) {
+      last if get_bool(retr_msg('use_unexecutable', $lang, 'FILE' => $file));
     }
     else {
-      last if get_bool("$file does not exist; use anyway?");
+      last if get_bool(retr_msg('use_nonexistent', $lang, 'PATH' => $file));
     }
   }
   $file;
@@ -106,11 +158,11 @@ sub get_dir {
     last if !length $dir && $empty;
     next unless length $dir;
     unless ($dir =~ m!^/!) {
-      $msg .= "\nYou must enter a complete pathname, beginning with '/'.";
+      $msg = retr_msg('absolute_path', $lang, 'PATH' => $dir);
       next;
     }
     last if -d $dir;
-    last if get_bool("$dir does not exist; use anyway?");
+    last if get_bool(retr_msg('use_nonexistent', $lang, 'PATH' => $dir));
   }
   $dir;
 }
@@ -123,14 +175,14 @@ sub get_uid {
     my $ans = prompt($msg, $def);
     $uid = ($ans =~ /(\S*)/)[0];
     unless (length $uid) {
-      $msg .= "\nYou must enter a real username or a numeric ID.\n";
+      $msg = retr_msg('no_value', $lang);
       next;
     }
     last if getpwnam $uid ;
     if ($uid =~ /\d+/) { 
       last if ($uid = getpwuid($uid));
     }
-    $msg .= qq(\nThe user ID "$ans" cannot be interpreted.  Please enter a valid user name or number.\n);
+    $msg = retr_msg('invalid_uid', $lang, 'UID' => $ans);
   }
   $uid;
 }
@@ -143,19 +195,18 @@ sub get_gid {
     my $ans = prompt($msg, $def);
     $gid = ($ans =~ /(\S*)/)[0];
     unless (length $gid) {
-      $msg .= "\nYou must enter a real groupname or a numeric ID.\n";
+      $msg = retr_msg('no_value', $lang);
       next;
     }
     last if getgrnam $gid;
     last if $gid =~ /\d+/ && ($gid = getgrgid($gid));
-    $msg .= "\n$gid can't be interpreted, please enter a valid group number.\n";
+    $msg = retr_msg('invalid_gid', $lang, 'GID' => $ans);
   }
   $gid;
 }
 
 sub get_bool {
   my ($msg, $def) = @_;
-  chomp $msg;
   my $val = prompt($msg, $def ? "yes" : "no");
   $val =~ /^y/i ? 1:0;
 }
@@ -174,18 +225,41 @@ sub get_list {
     unless (length $elem) {
       last if $empty;
       last if @{$list};
-      print "Empty list not allowed!\n";
+      print retr_msg('no_value', $lang);
       next;
     }
     # Hack to test for valid domains
     if ($elem =~ /[^a-zA-Z0-9\.\-]/) {
-      print "Invalid domain name.\n";
-      print "Only letters, digits, period and hyphen are allowed.\n";
+      print retr_msg('invalid_domain', $lang, 'DOMAIN' => $elem);
       next;
     }
     push @{$list}, $elem;
   }
   $list;
+}
+
+sub get_passwd {
+  my $msg  = shift;
+  my $def  = shift;
+  my $ans;
+
+  while (1) {
+    $ans = prompt($msg, $def);
+    $ans =~ s/^\s+//;
+    $ans =~ s/\s+$//;
+
+    if ($ans =~ /\s/) {
+      $msg = retr_msg('invalid_password', $lang, 'PASSWORD' => $ans);
+      next;
+    }
+
+    unless (length $ans) {
+      $msg = retr_msg('no_value', $lang);
+      next;
+    }
+    
+    return $ans; 
+  }
 }
 
 sub sep {
@@ -197,16 +271,55 @@ sub sep {
   print "\n", '-'x76, "\n";
 }
 
+use Symbol;
+sub retr_msg {
+  my ($message, $lang, %subs) = @_;
+  my ($fh, $line, $text, $var);
+  $lang ||= 'en';
+
+  unless (-f "setup/messages/$lang/$message") {
+    warn qq(Message "$message" could not be located.);
+
+    if ($lang ne 'en') {
+      $lang = 'en';
+      unless (-f "setup/messages/$lang/$message") {
+        warn qq(Message "$message" could not be located.);
+        return;
+      }
+    }
+    else {
+      return;
+    }
+  }
+
+  $fh = gensym();
+  unless (open ($fh, "< setup/messages/$lang/$message")) {
+    warn qq(Message "$message" could not be opened.);
+    return;
+  }
+
+  while ($line = <$fh>) {
+    $text .= $line;
+  }
+
+  for $var (keys %subs) {
+    $text =~ s/([^\\]|^)\$\Q$var\E(\b|$)/$1$subs{$var}/g;
+  }
+
+  chomp $text;
+  return $text;
+}
+    
 =head1 COPYRIGHT
 
-Copyright (c) 1999 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1999, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
