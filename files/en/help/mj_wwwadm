@@ -1,16 +1,18 @@
 The WWW interface for list administrators is located at:
   $WWWADM_URL
 
-Instructions are available there.
+Basic instructions are available at that location.
 
-The wwwadm script uses several approaches to determine which of
-a site's virtual domains is being accessed.
+The mj_wwwadm script uses several approaches to determine which of
+a site's virtual Majordomo domains is being accessed.  If the name of
+your virtual domain is "virtual.example.com",
 
   * The domain could appear in the URL path, for example:
 
     http://example.com/cgi-bin/mj_wwwadm/domain=virtual.example.com
 
-  * The domain could be provided in the data, for example:
+  * The domain could be provided in the URL query string or as
+    a field in an HTML form, for example:
 
     http://example.com/cgi-bin/mj_wwwadm?domain=virtual.example.com
 
@@ -18,6 +20,9 @@ a site's virtual domains is being accessed.
 
     http://virtual.example.com/cgi-bin/mj_wwwadm
 
+If the domain cannot be determined from any of these three ways, 
+the default domain (the first domain listed in the "mj-domains" file
+in the "ALIASES" directory) will be used.
 
 Actions performed with this CGI script will be logged with the IP
 address of the remote host, for example,
