@@ -681,6 +681,7 @@ setup/ask_basic.pl
 setup/ask_domain.pl
 setup/ask_queueing.pl
 setup/ask_sendsep.pl
+setup/config_commands
 setup/install_util.pl
 setup/mta_exim.pl
 setup/mta_postfix.pl
