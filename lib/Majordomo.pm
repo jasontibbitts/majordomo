@@ -1157,6 +1157,7 @@ sub config_get_vars {
 
   $::log->in(100, "$list, $var");
 
+  $user = new Mj::Addr($user);
   $lvar = lc($var);
 
   $self->_make_list($list);

@@ -451,8 +451,11 @@ sub _post {
 #  $self->deliver($list, $sender, $file, $seqno, 'high');
   $self->deliver($list, $sender, $file, $seqno, [], 'each');
   
-  # Pass to digest if we got back good archive data
-  %digest = $self->{'lists'}{$list}->digest_add($msgnum, $arcdata) if $msgnum;
+  # Pass to digest if we got back good archive data and there is something
+  # in the digests variable.
+  if ($msgnum && scalar keys %{$self->_list_config_get($list, 'digests')}) {
+    %digest = $self->{'lists'}{$list}->digest_add($msgnum, $arcdata);
+  }
 
 #  use Data::Dumper; print Dumper \%digest;
 

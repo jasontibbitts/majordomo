@@ -349,6 +349,7 @@ sub _open_state {
   do $file;
 }
 
+use Data::Dumper;
 sub _close_state {
   my $self = shift;
   my $data = shift;
@@ -359,7 +360,7 @@ sub _close_state {
     return;
   }
   
-  $self->{'datafh'}->print(Dumper $data);
+  $self->{'datafh'}->print(Dumper($data));
   $self->{'datafh'}->commit;
 }
 

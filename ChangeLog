@@ -1,5 +1,14 @@
 Tue Oct 13 15:53:46 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Majordomo.pm (config_get_vars): Neglected to make Mj::Addr
+ 	object.
+
+	* lib/Mj/Digest.pm (_open_state): Need to use Data::Dumper before
+ 	we can dump the state.
+
+	* lib/Mj/Resend.pm (_post): Check to see that 'digests' is non-nll
+ 	before trying to pass the archive data to the digestifier.
+
 	* lib/Mj/Archive.pm (add): Return the complete message name, not
  	just the number within the current archive.
 

@@ -18,6 +18,10 @@ Bugs?
 -----
 
 Messages with empty first part always checksum the same?
+The interface can pass in bad lists and nothing checks them.  Explosions
+  result.
+The interface can pass bad passwords to some functions (config_get_vars)
+  and get a result indistinguishable from using no password.
 
 Top of the list 
 ---------------
@@ -68,6 +72,9 @@ class, then stuff them into the appropriate delivery buckets.
 To do this, change the args to Mj::Deliver::deliver to take per-class
 args.  Then build a proper selection function, extract out all matching
 entries, and put them in the various delivery buckets all at once.
+
+Decide on digest classes: class - "digest", classarg1 - digest name,
+classarg2 - digest type?
 
 - add nonterminal access_rules.  Now we take the first matching, but we
   could act and keep going.  This could be used to add reasons to a list,
