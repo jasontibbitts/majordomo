@@ -1,0 +1,6 @@
+<!-- Majordomo put_error format file -->
+<p>
+The $COMMAND command did not succeed.
+</p>
+
+<pre>?ERROR</pre>

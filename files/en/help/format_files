@@ -660,6 +660,27 @@ every web page for the ALL, DEFAULT, or GLOBAL list.
 (standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, USER)
 
 
+help_error
+----------
+(ALL)  This file is displayed when the help command fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOPIC, USER)
+
+
+help_foot
+---------
+(ALL)  This file is displayed after the contents of a help document.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, TOPIC, USER)
+
+
+help_head
+---------
+(ALL)  This file is displayed before the contents of a help document.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, TOPIC, USER)
+
+
 lists
 -----
 (text, wwwadm, wwwusr)  Displays information about a mailing list
@@ -765,6 +786,36 @@ password_error
  USER, VICTIM)
 
 
+post
+----
+(text, wwwadm, wwwconfirm)  This file is displayed when the post command
+succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, USER)
+
+
+post_error
+----------
+(text, wwwadm, wwwconfirm)  This file is displayed when the post command
+stalls or fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER)
+
+
+put
+---
+(text, wwwadm)  This file is displayed when the put command succeeds.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, FILE, USER)
+
+
+put_error
+---------
+(text, wwwadm)  This file is displayed when the put command fails.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, ERROR, FILE, USER)
+
+
 register
 --------
 (ALL)  This file is displayed when the register command succeeds.
@@ -812,9 +863,9 @@ set_check
 (ALL)  This file displays the current settings for one subscription on
 one mailing list.
 
-(standard plus CGIDATA, CGIURL, CHANGETIME, CLASS_DESCRIPTIONS, 
- CLASSES, CMDPASS, FULLADDR, PARTIAL, QSADDR, SELECTED, SETTINGS, 
- STRIPADDR, SUBTIME, USER, VICTIM, and others)
+(standard plus ACKDENY_CHECKBOX and related checkboxes, CGIDATA, CGIURL, 
+ CHANGETIME, CLASS_DESCRIPTIONS, CLASSES, CMDPASS, FULLADDR, PARTIAL, 
+ QSADDR, SELECTED, SETTINGS, STRIPADDR, SUBTIME, USER, VICTIM, and others)
 
 
 set_error
@@ -847,10 +898,11 @@ show
 (text, wwwusr)  This file displays the data for one mailing list
 subscription.
 
-(standard plus ALIAS, ALIASES, CGIDATA, CGIURL, CHANGETIME, CHECKBOX, 
- CLASS_DESCRIPTIONS, CLASSES, CMDPASS, COUNT, LIST, NUMBERED_BOUNCES, 
- RCHANGETIME, OWNERSHIPS, PASSWORD, QSADDR, REGTIME, SELECTED, SETTINGS, 
- STRIPADDR, SUBLIST, UNNUMBERED_BOUNCES, USER, VICTIM, XFORM and others)
+(standard plus ACKDENY_CHECKBOX and related checkboxes, ALIAS, ALIASES, 
+ CGIDATA, CGIURL, CHANGETIME, CHECKBOX, CLASS_DESCRIPTIONS, CLASSES, 
+ CMDPASS, COUNT, LIST, NUMBERED_BOUNCES, RCHANGETIME, OWNERSHIPS, 
+ PASSWORD, QSADDR, REGTIME, SELECTED, SETTINGS, STRIPADDR, SUBLIST, 
+ UNNUMBERED_BOUNCES, USER, VICTIM, XFORM and others)
 
 
 show_error
@@ -967,7 +1019,6 @@ subscribe_none
 or unsubscribe command does not generate any results.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, USER)
-
 
 
 sessioninfo_error
