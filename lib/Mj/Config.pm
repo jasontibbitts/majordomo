@@ -760,6 +760,7 @@ sub lock {
     $self->{mtime} = time;
     $self->{data}  = do $name;
     $self->_defaults unless $self->{'defaults'};
+    $self->_load_dfl unless $self->{'dfldata'};
     $self->{loaded} = 1;
   }
   
