@@ -1,22 +1,72 @@
 <!-- Majordomo show_foot format file -->
-<tr>
-  <td colspan="13">$FULLADDR was registered on $REGTIME
-<tr><td colspan="13">Alias: ?ALIASES
-<tr><td colspan="13">Administrator of the ?OWNERSHIPS list
 </table>
-
 <p>
-To add an $HELP:ALIAS (another e-mail address from which
-you send messages), or to change addresses, type your new address into
-the <b>New address</b> box
-and press the <b>alias</b> or <b>$HELP:CHANGEADDR</b> button.
-Majordomo may send a message to your new address asking for
-confirmation.<br>
-New address:
+  <input type="submit" name="func" value="unsubscribe">
+  <input type="submit" name="func" value="set">
+</p>
+</form>
+
+<h4 align="center">List Administration</h4>
+<p>
+The mailing lists that you administer at $DOMAIN, if any, are shown
+here.  To administer a list, choose the  list from
+the following menu and press the <b>Go</b> button.  You will
+be prompted for the administrative password for the list.
+
+<form method="POST" action="$WWWADM_URL">
+  <input type="hidden" name="user" value="$USER">
+  <select name="list">
+    <option> ?OWNERSHIPS
+  </select>
+  <input type="submit" value="Go">
+</form>
+</p>
+
+<h4 align="center">Other E-mail Addresses</h4>
+<p>
+If you have more than one e-mail address, and wish to issue
+commands or post messages from your other address, you can
+create an $HELP:ALIAS.  Type your other address into
+the <b>Other address</b> box and press the <b>alias</b> button.
+Majordomo will treat commands or messages that you send from
+your alias addresses as if they were sent from your original
+address.
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="domain" value="$DOMAIN">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" type=password value="$CMDPASS">
+Other address:
   <input size="36" name="extra">
   <input type="submit" name="func" value="alias">
-  <input type="submit" name="func" value="changeaddr">
+<br>
+To remove an existing alias, select it from the following menu
+and press the <b>unalias</b> button.<br>
+  <select name="alias">
+    <option>?ALIASES
+  </select>
+  <input type="submit" name="func" value="unalias">
+</form>
+</p>
 
+<h4 align="center">Changing Your Address</h4>
+<p>
+If you wish to move your subscriptions to a new e-mail address, type
+that address into the <b>New address</b> box and press the the
+<b>$HELP:CHANGEADDR</b> button.  Your password will continue to be valid
+for your new address.  Majordomo may send a message to your new address
+asking for confirmation.
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="domain" value="$DOMAIN">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" type=password value="$CMDPASS">
+New address:
+  <input size="36" name="extra">
+  <input type="submit" name="func" value="changeaddr">
+</form>
+</p>
+
+<h4 align="center">Changing Your Password</h4>
 <p>
 To change your $HELP:PASSWORD, type a password into the <b>New
 password</b> box, then press the <b>password</b> button.  If you leave
@@ -25,24 +75,34 @@ for you.  Otherwise, the password you type must be at least $PWLENGTH
 characters long.  Majordomo will send a copy of your new password to
 your e-mail address.  You will need to sign in again, using your new
 password, if you wish to make any other changes to your
-subscriptions.<br> 
+subscriptions.
 
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="domain" value="$DOMAIN">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" type=password value="$CMDPASS">
 New password: 
-<input size="16" type="password" name="newpasswd"> 
-<input type="submit" name="func" value="password">
+  <input size="16" type="password" name="newpasswd"> 
+  <input type="submit" name="func" value="password">
+</form>
+</p>
 
+<h4 align="center">Unregistering From $SITE</h4>
 <p>
 To $HELP:UNREGISTER, press the <b>unregister</b> button.  
 All of your subscriptions and aliases will be removed, and
-your password will be invalidated.<br>
+your password will be invalidated.
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="domain" value="$DOMAIN">
+  <input type="hidden" name="user" value="$USER">
+  <input type="hidden" name="passw" type=password value="$CMDPASS">
   <input type="submit" name="func" value="unregister">
 </form>
+</p>
 
 <p>
-Normally, each setting is represented by a checkbox, but the 
-list owners can use the
-$HELP:ALLOWED_FLAGS 
-configuration setting to keep you from changing your settings.
-In that case, the setting will be marked with an <b>X</b> if the flag
-is set, and an <b>O</b> if it is not.
+$FULLADDR has been registered at 
+$SITE 
+since $REGTIME.
 </p>
