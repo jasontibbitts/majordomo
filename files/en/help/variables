@@ -86,11 +86,11 @@ or create the error, format, and reply files that use these substitutions.
 Standard substitution variables
 -------------------------------
 
-There is a set of standard substitutions, that apply to most
-of the Majordomo error, format, and reply files.  Their names and values
-(in the context of the GLOBAL list) are shown in the following list.  Naturally, 
-some of the variables (LIST, OWNER, REQUEST, SUBLIST, and WHOAMI)
-will vary depending upon the mailing list.
+There is a set of standard substitutions, that apply to most of the
+Majordomo error, format, and reply files.  Their names and values (in
+the context of the GLOBAL list) are shown in the following list.
+Naturally, some of the variables (LIST, OWNER, PLIST, REQUEST, SUBLIST, and
+WHOAMI) will vary depending upon the mailing list.
 
 \$ARCURL      $ARCURL
   (The URL that allows access to an external archive.  This value is
@@ -109,7 +109,9 @@ will vary depending upon the mailing list.
   (The name of the current domain, as determined at installation time)
 
 \$LIST        $LIST
-  (The name of the current mailing list, or GLOBAL)
+  (The name of the current mailing list, or GLOBAL.  If a sublist is
+   specified, the list name will be followed by a colon ':' and the
+   name of the sublist.)
 
 \$MJ          $MJ
   (The e-mail address of the majordomo server)
@@ -122,6 +124,9 @@ will vary depending upon the mailing list.
 
 \$OWNER       $OWNER
   (The e-mail address of the administrator of the current mailing list)
+
+\$PLIST       $PLIST
+  (The name of the current mailing list, or GLOBAL.)
 
 \$PWLENGTH    $PWLENGTH     
   (The minimum length of a new password.  See "help password" and 

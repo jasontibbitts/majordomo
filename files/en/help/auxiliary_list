@@ -99,11 +99,11 @@ of the kohlrabi sublist to post messages to that sublist.
   allow
   @kohlrabi AND $sublist=kohlrabi
 
-Any sublist that appears in the "sublists" setting is considered
-public, whether or not messages can be posted to it.  The "lists-aux" or
-"lists-aux-full" command can be used to display the public sublists of a
-mailing list.  For example, the following command will display the
-public sublists of the cabbage mailing list:
+Any sublist that appears in the "sublists" setting is considered public,
+whether or not messages can be posted to it.  The "lists-aux" command
+can be used to display the public sublists of a mailing list.  For
+example, the following command will display the public sublists of the
+cabbage mailing list:
 
   lists-aux cabbage
 

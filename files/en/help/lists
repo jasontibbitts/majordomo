@@ -1,8 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-lists[-aux][-compact][-config][-enhanced][-full][-long][-short][-tiny] [pattern]
+lists[-compact][-config][-enhanced][-full][-long][-short][-tiny] [pattern]
+lists-aux[-enhanced] [pattern]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 pattern,   if specified, is a regular expression to search list names
--aux,      if specified, shows all auxiliary lists also
+-aux,      if specified, shows only auxiliary lists
 -compact,  if specified, shows all lists without site information
 -config,   if specified, shows all configuration templates also
 -enhanced, if specified, marks the lists to which you are subscribed
