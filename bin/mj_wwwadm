@@ -153,7 +153,7 @@ $subs = {
          'LIST'     => $lists[0],
          'MULTILIST'=> $otherlists,
          'PASSWORD' => $passw,
-         'REQUEST'  => $func,
+         'COMMAND'  => $func,
          'ST'       => $st,
         };
 
