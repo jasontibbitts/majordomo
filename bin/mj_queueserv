@@ -9,6 +9,9 @@ BEGIN {
   $::SIG_CHLD_IGNORE = 1;
   $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 
+  # Zmailer defines the input field separator.  Untaint it.
+  delete $ENV{'IFS'};
+
   # Redirect standard error output.
   if (! -t STDERR) {
     open (STDERR, ">>$::TMPDIR/mj_queueserv.debug") or
