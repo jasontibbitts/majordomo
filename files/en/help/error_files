@@ -347,6 +347,13 @@ of comments.
 
 (standard substitutions only)
 
+no_stall
+--------
+This message is displayed when a command is not allowed to stall
+because the "nostall" access variable is set.
+
+(standard substitutions only)
+
 no_token
 --------
 This error message is displayed when the accept, reject, or tokeninfo
@@ -400,6 +407,14 @@ privileges according to which setting is being changed.  The
 config_access setting may be used to change the requirements.
 
 (standard plus LEVEL, MODE, NEEDED, SETTING, USER)
+
+pattern_mode
+------------
+This message is displayed when the "pattern" or "regex" mode of the
+set, unregister, or unsubscribe command is used without an
+administrative password.
+
+(standard substitutions only)
 
 pending_delivery
 ----------------

@@ -596,8 +596,7 @@ sub list_access_check {
 
   # Using regular expressions with the unsubscribe, unregister,
   # and set commands is allowed only for administrators.
-  # XLANG
-  return (0, "An administrative password is required to use a pattern.\n")
+  return (0, $self->format_error('pattern_mode', $list))
     if ($args{'regexp'} and not $args{'master_password'});
 
   # If we got a good master password _and_ it overrides access
@@ -804,10 +803,8 @@ sub _a_conf_cons {
   my $log = new Log::In 150, $td->{'command'};
 
   if ($args->{'nostall'}) {
-    # XLANG
-    $args->{'reasons'} = "This command cannot be delayed.\n" . 
-      "The 'nostall' access variable has been set.\003" .
-       $args->{'reasons'};
+    $args->{'reasons'} = $self->format_error('no_stall', $td->{'list'})
+      . "\003" .  $args->{'reasons'};
     return $self->_a_deny('', $td, $args);
   }
   
@@ -850,10 +847,8 @@ sub _a_confirm {
   my ($defaults, $notify);
 
   if ($args->{'nostall'}) {
-    # XLANG
-    $args->{'reasons'} = "This command cannot be delayed.\n" . 
-      "The 'nostall' access variable has been set.\003" .
-       $args->{'reasons'};
+    $args->{'reasons'} = $self->format_error('no_stall', $td->{'list'})
+      . "\003" .  $args->{'reasons'};
     return $self->_a_deny('', $td, $args);
   }
   
@@ -888,10 +883,8 @@ sub _a_confirm2 {
   my $log = new Log::In 150, $td->{'command'};
 
   if ($args->{'nostall'}) {
-    # XLANG
-    $args->{'reasons'} = "This command cannot be delayed.\n" . 
-      "The 'nostall' access variable has been set.\003" .
-       $args->{'reasons'};
+    $args->{'reasons'} = $self->format_error('no_stall', $td->{'list'})
+      . "\003" .  $args->{'reasons'};
     return $self->_a_deny('', $td, $args);
   }
   
@@ -955,10 +948,8 @@ sub _a_consult {
   my ($defaults, $file, $group, $notify, $size);
 
   if ($args->{'nostall'}) {
-    # XLANG
-    $args->{'reasons'} = "This command cannot be delayed.\n" . 
-      "The 'nostall' access variable has been set.\003" .
-       $args->{'reasons'};
+    $args->{'reasons'} = $self->format_error('no_stall', $td->{'list'})
+      . "\003" .  $args->{'reasons'};
     return $self->_a_deny('', $td, $args);
   }
   
@@ -999,10 +990,8 @@ sub _a_delay {
   my ($defaults, $delay, $file, $notify);
 
   if ($args->{'nostall'}) {
-    # XLANG
-    $args->{'reasons'} = "This command cannot be delayed.\n" . 
-      "The 'nostall' access variable has been set.\003" .
-       $args->{'reasons'};
+    $args->{'reasons'} = $self->format_error('no_stall', $td->{'list'})
+      . "\003" .  $args->{'reasons'};
     return $self->_a_deny('', $td, $args);
   }
   
@@ -1043,10 +1032,8 @@ sub _a_forward {
   my $log = new Log::In 150, $arg;
 
   if ($args->{'nostall'}) {
-    # XLANG
-    $args->{'reasons'} = "This command cannot be delayed.\n" . 
-      "The 'nostall' access variable has been set.\003" .
-       $args->{'reasons'};
+    $args->{'reasons'} = $self->format_error('no_stall', $td->{'list'})
+      . "\003" .  $args->{'reasons'};
     return $self->_a_deny('', $td, $args);
   }
   
@@ -1575,8 +1562,8 @@ sub _d_tokeninfo {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2002, 2003 Jason Tibbitts 
+for The Majordomo Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

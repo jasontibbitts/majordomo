@@ -1,4 +1,3 @@
-
 BUGS
 CREDITS
 ChangeLog
@@ -550,6 +549,7 @@ files/en/error/.no_list
 files/en/error/.no_local_part
 files/en/error/.no_password
 files/en/error/.no_route
+files/en/error/.no_stall
 files/en/error/.no_token
 files/en/error/.no_visible
 files/en/error/.not_extracted
@@ -557,6 +557,7 @@ files/en/error/.over_message_limit
 files/en/error/.over_time_limit
 files/en/error/.password_length
 files/en/error/.password_level
+files/en/error/.pattern_mode
 files/en/error/.pending_delivery
 files/en/error/.post_block
 files/en/error/.relocated_list
@@ -627,6 +628,7 @@ files/en/error/no_list
 files/en/error/no_local_part
 files/en/error/no_password
 files/en/error/no_route
+files/en/error/no_stall
 files/en/error/no_token
 files/en/error/no_visible
 files/en/error/not_extracted
@@ -634,6 +636,7 @@ files/en/error/over_message_limit
 files/en/error/over_time_limit
 files/en/error/password_length
 files/en/error/password_level
+files/en/error/pattern_mode
 files/en/error/pending_delivery
 files/en/error/post_block
 files/en/error/relocated_list
@@ -3930,6 +3933,7 @@ files/fr/help/.configset_www_help_window
 files/fr/help/.configset_wwwadm_url
 files/fr/help/.configset_wwwusr_url
 files/fr/help/.end
+files/fr/help/.error_files
 files/fr/help/.exit
 files/fr/help/.faq
 files/fr/help/.foot
@@ -4042,6 +4046,7 @@ files/fr/help/configset_www_help_window
 files/fr/help/configset_wwwadm_url
 files/fr/help/configset_wwwusr_url
 files/fr/help/end
+files/fr/help/error_files
 files/fr/help/exit
 files/fr/help/faq
 files/fr/help/foot
@@ -4445,6 +4450,8 @@ t/bounces/10
 t/bounces/10.desc
 t/bounces/11
 t/bounces/11.desc
+t/bounces/12
+t/bounces/12.desc
 t/bounces/2
 t/bounces/2.desc
 t/bounces/3

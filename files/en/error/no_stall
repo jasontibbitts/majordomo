@@ -1,0 +1,4 @@
+This command cannot be held for approval or otherwise delayed,
+because the "nostall" access variable is set.  Any result other
+than an immediate success is treated as a failure.
+
