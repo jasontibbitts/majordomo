@@ -495,10 +495,13 @@ sub substitute_vars {
   my ($tmp, $in, $i, $inc);
   my $log = new Log::In 200, "$file, $list, $depth";
 
-  $tmp = $tmpdir;
-  $tmp = "$tmp/mj-tmp." . unique();
+  # always open a new input file
   $in  = new Mj::File "$file"
     || $::log->abort("Cannot read file $file, $!");
+
+  # open a new output file if one is not already open (should be at $depth of 0)
+  $tmp = $tmpdir;
+  $tmp = "$tmp/mj-tmp." . unique();
   $out ||= new IO::File ">$tmp"
     || $::log->abort("Cannot write to file $tmp, $!");
   
@@ -511,7 +514,7 @@ sub substitute_vars {
 
       if ($inc) {
 	if ($depth > 3) {
-	  $out->print("Recursive inclusion depth exceeded.\n");
+	  $out->print("Recursive inclusion depth exceeded\n ($depth levels: may be a loop, now reading $1)\n");
 	}
 	else {
 	  # Got the file; substitute in it, perhaps recursively
@@ -528,7 +531,7 @@ sub substitute_vars {
     $out->print($i);
   }
   $in->close;
-  $out->close;
+  $out->close if(!$depth);
   $tmp;
 }
 
