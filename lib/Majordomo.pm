@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200011250";
+$VERSION = "0.1200012190";
 $unique = 'AAA';
 
 use strict;
@@ -1510,7 +1510,8 @@ sub list_config_set {
 
   @groups = $self->config_get_groups($request->{'setting'});
   if (!@groups) {
-    return (0, "Unknown variable \"$request->{'setting'}\".\n"); #XLANG
+    return (0, $self->format_error('unknown_setting', $request->{'list'}, 
+                                   'SETTING' => $request->{'setting'}));
   }
   $global_only = 1;
   if ($self->config_get_mutable($request->{'setting'})) {
@@ -1671,7 +1672,8 @@ sub list_config_set_to_default {
 
   @groups = $self->config_get_groups($var);
   if (!@groups) {
-    return (0, "Unknown variable \"$var\".\n"); #XLANG
+    return (0, $self->format_error('unknown_setting', $request->{'list'}, 
+                                   'SETTING' => $request->{'setting'}));
   }
 
   $user = new Mj::Addr($user);
@@ -5978,8 +5980,9 @@ use Mj::Addr;
 use Safe;
 sub who_chunk {
   my ($self, $request, $chunksize) = @_;
-  my $log = new Log::In 100, "$request->{'list'}, $request->{'regexp'}, $chunksize";
-  my (@chunk, @out, @tmp, $addr, $i, $j, $k, $strip);
+  my $log = new Log::In 100, 
+                  "$request->{'list'}, $request->{'regexp'}, $chunksize";
+  my (@chunk, @out, @tmp, $addr, $i, $j, $k, $list, $strip);
 
   # Common mode: stop now if no addresses remain to be matched.
   return (0, '')
@@ -5988,9 +5991,15 @@ sub who_chunk {
          scalar keys %{$self->{'commoners'}}));
 
   return (0, "No subscriber list was specified") 
-    unless (length $request->{'sublist'});
+    unless (length $request->{'sublist'}); # XLANG
+
   return (0, "Invalid chunk size \"$chunksize\"") 
-    unless (defined $chunksize and $chunksize > 0);
+    unless (defined $chunksize and $chunksize > 0); # XLANG
+
+  $list = $self->{'lists'}{$request->{'list'}};
+  return (0, "Unable to access the \"$request->{'list'}\" list.") 
+    unless $list;
+
   # who for DEFAULT returns nothing
   if ($request->{'list'} eq 'DEFAULT') {
     return (0, "The DEFAULT list never has subscribers");
@@ -6017,26 +6026,28 @@ sub who_chunk {
   }
   else {
 CHUNK:
-    @tmp = 
-      $self->{'lists'}{$request->{'list'}}->search($request->{'sublist'},
-                                                   $request->{'regexp'},
-                                                   'regex', $chunksize);
+    @tmp = $list->search($request->{'sublist'}, $request->{'regexp'},
+                         'regex', $chunksize);
+
     $k = scalar @tmp;
     while (($j, $i) = splice(@tmp, 0, 2)) {
-      if ($request->{'mode'} =~ /bounces/) {
+
+      # In bounce mode, addresses without bounce data must be removed here, to 
+      # allow the full chunk of addresses to be collected.
+      if ($request->{'mode'} =~ /bounce/) {
         # use Data::Dumper; warn Dumper $i;
         next unless $i->{'bounce'};
-        $i->{'bouncedata'} = $self->{'lists'}{$request->{'list'}}->_bounce_parse_data($i->{'bounce'});
+        $i->{'bouncedata'} = $list->_bounce_parse_data($i->{'bounce'});
         next unless $i->{'bouncedata'};
-        $i->{'bouncestats'} = 
-          $self->{'lists'}{$request->{'list'}}->bounce_gen_stats($i->{'bouncedata'});
+        $i->{'bouncestats'} = $list->bounce_gen_stats($i->{'bouncedata'});
         next unless ($i->{'bouncestats'}->{'month'} > 0);
       }
+
       $i->{'canon'} = $j;
       push @chunk, $i;
     }
 
-    if ($request->{'mode'} =~ /bounces/ and $k and
+    if ($request->{'mode'} =~ /bounce/ and $k and
         scalar @chunk < $chunksize) 
     {
       goto CHUNK;
@@ -6050,35 +6061,28 @@ CHUNK:
   }
 
   for $i (@chunk) {
-    next if ($request->{'regexp'} 
-             and !_re_match($request->{'regexp'}, $i->{'fulladdr'})); 
     if ($request->{'mode'} =~ /common/) {
       last unless scalar keys %{$self->{'commoners'}};
       next unless exists $self->{'commoners'}->{$i->{'canon'}};
       delete $self->{'commoners'}->{$i->{'canon'}};
     }
       
-    # If we're to show it all...
+    # If we're to show it all, obtain descriptions of the settings.
     if ($self->{'unhide_who'}) {
-      # GLOBAL has no flags or classes
-      if ($request->{'list'} ne 'GLOBAL') {
+
+      # The GLOBAL registry has no flags or classes
+      if ($request->{'list'} ne 'GLOBAL' or $request->{'sublist'} ne 'MAIN') {
 	$i->{'flagdesc'} =
-	  join(',',$self->{'lists'}{$request->{'list'}}->describe_flags($i->{'flags'}));
+	  join(',', $list->describe_flags($i->{'flags'}));
+
 	$i->{'classdesc'} =
-	  $self->{'lists'}{$request->{'list'}}->describe_class($i->{'class'},
-						  $i->{'classarg'},
-						  $i->{'classarg2'},
-						  1,
-						 );
+	  $list->describe_class($i->{'class'}, $i->{'classarg'},
+				$i->{'classarg2'}, 1);
+
 	if (($i->{'class'} eq 'nomail') && $i->{'classarg2'}) {
 	  # classarg2 holds information on the original class
 	  $i->{'origclassdesc'} =
-	    $self->{'lists'}{$request->{'list'}}->describe_class(split("\002",
-							  $i->{'classarg2'},
-							  3
-							 ),
-						    1,
-						   );
+	    $list->describe_class(split("\002", $i->{'classarg2'}, 3), 1);
 	}
       }
       push @out, $i;
