@@ -46,7 +46,7 @@ delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 umask oct($::UMASK);
 
 # Options:
-#  -D : enable debugging to STDOUT
+#  -D : enable debugging to STDERR
 #  -d : specify domain to operate on
 #  -F : parse commands from given file (multiple files may be used)
 #  -f : give attachment file
@@ -931,7 +931,7 @@ Here are all of the command line switches that B<mj_shell> accepts:
 
 =item B<-D>
 
-Specifies that full debugging information will be sent to standard output.
+Specifies that full debugging information will be sent to standard error.
 
 =item B<-d> I<domain>
 

@@ -218,7 +218,7 @@ DESCRIPTION
     Here are all of the command line switches that mj_shell accepts:
 
     -D  Specifies that full debugging information will be sent to standard
-        output.
+        error.
 
     -d *domain*
         Specifies the domain of lists to operate on. The default domain is
