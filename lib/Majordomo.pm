@@ -2591,6 +2591,7 @@ This changes a user''s password.  If mode is 'gen' or 'rand' (generate or
 random) a password is randomly generated.
 
 =cut
+use Mj::Util qw(gen_pw);
 sub password {
   my ($self, $request) = @_;
   my ($ok, $mess, $minlength);
@@ -2599,7 +2600,7 @@ sub password {
   $minlength = $self->_global_config_get('password_min_length');
   # Generate a password if necessary
   if ($request->{'mode'} =~ /gen|rand/) {
-    $request->{'newpasswd'} = Mj::Access::_gen_pw($minlength);
+    $request->{'newpasswd'} = &gen_pw($minlength);
   }
   return (0, $self->format_error('password_length', 'GLOBAL'))
     unless (length($request->{'newpasswd'}) >= $minlength);
@@ -4104,6 +4105,7 @@ sub createlist {
 }
 
 use MIME::Entity;
+use Mj::Util qw(gen_pw);
 sub _createlist {
   my ($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list) = @_;
   $list ||= '';
@@ -4127,7 +4129,7 @@ sub _createlist {
   }
 
   $pw    = $self->_global_config_get('password_min_length');
-  $pw    = Mj::Access::_gen_pw($pw);
+  $pw    = &gen_pw($pw);
   $mta   = $self->_site_config_get('mta');
   $dom   = $self->{'domain'};
   $bdir  = $self->_site_config_get('install_dir');
@@ -4484,7 +4486,7 @@ sub _digest {
 
     # Deliver then clean up
     if (keys %$deliveries) {
-      $self->deliver($list, '', $sender, undef, $deliveries);
+      $self->deliver($list, '', $sender, $deliveries);
       for $i (keys %$deliveries) {
 	unlink $deliveries->{$i}{file}
 	  if $deliveries->{$i}{file};
@@ -4928,6 +4930,7 @@ sub register {
                        $request->{'cmdline'}, $request->{'newpasswd'});
 }
 
+use Mj::Util qw(gen_pw);
 sub _register {
   my $self  = shift;
   my $d     = shift;
@@ -4937,11 +4940,11 @@ sub _register {
   my $cmd   = shift;
   my $pw    = shift;
   my $log   = new Log::In 35, "$vict";
-  my ($ok, $data, $exist, $welcome);
+  my ($data, $exist, $ok, $welcome);
   
   if (!defined $pw || !length($pw)) {
-    $pw = $self->_global_config_get('password_min_length');
-    $pw = Mj::Access::_gen_pw($pw);
+    $d = $self->_global_config_get('password_min_length');
+    $pw = &gen_pw($d);
   }
 
   # Add to/update registration database
@@ -4949,6 +4952,7 @@ sub _register {
   
   # We shouldn't fail, because we trust the reg. database to be correct
   if ($exist) {
+    # XLANG
     $log->out("failed, existing");
     return (0, "$vict is already registered as $data->{'fulladdr'}.\n");
   }
@@ -4990,6 +4994,7 @@ sub rekey {
                 $request->{'mode'}, $request->{'cmdline'});
 }
 
+use Mj::Util qw(gen_pw);
 sub _rekey {
   my($self, $d, $requ, $vict, $mode, $cmd) = @_;
   my $log = new Log::In 35, $mode;
@@ -5048,7 +5053,7 @@ sub _rekey {
             next;
           }
           $minlength = $self->_global_config_get('password_min_length');
-          $pw = Mj::Access::_gen_pw($minlength);
+          $pw = &gen_pw($minlength);
           $self->_reg_add($data, 'list' => $list, 'password' => $pw);
           $mess .= "Address $addr has been repaired.\n";
         }
@@ -5661,6 +5666,7 @@ sub subscribe {
                     $request->{'setting'}, $request->{'sublist'});
 }
 
+use Mj::Util qw(gen_pw);
 sub _subscribe {
   my $self  = shift;
   my $list  = shift;
@@ -5707,7 +5713,7 @@ sub _subscribe {
   # dd to/update registration database
   if ($sublist eq 'MAIN') {
     ($exist, $rdata) =
-      $self->_reg_add($vict, 'password' => Mj::Access::_gen_pw($ml), 
+      $self->_reg_add($vict, 'password' => &gen_pw($ml), 
                       'list' => $list);
   }
 

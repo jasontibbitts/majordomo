@@ -29,8 +29,6 @@ use Mj::Config qw(parse_table);
 use Mj::CommandProps qw(:rules);
 use strict;
 use vars qw($text);
-#use vars qw($current $skip $text $victim $passwd @permitted_ops %args
-#            %memberof %requests);
 
 use AutoLoader 'AUTOLOAD';
 1;
@@ -264,62 +262,6 @@ sub _build_passwd_data {
   return;
 }
 
-=head2 _gen_pw (length)
-
-Generate a password randomly.
-
-One of the implementations is cribbed from an email to majordomo-workers
-sent by OXymoron.  The other is trivial anyway.  I don''t know which I like
-more.
-
-The new password will be at least six characters long.
-
-=cut
-sub _gen_pw {
-  my $length = shift || 6;
-  $length = 6 if ($length < 6);
-
-  my $log = new Log::In 200;
-#   my @forms = qw(
-# 		 xxxxxxx
-# 		 xxxxxx0
-# 		 000xxxx
-# 		 xxx0000
-# 		 xxxx000
-# 		 0xxxxx0
-# 		 xxxxx00
-# 		 00xxxxx
-# 		 xxx00xxx
-# 		 00xxxx00
-# 		 Cvcvcvc
-# 		 cvcvc000
-# 		 000cvcvc
-# 		 Cvcvcvc0
-# 		 xxx00000
-# 		);
-
-#   my %groups= (
-# 	       'x' => "abcdefghijkmnpqrstuvwxyz",
-# 	       'X' => "ABCDEFGHJKLMNPQRSTUVWXYZ",
-# 	       'c' => "bcdfghjklmnpqrstvwxyz",
-# 	       'C' => "BCDFGHJKLMNPQRSTVWXYZ",
-# 	       'v' => "aeiou",
-# 	       'V' => "AEIOU",
-# 	       '0' => "0123456789"
-# 	      );
-
-#   $pw=$forms[int(rand(@forms))];
-#   $pw=~s/(.)/substr($groups{$1},int(rand(length($groups{$1}))),1)/ge;
-
-  my $chr = 'ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnpqrstyvwxyz23456789';
-  my $pw;
-
-  for my $i (1..$length) {
-    $pw .= substr($chr, rand(length($chr)), 1);
-  }
-  $pw;
-}
-
 =head2 check_headers(sessiondata)
 
 Check the session data (for the email and request interfaces only)
@@ -343,6 +285,8 @@ sub check_headers {
   $code = {};
   $reasons = '';
   $data = $self->_global_config_get('block_headers');
+  return (0, 'No patterns were provided by the block_headers setting.')
+    unless (ref $data eq 'HASH');
   push @inv, @{$data->{'inv'}};
   $code = $data->{'code'};
 
@@ -408,14 +352,15 @@ Returns:
   a flag
   a message, to be returned to the user
 
-If the flag is false, the operation failed.  If the flag is positibe, the
+If the flag is false, the operation failed.  If the flag is positive, the
 operation succeeds and the core code should carry it out.  It is necessary
 to communicate some type of conditional failure, because the command may be
 fine while the action cannot be immediately completed.
 
 Outline:
   Check to see if a password always overrides
-  Check validity of password and bypass rest or set variable
+  Check validity of password and bypass the checks if an
+    administrative password is used, or set a variable
   Build access table (separate routine)
   Check for the presense of an access routine for that task.
   Provide the proper variables; look up list memberships.
@@ -456,31 +401,6 @@ sub global_access_check {
 =head2 list_access_check(request, arghash)
 
 =cut
-# These are the ops we allow our generated code to perform.  Even though we
-# generated it, we go further and severely restrict what it can do.
-#  @permitted_ops =
-#    qw(
-#       anonlist
-#       const
-#       enter
-#       eq
-#       ge
-#       gt
-#       helem
-#       le
-#       leaveeval
-#       lt
-#       ne
-#       not
-#       null
-#       pushmark
-#       refgen
-#       return
-#       rv2sv
-#       seq
-#       sne
-#      );
-
 use Data::Dumper;
 use Mj::CommandProps qw(:function action_terminal);
 use Mj::Util qw(process_rule in_clock);
@@ -495,14 +415,12 @@ sub list_access_check {
   my $mode      = $data->{'mode'};
   my $cmdline   = $data->{'cmdline'};
   my $list      = $data->{'list'};
-     $list      = 'GLOBAL' if ($list =~ /^DEFAULT/);
+     $list      = 'GLOBAL' if ($list =~ /^DEFAULT|^ALL$/);
   my $request   = $data->{'command'};
      $request   =~ s/_(start|chunk|done)$//;
   my $requester = $data->{'user'};
   my $sublist   = (exists $data->{'sublist'}) ? $data->{'sublist'} : 'MAIN';
   my $victim    = $data->{'victim'} || $requester;
-  my $arg1      = exists $data->{'arg1'} ? $data->{'arg1'} : '';
-  my $arg2      = exists $data->{'arg2'} ? $data->{'arg2'} : '';
   my $arg3      = exists $data->{'arg3'} ? $data->{'arg3'} : '';
 
   my $log = new Log::In 60, "$list, $request, $requester, $victim";
@@ -537,28 +455,33 @@ sub list_access_check {
       $j,                   # iterator
       $func,
       $fileinfo,
-      $pdata,               # latchkey data
       $text,
       $temp,
-      $ok, $ok2,
+      $ok, 
       $tmpl, $tmpa,         # Temporary list and sublist holders
       @temps,
       $value,               # Value to which the 'set' action changes a variable.
      );
 
-  if ($self->t_recognize($passwd)) {
-    # The password given appears to be a latchkey, a temporary password.
-    # If the latchkey exists and has not expired, convert the latchkey
-    # to a permanent password.
-    $self->_make_latchkeydb;
-    if (defined $self->{'latchkeydb'}) {
-      $pdata = $self->{'latchkeydb'}->lookup($passwd);
-      if (defined $pdata) {
-        $passwd = $pdata->{'arg1'}
-          if (time <= $pdata->{'expire'});
-      }
-    }
-  }
+  # Initialize list
+  return (0, "Unable to initialize list $list")
+    unless $self->_make_list($list);
+
+  # Initialize access variables
+  $args{'master_password'} = 0;
+  $args{'user_password'}   = 0;
+  $args{'delay'}           = 0;
+  $args{'interface'}       = $self->{'interface'};
+  $args{'reasons'}       ||= '';
+  $args{'sublist'}         = $sublist;
+
+  # Add some chunks of the address to the set of matchable variables
+  $victim->strip =~ /.*\@(.*)$/;
+  $args{'host'}     = $1;
+  $args{'addr'}     = $victim->strip;
+  $args{'fulladdr'} = $victim->full;
+  $args{'mode'}     = $mode;
+  $args{'delay'} = $data->{'delay'};
 
   # Figure out if $requester and $victim are the same
   $args{'mismatch'} = !($requester eq $victim)
@@ -568,8 +491,6 @@ sub list_access_check {
   $args{'posing'} = !($requester eq $self->{'sessionuser'})
     unless defined($args{'posing'});
 
-  $list = 'GLOBAL' if $list eq 'ALL';
-  $self->_make_list($list);
 
   # If we were given a password, it must be valid.  Note that, in the case
   # of a mismatch, we make sure that the user password supplied matches
@@ -577,38 +498,30 @@ sub list_access_check {
   # forge-subscribe other people.  This also means that we have to check
   # the password against both addresses before we bomb with an invalid
   # password error.
-  $args{'master_password'} = 0;
-  $args{'user_password'}   = 0;
-  $args{'delay'}           = 0;
-  $args{'interface'}       = $self->{'interface'};
-  $args{'sublist'}         = $sublist;
-
   if ($passwd) {
     # Check the password against the requester
-    $ok = $self->validate_passwd($requester, $passwd, $list, $request);
+    ($ok) = $self->validate_passwd($requester, $passwd, $list, $request);
+   
+    unless (($ok > 0) or (! $args{'mismatch'})) {
+      # Check the password against the victim
+      ($ok) = $self->validate_passwd($victim, $passwd, $list, $request);
+    }
+
     if ($ok > 0) {
       $args{'master_password'} = $ok;
     }
-    if ($args{'mismatch'}) {
-      # Check the password against the victim
-      $ok2 = $self->validate_passwd($victim, $passwd, $list, $request);
-      if ($ok2 < 0) {
-	$args{'user_password'} = 1;
-      }
+    elsif ($ok < 0) {
+      $args{'user_password'} = -$ok;
     }
-    else {
-      # The requester and victim are the same, so no need to recheck
-      if ($ok < 0) {
-	$args{'user_password'} = 1;
-      }
+    elsif (! function_prop($data->{'command'}, 'nopass')) {
+      return (0, "Invalid password.\n");
     }
-    # It's invalid unless one of the flags was set, excepting
-    # the help command.
-    return (0, "Invalid password.\n")
-      unless $args{'master_password'} || $args{'user_password'}
-             || $request eq 'help' || $request eq 'lists';
+    # Fall through if a valid password is unneeded.
   }
-  return (0, "The master password is required to use regular expressions.\n")
+
+  # Using regular expressions with the unsubscribe, unregister,
+  # and set commands is allowed only for administrators.
+  return (0, "The master password is required to use a pattern.\n")
     if ($args{'regexp'} and not $args{'master_password'});
 
   # If we got a good master password _and_ it overrides access
@@ -617,7 +530,6 @@ sub list_access_check {
     $password_override =
       $self->_list_config_get($list, "access_password_override");
 
-    $args{'delay'} = $data->{'delay'};
     # Return some huge value, because this value is also used as a count
     # for some routines.  If a delay was used, delay the command.
     # If "rule" mode was used, do not override the access rules.
@@ -631,7 +543,6 @@ sub list_access_check {
   }
 
   $access = $self->_list_config_get($list, 'access_rules');
-  $args{'reasons'} ||= '';
 
   if ($access->{$request}) {
     # Populate the memberships hash
@@ -653,22 +564,17 @@ sub list_access_check {
 	$memberof{$i} = $self->{'lists'}{$tmpl}->is_subscriber($victim, $tmpa);
       }
     }
+
+    # The time array indicates whether or not the current time
+    # falls within a particular rule's time limits.
     $current = [];
     if (exists $access->{'check_time'}) {
       for ($i = 0; $i < scalar @{$access->{'check_time'}}; $i++) {
         for ($j = 0; $j < scalar @{$access->{'check_time'}[$i]}; $j++) {
-          $current->[$i][$j] = 
-            Mj::Util::in_clock($access->{'check_time'}[$i][$j]);
+          $current->[$i][$j] = &in_clock($access->{'check_time'}[$i][$j]);
         }
       }
     }
-
-    # Add some chunks of the address to the set of matchable variables
-    $victim->strip =~ /.*\@(.*)$/;
-    $args{'host'}     = $1;
-    $args{'addr'}     = $victim->strip;
-    $args{'fulladdr'} = $victim->full;
-    $args{'mode'}     = $mode;
 
     @final_actions =
       process_rule(name     => 'access_rules',
@@ -686,10 +592,10 @@ sub list_access_check {
   }
 
 FINISH:
-  # Now figure out what to do
+  # Call the _a_ action routines.
   for $i (@final_actions) {
     no strict 'refs';
-    ($func, $arg) = split(/[-=]/,$i,2);
+    ($func, $arg) = split(/[-=]/, $i, 2);
     $arg ||= '';
     $func = "_a_$func";
     $func =~ s/\+/\_/g;
@@ -702,14 +608,14 @@ FINISH:
     push @temps, $temp if defined $temp;
   }
 
-  # If we ran out of actions and didn't generate any reply text, we
-  # should replyfile the default (for the last action we ran).
+  # If there is no reply message,
+  # reply with the default file for the last final action.
   if (!$mess && $deffile) {
     (undef, undef, $mess, $fileinfo) =
       $self->_a_replyfile($deffile, $data, \%args);
   }
 
-  # Build the reasons list.
+  # Build the reasons list for variable substitutions.
   $reasons .= join("\n", split("\002", $args{'reasons'}));
 
   # Append the sublist for variable substitutions.
@@ -720,9 +626,7 @@ FINISH:
     }
   }
 
-  # Expand variables in the returned message.  XXX Obviously add some
-  # more useful substitutions here.  taboo information (taboo_rule,
-  # taboo_match), etc.
+  # Expand variables in the returned message. 
   $mess =
     $self->substitute_vars_string
       ($mess,
@@ -737,6 +641,7 @@ FINISH:
        },
       ) if $mess;
 
+  # Remove temporary files created by the action routines.
   for $i (@temps) {
     unlink $i || $::log->abort("Failed to unlink $i, $!");
   }

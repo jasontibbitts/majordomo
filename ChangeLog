@@ -1,3 +1,11 @@
+2001-02-05  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Access.pm: (list_access_check) Minor cleanup. 
+	(_gen_pw)  Moved to Mj::Util::gen_pw.
+
+	* lib/Mj/CommandProps.pm:  Add "nopass" command property
+	to the help and lists commands.
+	
 2001-02-04  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Format.pm (who): Use nowelcome for who-export GLOBAL.

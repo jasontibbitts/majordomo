@@ -16,7 +16,7 @@ package Mj::Util;
 use Mj::Log;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(in_clock process_rule str_to_time time_to_str);
+@EXPORT_OK = qw(gen_pw in_clock process_rule str_to_time time_to_str);
 
 use AutoLoader 'AUTOLOAD';
 
@@ -147,6 +147,28 @@ sub process_rule {
     $params{'args'}->{$i} = $args{$i};
   }
   @final_actions;
+}
+
+=head2 gen_pw (length)
+
+Generate a password randomly.
+
+The new password will be at least six characters long.
+
+=cut
+sub gen_pw {
+  my $length = shift || 6;
+  $length = 6 if ($length < 6);
+
+  my $log = new Log::In 200;
+
+  my $chr = 'ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnpqrstyvwxyz23456789';
+  my $pw;
+
+  for my $i (1..$length) {
+    $pw .= substr($chr, rand(length($chr)), 1);
+  }
+  $pw;
 }
 
 =head2 in_clock(clock, time)

@@ -453,7 +453,7 @@ my %commands =
    'help' =>
    {
     'parser'   => [qw(email shell nohereargs real)],
-    'dispatch' => {'top' => 1, 'iter' => 1,
+    'dispatch' => {'top' => 1, 'iter' => 1, 'nopass' => 1,
                    'arguments' => {'topic' => {'type' => 'SCALAR'}},
                    'modes'    =>  {
                                    %generic_modes,
@@ -519,7 +519,7 @@ my %commands =
    'lists' =>
    {
     'parser'   => [qw(email shell nohereargs real)],
-    'dispatch' => {'top' => 1,
+    'dispatch' => {'top' => 1, 'nopass' => 1,
                    'arguments' => { 'regexp' => {'type' => 'SCALAR'}},
                    'modes'    =>  {
                                    %generic_modes,
