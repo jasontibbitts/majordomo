@@ -45,6 +45,9 @@ Usually, all of the moderators will receive a copy of a confirmation
 message.  The moderator_group configuration setting can cause a smaller
 number of moderators to be chosen randomly.
 
+This setting is a replacement for the "moderator" setting of Majordomo
+version 1.
+
 
 See Also:
    help admin_moderate
