@@ -757,6 +757,7 @@ FINISH:
       ($mess,
        {
         $self->standard_subs($list),
+        'CMDLINE' => $cmdline,
         'FULFILL' => scalar localtime (time + $args{'delay'}),
         'NOTIFY'  => $victim,
 	'REASONS' => $reasons,
