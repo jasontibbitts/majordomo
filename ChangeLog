@@ -1,3 +1,8 @@
+2001-12-21  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Bugfix:  Do not use "immediate" mode with "edit"
+	mode in the get command.  Thanks to Roger Klorese.
+
 2001-12-20  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_createlist, _set, _who)
