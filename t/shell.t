@@ -18,6 +18,7 @@ mkdir "tmp.$$/test/GLOBAL", 0700 || die;
 mkdir "tmp.$$/test/DEFAULT", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL/files", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL/sessions", 0700 || die;
+symlink "../../files", "tmp.$$/SITE/files";
 open SITE,">tmp.$$/SITE/config.pl";
 print SITE qq!
 \$VAR1 = {
@@ -79,7 +80,7 @@ $r = run('-p gonzo subscribe-quiet bleeargh zork@example.com');
 ok($e, $r);
 
 # 10. Make sure they're there
-$e = qq!Members of list "bleeargh":\n  zork\@example.com\n1 listed subscriber\n!;
+$e = qq!Members of the "bleeargh" list:\n  zork\@example.com!;
 $r = run('who bleeargh');
 ok($e, $r);
 
@@ -89,7 +90,7 @@ $r = run('-p gonzo subscribe bleeargh:harumph deadline\@example.com');
 ok($e, $r);
 
 # 12. Make sure it showed up
-$e = qq!\QMembers of list "bleeargh:harumph":\n  deadline\@example.com\n1 listed subscriber\n!;
+$e = qq!\QMembers of the "bleeargh:harumph" list:\n  deadline\@example.com!;
 $r = run('-p gonzo who bleeargh:harumph');
 ok($e, $r);
 
