@@ -1,16 +1,23 @@
 <!-- Majordomo who_head format file -->
 <h4 align=center>Unsubscribe Addresses or Change Settings</h4>
 
-<p>To remove addresses, press the button next to one or more
+<p>
+To remove addresses, press the button next to one or more
 addresses from the following list.  If you wish to remove the addresses
 quietly, press the $HELP:UNSUBSCRIBE button.  If you want each
 person who is removed to receive a farewell message, press the 
 <b>unsubscribe-farewell</b> button instead.
 </p>
 
-<p>To change settings, press the buttons next to the addresses
-whose settings you wish to change, select the appropriate settings,
-then press the $HELP:SET button.
+<p>
+To change settings, press the button next to each address whose settings
+you wish to change, select the appropriate settings, then press the
+$HELP:SET button.
+</p>
+
+<p>
+Click the address of a subscriber to see an expanded description
+of the settings for that address.
 </p>
 
 <form method="POST" action="$CGIURL">
