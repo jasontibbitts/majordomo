@@ -169,6 +169,11 @@ sub new {
   # Bail if creating an Addr from an Addr
   return $val if ref($val) eq 'Mj::Addr';
 
+  # Untaint
+  $val =~ /(.*)/; $val = $1;
+  # Avoid database overlaps.
+  $val =~ s/\001/^A/g;
+
   $self->{'full'} = $val;
   return undef unless $self->{'full'};
 #  my $log = new Log::In 150, $self->{'full'};
