@@ -13,11 +13,38 @@ EXAMPLE:
 configset GLOBAL default_language = en
 
 
-This sets the default language for the list (or the installation).
-This is overridable by the user in several ways.  Note that at this
-time this is barely implemented.  (Only English messages are supported
-at the moment.)
+$INCLUDE-config/default_language
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+When error, format, or reply files are displayed, Majordomo will
+look through a series of directories until it finds the appropriate
+file.  By default, four locations are searched:
+  1. The file space of your mailing list
+  2. The "en" subdirectory of the file space of the DEFAULT pseudo-list
+  3. The file space of the DEFAULT pseudo-list
+  4. The "en" subdirectory of the "SITE" file space.
+
+Changing this setting will change the order of the locations that are
+searched.  For example, if this setting had the following value:
+
+  de,en
+
+the following locations would be searched instead:
+  1. The file space of your mailing list
+  2. The "de" subdirectory of the file space of the DEFAULT pseudo-list
+  3. The "en" subdirectory of the file space of the DEFAULT pseudo-list
+  4. The file space of the DEFAULT pseudo-list
+  5. The "de" subdirectory of the "SITE" file space.
+  6. The "en" subdirectory of the "SITE" file space.
+
+
+See Also:
+   help admin_documents (an introduction to file spaces)
+   help error_files
+   help format_files
+   help get
+   help index
+   help put
+   help reply_files
+   help variables
+
+$INCLUDE-help/foot
