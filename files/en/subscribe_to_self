@@ -1,2 +1,2 @@
-You attempted to subscribe a list to itself.  This is,
-for obvious reasons, not permitted.
+You attempted to subscribe one of Majordomo's reserved e-mail addresses
+to a mailing list.  To prevent mail loops, this is not permitted.
