@@ -553,13 +553,14 @@ my %commands =
     'parser'   => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1, 
                    'arguments' => {'newpasswd' => {'type' => 'SCALAR',
-                                                   'exclude' => 'rand|gen'},
+                                                   'exclude' => 'gen|rand|show'},
                                    'victims'   => {'type' => 'ARRAYELEM',}
                                   },
                    'modes'    =>  {
                                    %generic_modes,
-                                   'gen'         => 1,
-                                   'rand'        => 1,
+                                   'gen'  => {'exclude' => 'quiet'},     
+                                   'rand' => {'exclude' => 'quiet'},     
+                                   'show' => {'exclude' => 'gen|quiet|rand'},     
                                   },
                    'tokendata' => { 'arg1'   => 'newpasswd',
                                    'victim'  => 'victims'}

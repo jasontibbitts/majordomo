@@ -2844,27 +2844,33 @@ random) a password is randomly generated.
 use Mj::Util qw(gen_pw);
 sub password {
   my ($self, $request) = @_;
-  my ($ok, $mess, $minlength);
+  my ($ok, $length, $mess, $minlength);
   my $log = new Log::In 30, "$request->{'victim'}, $request->{'mode'}";
 
-  $minlength = $self->_global_config_get('password_min_length');
   # Generate a password if necessary
   if ($request->{'mode'} =~ /gen|rand/) {
     $request->{'newpasswd'} = &gen_pw($minlength);
   }
+  elsif ($request->{'mode'} =~ /show/) {
+    $request->{'newpasswd'} = '';
+  }
+
+  $length = length $request->{'newpasswd'};
+  $minlength = $self->_global_config_get('password_min_length') || 0;
+
   return (0, $self->format_error('password_length', 'GLOBAL'))
-    unless (length($request->{'newpasswd'}) >= $minlength);
+    unless ($request->{'mode'} =~ /show/ or $length >= $minlength);
 
   ($ok, $mess) =
-    $self->global_access_check($request, 'password_length' =>
-                               length($request->{'newpasswd'}));
+    $self->global_access_check($request, 'password_length' => $length);
 
   unless ($ok > 0) {
     return ($ok, $mess);
   }
 
-  $self->_password($request->{'list'}, $request->{'user'}, $request->{'victim'},
-                   $request->{'mode'}, $request->{'cmdline'}, $request->{'newpasswd'});
+  $self->_password($request->{'list'}, $request->{'user'}, 
+                   $request->{'victim'}, $request->{'mode'}, 
+                   $request->{'cmdline'}, $request->{'newpasswd'});
 }
 
 use MIME::Entity;
@@ -2874,17 +2880,21 @@ sub _password {
   my $log = new Log::In 35, "$vict";
   my (%file, $desc, $ent, $file, $i, $reg, $sender, $subst);
 
-  # Make sure user is registered.  XXX This ends up doing two reg_lookups,
-  # which should probably be cached
+  # Make sure user is registered. 
   $reg = $self->_reg_lookup($vict);
   return (0, $self->format_error('unregistered', 'GLOBAL', 'VICTIM' => "$vict"))
     unless $reg;
 
-  # Write out new data.
-  $self->_reg_add($vict,
-		  'password' => $pass,
-		  'update'   => 1,
-		 );
+  if ($mode =~ /show/) {
+    $pass = $reg->{'password'};
+  }
+  else {
+    # Write out new data.
+    $self->_reg_add($vict,
+                    'password' => $pass,
+                    'update'   => 1,
+                   );
+  }
 
   # Mail the password_set message to the victim if requested
   if ($mode !~ /quiet/) {
@@ -3656,6 +3666,8 @@ sub accept {
     $elapsed = $::log->elapsed;
 
     $mess ||= "Further approval is required.\n" if ($ok < 0); #XLANG
+    $data->{'token'} = $token;
+
     if ($ok) {
       push @out, $ok, [$mess, $data, $tmp];
     }
