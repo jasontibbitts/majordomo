@@ -50,6 +50,9 @@
 	(gen_latchkey)  Store the latchkey in the chain1 field, not
 	the arg1 field.
 
+	* lib/Mj/TokenDB.pm:  Change the "chain4" field name to
+	"approver".
+
 	* setup/mta_exim.pl:  If the Mj2 domain and the Internet domain
 	differ, suggest a domain-specific director/router.
 	

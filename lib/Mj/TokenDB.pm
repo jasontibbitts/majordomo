@@ -20,7 +20,7 @@ approvals  - the number of approvals still required
 chain1     - used to chain confirmations.  Each chain variable contains
 chain2     - contains a "notify" structure that describes who should
 chain3     - receive the confirmation notice, the file to send, etc.
-chain4
+approver   - to whom the reminder should be sent
 arg1-3     - the remaining arguments for the core function
 time       - the time the request was made
 changetime - updated with each change
@@ -44,7 +44,7 @@ use strict;
 use Mj::SimpleDB;
 
 my @fields = qw(type list command user victim mode cmdline approvals
-		chain1 chain2 chain3 chain4 arg1 arg2 arg3 time
+		chain1 chain2 chain3 approver arg1 arg2 arg3 time
 		changetime sessionid reminded permanent expire remind
                 reasons);
 
