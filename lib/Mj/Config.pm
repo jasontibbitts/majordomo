@@ -1143,9 +1143,10 @@ sub parse_access_rules {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150;
-  my (%rules, @at, @tmp, $action, $check_aux, $check_main, $code, $count,
-      $data, $error, $i, $j, $k, $ok, $part, $rule, $table, $tmp, $tmp2,
-      $warn);
+
+  my (%rules, @at, @raw, @tmp, $action, $check_aux, $check_main, $code,
+      $count, $data, $error, $evars, $i, $j, $k, $l, $ok, $part, $rule,
+      $table, $tmp, $tmp2, $warn);
 
   # %$data will contain our output hash
   $data = {};
@@ -1208,14 +1209,40 @@ sub parse_access_rules {
 	      &{$self->{callbacks}{'mj.list_file_get'}}($self->{list}, $k);
 	    unless ($file) {
 	      $warn .= "  Req. $i, action $tmp: file '$k' could not be found.\n";
-	    }      
+	    }
 	  }
 	}
       }
-      
+
+      # Grab extra variables from admin_ and taboo_ for post command.  This
+      # is somewhat of a hack, because we pull out the raw value and parse
+      # the table ourselves.  So if the format is ever changed in the parse
+      # routines, it needs to change here as well.
+      use Data::Dumper;
+      $evars = {};
+      if ($i eq 'post') {
+	for $k ('admin_', 'taboo_') {
+	  @raw = $self->get("${k}body", 1);
+	  for $l (@raw) {
+	    $l =~ /^(\!?)(.*?)\s*(\d*)((,([+-]?\d+)?)(,(\w+))?)?\s*$/;
+	    if (defined $8 && length $8) {
+	      $evars->{"$k$8"} = 1;
+	    }
+	  }
+	  @raw = $self->get("${k}headers", 1);
+	  for $l (@raw) {
+	    $l =~ /^(\!?)(.*?)\s*([+-]?\d+)?(,(\w+))?$/;
+	    if (defined $5 && length $5) {
+	      $evars->{"$k$5"} = 1;
+	    }
+	  }
+	}
+	warn Dumper $evars;
+      }
+
       # Compile the rule
       ($ok, $error, $part, $check_main, $check_aux) =
-	_compile_rule($i, $action, $rule, $count);
+	_compile_rule($i, $action, $evars, $rule, $count);
       
       # If the compilation failed, we return the error
       return (0, "\nError compiling rule for $i: $error")
@@ -1603,7 +1630,7 @@ sub parse_digest_issues {
 
   return (1, '', $data);
 }
-  
+
 =head2 parse_directory
 
 This takes a single string, makes sure that it represents an absolute path,
@@ -2695,7 +2722,7 @@ This routine basically scans left to right turning the pseudo-language
 into real Perl.  The pseudo-language is simple enough that nothing
 other than strict translation is required.  The only real complexity
 comes from trying to produce pretty code by properly indenting things.
-(This helps in debugging, and is thus valuable.
+(This helps in debugging, and is thus valuable.)
 
 Things supported:
   AND, &&, OR, ||, NOT, !
@@ -2723,6 +2750,7 @@ About the ID:
 sub _compile_rule {
   my $request = shift;
   my $action  = shift;
+  my $evars   = shift; # Any extra legal variables
   $_          = shift;
   my $id      = shift;
   my ($check_main,# Should is_list_member be called?
@@ -2815,7 +2843,7 @@ sub _compile_rule {
 	unless (rules_var($request, $var, 3)) {
 	  @tmp = rules_vars($request, 3);
 	  $e .= "Illegal match variable for $request: $var.\nLegal variables which you can match against are:\n".
-	    join(' ', sort(@tmp));
+	    join("\n", sort(@tmp));
 	  last;
 	}
 	
@@ -2938,11 +2966,16 @@ sub _compile_rule {
 	
 	# Weed out bad variables, but allow some special cases
 	unless (rules_var($request, $var) || 
-	       $var =~ /(global_)?(admin_|taboo_)\w+/)
+	       ($request eq 'post' && $evars->{$var}))
+#$var =~ /(global_)?(admin_|taboo_)\w+/))
 	  {
 	    @tmp = rules_vars($request);
 	    $e .= "Illegal variable for $request: $var.\nLegal variables are:\n".
-	      join(' ', sort(@tmp));
+	      join("\n", sort(@tmp));
+	    if ($request eq 'post') {
+	      $e .= "\nPlus these variables currently defined in admin and taboo rules:\n".
+		join("\n", sort (keys %$evars));
+	    }
 	    last;
 	  }
 	if ($need_or) {
