@@ -242,7 +242,6 @@ These functions comprise an iterative interface to a function which
 forwards a message to the owner(s) of a mailing list.
 
 =cut
-use Mj::BounceHandler;
 sub owner_start {
   my ($self, $request) = @_;
   my $log  = new Log::In 30, "$request->{'list'}";
@@ -262,12 +261,13 @@ sub owner_chunk {
   (1, '');
 }
 
+use Mj::BounceHandler;
 sub owner_done {
   my ($self, $request) = @_;
   $request->{'list'} ||= 'GLOBAL';
   my $log  = new Log::In 30, "$request->{'list'}";
-  my (@owners, $badaddr, $handled, $sender, $user);
-  $badaddr = '';
+  my (@owners, $badaddr, $handled, $sender, $type, $user);
+  $badaddr = $type = $user = '';
 
   close ($self->{'owner_fh'})
     or $::log->abort("Unable to close file $self->{'owner_file'}: $!");
@@ -275,7 +275,7 @@ sub owner_done {
 
   # Call bounce handling routine
   if (!$request->{'modes'}{'nobounce'}) {
-    ($handled, $user, $badaddr) =
+    ($handled, $type, $user, $badaddr) =
       $self->handle_bounce($request->{'list'}, $self->{'owner_file'});
   }
 
@@ -301,7 +301,7 @@ sub owner_done {
   unlink $self->{'owner_file'};
   undef $self->{'owner_fh'};
   undef $self->{'owner_file'};
-  (1, $badaddr);
+  (1, $type, $user, $badaddr);
 }
 
 
