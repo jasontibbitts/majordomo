@@ -217,7 +217,7 @@ sub separate {
   $self = new Mj::Addr('unknown@anonymous');
 
   while (1) {
-    $self->{full} = $str;
+    $self->{'full'} = $str;
     ($ok, undef, $addr, $rest) = $self->_validate;
     # Three possibilities:
     if ($ok == 0) {
