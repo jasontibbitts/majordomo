@@ -119,7 +119,7 @@ In the following three examples, substitute a valid token identifier
 for the word TOKEN.
 
 To see information about a stalled request, use the tokeninfo command:
-  tokeninfo-full TOKEN
+  tokeninfo TOKEN
 
 To approve a stalled request, use the accept command:
   accept TOKEN

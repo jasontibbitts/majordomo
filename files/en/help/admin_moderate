@@ -97,7 +97,7 @@ The reminder notice gives a brief summary of the request.  If a moderator
 has forgotten the details of the request, the tokeninfo command can be
 used to obtain more information, for example:
 
-  tokeninfo-full 9F34-77DA-B021
+  tokeninfo 9F34-77DA-B021
 
 The accept, reject, and tokeninfo commands never require a password.
 
@@ -339,10 +339,10 @@ do this using an extended form of the Approved line, using the following
 steps:  
 
   * Obtain the original posted message, either from the CONSULT message 
-    that was sent to the moderator, or using the tokeninfo-full or
+    that was sent to the moderator, or using the tokeninfo or
     tokeninfo-remind command:
 
-      tokeninfo-full TOKEN
+      tokeninfo TOKEN
       tokeninfo-remind TOKEN
 
   * Edit the message and make the desired corrections.
@@ -361,7 +361,7 @@ sees the token identifier on the Approved line, it will reject the
 token.  This will help to prevent another moderator from approving the
 delivery of the original posted message.
 
-The tokeninfo-full command displays information about a posted message, and
+The tokeninfo command displays information about a posted message, and
 the contents of the message, in the same block of text.  The
 tokeninfo-remind command, in contrast, includes the posted message as an
 attachment.  In some cases, the latter format may make editing and
