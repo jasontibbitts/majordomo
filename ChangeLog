@@ -1,3 +1,20 @@
+2001-10-15  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (new)  Abort if the registry or alias
+	database cannot be initialized.
+	(standard_subs)  Add the "UCLIST" expansion, which displays
+	the name of a mailing list in capital letters.
+
+	* lib/mj_cf_defs.pl:  Remove the unsupported 'P' flag from
+	the welcome_files setting.
+
+	* lib/Mj/Access.pm:  (validate_passwd)  Bugfix:  do not
+	initialize passwords for the GLOBAL list twice.
+
+	* lib/Mj/Format.pm:  Use the CMDPASS substitution instead
+	of the PASSWORD substitution to represent the password that
+	was used with the current command.
+
 2001-10-03  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Config.pm:  (parse_table)  Bugfix:  Only split on

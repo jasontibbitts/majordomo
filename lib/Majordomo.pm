@@ -182,11 +182,17 @@ sub new {
                                      listdir => $self->{ldir},
                                         list => "GLOBAL",
                                         file => "_aliases");
+  $log->abort("Unable to initialize GLOBAL aliases database: $!")
+    unless ($self->{'alias'}); #XLANG
+
   $self->{reg}   = new Mj::RegList(backend => $self->{backend},
                                     domain => $domain,
                                    listdir => $self->{ldir},
                                       list => "GLOBAL",
                                       file => "_register");
+  $log->abort("Unable to initialize GLOBAL registry database: $!")
+    unless ($self->{'reg'}); #XLANG
+
   # XXX Allow addresses to be drawn from the registry for delivery purposes.
   $self->{'lists'}{'GLOBAL'}->{'sublists'}{'MAIN'} = $self->{'reg'};
 
@@ -863,6 +869,7 @@ sub standard_subs {
                      "$list-request\@$whereami",
     'SITE'        => $self->_global_config_get('site_name'),
     'SUBLIST'     => $sublist,
+    'UCLIST'      => uc $olist,
     'VERSION'     => $Majordomo::VERSION,
     'WHEREAMI'    => $whereami,
     'WHOAMI'      => $whoami,
