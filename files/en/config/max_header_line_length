@@ -1,5 +1,4 @@
-Sets the maximum length of a single header in an unapproved message
-in number of characters. Set to zero to disable length checks on
-individual header lines, use configset max_total_header_length to
-check all header lines at once. Actual longest header size and a
-boolean for exceeding this limit can be tested in access_rules.
+The max_header_line_length contains the maximum length in characters 
+of a single header in a posted message.  By default, a message with
+a header that exceeds this limit will be sent to the moderators for
+approval.
