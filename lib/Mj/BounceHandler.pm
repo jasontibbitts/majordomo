@@ -86,12 +86,13 @@ sub handle_bounce {
     elsif ($type eq 'T' or $type eq 'D') {
       $handled = 1;
       $self->handle_bounce_token(entity  => $ent,
-				 data    => $data,
-				 file    => $file,
-				 handler => $handler,
-				 token   => $msgno,
+                                 data    => $data,
+                                 file    => $file,
+                                 handler => $handler,
+                                 token   => $msgno,
                                  type    => $type,
-				);
+                                );
+      $addrs = [$msgno];
     }
 
     # If a probe bounced
@@ -104,6 +105,7 @@ sub handle_bounce {
 				 token   => $msgno,
                                  type    => $type,
 				);
+      $addrs = [$msgno];
     }
 
     # We couldn't parse anything useful
@@ -115,7 +117,7 @@ sub handle_bounce {
   $ent->purge if $ent;
 
   # Tell the caller whether or not we handled the bounce
-  ($handled, $source, $addrs);
+  ($handled, $type, $source, $addrs);
 }
 
 =head2 handle_bounce_message
@@ -279,7 +281,7 @@ sub handle_bounce_token {
   my($self, %args) = @_;
   my $log  = new Log::In 35;
   my(%file, @owners, @bouncers, $data, $del, $desc, $dest, $ent, $file, $from, 
-     $i, $ok, $reasons, $sender, $subs, $time);
+     $i, $inform, $ok, $reasons, $sender, $subs, $time);
 
   # Dump the body to the session file
   $args{entity}->print_body($self->{sessionfh});
@@ -302,7 +304,8 @@ sub handle_bounce_token {
 		$data->{'victim'}, "reject $args{'token'}",
 		$self->{'interface'}, $ok, 0, 0, 
 		qq(A confirmation message could not be delivered.),
-		$::log->elapsed - $time) if (exists $data->{'victim'});
+		$::log->elapsed - $time) 
+        if (defined $data and exists $data->{'victim'});
       last;
     }
   }
@@ -318,9 +321,14 @@ sub handle_bounce_token {
     return 1;
   }
 
-  @owners   = @{$self->_list_config_get($data->{'list'}, 'owners')};
-  @bouncers = @{$self->_list_config_get($data->{'list'}, 'bounce_recipients')};
-  @bouncers = @owners unless @bouncers;
+  @owners = @{$self->_list_config_get($data->{'list'}, 'owners')};
+  $inform = $self->_list_config_get($data->{'list'}, 'inform');
+  $i = $inform->{'tokenbounce'}{'all'} || $inform->{'tokenbounce'}{1} || 0;
+  $i &= 2;
+  if ($i) {
+    @bouncers = @{$self->_list_config_get($data->{'list'}, 'bounce_recipients')};
+    @bouncers = @owners unless @bouncers;
+  }
   $sender = $owners[0];
   $from = $self->_list_config_get($data->{'list'}, 'whoami_owner');
   $dest = $from;
@@ -334,6 +342,10 @@ sub handle_bounce_token {
      push @bouncers, $data->{'user'};
   }
 
+  return 1 unless (scalar @bouncers);
+
+  # XXX If the token was sent to some destination other than
+  # the victim, the bounce notice may indicate the wrong destination.
   $subs = {
            $self->standard_subs($data->{'list'}),
            'CMDLINE'    => $data->{'cmdline'},
@@ -380,7 +392,7 @@ sub handle_bounce_token {
                Filename    => undef,
               );
 
-  if ($ent and $sender and scalar @bouncers) {
+  if ($ent and $sender) {
     $self->mail_entity($sender, $ent, @bouncers);
   }
 
@@ -765,7 +777,7 @@ sub _gen_bounce_message {
 
 =head1 COPYRIGHT
 
-Copyright (c) 2000 Jason Tibbitts for The Majordomo Development Group.  All
+Copyright (c) 2000, 2002 Jason Tibbitts for The Majordomo Development Group.  All
 rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
