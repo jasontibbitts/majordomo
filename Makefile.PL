@@ -453,9 +453,9 @@ int main(int ac, char ** av)
 }
 ";
     close WRAP;
-    push @EXES, "./bin/.$i";
-    push @EXES, "./wrappers/$i";
-    push @EXES, map {"./bin/$_"} @SCRIPTS;
+    push @EXES, " ./bin/.$i";
+    push @EXES, " ./wrappers/$i";
+    push @EXES, map {" ./bin/$_"} @SCRIPTS;
   }
   print "ok.\n";
 }
