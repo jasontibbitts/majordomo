@@ -15,6 +15,7 @@ $files =
    'en/info'                                          => ['Info',                                     'us-ascii', '7bit'],
    'en/inform'                                        => ['$UREQUEST $LIST',                          'us-ascii', '7bit'],
    'en/intro'                                         => ['Intro',                                    'us-ascii', '7bit'],
+   'en/new_list'                                      => ['$LIST mailing list created at $SITE',      'us-ascii', '7bit'],
    'en/new_password'                                  => ['New password at $SITE',                    'us-ascii', '7bit'],
    'en/registered'                                    => ['Welcome to $SITE',                         'us-ascii', '7bit'],
    'en/repl_chain'                                    => ['Default chained mailreply file',           'us-ascii', '7bit'],
