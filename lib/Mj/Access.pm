@@ -931,11 +931,11 @@ sub _a_default {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
   my $log = new Log::In 150, $request;
-  my ($access, $policy, $fun);
+  my ($access, $policy, $action, $reason);
 
   # First check the hash of allowed requests.
   if (access_def($request, 'allow')) {
-    return $self->_a_allow(@_);
+    return 1;
   }
 
   # We'll use the arglist almost verbatim in several places.
@@ -943,42 +943,44 @@ sub _a_default {
 
   # Allow these if the user supplied their password, else confirm them.
   if (access_def($request, 'confirm')) {
-    return $self->_a_allow(@_) if $args{'user_password'};
-    return $self->_a_confirm(@_)
+    $action = "_a_allow" if $args{'user_password'};
+    $action = "_a_confirm";
+    $reason = "confirm is the default action for $request."
   }
 
-  if (access_def($request, 'confirm2')) {
-    return $self->_a_confirm2(@_)
+  elsif (access_def($request, 'confirm2')) {
+    $action = "_a_confirm2";
+    $reason = "confirm2 is the default action for $request."
   }
 
-  if (access_def($request, 'access')) {
+  elsif (access_def($request, 'access')) {
     $access = $self->_list_config_get($list, "${request}_access");
 
     # 'list' access doesn't make sense for GLOBAL; assume nobody's
     # subscribed, which implies 'closed'.
     $access = 'closed' if $access eq 'list' && $list eq 'GLOBAL';
+    $action = '_a_deny';
 
     # Always deny rooted requests (only happens for get and index)
     if ($args{'root'}) {
-      return $self->_a_deny(@_);
+      $action = "_a_deny";
+      $reason = "Requests which specify absolute paths are denied."
     }
-    if ($access eq 'open') {
-      return $self->_a_allow(@_);
+    elsif ($access eq 'open') {
+      $action = "_a_allow";
     }
     elsif ($access eq 'closed') {
-      return $self->_a_deny(@_);
+      $action = "_a_deny";
+      $reason = "${request}_access is set to 'closed'";
     }
     elsif ($access eq 'list' &&
 	   $self->{'lists'}{$list}->is_subscriber($victim))
       {
-	return 1;
+		$action = "_a_allow";
       }
-    else {
-      return $self->_a_deny(@_);
-    }
   }
 
-  if (access_def($request, 'policy')) {
+  elsif (access_def($request, 'policy')) {
     $policy = $self->_list_config_get($list, "${request}_policy");
 
     # First make sure that someone isn't trying to subscribe the list to
@@ -991,50 +993,66 @@ sub _a_default {
     # password.  So we allow it unless the list is closed, and we ignore
     # confirm settings.
     if ($args{'user_password'}) {
-      return $self->_a_allow(@_)   if $policy =~ /^(auto|open)/;
-      return $self->_a_consult(@_) if $policy =~ /^closed/;
+      $action = "_a_allow"   if $policy =~ /^(auto|open)/;
     }
 
-    # Now the non-user-approved cases.  The easy ones:
-    return $self->_a_allow(@_)     if $policy eq 'auto';
-    return $self->_a_confirm(@_)   if $policy eq 'auto+confirm';
-    return $self->_a_consult(@_)   if $policy eq 'closed';
-    return $self->_a_conf_cons(@_) if $policy eq 'closed+confirm';
-    
     # Now, open.  This depends on whether there's a mismatch.
-    if ($args{'mismatch'} or $args{'posing'}) {
-      return $self->_a_consult(@_)   if $policy eq 'open';
-      return $self->_a_conf_cons(@_) if $policy eq 'open+confirm';
+    elsif ($args{'mismatch'} or $args{'posing'}) {
+      $action = "_a_consult"   if $policy eq 'open';
+      $action = "_a_conf_cons" if $policy eq 'open+confirm';
+      $reason = "The requester ($requester) and victim ($victim) do not match.";
     }
-    return $self->_a_allow(@_)   if $policy eq 'open';
-    return $self->_a_confirm(@_) if $policy eq 'open+confirm';
+    unless ($action) {
+      $action = "_a_allow"   if $policy eq 'open';
+      $action = "_a_confirm" if $policy eq 'open+confirm';
+      $action = "_a_allow"     if $policy eq 'auto';
+      $action = "_a_confirm"   if $policy eq 'auto+confirm';
+      $action = "_a_consult"   if $policy eq 'closed';
+      $action = "_a_conf_cons" if $policy eq 'closed+confirm';
+      $reason = "${request}_policy requires confirmation from the list owner."
+        if $action eq "_a_consult";
+      $reason = "${request}_policy requires confirmation from the victim."
+        if $action eq "_a_confirm";
+      $reason = "${request}_policy requires confirmation from the list owner and the victim."
+        if $action eq "_a_conf_cons";
+    }
 
     # The variable was syntax-checked when it was set, so we can just
     # blow up if we get here.
-    $log->abort("Can't handle policy: $policy");
+    $log->abort("Can't handle policy: $policy") unless $action;
   }
   # If the suplied password was correct for the victim, we don't need to
   # confirm.
-  if (access_def($request, 'mismatch')) {
+  elsif (access_def($request, 'mismatch')) {
     if ($args{'posing'}) {
-      return $self->_a_confirm2(@_);
+      $action = "_a_confirm2";
+      $reason = "$self->{'sessionuser'} is masquerading as $requester.";
     }
     elsif ($args{'mismatch'} && !$args{'user_password'}) {
-      return $self->_a_confirm(@_);
+      $action = "_a_confirm";
+      $reason = "The requester ($requester) and victim ($victim) do not match.";
     }
-    return $self->_a_allow(@_);
+    else {
+      $action = "_a_allow";
+    }
   }
 
   # Now call the specific default function if it exists; can't just
   # check definedness of the function because autoloading screws this
   # up.
-  if (access_def($request, 'special')) {
-    $fun = "_d_$request";
-    return $self->$fun(@_);
+  elsif (access_def($request, 'special')) {
+    $action = "_d_$request";
   }
 
   # Finally just deny the request
-  return $self->_a_deny(@_);
+  else {
+    $action = "_a_deny";
+  }
+
+  if ($reason) {
+    $_[10] = "$reason\002" . $_[10];
+  }
+  return $self->$action(@_);
 }
 
 # Normally the default would be to allow, but we must first check the
@@ -1119,6 +1137,7 @@ sub _d_post {
 
   # Immediately consult for moderated lists
   $moderate = $self->_list_config_get($list, 'moderate');
+  $_[10] = "The $list list is moderated.\002" . $_[10] if $moderate;
   return $self->_a_consult(@_) if $moderate;
 
   # Check restrict_post
