@@ -3151,7 +3151,8 @@ sub _list_file_get_string {
 
   ($file, %data) = $self->_list_file_get(@_);
 
-  return "No such file: \"$_[1]\".\n" unless $file; #XLANG
+  # return "No such file: \"$_[1]\".\n" unless $file; #XLANG
+  return unless $file;
 
   $fh = gensym();
 
@@ -5359,15 +5360,19 @@ sub reject {
         }
 
         if ($inf & 2) {
-          $self->mail_entity($mj_owner, $ent, $list_owner);
+          $self->mail_entity($mj_owner, $ent, $list_owner)
+            if ($list_owner);
         }
 
         # Should we inform majordomo-owner?
-        $inform = $self->_global_config_get('inform');
-        $inf = $inform->{'reject'}{'all'} || $inform->{'reject'}{1} || 0;
-        if ($inf & 2) {
-          $ent->head->replace('To', $mj_owner);
-          $self->mail_entity($mj_owner, $ent, $mj_owner);
+        if ($data->{'list'} !~ /^(GLOBAL|ALL)$/) {
+          $inform = $self->_global_config_get('inform');
+          $inf = $inform->{'reject'}{'all'} || $inform->{'reject'}{1} || 0;
+          if ($inf & 2) {
+            $ent->head->replace('To', $mj_owner);
+            $self->mail_entity($mj_owner, $ent, $mj_owner)
+              if ($mj_owner);
+          }
         }
         unlink $file;
       }

@@ -1,3 +1,24 @@
+2001-11-03  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_list_file_get_string)  Return undef
+	instead of an error message if the file is unavailable.
+	(reject)  Bugfix:  do not send a rejection notice to
+	majordomo-owner twice for GLOBAL command rejections.
+	
+	* lib/Mj/Format.pm:  (accept)  Bugfix:  use the actual
+	interface type when formatting command results.  This
+	means that any interface which can issue the "accept" command
+	must have format files for every command that can stall.
+
+	* lib/Mj/Parser.pm:  (parse_entity)  Delete the HTML tree
+	explicitly to free memory.
+
+	* lib/Mj/Resend.pm:  (_format_text)  Delete the HTML tree
+	explicitly to free memory.
+
+	* lib/Mj/Token.pm:  (t_accept)  Bugfix:  convert the 
+	user and victim addresses into Mj::Addr objects.
+	
 2001-10-30  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Config.pm:  (parse_delivery_rules)  Add validation
@@ -9,11 +30,11 @@
 	other WWW interfaces more closely.
 
 	* lib/Majordomo.pm:  (_show)  Determine which lists are
-        owned by the address in question.  Suggested by Roger Klorese.
+	owned by the address in question.  Suggested by Roger Klorese.
 
-        * lib/Mj/Format.pm:  (tokeninfo)  Add ISPOST and VICTIM
-        substitutions to support conditional "accept" buttons and
-        clearer instructions.
+	* lib/Mj/Format.pm:  (tokeninfo)  Add ISPOST and VICTIM
+	substitutions to support conditional "accept" buttons and
+	clearer instructions.
 
 	* lib/Mj/Util.pm:  (n_defaults)  Bugfix:  remove suffixes
 	from iterated commands.  
