@@ -597,7 +597,7 @@ elsif ($func ne 'showtokens') {
     $request->{'date'} = $cgi->param('date');
   }
   elsif ($func eq 'configshow') {
-    $request->{'groups'} = join ',', $cgi->param('groups');
+    $request->{'groups'} = [ $cgi->param('groups') ];
   }
   elsif ($func eq 'who' or $func eq 'which') {
     $request->{'regexp'} = $cgi->param('pattern');
@@ -725,9 +725,9 @@ elsif ($commands{$func}->[2] ne $func) {
   elsif ($commands{$func}->[2] eq 'who') {
     $func = 'who';
     $request->{'command'} = 'who_start';
-    $request->{'mode'} = 'enhanced';
+    $request->{'mode'} = 'summary';
     $request->{'list'} = $lists[0];
-    $request->{'chunksize'} = $cgi->param('chunksize') || 10;
+    $request->{'chunksize'} = '';
     $request->{'start'} = $cgi->param('start') || 1;
     $request->{'regexp'} = $cgi->param('pattern');
     $request->{'victims'} = '';

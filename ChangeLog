@@ -1,3 +1,8 @@
+2004-09-01  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Bugfix:  Process configshow arguments
+	correctly.
+
 2004-08-31  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_archive)  Only show archives for
