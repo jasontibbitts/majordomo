@@ -382,7 +382,9 @@ percent_quoted
   This variable contains the percentage of lines in a posted message
   which are quoted, between 0 and 100.  A "quoted" line is one which
   indicates that a portion of a message was written by someone else.
-  Quoted lines frequently begin with a '>'.
+  Quoted lines frequently begin with a '>'.  Any line that matches
+  the pattern in the "quote_pattern" configuration setting is considered 
+  quoted.
 
 posing
   This variable is set if the "default user" command is used to masquerade
