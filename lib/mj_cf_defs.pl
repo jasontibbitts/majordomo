@@ -56,7 +56,8 @@ $Mj::Config::default_string = q(
                              'log      | daily',
                              'post     | daily',
                              'session  | daily', 
-                             'token    | daily' ] : [],
+                             'token    | daily' ] : 
+                           [ 'delay    | hourly' ],
  'database_backend'     => 'text',
  'default_class'        => 'each',
  'default_flags'        => 'SPR',

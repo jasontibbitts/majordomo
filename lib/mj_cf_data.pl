@@ -683,7 +683,7 @@ EOC
     'values' => [qw(bounce checksum delay log post session token)],
     'groups' => [qw(majordomo)],
     'visible'=> 0,
-    'local'  => 0,
+    'local'  => 1,
     'global' => 1,
    },
    'digests' =>

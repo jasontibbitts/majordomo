@@ -4771,10 +4771,14 @@ sub trigger {
     $self->t_remind;
   }
   # Mode: daily or delay - complete delayed requests
-  if ($mode =~ /^(da|de)/ or grep {$_ eq 'session'} @ready) {
+  if ($mode =~ /^(da|de|h)/) {
     @req = $self->t_fulfill;
     while (@req) {
       ($key, $data) = splice @req, 0, 2;
+      $times = $self->_list_config_get($data->{'list'}, 'triggers');
+      next unless (exists $times->{'delay'} and
+                   Mj::Digest::in_clock($times->{'delay'}));
+      
       ($ok, $mess, $data, $tmp) =
         $self->t_accept($key, '', 'The request was completed after a delay', 0));
       $self->inform($data->{'list'},
