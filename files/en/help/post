@@ -1,11 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-post[-archive] listname
+post[-archive] listname [sublistname]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
--archive, if specified, archives a message without distributing it
-listname, required, is the name of a list at this site
+listname,    required,     is the name of a regular list at this site
+-archive,    if specified, archives a message without distributing it
+sublistname, if specified, is the name of an auxiliary list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The "post" command sends a message to "listname". It may require a
+The "post" command sends a message to "listname", or an auxiliary list
+"sublistname" which is associated with "listname". The main list is
+assumed if no auxiliary list name is included. "Post" may require a
 list or site password via "approve". This is an alternative to just
 sending a message to the list address.
 

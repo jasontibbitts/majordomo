@@ -65,8 +65,8 @@ may use.
 
 In the "ack_rejection" file, these variables are evaluated
 only in the message body:
-  \$REQUEST   => The submitted command line
   \$MESSAGE   => The rejection message given by the list owner, if any
+  \$REQUEST   => The submitted command line
 
 In the "ack_stall", "ack_success", and "ack_denial" files, this variable
 is evaluated in both the subject and message body:
@@ -81,23 +81,34 @@ only in the message body:
 In the "ack_timeout" file, no variable substitutions are done.
 
 In a file sent by the "announce" command, only this variable is evaluated:
+  \$LIST      => the list the announce file is being sent to
+  \$MJ        => The address Majordomo receives commands at
+  \$MJOWNER   => The address of the owner of this Majordomo installation
   \$MSGRCPT   => The address of the recipient (each msg individually addressed).
+  \$SITE      => the name of the site
+  \$USER      => same as \$VICTIM
+  \$VERSION   => the version of Majordomo
+  \$VICTIM    => the user who will receive the announcement
+  \$WHEREAMI  => no information available
+  \$WHOAMI    => no information available
+  \$OWNER     => the address of the list owner
+
 
 In the "confirm" and "consult" files, these variables are evaluated
 in both the subject and message body:
-  \$VICTIM    => The user who will be acted on by the request
-  \$REQUESTER => The user who made the request
   \$CMDLINE   => The command that was sent (or would have been sent
                  if the command had come in via email)
-  \$REQUEST   => The type of request that was made
+  \$EXPIRE    => The number of days until the token expires
   \$LIST      => The list the request was made to
+  \$MJ        => The address Majordomo receives commands at
+  \$MJOWNER   => The address of the owner of this Majordomo installation
+  \$OWNER     => The address of the list owner
+  \$REQUEST   => The type of request that was made
+  \$REQUESTER => The user who made the request
   \$TOKEN     => The token that is to be returned
   \$URL       => The URL that can be visited to accept the token
                   (as set by confirm_url, but with \$TOKEN replaced)
-  \$EXPIRE    => The number of days until the token expires
-  \$OWNER     => The address of the list owner
-  \$MJ        => The address Majordomo receives commands at
-  \$MJOWNER   => The address of the owner of this Majordomo installation
+  \$VICTIM    => The user who will be acted on by the request
 
 In the URL set by "configset GLOBAL confirm_url" this variable is evaluated:
   \$TOKEN     => The token being confirmed.
@@ -108,22 +119,22 @@ In the "info" file, no variable substitutions are done.
   (as of 6/2000 some substitutions are done, not sure which ones)
 
 In the "inform" file, these variables are evaluated in the subject:
-  \$UREQUEST  => the _upcased_ request (to be like 1.9x)
-  \$REQUEST   => the request
   \$LIST      => The name of the list
+  \$REQUEST   => the request
+  \$UREQUEST  => the _upcased_ request (to be like 1.9x)
 
 In the "inform" file, these variables are evaluated in the msg body:
-  \$VICTIM    => the user who will be effected by the request
-  \$USER      => same as \$VICTIM
+  \$CMDLINE   => the command that was sent
+  \$COMMENT   => no information is available
+  \$INTERFACE => no information is available
   \$LIST      => the list the request acted on
   \$REQUEST   => the request that was made
   \$REQUESTER => the user who made the request
-  \$CMDLINE   => the command that was sent
+  \$SESSIONID => no information is available
   \$STATUS    => the status of the action (succeed, fail, stall)
   \$STATDESC  => no information is available
-  \$INTERFACE => no information is available
-  \$SESSIONID => no information is available
-  \$COMMENT   => no information is available
+  \$USER      => same as \$VICTIM
+  \$VICTIM    => the user who will be effected by the request
 
 In the "intro" file, no variable substitutions are done.
   (as of 6/2000 some substitutions are done, not sure which ones)
@@ -135,16 +146,16 @@ In the footer/fronter added by "configset listname message_footer"
 and "configset listname message_fronter" these variables are
 evaluated in both the subject and message body:
   \$LIST      => The name of the list
-  \$VERSION   => the version of Majordomo
   \$SENDER    => the person who sent the message
+  \$VERSION   => the version of Majordomo
 
 In the headers added by "configset listname message_headers"
 these variables are evaluated in the subject only:
+  \$ARCHIVE  => the number of this message in the archives
   \$LIST     => the name of the current list,
   \$SENDER   => the sender as taken from the from line,
   \$SEQNO    => the contents of the sequence_number variable, which is
                automatically incremented each time a message is posted
-  \$ARCHIVE  => the number of this message in the archives
   \$VERSION  => the version of Majordomo.
 
 In the headers added by "configset listname reply_to"
@@ -177,31 +188,31 @@ these variables are evaluated in the subject only:
 In the "welcome" file, these variables are evaluated in both the
 subject and message body:
   \$LIST      => the name of the list
-  \$REQUEST   => the request address
   \$MAJORDOMO => the address of the majordomo email interface
-  \$USER      => the user's address
-  \$SITE      => the name of the site
   \$MJOWNER   => the site owner's address
   \$OWNER     => the list owner's address
+  \$REQUEST   => the request address
+  \$SITE      => the name of the site
+  \$USER      => the user's address
 
 In files sent by "configset listname welcome_files", these variables
 are evaluated in both the subject and message body:
-  \$USER      => the address of the user
   \$LIST      => The name of the list
-  \$REQUEST   => the list-request address
   \$MJ        => the address of the majordomo server
-  \$OWNER     => the address of the list owner
   \$MJOWNER   => the address of the domain owner
+  \$OWNER     => the address of the list owner
+  \$REQUEST   => the list-request address
+  \$USER      => the address of the user
 
 In messages sent to the user as a result of "configset access_rules",
 as it applies to a list, but which are NOT generated from a replyfile
 or mailfile, these variables are evaluated in the message body:
   \$LIST      => The name of the list
+  \$NOTIFY    => same as \$VICTIM
+  \$REASONS   => why the access was denied
   \$REQUEST   => the list-request address
   \$REQUESTER => the address which initiated the action
   \$VICTIM    => the address of the person affected by the action
-  \$NOTIFY    => same as \$VICTIM
-  \$REASONS   => why the access was denied
 
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

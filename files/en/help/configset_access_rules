@@ -95,6 +95,7 @@ This information is below:
              2.6.10 - Remove confirmation requirement from 'set'
              2.6.11 - Prevent duplicate message checksums from being used
              2.6.12 - Change how many addresses "which" commands will return
+             2.6.13 - Prevent posts on auxiliary lists (sublists)
           2.7 - improving the default "confirm" and "consult" files
 
 There are some interactions between your choice of replyfile or mailfile
@@ -676,6 +677,14 @@ ALL
 which
 allow=5
 ALL
+
+
+2.6.13 - Prevent posts on auxiliary lists (sublists)
+  To ban posts to all auxiliary lists, one would use the
+  following access rule:
+post
+deny
+$sublist=~/./
 
 
 

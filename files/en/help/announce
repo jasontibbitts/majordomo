@@ -1,48 +1,48 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-announce listname filename
+announce[-each][-nomail][-digest] listname filename
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site
 filename, required, is the file to distribute
+-each,   if specified, limits delivery to subscribers using "set each"
+-nomail, if specified, limits delivery to subscribers using "set nomail"
+-digest, if specified, limits delivery to subscribers using "set digest"
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-Distribute a file to one
-or more classes of subscribers.  Each message is
-sent as a probe, with the recipient in the To: header.
-This could be used for periodic reminders, or
-announcements that need to reach 'digest' and 'nomail'
-subscribers immediately.
+Distribute a file individually to some or all classes of subscribers
+of a (full, not auxiliary) mailing list. Each message is sent as a
+probe, with the recipient in the "To:" header, so "announce" takes
+more resources than "post". This could be used for periodic reminders,
+announcements that need to reach 'digest' subscribers immediately, or
+just a way to ask 'nomail' subscribers why they are still on the list.
 
-Finally, to accommodate periodic reminders, the announce command
-allows a file to be sent individually to some or all classes
-of subscribers to a (full, not auxiliary) mailing list.
-The command looks something like this:
-  announce listname faq
+The mode (each, nomail, digest) specifies which class of subscribers
+will receive the  message. The default is all classes. (When delivering
+an announcement, the "each" and "nomail" classes are used to distinguish
+addresses subscribed to one or more lists from those that aren't.)
 
 Along with the announce command goes a special substitution
 in the delivery module.  Any unescaped occurrence of
 \$MSGRCPT will be replaced by the address of the recipient.
+(See "help variables" for a complete list of variables that
+can be substituted when files are sent by various commands.)
 One way this could be used is to add a footer to the
 end of each message:
-
- You are subscribed to the mj2-dev list as \$MSGRCPT.
-
-The tradeoff is that this feature is only available
-when probing.  It will slow the speed of delivery.
+  You are subscribed to the mj2-dev list as \$MSGRCPT.
 
 The announce command uses \$MSGRCPT to change the To:
 header of the announcement, so it contains the address
 of the recipient instead of the address of the list.
 The announce command also lets you choose which class
 of recipients receives the announcement.  For instance,
-
   announce-nomail listname /expiration
-
 could be used to send a notice about expiring inactive
 subscriptions to all people with postponed subscriptions.
 
 
 See Also:
-   help configset access_rules_variables (set/test for this command)
+   help configset access_rules (to limit access to this command)
+   help set (for how to switch subscriptions between delivery classes)
+   help variables (for substitutions that can be made in "filname")
 
 For a list of all help topics send this one-line message
    help topics
