@@ -185,6 +185,7 @@ These help files describe configuration settings:
    help configset_archive_dir
    help configset_archive_size
    help configset_archive_split
+   help configset_attachment_filters
    help configset_attachment_rules
    help configset_bounce_max_age
    help configset_bounce_max_count
