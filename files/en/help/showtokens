@@ -1,8 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-showtokens[-alias][-async][-delay][-probe] listname [action]
+showtokens[-alias][-async][-confirm][-consult][-delay][-probe] listname [action]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is the name of a list at this site
-action, optional, is the name of a request, such as post or subscribe.
+action, optional, is the name of a command, such as post or subscribe.
 -alias, if used, causes "alias" tokens to be shown.
 -async, if used, causes "async" tokens to be shown.
 -confirm, if used, causes "confirm" tokens to be shown.
