@@ -1,5 +1,6 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-createlist-destroy-force-nocreate-noheader-quiet-regen listname owner
+createlist-destroy listname owner
+createlist[-force][-nocreate][-noheader][-quiet][-regen] listname owner
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname,  required, is an email list at this site
 owner,     required, is an email address for who will manage the list
@@ -74,7 +75,13 @@ Options include the following:
   -regen:
     Display MTA configuration only, ignore all other options and args.
 
+NOTE: Auxiliary or sub lists are NOT created with createlist! Only regular
+lists need createlist - a sublist is created by adding an address to it
+with auxadd, or by mentioning it in the access rules.
+
+
 See Also:
+   help auxadd      (to create and subscribe addresses to a sublist)
    help configset               (to configure the list once created)
    help configset access_rules_variables (set/test for this command)
    help configset default_flags (to configure default subscriptions)
