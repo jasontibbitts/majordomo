@@ -32,7 +32,6 @@ package Mj::Config;
 use Data::Dumper;
 use Mj::Log;
 use Mj::File;
-use Mj::FileRepl;
 use Mj::CommandProps ':rules';
 
 use vars qw(@EXPORT_OK @ISA $VERSION %is_array %is_parsed $list);
@@ -383,6 +382,7 @@ sub _load_dfl {
   }
 
   if (-r $name) {
+    # The Mj::File module obtains a lock on the file.
     $file = new Mj::File $name, "<";
     $out = do $name;
     $file->close;
@@ -788,6 +788,7 @@ _These only work on new-style config files_.  Old-style files must be
 explicitly loaded (and thus autoconverted) first.
 
 =cut
+use Mj::FileRepl;
 sub lock {
   my $self = shift;
   my $log  = new Log::In 150;
@@ -1040,6 +1041,7 @@ Dumps out the non-default variables in the Config object.
 =head2
 
 =cut
+use Mj::FileRepl;
 sub _save_new {
   my $self = shift;
   my ($file, $name, $ok);
@@ -1941,9 +1943,11 @@ sub parse_enum_array {
 
 =head2 parse_inform
 
-Parses the contents of the inform variable.
+Parses the contents of the inform configuration setting.
 
-XXX We have a special default here.  This should really be elsewhere.
+This setting controls whether or not list owners are notified
+by e-mail when a request succeeds, stalls, or fails.
+
 
 =cut
 sub parse_inform {
@@ -1951,9 +1955,9 @@ sub parse_inform {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-  my ($l, $stat);
+  my (%out, %stats, $err, $i, $j, $k, $l, $stat, $table);
 
-  my %stats =
+  %stats =
     (
      'all'     => [-1, 0, 1],
      'succeed' => [1],
@@ -1964,22 +1968,14 @@ sub parse_inform {
      'stall'   => [-1],
     );
 
-  my ($table, $err) = parse_table('fsmm', $arr);
+  ($table, $err) = parse_table('fsmm', $arr);
 
   return (0, "Error parsing table: $err.")
     if $err;
 
-  my %out =
-    (
-     'connect'     => {'0' => 3},
-     'subscribe'   => {'1' => 3},
-     'unsubscribe' => {'1' => 3},
-     'reject'      => {'1' => 3},
-    );
-
   # Iterate over the table
-  for (my $i = 0; $i < @$table; $i++) {
-    for (my $j = 0; $j < @{$table->[$i][1]}; $j++) {
+  for ($i = 0; $i < @$table; $i++) {
+    for ($j = 0; $j < @{$table->[$i][1]}; $j++) {
 
       # Syntax check
       return (0, "Unknown condition $table->[$i][1][$j].")
@@ -1987,7 +1983,7 @@ sub parse_inform {
 
       $l = $stats{$table->[$i][1][$j]};
 
-      for (my $k = 0; $k < @{$table->[$i][2]}; $k++) {
+      for ($k = 0; $k < @{$table->[$i][2]}; $k++) {
 	if ($table->[$i][2][$k] eq 'report') {
           for $stat (@$l) {
             $out{$table->[$i][0]}{$stat} |= 1;
@@ -2185,8 +2181,8 @@ sub parse_pw {
   my $var  = shift;
   my $log  = new Log::In 150, $var;
 
-  return (0, "Cannot contain whitespace.")
-    if $str =~ /\s/;
+  return (0, "Administrative passwords cannot contain whitespace or commas.")
+    if $str =~ /[\s,]/;
 
   # Substitute the name of the list for "$LIST"
   $str =~ s/([^\\]|^)\$\QLIST\E(\b|$)/$1$self->{'list'}/g;
@@ -2238,7 +2234,6 @@ This parses an array of regular expressions.  These look like
 /.*/i?
 
 =cut
-use Safe;
 sub parse_regexp_array {
   my $self = shift;
   my $arr  = shift;

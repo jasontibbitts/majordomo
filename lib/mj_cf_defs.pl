@@ -128,7 +128,12 @@ $Mj::Config::default_string = q(
  'get_access'           => "list",
  'index_access'         => "open",
  'info_access'          => "open",
- 'inform'               => [],
+ 'inform'               => [
+                            'connect | fail | inform',
+                            'reject | succeed | inform',
+                            'subscribe | succeed | inform',
+                            'unsubscribe | succeed | inform',
+                           ],
  'intro_access'         => "open",
  'latchkey_lifetime'    => 60,
  'log_lifetime'         => 31,
