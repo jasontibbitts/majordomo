@@ -11,6 +11,7 @@ Note that this may not be the same as the welcome document that is
 sent to new subscribers.
 
 See Also:
+   help configset access_rules_variables (set/test for this command)
    help get   (for another way to retrieve this file)
    help faq  (another document related to the list)
    help info (another document related to the list)

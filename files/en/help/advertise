@@ -25,6 +25,7 @@ ENDTAG
 
 See Also:
    help configset access_rules
+   help configset access_rules_variables (set/test for this command)
    help lists
    help which
 

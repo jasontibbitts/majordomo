@@ -84,6 +84,7 @@ the policies, send this message to $MJ
 See Also:
    help approve     (which can eliminate the need to use "accept")
    help changeaddr  (which replaces one address with another)
+   help configset access_rules_variables (set/test for this command)
    help password    (which changes an individual's password)
    help unsubscribe (which removes an address from just one list)
    help unregister  (which removes an address from all lists)

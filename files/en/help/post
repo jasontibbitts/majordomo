@@ -34,6 +34,7 @@ already subscribed to the list.
 
 See Also:
    help configset access_rules (for more examples and syntax)
+   help configset access_rules_variables (set/test for this command)
    help approve  (which can eliminate the need to use "accept")
    help password (which changes an individual's password)
 

@@ -74,6 +74,7 @@ on your server, and you have lots of files to "put"!
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 See Also:
+   help configset access_rules_variables (set/test for this command)
    help configset archive_dir (to store archives in a non-default dir)
    help configset_digests     (for how to configure digesting)
    help mkdigest  (for another way to do "digest-force")

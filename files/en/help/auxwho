@@ -15,6 +15,7 @@ in majordomo's access rules in a variety of ways.
 See Also:
    help auxadd                 (for discussion of auxiliary lists)
    help configset access_rules 
+   help configset access_rules_variables (set/test for this command)
    help who                    (for syntax)
 
 For a list of all help topics send this one-line message

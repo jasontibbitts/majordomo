@@ -8,6 +8,7 @@ This command returns an Information file for the list named, if one
 is available. If no INFO file exists, it returns an error message.
 
 See Also:
+   help configset access_rules_variables (set/test for this command)
    help faq   (another document related to the list)
    help get   (for another way to retrieve this file)
    help intro (another document related to the list)

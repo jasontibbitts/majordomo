@@ -194,6 +194,7 @@ welcome
 
 See Also:
    help configset access_rules (for confirm, consult, deny, allow clauses)
+   help configset access_rules_variables (set/test for this command)
    help configset filedir      (to create files in a non-default location)
    help accept    (for how to OK a token)
    help access    (for the special case of granting/denying all access)

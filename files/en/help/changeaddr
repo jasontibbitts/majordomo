@@ -41,6 +41,7 @@ will have the same effect if everyone returns the confirmation tokens.
 
 See Also:
    help alias       (which makes two addresses equivalent)
+   help configset access_rules_variables (set/test for this command)
    help default     (for how to override the "From:" address)
    help register    (which adds an address to the database)
    help subscribe   (which adds an address to a list)

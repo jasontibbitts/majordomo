@@ -53,6 +53,7 @@ See Also:
    help auxremove (to remove an address from a sublist)
    help auxwho    (to see the addresses in a sublist)
    help configset access_rules
+   help configset access_rules_variables (set/test for this command)
    help configset restrict_post
    help subscribe (for syntax)
 

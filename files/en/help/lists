@@ -49,6 +49,7 @@ To find out where you are subscribed without descriptive paragraphs:
 See Also:
    help auxwho    (to see the addresses on an auxiliary list)
    help configset access_rules (to make use of auxiliary lists)
+   help configset access_rules_variables (set/test for this command)
    help info      (to find out more about a list)
    help subscribe (to add your name to a list)
 

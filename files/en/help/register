@@ -55,6 +55,7 @@ this action, and must be replied to with an "accept" command before
 the registration is completed and the password can be used.
 
 See Also:
+   help configset access_rules_variables (set/test for this command)
    help password   (which changes an individual's password)
    help subscribe  (does an automatic registration)
    help unregister (which removes an address from the database)

@@ -16,6 +16,7 @@ an authorized password is used with "approve".
 
 See Also:
    help changeaddr  (which replaces one address with another)
+   help configset access_rules_variables (set/test for this command)
    help register    (which adds an address to the database)
    help subscribe   (which adds an address to a list)
    help unsubscribe (which removes an address from one list)

@@ -73,6 +73,9 @@ possible to be backwards-compatible with previous versions of Majordomo.
 All user commands and many admin commands from previous versions should
 work; those that don't will provide you with a pointer to their replacements.
 
+See Also:
+   help configset access_rules_variables (set/test for this command)
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ

@@ -44,6 +44,7 @@ ways to change the message which asks for accept/reject tokens.
 See Also:
    help accept      (the opposite action of "reject")
    help showtokens  (for a list of unhandled requests)
+   help configset access_rules_variables (set and test in access_rules)
    help configset token_lifetime (site-wide or per-list expiration period)
    help configset token_remind   (site-wide or per-list reminder before expiration)
 

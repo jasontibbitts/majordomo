@@ -35,6 +35,7 @@ See Also:
    help show     (for information about a given subscriber)
    help which    (for all lists a given subscriber is on)
    help configset access_rules (to restrict use of who)
+   help configset access_rules_variables (set/test for this command)
    help configset who_access   (to restrict use of who)
 
 For a list of all help topics send this one-line message

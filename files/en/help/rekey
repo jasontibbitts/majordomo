@@ -14,6 +14,7 @@ possible to get them back by removing the bad setting from addr_xforms
 and rekeying.
 
 See Also:
+   help configset access_rules_variables (set/test for this command)
    help configset addr_xforms (downcase or otherwise fix addresses)
 
 For a list of all help topics send this one-line message

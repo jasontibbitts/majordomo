@@ -32,6 +32,7 @@ databases. Please contact the maintainer shown at the bottom of this
 file for a Perl script that assumes shell access.
 
 See Also:
+   help configset access_rules_variables (set/test for this command)
    help register  (must occur before alias will work)
    help subscribe (does an automatic registration)
    help unalias   (to cancel an alias command)

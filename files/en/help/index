@@ -24,6 +24,7 @@ where a slash "/" separates the directory names, and a slash by
 itself is the same as using no pathname at all.
 
 See Also:
+   help configset access_rules_variables (set/test for this command)
    help get          (retrieve files by email)
    help index_access (determines who can index files under a list)
    help put          (to create files or directories under a list)

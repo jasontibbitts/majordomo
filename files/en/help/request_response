@@ -7,6 +7,8 @@ listname, required, is an email list at this site
 The "request_response" command is not intended to be used by end users;
 it's how messages to listanme-request get routed into the system.
 
+See Also:
+   help configset access_rules_variables (set/test for this command)
 
 For a list of all help topics send this one-line message
    help topics

@@ -64,6 +64,7 @@ Options include the following:
 
 See Also:
    help configset               (to configure the list once created)
+   help configset access_rules_variables (set/test for this command)
    help configset default_flags (to configure default subscriptions)
 
 For a list of all help topics send this one-line message

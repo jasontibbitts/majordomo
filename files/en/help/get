@@ -37,6 +37,7 @@ is called "ANOTHERFILE", then these commands would be valid:
 where a slash "/" separates the directory name from the file name.
 
 See Also:
+   help configset access_rules_variables (set/test for this command)
    help faq        (shortcut for 'get' with specific arguments)
    help get_access (determines who can get files from a list)
    help index      (find out which files are available for "get")

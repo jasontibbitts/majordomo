@@ -330,6 +330,7 @@ NOTE: "nomail" and "vacation" are identical, use whichever you like.
 
 See Also:
    help configset access_rules        (to restrict or allow access to 'set' changes)
+   help configset access_rules_variables (set/test for this command)
    help configset ack_attach_original (attaches post to error message if stalled)
    help configset ack_denials_always  (overrides "noack" for denied posts)
    help configset allowed_flags       (restricts subscribers ability to use set)

@@ -36,6 +36,9 @@ for the GLOBAL pseudo-list. There are different requests that can be
 trapped by each one.  If a command takes a list, it is restricted by
 the list-specific access_rules. If it doesn't, the GLOBAL rules are used.
 
+NOTE: Please refer to "help configset access_rules_variables" for
+      details on which requests and variables are available!
+
 WARNING: If you set access rules for the GLOBAL pseudo-list that attempt
 to trap per-list commands, those rules will be silently ignored! This
 includes things like "subscribe", which must be the target of a rule in
@@ -125,10 +128,12 @@ that do take a list use the list's access_rules. There are two weird ones:
 
   Comma-separated list of server requests (or commands) including
   advertise, alias, post, subscribe, etc. For a complete list of
-  commands on which access_rules can operate, see "help topics"
-  and ignore those which are not commands (such as "help admin").
-  Note also the special requests of "access" and "post", which
-  are not technically commands but can be requests.
+  commands, see "help topics". For a complete list of commands
+  which are considered requests (on which access_rules can operate),
+  see "help configset access_rules_variables".
+
+  Note the special requests of "access" and "post", which
+  are not technically commands but can be trapped as requests.
 
 
 1.2 - Second line - action
@@ -141,6 +146,11 @@ that do take a list use the list's access_rules. There are two weird ones:
   can contain embedded variables which will be expanded before the
   message or file is sent. Otherwise, a default reply will be used
   depending on what the primary action is.
+
+  The 'set' and 'unset' actions operate on the variables listed
+  in "help configset access_rules_variables", so tests can be
+  chained in order. The blank lines which separate rules do not
+  reset variables.
 
 1.2.1 - allow=N - the request succeeds.  If given an argument (allow=N) then N
     will be passed back to the calling routine (used in 'which' requests to
@@ -276,8 +286,8 @@ that do take a list use the list's access_rules. There are two weird ones:
 
   Variable check:
   \$variable - checks to see that the supplied variable is true.
-  \$variable=value - checks that the variable equals (stringwise) the given
-    value.
+  \$variable=value - checks that the variable equals (stringwise)
+     the given value.
 
 
 1.4 - Semantics: 
@@ -286,11 +296,13 @@ that do take a list use the list's access_rules. There are two weird ones:
 
   If no rules match, the "default" action is taken, which results in a
   reasonable emulation of the 1.94.3 behavior using *_access, moderate,
-  restrict_post, etc.
+  restrict_post, etc. The default actions for all requests are listed
+  in "help configset access_rules_variables".
 
 
 1.5 - Supported variables:
-  these are now listed in "help variables"
+  All variables are now listed in "help variables"
+  and/or "help configset access_rules_variables".
 
 
 + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
@@ -685,6 +697,7 @@ ENDCONSULT
 
 See Also:
    help access    (for the special case of granting/denying all access)
+   help configset access_rules_variables (for requests, variables, and defaults)
    help post      (for the special case of restricting who can post msgs)
    help variables (for a list of all possible variables and what they mean)
 

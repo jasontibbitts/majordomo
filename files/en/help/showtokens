@@ -16,6 +16,7 @@ See Also:
    help accept     (approving  action)
    help reject     (cancelling action)
    help tokeninfo  (for more details about a particular token)
+   help configset access_rules_variables (set/test for this command)
    help configset token_lifetime (site-wide or per-list expiration period)
    help configset token_remind   (site-wide or per-list reminder before expiration)
 
