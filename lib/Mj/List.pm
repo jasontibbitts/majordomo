@@ -1283,11 +1283,11 @@ sub aux_rekey {
         my $data = shift;
         my (@out, $addr, $newkey, $changekey);
 
-        # Allocate an Mj::Addr object from the canonical address.
-        $addr = new Mj::Addr($key);
+        # Allocate an Mj::Addr object from the stripped address.
+        $addr = new Mj::Addr($data->{'stripaddr'});
         return (1, 0, undef) unless $addr;
         # return (1, 0, undef) unless $addr->isvalid;
-        $newkey = $addr->xform;
+        $newkey = $addr->alias;
         if ($newkey ne $key or (! $data->{'class'})) {
           $changekey = $dry ? 0 : 1;
           $changed++;
