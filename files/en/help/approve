@@ -7,29 +7,28 @@ options,   if specified, is one or more options for the command
 arguments, if specified, is one or more arguments for the command
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The "approve" command executes another command (possibly with its own
-options and arguments). Majordomo checks the supplied password, and
-if it is authorized to approve the given command, that command will be
-executed without requiring a confirmation token to be accepted.
+The approve command is used to specify a password for a single Majordomo
+command.  The password can be either an administrative password or a
+personal password.  The command for which the password is supplied must
+begin on the same line as the approve command.
 
-List subscribers can use it to speed the subscribe and unsubscribe
-process, or to unsubscribe from a new email address when the old
-address is no longer usable (assuming they saved their password!).
-
-The 'default' command can make it much easier to approve several
-commands at once. Most admin commands are of little use without
-"approve" and the appropriate password. If an admin command fails,
-check to make sure you are approving it correctly.
-
-In the example below, "vespa" is the registered user's password.
 EXAMPLE:
    approve vespa unsubscribe test-list tsmith@example.com
 
-See Also:
-   help accept   (which may be required if approve is not used)
-   help default  (which can supply a password for many commands)
-   help password (which changes an individual's password)
+In this example, the password "vespa" is used to cause the "unsubscribe"
+request to be carried out immediately.  Usually, attempting to
+unsubscribe an address without using a password would cause a
+confirmation message to be sent to the address being unsubscribed or to
+the list administrators.
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+The "default password" command can make it much easier to approve
+several commands at once. 
+
+See Also:
+   help admin_passwords (for a discussion of administrative passwords)
+   help configset_access_password_override
+   help default  (which can supply a password for many commands)
+   help password (for a discussion of personal passwords)
+   help register
+
+$INCLUDE-help/foot
