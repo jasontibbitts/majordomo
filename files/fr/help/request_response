@@ -1,0 +1,42 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+request_response liste <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+liste, requise, est le nom d'une liste
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+L'action "request_response" est utilisé dans dans les paramètre de
+configuration "access_rules" pour déterminer qui a accès à un
+répondeur automatique.
+
+Chaque liste possède un alias email "-request". normalement, les
+messages envoyés à cette adresse seront traités comme si ils avaient
+été envoyés au serveur à $MJ.
+
+il est possible de configurer l'adresse "-request" pour envoyer
+automatiquement un message en réponse. Cela sera effectif avec la
+commande suivante :
+
+  configset GLOBAL request_answer = response
+
+Cela modifie toutes les listes du domaine. Il n'y à pas de possibilité
+de modifier cela liste par liste.
+
+Les administrateurs du domaine peuvent vouloir restreindre l'accès aux
+réponses automatiques en utilisant le paramètre "access_rules" sur la
+liste GLOBAL. Par exemple, la commande suivante :
+
+configset GLOBAL access_rules <<LLL
+request_response
+deny
+/exemple.fr/
+LLL
+
+N'autoriserai pas l'accès aux gens venant du domaine "exemple.fr".
+
+
+Référez vous aussi à :
+   help access_variables 
+   help configset_access_rules
+   help configset_request_answer
+
+$INCLUDE-help/foot

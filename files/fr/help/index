@@ -1,0 +1,50 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+index-recursive-long liste [répertoire]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+liste,      requis, le nom de la liste (ou GLOBAL)
+-recursive, si spécifié, liste tous les fichiers dans tous les sous
+            répertoires
+-long,      si spécifié, donne plus de détails à propos des fichiers
+répertoire, si spécifié, est le répertoire dont on veux l'index
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+Cette commande affiche les fichiers et les répertoires qui sont
+disponibles pour la liste, que le propriétaire de la liste aura au
+préalable stocké ici. Si il n'y a aucun fichier ou répertoires, ou si
+vous n'êtes pas autorisé a avoir l'index, la commande "index" retourne
+un message d'erreur.
+
+Normalement, les messages archivés sont affichés avec la commande
+"archive-index" et récupérés avec "archive-get". Les commandes "index"
+et "get" ne permettront pas l'accès aux archive si le répertoire
+"archive_dir" est réglé hors de l'espace de fichiers de la liste, et
+ne sont pas aussi pratique a utiliser même si ils fonctionnent.
+
+Notez que "répertoire" peut inclure un ou plusieurs niveaux de
+répertoires (aussi nommés dossiers). Par exemple, si la liste
+"MALISTE" contient un répertoire appelé "HAUT" et dans ce répertoire
+un autre appelé "BAS", les commandes suivantes sont valides :
+  index MALISTE
+  index MALISTE /
+  index MALISTE /HAUT/BAS
+  index-recursive MALISTE
+où le slash "/" sépare les noms de dossiers, et un slash tout seul est
+équivalent à ne rien mettre du tout.
+
+Référez vous aussi à :
+   help admin_documents          (pour en savoir plus sur l'espace de
+                                  stockage d'une liste)
+   help archive                  (pour obtenir un index de l'archive
+                                  des messages postés)
+   help configset_access_rules   (pour restreindre l'accès à cette
+                                  commande)
+   help configset_archive_access (pour restreindre l'accès aux fichier
+                                  spéciaux)
+   help configset_index_access   (détermine qui peut utiliser la
+                                  commande "index" pour une liste)
+   help get                      (pour récupérer les fichiers de
+                                  l'espace de la liste)
+   help put                      (pour créer des fichiers ou des
+                                  répertoires dans l'espace de la liste)
+
+$INCLUDE-help/foot

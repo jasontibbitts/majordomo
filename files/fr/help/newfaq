@@ -1,0 +1,44 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+newfaq liste <<TAG
+[CONTENU]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+liste, requis, la liste en question
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+La commande "newfaq" remplacera le contenu du fichier "/faq" qui est
+affiché par la commande "faq".
+
+Le nouveau contenu du fichier faq doit être inclu dans un document
+"ici" (référez vous à "help here_document" pour plus de détails). Par
+exemple, la commande suivante remplacera le contenu du fichier faq
+avec la phrase "Salut, abonné !" :
+
+newfaq LISTE <<ABCD
+Salut, abonné !
+ABCD
+
+La commande "newfaq" est un raccourci pour la commande "put". Par
+exemple, la commande "put" suivante est identique à la commande
+"newfaq" de l'exemple précédent :
+
+put LISTE /faq Frequently Asked Questions <<ABCD
+Salut, abonné !
+ABCD
+
+Par défaut, un mot de passe administratif est requis pour utiliser la
+commande "newfaq". Les restrictions d'accès de la commande "put"
+(déterminées par le paramètre "access_rules) s'appliquent à la
+commande "newfaq".
+
+
+Référez vous aussi à :
+   help admin_documents
+   help configset_access_rules
+   help here_document
+   help faq
+   help newinfo
+   help newintro
+   help put
+
+$INCLUDE-help/foot

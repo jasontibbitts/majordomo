@@ -1,0 +1,39 @@
+NOM
+    mj_email - Interface email de Majordomo
+
+DESCRIPTION
+    L'interface email de Majordomo, mj_email, traite 4 différents
+    types de messages :
+
+    list
+        Le message est supposé être distribué aux abonnés d'une liste.
+
+    majordomo
+        Le message contient des commandes qui doivent être traîtées
+        par le serveur Majordomo.
+
+    owner
+        Le message est supposé être envoyé aux administrateurs ou
+        modérateurs de la liste.
+
+    request
+        Le but de ce message dépendra du paramètre de configuration
+        GLOBAL "request_answer". Par défaut, les commandes du message
+        seront traîtées par le serveur.
+
+    La commande "mj_email" a été supplantée par trois programmes qui
+    constituent le systeme de gestion de queue de Majordomo :
+    "mj_enqueue", "mj_queueserv" et "mj_queuerun". Le système de
+    gestion de queue limite le nombre de programmes qui peuvent être
+    utilisés en même temps. Le résultat est que le système de queue
+    permet de traîter plus efficacement les périodes de forte
+    activités.
+
+Référez vous aussi à :
+   help configset_aliases
+   help configset_request_answer
+   help mj_enqueue
+   help mj_queuerun
+   help mj_queueserv
+
+$INCLUDE-help/foot

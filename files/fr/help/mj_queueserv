@@ -1,0 +1,38 @@
+NOM
+    mj_queueserv - Programme de gestion de queue
+
+SYNOPSIS
+    Lancé uniquement par "mj_enqueue" ; ne sera pas lancé à la main.
+
+DESCRIPTION
+    "mj_queueserv", le gestionnaire de queue Majordomo, est un petit
+    programme qui gère plusieurs programmes de traîtement de queue. Il
+    est sensé être lancé par le programme "mj_enqueue". Il ne doit
+    jamais y avoir plus d'un programme "mj_queueserv" en même temps.
+
+    "mj_queueserv" fork immédiatement et se désassocie de son
+    processus père pour qu'il puisse s'executer comme un démon. Il
+    ouvre un socket et attends des connexions d'autres programmes
+    Majordomo, tels "mj_enqueue", "mj_queuerun", ou "mj_shutdown". Si
+    il reste sans rien faire pour une certaine période ou si il lui
+    est demandé de s'eteindre (référez vous à la page de
+    "mj_shutdown") il se terminera.
+
+    Lorsqu'un processus "mj_enqueue" stoque un message dans la queue
+    de messages, il contacte le serveur de queue et lui indique qu'un
+    message devrait être traité. Si le serveur de queue est déjà en
+    train de gérer plusieurs programmes de traîtement de queue, il
+    tentera de les contacter pour en trouver un de disponible. Si il
+    n'y en a pas de disponible et que le nombre maximum de programmes
+    de traîtement de queue n'est pas atteint, le gestionnaire de queue
+    en lancera un. Si un nouveau programme de traîtement de queue ne
+    peut pas être traité, le gestionnaire de queue note que le systeme
+    est occupé et attends le prochain message venant de "mj_queuerun".
+
+Référez vous aussi à :
+   help mj_email
+   help mj_enqueue
+   help mj_queuerun
+   help mj_shutdown
+
+$INCLUDE-help/foot

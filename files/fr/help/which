@@ -1,0 +1,45 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+which [motif]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+motif, si spécifié, sera testé avec les adresse email
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+La commande "which" cherchera dans la liste des abonnés à toutes les
+liste les adresses qui correspondent au motif de la ligne de commande.
+Si aucun motif n'est spécifié, la recherche retournera la liste des
+listes à laquelle la personne faisant la requête est abonnée.
+
+Si un motif est spécifié, il doit être conforme aux règles de motifs
+décrites dans le document "help patterns". Par défaut, une recherche
+ne tenant pas compte de la casse est effectuée. La recherche ne prends
+en compte que l'adresse email en elle même. Les commentaires, tels le
+nom complet de l'abonné, ne seront pas cherchées.
+
+Par défaut, quelqu'un qui utilise la commande "which" sans un mot de
+passe administratif du domaine ou du site sera limité à un résultat
+par liste. Cette limitation implique que vous devrez utiliser un motif
+aussi spécifique que possible.
+
+La commande "which" est une commande globale, si vous tentez de
+l'utiliser avec un mot de passe spécifique à une liste, vous recevrez
+à un message d'erreur vous indiquant un mauvais mot de passe.
+
+Les administrateurs d'une liste peuvent augmenter le nombre par défaut
+de correspondances permise grâce au paramètre de configuration
+"access_rules". Référez vous à "help configset_access_rules" pour plus
+de détails.
+
+
+Référez vous aussi à :
+   help admin_passwords
+   help admin_subscribers
+   help configset_access_rules (pour restreindre l'utilisation de
+                                cette commande)
+   help configset_which_access (pour restreindre l'utilisation de
+                                cette commande)
+   help patterns
+   help set
+   help show     (pour des informations sur un abonné particulier)
+   help who      (pour rechercher les abonnés d'une liste)
+
+$INCLUDE-help/foot

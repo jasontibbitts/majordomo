@@ -1,0 +1,43 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+faq[-edit] liste
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+liste, requis, la liste en question
+-edit, si spécifié, rends le document facile a éditer
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+La commande "faq" renvoie le contenu du fichier faq (Questions
+Fréquemment Posées) pour une liste, si il existe.
+
+Le document faq support des variables de substitutions (référez vous à
+"help variables" pour plus d'information).
+
+La commande "edit" est destinée a permettre aux gestionnaires de liste
+d'éditer et remplacer le contenu du document facilement. Par exemple,
+la commande :
+  faq-edit liste
+
+affichera le contenu du document faq mis dans une commande "newfaq" :
+
+newfaq liste <<ADGBEH
+
+Q.:  Comment est ce que je quitte la liste ?
+
+R.:  Envoyez un message à \$MJ.  
+     Et dans le contenu du message, mettez :
+       unsub liste
+
+ADGBEH
+
+Référez vous à "help here_document" et "help newfaq" pour plus
+d'informations sur la manière de remplacer le document faq.
+
+Référez vous aussi à :
+   help admin_documents (l'espace de stoquage d'une liste)
+   help configset_access_rules  (restreindre l'accès à cette commande)
+   help configset_faq_access    (restreindre l'accès à cette commande)
+   help get   (une autre manière de récupérer ce fichier)
+   help info  (un autre document en relation avec la liste)
+   help intro (un autre document en relation avec la liste)
+   help newfaq (créer ou remplacer le document faq)
+
+$INCLUDE-help/foot

@@ -1,0 +1,45 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+newintro liste <<TAG
+[CONTENU]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+liste, requis, la liste en question (ou GLOBAL)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+La commande "newintro" remplacera le contenu du fichier "/intro" qui
+est affiché par la commande "intro".
+
+Le nouveau contenu du fichier intro doit être inclus dans un document
+"ici" (référez vous à "help here_document" pour plus de détails). Par
+exemple, la commande suivante remplacera le contenu du fichier intro
+avec la phrase "Salut, abonné !" :
+
+newintro LISTE <<ABCD
+Salut, abonné !
+ABCD
+
+La commande "newintro" est un raccourci pour la commande "put". Par
+exemple, la commande "put" suivante est identique à la commande
+"newintro" de l'exemple précédent :
+
+put LISTE /intro List Introductory Information <<ABCD
+Salut, abonné !
+ABCD
+
+Par défaut, un mot de passe administratif est requis pour utiliser la
+commande "newintro". Les restrictions d'accès de la commande "put"
+(déterminées par le paramètre "access_rules) s'appliquent à la
+commande "newintro".
+
+
+Référez vous aussi à :
+   help admin_documents
+   help configset_access_rules
+   help here_document
+   help intro
+   help newfaq
+   help newinfo
+   help put
+
+$INCLUDE-help/foot
+
