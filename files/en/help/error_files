@@ -36,6 +36,16 @@ and "help configset_password_min_length" for more details).
 
 (standard substitutions only)
 
+unknown_setting
+------------
+This error message is displayed if the configdef or configset command is 
+used to change a configuration setting which is not supported by
+Majordomo for the list in question.  This may be due to a spelling
+error, or due to the fact that some settings are supported only
+for the GLOBAL pseudo-list or only for ordinary mailing lists.
+
+(standard plus SETTING)
+
 unregistered
 ------------
 This error message is displayed if the password command is used to change
