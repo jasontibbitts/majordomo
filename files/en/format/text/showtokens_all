@@ -1,6 +1,2 @@
-Pending requests for all mailing lists:
 
-Token          List         Command     Date        User
-$TOKENDATA
-
-Tokens shown: $COUNT
+Requests found: $COUNT

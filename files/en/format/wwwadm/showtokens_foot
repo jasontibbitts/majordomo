@@ -1,4 +1,5 @@
 <!-- Majordomo showtokens_foot format file -->
+</table>
 <p>
 Requests found: $COUNT<br>
 </p>
@@ -10,7 +11,7 @@ Requests found: $COUNT<br>
   <input type="submit" name="func" value="reject-quiet">
 </form>
 
-  <p>
+<p>
 It is possible to moderate more than one list at the same time if
 you use an administrative password that applies to every list.
 To moderate an additional list, type its name into the box, then
@@ -22,5 +23,5 @@ press the <b>Go</b> button.
   <input size=40 name="list" value="">
   <input type="submit" value="Go">
 </form>
-  </p>
+</p>
 

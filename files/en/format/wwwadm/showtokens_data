@@ -1,14 +1,24 @@
 <!-- Majordomo showtokens_data format file -->
 <tr>
-<td><input type="checkbox" name="extra" value="$TOKEN"><a href="$CGIURL?$CGIDATA&list=$LIST&passw=$CMDPASS&func=tokeninfo&extra=$TOKEN&brief=on" target="_token">$TOKEN
-</a>
-</td>
-<td>$TYPE
-</td>
-<td>$COMMAND&nbsp;$SIZE
-</td>
-<td>$ADATE
-</td>
-<td>$REQUESTER
-</td>
+  <td><input type="checkbox" name="extra" value="$TOKEN"><a href="$CGIURL?$CGIDATA&list=$LIST&passw=$CMDPASS&func=tokeninfo&extra=$TOKEN&brief=on" target="_token">$TOKEN
+  </a>
+  </td>
+
+  <td>
+    $COMMAND
+    (?SIZE&nbsp;kB)
+  </td>
+
+  <td>
+    $TYPE
+  </td>
+
+  <td>
+    $ADATE
+  </td>
+
+  <td> 
+    $REQUESTER
+  </td>
+
 </tr>

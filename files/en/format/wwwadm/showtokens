@@ -1,14 +1,6 @@
 <!-- Majordomo showtokens format file -->
-<table>
 <tr>
-  <td colspan=5>Requests for the $LIST list</td>
+  <td colspan="5">
+  <b>Requests for the $LIST list</b>
+  </td>
 </tr>
-<tr>
-  <th>Token</th>
-  <th>Type</th>
-  <th>Request</th>
-  <th>Date</th>
-  <th>Address</th>
-</tr>
-$TOKENDATA
-</table>

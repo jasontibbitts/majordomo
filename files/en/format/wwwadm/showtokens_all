@@ -1,12 +1,2 @@
 <!-- Majordomo showtokens_all format file -->
-<table>
-<tr>
-  <th>Token</th>
-  <th>List</th>
-  <th>Type</th>
-  <th>Request</th>
-  <th>Date</th>
-  <th>Address</th>
-</tr>
-$TOKENDATA
-</table>
+
