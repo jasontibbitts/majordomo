@@ -337,6 +337,7 @@ sub dispatch {
 
   $request->{'user'} ||= 'unknown@anonymous';
   $request->{'password'} ||= '';
+  $request->{'victim'} ||= '';
   $request->{'mode'} ||= '';
   $request->{'mode'} = lc $request->{'mode'};
 
