@@ -408,12 +408,12 @@ sub resend {
 
   $sublist ||= '';
   $request = {
-    'auxlist'   => $sublist,
     'command'   => 'post',
     'file'      => $file,
     'list'      => $list,
     'mode'      => '',
     'password'  => '',
+    'sublist'   => $sublist,
     'user'      => $from,
   };
 
@@ -462,7 +462,7 @@ sub connect_no_parse {
       $from = $head->get('from') ||
         $head->get('apparently-from') || 'unknown@anonymous';
       chomp $from;
-      $id = $mj->connect($int, $sess, $from);
+      ($id, $err) = $mj->connect($int, $sess, $from);
       unless (defined $id) {
 	$::log->complain("Error when connecting: $err");
 	return;
