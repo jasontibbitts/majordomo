@@ -49,6 +49,7 @@ Letter  Setting Name
   C      eliminatecc
   h      hideaddress
   H      hideall
+  N      hidepost
   O      postblock
   P      prefix
   R      replyto
