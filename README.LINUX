@@ -20,9 +20,10 @@ and then run "make" and "make install" as usual.
 
 -----------------------------------------------------------------
 
-In Red Hat Linux 9, there appears to be a pattern matching bug related
-to character sets in perl 5.8.0 that will cause all e-mail addresses to
-be considered invalid, giving error messages like the following: 
+In some versions of Red Hat Linux, there appears to be a pattern
+matching bug related to character sets in perl 5.8.0 that will cause all
+e-mail addresses to be considered invalid, giving error messages like
+the following: 
 
   The address "majordomo" is invalid.
 
