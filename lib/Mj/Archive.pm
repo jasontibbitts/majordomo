@@ -100,19 +100,28 @@ sub new {
   while (defined($_ = $dh->read)) {
     if (s/^$list\.//) {
       $self->{'splits'}{$_} = {};
-      @tmp = _split_name($_);
-      $data{$_} = [ @tmp ];
 
       if ($_ =~ /(.*)-\d\d/) {
 	$self->{'archives'}{$1} = {};
-        @tmp = _split_name($_);
-        $data{$1} = [ @tmp ];
       }
       else {
 	$self->{'archives'}{$_} = {};
       }
     }
   }
+  $self->_sort_archives;
+
+  return $self;
+}
+
+=head2 _sort_archives 
+
+This method sorts the archive file names chronologically.
+
+=cut
+sub _sort_archives {
+  my $self = shift;
+  my (%data, @tmp, $arc, $sort_arcs);
 
   $sort_arcs = 
   sub {
@@ -131,15 +140,26 @@ sub new {
     }
   };
 
+  for $arc (keys %{$self->{'archives'}}) {
+    @tmp = _split_name($arc);
+    $data{$arc} = [ @tmp ];
+  }
+
   @tmp = sort $sort_arcs (keys %{$self->{'archives'}});
   $self->{'sorted_archives'} = [ @tmp ];
 
+  for $arc (keys %{$self->{'splits'}}) {
+    next if (exists $data{$arc});
+    @tmp = _split_name($arc);
+    $data{$arc} = [ @tmp ];
+  }
+
   @tmp = sort $sort_arcs (keys %{$self->{'splits'}});
   $self->{'sorted_splits'} = [ @tmp ];
-                
-  return $self;
-}
 
+  1;
+}
+                
 =head2 _split_name (filename)
 
 This function returns the sublist name and full date
@@ -610,8 +630,8 @@ sub sync {
   my $tmpdir = shift;
   my $qp = shift;
   my $log  = new Log::In 250, "$arc, $qp";
-  my (@msgs, $btotal, $count, $data, $ltotal, $num, $ok, $split, 
-      $sub, $values);
+  my (@msgs, $btotal, $count, $data, $ltotal, $num, $ok, $resort,
+      $split, $sub, $values);
 
   # Untaint the archive name.
   $arc = basename($arc);
@@ -633,9 +653,11 @@ sub sync {
     }
     # Keep track of highest message number.
     $count = $self->{'splits'}{$arc}{'msgs'};
+    $resort = 0;
   }
   else {
     $count = 0;
+    $resort = 1;
   }
 
   # Add X-Archive-Number headers to the archive and collect data.
@@ -691,6 +713,10 @@ sub sync {
     $self->{'splits'}{$sub}{'lines'} = $ltotal;
     $self->{'splits'}{$sub}{'msgs'} = $ok;
     $self->_write_counts($sub);
+  }
+
+  if ($resort) {
+    $self->_sort_archives;
   }
 
   (1, "Archive \"$sub\", containing $self->{'splits'}{$sub}{'msgs'} messages,"
