@@ -81,18 +81,16 @@ only in the message body:
 In the "ack_timeout" file, no variable substitutions are done.
 
 In a file sent by the "announce" command, only this variable is evaluated:
-  \$LIST      => the list the announce file is being sent to
-  \$MJ        => The address Majordomo receives commands at
-  \$MJOWNER   => The address of the owner of this Majordomo installation
-  \$MSGRCPT   => The address of the recipient (each msg individually addressed).
-  \$SITE      => the name of the site
-  \$USER      => same as \$VICTIM
+  \$LIST      => the name of the list the announce file is being sent to
+  \$MJ        => the address Majordomo receives commands at
+  \$MJOWNER   => the address of the owner of this Majordomo installation
+  \$MSGRCPT   => the address of the recipient (each msg individually addressed).
+  \$SITE      => the name of the site (a text string from "configset GLOBAL site_name")
+  \$USER      => the address of the person who made the announcement
   \$VERSION   => the version of Majordomo
-  \$VICTIM    => the user who will receive the announcement
-  \$WHEREAMI  => no information available
-  \$WHOAMI    => no information available
+  \$WHEREAMI  => the site domain (a text string from "configset GLOBAL whereami")
+  \$WHOAMI    => the address of the list the announce file is being sent to
   \$OWNER     => the address of the list owner
-
 
 In the "confirm" and "consult" files, these variables are evaluated
 in both the subject and message body:
@@ -125,14 +123,16 @@ In the "inform" file, these variables are evaluated in the subject:
 
 In the "inform" file, these variables are evaluated in the msg body:
   \$CMDLINE   => the command that was sent
-  \$COMMENT   => no information is available
-  \$INTERFACE => no information is available
+  \$COMMENT   => may (or may not) hold explanatory text relating to
+                 the event that was logged (i.e. why an action failed)
+  \$INTERFACE => the interface that generated the event ('email', 'shell', etc.)
   \$LIST      => the list the request acted on
   \$REQUEST   => the request that was made
   \$REQUESTER => the user who made the request
-  \$SESSIONID => no information is available
-  \$STATUS    => the status of the action (succeed, fail, stall)
-  \$STATDESC  => no information is available
+  \$SESSIONID => the randomly assigned session number for this event
+                 (see "help sessioninfo" for a discussion of session IDs)
+  \$STATUS    => the numeric status of the action (   -1,       0,       1)
+  \$STATDESC  => the textual status of the action (stall, failure, success)
   \$USER      => same as \$VICTIM
   \$VICTIM    => the user who will be effected by the request
 
@@ -192,7 +192,7 @@ subject and message body:
   \$MJOWNER   => the site owner's address
   \$OWNER     => the list owner's address
   \$REQUEST   => the request address
-  \$SITE      => the name of the site
+  \$SITE      => the name of the site (a text string from "configset GLOBAL site_name")
   \$USER      => the user's address
 
 In files sent by "configset listname welcome_files", these variables
