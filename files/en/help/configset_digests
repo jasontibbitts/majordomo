@@ -131,8 +131,9 @@ digests, but not within digests.  Comments are lines that begin with a '#'.
 
 
 See Also:
-   help digest   (for managing digests once enabled)
-   help put      (for how to create archive directory)
+   help configset_digest_issues (to see the current volume and issue numbers)
+   help digest   (to check digest status or force the delivery of digests)
+   help put      (for how to create the archive directory)
    help times
 
 For a list of all help topics send this one-line message
