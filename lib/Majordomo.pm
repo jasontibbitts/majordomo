@@ -3499,7 +3499,6 @@ sub accept {
   return (0, "No token was supplied.\n")
     unless (scalar(@{$request->{'tokens'}})); #XLANG
 
-  # XXX Log an entry for each token / only recognized tokens? 
   for $ttoken (@{$request->{'tokens'}}) {
     $token = $self->t_recognize($ttoken);
     if (! $token) {
@@ -5420,10 +5419,9 @@ sub reject {
 This adds a user to the registration database without actually adding them
 to any lists.
 
-Modes: nopassword   - don''t assign a password
-       randpassword - assign a random password
+Modes: password   - assign the password that is specified
 
-else a password is a required argument.
+else a password is assigned randomly.
 
 XXX Add a way to take additional data, like the language.
 
@@ -5490,6 +5488,45 @@ sub _register {
   return (1, [$vict]);
 }
 
+=head2 r_expire
+
+Expire registration entries that have been inactive for too long.
+Inactive registrations have no subscriptions.  The expiration age
+is determined by the GLOBAL inactive_lifetime setting.
+
+=cut
+sub r_expire {
+  my $self = shift;
+  my (@nuked, $age, $expiretime, $time);
+  my $log = new Log::In 250;
+
+  $time = time;
+  $age = $self->_global_config_get('inactive_lifetime');
+  if (defined $age and $age =~ /^\+?\d+$/) {
+    $expiretime = $time - $age * 86400;
+  }
+  else {
+    return 1;
+  }
+
+  my $mogrify = sub {
+    my $key  = shift;
+    my $data = shift;
+
+    # True if we have an inactive account
+    my $i = ($data->{lists} =~ /^[\s\002]*$/ &&
+             $expiretime > $data->{changetime}
+            );
+    if ($i) {
+      push @nuked, ($key, $data);
+      return (1, 1, undef);
+    }
+    return (0, 0);
+  };
+
+  $self->{'reg'}->mogrify($mogrify);
+  return (1, @nuked);
+}
 
 =head2 rekey(...)
 
@@ -6389,7 +6426,7 @@ sub tokeninfo_start {
   my ($self, $request) = @_;
   my $log = new Log::In 30, $request->{'id'};
   my ($ok, $ent, $error, $data, $gurl, $mj_owner, $origmsg, $parser,
-      $part, $sender, $sess, $spool, $victim);
+      $part, $sender, $sess, $spool, $token, $victim);
 
   # Don't check access for now; users should always be able to get
   # information on tokens.  When we have some way to prevent lots of
@@ -6398,8 +6435,14 @@ sub tokeninfo_start {
   return (0, "No token identifier was found.\n")
     unless (length $request->{'id'}); #XLANG
 
+  $token = $self->t_recognize($request->{'id'});
+  if (! $token) {
+    return (0, "Illegal token \"$request->{'id'}\".\n");
+  }
+  $request->{'id'} = $token;
+
   # Call t_info to extract the token data hash
-  ($ok, $data) = $self->t_info($request->{'id'});
+  ($ok, $data) = $self->t_info($token);
   return ($ok, $data) unless ($ok > 0);
 
   return (0, "Cannot initialize the list \"$data->{'list'}\".\n")
@@ -6440,7 +6483,7 @@ sub tokeninfo_start {
     $sender = $self->_list_config_get($data->{'list'}, 'sender');
     $mj_owner = $self->_global_config_get('sender');
 
-    $ent = $self->r_gen($request->{'id'}, $data, $gurl, $sender);
+    $ent = $self->r_gen($token, $data, $gurl, $sender);
     if ($ent and exists $data->{'spoolfile'}) {
       $origmsg = "$self->{ldir}/GLOBAL/spool/$data->{'spoolfile'}";
       $ent->make_multipart;
@@ -6453,7 +6496,7 @@ sub tokeninfo_start {
     if ($ent) {
       $self->mail_entity({ addr => $mj_owner,
                            type => 'D',
-                           data => $request->{'id'},
+                           data => $token,
                          },
                          $ent,
                          $request->{'user'}
@@ -6593,8 +6636,8 @@ sub trigger {
   my ($self, $request) = @_;
   my $log = new Log::In 27, "$request->{'mode'}";
 
-  my (%subs, @files, @ready, @req, $cmdfile, $data, $elapsed, $infh, $key, 
-      $list, $ok, $mess, $mode, $times, $tmp);
+  my (%subs, @data, @files, @ready, @req, $addr, $cmdfile, $data, $elapsed, 
+      $infh, $key, $list, $ok, $mess, $mode, $times, $tmp);
   $mode = $request->{'mode'};
 
   # Right now the interfaces can't call this function (it's not in the
@@ -6650,6 +6693,21 @@ sub trigger {
   if ($mode =~ /^(da|c)/ or grep {$_ eq 'checksum'} @ready) {
     $self->{'lists'}{'GLOBAL'}->expire_dup;
   }
+  # Mode: daily or inactive - expire inactive registry entries
+  if ($mode =~ /^(da|i)/ or grep {$_ eq 'inactive'} @ready) {
+    $elapsed = $::log->elapsed;
+    ($ok, @data) = $self->r_expire;
+    while (($addr, undef) = splice @data, 0, 2) {
+      # Log the removal of the registration.
+      $self->inform('GLOBAL', 
+                    'unregister', 
+                    $request->{'user'}, 
+                    $addr, 
+                    "unregister $addr", 
+                    $self->{'interface'}, 
+                    1, '', 0, '', $::log->elapsed - $elapsed);
+    }
+  }
 
   # Loop over lists
   $self->_fill_lists;
@@ -6670,15 +6728,45 @@ sub trigger {
       $self->{'lists'}{$list}->expire_dup;
     }
 
-    # Mode: daily or bounce or vacation - expire vacation settings and bounces
-    if ($mode =~ /^(da|b|v)/ or grep {$_ eq 'bounce'} @ready) {
-      $self->{'lists'}{$list}->expire_subscriber_data;
+    # Mode: daily or bounce - expire bounces
+    if ($mode =~ /^(da|b)/ or grep {$_ eq 'bounce'} @ready) {
       $self->{'lists'}{$list}->expire_bounce_data;
+    }
+    # Mode: daily or vacation - expire vacation data
+    if ($mode =~ /^(da|v)/ or grep {$_ eq 'vacation'} @ready) {
+      $elapsed = $::log->elapsed;
+      ($ok, @data) = $self->{'lists'}{$list}->expire_subscriber_data;
+      while (($addr, undef) = splice @data, 0, 2) {
+        # Log the delivery mode change.
+        $self->inform($list, 
+                      'set', 
+                      $request->{'user'}, 
+                      $addr, 
+                      "set $list nomail-return $addr", 
+                      $self->{'interface'}, 
+                      1, '', 0, '', $::log->elapsed - $elapsed);
+      }
     }
 
     # Mode: daily or post - expire post data
     if ($mode =~ /^(da|p)/ or grep {$_ eq 'post'} @ready) {
       $self->{'lists'}{$list}->expire_post_data;
+    }
+
+    # Mode: daily or inactive - expire inactive subscriptions.
+    if ($mode =~ /^(da|i)/ or grep {$_ eq 'inactive'} @ready) {
+      $elapsed = $::log->elapsed;
+      ($ok, @data) = $self->{'lists'}{$list}->expire_inactive_subs;
+      while (($addr, undef) = splice @data, 0, 2) {
+        # Log the delivery mode change.
+        $self->inform($list, 
+                      'unsubscribe', 
+                      $request->{'user'}, 
+                      $addr, 
+                      "unsubscribe $list $addr", 
+                      $self->{'interface'}, 
+                      1, '', 0, '', $::log->elapsed - $elapsed);
+      }
     }
 
     # Mode: hourly or digest - issue digests 

@@ -1,3 +1,38 @@
+2001-12-15  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (r_expire)  New routine.  Remove
+	inactive registration entries, based upon the age in
+	the GLOBAL inactive_lifetime setting.
+	(tokeninfo) Support case-insensitive token matches.
+	(trigger)  Separate the bounce and vacation triggers.
+	Add an "inactive" trigger for expiring inactive addresses.
+
+	* lib/mj_cf_data.pl, mj_cf_defs.pl:  Add support for
+	the inactive_lifetime and post_lifetime settings.
+
+	* lib/Mj/CommandProps.pm:  Add support for "i"nactive
+	mode for the trigger command.
+
+	* lib/Mj/Config.pm:  (parse_triggers)  Warn, rather than
+	fail, if a trigger is missing.  Run missing triggers daily.
+
+	* lib/Mj/List.pm:  (expire_inactive_subs)  Remove subscribers
+	that have been in "nomail" mode without any return date for
+	longer than the number of days in the "inactive_lifetime"
+	setting.
+	(expire_subscriber_data)  Remove the bounce elimination
+	code, which is duplicated in expire_bounce_data().
+
+	* lib/Mj/Resend.pm:  (_check_approval)  Test a token for
+	validity.
+
+	* lib/Mj/Token.pm:  (t_recognize)  Make recognition
+	case-insensitive.
+
+	* lib/Mj/Util.pm:  (str_to_offset)  Add support for times
+	of day, such as "5pm".
+	(str_to_time)  Bugfix:  Time spans are future, not past.
+
 2001-12-11  Michael Yount <csf@moscow.com>
 
 	* convertlist.pl:  Convert the Mj1 "moderator" setting into
