@@ -17,6 +17,7 @@ EXAMPLE:
 configset GLOBAL triggers <<ENDGLOBAL
 checksum | 3rd(17),10th(9),17th(11),24th(19)
 delay    | hourly
+inactive | daily
 log      | weekly
 session  | monday(6,12,18), thursday(8)
 token    | always  
@@ -26,7 +27,9 @@ configset ANOTHER_LIST triggers <<ENDLIST
 bounce   | daily
 checksum | 3rd(17),10th(9),17th(11),24th(19)
 delay    | hourly
+inactive | daily
 post     | thursday
+vacation | hourly
 ENDLIST
 
 Triggers are actions that occur periodically.  Each trigger consists 
@@ -43,17 +46,21 @@ the current time are executed by the mj_trigger program.
 Here are the actions which can be triggered via the GLOBAL pseudo-list:
  checksum - Expire posted message checksums and message-id data.
  delay    - Complete delayed requests.
+ inactive - Remove inactive registered addresses with no subscriptions.
  log      - Expire entries from the main log.
  session  - Expire old session data.
  token    - Issue reminders and remove expired tokens and temporary passwords.
 
 Here are the actions which can be triggered via the regular lists:
- bounce   - Expire subscriber data, such as bounces and vacation settings.
+ bounce   - Expire delivery failure information which is outdated.
  checksum - Expire posted message checksums and message-id data.
  delay    - Complete delayed requests and post delayed messages.
+ inactive - Remove inactive subscriptions that are on vacation indefinitely.
  post     - Expire data from the "post_limits" database.
+ vacation - Restore delivery for people whose vacation has elapsed.
 
-NOTE: A value for each action in the "triggers" setting is required!
+A value for each action in the "triggers" setting is recommended.
+Triggers that are not listed explicitly will be run daily.
 
 The times field follows the standard Majordomo syntax (see "help times").
 "always" and "hourly" are identical:  the specified trigger is always run.  
@@ -64,9 +71,11 @@ file space of a list can be run.  The file name must start with
 a solidus, /.  The file must not reside in the public or help directory.
 The commands in the file will undergo variable substitution using
 the standard substitutions before they are run (see "help variables" for
-more details).  For example, within a file, the commands
+more details).  For example, within a file, the commands:
+
   default user \$OWNER
   lists-full \$LIST
+
 would contain the actual list owners' address and list name when the
 commands are run.  
 
@@ -75,16 +84,18 @@ triggers, Comments are lines that begin with a '#'.  You can use
 comments as a reminder of what a trigger does or why it was chosen, 
 but comments have no impact on how the triggers work.
 
+
 See Also:
-   help configset access_rules
-   help configset dup_lifetime
-   help configset latchkey_lifetime
-   help configset log_lifetime
-   help configset post_limits
-   help configset session_lifetime
-   help configset token_lifetime
+   help admin
+   help configset_access_rules
+   help configset_dup_lifetime
+   help configset_inactive_lifetime
+   help configset_latchkey_lifetime
+   help configset_log_lifetime
+   help configset_post_lifetime
+   help configset_post_limits
+   help configset_session_lifetime
+   help configset_token_lifetime
    help times
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
