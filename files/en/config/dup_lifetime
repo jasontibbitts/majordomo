@@ -1,2 +1,2 @@
-The dup_lifetime setting the number of days that information about
+The dup_lifetime setting contains the number of days that information about
 Message IDs and body checksums for posted messages will be kept.
