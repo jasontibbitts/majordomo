@@ -45,13 +45,7 @@ Below is a complete list of all available help topics:
    help aliasremove
    help approve
    help archive
-   help auxadd
-   help auxdel
-   help auxremove
-   help auxshow
-   help auxsubscribe
-   help auxunsubscribe
-   help auxwho
+   help auxiliary_lists
    help cancel
    help commands
    help config
@@ -62,6 +56,7 @@ Below is a complete list of all available help topics:
    help configshow
    help createlist
    help default
+   help delay
    help digest
    help end
    help exit
