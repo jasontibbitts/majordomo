@@ -138,5 +138,8 @@ The following files give a good introduction.
   <dt>$HELP:WHO
     <dd>How to see who is subscribed to your mailing list.
 
+  <dt>$HELP:MJ_WWWADM
+    <dd>Technical details about this web interface.
+
 </dl>
 </table>

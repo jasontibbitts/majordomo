@@ -1,4 +1,3 @@
-<h3 align=center>Majordomo command form</h3>
 <form method=POST action="$CGIURL">
 <input type=hidden name=command value="on">
 <input type=hidden name=user value="$USER">
@@ -62,9 +61,10 @@ There are several steps required to use the command form.
   <li>Make sure the mailing list in the <b>Mailing List</b> box
   is correct.
 
-  <li>All commands except for <b>about this service</b> and <b>help</b> 
-  require a password.  The password for your mailing list 
-  should already be marked by 14 asterisks in the <b>Password:</b> box.
+  <li>An administrative password is required to use this form.
+  The password for your mailing list should already be marked by 
+  14 asterisks in the <b>Password:</b> box.  If this is not true, 
+  type an administrative password into the box.
 
   <li>If additional information is needed to issue
   a command, type that information into the box
@@ -74,9 +74,8 @@ There are several steps required to use the command form.
 </ol>
 
 <p>
-To learn more about a particular command, select <b>help</b> in
-the command menu, type the name of the command (without
-the command mode) in the box immediately to the right,
-and press the <b>Issue Command</b> button. You will
-see a summary of how the command works.
+To learn more about a particular command, select <b>help</b> in the 
+command menu, type the name of the command (without the command mode) 
+into the box immediately to the right, and press the <b>Issue Command</b> 
+button.  You will see a summary of how the command works.
 
