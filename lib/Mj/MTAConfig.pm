@@ -153,12 +153,14 @@ Things we need:
   bindir => path to executables
   domain => domain this list or majordomo is to serve
   debug  => debugging level
+  priority => both domain and list, in queue mode only.
 
 =cut
 sub add_alias {
   my $log  = new Log::In 150;
   my %args = @_;
-  my ($aliasfmt, $block, $debug, $fh, $program, $sublist, $vblock, $vut);
+  my ($aliasfmt, $block, $debug, $dpri, $fh, 
+      $pri, $program, $sublist, $vblock, $vut);
   my $bin  = $args{bindir} or $log->abort("bindir not specified");
   my $dom  = $args{domain} or $log->abort("domain not specified");
   my $list = $args{list}   || 'GLOBAL';
@@ -173,6 +175,17 @@ sub add_alias {
   else {
     $debug = '';
   }
+
+  $dpri = '';
+  if (defined($args{domain_priority}) and $args{domain_priority} >= 0) {
+    $dpri = " -P$args{domain_priority}" if ($args{queue_mode});
+  }
+  
+  $pri = '';
+  if (defined($args{priority}) and $args{priority} >= 0) {
+    $pri = " -p$args{priority}" if ($args{queue_mode});
+  }
+  
 
   if ($args{options}{maintain_vut}) {
     $vut = "-$dom";
@@ -191,8 +204,8 @@ sub add_alias {
   if ($list eq 'GLOBAL') {
     $block = <<"EOB";
 # Aliases for Majordomo at $dom
-$who$vut:       "|$bin/$program -m -d $dom$debug"
-$who$vut-owner: "|$bin/$program -o -d $dom$debug"
+$who$vut:       "|$bin/$program -m -d $dom$debug$dpri$pri"
+$who$vut-owner: "|$bin/$program -o -d $dom$debug$dpri$pri"
 owner-$who$vut: $who$vut-owner
 # End aliases for Majordomo at $dom
 EOB
@@ -222,7 +235,7 @@ EOB
   #
   # As implemented, owner, requiest, and resend are mandatory.
   else {
-    $aliasfmt = "$list$vut%-12s \"|$bin/$program %s -d $dom -l $list$debug\"\n";
+    $aliasfmt = "$list$vut%-12s \"|$bin/$program %s -d $dom -l $list$debug$dpri$pri\"\n";
     $block  = "# Aliases for $list at $dom\n";
     $block .= sprintf $aliasfmt, ':', '-r';
     $block .= sprintf $aliasfmt, '-request:', '-q';
@@ -319,7 +332,8 @@ sub regen_aliases {
   # Sort the list of lists, for aesthetic purposes.
   for $i (sort {$a->[0] cmp $b->[0]} @{$args{lists}}) {
     $block = add_alias(%args, 'list' => $i->[0], 'debug' => $i->[1], 
-                              'aliases' => $i->[2], 'sublists' => $i->[3]);
+                              'aliases' => $i->[2], 'sublists' => $i->[3],
+                              'priority' => $i->[4]);
     $body .= "$block\n" if $block;
   }
 
