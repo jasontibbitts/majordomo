@@ -81,6 +81,7 @@ the mailing list.
 
 For more information, please see "help get" and "help archive".
 
+
 Storing a document
 ------------------
 
@@ -118,6 +119,7 @@ more information on substitution variables.
 The put command usually requires an administrative password.  See
 "help put" for more details.
 
+
 Five special documents
 ----------------------
 
@@ -136,21 +138,29 @@ You can see each document with the following three commands:
   info LISTNAME
   intro LISTNAME
 
-Like any other document in the file space, these three documents can
-be retrieved with the get command, but there is a subtle difference.
-Unlike the get command, the faq, info, and intro commands will automatically
-replace substitution variables.  For example, if you use \$LIST in
-one of the documents, Majordomo will automatically substitute the 
-name of the mailing list when the document is displayed.  See
-"help variables" to learn more about substitution variables.
+Like any other document in the file space, these three documents can be
+retrieved with the get command, but there is a subtle difference.
+Unlike the get command, the faq, info, and intro commands will
+automatically replace substitution variables.  For example, if you use
+\$LIST in one of the documents, Majordomo will automatically substitute
+the name of the mailing list when the document is displayed.  See "help
+variables" to learn more about substitution variables.
 
-The other two important documents are "/welcome" and "/farewell".
-These documents are sent to subscribers when they join or leave a mailing
-list.  They also make use of substitution variables.  Unlike the
-other three documents, the welcome and farewell documents are supplied
-by default, so it should not be necessary to customize them.
+All three of these documents can be changed easily using "edit" mode.
+For example, to edit the faq document, use the following command:
 
-The put command can be used to replace any of these documents, but 
+  faq-edit LISTNAME
+
+The faq document will be presented to you wrapped in a "newfaq" command.
+This is similar to the configshow command, which displays the current
+configuration settings wrapped in "configset" commands.  Please see
+"help newfaq" and "help admin_config" for more details.
+
+The other two important documents are "/welcome" and "/farewell".  These
+documents are sent to subscribers when they join or leave a mailing
+list.  They also make use of substitution variables.  Unlike the other
+three documents, the welcome and farewell documents are supplied by
+default, so it should not be necessary to customize them.
 
 New subscribers will usually receive a welcome message, which contains
 two parts.  The first part, called "/welcome",  shows the subscriber's 
@@ -253,6 +263,9 @@ See Also:
    help index
    help info
    help intro
+   help newfaq
+   help newintro
+   help newintro
    help put
 
 $INCLUDE-help/foot
