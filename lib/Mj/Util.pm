@@ -18,14 +18,14 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(process_rule str_to_time time_to_str);
 
-#use AutoLoader 'AUTOLOAD';
+use AutoLoader 'AUTOLOAD';
 
 $VERSION = "0.0";
 use strict;
 use vars(qw(%args %memberof $current $skip));
 
 1;
-#__END__
+__END__
 
 =head2 process_rule
 
