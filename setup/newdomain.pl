@@ -30,9 +30,9 @@ while (1) {
   if (@{$config->{'domains'}}) {
     @domains = @{$config->{'domains'}};
   }
-  else { 
-    @domains = &get_domains;
-  }
+  # else { 
+   #  @domains = &get_domains;
+  # }
 
   if (@domains) {
     print retr_msg('supported_domains', $lang);
@@ -90,6 +90,10 @@ while (1) {
     }
   }
 
+  unless (grep { lc $_ eq lc $newdomain } @{$config->{'domains'}}) {
+    push (@{$config->{'domains'}}, $newdomain);
+  }
+
   # save the values in the configuration file.
   open(CONFIG, ">.mj_config") || die ("Cannot create .mj_config: $!");
   print CONFIG Dumper($config);
@@ -119,10 +123,6 @@ sub mta_append {
 
     unless (grep { lc $_ eq lc $i } @domains) {
       print DOMAINS "$i\n";
-    }
-
-    unless (grep { lc $_ eq lc $i } @{$config->{'domains'}}) {
-      push (@{$config->{'domains'}}, $i);
     }
   }
   close DOMAINS;
