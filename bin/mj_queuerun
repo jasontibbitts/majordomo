@@ -9,6 +9,10 @@ BEGIN {
   $::UMASK  = "007";
   $::TIMEOUT= 30;
 
+# Uncomment this to get a backtrace for every warning
+#  use Carp qw(cluck);
+#  $SIG{__WARN__} = sub {cluck "--== $_[0]"};
+# Or uncomment this to get regular warnings
   $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 
   # Unbuffer standard output.
