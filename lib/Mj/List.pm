@@ -903,7 +903,7 @@ sub describe_class {
         return "$classes{$class}->[2] until $time"; # XLANG
       }
     }
-    return $classes{$class}->[2];
+    return $as_setting? $class : $classes{$class}->[2];
   }
   return $classes{$class}->[2];
 }
