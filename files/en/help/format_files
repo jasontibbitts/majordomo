@@ -845,6 +845,14 @@ an e-mail address and password are requested.
  EXTRA, USER)
 
 
+logout
+------
+(wwwadm, wwwusr)  This file displays a message indicating that the
+logout was successful.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
+
+
 newlist
 -------
 (wwwadm)  This file displays a form that allows a mailing list to

@@ -195,6 +195,9 @@ See "help reply_files" for a description of each of the reply files.
   Check boxes for HTML forms used by the WWW interfaces to display a
   personal setting for a particular subscription.
 
+\$ADDRESS
+  An e-mail address.
+
 \$ALIASES
   The mail aliases required by your system's message transport 
   software for one or more mailing lists.
@@ -324,6 +327,10 @@ See "help reply_files" for a description of each of the reply files.
   The status of a particular digest:  when it was last issued, when the
   next issue might be delivered, and the ages of the oldest and newest
   messages that are awaiting delivery.
+
+\$LOCATION
+  In error messages for invalid e-mail addresses, this variable contains
+  the invalid portion of the address.
 
 \$MAX_AGE
 \$MAX_MSGS

@@ -21,6 +21,27 @@ that is already a subscriber.
 
 (standard plus FULLADDR, VICTIM)
 
+after_route
+-----------
+This message is displayed when comments appear in an e-mail address after
+the "route" (the actual address).
+
+(standard substitutions only)
+
+at_symbol
+---------
+This message is displayed when more than one '@' appears in an e-mail
+address.
+
+(standard substitutions only)
+
+bracketed_addresses
+-------------------
+This message is displayed when more than one e-mail address is included
+within a single pair of angle brackets.
+
+(standard substitutions only)
+
 digest_mode
 -----------
 This message is displayed if the digest command is issued without one
@@ -28,6 +49,18 @@ of the required command modes.
 
 (standard plus DIGEST_DESCRIPTIONS, DIGESTS, MODES)
 
+ending_at
+---------
+This message is displayed when an e-mail address ends in a '@'.
+
+(standard substitutions only)
+
+host_length
+-----------
+This message is displayed when the host name in an e-mail address is
+longer than 64 characters.
+
+(standard substitutions only)
 inactive_list
 -------------
 This error message is displayed if access to a list is denied because
@@ -42,12 +75,46 @@ command modes that are incompatible.
 
 (standard plus MODE, MODES)
 
+incomplete_host
+---------------
+This message is displayed when the host name does not contain at least
+one subdomain.
+
+(standard substitutions only)
+
+invalid_address
+---------------
+This error message is displayed if an e-mail address is invalid.
+
+(standard plus ADDRESS, ERROR, LOCATION)
+
+invalid_char
+------------
+This message is displayed when an e-mail address contains an invalid
+character.
+
+(standard substitutions only)
+
 invalid_command
 ---------------
 This error message is displayed if a command is requested that Majordomo
 does not support.
 
 (standard plus COMMAND)
+
+invalid_comment
+---------------
+This message is displayed when the comment portion of an e-mail address
+is invalid.
+
+(standard plus COMMENT, ERROR, LOCATION)
+
+invalid_component
+-----------------
+This message is displayed when part of an e-mail address is not
+recognized as either a comment or a route.
+
+(standard substitutions only)
 
 invalid_list
 ------------
@@ -78,12 +145,40 @@ command is used with a token that has an invalid format.
 
 (standard plus TOKEN)
 
+ip_address
+----------
+This message is displayed when an IP address appears on the right-hand
+side of an e-mail address without being enclosed in square brackets.
+
+(standard substitutions only)
+
+left_brackets
+-------------
+This message is displayed when an e-mail address has an extra left angle
+bracket.
+
+(standard substitutions only)
+
+lhs_domain_literal
+------------------
+This message is displayed when a domain literal (an IP address in square
+brackets) appears in the local part of an address.
+
+(standard substitutions only)
+
+local_part_length
+-----------------
+This message is displayed when the local part (the left-hand side of an
+address) is longer than 64 characters.
+
+(standard substitutions only)
+
 make_list
 ---------
 This error message is displayed when Majordomo is unable to initialize
 an existing mailing list.
 
-(standard)
+(standard substitutions only)
 
 message_count
 -------------
@@ -104,11 +199,46 @@ with "immediate" mode.
 
 (standard plus MODE, MODES)
 
+multiple_addresses
+------------------
+This message is displayed when one e-mail address was expected, but more
+than one address was specified.
+
+(standard substitutions only)
+
+nested_brackets
+---------------
+This message is displayed if the route of an e-mail address is enclosed
+in more than one pair of angle brackets.
+
+(standard substitutions only)
+
 no_address
 ----------
 This error message is displayed if the register, set, subscribe, or
 unsubscribe command is issued with the wwwadm interface, but no e-mail
 address is specified.
+
+(standard substitutions only)
+
+no_domain
+---------
+This message is displayed when an e-mail address does not contain a host
+name.
+
+(standard substitutions only)
+
+no_list
+-------
+This message is displayed when a command that requires a list name is
+used, but no list name has been specified.
+
+(standard substitutions only)
+
+no_local_part
+-------------
+This message is displayed when an e-mail address appears to have a route
+which contain only a host name and no local part.
 
 (standard substitutions only)
 
@@ -118,6 +248,13 @@ This error message is displayed when a Majordomo command that requires
 a password is issued without one.
 
 (standard plus COMMAND)
+
+no_route
+--------
+This message is displayed when an e-mail address appears to consist only
+of comments.
+
+(standard substitutions only)
 
 no_token
 --------
@@ -174,6 +311,42 @@ configuration setting is used in a Majordomo command.
 
 (standard plus NEWLIST)
 
+rhs_domain_literal
+------------------
+This message is displayed when a domain literal (an IP address enclosed
+in square brackets) appears on the right-hand side of an address after
+some character other than a '.' or '@'.
+
+(standard substitutions only)
+
+right_brackets
+--------------
+This message is displayed when an e-mail address has an extra right
+angle bracket.
+
+(standard substitutions only)
+
+source_route
+------------
+This message is displayed if an e-mail address contains a source route
+(a leading series of host names separated by commas that indicates how
+an e-mail message should be routed to its destination).
+
+(standard substitutions only)
+
+top_level_domain
+----------------
+This message is displayed if the top-level domain (e.g., com, gov, or
+edu) does not appear in the list of valid domains.
+
+(standard substitutions only)
+
+undefined_address
+-----------------
+This error message is displayed if an e-mail address is empty.
+
+(standard plus ADDRESS, ERROR)
+
 unknown_list
 ------------
 This error message is displayed when a list that has a legal name
@@ -199,6 +372,13 @@ format but could not be found in the token database.
 
 (standard plus TOKEN)
 
+unmatched_paren
+---------------
+This message is displayed when an e-mail address is missing one or more
+right parentheses.
+
+(standard substitutions only)
+
 unregistered
 ------------
 This error message is displayed if the password command is used to change
@@ -206,6 +386,13 @@ the password for an e-mail address that is not yet registered at this
 domain (see "help register" for more details on registering).
 
 (standard plus VICTIM)
+
+word_separator
+--------------
+This message is displayed when words in an e-mail address are separated
+by some character other than a '.' or '@'.
+
+(standard substitutions only)
 
 
 See Also:
