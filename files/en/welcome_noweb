@@ -1,0 +1,16 @@
+Welcome to the $LIST mailing list!
+Your password at $SITE is
+
+$PASSWORD
+
+To leave this mailing list, send the following command in the body
+of a message to $MJ:
+
+approve $PASSWORD unsubscribe $LIST $STRIPADDR
+
+This command will work even if your address changes.  For that reason,
+among others, it is important that you keep a copy of this message.
+
+If you need help or have questions about the mailing list, please
+contact the people who manage the list by sending a message to
+  $OWNER
