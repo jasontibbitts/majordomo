@@ -1891,6 +1891,7 @@ sub _make_aux {
                               'list'    => $self->{'name'},
                               'listdir' => $self->{'ldir'},
                              );
+    return unless $self->{'sublists'}{$name};
   }
   1;
 }

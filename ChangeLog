@@ -1,3 +1,11 @@
+2003-04-08  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/List.pm (_make_aux):  Bugfix: Return undef if
+	the sublist was not initialized.  Thanks to Mathieu Arnold.
+
+	* setup/query_util.pl (prompt):  Allow answers to be read
+	from a response file.  Implemented by Rudolph Maceyko.
+
 2003-03-25  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/BounceParser.pm (parse): Accept owner-list as well as
