@@ -4,4 +4,4 @@
 <td>$TYPE
 <td>$COMMAND&nbsp;$SIZE
 <td>$ADATE
-<td>$USER
+<td>$REQUESTER

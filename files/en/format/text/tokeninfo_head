@@ -1,6 +1,6 @@
 Information about token $TOKEN:
 Generated at: $DATE
-By:           $USER
+By:           $REQUESTER
 Type:         $TYPE
 From command: $CMDLINE
 Approvals:    $APPROVALS

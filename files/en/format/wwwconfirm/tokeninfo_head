@@ -2,7 +2,7 @@
 <table>
   <tr><td>Token  <td>$TOKEN
   <tr><td>Created<td>$DATE
-  <tr><td>By     <td>$USER
+  <tr><td>By     <td>$REQUESTER
   <tr><td>Type   <td>$TYPE
   <tr><td>Command<td>$CMDLINE
   <tr><td>Expires<td>$EXPIRE

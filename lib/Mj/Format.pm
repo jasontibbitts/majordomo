@@ -1494,10 +1494,10 @@ sub showtokens {
               'CMDLINE'=> $data->{'cmdline'},
               'DATE'   => scalar localtime($data->{'time'}),
               'LIST'   => $data->{'list'},
+              'REQUESTER' => $user,
               'SIZE'   => $size,
               'TOKEN'  => $token,
               'TYPE'   => $data->{'type'},
-              'USER'   => $user,
             };
              
     push @{$tokendata}, $mj->substitute_vars_format($data_format, $subs);
@@ -1542,9 +1542,9 @@ sub tokeninfo {
   $subs->{'CMDLINE'} = escape($data->{'cmdline'}, $type);
   $subs->{'DATE'} = localtime($data->{'time'});
   $subs->{'EXPIRE'} = localtime($data->{'expire'});
+  $subs->{'REQUESTER'}  = escape($data->{'user'}, $type);
   $subs->{'TOKEN'}  = $request->{'token'};
   $subs->{'TYPE'}  = $data->{'type'};
-  $subs->{'USER'}  = escape($data->{'user'}, $type);
 
   # Indicate reasons
   $subs->{'REASONS'} = [];
