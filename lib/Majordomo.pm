@@ -2739,12 +2739,20 @@ sub _get {
     return (1, \%data);
   }
 
-  # Else build the entity and mail out the file
-  $self->_get_mailfile($list, $victim, $name, $file, %data); #$desc, $type, $cset, $enc);
+  $self->_get_send_and_reply($list, $victim, $name, $file, %data);
+}
 
-  # and be sneaky and return another file to be read; this keeps the code
-  # simpler and lets the owner customize the transmission message
-  ($file, %data) = $self->_list_file_get(list => $list, file => 'file_sent');
+use IO::File;
+sub _get_send_and_reply {
+  my $self = shift;
+  my ($list, $victim, $name) = @_;
+
+  # Mail out the file to the victim.
+  # Be sneaky and return another file to be read; this keeps the code
+  # simpler and lets the owner customize the file_sent message
+  my ($file, %data) = $self->_list_file_get(list => $list, file => 'file_sent');
+  $self->_get_mailfile(@_);
+
   $self->{'get_subst'} = {
                           $self->standard_subs($list),
                           'FILE'     => $name,
@@ -2754,7 +2762,7 @@ sub _get {
   unless ($self->{'get_fh'}) {
     return (0, "Cannot open file \"$name\".\n"); #XLANG
   }
-  return (1, '');
+  return (1, \%data);
 }
 
 use MIME::Entity;
@@ -2830,7 +2838,7 @@ sub faq_start {
   unless ($ok > 0) {
     return ($ok, $mess);
   }
-  $self->_faq($request->{'list'}, $request->{'user'}, $request->{'user'},
+  $self->_faq($request->{'list'}, $request->{'user'}, $request->{'victim'},
               $request->{'mode'}, $request->{'cmdline'}, 'faq');
 }
 
@@ -2859,6 +2867,9 @@ sub _faq {
 
     $file = $self->substitute_vars($file, $subs);
     push @{$self->{'get_temps'}}, $file;
+    if ("$requ" ne "$victim") {
+      return $self->_get_send_and_reply($list, $victim, '/faq', $file, %fdata);
+    }
   }
 
   $self->{'get_fh'} = new IO::File $file;
@@ -2876,7 +2887,7 @@ sub faq_done {
 use IO::File;
 sub help_start {
   my ($self, $request) = @_;
-  my (@info, $file, $mess, $ok, $subs, $whoami, $wowner);
+  my (%fdata, @info, $file, $mess, $ok, $subs, $whoami, $wowner);
 
   # convert, for example,
   #    "help configset access_rules"
@@ -2905,33 +2916,42 @@ sub help_start {
   $subs =
     {
      $self->standard_subs('GLOBAL'),
-     'TOPIC'    => $request->{'topic'},
-     'USER'     => "$request->{'user'}",
+     'TOPIC' => $request->{'topic'},
+     'USER'  => "$request->{'user'}",
     };
 
-  ($file) =  $self->_list_file_get(list => 'GLOBAL',
-				   file => "help/$request->{'topic'}",
-				   subs => $subs,
-				  );
+  ($file, %fdata) =  
+    $self->_list_file_get(list => 'GLOBAL',
+                          file => "help/$request->{'topic'}",
+                          subs => $subs,
+                         );
 
   # Allow abbreviations for configuration settings.  For example,
   # "help configset_access_rules" can be abbreviated to "help access_rules"
   unless ($file) {
     $subs->{'TOPIC'} = "configset_$request->{'topic'}";
-    ($file) =  $self->_list_file_get(list => 'GLOBAL',
-                                     file => "help/configset_$request->{'topic'}",
-				     subs => $subs,
-				    );
+    ($file, %fdata) =  
+      $self->_list_file_get(list => 'GLOBAL',
+                            file => "help/configset_$request->{'topic'}",
+                            subs => $subs,
+                           );
   }
   unless ($file) {
     $subs->{'TOPIC'} = "unknowntopic";
-    ($file) =  $self->_list_file_get(list => 'GLOBAL',
-				     file => "help/unknowntopic",
-				     subs => $subs,
-				    );
+    ($file, %fdata) =  
+      $self->_list_file_get(list => 'GLOBAL',
+                            file => 'help/unknowntopic',
+                            subs => $subs,
+                           );
   }
   unless ($file) {
     return (0, "No help for that topic.\n"); #XLANG
+  }
+
+  if ("$request->{'user'}" ne "$request->{'victim'}") {
+    return $self->_get_send_and_reply('GLOBAL', $request->{'victim'},
+                                      "help/$request->{'topic'}", 
+                                      $file, %fdata);
   }
 
   $self->{'get_fh'} = new IO::File $file;
@@ -2939,7 +2959,7 @@ sub help_start {
     return 0;
   }
   push @{$self->{'get_temps'}}, $file;
-  return (1, '');
+  return (1, \%fdata);
 }
 
 # Included for purposes of logging.
@@ -2958,7 +2978,7 @@ sub info_start {
   unless ($ok > 0) {
     return ($ok, $mess);
   }
-  $self->_info($request->{'list'}, $request->{'user'}, $request->{'user'},
+  $self->_info($request->{'list'}, $request->{'user'}, $request->{'victim'},
                $request->{'mode'}, $request->{'cmdline'}, 'info');
 }
 
@@ -2987,6 +3007,9 @@ sub _info {
 
     $file = $self->substitute_vars($file, $subs);
     push @{$self->{'get_temps'}}, $file;
+    if ("$requ" ne "$victim") {
+      return $self->_get_send_and_reply($list, $victim, '/info', $file, %fdata);
+    }
   }
 
   $self->{'get_fh'} = new IO::File $file;
@@ -3012,7 +3035,7 @@ sub intro_start {
   unless ($ok > 0) {
     return ($ok, $mess);
   }
-  $self->_intro($request->{'list'}, $request->{'user'}, $request->{'user'},
+  $self->_intro($request->{'list'}, $request->{'user'}, $request->{'victim'},
                 $request->{'mode'}, $request->{'cmdline'});
 }
 
@@ -3041,8 +3064,12 @@ sub _intro {
 
     $file = $self->substitute_vars($file, $subs);
     push @{$self->{'get_temps'}}, $file;
-  }
 
+    if ("$requ" ne "$victim") {
+      return $self->_get_send_and_reply($list, $victim, '/intro', $file, %fdata);
+    }
+  }
+    
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
     return (0, "Intro file is unavailable.\n"); #XLANG

@@ -1234,7 +1234,7 @@ sub help {
 
   ($ok, $mess) = @$result;
 
-  $subs = { $mj->standard_subs('GLOBAL'),
+  $subs = { $mj->standard_subs($request->{'list'}),
            'CGIDATA'  => $request->{'cgidata'},
            'CGIURL'   => $request->{'cgiurl'},
            'CMDPASS'  => &escape($request->{'password'}, $type),
@@ -1285,7 +1285,7 @@ sub help {
   $request->{'command'} = "help_done";
   $mj->dispatch($request);
 
-  $tmp = $mj->format_get_string($type, 'help_foot', $request->{'list'});
+  $tmp = $mj->format_get_string($type, 'help_foot', $list);
   if (defined $tmp and length $tmp) {
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n" if (length $str);
@@ -3433,8 +3433,8 @@ sub g_get {
     return $ok if ($mess eq 'NONE');
     $subs = {
              $mj->standard_subs($request->{'list'}),
-             'COMMAND' => $base,
-             'ERROR' => $mess || '',
+             'COMMAND' => &escape($base),
+             'ERROR' => &escape($mess || ''),
             };
 
     $tmp = $mj->format_get_string($type, 'get_error', $request->{'list'});
@@ -3450,6 +3450,7 @@ sub g_get {
              'CGIDATA'  => $request->{'cgidata'} || '',
              'CGIURL'   => $request->{'cgiurl'} || '',
              'CMDPASS'  => &escape($request->{'password'}, $type),
+             'COMMAND'  => &escape($base),
              'DESCRIPTION' => &escape($mess->{'description'}, $type),
              'USER'     => &escape("$request->{'user'}", $type),
             };
