@@ -623,10 +623,10 @@ sub show {
     $bouncedata = $data->{lists}{$i}{bouncedata};
     if ($bouncedata) {
       if (keys %{$bouncedata->{M}}) {
-	eprint($out, $type, "        Has bounced the following messages:\n      ");
+	eprint($out, $type, "        Has bounced the following messages:\n          ");
 	eprint($out, $type, join(" ", keys %{$bouncedata->{M}})."\n" );
 	if (@{$bouncedata->{UM}}) {
-	  eprint($out, $type, "        (plus ".scalar(@{$bouncedata->{UM}})." unnumbered messages.\n");
+	  eprint($out, $type, "          (plus ".scalar(@{$bouncedata->{UM}})." unnumbered messages).\n");
 	}
       }
       elsif (@{$bouncedata->{UM}}) {

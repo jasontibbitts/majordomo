@@ -4186,7 +4186,7 @@ sub unsubscribe {
     $log->out("noaccess");
     return ($ok, $error);
   }
-  
+
   $self->_unsubscribe($list, $user, $addr, $mode, $cmdline);
 }
 
@@ -4290,14 +4290,14 @@ sub which {
   # Loop over the lists that the user can see
  LIST:
   for $list ($self->get_all_lists($user, $pass, $auth, $int)) {
-    
-    # Check access for this list, 
+
+    # Check access for this list,
     ($max_list_hits, $err) =
       $self->list_access_check($pass, $auth, $int, $mode, $cmd,
 			       $list, "which", $user);
-     
+
     next unless $max_list_hits;
-    
+
     # We are authenticated and ready to search.
     $self->{'lists'}{$list}->get_start;
     $hits = 0;
@@ -4328,7 +4328,7 @@ sub which {
 
 =head2 who_start, who_chunk, who_done
 
-Perform the who command.  
+Perform the who command.
 
 These implement an iterator-based method of accessing a lists subscriber
 list.  Call who_start with the usual parameters and the name of a list,
@@ -4384,7 +4384,7 @@ sub _who {
   my ($fh, $listing);
   my ($tmpl) = '';
   $listing = [];
- 
+
   if ($list eq 'GLOBAL' or $list eq 'DEFAULT') {
     $self->{'reg'}->get_start;
     if ($mode =~ /enhanced/) {
@@ -4418,7 +4418,6 @@ sub who_chunk {
   my $log = new Log::In 100, "$list, $regexp, $chunksize";
   my (@chunk, @out, $i, $j, $addr, $strip);
 
-#  $regexp = "/$regexp/i" if $regexp;
   # who for DEFAULT returns nothing
   if ($list eq 'DEFAULT') {
     return 0;
@@ -4444,23 +4443,26 @@ sub who_chunk {
     next if $regexp && !_re_match($regexp, $i->{'fulladdr'});
     # If we're to show it all...
     if ($self->{'unhide_who'}) {
-      $i->{'flagdesc'} =
-	join(',',$self->{'lists'}{$list}->describe_flags($i->{'flags'}));
-      $i->{'classdesc'} =
-	$self->{'lists'}{$list}->describe_class($i->{'class'},
-						$i->{'classarg'},
-						$i->{'classarg2'},
-						1,
-					       );
-      if (($i->{'class'} eq 'nomail') && $i->{'classarg2'}) {
-	# classarg2 holds information on the original class
-	$i->{'origclassdesc'} =
-	  $self->{'lists'}{$list}->describe_class(split("\002",
-							$i->{'classarg2'},
-							3
-						       ),
+      # GLOBAL has no flags or classes
+      if ($list ne 'GLOBAL') {
+	$i->{'flagdesc'} =
+	  join(',',$self->{'lists'}{$list}->describe_flags($i->{'flags'}));
+	$i->{'classdesc'} =
+	  $self->{'lists'}{$list}->describe_class($i->{'class'},
+						  $i->{'classarg'},
+						  $i->{'classarg2'},
 						  1,
 						 );
+	if (($i->{'class'} eq 'nomail') && $i->{'classarg2'}) {
+	  # classarg2 holds information on the original class
+	  $i->{'origclassdesc'} =
+	    $self->{'lists'}{$list}->describe_class(split("\002",
+							  $i->{'classarg2'},
+							  3
+							 ),
+						    1,
+						   );
+	}
       }
       push @out, $i;
       next;
