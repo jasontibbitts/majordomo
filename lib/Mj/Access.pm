@@ -1236,14 +1236,15 @@ sub _a_default {
   if (access_def($request, 'confirm')) {
     return $self->_a_allow(@_) if $args->{'user_password'};
     $action = "_a_confirm";
-    # XLANG
-    $reason = "By default, $request must be confirmed by the person affected."
+    $reason = $self->format_error('access_confirm', $td->{'list'},
+                                  'COMMAND' => $request,
+                                  'SETTING' => 'default');
   }
 
   elsif (access_def($request, 'confirm2')) {
     $action = "_a_confirm2";
-    # XLANG
-    $reason = "By default, $request must be confirmed by all persons involved."
+    $reason = $self->format_error('access_confirm2', $td->{'list'},
+                                  'COMMAND' => $request);
   }
 
   elsif (access_def($request, 'access')) {
@@ -1263,21 +1264,24 @@ sub _a_default {
     elsif (exists $td->{'sublist'} and $td->{'sublist'}
            and $td->{'sublist'} !~ /MAIN/) {
       $action = "_a_deny";
-      # XLANG
-      $reason = "Only list owners can make requests that involve sublists";
+      $reason = $self->format_error('access_sublist', 
+                                    "$td->{'list'}:$td->{'sublist'}",
+                                    'COMMAND' => $request);
     }
     elsif ($access =~ /\+password$/ and ! $args->{'user_password'}) {
       $action = "_a_deny";
-      # XLANG
-      $reason = "A personal or administrative password is required to issue this command.";
+      $reason = $self->format_error('access_password', $td->{'list'},
+                                    'COMMAND' => $request,
+                                    'SETTING' => "${request}_access");
     }
     elsif ($access =~ /^open/) {
       $action = "_a_allow";
     }
     elsif ($access =~ /^closed/) {
       $action = "_a_deny";
-      # XLANG
-      $reason = "${request}_access is set to 'closed'";
+      $reason = $self->format_error('access_closed', $td->{'list'},
+                                    'COMMAND' => $request,
+                                    'SETTING' => "${request}_access");
     }
     elsif ($access =~ /^list/ &&
 	   $self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'victim'}))
@@ -1286,12 +1290,16 @@ sub _a_default {
              and ! $args->{'user_password'}) 
          {
            $action = "_a_confirm";
-           # XLANG
-           $reason = "$td->{'user'} made a request that affects\n" .
-                     "another address ($td->{'victim'})."
+           $reason = $self->format_error('access_mismatch', $td->{'list'},
+                                         'COMMAND' => $request,
+                                         'USER' => "$td->{'user'}",
+                                         'VICTIM' => "$td->{'victim'}")
              if $args->{'mismatch'};
-           # XLANG
-           $reason = "$self->{'sessionuser'} is masquerading as $td->{'user'}."
+
+           $reason = $self->format_error('access_posing', $td->{'list'},
+                                         'COMMAND' => $request,
+                                         'SESSIONUSER' => "$td->{'user'}",
+                                         'USER' => "$td->{'user'}")
              if $args->{'posing'};
          }
          else {
@@ -1311,8 +1319,9 @@ sub _a_default {
     if (exists $td->{'sublist'} and $td->{'sublist'}
            and $td->{'sublist'} !~ /MAIN/) {
       $action = "_a_deny";
-      # XLANG
-      $reason = "Only list owners can make requests that involve sublists";
+      $reason = $self->format_error('access_sublist', 
+                                    "$td->{'list'}:$td->{'sublist'}",
+                                    'COMMAND' => $request);
     }
     # If the user has supplied their password, we never confirm.  We also
     # don't have to worry about mismatches, since we know we saw the victim's
@@ -1324,21 +1333,29 @@ sub _a_default {
     # Deny the request if a password was required but not given.
     elsif ($policy eq 'auto+password' or $policy eq 'open+password') {
       $action = "_a_deny";
-      # XLANG
-      $reason = "A personal or administrative password is required to issue this command.";
+      $reason = $self->format_error('access_password', $td->{'list'},
+                                    'COMMAND' => $request);
     }
 
     # Now, open.  This depends on whether there's a mismatch.
     elsif ($args->{'mismatch'} or $args->{'posing'}) {
       $action = "_a_consult"   if $policy eq 'open';
       $action = "_a_conf_cons" if $policy eq 'open+confirm';
-      # XLANG
-      $reason = "$td->{'user'} made a request that affects\n" .
-                "another address ($td->{'victim'})."
-        if $args->{'mismatch'};
-      # XLANG
-      $reason = "$self->{'sessionuser'} is masquerading as $td->{'user'}."
-        if $args->{'posing'};
+
+      if ($args->{'mismatch'}) {
+        $reason = 
+          $self->format_error('access_mismatch', $td->{'list'},
+                              'COMMAND' => $request,
+                              'VICTIM' => "$td->{'victim'}",
+                              'USER' => "$td->{'user'}");
+      }
+      elsif ($args->{'posing'}) {
+        $reason = 
+          $self->format_error('access_posing', $td->{'list'},
+                              'COMMAND' => $request,
+                              'SESSIONUSER' => "$self->{'sessionuser'}",
+                              'USER' => "$td->{'user'}");
+      }
     }
     unless ($action) {
       $action = "_a_allow"   if $policy eq 'open';
@@ -1347,34 +1364,48 @@ sub _a_default {
       $action = "_a_confirm"   if $policy eq 'auto+confirm';
       $action = "_a_consult"   if $policy eq 'closed';
       $action = "_a_conf_cons" if $policy eq 'closed+confirm';
-      # XLANG
-      $reason = "The ${request}_policy setting requires confirmation."
-        if $action eq "_a_consult";
-      # XLANG
-      $reason = "The ${request}_policy setting requires confirmation."
-        if $action eq "_a_confirm";
-      # XLANG
-      $reason = "The ${request}_policy setting requires confirmation from the subscriber and the list owner."
-        if $action eq "_a_conf_cons";
+      if ($action eq "_a_consult") {
+        $reason = 
+          $self->format_error('access_consult', $td->{'list'},
+                              'COMMAND' => $request,
+                              'SETTING' => "${request}_policy");
+      }
+      elsif ($action eq "_a_confirm") {
+        $reason = 
+          $self->format_error('access_confirm', $td->{'list'},
+                              'COMMAND' => $request,
+                              'SETTING' => "${request}_policy");
+      }
+      elsif ($action eq "_a_conf_cons") {
+        $reason = 
+          $self->format_error('access_confcons', $td->{'list'},
+                              'COMMAND' => $request,
+                              'SETTING' => "${request}_policy");
+      }
     }
 
     # The variable was syntax-checked when it was set, so we can just
     # blow up if we get here.
     $log->abort("Can't handle policy: $policy") unless $action;
   }
-  # If the suplied password was correct for the victim, we don't need to
+  # If the supplied password was correct for the victim, we don't need to
   # confirm.
   elsif (access_def($request, 'mismatch')) {
     if ($args->{'posing'}) {
       $action = "_a_confirm2";
-      # XLANG
-      $reason = "$self->{'sessionuser'} is masquerading as $td->{'user'}.";
+      $reason = 
+        $self->format_error('access_posing', $td->{'list'},
+                            'COMMAND' => $request,
+                            'SESSIONUSER' => "$self->{'sessionuser'}",
+                            'USER' => "$td->{'user'}");
     }
     elsif ($args->{'mismatch'} && !$args->{'user_password'}) {
       $action = "_a_confirm";
-      # XLANG
-      $reason = "$td->{'user'} made a request that affects\n" .
-                "a different address ($td->{'victim'}).\n";
+      $reason = 
+        $self->format_error('access_mismatch', $td->{'list'},
+                            'COMMAND' => $request,
+                            'VICTIM' => "$td->{'victim'}",
+                            'USER' => "$td->{'user'}");
     }
     else {
       $action = "_a_allow";
@@ -1400,6 +1431,7 @@ sub _a_default {
   }
 
   if (defined $reason) {
+    chomp $reason;
     $args->{'reasons'} = "$reason\003" . $args->{'reasons'};
   }
   return $self->$action(@_);
@@ -1488,10 +1520,14 @@ sub _d_post {
 
   # Immediately consult for moderated lists
   $moderate = $self->_list_config_get($td->{'list'}, 'moderate');
-  # XLANG
-  $args->{'reasons'} = "The $td->{'list'} list is moderated.\003" .
-                  $args->{'reasons'} if $moderate;
-  return $self->_a_consult(@_) if $moderate;
+  if ($moderate) {
+    $tmp = $self->format_error('moderate', $td->{'list'});
+    if (defined $tmp and length $tmp) {
+      chomp $tmp;
+      $args->{'reasons'} = "$tmp\003" .  $args->{'reasons'};
+    }
+    return $self->_a_consult(@_);
+  }
 
   # Check restrict_post
   $restrict = $self->_list_config_get($td->{'list'}, 'restrict_post');
@@ -1533,9 +1569,14 @@ sub _d_post {
     }
   }
   if (@$restrict && !$member) {
-    # XLANG
-    $args->{'reasons'} = "Non-Member Submission from $td->{'victim'}\003"
-                        . $args->{'reasons'};
+    $tmp = $self->format_error('restrict_post', $td->{'list'},
+                               'USER' => "$td->{'user'}",
+                               'VICTIM' => "$td->{'victim'}");
+
+    if (defined $tmp and length $tmp) {
+      chomp $tmp;
+      $args->{'reasons'} = "$tmp\003". $args->{'reasons'};
+    }
     return $self->_a_consult(@_);
   }
 
