@@ -4,6 +4,10 @@
 	"unsubscribe" events for subscriptions that are changed
 	by the changeaddr command.
 
+	* lib/Mj/Access.pm:  (list_access_check)  Bugfix:
+	check the password against the session user before checking
+	against the requester.
+
 2002-07-04  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm, mj_wwwadm, mj_wwwusr, 

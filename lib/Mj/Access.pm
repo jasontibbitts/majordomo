@@ -564,12 +564,12 @@ sub list_access_check {
   # the password against both addresses before we bomb with an invalid
   # password error.
   if ($passwd) {
-    # Check the password against the requester
-    ($ok) = $self->validate_passwd($requester, $passwd, $list, $request);
+    # Check the password against the session user
+    ($ok) = $self->validate_passwd($self->{'sessionuser'}, $passwd, $list, $request);
    
-    unless ($ok or (! $args{'posing'})) {
-      # Check the password against the session user
-      ($ok) = $self->validate_passwd($self->{'sessionuser'}, $passwd, $list, $request);
+    unless (($ok > 0) or (! $args{'posing'})) {
+      # Check the password against the requester
+      ($ok) = $self->validate_passwd($requester, $passwd, $list, $request);
     }
 
     unless (($ok > 0) or (! $args{'mismatch'})) {
