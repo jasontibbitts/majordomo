@@ -27,3 +27,11 @@ Majordomo uses this for two things:
    mailers each insist on prepending their own reply indicators,
    messages can accumulate an annoying stack of them.  This should
    match any combination of reply indicators.
+
+
+See Also:
+   help admin_delivery
+   help configset_subject_prefix
+   help configset_subject_re_strip
+
+$INCLUDE-help/foot
