@@ -13,12 +13,20 @@ BEGIN {
 
 # A version variable we can use to force users to reconfigure when we add
 # new questions.
-my $config_version = 11;
-my(@SIDSCRIPTS, @SCRIPTS, @EXES, $ok);
-use vars qw(%have);
+my $config_version = 12;
+my (@SIDSCRIPTS, @SCRIPTS, @EXES, $ok);
+use vars qw(%have $lang);
+$lang = 'en';
 
-# MakeMaker has begun to displease me
-my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; $a=~s/\.p.$//; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\$(MAN3EXT)")}
+# Convert module file names to man page names.
+my %MODULES = 
+  map { my $a;
+        # substitute two colons for a slash 
+        ($a = $_) =~ s!/!::!g; 
+        # remove ".pm" from each module name
+        $a =~ s/\.p.$//; 
+        ("lib/$_" => "\$(INST_MAN3DIR)/$a.\$(MAN3EXT)")
+      }
 
    qw(Majordomo.pm Mj/Access.pm Mj/Addr.pm Mj/AddressList.pm
       Mj/AliasList.pm Mj/Archive.pm Mj/BounceHandler.pm Mj/BounceParser.pm
@@ -33,6 +41,8 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; $a=~s/\.p.$//; ("lib/$_" => "\$(INS
       Mj/SimpleDB/Text.pm Mj/SubscriberList.pm Mj/Token.pm Mj/TokenDB.pm
       Mj/Util.pm Bf/Sender.pm mj_cf_data.pl mj_cf_defs.pl );
 
+get_str(retr_msg('check_modules', $lang));
+
 #### Prerequisite checking
 ($ok, %have) = check_prereq
   (
@@ -42,8 +52,6 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; $a=~s/\.p.$//; ("lib/$_" => "\$(INS
    'IO::Wrap'       => [1.101, 1],
    'MIME::Tools'    => [4.119, 1],
    'Data::Dumper'   => [2.07,  1],
-   #	     'Data::ShowTable'  => 0,  # Want 3.3, but the stupid module
-   # doesn't have a version number
    'Date::Manip'    => [5.10 , 1],
    'CGI'            => [2.36,  1],
    'Digest::SHA1'   => [0,     1],
@@ -71,7 +79,6 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; $a=~s/\.p.$//; ("lib/$_" => "\$(INS
   );
 
 unless (check_syslog() && $ok) {
-  print "Majordomo cannot run without its prerequisite modules.\n";
   exit(1);
 }
 
@@ -89,6 +96,7 @@ else {
   @SCRIPTS = qw(mj_email mj_enqueue mj_trigger mj_queueserv mj_queuerun
                 mj_setup);
 }
+
 @EXES = map {"./bin/$_"} @SIDSCRIPTS, @SCRIPTS;
 
 my $prefix = $config->{'install_dir'};
@@ -177,20 +185,8 @@ WriteMakefile
 
 &check_nr_install;
 
-print <<EOM;
-
-Now you should run the following shell commands:
-  make         (expect several warnings about truncation to 8 characters)
-  make test    (report any problems to mj2-dev\@csf.colorado.edu)
-  make install (usually as root, answering any questions that appear)
-
-After the software has been installed, save a copy of .mj_config,
-  which contains your answers to the configuration questions.
-
-Finally, read the help file for domain administrators with this command:
-  $config->{'install_dir'}/bin/mj_shell -P help admin_domain
-
-EOM
+print retr_msg('run_make', $lang, 'INSTALL_DIR' => 
+               $config->{'install_dir'});
 
 exit;
 
@@ -201,12 +197,7 @@ sub check_nr_install {
   my (@dirstat, @grent, @pwent, @tmp, $dir, $dirg, $dirm, $diru,
       $g, $i, $major, $ok, $u);
 
-  print <<EOM;
-
-Majordomo 2 can be installed by the root user,
-or by the majordomo user ($config->{'uid'}).
-If there are any barriers to doing this, they are listed here:
-EOM
+  print retr_msg('non_root', $lang, 'UID' => $config->{'uid'});
 
   # Does the uid exist?
   @pwent = getpwnam($config->{'uid'});
@@ -214,21 +205,22 @@ EOM
   $g = $pwent[3];
   $major = ($u == $<);
   unless (@pwent) {
-    print qq(* There is no password entry for the $config->{'uid'} user.\n);
+    print retr_msg('no_user', $lang, 'UID' => $config->{'uid'});
     return;
   }
 
   # Does the gid exist?
   @grent = getgrnam($config->{'gid'});
   unless (@grent) {
-    print qq(* There is no group entry for the $config->{'gid'} group.\n);
+    print retr_msg('no_group', $lang, 'GID' => $config->{'gid'});
     return;
   }
 
   # Is the user in the group?
   @tmp = split " ", $grent[3];
   unless ((grep { $_ eq $config->{'uid'} } @tmp) or $g == $grent[2]) {
-    print qq(* $config->{'uid'} is not in the $config->{'gid'} group.\n);
+    print retr_msg('user_group_mismatch', $lang, 'UID' => $config->{'uid'}, 
+                   'GID' => $config->{'gid'});
     return;
   }
 
@@ -240,10 +232,12 @@ DIR:
     while (! -d $dir) {
       if ($! =~ /Permission denied/) {
         if ($major) {
-          print qq(* $config->{'uid'} cannot write to $dir.\n);
+          print retr_msg('unwritable_dir', $lang, 'UID' => $config->{'uid'}, 
+                         'DIRECTORY' => $dir);
         }
         else {
-          print qq(* Unknown if $config->{$i} is writable or not.\n);
+          print retr_msg('perm_unknown', $lang, 'UID' => $config->{'uid'}, 
+                         'DIRECTORY' => $dir);
         }
         next DIR;
       }
@@ -275,44 +269,16 @@ DIR:
       # print qq(+ $dir is world-accessible, okay.\n);
       next;
     }
-    print qq(- $dir is not accessible to the majordomo user.\n);
+    print retr_msg('unwritable_dir', $lang, 'UID' => $config->{'uid'}, 
+                   'DIRECTORY' => $dir);
   }
 }
 
 sub check_syslog {
-  my ($failed) = "the Sys::Syslog module";
   print "Checking for Sys::Syslog and headers     ";
   eval {require Sys::Syslog;};
   if ($@) {
-    warn <<EOW;
-
-**** Majordomo needs a properly configured Perl system.
-
-We tried to use $failed, but it failed with the following error:
-
-$@
-
-Errors here are generally problems with the Perl installation.  Sys::Syslog
-requires the file syslog.ph, which is supposed to be generated by running
-the h2ph program.  If syslog.ph was not found, it can be
-generated by executing the following as root:
-
-  cd /usr/include;h2ph * sys/*
-
-Some machines may additionally require
-
-  h2ph machine/*
-
-and possibly other directories.
-
-If there was a syntax error, it is possible that h2ph generated improper
-code.  This should be investigated and possibly reported to the perl
-developers.
-
-Consult the Perl documentation for further information.  Majordomo will not
-run until this is fixed.
-
-EOW
+    warn retr_msg('syslog_error', $lang, 'ERROR' => $@);
     return 0;
   }
   print "ok\n";
@@ -320,7 +286,7 @@ EOW
 }
 
 sub check_prereq {
-  my (%have, @mods_needed, $need, $pkg, $ver, $ok);
+  my (%have, @mods_needed, $i, $need, $ok, $pkg, $ver);
   $ok = 1;
 
   while (($pkg, $ver) = splice(@_, 0, 2)) {
@@ -333,28 +299,19 @@ sub check_prereq {
         $ok = 0;
         push @mods_needed, $pkg;
         if ($ver == 0) {
-          warn <<EOW;
-**** Majordomo requires $pkg (any version).
-EOW
+          warn retr_msg('version_any', $lang, 'MODULE' => $pkg);
         }
         else {
-          warn <<EOW;
-**** Majordomo requires $pkg version $ver or greater!
-EOW
+          warn retr_msg('version_needed', $lang, 'MODULE' => $pkg,
+                        'VERSION' => $ver);
         }
       }
     }
   }
   if (@mods_needed) {
-    print <<EOP;
+    print retr_msg('missing_modules', $lang);
 
-Some modules which Majordomo requires were not found.  You should fetch
-them from a CPAN site of your choice, or, if the CPAN module is properly
-set up, you can install them by running the following commands as a user
-capable of installing modules:
-
-EOP
-    for my $i (@mods_needed) {
+    for $i (@mods_needed) {
       print "perl -MCPAN -e'CPAN::Shell->install(\"$i\")'\n";
     }
     print "\n";
@@ -399,61 +356,51 @@ sub configure {
 
   print "Checking for        .mj_config";
   $config = eval { require ".mj_config" };
-  if (defined $config) { print ' 'x11 . "found: default settings read from prior install\n"; }
-  else                 { print ' 'x11 . "missing: using defaults and creating new file\n"; }
 
-  get_str("\nReady to configure; press enter");
+  if (defined $config) { 
+    print ' 'x11 . "found.\n"; 
+  }
+  else { 
+    print ' 'x11 . "missing.\n"; 
+  }
+
+  get_str(retr_msg('begin', $lang));
 
   if (defined $config &&
       defined $config->{version} &&
       $config->{version} >= $config_version)
-    {
-      print "\nFound existing configuration in file '.mj_config':\n";
+  {
+      print retr_msg('mj_config_head', $lang);
       printhash($config);
-      print "End of existing configuration from file '.mj_config'\n";
-      $msg = "Do you want to change the existing configuration?\n";
+      $msg = retr_msg('mj_config_foot', $lang);
       return $config unless get_bool($msg, 0);
-    }
+  }
   elsif ($config) {
-    print "\nFound existing configuration in '.mj_configure',\nbut it must be updated for a new Mj2 version.\n";
+    get_str(retr_msg('mj_config_update', $lang));
   }
   else {
     $config = {};
   }
-  print <<EOM;
+  get_str(retr_msg('welcome', $lang));
 
-Welcome to the Majordomo automatic configuration system!
-
-This script will guide you through some of the Majordomo configuration
-process.  Configuring majordomo causes a configuration file (.mj_config)
-to be created.  If an existing .mj_config file was found and read in,
-the default answers below will be from that file. If no configuration
-file existed, this is assumed to be a fresh install and basic defaults
-will be provided. Some answers CANNOT be defaulted, even if this is a
-re-install with an existing configuration file, so don't just hit ENTER
-without reading the prompt\!
-
-EOM
   require "setup/ask_basic.pl";
   ask_basic($config);
 
   $config->{version} = $config_version;
-  #---- Write out the config
-  print "\nSaving your current answers in file '.mj_config' ...";
-  open(CONFIG, ">.mj_config") || die("Can't create .mj_config: $!");
+
+  #---- Save the configuration information in a file.
+  open(CONFIG, ">.mj_config") || die ("Cannot create .mj_config: $!");
   print CONFIG Dumper($config);
   close CONFIG;
   if ($config->{save_passwords}) {
     chmod 0600, '.mj_config';
   }
-  my $jnk = `pwd`;
-  chomp $jnk;
-  print "\n\nNOTE: Save file '$jnk/.mj_config'\n      if you delete and recreate this install tree!\n";
   return $config;
 }
 
-# Recursively print out a hash
-# ASSUMES that longest key is 25 chars or less, can't find max length without recursing twice
+# Recursively print out a hash.
+# Assumes that longest key is 25 chars or less. 
+# It cannot find the maximum length without recursing twice.
 sub printhash {
   my $arg = shift;
   my $indent = shift || 0;
@@ -488,7 +435,7 @@ sub generate_wrappers {
   @EXES = ();
 
   unless (-d 'wrappers') {
-    mkdir('wrappers', 0777) || die("Can't create wrappers dir: $!");
+    mkdir('wrappers', 0777) || die("Cannot create wrappers directory: $!");
   }
 
   for my $i (@SIDSCRIPTS) {
@@ -497,7 +444,7 @@ sub generate_wrappers {
     }
     link("./bin/$i", "./bin/.$i")
       || die("Unable to create link for bin/.$i: $!");
-    open(WRAP, ">wrappers/$i.c") || die("Can't create wrappers/$i.c: $!");
+    open(WRAP, ">wrappers/$i.c") || die("Cannot create wrappers/$i.c: $!");
     print WRAP "#include <unistd.h>
 int main(int ac, char ** av)
 {
@@ -514,7 +461,7 @@ int main(int ac, char ** av)
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it

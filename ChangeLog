@@ -1,3 +1,54 @@
+2002-06-24  Michael Yount <csf@moscow.com>
+
+	* Makefile.PL:  Move configuration questions into message
+	files.  Increase the version number to 12.
+
+	* postinstall:  Move installation messages into message
+	files.
+
+	* bin/mj_confirm, mj_wwwusr:  Allow customized "welcome"
+	files to be displayed using the "doc" CGI parameter.
+	For example, the CGI parameters func=welcome&doc=foo would 
+	cause the "welcome_foo" file to be displayed.  The stock 
+	welcome file will be displayed if the requested file is
+	not found.
+
+	* lib/Mj/Config.pm:  (set)  Return an error message if
+	a setting is nonexistent or used out of scope.
+	Thanks to Mohamed Lrhazi.
+
+	* setup/ask_basic.pl:  (ask_clear, ask_continue, ask_lang)
+	Add functions which prompt for screen clearing, pressing
+	enter to continue, and message language.
+	Move questions into message files.
+	Add the framework for future mysql backend support.
+
+	* setup/ask_domain.pl, ask_queueing.pl, ask_sendsep.pl:  
+	Move questions into message files.
+
+	* setup/install_util.pl: (chownmod)  Separate failure cases
+	and treat errors individually.
+
+	* setup/mta_exim.pl:  Add Exim 4 support.
+	Move messages into message files.
+
+	* setup/mta_postfix.pl, mta_qmail.pl, mta_sendmail.pl:  
+	Move questions into message files.
+
+	* setup/newdomain.pl:  Move questions into message files.
+	Allow the parameters of an existing domain to be changed.
+
+	* setup/query_util.pl:  (get_addr)  Request and validate
+	an e-mail address.
+	(get_enum)  Allow unambiguous, case-insensitive abbreviations
+	of enumerated values (e.g., "i" for "ignore").
+	Move error messages into message files.
+	(get_passwd)  Request and validate a password, which must
+	not contain internal spaces or tabs.
+	(retr_msg)  Return the contents of a message file.
+
+	* setup/setup_func.pl:  Move messages into message files.
+	
 2002-06-21  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_list_file_get)  Add "STOCK:"
