@@ -15,14 +15,17 @@ EXAMPLE:
 # daily : 1  : 200
 # ENDAAC
 
-A table of digest name, volume, issue.  This is maintained
-automatically by the digest system, and should be changed
-only with care.
+
+$INCLUDE-config/digest_issues
+
+To change the volume number of digests, the digest-incvol command should
+be used.  See "help digest" for details.
+
 
 See Also:
+   help admin_delivery
    help configset_digests (for how to configure digests)
-   help digest     (to check digest status or force digests to be delivered)
+   help configset_digest_index_format
+   help digest
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

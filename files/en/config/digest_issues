@@ -1,3 +1,3 @@
-A table of digest name, volume, issue.  This is maintained
-automatically by the digest system, and should be changed
-only with care.
+The digest_issues setting contains the current volume and issue numbers
+of each digest.  These numbers are maintained automatically, and need
+not be changed manually.
