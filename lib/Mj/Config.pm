@@ -67,6 +67,7 @@ $VERSION = "1.0";
    'sublist_array'    => 1,
    'taboo_body'       => 1,
    'taboo_headers'    => 1,
+   'triggers'         => 1,
    'welcome_files'    => 1,
    'xform_array'      => 1,
   );
@@ -93,6 +94,7 @@ $VERSION = "1.0";
    'string_2darray'   => 1,
    'taboo_body'       => 1,
    'taboo_headers'    => 1,
+   'triggers'         => 1,
    'welcome_files'    => 1,
    'xform_array'      => 1,
   );
@@ -1662,7 +1664,7 @@ sub parse_digests {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-  my($data, $elem, $error, $i, $j, $table);
+  my(@tmp, $data, $elem, $error, $i, $j, $table);
 
   # %$data will hold the return hash
   $data = {};
@@ -1683,7 +1685,11 @@ sub parse_digests {
     $elem->{'times'} = [];
     if (@{$table->[$i][1]}) {
       for $j (@{$table->[$i][1]}) {
-	push @{$elem->{'times'}}, _str_to_clock($j);
+        @tmp = _str_to_clock($j);
+        if (defined $tmp[0] and not ref $tmp[0] and $tmp[0] == 0) {
+          return @tmp;
+        }
+	push @{$elem->{'times'}}, @tmp;
       }
     }
     else {
@@ -2623,6 +2629,52 @@ sub parse_table {
   ([@out], $error);
 }
 
+=head2 parse_triggers
+
+Parses the triggers variable.  
+Returns a hash containing an array of times as
+created by _str_to_clock().
+
+=cut
+sub parse_triggers {
+  my $self = shift;
+  my $arr  = shift;
+  my $var  = shift;
+  my $log  = new Log::In 150, $var;
+  my (@tmp, $data, $elem, $error, $i, $j, $table);
+
+  # %$data will hold the return hash
+  $data = {};
+
+  # Parse the table: one line with lots of fields, and single-line field
+  ($table, $error) = parse_table('fsm', $arr);
+
+  return (0, "Error parsing table: $error")
+    if $error;
+
+  for ($i=0; $i<@{$table}; $i++) {
+    # Ensure that each trigger name is valid.
+    unless (grep {$table->[$i][0] eq $_} @{$self->{'vars'}{$var}{'values'}}) {
+      $log->out('illegal value');
+      return (0, "Illegal trigger '$table->[$i][0]'.\nLegal triggers are:\n".
+	  join(' ', @{$self->{'vars'}{$var}{'values'}}));
+    }
+    $data->{lc $table->[$i][0]} = [];
+    $elem = $data->{lc $table->[$i][0]};
+
+    if (@{$table->[$i][1]}) {
+      for $j (@{$table->[$i][1]}) {
+        @tmp = _str_to_clock($j);
+        if (defined $tmp[0] and not ref $tmp[0] and $tmp[0] == 0) {
+          return @tmp;
+        }
+	push @$elem, @tmp;
+      }
+    }
+  }
+  (1, '', $data);
+}
+
 =head2 parse_keyed(field, key, quote, open, close, lines)
 
 This routine parses out lines containing nested key, value pairs separated
@@ -3328,97 +3380,101 @@ A single string can translate into several clocks.  This returns a list of them.
 =cut
 sub _str_to_clock {
   my $arg = shift;
-  my(@out, $day, $flag, $i, $start, $end);
+  my(@out, $day, $flag, $i, $in, $out, $start, $end);
   my %days = ('su'=>0, 'm'=>1, 'tu'=>2, 'w'=>3, 'th'=>4, 'f'=>5, 'sa'=>6);
 
   @out = ();
 
+  # Extract arguments outside and inside parentheses.
+  ($out, $in) = $arg =~ /^([a-zA-Z0-9-]+)\s*(.*)$/;
+  return () unless $out;
+
   # Deal with 'always', 'any',
-  if ($arg =~ /^a[ln]/i) {
+  if ($out =~ /^a[ln]/i) {
     return (['a', 0, 23]);
   }
 
   # Deal with 'never', 'none'
-  if ($arg =~ /^n[eo]/i) {
+  if ($out =~ /^n[eo]/i) {
     return ();
   }
-
-  # Deal with 3rd(blah)
-  if ($arg =~ /^(\d+)(st|nd|rd|th)\((.*)\)/i) {
-    $flag = 'm';
-    $day  = $1-1;
-    for $i (split(/\s*,\s*/,$3)) {
-      if ($i =~ /^(\d+)-(\d+)$/) {
-	$start = $day*24 + $1;
-	$end   = $day*24 + $2;
-      }
-      elsif ($i =~ /^\d+$/) {
-	$start = $day*24 + $i;
-	$end   = $start;
-      }
-      else {
-	# XXX Error condition
-      }
-      push @out, [$flag, $start, $end];
-    }
+  # Deal with 'yearly'
+  if ($out =~ /^yearly/i) {
+    return (['y', 4, 4]);
   }
-
-  # Deal with 3rd
-  elsif ($arg =~ /^(\d+)(st|nd|rd|th)$/i) {
-    $flag  = 'm';
-    $start = ($1-1) * 24;
-    $end   = $1 * 24 - 1;
-    push @out, [$flag, $start, $end];
+  # Deal with 'quarterly'
+  if ($out =~ /^quarterly/i) {
+    return (['m1', 3, 3], ['m4', 3, 3], ['m7', 3, 3], ['m10', 3, 3]);
   }
-
-  # Deal with just a time
-  elsif ($arg =~ /^\d+$/) {
+  # Deal with 'monthly'
+  if ($out =~ /^monthly/i) {
+    return (['m', 2, 2]);
+  }
+  # Deal with 'weekly'
+  if ($out =~ /^weekly/i) {
+    return (['w', 1, 1]);
+  }
+  # Deal with 'daily'
+  if ($out =~ /^daily/i) {
+    return (['a', 0, 0]);
+  }
+  # Hour or hour range
+  elsif ($out =~ /^(\d{1,2})-?(\d{1,2})?$/) {
     $flag = 'a';
-    $start = $arg;
-    $end   = $arg;
-    push @out, [$flag, $start, $end];
-  }
-
-  # Deal with just a range
-  elsif ($arg =~ /^(\d+)-(\d+)$/) {
+    $start = $1;
+    $end   = defined $2 ? $2 : $1;
+    return ([$flag, $start, $end]);
     $flag  = 'a';
     $start = $1;
-    $end   = $2;
-    push @out, [$flag, $start, $end];
+    $end   = defined $2 ? $2 : $1;
+    return ([$flag, $start, $end]);
   }
 
-  # No putting it off; deal with weekdays
-  elsif ($arg =~ /^(su|m|tu|w|th|f|sa)[dayonesurit]*\((.*)\)/i) {
+  # Day of the month, possibly followed by hours in parens.
+  elsif ($out =~ /^(\d+)(st|nd|rd|th)$/i) {
+    $flag  = 'm';
+    $day   = $1-1;
+    $start = $day*24;
+    $end   = $day*24 + 23;
+  }
+  # Day of the week, possibly followed by hours in parens.
+  elsif ($out =~ /^(su|m|tu|w|th|f|sa)[dayonesurit]*$/i) {
     # mon(0-6, 12, 20-23)
-    $flag = 'w';
-    $day = $days{lc $1};
-
-    for $i (split(/\s*,\s*/,$2)) {
-      if ($i =~ /^(\d+)-(\d+)$/) {
-	$start = $day*24 + $1;
-	$end   = $day*24 + $2;
-      }
-      elsif ($i =~ /^\d+$/) {
-	$start = $day*24 + $i;
-	$end   = $start;
-      }
-      else {
-	# XXX Error conition
-	print "Hosed! $arg::$i\n";
-      }
-      push @out, [$flag, $start, $end];
-    }
-  }
-  elsif ($arg =~ /^(su|m|tu|w|th|f|sa)[dayonesurit]*/i) {
-    # just a day, no parenthesized times
     $flag  = 'w';
     $day   = $days{lc $1};
     $start = $day*24;
     $end   = $day*24 + 23;
-    push @out, [$flag, $start, $end];
+  }
+  # Month and Day of month, possibly followed by hours
+  elsif ($out =~ /^(\d{1,2})m(\d{1,2})d$/i) {
+    $flag = "m$1";
+    $day = $2 - 1;
+    $start = $day*24;
+    $end   = $day*24 + 23;
+  }
+  # Day of the year, month, or week, possibly followed by hours
+  elsif ($out =~ /^(\d{1,3})([ywm])$/i) {
+    $flag = $2;
+    $day = $1 - 1;
+    $start = $day*24;
+    $end   = $day*24 + 23;
   }
   else {
     # XXX error condition
+    return (0, "Unable to parse $out\n");
+  }
+  return ([$flag, $start, $end]) unless $in =~ /^\((.+)\)\s*$/;
+  # Parse the expression in parentheses; split on commas.
+  for $i (split(/\s*,\s*/,$1)) {
+    if ($i =~ /^(\d{1,2})-?(\d{1,2})?/) {
+      $start = $day*24 + $1;
+      $end   = $day*24 + (defined $2 ? $2 : $1);
+    }
+    else {
+      # XXX Error condition
+      return (0, "Unable to parse $in\n");
+    }
+    push @out, [$flag, $start, $end];
   }
   @out;
 }
