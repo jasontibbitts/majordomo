@@ -1,3 +1,123 @@
+2001-09-03  Michael Yount <csf@moscow.com>
+
+	* Makefile.PL:  Require the HTML::FormatText and
+	HTML::TreeBuilder perl modules.
+
+	* bin/mj_wwwadm:  Allow the createlist command to be issued
+	from this CGI script.
+
+	* lib/Majordomo.pm:  Version number is now 0.1200109030.
+	(_announce) Abort if close() fails.
+	(reject) Do not send rejection messages to list/domain owners
+	if the nolog or noinform command mode is used.
+	(rekey_start, rekey_chunk, rekey_done)  Make the rekey command
+	an iterated command to provide faster responses in the shell
+	interface.  Rekey the GLOBAL aliases database.  Separate the
+	xform functionality from the verify/repair functionality.
+	Thanks to SRE.
+	(_unsubscribe)  Abort if close() fails on a filehandle
+	opened for writing.
+
+	* lib/Mj/Archive.pm:  Abort if open() or close() fails on
+	a filehandle opened for writing.
+
+	* lib/Mj/CommandProps.pm:  Support the "mime_require" access
+	variable for the post command, and the "noxform" mode for
+	the rekey command.
+
+	* lib/Mj/Config.pm:  Bugfix:  add existence tests to prevent
+	autovivification of configuration variables.
+	Thanks to Roger Klorese.
+	(parse_attachment_rules)  Add support for the "format" and
+	"require" actions.  The format action converts HTML or
+	enriched text into plain text.  The require action sets the
+	mime_require access variable.
+	(compile_pattern)  Escape unescaped solidi and dollar signs.
+
+	* lib/Mj/Digest.pm:  (_open_state)  Bugfix:  return an
+	empty hashref if the _digests file does not already exist.
+
+	* lib/Mj/File.pm:  (close)  Make the abort message consistent
+	with changes in other modules.
+
+	* lib/Mj/FileRepl.pm:  (open)  Abort if a new file could
+	not be created.
+
+	* lib/Mj/FileSpace.pm:  Abort if close() fails on a filehandle
+	opened for writing.
+
+	* lib/Mj/Format.pm:  (rekey)  Give a better indication of
+	the keys that were changed, verified, or repaired.
+
+	* lib/Mj/Inform.pm:  (inform)  Make the abort message consistent
+	with changes in other modules.
+
+	* lib/Mj/List.pm:  (aux_rekey)  Separate the xform and
+	verification tasks.
+
+	* lib/Mj/MailOut.pm:  Abort if close() fails on a filehandle
+	opened for writing.
+
+	* lib/Mj/Parser.pm:  (parse_entity)  Remove formatting from
+	HTML parts and attempt to process the commands.
+
+	* lib/Mj/Resend.pm:  (_post)  Abort if close() fails on a
+	filehandle opened for writing.  
+	Add "X-Content-Reformatted" and "X-Content-Discarded" headers 
+        to messages that have been altered due to the attachment rules.  
+	Add headers to digests based upon the precedence, reply_to, and 
+	message_headers settings, for consistency with Mj1 digests.
+	Thanks to Roger Klorese.
+	(_r_strip_body)  Remove the "concat" and "regcreset" ops from
+	the Safe compartment for compatibility with perl 5.004.
+	Instead of substituting for scalar variables, non-terminal
+	dollar signs are automatically escaped.
+	Thanks to Olivier Prenant.
+	Add support for the "format" action, which converts HTML or
+	enriched text into plain text.
+	Thanks to Brian Heess.
+	(_format_text)  New routine.  Convert enriched text or
+	HTML into plain text, or break long lines in a plain text
+	body part.
+	
+	* lib/Mj/Token.pm:  Abort if close() fails on a filehandle
+	opened for writing.
+
+	* lib/Mj/Util.pm:  (re_match)  Remove the concat and
+	regcreset ops from the Safe compartment for compatibility
+	with perl 5.004.
+	(enriched_to_hyper, plain_to_hyper)  New routines.  Convert
+	enriched or plain text into HTML for conversion into formatted
+	plain text by the HTML::FormatText module.
+
+	* lib/Mj/Deliver/Connection.pm:  (getline)  Bugfix:  do not
+	override a zero timeout multiplier, which is used for
+	pipelining RCPT commands.
+
+	* lib/Mj/Deliver/Dest.pm:  (flush)  Abort if the error message
+	filehandle cannot be closed.
+
+	* lib/Mj/Deliver/Envelope.pm:  (address)  Revise code to
+	deal properly with unusual responses.
+
+	* lib/Mj/Deliver/QQEnvelope.pm:  Abort if close() fails on
+	a filehandle opened for writing.
+
+	* lib/Mj/Deliver/SMTP.pm:  (getresp)  Treat a 552 response
+	as a failure.
+
+	* lib/Mj/Digest/Index.pm:  Abort if close() fails on
+	a filehandle opened for writing.
+
+	* lib/Mj/Digest/MIME.pm:  Abort if close() fails on
+	a filehandle opened for writing.
+
+	* lib/Mj/Digest/Text.pm:  Abort if close() fails on
+	a filehandle opened for writing.
+
+	* lib/Mj/SimpleDB/Text.pm:  Abort if close() fails on
+	a filehandle opened for writing.
+
 2001-08-23  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* bin/mj_shell (parse_command): Handle "default" with no

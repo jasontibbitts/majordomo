@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200108140";
+$VERSION = "0.1200109030";
 $unique = 'AAA';
 
 use strict;
@@ -3611,8 +3611,8 @@ use MIME::Entity;
 sub _announce {
   my ($self, $list, $user, $vict, $mode, $cmdline, $file, $sublist) = @_;
   my $log = new Log::In 30, "$list, $file";
-  my (@classlist, %data); 
-  my ($baseclass, $classes, $desc, $ent, $mailfile, $sender, $subs, $tmpfile);
+  my (@classlist, %data, $baseclass, $classes, $desc, $ent, $fh, 
+      $mailfile, $sender, $subs, $tmpfile);
 
   $sender = $self->_list_config_get($list, 'sender');
   return (0, "Unable to obtain sender address.\n")
@@ -3650,10 +3650,12 @@ sub _announce {
     unless $ent; #XLANG
 
   $tmpfile = "$tmpdir/mja" . unique();
-  open FINAL, ">$tmpfile" ||
+  $fh = gensym();
+  open ($fh, ">$tmpfile") ||
     return(0, "Could not open temporary file, $!");
-  $ent->print(\*FINAL);
-  close FINAL;
+  $ent->print($fh);
+  close ($fh)
+    or $::log->abort("Unable to close file $tmpfile: $!");
 
   # Construct classes from the mode.  If none was given,
   # use all classes.
@@ -4346,9 +4348,9 @@ sub _createlist {
     # settings into parsed data.
     if ($mode =~ /regen/) {
       $self->_fill_lists;
-      for my $i (keys %{$self->{lists}}) {
+      for my $i (keys %{$self->{'lists'}}) {
 	$self->_make_list($i);
-	for my $j ($self->{lists}{$i}->_fill_config) {
+	for my $j ($self->{'lists'}{$i}->_fill_config) {
 	  $self->_list_config_regen($i, $j);
 	}
       }
@@ -4385,14 +4387,14 @@ sub _createlist {
 
       # Extract the list of digests
       $digests = $self->_list_config_get($i, 'digests');
-      # delete($digests->{'default_digest'});
 
-      push @{$args{'lists'}}, {list     => $i,
-			       aliases  => $aliases,
-			       debug    => $debug,
-			       digests  => [keys(%{$digests})],
-			       priority => $priority,
-			       sublists => [keys(%{$sublists})],
+      push @{$args{'lists'}}, {
+                               'list'     => $i,
+			       'aliases'  => $aliases,
+			       'debug'    => $debug,
+			       'digests'  => [keys(%{$digests})],
+			       'priority' => $priority,
+			       'sublists' => [keys(%{$sublists})],
 			      };
     }
     {
@@ -4512,7 +4514,6 @@ sub _createlist {
     $aliases = $self->_list_config_get($list, 'aliases');
 
     $digests = $self->_list_config_get($list, 'digests');
-    # delete($digests->{'default_digest'});
 
     $sublists = $self->_list_config_get($list, 'sublists');
     $priority = $self->_list_config_get($list, 'priority');
@@ -4544,7 +4545,6 @@ sub _createlist {
 
     $self->_list_set_config('DEFAULT', $sources->{'digests'});
     $digests = $self->_list_config_get('DEFAULT', 'digests');
-    # delete($digests->{'default_digest'});
 
     if (exists $aliases->{'auxiliary'}) {
       $self->_list_set_config('DEFAULT', $sources->{'sublists'});
@@ -4711,11 +4711,17 @@ sub _digest {
               $self->standard_subs($list),
 	    };
     $deliveries = {};
-    $force = 1 if $mode =~ /force/;
+    if ($mode =~ /force/) {
+      $force = 1;
+    }
+    else {
+      $force = 0;
+    }
+
     $self->do_digests('list'       => $list,     'run'        => $d,
 		      'force'      => $force,    'deliveries' => $deliveries,
 		      'substitute' => $subs,     'sender'     => $sender,
-		      'whereami'   => $whereami, 'tmpdir'     => $tmpdir
+		      'whereami'   => $whereami, 'tmpdir'     => $tmpdir,
 		      # 'msgnum' => undef, 'arcdata' => undef,
 		     );
 
@@ -5115,7 +5121,7 @@ sub reject {
       
     # Then we send a message to the list owner and majordomo owner if
     # appropriate
-    if ($data->{'type'} eq 'confirm') {
+    if ($data->{'type'} eq 'confirm' and $request->{'mode'} !~ /nolog|noinform/) {
       ($file, %file) = $self->_list_file_get($data->{'list'}, "token_reject_owner");
       $file = $self->substitute_vars($file, $repl);
       $desc = $self->substitute_vars_string($desc, $repl);
@@ -5220,7 +5226,7 @@ sub _register {
   
   $welcome = $self->_global_config_get('welcome');
   $welcome = 1 if $mode =~ /welcome/;
-  $welcome = 0 if $mode =~ /nowelcome/;
+  $welcome = 0 if $mode =~ /(nowelcome|quiet)/;
   
   if ($welcome) {
     $ok = $self->welcome('GLOBAL', $vict, 'PASSWORD' => $pw);
@@ -5241,7 +5247,7 @@ change, else address matching will fail to work properly.
 
 =cut
 
-sub rekey {
+sub rekey_start {
   my ($self, $request) = @_;
   my $log = new Log::In 30;
   
@@ -5256,12 +5262,18 @@ sub rekey {
                 $request->{'mode'}, $request->{'cmdline'});
 }
 
-use Mj::Util qw(gen_pw);
 sub _rekey {
   my($self, $d, $requ, $vict, $mode, $cmd) = @_;
   my $log = new Log::In 35, $mode;
-  my ($addr, $chunksize, $count, $data, $list, $mess, $minlength,
-      $pw, $reg, $unreg, $unsub);
+  my (@lists, $aa, $aca, $changed, $dry, $field, $list, $ra, $rca);
+
+  $rca = $ra = 0;
+  if ($mode =~ /noxform/) {
+    $dry = 1;
+  }
+  else {
+    $dry = 0;
+  }
 
   # Do a rekey operation on the registration database
   my $sub =
@@ -5271,73 +5283,103 @@ sub _rekey {
       my (@out, $addr, $newkey, $changekey);
 
       # Allocate an Mj::Addr object from stripaddr and transform it.
-      $addr = new Mj::Addr($data->{'stripaddr'});
+      $addr = new Mj::Addr($data->{$field});
 
       # Skip this record if it is not a valid address.
       return (0, 0, 0) unless $addr;
 
+      $ra++;
       $newkey = $addr->xform;
-      $changekey = ($newkey ne $key);
+      if ($newkey ne $key) {
+        $rca++;
+        $changekey = $dry ? 0 : 1;
+      }
+      else {
+        $changekey = 0;
+      }
       return ($changekey, 0, $newkey);
     };
 
-  $self->{'reg'}->mogrify($sub);
-
   # Rekey the alias database
+  $field = 'stripsource';
+  $self->{'alias'}->mogrify($sub) unless ($mode =~ /verify|repair/);
+
+  $aca = $rca;
+  $aa = $ra;
+  $rca = $ra = 0;
+
+  # Rekey the registry
+  $field = 'stripaddr';
+  $self->{'reg'}->mogrify($sub) unless ($mode =~ /verify|repair/);
+
 
   # loop over all lists
   $self->_fill_lists;
-  $mess = $reg = '';
-  $reg = $self->{'reg'} if ($mode =~ /repair|verify/);
-  $chunksize = $self->_global_config_get('chunksize') || 1000;
+  @lists = sort keys(%{$self->{'lists'}});
+  $self->{'rekey_lists'} = []; 
+  for $list (@lists) {
+    push (@{$self->{'rekey_lists'}}, $list) 
+      unless ($mode =~ /verify|repair/ and 
+              ($list eq 'DEFAULT' or $list eq 'GLOBAL'));
+  }
+  return (1, $ra, $rca, $aa, $aca);
+}
 
-  for $list (sort keys(%{$self->{'lists'}})) {
-    next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
-    if ($self->_make_list($list)) {
-      if ($mode =~ /repair/) {
-        $log->message(35, 'info', "Repairing $list");
-      }
-      else {
-        $log->message(35, 'info', "Rekeying $list");
-      }
-      ($count, $unsub, $unreg) =
-        $self->{'lists'}{$list}->rekey($reg, $chunksize);
-      if ($mode =~ /repair|verify/) {
-        $mess .= "$count addresses verified for the $list list.\n";
-      }
-      else {
-        $mess .= "$count addresses rekeyed for the $list list.\n";
-      }
+use Mj::Util qw(gen_pw);
+sub rekey_chunk {
+  my ($self, $request) = @_;
+  my $list = shift @{$self->{'rekey_lists'}};
+  return unless (defined $list);
+  my $log = new Log::In 35, "$list, $request->{'mode'}";
+  my ($addr, $changed, $chunksize, $count, $data, $dry,
+      $minlength, $pw, $reg, $unreg, $unsub);
+
+  $chunksize = $self->_global_config_get('chunksize') || 1000;
+  $minlength = $self->_global_config_get('password_min_length');
+  $reg = '';
+  $reg = $self->{'reg'} if ($request->{'mode'} =~ /repair|verify/);
+  if ($request->{'mode'} =~ /noxform/) {
+    $dry = 1;
+  }
+  else {
+    $dry = 0;
+  }
+
+  if ($self->_make_list($list)) {
+    ($count, $unsub, $unreg, $changed) =
+      $self->{'lists'}{$list}->rekey($reg, $chunksize, $dry);
+
+    if ($request->{'mode'} =~ /repair/) {
       for $addr (keys %$unreg) {
-        $mess .= "Missing registry entry for $addr on the $list list.\n";
-        if ($mode =~ /repair/) {
-          unless ($data = new Mj::Addr($addr)) {
-            $mess .= "Skipping address $addr.\n";
-            next;
-          }
-          $minlength = $self->_global_config_get('password_min_length');
-          $pw = &gen_pw($minlength);
-          $self->_reg_add($data, 'list' => $list, 'password' => $pw);
-          $mess .= "Address $addr has been repaired.\n";
+        unless ($data = new Mj::Addr($addr)) {
+          delete $unreg->{$addr};
+          next;
         }
+        $pw = &gen_pw($minlength);
+        $self->_reg_add($data, 'list' => $list, 'password' => $pw);
       }
       for $addr (keys %$unsub) {
-        $mess .= "Missing subscriber list entry for $addr on the $list list.\n";
-        if ($mode =~ /repair/) {
-          unless ($data = new Mj::Addr($addr)) {
-            $mess .= "Skipping address $addr.\n";
-            next;
-          }
-          $self->{'lists'}{$list}->add('', $data, '', '', '', '', 'MAIN');
-          $mess .= "Address $addr has been repaired.\n";
+        unless ($data = new Mj::Addr($addr)) {
+          delete $unsub->{$addr};
+          next;
         }
+        $self->{'lists'}{$list}->add('', $data, '', '', '', '', 'MAIN');
       }
-    } 
-    else {
-      $mess .= "Unable to initialize the $list list.\n";
     }
-  } # for list in lists
-  return (1, $mess);
+  } 
+  else {
+    return (0, $self->format_error('make_list', 'GLOBAL', 'LIST' => $list));
+  }
+
+  return (1, $list, $count, $unsub, $unreg, $changed);
+}
+
+sub rekey_done {
+  my $self = shift;
+  my $request = shift;
+
+  undef $self->{'rekey_lists'};
+  1;
 }
 
 =head2 report(..., $sessionid)
@@ -5832,7 +5874,7 @@ sub _show {
     # really isn't on the list.  Just skip it in this case.
     if ($data) {
       # Extract some useful data
-      $out{lists}{$i} =
+      $out{'lists'}{$i} =
 	{
 	 changetime => $data->{changetime},
          class      => $data->{'class'},
@@ -5848,10 +5890,10 @@ sub _show {
          settings   => $self->{'lists'}{$i}->get_setting_data,
 	 subtime    => $data->{subtime},
 	};
-      $bouncedata = $self->{lists}{$i}->bounce_get($addr);
+      $bouncedata = $self->{'lists'}{$i}->bounce_get($addr);
       if ($bouncedata) {
-	$out{lists}{$i}{bouncedata}  = $bouncedata;
-	$out{lists}{$i}{bouncestats} = $self->{lists}{$i}->bounce_gen_stats($bouncedata);
+	$out{'lists'}{$i}{bouncedata}  = $bouncedata;
+	$out{'lists'}{$i}{bouncestats} = $self->{'lists'}{$i}->bounce_gen_stats($bouncedata);
       }
     }
   }
@@ -6514,7 +6556,8 @@ sub _unsubscribe {
       $fh = new IO::File ">$bye";
       next unless $fh;
       $self->substitute_vars($file, $subs, $list, $fh);
-      $fh->close;
+      $fh->close()
+        or $::log->abort("Unable to close file $bye: $!");
 
       $fdata{'description'} = $self->substitute_vars_string($desc, $subs);
       $self->_get_mailfile($list, $key, 'farewell', $bye, %fdata);
