@@ -1085,7 +1085,7 @@ sub _a_mailfile {
      'Content-Language:' => $file{'language'},
     );
 
-  $sender = _list_config_get($td->{'list'}, 'sender');
+  $sender = $self->_list_config_get($td->{'list'}, 'sender');
   if ($sender and $ent) {
     $self->mail_entity($sender, $ent, $td->{'user'});
   }
