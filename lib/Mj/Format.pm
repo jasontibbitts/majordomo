@@ -814,20 +814,22 @@ sub set {
   while (@changes) {
     ($ok, $change) = splice @changes, 0, 2;
     if ($ok > 0) {
-        $list = $change->{'list'};
-        if (length $change->{'auxlist'}) {
-          $list .= ":$change->{'auxlist'}";
-        }
-        $summary = <<EOM;
+      $list = $change->{'list'};
+      if (length $change->{'auxlist'}) {
+        $list .= ":$change->{'auxlist'}";
+      }
+      $summary = <<EOM;
 Settings for $change->{'victim'}->{'full'} on "$list":
   Receiving $change->{'classdesc'} %s
   Flags:
 EOM
-        $summary = sprintf $summary, ($change->{'class'}->[0] eq 'digest') ?
-                   "(in $change->{'class'}->[2] format)" : '';
-        $summary .=  "    " . join("\n    ", @{$change->{'flagdesc'}}) . "\n\n";
-        eprint($out, $type, &indicate($summary, $ok, 1)
-        );
+      $summary = sprintf $summary, ($change->{'class'}->[0] eq 'digest') ?
+                 "(in $change->{'class'}->[2] format)" : '';
+      $summary .=  "    " . join("\n    ", @{$change->{'flagdesc'}}) . "\n\n";
+      eprint($out, $type, &indicate($summary, $ok, 1));
+      if (exists $change->{'digest'} and ref $change->{'digest'}) {
+        eprint($out, $type, "A partial digest of messages has been mailed.\n");
+      }
     }
     # deal with partial failure
     else {
@@ -926,7 +928,7 @@ sub show {
     eprint($out, $type, "        Subscribed at ".gmtime($data->{lists}{$i}{subtime})." GMT.\n");
     eprint($out, $type, "        Receiving $data->{lists}{$i}{classdesc}.\n");
     eprint($out, $type, "        Subscriber flags:\n");
-    for $i (@{$data->{lists}{$i}{flags}}) {
+    for $i (@{$data->{lists}{$i}{flagdesc}}) {
       eprint($out, $type, "          $i\n");
     }
     $bouncedata = $data->{lists}{$i}{bouncedata};
