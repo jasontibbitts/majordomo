@@ -1387,7 +1387,7 @@ sub moderators {
   }
   @out = @{$self->config_get('moderators')};
   return @out if (scalar @out);
-  $self->config_get('moderator') || $self->config_get('whoami_owner');
+  $self->config_get('whoami_owner');
 }
  
   
