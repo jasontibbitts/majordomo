@@ -8,6 +8,14 @@ needed/problem really isn't a problem.
 Implemented, awaiting verification
 ==================================
 
+Configurable Subject: headers for digests
+-----------------------------------------
+Add an optional third line to the digests setting specifying the format of
+the subject header to be used when the digest is generated.  Allow standard
+digest substitutions (already defined in Mj::Resend::do_digests).  Add
+MSGCOUNT substitution for completeness.
+
+
 Better Queue Handling
 ---------------------
 
@@ -227,14 +235,6 @@ lists to support address validation and access controls.
 Note that this has implications for how we choose moderator groups and
 such.  If we assume that the list is small, then we can just pull out the
 addresses.  But some features of sublists would then not be available.
-
-
-Configurable Subject: headers for digests
------------------------------------------
-Add an optional third line to the digests setting specifying the format of
-the subject header to be used when the digest is generated.  Allow standard
-digest substitutions (already defined in Mj::Resend::do_digests).  Add
-MSGCOUNT substitution for completeness.
 
 
 BerkeleyDB database backend
