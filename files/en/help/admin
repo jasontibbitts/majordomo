@@ -1,12 +1,14 @@
                     Introduction to List Administration
 
 As the owner of a Majordomo mailing list, there are several basic duties
-you will need to perform:  configuration, moderation, subscriber management, 
-document management, and monitoring.  Each of these duties will be outlined 
-in this document.  A separate, detailed help file is available for each duty.
+you will need to perform:  configuration, moderation, subscriber
+management, document management, and monitoring.  Each of these duties
+will be outlined in this document.  A separate, detailed help file is
+available for each duty.
 
-This document assumes that your mailing list has already been created.  If 
-that is not the case, see "help createlist" for an introduction to list creation.
+This document assumes that your mailing list has already been created.
+If that is not the case, see "help createlist" for an introduction to
+list creation.
 
 In the examples in this document, wherever you see this word:
   LISTNAME
@@ -19,16 +21,15 @@ There are several ways to issue administrative commands.  The most
 common way is to use e-mail.  Commands should be mailed to
   $MJ
 Commands should always be placed in the body of the e-mail messages,
-never in the Subject header.  Majordomo only processes commands
-in plain text parts of the message, although it is possible
-to use attachments in some circumstances.  See "help command_parser"
-for more information.
+never in the Subject header.  Majordomo only processes commands in plain
+text parts of the message, although it is possible to use attachments in
+some circumstances.  See "help command_parser" for more information.
 
 In addition, if you have shell access for the computer on which
 Majordomo runs, you may be able to use the mj_shell program 
-(see "help mj_shell" for more details).  mj_shell allows you
-to type Majordomo commands at the command line.  The mj_shell
-commands use the same syntax as the e-mail commands.
+(see "help mj_shell" for more details).  mj_shell allows you to type
+Majordomo commands at the command line.  The mj_shell commands use the
+same syntax as the e-mail commands.
 
 Finally, if Majordomo is configured to use the WWW, there will be
 an interface for list administrators at the following location:
@@ -43,9 +44,9 @@ The WWW interfaces have separate instructions.
 Passwords
 ---------
 
-If you want to perform administrative tasks, you have to tell 
-Majordomo your administrative password.  The easiest way to do this is
-to always use this command first...
+If you want to perform administrative tasks, you have to tell Majordomo
+your administrative password.  The easiest way to do this is to always
+use this command first...
 
   default password YOURPASSWORD
 
@@ -56,8 +57,8 @@ For more details, see "help admin_passwords".
 Configuration 
 -------------
 
-There are many different ways to run an electronic mailing list.  
-Some common differences are:
+There are many different ways to run an electronic mailing list.  Some
+common differences are:
 
   * Is the list public or private?
   * Who can post messages to a mailing list?
@@ -68,12 +69,12 @@ Some common differences are:
 
 The answers to all of these questions are determined by your mailing
 list's configuration settings.  Because there are over 100 settings,
-they have been divided into several categories.  Each setting has
-a separate help page.
+they have been divided into several categories.  Each setting has a
+separate help page.
 
 There are three basic commands used to manage the settings.  The
-configshow command is used to see the current value of a setting.
-For example,
+configshow command is used to see the current value of a setting.  For
+example,
 
   configshow GLOBAL whereami
 
@@ -92,13 +93,13 @@ For more details, see "help admin_config".
 Moderation
 ----------
 
-Sometimes, when someone attempts to subscribe to your mailing list
-or post a message, approval is required before the subscription
-succeeds or the message is distributed on the list.  When this
-happens, we say that the request is "stalled."  Majordomo keeps track 
-of these "pending requests" by assigning a "token identifier" 
-to each request.  It then sends the list moderators
-a "consult" message with instructions for approving the action.
+Sometimes, when someone attempts to subscribe to your mailing list or
+post a message, approval is required before the subscription succeeds or
+the message is distributed on the list.  When this happens, we say that
+the request is "stalled."  Majordomo keeps track of these "pending
+requests" by assigning a "token identifier" to each request.  It then
+sends the list moderators a "consult" message with instructions for
+approving the action.
 
 The showtokens command will display all of the stalled requests for
 a mailing list.  For instance,
@@ -158,18 +159,18 @@ Addresses can be removed using the unsubscribe command, for instance,
   unsubscribe LISTNAME someone@example.com
 
 Configuration settings such as subscribe_policy and unsubscribe_policy
-determine whether or not your approval is needed to join or leave 
-your mailing list.  The who_access and which_access configuration
-settings control who is able to see the list of subscribers.
+determine whether or not your approval is needed to join or leave your
+mailing list.  The who_access and which_access configuration settings
+control who is able to see the list of subscribers.
 
 For more details, see "help admin_subscribers".
 
 Document Management
 -------------------
 
-Each mailing list has a file space, part of which is public,
-and part private.  You can see a directory of the files that
-are available with the index command:
+Each mailing list has a file space, part of which is public, and part
+private.  You can see a directory of the files that are available with
+the index command:
 
   index-recursive LISTNAME
 
@@ -177,18 +178,17 @@ shows the public files, and
  
   index-recursive LISTNAME /
 
-shows the entire file space, including the public directory.
-The archive of messages previously posted to the mailing list 
-is usually located in the public/archive directory. 
+shows the entire file space, including the public directory.  The
+archive of messages previously posted to the mailing list is usually
+located in the public/archive directory. 
 
 Files can be retrieved from the public directory using the
 get command, for example:
 
   get LISTNAME FILE
 
-where FILE is the name of a file.  File names beginning with a
-slash, '/', can only be retrieved with the get command by a list 
-administrator.
+where FILE is the name of a file.  File names beginning with a slash,
+'/', can only be retrieved with the get command by a list administrator.
 
 Each list has three special private documents, /faq, /info, and /intro.
 
@@ -221,10 +221,11 @@ For more details, see "help admin_documents".
 Monitoring
 ----------
 
-Majordomo keeps a log of every posted message and command that it processes.
-There are several ways in which you can see what the people on your list 
-have been doing.  Majordomo can send you notices automatically, or you can
-ask Majordomo for a report when the need arises.
+Majordomo keeps a log of every posted message and command that it
+processes.  There are several ways in which you can see what the people
+on your list have been doing.  Majordomo can send you notices
+automatically, or you can ask Majordomo for a report when the need
+arises.
 
 Also, if your list is public, anyone can learn more about it with the
 following command:

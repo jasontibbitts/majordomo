@@ -4,14 +4,12 @@ access
 used only in "configset access_rules" for the GLOBAL pseudo-list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The "access" command is used only in majordomo's access_rules 
-configuration setting, and only for the GLOBAL list. There must
-be several lines of data after the access command, as described
-by "help configset access_rules".
+The access command is used only in the access_rules configuration
+setting, and only for the GLOBAL list. 
 
-The access command allows site managers to restrict access to all
+The access command allows domain managers to restrict access to all
 of majordomo's features to certain e-mail addresses. For example,
-a  site administrator could create an auxiliary list, badguys,
+a domain administrator could create an auxiliary list, badguys,
 and use this access_rule:
  
 configset GLOBAL access_rules << ENDTAG
@@ -20,24 +18,25 @@ deny, reply="Request denied.  Your address has been blacklisted."
 @badguys
 ENDTAG
 
-Then, anyone who repeatedly violated the site administrator's
-rules could be banned using the subscribe command. Alternatively,
-the banned users could be listed in the command itself, as with
+Then, anyone who repeatedly violated the site administrator's rules
+could be banned using the subscribe command. Alternatively, the banned
+users could be listed in the command itself, as with
 
 configset GLOBAL access_rules << ENDTAG
 access
 deny, reply="Request denied.  Your address has been blacklisted."
-/joe\@nowhere.com/i OR /jane\@somewhere.com/i
+/joe\@example.com/i OR /jane\@example.com/i
 ENDTAG
 
-Majordomo determines the author's address under any circumstances,
-including when sending messages to the list owners, so access to
-any feature can be limited by access_rules.
+When access is denied in this way, all of the features of Majordomo
+are restricted, including messages sent to the list owners, messages
+posted to mailing lists, or commands sent to the server.
 
 
 See Also:
-   help configset_access_rules           (to restrict access to any command)
-   help access_variables (set/test for this command)
+   help admin_domain
+   help auxiliary_list
+   help configset_access_rules        (to restrict access to any command)
    help configset_archive_access      (for     archive command access_rules)
    help configset_faq_access          (for         faq command access_rules)
    help configset_get_access          (for         get command access_rules)
@@ -50,8 +49,6 @@ See Also:
    help configset_subscribe_policy    (for   subscribe command access_rules)
    help configset_unsubscribe_policy  (for unsubscribe command access_rules)
    help post      (for the special case of restricting who can post msgs)
-   help variables (for a list of all possible variables and what they mean)
+   help variables (for a description of substitution variables)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
