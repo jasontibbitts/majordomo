@@ -59,7 +59,9 @@ Please choose a password.
 EOM
   $def = $cfg->{'master_password'};
   if ($config->{save_passwords}) {
-    $cfg->{'master_password'} = get_str($msg, $def);
+    until ($cfg->{'master_password'} ne "") {
+      $cfg->{'master_password'} = get_str($msg, $def);
+    }
   } else {
     delete $cfg->{'master_password'};
   }

@@ -639,7 +639,7 @@ EOC
    {
     'type'   => 'digests',
     'groups' => [qw(digest)],
-    'visible'=> 0,
+    'visible'=> 1,
     'local'  => 1,
     'mutable'=> 1,
    },

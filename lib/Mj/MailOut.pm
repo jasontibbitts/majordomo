@@ -173,7 +173,7 @@ sub owner_done {
   $self->_make_list($list);
 
   # Extract the owners
-  $owner  = $self->_list_config_get($list, 'sender');
+  $owner  = $self->_list_config_get('GLOBAL', 'sender');
   @owners = @{$self->_list_config_get($list, 'owners')};
 
   # Mail the file

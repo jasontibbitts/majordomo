@@ -9,3 +9,4 @@ choose otherwise.  Possible flags are:
   P - prefix
   R - replyto
   S - selfcopy
+  W - rewritefrom

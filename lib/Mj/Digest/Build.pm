@@ -50,7 +50,7 @@ sub build {
   my %args = @_;
   my $log = new Log::In 150;
   my (%legal, @digests, @files, $data, $file, $i, $idxfn,
-      $idxfnref, $j, $msg, $parser);
+      $idxfnref, $j, $msg, $parser, @nukes);
 
   %legal = ('mime' => 'MIME',
 	    'text' => 'Text',
@@ -100,7 +100,13 @@ sub build {
     # Skip nonexistant messages (???)
     next unless $data;
 
-    # Loop over @digests.  Note that currently we ignore the parsed entities returned by the 
+    # It is necessary to remove temporary files, since the
+    # digest objects will not be accessed outside the
+    # scope of this function.
+    push @nukes, $file;
+
+    # Loop over @digests.  Note that currently we ignore 
+    # the parsed entities returned by the add method.
     for $j (@digests) {
       $j->add(file => $file, msg => $msg, data => $data);
     }
@@ -110,6 +116,8 @@ sub build {
   for $i (@digests) {
     push @files, $i->done;
   }
+
+  unlink @nukes;
 
   @files;
 }
@@ -153,9 +161,12 @@ sub idx_subject_author {
 
   $sub = $data->{'subject'};
   $sub = '(no subject)' unless length $sub;
+  if ($type eq 'index') {
+    $sub = sprintf("%-10s: %s", $msg, $sub);
+  }
   $from = $data->{from};
 
-  if (length("$sub $data->{'from'}") > 72) {
+  if (length("$sub $from") > 72) {
     return "  $sub\n" . (' ' x int(74-length($from))) . "[$from]\n";
   }
 

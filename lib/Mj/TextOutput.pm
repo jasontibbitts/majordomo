@@ -68,14 +68,15 @@ sub accept {
     return;
   }
 
-  if (!$infh && !@arglist) {
-    @arglist = ($args);
+  if (!$infh && $args) {
+    push @arglist, $args;
   }
 
   while (1) {
     $i = $infh ? $infh->getline : shift @arglist;
     last unless $i;
     chomp $i;
+    next unless $i;
     $rok =
       Mj::Format::accept($mj, $outfh, $outfh, 'text', @stuff, $i, '', '',
 			 $mj->dispatch('accept', @stuff, $i)
@@ -130,11 +131,11 @@ sub archive {
 	       $user);
 
   Mj::Format::archive($mj, $outfh, $outfh, 'text', @stuff, $args, '', '',
-		      $mj->dispatch('archive', @stuff, @args));
+		      $mj->dispatch('archive_start', @stuff, @args));
 }
 
 
-=head2 auxsubscribe
+=head2 auxadd
 
 This adds an address to one of a list''s auxiliary lists.
 
@@ -157,7 +158,7 @@ sub auxadd {
 	 @addresses);
 }
 
-=head2 auxunsubscribe
+=head2 auxremove
 
 This removes an address to one of a list''s auxiliary lists.
 
@@ -169,6 +170,7 @@ sub auxremove {
   my (@addresses, $file);
   
   ($file, @addresses) = (split(" ", $args, 2), @arglist);
+  @addresses = ($user) unless @addresses;
   
   # Untaint $file;
   $file =~ /(.*)/;
@@ -212,16 +214,20 @@ its default value.
 sub configdef {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
-  my ($ok, $mess);
+  my ($ok, $mess, $var);
 
-  ($ok, $mess) =
-    $mj->list_config_set_to_default($user, $passwd,
-				    $auth, $interface,
-				    $list, $args);
+  $args .= join(',', @arglist);
 
-  print $outfh "**** $mess" if $mess;
-  if ($ok) {
-    print $outfh "$args set to default value.\n";
+  for $var (split /\s*,\s*/, $args) {
+    ($ok, $mess) =
+      $mj->list_config_set_to_default($user, $passwd,
+                                      $auth, $interface,
+                                      $list, $var);
+
+    print $outfh "**** $mess" if $mess;
+    if ($ok) {
+      print $outfh "$var set to default value.\n";
+    }
   }
   return $ok;
 }
@@ -271,10 +277,10 @@ sub configshow {
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27, $args;
   my (%all_vars, @vars, $auto, $comment, $flag, $group, $groups,
-      $message, $opts, $tag, $val, $var, $vars);
+      $message, $tag, $val, $var, $vars);
 
 
-  ($groups, $opts) = split(" ", $args);
+  $groups = $args;
   $groups .= join(',',@arglist);
   
   $groups ||= 'ALL';
@@ -286,10 +292,11 @@ sub configshow {
 				 $list, $group);
     unless (@vars) {
       print $outfh "**** No visible variables matching $group\n";
-      return;
     }
-    for $var (@vars) {
-      $all_vars{$var}++;
+    else {
+      for $var (@vars) {
+        $all_vars{$var}++;
+      }
     }
   }                        
   
@@ -298,8 +305,10 @@ sub configshow {
     if ($mode !~ /nocomments/) {
       $comment = $mj->config_get_intro($list, $var) .
 	$mj->config_get_comment($var);
-      $comment =~ s/^/# /gm;
-      print $outfh $comment;
+      if ($comment) {
+        $comment =~ s/^/# /gm;
+        print $outfh $comment;
+      }
     }
     $auto = '';
     if ($mj->config_get_isauto($var)) {
@@ -571,8 +580,8 @@ XXX This currently has security implications; beware.
 =cut
 sub post {
   my ($mj, $name, $user, $passwd, $auth, $interface,
-      $infh, $outfh, $mode, $list, $args, @arglist) = @_;
-  my $log = new Log::In 27, "$list";
+      $infh, $outfh, $mode, $list, $args, @arglist) = @_; 
+  my $log = new Log::In 27, "$list"; 
   my (@out, @stuff, $i, $ok);
 
   @stuff = ($user, $passwd, $auth, $interface,
@@ -581,16 +590,18 @@ sub post {
 
   ($ok, @out) = $mj->dispatch('post_start', @stuff);
   
-  return Mj::Format::post($outfh, $outfh, 'text', @stuff, $ok, @out)
+  return Mj::Format::post($mj, $outfh, $outfh, 'text', @stuff, '', '', '', $ok, @out)
     unless $ok;
   
   while (1) {
     $i = $infh ? $infh->getline : shift @arglist;
     last unless defined $i;
+    # Mj::Parser creates an argument list without line feeds.
+    $i .= "\n" if (!$infh);
     ($ok, @out) = $mj->dispatch('post_chunk', @stuff, $i);
   }
   
-  Mj::Format::post($outfh, $outfh, 'text', @stuff, '', '', '',
+  Mj::Format::post($mj, $outfh, $outfh, 'text', @stuff, '', '', '',
 		   $mj->dispatch('post_done', @stuff)
 		  );
 }  
@@ -733,8 +744,8 @@ sub reject {
   my @stuff = ($user, $passwd, $auth, $interface, '', $mode, $list,
 	       '');
 
-  if (!@arglist) {
-    @arglist = ($args);
+  if ($args) {
+    push @arglist, $args;
   }
 
   while (1) {
@@ -830,7 +841,7 @@ sub set {
     $i = $infh ? $infh->getline : shift @addresses;
     last unless $i;
     chomp $i;
-    last unless $i;
+    next unless $i;
     $rok =
       Mj::Format::set($mj, $outfh, $outfh, 'text', @stuff, $i, $setting, '', '',
 		      $mj->dispatch('set', @stuff, $i, $setting)
@@ -852,7 +863,9 @@ sub show {
   my $log = new Log::In 27, "$args";
   my (@addresses, @stuff, $i, $ok, $rok);
 
-  @addresses = $args || @arglist || $user;
+  @addresses = $args;
+  @addresses = @arglist unless $addresses[0];
+  @addresses = $user unless $addresses[0];
 
   @stuff = ($user, $passwd, $auth, $interface,
 	    "show".($mode?"=$mode":"")." $args",
@@ -862,7 +875,7 @@ sub show {
     $i = $infh ? $infh->getline : shift @addresses;
     last unless $i;
     chomp $i;
-    last unless $i;
+    next unless $i;
     $rok =
       Mj::Format::show($mj, $outfh, $outfh, 'text', @stuff, $i, '', '', '',
 		       $mj->dispatch('show', @stuff, $i)
@@ -1004,7 +1017,7 @@ sub who {
   my ($mj, $name, $user, $pass, $auth, $int,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27;
-  my ($ok, $err, $re);
+  my ($ok, $err, $re, $tmpl);
 
   my @stuff = ($user, $pass, $auth, $int,
                "who".($mode?"=$mode":"")." $list", $mode, $list, $user);
@@ -1012,8 +1025,8 @@ sub who {
   # Treat this specially, because we get back a compiled regexp to pass to
   # the chunk routine.  This is safe because the core doesn't trust the
   # regexp it gave us any more than the one we originally passed.
-  ($ok, $err, $re) = $mj->dispatch('who_start', @stuff, $args);
-  Mj::Format::who($mj, $outfh, $outfh, 'text', @stuff, $re, '','', $ok, $err);
+  ($ok, $err, $re, $tmpl) = $mj->dispatch('who_start', @stuff, $args);
+  Mj::Format::who($mj, $outfh, $outfh, 'text', @stuff, $re, '','', $ok, $err, $tmpl);
 }
 
 =head2 g_add

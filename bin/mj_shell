@@ -190,7 +190,7 @@ exit 1;
 # A simple interactive routine.
 sub parse_interactive {
   my ($in, $pass) = @_;
-  my ($args, $cmd, $cmdline, $features, $go, $prompt, $res, $term);
+  my ($args, @arglist, $cmd, $cmdline, $features, $go, $prompt, $res, $term);
   require Term::ReadLine;
 
   $term = Term::ReadLine->new('Interactive Majordomo Shell Interface');
@@ -204,10 +204,22 @@ sub parse_interactive {
   print "Entering Majordomo interactive mode.\nType majordomo commands; the 'end' command exits.\n\n";
 
   while (defined($cmdline = $term->readline($prompt))) {
+    @arglist = ();
+    if ($cmdline =~ /^(.*)\s+\<\<\s*([A-Z]{3}[A-Z0-9]*)$/) {
+      $cmdline = $1;
+      my $stoptag = $2;
+      # here document
+      my $hereline;
+      while (1) {
+        $hereline = $term->readline("> ");
+        last if $hereline =~ /^$stoptag$/;
+        push @arglist, $hereline;
+      }
+    }
     print "\n";
     ($cmd, $args) = $cmdline =~ /(\S*)\s*(.*)/;
     if ($cmd) {
-      ($go, $res) = parse_command($cmd, $args, $pass);
+      ($go, $res) = parse_command($cmd, $args, $pass, @arglist);
       return 1 unless $go;
     }
     print "\n";
@@ -221,6 +233,7 @@ sub parse_command {
   my $command = shift;
   my $args    = shift;
   my $pass    = shift;
+  my @arglist = @_;
   my ($mode, $tlist);
   
   unless ($command) {
@@ -281,7 +294,7 @@ sub parse_command {
       Mj::TextOutput::configshow($mj, $command,
 				 $user, $pass, undef, "shell",
 				 undef, $fh,
-				 $mode, $list, $args);
+				 $mode, $list, $args, @arglist);
     $fh->close;
     if ($result) {
       my $modtime = (stat("$::WTMPDIR/mjs.$$.AAA"))[9];
@@ -336,7 +349,7 @@ sub parse_command {
 					 $user,
 					 $pass, undef, "shell",
 					 $in[0], \*STDOUT,
-					 $mode, $list, $args);
+					 $mode, $list, $args, @arglist);
     return (1, $result);
   }
 }

@@ -69,6 +69,7 @@ of them are:
  lastdom     - the last domain added to this destination
  stragglers  - a list of straggler addresses
  addrs       - the main address accumulation list
+ deferred    - addresses which fail during RCPT TO.
 
 =cut
 sub new {
@@ -174,6 +175,7 @@ sub new {
   $self->{'lastdom'}    = '';
   $self->{'stragglers'} = [];
   $self->{'addrs'}      = [];
+  $self->{'deferred'}   = [];
 
   $self;
 }
@@ -181,7 +183,7 @@ sub new {
 sub DESTROY {
   my $self = shift;
   my $log  = new Log::In 150;
-  $self->flush if scalar @{$self->{'addrs'}};
+  $self->flush;
 }
 
 use AutoLoader 'AUTOLOAD';
@@ -271,7 +273,9 @@ sub sendenvelope {
 
     # We're guaranteed to have an envelope.  Address it and fall through to
     # error processing of we couldn't.
-    $ok = $self->{'envelopes'}[$ch]->address($self->{'addrs'});
+    $ok = $self->{'envelopes'}[$ch]->address($self->{'addrs'}, $self->{'deferred'});
+    # Return now if no addresses remain to be processed.
+    return 0 if (!@{$self->{'addrs'});
     next if $ok == 0;
 
     if ($ok < 0 && @{$self->{'addrs'}} == 1) {
@@ -471,6 +475,7 @@ list is sorted and pushed out.
 sub flush {
   my $self = shift;
   my $log  = new Log::In 150;
+  my ($addr, @tmp);
 
   if (@{$self->{'stragglers'}}) {
     if (@{$self->{'addrs'}} >= $self->{'size'}) {
@@ -486,6 +491,21 @@ sub flush {
   if (@{$self->{'addrs'}}) {
     $self->sendenvelope;
 #    print "Flushing addrs...\n";
+    $self->{'addrs'} = [];
+  }
+  # deferred addresses failed during RCPT TO.
+  # They are processed last to minimize delays for mail delivered to 
+  # other recipients.  To lower retry times, each address
+  # is done individually.
+  if (@{$self->{'deferred'}}) {
+    # avoid infinite loop; sendenvelope may change the "deferred" list.
+    @tmp = @{$self->{'deferred'}};
+    while (@tmp) {
+      $addr = shift @tmp;
+      $self->{'addrs'} = [$addr];
+      $self->sendenvelope;
+    }
+    $self->{'deferred'} = [];
     $self->{'addrs'} = [];
   }
 }
@@ -517,7 +537,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.

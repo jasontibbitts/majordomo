@@ -139,7 +139,7 @@ my %commands =
    'archive' =>
    {
     'parser'   => [qw(email shell list real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
 		   'default' => 'allow',
 		   'legal'   => \%reg_legal,
@@ -447,7 +447,7 @@ my %commands =
     'parser'   => [qw(email shell list all real)],
     'dispatch' => {'top' => 1, 'noaddr' => 1},
     'access'   => {
-		   'default' => 'confirm',
+		   'default' => 'special',
 		   'legal'   =>\%reg_legal,
 		   'actions' =>\%actions,
 		  },
@@ -464,7 +464,7 @@ my %commands =
    },
    'who' =>
    {
-    'parser'   => [qw(email shell list real)],
+    'parser'   => [qw(email shell global list real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
 		   'default' => 'access',

@@ -27,7 +27,7 @@ use strict;
 
 use AutoLoader 'AUTOLOAD';
 
-=head2 inform(list, request, requester, user, cmdline, success, override)
+=head2 inform(list, request, requester, user, cmdline, success, override, comment)
 
 This is the general-purpose information routine.  It makes use of the
 inform variable, which should be the parsed version of the list config
@@ -51,15 +51,20 @@ status indicates whether the request failed (0), succeeded (>0) or stalled
 
 pass is true if a password was provided when the command was run.
 
-override is a flag; if true, no inform message should be mailed even if the
-configuration says it should be.
+override controls under what circumstances a message is sent to the owner:
+  positive: never
+  zero:     if the "inform" setting allows it
+  negative: always
+
+comment is an explanation of what took place.
 
 =cut
 sub inform {
-  my($self, $list, $req, $requ, $user, $cmd, $int, $stat, $pass, $over) = @_;
+  my($self, $list, $req, $requ, $user, $cmd, $int, $stat, $pass, $over, $comment) = @_;
   my $log  = new Log::In 150, "$list, $req";
 
   my $file = "$self->{'ldir'}/GLOBAL/_log";
+  my ($mailrequ);
 
   # Open the logfile
   my $fh = new Mj::File $file, '>>';
@@ -68,9 +73,17 @@ sub inform {
 
   $user ||= ''; $requ ||= '';
 
+  # Hack for post: The "requester" is the full headers, which we
+  # do not want to log.  Use unknown@anonymous instead.
+  $mailrequ = $requ;
+  if ($req eq 'post') {
+    $requ = "unknown\@anonymous";
+  }
+
   # Log the data
   my $line = join("\001", $list, $req, $requ, $user, $cmd, $int, $stat,
 		  $pass, $self->{'sessionid'}, time);
+  $line =~ tr/\n\t//d;
   $fh->print("$line\n") ||
     $log->abort("Cannot append to $file, $!");
 
@@ -89,8 +102,8 @@ sub inform {
   
   # Inform the owner (1 is log, 2 is inform); we inform on accepts
   # elsewhere.
-  if (($inf & 2) && !$over && $req ne 'reject') {
-    $self->_inform_owner($list, $req, $requ, $user, $cmd, $int, $stat, $pass);
+  if (((($inf & 2) && !$over) || ($over < 0)) && $req ne 'reject') {
+    $self->_inform_owner($list, $req, $mailrequ, $user, $cmd, $int, $stat, $pass, $comment);
   }
   1;
 }
@@ -107,7 +120,7 @@ have to be loaded for every log entry.
 =cut
 use MIME::Entity;
 sub _inform_owner {  
-  my($self, $list, $req, $requ, $user, $cmd, $int, $stat, $pass) = @_;
+  my($self, $list, $req, $requ, $user, $cmd, $int, $stat, $pass, $comment) = @_;
   my $log = new Log::In 150, "$list, $req";
 
   my $whereami = $self->_global_config_get('whereami');
@@ -139,6 +152,7 @@ sub _inform_owner {
 				     'STATDESC'  => $statdesc,
 				     'INTERFACE' => $int,
 				     'SESSIONID' => $self->{'sessionid'},
+                     'COMMENT'   => $comment,
 				     },
 				   );
   my $ent = build MIME::Entity

@@ -27,7 +27,7 @@ use Mj::File;
 use Mj::FileRepl;
 use Mj::SubscriberList;
 use Mj::AddressList;
-use Mj::Config qw(global_get parse_table);
+use Mj::Config qw(parse_table);
 use Mj::Addr;
 use Mj::Log;
 use vars (qw($addr %flags %noflags %classes %digest_types));
@@ -105,7 +105,7 @@ sub new {
   $subfile = $self->_file_path("_subscribers");
 
   # XXX This should probably be delayed
-  unless ($args{name} eq 'GLOBAL') {
+  unless ($args{name} eq 'GLOBAL' or $args{name} eq 'DEFAULT') {
     $self->{subs} = new Mj::SubscriberList $subfile, $args{'backend'};
   }
 
@@ -118,7 +118,7 @@ sub new {
   
   # We have to figure out our database backend for ourselves if we're
   # creating the GLOBAL list, since it couldn't be passed to us.
-  if ($args{name} eq 'GLOBAL') {
+  if ($args{name} eq 'GLOBAL' or $args{name} eq 'DEFAULT') {
     $self->{backend} = $self->config_get('database_backend');
   }
   $self;
@@ -215,7 +215,7 @@ sub remove {
   my ($a);
 
   if ($mode =~ /regex/) {
-    $a = $addr
+    $a = $addr;
   }
   else {
     $a = $addr->canon;
@@ -460,7 +460,7 @@ sub make_setting {
 	}
 	else {
 	  $arg  = $dig->{'default_digest'};
-	  $type = $dig->{$arg}{'type'};
+	  $type = $dig->{$arg}{'type'} || 'mime';
 	}
 	$class = "digest";
 	$carg1 = $arg;

@@ -8,7 +8,7 @@ Token.pm - conformation token functions for Majordomo
   $token = $mj->t_recognize($string);
 
   # Accept a token
-  ($ok, $mess) = $mj->t_accept($token);
+  ($ok, $mess) = $mj->t_accept($token, $mode);
 
 =head1 DESCRIPTION
 
@@ -421,10 +421,6 @@ The token data (to save a t_info call).
 
 The full results from the bottom half of the command, if a command was run.
 
-XXX When accepting a consult token, the user who made the request
-should get some notice that the token was accepted.  Right now the
-list owner sees the output, which is dumb.
-
 XXX Perhaps break out acceptance of a consult token so we don''t have
 to load the MIME stuff.
 
@@ -435,6 +431,7 @@ use Mj::MailOut;
 sub t_accept {
   my $self  = shift;
   my $token = shift;
+  my $mode = shift;
   my $log   = new Log::In 50, "$token";
   my (@out, $data, $ent, $ffunc, $func, $line, $mess, $ok, $outfh,
       $req, $sender, $tmp, $vict);
@@ -449,6 +446,14 @@ sub t_accept {
   if ($data->{'approvals'} > 0) {
     $self->{'tokendb'}->replace("", $token, $data);
     return (-1, '', $data, -1);
+  }
+  
+  # Allow "accept-archive" to store a message in the archive but
+  # not distribute it on to a mailing list.  Note that this could
+  # have interesting side effects, good and bad, if used in
+  # other ways.
+  if (defined $mode) {
+    $data->{'mode'} ||= $mode;
   }
 
   # All of the necessary approvals have been gathered.  Now, this may be a
@@ -484,17 +489,8 @@ sub t_accept {
   }
 
   $func = "$data->{'request'}";
-  $req  = $data->{'requester'};
-  $vict = $data->{'victim'};
-
-  # Convert addresses to Addr objects for the subfunction unless it is
-  # marked (in %Majordomo::functions) as not needing Addr objects.
-  unless ($Majordomo::functions{$func} &&
-	  $Majordomo::functions{$func}{noaddr})
-    {
-      $req  = new Mj::Addr($req);
-      $vict = new Mj::Addr($vict);
-    }
+  $req  = new Mj::Addr($data->{'requester'});
+  $vict = new Mj::Addr($data->{'victim'});
   
   $func = "_$func";
   @out = $self->$func($data->{'list'},
@@ -523,63 +519,64 @@ sub t_accept {
   # bodyhandle.  Then we send it.  Then we return some token info and
   # pretend we did a 'consult' (in $rreq) command so that the accept
   # routine will format it as we want for the reply to the owner.
-  
-  # First make a tempfile
-  $tmp = $self->_global_config_get("tmpdir");
-  $tmp = "$tmp/mj-tmp." . Majordomo::unique();
-  $outfh = new IO::File ">$tmp";
+  if ($data->{'request'} ne 'post' 
+      ||
+      $self->{'lists'}{$data->{'list'}}->flag_set('ackimportant', $vict)
+      ||
+      $self->{'lists'}{$data->{'list'}}->flag_set('ackall', $vict))
+      {
+ 
+    # First make a tempfile
+    $tmp = $self->_global_config_get("tmpdir");
+    $tmp = "$tmp/mj-tmp." . Majordomo::unique();
+    $outfh = new IO::File ">$tmp";
 
-  # Print some introductory info into the file, so the user is not
-  # surprised.  XXX This all should probably be in a file somewhere.
-  # Even better, this should somehow be settable by the owner, either
-  # when the request is approved or when the original comsult action
-  # was generated.
-  if ($data->{'request'} eq 'post') {
-    print $outfh "The list owner has approved your message.\n";
-    print $outfh "It is being distributed now.\n";
-  }
-  else {
+    # Print some introductory info into the file, so the user is not
+    # surprised.  XXX This all should probably be in a file somewhere.
+    # Even better, this should somehow be settable by the owner, either
+    # when the request is approved or when the original comsult action
+    # was generated.
     print $outfh "The list owner has approved your request.\n";
     print $outfh "Here are the results:\n\n";
-  }    
 
-  # Now pass those results to the formatter and have it spit its
-  # output to our tempfile.
-  $ffunc = "Mj::Format::$data->{'request'}";
-  my $ret;
-  {
-    no strict 'refs';
-    $ret = &$ffunc($self, $outfh, $outfh, 'text',
-		   $data->{'requester'},
-		   '', '', 'core',
-		   $data->{'cmdline'},
-		   $data->{'mode'},
-		   $data->{'list'},
-		   $data->{'victim'},
-		   $data->{'arg1'},
-		   $data->{'arg2'},
-		   $data->{'arg3'},
-		   @out,
-		  );
+    # Now pass those results to the formatter and have it spit its
+    # output to our tempfile.
+    $ffunc = "Mj::Format::$data->{'request'}";
+    my $ret;
+    {
+      no strict 'refs';
+      $ret = &$ffunc($self, $outfh, $outfh, 'text',
+             $data->{'requester'},
+             '', '', 'core',
+             $data->{'cmdline'},
+             $data->{'mode'},
+             $data->{'list'},
+             $data->{'victim'},
+             $data->{'arg1'},
+             $data->{'arg2'},
+             $data->{'arg3'},
+             @out,
+            );
+    }
+    close $outfh;
+
+    $sender = $self->_list_config_get($data->{'list'}, "sender");
+    
+    # Construct a message.  (MIME-tools is cool.)
+    $ent = build MIME::Entity
+      (
+       Path     => $tmp,
+       Filename => undef,
+       -To      => $data->{'victim'},
+       -From    => $sender, 
+       -Subject => "Results from delayed command",
+      );
+
+    # Mail out what we just generated
+    $self->mail_entity($sender, $ent, $data->{'victim'});
+
+    $ent->purge;
   }
-  close $outfh;
-
-  $sender = $self->_list_config_get($data->{'list'}, "sender");
-  
-  # Construct a message.  (MIME-tools is cool.)
-  $ent = build MIME::Entity
-    (
-     Path     => $tmp,
-     Filename => undef,
-     -To      => $data->{'victim'},
-     -From    => $sender, 
-     -Subject => "Results from delayed command",
-    );
-
-  # Mail out what we just generated
-  $self->mail_entity($sender, $ent, $data->{'victim'});
-
-  $ent->purge;
 
   # Now convince the formatter to give the accepter some info about
   # the token, but not the command return.

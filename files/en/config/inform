@@ -18,6 +18,7 @@ and actions is a comma separated list of:
   inform: inform the owner immediately
 
 ignore overrides the others.
+report is not yet implemented.
 
 If a request is not specified, the default behavior for subscribe and
 unsubscribe is to inform on success, report otherwise.  The default

@@ -62,6 +62,9 @@ sub create_dirs_dom {
   safe_mkdir("$l/$d/GLOBAL/spool",       0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$l/$d/GLOBAL/files",       0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$l/$d/GLOBAL/files/public",0777 & ~oct($um), $uid, $gid);dot;
+  safe_mkdir("$l/$d/DEFAULT",             0777 & ~oct($um), $uid, $gid);dot;
+  safe_mkdir("$l/$d/DEFAULT/files",       0777 & ~oct($um), $uid, $gid);dot;
+  safe_mkdir("$l/$d/DEFAULT/files/public",0777 & ~oct($um), $uid, $gid);dot;
 
   # Make the dotfiles so they show up properly in an index
   open DF, ">$l/$d/GLOBAL/files/.spool"
@@ -125,24 +128,25 @@ sub do_default_config {
 
   while (defined($_ = <MASTER>)) {
     # Do substitutions
-    s!(^ \'master_password\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{master_password}$2!;
-    s!(^ \'whereami\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{whereami}$2!;
-    s!(^ \'whoami\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{whoami}$2!;
-    s!(^ \'whoami_owner\'.*)DEFAULT(.*)!$1$owner$2!;
-    s!(^ \'owners\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{owner}$2!;
-    s!(^ \'sender\'.*)DEFAULT(.*)!$1$owner$2!;
+    s!(^ \'master_password\'.*)SITE_DFLT(.*)!$1$config->{'domain'}{$dom}{master_password}$2!;
+    s!(^ \'whereami\'.*)SITE_DFLT(.*)!$1$config->{'domain'}{$dom}{whereami}$2!;
+    s!(^ \'resend_host\'.*)SITE_DFLT(.*)!$1$config->{'domain'}{$dom}{whereami}$2!;
+    s!(^ \'whoami\'.*)SITE_DFLT(.*)!$1$config->{'domain'}{$dom}{whoami}$2!;
+    s!(^ \'whoami_owner\'.*)SITE_DFLT(.*)!$1$owner$2!;
+    s!(^ \'owners\'.*)SITE_DFLT(.*)!$1$config->{'domain'}{$dom}{owner}$2!;
+    s!(^ \'sender\'.*)SITE_DFLT(.*)!$1$owner$2!;
     if ($config->{cgi_bin}) {
-      s!(^ \'confirm_url\'.*)DEFAULT(.*)!$1$config->{cgi_url}mj_confirm?d=$dom&t=\$TOKEN$2!;
+      s!(^ \'confirm_url\'.*)SITE_DFLT(.*)!$1$config->{cgi_url}mj_confirm?d=$dom&t=\$TOKEN$2!;
     }
     else {
-      s!(^ \'confirm_url\'.*)DEFAULT(.*)!$1no server configured$2!;
+      s!(^ \'confirm_url\'.*)SITE_DFLT(.*)!$1no server configured$2!;
     }
     $tmp = $config->{ignore_case} ? "'ignore case'" : '';
     s!(^ \'addr_xforms\'.*\[)(\].*)!$1$tmp$2!;
 
     for $i (qw(tmpdir site_name)) {
       $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};
-      s!(^ \'$i\'.*)DEFAULT(.*)!$1$arg$2!;
+      s!(^ \'$i\'.*)SITE_DFLT(.*)!$1$arg$2!;
     }
     print DEFS $_;
     dot;
@@ -193,6 +197,7 @@ sub do_site_config {
 	   'mta_options'        => $mtaopts,
 	   'mta_separator'      => $config->{'mta_separator'},
 	   'cgi_bin'            => $config->{'cgi_bin'},
+	   'cgi_url'            => $config->{'cgi_url'},
 	   'queue_mode'         => $config->{'queue_mode'},
 	  };
 

@@ -28,6 +28,7 @@ use vars (qw(%header %supported));
 	      sendmail => 'sendmail',
 	      qmail    => 'qmail',
 	      exim     => 'exim',
+	      postfix  => 'postfix',
 	     );
 
 %header = (
@@ -107,6 +108,35 @@ sub qmail {
   return 1;
 }
 
+=head2 postfix
+
+This is the main interface to postfix configuration manipulation
+functionality.
+
+The code is very similar to that for sendmail.
+
+=cut
+sub postfix {
+  my %args = @_;
+  my $log = new Log::In 150;
+  my $dom = $args{domain};
+
+  if ($args{options}{maintain_config}) {
+    $args{aliasfile} = "$args{topdir}/ALIASES/mj-alias-$dom";
+    if ($args{options}{maintain_vut}) {
+      $args{vutfile} = "$args{topdir}/ALIASES/mj-vut-$dom"
+    }
+  }
+
+  if ($args{regenerate}) {
+    return Mj::MTAConfig::Sendmail::regen_aliases(%args);
+  }
+  elsif ($args{'delete'}) {
+    return Mj::MTAConfig::Sendmail::del_alias(%args);
+  }
+  Mj::MTAConfig::Sendmail::add_alias(%args);
+}
+
 package Mj::MTAConfig::Sendmail;
 use Mj::File;
 use Mj::FileRepl;
@@ -134,6 +164,8 @@ sub add_alias {
   my $who  = $args{whoami} || 'majordomo'; 
   my $umask= umask; # Stash the umask away
 
+  return '' if ($list eq 'DEFAULT');
+
   if ($args{debug}) {
     $debug = " -v$args{debug}";
   }
@@ -155,7 +187,7 @@ sub add_alias {
 # Aliases for Majordomo at $dom
 $who$vut:       "|$bin/mj_enqueue -m -d $dom$debug"
 $who$vut-owner: "|$bin/mj_enqueue -o -d $dom$debug"
-owner-$who$vut: $who$vut-owner,
+owner-$who$vut: $who$vut-owner
 # End aliases for Majordomo at $dom
 EOB
 
@@ -172,7 +204,7 @@ EOB
 # Aliases for Majordomo at $dom
 $who$vut:       "|$bin/mj_email -m -d $dom$debug"
 $who$vut-owner: "|$bin/mj_email -o -d $dom$debug"
-owner-$who$vut: $who$vut-owner,
+owner-$who$vut: $who$vut-owner
 # End aliases for Majordomo at $dom
 EOB
 
@@ -192,7 +224,7 @@ EOB
 $list$vut:         "|$bin/mj_enqueue -r -d $dom -l $list$debug"
 $list$vut-request: "|$bin/mj_enqueue -q -d $dom -l $list$debug"
 $list$vut-owner:   "|$bin/mj_enqueue -o -d $dom -l $list$debug"
-owner-$list$vut:   $list-owner,
+owner-$list$vut:   $list-owner
 # End aliases for $list at $dom
 EOB
       $vblock = <<"EOB";
@@ -210,7 +242,7 @@ EOB
 $list$vut:         "|$bin/mj_email -r -d $dom -l $list$debug"
 $list$vut-request: "|$bin/mj_email -q -d $dom -l $list$debug"
 $list$vut-owner:   "|$bin/mj_email -o -d $dom -l $list$debug"
-owner-$list$vut:   $list-owner,
+owner-$list$vut:   $list-owner
 # End aliases for $list at $dom
 EOB
       $vblock = <<"EOB";

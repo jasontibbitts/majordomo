@@ -164,7 +164,7 @@ sub remove {
   my $key  = shift;
   my $log  = new Log::In 120, "$self->{filename}, $mode, $key";
 
-  my (@nuke, @out, $data, $db, $fh, $match, $status, $try, $value);
+  my (@nuke, @out, $data, $db, $fh, $match, $status, $try, $value, @deletions);
   $db = $self->_make_db;
   return unless $db;
 
@@ -195,11 +195,15 @@ sub remove {
       )
     {
       if (_re_match($key, $try)) {
-	$db->del($try, R_CURSOR);
-	push @out, ($try, $self->_unstringify($value));
-	last if $mode !~ /allmatching/;
+        push @deletions, $try;
+        push @out, ($try, $self->_unstringify($value));
+        last if $mode !~ /allmatching/;
       }
     }
+  
+  for $try (@deletions) {
+    $db->del($try, R_CURSOR);
+  }
 
   if (@out) {
     return @out;
@@ -231,7 +235,7 @@ sub replace {
   my $key   = shift;
   my $field = shift;
   my $value = shift;
-  my (@out, $k, $match, $data, $status, $v);
+  my (@out, $i, $k, $match, $data, $status, $v, @changes);
   $value = "" unless defined $value;
   my $log = new Log::In 120, "$self->{filename}, $mode, $key, $field, $value";
   my $db  = $self->_make_db;
@@ -274,14 +278,23 @@ sub replace {
 	else {
 	  $data = $self->_unstringify($v);
 	  $data->{$field} = $value;
-	}
-
-	# Since we're not changing the key, we can just put the new data
-	$db->put($k, $self->_stringify($data));
-
-	push @out, $k;
-	last if $mode !~ /allmatching/;
+    }
+   
+    # For some DB implementations, changing the data affects the
+    # cursor.  Work around this by saving keys and values. 
+    # An ordinary array is used because DB key/value pairs are
+    # not necessarily unique.
+        push @changes, $k, $self->_stringify($data);
+        push @out, $k;
+        last if $mode !~ /allmatching/;
       }
+    }
+
+    for ($i = 0; defined($changes[$i]); $i+=2) {
+      $db->del($changes[$i], R_CURSOR);
+    }
+    while (($k, $v) = splice(@changes, 0, 2)) {
+      $db->put($k, $v);
     }
 
   if (@out) {

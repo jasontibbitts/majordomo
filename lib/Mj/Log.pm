@@ -63,7 +63,7 @@ use strict;
 use vars qw($VERSION $log_entries $log_level);
 
 # Modules
-use Sys::Syslog;
+use Sys::Syslog qw(:DEFAULT setlogsock);
 use IO::File;
 use Carp;
 
@@ -144,6 +144,7 @@ sub add {
     # Nothing to do.
   }
   elsif ($dest{'method'} eq 'syslog') {
+    setlogsock('unix');
     openlog($dest{id}, 'pid', $dest{subsystem});
   }
   else {
@@ -280,9 +281,9 @@ sub startup_time {
 
   my($user, $system) = (times)[0..1];
   
-  $user = sprintf("%.2f", $user);
-  $system = sprintf("%.2f", $system);
-  $self->message(6, "info", "Compilation took " . $user . "s, " . $system . "u");
+  $user = sprintf("%.3f", $user);
+  $system = sprintf("%.3f", $system);
+  $self->message(6, "info", "Compilation took " . $user . "u, " . $system . "s");
 }
 
 =head2 in(level, arg, priority, message)
@@ -326,7 +327,7 @@ sub out {
   my ($level, $prio, $message, $arg) = @{$state}[0..2];
   my $elapsed = time() - @{$state}[3];
   
-  $elapsed = sprintf("%.2f", $elapsed);
+  $elapsed = sprintf("%.3f", $elapsed);
   
   $self->message($level, $prio, "$message..$extra, took $elapsed sec", undef, "exit");
 }
@@ -427,7 +428,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.

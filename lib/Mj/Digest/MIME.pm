@@ -144,7 +144,7 @@ sub done {
   # Build index part
   $index = build MIME::Entity
     (Type        => $self->{preindex}{data}{'c-type'}    || 'text/plain',
-     Desctiption => $self->{preindex}{data}{description} || 'Index',
+     Description => $self->{preindex}{data}{description} || 'Index',
      Data        => $self->{'index'},
     );
   $self->{top}->add_part($index);

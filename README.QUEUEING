@@ -47,7 +47,7 @@ processed.
 
 Format of the queue directory:
 
-  $TMPDIR/queue/xx/domain/yy/function/queue_file
+  $TMPDIR/QUEUE/xx/domain/yy/function/queue_file
 
   xx = domain priority
   yy = list priority

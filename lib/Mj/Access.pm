@@ -1111,6 +1111,44 @@ sub _d_subscribe {
   $log->abort("Can't handle policy: $policy");
 }
 
+# Check the unsubscribe_policy variable
+sub _d_unsubscribe {
+  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
+      $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
+  my $log = new Log::In 150, "";
+  my $policy = $self->_list_config_get($list, 'unsubscribe_policy');
+  
+  # We'll need this to pass on
+  shift @_;
+
+  # If the user has supplied their password, we never confirm.  We also
+  # don't have to worry about mismatches, since we know we saw the victim's
+  # password.  So we allow it unless the list is closed, and we ignore
+  # confirm settings.
+  if ($args{'user_password'}) {
+    return $self->_a_allow(@_)   if $policy =~ /^(auto|open)/;
+    return $self->_a_consult(@_) if $policy =~ /^closed/;
+  }
+
+  # Now the non-user-approved cases.  The easy ones:
+  return $self->_a_allow(@_)     if $policy eq 'auto';
+  return $self->_a_confirm(@_)   if $policy eq 'auto+confirm';
+  return $self->_a_consult(@_)   if $policy eq 'closed';
+  return $self->_a_conf_cons(@_) if $policy eq 'closed+confirm';
+  
+  # Now, open.  This depends on whether there's a mismatch.
+  if ($args{'mismatch'}) {
+    return $self->_a_consult(@_)   if $policy eq 'open';
+    return $self->_a_conf_cons(@_) if $policy eq 'open+confirm';
+  }
+  return $self->_a_allow(@_)   if $policy eq 'open';
+  return $self->_a_confirm(@_) if $policy eq 'open+confirm';
+
+  # The variable was syntax-checked when it was set, so we can just
+  # blow up if we get here.
+  $log->abort("Can't handle policy: $policy");
+}
+
 =head1 COPYRIGHT
 
 Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development

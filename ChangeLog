@@ -1,3 +1,627 @@
+2000-03-21  Michael Yount  <csf@moscow.com>
+
+	* Makefile.PL:
+	Remove ".pm" from man page names.
+
+	* lib/Mj/Deliver/Dest.pm, lib/Mj/Deliver/Envelope.pm:
+	Change handling of failures while issuing RCPT TO commands during
+	an SMTP session:  remove the failing address from the list of
+	recipients, and place it in a "deferred" array.  Addresses in
+	the deferred array are handled after all other recipients, or
+	by an explicit call to Mj::Deliver::Dest::flush().
+
+2000-03-17  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Archive.pm:
+	Make return values consistent.  Instead of returning just the data,
+	return an array of list references.  Each list reference contains
+	the number of the message, followed by the data for the message.
+
+2000-03-11  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Token.pm:
+	(t_accept) Use correct variable to determine if a token
+	refers to a posted message.
+
+2000-03-10  Brock Rozen <brozen@torah.org>
+
+	* setup/ask_domain.pl:
+	Insist on a non-blank master password.
+
+2000-03-10  Sudhakar Chandrasekharan <thaths@netscape.com>
+
+	* setup/ask_basic.pl, lib/Mj/MTAConfig.pm:
+	Add support for the Postfix MTA.
+
+	* setup/mta_postfix.pl:
+	Ask questions about alias configuration during installation.
+
+	* README.POSTFIX:
+	Discuss how to configure Mj2 to work properly with the
+	Postfix MTA.
+
+2000-03-07  Darren Stalder  <torin@daft.com>
+ 
+	* lib/Mj/Config.pm
+	(parse_list_array) Add a newline before the 'use Majordomo qw(...);'
+	so that pod2man likes it better.  POD works in paragraphs and
+	there wasn't a blank line before the use.
+
+	* MANIFEST
+	Add the appropriate files so that MakeMaker's fullcheck doesn't
+	spit out:
+	Not in MANIFEST: README.CONVERSION
+	Not in MANIFEST: convertlist.pl
+	Not in MANIFEST: files/en/who_subscriber
+
+2000-02-26  Michael Yount  <csf@moscow.com>
+
+	* t/shell.t:
+	The results of the who command are now indented only two spaces.
+	Adjust the expected output to follow suit.
+
+	* lib/Mj/Token.pm:
+	(t_accept) Only use "ackimportant" and "ackall" settings, to determine
+	if a reply should be sent upon token approval, if the request was
+	'post'.
+
+	* lib/Mj/TextOutput.pm:
+	(archive) Use the archive_start subroutine.
+
+	(who) Use the output format template.
+
+	* lib/Mj/Format.pm:
+	(archive) Use iterator function (archive_chunk).  At present, the
+	chunk size is unlimited; options to configure it will be considered
+	later.
+
+	(who) Move template file handling to Majordomo::_who . Supply
+	default output format if a template is not present.
+
+	* lib/Mj/CommandProps.pm:
+	Make the archive command an iterated function.
+
+	* lib/Majordomo.pm:
+	(archive) Change archive to use the _start/_chunk/_done sequence.
+
+	(who_start) Include regexp in list_access_check so the correct result
+	is returned if the command is stalled.
+
+	(_who) Obtain the subscriber listing template from a file.  A file
+	is used instead of a configuration option for purposes of security.
+
+	* bin/mj_shell:
+	Deal correctly with blank lines in here documents.
+
+2000-02-24  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/TextOutput.pm:
+	(accept, reject) Make argument handling more consistent with other
+	subroutines:  if args and arglist are present, use both instead of
+	one or the other.
+
+	* lib/Mj/Archive.pm:
+	Make return values consistent.  Not only the message numbers but
+	also the message data will be returned by first_n, last_n, and
+	other subroutines that return a list of messages.
+
+	* lib/Majordomo.pm:
+	(_archive) Remove digest message headers and trailer when using
+	immediate mode.
+
+	(lists) Add "lists-aux" mode, which causes info about auxiliary lists
+	to be returned along with data on ordinary lists.
+
+	* files/en/help/lists:
+	Document the new "aux" mode, which displays auxiliary lists
+	in addition to ordinary lists.
+
+	* bin/mj_shell:
+	Add support for here documents.
+
+2000-02-22  Michael Yount  <csf@moscow.com>
+
+	* files/en/who_registry:
+	Template for results from the "who-enhanced" command when used
+	with the GLOBAL list.
+
+	* files/en/who_subscriber:
+	Template for results from the "who-enhanced" command.
+
+	* lib/Mj/Resend.pm:
+	(_post) Reverse use of truncate() before unlinking a queue or
+	spool file.
+	(post) Only substitute variables in a file's description if
+	the description exists.
+
+	* lib/Mj/Format.pm:
+	(who) Use template files to make who-enhanced configurable.
+	Majordomo::who returns a hash reference with all of the data
+	visible to the person making the request.  If an administrative
+	password is not used, only the "fulladdr" key will have a
+	defined value.  Otherwise, all data from the appropriate RegList
+	or SubscriberList may be used in the output.  The results
+	are configured by the files who_subscriber and who_registry
+	under the SITE directory.
+
+	* lib/Majordomo.pm:
+	(who_chunk) Return a hash reference, to allow the results of
+	the who-enhanced command to be configurable.
+
+	* files/INDEX.pl:
+	Add who_registry and who_subscriber, templates for results for
+	the "who-enhanced" command.
+
+2000-02-21  Michael Yount  <csf@moscow.com>
+
+	* bin/mj_queuerun:
+	Save the result of both calls to stat().
+
+	* lib/Mj/Digest/MIME.pm:
+	Fix typo: Desctiption -> Description
+
+	* lib/Mj/TextOutput.pm:
+	(configshow) Check for existence of $comment before printing it.
+
+	* lib/Majordomo.pm:
+	(who) Add "enhanced" mode.  For the GLOBAL list, enhanced mode
+	will show the lists to which the address is subscribed.  For
+	ordinary lists, enhanced mode will show the subscriber flags
+	and mail mode.  This mode is only available to list and
+	site administators.
+
+	* files/en/help/who:
+	Mention the new "enhanced" mode, which shows subscriber flags and
+	mail mode for ordinary lists, and shows the lists to which an
+	address is subscribed when the GLOBAL list is used.
+
+	* files/en/help/admin_commands:
+	Note that here document tags require three capital letters followed
+	by any number of capital letters and digits.
+
+	* bin/mj_wwwadm:
+	Move escape() inline for slight speed improvement.
+
+	* bin/mj_queuerun:
+	Compare file handle status and file status to see if another queue
+	runner accessed the queue file between open() and flock(), as suggested
+	by Dave Wolfe.
+
+2000-02-17  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Resend.pm:
+	(post) Do not explicitly close the file handle after parsing
+	the queue file.  Doing so causes a race condition on systems
+	configured for SysV-style file locking.
+
+	(_post) Truncate the queue file to zero size to prevent
+	additional queue runners from processing it.
+
+	* lib/Majordomo.pm:
+	(dispatch) Use a value of 2 to indicate "nolog"; -1 is now
+	used to always send mail to the owner.
+
+	(_archive) Read files in chunks of 4096 octets instead of line-by-line.
+
+	* files/en/config/inform:
+	Note that the "report" action is not yet implemented.
+
+	* files/en/config/default_flags, files/en/help/configset_default_flags:
+	Add "rewritefrom" to the list of flags.
+
+	* bin/mj_wwwadm:
+	Limit the information printed in the session file.
+
+	Use "mjwww" as an ID for logging.
+
+	Select the name of the previous command in the command menu.
+
+	* bin/mj_queuerun:
+	Truncate queue file before unlinking to reduce likelihood of
+	a race condition in file locking.
+
+2000-02-13  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Resend.pm:
+	(post) Fail gracefully if the message could not be parsed.
+	The site administrator is informed, and the message is
+	moved from the queue to the temporary directory.
+
+	* lib/Mj/Format.pm:
+	(post) Change "Headers" to "Details" to accommodate error messages
+	if the posted message could not be parsed.
+
+	* lib/Mj/Archive.pm:
+	(get_to_file) Increase chunk size for reading from 1000 to 4096
+	octets.  This makes the archive command run a little faster.
+
+	* lib/Majordomo.pm:
+	(archive) Combine code for archive-index and archive-get.  The
+	only differences between the two are the digest format and the
+	subject header.
+
+	* bin/mj_wwwadm:
+	Use mj_wwwadm.debug instead of syslog for logging.
+
+	Add index-recursive and get to the list of commands.
+
+	* lib/Majordomo.pm:
+	(trigger) No action is needed for the DEFAULT list.
+
+	* lib/mj_cf_data.pl:
+	Reverse change for debug: variable must remain visible, or the default
+	debugging level will not be set during resend.
+
+	* bin/mj_wwwadm:
+	Use Majordomo object reference when calling legal_list_name.
+
+2000-02-12  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/TextOutput.pm:
+	(show) Using or ("||") caused @arglist to be treated as a scalar, making
+	the show command inoperable with a here document specifying addresses.
+
+	* lib/Mj/Resend.pm:
+	(post, _post) Return the full headers.  The return value is used by
+	Mj::Format::post and Mj::Inform::inform, to inform list owners and
+	to send acknowledgements to users with the "ack" flag set.
+
+	* lib/Mj/List.pm:
+	(make_setting) Compensate for missing digest type to avoid
+	"uninitialized" warning.
+
+	* lib/Mj/Inform.pm:
+	Use "unknown@anonymous" as the requester instead of logging the
+	full mail headers.
+
+	* lib/Mj/Format.pm:
+	(post) Print line indicating impending message headers.
+
+	* bin/mj_wwwadm:
+	Added check for valid list name.
+
+	* bin/mj_wwwadm:
+	Correctly check for the presence of the command requested in
+	the symbol table of Mj::TextOutput.
+
+	Remove unused variables.
+
+2000-02-12  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Digest/Build.pm:
+	(build) Remove temporary files after the digests have been created.
+
+	* lib/Mj/TextOutput.pm:
+	(auxremove) Remove the user from the auxiliary list if no address is
+	supplied.  This makes auxremove consistent with auxadd.
+
+	* lib/Mj/Resend.pm:
+	Correct typo in hash key: substiute -> substitute.
+
+	* bin/mj_wwwadm:
+	Set variables to avoid "uninitialized" errors.
+
+	Add the showtokens and subscribe-nowelcome commands to the command list.
+
+	Avoid using false address with "auxadd" and "auxremove."
+
+	Remove use of GET, which poses potential security problems.
+
+	Do not run the showtokens command a second time, if it was
+	requested by the user.
+
+2000-02-11  Michael Yount  <csf@moscow.com>
+
+	* t/shell.t:
+	Create a directory for the DEFAULT list when running tests.
+
+	* setup/setup_func.pl:
+	Store cgi_url in the SITE configuration script.
+
+	* lib/Mj/TextOutput.pm:
+	(configshow) Continue collecting information even if an invalid variable
+	is specified.
+
+	* lib/Majordomo.pm:
+	(_archive) Add "immediate" mode handling for the archive-index command,
+	which allows the message index to be printed to STDOUT instead of
+	being mailed.
+
+	* postinstall:
+	Allow mj_wwwadm, the adminstrative prototype CGI script, to be installed.
+
+	* Makefile.PL:
+	Add mj_wwwadm to the list of setuid scripts.
+
+	* MANIFEST:
+	Add mj_wwwadm administrative CGI prototype.
+
+	* bin/mj_wwwadm:
+	Prototype for WWW administrative interface.
+
+2000-02-10  Michael Yount  <csf@moscow.com>
+
+	* lib/Majordomo.pm:
+	(who) Remove the last argument from list_access_check.  This allows
+	the who command to work properly with list-specific passwords.
+
+	* files/en/help/tokeninfo:
+	Repair two typos.
+
+	* files/en/help/tokeninfo:
+	Describe how majordomo uses tokens, and thereby why the tokeninfo
+	command is useful.
+
+	* files/en/help/showtokens:
+	Add tokeninfo to the "see also" list.
+
+	* files/en/help/post:
+	Suggest the use of the post command to edit moderated messages.
+
+	Document the post-archive command, which allows a message to
+	be stored in the list archive but not distributed on the mailing list.
+
+	* files/en/help/accept:
+	Document the accept-archive command, which allows a posted message to
+	be stored in the list archive but not distributed on the list.
+
+2000-02-08  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/TextOutput.pm:
+	(configdef) Allow multiple variables to be set to their default
+	values with one command, similar to the configshow command.
+
+	* lib/Mj/Resend.pm:
+	(post) Delay moving the unspooled message to the spool directory
+	until after an acknowledgement is sent.  Previously, the
+	acknowledgement would not be sent because the original message,
+	which is expected to be unspooled, could not be attached to
+	the acknowledgement.
+
+	* lib/Mj/List.pm:
+	(new) Set database_backend for the DEFAULT list to allow the
+	"who DEFAULT" command to work without error.  It returns
+	an empty list.
+
+	* lib/mj_cf_data.pl:
+	Make the debug variable invisible and the digests variable visible
+	to unprivileged people.
+
+	* lib/Majordomo.pm:
+	(which) Remove total hits and pattern length checks to make
+	the "which" command usable by unprivileged people.
+
+	* files/en/help/who:
+	Make minor correction to mj_shell example.
+
+	* files/en/help/which:
+	Indicate how passwords affect the which command.
+
+	* files/en/help/set:
+	Document the use of the rewritefrom flag.
+
+	* files/en/help/filesync:
+	Alert the reader that the filesync command is no longer implemented.
+
+	* files/en/help/configset:
+	Make minor language changes and explain the relationship of
+	a list's settings to the GLOBAL settings.
+
+	List the variables that require global privileges to set.
+
+	* files/en/help/configdefault:
+	Explain how the configdefault command works, including the
+	setting of default values in the cf_defs_* scripts and the
+	DEFAULT mailing list.
+
+	* files/en/help/config:
+	Note that the config command is a synonym for the configshow command,
+	and include the text of the configshow command.
+
+	* files/en/help/auxwho:
+	Describe sublists briefly and refer the reader to the "auxadd"
+	help file.
+
+	* files/en/help/auxadd:
+	Demonstrate the use of auxiliary lists of other mailing lists
+	in the access rules.
+
+	* files/en/help/archive:
+	Document the archive-get and archive-index commands.
+
+	* TODO:
+	Remove list:sublist and rewritefrom documentation from ToDo list.
+
+2000-02-06  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/MTAConfig.pm:
+	Avoid creating a mail alias for the DEFAULT list.
+
+	* lib/Majordomo.pm:
+	Display the From: Date: and Subject: headers when informing a
+	list owner about a posted message.
+
+	* files/en/help/auxadd:
+	Describe how sublists are used to categorize e-mail addresses.
+
+	* files/en/help/advertise:
+	Describe how "advertise" relates to the access_rules configuration setting.
+
+	* files/en/help/access:
+	Describe how "access" relates to the access_rules configuration setting.
+
+	* TODO:
+	Remove the DEFAULT list; it has been implemented.
+
+	* README.QUEUEING:
+	The queue files are stored in the QUEUE directory.
+
+2000-02-04  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Token.pm:
+	(t_accept) Use an Mj::Addr instead of a plain address when calling flag_set().
+
+	* lib/Mj/Resend.pm:
+	If a spool file is missing, inform majordomo-owner with "emergency priority."
+
+	* lib/Mj/Log.pm:
+	Use a unix socket when logging with syslog.  This saves needless DNS lookups
+	and makes mj_shell run faster, especially when a high debugging level
+	is used.
+
+	* lib/Mj/Inform.pm:
+	The override flag, if set negative, will cause the owner always to
+	be informed via e-mail.  This is useful for emergency notifications
+	for failures such as missing spool files.
+
+	* lib/Mj/Format.pm:
+	A stalled post is now distinguished from a failed post.
+
+	* lib/Mj/CommandProps.pm:
+	The who command may now be used to search the address registry
+	via the GLOBAL list.
+
+	* lib/Majordomo.pm:
+	The tokeninfo command will now return the full spool file for a posted message.
+
+	Using the who command on the GLOBAL list will obtain entries from the
+	address registry.
+
+2000-01-29  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Token.pm:
+	(t_accept) Generalize output message to victims of an accepted consult
+	token; the details now provided in the return values from Mj::Resend::post
+	and _post make them unnecessary.
+
+	* lib/Mj/TextOutput.pm:
+	(post) Adjust arguments to allow the post command to work properly.
+
+	* lib/Mj/Resend.pm:
+	Add informative details to return values in the post and _post subroutines.
+
+	* lib/Mj/Inform.pm:
+	Remove tabs and line feeds from lines saved to the log file.
+
+	* lib/Majordomo.pm:
+	Added empty comment argument to calls to Mj::Inform::inform.
+
+2000-01-28  Michael Yount  <csf@moscow.com>
+
+	* lib/Majordomo.pm:
+	Accommodate DEFAULT list.
+
+	Remove white space in variable names to make configshow more
+	resilient.
+
+	The archive-get and archive-index commands now work.
+
+	Unlocking the list config file allows the owners variable
+	to be updated properly by the createlist command, and allows
+	the configdef command to work at all.
+
+	* setup/setup_func.pl:
+	Changed DEFAULT to SITE_DFLT for variable substitutions to allow
+	the DEFAULT mailing list to be mentioned by name.
+
+	* lib/Mj/SimpleDB/DB.pm:
+	Work around cursor inconsistency between DB_File and some versions
+	of Berkeley DB.  Previously, it was impossible to build Mj2 on
+	a FreeBSD 3.2 system because of this inconsistency.
+
+	* lib/Mj/Digest/Build.pm:
+	Include message number in subject_author index digests.
+
+	* lib/Mj/Token.pm:
+	Allow an optional mode for the accept command.  In particular,
+	this is used to allow "accept-archive" to be used to send
+	a post to the message archive but not have it distributed on
+	the mailing lists.  Other uses may be found for this feature.
+
+	Send an error message to the author if a posted message could not be
+	distributed on a mailing list.
+
+	* lib/Mj/TextOutput.pm:
+	Allow spaces to be used in argument lists for the configshow command.
+
+	* lib/Mj/Resend.pm:
+	Move the unlink command for spool files and add error checking
+	for potential missing spool files.
+
+	Add check for "archive" mode, which causes a message to be stored
+	in the archive, but not distributed on the mailing list.
+
+	* lib/Mj/MailOut.pm:
+	Use majordomo-owner as the envelope sender when mailing messages
+	to list owners.  This prevents a mail loop from occurring if one
+	of the list owner addresses fails.
+
+	* lib/Mj/Log.pm:
+	Change debugging messages to use 3 digits after the decimal point
+	when showing elapsed time.
+
+	* lib/Mj/List.pm:
+	Do not generate a subscriber list for the DEFAULT list.
+
+	* lib/Mj/Inform.pm:
+	Added COMMENT variable to allow additional information to be
+	included at the end of "inform" messages.
+
+	* lib/Mj/Config.pm:
+	Added the _load_dfl subroutine to set the dfldata array, which
+	contains values from the DEFAULT mailing list.
+
+	Removed dependency on the existence of the $::mj variable.
+
+	Allow spaces around commas in a comma-separated list.
+
+	* lib/Mj/CommandProps.pm:
+	Change default setting for unsubscribe to allow the unsubscribe_policy
+	option to work.
+
+	* lib/Mj/Archive.pm:
+	Added first_n subroutine to obtain the first n messages in an
+	archive following m excluded messages.
+
+	Added  a similar "exclusion count" to the last_n subroutine.
+
+	Reworked the expand_date subroutine to always use the earliest
+	and latest possible times when determining which archives are
+	applicable to a particular date range.  Added a message limit,
+	which may be negative, in which case the matching of message
+	times starts with the latest possible archive and works in reverse.
+
+	Added sanity checks to the _secs_start and _secs_end subroutines
+	to keep timelocal and timegm from calling "croak" for parameters
+	out of bounds.
+
+	Corrected typos in the _arc_name subroutine, which will allow weekly
+	or daily archiving to work properly.
+
+	Rewrote parameter parsing in the expand_range subroutine to
+	work for any combination of parameters in a range of messages.
+
+	Wrote the _parse_archive_arg subroutine to separate each parameter
+	into the a pair of values, a date and a message number.
+
+	Wrote the _parse_message_range subroutine to deal with ranges
+	that contain at least one explicit message number.
+
+	* lib/Mj/Access.pm:
+	Added _d_unsubscribe subroutine to allow the unsubscribe_policy
+	configuration variable to work.
+
+	* lib/mj_cf_defs.pl:
+	Changed DEFAULT to SITE_DFLT to accommodate the new DEFAULT list.
+	Defaults for the GLOBAL list also apply to the DEFAULT list.
+
+	* files/en/inform:
+	Added COMMENT variable to allow additional details to be added
+	to the end of an "inform" message.
+
+	* bin/mj_queuerun:
+	Fix typo:  change mj_email to mj_queuerun in debugging message.
+
 Mon Oct 11 18:00:21 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Access.pm (list_access_check): Reorganization to allow

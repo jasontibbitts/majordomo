@@ -412,7 +412,7 @@ sub get_to_file {
   my $fh =   new IO::File ">$file";
   my $chunk;
 
-  while (defined($chunk = $self->get_chunk(1000))) {
+  while (defined($chunk = $self->get_chunk(4096))) {
     $fh->print($chunk);
   }
   $self->get_done;
@@ -464,8 +464,59 @@ sub last_message {
   # Take the maximum count and build a message name
   return "$arc/$self->{'splits'}{$arc}{'msgs'}";
 }
+=head2 first_n(count, m, archive)
 
-=head2 last_n(count, archive)
+Returns the first count message names from the archive, excluding
+the first m names.
+
+=cut
+sub first_n {
+  my $self = shift;
+  my $n    = shift;
+  my $ct   = shift || 0;
+  my $arc  = shift;
+  my (@arcs, @msgs, $msg, $final, $num);
+
+  # @arcs will hold all archives newer than $arc, if given
+  if ($arc) {
+    @arcs  = sort(grep {$_ gt $arc} keys(%{$self->{'archives'}}));
+  }
+  else {
+    @arcs  = sort(keys(%{$self->{'archives'}}));
+  }
+
+  $arc ||= shift @arcs;
+
+  $num = 1;
+  $final = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
+  while (1) {
+    if ($ct <= 0) {
+      $msg = $self->get_data("$arc/$num");
+      if (defined $msg) {
+        push @msgs, ["$arc/$num", $msg];
+      }
+      else {
+        # do not count against the total
+        $n++;
+      }
+    }
+    $n--;
+    $ct--;
+    last unless $n>0;
+    $num++;
+    unless ($num <= $final) {
+      # Move to next archive.
+      $arc = shift @arcs;
+      last unless $arc;
+      # Set $final to its last message number
+      ($final) = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
+      $num = 1;
+    }
+  }
+  @msgs;
+}
+
+=head2 last_n(count, last, archive)
 
 Returns the last count message names from the archive.
 
@@ -473,12 +524,13 @@ Returns the last count message names from the archive.
 sub last_n {
   my $self = shift;
   my $n    = shift;
+  my $ct   = shift || 0;
   my $arc  = shift;
-  my (@arcs, @msgs, $msg, $num);
+  my (@arcs, @msgs, $msg, $final, $num);
 
   # @arcs will hold all archives older than $arc, if given
   if ($arc) {
-    @arcs  = sort(grep {$_ < $arc} keys(%{$self->{'archives'}}));
+    @arcs  = sort(grep {$_ lt $arc} keys(%{$self->{'archives'}}));
   }
   else {
     @arcs  = sort(keys(%{$self->{'archives'}}));
@@ -486,11 +538,22 @@ sub last_n {
 
   $arc ||= pop @arcs;
 
-  $msg = $self->last_message($arc);
-  ($num) = $msg =~ m!\d+/(\d+)!;
+  $final = $self->last_message($arc);
+  ($num) = $final =~ m!\d+/(\d+)!;
+
   while (1) {
-    unshift @msgs, "$arc/$num";
+    if ($ct <= 0) {
+      $msg = $self->get_data("$arc/$num"); 
+      if (defined $msg) {
+        unshift @msgs, ["$arc/$num", $msg];
+      }
+      else {
+        # do not count against the total
+        $n++;
+      }
+    }
     $n--;
+    $ct--;
     last unless $n>0;
     $num--;
     unless ($num > 0) {
@@ -506,35 +569,38 @@ sub last_n {
 
 =head2 expand_date(date, date)
   
-This returns all messages from a given date or between two dates.  The
-dates should be integers in yyyymmdd, yyyymmw, yyyymm, or yyyy format.
+This returns all messages from a given time or between two times.  The
+times are seconds since the epoch began (January 1, 1970).  The ct
+argument sets a limit to the number of matches returned.
 
 =cut
 sub expand_date {
   my $self  = shift;
-  my $start = shift;
-  my $end   = shift || $start;
-  my (@arcs, @matches, @out, @tmp, $e, $ea, $i, $j, $k, $match, $s, $sa);
-
-  # Figure out start and end times; pass the 'local' flag because the
-  # articles went into the archive tagged with the local time, so they
-  # should come out the same.
-  $s = _secs_start($start, 1);
-  $e = _secs_end($end, 1);
-
-  # Figure out the names of the starting and ending archives
-  $sa = _arc_name($self->{'split'}, $s);
-  $ea = _arc_name($self->{'split'}, $e);
-
-  # Extract the names of all archives lying between them
-  @arcs  = sort(grep {$_ >= $sa && $_ <= $ea} keys(%{$self->{'archives'}}));
+  my $s = shift;
+  my $e = shift || $s;
+  my $ct = shift || 65535;
+  my (@arcs, $arc, @matches, @tmp, $ea, $i, $j, $k, $l, $match, $sa);
+  my (@out) = ();
+  # Extract the names of all archives overlapping requested interval
+  for $arc (sort keys(%{$self->{'archives'}})) {
+    $sa = _secs_start($arc, 1);
+    if ($sa >= $s && $sa <= $e) {
+      $ct > 0 ? push @arcs, $arc : unshift @arcs, $arc;
+    }
+    else {
+      $ea = _secs_end($arc, 1);
+      if (($ea >= $s && $ea <= $e) or ($s >= $sa && $e <= $ea)) {
+        $ct > 0 ? push @arcs, $arc : unshift @arcs, $arc;
+      }
+    }
+  }
 
   $match = sub {
     shift;
     my $date = (shift)->{'date'};
     return 0     unless $date >= $s;
     return undef unless $date <= $e;
-    1
+    1;
   };
 
   for $i (@arcs) {
@@ -545,10 +611,25 @@ sub expand_date {
       last unless scalar(@tmp);
       push @matches, @tmp;
     }
+    # If ct is negative, the archives are being processed
+    #  in reverse chronological order, so we must reverse
+    #  the results for each archive, then reverse the
+    #  result from all archives before returning.
+    if ($ct < 0) {
+      while (($j, $k) = splice(@matches, 0, 2)) {
+        unshift @tmp, $j, $k;
+      }
+      @matches = @tmp;  
+    }
     $self->{'indices'}{$i}->get_done;
     while (($j, $k) = splice(@matches, 0, 2)) {
       push @out, ["$i/$j", $k];
+      last if (scalar(@out) >= abs($ct));
     }
+    last if (scalar(@out) >= abs($ct));
+  }
+  if ($ct < 0) {
+    @out = reverse @out;
   }
   @out;
 }
@@ -584,15 +665,21 @@ sub _secs_start {
   }
   elsif ($d =~ /^(\d{6})(\d)$/) {
     # Turn week 1, 2, 3, 4 into day 1, 8, 15, 22
-    $2 = 4 if $2 > 4;
-    $d = $1 . (($2 - 1) * 7) + 1;
+    my ($wk) = $2;
+    $wk = 4 if $wk > 4;
+    $wk = 1 if $wk < 1;
+    $d = $1 . ($wk<3?"0":"") . (($wk - 1) * 7) + 1;
   }
   elsif ($d =~ /^(\d{8})/) {
     $d = $1;
   }
 
   # Now convert that to seconds
-  $d =~ /^(\d{4})(\d{2})(\d{2})$/;
+  $d =~ /^(\d{4})(\d{2})(\d{2})$/ or return -1;
+
+  # timelocal and timegm croak if parameters are out of range
+  return -1 if ($2 < 1 || $2 > 12 || $3 < 1 || $3 > 31);
+
   if ($local) {
     return timelocal(0,0,0,$3,$2-1,$1);
   }
@@ -630,10 +717,10 @@ sub _secs_end {
   elsif ($d =~ /^(\d{4})(\d{2})(\d)$/) {
     # Turn week 1, 2, 3, 4 into day 7, 14, 21, (28, 30, 31)
     if ($3 >= 4) {
-      $d = $1 . _dim($2);
+      $d = $1 . $2 . _dim($2);
     }
     else {
-      $d = $1 . ($2 * 7);
+      $d = $1 . $2 . ($3<=1? "07": $3 * 7);
     }
   }
   elsif ($d =~ /^(\d{8})/) {
@@ -641,7 +728,11 @@ sub _secs_end {
   }
 
   # Now convert that to seconds
-  $d =~ /^(\d{4})(\d{2})(\d{2})$/;
+  $d =~ /^(\d{4})(\d{2})(\d{2})$/ or return -1;
+
+  # timelocal and timegm croak if parameters are out of range
+  return -1 if ($2 < 1 || $2 > 12 || $3 < 1 || $3 > 31);
+
   if ($local) {
     return timelocal(59,59,23,$3,$2-1,$1);
   }
@@ -713,12 +804,11 @@ sub _arc_name {
   my $log = new Log::In 200, "$split, $time";
   my ($mday, $month, $week, $year);
 
-  # Extract data from teh given time
+  # Extract data from the given time
   ($mday, $month, $year) = (localtime($time))[3,4,5];
 
   # Week 1 is from day 0 to day 6, etc.
-  $week = 1+(int($mday)/7);
-  $mday++;
+  $week = 1+(int(($mday-1)/7));
   $year += 1900;
   $month++;
   $month = "0$month" if $month < 10;
@@ -727,7 +817,7 @@ sub _arc_name {
   return "$year"            if $split eq 'yearly';
   return "$year$month"      if $split eq 'monthly';
   return "$year$month$mday" if $split eq 'daily';
-  return "$year$month$week" if $split eq 'wekly';
+  return "$year$month$week" if $split eq 'weekly';
 }
 
 =head2 _read_counts
@@ -842,11 +932,13 @@ of the expansion process.
 sub expand_range {
   my $self = shift;
   my $lim  = shift;
-  my @args = @_;
-  my (@out, $i, $j);
+  my $args = shift; 
+  my (@out, @args, $i, $j, $ct, $a1, $m1, $a2, $m2);
 
+  @args = split " ", $args;
   # Walk the arg list
   while (defined($i = shift(@args))) {
+    $a1 = $a2 = $m1 = $m2 = 0;
     return @out if $lim && $#out > $lim;
     # Skip commas and bomb on dashes
     next if $i eq ',';
@@ -856,35 +948,177 @@ sub expand_range {
     $i =~ s/[\.\-]//g;
 
     # Do we have a count, a date or a message?
-    if ($i =~ /^(\d{1,3})$/) {
-      push @out, $self->last_n($i)
-    }
-    elsif ($i =~ m!/!) {
-      # Message: look beyond for a range, grab it, expand it
+    ($a1, $m1) = $self->_parse_archive_arg($i);
+    if (!$a1 && !$m1) {
+      # Invalid value; discard other range argument if present.
       if (@args && $args[0] eq '-') {
-	# Parse message range
-	shift @args; $j = shift @args;
-	push @out, $self->_parse_message_range($i, $j);
+        shift @args; shift @args;
       }
-      else {
-	push @out, $i;
-      }
+      next;
+    }
+    # Get right hand side of range if present.
+    if (@args && $args[0] eq '-') {
+      shift @args; $j = shift @args;
+      ($a2, $m2) = $self->_parse_archive_arg($j);
+      next if (!$a2 && !$m2);
     }
     else {
-      if (@args && $args[0] eq '-') {
-	# Date range: expand to list of dates, unshift dates into args
-	shift @args; $j = shift @args;
-	unshift @args, $self->expand_date($i, $j);
+      #  Deal with single values
+      if (!$m1) {
+	    # Expand date to all messages on that date; push into @out
+        $j = _secs_end($i, 1);
+        $i = _secs_start($i, 1);
+        push @out, $self->expand_date($i, $j);
+      }
+      elsif (!$a1) {
+        # ordinary number
+        push @out, $self->last_n($m1);
       }
       else {
-	# Expand date to all messages on that date; push into @out
-	push @out, $self->expand_date($i);
+        # message number
+        my $tmp = $self->get_data($i);
+        push (@out, [$i, $tmp]) if (defined $tmp);
       }
+      next;
+    }
+
+    #  Deal with ranges.  There are nine possibilities at this point,
+    #    permutations of pairs of (date, 0) , (0, number), (date, number).
+    if (!$a1 && !$a2) {
+      #  Number range.  100 - 20 would return 100 messages ending with
+      #  The 20th previous message.
+      push @out, $self->last_n($m2 + $m1, $m1);
+    }
+    elsif ($m1 && $m2) {
+      # Message range
+      push @out, $self->_parse_message_range($a1, $m1, $a2, $m2);
+    }  
+    else {
+	  # Date range
+      if (!$a1) {
+        # number - date
+        $i = 0;
+        $j = _secs_end($a2);
+        $ct = -$m1;
+      }
+      elsif (!$a2) {
+        # date - number
+        $i = _secs_start($a1);
+        $j = time;
+        $ct = $m2;
+      }
+      elsif ($m1) {
+        # message - date
+        $i = $self->get_data("$a1/$m1");
+        $i = $i->{'date'};
+        $j = _secs_end($a2);
+        $ct = undef;
+      }
+      elsif ($m2) {
+        # date - message
+        $i = _secs_start($a1);
+        $j = $self->get_data("$a2/$m2");
+        $j = $j->{'date'};
+        $ct = undef;
+      }
+      else {
+        # date - date
+        $i = _secs_start($a1);
+        $j = _secs_end($a2);
+        $ct = undef;
+      }
+      push @out, $self->expand_date($i, $j, $ct);
     }
   }
   @out;
 }
 
+=head2 _parse_archive_arg(arg)
+
+There are three possible arguments: 
+
+=item Date or Archive Name
+
+=item Natural Number
+
+=item Message Number
+
+(A combination of the first two.)
+
+=cut
+sub _parse_archive_arg {
+    my $self = shift;
+    my $arg = shift;
+    my ($archive, $msg) = (0, 0);
+    if ($arg =~ m#(\d+)/(\d+)#) {
+      $archive = $1;
+      $msg = $2;
+    }
+    elsif ($arg =~ /^(\d+)$/) {
+      if (_secs_start($1, 1) > 0) {
+        $archive = $1;
+      }
+      else {
+        $msg = $arg;
+      }
+    }
+    ($archive, $msg);
+}
+
+=head2 _parse_message_range(archive1, msgno1, archive2, msgno2)
+
+=cut
+
+sub _parse_message_range {
+    my $self = shift;
+    my ($arch1, $msg1, $arch2, $msg2) = splice (@_, 0, 4);
+    my (@out) = ();
+    my ($arc, $num, $final, @arcs);
+    my $log = new Log::In 250, "$arch1 $msg1 $arch2 $msg2";
+    
+
+    if (!$msg1 || !$msg2 || !($arch1 || $arch2) || ($arch1 gt $arch2)) {
+      return @out;
+    }
+    if (!$arch1) {
+      # number - message; use last_n to retrieve preceding message numbers. 
+      ($final) = $self->last_message($arch2) =~ m!^[^/]+/(.*)$!;
+      # number of messages to skip
+      $num = $final - $msg2;
+      @out = $self->last_n($msg1 + $num, $num, $arch2);
+    }
+    elsif (!$arch2) {
+      # message - number; use first_n to retrieve succeeding message numbers.
+      @out = $self->first_n($msg1 + $msg2 -1, $msg1 - 1, $arch1);
+    }
+    else {
+      # message - message; 
+      # @arcs will hold all archives newer than $arc, if given
+      @arcs  = sort(grep {$_ ge $arch1} keys(%{$self->{'archives'}}));
+
+      $arc = shift @arcs;
+
+      $num = 1;
+      ($final) = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
+
+      while (($arc lt $arch2) || (($arc eq $arch2) && ($num <= $msg2))) {
+        my $tmp = $self->get_data("$arc/$num");
+        if (defined $tmp) {
+          push @out, ["$arc/$num", $tmp];
+          $num++;
+        }
+        unless ($num <= $final) {
+          # Move to next archive.
+          $arc = shift @arcs;
+          last unless $arc;
+          # Set $final to its last message number
+          ($final) = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
+          $num = 1;
+        }
+      }
+    }
+    @out;
+}
 =head1 COPYRIGHT
 
 Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
@@ -894,7 +1128,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.

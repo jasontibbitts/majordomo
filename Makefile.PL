@@ -18,7 +18,7 @@ my(@SIDSCRIPTS, @SCRIPTS, @EXES, $ok);
 use vars qw(%have);
 
 # MakeMaker has begun to displease me
-my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\$(MAN3EXT)")}
+my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; $a=~s/\.p.$//; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\$(MAN3EXT)")}
 
    qw(Majordomo.pm Mj/Access.pm Mj/Addr.pm Mj/AddressList.pm
       Mj/AliasList.pm Mj/Archive.pm Mj/Config.pm Mj/Deliver.pm
@@ -71,11 +71,11 @@ my $config = configure();
 
 # Now we can set these up based on what we got from configure.
 if ($config->{mta} eq 'sendmail') {
-  @SIDSCRIPTS = qw(mj_email mj_enqueue mj_shell mj_confirm mj_shutdown);
+  @SIDSCRIPTS = qw(mj_email mj_enqueue mj_shell mj_confirm mj_shutdown mj_wwwadm);
   @SCRIPTS = qw(mj_trigger mj_queueserv mj_queuerun);
 }
 else {
-  @SIDSCRIPTS = qw(mj_shell mj_confirm mj_shutdown);
+  @SIDSCRIPTS = qw(mj_shell mj_confirm mj_shutdown mj_wwwadm);
   @SCRIPTS = qw(mj_email mj_enqueue mj_trigger mj_queueserv mj_queuerun);
 }
 @EXES = map {"./bin/$_"} @SIDSCRIPTS, @SCRIPTS;

@@ -351,6 +351,7 @@ What Mail Transfer Agent will be feeding mail to Majordomo?
   sendmail
   exim
   qmail
+  postfix
   (sorry, no more!  Look in MTAConfig.pm and write your own!)
  Enter \'none\' if you use an unsupported MTA.
 EOM
@@ -364,7 +365,7 @@ EOM
           (-x '/usr/sbin/sendmail'          && 'sendmail') ||
           'none'
          );
-  $config->{'mta'} = get_enum($msg, $def, [qw(none sendmail exim qmail)]);
+  $config->{'mta'} = get_enum($msg, $def, [qw(none sendmail exim qmail postfix)]);
 
   if ($config->{'mta'} eq 'sendmail') {
     require "setup/mta_sendmail.pl";
@@ -373,6 +374,10 @@ EOM
   elsif ($config->{'mta'} eq 'exim') {
     require "setup/mta_exim.pl";
     ask_exim($config);
+  }
+  elsif ($config->{'mta'} eq 'postfix') {
+    require "setup/mta_postfix.pl";
+    ask_postfix($config);
   }
   elsif ($config->{'mta'} eq 'qmail') {
     require "setup/mta_qmail.pl";

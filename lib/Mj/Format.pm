@@ -44,6 +44,7 @@ will handle getting the rest of the output of the core.
 package Mj::Format;
 use strict;
 use Mj::Log;
+use IO::File;
 
 use AutoLoader 'AUTOLOAD';
 1;
@@ -104,13 +105,23 @@ sub alias {
 sub archive {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
       $list, $vict, $arg1, $arg2, $arg3, $ok, $mess, @in) = @_;
-  
-  if ($ok > 0) { 
-    eprint($out, $type, "$mess");
-  }
-  else {
+ 
+  my (@lines, $i, @stuff);
+  if ($ok <= 0) { 
     eprint($out, $type, &indicate($mess, $ok));
+    return $ok;
   }
+  @stuff = ($user, $pass, $auth, $int, $cmd, $mode, $list, $vict);
+
+  # XXX Make this configurable so that it uses limits on
+  # number of messages per digest or size of digest.
+  ($ok, @lines) = $mj->dispatch('archive_chunk', @stuff, @in);
+
+  for $i (@lines) {
+    eprint($out, $type, "$i");
+  }
+ 
+  #  archive_done does nothing, so there is no need to call it.
   $ok;
 }
 
@@ -365,12 +376,14 @@ sub post {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
       $list, $vict, $arg1, $arg2, $arg3, $ok, $mess) = @_;
 
-  select $out;
   if ($ok>0) {
-    eprint($out, $type, "Post succeeded.\n");
+    eprint($out, $type, "Post succeeded.\nDetails:\n");
+  }
+  elsif ($ok<0) {
+    eprint($out, $type, "Post stalled, awaiting approval.\nDetails:\n");
   }
   else {
-    eprint($out, $type, "Post failed.\n");
+    eprint($out, $type, "Post failed.\nDetails:\n");
   }
   eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
 
@@ -733,10 +746,11 @@ sub which {
 # XXX Merge this with sub auxwho above.
 sub who {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
-      $list, $vict, $regexp, $arg2, $arg3, $ok, $mess) = @_;
+      $list, $vict, $regexp, $tmpl, $arg3, $ok, $mess) = @_;
   $regexp ||= '';
   my $log = new Log::In 29, "$type, $list, $regexp";
   my (@lines, @out, @stuff, $chunksize, $count, $error, $i, $ind, $ret);
+  my ($template, $subs, $fh, $result);
 
   if ($ok <= 0) {
     eprint($out, $type, "Could not access $list:\n");
@@ -750,19 +764,51 @@ sub who {
   $chunksize = $mj->global_config_get($user, $pass, $auth, $int,
 				      "chunksize");
   
-  $ind = '';
+  $ind = $template = '';
   unless ($mode =~ /short/) {
     eprint($out, $type, "Members of list \"$list\":\n");
-    $ind = '    ';
+    $ind = '  ';
   }
 
+  if (ref ($tmpl) eq 'ARRAY') {
+    $template = join ("", @$tmpl);
+  }
+  elsif ($list eq 'GLOBAL') {
+    $template = '$FULLADDR $PAD $LISTS';
+  }
+  else {
+    $template = '$FULLADDR $PAD $FLAGS $CLASS';
+  }
+  
   while (1) {
     ($ret, @lines) = $mj->dispatch('who_chunk', @stuff, $regexp, $chunksize);
     
     last unless $ret > 0;
     for $i (@lines) {
+      $subs = {};
+      next unless (ref ($i) eq 'HASH');
+      if ($mode !~ /enhanced/) {
+        $result = $i->{'fulladdr'};
+      }
+      else {
+        for $j (keys %$i) {
+          $subs->{uc $j} = $i->{$j};
+        }
+        $subs->{'PAD'} = " " x (48 - length($i->{'fulladdr'}));
+        if ($list ne 'GLOBAL') {
+          my ($fullclass) = $i->{'class'};
+          $fullclass .= "-" . $i->{'classarg'} if ($i->{'classarg'});
+          $fullclass .= "-" . $i->{'classarg2'} if ($i->{'classarg2'});
+          $subs->{'CLASS'} = $fullclass;
+        }
+        else {
+          $subs->{'LISTS'} =~ s/\002/ /g;
+        }
+        $result = $mj->substitute_vars_string($template, $subs);
+        chomp $result;
+      }
       $count++;
-      eprint($out, $type, "$ind$i\n");
+      eprint($out, $type, "$ind$result\n");
     }
   }
   $mj->dispatch('who_done', @stuff);

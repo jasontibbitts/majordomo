@@ -42,7 +42,7 @@ require "mj_cf_data.pl";
 
 $VERSION = "1.0";
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(global_get parse_table parse_keyed);
+@EXPORT_OK = qw(parse_table parse_keyed);
 
 # This designates that the _raw_ form is an array of lines, not that the
 # parsed data comtains a simple array.  Note that these are types, not
@@ -196,16 +196,23 @@ sub get {
     # Return the raw data
     if (exists $self->{'data'}{'raw'}{$var}) {
       if ($self->isarray($var)) {
-	return @{$self->{'data'}{'raw'}{$var}};
+        return @{$self->{'data'}{'raw'}{$var}};
       }
       return $self->{'data'}{'raw'}{$var};
+    }
+    
+    if (exists $self->{'dfldata'}{'raw'}{$var}) {
+      if ($self->isarray($var)) {
+        return @{$self->{'dfldata'}{'raw'}{$var}};
+      }
+      return $self->{'dfldata'}{'raw'}{$var};
     }
     
     # or return the default data
     if (exists $self->{'defaults'}{$var}) {
       $log->out('default');
       if ($self->isarray($var)) {
-	return @{$self->{'defaults'}{$var}};
+        return @{$self->{'defaults'}{$var}};
       }
       return $self->{'defaults'}{$var};
     }
@@ -231,6 +238,21 @@ sub get {
     }
     else {
       return;
+    }
+  }
+
+  # Next, try the DEFAULT list values.
+  if (exists $self->{'dfldata'}{'parsed'}{$var}) {
+    $log->out('DEFAULT parsed');
+    return $self->{'dfldata'}{'parsed'}{$var};
+  }
+
+  if (exists $self->{'dfldata'}{'raw'}{$var}) {
+    $log->out('DEFAULT raw');
+    ($ok, undef, $parsed) =
+      $self->parse($var, $self->{'dfldata'}{'raw'}{$var});
+    if ($ok) {
+      return $parsed;
     }
   }
 
@@ -305,6 +327,8 @@ sub load {  # XXX unfinished
     $self->_save_new;
   }
 
+  $self->_load_dfl;
+
   $self->{loaded} = 1;
   1;
 }
@@ -325,6 +349,31 @@ sub _load_new {
   $file = new Mj::File $name, "<";
   $self->{'data'} = do $name;
   $file->close;
+
+  1;
+}
+
+=head2 _load_dfl
+
+Get the configuration values for the DEFAULT list.
+This data has higher precedence than the 
+settings in mj_cf_defs.pl, but lower than the
+individual lists' settings.
+
+=cut
+
+sub _load_dfl {
+  my $self = shift;
+  my $log  = new Log::In 160;
+  my ($file, $name);
+
+  $name = "$self->{'ldir'}/DEFAULT/_config";
+  if (-r $name) {
+    $file = new Mj::File $name, "<";
+    $self->{'dfldata'} = do $name;
+    $file->close;
+  }
+
   1;
 }
 
@@ -1149,7 +1198,7 @@ sub parse_access_rules {
 	($tmp, $tmp2) = ($action->[$j] =~ /([^=]*)(?:=(.*))?/);
 	unless (rules_action($i, $tmp)) {
 	  @tmp = rules_actions($i);
-	  return (0, "\nIllegal action: $action->[$k].\nLegal actions for '$i' are:\n".
+	  return (0, "\nIllegal action: $action->[$j].\nLegal actions for '$i' are:\n".
 		  join(' ',sort(@tmp)));
 	}
 	if ($tmp2) {
@@ -1191,8 +1240,6 @@ sub parse_access_rules {
 Calls Mj::Addr::validate to make sure the address is syntactically legal,
 and returns any error message that routine generates.
 
-XXX This uses the objectionable global $::mj object to get the domain.
-
 =cut
 use Mj::Addr;
 sub parse_address {
@@ -1203,7 +1250,9 @@ sub parse_address {
 
   # We try to tack on a hostname if one isn't given
   unless ($str =~ /\@/) {
-    $str .= "\@" . $::mj->_global_config_get('whereami');
+    if (exists ($self->{'defaults'}{'whereami'})) {
+      $str .= "\@" . $self->{'defaults'}{'whereami'};
+    }
   }
 
   my $addr = new Mj::Addr($str);
@@ -1720,9 +1769,9 @@ useful as a path or comment or whatever.  The list portion (before the
 colon) is allowed to be empty.  (Some of this functionality may need to be
 moved to another function.)
 
-XXX Makes use of the global majordomo object.  Naughty.
-
 =cut
+
+use Majordomo qw(legal_list_name);
 sub parse_list_array {
   my $self = shift;
   my $arr  = shift;
@@ -1733,9 +1782,9 @@ sub parse_list_array {
     ($l, $e) = split(':', $i);
     next unless length($l);
     return (0, "Illegal list $l.")
-      unless $::mj->valid_list($l);
+      unless ((-d "$self->{'ldir'}/$l") && (legal_list_name(undef, $l)));
   }
-  1;
+  (1, undef, $arr);
 }
 
 =head2 parse_pw
@@ -2152,25 +2201,6 @@ sub parse_xform_array {
 These aren''t Config object methods but instead are utility routines that
 are useful for operating on config information.
 
-=head2 global_get
-
-This routine just provides a quick abstraction for the global config.  It
-access this through a global variable (containing a Config object) that the
-client code is expected to set up.  Since access to the global config is
-needed in various places throughout all levels of the code, it is simpler
-to keep the config in a global variable rather than pass a pointer to it
-into all objects.
-
-The client must keep a copy of the top level Majordomo object in $::mj for
-this to work.
-
-This routine is exportable, but is not exported by default.
-
-=cut
-sub global_get {
-  $::mj->_global_config_get(@_);
-}
-
 =head2 parse_table(specifier_string, arrayref)
 
 This splits up a config table. 
@@ -2332,7 +2362,7 @@ sub parse_table {
 		\s*,?\s*      # Space and comma
                 
 		# Or less complicated cases
-		| ([^,]+)\s*,?\s*
+		| ([^,\s]+)\s*,?\s*
 		| \s*,\s*
 	       }gx;
 	    

@@ -112,6 +112,8 @@ sub post {
       $subs,                 # Hash of substitutions
       $ack_attach,           # Should acks attach the message (fron config)
       $spool,                # File to spool 
+      $subject,              # Header 
+      $date,                 # Header
      );
   my $log = new Log::In 30, "$list, $user, $file"; 
   $tmpdir = $self->_global_config_get("tmpdir");
@@ -123,7 +125,19 @@ sub post {
   
   $fh = new IO::File "<$file";
   $ent = $parser->read($fh);
-  $fh->close;
+  # If perl is configured without Config{'d_flock'}, this close call
+  # will cause the lock on the queue file to be dropped, creating
+  # a race condition.  Do not call close() explicitly.
+  # $fh->close;
+
+  # Fail gracefully: 
+  if (! $ent) {
+    $spool = "$tmpdir/unparsed." . Majordomo::unique();
+    mv ($file, "$spool");
+    $self->inform("GLOBAL", "post", $user, $user, $cmd, "resend",
+        0, 0, -1, "Unable to parse message; moved to $spool.");
+    return (0, "Unable to parse message.");
+  }
 
   # Get the header.
   $::log->in(80, undef, "info", "Parsing the header");
@@ -202,11 +216,6 @@ sub post {
 			$file, '', join("\002", %$avars), $ent);
   }
 
-  # If the request is stalled, we need to spool the file.
-  if ($ok < 0) {
-    mv($file, "$self->{ldir}/GLOBAL/spool/$spool");
-  }
-
   # Some substitutions will be done by the access routine, but we have
   # extensive information about the message here so we can do some more.
   $subs = {LIST     => $list,
@@ -220,13 +229,19 @@ sub post {
 	  };
 
   $desc = $fileinfo->{description};
-  $desc = $self->substitute_vars_string($desc, $subs);
+  if ($desc) {
+    $desc = $self->substitute_vars_string($desc, $subs);
+  }
   $ack_attach = $self->_list_config_get($list, 'ack_attach_original');
+  chomp($date = $thead->get('date')); 
+  chomp($subject = $thead->get('subject')); 
 
   # We handled the OK case, so we have either a stall or a denial.
   # If we got an empty return message, this is a signal not to ack anything
   # and so we just return;
-  return $ok unless defined $mess && length $mess;
+  $rtnhdr = $ent->head->stringify;
+  return ($ok, "$rtnhdr") 
+    unless defined $mess && length $mess;
 
   # Otherwise, decide what to ack
   # Stall:  ack if flags say so
@@ -254,20 +269,26 @@ sub post {
       if (($ok <  0 && $ack_attach->{stall}) ||
 	  ($ok == 0 && $ack_attach->{fail})  ||
 	  ($ok <= 0 && $ack_attach->{all}))
-	{
-	  $nent->make_multipart;
-	  $nent->attach(Type        => 'message/rfc822',
-			Description => 'Original message',
-			Path        => $file,
-			Filename    => undef,
-		       );
-	}
+      {
+        $nent->make_multipart;
+        $nent->attach(Type        => 'message/rfc822',
+                      Description => 'Original message',
+                      Path        => $file,
+                      Filename    => undef,
+                     );
+      }
       $self->mail_entity($owner, $nent, $user);
     }
+
+  # If the request is stalled, we need to spool the file.
+  if ($ok < 0) {
+    mv($file, "$self->{ldir}/GLOBAL/spool/$spool");
+  }
+
   # Clean up after ourselves;
   $nent->purge if $nent;
   $ent->purge;
-  $ok;
+  ($ok, "$rtnhdr");
 }
 
 =head2 post_start, post_chunk, post_done
@@ -306,17 +327,19 @@ sub post_done {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list) = @_;
   my $log  = new Log::In 30;
+  my ($ok, $mess);
 
   $self->{'post_fh'}->close;
 
-  $self->post($user, $passwd, $auth, $interface, $cmdline, $mode,
+  ($ok, $mess) =
+    $self->post($user, $passwd, $auth, $interface, $cmdline, $mode,
 	      $list, $self->{'post_file'});
 
   unlink $self->{'post_file'};
   undef $self->{'post_fh'};
   undef $self->{'post_file'};
 
-  1;
+  ($ok, $mess);
 }
 
 use Mj::MIMEParser;
@@ -326,9 +349,9 @@ sub _post {
   my $log  = new Log::In 35, "$list, $user, $file";
 
   my(%avars, %deliveries, %digest, @dfiles, @dtypes, @ent, @files, @refs,
-     @tmp, @skip, $arcdata, $arcent, $archead, $digests, $dissues,
+     @tmp, @skip, $arcdata, $arcent, $archead, $digests, $dissues, $rtnhdr,
      $exclude, $head, $i, $j, $msgnum, $precedence, $prefix, $replyto,
-     $sender, $seqno, $subject, $subs, $tmp, $tmpdir, $tprefix, $whereami);
+     $sender, $seqno, $subject, $date, $subs, $tmp, $tmpdir, $tprefix, $whereami);
 
   $self->_make_list($list);
   $tmpdir   = $self->_global_config_get('tmpdir');
@@ -353,7 +376,13 @@ sub _post {
     $ent[0] = $ent;
   }
   else {
-    open SPOOL, "<$file";
+    if (!open SPOOL, "<$file") {
+      # The spool file, containing the message to be posted, is missing.
+      # Inform the site owner, and return.
+      $self->inform("GLOBAL", "post", $user, $victim, $cmdline, "resend", 
+        0, 0, -1, "Spool file $file is missing; unable to post message."); 
+      return (0, "The message was not delivered, due to a malfunction.\n");
+    }
     my $mime_parser = new Mj::MIMEParser;
     $mime_parser->output_to_core($self->_global_config_get("max_in_core"));
     $mime_parser->output_dir($tmpdir);
@@ -370,6 +399,7 @@ sub _post {
   $arcent = $ent[0]->dup;
   $archead = $arcent->head;
   $archead->modify(0);
+  $rtnhdr = $arcent->head->stringify;
 
   # Convert/drop MIME parts.  Bill?
   
@@ -400,6 +430,7 @@ sub _post {
 
   # Pass to archive.  XXX Is $user good enough, or should we re-extract?
   $subject = $archead->get('subject') || ''; chomp $subject;
+  $date = $archead->get('date') || ''; chomp $date;
   ($msgnum) = $self->{'lists'}{$list}->archive_add_start
     ($sender,
      {
@@ -412,130 +443,137 @@ sub _post {
      },
     );
 
-  # We're done with the file by this point, so we should remove it.
-  unlink $file;
-
   # Only call this if we got back a message number because there isn't an
   # archive around if we didn't.
   if ($msgnum) {
     $archead->replace('X-Archive-Number', $msgnum);
 
     # Print out the archive copy
-    $file = "$tmpdir/mjr.$$.arc";
-    open FINAL, ">$file" ||
+    $tmp = "$tmpdir/mjr.$$.arc";
+    open FINAL, ">$tmp" ||
       $::log->abort("Couldn't open archive output file, $!");
     $arcent->print(\*FINAL);
     close FINAL;
 
-    ($msgnum, $arcdata) = $self->{'lists'}{$list}->archive_add_done($file);
+    ($msgnum, $arcdata) = $self->{'lists'}{$list}->archive_add_done($tmp);
 
-    unlink "$file";
+    unlink "$tmp";
   }
 
-  # Cook up a substitution hash
-  $subs = {
-	   LIST     => $list,
-	   VERSION  => $Majordomo::VERSION,
-	   SENDER   => "$user",
-	   USER     => "$user",
-	   SEQNO    => $seqno,
-	   ARCHIVE  => $msgnum,
-	   SUBJECT  => $subject,
-	   WHEREAMI => $whereami,
-	   MJ       => $self->_global_config_get('whoami'),
-	   MJOWNER  => $self->_global_config_get('sender'),
-	   SITE     => $self->_global_config_get('site_name'),
-	  };
+  if ($mode ne "archive") {
+    # Cook up a substitution hash
+    $subs = {
+         LIST     => $list,
+         VERSION  => $Majordomo::VERSION,
+         SENDER   => "$user",
+         USER     => "$user",
+         SEQNO    => $seqno,
+         ARCHIVE  => $msgnum,
+         SUBJECT  => $subject,
+         WHEREAMI => $whereami,
+         MJ       => $self->_global_config_get('whoami'),
+         MJOWNER  => $self->_global_config_get('sender'),
+         SITE     => $self->_global_config_get('site_name'),
+        };
 
-  # Add headers
-  for $i ($self->_list_config_get($list, 'message_headers')) {
-    $i = $self->substitute_vars_string($i, $subs);
-    $head->add(undef, $i);
-  }
-  if ($precedence = $self->_list_config_get($list, 'precedence')) {
-    $head->add('Precedence', $precedence);
-  }
-  $head->add('Sender', $sender);
+    # Add headers
+    for $i ($self->_list_config_get($list, 'message_headers')) {
+      $i = $self->substitute_vars_string($i, $subs);
+      $head->add(undef, $i);
+    }
+    if ($precedence = $self->_list_config_get($list, 'precedence')) {
+      $head->add('Precedence', $precedence);
+    }
+    $head->add('Sender', $sender);
 
-  # Add list-headers standard headers
+    # Add list-headers standard headers
 
-  # Add fronter and footer.
-  $self->_add_fters($ent[0], $list, $subs);
+    # Add fronter and footer.
+    $self->_add_fters($ent[0], $list, $subs);
 
-  # Hack up the From: and CC: headers
-  $self->_munge_from($ent[0], $list);
+    # Hack up the From: and CC: headers
+    $self->_munge_from($ent[0], $list);
 
-  # Add in subject prefix
-  ($ent[0], $ent[1]) = $self->_munge_subject($ent[0], $list, $seqno);
+    # Add in subject prefix
+    ($ent[0], $ent[1]) = $self->_munge_subject($ent[0], $list, $seqno);
 
-  # Add in Reply-To:
-  $ent[2] = $self->_reply_to($ent[0]->dup, $list, $seqno, $user);
-  $ent[3] = $self->_reply_to($ent[1]->dup, $list, $seqno, $user);
+    # Add in Reply-To:
+    $ent[2] = $self->_reply_to($ent[0]->dup, $list, $seqno, $user);
+    $ent[3] = $self->_reply_to($ent[1]->dup, $list, $seqno, $user);
 
-  # Generate the exclude list
-  $exclude = $self->_exclude($ent[0], $list, $user);
+    # Generate the exclude list
+    $exclude = $self->_exclude($ent[0], $list, $user);
 
-  # Print delivery messages to files
-  for ($i = 0; $i < @ent; $i++) {
-    $files[$i] = "$tmpdir/mjr.$$.final$i";
-    open FINAL, ">$files[$i]" ||
-      $::log->abort("Couldn't open final output file, $!");
-    $ent[$i]->print(\*FINAL);
-    close FINAL;
-  }
+    # Print delivery messages to files
+    for ($i = 0; $i < @ent; $i++) {
+      $files[$i] = "$tmpdir/mjr.$$.final$i";
+      open FINAL, ">$files[$i]" ||
+        $::log->abort("Couldn't open final output file, $!");
+      $ent[$i]->print(\*FINAL);
+      close FINAL;
+    }
 
-  # These are the deliveries we always make.  If pushing digests, we'll add
-  # those later.
-  %deliveries =
-    ('each-prefix-noreplyto' =>
-     {
-      exclude => $exclude,
-      file    => $files[0],
-     },
-     'each-noprefix-noreplyto' =>
-     {
-      exclude => $exclude,
-      file    => $files[1],
-     },
-     'each-prefix-replyto' =>
-     {
-      exclude => $exclude,
-      file    => $files[2],
-     },
-     'each-noprefix-replyto' =>
-     {
-      exclude => $exclude,
-      file    => $files[3],
-     }
-    );
+    # These are the deliveries we always make.  If pushing digests, we'll add
+    # those later.
+    %deliveries =
+      ('each-prefix-noreplyto' =>
+       {
+        exclude => $exclude,
+        file    => $files[0],
+       },
+       'each-noprefix-noreplyto' =>
+       {
+        exclude => $exclude,
+        file    => $files[1],
+       },
+       'each-prefix-replyto' =>
+       {
+        exclude => $exclude,
+        file    => $files[2],
+       },
+       'each-noprefix-replyto' =>
+       {
+        exclude => $exclude,
+        file    => $files[3],
+       }
+      );
 
-  # Build digests if we have a message number from the archives
-  # (%deliveries is modified)
-  if ($msgnum) {
-    $self->do_digests('list'      => $list,     'deliveries' => \%deliveries,
-		      'substiute' => $subs,     'msgnum'     => $msgnum,
-		      'arcdata'   => $arcdata,  'sender'     => $sender,
-		      'whereami'  => $whereami, 'tmpdir'     => $tmpdir,
-		      'headers'   => [['Predecence', $precedence]],
-		      # 'run' => 0, 'force' => 0,
-		     );
-  }
+    # Build digests if we have a message number from the archives
+    # (%deliveries is modified)
+    if ($msgnum) {
+      $self->do_digests('list'      => $list,     'deliveries' => \%deliveries,
+                'substitute'=> $subs,     'msgnum'     => $msgnum,
+                'arcdata'   => $arcdata,  'sender'     => $sender,
+                'whereami'  => $whereami, 'tmpdir'     => $tmpdir,
+                'headers'   => [['Predecence', $precedence]],
+                # 'run' => 0, 'force' => 0,
+               );
+    }
 
-  # Invoke delivery routine
-  $self->deliver($list, $sender, $seqno, \%deliveries);
+    # Invoke delivery routine
+    $self->deliver($list, $sender, $seqno, \%deliveries);
 
-  # Inform sender of successful delivery
-  
-  # Clean up and say goodbye
+    # Inform sender of successful delivery
+    
+    # Clean up and say goodbye
+    for $i (keys %deliveries) {
+      unlink $deliveries{$i}{file}
+        if $deliveries{$i}{file};
+    }
+  }  
   for ($i = 0; $i < @ent; $i++) {
     $ent[$i]->purge;
   }
-  for $i (keys %deliveries) {
-    unlink $deliveries{$i}{file}
-      if $deliveries{$i}{file};
-  }
   $arcent->purge;
-  1;
+
+  # We're done with the file by this point, so we should remove it.
+  # This step must be done last: if _post is called by Mj::Token::t_accept,
+  # and the program aborts between the deletion of the file
+  # and the removal of the token, we will have a request in the 
+  # queue for a token with no associated spool file. 
+  unlink $file;
+
+  (1, "$rtnhdr");
 }
 
 =head2 _check_approval(list, head, entity, user)

@@ -14,6 +14,7 @@ mkdir "tmp.$$/locks", 0700 || die;
 mkdir "tmp.$$/SITE", 0700 || die;
 mkdir "tmp.$$/test", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL", 0700 || die;
+mkdir "tmp.$$/test/DEFAULT", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL/files", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL/sessions", 0700 || die;
 open SITE,">tmp.$$/SITE/config.pl";
@@ -67,7 +68,7 @@ $r = run('-p gonzo subscribe=quiet bleeargh zork@example.com');
 ok($e, $r);
 
 # Make sure they're there
-$e = qq!Members of list "bleeargh":\n    zork\@example.com\n1 listed subscriber\n!;
+$e = qq!Members of list "bleeargh":\n  zork\@example.com\n1 listed subscriber\n!;
 $r = run('who bleeargh');
 ok($e, $r);
 

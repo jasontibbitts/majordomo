@@ -87,7 +87,8 @@ sub new {
   
   $args{'addresses'} ||= $args{'addrs'};
   if (defined $args{'addresses'}) {
-    $ok = $self->address($args{'addresses'});
+    $args{'deferred'} ||= [];
+    $ok = $self->address($args{'addresses'}, $args{'deferred'});
     return undef if $ok < 0;
   }
 
@@ -163,8 +164,9 @@ out a count of what we could send) is somewhat distasteful.
 sub address {
   my $self = shift;
   my $addr = shift;
+  my $deferred = shift;
   my $log = new Log::In 150, "$addr";
-  my ($code, $good, $i, $mess, $val);
+  my ($code, $good, $i, $mess, $val, $j);
   
   unless (ref $addr) {
     $addr = [$addr];
@@ -176,11 +178,18 @@ sub address {
     return 0 unless $self->init;
   }
 
+  $j = 0;
   for $i (@{$addr}) {
     ($val, $code, $mess) = $self->{'smtp'}->RCPT($i,1);
 
-    # If we got a bad error, just return null
-    return 0 if !$val;
+    # If we got a bad error, defer processing the address until all
+    # other addresses have been handled.
+    if (! $val) {
+      $log->message(150, 'info', "Address $i failed during RCPT TO.");
+      my ($badaddr) = splice @{$addr}, $j, 1;
+      push @{$deferred}, $badaddr;
+      return 0;
+    }
 
     if ($val == -2) {
       # We can't send any more RCPTs, so we send ourselves and start over.
@@ -188,6 +197,7 @@ sub address {
       ($val, $code, $mess) = $self->{'smtp'}->RCPT($i,1);
     }
     $self->{'addressed'} = 1 if $val > 0;
+    $j++;
   }
 
   return $val;
@@ -251,7 +261,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
