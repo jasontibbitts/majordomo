@@ -465,7 +465,7 @@ sub _post {
 
   # Pass to archive.  XXX Is $user good enough, or should we re-extract?
   $subject = $archead->get('subject') || ''; chomp $subject;
-  $subject = /(.*)/; $subject = $1;
+  $subject =~ /(.*)/; $subject = $1;
   # Convert the message date into a time value.
   $date = $archead->get('date') || ''; chomp $date;
   $date = &str2time($date);
