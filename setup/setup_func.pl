@@ -306,10 +306,12 @@ sub make_alias_symlinks {
   my $dom = shift;
   my $dir = shift;
 
-  symlink("$config->{lists_dir}/ALIASES/mj-alias-$dom", "$dir/mj-alias-$dom");
+  symlink("$config->{lists_dir}/ALIASES/mj-alias-$dom", "$dir/mj-alias-$dom") ||
+    warn "Warning: could not make symlink in $dir/mj-alias-$dom: $!.\n";
 
   if ($config->{sendmail_maintain_vut}) {
-    symlink("$config->{lists_dir}/ALIASES/mj-vut-$dom", "$dir/mj-vut-$dom");
+    symlink("$config->{lists_dir}/ALIASES/mj-vut-$dom", "$dir/mj-vut-$dom") ||
+      warn "Warning: could not make symlink in $dir/mj-vut-$dom: $!.\n";
   }
 }
 
