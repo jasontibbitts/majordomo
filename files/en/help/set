@@ -30,7 +30,7 @@ The settings can be grouped as follows, and each of these numbered items
 is in a separate section below (specify only one of each group, because
 each one will override the others in the group):
   1. subscription class or subclass
-      (each, nomail, vacation, digest, digest-XXX)
+      (each, nomail, vacation, digest, digest-XXX, all)
   2. informative messages
       (noack, ackall, ackimportant, ackstall, ackdeny, ackpost, ackreject)
   3. copies of your own posts (selfcopy, noselfcopy)
@@ -68,6 +68,7 @@ receive messages from the server.  There are three basic classes:
      each   - you get each message as it is posted.
      digest - you get periodic collections of messages.
      nomail - you get nothing.
+     all    - a special class for list owners, NOT a combination of the others
 For the class of "digest", the list owner can define sub-classes on
 a per-list basis. Typical sub-classes, NOT always present, might be:
      digest-weekly
@@ -152,6 +153,16 @@ a per-list basis. Typical sub-classes, NOT always present, might be:
      configshow LISTNAME digests
   or you can contact the list owner at the special address
   LISTNAME-owner@$WHEREAMI
+
+
+1e) Subscription Class of "all" for use in debugging by list owners
+
+  There is a class called "all", but it should only be used by the list
+  owner as a debugging tool. The 'all' class is NOT a shorthand for all
+  of the other classes! The list owner, or a power user with the list
+  password, can put their address in the 'all' class and get lots of
+  messages: all digests in all types, and each message with and without
+  subject_prefix and reply_to.
 
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
