@@ -1,3 +1,1 @@
-The messages have been mailed in a digest to $VICTIM.
-Messages sent: $MESSAGECOUNT
-
+A digest, containing $MESSAGECOUNT message(s), has been mailed to $VICTIM.

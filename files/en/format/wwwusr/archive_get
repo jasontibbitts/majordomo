@@ -1,3 +1,1 @@
-The messages have been mailed individually to $USER.
-Messages sent: $MESSAGECOUNT
-
+$MESSAGECOUNT message(s) have been mailed to $VICTIM.
