@@ -1,3 +1,8 @@
+2003-04-17  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Access.pm:  (_a_forward)  Use reply files
+	to allow for language translation.
+
 2003-04-12  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/BounceHandler.pm:  (handle_bounce_user)  Add a

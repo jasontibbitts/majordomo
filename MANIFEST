@@ -173,6 +173,8 @@ files/en/.farewell_noweb
 files/en/.file_not_found
 files/en/.file_sent
 files/en/.format
+files/en/.forward_loop
+files/en/.forwarded_command
 files/en/.help
 files/en/.info
 files/en/.inform
@@ -1763,6 +1765,8 @@ files/en/format/wwwusr/unregister_error
 files/en/format/wwwusr/unsubscribe
 files/en/format/wwwusr/unsubscribe_error
 files/en/format/wwwusr/welcome
+files/en/forward_loop
+files/en/forwarded_command
 files/en/help/.accept
 files/en/help/.access
 files/en/help/.access_variables

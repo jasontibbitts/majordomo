@@ -365,6 +365,9 @@ See "help reply_files" for a description of each of the reply files.
   reply.  This generally includes the list address plus the address of any
   non-list-members whose addresses appear in the To: and CC: headers.
 
+\$NEWADDRESS
+  The e-mail address to which a command or posted message is forwarded.
+
 \$NEWLIST
   The most recent name of a mailing list that has been created,
   renamed, or destroyed with the createlist command.

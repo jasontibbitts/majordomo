@@ -1023,12 +1023,11 @@ sub _a_delay {
 }
 
 use Date::Format;
-use Mj::MIMEParser;
-use Symbol;
+use MIME::Entity;
 sub _a_forward {
   my ($self, $arg, $td, $args) = @_;
-  my (%avars, $cmdline, $ent, $fh, $mj_owner, $parser,
-      $subject, $tmpdir, $whoami);
+  my (%avars, %file, $cmdline, $ent, $fh, $file, $mj_owner, $subject, 
+      $subs, $tmpdir, $whoami);
   my $log = new Log::In 150, $arg;
 
   if ($args->{'nostall'}) {
@@ -1038,28 +1037,17 @@ sub _a_forward {
   }
   
   $arg ||= $self->_list_config_get($td->{'list'}, 'whoami_owner');
+  $mj_owner = $self->_global_config_get('sender');
   $cmdline = $td->{'cmdline'};
+  $subs = { 
+            $self->standard_subs($td->{'list'}),
+            'CMDLINE'    => $td->{'cmdline'},
+            'NEWADDRESS' => $arg,
+            'USER'       => "$td->{'user'}",
+          };
 
   if ($td->{'command'} !~ /post/) {
     $whoami = $self->_global_config_get('whoami');
-    if (lc $whoami eq lc $arg) {
-      # Mail Loop!  Send to owners instead.
-      # XLANG
-      $cmdline .= "\nUnable to forward to $arg due to apparent mail loop.";
-      $arg = $self->_list_config_get($td->{'list'}, 'whoami_owner');
-    }
-
-    # XLANG
-    $ent = build MIME::Entity
-      (
-       'Subject'  => "Forwarded request from $td->{'user'}",
-       'Date'     => time2str("%a, %d %b %Y %T %z", time),
-       'From'     => "$td->{'user'}",
-       'Reply-To' => "$td->{'user'}",
-       'Encoding' => '8bit',
-       'To'       => $arg,
-       'Data'     => [ "$cmdline\n" ],
-      );
   }
   else {
     # Reconstruct the list address
@@ -1069,40 +1057,63 @@ sub _a_forward {
       $whoami .=  "-$avars{'sublist'}";
     }
     $whoami .=  '@' . $self->_list_config_get($td->{'list'}, 'whereami');
-
-    # Create an entity from the spool file.
-    $tmpdir = $self->_global_config_get("tmpdir");
-
-    $parser = new Mj::MIMEParser;
-    $parser->output_to_core($self->_global_config_get("max_in_core"));
-    $parser->output_dir($tmpdir);
-    $parser->output_prefix("mjf");
-
-    $fh = gensym();
-    open($fh, "<$td->{'arg1'}");
-    $ent = $parser->read($fh);
-    # This should be safe, because the file has already
-    # been moved from the queue to the spool.
-    close $fh;
-
-    if (lc $whoami eq lc $arg) {
-      # Mail Loop!  Send to owners instead.
-      if ($ent) {
-        $subject = $ent->head->get('subject');
-        # XLANG
-        $subject = "Forwarding loop detected for $arg (was $subject)";
-        $ent->head->replace('subject', $subject);
-      }
-      $arg = $self->_list_config_get($td->{'list'}, 'whoami_owner');
-    }
   }
 
-  $mj_owner = $self->_global_config_get('sender');
+  if (lc $whoami eq lc $arg) {
+    # Mail Loop!  Send to owners instead.
+    $arg = $self->_list_config_get($td->{'list'}, 'whoami_owner');
+
+    ($file, %file) = 
+      $self->_list_file_get('list'   => $td->{'list'},
+                            'file'   => 'forward_loop',
+                            'subs'   => $subs,
+                            'nofail' => 1);
+  }
+  elsif ($td->{'command'} =~ /^post/) {
+    $self->mail_message($mj_owner, $td->{'arg1'}, $arg);
+    return (-1, 'repl_forward');
+  }
+  else {
+    ($file, %file) = 
+      $self->_list_file_get('list'   => $td->{'list'},
+                            'file'   => 'forwarded_command',
+                            'subs'   => $subs,
+                            'nofail' => 1);
+  }
+    
+  $subject = $self->substitute_vars_string($file{'description'}, $subs);
+
+  $ent = build MIME::Entity
+    (
+     Type       => $file{'c-type'},
+     Encoding   => $file{'c-t-encoding'},
+     Charset    => $file{'charset'},
+     Filename   => undef,
+     Path       => $file,
+     -Subject   => $subject,
+     -Date      => time2str("%a, %d %b %Y %T %z", time),
+     -From      => "$td->{'user'}",
+     -To        => $arg,
+     'Content-Language:' => $file{'language'},
+    );
+
+  if ($td->{'command'} =~ /^post/) {
+    # Attach the original message to the mail loop notice.
+    $ent->make_multipart;
+    # XLANG
+    $ent->attach(Type        => 'message/rfc822',
+                 Encoding    => '8bit',
+                 Description => 'Original message',
+                 Path        => $td->{'arg1'},
+                 Filename    => undef,
+                );
+  }
+
   $self->mail_entity($mj_owner, $ent, $arg) if ($ent and $arg);
   $ent->purge if $ent;
 
-  # Cannot unlink spool file now, because it may be attached
-  # to the reply message.
+  # The spool file for a posted message cannot be unlinked yet, 
+  # because it may be attached  to the reply message.
 
   return (-1, 'repl_forward');
 }

@@ -1,0 +1,8 @@
+# The following command was not forwarded to 
+#   $NEWADDRESS
+# on behalf of 
+#   $USER
+# because that would have resulted in a mail loop.
+
+$CMDLINE
+

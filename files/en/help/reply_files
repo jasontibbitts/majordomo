@@ -177,6 +177,21 @@ request that the file was sent in a separate message.
 (standard plus FILE and VICTIM)
 
 
+forward_loop
+------------
+This file is sent to the list owners when a command or posted message
+cannot be forwarded because that would result in a mail loop.
+
+(standard plus CMDLINE, NEWADDRESS, USER)
+
+
+forwarded_message
+-----------------
+This file is sent to the new address when a command is forwarded.
+
+(standard plus CMDLINE, NEWADDRESS, USER)
+
+
 info
 ----
 This file is sent in response to the info command if no info document
