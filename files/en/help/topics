@@ -43,9 +43,10 @@ Below is a complete list of all available help topics:
    help alias
    help aliasadd
    help aliasremove
+   help announce
    help approve
    help archive
-   help auxiliary_lists
+   help auxiliary_list
    help cancel
    help commands
    help config
@@ -86,6 +87,7 @@ Below is a complete list of all available help topics:
    help reject
    help rekey
    help remove
+   help report
    help request_response
    help sessioninfo
    help set
