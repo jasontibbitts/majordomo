@@ -262,7 +262,9 @@ sub install_response_files {
   $i = 1;
   while (($file, $subj) = each %{$files}) {
     print FILE "put GLOBAL /stock/$file $subj <\@$i\n";
-    push @args, ("-f", "files/$file");
+    cp("files/$file", "$config->{wtmpdir}/inst.$$.$i");
+    chmod(0644, "$config->{wtmpdir}/inst.$$.$i");
+    push @args, ("-f", "$config->{wtmpdir}/inst.$$.$i");
     $i++;
   }
   close FILE;
@@ -270,6 +272,10 @@ sub install_response_files {
   print "@args\n";
   system(@args) == 0 or die "Error executing $args[0], $?";
   unlink "$config->{wtmpdir}/inst.$$";
+  while ($i > 0) {
+    unlink "$config->{wtmpdir}/inst.$$.$i";
+    $i--;
+  }
 }
 
 sub suggest_mta {
