@@ -3,6 +3,22 @@
 <!-- Majordomo head_global format file -->
 <html><head>
   <title>$LIST list administration: $COMMAND</title>
+
+  <script language="JavaScript" type="text/javascript">
+  <!--
+  function checkAll(btn, on, btval)
+    {
+      for (i = 0; i < btn.length; i++) {
+        if (btval != false && btn[i].value != btval) {
+          continue;
+        }
+        btn[i].checked = (on == true);
+      }
+    }
+
+  // -->
+  </script>
+
 </head>
 <body>
 

@@ -13,7 +13,7 @@ Click a <b>Token</b> number to display specific information about that
 request in a separate window.
 </p>
 
-<form method="POST" action="$CGIURL">
+<form name="tokens" method="POST" action="$CGIURL">
   <input type="submit" name="func" value="tokeninfo">
   <input type="submit" name="func" value="accept">
   <input type="submit" name="func" value="accept-archive">
@@ -32,4 +32,8 @@ request in a separate window.
   <th>Date</th>
   <th>Address</th>
 </tr>
+
+  <input type="checkbox" name="ca" 
+   onclick="checkAll(document.tokens.extra, document.tokens.ca.checked, false)">
+  Check all requests<br>
 
