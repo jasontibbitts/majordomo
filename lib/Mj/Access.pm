@@ -579,7 +579,7 @@ sub list_access_check {
 	# We'll process the function later.
 	push @final_actions, $i;
 
-	$saw_terminal ||= action_terminal($i);
+	$saw_terminal ||= action_terminal($func);
       }
 
       # We need to stop if we saw a terminal action in the results of the
