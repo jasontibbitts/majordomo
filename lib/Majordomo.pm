@@ -272,6 +272,11 @@ sub connect {
   ($ok, $err) =
     $self->global_access_check(undef, undef, 'access', 'access', $user);
 
+  # Access check succeeded; now try the block_headers variable if applicable.
+  if ($ok > 0 and ($int eq 'email' or $int eq 'request')) {
+    ($ok, $err) =
+      $self->check_headers($sess);
+  }
   # If the access check failed we tell the client to sod off.  Clearing the
   # sessionid prevents further actions.
   unless ($ok > 0) {
@@ -610,6 +615,45 @@ sub _re_match {
   }
 #  $log->out('matched') if $match;
   return $match;
+}
+
+=head2 standard_subs(list)
+
+This routine returns a hash of a standard set of variable
+substitutions, used in various places in the Mj modules.
+
+=cut
+sub standard_subs {
+  my $self = shift;
+  my $olist = shift;
+  my ($list, $sublist, $whereami, $whoami);
+  ($list, $sublist) = $olist =~ /([a-zA-Z0-9\.\-\_]+):?([a-zA-Z0-9\.\-\_]*)/;
+
+  return unless $self->valid_list($list, 1, 1);
+  $whereami  = $self->_global_config_get('whereami');
+
+  if (defined $sublist) {
+    $whoami = "$list-$sublist\@$whereami";
+  }
+  else {
+    $whoami = $self->_list_config_get($list, 'whoami');
+  }
+  my %subs = (
+    'LIST'        => $olist,
+    'MJ'          => $self->_global_config_get('whoami'),
+    'MAJORDOMO'   => $self->_global_config_get('whoami'),
+    'MJOWNER'     => $self->_global_config_get('whoami_owner'),
+    'OWNER'       => $self->_list_config_get($list, 'whoami_owner'),
+    'REQUEST'     => ($list eq 'GLOBAL' or $list eq 'DEFAULT') ?
+                     $whoami :
+                     "$list-request\@$whereami",
+    'SUBLIST'     => $sublist,
+    'SITE'        => $self->_global_config_get('site_name'),
+    'VERSION'     => $Majordomo::VERSION,
+    'WHEREAMI'    => $whereami,
+    'WHOAMI'      => $whoami,
+  );
+  %subs;
 }
 
 =head2 substitute_vars(file, subhashref, filehandle, list, depth)
@@ -1611,15 +1655,9 @@ sub _faq {
     unless $self->_make_list($list);
 
   $subs =
-    {VERSION  => $Majordomo::VERSION,
-     WHEREAMI => $self->_global_config_get('whereami'),
-     WHOAMI   => $self->_list_config_get($list, 'whoami'),
-     MJ       => $self->_global_config_get('whoami'),
-     MJOWNER  => $self->_global_config_get('sender'),
-     OWNER    => $self->_list_config_get($list, 'sender'),
-     SITE     => $self->_global_config_get('site_name'),
+    {
+     $self->standard_subs($list),
      USER     => $requ,
-     LIST     => $list,
     };
 
   ($file) = $self->_list_file_get($list, 'faq', $subs);
@@ -1665,13 +1703,8 @@ sub help_start {
   $wowner = $self->_global_config_get('sender'),
 
   $subs =
-    {VERSION  => $Majordomo::VERSION,
-     WHEREAMI => $self->_global_config_get('whereami'),
-     WHOAMI   => $whoami,
-     MJ       => $whoami,
-     MJOWNER  => $wowner,
-     OWNER    => $wowner,
-     SITE     => $self->_global_config_get('site_name'),
+    {
+     $self->standard_subs($list),
      USER     => $request->{'user'},
     };
 
@@ -1718,15 +1751,9 @@ sub _info {
     unless $self->_make_list($list);
 
   $subs =
-    {VERSION  => $Majordomo::VERSION,
-     WHEREAMI => $self->_global_config_get('whereami'),
-     WHOAMI   => $self->_list_config_get($list, 'whoami'),
-     MJ       => $self->_global_config_get('whoami'),
-     MJOWNER  => $self->_global_config_get('sender'),
-     OWNER    => $self->_list_config_get($list, 'sender'),
-     SITE     => $self->_global_config_get('site_name'),
+    {
+     $self->standard_subs($list),
      USER     => $requ,
-     LIST     => $list,
     };
 
   ($file) = $self->_list_file_get($list, 'info', $subs);
@@ -1768,15 +1795,9 @@ sub _intro {
     unless $self->_make_list($list);
 
   $subs =
-    {VERSION  => $Majordomo::VERSION,
-     WHEREAMI => $self->_global_config_get('whereami'),
-     WHOAMI   => $self->_list_config_get($list, 'whoami'),
-     MJ       => $self->_global_config_get('whoami'),
-     MJOWNER  => $self->_global_config_get('sender'),
-     OWNER    => $self->_list_config_get($list, 'sender'),
-     SITE     => $self->_global_config_get('site_name'),
+    {
+     $self->standard_subs($list),
      USER     => $requ,
-     LIST     => $list,
     };
 
   ($file) = $self->_list_file_get($list, 'intro', $subs);
@@ -1826,8 +1847,7 @@ use MIME::Entity;
 sub _password {
   my ($self, $list, $user, $vict, $mode, $cmdline, $pass) = @_;
   my $log = new Log::In 35, "$vict";
-  my (%file, $desc, $ent, $file, $majord, $majord_own, $reg, $sender,
-      $site, $subst, $whereami);
+  my (%file, $desc, $ent, $file, $reg, $sender, $subst);
 
   # Make sure user is registered.  XXX This ends up doing two reg_lookops,
   # which should probably be cached
@@ -1844,16 +1864,9 @@ sub _password {
   # Mail the password_set message to the victim if requested
   if ($mode !~ /quiet/) {
     $sender = $self->_global_config_get('sender');
-    $whereami = $self->_global_config_get('whereami');
-    $majord   = $self->_global_config_get('whoami');
-    $majord_own = $self->_global_config_get('whoami_owner');
-    $site       = $self->_global_config_get('site_name');
 
     $subst = {
-	      MAJORDOMO => $majord,
-	      OWNER     => $majord_own,
-	      SITE      => $site,
-	      LIST      => $list,
+              $self->standard_subs('GLOBAL'),
 	      PASSWORD  => $pass,
 	      VICTIM    => $vict->strip,
 	     };
@@ -2002,8 +2015,8 @@ use Mj::MailOut;
 sub _request_response {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my (%file, $cset, $desc, $enc, $ent, $file, $list_own, $majord,
-      $majord_own, $mess, $sender, $site, $subst, $type, $whereami);
+  my (%file, $cset, $desc, $enc, $ent, $file, $list_own, 
+      $mess, $sender, $subst, $type);
 
   return unless $self->_make_list($list);
 
@@ -2012,18 +2025,12 @@ sub _request_response {
 
   # Build the entity and mail out the file
   $sender = $self->_list_config_get($list, 'sender');
-  $whereami = $self->_global_config_get('whereami');
-  $majord   = $self->_global_config_get('whoami');
-  $majord_own = $self->_global_config_get('sender');
-  $site       = $self->_global_config_get('site_name');
   $list_own   = $self->_list_config_get($list, 'sender');
 
   $subst = {
-	    REQUEST   => "$list-request\@$whereami",
-	    MAJORDOMO => $majord,
-	    OWNER     => $list_own,
-	    SITE      => $site,
-	    LIST      => $list,
+            $self->standard_subs($list),
+            'REQUESTER' => "$requ",
+            'USER'      => "$requ",
 	   };
 
   # Expand variables
@@ -2730,15 +2737,9 @@ sub _announce {
 
   $subs =
     {
-     VERSION  => $Majordomo::VERSION,
-     WHEREAMI => $self->_global_config_get('whereami'),
-     WHOAMI   => $self->_list_config_get($list, 'whoami'),
-     MJ       => $self->_global_config_get('whoami'),
-     MJOWNER  => $self->_global_config_get('whoami_owner'),
-     OWNER    => $self->_list_config_get($list, 'whoami_owner'),
-     SITE     => $self->_global_config_get('site_name'),
-     USER     => $user,
-     LIST     => $list,
+     $self->standard_subs($list),
+     'REQUESTER' => $user,
+     'USER'      => $user,
     };
   
   ($mailfile, %data) = $self->_list_file_get($list, $file, $subs);
@@ -3424,16 +3425,9 @@ sub _createlist {
       $sender = $self->_global_config_get('sender');
 
       $subs = {
-       VERSION  => $Majordomo::VERSION,
-       WHEREAMI => $self->_global_config_get('whereami'),
-       WHOAMI   => $self->_list_config_get($list, 'whoami'),
-       OWNER    => $self->_list_config_get($list, 'whoami_owner'),
-       MJ       => $self->_global_config_get('whoami'),
-       MJOWNER  => $self->_global_config_get('whoami_owner'),
-       USER     => $owner->strip,
-       SITE     => $self->_global_config_get('site_name'),
-       LIST     => $list,
-       PASSWORD => $pw,
+       $self->standard_subs($list),
+       'USER'     => $owner->strip,
+       'PASSWORD' => $pw,
       };
    
       ($file, %data) = $self->_list_file_get('GLOBAL', 'new_list', $subs);
@@ -3524,12 +3518,7 @@ sub _digest {
     $whereami = $self->_global_config_get('whereami');
     $tmpdir   = $self->_global_config_get('tmpdir');
     $subs = {
-	     LIST     => $list,
-	     VERSION  => $Majordomo::VERSION,
-	     WHEREAMI => $whereami,
-	     MJ       => $self->_global_config_get('whoami'),
-	     MJOWNER  => $self->_global_config_get('sender'),
-	     SITE     => $self->_global_config_get('site_name'),
+              $self->standard_subs($list),
 	    };
     $deliveries = {};
     $force = 1 if $mode =~ /force/;
@@ -3797,23 +3786,17 @@ sub reject {
 
     $data->{'ack'} = 0;
     $repl = {
-         'OWNER'      => $list_owner,
-         'MJ'         => $mj_addr,
-         'MJOWNER'    => $mj_owner,
-         'TOKEN'      => $token,
-         'REJECTER'   => $request->{'user'},
-         'MESSAGE'    => $reason,
-         'REQUESTER'  => $data->{'user'},
-         'VICTIM'     => $data->{'victim'},
+         $self->standard_subs($data->{'list'}),
          'CMDLINE'    => $data->{'cmdline'},
          'DATE'       => scalar localtime($data->{'time'}),
-         'REQUEST'    => $data->{'command'},
-         'LIST'       => $data->{'list'},
+         'MESSAGE'    => $reason,
+         'REJECTER'   => $request->{'user'},
+         'COMMAND'    => $data->{'command'},
+         'REQUESTER'  => $data->{'user'},
          'SESSIONID'  => $data->{'sessionid'},
-         'SITE'       => $site,
          'SESSION'    => $sess,
-         'WHEREAMI'   => $self->_list_config_get($data->{'list'}, 'whereami'),
-         'WHOAMI'     => $self->_list_config_get($data->{'list'}, 'whoami'),
+         'TOKEN'      => $token,
+         'VICTIM'     => $data->{'victim'},
         };
    
   
