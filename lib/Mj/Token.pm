@@ -762,7 +762,9 @@ sub t_accept {
   # If we're accepting a confirm token, we can just return the results
   # so that they'll be formatted by the core accept routine.
   return (1, $token, $data, \@out) 
-    if ($data->{'type'} eq 'confirm' or $data->{'type'} eq 'async');
+    if ($data->{'type'} eq 'confirm' or 
+        $data->{'type'} eq 'async' or
+        $data->{'type'} eq 'probe');
 
   # So we're accepting a consult or delay token. We need to give back some
   # useful info to the accept routine so the owner will know that the
