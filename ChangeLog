@@ -1,3 +1,9 @@
+2001-06-22  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_make_list)  Bugfix:  Use the "_install"
+	template instead of the GLOBAL defaults to initialize 
+	mailing lists.
+
 2001-06-22  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/Util.pm (n_defaults): The default file for a bounce probe

@@ -323,6 +323,13 @@ sub load {
       $self->{'source'}{'installation'} = 
         $self->_load_dfl('DEFAULT', '_install');
     }
+
+    # The installation defaults must be made available to regular
+    # mailing lists.
+    if ($self->{'list'} eq 'DEFAULT') {
+      $self->{'source'}{'_install'} = 
+        $self->_load_dfl('DEFAULT', '_install');
+    }
   }
   push @{$self->{'sources'}}, 'installation';
 

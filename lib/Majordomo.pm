@@ -648,7 +648,7 @@ sub _make_list {
     }
     unless (exists $self->{'installdata'}{'raw'}) {
       $self->{'installdata'} = 
-        $self->{'lists'}{'DEFAULT'}->{'config'}->{'source'}{'installation'};
+        $self->{'lists'}{'DEFAULT'}->{'config'}->{'source'}{'_install'};
     }
   }
   1;
