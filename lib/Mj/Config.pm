@@ -1681,6 +1681,7 @@ sub parse_access_rules {
 	if ($tmp2) {
           $tmp2 =~ s/^\((.*)\)/$1/;
 	  for $k (action_files($tmp, $tmp2)) {
+            next if ($k eq 'NONE' and $tmp eq 'replyfile');
 	    ($file) =
 	      &{$self->{callbacks}{'mj._list_file_get'}}(list => $self->{list},
 							file => $k,
@@ -1798,6 +1799,9 @@ sub parse_address {
   else {
     $mess = &{$self->{callbacks}{'mj._list_file_get_string'}}(
                 'list' => $self->{'list'}, 'file' => "error/$mess");
+    unless (defined $mess and length $mess) {
+      $mess = "unknown";
+    }
     return (0, "$str: $mess");
   }
 }
