@@ -166,6 +166,7 @@ sub post {
     $request->{'password'} = '';
   }
 
+  $avars->{bad_approval} = 0;
   unless ($ok) {
     $avars->{bad_approval} = 1;
     push (@$reasons, $passwd) if (defined $passwd and length $passwd);
@@ -2573,6 +2574,7 @@ sub do_digests {
   $subs = $args{'substitute'}; 
   $subs->{LIST} = $list;
   $from = $args{'sender'};
+  $subs->{'SENDER'} = $from;
   $whoami = $self->_list_config_get($list, 'whoami');
 
   # Pass to digest if we got back good archive data and there is something

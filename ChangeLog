@@ -1,3 +1,9 @@
+2004-08-03  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Resend.pm:  (do_digests)  Bugfix:  Override the
+	SENDER substitution using the actual sender.
+	Thanks to Dean Collins.
+
 2004-07-12  Michael Yount <csf@moscow.com>
 
 	* setup/setup_func.pl:  (read_mj_config)  Allow values
