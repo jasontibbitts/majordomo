@@ -166,6 +166,7 @@ The counting stuff is not yet implemented.
 sub commit {
   my $self  = shift;
   my $count = shift;
+  my ($ok);
 
   $::log->in(110, "$self->{'name'}");
 
@@ -177,24 +178,31 @@ sub commit {
   my $savename = _savename($self->{'name'});
   my $tempname = $self->{'tempname'};
 
+  $self->{'oldhandle'}->close;
+  $ok = $self->{'newhandle'}->close;
+
   # We link the old file to save it, then move the new one on top of the
   # old one.  This should guarantee that the file always exists, and that
   # there is always a consistent file in case something dies in the middle.
   # The locking must continue to work when we rename files.
-  link($name, $savename)
-    || $::log->abort("Couldn't link $name to $savename: $!");
-  rename($tempname, $name)
-    || $::log->abort("Couldn't rename $tempname to $name: $!");
-  unlink($savename)
-    || $::log->abort("Couldn't unlink $savename: $!");
+  if ($ok) {
+    link($name, $savename)
+      || $::log->abort("Couldn't link $name to $savename: $!");
+    rename($tempname, $name)
+      || $::log->abort("Couldn't rename $tempname to $name: $!");
+    unlink($savename)
+      || $::log->abort("Couldn't unlink $savename: $!");
+  }
+  else {
+    unlink($tempname)
+      || $::log->abort("Couldn't unlink $tempname: $!");
+  }
 
-  $self->{'oldhandle'}->close;
-  $self->{'newhandle'}->close;
   $self->{'lock'}->unlock;
 
   delete $self->{'open'};
   $::log->out;
-  1;
+  $ok;
 }
 
 =head2 abandon
