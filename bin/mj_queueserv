@@ -89,6 +89,12 @@ while (1) {
 
   # select returns 0 on a timeout
   if ($nfound == 0) {
+    # Check each child; do not exit if any may still be running.
+    if (scalar @child) {
+      ping_runners('Bye', \@child);
+      @child = grep { defined } @child;
+      next if (scalar @child);
+    }
     logmsg "Timed out";
     last;
   }
@@ -119,69 +125,9 @@ while (1) {
   @child = grep { defined } @child;
 
   # Find a child that can read or start a new one
-  undef $use_child;
- PICK:
-  for ($i = 0; $i < @child; $i++) {
-    # Ping a child; if we fail while writing, it's dead.  If the response
-    # doesn't come back soon, it's busy.  Note that we have to exclude
-    # buffered ping responses here, so we send along the time.
-    #logmsg "Checking $i";
-    $ping = 'Ping ' . time;
-    $status = out($child[$i], $ping);
-    if (!defined($status)) {
-      logmsg "$i is dead";
-      close $child[$i];
-      undef $child[$i];
-      next PICK;
-    } elsif ($status == 0) {
-      # select() timed out, system may be heavily loaded
-      logmsg "$i is not responding";
-      next PICK;
-    }
+  $use_child = ping_runners('Ping', \@child);
 
-    # We want to get a response, but there may be buffered responses to
-    # previous pings that the client didn't answer immediately.
-  PING:
-    while(1) {
-      $rin = $win = $ein = ''; vec($rin,fileno($child[$i]),1) = 1; $ein = $rin | $win;
-      $nfound = select($rout=$rin, $wout=$win, $eout=$ein, .25);
-      if ($nfound && $rout) {
-	$line = in($child[$i]);
-	unless (defined($line) && (length($line))) {
-	  logmsg "Weird; got an empty line from $i";
-	  close $child[$i];
-	  undef $child[$i];
-	  next PICK;
-	}
-
-	# If the response has Exiting anywhere, the client is gone
-	if ($line =~ /Exiting/) {
-	  logmsg "$i has exited";
-	  close $child[$i];
-	  undef $child[$i];
-	  next PICK;
-	}
-
-	# If we got the ping back, we're set
-	elsif ($line =~ /$ping$/) {
-	  logmsg "$i pinged successfully";
-	  last PING;
-	}
-	else {
-	  logmsg "$i had stale response";
-	  next PING;
-	}
-      }
-      else {
-	logmsg "$i is busy";
-	next PICK;
-      }
-    }
-    logmsg "Using child $i";
-    $use_child = $i;
-    last PICK;
-  }
-  if (!defined($use_child) && @child < $::CONCURRENCY) {
+  if (! defined($use_child) && @child < $::CONCURRENCY) {
     $i = scalar(@child);
     logmsg "Starting new runner $i";
 
@@ -189,7 +135,9 @@ while (1) {
     $child[$i]  = gensym(); 
     $parent[$i] = gensym(); 
     socketpair($child[$i], $parent[$i], AF_UNIX, SOCK_STREAM, PF_UNSPEC) 
-      or die "Socketpair: $!";
+      or die "Socketpair failure: $!";
+
+    # Set autoflush
     &af($child[$i]);
     &af($parent[$i]);
 
@@ -211,7 +159,7 @@ while (1) {
       open *STDOUT, ">&$out";
 
       exec "$::BINDIR/mj_queuerun$debug";
-      die "Couldn't exec $::BINDIR/mj_queuerun: $!";
+      die "Unable to execute $::BINDIR/mj_queuerun: $!";
     }
     else {
       # Parent...
@@ -223,7 +171,7 @@ while (1) {
       vec($rin,fileno($child[$i]),1) = 1; 
       $ein = $rin | $win;
 
-      if(select($rout=$rin, $wout=$win, $eout=$ein, 30)) {
+      if (select($rout=$rin, $wout=$win, $eout=$ein, 30)) {
 	$line = in($child[$i]);
 	logmsg "Runner is awake, said $line";
 	$use_child = $i;
@@ -265,13 +213,83 @@ logmsg "Shutting down";
 exit;
 
 sub af {
-  my ($sock) = shift;
+  my $sock = shift;
   my ($tmp);
   # Autoflush the socket
   $tmp = select;
   select $sock;
   $| = 1;  
   select $tmp;
+}
+
+sub ping_runners {
+  my ($ping, $children) = @_;
+  my ($ein, $eout, $i, $line, $message, $nfound, $rin, $rout, $status,
+      $use_child, $win, $wout);
+
+  for ($i = 0; $i < @$children; $i++) {
+    # Ping a child; if we fail while writing, it's dead.  If the response
+    # doesn't come back soon, it's busy.  Note that we have to exclude
+    # buffered ping responses here, so we send along the time.
+    $message = "$ping " . time;
+    $status = out($children->[$i], $message);
+    if (! defined ($status)) {
+      logmsg "$i is dead";
+      close $children->[$i];
+      undef $children->[$i];
+      next;
+    } 
+    elsif ($status == 0) {
+      # select() timed out, system may be heavily loaded
+      logmsg "$i is not responding";
+      next;
+    }
+
+    # We want to get a response, but there may be buffered responses to
+    # previous pings that the client did not answer immediately.
+    while(1) {
+      # Clear and set the status variables for select().
+      $rin = $win = ''; 
+      vec($rin, fileno($children->[$i]), 1) = 1; 
+      $ein = $rin | $win;
+
+      $nfound = select($rout=$rin, $wout=$win, $eout=$ein, .25);
+      if ($nfound && $rout) {
+	$line = in($children->[$i]);
+	unless (defined($line) && (length($line))) {
+	  logmsg "Empty response from $i";
+	  close $children->[$i];
+	  undef $children->[$i];
+	  last;
+	}
+
+	# If the response has Exiting anywhere, the client is gone
+	if ($line =~ /Exiting/) {
+	  logmsg "$i has exited";
+	  close $children->[$i];
+	  undef $children->[$i];
+	  last;
+	}
+
+	# If we got the ping back, we're set
+	elsif ($line =~ /$message$/) {
+	  logmsg "$i pinged successfully";
+	  last;
+	}
+	else {
+	  logmsg "$i had stale response";
+	  next;
+	}
+      }
+      else {
+	logmsg "$i is busy";
+	last;
+      }
+    }
+    logmsg "Using child $i";
+    $use_child = $i;
+  }
+  return $use_child;
 }
 
 =head1 NAME
