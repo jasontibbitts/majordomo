@@ -1,6 +1,16 @@
+2000-07-16  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/TextOutput.pm:  Remove entirely.
+
+	* lib/Majordomo.pm:  Remove the 'auth' variable from the
+	request hash, and make the 'interface' variable specific
+	to each session, rather than to each request.  This reduces
+	the number of arguments to routines like global_config_get
+    and list_access_check by 2.
+
 2000-07-07  Michael Yount <csf@moscow.com>
 
-	* lib/Mj/Parser (parse_args):   Deal with attachments.  If a command 
+	* lib/Mj/Parser.pm (parse_args):   Deal with attachments.  If a command 
 	accepts here arguments and is iterated,  set the appropriate request
 	variable to the attachment file handle.  Otherwise, read
 	the data from the file handle into the argument array.

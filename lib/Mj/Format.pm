@@ -122,7 +122,6 @@ sub archive {
   if ($request->{'mode'} =~ /get/) {
     $chunksize = 
       $mj->global_config_get($request->{'user'}, $request->{'password'}, 
-                             $request->{'auth'}, $request->{'interface'}, 
                              "chunksize");
 
     $lines = 0; @tmp = ();
@@ -182,7 +181,7 @@ sub auxwho  {
   
   # We know we succeeded
   $count = 0;
-  $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},                                       $request->{'auth'}, $request->{'interface'},
+  $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
                                       "chunksize");
   
   eprint($out, $type, "Members of auxiliary list \"$request->{'list'}:$request->{'sublist'}\":\n");
@@ -422,10 +421,8 @@ sub lists {
   $count = 0;
 
   $site   = $mj->global_config_get($request->{'user'}, $request->{'pass'}, 
-                                   $request->{'auth'}, $request->{'interface'}, 
                                    "site_name");
   $site ||= $mj->global_config_get($request->{'user'}, $request->{'pass'}, 
-                                   $request->{'auth'}, $request->{'interface'}, 
                                    "whoami");
 
   my ($ok, $defmode, @lists) = @$result;
@@ -564,8 +561,7 @@ sub put {
     if (   ref $request->{'contents'} eq 'IO::File'  
         or ref $request->{'contents'} eq 'IO::Handle');
 
-  my ($chunksize) = $mj->global_config_get(undef, undef, undef, 
-                           $request->{'interface'}, "chunksize") * 80;
+  my ($chunksize) = $mj->global_config_get(undef, undef, "chunksize") * 80;
 
   $request->{'command'} = "put_chunk"; 
 
@@ -918,7 +914,7 @@ sub which {
   }
 
   $whoami = $mj->global_config_get($request->{'user'}, $request->{'password'}, 
-                                   $request->{'auth'}, $request->{'int'}, 'whoami');
+                                   'whoami');
   $last_list = ''; $list_count = 0; $total_count = 0;
 
   # Print the header if we got anything back.  Note that this list is
@@ -973,12 +969,11 @@ sub which {
   $ok;
 }
 
-# XXX Merge this with sub auxwho above.
 sub who {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}, $request->{'regexp'}";
   my (@lines, @out, @stuff, $chunksize, $count, $error, $i, $ind, $ret);
-  my ($template, $subs, $fh, $line, $mess);
+  my ($template, $tmp, $subs, $fh, $line, $mess, $numbered);
 
   my ($ok, $regexp, $tmpl) = @$result;
   if ($ok <= 0) {
@@ -990,7 +985,6 @@ sub who {
   # We know we succeeded
   $count = 0;
   $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'}, 
-                                      $request->{'auth'}, $request->{'interface'},
                                       "chunksize");
   return 0 unless $chunksize;  
 
@@ -1034,9 +1028,14 @@ sub who {
         else {
           $subs->{'LISTS'} =~ s/\002/ /g;
         }
-        my (@time) = localtime($i->{'changetime'});
-        $subs->{'LASTCHANGE'} = 
-          sprintf "%4d-%.2d-%.2d", $time[5]+1900, $time[4]+1, $time[3];
+        if (defined $i->{'changetime'}) {
+          my (@time) = localtime($i->{'changetime'});
+          $subs->{'LASTCHANGE'} = 
+            sprintf "%4d-%.2d-%.2d", $time[5]+1900, $time[4]+1, $time[3];
+        }
+        else {
+          $subs->{'LASTCHANGE'} = '';
+        }
         $line = $mj->substitute_vars_string($template, $subs);
         chomp $line;
       }
@@ -1054,10 +1053,15 @@ sub who {
       $count++;
       eprint($out, $type, "$ind$line\n");
       if ($request->{'mode'} =~ /bounces/ && exists $i->{'bouncestats'}) {
-        my $tmp = "$ind  Bounces in the past week: $i->{'bouncestats'}->{'week'}\n";
-        eprint($out, $type, $tmp);
-        $tmp = "$ind  Bounces in the past month: $i->{'bouncestats'}->{'month'}\n";
-        eprint($out, $type, $tmp);
+        $tmp = '';
+        $tmp .= "$ind  Bounces in the past week: $i->{'bouncestats'}->{'week'}\n"
+          if $i->{'bouncestats'}->{'week'};
+        $tmp .= "$ind  Bounces in the past month: $i->{'bouncestats'}->{'month'}\n"
+          if $i->{'bouncestats'}->{'month'};
+        $numbered = join " ", sort {$a <=> $b} keys %{$i->{'bouncedata'}{'M'}};
+        $tmp .= "Message numbers: $numbered\n"
+          if $numbered;
+        eprint($out, $type, "$tmp\n");
       }
     }
   }
@@ -1084,7 +1088,6 @@ sub g_get {
   eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
 
   $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
-                                      $request->{'auth'}, $request->{'int'}, 
                                       "chunksize");
 
   $request->{'command'} = "get_chunk";
