@@ -33,9 +33,10 @@ use vars (qw(%header %supported));
 
 %header = (
 	   'sendmail' => <<EOM,
-Please add the following lines to your aliases file, if they are not
-already present.  You may have to run the "newaliases" command afterwards
-to enable these aliases.
+Please add (for createlist, if they are not already present)
+or remove (for createlist-destroy if they still exist) the
+following lines in your aliases file. You may have to run
+the "newaliases" command afterwards to enable these aliases.
 EOM
 	  );
 
