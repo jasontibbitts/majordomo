@@ -15,81 +15,99 @@ listname, required, is an email list at this site (or the word "GLOBAL")
 pattern,   if specified, is an address matching string
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The "who" command returns all or some subscribers to the named list,
-if you are authorized to review the subscribers. Each list owner may
-decide who is authorized, and you will receive an error message if
-you have been refused access.
+The who command displays a list of some or all of the subscribers of a
+mailing list.  Access to this command may be restricted by the list 
+administrators.
+
+If a "pattern" is supplied, only addresses which match the pattern will be
+listed. Please see "help patterns" for an introduction to Majordomo 
+patterns.
+
+If a "pattern" is not supplied, all subscribers are listed.
+
+The "short" command mode will cause only the names and addresses of the
+subscribers to be displayed, without any extra formatting.
+
+
+                 Command Modes for List Administrators
+
+Several modes of the who command require an administrative password.
+
+If the "enhanced" command mode is specified, additional information will 
+be provided about each subscriber in the list.  If the list name is GLOBAL, 
+the mailing lists in which the subscriber participates will be shown.  For
+any other list name, the subscriber flags and delivery class (each, digest,
+nomail) will be shown in the result.  The subscriber flags are presented
+in an abbreviated form, with one letter for each flag that is set,
+according to the following table:
+
+Letter  Setting Name
+  d      ackdeny     
+  f      ackpost
+  j      ackreject
+  b      ackstall
+  C      eliminatecc
+  h      hideaddress
+  H      hideall
+  O      postblock
+  P      prefix
+  R      replyto
+  W      rewritefrom
+  S      selfcopy
+
+Please see "help set" for an explanation of each setting.
+
+The "export" command mode will cause the subscriber list to be displayed
+as a collection of Majordomo commands which can be used to recreate the
+subscriber list, including all of the settings for each subscription.
+For the GLOBAL pseudo-list, export mode causes a group of "register"
+commands to be displayed. For regular lists, export mode shows a bunch
+of subscribe and set commands.  
+
+If "bounce" mode is specified, only those addresses that have
+experienced delivery failures will be shown. Refer to 
+"help configset_bounce_max_age" for additional information on bounce 
+processing (including other commands related to bounces).
 
 If "GLOBAL" is used as the list name, the registry information is
-returned instead of information from a specific list.  There are
-two exceptions to this rule.  If a sublist is named, subscriber
-data for the sublist are shown.  If the "owners" command mode is
-used, the addresses are taken from the "owners" configuration
-setting for each mailing list, instead of the registry.
+returned instead of information from a specific list.  There are three
+exceptions to this rule.  If a sublist is named, subscriber data for the
+sublist are shown.  If the "owners" command mode is used, the addresses
+are taken from the "owners" configuration setting for each mailing list,
+instead of the registry.  If the "alias" command mode is used, the
+addresses are taken from the GLOBAL aliases database (see "help alias"
+for more information about aliases.)
 
-If "pattern" is not supplied, all subscribers are listed.
+The "who-common" command displays addresses that appear on two different
+mailing lists.  The data shown with the addresses, if "enhanced" mode is
+used, are only relevant to the first of the two lists.  This feature is
+useful for viewing the registration data for people subscribed to a
+particular list: 
+  who-common-enhanced GLOBAL LISTNAME
+(A valid mailing list name should be substituted for LISTNAME.)
 
-If "pattern" is supplied, only addresses which match the pattern
-will be listed. Beware of case sensitivity, and review the
-"help patterns" file carefully. Patterns can be very simple or
-full-blown Perl regular expressions.
+The "who-owners GLOBAL" command will display the addresses of all list
+owners within a domain, and a list of the mailing lists maintained by
+each list owner.  The GLOBAL:owners auxiliary list is automatically
+updated by this command.  Once this occurs, a site or domain manager can
+contact every list owner with the announce command.
 
-If "-short" is specified, the simple list of addresses can be used
-for administrative changes in a pipe. For example:
+List owners can also view addresses in collections called "auxiliary
+subscriber lists" (see "help auxiliary_list" for more details.)
+
+The "short" command mode can be used for administrative changes in a pipe. 
+For example, the following command:
   mj_shell -p pass who-short listname | mj_shell -p pass -f - set listname ackimportant
 can be used to alter the subscription options of all list subscribers.
 
-If "-enhanced" is specified, additional information will be provided
-about each subscriber in the list.  If the list name is GLOBAL, the
-mailing lists in which the subscriber participates will be shown.
-For any other list name, the subscriber flags and mail mode (each,
-digest, or nomail) will be shown in the result.  The "enhanced"
-option is only available to people using administrative passwords.
-
-If "-export" is specified, with a password but without the need for
-a wildcard pattern, the information will be provided in the form of
-commands which will recreate the list (locally or at another site).
-For the GLOBAL pseudo-list, the "-export" causes a group of 
-"register" commands to be displayed. For regular lists, 
-"-export" yields a bunch of subscribe and set commands.
-Flag state and class (see "help set") are exported, as are nomail
-expiration times. 
-
-If "-alias" is specified in combination with the GLOBAL list, commands
-will be displayed that would allow the GLOBAL aliases database to
-be reconstructed.
-
-If "-bounce" is specified, only those addresses with bounces being
-processed will be shown. Refer to "help configset bounce_max_age"
-for additional information on bounce processing (including other
-commands related to bounces).
-
-The "who-common" command displays addresses that appear on two
-different mailing lists.  The data shown with the addresses,
-if "enhanced" mode is used, are only relevant to the first of
-the two lists.  This feature is useful for viewing the registration
-data for people subscribed to a particular list:
-  who-common-enhanced GLOBAL listname
-
-The "who-owners GLOBAL" command will display the addresses of
-all list owners within a domain, and a list of the mailing lists
-maintained by each list owner.  The GLOBAL:owners auxiliary list
-is automatically updated by this command.  Once this occurs, a
-site or domain manager can contact every list owner with the 
-announce command.
-
-List owners can also view addresses in collections called "auxiliary 
-subscriber lists" (see "help auxiliary_list" for more details.)
-
 
 See Also:
-   help access_variables
    help alias    (creates the aliases shown by the "who-alias" command)
    help announce (to mail a file to all members of an auxiliary list)
    help auxiliary_list (which is used to manage a set of addresses)
    help configset_access_rules (to restrict use of the who command)
    help configset_bounce_max_age (to force bounces to expire)
-   help configset_who_access   (to restrict use of who)
+   help configset_who_access   (to restrict use of the who command)
    help patterns (for simple and complex regular expressions)
    help set      (for details on subscription flags and classes)
    help show     (for information about a given subscriber)
