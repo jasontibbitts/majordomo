@@ -90,8 +90,7 @@ formatting function.
 The formatting function takes the data from the core function and turns it
 into something the user can understand.  The formatter can make more calls
 to the core to retrieve additional data, so that huge lists or files do not
-have to be buffered entirely on both sides of the link.  The formatter then
-returns to the TextOutput function.
+have to be buffered entirely on both sides of the link.
 
 Note that in the case of a stall, the token acceptance routine will call
 into the core and the core will then call the bottom half function on its
