@@ -360,15 +360,21 @@ sub remove {
   $self->{'splits'}{$arc}{'lines'} -= $data->{'lines'};
 
   # Open FH on appropriate split
-  if ($data->{'split'} ne '0') {
+  if (length $data->{'split'} and $data->{'split'} ne '0') {
     # Untaint
-    $data->{'split'} =~ /(\d+)/;  $sub = "$arc-$1";
-    $self->_read_counts($sub);
-    $self->{'splits'}{$sub}{'msgs'}--;
-    $self->{'splits'}{$sub}{'lines'} -= $data->{'lines'};
-    $file= "$dir/$self->{'list'}.$sub";
+    if ($data->{'split'} =~ /(\d+)/) {  
+      $sub = "$arc-$1";
+      $self->_read_counts($sub);
+      $self->{'splits'}{$sub}{'msgs'}--;
+      $self->{'splits'}{$sub}{'lines'} -= $data->{'lines'};
+      $file= "$dir/$self->{'list'}.$sub";
+    }
+    else {
+      $sub = $arc;
+    }
   }
   else {
+    $sub = $arc;
     $file= "$dir/$self->{'list'}.$arc";
   }
   $fh = new Mj::FileRepl $file;
