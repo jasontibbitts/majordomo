@@ -1805,7 +1805,7 @@ sub _describe_taboo {
   # long strings in bounce messages.  Include a bit more than the length of
   # a standard line here.
   $trunc = '';
-  if (length($match) > 100) {
+  if (defined($match) && length($match) > 100) {
     $match = substr($match, 0, 100);
     $trunc = ' (truncated)';
   }
