@@ -349,7 +349,7 @@ sub createlist {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $dummy, $args, @arglist) = @_;
   # $list will not be defined in any useful way because we didn't ask for
-  # one (see parser_data) because it doesn't exist to be validated by the
+  # one (see CommandProps.pm) because it doesn't exist to be validated by the
   # parser because we haven't created it yet.
   my $log = new Log::In 27, "$args";
   my($cmdline, $list, $owner);

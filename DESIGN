@@ -77,7 +77,7 @@ submodule code, but the code does not yet do this.
 The email and shell interfaces make use of the TextOutput module, which
 formats results from the Majordomo module in plain text suitable for
 display to the user, and the Parser module, which reads commands from a
-text file.  The Parser module uses the parser_data.pl file to determine
+text file.  The Parser module uses the CommandProps.pm file to determine
 legal commands and parameters.
 
 The Config module makes use of the mj_cf_data.pl and mj_cf_defs.pl files,
@@ -126,7 +126,7 @@ The argument mangler (TextOutput::resubscribe)
 
 Internal tables.
 
-  parser_data.pl needs the information about the command and its
+  CommandProps.pm needs the information about the command and its
   properties.  The %requests hash in Config.pm will need an additional
   key so that the 'resubscribe' action can be specified in the
   access_control language.  Any additional config variables needed (in
