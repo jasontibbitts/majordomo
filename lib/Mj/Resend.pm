@@ -1482,21 +1482,21 @@ sub _format_text {
 
   # Convert plain text or enriched text to hypertext.
   if ($type =~ m#^text/plain#i) {
-    eval { use Text::Reflow; };
+    eval ( "use Text::Reflow;" );
     if ($@) {
       # Use simple fallback if Text::Reflow is not available.
-      eval { use Mj::Util qw(plain_to_hyper); };
+      eval ( "use Mj::Util qw(plain_to_hyper);" );
       &plain_to_hyper($txtfile);
     }
     else {
       # Reformat the text and return immediately.
-      eval { use Mj::Util qw(reflow_plain); };
+      eval ( "use Mj::Util qw(reflow_plain);" );
       &reflow_plain($txtfile, $width, 1);
       return $txtfile;
     }
   }
   elsif ($type =~ m#^text/(richtext|enriched)#i) {
-    eval { use Mj::Util qw(enriched_to_hyper); };
+    eval ( "use Mj::Util qw(enriched_to_hyper);" );
     &enriched_to_hyper($txtfile);
   }
   else {
