@@ -66,10 +66,9 @@ auxunsubscribe list sublist address (-regexp, -allmatching)
   Removes an address or addresses from the named sublist of a given list.
 
   If the 'regexp' option is given, the address will be interpreted as a
-  regular expression rather than an address; in this case, the first match
-  found in the list will be unsubscribed.  The 'allmatching' option will
-  cause every address that matches the regular expression to be removed
-  from the sublist.
+  pattern rather than an address; in this case, the first match found in
+  the list will be unsubscribed.  The 'allmatching' option will cause every
+  address that matches the pattern to be removed from the sublist.
 
     Examples:  auxunsubscribe scooters posters buster@example.com
                auxunsubscribe-regexp scooters posters buster\@
@@ -77,7 +76,7 @@ auxunsubscribe list sublist address (-regexp, -allmatching)
                  \@example\.com
 
     See also:  'admin sublists' help subtopic
-               'regexp' help topic
+               'patterns' help topic
 
 
 auxwho list sublist
@@ -348,36 +347,34 @@ unsubscribe list address (-regexp, -allmatching)
   Removes an address or addresses from the given list.
 
   If the 'regexp' option is given, the address will be interpreted as a
-  regular expression rather than an address; in this case, the first match
-  found in the list will be unsubscribed.  The 'allmatching' option will
-  cause every address that matches the regular expression to be removed
-  from the list.
+  pattern rather than an address; in this case, the first match found in
+  the list will be unsubscribed.  The 'allmatching' option will cause every
+  address that matches the pattern to be removed from the list.
 
     Examples:  unsubscribe scooters buster@example.com
-               unsubscribe-regexp scooters buster\@
-               unsubscribe-regexp-allmatching scooters \@example\.com
+               unsubscribe-regexp scooters /buster\@/
+               unsubscribe-regexp-allmatching scooters "@example.com"
 
-    See also:  'regexp' help topic
+    See also:  'patterns' help topic
 
 
 which string (-regexp)
 ------------
   This shows which lists contain addresses which contain the given string.
-  The regex option causes the string to be interpreted as a Perl regular
-  expression.
+  The regex option causes the string to be interpreted as a pattern.
 
     Examples:  which buster@example.com
-               which-regexp buster\@
+               which-regexp "buster@"
 
-    See also:  'regexp' help topic
+    See also:  'patterns' help topic
 
 
-who list [regexp]
+who list [pattern]
 -----------------
-  Returns all members of the list.  If a regular expression is given as an
-  argument, only matches will be returned.
+  Returns all members of the list.  If a pattern is given as an argument,
+  only matches will be returned.
 
     Examples:  who scooters
-               who scooters \@example\.com
+               who scooters %@*example.com%i
 
-    See also:  'regexp' help topic
+    See also:  'pattern' help topic

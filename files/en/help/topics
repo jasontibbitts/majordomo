@@ -4,7 +4,7 @@ Available Help Topics
 commands    - Overview of available commands
 default     - Default help file
 parser      - Information about the text parser
-regexp      - Help with regular expressions
+patterns    - Help with Majordomo pattern matching
 subscribe   - Help on subscribing
 
 admin commands      - Overview of available administrative commands
