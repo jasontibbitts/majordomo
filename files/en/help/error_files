@@ -72,6 +72,14 @@ and "help configset_password_min_length" for more details).
 
 (standard substitutions only)
 
+pending_delivery
+----------------
+This error message is displayed if the archive-delete command is used to
+attempt to remove a message that is scheduled for delivery in one or
+more digests.
+
+(standard plus MSGNO)
+
 password_level
 --------------
 
