@@ -236,7 +236,7 @@ sub confirm {
 
   $list = $args{'list'};
   $list = 'GLOBAL' if ($list eq 'ALL');
-  $list = 'GLOBAL' unless command_prop(\%args, 'list');
+  $list = 'GLOBAL' unless command_prop($args{'command'}, 'list');
 
   $permanent = 0;
   if (exists $args{'expire'} and $args{'expire'} >= 0) {
