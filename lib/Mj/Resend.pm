@@ -638,6 +638,7 @@ sub _check_poster {
   my $user    = shift; # Already in an Mj::Addr object
   my $reasons = shift;
   my $avars   = shift;
+  my $log     = new Log::In 40, "$user";
 
   # Grab the list data
   my $data = $self->{'lists'}{$list}->is_subscriber($user);
@@ -664,6 +665,7 @@ sub _check_header {
   my $head    = shift;
   my $reasons = shift;
   my $avars   = shift;
+  my $log     = new Log::In 40;
   my ($data, $id, $maxhdrl, $maxthdr, $msg);
   
   $self->_make_list($list);
@@ -713,7 +715,7 @@ sub _check_body {
   my $ent     = shift;
   my $reasons = shift;
   my $avars   = shift;
-  my $log  = new Log::In 150;
+  my $log     = new Log::In 150;
   my (@inv, $class, $data, $i, $inv, $j, $l, $max, $maxlen, $mcode, $qreg,
       $rule, $safe, $sev, $tcode, $var);
   $inv = {}; $mcode = {}; $tcode = {};
