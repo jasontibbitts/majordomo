@@ -16,12 +16,9 @@ without adding it to any lists. It is possible to register, get a
 password, and then use "approve" to subscribe to several lists instead
 of using "accept" to confirm each subscription.
 
-NOTE: There is, as of 9/2000, no formal way to review the full register
-      or alias databases. The "who GLOBAL" command lists registered
-      addresses, but without passwords.
-
 Unless the "-password" option is used, Majordomo will invent one and
-send it to "address" with a request for confirmation.
+send it to "address" with a request for confirmation.  The new
+password must be at least $PWLENGTH characters long.
 
 If you use the "-password" option, you MUST use "newpassword". If you
 use "-password" but don't put "newpassword" between the option and the
@@ -63,10 +60,10 @@ in the event you need help later.
 In addition, other technically illegal addresses can be used
 but only if the site administrator has enabled them. See these
 help files for details:
-   help configset addr_allow_at_in_phrase
-   help configset addr_allow_bang_paths
-   help configset addr_allow_comments_after_route
-   help configset addr_allow_ending_dot
+   help configset_addr_allow_at_in_phrase
+   help configset_addr_allow_bang_paths
+   help configset_addr_allow_comments_after_route
+   help configset_addr_allow_ending_dot
 
 A confirmation token will be sent to the given "address" to verify
 this action, and must be replied to with an "accept" command before
@@ -80,10 +77,10 @@ databases all at one time.
 
 See Also:
    help changeaddr (which replaces one address with another)
-   help configset access_rules_variables (set/test for this command)
-   help configset password_min_length    (set minimum password length)
-   help configset welcome        (determines if welcome messages are sent)
-   help configset welcome_files  (determines which welcome messages are sent)
+   help configset_access_rules_variables (set/test for this command)
+   help configset_password_min_length    (set minimum password length)
+   help configset_welcome        (determines if welcome messages are sent)
+   help configset_welcome_files  (determines which welcome messages are sent)
    help password   (which changes an individual's password)
    help rekey      (for how to repair the registry)
    help subscribe  (does an automatic registration)
