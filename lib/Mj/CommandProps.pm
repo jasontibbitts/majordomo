@@ -84,12 +84,14 @@ my %reg_legal =
    'nostall'        =>  'bool',
    'posing'         =>  'bool',
    'user_password'  =>  'bool',
+   'list_password'  =>  'integer',
    'master_password'=>  'integer',
    'addr'           =>  'string',
    'addrcomment'    =>  'string',
    'fulladdr'       =>  'string',
    'host'           =>  'string',
    'interface'      =>  'string',
+   'list'           =>  'string',
    'mode'           =>  'string',
    'sublist'        =>  'string',
    'delay'          =>  'timespan',
@@ -404,7 +406,10 @@ my %commands =
                   },
     'access'   => {
                    'default' => 'deny',
-                   'legal'   => \%reg_legal,
+                   'legal'   => {
+                                 'newlist' => 'string',
+                                 %reg_legal,
+                                },
                    'actions' => \%generic_actions,
                   },
    },
@@ -941,7 +946,7 @@ my %commands =
    },
    'unsubscribe' =>
    {
-    'parser'   => [qw(email shell list global all real)],
+    'parser'   => [qw(email shell list global real)],
     'dispatch' => {'top' => 1,
                    'arguments' => {'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  =>  'victims',

@@ -31,6 +31,8 @@ by the access_rules configuration setting:
   fulladdr                      string
   host                          string
   interface                     string
+  list                          string
+  list_password                 number
   master_password               number
   mismatch                      boolean
   mode                          string
@@ -43,6 +45,10 @@ by the access_rules configuration setting:
 The access command also uses this variable:
 
   block                         number
+
+The createlist command also uses this variable:
+
+  newlist                       string
 
 The password command also uses this variable:
 
@@ -280,6 +286,18 @@ limit_soft
 lines
   This variable contains the total number of lines in a posted message.
 
+list
+  This variable contains the name of the mailing list.
+
+list_password
+  If an administrative password for mailing list is used to issue a command
+  for the GLOBAL, DEFAULT, or ALL pseudo-list, this variable will
+  contain the level of the list's password (see "help admin_passwords"
+  for more details on password levels).  By default, list administrative
+  passwords are ignored for GLOBAL commands, but this access variable
+  can be used to provide extra privileges to list administrators.
+  This variable is only useful in the GLOBAL access rules.
+ 
 master_password
   If an administrative password was used to issue a command, this variable
   will contain the level of the password (see "help admin_passwords" for
@@ -332,6 +350,11 @@ mismatch
 mode
   This variable contains the command mode.  For example, it contains 
   "enhanced" when the who-enhanced command is used.
+
+newlist
+  This variable contains the name of a mailing list that is being
+  created or changed by the createlist command.  For the
+  createlist-rename command, it contains the old name of the list.
 
 noarchive
   This variable is set if any "noarchive" variable is set.  It is
