@@ -75,12 +75,12 @@ ok($e, $r);
 
 # 9. Add an address to an auxiliary list
 $e = qq!\Qdeadline\@example.com was added to bleeargh:harumph.\n!;
-$r = run('-p gonzo auxadd bleeargh harumph deadline\@example.com');
+$r = run('-p gonzo subscribe bleeargh:harumph deadline\@example.com');
 ok($e, $r);
 
 # 10. Make sure it showed up
 $e = qq!\QMembers of list "bleeargh:harumph":\n  deadline\@example.com\n1 listed subscriber\n!;
-$r = run('-p gonzo auxwho bleeargh harumph');
+$r = run('-p gonzo who bleeargh:harumph');
 ok($e, $r);
 
 # 11. Add an alias
