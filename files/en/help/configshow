@@ -162,6 +162,10 @@ See "help lists" for more details.
 Templates can be applied to your list using the config_defaults
 configuration setting.
 
+The level of authorization required to see the value of a configuration
+setting, and the wizard level of a setting, can be customized with the
+config_access configuration setting.
+
 A complete list of settings appears in the "help topics" document.
 
 
@@ -172,6 +176,7 @@ See Also:
    help commands      (for syntax of all commands, and 'here documents')
    help configedit    (to set the setting to a non-default value)
    help configset     (to set the setting to a non-default value)
+   help configset_config_access
    help configset_config_defaults
    help configdef     (to have the setting track the default value)
    help lists
