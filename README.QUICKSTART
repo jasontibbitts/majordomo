@@ -6,15 +6,20 @@ First, make and install the package:
 
   Perl Makefile.PL
 
-This may fail with instructions to install some prerequisite modules.  Do
-this and try again.  If all of the prerequisites are present several
-questions will be asked.  Answer them (truthfully).  You may have to
-perform other actions (like creating the necessary Majordomo user) as well.
+This may fail with instructions to install some prerequisite modules.
+Do this and try again. See README for a list of required modules, and
+hints on where to find them!
+
+If all of the prerequisites are present several questions will be asked.
+Answer them (truthfully).  You may have to perform other actions (like
+creating the necessary Majordomo user via the operating system) as well.
+
+Next, build the package:
 
   make
 
-This will build the package.  There will be a few spurious warnings that
-are meaningless but can't be turned off.  Then, as root, run:
+There may be a few spurious warnings that are meaningless but can't
+be turned off.  Then, as root, run:
 
   make install
 

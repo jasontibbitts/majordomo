@@ -29,29 +29,69 @@ development state).  Please use only non-threaded builds for the time
 being.
 
 The following modules are required.  These may have prerequisites which
-have not been listed; please inform majordomo-workers (see below) of these.
+have not been listed; please inform majordomo-workers (see below) of any
+modules which you had to load but which are NOT listed below.
 
-the libnet package, including Net::Domain.
-the MIME-tools package (version 4.119), including MIME::Parser and
-  MIME::Entity.
-the MailTools package (version 1.11), including Mail::Header and
-  Mail::Internet.
-the TimeDate package (version 1.08), including Date::Format.
-Data::Dumper version 2.07
-MD5 version 1.7
-MIME::Base64 version 2.0
-Date::Manip version 5.1
+1) CGI version 2.36
 
-The Time::HiRes module is recommended if you want to generate accurate
-timings, but is not required.
+2) MD5 version 1.7
+  found in MD5-1.7.tar.gz
 
-All of these modules are available from CPAN, the Comprehensive Perl
-Archive Network.  To find a CPAN site nearest you, look at
-<URL:http://www.perl.org/> or <URL:http://www.perl.com/>.  You may also use
-the CPAN module which comes with Perl; check the Perl documentation for
-more info.  The installation process will suggest ways to use CPAN to
-install missing packages, but these require that the CPAN module be
-configured and running properly first.
+3) Mail::Header version 1.1 or greater
+  found in MailTools-1.13.tar.gz
+
+4) Mail::Internet version 1.3 or greater
+  found in MailTools-1.13.tar.gz
+
+5) MIME::Tools version 4.119 or greater
+  found in MIME-tools-4.124.tar.gz
+
+6) Date::Format (any version)
+  found in TimeDate-1.08.tar.gz
+
+7) Data::Dumper version 2.07
+
+8) MIME::Base64 version 2 or greater
+  found in MIME-Base64-2.11.tar.gz
+
+9) Date::Manip version 5.1 or greater
+  found in DateManip-5.37.tar.gz
+
+10) IO::Wrap version 1.101 or greater
+  found in IO-stringy-1.207.tar.gz
+
+11) Net::Domain
+  found in libnet-1.0702.tar.gz
+
+12) Time::HiRes is recommended if you want to generate accurate
+    timings, but is not required.
+
+All of these modules are available from CPAN, the Comprehensive
+Perl Archive Network.  To find a CPAN site nearest you, look at
+<URL:http://www.perl.org/> or <URL:http://www.perl.com/>. Follow
+the instructions in the file you download, or try this:
+  cat FILE.tar.gz | gzip -d | tar xvf -
+  cd FILE
+  perl -w Makefile.PL
+  make install
+  cd ..
+  rm -rf FILE
+You will need to be "root" to install Perl modules, and install
+may not run properly if your environment variables are wrong.
+
+Version numbers in file names may be different (those shown above are
+examples as of 4/2000), and are included here only so you can see the
+approximate name of the file to download from one of the many links in
+  http://www.cpan.org
+You can search for modules from
+  http://www.cpan.org/modules/index.html
+or scroll through all of them from:
+  http://www.cpan.org/modules/01modules.index.html
+
+You may also use the CPAN module which comes with Perl; check the Perl
+documentation for more info.  The installation process will suggest ways
+to use CPAN to install missing packages, but these require that the CPAN
+module be configured and running properly first.
 
 Majordomo2 includes its own setuid wrapper generation, so setuid shell
 scripts are not required.  (Some versions of Unix do not support them; Perl
