@@ -81,6 +81,9 @@ Top of the list
    separately.  (It might be possible to also do the approval trimming
    in with this, too, but it would be more difficult.)
 
+- Add some variable expansions in message_fronters/footers like in
+  message_headers. 
+
 ! Simple mail forwarder:
    A precursor to real bounce handling, a routine that received mail at
    owner-list and distributes it to one or many owners.  Should be easy.
@@ -262,6 +265,27 @@ saved via Data::Dumper.
       create a dummy script, make it setuid, and run it.  If it errors, we
       know it's bad.
 
+- store some data on each user-request so we can limit abusers.  Basically
+  we want to store enough data to see if an address is sending too many
+  requests to us.  a circular list of a fixed size would probably be good;
+  we save it between sessions and if an address shows up too many times we
+  set an access flag before running the access check.
+    One big global queue?
+    One queue per request?
+    One queue per list?
+    One queue per list per request?
+    Something else?  Some kind of time average per address per request?
+  How do we allow things like someone who works offline and dumps a pile of
+   email every couple of days?
+  How do we back off when a user gets close to the limit?  We don't want to
+   just start ignoring requests.  We could sleep, then sleep some more,
+   then bounce, then reject, then ignore progressively as the traffic
+   increases.
+  How to make sure that a slow server that has only a few users doesn't
+   fill up a queue with only a few addresses causing them to bounce?  Store
+   address and a timestamp and ignore/purge old requests?
+  How to store this data?  Probably not in the config file.
+
 
 Categorized ideas:
 -----------------
@@ -403,7 +427,6 @@ Extra access variables for post method; any_admin, any_taboo, any_dup, etc.
 Header length and body length limits.  (body is easy; compute content-length).
 digestvolume command to increment (default) or set the volume number for a
   digest.
-store some data on each user-request so we can limit abusers.
 Expiration of subscriptions.
 Last posting date.
 Resend sequence numbers: keep a state file per list with the current

@@ -307,11 +307,15 @@ EOM
   $msg = <<EOM;
 
 Where can Majordomo place temporary files?
+ For maximum security, this should be a special directory that is not
+   writable by normal users.  (In other words, it should not be /tmp unless
+   you know what you\'re doing.)  Many security problems can arise when any
+   user can create files and links in the temporary directory with the same
+   names that Majordomo would use.
+ The installation process will create this directory if it does not exist,
+   but will not enforce any permissions.
 EOM
-  $def = $config->{'tmpdir'} ||
-    (-d '/tmp' && '/tmp') ||
-    (-d '/var/tmp' && '/var/tmp') ||
-    (-d '/usr/tmp' && '/usr/tmp');
+  $def = $config->{'tmpdir'};
   $config->{'tmpdir'} = get_dir($msg, $def);
 
   #---- Ask for MTA

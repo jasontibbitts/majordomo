@@ -1,3 +1,11 @@
+Sat Mar 28 02:16:12 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/mj_cf_data.pl: Tweak tmpdir description.
+
+	* Makefile.PL (configure): Add security warning about tmpdir.
+
+	* postinstall (create_dirs): Create tmpdir.
+
 Fri Mar 27 01:03:16 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* .cvsignore: Added some additional goodies.

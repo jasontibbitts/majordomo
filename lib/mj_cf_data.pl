@@ -1374,7 +1374,8 @@ EOC
     'global' => 1,
     'visible'=> 1,
     'comment'=> <<EOC,
-A directory in which to store temporary files.
+A directory in which to store temporary files.  For security reasons,
+this should not be a directory that normal users have write access to.
 EOC
    },
    'max_in_core' =>

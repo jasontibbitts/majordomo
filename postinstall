@@ -105,7 +105,9 @@ if (get_bool($msg1)) {
   create_dirs($config->{'lists_dir'},
 	      scalar getpwnam($config->{'uid'}),
 	      scalar getgrnam($config->{'gid'}),
-	      $config->{'domains'});
+	      $config->{'domains'},
+	      $config->{'tmpdir'},
+	     );
 }
 
 # Configure a few global parameters
@@ -170,11 +172,13 @@ sub create_dirs {
   my $uid  = shift;
   my $gid  = shift;
   my $doms = shift;
+  my $tmp  = shift;
   my($i);
 
-  print "$l, $uid, $gid\n";
+  print "$l, $tmp, $uid, $gid\n";
 
   safe_mkdir($l, 0770, $uid, $gid);
+  safe_mkdir($tmp, 0770, $uid, $gid);
   
   for $i (@$doms) {
     print "Making directories for $i.\n";
