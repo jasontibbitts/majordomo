@@ -1592,7 +1592,7 @@ sub _d_post {
 
     # For backwards compatibility, look for "list", "list.digest",
     # "list-digest", etc.
-    if ($i =~ /^\Q$td->{'list'}\E([.-_]digest)?$/) {
+    if ($i =~ /^\Q$td->{'list'}\E([._-]digest)?$/) {
       if ($self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'user'})) {
 	$member = 1;
 	last;
@@ -1607,7 +1607,7 @@ sub _d_post {
       }
       else {
 	$tmp = $i;
-	$tmp =~ s/^\Q$td->{'list'}\E[.-_]?//;
+	$tmp =~ s/^\Q$td->{'list'}\E[._-]?//;
 	if ($self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'user'}, $tmp)) {
 	  $member = 1;
 	  last;
