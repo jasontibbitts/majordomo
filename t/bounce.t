@@ -86,6 +86,8 @@ while(defined($file = readdir(DIR))) {
 			    'test',
 			    '+',
 			   );
+  $handler ||= 'none';
+
   # Now compare the parsed out put with what we expect
 
   # First, check that the right handler was used and the right type was

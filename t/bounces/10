@@ -1,0 +1,13 @@
+Comment: This useless bounce used to cause an infloop.
+Return-Path: <Admin@example.com>
+Date:     Fri,  1 Dec 2000 11:41:05 -0500
+Message-Id: <10012011141.AA00359@example.com>
+From: "Administrator" <Admin@example.com>
+Reply-To: <Admin@example.com>
+To: <test-owner+M10@example.com>
+Subject:  
+X-Mailer: <SMTP32 v20000614>
+Precedence: bulk
+
+
+
