@@ -150,12 +150,13 @@ as described in "help configset default_class".
   commands in a message to $MJ
      set LISTNAME digest-daily-mime YourEmailAddressHere
      set LISTNAME digest-weekly-index YourEmailAddressHere
-  where "LISTNAME" is replaced with the name of the list. The three supported
-  types of digest you can receive are:
-     mime  - a format supported by many of the newer mail clients.
-     text  - the old, plain text digest format
-     index - just an index of messages; you can retrieve the ones you want
-             to see using the 'archive-get' command.
+  where "LISTNAME" is replaced with the name of the list.
+     The supported types of digest you can receive are:
+       mime  - a format supported by many of the newer mail clients.
+       text  - the old, plain text digest format
+       index - just an index of messages; you can retrieve the ones you want
+               to see using the 'archive-get' command.
+       numbered - message number, author, and subject (use "archive-get" to view)
   The name of the digest (sub-class of 'daily' and 'weekly' in the examples above)
   is optional. You can leave the digest name and format off the command to get
   the defaults provided by the list owner.
