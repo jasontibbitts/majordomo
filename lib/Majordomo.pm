@@ -1584,7 +1584,7 @@ sub config_get_vars {
 
   return unless $self->_make_list($list);
 
-  if ($sublist ne 'MAIN') {
+  if ($sublist ne 'MAIN' and $list ne 'GLOBAL') {
     $ok = 1;
   }
   elsif ($var eq 'ALL') {
