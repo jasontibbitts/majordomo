@@ -1,3 +1,8 @@
+2001-06-05  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Config.pm:  Do not parse the config_array data.
+	Thanks to Paul Hancock.
+
 2001-06-04  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm: (configshow) Bugfix:  allow the append,

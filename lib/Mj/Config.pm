@@ -88,7 +88,6 @@ $VERSION = "1.0";
    'attachment_rules' => 1,
    'bool'             => 1,
    'bounce_rules'     => 1,
-   'config_array'     => 1,
    'delivery_rules'   => 1,
    'digests'          => 1,
    'digest_issues'    => 1,
