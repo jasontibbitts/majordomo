@@ -35,9 +35,6 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
-Warnings for nonexistant files specified in access_rules:
-
-
 Real database for storing duplicate message-IDs and checksums.  These are
 OK to trash, so they are the ideal place to experiment.
 

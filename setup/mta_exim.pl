@@ -2,7 +2,7 @@ sub ask_exim {
   $config = shift;
 
     #---- Ask if aliases should be maintained
-    $msg = <<EOM;
+  $msg = <<EOM;
 Should Majordomo maintain your aliases automatically?
  Majordomo can automatically maintain your Exim aliases for you.  You
   still have to do some manual setup (see README.EXIM) but this only
@@ -11,11 +11,12 @@ Should Majordomo maintain your aliases automatically?
  If you say no, Majordomo  will provide you with information to paste into
   your aliases file when you add new lists.
 EOM
-    $def = $config->{'maintain_mtaconfig'} || 1;
-    $config->{'maintain_mtaconfig'} = get_bool($msg, $def);
+  $def = $config->{'maintain_mtaconfig'} || 1;
+  $config->{'maintain_mtaconfig'} = get_bool($msg, $def);
 
-  require "setup/ask_sendsep.pl";
-  ask_sendsep($config, '+');
+  # Since it is up to us tp specify this, don't bother asking the user
+  # about it.
+  $config->{mta_separator} = '+';
 }
 
 sub setup_exim {};
@@ -37,7 +38,10 @@ The following director should be placed in your Exim configuration file.
 
 majordomo_aliases:
 	driver = aliasfile
-	user = majordom
+        pipe_transport = address_pipe
+        suffix = \"$config->{mta_separator}*\"
+        suffix_optional
+        user = $config->{uid}
 	domains = lsearch;$config->{lists_dir}/ALIASES/mj-domains
 	file = $config->{lists_dir}/ALIASES//mj-alias-\${domain}
 	search_type = lsearch

@@ -47,9 +47,9 @@ sub parse_entity {
   my $tmpdir    = shift;
   my $extra     = shift;
   my $entity    = shift;
-  my (@entities, @parts, @attachments, @ents,
-      $body, $i, $infh, $name, $outfh, $type, $ok, $count);
-  
+  my (@entities, @parts, @attachments, @ents, $body, $i, $infh, $name,
+      $outfh, $type, $ok, $count);
+
   $::log->in(30, undef, "info", "Parsing entity $title");
   @parts = $entity->parts;
   @entities = ();
@@ -93,10 +93,13 @@ sub parse_entity {
       $::log->abort("Hosed! Couldn't open body part, $!");
     
     # Open handles for all of the attachments to this part
-    while (@_) {
-      push @attachments, shift->bodyhandle->open("r");
+    for $i (@_) {
+      # Make sure we have a single part entity
+      if (defined($i->is_multipart) && $i->is_multipart == 0) {
+	push @attachments, $i->bodyhandle->open("r");
+      }
     }
-    
+
     # Open a file to stuff the output in
     $name = "$tmpdir/mje." . Majordomo::unique() . ".out";
     $outfh = new IO::File "> $name" ||

@@ -124,6 +124,10 @@ sub new {
   }
 }
 
+use AutoLoader 'AUTOLOAD';
+1;
+__END__
+
 =head2 _c_(backend)
 
 These are broken out to allow autoloading to postpone compilation of the
@@ -134,6 +138,11 @@ them.  Perhaps some use of eval and require would be better to trap errors.
 use Mj::SimpleDB::Text;
 sub _c_text {
   new Mj::SimpleDB::Text(@_);
+}
+
+use Mj::SimpleDB::DB;
+sub _c_db {
+  new Mj::SimpleDB::DB(@_);
 }
 
 =head2 _find_existing(path)

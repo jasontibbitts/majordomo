@@ -231,7 +231,7 @@ EOB
     return;
   }
   elsif ($args{aliasfile}) {
-    umask oct("077"); # Must have restrictive permissions
+    umask (022 & $umask);
     $fh = new Mj::File($args{aliasfile}, '>>');
     $fh->print("$block\n");
     $fh->close;
@@ -272,7 +272,7 @@ sub regen_aliases {
 
   # Open the file
   if ($args{aliasfile}) {
-    umask oct("077");
+    umask (022 & $umask);
     $args{aliashandle} = new Mj::FileRepl($args{aliasfile});
     if ($args{options}{maintain_vut}) {
       $args{vuthandle} = new Mj::FileRepl($args{vutfile});
