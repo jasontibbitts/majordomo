@@ -125,19 +125,19 @@ sub _inform_owner {
   # Substitute in the header
   my $desc = $self->substitute_vars_string($data{'description'},
 					   {
-					    'UREQUEST' => uc($req),
-					    'REQUEST'  => $req,
+					    'UCOMMAND' => uc($req),
+					    'COMMAND'  => $req,
 					    'LIST'     => $list,
 					   },
 					  );
 
-  # Substitute in the body
+  # Substitute in the body  (standard_subs is not useful here)
   $message = $self->substitute_vars($message,
 				    {
 				     'VICTIM'    => $user,
 				     'USER'      => $user,
 				     'LIST'      => $list,
-				     'REQUEST'   => $req,
+				     'COMMAND'   => $req,
 				     'REQUESTER' => $requ,
 				     'CMDLINE'   => $cmd,
 				     'STATUS'    => $stat,
