@@ -20,7 +20,7 @@ ENDTAG
 
 
 If any of the headers matches one of these regexps, then the message
-will be bounced for review.
+will be bounced for review. Syntax is described in "help configset admin_body".
 
 NOTE: For help on taboo_headers, please send "help configset admin_body"
 to the server. All syntax and information is identical, but the "nn"
@@ -33,9 +33,11 @@ when one of the taboo_headers lines matches.
 
 
 See Also:
+   help configset access_rules
+   help configset admin_body
+   help configset admin_headers
    help configset block_headers (for how to block server commands)
-   help configset access_rules  (for how to block posts)
-   help configset admin_headers (for how to block posts)
+   help configset taboo_body
 
 For a list of all help topics send this one-line message
    help topics

@@ -1,2 +1,2 @@
 If any line of the body matches one of these regexps, then the message
-will be bounced for review.
+will be bounced for review. Syntax is described in "help configset admin_body".

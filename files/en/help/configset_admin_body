@@ -22,7 +22,8 @@ ENDTAG
 
 
 If any line of the body matches one of these regexps, then the message
-will be bounced for review. XXX Ugh.
+will be bounced for review. Syntax is described in "help configset admin_body".
+
 NOTE 1: The information below applies to "taboo_body" also, just
 substitute the string "taboo_" wherever you see "admin_" below.
 
@@ -239,6 +240,14 @@ of a real MIME encapsulating, with Content-Type and Content-Transfer-Encoding an
 the like.  You can of course uuencode something and paste the raw data right into
 a message without any MIME stuff; _that_ will come through just as you see it and
 your admin_body expression trapping 'begin xxx' will match.
+
+
+See Also:
+   help configset access_rules
+   help configset admin_headers
+   help configset block_headers (for how to block server commands)
+   help configset taboo_body
+   help configset taboo_headers
 
 For a list of all help topics send this one-line message
    help topics

@@ -20,7 +20,7 @@ ENDTAG
 
 
 If any line of the body matches one of these regexps, then the message
-will be bounced for review.
+will be bounced for review. Syntax is described in "help configset admin_body".
 
 NOTE: For help on taboo_body, please send "help configset admin_body"
 to the server. All syntax and information is identical, just
@@ -28,6 +28,14 @@ substitute the string "taboo_" wherever you see "admin_" in that file.
 
 See "help configset access_rules" for how to send informative messages
 when one of the taboo_body lines matches.
+
+
+See Also:
+   help configset access_rules
+   help configset admin_body
+   help configset admin_headers
+   help configset block_headers (for how to block server commands)
+   help configset taboo_headers
 
 For a list of all help topics send this one-line message
    help topics
