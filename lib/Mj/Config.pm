@@ -263,7 +263,7 @@ current and calling the appropriate function to bring it in.
 sub load {
   my $self = shift;
   my $log  = new Log::In 150, "$self->{'list'}";
-  my ($file, $i, $key, $oldfile, $old_more_recent, $tmp, $tmpl);
+  my (@tmpl, $file, $i, $key, $oldfile, $old_more_recent, $tmp);
 
   # Look up the filenames
   $file = $self->_filename;
@@ -332,12 +332,12 @@ sub load {
   # Load configuration templates if needed.  Templates must be
   # stored under the DEFAULT list.
   if ($self->{'list'} ne 'GLOBAL' and $self->{'list'} ne 'DEFAULT') {
-    $tmpl = $self->get('config_defaults');
+    @tmpl = $self->get('config_defaults');
 
-    if (defined($tmpl) and ref($tmpl) eq 'ARRAY' and scalar(@$tmpl)) {
+    if (scalar(@tmpl)) {
       $tmp = shift @{$self->{'sources'}};
 
-      for $i (reverse @$tmpl) {
+      for $i (reverse @tmpl) {
         next unless $i;
         next if (grep {$_ eq "DEFAULT:$i"} @{$self->{'sources'}});
         $self->{'source'}{"DEFAULT:$i"} =
