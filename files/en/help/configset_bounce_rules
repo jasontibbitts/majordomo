@@ -132,11 +132,14 @@ The use of these variables in comparisons is described in the
 "help configset_access_rules" and "help access_variables" documents.
 
 
-Here's an in-depth example:
+Here's an in-depth example.  (Please note that providers like AOL seem to
+randomly change their bounce formats and error messages, so you should
+always make sure that matches against $diagnostic are doing what you think
+they are).
 
   # When AOL says a user doesn't exist, drop it immediately
   remove-noprobe
-  $host =~ /aol.com/ && $diagnostic =~ /mailbox not found/i
+  $host =~ /aol.com/ && $diagnostic =~ /user unknown/i
 
   # Remove all users bouncing enough messages over three days, but not for
   # "mailbox full" errors, because we want to be more lenient with them
