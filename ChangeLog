@@ -1,3 +1,8 @@
+2000-05-18  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Resend.pm (_describe_taboo): Trim down the length of
+	matched strings in bounce reasons.
+
 2000-05-12  Michael Yount  <csf@moscow.com>
 
 	* lib/Mj/Token.pm:

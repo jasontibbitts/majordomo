@@ -361,12 +361,14 @@ sub parse_file {
   my $user = shift;
   my $pass = shift;
   my $result = 
-    Mj::Parser::parse_part($::mj, $infh, \*STDOUT, $att,
-			   $file, 'shell', 
-			   {
+    Mj::Parser::parse_part($::mj,
+			   infh        => $infh,
+			   outfh       => \*STDOUT,
+			   attachments => $att,
+			   title       => $file,
+			   interface   => 'shell', 
 			    'reply_to' => $user,
-			    'password' => $pass,
-			   }
+			    password   => $pass,
 			  );
   return $result;
 }

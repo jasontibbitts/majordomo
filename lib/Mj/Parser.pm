@@ -41,8 +41,8 @@ to allow the attachments to be named instead of referred to by number.
 
 =cut
 sub parse_entity {
+  my $mj        = shift;
   my %args      = @_;
-  my $mj        = $args{'mj'};
   my $entity    = $args{'entity'};
 
   $args{'title'} ||= 'toplevel';
@@ -61,8 +61,9 @@ sub parse_entity {
     $count=0;
     while (@parts) {
       ($ok, @ents) =
-	parse_entity(%args,
-		     title => "part $count of $title",
+	parse_entity($mj, 
+		     %args,
+		     title => "part $count of $args{'title'}",
 		     entity => shift @parts,
 		     parts  => \@parts,
 		    );
@@ -110,8 +111,12 @@ sub parse_entity {
     # XXX parse_part expects a hashref of "extra stuff" as its last
     # argument.  We just happen to have all of that in our argument hash,
     # so we pass it.  We should just pass a single hash.
-    $ok = parse_part($mj, $infh, $outfh, \@attachments,
-		     $args{'title'}, $args{'interface'}, \%args);
+    $ok = parse_part($mj,
+		     %args,
+		     infh        => $infh,
+		     outfh       => $outfh,
+		     attachments => \@attachments,
+		    );
     $infh->close;
     $outfh->close;
     for $i (@attachments) {
@@ -151,13 +156,19 @@ and token).
 
 =cut
 sub parse_part {
-  my $mj          = shift;
-  my $inhandle    = shift;
-  my $outhandle   = shift;
-  my $attachments = shift;
-  my $title       = shift;
-  my $interface   = shift;
-  my $extra       = shift;
+  my $mj         = shift;
+  my %args       = @_;
+
+#use Data::Dumper;
+#warn Dumper $mj;
+#warn Dumper $args{'mj'};
+
+  my $inhandle    = $args{'infh'};
+  my $outhandle   = $args{'outfh'};
+  my $title       = $args{'title'};
+  my $interface   = $args{'interface'};
+  my $attachments = $args{'attachments'};
+
   my $log         = new Log::In 50, "$interface, $title";
   my (@arglist, @help, $action, $cmdargs, $attachhandle, $command, $count,
       $ent, $fail_count, $function, $garbage, $list, $mode, $name, 
@@ -165,7 +176,7 @@ sub parse_part {
       $sigsep, $tlist, $true_command, $unk_count, $user);
 
   $count = $ok_count = $pend_count = $fail_count = $unk_count = $garbage = 0;
-  $user = $extra->{'reply_to'};
+  $user = $args{'reply_to'};
   $sigsep = $mj->global_config_get(undef, undef, undef, $interface,
 				   'signature_separator');
 
@@ -266,8 +277,8 @@ sub parse_part {
     # If necessary, we extract the list name from the arguments, accounting
     # for a possible default list in effect, and verify its validity
     if (command_prop($true_command, "list")) {
-      $cmdargs = add_deflist($mj, $cmdargs, $extra->{'deflist'},
-			  $interface, $extra->{'reply_to'});
+      $cmdargs = add_deflist($mj, $cmdargs, $args{'deflist'},
+			  $interface, $args{'reply_to'});
       ($tlist, $cmdargs) = split(" ", $cmdargs, 2);
       unless (defined($tlist) && length($tlist)) {
 	print $outhandle "A list name is required.\n";
@@ -312,19 +323,19 @@ sub parse_part {
       $ok_count++;
       ($action, $cmdargs) = split(" ", $cmdargs, 2);
       if ($action eq 'list') {
-	$extra->{'deflist'} = $cmdargs;
+	$args{'deflist'} = $cmdargs;
 	print $outhandle "Default list set to \"$cmdargs\".\n";
       }
       elsif ($action =~ /^password|passwd$/) {
-	$extra->{'password'} = $cmdargs;
-	print $outhandle "Default password set to \"$extra->{'password'}\".\n";
+	$args{'password'} = $cmdargs;
+	print $outhandle "Default password set to \"$args{'password'}\".\n";
       }
       elsif ($action eq 'user') {
         if ($cmdargs) {
           $user = $cmdargs;
         }
         else { 
-          $user = $extra->{'reply_to'};
+          $user = $args{'reply_to'};
         }
 	    print $outhandle "User set to \"$user\".\n";
       }
@@ -337,14 +348,14 @@ sub parse_part {
     else {
       # Handle default arguments for commands
       if ($true_command =~ /accept|reject/) {
-	$cmdargs ||= $extra->{'token'};
+	$cmdargs ||= $args{'token'};
       }
       $cmdargs ||= '';
       no strict 'refs';
 
       # If a new identity has been assumed, send the output
       # of the command to the new address.
-      if ($user ne $extra->{'reply_to'}) {
+      if ($user ne $args{'reply_to'}) {
         my $tmpdir = $mj->_global_config_get('tmpdir');
         $name = "$tmpdir/mje." . Majordomo::unique() . ".out";
         $outfh = new IO::File "> $name" or
@@ -357,18 +368,18 @@ sub parse_part {
       ($ok, @help) =
 	&{"Mj::TextOutput::$true_command"}($mj, $command,
 					   $user,
-					   $password || $extra->{'password'},
+					   $password || $args{'password'},
 					   undef, $interface,
 					   $attachhandle, $outfh,
 					   $mode, $list, $cmdargs, @arglist);
 
       # Mail the result if posing.
-      if ($user ne $extra->{'reply_to'}) {
+      if ($user ne $args{'reply_to'}) {
         $outfh->close;
         my $sender = $mj->_global_config_get('sender');
         $ent = build MIME::Entity
           (
-           From     => $extra->{'reply_to'},
+           From     => $args{'reply_to'},
            Path     => $name,
            To       => $user,
            'Reply-To' => $sender,

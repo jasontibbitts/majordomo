@@ -1101,13 +1101,22 @@ sub _describe_taboo {
   my $avars   = shift;
   my ($list, $var, $rule, $match, $line, $sev, $class, $inv) = @_;
   my $log = new Log::In 300, "$list, $var, $class";
-  my ($admin, $global, $reason, $type);
-  
+  my ($admin, $global, $reason, $trunc, $type);
+
   # Make sure messages are pretty
   $match =~ s/\s+$// if defined $match;
 
   # Remove ^A characters, the token database field separator. 
   $match =~ s/\001//g if defined $match;
+
+  # Chomp the match down to something manageable, so we don't get hideously
+  # long strings in bounce messages.  Include a bit more than the length of
+  # a standard line here.
+  $trunc = '';
+  if (length($match) > 100) {
+    $match = substr($match, 0, 100);
+    $trunc = ' (truncated)';
+  }
 
   # Build match type and set the appropriate access variable
   if ($list eq 'GLOBAL') {
@@ -1131,10 +1140,10 @@ sub _describe_taboo {
       $reason = uc("inverted $type") . ": $rule failed to match";
     }
     elsif ($line) {
-      $reason = uc($type) . ": $rule matched \"$match\" at line $line";
+      $reason = uc($type) . ": $rule matched \"$match\"$trunc at line $line";
     }
     else {
-      $reason = uc($type) . ": $rule matched \"$match\"";
+      $reason = uc($type) . ": $rule matched \"$match\"$trunc";
     }
     push @$reasons, $reason;
     

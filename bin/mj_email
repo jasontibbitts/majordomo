@@ -381,7 +381,7 @@ sub parse_commands {
   }
 
   (undef, @entities) = 
-    Mj::Parser::parse_entity(mj => $mj,
+    Mj::Parser::parse_entity($mj,
                              interface  => 'email',
                              tmpdir     => $::TMPDIR, 
                              entity     => $entity,
