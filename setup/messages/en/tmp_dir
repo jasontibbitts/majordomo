@@ -3,9 +3,9 @@ Storage Locations
 Where can Majordomo place secure temporary files?
 
 Majordomo frequently needs to save temporary files in a private
-directory.  For maximum security, chshould be a special directory that
-is neither readable nor writable by normal users.  In other words, it
-should not be the "/tmp" directory, to which anyone has write access.  
+directory.  For maximum security, this should be a special directory
+that is neither readable nor writable by normal users.  In other words,
+it should not be the "/tmp" directory, to which anyone has write access.  
 
 The installation process will create this directory if it does not
 exist, but will not enforce any permissions.
