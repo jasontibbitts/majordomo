@@ -1,5 +1,8 @@
 2000-12-01  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/MTAConfig.pm (add_alias): Fix bug in VUT owner-list
+	entry.
+
 	* lib/Mj/BounceParser.pm (parse_smtp32): Fix possible infloop.
 
 2000-11-25  Michael Yount <csf@moscow.com>

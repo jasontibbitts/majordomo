@@ -227,7 +227,7 @@ EOB
     $block .= sprintf $aliasfmt, ':', '-r';
     $block .= sprintf $aliasfmt, '-request:', '-q';
     $block .= sprintf $aliasfmt, '-owner:', '-o';
-    $block .= "owner-$list$vut:   $list-owner\n";
+    $block .= "owner-$list$vut:   $list$vut-owner\n";
 
     $vblock = <<"EOB";
 # VUT entries for $list at $dom
