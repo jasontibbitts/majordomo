@@ -1,3 +1,9 @@
+Fri Apr 24 01:29:33 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* Release of alpha 1.
+
+	* lib/Majordomo.pm: Bump version to alpha1.
+
 Thu Apr 23 01:14:16 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/Token.pm (t_remind): Send consult reminders to the right

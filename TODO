@@ -19,6 +19,8 @@ Top of the list
 
 ! Make sure all sent mails have To: headers.
 
+! Make sure that our temporary directory exists.
+
 - Auto-configure global defaults instead of relying on defaults file, so
   that we can minimize config file access time (because defaults must be
   parsed).

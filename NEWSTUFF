@@ -111,3 +111,5 @@ When someone tries to forge subscribe requests in your name and you
 explicitly reject the confirmation tokens, you and other responsible
 parties will be sent a record of the forgery including what is hopefully
 enough for your sysadmin to track down the perpetrator.
+
+You can elect to be informed when one of your messages requires approval.

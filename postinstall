@@ -267,7 +267,7 @@ sub install_response_files {
     $i++;
   }
   close FILE;
-  chmod(0644, "inst.$$");
+  chmod(0644, "$config->{wtmpdir}/inst.$$");
   print "@args\n";
   system(@args) == 0 or die "Error executing $args[0], $?";
   unlink "$config->{wtmpdir}/inst.$$";

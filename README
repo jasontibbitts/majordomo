@@ -10,7 +10,8 @@ Note: this requires Perl 5.004_01 to run.  This is due to bugs in
 5.004, and the fact that lesser versions are both lacking in features
 and security.  Most of the testing is done using 0perl 5.004_04.
 
-The following modules are required:
+The following modules are required.  These may have prerequisites which
+have not been listed; please inform majordomo-workers (see below) of these.
 
 the libnet package, including Net::Domain.
 the MIME-tools package (version 4.116), including MIME::Parser and
@@ -106,8 +107,14 @@ To install:
   type "perl Makefile.PL".
   follow the onscreen directions (to the letter!)
 
+Make certain that the Majordomo user can actually see the distribution
+files during installation; the installation may fail if the files are
+unreadable.  And or course root should be able to see the files.  (This is
+not the case with some NFS setups.)
+
 When it's done, that will be all.  But it's not done...  It's getting
 better, though.
+
 
 
 Interacting with Majordomo:

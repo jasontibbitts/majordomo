@@ -66,7 +66,7 @@ Yes.  The code is much larger (such is the price of progress) but due
   Majordomo has much more advanced delivery system which avoids
   outgoing aliases and allows multiple-host parallelism and remote
   exploders, so if tuned delivery should be faster, if not, just the
-  same.
+  same.  Right now compilation time could be considered hideous, though.
 
 
 Why did you do this?  Why not just clean up 1.9x?

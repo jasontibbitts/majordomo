@@ -3,6 +3,32 @@
 Here you'll find information on major changes.  (Read the ChangeLog
 for the boring stuff.)  Items at the top are newer.
 
+Default subscription flags can be set, along with a separate setting for
+the flags assocuated with nonmembers.
+
+A preliminary system for internationalization is in place although it is
+not yet accessible to the user.  The owner can set a default language for
+the list, though currently this only affects mailed files and only English
+files are supplied.
+
+VERP-like envelope extensions are supported.  The list can be bounce-probed
+in pieces; Majordomo2 will automatically probe different addresses each
+time.  This support is very preliminary.
+
+Many new bits of information about list messages are computed and made
+available in the access control language.  These include number of bytes,
+lines and quoted lines, percentage of quoted lines, size of header, and
+longest header.
+
+Taboo matches can now be named; named matches accumulate severity
+separately.  Named matches can be referenced separately in the access
+control language.  Capitalized names additionally do not generate bounce
+reasons.
+
+Numeric comparisons for appropriate variables are now available in the
+access control language.  This allows for statements like '$admin_header >
+20 && $lines <= 3'.
+
 The address validator is a little smarter about illegal characters and long
 host and user names.  The configurable parameters are now settable through
 global config variables.
