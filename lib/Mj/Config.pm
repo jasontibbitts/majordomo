@@ -3620,7 +3620,7 @@ sub compile_pattern {
       $pat = '^' . quotemeta($str) . "\$";
     }
     else {
-      return (0, "Unrecognized pattern '$str':\nNot enclosed in pattern delimiters.\n")
+      return (0, "Unrecognized pattern '$str':\nNot enclosed in pattern delimiters.\n", '');
     }
   }
 
@@ -3630,14 +3630,14 @@ sub compile_pattern {
   # Extract the first character of the string.
   if ($id1 eq '"') {
     # Substring pattern; fail if the quote isn't closed
-    return (0, "Error in pattern '$str': no closing '\"'.\n")
+    return (0, "Error in pattern '$str': no closing '\"'.\n", '')
       unless $id2 eq '"';
     $re = "/\Q$pat\E/$mod";
     return (1, '', $inv . $re);
   }
   if ($id1 eq '/') {
     # Perl pattern; fail if the closing '/' is missing
-    return (0, "Error in pattern '$str': no closing '/'.\n")
+    return (0, "Error in pattern '$str': no closing '/'.\n", '')
       unless $id2 eq '/';
 
     # Escape dollar signs and solidi.
@@ -3654,12 +3654,12 @@ sub compile_pattern {
       $re =~ s/((?:^|[^\\\@])(?:\\\\)*)\@/$1\\\@/g; # Ugh
       $err = (re_match($re, "justateststring"))[1];
     }
-    return (0, "Error in regexp '$str'\n$err") if $err;
+    return (0, "Error in regexp '$str'\n$err", '') if $err;
     return (1, '', $inv . $re);
   }
   if ($id1 eq '%') {
     # Shell-like pattern; fail if the closing '%' is absent
-    return (0, "Error in pattern '$str': no closing '\%'.\n")
+    return (0, "Error in pattern '$str': no closing '\%'.\n", '')
       unless $id2 eq '%';
 
     # Simple conversion of shell-like patterns to Perl; thanks to the Perl
@@ -3669,10 +3669,10 @@ sub compile_pattern {
 
     # Check validity of the regexp
     $err = (re_match($re, "justateststring"))[1];
-    return (0, "Error in regexp '$str'\n$err") if $err;
+    return (0, "Error in regexp '$str'\n$err", '') if $err;
     return (1, '', $inv . $re);
   }
-  return (0, "Unrecognized pattern '$str'.\n");
+  return (0, "Unrecognized pattern '$str'.\n", '');
 }
 
 =head2 _compile_rule(request, request_name, action, rule, id)
