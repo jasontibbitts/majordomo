@@ -2651,23 +2651,27 @@ sub help_start {
   $whoami = $self->_global_config_get('whoami'),
   $wowner = $self->_global_config_get('sender'),
 
+  ($request->{'topic'}) = $request->{'topic'} =~ /(.*)/; # Untaint
+
   $subs =
     {
      $self->standard_subs('GLOBAL'),
+     'TOPIC'    => $request->{'topic'},
      'USER'     => "$request->{'user'}",
     };
 
-  ($request->{'topic'}) = $request->{'topic'} =~ /(.*)/; # Untaint
   ($file) =  $self->_list_file_get('GLOBAL', "help/$request->{'topic'}", $subs);
 
   # Allow abbreviations for configuration settings.  For example,
   # "help configset_access_rules" can be abbreviated to "help access_rules"
   unless ($file) {
+    $subs->{'TOPIC'} = "configset_$request->{'topic'}";
     ($file) =  $self->_list_file_get('GLOBAL', 
                                      "help/configset_$request->{'topic'}", 
                                       $subs);
   }
   unless ($file) {
+    $subs->{'TOPIC'} = "unknown";
     ($file) =  $self->_list_file_get('GLOBAL', "help/unknowntopic", $subs);
   }
   unless ($file) {
@@ -4099,7 +4103,7 @@ sub archive_chunk {
     # is used without "force" mode.
     if ($request->{'mode'} !~ /force/) {
       $dig = $self->_list_config_get($request->{'list'}, 'digests');
-      $j = $list->digest_examine([ keys %$dig ]);
+      $j = $list->digest_examine([ keys %$dig ], 0);
       for $i (sort keys %$j) {
         next if ($i eq 'default_digest');
         $dig = $j->{$i};
@@ -5111,7 +5115,7 @@ sub _digest {
 
   # status:  return data but make no changes.
   if ($mode =~ /status/) {
-    $i = $self->{'lists'}{$list}->digest_examine($d);
+    $i = $self->{'lists'}{$list}->digest_examine($d, 0);
     return (1, $i) if $i;
     return (0, qq(Nothing is known about the "$digest" digest.\n"));
   }
@@ -5461,8 +5465,6 @@ sub reject {
       next;
     }
 
-    # For confirmation tokens, a rejection is a serious thing.  We send a
-    # message to the victim with important information.
     $reason = $rfile = '';
     if ($data->{'type'} ne 'consult') {
       $rfile = 'token_reject';
@@ -5513,6 +5515,9 @@ sub reject {
       $data->{'sublist'} = $avars{'sublist'} || '';
     }
     $victim = new Mj::Addr($data->{'victim'});  
+
+    # For confirmation tokens, or if the 'ackreject' flag is set,
+    # a notice is sent to the victim
     if ($data->{'type'} eq 'confirm' 
           or
         $self->{'lists'}{$data->{'list'}}->should_ack($data->{'sublist'}, 
@@ -6483,7 +6488,11 @@ sub showtokens {
 sub _showtokens {
   my ($self, $list, $user, $vict, $mode, $cmd, $action) = @_;
   my $log = new Log::In 35, "$list";
-  my (@tmp, @out, $data, $token);
+  my (@out, $data, $token);
+
+  # If we weren't passed any token types, assume "-confirm-consult"
+  $mode .= "-confirm-consult" unless
+    $mode =~ /(alias|async|confirm|consult|delay|probe)/;
 
   # We have access; open the token database and start pulling data.
   $self->_make_tokendb;
@@ -6493,10 +6502,12 @@ sub _showtokens {
     last unless $token;
     next unless $data->{'list'} eq $list || $list eq 'ALL';
     next if ($action and ($data->{'command'} ne $action)); 
-    next if ($data->{'type'} eq 'delay' and $mode !~ /delay/);
-    next if ($data->{'type'} eq 'async' and $mode !~ /async/);
-    next if ($data->{'type'} eq 'alias' and $mode !~ /alias/);
-    next if ($data->{'type'} eq 'probe' and $mode !~ /probe/);
+    next if ($data->{'type'} eq 'async'   and $mode !~ /async/);
+    next if ($data->{'type'} eq 'alias'   and $mode !~ /alias/);
+    next if ($data->{'type'} eq 'confirm' and $mode !~ /confirm/);
+    next if ($data->{'type'} eq 'consult' and $mode !~ /consult/);
+    next if ($data->{'type'} eq 'delay'   and $mode !~ /delay/);
+    next if ($data->{'type'} eq 'probe'   and $mode !~ /probe/);
 
     # Obtain file size for posted messages
     if ($data->{'command'} eq 'post') {
@@ -6505,14 +6516,12 @@ sub _showtokens {
     else {
       $data->{'size'} = '';
     }
+    $data->{'token'} = $token;
 
     # Stuff the data
-    push @tmp, [$token, $data];
+    push @out, $data;
   }
-  @tmp = sort { $a->[1]->{'time'} <=> $b->[1]->{'time'} } @tmp;
-  for (@tmp) {
-    push @out, @$_;
-  }
+
   $self->{'tokendb'}->get_done;
   return (1, @out);
 }
@@ -6857,16 +6866,12 @@ There are two modes: hourly, daily.
 
 =cut
 
-use Mj::Lock;
-use Mj::Parser;
 use Mj::Util qw(in_clock);
-use IO::File;
 sub trigger {
   my ($self, $request) = @_;
   my $log = new Log::In 27, "$request->{'mode'}";
-
-  my (%subs, @data, @files, @ready, @req, $addr, $cmdfile, $data, $elapsed, 
-      $infh, $key, $list, $ok, $mess, $mode, $times, $tmp);
+  my (%subs, @data, @files, @ready, @req, $addr, $cmdfile, $data, 
+      $elapsed, $key, $list, $mess, $mode, $ok, $times, $tmp);
   $mode = $request->{'mode'};
 
   # Right now the interfaces can't call this function (it's not in the
@@ -6935,6 +6940,13 @@ sub trigger {
                     "unregister $addr", 
                     $self->{'interface'}, 
                     1, '', 0, '', $::log->elapsed - $elapsed);
+    }
+  }
+  if ($mode =~ /^h/) {
+    @files = grep { $_ =~ m#^/# } @ready; 
+    %subs = $self->standard_subs('GLOBAL');
+    for $cmdfile (@files) {
+      $self->_list_file_execute('GLOBAL', $cmdfile, \%subs);
     }
   }
 
@@ -7012,35 +7024,50 @@ sub trigger {
       @files = grep { $_ =~ m#^/# } @ready; 
       %subs = $self->standard_subs($list);
       for $cmdfile (@files) {
-        ($tmp) = $self->_list_file_get($list, $cmdfile, \%subs);
-        next unless $tmp;
-
-        $infh = new IO::File "<$tmp";
-        next unless $infh;
-
-        # XXX Alter interface to allow command parsing.
-        $self->{'interface'} = 'shell';
-
-        # XXX What if failure occurs?
-        Mj::Parser::parse_part(
-              $self, 
-              'attachments' => '', 
-              'infh' => $infh, 
-              'outfh' => \*STDOUT, 
-              'password' => '',
-              'reply_to' => '',
-              'title' => $tmp,
-        );
-
-        $self->{'interface'} = 'trigger';
-
-        unlink $tmp;
+        $self->_list_file_execute($list, $cmdfile, \%subs);
       }
-    }  
+    }
   }
   (1, '');
 }
 
+=head2 _list_file_execute(list, file, subs)
+
+Execute the commands contained in a file in the file space
+of a particular mailing list.
+
+=cut
+use Mj::Parser;
+use IO::File;
+sub _list_file_execute {
+  my ($self, $list, $file, $subs) = @_;
+  my ($infh, $int);
+  ($file) = $self->_list_file_get($list, $file, $subs);
+  return unless $file;
+
+  $infh = new IO::File "<$file";
+  return unless $infh;
+
+  # XXX Alter interface to allow command parsing.
+  $int = $self->{'interface'};
+  $self->{'interface'} = 'shell';
+
+  # XXX What if failure occurs?
+  Mj::Parser::parse_part(
+        $self, 
+        'attachments' => '', 
+        'infh' => $infh, 
+        'outfh' => \*STDOUT, 
+        'password' => '',
+        'reply_to' => '',
+        'title' => $file,
+  );
+
+  $self->{'interface'} = $int;
+
+  unlink $file if $subs;
+  1;
+}
 
 =head2 unalias(..., source)
 
