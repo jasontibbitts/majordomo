@@ -149,14 +149,16 @@ as described in "help configset default_class".
        text  - the old, plain text digest format
        index - just an index of messages; you can retrieve the ones you want
                to see using the 'archive-get' command.
-       numbered - message number, author, and subject (use "archive-get" to view)
   The name of the digest (sub-class of 'daily' and 'weekly' in the examples above)
   is optional. You can leave the digest name and format off the command to get
-  the defaults provided by the list owner.
+  the defaults provided by the list owner. If you choose the index formatting,
+  be aware that the list owner has further control of how much information is
+  available. You can review "help configset digest_index_format" to see if your
+  list is set up the way you want, but you can't change it as a subscriber.
 
-  You should refer to the introductory document for a list of which digest
-  sub-classes are available to you. You may choose a digest name based on
-  what the list owner has already set up, which might NOT be the digest
+  You should refer to each list's introductory document for a set of which
+  digest sub-classes are available to you. You may choose a digest name based
+  on what the list owner has already set up, which might NOT be the digest
   names shown here ('daily' or 'weekly'). To get that document, send
      intro LISTNAME
   using the actual list name, to the server at $MJ

@@ -1,9 +1,5 @@
 Selects one of the formats for each line in the index listing for the
-digests.  The 'subject' format consists simply of the subjects of the
-messages.  The 'subject_author' format, originally provided by Jeff
-Wasilko, provides an index like the following:
-
-  A subject                                         [User <user@example.com>]
-  Another subject                      [Another User <otheruser@example.org>]
-  A really, really, really, really, really really long subject
-                                       [A Verbose user <verbose@example.com>]
+digests. The 'subject' format consists simply of the subjects of the
+messages. The 'subject_author' format adds the address of the poster.
+The 'numbered' format adds an additional field with the archive
+message number to make retrieval easier.
