@@ -10,8 +10,7 @@ address causes all of its subscriptions to be removed automatically.
 Click an e-mail address to see details about the subscriptions for
 that address in another window, using the 
 <a href="$WWWUSR_URL">
-  WWW interface for subscribers
-</a>.
+  WWW interface for subscribers</a>.
 </p>
 
 <form method="POST" action="$CGIURL">

@@ -1,3 +1,4 @@
+<!-- Majordomo login format file -->
 <pre>?ERROR</pre>
 <form method="POST" action="$CGIURL">
   <input type="hidden" name="func" value="$COMMAND">

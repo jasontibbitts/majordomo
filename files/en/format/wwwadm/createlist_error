@@ -1,3 +1,4 @@
-<pre>The createlist command did not succeed.
+<!-- Majordomo createlist_error format file -->
+<p>The createlist command did not succeed.</p>
 
-$ERROR</pre>
+<pre>$ERROR</pre>
