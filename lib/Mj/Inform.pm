@@ -144,15 +144,20 @@ sub _inform_owner {
 
   my $whereami = $self->_global_config_get('whereami');
   my $owner    = $self->_list_config_get($list, 'whoami_owner');
-  return unless ($owner);
-  my $sender   = $self->_global_config_get('whoami');
+  return unless $owner;
+  my $sender   = $self->_global_config_get('whoami_owner');
   my $statdesc = $stat < 0 ? 'stall' : $stat > 0 ? 'success' : 'failure';
 
   my ($message, %data) = $self->_list_file_get(list => $list,
 					       file => 'inform',
 					      );
 
-  return unless ($message);
+  return unless $message;
+
+  # Don't send a notice if the domain owner or list owner
+  # caused an "owner" event, to prevent a mail loop.
+  return if ($req eq 'owner' and 
+             ("$user" eq $sender or "$user" eq $owner));
 
   if (ref $user eq 'Mj::Addr') {
     $strip = $user->strip;
