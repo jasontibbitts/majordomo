@@ -622,7 +622,7 @@ sub str_to_offset {
   my $as_string = shift || 0;
   my $basetime  = shift || time;
   my $log = new Log::In 150, $arg;
-  my (@days, @lt, $desc, $elapsed, $i, $leapyear, $time, $tmp);
+  my (@days, @lt, $cal, $desc, $elapsed, $i, $leapyear, $time, $tmp);
 
   return unless ($arg =~ /\S/);
  
@@ -683,6 +683,7 @@ sub str_to_offset {
     $desc = "$1 year$tmp $desc";
   }
 
+  $cal = 0;
   if ($arg =~ /(\d+)c(alendar)?d(ays?)?/) {
     if ($1) {
       if ($future) {
@@ -697,6 +698,7 @@ sub str_to_offset {
     $time += (86400 * $1);
     $tmp = ($1 > 1) ? "s" : "";
     $desc = "$1 calendar day$tmp $desc";
+    $cal = 1;
   }
   if ($arg =~ /(\d+)c(alendar)?w(eeks?)?/) {
     if ($1) {
@@ -712,6 +714,7 @@ sub str_to_offset {
     $time += (86400 * 7 * $1);
     $tmp = ($1 > 1) ? "s" : "";
     $desc = "$1 calendar week$tmp $desc";
+    $cal = 1;
   }
   if ($arg =~ /(\d+)c(alendar)?m(onths?)?/) {
     if ($1) {
@@ -736,6 +739,7 @@ sub str_to_offset {
     }
     $tmp = ($1 > 1) ? "s" : "";
     $desc = "$1 calendar month$tmp $desc";
+    $cal = 1;
   }
   if ($arg =~ /(\d+)c(alendar)?y(ears?)?/) {
     if ($1) {
@@ -765,6 +769,35 @@ sub str_to_offset {
     }
     $tmp = ($1 > 1) ? "s" : "";
     $desc = "$1 calendar year$tmp $desc";
+    $cal = 1;
+  }
+
+  if ($arg =~ /(\d+)(am|pm)/i) {
+    $tmp = $1;
+    $i = $2;
+    $desc .= " at $1 $2";
+    $tmp = 12 if ($tmp > 12);
+    $tmp = 0 if ($tmp == 12);
+    $tmp += 12 if ($i =~ /pm/i);
+
+    if ($cal) {
+      if ($future) {
+        $time += $tmp * 3600;
+      }
+      else {
+        $time += (24 - $tmp) * 3600;
+      }
+    }
+    else {
+      if ($future) {
+        $i = ($tmp - $lt[2]) * 3600 -  $lt[1] * 60 - $lt[0];
+      }
+      else {
+        $i = ($lt[2] - $tmp) * 3600 + $lt[1] * 60 + $lt[0];
+      }
+      $i += 86400 if ($i < 0);
+      $time += $i;
+    }
   }
 
   unless (defined $time) {
@@ -790,7 +823,7 @@ This converts a string to a number of seconds since 1970 began.
 sub str_to_time {
   my $arg = shift;
   my $log = new Log::In 150, $arg;
-  my $time = &str_to_offset($arg);
+  my $time = &str_to_offset($arg, 1);
 
   $time += time if (defined $time);
   return $time;
