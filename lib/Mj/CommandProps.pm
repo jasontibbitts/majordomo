@@ -993,7 +993,7 @@ my %commands =
                                   },
                    'modes'    =>  {
                                    %generic_modes,
-                                   'alias'       => {'exclude' => 'bounce|enhaced|export|owners'},
+                                   'alias'       => {'exclude' => 'bounce|enhanced|export|owners'},
                                    'bounce'      => 1,
                                    'common'      => 1,
                                    'enhanced'    => 1,
