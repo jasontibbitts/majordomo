@@ -138,7 +138,7 @@ The following files give a good introduction.
 
   <dt>$HELP:TOKENINFO
     <dd>How to obtain more information about one request that
-        requires moderation
+        requires moderation.
 
   <dt>$HELP:WHO
     <dd>How to see who is subscribed to your mailing list.
