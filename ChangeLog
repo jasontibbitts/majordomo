@@ -1,3 +1,8 @@
+2000-10-02  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Resend.pm (_check_mime): Don't fault messages for
+        exceeding max_mime_header_length if it is zero.
+
 2000-10-01  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Resend.pm (_post):  Add support for the "unique"

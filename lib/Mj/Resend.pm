@@ -1372,7 +1372,7 @@ sub _check_mime {
         $len = length($i)+length($j)+2;
         $avars->{mime_header_length} = $len
           if ($len > $avars->{mime_header_length});
-        if ($len > $maxlen) {
+        if ($maxlen && ($len > $maxlen)) {
           push(@$reasons,
                "A MIME header is too long in $part ($len > $maxlen)");
           $avars->{mime_header_length_exceeded} = 1;
