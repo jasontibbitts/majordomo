@@ -1150,14 +1150,24 @@ sub set {
   my($data, $error, $ok, $parsed, $rebuild_passwd);
 
   # Make sure we're setting a legal variable
-  unless (exists $self->{'vars'}{$var} &&
-	  ($self->{'list'} eq 'GLOBAL' ?
-	   $self->{'vars'}{$var}{'global'} :
-	   $self->{'vars'}{$var}{'local'}))
-    {
-      $log->out("illegal variable");
-      return;
+  unless (exists $self->{'vars'}{$var}) {
+    $log->out("illegal setting");
+    # XLANG
+    return (0, qq(The "$var" setting does not exist.));
+  }
+
+  if ($self->{'list'} eq 'GLOBAL') {
+    unless ($self->{'vars'}{$var}{'global'}) {
+      $log->out("non-global setting");
+      return (0, qq(The "$var" setting is not global in scope.));
     }
+  }
+  else {
+    unless ($self->{'vars'}{$var}{'local'}) {
+      $log->out("non-local setting");
+      return (0, qq(The "$var" setting is not list-specific.));
+    }
+  }
 
   # Lock the file; this will load it for us
   $self->lock;
