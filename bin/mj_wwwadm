@@ -179,6 +179,7 @@ Command:&nbsp;&nbsp;
 <option> unregister
 <option> which
 <option> who-enhanced
+<option> who-bounces-enhanced
 <option> about this service
 </select>
 <td>
@@ -375,7 +376,7 @@ addresses from the list below, then press the <b>$remove</b> button.
 <pre>
 EOM
     }
-    elsif ($func eq 'who' and $line =~ /listed subscribers/) {
+    elsif ($func eq 'who' and $line =~ /listed subscriber/) {
       $line .= "</form>\n";
     }
     print STDOUT $line;
