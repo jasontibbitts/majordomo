@@ -191,8 +191,8 @@ the recipient.  For example, if ruth@example.net asks "How do I subscribe
 to your mailing list," you could send the "help overview" document
 to her with these commands:
 
-  default user ruth@example.net
-  help overview
+   default user ruth@example.net
+   help overview
 
 When ruth@example.net receives the message, it will have your address,
 not the server's address, in the From: header.

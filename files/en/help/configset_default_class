@@ -18,8 +18,8 @@ are listed in "help set".
 
 
 See Also:
-  help set
-  help configset default_flags
+   help set
+   help configset default_flags
 
 For a list of all help topics send this one-line message
    help topics

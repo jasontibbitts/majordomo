@@ -7,11 +7,11 @@ appropriate value.  Majordomo variables, for the purpose of message
 or file substitution, are upper case words with a leading dollar sign.
 
 For example, when you use the command
-  help overview
+   help overview
 The first line of the template says
-  An Overview of Majordomo 2, version \$VERSION
+   An Overview of Majordomo 2, version \$VERSION
 However, what you see on your screen is
-  An Overview of Majordomo 2, version $VERSION
+   An Overview of Majordomo 2, version $VERSION
 
 Majordomo automatically substitutes the version number for the 
 VERSION keyword variable.

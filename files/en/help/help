@@ -26,16 +26,16 @@ the special Majordomo commands for mailing list administration:
 There are two shortcuts available in the help system to make typing topic 
 names a little easier.  The first is that anywhere an underscore, _, 
 is seen, you can use a space instead.  For example,
-  help admin_passwords
+   help admin_passwords
 and 
-  help admin passwords
+   help admin passwords
 return the same document.
 
 Also, list administrators who wish to learn about configuration settings
 can omit the leading "configset_" from the topic name.  For example,
-  help configset_digests
+   help configset_digests
 is the same as
-  help digests
+   help digests
 
 (The longer command represents the actual name of the help file.  This is 
 important for site administrators to remember if they decide to extend the help 

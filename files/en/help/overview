@@ -92,14 +92,14 @@ Subscribing to a List
   file for "subscribe". To get that file, send this one line in the body 
   of a mail message to $MJ
 
-    help subscribe
+   help subscribe
 
   You supply at least the list's name, and you can supply your real name
   and email address if it is not in your email headers.  For example,
 
-    subscribe LISTNAME
+   subscribe LISTNAME
 
-    subscribe LISTNAME Your Name <youraddress@example.com>
+   subscribe LISTNAME Your Name <youraddress@example.com>
 
   Based on configuration decisions made by the list owners, you may be
   added to the mailing list immediately, or you may receive notification
@@ -180,15 +180,15 @@ Posting Messages
   your message is moderated or denied, you will usually receive a 
   notice from Majordomo why that happened.  If not, use the command
 
-    help set
+   help set
 
   to learn about your personal settings, then use the 
 
-    set LISTNAME
+   set LISTNAME
 
   command or the 
 
-    show 
+   show 
 
   command to see the current settings.  If the settings that start with
   "ack" are turned off, you will not receive notices about the progress of
