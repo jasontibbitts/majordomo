@@ -1,3 +1,19 @@
+2002-04-25  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Archive.pm:  (_sort_archives, _by_date)  Use a
+	separate routine for archive sorting for compatibility
+	with perl 5.005.02 and earlier versions.  Thanks
+	to Larry Rosenbaum.
+
+	* lib/Mj/Format.pm:  (archive)  Bugfix:  remove unnecessary
+	array reversal.
+
+	* lib/Mj/Resend.pm:  (_r_ck_header)  Recursively check
+	the parts of a message for headers which match the admin_headers,
+	noarchive_headers, and taboo_headers settings.  Those three
+	settings now apply to all headers within a message, rather than
+	just the top-level headers.
+
 2002-04-20  Michael Yount <csf@moscow.com>
 
 	* bin/mj_queuerun, mj_queueserv, mj_shutdown:  Add 3rd

@@ -124,29 +124,12 @@ sub _sort_archives {
   my $log   = new Log::In 250;
   my (%data, @tmp, $arc, $sort_arcs);
 
-  $sort_arcs = 
-  sub {
-
-    # different sublists
-    if ($data{$a}->[0] ne $data{$b}->[0]) {
-      return $a cmp $b;
-    }
-    # same date
-    elsif ($data{$a}->[1] eq $data{$b}->[1]) {
-      return $a cmp $b;
-    }
-    # different date
-    else {
-      return $data{$a}->[1] cmp $data{$b}->[1];
-    }
-  };
-
   for $arc (keys %{$self->{'archives'}}) {
     @tmp = _split_name($arc);
     $data{$arc} = [ @tmp ];
   }
 
-  @tmp = sort $sort_arcs (keys %{$self->{'archives'}});
+  @tmp = sort { _by_date(\%data); } (keys %{$self->{'archives'}});
   $self->{'sorted_archives'} = [ @tmp ];
 
   for $arc (keys %{$self->{'splits'}}) {
@@ -155,12 +138,29 @@ sub _sort_archives {
     $data{$arc} = [ @tmp ];
   }
 
-  @tmp = sort $sort_arcs (keys %{$self->{'splits'}});
+  @tmp = sort { _by_date(\%data); } (keys %{$self->{'splits'}});
   $self->{'sorted_splits'} = [ @tmp ];
 
   1;
 }
                 
+sub _by_date {
+  my ($data) = shift;
+
+  # different sublists
+  if ($data->{$a}->[0] ne $data->{$b}->[0]) {
+    return $a cmp $b;
+  }
+  # same date
+  elsif ($data->{$a}->[1] eq $data->{$b}->[1]) {
+    return $a cmp $b;
+  }
+  # different date
+  else {
+    return $data->{$a}->[1] cmp $data->{$b}->[1];
+  }
+}
+
 =head2 _split_name (filename)
 
 This function returns the sublist name and full date
