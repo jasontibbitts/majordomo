@@ -1,3 +1,8 @@
+2001-02-27  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Resend.pm (_munge_subject): Bugfix: don't delete subjects
+        not matching $re_regexp.
+
 2001-02-25  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/Resend.pm (_munge_subject): Make use of

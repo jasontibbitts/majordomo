@@ -15,6 +15,7 @@ BEGIN {
   if (! -t STDERR) {
     open (STDERR, ">>$::TMPDIR/mj_queuerun.debug") or
       die "Can't redirect debug output to $::TMPDIR/mj_queuerun.debug: $!";
+    select((select(STDERR), $| = 1)[0]);
   }
 
   # Croak if install was botched

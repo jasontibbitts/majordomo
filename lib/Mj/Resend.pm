@@ -1873,7 +1873,7 @@ sub _munge_subject {
   if ($re_strip && $subject1) {
     ($re_part, $rest) =
       re_match("/^($re_regexp)\\s*(.*)\$/$re_mods", $subject1, 1);
-    if (defined($re_part)) {
+    if (defined($re_part) && length($re_part)) {
       $subject1  = "Re:";
       $subject1 .= " $rest" if defined($rest);
       $re_regexp = 'Re: '; $re_mods = '';
@@ -1908,9 +1908,14 @@ sub _munge_subject {
       else {
 	($re_part, $rest) =
 	  re_match("/^($re_regexp)\\s*(.*)\$/$re_mods", $subject1, 1);
-	$re_part ||='';	$re_part =~ s/\s*$//;
-	$subject1  = "$re_part $prefix";
-	$subject1 .= " $rest" if defined($rest) && length($rest);
+	if (defined($re_part) && length($re_part)) {
+	  $re_part =~ s/\s*$//;
+	  $subject1  = "$re_part $prefix";
+	  $subject1 .= " $rest" if defined($rest) && length($rest);
+	}
+	else {
+	  $subject1 = "$prefix $subject1";
+	}
       }
     }
 

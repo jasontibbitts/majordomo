@@ -126,8 +126,8 @@ sub deliver {
   my $log  = new Log::In 150;
   my ($db);
 
-  # use Data::Dumper; 
-  # $log->message(150, 'info', "Delivery variables:  " . Dumper \%args);
+ use Data::Dumper; 
+ $log->message(150, 'info', "Delivery variables:  " . Dumper \%args);
 
   my (@data, $addr, $canon, $classes, $datref, $dests, $eclass, $error, $i,
       $j, $matcher, $ok, $probeit, $probes);
