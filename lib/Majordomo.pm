@@ -4326,13 +4326,19 @@ sub _createlist {
     $aliases = $self->_list_config_get('DEFAULT', 'aliases');
   }
 
-  %args = ('bindir' => $bdir,
-	   'topdir' => $self->{topdir},
-	   'domain' => $dom,
-	   'whoami' => $who,
-	   'options'=> $mtaopts,
-	   'aliases'=> {%$aliases},
+  $digests = $self->_list_config_get('DEFAULT', 'digests');
+  delete($digests->{'default_digest'});
+
+  %args = ('bindir'     => $bdir,
+	   'topdir'     => $self->{topdir},
+	   'domain'     => $dom,
+	   'whoami'     => $who,
+	   'options'    => $mtaopts,
+	   'aliases'    => {%$aliases},
+	   'digests'    => [keys(%{$digests})],
 	   'queue_mode' => $self->_site_config_get('queue_mode'),
+	   'priority'   => $self->_list_config_get('DEFAULT', 'priority') || 0,
+	   'domain_priority' => $self->_global_config_get('priority') || 0,
 	  );
 
   unless ($mtaopts->{'maintain_config'}) {
@@ -4393,7 +4399,6 @@ sub _createlist {
     # Extract lists and owners
     $args{'regenerate'} = 1;
     $args{'lists'} = [];
-    $args{'domain_priority'} = $self->_global_config_get('priority') || 0;
     $self->_fill_lists;
     for my $i (keys %{$self->{'lists'}}) {
       $debug = $self->_list_config_get($i, 'debug');
@@ -4428,12 +4433,11 @@ sub _createlist {
       # Extract the list of digests
       $digests = $self->_list_config_get($i, 'digests');
       delete($digests->{'default_digest'});
-      $digests = [keys(%{$digests})];
 
       push @{$args{'lists'}}, {list     => $i,
 			       aliases  => $aliases,
 			       debug    => $debug,
-			       digests  => $digests,
+			       digests  => [keys(%{$digests})],
 			       priority => $priority,
 			       sublists => $sublists,
 			      };

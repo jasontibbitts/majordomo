@@ -1,3 +1,9 @@
+2001-08-16  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm (_createlist): Parse digests variable from
+	DEFAULT for use when creating new lists.  Also pass in priority
+	and domain_priority.	
+
 2001-08-15  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* t/shell.t: Fix test 15 to match changes in "password" format
