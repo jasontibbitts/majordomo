@@ -160,6 +160,14 @@ sub archive {
       eprint($out, $type, indicate($mess, $ok));
     }
   }
+  elsif ($request->{'mode'} =~ /summary/) {
+    for $i (@msgs) {
+      ($mess, $data) = @$i;
+      eprintf($out, $type, "%-18s %5d messages, %5d lines, %5d kB\n",
+              $mess, $data->{'msgs'}, $data->{'lines'}, 
+              int($data->{'bytes'}/1024));
+    }
+  }
   elsif ($request->{'mode'} =~ /get|delete/) {
     $tmp = $mj->format_get_string($type, 'archive_get_head');
     $str = $mj->substitute_vars_format($tmp, $subs);
@@ -177,7 +185,8 @@ sub archive {
       ($msg, $data) = @{$msgs[$i]};
       push @tmp, [$msg, $data];
       $lines += $data->{'lines'};
-      if ($lines > $chunksize or $i == $#msgs) {
+      if (($request->{'mode'} =~ /digest/ and $lines > $chunksize) 
+          or $i == $#msgs) {
         ($ok, $mess) = @{$mj->dispatch($request, [@tmp])};
         $lines = 0; @tmp = ();
         eprint($out, $type, indicate($mess, $ok));
