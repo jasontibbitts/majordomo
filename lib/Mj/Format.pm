@@ -106,7 +106,7 @@ sub archive {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
       $list, $vict, $arg1, $arg2, $arg3, $ok, $mess, @in) = @_;
  
-  my (@lines, $i, @stuff);
+  my (@lines, $data, $i, $line, @stuff);
   if ($ok <= 0) { 
     eprint($out, $type, &indicate($mess, $ok));
     return $ok;
@@ -115,10 +115,22 @@ sub archive {
 
   # XXX Make this configurable so that it uses limits on
   # number of messages per digest or size of digest.
-  ($ok, @lines) = $mj->dispatch('archive_chunk', @stuff, @in);
-
-  for $i (@lines) {
-    eprint($out, $type, "$i");
+  if ($mode =~ /get/) {
+    ($ok, @lines) = $mj->dispatch('archive_chunk', @stuff, @in);
+    for $i (@lines) {
+      eprint($out, $type, "$i");
+    }
+  }
+  else {
+    for $i (@in) {
+      $data = $i->[1];
+      $data->{'subject'} ||= "(no subject)";
+      $data->{'from'} ||= "(author unknown)";
+      $line = sprintf "%-10s : %s\n  %-50s %6d lines, %6d bytes\n\n", 
+        $i->[0], $data->{'subject'}, $data->{'from'},
+        $data->{'body_lines'}, $data->{'bytes'};
+      eprint ($out, $type, $line);
+    }
   }
  
   #  archive_done does nothing, so there is no need to call it.
