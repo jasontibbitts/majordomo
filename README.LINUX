@@ -1,0 +1,21 @@
+In Red Hat Linux 6.0 and 6.1, there is a bug in the MakeMaker module that 
+will cause the Majordomo 2 man pages to be installed in the wrong location.  
+This problem only occurs if Majordomo 2 is installed somewhere under the 
+/usr directory.
+
+To work around this problem, before running the "make" command, edit the 
+Makefile.  For the INSTALLMAN1DIR and INSTALLMAN3DIR variables, change 
+"$(PREFIX)" to "/usr".  For example, if you are installing in the 
+/usr/local/majordomo directory, change
+
+INSTALLMAN1DIR = $(PREFIX)/local/majordomo/man/man1
+INSTALLMAN3DIR = $(PREFIX)/local/majordomo/man/man3
+
+to
+
+INSTALLMAN1DIR = /usr/local/majordomo/man/man1
+INSTALLMAN3DIR = /usr/local/majordomo/man/man3
+
+and then run "make" and "make install" as usual.
+
+
