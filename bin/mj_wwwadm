@@ -266,7 +266,7 @@ unless (exists $commands{$func}) {
 
 # The archive-get and archive-index commands must use immediate mode,
 # to display the results instead of mailing them.
-if ($func eq 'archive' or $func eq 'get') {
+if (($func eq 'archive' and $mode =~ /get/) or $func eq 'get') {
   $mode .= $mode? "-immediate" : "immediate";
 }
 elsif ($func eq 'who') {
