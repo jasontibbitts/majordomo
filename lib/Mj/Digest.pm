@@ -306,7 +306,7 @@ sub choose {
   @out;
 }
 
-=head2 examine
+=head2 examine(digest_listref)
 
   Return data concerning the rules and pending messages
   for a group of digests.
@@ -316,17 +316,13 @@ sub examine {
   my $self = shift;
   my $digest = shift;
   my $log = new Log::In 200, $digest;
-  my (@digests, $data, $i, $j, $state);
+  my ($data, $i, $j, $state);
   $state = $self->_open_state;
   $self->_close_state($state, 0);
-  if (defined $digest and $digest ne 'ALL') {
-    return unless exists $self->{'decision'}{$digest};
-    @digests = ($digest);
-  }
-  else {
-    @digests = keys %{$self->{'decision'}};
-  }
-  for $i (@digests) {
+  $data = {};
+
+  for $i (@$digest) {
+    next unless (exists $self->{'decision'}{$i});
     $data->{$i} = $self->{'decision'}{$i};
     if (exists $state->{$i}) {
       for $j (keys %{$state->{$i}}) {
@@ -334,7 +330,7 @@ sub examine {
       }
     }
   }
-  return ($data);
+  return $data;
 }  
 
 =head2 sync(data)
