@@ -26,6 +26,14 @@ be in the form /pattern/replacement/ unless a special string is used.
 NOTE: These transforms must continue to give the same result when applied
 to the same email address multiple times in succession.
 
+WARNING: Be _very careful_ with this command.  It is possible, with a bad
+setting of addr_xforms, to severely damage your address database.  If there
+were addresses on any list (or registered) that were different but are now
+the same, the duplicate entries will be silently dropped.  It is generally
+possible to get them back by removing the bad setting from addr_xforms
+and issuing a "rekey" command.
+
+
 Instead of complicated regular expressions (see "help patterns"), you
 can use the following strings, one string per line:
   ignore case - ignore case in local parts of all addresses
@@ -62,6 +70,7 @@ or just use the special string
 
 See Also:
    help patterns (for details of regular expressions and replacement strings)
+   help rekey    (must clean up the internal database after new transforms)
    help configset access_rules (for how to trap or match specific addresses)
 
 For a list of all help topics send this one-line message
