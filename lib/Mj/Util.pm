@@ -1370,7 +1370,7 @@ use Symbol;
 sub shell_hook {
   my %args = @_;
   my $log  = new Log::In 120, "$args{name}";
-  my($fh, $pid, $scriptdir);
+  my($fh, $pid, $scriptdir, $scriptname);
 
   # Make sure the script exists
 
