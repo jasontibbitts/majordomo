@@ -2014,6 +2014,12 @@ sub archive_get_done {
   $self->{'archive'}->get_done(@_);
 }
 
+sub archive_get_to_file {
+  my $self = shift;
+  return unless $self->_make_archive;
+  $self->{'archive'}->get_to_file(@_);
+}
+
 sub archive_expand_range {
   my $self = shift;
   return unless $self->_make_archive;
@@ -2033,6 +2039,12 @@ sub archive_find {
   return ($ok, $mess) unless $ok;
   return unless $self->_make_archive;
   $self->{'archive'}->find($regex);
+}
+
+sub archive_summary {
+  my $self = shift;
+  return unless $self->_make_archive;
+  $self->{'archive'}->summary(@_);
 }
 
 sub archive_sync {

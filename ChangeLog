@@ -15,6 +15,12 @@
 	_access settings can include open+password or list+password,
 	and _policy settings can include open+password or auto+password.
 
+	* lib/Mj/Archive.pm:  (summary)  New routine. Return the message, 
+	byte, and line count of each archive file.
+
+	* lib/Mj/List.pm:  (archive_get_to_file, archive_summary) 
+	New routines.  Wrappers for Mj::Archive::{get_to_file,summary}.
+
 	* lib/Mj/Deliver/Envelope.pm:  (new)  Allow an empty envelope
 	sender.  Suggested by Rudolph T Maceyko.
 
