@@ -227,7 +227,7 @@ sub run_queue {
         # Make sure file has nonzero size to avoid a race with mj_enqueue
         # Make sure no modification has occurred to the file 
         # between open() and flock().
-        unless ($status[7] && (@status eq @fhstatus)) {
+        unless ($status[7] && (@status eq @fhstatus) && (-r $file)) {
           close MSG;
           next MSG;
         }
