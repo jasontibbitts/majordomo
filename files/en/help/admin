@@ -124,7 +124,7 @@ To see information about a stalled request, use the tokeninfo command:
 To approve a stalled request, use the accept command:
   accept TOKEN
 
-To disapprove a stalled request, use the reject command:
+To discard a stalled request, use the reject command:
   reject TOKEN
 
 To make posted messages fully moderated, change the moderate setting:

@@ -9,7 +9,7 @@ to refer to anything that requires approval, including posted messages.
 
 When a request is moderated, Majordomo mails a message to the moderators
 with the word "CONSULT" in the subject line.  Basically, to approve or 
-disapprove a request, you only need to reply to that message and type 
+discard a request, you only need to reply to that message and type 
 one of these two commands into the body of the reply:
 
   accept
@@ -60,10 +60,7 @@ stopping when it finds a valid address:
 
   2. It looks in the "moderators" configuration setting for the list.
 
-  3. It looks in the "moderator" configuration setting for the list.
-     This is provided for backward compatibility with Majordomo version 1.
-
-  4. It looks in the "whoami_owner" configuration setting.  This value is
+  3. It looks in the "whoami_owner" configuration setting.  This value is
      usually the list owners' address, so in the last resort, the 
      owners and the moderators are the same people.
 
@@ -607,7 +604,6 @@ See Also:
    help configset_access_rules
    help configset_ack_attach_original
    help configset_default_flags
-   help configset_moderator
    help configset_moderators
    help configset_nonmember_flags
    help configset_whoami_owner
