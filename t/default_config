@@ -1,5 +1,6 @@
 $VAR1 = {
           'raw' => {
+                     'active' => 1,
                      'allowed_flags' => [
                                           'ackdeny',
                                           'ackpost',
