@@ -1,107 +1,149 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-archive-delete   listname pattern
-archive-get      listname pattern
-archive-get-mime listname pattern
-archive-index    listname pattern
-archive-stats    listname pattern
-archive-sync     listname pattern
+archive-delete   listname filespec
+archive-get      listname filespec
+archive-get-mime listname filespec
+archive-index    listname filespec
+archive-stats    listname filespec
+archive-sync     listname filespec
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is the name of a regular list at this site
-pattern,  required, is a single value or range of values (see below)
+filespec, required, is a single value or range of values (see below)
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
+NOTE: 
+
 If a Majordomo mailing list is configured to store messages in
-an archive, those messages may be retrieved using "archive-get"
-after they are found with the "archive-index" command.
+an archive, it is possible to retrieve messages (with "archive-get")
+or obtain a list of messages with each message's subject and message
+number (using "archive-index"). Messages sent to auxiliary lists are
+also archived, and made available using the archive-get command with
+an extra argument.
 
 The type of digest for the archive-get command can be specified in
 the mode: "archive-get-mime" sends a multi-part MIME message, just
 "archive-get" sends plain text. The original format of the messages
 shouldn't matter.
 
-Majordomo archives are given names which indicate the dates of
-the messages in the archive.  For example, the "test" list's archive
-for the month of March, 1999, would be called
-  test.199903
-Archives may be organized by year, month, week, or day, at the 
-discretion of the list owners.
+List archives may be organized by year, month, week, or day, at the 
+discretion of the list owners. The configuration of the list does
+not affect the use of "archive" commands, but refer to "help index"
+and "help get" for other ways to directly access the archive files
+without using "archive-index" and "archive-get".
 
-Dates can be specified in several formats, as detailed in the
-"Time Stamp" section of "help times". Within each archive, each
-message will have a number.  For instance, the seventh message in
-the March, 1999, archive would have the following number:
-  199903/7
+Different "filespec" syntax applies to different archive options:
+  Section 1: archive-index, archive-get, archive-get-mime (users)
+  Section 2: archive-delete, archive-stats (list administrators only)
+  Section 3: archive-sync (list admins with file system access only)
 
-Messages sent to auxiliary lists are also archived, and made available
-using the archive command.  For example, the first message sent
-to test:bugs in July of 2000 could be retrieved with
-   archive-get test bugs.200007/1
-where the list name "test" is set off by spaces and the auxiliary list
-name "bugs" is separated from the date by a period.
-
-It is possible to retrieve messages (with the "archive-get" command)
-or obtain a list of messages, with each message's subject and message
-number (using the "archive-index" command).  There are several ways
-for you to indicate which messages you want to see, using three kinds
-of patterns.
-
-One pattern is a simple message count.  For example,
-  archive-index test 20
-would retrieve an index of the last 20 messages sent to the "test" list.
-
-Another pattern is a message number.  For example,
-  archive-get test 199903/4
-would retrieve the fourth message in the March, 1999, archive of
-the "test" list.
-
-The final pattern is a number which expresses a date. Again, see
-"help times" for the full syntax of "Time Stamp" dates. The command
-  archive-index plum 19990814
-would retrieve an index of messages posted to the "plum" list
-on August 14, 1999.  Similarly, the command
-  archive-get peach 2000021
-will cause all of the messages posted to the "peach" list during
-the first week of February, 2000, to be sent to you.
-
-These three patterns may be combined to indicate ranges of messages.
-The command
-  archive-get almond 20000205 - 20000207
-would retrieve all messages distributed on the "almond" list
-during the 5th, 6th, and 7th of February, 2000.  It is very
-important to leave spaces around the hyphen.  The command
-  archive-get almond 20000205-20000207
-will NOT work.
-
-Any combination of the three patterns may be used.  However, some
-of the combinations produce unusual effects.  For example,
-  archive-index lime 15 - 3
-would retrieve an index of the 15 messages immediately preceding
-the third most recent message sent to the "lime" list.
-
-The command
-  archive-get lemon 200001/3 - 15
-will retrieve the third message in the January, 2000, archive of
-the "lemon" list, and 14 messages following it, even if those
-messages are found in other archives, such as February, 2000, or
-later.
-
-Whereas
-  archive-index tangerine 10 - 1998
-would retrieve an index of the last 10 messages posted to the
-"tangerine" list during 1998, 
-  archive-index tangerine 1998 - 10
-would retrieve an index of the first 10 messages.
-
-The index and get commands may not allow archive retrieval if
-"configset archive_dir" is set to somewhere outside the list's
-file space, but they may work if the file system permissions are
-set appropriately.
+The -get and -index options are the only "archive" command that list
+subscribers can use. They allow listing and retrieval of messages.
 
 The options "archive-delete" and "archive-sync" are intended only
 for use by expert list owners, and "-sync" in particular will be
 useful only to those with shell access who wish to hand-edit the
 archives (a practice which is possible but discouraged). Both of
 these options require an administrative password.
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Section 1: archive-index, archive-get, archive-get-mime (users)
+
+
+The "filespec" needed for these "archive" commands can take various
+forms, and examples of each are shown below:
+  count
+  date
+  date/message_number
+  auxlist.date
+  auxlist.date/message_number
+  filespec1 - filespec2
+
+The "count" form gets the number of messages you ask for, ending with
+the last message posted to the list.
+
+Dates can be specified in several formats, as detailed in the "Time Stamp"
+section of "help times".
+
+Within each archive, each message will have a number, and that number
+must be used to retrieve a single message. Without it, you can retrieve
+messages covering a range of dates but cannot select a single message.
+
+The "filespec1 - filespec2" form MUST have spaces on each side of the
+dash, and the two filespec fields can be any of the other forms. When
+a dash is used, all messages in the range specified are processed. See
+the examples below for additional notes on range usage and interactions
+between the two fields of the range.
+
+Example 1: "filespec" is a simple message count (not often used)
+    archive-index test 20
+  would retrieve an index of the last 20 messages sent to the "test" list,
+    archive-get test 20
+  would retrieve the twenty messages themselves.
+
+Example 2: "filespec" is a date (usually used with -index, not -get)
+    archive-index test 1999
+  shows all messages in all of the 1999 archives of the "test" list.
+    archive-get test 199903
+  retrieves all messages in the March 1999 archive of the "test" list.
+    archive-index test 19990305
+  shows only messages posted on the "test" list the day of 5 March 1999.
+  (Refer to "help times" for details of the date field syntax.)
+
+Example 3: "filespec" includes a message number (from "archive-index")
+    archive-get test 199903/4
+  retrieves the 4th message in the March 1999 archive of the "test" list.
+
+Example 4: "filespec" includes an auxiliary list
+    archive-get test bugs.199903
+  retrieves all messages in the March 1999 archive of the auxiliary list
+  "bugs" of the main list "test".
+
+Example 5: "filespec" includes an auxiliary list AND a message number
+    archive-get test bugs.199903/4
+  retrieves the 4th in the March 1999 archive of the auxiliary list
+  "bugs" of the main list "test".
+
+Example 6: "filespec1 - filespec2" includes a range of dates
+    archive-get almond 20000205 - 20000207
+  would retrieve all messages distributed on the "almond" list
+  during the 5th, 6th, and 7th of February, 2000.
+  WARNING: "20000205-20000207" will NOT WORK - you must include spaces!
+
+Example 7: "filespec1 - filespec2" has decreasing "count" fields
+    archive-index lime 15 - 3
+  would retrieve an index of the 15 messages immediately preceding
+  the 3rd most recent message sent to the "lime" list. This unusual
+  result is because the last field of the range (3) indicates the
+  range ends with the 3rd most recent post. The start of the range,
+  as with a single message count, counts backwards from the end.
+
+Example 8: "filespec1 - filespec2" has a message number and a count
+    archive-get lemon 200001/3 - 15
+  will retrieve the third message in the January, 2000, archive of
+  the "lemon" list, and 14 messages FOLLOWING it, even if those
+  messages are found in other archives, such as February 2000, or
+  later. Note that the count field does NOT go back in time from
+  the date field, but goes forward instead!
+
+Example 9: "filespec1 - filespec2" has a count and then a date field
+    archive-index tangerine 10 - 1998
+  would retrieve an index of the LAST TEN messages posted to the
+  "tangerine" list during 1998.
+
+Example 10: "filespec1 - filespec2" has a date and then a count field
+    archive-index tangerine 1998 - 10
+  would retrieve an index of the FIRST TEN messages posted to the
+  "tangerine" list during 1998.
+
+The index and get commands may not allow archive retrieval if
+"configset archive_dir" is set to somewhere outside the list's
+file space, but they may work if the file system permissions are
+set appropriately. Contact your system administrator if you get
+messages like "permission denied".
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Section 2: archive-delete, archive-stats (list administrators only)
 
 The archive-delete option takes the usual arguments: dates,
 message counts, message numbers, and combinations thereof
@@ -116,17 +158,37 @@ would be the first two messages in the August 2000 archive.
 Deleting a message causes the index and count files to be updated
 automatically, so "archive-sync" is not needed after "archive-delete".
 
+List owners can use the "archive-stats" command to get a sorted
+report of the number of messages posted by each address to the named
+list for the period of time specified by "filespec". For instance,
+to find out who posted the most on mj2-dev during September 2000:
+  archive-stats mj2-dev 200009
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Section 3: archive-sync (list admins with file system access only)
+
+Only use "archive-sync" when you have manually edited a file
+at the operating system level. You may also have to delete old
+archive database files and strip special lines out of the archive
+to make this work. For expert use only! Back up your directories
+before attempting to use this option.
+
 The archive-sync command takes one argument, which must be the
-date of a particular archive file or a Majordomo pattern matching
-one or more archive files (see "help patterns").  For example,
+date of a particular archive file or a Majordomo filespec matching
+one or more archive files (see "help filespecs").  For example,
   archive-sync mj2-dev 200005
 would synchronize the May 2000 archive index and counts with the
-messages themselves. Alternately, if you have a bunch of files
-to process at once:
+messages themselves.
+
+Alternately, if you have a bunch of files to process at once,
+you can specify a pattern and all files matching that pattern
+will be synchronized:
   archive-sync mj2-dev /19991?/
 would synchronize the October, November, and December 1999 archives.
-All archive file names must begin with the list name, and the list
-name should not be included in the pattern.
+
+In the file system, all archive file names must begin with the list
+name, and the list name should NOT be included in the "filespec" field.
 
 When using archive-sync, any message without an X-Archive-Number 
 header will be given a new number, one greater than the highest
@@ -134,12 +196,7 @@ number in the archive, and a new header.  Any archive number that
 does not correspond to the archive in question will be replaced by
 one that does (in this way, it is possible to combine archives).
 
-List owners can use the "archive-stats" command to get a sorted
-report of the number of messages posted by each address to the named
-list for the period of time specified by "pattern". For instance,
-to find out who posted the most on mj2-dev during September 2000:
-  archive-stats mj2-dev 200009
-
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 See Also:
    help configset access_rules_variables (set/test for this command)
@@ -148,7 +205,7 @@ See Also:
    help configset archive_index  (to restrict indexing of these files)
    help get   (which may be used in some cases to retrieve archives)
    help index (which may be used to show which archives are available)
-   help patterns (for majordomo patterns and regular expressions)
+   help filespecs (for majordomo filespecs that apply ONLY to -sync)
    help put   (which is used to create the archive directory)
    help times (for how to specify time stamps)
 

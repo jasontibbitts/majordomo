@@ -105,6 +105,7 @@ try to extend the patterns (like tacking an hour on a day-of-year spec).
       (su, m, tu, w, th, f, sa) or preferably (sun, mon, tue, wed, thur, fri, sat)
    - can use a number from 1 through 7 followed by 'w'
       (1w for sun, 2w for mon, 3w for tue, 4w for wed, 5w for thur, 6w for fri, 7w for sat)
+   - WEEK DAYs beyond the last actual day of a week (like 8w) will be IGNORED
    - can use "daily":  the same as a WEEK DAY LIST containing all days (see below)
    - can use "weekly": the same as "sun" (see below)
 
@@ -141,9 +142,10 @@ try to extend the patterns (like tacking an hour on a day-of-year spec).
    - EXAMPLE: "sat,sun(10,14)" is just once early saturday, plus 10am and 2pm sunday
    - EXAMPLE: "sat(22-23),sun(1-2)" acts on 4 consecutive hours (10pm sat until 2am sun)
 
-5. YEAR DAY: one or two numbers representing a day of the year
-   - can use a number from 1-365 followed by 'y'
-   - can use a number from 1-12 followed by 'm' and ANOTHER number from 1-31 and 'd'
+5. YEAR DAY: one or two numbers representing a day of the year (no commas or dashes)
+   - can use a number 1-365 followed by 'y'
+   - can use a number 1-12 followed by 'm' and ANOTHER number 1-31 followed by 'd'
+   - YEAR DAYs beyond the last actual day of a year (like 400y or 2m31d) will be IGNORED
    - do not confuse this once-per-year spec with the once-per-month spec above!
    - EXAMPLES: "91y"  is April Fool's day and "359y"   is Christmas
    - EXAMPLES: "4m1d" is April Fool's day and "12m25d" is Christmas
