@@ -186,7 +186,7 @@ more details.
 The "default" action for the post command includes checks that prevent
 large messages and mail loops from appearing on the list.  Use the
 allow action with caution in rules for the post command, because these
-checks will be bypasswed.
+checks will be bypassed.
 
 
 confirm
