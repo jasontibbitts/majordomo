@@ -555,7 +555,7 @@ sub list_access_check {
 
   # Using regular expressions with the unsubscribe, unregister,
   # and set commands is allowed only for administrators.
-  return (0, "The master password is required to use a pattern.\n")
+  return (0, "An administrative password is required to use a pattern.\n")
     if ($args{'regexp'} and not $args{'master_password'});
 
   # If we got a good master password _and_ it overrides access
@@ -1133,7 +1133,8 @@ sub _a_default {
     # Always deny rooted requests (only happens for get and index)
     if ($args->{'root'}) {
       $action = "_a_deny";
-      $reason = "Requests which specify absolute paths are denied."
+      $reason = $self->format_error('absolute_path', $td->{'list'},
+                  'PATH' => $td->{'path'});
     }
     elsif (exists $td->{'sublist'} and $td->{'sublist'}
            and $td->{'sublist'} !~ /MAIN/) {
@@ -1252,6 +1253,8 @@ sub _a_default {
   # Finally just deny the request
   else {
     $action = "_a_deny";
+    $reason = $self->format_error('no_password', $td->{'list'},
+                'COMMAND' => $request);
   }
 
   if ($args->{'delay'} and $action eq '_a_allow') {
