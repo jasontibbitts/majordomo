@@ -17,9 +17,16 @@ keys are used:
  local   - true if the variable is list-specific.
  global  - true if the variable is part of the global Majordomo config
            (note that a variable may be both local and global).
- visible - True if the variable is visible without password validation.
- mutable - True if the list owner can change the variable; otherwise,
-           only someone with a global password can change it.
+ visible - Level of password validation required to see a variable (0-5).
+ mutable - Level of password validation required to change a variable (1-5).
+
+           The password levels are:
+           5 - site password
+           4 - domain master password (from the master_password setting)
+           3 - domain auxiliary password (from the passwords setting)
+           2 - list master password
+           1 - list auxiliary password
+           Each level includes all of the higher levels as well.
 
 =cut
  
@@ -27,14 +34,23 @@ package Mj::Config;
 
 %vars =
   (
+   'config_access' => 
+   {
+    'type'   => 'access_array',
+    'groups' => [qw(access)],
+    'local'  => 1,
+    'global' => 1,
+    'visible'=> 1,
+    'mutable'=> 4,
+   },
    'faq_access' => 
    {
     'type'   => 'enum',
     'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'get_access' => 
@@ -42,9 +58,9 @@ package Mj::Config;
     'type'   => 'enum',
     'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'archive_access' => 
@@ -52,9 +68,9 @@ package Mj::Config;
     'type'   => 'enum',
     'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access archive)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'index_access' =>
@@ -62,9 +78,9 @@ package Mj::Config;
     'type'   => 'enum',
     'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'who_access' =>
@@ -72,9 +88,9 @@ package Mj::Config;
     'type'   => 'enum',
     'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'which_access' =>
@@ -82,9 +98,9 @@ package Mj::Config;
     'type'   => 'enum',
     'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'info_access' =>
@@ -92,9 +108,9 @@ package Mj::Config;
     'type'   => 'enum',
     'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'intro_access' =>
@@ -102,89 +118,90 @@ package Mj::Config;
     'type'   => 'enum',
     'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'advertise' =>
    {
     'type'   => 'regexp_array',
     'groups' => [qw(lists)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'noadvertise' =>
    {
     'type'   => 'regexp_array',
     'groups' => [qw(lists)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'advertise_subscribed' =>
    {
     'type'   => 'bool',
     'groups' => [qw(lists)],
-    'visible'=> 0,
     'global' => 1,
+    'visible'=> 1,
+    'mutable'=> 3,
    },
    'ack_attach_original' =>
    {
     'type'   => 'enum_array',
     'values' => [qw(fail stall succeed all)],
     'groups' => [qw(reply)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'inform' =>
    {
     'type'   => 'inform',
     'groups' => [qw(reply)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'post_limits' =>
    {
     'type'   => 'limits',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'access_password_override' =>
    {
     'type'   => 'bool',
     'groups' => [qw(password)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'access_rules' =>
    {
     'type'   => 'access_rules',
     'groups' => [qw(access moderate)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'attachment_rules' =>
    {
     'type'   => 'attachment_rules',
     'groups' => [qw(moderate deliver)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'aliases' =>
@@ -193,9 +210,9 @@ package Mj::Config;
     'values' => [qw(auxiliary moderator owner request 
                     resend subscribe unsubscribe)],
     'groups' => [qw(miscellany)],
-    'visible'=> 0,
     'local'  => 1,
-    'mutable'=> 0,
+    'visible'=> 1,
+    'mutable'=> 3,
    },
    'default_flags' =>
    {
@@ -204,8 +221,8 @@ package Mj::Config;
                     hideaddress hideall postblock prefix replyto 
                     rewritefrom selfcopy)],
     'groups' => [qw(reply deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'nonmember_flags' =>
@@ -213,8 +230,8 @@ package Mj::Config;
     'type'   => 'enum_array',
     'values' => [qw(ackstall ackdeny ackpost ackreject postblock)],
     'groups' => [qw(reply deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'allowed_flags' =>
@@ -224,16 +241,16 @@ package Mj::Config;
                     hideaddress hideall postblock prefix 
                     replyto selfcopy rewritefrom)],
     'groups' => [qw(reply deliver)],
-    'visible'=> 1,
     'local'  => 1,
+    'visible'=> 0,
     'mutable'=> 1,
    },
    'default_class' =>
    {
     'type'   => 'string',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'allowed_classes' =>
@@ -241,50 +258,50 @@ package Mj::Config;
     'type'   => 'enum_array',
     'values' => [qw(all digest each nomail unique)],
     'groups' => [qw(deliver)],
-    'visible'=> 1,
     'local'  => 1,
+    'visible'=> 0,
     'mutable'=> 1,
    },
    'delivery_rules' =>
    {
     'type'   => 'delivery_rules',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
-    'mutable'=> 0,
+    'visible'=> 1,
+    'mutable'=> 3,
    },
    'comments' =>
    {
     'type'   => 'string_array',
     'groups' => [qw(miscellany)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'category' =>
    {
     'type'   => 'string',
     'groups' => [qw(lists)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'description' =>
    {
     'type'   => 'string',
     'groups' => [qw(lists)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'description_long' =>
    {
     'type'   => 'string_array',
     'groups' => [qw(lists)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'set_policy' =>
@@ -293,9 +310,9 @@ package Mj::Config;
     'values' => [qw(open closed auto open+confirm closed+confirm auto+confirm
                     auto+password open+password)],
     'groups' => [qw(access)],
-    'visible'=> 0,
     'global' => 1,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'subscribe_policy' =>
@@ -304,8 +321,8 @@ package Mj::Config;
     'values' => [qw(open closed auto open+confirm closed+confirm auto+confirm
                     auto+password open+password)],
     'groups' => [qw(access)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'unsubscribe_policy' =>
@@ -315,145 +332,145 @@ package Mj::Config;
                     auto+password open+password)],
     'groups' => [qw(access)],
     'local'  => 1,
-    'visible'=> 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'max_header_line_length' =>
    {
     'type'   => 'integer',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'max_mime_header_length' =>
    {
     'type'   => 'integer',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'max_total_header_length' =>
    {
     'type'   => 'integer',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'maxlength' =>
    {
     'type'   => 'integer',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'moderate' =>
    {
     'type'   => 'bool',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'moderator' =>
    {
     'type'   => 'address',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'moderators' =>
    {
     'type'   => 'address_array',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'moderator_group' =>
    {
     'type'   => 'integer',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'sender' =>
    {
     'type'   => 'address',
     'groups' => [qw(deliver)],
-    'visible'=> 1,
     'global' => 1,
     'local'  => 1,
+    'visible'=> 0,
     'mutable'=> 1,
    },
    'precedence' =>
    {
     'type'   => 'word',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'reply_to' =>
    {
     'type'   => 'word',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'override_reply_to' =>
    {
     'type'   => 'bool',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'purge_received' =>
    {
     'type'   => 'bool',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'quote_pattern' =>
    {
     'type'   => 'regexp',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'resend_host' =>
    {
     'type'   => 'word',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'restrict_post' =>
    {
     'type'   => 'restrict_post',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'sequence_number' =>
    {
     'type'   => 'integer',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 0,
+    'visible'=> 1,
     'mutable'=> 1,
     'auto'   => 1,
    },
@@ -461,96 +478,96 @@ package Mj::Config;
    {
     'type'   => 'bool',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'debug' =>
    {
     'type'   => 'integer',
     'groups' => [qw(miscellany)],
-    'visible'=> 1,
-    'mutable'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 0,
+    'mutable'=> 3,
    },
    'addr_allow_at_in_phrase' =>
    {
     'type'   => 'bool',
     'groups' => [qw(address)],
-    'visible'=> 0,
     'local'  => 0,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'addr_allow_bang_paths' =>
    {
     'type'   => 'bool',
     'groups' => [qw(address)],
-    'visible'=> 0,
     'local'  => 0,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'addr_allow_comments_after_route' =>
    {
     'type'   => 'bool',
     'groups' => [qw(address)],
-    'visible'=> 0,
     'local'  => 0,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'addr_allow_ending_dot' => 
    {
     'type'   => 'bool',
     'groups' => [qw(address)],
-    'visible'=> 0,
     'local'  => 0,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'addr_limit_length' =>
    {
     'type'   => 'bool',
     'groups' => [qw(address)],
-    'visible'=> 0,
     'local'  => 0,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'addr_require_fqdn' =>
    {
     'type'   => 'bool',
     'groups' => [qw(address)],
-    'visible'=> 0,
     'local'  => 0,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'addr_strict_domain_check' =>
    {
     'type'   => 'bool',
     'groups' => [qw(address)],
-    'visible'=> 0,
     'local'  => 0,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'archive_dir' =>
    {
     'type'   => 'directory',
     'groups' => [qw(archive)],
-    'visible'=> 0,
     'local'  => 1,
-    'mutable'=> 0,
+    'visible'=> 1,
+    'mutable'=> 3,
    },
    'archive_size' =>
    {
     'type'   => 'string',
     'groups' => [qw(archive)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'archive_split' =>
@@ -558,109 +575,109 @@ package Mj::Config;
     'type'   => 'enum',
     'values' => [qw(yearly monthly weekly daily)],
     'groups' => [qw(archive)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'message_fronter' =>
    {
     'type'   => 'string_2darray',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'message_fronter_frequency' =>
    {
     'type'   => 'integer',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'message_footer' =>
    {
     'type'   => 'string_2darray',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'message_footer_frequency' =>
    {
     'type'   => 'integer',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'message_headers' =>
    {
     'type'   => 'string_array',
     'groups' => [qw(deliver)],
-    'visible'=> 1,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 0,
     'mutable'=> 1,
    },
    'delete_headers' =>
    {
     'type'   => 'string_array',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'subject_prefix' =>
    {
     'type'   => 'string',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'admin_headers' =>
    {
     'type'   => 'taboo_headers',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'admin_body' =>
    {
     'type'   => 'taboo_body',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'taboo_headers' =>
    {
     'type'   => 'taboo_headers',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'taboo_body' =>
    {
     'type'   => 'taboo_body',
     'groups' => [qw(moderate)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'block_headers' =>
    {
     'type'   => 'taboo_headers',
     'groups' => [qw(access)],
-    'visible'=> 0,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'triggers' =>
@@ -668,16 +685,16 @@ package Mj::Config;
     'type'   => 'triggers',
     'values' => [qw(bounce checksum delay log post session token)],
     'groups' => [qw(miscellany)],
-    'visible'=> 0,
     'local'  => 1,
+    'visible'=> 1,
     'global' => 1,
    },
    'digests' =>
    {
     'type'   => 'digests',
     'groups' => [qw(deliver)],
-    'visible'=> 1,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'digest_index_format' =>
@@ -685,18 +702,18 @@ package Mj::Config;
     'type'   => 'enum',
     'values' => [qw(numbered subject subject_author)],
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'global' => 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'digest_issues' =>
    {
     'type'   => 'digest_issues',
     'groups' => [qw(deliver)],
-    'visible'=> 0,
     'global' => 0,
     'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 1,
     'auto'   => 1,
    },
@@ -704,52 +721,53 @@ package Mj::Config;
    {
     'type'   => 'xform_array',
     'groups' => [qw(address)],
-    'visible'=> 0,
     'global' => 1,
     'local'  => 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'master_password' =>
    {
     'type'   => 'pw',
     'groups' => [qw(password)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
-    'mutable'=> 1,
+    'visible'=> 2,
+    'mutable'=> 2,
    },
    'passwords' =>
    {
     'type'   => 'passwords',
     'groups' => [qw(password)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
-    'mutable'=> 1,
+    'visible'=> 2,
+    'mutable'=> 2,
    },
    'password_min_length' =>
    {
     'type'   => 'integer',
     'groups' => [qw(password)],
-    'visible'=> 0,
     'global' => 1,
+    'visible'=> 1,
+    'mutable'=> 3,
    },
    'welcome' =>
    {
     'type'   => 'bool',
     'groups' => [qw(reply)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'welcome_files' =>
    {
     'type'   => 'welcome_files',
     'groups' => [qw(reply)],
-    'visible'=> 0,
     'local'  => 1,
     'global' => 1,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'file_search' =>
@@ -757,12 +775,16 @@ package Mj::Config;
     'type'   => 'list_array',
     'groups' => [qw(reply)],
     'local'  => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'file_share' =>
    {
     'type'   => 'list_array',
     'groups' => [qw(reply)],
     'local'  => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
 # Purely global configuration variables below
    
@@ -771,14 +793,16 @@ package Mj::Config;
     'type'   => 'string',
     'groups' => [qw(miscellany)],
     'global' => 1,
-    'visible'=> 1,
+    'visible'=> 0,
+    'mutable'=> 1,
    },
    'whereami' =>
    {
     'type'   => 'word',
     'groups' => [qw(miscellany)],
     'global' => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'whoami' =>
    {
@@ -786,7 +810,8 @@ package Mj::Config;
     'groups' => [qw(miscellany)],
     'global' => 1,
     'local'  => 1,
-    'visible'=> 1,
+    'visible'=> 0,
+    'mutable'=> 1,
    },
    'whoami_owner' =>
    {
@@ -794,7 +819,7 @@ package Mj::Config;
     'groups' => [qw(miscellany)],
     'global' => 1,
     'local'  => 1,
-    'visible'=> 1,
+    'visible'=> 0,
     'mutable'=> 1,
    },
    'bounce_recipients' =>
@@ -803,7 +828,7 @@ package Mj::Config;
     'groups' => [qw(bounce)],
     'global' => 1,
     'local'  => 1,
-    'visible'=> 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'owners' =>
@@ -812,7 +837,7 @@ package Mj::Config;
     'groups' => [qw(moderate)],
     'global' => 1,
     'local'  => 1,
-    'visible'=> 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'tmpdir' =>
@@ -820,28 +845,32 @@ package Mj::Config;
     'type'   => 'directory',
     'groups' => [qw(miscellany)],
     'global' => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'max_in_core' =>
    {
     'type'   => 'integer',
     'groups' => [qw(miscellany)],
     'global' => 1,
-    'visible'=> 1,
+    'visible'=> 0,
+    'mutable'=> 1,
    },
    'return_subject' =>
    {
     'type'   => 'bool',
     'groups' => [qw(reply)],
     'global' => 1,
-    'visible'=> 1,
+    'visible'=> 0,
+    'mutable'=> 1,
    },
    'chunksize' =>
    {
     'type'   => 'integer',
     'groups' => [qw(miscellany)],
     'global' => 1,
-    'visible'=> 1,
+    'visible'=> 0,
+    'mutable'=> 1,
    },
    'default_language' =>
    {
@@ -849,7 +878,8 @@ package Mj::Config;
     'groups' => [qw(reply)],
     'global' => 1,
     'local'  => 1,
-    'visible'=> 1,
+    'visible'=> 0,
+    'mutable'=> 1,
    },
    'default_lists_format' =>
    {
@@ -857,14 +887,16 @@ package Mj::Config;
     'values' => [qw(tiny compact short long enhanced)],
     'groups' => [qw(lists)],
     'global' => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'description_max_lines' =>
    {
     'type'   => 'integer',
     'groups' => [qw(lists)],
     'global' => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'sublists' =>
    {
@@ -872,7 +904,7 @@ package Mj::Config;
     'groups' => [qw(lists)],
     'global' => 0,
     'local'  => 1,
-    'visible'=> 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'archive_url' =>
@@ -881,7 +913,7 @@ package Mj::Config;
     'groups' => [qw(archive)],
     'local'  => 1,
     'global' => 1,
-    'visible'=> 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'confirm_url' =>
@@ -890,7 +922,8 @@ package Mj::Config;
     'groups' => [qw(access)],
     'local'  => 0,
     'global' => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'wwwadm_url' =>
    {
@@ -898,7 +931,8 @@ package Mj::Config;
     'groups' => [qw(miscellany)],
     'local'  => 0,
     'global' => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'wwwusr_url' =>
    {
@@ -906,7 +940,8 @@ package Mj::Config;
     'groups' => [qw(miscellany)],
     'local'  => 0,
     'global' => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'token_remind' =>
    {
@@ -914,7 +949,8 @@ package Mj::Config;
     'groups' => [qw(access)],
     'local'  => 1,
     'global' => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'dup_lifetime' =>
    {
@@ -922,7 +958,8 @@ package Mj::Config;
     'groups' => [qw(moderate)],
     'global' => 1,
     'local'  => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'save_denial_checksums' =>
    {
@@ -930,28 +967,32 @@ package Mj::Config;
     'groups' => [qw(moderate)],
     'global' => 0,
     'local'  => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'latchkey_lifetime' =>
    {
     'type'   => 'integer',
     'groups' => [qw(access)],
     'global' => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'log_lifetime' =>
    {
     'type'   => 'integer',
     'groups' => [qw(miscellany)],
     'global' => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'session_lifetime' =>
    {
     'type'   => 'integer',
     'groups' => [qw(miscellany)],
     'global' => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
   },
    'token_lifetime' =>
    {
@@ -959,7 +1000,8 @@ package Mj::Config;
     'groups' => [qw(access)],
     'local'  => 1,
     'global' => 1,
-    'visible'=> 0,
+    'visible'=> 1,
+    'mutable'=> 1,
    },
    'bounce_probe_frequency' =>
    {
@@ -967,7 +1009,7 @@ package Mj::Config;
     'groups' => [qw(bounce)],
     'local'  => 1,
     'global' => 0,
-    'visible'=> 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'bounce_probe_pattern' =>
@@ -976,7 +1018,7 @@ package Mj::Config;
     'groups' => [qw(bounce)],
     'local'  => 1,
     'global' => 0,
-    'visible'=> 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'bounce_max_age' =>
@@ -985,7 +1027,7 @@ package Mj::Config;
     'groups' => [qw(bounce)],
     'local'  => 1,
     'global' => 0,
-    'visible'=> 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'bounce_max_count' =>
@@ -994,7 +1036,7 @@ package Mj::Config;
     'groups' => [qw(bounce)],
     'local'  => 1,
     'global' => 0,
-    'visible'=> 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'bounce_rules' =>
@@ -1003,7 +1045,7 @@ package Mj::Config;
     'groups' => [qw(bounce)],
     'local'  => 1,
     'global' => 0,
-    'visible'=> 0,
+    'visible'=> 1,
     'mutable'=> 1,
    },
    'request_answer' =>
@@ -1013,7 +1055,7 @@ package Mj::Config;
     'groups' => [qw(reply)],
     'local'  => 0,
     'global' => 1,
-    'visible'=> 1,
+    'visible'=> 0,
     'mutable'=> 1,
    },
    'signature_separator' =>
@@ -1022,7 +1064,8 @@ package Mj::Config;
     'groups' => [qw(miscellany)],
     'local'  => 0,
     'global' => 1,
-    'visible'=> 1,
+    'visible'=> 0,
+    'mutable'=> 1,
    },
    );
 
