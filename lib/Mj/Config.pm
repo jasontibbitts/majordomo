@@ -119,7 +119,7 @@ sub new {
   $self->{'callbacks'}      = $args{'callbacks'};
   $self->{'sdirs'}          = 1;
   $self->{'vars'}           = \%Mj::Config::vars;
-  $self->{'file_header'}    = \$Mj::Config::file_header;
+  # $self->{'file_header'}    = \$Mj::Config::file_header;
   $self->{'default_string'} = \$Mj::Config::default_string;
   $self->{'locked'}         = 0;
   $self->{'mtime'}          = 0;
