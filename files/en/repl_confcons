@@ -1,4 +1,6 @@
-This request must be both confirmed by
-$VICTIM
-and approved by the list owner.
-A confirmation token is being sent in a separate message.
+The request 
+  "$CMDLINE"
+must be confirmed by
+  $NOTIFY
+and approved by the list owner.  Confirmation instructions have been 
+mailed in a separate message.

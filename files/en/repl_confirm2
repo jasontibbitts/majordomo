@@ -1,9 +1,10 @@
 The request 
-  $REQUEST
+  "$CMDLINE"
 must be confirmed by both
-$VICTIM
+  $VICTIM
 and 
-$REQUESTER
+  $REQUESTER
 
 Confirmation instructions have been mailed to
-$VICTIM in a separate message.
+  $VICTIM 
+in a separate message.
