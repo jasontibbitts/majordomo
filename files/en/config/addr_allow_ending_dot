@@ -1,3 +1,3 @@
 If this is true, Majordomo will allow trailing dots on hostnames.
 This is legal syntax for a hostname, but not within an email address.
-Unfortunately some sites addd them spuriously.
+Unfortunately, some sites add them spuriously.
