@@ -2,7 +2,7 @@
 "http://www.w3.org/TR/REC-html40/strict.dtd">
 <!-- Majordomo head format file -->
 <html><head>
-<title>$LIST List Administration: $COMMAND</title>
+<title>$LIST list administration: $COMMAND</title>
 </head>
 <body>
 
