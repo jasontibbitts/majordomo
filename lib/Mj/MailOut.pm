@@ -31,6 +31,9 @@ This sends a piece of mail contained in a file to several addresses.  Use
 this if you have built a complete MIME message complete with headers and
 printed it out to a file.
 
+If $sender is a hashref, an extended envelope sender is built if possible
+using the hash keys 'addr', 'type' and 'data'.
+
 =cut
 use Mj::Deliver::Envelope;
 sub mail_message {
@@ -50,6 +53,13 @@ sub mail_message {
     push @a, $i->strip;
   }
   return unless @a;
+
+  if (ref($sender)) {
+    $sender = $self->extend_sender($sender->{addr},
+				   $sender->{type},
+				   $sender->{data}
+				  );
+  }
 
   my $env = new Mj::Deliver::Envelope
     'sender' => $sender,
@@ -220,7 +230,7 @@ sub handle_bounce {
 
   my (@bouncers, @owners, $data, $diag, $ent, $fh, $handled, $handler, $i,
       $lsender, $mess, $msgno, $nent, $parser, $sender, $subj, $tmp,
-      $tmpdir, $type);
+      $tmpdir, $type, $whoami);
 
   $parser = new Mj::MIMEParser;
   $parser->output_to_core($self->_global_config_get("max_in_core"));
@@ -232,14 +242,28 @@ sub handle_bounce {
   $fh->close;
 
   # Extract information from the envelope, if any, and parse the bounce.
+  $whoami = $self->_global_config_get('whoami');
+  $whoami =~ s/\@.*$//;
+
   ($type, $msgno, $user, $handler, $data) =
     Bf::Parser::parse($ent,
-		      $list,
+		      $list eq 'GLOBAL'?$whoami:$list,
 		      $self->_site_config_get('mta_separator')
 		     );
 
+  # If a token bounced
+  if ($type eq 'T') {
+    $handled = 1;
+    $self->handle_bounce_token(entity  => $ent,
+			       data    => $data,
+			       file    => $file,
+			       handler => $handler,
+			       token   => $msgno,
+			      );
+  }
+
   # If we know we have a message
-  if ($type eq 'M') {
+  elsif ($type eq 'M') {
     $handled = 1;
 
     # Dump the body to the session file
@@ -316,6 +340,57 @@ sub handle_bounce {
   $handled;
 }
 
+=head2 handle_bounce_token
+
+Deal with a bouncing token.
+
+=cut
+sub handle_bounce_token {
+  my($self, %args) = @_;
+  my(@owners, @bouncers, $i, $mess, $nent, $sender);
+
+
+  # Dump the body to the session file
+  $args{entity}->print_body($self->{sessionfh});
+
+  # If we parsed out a failure, delete the token
+  for $i (keys %{$args{data}}) {
+    if ($args{data}{$i}{status} eq 'failure') {
+      $self->t_remove($args{token});
+      last;
+    }
+  }
+
+  $sender   = $self->_global_config_get('sender');
+  @owners   = @{$self->_global_config_get('owners')};
+  @bouncers = @{$self->_global_config_get('bounce_recipients')};
+  @bouncers = @owners unless @bouncers;
+
+  # Build a new message which includes the explanation from the bounce
+  # parser and attach the original message.
+  $nent = build MIME::Entity
+    (
+     Data     => [ "Detected a bounce of token $args{token}.\n",
+		   "  (bounce type $args{handler})\n\n",
+		   "This token has been deleted.\n\n",
+		   "The bounce message is attached below.\n\n",
+		 ],
+     -Subject => "Bounce of token $args{token} detected",
+     -To      => $sender,
+     -From    => $sender,
+    );
+  $nent->attach(Type        => 'message/rfc822',
+		Description => 'Original message',
+		Path        => $args{file},
+		Filename    => undef,
+	       );
+  $self->mail_entity($sender, $nent, @bouncers);
+
+  $nent->purge if $nent;
+
+  1;
+}
+
 =head2 handle_bounce_user
 
 Does the bounce processing for a single user.  This involves:
@@ -358,9 +433,11 @@ sub handle_bounce_user {
     }
 
     # Add the new bounce event to the collected bounce data
-    $bdata = $self->{lists}{$list}->bounce_add($user, time, $type, $msgno);
+    if ($list ne 'GLOBAL') {
+      $bdata = $self->{lists}{$list}->bounce_add($user, time, $type, $msgno);
+    }
     $mess .= "  User:        $user\n";
-    $mess .= "  Subscribed:  " .($bdata?'yes':'no')."\n";
+    $mess .= "  Subscribed:  " .($bdata?'yes':'no')."\n" if $list ne 'GLOBAL';
     $mess .= "  Status:      $args{status}\n";
     $mess .= "  Diagnostic:  $args{diag}\n";
 
@@ -497,6 +574,20 @@ sub welcome {
   }
   1;
 }
+
+=head2 extend_sender
+
+This generates an extended sender given an address, a type and some data.
+
+=cut
+sub extend_sender {
+  my($self, $addr, $type, $data) = @_;
+  my $sep = $self->_site_config_get('mta_separator');
+
+  $addr =~ /^(.+)\@(.+)$/;
+  return "$1$sep$type$data\@$2";
+}
+
 
 =head1 COPYRIGHT
 

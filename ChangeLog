@@ -1,3 +1,29 @@
+2000-06-24  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/MailOut.pm (handle_bounce): Call handle_bounce_token for
+	type T bounces.
+
+	* lib/Bf/Parser.pm (parse): Parse out token from type T envelopes.
+
+	* lib/Mj/MailOut.pm (handle_bounce_token): New function: deal with
+	bounces of confirmation messages.
+
+2000-06-23  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/MailOut.pm (handle_bounce_user): Don't do certain things
+	for the GLOBAL list.
+	(handle_bounce): If the list is GLOBAL, we expect 'whoami' to show
+	up in the To: header, not GLOBAL.
+
+	* lib/Mj/Token.pm (confirm): Pass additional data to mail_message
+	to get a cool envelope sender on outgoing tokens.
+
+	* lib/Mj/MailOut.pm (extend_sender): New function to generate an
+	extended sender.  Intended to replace the only function we use
+	from Bf::Sender.pm.
+	(mail_message): If $sender is a hashref, call extend_sender to
+	make a cool sender.
+
 2000-06-23  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/List.pm (expire_subscriber_data): Dumb logic error kept

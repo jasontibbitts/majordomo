@@ -134,6 +134,7 @@ sub t_add {
 =head2 t_remove(token)
 
 Removes a token from the database.
+
 =cut
 sub t_remove {
   my $self = shift;
@@ -243,7 +244,13 @@ sub confirm {
      'Content-Language:' => $file{'language'},
     );
 
-  $self->mail_entity($mj_owner, $ent, $args{'notify'});
+  $self->mail_entity({addr => $mj_owner,
+		      type => 'T',
+		      data => $token,
+		     },
+		     $ent,
+		     $args{'notify'}
+		    );
 
   $ent->purge;
 }

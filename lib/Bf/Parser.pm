@@ -95,10 +95,10 @@ included.  Other information will be present for other kinds of bounces.
 =cut
 
 sub parse {
-  my $log  = new Log::In 50;
   my $ent  = shift;
   my $list = shift;
   my $sep  = shift;
+  my $log  = new Log::In 50, "$list, $sep";
 
   my ($data, $hints, $info, $msgno, $ok, $to, $type, $user);
 
@@ -142,6 +142,7 @@ sub parse {
   # We know the message is special.  Look for:
   # M\d{1,5}
   # M\d{1,5}=user=host
+  # T.*
   # various other special types which we don't use right now.
   elsif ($info =~ /M(\d{1,5})=([^=]+)=([^=]+)/i) {
     $type   = 'M';
@@ -152,6 +153,11 @@ sub parse {
     $type   = 'M';
     $msgno  = $1;
     $user   = undef;
+  }
+  elsif ($info =~ /T(.*)/i) {
+    $type  = 'T';
+    $msgno = $1;
+    $user  = undef;
   }
   else {
     $type = '';

@@ -1730,7 +1730,7 @@ sub bounce_gen_stats {
   # data
   $maxbounceage   = $self->config_get('bounce_max_age');
   $maxbouncecount = $self->config_get('bounce_max_count');
-  if ($maxbounceage >= 30 * 60*60*24) {
+  if ($maxbounceage >= 30) {
     $do_month = 1;
   }
 
