@@ -246,13 +246,18 @@ sub owner_done {
   if (! $handled) {
     # Nothing from the bounce parser
     # Just mail out the file as if we never saw it
-    $sender  = $self->_list_config_get('GLOBAL', 'sender');
     if ($request->{'mode'} eq 'm') {
       # Forward to moderators instead of owners.
       @owners = $self->{'lists'}{$request->{'list'}}->moderators;
     }
     else {
       @owners  = @{$self->_list_config_get($request->{'list'}, 'owners')};
+    }
+    if ($request->{'list'} eq 'GLOBAL') {
+      $sender = $owners[0];
+    }
+    else {
+      $sender  = $self->_list_config_get('GLOBAL', 'sender');
     }
     $self->mail_message($sender, $self->{'owner_file'}, @owners);
   }
