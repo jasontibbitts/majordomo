@@ -1,3 +1,15 @@
+2000-06-08  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Bf/Parser.pm (check_dsn_netscape): New function to check
+        DSNs from netscape messaging server which don't have per-user
+        info blocks.
+	(check_dsn_diags): New function to extract diagnostice from
+	the session transcipt in the human readable portion of the DSN if
+	useful diagnostics were not found.
+	(parse_dsn): Call check_dsn_netscape if no per-user info blocks
+	are found, and call check_dsn_diags if there were any addresses
+	for which we could not find useful diagnostics.
+
 2000-06-07  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Format.pm (who): Don't run export mode unless the

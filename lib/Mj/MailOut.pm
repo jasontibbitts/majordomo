@@ -347,7 +347,7 @@ sub welcome {
 	   'OWNER'    => $sender,
 	   %args,
 	  };
-  
+
   # Loop over the table, processing parts and substituting values
   $count = 0;
   for($i=0; $i<@{$table}; $i++) {
@@ -367,11 +367,11 @@ sub welcome {
       $file = $self->substitute_vars($file, $subs);
       push @temps, $file;
     };
-    
+
     # Set the subject only for the first part
     $mess[$count]{'subject'} = $subj
       unless ($mess[$count]{'subject'});
-      
+
     # Build a part and add it to the list
     push @{$mess[$count]{'ents'}}, build MIME::Entity
       (
@@ -385,7 +385,7 @@ sub welcome {
        'Content-Language:' => $file{'language'},
       );
   }
-  
+
   # Now we can go over the @mess array, build messages and deliver them
   for ($i=0; $i<@mess; $i++) {
     # If we have a single-part message...

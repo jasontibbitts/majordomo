@@ -72,14 +72,13 @@ sub parse {
   my $list = shift;
   my $sep  = shift;
 
-  my ($data, $info, $msgno, $ok, $to, $type, $user);
+  my ($data, $hints, $info, $msgno, $ok, $to, $type, $user);
 
   # Try to identify the bounce by parsing it
-  $data = {};
-  $ok or ($ok = parse_dsn($ent, $data));
-  $ok or ($ok = parse_exim($ent, $data));
-  $ok or ($ok = parse_yahoo($ent, $data));
-
+  $data = {}; $hints = {};
+  $ok or ($ok = parse_dsn     ($ent, $data, $hints));
+  $ok or ($ok = parse_exim    ($ent, $data, $hints));
+  $ok or ($ok = parse_yahoo   ($ent, $data, $hints));
 
   # Look for useful bits in the To: header (assuming we even have one)
   $to = $ent->head->get('To');
@@ -108,34 +107,19 @@ sub parse {
   # M\d{1,5}
   # M\d{1,5}=user=host
   # various other special types which we don't use right now.
-
   elsif ($info =~ /M(\d{1,5})=([^=]+)=([^=]+)/i) {
     $type   = 'M';
     $msgno  = $1;
     $user   = "$3\@$2";
-#    $status = 'bounce';
-#    $mess   = "VERPing detected a bounce of message #$msgno from $user.\n";
   }
   elsif ($info =~ /M(\d{1,5})/i) {
     $type   = 'M';
     $msgno  = $1;
     $user   = undef;
-#    $status = 'bounce';
-#    $mess   = "Detected a bounce of message #$msgno.\n";
   }
   else {
     $type = '';
-#    $status = 'unknown';
-#    $mess   = "Detected a special return message but could not discern its type.\n";
   }
-
-  # So now we have a hash of users and actions plus one possibly determined
-  # from a VERP.  If the user in the VERP is already in the hash, trust
-  # what's in the hash since it was determined by actually picking apart
-  # the bounce.  Otherwise we just assume it's a bounce.
-#  if ($user && !$data{$user}) {
-#    $data{$user} = $status;
-#  }
 
   return ($type, $msgno, $user, $data);
 }
@@ -163,7 +147,9 @@ sub parse_dsn {
   my $log  = new Log::In 50;
   my $ent  = shift;
   my $data = shift;
-  my (@status, $action, $diag, $fh, $i, $line, $to, $type, $user);
+  my $hints= shift;
+  my (@status, $action, $diag, $fh, $i, $line, $nodiag, $ok, $to, $type,
+      $user);
 
   # Check the Content-Type
   $type = $ent->head->get('content-type');
@@ -206,11 +192,13 @@ sub parse_dsn {
     }
   }
 
-  # Some bounces look like legal DSNs but don't actually have the per-user
-  # description block.  We just say we don't understand these and deal with
-  # them in a specific parser.
+  # Some bounces (from some versions of Netscape Messaging server, at
+  # least) look like legal DSNs but don't actually have the per-user
+  # description block.  We call a special parser in another functuon to
+  # deal with these, then return what that parser gave us.
   if (@status < 2) {
-    return 0;
+    $ok = check_dsn_netscape($ent, $data);
+    return $ok;
   }
 
   # There's lots of info here, but we only want couple of things:
@@ -242,10 +230,23 @@ sub parse_dsn {
     if ($diag) {
 	$diag =~ s/^\s*SMTP;\s*//;
 	$data->{$user}{'diag'} = $diag;
-    }
+
+	# Sometimes we get diagnostics that say "250 OK" or some similar
+	# stupidity.
+	if ($diag =~ /250/) {
+	  $nodiag = 1;
+	}
+      }
     else {
-	$data->{$user}{'diag'} = "unknown";
+      $data->{$user}{'diag'} = "unknown";
+      $nodiag = 1;
     }
+  }
+
+  # We may need to plow through the human-readable portion of the DSN to
+  # get useful diagnostics
+  if ($nodiag) {
+    check_dsn_diags($ent, $data);
   }
 
   return 1;
@@ -276,6 +277,7 @@ sub parse_exim {
   my $log  = new Log::In 50;
   my $ent  = shift;
   my $data = shift;
+  my $hints= shift;
   my ($bh, $line, $ok, $user);
 
   return 0 if $ent->parts;
@@ -381,6 +383,124 @@ sub parse_yahoo {
       chomp($line);
       $data->{$1}{'diag'} = $line;
     }
+  }
+  $ok;
+}
+
+=head2 check_dsn_diags
+
+Does extra parsing for bounces where we could extract bouncing addresses
+but didn't get useful diagnostics.  This uncludes DSns not including the
+optional diagnostic-code-field and those who include the field but indlude
+a string like "250 OK" or "250 Message accepted for delivery" instead of
+something useful.
+
+These MTAs all seem to be some version of Sendmail and all seem to include
+some useful data at the end of the human-readable portion of the DSN, in a
+block that looks like:
+
+   ----- Transcript of session follows -----
+... while talking to XXXX.net.:
+>>> RCPT To:<yyyy@XXXX.NET>
+<<< 553 <yyyy@XXXX.NET>... Users mailbox is currently disabled
+550 <yyyy@XXXX.NET>... User unknown
+
+This function returns no useful value.
+
+=cut
+sub check_dsn_diags {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my ($diag, $fh, $line, $ok, $type, $user);
+
+  # Check the type of the first part; it should be plain text
+  $type = $ent->parts(0)->mime_type;
+  if ($type !~ m!text/plain!i) {
+    return 0;
+  }
+
+  $fh = $ent->parts(0)->bodyhandle->open('r');
+  while (1) {
+    $line = $fh->getline;
+    return unless defined $line;
+    last if $line =~ /transcript of session follows/i;
+  }
+
+  # We try to find a line that looks like an SMTP response, since that will
+  # proably have the most accurate error message.
+  while (defined($line = $fh->getline)) {
+    if ($line =~ /^\s*<<<\s*\d{3}\s*<(.*)>[\s\.]*(.*)\s*$/i ||
+	$line =~ /^\s*\d{3}\s*<(.*)>[\s\.]*(.*)\s*$/i)
+      {
+	$user = $1; $diag = $2;
+	if ($data->{$user} &&
+	    (
+	     $data->{$user}{'diag'} eq 'unknown' ||
+	     $data->{$user}{'diag'} =~ /250/     ||
+	     !defined($data->{$user}{'diag'})
+	    )
+	   )
+	{
+	  $data->{$user}{'diag'} = $diag;
+	}
+      }
+  }
+}
+
+=head2 check_dsn_netscape
+
+Does extra parsing for bounces that come from some versions of Netscape
+Messaging Server (4.15, at least).  These look just like DSNs but don't
+contain any per-user delivery status blocks.  The DSN parser will set a
+hint for us when it finds one.
+
+To parse it, we have to plow through the human-readable portion to find
+users and diagnostics.  This looks like:
+
+This Message was undeliverable due to the following reason:
+
+One or more of the recipients of your message did not receive it
+because they would have exceeded their mailbox size limit.  It
+may be possible for you to successfully send your message again
+at a later time; however, if it is large, it is recommended that
+you first contact the recipients to confirm that the space will be
+available for your message when you send it.
+
+User quota exceeded: SMTP <xxxx@yyyy.net>
+
+Please reply to <postmaster@yyyy.net>
+if you feel this message to be in error.
+
+We look for lines matching
+
+(.*): [sl]mtp <(.*)>
+
+The reason is $1 and the user is $2.
+
+Note that only one set of bounces from one user at one site was used to
+construct this parser, so it may be incorrect or not applicable in general.
+
+=cut
+sub check_dsn_netscape {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my $hints= shift;
+  my ($fh, $line, $ok, $type);
+
+  # Check the type of the first part; it should be plain text
+  $type = $ent->parts(0)->mime_type;
+  if ($type !~ m!text/plain!i) {
+    return 0;
+  }
+
+  $fh = $ent->parts(0)->bodyhandle->open('r');
+  while (defined($line = $fh->getline)) {
+    next unless $line =~ /(.*): [sl]mtp <(.*)>$/i;
+    $data->{$2}{'status'} = 'failure';
+    $data->{$2}{'diag'}   = $1;
+    $ok = 1;
   }
   $ok;
 }
