@@ -129,7 +129,7 @@ sub _inform_owner {
   my($self, $list, $req, $requ, $user, $cmd, $int, $stat, $pass, 
      $comment, $elapsed) = @_;
   my $log = new Log::In 150, "$list, $req";
-  my $strip;
+  my ($author, $strip);
 
   my $whereami = $self->_global_config_get('whereami');
   my $owner    = $self->_list_config_get($list, 'whoami_owner');
@@ -140,6 +140,9 @@ sub _inform_owner {
   my ($message, %data) = $self->_list_file_get(list => $list,
 					       file => 'inform',
 					      );
+
+  return unless ($message);
+
   if (ref $user) { 
     $strip = $user->strip;
   }
@@ -147,21 +150,26 @@ sub _inform_owner {
     $strip = $user;
   }
 
+  $author = "$requ";
+  if ($author =~ /^.([\d\.]+)\@example\.com$/) {
+    $author = "IP address $1";
+  }
+  
   my $subs = {
                $self->standard_subs($list),
                'CMDLINE'   => $cmd,
 	       'COMMAND'   => $req,
                'COMMENT'   => $comment,
 	       'INTERFACE' => $int,
-	       'REQUESTER' => $requ,
+	       'REQUESTER' => $author,
 	       'SESSIONID' => $self->{'sessionid'} || '(none)',
 	       'STATUS'    => $stat,
 	       'STATDESC'  => $statdesc,
                'STRIPUSER' => $strip,
                'TIME'      => $elapsed,
 	       'UCOMMAND'  => uc $req,
-	       'USER'      => $user,
-	       'VICTIM'    => $user,
+	       'USER'      => "$user",
+	       'VICTIM'    => "$user",
 	     };
 
   # Substitute in the header
