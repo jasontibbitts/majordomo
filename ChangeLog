@@ -1,3 +1,13 @@
+2000-06-07  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/MailOut.pm (owner_done): Chomp out all bounce handling
+        stuff; the function was getting way too large.
+	(handle_bounce): New function.  Call parsers and generate bounce
+	messages.
+
+	* lib/Bf/Parser.pm (parse_dsn): If we didn't get a per-user
+        information block, say we couldn't parse the bounce.
+
 2000-06-05  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Format.pm (who): Restructure a bit and allow for 'export'

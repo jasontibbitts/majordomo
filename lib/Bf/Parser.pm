@@ -206,6 +206,13 @@ sub parse_dsn {
     }
   }
 
+  # Some bounces look like legal DSNs but don't actually have the per-user
+  # description block.  We just say we don't understand these and deal with
+  # them in a specific parser.
+  if (@status < 2) {
+    return 0;
+  }
+
   # There's lots of info here, but we only want couple of things:
   # Original-Recipient: lines if we can get them, Final-Recipient: lines
   # otherwise, Action: fields, and Diagnostic-Code: if present. And we
@@ -298,7 +305,7 @@ sub parse_exim {
     # Ignore lines that don't look like indented addresses followed by
     # colons
     next unless $line =~ /  (.+\@.+):\s*$/;
-    
+
     # We have an address;
     $ok = 1;
     $user = $1;

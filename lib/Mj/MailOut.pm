@@ -89,7 +89,7 @@ sub mail_entity {
 
   $tmpdir = $self->_global_config_get("tmpdir");
   $tmpfile = "$tmpdir/mj-tmp." . Majordomo::unique();
-  
+
   $fh = new IO::File "> $tmpfile" || $::log->abort("Can't open $tmpfile, $!");
   $entity->print($fh);
   $fh->close;
@@ -172,120 +172,143 @@ sub owner_chunk {
   $self->{'owner_fh'}->print($data);
 }
 
-use Mj::MIMEParser;
-use Bf::Parser;
 sub owner_done {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list) = @_;
   $list ||= 'GLOBAL';
   my $log  = new Log::In 30, "$list";
-  my (@owners, @bouncers, $data, $diag, $ent, $fh, $i, $lsender, $mess,
-      $msgno, $nent, $parser, $sender, $subj, $tmpdir);
+  my (@owners, $handled, $sender);
 
   $self->{'owner_fh'}->close;
   $self->_make_list($list);
 
-  # Extract the some config data
-  $sender  = $self->_list_config_get('GLOBAL', 'sender');
-  $tmpdir  = $self->_global_config_get("tmpdir");
-  @owners  = @{$self->_list_config_get($list, 'owners')};
+  # Call bounce handling routine
+  $handled = $self->handle_bounce($list, $self->{'owner_file'});
 
-  $parser = new Mj::MIMEParser;
-  $parser->output_to_core($self->_global_config_get("max_in_core"));
-  $parser->output_dir($tmpdir);
-  $parser->output_prefix("mjo");
-
-  $fh = new IO::File "<$self->{owner_file}";
-  $ent = $parser->read($fh);
-  $fh->close;
-
-  if ($ent) {
-    # Extract information from the envelope, if any, and parse the bounce.
-    ($type, $msgno, $user, $data) =
-      Bf::Parser::parse($ent,
-			$list,
-			$self->_site_config_get('mta_separator')
-		       );
-
-    # If we know we have a message
-    if ($type eq 'M') {
-      $mess = "Detected a bounce of message #$msgno.\n";
-
-      $lsender  = $self->_list_config_get($list, 'sender');
-      @bouncers = @{$self->_list_config_get($list, 'bounce_recipients')};
-      @bouncers = @owners unless @bouncers;
-
-      # If we have an address from the envelope, we can only have one.
-      # Always trust it but try to look for a more specific bounce status in
-      # the $data hash
-      if ($user) {
-	if ($data->{$user}) {
-	  $status = $data->{$user}{status};
-	  $diag   = $data->{$user}{diag} || 'unknown';
-	}
-	else {
-	  $status = 'bounce';
-	  $diag   = 'unknown';
-	}
-	$mess .= "  User:       $user.\n";
-	$mess .= "  Status:     $status\n";
-	$mess .= "  Diagnostic: $diag\n\n";
-	$subj  = " Bounce detected from $user";
-      }
-
-      # If we don't have a specific user from the envelope, we might have
-      # several that we got from parsing the bounce
-      else {
-	for $i (keys %$data) {
-	  $status = $data->{$i}{status};
-	  if ($status eq 'unknown' || $status eq 'warning' || $status eq 'failure') {
-	    $mess .= "  User:       $i\n";
-	    $mess .= "  Status:     $data->{$i}{status}\n";
-	    $mess .= "  Diagnostic: $data->{$i}{diag}\n\n";
-	    if ($subj) {
-	      $subj .= ", $i";
-	    }
-	    else {
-	      $subj  = "Bounce detected from $i";
-	    }
-	  }
-	}
-      }
-
-      # Build a new message which includes the explanation from the bounce
-      # parser and attach the original message.
-      $subj ||= 'Bounce detected';
-      $nent = build MIME::Entity
-	(
-	 Data     => [ $mess,
-		       "The bounce message is attached below.\n\n",
-		     ],
-	 -Subject => $subj,
-	 -To      => $lsender,
-	 -From    => $sender,
-	);
-      $nent->attach(Type        => 'message/rfc822',
-		    Description => 'Original message',
-		    Path        => $self->{owner_file},
-		    Filename    => undef,
-		   );
-      $self->mail_entity($sender, $nent, @bouncers);
-    }
-    else { # Nothing from the bounce parser
-      # Just mail out the file as if we never saw it
-      $self->mail_message($sender, $self->{'owner_file'}, @owners);
-    }
-  }
-  else { # Couldn't parse out an entity
+  unless ($handled) {
+    # Nothing from the bounce parser
+    # Just mail out the file as if we never saw it
+    $sender  = $self->_list_config_get('GLOBAL', 'sender');
+    @owners  = @{$self->_list_config_get($list, 'owners')};
     $self->mail_message($sender, $self->{'owner_file'}, @owners);
   }
 
   unlink $self->{'owner_file'};
   undef $self->{'owner_fh'};
   undef $self->{'owner_file'};
+  1;
+}
+
+=head2 handle_bounce
+
+Look for and deal with bounces in an entity.  All of the bounce processing
+machinery is rooted here.
+
+The given file is parsed into a MIME entity
+
+=cut
+use Mj::MIMEParser;
+use Bf::Parser;
+sub handle_bounce {
+  my ($self, $list, $file) = @_;
+  my $log  = new Log::In 30, "$list";
+
+  my (@owners, @bouncers, $data, $diag, $ent, $fh, $handled, $i, $lsender,
+      $mess, $msgno, $nent, $parser, $sender, $subj, $tmpdir);
+
+  $parser = new Mj::MIMEParser;
+  $parser->output_to_core($self->_global_config_get("max_in_core"));
+  $parser->output_dir($tmpdir);
+  $parser->output_prefix("mjo");
+
+  $fh = new IO::File "$file";
+  $ent = $parser->read($fh);
+  $fh->close;
+
+  # Extract information from the envelope, if any, and parse the bounce.
+  ($type, $msgno, $user, $data) =
+    Bf::Parser::parse($ent,
+		      $list,
+		      $self->_site_config_get('mta_separator')
+		     );
+
+  # If we know we have a message
+  if ($type eq 'M') {
+    $handled = 1;
+    $mess = "Detected a bounce of message #$msgno.\n";
+
+    $sender   = $self->_list_config_get('GLOBAL', 'sender');
+    $lsender  = $self->_list_config_get($list, 'sender');
+    @owners   = @{$self->_list_config_get($list, 'owners')};
+    @bouncers = @{$self->_list_config_get($list, 'bounce_recipients')};
+    @bouncers = @owners unless @bouncers;
+
+    # If we have an address from the envelope, we can only have one and we
+    # know it's correct.  Parsing may have been able to extract a status
+    # and diagnostic, so grab them then overwrite the data hash with a new
+    # one containing just that user.  The idea is to ignore any addresses
+    # that parsing extracted but aren't relevant.
+    if ($user) {
+      if ($data->{$user}) {
+	$status = $data->{$user}{status};
+	$diag   = $data->{$user}{diag} || 'unknown';
+      }
+      else {
+	$status = 'bounce';
+	$diag   = 'unknown';
+      }
+      $data = {$user => {status => $status, diag => $diag}};
+    }
+
+    # Now plow through the data from the parsers
+    for $i (keys %$data) {
+      $status = $data->{$i}{status};
+      if ($status eq 'unknown' || $status eq 'warning' || $status eq 'failure') {
+	$user = new Mj::Addr($i);
+	$subbed = $self->is_subscriber($user, $list) ? 'yes' : 'no';
+	$mess .= "  User:       $i\n";
+	$mess .= "  Subscribed: $subbed\n";
+	$mess .= "  Status:     $data->{$i}{status}\n";
+	$mess .= "  Diagnostic: $data->{$i}{diag}\n\n";
+	if ($subj) {
+	  $subj .= ", $i";
+	}
+	else {
+	  $subj  = "Bounce detected from $i";
+	}
+      }
+    }
+
+    # Build a new message which includes the explanation from the bounce
+    # parser and attach the original message.
+    $subj ||= 'Bounce detected';
+    $nent = build MIME::Entity
+      (
+       Data     => [ $mess,
+		     "The bounce message is attached below.\n\n",
+		   ],
+       -Subject => $subj,
+       -To      => $lsender,
+       -From    => $sender,
+      );
+    $nent->attach(Type        => 'message/rfc822',
+		  Description => 'Original message',
+		  Path        => $file,
+		  Filename    => undef,
+		 );
+    $self->mail_entity($sender, $nent, @bouncers);
+  }
+
+  # We couldn't parse anything useful
+  else {
+    $handled = 0;
+  }
+
   $ent->purge if $ent;
   $nent->purge if $nent;
-  1;
+
+  # Tell the caller whether or not we handled the bounce
+  $handled;
 }
 
 =head2 welcome(list, address)
