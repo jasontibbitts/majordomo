@@ -6,9 +6,7 @@
 
 </dt>
 <dd>
-  <pre>
-  ?COMMENT
-  </pre>
+  <pre>?COMMENT</pre>
 
   <select name="$SETTING">
     <option 
