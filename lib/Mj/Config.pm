@@ -1908,6 +1908,7 @@ sub parse_inform {
 
   my %out =
     (
+     'connect'     => {'0' => 3},
      'subscribe'   => {'1' => 3},
      'unsubscribe' => {'1' => 3},
      'reject'      => {'1' => 3},
