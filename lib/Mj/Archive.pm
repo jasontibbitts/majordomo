@@ -987,6 +987,7 @@ sub expand_date {
   $match = sub {
     shift;
     my $date = (shift)->{'date'};
+    return undef unless (defined $date);
     return 0     unless $date >= $s;
     return undef unless $date <= $e;
     1;
