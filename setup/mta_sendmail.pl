@@ -64,7 +64,7 @@ sub setup_sendmail {};
 
 sub setup_sendmail_domain {
   my($config, $dom, $nhead) = @_;
-  my (@args, $pw, $tmp);
+  my (@args, $pw, $tmpfh, $tmpfile);
 
   # Do sendmail configuration by calling createlist-regen.
 
@@ -75,15 +75,13 @@ sub setup_sendmail_domain {
     $config->{'site_password'} = $pw;
   }
 
-  $tmp = "tmp.$$." . &gen_tag;
-  open PW, ">$tmp";
-  print PW "default password $pw\n\n";
-  print PW "createlist-regen" . ($nhead? "-noheader" : '') . "\n";
-  close PW;
-
+  ($tmpfile, $tmpfh) = tempfile();
+  print $tmpfh "default password $pw\n\n";
+  print $tmpfh "createlist-regen" . ($nhead? "-noheader" : '') . "\n";
+  close $tmpfh;
 
   @args = ("$config->{'install_dir'}/bin/mj_shell", '-u', 
-           'mj2_install@example.com', '-d', $dom, '-F', $tmp);
+           'mj2_install@example.com', '-d', $dom, '-F', $tmpfile);
 
   print "Regenerating MTA Configuration for $dom..."
     unless $quiet;
@@ -94,7 +92,7 @@ sub setup_sendmail_domain {
 
   close STDOUT;
   open(STDOUT, ">&TMP");
-  unlink $tmp;
+  unlink $tmpfile;
 
   print "ok.\n" unless $quiet;
 }

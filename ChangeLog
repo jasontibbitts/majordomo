@@ -1,5 +1,11 @@
 2001-02-04  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* setup/setup_func.pl (tempfile): New function copied from
+	mj_shell.
+        Call it where appropriate.
+
+	* setup/mta_sendmail.pl: Call tempfile where appropriate.
+	
 	* bin/mj_shell (tempfile): New function to generate random
 	tempfile names.
 	Call it where appropriate.	

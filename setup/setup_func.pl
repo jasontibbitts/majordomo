@@ -90,7 +90,7 @@ sub create_dirs_dom {
   chownmod(scalar getpwnam($config->{'uid'}), scalar getgrnam($config->{'gid'}),
            (0777 & ~oct($config->{'umask'})), "$l/$d/GLOBAL/files/.spool");
   dot;
-  
+
   open DF, ">$l/$d/GLOBAL/files/.public"
     or die "Can't open $l/$d/GLOBAL/files/.public: $!";
   print DF "Public Files\nd\n\n\n\n\n";
@@ -106,7 +106,7 @@ sub create_dirs_dom {
 # responses to the configurator.
 sub do_default_config {
   my $dom = shift;
-  my(@args, $arg, $dset, $gset, $i, $list, $msg, $owner, $pw, 
+  my(@args, $arg, $dset, $gset, $i, $list, $msg, $owner, $pw,
      $subs, $tag, $tmp, $var);
 
   # Prompt for the password if necessary
@@ -137,9 +137,9 @@ sub do_default_config {
            'owners'          => $config->{'domain'}{$dom}{owner},
            'resend_host'     => $config->{'domain'}{$dom}{whereami},
            'sender'          => $owner,
-           'site_name'       => $config->{'domain'}{$dom}{site_name} 
+           'site_name'       => $config->{'domain'}{$dom}{site_name}
                                  || $config->{site_name},
-           'tmpdir'          => $config->{'domain'}{$dom}{tmpdir} 
+           'tmpdir'          => $config->{'domain'}{$dom}{tmpdir}
                                  || $config->{tmpdir},
            'whereami'        => $config->{'domain'}{$dom}{whereami},
            'whoami'          => $config->{'domain'}{$dom}{whoami},
@@ -169,32 +169,22 @@ sub do_default_config {
   open GCF, ">$config->{'lists_dir'}/$dom/GLOBAL/C_install";
   print GCF Dumper $gset;
   close GCF;
-  &chownmod(scalar getpwnam($config->{'uid'}),	
+  &chownmod(scalar getpwnam($config->{'uid'}),
             scalar getgrnam($config->{'gid'}),
-            (0777 & ~oct($config->{'umask'})), 
+            (0777 & ~oct($config->{'umask'})),
             "$config->{'lists_dir'}/$dom/GLOBAL/C_install");
-  
+
   $list = "DEFAULT";
   $dset->{'raw'} = eval $Mj::Config::default_string;
   open GCF, ">$config->{'lists_dir'}/$dom/DEFAULT/C_install";
   print GCF Dumper $dset;
   close GCF;
-  &chownmod(scalar getpwnam($config->{'uid'}),	
+  &chownmod(scalar getpwnam($config->{'uid'}),
             scalar getgrnam($config->{'gid'}),
-            (0777 & ~oct($config->{'umask'})), 
+            (0777 & ~oct($config->{'umask'})),
             "$config->{'lists_dir'}/$dom/DEFAULT/C_install");
-  
+
   print "ok.\n" unless $quiet;
-}
-
-sub gen_tag {
-  my $chr = 'ABCDEFGHIJKLMNPQRSTUVWXYZ';
-  my $pw;
-
-  for my $i (1..6) {
-    $pw .= substr($chr, rand(length($chr)), 1);
-  }
-  $pw;
 }
 
 # Dump out the initial site config
@@ -255,7 +245,7 @@ sub do_site_config {
 # Run commands to create configuration templates.
 sub install_config_templates {
   my ($config, $domain) = @_;
-  my (@args, $pw, $tmp);
+  my (@args, $pw, $tmpfh, $tmpfile);
 
   $pw = $config->{'site_password'};
   unless ($pw) {
@@ -263,26 +253,22 @@ sub install_config_templates {
     $config->{'site_password'} = $pw;
   }
 
-  while (1) {
-    $tmp = "tmp.$$." . &gen_tag;
-    last unless (-f $tmp);
-  }
+  ($tmpfile, $tmpfh) = tempfile();
 
   open CONFIG, "< setup/config_commands" || return;
-  open PW, ">$tmp" || return;
-  print PW "default password $pw\n\n";
+  print $tmpfh "default password $pw\n\n";
   while (<CONFIG>) {
-    print PW $_;
+    print $tmpfh $_;
   }
   close CONFIG;
-  close PW;
+  close $tmpfh;
 
   print "Installing configuration templates for $domain..." unless $quiet;
 
   open(TMP, ">&STDOUT");
   open(STDOUT, ">/dev/null");
-  @args = ("$config->{'install_dir'}/bin/mj_shell", '-u', 
-           'mj2_install@example.com', '-d', $domain, '-F', $tmp);
+  @args = ("$config->{'install_dir'}/bin/mj_shell", '-u',
+           'mj2_install@example.com', '-d', $domain, '-F', $tmpfile);
 
   if (system(@args)) {
     die "Error executing $args[0], $?";
@@ -290,7 +276,7 @@ sub install_config_templates {
 
   close STDOUT;
   open(STDOUT, ">&TMP");
-  unlink $tmp;
+  unlink $tmpfile;
 
   print "ok.\n" unless $quiet;
 }
@@ -303,7 +289,7 @@ sub install_response_files {
   print "Installing stock response files:" unless $quiet;
 
   rcopy("files", "$config->{'lists_dir'}/SITE/files", 1);
-  
+
   $uid = getpwnam($config->{'uid'});
   $gid = getgrnam($config->{'gid'});
   $um  = oct($config->{'umask'});
@@ -397,6 +383,27 @@ sub mta_setup {
   }
   close DOMAINS;
 }
+
+use IO::File;
+sub tempfile {
+  my $chr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890_';
+  my $base = "/tmp/mji.$$.";
+  my($handle, $name);
+
+  # Try to open a file ten times
+  for (my $i = 0; $i < 10; $i++) {
+
+    # Append ten random characters
+    $name = $base;
+    for (my $j = 0; $i < 10; $i++) {
+      $name .= substr($chr, rand(length($chr)), 1);
+    }
+    $handle = new IO::File($name, O_CREAT | O_EXCL | O_RDWR, 0600);
+    return ($name, $handle) if $handle;
+  }
+  die "Couldn't open a temporary file after ten tries: $!";
+}
+
 
 1;
 #
