@@ -960,6 +960,8 @@ The text is expanded before being used.  The following expansion
 tokens are defined:
   \$LIST    - the name of the current list,
   \$SENDER  - the sender as taken from the from line,
+  \$SEQNO   - the contents of the sequence_number variable, which is
+              automatically incremented each time a message is posted
   \$VERSION - the version of Majordomo.
 EOC
    },
@@ -986,9 +988,10 @@ EOC
 This word will be prefixed to the subject line, if it is not already
 in the subject.  The text is expanded before being used.  The following
 expansion tokens are defined:
-  \$LIST    - the name of the current list,
-  \$SENDER  - the sender as taken from the from line,
-  \$VERSION - the version of Majordomo.
+  \$LIST    - the name of the current list
+  \$SEQNO   - the contents of the sequence_number variable, which is
+              automatically incremented each time a message is posted
+  \$VERSION - the version of Majordomo
 EOC
    },
    'admin_headers' =>

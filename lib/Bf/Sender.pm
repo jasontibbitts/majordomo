@@ -154,6 +154,9 @@ sub M_probe_sender ($$$$) {
   my $msg_num=shift;
   my $addr=shift;
 
+  # Trim any existing mailbox argument
+  $sender =~ s/\Q$tag\E[^@]*//;
+
   $addr=~/(.*)\@(.*)/;
   my $info="${tag}M$msg_num=$2=$1";
   $sender=~/([^@]*)(.*)/;

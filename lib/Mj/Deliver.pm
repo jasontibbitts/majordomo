@@ -55,6 +55,7 @@ R class   - address class to mail to
   chunk   - size of various structures
   exclude - listref of addresses _not_ to send to
   seqnum  - message sequence number
+  manip   - do extended sender manipulation
   probe   - do bounce probe
 P sendsep - extended sender separator
 P regexp  - regular expression matching addresses to probe
@@ -87,6 +88,9 @@ calling this routine.
 sendsep should be set to a single character, used to separate the user from
 the "mailbox argument".  This is '+' for sendmail and '-' for qmail.
 
+manip indicates that extended sender manipulation should be done.  This
+currently amounts to adding information about the message sequence number.
+
 probe is a flag indicating whether or not a bounce probe is done.  Doing a
 bounce probe entails using a modified 'rules' which places only one address
 per envelope.  The sender address for these envelopes will be unique,
@@ -102,6 +106,7 @@ up into groups by a checksum, then probes one of the groups.  buckets sets
 the total number of groups, while bucket selects the group to probe.
 
 =cut
+use Bf::Sender;
 sub deliver {
   my %args = @_;
   my $log  = new Log::In 150, "$args{list}, $args{file}, $args{class}";
@@ -125,6 +130,11 @@ sub deliver {
     $exclude{$i} = 1;
   }
 
+  # Deal with extended sender manipulation
+  if ($args{manip}) {
+    $sender = Bf::Sender::M_regular_sender($sender, $args{sendsep}, $args{seqnum});
+  }
+    
   # Fill in a bit of info
   for ($i=0; $i<@{$rules}; $i++) {
     $rules->[$i]{'data'}{'sender'} = $sender;

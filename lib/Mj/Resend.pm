@@ -433,8 +433,8 @@ sub _post {
   }
 
   # Munge Subject:.  Is anyone daft enough to use SENDER?  It breaks pretty
-  # badly if you do...  There's probably a better way to do this (perhaps
-  # check for Re:, but this is how 1.9x does it so it's good enough for a start.
+  # badly if you do...  Much of this pain is brought to you by people who
+  # simply must have sequence numbers in the subject.
   $prefix = $self->_list_config_get($list, 'subject_prefix');
   $tprefix = "\Q$prefix";
   $tprefix =~ s/\\\$SEQNO/\\d+/;

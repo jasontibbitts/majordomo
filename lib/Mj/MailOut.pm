@@ -122,6 +122,7 @@ sub deliver {
      chunk   => $self->_global_config_get('chunksize'),
      exclude => [@exclude],
      sendsep => $Mj::MTAConfig::sendsep{$mta},
+     manip   => 1,
      seqnum  => $seqno,
     );
 

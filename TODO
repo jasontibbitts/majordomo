@@ -17,10 +17,10 @@ Top of the list
 
 ! Make sure all sent mails have To: headers.
 
-! Implement rejection (and perhaps acceptance) messages for tokens, and add
+- Implement rejection (and perhaps acceptance) messages for tokens, and add
   a box to type them in to the web interface.
 
-! Rewrite the web interface to use proper design techniques.
+- Rewrite the web interface to use proper design techniques.
 
 ! Code to force 2047-encoding of headers.  Function should take an entity
   and a charset and call MIME::Words::encode_mimewords on each header.
@@ -35,6 +35,13 @@ Top of the list
     configshow
     configset
     configdef
+
+- Allow end user to set language preference.  Add language choice as extra
+  parser variable.  Export a core set_language routine.  Reference a
+  Majordomo class variable inside of internationalization routines.
+
+- Figure out a message translation framework.  See Mar. 30
+  majordomo-workers archives.
 
 - taboo match classes: Allow an additional tag, "class", which gives a name
   to a taboo matcher.  Pass these matchers into the access routine as
@@ -178,7 +185,47 @@ Top of the list
 Well thought out stuff:
 ----------------------
 
-- mj_resend should call inform.
+- Internationalization.  File search list is already done.  Have the core
+  provide internationmalization functions.  Place, in the normal filespace,
+  a file containing translations for messages too short to warrant their
+  own files.  Use the current file search list to locate this file, then
+  read it into a per-list data structure.  The file's format should look
+  something like this:
+
+  # Comments
+  language
+  message_tag
+  Translation $A of $C tag $B!
+
+  another_message_tag
+  Translation Line 1
+  $A $B $B line 2
+
+  [...]
+
+  The data structure looks like this:
+
+  $self->{trans}{$lang} =
+    {
+      message_tag => 'Translation string',
+      [...]
+    };
+
+  Variables to be replaced in the string are of the form $A, $B, etc.
+
+  Translstion involves looking up the message tag, making the substitution
+  with the given variables and returning the string.
+
+  If the necessary translation tag does not exist, what to do?  Back off to
+  the global entry under the same language, then to English, and then to
+  some default string?  Or try to "fill in the blanks" (parse another file,
+  pulling in only those language tags not in the data structure) from the
+  next thing in the search list?
+
+  Right now, back off to global makes the most sense.
+
+- mj_resend should go through the dispatcher and use the iterative
+  interface instead of the direct post function.
     
 - Archiver:
     Retrieve message given archive name and number
@@ -444,11 +491,6 @@ Switch $mode and $cmdline in public Majordomo functions.
 Have 'help command xxx' look up config comment string for xxx.
 Support X-No-Archive.  _post should look for headers and pseudo-headers,
   but not remove pseudos if found.
-Internationalization.  I'd like a gettext library for some things, but
-  perhaps it can be done another way.  Perhaps we could switch based
-  on the requesters email address, but that could also have bixarre
-  problems (and is presumptuous).  A 'language' command might not be a
-  bad idea.
 Createlist should mail information to the list owner.  This should be
   some distilled version of list-owner-info, containing pointers to
   additional documents that can be retrieved with the help command.
@@ -470,3 +512,4 @@ New 'append' mode to configset to append additional data from a variable
 Add additional sender information to things like confirmations so that if
  they bounce, the bounce processor can take care of the generated token and
  not forward the bounce to the owner.
+Allow referencing sublists of other lists in access_rules.

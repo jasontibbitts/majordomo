@@ -1,4 +1,19 @@
+Wed Apr  1 00:36:00 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Deliver.pm (deliver): Do extended sender manipulation if
+ 	asked.
+
+	* lib/Bf/Sender.pm (M_probe_sender): Strip any existing mailbox
+ 	stuff before adding our own.
+
+	* lib/Mj/MailOut.pm (deliver): Set 'manip' flag.
+
 Tue Mar 31 01:29:20 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/List.pm: Noted places where i18n must happen.
+
+	* lib/mj_cf_data.pl: Update docs for message_headers (add seqno)
+ 	and subject_prefix (add seqno and remove sender).
 
 	* lib/Mj/Resend.pm (_post): Update the sequence number atomically.
 

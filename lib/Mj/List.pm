@@ -279,7 +279,7 @@ sub set {
   }
   else {
     $log->out("failed, invalidaction");
-    return (0, "Invalid setting: $set.\n");
+    return (0, "Invalid setting: $set.\n"); # XLANG
   }
   
   # Grab subscriber data (this handles aliasing internally)
@@ -287,7 +287,7 @@ sub set {
 
   unless ($data) {
     $log->out("failed, nonmember");
-    return (0, "$addr is not a subscriber.\n");
+    return (0, "$addr is not a subscriber.\n"); # XLANG
   }
 
   if ($isflag) {
@@ -308,7 +308,7 @@ sub set {
       # Convert arg to time;
       if ($arg) {
 	$time = _str_to_time($arg);
-	return (0, "Invalid time $arg") unless $time;
+	return (0, "Invalid time $arg") unless $time; # XLANG
 	$data->{'classarg'} = $time;
       }
       $data->{'class'} = $rset;
@@ -321,7 +321,7 @@ sub set {
 	  $arg = $1;
 	  $mime = (lc($2) eq 'mime') ? 1 : 0;
 	}
-	return (0, "Illegal digest name: $arg.\n")
+	return (0, "Illegal digest name: $arg.\n") # XLANG
 	  unless $dig->{$arg};
       }
       else {
@@ -378,7 +378,7 @@ sub make_setting {
     }
     else {
       $log->out("failed, invalidaction");
-      return (0, "Invalid setting: $set");
+      return (0, "Invalid setting: $set"); # XLANG
     }
     
     if ($isflag) {
@@ -398,7 +398,7 @@ sub make_setting {
 	# Convert arg to time;
 	if ($arg) {
 	  $classarg = _str_to_time($arg);
-	  return (0, "Invalid time $arg") unless $classarg;
+	  return (0, "Invalid time $arg") unless $classarg; # XLANG
 	}
 	$class = $rset;
       }
@@ -418,7 +418,7 @@ sub make_setting {
 	    $arg = $1;
 	    $mime = (lc($2) eq 'mime') ? 1 : 0;
 	  }
-	  return (0, "Illegal digest name: $arg")
+	  return (0, "Illegal digest name: $arg") # XLANG
 	    unless $dig->{$arg};
 	}
 	else {
@@ -535,7 +535,7 @@ sub describe_flags {
     }
     else {
       unless ($seen =~ /$i/i || $flags =~ /$i/i) {
-	push @out, $nodesc{$i} || "no$desc{$i}";
+	push @out, $nodesc{$i} || "no$desc{$i}"; # XLANG
 	$seen .= $i;
       }
     }
@@ -560,10 +560,10 @@ sub describe_class {
     $dig = $self->config_get('digests');
     if ($dig->{$arg}) {
       return "$dig->{$arg}{'desc'} " .
-	($mime ? "(MIME)" : "(non-MIME)");
+	($mime ? "(MIME)" : "(non-MIME)"); # XLANG
     }
     else {
-      return "Undefined digest."
+      return "Undefined digest." # XLANG
     }
   }
   
@@ -573,7 +573,7 @@ sub describe_class {
   if ($classes{$class}->[1] == 1) {
     if ($arg) {
       $time = gmtime($arg);
-      return "$classes{$class}->[2] until $time";
+      return "$classes{$class}->[2] until $time"; # XLANG
     }
     return $classes{$class}->[2];
   }
@@ -740,7 +740,7 @@ sub aux_add {
   $self->_make_aux($name);
   ($ok, $data) = $self->{'auxlists'}{$name}->add($mode, $caddr, $data);
   unless ($ok) {
-    return (0, "Address is already a member of $name as $data->{'stripaddr'}.\n");
+    return (0, "Address is already a member of $name as $data->{'stripaddr'}.\n"); # XLANG
   }
   return 1;
 }
@@ -1094,7 +1094,7 @@ sub alias_add {
   # Check list membership for target; suppress aliasing
   (undef, $ok) = $self->get_member($ttarget, 1);
   unless ($ok) {
-    return (0, "$target is not a member of $self->{'name'}\n");
+    return (0, "$target is not a member of $self->{'name'}\n"); # XLANG
   }
 
   # Check list membership for source; suppress aliasing
@@ -1102,7 +1102,7 @@ sub alias_add {
 
   # We get back undef if not a member...
   if ($ok) {
-    return (0, "The alias source, $source,\ncannot be a member of the list ($self->{'name'}).\n");
+    return (0, "The alias source, $source,\ncannot be a member of the list ($self->{'name'}).\n"); # XLANG
   }
 
   # Add bookkeeping alias; don't worry if it fails
@@ -1622,82 +1622,82 @@ doesn't have access to the list's config, and so expects an already parsed
 set of rules.  This routine is used to parse the rules.
 
 =cut
-use Mj::Digest;
-sub _build_digest_data {
-  my $self = shift;
-  my(@dig, $elem, $error, $i, $j, $table);
+# use Mj::Digest;
+# sub _build_digest_data {
+#   my $self = shift;
+#   my(@dig, $elem, $error, $i, $j, $table);
   
-  return if $self->{'digests_loaded'};
+#   return if $self->{'digests_loaded'};
   
-  @dig = $self->config_get("digests");
-  ($table, $error) =
-    parse_table($self->config_get_isarray("digests"), \@dig);
+#   @dig = $self->config_get("digests");
+#   ($table, $error) =
+#     parse_table($self->config_get_isarray("digests"), \@dig);
   
-  # We expect that the table would have been syntax-checked when it was
-  # accepted, so we can abort if we get an error.  XXX Oops; this routine
-  # will be the syntax checker, too, so we need to return something.
-  if ($error) {
-    $::log->abort("Received an error while parsing digest table: $error");
-  }
+#   # We expect that the table would have been syntax-checked when it was
+#   # accepted, so we can abort if we get an error.  XXX Oops; this routine
+#   # will be the syntax checker, too, so we need to return something.
+#   if ($error) {
+#     $::log->abort("Received an error while parsing digest table: $error");
+#   }
 
-  $self->{'default_digest'} = $table->[0][0] if $table->[0];
+#   $self->{'default_digest'} = $table->[0][0] if $table->[0];
 
-  for ($i=0; $i<@{$table}; $i++) {
-    $self->{'digest_data'}{$table->[$i][0]} = {};
-    $elem = $self->{'digest_data'}{$table->[$i][0]};
+#   for ($i=0; $i<@{$table}; $i++) {
+#     $self->{'digest_data'}{$table->[$i][0]} = {};
+#     $elem = $self->{'digest_data'}{$table->[$i][0]};
 
-    # minsizes
-    for $j (@{$table->[$i][1]}) {
-      if ($j =~ /(\d+)m/i) {
-	$elem->{'minmsg'} = $1;
-      }
-      elsif ($j =~ /(\d+)k/i) {
-	$elem->{'minsize'} = $1;
-      }
-      else {
-	# Error condition XXX
-      }
-    }
+#     # minsizes
+#     for $j (@{$table->[$i][1]}) {
+#       if ($j =~ /(\d+)m/i) {
+# 	$elem->{'minmsg'} = $1;
+#       }
+#       elsif ($j =~ /(\d+)k/i) {
+# 	$elem->{'minsize'} = $1;
+#       }
+#       else {
+# 	# Error condition XXX
+#       }
+#     }
 
-    # maxage
-    $elem->{'maxage'} = _str_to_offset($table->[$i][2]);
+#     # maxage
+#     $elem->{'maxage'} = _str_to_offset($table->[$i][2]);
     
-    # maxsizes
-    for $j (@{$table->[$i][3]}) {
-      if ($j =~ /(\d+)m/i) {
-	$elem->{'maxmsg'} = $1;
-      }
-      elsif ($j =~ /(\d+)k/i) {
-	$elem->{'maxsize'} = $1*1024;
-      }
-      else {
-	# Error condition XXX
-      }
-    }
+#     # maxsizes
+#     for $j (@{$table->[$i][3]}) {
+#       if ($j =~ /(\d+)m/i) {
+# 	$elem->{'maxmsg'} = $1;
+#       }
+#       elsif ($j =~ /(\d+)k/i) {
+# 	$elem->{'maxsize'} = $1*1024;
+#       }
+#       else {
+# 	# Error condition XXX
+#       }
+#     }
 
-    # minage
-    $elem->{'minage'} = _str_to_offset($table->[$i][4]);
+#     # minage
+#     $elem->{'minage'} = _str_to_offset($table->[$i][4]);
     
-    # runall
-    $elem->{'runall'} = $table->[$i][5] =~ /y/ ? 1 : 0;
+#     # runall
+#     $elem->{'runall'} = $table->[$i][5] =~ /y/ ? 1 : 0;
 
-    # mime
-    $elem->{'mime'} = $table->[$i][6] =~ /y/ ? 1 : 0;
+#     # mime
+#     $elem->{'mime'} = $table->[$i][6] =~ /y/ ? 1 : 0;
 
-    # times
-    $elem->{'times'} = [];
-    for $j (@{$table->[$i][7]}) {
-      push @{$elem->{'times'}}, _str_to_clock($j);
-    }
-    # Give a default of 'anytime'
-    $elem->{'times'} = [['a', 0, 23]] unless @{$elem->{'times'}};
+#     # times
+#     $elem->{'times'} = [];
+#     for $j (@{$table->[$i][7]}) {
+#       push @{$elem->{'times'}}, _str_to_clock($j);
+#     }
+#     # Give a default of 'anytime'
+#     $elem->{'times'} = [['a', 0, 23]] unless @{$elem->{'times'}};
 
-    # description
-    $elem->{'desc'} = $table->[$i][8];
+#     # description
+#     $elem->{'desc'} = $table->[$i][8];
 
-  }
-  $self->{'digests_loaded'} = 1;
-}
+#   }
+#   $self->{'digests_loaded'} = 1;
+# }
 
 =head1 COPYRIGHT
 
