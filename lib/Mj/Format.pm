@@ -181,7 +181,7 @@ sub archive {
 
     $chunksize = 
       $mj->global_config_get($request->{'user'}, $request->{'password'}, 
-                             "chunksize");
+                             "chunksize") || 1000;
 
     $lines = 0; @tmp = ();
     # Chunksize is 1000 lines by default.  If a group
@@ -689,12 +689,10 @@ sub help {
   }
 
   $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
-                                      "chunksize");
+                                      "chunksize") || 1000;
   $tmp = $mj->global_config_get($request->{'user'}, $request->{'password'},
                                 'www_help_window');
   $hwin = $tmp ? ' target="mj2help"' : '';
-
-  return unless $chunksize;
 
   $cgidata = cgidata($mj, $request);
   $cgiurl = $request->{'cgiurl'};
@@ -994,7 +992,7 @@ sub post {
 
 sub put {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($act, $chunk, $handled, $i);
+  my ($act, $chunk, $chunksize, $handled, $i);
   my ($ok, $mess) = @$result;
 
   if    ($request->{'file'} eq '/info' ) {$act = 'newinfo' }
@@ -1011,7 +1009,9 @@ sub put {
   $handled = 0;
   $handled = 1 if (ref ($request->{'contents'}) =~ /^IO/);
 
-  my ($chunksize) = $mj->global_config_get(undef, undef, "chunksize") * 80;
+  $chunksize = $mj->global_config_get(undef, undef, "chunksize");
+  $chunksize ||= 1000;
+  $chunksize *= 80;
 
   $request->{'command'} = "put_chunk"; 
 
@@ -1201,7 +1201,7 @@ sub report {
 
   $request->{'chunksize'} = 
     $mj->global_config_get($request->{'user'}, $request->{'password'},
-                           "chunksize");
+                           "chunksize") || 1000;
 
   $request->{'command'} = "report_chunk";
 
@@ -1409,7 +1409,7 @@ sub set {
         $lsubs->{'PARTIAL'} = " ";
       }
       else {
-        $subs->{'PARTIAL'} = '';
+        $lsubs->{'PARTIAL'} = '';
       }
       $settings = $change->{'settings'};
 
@@ -2013,7 +2013,8 @@ sub _tokeninfo_post {
     $request->{'command'} = 'tokeninfo_chunk';
     # Display the contents of the posted message.
     $chunksize = $mj->global_config_get($request->{'user'}, 
-                                        $request->{'password'}, 'chunksize');
+                                        $request->{'password'}, 'chunksize')
+                 || 1000;
 
     for $i (sort keys %$msgdata) {
       next if ($i eq '0');
@@ -2143,7 +2144,7 @@ sub which {
   }
 
   $whoami = $mj->global_config_get($request->{'user'}, $request->{'password'}, 
-                                   'whoami');
+                                   'whoami') || 'this site';
   $last_list = ''; $list_count = 0; $total_count = 0;
 
   # Print the header if we got anything back.  Note that this list is
