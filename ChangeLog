@@ -1,5 +1,9 @@
 2000-08-15  Michael Yount <csf@moscow.com>
 
+	* bin/mj_wwwadm:  Further refine the output of
+	the configshow command (menus for enumerated types,
+	add links to help pages).
+
 	* files/en/config/log_lifetime:  New variable.  Log
 	entries older than this age (default 31 days) will be
 	deleted during the daily trigger.
