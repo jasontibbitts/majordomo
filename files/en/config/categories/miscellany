@@ -1,0 +1,5 @@
+The miscellany category includes the following settings:
+   aliases, chunksize, comments, debug, log_lifetime, max_in_core, 
+   session_lifetime, signature_separator, site_name, tmpdir, triggers, 
+   whereami, whoami, whoami_owner
+
