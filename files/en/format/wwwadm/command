@@ -1,3 +1,4 @@
+<h4 align=center>Majordomo Command Form</h4>
 <form method=POST action="$CGIURL">
 <input type=hidden name=command value="on">
 <input type=hidden name=user value="$USER">
