@@ -1,0 +1,135 @@
+Regular Expressions
+===================
+
+For some of the configuration options, a rudimentary knowledge of Perl
+style regular expressions will help you run Majordomo through its
+tricks.  A regular expression is a concise way of expressing a pattern
+in a series of characters.  The full power of regular expressions can
+make some difficult tasks quite easy, but we will only brush the
+surface here.
+
+The character / is used to mark the beginning and end of a regular
+expression.  Letters and numbers stand for themselves.  Many of the
+other characters are symbolic.  Some commonly used ones are:
+
+  \@    the `@' found in nearly all addresses; it must be preceeded by a
+        backslash in later versions of Perl to avoid errors
+  .     (period) any character
+  *     previous character, zero or more times; note especially...
+  .*    any character, zero or more times
+  +     previous character, one or more times; so for example...
+  a+    letter "a", one or more times
+  \     next character stands for itself; so for example...
+  \.     literally a period, not meaning "any character"
+  ^     beginning of the string; so for example...
+  ^a    a string beginning with letter "a"
+  $     end of the string; so for example...
+  a$    a string ending with letter "a"
+
+
+Example 1
+---------
+
+     /cs\.umb\.edu/
+
+Notice that the periods are preceded by a backslash so that they are
+interpreted as periods, rather than wildcards.  This matches any string
+containing:
+
+     cs.umb.edu
+
+such as:
+
+     cs.umb.edu
+     foo.cs.umb.edu
+     user@foo.cs.umb.edu
+     users%foo.cs.umb.edu@greatcircle.com
+
+
+Example 2
+---------
+
+     /rouilj\@.*cs\.umb\.edu/
+
+The `@' has special meaning to later versions of Perl and must be prefixed
+with a backslash to avoid errors.  The string ".*" means "any character,
+zero or more times".  So this matches:
+
+     rouilj@cs.umb.edu
+     rouilj@terminus.cs.umb.edu
+     arouilj@terminus.cs.umb.edu@greatcircle.com
+
+But it doesn't match:
+
+     rouilj@umb.edu
+     brent@cs.umb.edu
+
+
+Example 3
+---------
+
+     /^rouilj\@.*cs\.umb\.edu$/
+
+This is similar to Example 2, and matches the same first two strings:
+
+     rouilj@cs.umb.edu
+     rouilj@terminus.cs.umb.edu
+
+But it doesn't match:
+
+     arouilj@terminus.cs.umb.edu@greatcircle.com
+
+...because the regular expression says the string has to begin with
+letter "r" and end with letter "u", by using the ^ and $ symbols, and
+neither of those is true for arouilj@terminus.cs.umb.edu@greatcircle.com.
+
+
+Example 4
+---------
+
+     /.*/
+
+This is the regular expression that matches anything.
+
+
+Example 5
+---------
+
+     /.\*rouilj/
+
+Here the * is preceded by a \, so it refers literally to an asterisk
+character and not the symbolic meaning "zero or more times".  The . still
+has its symbolic meaning of "any one character", so it would match:
+
+     a*rouilj
+     s*rouilj
+
+Because the . by itself implies one character, it would not match:
+
+     *rouilj
+
+Normally all matches are case sensitive; you can make any match case
+insensitive by appending an `i' to the end of the expression.
+
+
+Example 6
+---------
+
+     /aol\.com/i
+
+This would match aol.com, AOL.com, AoL.cOm, etc.  Removing the `i':
+
+     /aol\.com/
+
+...would match aol.com but not AOL.com or any other capitalization.
+
+
+To be on the safe side put a \ in front of any characters in the
+regular expressions that are not numbers or letters.  In order to put
+a / into the regular expression, the same rule holds: precede it
+with a \.  Thus, with \ in front of the / and = characters, this:
+
+     /\/CO\=US/
+
+...matches /CO=US and may be a useful regular expression to those of you
+who need to deal with X.400 addresses that contain / characters.

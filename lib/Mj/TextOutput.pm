@@ -44,9 +44,9 @@ package Mj::TextOutput;
 use Mj::Format;
 use strict;
 
-use AutoLoader 'AUTOLOAD';
+#use AutoLoader 'AUTOLOAD';
 1;
-__END__
+#__END__
 
 =head2 accept
 
@@ -508,12 +508,12 @@ sub password {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27, "$args";
-  my ($cmdline, $mess, $ok);
+  my ($cmdline, $vict, $pass);
 
   $cmdline = "password" . ($mode?"=$mode":"") . " $args";
 
   if ($mode =~ /rand|gen/) {
-   $pass = ''; $vict = $args;
+    $pass = ''; $vict = $args;
    }
   else {
     ($pass, $vict) = split(' ', $args, 2);
@@ -576,8 +576,8 @@ sub put {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27, "$args";
-  my(@out, @stuff, $cmdline, $cset, $ct, $cte, $desc, $file, $i, $mess,
-     $ok);
+  my(@out, @stuff, $chunk, $chunksize, $cmdline, $cset, $ct, $cte, $desc,
+     $file, $i, $lang, $mess, $ok);
 
   # Pull apart the arguments
   if ($mode =~ /data/) {
@@ -600,17 +600,24 @@ sub put {
   return Mj::Format::put($mj, $outfh, $outfh, 'text', @stuff, '', $ok, @out)
     if !$ok || $mode =~ /dir/;
 
+  $chunksize = $mj->global_config_get(undef, undef, undef, $interface,
+				      "chunksize") * 80;
+
   while (1) {
     $i = $infh ? $infh->getline : shift @arglist;
-    last unless defined $i;
-
     # Tack on a newline if pulling from a here doc
-    $i .= "\n" unless $infh;
-    ($ok, @out) = 
-      $mj->dispatch('put_chunk', $user, $passwd, $auth, $interface, '',
-		    $mode, $list, '', $i);
-    return Mj::Format::put($mj, $outfh, $outfh, 'text', @stuff, '', $ok, @out)
-      unless $ok;
+    if (defined($i)) {
+      $i .= "\n" unless $infh;
+      $chunk .= $i;
+    }      
+    if (length($chunk) > $chunksize || !defined($i)) {
+      ($ok, @out) = 
+	$mj->dispatch('put_chunk', $user, $passwd, $auth, $interface, '',
+		      $mode, $list, '', $chunk);
+      return Mj::Format::put($mj, $outfh, $outfh, 'text', @stuff, '', $ok, @out)
+	unless $ok;
+    }
+    last unless defined $i;
   }
 
   Mj::Format::put($mj, $outfh, $outfh, 'text', @stuff, '',

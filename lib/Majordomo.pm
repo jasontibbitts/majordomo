@@ -1606,7 +1606,6 @@ Adds a bunch of data to the file.
 sub put_chunk {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode, $list, $vict,
       @chunk) = @_;
-  
   $self->{'lists'}{$list}->fs_put_chunk(@chunk);
 }
 
