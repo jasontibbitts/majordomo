@@ -142,6 +142,7 @@ sub parse_entity {
 
       $outfh->close() 
         or $::log->abort("Unable to close file $txtfile: $!");
+      $tree->delete;
 
       $infh = new IO::File "$txtfile";
       $::log->abort("Could not open file $txtfile: $!") unless ($infh);

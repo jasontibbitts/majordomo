@@ -1533,6 +1533,7 @@ sub _format_text {
   print $outfh $formatter->format($tree);
   close ($outfh)
     or $::log->abort("Unable to close file $txtfile: $!");
+  $tree->delete;
 
   return $txtfile;
 }
