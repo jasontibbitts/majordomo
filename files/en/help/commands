@@ -38,7 +38,13 @@ commands to Majordomo.
 At some sites, there is a "listname-request" address which will also
 accept commands pertaining to "listname", but this address is not
 always present. (If it is present, and if you use it, you don't need
-to specify the list name as part of the command itself.)
+to specify the list name as part of the command itself.) Other special
+addresses like "listname-subscribe" can be set up by the list owner
+to imply the list name AND the action without putting anything in the
+body of your message to the server. These aliases are not always
+present, and don't always do the same thing, so they are not documented
+here in the help files. (See "help info" and "help intro" for places
+where special addresses should be described on a per-list basis.)
 
 An email address can generally be omitted from a command even if one
 is required by the description below. If omitted, the address found
@@ -55,6 +61,24 @@ may take arguments to supply additional information:
  - Arguments are generally separated by spaces, but may use the "<<" syntax.
  - Options start with a dash, and follow the command name without a space.
     (you may use an equal instead of a dash - they are exactly equivalent)
+
+If a command is too long to fit on a line, or if your mail tool is
+'wrapping' lines without your knowledge, you may get error messages
+back from the server. The errors will NOT say that the line was too
+long, but they will show that parts of the line were interpreted as
+separate (and incomplete) commands. To fix this, you can "escape" the
+line breaks: Anywhere a space is allowed, you can insert a backslash
+and a hard return to make the server interpret several lines as just
+one command. For example:
+  subscribe my-very-long-list-name MyFirstNameHere MyLastNameHere <my_email@my_domain>
+is too long for many mail tools. To keep the command from being
+broken up, you can type this in your message to $MJ :
+  subscribe my-very-long-list-name \
+  MyFirstNameHere MyLastNameHere <my_email@my_domain>
+The server will then re-assemble the two lines into one command.
+Other options include getting a better mail tool and turning off
+automatic line wrapping, but don't expect the list owner to do
+everything for you when there IS a way to do it yourself.
 
 All of the Majordomo2 commands and options can be entered with only
 LOWER CASE LETTERS with underscore also possible. Commands are NOT case

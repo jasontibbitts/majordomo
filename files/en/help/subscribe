@@ -20,6 +20,11 @@ replacing "LISTNAME" with the name of the list and replacing
 list. Additional commands may be required, but you will receive
 messages telling you what to do if necessary.
 
+Sometimes the list name plus your email address is too long, and
+your mail tool will 'wrap' the line by inserting a hard return or
+line break. See the syntax section of "help commands" for how to
+diagnose and fix this problem.
+
 When an address is first subscribed to any list at this site, it is
 automatically put in the registration database and the register command
 can not be used until that address is unregistered. Unregistering will
