@@ -1,11 +1,13 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-unregister [address]
-unregister-pattern[-allmatching] pattern
+unregister[-farewell][-nofarewell] [address]
+unregister-pattern[-allmatching][-farewell][-nofarewell] pattern
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 address, if specified, is an e-mail address that is already registered.
 pattern, if specified, is a Majordomo pattern (see "help patterns")
 -pattern, if specified, removes addresses that match a pattern
 -allmatching, if specified, unregisters every address that matches
+-farewell,    if specified, sends a "farewell" message to each address.
+-nofarewell,  if specified, suppresses the farewell message.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The unregister command will remove one or more e-mail addresses from the
@@ -24,6 +26,23 @@ the address that is registered, use the following command:
 
 
                         Notes for administrators
+
+Farewell messages
+-----------------
+The "farewell" configuration setting determines whether or not a
+farewell message will be sent by default.  If the farewell setting is
+set to "yes", Majordomo will send a farewell message to each address
+that is removed from the list unless the "nofarewell" command mode is
+used.  If the farewell setting is set to "no", a farewell message will
+be sent only if the "farewell" command mode is used.  The contents of
+the farewell message are determined by the "farewell_files"
+configuration setting.  See "help configset_farewell" and 
+"help configset_farewell_files" for more details.
+
+A farewell message will also be sent for each subscription that is
+removed, but only for lists whose "farewell" setting is enabled, or
+if the "farewell" command mode is used.
+
 
 Patterns
 --------
@@ -97,12 +116,13 @@ $INCLUDE-help/admin_modes
 
 
 See Also:
-   help access_variables
    help admin_subscribers
    help auxiliary_list
    help changeaddr  (which replaces one address with another)
    help configset_access_rules  (to restrict access to this command)
    help configset_addr_xforms
+   help configset_farewell
+   help configset_farewell_files
    help here_document
    help register    (which adds an address to the Majordomo registry)
    help subscribe   (which adds an address to a list)

@@ -3,7 +3,11 @@ configset listname farewell_files <<TAG
 [VALUE LINES]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : Farewell from the $LIST list ... (only first item is shown)
+configset listname farewell_files <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : default ... (only first item is shown)
 Data Type     : welcome_files
 Category      : reply
 Password Notes: Visible only with password. 
@@ -14,9 +18,8 @@ configset listname farewell_files << ENDTAG
 Farewell from the $LIST list
 farewell : NS
 Instructions in case you wish to rejoin
-rejoin-info : NS
+rejoin-info : NSR
 ENDTAG
-
 
 $INCLUDE-config/farewell_files
 
@@ -35,12 +38,12 @@ Files can be created in the file space using the "put" command.
 
 Each file in a list's file space has a brief description.  If you wish
 to use a file's default description in the subject or
-content-description header of a welcome message, simply use the word
+content-description header of a farewell message, simply use the word
 "default".  See "help admin_documents" for an introduction to the file
 space and file descriptions.
 
 The second field of the second line of a file description is an optional
-flag field.  Three flags are supported:  
+flag field.  Five flags are supported: 
 
   * 'E' causes the file to be included only if it exists in the list's
      explicit search path (as specified by the file_search setting).  The
@@ -50,14 +53,23 @@ flag field.  Three flags are supported:
   * 'N' indicates that the file should be the first part of a new farewell 
      message; 
 
+  * 'R' causes the file to be included only if the recipient is still
+    registered.
+
   * 'S' causes the file to undergo variable substitution (and possibly 
      auto-inclusion of additional files).  The variables supported include
      the standard substitutions, plus USER, PASSWORD, FRONTER, FOOTER,
      RANDOM_FRONTER, RANDOM_FOOTER, ALL_FRONTERS, and ALL_FOOTERS.  See
      "help variables" for a description of each substitution variable.
 
+  * 'U' causes the file to be included only if the recipient is no
+     longer registered.
+
 Regardless of whether the 'S' flag is present, the substitutions will be
 applied to the subject from the first line of the description.
+
+Farewell files with neither the 'R' flag nor the 'U' flag will always be
+included in a farewell message.
 
 
 It is possible to use comments before, between, and after the individual
@@ -70,6 +82,8 @@ See Also:
    help admin_documents   (for an introduction to the file space)
    help configset_file_search (determines how files are looked for)
    help configset_farewell (determines if farewell messages are sent)
+   help configset_welcome
+   help configset_welcome_files
    help get               (to retrieve files from the list's file space)
    help put               (to store files in the list's file space)
    help register

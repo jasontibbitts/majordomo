@@ -7,7 +7,7 @@ configset listname welcome_files <<TAG
 [VALUE LINES]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : You have been registered at $SITE. ... (only first item is shown)
+Default Value : default ... (only first item is shown)
 Data Type     : welcome_files
 Category      : reply
 Password Notes: Visible only with password. 
@@ -69,7 +69,7 @@ Regardless of whether the 'S' flag is present, the substitutions will be
 applied to the subject from the first line of the description.
 
 Welcome files with neither the 'R' flag nor the 'U' flag will always be
-included in the welcome messages.
+included in a welcome message.
 
 
 Here is another example:

@@ -1,5 +1,6 @@
 The farewell_files setting determines which documents are mailed when
-someone leaves a mailing list with the "unsubscribe" command.
+someone leaves a mailing list with the "unsubscribe" command or the
+"unregister" command.
 
 Each file takes two lines.  The first should be an explanatory message
 which will appear in the Subject or Content-description header of the

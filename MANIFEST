@@ -207,6 +207,8 @@ files/en/.token_reject_owner
 files/en/.token_remind
 files/en/.token_remind_noweb
 files/en/.unknown_file
+files/en/.unregistered
+files/en/.unregistered_noweb
 files/en/.welcome
 files/en/.welcome_noweb
 files/en/ack_archive
@@ -2579,6 +2581,8 @@ files/en/token_reject_owner
 files/en/token_remind
 files/en/token_remind_noweb
 files/en/unknown_file
+files/en/unregistered
+files/en/unregistered_noweb
 files/en/welcome
 files/en/welcome_noweb
 files/fr/.ack_archive

@@ -1,0 +1,28 @@
+The registration for the e-mail address
+
+  $USER
+
+has been removed from $SITE.
+
+To interact with the Majordomo server, send an e-mail message to 
+
+  $MJ
+
+Always put commands in the body of the message.  Commands in the Subject
+header will be ignored.
+
+To register again, use this command:
+  register $USER
+or subscribe to one of our mailing lists.
+
+To see a list of public mailing lists, use this command:
+  lists
+
+To see a summary of Majordomo commands, use this command:
+  help commands
+
+You can also register again by visiting the following web page:
+  <$WWWUSR_URL/$QSADDR>
+
+If you need help from a person, send a message to 
+  $OWNER

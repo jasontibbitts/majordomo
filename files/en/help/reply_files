@@ -210,9 +210,11 @@ more details.)
 farewell
 --------
 This file is sent to an address that is removed from a mailing list by
-the unsubscribe-farewell command.
+the unsubscribe-farewell command.  The farewell_files configuration
+setting can be changed to send a different file. 
+See "help configset_farewell_files" for more details.
 
-(standard plus PASSWORD and VICTIM)
+(standard plus PASSWORD, STRIPADDR, QSADDR, USER, VICTIM)
 
 
 file_sent
@@ -443,6 +445,16 @@ confirmation has not yet been approved.
 (standard plus CMDLINE, FULFILL, NOTIFY, REASONS, VICTIM)
 
 
+unregistered
+------------
+This file is sent when an address is removed from the registry using the
+unregister command (see "help unregister" for more details).  A
+different file may be used by customizing the GLOBAL farewell_files
+configuration setting (see "help configset_farewell_files" for details).
+
+(standard plus QSADDR, STRIPADDR, USER, VICTIM)
+
+
 welcome
 -------
 This file is sent to new mailing list subscribers.  It is possible
@@ -450,8 +462,7 @@ to configure the welcome_files setting to send a different file
 (see "help configset_welcome" and "help configset_welcome_files" for
 details).
 
-(standard plus CMDLINE, FULFILL, NOTIFY, QSADDR, REASONS, REQUESTER, 
- STRIPADDR, USER, VICTIM)
+(standard plus PASSWORD, QSADDR, STRIPADDR, USER, VICTIM)
 
 
 See Also:
