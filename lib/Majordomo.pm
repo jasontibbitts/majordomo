@@ -5567,7 +5567,7 @@ sub report_start {
 }
 
 use Mj::Archive qw(_secs_start _secs_end);
-use Mj::Util qw(str_to_time);
+use Mj::Util qw(str_to_offset);
 use IO::File;
 use Mj::Config;
 sub _report {
@@ -5626,10 +5626,8 @@ sub _report {
         unless ($begin <= $end);
     }
     # 5m for last five months, 1d2h for last 26 hours
-    elsif ($span = str_to_time($date)) {
-      # _str_to_time returns current time + the difference.
-      # Convert to current time - the difference.
-      $begin = 2 * $end - $span;
+    elsif ($span = str_to_offset($date)) {
+      $begin = $end - $span;
     }
     else {
       return (0, "Unable to parse date $date.\n");
