@@ -362,7 +362,7 @@ elsif ($func ne 'showtokens') {
 #   lists      - Show details about a list, or a collection of lists.
 #   showtokens - Display a list of pending requests
 #   who        - Search the subscriber list or (un)subscribe addresses
-if ($cgi->param('command') eq 'on') {
+if ($cgi->param('command') eq 'on' and $func ne 'showtokens') {
   &command($mj, $subs, '');
 }
 elsif ($commands{$func}->[3] eq 'showtokens') {
@@ -395,6 +395,10 @@ elsif ($commands{$func}->[3] eq 'showtokens') {
   $tmp = $mj->format_get_string('wwwadm', 'showtokens_foot');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
+
+  if ($cgi->param('command') eq 'on' and $func eq 'showtokens') {
+    &command($mj, $subs, '');
+  }
 }
 elsif ($commands{$func}->[3] ne $func) {
   if ($commands{$func}->[3] eq 'configshow') {
