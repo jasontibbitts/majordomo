@@ -2298,6 +2298,12 @@ sub archive_get_done {
   $self->{'archive'}->get_done(@_);
 }
 
+sub archive_get_neighbors {
+  my $self = shift;
+  return unless $self->_make_archive;
+  $self->{'archive'}->get_neighbors(@_);
+}
+
 sub archive_get_to_file {
   my $self = shift;
   return unless $self->_make_archive;
