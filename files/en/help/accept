@@ -1,5 +1,5 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-accept [-archive] [token] [comment]
+accept[-archive] [token] [comment]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -archive, if specified, archives a message without distributing it
 token,    if specified, is the magic number sent to you by Majordomo
@@ -8,21 +8,23 @@ comment,  if specified, is passed from the owner to the subscriber
 
 The 'accept' command tells Majordomo to allow or approve some requested
 action. Note that the token can be returned from the address which made
-the request, or from another address! If you did not make the request, be
-sure you follow up with whoever did after accepting or rejecting the token.
+the request, or from another address! If you did not make the request,
+be sure you follow up with whoever did after accepting or rejecting the
+token.
 
-Some commands will require your confirmation before their actions will be
-taken; this can help protect you from mischief by preventing others from
-submitting commands in your name.  In such a case, a 'token' will be
-mailed to you for approval. (For example, joe@nowhere.com tries to
+Some commands will require your confirmation before their actions will
+be taken; this can help protect you from mischief by preventing others
+from submitting commands in your name.  In such a case, a 'token' will
+be mailed to you for approval. (For example, joe@nowhere.com tries to
 subscribe mary@elsewhere.com to an email list - perhaps Joe is doing
-Mary a favor, or perhaps he's being malicious... either way, Mary gets
-a token so she can accept or reject the subscription before it happens.)
+Mary a favor, or perhaps he's being malicious... either way, Mary gets a
+token so she can accept or reject the subscription before it happens.)
 
 A token is also called a magic number, because you are getting an email
-message with a long number in the subject line. That number is remembered
-by Majordomo. When you send the number back Majordomo knows it has reached
-you because the number acts like a one-time-only password.
+message with a long number in the subject line. That number is
+remembered by Majordomo. When you send the number back Majordomo knows
+it has reached you because the number acts like a one-time-only
+password.
 
 If the token is omitted from the command, the Subject: header will be
 searched for one; accepting a token therefore usually requires only that
@@ -33,42 +35,39 @@ executed and the results returned in a response message. If you do not
 accept or reject the token, Majordomo eventually "times out" based on
 site or list settings. Waiting too long is the same as rejecting.
 Majordomo will try to remind you that it is about to give up before
-timing out. The list owner or site administrator sets the number of
-days for token reminders and expirations.
+timing out. The list owner or site administrator sets the number of days
+for token reminders and expirations.
 
 If the stalled command is a message that someone wishes to see
-distributed on a mailing list, the "accept-archive" command may
-be used to store the message in the mailing list archive,  but
-not distribute it on the list.  This feature has proven useful
-in short-term, moderated discussions, when messages that would
-be acceptable under other circumstances are not distributed, to
-keep the discussion from overwhelming the participants.  The
-"archive only" messages may be seen by the public at a later time,
-through a WWW archive, or using majordomo's "archive" command.
+distributed on a mailing list, the "accept-archive" command may be used
+to store the message in the mailing list archive,  but not distribute it
+on the list.  This feature has proven useful in short-term, moderated
+discussions, when messages that would be acceptable under other
+circumstances are not distributed, to keep the discussion from
+overwhelming the participants.  The "archive only" messages may be seen
+by the public at a later time, through a WWW archive, or using
+majordomo's "archive" command.
 
-For consult tokens, the presence of a delay will convert the token
-type to "delay," delay the acceptance by the amount of time specified
-by a preceding delay command (see "help default" and scroll down to the
-delay section), and reduce the number of approvals still needed by one.
+For consult tokens, the presence of a delay will convert the token type
+to "delay," delay the acceptance by the amount of time specified by a
+preceding delay command (see "help default" and scroll down to the delay
+section), and reduce the number of approvals still needed by one.
 
-Site administrators should refer to "help configset access_rules" for
-ways to change the message which asks for accept/reject tokens.
+Domain administrators should refer to "help configset_access_rules" for
+ways to change the "CONFIRM" and "CONSULT" messages are mailed when
+a request is held for approval.
 
-The "comment" string is only used for "consult" tokens, and only if
-the action was acknowledged.  In the case of a rejection, the victim
-must have the "ackall" flag set to receive an acknowledgement.
-
+The "comment" string is only used for "consult" tokens, and only if the
+action was acknowledged.
 
 See Also:
-   help approve                  (which can eliminate the need to use "accept")
+   help admin_moderate           (how to moderate a mailing list)
+   help configset_token_lifetime (expiration period)
+   help configset_token_remind   (reminder before expiration)
    help default                  (for details on the "delay" option)
    help delay                    (to learn how requests are delayed)
    help reject                   (the opposite action of "accept")
-   help showtokens               (for a list of unhandled requests)
+   help showtokens               (for a list of stalled requests)
    help tokeninfo                (for details about a particular request)
-   help configset token_lifetime (site-wide or per-list expiration period)
-   help configset token_remind   (site-wide or per-list reminder before expiration)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
