@@ -1837,6 +1837,7 @@ sub who {
 
         # Special substitutions for WWW interfaces.
         if ($type ne 'text') {
+          $subs->{'ADDRESS'}            = [];
           $subs->{'CLASS_SELECTED'}     = [];
           $subs->{'SETTING_CHECKED'}    = [];
           $subs->{'SETTING_SELECTED'}   = [];
@@ -1851,12 +1852,14 @@ sub who {
               push @{$subs->{'SETTING_CHECKED'}}, '';
               push @{$subs->{'SETTING_SELECTED'}}, '';
             }
+            push @{$subs->{'ADDRESS'}}, $subs->{'STRIPADDR'}; 
           }
 
           for ($j = 0; $j < @{$settings->{'classes'}}; $j++) {
             last if ($request->{'list'} eq 'GLOBAL' and 
                      $request->{'sublist'} eq 'MAIN');
             $flag = $settings->{'classes'}[$j]->{'name'};
+            
             if ($flag eq $i->{'class'} or 
                 $flag eq "$i->{'class'}-$i->{'classarg'}") 
             {
