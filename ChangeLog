@@ -1,3 +1,21 @@
+2000-05-24  Michael Yount  <csf@moscow.com>
+
+	* bin/mj_wwwadm: Use PATH_INFO to allow a list name to be specified
+	in the URL, e.g., http://example.com/cgi-bin/mj_wwwadm/mytestlist.
+	Allow '=' to be used to separate command and mode.
+	Add the set command to the command menu.
+	Add "about this service" entry to the command menu, and supply
+	usage instructions if it is utilized.  
+
+	* lib/Mj/Access.pm: add mime_header_length_exceeded to consult_vars.
+
+	* lib/Mj/CommandProps.pm:  change the bytes variable to body_length.
+	Add the mime_header_length and mime_header_length_exceeded variables
+    to the 'legal' hash for the post command.
+ 
+	* lib/Mj/Resend.pm: set the mime_header_length, body_length,
+	and body_length_exceeded variables appropriately.
+
 2000-05-23  Michael Yount  <csf@moscow.com>
 
 	* lib/Mj/Resend.pm (_check_body): Make use of maxlength

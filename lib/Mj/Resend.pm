@@ -808,9 +808,9 @@ sub _check_body {
             $tcode, $inv, $max, , $maxlen, 'toplevel', 1);
 
   $maxbody = $self->_list_config_get($list, 'maxlength');
-  if ($maxbody && $maxbody < $avars->{'bytes'}) {
-    push @$reasons, "The message body is too long ($avars->{bytes} > $maxbody)";
-    $avars->{body_length_exceeded} = 1;
+  if ($maxbody && $maxbody < $avars->{'body_length'}) {
+    push @$reasons, "The message body is too long ($avars->{'body_length'} > $maxbody)";
+    $avars->{'body_length_exceeded'} = 1;
   }
   # Now look at what's left in %$inv and build reasons from it
   for $i (keys %$inv) {
@@ -871,7 +871,7 @@ sub _r_ck_body {
     
     # Calculate a few message metrics
     $avars->{lines}++;
-    $avars->{bytes} += length($text);
+    $avars->{body_length} += length($text);
     $avars->{quoted_lines}++ if Majordomo::_re_match($qreg, $text);
     $line++;
   }
@@ -1078,13 +1078,15 @@ sub _check_mime {
    HEAD:
     for my $i ($head->tags) {
       for my $j ($head->get($i)) {
-	$len = length($i)+length($j)+2;
-	if ($len > $maxlen) {
-	  push(@$reasons,
-	       "A MIME header is too long in $part ($len > $maxlen)");
-	  $avars->{mime_header_length_exceeded} = 1;
-	  last HEAD;
-	}
+        $len = length($i)+length($j)+2;
+        $avars->{mime_header_length} = $len 
+          if ($len > $avars->{mime_header_length});
+        if ($len > $maxlen) {
+          push(@$reasons,
+               "A MIME header is too long in $part ($len > $maxlen)");
+          $avars->{mime_header_length_exceeded} = 1;
+          last HEAD;
+        }
       }
     }
   }
