@@ -145,8 +145,8 @@ sub archive {
 
   $subs = {
            $mj->standard_subs($request->{'list'}),
-           'CGIDATA'     => &cgidata($mj, $request),
-           'CGIURL'      => $request->{'cgiurl'},
+           'CGIDATA'     => $request->{'cgidata'} || '',
+           'CGIURL'      => $request->{'cgiurl'} || '',
            'CMDPASS'     => $request->{'password'},
            'TOTAL_POSTS' => scalar @msgs,
            'USER'        => &escape("$request->{'user'}", $type),
@@ -331,8 +331,8 @@ sub _archive_part {
   unless (ref $msgdata eq 'HASH') {
     $subs = { $mj->standard_subs($request->{'list'}),
               'ARCHIVE' => $arc,
-              'CGIDATA' => &cgidata($mj, $request),
-              'CGIURL'  => $request->{'cgiurl'},
+              'CGIDATA' => $request->{'cgidata'} || '',
+              'CGIURL'  => $request->{'cgiurl'} || '',
               'CMDPASS' => $request->{'password'},
               'ERROR'   => "The structure of the message $msgno is invalid.\n",
               'MSGNO'   => $msgno,
@@ -346,8 +346,8 @@ sub _archive_part {
  
   $subs = { $mj->standard_subs($request->{'list'}),
             'ARCHIVE' => $arc,
-            'CGIDATA' => &cgidata($mj, $request),
-            'CGIURL'  => $request->{'cgiurl'},
+            'CGIDATA' => $request->{'cgidata'} || '',
+            'CGIURL'  => $request->{'cgiurl'} || '',
             'CMDPASS' => &escape($request->{'password'}, $type),
             'MSGNO'   => $msgno,
             'PART'    => $request->{'part'},
@@ -623,9 +623,8 @@ sub configshow {
     $mode = $mode2 = '-noforce';
   }
 
-  $cgidata = &cgidata($mj, $request);
-  $request->{'cgiurl'} ||= '';
-  $cgiurl  = $request->{'cgiurl'};
+  $cgidata = $request->{'cgidata'} || '';
+  $cgiurl  = $request->{'cgiurl'} || '';
 
   $gsubs = { $mj->standard_subs($list),
             'CGIDATA'  => $cgidata,
@@ -851,10 +850,10 @@ sub createlist {
 
   $subs = {
            $mj->standard_subs('GLOBAL'),
-           'CGIDATA'     => &cgidata($mj, $request),
-           'CGIURL'      => $request->{'cgiurl'},
-           'CMDPASS'     => $request->{'password'},
-           'USER'        => &escape("$request->{'user'}", $type),
+           'CGIDATA' => $request->{'cgidata'} || '',
+           'CGIURL'  => $request->{'cgiurl'} || '',
+           'CMDPASS' => $request->{'password'},
+           'USER'    => &escape("$request->{'user'}", $type),
           };
 
   unless ($ok > 0) {
@@ -978,10 +977,10 @@ sub help {
                                 'www_help_window');
   $hwin = $tmp ? ' target="mj2help"' : '';
 
-  $cgidata = cgidata($mj, $request);
-  $cgiurl = $request->{'cgiurl'};
-  $list = $request->{'list'};
-  $domain = $mj->{'domain'};
+  $cgidata = $request->{'cgidata'} || '';
+  $cgiurl  = $request->{'cgiurl'} || '';
+  $list    = $request->{'list'};
+  $domain  = $mj->{'domain'};
 
   $request->{'command'} = "get_chunk";
 
@@ -1057,7 +1056,7 @@ sub index {
       }
       else { # normal
         eprintf($out, $type,
-                "  %-$width[0]s %$width[6]d %s\n", $i->[0], $i->[7], $i->[2]);
+                "  %-$width[0]s %$width[7]d %s\n", $i->[0], $i->[7], $i->[2]);
       }
     }
     return 1 if $request->{'mode'} =~ /short/;
@@ -1088,11 +1087,11 @@ sub lists {
 
   $global_subs = {
            $mj->standard_subs('GLOBAL'),
-           'CGIDATA'  => &cgidata($mj, $request),
-           'CGIURL'   => $request->{'cgiurl'},
-           'CMDPASS'  => $request->{'password'},
-           'PATTERN'  => $request->{'regexp'},
-           'USER'     => &escape("$request->{'user'}", $type),
+           'CGIDATA' => $request->{'cgidata'} || '',
+           'CGIURL'  => $request->{'cgiurl'} || '',
+           'CMDPASS' => $request->{'password'},
+           'PATTERN' => $request->{'regexp'},
+           'USER'    => &escape("$request->{'user'}", $type),
           };
 
   if ($ok <= 0) {
@@ -1636,19 +1635,15 @@ sub sessioninfo {
 sub set {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'victim'}";
-  my (@changes, $change, $cgidata, $cgiurl, $count, $files,
-      $flag, $init, $j, $list, $lsubs, $ok, $settings, $str, $subs);
+  my (@changes, $change, $count, $files, $flag, $init, $j, $list, 
+      $lsubs, $ok, $settings, $str, $subs);
  
   @changes = @$result; 
   $count = $init = 0;
 
-  $cgidata = &cgidata($mj, $request);
-  $request->{'cgiurl'} ||= '';
-  $cgiurl  = $request->{'cgiurl'};
-
   $subs = { $mj->standard_subs($request->{'list'}),
-            'CGIDATA'  => $cgidata,
-            'CGIURL'   => $cgiurl,
+            'CGIDATA'  => $request->{'cgidata'} || '',
+            'CGIURL'   => $request->{'cgiurl'} || '',
             'CMDPASS'  => $request->{'password'},
             'USER'     => &escape("$request->{'user'}", $type),
           };
@@ -1788,8 +1783,8 @@ sub show {
 
   $global_subs = {
     $mj->standard_subs('GLOBAL'),
-    'CGIDATA' => &cgidata($mj, $request),
-    'CGIURL'  => $request->{'cgiurl'},
+    'CGIDATA' => $request->{'cgidata'} || '',
+    'CGIURL'  => $request->{'cgiurl'} || '',
     'CMDPASS' => $request->{'password'},
     'USER'    => &escape("$request->{'user'}", $type),
     'VICTIM'  => &escape("$request->{'victim'}", $type),
@@ -1998,8 +1993,8 @@ sub showtokens {
 
   $global_subs = {
            $mj->standard_subs($request->{'list'}),
-           'CGIDATA' => &cgidata($mj, $request),
-           'CGIURL'  => $request->{'cgiurl'},
+           'CGIDATA' => $request->{'cgidata'} || '',
+           'CGIURL'  => $request->{'cgiurl'} || '',
            'CMDPASS' => $request->{'password'},
            'USER'    => &escape("$request->{'user'}", $type),
           };
@@ -2091,8 +2086,8 @@ sub tokeninfo {
 
   unless ($ok > 0) {
     $subs = { $mj->standard_subs($request->{'list'}),
-              'CGIDATA' => &cgidata($mj, $request),
-              'CGIURL'  => $request->{'cgiurl'},
+              'CGIDATA' => $request->{'cgidata'} || '',
+              'CGIURL'  => $request->{'cgiurl'} || '',
               'CMDPASS' => $request->{'password'},
               'ERROR'   => $data,
               'USER'    => &escape("$request->{'user'}", $type),
@@ -2109,8 +2104,8 @@ sub tokeninfo {
 
   $subs = { $mj->standard_subs($data->{'list'}),
             'APPROVALS' => $data->{'approvals'},
-            'CGIDATA' => &cgidata($mj, $request),
-            'CGIURL'  => $request->{'cgiurl'},
+            'CGIDATA' => $request->{'cgidata'} || '',
+            'CGIURL'  => $request->{'cgiurl'} || '',
             'CMDLINE' => &escape($data->{'cmdline'}, $type),
             'CMDPASS' => $request->{'password'},
             'CONSULT' => ($data->{'type'} eq 'consult') ? " " : '',
@@ -2185,8 +2180,8 @@ sub _tokeninfo_post {
 
   unless (ref $msgdata eq 'HASH') {
     $subs = { $mj->standard_subs($request->{'list'}),
-              'CGIDATA' => &cgidata($mj, $request),
-              'CGIURL'  => $request->{'cgiurl'},
+              'CGIDATA' => $request->{'cgidata'} || '',
+              'CGIURL'  => $request->{'cgiurl'} || '',
               'CMDPASS' => $request->{'password'},
               'ERROR'   => "No message data was found.\n",
               'USER'    => &escape("$request->{'user'}", $type),
@@ -2199,8 +2194,8 @@ sub _tokeninfo_post {
  
   $subs = { $mj->standard_subs($data->{'list'}),
             'APPROVALS' => $data->{'approvals'},
-            'CGIDATA' => &cgidata($mj, $request),
-            'CGIURL'  => $request->{'cgiurl'},
+            'CGIDATA' => $request->{'cgidata'} || '',
+            'CGIURL'  => $request->{'cgiurl'} || '',
             'CMDLINE' => &escape($data->{'cmdline'}, $type),
             'CMDPASS' => &escape($request->{'password'}, $type),
             'CONSULT' => ($data->{'type'} eq 'consult') ? " " : '',
@@ -2538,13 +2533,13 @@ sub who {
 
   $gsubs = { 
             $mj->standard_subs($source),
-            'CGIDATA'  => &cgidata($mj, $request),
-            'CGIURL'   => $request->{'cgiurl'},
-            'CMDPASS'  => $request->{'password'},
-            'PATTERN'  => $request->{'regexp'},
-            'REMOVE'   => $remove,
-            'START'    => $request->{'start'},
-            'USER'     => &escape("$request->{'user'}", $type),
+            'CGIDATA' => $request->{'cgidata'} || '',
+            'CGIURL'  => $request->{'cgiurl'} || '',
+            'CMDPASS' => $request->{'password'},
+            'PATTERN' => $request->{'regexp'},
+            'REMOVE'  => $remove,
+            'START'   => $request->{'start'},
+            'USER'    => &escape("$request->{'user'}", $type),
            };
 
   ($ok, $regexp, $settings) = @$result;
@@ -2847,8 +2842,8 @@ sub g_get {
   if ($base ne 'sessioninfo') {
     $subs = {
              $mj->standard_subs($request->{'list'}),
-             'CGIDATA'  => &cgidata($mj, $request),
-             'CGIURL'   => $request->{'cgiurl'},
+             'CGIDATA'  => $request->{'cgidata'} || '',
+             'CGIURL'   => $request->{'cgiurl'} || '',
              'CMDPASS'  => $request->{'password'},
              'DESCRIPTION' => $mess->{'description'},
              'USER'     => &escape("$request->{'user'}", $type),
@@ -2980,6 +2975,13 @@ sub g_sub {
   $ok;
 }
 
+=head2 cgidata(mj, request)
+
+The cgidata method obtains the user address and password provided
+in the request hash and formats them in a way that is suitable for
+the query portion of a URL.
+
+=cut
 sub cgidata {
   my $mj = shift;
   my $request = shift;
@@ -2992,10 +2994,10 @@ sub cgidata {
   }
 
   $addr = $request->{'user'};
-  $addr =~ s/([^A-Za-z0-9\.\-_])/$esc{$1}/g;
+  $addr = qescape($addr);
  
   $pass = $request->{'password'}; 
-  $pass =~ s/([^A-Za-z0-9\.\-_])/$esc{$1}/g;
+  $pass = qescape($pass);
   
   return sprintf ('user=%s&passw=%s', $addr, $pass);
 }
@@ -3031,6 +3033,30 @@ sub escape {
   my %esc = ( '&'=>'amp', '"'=>'quot', '<'=>'lt', '>'=>'gt');
   s/([<>\"&])/\&$esc{$1};/mg; 
   s/([\x80-\xFF])/'&#'.unpack('C',$1).';'/eg;
+  $_;
+}
+
+=head2 qescape(string, type)
+
+The qescape function converts all special characters in the string
+into a format suitable for the query portion of a URL.
+
+Only letters, digits, the period, hyphen, and underscore are not
+converted.
+
+=cut
+sub qescape {
+  local $_ = shift;
+  my $type = shift || '';
+  my (%esc, $i);
+
+  return $_ if ($type eq 'text');
+
+  for $i (0..255) {
+    $esc{chr($i)} = sprintf("%%%02X", $i);
+  }
+
+  s/([^A-Za-z0-9\-_.])/$esc{$1}/g;
   $_;
 }
 
