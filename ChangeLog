@@ -1,3 +1,8 @@
+2004-10-27  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (list_config_get)  Retrieve GLOBAL
+	settings for the ALL pseudo-list.  Thanks to Marc Fournier.
+
 2004-10-23  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Inform.pm:  (inform)  Add a shell hook.

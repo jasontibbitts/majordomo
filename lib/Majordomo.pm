@@ -1932,7 +1932,9 @@ sub list_config_get {
   my ($self, $user, $passwd, $list, $sublist, $var, $raw) = @_;
   my $log = new Log::In 170, "$list, $var";
   my (@out, $i, $level, $ok);
+
   $sublist ||= 'MAIN';
+  $list = 'GLOBAL' if ($list eq 'ALL');
 
   # Verify the list and sublist, and adjust the list to
   # use the appropriate configuration file.
@@ -4085,8 +4087,9 @@ sub _alias {
   # prevent cycles.
   $fdata = $self->{reg}->lookup($from->xform);
 
-  return (0, "$from is already registered here.\n")
-    if $fdata; #XLANG
+  return (0, $self->format_error('already_registered', 'GLOBAL', 
+                                 'VICTIM' => "$from"))
+    if $fdata;
 
   # Add bookkeeping alias; don't worry if it fails
   $data = {
@@ -4935,8 +4938,8 @@ sub _changeaddr {
 
   unless ($key) {
     $log->out("failed, nomatching");
-    # XLANG
-    return (0, "No address matched $vict->{'canon'}.\n");
+    return (0, $self->format_error('unregistered', 'GLOBAL',
+                                   'VICTIM' => "$vict"));
   }
 
   $key = new Mj::Addr($key);
@@ -5203,7 +5206,6 @@ sub _createlist {
     return (0, $mess) unless ($list);
 
     # new list name must be valid
-    # XLANG
     return (0, $self->format_error('invalid_list', 'GLOBAL', 
                                    'LIST' => $pw))
       unless ($newlist = legal_list_name($pw));
@@ -5347,7 +5349,6 @@ sub _createlist {
   return (0, "No owner address was specified.\n") unless @tmp; # XLANG
   for $owner (@tmp) {
     $i = new Mj::Addr($owner);
-    # XLANG
     return (0, $self->format_error('undefined_address', 'GLOBAL'))
       unless (defined $i);
     ($ok, $mess, $loc) = $i->valid;
