@@ -497,7 +497,7 @@ sub parse_postfix {
   # tells us that we're processing a set of failures, and an address in
   # angle brackets.
   while (defined($line = $bh->getline)) {
-    if ($line =~ /could not deliver/i) {
+    if ($line =~ /could not be delivered/i) {
       $failure = 1;
       next;
     }

@@ -218,7 +218,7 @@ sub handle_bounce {
 
   $parser = new Mj::MIMEParser;
   $parser->output_to_core($self->_global_config_get("max_in_core"));
-  $parser->output_dir($tmpdir);
+  $parser->output_dir($self->_global_config_get('tmpdir'));
   $parser->output_prefix("mjo");
 
   $fh = new IO::File "$file";

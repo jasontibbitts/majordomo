@@ -1,5 +1,10 @@
 2000-06-14  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
+	* lib/Bf/Parser.pm (parse_postfix): Fix failure ID line.
+
+	* lib/Mj/MailOut.pm (handle_bounce): Fix busted setting of
+        $parser->output_dir.
+
 	* lib/Bf/Parser.pm (parse_qmail): Fold parse_yahoo in; the bounce
 	formats are very similar.
 	(parse_postfix): New function to parse bounces from Postfix.
