@@ -1012,6 +1012,7 @@ sub _a_forward {
        'Date'     => time2str("%a, %d %b %Y %T %z", time),
        'From'     => "$td->{'user'}",
        'Reply-To' => "$td->{'user'}",
+       'Encoding' => '8bit',
        'To'       => $arg,
        'Data'     => [ "$cmdline\n" ],
       );

@@ -5378,6 +5378,7 @@ sub reject {
                        'Filename'    => undef,
                        'Path'        => $data->{'arg1'},
                        'Type'        => 'message/rfc822',
+                       'Encoding'    => '8bit',
                       );
         }
         elsif (-f "$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}") {
@@ -5387,6 +5388,7 @@ sub reject {
                          'Filename'    => undef,
                          'Path'        => "$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}",
                          'Type'        => 'text/plain',
+                         'Encoding'    => '8bit',
                         );
         }
 
@@ -5429,6 +5431,7 @@ sub reject {
                        'Filename'    => undef,
                        'Path'        => "$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}",
                        'Type'        => 'text/plain',
+                       'Encoding'    => '8bit',
                       );
         }
 
@@ -6532,6 +6535,7 @@ sub tokeninfo_start {
       $origmsg = "$self->{ldir}/GLOBAL/spool/$data->{'spoolfile'}";
       $ent->make_multipart;
       $ent->attach(Type        => 'message/rfc822',
+                   Encoding    => '8bit',
                    Description => 'Original message',
                    Path        => $origmsg,
                    Filename    => undef,

@@ -122,6 +122,7 @@ sub done {
      From     => $self->{'from'},
      To       => $self->{'to'},
      Date     => time2str("%a, %d %b %Y %T %z", time),
+     Encoding => '8bit',
      Filename => undef,
      Data     => $self->{'index'},
      # More fields here

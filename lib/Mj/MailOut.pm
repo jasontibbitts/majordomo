@@ -392,7 +392,10 @@ sub welcome {
       $top = shift @{$mess[$i]{'ents'}};
     }
     else {
-      $top = build MIME::Entity(Type => "multipart/mixed");
+      $top = build MIME::Entity(
+	Type     => 'multipart/mixed',
+	Encoding => '8bit',
+      );
       for $j (@{$mess[$i]{'ents'}}) {
 	$top->add_part($j);
       }

@@ -284,6 +284,7 @@ sub post {
       {
         $nent->make_multipart;
         $nent->attach(Type        => 'message/rfc822',
+                      Encoding    => '8bit',
                       Description => 'Original message',
                       Path        => $request->{'file'},
                       Filename    => undef,
@@ -836,6 +837,7 @@ sub _post {
         {
           $nent->make_multipart;
           $nent->attach(Type        => 'message/rfc822',
+                        Encoding    => '8bit',
                         Description => 'Original message',
                         Path        => $file,
                         Filename    => undef,
@@ -2046,6 +2048,7 @@ sub _add_fters {
       return 0 unless ($ent->effective_type eq 'multipart/mixed');
       if ($front) {
 	  $front_ent = build MIME::Entity(Type       => "text/plain",
+					  Encoding   => '8bit',
 					  Data       => $front,
 					  'X-Mailer' => undef,
 					 );
@@ -2054,6 +2057,7 @@ sub _add_fters {
       }
       if ($foot) {
 	  $foot_ent = build MIME::Entity(Type       => "text/plain",
+					 Encoding   => '8bit',
 					 Data       => $foot,
 					 'X-Mailer' => undef,
 					);

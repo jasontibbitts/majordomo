@@ -56,6 +56,7 @@ sub new {
      To       => $args{'to'},
      Date     => time2str("%a, %d %b %Y %T %z", time),
      Filename => undef,
+     Encoding => '8bit',
      Data     => '',
      # More fields here
     );

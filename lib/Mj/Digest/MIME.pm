@@ -52,6 +52,7 @@ sub new {
      From     => $args{'from'},
      To       => $args{'to'},
      Date     => time2str("%a, %d %b %Y %T %z", time),
+     Encoding => '8bit',
      Filename => undef,
      # More fields here
     );
@@ -62,6 +63,7 @@ sub new {
 
   $self->{digest} = build MIME::Entity
     (Type     => 'multipart/digest',
+     Encoding => '8bit',
      Filename => undef,
     );
   $self->{count}     = 0;
@@ -113,6 +115,7 @@ sub add {
     (Type        => 'message/rfc822',
      Description => $args{msg},
      Path        => $args{file},
+     Encoding    => '8bit',
      Filename    => undef,
     );
 
@@ -148,6 +151,7 @@ sub done {
     (Type        => $self->{preindex}{data}{'c-type'}    || 'text/plain',
      Description => $self->{preindex}{data}{description} || 'Index',
      Data        => $self->{'index'},
+     Encoding    => '8bit',
     );
   $self->{top}->add_part($index);
 
@@ -160,6 +164,7 @@ sub done {
       (Type        => $self->{footer}{data}{'c-type'}    || 'text/plain',
        Description => $self->{footer}{data}{description} || 'Footer',
        Path        => $self->{footer}{name},
+       Encoding    => '8bit',
        Filename    => undef,
        'Content-Language:' => $self->{footer}{data}{language},
       );

@@ -708,6 +708,7 @@ sub parse_commands {
     }
     push @entities, build MIME::Entity
       (
+       'Encoding'    => '8bit',
        'Path'        => $file,
        '-To'         => $uuser,
       );
@@ -753,6 +754,7 @@ sub parse_commands {
   if ($debug_reply) {
     push @entities, build MIME::Entity
       (
+       Encoding    => "8bit",
        Path        => $debug_file,
        Description => "Debugging information",
        Top         => 0,
@@ -772,7 +774,10 @@ sub parse_commands {
   }
   else {
     $top = build MIME::Entity
-      Type => "multipart/mixed";
+      (
+       Type     => 'multipart/mixed',
+       Encoding => '8bit',
+      );
 
     for $i (@entities) {
       $top->add_part($i);

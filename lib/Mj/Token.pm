@@ -447,6 +447,7 @@ sub confirm {
         $ent->attach(Type        => $dest->{attach}{type} || 'message/rfc822',
                      Description => $dest->{attach}{desc} || 'Original message',
                      Path        => $dest->{attach}{file} || $args{'arg1'},
+                     Encoding    => '8bit',
                      Filename    => undef,
                     );
       }
@@ -734,6 +735,7 @@ sub t_accept {
        'From'     => "$server\n",
        'Reply-To' => "$server\n",
        'Data'     => ["accept $tmp\n"],
+       'Encoding' => '8bit',
       );
 
     $self->mail_entity($sender, $ent, $server) if ($server and $ent);

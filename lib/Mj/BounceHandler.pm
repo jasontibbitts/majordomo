@@ -206,6 +206,7 @@ sub handle_bounce_message {
   $subj ||= 'Bounce detected';
   $nent = build MIME::Entity
     (
+     Encoding => '8bit',
      Data     => [ $mess,
 		   "The bounce message is attached below.\n\n",
 		 ],
@@ -214,6 +215,7 @@ sub handle_bounce_message {
      -From    => $from,
     );
   $nent->attach(Type        => 'message/rfc822',
+		Encoding    => '8bit',
 		Description => 'Original message',
 		Path        => $args{file},
 		Filename    => undef,
@@ -369,6 +371,7 @@ sub handle_bounce_token {
     );
 
   $ent->attach(Type        => 'message/rfc822',
+               Encoding    => '8bit',
                Description => 'Original message',
                Path        => $args{file},
                Filename    => undef,

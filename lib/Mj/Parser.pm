@@ -188,6 +188,7 @@ sub parse_entity {
     push @entities, build MIME::Entity(
 				       Path        => $name,
 				       Filename    => undef,
+				       Encoding    => '8bit',
 				       Description => "Results from $args{'title'}",
 				       Top         => 0,
 				      );
@@ -502,6 +503,7 @@ sub parse_part {
            Path     => $name,
            To       => $user,
            'Reply-To' => $sender,
+	   Encoding => '8bit',
            Subject  => "Results from Majordomo Command \"$true_command\"",
            'MIME-Version' => "1.0",
           );
