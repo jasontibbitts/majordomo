@@ -143,26 +143,28 @@ In the "intro" file, no variable substitutions are done.
 In the "faq" file, no variable substitutions are done.
   (as of 6/2000 some substitutions are done, not sure which ones)
 
-In the footer/fronter added by "configset listname message_footer"
-and "configset listname message_fronter" these variables are
-evaluated in both the subject and message body:
-  \$LIST      => The name of the list
-  \$SENDER    => the person who sent the message
-  \$VERSION   => the version of Majordomo
-
-For a post to any email list, in the text supplied as headers added by
-"configset listname message_headers" these variables are evaluated:
+For a post to any email list: In the text supplied as headers added by
+"configset listname message_headers", in the footer/fronter added by
+"configset listname message_footer" and "configset listname message_fronter",
+these variables are evaluated in both the subject and message body:
   \$ARCHIVE   => the number of this message in the archives
   \$ARCURL    => the string specified by "configset listname archive_url"
   \$AUTHOR    => the address of the person making the post
   \$DATE      => the date of original request
   \$LIST      => the name of the current list
+  \$MJ        => the server address, where accept/reject commands go
+  \$MJOWNER   => the address of the domain owner
   \$OWNER     => the address of the list owner
   \$SENDER    => the sender as taken from the from line
   \$SEQNO     => the contents of the sequence_number variable, which is
                  automatically incremented each time a message is posted
+  \$SITE      => the name of the site (a text string from "configset GLOBAL site_name")
+  \$SUBJECT   => the subject line from the REQUESTOR's header
   \$SUBLIST   => the name of the sublist that the post is being sent to
+  \$SUBSCRIBED=> empty string if USER is subscribed, else the string "(not)"
+  \$USER      => the user's address
   \$VERSION   => the version of Majordomo.
+  \$WHEREAMI  => the site domain (a text string from "configset GLOBAL whereami")
   \$WHOAMI    => the address of the list the post is being sent to
 
 For a post to any email list, in the text supplied as headers added by
