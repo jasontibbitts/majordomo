@@ -1,3 +1,13 @@
+2001-11-18  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/Resend.pm (_check_poster): Get post stats and fill in
+	access variables.
+
+	* lib/Mj/List.pm (post_gen_stats): New function: generate
+	statistics from post data.
+
+	* lib/Mj/CommandProps.pm: Add new post-related access variables.
+
 2001-11-13  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm, mj_wwwadm:  Add support for the tokeninfo-part 

@@ -1565,7 +1565,7 @@ sub common_subs {
 
   (1, $out);
 }
-      
+
 =head2 p_expire
 
 This removes all parser database entries older that the GLOBAL

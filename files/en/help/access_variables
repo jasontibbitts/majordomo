@@ -126,6 +126,8 @@ The post command also uses these variables:
   blind_copy                    boolean
   body_length                   number
   body_length_exceeded          boolean
+  consecutive_posts		number
+  days_since_last_post		number
   days_since_subscribe          number
   dup                           boolean
   dup_checksum                  boolean
@@ -150,6 +152,10 @@ The post command also uses these variables:
   nonempty_lines                number
   percent_quoted                number
   post_block                    boolean
+  posts				number
+  posts_last_24hours		number
+  posts_last_7days		number
+  posts_last_30days		number
   quoted_lines                  number
   taboo                         number
   total_header_length           number
@@ -238,10 +244,24 @@ chain
   to the moderators.  Unsetting the chain variable would cause notices 
   to be sent to the moderators and to Ruth simultaneously.
 
+consecutive_posts
+  This variable contains the number of consecutive posts which have been
+  made by the poster.  For example, if a user posts five messages in a row
+  without any other messages being posted to the list, consecutive_posts is
+  5.
+
+days_since_last_post
+  This variable contains the number of days since the last post from this
+  address.  If the user has never posted before, this will be set to a very
+  large value so that if you want to check that a user has posted in the
+  past week, you can simply check that $days_since_last_post <= 7.
+
 days_since_subscribe
   This variable contains the number of days since the e-mail address (from
   which a message was posted) was subscribed to a mailing list.  If the
-  message was not posted by a subscriber, this variable is set to -1.
+  message was not posted by a subscriber, this variable is set to -1 so
+  that if you want to check that the user has been subscribed for a week,
+  you can simply check that $days_since_subscribe >= 7.
 
 delay
   This variable holds the length of time a request will be delayed.
@@ -388,6 +408,18 @@ post_block
   This variable is set if the 'postblock' flag is set for the address from
   which a message was posted.  See "help configset_nonmember_flags" and
   "help set" for more details.
+
+posts
+  This variable contains the total number of posts the user has made,
+  including the current one, that are tracked in the post database.  Posts
+  are tracked in this database for twice the number of days in the
+  dup_lifetime setting.
+
+posts_last_24hours
+posts_last_7days
+posts_last_30days
+  These variables contain the number of posts the user has made within the
+  specified time periods, including the current message.
 
 quoted_lines
   This variable contains the number of lines in a posted message that 

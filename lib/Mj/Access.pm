@@ -616,8 +616,8 @@ sub list_access_check {
       }
     }
 
-    # use Data::Dumper;
-    # $log->message(450, "info", "Access variables: ". Dumper \%args);
+#    use Data::Dumper;
+#    $log->message(450, "info", "Access variables: ". Dumper \%args);
 
     @final_actions =
       process_rule(name     => 'access_rules',

@@ -998,6 +998,7 @@ sub _check_poster {
   # Extract flags
   $avars->{post_block} = $avars->{hide_post} = '';
   $avars->{post_block} = $self->{lists}{$list}->flag_set('postblock', $user);
+
   if ($avars->{post_block}) {
     push @$reasons, "The postblock flag is set for $user."; # XLANG
   }
@@ -1012,8 +1013,15 @@ sub _check_poster {
   $avars->{limit_soft} = 0;
   $avars->{limit_hard} = 0;
 
-  # Obtain posting statistics for this address
+  # Obtain posting statistics for this address and add them to the access
+  # variables
   $data = $self->{'lists'}{$list}->get_post_data($user);
+
+  $pstats = $self->{'lists'}{$list}->post_gen_stats($data);
+  for $i (keys %{$pstats}) {
+    $avars->{$i} = $pstats->{$i};
+  }
+
   return unless $data;
 
   $rules = $self->_list_config_get($list, 'post_limits');

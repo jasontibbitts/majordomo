@@ -1581,7 +1581,8 @@ sub post_add {
 
 =head2 get_post_data
 
-
+Returns a hash of posted message data.  The keys are sequence numbers, the
+data are the time each message was posted.
 
 =cut
 sub get_post_data {
@@ -1603,6 +1604,65 @@ sub get_post_data {
     }
   }
   $data;
+}
+
+=head2 post_gen_stats
+
+Generate a set of statistics from the given post data.
+
+=cut
+sub post_gen_stats {
+  my $self  = shift;
+  my $pdata = shift;
+  my $now = time;
+  my (@msgs, @times, $i, $lastnum, $ptime, $stats);
+
+  # Initialize stats
+  $stats = {
+	    days_since_last_post => 2**30,
+	    posts                => 0,
+	    posts_last_24hours   => 0,
+	    posts_last_7days     => 0,
+	    posts_last_30days    => 0,
+	    consecutive_posts    => 0,
+	   };
+
+  return $stats unless $pdata;
+
+  # Find length of most recent set of consecutive posts.  Sort the list of
+  # messages in descending order and find the length of the initial
+  # sequence.
+  @msgs = sort {$b <=> $a} keys(%{$pdata});
+
+  for $i (@msgs) {
+    if (!defined($lastnum) || $i == $lastnum-1) {
+      $lastnum = $i;
+      $stats->{consecutive_posts}++;
+    }
+    else {
+      last;
+    }
+  }
+
+  # Extract some useful data.  Note that $msgs[0] is the current post, so
+  # the next most recent post is $msgs[1], if it exists.
+  $stats->{posts} = scalar(@msgs);
+  $stats->{days_since_last_post} = ($now - $pdata->{$msgs[1]})/86400
+    if @msgs > 1;
+
+  for $i (@msgs) {
+    $ptime = $pdata->{$i};
+    if (($now - $ptime) < 24*60*60) { # one day
+      $stats->{posts_last_24hours}++;
+    }
+    if (($now - $ptime) < 7*24*60*60) {
+      $stats->{posts_last_7days}++;
+    }
+    if (($now - $ptime) < 30*24*60*60) {
+      $stats->{posts_last_30days}++;
+    }
+  }
+  $stats;
 }
 
 =head2 expire_post_data
