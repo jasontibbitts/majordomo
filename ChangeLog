@@ -1,3 +1,8 @@
+2004-02-16  Michael Yount <csf@moscow.com>
+
+	* convertdb.pl:  Add -p (list files but don't change them)
+	and -c (clean up backup databases) options.  Thanks to SRE.
+
 2004-02-11  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/BounceHandler.pm:  (handle_bounce_token)  Bugfix:
