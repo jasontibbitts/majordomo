@@ -1224,10 +1224,12 @@ sub aux_rekey {
 
 =head2 _fill_config
 
-This fills in the hash of auxiliary configuration settings associated 
-with a List object.  Only preexisting files are accounted for; 
-others can be created at any time.  This does not actually create 
-the objects, only the hash slots, so that they can be tested for with exists().
+This fills in the hash of auxiliary configuration settings associated with
+a List object.  Only preexisting files are accounted for; others can be
+created at any time.  This does not actually create the objects, only the
+hash slots, so that they can be tested for with exists().
+
+Returns the list of available templates.  This list may be empty.
 
 =cut
 use Symbol;
@@ -1235,13 +1237,13 @@ sub _fill_config {
   my $self = shift;
 
   # Bail early if we don't have to do anything
-  return 1 if $self->{'config_loaded'};
-  
+  return keys(%{$self->{templates}}) if $self->{'config_loaded'};
+
   $::log->in(120);
 
   my $dirh = gensym();
   my ($file);
-  
+
   my $listdir = $self->_file_path;
   opendir($dirh, $listdir) || $::log->abort("Error opening $listdir: $!");
 
@@ -1251,10 +1253,10 @@ sub _fill_config {
     }
   }
   closedir($dirh);
-  
+
   $self->{'config_loaded'} = 1;
   $::log->out;
-  1;
+  keys(%{$self->{templates}});
 }
 
 =head2 _fill_aux

@@ -280,6 +280,9 @@ of which should have Perl modules.  Hooking them up should not be
 difficult.  Making attachment_rules accept some reasonable syntax might be
 difficult.
 
+Hey, there's a program for dealing with TNEF crap as well, but these days
+we don't see all that much of it.
+
 
 =======================
 Totally out there stuff
@@ -338,9 +341,17 @@ I've seen mention of a system that automatically generates taboo roles for
 Mj1 based on spam received at various spamtrap addresses.  We should try to
 hook into this if possible.
 
+
 automatic newsgroup gatewaying
 ------------------------------
-
 Folks have asked for injection of list messages into newsgroups.  There's a
 Perl module for this, so it shouldn't be a huge issue.  Bidirectional
 gatewaying is tougher, but it should be a solved problem.
+
+
+amavis-perl integration
+-----------------------
+There's a nice virus scanner writtein in Perl called amavis.  We should
+look at interfacing with it.  We might be able to lift some ideas from it
+as well, since it has a daemon mode.
+

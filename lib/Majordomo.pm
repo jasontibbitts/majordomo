@@ -4345,16 +4345,21 @@ sub _createlist {
       return (1, "Unsupported MTA $mta, can't regenerate configuration.\n");
     }
 
-    # Synchronize the GLOBAL:owners auxiliary list with the current group
-    # of list owners.
-    $self->sync_owners($requ);
-
     # Convert the raw data in the installation default configuration
     # settings into parsed data.
     if ($mode =~ /regen/) {
-      $self->_list_config_regen('GLOBAL', '_install');
-      $self->_list_config_regen('DEFAULT', '_install');
+      $self->_fill_lists;
+      for my $i (keys %{$self->{lists}}) {
+	$self->_make_list($i);
+	for my $j ($self->{lists}{$i}->_fill_config) {
+	  $self->_list_config_regen($i, $j);
+	}
+      }
     }
+
+    # Synchronize the GLOBAL:owners auxiliary list with the current group
+    # of list owners.
+    $self->sync_owners($requ);
 
     # Extract lists and owners
     $args{'regenerate'} = 1;
@@ -4945,8 +4950,7 @@ sub _lists {
     # Only display a list of templates if a master password was given. 
     if ($mode =~ /config/ and 
         ($expose > 1 or $list =~ /^DEFAULT/)) {
-      $self->{'lists'}{$list}->_fill_config;
-      for $sublist (keys %{$self->{'lists'}{$list}->{'templates'}}) {
+      for $sublist ($self->{'lists'}{$list}->_fill_config) {
         next if ($sublist eq 'MAIN' and $list !~ /^DEFAULT/);
         $desc = '';
         @lines = $self->list_config_get($user,

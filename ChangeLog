@@ -1,3 +1,14 @@
+2001-08-17  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/List.pm (_fill_config): Return the list of available
+	templates.  Helps eliminate a couple of layering violations.
+
+	* lib/Majordomo.pm (_createlist): Regenerate all configurations of
+	all lists on createlist-regen.
+
+	* lib/Majordomo.pm (_lists): Make use of _fill_config returning
+	the list of templates.
+	
 2001-08-16  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Remove spaces from list names.
