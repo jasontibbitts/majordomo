@@ -88,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200311040";
+$VERSION = "0.1200311190";
 $unique = 'AAA';
 
 use strict;
@@ -3614,7 +3614,9 @@ sub _get_stock {
   my $log = new Log::In 150, "$file, $self->{'sitedir'}";
   my (%out, $data, $lang, $noweb);
 
-  no warnings 'deprecated';
+  if (eval "require warnings;") {
+    eval "no warnings 'deprecated';";
+  }
   $noweb = 1;
   $noweb = 0 if $self->{'sitedata'}{'config'}{'cgi_bin'};
 

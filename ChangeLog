@@ -4,6 +4,13 @@
 	improve error checking.
 	Thanks to Mohamed Lrhazi.
 
+	* bin/mj_shell, mj_wwwadm:  Use "default" descriptions
+	for the newfaq, newinfo, and newintro commands.
+
+	* lib/Majordomo.pm:  Version number is now 0.1200311190.
+	(_get_stock)  "no warnings" directive is not supported
+	by perl 5.5.  Thanks to Marc Fournier.
+
 2003-11-18  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_put)  If the file description is
