@@ -1,5 +1,9 @@
 1999-06-23  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
+	* lib/Mj/Access.pm (_a_replyfile): Set the nofail flag.
+	(_a_mailfile): Push substitution into list_file_get call and set
+	nofail flag.
+
 	* lib/Mj/Resend.pm (_check_header): Add a log statement.
 	(_check_poster): Ditto.
 

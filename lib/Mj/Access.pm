@@ -738,7 +738,8 @@ sub _a_replyfile {
   # 'post' request.
   return (undef, undef, '') if $arg eq 'NONE';
 
-  ($file, %file) = $self->_list_file_get($list, $arg);
+  # Retrieve the file, but don't fail
+  ($file, %file) = $self->_list_file_get($list, $arg, undef, 1);
 
   $fh = new Mj::File "$file"
     || $log->abort("Cannot read file $file, $!");
@@ -752,17 +753,17 @@ use MIME::Entity;
 sub _a_mailfile {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
-  my (%file, $ent, $file);
+  my (%file, $ent, $file, $subs);
 
-  ($file, %file) = $self->_list_file_get($list, $arg);
-  $file = $self->substitute_vars($file,
-				 {
-				  'LIST'      => $list,
-				  'REQUESTER' => $requester,
-				  'REQUEST'   => $request,
-				  # XXX and so on...
-				 },
-				);
+  $subs = {
+    'LIST'      => $list,
+    'REQUESTER' => $requester,
+    'REQUEST'   => $request,
+    # XXX and so on...
+  };
+
+  ($file, %file) = $self->_list_file_get($list, $arg, $subs, 1);
+
   $ent = build MIME::Entity
     (
      Path        => $file,
