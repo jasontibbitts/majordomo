@@ -1297,7 +1297,7 @@ sub help {
 sub index {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my (%legend, %width, @fields, @index, @item, $count,
-      $i, $j, $ok, $parent, $str, $subs, $tmp);
+      $gsubs, $i, $j, $ok, $parent, $str, $subs, $tmp);
   $count = 0;
 
   @fields = qw(file c-type charset c-t-encoding language size);
