@@ -1,5 +1,11 @@
         Notes on upgrading from previous versions of Majordomo 2
 
+2003.05.29 (CVS):
+
+Previously, messages sent to the Majordomo server which matched a
+pattern in the block_headers setting were forwarded to the domain
+owners.  Now, those messages will be discarded.
+
 2003.01.18 (CVS):
 
 The format of the address in a bounce probe has changed.  As a result,
