@@ -141,9 +141,29 @@ actual internet domain name, for example:
   configset GLOBAL whereami = example.com
 
 
+Session and Event Information
+-----------------------------
+Majordomo2 stores information about every email or command line
+processed in files called sessions.  These are files containing all
+pertinent information about the session (email headers, CGI environment,
+selected environment variables, etc. as appropriate) as well as a log of
+all commands executed during that session.  When a token is rejected,
+information about the session that generated it is automatically mailed
+to the list and site owners (if they elect to receive such information).
+Old session files are automatically deleted after the number of days
+indicated by the 'session_lifetime' GLOBAL configuration setting.
+
+In addition, information about every command that Majordomo receives is
+stored in an event log.  Old events are removed after the number of days
+in the "log_lifetime" GLOBAL configuration setting.
+
+To find the session number for a particular event, use the "report-full"
+command.  To see information about a session, use the "sessioninfo"
+command.  See "help report" and "help sessioninfo" for more details.
+
+
 Commands available to site and domain administrators
 ----------------------------------------------------
-
 Site and domain administrators can use any of the commands for list
 administrators (as listed in "help admin_commands") and any of the
 commands for subscribers (as shown in "help commands").  There are also
