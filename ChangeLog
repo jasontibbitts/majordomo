@@ -1,3 +1,8 @@
+2001-08-23  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* bin/mj_shell (parse_command): Handle "default" with no
+	arguments and show a more informative message for "default list".
+	
 2001-08-22  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Majordomo.pm (reject): Accept -quiet mode for turning off

@@ -429,7 +429,13 @@ sub parse_command {
   }
   if ($true_command eq 'default') {
     ($command, $args) = split(" ", $args, 2);
-    if ($command =~ /^password|passwd$/) {
+    if (!defined($command) || !length($command)) {
+      print STDERR "The 'default' command requires an argument.\n";
+    }
+    elsif ($command eq 'list') {
+      print STDERR "The 'default list' command is not implemented in the shell interface.\n";
+    }
+    elsif ($command =~ /^password|passwd$/) {
       $dfl->{'password'} = $args || '';
       if (defined $args and length $args) {
 	print STDERR "Default password set to \"$dfl->{'password'}\".\n";
