@@ -1470,7 +1470,7 @@ sub help_start {
      MJ       => $whoami,
      MJOWNER  => $wowner,
      OWNER    => $wowner,
-     SITE     => $self->_global_config_get('site'),
+     SITE     => $self->_global_config_get('site_name'),
      USER     => $user,
     };
 

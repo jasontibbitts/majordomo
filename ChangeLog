@@ -1,3 +1,14 @@
+Thu Mar  4 00:14:41 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (post): ack_attach_original uses 'fail', not
+ 	'reject'.
+
+	* lib/Majordomo.pm (help_start): Typo: site => site_name.
+
+	* setup/setup_func.pl (suggest_crontab): Suggest daily trigger go
+ 	ten minutes after the hour, so it doesn't overlap the hourly
+ 	trigger that runs precisely at midnight.
+
 Wed Mar  3 22:18:13 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/CommandProps.pm: Add 'days_since_subscribe' and 'mime' to

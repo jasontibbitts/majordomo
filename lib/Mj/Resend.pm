@@ -237,7 +237,7 @@ sub post {
 	);
 
       if (($ok <  0 && $ack_attach->{stall}) ||
-	  ($ok == 0 && $ack_attach->{reject}))
+	  ($ok == 0 && $ack_attach->{fail}))
 	{
 	  $nent->make_multipart;
 	  $nent->attach(Type        => 'message/rfc822',

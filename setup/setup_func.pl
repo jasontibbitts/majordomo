@@ -306,8 +306,8 @@ sub suggest_crontab {
   return <<"EOM";
 
 # Daily and hourly triggers
-0 0 * * * $config->{'install_dir'}/bin/mj_trigger -t daily
-0 * * * * $config->{'install_dir'}/bin/mj_trigger -t hourly
+10 0 * * * $config->{'install_dir'}/bin/mj_trigger -t daily
+0  * * * * $config->{'install_dir'}/bin/mj_trigger -t hourly
 EOM
 }
 
