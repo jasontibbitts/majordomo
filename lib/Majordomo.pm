@@ -6709,8 +6709,7 @@ sub _unsubscribe {
       $fh = new IO::File ">$bye";
       next unless $fh;
       $self->substitute_vars($file, $subs, $list, $fh);
-      $fh->close()
-        or $::log->abort("Unable to close file $bye: $!");
+      # $fh is closed by substitute_vars()
 
       $fdata{'description'} = $self->substitute_vars_string($desc, $subs);
       $self->_get_mailfile($list, $key, 'farewell', $bye, %fdata);
