@@ -326,7 +326,7 @@ my %commands =
                                    'immediate'   => {'include' => 'get'},
                                    'index'       => 1,
                                    'mime'        => {'include' => 'digest'},
-                                   'reverse'     => {'include' => 'get|index'},
+                                   'reverse'     => {'include' => 'get|index|summary'},
                                    'stats'       => {'exclude' => 'get|index|summary|sync'},
                                    'subject'     => {'include' => 'get|index'},
                                    'summary'     => {'exclude' => 'get|index|sync'},
