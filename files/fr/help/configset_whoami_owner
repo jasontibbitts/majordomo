@@ -1,0 +1,42 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  whoami_owner = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+configset liste whoami_owner = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : [définie durant l'installation]
+Type de donnée    : adresse
+Catégorie         : miscellany
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset GLOBAL whoami_owner = admin@exemple.fr
+
+$INCLUDE-config/whoami_owner
+
+Par exemple, pour contacter les administrateurs d'une liste ayant
+comme adresse "pomme@exemple.fr", il faut écrire à
+"pomme-owner@exemple.fr". Par défaut, les paramètres de configuration
+"whoami_owner" et "sender" ont la même valeur, toutefois,
+"whoami_owner" est public, alors que l'adresse "sender" est uniquement
+utilisée en interne. Cette adresse apparaît fréquemment dans les
+en-tête "From:" des emails de notifications qui sont envoyés par le
+serveur Majordomo en réponse a des commandes ou des messages postés.
+
+Si il n'y a pas de domaine donné pour l'adresse, par exemple :
+  configset maliste whoami_owner = webmaster
+le domaine du paramètre de configuration "whereami" de la pseudo liste
+GLOBAL sera utilisé. Si le domaine est "exemple.fr", l'adresse
+deviendra "webmaster@exemple.fr".
+
+
+Référez vous aussi à :
+   help configset_bounce_recipients
+   help configset_owners
+   help configset_reply_to
+   help configset_resend_host
+   help configset_sender
+   help configset_whereami
+   help configset_whoami
+
+$INCLUDE-help/foot

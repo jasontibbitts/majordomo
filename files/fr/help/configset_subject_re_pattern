@@ -1,0 +1,43 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste subject_re_pattern = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : 
+       /(?: (?: re | sv |aw |antwort | re\^\d+ | re\[\d+\] ):\s*)+/ix
+Type de donnée    : motif
+Catégorie         : moderate
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+ 
+EXEMPLE :
+configset liste subject_re_pattern = \
+    /(?: (?: re | sv |aw |antwort | re\^\d+ | re\[\d+\] ):\s*)+/ix
+
+Un motif utilisé pour trouver les préfixes de réponse ("Re:") et
+autres que les logiciels de courrier ajoutent au sujet pour indiquer
+une réponse.
+
+Majordomo l'utilise pour trois choses :
+
+1) Pour placer le "subject_prefix" après l'indicateur de réponse.
+
+2) En conjonction avec le paramètre "subject_re_strip", pour
+   supprimer, le nombre d'indicateurs de réponses accumulés.
+
+   Certains logiciels de courrier utiliseront autre chose que "Re:",
+   comme "SV:", "AW:", "Re^2:", etc. comme indicateurs de réponse.
+   Lorsque plusieurs logiciels de courrier insistent sur le fait que
+   leur indicateur de réponse est le meilleur, un sujet peut en
+   accumuler un bon nombre. Ils devraient correspondre a une
+   combinaison d'indicateurs de réponse.
+
+3) pour trier les messages par sujet ou discussion dans la commande
+   archive.
+
+
+Référez vous aussi à :
+   help admin_delivery
+   help archive
+   help configset_subject_prefix
+   help configset_subject_re_strip
+
+$INCLUDE-help/foot

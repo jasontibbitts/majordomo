@@ -1,0 +1,42 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste sublists <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : aucune
+Type de donnée    : tableau de sous listes
+Catégorie         : lists
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset nouritures sublists <<ENDTAG
+champs : produits issus des pâturages
+légumes : si vous en voulez
+fruit : il en faut bien
+chocolat : 5 portions par jour
+bière : pour faire partir le goût des légumes
+ENDTAG
+
+
+$INCLUDE-config/sublists
+
+Les sous-listes sont aussi appelées listes auxiliaires. Référez vous a
+"help auxiliary_list" pour une introduction.
+
+Si l'alias "auxiliary" est listé dans le paramètre de configuration
+"aliases", les listes mentionnées ici auront leurs alias mail. Dans ce
+cas, si la valeur de la sous liste est modifiée, la commande
+"createlist-regen" devra être exécutée pour régénérer les alias.
+Référez vous à "help configset_aliases" pour plus d'informations sur
+les alias de mail.
+
+
+Référez vous aussi à :
+   help admin_monitor
+   help auxiliary_list
+   help configset_aliases
+   help createlist
+   help lists
+
+$INCLUDE-help/foot
