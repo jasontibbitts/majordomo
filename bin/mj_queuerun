@@ -284,7 +284,7 @@ sub run_queue {
               unless (ref $::mj) {
                 $::log->abort("Cannot create Majordomo object: $::mj");
               }
-              $debug1 = $mj->global_config_get(undef, undef, 'debug');
+              $debug1 = $mj->global_config_get(undef, undef, 'debug') || 0;
               if ($opts{'v'} > $debug1) {$debug1 = $opts{'v'}};
               $::log->set_level($debug1) unless $emerg_log;
             }
@@ -355,7 +355,9 @@ sub run_queue {
             # (indicating that we were passed an explicit command) then we
             # always process that command.
             elsif ($func eq 'request') {
-              $request_ans = $mj->global_config_get(undef, undef, 'request_answer');
+              $request_ans = 
+                $mj->global_config_get(undef, undef, 'request_answer')
+                  || 'response';
               if ($request_ans eq 'majordomo' || $arg) {
                 $log->message(50, 'info', 'Processing commands');
                 debug_to($emerg_log || 'majord');
@@ -582,7 +584,7 @@ sub connect_and_parse {
     $head->replace('Subject', 
                    "Majordomo error: no address found (was: $subject)");
     $user = $mj->global_config_get(undef, undef, 'whoami_owner');
-    $mj->mail_entity('', $entity, $user);
+    $mj->mail_entity('', $entity, $user) if ($user);
     $entity->purge;
     return;
   }
@@ -603,7 +605,7 @@ sub connect_and_parse {
     $head->replace('Subject', 
                    "Majordomo error: $suser (was: $subject)");
     $user = $mj->global_config_get(undef, undef, 'whoami_owner');
-    $mj->mail_entity('', $entity, $user);
+    $mj->mail_entity('', $entity, $user) if ($user);
     $entity->purge;
     return;
   }
@@ -615,6 +617,7 @@ sub connect_and_parse {
 # going.  XXX Support ACCEPT, REJECT, LIST and PASS in the subject, too.  The
 # first two for quick confirmation token processing; the latter two for
 # bypassing failed "access" checks.
+use Date::Format;
 sub parse_commands {
   my ($mj, $deflist, $command, $int, $req) = @_;
   my (@entities, @events, $args, $commands, $data, $debug_file, $debug_log,
@@ -769,6 +772,7 @@ sub parse_commands {
   $head->replace('to'     , $uuser);
   $head->replace('subject', "$sub_start$sub_addin");
   $head->replace('from'   , $mj->global_config_get(undef, undef, 'whoami_owner'));
+  $head->replace('date'   , time2str("%a, %d %b %Y %T %z", time));
   $head->delete('reply-to');
   $repl = { $mj->standard_subs('GLOBAL') };
   for $i ($mj->global_config_get(undef, undef, 'message_headers')) {
@@ -776,8 +780,8 @@ sub parse_commands {
     $head->add(undef, $i);
   }
 
-  $sender = $mj->global_config_get(undef, undef, 'sender');
-  $server = $mj->global_config_get(undef, undef, 'whoami');
+  $sender = $mj->global_config_get(undef, undef, 'sender') || '';
+  $server = $mj->global_config_get(undef, undef, 'whoami') || '';
   if ($sender eq $user) {
     # Avoid mail loops with empty sender.
     $sender = '';
@@ -790,7 +794,7 @@ sub parse_commands {
   close BLAH;
 
   $mj->mail_message($sender, "$::TMPDIR/mje.$$.final", $user)
-    unless ($user eq $server);
+    unless (!$user or ($user eq $server));
 
   # Purge all tempfiles created by the entities.  XXX Ugh, need to clean up
   # the variable names.
