@@ -7,7 +7,8 @@ It requires your confirmation for the following reason(s):
   $REASONS
 
 If you want this action to be taken, please reply to this message
-with the word "accept" (without quotes) on a line by itself.
+with the word "accept" (without quotes), followed by a descriptive 
+reason (if you wish to include one), on a single line. 
 
 If you do not respond within $EXPIRE days, this token will expire.
 
