@@ -1,3 +1,17 @@
+2004-09-03  Michael Yount <csf@moscow.com>
+
+	* bin/mj_email, mj_queuerun:  Remove temporary files.
+
+	* lib/Mj/Access.pm:  (_a_reply, _a_replyfile)  Return
+	"NONE" instead of an empty string for the "NONE" reply.
+
+	* lib/Mj/Format.pm:  Don't print anything if a command
+	does not succeed and a reply of "NONE" is specified.
+
+	* lib/Mj/Parser.pm:  (parse_part)  Don't print the
+	results if a command does not succeed and a reply
+	of "NONE" is specified.
+
 2004-09-02  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Add support for an archive search form

@@ -276,6 +276,7 @@ sub run_queue {
             }
             @fhstatus = stat MSG;
             @status = stat $file;
+            # XXX How to cope with stale zero-length files?
             # Make sure file has nonzero size to avoid a race with mj_enqueue
             # Make sure no modification has occurred to the file
             # between open() and flock().
@@ -724,6 +725,9 @@ sub parse_commands {
          '-To'         => $uuser,
         );
     }
+    else {
+      unlink $file;
+    }
   }
   else {
     ($commands, @entities) =
@@ -778,7 +782,10 @@ sub parse_commands {
   # If we just have one entity, we add the necessary headers and send it
   # (this avoids attaching useless MIME crap).  If we have multiple
   # entities then we build a top and attach them all to it.
-  return unless (scalar @entities);
+  unless (scalar @entities) {
+    $entity->purge if (defined $entity);
+    return;
+  }
   if (@entities == 1) {
     $top = shift @entities;
     # XXX This is nasty, because MIME-Tools might start supporting a newer
