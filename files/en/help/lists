@@ -1,10 +1,11 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-lists-aux-compact-enhanced-long-short-tiny [pattern]
+lists-aux-compact-enhanced-full-long-short-tiny [pattern]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 pattern,   if specified, is a regular expression to search list names
 -aux,      if specified, shows all auxiliary lists also
 -compact,  if specified, shows all lists without site information
--enhanced, if specified, shows all lists with maximal information
+-enhanced, if specified, marks lists to which you are subscribed
+-full,     if specified, shows all lists with maximal information
 -long,     if specified, shows all lists with paragraph descriptions
 -short,    if specified, shows all lists with one-line descriptions
 -tiny,     if specified, shows all lists with minimal information
@@ -47,7 +48,7 @@ and to allow different groups of subscribers to have different
 privileges. Note that only sublists specified by the list owner
 with "configset sublists" will appear in this listing.
 
-The "-aux" option ALSO causes extra information, including a subscriber
+The "-full" option causes extra information, including a subscriber
 count, the URL of the list archives (if configured), the list posting
 address, the owner address, etc. to be displayed.
 
