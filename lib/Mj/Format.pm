@@ -488,7 +488,7 @@ sub set {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
       $list, $vict, $setting, $arg2, $arg3, $ok, @changes) = @_;
   my $log = new Log::In 29, "$type, $vict";
-  my ($flags, $mode1, $mode2, $mode3, $fullflags, $fullmode);
+  my ($flags, $mess, $mode1, $mode2, $mode3, $fullflags, $fullmode);
   $mess ||= '';
 
   if ($ok>0) {
@@ -512,6 +512,7 @@ sub set {
     }
   }
   else {
+    $mess = shift @changes;
     eprint($out, $type, "Settings for $vict not changed.\n");
     eprint($out, $type, &indicate("$mess\n", $ok, 1));
   }
