@@ -196,7 +196,7 @@ sub post {
   $avars->{mime} = $avars->{mime_consult} || $avars->{mime_deny} || '';
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
     $avars->{admin} || $avars->{bad_approval} || '';
-  $avars->{'sublist'} = $request->{'auxlist'};
+  $avars->{'sublist'} = $request->{'sublist'};
   # Used to determine the archive.
   $avars->{'time'} = time;
 
@@ -233,8 +233,8 @@ sub post {
 
   chomp($subject = ($thead->get('subject') || '(none)')); 
   $list = $request->{'list'};
-  if ($request->{'auxlist'}) {
-    $list .= ":" . $request->{'auxlist'};
+  if ($request->{'sublist'}) {
+    $list .= ":" . $request->{'sublist'};
   }
 
   # Some substitutions will be done by the access routine, but we have
@@ -261,7 +261,7 @@ sub post {
 
   # Otherwise, decide what to ack, based on the user's flags
   # and the ack_important setting.
-  if ($self->{'lists'}{$request->{'list'}}->should_ack($request->{'auxlist'},
+  if ($self->{'lists'}{$request->{'list'}}->should_ack($request->{'sublist'},
                          $user, $ok ? 'b' : 'd')) {
       $nent = build MIME::Entity
 	(
@@ -577,14 +577,14 @@ sub _post {
       # initialize the other lists.
       for (@tmp) {
         next unless $self->_make_list($_);
-        push @dup, $self->{'lists'}{$_}->{'subs'};
+        push @dup, $self->{'lists'}{$_}->{'sublists'}{'MAIN'};
       }
-      $dup = $self->_find_dup($self->{'lists'}{$list}->{'subs'}, @dup)
+      $dup = $self->_find_dup($self->{'lists'}{$list}->{'sublists'}{'MAIN'}, @dup)
         if scalar @dup;
     }
    
     # Generate the exclude list
-    $exclude = $self->_exclude($ent[0], $list, $user);
+    $exclude = $self->_exclude($ent[0], $list, $sl, $user);
 
     # Print delivery messages to files
     for ($i = 0; $i < @ent; $i++) {
@@ -1839,14 +1839,15 @@ exclude list if appropriate:
 
 =cut
 sub _exclude {
-  my($self, $ent, $list, $user) = @_;
+  my($self, $ent, $list, $sublist, $user) = @_;
   my(@addrs, $addr, $cc, $exclude, $i, $to);
 
   $exclude = {};
 
   # The user doesn't get a copy if they don't have 'selfcopy' set.
   $exclude->{$user->canon} = 1
-    if $user->isvalid && !$self->{'lists'}{$list}->flag_set('selfcopy', $user);
+    if $user->isvalid && 
+       !$self->{'lists'}{$list}->flag_set('selfcopy', $user, $sublist);
 
   # Extract addresses from headers
   $to = $ent->head->get('To', 0); chomp $to if $to;
@@ -1859,7 +1860,7 @@ sub _exclude {
     $addr = new Mj::Addr($i);
     next unless $addr->isvalid;
     $exclude->{$addr->canon} = 1
-      if $self->{'lists'}{$list}->flag_set('eliminatecc', $addr);
+      if $self->{'lists'}{$list}->flag_set('eliminatecc', $addr, $sublist);
   }
 
   $exclude;
@@ -1899,9 +1900,8 @@ sub _find_dup {
   while (1) {
     @tmp = $first->get_matching_quick($chunk, 'class', 'unique');
     last unless scalar @tmp;
-    for (@tmp) {
-      $check{$_}++;
-    }
+    @check{@tmp} = ();
+
     for $j (@others) {
       last unless (scalar keys %check);
       next unless $j->get_start;
