@@ -1,3 +1,80 @@
+2001-03-09  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  Version number is now 0.1200103090.
+	(common_subs, et al.) Declare undeclared variables.
+	(list_config_set_to_default) Bugfix:  correct the list variable name
+	for the unknown_setting error.
+	(report_start, _report) Bugfix: join and split values using \002
+	in double, not single, quotes.
+	(_showtokens) Add support for the alias token type, which is a way 
+	to assign more than one token identifier to the same request.
+
+	* lib/Mj/Access.pm:  (list_access_check)  Add support for the chain
+	access variable, which determines whether confirmation notices are
+	sent consecutively or simultaneously;  the expire variable, which
+	determines the lifetime of a token; and the notify action, which
+	changes the attributes of a token.
+	(_a_conf_cons, et al.)  Adapt to use data from "notify" actions.
+	(_a_replyfile)  Use a local symbol instead of a global filehandle
+	for reading the reply file.
+
+	* lib/Mj/Archive.pm:  (sync) Declare undeclared variable.
+	(get_to_file)  Add file handle error checks.
+
+	* lib/Mj/BounceHandler.pm:  (handle_bounce_token) Call
+	Mj::Token::t_reject instead of t_remove, to account for potential
+	alias tokens.
+
+	* lib/Mj/BounceParser.pm:  (parse_dsn)  Cope with missing
+	delivery-status parts.
+
+	* lib/Mj/CommandProps.pm:  Add support for the "notify" action
+	in the access rules.  Give access variables type names instead
+	of type numbers.  Make the "mkdigest" command an alias for the
+	digest command.  Add support for the showtokens-alias command.
+
+	* lib/Mj/Config.pm:  (parse_access_rules)  Add support for the
+	notify action, including validation of the variables names.
+
+	* lib/Mj/Format.pm:  (archive, et al.)  Declare undeclared 
+	variables.
+
+	* lib/Mj/List.pm:  (default_class, et al.)  Declare undeclared
+	variables.
+
+	* lib/Mj/MIMEParser.pm:  (_r_ct_lines)  Declare undeclared
+	variables.
+
+	* lib/Mj/Resend.pm:  (post) Include CMDLINE substitution in
+	stall/denial acknowledgment messages.
+	(_post)  Bugfix:  Use the correct content data in delivery
+	acknowledgment messages.
+	(_check_poster)  Add a message to the list of reasons if the
+	postblock flag is set.
+
+	* lib/Mj/Token.pm:  (consult, delay)  Removed.  The code for
+	these two methods has been merged into the confirm method.
+	(get_moderators)  Obtain a list of moderator addresses, given
+	a mailing list name, moderator group, and pool size.
+	(confirm, t_accept)  Adapt to use "notify" hash refs to determine
+	the attributes of a token.  The "chain" fields of the token data
+	are now used to store packed representations of the "notify"
+	data, allowing up to five approval steps to be required.
+
+	* lib/Mj/Util.pm:  (condense, n_build, n_defaults, n_validate,
+	reconstitute)  These new routines are used to construct,
+	validate, pack, and unpack "notify" hash refs.
+	(process_rule)  Add support for the "notify" action.
+
+	* lib/Mj/Deliver/Dest.pm:  (sendenvelope) Declare undeclared
+	variable.
+
+	* setup/ask_basic.pl:  (ask_basic) Comment out pgsql question.
+
+	* setup/setup_func.pl:  (mta_setup) Bugfix:  change ownership 
+	of the mj-domains file after it is created.  Suggested by 
+	David Miller.
+
 2001-03-02  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/BounceParser.pm (parse_exim): Adapt to new exim bounce

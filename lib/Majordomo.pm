@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200102240";
+$VERSION = "0.1200103090";
 $unique = 'AAA';
 
 use strict;
@@ -1466,7 +1466,7 @@ list, and present the data from the first list.
 sub common_subs {
   my $self = shift;
   my (@tmp) = @_;
-  my (%subs, @lists, $i, $k, $list, $out, $tlist, $v);
+  my (%subs, @lists, $chunksize, $i, $k, $list, $out, $tlist, $v);
   my $log = new Log::In 150, "$tmp[0], $tmp[1]";
 
   $out = {};
@@ -1659,7 +1659,7 @@ Alters the value of a list''s config variable.  Returns a list:
 sub list_config_set {
   my ($self, $request) = @_;
   my $log = new Log::In 150, "$request->{'list'}, $request->{'setting'}";
-  my (@groups, @tmp, @tmp2, $i, $j, $join, $level, $mess, $ok);
+  my (@groups, @tmp, @tmp2, $global_only, $i, $j, $join, $level, $mess, $ok);
 
   unless ($self->_make_list($request->{'list'})) {
     return (0, $self->format_error('make_list', 'GLOBAL', 
@@ -1836,8 +1836,8 @@ sub list_config_set_to_default {
 
   @groups = $self->config_get_groups($var);
   if (!@groups) {
-    return (0, $self->format_error('unknown_setting', $request->{'list'}, 
-                                   'SETTING' => $request->{'setting'}));
+    return (0, $self->format_error('unknown_setting', $list, 
+                                   'SETTING' => $var));
   }
   $level = $self->config_get_mutable($list, $var);
 
@@ -1901,7 +1901,7 @@ sub _list_config_set {
   my $self = shift;
   my $list = shift;
   my $var  = shift;
-  my (@out, $type);
+  my (@out, $owners, $type);
 
   $list = 'GLOBAL' if $list eq 'ALL';
   return unless $self->_make_list($list);
@@ -3855,8 +3855,8 @@ of the configset commands that are displayed.
 sub configshow {
   my ($self, $request) = @_;
   my (%all_vars, %category, @hereargs, @out, @tmp, @vars, 
-      $auto, $comment, $config, $data, $flag, $group, $groups, $intro,
-      $level, $message, $val, $var, $vars, $whence);
+      $auto, $comment, $config, $data, $flag, $group, $groups, 
+      $i, $intro, $level, $message, $val, $var, $vars, $whence);
 
   if (! defined $request->{'groups'}->[0]) {
     $request->{'groups'} = ['ALL'];
@@ -4089,8 +4089,9 @@ sub _createlist {
   $list ||= '';
   my $log = new Log::In 35, "$mode, $list";
   my (%args, %data, @lists, @owners, @sublists, @tmp, $aliases, $bdir, $desc, 
-      $dir, $dom, $debug, $ent, $file, $i, $j, $mess, $mta, $mtaopts, $pw, 
-      $rmess, $sender, $setting, $shpass, $subs, $sublists, $who);
+      $dir, $dom, $debug, $ent, $file, $i, $j, $k, $mess, $mta, $mtaopts, 
+      $ok, $priority, $pw, $rmess, $sender, $setting, $shpass, $subs, 
+      $sublists, $who);
 
   unless ($mode =~ /regen|destroy/) {
     @tmp = split "\002\002", $owner;
@@ -4997,7 +4998,8 @@ use Mj::Util qw(gen_pw);
 sub _rekey {
   my($self, $d, $requ, $vict, $mode, $cmd) = @_;
   my $log = new Log::In 35, $mode;
-  my ($addr, $chunksize, $count, $data, $list, $mess, $pw, $reg);
+  my ($addr, $chunksize, $count, $data, $list, $mess, $minlength,
+      $pw, $reg, $unreg, $unsub);
 
   # Do a rekey operation on the registration database
   my $sub =
@@ -5092,7 +5094,7 @@ sub report_start {
   {
     $request->{'requests'} = ['ALL : all'];
   }
-  $request->{'action'} = join '\002', @{$request->{'requests'}};
+  $request->{'action'} = join "\002", @{$request->{'requests'}};
 
   ($ok, $mess) = $self->list_access_check($request);
 
@@ -5112,7 +5114,8 @@ use Mj::Config;
 sub _report {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $date, $action) = @_;
   my $log = new Log::In 35, "$list, $action";
-  my (@table, @tmp, @tmp2, $begin, $end, $file, $scope, $span, $tmp);
+  my (@table, @tmp, @tmp2, $begin, $end, $file, $i, $j, 
+      $req, $res, $scope, $span, $tmp);
 
   $scope = {};
 
@@ -5132,7 +5135,7 @@ sub _report {
     }
   }
   else {
-    @tmp = split '\002', $action;
+    @tmp = split "\002", $action;
     $j = 'report';
     # Hack the requested actions into a table that resembles
     # the "inform" configuration setting.
@@ -5325,9 +5328,9 @@ sub set {
     $mismatch = 0;
     $regexp   = 1;
     # Parse the regexp
-    ($ok, $error, $request->{'victim'}) = 
+    ($ok, $mess, $request->{'victim'}) = 
        Mj::Config::compile_pattern($request->{'victim'}, 0);
-    return (0, $error) unless $ok;
+    return (0, $mess) unless $ok;
     # Untaint the regexp
     $request->{'victim'} =~ /(.*)/; $request->{'victim'} = $1;
   }
@@ -5355,8 +5358,8 @@ sub set {
 
 sub _set {
   my ($self, $list, $user, $vict, $mode, $cmd, $setting, $d, $sublist, $force) = @_;
-  my (@lists, @out, $addr, $check, $count, $data, $db, $file, $k, $l, 
-      $ok, $owner, $res, $v);
+  my (@addrs, @lists, @out, @tmp, $addr, $check, $chunksize, $count, 
+      $data, $db, $file, $k, $l, $ok, $owner, $res, $v);
 
   $check = 0;
   if ($mode =~ /check/ or ! $setting) {
@@ -5631,6 +5634,7 @@ sub _showtokens {
     next if ($action and ($data->{'command'} ne $action)); 
     next if ($data->{'type'} eq 'delay' and $mode !~ /delay/);
     next if ($data->{'type'} eq 'async' and $mode !~ /async/);
+    next if ($data->{'type'} eq 'alias' and $mode !~ /alias/);
 
     # Obtain file size for posted messages
     if ($data->{'command'} eq 'post') {
@@ -5715,7 +5719,8 @@ sub _subscribe {
   my $setting = shift;
   my $sublist = shift || 'MAIN';
   my $log   = new Log::In 35, "$list, $vict";
-  my ($ok, $classarg, $classarg2, $data, $exist, $ml, $rdata, $welcome);
+  my ($ok, $class, $classarg, $classarg2, $data, $exist, $flags, $ml, 
+      $rdata, $welcome);
 
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
