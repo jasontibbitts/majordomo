@@ -673,6 +673,7 @@ sub configset {
   my ($ok, $mess, $str, $subs, $tmp, $val);
 
   ($ok, $mess) = @$result;
+  $mess ||= '';
 
   $val = ${$request->{'value'}}[0];
   $val = '' unless defined $val;
@@ -684,6 +685,7 @@ sub configset {
            'CGIDATA'  => $request->{'cgidata'},
            'CGIURL'   => $request->{'cgiurl'},
            'CMDPASS'  => &escape($request->{'password'}, $type),
+           'ERROR'    => &escape($mess, $type),
            'SETTING'  => &escape($request->{'setting'}, $type),
            'USER'     => &escape("$request->{'user'}", $type),
            'VALUE'    => &escape($val, $type),
@@ -703,7 +705,6 @@ sub configset {
     print $out "$str\n";
   }
   else {
-    $subs->{'ERROR'} = &escape($mess, $type);
     $tmp = $mj->format_get_string($type, 'configset_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok);
@@ -1120,24 +1121,23 @@ sub help {
 
 sub index {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my (%legend, @index, @item, @width, $count, $i, $j);
+  my (%legend, %width, @fields, @index, @item, $count, $i, $j, $ok);
   $count = 0;
-  @width = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
-  my ($ok, @in) = @$result;
-  unless ($ok > 0) {
-    eprint($out, $type, &indicate($type, "The index command failed.\n", $ok));
-    eprint($out, $type, &indicate($type, $in[0], $ok)) if $in[0];
-    return $ok;
+  @fields = qw(file c-type charset c-t-encoding language size);
+  for $i (@fields) {
+    $width{$i} = 0;
   }
 
-  # Split up the index return array
-  while (@item = splice(@in, 0, 8)) {
-    push @index, [@item];
+  ($ok, @index) = @$result;
+  unless ($ok > 0) {
+    eprint($out, $type, &indicate($type, "The index command failed.\n", $ok));
+    eprint($out, $type, &indicate($type, $index[0], $ok)) if $index[0];
+    return $ok;
   }
   
   unless ($request->{'mode'} =~ /nosort/) {
-    @index = sort {$a->[0] cmp $b->[0]} @index;
+    @index = sort {$a->{'file'} cmp $b->{'file'}} @index;
   }
 
   # Pretty-up the list
@@ -1145,17 +1145,22 @@ sub index {
     for $i (@index) {
       # Turn path parts into spaces to give an indented look
       unless ($request->{'mode'} =~ /nosort|nodirs/) {
-        1 while $i->[0] =~ s!(\s*)[^/]*/(.+)!$1  $2!g;
+        1 while $i->{'file'} =~ s!(\s*)[^/]*/(.+)!$1  $2!g;
       }
-      # Figure out the optimal width
-      for $j (0, 3, 4, 5, 6, 7) {
-        $width[$j] = (length($i->[$j]) > $width[$j]) ?
-          length($i->[$j]) : $width[$j];
+      # Figure out the optimal width for each field.
+      for $j (@fields) {
+        $width{$j} = (length($i->{$j}) > $width{$j}) ?
+          length($i->{$j}) : $width{$j};
       }
     }
   }
-  $width[0] ||= 50; $width[3] ||= 12; $width[4] ||= 10; $width[5] ||= 12;
-  $width[6] ||= 5; $width[7] ||= 5;
+
+  $width{'file'}         ||= 50; 
+  $width{'c-type'}       ||= 12; 
+  $width{'charset'}      ||= 10; 
+  $width{'c-t-encoding'} ||= 12;
+  $width{'language'}     ||= 5; 
+  $width{'size'}         ||= 5;
 
   if (@index) {
     eprint($out, $type, length($request->{'path'}) ?"Files in $request->{'path'}:\n" : "Public files:\n")
@@ -1163,17 +1168,22 @@ sub index {
     for $i (@index) {
       $count++;
       if ($request->{'mode'} =~ /short/) {
-        eprint($out, $type, "  $i->[0]\n");
+        eprint($out, $type, "  $i->{'file'}\n");
         next;
       }
       elsif ($request->{'mode'} =~ /long/) {
         eprintf($out, $type,
-                "  %2s %-$width[0]s %$width[7]s  %-$width[3]s  %-$width[4]s  %-$width[5]s  %-$width[6]s  %s\n",
-                $i->[1], $i->[0], $i->[7], $i->[3], $i->[4], $i->[5], $i->[6], $i->[2]);
+          "  %2s %-$width{'file'}s %$width{'size'}s %-$width{'c-type'}s" .
+          " %-$width{'charset'}s  %-$width{'c-t-encoding'}s" .
+          " %-$width{'language'}s  %s\n",
+          $i->{'permissions'}, $i->{'file'}, $i->{'size'}, $i->{'c-type'}, 
+          $i->{'charset'}, $i->{'c-t-encoding'}, $i->{'language'},
+          $i->{'description'});
       }
       else { # normal
         eprintf($out, $type,
-                "  %-$width[0]s %$width[7]d %s\n", $i->[0], $i->[7], $i->[2]);
+                "  %-$width{'file'}s %$width{'size'}d %s\n", 
+                $i->{'file'}, $i->{'size'}, $i->{'description'});
       }
     }
     return 1 if $request->{'mode'} =~ /short/;
@@ -1181,6 +1191,7 @@ sub index {
     eprintf($out, $type, "%d file%s.\n", $count,$count==1?'':'s');
   }
   else {
+    # XLANG
     eprint($out, $type, qq(The "$request->{'path'}" directory is empty .\n));
   }
   1;
