@@ -133,12 +133,8 @@ sub new {
   $self->{'callbacks'}      = $args{'callbacks'};
   $self->{'sdirs'}          = 1;
   $self->{'vars'}           = \%Mj::Config::vars;
-  $self->{'source'}{'DEFAULT'} = $args{'defaultdata'};
-  $self->{'source'}{'installation'} = $args{'installdata'}
-    unless ($list eq 'GLOBAL');
   $self->{'locked'}         = 0;
   $self->{'mtime'}          = 0;
-  $self->load               if ($list eq 'DEFAULT');
   $::log->out;
   $self;
 }
@@ -151,6 +147,78 @@ Config changes are automatically saved during destruction.
 sub DESTROY {
   my $self = shift;
   $self->unlock;
+}
+
+=head2 search(templates, variable, raw)
+=cut
+sub search {
+  my $self = shift;
+  my $templates = shift;
+  my $var = shift;
+  my $raw = shift;
+  my $log  = new Log::In 180, "$self->{'list'}, $var";
+  my ($file, $ok, $parsed);
+
+  return unless (ref($templates) eq 'ARRAY' and scalar(@$templates));
+  return unless (defined($var));
+
+  # return source and value.
+  unless ($self->{'loaded'}) {
+    $self->load;
+  }
+
+  for $file (@$templates) {
+    unless(exists $self->{'source'}{$file}) {
+      $self->{'source'}{$file} = 
+        $self->_load_dfl($self->{'list'}, $file);
+    }
+  }
+
+  # If we need to return unparsed data...
+  if ($raw || !$self->isparsed($var)) {
+    for $file (@$templates) {
+      # Return the raw data
+      if (exists $self->{'source'}{$file}{'raw'}{$var}) {
+        $log->out("raw, $file");
+        if ($self->isarray($var) and 
+            ref $self->{'source'}{$file}{'raw'}{$var}) {
+          return ($file, @{$self->{'source'}{$file}{'raw'}{$var}});
+        }
+        return ($file, $self->{'source'}{$file}{'raw'}{$var});
+      }
+    }
+
+    # or just return nothing
+    $log->out("not found");
+    return;
+  }
+
+  # We need to give back parsed data.  If we have it already...
+  for $file (@$templates) {
+    if (exists $self->{'source'}{$file}{'parsed'}{$var}) {
+      $log->out("parsed, $file");
+      return ($file, $self->{'source'}{$file}{'parsed'}{$var});
+    }
+
+    # If we have raw data but not parsed data, we try to parse it.  This
+    # really shouldn't happen unless someone hacks the config file.
+    if (exists $self->{'source'}{$file}{'raw'}{$var}) {
+      # should parse in the context of the searching list.
+      ($ok, undef, $parsed) =
+        $self->parse($var, $self->{'source'}{$file}{'raw'}{$var});
+      if ($ok) {
+        $log->out("raw reparsed, $file");
+        return ($file, $parsed);
+      }
+      else {
+        $log->out("illegal, $file");
+        return;
+      }
+    }
+  }
+
+  $log->out("not found");
+  return;
 }
 
 =head2 get(variable, raw)
@@ -186,7 +254,7 @@ sub get {
   my $var  = shift;
   my $raw  = shift;
   my $log  = new Log::In 180, "$self->{'list'}, $var";
-  my ($file, $ok, $parsed);
+  my (@result, @tmp, $file, $ok, $parsed);
 
   # We include a facility for setting some variables that we can access
   # during the bootstrap process.
@@ -210,6 +278,13 @@ sub get {
   # If we need to return unparsed data...
   if ($raw || !$self->isparsed($var)) {
     for $file (@{$self->{'sources'}}) {
+      # Use callbacks for DEFAULT/installation settings.
+      if ($file eq 'DEFAULT') {
+        @tmp = &{$self->{callbacks}{'mj._list_config_search'}}(
+                 'DEFAULT', $self->{'source'}{'DEFAULT'}, $var, 1);
+        shift(@tmp) if (scalar @tmp);
+        return $self->isarray($var) ? @tmp : $tmp[0];
+      }
       # Return the raw data
       if (exists $self->{'source'}{$file}{'raw'}{$var}) {
         $log->out("raw, $file");
@@ -228,6 +303,27 @@ sub get {
 
   # We need to give back parsed data.  If we have it already...
   for $file (@{$self->{'sources'}}) {
+    # Use callbacks for DEFAULT/installation settings.
+    if ($file eq 'DEFAULT') {
+      @tmp = &{$self->{callbacks}{'mj._list_config_search'}}(
+               'DEFAULT', $self->{'source'}{'DEFAULT'}, $var);
+      shift(@tmp) if (scalar @tmp);
+      # parse if address or address array
+      if ($self->{'vars'}{$var}{'type'} eq 'address_array') {
+        @result = $self->parse($var, @tmp);
+        return($result[$#result]) if ($result[0]);
+      }
+      elsif ($self->{'vars'}{$var}{'type'} eq 'address') {
+        @result = $self->parse($var, $tmp[0]);
+        return($result[$#result]) if ($result[0]);
+      }
+      else {
+        return wantarray ? @tmp : $tmp[0];
+      }
+      $log->out("not found");
+      return;
+    }
+
     if (exists $self->{'source'}{$file}{'parsed'}{$var}) {
       $log->out("parsed, $file");
       return $self->{'source'}{$file}{'parsed'}{$var};
@@ -307,32 +403,22 @@ sub load {
   # will be consulted to find a setting.
   $self->{'sources'} = ['MAIN'];
 
+  # Load the standard default values
   # The GLOBAL list does not use the DEFAULT settings.
-  if ($self->{'list'} ne 'GLOBAL' and $self->{'list'} ne 'DEFAULT') {
-    $self->{'source'}{'DEFAULT'} = $self->_load_dfl('DEFAULT') 
-      unless (exists $self->{'source'}{'DEFAULT'}{'raw'});
+  if ($self->{'list'} eq 'GLOBAL') {
+    $self->{'source'}{'installation'} = 
+      $self->_load_dfl('GLOBAL', '_install');
+    push @{$self->{'sources'}}, 'installation';
+  }
+  elsif ($self->{'list'} eq 'DEFAULT') {
+    $self->{'source'}{'installation'} = 
+      $self->_load_dfl('DEFAULT', '_install');
+    push @{$self->{'sources'}}, 'installation';
+  }
+  else {
+    $self->{'source'}{'DEFAULT'} = ['MAIN', '_install'];
     push @{$self->{'sources'}}, 'DEFAULT';
   }
-
-  # Load the standard default values
-  unless (exists $self->{'source'}{'installation'}{'raw'}) {
-    if ($self->{'list'} eq 'GLOBAL' or $self->{'list'} eq 'DEFAULT') {
-      $self->{'source'}{'installation'} = 
-        $self->_load_dfl('GLOBAL', '_install');
-    }
-    else { 
-      $self->{'source'}{'installation'} = 
-        $self->_load_dfl('DEFAULT', '_install');
-    }
-
-    # The installation defaults must be made available to regular
-    # mailing lists.
-    if ($self->{'list'} eq 'DEFAULT') {
-      $self->{'source'}{'_install'} = 
-        $self->_load_dfl('DEFAULT', '_install');
-    }
-  }
-  push @{$self->{'sources'}}, 'installation';
 
   $self->{'loaded'} = 1;
 
@@ -342,21 +428,14 @@ sub load {
     @tmpl = $self->get('config_defaults');
 
     if (scalar(@tmpl)) {
-      $tmp = shift @{$self->{'sources'}};
-
       for $i (reverse @tmpl) {
         next unless $i;
-        next if (grep {$_ eq "DEFAULT:$i"} @{$self->{'sources'}});
-        $self->{'source'}{"DEFAULT:$i"} =
-          $self->_load_dfl('DEFAULT', $i);
-        unshift @{$self->{'sources'}}, "DEFAULT:$i";
+        next if (grep {$_ eq $i} @{$self->{'source'}{'DEFAULT'}});
+        unshift @{$self->{'source'}{'DEFAULT'}}, $i;
       }
-
-      unshift @{$self->{'sources'}}, $tmp;
     }
   }
       
-    
   1;
 }
 
@@ -393,7 +472,7 @@ sub _load_dfl {
   my $self = shift;
   my $list = shift || 'DEFAULT';
   my $sublist = shift || '';
-  my $log  = new Log::In 160;
+  my $log  = new Log::In 160, "$self->{'list'}, $list, $sublist";
   my ($file, $name, $out);
 
   # The GLOBAL list never uses the DEFAULT data.
@@ -425,7 +504,7 @@ use AutoLoader 'AUTOLOAD';
 __END__
 
 
-=head2 whence
+=head2 whence(var)
 Determines the origin of a variable.
 
 Returns the name of the configuration file that supplies the value
@@ -459,7 +538,16 @@ sub whence {
   }
 
   for $file (@{$self->{'sources'}}) {
-    if (exists $self->{'source'}{$file}{'raw'}{$var}) {
+    if ($file eq 'DEFAULT') {
+      ($tmp) = &{$self->{callbacks}{'mj._list_config_search'}}(
+               'DEFAULT', $self->{'source'}{'DEFAULT'}, $var, 1);
+      if (defined $tmp) {
+        return 'DEFAULT' if ($tmp eq 'MAIN');
+        return 'installation' if ($tmp eq '_install');
+        return "DEFAULT:$tmp";
+      }
+    }
+    elsif (exists $self->{'source'}{$file}{'raw'}{$var}) {
       return $file;
     }
   }
@@ -483,6 +571,13 @@ sub regen {
   my $config = $self->{'source'}{'MAIN'};
 
   for $var (keys %{$config->{'raw'}}) {
+    # remove outdated settings
+    unless (exists $self->{'vars'}{$var}) {
+      delete $config->{'raw'}{$var};
+      delete $config->{'parsed'}{$var};
+      warn "Removing unsupported setting \"$var\" from the $self->{'list'} list.\n";
+      next;
+    }
     next if     ($self->{'vars'}{$var}{'type'} =~ /^address/ and
                  $self->{'list'} =~ /^DEFAULT/);
     next unless ($self->isparsed($var) or 
@@ -516,12 +611,24 @@ Returns the default value of the given variable.
 sub default {
   my ($self, $var) = @_;
 
-  $::log->in(180, "$var");
+  $::log->in(180, $var);
 
-  if ($self->{'source'}{'installation'}{'raw'}{$var}) {
-    return $self->{'source'}{'installation'}{'raw'}{$var};
+  if ($self->{'list'} eq 'GLOBAL' or $self->{'list'} eq 'DEFAULT') {
+    if ($self->{'source'}{'installation'}{'raw'}{$var}) {
+      return $self->{'source'}{'installation'}{'raw'}{$var};
+    }
   }
+  else {
+     # use a callback to get the value from the DEFAULT list.
+    @tmp = &{$self->{callbacks}{'mj._list_config_search'}}(
+               'DEFAULT', ['_install'], $var, 1);
+    if (scalar(@tmp) > 1) {
+      $default = $tmp[1];
+    }
+  }
+
   return undef;
+
 }
 
 =head2 allowed(variable)
@@ -599,23 +706,51 @@ sub intro {
 
   $::log->in(180, "$self->{'list'}, $var");
 
-  $self->load unless exists $self->{'source'}{'installation'}{'raw'};
+  unless ($self->{'loaded'}) {
+    $self->load;
+  }
 
   $type = $self->{'vars'}{$var}{'type'};
 
   if ($self->isarray($var)) {
-    if (defined $self->{'source'}{'installation'}{'raw'}{$var} && 
-        @{$self->{'source'}{'installation'}{'raw'}{$var}}) {
-      $default = "$self->{'source'}{'installation'}{'raw'}{$var}[0] ...";
+    if ($self->{'list'} eq 'GLOBAL' or $self->{'list'} eq 'DEFAULT') {
+      if (defined $self->{'source'}{'installation'}{'raw'}{$var} && 
+          @{$self->{'source'}{'installation'}{'raw'}{$var}}) {
+        $default = "$self->{'source'}{'installation'}{'raw'}{$var}[0] ...";
+      }
+      else {
+        $default = "empty";
+      }
     }
     else {
-      $default = "empty";
+      # use a callback to get the value from the DEFAULT list.
+      @tmp = &{$self->{callbacks}{'mj._list_config_search'}}(
+                 'DEFAULT', ['_install'], $var, 1);
+      if (scalar(@tmp) > 1) {
+        $default = $tmp[1];
+      }
+      else {
+        $default = "empty";
+      }
     }
   }
   else {
-    $default = (defined $self->{'source'}{'installation'}{'raw'}{$var}) ?
-      $self->{'source'}{'installation'}{'raw'}{$var} :
-	"undef";
+    if ($self->{'list'} eq 'GLOBAL' or $self->{'list'} eq 'DEFAULT') {
+      $default = (defined $self->{'source'}{'installation'}{'raw'}{$var}) ?
+      $self->{'source'}{'installation'}{'raw'}{$var} : "undef";
+    }
+    else {
+      # use a callback to get the value from the DEFAULT list.
+      @tmp = &{$self->{callbacks}{'mj._list_config_search'}}(
+                 'DEFAULT', ['_install'], $var, 1);
+      if (scalar(@tmp) > 1) {
+        $default = $tmp[1];
+      }
+      else {
+        $default = "undef";
+      }
+    }
+
     if ($type eq 'bool') {
       $default = ('no', 'yes')[$default];
     }
@@ -1032,7 +1167,7 @@ sub save {
 
   $::log->in(150, $self->{'list'});
   if ($self->{'dirty'} || $force) {
-#    $self->_save_old if $force || $self->{'old_loaded'};
+#    $self->_save_old if $force || $self->{'loaded_old'};
     $self->_save_new;
   }
   delete $self->{'dirty'};
@@ -1479,15 +1614,9 @@ sub parse_address {
 
   return (1, '', '') unless $str;
 
-  if ($self->{'list'} =~ /^DEFAULT/ and 
-      $str =~ /([^\\]|^)\$\QLIST\E(\b|$)/) 
-  {
-    # return (0, 'The $LIST substitution is not supported for DEFAULT lists.');
-    # XLANG
-  }
-
-  # Substitute the list name for "$LIST"
-  $str =~ s/([^\\]|^)\$\QLIST\E(\b|$)/$1$self->{'list'}/g;
+  # Substitute the list name for "$LIST" if parsing for a regular list.
+  $str =~ s/([^\\]|^)\$\QLIST\E(\b|$)/$1$self->{'list'}/g
+    if ($self->{'list'} ne 'GLOBAL' and $self->{'list'} ne 'DEFAULT');
 
   # We try to tack on a hostname if one isn't given
   unless ($str =~ /\@/) {
