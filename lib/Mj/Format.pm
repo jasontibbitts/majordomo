@@ -74,6 +74,17 @@ sub accept {
       eprint($out, $type, "was accepted.\n");
       if ($data->{'ack'}) {
         eprint($out, $type, "$data->{'victim'} was notified.\n\n");
+        if (ref($rresult) eq 'ARRAY') {
+          if ($rresult->[0] > 0) {
+            eprint($out, $type, "The command succeeded.\n\n");
+          }
+          elsif ($rresult->[0] < 0) {
+            eprint($out, $type, "The command stalled.\n\n");
+          }
+          else {
+            eprint($out, $type, "The command failed.\n\n$rresult->[1]\n");
+          }
+        }
       }
       else {
         eprint($out, $type, "$data->{'victim'} was not notified.\n\n");
@@ -1978,14 +1989,15 @@ use Date::Format;
 sub showtokens {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$request->{'list'}";
-  my ($basic_format, $count, $data, $data_format, $global_subs, 
-      $size, $str, $subs, $tmp, $token, $tokendata, $user);
+  my (@tokens, $bf, $count, $data, $df, $global_subs, 
+      $list, $ok,  $size, $str, $subs, $tmp, $tokens, $user);
   my (%type_abbrev) = (
                         'alias'   => 'L',
                         'async'   => 'A',
                         'confirm' => 'S',
                         'consult' => 'O',
                         'delay'   => 'D',
+                        'probe'   => 'P',
                       );
 
   $global_subs = {
@@ -1996,13 +2008,14 @@ sub showtokens {
            'USER'    => &escape("$request->{'user'}", $type),
           };
 
-  my ($ok, @tokens) = @$result;
+  ($ok, @tokens) = @$result;
   unless (@tokens) {
     $tmp = $mj->format_get_string($type, 'showtokens_none');
     $str = $mj->substitute_vars_format($tmp, $global_subs);
     print $out &indicate("$str\n", $ok, 1);
     return $ok;
   }
+
   unless ($ok > 0) {
     $subs = {
              %{$global_subs},
@@ -2014,23 +2027,24 @@ sub showtokens {
     return $ok;
   }
 
-  if ($request->{'list'} eq 'ALL') {
-    $basic_format = $mj->format_get_string($type, 'showtokens_all');
-    $data_format = $mj->format_get_string($type, 'showtokens_all_data');
-  }
-  else {
-    $basic_format = $mj->format_get_string($type, 'showtokens');
-    $data_format = $mj->format_get_string($type, 'showtokens_data');
-  }
+  @tokens = sort {
+                   if ($a->{'list'} ne $b->{'list'}) {
+                     return ($a->{'list'} cmp $b->{'list'});
+                   }
+                   return $a->{'time'} <=> $b->{'time'};
+                 } @tokens;
 
-  $tokendata = [];
-  while (@tokens) {
-    ($token, $data) = splice @tokens, 0, 2;
+  $bf = $mj->format_get_string($type, 'showtokens');
+  $df = $mj->format_get_string($type, 'showtokens_data');
+  $list = '';
+  $count = 0;
+
+  for $data (@tokens) {
     $count++;
-   
     $size = '';
+
     if ($data->{'size'}) {
-      $size = sprintf "(%d kB)",  int(($data->{'size'} + 512)/1024);
+      $size = sprintf ("%.1f",  ($data->{'size'} + 512) / 1024);
     }
 
     $user = &escape($data->{'user'}, $type);
@@ -2045,19 +2059,26 @@ sub showtokens {
               'LIST'   => $data->{'list'},
               'REQUESTER' => $user,
               'SIZE'   => $size,
-              'TOKEN'  => $token,
+              'TOKEN'  => $data->{'token'},
               'TYPE'   => $data->{'type'},
             };
+
+    if ($data->{'list'} ne $list) {
+      $str = $mj->substitute_vars_format($bf, $subs);
+      print $out "$str\n";
+      $list = $data->{'list'};
+    }
              
-    push @{$tokendata}, $mj->substitute_vars_format($data_format, $subs);
+    $str = $mj->substitute_vars_format($df, $subs);
+    print $out "$str\n";
   }
   $subs = {
            %{$global_subs},
-           'COUNT'     => $count,
-           'TOKENDATA' => $tokendata,
+           'COUNT' => $count,
           };
               
-  $str = $mj->substitute_vars_format($basic_format, $subs);
+  $tmp = $mj->format_get_string($type, 'showtokens_all');
+  $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
   1;
 }
