@@ -951,7 +951,8 @@ sub substitute_vars {
       # Do a _list_file_get.  If we get a file, open it and call
       # substitute_vars on it, printing to the already opened handle.  If
       # we don't get a file, print some amusing text.
-      ($inc) =  $self->_list_file_get($list, $2);
+      $inc = $2; $inc =~ s/\s*$//;
+      ($inc) =  $self->_list_file_get($list, $inc);
 
       if ($inc) {
 	if ($depth > 3) {

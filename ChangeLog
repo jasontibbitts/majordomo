@@ -1,3 +1,8 @@
+2002-02-04  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm (substitute_vars): Tolerate trailing spaces in
+	an $INCLUDE directive.
+
 2002-02-03  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/Config.pm (parse_taboo_body, parse_taboo_headers): Escape
