@@ -245,7 +245,6 @@ files/en/config/.comments
 files/en/config/.config_access
 files/en/config/.config_defaults
 files/en/config/.confirm_url
-files/en/config/.database_backend
 files/en/config/.debug
 files/en/config/.default_class
 files/en/config/.default_flags
@@ -395,7 +394,6 @@ files/en/config/comments
 files/en/config/config_access
 files/en/config/config_defaults
 files/en/config/confirm_url
-files/en/config/database_backend
 files/en/config/debug
 files/en/config/default_class
 files/en/config/default_flags
@@ -1286,7 +1284,6 @@ files/en/help/.configset_comments
 files/en/help/.configset_config_access
 files/en/help/.configset_config_defaults
 files/en/help/.configset_confirm_url
-files/en/help/.configset_database_backend
 files/en/help/.configset_debug
 files/en/help/.configset_default_class
 files/en/help/.configset_default_flags
@@ -1505,7 +1502,6 @@ files/en/help/configset_comments
 files/en/help/configset_config_access
 files/en/help/configset_config_defaults
 files/en/help/configset_confirm_url
-files/en/help/configset_database_backend
 files/en/help/configset_debug
 files/en/help/configset_default_class
 files/en/help/configset_default_flags
