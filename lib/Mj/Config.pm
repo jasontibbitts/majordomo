@@ -2940,11 +2940,17 @@ sub parse_restrict_post {
 
     $test = $lists[$i];
 
+    unless ($test =~ /^$self->{'list'}/) {
+      # Convert sublist to LIST:sublist
+      $test = "$self->{'list'}:$test" if ($test !~ /:/);
+    }
+
     ($list, $sublist, $mess) =
       &{$self->{'callbacks'}{'mj.valid_list'}}($test, 0, 1);
 
-    # Cope with LIST[.-_]digest for Mj1 compatibility.
-    if ($test =~ /(\Q$self->{'list'}\E)[.-_](.+)$/ and ! defined $list) 
+    # Cope with LIST[._-]digest for Mj1 compatibility.
+    if ($test =~ /^(\Q$self->{'list'}\E)[._-](.+)$/ and 
+        ! (defined $list and length $list)) 
     {
       if ($2 eq 'digest') {
         $test = $1;
