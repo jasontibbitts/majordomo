@@ -7,10 +7,10 @@ configset listname message_headers <<TAG
 [VALUE LINES]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : no default
+Default Value : Reply-To: $MJ ... (only first item is shown)
 Data Type     : string_array
 Variable Group: resend, digest
-Password Notes: Visible only with password. 
+Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
