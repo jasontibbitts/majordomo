@@ -88,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200305290";
+$VERSION = "0.1200311040";
 $unique = 'AAA';
 
 use strict;
@@ -3504,7 +3504,7 @@ sub _list_file_get {
 
     # Now, if we got something
     if (@out) {
-      # Substitute if necessary; $out[0] is thefilename
+      # Substitute if necessary; $out[0] is the filename
       if ($args{subs}) {
 	$out[0] = $self->substitute_vars($out[0], $args{subs}, $list);
       }
@@ -5150,7 +5150,8 @@ sub _createlist {
       }
     }
 
-    shell_hook(name => 'createlist-regen');
+    shell_hook('name'    => 'createlist-regen', 
+               'cmdargs' => [ $self->domain ]);
 
     return (1, $result);
   }
@@ -5342,7 +5343,8 @@ sub _createlist {
     $result->{'password'} = $pw;
   }
 
-  shell_hook(name => 'createlist-regen');
+  shell_hook('name'    => 'createlist-regen', 
+             'cmdargs' => [ $self->domain ]);
   return (1, $result);
 }
 
@@ -7415,6 +7417,8 @@ sub trigger {
          push @ready, $_;
        }
     }
+    $tmp = join " ", @ready;
+    $log->message('27', 'info', "Ready: $tmp");
   }
 
   # Mode: daily or token - expire tokens and passwords, and send reminders

@@ -1,3 +1,15 @@
+2003-11-04  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  Version number is now 0.1200311040.
+	(_createlist)  Pass the domain name to the shell hook.
+
+	* lib/Mj/BounceHandler.pm:  (_hbr_noprobe)  Pass the
+	domain, list, and user to the shell hook.
+
+	* lib/Mj/Resend.pm:  (_r_strip_body)  Add missing ops
+	for perl 5.8.1 compatibility.  Warn if an error occurs
+	in the filtering code.
+
 2003-11-03  Michael Yount <csf@moscow.com>
 
 	* setup/install_util.pl:  (copy_file)  If a link was requested
