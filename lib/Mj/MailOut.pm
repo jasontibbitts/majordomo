@@ -169,49 +169,47 @@ forwards a message to the owner(s) of a mailing list.
 
 =cut
 sub owner_start {
-  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
-      $list) = @_;
-  my $log  = new Log::In 30, "$list";
+  my ($self, $request) = @_;
+  my $log  = new Log::In 30, "$request->{'list'}";
 
   my $tmp  = $self->_global_config_get('tmpdir');
   my $file = "$tmp/owner." . Majordomo::unique();
   $self->{'owner_file'} = $file;
   $self->{'owner_fh'} = new IO::File ">$file" or
     $log->abort("Can't open $file, $!");
-  1;
+  (1, '');
 }
 
 sub owner_chunk {
-  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
-      $list, $vict, $data) = @_;
+  my ($self, $request, $data) = @_;
   $self->{'owner_fh'}->print($data);
+  (1, '');
 }
 
 sub owner_done {
-  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
-      $list) = @_;
-  $list ||= 'GLOBAL';
-  my $log  = new Log::In 30, "$list";
+  my ($self, $request) = @_;
+  $request->{'list'} ||= 'GLOBAL';
+  my $log  = new Log::In 30, "$request->{'list'}";
   my (@owners, $handled, $sender);
 
   $self->{'owner_fh'}->close;
-  $self->_make_list($list);
+  $self->_make_list($request->{'list'});
 
   # Call bounce handling routine
-  $handled = $self->handle_bounce($list, $self->{'owner_file'});
+  $handled = $self->handle_bounce($request->{'list'}, $self->{'owner_file'});
 
   unless ($handled) {
     # Nothing from the bounce parser
     # Just mail out the file as if we never saw it
     $sender  = $self->_list_config_get('GLOBAL', 'sender');
-    @owners  = @{$self->_list_config_get($list, 'owners')};
+    @owners  = @{$self->_list_config_get($request->{'list'}, 'owners')};
     $self->mail_message($sender, $self->{'owner_file'}, @owners);
   }
 
   unlink $self->{'owner_file'};
   undef $self->{'owner_fh'};
   undef $self->{'owner_file'};
-  1;
+  (1, '');
 }
 
 =head2 handle_bounce
@@ -600,7 +598,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
