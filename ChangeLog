@@ -1,5 +1,7 @@
 Sun May 10 00:33:48 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/mj_cf_defs.pl: Remove hpc web server from the default.
+
 	* postinstall: Properly set permissions on all installed files,
  	including lib and man.  Everything that is publically readable
  	should now have the appropriate permissions, and everything that

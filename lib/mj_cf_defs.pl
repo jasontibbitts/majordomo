@@ -143,7 +143,7 @@ $Mj::Config::default_string = q(
  'filedir'              => undef,
  'default_lists_format' => 'compact',
  'description_max_lines'=> 0,
- 'confirm_url'          => 'http://www.hpc.uh.edu/cgi-bin/mj_confirm?t=$TOKEN',
+ 'confirm_url'          => 'no server configured',
  'dup_lifetime'         => 28,
  'session_lifetime'     => 14,
  'token_lifetime'       => 7,
