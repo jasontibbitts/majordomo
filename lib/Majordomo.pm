@@ -289,7 +289,7 @@ processing done at the beginning.
 sub dispatch {
   my ($self, $fun, $user, $pass, $auth, $int, $cmd, $mode, $list, $vict,
       @extra) = @_;
-  my $log  = new Log::In 29, "$fun" unless $fun =~ /_chunk$/;
+  my $log  = new Log::In 29, "$fun, $user" unless $fun =~ /_chunk$/;
   my(@out, $base_fun, $continued, $mess, $ok, $over);
 
   ($base_fun = $fun) =~ s/_(start|chunk|done)$//;
@@ -484,7 +484,7 @@ sub substitute_vars_string {
   my $i;
 
   for $i (keys %subs) {
-    $str =~ s/\$\Q$i\E\b/$subs{$i}/g;
+    $str =~ s/\$\Q$i\E(\b|^)/$subs{$i}/g;
   }
   $str;
 }
@@ -1678,7 +1678,7 @@ sub _request_response {
 	   );
 
   # Expand variables
-  $desc = $self->substitute_vars_string($desc, %subst);
+  $desc = $self->substitute_vars_string($file{'description'}, %subst);
   $file = $self->substitute_vars($file, %subst);
 
   $ent = build MIME::Entity
@@ -1687,7 +1687,7 @@ sub _request_response {
      Type     => $file{'c-type'},
      Charset  => $file{'charset'},
      Encoding => $file{'c-t-encoding'},
-     Subject  => $file{'description'} || "Your message to $list-request",
+     Subject  => $desc || "Your message to $list-request",
      Top      => 1,
      Filename => undef,
      'Content-Language:' => $file{'language'},

@@ -276,15 +276,15 @@ sub connect_and_parse {
   $head->unfold;
   $::log->out;
 
-  $uuser = $head->get('reply-to') || $head->get('from') ||
+  $user = $head->get('reply-to') || $head->get('from') ||
       $head->get('apparently-from');
-  chomp $uuser;
-  ($ok, $user, undef) = $mj->addr_validate($uuser);
-  unless ($ok) {
-    # We can't get the stripped address, so we can't reply
-    # We should send something to the owner or something
-    $::log->abort("Invalid return address: $uuser, $user");
-  }
+  chomp $user;
+#   ($ok, $user, undef) = $mj->addr_validate($uuser);
+#   unless ($ok) {
+#     # We can't get the stripped address, so we can't reply
+#     # We should send something to the owner or something
+#     $::log->abort("Invalid return address: $uuser, $user");
+#   }
   ($entity, $head, $user);
 }
 

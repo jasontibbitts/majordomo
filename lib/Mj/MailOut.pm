@@ -248,7 +248,7 @@ sub welcome {
        Filename    => undef,
        Description => $subj,
        Top         => 0,
-       '-Content-Language' => $file{'language'},
+       'Content-Language:' => $file{'language'},
       );
   }
   
