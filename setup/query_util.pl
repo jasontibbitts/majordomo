@@ -12,7 +12,8 @@ sub prompt ($;$) {
     print "$mess $dispdef->";
     chomp($ans = <STDIN>);
   }
-  return $ans || $def;
+  return $ans if(length $ans);
+  return $def;
 }
 
 sub get_str {
