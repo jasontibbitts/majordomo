@@ -263,9 +263,18 @@ sub install_config_templates {
     $config->{'site_password'} = $pw;
   }
 
-  $tmp = "tmp.$$." . &gen_tag;
-  open PW, ">$tmp";
+  while (1) {
+    $tmp = "tmp.$$." . &gen_tag;
+    last unless (-f $tmp);
+  }
+
+  open CONFIG, "< setup/config_commands" || return;
+  open PW, ">$tmp" || return;
   print PW "default password $pw\n\n";
+  while (<CONFIG>) {
+    print PW $_;
+  }
+  close CONFIG;
   close PW;
 
   print "Installing configuration templates for $domain..." unless $quiet;
@@ -273,8 +282,7 @@ sub install_config_templates {
   open(TMP, ">&STDOUT");
   open(STDOUT, ">/dev/null");
   @args = ("$config->{'install_dir'}/bin/mj_shell", '-u', 
-           'mj2_install@example.com', '-d', $domain, 
-           '-F', $tmp, '-F', 'setup/config_commands');
+           'mj2_install@example.com', '-d', $domain, '-F', $tmp);
 
   if (system(@args)) {
     die "Error executing $args[0], $?";
