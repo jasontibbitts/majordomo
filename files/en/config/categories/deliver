@@ -6,5 +6,6 @@ The deliver category includes the following settings:
    digest_issues, digests, message_footer, message_footer_frequency, 
    message_fronter, message_fronter_frequency, message_headers, 
    override_reply_to, precedence, purge_received, reply_to, resend_host, 
-   sender, sequence_number, subject_prefix
+   sender, sequence_number, subject_prefix, subject_re_pattern,
+   subject_re_strip
 

@@ -1,6 +1,10 @@
-This controls just what actions the list owner will be informed of and
-what will be logged.  The format of each line is:
-  request | status | actions
-where request is any Mj2 command (like subscribe, lists, post, etc.),
-status is a comma separated list of "succeed, fail, stall, all", and
-actions is a comma separated list of "ignore, report, inform".
+The inform setting controls the ways in which list owners can keep abreast of 
+activity on a mailing list.  Each line consists of three sections, separated
+by pipes or colons ('|' or ':')
+
+  request | results | actions
+
+The request is any majordomo command (e.g., subscribe, post, or archive).
+The results are one or more of "succeed," "fail," and "stall," or "all" for 
+all three.  The actions are one or more of "ignore," "inform," and "report."
+Multiple results or actions should be separated by commas.
