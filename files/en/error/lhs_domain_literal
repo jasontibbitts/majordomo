@@ -1,0 +1,4 @@
+Domain literals (words in square brackets) are only permitted 
+on the right hand side of an address.
+
+Did you mistakenly enclose the entire address in square brackets?
