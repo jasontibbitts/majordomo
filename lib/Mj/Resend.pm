@@ -278,11 +278,6 @@ sub post_done {
   1;
 }
 
-# For archive copy, we don't want to do some things (like add
-# subjext_prefix, extra headers, footers, fronters) and we may want to
-# allow a different set of MIME parts through.  How can we do this?
-# Maintain two separate copies of the entity and munge them both
-# except where appropriate?  Ugh.
 use Mj::MIMEParser;
 sub _post {
   my($self, $list, $user, $victim, $mode, $cmdline, $file, $arg2,

@@ -1738,7 +1738,7 @@ EOC
    'default_lists_format' =>
    {
     'type'   => 'enum',
-    'values' => [qw(tiny compact short long extended)],
+    'values' => [qw(tiny compact short long enhanced]],
     'groups' => ['lists'],
     'global' => 1,
     'visible'=> 0,
@@ -1746,7 +1746,7 @@ EOC
 This defines the default output format for the lists command.
 compact shows one list per line with short descriptions.
 long shows long descriptions
-extended shows long descriptions and extra information (whether or not
+enhanced shows long descriptions and extra information (whether or not
   the user is subscribed to the list, etc.)
 EOC
    },

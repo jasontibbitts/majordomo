@@ -1,3 +1,7 @@
+Tue Dec  1 17:59:11 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/mj_cf_data.pl: default_lists_format - s/extended/enhanced/g.
+
 Mon Nov 30 20:46:23 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Parser.pm (parse_part): Make signature separator

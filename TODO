@@ -21,6 +21,22 @@ Finish work on allosed_flags and allowed_classes.
 
 ! Digest:
 
+Objectify all digests.
+
+  Call new - get a digest object.
+  Add messages (preparsed MIME entities) with add.
+  call done - get back a filename.  Digests might not be MIME internally,
+    so you can never get an entity out.
+ 
+
+  'new' takes the following:
+
+     subject      - the subject of the digest
+     index_header - message before index,
+     index_line   - name of format of an index line
+     index_footer - message after index, before messages
+
+
 RFC1153 (text) digests:
 
   Flatten all multiparts.  Strip all images.  Reduce to text _only_.
