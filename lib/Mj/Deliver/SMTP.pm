@@ -38,7 +38,7 @@ sub new {
   my $type  = shift;
   my $class = ref($type) || $type;
   my %args = @_;
-  my ($ok);
+  my ($ok, $code, $message);
   my $self = {};
   bless $self, $class;
 
@@ -47,6 +47,9 @@ sub new {
   $self->{'timeout'} = $args{'timeout'} || 60;
   $self->{'local'}   = $args{'local'}   || hostfqdn;
   $self->{'sentnl'}  = 0;
+  $self->{'esmtp'} = $args{'esmtp'} || 0;
+  $self->{'dsn'} = 0;
+  $self->{'pipelining'} = 0;
   $self->{'connection'} =
     new Mj::Deliver::Connection($self->{'host'},
 				$self->{'port'},
@@ -59,6 +62,22 @@ sub new {
   ($ok) = $self->getresp;
   return unless defined $ok && $ok > 0;
 
+  if ($self->{'esmtp'}) {
+    ($ok, $code, $message) = $self->EHLO($self->{'local'});
+    # return on 421 or timeout.
+    return if (! defined $code or $code == 421);
+    # set ESMTP variables on success
+    if ($ok) {
+      $self->ONEX()
+        if ($args{'onex'} and $message =~ /ONEX/);
+      $self->{'dsn'} = 1 
+        if ($args{'dsn'} and $message =~ /DSN/);
+      $self->{'pipelining'} = 1 
+        if ($args{'pipelining'} and $message =~ /PIPELINING/);
+      return $self;
+    }
+    # fall through and do HELO on 5xx error.
+  }
   # The standard (RFC1869) says that we can't depend on the greeting
   # returning anything special if the host supports ESMTP.
   ($ok) = $self->HELO($self->{'local'});
@@ -81,7 +100,7 @@ sub send {
   $self->{'connection'}->print("$comm\r\n");
 }
 
-=head2 getresp(ignore_non_fatal_errors, timeout_multiplier)
+=head2 getresp(ignore_non_fatal_errors, timeout_multiplier, pipelining)
 
 Get the complete SMTP response to a command.  This parses out the error
 codes and handles continued lines properly.
@@ -92,6 +111,9 @@ generates an error indicating that the address is somehow illegal; the
 transaction can continue but the address should not be retried.
 
 If $tomult is supplied, it will be used to scale the read timeout.
+
+If $pipeline is non-zero, the subroutine will return immediately
+unless a response has been received.
 
 Returns a list:
 
@@ -108,9 +130,10 @@ Will return the empty list if a socket read timed out.
 =cut
 sub getresp {
   my $self   = shift;
-  my $ignore = shift;
-  my $tomult = shift || 1;
-  my $log = new Log::In 550;
+  my $ignore = shift || 0;
+  my $tomult = shift;
+  $tomult = 1 unless defined $tomult;
+  my $log = new Log::In 550, "$ignore, $tomult";
   my ($code, $error, $message, $multi, $resp, $text);
 
   $message = "";
@@ -119,7 +142,7 @@ sub getresp {
     $resp = $self->{'connection'}->getline($tomult);
     # Guard against read timeouts
     unless (defined $resp) {
-      warn "Timed out getting response?";
+      warn "Timed out getting response?" if ($tomult);
       return;
     }
       
@@ -149,6 +172,30 @@ sub getresp {
   }
      
   ($error, $code, $message);
+}
+
+=head2 hexchar
+
+Encode characters for DSN ORCPT option.
+
+=cut
+
+sub hexchar {
+  my $string = shift;
+  my $encoded = "";
+  my $i = 0;
+  my $letter;
+
+  while ($i < length $string) {
+    $letter = substr $string, $i, 1;
+    if ($letter =~ /[\000-\040\177-\377\+=]/) {
+        $letter = "+" . uc sprintf "%lx", ord $letter;
+    }
+    $encoded .= $letter;
+    $i++;
+  }
+
+  $encoded;
 }
 
 
@@ -199,7 +246,16 @@ sub EHLO { shift->transact("EHLO ".shift             )}
 sub HELO { shift->transact("HELO ".shift             )}
 sub MAIL { shift->transact("MAIL FROM: <".shift().">")}
 sub ONEX { shift->transact("ONEX"                    )}
-sub RCPT { shift->transact("RCPT TO: <".shift().">",1,5)}
+sub RCPT { 
+  my $self = shift;
+  my $recip = shift;
+  my $encrcpt = hexchar($recip);
+  my $cmd = "RCPT TO: <$recip>";
+  if ($self->{'dsn'}) {
+    $cmd .= " ORCPT=rfc822;$encrcpt";
+  }
+  $self->transact($cmd, 1, $self->{'pipelining'}? 0 : 5);
+}
 sub RSET { shift->transact("RSET"                    )}
 sub QUIT { shift->transact("QUIT"                    )}
 

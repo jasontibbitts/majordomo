@@ -64,10 +64,14 @@ sub new {
 
   $self->{'smtp'} = new Mj::Deliver::SMTP
     (
-     'host'    => $args{'host'},
-     'port'    => $args{'port'}    || undef,
-     'timeout' => $args{'timeout'} || undef,
-     'local'   => $args{'local'}   || undef,
+     'host'        => $args{'host'},
+     'port'        => $args{'port'}    || undef,
+     'timeout'     => $args{'timeout'} || undef,
+     'local'       => $args{'local'}   || undef,
+     'esmtp'       => exists($args{'esmtp'}),
+     'dsn'         => exists($args{'dsn'}),
+     'onex'        => exists($args{'onex'}),
+     'pipelining'  => exists($args{'pipelining'}),
     );
 
   return undef unless $self->{'smtp'};
@@ -167,11 +171,12 @@ sub address {
   my $addr = shift;
   my $deferred = shift;
   my $log = new Log::In 150, "$addr";
-  my ($code, $good, $i, $mess, $val, $j);
+  my ($code, $good, $i, $mess, $val, $j, $recip);
   
   unless (ref $addr) {
     $addr = [$addr];
   }
+  return 0 unless (@{$addr});
 
   $good = 0;
 
@@ -179,14 +184,27 @@ sub address {
     return 0 unless $self->init;
   }
 
-  $j = 0;
-  for $i (@{$addr}) {
-    ($val, $code, $mess) = $self->{'smtp'}->RCPT($i,1);
 
+  # $i counts the RCPT TO commands that have been sent
+  # $j counts the responses that have been received
+  for ($i = 0, $j = 0 ; $j < scalar (@{$addr}) ; ) {
+    if ($i < scalar (@{$addr})) {
+      $recip = ${$addr}[$i];
+      ($val, $code, $mess) = $self->{'smtp'}->RCPT($recip);
+    }
+    else {
+      # All of the RCPT TO commands have been sent.
+      # Wait for a response to arrive.
+      ($val, $code, $mess) = 
+        $self->{'smtp'}->getresp(1, 5);
+    }
+      
     # If we got a bad error, defer processing the address until all
     # other addresses have been handled.
-    if (! $val) {
-      $log->message(150, 'info', "Address $i failed during RCPT TO.");
+    if ($val == 0 or (! defined $val
+                      and (not $self-{'smtp'}->{'pipelining'} 
+                           or $i >= scalar (@{$addr})))) {
+      $log->message(150, 'info', "Address ${$addr}[$j] failed during RCPT TO.");
       my ($badaddr) = splice @{$addr}, $j, 1;
       push @{$deferred}, $badaddr;
       return 0;
@@ -205,12 +223,17 @@ sub address {
       unless ($self->{'initialized'}) {
         return 0 unless $self->init;
       }
-      ($val, $code, $mess) = $self->{'smtp'}->RCPT($i,1);
+      # backtrack 
+      $i = $j;
+      $recip = ${$addr}[$i];
+      ($val, $code, $mess) = $self->{'smtp'}->RCPT($recip);
     }
-    $self->{'addressed'} = 1 if $val > 0;
-    $j++;
-  }
 
+    $j++ if (defined $val);
+    $self->{'addressed'} = 1 if $val > 0;
+    $i++;
+  }
+     
   return $val;
 }
 
