@@ -1,6 +1,10 @@
 <!-- Majordomo who_registry format file -->
 <tr>
-  <td><input type=checkbox name=extra value="$FULLADDR">$FULLADDR
+  <td><input type="checkbox" name="victims" value="$FULLADDR">
+  <a href="$WWWUSR_URL/$QSADDR?passw=$CMDPASS&amp;func=show"
+   target="_wwwusr">
+    $FULLADDR
+  </a>
   </td>
   <td>$LASTCHANGE
   </td>

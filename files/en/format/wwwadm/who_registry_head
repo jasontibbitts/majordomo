@@ -1,8 +1,17 @@
 <!-- Majordomo who_registry_head format file -->
-<p>To remove addresses from the registry, check the box next to
+<p>
+To remove addresses from the registry, check the box next to
 each address you wish to remove in the following list,
 then press the $HELP:UNREGISTER button.  Unregistering an 
 address causes all of its subscriptions to be removed automatically.
+</p>
+
+<p>
+Click an e-mail address to see details about the subscriptions for
+that address in another window, using the 
+<a href="$WWWUSR_URL">
+  WWW interface for subscribers
+</a>.
 </p>
 
 <form method="POST" action="$CGIURL">
