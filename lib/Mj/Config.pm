@@ -2131,7 +2131,7 @@ sub parse_list_array {
     next unless length($l);
     return (0, "Illegal or unknown list $l.")
       unless ((-d "$self->{'ldir'}/$l") && 
-              (Majordomo::legal_list_name(undef, $l)));
+              (Majordomo::legal_list_name($l)));
   }
   (1, undef, $arr);
 }
@@ -2160,7 +2160,7 @@ sub parse_sublist_array {
     return (0, "Illegal or unknown list $l.")
       unless ((-f "$self->{'ldir'}/$self->{'list'}/X$l.D" ||
                -f "$self->{'ldir'}/$self->{'list'}/X$l.T")
-               && (Majordomo::legal_list_name(undef, $l)));
+               && (Majordomo::legal_list_name($l)));
   }
   (1, undef, $arr);
 }
