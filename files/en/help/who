@@ -1,9 +1,10 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-who-short listname [pattern]
+who[-short][-enhanced] listname [pattern]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site
--short,  if specified, produces just a simple list of email addresses
-pattern, if specified, is a matching string (see "help patterns")
+-enhanced, if specified, displays flags and mail mode for each subscriber
+-short,    if specified, produces just a simple list of email addresses
+pattern,   if specified, is a matching string (see "help patterns")
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The "who" command returns all or some subscribers to the named list,
@@ -19,8 +20,15 @@ full-blown Perl regular expressions.
 
 If "-short" is specified, the simple list of addresses can be used
 for administrative changes in a pipe. For example:
-  mj_shell -p pass who-short | mj_shell -p pass -f - set listname ackimportant
+  mj_shell -p pass who-short listname | mj_shell -p pass -f - set listname ackimportant
 can be used to alter the subscription options of all list subscribers.
+
+If "-enhanced" is specified, additional information will be provided
+about each subscriber in the list.  If the list name is GLOBAL, the
+mailing lists in which the subscriber participates will be shown.
+For any other list name, the subscriber flags and mail mode (each,
+digest, or nomail) will be shown in the result.  The "enhanced"
+option is only available to people using administrative passwords.
 
 See Also:
    help patterns (for simple and complex regular expressions)
