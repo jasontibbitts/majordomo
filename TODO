@@ -39,6 +39,9 @@ Top of the list
       that we can seek to it immediate when we need more data from the
       index.
 
+    Make sure that archives get a separate umask, so that people can
+    download them.
+
 - Figure out how to pass the access variables through to the _post function
   so that we can use things like the byte and line counts for cool things.
   Probably just flatten the hash and join by the secret separator and stuff

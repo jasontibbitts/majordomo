@@ -251,12 +251,17 @@ What to return?  Perhaps all useful message data, in a listref?
 sub get_message {
   my $self = shift;
   my $msg  = shift;
+  my $log = new Log::In 150, "$msg";
+  my ($file);
 
   # Figure out appropriate index file
+  ($file) = $msg =~ /(.*)\.(.*)/;
+  $idx = "$self->{dir}/.I$file";
 
   # If cached data, look at end to see if what we want is contained within.
   # If so, binary search for it.
-
+  if (@{$self->{icache}{$file}}) {
+  }    
   # Otherwise, open index file, seek to where we left off (if we've looked
   # here before, iterate until we hit the right message number, pushing
   # data into cache.

@@ -98,14 +98,12 @@ Answer 'no' to skip this step; any existing files will be preserved.
 Install response files?
 EOM
 
+set_script_perms(\@sidscripts, \@scripts);
+
 if ($config->{cgi_bin}) {
   copy_file('mj_confirm', "$config->{install_dir}/bin",
 	    $config->{cgi_bin}, $config->{cgi_link});
 }
-
-set_script_perms(\@sidscripts, \@scripts, ($config->{cgi_bin} &&
-					   !$config->{cgi_link} &&
-					   "$config->{cgi_bin}/mj_confirm"));
 
 # Create list directories and such
 if (get_bool($msg1)) {
@@ -157,7 +155,8 @@ EOM
 
 exit;
 
-# Copies or links a file from one directory to another.
+# Copies or links a file from one directory to another, preserving
+# ownership and permissions.
 sub copy_file {
   my $script = shift;
   my $source = shift;
@@ -168,8 +167,13 @@ sub copy_file {
     link "$source/$script", "$dest/$script" ||
       die "Can't make link in $dest, $!.";
   }
-  cp("$source/$script", "$dest/$script") ||
-    die "Can't copy $source/$script to $dest/$script, $!.";
+  else {
+    cp("$source/$script", "$dest/$script") ||
+      die "Can't copy $source/$script to $dest/$script, $!.";
+    # Set the owner and mode on the copied file
+    chown((stat("$source/$script"))[4,5], "$dest/$script");
+    chmod((stat(_))[2], "$dest/$script");
+  }
 }
 
 sub set_script_perms {
@@ -235,6 +239,7 @@ sub do_config {
 
   print FILE "configset GLOBAL whereami = $dom\n";
   close FILE;
+  chmod(0644, "$config->{wtmpdir}/inst.$$");
 
   print "\nDo not be alarmed if the first command fails.\n\n";
   print "@args\n";

@@ -1,6 +1,6 @@
  -*- Text -*-
 
-Working description of the access-rules config variable:
+Working description of the access_rules config variable:
 
 First line - request 
   Comma-separated list of advertise, alias, post, subscribe, unsubscribe,

@@ -109,6 +109,11 @@ To install:
     able to read all of the distribution files.
   type "perl Makefile.PL".
 
+Your system will be checked for prerequisite modules and such.  If any are
+not found, you must install them before installation can continue.  Some
+sample instructions that may work for many properly configured perl
+installations are provided for missing modules.
+
 You will be asked several questions as Majordomo configures itself for your
 system.  See the 'Makefile.PL questions' section at the end of this
 document for more detailed discussion on the questions that Makefile.PL
