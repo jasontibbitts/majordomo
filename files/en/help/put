@@ -72,7 +72,8 @@ Once a directory is created, files can be stored in that directory.
 
 The put-delete command may be used to remove a file or an empty
 directory.  The put-delete command does not require any data or
-contents. 
+contents.  If the "force" command mode is also used to remove a
+directory, all of its contents will be removed as well.
 
 The contents of any file must be specified using a here document.
 For example, the following command creates a document called "test"
