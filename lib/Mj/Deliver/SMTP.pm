@@ -21,7 +21,6 @@ connection.
 =cut
 
 package Mj::Deliver::SMTP;
-use Net::Domain qw(hostfqdn);
 use Mj::Log;
 use Mj::Deliver::Connection;
 use strict;
@@ -45,7 +44,11 @@ sub new {
   $self->{'host'}    = $args{'host'}    || 'localhost';
   $self->{'port'}    = $args{'port'}    || 25;
   $self->{'timeout'} = $args{'timeout'} || 60;
-  $self->{'local'}   = $args{'local'}   || hostfqdn;
+  $self->{'local'}   = $args{'local'};
+  unless (defined $self->{'local'}) {
+    require Net::Domain;
+    $self->{'local'} = Net::Domain::hostfqdn();
+  }
   $self->{'sentnl'}  = 0;
   $self->{'esmtp'} = $args{'esmtp'} || 0;
   $self->{'dsn'} = 0;
