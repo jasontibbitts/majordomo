@@ -16,10 +16,17 @@ It might be helpful to turn this setting off if words, like
 "unsubscribe," that are also Majordomo commands are often used in the
 discussion.
 
+When a message is posted to a mailing list, the message is checked using
+the patterns in the list's admin_body and admin_headers settings. The
+message is also checked using the patterns in the GLOBAL admin_body and
+admin_headers settings.
+
 
 See Also:
    help admin_moderate
    help configset_admin_body
    help configset_admin_headers
+   help configset_taboo_body
+   help configset_taboo_headers
 
 $INCLUDE-help/foot
