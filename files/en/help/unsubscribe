@@ -29,7 +29,7 @@ the list.
 
 A message may be sent to each address being removed acknowledging
 the removal of the subscription.  This "farewell" message will only
-be sent if the "-farewell" option is used.
+be sent if the "-farewell" option is used.  
 
 The unregister command will automatically remove an address from all lists at
 this site, or the unsubscribe command can be used to selectively remove
@@ -76,7 +76,10 @@ b@example.com
 ABC
 
 List owners can also remove addresses from a collection called an "auxiliary
-subscriber list" (see "help auxiliary_list" for more details.)
+subscriber list" (see "help auxiliary_list" for more details.)  The
+farewell command mode works with auxiliary lists, but only if the address
+in question is registered in this domain (see "help register" for more
+information about the Majordomo registry).
 
 
 See Also:
@@ -87,6 +90,7 @@ See Also:
    help configset access_rules_variables (set/test for this command)
    help password    (which changes an individual's password)
    help patterns    (for simple and complex regular expressions)
+   help register    (which adds an address to the Majordomo registry)
    help subscribe   (which adds an address to a list)
    help unregister  (which removes an address from all lists)
 
