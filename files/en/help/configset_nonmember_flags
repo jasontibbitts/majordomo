@@ -12,13 +12,13 @@ configset listname nonmember_flags = A
 
 
 A string containing the flags which apply to users who are not list members
-when they send messages to the list.  Only acknowledgement flags make sense in
-this case.  They are:
+when they send messages to the list.  Only acknowledgement flags and the
+postblock flag make sense in this case.  They are:
   b - ackstall
   d - ackdeny
   f - ackpost
   j - ackreject
-
+  O - postblock
 
 See Also:
    help set                     (for subscriber flag settings)

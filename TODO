@@ -128,3 +128,25 @@ $consecutive > 50
 # be sent to the owner.
 
 
+Uuencode and ms-tnef in the body as "attachments"
+-------------------------------------------------
+
+Treat uuencode and ms-tnef chunks in the body as attachments so that
+attachment_rules can be used to trap or remove them.
+
+Come up with some fake MIME type used to represent these "attachments" so
+that they can be put in attachment_rules.  "uuencode" and "ms-tnef" are
+probably sufficient, although there is potential for confusion because a
+rule of "uuencode | discard" wouldn't discard a real MIME part of type
+"application/x-uuencode".
+
+When checking for taboo lines, if the above fake mime types are referenced
+in attachment_rules, scan the body for a sequence which identifies them and
+trap the message accordingly.  (How to check if they're referenced?  Run
+the rules code and check the result.)
+
+When modifying the body, if the above fake mime types are marked as
+"discard" in attachment_rules, scan the body for the identifying sequence
+and drop the whole body part up to and including the ending sequence.
+Insert a message indicating that the data was deleted.
+

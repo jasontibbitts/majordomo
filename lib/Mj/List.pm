@@ -50,6 +50,7 @@ use vars (qw($addr %flags %noflags %classes %digest_types));
    'prefix'       => ['prefix',       0,1,'P'],
    'replyto'      => ['replyto',      0,1,'R'],
    'rewritefrom'  => ['rewritefrom',  0,1,'W'],
+   'postblock'    => ['postblock',    0,1,'O'],
   );
 
 # Special inverse descriptions

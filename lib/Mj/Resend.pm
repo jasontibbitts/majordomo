@@ -823,6 +823,9 @@ sub _check_poster {
     $avars->{days_since_subscribe} = -1;
   }
 
+  # Extract flags
+  $avars->{post_block} = $self->{lists}{$list}->flag_set('postblock', $user);
+
   $avars->{limit} = 0;
   $avars->{limit_soft} = 0;
   $avars->{limit_hard} = 0;

@@ -437,7 +437,7 @@ to a Majordomo mailing list, a comment may be stored in addition
 to your address.  For example, "joe blow" is the comment in
        joe blow <joe@nowhere.com>
 or
-      "joe blow" joe@nowhere.com
+       joe@nowhere.com (joe blow)
 
 When you post messages to a list, Majordomo can rewrite the "From:"
 header to be identical to the one with which you subscribed:
@@ -457,9 +457,23 @@ Your address, shown as "YourEmailAddressHere" above, is used to look up
 your subscription to the specified list. It is NOT used as the new "From:"
 field. Remember to put in your actual email address and the real list name. 
 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  9. block posting (postblock, nopostblock)
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+These control whether or not posting is allowed.  The list owner may choose
+to review all messages from users who have this flag set, or may choose to
+simply deny them the ability to post.
+
+To block a user from posting, send this one-line command to $MJ
+       set LISTNAME postblock YourEmailAddressHere
+where "LISTNAME" is replaced with the name of the list.
+
+To allow a user to post, send
+       set LISTNAME nopostblock YourEmailAddressHere
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  9. summary of all possible flags (and how to default them)
+ 10. summary of all possible flags (and how to default them)
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Here is a summary of all possible flags, grouped into mutually
@@ -518,6 +532,9 @@ NOTE: "showall" and "nohide" are identical, use whichever you like.
    set LISTNAME   rewritefrom Address              ('W' in default_flags)
    set LISTNAME norewritefrom Address           (no 'W' in default_flags)
 
+9. Block posting:                                    (default_flags of O)
+   set LISTNAME     postblock Addrress             ('O' in default_flags)
+   set LISTNAME   nopostblock Address           (no 'O' in default_flags)
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 See Also:

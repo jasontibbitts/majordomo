@@ -1,0 +1,21 @@
+Comment: A nice yahoo bounce
+From: MAILER-DAEMON@yahoo.com
+To: test-owner+M9@example.com
+Subject: failure delivery
+
+Message from  yahoo.com.
+Unable to deliver message to the following address(es).
+
+<user1@yahoo.com>:
+User is over the quota.  You can try again later.
+
+<user2@yahoo.com>:
+could not open input file will return null
+User is over the quota.  You can try again later.
+
+--- Original message follows.
+
+Subject: Bounced message
+
+This message bounced.
+

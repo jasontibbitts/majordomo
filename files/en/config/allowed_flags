@@ -3,6 +3,7 @@ Include only the uppercase flag groupings here:
   A - controls set noack, ackall, ackimportant, ackstall, ackdeny, ackpost, ackreject
   C - controls set noeliminatecc, eliminatecc
   H - controls set nohide, hideaddress, hideall
+  O - controls set postblock, nopostblock
   P - controls set noprefix, prefix
   R - controls set noreplyto, replyto
   S - controls set noselfcopy, selfcopy
@@ -10,4 +11,3 @@ Include only the uppercase flag groupings here:
 If this is completely empty, users cannot adjust any of their flags.
 The list owner can, of course, change anything using the list password.
 A list of all possible flags is contained in "help set".
-

@@ -1,0 +1,3 @@
+Yahoo
+user1@yahoo.com	failure	User is over the quota.  You can try again later.
+user2@yahoo.com	failure	could not open input file will return null User is over the quota.  You can try again later.
