@@ -4,7 +4,7 @@ Mj::Resend - filtering and transformation functions for Majordomo
 
 =head1 SYNOPSIS
 
-  $mj->resend($list, $file);
+  $mj->post($request);
 
 =head1 DESCRIPTION
 
@@ -1278,8 +1278,9 @@ sub _r_ck_header {
     # Check for duplicate message ID
     chomp($id = $head->get('Message-ID') || '(none)');
     if ($data = $self->{'lists'}{$list}->check_dup($id, 'id')) {
-      # XLANG
-      $msg = "Duplicate Message-ID - $id (".localtime($data->{changetime}).")";
+      $msg = $self->format_error('dup_msg_id', $list, 
+                                 'MESSAGE_ID' => $id, 
+                                 'DATE' => scalar localtime($data->{changetime}));
       push @$reasons, $msg;
       $avars->{dup_msg_id} = $msg;
     }
@@ -1399,8 +1400,10 @@ sub _check_body {
 
   $maxbody = $self->_list_config_get($list, 'maxlength');
   if ($maxbody && $maxbody < $avars->{'body_length'}) {
-    # XLANG
-    push @$reasons, "The message body is too long ($avars->{'body_length'} > $maxbody)";
+    push @$reasons, $self->format_error('body_length', $list, 
+                      'SIZE' => $avars->{'body_length'}, 
+                      'MAXLENGTH' => $maxbody,
+                    );
     $avars->{'body_length_exceeded'} = 1;
   }
   # Now look at what's left in %$inv and build reasons from it
@@ -1444,7 +1447,7 @@ sub _r_ck_body {
   $sum2 = new Digest::SHA1;
 
   # Check MIME status and any other features of the entity as a whole
-  _check_mime($reasons, $avars, $safe, $ent, $mcode, $part);
+  $self->_check_mime($list, $reasons, $avars, $safe, $ent, $mcode, $part);
 
   # Now the meat.  Open the body.
   $body = $ent->bodyhandle->open('r');
@@ -1485,18 +1488,20 @@ sub _r_ck_body {
   if ($first and $sum1 and $sum2) {
     $sum1 = $sum1->hexdigest;
     $avars->{checksum} = $sum1;
-    if($data = $self->{'lists'}{$list}->check_dup($sum1, 'sum')) {
-      # XLANG
+    if ($data = $self->{'lists'}{$list}->check_dup($sum1, 'sum')) {
       push @$reasons,
-      "Duplicate Message Checksum (".localtime($data->{changetime}).")";
+       $self->format_error('dup_checksum', $list, 
+                           'DATE' => scalar localtime($data->{changetime})
+                          );
       $avars->{dup_checksum} = 1;
     }
     $sum2 = $sum2->hexdigest;
     $avars->{partial_checksum} = $sum2;
-    if($data = $self->{'lists'}{$list}->check_dup($sum2, 'partial')) {
-      # XLANG
+    if ($data = $self->{'lists'}{$list}->check_dup($sum2, 'partial')) {
       push @$reasons,
-      "Duplicate Partial Message Checksum (".localtime($data->{changetime}).")";
+       $self->format_error('dup_partial_checksum', $list, 
+                           'DATE' => scalar localtime($data->{changetime})
+                          );
       $avars->{dup_partial_checksum} = 1;
     }
   }
@@ -1837,7 +1842,7 @@ sub _ck_tbody_line {
   }
 }
 
-=head2 _check_mime (reasons, avars, safe, entity, code, part, type)
+=head2 _check_mime (list, reasons, avars, safe, entity, code, part, type)
 
 This checks a given MIME type against the mime matching code built from
 attachment_rules and modifies the bounce reasons and access variables as
@@ -1845,6 +1850,8 @@ appropriate.
 
 =cut
 sub _check_mime {
+  my $self    = shift;
+  my $list    = shift;
   my $reasons = shift;
   my $avars   = shift;
   my $safe    = shift;
@@ -1861,15 +1868,20 @@ sub _check_mime {
   $action = $safe->reval($code);
   $::log->complain($@) if $@;
   if ($action eq 'consult') {
-    # XLANG
-    push @$reasons, "Questionable MIME part in $part: $type";
+    push @$reasons, $self->format_error('body_part_consult', $list,
+                                        'PART' => $part,
+                                        'CONTENT_TYPE' => $type,
+                                       );
+     # "Questionable MIME part in $part: $type";
     $avars->{mime_consult} = 1;
     $avars->{mime} = 1;
     $log->out('consult');
   }
   elsif ($action eq 'deny') {
-    # XLANG
-    push @$reasons, "Illegal MIME part in $part: $type";
+    push @$reasons, $self->format_error('body_part_deny', $list,
+                                        'PART' => $part,
+                                        'CONTENT_TYPE' => $type,
+                                       );
     $avars->{mime_deny} = 1;
     $avars->{mime} = 1;
     $log->out('deny');
