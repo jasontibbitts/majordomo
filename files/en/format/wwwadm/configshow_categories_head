@@ -2,24 +2,24 @@
 
 <h4 align="center">Configuration Categories</h4>
 
-<p>
-The configuration settings are arranged into several categories.  Press
-the check boxes next to one or more category names, then
-press the <b>configshow</b> button to view the settings in those
-categories.
-</p>
+<ol>
+  <li>
+  To choose all of the settings in one category, check the box next
+  to the category's name.
 
-<p>
-To view all of the configuration settings, leave all of the
-check boxes unchecked, then press the <b>configshow</b> button.
-</p>
+  <li>
+  To chose one or more settings in a particular category, select the
+  settings' names in the <b>Settings</b> menu for that category.
 
-<p>
-If your list has not already been configured, we recommend that you 
-start by
-<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=configshow&amp;extra=1">
-configuring the most important settings</a>.
-</p>
+  <li>
+  To choose all of the configuration settings, leave all of the
+  check boxes and menu items unchecked.
+
+  <li>
+  After you have chosen the settings you want, press the
+  <b>configshow</b> button to see their values.
+</ol>
+
 
 <form method="POST" action="$CGIURL">
   <input type="hidden" name="list"  value="$LIST">

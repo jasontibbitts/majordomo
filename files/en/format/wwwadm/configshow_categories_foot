@@ -5,3 +5,10 @@
 <input type="submit" name="func" value="configshow">
 </form>
 
+<p>
+If your list has not already been configured, we recommend that you 
+start by
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=configshow&amp;extra=1">
+configuring the most important settings</a>.
+</p>
+

@@ -1,5 +1,5 @@
 <!-- Majordomo configshow_categories format file -->
-  <dt><input type="checkbox" name="extra" value="$SETTING">$CATEGORY
+  <dt><input type="checkbox" name="groups" value="$SETTING">$CATEGORY
   </dt>
   <dd>
     <p>
@@ -7,8 +7,11 @@
     </p>
     
     <p> 
-    The $CATEGORY category contains the following $COUNT settings:
-      $SETTINGS &nbsp;
+    The $CATEGORY category contains $COUNT settings.<br>
+    Settings: 
+    <select multiple name="groups">
+    <option value="$SETTINGS"> $SETTINGS
+    </select>
     </p>
   </dd>
 
