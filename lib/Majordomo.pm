@@ -5139,9 +5139,9 @@ use IO::File;
 sub reject {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "@{$request->{'tokens'}}";
-  my (%file, $data, $desc, $ent, $file, $in, $inf, $inform, $line, $t, @out);
-  my ($list_owner, $mj_addr, $mj_owner, $ok, $mess, $reason, $repl, $rfile);
-  my ($sess, $site, $token, $victim);
+  my (%file, @out, $ack_attach, $data, $desc, $ent, $file, $in, $inf, 
+      $inform, $line, $list_owner, $mess, $mj_addr, $mj_owner, $ok, 
+      $reason, $repl, $rfile, $sess, $site, $t, $token, $victim);
 
   return (0, "No token was supplied.\n")
     unless (scalar(@{$request->{'tokens'}}));
@@ -5176,8 +5176,11 @@ sub reject {
     # For confirmation tokens, a rejection is a serious thing.  We send a
     # message to the victim with important information.
     $reason = $rfile = '';
-    if ($data->{'type'} eq 'confirm') {
+    if ($data->{'type'} ne 'consult') {
       $rfile = 'token_reject';
+      if (length $request->{'xplanation'}) {
+        $reason = $request->{'xplanation'};
+      }
     }
     # XXX Allowing a file name to be used gives read access to any file
     # in the list's file space to any moderator of the list.
@@ -5195,28 +5198,11 @@ sub reject {
         }
       }
     }
-    $list_owner = $self->_list_config_get($data->{'list'}, 'sender');
+    $list_owner = $self->_list_config_get($data->{'list'}, 'whoami_owner');
     if (! $list_owner) {
       # This will cope with the inability to create a list.
       push @out, 0, ["Unable to determine owner of $data->{'list'}."];
       next;
-    }
-
-    # Extract the session data
-    # XXX Send this as an attachment instead of storing it in a string.
-    $in = new IO::File("$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}");
-
-    # If the file no longer exists, what should we do?  We assume it's just
-    # a really old token and say so.
-    $sess = '';
-    if ($in) {
-      while (defined($line = $in->getline)) {
-        $sess .= $line;
-      }
-      $in->close;
-    }
-    else {
-      $sess = "Session info has expired.\n";
     }
 
     $data->{'ack'} = 0;
@@ -5229,12 +5215,10 @@ sub reject {
          'REJECTER'   => $request->{'user'},
          'REQUESTER'  => $data->{'user'},
          'SESSIONID'  => $data->{'sessionid'},
-         'SESSION'    => $sess,
          'TOKEN'      => $token,
          'VICTIM'     => $data->{'victim'},
         };
-   
-  
+
     $data->{'sublist'} = '';
     if ($data->{'command'} eq 'post') {
       my %avars = split("\002", $data->{'arg3'});
@@ -5243,7 +5227,9 @@ sub reject {
     $victim = new Mj::Addr($data->{'victim'});  
     if ($data->{'type'} eq 'confirm' 
           or
-        $self->{'lists'}{$data->{'list'}}->should_ack($data->{'sublist'}, $victim, 'j')) 
+        $self->{'lists'}{$data->{'list'}}->should_ack($data->{'sublist'}, 
+                                                      $victim, 'j')
+       ) 
     {
       $data->{'ack'} = 1;
       ($file, %file) = $self->_list_file_get($data->{'list'}, $rfile, $repl);
@@ -5267,17 +5253,42 @@ sub reject {
          -Subject    => $desc,
          'Content-Language:' => $file{'language'},
         );
-      
+
       if ($ent) {
+        $ack_attach = $self->_list_config_get($data->{'list'},
+                                              'ack_attach_original');
+
+        if ($data->{'command'} eq 'post' and (-f $data->{'arg1'})
+           and ($ack_attach->{'reject'} or $ack_attach->{'all'})) {
+          $ent->make_multipart;
+          $ent->attach(
+                       'Description' => 'Original message',
+                       'Filename'    => undef,
+                       'Path'        => $data->{'arg1'},
+                       'Type'        => 'message/rfc822',
+                      );
+        }
+        elsif (-f "$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}") {
+          $ent->make_multipart;
+          $ent->attach(
+                         'Description' => "Information about session $data->{'sessionid'}",
+                         'Filename'    => undef,
+                         'Path'        => "$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}",
+                         'Type'        => 'text/plain',
+                        );
+        }
+
         $self->mail_entity($mj_owner, $ent, $data->{'victim'});
-        $ent->purge;
+        unlink $file;
       }
     }
       
-    # Then we send a message to the list owner and majordomo owner if
-    # appropriate
-    if ($data->{'type'} eq 'confirm' and $request->{'mode'} !~ /nolog|noinform/) {
-      ($file, %file) = $self->_list_file_get($data->{'list'}, "token_reject_owner");
+    # Send a message to the list owner and majordomo owner if appropriate
+    if ($data->{'type'} eq 'confirm' 
+        and $request->{'mode'} !~ /nolog|noinform/) 
+    {
+      ($file, %file) = $self->_list_file_get($data->{'list'}, 
+                                             "token_reject_owner");
       $file = $self->substitute_vars($file, $repl);
       $desc = $self->substitute_vars_string($desc, $repl);
       
@@ -5299,6 +5310,16 @@ sub reject {
       $inform = $self->_list_config_get($data->{'list'}, 'inform');
       $inf = $inform->{'reject'}{'all'} || $inform->{'reject'}{1} || 0;
       if ($ent) {
+         if (-f "$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}") {
+          $ent->make_multipart;
+          $ent->attach(
+                       'Description' => "Information for session $data->{'sessionid'}",
+                       'Filename'    => undef,
+                       'Path'        => "$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}",
+                       'Type'        => 'text/plain',
+                      );
+        }
+
         if ($inf & 2) {
           $self->mail_entity($mj_owner, $ent, $list_owner);
         }
@@ -5310,7 +5331,7 @@ sub reject {
           $ent->head->replace('To', $mj_owner);
           $self->mail_entity($mj_owner, $ent, $mj_owner);
         }
-        $ent->purge;
+        unlink $file;
       }
     }
     push @out, $ok, [$token, $data];
@@ -6278,10 +6299,10 @@ sub tokeninfo {
   $data->{'willack'} = ''; 
   $victim = new Mj::Addr($data->{'victim'});  
 
-  if ($data->{'type'} ne 'confirm' and 
-      ($data->{'command'} ne 'post' or  
-       $self->{'lists'}{$data->{'list'}}->
-         should_ack($data->{'sublist'}, $victim, 'j'))) 
+  if ($data->{'command'} ne 'post' or  
+      $self->{'lists'}{$data->{'list'}}->
+        should_ack($data->{'sublist'}, $victim, 'j')
+     ) 
   {
     $data->{'willack'} = " ";
   }
