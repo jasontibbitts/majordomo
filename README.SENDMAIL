@@ -199,6 +199,7 @@ disabled.  Port 24 is reserved for private mail systems so that is
 a good choice.  In sendmail 8.12 and higher you can include the
 following in your .mc file.
 
+    DAEMON_OPTIONS(`Name=MTA')
     DAEMON_OPTIONS(`address=localhost, Port=24, Name=NCMSA, M=EC')
 
 This will cause sendmail to accept messages to the localhost address
