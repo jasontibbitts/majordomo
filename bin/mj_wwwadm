@@ -87,9 +87,6 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
 #----- Initialize the CGI object -----#
 $cgi = new CGI;
 
-$tmp = '+50s';
-print $cgi->header(-expires => $tmp);
-
 #----- Multiple-list specification (used for showtokens) -----#
 $pathinfo = $domain = '';
 if (exists $ENV{'PATH_INFO'}) {
@@ -110,7 +107,7 @@ if (exists $ENV{'PATH_INFO'}) {
   if (@mlists) {
     for $i (@mlists) {
       unless (Majordomo::legal_list_name($i)) {
-        &surrender(qq("$i" is an invalid list name.));
+        &surrender($cgi, qq("$i" is an invalid list name.));
       }
     }
   }
@@ -141,12 +138,12 @@ if ($domain =~ /([a-zA-Z0-9\.\-]+)/) {
   $domain = $1;
 }
 else {
-  &surrender(qq("$domain" is an invalid domain.));
+  &surrender($cgi, qq("$domain" is an invalid domain.));
 }
 
 #----- Make the Majordomo object -----#
 $mj = new Majordomo $::LISTDIR, $domain;
-&surrender($mj) unless (ref $mj);
+&surrender($cgi, $mj) unless (ref $mj);
 
 #----- Generate the session information. -----#
 for my $i ('HTTP_HOST', 'REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
@@ -201,7 +198,7 @@ else {
 #----- Connect to the server -----#
 ($ok, $mess) = $mj->connect('wwwadm', $sess, $user, $passw);
 unless ($ok) {
-  &surrender($mess);
+  &surrender($cgi, $mess);
 } 
 
 #----- Remove the temporary password if the admin is signing out. -----#
@@ -220,9 +217,12 @@ else {
 }
 
 #----- Print the generic page header -----#
-$tmp = $mj->format_get_string('wwwadm', 'head');
-$str = $mj->substitute_vars_format($tmp, $subs);
-print STDOUT "$str\n";
+unless ($ofunc eq 'tokeninfo-part') {
+  print $cgi->header('-expires' => '+50s');
+  $tmp = $mj->format_get_string('wwwadm', 'head');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+}
 
 @extra = $cgi->param('extra');
 
@@ -242,7 +242,8 @@ unless ($passw) {
 }
 $addr = new Mj::Addr($user);
 unless ($mj->validate_passwd($addr, $passw, $truelist, 'ALL')) {
-  &login($mj, $subs, 'Invalid password.');
+  &login($mj, $subs, $mj->format_error('invalid_password',
+                         $truelist, 'VICTIM' => $user));
 }
 
 if ($ofunc eq 'login') {
@@ -335,21 +336,55 @@ if (function_prop($func, 'iter')) {
 # In each of these cases, the basic command form requires that the
 # "extra" variable still be handled if it was used.
 if (@extra and $func ne 'showtokens') {
+  $i = 0;
   for $req (@extra) {
+    $i++;
     Mj::Parser::parse_args($request, $req, '');
-    # Deal with accept/reject reasons.
+
+    # Deal with accept/reject reasons and other values from textareas.
     if ($func =~ /accept|reject/) {
       $request->{'xplanation'} ||= $cgi->param('xplanation');
     }
-    if ($func eq 'configset' and not $cgi->param('command')) {
+    elsif ($func eq 'configset' and not $cgi->param('command')) {
       @values = split "\r?\n", $cgi->param($req);
       $request->{'value'} = [@values];
-    }  
+    }
+    elsif ($func eq 'tokeninfo' and $mode =~ /replace/) {
+      @values = split "\r?\n", $cgi->param('contents');
+      $request->{'contents'} = [@values];
+    }
+
     $result = $mj->dispatch($request); 
+
+    if ($ofunc eq 'tokeninfo-part' and $i == 1) {
+      if (! $result->[0]) {
+        print $cgi->header('-expires' => '+50s');
+        $tmp = $mj->format_get_string('wwwadm', 'head');
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print STDOUT "$str\n";
+      }
+      elsif ($request->{'part'} =~ /[hH]$/) {
+        print $cgi->header('-type' => 'text/plain',
+                           '-expires' => '+50s');
+      }
+      else {
+        if ($request->{'part'} eq '0') {
+          $tmp = 'text/plain';
+        }
+        else {
+          $tmp = $result->[2]->{$request->{'part'}}->{'type'} || 'text/plain';
+        }
+
+        print $cgi->header('-type' => $tmp, 'expires' => '+50s');
+      }
+    }
+
     &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
+
     print "<pre>\n" if ($commands{$func}->[2]);
     &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
     print "</pre>\n" if ($commands{$func}->[2]);;
+
     if (function_prop($func, 'iter')) {
       $request->{'command'} =~ s/done/start/;
     }
@@ -452,6 +487,9 @@ if (($tmp eq 'on' and $func ne 'showtokens')
     or $commands{$func}->[3] eq 'command') {
   &command($mj, $subs, '');
 }
+elsif ($cgi->param('brief') or ($func eq 'tokeninfo' and $mode =~ /part/)) {
+  # do not display supplemental information.
+}
 elsif ($commands{$func}->[3] eq 'showtokens') {
   # A separate head and foot are needed because this interface
   # can display tokens for any number of mailing lists.
@@ -515,9 +553,11 @@ elsif ($commands{$func}->[3] ne $func) {
 }
 
 #----- Print the Footer -----#
-$tmp = $mj->format_get_string('wwwadm', 'foot');
-$str = $mj->substitute_vars_format($tmp, $subs);
-print STDOUT "$str\n";
+unless ($ofunc eq 'tokeninfo-part' and $result->[0]) {
+  $tmp = $mj->format_get_string('wwwadm', 'foot');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+}
 
 #----- Subroutines -----#
 
@@ -613,10 +653,11 @@ sub usage {
 }
 
 sub surrender {
-  my ($message) = shift;
+  my ($cgi, $message) = @_;
   $::log->message(50, "info", $message) if $message;
-  my ($url) = $cgi->script_name;
+  my $url = $cgi->script_name;
 
+  print $cgi->header(-expires => '+50s');
   print <<EOM;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
 "http://www.w3.org/TR/REC-html40/strict.dtd">

@@ -33,12 +33,13 @@ use lib "$::LIBDIR";
 use strict;
 use CGI;
 use Majordomo;
+use Mj::CommandProps qw(:function);
 use Mj::Format;
 use Mj::Log;
 
-my (%commands, @domains, $action, $cgi, $cgidata, $cgiurl, $domain, $func, 
-    $i, $mess, $mj, $mode, $ok, $pathinfo, $ptoken, $result, $request, 
-    $sess, $str, $subs, $tmp, $token, $user);
+my (%commands, @contents, @domains, $action, $cgi, $cgidata, $cgiurl, 
+    $domain, $func, $i, $mess, $mj, $mode, $ok, $part, $pathinfo, 
+    $ptoken, $result, $request, $sess, $str, $subs, $tmp, $token, $user);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
@@ -74,9 +75,6 @@ $::log->startup_time();
 # Start up the page and parse the URL
 $cgi = new CGI;
 
-$tmp = '+10s';
-print $cgi->header(-expires => $tmp);
-
 $pathinfo = $domain = '';
 if (exists $ENV{'PATH_INFO'}) {
   $pathinfo = $ENV{'PATH_INFO'};
@@ -109,13 +107,13 @@ if ($domain =~ /([a-zA-Z0-9\.\-]+)/) {
   $domain = $1;
 }
 else {
-  &surrender(qq("$domain" is an invalid domain.));
+  &surrender($cgi, qq("$domain" is an invalid domain.));
 }
 
 
 #----- Make the Majordomo object -----#
 $mj = new Majordomo $::LISTDIR, $domain;
-&surrender($mj) unless (ref $mj);
+&surrender($cgi, '', $mj) unless (ref $mj);
 
 #----- Generate the session information. -----#
 for $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
@@ -125,12 +123,13 @@ $sess .= "Date: " . scalar(localtime(time)) . "\n";
 
 #----- Connect to the server -----#
 ($ok, $mess) = $mj->connect('wwwconfirm', $sess);
-&surrender($mess) unless $ok; 
+&surrender($cgi, '', $mess) unless $ok; 
 
 #----- Collect some useful substitution variables -----#
-$user = "z$ENV{'REMOTE_ADDR'}\@example.com";
+$user   = "z$ENV{'REMOTE_ADDR'}\@example.com";
 $ptoken = $cgi->param('t');
-$action = $cgi->param('a') || 'tokeninfo-full';
+$action = $cgi->param('a') || 'tokeninfo-nosession';
+$part   = $cgi->param('p') || '0';
 
 $cgidata = Mj::Format::uescape("user=$user&d=$domain");
 
@@ -146,17 +145,12 @@ $subs = { $mj->standard_subs('GLOBAL'),
         };
 
 
-#----- Print the header -----#
-$tmp = $mj->format_get_string('wwwconfirm', 'head');
-$str = $mj->substitute_vars_format($tmp, $subs);
-print "$str\n";
-
 #----- Determine what service was requested -----#
 if ($ptoken and not $token) {
-  &login($mj, $subs, qq(The token "$ptoken" is not valid.));
+  &login($mj, $cgi, $subs, qq(The token "$ptoken" is not valid.));
 }
 elsif (! ($token or $action eq 'welcome')) {
-  &login($mj, $subs, '');
+  &login($mj, $cgi, $subs, '');
 }
 
 # Extract "mode" from command name
@@ -171,56 +165,105 @@ else {
 }
 
 unless (exists $commands{$func}) {
-  &usage($mj, $subs, "$action is an unsupported command.");
+  &usage($mj, $cgi, $subs, "$action is an unsupported command.");
 }
 
 if ($func eq 'welcome') {
-  &usage($mj, $subs, '');
+  &usage($mj, $cgi, $subs, '');
 }
 elsif ($func eq 'login') {
-  &login($mj, $subs, '');
+  &login($mj, $cgi, $subs, '');
 }
 
 $request = {
   'cgiurl'    => $cgiurl,
   'command'   => $func,
+  'id'        => $token,
   'list'      => 'GLOBAL',
   'mode'      => $mode,
+  'part'      => $part,
   'password'  => '',
-  'token'     => $token,
   'tokens'    => [$token],
   'user'      => $user,
 };
 
+if (function_prop($func, 'iter')) {
+  $request->{'command'} .= '_start';
+}
+
 if ($func =~ /accept|reject/) {
   $request->{'xplanation'} = $cgi->param('xplanation') || '';
+}
+elsif ($func eq 'tokeninfo' and $mode =~ /replace/) {
+  @contents = split "\r?\n", $cgi->param('contents');
+  $request->{'contents'} = [@contents];
 }
 
 no strict 'refs';
 $result = $mj->dispatch($request); 
-&usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
-print "<pre>\n" if ($commands{$func}->[0]);
-&{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwconfirm', $request, $result);
-print "</pre>\n" if ($commands{$func}->[0]);;
+&usage($mj, $cgi, $subs, "Unable to obtain result from Majordomo.") 
+  unless ($result);
 
-$tmp = $mj->format_get_string('wwwconfirm', 'foot');
-$str = $mj->substitute_vars_format($tmp, $subs);
-print STDOUT "$str\n";
+if ($func eq 'tokeninfo' 
+    and $request->{'mode'} eq 'part'
+    and $result->[0] > 0) 
+{
+  # Issue the correct HTTP header for this content-type, then display
+  # the headers or body part.
+  if ($part =~ /[hH]$/) {
+    print $cgi->header('-type' => 'text/plain',
+                       '-expires' => '+50s');
+  }
+  else {
+    if ($part eq '0') {
+      $tmp = 'text/plain';
+    }
+    else {
+      $tmp = $result->[2]->{$part}->{'type'} || 'text/plain';
+    }
+ 
+    print $cgi->header('-type' => $tmp,
+                       '-expires' => '+50s');
+  }
+}
+else {
+  #----- Print the header -----#
+  print $cgi->header(-expires => '+10s');
+  $tmp = $mj->format_get_string('wwwconfirm', 'head');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print "$str\n";
+}
+
+  print "<pre>\n" if ($commands{$func}->[0]);
+  &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwconfirm', $request, $result);
+  print "</pre>\n" if ($commands{$func}->[0]);;
+
+unless ($func eq 'tokeninfo' 
+        and $request->{'mode'} eq 'part'
+        and $result->[0] > 0) 
+{
+  $tmp = $mj->format_get_string('wwwconfirm', 'foot');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print "$str\n";
+}
 
 $::log->out;
 exit 0;
 
 #----- Subroutines -----#
 sub login {
-  my $mj = shift; 
-  my $subs = shift;
-  my $message = shift || '';
+  my ($mj, $cgi, $subs, $message) = @_;
   my ($str, $tmp);
 
+  print $cgi->header();
   $subs->{'ERROR'} = $message;
   $subs->{'COMMAND'} = "tokeninfo"
    if ($subs->{'COMMAND'} eq "login");
 
+  $tmp = $mj->format_get_string('wwwconfirm', 'head');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print "$str\n";
+  
   if ($message) {
     $str = $message . "  Request: $subs->{'COMMAND'}  List: $subs->{'LIST'}";
     $::log->message(50, "info", $message);
@@ -228,37 +271,43 @@ sub login {
 
   $tmp = $mj->format_get_string('wwwconfirm', 'login');
   $str = $mj->substitute_vars_format($tmp, $subs);
-  print STDOUT "$str\n";
+  print "$str\n";
 
   $tmp = $mj->format_get_string('wwwconfirm', 'foot');
   $str = $mj->substitute_vars_format($tmp, $subs);
-  print STDOUT "$str\n";
+  print "$str\n";
   
   exit 1;
 }
 
 sub usage {
-  my ($mj, $subs, $message) = @_;
+  my ($mj, $cgi, $subs, $message) = @_;
   my ($str, $tmp);
 
+  print $cgi->header();
   $subs->{'ERROR'} = $message;
   $::log->message(50, "info", $message) if $message;
 
+  $tmp = $mj->format_get_string('wwwconfirm', 'head');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print "$str\n";
+  
   $tmp = $mj->format_get_string('wwwconfirm', 'welcome');
   $str = $mj->substitute_vars_format($tmp, $subs);
-  print STDOUT "$str\n";
+  print "$str\n";
 
   $tmp = $mj->format_get_string('wwwconfirm', 'foot');
   $str = $mj->substitute_vars_format($tmp, $subs);
-  print STDOUT "$str\n";
+  print "$str\n";
   
   exit 1;
 }
 
 sub surrender {
-  my ($message) = shift;
+  my ($cgi, $subs, $message) = @_;
   $::log->message(50, "info", $message) if $message;
-  my ($url) = $cgi->script_name;
+  print $cgi->header(-expires => '+10s');
+  my $url = $cgi->script_name;
 
   print <<EOM;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
