@@ -24,7 +24,6 @@ TODO
 al.patch
 bin/mj_confirm
 bin/mj_email
-bin/mj_resend
 bin/mj_shell
 bin/mj_trigger
 files/INDEX.pl

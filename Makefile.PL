@@ -15,7 +15,7 @@ BEGIN {
 # new questions.
 my $config_version = 3;
 
-my @SIDSCRIPTS = qw(mj_email mj_shell mj_resend mj_confirm);
+my @SIDSCRIPTS = qw(mj_email mj_shell mj_confirm);
 my @SCRIPTS = qw(mj_trigger);
 my @EXES = map {"./bin/$_"} @SIDSCRIPTS, @SCRIPTS;
 
