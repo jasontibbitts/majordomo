@@ -17,7 +17,7 @@ specific interface.
 Format routines take:
   mj - a majordomo object, so that formatting routines can get config
     variables and call other core functions
-  outfh - a filehendle to send output to
+  outfh - a filehandle to send output to
   errfh - a filehandle to send error output to
   output_type - text, wwwadm, or wwwusr
   request - a hash reference of the data used to issue the command
@@ -138,7 +138,7 @@ sub archive {
            'CGIURL'      => $request->{'cgiurl'},
            'CMDPASS'     => $request->{'password'},
            'TOTAL_POSTS' => scalar @msgs,
-           'USER'        => escape("$request->{'user'}", $type),
+           'USER'        => &escape("$request->{'user'}", $type),
           };
 
   if ($ok <= 0) { 
@@ -380,7 +380,7 @@ sub configshow {
             'CGIDATA'  => $cgidata,
             'CGIURL'   => $cgiurl,
             'CMDPASS'  => $request->{'password'},
-            'USER'     => escape("$request->{'user'}", $type),
+            'USER'     => &escape("$request->{'user'}", $type),
           };
 
   $ok = shift @$result;
@@ -454,7 +454,7 @@ sub configshow {
     if ($request->{'mode'} !~ /nocomments/) {
       $mess =~ s/^/# /gm if ($type eq 'text');
       chomp $mess;
-      $mess = escape($mess, $type);
+      $mess = &escape($mess, $type);
       $subs->{'COMMENT'} = $mess;
     }
 
@@ -475,7 +475,7 @@ sub configshow {
       elsif ($type =~ /^www/) {
         $subs->{'LINES'} = (scalar(@$val) > 8)? scalar(@$val) : 8;
         for ($i = 0; $i < @$val; $i++) {
-          $val->[$i] = escape($val->[$i], $type);
+          $val->[$i] = &escape($val->[$i], $type);
           chomp($val->[$i]);
         }
       }
@@ -501,7 +501,7 @@ sub configshow {
         $auto . "configset$mode2 $list $var = ";
 
       $val = "" unless defined $val;
-      $val = escape($val) if ($type =~ /^www/);
+      $val = &escape($val) if ($type =~ /^www/);
 
       if ($type eq 'text' and length $val > 40) {
         $auto = "\\\n    $auto";
@@ -674,7 +674,7 @@ sub help {
     ($ok, $chunk) = @{$mj->dispatch($request, $chunksize)};
     last unless defined $chunk;
     if ($type =~ /www/) { 
-      $chunk = escape($chunk);
+      $chunk = &escape($chunk);
       $chunk =~ s/(\s{3}|&quot;)(help\s)(configset|admin|mj) (?=\w)/$1$2$3_/g;
       $chunk =~ 
        s#(\s{3}|&quot;)(help\s)(\w+)#$1$2<a href="$cgiurl?\&${cgidata}\&list=${list}\&func=help\&extra=$3"$hwin>$3</a>#g;
@@ -777,7 +777,7 @@ sub lists {
            'CGIURL'   => $request->{'cgiurl'},
            'CMDPASS'  => $request->{'password'},
            'PATTERN'  => $request->{'regexp'},
-           'USER'     => escape("$request->{'user'}", $type),
+           'USER'     => &escape("$request->{'user'}", $type),
           };
 
   if ($ok <= 0) {
@@ -848,7 +848,7 @@ sub lists {
                   'OWNER'         => $data->{'owner'},
                   'POSTS'         => $data->{'posts'},
                   'SUBS'          => $data->{'subs'},
-                  'USER'          => escape("$request->{'user'}", $type),
+                  'USER'          => &escape("$request->{'user'}", $type),
                   'WHOAMI'        => $data->{'address'},
                 };
                   
@@ -879,7 +879,7 @@ sub lists {
               %{$global_subs},
               'COUNT'         =>  $count,
               'SUBSCRIPTIONS' =>  $legend,
-              'USER'          => escape("$request->{'user'}", $type),
+              'USER'          => &escape("$request->{'user'}", $type),
             };
     $tmp = $mj->format_get_string($type, 'lists_enhanced');
     $str = $mj->substitute_vars_format($tmp, $subs);
@@ -1365,8 +1365,8 @@ sub show {
     'CGIDATA' => &cgidata($mj, $request),
     'CGIURL'  => $request->{'cgiurl'},
     'CMDPASS' => $request->{'password'},
-    'USER'    => escape("$request->{'user'}", $type),
-    'VICTIM'  => escape("$request->{'victim'}", $type),
+    'USER'    => &escape("$request->{'user'}", $type),
+    'VICTIM'  => &escape("$request->{'victim'}", $type),
   };
  
   # use Data::Dumper; print $out Dumper $data;
@@ -1573,7 +1573,7 @@ sub showtokens {
            'CGIDATA' => &cgidata($mj, $request),
            'CGIURL'  => $request->{'cgiurl'},
            'CMDPASS' => $request->{'password'},
-           'USER'    => escape("$request->{'user'}", $type),
+           'USER'    => &escape("$request->{'user'}", $type),
           };
 
   my ($ok, @tokens) = @$result;
@@ -1613,7 +1613,7 @@ sub showtokens {
       $size = sprintf "(%d kB)",  int(($data->{'size'} + 512)/1024);
     }
 
-    $user = escape($data->{'user'}, $type);
+    $user = &escape($data->{'user'}, $type);
 
     $subs = { 
               %{$global_subs},
@@ -1648,43 +1648,67 @@ sub subscribe {
 
 sub tokeninfo {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, "$request->{'token'}";
-  my (@tmp, $expire, $str, $subs, $time, $tmp);
+  my $log = new Log::In 29, $request->{'id'};
+  my (@tmp, $expire, $str, $subs, $tmp);
   my ($ok, $data, $sess) = @$result;
- 
-  $subs = { $mj->standard_subs($request->{'list'}),
-            'CGIDATA' => &cgidata($mj, $request),
-            'CGIURL'  => $request->{'cgiurl'},
-            'CMDPASS' => $request->{'password'},
-            'USER'    => escape("$request->{'user'}", $type),
-           };
 
   unless ($ok > 0) {
-    $subs->{'ERROR'} = $data;
+    $subs = { $mj->standard_subs($request->{'list'}),
+              'CGIDATA' => &cgidata($mj, $request),
+              'CGIURL'  => $request->{'cgiurl'},
+              'CMDPASS' => $request->{'password'},
+              'ERROR'   => $data,
+              'USER'    => &escape("$request->{'user'}", $type),
+            };
     $tmp = $mj->format_get_string($type, 'tokeninfo_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate("$str\n", $ok, 1);
     return $ok;
   }
 
-  $subs->{'APPROVALS'}  = $data->{'approvals'};
-  $subs->{'CMDLINE'} = escape($data->{'cmdline'}, $type);
-  $subs->{'CONSULT'} = ($data->{'type'} eq 'consult') ? " " : '';
-  $subs->{'DATE'}    = localtime($data->{'time'});
-  $subs->{'EXPIRE'}  = localtime($data->{'expire'});
-  $subs->{'ISPOST'}  = ($data->{'command'} eq 'post') ? " " : '';
-  $subs->{'LIST'}    = $data->{'list'};
-  $subs->{'REQUESTER'} = escape($data->{'user'}, $type);
-  $subs->{'TOKEN'}   = $request->{'token'};
-  $subs->{'TYPE'}    = $data->{'type'};
-  $subs->{'VICTIM'}  = escape($data->{'victim'}, $type);
-  $subs->{'WILLACK'} = $data->{'willack'};
+  if ($data->{'command'} eq 'post') {
+    return _tokeninfo_post($mj, $out, $err, $type, $request, $result);
+  }
+
+  $subs = { $mj->standard_subs($data->{'list'}),
+            'APPROVALS' => $data->{'approvals'},
+            'CGIDATA' => &cgidata($mj, $request),
+            'CGIURL'  => $request->{'cgiurl'},
+            'CMDLINE' => &escape($data->{'cmdline'}, $type),
+            'CMDPASS' => $request->{'password'},
+            'CONSULT' => ($data->{'type'} eq 'consult') ? " " : '',
+            'DATE'    => scalar localtime($data->{'time'}),
+            'EXPIRE'  => scalar localtime($data->{'expire'}),
+            'ISPOST'  => '',
+            'LIST'    => $data->{'list'},
+            'REQUESTER' => &escape($data->{'user'}, $type),
+            'TOKEN'   => $request->{'id'},
+            'TYPE'    => $data->{'type'},
+            'USER'    => &escape("$request->{'user'}", $type),
+            'VICTIM'  => &escape($data->{'victim'}, $type),
+            'WILLACK' => $data->{'willack'},
+          };
 
   # Indicate reasons
   $subs->{'REASONS'} = [];
   if ($data->{'reasons'}) {
-    @tmp = split /\003|\002/, escape($data->{'reasons'}, $type);
+    @tmp = split /\003|\002/, &escape($data->{'reasons'}, $type);
     $subs->{'REASONS'} = [@tmp];
+  }
+
+  if ($request->{'mode'} =~ /nosession/) {
+    $tmp = $mj->format_get_string($type, "tokeninfo_nosession_$data->{'command'}");
+    unless ($tmp) {
+      $tmp = $mj->format_get_string($type, 'tokeninfo_nosession');
+    }
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
+    return 1;
+  }
+  elsif ($request->{'mode'} =~ /remind/) {
+    $tmp = $mj->format_get_string($type, "tokeninfo_remind");
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
   }
 
   $tmp = $mj->format_get_string($type, "tokeninfo_head_$data->{'command'}");
@@ -1694,19 +1718,15 @@ sub tokeninfo {
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
 
-  if ($sess and $request->{'mode'} !~ /nosession|remind/) {
+  if ($sess and $request->{'mode'} !~ /remind/) {
     eprint($out, $type, "\n");
     $request->{'sessionid'} = $data->{'sessionid'};
     Mj::Format::sessioninfo($mj, $out, $err, $type, $request, [1, '']);
   }
 
-  if ($request->{'mode'} =~ /remind/) {
-    # XLANG
-    print $out "A reminder was mailed to $request->{'user'}.\n";
-  }
-
-  # Restore the command name.
-  $request->{'command'} = 'tokeninfo';
+  # Restore the command name (from get_done to tokeninfo_done).
+  $request->{'command'} = 'tokeninfo_done';
+  $mj->dispatch($request);
 
   $tmp = $mj->format_get_string($type, "tokeninfo_foot_$data->{'command'}");
   unless ($tmp) {
@@ -1715,6 +1735,241 @@ sub tokeninfo {
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
 
+  1;
+}
+
+use MIME::Head;
+sub _tokeninfo_post {
+  my ($mj, $out, $err, $type, $request, $result) = @_;
+  my $log = new Log::In 29, $request->{'id'};
+  my (@tmp, $chunksize, $expire, $fh, $head, $hsubs, $i, $j, $lastchar, 
+      $part, $showhead, $str, $subs, $tmp);
+  my ($ok, $data, $msgdata) = @$result;
+
+  unless (ref $msgdata eq 'HASH') {
+    $subs = { $mj->standard_subs($request->{'list'}),
+              'CGIDATA' => &cgidata($mj, $request),
+              'CGIURL'  => $request->{'cgiurl'},
+              'CMDPASS' => $request->{'password'},
+              'ERROR'   => "No message data was found.\n",
+              'USER'    => &escape("$request->{'user'}", $type),
+            };
+    $tmp = $mj->format_get_string($type, 'tokeninfo_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate("$str\n", 0, 1);
+    return 0;
+  }
+ 
+  $subs = { $mj->standard_subs($data->{'list'}),
+            'APPROVALS' => $data->{'approvals'},
+            'CGIDATA' => &cgidata($mj, $request),
+            'CGIURL'  => $request->{'cgiurl'},
+            'CMDLINE' => &escape($data->{'cmdline'}, $type),
+            'CMDPASS' => &escape($request->{'password'}, $type),
+            'CONSULT' => ($data->{'type'} eq 'consult') ? " " : '',
+            'DATE'    => scalar localtime($data->{'time'}),
+            'EXPIRE'  => scalar localtime($data->{'expire'}),
+            'ISPOST'  => " ",
+            'LIST'    => $data->{'list'},
+            'PART'    => $request->{'part'},
+            'REQUESTER' => &escape($data->{'user'}, $type),
+            'TOKEN'   => $request->{'id'},
+            'TYPE'    => $data->{'type'},
+            'USER'    => &escape("$request->{'user'}", $type),
+            'VICTIM'  => &escape($data->{'victim'}, $type),
+            'WILLACK' => $data->{'willack'},
+          };
+
+  # Indicate reasons
+  $subs->{'REASONS'} = [];
+  if ($data->{'reasons'}) {
+    @tmp = split /\003|\002/, &escape($data->{'reasons'}, $type);
+    $subs->{'REASONS'} = [@tmp];
+  }
+
+  if ($request->{'mode'} =~ /nosession/) {
+    $tmp = $mj->format_get_string($type, "tokeninfo_nosession_post");
+    unless ($tmp) {
+      $tmp = $mj->format_get_string($type, 'tokeninfo_nosession');
+    }
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
+  }
+  elsif ($request->{'mode'} =~ /part/ and 
+         $request->{'mode'} !~ /replace|delete/) {
+
+    $part = $request->{'part'};
+    if ($part =~ s/[hH]$//) {
+      $subs->{'CONTENT_TYPE'} = "header";
+      $subs->{'SIZE'} = 
+        sprintf("%.1f", (length($msgdata->{$part}->{'header'}) + 51) / 1024);
+      $showhead = 1;
+    }
+    else {
+      $subs->{'CONTENT_TYPE'} = $msgdata->{$part}->{'type'};
+      $subs->{'SIZE'} = $msgdata->{$part}->{'size'};
+      $showhead = 0;
+    }
+
+    # Display head file
+    if ($request->{'mode'} =~ /edit/) {
+      $tmp = $mj->format_get_string($type, 'tokeninfo_edit_head');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
+    }
+
+    # Display formatted part/header contents.
+    if ($showhead) {
+      print $out "$msgdata->{$part}->{'header'}\n";
+      $lastchar = substr $msgdata->{$part}->{'header'}, -1;
+    }
+    else {
+      $request->{'command'} = 'tokeninfo_chunk';
+      $chunksize = $mj->global_config_get($request->{'user'}, 
+                                          $request->{'password'}, 'chunksize')
+                   || 1000;
+
+      # In "edit" mode, determine if the text ends with a newline,
+      # and add one if not.
+      $lastchar = "\n";
+
+      while (1) {
+        ($ok, $tmp) = @{$mj->dispatch($request, $chunksize)};
+        last unless defined $tmp;
+        $lastchar = substr $tmp, -1;
+        print $out $tmp;
+        last unless $ok;
+      }
+    }
+      
+    # Display foot file
+    if ($request->{'mode'} =~ /edit/) {
+      $tmp = ($lastchar eq "\n")? '' : '\n';
+      $tmp .= $mj->format_get_string($type, 'tokeninfo_edit_foot');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
+    }
+  }
+  else {
+    # Print result message.
+    if ($request->{'mode'} =~ /delete/) {
+      $tmp = $mj->format_get_string($type, 'tokeninfo_delete');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
+    }
+    elsif ($request->{'mode'} =~ /remind/) {
+      $tmp = $mj->format_get_string($type, 'tokeninfo_remind');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
+    }
+    elsif ($request->{'mode'} =~ /replace/) {
+      $tmp = $mj->format_get_string($type, 'tokeninfo_replace');
+      $str = $mj->substitute_vars_format($tmp, $subs);
+      print $out "$str\n";
+    }
+
+    # Print head.
+    $tmp = $mj->format_get_string($type, 'tokeninfo_head_post');
+    unless ($tmp) {
+      $tmp = $mj->format_get_string($type, 'tokeninfo_head');
+    }
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
+  
+    $request->{'command'} = 'tokeninfo_chunk';
+    # Display the contents of the posted message.
+    $chunksize = $mj->global_config_get($request->{'user'}, 
+                                        $request->{'password'}, 'chunksize');
+
+    for $i (sort keys %$msgdata) {
+      next if ($i eq '0');
+      $subs->{'CONTENT_TYPE'} = $msgdata->{$i}->{'type'};
+      $subs->{'PART'}         = $i;
+      $subs->{'SIZE'}         = $msgdata->{$i}->{'size'};
+      $subs->{'SUBPART'}      = $i eq '1' ? '' : " ";
+
+      # Display formatted headers for the top-level part 
+      # and for any nested messages.
+      if ($i eq '1' or $msgdata->{$i}->{'header'} =~ /received:/i) {
+        @tmp = split ("\n", $msgdata->{$i}->{'header'});
+        $head = new MIME::Head \@tmp;
+        if ($head) {
+          $hsubs = { 
+                    'HEADER_CC'      => '',
+                    'HEADER_DATE'    => '',
+                    'HEADER_FROM'    => '',
+                    'HEADER_SUBJECT' => '',
+                    'HEADER_TO'      => '',
+                   };
+          for $j (map { $_ =~ s/-/_/g; uc $_ } $head->tags) {
+            @tmp = map { chomp $_; &escape($_, $type) } $head->get($j);
+            if (scalar @tmp > 1) {
+              $hsubs->{"HEADER_$j"} = [ @tmp ];
+            }
+            else {
+              $hsubs->{"HEADER_$j"} = $tmp[0];
+            }
+          }
+          $tmp = $mj->format_get_string($type, 'tokeninfo_header');
+          $str = $mj->substitute_vars_format($tmp, $subs);
+          $str = $mj->substitute_vars_format($str, $hsubs);
+          print $out "$str\n";
+        }
+      }
+
+      # Display the contents of plain text parts.
+      if ($msgdata->{$i}->{'type'} =~ m#^text/plain#i) {
+        $request->{'part'} = $i;
+        $tmp = $mj->format_get_string($type, 'tokeninfo_text_head');
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print $out "$str\n";
+
+        while (1) {
+          ($ok, $tmp) = @{$mj->dispatch($request, $chunksize)};
+          last unless defined $tmp;
+          eprint($out, $type, $tmp);
+          last unless $ok;
+        }
+
+        $tmp = $mj->format_get_string($type, 'tokeninfo_text_foot');
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print $out "$str\n";
+      }
+      
+      # Display images.
+      elsif ($msgdata->{$i}->{'type'} =~ /^image/i) {
+        $tmp = $mj->format_get_string($type, 'tokeninfo_image');
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print $out "$str\n";
+      }
+
+      # Display containers, such as multipart types.
+      elsif (! length ($msgdata->{$i}->{'size'})) {
+        $tmp = $mj->format_get_string($type, 'tokeninfo_container');
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print $out "$str\n";
+      }
+
+      # Display summaries of other body parts.
+      else {
+        $tmp = $mj->format_get_string($type, 'tokeninfo_attachment');
+        $str = $mj->substitute_vars_format($tmp, $subs);
+        print $out "$str\n";
+      }
+    }
+       
+    # Print foot. 
+    $tmp = $mj->format_get_string($type, 'tokeninfo_foot_post');
+    unless ($tmp) {
+      $tmp = $mj->format_get_string($type, 'tokeninfo_foot');
+    }
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out "$str\n";
+  }
+
+  # Clean up the message parser temporary files.
+  $request->{'command'} = 'tokeninfo_done';
+  $mj->dispatch($request);
   1;
 }
 
@@ -1849,7 +2104,7 @@ sub who {
             'PATTERN'  => $request->{'regexp'},
             'REMOVE'   => $remove,
             'START'    => $request->{'start'},
-            'USER'     => escape("$request->{'user'}", $type),
+            'USER'     => &escape("$request->{'user'}", $type),
            };
 
   ($ok, $regexp, $settings) = @$result;
@@ -1982,7 +2237,7 @@ sub who {
         }
       }
 
-      $subs->{'FULLADDR'} = escape($i->{'fulladdr'}, $type);
+      $subs->{'FULLADDR'} = &escape($i->{'fulladdr'}, $type);
       $subs->{'LASTCHANGE'} = '';
     
       if ($request->{'mode'} =~ /enhanced/) {
@@ -2045,7 +2300,7 @@ sub who {
       $subs->{'BOUNCE_WEEK'} = ''; 
 
       if ($request->{'mode'} =~ /bounce/ && exists $i->{'bouncestats'}) {
-        $subs->{'BOUNCE_DIAGNOSTIC'} = escape($i->{'diagnostic'}, $type);
+        $subs->{'BOUNCE_DIAGNOSTIC'} = &escape($i->{'diagnostic'}, $type);
         $subs->{'BOUNCE_WEEK'} = $i->{'bouncestats'}->{'week'};
         $subs->{'BOUNCE_MONTH'} = $i->{'bouncestats'}->{'month'};
         $numbered = join " ", sort {$a <=> $b} keys %{$i->{'bouncedata'}{'M'}};
@@ -2109,9 +2364,6 @@ sub g_get {
     return $ok;
   }
 
-  $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
-                                      "chunksize");
-
   if ($base ne 'sessioninfo') {
     $subs = {
              $mj->standard_subs($request->{'list'}),
@@ -2119,7 +2371,7 @@ sub g_get {
              'CGIURL'   => $request->{'cgiurl'},
              'CMDPASS'  => $request->{'password'},
              'DESCRIPTION' => $mess->{'description'},
-             'USER'     => escape("$request->{'user'}", $type),
+             'USER'     => &escape("$request->{'user'}", $type),
             };
 
     # include CMDLINE substitutions for the various files.
@@ -2147,6 +2399,9 @@ sub g_get {
     $chunk = $mj->substitute_vars_format($tmp, $subs);
     print $out "$chunk\n";
   }
+
+  $chunksize = $mj->global_config_get($request->{'user'}, 
+                                      $request->{'password'}, "chunksize");
 
   $request->{'command'} = "get_chunk";
 
