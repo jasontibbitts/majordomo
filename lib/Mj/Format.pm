@@ -995,7 +995,7 @@ sub unsubscribe {
 sub which {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type";
-  my ($last_list, $list_count, $match, $total_count, $whoami, $list, $match);
+  my ($last_list, $list_count, $match, $total_count, $whoami, $list);
 
   my ($ok, @matches) = @$result;
   # Deal with initial failure
@@ -1053,7 +1053,7 @@ sub which {
       eprint($out, $type, "The expression \"$request->{'regexp'}\" appears in no lists\n");
     }
     else {
-      eprint($out, $type, "The string \"$request->{'arg1'}\" appears in no lists\n");
+      eprint($out, $type, "The string \"$request->{'regexp'}\" appears in no lists\n");
     }
     eprint($out, $type, "served by $whoami.\n");
   }
