@@ -1,0 +1,4 @@
+The path "$FILE" is not valid.
+
+Leading dots, double dots, backslashes, leading slashes, and double
+slashes are forbidden.

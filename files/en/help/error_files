@@ -386,6 +386,12 @@ understand the structure of a posted message.
 
 (standard substitutions only)
 
+invalid_file
+---------
+This message is displayed when a file has an invalid path.
+
+(standard plus FILE)
+
 invalid_hereargs
 ----------------
 This message is displayed when the message parser is asked to process
@@ -562,7 +568,7 @@ This message is displayed when a MIME entity could not be created.
 
 no_file
 -------
-This message is displayed when a file could not be created or read.
+This message is displayed when a file could not be created or found.
 
 (standard plus FILE)
 
@@ -657,6 +663,12 @@ This message is displayed when the command parser processes a Majordomo
 command that is obsolete.
 
 (standard plus COMMAND, NEWCOMMAND)
+
+open_file
+---------
+This message is displayed when a file could not be opened.
+
+(standard plus ERROR, FILE)
 
 over_message_limit
 ------------------

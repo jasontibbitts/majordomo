@@ -567,6 +567,7 @@ files/en/error/.invalid_comment
 files/en/error/.invalid_component
 files/en/error/.invalid_default
 files/en/error/.invalid_entity
+files/en/error/.invalid_file
 files/en/error/.invalid_hereargs
 files/en/error/.invalid_list
 files/en/error/.invalid_mode
@@ -605,6 +606,7 @@ files/en/error/.no_visible
 files/en/error/.not_extracted
 files/en/error/.not_subscribed
 files/en/error/.obsolete_command
+files/en/error/.open_file
 files/en/error/.over_message_limit
 files/en/error/.over_time_limit
 files/en/error/.part_deleted
@@ -703,6 +705,7 @@ files/en/error/invalid_comment
 files/en/error/invalid_component
 files/en/error/invalid_default
 files/en/error/invalid_entity
+files/en/error/invalid_file
 files/en/error/invalid_hereargs
 files/en/error/invalid_list
 files/en/error/invalid_mode
@@ -741,6 +744,7 @@ files/en/error/no_visible
 files/en/error/not_extracted
 files/en/error/not_subscribed
 files/en/error/obsolete_command
+files/en/error/open_file
 files/en/error/over_message_limit
 files/en/error/over_time_limit
 files/en/error/part_deleted
