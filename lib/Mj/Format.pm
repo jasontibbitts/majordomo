@@ -9,10 +9,9 @@ blah
 =head1 DESCRIPTION
 
 This takes the values returned from a call to the Majordomo core and
-formats them for human consumption.  The core return values are necessarily
-simple (no compound data structures) because they were designed to cross a
-network boundary and to be somewhat human-readable in raw form, and they
-are (for the most part) unformatted because they are not bound to a
+formats them for human consumption.  The core return values are 
+simple because they were designed to cross a network boundary.  The
+results are (for the most part) unformatted because they are not bound to a
 specific interface.
 
 Format routines take:
@@ -21,15 +20,11 @@ Format routines take:
   outfh - a filehendle to send output to
   errfh - a filehandle to send error output to
   output_type - text, wwwadm, or wwwusr
-  user, password, auth, interface, cmd, mode, list, victim - the usual
-    stuff
-  arg1 - arg3 - three arguments to use in formatting.  These can be use for
-    anything, but when called from a token accept, they are the three
-    arguments stored with the token.
-  command_return - everything that was returned from the core call.
+  request - a hash reference of the data used to issue the command
+  result -  a list reference containing the result of the command
 
-Format routines return a flag indicating whether or not the command_return
-indicates that the command completed successfully.
+Format routines return a value indicating whether or not 
+the command completed successfully.
 
 Note that at the moment the error handle isn't used; I'm not sure what
 constitutes an error.  A stall isn't a success, but it isn't an error
@@ -1563,6 +1558,7 @@ sub who {
       $settings, $source, $subs, $tmp);
 
   $request->{'sublist'} ||= 'MAIN';
+  $request->{'start'} ||= 1;
   $source = $request->{'list'};
   $remove = "unsubscribe";
 
@@ -1593,6 +1589,7 @@ sub who {
             'PASSWORD' => $request->{'password'},
             'PATTERN'  => $request->{'regexp'},
             'REMOVE'   => $remove,
+            'START'    => $request->{'start'},
             'USER'     => escape("$request->{'user'}", $type),
            };
 
@@ -1641,7 +1638,7 @@ sub who {
   # We know we succeeded
   $count = 0;
   if (exists $request->{'chunksize'} and $request->{'chunksize'} > 0) {
-    $chunksize = $request->{'chunk'} || 1000;
+    $chunksize = $request->{'chunksize'} || 1000;
   }
   else {
     $chunksize = $mj->global_config_get($request->{'user'}, 
