@@ -16,6 +16,9 @@ size reasons.
  # Eradicate the cached, parsed password tables
  $mj->flush_passwd_data;
 
+ # Test session data for invalid headers
+ $mj->check_headers($sess);
+
  # Check that a user is allowed to get a file, automatically handling
  # confirmation tokens if the list owner has so configured it
  $mj->list_access_check($passwd, $mode, $cmdline, $list, "get", $user);
@@ -245,9 +248,9 @@ sub _build_passwd_data {
 
 =head2 _gen_pw
 
-Generate a password ramdomly.
+Generate a password randomly.
 
-One of the implemnentations is cribbed from an email to majordomo-workers
+One of the implementations is cribbed from an email to majordomo-workers
 sent by OXymoron.  The other is trivial anyway.  I don''t know which I like
 more.
 
@@ -294,7 +297,82 @@ sub _gen_pw {
   $pw;
 }
 
+=head2 check_headers(sessiondata)
 
+Check the session data (for the email and request interfaces only)
+for headers caught by the block_headers global configuration setting.
+
+=cut
+use Mail::Header;
+use Safe;
+sub check_headers {
+  my ($self, $sd) = @_;
+  my (@headers, @inv, @matches, $class,
+      $code, $data, $head, $i, $inv, $j, $k, $l, $match,
+      $reasons, $rule, $safe, $sev);
+  my $log = new Log::In 200;
+  local ($text);
+
+  return unless $sd;
+  @headers = split /\n/, $sd;
+  $head = new Mail::Header \@headers;
+  return unless $head;
+
+  $code = {};
+  $reasons = '';
+  $data = $self->_global_config_get('block_headers');
+  push @inv, @{$data->{'inv'}};
+  $code = $data->{'code'};
+
+  # Make a hash of these for fast lookup
+  for $i (@inv) {
+    $inv{$i} = $i;
+  }
+
+  # Set up the Safe compartment
+  $safe = new Safe;
+  $safe->permit_only(qw(aassign const leaveeval null padany push pushmark
+                        return rv2sv stub));
+  $safe->share('$text');
+
+  # Iterate over each tag present in the header.
+  for $i ($head->tags) {
+
+    # Skip the mailbox separator, if we get one
+    next if $i eq 'From ';
+
+    # Grab all of the occurrences of that tag and iterate over them
+    for $j ($head->get($i)) {
+      chomp $j;
+      $text = "$i: $j";
+
+      # Eval the code
+      @matches = $safe->reval($code);
+      warn $@ if $@;
+
+      # Run over the matches that resulted
+      while (($rule, $match, $sev, $class, $inv) = splice(@matches, 0, 5)) {
+
+        # An inverted match; remove it from the list
+        if ($inv) {
+          delete $inv{"$k\t$l\t$rule\t$sev\t$class"};
+        }
+        else {
+          $reasons .= "block_headers matched \"" . 
+                      substr($match, 0, 100) .  "\"\n";
+        }
+      }
+    }
+  }
+  # Now complain about missed inverted matches
+  for $i (keys %inv) {
+    ($k, $l, $rule, $sev, $class) = split('\t', $i);
+    $reasons .= "block_headers failed to match $rule\n";
+  }
+  return (0, $reasons) if $reasons;
+  (1, '');
+}
+  
 =head2 *_access_check(..., request, arghash)
 
 These check to see of a user is permitted to make a request.
@@ -643,12 +721,10 @@ sub list_access_check {
     $self->substitute_vars_string
       ($mess,
        {
-	'LIST'    => $list,
-	'REQUEST' => $request,
-	'REQUESTER' => $requester,
-	'VICTIM'  => $victim,
+        $self->standard_subs($list),
         'NOTIFY'  => $victim,
 	'REASONS' => $reasons,
+	'VICTIM'  => $victim,
        },
       ) if $mess;
   
@@ -953,10 +1029,7 @@ sub _a_mailfile {
   my (%file, $ent, $file, $subs);
 
   $subs = {
-    'LIST'      => $list,
-    'REQUESTER' => $requester,
-    'REQUEST'   => $request,
-    # XXX and so on...
+    $self->standard_subs($list),
   };
 
   ($file, %file) = $self->_list_file_get($list, $arg, $subs, 1);
