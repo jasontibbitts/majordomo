@@ -3098,8 +3098,15 @@ sub who {
       elsif ($request->{'mode'} =~ /enhanced/) {
         if ($request->{'list'} ne 'GLOBAL' or $request->{'sublist'} ne 'MAIN') {
           $fullclass = $i->{'class'};
-          $fullclass = 'nomail' if ($fullclass =~ /^nomail-/);
-          $fullclass .= "-" . $i->{'classarg'} if ($i->{'classarg'});
+          if ($i->{'class'} eq 'nomail' and $i->{'classarg'}) {
+            @time = localtime($i->{'classarg'});
+            $fullclass .= "-" . 
+            sprintf "%4d-%.2d-%.2d %.2d:%.2d", $time[5]+1900, $time[4]+1, 
+                     $time[3], $time[2], $time[1];
+          }
+          else {
+            $fullclass .= "-" . $i->{'classarg'} if ($i->{'classarg'});
+          }
           $fullclass .= "-" . $i->{'classarg2'} if ($i->{'classarg2'});
           $subs->{'CLASS'} = $fullclass;
         }
