@@ -453,7 +453,7 @@ sub global_access_check {
 =head2 list_access_check(request, arghash)
 
 =cut
-use Mj::CommandProps qw(:function action_terminal);
+use Mj::CommandProps qw(:command :function action_terminal);
 use Mj::Util qw(process_rule in_clock);
 sub list_access_check {
   # We must share some of these variables with the compartment, so they
@@ -465,10 +465,11 @@ sub list_access_check {
   my $passwd    = $data->{'password'};
   my $mode      = $data->{'mode'};
   my $cmdline   = $data->{'cmdline'};
-  my $list      = $data->{'list'};
-     $list      = 'GLOBAL' if ($list =~ /^DEFAULT|^ALL$/);
   my $request   = $data->{'command'};
      $request   =~ s/_(start|chunk|done)$//;
+  my $list      = $data->{'list'};
+     $list      = 'GLOBAL' if ($list =~ /^DEFAULT|^ALL$/);
+     $list      = 'GLOBAL' unless command_prop($request, 'list');
   my $requester = $data->{'user'};
   my $sublist   = (exists $data->{'sublist'}) ? $data->{'sublist'} : 'MAIN';
   my $victim    = $data->{'victim'} || $requester;
@@ -519,12 +520,19 @@ sub list_access_check {
   # Initialize access variables
   $args{'master_password'} = 0;
   $args{'user_password'}   = 0;
+  $args{'list_password'}   = 0;
   $args{'chain'}           = 1;
   $args{'expire'}          = -1;
   $args{'interface'}       = $self->{'interface'};
   $args{'notify'}          = [];
   $args{'reasons'}       ||= '';
   $args{'sublist'}         = $sublist;
+  $args{'mode'}            = $mode;
+  $args{'delay'}           = $data->{'delay'};
+  $args{'list'}            = $data->{'list'};
+  if (exists $data->{'newlist'}) {
+    $args{'newlist'} = $data->{'newlist'};
+  }
 
   # Add some chunks of the address to the set of matchable variables
   if (! $args{'regexp'}) { 
@@ -543,9 +551,6 @@ sub list_access_check {
     $args{'fulladdr'} = '';
     $args{'host'}     = '';
   }
-
-  $args{'mode'}  = $mode;
-  $args{'delay'} = $data->{'delay'};
 
   # Figure out if $requester and $victim are the same
   unless (defined ($args{'mismatch'})) {
@@ -589,7 +594,31 @@ sub list_access_check {
     elsif ($ok < 0) {
       $args{'user_password'} = -$ok;
     }
-    elsif (! function_prop($data->{'command'}, 'nopass')) {
+
+    # If a valid list password is used in a global context, turn off
+    # the override switch and set the list_password variable.
+    if ($list eq 'GLOBAL') {
+      $temp = 0;
+      if ($data->{'list'} ne 'GLOBAL') {
+        ($temp) = $self->validate_passwd($victim, $passwd, 
+                                       $data->{'list'}, $request);
+      }
+
+      # Authenticate for the list name for the createlist command.
+      if (! $temp and exists($data->{'newlist'}) 
+          and $data->{'newlist'} ne 'GLOBAL') 
+      {
+        ($temp) = $self->validate_passwd($victim, $passwd, 
+                                       $data->{'list'}, $request);
+      }
+      $args{'list_password'} = $temp;
+      unless ($ok) {
+        $password_override = 0;
+        $ok = $temp;
+      }
+    }
+
+    unless ($ok or function_prop($data->{'command'}, 'nopass')) {
       return (0, $self->format_error('invalid_password', $list,
                                      'VICTIM' => "$victim"));
 
@@ -597,16 +626,13 @@ sub list_access_check {
     # Fall through if a valid password is unneeded.
   }
 
-  # Using regular expressions with the unsubscribe, unregister,
-  # and set commands is allowed only for administrators.
-  return (0, $self->format_error('pattern_mode', $list))
-    if ($args{'regexp'} and not $args{'master_password'});
-
   # If we got a good master password _and_ it overrides access
   # restrictions, we're done.
   if ($args{'master_password'}) {
-    $password_override =
-      $self->_list_config_get($list, "access_password_override");
+    unless (defined $password_override and length $password_override) {
+      $password_override =
+        $self->_list_config_get($list, "access_password_override");
+    }
 
     # Return some huge value, because this value is also used as a count
     # for some routines.  If a delay was used, delay the command.
@@ -631,6 +657,11 @@ sub list_access_check {
     # Delay mode is only available if an administrative password is used.
     $args{'delay'} = 0;
   }
+
+  # Using regular expressions with the unsubscribe, unregister,
+  # and set commands is allowed only for administrators.
+  return (0, $self->format_error('pattern_mode', $list))
+    if ($args{'regexp'});
 
   $access = $self->_list_config_get($list, 'access_rules');
 

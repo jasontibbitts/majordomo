@@ -1,3 +1,40 @@
+2004-01-13  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  Version number is now 0.1200401130.
+	(get_all_lists, help_start)  Set the "nostall" access
+	variable to avoid delays.
+	(_get_stock)  Disable all warnings briefly to avoid
+	perl 5.8.2 spurious warnings.  Thanks to Brock Rozen.
+	(alias, createlist, et al.)  Call list_access_check
+	instead of global_access_check for all GLOBAL commands
+	to accommodate list admin credentials for the commands.
+
+	* lib/Mj/Access.pm:  (list_access_check)  Support
+	the list_password access variable, which will recognize
+	list admin credentials used in a GLOBAL context.
+	Instead of reporting an invalid password, by default
+	a valid list admin password will be ignored.
+
+	* lib/Mj/CommandProps.pm:  Add support for the "list"
+	and "list_password" general access variables, and
+	the "newlist" access variable for the createlist
+	command.
+	Bugfix:  The unsubscribe command does not support
+	the "ALL" list.
+
+	* lib/Mj/Config.pm:  (_compile_rule)  Bugfix:  Fix
+	quoting problems when access variables appear on
+	the right-hand side of comparisons.
+
+	* lib/Mj/MailOut.pm:  (mail_message)  Do not mail
+	messages to example.com addresses.
+
+	* lib/Mj/Parser.pm:  (parse_part)  Improve support
+	for the "default list" command.
+
+	* lib/Mj/Token.pm:  (confirm)  Ensure that GLOBAL
+	commands result in GLOBAL tokens.
+
 2003-11-19  Michael Yount <csf@moscow.com>
 
 	* convertdb.pl:  Support db->text conversions, and 
