@@ -1,23 +1,32 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 archive-delete[-hidden][-force]    listname date_count_number
-archive-get[-immediate]            listname date_count_number
+archive-get[-immediate][-hidden]   listname date_count_number
 archive-get-digest[-mime][-hidden] listname date_count_number 
 archive-index[-hidden]             listname date_count_number
+archive-part[-delete][-edit][-get] listname message_number part_number
 archive-stats[-hidden]             listname date_count_number
 archive-summary                    listname
 archive-sync                       listname pattern
+archive-part-replace listname message_number part_number <<ENDTAG
+[New Contents]
+ENDTAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname, required, is the name of a regular list at this site
-number,   required, is a combination of dates, message numbers, and counts
-pattern,  required, is a single value or pattern matching archive file names
+date_count_number, if specified, indicates one or more messages
+listname,          required,     is the name of a mailing list
+message_number,    if specified, indicates a single message
+part_number,       if specified, refers to a portion of a message
+pattern,           if specified, indicates the names of files
 -delete,  if specified, causes messages to be removed from the archive
 -digest,  if specified, causes messages to be mailed in digests
+-edit,    if specified, allows part of a posted message to be changed
 -force,   if specified, removes messages which await digest delivery
 -get,     if specified, causes whole messages to be displayed
 -hidden,  if specified, displays only hidden messages (admins only)
--immediate, if specified, causes messages to be displayed immediately
--index,   if specified, displays message summaries
+-immediate, if specified, displays messages without pretty formatting
+-index,   if specified, displays a summary of each message
 -mime,    if specified, causes digests to be mailed in "mime" format
+-part,    if specified, causes part of a posted message to be displayed
+-replace, if specified, replaces part of a message with new contents
 -stats,   if specified, displays per-user statistics
 -summary, if specified, lists archive files and their contents
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -348,6 +357,28 @@ the database will depend upon the archive_date configuration setting
 (see "help configset_archive_date" for more details.)  When the 
 archive-sync command is run, the date will be recalculated from the
 Received headers of each message, causing the dates to change.
+
+
+archive-part
+------------
+The archive-part command mode has four variations which can be used
+to view, edit, delete, or change part of a single message within the
+archive.  Each message has at least one part, and each part within a
+message is numbered.  Part number 0 is used to refer to the whole
+message.  To see an example of message numbering, read the "Special
+features for posted messages" section of the "help tokeninfo" document.
+
+The archive-part-get command will display the contents of a part of
+a message.
+
+The archive-part-edit command will display part of a message in a
+way that makes it easy to change the part's contents.
+
+The archive-part-replace command will replace part of a message with
+new contents.  The archive databases will be synchronized automatically.
+
+The archive-part-delete command will remove part of a message.  The
+archive databases will be synchronized automatically.
 
 
 Notes for list administrators
