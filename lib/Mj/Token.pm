@@ -302,7 +302,7 @@ sub consult {
   my $log  = new Log::In 50;
   my (%file, @mod1, @mod2, $data, $desc, $ent, $expire, $expire_days,
       $file, $mj_addr, $mj_owner, $remind, $remind_days, $repl, $sender,
-      $subject, $token, $url);
+      $subject, $tmp, $token, $url);
 
   $self->_make_tokendb;
 
@@ -362,11 +362,11 @@ sub consult {
 
     
     # Build a mesage
-    $subject = '';
+    $subject = "$token : CONSULT $list";
     if ($arg2) {
-      ($subject = $arg2) =~ s/\002/\n /g;
+      ($tmp = $arg2) =~ s/\002/\n /g;
+      $subject .= "\n $arg2";
     }
-    $subject = "$token : CONSULT $list\n $subject";
     $ent = build MIME::Entity
       (
        Path            => $arg1,

@@ -1,5 +1,8 @@
 Sat Apr 17 00:48:17 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Token.pm (consult): When consulting with no bounce
+ 	reasons, make sure the subject is not hosed.
+
 	* bin/mj_queuerun (run_queue): Set debugging levels based on
  	'debug' config variables for each domain and list.
 
