@@ -95,15 +95,15 @@ in the January, 2001 archive.
 archive-get
 -----------
 The archive-get command is used to retrieve the actual contents of
-posted messages.  If the "get" command mode is used by itself, each
-message that is retrieved will be mailed to you, just as if you had
-received it when it was first delivered to the mailing list.  List
-administrators can use this in combination with the "default user"
-command to resend messages to individual subscribers who wish to receive
-a new copy.
+posted messages.  When the archive-get command is used, each message
+that is retrieved will be mailed to you, just as if you had received it
+when it was first delivered to the mailing list.  List administrators
+can use this in combination with the "default user" command to resend
+messages to individual subscribers who wish to receive a new copy.  See
+"help default" for an introduction to the "default user" command.
 
-If the archive-get-immediate command is used, all of the messages will
-cause all messages to be sent within one message, exactly as they are
+When the archive-get-immediate command is used, all of the messages that
+are retrieved will be sent within one message, exactly as they are
 stored in the archive, with all message headers intact.
 
 The archive-get-digest or archive-get-digest-mime command will cause
@@ -204,8 +204,8 @@ the results of the who command.
 
 The "date" command mode will cause the messages to be sorted by the
 date.  The dates that are given to messages in the archive can be
-based upon the time of arrival or the time of delivery; see "help
-configset_archive_date" for more information.
+based upon the time of arrival or the time of delivery; see 
+"help configset_archive_date" for more information.
 
 The "subject" command mode will sort the messages alphabetically by
 subject, ignoring any leading "Re: " reply markers.
@@ -303,7 +303,7 @@ those messages.  In addition, messages that match the patterns in
 the noarchive_body and noarchive_headers configuration settings will
 receive the same treatment.  If the "hidden" command mode is used, only
 messages that are marked as hidden will be deleted.  The hidden command
-mode also applies to the archive-get and archive_index commands.  An
+mode also applies to the archive-get and archive-index commands.  An
 administrative password is required to use it.
 
 The message archives are used by the delivery system to construct
