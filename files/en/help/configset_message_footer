@@ -41,11 +41,11 @@ does not have to be escaped with a dash, but it can be if you wish.
 This syntax applies only to the message_fronter and message_footer
 settings.
 
-For multipart/mixed messages, fronters appear as separate parts at the
-beginning of the message.  Message fronters are never added to other
+For multipart/mixed messages, footers appear as separate parts at the
+beginning of the message.  Message footers are never added to other
 kinds of multipart messages.
 
-Fronters are not added at all to single-part messages that are not of
+Footers are not added at all to single-part messages that are not of
 type text/plain.  This avoids destroying the content of structured
 messages.  
 
