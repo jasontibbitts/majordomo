@@ -202,29 +202,49 @@ sub check_prereq {
   while (($pkg, $ver) = splice(@_, 0, 2)) {
     unless (have_vers($pkg => $ver)) {
       $ok = 0;
-      warn <<EOW
+      if ($ver == 0) {
+	warn <<EOW;
 
+**** Majordomo requires $pkg (any version).
+
+EOW
+      }
+      else {
+	
+	warn <<EOW;
+	  
 **** Majordomo requires $pkg version $ver or greater!
 
 EOW
+      }
     }
   }
   $ok;
 }
 
-# This was clipped from the libnet Makefile.PL.
+# This was originally clipped from the libnet Makefile.PL.
 sub have_vers {
- my($pkg,$wanted,$msg) = @_;
- no strict 'refs';
- printf("Checking for %15s %-9s ", $pkg, $wanted==0?'(any)':"(v$wanted)");
+  my($pkg, $wanted, $msg, $vnum, $vstr) = @_;
+  no strict 'refs';
+  printf("Checking for %15s %-9s ", $pkg, $wanted==0?'(any)':"(v$wanted)");
 
- eval { my $p; ($p = $pkg . ".pm") =~ s!::!/!g; require $p; };
+  eval { my $p; ($p = $pkg . ".pm") =~ s!::!/!g; require $p; };
+  
+  $vnum = ${"${pkg}::VERSION"} || ${"${pkg}::Version"} || 0;
+  $vnum = -1 if $@;
 
- my $vnum = ${"${pkg}::VERSION"} || ${"${pkg}::Version"} || 0;
- my $vstr = $vnum ? "found v$vnum" : "not found";
+  if ($vnum < 0) {
+    $vstr = "not found";
+  }
+  elsif ($vnum > 0) {
+    $vstr = "found v$vnum";
+  }
+  else {
+    $vstr = "found unknown version";
+  }
 
- print $vnum >= $wanted ? "ok\n" : " " . $vstr . "\n";
- $vnum >= $wanted;
+  print (($vnum >= $wanted ? "ok: " : " "), "$vstr\n");
+  $vnum >= $wanted;
 }
 
 sub configure {
