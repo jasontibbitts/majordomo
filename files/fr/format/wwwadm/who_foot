@@ -5,8 +5,8 @@
   <input type="submit" name="func" value="unsubscribe-farewell">
   <input type="submit" name="func" value="set">
 </form>
-<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;extra=$PATTERN&amp;start=?PREVIOUS&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses précédentes</a><br>
-<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;extra=$PATTERN&amp;start=?NEXT&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses suivantes</a>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;mode=$MODE&amp;extra=$PATTERN&amp;start=?PREVIOUS&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses précédentes</a><br>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;mode=$MODE&amp;extra=$PATTERN&amp;start=?NEXT&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses suivantes</a>
 
 <h4 align=center>cherchez la liste des abonnés</h4>
 

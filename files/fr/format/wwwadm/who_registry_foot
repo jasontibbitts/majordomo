@@ -4,8 +4,8 @@
 <input type="submit" name="func" value="$REMOVE">
 </form>
 <p>
-<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;extra=$PATTERN&amp;start=?PREVIOUS&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses Précédentes</a><br>
-<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;extra=$PATTERN&amp;start=?NEXT&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses Suivantes</a>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;mode=$MODE&amp;extra=$PATTERN&amp;start=?PREVIOUS&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses Précédentes</a><br>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=who&amp;mode=$MODE&amp;extra=$PATTERN&amp;start=?NEXT&amp;chunksize=$CHUNKSIZE">$CHUNKSIZE Adresses Suivantes</a>
 </p>
 <h4 align=center>Rechercher le registre</h4>
 

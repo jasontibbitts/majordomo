@@ -5,9 +5,9 @@
 </form>
 
 <p>
-<a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?PREVIOUS&chunksize=$CHUNKSIZE">Previous $CHUNKSIZE Addresses</a><br>
+<a href="$CGIURL?$CGIDATA&list=$LIST&func=who&mode=$MODE&extra=$PATTERN&start=?PREVIOUS&chunksize=$CHUNKSIZE">Previous $CHUNKSIZE Addresses</a><br>
 
-<a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?NEXT&chunksize=$CHUNKSIZE">Next $CHUNKSIZE Addresses</a>
+<a href="$CGIURL?$CGIDATA&list=$LIST&func=who&mode=$MODE&extra=$PATTERN&start=?NEXT&chunksize=$CHUNKSIZE">Next $CHUNKSIZE Addresses</a>
 </p>
 
 <h4 align=center>Search the Registry</h4>
