@@ -56,8 +56,9 @@ Complete syntax of an admin_body line:
    !pp nn,ss,vv
 where
    pp - is a Majordomo pattern (see "help patterns" for details)
-   !  - is an optional invert flag (to look for MISSING lines)
-   nn - is an optional number of lines to check for pp, 0 to disable
+   !  - is an optional invert flag (to look for missing lines)
+   nn - is an optional number of lines to check
+        (or 0 to check the whole body)
    ss - is an optional severity score for use in access_rules
    vv - is an optional variable name for use in access_rules
 and the space in "pp nn" is required unless "nn" is not specified,
