@@ -239,7 +239,7 @@ unless ($raw) {
 @extra = $cgi->param('extra');
 
 if ($ofunc eq 'logout') {
-  &usage($mj, $subs, 'You have successfully signed out.');
+  &usage($mj, $subs, 'You have successfully signed out.', '');
 }
 
 unless (length $lists[0]) {
@@ -277,13 +277,14 @@ elsif ($ofunc eq 'login') {
   &login($mj, $subs, '');
 }
 elsif ($ofunc eq 'welcome') {
-  &usage($mj, $subs, '');
+  $tmp = $cgi->param('doc') || '';
+  &usage($mj, $subs, '', $tmp);
 }
 elsif ($ofunc eq 'command') {
   &command($mj, $subs, '');
 }
 elsif (! exists $commands{$func}) {
-  &usage($mj, $subs, "$func is an unsupported command.");
+  &usage($mj, $subs, "$func is an unsupported command.", '');
 }
 
 # The archive-get and archive-index commands must use immediate mode,
@@ -299,13 +300,13 @@ elsif ($func eq 'who' and $mode !~ /enhanced/) {
 
 #----- Password check -----#
 if (! $passw) {
-  &usage($mj, $subs, "A password is required to use the $func command.")
+  &usage($mj, $subs, "A password is required to use the $func command.", '')
     if ($commands{$func}->[0]);
 }
 
 #----- List check -----#
 if ($commands{$func}->[2] and ! scalar @lists) {
-  &usage($mj, $subs, "A mailing list must be provided to use the \"$func\" command.");
+  &usage($mj, $subs, "A mailing list must be provided to use the \"$func\" command.", '');
 }
 
 no strict 'refs';
@@ -420,7 +421,8 @@ if (@extra and $func ne 'showtokens') {
       }
     }
 
-    &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
+    &usage($mj, $subs, "Unable to obtain result from Majordomo.", '') 
+      unless $result;
 
     print "<pre>\n" if ($commands{$func}->[2]);
     &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
@@ -444,7 +446,8 @@ elsif ($func eq 'set') {
     }
     $request->{'victims'} = [ $addr ];
     $result = $mj->dispatch($request); 
-    &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
+    &usage($mj, $subs, "Unable to obtain result from Majordomo.", '') 
+      unless $result;
     print "<pre>\n" if ($commands{$func}->[2]);
     &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
     print "</pre>\n" if ($commands{$func}->[2]);;
@@ -541,7 +544,8 @@ elsif ($func ne 'showtokens') {
   }
     
   $result = $mj->dispatch($request); 
-  &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
+  &usage($mj, $subs, "Unable to obtain result from Majordomo.", '') 
+    unless $result;
   print "<pre>\n" if ($commands{$func}->[2]);
   &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
   print "</pre>\n" if ($commands{$func}->[2]);;
@@ -578,7 +582,7 @@ elsif ($commands{$func}->[3] eq 'showtokens') {
     if ($func eq 'showtokens' and $extra[0]);
   $i = 0;
   $request->{'command'} = 'showtokens';
-  $request->{'mode'} = 'delay';
+  $request->{'mode'} = '';
   my (%seen);
   for $list (@lists, @mlists) {
     next if (exists $seen{$list});
@@ -625,7 +629,8 @@ elsif ($commands{$func}->[3] ne $func) {
     $request->{'victims'} = '';
   }
   $result = $mj->dispatch($request); 
-  &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
+  &usage($mj, $subs, "Unable to obtain result from Majordomo.", '') 
+    unless $result;
   &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
 }
 
@@ -740,13 +745,16 @@ sub newlist {
 }
 
 sub usage {
-  my ($mj, $subs, $message) = @_;
+  my ($mj, $subs, $message, $helpfile) = @_;
   my ($str, $tmp);
 
   $subs->{'ERROR'} = $message;
   $::log->message(50, "info", $message) if $message;
 
-  if ($subs->{'LIST'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
+  if (defined $helpfile and length $helpfile) {
+    $tmp = $mj->format_get_string('wwwadm', "welcome_$helpfile");
+  }
+  elsif ($subs->{'LIST'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
     $tmp = $mj->format_get_string('wwwadm', 'welcome_global');
   }
   else {
