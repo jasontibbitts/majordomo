@@ -84,6 +84,7 @@ $files =
    'en/help/configset_archive_split'                  => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_attachment_rules'               => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_bounce_probe_frequency'         => ['detailed help for configset listname',     'us-ascii', '7bit'],
+   'en/help/configset_bounce_recipients'              => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_category'                       => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_chunksize'                      => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_comments'                       => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],

@@ -1,0 +1,24 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+bounce_recipients listname <<TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site (not GLOBAL)
+<<TAG, if specified, provides more than one line of data (here file)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset listname bounce_recipients << ENDTAG
+joe@blow.org
+ENDTAG
+
+
+Who will receive error messages for this list?  Majordomo will internally
+forward mail received at the -owner address to all of these addresses if
+the mail is identified as a bounce message.  If this variable is unset,
+bounces will be forwarded to the list owners.
+
+See Also:
+   help configset owners (for how to specify the list owner)
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
