@@ -824,6 +824,7 @@ sub set {
   }
   else {
     $data = shift;
+    $data = '' unless (defined $data);
   }
 
   # Parse and syntax check
@@ -2689,6 +2690,8 @@ sub compile_pattern {
 
   # Mapping of shell specials to regexp specials
   my %sh = ('?'=>'.', '*'=>'.*', '['=>'[', ']'=>']');
+
+  return (1, '', '') unless $str;
 
   # Extract leading and trailing characters and the pattern; remove
   # whitespace
