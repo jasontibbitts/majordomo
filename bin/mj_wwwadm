@@ -44,7 +44,7 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
     @settings, @values, $addr, $cgi, $cgidata, $cgiurl, $domain, 
     $falseuser, $fh, $func, $i, $j, $line, $list, 
     $mess, $mode, $mj, $ofunc, $ok, $passw, $pathinfo, $req, $request, 
-    $result, $sess, $str, $subs, $tmp, $token, $truelist, $user);
+    $result, $sess, $str, $sublist, $subs, $tmp, $token, $truelist, $user);
 
 #----- Which commands are supported ?  -----#
 # First  value:  Is a password required?
@@ -233,7 +233,7 @@ unless (length $lists[0]) {
   &login($mj, $subs, '');
 }
 
-($truelist, undef, $mess) = $mj->valid_list($lists[0], 1, 1);
+($truelist, $sublist, $mess) = $mj->valid_list($lists[0], 1, 1);
 unless ($truelist) {
   &login($mj, $subs, $mess);
 }
@@ -291,6 +291,7 @@ $request = {
     'cgiurl'    => $cgiurl,
     'command'   => $func,
     'list'      => $truelist,
+    'sublist'   => $sublist,
     'mode'      => $mode,
     'password'  => $passw, 
     'user'      => $user,
@@ -346,7 +347,8 @@ if (@extra and $func ne 'showtokens') {
       $request->{'xplanation'} ||= $cgi->param('xplanation');
     }
     elsif ($func eq 'configset' and not $cgi->param('command')) {
-      @values = split "\r?\n", $cgi->param($req);
+      @values = $cgi->param($req);
+      @values = split ("\r?\n", $values[0]) unless ($#values);
       $request->{'value'} = [@values];
     }
     elsif ($func eq 'tokeninfo' and $mode =~ /replace/) {

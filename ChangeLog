@@ -1,3 +1,34 @@
+2001-11-28  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Restore sublist support.  Thanks to
+	Roger Klorese.  
+	Support "select multiple" menus for configuration 
+	settings.
+
+	* bin/mj_wwwusr:  Display an HTML form with the
+	current settings when the set command is used.
+
+	* lib/Majordomo.pm:  (_set)  Return additional information,
+	such as details about the allowed flags and classes.
+
+	* lib/mj_cf_data.pl:  Support the LIST-subscribe-unique
+	alias.
+
+	* lib/Mj/Format.pm:  (configshow)  Support menus for
+	enum_array configuration settings.
+	(set)  Add format file support.
+
+	* lib/Mj/List.pm:  (set)  Return the subtime and changetime
+	data.
+
+	* lib/Mj/MTAConfig.pm:  (add_alias)  Support the
+	LIST-subscribe-unique alias.
+
+	* lib/Mj/Resend.pm:  (_within_limits)  Do not display the
+	soft limit reasons if a hard limit has been exceeded.
+
+	* lib/Mj/Util.pm:  Support "on" for yes and "off" for no.
+
 2001-11-23  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Make domain
@@ -22,6 +53,7 @@
 	* lib/Mj/Config.pm:  (parse_digests)  Parse time spans
 	in the minage, separate, and maxage fields at run time.
 	(parse_limits)  Add support for a lower limit.
+        (compile_pattern)  The ALL pattern will now match anything.
 
 	* lib/Mj/Digest.pm:  (decide)  Parse time spans at
 	run time.  Clarify log messages.
