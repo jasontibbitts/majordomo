@@ -547,7 +547,7 @@ sub list_access_check {
     }
     elsif (! function_prop($data->{'command'}, 'nopass')) {
       return (0, $self->format_error('invalid_password', $list,
-                                     'VICTIM' => $victim));
+                                     'VICTIM' => "$victim"));
 
     }
     # Fall through if a valid password is unneeded.
