@@ -1,3 +1,9 @@
+2003-03-04  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Archive.pm:  (_sync_msgs)  Bugfix:  Collect stats
+	about the final message instead of the original message.
+	Thanks to Robert.
+
 2003-03-03  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Include the character

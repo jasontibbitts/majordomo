@@ -738,8 +738,8 @@ use Mj::MIMEParser;
 sub _sync_msgs {
   my ($self, $file, $tmpdir, $split, $count, $qp) = @_;
   my $log = new Log::In 250, $file;
-  my (@out, $arcname, $arcnum, $blank, $data, $entity, $line, 
-      $lines, $mbox, $num, $parser, $seen, $tmpfh, $tmpfile); 
+  my (@out, $arcname, $arcnum, $blank, $data, $entity, $lastfrom, $line, 
+      $lines, $mbox, $num, $parser, $seen, $tf2, $tmpfh, $tmpfile); 
  
   $file =~ /^((?:[\w\-\.]+\.)?\d+)(-\d\d)?$/;
   $arcname = $1;
@@ -761,10 +761,11 @@ sub _sync_msgs {
   $count++;
   $data = {};
   $blank = 1;
+  $lastfrom = '';
 
   while (1) {
     $line = $mbox->{'oldhandle'}->getline; 
-    if ($blank && (!$line or 
+    if ($blank && (! defined $line or 
       $line =~ /^From\s+(?:"[^"]+"@\S+|\S+)\s+\S+\s+\S+\s+\d+\s+\d+:\d+:\d+\s+\d+/
     )) {
       # If a message has been seen, close the temporary file
@@ -776,6 +777,7 @@ sub _sync_msgs {
         # XLANG
         return (0, "Unable to parse message $arcname/$count.\n") unless $entity;
         $arcnum = $entity->head->get("X-Archive-Number");
+        $length = $modified = 0;
         unless (defined $arcnum and $arcnum =~ m#$arcname/\d+#) {
           $arcnum = "$arcname/$count";
           $entity->head->replace("X-Archive-Number", $arcnum);
@@ -783,23 +785,51 @@ sub _sync_msgs {
         }
         $arcnum =~ m#/(\d+)$#; $num = $1;
         $data = Mj::MIMEParser::collect_data($entity, $qp);
-        $data->{'bytes'} = (stat($tmpfile))[7];
+
+        # Parsing may have modified the message.
+        # Save it to a temporary file and collect statistics.
+        $tf2 = Majordomo::tempname();
+        $tmpfh = new IO::File "> $tf2";
+        # XLANG
+        return (0, "Unable to open temporary file.\n") unless $tmpfh;
+        $tmpfh->print($lastfrom);
+        $entity->print($tmpfh);
+        $tmpfh->close() 
+          or $::log->abort("Unable to close file $tmpfile: $!");
+
+        # Count the lines in the message file.
+        $lines = 0;
+        $tmpfh = new IO::File "< $tf2";
+        # XLANG
+        return (0, "Unable to open temporary file.\n") unless $tmpfh;
+        $lines++ while ($tmpfh->getline);
+        $tmpfh->close() 
+          or $::log->abort("Unable to close file $tmpfile: $!");
+
+        $data->{'bytes'} = (stat($tf2))[7];
         $data->{'lines'} = $lines;
         $data->{'split'} = $split;
         push @out, [$num, $data];
-        $lines = 0;
+        unlink $tf2;
 
+        # Save the "From" separator and message in the mailbox.
+        $mbox->{'newhandle'}->print($lastfrom) 
+          if (length $lastfrom);
         $entity->print($mbox->{'newhandle'});
         $entity->purge;
-        last unless $line;
-        $mbox->{'newhandle'}->print($line);
-        # reopen the temporary file
+
+        last unless (defined $line and length $line);
+        $lastfrom = $line;
+
+        # Reopen the temporary file
         $tmpfh =  new IO::File "> $tmpfile";
         # XLANG
         return (0, "Unable to open temporary file.\n") unless $tmpfh;
       }
       else {
-        $mbox->{'newhandle'}->print($line) if ($line);
+        if (defined $line and length $line) {
+          $lastfrom = $line;
+        }
       }
       $seen++;
       $blank = 0;
@@ -808,7 +838,6 @@ sub _sync_msgs {
       $blank = ($line =~ m#\A\Z#o) ? 1 : 0;
     }
     last unless $line;
-    $lines++;
     $tmpfh->print($line);
   }
 
