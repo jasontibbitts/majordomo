@@ -10,26 +10,35 @@ Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset GLOBAL sender = majordomo-owner
+configset GLOBAL sender =    majordomo@yourdomain.net
+configset mylist sender = mylist-owner@yourdomain.net
 
 
 The envelope and sender address for the resent mail.  This string has
 "@" and the value of resend_host appended to it to make a complete
-address.  For majordomo, it provides the sender address for the
+address if you do not supply a domain. When applied to the GLOBAL
+pseudo-list, it provides the sender address for things like token
+confirmation requests. When applied to a regular email list, it
+supplies the sender address for regular posts in addition to the
 welcome mail message generated as part of the subscribe command.
+
 If you set this address to LISTNAME-owner, replies to welcome text
 go to the list owner. If you comment the "configset sender" command
 out, replies go to the server. This often cuts down on random traffic
-for people who want to "set" their subscription options or unsubscribe.
+for people who want to "set" their subscription options or unsubscribe,
+but it may also cause usage questions to reach the server instead of
+the owner.
 
-Another reason NOT to use this command is that it fools AOL. We don't
-know why, but you need to SUPPRESS the "sender: listname@where.org"
-header for their reply-to-all to function. Other mail tools seem to
-be OK either way.
+One reason NOT to use this command is that it may fool AOL. We don't
+know why, but at one time you needed to SUPPRESS the "sender"
+header for their reply-to-all feature to work. Other mail tools seem
+to be OK either way, because they use the FROM and REPLY-TO headers.
 
-Finally, this address seems to show up in some "accept" messages as
-the "to reach a human" address. That's wrong, and the problem goes
-away if you don't specify "configset sender" at all.
+
+See Also:
+   help configset whereami
+   help configset whoami
+   help configset whoami_owner
 
 For a list of all help topics send this one-line message
    help topics

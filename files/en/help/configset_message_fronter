@@ -18,7 +18,7 @@ TIP 1: subscribe and unsubscribe commands go to majordomo@nowhere.org
 --------------------------(start of broadcast)--------------------------
 
 TIP 2: you can get off all lists at once with the unregister command
-       (send "unregister YourEmailAddressHere" to majordomo@nowhere.org)
+    (send "unregister YourEmailAddressHere" to majordomo@nowhere.org)
 --------------------------(start of broadcast)--------------------------
 ENDTAG
 

@@ -4,14 +4,4 @@ sent to new subscribers.
 Each table record takes two lines.  The first should be an explanatory
 message, which will go in the subject or content-description header as
 appropriate.  (If this is empty, the file's description will be used.)
-The second is broken into fields by ":" or "|".
-
-The first field is the name of the file, in the file space of the list.  
-
-The second should be either "N", meaning that the file will be sent as
-a separate piece of mail, or "P", meaning that the file will be
-attached to the previous file.  The default is "N".  In addition, an
-"S" can be added, indicating that the file should undergo variable
-substitution (and possibly auto-inclusion of OTHER files).
-
-See "help variables" for a list of substitutions which are supported.
+The second is broken into a filename and a flag field by ":" or "|".

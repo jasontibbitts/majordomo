@@ -1,1 +1,3 @@
-Where to bounces from the whoami address go?
+Where to bounces from the whoami address go? If you do not specify
+"whoami_owner", the string "-owner" will be appended to the value
+of "whoami" from the appropriate list.

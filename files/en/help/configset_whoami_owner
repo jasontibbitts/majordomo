@@ -13,14 +13,9 @@ EXAMPLE:
 configset GLOBAL whoami_owner = admin@nowhere.org
 
 
-Where to bounces from the whoami address go?
-These important help files are related:
-   help configset whereami
-   help configset whoami
-   help configset whoami_owner
-
-If you do not specify "whoami_owner", the string "-owner" will
-be appended to the value of "whoami" from the appropriate list.
+Where to bounces from the whoami address go? If you do not specify
+"whoami_owner", the string "-owner" will be appended to the value
+of "whoami" from the appropriate list.
 
 
 For normal lists:
@@ -50,6 +45,12 @@ For the GLOBAL pseudo-list:
   WARNING:  If you fail to specify "whoami_owner" after supplying
   a full email address (including domain) for "whoami", commands
   like "lists" to die horribly due to a malformed email address.
+
+
+See Also:
+   help configset sender
+   help configset whereami
+   help configset whoami
 
 For a list of all help topics send this one-line message
    help topics

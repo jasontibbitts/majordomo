@@ -1,4 +1,7 @@
 The envelope and sender address for the resent mail.  This string has
 "@" and the value of resend_host appended to it to make a complete
-address.  For majordomo, it provides the sender address for the
+address if you do not supply a domain. When applied to the GLOBAL
+pseudo-list, it provides the sender address for things like token
+confirmation requests. When applied to a regular email list, it
+supplies the sender address for regular posts in addition to the
 welcome mail message generated as part of the subscribe command.

@@ -13,14 +13,11 @@ EXAMPLE:
 configset GLOBAL whoami = majordomo@nowhere.org
 
 
-What address do users send requests to?
-These important help files are related:
-   help configset whereami
-   help configset whoami
-   help configset whoami_owner
-
-If you do not specify "whoami_owner", the string "-owner" will
-be appended to the value of "whoami" from the appropriate list.
+What address do users send requests to? This is the full address
+of the Majordomo server (for the GLOBAL pseudo-list) or the address
+to which subscribers send posts (for a regular email list). If you
+do not specify "whoami_owner", the string "-owner" will be appended
+to the value of "whoami" from the appropriate list.
 
 
 For normal lists:
@@ -50,6 +47,12 @@ For the GLOBAL pseudo-list:
   WARNING:  If you fail to specify "whoami_owner" after supplying
   a full email address (including domain) for "whoami", commands
   like "lists" to die horribly due to a malformed email address.
+
+
+See Also:
+   help configset sender
+   help configset whereami
+   help configset whoami_owner
 
 For a list of all help topics send this one-line message
    help topics

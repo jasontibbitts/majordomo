@@ -11,11 +11,8 @@ EXAMPLE:
 configset GLOBAL whereami = nowhere.org
 
 
-What machine is Majordomo running on?
-These important help files are related:
-   help configset whereami
-   help configset whoami
-   help configset whoami_owner
+What machine is Majordomo running on? This is the server domain,
+as opposed to a full address for the server.
 
 The "whereami" configuration applies only to the GLOBAL pseudo-list.
 You should set "whereami" to be the domain of the server, such as
@@ -24,6 +21,13 @@ You should set "whereami" to be the domain of the server, such as
 
 In some cases email addresses can be fully qualified. The "whereami"
 setting supplies domains when only a partial address is specified.
+
+
+See Also:
+   help configset sender
+   help configset whoami
+   help configset whoami_owner
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ
