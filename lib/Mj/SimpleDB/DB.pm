@@ -330,7 +330,7 @@ sub mogrify {
   my $code = shift;
   my $log  = new Log::In 120, "$self->{filename}";
   my (@new, $changed, $changedata, $changekey, $data, $encoded, $k,
-      $newkey, $status, $v);
+      $newkey, $status, $v, @deletions);
   my $db = $self->_make_db;
   return unless $db;
   my $lock = new Mj::Lock($self->{lockfile}, 'Exclusive');
@@ -372,14 +372,17 @@ sub mogrify {
       # later.
       if ($changekey) {
 	if (defined $newkey) {
-	  push @new, $newkey, $encoded 
+	  push @new, $newkey, $encoded;
 	}
-	$status = $db->del($k, R_CURSOR);
+	push @deletions, $k;
       }
       else {
-	$status = $db->put($k, $encoded, R_CURSOR);
+	push @new, $k, $encoded; 
       }
     }
+  for $k (@deletions) {
+    $status = $db->del($k, R_CURSOR);
+  }
   while (($k, $v) = splice(@new, 0, 2)) {
     $status = $db->put($k, $v);
   }
