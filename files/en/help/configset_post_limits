@@ -12,86 +12,108 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset listname post_limits <<ENDTAG
 /joe\@example.com/ |      |
-/example.com/      | 3/20 | 5/3d12h,10/1m
+/example.com/      | 3/20 | 5/3d12h,10/4m
 ENDTAG
 
+$INCLUDE-config/post_limits
 
-The "post_limits" variable controls the per-address or per-domain limits
-for posting messages to a list. The format of each line is:
-  pattern | soft_limit_conditions[,more] | hard_limit_conditions[,more]
-The pattern will be matched against the e-mail address of the author of
-the message. The conditions will be applied if the pattern matches.
+See "help patterns" for an introduction to writing Majordomo patterns.
 
-See "help patterns" for details on regular expressions.
+Each set of limits is a comma-separated list of ratios and/or frequencies. 
+If an author exceeds a soft limit, this will cause the "limit_soft"
+access variable to be set.  Similarly, exceeding a hard limit will cause
+the "limit_hard" access variable to be set.  Unless rules for the "post"
+command in the access_rules take precedence, a message will be moderated
+if the "limit_soft" access variable is set, and denied if the
+"limit_hard" access variable is set.  If both variables are set, the
+message will be denied.
 
-The two required conditions determine the "soft" and "hard" limits,
-respectively. Each set of conditions is a comma-separated list of ratios
-and/or frequencies, and if an address matching the pattern has posted
-too many times a hard or soft limit will be applied. Exceeding a soft
-limit causes the list owner to be consulted by default, while exceeding
-a hard limit causes the post to be denied by default. Hard limits take
-precedence, and what happens when either kind of limit is reached can
-be controlled by the list owner (see "help configset access_rules").
+If no limits are used, as in the first line of the example above, the
+matching address can be exempted from the remaining rules.  The first
+pattern to match stops the search, and later rules will have no effect. 
 
-NOTE: If the conditions are null, as in the first line of the example
-above, the matching address can be exempted from the remaining rules.
-The first pattern to match stops the search, and later patterns will
-not operate on the same address. When a pattern matches, the full
-address against which it matched is stored for later checking. Two
-addresses matching the same pattern do NOT contribute to satisfying
-the same condition, each address is tallied separately.
+Limits are expressed as ratios or frequencies. For example, the ratio
+"3/10" would be exceeded if the author of a message has posted more than
+3 out of the last 10 messages.  As another example, the frequency "5/1w"
+would be exceeded if the author of a message has posted more than 5
+messages in the last week.  Please see the "Time spans" section of the
+"help times" document for more information on how to indicate the period
+of time in a frequency limit.  As a special case, a time period of one
+in a frequency limit can be abbreviated:  "8/1week" and "8/w" are
+equivalent, as are "5/1d" and "5/d" and "5/day".
 
-The format of post_limits is a series of lines containing a pattern,
-a comma-separated list of soft limits, and a comma-separated list of
-hard limits.
+When the limits are checked, the current message is always taken into
+account.  For example, if a ratio limit of "4/15" is being checked, the
+the statistics for the last 14 messages that have already been posted,
+plus the current message, are used to determine if the limit of 4 out of
+the last 15 messages has been exceeded.
 
-Conditions are expressed as ratios (the number of posts out of a group
-of posts), or frequencies (the number of posts in a period of time). For
-example, "3/10" means three messages out of the last ten messages, and
-"5/1w" means five messages in the last week. The number to the left of
-the slash is always the number of posts to be counted, the field on
-the right of the slash has the format shown in the "Time Period" section
-of "help times". If the field to the right of the slash is just an
-integer, it represents the number of posts. If it is an integer followed
-by a letter, it represents a period of time. For example, "5/10" and
-"5/3d" are both valid conditions. As a special case, a time period of
-one can be abbreviated: "5/1week" and "5/w" are equivalent, as are
-"5/1d" and "5/d" and "5/day".
+When the limits are checked, messages by the same author that were
+denied, or that were moderated but not approved by the moderators, do
+not count against the limit.  Only messages that were successfully
+delivered to the subscribers or approved by the moderators for storage
+in the archive (with the "accept-archive" command) count against the
+limits for a particular author.
 
-Note that a limit of 3/10 (3 out of the last 10) would be exceeded if
-not 3 but 4 or more out of 10 messages were posted from the same address.
-The number you specify is the number allowable, any more are limited.
+Consider the following example:
 
-For the example above, all example.com addresses OTHER than
-"joe@example.com" would be soft limited to 3 messages out of the
-last 20 (the list owner would be consulted if that percentage were
-exceeded), and hard limited to 5 in the last 3.5 days or 10 in the
-last month (the attempted post would be denied without bothering the
-list owner). Joe is exempt because testing terminates with the first
-matched pattern and there are no conditions to execute.
+configset listname post_limits <<ENDTAG
+/joe\@example.com/ |      |
+/example.com/      | 3/20 | 8/20
+/example/          | 7/5d | 10/5d
+ENDTAG
+
+In this example, the address "joe@example.com" has no limits set, and
+as a result is exempt from the succeeding rules.  Messages posted
+from any other address containing "example.com" would be moderated if
+more than 3 out the last 20 messages were posted from the same address,
+and denied if more than 8 out of the last 20 messages were posted from the
+same address.  Messages posted from any address containing "example"
+but not "example.com" would be subject to the frequency limits on the
+third line.  Finally, any address not containing "example" would not
+match any of the patterns, and would not be subject to any limits.
+
+Time spans in frequency limits do not take the calendar or time zone into 
+account.  For example, "2d" (2 days) is identical to "48h" (48 hours).
+If notices are sent to people whose posts are moderated or denied, you
+may wish to use a finer-grained time span to indicate the nature of the
+limit.  For instance, if a hard limit of "3/1d" is exceeded, the denial
+message might say:
+
+  More than 3 messages posted in 1 day.
+
+Authors who incorrectly expect the statistics for a day's messages to be
+reset at midnight local time may be surprised.  However, if instead of
+"3/1d" you used "3/24h", the resulting message:
+
+  More than 3 messages posted in 24 hours.
+
+might be clearer to someone who has not been informed about the effect 
+of the limit.
 
 There is a "post" trigger to expire data from the "posts" database.
 The post data has a lifetime twice that of the dup_lifetime setting, at
-the moment, so make sure your conditions are no longer than twice the
-duplicate message database lifespan (see "help configset dup_lifetime").
+the moment, so make sure your frequency time spans no longer than twice the
+duplicate message database lifespan.  By default, this time period is
+56 days.
 
 It is possible to use comments before, between, and after the individual
-rules, but not within rules.  Comments are lines that begin with a '#'.
-You can use comments as a reminder of what a setting does or why
-it was chosen, but comments have no impact on how the setting works.
+rules.  Comments are lines that begin with a '#'.  You can use comments
+as a reminder of what a setting does or why it was chosen, but comments
+have no impact on how the setting works.
 
 
 See Also:
+   help access_variables
+   help admin_moderate
+   help configset_access_rules
+   help configset_dup_lifetime
+   help configset_latchkey_lifetime
+   help configset_log_lifetime
+   help configset_session_lifetime
+   help configset_token_lifetime
+   help configset_triggers
    help patterns
    help times
-   help configset access_rules
-   help configset dup_lifetime
-   help configset latchkey_lifetime
-   help configset log_lifetime
-   help configset session_lifetime
-   help configset token_lifetime
-   help configset triggers
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+INCLUDE-help/foot
