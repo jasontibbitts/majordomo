@@ -926,7 +926,7 @@ sub _a_default {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
   my $log = new Log::In 150, $request;
-  my ($access, $fun);
+  my ($access, $policy, $fun);
 
   # First check the hash of allowed requests.
   if (access_def($request, 'allow')) {
@@ -973,6 +973,41 @@ sub _a_default {
     }
   }
 
+  if (access_def($request, 'policy')) {
+    $policy = $self->_list_config_get($list, "${request}_policy");
+
+    # First make sure that someone isn't trying to subscribe the list to
+    # itself
+    return (0, 'subscribe_to_self') 
+      if $request eq 'subscribe' and $args{'matches_list'};
+
+    # If the user has supplied their password, we never confirm.  We also
+    # don't have to worry about mismatches, since we know we saw the victim's
+    # password.  So we allow it unless the list is closed, and we ignore
+    # confirm settings.
+    if ($args{'user_password'}) {
+      return $self->_a_allow(@_)   if $policy =~ /^(auto|open)/;
+      return $self->_a_consult(@_) if $policy =~ /^closed/;
+    }
+
+    # Now the non-user-approved cases.  The easy ones:
+    return $self->_a_allow(@_)     if $policy eq 'auto';
+    return $self->_a_confirm(@_)   if $policy eq 'auto+confirm';
+    return $self->_a_consult(@_)   if $policy eq 'closed';
+    return $self->_a_conf_cons(@_) if $policy eq 'closed+confirm';
+    
+    # Now, open.  This depends on whether there's a mismatch.
+    if ($args{'mismatch'} or $args{'posing'}) {
+      return $self->_a_consult(@_)   if $policy eq 'open';
+      return $self->_a_conf_cons(@_) if $policy eq 'open+confirm';
+    }
+    return $self->_a_allow(@_)   if $policy eq 'open';
+    return $self->_a_confirm(@_) if $policy eq 'open+confirm';
+
+    # The variable was syntax-checked when it was set, so we can just
+    # blow up if we get here.
+    $log->abort("Can't handle policy: $policy");
+  }
   # If the suplied password was correct for the victim, we don't need to
   # confirm.
   if (access_def($request, 'mismatch')) {
@@ -1145,86 +1180,6 @@ sub _d_post {
   }
 
   return $self->_a_allow(@_);
-}
-
-# Check the subscribe_policy variable
-sub _d_subscribe {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
-  my $log = new Log::In 150;
-  my $policy = $self->_list_config_get($list, 'subscribe_policy');
-  
-  # We'll need this to pass on
-  shift @_;
-
-  # First make sure that someone isn't trying to subscribe the list to
-  # itself
-  return (0, 'subscribe_to_self') if $args{'matches_list'};
-
-  # If the user has supplied their password, we never confirm.  We also
-  # don't have to worry about mismatches, since we know we saw the victim's
-  # password.  So we allow it unless the list is closed, and we ignore
-  # confirm settings.
-  if ($args{'user_password'}) {
-    return $self->_a_allow(@_)   if $policy =~ /^(auto|open)/;
-    return $self->_a_consult(@_) if $policy =~ /^closed/;
-  }
-
-  # Now the non-user-approved cases.  The easy ones:
-  return $self->_a_allow(@_)     if $policy eq 'auto';
-  return $self->_a_confirm(@_)   if $policy eq 'auto+confirm';
-  return $self->_a_consult(@_)   if $policy eq 'closed';
-  return $self->_a_conf_cons(@_) if $policy eq 'closed+confirm';
-  
-  # Now, open.  This depends on whether there's a mismatch.
-  if ($args{'mismatch'} or $args{'posing'}) {
-    return $self->_a_consult(@_)   if $policy eq 'open';
-    return $self->_a_conf_cons(@_) if $policy eq 'open+confirm';
-  }
-  return $self->_a_allow(@_)   if $policy eq 'open';
-  return $self->_a_confirm(@_) if $policy eq 'open+confirm';
-
-  # The variable was syntax-checked when it was set, so we can just
-  # blow up if we get here.
-  $log->abort("Can't handle policy: $policy");
-}
-
-# Check the unsubscribe_policy variable
-sub _d_unsubscribe {
-  my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
-      $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
-  my $log = new Log::In 150;
-  my $policy = $self->_list_config_get($list, 'unsubscribe_policy');
-  
-  # We'll need this to pass on
-  shift @_;
-
-  # If the user has supplied their password, we never confirm.  We also
-  # don't have to worry about mismatches, since we know we saw the victim's
-  # password.  So we allow it unless the list is closed, and we ignore
-  # confirm settings.
-  if ($args{'user_password'}) {
-    return $self->_a_allow(@_)   if $policy =~ /^(auto|open)/;
-    return $self->_a_consult(@_) if $policy =~ /^closed/;
-  }
-
-  # Now the non-user-approved cases.  The easy ones:
-  return $self->_a_allow(@_)     if $policy eq 'auto';
-  return $self->_a_confirm(@_)   if $policy eq 'auto+confirm';
-  return $self->_a_consult(@_)   if $policy eq 'closed';
-  return $self->_a_conf_cons(@_) if $policy eq 'closed+confirm';
-  
-  # Now, open.  This depends on whether there's a mismatch.
-  if ($args{'mismatch'} or $args{'posing'}) {
-    return $self->_a_consult(@_)   if $policy eq 'open';
-    return $self->_a_conf_cons(@_) if $policy eq 'open+confirm';
-  }
-  return $self->_a_allow(@_)   if $policy eq 'open';
-  return $self->_a_confirm(@_) if $policy eq 'open+confirm';
-
-  # The variable was syntax-checked when it was set, so we can just
-  # blow up if we get here.
-  $log->abort("Can't handle policy: $policy");
 }
 
 =head1 COPYRIGHT

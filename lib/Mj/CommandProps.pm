@@ -182,7 +182,7 @@ my %commands =
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
-                   'default' => 'mismatch',
+                   'default' => 'access',
                    'legal'   => \%reg_legal,
                    'actions' => \%actions,
                   },
@@ -426,7 +426,7 @@ my %commands =
     'parser'   => [qw(email shell list global all real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-                   'default' => 'confirm',
+                   'default' => 'policy',
                    'legal'   => \%reg_legal,
                    'actions' => \%actions,
                   },
@@ -456,7 +456,7 @@ my %commands =
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1},
     'access'   => {
-                   'default' => 'special',
+                   'default' => 'policy',
                    'legal'   => {
                                  'master_password'=> 1,
                                  'user_password'  => 1,
@@ -501,7 +501,7 @@ my %commands =
     'parser'   => [qw(email shell list all real)],
     'dispatch' => {'top' => 1, 'noaddr' => 1},
     'access'   => {
-                   'default' => 'special',
+                   'default' => 'policy',
                    'legal'   =>\%reg_legal,
                    'actions' =>\%actions,
                   },
