@@ -8,6 +8,7 @@ subscribers are allowed to adjust.  The following values are supported:
   eliminatecc
   hideaddress
   hideall  
+  hidepost
   postblock
   prefix
   replyto

@@ -1,11 +1,12 @@
 A list of flags which apply to users who are not list members when they 
-send messages to the list.  Only acknowledgement flags and postblock
-make sense in this case.  These flags include:
+send messages to the list.  Only acknowledgement flags, hidepost,
+and postblock make sense in this case.  These flags include:
 
   ackdeny
   ackpost
   ackreject
   ackstall
+  hidepost
   postblock
 
 Use the "help set" command to see a detailed description of the flags.
