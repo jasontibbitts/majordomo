@@ -15,65 +15,58 @@ Password Notes: Visible only with password.
 
 EXAMPLE:
 configset GLOBAL inform << ENDTAG
-subscribe | all | inform
-post | fail | inform
-set | all | inform
+subscribe | all          | inform
+post      | fail         | inform,report
+post      | succeed      | report
+set       | fail,succeed | inform
 ENDTAG
 
+$INCLUDE-config/inform
 
-This controls just what actions the list owner will be informed of and
-what will be logged.  The format of each line is:
-  request | status | actions
-where request is any Mj2 command (like subscribe, lists, post, etc.),
-status is a comma separated list of "succeed, fail, stall, all", and
-actions is a comma separated list of "ignore, report, inform".
+Whenever a command is processed or a message is posted, Majordomo records
+the result in a log.  It then examines the inform configuration setting
+to see if anything else must be done.  This setting consists of zero or
+more lines, with three fields on each line.  If the command matches the
+criteria in the first two fields, the actions in the third field are
+undertaken.
 
-1. The request field can be any command that Majordomo knows how to
-process. In addition, you can use "post" as a "request" item even
-though it is not actually a Majordomo command. A complete list of all
-"request"s can be retrieved by sending these two commands to $MJ
-   help commands
-   help admin commands
-or just send
-   help topics
-and ignore all the configset sub-options.
+The first field on each line can be any Majordomo command, or any of the 
+following other events that are logged:  badtoken, bounce, connect, consult,
+or parse.  See "help report" for a description of each of these events.
+The "help topics" document has a list of all of the commands.
 
-2. The status field is a comma separated list of these results:
-  succeed: perform the actions if the request succees.
-  fail:    perform the actions if the request fails.
-  stall:   perform the actions if the request is stalled.
-  all:     always perform the actions
+The second field on each line is one or more of these results:
+  succeed  perform the actions if the request succeeds.
+  fail     perform the actions if the request fails.
+  stall    perform the actions if the request is stalled.
+  all      always perform the actions
 
-3. The actions field is a comma separated list of what to do:
-  ignore: completelu ignore the request (overrides the others!)
-  report: log the request for later reposting (not implemented)
-  inform: inform the owner immediately (via email)
+The third field on each line is one or more of these actions:
+  ignore   completely ignore the request; this overrides the other actions.
+  report   display the information when the "report-inform" command is used.
+  inform   mail a summary of the event to the list owners.
 
-If a request is not specified, the default behavior for subscribe and
-unsubscribe is to inform on success, report otherwise.  The default
-behavior for all other requests is to report always.  This
-approximates the 1.9x behavior.
+All actions are logged; this setting only affects which actions are
+deemed important enough to report.
 
-Note that all actions are logged; this only affects which actions are
-deemed important enough to send mail about and which will be reported.
+It is possible for site or domain administrators to issue commands that
+are not logged, using the "nolog" command mode.  It is also possible for
+list administrators to issue commands that are not reported via e-mail,
+using the "noinform" command mode.  See "help admin_commands" for more
+details.
 
-This command specifies the commands or actions which should result in
-notices being sent to the list owner or site administrator, and/or
-what will be logged (the log file is probably in the /tmp or /var/mj
-or a similar directory - see "help configset tmpdir" for how
-to change or set this directory).
-
-Note that the "inform" command can apply to the GLOBAL pseudo-list or
-an actual listname, based on which "request" you want to observe. Some
-requests don't make sense for the GLOBAL list (like "post"), while
-others don't make sense for a real list (like "help").
+The "inform" command can apply to the GLOBAL pseudo-list or an actual 
+list name, based on which events you want to observe. Some events, like
+posted messages, do not occur on the GLOBAL list, while others, such
+as the help command, are not applicable to ordinary mailing lists.
 
 It is possible to use comments before, between, and after the individual
-rules, but not within rules.  Comments are lines that begin with a '#'.
-You can use comments as a reminder of what a setting does or why
-it was chosen, but comments have no impact on how the setting works.
+lines in this setting.  Comments are lines that begin with a '#'.  You can 
+use comments as a reminder of what a setting does or why it was chosen, 
+but comments have no impact on how the setting works.
 
+See Also:
+   help admin_monitor
+   help report
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
