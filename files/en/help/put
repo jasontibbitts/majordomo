@@ -17,7 +17,7 @@ subject,  if specified, is a string that describes the file's contents
 -data,    if specified, causes the file type and other info to be stored
 -delete,  if specified, deletes a file or empty directory
 -dir,     if specified, creates an empty directory, not a file
--force,   if specified, deletes a directory recursively
+-force,   if specified, deletes or creates a directory recursively
 ctype, if specified, is the content type of the document
 cset,  if specified, is the character set of the document
 encoding, if specified, is the content transfer encoding of the document
@@ -68,7 +68,11 @@ LLL
 
 The put-dir command may be used to create a directory (also called a
 folder).  The put-dir command does not require any data or contents.
-Once a directory is created, files can be stored in that directory.
+Once a directory is created, files can be stored in that directory.  
+
+Normally, if the parent directory of a new file or directory does not
+already exist, the put command will fail.  If the "force" command mode
+is used, any missing parent directories will be created automatically.
 
 The put-delete command may be used to remove a file or an empty
 directory.  The put-delete command does not require any data or
