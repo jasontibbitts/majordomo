@@ -447,7 +447,8 @@ sub t_accept {
   my $self  = shift;
   my $token = shift;
   my $mode = shift;
-  my $log   = new Log::In 50, "$token";
+  my $comment = shift;
+  my $log   = new Log::In 50, $token;
   my (@out, $data, $ent, $ffunc, $func, $line, $mess, $ok, $outfh,
       $req, $sender, $tmp, $vict, $repl);
 
@@ -467,9 +468,11 @@ sub t_accept {
   # not distribute it on to a mailing list.  Note that this could
   # have interesting side effects, good and bad, if used in
   # other ways.
-  if (defined $mode) {
-    $data->{'mode'} ||= $mode;
+  if (defined $mode and $data->{'command'} eq 'post') {
+    $data->{'mode'} .= $data->{'mode'} ? "-$mode" : $mode;
   }
+
+  $data->{'ack'} = 0;
 
   # All of the necessary approvals have been gathered.  Now, this may be a
   # chained token where we need to generate yet another token and send it
@@ -569,7 +572,10 @@ sub t_accept {
       ||
       $self->{'lists'}{$data->{'list'}}->flag_set('ackall', $vict))
       {
- 
+
+    # Note that the victim was notified.
+    $data->{'ack'} = 1;
+
     # First make a tempfile
     $tmp = $self->_global_config_get("tmpdir");
     $tmp = "$tmp/mj-tmp." . Majordomo::unique();
@@ -598,6 +604,12 @@ sub t_accept {
       no strict 'refs';
       $ret = &$ffunc($self, $outfh, $outfh, 'text', $data, \@out);
     }
+
+    # If a comment was supplied, include it in the output.
+    if (defined $comment) {
+      print $outfh "\n$comment\n";
+    }
+
     close $outfh;
 
     $sender = $self->_list_config_get($data->{'list'}, "sender");
