@@ -1386,7 +1386,7 @@ sub expand_range {
     # Deal with "mwdhmis" format
     if ($i =~ /^\d[\da-z]*[a-z]$/) {
       $j = time;
-      $tmp = str_to_offset($i);
+      $tmp = &str_to_offset($i, 0, 0);
       next unless (defined($tmp) and $tmp > 0);
       $i = $j - $tmp;
       next unless $i;
