@@ -404,6 +404,11 @@ sub munge {
     delete $cf->{admin_passwd};
   }
 
+  if (exists $cf->{moderator}) {
+    $cf->{moderators} = $cf->{moderator};
+    delete $cf->{moderator};
+  }
+
   if (exists $cf->{mungedomain}) {
     $a = $cf->{mungedomain};
     if (lc($a) eq 'yes') {

@@ -1,3 +1,46 @@
+2001-12-11  Michael Yount <csf@moscow.com>
+
+	* convertlist.pl:  Convert the Mj1 "moderator" setting into
+	the Mj2 "moderators" setting.
+
+	* bin/mj_email, mj_queuerun:  Cope with inaccessible configuration 
+	settings.  Thanks to Brock Rozen.
+	Add a Date header to all reply messages.  Thanks to John Levine.
+
+	* lib/Majordomo.pm:  (standard_subs)  Expand the TOKEN
+	substitution in the CONFIRM_URL substitution.
+
+	* lib/mj_cf_data.pl, mj_cf_defs.pl:  Remove the "moderator" 
+	configuration setting.
+
+	* lib/Mj/Access.pm:  (_a_forward, _a_mailfile)  Add a
+	Date header to outgoing messages.
+
+	* lib/Mj/Config.pm:  (regen)  Convert the "moderator" setting
+	into the "moderators" setting if necessary.
+
+	* lib/Mj/Format.pm:  Cope with inaccessible configuration
+	settings.
+	(set)  Bugfix:  Correct typo in PARTIAL substitution.
+
+	* lib/Mj/Inform.pm:  (_inform_owner)  Add a Date header to
+	all inform messages.
+
+	* lib/Mj/List.pm:  (moderators)  Remove support for the
+	"moderator" configuration setting.
+
+	* lib/Mj/MailOut.pm:  (welcome)  Add a Date header to all
+	welcome messages.
+
+	* lib/Mj/Parser.pm:  (parse_part)  Add a Date header to
+	all reply messages.
+
+	* lib/Mj/Resend.pm:  (post, _post)  Add a Date header to
+	all acknowledgement messages.
+
+	* lib/Mj/Digest/Index.pm, MIME.pm, Text.pm:  Add a Date header
+	to each digest.
+
 2001-11-29  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwusr:  Add support for the unalias command.
