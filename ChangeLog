@@ -3,10 +3,13 @@
 	* lib/Majordomo.pm:  (announce) Add support for sending
 	announcements to auxiliary lists.
 	(_who) Add "owners" command mode, which displays the list
-	owner addresses and the lists they administrate.  The
-	GLOBAL:owners auxiliary list is automatically updated by this 
-	command to contain all of the owners' addresses, including
-	the deletion of addresses that are no longer owners.
+	owner addresses and the lists they administrate.  
+	(sync_owners) New routine.  The GLOBAL:owners auxiliary list 
+	is automatically updated to contain all of the owners' addresses, 
+	including the deletion of addresses that are no longer owners.
+	This routine is called by the "createlist-regen" command, by
+	the "who-owners" command, and whenever the owners setting for
+	a mailing list is changed.
 
 2000-12-20  Michael Yount <csf@moscow.com>
 
