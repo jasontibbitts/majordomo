@@ -2,17 +2,21 @@
 <h4 align=center>Unsubscribe Addresses or Change Settings</h4>
 
 <p>
-To remove addresses, press the button next to one or more
-addresses from the following list.  If you wish to remove the addresses
-quietly, press the $HELP:UNSUBSCRIBE button.  If you want each
-person who is removed to receive a farewell message, press the 
-<b>unsubscribe-farewell</b> button instead.
+To remove subscribers from the mailing list, check the box to the left
+of each e-mail address you wish to remove.  To remove the addresses
+quietly, press the $HELP:UNSUBSCRIBE button.  To send a farewell message
+to each address that is removed, press the <b>unsubscribe-farewell</b>
+button instead.
 </p>
 
 <p>
-To change settings, press the button next to each address whose settings
-you wish to change, select the appropriate settings, then press the
-$HELP:SET button.
+Each subscriber has a delivery class and 13 personal settings.  For each
+subscriber whose settings you wish to change, check the box to the left
+of the subscriber's e-mail address.  To change the delivery class,
+choose a new class from the menu that appears to the right of the
+address.  To adjust the settings, press one or more of the 13 check
+boxes that appear below the address.  Finally, press the $HELP:SET
+button.
 </p>
 
 <p>
