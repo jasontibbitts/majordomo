@@ -309,6 +309,8 @@ my %commands =
                    'hereargs' => 'patterns',
                    'modes'    =>  {
                                    %generic_modes,
+                                   'author'      => 1,
+                                   'date'        => 1,
                                    'delete'      => 1,
                                    'digest'      => 1,
                                    'force'       => 1,
@@ -317,9 +319,12 @@ my %commands =
                                    'immediate'   => 1,
                                    'index'       => 1,
                                    'mime'        => 1,
+                                   'reverse'     => 1,
                                    'stats'       => 1,
+                                   'subject'     => 1,
                                    'summary'     => 1,
                                    'sync'        => 1,
+                                   'thread'      => 1,
                                   },
                    'tokendata' => {'arg1' => 'args',
                                    'arg2' => 'patterns' }
