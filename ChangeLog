@@ -1,3 +1,10 @@
+2004-08-30  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Support the plain who command.
+
+	* lib/Mj/Format.pm:  (who)  Add format file support for
+	the who-summary command.
+
 2004-08-29  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwusr:  Allow the archive-get and archive-get-digest

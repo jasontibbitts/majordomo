@@ -53,7 +53,7 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
 # Third value:  Page to display after the result.
 %commands = (   
                 'accept'        => [0, 0, 'showtokens'],
-                'archive'       => [1, 0, 'lists'],
+                'archive'       => [1, 0, 'archive'],
                 'configdef'     => [1, 0, 'configshow'],
                 'configset'     => [1, 0, 'configshow'],
                 'configshow'    => [1, 0, 'configshow'],
@@ -351,7 +351,7 @@ elsif ($ofunc eq 'login') {
   &login($mj, $subs, '');
 }
 elsif ($ofunc eq 'welcome') {
-  $tmp = $cgi->param('doc') || '';
+  $tmp = $cgi->param('doc') || $cgi->param('extra') || '';
   &usage($mj, $subs, '', $tmp);
 }
 elsif ($ofunc eq 'command') {
@@ -368,10 +368,9 @@ elsif (! exists $commands{$func}) {
 # to display the results instead of mailing them.
 if (($func eq 'archive' and $mode =~ /get/ and $mode !~ /part/) 
     or ($func eq 'get' and $mode !~ /edit/)) {
+  # XXX Change to allow messages to be mailed
+  # Add support for "victims"
   $mode .= $mode? "-immediate" : "immediate";
-}
-elsif ($func eq 'who' and $mode !~ /enhanced/) {
-  $mode .= $mode? "-enhanced" : "enhanced";
 }
 
 #----- Password check -----#
@@ -668,6 +667,10 @@ elsif (($tmp eq 'on' and $func ne 'showtokens')
     or $commands{$func}->[2] eq 'command') {
   &command($mj, $subs, '');
 }
+elsif ($commands{$func}->[2] =~ /^welcome_(\S*)/) {
+  $tmp = $1 || '';
+  &usage($mj, $subs, '', $tmp);
+}
 elsif ($commands{$func}->[2] eq 'newlist') {
   &newlist($mj, $subs, '');
 }
@@ -724,7 +727,7 @@ elsif ($commands{$func}->[2] ne $func) {
     $request->{'command'} = 'who_start';
     $request->{'mode'} = 'enhanced';
     $request->{'list'} = $lists[0];
-    $request->{'chunksize'} = $cgi->param('chunksize') || 20;
+    $request->{'chunksize'} = $cgi->param('chunksize') || 10;
     $request->{'start'} = $cgi->param('start') || 1;
     $request->{'regexp'} = $cgi->param('pattern');
     $request->{'victims'} = '';
@@ -734,7 +737,7 @@ elsif ($commands{$func}->[2] ne $func) {
     $request->{'command'} = 'which';
     $request->{'mode'} = '';
     $request->{'list'} = 'GLOBAL';
-    $request->{'chunksize'} = $cgi->param('chunksize') || 20;
+    $request->{'chunksize'} = $cgi->param('chunksize') || 10;
     $request->{'regexp'} = $cgi->param('pattern');
     $request->{'victims'} = '';
   }
@@ -926,8 +929,8 @@ EOM
 
 =head1 COPYRIGHT
 
-Copyright (c) 2000, 2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 2000, 2002, 2004 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
