@@ -19,14 +19,14 @@ require Exporter;
 @EXPORT_OK = qw(condense enriched_to_hyper ep_convert ep_recognize 
                 find_thread_root gen_pw in_clock n_build n_defaults 
                 n_validate plain_to_hyper process_rule re_match 
-                reconstitute reflow_plain sort_msgs str_to_time 
+                reconstitute reflow_plain sort_msgs str_to_bool str_to_time 
                 str_to_offset time_to_str);
 
 use AutoLoader 'AUTOLOAD';
 
 $VERSION = "0.0";
 use strict;
-use vars(qw(%args %memberof %notify_var %rt2ht $current $safe $skip));
+use vars(qw(%args %memberof %notify_var %rt2ht %yes %no $current $safe $skip));
 $Mj::Util::safe = '';
 
 %Mj::Util::notify_var =
@@ -82,6 +82,39 @@ $Mj::Util::safe = '';
    'underline'  => '',
   );
 
+# Attempt to be multi-lingual
+%Mj::Util::yes = (
+        1                => 1,
+        'y'              => 1,
+        'yes'            => 1,
+        'yeah'           => 1,
+        'hell yeah'      => 1,
+        'si'             => 1,             # Spanish
+        'hai'            => 1,             # Japanese
+        'ii'             => 1,             # "
+        'ha'             => 1,             # Japanese (formal)
+        'oui'            => 1,             # French
+        'damn straight'  => 1,             # Texan
+        'darn tootin'    => 1,
+        'shore nuf'      => 1,
+        'ayuh'           => 1,             # Maine
+       );
+
+%Mj::Util::no = (
+       ''               => 1,
+       0                => 1,
+       'n'              => 1,
+       'no'             => 1,
+       'iie'            => 1,     # Japanese
+       'iya'            => 1,
+       'hell no'        => 1,     # New Yorker
+       'go die'         => 1,
+       'nyet'           => 1,
+       'nai'            => 1,
+       'no way'         => 1,
+       'as if'          => 1,
+       'in your dreams' => 1,
+      );
 
 1;
 __END__
@@ -690,6 +723,22 @@ sub time_to_str {
   $out;
 }
 
+=head2 str_to_bool(string)
+
+This function attempts to determine if a string represents
+a positive or negative value.  It returns 1 for positive
+values, 0 for negative values, and -1 for unknown values.
+
+=cut
+sub str_to_bool {
+  my $str = shift;
+
+  return 0 unless (defined $str);
+  return 1 if ($yes{$str});
+  return 0 if ($no{$str});
+  return -1;
+}
+
 =head2 enriched_to_hyper(text_file)
 
 This function converts a file from enriched text to HTML
@@ -967,6 +1016,7 @@ sub sort_msgs {
 
   @msgs;
 }
+
 =head2 find_thread_root(msgs, id, seen, subj)
 
 This function finds a reference/subject-based thread root within
@@ -1021,3 +1071,25 @@ sub find_thread_root {
   push @$seen, $id;
   return ($msgs->{$id}->{'root'}, $msgs->{$id}->{'level'});
 }
+
+=head1 COPYRIGHT
+
+Copyright (c) 2000-2001 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for
+more detailed information.
+
+=cut
+
+1;
+#^L
+### Local Variables: ***
+### cperl-indent-level:2 ***
+### End: ***
