@@ -58,7 +58,7 @@ sub parse_entity {
     # Loop over the parts, looking for one that has real commands in it.
     # We stop parsing when we find one with real commands and assume that
     # any other parts were attachments used as data for the commands.
-    $count=0;
+    $count = $ok = 0;
     while (@parts) {
       ($ok, @ents) =
 	parse_entity($mj,
@@ -75,7 +75,7 @@ sub parse_entity {
       $count++;
     }
     $::log->out;
-    return (0, @entities);
+    return ($ok, @entities);
   }
   # We've arrived at a single part whch doesn't contain others.
   $type = $entity->head->mime_type;
