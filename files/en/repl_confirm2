@@ -1,6 +1,9 @@
-This request must be confirmed by both
+The request 
+  $REQUEST
+must be confirmed by both
 $VICTIM
 and 
 $REQUESTER
 
-A confirmation token is being sent in a separate message.
+Confirmation instructions have been mailed to
+$VICTIM in a separate message.

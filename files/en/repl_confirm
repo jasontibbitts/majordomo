@@ -1,5 +1,4 @@
 The request 
   "$CMDLINE"
-must be confirmed by
-  $NOTIFY
-A confirmation token is being sent in a separate message.
+must be confirmed.  Confirmation instructions have been mailed to
+$NOTIFY in a separate message.
