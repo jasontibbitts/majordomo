@@ -453,6 +453,8 @@ sub connect_and_parse {
   $::log->in(80, undef, "info", "Taking apart the incoming message");
   $entity = $mime_parser->read(\*MSG);
   $::log->out;
+
+  return unless $entity; 
   
   # Get the header.
   $::log->in(80, undef, "info", "Parsing the header");
