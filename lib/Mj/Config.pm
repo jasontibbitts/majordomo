@@ -3623,10 +3623,11 @@ sub parse_keyed {
   my $o = shift; #  list Open
   my $c = shift; #  list Close
   my $log = new Log::In 150;
-  my(@done, @stack, $err, $group, $key, $n, $ok, $pop, $state, $val);
+  my (@done, @stack, $done, $err, $group, $key, $list, $n, $ok, 
+      $out, $pop, $state, $val);
   $n = 0;
   $val = '';
-  my $out  = {};
+  $out  = {};
   local($_);
 
   # Tokenize
@@ -3650,6 +3651,7 @@ sub parse_keyed {
     if (0) {}
 
     # Val state, trying to build a value
+    # XLANG
     elsif ($state eq 'val') {
       !defined        and $err = 'Ran out of data.', last;
       /\s+/           and next;
@@ -3749,8 +3751,19 @@ sub parse_keyed {
   }
 
   # Only got here if we errored out!
-  my $done = join('', splice(@done, -6, 6));
-  my $list = join('', splice(@list, 0, 6));
+  if ($#done >= 6) {
+    $done = join('', splice(@done, -6, 6));
+  }
+  else {
+    $done = join('', @done);
+  }
+
+  if ($#list >= 6) {
+    $list = join('', splice(@list, 0, 6));
+  }
+  else {
+    $list = join('', @list);
+  }
 
   if ($err =~ /\n/) {
     return (undef, $err);
