@@ -408,7 +408,9 @@ Third, an explanation of each variable:
              master_password - is set if one of the list's correct
                                passwords was used
 
-                matches_list - NO EXPLANATION AVAILABLE
+                matches_list - is set if the victim address matches the
+                               listname on a subscribe request (e.g.
+                               someone is trying to make a mail loop)
 
            max_header_length - contains the length of the longest header in
                                the message
@@ -429,7 +431,9 @@ Third, an explanation of each variable:
                                not the same (after aliasing,
                                transformation, etc.)
 
-             password_length - NO EXPLANATION AVAILABLE
+             password_length - contains the length in characters of the new
+                               password the user is trying to set (can be
+                               used to enforce a minimum length)
 
               percent_quoted - contains the percentage of lines which are
                                quoted (100 * quoted_lines / lines)
