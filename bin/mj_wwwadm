@@ -47,7 +47,7 @@ use Mj::TextOutput;
 use Mj::Addr;
 
 my ($cgi, $domain, $mj, $ok, $sess, $token);
-my ($func, $user, $passw, $mode, $list, $vict, $extra);
+my ($ofunc, $func, $user, $passw, $mode, $list, $vict, $extra);
 my ($line, $st, $file, $fh, $cgiurl, $cmdform);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
@@ -89,7 +89,7 @@ $mj->connect('mj_wwwadm', $sess);
 
 # GET poses a security risk due to passwords being visible
 # Set HTML form variables
-$func   = $cgi->param('func') || "help";
+$ofunc   = $cgi->param('func') || "help";
 $user    = new Mj::Addr("mj_wwwadm\@example.com");
 $passw   = $cgi->param('passw') || '';
 $list    = $cgi->param('list') || 'GLOBAL';
@@ -98,7 +98,7 @@ $st      = $cgi->param('st') || '';
 if ($st eq 'on') { $st = 'checked'; }
 
 # Extract "mode" from command name
-if ($func =~ /([^\s-]+)-(.*)/) {
+if ($ofunc =~ /([^\s-]+)-(.*)/) {
   $func = $1;
   $mode = $2;
 }
@@ -131,7 +131,7 @@ command:
 <option> tokeninfo
 <option> unsubscribe
 <option> which
-<option> who
+<option> who-enhanced
 </select>
 <input size=24 name=extra value='$extra'>
 <input type=checkbox name=st $st>show pending requests<br>
@@ -144,7 +144,7 @@ mailing list:
 EOM
 
 # Select the previous command.
-$cmdform =~ s/option> $func-$mode/option selected> $func-$mode/;
+$cmdform =~ s/option> $ofunc/option selected> $ofunc/;
 
 print $cmdform;
 

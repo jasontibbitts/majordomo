@@ -560,7 +560,7 @@ sub list_access_check {
 	}
 	elsif ($func eq 'unset') {
 	  # Unset a variable.
-      if ($arg) {
+      if ($arg and rules_var($request, $arg)) {
         $args{$arg} = 0;
       }
 	  next ACTION;

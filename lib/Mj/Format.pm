@@ -486,17 +486,30 @@ sub sessioninfo {
 
 sub set {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
-      $list, $vict, $setting, $arg2, $arg3, $ok, $mess) = @_;
+      $list, $vict, $setting, $arg2, $arg3, $ok, @changes) = @_;
   my $log = new Log::In 29, "$type, $vict";
+  my ($flags, $mode1, $mode2, $mode3, $fullmode);
   $mess ||= '';
 
   if ($ok>0) {
     eprint($out, $type, "Settings for $vict changed.\n");
+    while (($ok, $flags, $mode1, $mode2, $mode3, $list) = 
+            splice @changes, 0, 6) {
+      $fullmode = $mode1;
+      $fullmode .= "-$mode2-$mode3" if $fullmode eq 'digest';
+      eprint($out, $type, 
+        &indicate("$list: flags $flags, mode $fullmode\n", $ok, 1));
+    }
+  }
+  elsif (!$ok) {
+    eprint($out, $type, "Changes for $vict must be confirmed.\n");
+    eprint($out, $type, &indicate("$mess\n", $ok, 1));
   }
   else {
     eprint($out, $type, "Settings for $vict not changed.\n");
+    eprint($out, $type, &indicate("$mess\n", $ok, 1));
   }
-  eprint($out, $type, &indicate("$mess\n", $ok, 1));
+  
   1;
 }
 

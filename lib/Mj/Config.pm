@@ -3095,17 +3095,17 @@ sub _str_to_clock {
   @out = ();
 
   # Deal with 'always', 'any',
-  if ($arg =~ /^a[ln]/) {
+  if ($arg =~ /^a[ln]/i) {
     return (['a', 0, 23]);
   }
 
   # Deal with 'never', 'none'
-  if ($arg =~ /^n[eo]/) {
+  if ($arg =~ /^n[eo]/i) {
     return ();
   }
 
   # Deal with 3rd(blah)
-  if ($arg =~ /^(\d+)(st|nd|rd|th)\((.*)\)/) {
+  if ($arg =~ /^(\d+)(st|nd|rd|th)\((.*)\)/i) {
     $flag = 'm';
     $day  = $1-1;
     for $i (split(/\s*,\s*/,$3)) {
@@ -3125,7 +3125,7 @@ sub _str_to_clock {
   }
 
   # Deal with 3rd
-  elsif ($arg =~ /^(\d+)(st|nd|rd|th)$/) {
+  elsif ($arg =~ /^(\d+)(st|nd|rd|th)$/i) {
     $flag  = 'm';
     $start = ($1-1) * 24;
     $end   = $1 * 24 - 1;
@@ -3149,10 +3149,10 @@ sub _str_to_clock {
   }
 
   # No putting it off; deal with weekdays
-  elsif ($arg =~ /^(su|m|tu|w|th|f|sa)[dayonesurit]*\((.*)\)/) {
+  elsif ($arg =~ /^(su|m|tu|w|th|f|sa)[dayonesurit]*\((.*)\)/i) {
     # mon(0-6, 12, 20-23)
     $flag = 'w';
-    $day = $days{$1};
+    $day = $days{lc $1};
 
     for $i (split(/\s*,\s*/,$2)) {
       if ($i =~ /^(\d+)-(\d+)$/) {
@@ -3170,10 +3170,10 @@ sub _str_to_clock {
       push @out, [$flag, $start, $end];
     }
   }
-  elsif ($arg =~ /^(su|m|tu|w|th|f|sa)[dayonesurit]*/) {
+  elsif ($arg =~ /^(su|m|tu|w|th|f|sa)[dayonesurit]*/i) {
     # just a day, no parenthesized times
     $flag  = 'w';
-    $day   = $days{$1};
+    $day   = $days{lc $1};
     $start = $day*24;
     $end   = $day*24 + 23;
     push @out, [$flag, $start, $end];

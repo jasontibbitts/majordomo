@@ -3515,6 +3515,8 @@ sub set {
       $list, $addr, $setting) = @_;
   my $log = new Log::In 30, "$list, $addr, $setting";
   my ($isflag, $ok, $mess, $raction);
+
+  $list = 'GLOBAL' if $list eq 'ALL';
  
   $self->_make_list($list);
   ($ok, $mess) =
@@ -3525,9 +3527,27 @@ sub set {
     return ($ok, $mess);
   }
 
-  return $self->{'lists'}{$list}->set($addr, $setting);
+  $self->_set($list, $user, $addr, $mode, $cmdline, $setting);
 }
 
+sub _set {
+  my ($self, $list, $user, $addr, $mode, $cmd, $setting) = @_;
+  my ($data, $l, $mess, $ok, $tmp, @out);
+
+  @out = (1);
+  if ($list eq 'GLOBAL') {
+    $mess = '';
+    $data = $self->{'reg'}->lookup($addr->canon);
+    for $l (split("\002", $data->{'lists'})) {
+      $self->_make_list($l);
+      push @out, $self->{'lists'}{$l}->set($addr, $setting), $l;
+    }
+  }
+  else {
+    push @out, $self->{'lists'}{$list}->set($addr, $setting), $list;
+  }
+  @out;
+}
 =head2 show(..., mode,, address)
 
 Perform the show command.  This retrieves a pile of information about an

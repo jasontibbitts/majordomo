@@ -35,9 +35,7 @@ BEGIN {
 use Socket;
 #use Fcntl qw(:flock :DEFAULT);
 use Getopt::Std;
-use Errno 'EEXIST';
 use strict;
-require "sysexits.ph";
 
 
 sub logmsg { print STDERR "[$$].Enqueue: @_\n"; }
@@ -106,7 +104,8 @@ while (1) {
   last if $ok;
   # XXX Hack?
   # die "Can't create queue file $qdir/$qfile: $!" unless $! =~ /exist/i;
-  exit &EX_CANTCREAT unless $!{EEXIST};
+  # 73 is EX_CANTCREAT
+  exit 73 unless $! =~ /exist/i;
   $q2++;
 }
 
@@ -131,7 +130,7 @@ $ok = close OUT;  # Also unlocks.
 
 # Since stdio is buffered, there is a chance that print()
 # will succeed while close() fails for a small message.
-# Returning EX_IOERR will cause sendmail to regard the
+# Returning EX_IOERR (74) will cause sendmail to regard the
 # problem as a temporary failure and defer delivery.
 unless ($ok) {
   # untaint
@@ -139,7 +138,7 @@ unless ($ok) {
   $abandoned =~ /(.*)/;
   $abandoned = $1;
   unlink $abandoned;
-  exit &EX_IOERR;
+  exit 74;
 }
 
 # Now start up the server.  We must exit 0 from here on out (no dying)

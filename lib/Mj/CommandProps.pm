@@ -385,7 +385,7 @@ my %commands =
    },
    'set' =>
    {
-    'parser'   => [qw(email shell list real)],
+    'parser'   => [qw(email shell list global all real)],
     'dispatch' => {'top' => 1},
     'access'   => {
                    'default' => 'mismatch',

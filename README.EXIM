@@ -1,0 +1,51 @@
+In order for Majordomo 2 and Exim to work together, Exim
+must be able to read the majordomo aliases.  This is
+easy to do if the file and directory permissions are set
+appropriately.
+
+When Exim is compiled, a default user and group are established.
+These values can be changed using Exim's "exim_user"
+and "exim_group" configuration options.  When Exim reads 
+majordomo's alias file, it does so as this user and group.
+Because these values may be different from Majordomo's
+user and group,  the alias files and ALIASES directory
+are created with slightly relaxed permissions.
+
+When you install Majordomo, you will be advised to 
+add a Director to your Exim configuration file.
+That Director will look something like this:
+
+majordomo_aliases:
+    driver = aliasfile
+    pipe_transport = address_pipe
+    suffix = "+*"
+    suffix_optional
+    user = majordom
+    domains = lsearch;/usr/local/majordomo/ALIASES/mj-domains
+    file = /usr/local/majordomo/ALIASES/mj-alias-example.com
+    search_type = lsearch
+
+The suffix and suffix_optional settings instruct Exim to 
+treat a "+" and any succeeding characters in an address as
+a suffix.  This is important because Majordomo will deliver list
+messages with a suffix indicating the sequence number of the
+message.  For example, the ninth message sent to the list
+  tangerine@example.com
+will likely cause some delivery error notices to be sent to the address
+  tangerine-owner+M9@example.com
+The suffix settings tell Exim to remove the "+M9" when it
+attempts to determine how to deliver the error notice.
+
+More information on configuring Exim Directors may be found 
+in the specification "spec.txt" in the Exim distribution, or at
+  http://www.exim.org/docs.html
+ 
+If Majordomo is configured to use queueing, if the queue file
+cannot be written due to a disk space shortage or other mishap,
+the mj_enqueue program may return 73 or 74 (EX_CANTCREAT or EX_IOERR).
+If you wish to treat such errors as temporary, and have Exim
+try to deliver the message again later, use the Exim setting:
+  temp_errors = 73:74:75
+On most systems, these values will correspond to EX_CANTCREAT,
+EX_IOERR, and EX_TEMPFAIL, respectively.
+
