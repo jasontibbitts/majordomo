@@ -1,0 +1,5 @@
+# Journalier, supprimer les vieux fichier lock
+30 0 * * * $INSTALL_DIR/bin/mj_trigger -t lock
+# Horaire, effectue certaines tâches
+20 * * * * $INSTALL_DIR/bin/mj_trigger -t hourly
+

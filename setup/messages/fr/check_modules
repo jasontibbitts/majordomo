@@ -1,0 +1,6 @@
+Majordomo 2 se fonde sur un bon nombre de modules Perl. Si certains de
+ces modules requis ne sont pas installés sur votre système, la
+programme de configuration s'arrêtera, et vous recevrez les
+instructions nécessaires pour installer les modules manquants.
+
+Appuyez sur la touche "Entrée" pour commencer à vérifier les modules.

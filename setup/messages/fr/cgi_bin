@@ -1,0 +1,14 @@
+Parametrage de l'interface Web
+
+Ou se trouve le répertoire cgi-bin du serveur ?
+
+Majordomo est livré avec 3 interfaces Web qui permettent aux abonnés
+et aux administrateurs de confirmer les commandes Majordomo, de
+s'inscrire à des listes, de gérer les listes, et bien d'autres choses
+encore. Ces programmes doivent être stockés dans le bon répertoire
+pour que le serveur web puisse les exécuter.
+
+Si la machine ou s'exécute Majordomo ne possède pas de serveur web,
+laissez ce paramètre vide. Autrement, vous devez spécifier le chemin
+complet du répertoire.
+

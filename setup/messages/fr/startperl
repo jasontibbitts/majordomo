@@ -1,0 +1,4 @@
+Normalement, la valeur par défaut à cette question est récupérée
+dans la variable "startperl" dans le fichier Config.pm.
+
+Votre installation semble de pas être correcte.

@@ -1,0 +1,3 @@
+"$PATH" ne commence pas par un slash ('/').
+Entrez un chemin absolu, commençant par un slash.
+

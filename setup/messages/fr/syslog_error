@@ -1,0 +1,28 @@
+**** Majordomo nécessite un Perl bien configuré.
+
+Nous avons essayé d'utiliser le module Sys::Syslog, mais ça a échoué
+avec l'erreur :
+
+$ERROR
+
+Les erreurs ici sont généralement liées a des problèmes d'installation
+de Perl. Sys::Syslog requiert le fichier syslog.ph, qui est supposé
+être généré par le programme h2ph. Si syslog.ph n'a pas été trouvé, il
+peut être généré en exécutant les commandes suivantes en tant que root :
+
+  cd /usr/include 
+  h2ph * sys/*
+
+Certains systèmes peuvent nécessiter la commande suivante :
+
+  h2ph machine/*
+
+et certains autres répertoires contenant des fichier d'en-têtes.
+
+Si il y avais une erreur de syntaxe, il est possible que h2ph génère
+du mauvais code. Cela devrait faire l'objet d'une recherche et peut
+être rapporté aux développeurs de Perl.
+
+Consultez la documentation de Perl pour plus d'informations. Majordomo
+ne fonctionnera pas tant que cela ne sera pas réparé.
+

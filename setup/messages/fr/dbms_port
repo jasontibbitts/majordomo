@@ -1,0 +1,8 @@
+Stockage en base de données
+
+Sur quel port le serveur de bases de données $DB écoute il ?
+
+Pour contacter le serveur de bases de données, Majordomo doit
+connaître le numéro du port sur "$HOST" qui est utilisé par le
+serveur de base de données.
+

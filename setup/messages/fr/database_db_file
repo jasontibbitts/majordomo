@@ -1,0 +1,5 @@
+Le module DB_File est installé, cela permet d'utiliser les fichiers
+de bases de données Berkeley DB. Entrez "db" a l'invite pour utiliser
+les bases de données DB_File.
+
+
