@@ -4119,8 +4119,8 @@ sub sync_owners {
     @tmp = $self->{'lists'}{'GLOBAL'}->get_chunk('owners', 1000);
     last unless @tmp;
     for $i (@tmp) {
-      unless (exists $out->{$i->{'canon'}}) {
-        push @deletions, $i->{'canon'};
+      unless (exists $out->{$i->{'stripaddr'}}) {
+        push @deletions, $i->{'stripaddr'};
       }
     }
   }
