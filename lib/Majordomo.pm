@@ -184,6 +184,10 @@ XXX Add some way for an interface to pass us an ID to see if we still think
 it''s valid.  The CGI interface may need to do this if it doesn''t take
 care of that itself.
 
+XXX This needs to get much more complex; reconnecting with a previous
+session should now be fine, but we want to enforce timeouts and other
+interesting things.
+
 =cut
 use MD5;
 sub connect {
@@ -191,22 +195,22 @@ sub connect {
   my $int  = shift;
   my $sess = shift;
   my $log = new Log::In 50, "$int";
-  my ($err, $id, $ok);
+  my ($path, $id, $ok);
 
   # Generate a session ID; hash the session, the time and the PID
   $id = MD5->hexhash($sess.scalar(localtime).$$);
 
   # Open the session file; overwrite in case of a conflict;
-  ($ok, $err) = $self->{'lists'}{'GLOBAL'}->fs_put_start
-    ("sessions/$id", 1, "Session $id");
+  ($ok, $path) = $self->{'lists'}{'GLOBAL'}->fs_put
+    ("sessions/$id", '', 1, "Session $id");
 
-  $log->abort("Can't write session file $id, $err") unless $ok;
+  $log->abort("Can't write session file $id, $path") unless $ok;
 
-  $self->{'lists'}{'GLOBAL'}->fs_put_chunk("Source: $int\n\n");
-  $self->{'lists'}{'GLOBAL'}->fs_put_chunk($sess);
-  $self->{'lists'}{'GLOBAL'}->fs_put_done;
+  $self->{sessionid} = $id;
+  $self->{sessionfh} = new Mj::File($path, '>>');
+  $self->{sessionfh}->print("Source: $int\n\n");
+  $self->{sessionfh}->print("$sess\n");
 
-  $self->{'sessionid'} = $id;
   return $id;
 }
 

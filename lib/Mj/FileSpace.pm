@@ -126,6 +126,12 @@ If overwrite is true and the file exists, they will be put even if it does
 not have permission "w".  (Unless, of course, it has permission "!", which
 indicates a problem.)
 
+If the source path is null, this creates the file id if did not already
+exist.
+
+The path of the new file is returned if this succeeds.  The file can be
+locked and manipulated directly by the caller.
+
 XXX Communicate errors better
 XXX There is no locking here!
 
@@ -149,19 +155,26 @@ sub put {
 
   $path = "$self->{'dir'}/$file";
 
-  # Check to see if file exists.  If it does?
-  if (-e $path ) {
-    $oldperm = $self->get_permissions($file);
-    return if $oldperm eq "!";
-    if ($oldperm !~ /w/) {
-      return unless $over;
+  # If we were passed a file, check to see if file exists.
+  if ($src) {
+    if (-e $path ) {
+      $oldperm = $self->get_permissions($file);
+      return if $oldperm eq "!";
+      if ($oldperm !~ /w/) {
+	return unless $over;
+      }
+      return unless $self->delete($file);
     }
-    return unless $self->delete($file);
+    # Copy in the file
+    cp($src, $path) ||
+      $::log->abort("Mj::FileSpace::put failed copying file $src to $path, $!");
   }
-
-  # Copy file
-  cp($src, $path) ||
-    $::log->abort("Mj::FileSpace::put failed copying file $src to $path, $!");
+  # Else were weren't passed a file, so we just make sure the destination
+  # exists.
+  else {
+    open BLAH, ">>$path";
+    close BLAH;
+  }
   # Add database info
   $data =
     {
@@ -172,7 +185,7 @@ sub put {
      'permissions' => $perm,
     };
   $self->{'db'}->add("", $file, $data);
-  1;
+  (1, $path);
 }
 
 =head2 put_start, put_chunk, put_done

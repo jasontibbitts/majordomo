@@ -1,5 +1,14 @@
 Mon Apr  6 00:00:13 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Mj/FileSpace.pm (put): Add functionality to just create a
+ 	file; pass back the pathname upon success so it can be manipulated
+ 	elsewhere.
+
+	* lib/Majordomo.pm (connect): Append to the session and keep it
+ 	open.
+
+	* lib/Mj/Inform.pm (inform): Also log to the session.
+
 	* postinstall (copy_file): New function.  Call copy_file to put
  	mj_confirm in the proper place if cgi_bin is set in the startup
  	configuration.

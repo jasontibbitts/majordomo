@@ -76,6 +76,11 @@ sub inform {
   $fh->close ||
     $log->abort("Cannot close $file, $!");
 
+  # Update the session
+  if ($self->{sessionfh}) {
+    $self->{sessionfh}->print("$stat: $cmd\n");
+  }
+
   # Decide whether or not to inform the owner
   my $data = $self->_list_config_get($list, 'inform');
   my $inf = $data->{$req}{'all'} || $data->{$req}{$stat} || 0;

@@ -17,9 +17,6 @@ Top of the list
 
 ! Make sure all sent mails have To: headers.
 
-! Have dispatch or log add info about what's being done to the stored
-  session.
-
 - Implement rejection (and perhaps acceptance) messages for tokens, and add
   a box to type them in to the web interface.
 
