@@ -28,7 +28,8 @@ Password: <input type=password size=15 name=passw value="$PASSWORD">
   of posted messages.
 
   <dt><input type=checkbox name=extra value="LISTS">Lists
-  <dd>Settings related to the output of the <b>lists</b> command.
+  <dd>Settings related to the output of the $HELP:LISTS
+      command.
 
   <dt><input type=checkbox name=extra value="MISCELLANY">Miscellany
   <dd>Settings that do not fit one of the other categories.
