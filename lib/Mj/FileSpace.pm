@@ -133,6 +133,8 @@ sub getdata {
   $perm = 'd'  if (-d $path && -r $path);
   $perm = 'Rw' if (-f $path && -r $path);
 
+  # Record the time at which the file was last modified.
+
   $data = {
 	   'description' => '(none)',
 	   'permissions' => $perm,
@@ -140,6 +142,7 @@ sub getdata {
 	   'c-t-encoding'=> $perm eq 'd' ? '' : '8bit',
 	   'charset'     => $perm eq 'd' ? '' : 'ISO-8859-1',
 	   'language'    => $perm eq 'd' ? '' : 'en',
+           'lastmod'     => (stat($path))[9],
 	  };
 
   if ((-f $name || -d _) && -r _) {
