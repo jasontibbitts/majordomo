@@ -395,7 +395,7 @@ sub _post {
   # Strip the subject prefix from the archive copy.  Note that this
   # function can have odd side effects because it plays with the entities,
   # so we re-extract $archead at this point.
-  (undef, $arcent) = $self->_subject_prefix($arcent, $list, $seqno);
+  (undef, $arcent) = $self->_munge_subject($arcent, $list, $seqno);
   $archead = $arcent->head;
 
   # Pass to archive.  XXX Is $user good enough, or should we re-extract?
@@ -460,10 +460,13 @@ sub _post {
   # Add list-headers standard headers
 
   # Add fronter and footer.
-  $self->_add_fters($list, $ent[0], $subs);
+  $self->_add_fters($ent[0], $list, $subs);
+
+  # Hack up the From: and CC: headers
+  $self->_munge_from($ent[0], $list);
 
   # Add in subject prefix
-  ($ent[0], $ent[1]) = $self->_subject_prefix($ent[0], $list, $seqno);
+  ($ent[0], $ent[1]) = $self->_munge_subject($ent[0], $list, $seqno);
 
   # Add in Reply-To:
   $ent[2] = $self->_reply_to($ent[0]->dup, $list, $seqno, $user);
@@ -1234,7 +1237,7 @@ sub _trim_approved {
   return $oent;
 }
 
-=head2 _add_fters(list, entity, subs)
+=head2 _add_fters(entity, list, subs)
 
 This adds fronters and footers to the entity.  If the message is
 multipart or the only part is not text/plain, then we have to do
@@ -1248,8 +1251,8 @@ which one to use, then attach it.
 =cut
 sub _add_fters {
   my $self = shift;
-  my $list = shift;
   my $ent  = shift;
+  my $list = shift;
   my $subs = shift;
   my $log  = new Log::In 40;
   my($foot, $footers, $foot_ent, $foot_freq, $front, $fronters,
@@ -1336,7 +1339,28 @@ sub _add_fters {
   return 1;
 }
 
-=head2 _subject_prefix(ent, sequence_number)
+=head2 _munge_from(ent, list)
+
+This hacks up the From: header and perhaos CC: as well.  Currently the only
+function is to check to see if the user in the From: header has the
+rewritefrom flag set and if so replace it with the version from the list.
+
+=cut
+sub _munge_from {
+  my ($self, $ent, $list) = @_;
+  my ($data, $from);
+
+  $from = new Mj::Addr($ent->head->get('From'));
+  if ($from->isvalid &&
+      $self->{lists}{$list}->flag_set('rewritefrom', $from))
+    {
+      $data = $self->{lists}{$list}->is_subscriber($from);
+      return unless $data;
+      $ent->head->replace('From', $data->{fulladdr});
+    }
+}
+
+=head2 _munge_subject(ent, sequence_number)
 
 Prepend the subject prefix.  $SENDER is is expanded under 1.94 but it is
 done is such a broken manner that nobody would ever use it.  We disable it;
@@ -1347,7 +1371,7 @@ Returns two entities: one with the prefix, one with any existing prefix
 removed.
 
 =cut
-sub _subject_prefix {
+sub _munge_subject {
   my ($self, $ent1, $list, $seqno) = @_;
   my ($ent2, $gprefix, $head1, $head2, $prefix, $subject, $subject2, $subs);
 

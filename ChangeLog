@@ -1,3 +1,28 @@
+Thu Aug 12 00:33:58 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* Makefile.PL: Bump config file version.
+
+	* setup/ask_basic.pl: Pretty up questions by adding some headers
+ 	and reorganizing a bit.
+
+	* setup/setup_func.pl (do_default_config): Substitute confirm_url
+ 	setting into default configurations.
+
+Wed Aug 11 21:40:32 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* setup/ask_basic.pl (ask_basic): Ask about URL to get to CGIs.
+
+	* lib/Mj/SubscriberList.pm: Added id, remind and expires fields.
+
+Sat Aug  7 11:04:17 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* setup/ask_domain.pl (ask_domain): Typo $fg -> $cfg.
+
+Tue Aug  3 00:02:19 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Rename _subject_prefix to
+ 	_munge_subject to reflect better what it will eventually do.
+
 Mon Aug  2 19:20:18 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Digest.pm (trigger): Initialize digest state to sane

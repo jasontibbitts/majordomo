@@ -131,6 +131,12 @@ sub do_default_config {
     s!(^ \'whoami_owner\'.*)DEFAULT(.*)!$1$owner$2!;
     s!(^ \'owners\'.*)DEFAULT(.*)!$1$config->{'domain'}{$dom}{owner}$2!;
     s!(^ \'sender\'.*)DEFAULT(.*)!$1$owner$2!;
+    if ($config->{cgi_bin}) {
+      s!(^ \'confirm_url\'.*)DEFAULT(.*)!$1$config->{cgi_url}mj_confirm?d=$dom&t=\$TOKEN$2!;
+    }
+    else {
+      s!(^ \'confirm_url\'.*)DEFAULT(.*)!$1no server configured$2!;
+    }
 
     for $i (qw(tmpdir site_name)) {
       $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};

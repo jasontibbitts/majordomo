@@ -204,7 +204,7 @@ sub welcome {
 
   # Extract some necessary variables from the config files
   my $mj        = $self->_global_config_get('whoami');
-  my $mj__owner = $self->_global_config_get('sender');
+  my $mj_owner  = $self->_global_config_get('sender');
   my $whereami  = $self->_global_config_get('whereami');
   my $tmpdir    = $self->_global_config_get('tmpdir');
   my $site      = $self->_global_config_get('site_name');
@@ -273,9 +273,9 @@ sub welcome {
       }
     }
     $head = $top->head;
-    $head->replace('to',      $addr);
-    $head->replace('subject', $mess[$i]{'subject'});
-    $head->replace('from',    $whoami);
+    $head->replace('To',      $addr);
+    $head->replace('Subject', $mess[$i]{'subject'});
+    $head->replace('From',    $sender);
     $final = "$tmpdir/mj-tmp." . Majordomo::unique();
     open FINAL, ">$final" ||
       $::log->abort("Cannot open file $final, $!");

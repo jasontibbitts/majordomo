@@ -75,6 +75,10 @@ there are notable changes:
 Running convertlist.pl
 ----------------------
 
+convertlist must be run by a user with enough privileges to read the old
+list and configuration files.  It is not generally necessary to run it as
+root.
+
 An invocation of convertlist looks like this:
 
 perl convertlist.pl -d example.com  -option argument list list list
@@ -91,3 +95,7 @@ The script takes the following options:
 
 Any number of lists can be specified; they will be converted in turn.
 
+Simply answer the questions posed to convert your list.  You will be given
+a chance to examine and edit the set of Majordomo commands that will be
+executed; the command line to be used is also shown at the end of this
+file.

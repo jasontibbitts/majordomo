@@ -36,6 +36,8 @@ Your installation does not seem to be correct.
 
   #---- Ask for UID
   $msg = <<EOM;
+Basic Security Configuration
+
 What is the user ID that Majordomo will run as?
  Either the numeric ID or the user name is fine.
 EOM
@@ -46,6 +48,8 @@ EOM
 
   #---- Ask for GID
   $msg = <<EOM;
+Basic Security Configuration
+
 What is the group ID that Majordomo will run as?
  Either the numeric ID or the group name is fine.
 EOM
@@ -56,6 +60,8 @@ EOM
 
   #---- Ask about wrappers
   $msg = <<EOM;
+Basic Security Configuration
+
 Should the SETID wrappers be installed?
  Majordomo needs to be able to run as the proper user no matter who is
   running it.  This requires that it be installed SETID.  On some systems,
@@ -74,6 +80,8 @@ EOM
 
   #---- Ask for umask
   $msg = <<EOM;
+Basic Security Configuration
+
 What umask should Majordomo use?
  The umask is the Unix method of restricting the permissions on newly
   created files and directories.
@@ -89,52 +97,10 @@ EOM
   $def = $config->{'umask'} || '077';
   $config->{'umask'} = get_enum($msg, $def, [qw(077 027 007 002 000)]);
 
-  #---- Ask about database storage mechanism
-  if ($have{'DB_File'}) {
-    $msg = <<EOM;
-Majordomo needs to know which database backend to use.
- You have the DB_File module installed, so Perl has access to advanced
-  database routines that Majordomo can use to store the various data it
-  collects.  Majordomo also has a simple database interface implemented
-  with text files which will be used if you answer no to this question;
-  databases using this method can be viewed and edited by hand, but access
-  to them is very slow.
- Note that the database backend cannot easily be changed after the fact.
- IMPORTANT: if you are upgrading, you must convert your existing databases;
-  Majordomo will not do this for you.  Please read the README.UPGRADE
-  document for more information.
-
-Should Majordomo use DB_File databases?
-EOM
-    $def = (defined($config->{database_backend}) && $config->{database_backend} eq 'db') || 1;
-    if (get_bool($msg, $def)) {
-      $config->{database_backend} = 'db';
-    }
-  }
-  else {
-    $msg = <<EOM;
-Majordomo will use flat text file databases.
-
- You do not have the Berkeley DB library and the DB_File module installed,
-  so Majordomo will instead use flat text file databases.  These databases
-  are significantly slower to access then DB_File ones; if performance is
-  important then it is recommended that you install these libraries and
-  rerun the installation.
-
- The Berkeley DB database library is located at http://www.sleepycat.com;
- the DB_File module is part of Perl and can also be obtained from CPAN with
- the following command line:
-
-   perl -MCPAN -e\'CPAN::Shell->install(\"DB_File\")\';
-
-Please press enter.
-EOM
-    get_str($msg);
-    $config->{database_backend} = 'text';
-  }
-
   #---- Ask for insecure stored passwords
   $msg = <<EOM;
+Basic Security Configuration
+
 For developers: the install process needs to know various passwords.
  They can either be saved along with the rest of your install
   configuration, or prompted for at the end of the installation.  Saving
@@ -158,6 +124,8 @@ EOM
 
   #---- Get site password
   $msg = <<EOM;
+Basic Security Configuration
+
 Please choose a site password.
   Majordomo allows a single site password that allows the holder to perform
   any function on any list in any virtual domain at the site, in addition
@@ -172,8 +140,58 @@ EOM
     delete $config->{'site_password'};
   }
 
+  #---- Ask about database storage mechanism
+  if ($have{'DB_File'}) {
+    $msg = <<EOM;
+Database Storage
+
+Majordomo needs to know which database backend to use.
+ You have the DB_File module installed, so Perl has access to advanced
+  database routines that Majordomo can use to store the various data it
+  collects.  Majordomo also has a simple database interface implemented
+  with text files which will be used if you answer no to this question;
+  databases using this method can be viewed and edited by hand, but access
+  to them is very slow.
+ Note that the database backend cannot easily be changed after the fact.
+ IMPORTANT: if you are upgrading, you must convert your existing databases;
+  Majordomo will not do this for you.  Please read the README.UPGRADE
+  document for more information.
+
+Should Majordomo use DB_File databases?
+EOM
+    $def = (defined($config->{database_backend}) && $config->{database_backend} eq 'db') || 1;
+    if (get_bool($msg, $def)) {
+      $config->{database_backend} = 'db';
+    }
+  }
+  else {
+    $msg = <<EOM;
+Database Storage
+
+Majordomo will use flat text file databases.
+
+ You do not have the Berkeley DB library and the DB_File module installed,
+  so Majordomo will instead use flat text file databases.  These databases
+  are significantly slower to access then DB_File ones; if performance is
+  important then it is recommended that you install these libraries and
+  rerun the installation.
+
+ The Berkeley DB database library is located at http://www.sleepycat.com;
+ the DB_File module is part of Perl and can also be obtained from CPAN with
+ the following command line:
+
+   perl -MCPAN -e\'CPAN::Shell->install(\"DB_File\")\';
+
+Please press enter.
+EOM
+    get_str($msg);
+    $config->{database_backend} = 'text';
+  }
+
   #---- Ask for default install location
   $msg = <<EOM;
+Storage Locations
+
 Where will the Majordomo libraries, executables and documentation be kept?
  This could be something like \"/usr/local/majordomo\"; Majordomo will make
    this directory and several directories under it to hold its various
@@ -185,6 +203,8 @@ EOM
 
   #---- Ask for list directory
   $msg = <<EOM;
+Storage Locations
+
 Where will the Majordomo list data be kept?
  Note that under this directory will be a directory for each domain your
    site supports, and under that a directory for each list at your site.
@@ -197,6 +217,8 @@ EOM
 
   #---- Ask for writable temporary dir
   $msg = <<EOM;
+Storage Locations
+
 Where can Majordomo place temporary files?
  Majordomo occasionally needs to write out short-lived files in a place
    that all users can write to.  These files are generally small and are
@@ -207,6 +229,8 @@ EOM
 
   #---- Ask for secure temporary dir
   $msg = <<EOM;
+Storage Locations
+
 Where can Majordomo place secure temporary files?
   Majordomo also needs to write out private temporary files.  For maximum
     security, this should be a special directory that is neither readable
@@ -223,6 +247,8 @@ EOM
 
   #---- Ask for cgi-bin directory
   $msg = <<EOM;
+Web Component Setup
+
 Where is the web server\'s cgi-bin directory?
   Majordomo comes with a program that enables users to conform operations
     such as subscriptions by using a web page.  It needs to put this program
@@ -237,6 +263,8 @@ EOM
 
   #---- Ask if we can link to cgi-bin
   $msg = <<EOM;
+Web Component Setup
+
 Can Majordomo make a link to the program in cgi-bin?
   Some web servers will allow a link to the file in cgi-bin; others require
     a separate copy.  Majordomo tries to avoid confusion by keeping all of
@@ -249,8 +277,29 @@ EOM
     $config->{cgi_link} = get_bool($msg, $def);
   }
 
+  #---- Ask for the URL of programs in cgi-bin
+  $msg = <<EOM;
+Web Component Setup
+
+What is the URL for programs in cgi-bin?
+  Majordomo needs to know how to make a URL that points to a program in the
+    cgi-bin directory of your web server.
+  For example, if you can call "blah.cgi" at
+      http://www.example.com/cgi-bin/blah.cgi
+    you would enter
+      http://www.example.com/cgi-bin/
+
+EOM
+  if ($config->{cgi_bin}) {
+    $def = $config->{cgi_url} || '';
+    $config->{cgi_url} = get_str($msg, $def);
+    $config->{cgi_url} .= '/' unless $config->{cgi_url} =~ m!/$!;
+  }
+
   #---- Ask about queueing
   $msg = <<EOM;
+Mail Handling Setup
+
 Would you like to run Majordomo in queueing mode, or in direct mode?
   Majordomo can be run in two modes:
     In direct mode, every message that comes in is fully processed and
@@ -277,6 +326,8 @@ EOM
 
   #---- Ask for MTA
   $msg = <<EOM;
+Mail Handling Setup
+
 What Mail Transfer Agent will be feeding mail to Majordomo?
  Majordomo needs to know the MTA that you\'re running so that it can suggest
   configuration details.
@@ -314,6 +365,8 @@ EOM
 
   #---- Ask for virtual domains
   $msg = <<EOM;
+Virtual Domains
+
 Which domains will this Majordomo installation support?
   Majordomo 2 includes support for virtual domain setups, where one machine
     serves several distinct sets of lists.  You can name these collections

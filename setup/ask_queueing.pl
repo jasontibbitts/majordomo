@@ -2,6 +2,8 @@ sub ask_queueing {
   my($config) = @_;
 
   $msg = <<EOM;
+Mail Handling Setup
+
 How many queue servicing processes do you want to run concurrently?
   Queue runners will be created as necessary (not all at once), but under
   no circumstances will more than this number exist at the same time.
@@ -11,6 +13,8 @@ EOM
   $config->{'queue_concurrency'} = get_str($msg, $def);
 
   $msg = <<EOM;
+Mail Handling Setup
+
 How long should queue servicing processes wait without doing any work
  before they exit?
  The queue runners will automatically exit after this many seconds of
@@ -21,6 +25,8 @@ EOM
 
   #---- Ask about child process reaping
   $msg = <<EOM;
+Mail Handling Setup
+
 Does \$SIG{CHLD} = 'IGNORE' reap children on your system?
  On most systems, simply ignoring signals about the status of child
   processes will cause the system to clean them up for you.  On some,

@@ -1,5 +1,22 @@
 -*- Text -*-
 
+Roadmap
+-------
+
+The primary features holding up a true release are Bounce handling and a
+web interface.
+
+Simplistic bounce handling is a relatively easy project; just write a
+module that looks for bounces and tap into the _owner function.  Code for
+the module is already written.  Some additional support is needed, though;
+the user-id stuff and the support for it in the envelope generator is
+essential in making the system foolproof.
+
+There are two basic ways to do the web interface: build up a set of small
+CGIs that perform basic functions (subscribe, unsibscribe, get info, etc.)
+or port MajorCool.  The latter is pretty tough given the perl4/perl5
+impedance mismatch but could pay off in a big way.
+
 Bugs?
 -----
 
@@ -17,19 +34,6 @@ register-update - if stripped address is the same, update the comment.
 subscribe-update - same
 Add an 'address' argument to the inform variable; address to send
  information to.
-
-Restructuring Plan
-------------------
-Move to a more module-based system; allow various filtering pieces of resend:
-
-  mime filters
-  checksumming
-  taboo/admin
-  
-to be moved into modules; have per-message modules and per-line modules.
-Allow modules to be added; have a variable listing modules to be run.
-Define module interface.  Move lesser-used commands out of Majordomo.pm
-(and TextOutput.pm and Format.pm) and into separate modules.
 
 
 Doc changes needed
@@ -49,45 +53,28 @@ Removal of database_backend variable.
 list:sublist notation for referencing subscribers of other lists.  (Works
 after @ in access_rules and in restrict_post.)
 
+rewritefrom flag: 'set list rewritefrom' and your From: headers will be
+rewritten to the form of address you used when you signed up.
+
+
+
 Top of the list 
 ---------------
 
-List converter:
+Query for 'ignore case' in addr_xforms at install time.
 
-  Take location of old list directory and name of list to convert.
-
-  Pull in old config file 
-
-  Create list if not existing
-
-  For each list (sorted):
-    offer to create
-    add subscribers
-    open config
-
-    if -digest, offer to create non-digest version and add subscribers to digest.
-
-
-Query for Confirm_url at install time.
-
-Implement rewritefrom flag.
-
-  set list rewritefrom
-
-Rewrites to address that the user was subscribed with.
-
-But is this setting a rewrite on the current address of string or the
-rewritefrom flag on the address "string"?
-
-  set list rewritefrom-as 
-
-sets the rewrite string (or erases it, I suppose).
-
+Add useful bounce reasons for failed restrict_post match.  Allow reason
+specification (how?) for access_rules consults.
 
 Implement naive list deletion functionality:
   createlist-delete listname
 
-Only delete if no remaining subscribers.
+  Only delete if no remaining subscribers.
+
+List converter:
+
+    if -digest, offer to create non-digest version and add subscribers to digest.
+
 
 
 New stored token format:
@@ -248,6 +235,19 @@ Make Deliver take a list of delivery hashes, so you can pass in a whole
   database scan.
 Do more substitutions in mailfile actions.  Allow a hashref of
   substitutions to be passed in.
+
+Move to a more module-based system; allow various filtering pieces of resend:
+
+  mime filters
+  checksumming
+  taboo/admin
+  
+to be moved into modules; have per-message modules and per-line modules.
+Allow modules to be added; have a variable listing modules to be run.
+Define module interface.  Move lesser-used commands out of Majordomo.pm
+(and TextOutput.pm and Format.pm) and into separate modules.
+
+
 
 ! Digest:
 

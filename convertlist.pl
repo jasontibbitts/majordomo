@@ -119,7 +119,6 @@ EOM
   # Iterate over the keys, performing conversion or deletion if necessary.
   for $i (sort keys %config) {
     if ($delete{$i}) {
-      warn "deleting $i";
       delete $config{$i};
     }
   }
@@ -188,9 +187,6 @@ EOM
 #  @args = ("$mjcfg->{'install_dir'}/bin/mj_shell", "-d", "$opts{d}", "-F",
 #	   "$file", "-f", "$opts{o}/$list");
 
-  print CMD "# mj_shell will be called with the following arguments:\n";
-  print CMD "# @args\n\n";
-
   # Pull out the password or prompt for it if necessary
   $pw = $mjcfg->{'site_password'};
   unless ($pw) {
@@ -237,7 +233,7 @@ EOM
 What do you want to name this auxiliary list?
 
 EOM
-	$aux = get_str($i, $1);
+	$aux = get_str($msg, $1);
 	print CMD "auxadd $list $aux <\@$filecount\n";
 	$filecount++;
 	push @args, ('-f', "$opts{o}/$i");
@@ -280,7 +276,15 @@ EOM
     }
   }
 
-  print CMD "\nsubscribe-noinform-nowelcome $list <\@1\n";
+  print CMD "\nsubscribe-noinform-nowelcome $list <\@$filecount\n\n";
+  push @args, "-f", "$opts{o}/$list";
+
+
+  print CMD "# mj_shell will be called with the following arguments:\n";
+  print CMD "# @args\n\n";
+
+
+
   close CMD;
 
 
@@ -292,23 +296,25 @@ EOM
 
   return if $err && get_bool("The editor indicated an error; continue?\n", 1);
 
-#   # Pass it to mj_shell.
-#   $pid = open(SHELL, "|-");
+  get_str("Ready to execute script; press enter\n");
 
-#   if ($pid) {
-#     # in parent
-#     open CMD, "<$file";
-#     while (defined($_ = <CMD>)) {
-#       print SHELL $_;
-#     }
-#     close CMD;
-#     close CHILD;
-#     wait $pid;
-#   }
-#   else {
-#     # in chiild
-#     exec (@args) or die "Error executing $args[0], $!";
-#   }
+  # Pass it to mj_shell.
+  $pid = open(SHELL, "|-");
+
+  if ($pid) {
+    # in parent
+    open CMD, "<$file";
+    while (defined($_ = <CMD>)) {
+      print SHELL $_;
+    }
+    close CMD;
+    close CHILD;
+    wait $pid;
+  }
+  else {
+    # in chiild
+    exec (@args) or die "Error executing $args[0], $!";
+  }
 
   unlink $file;
 

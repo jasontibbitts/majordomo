@@ -346,7 +346,7 @@ sub lists {
 
 sub password {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
-      $list, $vict, $pass, $arg2, $arg3, $ok, $mess) = @_;
+      $list, $vict, $passwd, $arg2, $arg3, $ok, $mess) = @_;
   my $log = new Log::In 29, "$type";
  
   if ($ok>0) {

@@ -69,7 +69,7 @@ use vars qw(@ISA);
 
 @ISA=qw(Mj::SimpleDB);
 
-my @fields = (qw(stripaddr fulladdr subtime changetime class classarg classarg2 flags rewritefrom));
+my @fields = (qw(stripaddr fulladdr subtime changetime class classarg classarg2 flags rewritefrom expire remind id));
 
 =head2 new(path)
 

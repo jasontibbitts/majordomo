@@ -23,7 +23,7 @@ What address will the Majordomo at $i receive mail at?
   installation you may want to run Majordomo2 at an address like "mj2".
 EOM
   $def = $cfg->{whoami} || 'majordomo';
-  $fg->{whoami} = get_str($msg, $def);
+  $cfg->{whoami} = get_str($msg, $def);
 
   #---- owner address, for alias construction
   $msg = <<EOM;
