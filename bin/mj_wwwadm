@@ -303,7 +303,7 @@ elsif ($func eq 'set') {
   @extra = $cgi->param('victims');
   for $addr (@extra) {
     @values = $cgi->param($addr);
-    $request->{'setting'} .= join ",", @values;
+    $request->{'setting'} = join ",", @values;
     for $j (qw(ackdeny ackpost ackreject ackstall eliminatecc hideaddress
                hideall postblock prefix replyto selfcopy rewritefrom)) {
       unless (grep { $_ eq $j } @values) {
