@@ -326,6 +326,9 @@ sub parse_part {
     # by the above call to command_legal.
     if ($true_command eq "approve") {
       ($password, $command, $cmdargs) = split(" ", $cmdargs, 3);
+      $password = '' unless defined $password;
+      $command  = '' unless defined $command;
+      $cmdargs  = '' unless defined $cmdargs;
 
       # Pull off a command mode
       ($command, $mode) = $command =~ /([^=-]+)[=-]?(.*)/;
@@ -437,7 +440,7 @@ sub parse_part {
     else {
       # Handle default arguments for commands
       if ($true_command =~ /accept|reject/) {
-        unless ($cmdargs =~ /[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}/) {
+        if ($cmdargs !~ /[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}/ && $args{token}) {
           $cmdargs = "$args{'token'} $cmdargs";
         }
       }
@@ -741,6 +744,7 @@ sub parse_line {
   # Extract the command from the line
   $log->message(80, "info", "Extracting command from \"$_\"");
   ($command, $_) = /^(\S+)\s*(.*)$/;
+
   $log->message(81, "info", "Got command \"$command\", rest \"$_\"");
 
   return ($out, $command, $_, $attachhandle, @arglist);

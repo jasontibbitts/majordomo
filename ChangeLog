@@ -1,5 +1,7 @@
 2002-05-16  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
+	* lib/Mj/Parser.pm (parse_part): Fix a couple of undef warnings.
+
 	* bin/mj_queuerun (run_queue): Perform date sorting differently to
 	guard against warnings when queue files are deleted by another
 	process.
