@@ -122,7 +122,7 @@ sub build {
   @files;
 }
 
-=head2 idx_default
+=head2 idx_subject
 
 This formats an index line containing just the subject indented by two
 spaces.
@@ -174,19 +174,25 @@ sub idx_subject_author {
   return "  $sub " . (' ' x int(71 - $width)) . "[$from]\n";
 }
 
+=head2 idx_numbered
 
-#   $sub = $data->{'subject'};
-#   $sub = '(no subject)' unless length $sub;
+This produces the same format regardless of the digest type.
+Each entry consists of two lines.  The first contains the 
+message number and subject.  The second contains the address
+of the author.
 
-#   if (length("$sub $data->{'from'}") > 74) {
-#     return "  $sub\n" . (' ' x int(74-length($data->{'from'}))) .
-#       "[$data->{'from'}]\n";
-#   }
+  200008/12: Today's your birthday, friend...                 
+    Mike Matthews <matthewm>
 
-#   $from = substr($data->{'from'},0,71-length($sub));
-#   $width = length($from) + length($sub);
-#   return "  $sub " . (' ' x int(71 - $width)) . "[$from]\n";
-# }
+=cut
+sub idx_numbered {
+  my ($type, $msg, $data) = @_;
+  return sprintf "%-10s: %s\n  %s\n", 
+                  $msg || '???',
+                  $data->{'subject'} || '(no subject)',
+                  $data->{'from'} || '(anonymous)';
+
+}
 
 =head1 COPYRIGHT
 
