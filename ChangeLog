@@ -1,3 +1,9 @@
+2001-08-22  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm (reject): Accept -quiet mode for turning off
+	notifications.  Stop overloading nolog and noinform for this
+	purpose.
+
 2001-08-22  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (substitute_vars)  Bugfix:  use the

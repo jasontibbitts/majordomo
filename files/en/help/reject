@@ -1,8 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-reject [token] [comment]
+reject[-quiet] [token] [comment]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 token,   if specified, is the magic number sent to you by Majordomo
 comment, if specified, is passed from the owner to the subscriber
+-quiet,  if specified, turns off acknowledgements and notifications
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The 'reject' command tells Majordomo to disallow or cancel some requested
@@ -29,9 +30,10 @@ you hit "reply" on your mailer and type the word "reject".
 
 Once Majordomo receives your rejection, the stalled command will be
 cancelled immediately instead of timing out or continuing to wait for
-confirmation. The results will be returned in a response message. When
-the token is rejected, notification of the rejection will be sent to the
-site owner, the list owner, and the "victim" of the rejection.
+confirmation. The results will be returned in a response message. When the
+token is rejected, notification of the rejection will be sent to the site
+owner, the list owner, and the "victim" of the rejection unless the
+"-quiet" option is specified.
 
 If you do not accept or reject the token, Majordomo eventually "times out"
 based on site or list settings. Waiting too long is the same as rejecting.

@@ -5000,15 +5000,14 @@ sub reject {
     }
 
     ($ok, $data) = $self->t_reject($token);
-   
+
     if (! $ok) {
       push @out, $ok, $data;
       next;
     }
 
-    # Send no notification messages if nolog or noinform mode is
-    # used.  These modes are only available to administrators.
-    if ($request->{'mode'} =~ /nolog|noinform/) {
+    # Send no notification messages if quiet mode is used.
+    if ($request->{'mode'} =~ /quiet/) {
       push @out, $ok, [$token, $data];
       next;
     }
