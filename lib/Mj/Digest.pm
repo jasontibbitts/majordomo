@@ -257,7 +257,7 @@ sub decide {
   }
 
   # Check oldest message, push digest if too old (maxage)
-  if ($p->{maxage} && 
+  if ($p->{maxage} && exists($s->{oldest}) &&
       ($time - $s->{oldest}) > str_to_offset($p->{maxage}, 0, 0)) {
     $log->out('yes');
     return 1;
@@ -337,15 +337,19 @@ sub choose {
   @out;
 }
 
-=head2 examine(digest_listref)
+=head2 examine(digest_listref, stateonly)
 
   Return data concerning the rules and pending messages
   for a group of digests.
+
+  If the stateonly argument is true, the decision parameters
+  for each digest will not be returned.
 
 =cut
 sub examine {
   my $self = shift;
   my $digest = shift;
+  my $stateonly = shift || 0;
   my $log = new Log::In 200, $digest;
   my ($data, $i, $j, $state);
   $state = $self->_open_state;
@@ -354,10 +358,16 @@ sub examine {
 
   for $i (@$digest) {
     next unless (exists $self->{'decision'}{$i});
-    $data->{$i} = $self->{'decision'}{$i};
+    if ($stateonly) {
+      $data->{$i} = {};
+    }
+    else {
+      $data->{$i} = $self->{'decision'}{$i};
+    }
     if (exists $state->{$i}) {
       for $j (keys %{$state->{$i}}) {
-        $data->{$i}->{$j} = $state->{$i}->{$j};
+        $data->{$i}->{$j} = $state->{$i}->{$j}
+          unless (exists $data->{$i}->{$j});
       }
     }
   }
