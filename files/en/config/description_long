@@ -1,6 +1,4 @@
 The description_long setting should contain one or more sentences that
 describe the purpose of a mailing list.  This description is displayed
 by the "lists-long" command.  Each line of the description should be no
-longer than 50 characters.  If this description is absent, the the
-contents of the 'description' setting are used by the "lists" command.
-If both settings are absent, the string "(no description)" is used.
+longer than 50 characters.

@@ -12,15 +12,29 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset listname description_long << ENDTAG
 This is my very fine list!
-You can read all about it by sending 'info listname' to the server.
+
+You can learn more about it by sending the command
+  info listname 
+in the body of a message to mj2@example.org.
 ENDTAG
 
 
-This is the list description that appears in the long listing.  Each line
-should be no longer than 50 characters in order to fit on the average
-terminal.  If this variable is empty, the value of 'description' is used.
-If both are empty, the string "(no description)" is used.
+$INCLUDE-config/description_long
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+If this setting is empty, the contents of the description setting will
+be displayed by the lists command.  If both settings are empty, 
+"(no description)" will be displayed.
+
+The length of the description may be limited by the
+description_max_lines configuration setting.  By default, there is no
+limit.
+
+
+See Also:
+   help admin_monitor
+   help configset_default_lists_format
+   help configset_description
+   help configset_description_max_lines
+   help lists
+
+$INCLUDE-help/foot
