@@ -315,7 +315,7 @@ sub load {
 
   # Load the standard default values
   unless (exists $self->{'source'}{'installation'}{'raw'}) {
-    if ($self->{'list'} eq 'GLOBAL') {
+    if ($self->{'list'} eq 'GLOBAL' or $self->{'list'} eq 'DEFAULT') {
       $self->{'source'}{'installation'} = 
         $self->_load_dfl('GLOBAL', '_install');
     }
@@ -476,7 +476,9 @@ sub regen {
 
   for $var (keys %{$config->{'raw'}}) {
     next unless ($self->isparsed($var) or 
-                 $self->{'vars'}{$var}{'type'} eq 'passwords');
+                 $self->{'vars'}{$var}{'type'} eq 'passwords' or
+                 ($self->{'vars'}{$var}{'type'} =~ /^address/ and
+                  $self->{'list'} =~ /^DEFAULT/));
 
     @result = $self->parse($var, $config->{'raw'}{$var});   
     if ($result[0] == 0) {
@@ -664,11 +666,6 @@ sub isparsed {
   my $var  = shift;
 
   return unless (exists $self->{'vars'}{$var});
-
-  # DEFAULT templates cannot expand $LIST in addresses, so
-  # address and address_array variables must remain unparsed.
-  return if ($self->{'list'} =~ /^DEFAULT/ and 
-             $self->{'vars'}{$var}{'type'} =~ /^address/);
 
   if ($self->{'vars'}{$var}) {
     return $is_parsed{$self->{'vars'}{$var}{'type'}};
@@ -924,8 +921,12 @@ sub set {
   }
   else {
     $self->{'source'}{'MAIN'}{'raw'}{$var} = $data;
+    # Save the parsed data.
+    # An exception must be made for $LIST expansions in addresses
+    # in configuration templates.
     $self->{'source'}{'MAIN'}{'parsed'}{$var} = $parsed
-      if $self->isparsed($var);
+      if ($self->isparsed($var) and not ($self->{'list'} =~ /^DEFAULT/
+          and $self->{'vars'}{$var}{'type'} =~ /^address/));
   }
 
   $self->{'dirty'} = 1;
@@ -1473,7 +1474,7 @@ sub parse_address {
   if ($self->{'list'} =~ /^DEFAULT/ and 
       $str =~ /([^\\]|^)\$\QLIST\E(\b|$)/) 
   {
-    return (0, 'The $LIST substitution is not supported for DEFAULT lists.');
+    # return (0, 'The $LIST substitution is not supported for DEFAULT lists.');
     # XLANG
   }
 
