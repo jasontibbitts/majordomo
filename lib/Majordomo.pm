@@ -267,18 +267,18 @@ sub connect {
   my $self = shift;
   my $int  = shift;
   my $sess = shift;
-  my $user = shift || 'unknown@anonymous';
-  my $log = new Log::In 50, "$int, $user";
-  my ($err, $id, $ok, $path, $req);
+  my $addr = shift || 'unknown@anonymous';
+  my $log = new Log::In 50, "$int, $addr";
+  my ($err, $id, $ok, $path, $req, $user);
  
-  $user = new Mj::Addr($user);
+  $user = new Mj::Addr($addr);
 
-  unless ($int eq 'resend' or $int eq 'owner') {
+  unless ($int eq 'resend' or $int eq 'owner' or $int eq 'shell') {
     ($ok, $err) = $user->valid;
 
     unless ($ok) {
-      $err = "Invalid address: $user\n$err"; #XLANG
-      $self->inform('GLOBAL', 'connect', $user, $user, 'connect',
+      $err = "Invalid address: \"$addr\"\n$err"; #XLANG
+      $self->inform('GLOBAL', 'connect', $addr, $addr, 'connect',
                     $int, $ok, '', 0, $err, $::log->elapsed);
       return (undef, "$err") unless $ok;
     }
@@ -423,6 +423,8 @@ sub dispatch {
   $request->{'sublist'} = $sl if (length $sl);
   $request->{'time'} ||= $::log->elapsed;
 
+  # Test the command mode against the list of acceptable modes
+  # from Mj::CommandProps.
   if ($request->{'mode'} =~ /[^a-z=-]/) {
     @modes = sort keys %{function_prop($request->{'command'}, 'modes')};
     return [0, $self->format_error('invalid_mode', $request->{'list'},
@@ -434,7 +436,7 @@ sub dispatch {
     $request->{'mode'} = $1;
   }
   else {
-    $request->{'mode'}       = '';
+    $request->{'mode'} = '';
   }
 
   if ($request->{'mode'} and !$continued) {
@@ -569,10 +571,10 @@ __END__
 These functions are called from various places in the code to do verious
 small tasks.
 
-=head2 get_all_lists(user, passwd, auth, interface)
+=head2 get_all_lists(user, passwd, regexp)
 
-This just grabs all of the lists that are accessible by the user and
-returns them in an array.
+This grabs all of the lists that are accessible by the user
+and that match the regular expression, and returns them in an array.
 
 =cut
 sub get_all_lists {
@@ -630,11 +632,17 @@ sub domain {
   return $self->{'domain'};
 }
 
-=head2 gen_cmdline
+=head2 gen_cmdline(request)
 
 This routine derives the command line from a request hash.
-The command line is indicated in the logs and in
+The command line is displayed in the logs and in
 acknowledgement messages such as confirmation requests.
+
+The request hash is altered to contain the command line
+in $request->{'cmdline'}.
+
+This routine relies on information from Mj::CommandProps
+to determine how a command is parsed.
 
 =cut
 sub gen_cmdline {
@@ -678,8 +686,15 @@ sub gen_cmdline {
 
   if (defined $arguments) {
     for $variable (sort keys %$arguments) {
+      # "split" is a pattern used to separate arguments in some commands.
       next if ($variable eq 'split');
+
+      # a new password should never be displayed
       next if ($variable eq 'newpasswd');
+
+      # exclude and include arrays are used in Mj::CommandProps.pm
+      # to distinguish arguments that may be present or absent
+      # depending upon the command mode.
       next if (exists $arguments->{$variable}->{'include'}
                and $request->{'mode'} !~ /$arguments->{$variable}->{'include'}/);
       next if (exists $arguments->{$variable}->{'exclude'}
