@@ -1,3 +1,8 @@
+2000-10-26  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (which): List::search now takes the sublist (or
+	MAIN) as the first arg.
+
 2000-10-26  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/BounceHandler.pm (handle_bounce_message): Include info on

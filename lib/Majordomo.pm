@@ -5194,7 +5194,7 @@ sub which {
 
    ADDR:
     while (1) {
-      ($match, $data) = $self->{'lists'}{$list}->search($string, 'regexp');
+      ($match, $data) = $self->{'lists'}{$list}->search('MAIN', $string, 'regexp');
       last unless defined $match;
       # if ($total_hits > $max_hits) {
         # push @matches, (undef, "Total match limit exceeded.\n");
