@@ -1,15 +1,17 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 auxadd -nowelcome listname sublist address
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname, required, is the name of a list at this site
-sublist,  required, is the name of a sublist of listname
+listname, required, is the name of a regular list at this site
+sublist,  required, is the name of an auxiliary list of listname
 address,  required, is an email address not previously subscribed
 -nowelcome, if specified, suppresses the new subscriber message(s)
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The command "auxsubscribe" is identical to "auxadd".
 
-Adds an address to the named sublist of a given list.
+Adds an address to the named sublist of a given list. The sublist,
+also known as an auxiliary list, will be created automatically if
+it doesn't exist already. Do NOT use createlist to create sublists!
 
 Using auxadd does not add an address to the list of subscribers.
 People who wish to receive messages that are posted to the list
@@ -50,12 +52,13 @@ A colon is used to separate the name of the other list from the
 name of the sublist.
 
 See Also:
-   help auxremove (to remove an address from a sublist)
-   help auxwho    (to see the addresses in a sublist)
+   help auxremove  (to remove an address from a sublist)
+   help auxwho     (to see the addresses in a sublist)
+   help createlist (for creating a regular email list)
    help configset access_rules
    help configset access_rules_variables (set/test for this command)
    help configset restrict_post
-   help subscribe (for syntax)
+   help subscribe  (for syntax)
 
 For a list of all help topics send this one-line message
    help topics

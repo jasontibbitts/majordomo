@@ -31,6 +31,10 @@ or "subscribe" can be limited, and there are the two special cases
 unfortunately somewhat complicated mechanism for precisely restricting
 access to Majordomo functions.
 
+NOTE: Defining an access rule which refers to a sublist will CREATE
+that sublist (or auxiliary list). See "help auxadd" for how to create
+and/or put people on the sublist, see "help createlist" for regular lists.
+
 There are a few shortcuts which can control access to common features,
 which are easier to set up than access_rules but not as powerful. If
 you configure an access_rule that acts on the same request as one of
@@ -305,7 +309,7 @@ that do take a list use the list's access_rules. There are two weird ones:
   @, @MAIN - these are equivalent, and check to see that the user is a
     list subscriber.
   @auxlist - checks to see that the user is a member of the named auxiliary
-    list.
+    list. (see "help auxadd" and "help createlist" for how to create lists)
 
   Variable check:
   \$variable - checks to see that the supplied variable is true.
@@ -766,6 +770,7 @@ ENDCONSULT
 
 See Also:
    help access    (for the special case of granting/denying all access)
+   help auxadd    (for how to put addresses on sublists)
    help post      (for the special case of restricting who can post msgs)
    help variables (for a list of all possible variables and what they mean)
    help configset access_rules_variables (for requests, variables, defaults)
