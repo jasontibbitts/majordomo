@@ -1,5 +1,10 @@
-You have the DBD::mysql module installed, which supports the MySQL
-database management system.  Type "mysql" at the prompt to use
-MySQL databases.
+
+======= EXPERIMENTAL: DO NOT USE mysql UNLESS YOU ARE DEVELOPING =======
+==                                                                    ==
+== You have the DBD::mysql module installed, which supports the MySQL ==
+== database management system.  Type "mysql" at the prompt to use     ==
+== MySQL databases.                                                   ==
+==                                                                    ==
+========================================================================
 
 

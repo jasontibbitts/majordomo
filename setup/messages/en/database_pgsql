@@ -1,5 +1,10 @@
-You have the DBD::Pg module installed, which supports the PostgreSQL
-database management system.  Type "pgsql" at the prompt to use
-PostgreSQL databases.
+
+======== EXPERIMENTAL: DO NOT USE pgsql UNLESS YOU ARE DEVELOPING ========
+==                                                                      ==
+== You have the DBD::Pg module installed, which supports the PostgreSQL ==
+== database management system.  Type "pgsql" at the prompt to use       ==
+== PostgreSQL databases.                                                ==
+==                                                                      ==
+==========================================================================
 
 

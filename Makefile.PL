@@ -75,8 +75,9 @@ get_str(retr_msg('check_modules', $lang));
    'Text::Reflow'   => [1.04,  0],
    'Time::HiRes'    => [0,     0],
    'DB_File'        => [1.63,  0],
-   # 'DBI'            => [1.14,  0],
-   # 'DBD::Pg'        => [0.95,  0],
+   'DBI'            => [1.28,  0],
+   'DBD::Pg'        => [1.13,  0],
+   'DBD::mysql'     => [2.1010,  0],
   );
 
 unless (check_syslog() && $ok) {
