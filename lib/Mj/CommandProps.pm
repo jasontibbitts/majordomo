@@ -954,6 +954,8 @@ my %commands =
                    'modes'    =>  {
                                    %generic_modes,
                                    'allmatching' => {'include' => 'pattern|regex'},
+                                   'farewell'    => 1,
+				   'nofarewell'  => 1,
                                    'pattern'     => 1,
                                    'regex'       => 1,
                                   },
