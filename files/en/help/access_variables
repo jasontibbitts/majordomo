@@ -5,95 +5,20 @@ through the access_rules configuration setting, and also shows which
 variables can be tested, set, and unset while handling those requests. 
 Please refer to "help configset_access_rules" for a detailed explanation.
 
-This file does not contain any file substitution variables, which cause 
-new values to be substituted into reply messages.  To learn more about
+This file does not describe the keyword substitution variables, which
+cause text to be substituted into reply messages.  To learn more about
 substitution variables, see "help variables".
 
-There are four sections in this document:
-  * The commands for which access rules can be used
+There are three sections in this document:
   * The variables available for each command
   * An explanation of each access variable
   * An explanation of each notify directive variable
 
-
-Commands which can be used in the access rules
-----------------------------------------------
-
-  Name              Default Access
-  ====              ==============
-  access            allow
-  advertise         special
-  alias             confirm
-  announce          deny
-  archive           access
-  changeaddr        confirm2
-  createlist        deny
-  digest            deny
-  faq               access
-  get               access
-  help              allow
-  index             access
-  info              access
-  intro             access
-  lists             allow
-  password          confirm
-  post              special
-  put               deny
-  register          confirm
-  rekey             deny
-  report            deny
-  request_response  allow
-  set               policy
-  show              mismatch
-  showtokens        deny
-  subscribe         policy
-  unalias           confirm
-  unregister        confirm
-  unsubscribe       policy
-  which             access
-  who               access
-
-
-Every command has a default level of access that determines who
-can use the command.
-
-access
-  The access is determined by a configuration setting.  For example,
-  the "which" command is controlled by the "which_access" setting.
-
-allow
-  Anyone can use the command.
-
-confirm
-  The person affected by the request must approve.
-
-confirm2
-  Both the person affected by the request and the person making
-  the request must approve.
-
-consult
-  The moderators must approve.
-
-deny
-  Only the list owners can use the command.
-
-mismatch
-  The command will succeed unless one person attempts to affect
-  someone else with the command.
-
-policy
-  The access is determined by a configuration setting.  For example, the 
-  "subscribe" command is controlled by the "subscribe_policy" setting.
-
-special
-  The access is determined by the access_rules settings in concert
-  with other configuration settings.
-
-
 Access variables
 ----------------
 
-Variables available for all requests, with their types:
+The following access variables apply to every command that is governed
+by the access_rules configuration setting:
 
   Name                          Type
   ====                          ====
@@ -177,12 +102,13 @@ supports several variables.  These variables are only useful inside
   approvals                     number
   attach                        boolean
   bounce                        boolean
-  file                          string
+  chainfile                     filename
+  expire                        string
+  file                          filename
   fulfill                       boolean
   group                         string
   pool                          number
   remind                        timespan
-  replyfile                     string
 
 
 Each variable has a type that limits what values the variable can take.
@@ -190,11 +116,16 @@ Each variable has a type that limits what values the variable can take.
 boolean
   1 or 0, meaning true or false, respectively.
 
+filename
+  The name of a file stored in the file space of a list.  File names
+  that do not begin with a '/' will automatically have one prefixed.
+  In other words, the files "consult" and "/consult" are identical.
+
 number
-  A whole number.
+  A whole number, and in some cases the value -1.
 
 string
-  A string of characters.
+  Free-form text, possibly an e-mail address or other unusual format.
 
 timespan
   An abbreviation that indicates a length of time, such as "3d" for three
@@ -248,7 +179,8 @@ chain
   (this is called "confirm_consult" in the access rules).  Normally, a 
   notice would sent to Ruth, and if Ruth approves, a notice would be sent 
   to the moderators.  Unsetting the chain variable would cause notices 
-  to be sent to the moderators and to Ruth simultaneously.
+  to be sent to the moderators and to Ruth simultaneously.  The chain
+  variable is true by default.
 
 consecutive_posts
   This variable contains the number of consecutive posts which have been
@@ -509,6 +441,20 @@ bounce
   to be discarded.  The default value is 1 for confirm notices, and
   0 for consult and delay notices.
 
+chainfile
+  This variable controls which file is sent when in response to
+  the accept command when further approval is needed by someone
+  else in the "chain" of approvals.  By default, this value is
+  empty, and Majordomo will send either the "repl_chain" or the
+  "repl_confirm" file to indicate that further approval is needed.
+
+expire
+  This timespan controls the expiration time of a confirmation token
+  in a "chain" of confirmations.  This variable has no effect if
+  the confirmations are not chained.  The default value is -1, which
+  causes the expiration period to be taken from the token_lifetime
+  configration setting.
+
 file
   This variable determines which document is sent in the confirmation
   notice.  The default value is 'confirm' for confirm notices, 'consult'
@@ -561,13 +507,6 @@ remind
   time spans.  The default value is -1, meaning that the token_remind
   configuration setting is used to determine when the reminder is
   sent.  A value of 0 will prevent a reminder from being sent.
-
-replyfile
-  This variable controls which file is sent when in response to
-  the accept command when further approval is needed by someone
-  else in the "chain" of approvals.  By default, this value is
-  empty, and Majordomo will send either the "repl_chain" or the
-  "repl_confirm" file to indicate that further approval is needed.
 
 
 See Also:
