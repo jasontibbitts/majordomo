@@ -270,9 +270,10 @@ my %commands =
 		   'actions' => \%reg_actions,
 		  },
    },
-   #   'mkdigest'       => {'parser' => [qw(email shell list)],
-   #	       'dispatch' => {'top' => 1},
-   #		       },
+   # mkdigest is fake; it just calls digest-force, but aliases don't work
+   # for modes
+   'mkdigest'       => {'parser' => [qw(email shell list)],
+   		       },
    'password' =>
    {
     'parser'   => [qw(email shell real)],

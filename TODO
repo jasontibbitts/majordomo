@@ -10,13 +10,11 @@ The interface can pass bad passwords to some functions (config_get_vars)
   and get a result indistinguishable from using no password. 
 Untainting sometimes happens in the wrong place; in a C/S model, we won't
   trust what comes in over the network.
-Multiple digests get issue numbers hosed?
 
 Requests from SRE
 -----------------
 register-update - if stripped address is the same, update the comment.
 subscribe-update - same
-Get help subject line into message (???)
 Add an 'address' argument to the inform variable; address to send
  information to.
 
@@ -61,18 +59,13 @@ Store additional info in a dotfile.  Only difficult rewrite is index.
 
 ! Digest:
 
-mkdigest      to force all digests (backwards compatibility)
-digest-incvol to increment volume number of a digest
-digest-force  to force a specific digest
-digest-check  to possibly run a specific digest
 report-digest command to show status of digest spools.
+digest time of "never".
 
 Way to force the users to use the digest version:
   allowed_subscribtion_classes - array of names of subscription classes that
   users can join without owner's password approval.  'digest' covers all
   digests, 'digest-blah' allows only 'blah' digest.
-
-List::digest_trigger - just call trigger method, pass results to digest_generate.
 
 Access: call Mj::is_subscriber instead of List::is_subscriber.
 
@@ -656,10 +649,7 @@ Categorized ideas:
 -----------------
 
 Config Stuff
-- Variables for default_class, default_digest, all of the various digest
-  modes, all of the default flag settings.
-- passwords <<  asdf : !config
-- proper checking of non-optional args in table-parse
+- passwords <<  asdf : !config (exclude a variable)
 
 Email Interface
 - prescan for bad situations: unmatched tokens, too many subscribes in one

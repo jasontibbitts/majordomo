@@ -1,4 +1,32 @@
+Wed Mar 10 00:02:23 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (_digest): Delete tempfiles.
+
+	* lib/Mj/Resend.pm (do_digests): Delete tempfiles.
+
+	* lib/Majordomo.pm (_digest): Correct typo.
+
+	* lib/Mj/Config.pm (parse_digests): Change the way a default time
+ 	is handled.
+	(_str_to_clock): Deal with 'never', 'none', 'all', 'always',
+ 	'any'.
+
+	* lib/Mj/TextOutput.pm (mkdigest): Add mkdigest.
+
+	* lib/Mj/CommandProps.pm: Add mkdigest.
+
+Tue Mar  9 22:55:43 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (_digest): Add -check and -force modes.
+
+	* lib/Bf/Sender.pm (M_regular_sender): Don't bomb on undefined
+ 	message numbers.
+
 Mon Mar  8 00:00:51 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Use new _do_digests calling sequence.
+
+	* lib/Mj/Digest/Index.pm: Fix some perl5.004 warnings.
 
 	* lib/Mj/Format.pm (digest): New function.
 

@@ -1447,8 +1447,14 @@ sub parse_digests {
 
     # times
     $elem->{'times'} = [];
-    for $j (@{$table->[$i][1]}) {
-      push @{$elem->{'times'}}, _str_to_clock($j);
+    if (@{$table->[$i][1]}) {
+      for $j (@{$table->[$i][1]}) {
+	push @{$elem->{'times'}}, _str_to_clock($j);
+      }
+    }
+    else {
+      # The default should be 'any'
+      push @{$elem->{'times'}}, ['a', 0, 23];
     }
 
     # minsizes
@@ -1489,12 +1495,8 @@ sub parse_digests {
     # type XXX Need some syntax checking here.
     $elem->{'type'} = $table->[$i][6] || 'mime';
 
-    # Give a default time of 'anytime'
-    $elem->{'times'} = [['a', 0, 23]] unless @{$elem->{'times'}};
-
     # description
     $elem->{'desc'} = $table->[$i][8];
-
   }
   return (1, '', $data);
 }
@@ -2960,6 +2962,16 @@ sub _str_to_clock {
   my %days = ('su'=>0, 'm'=>1, 'tu'=>2, 'w'=>3, 'th'=>4, 'f'=>5, 'sa'=>6);
 
   @out = ();
+
+  # Deal with 'always', 'any',
+  if ($arg =~ /^a[ln]/) {
+    return (['a', 0, 23]);
+  }
+
+  # Deal with 'never', 'none'
+  if ($arg =~ /^n[eo]/) {
+    return ();
+  }
 
   # Deal with 3rd(blah)
   if ($arg =~ /^(\d+)(st|nd|rd|th)\((.*)\)/) {

@@ -2879,9 +2879,10 @@ This implements an interface to various digest functionality:
 sub digest {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $vict, $digest) = @_;
+  $digest ||= 'ALL';
   my $log = new Log::In 30, "$mode, $list, $digest";
 
-  ($ok, $mess) =
+  my ($ok, $mess) =
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
 			     $list, 'digest', $user, '', $digest, '','');
 
@@ -2894,24 +2895,52 @@ sub digest {
 
 sub _digest {
   my ($self, $list, $requ, $vict, $mode, $cmd, $digest) = @_;
-  $digest ||= 'ALL';
   my $log  = new Log::In 35, "$mode, $list, $digest";
-  my ($d, $digests, $i);
+  my ($d, $deliveries, $digests, $force, $i, $sender, $subs, $tmpdir,
+      $whereami);
 
   $d = [$digest];
   $d = undef if $digest eq 'ALL';
 
   $self->_make_list($list);
 
-  # check: call list->digest_trigger
+  # check, force: call do_digests
+  if ($mode =~ /(check|force)/) {
+    # A simple substitution hash; do_digests will add to it
+    $sender   = $self->_list_config_get($list, 'sender');
+    $whereami = $self->_global_config_get('whereami');
+    $tmpdir   = $self->_global_config_get('tmpdir');
+    $subs = {
+	     LIST     => $list,
+	     VERSION  => $Majordomo::VERSION,
+	     WHEREAMI => $whereami,
+	     MJ       => $self->_global_config_get('whoami'),
+	     MJOWNER  => $self->_global_config_get('whoami_owner'),
+	     SITE     => $self->_global_config_get('site_name'),
+	    };
+    $deliveries = {};
+    $force = 1 if $mode =~ /force/;
+    $self->do_digests($list, $d, $force, $deliveries, $subs, undef, undef,
+		      $sender, $whereami, $tmpdir);
 
-  # force: call list->digest_trigger?
+    # Deliver then clean up
+    if (keys %$deliveries) {
+      $self->deliver($list, $sender, undef, $deliveries);
+      for $i (keys %$deliveries) {
+	unlink $deliveries->{$i}{file}
+	  if $deliveries->{$i}{file};
+      }
+    }
+    return (1, "Digests forced.\n") if $force;
+    return (1, "Digests triggered.\n");
+  }
 
   # incvol: call list->digest_incvol
   if ($mode =~ /incvol/) {
     $self->{'lists'}{$list}->digest_incvol($d);
     return (1, "Volume numbers for $digest incremented.\n");
   }
+  return (0, "No digest operation performed.\n");
 }
 
 

@@ -507,6 +507,26 @@ sub lists {
 		   );
 }
 
+=head2 mkdigest
+
+This is equivalent to digest-force ALL, and is provided for compatibility
+with old installations that have crontab kicking off mkdigest.  It runs
+every digest because in this situation, we expect that only one digest
+exists.
+
+=cut
+sub mkdigest {
+  my ($mj, $name, $user, $passwd, $auth, $interface,
+      $infh, $outfh, $mode, $list, $args, @arglist) = @_;
+  my $log = new Log::In 27;
+  my @stuff = ($user, $passwd, $auth, $interface,
+	       "digest-force ALL", 'force', $list, $user);
+
+  Mj::Format::digest($mj, $outfh, $outfh, 'text', @stuff, 'ALL', '', '',
+		      $mj->dispatch('digest', @stuff, 'ALL'));
+}
+
+
 =head2 newfaq, newinfo, newintro
 
 These three are just aliases for put with various arguments.  If the

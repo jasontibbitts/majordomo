@@ -477,10 +477,9 @@ sub _post {
 
   # Build digests if we have a message number from the archives
   # (%deliveries is modified)
-
   if ($msgnum) {
-    $self->_do_digests($list, \%deliveries, $subs, $msgnum,
-		       $arcdata, $sender, $whereami, $tmpdir);
+    $self->do_digests($list, undef, 0, \%deliveries, $subs, $msgnum,
+		      $arcdata, $sender, $whereami, $tmpdir);
   }
 
   # Invoke delivery routine
@@ -1435,10 +1434,16 @@ sub _exclude {
   $exclude;
 }
 
-=head2 _do_digests($list, $deliveries, $msgnum, $arcdata, $sender, $whereami, $tmpdir)
+=head2 do_digests($list, $deliveries, $msgnum, $arcdata, $sender, $whereami, $tmpdir)
 
 This handles passing the message to all defined digests and building any
 digests that were triggered.
+
+$run is a listref of digests to run.  If $run and $megnum are both defined,
+$run is ignored.  (I.e. messages are always added to all digests.)
+
+If $force is true, a digest will be generated if any messages are waiting.
+If not true, the normal decision algorithm will run.
 
 $deliveries is modified.
 
@@ -1446,11 +1451,11 @@ If $msgnum is not defined, digest_trigger will be called instead of
 digest_add, so this function can be used to trigger a digest .
 
 =cut
-sub _do_digests {
-  my ($self, $list, $deliveries, $subs, $msgnum, $arcdata, $sender,
-      $whereami, $tmpdir) = @_;
+sub do_digests {
+  my ($self, $list, $run, $force, $deliveries, $subs, $msgnum, $arcdata, $sender,
+      $whereami, $tmpdir,) = @_;
   my $log = new Log::In 40;
-  my (%digest, %file, @dfiles, @dtypes, @tmp, $digests, $dissues, $dtext,
+  my (%digest, %file, @dfiles, @dtypes, @nuke, @tmp, $digests, $dissues, $dtext,
       $file, $i, $j, $k);
 
   # Pass to digest if we got back good archive data and there is something
@@ -1458,10 +1463,11 @@ sub _do_digests {
   $digests = $self->_list_config_get($list, 'digests');
   if (scalar keys %{$digests}) {
     if ($msgnum) {
+      # Note that digest_add will eventually call the trigger itself.
       %digest = $self->{'lists'}{$list}->digest_add($msgnum, $arcdata);
     }
     else {
-      %digest = $self->{'lists'}{$list}->digest_trigger;
+      %digest = $self->{'lists'}{$list}->digest_trigger($run, $force);
     }
 
     if (%digest) {
@@ -1495,6 +1501,7 @@ sub _do_digests {
 	      # the appropriate spot blank.
 	      $dtext->{$j}{$k}{'name'} = $file;
 	      $dtext->{$j}{$k}{'data'} = \%file;
+	      push @nuke, $file;
 	    }
 	  }
 	}
@@ -1513,6 +1520,7 @@ sub _do_digests {
 	  );
 
 	# Unlink the temporaries.
+	unlink @nuke;	
 
 	for $j (@dtypes) {
 	  # shifting off an element of @dfiles gives the corresponding digest
@@ -1522,10 +1530,6 @@ sub _do_digests {
     }
   }
 }
-
-
-
-
 
 =head1 COPYRIGHT
 

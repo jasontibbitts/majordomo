@@ -4,7 +4,7 @@ Mj::Addr - Address object for Majordomo
 
 =head1 SYNOPSIS
 
- Mj::Addr::set_defs(%params);
+ Mj::Addr::set_params(%params);
  $addr = new Mj::Addr($string, %params);
  ($ok, $message) = $addr->valid; # Tests syntactic legality, returns
                                  # problem description
@@ -56,7 +56,7 @@ use overload
 	     'strict_domain_check'         => 1,
 	    );
 
-=head2 set_defs
+=head2 set_params
 
 This sets the defaults for all Mj::Addr objects allocated afterwards.  It
 takes a hash of parameter, value pairs.  The parameters can be set all at
@@ -946,7 +946,7 @@ without the rest of the address.\n");
 	  {
 #	    $log->out("failed");
 	    return (0, "It looks like you are trying to supply your IP address
-instead of a hostname.  To do, you must enclose it in
+instead of a hostname.  To do so, you must enclose it in
 square brackets like so: [" . join("",@words[-7..-1]) . "]\n");
 	  }
 	

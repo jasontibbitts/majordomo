@@ -144,6 +144,8 @@ sub M_regular_sender ($$$) {
   my $tag=shift;
   my $msg_num=shift;
 
+  return $sender unless defined $msg_num;
+
   $sender=~/([^@]*)(.*)/;
   return "$1${tag}M$msg_num$2";
 }
