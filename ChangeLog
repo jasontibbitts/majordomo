@@ -1,3 +1,36 @@
+2000-10-15  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (auxadd, auxremove, auxwho) Merge
+	auxiliary list commands with their common counterparts,
+	subscribe, unsubscribe, and who.
+	(rekey)  Rekeying automatically verifies the contents
+	of the subscriber lists and registry.  Using "repair"
+	mode will cause both to be repaired.
+	(who)  Add preliminary support for "alias" mode, which
+	will display the contents of the aliases database.
+	(_make_list)  Use the stored values for the installation
+	defaults from the DEFAULT list to avoid reloading them
+	for every list.
+	(dispatch)  Separate list:sublist into separate request hash
+	variables.
+        (config_get_vars)  All settings of the DEFAULT list are visible.
+	(valid_list)  Understand and untaint list:sublist combination.
+
+	* lib/Mj/Access.pm: (list_access_check)  Use GLOBAL checks 
+	for the DEFAULT list.
+	(_a_default)  "deny" by default if a sublist other than 'MAIN' is used.
+
+	* lib/Mj/Config.pm:  (parse_address, parse_pw)  Allow
+	$LIST substitution to avoid having to reload the installation
+	defaults for each mailing list.
+	(load) Rearrange the data structures for storing configuration
+	information.
+
+	* lib/Mj/List.pm:  (add, get, is_subscriber, et cetera)  
+	Merge main subscriber list and auxiliary list code.
+	(aux_rekey) Always run verification checks against the registry when
+	rekeying.  Return data about missing entries.
+
 2000-10-14  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* bin/mj_queueserv (in): Triple timeout when waiting for queue
