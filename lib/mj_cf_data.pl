@@ -266,6 +266,25 @@ the checks made here.
 
 EOC
    },
+   'default_flags' =>
+   {
+    'type'   => 'string',
+    'groups' => [qw(general)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+A string containing the flags to be given to new subscribers unless they
+choose otherwise.  Possible flags are:
+
+  A - ackall
+  a - ackimportant
+  S - selfcopy
+  H - hideall
+  h - hideaddress
+  C - elimatecc
+EOC
+   },
    'delivery_rules' =>
    {
     'type'   => 'delivery_rules',
@@ -581,6 +600,22 @@ EOC
 List messages requiring consulataion will be sent to this many of the
 addresses in \'moderators\', chosen at random.  If this is zero, the
 message will be sent to all of the addresses in \'moderators\'.
+EOC
+   },
+   'nonmember_flags' =>
+   {
+    'type'   => 'string',
+    'groups' => [qw(general)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+A string containing the flags which apply to users who are not list members
+when they send messages to the list.  Only a very few flags make sense in
+this case.  They are:
+
+  A - ackall
+  a - ackimportant
 EOC
    },
    'sender' =>

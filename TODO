@@ -23,9 +23,9 @@ Top of the list
   that we can minimize config file access time (because defaults must be
   parsed).
 
-- Put sessions somewhere other than the GLOBAL filespace; nobody ever needs
-  remote access and the database lookup when opening a new session is too
-  slow.
+- Put sessions somewhere other than the GLOBAL filespace; remote access
+  comes with the sessioninfo command and the database lookup when opening a
+  new session is too slow.
 
 - Figure out how to pass the access variables through to the _post function
   so that we can use things like the byte and line counts for cool things.
@@ -56,7 +56,9 @@ Top of the list
 
 - add nonterminal access_rules.  Now we take the first matching, but we
   could act and keep going.  This could be used to add reasons to a list,
-  falling through to a final consult or deny.
+  falling through to a final consult or deny.  Would require restructuring
+  the compiled code to push into a list instead of returning on first
+  match.
 
 - rewrite lots of routines to take named arguments instead of positionals.
 
@@ -451,7 +453,6 @@ Categorized ideas:
 -----------------
 
 Config Stuff
-- list default_flags, default_class
 - Variables for default_class, default_digest, all of the various digest
   modes, all of the default flag settings.
 - passwords <<  asdf : !config
@@ -637,3 +638,6 @@ Somehow attach the parsed defaults to the config file.  Problem: we have to
  chunks of Config.pm.  This is slow.  We could eval the defaults ones,
  stick them in the config file along with a timestamp, then just do a stat
  on the defaults file to see if we need to update.
+Allow access control language to make modifications to outgoing messages,
+ perhaps by passing a list of actions back to the access check routine
+ before the message is spooled.

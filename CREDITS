@@ -67,6 +67,8 @@ Andrew McNamara
   who found several bugs and pointed out a few improprieties.
 Carlos M. Gutierrez
   for good bug reporting.  
+John Van Essen
+  for tracking down the problem with closing STDERR.
 
 Note that this list is basically unordered and is not intended to convey
 the magnitude of any individual contribution.  Everyone who helps is

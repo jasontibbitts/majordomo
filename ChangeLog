@@ -1,3 +1,20 @@
+Sat Apr 18 12:05:06 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (post): Add separate entities for notification
+ 	messages.  Purge all entities if not passing them on to bottom
+ 	half function.
+
+Tue Apr 14 00:41:58 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/List.pm (flag_set): Look in nonmember_flags if checking
+ 	on a nonmember.
+	(default_flags): Look in the config file instead returning
+ 	something hardcoded.
+
+	* lib/mj_cf_defs.pl: Add defaults for below.
+
+	* lib/mj_cf_data.pl: Add default_flags and nonmember_flags.
+
 Sun Apr 12 00:03:57 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Majordomo.pm (_re_match): Prevent problems with specials in

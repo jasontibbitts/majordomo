@@ -155,5 +155,7 @@ $Mj::Config::default_string = q(
  'quote_regexp'         => '/^( - | : | > | [a-z]+> )/xi',
  'max_header_line_length'=> 256,
  'max_total_header_length'=> 2048,
+ 'nonmember_flags'      => '',
+ 'default_flags'        => 'S',
 };
 );

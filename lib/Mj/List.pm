@@ -491,7 +491,7 @@ This should be a per-list variable, or a whole set of list variables.
 
 =cut
 sub default_flags {
-  return "AS";
+  return $self->config_get('default_flags');
 }
 
 =head2 flag_set(flag, address)
@@ -504,9 +504,15 @@ sub flag_set {
   my $flag = shift;
   my $addr = shift;
   my $log  = new Log::In 150, "$flag, $addr";
+  my ($flags, $data);
   return unless $flags{$flag};
-  my $data = $self->is_subscriber($addr);
-  return unless $data;
+  $data = $self->is_subscriber($addr);
+  if ($data) {
+    $flags = $data->{flags};
+  }
+  else {
+    $flags = $self->config_get('nonmember_flags');
+  }
   return unless $data->{'flags'} =~ /$flags{$flag}[3]/;
   1;
 }

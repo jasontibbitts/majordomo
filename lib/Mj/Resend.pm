@@ -102,6 +102,7 @@ sub post {
       $avars,                # Hashref containing access variables
       $reasons,              # Listref containing bounce reasons
       $ok,
+      $nent,
       $mess, 
       $desc,
       $c_type,
@@ -138,7 +139,7 @@ sub post {
 	$thead->get('from') ||
 	$thead->get('apparently-from'));
 
-  $reasons = []; $avars   = {};
+  $reasons = []; $avars = {};
 
   # XXX Pass in the password we were called with, so that passwords
   # can be passed out-of-band.
@@ -197,7 +198,7 @@ sub post {
     # routine and some here, but since we already passes in the essential
     # information there's no reason not to take care of it all at once.
     if ($self->{'lists'}{$list}->flag_set('ackall', $user)) {
-      $ent = build MIME::Entity
+      $nent = build MIME::Entity
 	(
 	 Data        => [ $mess ],
 	 Type        => 'text/plain',
@@ -206,14 +207,14 @@ sub post {
 	 -From       => $owner,
 	 -Subject    => "Stalled post to $list",
 	);
-      $self->mail_entity($owner, $ent, $user);
+      $self->mail_entity($owner, $nent, $user);
     }
   }
   else {
     if ($self->{'lists'}{$list}->flag_set('ackimportant', $user) ||
 	$self->{'lists'}{$list}->flag_set('ackall', $user))
       {
-	$ent = build MIME::Entity
+	$nent = build MIME::Entity
 	  (
 	   Data        => [ $mess ],
 	   Type        => 'text/plain',
@@ -222,9 +223,13 @@ sub post {
 	   -From       => $owner,
 	   -Subject    => "Denied post to $list",
 	  );
-	$self->mail_entity($owner, $ent, $user);
+	$self->mail_entity($owner, $nent, $user);
       }
-  }      
+  }
+  # Clean up after ourselves;
+  $nent->purge if $nent;
+  $ent->purge;
+  $ok;
 }
 
 =head2 post_start, post_chunk, post_done
