@@ -247,6 +247,11 @@ archive, and a new header.  Any archive number that does not correspond
 to the archive in question will be replaced by one that does (in this
 way, it is possible to combine archives).
 
+When messages are stored in the archive, the date that is stored in
+the database will depend upon the archive_date configuration setting
+(see "help configset_archive_date" for more details.)  When the 
+archive-sync command is run, the date will be recalculated from the
+Received headers of each message, causing the dates to change.
 
 
                       The file specification syntax
