@@ -183,6 +183,8 @@ The following data can vary from notification to notification:
             message (usually a posted message or delivery error)
             is attached to the notification.
   bounce    If set to -1, a probe token is used.
+  chainfile The file that is sent in response to the accept
+            command if the approval of another party is required.
   file      The file that supplies the text of the notification.
   fulfill   If this variable is set, the request will be 
             completed if it expires.  This is used for 
@@ -213,7 +215,7 @@ In addition, information about the request must be supplied:
 
 =cut
 use MIME::Entity;
-use Mj::Util qw(condense);
+use Mj::Util qw(condense str_to_offset);
 sub confirm {
   my ($self, %args) = @_;
   my $log  = new Log::In 50, "$args{'chain'}, $args{'expire'}";
@@ -248,7 +250,15 @@ sub confirm {
 
   if (exists($args{'chain'}) and $args{'chain'} == 1) {
     @notify = ($args{'notify'}->[0]);
-    @tmp = sort keys %Mj::Util::notify_var;
+    if (exists $notify->[0]->{'expire'} and $notify->[0]->{'expire'} ne '-1') {
+      $tmp = str_to_offset($notify->[0]->{'expire'}, 1);
+      if (defined($tmp) and $tmp >= 0) {
+        $expire = $tmp;
+        $expire_days = int(($expire + 43200) / 86400);
+        $expire += time;
+      }
+    }
+    @tmp = @Mj::Util::notify_fields;
     for ($i = 1; $i < scalar(@{$args{'notify'}}) && $i < 5 ; $i++) {
       $args{"chain$i"} = condense($args{'notify'}->[$i], \@tmp);
     }
@@ -394,7 +404,7 @@ sub confirm {
 
     $repl->{'APPROVALS'} = $dest->{'approvals'};
     $repl->{'REMIND'} = $remind[$i]->[2];
-    ($file, %file) = $self->_list_file_get($list, $dest->{'file'});
+    ($file, %file) = $self->_list_file_get($list, $dest->{'file'}, '', 1);
 
     for $j (@recip) {
       if ($dest->{'approvals'} > 1 or scalar(@notify) > 1) {
@@ -565,9 +575,9 @@ sub t_accept {
   my $comment = shift;
   my $delay = shift;
   my $log   = new Log::In 60, $token;
-  my (%file, @out, @tmp, $data, $ent, $ffunc, $func, $line, $mess, 
-      $notify, $ok, $outfh, $repl, $rf, $sender, $server, 
-      $tmp, $tmpdir, $whoami);
+  my (%file, @out, @tmp, $data, $ent, $ffunc, $fh, $file, $func, $line, 
+      $mess, $notify, $ok, $origtype, $outfh, $repl, $rf, $sender, 
+      $server, $tmp, $tmpdir, $whoami);
 
   return (0, "The token database could not be initialized.\n")
     unless $self->_make_tokendb;
@@ -637,7 +647,7 @@ sub t_accept {
 
     # New style
     if ($data->{'chain1'} =~ /\002/) {
-      @tmp = sort keys %Mj::Util::notify_var;
+      @tmp = @Mj::Util::notify_fields;
       $tmp = reconstitute($data->{'chain1'}, \@tmp);
       $data->{'chain1'} = $data->{'chain2'};
       $data->{'chain2'} = $data->{'chain3'};
@@ -673,12 +683,9 @@ sub t_accept {
     delete $data->{'expire'};
     delete $data->{'reminded'};
 
-    # Which reply file should be sent?
-    if ($tmp->{'group'} eq 'requester') {
-      $rf = 'repl_confirm';
-    }
-    else {
-      $rf = 'repl_chain';
+    # Chained "delay" actions expire immediately.
+    if (exists $tmp->{'fulfill'} and $tmp->{'fulfill'}) {
+      $data->{'expire'} = 0;
     }
 
     $self->confirm(%$data, 
@@ -692,9 +699,18 @@ sub t_accept {
     # Determine which file to send.  chain4 or repl_something
     # based upon notify->{'group'}.
 
-    my ($file) = $self->_list_file_get($data->{'list'}, $rf);
-    $file = $self->substitute_vars($file, $repl);
-    my $fh = new Mj::File "$file";
+    if (exists $tmp->{'chainfile'} and length($tmp->{'chainfile'})) {
+      $rf = $tmp->{'chainfile'};
+    }
+    elsif ($tmp->{'group'} eq 'requester') {
+      $rf = 'repl_confirm';
+    }
+    else {
+      $rf = 'repl_chain';
+    }
+
+    ($file) = $self->_list_file_get($data->{'list'}, $rf, $repl, 1);
+    $fh = new Mj::File "$file";
     $log->abort("Cannot read file $file, $!") unless ($fh);
 
     while (defined ($line = $fh->getline)) {
@@ -724,7 +740,7 @@ sub t_accept {
   if ($func eq 'post' and $data->{'type'} ne 'async'
       and $data->{'mode'} !~ /archive/) {
 
-    my ($origtype) = $data->{'type'};
+    $origtype = $data->{'type'};
     $data->{'type'} = 'async';
     $data->{'reminded'} = 1;
     while (1) {
