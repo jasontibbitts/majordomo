@@ -1,3 +1,46 @@
+2002-03-12  Michael Yount <csf@moscow.com>
+
+	* bin/mj_queuerun:  Cease shuffling messages within a directory.
+
+	* bin/mj_wwwadm:  Support formatted output from the createlist
+	command.  Validate passwords against "ANY" command to allow
+	subsidiary passwords to work.
+
+	* lib/Majordomo.pm:  (configshow)  Return a list of settings
+	in each category in "categories" mode.
+	(_createlist)  Return a hash of aliases, owners, et cetera
+	if the command succeeds.  Add support for "inactive" mode.
+	
+	* lib/mj_cf_data.pl:  Fill in default wizard levels (1-9) for 
+	all configuration settings.  Currently, all settings are
+	in level 1 or level 9.
+
+	* lib/mj_cf_defs.pl:  Add support for the new "active"
+	configuration setting, which allows a list to be disabled.
+
+	* lib/Mj/Access.pm:  (validate_passwd)  Add support for
+	the ANY test, which determines if a password is valid for
+	any action on a mailing list.
+	(list_access_check)  Add support for the "active" configuration
+	setting; inactive lists will have all requests denied unless
+	an administrative password is used.
+
+	* lib/Mj/CommandProps.pm:  Remove support for the 
+	createlist-noheader command.  Add support for the 
+	createlist-inactive command.
+
+	* lib/Mj/Config.pm:  (wizard)  New routine.  Return the
+	"wizard" skill level, a number between 1 and 9.
+	(vars)  Simplify the code.
+	(parse_access_array)  Add support for configuration of
+	the wizard level of configuration settings.
+
+	* lib/Mj/Format.pm:  (configshow)  Revise the formatting
+	of the configshow-categories command.
+	(createlist)  Add format file support.
+	
+	* lib/Mj/MTAConfig.pm:  Remove the "header" hash.
+
 2002-03-02  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  (newlist)  Add support for list creation,

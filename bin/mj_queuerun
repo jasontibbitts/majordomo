@@ -217,10 +217,10 @@ sub run_queue {
           # Grab the queue files from the queue
           opendir(QDIR, "$::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func") ||
             $::log->abort("Can't opendir $::LISTDIR/QUEUE/$pri1/$dom/$pri2/$func: $!");
-          # Read and randomly reorder the messages
+          # Read the list of queued messages.
           @msgs = readdir QDIR;
           closedir QDIR;
-          &shuffle(\@msgs);
+          # &shuffle(\@msgs);
 
           # Loop over queue files
         MSG:
