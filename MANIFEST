@@ -889,6 +889,8 @@ files/en/format/text/.password_error
 files/en/format/text/.post
 files/en/format/text/.post_error
 files/en/format/text/.put
+files/en/format/text/.put_delete
+files/en/format/text/.put_dir
 files/en/format/text/.put_error
 files/en/format/text/.register
 files/en/format/text/.register_error
@@ -1060,6 +1062,8 @@ files/en/format/text/password_error
 files/en/format/text/post
 files/en/format/text/post_error
 files/en/format/text/put
+files/en/format/text/put_delete
+files/en/format/text/put_dir
 files/en/format/text/put_error
 files/en/format/text/register
 files/en/format/text/register_error
@@ -1244,6 +1248,8 @@ files/en/format/wwwadm/.password_error
 files/en/format/wwwadm/.post
 files/en/format/wwwadm/.post_error
 files/en/format/wwwadm/.put
+files/en/format/wwwadm/.put_delete
+files/en/format/wwwadm/.put_dir
 files/en/format/wwwadm/.put_error
 files/en/format/wwwadm/.register
 files/en/format/wwwadm/.register_error
@@ -1434,6 +1440,8 @@ files/en/format/wwwadm/password_error
 files/en/format/wwwadm/post
 files/en/format/wwwadm/post_error
 files/en/format/wwwadm/put
+files/en/format/wwwadm/put_delete
+files/en/format/wwwadm/put_dir
 files/en/format/wwwadm/put_error
 files/en/format/wwwadm/register
 files/en/format/wwwadm/register_error

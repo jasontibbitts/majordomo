@@ -1,0 +1,6 @@
+<!-- Majordomo put_dir format file -->
+<p>
+The $COMMAND command succeeded.  
+The directory "$FILE" was created or updated.
+</p>
+

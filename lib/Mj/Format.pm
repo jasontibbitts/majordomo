@@ -1678,8 +1678,8 @@ sub put {
   elsif ($request->{'file'} eq '/faq'  ) {$act = 'newfaq'  }
   else                                   {$act = 'put'     }
 
-  $path = $file = $parent = $dir = '';
-  $path = $request->{'file'};
+  $parent = $dir = '';
+  $path = $file = $request->{'file'};
   if ($path =~ m#(.*/)([^/]+)$#) {
     $dir = $1;
     $file = $2;
@@ -1739,7 +1739,15 @@ sub put {
   }
 
   if ($ok > 0) {
-    $tmp = $mj->format_get_string($type, 'put', $request->{'list'});
+    if ($request->{'mode'} =~ /delete/) {
+      $tmp = $mj->format_get_string($type, 'put_delete', $request->{'list'});
+    }
+    elsif ($request->{'mode'} =~ /dir/) {
+      $tmp = $mj->format_get_string($type, 'put_dir', $request->{'list'});
+    }
+    else {
+      $tmp = $mj->format_get_string($type, 'put', $request->{'list'});
+    }
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
