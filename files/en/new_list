@@ -1,17 +1,18 @@
-                      Majordomo Guide for new list owners
+                       Guide for new list owners
 
 The $LIST mailing list has been created at
    $SITE
 and you ($USER) have been named the list owner.
 
-The password for the $LIST list is $PASSWORD.
+The master password for the $LIST list is $PASSWORD.
 
 This guide explains how to configure a new Majordomo 2 mailing list.
 Please read it carefully, and save it for future reference.
 
-                                   Addresses
 
-These are several mail addresses connected with your mailing list.
+                               Addresses
+
+These are several e-mail addresses connected with your mailing list.
 
   $WHOAMI
 The list address.  Messages sent to this address will be distributed
@@ -22,38 +23,42 @@ The server address.  Send all administrative commands to this address.
 Always put commands in the body of the message, not in the subject header.
 
   $OWNER
-The list owner address.  The subscribers can contact you by sending
+The list owners' address.  The subscribers can contact you by sending
 mail to this address.
 
   $MJOWNER
-The site administrator address.  Send mail to this address if you
-have questions about being a list owner.
+The domain owners' address.  Send mail to this address if you
+have questions about your mailing list.
 
-                                The help system
+
+                            The help system
 
 A wealth of information about Majordomo 2 is available through the
 help pages.  To learn more, write to $MJ, 
 and in the body of the message put these commands:
 
   help admin
+  help overview
   help topics
 
-                                   Passwords
+
+                               Passwords
 
 Majordomo supports two kinds of password:  administrative passwords
 and personal passwords.  Your administrative password is necessary
 to change the configuration of your list or to perform other maintenance
-tasks.  Personal passwords are used to change personal settings.
+tasks.  Personal passwords are used by subscribers to change their
+personal settings.
 
-There are two ways to use a password.  The first is to 
-use the default command to tell Majordomo to apply the password
-to each succeeding command.  In the following commands:
+There are two ways to use a password.  The first is to use the default
+command to tell Majordomo to apply the password to each succeeding
+command.  In the following commands:
 
   default password $PASSWORD
   subscribe $LIST someone@example.com
 
-Majordomo will apply the password in the first command to the 
-second command.
+Majordomo will apply the password in the first command to the second
+command.
 
 The second way is to preface each command with the approve command
 For example,
@@ -63,42 +68,50 @@ For example,
 would have the same effect as the two commands in the previous paragraph.
 
 
-                             Configuration settings
+                             Documentation
 
-Majordomo has many configuration settings which control the 
-behavior of your mailing list.  These settings can be seen using
-the configshow command, and changed using the configset command.
+New mailing lists usually require some changes to their documentation.
 
-There are two configuration changes that need to be made for every new list.
-The first is to use the newinfo command to customize the welcome message. 
+We recommend that you use the newinfo command to customize the welcome
+message.  This "info" document is sent to new subscribers when they join
+your mailing list.
 
-First, check the existing info file with the command
+First, view the existing "info" document with the following command:
 
-info $LIST
+  info-edit $LIST
 
-If you want to change the file, use the command
-
-newinfo $LIST <<AEIOU
-  Put the text of the welcome message here.
-AEIOU
-
-The text that appears between the "newinfo" line and the final AEIOU
-will be attached to the message that people receive when they subscribe
-to your mailing list.
-
-The second step is to configure digests.  Check the existing digest
-settings with the command
-
-configshow $LIST digests
-
-If you want to change the settings, use the commands
-
-help configset
-help configset digests
-
-to learn more about the configset command and the digest settings.
+Majordomo will send a copy of the document wrapped in a "newinfo"
+command.  To change the document, edit its contents and send the newinfo
+command back to $MJ.
 
 
-If you need help setting up your list, write to 
-$MJOWNER.
+                           Configuration settings 
+
+Majordomo has many configuration settings which control the behavior of
+your mailing list.  These settings can be seen using the configshow
+command, and changed using the configset command.
+
+To see the basic configuration settings for your mailing list, use the
+following command:
+
+  configshow-noforce $LIST 1
+
+To change the settings, edit the results of this command, then send the
+"configset" commands back to $MJ.
+
+
+                           WWW administration
+
+Majordomo has worldwide web support for list administrators and
+subscribers.  To administer your list, visit the following location:
+
+  $WWWADM_URL
+
+To see the WWW service for subscribers, visit the following location:
+
+  $WWWUSR_URL
+
+
+If you need help administering your list, write to the domain
+administrators at $MJOWNER.
 
