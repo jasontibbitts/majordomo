@@ -420,7 +420,7 @@ sub help {
     $topic = lc(join('_', split(/\s+/, $args)));
   }
   else {
-    $topic = "default";
+    $topic = "help";
   }
 
   $cmdline = "help" . ($mode?"=$mode":"") . " $topic";

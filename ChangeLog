@@ -1,5 +1,12 @@
 Tue Jan 26 21:15:36 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Majordomo.pm (help_start): If an unknown help topic is
+ 	requested, first look for "help/unknowntopic" before returning an
+ 	error.
+
+	* lib/Mj/TextOutput.pm (help): Change default help topic to
+ 	"help".
+
 	* lib/Mj/Config.pm (compile_pattern): Add method of forcing
  	undelimited patterns into proper patterns with either substring or
  	exact match semantics.

@@ -1429,6 +1429,9 @@ sub help_start {
   ($file) =  $self->_list_file_get('GLOBAL', "help/$topic");
 
   unless ($file) {
+    ($file) =  $self->_list_file_get('GLOBAL', "help/unknowntopic");
+  }
+  unless ($file) {
     return (0, "No help for that topic.\n");
   }
 
