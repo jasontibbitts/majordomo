@@ -1,140 +1,39 @@
 -*- Text -*-
 
 For some brief instructions on getting a list started, see
-REAMDE.QUICKSTART.
+README.QUICKSTART.
 
-If upgrading an existing Majordomo2 installation, always read
-README.UPGRADE for instructions on dealing with inter-version changes.
+If you are upgrading an existing Majordomo 2 (Mj2) installation, always
+read README.UPGRADE for instructions on dealing with inter-version
+changes.
 
-For specific instructions on using Majordomo2 with various MTAs (Mail
-Transfer Agents) see README.SENDMAIL or README.QMAIL (or assist us in
-writing additional instructions for other MTAs).
+If you are upgrading an existing Majordomo 1 installation, see
+README.CONVERSION.
 
-Check README.DIRECTORIES if you'd like to know the complete layout of a
-running Majordomo2 system, or README.INTERNALS for some information about
-the internal layout of Majordomo2.  See README.DEBUGGING for some tips on
-degugging, and read "help configset_debug" for how to set up your system
-to log information you need for that debugging.
+For specific instructions on using Mj2 with various MTAs (Mail
+Transfer Agents) see README.SENDMAIL, README.QMAIL, README.EXIM, or
+README.POSTFIX.  (If instructions for your MTA are not available, please
+assist us in writing the documentation for it.)
 
-This is an alpha release of Majordomo 2.0.  It can easily be used to run a
-number of lists.  Nearly all Majordomo 1.94.4 functionality is available
-(including archives and digests).  There is still much work to be done and
-bugs surely remain to be found.  It is also 
+See README.DIRECTORIES if you'd like to know the complete layout of a
+running Mj2 system. 
 
-Note: this requires Perl 5.004_01 or later to run.  This is due to bugs in
-5.004, and the fact that lesser versions are both lacking in features and
-security.  Most of the testing is done using Perl 5.004_04 and 5.005_02.
-Currently a Perl built with threading support will fail to run Majordomo2
-code properly due to bugs in the Perl threading support (which is in a
-development state).  Please use only non-threaded builds for the time
-being.
+See README.INTERNALS and README.CALLING for some information about the
+design of the Mj2 software.
 
-The following modules are required.  These may have prerequisites which
-have not been listed; please inform mj2-dev (see below) of any
-modules which you had to load but which are NOT listed below.
+See README.QUEUEING for an explanation of how Mj2 processes incoming
+e-mail messages.
 
-1) CGI version 2.36
+See README.DEBUGGING for some tips on diagnosing problems. 
 
-2) Digest::SHA1 (any version)
-  found in Digest-MD5-2.12.tar.gz
-
-3) Mail::Header version 1.1 or greater
-  found in MailTools-1.13.tar.gz
-
-4) Mail::Internet version 1.3 or greater
-  found in MailTools-1.13.tar.gz
-
-5) MIME::Tools version 4.119 or greater
-  found in MIME-tools-4.124.tar.gz
-
-6) Date::Format (any version)
-  found in TimeDate-1.08.tar.gz
-
-7) Data::Dumper version 2.07
-
-8) MIME::Base64 version 2 or greater
-  found in MIME-Base64-2.11.tar.gz
-
-9) Date::Manip version 5.1 or greater
-  found in DateManip-5.37.tar.gz
-
-10) IO::Wrap version 1.101 or greater
-  found in IO-stringy-1.207.tar.gz
-
-11) Net::Domain
-  found in libnet-1.0702.tar.gz
-
-12) Time::HiRes is recommended if you want to generate accurate
-    timings, but is not required.
-
-All of these modules are available from CPAN, the Comprehensive
-Perl Archive Network.  To find a CPAN site nearest you, look at
-<URL:http://www.perl.org/> or <URL:http://www.perl.com/>. Follow
-the instructions in the file you download, or try this:
-  cat FILE.tar.gz | gzip -d | tar xvf -
-  cd FILE
-  perl -w Makefile.PL
-  make install
-  cd ..
-  rm -rf FILE
-You will need to be "root" to install Perl modules, and install
-may not run properly if your environment variables are wrong.
-
-Version numbers in file names may be different (those shown above are
-examples as of 4/2000), and are included here only so you can see the
-approximate name of the file to download from one of the many links in
-  http://www.cpan.org
-You can search for modules from
-  http://www.cpan.org/modules/index.html
-or scroll through all of them from:
-  http://www.cpan.org/modules/01modules.index.html
-
-You may also use the CPAN module which comes with Perl; check the Perl
-documentation for more info.  The installation process will suggest ways
-to use CPAN to install missing packages, but these require that the CPAN
-module be configured and running properly first.
-
-Majordomo2 includes its own setuid wrapper generation, so setuid shell
-scripts are not required.  (Some versions of Unix do not support them; Perl
-can work around this on some Unices but it must be configured to do so.  If
-needed, the wrappers are compiled using the information from the Perl
-configuration, in particular the configured location of the system C
-compiler.  If this information is incorrect, then the wrappers will not
-build.  If the wrappers are not required, neither is a C compiler.  Note
-that even if you have an MTA that does not require the Majordomo1 wrapper
-there are still Majordomo2 programs that need to be setuid, namely the
-shell and web-confirm interfaces.  These are setuid majordomo only, not
-setuid root.
-
-You need a complete and proper Perl installation in order to run Majordomo.
-Some vendors ship Perl but do not configure it correctly.  Majordomo will
-try to detect trouble during the installation process but it will not
-do anything to fix it.
-
-Note: if you have any input on this software, even if you have not
-tested it, please let mj2-dev@csf.colorado.edu know.  All
-feedback is appreciated.
+Nearly all Majordomo 1.94.4 functionality is supported (including
+archives and digests).  There is still much work to be done, and bugs
+remain to be found.  See the TODO document for a list of features that
+have not yet been implemented.
 
 
-Reporting bugs:
-
-Please report bugs to mj2-dev@csf.colorado.edu and CC a copy to
-tibbs@math.uh.edu (just in case).  Please be sure to include information on
-what version of Majordomo2 you're running (including the time you checked
-it out of CVS if you did so), the version of Perl you're using and the OS
-you're running.  We may also need to know the versions of any relevant
-modules and the configuration options you chose.
-
-The old bug reporting system did not prove to be useful; Jitterbug is being
-evaluated for a new one but has not yet been set up.
-
-To participate in the Majordomo 2 developers' mailing list, write to 
-  majordomo@csf.colorado.edu
-and in the body of the message, put this command:
-  sub mj2-dev
-
-Similarities with 1.94.x:
-
+Similarities with Version 1.94.x
+--------------------------------
 A major design goal of Majordomo 2 is to provide something that looks
 exactly like Majordomo 1.94.4 to the users.  All existing instructions for
 end users of Majordomo-managed lists should still be applicable, excepting
@@ -149,57 +48,142 @@ though, and more may be forthcoming.  There are, of course, many more
 variables that can be set.
 
 
-Differences from 1.94.x:
+Differences from Version 1.94.x
+-------------------------------
+Everything has changed.  Majordomo 1 was flea-bitten, full of warnings
+and didn't have a hope of running under -w, use strict, or taint checks.
+Jason found it simpler to write it all anew than to try to fix the old
+code and make it do what I wanted.  He tried for a long time,
+half-rewriting it at least twice.
 
-Everything.  No code has survived.  It was flea-bitten, full of warnings
-and didn't have a hope of running under -w, use strict, or taint checks.  I
-found it simpler to write it all anew than to try to fix the old code and
-make it do what I wanted.  I tried for a long time; half-rewriting it at
-least twice.
-
-Majordomo now communicates with a delivery agent via standard
-protocols; there is no reliance on being able to call something that
-looks like Sendmail.  It can also speak the protocol used by
-qmail-queue to inject mail directly.
+Mj2 communicates with an MTA using the standard SMTP protocol; there is
+no reliance on being able to call something that looks like Sendmail.
+It can also speak the protocol used by qmail-queue to inject mail
+directly.
 
 Majordomo keeps a database of subscribers, and so can keep lots of extra
 state information.  Because of this, digests can be incorporated into the
-main list, along with vacation mode and other goodies.
+main list, along with vacation mode and other improvements.
 
 Majordomo has a completely different file layout, with one directory per
 virtual domain containing one directory per list.
 
 The interfaces are completely separate from the core.  There are interfaces
-for email and shell access, with plans for more.
+for email, shell, and WWW access.
 
-Piles of other stuff.  Too much to list.  Read all of the pods and the TODO
-list, and the hundred or so pages of notes I have on real paper which you
-probably couldn't read even if you could get to them.
+The other changes are too many to list.  See the extensive help
+documents for more information about the current features of Mj2.
 
 
-Installation:
+The Perl Interpreter
+--------------------
+You need a complete and proper Perl installation in order to run Majordomo.
+Some vendors ship Perl but do not configure it correctly.  Majordomo will
+try to detect trouble during the installation process but it will not
+do anything to fix it.
 
+Mj2 requires Perl 5.004_01 or later to run.  This is due to bugs in
+5.004, and the fact that lesser versions are both lacking in features
+and security.  Most of the testing is done using Perl 5.5.2, 5.6.1, and
+5.8.1.
+
+Currently a Perl built with threading support will fail to run Mj2 code
+properly due to bugs in the Perl threading support (which is in a
+development state).  Please use only non-threaded builds for the time
+being.
+
+
+Perl Modules
+------------
+Mj2 requires that numerous other Perl modules be install on your system.
+All of the Perl modules are available from CPAN, the Comprehensive Perl
+Archive Network.  The easiest way to install a new module is to use the
+CPAN module.  This module is included with most recent versions of Perl.
+For example, to install the Date::Format module, run the following shell
+command:
+
+  perl -MCPAN -e 'CPAN::Shell->install("Date::Format")'
+
+(In most cases, it is necessary to run this command as root.)  
+
+During the installation process, if some of the required modules are
+missing, you will be given a list of commands to execute to install the
+missing modules.
+
+If the CPAN module is not installed at your site, you can search it
+at the following location:
+  <URL:http://search.cpan.org/>
+
+
+The following modules are optional:
+
+Time::HiRes 
+  Installing this module will cause activity and debugging logs to
+  record with higher precision the amount of time taken by a command or
+  subroutine (e.g., 2.393 seconds instead of 2.000 seconds).
+
+Term::ReadLine::Perl or Term::ReadLine::Gnu
+  Either of these modules will give the mj_shell program extra
+  features when you use it interactively (see below).
+
+Text::Reflow
+  When an HTML or enriched-text message part is changed into plain text,
+  Mj2 will use this module to format the text attractively.  Otherwise,
+  it will use a simpler and cruder algorithm.
+
+DB_File
+  The DB_File module will allow Majordomo to store its data in Berkeley
+  DB databases.  Berkeley DB databases are much faster than the plain
+  text databases that Majordomo also supports.  To use this module,
+  it must be installed before you configure and install Mj2.
+
+DBI
+DBD::Pg
+DBD::mysql
+  In addition to plain text and Berkeley DB databases, Mj2 has
+  experimental support for PostgreSQL and MySQL databases.  Use at your
+  own risk.  To use this module, it must be installed before you configure
+  and install Mj2.
+
+
+SetUID Scripts
+--------------
+Majordomo 2 includes its own setuid wrapper generation, so setuid shell
+scripts are not required.  (Some versions of Unix do not support them; Perl
+can work around this on some Unices but it must be configured to do so.  If
+needed, the wrappers are compiled using the information from the Perl
+configuration, in particular the configured location of the system C
+compiler.  If this information is incorrect, then the wrappers will not
+build.  If the wrappers are not required, neither is a C compiler.  Note
+that even if you have an MTA that does not require the Majordomo1 wrapper
+there are still Majordomo 2 programs that need to be setuid, namely the
+shell and web-confirm interfaces.  These are setuid majordomo only, not
+setuid root.
+
+
+Installation
+------------
 Much blood has been shed to make installation as painless as possible.
 It's still painful because it's not finished.  Try to imagine how easy it
 will be when it's finished.
 
 To install:
-  unpack (you did that if you're reading this).  Make certain that root is
+  * Unpack (you did that if you're reading this).  Make certain that root is
     able to read all of the distribution files.  (This means that you
     cannot unpack the distribution with no global read permissions on a
     disk that root cannot manipulate, such as an NFS-mounted directory
     with no root privilege.)
-  type "perl Makefile.PL".
+ 
+  * Run the following shell command:
+    perl Makefile.PL
 
 Your system will be checked for prerequisite modules and such.  If any are
 not found, you must install them before installation can continue.  Some
 sample instructions that may work for many properly configured perl
 installations are provided for missing modules.
 
-You will be asked several questions as Majordomo configures itself for your
-system.  See the 'Makefile.PL questions' section at the end of this
-document for more detailed discussion on the questions that Makefile.PL
-asks.
+You will be asked several questions related to your site, and several
+questions for each virtual domain that you choose to support.
 
 When the configuration process finishes, you will be asked to run 'make'
 and 'make install'.  'make' will prepare the files for installation, and
@@ -208,14 +192,12 @@ root, as it will need permission to make directories and change ownership
 of files.
 
 The final installation step is complex; Majordomo is used to configure
-itself.  This can result in copious amounts of information so the verbosity
-can be controlled.  By default Majordomo will completely configure itself
-and will present to you a brief progress summary and some important
-configuration step, but you can request additional verbosity, interactivity
-or silence.
-
-This works by specifying variables on the 'make install' command line.  You
-can specify the following variables:
+itself.  This can result in copious amounts of information so the
+verbosity can be controlled.  By default Majordomo will completely
+configure itself and will present to you a brief progress summary and
+some important configuration steps, but you can request additional
+information.  This works by specifying variables on the 'make install'
+command line.  You can specify the following variables:
 
   QUIET   - show even less information
   VERBOSE - print everything that's happening
@@ -239,289 +221,93 @@ skipping the installation of the manual pages and any setup by using "make
 pure_all" and "make pure_install VERBINST=0 SKIP=1" (the latter, of course,
 as root).
 
-Finally Majordomo2 will be installed, and some configuration information
+Finally Majordomo 2 will be installed, and some configuration information
 will be suggested.  Be aware that this configuration information may not be
 correct for all sites; especially sites running virtual domains.  Virtual
 domain users and users of other MTAs, please let us know how to configure
 things for you.
 
+
+Using a Response File
+---------------------
+You can prepare a response file that has the answer to each
+configuration question.  This is currently very fragile as it is still
+in the preliminary stages.  Any change in the questions will cause a
+response file to break, so use this approach with caution.
+
+
+Adding a New Domain
+-------------------
 It is possible to configure Majordomo after installation to support
 additional virtual domains.  To do so, run the shell command
+
   make domain
+
 (usually as the root user) in the top-level source directory.
 
+
+Changing the Site Configuration
+-------------------------------
 It is also possible to change the sitewide configuration (such as the
 site master password and queueing options) without reinstalling the
 software.  To do so, run the shell command
+
   make siteconfig
+
 (usually as the root user) in the top-level source directory.
 
 
-Interacting with Majordomo:
+Testing after Installation
+--------------------------
+After the software has been installed, it may be necessary to restart
+your MTA software to recognizes Mj2's mail aliases.  To test the
+server, send the following command:
+  help overview
+in the body of a message to the server address.  The overview document
+that you receive from the server briefly introduces Mj2's extensive help
+system.
+
+
+Interacting with Majordomo
+--------------------------
+Majordomo should respond to commands which are e-mailed to the server
+address.  As in Majordomo version 1, commands must be in the body of an
+e-mail message.  See the "admin_commands" and "commands" help files
+for more information.
+
+New with Majordomo 2 is the shell interface; it can be used to interact
+with the server via the command line.  This is in general much easier
+for people with shell access to the computer where Mj2 is running.
+Nearly everything that can be done from the email interface can be done
+from the shell interface, along with a few other things like interactive
+editing of configuration settings and documents.
+
+The mj_shell program also works interactively; just run it without any
+Majordomo commands and it will prompt you.  If the Term::ReadLine::Perl
+or Term::ReadLine::Gnu module is installed on your system, mj_shell will
+also support command completion for commands and list names, and command
+history.   See the "mj_shell" help file for more information.
+
+If you have chosen WWW support during the installation process, three
+WWW interfaces will be available:  mj_wwwadm, mj_wwwusr, and mj_confirm.
+See the "mj_wwwadm" help file for more information.
+
+
+Reporting Problems
+------------------
+Please report bugs to mj2-dev@csf.colorado.edu and CC a copy to
+tibbs@math.uh.edu (just in case).  Please be sure to include information on
+what version of Majordomo 2 you're running (including the time you checked
+it out of CVS if you did so), the version of Perl you're using and the OS
+you're running.  We may also need to know the versions of any relevant
+modules and the configuration options you chose.
+
+To participate in the Majordomo 2 developers' mailing list, write to 
+  majordomo@csf.colorado.edu
+and in the body of the message, put this command:
+  sub mj2-dev
+
+All Mj2-related questions and comments are welcome on mj2-dev, if they
+are phrased politely.
 
-After installing the aliases as given by the installation process and
-possibly rebuilding the alias database, Majordomo should respond to mailed
-commands at the given address.  The command processor works in much the
-same way as it does in Majordomo 1, but with many additions.  In
-particular, the command works and also takes topics to give help on; try
-'help topics' and 'help parser'.
 
-New with Majordomo2 is the shell interface; it can be used to interact with
-the server via the command line.  This is in general much easier to deal
-with for local users.  The installation process will have installed a
-manual page along with the executables and libraries; accessing it is
-system-dependent but may require setting the MANPATH variable to add the
-new directory.  Just about everything that can be done from the email
-interface can be done from the shell interface, along with a few other
-things like interactive editing of configuration variables.
-
-The shell interface now also works interactively; just run it without any
-Majordomo commands and it will prompt you.  If Term::ReadLine::Perl is
-installed, it will also provide command completion for commands and list
-names.  See the manpage for more information.
-
-
-Creating and converting lists:
-
-You can make your own lists just by calling the createlist command, like
-this:
-
-mj_shell -p password createlist list-name owner@address
-
-If you've configured Majordomo to take care of your MTA configuration for
-you and configured your MTA appropriately, everything should be taken care
-of.  Otherwise this will give you the necessary configuration information.
-
-You can pull in a set of addresses from a Majordomo 1.9x list like this:
-
-mj_shell -p password -f old-list-file subscribe=quiet=noinform list-name
-
-(This subscribes all addresses from a file, without welcoming them and
-without sending an informational notification to the list owner).
-
-The convertlist.pl program will assist in converting lists.  See the
-documentation in README.CONVERSION for more information.
-
-
-List configuration:
-
-Lists are configured using the configshow and configset commands.  The old
-config interface is not yet supported.  Try viewing the 'admin
-configuration' help topic.  To see the whole config file, you can send
-'configshow=comments listname ALL'.
-
-
-The Filespace:
-
-Each list has a directory where retrievable files are stored; this is
-called a filespace.  Because normal filesystems do not track enough
-information about file types, Majordomo2 maintains a database containing
-information about these files such as their description and MIME type.  The
-list owner can upload files to the filespace and users can retrieve files
-from the public portion of the filespace.
-
-When retrieving a file from the filespace, Majordomo2 consults a search
-list made from the 'file_search' config variable and a global default.
-Other list's files can be referenced as long as they share their files.
-Since Majordomo2 goes through the filespace to send out nearly all of its
-messages, this provides both an overrideable defaults mechanism and a means
-for internationalization.
-
-Files are uploaded using the 'put' command; 'put-dir' will make
-directories.  There is currently no way to delete a file.  The 'newinfo',
-'newintro' and 'newfaq' commands are shortcuts for 'put' with specific
-arguments.
-
-Files are retrieved with the 'get' command; 'get=immediate' will return the
-file inline instead of mailing it as a separate message.  The 'intro',
-'info' and 'faq' commands are shortcuts for 'get' with specific arguments.
-
-A (partial) list of the response files that Majordomo2 uses are given, with
-supported variable expansions, in the FILES document.
-
-
-Archives:
-
-Archives start accumulating as soon as the archive_dir variable is set and
-the directory exists, or as soon as an "archive" directory appears in the
-public area of the list's filespace.  The latter can be done by the command
-
-  putdir listname /public/archive Archives
-
-(properly approved, of course).  There is no need to create additional
-aliases.  Archives are free of fronters, footers, most header modifications
-and subject prefixing.  The archive system will automatically create a
-".index" directory to place various indices.
-
-The archive directory can be a symbolic link without problems, although
-there is no provision for creating such a link from within Majordomo.  The
-usual reason for using a symlink is to permit the archives to be in an FTP
-area.  Majordomo must be able to write to the archive directory, but
-otherwise no special permissions are required and a mode 700 directory is
-perfectly acceptable.
-
-(Archives will be needed in order for digests to work.  There will be
-provisions for old archives to automatically be removed, in case long-term
-archiving is not desired.)
-
-
-Access Control:
-
-All operations which need to restrict access go through a central mechanism
-for doing so.  The list owner can choose to use the old Majordomo 1
-interface which works via the *_access variables, restrict_post,
-subscribe_policy and the like.  This works as expected (though the
-mechanism by which restrict_post lists are set up has changed).
-
-The owner can also choose to make use of an extremely flexible system which
-is documented in "help configset access_rules".  This, when coupled with
-some of the taboo_* extensions (like severity and classes) and the metrics
-that resend collects allows almost arbitrarily complex access control.
-
-Instead of Majordomo 1's limitation of confirming only subscribes, almost
-any operation can be stalled and completed after a conformation token is
-returned by either the user or the owner (or both).  The owner can also
-choose to deny outright a request.
-
-Information about a token can be retrieved using the 'tokeninfo' command.
-
-
-Sessions:
-
-Majordomo2 stores information about every email or command line processed
-in files called sessions.  These are files containing all pertinent
-information about the session (email headers, CGI environment, selected
-environment variables, etc. as appropriate) as well as a log of all
-commands executed during that session.  When a token is rejected,
-information about the session that generated it is automatically mailed to
-the list and site owners (if they elect to receive such information).  Old
-session files are automatically deleted after the number of days indicated
-by the 'session_lifetime' variable.
-
-
-Makefile.PL Questions:
-----------------------
-
-  What is the user ID that Majordomo will run as?
-   Either the numeric ID or the user name is fine.
-
-Majordomo must run as a specific user on your system.  Generally an account
-must be created (the installation process will not do this for you).  Give
-either the name of this account or its numeric ID here.
-
-----
-
-  What is the group ID that Majordomo will run as?
-   Either the numeric ID or the group name is fine.
-
-As above, the installation process needs to know which group Majordomo will
-run in.  It is not necessary for Majordomo to be in a special group or that
-a separate group be created, although some administrators may wish things
-to be this way.
-
-----
-
-  Should the SETID wrappers be installed?
-   Majordomo needs to be able to run as the proper user no matter who is
-    running it.  This requires that it be installed SETID.  On some systems,
-    the Majordomo programs can be installed SETID, but this requires both
-    that the operating system support it ant that perl be built to support
-    it.  If this is not possible, a set of tiny wrapper programs can be built
-    which will take care of the SETID needs of Majordomo.
-   If you're not sure of how to answer this question, just answer YES.
-    There is no loss of functionality when the wrappers are enabled.  Curious
-    users may want to answer NO; if wrappers are required, the installation
-    process will fail later.
-
-  Install the wrappers? 
-
-Majordomo must run as a single user, but the mail system may execute it as
-other users depending on various circumstances.  Also, the shell interface
-must run properly no matter who executes it.  For these and other reasons,
-Majordomo must run setuid.  On some systems and perl installations it
-suffices to simply set the appropriate permissions on the scripts, while on
-others small wrapper programs must be created and compiled.  It is
-difficult for the installation process to determine the proper setting; it
-is always OK to build the wrappers but things are slightly simpler without
-this.
-
-----
-
-  What umask should Majordomo use?
-   The umask is the Unix method of restricting the permissions on newly
-    created files and directories.
-   Useful values are:
-    077 (nobody can read any Majordomo files)
-    027 (users in the Majordomo group can read the files)
-    007 (users in the Majordomo group can read and write the files)
-   Choose 077 for maximum security.  Majordomo2 can operate with very strict
-    permissions.
-
-  What should umask be set to?
-
-Check the umask manual pages for more information on umasks; the basics are
-in the description.
-
-----
-
-  Where will the Majordomo libraries, executables and documentation be kept?
-   This could be something like "/usr/local/majordomo"; Majordomo will make
-     this directory and several directories under it to hold its various
-     components.
-   Note that this is not necessarily where your lists must be stored.
-
-Majordomo just needs to know where to put its executables and libraries.
-After installation, Majordomo will not write to this location.  It can be
-NFS mounted or on a partition mounted read-only (after installation is
-complete, of course).  If it is an NFS-mounted partition, however, that
-partition must be mounted to as to allow setuid binaries.  If this is not
-the case, most of Majordomo will fail completely.  Note that Majordomo does
-not install its libraries into the normal perl installation directories.
-
-----
-
-  Where will the Majordomo list data be kept?
-   Note that under this directory will be a directory for each domain your
-     site supports, and under that a directory for each list at your site.
-   Note also that this should _not_ be a directory containing lists
-     maintained by Majordomo 1.x, as Majordomo 2 stores its lists in a
-     different format.
-
-This should _not_ be an NFS-mounted directory, as the locking mechanism
-currently used by Majordomo will not function properly over NFS.  This
-doesn't have to be in the same location as the previous directory.
-
-----
-
-  Where can Majordomo place temporary files?
-   Majordomo occasionally needs to write out short-lived files in a place
-     that all users can write to.  These files are generally small and are
-     deleted after the operations are complete.
-
-This should be something like /tmp where everybody can create files.
-
-----
-
-  Where can Majordomo place secure temporary files?
-    Majordomo also needs to write out private temporary files.  For maximum
-      security, this should be a special directory that is neither readable
-      nor writable by normal users.  (In other words, it should not be /tmp
-      unless you know what you're doing.)  Many security problems can arise
-      when any user can create files and links in the temporary directory with
-      the same names that Majordomo would use.
-    The installation process will create this directory if it does not exist,
-      but will not enforce any permissions.
-
-Majordomo will create this directory during installation but will not
-create it at runtime.  Therefore you should be wary of placing this on a
-filesystem like Sun's tempfs which goes away after a reboot unless you take
-care to recreate the directory properly during the boot process.
-
-----
-
-Note that you can prepare a response file that has the answer to each
-question.  This is currently very fragile as it is still in the
-preliminary stages.  Any change in the questions will cause a response
-file to break.  You've been warned.
-
- - J<
