@@ -34,8 +34,9 @@ unless (check_syslog() &&
 	(
          'Mail::Internet' => 1.30,
          'Mail::Header'   => 1.10,
-         'MIME::Tools'    => 4.119,
          'MIME::Base64'   => 2.00,
+         'IO::Wrap'       => 1.101,
+         'MIME::Tools'    => 4.119,
          'Data::Dumper'   => 2.07,
 	 #	     'Data::ShowTable'  => 0,  # Want 3.3, but the stupid module
 	 # doesn't have a version number
