@@ -632,7 +632,7 @@ sub _check_approval {
   # looks like Approved: password, token in the first few lines
   elsif ($pre) {
     for $i (0..3) {
-      if ($$pre[$i] && $$pre[$i] =~ /Approved:\s*(\S+)\s*,?\s*(.*)\s*/i) {
+      if ($$pre[$i] && $$pre[$i] =~ /Approved:\s*([^\s,]+)\s*,?\s*(.*)\s*/i) {
 	($passwd, $token) = ($1, $2);
 	last;
       }
@@ -640,7 +640,7 @@ sub _check_approval {
   }
 
   # Check in the body
-  else {
+  unless ($password) {
     # If multipart, grab first part
     $part = $ent->parts(0);
     unless ($part) {
@@ -654,7 +654,7 @@ sub _check_approval {
     while (defined ($line = $fh->getline)) {
       last if $line =~ /\S/;
     }
-    if (defined($line) && $line =~ /Approved:\s*(\S+)\s*,?\s*(.*)\s*/i) {
+    if (defined($line) && $line =~ /Approved:\s*([^\s,]+)\s*,?\s*(.*)\s*/i) {
       ($passwd, $token) = ($1, $2);
     }
   }
@@ -1194,7 +1194,7 @@ sub _trim_approved {
   if ($pre) {
     for $i (0..3) {
       last unless $$pre[$i];
-      if ($$pre[$i] && $$pre[$i] =~ /Approved:\s*(\S+)\s*,?\s*(.*)/i) {
+      if ($$pre[$i] && $$pre[$i] =~ /Approved:\s*([^\s,]+)\s*,?\s*(.*)/i) {
 	splice @$pre, $i, 1;
 	return $oent;
       }
@@ -1211,7 +1211,7 @@ sub _trim_approved {
       while (defined ($line = $ofh->getline)) {
 	last if $line =~ /\S/;
       }
-      if (defined($line) && $line =~ /Approved:\s*(\S+)\s*,?\s*(.*)/i) {
+      if (defined($line) && $line =~ /Approved:\s*([^\s,]+)\s*,?\s*(.*)/i) {
 	# Look a single additional part of type message/rfc822 and if so,
 	# parse it and return it.
 	if (scalar($oent->parts) == 2 &&
@@ -1251,7 +1251,7 @@ sub _trim_approved {
       while (defined ($line = $ofh->getline)) {
 	last if $line =~ /\S/;
       }
-      if (defined($line) && $line =~ /Approved:\s*(\S+)\s*,?\s*(.*)/i) {
+      if (defined($line) && $line =~ /Approved:\s*([^\s,]+)\s*,?\s*(.*)/i) {
 	# Found it; save the file position and read one more line.
 	$pos = $ofh->tell;
 	$line = $ofh->getline;
