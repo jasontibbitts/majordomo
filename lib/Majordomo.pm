@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200101270";
+$VERSION = "0.1200102140";
 $unique = 'AAA';
 
 use strict;
@@ -433,11 +433,16 @@ sub dispatch {
   # from Mj::CommandProps.
   if ($request->{'mode'} and !$continued) {
     @tmp = split /[=-]/, $request->{'mode'};
-    @modes = keys %{function_prop($request->{'command'}, 'modes')};
+    @modes = sort keys %{function_prop($request->{'command'}, 'modes')};
     for $l (@tmp) {
       unless (grep { $l =~ /^$_/ } @modes) {
         return [0, $self->format_error('invalid_mode', $request->{'list'},
-                   'MODE' => $request->{'mode'},
+                   'MODE' => $l,
+                   'MODES' => \@modes)];
+      }
+      unless (length($l) < 12) {
+        return [0, $self->format_error('invalid_mode', $request->{'list'},
+                   'MODE' => $l,
                    'MODES' => \@modes)];
       }
     }
@@ -3132,14 +3137,14 @@ sub _fill_lists {
   if ($self->{'sdirs'}) {
     while (defined($list = readdir $dirh)) {
       $self->{'lists'}{$list} ||= undef
-	if $self->legal_list_name($list) && -d "$listdir/$list";
+	if legal_list_name($list) && -d "$listdir/$list";
     }
   }
   else {
     while (defined($list = readdir $dirh)) {
       # Make a hash entry for the list if it doesn't already exist
       $self->{'lists'}{$list} ||= undef
-	if $self->legal_list_name($list);
+	if legal_list_name($list);
     }
   }
   closedir($dirh);
@@ -3209,12 +3214,11 @@ aliases is another matter.
 
 =cut
 sub legal_list_name {
-  my $self = shift;
   my $name = shift || "";
 
-  $::log->message(200, "info", "Majordomo::legal_list_name", "$name");
+  $::log->message(200, 'info', 'Majordomo::legal_list_name', $name);
   return undef unless $name;
-  return undef if $name =~ /[^a-zA-Z0-9-_.]/;
+  return undef if $name =~ /[^a-zA-Z0-9_.-]/;
   return undef if $name eq '.';
   return undef if $name eq '..';
   return undef if $name =~/^(RCS|core)$/;
@@ -3242,11 +3246,11 @@ sub valid_list {
     $name = $1; $sublist = $2;
   }
 
-  unless ($self->legal_list_name($name)) {
+  unless (legal_list_name($name)) {
     return undef;
   }
   if ($sublist) {
-    unless ($self->legal_list_name($sublist)) {
+    unless (legal_list_name($sublist)) {
       return undef;
     }
   }
@@ -4081,7 +4085,7 @@ sub createlist {
     my $log = new Log::In 50, "$request->{'newlist'}, $request->{'owners'}->[0]";
 
     return (0, "Illegal list name: $request->{'newlist'}")
-      unless $self->legal_list_name($request->{'newlist'});
+      unless legal_list_name($request->{'newlist'});
   }
  
   $request->{'newlist'} = lc $request->{'newlist'}; 
@@ -5752,6 +5756,9 @@ sub tokeninfo {
   # Don't check access for now; users should always be able to get
   # information on tokens.  When we have some way to prevent lots of
   # consecutive requests, we could call the access check routine.
+
+  return (0, "No token identifier was found.\n")
+    unless (length $request->{'token'}); #XLANG
 
   # Call t_info to extract the token data hash
   ($ok, $data) = $self->t_info($request->{'token'});
