@@ -90,8 +90,8 @@ sub DESTROY {
   my $self = shift;
   my $log  = new Log::In 200, $self->{filename};
   undef $self->{get_handle};
-  undef $self->{get_lock};
   undef $self->{db};
+  undef $self->{get_lock};
 }
 
 =head2 add(mode, key, datahashref)
@@ -139,6 +139,7 @@ sub add {
     $done = 0;
   }
 
+  undef $db;
   ($done, $data);
 }
 
@@ -175,8 +176,10 @@ sub remove {
     # If we got something, delete and return it.
     if ($data) {
       $status = $db->del($key);
+      undef $db;
       return ($key, $data);
     }
+    undef $db;
     return;
   }
 
@@ -195,15 +198,15 @@ sub remove {
         last if $mode !~ /allmatching/;
       }
     }
-  
+
   for $try (@deletions) {
     $db->del($try);
   }
+  undef $db;
 
   if (@out) {
     return @out;
   }
-  
   $log->out("failed");
   return;
 }
@@ -241,7 +244,10 @@ sub replace {
   # Take care of the easy case first.  Note that we don't allow duplicates, so there's no need to loop nere.
   if ($mode !~ /regex|pattern/) {
     $data = $self->_lookup($db, $key);
-    return unless $data;
+    unless($data) {
+      undef $db;
+      return;
+    }
     # Update the value, and the record.
     if (ref($field) eq 'HASH') {
       $data = $field;
@@ -253,7 +259,7 @@ sub replace {
       $data->{$field} = $value;
     }
     $db->put($key, $self->_stringify($data));
-    return ($key);
+    undef $db; return ($key);
   }
 
   # So we're doing regex processing, which means we have to search.
@@ -292,6 +298,7 @@ sub replace {
     $db->put($k, $v);
   }
 
+  undef $db;
   if (@out) {
     return @out;
   }
@@ -330,7 +337,7 @@ sub mogrify {
   my $db = $self->_make_db;
   return unless $db;
   $changed = 0;
-  
+
   $k = $v = 0;
  RECORD:
   for ($status = $db->seq($k, $v, R_FIRST);
@@ -381,6 +388,7 @@ sub mogrify {
   while (($k, $v) = splice(@new, 0, 2)) {
     $status = $db->put($k, $v);
   }
+  undef $db;
   $log->out("changed $changed");
 }
 
@@ -630,6 +638,7 @@ sub lookup_quick {
   return unless $db;
 
   my $status = $db->get($key, $value);
+  undef $db;
   if ($status != 0) {
     return;
   }
@@ -652,10 +661,10 @@ sub lookup_quick_regexp {
        $status = $db->seq($key, $value, R_NEXT) )
     {
       if (re_match($reg, $key)) {
-	return ($key, $value);
+	undef $db; return ($key, $value);
       }
     }
-  return;
+  undef $db; return;
 }
 
 1;

@@ -59,6 +59,14 @@
 	Suggested by Brock Rozen.
 	(_parse_message_range)  Eliminate potential infinite loop.
 
+
+2002-02-09  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/SimpleDB/DB.pm (DESTROY): Undef the database before
+	unlocking.
+	(add, remove, replace, mogrify, lookup_quick,
+	lookup_quick_regexp): Undef the database before exiting.
+
 2002-02-06  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Archive.pm:  (_write_counts)  Remove database
