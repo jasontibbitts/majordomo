@@ -800,6 +800,8 @@ sub _make_list {
 		  sub { $self->_list_config_search(@_) },
 		  'mj._list_file_get_string' =>
 		  sub { $self->_list_file_get_string(@_) },
+		  'mj.valid_list' =>
+		  sub { $self->valid_list(@_) },
 		 },
 		);
   return unless $tmp;
@@ -3733,8 +3735,9 @@ sub valid_list {
   my ($file, $mess, $oname, $reloc, $sublist, $subs, $tmp);
   $sublist = $mess = '';
 
-  if ($name =~ /^([\w.-]+):([\w.-]+)$/) {
-    $name = $1; $sublist = $2;
+  if ($name =~ /^([^\s:]+):(\S*)$/) {
+    $name = $1; 
+    $sublist = $2 if (defined $2 and length $2);
   }
 
   unless (legal_list_name($name)) {
@@ -3743,8 +3746,8 @@ sub valid_list {
   }
   if ($sublist) {
     unless (legal_list_name($sublist)) {
-      # XLANG
-      return (undef, undef, qq(The sublist name "$sublist" is invalid.\n));
+      return (undef, undef,
+              $self->format_error('invalid_list', 'GLOBAL', 'LIST' => $sublist));
     }
   }
 
