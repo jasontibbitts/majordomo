@@ -96,13 +96,10 @@ arguments (for remote databases, etc.)
 =cut
 sub new {
   my ($type, %args) = @_;
-
-  # $name, $backend, $fields, $indices, $sorter) = @_;
-
   my ($exist, $lock, $ver, $name);
 
   if(!defined($args{filename})) {
-    $args{filename} = $args{listdir} . $args{list} . $args{file};
+    $args{filename} = "$args{listdir}/$args{list}/$args{file}";
   }
 
   my $log  = new Log::In 200, "$args{filename}, $args{backend}";
