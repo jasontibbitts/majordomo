@@ -400,7 +400,8 @@ sub post_done {
   my $log  = new Log::In 30;
   my ($ok, $mess);
 
-  $self->{'post_fh'}->close;
+  $self->{'post_fh'}->close()
+    or $::log->abort("Unable to close post file: $!");
 
   $request->{'file'} = $self->{'post_file'};
 
@@ -416,16 +417,18 @@ sub post_done {
 
 use Mj::MIMEParser;
 use Mj::Util qw(gen_pw);
+use Symbol;
 sub _post {
   my($self, $list, $user, $victim, $mode, $cmdline, $file, $arg2,
      $avars, $ent) = @_;
   my $log  = new Log::In 35, "$list, $user, $file";
 
-  my(%ackinfo, %avars, %deliveries, %digest, @dfiles, @dtypes, @dup, @ent, 
-     @files, @refs, @tmp, @skip, $ack_attach, $ackfile, $arcdata, $arcdate,
-     $arcent, $archead, $date, $desc, $digests, $dissues, $dup,
-     $exclude, $head, $hidden, $i, $j, $msgnum, $nent, $precedence, 
-     $prefix, $rand, $replyto, $sender, $seqno, $subject, $sl, $subs, 
+  my(%ackinfo, %avars, %deliveries, %digest, @changes, @digest_headers,
+     @dfiles, @dtypes, @dup, @ent, @files, @refs, @tmp, @skip, 
+     $ack_attach, $ackfile, $arcdata, $arcdate, $arcent, $archead, 
+     $date, $desc, $digests, $dissues, $dup, $exclude, $head, 
+     $hidden, $i, $j, $k, $msgnum, $nent, $precedence, $prefix, 
+     $rand, $replyto, $sender, $seqno, $subject, $sl, $subs, 
      $tmp, $tmpdir, $tprefix, $whereami);
 
   return (0, "Unable to access list $list.\n")
@@ -493,10 +496,20 @@ sub _post {
   # Convert/drop MIME parts.  
   $i      = $self->_list_config_get($list, 'attachment_rules');
   if (exists $i->{'change_code'}) {
-    $self->_r_strip_body($list, $ent[0], $i->{'change_code'});
+    @changes = $self->_r_strip_body($list, $ent[0], $i->{'change_code'}, 1);
     $ent[0]->sync_headers;
+    $head = $ent[0]->head;
+    $head->modify(0);
+    for $i (@changes) {
+      if ($i->[1] eq 'format') {
+        $head->add('X-Content-Reformatted', "$i->[0]");
+      }
+      elsif ($i->[1] eq 'discard') {
+        $head->add('X-Content-Discarded', "$i->[0]");
+      }
+    }
   }
-
+  
   # Make duplicate archive/digest entity
   $arcent = $ent[0]->dup;
   $archead = $arcent->head;
@@ -588,10 +601,12 @@ sub _post {
 
     # Print out the archive copy
     $tmp = "$tmpdir/mjr.$$.$rand.arc";
-    open FINAL, ">$tmp" ||
+    $k = gensym();
+    open ($k, ">$tmp") or
       $::log->abort("Couldn't open archive output file, $!");
     $arcent->print(\*FINAL);
-    close FINAL;
+    close ($k) 
+      or $::log->abort("Unable to close file $tmp: $!");
 
     ($msgnum, $arcdata) = $self->{'lists'}{$list}->archive_add_done($tmp);
 
@@ -604,6 +619,7 @@ sub _post {
          ARCHIVE  => $msgnum,
          ARCURL   => $self->_list_config_get($list, 'archive_url'),
          DATE     => $date,
+         HOST     => $self->_list_config_get($list, 'resend_host'),
          SENDER   => "$user",
          SEQNO    => $seqno,
          SUBJECT  => $subject || '(no subject)',
@@ -618,15 +634,25 @@ sub _post {
     for $i ($self->_list_config_get($list, 'message_headers')) {
       $i = $self->substitute_vars_string($i, $subs);
       $head->add(undef, $i);
+      ($j, $k) = split ':', $i, 2;
+      push @digest_headers, [$j, $k];
     }
-    $archead->replace('X-No-Archive', 'yes')
+
+    $head->replace('X-No-Archive', 'yes')
       if $hidden;
-    if ($precedence = $self->_list_config_get($list, 'precedence')) {
-      $head->add('Precedence', $precedence);
-    }
-    $head->add('Sender', $sender);
 
     # Add list-headers standard headers
+    if ($precedence = $self->_list_config_get($list, 'precedence')) {
+      $head->add('Precedence', $precedence);
+      push @digest_headers, ['Precedence', $precedence];
+    }
+
+    if ($sender) {
+      $head->add('Sender', $sender);
+      push @digest_headers, ['Sender', $sender];
+      push @digest_headers, ['Errors-To', $sender];
+    }
+
 
     # Add fronter and footer.
     $self->_add_fters($ent[0], $list, $subs);
@@ -640,6 +666,11 @@ sub _post {
     # Add in Reply-To:
     $ent[2] = $self->_reply_to($ent[0]->dup, $list, $seqno, $user);
     $ent[3] = $self->_reply_to($ent[1]->dup, $list, $seqno, $user);
+
+    if ($i = $self->_list_config_get($list, 'reply_to')) {
+      $i = $self->substitute_vars_string($i, $subs);
+      push @digest_headers, ['Reply-To', $i];
+    }
 
     # Obtain list of lists to check for duplicates.
     $dup = {};
@@ -683,10 +714,12 @@ sub _post {
     # Print delivery messages to files
     for ($i = 0; $i < @ent; $i++) {
       $files[$i] = "$tmpdir/mjr.$$.$rand.final$i";
-      open FINAL, ">$files[$i]" ||
+      $k = gensym();
+      open ($k, ">$files[$i]") or
         $::log->abort("Couldn't open final output file, $!");
-      $ent[$i]->print(\*FINAL);
-      close FINAL;
+      $ent[$i]->print($k);
+      close ($k)
+        or $::log->abort("Unable to close file $files[$i]: $!");
     }
 
     $seqno = 'M' . $seqno;
@@ -747,13 +780,17 @@ sub _post {
     # Build digests if we have a message number from the archives
     # (%deliveries is modified)
     if ($msgnum and !$sl) {
-      $self->do_digests('list'      => $list,     'deliveries' => \%deliveries,
-                'substitute'=> $subs,     'msgnum'     => $msgnum,
-                'arcdata'   => $arcdata,  'sender'     => $sender,
-                'whereami'  => $whereami, 'tmpdir'     => $tmpdir,
-                'headers'   => [['Predecence', $precedence]],
-                # 'run' => 0, 'force' => 0,
-               );
+      $self->do_digests('list'       => $list,     
+                        'deliveries' => \%deliveries,
+                        'substitute' => $subs,     
+                        'msgnum'     => $msgnum,
+                        'arcdata'    => $arcdata,  
+                        'sender'     => $subs->{'OWNER'},
+                        'whereami'   => $whereami, 
+                        'tmpdir'     => $tmpdir,
+                        'headers'    => \@digest_headers,
+                        # 'run' => 0, 'force' => 0,
+                       );
     }
 
     # Invoke delivery routine
@@ -1171,14 +1208,15 @@ sub _check_body {
 
   # Create a Safe comaprtment
   $safe = new Safe;
-  $safe->permit_only(qw(aassign concat const le leaveeval not null padany push
-			pushmark regcreset return rv2sv stub));
+  $safe->permit_only(qw(aassign const le leaveeval not null padany push
+			pushmark return rv2sv stub));
 
   # Recursively check the body
   $avars->{'mime_header_length'} = 0;
   $avars->{'body_length'} = 0;
+  $avars->{'mime_require'} = 0;
   $self->_r_ck_body($list, $ent, $reasons, $avars, $safe, $qreg, $mcode,
-            $tcode, $inv, $max, , $maxlen, 'toplevel', 1);
+            $tcode, $inv, $max, $maxlen, 'toplevel', 1);
 
   $maxbody = $self->_list_config_get($list, 'maxlength');
   if ($maxbody && $maxbody < $avars->{'body_length'}) {
@@ -1282,10 +1320,11 @@ sub _r_ck_body {
   }
 }
 
-=head2 _r_strip_body (list, ent, safe, code)
+=head2 _r_strip_body (list, entity, change_code, level)
 
-Recursive examine the body parts, and remove those slated
-to be discarded by the attachment_rules setting.  
+Recursively examine the body parts, and remove those slated
+to be discarded by the attachment_rules setting.  Strip
+HTML formatting if requested.
 
 Encoding changes are not yet implemented.
 
@@ -1294,21 +1333,29 @@ make it available through FTP, HTTP, or other means
 is not yet implemented.
 
 =cut
+use MIME::Entity;
 use Safe;
+use Symbol;
 sub _r_strip_body {
-  my ($self, $list, $ent, $code) = @_;
-  my $log = new Log::In 50;
-  my (@newparts, @parts, $i, $verdict, $xform);
+  my $self     = shift;
+  my $list     = shift;
+  my $ent      = shift;
+  my $code     = shift;
+  local $level = shift;
+  my $log = new Log::In 50, $level;
+  my (@changes, @newparts, @parts, $i, $tmpdir, $txtfile, $verdict, $xform);
 
   # Create a Safe compartment
   my ($safe) = new Safe;
-  $safe->permit_only(qw(aassign concat const le leaveeval not null padany push
-                        pushmark regcreset return rv2sv stub undef));
+  $safe->permit_only(qw(aassign const gt le leaveeval not null padany push
+                        pushmark return rv2sv stub undef));
+  $safe->share(qw($level));
   local ($_);
   @newparts = ();
 
   @parts = $ent->parts;
   if (@parts) {
+    $level++;
     for $i (@parts) {
       $_ = $i->effective_type;
       ($verdict, $xform) = $safe->reval($code);
@@ -1316,7 +1363,38 @@ sub _r_strip_body {
         push @newparts, $i;
       }
       elsif ($verdict eq 'discard') {
-        $log->message(50, 'info', "Stripping MIME type $_");
+        if ($level == 2 and scalar(@parts) == 1) {
+          $log->message(50, 'info', "Cannot discard top-level single part.");
+          push @newparts, $i;
+        }
+        else {
+          push @changes, [$_, 'discard'];
+          $log->message(50, 'info', "Discarding MIME type $_");
+        }
+      }
+      elsif ($verdict eq 'format') {
+        $log->message(50, 'info', "Formatting MIME type $_");
+
+        $txtfile = $self->_format_text($i, $xform);
+
+        if ($txtfile) {
+          # Create a new plain text entity and include it
+          # in the list of new parts.
+          push @newparts, 
+            build MIME::Entity(
+              'Type' => 'text/plain',
+              'Path' => $txtfile,
+              'Charset' => 'ISO-8859-1',  
+              'Description' => 'Reformatted $_ message',
+              'Encoding' => '8bit',
+            );
+          # Will the new entity be purged automatically?
+          push @changes, [$_, 'format'];
+        }
+        else {
+          $log->message(50, 'info', "No changes made to $_");
+          push @newparts, $i;
+        }
       }
       else {
         # If the attachment rules code does not work properly, log
@@ -1327,10 +1405,113 @@ sub _r_strip_body {
     } 
     $ent->parts(\@newparts);
     $ent->make_singlepart if (@newparts <= 1);
-    for ($i=0; $i<@newparts; $i++) {
-      $self->_r_strip_body($list, $newparts[$i], $safe, $code);
+    for ($i = 0; $i < @newparts; $i++) {
+      push @changes, $self->_r_strip_body($list, $newparts[$i], $code, $level);
     }
   }
+  elsif ($level == 1) {
+    # single-part messages cannot have parts discarded, but the 
+    # message can be formatted.
+    $_ = $ent->effective_type;
+    ($verdict, $xform) = $safe->reval($code);
+
+    if ($verdict eq 'format') {
+      $log->message(50, 'info', "Formatting MIME type $_");
+      $txtfile = $self->_format_text($ent, $xform);
+
+      if ($txtfile) {
+        # Create a new body from the text file.
+        $i = new MIME::Body::File "$txtfile";
+        $ent->bodyhandle($i);
+        $i = $ent->head;
+        $i->replace('Content-Type', 'text/plain; charset=ISO-8859-1');
+        push @changes, [$_, 'format'];
+      }
+    }
+  }
+  else {
+    # no changes for single-part entities below level 1.
+  }
+  return @changes;
+}
+
+=head2 _format_text (entity, width)
+
+Given a mime entity and margin width, remove HTML tags from the
+entity's body; format the text with the right margin at the
+given width.
+
+=cut
+use Symbol;
+use Mj::Util qw(plain_to_hyper enriched_to_hyper);
+sub _format_text {
+  my $self = shift;
+  my $entity = shift;
+  my $width = shift || 72;
+  my $log = new Log::In 50, $width;
+  my ($body, $formatter, $outfh, $tmpdir, $tree, $txtfile, $type);
+  unless (defined $entity) {
+    $log->message(50, 'info', "Entity has no body.");
+    return;
+  }
+
+  $type = $entity->effective_type;
+  unless ($entity->effective_type =~ /^text/i) {
+    $log->message(50, 'info', "Formatting is not supported for type $type.");
+    return;
+  }
+
+  # Make certain this is a single-part entity with a body.
+  unless ($entity->bodyhandle) {
+    $log->message(50, 'info', "Entity has no body.");
+    return;
+  }
+
+  # Create a temporary file.
+  $tmpdir = $self->_global_config_get('tmpdir');
+  $txtfile = "$tmpdir/mjr." . Majordomo::unique() . ".in";
+  $outfh = gensym();
+  open($outfh, "> $txtfile");
+  unless ($outfh) {
+    $log->message(50, 'info', "Unable to open $txtfile: $!");
+    return;
+  }
+      
+  $entity->print_body($outfh);
+  close ($outfh)
+    or $::log->abort("Unable to close file $txtfile: $!");
+
+  # Convert plain text or enriched text to hypertext.
+  if ($type =~ m#^text/plain#i) {
+    &plain_to_hyper($txtfile);
+  }
+  elsif ($type =~ m#^text/(richtext|enriched)#i) {
+    &enriched_to_hyper($txtfile);
+  }
+
+  require HTML::TreeBuilder;
+  $tree = HTML::TreeBuilder->new->parse_file($txtfile);
+  unlink $txtfile;
+
+  unless ($width =~ /^\d+$/ and $width > 0) {
+    $width = 72;
+  }
+  require HTML::FormatText;
+  $formatter = HTML::FormatText->new(leftmargin => 0, 
+                                     rightmargin => $width);
+
+  $txtfile = "$tmpdir/mjr." . Majordomo::unique() . ".in";
+  $outfh = gensym();
+  open($outfh, "> $txtfile");
+  unless ($outfh) {
+    $log->message(50, 'info', "Unable to open $txtfile: $!");
+    return;
+  }
+  print $outfh $formatter->format($tree);
+  close ($outfh)
+    or $::log->abort("Unable to close file $txtfile: $!");
+
+  return $txtfile;
 }
 
 =head2 _ck_theader
@@ -1369,8 +1550,8 @@ sub _ck_theader {
 
   # Set up the Safe compartment
   $safe = new Safe;
-  $safe->permit_only(qw(aassign concat const leaveeval not null padany push 
-                        pushmark regcreset return rv2sv stub));
+  $safe->permit_only(qw(aassign const leaveeval not null padany push 
+                        pushmark return rv2sv stub));
   $safe->share('$text');
   $avars->{total_header_length} = 0;
   $avars->{max_header_length}   = 0;
@@ -1506,6 +1687,10 @@ sub _check_mime {
     $avars->{mime_deny} = 1;
     $avars->{mime} = 1;
     $log->out('deny');
+  }
+  elsif ($action eq 'require') {
+    $avars->{mime_require} = 1;
+    $log->out('require');
   }
 
   # Unless we're parsing the top level (where we've already checked the
