@@ -90,6 +90,7 @@ $VERSION = "1.0";
    'enum_array'       => 1,
    'inform'           => 1,
    'limits'           => 1,
+   'pw'               => 1,
    'regexp'           => 1,
    'regexp_array'     => 1,
    'restrict_post'    => 1,
@@ -128,9 +129,11 @@ sub new {
   $self->{'vars'}           = \%Mj::Config::vars;
   # $self->{'file_header'}    = \$Mj::Config::file_header;
   $self->{'default_string'} = \$Mj::Config::default_string;
-  $self->{'dfldata'}        = $args{'defaultdata'};
+  $self->{'source'}{'DEFAULT'} = $args{'defaultdata'};
+  $self->{'source'}{'installation'} = $args{'installdata'};
   $self->{'locked'}         = 0;
   $self->{'mtime'}          = 0;
+  $self->load               if ($list eq 'DEFAULT');
   $::log->out;
   $self;
 }
@@ -178,11 +181,12 @@ sub get {
   my $var  = shift;
   my $raw  = shift;
   my $log  = new Log::In 180, "$self->{'list'}, $var";
-  my($ok, $parsed);
+  my ($file, $ok, $parsed);
 
   # We include a facility for setting some variables that we can access
   # during the bootstrap process.
   if (exists $self->{'special'}{$var}) {
+    $log->out("special");
     return $self->{'special'}{$var};
   }
 
@@ -200,136 +204,46 @@ sub get {
 
   # If we need to return unparsed data...
   if ($raw || !$self->isparsed($var)) {
-
-    # Return the raw data
-    if (exists $self->{'data'}{'raw'}{$var}) {
-      if ($self->isarray($var)) {
-        return @{$self->{'data'}{'raw'}{$var}};
+    for $file (@{$self->{'sources'}}) {
+      # Return the raw data
+      if (exists $self->{'source'}{$file}{'raw'}{$var}) {
+        $log->out("raw, $file");
+        if ($self->isarray($var)) {
+          return @{$self->{'source'}{$file}{'raw'}{$var}};
+        }
+        return $self->{'source'}{$file}{'raw'}{$var};
       }
-      return $self->{'data'}{'raw'}{$var};
-    }
-
-    if (exists $self->{'dfldata'}{'raw'}{$var}) {
-      if ($self->isarray($var)) {
-        return @{$self->{'dfldata'}{'raw'}{$var}};
-      }
-      return $self->{'dfldata'}{'raw'}{$var};
-    }
-
-    # or return the default data
-    if (exists $self->{'defaults'}{$var}) {
-      $log->out('default');
-      if ($self->isarray($var)) {
-        return @{$self->{'defaults'}{$var}};
-      }
-      return $self->{'defaults'}{$var};
     }
 
     # or just return nothing
+    $log->out("not found");
     return;
   }
 
   # We need to give back parsed data.  If we have it already...
-  if (exists $self->{'data'}{'parsed'}{$var}) {
-    $log->out('parsed');
-    return $self->{'data'}{'parsed'}{$var};
-  }
-
-  # If we have raw data but not parsed data, we try to parse it.  This
-  # really shouldn't happen unless someone hacks the config file.
-  if (exists $self->{'data'}{'raw'}{$var}) {
-    $log->out('raw');
-    ($ok, undef, $parsed) =
-      $self->parse($var, $self->{'data'}{'raw'}{$var});
-    if ($ok) {
-      return $parsed;
+  for $file (@{$self->{'sources'}}) {
+    if (exists $self->{'source'}{$file}{'parsed'}{$var}) {
+      $log->out("parsed, $file");
+      return $self->{'source'}{$file}{'parsed'}{$var};
     }
-    else {
-      return;
-    }
-  }
 
-  # Next, try the DEFAULT list values.
-  if (exists $self->{'dfldata'}{'parsed'}{$var}) {
-    $log->out('DEFAULT parsed');
-    return $self->{'dfldata'}{'parsed'}{$var};
-  }
-
-  if (exists $self->{'dfldata'}{'raw'}{$var}) {
-    $log->out('DEFAULT raw');
-    ($ok, undef, $parsed) =
-      $self->parse($var, $self->{'dfldata'}{'raw'}{$var});
-    if ($ok) {
-      return $parsed;
-    }
-  }
-
-  # We have neither parsed data, nor raw data, so we pull out the default
-  # and parse it.  If there's an error, we pretend we didn't see it.  The
-  # site owner should know what they're doing.
-  if (exists $self->{'defaults'}{$var}) {
-    $log->out('default');
-    ($ok, undef, $parsed) =
-      $self->parse($var, $self->{'defaults'}{$var});
-    if ($ok) {
-      return $parsed;
-    }
-    else {
-      $log->out('default illegal!');
-      return;
+    # If we have raw data but not parsed data, we try to parse it.  This
+    # really shouldn't happen unless someone hacks the config file.
+    if (exists $self->{'source'}{$file}{'raw'}{$var}) {
+      ($ok, undef, $parsed) =
+        $self->parse($var, $self->{'source'}{$file}{'raw'}{$var});
+      if ($ok) {
+        $log->out("raw reparsed, $file");
+        return $parsed;
+      }
+      else {
+        $log->out("illegal, $file");
+        return;
+      }
     }
   }
 
   $log->out("not found");
-  return;
-}
-
-=head2 whence
-Determines the origin of a variable.
-
-1   variable was set by the DEFAULT list
-0   variable was set by mj_cf_defs.pl
--1  variable was set by the list's configuration data
-
-=cut
-sub whence {
-  my $self = shift;
-  my $var  = shift;
-  my $log  = new Log::In 180, "$self->{'list'}, $var";
-  my($ok);
-
-  return unless $var;
-
-  # We include a facility for setting some variables that we can access
-  # during the bootstrap process.
-  if (exists $self->{'special'}{$var}) {
-    return 0;
-  }
-
-  # Just in case, we make sure we don't get into any stupid loops looking
-  # up variables while we're still loading the variables.
-  if ($self->{'defaulting'}) {
-    $log->out("defaulting");
-    return;
-  }
-
-  # Pull in the config file if necessary
-  unless ($self->{'loaded'}) {
-    $self->load;
-  }
-
-  if (exists $self->{'data'}{'raw'}{$var}) {
-    return -1;
-  }
-
-  if (exists $self->{'dfldata'}{'raw'}{$var}) {
-    return 1;
-  }
-
-  if (exists $self->{'defaults'}{$var}) {
-    return 0;
-  }
-  # or just return nothing
   return;
 }
 
@@ -362,8 +276,7 @@ sub load {  # XXX unfinished
   # file to include only values that differ form the default, so a change
   # in the default can effect all lists that don't override it (i.e. cool
   # new functionality).
-  delete $self->{'data'};
-  $self->_defaults unless $self->{'defaults'};
+  delete $self->{'source'}{'MAIN'};
 
   # The legacy config file is more recent if it exists and either the new
   # one doesn't or it's been modified more recently than the old one was.
@@ -383,8 +296,23 @@ sub load {  # XXX unfinished
     # Create the file, just because.
     $self->_save_new;
   }
+  $self->{'sources'} = ['MAIN'];
 
-  $self->_load_dfl unless $self->{'dfldata'};
+#  if ($self->{'list'} ne 'GLOBAL') {
+#    if (exists $self->{'source'}{'MAIN'}{'raw'}{'templates'}) {
+#      for $file (@{$self->{'source'}{'MAIN'}{'raw'}{'templates'}}) {
+#        next unless $self->_load_dfl($file);
+#        push @{$self->{'sources'}}, $file;
+#      }
+#    } 
+      
+    $self->_load_dfl('DEFAULT') 
+      unless (exists $self->{'source'}{'DEFAULT'}{'raw'});
+    push @{$self->{'sources'}}, 'DEFAULT';
+  }
+
+  $self->_defaults unless (exists $self->{'source'}{'installation'}{'raw'});
+  push @{$self->{'sources'}}, 'installation';
 
   $self->{loaded} = 1;
   1;
@@ -404,7 +332,7 @@ sub _load_new {
 
   # We have to lock the file
   $file = new Mj::File $name, "<";
-  $self->{'data'} = do $name;
+  $self->{'source'}{'MAIN'} = do $name;
   $file->close;
 
   1;
@@ -421,19 +349,25 @@ individual lists' settings.
 
 sub _load_dfl {
   my $self = shift;
+  my $template = shift || 'DEFAULT';
   my $log  = new Log::In 160;
   my ($file, $name);
 
-  # The GLOBAL list never uses the DEFAULT data.
-  if ($self->{'list'} eq 'GLOBAL') {
-    $self->{'dfldata'} = {};
-    return;
+  if ($template eq 'DEFAULT') {
+    # The GLOBAL list never uses the DEFAULT data.
+    if ($self->{'list'} eq 'GLOBAL') {
+      $self->{'source'}{'DEFAULT'} = {};
+      return;
+    }
+    $name = "$self->{'ldir'}/DEFAULT/_config";
   }
+#  else {
+#    $name = "$self->{'ldir'}/DEFAULT/C$template";
+#  }
 
-  $name = "$self->{'ldir'}/DEFAULT/_config";
   if (-r $name) {
     $file = new Mj::File $name, "<";
-    $self->{'dfldata'} = do $name;
+    $self->{'source'}{$template} = do $name;
     $file->close;
   }
 
@@ -445,6 +379,49 @@ use AutoLoader 'AUTOLOAD';
 __END__
 
 
+=head2 whence
+Determines the origin of a variable.
+
+Returns the name of the configuration file that supplies the value
+for a setting.
+
+=cut
+sub whence {
+  my $self = shift;
+  my $var  = shift;
+  my $log  = new Log::In 180, "$self->{'list'}, $var";
+  my ($file, $ok);
+
+  return unless $var;
+
+  # We include a facility for setting some variables that we can access
+  # during the bootstrap process.
+  if (exists $self->{'special'}{$var}) {
+    return 0;
+  }
+
+  # Just in case, we make sure we don't get into any stupid loops looking
+  # up variables while we're still loading the variables.
+  if ($self->{'defaulting'}) {
+    $log->out("defaulting");
+    return;
+  }
+
+  # Pull in the config files if necessary
+  unless ($self->{'loaded'}) {
+    $self->load;
+  }
+
+  for $file (@{$self->{'sources'}}) {
+    if (exists $self->{'source'}{$file}{'raw'}{$var}) {
+      return $file;
+    }
+  }
+
+  # or just return nothing
+  return;
+}
+
 =head2 default(variable)
 
 Returns the default value of the given variable.
@@ -455,8 +432,8 @@ sub default {
 
   $::log->in(180, "$var");
 
-  if ($self->{'defaults'}{$var}) {
-    return $self->{'defaults'}{$var};
+  if ($self->{'source'}{'installation'}{$var}) {
+    return $self->{'source'}{'installation'}{$var};
   }
   return undef;
 }
@@ -536,21 +513,22 @@ sub intro {
 
   $::log->in(180, "$self->{'list'}, $var");
 
-  $self->_defaults unless $self->{'defaults'};
+  $self->_defaults unless $self->{'source'}{'installation'};
 
   $type = $self->{'vars'}{$var}{'type'};
 
   if ($self->isarray($var)) {
-    if (defined $self->{'defaults'}{$var} && @{$self->{'defaults'}{$var}}) {
-      $default = "$self->{'defaults'}{$var}[0] ...";
+    if (defined $self->{'source'}{'installation'}{$var} && 
+        @{$self->{'source'}{'installation'}{$var}}) {
+      $default = "$self->{'source'}{'installation'}{$var}[0] ...";
     }
     else {
       $default = "empty";
     }
   }
   else {
-    $default = (defined $self->{'defaults'}{$var}) ?
-      $self->{'defaults'}{$var} :
+    $default = (defined $self->{'source'}{'installation'}{$var}) ?
+      $self->{'source'}{'installation'}{$var} :
 	"undef";
     if ($type eq 'bool') {
       $default = ('no', 'yes')[$default];
@@ -586,7 +564,7 @@ sub isarray {
   return;
 }
 
-=head2 isarray(variable)
+=head2 isauto(variable)
 
 Returns true if the variable is an "auto" variable.  That is, if it is
 automatically maintained by Majordomo.
@@ -769,12 +747,7 @@ sub lock {
   # Load the file if necessary
   if ($self->{mtime} <= (stat($name))[9]) {
     $log->message(150, 'info', 'reloading');
-    delete $self->{data};
-    $self->{mtime} = time;
-    $self->{data}  = do $name;
-    $self->_defaults unless $self->{'defaults'};
-    $self->_load_dfl unless $self->{'dfldata'};
-    $self->{loaded} = 1;
+    $self->load;
   }
 
   # Note that we are locked
@@ -792,7 +765,7 @@ sub unlock {
   $self->{mtime} = time;
   if ($self->{dirty}) {
     # Save (print out) the file and commit
-    $ok = $self->{fh}->print(Dumper $self->{'data'});
+    $ok = $self->{fh}->print(Dumper $self->{'source'}{'MAIN'});
     $ok ? $self->{fh}->commit : $self->{fh}->abandon;
   }
   else {
@@ -848,8 +821,8 @@ sub set {
   }
 
   # We parsed OK; stash the data.
-  $self->{'data'}{'raw'}{$var} = $data;
-  $self->{'data'}{'parsed'}{$var} = $parsed
+  $self->{'source'}{'MAIN'}{'raw'}{$var} = $data;
+  $self->{'source'}{'MAIN'}{'parsed'}{$var} = $parsed
     if $self->isparsed($var);
 
   $self->{'dirty'} = 1;
@@ -903,8 +876,8 @@ sub set_to_default {
   $self->lock;
 
   if (exists $self->{'vars'}{$var}) {
-    delete $self->{'data'}{'raw'}{$var};
-    delete $self->{'data'}{'parsed'}{$var};
+    delete $self->{'source'}{'MAIN'}{'raw'}{$var};
+    delete $self->{'source'}{'MAIN'}{'parsed'}{$var};
     $self->{'dirty'} = 1;
     $::log->out;
     return 1;
@@ -986,17 +959,17 @@ sub _load_old {
 
     # XXX Check validity of key.  Figure out what to do about errors.
     if ($op eq "\<\<") {
-      $self->{'data'}{'raw'}{$key} = [];
+      $self->{'source'}{'MAIN'}{'raw'}{$key} = [];
       while (defined($_ = $file->getline)) {
 	chomp;
 	next unless $_;
 	s/^-//;
 	last if $_ eq $val;
-	push @{$self->{'data'}{'raw'}{$key}}, $_;
+	push @{$self->{'source'}{'MAIN'}{'raw'}{$key}}, $_;
       }
     }
     else {
-      $self->{'data'}{'raw'}{$key} = $val;
+      $self->{'source'}{'MAIN'}{'raw'}{$key} = $val;
     }
   }
   $file->close;
@@ -1124,7 +1097,8 @@ sub _defaults {
 
   $self->{'defaulting'} = 1;
 
-  $self->{'defaults'} = eval ${$self->{'default_string'}};
+  $self->{'source'}{'installation'}{'raw'} = 
+    eval ${$self->{'default_string'}};
   if ($@) {
     $::log->abort("Eval of config defaults failed: $@");
   }
@@ -1340,10 +1314,13 @@ sub parse_address {
 
   return (1, '', '') unless $str;
 
+  # Substitute the list name for "$LIST"
+  $str =~ s/([^\\]|^)\$\QLIST\E(\b|$)/$1$self->{'list'}/g;
+
   # We try to tack on a hostname if one isn't given
   unless ($str =~ /\@/) {
-    if (exists ($self->{'defaults'}{'whereami'})) {
-      $str .= "\@" . $self->{'defaults'}{'whereami'};
+    if (exists ($self->{'source'}{'installation'}{'raw'}{'whereami'})) {
+      $str .= "\@" . $self->{'source'}{'installation'}{'raw'}{'whereami'};
     }
   }
 
@@ -2142,7 +2119,10 @@ sub parse_pw {
   return (0, "Cannot contain whitespace.")
     if $str =~ /\s/;
 
-  (1, undef, undef);
+  # Substitute the name of the list for "$LIST"
+  $str =~ s/([^\\]|^)\$\QLIST\E(\b|$)/$1$self->{'list'}/g;
+
+  (1, undef, $str);
 }
 
 
@@ -2732,6 +2712,20 @@ sub parse_table {
     push @out, [@row];
   }
   ([@out], $error);
+}
+
+=head2 parse_templates
+
+Parses the templates variable.  
+Returns a list of configuration templates.
+
+=cut
+sub parse_templates {
+  my $self = shift;
+  my $arr  = shift;
+  my $var  = shift;
+  my $log  = new Log::In 150, $var;
+
 }
 
 =head2 parse_triggers
