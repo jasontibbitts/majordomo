@@ -1427,6 +1427,7 @@ Add a post event to the post database, and return the parsed
 data.
 
 =cut
+use Mj::AddressList;
 sub post_add {
   my($self, $addr, $time, $type, $number) = @_;
   my $log = new Log::In 150, "$time #$number";
