@@ -1,20 +1,20 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL welcome = VALUE
+configset  GLOBAL  welcome = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: yes
-Data Type    : bool
-Variable Type: majordomo,welcome
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname welcome = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : 1
+Data Type     : bool, choose from: 0 n no 1 y yes
+Variable Group: majordomo, welcome
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL welcome = 1
 
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
-
-If this is on, new subscribers (or registered users) will be sent a welcome
-message.
+If this is on, new subscribers (or registered users) will be sent a
+welcome message.
 
 For a list of all help topics send this one-line message
    help topics

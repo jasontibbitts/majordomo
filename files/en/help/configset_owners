@@ -1,18 +1,22 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL owners <<TAG
+configset  GLOBAL  owners <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: joe@nowhere.org ...
-Data Type    : address_array
-Variable Type: majordomo
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname owners <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : [defined during installation] ...
+Data Type     : address_array
+Variable Group: majordomo
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL owners << ENDTAG
 admin@nowhere.org
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 Who owns this list or majordomo installation?  Majordomo will internally

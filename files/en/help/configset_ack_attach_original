@@ -1,10 +1,12 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname ack_attach_original <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: fail ...
-Data Type    : enum_array
-Variable Type: resend
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : fail ...
+Data Type     : enum_array, choose from: fail stall succeed all
+Variable Group: resend
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
@@ -12,8 +14,6 @@ configset listname ack_attach_original << ENDTAG
 fail
 stall
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 This controls under what circumstances the original message will be

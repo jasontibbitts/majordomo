@@ -1,17 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname unsubscribe_policy = VALUE
+configset listname unsubscribe_policy = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Value must be: open, or closed, or auto
-Default Value: open
-Data Type    : enum
-Variable Type: majordomo,access,subscribe
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : open
+Data Type     : enum, choose from: open closed auto
+Variable Group: majordomo, access, subscribe
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname unsubscribe_policy = open
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 One of three values: open, closed, auto.  Open allows people to

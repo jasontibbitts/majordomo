@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL advertise_subscribed = VALUE
+configset  GLOBAL  advertise_subscribed = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: yes
-Data Type    : bool
-Variable Type: majordomo,access,advertise,lists
-Apply to List: GLOBAL pseudo-list only
+Default Value : 1
+Data Type     : bool, choose from: 0 n no 1 y yes
+Variable Group: majordomo, access, advertise, lists
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL advertise_subscribed = 1
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 If this is on, users that are subscribed to a list will always be

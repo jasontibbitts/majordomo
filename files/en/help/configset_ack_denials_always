@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname ack_denials_always = VALUE
+configset listname ack_denials_always = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: yes
-Data Type    : bool
-Variable Type: resend
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : 1
+Data Type     : bool, choose from: 0 n no 1 y yes
+Variable Group: resend
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname ack_denials_always = 1
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 If this is on, users whose posts are denied will always be informed of

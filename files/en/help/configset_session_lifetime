@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL session_lifetime = VALUE
+configset  GLOBAL  session_lifetime = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: 14
-Data Type    : integer
-Variable Type: majordomo
-Apply to List: GLOBAL pseudo-list only
+Default Value : 14
+Data Type     : integer
+Variable Group: majordomo
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL session_lifetime = 14
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 The number of days that information on all Majordomo sessions will be

@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL addr_allow_at_in_phrase = VALUE
+configset  GLOBAL  addr_allow_at_in_phrase = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: no
-Data Type    : bool
-Variable Type: addr
-Apply to List: GLOBAL pseudo-list only
+Default Value : 0
+Data Type     : bool, choose from: 0 n no 1 y yes
+Variable Group: addr
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset GLOBAL addr_allow_at_in_phrase =
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+configset GLOBAL addr_allow_at_in_phrase = no
 
 
 If this is true, Majordomo will allow an @ symbol in the phrase, or

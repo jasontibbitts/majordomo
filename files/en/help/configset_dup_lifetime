@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname dup_lifetime = VALUE
+configset listname dup_lifetime = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: 28
-Data Type    : integer
-Variable Type: resend,majordomo
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : 28
+Data Type     : integer
+Variable Group: resend, majordomo
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname dup_lifetime = 28
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 The number of days that entries in the duplicate databases will be

@@ -1,20 +1,26 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL comments <<TAG
+configset  GLOBAL  comments <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: empty
-Data Type    : string_array
-Variable Type: comments
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname comments <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : no default
+Data Type     : string_array
+Variable Group: comments
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL comments << ENDTAG
+# 9 May 99 - initial creation of list
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 Comment string that will be retained across config file rewrites.
+Note that '#' characters inside here documents are NOT comment characters!
 
 For a list of all help topics send this one-line message
    help topics

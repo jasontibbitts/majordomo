@@ -1,20 +1,26 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname sequence_number = VALUE
+configset listname sequence_number = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: 1
-Data Type    : integer
-Variable Type: resend
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : 1
+Data Type     : integer
+Variable Group: resend
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
+configset listname sequence_number = 101
 
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
+This is the sequence number used to number messages which pass through
+the list.  It is automatically incremented by one for each message. 
+It may be manually set here, but watch out for apparently duplicate
+messages if you set up your headers so your subscribers can track
+the number (useful to debug sporadic delivery, etc).
 
-This is the sequence number used to number messages which pass through the
-list.  It is automatically incremented by one for each message.  It may be
-manually set here.
+See also:
+   help configset message_headers (for how to insert this number)
+   help configset reply_to        (for how to insert this number)
+   help configset subject_prefix  (for how to insert this number)
 
 For a list of all help topics send this one-line message
    help topics

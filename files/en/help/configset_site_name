@@ -1,17 +1,15 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL site_name = VALUE
+configset  GLOBAL  site_name = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: Peak Climbers
-Data Type    : string
-Variable Type: majordomo
-Apply to List: GLOBAL pseudo-list only
+Default Value : [defined during installation]
+Data Type     : string
+Variable Group: majordomo
+Password Notes: Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL site_name =\\
     My Organization (www.nowhere.org or admin@nowhere.org)
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 The name of the site that this Majordomo runs at.

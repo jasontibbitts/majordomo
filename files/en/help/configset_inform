@@ -1,17 +1,24 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL inform <<TAG
+configset  GLOBAL  inform <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: empty
-Data Type    : inform
-Variable Type: inform
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname inform <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : no default
+Data Type     : inform
+Variable Group: inform
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL inform << ENDTAG
+subscribe | all | inform
+post | fail | inform
+set | all | inform
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 This controls just what actions the list owner will be informed of and

@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname allowed_flags = VALUE
+configset listname allowed_flags = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: ACHPRS
-Data Type    : string
-Variable Type: flags
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : ACHPRS
+Data Type     : string
+Variable Group: flags
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname allowed_flags = ACHPRS
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 A string containing the flags that users are allowed to adjust.  You

@@ -1,17 +1,22 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname message_footer <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: empty
-Data Type    : string_2darray
-Variable Type: resend,digest
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : no default
+Data Type     : string_2darray
+Variable Group: resend, digest
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname message_footer << ENDTAG
+-
+----------------------------(end of broadcast)---------------------------
+Terms and conditions for this server - send any email info@nonwhere.org
+Administrative commands like unsubscribe send to majordomo@nonwhere.org
+Help: Try listname-owner@climber.org first, then try admin@nonwhere.org
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 This contains blocks of text, called footers, that can be added to

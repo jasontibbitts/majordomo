@@ -1,20 +1,18 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL signature_separator = VALUE
+configset  GLOBAL  signature_separator = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: /^[-_]/
-Data Type    : regexp
-Variable Type: parser
-Apply to List: GLOBAL pseudo-list only
+Default Value : /^[-_]/
+Data Type     : regexp
+Variable Group: parser
+Password Notes: Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL signature_separator = /^[-_]/
 
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
-
-The text parser will stop looking for commands when it sees a line
-matching this pattern.
+The command parser will stop looking for commands when it sees a
+line matching this pattern.
 
 The standard signature separator is a line consisting only of two
 dashes followed by one space.  However, many users ignore this

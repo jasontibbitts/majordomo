@@ -1,16 +1,16 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL filedir = VALUE
+configset  GLOBAL  filedir = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: undef
-Data Type    : directory
-Variable Type: filespace
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname filedir = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : no default
+Data Type     : directory
+Variable Group: filespace
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset GLOBAL filedir =
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+configset GLOBAL filedir = /usr/files
 
 
 The directory where the filespace for the list is kept.

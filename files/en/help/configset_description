@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname description = VALUE
+configset listname description = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: undef
-Data Type    : string
-Variable Type: majordomo,lists
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : no default
+Data Type     : string
+Variable Group: majordomo, lists
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname description =
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+configset listname description = my very fine list
 
 
 This is a short description of the list, used in the short listing.

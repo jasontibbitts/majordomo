@@ -1,18 +1,28 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL access_rules <<TAG
+configset  GLOBAL  access_rules <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: empty
-Data Type    : access_rules
-Variable Type: access
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname access_rules <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : no default
+Data Type     : access_rules
+Variable Group: access
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL access_rules << ENDTAG
+show,which,who
+deny, replyfile=NoShowWhichWho
+ALL
+
+access
+deny
+/msn/i OR /hotbot/i
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
-
 
 
 A table containing access rules. Access to any command (such as "set"

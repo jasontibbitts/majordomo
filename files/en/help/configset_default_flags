@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname default_flags = VALUE
+configset listname default_flags = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: SPR
-Data Type    : string
-Variable Type: flags
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : SPR
+Data Type     : string
+Variable Group: flags
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname default_flags = SPR
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 A string containing the flags to be given to new subscribers unless they

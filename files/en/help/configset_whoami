@@ -1,16 +1,16 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL whoami = VALUE
+configset  GLOBAL  whoami = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: majordomo@nowhere.org
-Data Type    : address
-Variable Type: majordomo
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname whoami = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : [defined during installation]
+Data Type     : address
+Variable Group: majordomo
+Password Notes: Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL whoami = majordomo@nowhere.org
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 What address do users send requests to?

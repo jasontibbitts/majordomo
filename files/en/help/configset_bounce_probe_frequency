@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname bounce_probe_frequency = VALUE
+configset listname bounce_probe_frequency = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: 0
-Data Type    : integer
-Variable Type: resend,deliver,bounce
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : 0
+Data Type     : integer
+Variable Group: resend, deliver, bounce
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname bounce_probe_frequency =
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+configset listname bounce_probe_frequency = 0
 
 
 This variable controls how often bounce probes are sent out.

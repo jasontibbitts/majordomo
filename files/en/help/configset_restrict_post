@@ -1,18 +1,18 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname restrict_post <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: empty
-Data Type    : restrict_post
-Variable Type: resend,access
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : no default
+Data Type     : restrict_post
+Variable Group: resend, access
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname restrict_post << ENDTAG
+asublist
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
-
 
 
 If defined only addresses belonging to one of the listed sublists will

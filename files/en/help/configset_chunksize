@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL chunksize = VALUE
+configset  GLOBAL  chunksize = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: 1000
-Data Type    : integer
-Variable Type: majordomo
-Apply to List: GLOBAL pseudo-list only
+Default Value : 1000
+Data Type     : integer
+Variable Group: majordomo
+Password Notes: Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL chunksize = 1000
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 This controls the size of various internal structures.  Lowering this

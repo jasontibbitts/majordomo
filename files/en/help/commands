@@ -56,9 +56,10 @@ may take arguments to supply additional information:
  - Options start with a dash, and follow the command name without a space.
     (you may use an equal instead of a dash - they are exactly equivalent)
 
-All of the Majordomo2 commands and options are LOWER CASE LETTERS with
-underscore also possible. Commands CAN NOT be typed in upper case,
-so commands you see below in all caps are for illustration only.
+All of the Majordomo2 commands and options can be entered with only
+LOWER CASE LETTERS with underscore also possible. Commands are NOT case
+sensitive, and may be typed in upper case, but lower case is recommended.
+Some options and/or arguments may be case sensitive.
 
 A basic command might be:
   COMMAND

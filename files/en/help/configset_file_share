@@ -1,17 +1,19 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname file_share <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: empty
-Data Type    : list_array
-Variable Type: filespace
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : no default
+Data Type     : list_array
+Variable Group: filespace
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname file_share << ENDTAG
+listname
+otherlistname
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 This should contain the names (one per line) of every list which is

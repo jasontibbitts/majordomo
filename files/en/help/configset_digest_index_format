@@ -1,17 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname digest_index_format = VALUE
+configset listname digest_index_format = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Value must be: subject, or subject_author
-Default Value: subject
-Data Type    : enum
-Variable Type: digest
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : subject
+Data Type     : enum, choose from: subject subject_author
+Variable Group: digest
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname digest_index_format = subject
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 Selects one of the formats for each line in the index listing for the

@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname max_header_line_length = VALUE
+configset listname max_header_line_length = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: 448
-Data Type    : integer
-Variable Type: resend
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : 448
+Data Type     : integer
+Variable Group: resend
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname max_header_line_length = 448
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 Sets the maximum length of a single header in an unapproved message.

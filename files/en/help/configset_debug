@@ -1,16 +1,16 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL debug = VALUE
+configset  GLOBAL  debug = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: 0
-Data Type    : integer
-Variable Type: mtaconfig
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname debug = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : 0
+Data Type     : integer
+Variable Group: mtaconfig
+Password Notes: Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset GLOBAL debug =
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+configset GLOBAL debug = 500
 
 
 When MTA configuration is suggested, this value will be used as the

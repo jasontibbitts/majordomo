@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL return_subject = VALUE
+configset  GLOBAL  return_subject = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: yes
-Data Type    : bool
-Variable Type: email
-Apply to List: GLOBAL pseudo-list only
+Default Value : 1
+Data Type     : bool, choose from: 0 n no 1 y yes
+Variable Group: email
+Password Notes: Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL return_subject = 1
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 Should the subject of an email request be returned as part of the

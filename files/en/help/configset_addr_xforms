@@ -1,17 +1,19 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL addr_xforms <<TAG
+configset  GLOBAL  addr_xforms <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: empty
-Data Type    : xform_array
-Variable Type: addr
-Apply to List: GLOBAL pseudo-list only
+Default Value : no default
+Data Type     : xform_array
+Variable Group: addr
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL addr_xforms << ENDTAG
+/\@.+\.msn.com$/\@msn.com/i
+/\@.+\.stanford.edu$/\@stanford.edu/i
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 A list of transformations to be applied to addresses before comparing

@@ -1,17 +1,16 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL intro_access = VALUE
+configset  GLOBAL  intro_access = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Value must be: open, or closed, or list
-Default Value: list
-Data Type    : enum
-Variable Type: access,majordomo
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname intro_access = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : list
+Data Type     : enum, choose from: open closed list
+Variable Group: access, majordomo
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL intro_access = open
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 One of three values: open, list, closed.  Open allows anyone access to this

@@ -1,21 +1,27 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL taboo_headers <<TAG
+configset  GLOBAL  taboo_headers <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: empty
-Data Type    : taboo_headers
-Variable Type: resend
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname taboo_headers <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : no default
+Data Type     : taboo_headers
+Variable Group: resend
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL taboo_headers << ENDTAG
+/X-Loop:/ 1,headers
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 If any of the headers matches one of these regexps, then the message
-will be bounced for review. XXX Ugh.
+will be bounced for review.
+
 NOTE: For help on taboo_headers, please send "help configset admin_body"
 to the server. All syntax and information is identical, but the "nn"
 option (and its comma) which restricts matches to the first few lines is

@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname max_total_header_length = VALUE
+configset listname max_total_header_length = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: 2048
-Data Type    : integer
-Variable Type: resend
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : 2048
+Data Type     : integer
+Variable Group: resend
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname max_total_header_length = 2048
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 Sets the maximum length of the headers in an unapproved message.  Set to

@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname archive_dir = VALUE
+configset listname archive_dir = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: 
-Data Type    : directory
-Variable Type: archive
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : no default
+Data Type     : directory
+Variable Group: archive
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname archive_dir =
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+configset listname archive_dir = /archives/listname
 
 
 The directory where the mailing list archive is kept.

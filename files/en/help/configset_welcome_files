@@ -1,18 +1,25 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL welcome_files <<TAG
+configset  GLOBAL  welcome_files <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: empty
-Data Type    : welcome_files
-Variable Type: majordomo,welcome
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname welcome_files <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : You have been registered at $SITE. ...
+Data Type     : welcome_files
+Variable Group: majordomo, welcome
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset GLOBAL welcome_files << ENDTAG
+configset listname welcome_files << ENDTAG
+Welcome to listname@nowhere.org, save this message!
+public/charter.txt : N
+Common Sense Rules at Nowhere.Org - please save!
+public/rules.txt : N
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
-
 
 
 A table containing a list of files and descriptions that should be

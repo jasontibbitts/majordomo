@@ -1,17 +1,26 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname message_fronter <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: empty
-Data Type    : string_2darray
-Variable Type: resend,digest
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : no default
+Data Type     : string_2darray
+Variable Group: resend, digest
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname message_fronter << ENDTAG
-ENDTAG
+ NOTE: Use "reply-to-all" to CC list, "reply-to-sender" for private msg
+--------------------------(start of broadcast)--------------------------
 
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+TIP 1: subscribe and unsubscribe commands go to majordomo@nowhere.org
+--------------------------(start of broadcast)--------------------------
+
+TIP 2: you can get off all lists at once with the unregister command
+       (send "unregister YourEmailAddressHere" to majordomo@nowhere.org)
+--------------------------(start of broadcast)--------------------------
+ENDTAG
 
 
 This contains blocks of text, called fronters, that can be added to

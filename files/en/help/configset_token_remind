@@ -1,16 +1,16 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL token_remind = VALUE
+configset  GLOBAL  token_remind = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: 4
-Data Type    : integer
-Variable Type: access,token
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname token_remind = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : 4
+Data Type     : integer
+Variable Group: access, token
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL token_remind = 2
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 If a token exists longer than this many days, a reminder message will

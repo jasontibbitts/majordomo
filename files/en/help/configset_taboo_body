@@ -1,21 +1,27 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL taboo_body <<TAG
+configset  GLOBAL  taboo_body <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: empty
-Data Type    : taboo_body
-Variable Type: resend
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname taboo_body <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : no default
+Data Type     : taboo_body
+Variable Group: resend
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL taboo_body << ENDTAG
+/X-Loop:/ 0,1,body
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 If any line of the body matches one of these regexps, then the message
-will be bounced for review. XXX Ugh.
+will be bounced for review.
+
 NOTE: For help on taboo_body, please send "help configset admin_body"
 to the server. All syntax and information is identical, just
 substitute the string "taboo_" wherever you see "admin_" in that file.

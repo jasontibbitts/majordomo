@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname purge_received = VALUE
+configset listname purge_received = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: no
-Data Type    : bool
-Variable Type: resend
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : 0
+Data Type     : bool, choose from: 0 n no 1 y yes
+Variable Group: resend
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname purge_received =
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+configset listname purge_received = n
 
 
 Remove all received lines before resending the message.

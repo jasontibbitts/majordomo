@@ -1,16 +1,16 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL sender = VALUE
+configset  GLOBAL  sender = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: majordomo-owner
-Data Type    : address
-Variable Type: resend
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname sender = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : [defined during installation]
+Data Type     : address
+Variable Group: resend
+Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL sender = majordomo-owner
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 The envelope and sender address for the resent mail.  This string has

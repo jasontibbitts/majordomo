@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL max_in_core = VALUE
+configset  GLOBAL  max_in_core = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: 20000
-Data Type    : integer
-Variable Type: email
-Apply to List: GLOBAL pseudo-list only
+Default Value : 20000
+Data Type     : integer
+Variable Group: email
+Password Notes: Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL max_in_core = 40000
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 The maximum size of a message part to hold in memory; parts larger

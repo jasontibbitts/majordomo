@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL whereami = VALUE
+configset  GLOBAL  whereami = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: nowhere.org
-Data Type    : word
-Variable Type: majordomo
-Apply to List: GLOBAL pseudo-list only
+Default Value : [defined during installation]
+Data Type     : word
+Variable Group: majordomo
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL whereami = nowhere.org
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 What machine is Majordomo running on?

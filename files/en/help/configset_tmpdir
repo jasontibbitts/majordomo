@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL tmpdir = VALUE
+configset  GLOBAL  tmpdir = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: /var/mj
-Data Type    : word
-Variable Type: majordomo
-Apply to List: GLOBAL pseudo-list only
+Default Value : [defined during installation]
+Data Type     : word
+Variable Group: majordomo
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL tmpdir = /var/mj
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 A directory in which to store temporary files.  For security reasons,

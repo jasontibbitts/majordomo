@@ -1,10 +1,12 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname file_search <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: :\$LANG ...
-Data Type    : list_array
-Variable Type: filespace
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : :$LANG ...
+Data Type     : list_array
+Variable Group: filespace
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
@@ -12,8 +14,6 @@ configset listname file_search << ENDTAG
 :\$LANG
 :
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 This provides a search-path mechanism for filename lookup.  Entries are of

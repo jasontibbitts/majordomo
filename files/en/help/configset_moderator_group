@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname moderator_group = VALUE
+configset listname moderator_group = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: 0
-Data Type    : integer
-Variable Type: resend,access
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : 0
+Data Type     : integer
+Variable Group: resend, access
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname moderator_group =
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+configset listname moderator_group = 2
 
 
 List messages requiring consulataion will be sent to this many of the

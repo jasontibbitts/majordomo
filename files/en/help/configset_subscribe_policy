@@ -1,17 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname subscribe_policy = VALUE
+configset listname subscribe_policy = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Value must be: open, or closed, or auto, or open+confirm, or closed+confirm, or auto+confirm
-Default Value: open+confirm
-Data Type    : enum
-Variable Type: majordomo,access,subscribe
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : open+confirm
+Data Type     : enum, choose from: open closed auto open+confirm closed+confirm auto+confirm
+Variable Group: majordomo, access, subscribe
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname subscribe_policy = open+confirm
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 One of three values: open, closed, auto; plus an optional modifier:

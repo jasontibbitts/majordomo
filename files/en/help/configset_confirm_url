@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL confirm_url = VALUE
+configset  GLOBAL  confirm_url = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: no server configured
-Data Type    : string
-Variable Type: access,token
-Apply to List: GLOBAL pseudo-list only
+Default Value : [defined during installation]
+Data Type     : string
+Variable Group: access, token
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL confirm_url = no server configured
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 The URL that is used to return confirmation tokens.  The only purpose

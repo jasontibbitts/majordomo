@@ -1,16 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname moderate = VALUE
+configset listname moderate = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: no
-Data Type    : bool
-Variable Type: resend,access
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : 0
+Data Type     : bool, choose from: 0 n no 1 y yes
+Variable Group: resend, access
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname moderate =
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
+configset listname moderate = no
 
 
 If yes, all postings to the list must be approved by the moderator.

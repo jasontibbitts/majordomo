@@ -1,17 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL default_lists_format = VALUE
+configset  GLOBAL  default_lists_format = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Value must be: tiny, or compact, or short, or long, or enhanced
-Default Value: short
-Data Type    : enum
-Variable Type: lists
-Apply to List: GLOBAL pseudo-list only
+Default Value : short
+Data Type     : enum, choose from: tiny compact short long enhanced
+Variable Group: lists
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL default_lists_format = enhanced
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 This defines the default output format for the lists command.

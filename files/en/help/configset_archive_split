@@ -1,17 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname archive_split = VALUE
+configset listname archive_split = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Value must be: yearly, or monthly, or weekly, or daily
-Default Value: monthly
-Data Type    : enum
-Variable Type: archive
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : monthly
+Data Type     : enum, choose from: yearly monthly weekly daily
+Variable Group: archive
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname archive_split = monthly
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 A word describing how the archive files should be split.  Here are the

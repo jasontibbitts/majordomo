@@ -1,6 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname variable = [value]
 configset listname variable <<TAG
+[value]
+TAB
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (or "GLOBAL")
 variable, required, is one "configset" item
@@ -16,16 +18,16 @@ currently in effect for your list, you can send the command
   configshow YOUR_LIST 
 to the server, substituting the name of your mailing list for YOUR_LIST.
 
-The configset command sets a variable to a given value.  A single value 
-can be specified directly on the command line after an equals sign, and 
-that value can sometimes be undefined, if which case nothing appears
-after the "=".
-
 Configedit runs only from the mj_shell command line, and displays the
 configshow output in an editor: your changes will be automatically accepted
 as configset commands when you save them and exit the editor. Configdefault
 causes a variable to track the software defaults, and is not always the
 same as setting the variable to a null value.
+
+The configset command sets a variable to a given value.  A single value 
+can be specified directly on the command line after an equals sign, and 
+that value can sometimes be undefined, if which case nothing appears
+after the "=".
 
 Unless the "= value" form of configset is used, one or more separate
 lines of data must be supplied as the new variable's value.  For
@@ -40,9 +42,14 @@ Keep in mind that between the tags ("ENDOWNERS" in the example above)
 lines starting with dashes are special but the comment character
 loses its meaning.
 
-Some commands allow patterns or regular expressions as data fields,
+Some variables allow patterns or regular expressions as data fields,
 and you should review "help patterns" for an explanation of how
 Majordomo and Perl interpret these fields.
+
+Some variables require a "boolean" value, as indicated in the
+appropriate variable's help file by "Data Type: bool". You can
+use "yes", "y", or "1" to enable such a variable, and you can
+use "no", "n", or "0" to disable it.
 
 The value will be syntax-checked against the allowable values for the
 given variable. Once it has been set to any value, a variable can only

@@ -1,17 +1,22 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL noadvertise <<TAG
+configset  GLOBAL  noadvertise <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: empty
-Data Type    : regexp_array
-Variable Type: majordomo,access,advertise,lists
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname noadvertise <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : no default
+Data Type     : regexp_array
+Variable Group: majordomo, access, advertise, lists
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL noadvertise << ENDTAG
+/hotbot/i
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 If the requestor name matches one of these regexps, then the list will

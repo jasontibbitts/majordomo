@@ -11,8 +11,6 @@ Apply to List: GLOBAL pseudo-list only
 EXAMPLE:
 configset GLOBAL database_backend = text
 
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
-
 
 This controls the database format used to store various sets of data
 like subscriber lists.  Currently only a flat text database is supported.

@@ -1,24 +1,27 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname delivery_rules <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: empty
-Data Type    : delivery_rules
-Variable Type: delivery
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : no default
+Data Type     : delivery_rules
+Variable Group: delivery
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset listname delivery_rules << ENDTAG
+ALL
+sort, maxaddrs=30
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
-
 
 
 A table containing delivery rules, which describe how Majordomo will
 deliver mail.  In the simplest form, you can specify a host to use for
 delivery and a batch size.  (This duplicates much of the functionality
-of bulk_mailer, for those familiar with it.)
+of bulk_mailer, for those familiar with it.) Smaller batch sizes will
+keep malformed addresses from killing the entire delivery, but the
+optimal batch size depends on your mail handler and net connections.
 
 Each delivery destination should begin with a line containing either a
 regular expression, or the word ALL.  Addreses are compared against

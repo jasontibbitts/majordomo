@@ -1,10 +1,12 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname delete_headers <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: X-Confirm-Reading-To ...
-Data Type    : string_array
-Variable Type: resend
-Apply to List: regular lists, but not the GLOBAL pseudo-list
+Default Value : X-Confirm-Reading-To ...
+Data Type     : string_array
+Variable Group: resend
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
@@ -19,8 +21,6 @@ X-Pmrqc
 Return-Path
 Delivered-To
 ENDTAG
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 Headers appearing in this list will be removed from the messages

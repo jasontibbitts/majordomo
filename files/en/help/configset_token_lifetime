@@ -1,16 +1,16 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset GLOBAL token_lifetime = VALUE
+configset  GLOBAL  token_lifetime = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value: 7
-Data Type    : integer
-Variable Type: access,token
-Apply to List: both regular lists and the GLOBAL pseudo-list
+configset listname token_lifetime = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : 7
+Data Type     : integer
+Variable Group: access, token
+Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL token_lifetime = 4
-
-(text above is from configshow, Mj2 0.1199902200, extracted 12 Apr 1999)
 
 
 The number of days that a token will be allowed to live without being
