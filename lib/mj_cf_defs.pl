@@ -100,7 +100,8 @@ $Mj::Config::default_string = q(
  'category'             => '',
  'chunksize'            => 1000,
  'comments'             => [],
- 'config_access'        => [],
+ 'config_access'        => ($list eq 'GLOBAL') ? 
+                           [ 'config_access | 5 | 5 ' ] : [],
  'config_defaults'      => [],
  'confirm_url'          => $subs->{'confirm_url'},
  'debug'                => 0,
@@ -160,16 +161,13 @@ $Mj::Config::default_string = q(
                             'Precedence: bulk',
                            ] : [],
  'moderate'             => 0,
- 'moderator'            => '',
  'moderator_group'      => 0,
  'moderators'           => [],
  'noadvertise'          => [],
  'noarchive_body'       => [],
- 'noarchive_headers'    => (
-			    ($list eq 'GLOBAL') ? 
-			    ['/^x-no-archive:\s*yes/i',
+ 'noarchive_headers'    => ['/^x-no-archive:\s*yes/i',
 			     '/^restrict:\s*no-external-archive/i',
-			    ] : []),
+			   ],
  'nonmember_flags'      => [qw(ackdeny ackreject ackstall)],
  'override_reply_to'    => 0,
  'owners'               => ($list eq 'GLOBAL') ? [$subs->{'owners'}] : [],

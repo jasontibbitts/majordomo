@@ -402,14 +402,6 @@ package Mj::Config;
     'visible'=> 1,
     'mutable'=> 1,
    },
-   'moderator' =>
-   {
-    'type'   => 'address',
-    'groups' => [qw(moderate)],
-    'local'  => 1,
-    'visible'=> 1,
-    'mutable'=> 1,
-   },
    'moderators' =>
    {
     'type'   => 'address_array',
