@@ -167,6 +167,7 @@ files/en/.digest_preindex
 files/en/.error
 files/en/.faq
 files/en/.farewell
+files/en/.farewell_noweb
 files/en/.file_not_found
 files/en/.file_sent
 files/en/.format
@@ -176,12 +177,14 @@ files/en/.inform
 files/en/.intro
 files/en/.new_list
 files/en/.new_password
+files/en/.new_password_noweb
 files/en/.registered
 files/en/.registered_noweb
 files/en/.repl_chain
 files/en/.repl_confcons
 files/en/.repl_confirm
 files/en/.repl_confirm2
+files/en/.repl_confirm_req
 files/en/.repl_consult
 files/en/.repl_delay
 files/en/.repl_deny
@@ -547,6 +550,7 @@ files/en/error/unknown_token
 files/en/error/unregistered
 files/en/faq
 files/en/farewell
+files/en/farewell_noweb
 files/en/file_not_found
 files/en/file_sent
 files/en/format/.text
@@ -1773,12 +1777,14 @@ files/en/inform
 files/en/intro
 files/en/new_list
 files/en/new_password
+files/en/new_password_noweb
 files/en/registered
 files/en/registered_noweb
 files/en/repl_chain
 files/en/repl_confcons
 files/en/repl_confirm
 files/en/repl_confirm2
+files/en/repl_confirm_req
 files/en/repl_consult
 files/en/repl_delay
 files/en/repl_deny
@@ -1807,6 +1813,7 @@ lib/Mj/BounceParser.pm
 lib/Mj/CommandProps.pm
 lib/Mj/Config.pm
 lib/Mj/Deliver.pm
+lib/Mj/Deliver/BSMTPEnvelope.pm
 lib/Mj/Deliver/Connection.pm
 lib/Mj/Deliver/Dest.pm
 lib/Mj/Deliver/Envelope.pm
