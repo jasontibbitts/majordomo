@@ -1306,6 +1306,8 @@ sub parse_access_rules {
       return (0, "\nError compiling rule for $i: $error")
 	unless $ok;
 
+      $warn .= $error if $error;
+
       $data->{$i}{'code'}        .= $part;
       $data->{$i}{'check_main'} ||= $check_main;
       for $j (@{$check_aux}) {
@@ -3118,6 +3120,7 @@ sub _compile_rule {
       $arg,       # Argument for pasring @variable=arg or @list
       $o,         # Accumulates output string.
       $e,         # Accumulates errors encountered.
+      $w,         # Accumulates warnings encountered.
       $i,         # General iterator thingy.
       $op,        # Variable comparison operator
       $iop,       # holder for inverted op
@@ -3131,6 +3134,7 @@ sub _compile_rule {
 
   $e = "";
   $o = "";
+  $w = "";
   $indent = 0;
   $invert = 0;
   $need_or = 0;
@@ -3323,16 +3327,20 @@ sub _compile_rule {
 	# Weed out bad variables, but allow some special cases
 	unless (rules_var($request, $var) ||
 	       ($request eq 'post' && $evars->{$var}))
-#$var =~ /(global_)?(admin_|taboo_)\w+/))
 	  {
-	    @tmp = rules_vars($request);
-	    $e .= "Illegal variable for $request: $var.\nLegal variables are:\n  ".
-	      join("\n  ", sort(@tmp));
-	    if ($request eq 'post' && scalar(keys(%$evars))) {
-	      $e .= "\nPlus these variables currently defined in admin and taboo rules:\n  ".
-		join("\n  ", sort (keys(%$evars)));
-	    }
-	    last;
+            if ($var =~ /(global_)?(admin_|taboo_)\w+/) { 
+              $w .= "Variable $var has not been defined.\n";
+            }
+            else {
+              @tmp = rules_vars($request);
+              $e .= "Illegal variable for $request: $var.\nLegal variables are:\n  ".
+                join("\n  ", sort(@tmp));
+              if ($request eq 'post' && scalar(keys(%$evars))) {
+                $e .= "\nPlus these variables currently defined in admin and taboo rules:\n  ".
+                  join("\n  ", sort (keys(%$evars)));
+              }
+              last;
+            }
 	  }
 	if ($need_or) {
 	  $o .= " ||";
@@ -3425,7 +3433,7 @@ sub _compile_rule {
   if ($e) {
     return (0, $e, $o);
   }
-  return (1, undef, $o, $check_main, $check_aux);
+  return (1, $w, $o, $check_main, $check_aux);
 }
 
 =head2 _str_to_offset(string)
