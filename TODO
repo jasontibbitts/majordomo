@@ -16,7 +16,8 @@ from people who have posted fewer than five messages to the list
 previously."
 
 Additional user request: keep stats from beginning of day/week/month
-instead of last 1/7/30 days.
+instead of last 1/7/30 days.  [It is possible to do this already
+using the post_limits setting.]
 
 
 Configurable Subject: headers for digests
@@ -280,6 +281,14 @@ Automatic backup and recovery of subscriber databases
 The who-export command could be executed periodically to save the
 subscriber list and settings for a mailing list.  This could
 also be done incrementally.
+
+
+Display subscription statistics
+-------------------------------
+For accounting purposes, it would be useful to display statistics about
+the subscribers of a mailing list.  The statistics would show the number
+of subscribers in each delivery class, and how those numbers have
+changed over time.
 
 
 =======================
