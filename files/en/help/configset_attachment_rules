@@ -55,7 +55,7 @@ the following rule:
 
   image/gif | deny
 
-and to discard all images of any type, use this rule:
+and to discard all messages containing images of any type, use this rule:
 
   /^image/i | deny
 
