@@ -52,6 +52,16 @@ $e = qq!\Qwhereami set to "example.com".\n!;
 $r = run('-p gonzo configset GLOBAL whereami = example.com');
 ok($e, $r);
 
+open(TEMP, ">var.$$");
+print TEMP <<EOT;
+subscribe   : all : ignore
+unsubscribe : all : ignore
+EOT
+close TEMP;
+$e = qq!\Qinform set to "subscribe   : all : ignore...".\n!;
+$r = run("-p gonzo -f var.$$ configset GLOBAL inform");
+unlink "var.$$";
+
 # 6. Create a list
 $e = ".*";
 $r = run('-p gonzo createlist-nowelcome bleeargh nobody@example.com');

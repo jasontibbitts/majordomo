@@ -10,7 +10,7 @@ $counter = 1;
 $debug = 0;
 $tmpdir = "/tmp/mjtest.$$";
 
-print "1..29\n";
+print "1..30\n";
 
 print "Load the stashed configuration\n";
 eval('$config = require ".mj_config"');
@@ -116,6 +116,17 @@ $request->{command}  = 'configshow';
 $request->{groups}   = ['whereami'];
 $result = $mj->dispatch($request);
 ok('example.com', $result->[1][3]);
+
+print "Set GLOBAL inform so we don't send any mail from owner synchronization\n";
+$result = $mj->dispatch({user     => 'unknown@anonymous',
+			 password => 'hurl',
+			 command  => 'configset',
+			 list     => 'GLOBAL',
+			 setting  => 'inform',
+			 value    => ['subscribe   : all : ignore',
+				      'unsubscribe : all : ignore'],
+			 });
+ok(1, $result->[0]);
 
 print "Create a list\n";
 $result = $mj->dispatch({user     => 'unknown@anonymous',
