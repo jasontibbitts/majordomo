@@ -14,6 +14,7 @@
   <input type=submit name=func value="accept-archive">
   <input type=submit name=func value="accept-hide">
   <input type=submit name=func value="reject">
+?WILLACK <input type=submit name=func value="reject-quiet">
   <input type=submit name=func value="tokeninfo-remind">
   <input type=hidden name=extra value="$TOKEN">
   <input type=hidden name=list value="$LIST">
