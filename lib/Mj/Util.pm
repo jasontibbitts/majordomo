@@ -153,7 +153,7 @@ sub process_rule {
       elsif ($func eq 'reason') {
 	if ($arg) {
 	  $arg =~ s/^\"(.*)\"$/$1/;
-	  $args{'reasons'} = "$arg\002" . $args{'reasons'};
+	  $args{'reasons'} = "$arg\003" . $args{'reasons'};
 	}
 	next ACTION;
       }
