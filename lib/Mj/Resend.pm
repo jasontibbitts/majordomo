@@ -499,7 +499,7 @@ sub _post {
   # archive around if we didn't.
   if ($msgnum) {
     $archead->replace('X-Archive-Number', $msgnum);
-    $archead->replace('X-Sequence-Number', $seqno);
+    $archead->replace('X-Sequence-Number', $seqno) unless $sl;
 
     # Print out the archive copy
     $tmp = "$tmpdir/mjr.$$.arc";
