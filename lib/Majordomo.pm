@@ -3131,9 +3131,10 @@ sub _rekey {
     };
   $self->{reg}->mogrify($sub);
 
-  # loop over all lists and do the following:
+  # loop over all lists, but skip GLOBAL.  XXX What about GLOBAL auxlists?
   $self->_fill_lists;
   for $list (keys(%{$self->{lists}})) {
+    next if $list eq 'GLOBAL';
     $self->_make_list($list);
     $self->{'lists'}{$list}->rekey;
   }

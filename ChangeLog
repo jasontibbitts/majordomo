@@ -1,3 +1,7 @@
+Sun Jan 10 00:42:03 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (_rekey): Don't try to rekey GLOBAL.
+
 Sat Jan  9 12:45:17 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Digest/Text.pm (done): Clean up stale entities.
