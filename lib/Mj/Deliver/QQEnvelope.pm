@@ -50,10 +50,6 @@ sub new {
   my $self = {};
   bless $self, $class;
   $addfile = POSIX::tmpnam;
-  $self->{'addfile'} = new IO::File ">$addfile";
-  unless (defined $self->{'addfile'}) {
-    $log->abort("Unable to open tempfile $addfile");
-  }
   $self->{'addname'} = $addfile;
 
   # This isn't really neccessary but I want to maintain call compatibility
@@ -63,8 +59,7 @@ sub new {
   }
 
   $self->{'sender'} = $args{'sender'};
-  $self->{'addfile'}->print("F" , $args{'sender'} , "\00");
-  
+
   if (defined $args{'file'}) {
     $self->file($args{'file'});
   }
@@ -90,7 +85,16 @@ sub file {
 
 sub sender {
   my $self = shift;
+  my $log  = new Log::In 150;
+
   $self->{'sender'} = shift;
+
+  # make the address file now using name concocted in new
+  $self->{'addfile'} = new IO::File ">$self->{'addname'}";
+  unless (defined $self->{'addfile'}) {
+      $log->abort("Unable to open tempfile $self->{'addname'}");
+  }
+  $self->{'addfile'}->print("F" , $self->{'sender'} , "\00");
 }
 
 =head2 address(scalar or listref)
@@ -144,11 +148,6 @@ sub send {
   if ($pid = fork()) {
     waitpid $pid,0;
     unlink $self->{'addname'};
-    $self->{'addfile'} = new IO::File ">$self->{'addname'}";
-    unless (defined $self->{'addfile'}) {
-      $log->abort("Unable to open tempfile $self->{'addname'}");
-    }
-    $self->{'addfile'}->print("F" , $self->{'sender'} , "\00");
   } 
   elsif (defined $pid) {
     close STDIN;

@@ -281,8 +281,7 @@ sub do_qmail {
   elsif ($addr =~ /^(.*)-moderator$/) {
     $list = $1; $fun = 'moderator'; 
   }
-  # Note that we don't anchor to the end; we may be receiving a probe
-  elsif ($addr =~ /^(.*)-owner$/) {
+  elsif ($addr =~ /^(.*)-owner(\+[a-z].+)?$/) {
     $list = $1; $fun = 'owner'; 
   }
   elsif ($addr =~ /^(.*)-request$/) {
@@ -308,7 +307,7 @@ sub do_qmail {
     # .qmail-default will be parsed.
     exit 0;
   }
-
+  logmsg("list is $list");
   # XXX Addresses for auxiliary lists are not considered.
   # It is bound for us; fix up the options
   $opts{'l'} = $list;

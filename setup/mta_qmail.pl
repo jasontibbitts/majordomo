@@ -28,7 +28,7 @@ sub ask_qmail_domain {
   $def = $config->{'domain'}{$dom}{'qmailfile'};
   $config->{'domain'}{$dom}{'qmailfile'} = get_file($msg, $def);
 
-  $config->{mta_separator} = '-';
+  $config->{mta_separator} = '+';
 }
 
 sub setup_qmail {};
