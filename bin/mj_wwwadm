@@ -234,7 +234,7 @@ EOM
 print $cmdform;
 
 if (! $cgi->param('func') or $func =~ /about/) {
-  &usage($mj);
+  &usage($mj, $lists[0]);
   exit 0;
 }
 
@@ -321,7 +321,7 @@ if ($passw and ($st eq 'checked' or $func eq 'showtokens') and @lists) {
   # The password may have been omitted earlier.
   $request->{'password'} = $passw;
   $request->{'command'} = 'showtokens';
-  Mj::Parser::parse_args($request, $req);
+  Mj::Parser::parse_args($request, $extra[0]);
 
   print $fh <<EOM;
 <form method=POST action=$cgiurl>
@@ -360,7 +360,7 @@ EOM
 $fh->print("<hr>For assistance, contact <a href=\"mailto:$serveradmin\">$serveradmin</a>\n");
 $fh->close();
 
-&format_print($file, $lists[0]);
+&format_print($file);
 unlink $file;
 
 $::log->out;
@@ -368,10 +368,9 @@ exit 0;
 
 #---------------- Subroutines -----------------#
 sub format_print {
-  my ($file, $list) = shift;
+  my ($file) = @_;
   my ($line, $token, $summarize, $hdrs, $remove);
   $summarize = $hdrs = 0;
-  $remove = $list eq 'GLOBAL' ? "unregister" : "unsubscribe";
 
   $fh = new IO::File "<$file";
   if (! $fh) { 
@@ -618,7 +617,7 @@ EOM
 }
 
 sub usage {
-  my ($mj) = shift;
+  my ($mj, $list) = shift;
   my $site  = $mj->global_config_get(undef, undef, 'site_name');
   my $serveraddr = $mj->global_config_get(undef, undef, 'whoami');
   my $serveradmin = $mj->global_config_get(undef, undef, 'whoami_owner');
@@ -701,15 +700,13 @@ then press one of the buttons.
 the "token identifier," which is unique to that request.  
 Checkboxes allow more than one request to be handled at once.
 
-<li>The second column shows the name of the mailing list.
-
 <li>Generally, <b>subscribe</b> and <b>set</b> requests need 
 to be confirmed by the subscribers themselves, but any other request 
 should be handled by the list owners.  This is indicated 
-in the third column by an <b>O</b> (the owners must approve) 
+in the second column by an <b>O</b> (the owners must approve) 
 or an <b>S</b> (the subscriber must approve). 
 
-<li>The fourth column shows the type of request.
+<li>The third column shows the type of request.
 
 <li>The remaining columns contain the date of
 the request and the e-mail address of the person who made it.
