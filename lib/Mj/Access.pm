@@ -446,7 +446,11 @@ Note that if you do confirm and mailfile, the user will get two messages.
 =cut
 sub global_access_check {
   my $self = shift;
-  $self->list_access_check(@_);
+  my $request = shift;
+  my (%data) = %$request;
+  $data{'list'} = 'GLOBAL';
+  
+  $self->list_access_check(\%data, @_);
 }
 
 =head2 list_access_check(request, arghash)
