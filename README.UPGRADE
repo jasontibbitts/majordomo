@@ -1,4 +1,21 @@
         Notes on upgrading from previous versions of Majordomo 2
+
+2001.09.12 (CVS):
+
+The optional module Text::Reflow can be used for better results
+when the attachment rules cause a plain text body part to be
+reformatted.  To install Text::Reflow usually requires perl version
+5.6.0 or newer.  If Text::Reflow is installed, the attachment rules
+will make use of it automatically.  Text::Reflow 1.04 or newer is
+required.
+
+Previously, no more than one issue of a digest was delivered to 
+subscribers per hour.  With the new "digest-check-repeat" command,
+multiple issues can be sent automatically in a given hour.  However,
+to enable this feature, the "separate" field must be set to zero.
+See "help configset_digests" for details on how to change the 
+"separate" field.
+
 2001.09.03 (CVS):
 
 Two modules, HTML::TreeBuilder and HTML::FormatText, are now required
