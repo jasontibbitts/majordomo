@@ -47,6 +47,7 @@ lists.  The requests labeled <b>consult</b> will need your attention,
 whereas the requests labeled <b>confirm</b> need the attention of
 the people who made them.  The requests labeled <b>delay</b> will
 be completed automatically at a later time.
+[<a href="$CGIURL?$CGIDATA&passw=$CMDPASS&func=welcome&doc=showtokens">more</a>]
 
   </td>
 </tr>

@@ -27,7 +27,7 @@
 
   </td>
   <td align="center" bgcolor="#706060">
-    <a href="$CGIURL?$CGIDATA&func=showtokens-delay">
+    <a href="$CGIURL?$CGIDATA&func=showtokens">
      <font size="-1" color="#f0f0f0">
      Moderation</font></a>
 
