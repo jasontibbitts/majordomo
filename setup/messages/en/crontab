@@ -1,5 +1,5 @@
 # Daily, remove old lock files.
-30 0 * * * $INSTALL_DIR/bin/mj_trigger -t lock
+50 1 * * * $INSTALL_DIR/bin/mj_trigger -t lock
 # Hourly, perform various tasks.
 20 * * * * $INSTALL_DIR/bin/mj_trigger -t hourly
 
