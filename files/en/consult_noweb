@@ -12,4 +12,5 @@ with the word "accept" (without quotes) on a line by itself.
 If you do not respond within $EXPIRE days, this token will expire.
 
 If you do not wish to allow this request, you may reject it by replying to
-this message with the word "reject" (without quotes) on a line by itself.
+this message with the word "reject" (without quotes), followed by
+a descriptive reason (if you wish to include one), on a single line. 
