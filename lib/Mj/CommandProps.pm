@@ -952,8 +952,6 @@ my %commands =
                    'arguments' => { 'regexp' => {'type' => 'SCALAR'}},
                    'modes'    =>  {
                                    %generic_modes,
-                                   'pattern'     => 1,
-                                   'regex'       => 1,
                                   },
                    'tokendata' => {'arg1'   => 'regexp'}
                   },
