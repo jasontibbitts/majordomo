@@ -1,3 +1,10 @@
+2001-11-21  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/CommandProps.pm: Add posts_this_day/week/month variables.
+
+	* lib/Mj/List.pm (post_gen_stats): Generate counts frojm the
+        beginning of the current day/week/month.
+
 2001-11-19  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Config.pm:  (parse_bool)  Move code to

@@ -1615,7 +1615,12 @@ sub post_gen_stats {
   my $self  = shift;
   my $pdata = shift;
   my $now = time;
-  my (@msgs, @times, $i, $lastnum, $ptime, $stats);
+  my (@msgs, @times, $bday, $bweek, $bmonth, $i, $lastnum, $ptime, $stats);
+  my ($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($now);
+
+  $bday = $now - $sec - $min*60 - $hour*60*60;
+  $bweek = $bday - $wday*24*60*60;
+  $bmonth = $bday - ($mday - 1)*24*60*60;
 
   # Initialize stats
   $stats = {
@@ -1624,6 +1629,9 @@ sub post_gen_stats {
 	    posts_last_24hours   => 0,
 	    posts_last_7days     => 0,
 	    posts_last_30days    => 0,
+	    posts_this_day       => 0,
+	    posts_this_week      => 0,
+	    posts_this_month     => 0,
 	    consecutive_posts    => 0,
 	   };
 
@@ -1652,15 +1660,12 @@ sub post_gen_stats {
 
   for $i (@msgs) {
     $ptime = $pdata->{$i};
-    if (($now - $ptime) < 24*60*60) { # one day
-      $stats->{posts_last_24hours}++;
-    }
-    if (($now - $ptime) < 7*24*60*60) {
-      $stats->{posts_last_7days}++;
-    }
-    if (($now - $ptime) < 30*24*60*60) {
-      $stats->{posts_last_30days}++;
-    }
+    $stats->{posts_last_24hours}++ if ($now - $ptime) <    24*60*60;
+    $stats->{posts_last_7days}++   if ($now - $ptime) <  7*24*60*60;
+    $stats->{posts_last_30days}++  if ($now - $ptime) < 30*24*60*60;
+    $stats->{posts_this_day}++     if $ptime >= $bday;
+    $stats->{posts_this_week}++    if $ptime >= $bweek;
+    $stats->{posts_this_month}++   if $ptime >= $bmonth;
   }
   $stats;
 }
