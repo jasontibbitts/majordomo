@@ -79,6 +79,10 @@ command; otherwise, the results will not be mailed.  See "help default"
 for more information.  See "help admin_documents" for an introduction
 to the file space and document management.
 
+The triggers configuration setting has no influence upon the times that
+digests are triggered.  See "help configset_digests" for more
+information about the delivery of message digests.
+
 It is possible to use comments before, between, and after the individual
 triggers.  Comments are lines that begin with a '#'.  You can use 
 comments as a reminder of what a trigger does or why it was chosen, 
@@ -89,6 +93,7 @@ See Also:
    help admin
    help admin_documents
    help configset_access_rules
+   help configset_digests
    help configset_dup_lifetime
    help configset_inactive_lifetime
    help configset_latchkey_lifetime
