@@ -203,7 +203,8 @@ following in your .mc file.
     DAEMON_OPTIONS(`address=localhost, Port=24, Name=NCMSA, M=EC')
 
 This will cause sendmail to accept messages to the localhost address
-on port 24 with canonification disabled.
+on port 24 with canonification disabled in addition to accepting
+messages normally on port 25.
 
 To make Majordomo use the new port we need to modify the delivery_rules
 setting.  The following example injects messages to port 24 on the
@@ -262,15 +263,13 @@ half hour or every hour) to process queued messages.  For very large
 queues it can be useful to have persistent queue runners that are
 always processing the queue, independent of the mail sendmail
 process.  The following example starts 3 additional queue runners
-that continuously processes the mail queue, sleeping for one minute
-after the queue was been processed before starting again at the
-beginning.  These do not interfere with each other (or with other
-sendmail processes) since sendmail locks each message before
-processing it.
+that continuously processes the mail queue.  These do not interfere
+with each other (or with other sendmail processes) since sendmail
+locks each message before processing it.
 
-    sendmail -OPidFile=/var/run/sendmail-q1.pid -L sm-queue -q1m 
-    sendmail -OPidFile=/var/run/sendmail-q2.pid -L sm-queue -q1m 
-    sendmail -OPidFile=/var/run/sendmail-q3.pid -L sm-queue -q1m 
+    sendmail -OPidFile=/var/run/sendmail-q1.pid -L sm-queue -qp
+    sendmail -OPidFile=/var/run/sendmail-q2.pid -L sm-queue -qp
+    sendmail -OPidFile=/var/run/sendmail-q3.pid -L sm-queue -qp
 
 Note that it is important to specify a different pid file for each one.
 
