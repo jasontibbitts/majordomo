@@ -274,17 +274,19 @@ it didn't get where it was going.
 sub handle_bounce_token {
   my($self, %args) = @_;
   my $log  = new Log::In 35;
-  my(@owners, @bouncers, $from, $i, $mess, $nent, $sender);
+  my(@owners, @bouncers, $del, $from, $i, $mess, $nent, $sender);
 
   # Dump the body to the session file
   $args{entity}->print_body($self->{sessionfh});
 
   # If we parsed out a failure, delete the token
   # unless it is for a delayed action.
+  $del = '';
   for $i (keys %{$args{data}}) {
     last if $args{'type'} eq 'D';
     if ($args{data}{$i}{status} eq 'failure') {
       $self->t_reject($args{token});
+      $del = "This token has been deleted.\n\n";
       last;
     }
   }
@@ -301,7 +303,7 @@ sub handle_bounce_token {
     (
      Data     => [ "Detected a bounce of token $args{token}.\n",
 		   "  (bounce type $args{handler})\n\n",
-		   "This token has been deleted.\n\n",
+		   $del,
 		   "The bounce message is attached below.\n\n",
 		 ],
      -Subject => "Bounce of token $args{token} detected",
