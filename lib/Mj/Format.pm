@@ -102,7 +102,7 @@ sub alias {
 sub archive {
   my ($mj, $out, $err, $type, $request, $result) = @_;
  
-  my ($lines, $i, $data, $line);
+  my ($chunksize, $data, $i, $line, $lines, $mess, @tmp);
   my ($ok, @msgs) = @$result;
 
   if ($ok <= 0) { 
@@ -118,9 +118,26 @@ sub archive {
 
   # XXX Make this configurable so that it uses limits on
   # number of messages per digest or size of digest.
-  if ($mode =~ /get/) {
-    ($ok, $lines) = @{$mj->dispatch($request, \@msgs)};
-    eprint($out, $type, "$i");
+  if ($request->{'mode'} =~ /get/) {
+    $chunksize = 
+      $mj->global_config_get($request->{'user'}, $request->{'password'}, 
+                             $request->{'auth'}, $request->{'interface'}, 
+                             "chunksize");
+
+    $lines = 0; @tmp = ();
+    # Chunksize is 1000 lines by default.  If a group
+    # of messages exceeds that size, dispatch the request
+    # and print the result.
+    for ($i = 0; $i <= $#msgs; $i++) {
+      ($msg, $data) = @{$msgs[$i]};
+      push @tmp, [$msg, $data];
+      $lines += $data->{'lines'};
+      if ($lines > $chunksize or $i == $#msgs) {
+        ($ok, $mess) = @{$mj->dispatch($request, [@tmp])};
+        $lines = 0; @tmp = ();
+        eprint($out, $type, indicate($mess, $ok));
+      }
+    }
   }
   else {
     for $i (@msgs) {
@@ -164,8 +181,7 @@ sub auxwho  {
   
   # We know we succeeded
   $count = 0;
-  @stuff = ($user, $pass, $auth, $int, $cmd, $mode, $list, $vict, $sublist);
-  $chunksize = $mj->global_config_get($user, $pass, $auth, $int,
+  $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},                                       $request->{'auth'}, $request->{'interface'},
                                       "chunksize");
   
   eprint($out, $type, "Members of auxiliary list \"$request->{'list'}:$request->{'sublist'}\":\n");

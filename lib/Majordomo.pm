@@ -2721,22 +2721,42 @@ sub archive_start {
 sub _archive {
   my ($self, $list, $user, $vict, $mode, $cmdline, $args) = @_;
   my $log = new Log::In 30, "$list, $args";
+  return 1 unless $args;
+  $self->_make_list($list);
   my (@msgs) = $self->{'lists'}{$list}->archive_expand_range(0, $args);
-  return (1, '', @msgs);
+  return (1, @msgs);
 }
 
 sub archive_chunk {
   my ($self, $request, $result) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
-  my ($ent, $file, $i, $out, $owner, $fh, $buf, $dtype);
-  $dtype = ($request->{'mode'} =~ /get/)? "text" : "index";
+  my (@msgs, $data, $list, $ent, $file, $i, $out, $owner, $fh, $buf);
 
-  # Build a digest; gives back an entity
-  if (scalar(@$result) > 0) {
-    ($file) = $self->{'lists'}{$request->{'list'}}->digest_build
+  if (scalar(@$result) <= 0) {
+    return (1, "No messages were found which matched your request.\n");
+  }
+  $list = $self->{'lists'}{$request->{'list'}};
+
+ 
+  if ($request->{'mode'} =~ /immediate/) {
+    $buf = '';
+    @msgs = @$result;
+    for $i (@msgs) {
+      $out = $list->archive_get_start(@$i);
+      next unless $out;
+      while ($out = $list->archive_get_chunk(4096)) {
+        $buf .= $out;
+      }
+      $list->archive_get_done;
+      $buf .= "\n";
+    }
+    return (1, $buf);
+  }
+  else {
+    ($file) = $list->digest_build
     (messages      => $result,
-     type          => "$dtype",
-     subject       => "$dtype digest from $request->{'cmdline'}",
+     type          => "text",
+     subject       => "Results from $request->{'cmdline'}",
      tmpdir        => $tmpdir,
      index_line    => $self->_list_config_get($request->{'list'}, 'digest_index_format'),
      index_header  => "Custom-Generated Digest Containing " . scalar(@$result) . 
@@ -2746,38 +2766,19 @@ Contents:
 ",
      index_footer  => "\n",
     );
-    # YYY "data" mode ?
-    if ($request->{'mode'} =~ /immediate/) {
-      $out = '';
-      $fh = new IO::File "< $file";
-      if (!defined $fh) {
-        return (0, "Unable to build $dtype digest of messages.\n");
-      }
-      # skip over message header
-      while ($buf = $fh->getline) {
-        last if ($buf =~ /^$/);
-      }
-      while ($buf = $fh->getline) {
-        # skip digest trailer
-        last if ($buf =~ /^End of $dtype digest/);
-        $out .= $buf;
-      }
-      $fh->close;
-      unlink $file;
-      return (1, $out);
-    }
     # Mail the entity out to the victim
     $owner = $self->_list_config_get($request->{'list'}, 'sender');
     $self->mail_message($owner, $file, $request->{'user'});
     unlink $file;
     return (1, "A digest containing ".scalar(@$result)." messages has been mailed.\n");
   }
-  return (1, "No messages were found which matched your request.\n");
 }
 
 
 
 sub archive_done {
+  my ($self, $request, $result) = @_;
+  1;
 }
 
 
