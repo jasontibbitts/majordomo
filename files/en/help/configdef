@@ -1,4 +1,53 @@
-NOTE: 'configdefault' is the same as 'configdef',
-Text below is from "help configdefault":
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configdef listname settings
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is an email list at this site
+settings, required, is one or more comma-separates 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-$INCLUDE-help/configdefault
+The configdef command resets one or more configuration settings to
+their default values.  Multiple settings can be reset by separating them
+with commas or spaces.  In addition, a here document can be used to
+list the settings.  In the following two examples, the access_rules
+and moderate settings will be reset. 
+
+  Example:
+configdef LISTNAME access_rules,moderate
+
+  Example:
+configdef LISTNAME <<ABCD
+access_rules
+moderate
+ABCD
+
+A valid mailing list name should be substituted for LISTNAME in each
+example.  Please see "help here_document" for an introduction to writing
+multi-line command using here documents.
+
+For each mailing list, Majordomo keeps a table which lists all of the
+values that have been changed explicitly using the configset command.
+The configdef command removes one or more entries from that table, which
+causes the setting to be assigned a default value.  Consequently, using
+the configdef command is not the same as using the configset command to
+change a setting to the current default value.  
+
+If a setting is reset with the configdef command, its value will change
+if the default value of the setting changes.  To learn how the default
+values are determined, see the "Configuration templates and default
+values" section of the "help admin_config" document.
+
+The configdef command requires the use of an administrative password.
+Please see "help admin_passwords" for more details.
+
+To see a complete list of configuration settings, use the "help topics"
+command.
+
+See Also:
+   help admin_config
+   help admin_domain  (for an explanation of default configuration values)
+   help admin_passwords
+   help configedit (to set the variable to a non-default value)
+   help configset  (to set the variable to a non-default value)
+   help configshow (to display the variable's current value)
+
+$INCLUDE-help/foot
