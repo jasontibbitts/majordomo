@@ -11,7 +11,7 @@ Perl 5.004_01 (or later) is required, along with several modules.  Perl
 features.
 
 Majordomo fully understands MIME at all levels, will not bomb on or
-mangle MIME message, and can make use of special MIME goodies where
+mangled MIME messages, and can make use of special MIME goodies where
 appropriate.
 
 Majordomo runs with full taint checks, warnings, and strict checking
@@ -92,7 +92,7 @@ required, it will work and has been extended to cope with MIME.
 
 You can choose exactly what notifications you want to receive.
 Notifications can be sent immediately, or summarized in a periodic
-report.  (Reports not yet implemented.)
+report.
 
 You can set up multiple fronters and footers which will be randomly
 chosen to be added.  (This could be used for advertisements or a
@@ -119,4 +119,7 @@ explicitly reject the confirmation tokens, you and other responsible
 parties will be sent a record of the forgery including what is hopefully
 enough for your sysadmin to track down the perpetrator.
 
-You can elect to be informed when one of your messages requires approval.
+You can elect to be informed when one of your messages requires
+approval, has been posted, or has been rejected by the moderators.
+
+
