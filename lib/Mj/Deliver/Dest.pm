@@ -79,6 +79,7 @@ sub new {
   my $data   = shift;
   my $file   = shift;
   my $sender = shift;
+  my $lhost  = shift || '';
   my $single = shift;
   my $log   = new Log::In 150;
   my (@tmp1, $code, $fail, $i, $mess, $val);
@@ -172,6 +173,7 @@ sub new {
 
   # These counts keep track of the numbers of addresses/domains sent so we
   # know when to mail an envelope.
+  $self->{'lhost'}      = $lhost;
   $self->{'count'}      = 0;
   $self->{'subcount'}   = 0;
   $self->{'lastdom'}    = '';
@@ -210,6 +212,7 @@ sub make_envelope {
 			       'sender' => $self->{'sender'},
 			       'file'   => $self->{'file'},
 			       'host'   => $host,
+                               'local'  => $self->{'lhost'},
                                'personal' => ($self->{'size'} == 1),
 			       %{$self->{'hostdata'}{$host}},
 			      );
@@ -217,7 +220,7 @@ sub make_envelope {
 }
 
 
-=head2 make_qqenvelops(currenthost)
+=head2 make_qqenvelope(currenthost)
 
 This is broken out so that Mj::Deliver::QQEnvelope can be autoloaded.
 
@@ -480,11 +483,11 @@ This causes all remaining addresses to be sent.  If sorting is active, the
 list is sorted and pushed out.
 
 =cut
-use IO::File;
+use Symbol;
 sub flush {
   my $self = shift;
   my $log  = new Log::In 150;
-  my ($addr, $ch, $errmsg, $file, $sender, @tmp);
+  my ($addr, $ch, $fh, $file, $sender, @tmp);
 
   if (@{$self->{'stragglers'}}) {
     if (@{$self->{'addrs'}} >= $self->{'size'}) {
@@ -530,12 +533,12 @@ sub flush {
       $ch = $self->{'currenthost'};
 
       # XXX temporary file has original file name with ".flr" appended
+      $fh = gensym();
       $self->{'file'} .= ".flr";
-      my ($errmsg) = new IO::File ">$self->{'file'}";
-      return unless $errmsg;
-     
+      return unless (open $fh, ">$self->{'file'}");
+
       # create an error message resembling an exim bounce. 
-      print $errmsg <<EOM;
+      print $fh <<EOM;
 To: $sender
 From: $sender
 Subject: Majordomo Delivery Error
@@ -546,11 +549,11 @@ A Majordomo message could not be delivered to the following addresses:
 EOM
 
       for (@tmp) {
-        print $errmsg "  $_->[0]:\n";
-        print $errmsg "    $_->[1] $_->[2]\n";
+        print $fh "  $_->[0]:\n";
+        print $fh "    $_->[1] $_->[2]\n";
       }
-      print $errmsg "-- Original message omitted --\n";
-      $errmsg->close;
+      print $fh "-- Original message omitted --\n";
+      close $fh;
 
       # reinitialize using temporary values and send the message.
       if (lc($self->{'activehosts'}[$ch]) eq '@qmail') {
