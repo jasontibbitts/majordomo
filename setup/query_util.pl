@@ -1,7 +1,10 @@
 # Nipped from MakeMaker.
+require Carp;
+use vars (qw($nosep $sepclear));
+
 sub prompt ($;$) {
   sep();
-  my($mess,$def)=@_;
+  my($mess,$def) = @_;
   my $ISA_TTY = -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT));
   Carp::confess("prompt function called without an argument") 
     unless defined $mess;

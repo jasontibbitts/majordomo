@@ -1,5 +1,6 @@
 sub ask_qmail {
   my($config) = @_;
+  my($def, $msg);
 
   $msg = <<EOM;
 Should Majordomo maintain .qmail-default files automatically?
@@ -24,6 +25,7 @@ EOM
 
 sub ask_qmail_domain {
   my($config, $dom) = @_;
+  my($def, $msg);
 
   $msg = <<EOM;
 What is the qmail directory for $dom?
@@ -45,6 +47,7 @@ sub setup_qmail {};
 
 sub setup_qmail_domain {
   my($config, $dom) = @_;
+  my($dir, $file, $line, $whoami);
 
   $dir    = $config->{domain}{$dom}{qmaildir};
   $file   = $config->{domain}{$dom}{qmailfile};

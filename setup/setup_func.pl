@@ -1,6 +1,8 @@
 # This file contains routines used by the postinstall script to do initial
 # site and domain setup.
 
+use vars(qw($msg0 $msg4 $config $quiet $verb));
+
 $msg0 = <<EOM;
 
 What is the default global password for domain \$DOM?
@@ -34,26 +36,26 @@ sub create_dirs {
   if ($config->{maintain_mtaconfig}) {
     if ($config->{mta_umask}) {
       safe_mkdir($l,           0777 & ~(oct($um) & oct($config->{mta_umask})),
-		 $uid, $gid); dot;
+		 $uid, $gid); dot();
       safe_mkdir("$l/ALIASES", 0755 & ~(oct($um) & oct($config->{mta_umask})),
-		 $uid, $gid); dot;
+		 $uid, $gid); dot();
     }
     else {
-      safe_mkdir($l,           0777 & ~oct($um), $uid, $gid);dot;
-      safe_mkdir("$l/ALIASES", 0755 & ~oct($um), $uid, $gid);dot;
+      safe_mkdir($l,           0777 & ~oct($um), $uid, $gid);dot();
+      safe_mkdir("$l/ALIASES", 0755 & ~oct($um), $uid, $gid);dot();
     }
   }
   else {
-    safe_mkdir($l,           0777 & ~oct($um), $uid, $gid);dot;
-    safe_mkdir("$l/ALIASES", 0755 & ~oct($um), $uid, $gid);dot;
+    safe_mkdir($l,           0777 & ~oct($um), $uid, $gid);dot();
+    safe_mkdir("$l/ALIASES", 0755 & ~oct($um), $uid, $gid);dot();
   }
 
-  safe_mkdir($tmp,         0777 & ~oct($um), $uid, $gid);dot;
-  safe_mkdir("$tmp/locks", 0777 & ~oct($um), $uid, $gid);dot;
+  safe_mkdir($tmp,         0777 & ~oct($um), $uid, $gid);dot();
+  safe_mkdir("$tmp/locks", 0777 & ~oct($um), $uid, $gid);dot();
 
-  safe_mkdir("$l/LIB",        0777 & ~oct($um), $uid, $gid);dot;
-  safe_mkdir("$l/SITE",       0777 & ~oct($um), $uid, $gid);dot;
-  safe_mkdir("$l/SITE/files", 0777 & ~oct($um), $uid, $gid);dot;
+  safe_mkdir("$l/LIB",        0777 & ~oct($um), $uid, $gid);dot();
+  safe_mkdir("$l/SITE",       0777 & ~oct($um), $uid, $gid);dot();
+  safe_mkdir("$l/SITE/files", 0777 & ~oct($um), $uid, $gid);dot();
 
 
   for $i (@$doms) {
@@ -71,34 +73,34 @@ sub create_dirs_dom {
   my $um  = shift;
 
   printf "ok.\nMaking directories for %s, mode %lo.", $d, (0777 & ~oct($um));
-  safe_mkdir("$l/$d",                    0777 & ~oct($um), $uid, $gid);dot;
-  safe_mkdir("$l/$d/GLOBAL",             0777 & ~oct($um), $uid, $gid);dot;
-  safe_mkdir("$l/$d/GLOBAL/sessions",    0777 & ~oct($um), $uid, $gid);dot;
-  safe_mkdir("$l/$d/GLOBAL/spool",       0777 & ~oct($um), $uid, $gid);dot;
-  safe_mkdir("$l/$d/GLOBAL/files",       0777 & ~oct($um), $uid, $gid);dot;
-  safe_mkdir("$l/$d/GLOBAL/files/public",0777 & ~oct($um), $uid, $gid);dot;
-  safe_mkdir("$l/$d/DEFAULT",             0777 & ~oct($um), $uid, $gid);dot;
-  safe_mkdir("$l/$d/DEFAULT/files",       0777 & ~oct($um), $uid, $gid);dot;
-  safe_mkdir("$l/$d/DEFAULT/files/public",0777 & ~oct($um), $uid, $gid);dot;
+  safe_mkdir("$l/$d",                    0777 & ~oct($um), $uid, $gid);dot();
+  safe_mkdir("$l/$d/GLOBAL",             0777 & ~oct($um), $uid, $gid);dot();
+  safe_mkdir("$l/$d/GLOBAL/sessions",    0777 & ~oct($um), $uid, $gid);dot();
+  safe_mkdir("$l/$d/GLOBAL/spool",       0777 & ~oct($um), $uid, $gid);dot();
+  safe_mkdir("$l/$d/GLOBAL/files",       0777 & ~oct($um), $uid, $gid);dot();
+  safe_mkdir("$l/$d/GLOBAL/files/public",0777 & ~oct($um), $uid, $gid);dot();
+  safe_mkdir("$l/$d/DEFAULT",             0777 & ~oct($um), $uid, $gid);dot();
+  safe_mkdir("$l/$d/DEFAULT/files",       0777 & ~oct($um), $uid, $gid);dot();
+  safe_mkdir("$l/$d/DEFAULT/files/public",0777 & ~oct($um), $uid, $gid);dot();
 
   # Make the dotfiles so they show up properly in an index
   open DF, ">$l/$d/GLOBAL/files/.spool"
     or die "Can't open $l/$d/GLOBAL/files/.spool: $!";
   print DF "Spooled Files\nd\n\n\n\n\n";
   close DF;
-  dot;
+  dot();
   chownmod(scalar getpwnam($config->{'uid'}), scalar getgrnam($config->{'gid'}),
            (0777 & ~oct($config->{'umask'})), "$l/$d/GLOBAL/files/.spool");
-  dot;
+  dot();
 
   open DF, ">$l/$d/GLOBAL/files/.public"
     or die "Can't open $l/$d/GLOBAL/files/.public: $!";
   print DF "Public Files\nd\n\n\n\n\n";
   close DF;
-  dot;
+  dot();
   chownmod(scalar getpwnam($config->{'uid'}), scalar getgrnam($config->{'gid'}),
            (0777 & ~oct($config->{'umask'})), "$l/$d/GLOBAL/files/.public");
-  dot;
+  dot();
 }
 
 # Write out a file containing defaults for all of the various config
@@ -190,7 +192,7 @@ sub do_default_config {
 # Dump out the initial site config
 use Digest::SHA1 qw(sha1_base64);
 sub do_site_config {
-  my($data, $mtaopts);
+  my($data, $mtaopts, $pw);
 
   # Prompt for the site password if necessary
   $pw = $config->{'site_password'};
@@ -227,16 +229,16 @@ sub do_site_config {
   # Open the site config file
   open SITE, ">$config->{'lists_dir'}/SITE/config.pl"
     or die "Couldn't open site config file $config->{'lists_dir'}/SITE/config.pl: $!";
-  dot;
+  dot();
 
   # Print out the data hash
   print SITE Dumper($data)
     or die "Couldn't populate site config file $config->{'lists_dir'}/SITE/config.pl: $!";
-  dot;
+  dot();
 
   # Close the file
   close SITE;
-  dot;
+  dot();
 
   # Change ownership and permissions
   chownmod(scalar getpwnam($config->{'uid'}),	scalar getgrnam($config->{'gid'}),
@@ -286,7 +288,7 @@ sub install_config_templates {
 
 # Copy all of the stock response files into their site-wide directory
 sub install_response_files {
-  my ($gid, $uid);
+  my ($gid, $uid, $um);
 
   print "Installing stock response files:" unless $quiet;
 
@@ -295,7 +297,9 @@ sub install_response_files {
   $uid = getpwnam($config->{'uid'});
   $gid = getgrnam($config->{'gid'});
   $um  = oct($config->{'umask'});
-  rchown($uid, $gid, 0666 & ~$um, 0777 & ~$um, "$config->{'lists_dir'}/SITE/files");
+  rchown($uid, $gid, 0666 & ~$um, 0777 & ~$um, 
+         "$config->{'lists_dir'}/SITE/files");
+
   print "ok.\n" unless $quiet;
 }
 
@@ -315,6 +319,8 @@ sub make_alias_symlinks {
 sub set_script_perms {
   my $sidscripts = shift;
   my $scripts    = shift;
+  my ($dir, $gid, $id, $uid);
+
   print "Setting permissions:" unless $quiet;
   $id = $config->{'install_dir'};
   if ($config->{wrappers}) {
@@ -329,18 +335,20 @@ sub set_script_perms {
 
   # Properly set ownerships on everything.
   chownmod($uid, $gid, "", @$sidscripts, @$scripts);
-  dot;
+  dot();
   chownmod($uid, $gid, "", $id);
-  dot;
+  dot();
 
   # Change permissions on the top-level installation directory, but make
   # sure that anyone can look in it to run programs.
-  die "Can't change permission, directory does not exist!\n  $id\n  $id/bin\n  $id/man\n  $id/lib"
-    if(!(-d "$id") || !(-d "$id/bin") || !(-d "$id/man") || !(-d "$id/lib"));
+  for $dir ($id, "$id/bin", "$id/lib", "$id/man") {
+    die "set_script_perms: Unable to locate directory at\n  $dir\n"
+      unless (-d $dir);
+  }
   chownmod("", "", (0777 & ~oct($config->{'umask'})) | 0555, $id);
-  dot;
+  dot();
   rchown($uid, $gid, 0644, 0755, "$id/bin", "$id/man", "$id/lib");
-  dot;
+  dot();
 
   # Make executables setuid; the scripts must be readable while the the
   # wrappers need only be executable.
@@ -350,9 +358,9 @@ sub set_script_perms {
   else {
     chownmod("", "", 06555, @$sidscripts);
   }
-  dot;
+  dot();
   chownmod("", "", 0555, @$scripts);
-  dot;
+  dot();
   print "ok\n" unless $quiet;
 }
 

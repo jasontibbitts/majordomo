@@ -1,5 +1,6 @@
 sub ask_exim {
-  $config = shift;
+  my $config = shift;
+  my ($def, $msg);
 
     #---- Ask if aliases should be maintained
   $msg = <<EOM;

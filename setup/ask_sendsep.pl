@@ -1,9 +1,9 @@
 sub ask_sendsep {
-  $config = shift;
-  $def = shift;
+  my $config = shift;
+  my $def = shift;
 
   #---- Ask for the "mailbox separator"
-  $msg = <<EOM;
+  my $msg = <<EOM;
 What does your MTA use as the mailbox separator?
  Majordomo needs to know how it can add additional uninterpreted data to
   the local part of an address.  This is generally a configuration option

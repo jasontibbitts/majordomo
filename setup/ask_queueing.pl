@@ -1,5 +1,6 @@
 sub ask_queueing {
   my($config) = @_;
+  my($def, $msg);
 
   $msg = <<EOM;
 Mail Handling Setup

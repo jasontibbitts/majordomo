@@ -1,8 +1,10 @@
 # This file contains routines used by the postinstall script to do basic
 # file copying and ownership manipulation.
 
-# this variable is used ONLY in chownmod, but needs to persist across calls
-my $whatnext = "ask";
+# the whatnext variable is used in chownmod, 
+#  and needs to persist across calls.
+use vars (qw($quiet $whatnext));
+$whatnext = "ask";
 
 # Copies or links a file from one directory to another, preserving
 # ownership and permissions.
@@ -38,6 +40,8 @@ sub chownmod {
   my $gid = shift; # if missing, or non-numeric, don't call chown
   my $mod = shift; # if missing, or non-numeric, don't call chmod
   my @fil = @_;
+
+  my ($cntmod, $cntown);
   $cntown = $cntmod = 1;
   $cntown = chown($uid, $gid, @fil) if(defined($uid) && defined($gid) && ($uid =~ /[0-9]/) && ($uid !~ /[^0-9]/) && ($gid =~ /[0-9]/) && ($gid !~ /[^0-9]/));
   $cntmod = chmod($mod, @fil)       if(defined($mod) && ($mod =~ /[0-9]/) && ($mod !~ /[^0-9]/));
@@ -93,7 +97,7 @@ sub rcopy {
   my $src = shift;
   my $dst = shift;
   my $dot = shift;
-  my ($i);
+  my ($dh, $i);
 
   $src =~ s!/$!!; # Strip trailing slash
   $dst =~ s!/$!!; # Strip trailing slash

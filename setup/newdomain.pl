@@ -15,14 +15,14 @@ require "setup/install_util.pl";
 require "setup/setup_func.pl";
 my (@domains, $newdomain);
 
-$config = eval { require ".mj_config" };
+my ($config) = eval { require ".mj_config" };
 die "Can't add a domain unless Makefile.PL has been run!"
   unless $config;
 
 $| = 1;
 
 
-  $msg88 = <<EOM;
+my ($msg88) = <<EOM;
 Add a Domain
 
   Enter a single domain name.  The name may only include letters

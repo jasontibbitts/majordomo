@@ -1,5 +1,9 @@
+use Config;
+use vars (qw($nosep $sepclear));
+
 sub ask_basic {
-  $config = shift;
+  my $config = shift;
+  my (%have, $db, $def, $i, $msg, $tmpgid, $tmpnam, $tmppwd, $tmpuid);
 
   #---- Ask about clearing screen
   $nosep = 1; $sepclear = 0;
@@ -7,9 +11,9 @@ sub ask_basic {
 
 Clear the screen before each question?
 EOM
-  $def = defined($config->{'sepclear'}) ? $config->{sepclear} : 0;
-  $config->{sepclear} = get_bool($msg, $def);
-  $sepclear = $config->{sepclear}; $nosep = 0;
+  $def = defined($config->{'sepclear'}) ? $config->{'sepclear'} : 0;
+  $config->{'sepclear'} = get_bool($msg, $def);
+  $sepclear = $config->{'sepclear'}; $nosep = 0;
 
   #---- Ask for startperl
   $msg = <<EOM;
@@ -454,7 +458,8 @@ Which domains will this Majordomo installation support?
   Enter a single domain at a time, or a blank line to end.  Enter a space
     to cancel a default value.
 EOM
-  $def = $config->{'domains'} || [$Net::Config::NetConfig{'inet_domain'}] || undef;
+  $def = $config->{'domains'} || 
+         [$Net::Config::NetConfig{'inet_domain'}] || undef;
   $config->{'domains'} = get_list($msg, $def);
 
   require "setup/ask_domain.pl";
