@@ -321,6 +321,7 @@ sub configshow {
 
   if ($request->{'mode'} !~ /categories/) {
     $subs = {};
+    $gsubs->{'COMMENT'} = ($request->{'mode'} !~ /nocomments/) ? '#' : '';
     $tmp = $mj->format_get_string($type, 'configshow_head');
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
@@ -1563,7 +1564,7 @@ sub who {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my (%stats, @lines, @out, @stuff, @time, $chunksize, $count, 
       $error, $fh, $flag, $foot, $fullclass, $gsubs, $head, $i, 
-      $j, $line, $list, $mess, $numbered, $ok, $regexp, $ret, 
+      $j, $line, $mess, $numbered, $ok, $regexp, $ret, 
       $settings, $source, $subs, $tmp);
 
   $request->{'sublist'} ||= 'MAIN';
@@ -1618,16 +1619,19 @@ sub who {
   $gsubs->{'CLASSES'}            = [];
   $gsubs->{'SETTINGS'}           = [];
   $gsubs->{'SETTING_CHECKED'}    = [];
+  $gsubs->{'SETTING_SELECTED'}    = [];
 
   for ($j = 0; $j < @{$settings->{'flags'}}; $j++) {
     push @{$gsubs->{'SETTINGS'}}, $settings->{'flags'}[$j]->{'name'};
     if ($settings->{'flags'}[$j]->{'default'}) {
       $str = 'checked';
+      $line = 'selected';
     }
     else {
-      $str = '';
+      $str = $line = '';
     }
     push @{$gsubs->{'SETTING_CHECKED'}}, $str;
+    push @{$gsubs->{'SETTING_SELECTED'}}, $line;
   }
   
   for ($j = 0; $j < @{$settings->{'classes'}}; $j++) {
@@ -1698,11 +1702,11 @@ sub who {
       elsif ($request->{'mode'} =~ /export/ && $i->{'classdesc'} 
              && $i->{'flagdesc'}) 
       {
-	$line = "subscribe-nowelcome $list $i->{'fulladdr'}\n";
+	$line = "subscribe-nowelcome $source $i->{'fulladdr'}\n";
 	if ($i->{'origclassdesc'}) {
-	  $line .= "set $list $i->{'origclassdesc'} $i->{'stripaddr'}\n";
+	  $line .= "set $source $i->{'origclassdesc'} $i->{'stripaddr'}\n";
 	}
-	$line .= "set $list $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
+	$line .= "set $source $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
         eprint($out, $type, "$line\n");
         next;
       }
@@ -1740,11 +1744,13 @@ sub who {
         }
 
         # Special substitutions for WWW interfaces.
-        $subs->{'CHECKBOX'}           = [];
-        $subs->{'CLASS_DESCRIPTIONS'} = [];
         $subs->{'CLASSES'}            = [];
-        $subs->{'SELECTED'}           = [];
+        $subs->{'CLASS_DESCRIPTIONS'} = [];
+        $subs->{'CLASS_SELECTED'}     = [];
         $subs->{'SETTINGS'}           = [];
+        $subs->{'SETTING_CHECKBOX'}    = [];
+        $subs->{'SETTING_CHECKED'}    = [];
+        $subs->{'SETTING_SELECTED'}   = [];
 
         for ($j = 0; $j < @{$settings->{'flags'}}; $j++) {
           $flag = $settings->{'flags'}[$j]->{'name'};
@@ -1752,14 +1758,17 @@ sub who {
           # Is this setting set?
           $str = $settings->{'flags'}[$j]->{'abbrev'};
           if ($i->{'flags'} =~ /$str/) {
-            $str = 'checked';
+            push @{$subs->{'SETTING_CHECKBOX'}}, 
+              qq(<input type=checkbox name="$i->{'stripaddr'}" value="$flag" checked>);
+            push @{$subs->{'SETTING_CHECKED'}}, 'checked';
+            push @{$subs->{'SETTING_SELECTED'}}, 'selected';
           }
           else {
-            $str = '';
+            push @{$subs->{'SETTING_CHECKBOX'}}, 
+              qq(<input type=checkbox name="$i->{'stripaddr'}" value="$flag">);
+            push @{$subs->{'SETTING_CHECKED'}}, '';
+            push @{$subs->{'SETTING_SELECTED'}}, '';
           }
-
-          push @{$subs->{'CHECKBOX'}}, 
-              "<input name=\"$i->{'stripaddr'};$flag\" type=\"checkbox\" $str>";
         }
         for ($j = 0; $j < @{$settings->{'classes'}}; $j++) {
           last if ($request->{'list'} eq 'GLOBAL' and 
@@ -1776,7 +1785,7 @@ sub who {
 
           if ($settings->{'classes'}[$j]->{'allow'} or $type eq 'wwwadm') {
             push @{$subs->{'CLASSES'}}, $flag;
-            push @{$subs->{'SELECTED'}}, $str;
+            push @{$subs->{'CLASS_SELECTED'}}, $str;
             push @{$subs->{'CLASS_DESCRIPTIONS'}}, 
                  $settings->{'classes'}[$j]->{'desc'};
           }
