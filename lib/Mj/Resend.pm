@@ -981,7 +981,7 @@ sub _check_poster {
   my $reasons = shift;
   my $avars   = shift;
   my $log     = new Log::In 40, "$user";
-  my ($i, $mess, $ok, $rules);
+  my ($i, $mess, $ok, $pstats, $rules);
 
   # Grab the list data
   my $data = $self->{'lists'}{$list}->is_subscriber($user);
@@ -1031,99 +1031,108 @@ sub _check_poster {
   # rule whose pattern matches the address.
   for ($i = 0 ; $i <= $#$rules ; $i++) {
     if (re_match($rules->[$i]->{'pattern'}, $user->canon)) {
-      ($ok, $mess) = $self->_within_limits($list, $data, $rules->[$i]->{'soft'},
-                                          $rules->[$i]->{'hard'});
+      ($ok, $mess) = 
+        $self->_within_limits($list, $data, 
+                              $rules->[$i]->{'soft'},
+                              $rules->[$i]->{'hard'}, 
+                              $rules->[$i]->{'lower'});
       if ($ok) {
         $avars->{limit} = 1;
-        $avars->{limit_soft} = 1;
-        $avars->{limit_hard} = 1 if ($ok > 0);
-        push @$reasons, $mess if $mess;
+        $avars->{limit_soft}  = 1 if ($ok & 1);
+        $avars->{limit_hard}  = 1 if ($ok & 2);
+        $avars->{limit_lower} = 1 if ($ok & 4);
+        push (@$reasons, @$mess) if (ref $mess eq 'ARRAY');
       }
       last;
     }
   }
 }
 
-=head2 _within_limits(list, data, soft, hard)
+=head2 _within_limits(list, data, soft, hard, lower)
 
 Using the posted message data for an address, determine if
-it falls within the hard or soft limits from the post_limits
-variable.  Returns 1 for a hard limit, -1 for a soft limit,
-and 0 for no limit.
+it falls within the hard, soft, and lower limits from the post_limits
+configuration setting.  Returns 1 for a hard limit, 2 for a soft limit,
+4 for a lower limit, and and 0 for no limit.
 
 =cut
-use Mj::Util 'time_to_str';
+use Mj::Util qw(str_to_offset);
 sub _within_limits {
-  my ($self, $list, $data, $soft, $hard) = @_;
-  my ($cond, $count, $msg, $seqno, $time);
-  return unless (ref $soft eq 'ARRAY' and ref $hard eq 'ARRAY');
+  my ($self, $list, $data, $soft, $hard, $lower) = @_;
+  my ($cond, $count, $i, $msg, $out, $seqno, $reasons, $time, $var);
+  return unless (ref $soft eq 'ARRAY' and ref $hard eq 'ARRAY'
+                 and ref $lower eq 'ARRAY');
+  my $log = new Log::In 350;
 
+  $reasons = [];
+  $out = 0;
   $seqno = $self->_list_config_get($list, 'sequence_number');
-  for $cond (@$hard) {
-    if ($cond->[0] eq 't') {
-      # time-dependent
-      $time = time - $cond->[2];
-      $count = 0;
-      for $msg (keys %$data) {
-        if ($data->{$msg} > $time) {
-          $count++;
-          return (1, sprintf "More than %d messages posted in %s",
-                  $cond->[1], time_to_str($cond->[2], 1))
-                  if ($count >= $cond->[1]);
+
+  $i = 1;
+  for $var (($soft, $hard, $lower)) {
+    for $cond (@$var) {
+      if ($cond->[0] eq 't') {
+        # time-dependent
+        $time = time - &str_to_offset($cond->[2], 0, 0);
+        $count = 0;
+        for $msg (keys %$data) {
+          if ($data->{$msg} > $time) {
+            $count++;
+          }
+        }
+        if ($i < 4) {
+          if ($count >= $cond->[1]) {
+            push (@$reasons, 
+                  sprintf ("More than %d messages posted in the last %s",
+                  $cond->[1], &str_to_offset($cond->[2], 0, 1)));
+            $out |= $i;
+          }
+        }
+        else {
+          if ($count < $cond->[1]) {
+            push (@$reasons, 
+                  sprintf ("Fewer than %d messages posted in the last %s",
+                  $cond->[1], &str_to_offset($cond->[2], 0, 1)));
+            $out |= $i;
+          }
         }
       }
-    }
-    elsif ($cond->[0] eq 'p') {
-      # count-dependent
-      $time = $seqno - $cond->[2] + 1;
-      $time = 1 if ($time < 1);
-      $count = 0;
-      for $msg (keys %$data) {
-        if ($msg > $time and $msg <= $seqno) {
-          $count++;
-          return (1, "More than $cond->[1] messages posted out of the last $cond->[2]")
-            if ($count >= $cond->[1]);
+      elsif ($cond->[0] eq 'p') {
+        # count-dependent
+        $time = $seqno - $cond->[2] + 1;
+        $time = 1 if ($time < 1);
+        $count = 0;
+        for $msg (keys %$data) {
+          if ($msg > $time and $msg <= $seqno) {
+            $count++;
+          }
+        }
+        if ($i < 4) {
+          if ($count >= $cond->[1]) {
+            push (@$reasons, 
+                  sprintf ("More than %d messages posted out of the last %d",
+                           $cond->[1], $cond->[2]));
+            $out |= $i;
+          }
+        }
+        else {
+          if ($count < $cond->[1]) {
+            push (@$reasons, 
+                  sprintf ("Fewer than %d messages posted out of the last %d",
+                           $cond->[1], $cond->[2]));
+            $out |= $i;
+          }
         }
       }
+      else {
+        # XXX Error
+        return;
+      }
     }
-    else {
-      # XXX Error
-      return;
-    }
+    $i *= 2;
   }
-  for $cond (@$soft) {
-    if ($cond->[0] eq 't') {
-      # time-dependent
-      $time = time - $cond->[2];
-      $count = 0;
-      for $msg (keys %$data) {
-        if ($data->{$msg} > $time) {
-          $count++;
-          return (-1, sprintf "More than %d messages posted in %s",
-                  $cond->[1], time_to_str($cond->[2], 1))
-                  if ($count >= $cond->[1]);
-        }
-      }
-    }
-    elsif ($cond->[0] eq 'p') {
-      # count-dependent
-      $time = $seqno - $cond->[2] + 1;
-      $time = 1 if ($time < 1);
-      $count = 0;
-      for $msg (keys %$data) {
-        if ($msg > $time and $msg <= $seqno) {
-          $count++;
-          return (-1, "More than $cond->[1] messages posted out of the last $cond->[2]")
-            if ($count >= $cond->[1]);
-        }
-      }
-    }
-    else {
-      # XXX Error
-      return;
-    }
-  }
-  return 0;
+    
+  return ($out, $reasons);
 }
 
 =head2 _check_header(list, head)
