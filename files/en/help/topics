@@ -24,100 +24,100 @@ the Majordomo software, try sending one of these lines to $MJ
    help commands
    help admin_commands
 to get an idea of which commands you want to use without browsing the
-LONG list of commands below. There is a one-line description of what
+list of commands below. There is a one-line description of what
 each command does, plus some introductory text, in each file.
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+These help files are introductory documents:
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-Below is a complete list of all available help topics:
-
-   help accept
-   help access
    help admin
    help admin_commands
+   help commands
+   help help
+   help mj_shell
+   help overview
+   help topics
+
+These help files discuss complicated topics in detail:
+
+   help access
    help admin_passwords
+   help auxiliary_list
+   help configset_access_rules_variables
+   help delay
+   help patterns
+   help times
+   help variables
+
+These help files describe Majordomo commands:
+
+   help accept
    help advertise
    help alias
-   help aliasadd
-   help aliasremove
    help announce
    help approve
    help archive
-   help auxiliary_list
-   help cancel
    help changeaddr
-   help commands
-   help config
    help configdef
-   help configdefault
-   help configedit
    help configset
    help configshow
    help createlist
    help default
-   help delay
    help digest
    help end
-   help exit
    help faq
    help get
-   help help
    help index
    help info
    help intro
    help lists
-   help man
-   help mj_shell
-   help mkdigest
-   help newconfig
-   help newfaq
-   help newinfo
-   help newintro
-   help overview
    help owner
    help password
-   help patterns
    help post
    help put
-   help quit
    help register
    help reject
    help rekey
-   help remove
    help report
    help request_response
    help sessioninfo
    help set
    help show
    help showtokens
-   help signoff
-   help stop
-   help sub
    help subscribe
-   help times
    help tokeninfo
-   help topics
    help trigger
    help unalias
-   help unknowntopic
    help unregister
-   help unsub
    help unsubscribe
-   help variables
    help which
    help who
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+These help files describe commands that are aliases for other commands:
 
-Further Details are Available for the "configset" Command:
+   help aliasadd
+   help aliasremove
+   help cancel
+   help config
+   help configdefault
+   help configedit
+   help exit
+   help man
+   help mkdigest
+   help newconfig
+   help newfaq
+   help newinfo
+   help newintro
+   help quit
+   help remove
+   help signoff
+   help stop
+   help sub
+   help unsub
+
+These help files describe configuration settings:
 
    help configset_access_password_override
    help configset_access_rules
-   help configset_access_rules_variables
    help configset_ack_attach_original
    help configset_addr_allow_at_in_phrase
    help configset_addr_allow_bang_paths
@@ -152,7 +152,6 @@ Further Details are Available for the "configset" Command:
    help configset_chunksize
    help configset_comments
    help configset_confirm_url
-   help configset_database_backend
    help configset_debug
    help configset_default_class
    help configset_default_flags
