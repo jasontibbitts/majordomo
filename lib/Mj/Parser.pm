@@ -177,8 +177,7 @@ sub parse_part {
 
   $count = $ok_count = $pend_count = $fail_count = $unk_count = $garbage = 0;
   $user = $args{'reply_to'};
-  $sigsep = $mj->global_config_get(undef, undef, undef, $interface,
-                                   'signature_separator');
+  $sigsep = $mj->global_config_get(undef, undef, 'signature_separator');
 
  CMDLINE:
   while (defined($_ = $inhandle->getline)) {
