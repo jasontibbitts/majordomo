@@ -1,3 +1,53 @@
+2000-10-22  Michael Yount <csf@moscow.com>
+
+	* CREDITS, README:  Suggest mj2-dev instead of majordomo-workers.
+
+	* bin/mj_trigger:  Separate lock expiration from the other triggers.
+
+	* lib/Majordomo.pm:  (connect)  Do not validate addresses
+	for requests from the resend and owner interfaces.
+	(dispatch) Simplify processing requests with multiple victims.
+	(substitute_vars_string) Allow formatting widths.  For example,
+	  $OWNER:48  would pad the list owner address out to 48 characters
+	and right-justify it.
+	(list_config_get, list_config_set, list_config_set_to_default)
+	Support the storage of configuration templates on a per-list
+	basis.  All variables in a configuration template are visible
+	without the use of a password.
+	(list_config_set)  Support "append" mode, which combines arrays
+	of configuration settings.
+	(list_set_config)  Change the configuration file ('MAIN' by default)
+	which is used by a mailing list.  This allows configuration
+	templates to be accessed without changing the call arguments.
+	(lists) Use "full" mode to display supplemental data such
+	as digest names, subscriber count, and list addresses.
+	Add "config" mode to list configuration templates.  The
+	descriptions for templates are taken from the comments setting.
+	(report) Add "succeed," "stall," and "fail" modes to 
+	differentiate log entries according to the result.
+
+	* lib/Mj/Access.pm:  (list_access_check) Make the name of
+	the interface available to the access rules.
+
+	* lib/Mj/Config.pm:  (is_array) Differentiate arrays that
+	require blank lines between blocks from those that do not.
+	(parse_table)  Treat lines beginning with (optional white
+	space and) "#" as comments, and discard them during parsing.
+	(load)  Do not automatically create a configuration file
+	for a template.
+
+	* lib/Mj/Format.pm:  (report)  Display dates on a separate 
+	line to conserve space.
+
+	* lib/Mj/List.pm:  (_fill_config, _make_config, valid_config,
+	set_config)  New routines to find, load, and validate 
+	configuration templates.
+
+	* lib/Mj/Resend.pm:  (post) Set the "invalid_from" access
+	variable if the address in the From: header is invalid.
+
+	* setup/setup_func.pl:  Include a crontab entry for lock expiration.
+
 2000-10-20  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/BounceParser.pm (parse_exim): Put a space between the

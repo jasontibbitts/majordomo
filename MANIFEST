@@ -240,13 +240,7 @@ files/en/help/aliasremove
 files/en/help/announce
 files/en/help/approve
 files/en/help/archive
-files/en/help/auxadd
-files/en/help/auxdel
-files/en/help/auxremove
-files/en/help/auxshow
-files/en/help/auxsubscribe
-files/en/help/auxunsubscribe
-files/en/help/auxwho
+files/en/help/auxiliary_list
 files/en/help/cancel
 files/en/help/changeaddr
 files/en/help/commands
@@ -377,6 +371,7 @@ files/en/help/configset_whoami_owner
 files/en/help/configshow
 files/en/help/createlist
 files/en/help/default
+files/en/help/delay
 files/en/help/digest
 files/en/help/end
 files/en/help/exit
@@ -555,6 +550,7 @@ setup/query_util.pl
 setup/setup_func.pl
 t/README
 t/addr.t
+t/bounce.t
 t/checksubs
 t/core.t
 t/db-dbmbtree.t
