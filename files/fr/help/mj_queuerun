@@ -9,15 +9,15 @@ DESCRIPTION
     plus d'un messages, les messages seront traités dans le désordre.
 
     Un compteur est gardé pour chaque message dans chaque répertoire.
-    Si un probleme technique a fait échouer un programme de
+    Si un problème technique a fait échouer un programme de
     queue, un message peut être examiné plus d'une fois. Si un message
     ne peut pas être traité au bout de trois fois, un message
-    d'urgenec sera gardé pour la quatrième fois. Si le messate ne peut
+    d'urgence sera gardé pour la quatrième fois. Si le message ne peut
     être traité la quatrième fois, il sera supprimé.
 
-    Apres que tous les messages ont été traités, le programme attendra
+    Après que tous les messages ont été traités, le programme attendra
     qu'un nouveau message lui soit attribué par le serveur de queue,
-    mj_queueserv. Si un message est recu, il examinera de nouveau tous
+    mj_queueserv. Si un message est reçu, il examinera de nouveau tous
     les répertoires. Sinon, il attendra un peu et quittera.
 
 Référez vous aussi à :

@@ -10,7 +10,7 @@ Mot de passe      : Visible avec un mot de passe.
 EXEMPLE :
 configset liste subject_re_strip = yes
 
-Fonctionne en parallelle avec "subject_re_pattern", pour supprimer les
+Fonctionne en parallèle avec "subject_re_pattern", pour supprimer les
 indicateurs de réponses accumulés.
 
 Certains logiciels de courrier utilisent des chaînes autres que "Re:"

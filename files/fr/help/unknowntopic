@@ -5,8 +5,8 @@ ERREUR - Le document que vous demandez n'existe pas.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 Vous recevez ce message car vous avez demandé un document d'aide qui
-n'existe pas. Vérifiez la facon dont vous l'avez ortographié et
-réésayez !
+n'existe pas. Vérifiez la façon dont vous l'avez orthographié et
+réessayez !
 
 La commande "help" renvoie un document d'aide depuis le serveur, si de
 l'aide est disponible sur le sujet en question. Si le sujet demandé
@@ -17,7 +17,7 @@ suivante :
    help topics
 dans le corps d'un message à $MJ.
 
-Pour avoir une introduction au systeme d'aide, envoyez la commande
+Pour avoir une introduction au système d'aide, envoyez la commande
 suivante :
    help help
 dans le corps d'un message à $MJ.
