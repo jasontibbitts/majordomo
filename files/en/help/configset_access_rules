@@ -105,8 +105,8 @@ First line - request
   This determines the request(s) that this rule applies to
 
 Second line - action
-  Comma separated list of allow, confirm, consult, confirm_consult, deny,
-  forward, reply, replyfile, mailfile.
+  Comma separated list of allow, confirm, confirm2, consult, confirm_consult,
+  deny, forward, reply, replyfile, mailfile.
 
   This determines the actions to be taken if the rule matches.
 
@@ -118,8 +118,23 @@ Second line - action
     useless.
 
   confirm=file - a confirmation token is sent to the user who will be affected
-    by the request.  If given an argument, the given file will be used as
-    the confirmation message.  If not, the file "confirm" is used.
+    by the request.  If given an argument (confirm=file), the given file will
+    be used as the confirmation message.  If not, the file "confirm" is used.
+
+  confirm2=file - a confirmation token is sent to BOTH users who will be
+    affected by the request. This is the default access action only for
+    changeaddr, but may also be used for other commands.
+      * If requester and victim are the same, confirm with the victim.
+      * If requester and victim are different, but the victim's password
+        was supplied, confirm with the requester.  The roles are swapped,
+        so the confirmation message will say that the request was
+        originated by the victim.
+      * Otherwise, confirm with both, using a chained token, much
+        like confirm_consult.  The victim receives the confirmation
+        token before the requester.  If the victim accepts the token, the 
+        roles are swapped when the token is sent to the requester.
+    If given an argument (confirm=file), the given file will be used as the
+    confirmation message.  If not, the file "confirm2" is used.
 
   consult=file,M,group,N - a token is sent to a moderator/group of
     moderators/randomly chosen subset of a group of moderators.  The
