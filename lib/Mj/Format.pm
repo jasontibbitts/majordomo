@@ -479,7 +479,7 @@ sub set {
   else {
     eprint($out, $type, "Settings for $vict not changed.\n");
   }
-  eprint($out, $type, &indicate($mess, $ok, 1));
+  eprint($out, $type, &indicate("$mess\n", $ok, 1));
   1;
 }
 

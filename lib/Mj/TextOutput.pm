@@ -833,7 +833,10 @@ sub set {
     $addr = $2;
   }
 
-  @addresses = $addr || @arglist || $user;
+  @addresses = @arglist;
+  push (@addresses, $addr) if $addr;
+  @addresses = ($user) unless (@addresses);
+
   @stuff = ($user, $passwd, $auth, $interface,
 	    "set".($mode?"=$mode":"")." $list $args", $mode, $list);
 
