@@ -14,6 +14,7 @@
       <option> digest-force
       <option> digest-status
       <option> report
+      <option> report-full
       <option> report-summary
       <option> accept
       <option> configdef
@@ -33,7 +34,7 @@
       <option> unregister
       <option> which
       <option> who
-      <option> who-bounces
+      <option> who-bounce
     </select>
   <td colspan=2>
     <input size=36 name=extra value="">
