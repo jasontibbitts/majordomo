@@ -271,7 +271,7 @@ sub ask_basic {
   $msg = retr_msg('virtual_domains', $lang);
   $def = $config->{'domains'} || 
          [$Net::Config::NetConfig{'inet_domain'}] || undef;
-  $config->{'domains'} = get_list($msg, $def);
+  $config->{'domains'} = get_list($msg, $def, 1);
 
   require "setup/ask_domain.pl";
   for $i (@{$config->{'domains'}}) {
