@@ -380,6 +380,7 @@ elsif ($commands{$func}->[3] eq 'showtokens') {
   Mj::Parser::parse_args($request, $extra[0], '')
     if ($func eq 'showtokens' and $extra[0]);
   $i = 0;
+  $request->{'command'} = 'showtokens';
   my (%seen);
   for $list (@lists, @mlists) {
     next if (exists $seen{$list});
@@ -398,9 +399,6 @@ elsif ($commands{$func}->[3] eq 'showtokens') {
   $tmp = $mj->format_get_string('wwwadm', 'showtokens_foot');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
-
-  $func = $request->{'command'} = 'showtokens';
-  $request->{'list'} = $lists[0];
 }
 elsif ($commands{$func}->[3] ne $func) {
   if ($commands{$func}->[3] eq 'configshow') {
