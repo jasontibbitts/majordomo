@@ -861,13 +861,15 @@ sub t_reject {
           'TOKEN' => $token))
     unless $data;
 
+  $self->_del_spooled_files($data);
+
   # If we are removing an alias token, find the real
   # token and eliminate it, too.
   if ($data->{'type'} eq 'alias') {
     $token = $data->{'chain1'};
     return $self->t_reject($token);
   }
-  
+
   return (1, $data);
 }
 
@@ -1093,9 +1095,7 @@ sub t_expire {
   @kill = @nuked;
   while (($key, $data) = splice(@nuked, 0, 2)) {
     $time = $::log->elapsed;
-    if ($data->{'command'} eq 'post') {
-      unlink "$self->{ldir}/GLOBAL/spool/$data->{arg1}";
-    }
+    $self->_del_spooled_files($data);
     $self->inform($data->{'list'}, 'expire',
                   qq("Automatic Token Expiration" <$self->{'sessionuser'}>),
                   $data->{'user'}, "reject $key",
@@ -1228,6 +1228,21 @@ sub del_latchkey {
   return unless defined $self->{'latchkeydb'};
 
   $self->{'latchkeydb'}->remove("", $lkey);
+}
+
+=head2 _del_spooled_files
+
+Deletes any files spooled with a token.
+
+=cut
+sub _del_spooled_files {
+  my $self = shift;
+  my $data = shift;
+  my ($bn, $path);
+
+  if ($data->{'command'} eq 'post') {
+    unlink $data->{'arg1'};
+  }
 }
 
 
