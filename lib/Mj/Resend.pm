@@ -1478,6 +1478,19 @@ sub _r_ck_body {
   my $log  = new Log::In 150, "$part";
   my (@parts, $body, $data, $i, $line, $spart, $sum1, $sum2, $text);
 
+  # Initialize access variables
+  if ($first) {
+    $avars->{quoted_lines} ||= 0;
+    $avars->{lines} ||= 0;
+    $avars->{body_length} ||= 0;
+    $avars->{nonempty_lines} ||= 0;
+    $avars->{percent_quoted} ||= 0;
+    $avars->{checksum} ||= 0;
+    $avars->{partial_checksum} ||= 0;
+    $avars->{dup_checksum} ||= 0;
+    $avars->{dup_partial_checksum} ||= 0;
+  }
+
   # If we have parts, we don't have any text so we process the parts and
   # exit.  Note that we try to preserve the $first setting down the chain
   # if appropriate.  We also construct an appropriate name for the part
@@ -1506,6 +1519,7 @@ sub _r_ck_body {
   $self->_check_mime($list, $reasons, $avars, $safe, $ent, $mcode, $part);
 
   # Now the meat.  Open the body.
+  return unless ($ent->bodyhandle);
   $body = $ent->bodyhandle->open('r');
   $line = 1;
 
@@ -1533,14 +1547,16 @@ sub _r_ck_body {
     $line++;
   }
 
-  # Do final calculations
-  $avars->{quoted_lines} ||= 0; $avars->{lines} ||= 1;
-  $avars->{percent_quoted} =
-    int(100*($avars->{quoted_lines} / $avars->{lines}));
+  if ($avars->{'lines'}) {
+    $avars->{percent_quoted} =
+      int(100*($avars->{quoted_lines} / $avars->{lines}));
+  }
+
   # Untaint
   $avars->{body_length} =~ /(\d+)/;
   $avars->{body_length} = $1;
 
+  # Calculate full and partial body checksums
   if ($first and $sum1 and $sum2) {
     $sum1 = $sum1->hexdigest;
     $avars->{checksum} = $sum1;
@@ -2147,7 +2163,7 @@ sub _add_fters {
   my $list = shift;
   my $subs = shift;
   my $log  = new Log::In 40;
-  my($foot, $footers, $foot_ent, $foot_freq, $front, $fronters,
+  my ($foot, $footers, $foot_ent, $foot_freq, $front, $fronters,
      $front_ent, $front_freq, $line, $nbody, $nfh, $obody, $ofh);
 
   # Extract fter arrays and frequencies from storage.
@@ -2208,6 +2224,7 @@ sub _add_fters {
   # prepare to copy the body
   $nbody = new MIME::Body::File $self->tempname;
   $obody = $ent->bodyhandle;
+  return 0 unless ($nbody and $obody); 
   $nfh   = $nbody->open('w');
   $ofh   = $obody->open('r');
 
