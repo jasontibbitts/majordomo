@@ -1,6 +1,6 @@
 use File::Copy 'copy';
 
-print "1..16\n";
+print "1..17\n";
 
 $| = 1;
 $counter = 1;
@@ -129,7 +129,12 @@ $e = qq!The personal password.*changed!;
 $r = run('-p gonzo -u enchanter@example.com password-quiet suspect');
 ok($e, $r);
 
-# 16. Unsubscribe the aliased address using the set password
+# 16. Change the delivery class to "unique" using the user password
+$e = qq!Settings for enchanter!;
+$r = run('-p suspect -u enchanter@example.com set bleeargh unique');
+ok($e, $r);
+
+# 17. Unsubscribe the aliased address using the set password
 $e = qq!\Qzork\@example.com was removed from bleeargh.\n!;
 $r = run('-p suspect unsubscribe bleeargh enchanter@example.com');
 ok($e, $r);

@@ -11,7 +11,7 @@ $counter = 1;
 $debug = 0;
 $tmpdir = "/tmp/mjtest.$$";
 
-print "1..30\n";
+print "1..31\n";
 
 print "Load the stashed configuration\n";
 eval('$config = require ".mj_config"');
@@ -253,6 +253,15 @@ $result = $mj->dispatch({user     => 'enchanter@example.com',
 			 command  => 'password',
 			 mode     => 'quiet',
 			 newpasswd=> 'suspect',
+			});
+ok(1, $result->[0]);
+
+print "Change the settings of the user using the user's password\n";
+$result = $mj->dispatch({user     => 'enchanter@example.com',
+			 password => 'suspect',
+			 command  => 'set',
+			 list     => 'bleeargh',
+                         setting  => 'unique',
 			});
 ok(1, $result->[0]);
 
