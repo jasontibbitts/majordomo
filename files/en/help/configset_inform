@@ -68,6 +68,11 @@ an actual listname, based on which "request" you want to observe. Some
 requests don't make sense for the GLOBAL list (like "post"), while
 others don't make sense for a real list (like "help").
 
+It is possible to use comments before, between, and after the individual
+rules, but not within rules.  Comments are lines that begin with a '#'.
+You can use comments as a reminder of what a setting does or why
+it was chosen, but comments have no impact on how the setting works.
+
 
 For a list of all help topics send this one-line message
    help topics

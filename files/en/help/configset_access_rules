@@ -59,6 +59,9 @@ to trap per-list commands, those rules will be silently ignored! This
 includes things like "subscribe", which must be the target of a rule in
 each list's configuration if you want to keep someone from subscribing.
 
+It is possible to use comments before, between, and after the individual
+rules, but not within rules.  Comments are lines that begin with a '#'.
+
 Table of contents for the information below:
   Introduction - this section.
   Section 1 - Working description of the access_rules config variable

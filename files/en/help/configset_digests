@@ -126,6 +126,9 @@ DEFTYPE: You can choose the type of digest for users who do not
 
 At the top of this help is an example which defines two digests.
 
+It is possible to use comments before, between, and after the individual
+digests, but not within digests.  Comments are lines that begin with a '#'.
+
 
 See Also:
    help digest   (for managing digests once enabled)

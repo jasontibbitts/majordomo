@@ -101,6 +101,9 @@ attachments, allowing only plain text, use this attachment_rule:
    /.*/       | deny
 but be sure to use "access_rules" to let the poster know what happened.
 
+It is possible to use comments before, between, and after the individual
+rules, but not within rules.  Comments are lines that begin with a '#'.
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ

@@ -61,6 +61,9 @@ the variables).
    in the archive and compute a "bounce delay time", but that doesn't
    qualify as "simple".
 
+It is possible to use comments before, between, and after the individual
+rules, but not within rules.  Comments are lines that begin with a '#'.
+
 
 See Also:
    help configset access_rules (for basic syntax, needs to be copied here)

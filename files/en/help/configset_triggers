@@ -59,6 +59,10 @@ The times field follows the standard Majordomo syntax (see "help times").
 "always" and "hourly" are identical:  the specified trigger is always run.  
 "never" skips the specified trigger.
 
+It is possible to use comments before, between, and after the individual
+triggers, Comments are lines that begin with a '#'.  You can use 
+comments as a reminder of what a trigger does or why it was chosen, 
+but comments have no impact on how the triggers work.
 
 See Also:
    help configset access_rules

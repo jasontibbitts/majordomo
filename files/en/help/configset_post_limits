@@ -75,6 +75,11 @@ The post data has a lifetime twice that of the dup_lifetime setting, at
 the moment, so make sure your conditions are no longer than twice the
 duplicate message database lifespan (see "help configset dup_lifetime").
 
+It is possible to use comments before, between, and after the individual
+rules, but not within rules.  Comments are lines that begin with a '#'.
+You can use comments as a reminder of what a setting does or why
+it was chosen, but comments have no impact on how the setting works.
+
 
 See Also:
    help patterns

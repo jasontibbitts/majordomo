@@ -148,6 +148,9 @@ numbatches=1
 hosts=(my.host.com)
 ENDC
 
+It is possible to use comments before, between, and after the individual
+rules, but not within rules.  Comments are lines that begin with a '#'.
+
 
 For a list of all help topics send this one-line message
    help topics
