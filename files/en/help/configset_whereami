@@ -32,7 +32,6 @@ substitutions are used.  See "help variables" for more details.
 See Also:
    help admin_domain
    help configset_bounce_recipients
-   help configset_moderator
    help configset_moderators
    help configset_owners
    help configset_reply_to
