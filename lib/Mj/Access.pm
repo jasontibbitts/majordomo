@@ -922,7 +922,7 @@ sub _a_delay {
 
   ($file, $arg) = split (/\s*,\s*/, $arg || "");
   if (defined($arg) and length($arg)) {
-    $delay = str_to_offset($arg);
+    $delay = str_to_offset($arg, 1, 0);
     if ($delay > 0) {
       $args->{'expire'} = $delay;
       # For the result message
@@ -1320,11 +1320,12 @@ sub _d_post {
      $tmp, $tmpl, $tmps);
   shift @_;
 
-  @consult_vars = qw(bad_approval body_length_exceeded dup_msg_id
-             dup_checksum dup_partial_checksum global_taboo_body
-             global_taboo_header limit_soft max_header_length_exceeded
-             mime_consult mime_header_length_exceeded post_block taboo_body
-             taboo_header total_header_length_exceeded);
+  @consult_vars = 
+    qw(bad_approval body_length_exceeded dup_msg_id dup_checksum 
+       dup_partial_checksum global_taboo_body global_taboo_header 
+       limit_lower limit_soft max_header_length_exceeded
+       mime_consult mime_header_length_exceeded post_block taboo_body
+       taboo_header total_header_length_exceeded);
 
   @deny_vars = qw(limit_hard mime_deny);
 
