@@ -58,7 +58,7 @@ sub new {
       $self->{list} .= ":".$self->{table};
       $self->{table} = 'subscribers';
     } else {
-      $log->complain("Unknown db : $self->{table}");
+      $log->out("Unknown db : $self->{table}");
       return;
     }
     $self->{filename} = "$self->{domain}, $self->{list}, $self->{file}";
@@ -198,8 +198,10 @@ sub _make_db {
   if (defined($schema->{$self->{table}})) {
     my @schema = (@{$schema->{default}},@{$schema->{$self->{table}}});
 
+    $log->out("found");
     return @schema;
   } else {
+    $log->out("not found");
     return;
   }
 }
@@ -235,6 +237,7 @@ sub put {
 		     ")", undef, $self->{domain}, $self->{list}, $key, 
 		    @args{@{$self->{fields}}});
 
+    $log->out(defined($r) ? 'inserted' : 'not inserted, but tried');
     return (defined($r) ? 0 : 1);
   } elsif ($exist and $flag == 0) {
     my $r = $db->do("UPDATE $self->{table} SET ".
@@ -242,8 +245,10 @@ sub put {
 		     " WHERE t_domain = ? AND t_list = ? AND t_key = ?", undef,
 		    @args{@{$self->{fields}}}, $self->{domain}, $self->{list}, $key);
 		  
+    $log->out(defined($r) ? 'updated' : 'not updated');
     return (defined($r) ? 0 : -1);
   }
+  $log->out('not inserted, not tried');
   return 1;
 }
 
@@ -293,6 +298,7 @@ sub add {
     $db->rollback();
   }
 
+  $log->out("done : $done");
   ($done, $data);
 }
 
@@ -332,10 +338,12 @@ sub remove {
       $status = $sth->execute($self->{domain}, $self->{list}, $key);
       $sth->finish();
       $db->commit();
+      $log->out('deleted it');
       return ($key, $data);
     }
     # if we did not, just rollback the transaction, as it was useless...
     $db->rollback();
+    $log->out('found nothing');
     return;
   }
 
@@ -375,6 +383,7 @@ sub remove {
   # if there were some row found, commit the transaction and return the old values
   if (@out) {
     $db->commit();
+    $log->out("found : " . scalar(@out) . ", deleted : ".scalar(@deletions));
     return @out;
   }
 
@@ -416,6 +425,7 @@ sub replace {
   if ($mode !~ /regex/) {
     $db->begin_work();
     $data = $self->_lookup($db, $key);
+    $log->out('found nothing');
     return unless $data;
     # Update the value, and the record.
     if (ref($field) eq 'HASH') {
@@ -429,6 +439,7 @@ sub replace {
     }
     $self->put($db, $key, $self->_stringify($data));
     $db->commit();
+    $log->out('replaced it');
     return ($key);
   }
 
@@ -474,6 +485,7 @@ sub replace {
 
   if (@out) {
     $db->commit();
+    $log->out("modified : " . scalar(@out));
     return @out;
   }
 
@@ -642,6 +654,7 @@ sub get_quick {
     last KEYS unless $key;
     push @keys, $key;
   }
+  $log->out("found " . scalar(@keys));
   return @keys;
 }
 
@@ -664,6 +677,7 @@ sub get {
     last KEYS unless $key;
     push @keys, ($key, $val);
   }
+  $log->out("found " . scalar(@keys) / 2);
   return @keys;
 }
 
@@ -709,6 +723,7 @@ sub get_matching_quick {
       }
     redo;
   }
+  $log->out("found " . scalar(@keys));
   return @keys;
 }
 
@@ -731,6 +746,7 @@ sub get_matching_quick_regexp {
     }
     redo;
   }
+  $log->out("found " . scalar(@keys));
   return @keys;
 }
 
@@ -761,6 +777,7 @@ sub get_matching {
       }
     redo;
   }
+  $log->out("found " . scalar(@keys) / 2);
   return @keys;
 }
 
@@ -783,6 +800,7 @@ sub get_matching_regexp {
     }
     redo;
   }
+  $log->out("found " . scalar(@keys) / 2);
   return @keys;
 }
 
@@ -794,7 +812,6 @@ db->get with unstringification of the result.
 =cut
 sub _lookup {
   my($self, $db, $key) = @_;
-  my $log   = new Log::In 201, "$self->{filename}, $key";
   my($status);
 
   my $sth = $db->prepare_cached("SELECT ".
@@ -824,6 +841,7 @@ returns only truth on success and not any of the data.
 sub lookup_quick {
   my $self = shift;
   my $key  = shift;
+  my $log   = new Log::In 201, "$self->{filename}, $key";
   unless ($key) {
     $::log->complain("SimpleDB::lookup_quick called with null key.");
   }
@@ -831,6 +849,7 @@ sub lookup_quick {
   return unless $db;
 
   my $value = $self->_lookup($db, $key);
+  ($value) ? $log->out("found") : $log->out('not found');
   return $value;
 }
 
@@ -838,6 +857,7 @@ use Mj::Util qw(re_match);
 sub lookup_quick_regexp {
   my $self = shift;
   my $reg  = shift;
+  my $log   = new Log::In 201, "$self->{filename}, $reg";
   my $db   = $self->_make_db;
   return unless $db;
 
@@ -854,9 +874,11 @@ sub lookup_quick_regexp {
       $key = delete $data->{t_key};
       $value = $data;
       if (re_match($reg, $key)) {
+	$log->out('found');
 	return ($key, $value);
       }
     }
+  $log->out('not found');
   return;
 }
 

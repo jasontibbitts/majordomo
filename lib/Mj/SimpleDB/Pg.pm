@@ -61,7 +61,11 @@ sub _make_db {
 			$self->{backend_opts}{user},
 		       	$self->{backend_opts}{pass},
 		       	{PrintError => 0, RaiseError => 0, AutoCommit => 0});
-    warn "Problem allocating database" unless $dbh;
+    unless ($dbh) {
+      warn "Problem allocating database";
+      $log->out('db creation failed');
+      return;
+    }
   }
 
   unless (defined($tables->{$self->{table}})) {
@@ -79,7 +83,10 @@ sub _make_db {
       my $ok = $dbh->do($query);
       my $error = $dbh->errstr;
       $dbh->commit();
-      warn "Unable to create table $self->{table} $error" unless (defined $ok);
+      unless (defined $ok) {
+	warn "Unable to create table $self->{table} $error";
+	$log->out("table not created");
+      }
     }
   }
 
@@ -93,7 +100,11 @@ Some field name may be PgSQL reserved words, so quote them
 =cut
 sub _escape_field {
     my $self = shift;
-    return map { "\"$_\""} @_;
+    if (wantarray) {
+	return map { "\"$_\""} @_;
+    } else {
+	return "\"$_[0]\""
+    }
 }
 
 1 ;
