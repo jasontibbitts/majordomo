@@ -128,6 +128,7 @@ sub new {
   my $self   = {};
   bless $self, $class;
   $self->{'sdirs'}  = 1;
+  $self->{'topdir'} = $topdir;
   $self->{'ldir'}   = ($domain =~ m!^/!) ? $domain : "$topdir/$domain";
   $self->{'sitedir'}= "$topdir/SITE";
   $self->{'domain'} = $domain;
@@ -2343,7 +2344,7 @@ sub archive {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $vict, @args) = @_;
   my $log = new Log::In 30, "$list, @args";
-  my (@msgs, $ent, $i, $msgs, $out);
+  my (@msgs, $ent, $i, $msgs, $out, $owner);
 
   $self->_make_list($list);
 
@@ -2573,23 +2574,23 @@ sub createlist {
       $owner, $list) = @_;
   my($mess, $ok);
 
-  return (0, '', "Must supply a list name.\n")
-    unless $list;
+  unless ($mode =~ /regen/) {
+    return (0, '', "Must supply a list name.\n")
+      unless $list;
 
-  unless ($list eq 'ALL') {
     return (0, '', "Must supply an address for the owner.\n")
       unless $owner;
-    
+
     $owner = new Mj::Addr($owner);
     ($ok, $mess) = $owner->valid;
     return (0, '', "Owner address is invalid:\n$mess") unless $ok;
+
+    $owner ||= '';
+    my $log = new Log::In 50, "$list, $owner";
+
+    return (0, "Illegal list name: $list")
+      unless $self->legal_list_name($list);
   }
-
-  $owner ||= '';
-  my $log = new Log::In 50, "$list, $owner";
-
-  return (0, "Illegal list name: $list")
-    unless $self->legal_list_name($list);
   
   $self->_fill_lists;
 
@@ -2612,8 +2613,9 @@ sub createlist {
     
 sub _createlist {
   my($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list) = @_;
-  my $log = new Log::In 35, "$list";
-  my(@lists, $bdir, $dir, $dom, $head, $mess, $mta, $rmess, $who);
+  $list ||= '';
+  my $log = new Log::In 35, "$mode,$list";
+  my(%args, @lists, $bdir, $dir, $dom, $mess, $mta, $rmess, $who);
 
   $owner = new Mj::Addr($owner);
   $mta   = $self->_site_config_get('mta');
@@ -2623,27 +2625,63 @@ sub _createlist {
   $who   = $self->_global_config_get('whoami');
   $who   =~ s/@.*$//; # Just want local part
 
-  if ($mode !~ /nocreate/ && $list ne 'GLOBAL' && $list ne 'ALL') {
-    # Untaint $list - we know it's a legal name, so no slashes, so it's safe
-    $list =~ /(.*)/; $list = $1;
-    $dir  = "$self->{'ldir'}/$list";
+  %args = (bindir => $bdir,
+	   domain => $dom,
+	   whoami => $who,
+	  );
 
-    return (0, '', "List already exists.\n")
-      if exists $self->{'lists'}{$list} && $mode !~ /force/;
-
-    $self->{'lists'}{$list} = undef;
-
-    unless (-d $dir) {
-      mkdir $dir, 0777 
-	or $log->abort("Couldn't make $dir, $!");
-      mkdir "$dir/files", 0777
-	or $log->abort("Couldn't make $dir/files, $!");
-      mkdir "$dir/files/public", 0777
-	or $log->abort("Couldn't make $dir/files/public, $!");
-    }
+  if ($self->_site_config_get('maintain_mtaconfig')) {
+    $args{aliasfile} = "$self->{topdir}/ALIASES/$dom";
   }
-  
-  if ($mode !~ /nocreate/ && $list ne 'ALL') {
+  else {
+    # We know that we'll give back instructions, so pull out the header.
+    $mess = $Mj::MTAConfig::header{$mta} 
+      unless $mode =~ /noheader/;
+  }
+
+  # Should the MTA configuration be regenerated?
+  if ($mode =~ /regen/) {
+    unless ($mta && $Mj::MTAConfig::supported{$mta}) {
+      return (1, "Unsupported MTA $mta, can't regenerate configuration.\n");
+    }
+
+    # Extract lists and owners
+    $args{regenerate} = 1;
+    $args{lists} = [];
+    $self->_fill_lists;
+    for my $i (keys %{$self->{lists}}) {
+      push @{$args{lists}}, [$i, $self->_list_config_get($i, 'debug')];
+    }
+    {
+      no strict 'refs';
+      $mess .= &{"Mj::MTAConfig::$mta"}(%args);
+    }
+    $mess ||= "MTA configuration for $dom regenerated.\n";
+    return (1, $mess);
+  }
+
+  # Should a list be created?
+  if ($mode !~ /nocreate/) {
+    if ($list ne 'GLOBAL') {
+      # Untaint $list - we know it's a legal name, so no slashes, so it's safe
+      $list =~ /(.*)/; $list = $1;
+      $dir  = "$self->{'ldir'}/$list";
+
+      return (0, "List already exists.\n")
+	if exists $self->{'lists'}{$list} && $mode !~ /force/;
+
+      $self->{'lists'}{$list} = undef;
+
+      unless (-d $dir) {
+	mkdir $dir, 0777 
+	  or $log->abort("Couldn't make $dir, $!");
+	mkdir "$dir/files", 0777
+	  or $log->abort("Couldn't make $dir/files, $!");
+	mkdir "$dir/files/public", 0777
+	  or $log->abort("Couldn't make $dir/files/public, $!");
+      }
+    }
+
     # Now do some basic configuration
     $self->_make_list($list);
     $self->_list_config_set($list, 'owners', "$owner");
@@ -2651,28 +2689,13 @@ sub _createlist {
     # XXX mail the owner some useful information
   }
 
-  unless ($mta && $Mj::MTAConfig::supported{$mta}) {
-    return (1, '', "Unsupported MTA $mta, can't suggest configuration.");
-  }
-  
-  @lists = ($list);
-  @lists = sort(keys(%{$self->{'lists'}})) if ($list eq 'ALL');
-    
   {
     no strict 'refs';
-    for my $i (@lists) {
-      $rmess .= "\n" if $rmess;
-      ($head, $mess) = &{"Mj::MTAConfig::$mta"}(
-						'list'   => $i,
-						'bindir' => $bdir,
-						'domain' => $dom,
-						'whoami' => $who,
-					       );
-    $rmess .= $mess
-    }
+    $mess = &{"Mj::MTAConfig::$mta"}(%args, 'list' => $list);
+    $mess ||= "$list was created with owner $owner.\n";
   }
 
-  return (1, $head, $rmess);
+  return (1, $mess);
 }
 
 =head2 lists

@@ -1,0 +1,57 @@
+Information for Sendmail users
+
+Majordomo2 can generate the necessary Sendmail aliases required to run a
+list by itself.  It can also maintain alias files for each domain run at
+your site.  It will not, however, modify your master alias file, nor will
+it make the necessary changes to your sendmail.cf to enable the additional
+alias files required.
+
+When Makefile.PL is run, you will be prompted for what MTA you are running
+and (assuming it's Sendmail) whether or not you want Majordomo to maintain
+the alias files for you.  Answering 'no' to the latter question will cause
+Mj2 to suggest aliases to you but to do nothing else with them.  Otherwise
+they will be accumulated in a directory called 'ALIASES' in files named
+after the domain being served.  Appropriate permissions will be used to
+satisfy the picky nature of recent versions of Sendmail.
+
+Note that you can use these alias files as guides; they are perfectly
+useful as cut-and-paste material even if you do not make the necessary
+sendmail.cf changes to enable them.
+
+There are two basic ways these sendmail.cf changes are made: through the M4
+configuration files or by editing sendmail.cf directly.
+
+If you use the M4 files, add a line like the following:
+
+define(`ALIAS_FILE',`/etc/mail/aliases,/path/to/lists/ALIASES/domain1,/path/to/lists/ALIASES/domain2')
+
+Substituting "/path/to/lists", "domain1" and "domain2" with the appropriate
+path to the ALIASES directory and the appropriate domain names,
+respectively.  Then rebuild and install the resulting cf file.
+
+If you modify sendmail.cf directly, look for a line like:
+
+O AliasFile=/etc/mail/aliases
+
+And add the appropriate paths on the end:
+
+O AliasFile=/etc/mail/aliases,/path/to/lists/ALIASES/domain1,/path/to/lists/ALIASES/domain2
+
+again making the appropriate substitutions.
+
+Note that if you do not have confAUTO_REBUILD (for M4 users) or
+AutoRebuildAliases=True (for sendmail.cf hackers) set, then you will have
+to manually run the newaliases command to rebuild the alias databases
+appropriately.  It is recommended that you turn this on if you want to be
+able to issue a single Majordomo command and have new lists spring into
+being.
+
+Finally, a note about locking.  There is no locking between Sendmail and
+Majordomo when it comes to modifying the alias files.  This means that it
+is possible for Sendmail to rebuild the databases while Majordomo is
+modifying one of the files.  These files change rarely and info is added in
+a single write call so the changes are slim but still nonzero that an
+incomplete build of the alias database will result.  It may be worthwhile
+to call newaliases from crontab occasionally to make sure that things can't
+stay in an inconsistent state for long.
+

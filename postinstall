@@ -126,7 +126,7 @@ if (!$skip && (!$ask || get_bool($msg2))) {
 
 # Give some basic MTA configuration
 if (!$skip && -t STDIN) {
-  print "\nSome basic configuration information:\n";
+#  print "\nSome basic configuration information:\n";
   my $nhead = 0;
   for my $i (@{$config->{'domains'}}) {
     suggest_mta($i, $nhead);
@@ -137,8 +137,8 @@ if (!$skip && -t STDIN) {
 if (!$skip && !$quiet && -t STDIN) {
   print <<"EOM";
 
-You may also wish to add the following entries to the $config->{'uid'}
-account\'s crontab:
+Please add the following entries to the $config->{'uid'}
+account\'s crontab (not to the crontab of root or any other user).
 EOM
 }
 open OUT, ">$config->{install_dir}/majordomo.crontab" or
@@ -237,7 +237,11 @@ sub create_dirs {
 
   safe_mkdir("$l/SITE",       0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$l/SITE/files", 0777 & ~oct($um), $uid, $gid);dot;
-  
+
+  if ($config->{maintain_mtaconfig}) {
+    safe_mkdir("$l/ALIASES", 0755 & ~oct($um), $uid, $gid);dot;
+  }
+
   for $i (@$doms) {
     printf "ok.\nMaking directories for %s, mode %lo.\n", $i, (0777 & ~oct($um))
       if $verb;
@@ -271,11 +275,12 @@ sub do_config {
   open FILE, ">$config->{wtmpdir}/inst.$$";
   print FILE "approve $config->{site_password} configset GLOBAL master_password = $pw\n";
   print FILE "default password $pw\n";
+  print FILE "configset GLOBAL whereami = $dom\n";
   for $i (qw(tmpdir site_name whoami)) {
     $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};
     print FILE "configset GLOBAL $i = $arg\n";
   }
-  print FILE "configset GLOBAL whereami = $dom\n";
+  print FILE "configset GLOBAL owners   = $config->{domain}{$dom}{owner}\n";
   close FILE;
   # Make sure the file can be read by the Majordomo user.  XXX This is a
   # slight security hole.  We're root, so we should play with chowning the
@@ -318,10 +323,11 @@ sub do_site_config {
 
   # Build up the Data hash.
   $data = {
-	   'site_password' => $pw,
-	   'install_dir'   => $config->{'install_dir'},
-	   'mta'           => $config->{'mta'},
-	   'cgi_bin'       => $config->{'cgi_bin'},
+	   'site_password'      => $pw,
+	   'install_dir'        => $config->{'install_dir'},
+	   'mta'                => $config->{'mta'},
+	   'maintain_mtaconfig' => $config->{'maintain_mtaconfig'},
+	   'cgi_bin'            => $config->{'cgi_bin'},
 	  };
 
   # Open the site config file
@@ -411,8 +417,7 @@ sub suggest_mta {
   }
 
   my @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-p",
-	      "$pw", "createlist-quiet" . ($nhead ? ",noheader" :
-	      ''), "GLOBAL $config->{domain}{$dom}{owner}");
+	      "$pw", "createlist-regen" . ($nhead ? "-noheader" : ''));
 
 #  print "(@args)\n";
   system(@args) == 0 or die "Error executing $args[0], $?";

@@ -177,63 +177,18 @@ sub configshow {}
 
 sub createlist {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
-      $dummy, $vict, $arg1, $arg2, $arg3, $ok, $head, $mess) = @_;
+      $dummy, $vict, $arg1, $arg2, $arg3, $ok, $mess) = @_;
   my $log = new Log::In 29;
-  my ($i, $m, $tmp);
 
-  # For multiformatting, we are passed the list of created
-  # lists/messages in @$arg1, the list of failed creates in @$arg2,
-  # and the list of stalled creates in @$arg3.  Otherwise (i.e. we're
-  # called from the core) the list name is in $arg2 and we deduce
-  # success/failure from $ok.
-  unless (ref($arg2) eq 'ARRAY') {
-    $tmp = $arg2;
-    $arg1 = []; $arg2 = []; $arg3 = [];
-    if ($ok > 0) {
-      push @$arg1, $tmp;
-    }
-    elsif ($ok == 0) {
-      push @$arg2, ($tmp, $head);
-    }
-    else {
-      push @$arg3, ($tmp, $head);
-    }
-  }
-  
-  # The header (which is the same for all lists) and the concatenated
-  # results of all of the successful creates are contained in $head
-  # and $mess.  So we first report on the status of the create
-  # requests, then output the head and the results.
-  if (@$arg1 && $mode !~ /noheader/) {
-    eprintf($out, $type, ("The following list%s %s:\n",
-			  @$arg1==1 ? " was" : "s were",
-			  $mode =~ /nocreate/ ? "generated" : "created"));
-    for $i (@$arg1) {
-      eprint($out, $type, "  $i\n");
-    }
-  }
-  if (@$arg2 || @$arg3) {
-    eprintf($out, $type, ("The following list%s not %s:\n",
-			  (@$arg2+@$arg3)==2 ? " was" : "s were",
-			  $mode =~ /nocreate/ ? "generated" : "created"));
-
-    while (($i, $m) = splice @$arg2, 0, 2) {
-      eprint($out, $type, "  $i\n");
-      eprint($out, $type, indicate($m, 0)) if $m;
-    }
-    while (($i, $m) = splice @$arg3, 0, 2) {
-      eprint($out, $type, "  $i\n");
-      eprint($out, $type, indicate($m, -1)) if $m;
-    }
+  unless ($ok > 0) {
+    eprint($out, $type, "Createlist failed.\n");
+    eprint($out, $type, &indicate($mess, $ok));
+    return $ok;
   }
 
-  # Now print out the header and the aliases/instructions/whatever, if
-  # we had any successful creations.
-  if (@$arg1) {
-    eprint($out, $type, "\n$head\n") unless $mode =~ /noheader/ || !$head;
-    eprint($out, $type, "$mess") if $mess;
-  }
-  return scalar(@$arg1) ? 1 : 0;
+  eprint($out, $type, "$mess") if $mess;
+
+  $ok;
 }
 
 sub filesync {}

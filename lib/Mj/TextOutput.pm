@@ -339,38 +339,22 @@ sub createlist {
   # one (see parser_data) because it doesn't exist to be validated by the
   # parser because we haven't created it yet.
   my $log = new Log::In 27, "$args";
-  my(@good, @bad, @maybe, $body, $cmdline, $head, $i, $list, $m1, $m2,
-     $ok, $owner);
+  my($cmdline, $list, $owner);
 
-  unshift @arglist, $args if $args;
-  while (defined($i = ($infh ? $infh->getline : shift @arglist))) {
-    chomp($i);
-    $cmdline = "createlist".($mode?"=$mode":"")." $i";
+  $cmdline = "createlist".($mode?"=$mode":"")." $args";
 
-    # special split, ignores leading whitespace
-    ($list, $owner) = split(' ', $i, 2);
+  # special split, ignores leading whitespace
+  ($list, $owner) = split(' ', $args, 2);
 
-    $owner ||= $user;
+  $list  ||= '';
+  $owner ||= $user;
 
-    ($ok, $m1, $m2) =
-      $mj->dispatch('createlist', $user, $passwd, $auth, $interface,
-		      $cmdline, $mode, '', $owner, $list);
-    if ($ok < 0) {
-      push @maybe, ($list, $m2);
-    }
-    elsif ($ok == 0) {
-      push @bad, ($list, $m2);
-    }
-    else {
-      push @good, "$list (owner: $owner)";
-      $head  = $m1;
-      $body .= $m2;
-    }
-  }
-  return Mj::Format::createlist($mj, $outfh, $outfh, 'text', $user,
-			       $passwd, $auth, $interface, 'useless',
-			       $mode, 'useless', 'useless', \@good,
-			       \@bad, \@maybe, undef, $head, $body)
+  Mj::Format::createlist($mj, $outfh, $outfh, 'text', $user, $passwd,
+			 $auth, $interface, $cmdline, $mode, 'useless',
+			 $owner, $list, '', '',
+			 $mj->dispatch('createlist', $user, $passwd, $auth,
+				       $interface, $cmdline, $mode, '',
+				       $owner, $list));
 }
 
 sub faq {

@@ -22,7 +22,7 @@ actually do some or all of the required configuration.
 package Mj::MTAConfig;
 use Mj::Log;
 use strict;
-use vars (qw(%sendsep %supported));
+use vars (qw(%header %sendsep %supported));
 
 %sendsep = (
 	    sendmail => '+'
@@ -32,6 +32,14 @@ use vars (qw(%sendsep %supported));
 	      'sendmail' => 'sendmail',
 	     );
 
+%header = (
+	   'sendmail' => <<EOM,
+Please add the following lines to your aliases file, if they are not
+already present.  You may have to run the "newaliases" command afterwards
+to enable these aliases.
+EOM
+	  );
+
 =head2 sendmail
 
 This is the main interface to Sendmail configuration manipulation
@@ -39,7 +47,7 @@ functionality.
 
 By default we want to call one_alias and return the results as we used to.
 
-Given a list of [list, owner] pairs, we can call all_aliases.
+Given a list of list names, we can call all_aliases.
 
 Given the location of an alias file, we can append to it or rewrite it from
 scratch.
@@ -49,6 +57,12 @@ sub sendmail {
   my %args = @_;
   my $log = new Log::In 150;
 
+  if ($args{regenerate}) {
+    return Mj::MTAConfig::Sendmail::regen_aliases(%args);
+  }
+  elsif ($args{delete}) {
+    return Mj::MTAConfig::Sendmail::del_alias(%args);
+  }
   Mj::MTAConfig::Sendmail::add_alias(%args);
 }
 
@@ -72,7 +86,7 @@ Things we need:
 sub add_alias {
   my $log  = new Log::In 150;
   my %args = @_;
-  my ($block, $debug, $fh, $head);
+  my ($block, $debug, $fh);
   my $bin  = $args{bindir} || $log->abort("bindir not specified");
   my $dom  = $args{domain} || $log->abort("domain not specified");
   my $list = $args{list}   || 'GLOBAL';
@@ -84,12 +98,6 @@ sub add_alias {
   else {
     $debug = '';
   }
-
-  $head = <<EOS;
-Please add the following lines to your aliases file, if they are not
-already present.  You may have to run the "newaliases" command afterwards
-to enable these aliases.
-EOS
 
   if ($list eq 'GLOBAL') {
     $block = <<"EOB";
@@ -110,13 +118,17 @@ owner-$list:   $list-owner,
 # End aliases for $list at $dom
 EOB
   }
-  if ($args{aliasfile}) {
-    $fh = new Mj::File($args{aliasfile}, '>>');
-    $fh->print($block);
-    $fh->close;
+  if ($args{aliashandle}) {
+    $args{aliashandle}->print("$block\n");
     return;
   }
-  return ($head, $block);
+  elsif ($args{aliasfile}) {
+    $fh = new Mj::File($args{aliasfile}, '>>');
+    $fh->print("$block\n");
+    $fh->close;
+    return '';
+  }
+  return $block;
 }
 
 =head2 del_alias
@@ -134,19 +146,36 @@ sub del_alias {
 This generates a complete set of aliases from a set of lists.  add_alias is
 called repeatedly to generate all of the necessary aliases.
 
+  $args{lists} is a list of [name, debug, ...] listrefs.
+
 =cut
 sub regen_aliases {
   my %args = @_;
-  my $fh = new Mj::FileRepl($args{aliasfile});
+  my ($block, $body, $i);
+  $body = '';
 
-  # Sort list of lists.
+  # Open the file
+  if ($args{aliasfile}) {
+    $args{aliashandle} = new Mj::FileRepl($args{aliasfile});
+  }
 
-  # Generate GLOBAL aliases.
+  # Generate aliases for each given list; do this twice to get GLOBAL out
+  # first for aesthetic purposes.
+  for $i (@{$args{lists}}) {
+    next unless $i->[0] eq 'GLOBAL';
+    $block = add_alias(%args, list => $i->[0], debug => $i->[1]);
+    $body .= "$block\n" if $block;
+  }
 
-  # Generate aliases for each given list.
+  for $i (@{$args{lists}}) {
+    next if $i->[0] eq 'GLOBAL';
+    $block = add_alias(%args, list => $i->[0], debug => $i->[1]);
+    $body .= "$block\n" if $block;
+  }
 
   # Close the file.
-
+  $args{aliashandle}->commit if $args{aliashandle};
+  $body;
 }
 
 =head1 COPYRIGHT

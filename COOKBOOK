@@ -53,6 +53,26 @@ Solution 3 (most flexible):
   messages if desired, as with the other two solutions.
 
 
+Problem:
+-------
+  How do I let everyone in a certain domain post while requiring approval
+  for all other domains?
+
+Solution:
+  First note that headers can be forged and so if people really want to
+  bypass a header-based restriction they can.
+
+  Add a simple access rule.  We'll use the 'no' (Norway) domain as an
+  example:
+
+  access_rules <<END
+  post
+  consult
+  !/\.no$/
+  END
+
+  This consults the list owner(s) for all addresses not ending in '.no'.
+  
 
 Problem:
 -------

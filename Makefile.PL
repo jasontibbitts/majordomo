@@ -12,7 +12,7 @@ BEGIN {
 
 # A version variable we can use to force users to reconfigure when we add
 # new questions.
-my $config_version = 1;
+my $config_version = 2;
 
 my @SIDSCRIPTS = qw(mj_email mj_shell mj_resend mj_confirm);
 my @SCRIPTS = qw(mj_trigger);
@@ -521,12 +521,29 @@ What Mail Transfer Agent will be feeding mail to Majordomo?
  Currently supported MTAs are:
   sendmail
   (sorry, no more!  Look in MTAConfig.pm and write your own!)
+ Enter \'none\' if you use another MTA.
 EOM
 
   $def = $config->{'mta'} ||
     (-x '/usr/lib/sendmail'  && 'sendmail') ||
     (-x '/usr/sbin/sendmail' && 'sendmail');
-  $config->{'mta'} = get_str($msg, $def);
+  $config->{'mta'} = get_enum($msg, $def, [qw(none sendmail)]);
+
+  #---- Ask if aliases should be maintained
+  if ($config->{'mta'} eq 'sendmail') {
+    $msg = <<EOM;
+
+Should Majordomo maintain your aliases automatically?
+ Majordomo can automatically maintain your Sendmail aliases for you.  You
+  still have to do some manual setup (see README.SENDMAIL) but this only
+  needs to be done once; after that you can add lists without doing any
+  configuration whatsoever.
+ If you say no, Majordomo  will provide you with information to paste into
+  your aliases file when you add new lists.
+EOM
+    $def = $config->{'maintain_mtaconfig'} || 'y';
+    $config->{'maintain_mtaconfig'} = get_bool($msg, $def);
+  }
 
   #---- Ask for virtual domains
   $msg = <<EOM;
@@ -633,6 +650,23 @@ EOM
 
 sub get_str {
   return prompt(shift, shift);
+}
+
+sub get_enum {
+  my $msg  = shift;
+  my $def  = shift;
+  my $vals = shift;
+  my $ans;
+  while (1) {
+    $ans = get_str($msg, $def);
+    if (grep {$ans eq $_} @$vals) {
+      return $ans;
+    }
+    $msg = "Allowed values are:\n";
+    for my $i (@$vals) {
+      $msg .= "  $i\n";
+    }
+  }
 }
 
 sub get_file {

@@ -1,3 +1,47 @@
+Sat Oct 24 18:52:51 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* postinstall (do_config): Set 'whereami' before setting 'whoami'.
+
+	* lib/Mj/MTAConfig.pm: Add MTA-specific header info.
+
+	* lib/Mj/Format.pm (createlist): Remove $head.
+
+	* lib/Majordomo.pm (_createlist): Remove MTA config header
+ 	altogether.
+
+	* lib/Mj/MTAConfig.pm (regen_aliases): Do the right thing if the
+ 	alias file is not automatically maintained.
+	(regen_aliases,add_alias): Remove the header altogether.
+
+	* lib/Mj/Format.pm (createlist): Remove multiformatting.
+  	Simplified drastically.
+
+	* lib/Mj/TextOutput.pm (createlist): Remove multiformatting; can
+ 	only create one list at a time now.
+
+Fri Oct 23 16:28:29 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* postinstall (do_site_config): Save 'maintain_aliases' variable
+ 	in the site config.
+	(suggest_mta): Call createlist-regen, don't pass owner.
+	(do_config): Configure the GLOBAL owner now, too.
+
+	* Makefile.PL (configure): Ask if sendmail aliases should be
+ 	maintained.
+	(get_enum): New function: accept only one of a list of strings.
+
+	* postinstall (create_dirs): Create directory to hold aliases.
+
+Thu Oct 22 20:11:13 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (createlist): Don't do so many verifications if
+ 	mode is 'regen'.
+
+Wed Oct 21 23:52:50 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (createlist): Remove special properties of
+ 	'ALL' list.
+
 Mon Oct 19 19:08:59 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Format.pm (createlist): Don't print out headers and alias
