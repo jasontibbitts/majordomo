@@ -435,13 +435,13 @@ sub _post {
      $avars, $ent) = @_;
   my $log  = new Log::In 35, "$list, $user, $file";
 
-  my(%ackinfo, %avars, %deliveries, %digest, @changes, 
-     @dfiles, @dtypes, @dup, @ent, @files, @refs, @tmp, @skip, 
-     $ack_attach, $ackfile, $arcdata, $arcdate, $arcent, $archead, 
-     $date, $desc, $digests, $dissues, $dup, $exclude, $head, 
-     $hidden, $i, $j, $k, $msgid, $msgnum, $nent, $precedence, $prefix, 
-     $rand, $replyto, $sender, $seqno, $subject, $sl, $subs, 
-     $tmp, $tmpdir, $tprefix, $whereami);
+  my(%ackinfo, %avars, %deliveries, %digest, @changes, @dfiles, @dtypes,
+     @dup, @ent, @files, @refs, @tmp, @skip, $ack_attach, $ackfile,
+     $arcdata, $arcdate, $arcent, $archead, $date, $desc, $digests,
+     $dissues, $dup, $exclude, $head, $hidden, $i, $j, $k, $members,
+     $msgid, $msgnum, $nent, $nonmembers, $precedence, $prefix, $rand,
+     $replyto, $sender, $seqno, $subject, $sl, $subs, $tmp, $tmpdir,
+     $tprefix, $whereami);
 
   return (0, "Unable to access list $list.\n")
     unless $self->_make_list($list);
@@ -670,6 +670,9 @@ sub _post {
     $self->_munge_from($ent[0], $list);
     $subs->{'USER'} = $head->get('From');
 
+    # Generate the exclude and membership lists
+    ($exclude, $members, $nonmembers) = $self->_exclude($ent[0], $list, $sl, $user);
+
     # Add fronter and footer.
     $self->_add_fters($ent[0], $list, $subs);
 
@@ -677,8 +680,8 @@ sub _post {
     ($ent[0], $ent[1]) = $self->_munge_subject($ent[0], $list, $seqno);
 
     # Add in Reply-To:
-    $ent[2] = $self->_reply_to($ent[0]->dup, $list, $seqno, $user);
-    $ent[3] = $self->_reply_to($ent[1]->dup, $list, $seqno, $user);
+    $ent[2] = $self->_reply_to($ent[0]->dup, $list, $seqno, $user, $nonmembers);
+    $ent[3] = $self->_reply_to($ent[1]->dup, $list, $seqno, $user, $nonmembers);
 
     if ($i = $self->_list_config_get($list, 'reply_to')) {
       $i = $self->substitute_vars_string($i, $subs);
@@ -716,9 +719,6 @@ sub _post {
       $dup = $self->_find_dup($self->{'lists'}{$list}->{'sublists'}{'MAIN'}, @dup)
         if scalar @dup;
     }
-   
-    # Generate the exclude list
-    $exclude = $self->_exclude($ent[0], $list, $sl, $user);
 
     # Incorporate the exclude list into the duplicate list.
     $dup = { %$exclude, %$dup };
@@ -2328,11 +2328,17 @@ This adds a Reply-To: header to an entity.
 
 =cut
 sub _reply_to {
-  my($self, $ent, $list, $seqno, $user) = @_;
-  my ($head, $replyto);
+  my($self, $ent, $list, $seqno, $user, $nonmembers) = @_;
+  my(%needcopy, $head, $needcopy, $replyto, $resendhost);
 
-  $head = $ent->head;
-  $replyto = $self->_list_config_get($list, 'reply_to');
+  $head       = $ent->head;
+  $replyto    = $self->_list_config_get($list, 'reply_to');
+  $resendhost = $self->_list_config_get($list, 'resend_host');
+
+  %needcopy   = ("$list\@$resendhost" => "$list\@$resendhost",
+		 %$nonmembers,
+		);
+  $needcopy   = join(', ', values(%needcopy));
 
   if ($replyto && (!$head->get('Reply-To') ||
 		   $self->_list_config_get($list, 'override_reply_to')))
@@ -2342,7 +2348,8 @@ sub _reply_to {
 	  ($replyto,
 	   {
             $self->standard_subs($list),
-	    'HOST'    => $self->_list_config_get($list, 'resend_host'),
+	    'HOST'    => $resendhost,
+	    'NEEDCOPY'=> $needcopy,
 	    'SENDER'  => $user,
 	    'SEQNO'   => $seqno,
 	    'USER'    => $user,
@@ -2358,23 +2365,35 @@ sub _reply_to {
 Figure out who to exclude.
 
 This looks at the To: and CC: headers of the given entity, plus the provded
-user.  It checks the settings for those addresses and adds them to the
-exclude list if appropriate:
+user.  It checks the status and settings of those addresses and adds them
+to various lists if appropriate:
 
   $user is excluded if it has flags 'noselfcopy'.
   To: and CC: are excluded if they have flags 'eliminatecc'.
+
+  List members are added to the $members hash
+
+  Non-members are added to the $nonmembers hash.
 
 =cut
 sub _exclude {
   my($self, $ent, $list, $sublist, $user) = @_;
   my(@addrs, $addr, $cc, $exclude, $i, $to);
 
-  $exclude = {};
+  $exclude    = {};
+  $members    = {};
+  $nonmembers = {};
 
   # The user doesn't get a copy if they don't have 'selfcopy' set.
-  $exclude->{$user->canon} = 1
+  $exclude->{$user->canon} = $user->full
     if $user->isvalid && 
        !$self->{'lists'}{$list}->flag_set('selfcopy', $user, $sublist);
+  if ($self->{'lists'}{$list}->is_subscriber($user)) {
+    $members->{$user->canon} = $user->full;
+  }
+  else {
+    $nonmembers->{$user->canon} = $user->full;
+  }
 
   # Extract addresses from headers
   $to = $ent->head->get('To', 0); chomp $to if $to;
@@ -2385,12 +2404,18 @@ sub _exclude {
 
   for $i (@addrs) {
     $addr = new Mj::Addr($i);
-    next unless $addr->isvalid;
-    $exclude->{$addr->canon} = 1
+    next unless $addr && $addr->isvalid;
+    $exclude->{$addr->canon} = $addr->full
       if $self->{'lists'}{$list}->flag_set('eliminatecc', $addr, $sublist);
+    if ($self->{'lists'}{$list}->is_subscriber($addr)) {
+      $members->{$addr->canon} = $addr->full;
+    }
+    else {
+      $nonmembers->{$addr->canon} = $addr->full;
+    }
   }
 
-  $exclude;
+  ($exclude, $members, $nonmembers);
 }
 
 =head2 _find_dup (list, list, ...)

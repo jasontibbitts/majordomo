@@ -51,9 +51,10 @@ flag field.  Four flags are supported:
      already registered.
 
   * 'S' causes the file to undergo variable substitution (and possibly 
-     auto-inclusion of additional files).  The variables supported include 
-     the standard substitutions, plus USER and PASSWORD.  See 
-     "help variables" for a description of each substitution variable.  
+     auto-inclusion of additional files).  The variables supported include
+     the standard substitutions, plus USER, PASSWORD, FRONTER, FOOTER,
+     RANDOM_FRONTER, RANDOM_FOOTER, ALL_FRONTERS, and ALL_FOOTERS.  See
+     "help variables" for a description of each substitution variable.
 
   * 'U' causes the file to be included only if the address was
      not already registered.

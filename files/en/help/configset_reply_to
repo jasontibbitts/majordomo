@@ -20,10 +20,10 @@ The Reply-To header can also be altered using the delete_headers and
 message_headers configuration settings.  The reply_to setting is more
 flexible in that it does not always override existing headers.
 
-The header text will undergo variable substitution when it is added to
-the message.  These variables include the standard substitutions, plus
-HOST, SENDER, and SEQNO.  See "help variables" for a description of these
-substitutions.
+The header text will undergo variable substitution when it is added to the
+message.  These variables include the standard substitutions, plus HOST,
+NEEDCOPY, SENDER, and SEQNO.  See "help variables" for a description of
+these substitutions.
 
 
 See Also:

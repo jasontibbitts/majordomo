@@ -181,6 +181,11 @@ See "help reply_files" for a description of each of the reply files.
   The mail aliases required by your system's message transport 
   software for one or more mailing lists.
 
+\$ALL_FOOTERS
+\$ALL_FRONTERS
+  All of the list's message_footers and message_fronters, respectively,
+  separated by blank lines.
+
 \$APPROVALS
   The number of people who must use the accept command to approve
   a stalled request.
@@ -283,6 +288,11 @@ See "help reply_files" for a description of each of the reply files.
 \$FINISH
   The date of the latest of a group of messages or requests.
 
+\$FOOTER
+\$FRONTER
+  The list's message_frooter and message_fronter, respectively.  If there
+  are multiple fronters or footers, the first of each will be used.
+
 \$FULFILL
   The date at which a delayed request will be completed
   (see "help delay" for more information).
@@ -325,6 +335,12 @@ See "help reply_files" for a description of each of the reply files.
   "200008/12".  This is not the same as the sequence number.  
   See "help archive" for more details.
 
+\$NEEDCOPY
+  The list of addresses that need to be replied to in order for everyone
+  who received a copy of the original messages to receive a copy of the
+  reply.  This generally includes the list address plus the address of any
+  non-list-members whose addresses appear in the To: and CC: headers.
+
 \$NEWLIST
   The most recent name of a mailing list that has been created,
   renamed, or destroyed with the createlist command.
@@ -352,6 +368,10 @@ See "help reply_files" for a description of each of the reply files.
 \$QSADDR
   An e-mail address, altered to allow it to be included safely in the
   query string of a URL.
+
+\$RANDOM_FOOTER
+\$RANDOM_FRONTER
+  A randomly chosen message_footer and message_fronter, respectively.
 
 \$REMIND 
   The number of days before a reminder for a request that requires

@@ -1,5 +1,25 @@
 2002-07-07  Jason Tibbitts  <tibbs@math.uh.edu>
 
+	* lib/Mj/Resend.pm (_exclude): Also generate lists of list members
+	and nonmembers appearing in the To: and CC: headers.
+	(_reply_to): Generate NEEDCOPY substitution based on the the
+	nonmembers hash.
+	(_post): Call _exclude earlier.  Capture $members and $nonmembers
+	hashes as well.  Pass $nonmembers to _reply_to.
+
+	* files/en/help/variables: Document NEEDCOPY.
+
+	* files/en/help/configset_reply_to: Mention NEEDCOPY.
+
+	* lib/mj_cf_data.pl: Changed type of reply_to to "string" since it
+	since there's no reason it can't contain spaces.
+
+	* files/en/help/variables: Added new welcome files substitutions.
+
+	* lib/Mj/MailOut.pm (welcome): Add FRONTER, FOOTER,
+	RANDOM_FRONTER, RANDOM_FOOTER, ALL_FRONTERS, and
+	ALL_FOOTERS substitutions.
+
 	* files/en/help/configset_welcome_files: Updated to reference 'E'
 	flag.
 	

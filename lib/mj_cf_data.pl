@@ -494,7 +494,7 @@ package Mj::Config;
    },
    'reply_to' =>
    {
-    'type'   => 'word',
+    'type'   => 'string',
     'groups' => [qw(deliver)],
     'local'  => 1,
     'visible'=> 1,

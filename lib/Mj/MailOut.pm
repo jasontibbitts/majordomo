@@ -324,8 +324,9 @@ sub welcome {
   my $addr = shift;
   my %args = @_;
   my $log = new Log::In 150, "$list, $addr";
-  my (%file, @mess, @temps, $count, $fh, $file, $final, $head,
-      $i, $j, $nodefsearch, $reg, $subj, $subs, $top);
+  my (%file, @mess, @temps, $all_footers, $all_fronters, $count, $fh,
+      $file, $final, $head, $i, $j, $nodefsearch, $reg, $subj, $subs,
+      $top);
 
   return unless (ref($addr) and $addr->isvalid);
 
@@ -333,6 +334,14 @@ sub welcome {
   my $tmpdir    = $self->_global_config_get('tmpdir');
   my $sender    = $self->_list_config_get($list, 'sender');
   my $table     = $self->_list_config_get($list, 'welcome_files');
+  my $fronters  = $self->_list_config_get($list, 'message_fronter');
+  my $footers   = $self->_list_config_get($list, 'message_footer');
+
+  $all_fronters = $all_footers = '';
+  for $i (@$fronters) { $all_fronters .= join("\n", @$i, '', ''); }
+  for $i (@$footers)  { $all_footers  .= join("\n", @$i, '', ''); }
+  chomp $all_fronters; chomp $all_fronters;
+  chomp $all_footers;  chomp $all_footers;
 
   $subs = {
            $self->standard_subs($list),
@@ -340,6 +349,12 @@ sub welcome {
            'QSADDR'    => Mj::Format::qescape($addr->strip),
 	   'USER'      => $addr,
 	   'VICTIM'    => $addr,
+	   'FRONTER'   => join("\n", @{$fronters->[0]}),
+	   'FOOTER'    => join("\n", @{$footers->[0]}),
+	   'RANDOM_FRONTER' => join("\n", @{@$fronters[rand(@$fronters)]}),
+	   'RANDOM_FOOTER'  => join("\n", @{@$footers[rand(@$footers)]}),
+	   'ALL_FRONTERS' => $all_fronters,
+	   'ALL_FOOTERS'  => $all_footers,
 	   %args,
 	  };
 

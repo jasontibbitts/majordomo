@@ -4930,6 +4930,9 @@ sub _createlist {
         $result->{'aliases'} = &{"Mj::MTAConfig::$mta"}(%args);
       }
     }
+
+    # Call out to a shell hook here
+
     return (1, $result);
   }
 
