@@ -1232,7 +1232,7 @@ sub text_to_html {
         $state = 'pre';
       }
       elsif ($state eq 'text' and $i != $#lines 
-             and $lines[$i+1] =~ /^\s*$)/) 
+             and $lines[$i+1] =~ /^\s*$/) 
       {
         push (@out, '<pre>');
         $state = 'pre';
