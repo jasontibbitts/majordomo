@@ -2076,7 +2076,8 @@ sub parse_inform {
     );
 
   @cmds = (command_list(),
-           'badtoken', 'bounce', 'connect', 'consult', 'parse', 'ALL');
+           'badtoken', 'bounce', 'connect', 'consult', 
+           'expire', 'parse', 'ALL');
 
   ($table, $err) = parse_table('fsmm', $arr);
 
