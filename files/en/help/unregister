@@ -15,7 +15,9 @@ this action, and must be replied to with an "accept" command, unless
 an authorized password is used with "approve".
 
 See Also:
+   help changeaddr  (which replaces one address with another)
    help register    (which adds an address to the database)
+   help subscribe   (which adds an address to a list)
    help unsubscribe (which removes an address from one list)
 
 For a list of all help topics send this one-line message

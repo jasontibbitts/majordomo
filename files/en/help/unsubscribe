@@ -46,6 +46,7 @@ Without "-allmatching", only the first matching address is removed.
 
 See Also:
    help approve     (which can eliminate the need to use "accept")
+   help changeaddr  (which replaces one address with another)
    help password    (which changes an individual's password)
    help patterns    (for simple and complex regular expressions)
    help subscribe   (which adds an address to a list)

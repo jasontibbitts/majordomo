@@ -155,6 +155,9 @@ alias address
 approve password command-options [arguments]
 ==> allows Majordomo to execute a command without using an "accept" token
 
+changeaddr address
+==> replaces the address in the database and on every list at this site
+
 default variable value
 ==> sets a default value for the remaining commands
 

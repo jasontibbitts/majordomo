@@ -1,0 +1,35 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+changeaddr address
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+address, required, is a previously registered address
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+The "changeaddr" command replaces an "address" in the registration
+database with the address in the sender's "From:" or "Apparently-from:"
+header, including any comments. Address comments are ignored if they
+exist in the command:
+  changeaddr joe@blow.org
+or
+  changeaddr Joe Blow <joe@blow.org>
+are equivalent.
+
+The registration database, and all lists to which the "address" is
+subscribed, are updated. As of April 2000, "changeaddr" adjusts
+aliases automatically, as does the unregister command, but it does
+not yet deal with auxiliary lists
+
+A confirmation token will be sent to the given "address" AND to the
+address making the request, to verify this action. Both tokens must
+be replied to with an "accept" command, unless an authorized password
+is used with "approve".
+
+See Also:
+   help alias       (which makes two addresses equivalent)
+   help register    (which adds an address to the database)
+   help subscribe   (which adds an address to a list)
+   help unregister  (which removes an address from all lists)
+   help unsubscribe (which removes an address from one list)
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
