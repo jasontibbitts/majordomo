@@ -403,6 +403,7 @@ sub parse_command {
   }
 
   ($command, $mode) = $command =~ /([^=-]+)[=-]?(.*)/;
+  $command ||= "";
   $mode ||= "";
 
   my $true_command = command_legal($command);
