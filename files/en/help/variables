@@ -134,6 +134,7 @@ In the "inform" file, these variables are evaluated in the msg body:
                  (see "help sessioninfo" for a discussion of session IDs)
   \$STATUS    => the numeric status of the action (   -1,       0,       1)
   \$STATDESC  => the textual status of the action (stall, failure, success)
+  \$TIME      => the elapsed time taken by the request
   \$USER      => same as \$VICTIM
   \$VICTIM    => the user who will be effected by the request
 
