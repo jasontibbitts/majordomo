@@ -569,7 +569,6 @@ sub _alias {
   1;
 }
 
-
 =head2 validate (internal method)
 
 Intended to check an address for validity and report back problems in a way
@@ -598,7 +597,8 @@ sub _validate {
       $domain_literal, $i, $right_of_route, $lhs_length, $nest, $rhs_length,
       $on_rhs, $subdomain, $word);
 
-  my $specials = q|()<>@,;:\".[]|;
+  my $specials    = q|()<>@,;:\".[]|;
+  my $specials_nd = q|()<>@,;:\"[]|;  # No dot
 
   # We'll be interpolating arrays into strings and we don't want any
   # spaces.
@@ -702,6 +702,11 @@ a '.' or a '\@': $words[-2] _$1_$_\n");
       push @route, $1 if $angle;
 
       # Deal with certain special specials
+
+      # According to RFC2822, dots are now legal in a phrase
+      #if ($1 eq '.') {
+      #push @phrase, $1 if !$angle;
+      #}
 
       # We disallow multiple addresses in From, Reply-To, or a sub/unsub
       # operation.
@@ -818,7 +823,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
       }
 
       # Other specials are illegal
-      if ($words[$i] =~ /^[\Q$specials\E]/) {
+      if ($words[$i] =~ /^[\Q$specials_nd\E]/) {
 #	$log->out("failed");
 	return (0, sprintf("Illegal character in comment portion of address at: %s _%s_ %s\n",
 			   $words[$i-1] || "", $words[$i], $words[$i+1] || ""));

@@ -1,3 +1,8 @@
+2002-01-19  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Addr.pm (_validate): Accept dots in the phrase portion of
+	an route address.
+
 2002-01-18  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwusr:  Add support for the archive command.
