@@ -1,5 +1,14 @@
 2000-12-07  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/CommandProps.pm: Make %actions the hash of all supported
+	actions along with their parameters.  Make %generic_actions a hash
+	of the actions supported by most commands.  Replace %actions with
+	%generic_actions in {access}{actions} portion of command
+	descriptions.
+
+	* lib/Mj/BounceHandler.pm (handle_bounce_user): Fix oops in bounce
+	percentage display.
+
 	* lib/Mj/Resend.pm (_within_limits): 
 	* lib/Mj/List.pm (describe_class): 
 	* lib/Mj/Format.pm (digest):

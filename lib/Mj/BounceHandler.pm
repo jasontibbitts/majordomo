@@ -340,7 +340,7 @@ sub handle_bounce_user {
       $mess .= "    Consecutive messages bounced:   $args{consecutive}\n"
 	if $args{consecutive} && $args{consecutive} > 3;
       $mess .= "    Percentage of messages bounced: $args{bouncedpct}\n"
-	if $args{bouncedpct} || $args{numbered} >= 5;
+	if $args{bouncedpct} && $args{numbered} >= 5;
 
       # Make triage decision.  Run the parsed code from bounce_rules.  XXX
       # Note that most of this code is duplicated from access_rules.  This

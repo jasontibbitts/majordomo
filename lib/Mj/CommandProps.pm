@@ -38,6 +38,29 @@ my %actions =
    'replyfile'       => {files => [0],},
    'set'             => {files => [],},
    'unset'           => {files => [],},
+
+   'remove'          => {files => [],    terminal => 1,},
+   'ignore'          => {files => [],    terminal => 1,},
+   'inform'          => {files => [],    terminal => 1,},
+  );
+
+my %generic_actions =
+  ('allow'           => 1,
+   'confirm'         => 1,
+   'confirm2'        => 1,
+   'consult'         => 1,
+   'confirm_consult' => 1,
+   'default'         => 1,
+   'delay'           => 1,
+   'deny'            => 1,
+   'forward'         => 1,
+#  'log'             => 1,
+   'mailfile'        => 1,
+   'reason'          => 1,
+   'reply'           => 1,
+   'replyfile'       => 1,
+   'set'             => 1,
+   'unset'           => 1,
   );
 
 my %generic_modes =
@@ -218,7 +241,7 @@ my %commands =
     'access'   => {
                    'default' => 'allow',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
 
@@ -279,7 +302,7 @@ my %commands =
     'access'   => {
                    'default' => 'confirm',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'announce' =>
@@ -299,7 +322,7 @@ my %commands =
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'archive' =>
@@ -322,7 +345,7 @@ my %commands =
     'access'   => {
                    'default' => 'access',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'changeaddr' =>
@@ -338,7 +361,7 @@ my %commands =
     'access'   => {
                    'default' => 'confirm2',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'createlist' =>
@@ -367,7 +390,7 @@ my %commands =
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'digest' =>
@@ -387,7 +410,7 @@ my %commands =
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'faq' =>
@@ -401,7 +424,7 @@ my %commands =
     'access'   => {
                    'default' => 'access',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'get' =>
@@ -419,7 +442,7 @@ my %commands =
     'access'   => {
                    'default' => 'access',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'help' =>
@@ -435,7 +458,7 @@ my %commands =
     'access'   => {
                    'default' => 'allow',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'index' =>
@@ -457,7 +480,7 @@ my %commands =
     'access'   => {
                    'default' => 'access',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'info' =>
@@ -471,7 +494,7 @@ my %commands =
     'access'   => {
                    'default' => 'access',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'intro' =>
@@ -485,7 +508,7 @@ my %commands =
     'access'   => {
                    'default' => 'access',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'lists' =>
@@ -508,7 +531,7 @@ my %commands =
     'access'   => {
                    'default' => 'allow',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    # mkdigest is fake; it just calls digest-force, but aliases don't work
@@ -537,7 +560,7 @@ my %commands =
                                  %reg_legal,
                                  'password_length'  => 2,
                                 },
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'post' =>
@@ -587,7 +610,7 @@ my %commands =
                     'total_header_length'          => 2,
                     'total_header_length_exceeded' => 1,
                    },
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'put' =>
@@ -616,7 +639,7 @@ my %commands =
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'register' =>
@@ -639,7 +662,7 @@ my %commands =
     'access'   => {
                    'default' => 'confirm',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'reject' =>
@@ -666,7 +689,7 @@ my %commands =
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'report' =>
@@ -688,7 +711,7 @@ my %commands =
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'sessioninfo' =>
@@ -724,7 +747,7 @@ my %commands =
     'access'   => {
                    'default' => 'policy',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'show' =>
@@ -741,7 +764,7 @@ my %commands =
     'access'   => {
                    'default' => 'mismatch',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'showtokens' =>
@@ -758,7 +781,7 @@ my %commands =
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'subscribe' =>
@@ -786,7 +809,7 @@ my %commands =
                                  %reg_legal,
                                  'matches_list'   => 1,
                                 },
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'tokeninfo' =>
@@ -815,7 +838,7 @@ my %commands =
     'access'   => {
                    'default' => 'confirm',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'unregister' =>
@@ -835,7 +858,7 @@ my %commands =
     'access'   => {
                    'default' => 'confirm',
                    'legal'   =>\%reg_legal,
-                   'actions' =>\%actions,
+                   'actions' =>\%generic_actions,
                   },
    },
    'unsubscribe' =>
@@ -856,7 +879,7 @@ my %commands =
     'access'   => {
                    'default' => 'policy',
                    'legal'   =>\%reg_legal,
-                   'actions' =>\%actions,
+                   'actions' =>\%generic_actions,
                   },
    },
    'which' =>
@@ -873,7 +896,7 @@ my %commands =
     'access'   => {
                    'default' => 'access',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
    'who' =>
@@ -900,7 +923,7 @@ my %commands =
     'access'   => {
                    'default' => 'access',
                    'legal'   => \%reg_legal,
-                   'actions' => \%actions,
+                   'actions' => \%generic_actions,
                   },
    },
 
@@ -920,9 +943,9 @@ my %commands =
 			       'month'                => 2,
 			      },
 		 'actions' => {
-			       'remove' => {files => [], terminal => 1,},
-			       'ignore' => {files => [], terminal => 1,},
-			       'inform' => {files => [], terminal => 1,},
+			       'remove' => 1,
+			       'ignore' => 1,
+			       'inform' => 1,
 			      },
 		},
    },
