@@ -1,0 +1,17 @@
+<!-- Majordomo which_head format file -->
+<p>
+The pattern "$PATTERN" matched the following subscriptions at
+$SITE.
+</p>
+
+<p>
+Click the address of a subscription to see more details about that
+subscription in another window.
+</p>
+
+<table width="100%">
+<tr>
+  <th>Mailing List
+  <th>Subscription
+</tr>
+

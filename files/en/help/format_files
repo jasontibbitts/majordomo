@@ -735,28 +735,27 @@ rejected fails or stalls.
 
 set
 ---
-(text, wwwadm, wwwconfirm, wwwusr)  This file displays a message
-indicating that the settings for one mailing list have been changed.
+(ALL)  This file displays a message indicating that the settings for one
+mailing list have been changed.
 
 (standard plus CGIDATA, CGIURL, CHANGETIME, CLASS_DESCRIPTIONS, 
- CLASSES, CMDPASS, PARTIAL, SELECTED, SETTINGS, SUBTIME, USER, 
- VICTIM, and others)
+ CLASSES, CMDPASS, FULLADDR, PARTIAL, QSADDR, SELECTED, SETTINGS, 
+ STRIPADDR, SUBTIME, USER, VICTIM, and others)
 
 
 set_check
 ---------
-(text, wwwadm, wwwconfirm, wwwusr)  This file displays the current 
-settings for one subscription on one mailing list.
+(ALL)  This file displays the current settings for one subscription on
+one mailing list.
 
 (standard plus CGIDATA, CGIURL, CHANGETIME, CLASS_DESCRIPTIONS, 
- CLASSES, CMDPASS, PARTIAL, SELECTED, SETTINGS, SUBTIME, USER, 
- VICTIM, and others)
+ CLASSES, CMDPASS, FULLADDR, PARTIAL, QSADDR, SELECTED, SETTINGS, 
+ STRIPADDR, SUBTIME, USER, VICTIM, and others)
 
 
 set_error
 ---------
-(text, wwwadm, wwwconfirm, wwwusr)  This file displays an error message when
-the set command fails.
+(ALL)  This file displays an error message when the set command fails.
 
 (standard plus CGIDATA, CGIURL, CHANGETIME, CLASS_DESCRIPTIONS, 
  CLASSES, CMDPASS, PARTIAL, SELECTED, SETTINGS, SUBTIME, USER, 
@@ -765,16 +764,16 @@ the set command fails.
 
 set_foot
 --------
-(text, wwwadm, wwwconfirm, wwwusr)  This file displays supplementary 
-information at the end of the output.
+(ALL)  This file displays supplementary information at the end of the
+output.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, COUNT, and USER)
 
 
 set_head
 ---
-(text, wwwadm, wwwconfirm, wwwusr)  This file displays supplementary 
-information at the beginning of the output.
+(ALL)  This file displays supplementary information at the beginning of
+the output.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, and USER)
 
@@ -1126,6 +1125,65 @@ welcome_showtokens
 the showtokens command in the wwwadm interface.
 
 (standard plus CGIDATA, CGIURL, COMMAND, CMDPASS, USER)
+
+
+which
+-----
+(text, wwwadm, wwwconfirm) This file is displayed to indicate a
+mailing list in which some matching addresses were found
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, LIST, PATTERN, USER)
+
+
+which_data
+----------
+(text, wwwadm, wwwconfirm)  This file is displayed to show one
+matching e-mail address.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, LIST, PATTERN, QSADDR,
+ STRIPADDR, USER)
+
+
+which_error
+-----------
+(text, wwwadm, wwwconfirm)  This file is displayed when the 
+which command fails or stalls.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, ERROR, PATTERN, USER)
+
+
+which_foot
+----------
+(text, wwwadm, wwwconfirm)  This file is displayed at the bottom
+of the results when the which command succeeds.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, COUNT, PATTERN, USER)
+
+
+which_head
+----------
+(text, wwwadm, wwwconfirm)  This file is displayed at the top of
+the results when the which command succeeds.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, PATTERN, USER)
+
+
+which_none
+----------
+(text, wwwadm, wwwconfirm)  This file is displayed when no matches
+are found for the search pattern.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, PATTERN, USER)
+
+
+which_warning
+-------------
+(text, wwwadm, wwwconfirm)  This file is displayed when the results
+contain a warning.  The most common warning is that the match limit
+for a particular mailing list has been exceeded.
+
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, ERROR, LIST, 
+ PATTERN, USER)
 
 
 who
