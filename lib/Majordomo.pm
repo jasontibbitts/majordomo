@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200011180";
+$VERSION = "0.1200011250";
 $unique = 'AAA';
 
 use strict;
@@ -107,6 +107,28 @@ use Safe;
 #     1;
 #   };
 # }
+
+=head2 domains(topdir)
+
+Returns a list of domains served by Majordomo at a site.
+
+=cut
+sub domains {
+  my $topdir = shift;
+  my (@domains);
+  
+  return unless (-r "$topdir/ALIASES/mj-domains");
+
+  open DOM, "< $topdir/ALIASES/mj-domains" or return;
+  
+  while (<DOM>) {
+    chomp $_;
+    push @domains, $_ if ($_ and -d "$topdir/$_/GLOBAL");
+  }
+
+  close DOM;
+  @domains;
+}
 
 =head2 new(topdir, domain)
 
@@ -149,7 +171,7 @@ sub new {
   $log->abort("Can't find site config file $topdir/SITE/config.pl: $!")
     unless $self->{'sitedata'}{'config'};
 
-  # Pull in config variable default string for this domnain
+  # Pull in config variable default string for this domain
   if (-f "$topdir/LIB/cf_defs_$domain.pl") {
     require "$topdir/LIB/cf_defs_$domain.pl";
   }
@@ -1790,8 +1812,11 @@ sub format_get_string {
   my $self = shift;
   my $type = shift;
   my $file = shift;
+  my $out;
 
-  $self->_list_file_get_string('GLOBAL', "format/$type/$file");
+  $out = $self->_list_file_get_string('GLOBAL', "format/$type/$file");
+  chomp $out;
+  $out;
 }
 
 sub config_get_groups {
