@@ -73,6 +73,34 @@ the plain "rekey" command, but they are not affected by any of the other
 variants of the rekey command.  See "help auxiliary_list" and "help alias"
 for more details.
 
+In some cases, a subscriber database file may be damaged beyond the
+ability of Majordomo to repair it properly.  In that case, the following
+steps are recommended to salvage the situation.  It is necessary to have
+shell access to the computer on which Majordomo runs, and the privileges
+to assume the identity of the Majordomo user.
+
+1. Use the command
+     who-export LISTNAME
+   to obtain a list of "set" commands that would be needed to restore
+   the settings of the subscribers for each list that shows damage.
+
+2. Shut down the server using the mj_shutdown command.
+
+3. Move each damaged _subscribers.D or _subscribers.T file out of 
+   the way.
+
+4. Run the rekey-repair command to repair all subscriber databases.
+   This should regenerate each list of subscribers, but you will have
+   to apply the "set" commands from step 1 manually, to give the
+   subscribers the correct personal settings.
+
+Because database corruption is a serious problem, it is recommended that
+the site or domain administrator run the "rekey-repair" command
+periodically to monitor the status of the databases.  In addition, the
+system administrator should periodically back up the registry database
+(_register.D or _register.T in the GLOBAL directory) and the subscriber
+database for each mailing list.
+
 
 See Also:
    help alias
