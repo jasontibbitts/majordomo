@@ -85,6 +85,7 @@ my %reg_legal =
    'user_password'  =>  'bool',
    'master_password'=>  'integer',
    'addr'           =>  'string',
+   'addrcomment'    =>  'string',
    'fulladdr'       =>  'string',
    'host'           =>  'string',
    'interface'      =>  'string',

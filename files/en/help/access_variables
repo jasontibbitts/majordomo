@@ -98,6 +98,7 @@ Variables available for all requests, with their types:
   Name                          Type
   ====                          ====
   addr                          string
+  addrcomment                   string
   bounce                        boolean
   delay                         timespan
   expire                        timespan
@@ -194,6 +195,11 @@ An explanation of each access variable
 addr 
   This variable contains the user's address, stripped of comments.
   (such as "jane@example.org')
+
+addrcomment
+  This variable contains the comment portion of the user's address.
+  Generally it contains the user's name, but often it contains other
+  information or will contain nothing at all.
 
 admin
   This variable is set if any "admin" variable is set.  It is possible

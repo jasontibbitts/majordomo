@@ -504,6 +504,7 @@ sub list_access_check {
   if (! $args{'regexp'}) { 
     $args{'addr'}     = $victim->strip || '';
     $args{'fulladdr'} = $victim->full || '';
+    $args{'addrcomment'} = $victim->comment || '';
     if ($args{'addr'} =~ /.*\@(.*)$/) {
       $args{'host'}   = $1;
     }
