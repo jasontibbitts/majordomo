@@ -1042,6 +1042,7 @@ use Time::Local;
 sub _secs_start {
   my $d = shift;
   my $local = shift;
+  my $tmp;
 
   # Convert the data into yyyymmmdd format
   if ($d =~ /^\d$/) {
@@ -1054,7 +1055,10 @@ sub _secs_start {
     $d .= '0101';
   }
   elsif ($d =~ /^(\d{4})(\d)$/) {
-    $d = "${1}0${2}01";
+    $d = $1; $tmp = $2;
+    $tmp = 1 if ($tmp < 1);
+    $tmp = 4 if ($tmp > 4);
+    $d .= sprintf "%.2d01", $tmp * 3 - 2;
   }
   elsif ($d =~ /^\d{6}$/) {
     $d .= '01';
@@ -1093,6 +1097,7 @@ use Time::Local;
 sub _secs_end {
   my $d = shift;
   my $local = shift;
+  my $tmp;
 
   # Convert the data into yyyymmmdd format
   if ($d =~ /^\d$/) {
@@ -1105,7 +1110,10 @@ sub _secs_end {
     $d .= '1231';
   }
   elsif ($d =~ /^(\d{4})(\d)$/) {
-    $d = "${1}0${2}";
+    $d = $1; $tmp = $2;
+    $tmp = 1 if ($tmp < 1);
+    $tmp = 4 if ($tmp > 4);
+    $d .= sprintf "%.2d%.2d", $tmp * 3, _dim($tmp * 3);
   }
   elsif ($d =~ /^(\d{4})(\d{2})$/) {
     $d .= _dim($2);
@@ -1350,7 +1358,7 @@ as a string.  This spares extraneous lookups when the data is known because
 of the expansion process.
 
 =cut
-use Mj::Util 'str_to_time';
+use Mj::Util 'str_to_offset';
 sub expand_range {
   my $self = shift;
   my $lim  = shift;
@@ -1380,9 +1388,9 @@ sub expand_range {
     # Deal with "mwdhmis" format
     if ($i =~ /^\d[\da-z]*[a-z]$/) {
       $j = time;
-      $tmp = str_to_time($i);
+      $tmp = str_to_offset($i);
       next unless (defined($tmp) and $tmp > 0);
-      $i = 2 * $j - $tmp;
+      $i = $j - $tmp;
       next unless $i;
       push @out, $self->expand_date($i, $j, '');
       next;
