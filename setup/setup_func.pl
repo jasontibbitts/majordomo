@@ -183,7 +183,6 @@ sub do_default_config {
 }
 
 # Dump out the initial site config
-use Digest::SHA1 qw(sha1_base64);
 sub do_site_config {
   my($data, $mtaopts, $pw);
 
@@ -193,7 +192,8 @@ sub do_site_config {
     $pw = get_passwd(retr_msg('site_password', $lang));
     $config->{'site_password'} = $pw;
   }
-  $pw = sha1_base64($pw);
+  require Digest::SHA1;
+  $pw = Digest::SHA1::sha1_base64($pw);
 
   print retr_msg('config_site', $lang) unless $quiet;
 
