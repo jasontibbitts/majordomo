@@ -30,7 +30,7 @@ package Mj::Config;
    'faq_access' => 
    {
     'type'   => 'enum',
-    'values' => [qw(open closed list)],
+    'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
@@ -40,7 +40,7 @@ package Mj::Config;
    'get_access' => 
    {
     'type'   => 'enum',
-    'values' => [qw(open closed list)],
+    'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
@@ -50,7 +50,7 @@ package Mj::Config;
    'archive_access' => 
    {
     'type'   => 'enum',
-    'values' => [qw(open closed list)],
+    'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access archive)],
     'visible'=> 0,
     'local'  => 1,
@@ -60,7 +60,7 @@ package Mj::Config;
    'index_access' =>
    {
     'type'   => 'enum',
-    'values' => [qw(open closed list)],
+    'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
@@ -70,7 +70,7 @@ package Mj::Config;
    'who_access' =>
    {
     'type'   => 'enum',
-    'values' => [qw(open closed list)],
+    'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
@@ -80,7 +80,7 @@ package Mj::Config;
    'which_access' =>
    {
     'type'   => 'enum',
-    'values' => [qw(open closed list)],
+    'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
@@ -90,7 +90,7 @@ package Mj::Config;
    'info_access' =>
    {
     'type'   => 'enum',
-    'values' => [qw(open closed list)],
+    'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
@@ -100,7 +100,7 @@ package Mj::Config;
    'intro_access' =>
    {
     'type'   => 'enum',
-    'values' => [qw(open closed list)],
+    'values' => [qw(open open+password closed list list+password)],
     'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
@@ -289,7 +289,8 @@ package Mj::Config;
    'set_policy' =>
    {
     'type'   => 'enum',
-    'values' => [qw(open closed auto open+confirm closed+confirm auto+confirm)],
+    'values' => [qw(open closed auto open+confirm closed+confirm auto+confirm
+                    auto+password open+password)],
     'groups' => [qw(access)],
     'visible'=> 0,
     'global' => 1,
@@ -299,7 +300,8 @@ package Mj::Config;
    'subscribe_policy' =>
    {
     'type'   => 'enum',
-    'values' => [qw(open closed auto open+confirm closed+confirm auto+confirm)],
+    'values' => [qw(open closed auto open+confirm closed+confirm auto+confirm
+                    auto+password open+password)],
     'groups' => [qw(access)],
     'visible'=> 0,
     'local'  => 1,
@@ -308,7 +310,8 @@ package Mj::Config;
    'unsubscribe_policy' =>
    {
     'type'   => 'enum',
-    'values' => [qw(open closed auto open+confirm closed+confirm auto+confirm)],
+    'values' => [qw(open closed auto open+confirm closed+confirm auto+confirm
+                    auto+password open+password)],
     'groups' => [qw(access)],
     'local'  => 1,
     'visible'=> 0,
