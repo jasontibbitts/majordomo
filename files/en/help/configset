@@ -1,13 +1,15 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname variable = [value]
-configset listname variable <<TAG
+configset[-append][-extract] listname variable [=] [value]
+configset[-append][-extract] listname variable <<TAG
 [value]
 TAB
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (or "GLOBAL")
 variable, required, is one "configset" item
-value, if specified, replaces the old variable setting (null may be OK)
-<<TAG, if specified, provides more than one line for value (here file)
+value,    if specified, replaces the old variable setting (null may be OK)
+<<TAG,    if specified, provides more than one line for value (here file)
+-append,  if specified, causes the value to be catenated with the existing value
+-extract, if specified, causes the value to be removed from the existing value
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 NOTE: The list of possible configset variables is in "help topics".
@@ -83,6 +85,19 @@ Refer to the help file for each configset variable for about passwords
 and visibility.  More syntax and usage information about each configset
 variable, including the list of possible values, who can change it, etc,
 is in the corresponding help file, such as "help configset which_access".
+
+If "append" mode is used, the value given in the command is catenated
+with the existing value.  If a setting requires a blank line between
+values, such as access_rules and delivery_rules do, that line is
+added automatically.  "append" mode does not work for settings that
+do not take values that occupy more than one line.
+
+If "extract" mode is used, the value given in the command is removed
+from the existing value.  If the two values are identical, the
+setting is changed to its default value.  If the two values are
+not identical, but the extracted value occupies a portion of the
+lines of the existing value, that portion is removed from the existing
+value.  Otherwise, an error occurs if the values are not identical.
 
 There no explanation here of WHY a configset might be needed or how
 they interact with each other. For that type of information, send
