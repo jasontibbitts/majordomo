@@ -180,3 +180,17 @@ Queue view
 ----------
 There should be a way to view the message queue.  A separate program,
 mj_mailq, would be sufficient. 
+
+
+Load balancing
+--------------
+Configure a list when it is created to use digest and triggers settings
+randomly chosen from a collection of possibilities.  This would
+distribute the periodic load due to digest deliveries more evenly.
+
+
+Auxiliary lists
+---------------
+Convert the owners and bounce_recipients addresses into auxiliary
+lists to support address validation and access controls.
+
