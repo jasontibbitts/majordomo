@@ -696,7 +696,7 @@ sub parse_args {
   if (defined $arguments) {
     $arguments->{'split'} ||= ' ';
 
-    for (keys %$arguments) {
+    for (sort keys %$arguments) {
       next if ($_ eq 'split');
       next if (exists $arguments->{$_}->{'include'}
                and $request->{'mode'} !~ /$arguments->{$_}->{'include'}/);
