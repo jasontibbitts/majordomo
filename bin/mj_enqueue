@@ -73,10 +73,10 @@ delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 Getopt::Long::Configure("bundling");
 GetOptions(\%opts, 'c=s', 'd=s', 'l=s', 'm', 'M', 'o', 'P=i', 'p=i', 'q',
-	   'Q=s', 't=s', 'T=s', 'v=i', 'x=s', 'req=s%');
+	   'Q=s', 'r', 't=s', 'S', 'T=s', 'v=i', 'x=s', 'req=s%');
 
-use Data::Dumper;
-logmsg Dumper \%opts;
+#use Data::Dumper;
+#logmsg Dumper \%opts;
 
 # Deal with -Q option
 do_qmail() if $opts{'Q'};
