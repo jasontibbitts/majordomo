@@ -25,6 +25,9 @@ use Mj::Log;
 use Mj::Deliver::Connection;
 use strict;
 
+# Change this to 1 and no actual SMTP connections will be made.
+my $DUMMY = 0;
+
 =head2 new
 
 This opens a connection, waits for and processes the greeting from the
@@ -100,7 +103,7 @@ sub send {
   my $comm = shift;
 
   $::log->message(551, "debug", ">>>$comm");
-  $self->{'connection'}->print("$comm\r\n");
+  $self->{'connection'}->print("$comm\r\n") unless $DUMMY;
 }
 
 =head2 getresp(ignore_non_fatal_errors, timeout_multiplier, pipelining)
@@ -139,6 +142,8 @@ sub getresp {
   my $log = new Log::In 550, "$ignore, $tomult";
   my ($code, $error, $message, $multi, $resp, $text);
 
+  return (1,354, 'Dummy mode') if $DUMMY;
+
   $message = "";
 
   while (1) {
@@ -148,7 +153,7 @@ sub getresp {
       warn "Timed out getting response?" if ($tomult);
       return;
     }
-      
+
     $resp =~ s/\r\n$//;
     $::log->message(550, "debug", "<<<$resp");
     ($code, $multi, $text) = ($resp =~ /(\d{3})(.)(.*)/);
@@ -173,7 +178,7 @@ sub getresp {
     # Completely illegal SMTP response.  What to do?
     $::log->abort("Illegal SMTP response: $resp");
   }
-     
+
   ($error, $code, $message);
 }
 
@@ -210,6 +215,9 @@ Send a single line of SMTP '.' escaped data.
 sub senddata {
   my $self   = shift;
   my $string = shift;
+
+  return 1 if $DUMMY;
+
   if ($string =~ /\n$/so) {
     $self->{'sentnl'} = 1;
   }
@@ -272,6 +280,22 @@ sub enddata {
   }
   $self->transact(".")
 }
+
+=head1 COPYRIGHT
+
+Copyright (c) 1997-2002 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
 
 1;
 #

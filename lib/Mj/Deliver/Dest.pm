@@ -72,6 +72,13 @@ of them are:
  deferred    - addresses which fail temporarily during RCPT TO.
  failed      - addresses which fail permanently during RCPT TO.
 
+TODO:
+
+Batched SMTP:
+
+Instead of storing things to RAM, write our side of the SMTP transaction
+out to files and then just dump the file to the MTA.
+
 =cut
 sub new {
   my $type   = shift;
@@ -89,6 +96,7 @@ sub new {
 
   # Pull in sender and file
   $self->{'sender'} = $sender;
+  $self->{'origsender'} = $sender;
   $self->{'file'}   = $file || $data->{'file'};
 
   # Figure out method and args;
@@ -173,6 +181,7 @@ sub new {
   # These counts keep track of the numbers of addresses/domains sent so we
   # know when to mail an envelope.
   $self->{'lhost'}      = $lhost;
+  $self->{'batch'}      = 0;
   $self->{'count'}      = 0;
   $self->{'subcount'}   = 0;
   $self->{'lastdom'}    = '';
@@ -215,7 +224,6 @@ sub make_envelope {
                                'personal' => ($self->{'size'} == 1),
 			       %{$self->{'hostdata'}{$host}},
 			      );
-  1;
 }
 
 
@@ -238,6 +246,24 @@ sub make_qqenvelope {
 				 %{$self->{'hostdata'}{$host}},
 				);
 }
+
+use Mj::Deliver::BSMTPEnvelope;
+sub make_bsmtpenvelope {
+  my $self = shift;
+  my $ch   = shift;
+  my $host = $self->{'activehosts'}[$ch];
+  my $log  = new Log::In 140, "$ch, $host";
+
+  return
+    Mj::Deliver::BSMTPEnvelope->new(
+				    'sender' => $self->{'sender'},
+				    'file'   => $self->{'file'},
+				    'local'  => $self->{'lhost'},
+				    'personal' => ($self->{'size'} == 1),
+				    %{$self->{'hostdata'}{$host}},
+				   );
+}
+
 
 =head2 sendenvelope
 
@@ -269,6 +295,9 @@ sub sendenvelope {
       if (lc($host) eq '@qmail') {
 	$self->{'envelopes'}[$ch] = $self->make_qqenvelope($ch);
       }
+      elsif (lc($host) eq '@bsmtp') {
+	$self->{'envelopes'}[$ch] = $self->make_bsmtpenvelope($ch);
+      }
       else {
 	$self->{'envelopes'}[$ch] = $self->make_envelope($ch);
       }
@@ -279,6 +308,7 @@ sub sendenvelope {
 
     # We're guaranteed to have an envelope.  Address it and fall through to
     # error processing if we couldn't.
+    $self->{envelopes}[$ch]->sender($self->{sender});
     $ok = $self->{'envelopes'}[$ch]->address($self->{'addrs'},
                                              $self->{'deferred'},
                                              $self->{'failed'});
@@ -396,9 +426,7 @@ sub add {
     push @{$self->{'addrs'}}, $addr;
     $self->{'count'}++;
     if ($self->{'count'} >= $self->{'size'}) {
-      $self->sendenvelope;
-      $self->{'count'} = 0;
-      $self->{'addrs'} = [];
+      $self->batch;
     }
   }
 
@@ -410,10 +438,7 @@ sub add {
       $self->{'count'}++;
       $self->{'lastdom'} = $dom;
       if ($self->{'count'} >= $self->{'size'}) {
-	$self->sendenvelope;
-#	print "Sending...\n";
-	$self->{'count'} = 0;
-	$self->{'addrs'} = [];
+	$self->batch;
       }
     }
   }
@@ -431,7 +456,9 @@ sub add {
 
 #	print "Didnt get enough...\n";
 
-	# Nope; stuff what we've collected into the straggler list
+	# Stuff what we've collected into the straggler list. This zeroes
+	# the count but doesn't doesn't start a new batch.
+
 	push @{$self->{'stragglers'}}, @{$self->{'addrs'}};
 #	print "Pushing to stragglers...\n";
 	$self->{'addrs'} = [];
@@ -441,22 +468,16 @@ sub add {
 	# Do we need to push out the stragglers?
 	if ($self->{'subcount'} >= $self->{'subsize'}) {
 	  $self->{'addrs'} = $self->{'stragglers'};
-	  $self->sendenvelope;
-#	  print "Sending stragglers...\n";
-	  $self->{'subcount'} = 0;
-	  $self->{'addrs'} = [];
-	  $self->{'stragglers'} = [];
+	  $self->{stragglers} = [];
+	  $self->{subcount} = 0;
+	  $self->batch;
 	}
       }
       else {
-
 #	print "Got enough...\n";
 
 	# Yep; send them out
-	$self->sendenvelope;
-#	print "Sending separates...\n";
-	$self->{'addrs'} = [];
-	$self->{'count'} = 0;
+	$self->batch;
       }
 
       # Now we note the new domain and add the address
@@ -476,6 +497,26 @@ sub add {
   }
 }
 
+=head2 batch
+
+This ends the current batch and starts a new one.
+
+Zero count.  Move addrs.
+
+=cut
+sub batch {
+  my $self = shift;
+  my $log  = new Log::In 150;
+
+  $self->{count} = 0;
+  $self->{batches}[$self->{batch}]{sender} = $self->{sender};
+  $self->{batches}[$self->{batch}]{addrs}  = $self->{addrs};
+  $self->{batch}++;
+  $self->{addrs} = [];
+}
+
+
+
 =head2 flush
 
 This causes all remaining addresses to be sent.  If sorting is active, the
@@ -486,24 +527,31 @@ use Symbol;
 sub flush {
   my $self = shift;
   my $log  = new Log::In 150;
-  my ($addr, @tmp);
+  my ($addr, $batch, @tmp);
 
   if (@{$self->{'stragglers'}}) {
     if (@{$self->{'addrs'}} >= $self->{'size'}) {
-      $self->sendenvelope;
-#      print "Flushing stragglers...\n";
-      $self->{'addrs'} = $self->{'stragglers'};
-      $self->{'stragglers'} = [];
+      # Stragglers must go in a separate batch
+      $self->batch;
     }
-    else {
-      push @{$self->{'addrs'}}, @{$self->{'stragglers'}};
-    }
+    # Otherwise stragglers can go in the same batch
+    push @{$self->{'addrs'}}, @{$self->{'stragglers'}};
+    $self->{stragglers} = [];
   }
   if (@{$self->{'addrs'}}) {
-    $self->sendenvelope;
-#    print "Flushing addrs...\n";
-    $self->{'addrs'} = [];
+    $self->batch;
   }
+
+  # Now all accumulated addresses are stored in batches.  We can loop over
+  # all batches and call sendenvelope on each
+  for $batch (@{$self->{batches}}) {
+    $self->{sender} = $batch->{sender};
+    $self->{addrs}  = $batch->{addrs};
+    $self->sendenvelope;
+  }
+  $self->{addrs}   = [];
+  $self->{batches} = [];
+
   # deferred addresses failed temporarily during RCPT TO.
   # They are processed last to minimize delays for mail delivered to
   # other recipients.  To lower retry times, each address
@@ -524,20 +572,32 @@ sub flush {
   # Report the problem to the sender.
   if (@{$self->{'failed'}}) {
     $self->_gen_bounces;
+    $self->{failed} = [];
   }
 }
 
 =head2 sender
 
 Set the sender separate from instantiation; to allow the sender to be
-changed after the fact.  Note that since a dest caches all of its
-envelopes, this requires that each envelope''s sender be changed.  These
-changes only take effect _after_ the next envelope init.
+changed after the fact.  This will force a new batch.  Note that since a
+dest caches all of its envelopes, this requires that each envelope''s
+sender be changed.  These changes only take effect _after_ the next
+envelope init.
 
 =cut
 sub sender {
   my $self   = shift;
   my $sender = shift;
+
+  if (@{$self->{addrs}}) {
+    $self->batch;
+  }
+
+  if (@{$self->{stragglers}}) {
+    $self->{addrs} = $self->{stragglers};
+    $self->batch;
+    $self->{stragglers} = [];
+  }
 
   $self->{sender} = $sender;
   for my $env (@{$self->{envelopes}}) {
@@ -558,20 +618,26 @@ automatic bounce processing to work.
 =cut
 sub _gen_bounces {
   my $self = shift;
-  my(@tmp, $ch, $fh, $file, $sender);
+  my $log   = new Log::In 140;
+  my($ch, $dest, $fh, $file, $i, $sender);
 
-  @tmp = @{$self->{'failed'}};
-  unless (grep {$_->[0] eq $self->{'sender'}} @tmp) {
-    return if ($self->{'sender'} =~ /example\.com$/);
-    # save original values
-    $sender = $self->{'sender'};
-    $file = $self->{'file'};
-    $ch = $self->{'currenthost'};
+  # We don't want to bouce recursively
+  return if $self->{data}{nobounces};
+
+  for $i (@{$self->{failed}}) {
+
+    # Never send bounces to example.com
+    next if $i->[1] =~ /example\.com$/;
+
+    # Never send bounces to the bouncing address
+    next if $i->[0] eq $i->[1];
+
+    $file = "$self->{'file'}.flr";
+    $sender = $i->[1];
 
     # XXX temporary file has original file name with ".flr" appended
     $fh = gensym();
-    $self->{'file'} .= ".flr";
-    return unless (open $fh, ">$self->{'file'}");
+    return unless (open $fh, ">$file");
 
     # create an error message resembling an exim bounce.
     print $fh <<EOM;
@@ -584,50 +650,39 @@ A Majordomo message could not be delivered to the following addresses:
 
 EOM
 
-    for (@tmp) {
-      print $fh "  $_->[0]:\n";
-      if ($_->[1]) {
-	print $fh "    $_->[1] $_->[2]\n";
-      }
-      else {
-	print $fh "    554 Connection timed out\n";
-      }
+    print $fh "  $i->[0]:\n";
+    if ($i->[2]) {
+      print $fh "    $i->[2] $i->[3]\n";
+    }
+    else {
+      print $fh "    554 Connection timed out\n";
+      print $fh "    (Probably from a DNS lookup)\n";
     }
     print $fh "-- Original message omitted --\n";
     close($fh)
       or $::log->abort("Unable to close file $self->{'file'}: $!");
 
-    # reinitialize using temporary values and send the message.
-    if (lc($self->{'activehosts'}[$ch]) eq '@qmail') {
-      $self->{'envelopes'}[$ch] = $self->make_qqenvelope($ch);
-    }
-    else {
-      $self->{'envelopes'}[$ch] = $self->make_envelope($ch);
-    }
-    $self->sender('');
-    $self->add($sender);
-    $self->sendenvelope;
+    # Create a new Dest object to send the bounces
+    $dest = new Mj::Deliver::Dest({ %{$self->{data}},
+				    'nobounces' => 1,
+				  },
+				  $file,
+				  '',
+				  $self->{lhost},
+				 );
+    $dest->add($sender);
+    undef $dest;
 
-    # restore original values
-    unlink $self->{'file'};
-    $self->{'addrs'}    = [];
-    $self->{'deferred'} = [];
-    $self->{'failed'}   = [];
-    $self->sender($sender);
-    $self->{'file'} = $file;
-    if (lc($self->{'activehosts'}[$ch]) eq '@qmail') {
-      $self->{'envelopes'}[$ch] = $self->make_qqenvelope($ch);
-    }
-    else {
-      $self->{'envelopes'}[$ch] = $self->make_envelope($ch);
-    }
-  } # unless the sender is a failed address
+    # Delete the file
+    unlink $file;
+  }
+  $self->{failed} = [];
 }
 
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997-2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it

@@ -1,3 +1,16 @@
+2002-05-31  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm: Update version number to 200205310.
+
+	* lib/Mj/Deliver/Envelope.pm (address): When storing a failed
+	address, also store the current sender.
+
+	* lib/Mj/Deliver/Dest.pm (_gen_bounces): Rewrite to generate one
+	bounce message per failed address.  Instead of messing with the
+	current Dest object's state, allocate a new Dest object.  Pass
+	'nobounces' in the argument hash so that we don't bounce
+	recursively.
+
 2002-05-31  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Deliver/Connection.pm (getline): Explicitly check for
@@ -27,6 +40,17 @@
 	* lib/Mj/MailOut.pm:  (welcome)  Add support for the QSADDR
 	substitution, which presents a stripped address in a format
 	suitable for URL query strings.
+
+2002-05-27  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/Deliver/Dest.pm (new): Save original sender away, in case
+	it is useful.
+	(_gen_bounces): Send bounces by allocating a new Dest object
+	instead of messing around in the current ogbject's internal
+	state.
+
+	* lib/Mj/Deliver/Prober.pm (add): Pass on the initial sender to
+	the sub-Dest object.
 
 2002-05-27  Michael Yount <csf@moscow.com>
 
@@ -85,6 +109,38 @@
 	(_make_tokendb, _make_latchkeydb)  Improve error checking.
 	(gen_latchkey)  Return expiration time if an array is
 	requested.
+
+2002-05-24  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/Deliver/SMTP.pm: Add a DUMMY mode, for debugging
+	purposes.  When set, no actual SMTP will happen and no mail will
+	get sent.
+	(send): Dummy mode.
+	(getresp): Dummy mode.
+	(senddata): Dummy mode.
+
+	* lib/Mj/Deliver/Prober.pm (add): Don't explicitly flush until
+	DESTROY time; let the underlying Dest object handle the batching.
+
+	* lib/Mj/Deliver/Dest.pm: Major work to delay all SMTP until flush
+	time.  Store batches of adresses+sender but instead of flushing
+	when a batch is full or the sender is changed, save off the batch
+	and start with a clean one.  When flush is called, go over each
+	batch and perform processing as before.
+	Add some preliminary BSMTP work.
+	(make_bsmtpenvelope): New function: make a BSMTP Envelope.
+	(sendenvelope): Make a BSMTP Envelope when the magic @bsmtp host
+	is seen.
+	(sendenvelope): Explicitly set the sender on the envelope we're
+	about to address.
+	(add): Use the batch method, which handles the batching and cleans
+	up the code a bit.
+	(batch): New function to save the current address list and sender
+	away for later processing.
+	(flush): Loop over batches, sending each one.
+	(sender): Force a new batch when the sender is changed.
+
+	* Makefile.PL: Add BSMTPEnvelope module.
 
 2002-05-16  Jason L Tibbitts III  <tibbs@math.uh.edu>
 

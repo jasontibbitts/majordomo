@@ -85,11 +85,11 @@ sub new {
   $self->{'personal'} = $args{'personal'};
 
   return undef unless $self->init;
-  
+
   if (defined $args{'file'}) {
     $self->file($args{'file'});
   }
-  
+
   $args{'addresses'} ||= $args{'addrs'};
   if (defined $args{'addresses'}) {
     $args{'deferred'} ||= [];
@@ -108,6 +108,7 @@ When the time comes, close down the connection.
 =cut
 sub DESTROY {
   my $self = shift;
+  my $log = new Log::In 550;
   $self->{'smtp'}->QUIT if (defined $self->{'smtp'});
 }
 
@@ -175,7 +176,7 @@ sub address {
   my $failed = shift;
   my $log = new Log::In 150;
   my ($code, $i, $j, $k, $mess, $recip, $val);
-  
+
   unless (ref $addr) {
     $addr = [$addr];
   }
@@ -206,7 +207,7 @@ sub address {
       ($val, $code, $mess) = 
         $self->{'smtp'}->getresp(1, 5);
     }
-      
+
     # Pipelining with no response.  Increment the RCPT count.
     if ( (! defined $val ) and 
          $self->{'smtp'}->{'pipelining'} and
@@ -223,10 +224,10 @@ sub address {
       $log->message(150, 'info', "Address ${$addr}[$j] failed during RCPT TO.");
       my ($badaddr) = splice @{$addr}, $j, 1;
       if (grep {$_->[0] eq $badaddr} @{$deferred}) {
-        push @{$failed}, [$badaddr, $code, $mess];
+        push @{$failed}, [$badaddr, $self->{sender}, $code, $mess];
       }
       else {
-        push @{$deferred}, [$badaddr, $code, $mess];
+        push @{$deferred}, [$badaddr, $self->{sender}, $code, $mess];
       }
       return 0;
     }
@@ -245,10 +246,10 @@ sub address {
         if (! defined $val) {
           my ($badaddr) = splice @{$addr}, $k, 1;
           if (grep {$_->[0] eq $badaddr} @{$deferred}) {
-            push @{$failed}, [$badaddr, $code, $mess];
+            push @{$failed}, [$badaddr, $self->{sender}, $code, $mess];
           }
           else {
-            push @{$deferred}, [$badaddr, $code, $mess];
+            push @{$deferred}, [$badaddr, $self->{sender}, $code, $mess];
           }
           return 0;
         }
@@ -271,10 +272,10 @@ sub address {
         # splice out the address to avoid a loop.
         my ($badaddr) = splice @{$addr}, $j, 1;
         if (grep {$_->[0] eq $badaddr} @{$deferred}) {
-          push @{$failed}, [$badaddr, $code, $mess];
+          push @{$failed}, [$badaddr, $self->{sender}, $code, $mess];
         }
         else {
-          push @{$deferred}, [$badaddr, $code, $mess];
+          push @{$deferred}, [$badaddr, $self->{sender}, $code, $mess];
         }
       }
       # A new MAIL FROM will be required if send() succeeded.
@@ -288,16 +289,16 @@ sub address {
     elsif ($code == 450) {
       my ($badaddr) = splice @{$addr}, $j, 1;
       if (grep {$_->[0] eq $badaddr} @{$deferred}) {
-        push @{$failed}, [$badaddr, $code, $mess];
+        push @{$failed}, [$badaddr, $self->{sender}, $code, $mess];
       }
       else {
-        push @{$deferred}, [$badaddr, $code, $mess];
+        push @{$deferred}, [$badaddr, $self->{sender}, $code, $mess];
       }
     }
     # Any other non-fatal error (550 551 552 553 451) should be reported.
     elsif ($val == -1) {
       my ($badaddr) = splice @{$addr}, $j, 1;
-      push @{$failed}, [$badaddr, $code, $mess];
+      push @{$failed}, [$badaddr, $self->{sender}, $code, $mess];
     }
     # Success
     else {
@@ -373,7 +374,7 @@ sub send {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997-2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it

@@ -185,8 +185,7 @@ sub deliver {
   else {
     return (0, "Unrecognized database type.");
   }
-    
- 
+
   ($ok, $error) = $db->get_start;
   return ($ok, $error) unless $ok;
 
@@ -252,10 +251,12 @@ sub deliver {
     }
   }
 
-  # Close the iterator.
-  return $db->get_done;
+  # Explicitly close the iterator.
+  $db->get_done;
 
-  # Rely on destruction to flush the destinations
+  # Dests will flush when they go out of scope
+
+  1;
 }
 
 =head2 _setup
@@ -283,7 +284,7 @@ sub _setup {
     if ($args{'regexp'} ne 'ALL' and $args{'buckets'} != 1) {
       # Deal with extended sender manipulation if requested
       if ($args{manip}) {
-        $sender = Bf::Sender::any_regular_sender($args{sender}, 
+        $sender = Bf::Sender::any_regular_sender($args{sender},
                                                  $args{sendsep},
                                                  $args{classes}{$i}{seqnum});
       }
@@ -371,7 +372,7 @@ sub _eclass {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2001 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997-2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it

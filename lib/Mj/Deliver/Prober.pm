@@ -39,7 +39,7 @@ sub new {
 
   $self->{'data'}    = $data;
   $self->{'dest'}    = Mj::Deliver::Dest->new($self->{'data'}, $file, 
-                                              '', $lhost, 'single');
+                                              $sender, $lhost, 'single');
   $self->{'sender'}  = $sender;
   $self->{'seqnum'}  = $snum;
   $self->{'sendsep'} = $sep;
@@ -75,24 +75,16 @@ sub add {
 
   # Add the addr to the Dest.
   $self->{'dest'}->add($addr, $canon);
-
-  # Flush the dest.  (It will flush anyway, and we want it to happen now to
-  # keep things simple because we're playing around with the sender.)
-  $self->{'dest'}->flush;
 }
 
-=head2 flush
-
-This is a noop.  We don''t ever keep any unflushed addresses around.
-
-=cut
 sub flush {
-  1;
+  my $self = shift;
+  $self->{'dest'}->flush;
 }
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997-2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
