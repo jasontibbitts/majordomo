@@ -389,7 +389,7 @@ sub confirm {
     }
     elsif ($dest->{'group'} eq 'victim') {
       @recip = (["$args{'victim'}"]);
-      $recip = "$args{'user'}";
+      $recip = "$args{'victim'}";
     }
     else {
       @tmp = $self->get_moderators($args{'list'}, $dest->{'group'},
