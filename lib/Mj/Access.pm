@@ -11,7 +11,7 @@ size reasons.
 =head1 SYNOPSIS
 
  # See that the user is allowed to use the password to subscribe addresses
- $mj->validate_password($user, $passwd, "mylist", "subscribe");
+ $mj->validate_passwd($user, $passwd, "mylist", "subscribe");
 
  # Eradicate the cached, parsed password tables
  $mj->flush_passwd_data;
@@ -64,11 +64,14 @@ XXX There should be some provision for the user to specify that a password
 is _not_ allowed to do something.
 
 =cut
+use Mj::Util qw(ep_convert ep_recognize);
 sub validate_passwd {
   my ($self, $user, $passwd, $list, $action, $global_only) = @_;
-  my (@try, $c, $i, $j, $pdata, $reg);
+  my (@try, $c, $i, $j, $pdata, $reg, $shpass);
   return 0 unless defined $passwd;
   my $log = new Log::In 100, "$user, $list, $action";
+
+  $shpass = '';
 
   if ($self->t_recognize($passwd)) {
     # The password given appears to be a latchkey, a temporary password.
@@ -78,10 +81,17 @@ sub validate_passwd {
     if (defined $self->{'latchkeydb'}) {
       $pdata = $self->{'latchkeydb'}->lookup($passwd);
       if (defined $pdata) {
-        $passwd = $pdata->{'arg1'}
-          if (time <= $pdata->{'expire'});
+        if (time <= $pdata->{'expire'}) {
+          $shpass = $pdata->{'arg1'};
+          unless (ep_recognize($shpass)) {
+            $shpass = ep_convert($shpass);
+          }
+        }
       }
     }
+  }
+  unless ($shpass) {
+    $shpass = ep_convert($passwd);
   }
 
   $global_only = 1
@@ -113,30 +123,30 @@ sub validate_passwd {
       # may not be necessary, but it does make debugging easier by not
       # cluttering up the data structure.
       if (($self->{'pw'}{$i} &&
-	   $self->{'pw'}{$i}{$passwd} &&
-	   $self->{'pw'}{$i}{$passwd}{$c} &&
-	   $self->{'pw'}{$i}{$passwd}{$c}{'ALL'}))
+	   $self->{'pw'}{$i}{$shpass} &&
+	   $self->{'pw'}{$i}{$shpass}{$c} &&
+	   $self->{'pw'}{$i}{$shpass}{$c}{'ALL'}))
 	{
 	  $log->out("approved");
-	  return $self->{'pw'}{$i}{$passwd}{$c}{'ALL'};
+	  return $self->{'pw'}{$i}{$shpass}{$c}{'ALL'};
 	}
       if ($action =~ /^config/ && ($self->{'pw'} &&
 				   $self->{'pw'}{$i} &&
-				   $self->{'pw'}{$i}{$passwd} &&
-				   $self->{'pw'}{$i}{$passwd}{$c} &&
-				   $self->{'pw'}{$i}{$passwd}{$c}{'config_ALL'}))
+				   $self->{'pw'}{$i}{$shpass} &&
+				   $self->{'pw'}{$i}{$shpass}{$c} &&
+				   $self->{'pw'}{$i}{$shpass}{$c}{'config_ALL'}))
 	{
 	  $log->out("approved");
-	  return $self->{'pw'}{$i}{$passwd}{$c}{'config_ALL'};
+	  return $self->{'pw'}{$i}{$shpass}{$c}{'config_ALL'};
 	}
       if  ($self->{'pw'} &&
 	   $self->{'pw'}{$i} &&
-	   $self->{'pw'}{$i}{$passwd} &&
-	   $self->{'pw'}{$i}{$passwd}{$c} &&
-	   $self->{'pw'}{$i}{$passwd}{$c}{$action})
+	   $self->{'pw'}{$i}{$shpass} &&
+	   $self->{'pw'}{$i}{$shpass}{$c} &&
+	   $self->{'pw'}{$i}{$shpass}{$c}{$action})
 	{
 	  $log->out("approved");
-	  return $self->{'pw'}{$i}{$passwd}{$c}{$action};
+	  return $self->{'pw'}{$i}{$shpass}{$c}{$action};
 	}
     }
   }
@@ -146,7 +156,7 @@ sub validate_passwd {
   $reg = $self->_reg_lookup($user, undef, 1);
 
   # Compare password field; return '-1' if eq.
-  if ($reg && $passwd eq $reg->{'password'}) {
+  if ($reg && $shpass eq ep_convert($reg->{'password'})) {
     $log->out('user approved');
     return -1;
   }
@@ -194,6 +204,7 @@ This enables new config settings to be incorporated without flushing
 the old ones.
 
 =cut
+use Mj::Util qw(ep_convert ep_recognize);
 sub _build_passwd_data {
   my $self  = shift;
   my $list  = shift;
@@ -209,6 +220,9 @@ sub _build_passwd_data {
   $pw = $self->_site_config_get('site_password');
   if (defined $pw) {
     # XXX If ALL is ever restricted, the site password must get extra privs.
+    unless (ep_recognize($pw)) {
+      $pw = ep_convert($pw);
+    }
     $self->{'pw'}{$list}{$pw}{'ALL'}{'ALL'} = 5;
   }
 
@@ -216,6 +230,9 @@ sub _build_passwd_data {
   $pw = $self->_list_config_get($list, "master_password");
   if (defined $pw) {
     # XXX If ALL is ever restricted, the master must get extra privs.
+    unless (ep_recognize($pw)) {
+      $pw = ep_convert($pw);
+    }
     $self->{'pw'}{$list}{$pw}{'ALL'}{'ALL'} = ($list eq 'GLOBAL' ? 4 : 2);
   }
 
@@ -235,6 +252,10 @@ sub _build_passwd_data {
     # Iterate over the records
     for ($i=0; $i<@{$table}; $i++) {
 
+      $pw = $table->[$i][0];
+      unless (ep_recognize($pw)) {
+        $pw = ep_convert($pw);
+      }
       # First canonize each address
       for ($j=0; $j<@{$table->[$i][2]}; $j++) {
 	$addr = new Mj::Addr($table->[$i][2][$j]);
@@ -246,12 +267,12 @@ sub _build_passwd_data {
       for ($j=0; $j<@{$table->[$i][1]}; $j++) {
 	if (@{$table->[$i][2]}) {
 	  for $k (@{$table->[$i][2]}) {
-	    $self->{'pw'}{$list}{$table->[$i][0]}{$k}{$table->[$i][1][$j]} =
+	    $self->{'pw'}{$list}{$pw}{$k}{$table->[$i][1][$j]} =
 	      ($list eq 'GLOBAL' ? 3 : 1);
 	  }
 	}
 	else {
-	  $self->{'pw'}{$list}{$table->[$i][0]}{'ALL'}{$table->[$i][1][$j]} =
+	  $self->{'pw'}{$list}{$pw}{'ALL'}{$table->[$i][1][$j]} =
 	    ($list eq 'GLOBAL' ? 3 : 1);
 	}
       }
