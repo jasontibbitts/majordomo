@@ -4350,6 +4350,7 @@ setup/messages/fr/regen_aliases
 setup/messages/fr/response_files
 setup/messages/fr/run_make
 setup/messages/fr/runner_wait
+setup/messages/fr/save_config_pl
 setup/messages/fr/save_passwords
 setup/messages/fr/script_perms
 setup/messages/fr/server_address
@@ -4363,6 +4364,7 @@ setup/messages/fr/syslog_error
 setup/messages/fr/tmp_dir
 setup/messages/fr/umask
 setup/messages/fr/unwritable_dir
+setup/messages/fr/update_siteconfig
 setup/messages/fr/use_nonexistent
 setup/messages/fr/use_unexecutable
 setup/messages/fr/user_group_mismatch

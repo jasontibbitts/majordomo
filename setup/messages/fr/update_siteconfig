@@ -1,0 +1,13 @@
+Configuration du site
+
+Lorsque Majordomo est installé, certaines informations qui s'appliquent
+à chaque domaine géré par Majordomo est sauvé dans le fichier de
+configuration du site. Ce fichier est placé là :
+  $FILE
+
+La série de questions qui vont suivre vont vous permettre de modifier la
+configuration du MTA ou le mot de passe maitre du site. Après avoir
+répondu a toutes ces questions, une copie de vos réponses sera
+sauvegardé dans le fichier ".mj_config" dans dossier courant. Vous aurez
+ensuite la possibilité de modifier le fichier de configuration du site.
+

@@ -1,0 +1,11 @@
+Configuration du site
+
+Voulez vous mettre a jour le fichier de configuration du site ?
+
+Si vous dites "yes", le fichier de configuration
+  $FILE
+sera remplacé par un contenant les réponses que vous venez de donner.
+
+Si vous répondez "no", vous pouvez modifier la configuration en
+utilisant la commande "make install" pour réinstaller le logiciel.
+
