@@ -6,53 +6,86 @@ configset listname dup_lifetime = [VALUE]
 Default Value : 28
 Data Type     : integer
 Category      : moderate
-Password Notes: Visible only with password. Set with global password. 
+Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname dup_lifetime = 28
+configset listname dup_lifetime = 60
 
 
-The number of days that entries in the duplicate databases will be
-kept.  Majordomo saves information about Message-ID:s and various
-checksums of messages that pass through the list in order to filter
-out duplicates.  To limit database size and to cut down on the
-possibility of false positives, these entries are periodically
-trimmed after this number of days.
+$INCLUDE-config/dup_lifetime
 
-When a message is delivered to a regular list, checksums from OTHER
-posts to that same lists are compared to see if the same post has
-already been distributed. The access_rules configuration determines
-whether duplicate posts are denied, sent to the list owner for
-approval, or sent out anyway.
+Majordomo saves the contents of the Message-ID header and two checksums
+of each posted message that is sent to a mailing list, in order to filter
+out duplicates.  The "full" checksum represents the contents of the
+entire body of a posted message.  The "partial" checksum represents the
+contents of the first 10 lines of the first message body part.  By
+default, if a posted message has an ID or checksum that duplicates a
+previous message, the new message will be held for moderation.
 
-Also when a message is delivered, the GLOBAL dup_lifetime setting
-is checked.  If it is zero, no thinning of duplicates is done
-for the entire domain. Duplicates are not checked across domains.
-If a message with the same message ID or full checksum has been
-seen on a DIFFERENT LIST, the lists on which it was delivered are
-checked for addresses that are on the list currently being checked
-and those addresses are not sent copies by the current list. Duplicate
-checking can be avoided on a list-by-list basis by excluding the
-"unique" class from the list of allowed classes. Duplicate checking
-across lists has no influence on the content of digests. For more
-information on duplicates, refer to the "unique" class in "help set".
+To limit database size and to cut down on the possibility of false
+positives, old entries are periodically removed.  The frequency with
+which the old entries are removed is determined by the "checksum"
+trigger in the "triggers" configuration setting.  By default, this
+happens daily.
 
-Currently, this lifetime is also used to determine how long post data
-is kept around for post limiting. See "help configset post_limits".
+By default, IDs and checksums are saved for all messages which are
+posted to a mailing list, even if those messages are rejected by the
+moderators or denied by the access rules.  If the
+"save_denial_checksums" setting is turned off, the checksums of denied
+messages will not be saved.
+
+Four access variables (dup, dup_checksum, dup_msg_id, and
+dup_partial_checksum) can be used to adjust what happens to a duplicate
+message or to turn off one or more of the duplicate checks.  
+See "help configset_access_rules" and "help access_variables" for more
+information about access variables.
+
+
+             Domain-wide duplicates and the "unique" class
+
+Normally, when a message is delivered to the subscribers of a mailing
+list, subscribers with the "unique" delivery class will not receive a
+copy of the message if its checksums or ID match a previously delivered
+message.  See "help set" for a more complete explanation of the "unique"
+class.
+
+If the GLOBAL dup_lifetime setting has a value of zero, duplicate
+checking for the "unique" class will be disabled for every mailing list
+in the domain.  In this case, subscribers in the "unique" class will
+receive each message that is delivered to a mailing list.  Domain-wide
+duplicate checking can be avoided on a list-by-list basis by excluding
+the "unique" class from the allowed_classes configuration setting. 
+
+Domain-wide duplicate checking across lists has no influence on the
+content of digests.
+
+
+                          Database file names
+
+Database files are kept in the main directory of each mailing list.  
+Depending upon the database back end in use, the files will be named
+  _dup_id_.D, _dup_partial.D, and _dup_sum.D
+or
+  _dup_id_.T, _dup_partial.T, and _dup_sum.T
 
 
 See Also:
-   help configset access_rules (for controlling what to do with dups)
-   help configset allowed_classes
-   help configset latchkey_lifetime
-   help configset log_lifetime
-   help configset post_limits
-   help configset session_lifetime
-   help configset token_lifetime
-   help configset triggers
-   help set (for description of the 'unique' subscription class)
+   help access_variables
+   help admin_domain
+   help admin_moderate
+   help configset_access_rules
+   help configset_allowed_classes
+   help configset_bounce_max_age
+   help configset_inactive_lifetime
+   help configset_latchkey_lifetime
+   help configset_log_lifetime
+   help configset_post_lifetime
+   help configset_post_limits
+   help configset_save_denial_checksums
+   help configset_session_lifetime
+   help configset_token_lifetime
+   help configset_triggers
+   help set (for a description of the unique delivery class)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
