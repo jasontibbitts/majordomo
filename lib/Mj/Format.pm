@@ -2062,8 +2062,8 @@ sub cgidata {
   return unless (ref $mj and ref $request);
   $addr = escape("$request->{'user'}");
   
-  $out = sprintf 'domain=%s&user=%s&passw=%s',
-           $mj->{'domain'}, $addr, $request->{'password'};
+  $out = sprintf 'user=%s&passw=%s',
+           $addr, $request->{'password'};
 
   $out = &uescape($out);
   return $out;
