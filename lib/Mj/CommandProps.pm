@@ -117,23 +117,23 @@ my %commands =
    'config'     => {'parser' => [qw(email list obsolete=configshow real)]},
    'configshow' => {'parser' => [qw(email shell list global real)],
                     'dispatch' => {'top' => 1, 
-                                   'arguments' => {'split', '[\s,]+',
-                                                   'groups', 'ARRAY'},
+                                   'arguments' => {'split' => '[\s,]+',
+                                                   'groups' => {'type' => 'ARRAY'}},
                                    'hereargs' => 'groups' 
                                   }
                    },
    'configset'  => {'parser' => [qw(email shell list global real)],
                     'dispatch' => {'top' => 1, 
-                                   'arguments' => {'split', '\s*=\s*',
-                                                   'setting', 'SCALAR',
-                                                   'value', 'ARRAYELEM'},
+                                   'arguments' => {'split' => '\s*=\s*',
+                                                   'setting' => {'type' => 'SCALAR',},
+                                                   'value', {'type' => 'ARRAYELEM'}},
                                    'hereargs' =>  'value',
                                   }
                    },
    'configdef'  => {'parser' => [qw(email shell list global real)],
                     'dispatch' => {'top' => 1, 
                                    'arguments' => {'split', '[\s,]+',
-                                                   'vars', 'ARRAY'},
+                                                   'vars', {'type' => 'ARRAY'}},
                                    'hereargs' =>  'vars',
                                   }
                    },
@@ -190,8 +190,8 @@ my %commands =
    {
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'tokens' => 'ARRAYELEM',
-                                   'xplanation' => 'SCALAR'},
+                   'arguments' => {'tokens' => {'type' => 'ARRAYELEM',},
+                                   'xplanation' => {'type' => 'SCALAR'}},
                    'hereargs'  => 'tokens',
                    'tokendata' => {'arg1' => 'tokens'},
                   },
@@ -201,7 +201,7 @@ my %commands =
    {
     'parser'   => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1, 
-                   'arguments' => {'newaddress', 'SCALAR'},
+                   'arguments' => {'newaddress', {'type' => 'SCALAR'}},
                    'tokendata' => {'arg1' => 'newaddress'},
                   },
     'access'   => {
@@ -214,7 +214,7 @@ my %commands =
    {
     'parser'   => [qw(email shell list global nohereargs real)],
     'dispatch' => {'top' => 1, 
-                   'arguments' => {'file', 'SCALAR'},
+                   'arguments' => {'file', {'type' => 'SCALAR'}},
                    'tokendata' => {'arg1' => 'file'}
                   },
     'access'   => {
@@ -227,7 +227,7 @@ my %commands =
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
-                   'arguments' => {'args', 'SCALAR'},
+                   'arguments' => {'args', {'type' => 'SCALAR'}},
                    'tokendata' => {'arg1' => 'args'}
                   },
     'access'   => {
@@ -240,8 +240,8 @@ my %commands =
    {
     'parser' => [qw(email shell list global real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'auxlist' => 'SCALAR',
-                                   'victims' => 'ARRAYELEM'},
+                   'arguments' => {'auxlist' => {'type' => 'SCALAR',},
+                                   'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs' => 'victims',
                    'tokendata' => {'victim' => 'victims',
                                    'arg1'   => 'auxlist' }
@@ -256,8 +256,8 @@ my %commands =
    {
     'parser' => [qw(email shell list global all real)],
     'dispatch' => {'top' => 1, 
-                   'arguments' => {'auxlist' => 'SCALAR',
-                                   'victims' => 'ARRAYELEM'},
+                   'arguments' => {'auxlist' => {'type' => 'SCALAR',},
+                                   'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs' => 'victims',
                    'tokendata' => {'victim' => 'victims',
                                    'arg1'   => 'auxlist' }
@@ -272,8 +272,8 @@ my %commands =
    {
     'parser' => [qw(email shell list global nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
-                   'arguments' => {'auxlist' => 'SCALAR',
-                                   'regexp'  => 'SCALAR'},
+                   'arguments' => {'auxlist' => {'type' => 'SCALAR',},
+                                   'regexp'  => {'type' => 'SCALAR'}},
                    'tokendata' => {'arg3'    => 'auxlist',
                                    'arg1'    => 'regexp'}
                   },
@@ -287,7 +287,7 @@ my %commands =
    {
     'parser' => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'victims'  => 'ARRAYELEM'},
+                   'arguments' => {'victims'  => {'type' => 'ARRAYELEM'}},
                    'tokendata' => {'victim'   => 'victims'}
                   },
     'access'   => {
@@ -300,8 +300,9 @@ my %commands =
    {
     'parser' => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1, 
-                   'arguments' => {'newlist' => 'SCALAR',
-                                   'victims' => 'ARRAYELEM'},
+                   'arguments' => {'newlist' => {'type' => 'SCALAR',
+                                                 'exclude' => 'regen'},
+                                   'victims' => {'type' => 'ARRAYELEM'}},
                    'tokendata' => {'victim' => 'victims',
                                    'arg1' => 'newlist'}
                   },
@@ -315,7 +316,7 @@ my %commands =
    {
     'parser' => [qw(email shell list nohereargs real)],
     'dispatch' => {'top' => 1, 
-                   'arguments' => {'args' => 'SCALAR'},
+                   'arguments' => {'args' => {'type' => 'SCALAR'}},
                    'tokendata' => {'arg1' => 'args'}
                   },
     'access'   => {
@@ -338,7 +339,7 @@ my %commands =
    {
     'parser'   => [qw(email shell list global nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1, 
-                   'arguments' => {'path' => 'SCALAR'},
+                   'arguments' => {'path' => {'type' => 'SCALAR'}},
                    'tokendata' => {'arg1' => 'path'}
                   },
     'access'   => {
@@ -351,7 +352,7 @@ my %commands =
    {
     'parser'   => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
-                   'arguments' => {'topic' => 'SCALAR'},
+                   'arguments' => {'topic' => {'type' => 'SCALAR'}},
                    'tokendata' => {'arg1' => 'topic'}
                   },
     'access'   => {
@@ -364,7 +365,7 @@ my %commands =
    {
     'parser'   => [qw(email shell list global nohereargs real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'path' => 'SCALAR'},
+                   'arguments' => {'path' => {'type' => 'SCALAR'}},
                    'tokendata' => {'arg1' => 'path'}
                   },
     'access'   => {
@@ -411,9 +412,9 @@ my %commands =
    {
     'parser'   => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1, 
-                   'arguments' => {'optmode' => '^\s*(?!rand|gen).*$',
-                                   'newpasswd' => 'OPTSCALAR',
-                                   'victims'  => 'ARRAYELEM'
+                   'arguments' => {'newpasswd' => {'type' => 'SCALAR',
+                                                   'exclude' => 'rand|gen'},
+                                   'victims'   => {'type' => 'ARRAYELEM',}
                                   },
                    'tokendata' => { 'arg1'   => 'newpasswd',
                                    'victim'  => 'victims'}
@@ -437,7 +438,7 @@ my %commands =
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1, 'noaddr' => 1,
-                   'arguments' => { 'auxlist' => 'SCALAR' },
+                   'arguments' => { 'auxlist' => {'type' => 'SCALAR',} },
                    'hereargs'  =>   'message',
                   },
     'access'   => {
@@ -483,13 +484,16 @@ my %commands =
    {
     'parser'   => [qw(email shell list global real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
-                   'arguments' => {'optmode' => 'data',
-                                   'file'    => 'SCALAR',
-                                   'ocontype'   => 'OPTSCALAR',
-                                   'ocset' => 'OPTSCALAR',
-                                   'oencoding'=> 'OPTSCALAR',
-                                   'olanguage'=> 'OPTSCALAR',
-                                   'xdesc'    => 'SCALAR'},
+                   'arguments' => {'file'     => {'type' => 'SCALAR',},
+                                   'ocontype' => {'type' => 'SCALAR',
+                                                  'include' => 'data'},
+                                   'ocset'    => {'type' => 'SCALAR',
+                                                  'include' => 'data'},
+                                   'oencoding'=> {'type' => 'SCALAR',
+                                                  'include' => 'data'},
+                                   'olanguage'=> {'type' => 'SCALAR',
+                                                  'include' => 'data'},
+                                   'xdesc'    => {'type' => 'SCALAR'}},
                    'hereargs' => 'contents'
                   },
     'access'   => {
@@ -502,9 +506,9 @@ my %commands =
    {
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'optmode'   => 'pass',
-                                   'newpasswd' => 'OPTSCALAR',
-                                   'victims' => 'ARRAYELEM'},
+                   'arguments' => {'newpasswd' => {'type' => 'SCALAR',
+                                                   'include' => 'pass'},
+                                   'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  => 'victims',
                    'tokendata' => {'victim' => 'victims',
                                    'arg1'   => 'newpasswd'}
@@ -519,8 +523,8 @@ my %commands =
    {
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'tokens' => 'ARRAYELEM',
-                                   'xplanation' => 'SCALAR'},
+                   'arguments' => {'tokens' => {'type' => 'ARRAYELEM',},
+                                   'xplanation' => {'type' => 'SCALAR'}},
                    'hereargs'  => 'tokens'
                   },
     # The token is the access restriction
@@ -539,8 +543,8 @@ my %commands =
    {
     'parser'   => [qw(email shell list global all nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
-                   'arguments' => {'action'  => 'SCALAR',
-                                   'date'    => 'SCALAR',},
+                   'arguments' => {'action'  => {'type' => 'SCALAR',},
+                                   'date'    => {'type' => 'SCALAR',},},
                    'tokendata' => {'arg1'   => 'action',
                                    'arg3'   => 'date'}
                   },
@@ -554,7 +558,7 @@ my %commands =
    {
     'parser' => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
-                   'arguments' => {'sessionid' => 'SCALAR'}
+                   'arguments' => {'sessionid' => {'type' => 'SCALAR'}}
                   },
     # The session key is the access restriction
    },
@@ -562,10 +566,11 @@ my %commands =
    {
     'parser'   => [qw(email shell list global all real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'optmode' => 'aux',
-                                   'auxlist' => 'OPTSCALAR',
-                                   'setting' => 'SCALAR',
-                                   'victims' => 'ARRAYELEM'},
+                   'arguments' => {'auxlist' => {'type' => 'SCALAR',
+                                                 'include' => 'aux'},
+                                   'setting' => {'type' => 'SCALAR',
+                                                 'exclude' => 'check'},
+                                   'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  => 'victims',
                    'tokendata' => {'victim' => 'victims',
                                    'arg1'   => 'setting',
@@ -581,7 +586,7 @@ my %commands =
    {
     'parser' => [qw(email shell real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'victims' => 'ARRAYELEM'},
+                   'arguments' => {'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  =>  'victims',
                    'tokendata' => {'victim' => 'victims'}
                   },
@@ -595,7 +600,7 @@ my %commands =
    {
     'parser'   => [qw(email shell list global all real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'action' => 'SCALAR'},
+                   'arguments' => {'action' => {'type' => 'SCALAR'}},
                    'tokendata' => {'arg1' => 'action'}
                   },
     'access'   => {
@@ -608,7 +613,7 @@ my %commands =
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'victims' => 'ARRAYELEM'},
+                   'arguments' => {'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  =>  'victims',
                    'tokendata' => {'victim' => 'victims'}
                   },
@@ -631,7 +636,7 @@ my %commands =
    {
     'parser' => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'token' => 'SCALAR'},
+                   'arguments' => {'token' => {'type' => 'SCALAR'}},
                    'tokendata' => {'arg1'  => 'token'}
                   },
     # The token is the access restriction
@@ -640,7 +645,7 @@ my %commands =
    {
     'parser'   => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'victims' => 'ARRAYELEM'},
+                   'arguments' => {'victims' => {'type' => 'ARRAYELEM'}},
                    'tokendata' => {'victim'  => 'victims'}
                   },
     'access'   => {
@@ -653,7 +658,7 @@ my %commands =
    {
     'parser'   => [qw(email shell real)],
     'dispatch' => {'top' => 1, 
-                   'arguments' => {'victims' => 'ARRAYELEM'},
+                   'arguments' => {'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  =>  'victims',
                    'tokendata' => {'victim' => 'victims'}
                   },
@@ -667,7 +672,7 @@ my %commands =
    {
     'parser'   => [qw(email shell list all real)],
     'dispatch' => {'top' => 1, 
-                   'arguments' => {'victims' => 'ARRAYELEM'},
+                   'arguments' => {'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  =>  'victims',
                    'tokendata' => {'victim' => 'victims'}
                   },
@@ -681,7 +686,7 @@ my %commands =
    {
     'parser'   => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'regexp' => 'SCALAR'},
+                   'arguments' => {'regexp' => {'type' => 'SCALAR'}},
                    'tokendata' => {'arg1'   => 'regexp'}
                   },
     'access'   => {
@@ -694,7 +699,7 @@ my %commands =
    {
     'parser'   => [qw(email shell global list nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
-                   'arguments' => {'regexp' => 'SCALAR'},
+                   'arguments' => {'regexp' => {'type' => 'SCALAR'}},
                    'tokendata' => {'arg1'   => 'regexp'}
                   },
     'access'   => {

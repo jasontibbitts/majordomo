@@ -688,32 +688,32 @@ sub add_deflist {
 sub parse_args {
   my ($request, $args, $arglist, $attachh) = @_;
   my ($k, $arguments, @splitargs);
-  my ($hereargs, @argnames, $argname, $pattern);
+  my ($hereargs, @argnames, $argname);
 
   $hereargs  = function_prop($request->{'command'}, 'hereargs');
   $request->{$hereargs} = [] if $hereargs;
   $arguments = function_prop($request->{'command'}, 'arguments');
   if (defined $arguments) {
     $arguments->{'split'} ||= ' ';
-    $arguments->{'optmode'} ||= '';
-    $pattern = "A-Z";
 
-    # Do not use optional variables unless the mode is correct
-    if ($arguments->{'optmode'} and 
-       ($request->{'mode'} !~ /$arguments->{'optmode'}/)) 
-      { $pattern = "A-NP-Z"; }
- 
-    @argnames = sort grep { $arguments->{$_} =~ /^[$pattern]/ } keys %$arguments;
+    for (keys %$arguments) {
+      next if ($_ eq 'split');
+      next if (exists $arguments->{$_}->{'include'}
+               and $request->{'mode'} !~ /$arguments->{$_}->{'include'}/);
+      next if (exists $arguments->{$_}->{'exclude'}
+               and $request->{'mode'} =~ /$arguments->{$_}->{'exclude'}/);
+      push @argnames, $_;
+    }
        
     @splitargs = split /$arguments->{'split'}/, $args, scalar @argnames;
 
     for $argname (@argnames) {
       $k = shift @splitargs;
-      if ($arguments->{$argname} =~ /SCALAR/) {
+      if ($arguments->{$argname}->{'type'} eq 'SCALAR') {
         $k = '' unless defined $k;
         $request->{$argname} = $k;
       }
-      elsif ($arguments->{$argname} eq 'ARRAYELEM') {
+      elsif ($arguments->{$argname}->{'type'} eq 'ARRAYELEM') {
         if (defined $k) {
           push @{$request->{$argname}}, $k;
         }
@@ -721,7 +721,7 @@ sub parse_args {
           $request->{$argname} = [];
         }
       }
-      elsif ($arguments->{$argname} eq 'ARRAY') {
+      elsif ($arguments->{$argname}->{'type'} eq 'ARRAY') {
         unless (exists $request->{$argname}) {
           $request->{$argname} = [];
         }
