@@ -2504,7 +2504,7 @@ sub accept {
   my $log = new Log::In 30, scalar(@{$request->{'tokens'}}) . " tokens";
   my ($token, $ttoken, @out);
 
-  return [0, "No token supplied.\n"] 
+  return (0, ["No token supplied.\n"])
     unless (scalar(@{$request->{'tokens'}}));
 
   # XXX Log an entry for each token / only recognized tokens? 
@@ -3462,6 +3462,9 @@ sub reject {
   my $log = new Log::In 30, "@{$request->{'tokens'}}";
   my (%file, $data, $desc, $ent, $file, $in, $inf, $inform, $line, $t, @out,
       $list_owner, $mj_addr, $mj_owner, $ok, $mess, $repl, $sess, $site, $token);
+
+  return (0, ["No token supplied.\n"])
+    unless (scalar(@{$request->{'tokens'}}));
 
   for $t (@{$request->{'tokens'}}) { 
 
