@@ -206,7 +206,16 @@ package Mj::Config;
    'attachment_rules' =>
    {
     'type'   => 'attachment_rules',
-    'groups' => [qw(moderate deliver)],
+    'groups' => [qw(moderate)],
+    'local'  => 1,
+    'global' => 0,
+    'visible'=> 1,
+    'mutable'=> 1,
+   },
+   'attachment_filters' =>
+   {
+    'type'   => 'attachment_filters',
+    'groups' => [qw(deliver)],
     'local'  => 1,
     'global' => 0,
     'visible'=> 1,

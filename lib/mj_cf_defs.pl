@@ -88,6 +88,7 @@ $Mj::Config::default_string = q(
  'archive_size'         => 'unlimited',
  'archive_split'        => 'monthly',
  'archive_url'          => '',
+ 'attachment_filters'   => [],
  'attachment_rules'     => [],
  'block_headers'        => ['/X-Loop:.*majordomo/i'],
  'bounce_max_age'       => 31,
