@@ -62,6 +62,7 @@ $files =
    'en/help/configset'                                => ['detailed  help for configset command',     'us-ascii', '7bit'],
    'en/help/configset_access_password_override'       => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_access_rules'                   => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
+   'en/help/configset_access_rules_variables'         => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_ack_attach_original'            => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_ack_denials_always'             => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_addr_allow_at_in_phrase'        => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
