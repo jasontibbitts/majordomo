@@ -216,7 +216,7 @@ unless (defined ${Mj::TextOutput::}{$func}) {
 
 # Make sure the list name is valid
 if ($list ne '') {
-  unless ((-d "$mj->{'ldir'}/$list" and ($list = $mj->legal_list_name($list)))
+  unless ((-d "$mj->{'ldir'}/$list" and $mj->legal_list_name($list))
            or $list eq 'ALL') {
     print "<h3>Invalid list name: $list</h3>\n";
     $::log->message(50, "info",  "Invalid list $list in form data.");
