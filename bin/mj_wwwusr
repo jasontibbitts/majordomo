@@ -65,12 +65,12 @@ my (%commands, @lists, $cgi, $cgidata, $cgiurl, $domain, $extra, $falseuser,
                 'info'          => [0, 0, 1, 1, 'list'],
                 'intro'         => [0, 0, 1, 1, 'list'],
                 'lists'         => [0, 0, 0, 0, 'lists'],
-                'password'      => [0, 1, 0, 1, 'show'],
+                'password'      => [0, 1, 0, 1, 'welcome'],
                 'register'      => [0, 1, 0, 1, 'welcome'],
                 'set'           => [1, 1, 1, 1, 'show'],
                 'show'          => [1, 1, 0, 0, 'show'],
                 'subscribe'     => [0, 1, 1, 1, 'list'],
-                'unregister'    => [1, 1, 0, 1, 'show'],
+                'unregister'    => [1, 1, 0, 1, 'welcome'],
                 'unsubscribe'   => [1, 1, 1, 1, 'show'],
             );
              
@@ -120,14 +120,16 @@ if ($passw) {
 
 #----- Print the generic page header -----#
 $ofunc   = $cgi->param('func') || 'welcome';
-$cgidata = sprintf 'domain=%s&passw=%s&user=%s', $domain, $passw, $user;
+$falseuser = Mj::Format::escape($user);
+$falseuser =~ s/ /%20/g;
+$cgidata = sprintf 'domain=%s&passw=%s&user=%s', $domain, $passw, $falseuser;
 $subs = { $mj->standard_subs('GLOBAL'),
           'CGIDATA'  => $cgidata,
           'CGIURL'   => $cgiurl,
           'COMMAND'  => $ofunc,
           'DOMAIN'   => $domain,
           'PASSWORD' => $passw,
-          'USER'     => $user,
+          'USER'     => Mj::Format::escape($user),
         };
 
 
@@ -141,6 +143,7 @@ if ($ofunc eq 'welcome') {
   &usage($mj, $subs, '');
 }
 elsif ($ofunc eq 'login') {
+  $subs->{'COMMAND'} = 'welcome';
   &login($mj, $subs, '');
 }
 
