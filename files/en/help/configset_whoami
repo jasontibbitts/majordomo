@@ -6,59 +6,35 @@ configset listname whoami = [VALUE]
 Default Value : [defined during installation]
 Data Type     : address
 Category      : miscellany
-Password Notes: Set with global password. 
+Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset GLOBAL whoami = majordomo@nowhere.org
+configset GLOBAL whoami = majordomo@example.org
 
 
-What address do users send requests to? This is the full address
-of the Majordomo server (for the GLOBAL pseudo-list) or the address
-to which subscribers send posts (for a regular email list). If you
-do not specify "whoami_owner", the string "-owner" will be appended
-to the value of "whoami" from the appropriate list.
+$INCLUDE-config/whoami
 
-
-For normal lists:
-  The default value of "whoami" is the address of the list itself,
-  and things will function just fine if you don't specify "whoami".
-  If your list is called "listname@nowhere.org", then you could use
-     configset GLOBAL whereami = nowhere.org
-     configset listname whoami = listname
-  or you could use
-     configset listname whoami = listname@nowhere.org
-  The domain will be supplied by "whereami" if you don't supply it.
-
-  In spite of the comments produced by configshow, the "whoami"
-  address is not the address for requests, it is the address where
-  subscribers send posts for distribution.
-
-
-For the GLOBAL pseudo-list:
-  You should set "whoami" to be the address of the server, such
-  as "majordomo@nowhere.org". This can be a fully qualified address,
-  including the domain, but only if you also specify "whoami_owner".
-  Letting "whoami_owner" default after supplying a domain for "whoami"
-  will cause commands like "lists" to die horribly due to a malformed
-  email address.
-
-  For the GLOBAL pseudo-list, the configshow comments are right.
-  This is the address to which people send "subscribe" and other
-  such requests.
-
-  WARNING:  If you fail to specify "whoami_owner" after supplying
-  a full email address (including domain) for "whoami", commands
-  like "lists" to die horribly due to a malformed email address.
+If this address does not contain a domain, the domain from the GLOBAL
+whereami configuration setting will be appended automatically.  For
+example, the following two commands are equivalent if the value of the
+whereami setting is "example.org":
+  configset listname whoami = listname
+  configset listname whoami = listname@example.org
+  
+The value of this setting can be included in various reply files and
+configuration settings through the WHOAMI and MJ substitution variables.
+See "help variables" for an introduction to substitution variables.
 
 
 See Also:
-   help configset reply_to
-   help configset resend_host
-   help configset sender
-   help configset whereami
-   help configset whoami_owner
+   help admin_domain
+   help admin_delivery
+   help configset_reply_to
+   help configset_resend_host
+   help configset_sender
+   help configset_whereami
+   help configset_whoami_owner
+   help variables
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

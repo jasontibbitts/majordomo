@@ -11,113 +11,75 @@ EXAMPLE:
 configset GLOBAL tmpdir = /var/mj
 
 
-A directory in which to store temporary files.  For security reasons,
-this should not be a directory that normal users have write access to.
-WARNING: Files in the tmpdir are not screened for security!
-         They may contain sensitive information that even the
-         average list owner should not have access to.
+$INCLUDE-config/tmpdir
 
-Whether or not debugging is active, some debug info (perhaps a LOT
-of it) will accumulate in the place that you told it to accumulate
-via "configset GLOBAL tmpdir". To get more information in the debug
-files, refer to "help configset debug" and remember to update your
-sendmail aliases as indicated.
+The tmpdir directory also stores files with debugging information for
+each interface that Majordomo supports.  Over time, the debugging files
+can become large, and old temporary files may accumulate.  Majordomo
+does not have an internal mechanism for removing these old files.
+Consequently, the tmpdir directory should be located on a disk
+partition that has hundreds of megabytes of free space. 
 
-It is recommended that large files should be reset by
+The contents of the tmpdir directory cannot be viewed directly from
+Majordomo.  It must be accessed using the Unix shell.
+
+Debugging files end in a ".debug" extension.  It is recommended that you
+rotate these files periodically.  One way to do this is to use the
+following shell commands:
+
    cp logfile logfile.old
    cat /dev/null > logfile
-This will leave the file ownership and protection "as is", both of
-which are crucial to collecting debug information. Moving the file
-and creating a new one is less "safe", but may also work. 
 
-Small files (other than "*.debug") can be deleted instead of copied,
-but make sure they are not new or you risk removing a file that
-the server is still planning to use.
+This approach will leave the file ownership and protection unchanged,
+both of which are crucial to collecting debug information. Moving the
+file and creating a new one is less "safe", but may also work.  See
+"help configset_debug" for more information on debugging files.
 
-Use standard Unix utilities like "cron" to reset tmpdir files,
-since Majordomo does not EVER clean them up! The interval at which
-you want to reset the log files depends on your system. They grow
-very large very quickly on a busy system and you should watch out
-for 'disk full' problems.
+Some of the contents of the tmpdir directory are not temporary.
+The "locks" directory contains lock files, which are removed
+automatically by the mj_trigger command.  The "mj_queueserv.sock" file
+is a socket which the mj_enqueue, mj_queueserv, and mj_queuerun programs
+use to communicate with one another.
 
-These files can accumulate in the Majordomo temporary directory.
-Notes on how to use the files follow. Numbers and upper case letters
-are variable! Examples are shown here, but variable portions of the
-filenames are replaced with "*" in the paragraphs below:
-  locks              - a directory of file locks - DO NOT DISTURB
-  mj_email.debug     - trace of actions related to subscriber commands
-  mj_majord.debug    - trace of actions related to list owner commands
-  mj_resend.debug    - trace of actions related to sending posts
-  mj_trigger.debug   - time-based actions, as with digests and tokens
-  mj-tmp.4268.AAB    - replyfile/mailfile that couldn't be sent
-  mje.13840.AAA.out  - body of error message that could not be sent
-  mje.13840.final    - complete user error message that failed
-  mje13840.1.mime    - user commands as sent to the server
-  post.13843.AAA     - mailer errors, with original msg at the bottom
+The remaining contents of the tmpdir directory are temporary files.
+Some temporary files will have numbers in their names.  These numbers
+are process IDs.  In the debugging files, each line begins with the
+process ID in square brackets (e.g., [23108]).  Searching the debugging
+files (with the "grep" shell command, for example) for the process ID of
+a stale temporary file may give some indication of the reason Majordomo
+was unable to finish its work and remove the temporary file.
 
-In the *.debug files, search for the string "Majordomo Email client"
-to find the start of individual actions. These lines have both an
-ID number and a date stamp, so if you know what time frame you are
-searching for you can search for a date, then use "grep" to extract
-that item's ID numbered lines from the file.(This can be a great time
-saver, as opposed to editing a 10MB debug file!) To find text from a
-specific message, search mj_resend.debug (which contains the body of
-posts, etc). The *.debug files also contain sequence numbers that
-can be matched up to the "configset sequence_number" for a given list
-(but be aware that the sequence number in the debug files is one
-greater than the corresponding post's header!).
+The name of a temporary file can give some indication of how it was 
+created.
 
-In the post.* files you will find "unknown mailer errors" and other
-leftover messages that Majordomo could not deliver. If these files
-appear, they indicate that a mail handler crashed without cleaning up.
-The ID number from mj_email.debug is used as part of the file name
-for post.* and possibly other files in the temp directory.
+* Files beginning with "post." contain posted messages.
 
-In the *.mime files you will find only the body of a message sent
-to Majordomo. This is a stripped-down version of what you might find
-in a post.* file, but the number in the *.mime file names will most
-likely be used in *.out and *.final files instead of appearing in the
-*.debug files.
+* Files beginning with "owner." contain messages sent to the list
+  owners or delivery failures.
 
-In the *.final files you will find error messages that Majordomo
-tried to send to a user, complete with header, indented user commands,
-and Majordomo error messages. These files will appear when the server
-was unable to deliver the error message (bad return address, etc.).
+* Files beginning with "unparsed." contain posted messages that
+  could not be disassembled by the message parser.
 
-In the *.out files you will find the message body from *.final files,
-without the header information.
+* Files ending in ".mime" contain parts of messages that the message
+  parser has disassembled.
 
-In the mj-tmp.* files you will find replyfiles or mailfiles (mostly
-from "configset access_rules" settings, plus "confirm" and "consult")
-that could not be sent. These files will appear when the server
-was unable to deliver the error message (bad return address, etc.)
-and may contain headers or just the body of the message.
+* Files beginning with "mj-tmp." are messages that are being 
+  mailed to a small number of people, such as a welcome message,
+  confirmation notice, or a file that is retrieved with the "get"
+  command.
 
-If you see mje* files left over in the tmpdir, you can use the number
-that makes up part of their file name to search the *.debug files.
-The *.debug files have a number at the start of each line, and all
-lines with the same number represent a single event. For example, if
-you want to find out more about "mje.13840.final", you can use
-"grep 13840 *.debug > tmp.txt" to extract the relevant lines.
+* Files beginning with "mje." are the results of commands that were
+  processed by the server.
 
-If someone with Unix shell access sets up the system correctly, it
-is possible to "index" and "get" the debug files through the email
-interface. By default, only shell users can access the debug files.
+* Files beginning with "mjr." are posted messages that are/were in the 
+  process of being passed to the MTA for delivery.
 
-WARNING: Files in the tmpdir are not screened for security!
-Do not provide this access unless you know what you are doing...
-You need to have access to the Unix shell command line only once
-(to create the link) in order to enable email access to debug files
-(not each time you want to check for new files) in the temporary
-directory. This will fail if the "configset tmpdir" variable is
-changed and the link is not updated, but it's a good workaround:
-  mj_shell -p XXX configset GLOBAL tmpdir = /var/mj
-  cd .../GLOBAL/files
-  ln -s /var/mj tmpdir
-  mj_shell -p XXX index GLOBAL /tmpdir
-  mj_shell -p XXX get GLOBAL /tmpdir/mje4268.1.mime
-where the "get" command can retrieve any file listed by "index".
-Only those people with an appropriate password can list the files.
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+Older temporary files can be deleted to conserve disk space.  Make sure
+they are not recent, or you risk removing a file that is still in use.
+
+
+See Also:
+   help admin_domain
+   help configset_debug
+
+$INCLUDE-help/foot

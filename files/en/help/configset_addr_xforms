@@ -16,38 +16,44 @@ ignore case
 ENDTAG
 
 
-A list of transformations to be applied to ALL addresses before comparing
-them for equivalency or storing them in the internal database. This can
-be used to remove the '+mailbox' part of an address, or to remove the
-machine name from addresses in a domain, or even to make all addresses
-fully case insensitive. Transforms should listed one per line, and should
-be in the form /pattern/replacement/ unless a special string is used. 
+$INCLUDE-config/addr_xforms
 
-NOTE: These transforms must continue to give the same result when applied
-to the same email address multiple times in succession.
+The transformations will not take full effect until the "rekey" command
+is run.  See "help rekey" for more details.
 
-WARNING: Be _very careful_ with this command.  It is possible, with a bad
-setting of addr_xforms, to severely damage your address database.  If there
-were addresses on any list (or registered) that were different but are now
-the same, the duplicate entries will be silently dropped.  It is generally
-possible to get them back by removing the bad setting from addr_xforms
-and issuing a "rekey" command.
+For ease of use, seven transformations are supported that have
+specific names.  To use one of these transformations, include its
+name in the list, as illustrated in the previous example.
 
-------------------------------------------------------------------------
+  flatten domain - keep only specified portion of domain name
+  ignore case    - ignore case in the local parts (user names) of addresses
+  map domain     - replace specified portion of domain name with another string
+  mungedomain    - identical to "two level" (see below)
+  three level    - strips all but the first 3 domain levels from addresses
+  trim mbox      - removes the +mailbox from the local part of all addresses
+  two level      - strips all but the first 2 domain levels from addresses
 
-Instead of complicated regular expressions (see "help patterns") you
-can use some special strings, one string per line. Here is a summary,
-details and examples are below:
+More details about each transformation appear in the following sections.
 
-1. flatten domain - keeps only specified portion of domain name
-2. ignore case    - ignores case in local (left-hand) parts of all addresses
-3. map domain     - replaces specified portion of domain name with another string
-4. mungedomain    - like Mj1, same as "two level" in Mj2 (see below)
-5. three level    - strips all but the first 3 domain levels from addresses
-6. trim mbox      - removes the +mailbox from the local part of all addresses
-7. two level      - strips all but the first 2 domain levels from addresses
+All other transformations take the form:
+  /PATTERN1/REPLACEMENT/
+Portions of addresses matching PATTERN1 will be replaced by the text
+of REPLACEMENT.  (See "help patterns" for an introduction to patterns.)
+For example, the following transformation:
+  /example\.net/example.org/
+would cause the following two e-mail addresses to be considered
+equivalent:
+  fred@example.net
+  fred@example.org
 
-------------------------------------------------------------------------
+It is possible, with a poor choice of transformations, to lose data from
+a subscriber or registry database.  If two addresses which are
+subscribed to a mailing list become equivalent after the
+transformations, one of the addresses may be removed silently from the
+subscriber database.
+
+
+                      Seven Named Transformations
 
 1. flatten domain XXX - keeps only specified portion (XXX) of domain name
 
@@ -84,7 +90,9 @@ EXAMPLE:  tibbs@z.a.b.c => tibbs@z.d.e.f (for 'map a.b.c to d.e.f')
 
 ------------------------------------------------------------------------
 
-4. mungedomain - like Mj1, same as "two level" in Mj2 (see below)
+4. mungedomain - this transformation is provided for backward
+   compatibility with Majordomo version 1.  It is otherwise identical
+   to the "two level" transformation.
 
 EXAMPLE: tibbs@karazm.math.uh.edu => tibbs@uh.edu
 

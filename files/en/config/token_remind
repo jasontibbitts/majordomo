@@ -1,2 +1,3 @@
-If a token exists longer than this many days, a reminder message will
-be sent.  If this is unset or zero, no reminders will be sent.
+The token_remind setting contains the number of days that a confirmation
+token must exist before a reminder message will be sent.  The reminder
+message contains instructions for accepting or rejecting the token.

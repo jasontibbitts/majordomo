@@ -6,16 +6,47 @@ configset listname token_remind = [VALUE]
 Default Value : 4
 Data Type     : integer
 Category      : access
-Password Notes: Visible only with password. Set with global password. 
+Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
 configset GLOBAL token_remind = 2
 
 
-If a token exists longer than this many days, a reminder message will
-be sent.  If this is unset or zero, no reminders will be sent.
+$INCLUDE-config/token_remind
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+Setting this value to 0 will prevent reminder messages from being sent.
+Regardless of the value of this setting, no more than one reminder
+message will be sent automatically for a particular token.
+
+Reminder messages are sent periodically, as indicated by the "token"
+trigger in the GLOBAL triggers configuration setting.  By default, this
+happens daily.
+
+It is possible to override the token_remind value in certain cases by
+using the "remind" notify variable in a notify directive in the
+access_rules configuration setting.  See "help access_variables" and
+"help configset_access_rules" for more information.
+
+It is possible to send a reminder message to someone by using the
+tokeninfo-remind command.  See "help tokeninfo" for more details.
+
+
+See Also:
+   help accept
+   help access_variables
+   help admin_moderate
+   help configset_access_rules
+   help configset_dup_lifetime
+   help configset_inactive_lifetime
+   help configset_latchkey_lifetime
+   help configset_log_lifetime
+   help configset_post_lifetime
+   help configset_session_lifetime
+   help configset_token_lifetime
+   help configset_triggers
+   help reject
+   help showtokens
+   help tokeninfo
+
+$INCLUDE-help/foot

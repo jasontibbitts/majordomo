@@ -1,11 +1,11 @@
-This list of transformations is applied to all addresses before
-comparing them for equivalency or storing them in the internal database.
-This can be used to remove address extensions, to remove part of the
-domain name, or to convert capital letters into small letters, for
-example.
+The addr_xforms setting contains a list of transformations.  These
+transformations are applied to all addresses before comparing them for
+equivalence or storing them in the internal databases.  Transformations
+can be used to remove address extensions, to remove part of the domain
+name, or to convert capital letters into small letters, for example.
 
-Each transform must appear on a separate line and should be in the form
-/pattern/replacement/ unless a special string is used. 
+Each transformation must appear on a separate line and should be in the
+form /pattern/replacement/ unless a special string is used. 
 
-Each transform must continue to give the same result when applied to the
-same email address multiple times in succession.
+Each transformation must continue to give the same result when applied
+to the same email address multiple times in succession.

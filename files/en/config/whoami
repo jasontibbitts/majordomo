@@ -1,5 +1,4 @@
-What address do users send requests to? This is the full address
-of the Majordomo server (for the GLOBAL pseudo-list) or the address
-to which subscribers send posts (for a regular email list). If you
-do not specify "whoami_owner", the string "-owner" will be appended
-to the value of "whoami" from the appropriate list.
+The whoami setting contains an e-mail address.  For regular mailing
+lists, it contains the address to which messages should be posted.
+For the GLOBAL pseudo-list, it contains the address to which commands
+should be sent.

@@ -1,2 +1,4 @@
-A directory in which to store temporary files.  For security reasons,
-this should not be a directory that normal users have write access to.
+The tmpdir setting contains a directory in which Majordomo stores
+temporary files when it is delivering messages or processing commands.
+For security reasons, this should not be a directory to which normal
+users have write access.

@@ -1,3 +1,3 @@
-The number of days that a token will be allowed to live without being
-acknowledged (either approved or rejected).  Tokens existing longer
-than this many days are deleted at every daily trigger.
+The token_lifetime setting contains the number of days that a 
+confirmation token will exist.  Any token that is not accepted or
+rejected within this time period will be removed automatically.
