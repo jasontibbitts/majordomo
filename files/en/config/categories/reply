@@ -1,7 +1,7 @@
 
 
 The reply category includes the following settings:
-   ack_attach_original, allowed_flags, date_info, date_intro, default_flags, 
-   default_language, file_search, file_share, filedir, inform, nonmember_flags, 
+   ack_attach_original, allowed_flags, default_flags, default_language, 
+   file_search, file_share, filedir, inform, nonmember_flags, 
    request_answer, return_subject, welcome, welcome_files
 
