@@ -11,7 +11,7 @@
 <h4 align=center>Search the Subscriber List</h4>
 
 <ol>
-  <li>Choose one of the three search methods by pressing
+  <li>Choose one of the two search methods by pressing
       the appropriate button.</li>
   <li>Type a search pattern into the <b>Search pattern</b> box. (Please see
       the $HELP:PATTERNS help document to learn how to write
@@ -33,10 +33,6 @@
   <input type="radio" name="func" value="who-bounce">
   Search the $LIST subscriber list for addresses with bounces 
     (using the $HELP:WHO-bounce command)<br>
-
-  <input type="radio" name="func" value="which">
-  Search all of the mailing lists
-    (using the $HELP:WHICH command)<br>
 
 Search pattern: <input name="pattern" value=".">
 Number of addresses:

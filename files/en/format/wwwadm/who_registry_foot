@@ -3,13 +3,33 @@
 </table>
 <input type="submit" name="func" value="$REMOVE">
 </form>
+
 <p>
 <a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?PREVIOUS&chunksize=$CHUNKSIZE">Previous $CHUNKSIZE Addresses</a><br>
+
 <a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?NEXT&chunksize=$CHUNKSIZE">Next $CHUNKSIZE Addresses</a>
 </p>
+
 <h4 align=center>Search the Registry</h4>
 
+<ol>
+  <li>Choose one of the two search methods by pressing
+      the appropriate button.</li>
+  <li>Type a search pattern into the <b>Search pattern</b> box. 
+      (Please see the $HELP:PATTERNS 
+      help document to learn how to write a search pattern.)
+  </li>
+  <li>Type the number of addresses you wish to view at
+      one time into the <b>Number of addresses</b> box.
+      (This is a per-list limit if you use the <b>which</b>
+       command to search.)
+  </li>
+
+  <li>Press the <b>search</b> button.</li>
+</ol>
+
 <form method="POST" action="$CGIURL">
+
   <input name="list" type="hidden" value="$LIST">
   <input name="passw" type="hidden" value="$CMDPASS">
   <input type="hidden" name="user" value="$USER">
@@ -17,15 +37,18 @@
   <input type="radio" name="func" value="who" checked>
   Search the registry
     (using the $HELP:WHO command)<br>
+
   <input type="radio" name="func" value="which">
   Search all of the mailing lists
     (using the $HELP:WHICH command)<br>
 
-Search pattern: <input name="pattern" value=".">
-<br>
-Number of addresses to show:
-  <input name="chunksize" size="10" value="$CHUNKSIZE">
+  Search pattern: <input name="pattern" value=".">
+
+  Number of addresses:
+    <input name="chunksize" size="10" value="$CHUNKSIZE">
+
   <input type="submit" value="search">
+
 </form>
 
 <h4 align=center>Register or Unregister Addresses</h4>
