@@ -1910,12 +1910,14 @@ sub parse_restrict_post {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-
-  if (@$arr) {
-    my $t = shift(@$arr);
-    unshift(@$arr, split(/\s+/, $t));
+  my $out = [];
+  
+  push(@$out, split(/\s+/, $arr->[0])) if @$arr;
+  for (my $i = 1; $i < @$arr; $i++) {
+    push @$out, $arr->[$i];
   }
-  return (1, '', $arr);
+
+  return (1, '', $out);
 }
 
 =head2 parse_string, parse_string_array
