@@ -623,7 +623,7 @@ placing the multiline part of the command in a file and specifying the file
 using the B<-f> switch.  For example, if 'addr_file' contains a list of
 addresses, one per line, you can do the following:
 
-  mj_shell -p pass -f addr_file subscribe=noinform,nowelcome mylist
+  mj_shell -p pass -f addr_file subscribe-noinform-nowelcome mylist
 
 For another example, if the file 'inform_file' contains the following:
 
