@@ -71,7 +71,7 @@ use vars qw(@ISA);
 
 @ISA=qw(Mj::SimpleDB);
 
-my @fields = (qw(stripaddr fulladdr subtime changetime class classarg classarg2 flags rewritefrom expire remind id bounce diagnostic));
+my @fields = (qw(stripaddr fulladdr subtime changetime class classarg classarg2 flags groups expire remind id bounce diagnostic));
 
 =head2 new(path)
 
@@ -80,14 +80,11 @@ SimpleDB object with the fields we use.
 
 =cut
 sub new {
-  my $type  = shift;
+  my ($type, %args)  = @_;
   my $class = ref($type) || $type;
 
-  my $path = shift;
-  my $back = shift;
-
-  new Mj::SimpleDB(filename => $path,
-		   backend  => $back,
+  new Mj::SimpleDB(
+		   %args, 
 		   fields   => \@fields,
 		   compare  => \&compare,
 		  );
