@@ -1,0 +1,11 @@
+Configuring the "$DOMAIN" domain
+
+Do you want to create this domain now?
+
+If you answer yes, you must have sufficient permissions to create
+the directories and update the configuration information for
+this domain.
+
+If you answer no, the answers to your previous questions will be
+saved, and you or someone else can install the domain later.
+

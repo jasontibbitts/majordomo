@@ -14,7 +14,7 @@ require "setup/query_util.pl";
 require "setup/install_util.pl";
 require "setup/setup_func.pl";
 use vars qw($config $lang $nosep $sepclear);
-my (@domains, $dom, $newdomain);
+my (@domains, $dom, $install, $newdomain);
 
 $config = eval { require ".mj_config" };
 die retr_msg('no_mj_config', $lang)
@@ -61,31 +61,37 @@ while (1) {
 
   ask_domain($config, $newdomain);
 
-  # Create list directories and such
-  create_dirs_dom(
-              $config->{'lists_dir'},
-              $newdomain,
-              scalar getpwnam($config->{'uid'}),
-              scalar getgrnam($config->{'gid'}),
-              $config->{'umask'},
-             );
-  print ".ok\n";
+  $install = 
+    get_bool(retr_msg('install_domain', $lang, 'DOMAIN' => $dom), 1);
 
-  do_default_config($newdomain);
-  install_config_templates($config, $newdomain);
+  if ($install) {
 
-  # Give some basic MTA configuration
-  mta_append($newdomain);
-
-  if ($config->{sendmail_make_symlinks}) {
-    make_alias_symlinks($newdomain,
-                        $config->{sendmail_symlink_location});
-    &dot;
+    # Create list directories and such
+    create_dirs_dom(
+                $config->{'lists_dir'},
+                $newdomain,
+                scalar getpwnam($config->{'uid'}),
+                scalar getgrnam($config->{'gid'}),
+                $config->{'umask'},
+               );
     print ".ok\n";
+
+    do_default_config($newdomain);
+    install_config_templates($config, $newdomain);
+
+    # Give some basic MTA configuration
+    mta_append($newdomain);
+
+    if ($config->{sendmail_make_symlinks}) {
+      make_alias_symlinks($newdomain,
+                          $config->{sendmail_symlink_location});
+      &dot;
+      print ".ok\n";
+    }
   }
 
   # save the values in the configuration file.
-  open(CONFIG, ">.mj_config") || die("Cannot create .mj_config: $!");
+  open(CONFIG, ">.mj_config") || die ("Cannot create .mj_config: $!");
   print CONFIG Dumper($config);
   close CONFIG;
   if ($config->{save_passwords}) {
