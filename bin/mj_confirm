@@ -128,6 +128,8 @@ $sess .= "Date: " . scalar(localtime(time)) . "\n";
 
 #----- Collect some useful substitution variables -----#
 $user   = "z$ENV{'REMOTE_ADDR'}\@example.com";
+# Convert colons to underscores in IPv6 addresses
+$user   =~ s/:/_/g;
 $ptoken = $cgi->param('t');
 $action = $cgi->param('a') || 'tokeninfo-nosession';
 $mode   = join ('-', $cgi->param('m')) || '';

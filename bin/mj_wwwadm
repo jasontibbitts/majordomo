@@ -150,6 +150,8 @@ $sess .= "Date: " . scalar(localtime(time)) . "\n";
 
 #----- Determine the address of the user. -----#
 $falseuser = "y$ENV{'REMOTE_ADDR'}\@example.com";
+# Convert colons to underscores in IPv6 addresses
+$falseuser =~ s/:/_/g;
 $user      = $cgi->param('user') || $falseuser;
 
 $ofunc   = $cgi->param('func') || 'welcome';

@@ -140,8 +140,10 @@ for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
 $sess .= "Date: " . scalar(localtime(time)) . "\n";
 
 #----- Determine the address of the user. -----#
-$falseuser   = "x$ENV{'REMOTE_ADDR'}\@example.com";
-$user    = $cgi->param('user') || $pathinfo || $falseuser;
+$falseuser = "x$ENV{'REMOTE_ADDR'}\@example.com";
+# Convert colons to underscores in IPv6 addresses
+$falseuser =~ s/:/_/g; 
+$user      = $cgi->param('user') || $pathinfo || $falseuser;
 
 #----- Determine the password -----#
 $opass = $cgi->param('passw');
