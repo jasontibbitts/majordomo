@@ -230,14 +230,14 @@ sub owner_done {
   my ($self, $request) = @_;
   $request->{'list'} ||= 'GLOBAL';
   my $log  = new Log::In 30, "$request->{'list'}";
-  my (@owners, $badaddr, $handled, $sender);
+  my (@owners, $badaddr, $handled, $sender, $user);
   $badaddr = '';
 
   $self->{'owner_fh'}->close;
   $self->_make_list($request->{'list'});
 
   # Call bounce handling routine
-  ($handled, $badaddr) = 
+  ($handled, $user, $badaddr) = 
    $self->handle_bounce($request->{'list'}, $self->{'owner_file'});
 
   if (! $handled) {
@@ -257,7 +257,7 @@ sub owner_done {
   unlink $self->{'owner_file'};
   undef $self->{'owner_fh'};
   undef $self->{'owner_file'};
-  (1, $badaddr);
+  (1, $user, $badaddr);
 }
 
 =head2 handle_bounce
@@ -275,7 +275,7 @@ sub handle_bounce {
   my $log  = new Log::In 30, "$list";
 
   my (@bouncers, @owners, $addrs, $data, $diag, $ent, $fh, $handled, $handler, $i,
-      $lsender, $mess, $msgno, $nent, $parser, $sender, $subj, $tmp,
+      $lsender, $mess, $msgno, $nent, $parser, $sender, $source, $subj, $tmp,
       $tmpdir, $type, $whoami);
 
   $parser = new Mj::MIMEParser;
@@ -289,9 +289,13 @@ sub handle_bounce {
   # Extract information from the envelope, if any, and parse the bounce.
   $whoami = $self->_global_config_get('whoami');
   $whoami =~ s/\@.*$//;
-  $addrs  = '';
+  $source = 'unknown@anonymous';
+  $addrs  = [];
 
   if (defined $ent) {
+    chomp($source = $ent->head->get('from') ||
+          $ent->head->get('apparently-from') || 'unknown@anonymous');
+
   ($type, $msgno, $user, $handler, $data) =
     Mj::BounceParser::parse($ent,
 			    $list eq 'GLOBAL'?$whoami:$list,
@@ -349,12 +353,11 @@ sub handle_bounce {
 
       if ($subj) {
 	$subj .= ", $i";
-        $addrs .= ", $i";
       }
       else {
 	$subj  = "Bounce detected from $i";
-        $addrs = $i;
       }
+      push @$addrs, $i;
     }
 
     # Build a new message which includes the explanation from the bounce
@@ -387,7 +390,7 @@ sub handle_bounce {
   $nent->purge if $nent;
 
   # Tell the caller whether or not we handled the bounce
-  ($handled, $addrs);
+  ($handled, $source, $addrs);
 }
 
 =head2 handle_bounce_token

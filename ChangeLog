@@ -2,10 +2,11 @@
 
 	* lib/Majordomo.pm:  (dispatch) Treat an "owner" command as
 	a "bounce" during inform() if a bad address was supplied.
+	Set the "user" to the message author and put bad addresses
+	into the command line variable.
 
 	* lib/Mj/MailOut.pm (handle_bounce):  Return the bad
-	address one was found (this does not account for multiple
-	bad addresses in one error message) for logging purposes.
+	addresses (if any were found) and message author (always).
 
 	* bin/mj_wwwadm, lib/Mj/Format.pm (who):  Show bounce diagnostics.
 

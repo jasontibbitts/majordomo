@@ -425,7 +425,11 @@ sub dispatch {
     }
     if ($base_fun eq 'post' or $base_fun eq 'owner' and $out->[1]) {
       $request->{'user'} = $out->[1];
-      $base_fun = "bounce" if ($base_fun eq 'owner');
+      if ($request->{'command'} eq 'owner_done' and @{$out->[2]}) {
+        $base_fun = "bounce";
+        $request->{'cmdline'} = "(bounce from " .
+                                join(" ", @{$out->[2]}) . ")";
+      } 
     }
     # Inform on post_done and post and owner_done, 
     # but not on post_start or owner_start.

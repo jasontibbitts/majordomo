@@ -678,9 +678,14 @@ sub report {
     }
     last unless scalar @$chunk;
     for $data (@$chunk) {
-      # Remove the comment from the victim's address.
-      $victim = ($data->[1] =~ /post|bounce/) ? $data->[2] : $data->[3];
-      $victim =~ s/.*<([^>]+)>.*/$1/;
+      if ($data->[1] eq 'bounce') {
+        ($victim = $data->[4]) =~ s/\(bounce from (.+)\)/$1/;
+      }
+      else {
+        $victim = ($data->[1] =~ /post|owner/) ? $data->[2] : $data->[3];
+        # Remove the comment from the victim's address.
+        $victim =~ s/.*<([^>]+)>.*/$1/;
+      }
       @tmp = localtime($data->[9]);
       $end = strftime("%d %b %H:%M", @tmp);
 
