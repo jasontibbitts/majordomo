@@ -432,8 +432,8 @@ if ($commands{$func}->[3] ne $func and $ofunc ne 'set-check') {
   if ($func eq 'changeaddr') {
     # restore original user if changeaddr did not succeed.
     $request->{'user'} = $user if ($result->[0] < 1);
-    undef $request->{'victim'};
-    undef $request->{'victims'};
+    delete $request->{'victim'};
+    delete $request->{'victims'};
   }
 
   if ($cgi->param('brief') or $raw) {
