@@ -40,8 +40,9 @@ my %actions =
    'unset'           => {files => [],},
 
    # These are for bounce_rules
-   'unsubscribe'     => {files => [],    terminal => 1,},
+   'remove'          => {files => [],    terminal => 1,},
    'ignore'          => {files => [],    terminal => 1,},
+   'inform'          => {files => [],    terminal => 1,},
   );
 
 my %generic_modes =
@@ -923,8 +924,9 @@ my %commands =
 			       'month'                => 2,
 			      },
 		 'actions' => {
-			       'unsubscribe' => {files => [],    terminal => 1,},
-			       'ignore'      => {files => [],    terminal => 1,},
+			       'remove' => {files => [], terminal => 1,},
+			       'ignore' => {files => [], terminal => 1,},
+			       'inform' => {files => [], terminal => 1,},
 			      },
 		},
    },

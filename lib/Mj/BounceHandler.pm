@@ -157,6 +157,9 @@ sub handle_bounce_message {
 
   # Now plow through the data from the parsers
   for $i (keys %$data) {
+
+    # We completely ignore warnings
+    next if $data->{$i}{status} eq 'warning';
     $tmp = $self->handle_bounce_user(%args,
 				     user => $i,
 				     %{$data->{$i}},
@@ -171,6 +174,9 @@ sub handle_bounce_message {
     }
     push @$addrs, $i;
   }
+
+  # We can bail if we didn't get any non-warning addresses
+  return [] unless @$addrs;
 
   # Build a new message which includes the explanation from the bounce
   # parser and attach the original message.
@@ -265,6 +271,7 @@ Does the bounce processing for a single user.  This involves:
 *) return an explanation message block to the caller
 
 =cut
+use Mj::CommandProps 'action_terminal';
 sub handle_bounce_user {
   my $self   = shift;
   my %params = @_; # Can't use %args, because the access code uses it.
@@ -325,109 +332,109 @@ sub handle_bounce_user {
       $mess .= "    Bounces last 30 days:           $args{month_overload}$args{month}\n"
 	if $args{month};
       $mess .= "    Consecutive messages bounced:   $args{consecutive}\n"
-	if $args{consecutive};
+	if $args{consecutive} && $args{consecutive} > 3;
       $mess .= "    Percentage of messages bounced: $args{bouncedpct}\n"
-	if $args{bouncedpct};
+	if $args{bouncedpct} || $args{numbered} >= 5;
 
-#        # Make triage decision.  Run the parsed code from bounce_rules.  XXX
-#        # Note that most of this code is duplicated from access_rules.  This
-#        # is bad; the code needs to be shared.
-#        $rules = $self->_list_config_get($list, 'bounce_rules');
+      # Make triage decision.  Run the parsed code from bounce_rules.  XXX
+      # Note that most of this code is duplicated from access_rules.  This
+      # is bad; the code needs to be shared.
+      $rules = $self->_list_config_get($list, 'bounce_rules');
 
-#        # Fill in the memberof hash as necessary
-#        for $i ($rules->{check_aux}) {
-#  	# Handle list: and list:auxlist syntaxes; if the list doesn't
-#          # exist, just skip the entry entirely.
-#          if ($i =~ /(.+):(.*)/) {
-#            ($tmpl, $tmpa) = ($1, $2);
-#            next unless $self->_make_list($tmpl);
-#          }
-#          else {
-#            ($tmpl, $tmpa) = ($list, $i);
-#          }
-#          $memberof{$i} = $self->{'lists'}{$tmpl}->is_subscriber($user, $tmpa);
-#        }
+      # Fill in the memberof hash as necessary
+      for $i (keys %{$rules->{check_aux}}) {
+  	# Handle list: and list:auxlist syntaxes; if the list doesn't
+	# exist, just skip the entry entirely.
+	if ($i =~ /(.+):(.*)/) {
+	  ($tmpl, $tmpa) = ($1, $2);
+	  next unless $self->_make_list($tmpl);
+	}
+	else {
+	  ($tmpl, $tmpa) = ($list, $i);
+	}
+	$memberof{$i} = $self->{'lists'}{$tmpl}->is_subscriber($user, $tmpa);
+      }
 
-#        # Add in extra arguments
-#        $args{days_since_subscribe} = (time - $sdata->{subtime})/86400;
+      # Add in extra arguments
+      $args{days_since_subscribe} = (time - $sdata->{subtime})/86400;
 
-#        # Prepare to execute the rules
-#        $skip = 0;
-#        $cpt = new Safe;
-#        $cpt->permit_only(@permitted_ops);
-#        $cpt->share(qw(%args %memberof $skip));
+      # Prepare to execute the rules
+      $skip = 0;
+      $cpt = new Safe;
+      $cpt->permit_only(@permitted_ops);
+      $cpt->share(qw(%args %memberof $skip));
 
-#        # Loop until we get a terminal action
-#      RULE:
-#        while (1) {
-#  	$actions = $cpt->reval($rules->{code});
-#  	warn "Error found when running bounce_rules code:\n$@" if $@;
+      # Loop until we get a terminal action
+    RULE:
+      while (1) {
+	$actions = $cpt->reval($rules->{code});
+	warn "Error found when running bounce_rules code:\n$@" if $@;
 
-#  	# The first element of the action array is the ID of the matching
-#  	# rule.  If we have to rerun the rules, we will want to skip to the
-#  	# next one.
-#  	$actions ||= [0, 'ignore'];
-#  	$skip = shift @{$actions};
+	# The first element of the action array is the ID of the matching
+	# rule.  If we have to rerun the rules, we will want to skip to the
+	# next one.
+	$actions ||= [0, 'ignore'];
+	$skip = shift @{$actions};
 
-#  	# Now go over the actions we received.  We must process 'set' and
-#  	# 'unset' here so that they'll take effect if we have to rerun the
-#  	# rules.  Other actions are pushed into @final_actions.  If we hit a
-#  	# terminal action we stop rerunning rules.
-#        ACTION:
-#  	for $i (@{$actions}) {
-#  	  ($func, $arg) = split(/[=-]/, $i, 2);
-#  	  # Remove enclosing parentheses
-#  	  if ($arg) {
-#              $arg =~ s/^\((.*)\)$/$1/;
-#              $i = "$func=$arg";
-#  	  }
+	# Now go over the actions we received.  We must process 'set' and
+	# 'unset' here so that they'll take effect if we have to rerun the
+	# rules.  Other actions are pushed into @final_actions.  If we hit a
+	# terminal action we stop rerunning rules.
+      ACTION:
+	for $i (@{$actions}) {
+	  ($func, $arg) = split(/[=-]/, $i, 2);
+	  # Remove enclosing parentheses
+	  if ($arg) {
+            $arg =~ s/^\((.*)\)$/$1/;
+            $i = "$func=$arg";
+	  }
 
-#  	  if ($func eq 'set') {
-#  	    # Set a variable.
-#  	    ($arg, $value) = split(/[=-]/, $arg, 2);
-#  	    if ($arg and ($ok = rules_var('_bounce', $arg))) {
-#  	      if ($value and $arg eq 'delay') {
-#  		my ($time) = time;
-#  		$args{'delay'} = Mj::List::_str_to_time($value) || $time + 1;
-#  		$args{'delay'} -= $time;
-#  	      }
-#  	      elsif ($value and $ok > 1) {
-#  		$args{$arg} = $value;
-#  	      }
-#  	      else {
-#  		$args{$arg} ||= 1;
-#  	      }
-#  	    }
-#  	    next ACTION;
-#  	  }
-#  	  elsif ($func eq 'unset') {
-#  	    # Unset a variable.
-#  	    if ($arg and rules_var('_bounce', $arg)) {
-#  	      $args{$arg} = 0;
-#  	    }
-#  	    next ACTION;
-#  	  }
-#  	  elsif ($func eq 'reason') {
-#  	    if ($arg) {
-#  	      $arg =~ s/^\"(.*)\"$/$1/;
-#  	      $args{'reasons'} = "$arg\002" . $args{'reasons'};
-#  	    }
-#  	    next ACTION;
-#  	  }
+	  if ($func eq 'set') {
+	    # Set a variable.
+	    ($arg, $value) = split(/[=-]/, $arg, 2);
+	    if ($arg and ($ok = rules_var('_bounce', $arg))) {
+	      if ($value and $arg eq 'delay') {
+		my ($time) = time;
+		$args{'delay'} = Mj::List::_str_to_time($value) || $time + 1;
+		$args{'delay'} -= $time;
+	      }
+	      elsif ($value and $ok > 1) {
+		$args{$arg} = $value;
+	      }
+	      else {
+		$args{$arg} ||= 1;
+	      }
+	    }
+	    next ACTION;
+	  }
+	  elsif ($func eq 'unset') {
+	    # Unset a variable.
+	    if ($arg and rules_var('_bounce', $arg)) {
+	      $args{$arg} = 0;
+	    }
+	    next ACTION;
+	  }
+	  elsif ($func eq 'reason') {
+	    if ($arg) {
+	      $arg =~ s/^\"(.*)\"$/$1/;
+	      $args{'reasons'} = "$arg\002" . $args{'reasons'};
+	    }
+	    next ACTION;
+	  }
 
-#  	  # We'll process the function later.
-#  	  push @final_actions, $i;
+	  # We'll process the function later.
+	  push @final_actions, $i;
 
-#  	  $saw_terminal ||= action_terminal($func);
-#  	}
+	  $saw_terminal ||= action_terminal($func);
+	}
 
-#  	# We need to stop if we saw a terminal action in the results of the
-#  	# last rule
-#  	last RULE if $saw_terminal;
-#        }
+	# We need to stop if we saw a terminal action in the results of the
+	# last rule
+	last RULE if $saw_terminal;
+      }
 
-#        # XXX Don't actually do anything yet
-#        $mess .= "  Bounce rules said: @final_actions.\n";
+      # XXX Don't actually do anything yet
+      $mess .= "  Bounce rules said: @final_actions.\n";
 
       # Remove user if necessary
     }

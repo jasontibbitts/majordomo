@@ -2338,7 +2338,7 @@ last two are generated using bounces for which message numbers were
 collected and require a pool of that type bounce (two and five, resp.)
 before any statistics are generated.
 
-=cut 
+=cut
 sub bounce_gen_stats {
   my $self = shift;
   my $bdata = shift;
@@ -2370,13 +2370,14 @@ sub bounce_gen_stats {
       $lastnum = $i;
       $stats->{consecutive}++;
     }
+    else {
+      undef $lastnum;
+      $stats->{consecutive} = 1;
+    }
   }
 
-  # We shouldn't export some statistics unless they're relevant
-  delete($stats->{consecutive})
-    unless $stats->{consecutive} && $stats->{consecutive} >= 2;
-
-  if ($stats->{numbered} && $stats->{numbered} >= 5) {
+  $stats->{bouncedpct} = 0;
+  if ($stats->{numbered} && $stats->{span}) {
     $stats->{bouncedpct} = int(.5 + 100*($stats->{numbered} / $stats->{span}));
   }
 

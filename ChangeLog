@@ -1,3 +1,34 @@
+2000-12-05  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Config.pm (parse_bounce_rules): Fix off by one error in
+	rule IDs.
+
+	* lib/Mj/List.pm (bounce_gen_stats): Always generate all
+	statistics.  
+
+	Computation of consecutive bounce count was badly busted.
+	
+	* lib/Mj/Config.pm (parse_bounce_rules): The default action is
+	'inform', not 'ignore'.
+
+	* lib/Mj/BounceHandler.pm (handle_bounce_user): Import
+	'action_terminal' from Mj::CommandProps.
+
+	Since all stats are always generated, don't include some messages
+	about statistics when they are meaningless.
+
+	Enable the bounce_rules checking code; include the result in the
+	report but don't actually do anything with is.
+	
+	* lib/Mj/CommandProps.pm: 'remove' is a terminal action.
+
+2000-12-04  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/BounceHandler.pm (handle_bounce_message): Completely
+	ignore warning bounces.
+
+	* lib/Mj/CommandProps.pm: Revise actions for bounce_rules.
+
 2000-12-04  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* setup/ask_domain.pl (ask_domain): Make it clear that the

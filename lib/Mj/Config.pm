@@ -1562,7 +1562,7 @@ sub parse_bounce_rules {
 
       # Compile the rule
       ($ok, $error, $part, $check_aux, $check_time) =
-	_compile_rule('_bounce', $acts, {}, $rule, $i);
+	_compile_rule('_bounce', $acts, {}, $rule, $i+1);
 
       # If the compilation failed, we return the error
       return (0, "\nError compiling rule for $i: $error")
@@ -1576,7 +1576,7 @@ sub parse_bounce_rules {
   }
 
   # By default the bounces are ignored
-  $data->{'code'} .= "\nreturn [$i, 'ignore'];\n";
+  $data->{'code'} .= "\nreturn [". ($i+1) .", 'inform'];\n";
 
   # If we get this far, we know we shouldn't have any errors, but maybe
   # some warnings

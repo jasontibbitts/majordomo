@@ -110,9 +110,26 @@ Statistics are always gathered when appropriate.
 bounce_rules variables:
 
 $failure - true if bounce indicates a failure
-$warning - true if bounce indicates a warning
+$warning - true if bounce indicates a warning (currently warnings are
+   always ignored, so this is useless)
 $consecutive - count of consecutive messages bounced
-(more)
+
+$bouncedpct - percentage of messages bounced, determined by look at how
+  many messages have bounced between the first known bounce and the last.
+  Note that this is not an absolute indicator of how many messages have
+  bounced, since it make take a week or more to see bounces.  This means
+  that if an address bounces once, $bouncedpct is will be 100.  So, only
+  use $bouncedpct in conjunction with some other measure of bounces, such
+  as $month.  When used this way, $bouncedpct is quite useful in handling
+  addresses that bounce some constant percentage of messages but that you
+  don't want removed automatically.
+$day - the number of bounces in the past 24 hours.
+$week - the number of bounces in the past seven days.
+$month - the number of bounces in the last thirty days.
+$days_since_subscribe - the number of days since the address was added to
+  the list.
+$numbered - the number of numbered bounces seen.
+$span - the difference between the lowest and highest message bounced.
 
 default:
 
