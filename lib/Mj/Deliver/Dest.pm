@@ -276,7 +276,11 @@ sub sendenvelope {
     $ok = $self->{'envelopes'}[$ch]->address($self->{'addrs'}, $self->{'deferred'});
     # Return now if no addresses remain to be processed.
     return 0 if (!@{$self->{'addrs'}});
-    next if $ok == 0;
+    if ($ok == 0) {
+      undef $self->{'envelopes'}[$ch];
+      next;
+    }
+
 
     if ($ok < 0 && @{$self->{'addrs'}} == 1) {
       # We only had one address and it had a non-fatal error (meaning that
