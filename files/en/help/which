@@ -1,7 +1,7 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-which-regexp searchstring
+which-regex searchstring
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
--regexp, if specified, makes searchstring a pattern (see "help patterns")
+-regex, if specified, makes searchstring a pattern (see "help patterns")
 searchstring, required, is an email address fragment you wish to find
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -13,11 +13,11 @@ may be in comment fields, just the simple email addresses).
 Each list owner may decide who is authorized to use this command,
 and you will receive an error message if you have been refused access.
 
-If the "-regexp" option is used, "searchstring" is interpreted as a
+If the "-regex" option is used, "searchstring" is interpreted as a
 Majordomo matching pattern. Review the "help patterns" file carefully.
 Patterns can be very simple or full-blown Perl regular expressions.
 
-Without the "-regexp" option, "searchstring" is matched literally
+Without the "-regex" option, "searchstring" is matched literally
 with no interpretation of special characters. Matching is case sensitive.
 
 Which can return a huge amount of data, so be as specific as possible
