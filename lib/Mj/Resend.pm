@@ -469,7 +469,7 @@ sub _post {
   # Convert the message date into a time value.
   $date = $archead->get('date') || ''; chomp $date;
   $date = &str2time($date);
-  $date = time unless ($date < time);
+  $date = time unless ($date > 0 and $date < time);
   ($msgnum) = $self->{'lists'}{$list}->archive_add_start
     ($sender,
      {
@@ -915,7 +915,8 @@ sub _r_ck_body {
   $avars->{percent_quoted} =
     int(100*($avars->{quoted_lines} / $avars->{lines}));
   # Untaint
-  $avars->{body_length} =~ /(\d+)/; $avars->{body_length} = $1;
+  $avars->{body_length} =~ /(\d+)/; 
+  $avars->{body_length} = $1;
 
   if ($first) {
     $sum1 = $sum1->hexdigest;
@@ -1016,6 +1017,11 @@ sub _ck_theader {
 	}
       }
     }
+    # Untaint
+    $avars->{total_header_length} =~ /(\d+)/; 
+    $avars->{total_header_length} = $1;
+    $avars->{max_header_length} =~ /(\d+)/; 
+    $avars->{max_header_length} = $1;
   }
   # Now complain about missed inverted matches
   for $i (keys %inv) {
@@ -1125,6 +1131,9 @@ sub _check_mime {
         }
       }
     }
+    # Untaint
+    $avars->{mime_header_length} =~ /(\d+)/;
+    $avars->{mime_header_length} = $1;      
   }
 }
 
