@@ -2712,6 +2712,7 @@ sub _get_mailfile {
 
   $sender = $self->_list_config_get($list, 'sender');
 
+  # XXX Should File basename be specified explicitly?
   $ent = build MIME::Entity
     (
      Path     => $file,
@@ -4463,6 +4464,16 @@ Contents:
         open ($i, "< $part->{'file'}");
         $part->{'fh'} = $i;
       }
+      elsif ($request->{'mode'} =~ /clean/ and
+             $part->{'entity'}->effective_type =~ /text\/html/i) {
+        $file = $self->clean_text($part->{'entity'});
+        return (0, undef) unless (defined $file and length $file);
+        push @{$self->{'archive_temps'}}, $file;
+        $i = gensym();
+        open ($i, "< $file");
+        return (0, undef) unless (defined $i);
+        $part->{'fh'} = $i;
+      }
       else {
         $part->{'fh'} = $part->{'entity'}->open("r");
       }
@@ -4499,6 +4510,10 @@ sub archive_done {
   delete $self->{'archct'};
   delete $self->{'arcadmin'};
 
+  if (exists $self->{'archive_temps'}) {
+    unlink @{$self->{'archive_temps'}};
+    delete $self->{'archive_temps'};
+  }
   if (exists $self->{'msg_parser'}) {
     if (defined $MIME::Tools::VERSION and $MIME::Tools::VERSION >= 5) {
       $self->{'msg_parser'}->filer->purge;
@@ -6612,7 +6627,12 @@ sub _set {
       $db = $self->{'lists'}{$list}->{'sublists'}{$sublist};
     }
 
-    $chunksize = 1000;
+    if ($mode =~ /allmatching/) {
+      $chunksize = 1000;
+    }
+    else {
+      $chunksize = 1;
+    }
     $count = 0;
     while (@tmp = $db->get_matching_regexp($chunksize, 'stripaddr', $vict)) {
       while (($k, $v) = splice @tmp, 0, 2) {
@@ -6626,6 +6646,7 @@ sub _set {
         next unless ($addr = new Mj::Addr($k));
         push @addrs, $addr, $data;
       }
+      last unless ($mode =~ /allmatching/);
     }
     $db->get_done;
     unless ($count) {
@@ -7223,7 +7244,7 @@ sub _get_msg_data {
 sub tokeninfo_chunk {
   my ($self, $request, $chunksize) = @_;
   my $log = new Log::In 550, $request->{'id'};
-  my ($i, $line, $out, $part);
+  my ($i, $file, $line, $out, $part);
 
   return (0, undef) unless (exists $self->{'msg_data'});
 
@@ -7234,10 +7255,21 @@ sub tokeninfo_chunk {
   $request->{'part'} ||= 0;
 
   $part = $self->{'msg_data'}->{$request->{'part'}};
-  unless (exists $part->{'fh'}) {
+  unless (exists $part->{'fh'} and defined $part->{'fh'}) {
     if ($request->{'part'} eq '0') {
       $i = gensym();
       open ($i, "< $part->{'file'}");
+      return (0, undef) unless (defined $i);
+      $part->{'fh'} = $i;
+    }
+    elsif ($request->{'mode'} =~ /clean/ and
+           $part->{'entity'}->effective_type =~ /text\/html/i) {
+      $file = $self->clean_text($part->{'entity'});
+      return (0, undef) unless (defined $file and length $file);
+      push @{$self->{'tokeninfo_temps'}}, $file;
+      $i = gensym();
+      open ($i, "< $file");
+      return (0, undef) unless (defined $i);
       $part->{'fh'} = $i;
     }
     else {
@@ -7262,6 +7294,10 @@ sub tokeninfo_done {
   my ($self, $request) = @_;
   my $log = new Log::In 550, $request->{'id'};
 
+  if (exists $self->{'tokeninfo_temps'}) {
+    unlink @{$self->{'tokeninfo_temps'}};
+    delete $self->{'tokeninfo_temps'};
+  }
   if (exists $self->{'msg_parser'}) {
     if (defined $MIME::Tools::VERSION and $MIME::Tools::VERSION >= 5) {
       $self->{'msg_parser'}->filer->purge;
