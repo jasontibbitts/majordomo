@@ -2,6 +2,10 @@ Someone ($REQUESTER) has made the following request:
 
   $CMDLINE
 
+It requires your confirmation for the following reason(s):
+
+  $REASONS
+
 If you want this action to be taken, please do one of the following:
 
 1. If you have web browsing capability, visit

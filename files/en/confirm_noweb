@@ -2,6 +2,10 @@ Someone ($REQUESTER) has made the following request:
 
   $CMDLINE
 
+It requires your confirmation for the following reason(s):
+
+  $REASONS
+
 If you want this action to be taken, please reply to this message
 with the word "accept" (without quotes) on a line by itself.
 
