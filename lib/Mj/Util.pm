@@ -98,6 +98,7 @@ $Mj::Util::safe = '';
         'darn tootin'    => 1,
         'shore nuf'      => 1,
         'ayuh'           => 1,             # Maine
+        'on'             => 1,
        );
 
 %Mj::Util::no = (
@@ -114,6 +115,7 @@ $Mj::Util::safe = '';
        'no way'         => 1,
        'as if'          => 1,
        'in your dreams' => 1,
+       'off'            => 1,
       );
 
 1;
