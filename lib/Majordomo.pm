@@ -350,7 +350,7 @@ sub dispatch {
   $request->{'mode'}     ||= '';
   $request->{'mode'}       = lc $request->{'mode'};
   $request->{'mode'}       =~ /([a-z-]+)/; 
-  $request->{'mode'}       =~ $1;
+  $request->{'mode'}       = $1;
   $request->{'password'} ||= '';
   $request->{'user'}     ||= 'unknown@anonymous';
   $request->{'victim'}   ||= '';
@@ -370,7 +370,7 @@ sub dispatch {
   $request->{'list'} = $ok;
 
   # XXX Move this to Mj::Access.
-  if ($request->{'password'} =~ /^[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}$/) {
+  if ($self->t_recognize($request->{'password'})) {
     # The password given appears to be a latchkey, a temporary password.
     # If the latchkey exists and has not expired, convert the latchkey
     # to a permanent password for the call to dispatch().
@@ -4818,10 +4818,15 @@ sub trigger {
   if ($mode =~ /^(da|l)/ or grep {$_ eq 'log'} @ready) {
     $self->l_expire;
   }
+  # Mode: daily or checksum - expire checksum and message-id databases
+  if ($mode =~ /^(da|c)/ or grep {$_ eq 'checksum'} @ready) {
+    $self->{'lists'}{'GLOBAL'}->expire_dup;
+  }
+
   # Loop over lists
   $self->_fill_lists;
   for $list (keys %{$self->{'lists'}}) {
-    # GLOBAL and DEFAULT never have duplicate databases or members
+    # GLOBAL and DEFAULT never have bounces, etc.
     next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
     next unless $self->_make_list($list);
 
