@@ -1,13 +1,14 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 tokeninfo[-nosession]  token
 tokeninfo-remind       token
-tokeninfo-part         token part_number
+tokeninfo-part[-clean] token part_number
 tokeninfo-part-delete  token part_number
 tokeninfo-part-edit    token part_number
 tokeninfo-part-replace token part_number <<ENDTAG
 [New Contents]
 ENDTAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-clean,   if specified, will remove hazardous HTML tags
 -delete,  if specified, will remove part of a posted message
 -edit,    if specified, allows part of a posted message to be changed
 -nosession, if specified, prevents session info from being displayed
@@ -124,6 +125,10 @@ Also, part number '0' can be used to see the entire original message.
 This command should be used with caution; if a body part contains a
 malicious worm or virus, Majordomo will make no attempt to shield your
 computer against its effects when you view it.
+
+The tokeninfo-part-clean command can be used to remove potentially
+hazardous portions of a text/html part, such as fill-out forms, images,
+and executable scripts.
 
 
 The tokeninfo-part-delete command

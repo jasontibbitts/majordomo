@@ -3,7 +3,9 @@ archive-delete[-hidden][-force]    listname date_count_number
 archive-get[-immediate][-hidden]   listname date_count_number
 archive-get-digest[-mime][-hidden] listname date_count_number 
 archive-index[-hidden]             listname date_count_number
-archive-part[-delete][-edit][-get] listname message_number part_number
+archive-part-delete                listname message_number part_number
+archive-part-edit                  listname message_number part_number
+archive-part-get[-clean]           listname message_number part_number
 archive-stats[-hidden]             listname date_count_number
 archive-summary                    listname
 archive-sync                       listname pattern
@@ -16,6 +18,7 @@ listname,          required,     is the name of a mailing list
 message_number,    if specified, indicates a single message
 part_number,       if specified, refers to a portion of a message
 pattern,           if specified, indicates the names of files
+-clean,   if specified, removes dangerous portions of an HTML part
 -delete,  if specified, causes messages to be removed from the archive
 -digest,  if specified, causes messages to be mailed in digests
 -edit,    if specified, allows part of a posted message to be changed
@@ -376,6 +379,10 @@ new contents.  The archive databases will be synchronized automatically.
 
 The archive-part-delete command will remove part of a message.  The
 archive databases will be synchronized automatically.
+
+The archive-part-get-clean or archive-part-edit-clean will remove
+potentially dangerous portions of a text/html body part, such as
+images, fill-out forms, and scripts, before the part is displayed.
 
 
 Notes for list administrators
