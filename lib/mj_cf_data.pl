@@ -229,7 +229,8 @@ EOC
    },
    'allowed_classes' =>
    {
-    'type'   => 'string_array',
+    'type'   => 'enum_array',
+    'values' => [qw(all digest each nomail)],
     'groups' => [qw(class)],
     'visible'=> 0,
     'local'  => 1,
