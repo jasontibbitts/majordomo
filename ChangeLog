@@ -1,3 +1,13 @@
+2003-04-23  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Resend.pm:  (post)  Bugfix:  Untaint moderation
+	reasons to avoid tainting bug in old versions of Perl.
+	Thanks to John Levine.
+	(_post)  Issue a warning if any of the access variables is
+	tainted.
+	(_check_header, et al.)  Avoid warnings for taboo code eval
+	when no patterns are defined.
+
 2003-04-19  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Resend.pm (post): Add some additional access variables to

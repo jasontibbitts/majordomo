@@ -90,7 +90,7 @@ use File::Copy 'mv';
 sub post {
   my ($self, $request) = @_;
   my ($ack_attach, $approved, $avars, $c_t_encoding, $c_type, $desc,
-      $ent, $fh, $fileinfo, $head, $list, $mess, $nent, $ok, $owner,
+      $ent, $fh, $fileinfo, $head, $i, $list, $mess, $nent, $ok, $owner,
       $parser, $passwd, $reasons, $sender, $spool, $subject, $subs,
       $thead, $token, $tmpdir, $user);
   my $log = new Log::In 30, 
@@ -168,8 +168,9 @@ sub post {
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
     $avars->{admin} || $avars->{bad_approval} ||
     $avars->{body_length_exceeded} || $avars->{invalid_from} ||
-    $avars->{mime_header_length_exceeded} ||
-    $avars->{total_header_length_exceeded} || '';
+    $avars->{mime_header_length_exceeded} || $avars->{limit} ||
+    $avars->{total_header_length_exceeded} || 
+    $avars->{max_header_length_exceeded} || '';
 
   $avars->{'sublist'} = $request->{'sublist'} || '';
   $avars->{'time'} = time;
@@ -193,6 +194,12 @@ sub post {
       || $::log->abort("Unable to create spool file: $!");
     $request->{'file'} = "$self->{'ldir'}/GLOBAL/spool/$spool";
     chomp @$reasons;
+
+    # Untaint
+    for ($i = 0; $i < @$reasons; $i++) {
+      $reasons->[$i] =~ /(.*)/; $reasons->[$i] = $1;
+    }
+
     $avars->{'reasons'} = join("\003", @$reasons);
     $request->{'vars'} = join("\002", %$avars);
     $request->{'victim'} = $user;
@@ -447,6 +454,13 @@ sub _post {
     }
   }
   else { $sl = ''; }
+
+  # Issue a warning if any of the avars data are tainted.
+  for $i (keys %avars) {
+    if (Majordomo::is_tainted($avars{$i})) {
+      warn "Mj::Resend::_post: The $i variable is tainted.";
+    }
+  }
 
   # $sl now holds the untainted sublist name.
   if (!$sl and $mode !~ /archive/) {
@@ -1174,6 +1188,7 @@ sub _check_header {
   for $i ('GLOBAL', $list) {
     for $j ('admin_headers', 'taboo_headers', 'noarchive_headers') {
       $data = $self->_list_config_get($i, $j);
+      next unless (defined $data);
       push @inv, @{$data->{'inv'}};
       $code->{$j}{$i} = $data->{'code'};
     }
@@ -1328,6 +1343,7 @@ sub _r_ck_header {
       # Now run all of the taboo codes
       for $k ('GLOBAL', $list) {
 	for $l ('admin_headers', 'taboo_headers', 'noarchive_headers') {
+          next unless (defined $code->{$l}{$k});
 
 	  # Eval the code
 	  @matches = $safe->reval($code->{$l}{$k});
@@ -1374,6 +1390,7 @@ sub _check_body {
   for $i ('GLOBAL', $list) {
     for $j ('admin_body', 'taboo_body', 'noarchive_body') {
       $data = $self->_list_config_get($i, $j);
+      next unless (defined $data);
       push @inv, @{$data->{'inv'}};
       $tcode->{$i}{$j} = $data->{'code'};
 
@@ -1832,6 +1849,7 @@ sub _ck_tbody_line {
 
   for $i ('GLOBAL', $list) {
     for $j ('admin_body', 'taboo_body', 'noarchive_body') {
+      next unless (defined $code->{$i}{$j});
       # Eval the code
       @matches = $safe->reval($code->{$i}{$j});
       warn $@ if $@;
@@ -1937,19 +1955,17 @@ sub _describe_taboo {
 
   # Build match type and set the appropriate access variable
   if ($list eq 'GLOBAL') {
-    $type .= "global_";
+    $type = 'global_';
     $global = 1;
   }
 
-  if ($var =~ /^admin/i) {
-    $name = "admin";
-  }
-  elsif ($var =~ /^noarchive/i) {
-    $name = "noarchive";
+  if ($var =~ /^([a-z]+)_/i) {
+    $name = $1;
   }
   else {
-    $name = "taboo";
+    $name = $var;
   }
+
   $type .= "${name}_${class}";
   $avars->{$type} += $sev;
 
@@ -1958,12 +1974,15 @@ sub _describe_taboo {
   unless ($class eq uc($class)) {
     $type =~ s/\_/ /g; # underscores to spaces
     if ($inv) {
+      # XLANG
       $reason = uc("inverted $type") . ": $rule failed to match";
     }
     elsif ($line) {
+      # XLANG
       $reason = uc($type) . ": $rule matched \"$match\"$trunc at line $line";
     }
     else {
+      # XLANG
       $reason = uc($type) . ": $rule matched \"$match\"$trunc";
     }
     push @$reasons, $reason;
@@ -1971,6 +1990,8 @@ sub _describe_taboo {
     # Bump the combined match variables
     $avars->{$name} += $sev;
   }
+
+  1;
 }
 
 =head2 _trim_approved
