@@ -254,7 +254,7 @@ sub run_queue {
             if ($func eq 'majordomo') {
               $log->message(50, 'info', 'Processing commands');
               debug_to('majord');
-              unlink $file if (parse_commands($mj, 'GLOBAL'));
+              unlink $file if (parse_commands($mj, ''));
               debug_to('queuerun');
               close MSG;
               next MSG;
@@ -533,7 +533,8 @@ sub parse_commands {
   if (defined($head->get('x-loop'))) {
     $head->replace('subject', "Majordomo loop detected: " . $head->get($subject));
     $sender = $mj->global_config_get(undef, undef, 'sender');
-    $owner = $mj->list_config_get(undef, undef, $deflist, 'whoami_owner');
+    $owner = $mj->list_config_get(undef, undef, $deflist || 'GLOBAL', 
+                                  'whoami_owner');
     if ($sender and $owner) {
       $mj->mail_entity($sender, $entity, $owner);
       return 1;
