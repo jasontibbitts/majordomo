@@ -4786,7 +4786,7 @@ sub trigger {
                    Mj::Digest::in_clock($times->{'delay'}));
       
       ($ok, $mess, $data, $tmp) =
-        $self->t_accept($key, '', 'The request was completed after a delay', 0));
+        $self->t_accept($key, '', 'The request was completed after a delay', 0);
       $self->inform($data->{'list'},
                     $data->{'command'},
                     $data->{'user'},
