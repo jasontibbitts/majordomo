@@ -27,7 +27,7 @@ use strict;
 
 use AutoLoader 'AUTOLOAD';
 
-=head2 inform(list, request, requester, user, cmdline, success, override, comment,elapsed)
+=head2 inform(list, request, requester, user, cmdline, success, override, comment, elapsed)
 
 This is the general-purpose information routine.  It makes use of the
 inform variable, which should be the parsed version of the list config
@@ -75,6 +75,7 @@ sub inform {
     unless $fh;
 
   $user ||= ''; $requ ||= '';
+  $elapsed = sprintf("%.3f", $elapsed);
 
   # Log the data
   my $line = join("\001", $list, $req, $requ, $user, $cmd, $int, $stat,
