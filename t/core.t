@@ -118,7 +118,7 @@ print "Make sure whereami got set\n";
 $request->{command}  = 'configshow';
 $request->{groups}   = ['whereami'];
 $result = $mj->dispatch($request);
-ok('example.com', $result->[1][3]);
+ok('example.com', $result->[1][4]);
 
 print "Set GLOBAL inform so we don't send any mail from owner synchronization\n";
 $result = $mj->dispatch({user     => 'unknown@anonymous',
