@@ -144,9 +144,9 @@ Kvirtuser sequence virtuser0 virtuser1 virtuser2
 which creates three separate maps, then chains them together to form the
 final virtuser map.
 
-To do this with the M4 config, you need a like like:
+To do this with the M4 config, you need a line like:
 
-FEATURE(virtusertable, sequence virtuser0 virtuser1 virtuser2)
+FEATURE(virtusertable)
 
 and then, at the very end of the .mc file, use a LOCAL_CONFIG section to
 add some code verbatim into the .mc file:
@@ -158,6 +158,7 @@ LOCAL_CONFIG
 Kvirtuser0 dbm -o /etc/virtusertable
 Kvirtuser1 dbm -o /path/to/lists/ALIASES/mj-vut-domain1
 Kvirtuser2 dbm -o /path/to/lists/ALIASES/mj-vut-domain2
+Kvirtuser sequence virtuser0 virtuser1 virtuser2
 
 Note that currently you must rebuild these using makemap yourself; Sendmail
 has no facility to automatically rebuild these files.  You may want to do
