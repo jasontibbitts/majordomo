@@ -11,76 +11,85 @@ Password Notes: Visible only with password.
 
 EXAMPLE:
 configset listname restrict_post << ENDTAG
-asublist
-bsublist
+sublist1
+otherlist:sublist2
 ENDTAG
 
 EXAMPLE:
-configset listname restrict_post = asublist: bsublist:
+configset listname restrict_post = sublist1 otherlist:sublist2
 
-This is an array variable, but for backwards compatibility the
-line is split on spaces, tabs, and colons.
 
-If restrict_post is defined for a given list, only addresses belonging
-to one of the listed sublists will be allowed to post to that list.
-This functionality of restrict_post is completely encapsulated within
-the access_rules mechanism, but it remains for backwards compatibility
-and because it's simpler to use.
+$INCLUDE-config/restrict_post
 
-Unlike Majordomo 1, you can (and must) manage the second list through
-majordomo instead of making it by hand. There's a lot of additional
-functionality as well, and because of that it's pretty complicated.
+In the examples that follow, substitute the name of your mailing list
+wherever you see LISTNAME.
 
-If before you had (in Mj1):
-  restrict_post = listname listname.allow
+To allow posted messages from the subscribers the LISTNAME mailing list,
+use the following value:
+  LISTNAME
 
-you would do it this way in Mj2:
-  configset listname restrict_post = allow:
+To allow posted messages from the members of an auxiliary list
+(sublist), use the name of the sublist.  For example, to allow messages
+from members of the "moderators" sublist, use the following value:
+  moderators
+See "help auxiliary_list" for an introduction to sublists.
 
-Instead of adding addresses to the listname.allow file by hand, you do
-something like this in Mj2 (to add the addresses to the auxiliary list
-"allow" belonging to "listname"):
-  subscribe listname:allow <<END
-address1@example.com
-address2@example.com
-END
+To allow posted messages from subscribers from another mailing list,
+follow the list name with a colon.  For example, to allow messages from
+members of the "rodent" mailing list, use the following value:
+  rodent:
 
-Because of backwards compatibility, the interpretation of restrict_post is
-complicated. With a colon, you're giving a list:auxlist pair and if auxlist
-is empty then the main list is checked. This lets you restrict based on the
-contents of other lists.  Without a colon, we try to duplicate most
-conventions for naming of Mj1 restrict_post files.  If just the listname is
-present, we look in the subscriber file for this list.  We do the same for
-listname.digest and listname-digest, since digests aren't separate lists
-any longer.
+To allow posted messages from members of an auxiliary list of another
+mailing list, separate the list name and sublist name with a colon.  For
+example, to allow messages from members of the "squirrel" sublist of the
+"rodent" mailing list, use the following value:
+  rodent:squirrel
 
-Otherwise we try hard to find an auxlist that looks like what we were
-given.  For listname-allow, we look for one named listname-allow and just
-allow.  The same with listname.allow.
+If the value you give this setting occupies only one line, more than one
+list or sublist can be placed on that line, with spaces or tabs between
+the individual lists or sublists.  This format is supported for backward
+compatibility.  If multiple lines are used, only one list or sublist
+should be included on each line.  This is illustrated in two examples
+near the beginning of this document.
 
-You can put your restrict list on one line (for backwards compatibility):
-  restrict_post = blah:urgh hurl: allow
-or as an array, as it should have been in the first place:
-  restrict_post <<END
-blah:urgh
-hurl:
-allow
-END
+If the value of this setting is empty, no restrictions will be imposed.
 
-The "alias" command lets you subscribe to a list from one address but alsop
-post from another address. The "set" command's "nomail" option allows you
-to subscribe two addresses, and post from either, but receive messages only
-from one of the subscriptions. If you want, you can still do this with
-restrict_post!  Say your special list is called "posters".  Then you can
-have users sign up to "posters" and put this in restrict_post:
-  configset listname restrict_post = listname: posters:
+This setting can be overridden by rules for the post command in the
+access_rules configuration setting.
+
+
+Majordomo 1 compatibility
+-------------------------
+Majordomo 1 required that addresses be kept in a separate file.
+Majordomo 2 requires that addresses be subscribed to mailing lists or to
+auxiliary lists.
+
+In Majordomo 1, regular and digest lists were separate; in Majordomo 2
+they have been combined.  For backward compatibility, the following
+values in the restrict_post setting are considered equivalent, and refer
+to the subscribers of the LISTNAME mailing list:
+  LISTNAME
+  LISTNAME:
+  LISTNAME.digest
+  LISTNAME-digest
+  LISTNAME_digest
+
+In Majordomo 1, the following setting would restrict messages from
+people who are neither subscribers nor are listed in the LISTNAME.allow
+file:
+  restrict_post = LISTNAME LISTNAME.allow
+
+In Majordomo 2, the following command would restrict messages from
+people who are neither subscribers nor are members of the "allow"
+auxiliary list:
+  configset LISTNAME restrict_post = LISTNAME allow
 
 
 See Also:
-   help alias  (for how to make two posting addresses equivalent)
-   help auxiliary_list (an introduction to auxiliary lists)
-   help set    (for 'nomail', which suppresses posts to a subscribed address)
+   help admin_moderate
+   help alias 
+   help auxiliary_list 
+   help configset_access_rules
+   help set
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

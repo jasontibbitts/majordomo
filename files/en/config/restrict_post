@@ -1,8 +1,4 @@
-This is an array variable, but for backwards compatibility the
-line is split on spaces, tabs, and colons.
-
-If restrict_post is defined for a given list, only addresses belonging
-to one of the listed sublists will be allowed to post to that list.
-This functionality of restrict_post is completely encapsulated within
-the access_rules mechanism, but it remains for backwards compatibility
-and because it's simpler to use.
+The restrict_post setting contains a list of lists and sublists.  If
+list is not empty, and the author of a posted message is not a
+subscriber to at least one of the lists and sublists, the message will
+be sent to the moderators for approval.
