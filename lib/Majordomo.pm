@@ -88,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200407100";
+$VERSION = "0.1200409020";
 $unique = 'AAA';
 
 use strict;
@@ -4565,7 +4565,7 @@ sub archive_chunk {
      index_line    => $self->_list_config_get($request->{'list'}, 'digest_index_format'),
      subject       => $subj,
      tmpdir        => $tmpdir,
-     to            => "$request->{'user'}",
+     to            => "$request->{'victim'}",
      type          => $dtype,
     );
 
@@ -4635,7 +4635,7 @@ sub archive_chunk {
       ($buf, $data) = @$i;
       (undef, $file) = $list->archive_get_to_file($buf, '', $data, 1);
       next unless $file;
-      $self->mail_message($owner, $file, $request->{'user'});
+      $self->mail_message($owner, $file, $request->{'victim'});
       unlink $file;
     }
     return (1, scalar(@$result));
