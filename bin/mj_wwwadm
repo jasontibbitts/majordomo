@@ -285,7 +285,7 @@ if (@extra and $func ne 'showtokens') {
     if ($func =~ /accept|reject/) {
       $request->{'xplanation'} ||= $cgi->param('xplanation');
     }
-    if ($func eq 'configset') {
+    if ($func eq 'configset' and not $cgi->param('command')) {
       @values = split "\r?\n", $cgi->param($req);
       $request->{'value'} = [@values];
     }  
