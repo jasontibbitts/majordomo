@@ -1,0 +1,13 @@
+No visible configuration settings matching $SETTING were found.
+
+Only a handful of settings are visible unless you use a password.
+
+If you did supply a password, it may lack the authority to
+display the value of the setting.
+
+Setting names are case-sensitive.  Use only small letters in the
+names of individual settings, and only capital letters in  
+the names of setting categories.
+
+The "help topics" document has a complete list of settings.
+The "help configshow" document has a complete list of categories.

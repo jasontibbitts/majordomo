@@ -1,0 +1,16 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  config_access = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+configset listname config_access = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : empty
+Data Type     : access_array
+Category      : access
+Password Notes: Visible only with password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+$INCLUDE-config/config_access
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

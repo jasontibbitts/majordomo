@@ -96,12 +96,20 @@ $files =
    ['Error format.  Warns that a password is required to change a setting.',
     'us-ascii', '7bit'],
 
+   'en/error/no_visible'                       => 
+   ['Error format.  Indicates why no visible settings were displayed.',
+    'us-ascii', '7bit'],
+
    'en/error/not_extracted'                    => 
    ['Error format.  Warns that a setting fragment could not be extracted.',
     'us-ascii', '7bit'],
 
    'en/error/password_length'                  => 
    ['Error format.  Warns that a password is too short.',
+    'us-ascii', '7bit'],
+
+   'en/error/password_level'                   => 
+   ['Error format.  Warns that a password is lacks authority.',
     'us-ascii', '7bit'],
 
    'en/error/unknown_setting'                  => 
@@ -656,6 +664,7 @@ $files =
    'en/help/configset_category'                       => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_chunksize'                      => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_comments'                       => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
+   'en/help/configset_config_access'                  => ['detailed help for configset listname',     'us-ascii', '7bit'],
    'en/help/configset_confirm_url'                    => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_database_backend'               => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
    'en/help/configset_debug'                          => ['detailed help for configset GLOBAL',       'us-ascii', '7bit'],
@@ -835,6 +844,7 @@ $files =
    'en/config/category'                        => ['The category variable',                        'us-ascii', '7bit'],
    'en/config/chunksize'                       => ['The chunksize variable',                       'us-ascii', '7bit'],
    'en/config/comments'                        => ['The comments variable',                        'us-ascii', '7bit'],
+   'en/config/config_access'                   => ['The config_access variable',                   'us-ascii', '7bit'],
    'en/config/confirm_url'                     => ['The confirm_url variable',                     'us-ascii', '7bit'],
    'en/config/database_backend'                => ['The database_backend variable',                'us-ascii', '7bit'],
    'en/config/debug'                           => ['The debug variable',                           'us-ascii', '7bit'],
