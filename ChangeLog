@@ -11,15 +11,15 @@
 	Add second argument to n_defaults calls.
 
 	* lib/Mj/Config.pm:  Version number is now 1.1.
-        (regen)  Add a version number to each configuration file.
 	(_upgrade)  New routine.  Convert settings from old to
-	new formats if required.
+	new formats if required.  Add a version number to each 
+	configuration file.
 	(parse_digests)  Use a new one-field-per-line format.
 	Add support for a new "newmsg" field, which controls
 	whether or not incoming messages will cause digests to
 	be checked.
 
-	* lib/Mj/Digest.pm:  (trigger, choose, decide)  Add 
+	* lib/Mj/Digest.pm:  (add, trigger, choose)  Add 
 	support for the "newmsg" field.
 
 	* lib/Mj/MIMEParser.pm:  (collect_data, _r_ct_lines)

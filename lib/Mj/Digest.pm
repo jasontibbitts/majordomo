@@ -41,18 +41,19 @@ digestdata should contain the parsed version of the 'digests' variable,
 containing hashrefs keyed on the digest name (and an additional
 'default_digest' key).  Each of those hashrefs conains:
 
+  desc    - digest description
   index   - the index style (subject, subject_author, etc.)
-  minmsg  - minimum number of messages in a digest
-  minsize - minimum size of a digest (in bytes)
   maxage  - maximum age of oldest message in the digest
   maxmsg  - maximum number of messages in a digest
   maxsize - maximum size of a digest
-  minage  - mimumum age of the newest message in the digest
+  minage  - minimum age of the newest message in the digest
+  minmsg  - minimum number of messages in a digest
+  minsize - minimum size of a digest (in bytes)
+  newmsg  - true if an incoming message can trigger digest delivery
   separate- minimum time between digests
   sort    - how the messages are sorted (author date numeric subject thread)
   type    - digest format (index, mime, or text)
   times   - array of clock values
-  desc    - digest description
 
 The digest keeps state in a file (in $dir) called _digests.  This is a
 Data::Dumped hashref with one key per named digest.  Each subhash contains:
@@ -142,7 +143,7 @@ sub add {
   }
 
   # Trigger a run?
-  %out = $self->trigger(undef, undef, $state);
+  %out = $self->trigger(undef, undef, $state, 1);
 
   $self->_close_state($state, 1);
   %out;
@@ -182,6 +183,7 @@ sub trigger {
   my $digests = shift;
   my $force   = shift;
   my $state   = shift;
+  my $newmsg  = shift || 0;
   my $log = new Log::In 250;
   my (%out, @msgs, $change, $close, $i, $push, $run);
 
@@ -201,7 +203,8 @@ sub trigger {
       $state->{$i}{newest}   = 0;
       $change = 1;
     }
-    $push = $force || $self->decide($state->{$i}, $self->{decision}{$i});
+    $push = $force || 
+      $self->decide($state->{$i}, $self->{decision}{$i}, $newmsg);
     $change ||= $push;
     if ($push) {
       @msgs = $self->choose($state->{$i}, $self->{decision}{$i});
@@ -219,8 +222,8 @@ sub trigger {
 =head2 decide(state, decision parameters)
 
 This takes the state and decision parameters for a single digest and
-decided if it should be pushed.  It returns only a flag, true if a digest
-should be generated.
+decides if the digest should be delivered.  It returns 1 if a digest 
+should be delivered.
 
 =cut
 use Mj::Util qw(in_clock str_to_offset);
@@ -228,10 +231,16 @@ sub decide {
   my $self = shift;
   my $s    = shift; # Digest state
   my $p    = shift; # Decision parameters
-  my $log = new Log::In 250;
+  my $nm   = shift; # Was the decision triggered by an incoming message?
+  my $log  = new Log::In 250;
   my $time = time;
 
   $log->out('no');
+
+  if ($nm and ! $p->{'newmsg'}) {
+    $log->out('no, a new message cannot trigger this digest.');
+    return 0;
+  }
 
   # Check time; bail if not right time
   unless (Mj::Util::in_clock($p->{'times'})) {
@@ -274,7 +283,7 @@ sub decide {
     return 0;
   }
 
-  # OK, we found no reason _not_ to push a digest
+  # We found no reason _not_ to push a digest
   $log->out('yes');
   1;
 }
@@ -293,7 +302,7 @@ sub choose {
   my $self = shift;
   my $s    = shift;
   my $d    = shift;
-  my $log = new Log::In 250;
+  my $log  = new Log::In 250;
   my $mm   = $d->{maxmsg}  || 200;  # Some just-beyond-reasonable maxima
   my $ms   = $d->{maxsize} || 2**22;
   my $msgs = $s->{messages};
