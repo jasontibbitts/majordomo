@@ -3,7 +3,7 @@ configset GLOBAL who_access = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset listname who_access = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : open (closed for the GLOBAL pseudo-list)
+Default Value : closed
 Data Type     : enum, choose from: open closed list
 Category      : access
 Password Notes: Visible only with password. 

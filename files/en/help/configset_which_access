@@ -3,7 +3,7 @@ configset  GLOBAL  which_access = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset listname which_access = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : open
+Default Value : closed
 Data Type     : enum, choose from: open closed list
 Category      : access
 Password Notes: Visible only with password. 
