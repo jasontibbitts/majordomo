@@ -1,3 +1,14 @@
+2003-11-18  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_put)  If the file description is
+	the word "default," use the existing description.
+	(_get_stock)  Avoid spurious "deprecated" warnings from 
+	perl 5.8.2.  Thanks to Brock Rozen.
+
+	* lib/Mj/Parser.pm:  Remove hard-coded English.
+	Use a file's description in the Subject header if the 
+	output of a command is mailed to another person.
+
 2003-11-16  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Addr.pm:  (_validate)  Bugfix:  Return the full domain.

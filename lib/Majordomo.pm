@@ -3193,7 +3193,7 @@ sub put_start {
 sub _put {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $file, $subj, $stuff)
     = @_;
-  my ($cset, $enc, $force, $lang, $mess, $type);
+  my (%ofdata, $cset, $enc, $force, $lang, $mess, $oldfile, $type);
 
   # Extract the encoded type and encoding
   ($type, $cset, $enc, $lang) = split("\002", $stuff);
@@ -3222,6 +3222,14 @@ sub _put {
   # Delete a file/directory instead?
   if ($mode =~ /delete/) {
     return $self->_list_file_delete($list, $file, $force);
+  }
+
+  if ($subj eq 'default') {
+    ($oldfile, %ofdata) = $self->_list_file_get('list' => $list, 
+                                                'file' => $file);
+    if (exists $ofdata{'description'}) {
+      $subj = $ofdata{'description'};
+    }
   }
 
   # The zero is the overwrite control; haven't quite figured out what to
@@ -3606,6 +3614,7 @@ sub _get_stock {
   my $log = new Log::In 150, "$file, $self->{'sitedir'}";
   my (%out, $data, $lang, $noweb);
 
+  no warnings 'deprecated';
   $noweb = 1;
   $noweb = 0 if $self->{'sitedata'}{'config'}{'cgi_bin'};
 
@@ -7418,7 +7427,7 @@ sub trigger {
        }
     }
     $tmp = join " ", @ready;
-    $log->message('27', 'info', "Ready: $tmp");
+    $log->message(27, 'info', "Ready: $tmp");
   }
 
   # Mode: daily or token - expire tokens and passwords, and send reminders
