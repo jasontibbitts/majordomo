@@ -1585,7 +1585,7 @@ sub common_subs {
   }
 
   $self->{'reg'}->get_start;
-  $chunksize = $self->_global_config_get('chunksize');
+  $chunksize = $self->_global_config_get('chunksize') || 1000;
 
   # Obtain registry entries.  If an entry is subscribed
   # to all of the lists, store its value in the output hashref.
@@ -6238,7 +6238,7 @@ sub _set {
     if ($list eq 'ALL') {
       $data = $self->{'reg'}->lookup($vict->canon);
       return (0, $self->format_error('unregistered', 'GLOBAL', 
-                                     'VICTIM' => $vict->full);
+                                     'VICTIM' => $vict->full))
         unless $data;
       $v = $data->{'lists'};
     }

@@ -1,3 +1,9 @@
+2002-04-02  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (common_subs)  Bugfix:  supply 
+	default value for chunksize.
+	(_set)  Bugfix:  correct syntax error.  Thanks to Brock Rozen.
+
 2002-03-27  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  Version number is now 0.1200203270.
