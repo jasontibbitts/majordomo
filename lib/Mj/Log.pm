@@ -139,6 +139,7 @@ sub add {
     $dest{'handle'} = gensym();
     open ($dest{'handle'}, ">> $dest{'filename'}") ||
       confess "Can't open $dest{'filename'} to write the log!";
+    select((select($dest{'handle'}), $| = 1)[0]);
   }
   elsif ($dest{'method'} eq 'handle') {
     # Nothing to do.
