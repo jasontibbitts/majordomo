@@ -35,7 +35,6 @@ package Mj::Archive;
 use strict;
 use DirHandle;
 use IO::File;
-use Mj::File;
 use Mj::Log;
 use vars qw(@index_fields);
 
@@ -150,6 +149,7 @@ a message to be included in a message sent to the archives (so that a
 separate copy of the message for the archives is not necessary).
 
 =cut
+use Mj::File;
 sub add_start {
   my $self   = shift;
   my $sender = shift;
@@ -312,6 +312,7 @@ sub add_done {
 Returns a list of archive files which match a regular expression
 
 =cut 
+use Mj::Util qw(re_match);
 sub find {
   my $self = shift;
   my $regex = shift;
@@ -326,7 +327,7 @@ sub find {
   closedir ARCDIR;
 
   for (@arcs) {
-    push @out, $_ if Majordomo::_re_match($regex, $_);
+    push @out, $_ if re_match($regex, $_);
   }
 
   @out;
@@ -626,6 +627,7 @@ index.
 What to return?  Perhaps all useful message data, in a hashref?
 
 =cut
+use Mj::File;
 sub get_message {
   my $self = shift;
   my $msg  = shift;
