@@ -1,9 +1,16 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-post[-archive] listname [sublistname]
+post[-archive] listname <<TAG
+[Message Contents]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname,    required,     is the name of a regular list at this site
+post-addhdr[-archive] listname subject <<TAG
+[Message Contents]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname,    required,     is the name of a regular or auxiliary list
+subject,     if specified, gives the contents of the subject header.
+-addhdr,     if specified, automatically adds mail headers.
 -archive,    if specified, archives a message without distributing it
-sublistname, if specified, is the name of an auxiliary list
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The "post" command sends a message to "listname", or an auxiliary list
@@ -15,6 +22,12 @@ sending a message to the list address.
 Note that the message must be fully formed, with all necessary headers.
 Majordomo will not add omitted headers, nor does it check the validity
 of the message. All of the normal resend access checks apply.
+
+If the "addhdr" command mode is used, Majordomo will consider the
+contents you supply to be a plain text message body, and will
+automatically add the From, To, Date, Subject, Message-Id, and
+Content-type headers.  The message subject is taken from the 
+first command line.
 
 The "post" command enables a Majordomo list to be run without doing
 any MTA configuration, such as creating aliases.  The list will not, 
@@ -35,12 +48,10 @@ the mailing list.  Obviously, you would not want that message to
 be distributed on the list, since the list's participants are
 already subscribed to the list.
 
-To send a message to an auxiliary list, use the "sublistname"
-parameter of the "post" command, or make sure the 'A' flag in the
-"configset aliases" is used so an alias will be created for each
-auxiliary list. For example, to reach the "testers" sublist of
-the mj2-dev list without "post", a message could be sent to the
-(fictitious) address mj2-dev-testers@csf.colorado.edu
+To send a message to an auxiliary list, the "auxiliary" option
+must be included in the 'aliases' configuration setting, and
+the auxiliary list name must be included in the "sublists" configuration
+setting.  
 
 
 See Also:
