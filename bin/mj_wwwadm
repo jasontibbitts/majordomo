@@ -19,7 +19,7 @@ mj_wwwadm - demonstration of majordomo administration via the WWW.
 
 =head1 SYNOPSIS
 
-Extend this file to create specialized CGI scripts.
+ The command "configshow GLOBAL wwwadm_url" will display the URL.
 
 =head1 DESCRIPTION
 
@@ -28,12 +28,6 @@ several basic steps that must be taken, including initializing
 majordomo variables,  creating a log (STDERR by default), 
 initializing a CGI object, and starting a majordomo session
 with connect().
-
-This script performs these basic steps, easing the 
-creation of new CGI scripts.  Extend it to suit your needs.
-
-Note that it may be necessary to install a setuid wrapper
-for any script based upon this template.
 
 =cut
 use lib "$::LIBDIR";
@@ -46,7 +40,7 @@ use Mj::Format;
 use Mj::Log;
 use Mj::Parser;
 
-my (%commands, %seen, @extra, @hereargs, @lists, @mlists, 
+my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists, 
     @settings, @values, $addr, $cgi, $cgidata, $cgiurl, $domain, 
     $falseuser, $fh, $func, $i, $j, $line, $list, 
     $mess, $mode, $mj, $ofunc, $ok, $passw, $pathinfo, $req, $request, 
@@ -90,40 +84,68 @@ my (%commands, %seen, @extra, @hereargs, @lists, @mlists,
 
 #----- Initialize the CGI object -----#
 $cgi = new CGI;
-print $cgi->header;
-$cgiurl = $cgi->script_name . $cgi->path_info;
-$cgiurl = Mj::Format::uescape($cgiurl);
+print $cgi->header(-expires => '+5m');
 
 #----- Multiple-list specification (used for showtokens) -----#
-$domain = $cgi->param('domain');
-$pathinfo = '';
+$pathinfo = $domain = '';
 if (exists $ENV{'PATH_INFO'}) {
   $pathinfo = $ENV{'PATH_INFO'};
-  if ($pathinfo =~ s/(domain=)([a-zA-Z0-9\.\-]+)//) {
-    $domain = $2;
+  while ($pathinfo =~ s#/domain=([a-zA-Z0-9.-]+)##) {
+    $domain = $1;
   }
 
   $pathinfo =~ s#^/+##;
   $pathinfo =~ s#/+$##;
-  if ($pathinfo =~ m#/([\w\/\-\.]+)#) {
+  if ($pathinfo =~ m#([\w/.-]+)#) {
     $pathinfo = $1;
   }
   else {
     $pathinfo = '';
   }
   @mlists = split '/', $pathinfo;
+  if (@mlists) {
+    for $i (@mlists) {
+      unless (Majordomo::legal_list_name($i)) {
+        &surrender(qq("$i" is an invalid list name.));
+      }
+    }
+  }
 }
+
 unless ($domain) {
-  ($domain) = Majordomo::domains($::LISTDIR);
+  $domain = $cgi->param('domain') || '';
 }
-$domain =~ /([a-zA-Z0-9\.\-]+)/; $domain = $1;
+
+# Clean up the URL by which this program was invoked.
+$cgiurl = $cgi->script_name;
+if ($domain) {
+  $cgiurl .= "/domain=$domain";
+}
+if ($pathinfo) {
+  $cgiurl .= "/$pathinfo";
+}
+$cgiurl = Mj::Format::uescape($cgiurl);
+
+unless ($domain) {
+  @domains = Majordomo::domains($::LISTDIR);
+  ($domain) = grep { $_ eq $ENV{'HTTP_HOST'} } @domains;
+  $domain = $domains[0] unless $domain;
+}
+
+# Untaint the domain name.
+if ($domain =~ /([a-zA-Z0-9\.\-]+)/) {
+  $domain = $1;
+}
+else {
+  &surrender(qq("$domain" is an invalid domain.));
+}
 
 #----- Make the Majordomo object -----#
 $mj = new Majordomo $::LISTDIR, $domain;
 &surrender($mj) unless (ref $mj);
 
 #----- Generate the session information. -----#
-for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
+for my $i ('HTTP_HOST', 'REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
   $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
 }
 $sess .= scalar(localtime(time)) . "\n";
@@ -154,22 +176,16 @@ if ($passw) {
     unless ($mj->t_recognize($passw));
 }
 
-$cgidata = sprintf 'domain=%s&user=%s&passw=%s&list=%s', 
-                   $domain, $user, $passw, $lists[0];
+$cgidata = sprintf 'user=%s&passw=%s&list=%s', 
+                   $user, $passw, $lists[0];
 
 $subs = { $mj->standard_subs($lists[0]),
           'CGIDATA'   => $cgidata,
           'CGIURL'    => $cgiurl,
           'COMMAND'   => $ofunc,
-          'DOMAIN'    => $domain,
           'PASSWORD'  => $passw,
           'USER'      => $user,
         };
-
-
-$tmp = $mj->format_get_string('wwwadm', 'head');
-$str = $mj->substitute_vars_format($tmp, $subs);
-print STDOUT "$str\n";
 
 
 #----- Determine what service was requested -----#
@@ -182,6 +198,21 @@ else {
   $ofunc =~ /(.*)/; $ofunc = $1;
   $func = $ofunc;
   $mode = '';
+}
+
+# Remove the temporary password if the admin is signing out.
+if ($ofunc eq 'logout') {
+  $mj->del_latchkey($passw);
+  $subs->{'PASSWORD'} = '';
+  $subs->{'COMMAND'} = 'welcome';
+}
+
+$tmp = $mj->format_get_string('wwwadm', 'head');
+$str = $mj->substitute_vars_format($tmp, $subs);
+print STDOUT "$str\n";
+
+if ($ofunc eq 'logout') {
+  &usage($mj, $subs, 'You have successfully signed out.');
 }
 
 ($i) = $mj->valid_list($lists[0], 1, 1);
@@ -296,9 +327,9 @@ if (@extra and $func ne 'showtokens') {
     }  
     $result = $mj->dispatch($request); 
     &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
-    print "<pre><small>\n" if ($commands{$func}->[2]);
+    print "<pre>\n" if ($commands{$func}->[2]);
     &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
-    print "</small></pre>\n" if ($commands{$func}->[2]);;
+    print "</pre>\n" if ($commands{$func}->[2]);;
     if (function_prop($func, 'iter')) {
       $request->{'command'} =~ s/done/start/;
     }
@@ -318,9 +349,9 @@ elsif ($func eq 'set') {
     $request->{'victims'} = [ $addr ];
     $result = $mj->dispatch($request); 
     &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
-    print "<pre><small>\n" if ($commands{$func}->[2]);
+    print "<pre>\n" if ($commands{$func}->[2]);
     &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
-    print "</small></pre>\n" if ($commands{$func}->[2]);;
+    print "</pre>\n" if ($commands{$func}->[2]);;
   }
 }
 # The remaining exceptions, other than showtokens, require only one dispatch call.
@@ -359,9 +390,9 @@ elsif ($func ne 'showtokens') {
   }
   $result = $mj->dispatch($request); 
   &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
-  print "<pre><small>\n" if ($commands{$func}->[2]);
+  print "<pre>\n" if ($commands{$func}->[2]);
   &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
-  print "</small></pre>\n" if ($commands{$func}->[2]);;
+  print "</pre>\n" if ($commands{$func}->[2]);;
 }
 
 #----- Display supplementary information -----#
@@ -538,6 +569,7 @@ sub usage {
 sub surrender {
   my ($message) = shift;
   $::log->message(50, "info", $message) if $message;
+  my ($url) = $cgi->script_name;
 
   print <<EOM;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
@@ -546,8 +578,14 @@ sub surrender {
 <title>Majordomo 2 WWW for List Owners: Error</title>
 </head>
 <body>
-<h2>Majordomo Error</h2>
+<h2 align=center>Majordomo Error</h2>
 $message
+<form method=POST action="$url">
+  <input type=hidden name=func value="login">
+  Enter the domain name into the box, then press the <b>Sign In</b> button.<br>
+  <input name=domain size=45>
+  <input type=submit value="Sign In">
+</form>
 EOM
 
   if (defined $subs and exists $subs->{'MJOWNER'}) {

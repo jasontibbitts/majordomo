@@ -45,8 +45,8 @@ use Mj::Format;
 use Mj::Log;
 use Mj::Parser;
 
-my (%commands, @lists, $cgi, $cgidata, $cgiurl, $domain, $extra, $falseuser,
-    $func, $list, $mj, $mess, $mode, $ofunc, $ok, $passw, 
+my (%commands, @domains, @lists, $cgi, $cgidata, $cgiurl, $domain, $extra, 
+    $falseuser, $func, $list, $mj, $mess, $mode, $ofunc, $ok, $passw, 
     $pathinfo, $request, $result, $sess, $str, $subs, $tmp, $user);
 
 
@@ -78,18 +78,15 @@ my (%commands, @lists, $cgi, $cgidata, $cgiurl, $domain, $extra, $falseuser,
 
 #----- Initialize the CGI object -----#
 $cgi = new CGI;
-print $cgi->header;
-$cgiurl = $cgi->script_name . $cgi->path_info;
-$cgiurl = Mj::Format::uescape($cgiurl);
+print $cgi->header(-expires => '+5m');
 
-$domain = $cgi->param('domain');
-
-$pathinfo = '';
+$pathinfo = $domain = '';
 if (exists $ENV{'PATH_INFO'}) {
   $pathinfo = $ENV{'PATH_INFO'};
-  if ($pathinfo =~ s/(domain=)([a-zA-Z0-9\.\-]+)//) {
-    $domain = $2;
+  while ($pathinfo =~ s#/domain=([a-zA-Z0-9.-]+)##) {
+    $domain = $1;
   }
+
   $pathinfo =~ s#^/+##;
   $pathinfo =~ s#/+$##;
   if ($pathinfo =~ m#(.+\@[^/]+)#) {
@@ -101,9 +98,32 @@ if (exists $ENV{'PATH_INFO'}) {
 }
 
 unless ($domain) {
-  ($domain) = Majordomo::domains($::LISTDIR);
+  $domain = $cgi->param('domain') || '';
 }
-$domain =~ /([a-zA-Z0-9\.\-]+)/; $domain = $1;
+
+# Clean up the URL by which this program was invoked.
+$cgiurl = $cgi->script_name;
+if ($domain) {
+  $cgiurl .= "/domain=$domain";
+}
+if ($pathinfo) {
+  $cgiurl .= "/$pathinfo";
+}
+$cgiurl = Mj::Format::uescape($cgiurl);
+
+unless ($domain) {
+  @domains = Majordomo::domains($::LISTDIR);
+  ($domain) = grep { $_ eq $ENV{'HTTP_HOST'} } @domains;
+  $domain = $domains[0] unless $domain;
+}
+
+# Untaint the domain name.
+if ($domain =~ /([a-zA-Z0-9\.\-]+)/) {
+  $domain = $1;
+}
+else {
+  &surrender(qq("$domain" is an invalid domain.));
+}
 
 #----- Make the Majordomo object -----#
 $mj = new Majordomo $::LISTDIR, $domain;
@@ -123,9 +143,8 @@ $user    = $cgi->param('user') || $pathinfo || $falseuser;
 ($ok, $mess) = $mj->connect('wwwusr', $sess, $user);
 
 unless ($ok) {
-  $cgidata = sprintf 'domain=%s&passw=&user=', $domain;
   $subs = { $mj->standard_subs('GLOBAL'),
-            'CGIDATA'  => $cgidata,
+            'CGIDATA'  => '',
             'CGIURL'   => $cgi->script_name,
             'COMMAND'  => 'welcome',
             'DOMAIN'   => $domain,
@@ -150,7 +169,7 @@ if ($passw) {
 
 $ofunc   = $cgi->param('func') || 'welcome';
 $tmp     = Mj::Format::uescape($user);
-$cgidata = sprintf 'domain=%s&passw=%s&user=%s', $domain, $passw, $tmp;
+$cgidata = sprintf 'passw=%s&user=%s', $passw, $tmp;
 $subs = { $mj->standard_subs('GLOBAL'),
           'CGIDATA'  => $cgidata,
           'CGIURL'   => $cgiurl,
@@ -169,6 +188,12 @@ print STDOUT "$str\n";
 #----- Determine what service was requested -----#
 if ($ofunc eq 'welcome') {
   &usage($mj, $subs, '');
+}
+elsif ($ofunc eq 'logout') {
+  $mj->del_latchkey($passw);
+  $subs->{'PASSWORD'} = '';
+  $subs->{'COMMAND'} = 'welcome';
+  &usage($mj, $subs, 'You have successfully signed out.');
 }
 elsif ($ofunc eq 'login') {
   $subs->{'COMMAND'} = 'welcome';
@@ -245,7 +270,6 @@ for $list (@lists) {
     @params = $cgi->param;
     for $j (qw(delivery ackdeny ackpost ackreject ackstall eliminatecc hideaddress hideall prefix replyto selfcopy rewritefrom)) {
       $i = "$list;$j";
-      next unless (grep {$_ eq $i} @params);
       if ($j eq 'delivery') {
         push @settings, $cgi->param($i);
       }
@@ -264,9 +288,9 @@ for $list (@lists) {
 
   $result = $mj->dispatch($request); 
   &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
-  print "<pre><small>\n" if ($commands{$func}->[3]);
+  print "<pre>\n" if ($commands{$func}->[3]);
   &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwusr', $request, $result);
-  print "</small></pre>\n" if ($commands{$func}->[3]);;
+  print "</pre>\n" if ($commands{$func}->[3]);;
 }
 
 #----- Display supplementary information -----#
@@ -386,6 +410,7 @@ sub usage {
 sub surrender {
   my ($message) = shift;
   $::log->message(50, "info", $message) if $message;
+  my ($url) = $cgi->script_name;
 
   print <<EOM;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
@@ -394,8 +419,14 @@ sub surrender {
 <title>Majordomo 2 WWW for Subscribers: Error</title>
 </head>
 <body>
-<h2>Majordomo Error</h2>
+<h2 align=center>Majordomo Error</h2>
 $message
+<form method=POST action="$url">
+  <input type=hidden name=func value="login">
+  Enter the domain name into the box, then press the <b>Sign In</b> button.<br>
+  <input name=domain size=45>
+  <input type=submit value="Sign In">
+</form>
 EOM
 
   if (defined $subs and exists $subs->{'MJOWNER'}) {

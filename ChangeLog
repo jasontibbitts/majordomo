@@ -1,3 +1,22 @@
+2001-02-14  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Improve domain checking.
+	Check the URL path, CGI parameters, and HTTP_HOST, in that order.
+	Add "Expires" header (set to 5 minutes in the future) to avoid
+	caching.  Thanks to Peter Ajamian and David Miller for the 
+	suggestions.  Fix set command bug in mj_wwwusr.  Add a "Sign Out"
+	button to mj_wwwadm and mj_wwwusr, which invalidates the 
+	temporary password.
+
+	* lib/Majordomo.pm:  Change version number to 0.1200102140.
+	(dispatch) Improve mode validation: no modes over 11 characters
+	in length are allowed.
+	(legal_list_name)  Make this routine a function instead of an
+	object method.
+
+	* lib/Mj/Token.pm: (del_latchkey)  New routine.  Remove a 
+	latchkey from the temporary password database.
+
 2001-02-13  Michael Yount <csf@moscow.com>
 
 	* files/en/help/admin*:  Revise and expand the introductory
@@ -29,7 +48,7 @@
 
 	* setup/setup_func.pl (tempfile): New function copied from
 	mj_shell.
-        Call it where appropriate.
+	Call it where appropriate.
 
 	* setup/mta_sendmail.pl: Call tempfile where appropriate.
 	
@@ -70,13 +89,13 @@
 2001-01-30  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Majordomo.pm (sync_owners): Set the override flag so that
-        majordomo-owner is never sent mail.
+	majordomo-owner is never sent mail.
 
 2001-01-29  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm: (trigger)  Allow private files from a 
 	list's file space to be parsed for commands.  The files
-        must be specified in the list's "triggers" configuration
+	must be specified in the list's "triggers" configuration
 	setting, with names beginning with a forward slash.
 	(configdef, configset, configshow)  Support a five-level
 	password approach.  The ability to see or change a setting
@@ -102,7 +121,7 @@
 	digest volume and issue number, which takes the form DVxxxNyyy.
 
 	* lib/Mj/Deliver.pm:  (_setup)  Use a separate envelope sender for
-        each destination object.  This allows VERP probing for digest
+	each destination object.  This allows VERP probing for digest
 	recipients, among other things.
 
 	* lib/Mj/Resend.pm:  (do_digests)  Manufacture a sequence
@@ -309,7 +328,7 @@
 2000-12-11  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/BounceHandler.pm (handle_bounce_user): Pass $user to
-        _gen_bounce_message.
+	_gen_bounce_message.
 	(handle_bounce_user): Stop warning "don't know how to inform".
 
 2000-12-11  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
@@ -502,8 +521,8 @@
 2000-12-04  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* setup/ask_domain.pl (ask_domain): Make it clear that the
-        expected answer to "What is the email address of the
-        owner of this Majordomo installation" is not "majordomo-owner".
+	expected answer to "What is the email address of the
+	owner of this Majordomo installation" is not "majordomo-owner".
 
 2000-12-03  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
@@ -565,19 +584,19 @@
 	(standard_subs) Add DOMAIN and PWLENGTH substitutions.
 	(substitute_vars_format)  New routine.  Allows more extensive
 	line-based formatting, with the following new features:
-          $HELP:LOZENGE   add a hypertext link to the "lozenge" help file
-          ?COMMENT        skip this line if the COMMENT substitution is empty.
-        Also, if a substitution value is a list reference, the formatting
-        of lines in which the variable appears will be spread over multiple
+	  $HELP:LOZENGE   add a hypertext link to the "lozenge" help file
+	  ?COMMENT        skip this line if the COMMENT substitution is empty.
+	Also, if a substitution value is a list reference, the formatting
+	of lines in which the variable appears will be spread over multiple
 	lines, one for each array element.  For example, in the lists command,
-        the DESCRIPTION substitution is a list reference.  As a result,
-        the following line in the format file:
-          $LIST:-23 $DESCRIPTION
-        will cause the list name to be displayed only on the first line,
+	the DESCRIPTION substitution is a list reference.  As a result,
+	the following line in the format file:
+	  $LIST:-23 $DESCRIPTION
+	will cause the list name to be displayed only on the first line,
 	while the description may span several lines, all indented.
 	(format_error) New routine.  Retrieve an error file and apply
 	substitutions to it.  Return the result in a string.
-        (format_get_string) New routine.  Obtain a format file as a string.
+	(format_get_string) New routine.  Obtain a format file as a string.
 	(_get) Add support for the edit command mode.
 	(help_start) Allow abbreviations of configset_ topics.  For example,
 	  help configset_who_access
@@ -642,10 +661,10 @@
 2000-11-01  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Parser.pm (parse_part): Fix undef warning with "default
-        password".  Use a better message in this case.
+	password".  Use a better message in this case.
 
 	* bin/mj_shell (parse_command): Use better message when
-        "default password" is used to clear out a default password.
+	"default password" is used to clear out a default password.
 
 2000-10-28  Michael Yount <csf@moscow.com>
 
@@ -702,8 +721,8 @@
 2000-10-27  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* bin/mj_queuerun (run_queue): If mj_enqueue was called with an
-        explicit command to run, always run it regardless of the setting
-        of request_answer.
+	explicit command to run, always run it regardless of the setting
+	of request_answer.
 
 2000-10-27  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
@@ -787,7 +806,7 @@
 2000-10-20  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/BounceParser.pm (parse_exchange): Parse a variant of the
-        exchange format.
+	exchange format.
 
 2000-10-19  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
@@ -825,7 +844,7 @@
 	for every list.
 	(dispatch)  Separate list:sublist into separate request hash
 	variables.
-        (config_get_vars)  All settings of the DEFAULT list are visible.
+	(config_get_vars)  All settings of the DEFAULT list are visible.
 	(valid_list)  Understand and untaint list:sublist combination.
 
 	* lib/Mj/Access.pm: (list_access_check)  Use GLOBAL checks 
@@ -851,8 +870,8 @@
 2000-10-11  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* bin/mj_email (connect_no_parse, connect_and_parse): Call
-        Majordomo::connect in a list context so failed connects don't
-        screw us up.  Log failed connects.
+	Majordomo::connect in a list context so failed connects don't
+	screw us up.  Log failed connects.
 
 2000-10-07  Michael Yount <csf@moscow.com>
 
@@ -869,15 +888,15 @@
 2000-10-05  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* bin/mj_shell (parse_interactive): Term::ReadLine can spew
-        warnings over files we can't control; turn warnings off when
-        loading it.
+	warnings over files we can't control; turn warnings off when
+	loading it.
 
 	* lib/Mj/Token.pm: Clean up various undeclared variable warnings.
 
 2000-10-04  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Access.pm (_d_post): Fix error when checking
-        restrict_post.
+	restrict_post.
 
 2000-10-04  Michael Yount <csf@moscow.com>
 
@@ -918,7 +937,7 @@
 2000-10-02  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Resend.pm (_check_mime): Don't fault messages for
-        exceeding max_mime_header_length if it is zero.
+	exceeding max_mime_header_length if it is zero.
 
 2000-10-01  Michael Yount <csf@moscow.com>
 
@@ -984,7 +1003,7 @@
 	(list_access_check)  Use a hash instead of a long argument list.
 	If the master password is used, and a delay was requested,
 	delay the command.  Simplify calls to action routines (_a_*).
-        Remove _a_denymess and _d_password.  Add _a_delay routine to
+	Remove _a_denymess and _d_password.  Add _a_delay routine to
 	handle the new "delay" action.
 
 	* lib/Mj/Archive.pm (find):  New routine.  Find a list of
@@ -1051,7 +1070,7 @@
 	of consult variables, and "limit_hard" to the list of deny
 	variables.
 
-        * lib/Mj/Archive.pm: (first_n, last_n)  Collect data more quickly.
+	* lib/Mj/Archive.pm: (first_n, last_n)  Collect data more quickly.
 	(expand_range)  Allow use of "mwdh" format to specify "last 3 weeks"
 	and similar ages.
 	(get_all_data)  New routine.  Load all data from an archive index.
@@ -1074,7 +1093,7 @@
 	(_within_limits)  New routine.  Use the post_limits setting
 	and data from the posts database to determine if a hard
 	or soft limit is exceeded.
-    
+
 2000-08-31  Michael Yount <csf@moscow.com>
 
 	* files/en/config/block_headers:  New global configuration
@@ -1209,7 +1228,7 @@
 	* bin/mj_wwwusr:  Overhaul formatting.  The introductory
 	page is now very simple, offering only instructions.  The
 	lists page contains a link to a separate page for each mailing 
-        list.
+	list.
 
 	* lib/Majordomo.pm: (get_all_lists) Take a regular expression,
 	to allow the list names to be searched.
@@ -1342,7 +1361,7 @@
 	requires an ack to be sent to the victim.
 	(aux_get_member) New routine.  Return the auxiliary list
 	data for a particular address.
-        
+	
 	* lib/Mj/Resend.pm: (post) Include the sublist, date,
 	and message author in the variable substitutions.
 	(_post) Send an acknowledgement if warranted.
@@ -1533,14 +1552,14 @@
 
 	* bin/mj_email, bin/mj_enqueue: Add options for new aliases
 	  -c COMMAND    Issue a command (-subscribe, -unsubscribe)
-	  -M            Forward message to moderators (-moderator)
+	  -M	    Forward message to moderators (-moderator)
 	  -x SUBLIST    Post a message to an auxiliary list.
 	At present, qmail support does not include auxiliary lists.
 	The -moderator alias follows the same conventions as the
 	-owner alias.  The auxiliary list aliases follow the same
 	conventions as the resend (main list) alias.
 	(Thanks to Brock Rozen for suggesting the -(un)subscribe aliases.)
-      
+
 	* bin/mj_queuerun: Handle altered queue file names for new aliases.
 	The file names will end with a comma, followed by an auxiliary
 	list name or command name or 'M' (for -moderator).
