@@ -2191,6 +2191,7 @@ sub _list_file_get {
   my (%paths, @langs, @out, @paths, @search, @share, $ok, $d, $f, $i, $j,
       $l, $p, $tmp);
 
+  $list = 'GLOBAL' if ($list eq 'ALL');
   return unless $self->_make_list($list);
   @search = $self->_list_config_get($list, 'file_search');
 
