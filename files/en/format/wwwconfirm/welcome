@@ -26,7 +26,7 @@ manage requests.
   <li>
     To get more information about a pending request (who made
     the request, why it requires your confirmation, and so on),
-    press the <b>tokeninfo</b> button.
+    press the <b>tokeninfo-full</b> button.
 
   <li>
     To approve the request, press the <b>accept</b> button.

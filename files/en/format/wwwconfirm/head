@@ -12,7 +12,7 @@
 <form method=POST action="$CGIURL">
   <input name="t" value="$TOKEN">
   <input type=submit name="a" value="welcome">
-  <input type=submit name="a" value="tokeninfo">
+  <input type=submit name="a" value="tokeninfo-full">
   <input type=submit name="a" value="accept">
   <input type=submit name="a" value="reject">
   <input type=hidden name="d" value="$DOMAIN">
