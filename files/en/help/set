@@ -23,7 +23,7 @@ the others in the set):
   5. list mail if you already got a CC (eliminatecc, noeliminatecc)
   6. subject prefix added by owner (prefix, noprefix)
   7. replyto header added by owner (replyto, noreplyto)
-  8. rewrite From: header when you post messages (rewritefrom, norewritefrom)
+  8. rewrite "From:" header when you post (rewritefrom, norewritefrom)
 
 At the bottom of this file is a summary of all possible flags and a
 cross reference to default settings that might be useful to list owners. 
@@ -236,11 +236,15 @@ WARNING: Different mail tools interpret the From, Sender, and Reply-To
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-8.  These control rewriting the From: header.  When you subscribe
-    to a Majordomo mailing list, the comment is stored in addition
-    to your address.  When you post messages to a list, Majordomo
-    can rewrite the From: header to be identical to the one with
-    which you subscribed.
+8.  These control rewriting the "From:" header.  When you subscribe
+    to a Majordomo mailing list, a comment may be stored in addition
+    to your address.  For example, "joe blow" is the comment in
+       joe blow <joe@nowhere.com>
+    or
+       "joe blow" joe@nowhere.com
+
+    When you post messages to a list, Majordomo can rewrite the "From:"
+    header to be identical to the one with which you subscribed:
       rewritefrom   - change the From: header
       norewritefrom - leave the From: header alone
 
@@ -254,7 +258,10 @@ WARNING: Different mail tools interpret the From, Sender, and Reply-To
        set LISTNAME rewritefrom YourEmailAddressHere
     where "LISTNAME" is replaced with the name of the list.
 
-    Remember to put in your actual email address and the real list name.
+    Remember to put in your actual email address and the real
+    list name. Your address, shown as "YourEmailAddressHere"
+    above, is used to look up your subscription to the specified
+    list. It is NOT used as the new From: field.
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
