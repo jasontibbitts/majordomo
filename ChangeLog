@@ -1,3 +1,35 @@
+2002-06-08  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Add format file and supplementary display
+	support for the which command.
+
+	* lib/Majordomo.pm:  (_set) Return the stripped address in
+	the "stripaddr" variable and the full address in the 
+	"victim" variable.
+	(_which)  Add a back end for the which core routine to
+	allow the command to stall.
+
+	* lib/Mj/CommandProps.pm:  Remove support for the which-regex
+	and which-pattern commands.
+
+	* lib/Mj/Format.pm:  (accept, reject) Place the requester's 
+	address in quotes for the sake of substitutions.
+	(set)  Support the QSADDR substitution.
+	(which)  Add format file support.
+
+	* lib/Mj/Token.pm:  (t_accept)  Convert the token data args
+	to their request hash equivalents earlier.
+
+2002-06-06  Michael Yount <csf@moscow.com>
+
+	* bin/mj_shell:  Turn ornaments off explicitly if they
+	were disabled.
+
+	* bin/mj_wwwusr:  The changeaddr command now has format
+	file support.
+
+	* lib/Mj/Format.pm:  (changeaddr)  Add format file support.
+
 2002-06-05  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwusr:  The alias and unalias commands now have

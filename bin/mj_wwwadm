@@ -78,7 +78,7 @@ my (%commands, %seen, @domains, @extra, @hereargs, @lists, @mlists,
                 'tokeninfo'     => [1, 0, 0, 'showtokens'],
                 'unregister'    => [1, 1, 0, 'who'],
                 'unsubscribe'   => [1, 1, 0, 'who'],
-                'which'         => [1, 1, 1, 'who'],
+                'which'         => [1, 1, 0, 'which'],
                 'who'           => [1, 1, 0, 'who'],
             );
 
@@ -353,7 +353,7 @@ $request = {
 };
 
 # Deal with result sets
-if ($func eq 'who') {
+if ($func eq 'who' or $func eq 'which') {
   $request->{'chunksize'} = $cgi->param('chunksize') || 0;
   $request->{'start'} = $cgi->param('start') || 1;
 }
@@ -386,8 +386,8 @@ if (function_prop($func, 'iter')) {
 # The sixth exception is for the configshow command, which allows
 # an array of variables to be specified.
 #
-# The seventh exception is for the who command, which must include
-# a pattern.
+# The seventh exception is for the who or which command, which must
+# include a search pattern.
 #
 # The eighth exception is for the createlist command, which
 # can include a group of list owners, a password, and possibly
@@ -536,7 +536,7 @@ elsif ($func ne 'showtokens') {
   elsif ($func eq 'configshow') {
     $request->{'groups'} = join ',', $cgi->param('groups');
   }
-  elsif ($func eq 'who') {
+  elsif ($func eq 'who' or $func eq 'which') {
     $request->{'regexp'} = $cgi->param('pattern');
   }
   elsif ($func eq 'put') {
@@ -594,12 +594,13 @@ elsif ($func ne 'showtokens') {
 }
 
 #----- Display supplementary information -----#
-# There are five supplementary screens which this script displays. 
+# There are seven supplementary screens which this script displays. 
 #   command    - Display a command menu
 #   configshow - Allow easy access to collections of settings.
 #   newlist    - Allow lists to be created, renamed, or destroyed.
 #   lists      - Show details about a list, or a collection of lists.
 #   showtokens - Display a list of pending requests
+#   which      - Search all subscriber lists or (un)register addresses
 #   who        - Search the subscriber list or (un)subscribe addresses
 
 $tmp = $cgi->param('command') || '';
@@ -667,6 +668,15 @@ elsif ($commands{$func}->[3] ne $func) {
     $request->{'list'} = $lists[0];
     $request->{'chunksize'} = $cgi->param('chunksize') || 20;
     $request->{'start'} = $cgi->param('start') || 1;
+    $request->{'regexp'} = $cgi->param('pattern');
+    $request->{'victims'} = '';
+  }
+  elsif ($commands{$func}->[3] eq 'which') {
+    $func = 'which';
+    $request->{'command'} = 'which';
+    $request->{'mode'} = '';
+    $request->{'list'} = 'GLOBAL';
+    $request->{'chunksize'} = $cgi->param('chunksize') || 20;
     $request->{'regexp'} = $cgi->param('pattern');
     $request->{'victims'} = '';
   }
