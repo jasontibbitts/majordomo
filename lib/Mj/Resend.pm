@@ -237,6 +237,7 @@ sub post {
     # Unlink the spool file if the post was denied.
     unlink $request->{'file'} unless $ok; 
     unlink @{$self->{'post_temps'}} if $self->{'post_temps'};
+    undef $self->{'post_temps'};
     return ($ok, '');
   }
 
@@ -309,6 +310,7 @@ sub post {
     unlink $request->{'file'};
   }
   unlink @{$self->{'post_temps'}} if $self->{'post_temps'};
+  undef $self->{'post_temps'};
 
   # Purging will unlink the spool file.
   # $nent->purge if $nent;
