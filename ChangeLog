@@ -1,11 +1,17 @@
 Thu Nov 12 00:33:44 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/TextOutput.pm (who): Modify to properly pass the compile
+ 	RE that the core passes back to us.
+
 	* lib/Mj/Config.pm (parse_regexp): Major changes to accept
  	patterns and return true Perl regexps.  The 'regexp' type is now
  	parsed.
 	(parse_regexp_array): Call parse_regexp; return arrayref of parsed
  	regexps.
-
+	(compile_pattern): New function.
+	(parse_regexp): Move all interesting functionality to
+	compile_pattern, which is callable from external code.
+	
 	* lib/Mj/Access.pm (_d_advertise): Adjust to advertise and
  	noadvertise being parsed arrays (i.e. config_get returns
  	arrayrefs).  Do comparisons on stripped addresses.

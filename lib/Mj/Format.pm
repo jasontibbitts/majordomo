@@ -695,6 +695,7 @@ sub which {
 sub who {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
       $list, $vict, $regexp, $arg2, $arg3, $ok, $mess) = @_;
+  $regexp ||= '';
   my $log = new Log::In 29, "$type, $list, $regexp";
   my (@lines, @out, @stuff, $chunksize, $count, $error, $i, $ret);  
 

@@ -3743,11 +3743,16 @@ _who is the bottom half; it just calls the internal get_start routine to do
 the setup and returns.
 
 =cut
+use Mj::Config;
 sub who_start {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $vict, $regexp) = @_;
   my $log = new Log::In 30, "$list";
   my ($ok, $error);
+
+  $self->_make_list($list);
+  ($ok, $error, $regexp) = Mj::Config::compile_pattern($regexp, 0);
+  return (0, $error) unless $ok;
 
   ($ok, $error) = 
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
@@ -3758,19 +3763,17 @@ sub who_start {
     return ($ok, $error);
   }
 
-  if ($ok > 1) {
-    $self->{'unhide_who'} = 1;
-  }
-
-  $self->_who($list, $user, '', $mode, $cmdline);
+  $self->{'unhide_who'} = ($ok > 1 ? 1 : 0);
+  $self->_who($list, $user, '', $mode, $cmdline, $regexp);
 }
 
 sub _who {
-  my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
+  my ($self, $list, $requ, $victim, $mode, $cmdline, $regexp) = @_;
   my $log = new Log::In 35, "$list";
 
   $self->_make_list($list);
   $self->{'lists'}{$list}->get_start;
+  (1, '', $regexp);
 }
 
 use Mj::Addr;

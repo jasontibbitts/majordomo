@@ -970,13 +970,16 @@ sub who {
   my ($mj, $name, $user, $pass, $auth, $int,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27;
+  my ($ok, $err, $re);
 
   my @stuff = ($user, $pass, $auth, $int,
                "who".($mode?"=$mode":"")." $list", $mode, $list, $user);
 
-  Mj::Format::who($mj, $outfh, $outfh, 'text', @stuff, $args,'','',
-		  $mj->dispatch('who_start', @stuff, $args)
-		 );
+  # Treat this specially, because we get back a compiled regexp to pass to
+  # the chunk routine.  This is safe because the core doesn't trust the
+  # regexp it gave us any more than the one we originally passed.
+  ($ok, $err, $re) = $mj->dispatch('who_start', @stuff, $args);
+  Mj::Format::who($mj, $outfh, $outfh, 'text', @stuff, $re, '','', $ok, $err);
 }
 
 =head2 g_add
