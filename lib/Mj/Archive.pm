@@ -447,7 +447,8 @@ sub sync {
   my $tmpdir = shift;
   my $qp = shift;
   my $log  = new Log::In 250, "$arc, $qp";
-  my (@msgs, $btotal, $count, $data, $ltotal, $ok, $split, $sub, $values);
+  my (@msgs, $btotal, $count, $data, $ltotal, $num, $ok, $split, 
+      $sub, $values);
 
   # Untaint the archive name.
   $arc = basename($arc);
@@ -552,7 +553,7 @@ sub _sync_msgs {
   $mbox = new Mj::FileRepl("$self->{'dir'}/$self->{'list'}.$file");
   return (0, "Unable to replace archive $file.\n") unless $mbox;
 
-  $tmpfile = Majordomo::tempname;
+  $tmpfile = Majordomo::tempname();
   $tmpfh =  new IO::File "> $tmpfile";
   return (0, "Unable to open temporary file.\n") unless $tmpfh;
 
@@ -738,6 +739,9 @@ sub get_to_file {
   return unless $data;
   my $fh =   new IO::File ">$file";
   my $chunk;
+
+  return unless $fh;
+  return unless (defined $self->{'get_handle'});
 
   if ($skip) {
     $chunk = $self->{'get_handle'}->getline;
