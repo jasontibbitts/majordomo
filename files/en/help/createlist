@@ -141,6 +141,10 @@ The command modes include the following:
     to adjust the configuration settings and welcome message manually,
     to reflect the new list name.
 
+Once a list has been renamed, it is possible to cause commands that use
+the old list name to be adjusted to use the new name automatically.  See
+"help configset_relocated_lists" for more details.
+
 NOTE: Auxiliary lists are not created by the createlist command.  
 An auxiliary list is created by adding an address to it with the 
 subscribe command, or by mentioning it in the access rules (see
@@ -155,6 +159,7 @@ See Also:
    help configset_default_class       (to configure default subscriptions)
    help configset_default_flags       (to configure default subscriptions)
    help configset_password_min_length
+   help configset_relocated_lists
    help configset_sublists  (to make cause alias generation for aux lists)
 
 $INCLUDE-help/foot
