@@ -666,8 +666,7 @@ EOM
     ($ok, @lines) = @{$mj->dispatch($request, $chunksize)};
     
     last unless $ok > 0;
-    print "<tr><td cols=4>No matching addresses were found.\n"
-      unless (@lines);
+    next unless (@lines);
     for $i (@lines) {
       next unless (ref ($i) eq 'HASH');
       if ($request->{'list'} ne 'GLOBAL') {
@@ -696,14 +695,14 @@ EOM
       }
         
       if ($request->{'mode'} =~ /bounces/ && exists $i->{'bouncestats'}) {
-        print "<tr><td cols=4>Diagnostic of last bounce: $i->{'diagnostic'}\n"
+        print "<tr><td colspan=4>Diagnostic of last bounce: $i->{'diagnostic'}\n"
           if $i->{'diagnostic'};
-        print "<tr><td cols=4>Bounces in the past week: $i->{'bouncestats'}->{'week'}\n"
+        print "<tr><td colspan=4>Bounces in the past week: $i->{'bouncestats'}->{'week'}\n"
           if $i->{'bouncestats'}->{'week'};
-        print "<tr><td cols=4>Bounces in the past month: $i->{'bouncestats'}->{'month'}\n"
+        print "<tr><td colspan=4>Bounces in the past month: $i->{'bouncestats'}->{'month'}\n"
           if $i->{'bouncestats'}->{'month'};
         $numbered = join " ", sort {$a <=> $b} keys %{$i->{'bouncedata'}{'M'}};
-        print "<tr><td cols=4>Message numbers: $numbered\n"
+        print "<tr><td colspan=4>Message numbers: $numbered\n"
           if $numbered;
        
       }
@@ -712,6 +711,7 @@ EOM
   $request->{'command'} = "who_done";
   $mj->dispatch($request);
 
+  print "<tr><td colspan=4>$count addresses found.\n";
   print "</table>\n";
   if (exists $request->{'mlist'} and (ref $request->{'mlist'} eq 'ARRAY')) {
     for (@{$request->{'mlist'}}) {
