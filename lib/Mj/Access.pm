@@ -485,37 +485,22 @@ sub list_access_check {
     $data->{$_} = $data->{$td->{$_}};
   }
 
-  my (%memberof   ,         # Hash of sublists the user is in
-      @final_actions,       # The final list of actions dictated by the rules
-      $password_override,   # Does a supplied password always override
-                            # other restrictions?
-      $access,              # To save typing
-      $actions,             # The action to be performed
-      $cpt,                 # A safe compartment for running the code in
-      $arg,                 # Action argument
-      $allow,               # Return code: is operation allowed?
-      $stat,                # Description of return code
-      $current,             # List of lists of time specifications
-      $mess,                # Message to be returned (from 'reply' action)
-      $ent,                 # MIME Entity for actions needing to send mail
-      $deffile,             # The default replyfile if none is given
-      $saw_terminal,        # Flag: did a rule emit a terminal action
-      $reasons,             # The \n separated list of bounce reasons
-      $i,                   # iterator
-      $j,                   # iterator
-      $func,
-      $fileinfo,
-      $text,
-      $temp,
-      $ok, 
-      $tmpl, $tmpa,         # Temporary list and sublist holders
-      @temps,
-      $value,               # Value to which the 'set' action changes a variable.
-     );
+  my (%memberof, @final_actions, @temps, $access, $allow, $arg, 
+      $current, $deffile, $fileinfo, $fwd_post, $func, $i, $j,
+      $mess, $ok, $password_override, $reasons, $temp, $text, 
+      $tmpl, $tmpa);
 
   # Initialize list
   return (0, "Unable to initialize list $list")
     unless $self->_make_list($list);
+
+
+  if ($request eq 'post') {
+    $fwd_post = -1;
+  }
+  else {
+    $fwd_post = 0;
+  }
 
   # Initialize access variables
   $args{'master_password'} = 0;
@@ -718,6 +703,16 @@ FINISH:
     no strict 'refs';
     ($func, $arg) = split(/[-=]/, $i, 2);
     $arg ||= '';
+
+    if (action_terminal($func)) {
+      if ($func eq 'forward') {
+        $fwd_post = 1 if ($fwd_post);
+      }
+      else {
+        $fwd_post = 0;
+      }
+    }
+
     $func = "_a_$func";
     $func =~ s/\+/\_/g;
     # Handle stupid 8 character autoload uniqueness limit
@@ -727,6 +722,12 @@ FINISH:
     $allow = $ok if defined $ok;
     $mess .= $text if defined $text;
     push @temps, $temp if defined $temp;
+  }
+
+  # If the only terminal action is "forward," arrange for the
+  # message to be deleted.
+  if ($fwd_post > 0) {
+    push @{$self->{'post_temps'}}, $data->{'arg1'};
   }
 
   # If there is no reply message,
@@ -1080,7 +1081,7 @@ sub _a_forward {
             'USER'       => "$td->{'user'}",
           };
 
-  if ($td->{'command'} !~ /post/) {
+  if ($td->{'command'} !~ /^post/) {
     $whoami = $self->_global_config_get('whoami');
   }
   else {

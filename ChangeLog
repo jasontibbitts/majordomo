@@ -1,3 +1,12 @@
+2004-01-23  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Access.pm:  (list_access_check)  Bugfix:  Arrange 
+	to delete the spool file for a posted message if the only
+	terminal action is "forward".
+
+	* lib/Mj/Resend.pm:  (post)  Delete any temporary files
+	(In particular, the spool file if a message was forwarded.)
+
 2004-01-20  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Resend.pm:  (post, _post, _check_approval, do_digests)  
