@@ -74,7 +74,9 @@ sub build {
     push @digests, new $obj
       (subject      => $args{subject},
        indexfn      => $idxfnref,
-       index_header => $args{index_header},
+       preindex     => $args{files}{$i}{'preindex'},
+       postindex    => $args{files}{$i}{'postindex'},
+       footer       => $args{files}{$i}{'footer'},
        tmpdir       => $args{tmpdir},
        from         => $args{from},
        to           => $args{to},
@@ -147,7 +149,7 @@ sub idx_subject_author {
   $sub = $data->{'subject'};
   $sub = '(no subject)' unless length $sub;
 
-  if (length($sub) > 40) {
+  if (length("$sub $from") > 74) {
     return "  $sub\n" . (' ' x int(74-length($data->{'from'}))) .
       "[$data->{'from'}]\n";
   }

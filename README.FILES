@@ -1,5 +1,7 @@
 -*- Text -*-
 
+Note that this information is not complete, and may be inaccurate.
+
 These are all of the files that should exist somewhere in a list's (or
 GLOBAL's) filespace.  They will be variable-substituted and mailed out at
 various times.  (Many customization possibilities have reduced the number
@@ -14,6 +16,7 @@ ack_success
 ack_timeout
 confirm
 consult
+digest files
 faq
 inform
 intro

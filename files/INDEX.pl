@@ -9,6 +9,7 @@ $files =
    'en/ack_stall'               => ['Stalled post to $LIST',                           'us-ascii', '7bit'],
    'en/ack_success'             => ['Success',                                         'us-ascii', '7bit'],
    'en/ack_timeout'             => ['Timeout',                                         'us-ascii', '7bit'],
+   'en/digest_preindex'         => ['Index',                                           'us-ascii', '7bit'],
    'en/faq'                     => ['Default faq reply',                               'us-ascii', '7bit'],
    'en/file_sent'               => ['File has been sent',                              'us-ascii', '7bit'],
    'en/info'                    => ['Info',                                            'us-ascii', '7bit'],
@@ -39,6 +40,8 @@ $files =
    'en/help/admin_commands'     => ['Overview of available administrative commands',   'us-ascii', '7bit'],
    'en/help/admin_configuration'=> ['Overview of configuration variables and methods', 'us-ascii', '7bit'],
    'en/help/admin_passwords'    => ['Information on Majordomo security and passwords', 'us-ascii', '7bit'],
+
+   # Configuration variable descriptions
    'en/config/access_password_override'  => ['The access_password_override variable',  'us-ascii', '7bit'],
    'en/config/access_rules'              => ['The access_rules variable',              'us-ascii', '7bit'],
    'en/config/ack_attach_original'       => ['The ack_attach_original variable',       'us-ascii', '7bit'],

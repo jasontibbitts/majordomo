@@ -1400,6 +1400,19 @@ sub digest_add {
   $self->{digest}->add(@_);
 }
 
+=head2 digest_trigger
+
+Trigger a digest.  This does what digest_add does, but instead of adding a
+message it just checks to see if a digest should be sent.  The return is
+the same as digest_add.
+
+=cut
+sub digest_trigger {
+  my $self = shift;
+  $self->_make_digest;
+  $self->{digest}->trigger;
+}
+
 =head1 COPYRIGHT
 
 Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development

@@ -20,6 +20,7 @@ package Mj::Digest::MIME;
 
 use strict;
 use Mj::Log;
+use IO::File;
 use MIME::Entity;
 
 =head2 new
@@ -41,6 +42,7 @@ sub new {
   my $class= ref($type) || $type;
   my $log  = new Log::In 150;
   my $self = {};
+  my ($fh, $i);
   bless $self, $class;
 
   $self->{top} = build MIME::Entity
@@ -55,9 +57,23 @@ sub new {
     (Type     => 'multipart/digest',
      Filename => undef,
     );
-  $self->{indexfn} = $args{indexfn};
-  $self->{count} = 0;
-  $self->{'index'} = $args{index_header} || '';
+  $self->{count}     = 0;
+  $self->{indexfn}   = $args{indexfn};
+
+  # Pull in the index.
+  $self->{index} = "";
+  if ($args{preindex}) {
+    $fh = new IO::File "<$args{preindex}{name}";
+    while (defined($i = <$fh>)) {
+      $self->{index} .= $i;
+    }
+  }
+
+  # Save text matter for later use
+  $self->{preindex}  = $args{preindex};
+  $self->{postindex} = $args{postindex};
+  $self->{footer}    = $args{footer};
+
   $self;
 }
 
@@ -110,15 +126,38 @@ delete this file when finished.
 =cut
 sub done {
   my $self = shift;
-  my ($fh, $file, $index);
+  my ($fh, $file, $footer, $i, $index);
 
+  # Pull in postindex data
+  if ($self->{postindex}{name}) {
+    $fh = new IO::File "<$self->{postindex}{name}";
+    while (defined($i = <$fh>)) {
+      $self->{index} .= $i;
+    }
+  }
+
+  # Build index part
   $index = build MIME::Entity
-    (Type        => 'text/plain',
-     Desctiption => 'Index',
+    (Type        => $self->{preindex}{data}{'c-type'}    || 'text/plain',
+     Desctiption => $self->{preindex}{data}{description} || 'Index',
      Data        => $self->{'index'},
     );
   $self->{top}->add_part($index);
+
+  # Add in the digest itself
   $self->{top}->add_part($self->{digest});
+
+  # Build footer part
+  if ($self->{footer}{name}) {
+    $footer = build MIME::Entity
+      (Type        => $self->{footer}{data}{'c-type'}    || 'text/plain',
+       Description => $self->{footer}{data}{description} || 'Footer',
+       Path        => $self->{footer}{name},
+       Filename    => undef,
+       'Content-Language:' => $self->{footer}{data}{language},
+      );
+    $self->{top}->add_part($footer);
+  }
 
   $file = Majordomo::tempname();
   $fh = new IO::File ">$file";

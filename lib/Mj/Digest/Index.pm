@@ -41,14 +41,29 @@ sub new {
   my $class= ref($type) || $type;
   my $log  = new Log::In 150;
   my $self = {};
+  my($fh, $i);
   bless $self, $class;
 
   $self->{'indexfn'} = $args{'indexfn'};
   $self->{'count'} = 0;
-  $self->{'index'} = $args{'index_header'} || '';
   $self->{'subject'} = $args{'subject'} || '';
   $self->{'from'} = $args{'from'};
   $self->{'to'} = $args{'to'};
+
+  # Pull in the index.
+  $self->{index} = "";
+  if ($args{preindex}) {
+    $fh = new IO::File "<$args{preindex}{name}";
+    while (defined($i = <$fh>)) {
+      $self->{index} .= $i;
+    }
+  }
+
+  # Save text matter for later use
+  $self->{preindex}  = $args{preindex};
+  $self->{postindex} = $args{postindex};
+  $self->{footer}    = $args{footer};
+
   $self;
 }
 
@@ -88,7 +103,16 @@ delete this file when finished.
 =cut
 sub done {
   my $self = shift;
-  my ($fh, $file, $index);
+  my ($fh, $file, $i, $index);
+
+  # Pull in postindex data
+  if ($self->{postindex}{name}) {
+    $fh = new IO::File "<$self->{postindex}{name}";
+    while (defined($i = <$fh>)) {
+      $self->{index} .= $i;
+    }
+    $fh->close;
+  }
 
   $self->{top} = build MIME::Entity
     (Type     => 'text/plain',

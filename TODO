@@ -61,20 +61,11 @@ Store additional info in a dotfile.  Only difficult rewrite is index.
 
 ! Digest:
 
+mkdigest      to force all digests (backwards compatibility)
 digest-incvol to increment volume number of a digest
 digest-force  to force a specific digest
 digest-check  to possibly run a specific digest
 report-digest command to show status of digest spools.
-
-Use files; search in order:
-  digest-$name-$flavor-(preindex, postindex, footer)
-  digest-$name-(preindex, postindex, footer)
-  digest-$flavor-(preindex, postindex, footer)
-
-  (The last will always be found in the GLOBAL space, but conceptually also
-  look for:
-   digest-(preindex, postindex, footer)
-  )
 
 Way to force the users to use the digest version:
   allowed_subscribtion_classes - array of names of subscription classes that

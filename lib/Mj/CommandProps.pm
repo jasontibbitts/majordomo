@@ -481,6 +481,7 @@ my %aliases =
    'remove'         => 'unsubscribe',
    'signoff'        => 'unsubscribe',
    'stop'           => 'end',
+   'sub'            => 'subscribe',
    'unsub'          => 'unsubscribe',
   );
 

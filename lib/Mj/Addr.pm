@@ -39,7 +39,7 @@ somewhat explanatory) message as to the nature of the syntactic anomaly.
 package Mj::Addr;
 use strict;
 use vars qw($addr %defaults %top_level_domains);
-use Mj::Log;
+#use Mj::Log;
 use overload 
   '=='   => \&match,
   'eq'   => \&match,
@@ -519,10 +519,10 @@ sub _xform {
     # Log any messages
     if ($@) {
 warn $@;
-      $::log->message(10,
-		      "info",
-		      "Mj::Addr::xform: error in Safe compartment: $@"
-		     );
+#      $::log->message(10,
+#		      "info",
+#		      "Mj::Addr::xform: error in Safe compartment: $@"
+#		     );
     }
   }
   $self->{'xform'} = $addr;
@@ -588,7 +588,7 @@ used to chip addresses off of the left hand side of an address list.
 sub _validate {
   my $self  = shift;
   local($_) = $self->{'full'};
-  my $log = new Log::In 150, $_;
+#  my $log = new Log::In 150, $_;
   my (@comment, @phrase, @route, @words, $angle, $bang_path, $comment,
       $domain_literal, $i, $right_of_route, $lhs_length, $nest, $rhs_length,
       $on_rhs, $subdomain, $word);
@@ -604,7 +604,7 @@ sub _validate {
   s/\s+$//;
   
   if ($_ eq "") {
-    $log->out("failed");
+#    $log->out("failed");
     return (0, "Nothing at all in that address.\n");
   }
 
@@ -640,7 +640,7 @@ sub _validate {
       
       # If we don't have enough closing parentheses, we're hosed
       if ($nest) {
-	$log->out("failed");
+#	$log->out("failed");
 	return (0, "Unmatched parenthesis in $comment $_\n");
       }
       
@@ -669,14 +669,14 @@ sub _validate {
       push @route,  $1 if $angle;
 
       unless ($on_rhs) {
-	$log->out("failed");
+#	$log->out("failed");
 	return (0, "Domain literals (words in square brackets) are only permitted on
 the right hand side of an address: $1 $_
 Did you mistakenly enclose the entire address in square brackets?
 ");
       }
       unless ($words[-2] && $words[-2] =~ /^[.@]/) {
-	$log->out("failed");
+#	$log->out("failed");
 	return (0, "Domain literals (words in square brackets) are only permitted after
 a '.' or a '\@': $words[-2] _$1_$_\n");
       }
@@ -703,7 +703,7 @@ a '.' or a '\@': $words[-2] _$1_$_\n");
 
       # XXX #17 need to do something different here when in a route.
       if ($1 eq ',') {
-	$log->out("failed");
+#	$log->out("failed");
 	if ($angle) {
 	  return (0, "Source routes are not allowed, at
 @words[0..$#words-1] _$1_ $_
@@ -728,13 +728,13 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
       elsif ($1 eq '<') {
 	$angle++;
 	if ($angle > 1) {
-	  $log->out("failed");
+#	  $log->out("failed");
 	  return (0, "Angle brackets cannot nest at: $words[-2] _$1_ $_\n");
 	}
 
 	# Make sure we haven't already seen a route address
 	if (@route) {
-	  $log->out("failed");
+#	  $log->out("failed");
 	  return (0, "Only one bracketed address permitted at: @words[0..$#words-1] _$1_ $_\n");
 	}
 
@@ -743,7 +743,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
 	$angle--;
 	pop @route;
 	if ($angle < 0) {
-	  $log->out("failed");
+#	  $log->out("failed");
 	  return (0, sprintf("Too many closing angles at %s_%s_%s\n",
 			    $words[-2]||"", $1, $_));
 	}
@@ -753,18 +753,18 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
       # The following can be if instead of elsif, but we choose to postpone
       # some tests until later to give better messages.
       elsif ($words[-2] && $words[-2] =~ /^[\Q$specials\E]$/) {
-	$log->out("failed");
+#	$log->out("failed");
 	return (0, sprintf("Illegal combination of characters at: %s _%s %s_ %s\n",
 			  $words[-3]||"", $words[-2], $words[-1], $_));
       }
       next;
     }
 
-    $log->out("failed");
+#    $log->out("failed");
     return (0, "Unrecognized address component in $_\n");
   }
   if ($angle) {
-    $log->out("failed");
+#    $log->out("failed");
     return (0, "Unmatched open angle bracket in address.\n");
   }
 
@@ -798,7 +798,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
       # If we're right of the route address, nothing is allowed to appear.
       # This is common, however, and is overrideable.
       if (!$self->{p}{'allow_comments_after_route'} && $right_of_route) {
-	$log->out("failed");
+#	$log->out("failed");
 	return (0, "Nothing is allowed to the right of an address in angle brackets.\n");
       }
 
@@ -809,7 +809,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
 
       # Other specials are illegal 
       if ($words[$i] =~ /^[\Q$specials\E]/) {
-	$log->out("failed");
+#	$log->out("failed");
 	return (0, sprintf("Illegal character in comment portion of address at: %s _%s_ %s\n",
 			   $words[$i-1] || "", $words[$i], $words[$i+1] || ""));
       }
@@ -823,7 +823,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
   # @domain,@domain,@domain:addr@domain syntax.
 
   unless (@words) {
-    $log->out("failed");
+#    $log->out("failed");
     return (0, "Nothing but comments in that address.\n");
   }
 
@@ -832,7 +832,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
   # must begin and end with an atom.  (We can be lenient and allow it to
   # end with a '.', too.)
   if ($words[0] =~ /^[.@]/) {
-    $log->out("failed");
+#    $log->out("failed");
     return (0, "The address cannot begin with either '.' or '\@'.\n");
   }
   
@@ -843,13 +843,13 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
       $self->{p}{'allow_bang_paths'} &&
       $words[0] =~ /[a-z0-9]\![a-z]/i)
     {
-      $log->out;
+#      $log->out;
       return (1, $words[0], join(" ", @comment)||"");
     }
   
   for $i (0..$#words) {
     if ($i > 0 &&$words[$i] !~ /^[.@]/ && $words[$i-1] && $words[$i-1] !~ /^[.@]/) {
-      $log->out("failed");
+#      $log->out("failed");
       return (0, "Individual words are not allowed without an intervening '.' or '\@'
 at: $words[$i-1] $words[$i]
 Did you supply just your full name?  Did you include your full name
@@ -867,7 +867,7 @@ Did you try to perform an action on two lists at once?
       $words[$i] = lc($words[$i]);
       $rhs_length += length($words[$i]);
       if ($self->{p}{'limit_length'} && $rhs_length > 64) {
-	$log->out("failed");
+#	$log->out("failed");
 	return (0, "The hostname exceeds 64 characters in length.\n");
       }
       # Hostname components must be only alphabetics, ., or -; can't start
@@ -875,21 +875,21 @@ Did you try to perform an action on two lists at once?
       if (($words[$i] =~ /[^a-zA-Z0-9.-]/ ||
 	   $words[$i] =~ /^-/) && $words[$i] !~ /^[\[\]]/)
 	{
-	  $log->out("failed");
+#	  $log->out("failed");
 	  return (0, "Host name component \"$words[$i]\" contains illegal characters.\n");
 	}
     }
     else {
       $lhs_length += length($words[$i]);
       if ($self->{p}{'limit_length'} && $lhs_length > 64) {
-	$log->out("failed");
+#	$log->out("failed");
 	return (0, "The user name exceeds 64 characters in length.\n");
       }
       # Username components must lie betweem 040 and 0177.  (It's really
       # more complicated than that, but this will catch most of the
       # problems.)
       if ($words[$i] =~ /[^\040-\177]/) {
-	$log->out("failed");
+#	$log->out("failed");
 	return (0, "User name component \"$words[$i]\" contains illegal characters.\n");
       }
     }
@@ -905,23 +905,23 @@ Did you try to perform an action on two lists at once?
   
   if ($self->{p}{'require_fqdn'} && !$on_rhs) {
     if ($top_level_domains{lc($words[-1])}) {
-      $log->out("failed");
+#      $log->out("failed");
       return (0, "It looks like you have supplied just a domain name
 without the rest of the address.\n");
     }
     else {
-      $log->out("failed");
+#      $log->out("failed");
       return (0, "You did not include a hostname as part of the address.\n");
     }
   }
 
   if ($words[-1] eq '@') {
-    $log->out("failed");
+#    $log->out("failed");
     return (0, "The address cannot end with an '\@'.  You must supply a hostname.\n");
   }
 
   if (!$self->{p}{'allow_ending_dot'} && $words[-1] eq '.') {
-    $log->out("failed");
+#    $log->out("failed");
     return (0, "The address cannot end with a '.'.\n");
   }
 
@@ -931,7 +931,7 @@ without the rest of the address.\n");
   # domain name is required.
   if ($on_rhs) {
     if ($self->{p}{'require_fqdn'} && $subdomain < 2 && !$domain_literal) {
-      $log->out("failed");
+#      $log->out("failed");
       return (0, "You did not include a complete hostname.\n");
     }
     if (($self->{p}{'strict_domain_check'} &&
@@ -944,13 +944,13 @@ without the rest of the address.\n");
 	    $words[-5] && $words[-5] !~ /\D/ &&
 	    $words[-7] && $words[-7] !~ /\D/)
 	  {
-	    $log->out("failed");
+#	    $log->out("failed");
 	    return (0, "It looks like you are trying to supply your IP address
 instead of a hostname.  To do, you must enclose it in
 square brackets like so: [" . join("",@words[-7..-1]) . "]\n");
 	  }
 	
-	$log->out("failed");
+#	$log->out("failed");
 	return (0, "The domain you provided, $words[-1], does not seem
 to be a legal top-level domain.\n");
       }
@@ -959,7 +959,7 @@ to be a legal top-level domain.\n");
   my $addr = join("", @words);
   my $comm = join(" ", @comment) || "";
 
-  $log->out('ok');
+#  $log->out('ok');
   (1, $addr, $comm);
 }
 

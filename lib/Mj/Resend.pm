@@ -475,52 +475,12 @@ sub _post {
      }
     );
 
-  # Pass to digest if we got back good archive data and there is something
-  # in the digests variable.
-  $digests = $self->_list_config_get($list, 'digests');
-  if ($msgnum && scalar keys %{$digests}) {
-    %digest = $self->{'lists'}{$list}->digest_add($msgnum, $arcdata);
+  # Build digests if we have a message number from the archives
+  # (%deliveries is modified)
 
-    if (%digest) {
-      # Extract volumes and issues, then write back the incremented values.
-      # Note that when we set the new value, we must do it in an unparsed
-      # form.
-      @tmp = ();
-      $self->_list_config_lock($list);
-      $dissues = $self->_list_config_get($list, 'digest_issues');
-      
-      for $i (keys %$digests) {
-	next if $i eq 'default_digest';
-	$dissues->{$i}{volume} ||= 1; $dissues->{$i}{issue} ||= 1;
-	push @tmp, "$i : $dissues->{$i}{volume} " .
-	  " : " . ($dissues->{$i}{issue}+($digest{$i} ? 1 : 0));
-      }
-      $self->_list_config_set($list, 'digest_issues', @tmp);
-      $self->_list_config_unlock($list);
-
-      # Now have a hash of digest name, listref of [article, data] pairs.
-      # For each digest, build the three types and for each type and then
-      # stuff an appropriate entry into %deliveries.
-      for $i (keys(%digest)) {
-	@dtypes = qw(text mime index);
-	@dfiles = $self->{'lists'}{$list}->digest_build
-	  (messages     => $digest{$i},
-	   types        => [@dtypes],
-	   subject      => $digests->{$i}{desc} . " V$dissues->{$i}{volume} #$dissues->{$i}{issue}",
-	   from         => $sender,
-	   to           => "$list\@$whereami",
-	   tmpdir       => $tmpdir,
-	   index_line   => $self->_list_config_get($list, 'digest_index_format'),
-	   index_header => "index header\n",
-	   index_footer => "index footer\n",
-	  );
-
-	for $j (@dtypes) {
-	  # shifting off an element of @dfiles gives the corresponding digest
-	  $deliveries{"digest-$i-$j"} = {exclude => {}, file => shift(@dfiles)};
-	}
-      }
-    }
+  if ($msgnum) {
+    $self->_do_digests($list, \%deliveries, $subs, $msgnum,
+		       $arcdata, $sender, $whereami, $tmpdir);
   }
 
   # Invoke delivery routine
@@ -1284,8 +1244,8 @@ sub _add_fters {
   return unless $front || $foot;
 
   # Substitute values
-  $front = $self->substitute_vars_string($front, $subs);
-  $foot  = $self->substitute_vars_string($foot,  $subs);
+  $front = $self->substitute_vars_string($front, $subs) if $front;
+  $foot  = $self->substitute_vars_string($foot,  $subs) if $foot;
 
   # We take different actions if the message is multipart
   if ($ent->is_multipart) {
@@ -1474,6 +1434,104 @@ sub _exclude {
   }
   $exclude;
 }
+
+=head2 _do_digests($list, $deliveries, $msgnum, $arcdata, $sender, $whereami, $tmpdir)
+
+This handles passing the message to all defined digests and building any
+digests that were triggered.
+
+$deliveries is modified.
+
+If $msgnum is not defined, digest_trigger will be called instead of
+digest_add, so this function can be used to trigger a digest .
+
+=cut
+sub _do_digests {
+  my ($self, $list, $deliveries, $subs, $msgnum, $arcdata, $sender,
+      $whereami, $tmpdir) = @_;
+  my $log = new Log::In 40;
+  my (%digest, %file, @dfiles, @dtypes, @tmp, $digests, $dissues, $dtext,
+      $file, $i, $j, $k);
+
+  # Pass to digest if we got back good archive data and there is something
+  # in the digests variable.
+  $digests = $self->_list_config_get($list, 'digests');
+  if (scalar keys %{$digests}) {
+    if ($msgnum) {
+      %digest = $self->{'lists'}{$list}->digest_add($msgnum, $arcdata);
+    }
+    else {
+      %digest = $self->{'lists'}{$list}->digest_trigger;
+    }
+
+    if (%digest) {
+      # Extract volumes and issues, then write back the incremented values.
+      # Note that when we set the new value, we must do it in an unparsed
+      # form.  Hence the weird string-building code.
+      @tmp = ();
+      $self->_list_config_lock($list);
+      $dissues = $self->_list_config_get($list, 'digest_issues');
+      
+      for $i (keys %$digests) {
+	next if $i eq 'default_digest';
+	$dissues->{$i}{volume} ||= 1; $dissues->{$i}{issue} ||= 1;
+	push @tmp, "$i : $dissues->{$i}{volume} " .
+	  " : " . ($dissues->{$i}{issue}+($digest{$i} ? 1 : 0));
+      }
+      $self->_list_config_set($list, 'digest_issues', @tmp);
+      $self->_list_config_unlock($list);
+
+      # Now have a hash of digest name, listref of [article, data] pairs.
+      # For each digest, build the three types and for each type and then
+      # stuff an appropriate entry into %deliveries.
+      for $i (keys(%digest)) {
+	@dtypes = qw(text mime index);
+	$subs->{DIGESTNAME} = $i;
+	$subs->{DIGESTDESC} = $digests->{$i}{desc};
+	$subs->{ISSUE}      = $dissues->{$i}{issue};
+	$subs->{VOLUME}     = $dissues->{$i}{volume};
+	$detext = {};
+
+	# Fetch the files from storage.  Per digest type, we have three
+	# files that we need, and we look for them under any of four names
+	# of decreasing specificity.  Hence the wildly nested loop here.
+	for $j (@dtypes) {
+	  for $k (qw(preindex postindex footer)) {
+	    $subs->{DIGESTTYPE} = $j;
+	    for $l ("digest_${i}_${j}_${k}", "digest_${i}_${k}", "digest_${j}_${k}", "digest_${k}") {
+	      ($file, %file) = $self->_list_file_get($list, $l, $subs);
+	      next unless $file;
+	      # We're guaranteed to have something by now; if the user
+	      # didn't provide a file, the build routine will just leave
+	      # the appropriate spot blank.
+	      $dtext->{$j}{$k}{'name'} = $file;
+	      $dtext->{$j}{$k}{'data'} = \%file;
+	    }
+	  }
+	}
+
+	@dfiles = $self->{'lists'}{$list}->digest_build
+	  (messages     => $digest{$i},
+	   types        => [@dtypes],
+	   files        => $dtext,
+	   subject      => $digests->{$i}{desc} . " V$dissues->{$i}{volume} #$dissues->{$i}{issue}",
+	   from         => $sender,
+	   to           => "$list\@$whereami",
+	   tmpdir       => $tmpdir,
+	   index_line   => $self->_list_config_get($list, 'digest_index_format'),
+#	   index_header => "index header\n",
+#	   index_footer => "index footer\n",
+	  );
+
+	for $j (@dtypes) {
+	  # shifting off an element of @dfiles gives the corresponding digest
+	  $deliveries->{"digest-$i-$j"} = {exclude => {}, file => shift(@dfiles)};
+	}
+      }
+    }
+  }
+}
+
 
 
 

@@ -1,3 +1,34 @@
+Sun Mar  7 00:40:37 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Digest/MIME.pm: Handle 'preindex', 'postindex', and
+ 	'footer' correctly.
+
+	* lib/Mj/Digest/Index.pm: Ditto.
+
+	* lib/Mj/Resend.pm (_do_digests): New function; handle generating
+ 	(but not sending) digests.
+
+	* lib/Mj/Digest/Text.pm: Handle 'preindex', 'postindex', and
+ 	'footer' correctly.
+
+	* lib/Mj/Digest/Build.pm (build): Remove index_header and use
+ 	'preindex', 'postindex' and 'footer' instead.
+
+	* lib/Mj/Resend.pm (_add_fters): Don't do substitutions if we
+ 	don't have a fronter or footer to substitute into.
+
+	* lib/Mj/Digest/Build.pm (idx_subject_author): Minor tweak to tey
+ 	and keep things on one line more often.
+	(build): Pass preindex, postindex, and footer file info.
+
+Sat Mar  6 13:14:50 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/CommandProps.pm: Added 'sub' as an alias for 'subscribe'.
+
+	* lib/Mj/Addr.pm: Removed logging.
+
+	* lib/Mj/List.pm (digest_trigger): New function.
+
 Fri Mar  5 17:05:28 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Resend.pm (post): Also check ack_attach_original = 'any'.

@@ -45,6 +45,7 @@ sub new {
   my $class= ref($type) || $type;
   my $log  = new Log::In 150;
   my $self = {};
+  my($fh, $i);
   bless $self, $class;
 
   $self->{top} = build MIME::Entity
@@ -57,12 +58,21 @@ sub new {
      # More fields here
     );
   $self->{body} = $self->{top}->open('w');
-  $self->{indexfn} = $args{indexfn};
-  $self->{subject} = $args{subject};
+  $self->{from}      = $args{from};
+  $self->{indexfn}   = $args{indexfn};
+  $self->{subject}   = $args{subject};
+  $self->{postindex} = $args{postindex};
+  $self->{footer}    = $args{footer};
   $self->{count} = 0;
   $self->{ents} = [];
 
-  $self->{body}->print($args{index_header});
+  # Read in the pre-index file
+  if ($args{'preindex'}{'name'}) {
+    my $fh = new IO::File "<$args{preindex}{name}";
+    while (defined($i = <$fh>)) {
+      $self->{body}->print($i);
+    }
+  }
 
   # Make a MIME parser
   $self->{parser} = new Mj::MIMEParser;
@@ -119,6 +129,13 @@ sub done {
   my ($ent, $fh, $file, $i, $j);
 
   # Print index_footer
+  if ($self->{postindex}{name}) {
+    $fh = new IO::File "<$self->{postindex}{name}";
+    while (defined($i = <$fh>)) {
+      $self->{body}->print($i);
+    }
+    $fh->close;
+  }
 
   # Print preamble separator
   $self->{body}->print("\n", '-'x70, "\n\n");
@@ -144,6 +161,19 @@ sub done {
 
     # Clean up
     $ent->purge;
+  }
+
+  # Deal with the footer.
+  if ($self->{footer}{name}) {
+    $self->{body}->print("From: $self->{from}\n");
+    $self->{body}->print("Subject: $self->{footer}{data}{description}\n\n");
+
+    $fh = new IO::File "<$self->{footer}{name}";
+    while (defined($i = <$fh>)) {
+      $self->{body}->print($i);
+    }
+    $fh->close;
+    $self->{body}->print("\n". '-'x30, "\n\n");
   }
 
   # Print ending matter
