@@ -237,12 +237,8 @@ $request = {
     'user'      => $user,
 };
 
-# Deal with accept/reject reasons.
-if ($func =~ /accept|reject/) {
-  $request->{'xplanation'} ||= join '', $cgi->param('xplanation');
-}
 # Deal with result sets
-elsif ($func eq 'who') {
+if ($func eq 'who') {
   $request->{'chunksize'} = $cgi->param('chunksize') || 0;
   $request->{'start'} = $cgi->param('start') || 1;
 }
@@ -284,6 +280,10 @@ if (function_prop($func, 'iter')) {
 if (@extra and $func ne 'showtokens') {
   for $req (@extra) {
     Mj::Parser::parse_args($request, $req, '');
+    # Deal with accept/reject reasons.
+    if ($func =~ /accept|reject/) {
+      $request->{'xplanation'} ||= $cgi->param('xplanation');
+    }
     if ($func eq 'configset') {
       @values = split "\r?\n", $cgi->param($req);
       $request->{'value'} = [@values];
@@ -424,6 +424,7 @@ elsif ($commands{$func}->[3] ne $func) {
     $request->{'chunksize'} = $cgi->param('chunksize') || 20;
     $request->{'start'} = $cgi->param('start') || 1;
     $request->{'regexp'} = $cgi->param('pattern');
+    $request->{'victims'} = '';
   }
   $result = $mj->dispatch($request); 
   &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
