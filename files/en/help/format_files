@@ -73,7 +73,31 @@ archive_index
 result of the archive-index command.
 
 (standard plus BODY_LINES, BYTE, BYTES, CGIDATA, CGIURL, CMDPASS, DATE, 
- FROM, LINE, LINES, MSGNO, QUOTED, REFS, SIZE, SPLIT, SUBJECT, 
+ FROM, HIDDEN, LINE, LINES, MSGNO, QUOTED, REFS, SIZE, SPLIT, SUBJECT, 
+ TOTAL_POSTS, USER)
+
+
+archive_msg_foot
+----------------
+(text, wwwadm, wwwusr)  This file is displayed at the end of a group
+of messages when the archive-get-immediate command is used.
+
+(standard plus ARCNO, ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES,
+ BYTE, BYTES, CGIDATA, CGIURL, CMDPASS, DATE_NEXT, DATE_PREV, 
+ FROM, LINE, LINES, NUMERIC_NEXT, NUMERIC_PREV, QUOTED, REFS, SIZE,
+ SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, THREAD_NEXT, THREAD_PREV,
+ TOTAL_POSTS, USER)
+
+
+archive_msg_head
+----------------
+(text, wwwadm, wwwusr)  This file is displayed at the end of a group
+of messages when the archive-get-immediate command is used.
+
+(standard plus ARCNO, ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES,
+ BYTE, BYTES, CGIDATA, CGIURL, CMDPASS, DATE_NEXT, DATE_PREV, 
+ FROM, LINE, LINES, NUMERIC_NEXT, NUMERIC_PREV, QUOTED, REFS, SIZE,
+ SPLIT, SUBJECT, SUBJECT_NEXT, SUBJECT_PREV, THREAD_NEXT, THREAD_PREV,
  TOTAL_POSTS, USER)
 
 

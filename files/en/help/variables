@@ -141,27 +141,48 @@ will vary depending upon the mailing list.
 \$WWWUSR_URL  $WWWUSR_URL
   (The location of the WWW interface for list subscribers)
 
-Other variables used by reply files
------------------------------------
-
-See "help reply_files" for an overview of each of the reply files.
+Other variables
+---------------
 
 In time, a complete list of the other substitutions supported by 
 the error, format, and reply files will be presented here.
+
+See "help error_files" for a description of each of the error files.
+See "help format_files" for a description of each of the format files.
+See "help reply_files" for a description of each of the reply files.
 
 \$APPROVALS
   The number of people who must use the accept command to approve
   a stalled request.
 
 \$ARCHIVE
-  The archive number of a posted message, for example "200008/124".
+  The archive name of a posted message, for example "200008".
   This is not the same as the sequence number;  see "help archive"
   for more details.
+
+\$ARCNO
+  The archive name and number of a posted message, for example
+  "200008/12".  This is not the same as the sequence number.  
+  See "help archive" for more details.
 
 \$ARCURL
   The URL that allows access to an external archive.  This value is
   determined by the archive_url configuration setting;  see 
   "help configset_archive_url" for more information.
+
+\$AUTHOR_NEXT
+\$AUTHOR_PREV
+\$DATE_NEXT
+\$DATE_PREV
+\$NUMERIC_NEXT
+\$NUMERIC_PREV
+\$SUBJECT_NEXT
+\$SUBJECT_PREV
+\$THREAD_NEXT
+\$THREAD_PREV
+  These substitutions contain the message numbers of the next and
+  previous messages within a mailing list archive, depending upon
+  the order in which the messages are sorted.
 
 \$CAN_READ
   This boolean variable is true if the person making a request has
