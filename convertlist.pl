@@ -87,7 +87,7 @@ sub convert_list {
   my $list = shift;
 
   my(%config, @args, @rest, $aux, $digest, $editor, @editor, $err, $file,
-     $filecount, $i, $id, $j, $msg, $owner, $pid, $pw, $val, $var);
+     $filecount, $i, $id, $j, $msg, $owner, $pid, $pw, $tmp, $val, $var);
 
   $filecount = 1;
   print "Converting $list\n";
@@ -272,8 +272,21 @@ EOM
 
     if (get_bool($msg, 1)) {
       $digest = 1;
-      push @{$config{digests}},"daily   | 5     | 20K, 5m  | 40K, 10m | 3d | 1d       |        | mime";
-      push @{$config{digests}},"The daily digest for $list.";
+      $tmp = <<EOD;
+daily
+times=5
+minsize=20
+minmsg=5
+maxsize=40
+maxmsg=10
+maxage=3d
+minage=1d
+separate=0
+newmsg=0
+desc=The daily digest for $list
+EOD
+
+      push @{$config{digests}}, $tmp;
     }
   }
 
