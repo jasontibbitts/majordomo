@@ -290,12 +290,19 @@ sub set_script_perms {
   # Properly set ownerships on everything.
   chown($uid, $gid, @$sidscripts, @$scripts) || die "Couldn't change ownership: $!";
   dot;
-  chown($uid, $gid, $id);dot;
+  chown($uid, $gid, $id) || die "Couldn't change ownership: $id";
+  dot;
 
   # Change permissions on the top-level installation directory, but make
   # sure that anyone can look in it to run programs.
-  chmod((0777 & ~oct($config->{'umask'})) | 0555, $id);dot;
-  rchown($uid, $gid, 0644, 0755, "$id/bin", "$id/man", "$id/lib");dot;
+  die "Can't change permission, directory does not exist!\n  $id\n  $id/bin\n  $id/man\n  $id/lib"
+    if(!(-d "$id") || !(-d "$id/bin") || !(-d "$id/man") || !(-d "$id/lib"));
+  chmod((0777 & ~oct($config->{'umask'})) | 0555, $id)
+    || die "Couldn't change protection: $!";
+  dot;
+  rchown($uid, $gid, 0644, 0755, "$id/bin", "$id/man", "$id/lib")
+    || die "Couldn't change protection: $!";
+  dot;
 
   # Make executables setuid; the scripts must be readable while the the
   # wrappers need only be executable.
@@ -306,7 +313,8 @@ sub set_script_perms {
     chmod(06555, @$sidscripts) || die "Couldn't change mode: $!";
   }
   dot;
-  chmod(0555, @$scripts);dot;
+  chmod(0555, @$scripts) || die "Couldn't change mode: $!";
+  dot;
   print "ok\n" unless $quiet;
 }
 
