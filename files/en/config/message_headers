@@ -1,4 +1,7 @@
-These headers will be appended to the headers of the posted message.
+These headers will be appended to the headers of a posted message
+when a regular list is specified, or to the headers of replies
+from the server (such as token confirmation requests) when the
+GLOBAL pseudo-list is specified.
 
 The header text will undergo variable substitution as it is added to
 the message. See "help variables" for a list of substitutions which
