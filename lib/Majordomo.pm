@@ -259,6 +259,20 @@ sub connect {
   $self->{sessionfh}->print("PID:    $$\n\n");
   $self->{sessionfh}->print("$sess\n");
 
+  # Now check if the client has access.  (Didn't do it earlier because we
+  # want to save the session data first.)
+  ($ok, $err) =
+    $self->global_access_check(undef, undef, undef, undef, $int,
+			       'access', $user);
+
+  # If the access check failed we tell the client to sod off.  Clearing the
+  # sessionid prevents further actions.
+  unless ($ok > 0) {
+    undef $self->{sessionfh};
+    undef $self->{sessionid};
+    return (undef, $err);
+  }
+
   return wantarray ? ($id, $user->strip) : $id;
 }
 

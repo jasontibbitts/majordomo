@@ -1,3 +1,17 @@
+Sun Oct  3 14:42:13 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_queuerun: Deal with failing access check.
+
+Sat Oct  2 17:36:52 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_shell,bin/mj_email: Changes to stop processing if access
+ 	check was denied.
+
+Fri Oct  1 17:50:16 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (connect): Check access (on 'access') and tell
+ 	the client to go away if necessary.
+
 1999-08-25  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Config.pm (parse_access_rules): Typo in file not found

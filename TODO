@@ -61,9 +61,6 @@ rewritten to the form of address you used when you signed up.
 Top of the list 
 ---------------
 
-Allow connection refusal: Majordomo::connect can do a global_access_check
-on 'access'.
-
 Make sure permissions on created directories and files reach some minimum
 level (for Exim support, at least).
 
@@ -260,23 +257,14 @@ Way to force the users to use the digest version:
   users can join without owner's password approval.  'digest' covers all
   digests, 'digest-blah' allows only 'blah' digest.
 
-Access: call Mj::is_subscriber instead of List::is_subscriber.
 
-Pass stripped address to access restriction language: $svictim =
-$victim->strip; share $svictim (local); pass to reval.
+
+
+Access: call Mj::is_subscriber instead of List::is_subscriber.
 
 Check validity of addresses in Resend::post and pass the results in as
 access variables.
 
-! Database: Mj::DBM
-  
-  Thin wrapper around AnyDBM_File; prefers (via @ISA trick) DB_File,
-  GDBM_File, NDBM_File, ODBM_File, SDBM_File.
-
-  Automatically handle locking using Mj::Lock.
-
-  Provide tied interface?
-  
 General munging framework (as part of _post):
   Make only one pass over body.
     Trim approvals, attach fronter/footer, do HTML->text conversion and

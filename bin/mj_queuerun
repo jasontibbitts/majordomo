@@ -349,6 +349,7 @@ sub forward_to_owner {
 
   @stuff = ('', '', '', 'owner', "(message to $list-owner)", '', $list, '');
   $sess = connect_no_parse($mj, 'owner');
+  return unless $sess;
 
   # Some MTAs hand the message to us with the mbox separator prepended.
   # Sending this on as part of the headers can hose some MTAs, so we strip
@@ -376,6 +377,7 @@ sub forward_to_owner {
 sub resend {
   my ($mj, $list, $file) = @_;
   my $sess = connect_no_parse($mj, 'resend');
+  return unless $sess;
 
   # Some MTAs hand the message to us with the mbox separator prepended.
   # Sending this on as part of the headers can hose some MTAs, so we strip
@@ -411,11 +413,12 @@ sub respond_with_file {
 # contain the remainder of the message.
 sub connect_no_parse {
   my ($mj, $int) = @_;
-  my ($i, $sess);
+  my ($i, $id, $sess);
 
   while (defined($i = <MSG>)) {
     if ($i =~ /^\r?\n/) {
-      $mj->connect($int, $sess, 'unknown@anonymous');
+      $id = $mj->connect($int, $sess, 'unknown@anonymous');
+      return unless $id;
       $sess .= $i;
       last;
     }

@@ -197,6 +197,7 @@ sub forward_to_owner {
 
   @stuff = ('', '', '', 'owner', "(message to $list-owner)", '', $list, '');
   $sess = connect_no_parse($mj, 'owner');
+  return unless $sess;
 
   # Some MTAs hand the message to us with the mbox separator prepended.
   # Sending this on as part of the headers can hose some MTAs, so we strip
@@ -224,6 +225,7 @@ sub resend {
   my (@out, @stuff, $sess);
 
   $sess = connect_no_parse($mj, 'resend');
+  return unless $sess;
 
   # Some MTAs hand the message to us with the mbox separator prepended.
   # Sending this on as part of the headers can hose some MTAs, so we strip
@@ -269,11 +271,12 @@ sub respond_with_file {
 # contain the remainder of the message.
 sub connect_no_parse {
   my ($mj, $int) = @_;
-  my ($i, $sess);
+  my ($i, $id, $sess);
 
   while (defined($i = <STDIN>)) {
     if ($i =~ /^\r?\n/) {
-      $mj->connect($int, $sess, 'unknown@anonymous');
+      $id = $mj->connect($int, $sess, 'unknown@anonymous');
+      return unless $id;
       $sess .= $i;
       last;
     }
@@ -312,12 +315,8 @@ sub connect_and_parse {
   $user = $head->get('from') || $head->get('apparently-from');
   chomp $user;
 
-
   # Connect; gives back the stripped user
   ($ok, $suser) = $mj->connect($int, $entity->head->as_string, $user);
-
-  # Connect can now fail: 0: try again later, undef: bomb with error, > 0:
-  # connection ID
 
   # If it failed, just clean up and exit.  Should probably tell the owner.
   unless (defined($ok)) {

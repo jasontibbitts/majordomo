@@ -98,9 +98,11 @@ my %commands =
 		   'default' => 'allow',
 		   'legal'   =>\%reg_legal,
 		   'actions' =>{
-			       'allow'   =>1,
-			       'deny'    =>1,
-			       'mailfile'=>1
+				'allow'     =>1,
+				'deny'      =>1,
+				'mailfile'  =>1,
+				'reply'     =>1,
+				'replyfile' =>1,
 			      },
 		},
    },

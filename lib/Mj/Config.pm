@@ -1511,7 +1511,7 @@ sub parse_digests {
     $elem->{'minage'} = _str_to_offset($table->[$i][6]);
     
     # type XXX Need some syntax checking here.
-    $elem->{'type'} = $table->[$i][6] || 'mime';
+    $elem->{'type'} = $table->[$i][7] || 'mime';
 
     # description
     $elem->{'desc'} = $table->[$i][8];

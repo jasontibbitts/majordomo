@@ -30,8 +30,8 @@ use IO::File;
 use Getopt::Long;
 
 use vars qw(%opts $log_entries $log_level $program_name);
-my (@in, $dom, $editor, $fh, $go, $i, $infile, $lang, $list, $mess, $ok,
-    $result, $tlist, $tmpg, $tmpu, $top);
+my (@in, $dom, $editor, $fh, $go, $i, $id, $infile, $lang, $list, $mess,
+    $ok, $result, $tlist, $tmpg, $tmpu, $top);
 
 $| = 1;
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
@@ -148,13 +148,19 @@ unless (ref $::mj) {
 
 my $mj = $::mj;
 my $host = hostfqdn;
+my $user = $opts{'u'} || "$ENV{LOGNAME}\@$host";
 
-$mj->connect('shell', "\$LOGNAME  = $ENV{LOGNAME}
+($id, $mess) = $mj->connect('shell', "\$LOGNAME  = $ENV{LOGNAME}
 \$SHELL    = $ENV{SHELL}
 \$HOME     = $ENV{HOME}
-");
+",
+			    $user);
 
-my $user = $opts{'u'} || "$ENV{LOGNAME}\@$host";
+unless ($id) {
+  print STDERR "Cannot connect:\n$mess";
+  exit 1;
+}
+
 
 # If we're going to parse from a file instead of from arguments, do the
 # parsing now.
