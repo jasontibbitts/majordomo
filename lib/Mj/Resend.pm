@@ -156,14 +156,19 @@ sub post {
 
   # XXX Pass in the password we were called with, so that passwords
   # can be passed out-of-band.
-  ($ok, $request->{'password'}, $token) =
+  ($ok, $passwd, $token) =
     $self->_check_approval($request->{'list'}, $thead, $ent, $user);
   $approved = $ok && ($ok > 0) && $passwd;
+  if ($ok) {
+    $request->{'password'} = $passwd;
+  }
+  else {
+    $request->{'password'} = '';
+  }
 
   unless ($ok) {
     $avars->{bad_approval} = 1;
-    push @$reasons, 
-      $self->format_error('invalid_approval', $request->{'list'});
+    push (@$reasons, $passwd) if (defined $passwd and length $passwd);
   }
 
   # Check poster
@@ -963,16 +968,25 @@ sub _check_approval {
       $part = $part->parts(0);
     }
 
-    return unless $part->bodyhandle;
+    return (0, $self->format_error('no_body', $list))
+      unless $part->bodyhandle;
     # Check in first few of lines of that entity; skip blank lines but
     # stop as soon as we see any text
     $fh = $part->bodyhandle->open('r');
-    return unless $fh;
+    return (0, $self->format_error('no_body', $list))
+      unless $fh;
     while (defined ($line = $fh->getline)) {
       last if $line =~ /\S/;
     }
     if (defined($line) && $line =~ /Approved:\s*([^\s,]+)\s*,?\s*(\S*)\s*/i) {
       ($passwd, $token) = ($1, $2);
+      # Make sure the next line is blank or a header.
+      $line = $fh->getline;
+      if (defined $line and $line =~ /\S/) {
+        return (0, $self->format_error('replacement_header', $list))
+          unless ($line =~ /^[^\x00-\x1f\x7f-\xff :]+:/ 
+                  or $line =~ /^>?From /);
+      }
     }
   }
 
@@ -980,7 +994,7 @@ sub _check_approval {
   # provided; unspool the token if it exists.  (If it doesn't, just
   # ignore it.  The password must be good, though.)
   if ($passwd) {
-    return
+    return (0, $self->format_error('invalid_approval', $list))
       unless $self->validate_passwd($user, $passwd, $list, 'post') > 0;
   }
 
