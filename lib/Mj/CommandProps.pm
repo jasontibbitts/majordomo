@@ -582,6 +582,7 @@ my %commands =
                     %reg_legal,
                     'any'                          => 'bool',
                     'bad_approval'                 => 'bool',
+                    'blind_copy'                   => 'bool',
                     'body_length'                  => 'integer',
                     'body_length_exceeded'         => 'bool',
                     'taboo'                        => 'integer',
