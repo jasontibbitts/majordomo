@@ -174,7 +174,9 @@ the following two commands:
 
 the FAQ for the trumpet list will be mailed to jane@example.com.  The
 message that is sent to Jane will have your e-mail address in the
-"From:" header.  This feature does not apply to the mj_shell interface.
+"From:" header.  This feature does not apply to the mj_shell interface
+in interactive mode, but it does apply if mj_shell is run with the 
+"-F" switch, and reads commands from a file.
 
 The following two sets of commands are equivalent:
     
