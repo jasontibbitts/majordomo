@@ -56,15 +56,19 @@ signature (one that starts with "-- ").  However, to make sure that your
 signature is not processed, you can use the end command.  
 See "help end" for more details.
 
+To change what Majordomo expects to find at the beginning of a signature 
+block, read the "help configset_signature_separator" document.
+
+
+All of these features also apply to the mj_shell program.
 
 See Also:
    help admin
-   help help
-   help overview
-
-$INCLUDE-help/foot
-See Also:
    help approve
+   help command_line
    help default
+   help help
+   help mj_shell
+   help overview
 
 $INCLUDE-help/foot
