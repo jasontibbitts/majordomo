@@ -386,6 +386,7 @@ sub dispatch {
         $addr = shift @{$request->{'victims'}};
         next unless $addr;
         $addr =~ s/^\s+//;
+        $addr =~ s/\s+$//;
         $addr = new Mj::Addr($addr);
         ($ok, $mess) = $addr->valid;
         return [0, "$addr is an invalid address:\n$mess"]
@@ -1127,7 +1128,7 @@ sub list_config_set {
     unless $self->_make_list($list);
 
   if (!defined $passwd) {
-    return (0, "No passwd supplied.\n");
+    return (0, "No passwd was supplied.\n");
   }
 
   $user = new Mj::Addr($user);
@@ -1200,7 +1201,7 @@ sub list_config_set_to_default {
     unless $self->_make_list($list);
   
   if (!defined $passwd) {
-    return (0, "No password supplied.\n");
+    return (0, "No password was supplied.\n");
   }
   @groups = $self->config_get_groups($var);
   if (!@groups) {
@@ -2545,7 +2546,7 @@ sub accept {
   my $log = new Log::In 30, scalar(@{$request->{'tokens'}}) . " tokens";
   my ($token, $ttoken, @out);
 
-  return (0, "No token supplied.\n")
+  return (0, "No token was supplied.\n")
     unless (scalar(@{$request->{'tokens'}}));
 
   # XXX Log an entry for each token / only recognized tokens? 
@@ -2644,7 +2645,7 @@ sub alias {
   my $log = new Log::In 30, "$request->{'newaddress'}, $request->{'user'}";
   my ($a2, $ok, $mess);
 
-  return (0, "No address supplied.\n") 
+  return (0, "No address was supplied.\n") 
     unless (exists $request->{'newaddress'});
 
   ($ok, $mess) = 
@@ -2853,13 +2854,16 @@ Useful modes include:
 sub archive_start {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}, $request->{'args'}";
-  my ($out, $ok);
+  my ($ok, $out);
+
+  return (0, "No dates or message numbers were supplied.\n")
+    unless ($request->{'args'});
 
   ($ok, $out) =
     $self->list_access_check($request->{'password'}, $request->{'mode'}, 
                              $request->{'cmdline'}, $request->{'list'}, 
                              'archive', $request->{'user'}, $request->{'user'}, 
-                             @{$request->{'args'}});
+                             $request->{'args'});
 
   unless ($ok > 0) {
     return ($ok, $out);
@@ -3752,7 +3756,7 @@ sub reject {
   my ($list_owner, $mj_addr, $mj_owner, $ok, $mess, $reason, $repl, $rfile);
   my ($sess, $site, $token, $victim);
 
-  return (0, "No token supplied.\n")
+  return (0, "No token was supplied.\n")
     unless (scalar(@{$request->{'tokens'}}));
 
   $site       = $self->_global_config_get('site_name');
