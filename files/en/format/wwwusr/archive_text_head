@@ -1,5 +1,8 @@
 <!-- Majordomo archive_text_head format file -->
 <p>
-[Part $PART $CONTENT_TYPE ($SIZE kilobytes)]
+[Part $PART $CONTENT_TYPE $CHARSET ($SIZE kilobytes)]
+  <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PART&func=archive-get-part-clean" target="_part">
+  (View Text in a separate window)
+  </a>
 </p>
 <pre>

@@ -1,8 +1,11 @@
 <p>
-[Part $PART $CONTENT_TYPE ($SIZE kilobytes)]<br>
-
+[Part $PART $CONTENT_TYPE $CHARSET ($SIZE kilobytes)]<br>
   <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PARTh&a=tokeninfo-part" target="_part">
   (View Headers in a separate window)
+  </a>
+
+  <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PART&a=tokeninfo-part" target="_part">
+  (View Text in a separate window)
   </a>
 
   <a href="$CGIURL?$CGIDATA&t=$TOKEN&p=$PARTh&a=tokeninfo-part-edit">

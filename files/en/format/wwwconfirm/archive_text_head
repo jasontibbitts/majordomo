@@ -1,2 +1,2 @@
-[$PART $CONTENT_TYPE ($SIZE kilobytes)]
+[$PART $CONTENT_TYPE $CHARSET ($SIZE kilobytes)]
  

@@ -1,9 +1,13 @@
 <!-- Majordomo archive_text_head format file -->
 <p>
-[Part $PART $CONTENT_TYPE ($SIZE kilobytes)]<br>
+[Part $PART $CONTENT_TYPE $CHARSET ($SIZE kilobytes)]<br>
 
   <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PARTh&func=archive-get-part" target="_part">
   (View Headers in a separate window)
+  </a>
+
+  <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PART&func=archive-get-part-clean" target="_part">
+  (View Text in a separate window)
   </a>
 
   <a href="$CGIURL?$CGIDATA&list=$LIST&extra=$MSGNO%20$PARTh&func=archive-part-edit">
