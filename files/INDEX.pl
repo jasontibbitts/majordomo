@@ -79,6 +79,10 @@ $files =
     'us-ascii', '7bit'],
 
    # English error formatting files 
+   'en/error/invalid_command'                  => 
+   ['Error format.  Warns that a command is invalid.',
+    'us-ascii', '7bit'],
+
    'en/error/password_length'                  => 
    ['Error format.  Warns that a password is too short.',
     'us-ascii', '7bit'],
