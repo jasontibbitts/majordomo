@@ -2691,7 +2691,7 @@ sub get_start {
   unless ($ok > 0) {
     return ($ok, $mess);
   }
-  $self->_get($request->{'list'}, $request->{'user'}, $request->{'user'},
+  $self->_get($request->{'list'}, $request->{'user'}, $request->{'victim'},
               $request->{'mode'}, $request->{'cmdline'}, $request->{'path'});
 }
 
