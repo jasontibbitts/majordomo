@@ -16,14 +16,15 @@ sub prompt ($;$) {
   $def = defined $def ? $def : "";
 
   my $ans;
-  if ($ISA_TTY || -s STDIN) {
-    local $|=1;
-    print "$mess $dispdef->";
-    chomp($ans = <STDIN>);
+  local $|=1;
+  print "$mess $dispdef->";
+  $ans = <STDIN>;
+  chomp($ans) if (defined $ans);
+  $ans ||= "";
+  if (! $ISA_TTY) {
     # show the output if we're reading from a response file
-    print $ans, "\n" unless $ISA_TTY;
+    print $ans, "\n";
   }
-  # and if it's NOT a tty? return undef?
   return $ans if(length $ans);
   return $def;
 }
