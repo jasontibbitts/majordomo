@@ -275,6 +275,8 @@ if ($commands{$func} == 1) {
   if ($func eq 'changeaddr') {
     # restore original user if changeaddr did not succeed.
     $request->{'user'} = $user if ($result->[0] < 1);
+    undef $request->{'victim'};
+    undef $request->{'victims'};
   }
   $result = $mj->dispatch($request); 
   &surrender("Unable to obtain result from Majordomo.\n") unless $result;
@@ -290,7 +292,7 @@ elsif ($func ne 'help') {
 }
 
 $fh->close();
-&print_header($user, $passw, $site, $cgiurl);
+&print_header($request->{'user'}, $passw, $site, $cgiurl);
 &format_print($file);
 &print_footer($serveradmin);
 unlink $file;
@@ -320,7 +322,7 @@ sub Mj::Format::help {
     last unless defined $chunk;
     $chunk = Mj::Format::escape($chunk);
     $chunk =~ s/(\s{3}|&quot;)(help\s)(configset|admin|mj) (?=\w)/$1$2$3_/g;
-    $chunk =~ s/(\s{3}|&quot;)(help\s)(\w+)/$1$2<a href="$cgiurl&domain=$domain&func=help&extra=$3">$3<\/a>/g;
+    $chunk =~ s/(\s{3}|&quot;)(help\s)(\w+)/$1$2<a href="$cgiurl?domain=$domain&func=help&extra=$3">$3<\/a>/g;
     print $chunk;
   }
 
@@ -388,6 +390,10 @@ sub Mj::Format::show {
     print "<h2>Error for show command: $listdata->{'error'}</h2>\n";
     return $ok;
   }
+  unless ($listdata->{'regdata'}) {
+    print "<h2>$request->{'user'} is not registered</h2>\n";
+    return 1;
+  }
   if (@{$listdata->{'aliases'}}) {
     print "<br>Aliases:<ul>\n";
     for $i (@{$listdata->{'aliases'}}) {
@@ -399,7 +405,7 @@ sub Mj::Format::show {
   @lists = sort keys %{$listdata->{'lists'}};
   unless (@lists) {
     print <<EOM;
-<p>$user is not subscribed to any lists.
+<p>$request->{'user'} is not subscribed to any lists.
 <br>
 <input size=48 name=extra>
 <input type=submit name=func value="changeaddr"><br>
@@ -458,7 +464,7 @@ EOM
     }
   }
   print "</table></form>\n";
-  print "$user was registered on ".gmtime($listdata->{'regdata'}->{'regtime'})." UTC.<br>\n";
+  print "$request->{'user'} was registered on ".gmtime($listdata->{'regdata'}->{'regtime'})." UTC.<br>\n";
 
   print <<EOM;
 <h2 align=center>What do the settings mean?</h2>
