@@ -227,10 +227,12 @@ sub configset {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
   my ($ok, $mess) = @$result;
+  my ($val) = ${$request->{'value'}}[0];
+  $val = '' unless defined $val;
   eprint($out, $type, indicate($mess, $ok)) if $mess;
   if ($ok) {
     eprintf($out, $type, "%s set to \"%s%s\".\n",
-            $request->{'setting'}, ${$request->{'value'}}[0] || '',
+            $request->{'setting'}, $val,
             ${$request->{'value'}}[1] ? "..." : "");
   }
   $ok;
@@ -271,7 +273,7 @@ sub configshow {
     }
     else {
       # Process as a simple variable
-      $val ||= "";
+      $val = "" unless defined $val;
       if (length $val > 40) {
         eprint ($out, $type, 
           indicate("${auto}configset $request->{'list'} $var =\\\n    $auto$val\n", 1));
