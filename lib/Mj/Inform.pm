@@ -28,7 +28,7 @@ use strict;
 
 use AutoLoader 'AUTOLOAD';
 
-=head2 inform(list, request, requester, user, cmdline, success, override, comment, elapsed)
+=head2 inform(list, request, requester, user, cmdline, interface, status, password, override, comment, elapsed)
 
 This is the general-purpose information routine.  It makes use of the
 inform variable, which should be the parsed version of the list config
@@ -59,8 +59,7 @@ override controls under what circumstances a message is sent to the owner:
 
 comment is an explanation of what took place.
 
-elapsed is the amount of time required for the command to execute
-since the start of the session.
+elapsed is the amount of time required for the command to execute.
 
 =cut
 sub inform {
@@ -98,7 +97,7 @@ sub inform {
     $log->abort("Unable to close file $file: $!");
 
   # Update the session
-  if ($self->{sessionfh}) {
+  if ($self->{sessionfh} and $req ne 'newtoken') {
     print {$self->{sessionfh}} ("$stat: $cmd\n");
   }
 
