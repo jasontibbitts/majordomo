@@ -503,7 +503,7 @@ sub get_matching_quick {
     last unless $k;
 
     # We may be able to skip the unstringification step
-    redo unless Majordomo::_re_match(/\001\Q$value\E/, $v);
+    redo unless Majordomo::_re_match("/\001\Q$value\E/", $v);
 
     $data = $self->_unstringify($v);
     if (defined($data->{$field}) && 
