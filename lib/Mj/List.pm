@@ -26,7 +26,7 @@ use Safe;  # For evaluating the address transforms
 use Mj::File;
 use Mj::FileRepl;
 use Mj::SubscriberList;
-use Mj::AddressList;
+# use Mj::AddressList;
 use Mj::Config qw(parse_table);
 use Mj::Addr;
 use Mj::Log;
@@ -292,11 +292,12 @@ sub set {
   my $self = shift;
   my $addr = shift;
   my $oset = shift;
+  my $subl = shift || '';
   my $check= shift;
   my $force= shift;
   my $log  = new Log::In 150, "$addr, $oset";
-  my (@allowed, @class, @settings, $carg1, $carg2, $class, $data, $flags,
-      $inv, $isflag, $key, $mask, $ok, $rset);
+  my (@allowed, @class, @settings, $carg1, $carg2, $class, $data, 
+      $db, $flags, $inv, $isflag, $key, $mask, $ok, $rset);
 
   $oset = lc $oset;
   @settings = split(',', $oset);
@@ -314,7 +315,7 @@ sub set {
       $isflag = 0;
     }
     else {
-      $log->out("failed, invalidaction");
+      $log->out("failed, invalid action");
       return (0, "Invalid setting: $set.\n"); # XLANG
     }
 
@@ -340,12 +341,29 @@ sub set {
   }
 
   # Grab subscriber data
-  ($key, $data) = $self->get_member($addr);
-
-  unless ($data) {
-    $log->out("failed, nonmember");
-    return (0, "$addr is not subscribed to the $self->{'name'} list.\n"); # XLANG
+  if ($subl eq '') {
+    $db = $self->{'subs'};
+    ($key, $data) = $self->get_member($addr);
+    unless ($data) {
+      $log->out("failed, nonmember");
+      # XLANG
+      return (0, "$addr is not subscribed to the $self->{'name'} list.\n"); 
+    }
   }
+  else {
+    ($ok, $mess) = $self->validate_aux($subl);
+    return ($ok, $mess) unless $ok;
+    $key  = $addr->canon;
+    $db   = $self->{'auxlists'}{$subl};
+    $data = $db->lookup($key);
+    
+    unless ($data) {
+      $log->out("failed, nonmember");
+      # XLANG
+      return (0, "$addr is not subscribed to the $self->{'name'}:$subl auxiliary list.\n"); 
+    }
+  }
+
 
   for $set (@settings) {
     # Call make_setting to get a new flag list and class setting
@@ -353,13 +371,15 @@ sub set {
       $self->make_setting($set, $data->{'flags'}, $data->{'class'},
 			  $data->{'classarg'}, $data->{'classarg2'});
     return ($ok, $flags) unless $ok;
+    return (0, "Digest mode is not supported by auxiliary lists.") 
+      if ($subl ne '' and $class eq 'digest');
 
     ($data->{'flags'}, $data->{'class'},
      $data->{'classarg'}, $data->{'classarg2'}) =
        ($flags, $class, $carg1, $carg2);
   }
 
-  $self->{'subs'}->replace("", $key, $data);
+  $db->replace("", $key, $data);
   return (1, {flags => $flags,
 	      class => [$class, $carg1, $carg2],
 	     },
@@ -483,17 +503,17 @@ sub make_setting {
 	    $type = $2;
 	  }
 	  return (0, "Illegal digest name: $arg.\n") # XLANG
-	    unless $dig->{$arg};
+	    unless $dig->{lc $arg};
 	  return (0, "Illegal digest type: $type.\n") #XLANG
-	    unless $digest_types{$type};
+	    unless $digest_types{lc $type};
 	}
 	else {
 	  $arg  = $dig->{'default_digest'};
 	  $type = $dig->{$arg}{'type'} || 'mime';
 	}
 	$class = "digest";
-	$carg1 = $arg;
-	$carg2 = $type;
+	$carg1 = lc $arg;
+	$carg2 = lc $type;
       }
     }
   }
@@ -815,13 +835,20 @@ these.
 sub aux_add {
   my $self = shift;
   my $name = shift;
-  my $mode = shift;
+  my $mode = shift || '';
   my $addr = shift;
   my ($ok, $caddr, $data);
 
   $data  =
     {
+     'fulladdr'  => $addr->full,
      'stripaddr' => $addr->strip,
+     'subtime'   => time,
+     # Changetime handled automatically
+     'class'     => 'each',
+     'classarg'  => '',
+     'classarg2' => '',
+     'flags'     => $self->default_flags,
     };
 
   $self->_make_aux($name);
@@ -845,7 +872,7 @@ sub aux_remove {
   my $log = new Log::In 150, "$name, $mode, $addr";
   my ($ok);
 
-  unless ($mode =~ /regexp/) {
+  unless ($mode =~ /regex/) {
     $addr = $addr->canon;
   }
 
@@ -880,7 +907,7 @@ sub aux_get_chunk {
   $self->_make_aux($name);
   @addrs = $self->{'auxlists'}{$name}->get($size);
   while ((undef, $i) = splice(@addrs, 0, 2)) {
-    push @out, $i->{'stripaddr'};
+    push @out, $i;
   }
   return @out;
 }
@@ -897,6 +924,20 @@ sub aux_get_done {
 
   $self->_make_aux($name);
   $self->{'auxlists'}{$name}->get_done;
+}
+
+=head2 aux_get_matching
+
+Return a block of data.  The size of the block and the
+conditions for matching are determined by the arguments.
+
+=cut
+sub aux_get_matching {
+  my $self = shift;
+  my $name = shift;
+
+  $self->_make_aux($name);
+  $self->{'auxlists'}{$name}->get_matching(@_);
 }
 
 =head2 aux_is_member(file, addr)
@@ -952,8 +993,14 @@ sub aux_rekey {
       $addr = new Mj::Addr($data->{'stripaddr'});
       $newkey = $addr->xform;
       $changekey = ($newkey ne $key);
+
+      # Enable transition from old AddressList to new SubscriberList
+      $data->{'subtime'}  ||= $data->{'changetime'};
+      $data->{'fulladdr'} ||= $data->{'stripaddr'};
+      $data->{'class'}    ||= 'each';
+      $data->{'flags'}    ||= $self->default_flags;
       
-      return ($changekey, 0, $newkey);
+      return ($changekey, $data, $newkey);
     };
 
   $self->_make_aux($name);
@@ -994,6 +1041,42 @@ sub _fill_aux {
   $::log->out;
   1;
 }
+
+=head2 moderators($group)
+
+Returns an array of addresses corresponding to the list moderators.
+In decreasing order, the sources are:
+  The "moderators" or another, named auxiliary list.
+  The "moderators" configuration setting.
+  The "moderator" configuration setting.
+  The "sender" configuration setting.
+
+=cut
+
+sub moderators {
+  my $self = shift;
+  my $group = shift;
+  my (@addr, @out, $i);
+
+  $self->_fill_aux;
+  unless (defined $group and exists $self->{'auxlists'}{$group}) {
+    $group = 'moderators';
+  }
+  if (exists $self->{'auxlists'}{$group}) {
+    return unless $self->aux_get_start($group);
+    while (@addr = $self->aux_get_chunk($group, 4)) {
+      for $i (@addr) {
+        push @out, $i->{'stripaddr'};
+      }
+    }
+    return @out if (scalar @out);
+  }
+  @out = @{$self->config_get('moderators')};
+  return @out if (scalar @out);
+  $self->config_get('moderator') || $self->config_get('sender');
+}
+ 
+  
 
 =head1 FileSpace interface functions
 
@@ -1197,8 +1280,8 @@ sub expire_subscriber_data {
 
 =head2 _make_aux (private)
 
-This makes an AddressList object and stuff it into the List''s collection.
-This must be called before any function which accesses the AddressList.
+This makes a SubscriberList object and stuff it into the List''s collection.
+This must be called before any function which accesses the SubscriberList.
 
 =cut
 sub _make_aux {
@@ -1207,10 +1290,27 @@ sub _make_aux {
 
   unless (defined $self->{'auxlists'}{$name}) {
     $self->{'auxlists'}{$name} =
-      new Mj::AddressList $self->_file_path("X$name"), $self->{backend};
+      new Mj::SubscriberList $self->_file_path("X$name"), $self->{backend};
   }
   1;
 }
+
+=head2 validate_aux
+
+Verify the existence of an auxiliary list.  Create the appropriate
+SubscriberList object if it does.
+
+=cut
+sub validate_aux {
+  my $self = shift;
+  my $name = shift;
+
+  $self->_fill_aux;
+  return (0, "The $name auxiliary list does not exist.")
+    unless (exists $self->{'auxlists'}{$name});
+  $self->_make_aux($name);
+}
+
 
 =head2 _make_fs
 
@@ -1462,7 +1562,7 @@ sub archive_get_done {
 
 sub archive_expand_range {
   my $self = shift;
-  $self->_make_archive;
+  return unless $self->_make_archive;
   $self->{'archive'}->expand_range(@_);
 }
 
