@@ -1,0 +1,215 @@
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+
+Section 1 - Introduction to "help admin commands"
+
+Below are the commands a list administrator may need to use, but
+there is little or no explanation of WHY they might be needed or
+how they interact with each other. For that type of information,
+send "help admin" to $MJ
+
+Each command is further explained by 'help COMMAND', but in this
+file you will see a VERY brief description of each command. Every
+administration-specific command should be mentioned here, with
+all options that pertain to administrators. Some commands have
+additional options that are more appropriate for subscribers, and
+some commands are only useful to subscribers - those commands are
+listed in "help commands". For a complete list of help files, send
+"help topics".
+
+For a complete list of ALL commands, see "help topics".
+
+
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+
+Section 2 - Command Syntax (same text is in "help commands")
+
+All Majordomo commands should be sent to $MJ
+If you have shell access, refer to "help mj_shell" for an
+alternative to sending email to the server (this same text
+may be available from "man mj_shell" at the unix prompt).
+
+Please refer to "help end" for ways to ignore automatically inserted
+signature blocks, and remember that you MUST NOT allow any text to
+be inserted at the top of your email message if that's how you send
+commands to Majordomo.
+
+At some sites, there is a "listname-request" address which will also
+accept commands pertaining to "listname", but this address is not
+always present. (If it is present, and if you use it, you don't need
+to specify the list name as part of the command itself.)
+
+An email address can generally be omitted from a command even if one
+is required by the description below. If omitted, the address found
+in your email header will be used if it can be determined.
+
+Many commands have options available to modify their behavior, and
+may take arguments to supply additional information:
+ - Arguments are generally separated by spaces, but may use the "<<" syntax.
+ - Options start with a dash, and follow the command name without a space.
+    (you may use an equal instead of a dash - they are exactly equivalent)
+
+All of the Majordomo2 commands and options are LOWER CASE LETTERS with
+underscore also possible. Commands CAN NOT be typed in upper case,
+so commands you see below in all caps are for illustration only.
+
+A basic command might be:
+  COMMAND
+
+A command with an option would then be:
+   COMMAND-OPT
+or if you prefer seeing it this way
+   COMMAND=OPT
+
+Commands may also have arguments after a space:
+  COMMAND ARG
+
+Commands may have both options and arguments:
+  COMMAND-OPT ARG
+
+The general case, then, is a command with several dash-separated
+options and several space-separated arguments:
+   COMMAND-OPT1-OPT2-OPT3 ARG1 ARG2 ARG3
+or the alternative
+   COMMAND=OPT1=OPT2=OPT3 ARG1 ARG2 ARG3
+
+If options are allowed, the help file description of the command
+will show all options strung together. Keep in mind that some or
+all of the options can be dropped.
+
+If arguments are allowed, the help file description of the
+command will show REQUIRED arguments with plain names, and
+NON-REQUIRED arguments in square brackets. For example
+   COMMAND ARG1 [ARG2]
+indicates that COMMAND must have one argument, and may have two.
+Read the description carefully to find out what each arg does.
+
+If that's not enough complexity, some arguments require several
+lines of input, not just a word or two. In these cases a syntax
+is used that Unix people will recognize:
+   COMMAND-OPT <<TAG
+DATA1
+DATA2
+TAG
+
+This is sometimes called a "here file" because all argument lines
+after "<<TAG" and before the matching "TAG" (shown above as "DATA1"
+and "DATA2" are stored in the command as if they had been read from
+a file. You can use your own string for "TAG", with a few restrictions:
+  - the string must be letters only, no numbers or punctuation or spaces
+  - the string must be upper case only, no lower case letters
+  - the end "TAG" must be on a line by itself (no indents or comments)
+It is wise to use different tags for different commands, so they don't
+accidentally mismatch due to typing errors.
+
+In addition to the '<<' syntax for supplying arguments to a command, there
+is the '<@' syntax.  When followed by a number, this references the
+numbered attachment.  (Number 1 being the attachment following the part
+containing the commands.)  From the shell interface, this references the
+numbered '-f' argument.  (Read the mj_shell manual page for more
+information, or send "help mj_shell" to the server.  Note that the shell
+interface is only available to users local to the machine running Majordomo.)
+This enables the upload of binary files and the like by attaching them to
+the command message and doing something like the following:
+  approve password put-data mylist image/jpeg none base64 A Picture <@ 1
+
+
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+
+Section 3 - Admin Command Syntax & Summary
+
+Each admin command is described very briefly here. For other commands,
+send "help topics" to the server. For more detail on a given command,
+send "help COMMAND" to the server. For ideas on which command to use,
+send "help admin" to the server. For basic help, just send "help"
+to the server at $MJ
+
+
+accept [token]
+==> sent back to the server as confirmation, tells server to take action
+
+approve password command-options [arguments]
+==> allows Majordomo to execute a command without using an "accept" token
+
+auxsubscribe listname sublist address
+==> adds an address to the named sublist of a given list.
+
+auxunsubscribe-regexp-allmatching listname sublist address
+==> removes an address or addresses from the named sublist of a given list
+
+auxwho list sublist
+==> return the contents of the named sublist of a given list
+
+configdefault list variable
+==> sets the variable back to the default value
+
+configedit-comments listname variable
+==> retrieves the value of the variable and opens an editor on it
+
+configset list variable = value
+configset list variable <<TAG
+==> sets the given variable to the given value
+
+configshow-comments listname variable
+==> retrieves the value of the given variable
+
+createlist-nocreate-noheader-force-quiet listname owner
+==> creates the internal structures needed to maintain a list
+
+default variable value
+==> sets a default value for the remaining commands
+
+end
+==> stops reading Majordomo commands from email or the keyboard
+
+filesync listname
+==> updates the filespace information database for listname
+
+get listname filename [address]
+==> retrieves the given file from the list's file storage
+
+help [topics]
+==> retrieves the requested help topic, if available
+
+index-recursive-long listname [pathname]
+==> retrieves an index of available files in the list's file storage
+
+post list
+==> sends a message to the given list.
+
+put      listname filename          [subject] <<TAG
+put-data listname filename MIMEdata [subject] <<TAG
+put-dir  listname filename          [subject]
+==> creates the given file or directory in the list's file storage
+
+reject [token]
+==> sent back to the server as denial, tells server to cancel action
+
+rekey
+==> regenerates the database keys after changing addr_xforms
+
+set listname flag address
+==> change subscriber options like digest, nomail, ack
+
+show address
+==> displays various information about the address
+
+subscribe-nowelcome listname address
+==> adds the address to listname and to the registration database
+
+unregister address
+==> removes the address from the database and from every list at this site
+
+unsubscribe-regexp-allmatching listname address
+==> removes an address or addresses from the given list.
+
+which-regexp searchstring
+==> shows which lists contain addresses which contain the searchstring
+
+who listname [pattern]
+==> returns all or some subscribers to the named list
+
+For a complete list of all help topics, see "help topics".
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
