@@ -68,6 +68,7 @@ use vars (qw($addr %flags %noflags %classes %digest_types));
    'all'      => ['all',    0, "all list traffic"],
    'digest'   => ['digest', 2, "messages in a digest"],
    'nomail'   => ['nomail', 1, "no messages"],
+   'unique'   => ['unique', 0, "each unduplicated message"],
    'vacation' => ['nomail', 1],
   );
 
@@ -122,11 +123,6 @@ sub new {
      defaultdata => $args{'defaultdata'},
     );
 
-  # We have to figure out our database backend for ourselves if we're
-  # creating the GLOBAL list, since it couldn't be passed to us.
-  if ($args{name} eq 'GLOBAL' or $args{name} eq 'DEFAULT') {
-    $self->{backend} = $self->config_get('database_backend');
-  }
   $self;
 }
 
@@ -414,7 +410,8 @@ sub set {
       if ($subl ne '' and $class eq 'digest');
 
     # Issue partial digest if changing from 'digest' to 'each'
-    if ($data->{'class'} eq 'digest' and $class eq 'each') {
+    if ($data->{'class'} eq 'digest' 
+        and ($class eq 'each' or $class eq 'unique')) {
       $ok = $self->digest_examine($data->{'classarg'});
       if ($ok) {
           $digest = $ok->{$data->{'classarg'}};
@@ -1382,12 +1379,31 @@ sub check_dup {
   my $self = shift;
   my $rec  = shift; # ID or checksum to check
   my $type = shift; # "id", "sum" or "partial"
+  my $list = shift || '';
   my $log  = new Log::In 150, $rec;
-  my ($data, $ok);
+  my ($data, $ndata, $ok);
 
-  $self->_make_dup($type);
+  return (0, "Unable to access duplicate database $type.\n")
+    unless  $self->_make_dup($type);
+
+  $data = {};
   ($rec) = $rec =~ /(.*)/; # Untaint
-  ($ok, $data) = $self->{'dup'}{$type}->add("", $rec, {});
+
+  if ($self->{'name'} eq 'GLOBAL') {
+    $data = $self->{'dup'}{$type}->lookup($rec);
+    if ($data) {
+      $ndata = $data;
+      $ndata->{'lists'} .= "\002$list";
+      ($ok, $ndata) = $self->{'dup'}{$type}->replace('', $rec, $ndata);
+    }
+    else {
+      $ndata = { 'lists' => $list };
+      ($ok, $ndata) = $self->{'dup'}{$type}->add('', $rec, $ndata);
+    }
+  }
+  else {  
+    ($ok, $data) = $self->{'dup'}{$type}->add("", $rec, {});
+  }
 
   # Inverted logic here; we return nothing only if we didn't get a match
   return $data;
@@ -1690,10 +1706,19 @@ sub _make_dup {
   my $type = shift;
   return 1 if $self->{'dup'}{$type};
 
+  my @fields;
+  if ($self->{'name'} eq 'GLOBAL') {
+    @fields = qw(lists changetime);
+  }
+  else {
+    @fields = qw(changetime);
+  }
+   
+
   $self->{'dup'}{$type} =
     new Mj::SimpleDB(filename => $self->_file_path("_dup_$type"),
 		     backend  => $self->{backend},
-		     fields   => ['changetime'],
+		     fields   => \@fields,
 		    );
   1;
 }
