@@ -105,6 +105,7 @@ $Mj::Util::safe = '';
         'shore nuf'      => 1,
         'ayuh'           => 1,             # Maine
         'on'             => 1,
+        'true'           => 1,
        );
 
 %Mj::Util::no = (
@@ -122,6 +123,7 @@ $Mj::Util::safe = '';
        'as if'          => 1,
        'in your dreams' => 1,
        'off'            => 1,
+       'false'          => 1,
       );
 
 1;
@@ -325,7 +327,7 @@ sub n_build {
   $result;
 }
 
-=head2 n_defaults(type)
+=head2 n_defaults(type, command)
 
 Construct a hashref of default values corresponding to
 the way a request is held (confirm, consult, or delay).
@@ -631,14 +633,14 @@ string, it will return undef.
 
 =cut
 sub str_to_offset {
-  my $arg       = shift || '';
+  my $arg       = shift;
   my $future    = shift || 0;
   my $as_string = shift || 0;
   my $basetime  = shift || time;
   my $log = new Log::In 150, $arg;
   my (@days, @lt, $cal, $desc, $elapsed, $i, $leapyear, $time, $tmp);
 
-  return unless ($arg =~ /\S/);
+  return unless (defined($arg) and $arg =~ /\S/);
  
   @lt = localtime($basetime);
   $desc = '';
