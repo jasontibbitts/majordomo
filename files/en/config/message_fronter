@@ -1,16 +1,6 @@
 This contains blocks of text, called fronters, that can be added to
 the beginning of outgoing messages.  You can include multiple fronters
 here by separating them by blank lines.  When a fronter is to be
-added, it is chosen at random from the fronters given here.
-
-The fronter text will undergo variable substitution (and possibly
-auto-inclusion of OTHER files) as it is added to the message.
-See "help variables" for a list of substitutions which are supported.
-
-Note that for multipart messages, fronters appear as separate parts at
-the beginning of the message and that fronters are not added at all to
-single part message that are not of type text/plain.  (This avoids
-destroying the content of structured messages.)
-
-The frequency with which fronters appear can be controlled with
+added, it is chosen at random from the fronters given here. The
+frequency with which fronters appear can be controlled with
 "configset listname message_fronter_frequency".

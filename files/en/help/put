@@ -14,9 +14,8 @@ MIMEdata, if specified with the -data option, must contain MIME info
 
 NOTE: A leading slash on the filename is NOT the same as the root
       directory of your computer's file system! Watch out for how
-      leading dashes and trailing backslashes are treated, since
-      "put" files are processed as "here documents" as described
-      in "help commands". See other notes below.
+      trailing backslashes are treated, since "put" files are also
+      processed as "here documents" as described in "help commands".
 
 This command stores a file under the list, which can then be retrieved
 with "get" by those who are authorized to do so. If you are not
@@ -196,7 +195,7 @@ welcome
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 See Also:
-   help commands  (for dash and backslash character replacement notes)
+   help commands  (for backslash character replacement notes)
    help configset access_rules (for confirm, consult, deny, allow clauses)
    help configset access_rules_variables (set/test for this command)
    help configset filedir      (to create files in a non-default location)

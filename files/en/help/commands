@@ -132,21 +132,14 @@ TAG
 This is sometimes called a "here file" because all argument lines
 after "<<TAG" and before the matching "TAG" (shown above as "DATA1"
 and "DATA2" are stored in the command as if they had been read from
-a file. You can use your own string for "TAG", with a few restrictions:
+a file. The "#" character is NOT a comment character between the tags!
+A blank line is allowed only as the last line in the here document.
+You can use your own string for "TAG", with a few restrictions:
   - the string must be letters only, no numbers or punctuation or spaces
   - the string must be upper case only, no lower case letters
   - the end "TAG" must be on a line by itself (no indents or comments)
 It is wise to use different tags for different commands, so they don't
 accidentally mismatch due to typing errors.
-
-The "#" character is NOT a comment character between the tags! A blank
-line is allowed only as the last line in the here document.  Within a here
-document for a string_array, the '-' sign takes on a special significance.
-   To embed a blank line in the here document, put a '-' as the first
-       and ONLY character on the line.
-   To preserve whitespace at the beginning of a line, put a - on the
-       line before the whitespace to be preserved
-   To put a literal '-' at the beginning of a line, double it.
 
 In addition to the '<<' syntax for supplying arguments to a command, there
 is the '<@' syntax.  When followed by a number, this references the

@@ -13,31 +13,40 @@ EXAMPLE:
 configset listname message_footer << ENDTAG
 -
 ----------------------------(end of broadcast)---------------------------
-Terms and conditions for this server - send any email info@nonwhere.org
+Terms and conditions for this server:  send email to  info@nonwhere.org
 Administrative commands like unsubscribe send to majordomo@nonwhere.org
-Help: Try listname-owner@climber.org first, then try admin@nonwhere.org
+Help: Try listname-owner@nonwhere.org first then try admin@nonwhere.org
 ENDTAG
 
 
 This contains blocks of text, called footers, that can be added to
 the beginning of outgoing messages.  You can include multiple footers
 here by separating them by blank lines.  When a footer is to be
-added, it is chosen at random from the footers given here.
+added, it is chosen at random from the footers given here. The
+frequency with which footers appear can be controlled with
+"configset listname message_footer_frequency".
 
 The footer text will undergo variable substitution (and possibly
 auto-inclusion of OTHER files) as it is added to the message.
 See "help variables" for a list of substitutions which are supported.
+
+Within the here document (between the tags), the '-' character takes
+on a special significance:
+   To embed a blank line in the footer, put a '-' as the first
+       and ONLY character on the line (as in the example above).
+   To preserve whitespace at the beginning of a line, put a - on the
+       line before the whitespace to be preserved
+   To put a literal '-' at the beginning of a line, double it.
+This syntax applies only to message_fronters and message_footers.
 
 Note that for multipart messages, footers appear as separate parts at
 the end of the message and that footers are not added at all to single
 part message that are not of type text/plain.  (This avoids destroying
 the content of structured messages.)
 
-The frequency with which footers appear can be controlled with
-"configset listname message_footer_frequency".
-
 
 See Also:
+   help commands (for backslash replacement notes)
    help configset message_footer_frequency (for how often the footer is sent)
    help variables (for a list of all possible variables and what they mean)
 
