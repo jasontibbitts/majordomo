@@ -4,3 +4,8 @@ Before installing, the sessions directory must be moved to its new
 location.  (This provides a performance improvement.)  Rename
 GLOBAL/files/sessions to GLOBAL/files in each domain.  Then make;make
 install and run a filesync GLOBAL in each domain.
+
+There are new Makefile.PL questions; be sure to rerun it and go through the
+questions again.  Things are likely to misbehave if the proper
+configuration options are not defined properly (or at all).
+

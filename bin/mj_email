@@ -5,6 +5,7 @@ BEGIN {
   $::TMPDIR = "/tmp";
   $::UID    = "baduid";
   $::GID    = "badgid";
+  $::UMASK  = "007";
   $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 
   # Redirect standard error output.
@@ -45,6 +46,8 @@ my (%opts, @entities, $args, $av, $command, $debug_file, $debug_log,
     $debug_reply, $deflist, $entity, $head, $i, $line, $list, $ok,
     $reply_to, $reply_to_strip, $sender, $sub_addin, $subject, $tag,
     $tlist, $top, $token);
+
+umask oct($::UMASK);
 
 # Redirect standard error output.
 if (! -t STDERR) {

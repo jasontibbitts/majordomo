@@ -4,6 +4,7 @@ BEGIN {
   $::LISTDIR= "/path/to/lists";
   $::DEFDOM = "some.dom.ain";
   $::WTMPDIR= "/tmp";
+  $::UMASK  = "007";
   $::UID    = "baduid";
   $::GID    = "badgid";
 #  $::TMPDIR = "/tmp";
@@ -30,6 +31,8 @@ my (@in, $dom, $editor, $fh, $i, $infile, $list, $mess, $ok, $result,
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
+umask oct($::UMASK);
 
 # Options:
 #  -D : enable debugging to STDOUT

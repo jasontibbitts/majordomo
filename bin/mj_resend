@@ -4,6 +4,7 @@ BEGIN {
   $::LISTDIR= "/home/tibbs/mj/2.0-lists";
   $::DEFDOM = "hpc.uh.edu";
   $::TMPDIR = "/nowhere";
+  $::UMASK  = "007";
   $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 
   # Redirect STDERR as soon as possible to catch errors and warnings
@@ -36,6 +37,8 @@ use vars qw($program_name);
 
 my(%opts, @mess, $approved, $dom, $fh, $fname, $head, $in_body, $inmsg,
    $list, $mess, $mj, $ok, $sender, $sess, $tlist, $top);
+
+umask oct($::UMASK);
 
 # Redirect STDERR as soon as possible to catch errors and warnings
 if (! -t STDERR) {

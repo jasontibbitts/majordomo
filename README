@@ -109,6 +109,9 @@ To install:
   type "perl Makefile.PL".
   follow the onscreen directions (to the letter!)
 
+See the 'Makefile.PL questions' section at the end of this document for
+more detailed discussion on the questions that Makefile.PL asks.
+
 Make certain that the Majordomo user can actually see the distribution
 files during installation; the installation may fail if the files are
 unreadable.  And or course root should be able to see the files.  (This is
@@ -116,7 +119,6 @@ not the case with some NFS setups.)
 
 When it's done, that will be all.  But it's not done...  It's getting
 better, though.
-
 
 
 Interacting with Majordomo:
@@ -239,5 +241,125 @@ environment variables, etc. as appropriate) as well as a log of all
 commands executed during that session.  When a token is rejected,
 information about the session that generated it is automatically mailed to
 the list and site owners (if they elect to receive such information).
+
+
+Makefile.PL Questions:
+----------------------
+
+  What is the user ID that Majordomo will run as?
+   Either the numeric ID or the user name is fine.
+
+Majordomo must run as a specific user on your system.  Generally an account
+must be created (the installation process will not do this for you).  Give
+either the name of this account or its numeric ID here.
+
+----
+
+  What is the group ID that Majordomo will run as?
+   Either the numeric ID or the group name is fine.
+
+As above, the installation process needs to know which group Majordomo will
+run in.  It is not necessary for Majordomo to be in a special group or that
+a separate group be created, although some administrators may wish things
+to be this way.
+
+----
+
+  Should the SETID wrappers be installed?
+   Majordomo needs to be able to run as the proper user no matter who is
+    running it.  This requires that it be installed SETID.  On some systems,
+    the Majordomo programs can be installed SETID, but this requires both
+    that the operating system support it ant that perl be built to support
+    it.  If this is not possible, a set of tiny wrapper programs can be built
+    which will take care of the SETID needs of Majordomo.
+   If you're not sure of how to answer this question, just answer YES.
+    There is no loss of functionality when the wrappers are enabled.  Curious
+    users may want to answer NO; if wrappers are required, the installation
+    process will fail later.
+
+  Install the wrappers? 
+
+Majordomo must run as a single user, but the mail system may execute it as
+other users depending on varions curcumstances.  Also, the shell interface
+must run properly no matter who executes it.  For these and other reasons,
+Majordomo must run setuid.  On some systems and perl installations it
+suffices to simply set the appropriate permissions on the scripts, while on
+others small wrapper programs must be created and compiled.  It is
+difficult for the installation process to determine the proper setting; it
+is always OK to build the wrappers but things are slightly simpler without
+this.
+
+----
+
+  What umask should Majordomo use?
+   The umask is the Unix method of restricting the permissions on newly
+    created files and directories.
+   Useful values are:
+    077 (nobody can read any Majordomo files)
+    027 (users in the Majordomo group can read the files)
+    007 (users in the Majordomo group can read and write the files)
+   Choose 077 for maximum security.  Majordomo2 can operate with very strict
+    permissions.
+
+  What should umask be set to?
+
+Check the umask manual pages for more information on umasks; the basics are
+in the description.
+
+----
+
+  Where will the Majordomo libraries, executables and documentation be kept?
+   This could be something like "/usr/local/majordomo"; Majordomo will make
+     this directory and several directories under it to hold its various
+     components.
+   Note that this is not necessarily where your lists must be stored.
+
+Majordomo just needs to know where to put its executables and libraries.
+After installation, Majordomo will not write to this location.  It can be
+NFS mounted or on a partition mounted read-only (after installation is
+complete, of course).  If it is an NFS-mounted partition, however, that
+partition must be mounted to as to allow setuid binaries.  If this is not
+the case, most of Majordomo will fail completely.  Note that Majordomo does
+not install its libraries into the normal perl installation directories.
+
+----
+
+  Where will the Majordomo list data be kept?
+   Note that under this directory will be a directory for each domain your
+     site supports, and under that a directory for each list at your site.
+   Note also that this should _not_ be a directory containing lists
+     maintained by Majordomo 1.x, as Majordomo 2 stores its lists in a
+     different format.
+
+This should _not_ be an NFS-mounted directory, as the locking mechanism
+currently used by Majordomo will not funciton properly over NFS.  This
+doesn't have to be in the same location as the previous directory.
+
+----
+
+  Where can Majordomo place temporary files?
+   Majordomo occasionally needs to write out short-lived files in a place
+     that all users can write to.  These files are generally small and are
+     deleted after the operations are complete.
+
+This should be something like /tmp where everybody can create files.
+
+----
+
+  Where can Majordomo place secure temporary files?
+    Majordomo also needs to write out private temporary files.  For maximum
+      security, this should be a special directory that is neither readable
+      nor writable by normal users.  (In other words, it should not be /tmp
+      unless you know what you're doing.)  Many security problems can arise
+      when any user can create files and links in the temporary directory with
+      the same names that Majordomo would use.
+    The installation process will create this directory if it does not exist,
+      but will not enforce any permissions.
+
+Majordomo will create this directory during installation but will not
+create it at runtime.  Therefore you should be wary of placing this on a
+filesystem like Sun's tempfs which goes away after a reboot unless you take
+care to recreate the directory properly during the boot process.
+
 
  - J<

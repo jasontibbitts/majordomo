@@ -334,6 +334,24 @@ EOM
   $def = $config->{'wrappers'};
   $config->{'wrappers'} = get_bool($msg, $def);
 
+  #---- Ask for umask
+  $msg = <<EOM;
+
+What umask should Majordomo use?
+ The umask is the Unix method of restricting the permissions on newly
+  created files and directories.
+ Useful values are:
+  077 (nobody can read any Majordomo files)
+  027 (users in the Majordomo group can read the files)
+  007 (users in the Majordomo group can read and write the files)
+ Choose 077 for maximum security.  Majordomo2 can operate with very strict
+  permissions.
+
+What should umask be set to?
+EOM
+  $def = $config->{umask} || '0700';
+  $config->{umask} = get_str($msg, $def);
+
   #---- Ask for default install location
   $msg = <<EOM;
 

@@ -22,8 +22,8 @@ Top of the list
 ! Make sure that our temporary directory exists.
   Have each interface create it if it doesn't exist.
 
-! Make each interface set umask before it writes anything.  Configure umask
-  in makefile.pl and hardcode it into each executable.
+! Retrieve message given archive name and number
+  Retrieve last N messages/message numbers from archive
 
 - Figure out how to pass the access variables through to the _post function
   so that we can use things like the byte and line counts for cool things.

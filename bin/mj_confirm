@@ -4,6 +4,7 @@ BEGIN {
   $::LISTDIR= 'unset';
   $::DEFDOM = 'unset';
   $::TMPDIR = 'unset';
+  $::UMASK  = "007";
   $SIG{__WARN__} = sub {print "--== $_[0]"};
 
   # Redirect standard error output.
@@ -42,6 +43,8 @@ my (@data, @args, $action, $approvals, $cgi, $cmdline, $date, $domain,
     $site_name, $token, $time, $tprefix, $ttype, $type);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
+
+umask oct($::UMASK);
 
 # Set up the log
 $::log = new Mj::Log;
