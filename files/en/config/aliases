@@ -19,5 +19,5 @@ mail can be sent.  The following values are supported:
 
 Currently, owner, request, and resend are mandatory.
 
-After the value  of this setting has been changed, the createlist-regen
+After the value of this setting has been changed, the createlist-regen
 command must be run to recreate the aliases.
