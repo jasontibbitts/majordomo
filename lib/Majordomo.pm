@@ -4743,7 +4743,7 @@ sub _report {
   if (defined $action) {
     @actions = split /\s*,\s*/, $action;
     @legal = command_list();
-    push @legal, ('badtoken', 'bounce', 'consult', 'connect', 'ALL');
+    push @legal, ('badtoken', 'bounce', 'consult', 'connect', 'parse', 'ALL');
     for $action (@actions) {
       unless (grep {$_ eq $action} @legal) {
         return (0, "Action $action is unknown.\n");
@@ -4877,6 +4877,11 @@ sub sessioninfo_start {
   }
 
   (1, '');
+}
+
+# Included for purposes of logging.
+sub sessioninfo_done {
+  (shift)->get_done(@_);
 }
 
 =head2 set
