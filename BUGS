@@ -5,21 +5,15 @@ The code itself is a bit inconsistent.  Only lists can pass the
   functions take too many arguments (should be named) or should take list
   or hash refs instead of lists or hashes.
 
-Input from attachment and here docs are not consistently implemented; they
-  work for some functions but not others.  The ALL meta-list doesn't work
-  at all, though the parser accepts it.
-
-Things blow up when presented with unparseable MIME.  I've requested
+Messages with unparseable MIME are ignored by the code.  I've requested
   that a 'lax' mode be added to MIME::Parser so that if the message is
   illegal something comes back from the parser.  The idea is to try to
   get the message through even if it is illegal.
 
-substitute_vars_string might not do the right thing when faced with
-  keys that are subsets of others.
+The spooled message is not deleted after a message is forwarded by the
+  "forward" access_rules action.
 
-Empty returns from email commands?  Unverified and unreproduceable.
+Visiting an external link from the WWW interfaces can cause a temporary
+  password ("latchkey") to be revealed in the "Referer" information.
 
-Undefined warnings from inform if lists is called with no lists.  This
-happens because @out is legally empty, but inform takes $out[0] as the
-status.  Lists should be fixed to return an $ok variable like
-everything else.
+
