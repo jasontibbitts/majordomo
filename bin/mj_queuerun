@@ -21,7 +21,7 @@ BEGIN {
   die("Not running as UID $::UID") unless $> == $::UID;
   die("Not running as GID $::GID") unless $) == $::GID;
 
-  # Qyiet warning
+  # Quiet warning
   $::LOCKDIR;
 }
 
@@ -276,6 +276,9 @@ sub run_queue {
 	      $::log->message(0, 'info', "Emergency log created at ".localtime().".");
 	      $::log->message(0, 'info', "Tried $trycount times to process $file.");
 	    }
+
+            $::log->message(10, 'info', 
+                      "$pri1/$dom/$pri2/$func/$msg processed at " . time);
 
             # OK, have something to process.  Lazily create a Majordomo object
             # for the domain we're processing.

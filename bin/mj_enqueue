@@ -153,6 +153,8 @@ unless ($ok) {
   exit 74;
 }
 
+logmsg "$opts{'P'}/$dom/$opts{'p'}/$qfunc/$qfile queued at " . time;
+
 # Now start up the server.  We must exit 0 (or 99 for qmail) from here on
 # out (no dying) because the file has already been queued and a runner will
 # pick it up later.  From the MTA's standpoint, delivery was successful.
