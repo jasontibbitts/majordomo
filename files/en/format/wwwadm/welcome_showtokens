@@ -32,9 +32,10 @@ as shown in the following table:
 <tr>
   <td>confirm
   </td>
-  <td>The subscriber (Usually the person who made the request)
-  If you <b>accept</b> or <b>reject</b> a <b>confirm</b> token,
-  it may confuse the subscriber.
+  <td>The subscriber (Usually, this is the person who made the request.)
+  If you <b>accept</b> or <b>reject</b> a confirm token,
+  it may confuse a subscriber who attempts to follow the instructions
+  in a confirmation message and finds that the token no longer exists.
   </td>
 </tr>
 
