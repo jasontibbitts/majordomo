@@ -488,6 +488,7 @@ sub list_access_check {
 
   $access = $self->_list_config_get($list, 'access_rules');
   $reasons = '';
+  $arg2 = '' unless (defined $arg2);
 
   if ($access->{$request}) {
     # Populate the memberships hash
@@ -624,11 +625,8 @@ sub list_access_check {
 			  $cmdline, $arg1, $arg2, $arg3, %args);
   }
 
-  # Build the reasons list by splitting $arg2, if we're handling a
-  # post request.
-  if ($request eq 'post') {
-    $reasons .= join("\n", split("\002", $arg2));
-  }
+  # Build the reasons list by splitting $arg2. 
+  $reasons .= join("\n", split("\002", $arg2));
 
   # Expand variables in the returned message.  XXX Obviously add some
   # more useful substitutions here.  taboo information (taboo_rule,
