@@ -14,7 +14,9 @@ auxname,   specified with -aux only, is a sublist of 'listname'
 
 This command sets the values of various subscription parameters, some
 of which can be pre-set by the list owner. Each time you use "set",
-you will get back a summary of all of your settings. 
+you will get back a summary of all of your settings. If you use "ALL"
+as the list name, you will either alter (if you supply flags) or
+report on (if you use -check) every list you are subscribed to.
 
 If you use the "set-check" option, you may not specify any flags
 and you will just get back a summary of your existing settings.
