@@ -266,14 +266,13 @@ elsif ($func eq 'set' and $goodpass) {
         push @settings, "no$j";
     }
   }
-  print "<br>set $list";
   for $i (@settings) {
-    ($ok, $mess) =
+    (undef, $ok, $mess) =
       $mj->dispatch('set', $user, $passw, '', 
                     'mj_wwwusr', "set $list $i", '', $list, '', $i);
-    print " $i";
+    print "<pre>Error for \"$i\" setting:  $mess</pre>\n" unless $ok;
   }
-  print "<br>\n";
+  print "<pre>Your \"set\" command was completed.</pre>\n";
 }
 
 
@@ -357,29 +356,26 @@ sub showdata {
   my $mj = shift;
   my $user = shift;
   my $passw = shift;
-  my ($i, $j, $fl, @lists, $lfull, $class, $subtime); 
+  my ($i, $j, @lists, $lfull, $class, $subtime); 
   my ($lflags, $lchangetime, $changetime);
-  my ($ok, @listdata) =
+  my ($ok, $listdata) =
     $mj->dispatch('show', $user, $passw, '', 'mj_wwwusr', 'show', '');
   # Present the data, including form buttons.
   if ($ok < 1) {
-    print "<h2>Error: $listdata[2]</h2>\n";
+    print "<h2>Error: $listdata->{'error'}</h2>\n";
     return $ok;
   }
-  if ($listdata[4]) {
-    $fl=0;
-    for $i (split("\002",$listdata[4])) {
-      next if $i eq $listdata[0];
-      print "<br>Aliases:<ul>\n"
-        unless ($fl);
+  if (@{$listdata->{'aliases'}}) {
+    print "<br>Aliases:<ul>\n";
+    for $i (@{$listdata->{'aliases'}}) {
+      next if $i eq $listdata->{'strip'};
       print "<li>$i\n";
-      $fl=1;
     }
     print "</ul>\n";
   }
-  @lists = split("\002", $listdata[16]);
+  @lists = sort keys %{$listdata->{'lists'}};
   unless (@lists) {
-    print "Address is not subscribed to any lists\n";
+    print "<p>$user is not subscribed to any lists.\n";
     return 1;
   }
 
@@ -399,32 +395,32 @@ EOM
   print "<table border><th>Mailing List<th>Delivery Mode<th>Ack<th>EliminateCC\n";
   print "<th>Hide<th>Prefix<th>ReplyTo<th>SelfCopy<th>RewriteFrom\n";
   for $i (@lists) {
-    ($lfull, $class, $subtime, $lchangetime, $lflags) = splice(@listdata, 17, 5);
+    $lfull      = $listdata->{'lists'}{$i}->{'fulladdr'};
+    $class      = $listdata->{'lists'}{$i}->{'class'};
+    $subtime    = $listdata->{'lists'}{$i}->{'subtime'};
+    $changetime = $listdata->{'lists'}{$i}->{'changetime'};
+    $lflags     = $listdata->{'lists'}{$i}->{'flags'};
     print <<EOM;
     <tr><td align=center><input type=radio name=list value=$i>$i<br>
     <td align=center><select name="$i:delivery">
 EOM
     for $j (qw (each digest nomail)) {
-      if ($class eq $Mj::List::classes{$j}->[2]) {
+      if ($class eq $j) {
         print "<option selected> $j\n"; 
-      }
-      elsif ($class =~ /text|index|mime/ and $j eq 'digest') {
-        print "<option selected> $j\n";
       }
       else {
         print "<option> $j\n";
       }
     }
     print "</select>\n";
-    for $j (split(',',$lflags)) {
+    for $j (@{$lflags}) {
       $j =~ /(no)?(.+)/;  print $1 ?
           "<td align=center><input type=checkbox name=\"$i:$2\">\n"
         : "<td align=center><input type=checkbox name=\"$i:$2\" checked>\n";
     }
   }
   print "</table>\n";
-  print "Registered at ".gmtime($listdata[14])." UTC.<br>\n";
-  print "Last changed at ".gmtime($listdata[15])." UTC.<br>\n";
+  print "$user was registered on ".gmtime($listdata->{'regdata'}->{'regtime'})." UTC.<br>\n";
 
   print <<EOM;
 <h2>What do the settings mean?</h2>
