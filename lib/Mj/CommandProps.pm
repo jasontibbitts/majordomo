@@ -55,6 +55,7 @@ my %reg_legal =
    'delay'          =>3,
    'fulladdr'       =>3,
    'host'           =>3,
+   'interface'      =>3,
    'mode'           =>3,
    'sublist'        =>3,
   );
@@ -77,6 +78,8 @@ my %reg_legal =
         'dup_partial_checksum' => "is set if the checksum of the first ten lines of the message has been seen before",
                     'fulladdr' => "contains the user's address, complete with any comments provided (such as 'Joe Blow <joe\@blow.org>')",
                         'host' => "contains the stuff on the right of the '\@' in the user's address (sometimes called the domain)",
+                   'interface' => "contains the interface used to make a request",
+                'invalid_from' => "is set if the From: header of a posted message contains an invalid address",
                        'limit' => "is set if a soft or hard posting limit is reached",
                   'limit_hard' => "is set if a hard posting limit is reached",
                   'limit_soft' => "is set if a soft posting limit is reached",
@@ -406,7 +409,7 @@ my %commands =
    'post' =>
    {
     'parser'   => [qw(email shell list real)],
-    'dispatch' => {'top' => 1, 'iter' => 1, 
+    'dispatch' => {'top' => 1, 'iter' => 1,  'noaddr' => 1,
                    'hereargs'  =>   'message',
                    'tokendata' => { 'arg1'   => 'file',
                                     'arg3'   => 'vars',}
@@ -427,6 +430,7 @@ my %commands =
                     'dup_msg_id'                   => 1,
                     'dup_checksum'                 => 1,
                     'dup_partial_checksum'         => 1,
+                    'invalid_from'                 => 1,
                     'limit'                        => 1,
                     'limit_hard'                   => 1,
                     'limit_soft'                   => 1,
