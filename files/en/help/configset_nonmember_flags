@@ -20,7 +20,7 @@ this case.  They are:
   j - ackreject
 
 
-See also:
+See Also:
    help set                     (for subscriber flag settings)
    help configset default_flags (for subscriber flag defaults)
 

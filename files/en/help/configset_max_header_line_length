@@ -21,7 +21,7 @@ This command can be used to prevent excessive CC'ing or to cut down
 on some types of spam.
 
 
-See also:
+See Also:
    help configset access_rules            (how to trap violations of this limit)
    help configset access_rules_variables  (for what to test in access_rules)
    help configset max_total_header_length (to test all header lines together)

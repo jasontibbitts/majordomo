@@ -19,7 +19,7 @@ possibility of false positives, these entries are periodically
 trimmed after this number of days.
 
 
-See also:
+See Also:
    help configset latchkey_lifetime
    help configset log_lifetime
    help configset session_lifetime

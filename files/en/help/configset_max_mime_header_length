@@ -29,7 +29,7 @@ and attachment_rules.  (Filtering of HTML mail is recommended to help
 eliminate exploits which lie in HTML tags.)
 
 
-See also:
+See Also:
    help configset access_rules            (how to trap violations of this limit)
    help configset access_rules_variables  (for what to test in access_rules)
    help configset max_header_line_length  (to test one regular header line at a time)

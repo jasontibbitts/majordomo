@@ -17,7 +17,7 @@ WWW interfaces to prevent permanent passwords being
 cached by WWW client software.
 
 
-See also:
+See Also:
    help configset dup_lifetime
    help configset log_lifetime
    help configset session_lifetime

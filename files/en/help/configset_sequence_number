@@ -17,7 +17,8 @@ It may be manually set here, but watch out for apparently duplicate
 messages if you set up your headers so your subscribers can track
 the number (useful to debug sporadic delivery, etc).
 
-See also:
+
+See Also:
    help configset message_headers (for how to insert this number)
    help configset reply_to        (for how to insert this number)
    help configset subject_prefix  (for how to insert this number)

@@ -23,7 +23,7 @@ active server, and slow down the report command, so entries
 older than this many days are purged by the daily trigger.
 
 
-See also:
+See Also:
    help configset dup_lifetime
    help configset latchkey_lifetime
    help configset session_lifetime
