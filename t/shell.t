@@ -3,6 +3,7 @@ print "1..14\n";
 $| = 1;
 $counter = 1;
 
+# 1
 eval('$config = require ".mj_config"');
 $a = $config;
 undef $a;     # Quiet 'used only once' warning.
@@ -30,27 +31,27 @@ print SITE qq!
 close SITE;
 
 
-# Set a password
+# 2. Set a password
 $e = qq!\Qmaster_password set to "gonzo".\n!;
 $r = run('-p hurl configset GLOBAL master_password = gonzo');
 ok($e, $r);
 
-# Set the whereami variable; we have to have this or else some things warn
+# 3. Set the whereami variable; we have to have this or else some things warn
 $e = qq!\Qwhereami set to "example.com".\n!;
 $r = run('-p gonzo configset GLOBAL whereami = example.com');
 ok($e, $r);
 
-# Create a list
+# 4. Create a list
 $e = ".*";
 $r = run('-p gonzo createlist bleeargh nobody@example.com');
 ok($e, $r);
 
-# Make sure it's there
+# 5. Make sure it's there
 $e = "\Qbleeargh\n";
 $r = run('lists=tiny');
 ok($e, $r);
 
-# Have to turn off information or we die trying to inform the nonexistant owner
+# 6. Have to turn off information or we die trying to inform the nonexistant owner
 open(TEMP, ">var.$$");
 print TEMP <<EOT;
 subscribe   : all : ignore
@@ -62,43 +63,43 @@ $r = run("-p gonzo -f var.$$ configset bleeargh inform");
 ok($e, $r);
 unlink "var.$$";
 
-# Subscribe an address, being careful not to send mail
-$e = qq!\QThe following address was added to bleeargh:\n  zork\@example.com\n!;
+# 7. Subscribe an address, being careful not to send mail
+$e = qq!\Qzork\@example.com was added to bleeargh.\n!;
 $r = run('-p gonzo subscribe=quiet bleeargh zork@example.com');
 ok($e, $r);
 
-# Make sure they're there
+# 8. Make sure they're there
 $e = qq!Members of list "bleeargh":\n  zork\@example.com\n1 listed subscriber\n!;
 $r = run('who bleeargh');
 ok($e, $r);
 
-# Add an address to an auxiliary list
-$e = qq!\QThe following address was added to harumph:\n  deadline\@example.com\n!;
+# 9. Add an address to an auxiliary list
+$e = qq!\Qdeadline\@example.com was added to bleeargh:harumph.\n!;
 $r = run('-p gonzo auxadd bleeargh harumph deadline\@example.com');
 ok($e, $r);
 
-# Make sure it showed up
-$e = qq!\QMembers of auxiliary list "bleeargh/harumph":\n    deadline\@example.com\n1 listed member\n!;
+# 10. Make sure it showed up
+$e = qq!\QMembers of auxiliary list "bleeargh:harumph":\n  deadline\@example.com\n1 listed member\n!;
 $r = run('-p gonzo auxwho bleeargh harumph');
 ok($e, $r);
 
-# Add an alias
+# 11. Add an alias
 $e = qq!\Qenchanter\@example.com successfully aliased to zork\@example.com.\n!;
 $r = run('-p gonzo -u zork@example.com alias enchanter@example.com');
 ok($e, $r);
 
-# Add an alias to the first alias
+# 12. Add an alias to the first alias
 $e = qq!\Qplanetfall\@example.com successfully aliased to enchanter\@example.com.\n!;
 $r = run('-p gonzo -u enchanter@example.com alias planetfall@example.com');
 ok($e, $r);
 
-# Set a password
+# 13. Set a password
 $e = qq!\QPassword set.\n!;
 $r = run('-p gonzo -u enchanter@example.com password-quiet suspect');
 ok($e, $r);
 
-# Unsubscribe the aliased address using the set password
-$e = qq!\QThe following address was removed from bleeargh:\n  zork\@example.com\n!;
+# 14. Unsubscribe the aliased address using the set password
+$e = qq!\Qzork\@example.com was removed from bleeargh.\n!;
 $r = run('-p suspect unsubscribe bleeargh enchanter@example.com');
 ok($e, $r);
 
