@@ -26,7 +26,6 @@ Command:&nbsp;&nbsp;
 <option> report-summary
 <option> sessioninfo
 <option> set
-<option> set-aux
 <option> showtokens
 <option> subscribe
 <option> tokeninfo
