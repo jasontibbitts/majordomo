@@ -556,7 +556,7 @@ EOM
 
   #---- Write out the config
   print "\n";
-  open CONFIG, ">.mj_config";
+  open(CONFIG, ">.mj_config") || die("Can't create .mj_config: $!");
   print CONFIG Dumper($config);
   close CONFIG;
   if ($config->{save_passwords}) {
@@ -710,11 +710,11 @@ sub generate_wrappers {
   print "\nGenerating the wrappers...";
   @EXES = ();
 
-  mkdir 'wrappers', 0777;
+  mkdir('wrappers', 0777) || die("Can't create wrappers dir: $!");
 
   for my $i (@SIDSCRIPTS) {
     link("./bin/$i", "./bin/.$i");
-    open WRAP, ">wrappers/$i.c";
+    open(WRAP, ">wrappers/$i.c") || die("Can't create wrappers/$i.c: $!");
     print WRAP "main(ac, av)
     char **av;
 {
