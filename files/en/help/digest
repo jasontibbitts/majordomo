@@ -178,8 +178,26 @@ Each preindex, postindex, and footer file supports variable
 substitutions.  Please see the digest_preindex description in 
 "help reply_files" for a list of the supported substitutions.
 
-A list must have an archive in order to create digests (see "help
-configset_archive_dir" for more details).
+Digest headers
+--------------
+The mail headers that appear in a digest are configurable, according
+to the following table.
+
+  Header                Configuration Setting
+
+  Errors-To             sender
+  From                  whoami_owner
+  Precedence            precedence
+  Reply-To              reply_to
+  Sender                sender
+  Subject               digests
+  To                    whoami
+
+In addition, any headers from the message_headers setting will also be
+added to each digest.
+
+A list must have an archive in order to create digests (see 
+"help configset_archive_dir" for more details).
 
 
 See Also:
@@ -188,6 +206,12 @@ See Also:
    help configset_digest_index_format (to configure the index)
    help configset_digest_issues (to configure the volume and issue number)
    help configset_digests       (to configure digests)
+   help configset_message_headers
+   help configset_precedence
+   help configset_reply_to
+   help configset_sender
+   help configset_whoami
+   help configset_whoami_owner
    help get       
    help put (to customize preindex, postindex, or footer files)
    help variables (to learn about substitution variables)
