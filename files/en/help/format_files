@@ -150,6 +150,16 @@ that have one of a specific set of values.
  SETCOMMAND, SETTINGS, USER, VALUE, SETTING, LEVEL)
 
 
+configshow_enum_array
+---------------------
+(text, wwwadm)  This file displays the comments and value of one
+configuration setting.  It is used for settings, such as aliases,
+that can take one or more of a specific set of values.
+
+(standard plus CGIDATA, CGIURL, CHECKED, CMDPASS, COMMENT, SELECTED, 
+ SETCOMMAND, SETTINGS, USER, VALUE, SETTING, LEVEL)
+
+
 configshow_error
 ----------------
 (text, wwwadm)  This file displays an error message if the configshow
@@ -347,6 +357,42 @@ password
 been mailed to the victim's address.
 
 (standard plus VICTIM)
+
+
+set
+---
+(text, wwwadm, wwwconfirm, wwwusr)  This file displays the current 
+settings for one subscription on one mailing list.
+
+(standard plus CGIDATA, CGIURL, CHANGETIME, CLASS_DESCRIPTIONS, 
+ CLASSES, CMDPASS, PARTIAL, SELECTED, SETTINGS, SUBTIME, USER, 
+ VICTIM, and others)
+
+
+set_error
+---------
+(text, wwwadm, wwwconfirm, wwwusr)  This file displays an error message when
+the set command fails.
+
+(standard plus CGIDATA, CGIURL, CHANGETIME, CLASS_DESCRIPTIONS, 
+ CLASSES, CMDPASS, PARTIAL, SELECTED, SETTINGS, SUBTIME, USER, 
+ VICTIM, and others)
+
+
+set_foot
+--------
+(text, wwwadm, wwwconfirm, wwwusr)  This file displays supplementary 
+information at the end of the output.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, and USER)
+
+
+set_head
+---
+(text, wwwadm, wwwconfirm, wwwusr)  This file displays supplementary 
+information at the beginning of the output.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, and USER)
 
 
 show
