@@ -196,7 +196,7 @@ sub parse_entity {
     # a large amount of output.
   }
 
-  # unlink ($txtfile) if (defined $txtfile);
+  unlink ($txtfile) if (defined $txtfile);
   $::log->out("executed $ok");
   return ($ok, @entities);
 }
