@@ -327,7 +327,7 @@ These settings apply to all lists in the $DOMAIN domain.
 When Majordomo looks up the value of a setting for a mailing list, if
 that setting is not declared within the list's main configuration table,
 it looks through the templates in the config_defaults setting.  If none
-of those templates has declared a value for the setting, Majordomo will
+of those templates has declared a value for the setting, Majordomo 
 will look in the DEFAULT:MAIN configuration template.  If the setting
 has not been declared there, it uses the value from the DEFAULT:_install
 template.  As a consequence, the DEFAULT:_install template must have a
