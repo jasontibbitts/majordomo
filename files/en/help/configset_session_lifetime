@@ -22,6 +22,11 @@ See Also:
    help sessioninfo      (see the e-mail message that contains the request)
    help showtokens       (for a list of unapproved requests)
    help tokeninfo        (another way to get info similar to sessioninfo)
+   help configset dup_lifetime
+   help configset latchkey_lifetime
+   help configset log_lifetime
+   help configset token_lifetime
+
 
 For a list of all help topics send this one-line message
    help topics

@@ -6,3 +6,29 @@ Data Type     : integer
 Variable Group: majordomo
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset GLOBAL log_lifetime = 14
+
+
+The number of days that Majordomo log entries will be kept.  
+Majordomo logs at least one entry for each request that
+it receives.  If a request affects more than one address
+(for example, if several addresses are subscribed to a mailing
+list with one command), one entry is logged for each address.
+
+The information in the log is made available through the 
+report command.  The log can occupy significant space on an 
+active server, and slow down the report command, so entries
+older than this many days are purged by the daily trigger.
+
+
+See also:
+   help configset dup_lifetime
+   help configset latchkey_lifetime
+   help configset session_lifetime
+   help configset token_lifetime
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

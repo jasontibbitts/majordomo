@@ -17,6 +17,14 @@ The number of days that a token will be allowed to live without being
 acknowledged (either approved or rejected).  Tokens existing longer
 than this many days are deleted at every daily trigger.
 
+
+See also:
+   help configset dup_lifetime
+   help configset latchkey_lifetime
+   help configset log_lifetime
+   help configset session_lifetime
+   help configset token_lifetime
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ

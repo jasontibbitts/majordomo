@@ -18,6 +18,13 @@ out duplicates.  To limit database size and to cut down on the
 possibility of false positives, these entries are periodically
 trimmed after this number of days.
 
+
+See also:
+   help configset latchkey_lifetime
+   help configset log_lifetime
+   help configset session_lifetime
+   help configset token_lifetime
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ

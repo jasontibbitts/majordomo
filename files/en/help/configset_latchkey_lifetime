@@ -6,3 +6,23 @@ Data Type     : integer
 Variable Group: password
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset GLOBAL latchkey_lifetime = 30
+
+
+The number of minutes for which a temporary password
+(latchkey) remains valid.  Latchkeys are used by the 
+WWW interfaces to prevent permanent passwords being
+cached by WWW client software.
+
+
+See also:
+   help configset dup_lifetime
+   help configset log_lifetime
+   help configset session_lifetime
+   help configset token_lifetime
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
