@@ -1,5 +1,22 @@
 Mon Apr  6 00:00:13 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Mj/Config.pm (_compile_rule): Allow the special
+ 	class-defined taboo and admin variables.
+
+	* lib/Mj/Resend.pm (post): Deal with classes properly.
+
+	* lib/Mj/Config.pm (parse_taboo_body): We were wiping out the
+ 	strings passed to us, causing the stored config file to lose
+ 	extended settings.
+	(parse_taboo_headers): Ditto.
+
+	* lib/Mj/Resend.pm (_check_taboo): Deal with classes.
+	(_r_ck_taboo): Ditto.
+
+	* lib/Mj/Config.pm (parse_taboo_body): Parse and incorporate
+ 	additional class argument.
+	(parse_taboo_headers): Ditto.
+
 	* postinstall: Place all temporary files in $config->{wtmpdir}
  	just in case root can't write to the build directory.
 

@@ -1857,14 +1857,15 @@ which when evaled matches against all of them.
 
 The extended regexes look like
 
-!?/.*/i?\s*(\d*)(,(\d+))?
+!?/.*/i?\s*(\d*)((,(\d+))(,(\w+))?)?
 
 i.e.
 
-!/this must match/i 10,20
+!/this must match/i 10,20,class
 
 The leading ! indicates an inversion, the trailing numbers indicate the
-maximum line to match and a severity.
+maximum line to match and a severity, and the final string indicates the
+name of the class.
 
 This returns a hashref containing:
 
@@ -1879,6 +1880,8 @@ matched, the severity of the match, and a flag indicating whether or not
 the rule is inverted (and so has satisfied its condition).
 
 The default severity is 10.
+The default class is "header"; this conveniently gives back "taboo_header",
+a backwards compatible class.
 
 =cut
 sub parse_taboo_body {
@@ -1886,7 +1889,7 @@ sub parse_taboo_body {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-  my($data, $inv, $j, $max, $sev, $stop);
+  my($class, $data, $inv, $j, $max, $re, $sev, $stop);
 
   $data = {};
   $data->{'inv'} = [];
@@ -1896,37 +1899,40 @@ sub parse_taboo_body {
   $data->{'code'} = "my \@out = ();\n";
 
   for $j (@$arr) {
-    # Format: !/match/i 10
-    ($inv, $j, $stop, undef, $sev) =
-      $j =~ /^(\!?)(.*?)\s*(\d*)(,(\d+))?\s*$/;
-    $sev = 10 unless defined $sev;
+    # Format: !/match/i 10,20,blah
+    ($inv, $re, $stop, undef, undef, $sev, undef, $class) =
+      $j =~ /^(\!?)(.*?)\s*(\d*)((,(\d*))(,(\w+))?)?\s*$/;
+    $sev = 10 unless defined $sev && length $sev;
+    $class ||= 'body';
 
     # For backwards compatibility, we have a different default for
     # admin_body
-    $stop = 10 if $var eq 'admin_body' && !$stop;
+    unless (defined $stop && length $stop) {
+      $stop = ($var eq 'admin_body')? 10: 0;
+    }
 
     # Build a line of code for an inverted match
     if ($inv) {
       if ($stop > 0) {
 	$data->{'code'} .=
-	  "\$line <= $stop && \$text =~ $j && (push \@out, (\'$j\', \$&, $sev, 1));\n";
+	  "\$line <= $stop && \$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 1));\n";
       }
       else {
 	$data->{'code'} .=
-	  "\$text =~ $j && (push \@out, (\'$j\', \$&, $sev, 1));\n";
+	  "\$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 1));\n";
       }
-	push @{$data->{'inv'}}, "$list\t$var\t$j\t$sev";
+	push @{$data->{'inv'}}, "$list\t$var\t$re\t$sev\t$class";
     }
 
     # Build a line of code for a normal match
     else {
       if ($stop > 0) {
 	$data->{'code'} .=
-	  "\$line <= $stop && \$text =~ $j && (push \@out, (\'$j\', \$&, $sev, 0));\n";
+	  "\$line <= $stop && \$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 0));\n";
       }
       else {
 	$data->{'code'} .=
-	  "\$text =~ $j && (push \@out, (\'$j\', \$&, $sev, 0));\n";
+	  "\$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 0));\n";
       }
     }
     $max = $stop ? $stop > $max ? $stop : $max : 0; #Whee!
@@ -1945,10 +1951,10 @@ sub parse_taboo_body {
 This is a slightly simpler version of parse_taboo_body, because it doesn''t
 need to deal with stop lines.  Lines look like this:
 
-!?/.*/\s*(\d*)
+!?/.*/\s*(\d*)(,(\w+))?
 
-Inverted matches are supported, as are optional severities.  The default
-severity is 10.
+Inverted matches are supported, as are optional severities and classes.
+The default severity is 10; the default class is 'header'.
 
 =cut
 sub parse_taboo_headers {
@@ -1956,22 +1962,23 @@ sub parse_taboo_headers {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-  my($data, $inv, $j, $sev);
+  my($class, $data, $inv, $j, $re, $sev);
 
   $data = {};
   $data->{'inv'} = [];
 
   $data->{'code'} = "my \@out = ();\n";
   for $j (@$arr) {
-    ($inv, $j, $sev) = $j =~ /^(\!?)(.*?)\s*(\d*)$/;
+    ($inv, $re, $sev, undef, $class) = $j =~ /^(\!?)(.*?)\s*(\d*)(,(\w+))?$/;
     $sev = 10 unless defined $sev;
-    
+    $class ||= 'header';
+
     if ($inv) {
-      $data->{'code'} .= "\$text =~ $j && (push \@out, (\'$j\', \$&, $sev, 1));\n";
-      push @{$data->{'inv'}}, "$list\t$var\t$j\t$sev";
+      $data->{'code'} .= "\$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 1));\n";
+      push @{$data->{'inv'}}, "$list\t$var\t$re\t$sev\t$class";
     }
     else {
-      $data->{'code'} .= "\$text =~ $j && (push \@out, (\'$j\', \$&, $sev, 0));\n";
+      $data->{'code'} .= "\$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 0));\n";
     }
   }
   $data->{'code'} .= "return \@out;\n";
@@ -2676,10 +2683,13 @@ sub _compile_rule {
 	($var, $op, $arg) = ($1, $2, $3);
 	$op ||= '';
 	
-	unless ($requests{$request}{'legal'}{$var}) {
-	  $e .= "Illegal variable for $request: $var.\n";
-	  last;
-	}
+	# Weed out bad variables, but allow some special cases
+	unless ($requests{$request}{'legal'}{$var} || 
+	       $var =~ /(global_)?(admin_|taboo_)\w+/)
+	  {
+	    $e .= "Illegal variable for $request: $var.\n";
+	    last;
+	  }
 	if ($need_or) {
 	  $o .= " ||";
 	}    

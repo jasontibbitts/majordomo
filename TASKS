@@ -40,17 +40,6 @@ Design the Web interface:
   'clean Perl5' rule.  Before someone can start coding, we need to
   determine at least the basics of what the new design will look like.
 
-Design the client-server protocol:
-  The Majordomo module was designed to be split into two parts, each
-  serving a diferent side of a connection.  The return values from core
-  calls are always simple lists; there are no complex data structures
-  passed out.  This was designed to make the protocol simpler.  (There are
-  also functions that aren't indented to be visible to an interface; the
-  names of these are prefixed with an underscore.)  Come up with a simple
-  communication protocol to handle the connection.  Bonus points for
-  thinking out the security issues (though I have done some of the work by
-  requiring security information for most every core call).
-
 Implement the Digest module:
   I have done some work on getting the Digest mechanism started; the
   trigger mechanism is described in the documentation for the 'digests'

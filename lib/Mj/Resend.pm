@@ -107,11 +107,15 @@ sub post {
       $ok,
       $mess, 
       @taboo,                # Returned taboo list
+      %matches,              # Hash of all matched classes
       $type,
       $rule,
       $match,
+      $at,                   # Is the match admin or taboo?
+      $global,               # Is the match from a global variable?
       $line,
       $sev,
+      $class,
       $desc,
       $c_type,
       $c_t_encoding,
@@ -121,15 +125,7 @@ sub post {
       @reasons,              # Array of all possible message faults
       $bad_approval,         # Invalid password or munged Approve header
       $taboo,                # Generic taboo variable
-      $taboo_header,         # Failed taboo match in header
-      $taboo_body,           # Failed taboo match in body
-      $global_taboo_header,  # Global counterparts for each
-      $global_taboo_body,
       $admin,                # Generic admin variable
-      $admin_header,
-      $admin_body,
-      $global_admin_header,
-      $global_admin_body,
       $dup,                  # Generic duplicate variable
       $dup_msg_id,           # Message ID was recently seen
       $dup_checksum,         # Body checksums to something recently seen
@@ -194,29 +190,40 @@ sub post {
   # Check taboo stuff
   @taboo = $self->_check_taboo($list, $thead, $ent);
 
-  while (($type, $rule, $match, $line, $sev) = splice(@taboo, 0, 5)) {
-    # Set bounce variables; construct and push @reasons
-    if ($type =~ /inverted/i) {
-      $reason = "$type: $rule failed to match";
-    }
-    elsif ($line) {
-      $reason = "$type: $rule matched \"$match\" at $line";
-    }
-    else {
-      $reason = "$type: $rule matched \"$match\"";
-    }
-    push @reasons, $reason;
-    # This is better than the alternative...but it's still stupid
-    $type =~ /global taboo header/i and $global_taboo_header += $sev and next;
-    $type =~ /global taboo body/i   and $global_taboo_body   += $sev and next;
-    $type =~ /global admin header/i and $global_admin_header += $sev and next;
-    $type =~ /global admin body/i   and $global_admin_body   += $sev and next;
-    $type =~ /taboo header/i        and $taboo_header        += $sev and next;
-    $type =~ /taboo body/i          and $taboo_body          += $sev and next;
-    $type =~ /admin header/i        and $admin_header        += $sev and next;
-    $type =~ /admin body/i          and $admin_body          += $sev and next;
-  }
+  while (($type, $at, $global, $rule, $match, $line, $sev, $class) =
+    splice(@taboo, 0, 8))
+      {
+	# No reason if all upper-case class
+	unless ($class eq uc($class)) {
+	  # Set bounce variables; construct and push @reasons
+	  if ($type =~ /inverted/i) {
+	    $reason = "$type: $rule failed to match";
+	  }
+	  elsif ($line) {
+	    $reason = "$type: $rule matched \"$match\" at $line";
+	  }
+	  else {
+	    $reason = "$type: $rule matched \"$match\"";
+	  }
+	  push @reasons, $reason;
 
+	  # Bump the combined match variables
+	  if ($at) {
+	    $admin += $sev;
+	  }
+	  else {
+	    $taboo += $sev;
+	  }
+	}
+
+	# Build the match variable; we keep them in a hash because we have
+	# no idea what their names will be.
+	$match  = $global? 'global_': '';
+	$match .= $at? 'admin_': 'taboo_';
+	$match .= $class;
+	$matches{$match} += $sev;
+      }
+  
   # Check the message-ID cache
   $dup_msg_id = $self->_check_id($list, $thead);
   if ($dup_msg_id) {
@@ -240,10 +247,6 @@ sub post {
   push @reasons, @tmp;
 
   # Make some extra access variables
-  $taboo = $taboo_header || $taboo_body || $global_taboo_header ||
-    $global_taboo_body;
-  $admin = $admin_header || $admin_body || $global_admin_header ||
-    $global_admin_body;
   $dup = $dup_msg_id || $dup_checksum || $dup_partial_checksum;
   $mime = $mime_consult || $mime_deny;
   $any = $taboo || $admin || $dup || $bad_approval || $mime;
@@ -259,15 +262,7 @@ sub post {
        $file, join('%~%', @reasons), undef,
        'bad_approval'        => $bad_approval,
        'taboo'               => $taboo,
-       'taboo_header'        => $taboo_header,
-       'taboo_body'          => $taboo_body,
        'admin'               => $admin,
-       'admin_header'        => $admin_header,
-       'admin_body'          => $admin_body,
-       'global_taboo_header' => $global_taboo_header,
-       'global_taboo_body'   => $global_taboo_body,
-       'global_admin_header' => $global_admin_header,
-       'global_admin_body'   => $global_admin_body,
        'dup'                 => $dup,
        'dup_msg_id'          => $dup_msg_id,
        'dup_checksum'        => $dup_checksum,
@@ -276,6 +271,7 @@ sub post {
        'mime_consult'        => $mime_consult,
        'mime_deny'           => $mime_deny,
        'any'                 => $any,
+       %matches,
       );
 
   $owner = $self->_list_config_get($list, 'sender');
@@ -711,8 +707,11 @@ sub _check_taboo {
       $safe,    # Safe compartment
       $type,    # The type of the taboo match
       $rule,    # The rule that matched
+      $global,  # Is this match from a global matcher?
+      $at,      # Is this an admin match (1) or a taboo match (0)?
       $match,   # The actual matched string
       $sev,     # The severity of the matched string
+      $class,   # The class of the match
       @matches, # The list of matches returned from the header matcher
       @taboo,   # Accumulated list of bad things
       $data,    # Used for extracting the config data
@@ -776,25 +775,29 @@ sub _check_taboo {
 	  warn $@ if $@;
 
 	  # Run over the matches that resulted
-	  while (($rule, $match, $sev, $inv) = splice(@matches, 0, 4)) {
+	  while (($rule, $match, $sev, $class, $inv) = splice(@matches, 0, 5)) {
 
 	    # An inverted match; remove it from the list
 	    if ($inv) {
-	      delete $inv{"$k\t$l\t$rule\t$sev"};
+	      delete $inv{"$k\t$l\t$rule\t$sev\t$class"};
 	    }
 
 	    # A normal match; build a failure notice for it
 	    else {
 	      # Mega-gross match-type construction
 	      if ($k eq 'GLOBAL') {
+		$global = 1;
 		$type = uc("global $l");
 	      }
 	      else {
+		$global = 0;
 		$type = uc($l);
 	      }
+	      $at = ($l eq 'admin_headers');
 	      $type =~ s/S$//;   # Nuke that pesky trailing S
 	      $type =~ s/\_/ /g; # underscores to spaces
-	      push @taboo, ($type, $rule, $match, undef, $sev)
+	      push @taboo, ($type, $at, $global, $rule, $match, undef,
+			    $sev, $class);
 	    }
 	  }
 	}
@@ -807,18 +810,20 @@ sub _check_taboo {
 
   # Deal with remaining (i.e. failed) inverted matches
   for $i (keys %inv) {
-    ($l, $type, $rule, $sev) = split('\t', $i);
+    ($l, $type, $rule, $sev, $class) = split('\t', $i);
+    $at = ($type eq 'admin_headers');
     if ($l eq 'GLOBAL') {
+      $global = 1;
       $type = uc("inverted global $type");
     }
     else {
+      $global = 0;
       $type = uc("inverted $type");
     }
     $type =~ s/S$//;
     $type =~ s/\_/ /g;
-    push @taboo, ($type, $rule, undef, undef, $sev);
+    push @taboo, ($type, $at, $global, $rule, undef, undef, $sev, $class);
   }
-  
   return @taboo;
 }
 
@@ -831,8 +836,8 @@ sub _r_ck_taboo {
   my $inv  = shift; # Ref to hash of inverted matches (to be modified)
   my $part = shift || "toplevel";
   my $log  = new Log::In 150, "$part";
-  my(@matches, @parts, @taboo, $body, $i, $invert, $j, $match, $rule, $safe, $sev,
-     $type);
+  my(@matches, @parts, @taboo, $body, $class, $global, $i, $invert, $j,
+     $match, $rule, $safe, $sev, $type);
   local($text, $line);
 
   @parts = $ent->parts;
@@ -859,22 +864,27 @@ sub _r_ck_taboo {
 	for $j ('admin_body', 'taboo_body') {
 	  @matches = $safe->reval($code->{$j}{$i});
 	  warn $@ if $@;
-	  while (($rule, $match, $sev, $invert) = splice(@matches, 0, 4)) {
+	  while (($rule, $match, $sev, $class, $invert) = splice(@matches, 0, 5)) {
 	    if ($rule) {
 	      if ($invert) {
-		delete $inv->{"$i\t$j\t$rule\t$sev"};
+		delete $inv->{"$i\t$j\t$rule\t$sev\t$class"};
 	      }
 	      else {
 		# Mega-gross match-type construction
+		$at = ($j eq 'admin_body');
 		if ($i eq 'GLOBAL') {
+		  $global = 1;
 		  $type = uc("global $j");
 		}
 		else {
+		  $global = 0;
 		  $type = uc($j);
 		}
 		$type =~ s/S$//;   # Nuke that pesky trailing S
 		$type =~ s/\_/ /g; # underscores to spaces
-		push @taboo, ($type, $rule, $match, "$part, line $line", $sev)
+
+		push @taboo, ($type, $at, $global, $rule, $match,
+			      "$part, line $line", $sev, $class);
 	      }
 	    }
 	  }
