@@ -1,5 +1,0 @@
-If this is on, users whose posts are denied will always be informed of
-the denial.  Otherwise they will be informed based on their flag
-settings: if they have either the 'ackall' or 'ackimportant' flag set
-then they will receive notice of the denial, else they will not
-recieve any type of notice.

@@ -117,7 +117,6 @@ FURTHER DETAILS ARE AVAILABLE FOR THE "configset" COMMAND:
    help configset access_password_override
    help configset access_rules
    help configset ack_attach_original
-   help configset ack_denials_always
    help configset addr_allow_at_in_phrase
    help configset addr_allow_bang_paths
    help configset addr_allow_comments_after_route

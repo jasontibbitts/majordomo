@@ -18,15 +18,13 @@ ENDTAG
 
 This controls under what circumstances the original message will be
 attached (as a MIME attachment) to acknowlegements sent out to inform
-the user of delivery progress (as set by the user''s ack setting and
-the value of the 'ack_denials_always' variable).
-
+the user of delivery progress (as set by the user''s ack setting).
 Each element of this array must be one of the following:
-
   fail  - acks for failed messages will include the original message
   stall - acks for stalls (confirmations or consultations) will
           include the original message.
   all   - acks sent for any reason will include the original message.
+
 This command can be used to enhance replyfile or mailfile messages, it
 does not generate new messages.
 
@@ -37,6 +35,7 @@ the error (deny or stall) message applies to.
 
 If users are posting huge files, returning it may be good (they realize
 how long it took to receive) or bad (you load up your server returning it).
+
 
 See Also:
    help configset access_rules  (for how to specify replyfiles)

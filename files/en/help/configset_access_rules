@@ -105,9 +105,8 @@ This information is below:
 There are some interactions between your choice of replyfile or mailfile
 and the subscriber's setting of ack/noack (via the "set" or "configset
 default_flags" commands). Error messages can vanish (for noack with
-replyfile, unless ack_denials_always is enabled for the list in question)
-or lacking information because variables are not always evaluated (for
-mailfile). Refer to "help set" for more details.
+replyfile) or can be lacking information because variables are not always
+evaluated (for mailfile). Refer to "help set" for more details.
 
 In general mailfile is almost never the right thing to do since the
 user will already be receiving an acknowledgement through either an

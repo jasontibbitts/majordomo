@@ -103,7 +103,6 @@ files/en/ack_timeout
 files/en/config/access_password_override
 files/en/config/access_rules
 files/en/config/ack_attach_original
-files/en/config/ack_denials_always
 files/en/config/addr_allow_at_in_phrase
 files/en/config/addr_allow_bang_paths
 files/en/config/addr_allow_comments_after_route
@@ -255,7 +254,6 @@ files/en/help/configset_access_password_override
 files/en/help/configset_access_rules
 files/en/help/configset_access_rules_variables
 files/en/help/configset_ack_attach_original
-files/en/help/configset_ack_denials_always
 files/en/help/configset_addr_allow_at_in_phrase
 files/en/help/configset_addr_allow_bang_paths
 files/en/help/configset_addr_allow_comments_after_route
