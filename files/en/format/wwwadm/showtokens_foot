@@ -10,3 +10,17 @@ Requests found: $COUNT<br>
   <input type="submit" name="func" value="reject-quiet">
 </form>
 
+  <p>
+It is possible to moderate more than one list at the same time if
+you use an administrative password that applies to every list.
+To moderate an additional list, type its name into the box, then
+press the <b>Go</b> button.
+<form method="POST" action="$CGIURL/$LIST">
+  <input type="hidden" name="func" value="showtokens-delay">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+  <input size=40 name="list" value="">
+  <input type="submit" value="Go">
+</form>
+  </p>
+
