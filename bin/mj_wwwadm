@@ -285,7 +285,7 @@ if (@extra and $func ne 'showtokens') {
   for $req (@extra) {
     Mj::Parser::parse_args($request, $req, '');
     if ($func eq 'configset') {
-      @values = $cgi->param($req);
+      @values = split "\n", $cgi->param($req);
       $request->{'value'} = [@values];
     }  
     $result = $mj->dispatch($request); 
