@@ -18,18 +18,19 @@ supported, where no characters are magical.  Perl patterns are enclosed in
 '/' characters, while substring patterns are enclosed in '"'.  Modifiers
 ('i' for case insensitivity, mainly) are also supported.
 
-Alias generation is supported, as is virtusertable generation.  The latter
-is very experimental.  Once set up, in a single domain configuration new
-lists can be added without any outside configuration; a single createlist
-command can do everything required to set up a list.
+Alias generation is supported, as is virtusertable generation.  Once set
+up, in a single domain configuration new lists can be added without any
+outside configuration; a single createlist command can do everything
+required to set up a list.
 
 Makefile.PL will force you to go through the Q&A process when new questions
 are added.
 
-The 'archive-get' command is supported; this returns digests built out of
-messages from the archive.  Messages from a date or range of dates can be
-requested, as can lists of named messages and the last several messages
-posted.
+The 'archive' command is supported; this command can return an index,
+digest, or mbox-format collection of messages.  Administrative features
+allow messages to be edited or deleted.  Messages from a date or range
+of dates can be requested, as can lists of named messages and the last
+several messages posted.
 
 The user can be removed from the registration database and all lists at
 once with the 'unregister' command.
@@ -56,7 +57,7 @@ default is still to show the list, so this only servers to improve
 performance slightly.)
 
 The show command shows everything about an address, including data on all
-lists it is a member of.
+of its subscriptions.
 
 An internal rewrite has given a single database holding information about
 all subscribers to all lists.  A new 'register' command adds users to this
@@ -68,7 +69,7 @@ per-user password system.
 The postinstall process is now very quiet unless verbosity is requested.
 
 The shell interface has an interactive mode, with completion of commands,
-lists and config variables.
+lists and config variables, and command history.
 
 Majordomo is immune to bad suggested filenames in MIME parts.
 
@@ -88,9 +89,15 @@ to the variable 'request-answer'.  Mail to list-request can be sent to the
 owner, replied to with a canned (and owner-selectable) message, or parsed
 for commands.
 
+The mj_email interface mentioned in the previous paragraph has been
+superseded by a queueing system, using the mj_enqueue, mj_queueserv,
+and mj_queuerun scripts.  Queueing limits the load that is placed on
+the system by a sudden influx of messages.
+
 The database engine has been abstracted to allow different backends, with
-automatic conversion as necessary.  Only the Text backend is currently
-supported.
+automatic conversion as necessary.  The text and DB_File backends have
+been tested thoroughly.  Experimental PostgreSQL and MySQL backends have
+been implemented, but they should be used with caution.
 
 Lockfiles are stored in a separate directory.
 
@@ -123,18 +130,18 @@ Default subscription flags can be set, along with a separate setting for
 the flags associated with nonmembers.
 
 A preliminary system for internationalization is in place although it is
-not yet accessible to the user.  The owner can set a default language for
-the list, though currently this only affects mailed files and only English
-files are supplied.
+not yet accessible to the user.  A list administrator can set a default 
+language for the list.  Some hard-coded English has not yet been removed
+from the code.
 
 VERP-like envelope extensions are supported.  The list can be bounce-probed
 in pieces; Majordomo2 will automatically probe different addresses each
-time.  This support is very preliminary.
+time.
 
 Many new bits of information about list messages are computed and made
-available in the access control language.  These include number of bytes,
-lines and quoted lines, percentage of quoted lines, size of header, and
-longest header.
+available to the access_rules configuration setting.  These include
+number of bytes, lines and quoted lines, percentage of quoted lines,
+size of header, and longest header.
 
 Taboo matches can now be named; named matches accumulate severity
 separately.  Named matches can be referenced separately in the access
@@ -147,13 +154,13 @@ access control language.  This allows for statements like '$admin_header >
 
 The address validator is a little smarter about illegal characters and long
 host and user names.  The configurable parameters are now settable through
-global config variables.
+global configuration settings.
 
-Information on each "connection to the server" (called a session) is stored
-and referenced in the logs and in each token.  When a token is rejected,
-information (including the session contents) is sent to the victim, the
-list owner and majordomo-owner.  The tokeninfo and sessioninfo commands
-return data on tokens and sessions.
+Information on each "connection to the server" (called a session) is
+stored and referenced in the logs and in each confirmation token.  When
+a token is rejected, information (including the session contents) is
+sent to the victim, the list owner and majordomo-owner.  The tokeninfo
+and sessioninfo commands return data on tokens and sessions.
 
 get, index, put, info, intro, faq, newinfo, newintro, and newfaq all work.
 Majordomo includes a simple "virtual filesystem"; get, put and index work
@@ -161,16 +168,14 @@ with pathnames within this filesystem.  When "absolute paths" are not
 provided, everything defaults to a public directory which means that nobody
 notices the change.
 
-Posting denials are now acked if the proper flag is set (ackall or
-ackimportant).  The returned message for posting denial is much better
-and includes the denial reasons.  (Actually it includes all of the
-things wrong with the message, even if some of them wouldn't have
-caused a denial.)
+Denied posts are now acked if the proper flag is set.  The returned
+message for posting denial is much clearer and includes the denial
+reasons.  (Actually, it includes all of the things wrong with the
+message, even if some of them wouldn't have caused a denial.)
 
-Preliminary support for attachment_rules are in.  So far the checks
-for illegal types are implemented, which means that you can set
-attachment_rules such that messages containing certain MIME types can
-be bounced or denied.
+Attachment rules and attachment filters are supported.  The rules allow
+a list owner to restrict messages with unwanted MIME parts.  The filters
+allow MIME parts to be removed or reformatted.
 
 Fronters and footers are now implemented.  The provision is made to
 have several fronters and several footers and to randomly choose
@@ -184,8 +189,8 @@ methods are supported, in addition to several new MIME-aware methods
 and the token based method and the post command.
 
 Most of the access system works correctly, including many the default
-actions.  subscribe_policy and (no)?advertise work in a backwardly
-compatible manner.
+actions.  subscribe_policy and (no)?advertise work in a
+backward-compatible manner.
 
 Default replies from the access restriction system are implemented and
 give useful information.
