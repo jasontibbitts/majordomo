@@ -1,5 +1,9 @@
 Notes on upgrading from alpha1 or before:
 
+This version is _incompatible_ with list database created earlier.  There
+is currently no migration mechanism.  The list databases must be deleted
+and recreated.
+
 postinstall (which is run at the end of the 'make install' step) is now
 much less verbose; use 'make install VERBOSE=1 ASK=1' to get the old
 behavior.  See the README file for more information.

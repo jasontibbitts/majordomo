@@ -665,18 +665,16 @@ sub search {
 =head2 get_member(address, noalias)
 
 This takes an address and returns the member data for that address, or
-undef if the address is not a member.  If the optional parameter aliased is
-true, no stripping/transformation/aliasing will be done.
+undef if the address is not a member.
 
 This will reset the list iterator.
 
 =cut
 sub get_member {
-  my $self    = shift;
-  my $addr    = shift;
-  my ($ok);
+  my $self = shift;
+  my $addr = shift;
   
-  return ($addr, $self->{'subs'}->lookup($addr->canon));
+  return ($addr->canon, $self->{'subs'}->lookup($addr->canon));
 }
 
 =head2 rekey()

@@ -71,8 +71,7 @@ use vars qw(@ISA);
 
 @ISA=qw(Mj::SimpleDB);
 
-my @fields = (qw(stripaddr fulladdr subtime changetime class classarg flags
-		 bounce password language warnings classarg2));
+my @fields = (qw(stripaddr fulladdr subtime changetime class classarg classarg2 flags));
 
 =head2 new(path)
 

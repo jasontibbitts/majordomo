@@ -877,10 +877,10 @@ sub unalias {
 
   my @stuff = ($user, $passwd, $auth, $interface,
 	       "alias".($mode?"=$mode":"")." $args", $mode, $list,
-	       $user);
+	       $args);
   
-  Mj::Format::unalias($mj, $outfh, $outfh, 'text', @stuff, $args, '','',
-		      $mj->dispatch('unalias', @stuff, $args)
+  Mj::Format::unalias($mj, $outfh, $outfh, 'text', @stuff, '', '','',
+		      $mj->dispatch('unalias', @stuff)
 		     );
 }
 

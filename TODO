@@ -123,31 +123,26 @@ subscribe
 _subscribe
 tokeninfo
 trigger
-unalias (needs access checking)
-
-
-
-Partially done:
-
+unalias
+_unalias
+unsubscribe
+_unsubscribe
+which
+who_start
+_who
+who_chunk
+who_done
 
 Skipped:
 config_get_vars
-
-
-Need to do:
 rekey
 
 
-! Convert everything to use new Addr object.
+! Addr object
 
-  All levels below Majordomo should expect to get Addr objects.  overloaded
-  stringification should ensure that printed strings are OK.
-
-Issues:
-
-regexp matching within access_rules code.  This happens only on the victim;
-if it is problematic, stringify $victim before evalling the code.
-
+regexp matching within access_rules code.  Does it work?  This happens only
+on the victim; if it is problematic, stringify $victim before evalling the
+code.
 
 ! Master address database:
   One global database storing some information on each address subscribed
@@ -711,6 +706,11 @@ persistent digest_info:
  $last_triggered_clock
 
 saved via Data::Dumper.
+
+Way to force the users to use the digest version:
+allowed_subscribtion_classes - array of names of subscription classes that
+users can join without owner's password approval.  'digest' covers all
+digests, 'digest-blah' allows only 'blah' digest.
 
 - Digestifier:
     Add message number to digest

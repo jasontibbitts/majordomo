@@ -2884,6 +2884,7 @@ sub set {
  
   # Check access
 
+  $self->_make_list($list);
   return $self->{'lists'}{$list}->set($addr, $action, $arg);
 }
 
@@ -3248,15 +3249,17 @@ sub unalias {
     $log->out("noaccess");
     return ($ok, $mess);
   }
+
   $self->_unalias($list, $user, $source, $mode, $cmdline);
 }
 
 sub _unalias {
   my ($self, $list, $requ, $source, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$requ, $source";
-
-  $self->{'alias'}->remove('', $source->transform);
-  1;
+  my ($key, $data);
+  
+  ($key, $data) = $self->{'alias'}->remove('', $source->xform);
+  return !!$key;
 }
 
 =head2 unsubscribe(..., mode, list, address)
@@ -3493,7 +3496,7 @@ sub who_chunk {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $d1, $regexp, $chunksize) = @_;
   my $log = new Log::In 100, "$list, $regexp, $chunksize";
-  my (@chunk, @out, $i, $ok, $addr, $com, $safe);
+  my (@chunk, @out, $i, $addr, $strip);
 
 #  $regexp = "/$regexp/i" if $regexp;
 
@@ -3514,13 +3517,14 @@ sub who_chunk {
 
     # Else we hide if necessary
     if ($i->{'flags'} =~ /h/) {
-      ($ok, $addr, $com) = $self->{'av'}->validate($i->{'fulladdr'});
-      if ($com) {
-	push @out, $com;
+      $addr = new Mj::Addr($i->{'fulladdr'});
+      if ($addr->comment) {
+	push @out, $addr->comment;
       }
       else {
-	$addr =~ s/\@.*//;
-	push @out, $addr;
+	$strip = $addr->strip;
+	$strip =~ s/\@.*//;
+	push @out, $strip;
       }
     }
     elsif ($i->{'flags'} =~ /H/) {
