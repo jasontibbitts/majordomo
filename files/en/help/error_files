@@ -21,6 +21,13 @@ of the required command modes.
 
 (standard plus DIGEST_DESCRIPTIONS, DIGESTS, MODES)
 
+incompatible_mode
+-----------------
+This message is displayed if a command is issued with two or more
+command modes that are incompatible.
+
+(standard plus MODE, MODES)
+
 invalid_command
 ---------------
 This error message is displayed if a command is requested that Majordomo
@@ -56,6 +63,15 @@ This error message is displayed when Majordomo is unable to initialize
 an existing mailing list.
 
 (standard)
+
+missing_mode
+------------
+This message is displayed if a command is issued with a command mode
+that has a prerequisite that is missing.  For example, the
+archive-immediate command is invalid because "get" mode must be used
+with "immediate" mode.
+
+(standard plus MODE, MODES)
 
 no_password
 -----------
