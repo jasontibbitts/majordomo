@@ -8,7 +8,7 @@ configset listname triggers <<TAG
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : checksum | daily ... (only first item is shown)
-Data Type     : triggers, choose from: bounce checksum delay log post session token
+Data Type     : triggers
 Category      : miscellany
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
