@@ -1,23 +1,15 @@
 <!-- Majordomo welcome format file -->
 <pre>?ERROR</pre>
 
-<p>
-Welcome to $SITE.  
-The links at the top and bottom of the page will help you to 
-join or leave our public electronic mailing lists. 
-You can return to this introduction at any time by pressing
-<b>Help</b>.
-</p>
-
 <table cellspacing=15 width="100%">
 <tr>
   <td valign="top">Sign In
   </td>
   <td>
-If you wish to subscribe to a mailing list or change your settings, you
-will need to sign in with your e-mail address, and a password if Majordomo
-has already assigned one to you.  Press <b>Sign In</b>, then
-follow the instructions.
+
+Unless you have already done so, please sign in.  Click the <b>Sign
+In</b> link at the top or bottom of this page, then follow the
+instructions.
 
   </td>
 </tr>
@@ -25,24 +17,74 @@ follow the instructions.
   <td valign="top">Sign Out
   </td>
   <td>
-When you finish this session, press <b>Sign Out</b>.
+
+When you finish this session, click the <b>Sign Out</b> link.
 
   </td>
 </tr>
 <tr>
-  <td valign="top">Subscribe<br> to Mailing Lists
+  <td valign="top">Mailing Lists
   </td>
   <td>
-If you press <b>Subscribe to Mailing Lists</b>, you
-will see a list of public mailing lists at $SITE.  Clicking
-the name of any of the mailing lists will take you to a
-page with more details about the list.  You can subscribe
-to the list using a form at the bottom of that page.
-  <p>
-If you know the name of a list, you can go immediately
-to its page.
+Click the <b>Mailing Lists</b> link to see a list of e-mail 
+lists at $DOMAIN.  From there, click the name of a list to see
+detailed information about that list, including the message archive
+and a subscription form.
+  </td>
+</tr>
+<tr>
+  <td valign="top">Unsubscribe or <br>Change Settings
+  </td>
+  <td>
+Click the <b>Unsubscribe or Change Settings</b>
+link to see your subscriptions and settings.  From there, you
+can change your settings, unsubscribe, change your e-mail address,
+or add an e-mail alias.
+<b>If you have not already signed in, you will be redirected
+to the Sign In page automatically.</b>
+  </td>
+</tr>
+<tr>
+  <td valign="top">Help
+  </td>
+  <td>
+Click the <b>Help</b> link to return to this page.
+  </td>
+</tr>
+
+<tr>
+  <td valign="top">Shortcuts for <br>Common Tasks
+  </td>
+  <td>
+  Choose a task from the <b>Task</b> menu, then press the <b>Go</b>
+  button to perform the task.  You may be asked for a mailing
+  list name, your e-mail address, and your personal password.
+
+  <form method="POST" action="$CGIURL">
+    <input type="hidden" name="passw" value="$CMDPASS">
+    <input type="hidden" name="user" value="$USER">
+    Task:
+    <select name="func">
+      <option value="archive-summary">Browse the Message Archives
+      <option value="unsubscribe">Unsubscribe from a List
+      <option value="subscribe">Subscribe to a List
+      <option value="faq">Read the Frequently Asked Questions
+      <option value="intro">Read the Introduction to the List
+      <option value="info">Read the Welcome Message 
+    </select>
+    <input type="submit" value="Go">
+  </form>
+
+  </td>
+</tr>
+ 
+<tr>
+  <td valign="top">Search for a Mailing List
+  </td>
+  <td> 
+If you know the name of a list, you can go immediately to its page.
 Type the name of the list into the <b>Mailing List</b> box, 
-then press the <b>search</b> button.
+then press the <b>Search</b> button.
 
 <form method="POST" action="$CGIURL">
   <input type="hidden" name="func" value="lists-full-long">
@@ -50,42 +92,29 @@ then press the <b>search</b> button.
   <input type="hidden" name="user" value="$USER">
   Mailing List:
   <input type="text" name="extra">
-  <input type="submit" value="search">
+  <input type="submit" value="Search">
 </form>
 
-You can also use a pattern to search the list
-of mailing lists.  See the $HELP:PATTERNS help page for details
-on Majordomo patterns.
-
+You can also use a pattern in the <b>Mailing List</b> box to search
+for mailing lists with names that match.  
+See the $HELP:PATTERNS 
+help document to learn more about search patterns.
   </td>
 </tr>
+
 <tr>
-  <td valign="top">Unsubscribe or <br>Change Settings
+  <td valign="top">Issue Commands by E-mail
   </td>
   <td>
-If you have already subscribed to a mailing list at $DOMAIN,
-you can unsubscribe, unregister, or change the settings of
-your subscriptions.  Press <b>Unsubscribe or Change Settings</b>
-to see your current subscriptions.
-<b>A valid password is required.</b>
-
-
-  </td>
-</tr>
-<tr>
-  <td valign="top">Help
-  </td>
-  <td>
-
 Majordomo has over 100 cross-referenced help documents.
 They describe how to email commands to Majordomo at 
 <a href="mailto:$MJ">$MJ</a>.  
-The help pages may be displayed in a new window in your web browser.
 
 <p>
 To see the help document for a particular topic, type its
-name into the <b>Topic</b> box, then press the <b>help</b>
-button.
+name into the <b>Topic</b> box, then press the <b>Help</b>
+button.  The help pages may be displayed in a new window in your web
+browser.
 </p>
 
 <form method="POST" action="$CGIURL">
@@ -94,7 +123,7 @@ button.
   <input type="hidden" name="func" value="help">
   Topic: 
   <input name="extra" value="">
-  <input type="submit" name="f" value="help">
+  <input type="submit" name="f" value="Help">
 </form>
 
 The following documents give a good introduction.

@@ -1,21 +1,26 @@
 <!-- Majordomo lists_full format file -->
 <tr><td>Name</td><td>$LIST</td></tr>
-<tr><td>Description</td><td>
+<tr><td valign="top">Description</td>
+<td>
 $DESCRIPTION
 </td>
 </tr>
-<tr><td>Archive Location</td><td><a href="?ARCURL">?ARCURL</a></td></tr>
-<tr><td valign="top">Digests</td><td>
-$DIGESTS<br>
-</td>
-</tr>
-<tr><td>Subscribers</td><td>$SUBS</td></tr>
-<tr><td>Posts in the last 30 days</td><td>$POSTS
+<tr><td valign="top">Subscribers</td><td>$SUBS</td></tr>
+<tr><td valign="top">Posts in the last 30 days</td><td>$POSTS
 </td>
 </tr>
 
-<tr><td>List address</td><td><a href="mailto:$WHOAMI">$WHOAMI</a></td></tr>
-<tr><td>List owner address</td><td><a href="mailto:$OWNER">$OWNER</a></td></tr>
+<tr><td valign="top">Message Archives</td>
+    <td>
+      <a href="?ARCURL">?ARCURL</a><br>
+      <a href="$CGIURL?$CGIDATA&amp;func=archive-summary-reverse&amp;list=$LIST">
+      Summary</a> of the Available Archives
+    </td></tr>
+
+<tr><td valign="top">Post to the List</td>
+    <td><a href="mailto:$WHOAMI">$WHOAMI</a></td></tr>
+<tr><td valign="top">Contact the Owners</td>
+    <td><a href="mailto:$OWNER">$OWNER</a></td></tr>
 
 <tr><td valign="top">Documentation</td><td>
 
@@ -25,21 +30,22 @@ $DIGESTS<br>
 <br>
 
   <a href="$CGIURL?$CGIDATA&amp;func=intro&amp;list=$LIST">
-  Introduction to the List</a>
+  Introduction to the Group</a>
 
 <br>
 
   <a href="$CGIURL?$CGIDATA&amp;func=info&amp;list=$LIST">
   Welcome Message</a>
 
-?CAN_READ<p>
-?CAN_READ<a href="$CGIURL?$CGIDATA&amp;func=archive-summary-reverse&amp;list=$LIST">Message Archive</a>
-?CAN_READ</p>
-
 </td>
 </tr>
 
-<tr>
+<tr><td valign="top">Digests</td><td>
+$DIGESTS<br>
+</td>
+</tr>
+
+<tr> 
 <td valign="top">Subscribe</td>
 
 <td>

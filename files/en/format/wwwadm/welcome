@@ -16,8 +16,7 @@ to this introduction at any time by pressing <b>Help</b>.
 
 If you finish administering the $LIST list and wish to change
 to another list, press <b>Sign In</b>.  You will be prompted
-for a new mailing list name and password.  Your temporary password 
-for this session will continue to be valid.
+for a new mailing list name and password.
 
   </td>
 </tr>
@@ -26,9 +25,8 @@ for this session will continue to be valid.
   </td>
   <td>
 
-If you finish administering the $LIST list and wish to end
-this session, press <b>Sign Out</b>.  Your temporary password
-for this session will be invalidated.
+When you finish administering the $LIST list,
+press <b>Sign Out</b> to end the session.
 
   </td>
 </tr>
@@ -37,13 +35,9 @@ for this session will be invalidated.
   </td>
   <td>
 
-Occasionally, posted messages, subscriptions, and other requests
-will need your approval before they are completed.  Press 
-<b>Moderation</b> to see all of the unfinished requests for your
-lists.  The requests labeled <b>consult</b> will need your attention,
-whereas the requests labeled <b>confirm</b> need the attention of
-the people who made them.  The requests labeled <b>delay</b> will
-be completed automatically at a later time.
+Occasionally, posted messages, subscriptions, and other requests will
+need your approval before they are completed.  Press <b>Moderation</b>
+to see all of the requests that are being held for approval.
 [<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=welcome&amp;doc=showtokens">more</a>]
 
   </td>
@@ -53,10 +47,9 @@ be completed automatically at a later time.
   </td>
   <td>
 
-Press <b>Subscribers</b> to see the first 20 addresses of
-people who have subscribed to your mailing list.  From there,
-you can add or remove addresses, or change the personal settings
-of the subscribers.
+Press <b>Subscribers</b> if you wish to view or search the 
+list of subscribers, add subscribers, remove subscribers, or
+change the personal settings of some subscribers.
 
   </td>
 </tr>
@@ -78,13 +71,13 @@ You can then view and change the current settings.
   </td>
   <td>
 
-If your mailing list is public, pressing <b>List Info</b> will show
-you how it will appear when people visit the 
+Press <b>List Info</b> to see what information about your list is
+presented when people visit the 
 <a href="$WWWUSR_URL">web interface for subscribers</a>.
 <p>
-You can also edit the welcome message and other documents, see
-statistics for recent posted messages, browse the message archives, or
-check the status of message digests through the <b>List Info</b> page.
+You can also edit the welcome message, FAQ, and other documents; see
+statistics for recent posted messages; browse the message archives; or
+check the status of message digests on the <b>List Info</b> page.
 <p>
   </td>
 </tr>

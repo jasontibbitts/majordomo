@@ -7,23 +7,27 @@
 <p>
 The following table lists all of the subscriptions for
 $STRIPADDR at $SITE.
-To $HELP:UNSUBSCRIBE, press the checkbox next to the name of
+To $HELP:UNSUBSCRIBE, check the box next to the name of
 each list you wish to leave, then press the <b>unsubscribe</b> button.
 </p>
 
 <p>
-To change the settings of your subscriptions, press the checkbox next to
-the name of each list you wish to change, choose the settings you want,
-then press the $HELP:SET button.  To see a detailed explanation of the
-settings for a mailing list, click the name of the mailing list.
-Settings that you cannot change will be marked with an <b>X</b> 
-for "on" and an <b>O</b> for "off".
+To change the settings of your subscriptions, check the box next to the
+name of each mailing list you wish to change, choose the settings
+you want, then press the $HELP:SET button.  
+Settings that you cannot change will be marked with an <b>X</b> for "on"
+or an <b>O</b> for "off".
 </p>
 
 <p>
-To see more information about a mailing list, such as the number
-of subscribers and message archive location, click the <b>info</b>
-link next to the name of a mailing list.
+To see a detailed explanation of the settings for a mailing list,
+click the name of the list.  
+</p>
+
+<p>
+To see more information about a list, such as the number
+of subscribers and message archive, click the <b>info</b>
+link next to the name of the list.
 </p>
 
 <p>

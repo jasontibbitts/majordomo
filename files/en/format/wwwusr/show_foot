@@ -6,12 +6,12 @@
 </p>
 </form>
 
-<h4 align="center">List Administration</h4>
+<h4 align="center">Group Administration</h4>
 <p>
 The mailing lists that you administer at $DOMAIN, if any, are shown
-here.  To administer a list, choose the  list from
+here.  To administer a list, choose its name in 
 the following menu and press the <b>Go</b> button.  You will
-be prompted for the administrative password for the list.
+then be prompted for the administrative password for the list.
 
 <form method="POST" action="$WWWADM_URL">
   <input type="hidden" name="user" value="$USER">

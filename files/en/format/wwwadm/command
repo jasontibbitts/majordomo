@@ -32,8 +32,8 @@
       <option> subscribe-nowelcome
       <option> tokeninfo
       <option> unregister
-      <option> unsubscribe-nofarewell
       <option> unsubscribe-farewell
+      <option> unsubscribe-nofarewell
       <option> which
       <option> who
       <option> who-bounce
