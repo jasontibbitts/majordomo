@@ -1,0 +1,3 @@
+The command mode "$MODE" is invalid.  The following command
+modes are incompatible with this mode:
+  $MODES
