@@ -1,2 +1,6 @@
 <!-- Majordomo showtokens_none format file -->
-<br>There are no pending requests for the &quot;$LIST&quot; list.
+<tr>
+  <td colspan="5">
+  No requests were found for the &quot;$LIST&quot; mailing list.
+  </td>
+</tr>

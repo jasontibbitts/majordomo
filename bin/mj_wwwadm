@@ -590,7 +590,7 @@ elsif ($commands{$func}->[3] eq 'showtokens') {
     $result = $mj->dispatch($request);
     # Increase the token count if any tokens were found.
     if ($result->[0]) {
-      $i += int($#$result / 2);
+      $i += $#$result;
     }
     &{"Mj::Format::showtokens"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', 
                                       $request, $result);

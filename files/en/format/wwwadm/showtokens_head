@@ -5,9 +5,7 @@
 Choose one or more requests from the following list by pressing
 the checkbox to the left of each request, then press one of the
 six buttons.
-[<a href="$CGIURL?$CGIDATA&passw=$CMDPASS&func=welcome_showtokens">
-help</a>
-]
+[<a href="$CGIURL?$CGIDATA&passw=$CMDPASS&func=welcome_showtokens">help</a>]
 </p>
 
 <p>
@@ -26,7 +24,7 @@ request in a separate window.
   <input type="hidden" name="passw" value="$CMDPASS">
   <input type="hidden" name="user" value="$USER">
 
-<table>
+<table width="100%">
 <tr>
   <th>Token</th>
   <th>Request</th>

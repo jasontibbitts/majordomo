@@ -1,5 +1,9 @@
 <!-- Majordomo showtokens_error format file -->
+<tr>
+  <td colspan="5">
 <pre>
 Showtokens error:  
 $ERROR
 </pre>
+  </td>
+</tr>
