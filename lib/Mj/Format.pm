@@ -2122,7 +2122,7 @@ sub set {
 
     # deal with partial failure
     else {
-      $lsubs->{'ERROR'} = $change;
+      $lsubs->{'ERROR'} = &escape($change, $type);
       $str = $mj->substitute_vars_format($files->{'error'}, $lsubs);
       print $out "$str\n";
     }
