@@ -1646,7 +1646,7 @@ sub password {
 
   # Generate a password if necessary
   if ($mode =~ /gen|rand/) {
-    $pass = _gen_pw();
+    $pass = Mj::Access::_gen_pw();
   }
 
   ($ok, $mess) =
