@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200107290";
+$VERSION = "0.1200108140";
 $unique = 'AAA';
 
 use strict;
@@ -2363,14 +2363,19 @@ sub _get {
     $nname = "public/$name";
   }
   
+  unless ($self->{'lists'}{$list}->fs_legal_file_name($nname)) {
+    return (0, qq(The path "/$name" is not valid.\n));
+  }
+
   ($file, %data) = $self->_list_file_get($list, $nname);
   
   unless ($file) {
-    ($file, %data) = $self->_list_file_get($list, 'unknown_file');
-  }
-
-  unless ($file) {
-    return (0, "No such file \"$name\".\n"); #XLANG
+    if ($mode =~ /immediate|edit/) {
+      ($file, %data) = $self->_list_file_get($list, 'unknown_file');
+    }
+    unless ($file) {
+      return (0, qq(The file "$name" does not exist or is a directory.\n)); #XLANG
+    }
   }
   
   # Start up the iterator if we're running in immediate mode
@@ -2388,8 +2393,12 @@ sub _get {
 
   # and be sneaky and return another file to be read; this keeps the code
   # simpler and lets the owner customize the transmission message
-#  ($file, $desc, $type, $cset, $enc) = 
   ($file, %data) = $self->_list_file_get($list, 'file_sent');
+  $self->{'get_subst'} = {
+                          $self->standard_subs($list),
+                          'FILE'     => $name,
+                          'VICTIM'   => "$victim",
+                         };
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
     return (0, "Cannot open file \"$name\".\n"); #XLANG
@@ -2488,21 +2497,23 @@ sub _faq {
     return (0, "No FAQ available.\n"); #XLANG
   }
 
-  $subs =
-    {
-     $self->standard_subs($list),
-     'LASTCHANGE' => scalar localtime($fdata{'lastmod'}),
-     'USER'       => $requ,
-    }; 
-  
-  $file = $self->substitute_vars($file, $subs); 
+  if ($mode !~ /edit/) {
+    $subs =
+      {
+       $self->standard_subs($list),
+       'LASTCHANGE' => scalar localtime($fdata{'lastmod'}),
+       'USER'       => $requ,
+      }; 
+   
+    $file = $self->substitute_vars($file, $subs);
+    push @{$self->{'get_temps'}}, $file;
+  }
 
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
     return (0, "No FAQ available.\n$@"); #XLANG
   }
-  push @{$self->{'get_temps'}}, $file;
-  return (1, '');
+  return (1, \%fdata);
 }
 
 # Included for purposes of logging.
@@ -2603,21 +2614,23 @@ sub _info {
     return (0, "No info available.\n"); #XLANG
   }
 
-  $subs =
-    {
-     $self->standard_subs($list),
-     'LASTCHANGE' => scalar localtime($fdata{'lastmod'}),
-     'USER'       => $requ,
-    }; 
-  
-  $file = $self->substitute_vars($file, $subs);
+  if ($mode !~ /edit/) {
+    $subs =
+      {
+       $self->standard_subs($list),
+       'LASTCHANGE' => scalar localtime($fdata{'lastmod'}),
+       'USER'       => $requ,
+      }; 
+   
+    $file = $self->substitute_vars($file, $subs);
+    push @{$self->{'get_temps'}}, $file;
+  }
 
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
     return (0, "Info file unavailable.\n"); #XLANG
   }
-  push @{$self->{'get_temps'}}, $file;
-  return (1, '');
+  return (1, \%fdata);
 }
 
 # Included for purposes of logging.
@@ -2655,21 +2668,23 @@ sub _intro {
     return (0, "No intro available.\n"); #XLANG
   }
   
-  $subs =
-    {
-     $self->standard_subs($list),
-     'LASTCHANGE' => scalar localtime($fdata{'lastmod'}),
-     'USER'       => $requ,
-    };
-
-  $file = $self->substitute_vars($file, $subs);
+  if ($mode !~ /edit/) {
+    $subs =
+      {
+       $self->standard_subs($list),
+       'LASTCHANGE' => scalar localtime($fdata{'lastmod'}),
+       'USER'       => $requ,
+      }; 
+   
+    $file = $self->substitute_vars($file, $subs);
+    push @{$self->{'get_temps'}}, $file;
+  }
 
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
     return (0, "Intro file is unavailable.\n"); #XLANG
   }
-  push @{$self->{'get_temps'}}, $file;
-  return (1, '');
+  return (1, \%fdata);
 }
 
 # Included for purposes of logging.
@@ -2806,7 +2821,7 @@ sub put_start {
 sub _put {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $file, $subj, $stuff)
     = @_;
-  my ($cset, $enc, $lang, $mess, $ok, $type);
+  my ($cset, $enc, $force, $lang, $mess, $type);
 
   # Extract the encoded type and encoding
   ($type, $cset, $enc, $lang) = split("\002", $stuff);
@@ -2820,6 +2835,10 @@ sub _put {
     $file = "public/$file";
   }
 
+  unless ($self->{'lists'}{$list}->fs_legal_file_name($file)) {
+    return (0, qq(The path "/$file" is not valid.\n));
+  }
+
   # Make a directory instead?
   if ($mode =~ /dir/) {
     return ($self->{'lists'}{$list}->fs_mkdir($file, $subj));
@@ -2827,7 +2846,8 @@ sub _put {
 
   # Delete a file/directory instead?
   if ($mode =~ /delete/) {
-    return ($self->{'lists'}{$list}->fs_delete($file, $subj));
+    $force = ($mode =~ /force/) ? 1 : 0;
+    return $self->_list_file_delete($list, $file, $force);
   }
 
   # The zero is the overwrite control; haven't quite figured out what to
@@ -2961,10 +2981,14 @@ sub _index {
   # Now trim a trailing slash
   $dir =~ s!/$!!;
 
+  unless (!$dir or $self->{'lists'}{$list}->fs_legal_file_name($dir)) {
+    return (0, qq(The path "/$dir" is not valid.\n));
+  }
+
   $nodirs  = 1 if $mode =~ /nodirs/;
   $recurse = 1 if $mode =~ /recurs/;
 
-  (1, $self->{'lists'}{$list}->fs_index($dir, $nodirs, $recurse));
+  $self->{'lists'}{$list}->fs_index($dir, $nodirs, $recurse);
 }
   
 
@@ -3750,10 +3774,10 @@ sub archive_start {
     return ($ok, $out);
   }
 
+  $self->{'arcadmin'} = 1 if ($ok > 1);
   if ($request->{'mode'} =~ /delete|sync/) {
     return (0, "Insufficient privileges to alter the archive.\n")
       unless ($ok > 1);
-    $self->{'arcadmin'} = 1;
   }
 
   $self->_archive($request->{'list'}, $request->{'user'}, $request->{'user'}, 
@@ -3766,7 +3790,8 @@ use Mj::Util qw(re_match);
 sub _archive {
   my ($self, $list, $user, $vict, $mode, $cmdline, $args, $patterns) = @_;
   my $log = new Log::In 30, "$list, $args";
-  my (@msgs, @patterns, @tmp, $data, $i, $j, $mess, $ok, $regex, $type);
+  my (@msgs, @patterns, @tmp, $data, $i, $j, $mess, $ok, 
+      $private, $regex, $type);
   return 1 unless ($args or $mode =~ /summary/);
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
@@ -3784,7 +3809,27 @@ sub _archive {
   # return information from the message database for each message matching
   # the command arguments.
   else {
-    @msgs = $self->{'lists'}{$list}->archive_expand_range(0, $args);
+    # Determine if "hidden" messages should be included in the
+    # result.
+    $private = 1;
+    if (exists $self->{'arcadmin'}) {
+      $private = 0;
+    }
+    @msgs = $self->{'lists'}{$list}->archive_expand_range(0, $args, 
+                                       $private);
+
+    # "hidden" mode causes only messages which are not intended to
+    # be public to be included.
+    if ($mode =~ /hidden/) {
+      @tmp = ();
+      for $j (@msgs) {
+        ($i, $data) = @$j;
+        if (exists($data->{'hidden'}) and $data->{'hidden'}) {
+          push @tmp, $j;
+        }
+      }
+      @msgs = @tmp;
+    }
 
     # If any patterns were supplied, remove messages that do not match.
     if (length $patterns) {
@@ -3811,7 +3856,8 @@ sub _archive {
 sub archive_chunk {
   my ($self, $request, $result) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
-  my (@msgs, @out, $buf, $data, $ent, $fh, $file, $i, $list, $out, $owner);
+  my (%pending, @msgs, @out, $buf, $data, $dig, $ent, $fh, $file, $i,
+      $j, $k, $list, $out, $owner);
 
   return (0, "The archive was not initialized.\n")
     unless (exists $self->{'archct'});
@@ -3849,13 +3895,34 @@ sub archive_chunk {
       unless (exists $self->{'arcadmin'}); # XLANG
     $buf = '';
     @msgs = @$result;
+
+    # Exclude messages that are awaiting digest delivery if "delete" mode
+    # is used without "force" mode.
+    if ($request->{'mode'} !~ /force/) {
+      $j = $list->digest_examine('ALL');
+      for $i (sort keys %$j) {
+        next if ($i eq 'default_digest');
+        $dig = $j->{$i};
+        for $k (@{$dig->{'messages'}}) {
+          $pending{$k->[0]}++;
+        }
+      }
+    }
     for $i (@msgs) {
+      if ($request->{'mode'} !~ /force/ and
+          exists($pending{$i->[0]})) 
+      {
+        $buf .= $self->format_error('pending_delivery', 
+                  $request->{'list'}, 'MSGNO' => $i->[0]);
+        next;
+      }
+       
       $out = $list->archive_delete_msg(@$i);
       if ($out) {
-        $buf .= "Message $i->[0] deleted.\n"; # XLANG
+        $buf .= "Message $i->[0] was deleted.\n"; # XLANG
       }
       else {
-        $buf .= "Message $i->[0] not deleted.\n"; # XLANG
+        $buf .= "Message $i->[0] was not deleted.\n"; # XLANG
       }
     }
     return (1, $buf);
@@ -5405,6 +5472,8 @@ sub sessioninfo_start {
   return (0, "You must supply a session identifier.\n")
     unless ($request->{'sessionid'});
 
+  $request->{'sessionid'} =~ s/\s+//g;
+
   # The session identifier can be a 32-character MD5 digest, or
   # a 40-character SHA-1 digest.
   if ($request->{'sessionid'} !~ /^[0-9a-f]{32}([0-9a-f]{8})?$/) {
@@ -5600,7 +5669,9 @@ sub _set {
 
         # Issue a partial digest if changing from digest mode
         # to nomail or single mode.
-        if (exists $res->{'digest'} and ref $res->{'digest'}) {
+        if (exists $res->{'digest'} and ref $res->{'digest'}
+            and exists $res->{'digest'}->{'messages'}) {
+
           ($file) = $self->{'lists'}{$l}->digest_build
             (messages      => $res->{'digest'}->{'messages'},
              type          => $res->{'digest'}->{'type'},
@@ -5611,6 +5682,7 @@ sub _set {
              index_header  => "Custom-Generated Digest",
              index_footer  => "\n",
             );
+
           # Mail the partial digest 
           if ($file) {
             $owner = $self->_list_config_get($l, 'sender');
