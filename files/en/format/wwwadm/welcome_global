@@ -135,7 +135,7 @@ button.
   <input type="submit" name="f" value="help">
 </form>
 
-The following files give a good introduction.
+The following documents give a good introduction.
 <dl>
   <dt>$HELP:ADMIN</dt>
     <dd>A basic introduction to list administration, including hints
@@ -152,7 +152,7 @@ The following files give a good introduction.
     <dd>How to use passwords when you email commands to Majordomo.</dd>
 
   <dt>$HELP:COMMANDS</dt>
-    <dd>A summary of commands for list subscribers</dd>
+    <dd>A summary of commands for list subscribers.</dd>
 
   <dt>$HELP:CONFIGSHOW</dt>
     <dd>How to see the current configuration settings for your list.</dd>

@@ -15,7 +15,7 @@ The list's master password is <b>$PASSWORD</b>.
 <p>
 ?WELCOME The guide for new owners has been mailed to each list owner.<br>
 ?NOARCHIVE The list does not yet have a directory to hold archives.<br>
-?INACTIVE The "active" configuration setting must be turned on 
+?INACTIVE The &quot;active&quot; configuration setting must be turned on 
 ?INACTIVE to activate the list.<br>
 </p>
 

@@ -1,5 +1,4 @@
 <!-- Majordomo tokeninfo_error format file -->
-<pre>
-The tokeninfo command failed.
-$ERROR
-</pre>
+<p>The tokeninfo command failed.</p>
+
+<pre>$ERROR</pre>

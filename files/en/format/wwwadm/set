@@ -1,10 +1,10 @@
 <!-- Majordomo set format file -->
 <pre>
-Settings for $VICTIM on the "$LIST" list:
+Settings for $VICTIM on the &quot;$LIST&quot; list:
   Receiving $CLASSDESC
   Flags:
     $FLAGDESC
 ?PARTIAL A partial digest of messages has been mailed.
-Last changed on $CHANGETIME
+Last changed on $CHANGETIME.
 </pre>
  
