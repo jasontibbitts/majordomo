@@ -625,7 +625,6 @@ my %commands =
                     'mime_header_length_exceeded'  => 'bool',
                     'mime_require'                 => 'bool',
                     'mime'                         => 'bool',
-                    'mode'                         => 'string',
                     'noarchive'                    => 'integer',
 		    'nonempty_lines'               => 'integer',
                     'percent_quoted'               => 'integer',
@@ -886,8 +885,11 @@ my %commands =
                                   },
                   },
     'access'   => {
-                   'default' => 'allow',
-                   'legal'   => \%reg_legal,
+                   'default' => 'special',
+                   'legal'   => { 
+                                 %reg_legal,
+                                 'token_type' => 'string',
+                                },
                    'actions' => \%generic_actions,
                   },
    },

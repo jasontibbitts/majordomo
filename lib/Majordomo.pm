@@ -6992,7 +6992,8 @@ sub tokeninfo_start {
   # Check access
   $request->{'oldlist'} = $request->{'list'};
   $request->{'list'} = $data->{'list'};
-  ($ok, $mess) = $self->list_access_check($request, 'nostall' => 1);
+  ($ok, $mess) = $self->list_access_check($request, 'nostall' => 1,
+                                          'token_type' => $data->{'type'});
 
   unless ($ok > 0) {
     return ($ok, $mess);
