@@ -1,4 +1,4 @@
-                 An Overview of Majordomo 2, version $VERSION
+             An Overview of Majordomo 2, version $VERSION
 
 This help message is from the Majordomo list management software at
   $SITE
@@ -7,7 +7,7 @@ You interact with the Majordomo software by sending commands to
 in the body of a mail message. Please do not put your commands in
 the subject! Majordomo only processes commands in the message body.
 
-Majordomo is designed to automatically manage electronic mailing lists.
+Majordomo is designed to manage electronic mailing lists automatically.
 This document presents an overview of how Majordomo works, from the
 perspective of someone who wants to participate in a mailing list.
 If you are looking for an overview from the perspective of a list
