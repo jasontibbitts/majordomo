@@ -33,7 +33,8 @@ To leave a mailing list, use this command:
 
 If you wish to change your password, use this command:
   approve $PASSWORD password YOURNEWPASSWORD
-(Substitute the password you want for YOURNEWPASSWORD.)
+(Substitute the password you want for YOURNEWPASSWORD.
+ The new password must be at least $PWLENGTH characters long.)
 
 To see a summary of Majordomo commands, use this command:
   help commands
