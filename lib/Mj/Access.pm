@@ -476,12 +476,18 @@ sub list_access_check {
   $args{'sublist'}         = $sublist;
 
   # Add some chunks of the address to the set of matchable variables
-  unless ($args{'regexp'}) {
+  if (! $args{'regexp'}) {
     $victim->strip =~ /.*\@(.*)$/;
     $args{'host'}     = $1;
     $args{'addr'}     = $victim->strip;
     $args{'fulladdr'} = $victim->full;
   }
+  else {
+    $args{'addr'}     = '';
+    $args{'fulladdr'} = '';
+    $args{'host'}     = '';
+  }
+
   $args{'mode'}  = $mode;
   $args{'delay'} = $data->{'delay'};
 
