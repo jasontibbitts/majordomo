@@ -217,7 +217,7 @@ sub changeaddr {
     eprint($out, $type, "Change from $request->{'victim'} to $request->{'user'} stalled, awaiting approval.\n");
   }
   else {
-    eprint($out, $type, "Address not changed from $request->{'vict'} to $request->{'user'}.\n");
+    eprint($out, $type, "Address not changed from $request->{'victim'} to $request->{'user'}.\n");
     eprint($out, $type, &indicate($mess, $ok));
   }
   $ok;
@@ -758,11 +758,11 @@ sub set {
         }
         eprint($out,
          $type,
-         &indicate("New settings for $change->{'victim'}->{'full'} on \"$list\":\n"
+         &indicate("Current settings for $change->{'victim'}->{'full'} on \"$list\":\n"
            .  "  Receiving $change->{'classdesc'}\n"
            .  "  Flags:\n    "
            .  join("\n    ", @{$change->{'flagdesc'}})
-           . "\n(see 'help set' for full explanation)\n", $ok, 1)
+           . "\n(see 'help set' for a full explanation)\n", $ok, 1)
         );
     }
     # deal with partial failure
