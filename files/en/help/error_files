@@ -14,6 +14,70 @@ into the appropriate format file for the command that generated the error
 
 The variable substitutions supported by each file are listed in parentheses.
 
+access_closed
+-------------
+This message is displayed when a command is denied because one of
+the *_access settings is set to "closed".
+
+(standard plus COMMAND, SETTING)
+
+access_confcons
+---------------
+This message is displayed when a command requires confirmation because
+one of the *_policy settings is set to "closed+confirm".
+
+(standard plus COMMAND, SETTING)
+
+access_confirm
+--------------
+This message is displayed when a command requires confirmation by
+default or because one of the *_policy settings includes the word
+"confirm".
+
+(standard plus COMMAND, SETTING)
+
+access_confirm2
+---------------
+This message is displayed when a command requires confirmation from
+the user and victim by default.
+
+(standard plus COMMAND)
+
+access_consult
+--------------
+This message is displayed when a command is moderated because one
+of the *_policy settings is set to "closed".
+
+(standard plus COMMAND, SETTING)
+
+access_mismatch
+---------------
+This message is displayed when the user and victim of a command are
+different.
+
+(standard plus COMMAND, USER, VICTIM)
+
+access_password
+---------------
+This message is displayed when one of the *_access and *_policy settings
+contains the word "password" and a command is issued without a password.
+
+(standard plus COMMAND)
+
+access_posing
+-------------
+This message is displayed when the session user and user of a command are
+different.
+
+(standard plus COMMAND, SESSIONUSER, USER)
+
+access_sublist
+--------------
+This message is displayed when a command that affects a sublist is 
+issued without an administrative password.
+
+(standard plus COMMAND)
+
 add_headers
 -----------
 This message is displayed if an attempt to add headers to a message
@@ -290,6 +354,13 @@ with "immediate" mode.
 
 (standard plus MODE, MODES)
 
+moderate
+--------
+This message is displayed when a message is moderated because the
+"moderate" configuration setting is enabled.
+
+(standard substitutions only)
+
 multiple_addresses
 ------------------
 This message is displayed when one e-mail address was expected, but more
@@ -437,6 +508,14 @@ This error message is displayed when a list from the GLOBAL relocated_lists
 configuration setting is used in a Majordomo command.
 
 (standard plus NEWLIST)
+
+restrict_post
+-------------
+This message is displayed when a message is moderated because the author
+of the message is not a member of any of the groups listed in the
+restrict_post configuration setting.
+
+(standard plus USER, VICTIM)
 
 rhs_domain_literal
 ------------------
