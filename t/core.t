@@ -10,6 +10,7 @@ $| = 1;
 $counter = 1;
 $debug = 0;
 $tmpdir = "/tmp/mjtest.$$";
+
 $::LIBDIR = '.'; $::LIBDIR = '.'; # Nasty hack until config stuff is done
 
 print "1..38\n";
@@ -26,6 +27,7 @@ mkdir "$tmpdir/locks", 0700 || die;
 mkdir "$tmpdir/SITE", 0700 || die;
 mkdir "$tmpdir/SITE/files", 0700 || die;
 mkdir "$tmpdir/SITE/files/en", 0700 || die;
+mkdir "$tmpdir/SITE/files/en/error", 0700 || die;
 mkdir "$tmpdir/SITE/files/en/config", 0700 || die;
 
 open FILE, ">$tmpdir/SITE/files/INDEX.pl";
@@ -34,6 +36,10 @@ close FILE;
 
 open FILE, ">$tmpdir/SITE/files/en/config/whereami";
 print FILE "placeholder for whereami\n";
+close FILE;
+
+open FILE, ">$tmpdir/SITE/files/en/error/taboo_body";
+print FILE "placeholder for taboo error\n";
 close FILE;
 
 mkdir "$tmpdir/test", 0700 || die;
