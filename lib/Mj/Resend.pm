@@ -307,6 +307,8 @@ sub _post {
 
   $self->_make_list($list);
   $tmpdir = $self->_global_config_get('tmpdir');
+  $sender = $self->_list_config_get($list, "sender");
+  
   %avars = split("\002", $avars);
 
   # Atomically update the sequence number
@@ -380,7 +382,7 @@ sub _post {
   $subject = $archead->get('subject') || ''; chomp $subject;
   ($msgnum, $arcdata) = $self->{'lists'}{$list}->archive_add
     ($file,
-     undef,
+     $sender,
      {
       'body_lines' => $avars{lines},
       'from'       => "$user", # Stringify on purpose
@@ -390,11 +392,6 @@ sub _post {
      },
     );
 
-
-
-  # Determine sender
-  $sender = $self->_list_config_get($list, "sender");
-  
   # Cook up a substitution hash
   $subs = {
 	   'LIST'    => $list,
@@ -1395,7 +1392,7 @@ sub _reply_to {
     }
   $ent;
 }
-  
+
 =head2 _exclude
 
 Figure out who to exclude.

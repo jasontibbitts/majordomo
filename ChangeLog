@@ -1,3 +1,10 @@
+1999-02-26  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Pass the sender to archive_add; this
+	will cause it to generate a mailbox separator to replace the one
+	we removed in mj_email several days ago.  Not doing this causes
+	bogus archives.
+
 Tue Feb 23 01:42:40 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/MTAConfig.pm (qmail): No work to do.  Comment out all
