@@ -1,3 +1,29 @@
+2003-03-03  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  Include the character
+	set when displaying part of a message with the archive or
+        tokeninfo command.  Thanks to Roger Klorese.
+
+	* lib/Majordomo.pm:  (_get_msg_data)  Set the charset for
+	message part 0.
+
+	* lib/Mj/Config.pm:  (parse_access_rules)  Do not issue a
+	warning for replyfile=NONE.
+
+	* lib/Mj/MIMEParser.pm:  (get_entity_structure)  Include the
+	character set for each part in the results.
+
+	* lib/Mj/Resend.pm:  (post)  Bugfix:  Remove the spool file
+	if a message is denied and no reply is necessary.
+	Thanks to Mathieu Arnold.
+	(_within_limits, _check_header)  Use error files 
+        instead of hard-coded English.
+
+	* lib/Mj/Util.pm:  (process_rule)  Place reply and replyfile
+	actions last to prevent other actions from overriding them.
+	(str_to_offset)  Remove unnecessary white space from the
+	time description.
+
 2003-02-25  Mathieu Arnold <m@absolight.net>
 
 	* setup/setup_func.pl, lib/Mj/SimpleDB.pm, lib/Mj/SimpleDB/SQL.pm,

@@ -2386,6 +2386,60 @@ sub _list_sync_owners {
   }
 }
 
+=head2 format_get_charset, format_get_string
+
+Format files are used by the Mj::Format module to display the results of
+Majordomo commands.  In the WWW interfaces, it is necessary to include
+the character set along with the content-type of a format file.
+
+These two methods cause the character set or the contents of a format
+file to be returned.
+
+=cut
+
+sub format_get_charset {
+  my $self = shift;
+  my $type = shift;
+  my $file = shift;
+  my $list = shift;
+
+  my ($name, %data) =
+    $self->_list_file_get(list => $list, file => "format/$type/$file");
+
+  if (exists $data{'charset'}) {
+    return $data{'charset'};
+  }
+  return;
+}
+
+sub format_get_string {
+  my $self = shift;
+  my $type = shift;
+  my $file = shift;
+  my $list = shift;
+  my ($out, $truelist);
+  unless (defined $list and length $list) {
+    $list = 'GLOBAL';
+  }
+  # Accounts for any relocated lists
+  ($truelist) = $self->valid_list($list, 1, 1);
+  unless (defined $truelist and length $truelist) {
+    $truelist = 'GLOBAL';
+  }
+
+  $out = $self->_list_file_get_string(list => $truelist,
+				      file => "format/$type/$file",
+				     );
+
+  if (defined $out) {
+    chomp $out;
+  }
+  else {
+    $out = '';
+  }
+  $out;
+}
+
 =head2 config_get_allowed, config_get_comment, config_get_intro,
 config_get_isarray, config_get_isauto, config_get_groups,
 config_get_type, config_get_visible
@@ -2423,33 +2477,6 @@ sub config_get_comment {
   $self->_list_file_get_string(list => 'GLOBAL', file => "config/$var");
 }
 
-sub format_get_string {
-  my $self = shift;
-  my $type = shift;
-  my $file = shift;
-  my $list = shift;
-  my ($out, $truelist);
-  unless (defined $list and length $list) {
-    $list = 'GLOBAL';
-  }
-  # Accounts for any relocated lists
-  ($truelist) = $self->valid_list($list, 1, 1);
-  unless (defined $truelist and length $truelist) {
-    $truelist = 'GLOBAL';
-  }
-
-  $out = $self->_list_file_get_string(list => $truelist,
-				      file => "format/$type/$file",
-				     );
-
-  if (defined $out) {
-    chomp $out;
-  }
-  else {
-    $out = '';
-  }
-  $out;
-}
 
 sub config_get_groups {
   my $self = shift;
@@ -7240,11 +7267,13 @@ sub _get_msg_data {
     $table = {};
     $ok = Mj::MIMEParser::get_entity_structure($ent, 1, $table);
     if (exists $table->{'1'}) {
-        $table->{'0'} = {
-                          'file' => $spool,
-                          'type' => $table->{'1'}->{'type'},
-                          'size' => sprintf("%.1f", ((-s ($spool)) + 51) / 1024),
-                        };
+        $table->{'0'} = 
+          {
+            'charset' => $table->{'1'}->{'charset'},
+            'file'    => $spool,
+            'type'    => $table->{'1'}->{'type'},
+            'size'    => sprintf("%.1f", ((-s ($spool)) + 51) / 1024),
+          };
     }
 
     $part =~ s/[hH]$//;
