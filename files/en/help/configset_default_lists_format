@@ -11,12 +11,19 @@ EXAMPLE:
 configset GLOBAL default_lists_format = enhanced
 
 
-This defines the default output format for the lists command.
-compact shows one list per line with short descriptions.
-long shows long descriptions
-enhanced shows long descriptions and extra information (whether or not
-  the user is subscribed to the list, etc.)
+$INCLUDE-config/default_lists_format
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+See "help lists" for a detailed description of the command modes.
+
+
+See Also:
+   help admin_domain
+   help configset_advertise
+   help configset_advertise_subscribed
+   help configset_category
+   help configset_description
+   help configset_description_long
+   help configset_description_max_lines
+   help lists
+   
+$INCLUDE-help/foot

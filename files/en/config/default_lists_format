@@ -1,5 +1,4 @@
-This defines the default output format for the lists command.
-compact shows one list per line with short descriptions.
-long shows long descriptions
-enhanced shows long descriptions and extra information (whether or not
-  the user is subscribed to the list, etc.)
+The default_lists_format setting determines the output format of
+the lists command if no command mode is supplied.  For example, if
+the value of this setting is "long", the "lists" command and
+"lists-long" command will display the same information.
