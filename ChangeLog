@@ -1,3 +1,12 @@
+2004-02-11  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/BounceHandler.pm:  (handle_bounce_token)  Bugfix:
+	Use the correct sender in inform() call.
+
+	* lib/Mj/MailOut.pm:  (mail_entity)  Add Date and Message-ID
+	headers if they are not present.
+	Thanks to Richard Birkett.
+
 2004-02-10  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Config.pm:  (parse_bounce_rules)
@@ -74,7 +83,7 @@
 2004-01-20  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Resend.pm:  (post, _post, _check_approval, do_digests)  
-        Bugfix:  Record the correct interface in the log.
+	Bugfix:  Record the correct interface in the log.
 	Thanks to Brock Rozen.
 
 2004-01-19  Michael Yount <csf@moscow.com>

@@ -91,13 +91,33 @@ out to a file, then calls mail_message.
 
 =cut
 use MIME::Entity;
+use Date::Format;
+use MIME::Head;
+use Digest::SHA1 qw(sha1_hex);
 sub mail_entity {
   my $self   = shift;
   my $sender = shift;
   my $entity = shift;
   my @addrs  = @_;
   my $log = new Log::In 35, "$addrs[0]";
-  my ($fh, $tmpdir, $tmpfile);
+  my ($fh, $tmp, $tmpdir, $tmpfile);
+
+  return unless (defined $entity);
+
+  # Add RFC-required headers if they're not there already
+  my $head = $entity->head;
+  if (defined $head) {
+    unless ($head->count('Date')) {
+      $head->replace('Date', time2str("%a, %d %b %Y %T %z", time));
+    }
+
+    unless ($head->count('Message-ID')) {
+      $tmp = sha1_hex($head->as_string . rand(9));
+      $tmp = '<' . $tmp . '@' .   
+           $self->_global_config_get('whereami') . '>';
+      $head->replace('Message-ID', $tmp);
+    }
+  }
 
   $tmpdir = $self->_global_config_get("tmpdir");
   $tmpfile = "$tmpdir/mj-tmp." . Majordomo::unique();
@@ -111,6 +131,8 @@ sub mail_entity {
   if ($self->mail_message($sender, $tmpfile, @addrs)) {
     unlink ($tmpfile) || $::log->abort("Can't unlink $tmpfile, $!");
   }
+
+  1;
 }
 
 =head2 deliver(list, sublist, sender, sequence_number, class_hashref)
