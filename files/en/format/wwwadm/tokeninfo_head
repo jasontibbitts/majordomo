@@ -1,24 +1,28 @@
 <!-- Majordomo tokeninfo_head format file -->
 <table>
-<tr><td>Token  <td>$TOKEN
-<tr><td>Created<td>$DATE
-<tr><td>By     <td>$USER
-<tr><td>Type   <td>$TYPE
-<tr><td>Command<td>$CMDLINE
-<tr><td>Expires<td>$EXPIRE
-<tr><td>Reason <td>$REASONS
+  <tr><td>Token  <td>$TOKEN
+  <tr><td>Created<td>$DATE
+  <tr><td>By     <td>$USER
+  <tr><td>Type   <td>$TYPE
+  <tr><td>Command<td>$CMDLINE
+  <tr><td>Expires<td>$EXPIRE
+  <tr><td>Reason <td>$REASONS
 </table>
+
 <form method=POST action="$CGIURL">
-<input type=submit name=func value=accept>
-<input type=submit name=func value=accept-archive>
-<input type=submit name=func value=reject>
-<input type=hidden name=domain value="$DOMAIN">
-<input type=hidden name=extra value="$TOKEN">
-<input type=hidden name=list value="$LIST">
-<input type=hidden name=passw value="$PASSWORD">
+  <input type=submit name=func value=accept>
+  <input type=submit name=func value=accept-archive>
+  <input type=submit name=func value=reject>
+  <input type=hidden name=domain value="$DOMAIN">
+  <input type=hidden name=extra value="$TOKEN">
+  <input type=hidden name=list value="$LIST">
+  <input type=hidden name=passw value="$PASSWORD">
+<br>
 If you wish to make known your reasons for $HELP:ACCEPTing
-or $HELP:REJECTing the request, type them here:<br>
-<textarea rows=4 cols=70 name=xplanation>
-</textarea>
+or $HELP:REJECTing the request, type them here:
+<br>
+
+  <textarea rows=4 cols=70 name=xplanation>
+  </textarea>
 <pre>
 

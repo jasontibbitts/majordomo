@@ -6,8 +6,8 @@
 <input type=submit name=func value="accept-archive">
 <input type=submit name=func value="reject">
 <input type=hidden name=domain value="$DOMAIN">
+<input type=hidden name=list value="$LIST">
 <input type=hidden name=passw value="$PASSWORD">
-<input type=hidden name=st value="$ST">
 <br>
 Choose one or more requests from the following list,
 then press one of the buttons.

@@ -4,8 +4,8 @@
   <input type=submit name=func value=$REMOVE>
   <input type=submit name=func value="set">
 </form>
-<a href="$CGIURL&domain=$DOMAIN&list=$LIST&passw=$PASSWORD&func=who&extra=$PATTERN&start=?PREVIOUS&chunksize=$CHUNKSIZE>Previous $CHUNKSIZE Results</a>
-<a href="$CGIURL&domain=$DOMAIN&list=$LIST&passw=$PASSWORD&func=who&extra=$PATTERN&start=?NEXT&chunksize=$CHUNKSIZE>Next $CHUNKSIZE Results</a>
+<a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?PREVIOUS&chunksize=$CHUNKSIZE">Previous $CHUNKSIZE Results</a>
+<a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?NEXT&chunksize=$CHUNKSIZE">Next $CHUNKSIZE Results</a>
 
 <h4 align=center>search the subscriber list</h4>
 
