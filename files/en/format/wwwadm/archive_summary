@@ -1,0 +1,36 @@
+<!-- Majordomo archive_summary format file -->
+
+<tr>
+<td>
+  <a href="$CGIURL?$CGIDATA&func=archive-index&list=$LIST&extra=$FILE">
+  $FILE
+  </a>
+</td>
+
+<td align="right">
+  $MSGS
+</td>
+
+<td align="right">
+  $SIZE kB
+</td>
+
+<td>
+  (<a href="$CGIURL?$CGIDATA&func=archive-index-author&list=$LIST&extra=$FILE">
+  Author
+  </a>)
+
+  (<a href="$CGIURL?$CGIDATA&func=archive-index-date&list=$LIST&extra=$FILE">
+  Date
+  </a>)
+
+  (<a href="$CGIURL?$CGIDATA&func=archive-index-subject&list=$LIST&extra=$FILE">
+  Subject
+  </a>)
+
+  (<a href="$CGIURL?$CGIDATA&func=archive-index-thread&list=$LIST&extra=$FILE">
+  Thread
+  </a>)
+</td>
+
+</tr>
