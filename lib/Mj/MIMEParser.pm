@@ -141,6 +141,103 @@ sub _r_ct_lines {
   }
 }
 
+=head2 get_entity_structure (entity, id, result)
+
+Given a file containing a message, modify the "result" hash 
+to describing the structure of the message entity.  Each
+key of the hash is a message part number.
+
+=cut
+sub get_entity_structure {
+  my ($entity, $id, $result) = @_;
+  defined ($id) or $id = 1;
+  my (@parts, @tmp, $basename, $hdr, $i, $level, $part, $path, 
+      $size, $type);
+  @tmp = split ("\\.", $id);
+  $level  = $#tmp;
+
+  $result->{$id}->{'entity'} = $entity;
+  $result->{$id}->{'type'} = $entity->mime_type || 'unknown';
+  $result->{$id}->{'header'} = $entity->head->as_string;
+
+  $path = ($entity->bodyhandle ? $entity->bodyhandle->path : '');
+  if ($path) {
+    $result->{$id}->{'path'} = $path;
+    $result->{$id}->{'size'} = sprintf("%.1f", ((-s ($path)) + 51) / 1024);
+  }
+  else {
+    $result->{$id}->{'path'} = '';
+    $result->{$id}->{'size'} = '';
+  }
+
+  @parts = $entity->parts;
+  $i = 1;
+  for $part (@parts) {
+    &get_entity_structure($part, $id . ".$i", $result);
+    $i++;
+  }
+  1; 
+}
+
+=head2 remove_part(file, part_number)
+
+Remove a numbered body part from an entity in a message file.
+
+=cut
+use Mj::FileRepl;
+sub remove_part {
+  my ($self, $file, $part) = @_;
+  my (@kept, $child, $entity, $i, $j, $parent, $repl, $result);
+  $result = {};
+
+  return (0, "The headers of a body part cannot be removed.")
+    if ($part =~ s/[hH]$//);
+
+  return (0, "The top-level body part cannot be removed.")
+    if ($part eq '1' or $part eq '0');
+
+  return (0, "Unable to access file $file.")
+    unless (-f $file);
+
+  $entity = $self->parse_open($file);
+  return (0, "Unable to parse file $file.")
+    unless ($entity);
+
+  &get_entity_structure($entity, 1, $result);
+  return (0, "The message has no part numbered $part.")
+    unless (exists $result->{$part});
+
+  ($parent, $child) = ($part =~ m/(.+)\.(\d+)$/);
+  return (0, "The message has no part numbered $parent.")
+    unless (exists $result->{$parent});
+
+  $j = 1;
+  for $i ($result->{$parent}->{'entity'}->parts) {
+    push (@kept, $i) unless ($j eq $child);
+    $j++;
+  }
+
+  $result->{$parent}->{'entity'}->parts(\@kept);
+  if (scalar @kept <= 1) {
+    $result->{$parent}->{'entity'}->make_singlepart;
+  }
+
+  $result->{$parent}->{'entity'}->head->add('X-Content-Discarded',
+                                            $result->{$part}->{'type'});  
+  $result->{$parent}->{'entity'}->sync_headers;
+
+  $repl = new Mj::FileRepl $file;
+  return (0, "Unable to open replacement file.")
+    unless $repl;
+
+  $entity->print($repl->{'newhandle'});
+  $repl->commit;
+
+  $result = {};
+  &get_entity_structure($entity, 1, $result);
+  (1, $result);
+}
+  
 =head2 replace_headers (file, headers)
 
 Given a file containing a message, replace a group of headers within
@@ -176,6 +273,85 @@ sub replace_headers {
   $ent->purge;
   $repl->commit;
   1;
+}
+
+=head2 replace_part(file, part_number, contents)
+
+Replace the contents of a body part or its headers.
+
+=cut
+use Mj::FileRepl;
+sub replace_part {
+  my ($self, $file, $part, $contents) = @_;
+  my (@tmp, $chhead, $entity, $fh, $head, $line, $repl, $result);
+  $result = {};
+
+  if ($part =~ s/[hH]$//) {
+    $chhead = 1;
+  }
+  else {
+    $chhead = 0;
+  }
+  
+  return (0, "Part number 0h cannot be replaced.")
+    if ($part eq '0' and $chhead);
+  
+  return (0, "Unable to access file $file.")
+    unless (-f $file);
+
+  $entity = $self->parse_open($file);
+  return (0, "Unable to parse file $file.")
+    unless ($entity);
+
+  if ($part ne '0') {
+    &get_entity_structure($entity, 1, $result);
+    return (0, "The message has no part numbered $part.")
+      unless (exists $result->{$part});
+  }
+
+  if ($chhead) {
+    @tmp = grep { 
+                 $_ =~ /^[^\x00-\x1f\x7f-\xff:]+:(.*)/ or
+                 $_ =~ /^[ \t]+/;
+                } @$contents;
+    $head = new MIME::Head \@tmp;
+    return (0, "Unable to obtain header from contents.") 
+      unless $head;
+    $result->{$part}->{'entity'}->head($head);
+  }
+  elsif ($part ne '0') {
+    return (0, "The part $part has no body.")
+      unless ($result->{$part}->{'size'} >= 0);
+    $fh = $result->{$part}->{'entity'}->open("w");
+    return (0, "Unable to open body part $part for writing: $!.")
+      unless ($fh);
+
+    for $line (@$contents) {
+      $fh->print("$line\n");
+    }
+
+    $fh->close;
+    $result->{$part}->{'entity'}->sync_headers;
+  }
+
+  $repl = new Mj::FileRepl $file;
+  return (0, "Unable to open replacement file.")
+    unless $repl;
+
+  if ($part ne '0') {
+    $entity->print($repl->{'newhandle'});
+  }
+  else {
+    for $line (@$contents) {
+      $repl->{'newhandle'}->print("$line\n");
+    }
+  }
+    
+  $repl->commit;
+
+  $result = {};
+  &get_entity_structure($entity, 1, $result);
+  (1, $result);
 }
 
 =head1 COPYRIGHT
