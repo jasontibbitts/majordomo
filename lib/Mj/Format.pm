@@ -268,18 +268,19 @@ sub index {
 
 sub lists {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
-      $list, $vict, $arg1, $arg2, $arg3, $ok, @lists) = @_;
+      $list, $vict, $arg1, $arg2, $arg3, $ok, $defmode, @lists) = @_;
   my (%lists, %legend, @desc, $category, $count, $desc, $flags, $site);
   select $out;
   $count = 0;
 
   $site   = $mj->global_config_get($user, $pass, $auth, $int, "site_name");
   $site ||= $mj->global_config_get($user, $pass, $auth, $int, "whoami");
+  $mode ||= $defmode;
 
   if (@lists) {
     eprint($out, $type, 
 	   "$site serves the following lists:\n\n")
-      unless $mode =~ /short|tiny/;
+      unless $mode =~ /compact|tiny/;
     
     while (($list, $category, $desc, $flags) = splice(@lists, 0, 4)) {
       # Build the data structure cat->list->[desc, flags]
@@ -313,7 +314,7 @@ sub lists {
       }
     }
   }
-  return 1 if $mode =~ /short|tiny/;
+  return 1 if $mode =~ /compact|tiny/;
   eprint($out, $type, "\n");
   eprintf($out, $type, "There %s %s list%s.\n", $count==1?("is",$count,""):("are",$count==0?"no":$count,"s"));
   if (%legend) {

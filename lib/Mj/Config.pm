@@ -1849,7 +1849,7 @@ sub parse_taboo_body {
 
   $data = {};
   $data->{'inv'} = [];
-  $max = 0;
+  $max = -1;
 
   # Start
   $data->{'code'} = "my \@out = ();\n";

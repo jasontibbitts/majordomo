@@ -508,7 +508,7 @@ sub _xform {
 
   # Set up the Safe compartment
   $cpt = new Safe;
-  $cpt->permit_only(qw(const rv2sv concat leaveeval));
+  $cpt->permit_only(qw(pushmark const rv2sv concat leaveeval lc uc));
   $cpt->share('$addr');
 
   for $i (@{$self->{p}{xforms}}) {
@@ -518,6 +518,7 @@ sub _xform {
 
     # Log any messages
     if ($@) {
+warn $@;
       $::log->message(10,
 		      "info",
 		      "Mj::Addr::xform: error in Safe compartment: $@"

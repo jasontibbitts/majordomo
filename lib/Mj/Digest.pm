@@ -120,12 +120,14 @@ sub add {
   $state = $self->_open_state;
 
   for $i (@{$self->{digests}}) {
+    # Initialize some defaults if necessary
     unless ($state->{$i}) {
       $state->{$i}{messages} = [];
       $state->{$i}{lastrun}  = 0;
       $state->{$i}{bytecount}= 0;
       $state->{$i}{newest}   = 0;
     }
+    # Update the state information
     push @{$state->{$i}{messages}}, [$mess, $data];
     $state->{$i}{bytecount} += $data->{bytes};
     $state->{$i}{newest} = $data->{date} if $data->{date} > $state->{$i}{newest};

@@ -1,3 +1,11 @@
+Wed Dec 16 19:12:07 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Config.pm (parse_taboo_body): Start with $max = -1; this
+ 	is a true value but since we never hit line -1 the result will be
+ 	that we don't check at all.  Can't use 0 because that means
+ 	unlimited.  The first time through the loop this gets set to 0 or
+ 	whatever value was specified in the match line.
+
 Tue Dec  1 17:59:11 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/mj_cf_data.pl: default_lists_format - s/extended/enhanced/g.

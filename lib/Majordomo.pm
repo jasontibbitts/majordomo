@@ -77,7 +77,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform);
-$VERSION = "0.1199811210";
+$VERSION = "0.1199812110";
 $unique = 'AAA';
 
 use strict;
@@ -2768,7 +2768,10 @@ sub _createlist {
 Perform the lists command.  This gets the visible lists and their
 descriptions and some data.
 
-This returns a list of triples:
+This returns two elements, then a list of triples:
+
+  success flag
+  default mode
 
   the list name
   the list description
@@ -2783,16 +2786,11 @@ If mode =~ /enhanced/, the flag string will contain the following:
 
 XXX More flags to come: D=digest available, 
 
-Enhanced mode is terribly inefficient as it checks every list for
-membership.
+Short mode:
+  uses short descriptions
 
-The rules for choosing a description are as follows:
-
-Compact mode:
-  description or first line of description_long
-
-Other modes having descriptions:
-  (description_max_lines || all) of description_long or description
+Enhanded mode:
+  returns extra data  
 
 =cut
 sub lists {
@@ -2815,7 +2813,7 @@ sub lists {
   $mode ||= $self->_global_config_get('default_lists_format');
   $limit =  $self->_global_config_get('description_max_lines');
 
-  if ($mode =~ /compact/) {
+  if ($mode =~ /short/) {
     $compact = 1;
   }
 
@@ -2845,7 +2843,7 @@ sub lists {
     push @out, $list, $cat, $desc, $flags;
   }
 
-  return (1, @out);
+  return (1, $mode, @out);
 }
 
 =head2 reject(..., token)
