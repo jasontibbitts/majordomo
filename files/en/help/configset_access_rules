@@ -101,6 +101,7 @@ This information is below:
              2.6.12 - Change how many addresses "which" commands will return
              2.6.13 - Prevent posts on auxiliary lists (sublists)
              2.6.14 - Limiting how often a person can post
+             2.6.15 - Suppressing "duplicate checksum" traps for specific users
           2.7 - improving the default "confirm" and "consult" files
 
 There are some interactions between your choice of replyfile or mailfile
@@ -702,6 +703,21 @@ ALL
 limit_hard
 deny, mailfile=you_talk_to_much
 ALL
+
+
+2.6.15 - Suppressing "duplicate checksum" traps for specific users
+  If you have a routine post, made by software or the list owner for
+  example, you can disable the duplicate checking just for one
+  user instead of turning it all the way off for the whole list:
+post
+unset=dup_partial_checksum
+"address@host.dom"
+
+  This unsets the dup_partial_checksum variable if the posting address
+  matches "address@host.com".  (Patterns in quotes are simple substring
+  matches; append an 'i' if you want case insensitivity.)  All other
+  checks are done as normal.
+
 
 
 2.7 - improving the default "confirm" and "consult" files
