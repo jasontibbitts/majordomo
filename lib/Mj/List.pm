@@ -1230,6 +1230,7 @@ sub expire_subscriber_data {
   my $maxbouncecount = $self->config_get('bounce_max_count');
   my $maxbounceage   = $self->config_get('bounce_max_age') * 60*60*24;
   my $bounceexpiretime = $time - $maxbounceage;
+  my $ali;
 
   my $mogrify = sub {
     my $key  = shift;
