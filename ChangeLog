@@ -1,3 +1,7 @@
+2002-07-16  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_register)  Add missing semicolon.
+
 2002-07-16  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Majordomo.pm (s_expire): Expire recursively.  Attempt to

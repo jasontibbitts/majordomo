@@ -5937,7 +5937,7 @@ sub _register {
   $welcome = 0 if $mode =~ /(nowelcome|quiet)/;
 
   if ($welcome) {
-    $welcome_table = $self->_global_config_get('welcome_files')
+    $welcome_table = $self->_global_config_get('welcome_files');
     $ok = $self->welcome('GLOBAL', $vict, $welcome_table,
 			 'PASSWORD'   => $pw,
                          'REGISTERED' => 0);
@@ -7556,7 +7556,7 @@ sub _unsubscribe {
   my($self, $list, $requ, $vict, $mode, $cmd, $sublist) = @_;
   my $log = new Log::In 35, "$list, $vict";
   my(%fdata, @out, @removed, $data, $desc, $farewell, $farewell_table, $fh,
-     $file, $flist, $key, $subs);
+     $file, $flist, $key, $ok, $subs);
 
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
