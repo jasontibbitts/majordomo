@@ -16,13 +16,15 @@ package Mj::Util;
 use Mj::Log;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(ep_convert ep_recognize gen_pw in_clock process_rule str_to_time time_to_str);
+@EXPORT_OK = qw(ep_convert ep_recognize gen_pw in_clock process_rule 
+                re_match str_to_time time_to_str);
 
 use AutoLoader 'AUTOLOAD';
 
 $VERSION = "0.0";
 use strict;
-use vars(qw(%args %memberof $current $skip));
+use vars(qw(%args %memberof $current $safe $skip));
+$Mj::Util::safe = '';
 
 1;
 __END__
@@ -247,6 +249,51 @@ sub in_clock {
   }
   # None of the intervals include the time, so no match.
   0;
+}
+
+=head2 re_match (pattern, string)
+
+This expects a safe compartment to already be set up, and matches a
+string against a regular expression within that safe compartment.  The
+special 'ALL' regexp is also accepted, and always matches.
+
+If called in an array context, also returns any errors encountered
+while compiling the match code, so that this can be used as a general
+regexp syntax checker.
+
+=cut
+sub re_match {
+  my    $re = shift;
+  local $_  = shift;
+#  my $log  = new Log::In 200, "$re, $_";
+  my ($match, $warn);
+  return 1 if $re eq 'ALL';
+
+  unless (ref $safe eq 'Safe') {
+    eval ("use Safe");
+    $safe = new Safe;
+    $safe->permit_only(qw(const leaveeval not null pushmark return rv2sv stub));
+  }
+
+  # Hack; untaint things.  That's why we're running inside a safe
+  # compartment. XXX Try it without the untainting; it has a speed penalty.
+  # Routines that need it can untaint as appropriate before calling.
+  $_ =~ /(.*)/;
+  $_ = $1;
+  $re =~ /(.*)/;
+  $re = $1;
+
+  local($^W) = 0;
+  $match = $safe->reval("$re");
+  $warn = $@;
+  $::log->message(10, 'info', "re_match error: $warn string: $_\nregexp: $re") 
+    if $warn;   #XLANG
+
+  if (wantarray) {
+    return ($match, $warn);
+  }
+#  $log->out('matched') if $match;
+  return $match;
 }
 
 =head2 str_to_time(string)
