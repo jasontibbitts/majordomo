@@ -211,9 +211,33 @@ sub archive {
       $lines += $data->{'lines'};
       if (($request->{'mode'} =~ /digest/ and $lines > $chunksize) 
           or $i == $#msgs) {
+        
+        if ($request->{'mode'} =~ /immediate/) {
+          $subs->{'MSGNO'} = $tmp[0]->[0];
+          for $j (keys %{$tmp[0]->[1]}) {
+            $subs->{uc $j} = &escape($tmp[0]->[1]->{$j}, $type);
+          }
+
+          $tmp = $mj->format_get_string($type, 'archive_msg_head');
+          $str = $mj->substitute_vars_format($tmp, $subs);
+          print $out "$str\n";
+        }
+
         ($ok, $mess) = @{$mj->dispatch($request, [@tmp])};
-        $lines = 0; @tmp = ();
         eprint($out, $type, indicate($mess, $ok));
+
+        if ($request->{'mode'} =~ /immediate/) {
+          $subs->{'MSGNO'} = $tmp[$#tmp]->[0];
+          for $j (keys %{$tmp[$#tmp]->[1]}) {
+            $subs->{uc $j} = $tmp[$#tmp]->[1]->{$j};
+          }
+
+          $tmp = $mj->format_get_string($type, 'archive_msg_foot');
+          $str = $mj->substitute_vars_format($tmp, $subs);
+          print $out "$str\n";
+        }
+
+        $lines = 0; @tmp = ();
       }
     }
 
@@ -265,8 +289,8 @@ sub archive {
     $tmp = $mj->format_get_string($type, 'archive_index');
     for $i (@msgs) {
       $data = $i->[1];
-      $data->{'subject'} ||= "(Subject: ???)";
-      $data->{'from'} ||= "(From: ???)";
+      $data->{'subject'} ||= "(No Subject)";
+      $data->{'from'} ||= "(Unknown Author)";
       # Include all archive data in the substitutions.
       for $j (keys %$data) {
         $subs->{uc $j} = $data->{$j};
