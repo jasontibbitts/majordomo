@@ -188,7 +188,7 @@ sub transact {
 
 These implement the various SMTP and ESMTP commands that we care about:
 
-DATA, EHLO, HELO, MAIL, ONEX, RCPT, RSET, ".".
+DATA, EHLO, HELO, MAIL, ONEX, RCPT, RSET, QUIT, ".".
 
 Note that RCPT allows five times the normal timeout value, because some
 MTAs will wait for a DNS lookup to complete before returning.
@@ -201,6 +201,7 @@ sub MAIL { shift->transact("MAIL FROM: <".shift().">")}
 sub ONEX { shift->transact("ONEX"                    )}
 sub RCPT { shift->transact("RCPT TO: <".shift().">",5)}
 sub RSET { shift->transact("RSET"                    )}
+sub QUIT { shift->transact("QUIT"                    )}
 
 sub enddata {
   my $self = shift;

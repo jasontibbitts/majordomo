@@ -94,6 +94,16 @@ sub new {
   $self;
 }
 
+=head2 DESTROY
+
+When the time coems, close down the connection.
+
+=cut
+sub DESTROY {
+  my $self = shift;
+  $self->{'SMTP'}->QUIT;
+}
+
 =head2 file(filename)
 
 Sets the filename that will be sent as part of the envelope.
