@@ -515,7 +515,7 @@ sub parse_command {
   }
 
   if ($true_command eq "configedit" or ($mode =~ /edit/ and
-      $true_command =~ /^(faq|get|info|intro|tokeninfo)/)) {
+      $true_command =~ /^(archive|faq|get|info|intro|tokeninfo)/)) {
     $display = 'editor';
   }
   else {
