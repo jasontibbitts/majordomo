@@ -24,7 +24,7 @@ default, if a posted message has an ID or checksum that duplicates a
 previous message, the new message will be held for moderation.
 
 To limit database size and to cut down on the possibility of false
-positives, old entries are periodically removed.  The frequency with
+positives, old entries are removed periodically.  The frequency with
 which the old entries are removed is determined by the "checksum"
 trigger in the "triggers" configuration setting.  By default, this
 happens daily.

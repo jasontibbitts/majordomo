@@ -1,7 +1,7 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 help unknowntopic
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ERROR - unknown request - all possible topics are listed in "help topics"
+ERROR - the document you requested is not available.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 You received this message because you requested a help topic that
@@ -11,17 +11,18 @@ The "help" command returns a help file from the server, if help is
 available for the requested topic. If the requested topic is not
 available, this file is returned.
 
-To get a list of all possible topics, send the message
+To get a list of all possible topics, send the following command:
    help topics
-to the server at $MJ and read carefully.
+in the body of a message to $MJ.
 
-To get basic help, send this one-line message to $MJ
+To read an introduction to the help system, send the following command:
    help help
+in the body of a message to $MJ.
 
 All commands have help files, but you will probably want to start with
    help overview
 if you are a list subscriber, or
    help admin
-if you manage a list, to get an idea of which commands you want to use.
+if you manage a mailing list, for a basic introduction to Majordomo.
 
 $INCLUDE-help/foot
