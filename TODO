@@ -46,22 +46,6 @@ Not yet (fully) implemented
 ===========================
 
 
-List Templates
---------------
-
-Paul Hancock: [...] I specifically wanted something that would allow groups
-of lists to be managed with a given DEFAULT file... not necessarily
-domain-wide, which is now possible just by changing DEFAULT.
-
-One proposal is to have multiple DEFAULT lists, named DEFAULT-template.
-Another is to allow multiple configuration files per list.
-
-Some of the code necessary for multiple configuration files per list is
-already in CVS.  It is not certain that it will remain there, or whether
-the end result will satisfy the request.  The "multiple DEFAULT list"
-concept may be orthogonal to it.
-
-
 Configuration Rewrite
 ---------------------
 
@@ -110,16 +94,15 @@ Things currently in SITE/config.pl:
   site_password
   cgi_url
 
+
 Wrapper Security
 ----------------
-
 The wrapper needs to sanitize as much of its environment as possible.  This
 involves making a list of needed env variables and deleting everything else.
 
 
 Uuencode and ms-tnef in the body as "attachments"
 -------------------------------------------------
-
 Treat uuencode and ms-tnef chunks in the body as attachments so that
 attachment_rules can be used to trap or remove them.
 
@@ -281,12 +264,36 @@ special consideration, because it most frequently surpasses the header
 length limits.
 
 
-Editing moderated messages with the wwwadm interface
-----------------------------------------------------
-In the wwwadm interface, the tokeninfo command displays the raw message,
-including all of the headers and attachments.  This could be improved to
-allow text parts to be edited, headers to be displayed more selectively,
-and attachments to be discarded.
+Automatic expiration of addresses
+---------------------------------
+It should be possible to delete registry entries for old addresses
+with no subscriptions, and subscriptions that remain in the 'nomail'
+state indefinitely.
+
+
+Using author statistics in the access rules
+-------------------------------------------
+The access rules should have the posted message statistics available
+for the author of a message, to allow rules such as "moderate messages
+from people who have posted fewer than five messages to the list
+previously."
+
+
+"complete at" access rule action
+--------------------------------
+The "delay" action specifies an amount of time to wait until an
+action is completed.  There should also be a "when" action that
+indicates a day or hour when a command should be completed or a
+message posted.  For example, this would support rules such as
+"If a message is posted between 9 am and 5 pm, wait until 8 pm
+to deliver it."
+
+
+Automatic backup and recovery of subscriber databases
+-----------------------------------------------------
+The who-export command could be executed periodically to save the
+subscriber list and settings for a mailing list.  This could
+also be done incrementally.
 
 
 Case-sensitivity
