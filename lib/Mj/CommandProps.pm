@@ -112,9 +112,26 @@ my %commands =
    'default'    => {'parser' => [qw(email shell_parsed real)]},
    'end'        => {'parser' => [qw(email shell interp)]},
    'config'     => {'parser' => [qw(email list obsolete=configshow real)]},
-   'configshow' => {'parser' => [qw(email shell list global real)]},
-   'configset'  => {'parser' => [qw(email shell list global real)]},
-   'configdef'  => {'parser' => [qw(email shell list global real)]},
+   'configshow' => {'parser' => [qw(email shell list global real)],
+                    'dispatch' => {'top' => 1, 
+                                   'arguments' => {'groups', 'ARRAY'},
+                                   'hereargs' => 'groups' 
+                                  }
+                   },
+   'configset'  => {'parser' => [qw(email shell list global real)],
+                    'dispatch' => {'top' => 1, 
+                                   'arguments' => {'split', '\s*=\s*',
+                                                   'setting', 'SCALAR',
+                                                   'value', 'ARRAYELEM'},
+                                   'hereargs' =>  'value',
+                                  }
+                   },
+   'configdef'  => {'parser' => [qw(email shell list global real)],
+                    'dispatch' => {'top' => 1, 
+                                   'arguments' => {'vars', 'ARRAY'},
+                                   'hereargs' =>  'vars',
+                                  }
+                   },
    'configedit' => {'parser' => [qw(shell list global real)]},
    'newconfig'  => {'parser' => [qw(email shell list obsolete=configset real)]},
    'newfaq'     => {'parser' => [qw(email shell list global real)]},
@@ -167,13 +184,20 @@ my %commands =
    'accept' => 
    {
     'parser'   => [qw(email shell real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'tokens', 'ARRAY'},
+                   'hereargs'  => 'tokens',
+                   'tokendata' => {'arg1' => 'tokens'},
+                  },
     # The token is the access restriction
    },
    'alias' =>
    {
-    'parser'   => [qw(email shell real)],
-    'dispatch' => {'top' => 1},
+    'parser'   => [qw(email shell nohereargs real)],
+    'dispatch' => {'top' => 1, 
+                   'arguments' => {'newaddress', 'SCALAR'},
+                   'tokendata' => {'arg1' => 'newaddress'},
+                  },
     'access'   => {
                    'default' => 'confirm',
                    'legal'   => \%reg_legal,
@@ -183,7 +207,10 @@ my %commands =
    'archive' =>
    {
     'parser'   => [qw(email shell list real)],
-    'dispatch' => {'top' => 1, 'iter' => 1},
+    'dispatch' => {'top' => 1, 'iter' => 1,
+                   'arguments' => {'args', 'SCALAR'},
+                   'tokendata' => {'arg1' => 'args'}
+                  },
     'access'   => {
                    'default' => 'access',
                    'legal'   => \%reg_legal,
@@ -193,7 +220,13 @@ my %commands =
    'auxadd' =>
    {
     'parser' => [qw(email shell list global real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'sublist' => 'SCALAR',
+                                   'victims' => 'ARRAYELEM'},
+                   'hereargs' => 'victims',
+                   'tokendata' => {'victim' => 'victims',
+                                   'arg1'   => 'sublist' }
+                  },
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
@@ -203,7 +236,13 @@ my %commands =
    'auxremove' =>
    {
     'parser' => [qw(email shell list global all real)],
-    'dispatch' => {'top' => 1, 'noaddr' => 1},
+    'dispatch' => {'top' => 1, 
+                   'arguments' => {'sublist' => 'SCALAR',
+                                   'victims' => 'ARRAYELEM'},
+                   'hereargs' => 'victims',
+                   'tokendata' => {'victim' => 'victims',
+                                   'arg1'   => 'sublist' }
+                  },
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
@@ -212,8 +251,11 @@ my %commands =
    },
    'auxwho' =>
    {
-    'parser' => [qw(email shell list global real)],
-    'dispatch' => {'top' => 1, 'iter' => 1},
+    'parser' => [qw(email shell list global nohereargs real)],
+    'dispatch' => {'top' => 1, 'iter' => 1,
+                   'arguments' => {'sublist' => 'SCALAR'},
+                   'tokendata' => {'arg1'    => 'sublist'}
+                  },
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
@@ -223,7 +265,10 @@ my %commands =
    'changeaddr' =>
    {
     'parser' => [qw(email shell nohereargs real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'victims'  => 'ARRAYELEM'},
+                   'tokendata' => {'victim'   => 'victims'}
+                  },
     'access'   => {
                    'default' => 'confirm2',
                    'legal'   => \%reg_legal,
@@ -233,7 +278,12 @@ my %commands =
    'createlist' =>
    {
     'parser' => [qw(email shell nohereargs real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1, 
+                   'arguments' => {'list' => 'SCALAR',
+                                   'victims' => 'ARRAYELEM'},
+                   'tokendata' => {'victim' => 'victims',
+                                   'arg1' => 'list'}
+                  },
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
@@ -243,7 +293,10 @@ my %commands =
    'digest' =>
    {
     'parser' => [qw(email shell list nohereargs real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1, 
+                   'arguments' => {'args' => 'SCALAR'},
+                   'tokendata' => {'arg1' => 'args'}
+                  },
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
@@ -252,7 +305,7 @@ my %commands =
    },
    'faq' =>
    {
-    'parser'   => [qw(email shell list global real)],
+    'parser'   => [qw(email shell list global nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
                    'default' => 'access',
@@ -262,8 +315,11 @@ my %commands =
    },
    'get' =>
    {
-    'parser'   => [qw(email shell list global real)],
-    'dispatch' => {'top' => 1, 'iter' => 1},
+    'parser'   => [qw(email shell list global nohereargs real)],
+    'dispatch' => {'top' => 1, 'iter' => 1, 
+                   'arguments' => {'path' => 'SCALAR'},
+                   'tokendata' => {'arg1' => 'path'}
+                  },
     'access'   => {
                    'default' => 'access',
                    'legal'   => \%reg_legal,
@@ -272,8 +328,11 @@ my %commands =
    },
    'help' =>
    {
-    'parser'   => [qw(email shell real)],
-    'dispatch' => {'top' => 1, 'iter' => 1},
+    'parser'   => [qw(email shell nohereargs real)],
+    'dispatch' => {'top' => 1, 'iter' => 1,
+                   'arguments' => {'topic' => 'SCALAR'},
+                   'tokendata' => {'arg1' => 'topic'}
+                  },
     'access'   => {
                    'default' => 'allow',
                    'legal'   => \%reg_legal,
@@ -282,8 +341,11 @@ my %commands =
    },
    'index' =>
    {
-    'parser'   => [qw(email shell list global real)],
-    'dispatch' => {'top' => 1},
+    'parser'   => [qw(email shell list global nohereargs real)],
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'path' => 'SCALAR'},
+                   'tokendata' => {'arg1' => 'path'}
+                  },
     'access'   => {
                    'default' => 'access',
                    'legal'   => \%reg_legal,
@@ -292,7 +354,7 @@ my %commands =
    },
    'info' =>
    {
-    'parser'   => [qw(email shell list global real)],
+    'parser'   => [qw(email shell list nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
                    'default' => 'access',
@@ -302,7 +364,7 @@ my %commands =
    },
    'intro' =>
    {
-    'parser'   => [qw(email shell list global real)],
+    'parser'   => [qw(email shell list nohereargs real)],
     'dispatch' => {'top' => 1, 'iter' => 1},
     'access'   => {
                    'default' => 'access',
@@ -312,7 +374,7 @@ my %commands =
    },
    'lists' =>
    {
-    'parser'   => [qw(email shell noargs real)],
+    'parser'   => [qw(email shell noargs nohereargs real)],
     'dispatch' => {'top' => 1},
     'access'   => {
                    'default' => 'allow',
@@ -326,8 +388,15 @@ my %commands =
                           },
    'password' =>
    {
-    'parser'   => [qw(email shell real)],
-    'dispatch' => {'top' => 1},
+    'parser'   => [qw(email shell nohereargs real)],
+    'dispatch' => {'top' => 1, 
+                   'arguments' => {'optmode' => '^\s*(?!rand|gen).*$',
+                                   'newpasswd' => 'OPTSCALAR',
+                                   'victims'  => 'ARRAYELEM'
+                                  },
+                   'tokendata' => { 'arg1'   => 'newpasswd',
+                                   'victim'  => 'victims'}
+                  },
     'access'   => {
                    'default' => 'special',
                    'legal'   => {
@@ -346,7 +415,9 @@ my %commands =
    'post' =>
    {
     'parser'   => [qw(email shell list real)],
-    'dispatch' => {'top' => 1, 'iter' => 1, 'noaddr' => 1},
+    'dispatch' => {'top' => 1, 'iter' => 1, 'noaddr' => 1,
+                   'hereargs' => 'message'
+                  },
     'access'   => {
                    'default' => 'special',
                    'legal'   =>
@@ -388,7 +459,16 @@ my %commands =
    'put' =>
    {
     'parser'   => [qw(email shell list global real)],
-    'dispatch' => {'top' => 1, 'iter' => 1},
+    'dispatch' => {'top' => 1, 'iter' => 1,
+                   'arguments' => {'optmode' => 'data',
+                                   'file'    => 'SCALAR',
+                                   'ocontype'   => 'OPTSCALAR',
+                                   'ocset' => 'OPTSCALAR',
+                                   'oencoding'=> 'OPTSCALAR',
+                                   'olanguage'=> 'OPTSCALAR',
+                                   'xdesc'    => 'SCALAR'},
+                   'hereargs' => 'contents'
+                  },
     'access'   => {
                    'default' => 'deny',
                    'legal'   => \%reg_legal,
@@ -398,7 +478,14 @@ my %commands =
    'register' =>
    {
     'parser'   => [qw(email shell real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'optmode'   => 'pass',
+                                   'newpasswd' => 'OPTSCALAR',
+                                   'victims' => 'ARRAYELEM'},
+                   'hereargs'  => 'victims',
+                   'tokendata' => {'victim' => 'victims',
+                                   'arg1'   => 'newpasswd'}
+                  },
     'access'   => {
                    'default' => 'confirm',
                    'legal'   => \%reg_legal,
@@ -408,12 +495,15 @@ my %commands =
    'reject' =>
    {
     'parser'   => [qw(email shell real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'tokens' => 'ARRAY'},
+                   'hereargs'  => 'tokens'
+                  },
     # The token is the access restriction
    },
    'rekey' =>
    {
-    'parser'   => [qw(email shell real)],
+    'parser'   => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1},
     'access'   => {
                    'default' => 'deny',
@@ -423,14 +513,21 @@ my %commands =
    },
    'sessioninfo' =>
    {
-    'parser' => [qw(email shell real)],
-    'dispatch' => {'top' => 1},
+    'parser' => [qw(email shell nohereargs real)],
+    'dispatch' => {'top' => 1, 
+                   'arguments' => {'sessionid' => 'SCALAR'}
+                  },
     # The session key is the access restriction
    },
    'set' =>
    {
     'parser'   => [qw(email shell list global all real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'setting' => 'SCALAR',
+                                   'victims' => 'ARRAYELEM'},
+                   'hereargs'  => 'victims',
+                   'tokendata' => {'victim' => 'victims'}
+                  },
     'access'   => {
                    'default' => 'policy',
                    'legal'   => \%reg_legal,
@@ -440,7 +537,11 @@ my %commands =
    'show' =>
    {
     'parser' => [qw(email shell real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'victims' => 'ARRAYELEM'},
+                   'hereargs'  =>  'victims',
+                   'tokendata' => {'victim' => 'victims'}
+                  },
     'access'   => {
                    'default' => 'mismatch',
                    'legal'   => \%reg_legal,
@@ -449,7 +550,7 @@ my %commands =
    },
    'showtokens' =>
    {
-    'parser'   => [qw(email shell list global all real)],
+    'parser'   => [qw(email shell list global all nohereargs real)],
     'dispatch' => {'top' => 1},
     'access'   => {
                    'default' => 'deny',
@@ -460,7 +561,11 @@ my %commands =
    'subscribe' =>
    {
     'parser'   => [qw(email shell list real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'victims' => 'ARRAYELEM'},
+                   'hereargs'  =>  'victims',
+                   'tokendata' => {'victim' => 'victims'}
+                  },
     'access'   => {
                    'default' => 'policy',
                    'legal'   => {
@@ -478,14 +583,20 @@ my %commands =
    },
    'tokeninfo' =>
    {
-    'parser' => [qw(email shell real)],
-    'dispatch' => {'top' => 1},
+    'parser' => [qw(email shell nohereargs real)],
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'token' => 'SCALAR'},
+                   'tokendata' => {'arg1'  => 'token'}
+                  },
     # The token is the access restriction
    },
    'unalias' =>
    {
-    'parser'   => [qw(email shell real)],
-    'dispatch' => {'top' => 1},
+    'parser'   => [qw(email shell nohereargs real)],
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'victims' => 'ARRAYELEM'},
+                   'tokendata' => {'victim'  => 'victims'}
+                  },
     'access'   => {
                    'default' => 'confirm',
                    'legal'   => \%reg_legal,
@@ -495,7 +606,11 @@ my %commands =
    'unregister' =>
    {
     'parser'   => [qw(email shell real)],
-    'dispatch' => {'top' => 1, 'noaddr' => 1},
+    'dispatch' => {'top' => 1, 
+                   'arguments' => {'victims' => 'ARRAYELEM'},
+                   'hereargs'  =>  'victims',
+                   'tokendata' => {'victim' => 'victims'}
+                  },
     'access'   => {
                    'default' => 'confirm',
                    'legal'   =>\%reg_legal,
@@ -505,7 +620,11 @@ my %commands =
    'unsubscribe' =>
    {
     'parser'   => [qw(email shell list all real)],
-    'dispatch' => {'top' => 1, 'noaddr' => 1},
+    'dispatch' => {'top' => 1, 
+                   'arguments' => {'victims' => 'ARRAYELEM'},
+                   'hereargs'  =>  'victims',
+                   'tokendata' => {'victim' => 'victims'}
+                  },
     'access'   => {
                    'default' => 'policy',
                    'legal'   =>\%reg_legal,
@@ -515,7 +634,10 @@ my %commands =
    'which' =>
    {
     'parser'   => [qw(email shell nohereargs real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1,
+                   'arguments' => {'regexp' => 'SCALAR'},
+                   'tokendata' => {'arg1'   => 'regexp'}
+                  },
     'access'   => {
                    'default' => 'access',
                    'legal'   => \%reg_legal,
@@ -524,8 +646,11 @@ my %commands =
    },
    'who' =>
    {
-    'parser'   => [qw(email shell global list real)],
-    'dispatch' => {'top' => 1, 'iter' => 1},
+    'parser'   => [qw(email shell global list nohereargs real)],
+    'dispatch' => {'top' => 1, 'iter' => 1,
+                   'arguments' => {'regexp' => 'SCALAR'},
+                   'tokendata' => {'arg1'   => 'regexp'}
+                  },
     'access'   => {
                    'default' => 'access',
                    'legal'   => \%reg_legal,
@@ -770,7 +895,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
