@@ -525,6 +525,7 @@ files/en/error/.access_posing
 files/en/error/.access_sublist
 files/en/error/.add_headers
 files/en/error/.after_route
+files/en/error/.already_registered
 files/en/error/.already_subscribed
 files/en/error/.approve_no_command
 files/en/error/.approve_no_password
@@ -667,6 +668,7 @@ files/en/error/access_posing
 files/en/error/access_sublist
 files/en/error/add_headers
 files/en/error/after_route
+files/en/error/already_registered
 files/en/error/already_subscribed
 files/en/error/approve_no_command
 files/en/error/approve_no_password

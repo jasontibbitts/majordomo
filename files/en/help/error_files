@@ -85,6 +85,13 @@ for the post-addhdr command failed.
 
 (standard substitutions only)
 
+already_registered
+------------------
+This message is displayed if an attempt is made to register an address
+that is already registered.
+
+(standard plus VICTIM)
+
 already_subscribed
 ------------------
 This message is displayed if an attempt is made to subscribe an address
