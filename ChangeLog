@@ -1,3 +1,13 @@
+2004-03-02  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (who_chunk)  Bugfix:  Reduce the
+	chunk size as addresses with bounces are found.
+
+	* lib/Mj/Archive.pm:  (_dim)  Bugfix:  Cope properly
+	with leap years.  Thanks to Steven Orr.
+
+	* lib/Mj/Format.pm:  (who)  Support the MODE substitution.
+
 2004-02-16  Michael Yount <csf@moscow.com>
 
 	* convertdb.pl:  Add -p (list files but don't change them)

@@ -179,7 +179,7 @@ sub new {
   $basename = $domain;  
   $basename =~ s#.+/([^/\s]+)#$1#;
   if ($basename =~ /[^A-Za-z0-9\.\-]/) {
-    return qq(The domain name "$basename" is invalid.);  # XLANG
+    return qq(The domain name "$basename" is invalid.);
   }
 
   unless (-d $self->{'ldir'}) {
@@ -191,7 +191,7 @@ sub new {
       $self->{'domain'} = $basename;
     }
     else {
-      return qq(The domain "$domain" is not supported!); #XLANG
+      return qq(The domain "$domain" is not supported!);
     }
   }
 
@@ -221,7 +221,7 @@ sub new {
                                       list => "GLOBAL",
                                       file => "_register");
   $log->abort("Unable to initialize GLOBAL registry database: $!")
-    unless ($self->{'reg'}); #XLANG
+    unless ($self->{'reg'});
 
   # XXX Allow addresses to be drawn from the registry for delivery purposes.
   $self->{'lists'}{'GLOBAL'}->{'sublists'}{'MAIN'} = $self->{'reg'};
@@ -361,13 +361,13 @@ sub connect {
     # This assumes that there is only one process doing expiry, so our
     # directories can't be deleted twice.
     unless (mkdir($dir1, 0777)) {
-      warn "Can't mkdir $dir1: $!";  # XLANG
+      warn "Can't mkdir $dir1: $!";
     }
     unless (mkdir($dir2, 0777)) {
-      warn "Can't mkdir $dir2: $!";  # XLANG
+      warn "Can't mkdir $dir2: $!";
     }
     $log->abort("Can't write session file to $sfile, $!")
-      unless (open ($self->{sessionfh}, ">>$sfile"));  # XLANG
+      unless (open ($self->{sessionfh}, ">>$sfile"));
   }
 
   # Autoflush
@@ -2026,7 +2026,8 @@ sub list_config_set {
   if ($request->{'mode'} =~ /append/) {
     $join = $self->config_get_isarray($request->{'setting'});
     unless ($join) {
-      return (0, "Appending values to the $request->{'setting'} setting is not possible.\n"); #XLANG
+      # XLANG
+      return (0, "Appending values to the $request->{'setting'} setting is not possible.\n");
     }
     @tmp = $self->_list_config_get($request->{'list'}, $request->{'setting'}, 1);
     if ($join == 2) {
@@ -8264,6 +8265,7 @@ CHUNK:
     if ($request->{'mode'} =~ /bounce/ and $k and
         scalar @chunk < $chunksize)
     {
+      $chunksize = $chunksize - scalar @chunk;
       goto CHUNK;
     }
 
