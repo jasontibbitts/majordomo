@@ -544,6 +544,7 @@ files/en/format/text/.archive_none
 files/en/format/text/.archive_stats
 files/en/format/text/.configshow
 files/en/format/text/.configshow_array
+files/en/format/text/.configshow_bool
 files/en/format/text/.configshow_categories
 files/en/format/text/.configshow_enum
 files/en/format/text/.configshow_error
@@ -608,6 +609,7 @@ files/en/format/text/archive_none
 files/en/format/text/archive_stats
 files/en/format/text/configshow
 files/en/format/text/configshow_array
+files/en/format/text/configshow_bool
 files/en/format/text/configshow_categories
 files/en/format/text/configshow_enum
 files/en/format/text/configshow_error
@@ -672,6 +674,7 @@ files/en/format/wwwadm/.archive_stats
 files/en/format/wwwadm/.command
 files/en/format/wwwadm/.configshow
 files/en/format/wwwadm/.configshow_array
+files/en/format/wwwadm/.configshow_bool
 files/en/format/wwwadm/.configshow_categories
 files/en/format/wwwadm/.configshow_enum
 files/en/format/wwwadm/.configshow_error
@@ -743,6 +746,7 @@ files/en/format/wwwadm/archive_stats
 files/en/format/wwwadm/command
 files/en/format/wwwadm/configshow
 files/en/format/wwwadm/configshow_array
+files/en/format/wwwadm/configshow_bool
 files/en/format/wwwadm/configshow_categories
 files/en/format/wwwadm/configshow_enum
 files/en/format/wwwadm/configshow_error
