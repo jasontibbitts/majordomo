@@ -39,7 +39,6 @@ will handle getting the rest of the output of the core.
 package Mj::Format;
 use strict;
 use Mj::Log;
-use IO::File;
 
 use AutoLoader 'AUTOLOAD';
 1;
@@ -738,6 +737,7 @@ sub lists {
           };
 
   if ($ok <= 0) {
+    $global_subs->{'ERROR'} = $lists[0];
     $tmp = $mj->format_get_string($type, 'lists_error');
     $str = $mj->substitute_vars_format($tmp, $global_subs);
     print $out &indicate("$str\n", $ok, 1);
