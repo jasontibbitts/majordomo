@@ -945,14 +945,15 @@ sub _a_delay {
   return (-1, $td->{'command'} =~ /post/ ? 'ack_delay' : 'repl_delay');
 }
 
+use Date::Format;
 use Mj::MIMEParser;
 use Symbol;
 sub _a_forward {
   my ($self, $arg, $td, $args) = @_;
-
   my (%avars, $cmdline, $ent, $fh, $mj_owner, $parser,
       $subject, $tmpdir, $whoami);
   my $log = new Log::In 150, $arg;
+
   $cmdline = $td->{'cmdline'};
 
   if ($td->{'command'} !~ /post/) {
@@ -965,10 +966,12 @@ sub _a_forward {
 
     $ent = build MIME::Entity
       (
-       'Subject'  => "Forwarded request from $td->{'user'}\n",
-       'From'     => "$td->{'user'}\n",
-       'Reply-To' => "$td->{'user'}\n",
-       'Data'     => ["$cmdline\n"],
+       'Subject'  => "Forwarded request from $td->{'user'}",
+       'Date'     => time2str("%a, %d %b %Y %T %z", time),
+       'From'     => "$td->{'user'}",
+       'Reply-To' => "$td->{'user'}",
+       'To'       => $arg,
+       'Data'     => [ "$cmdline\n" ],
       );
   }
   else {
@@ -1005,11 +1008,14 @@ sub _a_forward {
       $arg = $self->_list_config_get($td->{'list'}, 'whoami_owner');
     }
   }
+
   $mj_owner = $self->_global_config_get('sender');
   $self->mail_entity($mj_owner, $ent, $arg) if ($ent and $arg);
   $ent->purge if $ent;
+
   # Cannot unlink spool file now, because it may be attached
   # to the reply message.
+
   return (-1, 'repl_forward');
 }
 
@@ -1048,6 +1054,7 @@ sub _a_replyfile {
   return (undef, undef, $out, \%file);
 }
 
+use Date::Format;
 use MIME::Entity;
 sub _a_mailfile {
   my ($self, $arg, $td, $args) = @_;
@@ -1072,6 +1079,9 @@ sub _a_mailfile {
      Charset     => $file{'charset'},
      Encoding    => $file{'c_t_encoding'},
      Filename    => undef,
+     -From       => $sender,
+     -To         => $td->{'user'},
+     -Date       => time2str("%a, %d %b %Y %T %z", time),
      -Subject    => $file{'description'},
      'Content-Language:' => $file{'language'},
     );
