@@ -2,9 +2,9 @@
 <tr>
   <td colspan=7>
     <input type=checkbox name=victims value="$STRIPADDR">$FULLADDR
-  <td colspan=5>
+  <td colspan=6>
     <select name="$STRIPADDR">
-      <option value="$CLASSES" $CLASS_SELECTED>$CLASSES:  $CLASS_DESCRIPTIONS
+      <option value="$CLASSES" $CLASS_SELECTED>$CLASS_DESCRIPTIONS
     </select>
 <tr>
   <td align=center><input type=checkbox name="$ADDRESS" value="$SETTINGS" $SETTING_CHECKED>

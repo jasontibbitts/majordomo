@@ -21,7 +21,7 @@ then press the $HELP:SET button.
 <table border>
   <tr>
     <td colspan=7>address
-    <td colspan=5>delivery class
+    <td colspan=6>delivery class
   <tr>
     <td align=center><small>$SETTINGS</small>
 

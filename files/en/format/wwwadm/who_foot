@@ -1,5 +1,5 @@
 <!-- Majordomo who_foot format file -->
-<tr><td colspan=3>Addresses found: $COUNT
+<tr><td colspan=13>Addresses found: $COUNT
 </table>
   <input type=submit name=func value=$REMOVE>
   <input type=submit name=func value="set">
@@ -12,11 +12,11 @@
 <ol>
   <li>Choose one of the three search methods by pressing
       the appropriate button.
-  <li>Type a search pattern into the first box. (Please see
+  <li>Type a search pattern into the <b>Search pattern</b> box. (Please see
       the $HELP:PATTERNS help document to learn how to write
       a search pattern.
   <li>Type the number of addresses you wish to view at
-      one time into the second box.
+      one time into the <b>Number of addresses</b> box.
   <li>Press the <b>search</b> button.
 </ol>
 
