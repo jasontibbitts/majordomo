@@ -133,6 +133,7 @@ sub do_default_config {
 	   'addr_strict_domain_check' => $config->{domain}{$dom}{addr_strict_domain_check},
 	   'addr_xforms'     => $config->{ignore_case} ? "ignore case" : '',
            'master_password' => $config->{'domain'}{$dom}{master_password},
+           'mta'             => $config->{'mta'},
            'owners'          => $config->{'domain'}{$dom}{owner},
            'resend_host'     => $config->{'domain'}{$dom}{whereami},
            'sender'          => $owner,
@@ -316,12 +317,14 @@ sub make_alias_symlinks {
   my $dom = shift;
   my $dir = shift;
 
+  unlink "$dir/mj-alias-$dom" if (-e "$dir/mj-alias-$dom");
   symlink("$config->{lists_dir}/ALIASES/mj-alias-$dom", "$dir/mj-alias-$dom") ||
     warn retr_msg('no_symlink', $lang, 'SOURCE' => "$dir/mj-alias-$dom",
                   'DEST' => "$config->{lists_dir}/ALIASES/mj-alias-$dom",
                   'ERROR' => $!);
 
   if ($config->{sendmail_maintain_vut}) {
+    unlink "$dir/mj-vut-$dom" if (-e "$dir/mj-vut-$dom");
     symlink("$config->{lists_dir}/ALIASES/mj-vut-$dom", "$dir/mj-vut-$dom") ||
     warn retr_msg('no_symlink', $lang, 'SOURCE' => "$dir/mj-vut-$dom",
                   'DEST' => "$config->{lists_dir}/ALIASES/mj-vut-$dom",
