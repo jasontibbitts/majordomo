@@ -712,6 +712,7 @@ sub get_matching_quick {
   return @keys;
 }
 
+use Mj::Util qw(re_match);
 sub get_matching_quick_regexp {
   my $self  = shift;
   my $log   = new Log::In 121, "$self->{filename}, @_";
@@ -724,7 +725,7 @@ sub get_matching_quick_regexp {
     ($k, $v) = $self->_get;
     last unless $k;
 
-    if (defined($v->{$field}) && _re_match($value, $v->{$field})) {
+    if (defined($v->{$field}) && re_match($value, $v->{$field})) {
       push @keys, $k;
       next;
     }
@@ -763,6 +764,7 @@ sub get_matching {
   return @keys;
 }
 
+use Mj::Util qw(re_match);
 sub get_matching_regexp {
   my $self  = shift;
   my $count = shift;
@@ -775,7 +777,7 @@ sub get_matching_regexp {
     ($k, $v) = $self->_get;
     last unless $k;
 
-    if (defined($v->{$field}) && _re_match($value, $v->{$field})) {
+    if (defined($v->{$field}) && re_match($value, $v->{$field})) {
       push @keys, ($k, $v);
       next;
     }
@@ -832,6 +834,7 @@ sub lookup_quick {
   return $value;
 }
 
+use Mj::Util qw(re_match);
 sub lookup_quick_regexp {
   my $self = shift;
   my $reg  = shift;
@@ -850,7 +853,7 @@ sub lookup_quick_regexp {
        $data = $sth->fetchrow_hashref) {
       $key = delete $data->{t_key};
       $value = $data;
-      if (_re_match($reg, $key)) {
+      if (re_match($reg, $key)) {
 	return ($key, $value);
       }
     }
