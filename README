@@ -283,7 +283,7 @@ of.  Otherwise this will give you the necessary configuration information.
 
 You can pull in a set of addresses from a Majordomo 1.9x list like this:
 
-mj_shell -p password -f old-list-file subscribe=quiet,noinform list-name
+mj_shell -p password -f old-list-file subscribe=quiet=noinform list-name
 
 (This subscribes all addresses from a file, without welcoming them and
 without sending an informational notification to the list owner).
