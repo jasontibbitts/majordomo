@@ -1,4 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  message_headers <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset listname message_headers <<TAG
 [VALUE LINES]
 TAG

@@ -6,7 +6,7 @@ TAG
 Default Value : each ... (only first item is shown)
 Data Type     : enum_array, choose from: all digest each nomail
 Variable Group: class
-Password Notes: Visible only with password. 
+Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
