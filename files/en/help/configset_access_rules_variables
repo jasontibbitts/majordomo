@@ -506,7 +506,9 @@ Third, an explanation of each variable:
                                not the same (after aliasing,
                                transformation, etc.)
 
-                        mode - ?undocumented?
+                        mode - contains the command mode or switch: for
+                               example, it contains 'enhanced' when the
+                               'who-enhanced' command is used
 
              password_length - contains the length in characters of the new
                                password the user is trying to set (can be
@@ -520,8 +522,8 @@ Third, an explanation of each variable:
                 quoted_lines - contains the number of lines that matched
                                the pattern in 'configset quote_pattern'
 
-                     sublist - is set when processing a 'post' that is
-                               going to an auxiliary list
+                     sublist - is set to the name of the sublist, if a
+                               message was posted to an auxiliary list
 
                        taboo - is set if any taboo_* variable is set (note
                                that taboo configsets can create new
