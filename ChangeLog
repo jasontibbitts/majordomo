@@ -1,3 +1,9 @@
+2001-03-02  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Token.pm:  (t_accept)  Bugfix:  Create an Mj::Addr object
+	before testing whether or not to send an acknowledgment to that 
+	address.
+
 2001-03-01  Michael Yount <csf@moscow.com>
 
 	* bin/mj_shell:  Bugfix:  allow command completion to work again.

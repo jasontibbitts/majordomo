@@ -674,6 +674,7 @@ sub t_accept {
   $data->{'ack'} = 1;
   if ($func eq 'post') {
     # determine whether or not the victim was notified.
+    $vict = new Mj::Addr($data->{'victim'});
     unless ($self->{'lists'}{$data->{'list'}}->should_ack(
          $data->{'sublist'}, $vict, 'f')) {
       $data->{'ack'} = 0;
@@ -708,7 +709,7 @@ sub t_accept {
     return (1, '', $data, [1]);
   }
   else {
-    $vict = new Mj::Addr($data->{'victim'});
+    $vict = new Mj::Addr($data->{'victim'}) unless (defined $vict);
     $req  = new Mj::Addr($data->{'user'});
     $func = "_$func";
     @out = $self->$func($data->{'list'},
