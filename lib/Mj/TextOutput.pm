@@ -195,7 +195,7 @@ sub auxwho {
 
   my @stuff = ($user, $pass, $auth, $int,
 	       "auxwho".($mode?"=$mode":"")." $list $sublist",
-	       $mode, $list, '', $sublist);
+	       $mode, $list, $user, $sublist);
 
   Mj::Format::auxwho($mj, $outfh, $outfh, 'text', @stuff, '', '',
 		     $mj->dispatch('auxwho_start', @stuff)
@@ -450,7 +450,7 @@ sub info {
   my $log = new Log::In 27, "$args";
   my ($cmdline, $mess, $ok);
 
-  $cmdline = "info" . ($mode?"=$mode":"") . " $list";
+  $cmdline = "info" . ($mode?"-$mode":"") . " $list";
   
   Mj::Format::info($mj, $outfh, $outfh, 'text', $user, $passwd, $auth,
 		   $interface, $cmdline, $mode, $list, $user, '', '', '',
@@ -465,7 +465,7 @@ sub intro {
   my $log = new Log::In 27, "$args";
   my ($cmdline, $mess, $ok);
 
-  $cmdline = "intro" . ($mode?"=$mode":"") . " $list";
+  $cmdline = "intro" . ($mode?"-$mode":"") . " $list";
   
   Mj::Format::intro($mj, $outfh, $outfh, 'text', $user, $passwd, $auth,
 		    $interface, $cmdline, $mode, $list, $user, '', '', '',
@@ -482,7 +482,7 @@ sub lists {
   my $log = new Log::In 27;
 
   my @stuff = ($user, $passwd, $auth, $interface,
-	       "lists".($mode?"=$mode":""), $mode, '', '', '', '', '');
+	       "lists".($mode?"-$mode":""), $mode, '', $user, '', '', '');
 
   Mj::Format::lists($mj, $outfh, $outfh, 'text', @stuff, 
 		    $mj->dispatch('lists', @stuff)
@@ -594,8 +594,8 @@ sub put {
   }
 
   # The last four arguments are the c-t, cset, c-t-e and language
-  @stuff = ($user, $passwd, $auth, $interface, $cmdline, $mode, $list, '',
-	    $file, $desc);
+  @stuff = ($user, $passwd, $auth, $interface, $cmdline, $mode, $list,
+	    $user, $file, $desc);
 
   ($ok, @out) = $mj->dispatch('put_start', @stuff, $ct, $cset, $cte, $lang);
 
@@ -972,7 +972,7 @@ sub who {
   my $log = new Log::In 27;
 
   my @stuff = ($user, $pass, $auth, $int,
-               "who".($mode?"=$mode":"")." $list", $mode, $list, '');
+               "who".($mode?"=$mode":"")." $list", $mode, $list, $user);
 
   Mj::Format::who($mj, $outfh, $outfh, 'text', @stuff, $args,'','',
 		  $mj->dispatch('who_start', @stuff, $args)

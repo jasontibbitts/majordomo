@@ -219,6 +219,9 @@ sub is_subscriber {
   my $log = new Log::In 170, "$self->{'name'}, $addr";
   my ($ok, $out, $subs);
 
+  return 0 unless $addr->isvalid;
+  return 0 if $addr->isanon;
+
   # If we have cached data within the addr, use it
   $subs = $addr->retrieve('subs');
   if ($subs) {
@@ -811,12 +814,11 @@ sub aux_is_member {
   my $addr = shift;
   my ($saddr, $ok);
 
-  ($ok, $saddr, undef) = $self->{'av'}->validate($addr);
-  if ($ok) {
-    $self->_make_aux($name);
-    return $self->{'auxlists'}{$name}->lookup_quick($saddr);
-  }
-  return undef;
+  return 0 unless $addr->isvalid;
+  return 0 if $addr->isanon;
+
+  $self->_make_aux($name);
+  return $self->{'auxlists'}{$name}->lookup_quick($addr->canon);
 }
 
 =head2 aux_rekey_all()

@@ -134,6 +134,15 @@ if (!$skip && -t STDIN) {
   }
 }
 
+if ($config->{sendmail_make_symlinks}) {
+  print "Making symlinks in $config->{sendmail_symlink_location}";
+  for my $i (@{$config->{'domains'}}) {
+    make_alias_symlinks($i, $config->{sendmail_symlink_location});
+    dot;
+  }
+  print ".ok\n";
+}
+
 if (!$skip && !$quiet && -t STDIN) {
   print <<"EOM";
 
@@ -245,9 +254,10 @@ sub create_dirs {
   for $i (@$doms) {
     printf "ok.\nMaking directories for %s, mode %lo.\n", $i, (0777 & ~oct($um))
       if $verb;
-    safe_mkdir("$l/$i",                 0777 & ~oct($um), $uid, $gid);dot;
-    safe_mkdir("$l/$i/GLOBAL",          0777 & ~oct($um), $uid, $gid);dot;
-    safe_mkdir("$l/$i/GLOBAL/sessions", 0777 & ~oct($um), $uid, $gid);dot;
+    safe_mkdir("$l/$i",                    0777 & ~oct($um), $uid, $gid);dot;
+    safe_mkdir("$l/$i/GLOBAL",             0777 & ~oct($um), $uid, $gid);dot;
+    safe_mkdir("$l/$i/GLOBAL/sessions",    0777 & ~oct($um), $uid, $gid);dot;
+    safe_mkdir("$l/$i/GLOBAL/files",       0777 & ~oct($um), $uid, $gid);dot;
   }
   print "ok.\n" unless $quiet;
 }
@@ -275,6 +285,10 @@ sub do_config {
   open FILE, ">$config->{wtmpdir}/inst.$$";
   print FILE "approve $config->{site_password} configset GLOBAL master_password = $pw\n";
   print FILE "default password $pw\n";
+
+  # Make the necessary directories in the GLOBAL filespace
+  print FILE "put-dir GLOBAL /spool Spooled Files\n";
+  print FILE "put-dir GLOBAL /public Public Files\n";
   print FILE "configset GLOBAL whereami = $dom\n";
   for $i (qw(tmpdir site_name whoami)) {
     $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};
@@ -310,7 +324,7 @@ sub do_config {
 
 # Dump out the initial site config
 sub do_site_config {
-  my $data;
+  my($data, $mtaopts);
 
   # Prompt for the site password if necessary
   $pw = $config->{'site_password'};
@@ -321,12 +335,21 @@ sub do_site_config {
 
   print "Configuring site-wide parameters:";
 
+  # Figure out what to stash in the MTA options
+  $mtaopts = {};
+  if ($config->{'mta'} eq 'sendmail') {
+    $mtaopts->{'maintain_config'} = 1
+      if $config->{'maintain_mtaconfig'};
+    $mtaopts->{'maintain_vut'} = 1
+      if $config->{'sendmail_maintain_vut'};
+  }
+
   # Build up the Data hash.
   $data = {
 	   'site_password'      => $pw,
 	   'install_dir'        => $config->{'install_dir'},
 	   'mta'                => $config->{'mta'},
-	   'maintain_mtaconfig' => $config->{'maintain_mtaconfig'},
+	   'mta_options'        => $mtaopts,
 	   'cgi_bin'            => $config->{'cgi_bin'},
 	  };
 
@@ -423,6 +446,17 @@ sub suggest_mta {
   system(@args) == 0 or die "Error executing $args[0], $?";
 }
 
+sub make_alias_symlinks {
+  my $dom = shift;
+  my $dir = shift;
+
+  symlink("$config->{lists_dir}/ALIASES/mj-alias-$dom", "$dir/mj-alias-$dom");
+
+  if ($config->{sendmail_maintain_vut}) {
+    symlink("$config->{lists_dir}/ALIASES/mj-vut-$dom", "$dir/mj-vut-$dom");
+  }
+}
+
 sub suggest_crontab {
   my $dom = shift;
   return <<"EOM";
@@ -432,8 +466,6 @@ sub suggest_crontab {
 0 * * * * $config->{'install_dir'}/bin/mj_trigger -d $dom -t hourly
 EOM
 }
-
-  
 
 sub get_str {
   return prompt(shift, shift);

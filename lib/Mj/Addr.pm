@@ -166,12 +166,24 @@ sub new {
   my $val = shift;
   my $key;
 
+  # Bail if creating an Addr from an Addr
   return $val if ref($val) eq 'Mj::Addr';
 
   $self->{'full'} = $val;
   return undef unless $self->{'full'};
 #  my $log = new Log::In 150, $self->{'full'};
   bless $self, $class;
+
+  if ($val =~ /\@anonymous$/) {
+    $self->{'aliased'} = 1;
+    $self->{'anon'} = 1;
+    $self->{'parsed'} = 1;
+    $self->{'valid'} = 1;
+    $self->{'xformed'} = 1;
+    $self->{'canon'} = $val;
+    $self->{'strip'} = $val;
+    $self->{'xform'} = $val;
+  }
 
   # Copy in defaults, then override.
   while (($key, $val) = each %defaults) {
@@ -272,6 +284,16 @@ sub isvalid {
   $self->_parse unless $self->{parsed};
   $self->{'valid'};
 }  
+
+=head2 isanon
+
+Returns true if the address is anonymous.
+
+=cut
+sub isanon {
+  my $self = shift;
+  return $self->{'anon'};
+}
 
 =head2 xform
 

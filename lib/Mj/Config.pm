@@ -1178,7 +1178,7 @@ sub parse_address {
   # We try to tack on a hostname if one isn't given
   unless ($str =~ /\@/) {
     $str .= "\@" . $::mj->_global_config_get('whereami');
-  }    
+  }
 
   my $addr = new Mj::Addr($str);
   my ($ok, $mess) = $addr->valid;

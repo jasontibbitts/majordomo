@@ -89,8 +89,8 @@ $site_name =
 # Parse the token and extract some useful data from it
 $token = $mj->t_recognize($ptoken) || "";
 ($ok, $mess, @data) =
-  $mj->dispatch('tokeninfo', 'unknown', '', '', 'wconfirm', 'tokeninfo
-		$token', '', '', '', $token)
+  $mj->dispatch('tokeninfo', 'unknown@anonymous', '', '', 'wconfirm',
+		'tokeninfo $token', '', '', '', $token)
   if $token;
 
 if ($ok) {
@@ -185,7 +185,7 @@ else {
 <h1>Majordomo Request Confirmation Results</h1>
 EOF
 
-  @args = ('unknown', '', '', 'wconfirm', "accept $token", '', '', '');
+  @args = ('unknown@anonymous', '', '', 'wconfirm', "accept $token", '', '', '');
 
   # Call the appropriate function
   if ($action eq "accept") {

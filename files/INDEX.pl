@@ -139,8 +139,6 @@ $dirs =
    'stock/de/help'          => 'German Help Files',
    'stock/de/informal'      => 'Informal German',
    'stock/de/informal/help' => 'Informal German Help Files',
-   'spool'                  => 'Spooled files',
-   'public'                 => 'Public files',
   ];
 
 [$files, $dirs];

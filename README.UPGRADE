@@ -1,5 +1,13 @@
 Notes on upgrading from alpha1 or before:
 
+1998.11.10(CVS):
+
+The names of the generated alias files have changed.  The install
+regenerates them , so you can delete the old ones.  Be sure to redo your
+sendmail configuration.  If you had to make symlinks by hand to get
+sendmail to accept the alias files, you can configure the installer to do
+that for you now.
+
 1998.10.16(snapshot):
 
 The format of the 'digests' variable has changed.  Nobody should be using

@@ -217,6 +217,9 @@ sub connect {
 
   # Generate a session ID; hash the session, the time and the PID
   $id = MD5->hexhash($sess.scalar(localtime).$$);
+  $id =~ /(.*)/; $id = $1; # Safe to untaint because it's nearly impossible
+                           # to leak information through the digest
+                           # algorithm.
 
   # Open the session file; overwrite in case of a conflict;
   $self->{sessionid} = $id;
@@ -270,14 +273,15 @@ processing done at the beginning.
 sub dispatch {
   my ($self, $fun, $user, $pass, $auth, $int, $cmd, $mode, $list, $vict,
       @extra) = @_;
-  my $log  = new Log::In 29, "$fun, $user" unless $fun =~ /_chunk$/;
   my(@out, $base_fun, $continued, $mess, $ok, $over);
 
   ($base_fun = $fun) =~ s/_(start|chunk|done)$//;
   $continued = 1 if $fun =~ /_(chunk|done)/;
   $list ||= 'GLOBAL';
-  $vict ||= '';
+  $vict ||= $user;
   $mode ||= '';
+
+  my $log  = new Log::In 29, "$fun, $user, $vict" unless $fun =~ /_chunk$/;
 
   $log->abort('Not yet connected!') unless $self->{'sessionid'};
 
@@ -285,11 +289,22 @@ sub dispatch {
     return (0, "Illegal core function: $fun.\n");
   }
 
-  # Turn some strings into addresses
+  # Turn some strings into addresses and check their validity; never with a
+  # continued function (they never need it) and only if the function needs
+  # validated addresses.
   unless ($continued || function_prop($fun, 'noaddr')) {
-    $user = new Mj::Addr($user); $vict = new Mj::Addr($vict);
+    $user = new Mj::Addr($user);
+    ($ok, $mess) = $user->valid;
+    return (0, "$user is an invalid address:\n$mess")
+      unless $ok;
+
+    $vict = new Mj::Addr($vict);
+    ($ok, $mess) = $vict->valid;
+    return (0, "$vict is an invalid address:\n$mess")
+      unless $ok;
   }
 
+  # Check for suppression of logging and owner information
   if ($mode =~ /nolog/) {
     # This is serious; user must use the master global password.
     $ok = $self->validate_passwd($user, $pass, $auth, $int,
@@ -309,16 +324,6 @@ sub dispatch {
     $over = 0;
   }
 
-  unless ($continued || function_prop($fun, 'noaddr')) {
-    ($ok, $mess) = $user->valid;
-    return (0, "$user is an invalid address:\n$mess")
-      unless $ok;
-    if ($vict) {
-      ($ok, $mess) = $vict->valid;
-      return (0, "$vict is an invalid address:\n$mess")
-	unless $ok;
-    }
-  }
   if (function_prop($fun, 'top')) {
     @out = $self->$fun($user, $pass, $auth, $int, $cmd, $mode, $list, $vict, @extra);
   }
@@ -600,6 +605,9 @@ sub _reg_lookup {
   my $cache = shift;
   my ($subs, $tmp);
 
+  return undef unless $addr->isvalid;
+  return undef if $addr->isanon;
+
   $tmp = $addr->retrieve('reg');
   if ($cache && $tmp) {
     return $tmp;
@@ -707,6 +715,11 @@ sub is_subscriber {
   my $list = shift;
   my $reg  = shift;
   my ($subs);
+
+  # By default, invalid addresses and anonymous addresses are never
+  # subscribers to anything
+  return 0 unless $addr->isvalid;
+  return 0 if $addr->isanon;
 
   # If passed some data, prime the cache
   if ($reg) {
@@ -1910,6 +1923,7 @@ sub _get_stock {
   my (%out, $data, $lang);
 
   # Ugly hack, but 'my' variables aren't available in require'd files
+  $indexflags = 0;
   $indexflags |= 1 if $self->{'sitedata'}{'config'}{'cgi_bin'};
 
   # Pull in the index file if necessary
@@ -2615,7 +2629,8 @@ sub _createlist {
   my($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list) = @_;
   $list ||= '';
   my $log = new Log::In 35, "$mode,$list";
-  my(%args, @lists, $bdir, $dir, $dom, $mess, $mta, $rmess, $who);
+  my(%args, @lists, $bdir, $dir, $dom, $mess, $mta, $mtaopts, $rmess,
+     $who);
 
   $owner = new Mj::Addr($owner);
   $mta   = $self->_site_config_get('mta');
@@ -2624,16 +2639,16 @@ sub _createlist {
   $bdir .= "/bin";
   $who   = $self->_global_config_get('whoami');
   $who   =~ s/@.*$//; # Just want local part
+  $mtaopts = $self->_site_config_get('mta_options');
 
   %args = ('bindir' => $bdir,
+	   'topdir' => $self->{topdir},
 	   'domain' => $dom,
 	   'whoami' => $who,
+	   'options'=> $mtaopts,
 	  );
 
-  if ($self->_site_config_get('maintain_mtaconfig')) {
-    $args{aliasfile} = "$self->{topdir}/ALIASES/$dom";
-  }
-  else {
+  unless ($mtaopts->{'maintain_config'}) {
     # We know that we'll give back instructions, so pull out the header.
     $mess = $Mj::MTAConfig::header{$mta} 
       unless $mode =~ /noheader/;

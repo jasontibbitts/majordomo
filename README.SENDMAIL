@@ -1,32 +1,105 @@
 Information for Sendmail users
 
+Overview:
+
 Majordomo2 can generate the necessary Sendmail aliases required to run a
 list by itself.  It can also maintain alias files for each domain run at
-your site.  It will not, however, modify your master alias file, nor will
-it make the necessary changes to your sendmail.cf to enable the additional
-alias files required.
+your site and generate the necessary virtusertable files required to run
+the lists in separate virtual domains.  It will not, however, modify your
+master alias file, nor will it make the necessary changes to your
+sendmail.cf to enable the additional alias and virtuser files required.
 
 When Makefile.PL is run, you will be prompted for what MTA you are running
 and (assuming it's Sendmail) whether or not you want Majordomo to maintain
-the alias files for you.  Answering 'no' to the latter question will cause
-Mj2 to suggest aliases to you but to do nothing else with them.  Otherwise
-they will be accumulated in a directory called 'ALIASES' in files named
-after the domain being served.  Appropriate permissions will be used to
-satisfy the picky nature of recent versions of Sendmail.
+the alias files for you and whether or not you want virtusertable entries
+maintained as well.
 
-Note that you can use these alias files as guides; they are perfectly
-useful as cut-and-paste material even if you do not make the necessary
-sendmail.cf changes to enable them.
+If you don't want Mj2 maintaining the files itself then it will simply
+suggest aliases and do nothing to collect them.  Otherwise they will be
+accumulated in a directory called 'ALIASES' in files named after the domain
+being served.  Appropriate permissions will be used to satisfy the picky
+nature of recent versions of Sendmail, but some Sendmail versions are so
+picky that this is not suffient, so Mj2 can make root-owned symbolic links
+on an appropriate place of your choosing to get around this.
+
+Note that you can use the generated alias and virtuser files as guides;
+they are perfectly useful as cut-and-paste material even if you do not make
+the necessary sendmail.cf changes to enable them.
+
+
+Makefile.PL Questions Explained:
+
+Should Majordomo maintain your aliases automatically?
+
+Answering 'no' will cause Mj2 to suggest aliases but not do anything with
+them.  You will be responsible for pasting these aliases into the
+appropriate file and rebuilding the alias database.
+
+Answering 'yes' will cause Mj2 to accumulate the aliases in a directory
+called ALIASES under the list directory.
+
+
+Should Majordomo maintain VirtUserTable files as well?
+
+If you are using the VirtUserTable function of sendmail to support virtual
+domains, Majordomo can generate special aliases and the necessary VUT
+entries to go with them.  Answer 'yes' to this question if you are running
+virtual domains and want VUT support; otherwise answer 'no' and Mj2 will
+generate aliases appropriate for a single domain.
+
+If you answer 'yes', Majordomo will generate aliases that include the
+domain name in each address, like so:
+
+majordomo-your.site.com: "|/path/to/mj_email -options"
+
+The corresponding virtusertable entry will map majordomo@your.site.com to
+this address appropriately:
+
+majordomo@your.site.com		majordomo-your.site.com
+
+Note that there will be one virtusertable file per domain.
+
+
+Should Majordomo make links to alias and virtuser files?
+
+Sendmail can be very picky about permissions.  Some versions of sendmail on
+some systems will not allow alias files or virtuser files to be located in
+a directory owned by the majordomo user.  Unfortunately this prevents
+Majordomo from actually manipulating the files.  One workaround is to make
+links from a root-owned directory (usually /etc/mail) to the
+majordomo-owned directory.  Answering 'yes' to this question will cause the
+installer to set up symbolic links from a directory of your choice to the
+majordomo-maintained files.
+
+You only need to answer 'yes' if you have found that rebuilding the
+Majordomo-created alias databases fails with some form of permission
+problem.  Even answering 'yes' may not solve the problem; this is only a
+hack that is known to work in some circumstances.
+
+Where should Majordomo place the symbolic links to alias and virtuser files?
+
+Choose the directory in which to place the symbolic links you requested in
+the previous question.  This should probably be /etc/mail if it exists, or
+/etc or some other pre-existing root-owned directory that Sendmail is happy
+with.
+
+
+
+Configuring Sendmail:
 
 There are two basic ways these sendmail.cf changes are made: through the M4
 configuration files or by editing sendmail.cf directly.
+
+
+Alias files:
 
 If you use the M4 files, add a line like the following:
 
 define(`ALIAS_FILE',`/etc/mail/aliases,/path/to/lists/ALIASES/domain1,/path/to/lists/ALIASES/domain2')
 
 Substituting "/path/to/lists", "domain1" and "domain2" with the appropriate
-path to the ALIASES directory and the appropriate domain names,
+path to the ALIASES directory or the place where you requested that
+appropriate symlinks be made, and the appropriate domain names,
 respectively.  Then rebuild and install the resulting cf file.
 
 If you modify sendmail.cf directly, look for a line like:
@@ -35,7 +108,7 @@ O AliasFile=/etc/mail/aliases
 
 And add the appropriate paths on the end:
 
-O AliasFile=/etc/mail/aliases,/path/to/lists/ALIASES/domain1,/path/to/lists/ALIASES/domain2
+O AliasFile=/etc/mail/aliases,/path/to/lists/ALIASES/mj-alias-domain1,/path/to/lists/ALIASES/mj-alias-domain2
 
 again making the appropriate substitutions.
 
@@ -45,6 +118,52 @@ to manually run the newaliases command to rebuild the alias databases
 appropriately.  It is recommended that you turn this on if you want to be
 able to issue a single Majordomo command and have new lists spring into
 being.
+
+
+VirtUser files:
+
+!!!NOTE: this is written according to the sendmail docs but has not been
+tested.  Please report your experiences.
+
+You should already have a line in sendmail.cf like
+
+Kvirtuser dbm -o /etc/virtusertable
+
+or if you use M4 files, something like
+
+FEATURE(virtusertable, dbm -o /etc/mail/virtusers)
+
+in your .mc file.  What you want to do is add various other virtuser maps
+that are searched in addition to this.  In sendmail.cf, you want something like:
+
+Kvirtuser0 dbm -o /etc/virtusertable
+Kvirtuser1 dbm -o /path/to/lists/ALIASES/mj-vut-domain1
+Kvirtuser2 dbm -o /path/to/lists/ALIASES/mj-vut-domain2
+Kvirtuser sequence virtuser0 virtuser1 virtuser2
+
+which creates three separate maps, then chains them together to form the
+final virtuser map.
+
+To do this with the M4 config, you need a like like:
+
+FEATURE(virtusertable, sequence virtuser0 virtuser1 virtuser2)
+
+and then, at the very end of the .mc file, use a LOCAL_CONFIG section to
+add some code verbatim into the .mc file:
+
+LOCAL_CONFIG
+#
+# Add additional virtusertable files
+#
+Kvirtuser0 dbm -o /etc/virtusertable
+Kvirtuser1 dbm -o /path/to/lists/ALIASES/mj-vut-domain1
+Kvirtuser2 dbm -o /path/to/lists/ALIASES/mj-vut-domain2
+
+Note that currently you must rebuild these using makemap yourself; Sendmail
+has no facility to automatically rebuild these files.  You may want to do
+it from cron.  Eventually some way of having Majordomo call makemap may be
+incorporated.
+
 
 Finally, a note about locking.  There is no locking between Sendmail and
 Majordomo when it comes to modifying the alias files.  This means that it

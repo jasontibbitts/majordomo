@@ -52,8 +52,9 @@ use vars qw(@ISA);
 @ISA=qw(Mj::SimpleDB);
 
 my @fields = (qw(stripaddr fulladdr changetime regtime password language
-		 lists flags bounce warnings data1 data2 data3 data4
-		 data5));
+		 lists flags bounce warnings data01 data02 data03 data04
+		 data05 data06 data07 data08 data09 data10 data11 data12
+		 data13 data14 data15));
 
 =head2 new(path)
 

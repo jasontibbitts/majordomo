@@ -1,3 +1,48 @@
+Tue Nov 10 00:36:26 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* postinstall (make_alias_symlinks): If requested, make symlinks
+ 	from an appropriate root-owned place to the generated alias and
+ 	vut files.
+
+	* lib/Majordomo.pm (is_subscriber): Fix typo.
+
+Mon Nov  9 17:40:44 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* postinstall (do_site_config): Push various MTA options into the
+ 	site config.
+
+	* lib/Majordomo.pm (_reg_lookup): Invalid or anonymous addresses
+ 	are never registered.
+
+	* lib/Mj/List.pm (is_subscriber): Invalid or anonymous addresses
+ 	are never subscribers.
+	(aux_is_member): Was very crusty; should be reasonable now.
+
+	* bin/mj_confirm: When an address is required, use
+ 	'unknown@anonymous' (i.e. an anonymous address) so we can still
+ 	extract information.  This address is special cased as being
+ 	valid.
+
+	* lib/Mj/Addr.pm (isanon): New function.
+	(new): Deal with anonymous addresses.
+
+	* lib/Majordomo.pm (_get_stock): Quiet $undexflags undef warning.
+	(dispatch): Clean up and bring sanity to address validation.
+
+	* postinstall (do_config): Make the spool directory inside of the
+ 	filespace.  Also make the public directory.
+
+Fri Nov  6 18:17:18 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (connect): Untaint session ID; it is generated
+ 	in part by tainted data, but the chances of this being used to
+ 	influence the session key is negligible.
+
+Thu Nov  5 20:03:09 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* postinstall (create_dirs): Errantly removed code to make the
+ 	spool directory.  Bad.
+
 Wed Oct 28 10:27:26 1998  Jason L Tibbitts III  <tibbs@hpc.uh.edu>
 
 	* lib/Mj/MTAConfig.pm (add_alias, regen_aliases): Restrict umask

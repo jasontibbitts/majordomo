@@ -38,11 +38,6 @@ $e = qq!\Qwhereami set to "example.com".\n!;
 $r = run('-p gonzo configset GLOBAL whereami = example.com');
 ok($e, $r);
 
-# Set the MTA so we can create a list
-#$e = qq!\Qmta set to "sendmail".\n!;
-#$r = run('-p gonzo configset GLOBAL mta = sendmail');
-#ok($e, $r);
-
 # Create a list
 $e = ".*";
 $r = run('-p gonzo createlist bleeargh nobody@example.com');

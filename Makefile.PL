@@ -12,7 +12,7 @@ BEGIN {
 
 # A version variable we can use to force users to reconfigure when we add
 # new questions.
-my $config_version = 2;
+my $config_version = 3;
 
 my @SIDSCRIPTS = qw(mj_email mj_shell mj_resend mj_confirm);
 my @SCRIPTS = qw(mj_trigger);
@@ -529,8 +529,8 @@ EOM
     (-x '/usr/sbin/sendmail' && 'sendmail');
   $config->{'mta'} = get_enum($msg, $def, [qw(none sendmail)]);
 
-  #---- Ask if aliases should be maintained
   if ($config->{'mta'} eq 'sendmail') {
+    #---- Ask if aliases should be maintained
     $msg = <<EOM;
 
 Should Majordomo maintain your aliases automatically?
@@ -541,8 +541,44 @@ Should Majordomo maintain your aliases automatically?
  If you say no, Majordomo  will provide you with information to paste into
   your aliases file when you add new lists.
 EOM
-    $def = $config->{'maintain_mtaconfig'} || 'y';
+    $def = $config->{'maintain_mtaconfig'} || 1;
     $config->{'maintain_mtaconfig'} = get_bool($msg, $def);
+
+    #---- Ask about virtuser files as well
+    $msg = <<EOM;
+
+Should Majordomo maintain VirtUserTable files as well?
+ Majordomo can also automatically maintain VirtUserTable files for handling
+  virtual domains.  If you answer 'yes', these files will be generated and
+  the aliases will be adjusted appropriately.
+EOM
+    $def = $config->{'sendmail_maintain_vut'} || 0;
+    $config->{'sendmail_maintain_vut'} = get_bool($msg, $def);
+
+    #---- Ask about making links
+    $msg = <<EOM;
+
+Should Majordomo make links to alias and virtuser files?
+ Some Sendmail versions will complain about permission problems with
+  Majordomo-generated alias files; this attempts to work around that by
+  making some symbolic links.
+EOM
+    $def = $config->{'sendmail_make_symlinks'} || 0;
+    $config->{'sendmail_make_symlinks'} = get_bool($msg, $def);
+
+    if ($config->{'sendmail_make_symlinks'}) {
+      #---- Ask about link location
+      $msg = <<EOM;
+
+Where should these links be made?
+ This needs to be a root-owned directory with sufficiently restrictive
+  permissions to appease Sendmail.
+EOM
+      $def = $config->{'sendmail_symlink_location'} ||
+        (-d "/etc/mail" && "/etc/mail") ||
+	(-d "/etc" && "/etc") || '';  
+      $config->{'sendmail_symlink_location'} = get_dir($msg, $def);
+    }
   }
 
   #---- Ask for virtual domains

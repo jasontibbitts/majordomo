@@ -56,6 +56,14 @@ scratch.
 sub sendmail {
   my %args = @_;
   my $log = new Log::In 150;
+  my $dom = $args{domain};
+
+  if ($args{options}{maintain_config}) {
+    $args{aliasfile} = "$args{topdir}/ALIASES/mj-alias-$dom";
+    if ($args{options}{maintain_vut}) {
+      $args{vutfile} = "$args{topdir}/ALIASES/mj-vut-$dom"
+    }
+  }
 
   if ($args{regenerate}) {
     return Mj::MTAConfig::Sendmail::regen_aliases(%args);
@@ -86,7 +94,7 @@ Things we need:
 sub add_alias {
   my $log  = new Log::In 150;
   my %args = @_;
-  my ($block, $debug, $fh);
+  my ($block, $debug, $fh, $vblock, $vut);
   my $bin  = $args{bindir} || $log->abort("bindir not specified");
   my $dom  = $args{domain} || $log->abort("domain not specified");
   my $list = $args{list}   || 'GLOBAL';
@@ -100,27 +108,54 @@ sub add_alias {
     $debug = '';
   }
 
+  if ($args{options}{maintain_vut}) {
+    $vut = "-$dom";
+  }
+  else {
+    $vut = '';
+  }
+
+
   if ($list eq 'GLOBAL') {
     $block = <<"EOB";
 # Aliases for Majordomo at $dom
-$who:       "|$bin/mj_email -m -d $dom$debug"
-$who-owner: "|$bin/mj_email -o -d $dom$debug"
-owner-$who: majordomo-owner,
+$who$vut:       "|$bin/mj_email -m -d $dom$debug"
+$who$vut-owner: "|$bin/mj_email -o -d $dom$debug"
+owner-$who$vut: majordomo-owner,
 # End aliases for Majordomo at $dom
 EOB
+    $vblock = <<"EOB";
+# VUT entries for Majordomo at $dom
+$who\@$dom         $who$vut
+$who-owner\@$dom   $who$vut-owner
+owner-$who-\@$dom  owner-$who$vut
+# End VUT entries for Majordomo at $dom
+EOB
+
   }
   else {
     $block = <<"EOB";
 # Aliases for $list at $dom
-$list:         "|$bin/mj_email -r -d $dom -l $list$debug"
-$list-request: "|$bin/mj_email -q -d $dom -l $list$debug"
-$list-owner:   "|$bin/mj_email -o -d $dom -l $list$debug"
-owner-$list:   $list-owner,
+$list$vut:         "|$bin/mj_email -r -d $dom -l $list$debug"
+$list$vut-request: "|$bin/mj_email -q -d $dom -l $list$debug"
+$list$vut-owner:   "|$bin/mj_email -o -d $dom -l $list$debug"
+owner-$list$vut:   $list-owner,
 # End aliases for $list at $dom
+EOB
+    $vblock = <<"EOB";
+# VUT entries for $list at $dom
+$list\@$dom          $list$vut
+$list-request\@$dom  $list$vut-request
+$list-owner\@$dom    $list$vut-owner
+owner-$list\@$dom    owner-$list$vut
+# End VUT entries for $list at $dom
 EOB
   }
   if ($args{aliashandle}) {
     $args{aliashandle}->print("$block\n");
+    if ($args{vuthandle}) {
+      $args{vuthandle}->print("$vblock\n");
+    }
     return;
   }
   elsif ($args{aliasfile}) {
@@ -128,6 +163,11 @@ EOB
     $fh = new Mj::File($args{aliasfile}, '>>');
     $fh->print("$block\n");
     $fh->close;
+    if ($vut) {
+      $fh = new Mj::File($args{aliasfile}, '>>');
+      $fh->print("$vblock\n");
+      $fh->close;
+    }
     umask $umask;
     return '';
   }
@@ -162,6 +202,9 @@ sub regen_aliases {
   if ($args{aliasfile}) {
     umask oct("077");
     $args{aliashandle} = new Mj::FileRepl($args{aliasfile});
+    if ($args{options}{maintain_vut}) {
+      $args{vuthandle} = new Mj::FileRepl($args{vutfile});
+    }
   }
 
   # Generate aliases for each given list; do this twice to get GLOBAL out
@@ -181,6 +224,9 @@ sub regen_aliases {
   # Close the file.
   if ($args{aliashandle}) {
     $args{aliashandle}->commit;
+    if ($args{vuthandle}) {
+      $args{vuthandle}->commit;
+    }
     umask $umask;
   }
   $body;
