@@ -23,10 +23,11 @@ package Mj::List;
 
 use strict;
 use Mj::SubscriberList;
-use Mj::Config qw(parse_table);
 use Mj::Addr;
+use Mj::Config;
 use Mj::Log;
-use vars (qw($addr %alias %flags %noflags %classes %digest_types));
+use vars (qw($addr %alias %flags %noflags %classes %digest_types
+             %digest_index_types %digest_sort_orders));
 
 %alias =
   (
@@ -87,6 +88,24 @@ use vars (qw($addr %alias %flags %noflags %classes %digest_types));
    'mime'  => 1,
    'index' => 1,
    'text'  => 1,
+  );
+
+%digest_index_types =
+  (
+   'numbered'       => 1,
+   'numbered_name'  => 1,
+   'subject'        => 1,
+   'subject_author' => 1,
+   'subject_name'   => 1,
+  );
+
+%digest_sort_orders =
+  (
+   'author'  => 1,
+   'date'    => 1,
+   'numeric' => 1,
+   'subject' => 1,
+   'thread'  => 1,
   );
 
 =head2 new(name, separate_list_dirs)
@@ -489,7 +508,7 @@ sub set {
     # Issue partial digest if changing from 'digest' to 'each'
     if ($data->{'class'} eq 'digest' 
         and ($class eq 'each' or $class eq 'unique')) {
-      $ok = $self->digest_examine($data->{'classarg'});
+      $ok = $self->digest_examine([$data->{'classarg'}]);
       if ($ok) {
           $digest = $ok->{$data->{'classarg'}};
           $digest->{'type'} = $data->{'classarg2'};
@@ -1761,7 +1780,7 @@ Verify the existence of an auxiliary list.
 =cut
 sub valid_aux {
   my $self = shift;
-  my $name = shift;
+  my $name = shift || 'MAIN';
 
   $self->_fill_aux;
   if (exists $self->{'sublists'}{$name}) {
