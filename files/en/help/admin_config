@@ -30,27 +30,27 @@ Look before you leap
 --------------------
 
 Every configuration setting has a default value.  Every time a list
-administrator uses the configset command, the default value for
-the setting is overridden, even if the old and new values are identical.
-For this reason, we recommend that you always "show before you set,"
-use the configshow command to see the current value of a setting
-before you change it with the configset command.  By overriding the 
-settings that were configured by the domain administrators, a list owner 
-might miss out on wise present and future default values.
+administrator uses the configset command, the default value for the
+setting is overridden, even if the old and new values are identical.
+For this reason, we recommend that you always "show before you set," use
+the configshow command to see the current value of a setting before you
+change it with the configset command.  By overriding the settings that
+were configured by the domain administrators, a list owner might miss
+out on wise present and future default values.
 
 A technical discussion of default values is presented later, in
-the "Default values" section.
+the "Configuration templates and default values" section.
 
 Important settings for new mailing lists
 ----------------------------------------
 
-Every mailing list shares the same default values.  Because there
-are so many kinds of mailing list (private or public, moderated or 
-unmoderated, with open or closed membership, etc.), it is likely that 
-most new lists will need some configuration before they are ready to run.  
-This section gives examples for the "top ten" settings that are likely 
-to need attention, in reverse order of importance.  Each setting has its 
-own help page, to which you can refer if you need to learn more.
+Every mailing list shares the same default values.  Because there are so
+many kinds of mailing list (private or public, moderated or unmoderated,
+with open or closed membership, etc.), it is likely that most new lists
+will need some configuration before they are ready to run.  This section
+gives examples for the "top ten" settings that are likely to need
+attention, in reverse order of importance.  Each setting has its own
+help page, to which you can refer if you need to learn more.
 
 10. category
 
@@ -251,8 +251,8 @@ Majordomo has over 100 configuration settings.  To help you manage them
 more easily, they have been divided into several categories.  Some
 settings appear in more than one category.  The categories of interest
 to list owners are ACCESS, ARCHIVE, BOUNCE, DELIVER, LISTS, MISCELLANY,
-MODERATE, PASSWORD, and REPLY.  The "help configshow" document gives
-a summary of each category.
+MODERATE, PASSWORD, and REPLY.  The "help configshow" document gives a
+summary of each category.
 
 As an illustration, to see the current settings in the BOUNCE category,
 use this command:
@@ -267,15 +267,14 @@ To see a summary of the categories, use this command:
 The configedit command
 ----------------------
 
-The mj_shell command-line interface has a special feature.  If you
-use the configedit command, the current values of the settings you
-name on the command line will be edited by your favorite text
-editor program.  This makes the value of the setting much easier
-to edit and replace.  
+The mj_shell command-line interface has a special feature.  If you use
+the configedit command, the current values of the settings you name on
+the command line will be edited by your favorite text editor program.
+This makes the value of the setting much easier to edit and replace.  
 
 This feature only applies to the mj_shell program.  If the configedit
-command is used in an e-mail message, it will have the same effect
-as the configshow command.
+command is used in an e-mail message, it will not be recognized.
+
 
 Configuration templates and default values (advanced topic)
 -----------------------------------------------------------
@@ -316,59 +315,68 @@ is another name for the main configuration settings of the DEFAULT list.
 The DEFAULT:_install template gives the installation default values.
 These settings apply to all lists in the $DOMAIN domain.
 
-When Majordomo looks up the value of a setting for a mailing list, if that 
-setting is not declared within the list's main configuration file, it
-looks in the DEFAULT:MAIN configuration template.  If the setting has
-not been declared there, it uses the value from the DEFAULT:_install template.
-As a consequence, the DEFAULT:_install template must have a declaration
-of every configuration setting.
+When Majordomo looks up the value of a setting for a mailing list, if
+that setting is not declared within the list's main configuration table,
+it looks through the templates in the config_defaults setting.  If none
+of those templates has declared a value for the setting, Majordomo will
+will look in the DEFAULT:MAIN configuration template.  If the setting
+has not been declared there, it uses the value from the DEFAULT:_install
+template.  As a consequence, the DEFAULT:_install template must have a
+declaration of every configuration setting.  The values in the
+DEFAULT:_install template should never be changed, because they will be
+overwritten if the software is upgraded.
 
-The DEFAULT:personal template gives an example of how useful templates 
-can be.  This template customizes each posted message; the address
-of the subscriber is placed in the To: header, and a footer is added
-that also shows the subscriber's address.
+The DEFAULT:personal template gives an example of how useful templates
+can be.  This template customizes each posted message; the address of
+the subscriber is placed in the To: header, and a footer is added that
+also shows the subscriber's address.
 
 Please look at the settings using this command:
 
   configshow-declared-nocomments DEFAULT:personal
 
-As you can see, it takes several commands to achieve the "personal" effect.  
-These commands would be difficult to remember, but you can easily apply them 
-to your mailing list with the configshow-merge command:
+As you can see, it takes several commands to achieve the "personal"
+effect.  These commands would be difficult to remember, but you can
+easily apply them to your mailing list with the configshow-merge
+command:
 
   configshow-merge-append-nocomments DEFAULT:personal LISTNAME
 
-The configshow command will automatically change the configset commands that 
-are displayed so they apply to the LISTNAME mailing list.  Please read the 
-"comments" setting in the output of the configshow command:  personalized 
-mailing lists require more resources, because a separate copy of each posted 
-message is delivered to each recipient.
+or by adding the word "personal" to the list of templates in the
+config_defaults setting.  Please see "help configset_config_defaults" 
+for more details.
+
+The configshow command will automatically change the configset commands
+that are displayed so they apply to the LISTNAME mailing list.  Please
+read the "comments" setting in the output of the configshow command:
+personalized mailing lists require more resources, because a separate
+copy of each posted message is delivered to each recipient.
 
 If you decide to undo the changes from the DEFAULT:personal template,
 simply use the configshow-extract command:
 
   configshow-merge-extract-nocomments DEFAULT:personal LISTNAME
 
-The configset commands displayed by the configshow-extract command will 
+The configset commands displayed by the configshow-extract command will
 return the settings to their original values.
 
-If you would like to see other templates added to Majordomo, contact
-the developers at mj2-dev@csf.colorado.edu.
+If you would like to see other templates added to Majordomo, contact the
+developers at mj2-dev@csf.colorado.edu.
 
 
 Password levels (advanced topic)
------------------------------------------------
+--------------------------------
 
 Each configuration setting has two numbers that determine what level of
-password is required to see or change the value of the setting.  
-Higher numbers mean greater restrictions.  In the output of the configshow 
+password is required to see or change the value of the setting.  Higher
+numbers mean greater restrictions.  In the output of the configshow
 command, you will see comments like this:
 
 # master_password (level 2)
 
 "level 2" means that a level 2 password is required to change the value.
-Your list's master administrative password has level 2.  If you wish
-to change any setting with a higher level, you will need to contact a
+Your list's master administrative password has level 2.  If you wish to
+change any setting with a higher level, you will need to contact a
 domain or site manager.  
 
 For more details, see "help configset_config_access".
