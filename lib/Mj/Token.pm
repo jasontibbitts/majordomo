@@ -303,7 +303,7 @@ sub confirm {
   }
  
   # Initialize variables and make substitutions.
-  ($reasons = $args{'reasons'}) =~ s/\002/\n  /g;
+  ($reasons = $args{'reasons'}) =~ s/\003|\002/\n  /g;
   $owner    = $self->_list_config_get($list, 'whoami_owner');
   $mj_addr  = $self->_global_config_get('whoami');
   $mj_owner = $self->_global_config_get('sender');
@@ -980,7 +980,7 @@ sub r_gen {
   # Find number of days left until it dies
   $expire = int(($data->{'expire'} + 43200 - $time)/86400);
 
-  ($reasons = $data->{'reasons'}) =~ s/\002/\n  /g;
+  ($reasons = $data->{'reasons'}) =~ s/\003|\002/\n  /g;
 
   # Generate replacement hash
   $repl = {

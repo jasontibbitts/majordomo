@@ -657,7 +657,7 @@ FINISH:
   }
 
   # Build the reasons list for variable substitutions.
-  $reasons .= join("\n", split("\002", $args{'reasons'}));
+  $reasons .= join("\n", split("\003", $args{'reasons'}));
 
   # Append the sublist for variable substitutions.
   if ($request =~ /post/) {
@@ -1262,7 +1262,7 @@ sub _a_default {
   }
 
   if (defined $reason) {
-    $args->{'reasons'} = "$reason\002" . $args->{'reasons'};
+    $args->{'reasons'} = "$reason\003" . $args->{'reasons'};
   }
   return $self->$action(@_);
 }
@@ -1337,11 +1337,11 @@ sub _d_post {
        and not $args->{'user_password'}) {
 
     $args->{'reasons'} = 
-     "$self->{'sessionuser'} is posting a message for $td->{'user'}.\002"
+     "$self->{'sessionuser'} is posting a message for $td->{'user'}.\003"
      . $args->{'reasons'} if ($args->{'posing'});
 
     $args->{'reasons'} = 
-     "$td->{'user'} is posting a message for $td->{'victim'}.\002"
+     "$td->{'user'} is posting a message for $td->{'victim'}.\003"
      . $args->{'reasons'} if ($args->{'mismatch'});
 
     return $self->_a_consult(@_);
@@ -1349,7 +1349,7 @@ sub _d_post {
 
   # Immediately consult for moderated lists
   $moderate = $self->_list_config_get($td->{'list'}, 'moderate');
-  $args->{'reasons'} = "The $td->{'list'} list is moderated.\002" .
+  $args->{'reasons'} = "The $td->{'list'} list is moderated.\003" .
                   $args->{'reasons'} if $moderate;
   return $self->_a_consult(@_) if $moderate;
 
@@ -1393,7 +1393,7 @@ sub _d_post {
     }
   }
   if (@$restrict && !$member) {
-    $args->{'reasons'} = "Non-Member Submission from $td->{'victim'}\002"
+    $args->{'reasons'} = "Non-Member Submission from $td->{'victim'}\003"
                         . $args->{'reasons'};
     return $self->_a_consult(@_);
   }

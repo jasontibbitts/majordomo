@@ -189,7 +189,7 @@ sub post {
   $avars->{'sublist'} = $request->{'sublist'} || '';
   $avars->{'time'} = time;
 
-  # Bounce if necessary: concatenate all possible reasons with \002, call
+  # Bounce if necessary: concatenate all possible reasons with \003, call
   # access_check with filename as arg1 and reasons as arg2.  Victim
   # here is the user in the headers; requester is  the user
   # making the request.  We should only regenerate user if it is not set.
@@ -206,7 +206,7 @@ sub post {
     }
     mv($request->{'file'}, "$self->{'ldir'}/GLOBAL/spool/$spool");
     $request->{'file'} = "$self->{'ldir'}/GLOBAL/spool/$spool";
-    $avars->{'reasons'} = join("\002", @$reasons);
+    $avars->{'reasons'} = join("\003", @$reasons);
     $request->{'vars'} = join("\002", %$avars);
     $request->{'victim'} = $user;
 

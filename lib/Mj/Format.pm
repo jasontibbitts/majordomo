@@ -1587,7 +1587,7 @@ sub tokeninfo {
   # Indicate reasons
   $subs->{'REASONS'} = [];
   if ($data->{'reasons'}) {
-    @tmp = split "\002", escape($data->{'reasons'}, $type);
+    @tmp = split /\003|\002/, escape($data->{'reasons'}, $type);
     $subs->{'REASONS'} = [@tmp];
   }
 
