@@ -1266,11 +1266,11 @@ sub _d_post {
 
   @consult_vars = qw(bad_approval body_length_exceeded dup_msg_id dup_checksum
              dup_partial_checksum global_taboo_body global_taboo_header 
-             max_header_length_exceeded mime_consult 
+             limit_soft max_header_length_exceeded mime_consult 
              mime_header_length_exceeded taboo_body taboo_header
              total_header_length_exceeded);
 
-  @deny_vars = qw(mime_deny);
+  @deny_vars = qw(limit_hard mime_deny);
 
   # Deny is stronger than consult, so process denials first
   for $i (@deny_vars) {
