@@ -76,13 +76,13 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200102160";
+$VERSION = "0.1200102240";
 $unique = 'AAA';
 
 use strict;
 no strict 'refs';
 use vars (qw($indexflags $safe $tmpdir $unique));
-use IO::File;
+use Symbol;
 use Mj::Log;
 use Mj::List;
 use Mj::AliasList;
@@ -95,7 +95,6 @@ use Mj::Resend;
 use Mj::Inform;
 use Mj::BounceHandler;
 use Mj::CommandProps qw(:function :command);
-use Safe;
 
 #BEGIN{$AutoLoader::Verbose = 1; $Exporter::Verbose = 1;};
 #BEGIN{sub UNIVERSAL::import {warn "Importing $_[0]"};};
@@ -123,7 +122,7 @@ sub domains {
   
   while (<DOM>) {
     chomp $_;
-    push @domains, $_ if ($_ and -d "$topdir/$_/GLOBAL");
+    push @domains, $_ if (defined ($_) and -d "$topdir/$_/GLOBAL");
   }
 
   close DOM;
@@ -207,11 +206,6 @@ sub new {
        => $self->_global_config_get('addr_strict_domain_check'),
     );
 
-  unless (defined($safe)) {
-    $safe = new Safe;
-#    $safe->reval('$^W=0');
-    $safe->permit_only(qw(const leaveeval not null pushmark return rv2sv stub));
-  }
   unless (defined($tmpdir)) {
     $tmpdir = $self->_global_config_get('tmpdir');
   }
@@ -238,15 +232,8 @@ The idea is that the client will provide all available information on the
 request (email headers, CGI environment, etc.) to be used in the eventual
 tracking of forgeries and such.
 
-(The CGI interfaces should try to have the client track sessions so that we
-don''t generate huge numbers of spool files and fill up disks and such.)
-
 $int is the name of the interface.
 $sess is a string containing all of the session info.
-
-XXX Add some way for an interface to pass us an ID to see if we still think
-it''s valid.  The CGI interface may need to do this if it doesn''t take
-care of that itself.
 
 XXX This needs to get much more complex; reconnecting with a previous
 session should now be fine, but we want to enforce timeouts and other
@@ -259,8 +246,9 @@ sub connect {
   my $int  = shift;
   my $sess = shift;
   my $addr = shift || 'unknown@anonymous';
+  my $pw   = shift || '';
   my $log = new Log::In 50, "$int, $addr";
-  my ($err, $id, $ok, $path, $req, $user);
+  my ($err, $id, $ok, $path, $pdata, $req, $user);
  
   $user = new Mj::Addr($addr);
 
@@ -281,23 +269,41 @@ sub connect {
   $int =~ /(\w+)/;
   $self->{interface} = $1;
 
-  # Generate a session ID; hash the session, the time and the PID
-  $id = sha1_hex($sess.scalar(localtime).$$);
+
+  # If a temporary password was supplied, check to see if it represents
+  # a session that is still valid, and append the session information
+  # to the appropriate file instead of creating a new file.
+  if ($self->t_recognize($pw)) {
+    $self->_make_latchkeydb;
+    if (defined $self->{'latchkeydb'}) {
+      $pdata = $self->{'latchkeydb'}->lookup($pw);
+      if (defined $pdata) {
+        if (time <= $pdata->{'expire'}) {
+          $id = $pdata->{'sessionid'};
+        }
+      }
+    }
+  }
+  unless (defined $id) {
+    # Generate a session ID; hash the session, the time and the PID
+    $id = sha1_hex($sess.scalar(localtime).$$);
+  }
+      
   $id =~ /(.*)/; $id = $1; # Safe to untaint because it's nearly impossible
                            # to leak information through the digest
                            # algorithm.
 
-  # Open the session file; overwrite in case of a conflict;
+    
   $self->{sessionid} = $id;
-  $self->{sessionfh} =
-    new IO::File(">$self->{ldir}/GLOBAL/sessions/$id");
+  $self->{sessionfh} = gensym();
 
+  # Open the session file; 
   $log->abort("Can't write session file to $self->{ldir}/GLOBAL/sessions/$id, $!")
-    unless $self->{sessionfh}; #XLANG
+    unless (open ($self->{sessionfh}, ">>$self->{ldir}/GLOBAL/sessions/$id"));
 
-  $self->{sessionfh}->print("Source: $int\n"); #XLANG
-  $self->{sessionfh}->print("PID:    $$\n\n"); #XLANG
-  $self->{sessionfh}->print("$sess\n");
+  print {$self->{sessionfh}} "Source: $int\n"; #XLANG
+  print {$self->{sessionfh}} "PID:    $$\n\n"; #XLANG
+  print {$self->{sessionfh}} "$sess\n";
 
   # Now check if the client has access.  (Didn't do it earlier because we
   # want to save the session data first.)
@@ -559,6 +565,79 @@ sub dispatch {
   $out;
 }
 
+=head2 _site_config_get (private)
+
+Returns a value from the site config.
+
+=cut
+sub _site_config_get {
+  my $self = shift;
+  my $var  = shift;
+
+  $self->{'sitedata'}{'config'}{$var};
+}
+
+=head2 _global_config_get (private)
+
+This is an unchecked interface to the global config, for internal use only.
+
+=cut
+sub _global_config_get {
+  my $self = shift;
+  my $var  = shift;
+  my $log = new Log::In 150, "$var";
+
+  return unless $self->_make_list('GLOBAL');
+  $self->{'lists'}{'GLOBAL'}->config_get($var);
+}
+
+=head2 _make_list (private)
+
+This makes a List object and stuffs it into the lists hash.  You can''t
+actually call any list methods without doing this to the list first.
+
+Returns true if it actually made the list, false otherwise.
+
+=cut
+sub _make_list {
+  my $self = shift;
+  my $list = shift;
+  my $tmp;
+
+  return 1 if $list eq 'ALL';
+  return 1 if $self->{'lists'}{$list};
+
+  $tmp =
+    new Mj::List(name      => $list,
+		 dir       => $self->{ldir},
+                 domain    => $self->{domain},
+		 backend   => $self->{backend},
+                 'defaultdata'  => $self->{'defaultdata'},
+                 'installdata'  => $self->{'installdata'},
+		 callbacks =>
+		 {
+		  'mj.list_file_get' => 
+		  sub { $self->_list_file_get(@_) },
+		  'mj._global_config_get' =>
+		  sub { $self->_global_config_get(@_) },
+		 },
+		);
+  return unless $tmp;
+  $self->{'lists'}{$list} = $tmp;
+
+  if ($list ne 'GLOBAL') {
+    unless (exists $self->{'defaultdata'}{'raw'}) {
+      $self->{'defaultdata'} = 
+        $self->{'lists'}{'DEFAULT'}->{'config'}->{'source'}{'MAIN'};
+    }
+    unless (exists $self->{'installdata'}{'raw'}) {
+      $self->{'installdata'} = 
+        $self->{'lists'}{'DEFAULT'}->{'config'}->{'source'}{'installation'};
+    }
+  }
+  1;
+}
+
 use AutoLoader 'AUTOLOAD';
 1;
 __END__
@@ -588,7 +667,8 @@ sub get_all_lists {
   for $list (keys %{$self->{'lists'}}) {
     next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
     if ($regexp) {
-      next unless _re_match($regexp, $list);
+      eval ("use Mj::Util qw(re_match)");
+      next unless re_match($regexp, $list);
     }
 
     # If membership always overrides advertising:
@@ -711,43 +791,6 @@ sub gen_cmdline {
   1;
 }
 
-=head2 _re_match
-
-This expects a safe compartment to already be set up, and matches a
-string against a regular expression within that safe compartment.  The
-special 'ALL' regexp is also accepted, and always matches.
-
-If called in an array context, also returns any errors encountered
-while compiling the match code, so that this can be used as a general
-regexp syntax checker.
-
-=cut
-sub _re_match {
-  my    $re = shift;
-  local $_  = shift;
-#  my $log  = new Log::In 200, "$re, $_";
-  my ($match, $warn);
-  return 1 if $re eq 'ALL';
-
-  # Hack; untaint things.  That's why we're running inside a safe
-  # compartment. XXX Try it without the untainting; it has a speed penalty.
-  # Routines that need it can untaint as appropriate before calling.
-  $_ =~ /(.*)/;
-  $_ = $1;
-  $re =~ /(.*)/;
-  $re = $1;
-
-  local($^W) = 0;
-  $match = $safe->reval("$re");
-  $warn = $@;
-  $::log->message(10,'info',"_re_match error: $warn string: $_\nregexp: $re") if $warn; #XLANG
-  if (wantarray) {
-    return ($match, $warn);
-  }
-#  $log->out('matched') if $match;
-  return $match;
-}
-
 =head2 standard_subs(list)
 
 This routine returns a hash of a standard set of variable
@@ -818,16 +861,20 @@ sub substitute_vars {
   my $log = new Log::In 200, "$file, $list, $depth";
 
   # always open a new input file
-  $in  = new Mj::File "$file"
+  $in  = gensym();
+  open ($in, "< $file")
     or $::log->abort("Cannot read file $file, $!"); #XLANG
 
   # open a new output file if one is not already open (should be at $depth of 0)
   $tmp = $tmpdir;
   $tmp = "$tmp/mj-tmp." . unique();
-  $out ||= new IO::File ">$tmp"
-    or $::log->abort("Cannot write to file $tmp, $!"); #XLANG
-
-  while (defined ($i = $in->getline)) {
+  unless (defined $out) {
+    $out = gensym();
+    open ($out, "> $tmp") or
+      $::log->abort("Cannot write to file $tmp, $!"); #XLANG
+  }
+   
+  while (defined ($i = <$in>)) {
     if ($i =~ /([^\\]|^)\$INCLUDE-(.*)$/) {
       # Do a _list_file_get.  If we get a file, open it and call
       # substitute_vars on it, printing to the already opened handle.  If
@@ -836,7 +883,7 @@ sub substitute_vars {
 
       if ($inc) {
 	if ($depth > 3) {
-	  $out->print("Recursive inclusion depth exceeded\n ($depth levels: may be a loop, now reading $1)\n"); #XLANG
+	  print $out "Recursive inclusion depth exceeded\n ($depth levels: may be a loop, now reading $1)\n"; #XLANG
 	}
 	else {
 	  # Got the file; substitute in it, perhaps recursively
@@ -845,18 +892,18 @@ sub substitute_vars {
       }
       else {
 	warn "Include file $1 not found."; #XLANG
-	$out->print("Include file $1 not found.\n"); #XLANG
+	print $out ("Include file $1 not found.\n"); #XLANG
       }
       next;
     }
     $i = $self->substitute_vars_string($i, $subs);
-    $out->print($i);
+    print $out $i;
   }
 
   # always close the INPUT file
-  $in->close;
+  close ($in);
   # ONLY close the OUTPUT file at zero depth - else recursion gives 'print to closed file handle'
-  $out->close if(!$depth); # it will automatically close itself when it goes out of scope
+  close ($out) if(!$depth); # it will automatically close itself when it goes out of scope
   $tmp;
 }
 
@@ -1043,7 +1090,7 @@ sub substitute_vars_string {
   my $self = shift;
   my $str  = shift;
   my $subs = shift;
-  my $log = new Log::In 250;
+  # my $log = new Log::In 250;
   my ($format, $i, $value);
 
   if (ref $str eq 'ARRAY') {
@@ -1826,32 +1873,6 @@ sub save_configs {
   $::log->out;
 }  
 
-=head2 _site_config_get (private)
-
-Returns a value from the site config.
-
-=cut
-sub _site_config_get {
-  my $self = shift;
-  my $var  = shift;
-
-  $self->{'sitedata'}{'config'}{$var};
-}
-
-=head2 _global_config_get (private)
-
-This is an unchecked interface to the global config, for internal use only.
-
-=cut
-sub _global_config_get {
-  my $self = shift;
-  my $var  = shift;
-  my $log = new Log::In 150, "$var";
-
-  return unless $self->_make_list('GLOBAL');
-  $self->{'lists'}{'GLOBAL'}->config_get($var);
-}
-
 =head2 _list_config_get, _list_config_set (private)
 
 Thesw are unchecked interfaces to the config variables, provided for
@@ -2266,6 +2287,7 @@ sub get_start {
               $request->{'mode'}, $request->{'cmdline'}, $request->{'path'});
 }
 
+use IO::File;
 sub _get {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $name) = @_;
   my $log = new Log::In 35, "$list, $name";
@@ -2391,6 +2413,7 @@ sub faq_start {
               $request->{'mode'}, $request->{'cmdline'}, 'faq');
 }
 
+use IO::File;
 sub _faq {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
@@ -2427,6 +2450,7 @@ sub faq_done {
   (shift)->get_done(@_);
 }
 
+use IO::File;
 sub help_start {
   my ($self, $request) = @_;
   my (@info, $file, $mess, $ok, $subs, $whoami, $wowner);
@@ -2504,6 +2528,7 @@ sub info_start {
                $request->{'mode'}, $request->{'cmdline'}, 'info');
 }
 
+use IO::File;
 sub _info {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
@@ -2555,6 +2580,7 @@ sub intro_start {
                 $request->{'mode'}, $request->{'cmdline'});
 }
 
+use IO::File;
 sub _intro {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
@@ -3010,9 +3036,12 @@ sub _list_file_get_string {
 
   return "No such file: \"$_[1]\".\n" unless $file; #XLANG
 
-  $fh = new Mj::File($file);
+  $fh = gensym();
 
-  while (defined($line = $fh->getline)) {
+  return qq(Unable to open file "$file".\n)
+    unless (open $fh, "<$file");
+
+  while (defined($line = <$fh>)) {
     $out .= $line;
   }
 
@@ -3060,56 +3089,37 @@ Returns the file name and a hash like that of FileSpace::get containing the
 pertinent data, or undef if the file does not exist.
 
 =cut
+use Mj::FileSpace;
 sub _get_stock {
   my $self = shift;
   my $file = shift;
   my $log = new Log::In 150, "$file, $self->{'sitedir'}";
-  my (%out, $data, $lang);
+  my (%out, $data, $lang, $noweb);
 
-  # Ugly hack, but 'my' variables aren't available in require'd files
-  $indexflags = 0;
-  $indexflags |= 1 if $self->{'sitedata'}{'config'}{'cgi_bin'};
+  $noweb = 1;
+  $noweb = 0 if $self->{'sitedata'}{'config'}{'cgi_bin'};
 
   # Pull in the index file if necessary
-  unless ($self->{'sitedata'}{'files'}) {
-    ($self->{'sitedata'}{'files'}, $self->{'sitedata'}{'dirs'})
-      = @{do "$self->{'sitedir'}/files/INDEX.pl"};
-    $log->abort("Can't load index file $self->{'sitedir'}/files/INDEX.pl!")
-      unless $self->{'sitedata'}{'files'}; #XLANG
-  }
+  if ($noweb) {
+    unless ($self->{'sitedata'}{'noweb'}) {
+      ($self->{'sitedata'}{'noweb'})
+        = do "$self->{'sitedir'}/files/INDEX.pl";
+      $log->abort("Can't load index file $self->{'sitedir'}/files/INDEX.pl!")
+        unless $self->{'sitedata'}{'noweb'}; #XLANG
+    }
 
-#  use Data::Dumper; print Dumper $self->{'sitedata'};
-
-  $data = $self->{'sitedata'}{'files'}{$file};
-  return unless $data;
-
-  ($lang) = $file =~ m!^([^/]*)!;
-  if (ref($data)) {
-    %out = (
-	    'description' => $data->[0],
-	    'c-type'      => 'text/plain',
-	    'charset'     => $data->[1],
-	    'c-t-encoding'=> $data->[2],
-	    'language'    => $lang,
-	    'changetime'  => 0,
-	   );
-    
-    if ($data->[3]) {
-      # Use alternate filename for noweb stuff
-      $file = $data->[3]
+    # XXX This change should be made at a higher level.
+    if (exists $self->{'sitedata'}{'noweb'}{$file}) {
+      $file .= "_noweb";
     }
   }
-  else {
-    %out = (
-	    'description' => $data,
-	    'c-type'      => 'text/plain',
-	    'charset'     => 'ISO-8859-1',
-	    'c-t-encoding'=> '8bit',
-	    'language'    => $lang,
-	    'changetime'  => 0,
-	   );
-  }    
-  return ("$self->{'sitedir'}/files/$file", %out);
+
+  unless ($self->{'sitedata'}{'filespace'}) {
+    return unless ($self->{'sitedata'}{'filespace'} = 
+      new Mj::FileSpace("$self->{'sitedir'}/files", $self->{'backend'}));
+  }
+    
+  $self->{'sitedata'}{'filespace'}->get($file);
 }
 
 ###########################################
@@ -3151,53 +3161,6 @@ sub _fill_lists {
 
   $self->{'lists_loaded'} = 1;
   $::log->out;
-  1;
-}
-
-=head2 _make_list (private)
-
-This makes a List object and stuffs it into the lists hash.  You can''t
-actually call any list methods without doing this to the list first.
-
-Returns true if it actually made the list, false otherwise.
-
-=cut
-sub _make_list {
-  my $self = shift;
-  my $list = shift;
-  my $tmp;
-
-  return 1 if $list eq 'ALL';
-  return 1 if $self->{'lists'}{$list};
-
-  $tmp =
-    new Mj::List(name      => $list,
-		 dir       => $self->{ldir},
-                 domain    => $self->{domain},
-		 backend   => $self->{backend},
-                 'defaultdata'  => $self->{'defaultdata'},
-                 'installdata'  => $self->{'installdata'},
-		 callbacks =>
-		 {
-		  'mj.list_file_get' => 
-		  sub { $self->_list_file_get(@_) },
-		  'mj._global_config_get' =>
-		  sub { $self->_global_config_get(@_) },
-		 },
-		);
-  return unless $tmp;
-  $self->{'lists'}{$list} = $tmp;
-
-  if ($list ne 'GLOBAL') {
-    unless (exists $self->{'defaultdata'}{'raw'}) {
-      $self->{'defaultdata'} = 
-        $self->{'lists'}{'DEFAULT'}->{'config'}->{'source'}{'MAIN'};
-    }
-    unless (exists $self->{'installdata'}{'raw'}) {
-      $self->{'installdata'} = 
-        $self->{'lists'}{'DEFAULT'}->{'config'}->{'source'}{'installation'};
-    }
-  }
   1;
 }
 
@@ -4224,10 +4187,12 @@ sub _createlist {
     # Extract lists and owners
     $args{'regenerate'} = 1;
     $args{'lists'} = [];
+    $args{'domain_priority'} = $self->_global_config_get('priority') || 0;
     $self->_fill_lists;
     for my $i (keys %{$self->{'lists'}}) {
       $debug = $self->_list_config_get($i, 'debug');
       $aliases = $self->_list_config_get($i, 'aliases');
+      $priority = $self->_list_config_get($i, 'priority') || 0;
 
       unless (ref $aliases eq 'HASH') {
         # Convert aliases from old to new format
@@ -4254,7 +4219,7 @@ sub _createlist {
           $sublists ||= '';
         }
       }
-      push @{$args{'lists'}}, [$i, $debug, $aliases, $sublists];
+      push @{$args{'lists'}}, [$i, $debug, $aliases, $sublists, $priority];
     }
     {
       no strict 'refs';
@@ -4596,7 +4561,8 @@ sub _lists {
 
 
   if ($mode =~ /config/) {
-    if (_re_match($regexp, 'DEFAULT')) {
+    eval ("use Mj::Util qw(re_match)"); 
+    if (re_match($regexp, 'DEFAULT')) {
       push @lists, 'DEFAULT';
     }
   }
@@ -4743,6 +4709,7 @@ what happened, and the token number is meaningless later.
 
 =cut
 use MIME::Entity;
+use IO::File;
 sub reject {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "@{$request->{'tokens'}}";
@@ -5121,7 +5088,8 @@ sub report_start {
 }
 
 use Mj::Archive qw(_secs_start _secs_end);
-use Mj::Util 'str_to_time';
+use Mj::Util qw(str_to_time);
+use IO::File;
 sub _report {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $action, $d, $date) = @_;
   my $log = new Log::In 35, "$list, $action";
@@ -5234,6 +5202,7 @@ sub report_done {
 Returns the stored text for a given session id.
 
 =cut
+use IO::File;
 sub sessioninfo_start {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'sessionid'}";
@@ -5623,6 +5592,7 @@ sub _showtokens {
     next unless $data->{'list'} eq $list || $list eq 'ALL';
     next if ($action and ($data->{'command'} ne $action)); 
     next if ($data->{'type'} eq 'delay' and $mode !~ /delay/);
+    next if ($data->{'type'} eq 'async' and $mode !~ /async/);
 
     # Obtain file size for posted messages
     if ($data->{'command'} eq 'post') {
@@ -5813,6 +5783,7 @@ There are two modes: hourly, daily.
 use Mj::Lock;
 use Mj::Parser;
 use Mj::Util qw(in_clock);
+use IO::File;
 sub trigger {
   my ($self, $request) = @_;
   my $log = new Log::In 27, "$request->{'mode'}";
@@ -6119,6 +6090,7 @@ sub unsubscribe {
                       $request->{'cmdline'}, $request->{'sublist'});
 }
 
+use IO::File;
 sub _unsubscribe {
   my($self, $list, $requ, $vict, $mode, $cmd, $sublist) = @_;
   my $log = new Log::In 35, "$list, $vict";
