@@ -1,12 +1,5 @@
-When MTA configuration is suggested, this value will be used as the
-debug parameter.  It is used to generate debugging information for
-this list.  Higher values cause more debugging information to be
-generated.  Values of 500 are generally sufficient for bug reporting;
-at 1000 a complete SMTP trace is generated which is useful for
-debugging MTA problems.
-
-Note that this only effects the generation of the MTA configuration
-information (i.e. suggested aliases) so that configuration information
-will have to be updated for this value to have any effect. If the
-MTA configuration is being automatically maintained by Majordomo,
-it should be regenerated (using createlist-regen).
+The debug setting controls how much debugging information is saved when
+an e-mail message is processed.  The value can vary from 0 (no
+information is saved) to 1000 (a large amount of information is saved,
+including complete traces of SMTP conversations between Majordomo and
+your system's mail delivery software (MTA).

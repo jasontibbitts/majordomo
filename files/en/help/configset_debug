@@ -13,18 +13,51 @@ EXAMPLE:
 configset GLOBAL debug = 500
 
 
-When MTA configuration is suggested, this value will be used as the
-debug parameter.  It is used to generate debugging information for
-this list.  Higher values cause more debugging information to be
-generated.  Values of 500 are generally sufficient for bug reporting;
-at 1000 a complete SMTP trace is generated which is useful for
-debugging MTA problems.
+$INCLUDE-config/debug
 
-Note that this only effects the generation of the MTA configuration
-information (i.e. suggested aliases) so that configuration information
-will have to be updated for this value to have any effect. If the
-MTA configuration is being automatically maintained by Majordomo,
-it should be regenerated (using createlist-regen).
+The debug value affects the mail aliases for a list, as determined by
+the aliases configuration setting.  Therefore, if the debug value is
+changed, the createlist-regen command should be run to regenerate the
+aliases.
+
+The debug value is used by the e-mail processing programs, mj_email,
+mj_enqueue, and mj_queuerun, for all e-mail messages.  The debug value
+has no effect upon the other interfaces (WWW, shell, etc.).
+
+The GLOBAL debug value affects messages that are sent to the
+Majordomo server address, $MJ.   
+
+List-specific debug values affect messages that are
+posted to a mailing list or sent to the other list-specific addresses,
+such as the "owner" alias or the "request" alias.
+
+Debugging information will be stored in several files in the GLOBAL
+temporary.  This directory is controlled by the GLOBAL tmpdir
+configuration setting.  Debugging information for e-mail messages is
+stored in the following files:
+
+  mj_email.debug    
+  mj_enqueue.debug
+  mj_majord.debug
+  mj_queuerun.debug
+  mj_queueserv.debug
+  mj_request.debug
+  mj_resend.debug
+
+The other interfaces also have debugging logs in the same directory:
+
+  mj_confirm.debug
+  mj_trigger.debug
+  mj_wwwadm.debug
+  mj_wwwusr.debug
+
+We recommend that the log files be rotated periodically to conserve disk
+space.  The following unix shell commands offer one way to do that:
+   cp FILE FILE.old
+   cp /dev/null FILE
+
+(Substitute the name of an actual log file for FILE.)
+Majordomo has no built-in ability to rotate the logs.
 
 Functions that are called very often and have very simple code or
 predictable results are logged at a very high level so as to not
@@ -36,10 +69,10 @@ the following ranges:
    101 - 150: Unimportant interface functions
    150 - 200: Unimportant core functions
 
-Note that currently the code doesn't really pay much attention to these,
-but it needs to.
 
-PROGRAMMERS: Consider just removing logging from anything you want to
+                      Note to Majordomo developers
+
+Consider just removing logging from anything you want to
 put at a lower level, at least for production.  In fact, for production
 we should probably make a script to comment out really low logging info.
    150 - Config file loading + saving
@@ -49,56 +82,13 @@ we should probably make a script to comment out really low logging info.
    180 - Config::get and upstream callers
    200 - Majordomo::list_legal_name
 
-WARNING: Debug files in the tmpdir are not screened for security!
-         They may contain sensitive information that even the
-         average list owner should not have access to.
 
-The "GLOBAL" pseudo-list setting refers to debugging of messages
-sent to Majordomo. The "listname" setting turns on debugging for
-resend and other per-list functions.
+See Also:
+   help admin_domain
+   help configset_aliases
+   help configset_tmpdir
+   help mj_email
+   help mj_enqueue
+   help mj_queuerun
 
-The "createlist-regen" command must be used whenever the value of
-debug is changed. A complete list of suggested MTA configurations
-for the site and each list is displayed. These aliases must be
-installed for sendmail before debugging will become active.
-
-The "debug" setting is NOT required for temporary debugging. You
-can simply edit the aliases to add "-v500" instead of using
-"configset listname debug = 500", for example, but setting debug
-first has the advantage of keeping the debug setting the next
-time you run "createlist-regen". (This applies to sendmail MTA,
-others may vary in implementation.) See "help createlist" for
-information on displaying and using the required aliases.
-
-Once debugging is active, at the level of detail you choose, debug
-info (perhaps a LOT of it) will accumulate in the place that you
-told it to accumulate when you installed majordomo (probably /tmp
-or /var/mj or something similar - see "help configset tmpdir"
-for how to change or set this directory). By default only a very
-little bit of info will accumulate there.
-
-These files are created in the Majordomo temporary directory when
-you set "debug":
-  mj_email.debug     - trace of actions related to subscriber commands
-  mj_majord.debug    - trace of actions related to list owner commands
-  mj_resend.debug    - trace of actions related to sending posts
-  mj_trigger.debug   - time-based actions, as with digests and tokens
-
-It is recommended that the *.debug log files should be reset by
-   cp logfile logfile.old
-   cat /dev/null > logfile
-This will leave the file ownership and protection "as is", both of
-which are crucial to collecting debug information. Use standard Unix
-utilities like "cron" to reset these files, since Majordomo does not
-EVER clean them up!
-
-If someone with Unix shell access sets up the system correctly, it
-is possible to "index" and "get" the debug files through the email
-interface. By default, only shell users can access the debug files.
-For a description of the contents and use of debug files and OTHER
-files which can be left in the "tmpdir" when problems occur, please
-refer to "help configset tmpdir".
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
