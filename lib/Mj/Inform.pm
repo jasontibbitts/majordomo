@@ -125,6 +125,7 @@ sub _inform_owner {
 
   # Substitute in the body
   $message = $self->substitute_vars($message,
+				    'VICTIM'    => $user,
 				    'USER'      => $user,
 				    'LIST'      => $list,
 				    'REQUEST'   => $req,

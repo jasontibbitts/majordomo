@@ -25,7 +25,8 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\
       Mj/AliasList.pm Mj/Archive.pm Mj/Config.pm Mj/Deliver.pm
       Mj/Deliver/Connection.pm Mj/Deliver/Dest.pm Mj/Deliver/Envelope.pm
       Mj/Deliver/Prober.pm Mj/Deliver/QQEnvelope.pm Mj/Deliver/SMTP.pm
-      Mj/Deliver/Sorter.pm Mj/Digest.pm Mj/Digest/Build.pm Mj/File.pm
+      Mj/Deliver/Sorter.pm Mj/Digest.pm Mj/Digest/Build.pm
+      Mj/Digest/Index.pm Mj/Digest/MIME.pm Mj/Digest/Text.pm Mj/File.pm
       Mj/FileRepl.pm Mj/FileSpace.pm Mj/FileSpaceDB.pm Mj/Format.pm
       Mj/Inform.pm Mj/List.pm Mj/Lock.pm Mj/Log.pm Mj/MailOut.pm
       Mj/MIMEParser.pm Mj/Parser.pm Mj/Resend.pm Mj/SimpleDB.pm

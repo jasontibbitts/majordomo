@@ -27,58 +27,60 @@ __END__
 
 =head2 build
 
-This builds a digest.  It looks at the passed arguments and calls the
-appropriate build routine.
+This builds a set of digests of various types from a list of messages.
+Note that this is a function, not a method.
+
+This returns a list of filenames containing the requested digests.  The
+files pair with the respective entries in the passed 'types' array in
+order.
+
+Arguments taken:
+
+  types - listref of types (MIME, text, index)
+  messages - listref of message names (from archives).
+  archive - ref to an archive object where the messages can be retrieved
+
+usual digest data
 
 =cut
+use Mj::Digest::MIME;
+use Mj::Digest::Index;
+use Mj::Digest::Text;
 sub build {
   my %args = @_;
+  my $log = new Log::In 150;
+  my (%legal, @digests, @files, $data, $file, $i, $idxfn,
+      $idxfnref, $j, $msg, $parser);
 
-  my $func = lc("build_$args{'type'}");
-  {
-    no strict 'refs';
-    &$func(@_);
+  %legal = ('mime' => 'MIME',
+	    'text' => 'Text',
+	    'index'=> 'Index',
+	    );
+
+  # Allow 'type' as a scalar argument instaed of 'types'
+  if ($args{type} && !$args{types}) {
+    $args{types} = [$args{type}];
   }
-}
 
-=head2 build_mime
+  # Figure out the name of the index function and get a ref to it for
+  # callbacks.
+  $idxfn    = "idx_$args{index_line}";
+  $idxfnref = \&{$idxfn};
 
-This builds a MIME digest.  These have the following structure:
+  # Set up the list of digests to be created
+  for $i (@{$args{types}}) {
+    next unless $legal{$i};
+    my $obj = "Mj::Digest::$legal{$i}";
+    push @digests, new $obj
+      (subject      => $args{subject},
+       indexfn      => $idxfnref,
+       index_header => $args{index_header},
+       tmpdir       => $args{tmpdir},
+      );
+  }
 
-  multipart/mixed
-    text/plain       - Index
-    multipart/digest - Messages
-      message/rfc822
-      message/rfc822
-      ...
-
-=cut
-use MIME::Entity;
-use Data::Dumper;
-sub build_mime {
-  my %args = @_;
-  my (@msgs, $count, $data, $digest, $file, $func, $i, $index, $indexf,
-      $indexh, $msg, $tmp, $top);
-  
-  $count = 0;
-  $top = build MIME::Entity
-    (Type     => 'multipart/mixed',
-     Subject  => $args{'subject'} || '',
-     Filename => undef,
-     # More fields here
-    );
-  $digest = build MIME::Entity
-    (Type     => 'multipart/digest',
-     Filename => undef,
-    );
-
-  $indexf = Majordomo::tempname();
-  $indexh = new IO::File ">$indexf";
-  $indexh->print($args{'index_header'}) if $args{'index_header'};
-
-  # Extract all messages from the archive into files, building them into
-  # entities and generating the index file.
-  for $i (@{$args{'messages'}}) {
+  # Loop over messages;
+  for $i (@{$args{messages}}) {
     if (ref($i)) {
       $msg  = $i->[0];
       $data = $i->[1];
@@ -87,94 +89,25 @@ sub build_mime {
       $msg = $i;
       $data = undef;
     }
+    # Extract the message from the archives
     ($data, $file) = $args{'archive'}->get_to_file($msg, undef, $data);
-    unless ($data) {
-      $indexh->print("  Message $msg not in archive.\n");
-      next;
-    }
-    $count++;
-    {
-      no strict 'refs';
-      $func = "idx_$args{'index_line'}";
-      $indexh->print(&$func($args{'type'}, $msg, $data));
-    }
-    $tmp = build MIME::Entity
-      (Type        => 'message/rfc822',
-       Description => "$msg",
-       Path        => $file,
-       Filename    => undef,
-      );
-    $digest->add_part($tmp);
-  }
 
-  $indexh->print($args{'index_footer'}) if $args{'index_footer'};
+    # Skip nonexistant messages (???)
+    next unless $data;
 
-  # Build index entry.
-  $indexh->close;
-  $index = build MIME::Entity
-    (Type        => 'text/plain',
-     Description => 'Index',
-     Path        => $indexf,
-     Filename    => undef,
-    );
-  $top->add_part($index);
-  $top->add_part($digest);
-  ($top, $count);
-}
-
-=head2 build_index
-
-This builds an 'index' digest.  This is a digest that includes no messages,
-but instead just contains an index of messages and numbers so that the user
-can choose which messages to retrieve.
-
-=cut
-sub build_index {
-  my %args = @_;
-  my (@msgs, $count, $data, $func, $i, $index, $indexf,
-      $indexh, $msg, $tmp);
-  
-  $count = 0;
-  $indexf = Majordomo::tempname();
-  $indexh = new IO::File ">$indexf";
-  $indexh->print($args{'index_header'}) if $args{'index_header'};
-
-  # Extract all messages from the archive into files, building them into
-  # entities and generating the index file.
-  for $i (@{$args{'messages'}}) {
-    if (ref($i)) {
-      $msg  = $i->[0];
-      $data = $i->[1];
-    }
-    else {
-      $msg = $i;
-      $data = $args{'archive'}->get_data($msg);
-    }
-    unless ($data) {
-      $indexh->print("  Message $msg not in archive.\n");
-      next;
-    }
-    $count++;
-    {
-      no strict 'refs';
-      $func = "idx_$args{'index_line'}";
-      $indexh->print(&$func($args{'type'}, $msg, $data));
+    # Loop over @digests.  Note that currently we ignore the parsed entities returned by the 
+    for $j (@digests) {
+      $j->add(file => $file, msg => $msg, data => $data);
     }
   }
 
-  $indexh->print($args{'index_footer'}) if $args{'index_footer'};
+  # Done all messages; finish off each digest and get the filenames
+  for $i (@digests) {
+    push @files, $i->done;
+  }
 
-  # Build index entry.
-  $indexh->close;
-  $index = build MIME::Entity
-    (Type        => 'text/plain',
-     Description => $args{'subject'} || '',
-     Path        => $indexf,
-     Filename    => undef,
-    );
-  ($index, $count);
+  @files;
 }
-
 
 =head2 idx_default
 
@@ -182,7 +115,7 @@ This formats an index line containing just the subject indented by two
 spaces.
 
 =cut
-sub idx_default {
+sub idx_subject {
   my ($type, $msg, $data) = @_;
   my $sub = $data->{'subject'};
   $sub = '(no subject)' unless length $sub;

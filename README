@@ -169,9 +169,10 @@ and you want to skip parts of the installation process, you can use SKIP to
 skip it all or ASK to have the process prompt you.  Also note that
 MakeMaker understands the VERBINST flag to quiet its part of the
 installation; you must set it to zero (i.e. 'make install VERBINST=0') to
-use it.  Finally, for a the quickest possible installation, you can skip
-the installation of the manual pages by using "make pure_all" and
-"make pure_install VERBINST=0 SKIP=1" (the latter, of course, as root).
+use it.  Finally, you can get the quickest possible installation by
+skipping the installation of the manual pages and any setup by using "make
+pure_all" and "make pure_install VERBINST=0 SKIP=1" (the latter, of course,
+as root).
 
 Finally Majordomo2 will be installed, and some configuration information
 will be suggested.  Be aware that this configuration information may not be
@@ -250,7 +251,7 @@ Since Majordomo2 goes through the filespace to send out nearly all of its
 messages, this provides both an overrideable defaults mechanism and a means
 for internationalization.
 
-Files are uploaded using the 'put' command; 'put=dir' will make
+Files are uploaded using the 'put' command; 'put-dir' will make
 directories.  There is currently no way to delete a file.  The 'newinfo',
 'newintro' and 'newfaq' commands are shortcuts for 'put' with specific
 arguments.
@@ -269,16 +270,19 @@ Archives start accumulating as soon as the archive_dir variable is set and
 the directory exists, or as soon as an "archive" directory appears in the
 public area of the list's filespace.  The latter can be done by the command
 
-  put=dir /public/archive Archives
+  putdir listname /public/archive Archives
 
 (properly approved, of course).  There is no need to create additional
 aliases.  Archives are free of fronters, footers, most header modifications
 and subject prefixing.  The archive system will automatically create a
 ".index" directory to place various indices.
 
-The archive directory can be a symbolic link without problems, although it
-cannot be created from within Majordomo.  The usual reason for this is to
-permit the archives to be in an FTP area.
+The archive directory can be a symbolic link without problems, although
+there is no provision for creating such a link from within Majordomo.  The
+usual reason for using a symlink is to permit the archives to be in an FTP
+area.  Majordomo must be able to write to the archive directory, but
+otherwise no special permissions are required and a mode 700 directory is
+perfectly acceptable.
 
 (Archives will be needed in order for digests to work.  There will be
 provisions for old archives to automatically be removed, in case long-term
@@ -314,7 +318,9 @@ information about the session (email headers, CGI environment, selected
 environment variables, etc. as appropriate) as well as a log of all
 commands executed during that session.  When a token is rejected,
 information about the session that generated it is automatically mailed to
-the list and site owners (if they elect to receive such information).
+the list and site owners (if they elect to receive such information).  Old
+session files are automatically deleted after the number of days indicated
+by the 'session_lifetime' variable.
 
 
 Makefile.PL Questions:

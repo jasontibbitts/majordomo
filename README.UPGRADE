@@ -1,5 +1,14 @@
 Notes on upgrading from alpha1 or before:
 
+1998.12.10(CVS):
+
+Note that reply_to and subject_prefix are now included in the message
+depending on per-user settings.  The default flags _now_ include these two
+settings, but users which were subscribed before this update will not have
+the flags set and thus will not see aubject_prefix and reply_to settings.
+The solution is to add the 'replyto' and 'subjectprefix' flags to all
+subscribers if you wish for them to have those settings by default.
+
 1998.11.10(CVS):
 
 The names of the generated alias files have changed.  The install

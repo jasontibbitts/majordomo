@@ -344,8 +344,11 @@ sub _post {
     push @refs, $1;
   }
 
-  # Strip the subject prefix from the archive copy
+  # Strip the subject prefix from the archive copy.  Note that this
+  # function can have odd side effects because it plays with the entities,
+  # so we re-extract $archead at this point.
   (undef, $arcent) = $self->_subject_prefix($arcent, $list, $seqno);
+  $archead = $arcent->head;
 
   # Print out the archive copy
   $file = "$tmpdir/mjr.$$.arc";
@@ -1264,7 +1267,7 @@ sub _subject_prefix {
       # following space entirely.
       if ($subject =~ /$gprefix/) {
 	$subject  =~ s/$gprefix/$prefix/;
-	$subject2 =~ s/$gprefix //;
+	$subject2 =~ s/$gprefix ?//;
 
 	$head1->replace('Subject', "$subject");
 	$head2->replace('Subject', "$subject2");

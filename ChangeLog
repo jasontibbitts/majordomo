@@ -1,3 +1,41 @@
+Mon Jan  4 20:16:17 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Token.pm: Add REQUESTOR to substitute the same as
+ 	REQUESTER in various files.
+
+Sun Jan  3 21:34:25 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (which): For substring search, compile into a
+ 	substring pattern implicitly and always do the database search by
+ 	regexp.
+
+Wed Dec 30 13:23:59 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (_list_file_get_string): New function: return a
+ 	file in a string.
+
+Tue Dec 29 12:28:12 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (archive): Pass in $tmpdir.
+
+Mon Dec 28 14:30:24 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (archive): Tweaks to handle returns from new
+ 	digest building functions properly.
+
+	* lib/mj_cf_defs.pl: Change default for digest_index_format to
+ 	'subject'.
+
+	* lib/mj_cf_data.pl: Change name of plain index format from
+ 	'default' to 'subject'.
+
+	* lib/Mj/List.pm (is_subscriber, set): Fix strict errors.
+
+	* lib/Mj/Digest/Build.pm (build): Interface with separate digest
+ 	construction modules.
+
+	* lib/Mj/Digest/MIME.pm: New file: encapsulate a MIME digest.
+
 Mon Dec 21 23:08:56 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Config.pm (parse_taboo_body): Start $max off at -1; the

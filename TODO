@@ -18,40 +18,15 @@ Move t_accept messages into external files.
 Return additional information from _post so that t_accept can provide
  additional data.
 Finish work on allosed_flags and allowed_classes.
+Make resync work (with appropriate security).
+
 
 ! Digest:
-
-Objectify all digests.
-
-  Call new - get a digest object.
-  Add messages (preparsed MIME entities) with add.
-  call done - get back a filename.  Digests might not be MIME internally,
-    so you can never get an entity out.
- 
-
-  'new' takes the following:
-
-     subject      - the subject of the digest
-     index_header - message before index,
-     index_line   - name of format of an index line
-     index_footer - message after index, before messages
-
-
-RFC1153 (text) digests:
-
-  Flatten all multiparts.  Strip all images.  Reduce to text _only_.
-  Change message/rfc822 parts to plain text bracketed by "---- Begin
-  Included Message ----" and "---- End Included Message ----".
-
-  Need a library of MIME transformations.
 
 Allow a time of 'any'?
 report-digest command to show status of digest spools.
 
   Configurables:
-    subject
-    index header
-    index line
     index footer
     digest footer - after all messages
 
@@ -83,6 +58,8 @@ $victim->strip; share $svictim (local); pass to reval.
 
 Check validity of addresses in Resend::post and pass the results in as
 access variables.
+
+---- Alpha 2 Release ----
 
 ! Auto-maintain aliases:
   Add 'del_one' in Mj::MTAConfig::Sendmail; opensa filerepl and copies the
@@ -893,3 +870,4 @@ If processing a command yields an invalid address error and following line
 Export information from the registration database to .htaccess files, so
  owners can restrict access to web archives or whatever.
 Provide some way for users to see what digests are available.
+Add an X-Header indicating whether or not the posting user is subscribed.

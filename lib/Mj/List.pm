@@ -218,7 +218,7 @@ sub is_subscriber {
   my $self = shift;
   my $addr = shift;
   my $log = new Log::In 170, "$self->{'name'}, $addr";
-  my ($ok, $out, $subs);
+  my ($data, $ok, $out, $subs);
 
   return unless $addr->isvalid;
   return if $addr->isanon;
@@ -268,7 +268,7 @@ sub set {
   my $addr = shift;
   my $set  = shift;
   my $arg  = shift;
-  my $force= shift;
+  my $check= shift;
   my $log  = new Log::In 150, "$addr, $set";
   my (@classes, $data, $dig, $inv, $isflag, $key, $mask, $mime, $rset,
       $subflags, $time);
@@ -1323,7 +1323,6 @@ These functions interface with the list''s Digest object.
 =head2 digest_build
 
 Builds a digest.
-XXXX Currently a hack.
 
 =cut
 use Mj::Digest::Build;

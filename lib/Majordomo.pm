@@ -1874,6 +1874,32 @@ sub _list_file_get {
   return;
 }
 
+=head2 _list_file_get_string
+
+This takes the same arguments as _list_file_get, but returns the entire
+file in a string instead of the filename.  The other information is
+returned just as _list_file_get returns it in a list context, or is ignored
+in a scalar context.
+
+=cut
+sub _list_file_get_string {
+  my $self = shift;
+  my (%data, $fh, $file, $line, $out);
+
+  ($file, %data) = $self->_list_file_get(@_);
+
+  $fh = new Mj::File($file);
+  
+  while (defined($line = $fh->getline)) {
+    $out .= $line;
+  }
+
+  if (wantarray) {
+    return ($out, %data);
+  }
+  return $out;
+}
+
 =head2 _list_file_put(list, name, source, overwrite, description,
 content-type, charset, content-transfer-encoding, permissions)
 
@@ -2366,7 +2392,7 @@ sub archive {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $vict, @args) = @_;
   my $log = new Log::In 30, "$list, @args";
-  my (@msgs, $ent, $i, $msgs, $out, $owner);
+  my (@msgs, $ent, $file, $i, $out, $owner);
 
   $self->_make_list($list);
 
@@ -2385,13 +2411,13 @@ sub archive {
     @msgs = $self->{'lists'}{$list}->archive_expand_range(0, @args);
 
     # Build a digest; gives back an entity
-    ($ent, $msgs) = $self->{'lists'}{$list}->digest_build
+    ($file) = $self->{'lists'}{$list}->digest_build
       (messages      => [@msgs],
-       type          => 'mime',
+       type          => 'text',
        subject       => "Custom Digest from $list",
+       tmpdir        => $tmpdir,
        index_line    => $self->_list_config_get($list, 'digest_index_format'),
-       index_header  => "
-Custom-Generated Digest Containing " . scalar(@msgs) . " Messages
+       index_header  => "Custom-Generated Digest Containing " . scalar(@msgs) . " Messages
 
 Contents:
 ",
@@ -2400,22 +2426,22 @@ Contents:
 
     # Mail the entity out to the victim
     $owner = $self->_list_config_get($list, 'sender');
-    $self->mail_entity($owner, $ent, $vict);
-    $ent->purge;
-    return (1, "A digest containing $msgs messages has been mailed.\n");
+    $self->mail_message($owner, $file, $vict);
+    unlink $file;
+    return (1, "A digest containing ".scalar(@msgs)." messages has been mailed.\n");
   }
 
   elsif ($mode =~ /index/) {
    # Else not immediate
     @msgs = $self->{'lists'}{$list}->archive_expand_range(0, @args);
 
-    ($ent, $msgs) = $self->{'lists'}{$list}->build_digest
+    ($file) = $self->{'lists'}{$list}->digest_build
       (messages      => [@msgs],
        type          => 'index',
        subject       => "Message Index from $list",
+       tmpdir        => $tmpdir,
        index_line    => $self->_list_config_get($list, 'digest_index_format'),
-       index_header  => "
-Custom-Generated Message Index Containing " . scalar(@msgs) . " Messages
+       index_header  => "Custom-Generated Message Index Containing " . scalar(@msgs) . " Messages
 
 To retrieve one or more messages, use the archive-get command.  For example:
 
@@ -2427,9 +2453,9 @@ Index:
       );
     # Mail the entity out to the victim
     $owner = $self->_list_config_get($list, 'sender');
-    $self->mail_entity($owner, $ent, $vict);
-    $ent->purge;
-    return (1, "An index containing $msgs messages has been mailed.\n");
+    $self->mail_message($owner, $file, $vict);
+    unlink $file;
+    return (1, "An index containing ".scalar(@msgs)." messages has been mailed.\n");
   }
   
   elsif ($mode =~ /search/) {
@@ -3734,6 +3760,9 @@ sub which {
     ($ok, $err, $string) = Mj::Config::compile_pattern($string, 0);
     return (0, $err) unless $ok;
   }
+  else {
+    ($ok, $err, $string) = Mj::Config::compile_pattern("\"$string\"",0);
+  }
 
   # Check search string length; make sure we're not being trolled
   return (0, "Search string too short.\n")
@@ -3770,7 +3799,7 @@ sub which {
 
    ADDR:
     while (1) {
-      ($match, $data) = $self->{'lists'}{$list}->search($string, $mode);
+      ($match, $data) = $self->{'lists'}{$list}->search($string, 'regexp');
       last unless defined $match;
       push @matches, ($list, $match);
       $total_hits++;

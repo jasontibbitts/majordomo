@@ -48,7 +48,7 @@ $LIST      => the list name
 
 The following substitutions will be made to the body:
 
-$USER      => the user who will be effected by the request
+$VICTIM    => the user who will be effected by the request
 $LIST      => the list the request acted on
 $REQUEST   => the request that was made
 $REQUESTER => the user who made the request
@@ -81,7 +81,7 @@ Sent out to inform a user or the list owner of the confirmation token
 they must return.  The following substitutions will be performed in
 both the subject and body:
 
-$USER      => The user who will be acted on by the request
+$VICTIM    => The user who will be acted on by the request
 $REQUESTER => The user who made the request
 $CMDLINE   => The command that was sent (or would have been sent were the
               command have come in via email)
