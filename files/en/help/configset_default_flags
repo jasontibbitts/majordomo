@@ -11,8 +11,6 @@ EXAMPLE:
 configset listname default_flags = SPR
 
 
-Bring flag fields and documents up to date.
-
 A string containing the flags to be given to new subscribers unless they
 choose otherwise. A list of all possible flags is contained in "help set".
 
@@ -25,7 +23,6 @@ settings, and a better description of what each option does.
 
 See Also:
    help set       (for how a user can set these options after subscribing)
-   help configset ack_denials_always  (overrides "noack" for denied posts)
    help configset allowed_flags (restricts subscribers ability to use set)
 
 For a list of all help topics send this one-line message
