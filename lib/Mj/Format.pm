@@ -240,6 +240,7 @@ sub configshow {
   my $log = new Log::In 29, "$type, $request->{'list'}";
   my ($ok, $mess, $varresult, $var, $val, $tag, $auto);
 
+  $ok = shift @$result;
   for $varresult (@$result) {
     ($ok, $mess, $var, $val) = @$varresult;
     if (! $ok) {
