@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200101180";
+$VERSION = "0.1200101270";
 $unique = 'AAA';
 
 use strict;
@@ -3598,6 +3598,7 @@ sub _announce {
         {
          'exclude' => {},
          'file'    => $tmpfile,
+         'seqnum'  => 'M0',
         };
     }
   }
