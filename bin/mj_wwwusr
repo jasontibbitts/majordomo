@@ -64,7 +64,7 @@ my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, $domain, $extra
                 'info'          => [0, 0, 1, 0, 'list'],
                 'intro'         => [0, 0, 1, 0, 'list'],
                 'lists'         => [0, 0, 0, 0, 'lists'],
-                'password'      => [0, 1, 0, 1, 'welcome'],
+                'password'      => [0, 1, 0, 1, 'login'],
                 'register'      => [0, 1, 0, 1, 'welcome'],
                 'set'           => [1, 1, 1, 1, 'show'],
                 'show'          => [1, 1, 0, 0, 'show'],
@@ -228,6 +228,7 @@ if (! $passw) {
 else {
   $addr = new Mj::Addr($user);
   unless ($mj->validate_passwd($addr, $passw, 'GLOBAL', 'show')) {
+    $subs->{'PASSWORD'} = '';
     &login($mj, $subs, 'Invalid password.');
   }
 }
@@ -297,6 +298,17 @@ for $list (@lists) {
     }
     $request->{'setting'} = join ",", @settings;
   }
+  elsif ($func eq 'password') {
+    $tmp = $cgi->param('newpasswd');
+    if (defined $tmp and length $tmp) {
+      Mj::Parser::parse_args ($request, $tmp, '');
+    }
+    else {
+      $request->{'mode'} = 'gen';
+    }
+    $subs->{'PASSWORD'} = '';
+    $subs->{'COMMAND'} = 'show';
+  }
 
   $result = $mj->dispatch($request); 
   &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
@@ -306,9 +318,10 @@ for $list (@lists) {
 }
 
 #----- Display supplementary information -----#
-# There are four supplementary screens which this script displays. 
+# There are five supplementary screens which this script displays. 
 #   list - Information about a single mailing list
 #   lists - Information about all public mailing lists
+#   login - Prompt for an e-mail address and password
 #   show - Personal information about a subscriber
 #   welcome - A help file that describes how to use the interface.
 
@@ -349,6 +362,9 @@ if ($commands{$func}->[4] ne $func) {
   }
   elsif ($commands{$func}->[4] eq 'welcome') {
     &usage($mj, $subs, '');
+  }
+  elsif ($commands{$func}->[4] eq 'login') {
+    &login($mj, $subs, '');
   }
   # Fall through for unexpected cases.
 }

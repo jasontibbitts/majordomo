@@ -1,3 +1,51 @@
+2001-08-20  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwusr:  Allow subscribers to specify the new password
+	they want.  Thanks to Roger Klorese.
+
+	* lib/Majordomo.pm:  (_make_list)  Use the _list_config_search
+	callback to allow default values to be obtained directly from
+	the DEFAULT list.
+	(_createlist)  Add support for the "pass" command mode, which
+	allows the master password to be specified on the command line.
+	Bugfix:  Bypass the default_digest digest in MTAConfig.pm 
+	instead of deleting it.  Thanks to Roger Klorese.
+	(_list_config_search)  Wrapper for Mj::List::config_search.
+
+	* lib/mj_cf_data.pl:  Make the password_min_length setting
+	visible to everyone.
+
+	* lib/Mj/Access.pm:  Bugfix:  Use \003 to separate reasons to
+	avoid conflict with the \002 character used to separate access
+	variables.
+
+	* lib/Mj/CommandProps.pm:  Add support for the createlist-pass
+	command.
+
+	* lib/Mj/Config.pm:  (search)  New routine.  Look for a
+	configuration value in a series of templates and return the
+	template and value.
+	(get, default, intro) Use the _list_config_search callback 
+	to obtain default values directly from the DEFAULT list.
+	(regen) Remove outdated settings from the configuration file
+	automatically.
+
+	* lib/Mj/Format.pm:  (tokeninfo) Bugfix:  use the \003
+	character to separate reasons.
+
+	* lib/Mj/List.pm:  (config_search)  Wrapper for 
+	Mj::Config::search.
+
+	* lib/Mj/MTAConfig.pm:  (add_alias)  Bugfix:  skip the 
+	default_digest digest when expanding the subscribe-digest-all
+	alias.
+
+	* lib/Mj/Resend.pm:  (post)  Bugfix:  use the \003 character
+	to separate reasons.
+
+	* lib/Mj/Token.pm:  (confirm)  Bugfix:  use the \003 character
+	to separate reasons.
+
 2001-08-19  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/Config.pm (parse_digests): Change parsing; second line
