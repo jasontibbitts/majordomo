@@ -24,7 +24,6 @@
       <option> index-recursive
       <option> reject
       <option> report
-      <option> report-full
       <option> report-summary
       <option> sessioninfo
       <option> set
