@@ -400,8 +400,8 @@ $files =
 
 # Files that are conditional on a working web server
 if ($indexflags & 1) {
-  $files->{'en/confirm'} = ['CONFIRM from $LIST', 'us-ascii', '7bit'];
-  $files->{'en/consult'} = ['CONSULT from $LIST', 'us-ascii', '7bit'];
+  $files->{'en/confirm'} = ['CONFIRM from $LIST ($REQUEST)', 'us-ascii', '7bit'];
+  $files->{'en/consult'} = ['CONSULT from $LIST ($REQUEST)', 'us-ascii', '7bit'];
 
   $files->{'de/confirm'} = 'CONFIRM from $LIST';
   $files->{'de/consult'} = 'CONSULT from $LIST';
@@ -410,8 +410,8 @@ if ($indexflags & 1) {
   $files->{'de/informal/consult'} = 'CONSULT from $LIST';
 }
 else {
-  $files->{'en/confirm'} = ['CONFIRM from $LIST', 'us-ascii', '7bit', 'en/confirm_noweb'];
-  $files->{'en/consult'} = ['CONSULT from $LIST', 'us-ascii', '7bit', 'en/consult_noweb'];
+  $files->{'en/confirm'} = ['CONFIRM from $LIST ($REQUEST)', 'us-ascii', '7bit', 'en/confirm_noweb'];
+  $files->{'en/consult'} = ['CONSULT from $LIST ($REQUEST)', 'us-ascii', '7bit', 'en/consult_noweb'];
 
   $files->{'de/confirm'} = ['CONFIRM from $LIST', 'ISO-8859-1', '8bit', 'de/confirm_noweb'];
   $files->{'de/consult'} = ['CONSULT from $LIST', 'ISO-8859-1', '8bit', 'de/consult_noweb'];
