@@ -1,51 +1,91 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-rekey [-verify][-repair[-quiet]]
+rekey
+rekey-noxform 
+rekey-repair 
+rekey-verify
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-EXAMPLE:
-rekey-verify
+The rekey command serves two purposes.  The first purpose is to apply
+transformations in the GLOBAL addr_xforms configuration setting to every
+key in the registry and subscriber databases.  The second purpose is
+to verify that the subscriber databases and the registry are consistent
+with one another.
 
+Majordomo makes use of two databases to keep a record of every address
+that is subscribed to a mailing list.  In the central registry, the
+personal password and a list of subscriptions for each address is
+stored.  In the subscriber databases, the personal settings for each
+subscription are stored.  Each entry in both kinds of database has a
+"key" which is an e-mail address, called the "canonical address."  
 
-The 'rekey' command ALWAYS regenerates the database keys, which depend on
-the setting of addr_xforms, so when that variable is changed the database
-must be rekeyed or some addresses may become inaccessible. In addition, it
-can be used to repair the registry by adding one or more switches.
+The canonical address can be different from the actual e-mail address,
+as determined by the address transformations in the GLOBAL addr_xforms
+configuration setting.  For example, if the domain "example.net" is
+mapped to "example.edu" in the addr_xforms setting, the address
+"joe@example.net" will have a canonical address "joe@example.edu".
 
-To test subscriber data against registry data and issue warnings if they
-are inconsistent, use "rekey-verify". No changes will be made to the
-subscriber lists or the registry, but the database keys WILL be regenerated.
+The plain "rekey" command should be used after the addr_xforms setting
+has been changed, to modify keys in the registry and every subscriber
+database.  The number of addresses found and changed in each database
+will be reported.
 
-To test subscriber data against registry data and fix both subscriber lists
-and the registry if they are inconsistent, use "rekey-repair". This may add
-subscribers to lists if the registry says they should be there, or it may
-add entries to the registry if the lists have subscriptions that have been
-dropped from the registry. It chooses maximum coverage, adding entries and
-never deleting them. Whether or not changes are made to the subscriber
-lists or the registry, the database keys WILL be regenerated. Any address
-that is changed by this command will receive a new personal password via email.
+The "rekey-noxform" command can be used to test the transformations in
+the addr_xforms setting against the databases without making any
+changes.  The number of addresses that would be changed by rekeying will
+be reported.
 
-NOTE: rekey-repair only changes a password if it is forced to create an
-entirely new registry entry for a particular address. It won't change the
-password in existing registry entries even if it changes those entries.
+In some circumstances, the registry and subscriber databases can become
+inconsistent with one another.  This has happened in the past when a the
+hard disk on which Majordomo stores its files ran out of storage space.
+To recover from such a problem, the "rekey-verify" and "rekey-repair"
+commands can be helpful.
 
-The 'rekey-repair' command notifies people whose subscriptions or register
-entries were altered. You can suppress this notification, and keep from
-sending new passwords to newly created entries, with 'rekey-repair-quiet'.
-Once again, the database keys WILL be regenerated. Note that suppressing
-the new password message means subscribers who have saved their password
-will be unable to use it and will not know why... but once again it applies
-only to entirely new entries where the old password was non-functional anyway.
+The "rekey-verify" command checks the consistency of the databases
+and reports any problems.  There are two problem cases:
 
-Be _very careful_ with this command.  It is possible, with a bad setting
-of addr_xforms, to severely damage your address database. If there were
-addresses on any list (or registered) that were different but are now the
-same, the duplicate entries will be silently dropped. It is generally
-possible to get them back by removing the bad setting from addr_xforms
-and rekeying.
+  * The registry says an address is subscribed to a list, but there is
+    no entry for that address in the list's subscriber database.
+
+  * The subscriber database for a list says that a subscription exists,
+    but the registry entry for that address is missing, or the list of
+    subscriptions for that address in the registry does not include the
+    list in question.
+
+The "rekey-repair" command will repair any inconsistencies in the
+databases.  Repairs always involve adding information.  In the first
+problem case, a new entry is added to the subscriber database, using the
+default personal settings for the mailing list.  Any customized settings
+will be lost.  In the second problem case, the registry entry will be
+changed or created.  If a new registry entry is created, a new personal
+password will be chosen randomly for that address; any previous personal
+password will be lost.
+
+Be very careful with this command.  It is possible, with a bad choice of
+address transformations, to severely damage your address database.  If
+any canonical addresses are duplicated because of a transformation, the
+duplicate entries will be discarded silently.  Aside from lost
+duplicates, any changes can be undone by choosing the previous set of
+transformations and rekeying the databases a second time.
+
+Majordomo also maintains specialized databases for auxiliary subscriber
+lists and for address aliases.  These databases will be rekeyed by
+the plain "rekey" command, but they are not affected by any of the other
+variants of the rekey command.  See "help auxiliary_list" and "help alias"
+for more details.
 
 
 See Also:
-   help access_variables
-   help configset_addr_xforms  (downcase or otherwise fix addresses)
+   help alias
+   help admin_domain
+   help auxiliary_list
+   help configset_addr_xforms  (downcase or otherwise alter addresses)
+   help password
+   help register
+   help set
+   help subscribe
+   help unalias
+   help unregister
+   help unsubscribe
+   help who
 
 $INCLUDE-help/foot
