@@ -437,7 +437,7 @@ sub Mj::Format::showtokens {
 sub Mj::Format::tokeninfo {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$request->{'token'}";
-  my ($body, $chunk, $chunksize, $cgiurl, $expire);
+  my ($body, $chunk, $chunksize, $cgiurl, $cmd, $expire);
   my (@reasons, $showspool, $time, $tmp, $user);
   # XXX Allow multiple domains
   $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
@@ -452,6 +452,7 @@ sub Mj::Format::tokeninfo {
   $time   = localtime($data->{'time'});
   $expire = localtime($data->{'expire'});
   $user   = Mj::Format::escape($data->{'user'});
+  $cmd    = Mj::Format::escape($data->{'cmdline'});
 
   print <<EOM;
 <table>
@@ -459,14 +460,14 @@ sub Mj::Format::tokeninfo {
 <tr><td>Created<td>$time
 <tr><td>By     <td>$user
 <tr><td>Type   <td>$data->{'type'}
-<tr><td>Command<td>$data->{'cmdline'}
+<tr><td>Command<td>$cmd
 <tr><td>Expires<td>$expire
 EOM
 
   if ($data->{'arg2'}) {
     @reasons = split "\002", $data->{'arg2'};
     for (@reasons) {
-      print "<tr><td>Reason<td>$_\n";
+      printf "<tr><td>Reason<td>%s\n", Mj::Format::escape($_);
     }
   }
 
