@@ -61,6 +61,9 @@ kinds of pattern.  For example,
   !edu
 would match any string of characters that does not contain "edu".
 
+The special pattern
+  ALL
+will match everything.
 
 Substring Patterns
 ------------------
