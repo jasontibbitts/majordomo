@@ -80,8 +80,8 @@ default VARIABLE [VALUE]
     password  Use a different administrative password (see
               "help admin_passwords" for more details).
 
-    user      Masquerade as someone else (see the "Forwarding files
-              to someone else" section in "help admin_documents" for
+    user      Masquerade as someone else (see the "Sending documents
+              to other people" section in "help admin_documents" for
               more details).
 
   See "help default" for more details.
