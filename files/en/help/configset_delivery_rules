@@ -108,17 +108,22 @@ not also specified, maxdomains=20 is used.
 
 Batches are delivered to each host in the "hosts" parameter in a
 round-robin fashion. (Future enhancements will deliver batches to
-each host simulataneously to compensate for possible delays from
+each host simultaneously to compensate for possible delays from
 individual hosts due to load or network traffic.) The hosts in
 this list are randomly reordered, so even if you use a single
 batch the load will be spread out over several messages.
 
-Hosts in the "backup" paramter will normally be ignored, but if
+Hosts in the "backup" parameter will normally be ignored, but if
 there is a problem contacting one of the normal delivery hosts,
 these hosts will be used in addition to the other working hosts.
 In the event that no host is contactable, Majordomo will attempt
-to contact localhost.  If that fails, Majorodmo will sleep for
+to contact localhost.  If that fails, Majordomo will sleep for
 ten minutes and try the whole process again.
+
+A particular host name should be used no more than once in the 
+"hosts" and "backup" parameters.  If a host name is used more than
+once, the last set of options will take precedence, and declarations
+in "backup" will override declarations in "hosts".
 
 Including the "sort" option causes the list to be sorted, but beware
 that this takes time and memory. This is not necessary (and will
