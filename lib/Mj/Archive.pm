@@ -608,7 +608,7 @@ sub replace {
   $fh->copy;
   $fh->commit;
 
-  $self->sync($arc, $tmpdir, $qp);
+  $self->sync($sub, $tmpdir, $qp);
 
   # Return the data for the replacement message
   return (1, $self->{'indices'}{$arc}->lookup($msg));
