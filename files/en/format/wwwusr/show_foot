@@ -1,11 +1,13 @@
 <!-- Majordomo show_foot format file -->
 </table></form>
 
-$USER was registered on $REGTIME<br>
-Aliases: 
-<ul>
-  <li>?ALIASES
-</ul>
+$USER was registered on $REGTIME
+<p>
+Aliases for $USER: 
+<table>
+<tr>
+  <td>?ALIASES
+</table>
 
 <h4 align=center>What do the settings mean?</h4>
 <dl>
@@ -24,6 +26,11 @@ Aliases:
       <dt>no messages (<b>nomail</b>)
       <dd>You will receive no mail at all from the list.
 
+      <dt>resume receiving messages (<b>mail</b>)
+      <dd>If the current delivery class is <b>nomail</b>, you
+      will begin receiving messages again.  Otherwise, this
+      setting has no effect.
+
       <dt>anything else...(<b>digest</b>)
       <dd>You will receive the messages in a digest.  The names
       of the digests are determined by the list owners, in the
@@ -41,7 +48,7 @@ Aliases:
   posted messages have been accepted and are being delivered.
 
   <dt>ackreject
-  <dd> Select this to be notified when your
+  <dd>  Select this to be notified when your
   posted messages or majordomo requests are rejected by one of
   the list moderators.
 
@@ -51,7 +58,7 @@ Aliases:
   before they appear on a mailing list.
 
   <dt>eliminatecc
-  <dd> Select this if you do not want two copies
+  <dd>  Select this if you do not want two copies
   when someone sends a message both to you and to the list.
 
   <dt>hideaddress
@@ -64,6 +71,10 @@ Aliases:
   to appear when someone reviews the list of subscribers
   with the
   $HELP:WHO command.
+
+  <dt>hidepost
+  <dd>  Select this is you do not want messages that you post
+  to the mailing list to appear in a public archive.
 
   <dt>postblock
   <dd>  This flag is set if the list moderators have decided to
