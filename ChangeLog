@@ -3,7 +3,7 @@
 	* bin/mj_email, bin/mj_enqueue:  delete unneeded envvars.
 
 	* bin/mj_queuerun:  randomize directories and files. 
-	Fix indentation.
+	Fix indentation.  
 
 	* bin/mj_wwwadm:  simplify command form maintenance.
 
@@ -26,18 +26,24 @@
 	(report) New, iterated command.  Obtain raw or summarized
 	data for recent log entries for a mailing list.
 	The data can be constrained by action or by date.
+	(get_all_lists, _make_list) Make DEFAULT data available 
+	to Mj::List::new when all of the lists are being 
+	loaded, to save redundant lookups.
 
 	* lib/mj_cf_defs.pl: Add 'MSGRCPT' to admin_header checks.
 
 	* lib/Mj/CommandProps.pm, lib/Mj/Format.pm:  Support new
 	announce and report commands.
 
+	* lib/Mj/Config.pm:  Use existing data for the DEFAULT
+	list when Majordomo::get_all_lists is run.
+
 	* lib/Mj/Deliver.pm:  (deliver) Support delivery to 
 	addresses in the registry.  Addresses subscribed to 
 	at least one list are in the "each" class.  Addresses
 	not subscribed to any lists are in the "nomail" class.
 
-	* lib/Mj/List.pm:  (digest_classes) New routine.  Return
+	* lib/Mj/List.pm:  (_digest_classes) New routine.  Return
 	a list of all possible digest classes.
 
 	* lib/Mj/MailOut.pm:  (probe) New routine.  Probe all

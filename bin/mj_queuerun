@@ -207,7 +207,7 @@ sub run_queue {
 
           # Loop over queue files 
         MSG:
-          while (defined($msg = shift @msgs)) {
+          for $msg (@msgs) {
             next MSG if $msg =~ /^\./;
 
             # Untaint $msg; this is safe because only we are able to write
@@ -668,7 +668,7 @@ sub shuffle {
 
   return unless (ref $list eq 'ARRAY');
 
-  $i = scalar @$list;
+  $i = scalar (@$list) - 1;
   while ($i > 0) {
     $j = int rand ($i+1);
     next if $i == $j;
