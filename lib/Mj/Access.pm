@@ -472,7 +472,6 @@ sub list_access_check {
   local $passwd    = $data->{'password'};
   my    $mode      = $data->{'mode'};
   my    $cmdline   = $data->{'cmdline'};
-  my    $delay     = $data->{'delay'} || 0;
   my    $list      = $data->{'list'};
   my    $request   = $data->{'command'}; 
         $request   =~ s/_(start|chunk|done)$//;
@@ -516,6 +515,7 @@ sub list_access_check {
       $ok, $ok2,
       $tmpl, $tmpa,         # Temporary list and auxlist holders
       @temps,
+      $value,               # Value to which the 'set' action changes a variable.
      );
   
   local (
@@ -541,6 +541,8 @@ sub list_access_check {
   # password error.
   $args{'master_password'} = 0;
   $args{'user_password'}   = 0;
+  $args{'delay'}    = 0;
+
   if ($passwd) {
     # Check the password against the requester
     $ok = $self->validate_passwd($requester, $passwd, $list, $request);
@@ -576,14 +578,16 @@ sub list_access_check {
       $self->_list_config_get($list, "access_password_override");
   
     # Return some huge value, because this value is also used as a count
-    # for some routines.
-    if ($password_override) {
+    # for some routines.  If a delay was used, delay the command.
+    # If "rule" mode was used, do not override the 
+    if ($password_override and $mode !~ /rule/) {
       if ($data->{'delay'} > 0) {
         @final_actions = ('delay');
         goto FINISH;
       }
       return $self->_a_allow(2**30, $data, $args);
     }
+    $args{'delay'} = $data->{'delay'};
   }
 
   $access = $self->_list_config_get($list, 'access_rules');
@@ -615,7 +619,6 @@ sub list_access_check {
     $args{'addr'}     = $victim->strip;
     $args{'fulladdr'} = $victim->full;
     $args{'mode'}     = $mode;
-    $args{'delay'}    = $delay;
    
     # Prepare to execute the rules
     $skip = 0;
@@ -650,8 +653,19 @@ sub list_access_check {
 
 	if ($func eq 'set') {
 	  # Set a variable.
-	  if ($arg and rules_var($request, $arg)) {
-	    $args{$arg} ||= 1;
+	  ($arg, $value) = split(/[=-]/, $arg, 2);
+	  if ($arg and ($ok2 = rules_var($request, $arg))) {
+            if ($value and $arg eq 'delay') {
+              my ($time) = time;
+              $args{'delay'} = Mj::List::_str_to_time($value) || $time + 1;
+              $args{'delay'} -= $time;
+            }
+            elsif ($value and $ok2 > 1) {
+              $args{$arg} = $value;
+            }
+            else {
+              $args{$arg} ||= 1;
+            }
 	  }
 	  next ACTION;
 	}
@@ -730,7 +744,7 @@ FINISH:
       ($mess,
        {
         $self->standard_subs($list),
-        'FULFILL' => scalar localtime (time + $data->{'delay'}),
+        'FULFILL' => scalar localtime (time + $args{'delay'}),
         'NOTIFY'  => $victim,
 	'REASONS' => $reasons,
 	'VICTIM'  => $victim,
@@ -919,6 +933,10 @@ sub _a_delay {
       $td->{'delay'} = $delay;
     }
   }
+  elsif ($args->{'delay'}) {
+    $td->{'delay'} = $delay;
+  }
+    
   $self->delay(%$td,
                'file'      => $file || 'delay',
                'notify'    => $td->{'victim'},
@@ -1200,6 +1218,10 @@ sub _a_default {
     $action = "_a_deny";
   }
 
+  if ($args->{'delay'} and $action eq '_a_allow') {
+    $action = '_a_delay';
+  }
+
   if (defined $reason) {
     $args->{'reasons'} = "$reason\002" . $args->{'reasons'}; 
   }
@@ -1325,6 +1347,9 @@ sub _d_post {
       if defined($args->{$i}) && ($args->{$i} =~ /\D/ || $args->{$i} > 0);
   }
 
+  if ($args->{'delay'}) {
+    return $self->_a_delay(@_);
+  }
   return $self->_a_allow(@_);
 }
 
