@@ -1682,7 +1682,7 @@ sub parse_access_rules {
           $tmp2 =~ s/^\((.*)\)/$1/;
 	  for $k (action_files($tmp, $tmp2)) {
 	    ($file) =
-	      &{$self->{callbacks}{'mj.list_file_get'}}(list => $self->{list},
+	      &{$self->{callbacks}{'mj._list_file_get'}}(list => $self->{list},
 							file => $k,
 						       );
 	    unless ($file) {
@@ -1701,7 +1701,7 @@ sub parse_access_rules {
             else {
               for $m (keys %$l) {
                 if ($Mj::Util::notify_var{$m} eq 'filename') {
-                  ($file) = &{$self->{callbacks}{'mj.list_file_get'}}(list => $self->{list},
+                  ($file) = &{$self->{callbacks}{'mj._list_file_get'}}(list => $self->{list},
 								      file => $l->{$m},
 								     );
                   unless ($file) {
@@ -1770,7 +1770,7 @@ sub parse_address {
   my $str  = shift || '';
   my $var  = shift;
   my $log  = new Log::In 150, "$var, $str";
-  my $domain;
+  my ($addr, $domain, $loc, $mess, $ok);
 
   return (1, '', '') unless $str;
 
@@ -1785,11 +1785,21 @@ sub parse_address {
     $str .= '@' . $domain if $domain;
   }
 
-  my $addr = new Mj::Addr($str);
-  my ($ok, $mess) = $addr->valid;
-
-  return (1, '', $str) if $ok;
-  return (0, $mess);
+  $addr = new Mj::Addr($str);
+  unless (defined $addr) { 
+    $mess = &{$self->{callbacks}{'mj._list_file_get_string'}}(
+                 'list' => $self->{'list'}, 'file' => 'error/undefined_address');
+    return (0, $mess); 
+  } 
+  ($ok, $mess, $loc) = $addr->valid;
+  if ($ok) {
+    return (1, '', $str);
+  }
+  else {
+    $mess = &{$self->{callbacks}{'mj._list_file_get_string'}}(
+                'list' => $self->{'list'}, 'file' => "error/$mess");
+    return (0, "$str: $mess");
+  }
 }
 
 use Mj::Addr;
@@ -2057,7 +2067,7 @@ sub parse_bounce_rules {
 	$tmp2 =~ s/^\((.*)\)/$1/;
 	for $k (action_files($tmp, $tmp2)) {
 	  ($file) =
-	    &{$self->{callbacks}{'mj.list_file_get'}}(list => $self->{list},
+	    &{$self->{callbacks}{'mj._list_file_get'}}(list => $self->{list},
 						      file => $k,
 						     );
 	  unless ($file) {
@@ -2939,7 +2949,7 @@ sub parse_relocated_lists {
     }
     if (length $table->[$i][2]) {
       ($file) =
-        &{$self->{callbacks}{'mj.list_file_get'}}(list => $self->{list},
+        &{$self->{callbacks}{'mj._list_file_get'}}(list => $self->{list},
                                                   file => $table->[$i][2],
 						 );
       unless ($file) {
