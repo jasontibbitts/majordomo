@@ -356,19 +356,58 @@ Section 1.3 - Up to next blank line - code
     list. (see "help createlist" and "help auxiliary_list" for how to 
            create lists and sublists, respectively)
 
-  Variable check:
-  \$variable - checks to see that the supplied variable is true.
-  \$variable=value - checks that the variable equals (stringwise)
-     the given value.
+  Comparisons:
+
+  \$variable          
+    is true if the supplied variable has a true value.
+    True values are neither 0 nor a zero-length string.
+
+  \$variable = STRING
+    is true if the variable equals the given string of characters.
+
+  \$variable != STRING
+    is true if the variable does not equal the given string of characters.
+
+  \$variable =~ /PATTERN/
+    is true if the variable matches the given pattern.
+
+  \$variable !~ /PATTERN/
+    is true if the variable does not match the given pattern.
+
+  \$variable <  NUMBER
+    is true if the variable is less than the given number.
+
+  \$variable <= NUMBER
+    is true if the variable is less than or equal to the given number.
+
+  \$variable >  NUMBER
+    is true if the variable is greater than the given number.
+
+  \$variable >= NUMBER
+    is true if the variable is greater than or equal to the given number.
+
+  \$variable == NUMBER
+    is true if the variable is equal to the given number.
+
+  \$variable <> NUMBER
+    is true if the variable is not equal to the given number.
+
+  ALL
+    is always true.
+
+See "help access_variables" for a list of variables that can be used
+in comparisons.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Section 1.4 - Semantics: 
-  Rules for a particular request are processed in order; the _first_ rule
-  that matches is taken.
+  Rules for a particular request are processed in order.  The first 
+  rule that matches and contains a terminal action (allow, confirm,
+  confirm2, consult, confirm_consult, default, delay, deny, forward) 
+  causes all succeeding rules to be ignored.
 
   If no rules match, the "default" action is taken, which results in a
-  reasonable emulation of the 1.94.3 behavior using *_access, moderate,
+  reasonable emulation of the Majordomo 1 behavior using *_access, moderate,
   restrict_post, etc. The default actions for all requests are listed
   in "help access_variables".
 
@@ -376,7 +415,7 @@ Section 1.4 - Semantics:
 
 Section 1.5 - Moderator Groups:
 
-  The access rules now support moderator groups for the "consult"
+  The access rules support moderator groups for the "consult"
   and "conf_cons" actions. The addresses of a moderator group are
   expected to be stored in an auxiliary list. The default moderator
   group is called "moderators."  When a message is sent to the
