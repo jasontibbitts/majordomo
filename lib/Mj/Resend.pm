@@ -586,7 +586,7 @@ sub _post {
 
     # Build digests if we have a message number from the archives
     # (%deliveries is modified)
-    if ($msgnum) {
+    if ($msgnum and !$sl) {
       $self->do_digests('list'      => $list,     'deliveries' => \%deliveries,
                 'substitute'=> $subs,     'msgnum'     => $msgnum,
                 'arcdata'   => $arcdata,  'sender'     => $sender,
