@@ -4334,7 +4334,7 @@ sub _set {
     @lists = ($list);
   }
     
-  for $l (@lists) {
+  for $l (sort @lists) {
     unless ($self->_make_list($l)) {
       push @out, (0, "The $l list apparently does not exist.\n");
       next;
@@ -4452,7 +4452,7 @@ sub _show {
       $out{lists}{$i} =
 	{
 	 fulladdr   => $data->{fulladdr},
-     class      => $data->{'class'},
+         class      => $data->{'class'},
 	 classdesc  => $self->{'lists'}{$i}->describe_class($data->{'class'},
 							    $data->{'classarg'},
 							    $data->{'classarg2'},
