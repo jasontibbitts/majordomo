@@ -1,0 +1,12 @@
+<!-- Majordomo changeaddr format file -->
+<p>
+La commande "changeaddr" a réussi.
+</p>
+
+<p>
+Les abonnements, aliases et mots de passes de 
+  $VICTIM
+appartiennent maintenant à
+  $USER
+</p>
+

@@ -1,0 +1,8 @@
+<!-- Majordomo alias_error format file -->
+<p>
+  $VICTIM
+N'a pas été aliasée à
+  $USER
+</p>
+
+<pre>?ERROR</pre>
