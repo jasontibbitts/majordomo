@@ -44,13 +44,13 @@ sub text_to_db {
   ($mode, $uid, $gid) = (stat("$type$name.T"))[2,4,5];
 
   # Use BTree and comparison function if the file is appropriately named
-  if ($type eq 'X' || grep({ $_ eq $name } @btrees)) {
+  if ($type eq 'X' || grep { $_ eq $name } @btrees) {
     $dbinfo = new DB_File::BTREEINFO;
     $dbinfo->{compare} = \&addrcompare;
     print "Converting text->btree $File::Find::name \n";
   }
   # Otherwise use a simple hash
-  elsif (grep({ $_ eq $name } @hashes)) {
+  elsif (grep { $_ eq $name } @hashes) {
     $dbinfo = new DB_File::HASHINFO;
     print "Converting text->hash $File::Find::name \n";
   }
@@ -99,13 +99,13 @@ sub db_to_text {
   ($mode, $uid, $gid) = (stat("$type$name.D"))[2,4,5];
 
   # Use BTree and comparison function if the file is appropriately named
-  if ($type eq 'X' || grep({ $_ eq $name } @btrees)) {
+  if ($type eq 'X' || grep { $_ eq $name } @btrees) {
     $dbinfo = new DB_File::BTREEINFO;
     $dbinfo->{compare} = \&addrcompare;
     print "Converting btree->text $File::Find::name \n";
   }
   # Otherwise use a simple hash
-  elsif (grep({ $_ eq $name } @hashes)) {
+  elsif (grep { $_ eq $name } @hashes) {
     $dbinfo = new DB_File::HASHINFO;
     print "Converting hash->text $File::Find::name \n";
   }
