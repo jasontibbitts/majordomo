@@ -60,6 +60,7 @@ sub mail_message {
   # Make sure all addresses are stripped before mailing.  If we were given
   # no legal addresses, do nothing.
   for $i (@addrs) {
+    next unless ($i);
     $i = new Mj::Addr($i);
     next unless $i->isvalid;
     next if     $i->isanon;
