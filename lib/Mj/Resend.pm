@@ -1670,6 +1670,9 @@ sub do_digests {
 						   file => shift(@dfiles),
 						  };
 	}
+    # XXX The status and password values (1, 0) may be inaccurate.
+	$self->inform($list, "digest", 'unknown@anonymous', 'unknown@anonymous', 
+                  "digest $list $i", "resend", 1, 0, 0); 
       }
     }
   }
