@@ -166,11 +166,11 @@ sub get_entity_structure {
 
   $path = ($entity->bodyhandle ? $entity->bodyhandle->path : '');
   if ($path) {
-    $result->{$id}->{'path'} = $path;
+    $result->{$id}->{'file'} = $path;
     $result->{$id}->{'size'} = sprintf("%.1f", ((-s ($path)) + 51) / 1024);
   }
   else {
-    $result->{$id}->{'path'} = '';
+    $result->{$id}->{'file'} = '';
     $result->{$id}->{'size'} = '';
   }
 
