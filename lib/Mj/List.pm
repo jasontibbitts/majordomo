@@ -116,7 +116,7 @@ sub new {
       new Mj::SubscriberList $subfile, $args{'backend'};
   }
 
-  $self->{'config'} = new Mj::Config
+  $self->{'templates'}{'MAIN'} = new Mj::Config
     (
      list        => $args{'name'},
      dir         => $args{'dir'},
@@ -124,6 +124,8 @@ sub new {
      defaultdata => $args{'defaultdata'},
      installdata => $args{'installdata'},
     );
+
+  $self->{'config'} = $self->{'templates'}{'MAIN'};
 
   $self;
 }
@@ -231,10 +233,15 @@ sub remove {
   if ($mode =~ /regex/ || $mode =~ /pattern/) {
     $dbmode = "regex";
     $a = $addr;
+    if ($mode =~ /allmatching/) {
+      $dbmode .= '-allmatching';
+    }
   }
   else {
+    $dbmode = '';
     $a = $addr->canon;
   }
+
   return (0, "Nonexistent subscriber list \"$sublist\".")
     unless $self->valid_aux($sublist);
   return (0, "Unable to access subscriber list \"$sublist\".")
@@ -384,7 +391,7 @@ sub set {
   unless ($data) {
     $log->out("failed, nonmember");
     # XLANG
-    return (0, "$addr is not subscribed to the $self->{'name'}:$subl auxiliary list.\n"); 
+    return (0, "$addr is not subscribed to the $self->{'name'}:$subl subscriber list.\n"); 
   }
 
   # If we were checking and didn't bail, we're done
@@ -1119,6 +1126,40 @@ sub aux_rekey {
 }
 
 
+=head2 _fill_config
+
+This fills in the hash of auxiliary configuration settings associated 
+with a List object.  Only preexisting files are accounted for; 
+others can be created at any time.  This does not actually create 
+the objects, only the hash slots, so that they can be tested for with exists().
+
+=cut
+sub _fill_config {
+  my $self = shift;
+
+  # Bail early if we don't have to do anything
+  return 1 if $self->{'config_loaded'};
+  
+  $::log->in(120);
+
+  my $dirh = new IO::Handle;
+  my ($file);
+  
+  my $listdir = $self->_file_path;
+  opendir($dirh, $listdir) || $::log->abort("Error opening $listdir: $!");
+
+  while (defined($file = readdir $dirh)) {
+    if ($file =~ /^C([a-z0-9\._\-]+)$/) {
+      $self->{'templates'}{$1} = undef;
+    }
+  }
+  closedir($dirh);
+  
+  $self->{'config_loaded'} = 1;
+  $::log->out;
+  1;
+}
+
 =head2 _fill_aux
 
 This fills in the hash of auxiliary lists associated with a List object.
@@ -1525,6 +1566,33 @@ sub expire_subscriber_data {
   1;
 }
 
+=head2 _make_config (private)
+
+This makes executes a config file and stuffs it into the List''s collection.
+This must be called before any function which accesses the settings.
+
+=cut
+sub _make_config {
+  my $self = shift;
+  my $name = shift;
+
+  $name =~ /([\w\-\.]+)/; $name = $1;
+  return unless $name;
+
+  unless (defined $self->{'templates'}{$name}) {
+    $self->{'templates'}{$name} = 
+      new Mj::Config
+      (
+       list        => $self->{'name'},
+       name        => $name,
+       dir         => $self->{'ldir'},
+       callbacks   => $self->{'config'}->{'callbacks'},
+       defaultdata => { 'raw' => {} },
+       installdata => $self->{'config'}->{'source'}{'installation'},
+      );
+  }
+  1;
+}
 
 =head2 _make_aux (private)
 
@@ -1561,6 +1629,24 @@ sub valid_aux {
   return;
 }
 
+
+=head2 valid_config
+
+Verify the existence of a configuration template.  
+
+=cut
+sub valid_config {
+  my $self = shift;
+  my $name = shift || 'MAIN';
+
+  $self->_fill_config;
+  if (exists $self->{'templates'}{$name}) {
+    # Untaint
+    $name =~ /(.*)/; $name = $1;
+    return $name;
+  }
+  return;
+}
 
 =head2 _make_fs
 
@@ -1658,6 +1744,25 @@ sub _make_archive {
 Config modification, access checking, special bootstrapping functions for
 the Majordomo object.
 
+=head2 set_config
+
+Choose the configuration file to be used by default
+
+=cut
+sub set_config {
+  my $self = shift;
+  my $name = shift || 'MAIN';
+
+  if ($name eq 'MAIN') {
+    $self->{'config'} = $self->{'templates'}{'MAIN'};
+    return 1;
+  }
+  
+  return unless $self->_make_config($name);
+  $self->{'config'} = $self->{'templates'}{$name};
+  1;
+}
+
 =head2 config_get
 
 Retrieves a variable from the list''s Config object.
@@ -1665,6 +1770,7 @@ Retrieves a variable from the list''s Config object.
 =cut
 sub config_get {
   my $self = shift;
+
   $self->{'config'}->get(@_);
 }
 
@@ -1675,6 +1781,7 @@ Sets a variable in the Config object.
 =cut
 sub config_set {
   my $self = shift;
+
   $self->{'config'}->set(@_);
 }
 
@@ -1684,7 +1791,9 @@ Sets a variable to track the default value.
 
 =cut
 sub config_set_to_default {
-  shift->{'config'}->set_to_default(@_);
+  my $self = shift;
+
+  $self->{'config'}->set_to_default(@_);
 }
 
 =head2 config_save
