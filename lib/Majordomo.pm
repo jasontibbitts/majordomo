@@ -6623,7 +6623,7 @@ sub _subscribe {
   unless ($ok) {
     $log->out("failed, existing");
     return (0, $self->format_error('already_subscribed', $list, 
-            'VICTIM' => $vict, 'FULLADDR' => $data->{'fulladdr'});
+            'VICTIM' => "$vict", 'FULLADDR' => $data->{'fulladdr'}));
   }
 
   $ml = $self->_global_config_get('password_min_length');
