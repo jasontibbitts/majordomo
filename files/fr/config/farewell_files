@@ -1,0 +1,9 @@
+Le paramètre "farewell_files" détermine quels documents sont envoyés
+lorsque quelqu'un quitte la liste avec la commande "unsubscribe".
+
+Chaque fichier prends deux lignes. La première doit être un mesage
+d'explication qui apparaîtra dans les en-têtes "Sujet" et
+"Content-description" du message qui sera envoyé a l'ex abonné. La
+seconde ligne consiste en un nom de fichier et ainsi qu'un paramètre,
+qui sont séparés par des deux points (':') ou une barre verticale
+('|').

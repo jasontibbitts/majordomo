@@ -1,0 +1,3 @@
+Pour les listes ordinaires, le message d'adieu (farewell) sera envoyé
+aux abonnés lorsqu'ils quittent la liste si le paramètre "farewell"
+est activé.
