@@ -242,11 +242,16 @@ Returns the subscriber data if the address subscribes to the list.
 sub is_subscriber {
   my $self = shift;
   my $addr = shift;
+  my $sublist = shift || '';
   my $log = new Log::In 170, "$self->{'name'}, $addr";
   my ($data, $ok, $out, $subs);
 
   return unless $addr->isvalid;
   return if $addr->isanon;
+
+  if ($sublist) {
+    return $self->aux_is_member($sublist, $addr);
+  }
 
   # If we have cached data within the addr, use it
   $data = $addr->retrieve("$self->{name}-subs");
@@ -489,8 +494,9 @@ sub make_setting {
       else {
         # Remove all in group ('noack' and 'ackall' clear all ack flags)
         for (keys %flags) {
-          ($flags{$_}->[0] eq $flags{$rset}->[0]) &&
-          $flags =~ s/$flags{$_}->[3]//ig; 
+          if ($flags{$_}->[0] eq $flags{$rset}->[0] and $flags{$_}->[3]) {
+            $flags =~ s/$flags{$_}->[3]//ig; 
+          }
         } 
       }
       # Add the new flag (which may be null)
@@ -623,8 +629,6 @@ sub should_ack {
   my ($self, $sublist, $victim, $flag) = @_;
   my ($data);
 
-  # XXX This functionality should be moved to List.pm.
-
   if ($sublist) {
     $data = $self->aux_get_member($sublist, $victim);
   }
@@ -652,6 +656,11 @@ sub _str_to_time {
   my $arg = shift;
   my $log = new Log::In 150, $arg;
   my ($time) = 0;
+
+  # Treat a plain number as a count of seconds.
+  if ($arg =~ /^(\d+)$/) {
+    return time + $arg;
+  }
 
   if ($arg =~ /(\d+)h(ours?)?/) {
     $time += (3600 * $1);
@@ -1907,6 +1916,15 @@ sub archive_delete_msg {
   my $self = shift;
   return unless $self->_make_archive;
   $self->{'archive'}->remove(@_);
+}
+
+sub archive_find {
+  my $self = shift;
+  my $patt = shift;
+  my ($ok, $mess, $regex) = compile_pattern($patt, 0, "exact");
+  return ($ok, $mess) unless $ok;
+  return unless $self->_make_archive;
+  $self->{'archive'}->find($regex);
 }
 
 sub archive_sync {
