@@ -1,7 +1,7 @@
 A string containing the aliases that will be made available
 for this list.  After this value has been changed, the
 createlist-regen command must be run to recreate the aliases.
-  A    An alias for each auxiliary list.
+  A    An alias for each auxiliary list in the "sublists" setting.
   M    LIST-moderator
   O    LIST-owner
   R    LIST

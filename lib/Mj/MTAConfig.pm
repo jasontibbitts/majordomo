@@ -211,7 +211,7 @@ EOB
   # list is new, the default value will need to be
   # used.  The possible aliases settings are:
   #
-  # A    An alias for each auxiliary list.
+  # A    An alias for each auxiliary list mentioned in the "sublists" setting.
   # M    LIST-moderator
   # O    LIST-owner
   # R    LIST
@@ -315,9 +315,8 @@ sub regen_aliases {
     }
   }
 
-  # Sort the list of lists, to get GLOBAL out
-  # first for aesthetic purposes.
-  for $i (sort @{$args{lists}}) {
+  # Sort the list of lists, for aesthetic purposes.
+  for $i (sort {$a->[0] cmp $b->[0]} @{$args{lists}}) {
     $block = add_alias(%args, 'list' => $i->[0], 'debug' => $i->[1], 
                               'aliases' => $i->[2], 'sublists' => $i->[3]);
     $body .= "$block\n" if $block;
