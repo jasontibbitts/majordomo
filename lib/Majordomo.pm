@@ -4386,7 +4386,7 @@ sub sync_owners {
 
       $self->inform('GLOBAL', 'subscribe', $requ, $addr,
                     "subscribe GLOBAL:owners $addr",
-                    $self->{'interface'}, 1, 1, 0, 
+                    $self->{'interface'}, 1, 1, 1, 
                     '', $::log->elapsed - $time);
     }
   }
