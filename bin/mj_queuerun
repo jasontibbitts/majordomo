@@ -46,8 +46,8 @@ sub in  { sysread(STDIN, $_, 1024); $_};
 use lib "$::LIBDIR";
 use Getopt::Std;
 use strict;
-my (%opts, $ein, $eout, $head, $line, $mime_parser, $mj, $nfound, $ok,
-    $request_ans, $rin, $rout, $win, $wout);
+my (%opts, $ein, $eout, $head, $int, $line, $mime_parser, $mj, $nfound, 
+    $ok, $request_ans, $rin, $rout, $win, $wout);
 
 umask oct($::UMASK);
 
@@ -296,7 +296,7 @@ sub run_queue {
             if ($func eq 'majordomo') {
               $log->message(50, 'info', 'Processing commands');
               debug_to($emerg_log || 'majord');
-              unless (parse_commands($mj, '')) {
+              unless (parse_commands($mj, '', '', 'email')) {
                 $log->message(50, 'info', 'Parsing failed; forwarding');
               }
               unlink $statfile; unlink $file;
@@ -359,7 +359,13 @@ sub run_queue {
               if ($request_ans eq 'majordomo' || $arg) {
                 $log->message(50, 'info', 'Processing commands');
                 debug_to($emerg_log || 'majord');
-                parse_commands($mj, $list, $arg, \%req);
+                if (length($arg)) {
+                  $int = 'email-command'; 
+                }
+                else {
+                  $int = 'email-request';
+                }
+                parse_commands($mj, $list, $arg, $int, \%req);
                 debug_to('queuerun');
               }
               elsif ($request_ans eq 'owner') {
@@ -610,13 +616,13 @@ sub connect_and_parse {
 # first two for quick confirmation token processing; the latter two for
 # bypassing failed "access" checks.
 sub parse_commands {
-  my ($mj, $deflist, $command, $req) = @_;
+  my ($mj, $deflist, $command, $int, $req) = @_;
   my (@entities, @events, $args, $commands, $data, $debug_file, $debug_log,
       $debug_reply, $entity, $fh, $file, $head, $i, $list, $mode, $ok,
       $repl, $request, $sender, $server, $sub_addin, $subject, $sub_start,
       $time, $top, $token, $user, $uuser);
 
-  ($entity, $head, $user, $uuser) = connect_and_parse($mj, 'email');
+  ($entity, $head, $user, $uuser) = connect_and_parse($mj, $int);
   return unless $entity;
 
   $subject = $head->get('subject') || "";
