@@ -177,9 +177,14 @@ sub handle_bounce_message {
       # Account for abbreviated local parts
       ($other) = grep /^$user/i, keys %$data;
 
-      # Use data from the first address found if no data for the
-      # VERP address is available.
-      ($other) = keys %$data unless (defined $other);
+      if (defined $other) {
+        $user = $other;
+      }
+      else {
+        # Use data from the first address found if no data for the
+        # VERP address is available.
+        ($other) = keys %$data unless (defined $other);
+      }
 
       if (defined($other)) {
         $status = $data->{$other}{status};
@@ -354,7 +359,7 @@ sub handle_bounce_probe {
 
   # Otherwise, just remove the user
   $reasons = $self->format_error('probe_bounce', $data->{'list'}, 
-                                 'VICTIM' => $user);
+                                 'VICTIM' => "$user");
   return $self->_hbr_noprobe(
            %args,
 	   'user'   => $user,
@@ -671,7 +676,7 @@ sub handle_bounce_user {
                                     );
       return ($ok, $tmp) unless $ok; 
       $args{'reasons'} .= "\003" . 
-        $self->format_error('bounce_unsub', $list, 'VICTIM' => $user);
+        $self->format_error('bounce_unsub', $list, 'VICTIM' => "$user");
       $inform = 1 unless ($arg =~ /quiet/);
     }
     else {
