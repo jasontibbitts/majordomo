@@ -17,19 +17,24 @@ ENDTAG
 
 
 A list of the classes that a user is allowed to put themselves into.
-If a less specific class like 'digest' is given, users are allowed
-to put themselves into any of the more specific classes.
+There are currently three classes (each, digest, nomail), and the
+digest class may have list-owner-defined subclasses.
 
-Available classes are each, digest, nomail.
+If a class (like 'digest') which has sub-classes is allowed, users
+are allowed to put themselves into any of the more specific classes
+(like 'digest-daily' or digest-weekly'). Unless 'each' is allowed,
+the owner can force users to stay in 'digest' or 'nomail' mode,
+thus lowering the load on the server.
 
 Subscription class can be changed by the "set" command. By default,
 a user is free to choose any of these three classes. The example
-above prohibits the user from choosing to receive digests.
+above prohibits the user from choosing to receive digests but does
+allow them to suspend their subscription with 'nomail'.
 
 
 See Also:
-   help set                    (to change subscription class)
-   help configset access_rules (to limit access to commands like "set")
+   help set    (to change your subscription class/sub-class)
+   help configset digests (to define sub-classes for a list)
 
 For a list of all help topics send this one-line message
    help topics

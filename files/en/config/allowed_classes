@@ -1,3 +1,7 @@
 A list of the classes that a user is allowed to put themselves into.
-If a less specific class like 'digest' is given, users are allowed
-to put themselves into any of the more specific classes.
+There are currently three classes (each, digest, nomail), and the
+digest class may have list-owner-defined subclasses.
+
+If a class (like 'digest') which has sub-classes is allowed, users
+are allowed to put themselves into any of the more specific classes
+(like 'digest-daily' or digest-weekly').
