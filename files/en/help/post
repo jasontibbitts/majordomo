@@ -35,6 +35,14 @@ the mailing list.  Obviously, you would not want that message to
 be distributed on the list, since the list's participants are
 already subscribed to the list.
 
+To send a message to an auxiliary list, use the "sublistname"
+parameter of the "post" command, or make sure the 'A' flag in the
+"configset aliases" is used so an alias will be created for each
+auxiliary list. For example, to reach the "testers" sublist of
+the mj2-dev list without "post", a message could be sent to the
+(fictitious) address mj2-dev-testers@csf.colorado.edu
+
+
 See Also:
    help approve   (which can eliminate the need to use "accept")
    help access    (for the special case of granting/denying all access)
@@ -43,6 +51,7 @@ See Also:
    help variables (for a list of all possible variables and what they mean)
    help configset access_rules           (to restrict access to any command)
    help configset access_rules_variables (set/test for this command)
+   help configset aliases                (to allow direct posting on sublists)
    help configset archive_access      (for     archive-related access_rules)
    help configset faq_access          (for         faq-related access_rules)
    help configset get_access          (for         get command access_rules)
