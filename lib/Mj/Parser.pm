@@ -203,7 +203,6 @@ sub parse_part {
     # to marshal arguments for a call to majordomo core
     # functions via dispatch().
     my ($request) = {};
-    $request->{'auth'} = '';
 
     # We have something that looks like a command.  Process it and any here
     # arguments that may follow.
@@ -232,8 +231,8 @@ sub parse_part {
     $log->message(50, "info", "$command aliased to $true_command.")
       if defined $true_command and $command ne $true_command;
     unless (defined($true_command) &&
-            (command_prop($true_command, $interface) ||
-            (command_prop($true_command, "${interface}_parsed"))))
+            (command_prop($true_command, $mj->{interface}) ||
+            (command_prop($true_command, "$mj->{interface}_parsed"))))
       {
         unless ($garbage) {
           print $outhandle $out;
@@ -267,7 +266,7 @@ sub parse_part {
       $log->message(50, "info", "$command aliased to $true_command.")
         if defined $true_command and $command ne $true_command;
       unless (defined($true_command) &&
-              command_prop($true_command, $interface))
+              command_prop($true_command, $mj->{interface}))
         {
           print $outhandle "Illegal command!\n";
           next CMDLINE;
@@ -283,8 +282,7 @@ sub parse_part {
     # If necessary, we extract the list name from the arguments, accounting
     # for a possible default list in effect, and verify its validity
     if (command_prop($true_command, "list")) {
-      $cmdargs = add_deflist($mj, $cmdargs, $args{'deflist'},
-			  $interface, $args{'reply_to'});
+      $cmdargs = add_deflist($mj, $cmdargs, $args{'deflist'}, $args{'reply_to'});
       ($tlist, $cmdargs) = split(" ", $cmdargs, 2);
       unless (defined($tlist) && length($tlist)) {
         print $outhandle "A list name is required.\n";
@@ -375,7 +373,6 @@ sub parse_part {
       $request->{'command'} = $true_command;
       $request->{'user'} = $user;
       $request->{'password'} = $password || $args{'password'};
-      $request->{'interface'} = $interface;
       $request->{'mode'} = $mode;
       $request->{'list'} = $list;
       # deal with arguments
@@ -648,7 +645,7 @@ sub parse_line {
   return ($out, $command, $_, $attachhandle, @arglist);
 }
 
-=head2 add_deflist (line, deflist, interface, reply_to)
+=head2 add_deflist (line, deflist, reply_to)
 
 =head2
 
@@ -659,7 +656,6 @@ sub add_deflist {
   my $mj        = shift;
   my $line      = shift;
   my $deflist   = shift;
-  my $interface = shift;
   my $reply_to  = shift;
   my $list;
 
