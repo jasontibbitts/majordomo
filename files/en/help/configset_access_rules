@@ -534,7 +534,7 @@ default action for the command, as described by the following table:
 
 Command           Default action
 --------------------------------
-access            allow
+access            special
 advertise         special
 alias             confirm
 announce          deny
