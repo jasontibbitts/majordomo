@@ -330,6 +330,7 @@ sub handle_bounce {
   else {
     $handled = 0;
   }
+  }
 
   $ent->purge if $ent;
   $nent->purge if $nent;
