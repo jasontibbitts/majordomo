@@ -5,15 +5,15 @@ This is a basic overview of the supported Majordomo commands for use by
 subscribers.  For a list of administrative commands and additional modes,
 see the 'admin commands' help topic.
 
-Many commands also have options available to modify their behavior.
-Options will appear next to the command names in (parentheses).  Commands
-with options should be sent in the format:
+Many commands have options available to modify their behavior.  Options
+will appear next to the command names in (parentheses).  Commands with
+options should be sent in the format:
 
-        command-option list argument
+        command-option argument(s)
 
 Multiple options may be strung together like so:
 
-        command-option1-option2-option3 list argument
+        command-option1-option2-option3 argument(s)
 
 An address can generally be omitted from the command.  If omitted, your
 address will be used if it can be determined.  Note that the address is not
@@ -32,12 +32,13 @@ accept [token]
 --------------
   Some commands will require your confirmation before their actions will be
   taken; this can help protect you from mischief by preventing others from
-  submitting commands in your name.  In such a case, a 'token' will be mailed
-  to you for approval.
+  submitting commands in your name.  In such a case, a 'token' will be
+  mailed to you for approval.
 
   The 'accept' command tells Majordomo to accept a confirmation or
   consultation token, thus approving the requested action.  The stalled
-  command will be executed and the results returned in the response message.
+  command will be executed and the results returned in the response
+  message.
 
   If the token is omitted from the command, the Subject: header will be
   searched for one; accepting a token therefore usually requires only that
@@ -47,21 +48,31 @@ accept [token]
 
 
 alias address
-------------------
+-------------
   If you have more than one email address, you may wish to be able to post
   from more than one of them, while receiving list mail at only a single
   address.  The 'alias' command allows this.
 
-  Send this command from an address that is subscribed to the list; the given
-  address will then be considered equivalent to the address from which you
-  sent the command.
+  Send this command from an address that is registered with the server; the
+  given address will then be considered equivalent to the address from
+  which you sent the command.
 
-    Example:  Thad has two addresses, thad@foo.com and tsmith@bar.com.  He
-              wants to be able to post from either address, but only wants
-              to receive mail at thad@foo.com.  He subscribes to the list
-              as thad@foo.com and, from that address, sends the command:
+    Example:  Thad has two addresses, thad@example.com and tsmith@bar.com.
+              He wants to be able to post from either address, but only
+              wants to receive mail at thad@example.com.  He subscribes to
+              the list as thad@example.com and, from that address, sends
+              the command:
 
-                alias tsmith@bar.com
+                alias tsmith@example.com
+
+
+approve password command
+------------------------
+  This runs the given command (and arguments) with the supplied password,
+  executing the command without requiring a confirmation token.  In our
+  example below, "vespa" is the registered user's password.
+
+    Example:  approve vespa alias tsmith@example.com
 
 
 faq list
@@ -70,11 +81,10 @@ faq list
   if one is available
 
 
-get list file address (-immediate)
--------------
+get list file address
+---------------------
   This retrieves the given file from the list's file storage.  The file
-  will be mailed to the supplied address unless the -immediate option is
-  used, in which case the file will be returned directly.
+  will be mailed to the supplied address.
 
 
 help topic subtopic ...
@@ -89,14 +99,15 @@ index list path (-recursive, -long)
 
 info list
 ---------
-  This retrieves the given list's informational document, if one is available.
+  This retrieves the given list's informational document, if one is
+  available.
 
 
 intro list
 ----------
-  This retrieves the given list's introductory document, if one is available.
-  Note that this is not (currently) the same as the welcome document that is
-  sent to new subscribers.
+  This retrieves the given list's introductory document, if one is
+  available.  Note that this is not (currently) the same as the welcome
+  document that is sent to new subscribers.
 
 
 lists (-enhanced, -short, -tiny)
@@ -104,9 +115,24 @@ lists (-enhanced, -short, -tiny)
   This retrieves a list of lists on this server which are available to you.
 
   The enhanced mode includes long descriptions and additional list
-  information, including an indication of whether you are subscribed to each
-  list.  The short mode uses only short descriptions.  The tiny mode includes
-  only the list names and nothing else.
+  information, including an indication of whether you are subscribed to
+  each list.  The short mode uses only short descriptions.  The tiny mode
+  includes only the list names and nothing else.
+
+
+password userspassword address (-random)
+------------------------------
+  Change the password for the given registered address to userspassowrd.
+  A confirmation token will be sent to the given address to verify this
+  action.
+
+  The -random option will generate a random password; naturally, no new
+  password need be provided in this case.
+
+    Examples:  password blahblah sydney@example.com
+               password-random sydney@example.com
+
+    See also:  approve
 
 
 register address (-nowelcome)
@@ -121,10 +147,10 @@ register address (-nowelcome)
 
 reject [token]
 --------------
-  This rejects a token, preventing the requested action from being taken.  If
-  no 'accept' command is received, the token will eventually be rejected by
-  default, but issuing a 'reject' command will immediately delete the token
-  and requested action from the server's database.
+  This rejects a token, preventing the requested action from being taken.
+  If no 'accept' command is received, the token will eventually be rejected
+  by default, but issuing a 'reject' command will immediately delete the
+  token and requested action from the server's database.
 
     See Also:  accept
 
@@ -135,7 +161,7 @@ set list flag address
 
 
 show address
------------------
+------------
   This displays various information about the address:
 
     - Whether or not the given address is legal
@@ -153,25 +179,25 @@ show address
       - The subscriber flags
       - The time the record was last updated
 
-    Example:  show joe@foo.com
+    Example:  show joe@example.com
 
 
-subscribe list address (-nowelcome)
+subscribe list address
 ----------------------
   This adds the address to the given list and to the registration database
-  if not already registered.  The 'nowelcome' option prevents the server
-  from sending the welcome message that is usually mailed to new
-  subscribers.
+  if not already registered.
 
     Examples:  subscribe scooters
-               subscribe-nowelcome scooters joe@foo.com
 
 
-unalias list address
---------------------
-  This removes the given address as an alias for the current address.
+unalias address
+---------------
+  This removes the given address as an alias for the current address.  Send
+  this command from an address that is registered with the server; the
+  given address will then be removed from the database an no longer
+  considered equivalent to the registered address.
 
-    Example:  unalias scooters tsmith@bar.com
+    Example:  unalias scooters tsmith@example.com
 
     See Also:  alias
 
@@ -193,28 +219,20 @@ unsubscribe list address
   registration database.  This allows a user to leave one list and join
   another without obtaining a new personal password.
 
-    Example:  unsubscribe scooters buster@foo.com
+    Example:  unsubscribe scooters buster@example.com
 
     See Also:  subscribe, unregister
 
 
-which string (-regexp)
+which string
 ------------
   This shows which lists contain addresses which contain the given string.
-  The regex option causes the string to be used as a Perl regular expression.
 
-    Examples:  which buster@foo.com
-               which-regexp buster\@
-
-    See also:  'regexp' help topic
+    Examples:  which buster@example.com
 
 
-who list [regexp]
------------------
-  Returns all members of the list.  If a regular expression is given as an
-  argument, only matches will be returned.
+who list
+--------
+  Returns all members of the list.
 
     Examples:  who scooters
-               who scooters \@foo\.com
-
-    See also:  'regexp' help topic

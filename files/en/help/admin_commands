@@ -4,27 +4,15 @@ Majordomo2 Administrative Commands
 This is a basic overview of the commands and features available for use by
 the list owner.
 
-Every command will have at least one required argument, and may have one or
-more optional requirements as well.  The first required argument is usually
-the listname; therefore, most commands will be submitted to the parser in
-the format:
+Many commands have options available to modify their behavior.  Options
+will appear next to the command names in (parentheses).  Commands with
+options should be sent in the format:
 
-        command list argument(s)
-
-Required arguments will be included in the command names below.  Optional
-arguments will appear in [brackets].  For a few commands, the first
-required argument will be something other than the list name.  These should
-be clear as you read the command names listed below.
-
-Many commands also have options available to modify their behavior.
-Options will appear next to the command names in (parentheses).  Commands
-with options should be sent in the format:
-
-        command-option list argument
+        command-option argument(s)
 
 Multiple options may be strung together like so:
 
-        command-option1-option2-option3 list argument
+        command-option1-option2-option3 argument(s)
 
 Examples of the commands that follow will assume an imaginary list named
 'scooters' using the master password 'vespa'.
@@ -32,13 +20,14 @@ Examples of the commands that follow will assume an imaginary list named
 
 accept [token]
 --------------
-  Some commands will require  confirmation before their actions will be taken;
-  this can help protect subscribers and lists from mischief.  In such a case,
-  a 'token' may be mailed to the list owner for approval.
+  Some commands will require  confirmation before their actions will be
+  taken; this can help protect subscribers and lists from mischief.  In
+  such a case, a 'token' may be mailed to the list owner for approval.
 
   The 'accept' command tells Majordomo to accept a confirmation or
   consultation token, thus approving the requested action.  The stalled
-  command will be executed and the results returned in the response message.
+  command will be executed and the results returned in the response
+  message.
 
   If the token is omitted from the command, the Subject: header will be
   searched for one; accepting a token therefore usually requires only that
@@ -58,7 +47,7 @@ approve password command
   appropriate password.  If an admin command fails, check to make sure
   you are approving it correctly.
 
-    Example:  approve vespa subscribe scooters jdoe@foo.com
+    Example:  approve vespa subscribe scooters jdoe@example.com
 
     See also:  default
 
@@ -67,7 +56,7 @@ auxsubscribe list sublist address
 ---------------------------------
   Adds an address to the named sublist of a given list.
 
-    Example:  auxsubscribe scooters posters buster@foo.com
+    Example:  auxsubscribe scooters posters buster@example.com
 
     See also:  'admin sublists' help subtopic
 
@@ -82,9 +71,10 @@ auxunsubscribe list sublist address (-regexp, -allmatching)
   cause every address that matches the regular expression to be removed
   from the sublist.
 
-    Examples:  auxunsubscribe scooters posters buster@foo.com
+    Examples:  auxunsubscribe scooters posters buster@example.com
                auxunsubscribe-regexp scooters posters buster\@
-               auxunsubscribe-regexp-allmatching scooters posters \@foo\.com
+               auxunsubscribe-regexp-allmatching scooters posters
+                 \@example\.com
 
     See also:  'admin sublists' help subtopic
                'regexp' help topic
@@ -99,8 +89,8 @@ auxwho list sublist
     See also:  'admin sublists' help subtopic
 
 
-configdef list variable
------------------------
+configdefault list variable
+---------------------------
   Sets the variable back to the default value.  Note that this causes the
   variable to track changes in the default value whenever they are made; a
   variable can be fixed to the current default value by setting it to that
@@ -108,8 +98,10 @@ configdef list variable
 
     Example:  configdef scooters restrict_post
 
+    See also:  The 'admin configuration' help subtopic
 
-configedit list variable (-comments)             NOTE:  Shell interface only
+
+configedit list variable (-comments)            NOTE:  Shell interface only
 ------------------------
   Retrieves the value of the variable and opens an editor on it.  When the
   editor is exited, the variable is set to the new value.  If the
@@ -125,8 +117,6 @@ configedit list variable (-comments)             NOTE:  Shell interface only
     Examples:  configedit-comments scooters restrict_post
                configedit scooters
                configedit scooters restrict_post,access_rules
-
-    See also:  'variable groups' admin subtopic
 
 
 configset list variable = value
@@ -145,6 +135,7 @@ configset list variable
   several configset commands at once.
 
     See also:  default
+               The 'admin configuration' help subtopic
                The 'parser' help topic
 
 
@@ -173,6 +164,8 @@ configshow list variable (-comments)
     Examples:  configshow-comments scooters
                configshow-comments scooters restrict_post
                configshow scooters restrict_post,access_rules
+
+    See also:  The 'admin configuration' help subtopic
 
 
 createlist list owner (-nocreate, -noheader, -force, -quiet)
@@ -204,14 +197,15 @@ createlist list owner (-nocreate, -noheader, -force, -quiet)
     quiet:  No introductory mail will be sent to the list owner.  (This
     is not currently implemented in any case.)
 
-    Examples:  createlist scooters modgirl@foo.com
-               createlist-noheader-quiet scooters modgirl@foo.com
+    Examples:  createlist scooters modgirl@example.com
+               createlist-noheader-quiet scooters modgirl@example.com
 
 
 default variable value                     NOTE: email and text parser only
 ----------------------
-  Sets a default variable for the parser.  The variable can be either a
-  password or a list.
+  Sets a default value for a variable used by the command parser when
+  processing a batch of commands.  Currently, you may set a default
+  approval password or a default list name.
 
   Setting a default password will implicitly do the equivalent of 'approve
   password' on all following commands.  This makes it especially useful
@@ -232,27 +226,27 @@ default variable value                     NOTE: email and text parser only
   to the parser in one fell swoop.  Essentially, it makes all of the
   following sets of commands equivalent:
 
-    approve vespa configset scooters reply_to = scooters@foo.com
-    approve vespa configset scooters resend_host = awenet.com
+    approve vespa configset scooters reply_to = scooters@example.com
+    approve vespa configset scooters resend_host = example.com
     approve vespa configset scooters subject_prefix = [Scooter List]
-    approve vespa subscribe scooters sadiej@foo.com
+    approve vespa subscribe scooters sadiej@example.com
 
   Or:
 
     default password vespa
-    configset scooters reply_to = scooters@foo.com
-    configset scooters resend_host = awenet.com
+    configset scooters reply_to = scooters@example.com
+    configset scooters resend_host = example.com
     configset scooters subject_prefix = [Scooter List]
-    subscribe scooters sadiej@foo.com
+    subscribe scooters sadiej@example.com
 
   Or even better:
 
     default password vespa
     default list scooters
-    configset reply_to = scooters@foo.com
-    configset resend_host = awenet.com
+    configset reply_to = scooters@example.com
+    configset resend_host = example.com
     configset subject_prefix = [Scooter List]
-    subscribe sadiej@foo.com
+    subscribe sadiej@example.com
 
 
 filesync list
@@ -291,41 +285,14 @@ put-data list file content-type charset content-transfer-encoding subject
 
 reject [token]
 --------------
-  This rejects a token, preventing the requested action from being taken.  If
-  no 'accept' command is received, the token will eventually be rejected by
-  default, but issuing a 'reject' command will immediately delete the token
-  and requested action from the server's database.
+  This rejects a token, preventing the requested action from being taken.
+  If no 'accept' command is received, the token will eventually be rejected
+  by default.  Issuing a 'reject' command will immediately delete the token
+  and requested action from the server's database.  In either case, when
+  the token is rejected, notification of the rejection will be sent to the
+  site owner, the list owner, and the victim of the rejection.
 
     See Also:  accept
-
-
-rekey list
-----------
-  Regenerates the canonical forms of addresses in all of list's address
-  databases.
-
-  A list keeps three forms of a subscriber's address:
-
-    - The full form, including comments.  This is what shows in who reports
-      (unless the user elects to hide parts of his address).
-
-    - The stripped form (comments removed).  This is what mail is sent to.
-
-    - The canonical form.  This is the result after various address
-      transformations have occurred.  The transformations are owner-
-      specified and can do such things as specify that all hosts under a
-      domain are equivalent, that everything in the user portion of an
-      address after a plus sign is ignored (so the sendmail mailbox
-      specifier works) and that case is unimportant.
-
-  When the set of transformations is changed, the databases need to be
-  regenerated with this command so that the canonical forms reflect the
-  different transformations.
-
-  Note that if multiple addresses transform to the same thing under the new
-  transformation rules, the duplicates may be lost.
-
-    See also:  the 'config addr_xforms' help topic
 
 
 set list flag address
@@ -333,8 +300,8 @@ set list flag address
   This sets various subscription parameters.  More documentation to come.
 
 
-show list address
------------------
+show address
+------------
   This displays various information about the address:
 
     - Whether or not the given address is legal
@@ -342,24 +309,38 @@ show list address
     - What the address transforms to, under the various address
       equivalencies
     - Any aliases attached to the address
-    - Whether or not the address is subscribed to the given list, and
-      what it is subscribed as
-    - The time that the address was subscribed to the list
-    - The subscription class
-    - The subscriber flags
-    - The time the record was last updated
+    - Any lists the address is subscribed to
+    - The time the address was registered
+    - The time the registration data was last updated
+    - For each list the address is subscribed to:
+      - What address is receiving the list mail
+      - The time that the address was subscribed to the list
+      - The subscription class
+      - The subscriber flags
+      - The time the record was last updated
 
-    Example:  show scooters joe@foo.com
+    Example:  show joe@example.com
 
 
 subscribe list address (-nowelcome)
 ----------------------
-  This adds the address to the given list.  The 'nowelcome' option prevents
-  the server from sending the welcome message that is usually mailed to new
-  subscribers.
+  This adds the address to the given list and, if the address is not
+  already in the registration database, registers the address with the
+  list's domain.  The 'nowelcome' option prevents the server from sending
+  the welcome message that is usually mailed to new subscribers.
 
-    Examples:  subscribe scooters martha@foo.com
-               subscribe-nowelcome scooters martha@foo.com
+    Examples:  subscribe scooters martha@example.com
+               subscribe-nowelcome scooters martha@example.com
+
+
+unregister address
+------------------
+  This removes the given address from the registration database and from
+  every list that it might be subscribed to.
+
+    Example:  unregister someone@example.com
+
+    See Also:  register, unsubscribe
 
 
 unsubscribe list address (-regexp, -allmatching)
@@ -372,9 +353,9 @@ unsubscribe list address (-regexp, -allmatching)
   cause every address that matches the regular expression to be removed
   from the list.
 
-    Examples:  unsubscribe scooters buster@foo.com
+    Examples:  unsubscribe scooters buster@example.com
                unsubscribe-regexp scooters buster\@
-               unsubscribe-regexp-allmatching scooters \@foo\.com
+               unsubscribe-regexp-allmatching scooters \@example\.com
 
     See also:  'regexp' help topic
 
@@ -385,7 +366,7 @@ which string (-regexp)
   The regex option causes the string to be interpreted as a Perl regular
   expression.
 
-    Examples:  which buster@foo.com
+    Examples:  which buster@example.com
                which-regexp buster\@
 
     See also:  'regexp' help topic
@@ -397,6 +378,6 @@ who list [regexp]
   argument, only matches will be returned.
 
     Examples:  who scooters
-               who scooters \@foo\.com
+               who scooters \@example\.com
 
     See also:  'regexp' help topic

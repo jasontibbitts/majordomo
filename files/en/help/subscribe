@@ -1,5 +1,5 @@
 The Subscribe Command: Subscribing to a List
---------------------------------------------
+============================================
 
 Once you've determined that you wish to subscribe to one or more lists on
 this system, you can send commands to Majordomo to have it add you to the
@@ -8,27 +8,32 @@ list, so you can begin receiving mailings.
 To receive list mail at the address from which you're sending your mail,
 simply say "subscribe" followed by the list's name:
 
-        subscribe example
+        subscribe scooters
 
 If for some reason you wish to have the mailings go to a different address
 (a friend's address, a specific other system on which you have an account,
-or an address which is more correct than the one that automatically appears 
+or an address which is more correct than the one that automatically appears
 in the "From:" header on the mail you send), you would add that address to
 the command.  For instance, if you're sending a request from your work
-account, but wish to receive "example" mail at your personal account
+account, but wish to receive "scooters" mail at your personal account
 (for which we will use "jqpublic@example.com" as an example), you'd put
-the line
+the line:
 
         subscribe example jqpublic@example.com
 
-in the mail message body.
+...in the mail message body.
 
 If you do not wish to receive the introductory welcome documents that are
-normally sent to new subscribers, you can send a command like
+normally sent to new subscribers, you can send a command like:
 
-        subscribe=nowelcome example
+        subscribe-nowelcome example
 
-(optionally including your address as above).
+...to supress those documents.  Again, you may optionally including your
+address as above.
+
+
+Confirming Subscriptions
+------------------------
 
 Based on configuration decisions made by the list owners, you may be added
 to the mailing list automatically, you may be required to perform an
@@ -38,12 +43,12 @@ action, you will be sent a message containing instructions that you must
 follow.  These basically amount to visiting a web page or replying to the
 message with the single word "accept".
 
-The reason that many lists require additional confirmation is that it is in
-general impossible to verify that the address being subscribed to the list
+The reason that many lists require additional confirmation is that it isn't
+really possible to verify that the address being subscribed to the list
 is indeed the person who sent the request.  This fact is frequently
 exploited to forge subscription requests which result in hassles for the
 victim and all of the list owners.  By sending a message to the subscriber
-address and requiring a valid reply the abuse is limited to the single
+address and requiring a valid reply, the abuse is limited to the single
 confirmation message; the victim does not have to go through the hassle of
 being removed from the list.  In addition, Majordomo2 stores information
 about the source of the forged requests and if a rejection is sent in
@@ -56,6 +61,6 @@ message for future reference; it will also contain exact directions for
 unsubscribing.  If you lose the intro mail and would like another copy of
 the policies, send this message to $WHOAMI:
 
-        intro example
+        intro scooters
 
-(substituting, of course, the real name of your list for "demo-list").
+(substituting, of course, the real name of your list for "scooters").

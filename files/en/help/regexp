@@ -1,7 +1,7 @@
 Regular Expressions
 ===================
 
-For some of the configuration options, a rudimentary knowledge of Perl
+For some of the configuration options, a rudimentary knowledge of Perl-
 style regular expressions will help you run Majordomo through its
 tricks.  A regular expression is a concise way of expressing a pattern
 in a series of characters.  The full power of regular expressions can
@@ -13,7 +13,7 @@ expression.  Letters and numbers stand for themselves.  Many of the
 other characters are symbolic.  Some commonly used ones are:
 
   \@    the `@' found in nearly all addresses; it must be preceeded by a
-        backslash in later versions of Perl to avoid errors
+        backslash to avoid errors in Perl
   .     (period) any character
   *     previous character, zero or more times; note especially...
   .*    any character, zero or more times
@@ -30,58 +30,58 @@ other characters are symbolic.  Some commonly used ones are:
 Example 1
 ---------
 
-     /cs\.umb\.edu/
+     /foo\.example\.com/
 
 Notice that the periods are preceded by a backslash so that they are
 interpreted as periods, rather than wildcards.  This matches any string
 containing:
 
-     cs.umb.edu
+     foo.example.com
 
 such as:
 
-     cs.umb.edu
-     foo.cs.umb.edu
-     user@foo.cs.umb.edu
-     users%foo.cs.umb.edu@greatcircle.com
+     foo.example.com
+     bar.foo.example.com
+     user@bar.foo.example.com
+     users%bar.foo.example.com@example.com
 
 
 Example 2
 ---------
 
-     /rouilj\@.*cs\.umb\.edu/
+     /johndoe\@.*foo\.example\.com/
 
-The `@' has special meaning to later versions of Perl and must be prefixed
-with a backslash to avoid errors.  The string ".*" means "any character,
-zero or more times".  So this matches:
+The `@' has special meaning to Perl and must be prefixed with a backslash
+to avoid errors.  The string ".*" means "any character, zero or more
+times".  So this matches:
 
-     rouilj@cs.umb.edu
-     rouilj@terminus.cs.umb.edu
-     arouilj@terminus.cs.umb.edu@greatcircle.com
+     johndoe@foo.example.com
+     johndoe@terminus.foo.example.com
+     ajohndoe@terminus.foo.example.com@example.com
 
 But it doesn't match:
 
-     rouilj@umb.edu
-     brent@cs.umb.edu
+     johndoe@example.com
+     brent@foo.example.com
 
 
 Example 3
 ---------
 
-     /^rouilj\@.*cs\.umb\.edu$/
+     /^johndoe\@.*cs\.example\.org$/
 
 This is similar to Example 2, and matches the same first two strings:
 
-     rouilj@cs.umb.edu
-     rouilj@terminus.cs.umb.edu
+     johndoe@foo.example.org
+     johndoe@terminus.foo.example.org
 
 But it doesn't match:
 
-     arouilj@terminus.cs.umb.edu@greatcircle.com
+     ajohndoe@terminus.foo.example.org@example.com
 
 ...because the regular expression says the string has to begin with
-letter "r" and end with letter "u", by using the ^ and $ symbols, and
-neither of those is true for arouilj@terminus.cs.umb.edu@greatcircle.com.
+letter "j" and end with letter "g", by using the ^ and $ symbols, and
+neither of those is true for ajohndoe@terminus.foo.example.org@example.com.
 
 
 Example 4
@@ -95,33 +95,33 @@ This is the regular expression that matches anything.
 Example 5
 ---------
 
-     /.\*rouilj/
+     /.\*johndoe/
 
 Here the * is preceded by a \, so it refers literally to an asterisk
 character and not the symbolic meaning "zero or more times".  The . still
 has its symbolic meaning of "any one character", so it would match:
 
-     a*rouilj
-     s*rouilj
+     a*johndoe
+     s*johndoe
 
 Because the . by itself implies one character, it would not match:
 
-     *rouilj
-
-Normally all matches are case sensitive; you can make any match case
-insensitive by appending an `i' to the end of the expression.
+     *johndoe
 
 
 Example 6
 ---------
 
-     /aol\.com/i
+Normally all matches are case sensitive; you can make any match case
+insensitive by appending an `i' to the end of the expression.
 
-This would match aol.com, AOL.com, AoL.cOm, etc.  Removing the `i':
+     /example\.com/i
 
-     /aol\.com/
+This would match example.com, EXAMPLE.com, ExAmPlE.cOm, etc.  Removing the `i':
 
-...would match aol.com but not AOL.com or any other capitalization.
+     /example\.com/
+
+...would match example.com but not EXAMPLE.com or any other capitalization.
 
 
 To be on the safe side put a \ in front of any characters in the

@@ -1,9 +1,12 @@
+Majordomo2 Help
+===============
+
 This help message is being sent to you from the Majordomo mailing list
 management system at $SITE.
 
 This is version $VERSION of Majordomo2.
 
-If you're familiar with mail servers, information in receiving advanced
+If you're familiar with mail servers, information about receiving advanced
 documentation on all available commands appears near the end of this
 message.
 
@@ -18,128 +21,147 @@ process commands there.
 You may put multiple Majordomo commands in the same mail message.
 Put each command on a line by itself.
 
-If you use a "signature block" at the end of your mail or if your mail
+If you use a "signature block" at the end of your mail, or if your mail
 program appends additional text to your mail, Majordomo may mistakenly
-believe each line of your message is a command; you will then receive
+believe that these additional lines are commands; you will then receive
 spurious error messages.  To keep this from happening, either put a line
 starting with a hyphen ("-") before your signature, or put a line with just
-the word
+the word:
 
-        end
+     end
 
-on it in the same place.  This will stop the Majordomo software from
-processing your signature as bad commands.
+...on it in the same place.  This will prevent Majordomo from processing
+your signature as bad commands.
+
 
 Here are some of the things you can do using Majordomo:
 
-I.      FINDING OUT WHICH LISTS ARE ON THIS SYSTEM
 
-To get a list of lists on this system that are available to you, put the
-following line in the body of your mail message to $WHOAMI:
+Finding Out Which Lists Are On the System
+-----------------------------------------
 
-        lists
+  To get a list of lists on this system that are available to you, put the
+  following line in the body of your mail message to $WHOAMI:
 
-Each line will contain the name of a mailing list and a brief description
-of the list.
+       lists
 
-To get more information about a particular list, use the "info" command,
-supplying the name of the list.  For example, if the name of the list 
-about which you wish information is "example", you would put the line
+  You will receive a reply contain the names of the mailing lists and a
+  brief description of each list.
 
-        info example
+  To get more information about a particular list, use the "info" command,
+  supplying the name of the list.  For example, if the name of the list
+  about which you wish information is "example", you would put the line:
 
-in the body of the mail message.
+       info example
 
-II.     SUBSCRIBING TO A LIST
+  ...in the body of the mail message.
 
-Once you've determined that you wish to subscribe to one or more lists on
-this system, you can send commands to Majordomo to have it add you to the
-list, so you can begin receiving mailings.
 
-To receive list mail at the address from which you're sending your mail,
-simply say "subscribe" followed by the list's name:
+Subscribing To a List
+---------------------
 
-        subscribe example
+  Once you've determined that you wish to subscribe to one or more lists on
+  this system, you can send commands to Majordomo to have it add you to the
+  list, so you can begin receiving mailings.
 
-Consult the help topic "subscribing" for more information and additional
-options.  See the section "HELP TOPICS" below for instructions on doing
-this.
+  To receive list mail at the address from which you're sending your mail,
+  simply say "subscribe" followed by the list's name:
 
-Based on configuration decisions made by the list owners, you may be added
-to the mailing list automatically.  You may also receive notification that
-an authorization key is required for subscription.  Another message will be
-sent to the address to be subscribed containing the key, and directing the
-user to send a command found in that message back to $WHOAMI.
-(This can be a bit of extra hassle, but it helps keep you from being
-swamped in extra email by someone who forged requests from your address.)
-You may also get a message that your subscription is being forwarded to the
-list owner for approval; some lists have waiting lists, or policies about
-who may subscribe.  If your request is forwarded for approval, the list
-owner should contact you soon after your request.
+       subscribe example
 
-Upon subscribing, you should receive an introductory message, containing
-list policies and features.  Please SAVE THIS MESSAGE for future reference;
-it will also contain exact directions for unsubscribing.  If you lose the
-intro mail and would like another copy of the policies, send this message
-to $WHOAMI:
+  Consult the help topic "subscribing" for more information and additional
+  options.  See the section "Help Topics" below for instructions on doing
+  this.
 
-        intro example
+  Based on configuration decisions made by the list owners, you may be
+  added to the mailing list automatically, or you may receive notification
+  that an authorization key is required for subscription.  This can be a
+  bit of extra hassle, but it helps keep you from being swamped in extra
+  email by someone who forged requests from your address.  In this case,
+  another message will be sent to the address to be subscribed containing
+  the key, and directing the user to send a command found in that message
+  back to $WHOAMI.
 
-(substituting, of course, the real name of your list for "example").
+  You may also get a message that your subscription is being forwarded to
+  the list owner for approval; some lists have waiting lists, or policies
+  about who may subscribe.  If your request is forwarded for approval, the
+  list owner should contact you soon after your request.
 
-III.    UNSUBSCRIBING FROM MAILING LISTS
+  Upon subscribing, you should receive an introductory message, containing
+  list policies and features.  Please SAVE THIS MESSAGE for future
+  reference; it will also contain exact directions for unsubscribing.  If
+  you lose the intro mail and would like another copy of the policies, send
+  this message to $WHOAMI:
 
-Your original intro message contains the exact command which should be
-used to remove your address from the list.  However, in most cases, you
-may simply send the command "unsubscribe" followed by the list name:
+       intro example
 
-        unsubscribe example
+  ...substituting, of course, the real name of your list for "example".
 
-(This command may fail if your provider has changed the way your
-address is shown in your mail.)
 
-To remove an address other than the one from which you're sending
-the request, give that address in the command:
+Unsubscribing From Mailing LIsts
+--------------------------------
 
-        unsubscribe example $USER
+  Your original intro message contains the exact command which should be
+  used to remove your address from the list.  However, in most cases, you
+  may simply send the command "unsubscribe" followed by the list name:
 
-(The following is currently UNIMPLEMENTED!)
-In either of these cases, you can tell $WHOAMI to remove
-the address in question from all lists on this server by using "*"
-in place of the list name:
+       unsubscribe example
 
-        unsubscribe *
-        unsubscribe * $USER
+  (This command may fail if your provider has changed the way your address
+  is shown in your mail.)
 
-IV.    HELP TOPICS
+  To remove an address other than the one from which you're sending the
+  request, give that address in the command:
 
-Additional information is available from this server in the form of help
-topics.  You are reading the default topic now.  To read another topic,
-send the command
+       unsubscribe example $USER
 
-        help topic
+  (The following is currently UNIMPLEMENTED!)
+  In either of these cases, you can tell Majordomo to remove the address in
+  question from all lists on this server by using "*" in place of the list
+  name:
 
-Available topics include (not all of these are written yet):
+       unsubscribe *
+       unsubscribe * $USER
 
-  admin             Additional information for list administrators
-  commands          A complete end-user command reference
-  unsubscribing     More info on removing yourself from a list
-  subscribing       More info on adding yourself to a list
 
-There is also a separate help topic for each command containing an in-depth
-description of all possible options.
+Help Topics
+-----------
 
-IV.    GETTING MORE HELP
+  Additional information is available from this server in the form of help
+  topics.  You are reading the default topic now.  To read another topic,
+  send the command
 
-To contact a human site manager, send mail to $OWNER.  To contact the owner
-of a specific list, send mail to that list's owner address, which is
-formed by adding "-owner" to the user-name portion of the list's
-address.  For instance, to contact the list owner for example@$WHEREAMI,
-you would send mail to example-owner@$WHEREAMI.
+       help topic
 
-To get another copy of this help message, send mail to $WHOAMI
-with a line saying
+  Available topics include (not all of these are written yet):
 
-        help
+       admin             Additional information for list administrators
+       commands          A complete end-user command reference
+       unsubscribing     More info on removing yourself from a list
+       subscribing       More info on adding yourself to a list
 
-in the message body.
+  There is also a separate help topic for each command containing an
+  in-depth description of all possible options.
+
+
+Getting More Help
+-----------------
+
+  To contact a human site manager, send mail to $OWNER.
+
+  To contact the owner of a specific list, send mail to that list's owner
+  address, which is formed by adding "-owner" to the list name.  For
+  instance, to contact the list owner for:
+
+       example@$WHEREAMI
+
+  ...you would send mail to:
+
+       example-owner@$WHEREAMI
+
+  To get another copy of this help message, send mail to $WHOAMI
+  with a line saying:
+
+       help
+
+  ...in the message body.

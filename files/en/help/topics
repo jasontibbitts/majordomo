@@ -5,7 +5,7 @@ commands    - Overview of available commands
 default     - Default help file
 parser      - Information about the text parser
 regexp      - Help with regular expressions
-subscribing - Help on subscribing
+subscribe   - Help on subscribing
 
 admin commands      - Overview of available administrative commands
 admin configuration - Overview of configuration variables and methods
