@@ -367,7 +367,7 @@ sub set {
   my $log  = new Log::In 150, "$addr, $oset";
   my (@allowed, @class, @flags, @settings, $baseflag, $carg1, 
       $carg2, $class, $data, $db, $digest, $flags, $i, $inv, $isflag, 
-      $key, $list, $mask, $ok, $rset);
+      $j, $key, $list, $mask, $ok, $rset, $set);
 
   $oset = lc $oset;
   @settings = split(',', $oset);
@@ -741,6 +741,7 @@ This should be a per-list variable.
 sub default_class {
   my $self = shift;
   my $class = $self->config_get('default_class');
+  my ($carg1, $carg2, $ok);
 
   ($ok, undef, $class, $carg1, $carg2) = $self->make_setting($class);
   return ($class, $carg1, $carg2) if $ok;
@@ -2378,7 +2379,7 @@ separate hash keys ("U$type") in flat lists.
 sub _bounce_parse_data {
   my $self = shift;
   my $data = shift;
-  my (@incidents, $i, $out);
+  my (@incidents, $i, $number, $out, $time, $type);
 
   $out = {};
   @incidents = split(/\s/, $data);
@@ -2419,7 +2420,8 @@ sub bounce_gen_stats {
   my $self = shift;
   my $bdata = shift;
   my $now = time;
-  my (@numbered, @times, $maxbounceage, $maxbouncecount, $stats);
+  my (@numbered, @times, $do_month, $i, $lastnum,
+      $maxbounceage, $maxbouncecount, $stats);
 
   # Initialize $stats
   $stats = {
