@@ -18,7 +18,7 @@ configset listname welcome_files << ENDTAG
 Welcome to listname@nowhere.org, save this message!
 public/charter.txt : N
 Common Sense Rules at Nowhere.Org - please save!
-public/rules.txt : N
+public/rules.txt : NS
 ENDTAG
 
 
@@ -28,19 +28,20 @@ sent to new subscribers.
 Each table record takes two lines.  The first should be an explanatory
 message, which will go in the subject or content-description header as
 appropriate.  (If this is empty, the file's description will be used.)
-The second is broken into fields by ":" or "|".
+The second line of a record is broken into fields by either ":" or "|".
 
-The first field is the name of the file, in the file space of the list.  
+The first field on the second line of a record is the name of the file,
+in the file space of the list. The second should be either "N", meaning
+that the file will be sent as a separate piece of mail, or "P", meaning
+that the file will be attached to the previous file.  The default is "N".
 
-The second should be either "N", meaning that the file will be sent as
-a separate piece of mail, or "P", meaning that the file will be
-attached to the previous file.  The default is "N".  In addition, an
-"S" can be added, indicating that the file should undergo variable
-substitution (and possibly auto-inclusion of OTHER files).
+If the "N" or "P" in the second field of the second line is followed by
+an "S", the file will undergo variable substitution (and possibly
+auto-inclusion of OTHER files). See "help variables" for a list of
+substitutions which are supported, but be aware that without the "S"
+no substitutions will be done on the subject or body of the email.
 
-See "help variables" for a list of substitutions which are supported.
-
-Here is an example:
+Here is another example:
 
 configset LISTNAME welcome_files <<END
 Welcome to the mailing list!
@@ -50,6 +51,7 @@ owner.jpg : P
 Mailing list FAQ
 faq.txt
 END
+
 
 See Also:
    help put               (for how to store files in the list's file space)

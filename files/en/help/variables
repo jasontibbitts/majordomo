@@ -193,8 +193,9 @@ these variables are evaluated in the subject only:
                  automatically incremented each time a message is posted
   \$VERSION   => the version of Majordomo
 
-In the "welcome" file, these variables are evaluated in both the
-subject and message body:
+In the default "welcome" file, which is sent when not overridden by
+"configset listname welcome_files", these variables are evaluated in
+both the subject and message body:
   \$LIST      => the name of the list
   \$MAJORDOMO => the address of the majordomo email interface
   \$MJOWNER   => the site owner's address
@@ -204,7 +205,8 @@ subject and message body:
   \$USER      => the user's address
 
 In files sent by "configset listname welcome_files", these variables
-are evaluated in both the subject and message body:
+are evaluated in both the subject and message body, but ONLY if the
+"S" option is supplied to cause substitutions:
   \$LIST      => The name of the list
   \$MJ        => the address of the majordomo server
   \$MJOWNER   => the address of the domain owner
