@@ -4566,7 +4566,7 @@ sub _changeaddr {
   my($self, $list, $requ, $vict, $mode, $cmd) = @_;
   my $log = new Log::In 35, "$vict, $requ";
   my (@out, @aliases, @lists, %uniq, $data, $key, $l, $lkey, $ldata,
-      $time, $tmp);
+      $over, $time, $tmp);
 
   if (($vict->canon eq $requ->canon) and ($vict->strip ne $requ->strip)) {
     return (0, $requ->full . " and " . $vict->full . " are aliases.\n");
@@ -4582,6 +4582,8 @@ sub _changeaddr {
   push @out, $data->{'fulladdr'};
   $data->{'fulladdr'} = $requ->full;
   $data->{'stripaddr'} = $requ->strip;
+  $over = 0;
+  $over = 1 if ($mode =~ /noinform/);
 
   # Does the address already exist in the registry?
   # If so, combine the list data.
@@ -4607,12 +4609,16 @@ sub _changeaddr {
       $ldata->{'fulladdr'} = $requ->full;
       $ldata->{'stripaddr'} = $requ->strip;
       $self->{'lists'}{$l}->{'sublists'}{'MAIN'}->add('', $requ->canon, $ldata);
-      $self->inform($l, 'unsubscribe', $requ, $vict, "changeaddr $vict", 
-                    $self->{'interface'}, 1, 0, 0, '', $::log->elapsed - $time);
+      if ($mode !~ /nolog/) {
+        $self->inform($l, 'unsubscribe', $requ, $vict, "changeaddr $vict", 
+                      $self->{'interface'}, 1, 0, $over, '', 
+                      $::log->elapsed - $time);
+      }
     }
-    unless (defined $tmp) {
+    unless (defined $tmp or $mode =~ /nolog/) {
       $self->inform($l, 'subscribe', $requ, $requ, "changeaddr $vict", 
-                    $self->{'interface'}, 1, 0, 0, '', $::log->elapsed - $time);
+                    $self->{'interface'}, 1, 0, $over, '', 
+                    $::log->elapsed - $time);
     }
   }
 
