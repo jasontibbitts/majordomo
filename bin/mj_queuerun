@@ -98,6 +98,7 @@ eval '
   use Mj::Parser;
   use Mj::Deliver::Envelope;
   use Mj::MIMEParser;
+  use Mj::CommandProps qw(command);
   use Data::Dumper;
   use IO::File;
 #  use Devel::Symdump;
@@ -138,7 +139,7 @@ exit;
 
 sub run_queue {
   my $log = new Log::In 25, 'Running queue';
-  my(@domains, @functions, @pri1, @pri2, $debug1, $debug2, $dom, $file,
+  my(@domains, @functions, @pri1, @pri2, $arg, $debug1, $debug2, $dom, $file,
      $func, $list, $mj, $msg, $ok, $pri1, $pri2, $start, $end,
      @fhstatus, @status);
 
@@ -185,7 +186,7 @@ sub run_queue {
     @functions = grep { $_ !~ /^\./ } readdir FUNCS;
     closedir FUNCS;
 
-    # XXX Ramdomize function list to avoid starvarion???
+    # XXX Randomize function list to avoid starvation???
 
     # Loop over functions
       FUNC:
@@ -269,7 +270,9 @@ sub run_queue {
 
         # Else we have something that is associated with a list;
         # extract the list name
-        $msg =~ /^\w\w\w-\d+-(.*)$/; $list = $1;
+        $msg =~ /^\w\w\w-\d+-([^,]*),?([^,]*)$/; 
+        $list = $1; 
+        $arg  = $2 || '';
 
         # Now set the logging level to that of the list.
         $debug2 = $mj->list_config_get(undef, undef, $list, 'debug');
@@ -281,7 +284,7 @@ sub run_queue {
         if ($func eq 'list' || $func eq 'resend') {
           $log->message(50, 'info', 'Posting message');
           debug_to('resend');
-          resend($mj, $list, $file);
+          resend($mj, $list, $file, $arg);
           debug_to('queuerun');
         }
 
@@ -292,7 +295,7 @@ sub run_queue {
           if ($request_ans eq 'majordomo') {
         $log->message(50, 'info', 'Processing commands');
         debug_to('majord');
-        parse_commands($mj, $list);
+        parse_commands($mj, $list, $arg);
         debug_to('queuerun');
           }
           elsif ($request_ans eq 'owner') {
@@ -316,7 +319,7 @@ sub run_queue {
           # we're majordomo-owner.
           $log->message(50, 'info', 'Forwarding to owner');
           debug_to('owner');
-          forward_to_owner($mj, $list || 'GLOBAL');
+          forward_to_owner($mj, $list || 'GLOBAL', $arg);
           debug_to('queuerun');
         }
 
@@ -347,8 +350,11 @@ sub run_queue {
 # Forward the message to the list owner.  Call owner_start, owner_chunk,
 # owner_done passing in all of the message.
 sub forward_to_owner {
-  my ($mj, $list) = @_;
+  my ($mj, $list, $moderator) = @_;
   my ($ok, $mess, $sess, $request);
+
+  # If the message was sent to the -moderator alias, $moderator will be 'M'
+  $moderator ||= '';
 
   $sess = connect_no_parse($mj, 'owner');
   return unless $sess;
@@ -360,7 +366,7 @@ sub forward_to_owner {
   $request = {
     'command'   => 'owner_start',
     'list'      => $list,
-    'mode'      => '',
+    'mode'      => $moderator,
     'password'  => '',
     'user'      => '',
   };
@@ -384,7 +390,7 @@ sub forward_to_owner {
 # Resend a message; call post but instead of doing the copy operation, just
 # use the spooled message.  #XXX Beware of who gets to unlink it.
 sub resend {
-  my ($mj, $list, $file) = @_;
+  my ($mj, $list, $file, $sublist) = @_;
   my ($ok, $mess, $request, $sess);
 
   $sess = connect_no_parse($mj, 'resend');
@@ -394,12 +400,17 @@ sub resend {
   # Sending this on as part of the headers can hose some MTAs, so we strip
   # it.  The regexp doesn't harm the body $sess contains only the headers.
   $sess =~ s/^From .*?\r?\n//;
+
+  # If the message is destined for an auxiliary list, separate
+  # it from the name of the main list.
+  $sublist ||= '';
   $request = {
     'command'   => 'post',
     'file'      => $file,
     'list'      => $list,
     'mode'      => '',
     'password'  => '',
+    'sublist'   => $sublist,
     'user'      => '',
   };
 
@@ -408,10 +419,11 @@ sub resend {
   1;
 }
 
-# Just call the response_file method.
+# Just call the request_response method.
 sub respond_with_file {
   my ($mj, $list) = @_;
   my ($request, $user);
+  ($list, undef) = split ',', $list;
   
   (undef, undef, $user) = connect_and_parse($mj, 'request');
   $request = {
@@ -504,14 +516,15 @@ sub connect_and_parse {
 }
 
 # Parse commands in the subject here; we do this early to get the debug log
-# going.  XXX Support ACCEPT, DENY, LIST and PASS in the subject, too.  The
+# going.  XXX Support ACCEPT, REJECT, LIST and PASS in the subject, too.  The
 # first two for quick confirmation token processing; the latter two for
 # bypassing failed "access" checks.
 sub parse_commands {
-  my ($mj, $deflist) = @_;
-  my (@entities, $args, $av, $command, $debug_file, $debug_log,
-      $debug_reply, $entity, $head, $i, $line, $list, $ok, $sender,
-      $sub_addin, $subject, $tag, $tlist, $top, $token, $user, $uuser);
+  my ($mj, $deflist, $command) = @_;
+  my (@entities, $args, $av, $debug_file, $debug_log,
+      $debug_reply, $entity, $fh, $file, $head, $i, $line, $list, $ok, 
+      $request, $sender, $sub_addin, $subject, $tag, $tlist, $top, 
+      $token, $user, $uuser);
 
   ($entity, $head, $user, $uuser) = connect_and_parse($mj, 'email');
   return unless $entity;
@@ -550,18 +563,46 @@ sub parse_commands {
     $sub_addin = '';
   }
 
-  (undef, @entities) = 
-    Mj::Parser::parse_entity($mj,
-			     tmpdir     => $::TMPDIR, 
-			     entity     => $entity,
-			     reply_to   => $uuser,
-			     deflist    => $deflist,
-			     token      => $token,
-                );
+  # -subscribe and -unsubscribe aliases have the command in
+  # the queue file name.  The message body is not parsed.
+  if (defined $command and Mj::CommandProps::command_legal($command)) {
+    # Iterated or aliased commands are not yet considered.
+    $request = {
+      'command'   => $command,
+      'list'      => $deflist,
+      'mode'      => '',
+      'password'  => '',
+      'user'      => $uuser,
+    };
+    $file = &Majordomo::tempname();
+    $fh = new IO::File "> $file";
+    if (defined $fh) {
+      no strict 'refs';
+      &{"Mj::Format::$command"}($mj, $fh, $fh, 'text', $request,
+                           $mj->dispatch($request));
+    }
+    $fh->close;
+    push @entities, build MIME::Entity
+      (
+       'Path'        => $file,
+       '-To'         => $uuser,
+      );
+  }
+  else {  
+    (undef, @entities) = 
+      Mj::Parser::parse_entity($mj,
+                   tmpdir     => $::TMPDIR, 
+                   entity     => $entity,
+                   reply_to   => $uuser,
+                   deflist    => $deflist,
+                   token      => $token,
+                  );
+  }
+
   if ($debug_reply) {
     push @entities, build MIME::Entity
       (
-       Path        => "$debug_file",
+       Path        => $debug_file,
        Description => "Debugging information",
        Top         => 0,
       );
@@ -607,72 +648,6 @@ sub parse_commands {
   $entity->purge;
   $top->purge;
   unlink "$::TMPDIR/mje.$$.final";
-}
-
-
-# Look in $ENV{DEFAULT} which tells us the local-part of the address we're
-# being run at, and fake the other options.  Expect that we were called
-# with -d giving us the correct domain, so we don't have to fake that.
-# Use $ENV{LOCAL} if $ENV{DEFAULT} does not exist.
-sub do_qmail {
-  my $addr;
-  if(exists $ENV{DEFAULT}) {
-    $addr = lc($ENV{DEFAULT});
-  }
-  else {
-    $addr = lc($ENV{LOCAL});
-  }
-  if ($opts{T}) {
-    $addr =~ s/^$opts{T}//;
-    $addr =~ s/^-//;
-  }
-
-  my($list, $fun);
-
-  # First look at majordomo addresses XXX These are hardcoded to
-  # 'majordomo', but it would take too much time to load Majordomo.pm so
-  # that we can extract the real majordomo address.
-  if ($addr eq 'majordomo') {
-    $opts{'m'} = 1;
-    return;
-  }
-  if ($addr eq 'majordomo-owner' || $addr eq 'owner-majordomo') {
-    $opts{'o'} = 1;
-    return;
-  }
-
-  # Now assume we have a list address; look for owner-, -owner, -request.
-  # Note breakage if the list name actually has any of these in it.
-  if ($addr =~ /^owner-(.*)$/) {
-    $list = $1; $fun = 'owner';
-  }
-  # Note that we don't anchor to the end; we may be receiving a probe
-  elsif ($addr =~ /^(.*)-owner/) {
-    $list = $1; $fun = 'owner';
-  }
-  elsif ($addr =~ /^(.*)-request$/) {
-    $list = $1; $fun = 'request';
-  }
-  else {
-    $list = $addr; $fun = 'list';
-  }
-
-  # Now we have the (supposed) list name.  Check that it exists by looking
-  # directly into $::LISTDIR/$opts{'d'}.  Of course this assumes things
-  # about the structure of the internal storage, but we have to trust that
-  # or else go through some other expensive operations.  In this case, we
-  # want to be quick.
-  unless (-d "$::LISTDIR/$opts{'d'}/$list") {
-    # It's not bound for us; just exit 0 so the next entry in
-    # .qmail-default will be parsed.
-    exit 0;
-  }
-
-  # It is bound for us; fix up the options
-  $opts{'l'} = $list;
-  $fun eq 'list'    and $opts{'r'} = 1;
-  $fun eq 'owner'   and $opts{'o'} = 1;
-  $fun eq 'request' and $opts{'q'} = 1;
 }
 
 sub debug_to {
