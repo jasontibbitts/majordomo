@@ -71,12 +71,20 @@ alias_database = hash:/etc/aliases
 
 and add the appropriate paths to the end like so:
 
-alias_database = hash:/etc/aliases, hash:/path/to/lists/ALIASES/mj-alias-domain1, hash:/path/to/lists/ALIASES/mj-alias-domain2
-
+alias_database = hash:/etc/aliases
+	hash:/path/to/lists/ALIASES/mj-alias-domain1
+	hash:/path/to/lists/ALIASES/mj-alias-domain2
 
 Substituting "/path/to/lists", "domain1" and "domain2" with the appropriate
-path to the ALIASES directory.  Don't forget to run 'newaliases' and restart
-postfix.
+path to the ALIASES directory.
+
+Run postfix's 'newaliases' command as root.
+
+Then make sure the generated alias map files are owned by the
+majordomo user and group.  If they are not (and they won't be in
+earlier postfix versions), you have to chown and chrgrp them to the
+majordomo user and group.  You will only have to do this once, as
+'newaliases' preserves the existing user for existing database files.
 
 
 * Adding virtual_maps support
@@ -87,30 +95,26 @@ virtual_maps = hash:/etc/postfix/virtual
 
 and add the appropriate paths to the end like so:
 
-virtual_maps = hash:/etc/postfix/virtual, hash:/path/to/lists/ALIASES/mj-vut-domain1, hash:/path/to/lists/ALIASES/mj-vut-domain2
+virtual_maps = hash:/etc/postfix/virtual
+	hash:/path/to/lists/ALIASES/mj-vut-domain1
+	hash:/path/to/lists/ALIASES/mj-vut-domain2
 
+Substituting "/path/to/lists", "domain1" and "domain2" with the
+appropriate path to the ALIASES directory.  Don't forget to run
+'postmap' on the virtual_maps files and restart postfix.
 
-Substituting "/path/to/lists", "domain1" and "domain2" with the appropriate
-path to the ALIASES directory.  Don't forget to run 'postmap' on the virtual_maps
-files and restart postfix.
+Like the alias files, you'll probably want to change the owners of the
+generated virtual map files from root to the majordomo user and group
+(though for virtual maps this is not strictly necessary).
 
 * Making postfix and majordomo interact
 
-Postfix's local delivery agent for delivering mail to external files or
-commands runs as user 'nobody'.  MJ2's installation creates binaries that
-are owned by user 'majordom' (Note: You could choose something else during
-the 'perl Makefile.PL' phase).  Postfix, therefore, cannot interact with
-MJ2 without a slight reconfiguration.
+Postfix has to be able to read the alias and virtual maps files.  So
+you should at least do "chmod o+x" on the lists/ALIASES and lists
+directories.
 
-In the main configuration file search for a line that looks like:
-
-default_privs =
-
-Change this to:
-
-default_privs = majordom
-
-(assuming that majordomo 2 is installed as user 'majordom'.)
-
-This is similar to making 'majordom' a trusted user under sendmail.
-
+Then make sure you changed the owner of the alias and virtual map
+database files to the majordomo user and group (the files created by
+'newaliases' and 'postmap' in the lists/ALIASES directory).  This will
+cause Postfix's local delivery agent to run the majordomo commands as
+the majordomo user, instead of the 'nobody' user.
