@@ -163,6 +163,8 @@ sub get_entity_structure {
   $result->{$id}->{'entity'} = $entity;
   $result->{$id}->{'type'} = $entity->mime_type || 'unknown';
   $result->{$id}->{'header'} = $entity->head->as_string;
+  $result->{$id}->{'charset'} =
+    $entity->head->mime_attr('content-type.charset') || "";
 
   $path = ($entity->bodyhandle ? $entity->bodyhandle->path : '');
   if ($path) {
