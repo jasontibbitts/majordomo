@@ -11,7 +11,10 @@ user's perspective (as a list subscriber) send "help overview" or
 "help commands" to the server.
 
 To get top-level help, send "help" on a line by itself to the server.
-To get a description of command syntax, send "help admin commands".
+To get a brief description of command syntax, send "help admin commands".
+For information on variable substitution and nested file inclusion in
+help files and other messages the server may send out, see "help put"
+and "help variables".
 
 Here are the main sections below:
   Section 2 - Where to Send Email (or "don't bug the wrong person")
@@ -298,6 +301,7 @@ Section 6 - Creating and Running Lists (all the other stuff you need)
   If you copy the old configuration file into the directory for the new list,
   it will be automatically created.
 
+
 6.3 - Simple logs for debugging;
 
   Majordomo2 stores information about every email or command line processed
@@ -308,6 +312,7 @@ Section 6 - Creating and Running Lists (all the other stuff you need)
   information about the session that generated it is automatically mailed to
   the list and site owners (if they elect to receive such information).
   See "help configset debug" for more information.
+
 
 6.4 - Where the files are:
 
@@ -341,7 +346,10 @@ Section 6 - Creating and Running Lists (all the other stuff you need)
   'info' and 'faq' commands are shortcuts for 'get' with specific arguments.
 
   A (partial) list of the response files that Majordomo2 uses are given, with
-  supported variable expansions, in the FILES document.
+  supported variable expansions, in "help put". You will also find a list of
+  variables that can be substituted as a file is sent to the user, and how to
+  automatically include one file within another file.
+
 
 6.5 - List Archives:
 
@@ -378,6 +386,7 @@ Section 6 - Creating and Running Lists (all the other stuff you need)
    help configset filedir
    help configset get_access
    help configset index_access
+
 
 6.6 - Access Control:
 
