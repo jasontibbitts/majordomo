@@ -114,9 +114,13 @@ sub get_uid {
   while (1) {
     my $ans = prompt($msg, $def);
     $uid = ($ans =~ /(\S*)/)[0];
-    next unless length $uid;
+    unless (length $uid) {
+      $msg .= "\nYou must enter a real username or a numeric ID.\n";
+      next;
+    }
     last if getpwnam $uid ;
     last if $uid =~ /\d+/ && ($uid = getpwuid($uid));
+    $msg .= "\n$uid can't be interpreted, please enter a valid user number.\n";
   }
   $uid;
 }
@@ -128,9 +132,13 @@ sub get_gid {
   while (1) {
     my $ans = prompt($msg, $def);
     $gid = ($ans =~ /(\S*)/)[0];
-    next unless length $gid;
+    unless (length $gid) {
+      $msg .= "\nYou must enter a real groupname or a numeric ID.\n";
+      next;
+    }
     last if getgrnam $gid;
     last if $gid =~ /\d+/ && ($gid = getgrgid($gid));
+    $msg .= "\n$gid can't be interpreted, please enter a valid group number.\n";
   }
   $gid;
 }
