@@ -22,6 +22,7 @@
       <option> configshow-categories
       <option> configset
       <option> get
+      <option> get-edit
       <option> index-recursive
       <option> reject
       <option> sessioninfo
