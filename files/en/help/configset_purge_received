@@ -8,10 +8,21 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname purge_received = n
+configset listname purge_received = y
 
 
 Remove all received lines before resending the message.
+
+NOTE: This command can be duplicated with the more general command
+"configset delete_headers", which for the example above would look
+like this:
+configset listname delete_headers <<END
+Received
+END
+
+
+See Also:
+   help configset delete_headers (for how to remove arbitrary headers)
 
 For a list of all help topics send this one-line message
    help topics
