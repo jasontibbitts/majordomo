@@ -32,15 +32,19 @@ use Mj::Addr;
 use Mj::Log;
 use vars (qw($addr %flags %noflags %classes %digest_types));
 
-# Flags -> [realflag, inverted (2=intermediate), invertible, flag]
+# Flags -> [realflag, inverted (2=umbrella), invertible, flag]
 %flags = 
   (
-   'ackall'       => ['ackall',       0,0,'A'],
-   'ackimportant' => ['ackimportant', 2,0,'a'],
+   'ackall'       => ['ackall',       2,0,'A'],
+   'ackimportant' => ['ackall',       2,0,'a'],
+   'ackdeny'      => ['ackall',       0,1,'d'],
+   'ackpost'      => ['ackall',       0,1,'f'],
+   'ackreject'    => ['ackall',       0,1,'j'],
+   'ackstall'     => ['ackall',       0,1,'b'],
    'noack'        => ['ackall',       1,0,'' ],
    'selfcopy'     => ['selfcopy',     0,1,'S'],
    'hideall'      => ['hideall',      0,0,'H'],
-   'hideaddress'  => ['hideall',      2,0,'h'],
+   'hideaddress'  => ['hideall',      0,0,'h'],
    'nohide'       => ['hideall',      1,0,'' ],
    'showall'      => ['hideall',      1,0,'' ],
    'eliminatecc'  => ['eliminatecc',  0,1,'C'],
@@ -53,7 +57,6 @@ use vars (qw($addr %flags %noflags %classes %digest_types));
 %noflags =
   (
    'nohide'  => 'H',
-   'noack'   => 'A',
   );
 
 
@@ -292,12 +295,12 @@ settings.  (XXX Allowed sets not implemented.)
 sub set {
   my $self = shift;
   my $addr = shift;
-  my $oset = shift;
+  my $oset = shift || '';
   my $subl = shift || '';
   my $check= shift;
   my $force= shift;
   my $log  = new Log::In 150, "$addr, $oset";
-  my (@allowed, @class, @settings, $carg1, $carg2, $class, $data, 
+  my (@allowed, @class, @settings, $baseflag, $carg1, $carg2, $class, $data, 
       $db, $flags, $inv, $isflag, $key, $mask, $ok, $rset);
 
   $oset = lc $oset;
@@ -309,7 +312,12 @@ sub set {
 
     @class = split(/-/, $set);
 
-    if ($rset = $flags{$set}->[0] || $flags{$inv}->[0]) {
+    if (exists $flags{$set}) {
+      $rset = $flags{$set}->[0];
+      $isflag = 1;
+    }
+    elsif (exists $flags{$inv}) {
+      $rset = $flags{$inv}->[0];
       $isflag = 1;
     }
     elsif ($rset = $classes{$class[0]}->[0]) {
@@ -324,7 +332,20 @@ sub set {
       # Check the setting against the allowed flag mask.
       if ($isflag) {
 	$mask = $self->config_get('allowed_flags');
+        $baseflag = $flags{$rset}->[3];
 	# Make sure base flag is in the set.
+        unless ($mask =~ /$baseflag/) {
+          @allowed = ();
+          for (keys %flags) {
+            $baseflag = $flags{$flags{$_}->[0]}->[3];
+            if ($mask =~ /$baseflag/) {
+              push @allowed, $_;
+              push @allowed, "no$_" if ($flags{$_}->[2]);
+            }
+          }
+          $baseflag = join "\n               ", @allowed;
+          return (0, "Unauthorized flag: $set\nAllowed flags: $baseflag\n");
+        }
       }
 
       # Else it's a class
@@ -332,13 +353,12 @@ sub set {
 	@allowed = $self->config_get('allowed_classes');
 	# Make sure that one of the allowed classes is at the beginning of
 	# the given class.
+        unless (grep {$_ eq $rset} @allowed) {
+          $data = join " ", @allowed;
+          return (0, "Unauthorized class: $set\nAllowed classes: $data\n");
+        }
       }
     }
-  }
-
-  # If we were checking and didn't bail, we're done
-  if ($check) {
-    return 1;
   }
 
   # Grab subscriber data
@@ -365,6 +385,18 @@ sub set {
       return (0, "$addr is not subscribed to the $self->{'name'}:$subl auxiliary list.\n"); 
     }
   }
+
+  # If we were checking and didn't bail, we're done
+  if ($check > 0) {
+    return (1, {
+                flags => $data->{'flags'},
+	        class => [$data->{'class'}, 
+                          $data->{'classarg'}, 
+                          $data->{'classarg2'}],
+	       },
+	   );
+  }
+
 
 
   for $set (@settings) {
@@ -422,7 +454,12 @@ sub make_setting {
 
     ($inv = $set) =~ s/^no//;
 
-    if ($rset = $flags{$set}->[0] || $flags{$inv}->[0]) {
+    if (exists $flags{$set}) {
+      $rset = $flags{$set}->[0];
+      $isflag = 1;
+    }
+    elsif (exists $flags{$inv}) {
+      $rset = $flags{$inv}->[0];
       $isflag = 1;
     }
     elsif ($rset = $classes{$set}->[0]) {
@@ -435,10 +472,32 @@ sub make_setting {
 
     if ($isflag) {
       # Process flag setting; remove the flag from the list
-      $flags =~ s/$flags{$rset}->[3]//ig;
-
+      if (exists $flags{$inv} and $flags{$inv}->[1] == 0) {
+        # Ordinary flags are treated individually.
+        $flags =~ s/$flags{$inv}->[3]//ig;
+      }
+      else {
+        # Remove all in group ('noack' and 'ackall' clear all ack flags)
+        for (keys %flags) {
+          ($flags{$_}->[0] eq $flags{$rset}->[0]) &&
+          $flags =~ s/$flags{$_}->[3]//ig; 
+        } 
+      }
       # Add the new flag (which may be null)
-      $flags .= $flags{$set}->[3] || '';
+      if (exists $flags{$set}) {
+        if ($flags{$set}->[1] == 2) {
+          # umbrella (ackall: set all ack flags in the ack group)
+          for (keys %flags) {
+            if ($flags{$_}->[0] eq $flags{$rset}->[0] 
+                and $flags{$_}->[1] == 0) {
+              $flags .= $flags{$_}->[3]; 
+            }
+          } 
+        }
+        else {
+          $flags .= $flags{$set}->[3];
+        }
+      }
     }
     else {
       # Process class setting
@@ -543,6 +602,36 @@ sub _digest_classes {
   }
   @out;
 }
+
+=head2 should_ack (sublist, victim, flag)
+
+Determine whether or not a particular action (deny, stall, succeed, reject)
+should cause an acknowledgement to be sent to the victim.
+
+=cut
+sub should_ack {
+  my ($self, $sublist, $victim, $flag) = @_;
+  my ($data);
+
+  # XXX This functionality should be moved to List.pm.
+
+  if ($sublist) {
+    $data = $self->aux_get_member($sublist, $victim);
+  }
+  else {
+    $data = $self->get_member($victim);
+  }
+  unless (defined $data) {
+    $data = {};
+    $data->{'flags'} = $self->config_get('nonmember_flags');
+  }
+  # Ack if the victim has the (deprecated) 'ackall' or 'ackimportant' setting.
+  return 1 if ($data->{'flags'} =~ /A/i);
+  # Ack if victim has requested the flag explicitly.
+  return 1 if ($data->{'flags'} =~ /$flag/);
+  0;
+}
+
 
 =head2 _str_to_time(string)
 
@@ -675,7 +764,7 @@ sub describe_flags {
       $seen .= $i;
     }
     else {
-      unless ($seen =~ /$i/i || $flags =~ /$i/i) {
+      unless ($flags{$desc{$i}}->[1] == 2 || $seen =~ /$i/i || $flags =~ /$i/i) {
 	push @out, $nodesc{$i} || "no$desc{$i}"; # XLANG
 	$seen .= $i;
       }
@@ -964,6 +1053,24 @@ sub aux_get_matching {
   $self->{'auxlists'}{$name}->get_matching(@_);
 }
 
+=head2 aux_get_member(sublist, address)
+
+Returns the unstringified data for a particular sublist member
+
+=cut
+sub aux_get_member {
+  my $self = shift;
+  my $name = shift;
+  my $addr = shift;
+  my ($saddr, $ok);
+
+  return unless $addr->isvalid;
+  return if $addr->isanon;
+
+  return unless $self->_make_aux($name);
+  return $self->{'auxlists'}{$name}->lookup($addr->canon);
+}
+
 =head2 aux_is_member(file, addr)
 
 This returns true if an address is a member of an auxiliary list.
@@ -1016,7 +1123,7 @@ sub aux_rekey {
       # Why not canon instead?
       $addr = new Mj::Addr($data->{'stripaddr'});
       $newkey = $addr->xform;
-      $changekey = ($newkey ne $key);
+      $changekey = ($newkey ne $key or (! exists $data->{'class'}));
 
       # Enable transition from old AddressList to new SubscriberList
       $data->{'subtime'}  ||= $data->{'changetime'};
@@ -1803,6 +1910,7 @@ sub bounce_add {
 
     if ($diagnostic) {
       $data->{diagnostic} = substr ($diagnostic, 0, 160);
+      $data->{diagnostic} =~ s/\001/X/g;
     }
 
     $bouncedata = $data->{bounce};
