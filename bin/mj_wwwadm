@@ -248,7 +248,7 @@ unless (command_legal($func)) {
 # Make sure the list names are valid
 for ($i = 1; $i <= scalar(@lists); $i++) {
   if ($lists[$i-1] ne '') {
-    unless ($lists[$i-1] = $mj->valid_list($lists[$i-1])) {
+    unless ($lists[$i-1] = $mj->valid_list($lists[$i-1], 1, 1)) {
       print "<h3>Invalid list name: $lists[$i-1]</h3>\n";
       $::log->message(50, "info",  "Invalid list $lists[$i-1] in form data.");
       exit 0; 
@@ -269,8 +269,10 @@ if ($passw eq '' and $func !~ /help|lists|accept|reject|tokeninfo/) {
 }
 elsif ($passw ne '') {
   # Check the password against the requester
+  for $res (@lists) {
   $ok = $mj->validate_passwd($user, $passw, undef,
-                               "mjadm", $list, $func);
+                               "mjadm", $lists[0], $func);
+  }
   if ($ok <= 0) {
     print "<h3>The password you provided is invalid</h3>\n";
     $::log->message(50, "info",  "Invalid password in form data.");
@@ -308,9 +310,6 @@ $file = Majordomo::tempname();
 $fh = new IO::File ">$file";
 if ($func ne 'showtokens') {
   $fh->print("<pre><small>\n") unless ($func eq 'tokeninfo' or $func eq 'who');
-  if (function_prop($func, 'iter')) {
-    $request->{'command'} .= '_start';
-  }
   for $req (@extra) {
     Mj::Parser::parse_args($request, $req);
     &{"Mj::Format::$func"}($mj, $fh, $fh, 'html', $request,
@@ -406,11 +405,12 @@ sub Mj::Format::showtokens {
   $count = 0;
   print "<table>\n";
 
+  print "<tr><td colspan=5>Requests for $request->{'list'}\n";
   while (@tokens) {
     ($token, $data) = splice @tokens, 0, 2;
     print "<tr>\n";
     print "<td><input type=checkbox name=extra value=\"$token\">$token\n";
-    print "<td>$data->{'list'}\n"; 
+    print "<td>$data->{'list'}\n" if ($request->{'list'} eq 'ALL'); 
     if ($data->{'type'} eq 'consult') {
       print "<td>O\n";
     }
@@ -419,12 +419,12 @@ sub Mj::Format::showtokens {
     }
     $size = '';
     if ($data->{'command'} eq 'post' and $data->{'size'}) {
-      $size = sprintf "(%d kB)", ($data->{'size'} + 512) / 1024;
+      $size = sprintf "(%2d&nbsp;kB)", ($data->{'size'} + 512) / 1024;
     }
-    print "<td>$data->{'command'} $size\n";
+    print "<td>$data->{'command'}&nbsp;$size\n";
     @time = localtime($data->{'time'});
-    $created = sprintf "%.2d-%.2d %.2d:%.2d:%.2d", 
-      $time[4]+1, $time[3], $time[2], $time[1], $time[0];
+    $created = sprintf "%.2d-%.2d&nbsp;%.2d:%.2d", 
+      $time[4]+1, $time[3], $time[2], $time[1];
     print "<td>$created\n";
     print "<td>" . Mj::Format::escape($data->{'user'}) . "\n"; 
     $count++;
@@ -505,7 +505,7 @@ EOM
         $chunksize = $tmp;
         print "</small>\n";
       }
-      print $chunk;
+      print Mj::Format::escape($chunk);
     }
     print "</small>" unless $showspool;
     print "</pre>\n";
@@ -558,6 +558,8 @@ EOM
                                       $request->{'auth'}, $request->{'interface'},
                                       "chunksize");
   return unless $chunksize;  
+  $request->{'command'} = "who_chunk";
+  
   while (1) {
     ($ok, @lines) = @{$mj->dispatch($request, $chunksize)};
     
