@@ -465,7 +465,7 @@ returns them in an array.
 
 =cut
 sub get_all_lists {
-  my ($self, $user, $passwd) = @_;
+  my ($self, $user, $passwd, $regexp) = @_;
   my $log = new Log::In 100;
   my (@lists, $always, $list);
 
@@ -480,6 +480,9 @@ sub get_all_lists {
 
   for $list (keys %{$self->{'lists'}}) {
     next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
+    if ($regexp) {
+      next unless _re_match($regexp, $list);
+    }
 
     # If membership always overrides advertising:
     if ($always && $self->is_subscriber($user, $list)) {
@@ -1149,22 +1152,16 @@ sub list_config_set_to_default {
     unless $self->_make_list($list);
   
   if (!defined $passwd) {
-    $self->inform($list, 'configdefault', $user, $user, "configdefault
-		  $list $var", $self->{'interface'}, 0, 0, 0, '');
     return (0, "No password supplied.\n");
   }
   @groups = $self->config_get_groups($var);
   if (!@groups) {
-    $self->inform($list, 'configdefault', $user, $user, "configdefault
-		  $list $var", $self->{'interface'}, 0, 0, 0, '');
     return (0, "Unknown variable \"$var\".\n");
   }
 
   $user = new Mj::Addr($user);
   ($ok, $mess) = $user->valid;
   unless ($ok) {
-    $self->inform($list, 'configdefault', $user, $user, "configdefault
-		  $list $var", $self->{'interface'}, 0, 0, 0, '');
     return (0, "$user is invalid:\n$mess");
   }
 
@@ -1178,9 +1175,6 @@ sub list_config_set_to_default {
     @out = $self->{'lists'}{$list}->config_set_to_default($var);
     $self->_list_config_unlock($list);
   }
-  $self->inform($list, 'configdefault', $user, $user,
-		"configdefault $list $var",
-		$self->{'interface'}, $out[0], !!$passwd+0, 0, '');
   @out;
 }
 
@@ -3304,8 +3298,9 @@ sub _createlist {
   my ($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list) = @_;
   $list ||= '';
   my $log = new Log::In 35, "$mode, $list";
-  my (%args, %data, @lists, $aliases, $bdir, $desc, $dir, $dom, $debug, $ent, 
-      $file, $mess, $mta, $mtaopts, $pw, $rmess, $sender, $subs, $sublists, $who);
+  my (%args, %data, @lists, @sublists, @tmp, $aliases, $bdir, $desc, 
+      $dir, $dom, $debug, $ent, $file, $mess, $mta, $mtaopts, $pw, 
+      $rmess, $sender, $subs, $sublists, $who);
 
   $owner = new Mj::Addr($owner);
   $pw    = Mj::Access::_gen_pw;
@@ -3371,11 +3366,15 @@ sub _createlist {
     for my $i (keys %{$self->{'lists'}}) {
       $debug = $self->_list_config_get($i, 'debug');
       $aliases = $self->_list_config_get($i, 'aliases');
-      $sublists = '';
+      @sublists = '';
       if ($aliases =~ /A/) {
         if ($self->_make_list($i)) {
-          $self->{'lists'}{$i}->_fill_aux;
-          $sublists = join "\002", keys %{$self->{'lists'}{$i}->{'auxlists'}};
+          @tmp = $self->_list_config_get($i, 'sublists');
+          for my $j (@tmp) {
+            ($j, undef) = split /[\s:]+/, $j, 2;
+            push @sublists, $j;
+          }
+          $sublists = join "\002", @sublists;
         }
       }
       push @{$args{'lists'}}, [$i, $debug, $aliases, $sublists];
@@ -3595,11 +3594,16 @@ Enhanded mode:
 sub lists {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'mode'}";
-  my (@lines, @out, $cat, $compact, $count, $desc, $mess, $flags, $limit,
-      $list, $sublist, $ok);
+  my (@lines, @out, @sublists, $cat, $compact, $count, $data, $desc, 
+      $flags, $limit, $list, $mess, $ok, $regexp, $sublist);
 
   # Stuff the registration information to save lots of database lookups
   $self->_reg_lookup($request->{'user'});
+
+  if ($request->{'regexp'}) {
+    ($ok, $mess, $regexp) = Mj::Config::compile_pattern($request->{'regexp'}, 0);
+    return ($ok, $mess) unless $ok;
+  }
 
   # Check global access
   ($ok, $mess) =
@@ -3616,14 +3620,15 @@ sub lists {
     $compact = 1;
   }
 
-  for $list ($self->get_all_lists($request->{'user'}, $request->{'password'})) {
-    @lines = $self->_list_config_get($list, "description_long");
+  for $list ($self->get_all_lists($request->{'user'}, 
+                                  $request->{'password'}, $request->{'regexp'})) {
+    @lines = $self->_list_config_get($list, 'description_long');
     $cat   = $self->_list_config_get($list, 'category');;
     $desc  = '';
     $flags = '';
  
     if ($compact) {
-      $desc = $self->_list_config_get($list, "description");
+      $desc = $self->_list_config_get($list, 'description');
       $desc ||= $lines[0];
     }
     else {
@@ -3633,30 +3638,58 @@ sub lists {
 	$count++;
 	last if $limit && $count > $limit;
       }
-      $desc ||= $self->_list_config_get($list, "description");
+      $desc ||= $self->_list_config_get($list, 'description');
     }
+
+    $data = { 
+             'category'    => $cat, 
+             'description' => $desc, 
+             'flags'       => '',
+             'list'        => $list, 
+            };
 
     if ($request->{'mode'} =~ /enhanced/) {
-      $flags .= 'S' if $self->is_subscriber($request->{'user'}, $list);
+      $data->{'flags'} .= 'S' 
+                         if $self->is_subscriber($request->{'user'}, $list);
     }
-    push @out, [$list, $cat, $desc, $flags];
-
-    # return information about auxiliary lists
+    # "aux" mode: return information about auxiliary lists
+    # and other administrative details
+    if ($request->{'mode'} =~ /aux/) {
+      $data->{'owner'}    = $self->_list_config_get($list, 'whoami_owner');
+      $data->{'address'}  = $self->_list_config_get($list, 'whoami');
+      $data->{'subs'}     = $self->{'lists'}{$list}->count_subs;
+      $data->{'archive'}  = $self->_list_config_get($list, 'archive_url');
+    }
+    push @out, $data;
+ 
     if ($request->{'mode'} =~ /aux/) {
       $self->{'lists'}{$list}->_fill_aux;
-      for $sublist (keys %{$self->{'lists'}{$list}->{'auxlists'}}) {
+      # If a master password was given, show all auxiliary lists.
+      if ($ok > 1) {
+        @sublists = keys %{$self->{'lists'}{$list}->{'auxlists'}};
+      }
+      else {
+        @sublists = $self->_list_config_get($list, "sublists");
+      }
+      for $sublist (@sublists) {
+        ($sublist, $desc) = split /[\s:]+/, $sublist, 2;
         $flags = '';
         if ($request->{'mode'} =~ /enhanced/) {
           $flags = 'S'  
             if ($self->{'lists'}{$list}->aux_is_member($sublist, $request->{'user'}));        
         }
-        push @out, ["$list:$sublist", $cat, "auxiliary list", $flags];
+        push @out, { 'list'        => "$list:$sublist", 
+                     'category'    => $cat, 
+                     'description' => $desc, 
+                     'flags'       => $flags,
+                     'subs'        => $self->{'lists'}{$list}->count_subs($sublist),
+                   };
       }
     }  
     
   }
 
-  return (1, $request->{'mode'}, @out);
+  return (1, @out);
 }
 
 =head2 reject(..., token)
@@ -4172,6 +4205,12 @@ sub report_done {
      "$request->{'list'}, $request->{'user'}, $request->{'action'}";
   return unless $self->{'report_fh'};
   undef $self->{'report_fh'};
+  # Return complete list of auxiliary lists if in "summary" mode.
+  if ($request->{'mode'} =~ /summary/) {
+    return (1, '') unless $self->_make_list($request->{'list'});
+    return (1, '') unless $self->{'lists'}{$request->{'list'}}->_fill_aux;
+    return (1, sort keys %{$self->{'lists'}{$request->{'list'}}->{'auxlists'}});
+  }
   (1, '');
 }
 
