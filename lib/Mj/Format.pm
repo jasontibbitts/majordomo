@@ -273,6 +273,11 @@ sub configshow {
     if ($request->{'sublist'} and $request->{'sublist'} ne 'MAIN');
 
   $ok = shift @$result;
+  unless (scalar @$result) {
+    $mess = "No settings found for the $list list.\n";
+    eprint($out, $type, indicate($mess, $ok));
+    return $ok;
+  }
   for $varresult (@$result) {
     ($ok, $mess, $var, $val) = @$varresult;
     if (! $ok) {
