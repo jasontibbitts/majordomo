@@ -95,7 +95,7 @@ sub build {
       $data = undef;
     }
     # Extract the message from the archives
-    ($data, $file) = $args{'archive'}->get_to_file($msg, undef, $data);
+    ($data, $file) = $args{'archive'}->get_to_file($msg, undef, $data, 1);
 
     # Skip nonexistent messages (e.g., messages that were deleted from
     # the archive).
