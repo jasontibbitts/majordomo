@@ -1,0 +1,7 @@
+Exim
+a1@example.com	failure	unknown local-part "a1" in domain "example.com"
+a2@example.com	failure	this time without the colon
+a3@example.com	failure	a  multiline   error
+a4@example.com	failure	toss in some extra space
+a5@example.com	failure	this one wasn't in the X-Failed-Recipients header
+a6@example.com	failure

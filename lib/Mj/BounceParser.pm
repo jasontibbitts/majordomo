@@ -62,7 +62,7 @@ Takes:
 Returns:
 
   type - type of message this was identified to be, as a single letter (M
-    for list message, C for confirmation token, etc.)
+    for list message, T for confirmation token, etc.)
   msgno   - the message number of the bouncing message, if known
   address - address (if any) extracted from an envelope VERP.
   data    - a hashref of data, one key per user
@@ -93,6 +93,18 @@ is not a bounce.  Modulo really broken MTAs out there, of course.
 A bounce could be in response to a post or to something like a confirmation
 message.  For a post, the type will be M and a message number will be
 included.  Other information will be present for other kinds of bounces.
+
+Envelope types currently in use:
+
+  T - token notification
+  V - victim notification (for consult tokens)
+  D - delay tokens
+  M - messages.  May take several forms:
+      M26 - message 26
+      M26=host=user - message 26, user@host
+  DV - digests
+      DV20N3 - volume 20 number 3
+      DV20N3=host=user - volume 20 number 2, user@host
 
 =cut
 
@@ -173,9 +185,9 @@ sub parse {
     $msgno  = $1 . $2;
     $user   = undef;
   }
-  elsif ($info =~ /^T(.*)/i) {
-    $type  = 'T';
-    $msgno = $1;
+  elsif ($info =~ /^([TD])(.*)/i) {
+    $type  = $1;
+    $msgno = $2;
     $user  = undef;
   }
   else {
@@ -549,14 +561,16 @@ sub parse_exim {
   my $ent  = shift;
   my $data = shift;
   my $hints= shift;
-  my ($bh, $diag, $i, $line, $ok, $status, $user);
+  my ($bh, $diag, $i, $j, $line, $ok, $status, $user);
 
   # Check for X-Failed-Recipients: headers
   for $i ($ent->head->get('X-Failed-Recipients')) {
     chomp $i;
-    $data->{$i}{diag}   = 'unknown';
-    $data->{$i}{status} = 'failure';
-    $ok = 'Exim';
+    for $j (split(/\s*,\s*/, $i)) {
+      $data->{$j}{diag}   = 'unknown';
+      $data->{$j}{status} = 'failure';
+      $ok = 'Exim';
+    }
   }
 
   return $ok if $ent->parts;
@@ -603,7 +617,7 @@ sub parse_exim {
 
     # If we have a user, we've ended the previous diag block (if any), so
     # save that data and clear it out for a new block.
-    if ($line =~ /^  (\S.*):\s*$/) {
+    if ($line =~ /^  (\S[^:]*)\s*:?\s*$/) {
       if ($user) {
 	$data->{$user}{'status'} = $status;
 	$data->{$user}{'diag'}   = $diag;

@@ -1,0 +1,58 @@
+Comment: An Exim bounce with a mix of formats
+Delivery-date: Fri, 02 Mar 2001 17:40:51 -0600
+Received: from mail by example.com with local (Exim 3.13 #1)
+	id 14YzAJ-00087d-00
+	for tibbs@example.com; Fri, 02 Mar 2001 17:40:51 -0600
+X-Failed-Recipients: a1@example.com,
+  a2@example.com,
+  a3@example.com,
+  a4@example.com,
+  a6@example.com
+From: Mail Delivery System <Mailer-Daemon@example.com>
+To: <test-owner+M10@example.com>
+Subject: Mail delivery failed: returning message to sender
+Message-Id: <E14YzAJ-00087d-00@example.com>
+Date: Fri, 02 Mar 2001 17:40:51 -0600
+X-IMAPbase: 983576453 1
+Status: O
+X-Status: 
+X-Keywords:                        
+X-UID: 1
+
+This message was created automatically by mail delivery software.
+
+A message that you sent could not be delivered to one or more of its
+recipients. The following address(es) failed:
+
+  a1@example.com:
+    unknown local-part "a1" in domain "example.com"
+  a2@example.com
+    this time without the colon
+  a3@example.com:
+    a
+     multiline
+      error
+
+  a4@example.com:
+    toss in some extra space
+
+
+  a5@example.com
+    this one wasn't in the X-Failed-Recipients header
+
+
+
+------ This is a copy of the message, including all the headers. ------
+
+Return-path: <tibbs@example.com>
+Received: from tibbs by example.com with local (Exim 3.13 #1)
+	id 14YzAJ-00087b-00; Fri, 02 Mar 2001 17:40:51 -0600
+To: a1@example.com,, a2@example.com,
+	, a3@example.com,, a4@example.com,
+	, a5@example.com
+Message-Id: <E14YzAJ-00087b-00@example.com>
+From: Jason Tibbitts <tibbs@example.com>
+Date: Fri, 02 Mar 2001 17:40:51 -0600
+
+blah
+

@@ -1,3 +1,9 @@
+2001-03-02  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/BounceParser.pm (parse_exim): Adapt to new exim bounce
+        format: X-Failed-Recipients: may have more than one address.
+        Addresses in body may or may not be followed by a colon.
+
 2001-03-02  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Resend.pm:  (_munge_subject)  Bugfix:  Add missing library

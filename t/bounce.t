@@ -102,6 +102,7 @@ for $file (@tests) {
     }
     else {
       print "ok $count (expected no users and found none)\n";
+      $count++;
     }
     next BOUNCE;
   }
