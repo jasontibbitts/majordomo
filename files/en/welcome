@@ -6,7 +6,7 @@ $PASSWORD
 To leave this mailing list, send the following command in the body
 of a message to $MJ:
 
-approve $PASSWORD unsubscribe $LIST $USER
+approve $PASSWORD unsubscribe $LIST $STRIPADDR
 
 This command will work even if your address changes.  For that reason,
 among others, it is important that you keep a copy of this message.
@@ -17,5 +17,5 @@ contact the people who manage the list by sending a message to
 
 If the web features of Majordomo are supported at this site, you
 can manage your subscription by visiting the following location:
-  <URL:$WWWUSR_URL>
+  <URL:$WWWUSR_URL/$QSADDR>
 
