@@ -16,7 +16,7 @@
 	was not supplied.
 
 	* lib/Mj/Archive.pm:  (_sync_msgs)  Improve error handling.
-	Thanks to Brock Rozen.
+	Thanks to Roger Klorese.
 
 	* lib/Mj/CommandProps.pm:  Add support for the 
 	showtokens-consult and showtokens-confirm commands.

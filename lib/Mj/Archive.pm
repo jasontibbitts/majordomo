@@ -768,7 +768,7 @@ sub _sync_msgs {
         $tmpfh->close() 
           or $::log->abort("Unable to close file $tmpfile: $!");
         $entity = $parser->parse_open($tmpfile);
-        return (0, "Unable to parse mailbox.\n") unless $entity;
+        return (0, "Unable to parse message $arcname/$count.\n") unless $entity;
         $arcnum = $entity->head->get("X-Archive-Number");
         unless (defined $arcnum and $arcnum =~ m#$arcname/\d+#) {
           $arcnum = "$arcname/$count";
@@ -804,7 +804,9 @@ sub _sync_msgs {
     $lines++;
     $tmpfh->print($line);
   }
-  $mbox->commit;
+
+  # Save the changes only if a message was found.
+  $mbox->commit if (scalar @out);
   $tmpfh->close();
     # or $::log->abort("Unable to close file $tmpfile: $!");
   unlink $tmpfile;
