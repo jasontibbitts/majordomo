@@ -1,6 +1,6 @@
 =head1 NAME
 
-Bf::Parser.pm - Functions for taking apart bounce messages.
+Mj::BounceParser.pm - Functions for taking apart bounce messages.
 
 =head1 DESCRIPTION
 
@@ -40,7 +40,7 @@ blah
 
 =cut
 
-package Bf::Parser;
+package Mj::BounceParser;
 use Mj::Log;
 $VERSION = "0.0";
 use strict;

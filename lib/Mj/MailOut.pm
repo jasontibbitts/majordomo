@@ -223,7 +223,7 @@ The given file is parsed into a MIME entity
 
 =cut
 use Mj::MIMEParser;
-use Bf::Parser;
+use Mj::BounceParser;
 sub handle_bounce {
   my ($self, $list, $file) = @_;
   my $log  = new Log::In 30, "$list";
@@ -246,10 +246,10 @@ sub handle_bounce {
   $whoami =~ s/\@.*$//;
 
   ($type, $msgno, $user, $handler, $data) =
-    Bf::Parser::parse($ent,
-		      $list eq 'GLOBAL'?$whoami:$list,
-		      $self->_site_config_get('mta_separator')
-		     );
+    Mj::BounceParser::parse($ent,
+			    $list eq 'GLOBAL'?$whoami:$list,
+			    $self->_site_config_get('mta_separator')
+			   );
 
   # If a token bounced
   if ($type eq 'T') {
@@ -347,6 +347,7 @@ Deal with a bouncing token.
 =cut
 sub handle_bounce_token {
   my($self, %args) = @_;
+  my $log  = new Log::In 35;
   my(@owners, @bouncers, $i, $mess, $nent, $sender);
 
 
@@ -420,6 +421,7 @@ sub handle_bounce_user {
   my $msgno  = shift;
   my $parser = shift || 'unknown';
   my %args = @_;
+  my $log  = new Log::In 35;
   my ($mess, $bdata, $status, $userdata);
 
   $status = $args{status};

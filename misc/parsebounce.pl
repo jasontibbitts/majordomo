@@ -13,7 +13,7 @@
 # install to run this tool.
 
 use MIME::Parser;
-use Bf::Parser;
+use Mj::BounceParser;
 use Mj::FakeLog;
 
 #$Mj::FakeLog::verbose = 1;

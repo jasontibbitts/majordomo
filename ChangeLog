@@ -1,4 +1,11 @@
+2000-06-26  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/BounceParser.pm: Renamed from Bf/Parser.pm.
+
 2000-06-25  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/List.pm (bounce_gen_stats): Fixed calculation of overload
+	stats.
 
 	* Rotated old ChangeLog entries.
 

@@ -1784,9 +1784,9 @@ sub bounce_gen_stats {
       $stats->{month}++;
     }
   }
-  $stats->{day_overload}   = ($stats->{day}   >= $max_bounce_count)?'>':'';
-  $stats->{week_overload}  = ($stats->{week}  >= $max_bounce_count)?'>':'';
-  $stats->{month_overload} = ($stats->{month} >= $max_bounce_count)?'>':'';
+  $stats->{day_overload}   = ($stats->{day}   >= $maxbouncecount)?'>':'';
+  $stats->{week_overload}  = ($stats->{week}  >= $maxbouncecount)?'>':'';
+  $stats->{month_overload} = ($stats->{month} >= $maxbouncecount)?'>':'';
 
   $stats;
 }
