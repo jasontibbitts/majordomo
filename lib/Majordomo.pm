@@ -5301,6 +5301,7 @@ sub _lists {
       }
     }
     else {
+      $desc  = '';
       @lines = $self->_list_config_get($list, 'description_long');
       $count = 1;
       for (@lines) {
@@ -6247,7 +6248,8 @@ sub _set {
   else {
     if ($list eq 'ALL') {
       $data = $self->{'reg'}->lookup($vict->canon);
-      return (0, "$vict is not registered.\n") 
+      return (0, $self->format_error('unregistered', 'GLOBAL', 
+                                     'VICTIM' => $vict->full);
         unless $data;
       $v = $data->{'lists'};
     }
@@ -6620,7 +6622,8 @@ sub _subscribe {
 
   unless ($ok) {
     $log->out("failed, existing");
-    return (0, "$vict is already subscribed to $list as $data->{'fulladdr'}.\n");
+    return (0, $self->format_error('already_subscribed', $list, 
+            'VICTIM' => $vict, 'FULLADDR' => $data->{'fulladdr'});
   }
 
   $ml = $self->_global_config_get('password_min_length');
