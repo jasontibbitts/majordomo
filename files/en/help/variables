@@ -203,7 +203,7 @@ the error, format, and reply files will be presented here.
 \$SEQNO
   The sequence number of a message posted to a mailing list.  This
   value comes from the sequence_number configuration setting (see
-  "help configset_sequence_number for more information).
+  "help configset_sequence_number" for more information).
 
 \$SUBJECT
   The Subject header of a posted message.
