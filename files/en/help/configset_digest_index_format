@@ -2,49 +2,70 @@
 configset listname digest_index_format = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : subject
-Data Type     : enum, choose from: numbered subject subject_author
+Data Type     : enum, choose from: numbered numbered_name subject 
+                                   subject_author subject_name
 Category      : deliver
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname digest_index_format = subject
+configset listname digest_index_format = subject_name
 
-Selects one of the formats for each line in the index listing for the
-digests. The 'subject' format consists simply of the subjects of the
-messages. The 'subject_author' format adds the address of the poster.
-The 'numbered' format adds an additional field with the archive
-message number to make retrieval easier.
+$INCLUDE-config/digest_index_format
 
-Users can use "set" to choose MIME, plain text, or index style digests.
-If they choose to receive an index, the list owner can determine how
-much information they get... and subscribers cannot change that level
-of detail with their personal settings. In general, digest_index_format
-should probably be set to "numbered" except for extremely high volume
-lists where the index listings would be too bulky.
-
-1. The 'subject' format consists simply of the subjects of the messages:
+The 'subject' format consists simply of the subjects of the messages:
   A subject
   Another subject
   A really, really, really, really, really really long subject
 
-2. The 'subject_author' format, originally provided by Jeff Wasilko,
+The 'subject_author' format, originally provided by Jeff Wasilko,
    provides an index like this. Note that long fields cause the poster's
    address to wrap onto a second line:
-  A subject                                         [User <user@example.com>]
+  A subject                                      [Ima User <user@example.com>]
   Another subject                      [Another User <otheruser@example.org>]
   A really, really, really, really, really really long subject
-                                       [A Verbose user <verbose@example.com>]
+                                       [A Verbose User <verbose@example.com>]
 
-3. The 'numbered' digest index always splits index entries into two lines:
+The 'subject_name' format is similar to the subject_author format,
+   but only the name of the author is displayed:
+  A subject                                                        (Ima User)
+  Another subject                                              (Another User)
+  A really, really, really, really, really really long subject
+                                                             (A Verbose User)
+
+The 'numbered' digest index always splits index entries into two lines:
   200008/12 : A subject
-    user@example.com
+    Ima User <user@example.com>
   200008/13 : Another subject
     Another User <otheruser@example.org>
   200008/14 : A really, really, really, really, really really long subject
-    A Verbose user <verbose@example.com>
+    A Verbose User <verbose@example.com>
 
+The 'numbered_name' digest index always splits index entries into two lines:
+  200008/12 : A subject
+    Ima User
+  200008/13 : Another subject
+    Another User
+  200008/14 : A really, really, really, really, really really long subject
+    A Verbose User
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+Digest index formats should not be confused with digest types.  The
+index format only affects what information is displayed in the table of
+contents.  The digest type determines the format of the messages
+themselves (index, mime, or text).
+
+Subscribers can choose which digest type they wish to receive using the
+set command; however, every subscriber who receives a particular digest
+will see the same index format.  Each digest in the "digests"
+configuration setting can have its own index format, which will override
+the default value that is established by this "digest_index_format"
+setting.
+
+See Also:
+   help admin_delivery
+   help configset_digest_issues
+   help configset_digests       (to override this setting)
+   help digest  (for a discussion of digest customization)
+   help set
+
+$INCLUDE-help/foot
