@@ -187,6 +187,30 @@ delivered to the intended recipient.  If the tokenbounce results in the
 token ID being removed from the database, a "reject" event is also
 recorded.
 
+                               Interfaces
+
+The report-full command will include information about the interface
+that was used to execute a command.  The interfaces are listed in the
+following table:
+
+email           The Majordomo server address
+email-command   The LIST-subscribe, LIST-unsubscribe, or another
+                  e-mail address that runs a specific command
+email-request   The LIST-request address
+owner           The LIST-owner address
+resend          A message was posted to a mailing list
+token-fulfill   A delayed command was completed by the mj_trigger
+                  program
+trigger         The mj_trigger program
+wwwadm          The web interface for list and domain administrators
+wwwconfirm      The web interface for command confirmation
+wwwusr          The web interface for subscribers
+
+When a command is executed by the accept command, the prefix "token-" is
+added to the interface name.  For example, a command executed by the
+accept command in an e-mail message would be considered to be executed
+from the "token-email" interface.
+
 
 See Also:
    help accept
