@@ -212,15 +212,15 @@ EOB
   # list is new, the default value will need to be
   # used.  The possible aliases settings are:
   #
-  # A    An alias for each auxiliary list mentioned in the "sublists" setting.
-  # M    LIST-moderator
-  # O    LIST-owner
-  # R    LIST
-  # Q    LIST-request
-  # S    LIST-subscribe
-  # U    LIST-unsubscribe
+  # auxiliary  An alias for each auxiliary list in the "sublists" setting.
+  # moderator    LIST-moderator
+  # owner        LIST-owner
+  # request      LIST-request
+  # resend       LIST
+  # subscribe    LIST-subscribe
+  # unsubscribe  LIST-unsubscribe
   #
-  # As implemented, O R and Q are mandatory.
+  # As implemented, owner, requiest, and resend are mandatory.
   else {
     $aliasfmt = "$list$vut%-12s \"|$bin/$program %s -d $dom -l $list$debug\"\n";
     $block  = "# Aliases for $list at $dom\n";
@@ -237,20 +237,20 @@ $list-owner\@$dom        $list$vut-owner
 owner-$list\@$dom        owner-$list$vut
 EOB
 
-    if ($args{'aliases'} =~ /M/) {
+    if (exists $args{'aliases'}->{'moderator'}) {
       $block .= sprintf $aliasfmt, '-moderator:', '-M';
       $vblock .= "$list-moderator\@$dom      $list$vut-moderator\n";
     }
-    if ($args{'aliases'} =~ /S/) {
+    if (exists $args{'aliases'}->{'subscribe'}) {
       $block .= sprintf $aliasfmt, '-subscribe:', '-c subscribe';
       $vblock .= "$list-subscribe\@$dom      $list$vut-moderator\n";
     }
-    if ($args{'aliases'} =~ /U/) {
+    if (exists $args{'aliases'}->{'unsubscribe'}) {
       $block .= sprintf $aliasfmt, '-unsubscribe:', '-c unsubscribe';
       $vblock .= "$list-unsubscribe\@$dom    $list$vut-moderator\n";
     }
 
-    if ($args{'aliases'} =~ /A/ and $args{'sublists'}) {
+    if (exists $args{'aliases'}->{'auxiliary'} and $args{'sublists'}) {
       for $sublist (split "\002", $args{'sublists'}) {
         next if ($sublist =~ /^(request|owner|subscribe|unsubscribe|moderator)$/);
         $block .= sprintf $aliasfmt, "-$sublist:", "-x $sublist";
