@@ -1,3 +1,9 @@
+2000-09-26  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Config.pm (_compile_rule):  Add support for a 
+	time specification within asterisks, similar to the
+	digest "times" field.
+
 2000-09-24  Michael Yount <csf@moscow.com>
 
 	* files/en/ack_delay, delay, delay_noweb, repl_delay, 
