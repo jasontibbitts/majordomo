@@ -3,6 +3,11 @@
 	* bin/mj_enqueue:  Place the mj_queueserv lock in the lock
 	directory.  Suggested by SRE.
 
+	* lib/Mj/Archive.pm:  (add_done)  Sort the archives to 
+	prevent a race condition.
+	(get_all_data, expand_range)  Support split archives.
+	Thanks to Roger Klorese.
+	
 	* lib/Mj/Lock.pm:  (expire_locks)  Do not remove the queueserv
 	lock file.
 

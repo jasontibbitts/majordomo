@@ -397,7 +397,11 @@ sub add_done {
 
   # Append the line containing the info to index
   $self->{'indices'}{$arc}->add("", $msgno, $data);
-  
+
+  if ($arc ne $sub) {
+    $self->_sort_archives;
+  }
+ 
   # Close the archive
   $fh->close()
     or $::log->abort("Unable to close archive $arc: $!");
@@ -1062,9 +1066,14 @@ sub get_all_data {
   my $self = shift;
   my $arc  = shift;
   my $log = new Log::In 150, $arc;
-  my (@chunk, @out, $data);
+  my (@chunk, @out, $data, $key, $split);
 
-  @out = ();
+  $split = '';
+  if ($arc =~ s/(.+)-(\d+)$//) {
+    $arc = $1;
+    $split = $2;
+  }
+
   # Restore sublist name if needed.
   if ($self->{'sublist'} and $arc !~ /^$self->{'sublist'}/) {
     $arc = "$self->{'sublist'}.$arc";
@@ -1073,7 +1082,14 @@ sub get_all_data {
   return unless $self->_make_index($arc);
   return unless $self->{'indices'}{$arc}->get_start;
   while (@chunk = $self->{'indices'}{$arc}->get(1000)) {
-    push @out, @chunk;
+    if ($split) {
+      while (($key, $data) = splice (@chunk, 0, 2)) {
+        push (@out, ($key, $data)) if ($data->{'split'} eq $split);
+      }
+    }
+    else {
+      push @out, @chunk;
+    }
   }
   $self->{'indices'}{$arc}->get_done;
   @out;
@@ -1554,12 +1570,12 @@ sub _arc_name {
   return "$year$month$mday" if $split eq 'daily';
 }
 
-=head2 summary (private)
+=head2 summary (sublist)
 
 Return a list of all archives, along with the message count for
 each archive.
 
-Do not show sublist archives unless the private argument is set.
+Only show archives for the specified sublist.
 
 =cut
 sub summary {
@@ -1715,7 +1731,7 @@ sub expand_range {
   my $args = shift; 
   my $private = shift;
   my $log   = new Log::In 250, "$args";
-  my (@out, @args, @tmp, $data, $i, $j, $ct, $a1, $m1, $a2, $m2, $tmp);
+  my (@args, @out, @tmp, $a1, $a2, $ct, $data, $i, $j, $key, $m1, $m2, $tmp);
 
   @args = split " ", $args;
   # Walk the arg list
@@ -1733,8 +1749,6 @@ sub expand_range {
     else {
       $self->{'sublist'} = '';
     }
-    # Remove date separator.
-    $i =~ s/(\d)[\-](\d)/$1$2/g;
 
     # Deal with "mwdhmis" format
     if ($i =~ /^\d[\da-z]*[a-z]$/) {
@@ -1747,8 +1761,32 @@ sub expand_range {
       next;
     }
 
-    # Do we have a count, a date or a message?
-    ($a1, $m1) = $self->_parse_archive_arg($i);
+    # Do we have an archive, a count, a date or a message?
+    if ($i =~ /-/ and exists $self->{'splits'}{$i}) {
+      @tmp = $self->get_all_data($i);
+      $i =~ s/-.*$//;
+
+      if (@args && $args[0] eq '-') {
+        if (scalar @tmp) {
+          ($a1, $m1) = $self->_parse_archive_arg("$i/$tmp[0]");
+        }
+        else {
+          $a1 = $m1 = '';
+          $m1 = '';
+        }
+      }
+      else {
+        while (($key, $data) = splice (@tmp, 0, 2)) {
+          push @out, ["$i/$key", $data];
+        }
+        next;
+      }
+    } 
+    else {
+      $i =~ s/(\d)-(\d)/$1$2/g;
+      ($a1, $m1) = $self->_parse_archive_arg($i);
+    }
+
     if (!$a1 && !$m1) {
       # Invalid value; discard other range argument if present.
       if (@args && $args[0] eq '-') {
@@ -1759,19 +1797,34 @@ sub expand_range {
     # Get right hand side of range if present.
     if (@args && $args[0] eq '-') {
       shift @args; $j = shift @args;
-      ($a2, $m2) = $self->_parse_archive_arg($j);
+
+      if ($j =~ /-/ and exists $self->{'splits'}{$j}) {
+        @tmp = $self->get_all_data($j);
+        $j =~ s/-.*$//;
+
+        if (scalar @tmp) {
+          ($a2, $m2) = $self->_parse_archive_arg("$j/$tmp[-2]");
+        }
+        else {
+          $a2 = $m2 = '';
+        }
+      }
+      else {  
+        $j =~ s/(\d)-(\d)/$1$2/g;
+        ($a2, $m2) = $self->_parse_archive_arg($j);
+      }
       next if (!$a2 && !$m2);
     }
     else {
       #  Deal with single values
       if (!$m1) {
-	    # Expand date to all messages on that date; push into @out
+        # Expand date to all messages on that date; push into @out
         $j = _secs_end($i, 1);
         $i = _secs_start($i, 1);
         push @out, $self->expand_date($i, $j);
       }
       elsif (!$a1) {
-        # ordinary number
+        # Ordinary number
         push @out, $self->last_n($m1);
       }
       else {
@@ -1797,7 +1850,7 @@ sub expand_range {
       push @out, $self->_parse_message_range($a1, $m1, $a2, $m2);
     }  
     else {
-	  # Date range
+      # Date range
       if (!$a1) {
         # number - date
         $i = 0;
