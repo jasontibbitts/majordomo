@@ -321,7 +321,8 @@ if ($passw and ($st eq 'checked' or $func eq 'showtokens') and @lists) {
   # The password may have been omitted earlier.
   $request->{'password'} = $passw;
   $request->{'command'} = 'showtokens';
-  Mj::Parser::parse_args($request, $extra[0]);
+  Mj::Parser::parse_args($request, $extra[0])
+    if ($func eq 'showtokens');
 
   print $fh <<EOM;
 <form method=POST action=$cgiurl>
