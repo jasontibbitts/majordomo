@@ -30,7 +30,7 @@ close SITE;
 
 # Set a password
 $e = qq!\Qmaster_password set to "gonzo".\n!;
-$r = run('-p GLOBAL.pass configset GLOBAL master_password = gonzo');
+$r = run('-p hurl configset GLOBAL master_password = gonzo');
 ok($e, $r);
 
 # Set the whereami variable; we have to have this or else some things warn
