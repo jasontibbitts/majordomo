@@ -1,3 +1,48 @@
+2002-02-05  Michael Yount <csf@moscow.com>
+
+	* bin/mj_shell:  Add editor support for the archive-part-edit
+	command.
+
+	* bin/mj_wwwadm, mj_wwwusr:  Add "raw" message part support
+	for the archive-part-* commands.
+
+	* lib/Majordomo.pm:  Version number is now 0.1200202050.
+	(archive_start)  Add support for the archive-part-*
+	commands, which allow individual message parts to be
+	viewed, changed, or deleted.
+
+	* lib/Mj/Access.pm:  (list_access_check)  Quell delay warning.
+	Thanks to Brock Rozen.
+
+	* lib/Mj/Archive.pm:  (remove)  Give two return values,
+	the status and the data or error message.
+	(replace)  New routine.  Replace a particular message
+	with the contents of a file.
+
+	* lib/Mj/CommandProps.pm:  Add support for the archive-part-*
+	commands.
+
+	* lib/Mj/Format.pm:  (_archive_part)  New routine.  Add support
+	for the archive-part-* commands.
+	(tokeninfo)  Bugfix:  Perform substitutions after retrieving
+	the headers.
+	(g_get)  Bugfix:  Use a value of 1000 if no chunksize is given.
+
+	* lib/Mj/List.pm:  (archive_get_data)  Wrapper for
+	Mj::Archive::get_data().
+	(archive_replace_msg)  Wrapper for Mj::Archive::replace().
+	(archive_delete_msg)  Adjust for new return values.
+	(digest_sync)  Resynchronize more judiciously.
+
+	* lib/Mj/MIMEParser.pm:  (collect_data)  Quell warning.
+	Thanks to Brock Rozen.
+
+	* lib/Mj/Resend.pm:  (_post)  Change the ARCNO substitution
+	to MSGNO.
+
+	* lib/Mj/Util.pm:  (sort_msgs)  Sort by author and subject
+	more quickly.  Thanks to Roger Klorese.
+
 2002-02-04  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Majordomo.pm (substitute_vars): Tolerate trailing spaces in
@@ -8,6 +53,23 @@
 	* lib/Mj/Config.pm (parse_taboo_body, parse_taboo_headers): Escape
 	backslashes and	single quotes present in the "just for display"
 	pattern in order to prevent lots of warnings.
+
+2002-01-30  Todd Miller <Todd.Miller@courtesan.com>
+ 
+	* bin/mj_queuerun: Unbuffer standard output.
+
+	* bin/mj_queuerun: Add a select() to out() to timeout
+	attempted writes at .25 seconds.
+ 
+	* bin/mj_queueserv: Use waitpid() as CHLD signal handler so
+	we can catch multiple children and are guaranteed not to hang.
+ 
+	* bin/mj_queueserv: Add a select() to out() to timeout
+	attempted writes at .25 seconds.
+ 
+	* bin/mj_shutdown: Use syswrite, not print when writing to
+	the queue server socket to guarantee that the string is sent
+	in a single system call.
 
 2002-01-25  Michael Yount <csf@moscow.com>
 

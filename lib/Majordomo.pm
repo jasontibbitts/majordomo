@@ -18,8 +18,20 @@ calls to the appropriate module, so maintenance issues are reduced.
  use Majordomo;
  $mj = new Majordomo $listdir;
 
- # Grab lists visible to us, their description and their flags
- @lists = $mj->lists($user, $passwd, "lists".$mode?"=mode":"", $mode);
+ ($id, $mess) = $mj->connect($interface, $sessiondata, $user);
+
+ die "$mess" unless ($id);
+
+ # Grab lists visible to us, their descriptions and other info
+ $request = {
+             'command'  => 'lists',
+             'mode'     => 'full',
+             'password' => $passwd,
+             'user'     => $user,
+             'victim'   => $user,
+            };
+             
+ $result = $mj->dispatch($request);
 
 =head2 A note about the division of labor between core and interface:
 
@@ -76,7 +88,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200111130";
+$VERSION = "0.1200202050";
 $unique = 'AAA';
 
 use strict;
@@ -3854,29 +3866,37 @@ sub archive_start {
   return (0, "No dates or message numbers were supplied.\n")
     unless ($request->{'mode'} =~ /summary/ or $request->{'args'});
 
+  $request->{'part'} ||= 0;
+
   # Verify any patterns that were supplied, and pack them.
-  if (exists $request->{'patterns'} and 
-      ref ($request->{'patterns'}) eq 'ARRAY') {
-    for $i (@{$request->{'patterns'}}) {
-      if ($i =~ /~([as])(.+)/) {
-        $type = ($1 eq 'a') ? 'author' : 'subject';
-        $pattern = $2;
-      }
-      else {
-        $type = 'subject';
-        $pattern = $i;
-      }
+  if (exists $request->{'contents'} and 
+      ref ($request->{'contents'}) eq 'ARRAY') {
 
-      ($ok, $mess, $pattern) = 
-        Mj::Config::compile_pattern($pattern, 0, 'isubstring');
-
-      unless ($ok) {
-        return (0, qw(The pattern "$i" is invalid.\n));
-      }
-      $pattern =~ s/\002//g;
-      push @tmp, $type, $pattern;
+    if ($request->{'mode'} =~ /replace/) {
+      $request->{'contents'} = join "\002", @{$request->{'contents'}};
     }
-    $request->{'patterns'} = join "\002", @tmp;
+    else {  
+      for $i (@{$request->{'contents'}}) {
+        if ($i =~ /~([as])(.+)/) {
+          $type = ($1 eq 'a') ? 'author' : 'subject';
+          $pattern = $2;
+        }
+        else {
+          $type = 'subject';
+          $pattern = $i;
+        }
+
+        ($ok, $mess, $pattern) = 
+          Mj::Config::compile_pattern($pattern, 0, 'isubstring');
+
+        unless ($ok) {
+          return (0, qw(The pattern "$i" is invalid.\n));
+        }
+        $pattern =~ s/\002//g;
+        push @tmp, $type, $pattern;
+      }
+      $request->{'contents'} = join "\002", @tmp;
+    }
   }
 
   ($ok, $out) =
@@ -3886,8 +3906,8 @@ sub archive_start {
     return ($ok, $out);
   }
 
-  if ($request->{'mode'} =~ /delete|sync|hidden/) {
-    return (0, "An admin password is needed to alter the archive or view
+  if ($request->{'mode'} =~ /delete|edit|replace|sync|hidden/) {
+    return (0, "An administrative password is needed to alter the archive or view
 hidden messages.\n")
       unless ($ok > 1);
   }
@@ -3895,13 +3915,15 @@ hidden messages.\n")
 
   $self->_archive($request->{'list'}, $request->{'user'}, $request->{'user'}, 
                   $request->{'mode'}, $request->{'cmdline'},
-                  $request->{'args'}, $request->{'patterns'});
+                  $request->{'args'}, $request->{'part'},
+                  $request->{'contents'});
 }
 
 # Returns data for all messages matching the arguments.
 use Mj::Util qw(re_match);
 sub _archive {
-  my ($self, $list, $user, $vict, $mode, $cmdline, $args, $patterns) = @_;
+  my ($self, $list, $user, $vict, $mode, $cmdline, $args, 
+      $part, $contents) = @_;
   my $log = new Log::In 30, "$list, $args";
   my (@msgs, @patterns, @tmp, $arc, $data, $i, $j, $mess, $msg, $ok, 
       $private, $re_pattern, $regex, $type);
@@ -3944,21 +3966,23 @@ sub _archive {
       @msgs = @tmp;
     }
 
-    # If any patterns were supplied, remove messages that do not match.
-    if (length $patterns) {
-      @patterns = split "\002", $patterns;
-      while (($type, $regex) = splice @patterns, 0, 2) {
-        @tmp = ();
-        for $j (@msgs) {
-          ($i, $data) = @$j;
-          if ($type eq 'author') {
-            push (@tmp, $j) if (re_match($regex, $data->{'from'}));
+    # If any patterns were supplied, omit messages that do not match.
+    if (length $contents) {
+      @patterns = split "\002", $contents;
+      if ($mode !~ /part|replace/) {
+        while (($type, $regex) = splice @patterns, 0, 2) {
+          @tmp = ();
+          for $j (@msgs) {
+            ($i, $data) = @$j;
+            if ($type eq 'author') {
+              push (@tmp, $j) if (re_match($regex, $data->{'from'}));
+            }
+            else {
+              push (@tmp, $j) if (re_match($regex, $data->{'subject'}));
+            }
           }
-          else {
-            push (@tmp, $j) if (re_match($regex, $data->{'subject'}));
-          }
+          @msgs = @tmp;
         }
-        @msgs = @tmp;
       }
     }
   }
@@ -3971,7 +3995,7 @@ sub _archive {
     @msgs = sort_msgs(\@msgs, $mode, $re_pattern);
   }
 
-  if ($mode =~ /immediate/) {
+  if ($mode =~ /get/ and $mode =~ /immediate|part/ and ! $part) {
     # collect data about each message
 
     for ($i = 0; $i <= $#msgs; $i++) {
@@ -3983,6 +4007,30 @@ sub _archive {
     }
   }
 
+  if (scalar @msgs and $mode =~ /part|edit|replace/) {
+    # The edit, replace, and part modes imply that only
+    # one message is being altered.  Return an error
+    # if more than one matching message was found.
+    return (0, $self->format_error('message_number', $list,
+                                   'MSGNO' => $args))
+      if ($#msgs > 0);
+
+    ($msg, $data) = @{$msgs[0]};
+    # In part mode, save the message to a temporary file and
+    # obtain information about its structure.  Return the 
+    # resulting data.
+    ($ok, $mess) = $self->{'lists'}{$list}->archive_get_to_file(
+       $msg, '', $data, 1);
+    return ($ok, $mess) unless ($ok);
+    $self->{'spoolfile'} = $mess;
+
+    ($ok, $mess) = $self->_get_msg_data($data, $part, $mode, [ @patterns ]);
+    return ($ok, $mess) unless ($ok);
+
+    $self->{'msg_data'} = $mess;
+    $msgs[0]->[2] = $mess;
+  }
+
   return (1, @msgs);
 }
 
@@ -3990,7 +4038,7 @@ sub archive_chunk {
   my ($self, $request, $result) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
   my (%pending, @msgs, @out, $buf, $data, $dig, $ent, $fh, $file, $i,
-      $j, $k, $list, $out, $owner);
+      $j, $k, $line, $list, $ok, $out, $owner, $part);
 
   return (0, "The archive was not initialized.\n")
     unless (exists $self->{'archct'});
@@ -4050,13 +4098,27 @@ sub archive_chunk {
                   $request->{'list'}, 'MSGNO' => $i->[0]);
         next;
       }
-       
-      $out = $list->archive_delete_msg(@$i);
-      if ($out) {
-        $buf .= "Message $i->[0] was deleted.\n"; # XLANG
+      
+      if ($request->{'mode'} =~ /part/) {
+        ($j, $k) = @$i;
+        ($ok, $out) = 
+          $list->archive_replace_msg($j, $self->{'spoolfile'}, $tmpdir);
+
+        if ($ok) {
+          $buf .= "Part $request->{'part'} of message $j was deleted.\n"; # XLANG
+        }
+        else {
+          return (0, "Part $request->{'part'} of message $j was not deleted.\n$out\n");
+        }
       }
       else {
-        $buf .= "Message $i->[0] was not deleted.\n"; # XLANG
+        ($ok, $out) = $list->archive_delete_msg(@$i);
+        if ($ok) {
+          $buf .= "Message $i->[0] was deleted.\n"; # XLANG
+        }
+        else {
+          $buf .= "Message $i->[0] was not deleted.\n$out\n"; # XLANG
+        }
       }
     }
     return (1, $buf);
@@ -4085,6 +4147,44 @@ Contents:
     return (1, "A digest containing ".scalar(@$result).
                " messages has been mailed.\n"); # XLANG
   }
+  elsif ($request->{'mode'} =~ /replace/) {
+    ($j, $k) = @{$result->[0]};
+    ($ok, $out) = $list->archive_replace_msg($j, $self->{'spoolfile'}, $tmpdir);
+    if ($ok) {
+      return (1, "Message $j has been replaced.\n");
+    }
+    else {
+      return (0, "Part $request->{'part'} of message $j has not been replaced.\n$out\n");
+    }
+  }
+  elsif ($request->{'mode'} =~ /part/) {
+    return (0, undef) unless (exists $self->{'msg_data'});
+
+    return (0, undef) 
+      unless (defined $request->{'part'} and 
+              exists $self->{'msg_data'}->{$request->{'part'}});
+
+    $part = $self->{'msg_data'}->{$request->{'part'}};
+    unless (exists $part->{'fh'}) {
+      if ($request->{'part'} eq '0') {
+        $i = gensym();
+        open ($i, "< $part->{'file'}");
+        $part->{'fh'} = $i;
+      }
+      else {
+        $part->{'fh'} = $part->{'entity'}->open("r");
+      }
+      return (0, undef) unless ($part->{'fh'});
+    }
+
+    while ($line = $part->{'fh'}->getline) {
+      $out = '' unless $out;
+      $out .= $line;
+    } 
+
+    delete ($part->{'fh'});
+    return (1, $out);
+  }
   # Mail each message separately.
   else {
     @msgs = @$result;
@@ -4103,8 +4203,20 @@ Contents:
 
 sub archive_done {
   my ($self, $request, $result) = @_;
+
   delete $self->{'archct'};
   delete $self->{'arcadmin'};
+
+  if (exists $self->{'msg_parser'}) {
+    $self->{'msg_parser'}->filer->purge;
+    delete $self->{'msg_parser'};
+    delete $self->{'msg_data'};
+  }
+  if (exists $self->{'spoolfile'}) {
+    unlink $self->{'spoolfile'};
+    delete $self->{'spoolfile'};
+  }
+
   1;
 }
 
@@ -6528,7 +6640,14 @@ sub tokeninfo_start {
   $spool = $sess = '';
   if ($data->{'command'} eq 'post') {
 
-    ($ok, $sess) = $self->_get_msg_data($request, $data);
+    # spool file; use basename
+    $spool = $data->{'arg1'};
+    $spool =~ s#.+/([^/]+)$#$1#;
+    $self->{'spoolfile'} = "$self->{'ldir'}/GLOBAL/spool/$spool";
+
+    ($ok, $sess) = 
+      $self->_get_msg_data($data, $request->{'part'}, 
+                           $request->{'mode'}, $request->{'contents'});
     return ($ok, $sess) unless ($ok);
 
     $self->{'msg_data'} = $sess;
@@ -6545,13 +6664,12 @@ sub tokeninfo_start {
     $mj_owner = $self->_global_config_get('sender');
 
     $ent = $self->r_gen($token, $data, $gurl, $sender);
-    if ($ent and exists $data->{'spoolfile'}) {
-      $origmsg = "$self->{ldir}/GLOBAL/spool/$data->{'spoolfile'}";
+    if ($ent and exists $self->{'spoolfile'}) {
       $ent->make_multipart;
       $ent->attach(Type        => 'message/rfc822',
                    Encoding    => '8bit',
                    Description => 'Original message',
-                   Path        => $origmsg,
+                   Path        => $self->{'spoolfile'},
                    Filename    => undef,
                   );
     }
@@ -6575,19 +6693,15 @@ sub tokeninfo_start {
 
 use Mj::MIMEParser;
 sub _get_msg_data {
-  my ($self, $request, $data) = @_;
+  my ($self, $data, $part, $mode, $contents) = @_;
   my $log = new Log::In 30;
-  my ($ent, $ok, $parser, $part, $spool, $table);
+  my ($ent, $ok, $parser, $spool, $table);
 
-  # spool file; use basename
-  $spool = $data->{'arg1'};
-  $spool =~ s#.+/([^/]+)$#$1#;
-  $data->{'spoolfile'} = $spool;
-
-  $spool = "$self->{'ldir'}/GLOBAL/spool/$spool";
   return (0, "The message spool file is unavailable.\n")
-    unless (-f $spool);
-  $request->{'part'} ||= '0';
+    unless (exists $self->{'spoolfile'} and -f $self->{'spoolfile'});
+
+  $spool = $self->{'spoolfile'};
+  $part ||= '0';
 
   $parser = new Mj::MIMEParser;
   return (0, "Unable to initialize message parser.\n")
@@ -6597,13 +6711,11 @@ sub _get_msg_data {
   $parser->output_dir($tmpdir);
   $parser->output_prefix("mjt");
 
-  if ($request->{'mode'} =~ /delete/) {
-    ($ok, $table) = $parser->remove_part($spool, $request->{'part'});
+  if ($mode =~ /delete/) {
+    ($ok, $table) = $parser->remove_part($spool, $part);
   }
-  elsif ($request->{'mode'} =~ /replace/) {
-    ($ok, $table) = 
-      $parser->replace_part($spool, $request->{'part'},
-                            $request->{'contents'});
+  elsif ($mode =~ /replace/) {
+    ($ok, $table) = $parser->replace_part($spool, $part, $contents);
   }
   else {
     # no mode, "part" mode, or "part-edit" mode
@@ -6618,10 +6730,9 @@ sub _get_msg_data {
                         };
     }
 
-    $part = $request->{'part'};
     $part =~ s/[hH]$//;
-    return (0, "The message has no part numbered $request->{'part'}.\n")
-      if ($request->{'mode'} =~ /part/ and ! exists $table->{$part});
+    return (0, "The message has no part numbered $part.\n")
+      if ($mode =~ /part/ and ! exists $table->{$part});
   }
 
   if ($ok) {
@@ -6640,6 +6751,8 @@ sub tokeninfo_chunk {
   return (0, undef) 
     unless (defined $request->{'part'} and 
             exists $self->{'msg_data'}->{$request->{'part'}});
+
+  $request->{'part'} ||= 0;
 
   $part = $self->{'msg_data'}->{$request->{'part'}};
   unless (exists $part->{'fh'}) {
@@ -6672,8 +6785,11 @@ sub tokeninfo_done {
 
   if (exists $self->{'msg_parser'}) {
     $self->{'msg_parser'}->filer->purge;
-    delete ($self->{'msg_parser'});
-    delete ($self->{'msg_data'});
+    delete $self->{'msg_parser'};
+    delete $self->{'msg_data'};
+  }
+  if (exists $self->{'spoolfile'}) {
+    delete $self->{'spoolfile'};
   }
 
   1;
