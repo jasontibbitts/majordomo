@@ -128,7 +128,8 @@ sub announce {
 sub archive {
   my ($mj, $out, $err, $type, $request, $result) = @_;
  
-  my ($chunksize, $data, $i, $line, $lines, $mess, @tmp);
+  my ($first, $chunksize, $data, $last, $i, $line, $lines, 
+      $mess, %stats, @tmp);
   my ($ok, @msgs) = @$result;
 
   if ($ok <= 0) { 
@@ -162,6 +163,30 @@ sub archive {
         $lines = 0; @tmp = ();
         eprint($out, $type, indicate($mess, $ok));
       }
+    }
+  }
+  elsif ($request->{'mode'} =~ /stats/) {
+    $first = time;
+    $last = 0;
+    $chunksize = scalar @msgs;
+    for $i (@msgs) {
+      $data = $i->[1];
+      $first = $data->{'date'} if ($data->{'date'} < $first);
+      $last = $data->{'date'} if ($data->{'date'} > $last);
+      $stats{$data->{'from'}} = 0 
+        unless (exists $stats{$data->{'from'}});
+      $stats{$data->{'from'}}++;
+    }
+    $line = sprintf "Activity for %s from %s to %s\n\n", 
+                    $request->{'list'}, 
+                    scalar localtime $first, 
+                    scalar localtime $last;
+    eprint($out, $type, $line) if $line;
+    $line = sprintf "%5d Total messages\n", $chunksize;
+    eprint($out, $type, $line) if $line;
+    for $i (sort { $stats{$b} <=> $stats{$a} } keys %stats) {
+      $line = sprintf "%5d %s\n", $stats{$i}, $i;
+      eprint($out, $type, $line) if $line;
     }
   }
   else {
@@ -717,7 +742,7 @@ sub report {
 
   $mess = sprintf "Activity for %s from %s to %s\n\n", 
                   $request->{'list'}, $begin, $end;
-  eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+  eprint($out, $type, $mess) if $mess;
 
   $request->{'chunksize'} = 
     $mj->global_config_get($request->{'user'}, $request->{'password'},
