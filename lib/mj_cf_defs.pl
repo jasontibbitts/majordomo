@@ -156,6 +156,7 @@ $Mj::Config::default_string = q(
                            [
                             'Reply-To: $MJ',
                             'X-Loop: majordomo',
+                            'Precedence: bulk',
                            ] : [],
  'moderate'             => 0,
  'moderator'            => '',
