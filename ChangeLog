@@ -1,3 +1,15 @@
+2001-02-25  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/Resend.pm (_munge_subject): Make use of
+        subject_re_pattern and subject_re_strip settings.  Put the prefix
+        after any existing Re: part.
+
+	* lib/Mj/Util.pm (re_match): Accept a third argument and return
+        the match array if present.
+
+	* lib/mj_cf_data.pl: Add subject_re_pattern and subject_re_strip
+        variables.
+
 2001-02-24  Michael Yount <csf@moscow.com>
 
 	* Makefile.PL:  Depend upon Socket instead of IO::Socket.

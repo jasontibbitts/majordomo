@@ -74,7 +74,7 @@ sub _make_db {
   # because we're going to save the speed hit and use the API directly.
   $db = tie %db, 'DB_File', $self->{filename},
                          O_RDWR|O_CREAT, 0666, $self->{dbtype};
-  warn "Problem allocating database" unless $db;
+  warn "Problem allocating database: $self->{filename} - $!" unless $db;
   $db;
 }
 

@@ -1836,10 +1836,10 @@ sub _munge_from {
 
 =head2 _munge_subject(ent, sequence_number)
 
-Prepend the subject prefix.  $SENDER is is expanded under 1.94 but it is
-done is such a broken manner that nobody would ever use it.  We disable it;
-if someone needs it we can probably find a way to make it work at the
-expense of some accuracy in prefix removal.
+Prepend the subject prefix and strip extra Re:-like components.  $SENDER is
+is expanded under 1.94 but it is done is such a broken manner that nobody
+would ever use it.  We disable it; if someone needs it we can probably find
+a way to make it work at the expense of some accuracy in prefix removal.
 
 Returns two entities: one with the prefix, one with any existing prefix
 removed.
@@ -1847,18 +1847,34 @@ removed.
 =cut
 sub _munge_subject {
   my ($self, $ent1, $list, $seqno) = @_;
-  my ($ent2, $gprefix, $head1, $head2, $prefix, $subject, $subject2, $subs);
+  my ($ent2, $gprefix, $head1, $head2, $prefix, $re_regexp, $re_strip,
+      $rest, $subject1, $subject2, $subs);
 
   $ent2  = $ent1->dup;
   $head1 = $ent1->head;
   $head2 = $ent2->head;
+  $subject1 = $head1->get('Subject');
 
-  $prefix = $self->_list_config_get($list, 'subject_prefix');
+  $prefix   = $self->_list_config_get($list, 'subject_prefix');
+  $re_regexp= $self->_list_config_get($list, 'subject_re_pattern');
+  $re_strip = $self->_list_config_get($list, 'subject_re_strip');
+
+  # re_regexp will have delimiters, but we don't want them
+  $re_regexp =~ s!^/(.*)/i?$!$1!;
 
   $subs = {
 	   $self->standard_subs($list),
 	   'SEQNO'   => $seqno,
 	  };
+
+  # Strip any existing Re:-like stuff and replace with a single "Re: "
+  if ($re_strip && $subject1) {
+    ($re_part, $rest) = re_match("/^($re_regexp)\\s*(.*)\$/i", $subject1, 1);
+    $subject1 = "Re: $rest" if $re_part;
+    $re_regexp = 'Re: ';
+  }
+
+  $subject2 = $subject1;
 
   if ($prefix) {
     # Substitute constant values into the prefix and turn it into a regexp
@@ -1871,34 +1887,35 @@ sub _munge_subject {
     # Generate the prefix to be prepended
     $prefix = $self->substitute_vars_string($prefix, $subs);
 
-    $subject = $subject2 = $head1->get('Subject');
-
-    # Do we have a subject?
-    if (defined $subject) {
-      chomp $subject;
+    if (defined $subject1) {
+      chomp $subject1;
 
       # Does this subject have the prefix already on it?  If so, turn it
       # into the new prefix and (for the second copy) remove it and the
       # following space entirely.
-      if ($subject =~ /$gprefix/) {
-	$subject  =~ s/$gprefix/$prefix/;
+      if ($subject1 =~ /$gprefix/) {
+	$subject1 =~ s/$gprefix/$prefix/;
 	$subject2 =~ s/$gprefix ?//;
-
-	$head1->replace('Subject', "$subject");
-	$head2->replace('Subject', "$subject2");
       }
 
       # otherswise tack it onto one copy and leave the other alone
       else {
-	$head1->replace('Subject', "$prefix $subject");
+	($re_part, $rest) = re_match("/^($re_regexp)\\s*(.*)\$/i", $subject1, 1);
+	$re_part ||='';
+	$re_part =~ s/\s*$//;
+	$subject1 = "$re_part $prefix $rest";
       }
     }
 
     # Turn an empty subject into just the prefix, leave the second copy empty.
     else {
-      $head1->replace('Subject', "$prefix");
+      $subject1 = "$prefix";
     }
   }
+
+  $head1->replace('Subject', "$subject1") if defined($subject1);
+  $head2->replace('Subject', "$subject2") if defined($subject2);
+
   ($ent1, $ent2);
 }
 

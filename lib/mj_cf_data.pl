@@ -646,6 +646,24 @@ package Mj::Config;
     'visible'=> 1,
     'mutable'=> 1,
    },
+   'subject_re_pattern' =>
+   {
+    'type'   => 'regexp',
+    'groups' => [qw(deliver)],
+    'local'  => 1,
+    'visible'=> 0,
+    'mutable'=> 1,
+    'wizard' => 10,
+   },
+   'subject_re_strip' =>
+   {
+    'type'   => 'bool',
+    'groups' => [qw(deliver)],
+    'local'  => 1,
+    'visible'=> 0,
+    'mutable'=> 1,
+    'wizard' => 2,
+   },
    'subject_prefix' =>
    {
     'type'   => 'string',
@@ -653,6 +671,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'admin_headers' =>
    {

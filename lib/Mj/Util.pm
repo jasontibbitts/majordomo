@@ -251,7 +251,7 @@ sub in_clock {
   0;
 }
 
-=head2 re_match (pattern, string)
+=head2 re_match (pattern, string, arr)
 
 This expects a safe compartment to already be set up, and matches a
 string against a regular expression within that safe compartment.  The
@@ -261,12 +261,16 @@ If called in an array context, also returns any errors encountered
 while compiling the match code, so that this can be used as a general
 regexp syntax checker.
 
+If the optional third argument arr is true, the match is done in an array
+context and the match array is returned.
+
 =cut
 sub re_match {
   my    $re = shift;
   local $_  = shift;
+  my    $arr= shift;
 #  my $log  = new Log::In 200, "$re, $_";
-  my ($match, $warn);
+  my (@match, $match, $warn);
   return 1 if $re eq 'ALL';
 
   unless (ref $safe eq 'Safe') {
@@ -282,6 +286,13 @@ sub re_match {
   $_ = $1;
   $re =~ /(.*)/;
   $re = $1;
+
+  if ($arr) {
+    # Return the match array
+    local($^W) = 0;
+    @match = $safe->reval($re);
+    return @match;
+  }
 
   local($^W) = 0;
   $match = $safe->reval("$re");
