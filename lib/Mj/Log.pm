@@ -63,7 +63,7 @@ use strict;
 use vars qw($VERSION $log_entries $log_level);
 
 # Modules
-use Sys::Syslog qw(:DEFAULT setlogsock);
+use Sys::Syslog;
 use IO::File;
 use Carp;
 
@@ -144,7 +144,9 @@ sub add {
     # Nothing to do.
   }
   elsif ($dest{'method'} eq 'syslog') {
-    setlogsock('unix');
+    # In perl 5.004, the syslog module will not export setlogsock 
+    # if _PATH_LOG is not defined.
+    Sys::Syslog::setlogsock('unix');
     openlog($dest{id}, 'pid', $dest{subsystem});
   }
   else {
