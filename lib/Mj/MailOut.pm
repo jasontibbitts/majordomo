@@ -107,7 +107,7 @@ sub deliver {
   my(%args, $bucket, $buckets, $mta);
 
   # Figure out some data related to bounce probing
-  $mta     = $self->_global_config_get('mta');
+  $mta     = $self->_site_config_get('mta');
   $buckets = $self->_list_config_get($list, 'bounce_probe_frequency');
   $bucket  = $seqno % $buckets if $buckets;
 

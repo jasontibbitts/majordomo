@@ -3701,12 +3701,19 @@ XXX Require that for any match to succeed, the match must match a small
     match limit can prevent this.)
 
 =cut
+use Mj::Config;
 sub which {
   my ($self, $user, $pass, $auth, $int, $cmd, $mode,
       $list, $vict, $string) = @_;
   my $log = new Log::In 30, "$string";
   my (@matches, $data, $err, $hits, $match, $max_hits, $max_list_hits,
-      $mess, $total_hits);
+      $mess, $ok, $total_hits);
+
+  # compile the pattern
+  if ($mode =~ /regex/) {
+    ($ok, $err, $string) = Mj::Config::compile_pattern($string, 0);
+    return (0, $err) unless $ok;
+  }
 
   # Check search string length; make sure we're not being trolled
   return (0, "Search string too short.\n")

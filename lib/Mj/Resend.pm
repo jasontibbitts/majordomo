@@ -326,7 +326,7 @@ sub _post {
   # Make duplicate archive/digest entity
   $arcent = $ent->dup;
   $archead = $arcent->head;
-  $archead->unfold;
+  $archead->modify(0);
 
   # Convert/drop MIME parts.  Bill?
   
@@ -370,37 +370,8 @@ sub _post {
      },
     );
 
-  # Munge Subject:.  Is anyone daft enough to use SENDER?  It breaks pretty
-  # badly if you do...  Much of this pain is brought to you by people who
-  # simply must have sequence numbers in the subject.
-  $prefix = $self->_list_config_get($list, 'subject_prefix');
-  if ($prefix) {
-    $tprefix = "\Q$prefix";
-    $tprefix =~ s/\\\$SEQNO/\\d+/;
-    $prefix =
-      $self->substitute_vars_string($prefix,
-				    'LIST'    => $list,
-				    'VERSION' => $Majordomo::VERSION,
-				    #'SENDER'  => $user,
-				    'SEQNO'   => $seqno,
-				   );
-    ($subject) = $head->get('Subject');
-    if (defined $subject) {
-      chomp $subject;
-      if ($subject =~ /$tprefix/) {
-	$subject =~ s/$tprefix/$prefix/;
-	$head->replace('Subject', "$subject")
-      }
-      else {
-	$head->replace('Subject', "$prefix $subject")
-      }
-    }
-    else {
-      # XXX Should we just leave off the subject if one wasn't
-      # provided?
-      $head->replace('Subject', "$prefix");
-    }
-  }
+  # Add in subject prefix
+  ($ent, undef) = $self->_subject_prefix($ent, $list, $seqno);
 
   # Add Reply-To: header.
   $replyto = $self->_list_config_get($list, 'reply_to');
@@ -1231,6 +1202,75 @@ sub _add_fters {
   # the archive copy still references the backing file.
   $ent->bodyhandle($nbody);
   return 1;
+}
+
+=head2 _subject_prefix(ent, sequence_number)
+
+Prepend the subject prefix.  $SENDER is is expanded under 1.94 but it is
+done is such a broken manner that nobody would ever use it.  We disable it;
+if someone needs it we can probably find a way to make it work at the
+expense of some accuracy in prefix removal.
+
+Returns two entities: one with the prefix, one with any existing prefix
+removed.  This allows for a future setup to give users the choice of
+receiving a prefix or not.
+
+=cut
+sub _subject_prefix {
+  my ($self, $ent1, $list, $seqno) = @_;
+  my (%subs, $gprefix, $prefix, $subject2);
+
+  $ent2  = $ent1->dup;
+  $head1 = $ent1->head;
+  $head2 = $ent2->head;
+
+  $prefix = $self->_list_config_get($list, 'subject_prefix');
+
+  %subs = ('LIST'    => $list,
+	   'VERSION' => $Majordomo::VERSION,
+	   'SEQNO'   => $seqno,
+	  );
+
+  if ($prefix) {
+    # Substitute constant values into the prefix and turn it into a regexp
+    # matching a 'general prefix'.  We have to do this because the sequence
+    # number changes.
+    $gprefix = quotemeta($prefix);
+    $gprefix =~ s/\\\$LIST/$list/;
+    $gprefix =~ s/\\\$SEQNO/\\d+/;
+
+    # Generate the prefix to be prepended
+    $prefix = $self->substitute_vars_string($prefix, %subs);
+
+    $subject = $subject2 = $head1->get('Subject');
+
+    # Do we have a subject?
+    if (defined $subject) {
+      chomp $subject;
+
+      # Does this subject have the prefix already on it?  If so, turn it
+      # into the new prefix and (for the second copy) remove it and the
+      # following space entirely.
+      if ($subject =~ /$gprefix/) {
+	$subject  =~ s/$gprefix/$prefix/;
+	$subject2 =~ s/$gprefix //;
+
+	$head1->replace('Subject', "$subject");
+	$head2->replace('Subject', "$subject2");
+      }
+
+      # otherswise tack it onto one copy and leave the other alone
+      else {
+	$head1->replace('Subject', "$prefix $subject");
+      }
+    }
+
+    # Turn an empty subject into just the prefix, leave the second copy empty.
+    else {
+      $head1->replace('Subject', "$prefix");
+    }
+  }
+  ($ent1, $ent2);
 }
 
 =head1 COPYRIGHT

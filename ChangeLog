@@ -1,4 +1,16 @@
+Tue Nov 17 00:06:34 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/MailOut.pm (deliver): MTA is now in the site config.
+
 Mon Nov 16 15:40:58 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_subject_prefix): New function; isolate
+ 	subject prefix manipulation.
+	(_post): Call it.
+
+	* lib/Mj/Format.pm (which): Clean up returned message.
+
+	* lib/Majordomo.pm (which): Now takes general pattern.
 
 	* lib/Mj/Config.pm (parse_taboo_body): Call compile_pattern to get
  	generic pattern support and error checking.  Make sure uncompiled

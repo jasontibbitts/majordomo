@@ -685,7 +685,12 @@ sub which {
     $total_count, ($total_count == 1 ? "" : "es"));
   }
   else {
-    eprint($out, $type, "The string '$arg1' appears in no lists\n");
+    if ($mode =~ /regexp/) {
+      eprint($out, $type, "The expression '$arg1' appears in no lists\n");
+    }
+    else {
+      eprint($out, $type, "The string '$arg1' appears in no lists\n");
+    }
     eprint($out, $type, "served by $whoami.\n");
   }
   $ok;
