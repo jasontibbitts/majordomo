@@ -11,8 +11,8 @@ $STRIPADDR
 at $SITE.
 To change settings, press the checkbox next to the name of each 
 list you wish to change, choose the settings you want, then press 
-the $HELP:SET button.  The settings are described at the bottom 
-of this page.
+the $HELP:SET button.  To see a detailed explanation of the 
+settings for a mailing list, click the name of the mailing list.
 </p>
 <p>
 To $HELP:UNSUBSCRIBE, press the checkbox next to the name of
