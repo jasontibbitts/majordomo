@@ -1,4 +1,21 @@
-Notes on upgrading from alpha1 or before:
+         Notes on upgrading from previous versions of Majordomo 2
+
+It is important to run the "make clean" shell command before reinstalling.
+If you do not, some of the programs in bin/ may not be upgraded.
+
+2000.01.25 (CVS):
+
+All of the mail delivered by Majordomo utilizes the delivery_rules
+configuration setting.  To configure delivery for server replies,
+use the GLOBAL delivery_rules setting.
+
+The installation default configuration settings are now stored
+in the GLOBAL:_install and DEFAULT:_install templates.  Use
+the command
+  configshow-nocomments DEFAULT:_install
+to see the settings.  Do not change these settings with the configset
+command:  the changes will be overwritten when the software is
+upgraded.  More details may be found in the admin_domain help page.
 
 2000.12.05 (CVS):
 
