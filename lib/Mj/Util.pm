@@ -163,8 +163,9 @@ sub process_rule {
      rv2av     rv2sv    seq    sne       stringify
     );
 
-  my (@final_actions, $actions, $arg, $cpt, $func, $i, $ok, $saw_terminal, $value);
-  local(%args, %memberof, $current, $skip);
+  my (@final_actions, @replies, $actions, $arg, $cpt, $func, $i, 
+      $ok, $saw_terminal, $value);
+  local (%args, %memberof, $current, $skip);
 
   # Initialize the safe compartment
   $cpt = new Safe;
@@ -176,11 +177,13 @@ sub process_rule {
   %args     = %{$params{args}};
   $current  = $params{current} || [];
   $skip     = 0;
+  $saw_terminal = 0;
 
   # Run the rule.  Loop until a terminal action is seen
  RULE:
   while (1) {
     $actions = $cpt->reval($params{code});
+    # XLANG
     warn "Error found when running $params{name} code:\n$@" if $@;
 
     # The first element of the action array is the ID of the matching
@@ -193,7 +196,6 @@ sub process_rule {
     # 'unset' here so that they'll take effect if we have to rerun the
     # rules.  Other actions are pushed into @final_actions.  If we hit a
     # terminal action we stop rerunning rules.
-  ACTION:
     for $i (@{$actions}) {
       ($func, $arg) = split(/[=-]/, $i, 2);
       # Remove enclosing parentheses
@@ -224,7 +226,6 @@ sub process_rule {
 	    $args{$arg} = !!$value;
 	  }
 	}
-	next ACTION;
       }
       elsif ($func eq 'unset') {
 	# Unset a variable.
@@ -236,22 +237,26 @@ sub process_rule {
             $args{$arg} = '';
           }
 	}
-	next ACTION;
       }
       elsif ($func eq 'notify') {
         push @{$args{'notify'}}, $arg;
-	next ACTION;
       }
       elsif ($func eq 'reason') {
 	if ($arg) {
 	  $arg =~ s/^\"(.*)\"$/$1/;
 	  $args{'reasons'} = "$arg\003" . $args{'reasons'};
 	}
-	next ACTION;
       }
-
-      # We'll process the function later.
-      push @final_actions, $i;
+      elsif ($func eq 'reply' or $func eq 'replyfile') {
+        # Replies should always be run last, to prevent
+        # being overridden by default files for terminal
+        # actions.
+        push @replies, $i;
+      }
+      else {
+        # We'll process the function later.
+        push @final_actions, $i;
+      }
 
       $saw_terminal ||= action_terminal($func);
     }
@@ -262,6 +267,13 @@ sub process_rule {
   }
   for $i (keys %args) {
     $params{'args'}->{$i} = $args{$i};
+  }
+  unless ($saw_terminal) { 
+    # Make certain that a terminal action is present.
+    unshift @final_actions, 'default';
+  }
+  if (scalar @replies) {
+    push @final_actions, @replies;
   }
   @final_actions;
 }
@@ -639,12 +651,11 @@ sub str_to_offset {
   my $as_string = shift || 0;
   my $basetime  = shift || time;
   my $log = new Log::In 150, $arg;
-  my (@days, @lt, $cal, $desc, $elapsed, $i, $leapyear, $time, $tmp);
+  my (@days, @desc, @lt, $cal, $elapsed, $i, $leapyear, $time, $tmp);
 
   return unless (defined($arg) and $arg =~ /\S/);
  
   @lt = localtime($basetime);
-  $desc = '';
 
   # Seconds that have elapsed so far today.
   $elapsed = $lt[0] + $lt[1] * 60 + $lt[2] * 3600;
@@ -667,37 +678,37 @@ sub str_to_offset {
   if ($arg =~ /(\d+)s(econds?)?/) {
     $time += $1;
     $tmp = ($1 > 1) ? "s" : "";
-    $desc = "$1 second$tmp $desc";
+    unshift @desc, "$1 second$tmp";
   }
   if ($arg =~ /(\d+)mi(nutes?)?/) {
     $time += 60 * $1;
     $tmp = ($1 > 1) ? "s" : "";
-    $desc = "$1 minute$tmp $desc";
+    unshift @desc, "$1 minute$tmp";
   }
   if ($arg =~ /(\d+)h(ours?)?/) {
     $time += (3600 * $1);
     $tmp = ($1 > 1) ? "s" : "";
-    $desc = "$1 hour$tmp $desc";
+    unshift @desc, "$1 hour$tmp";
   }
   if ($arg =~ /(\d+)d(ays?)?/) {
     $time += (86400 * $1);
     $tmp = ($1 > 1) ? "s" : "";
-    $desc = "$1 day$tmp $desc";
+    unshift @desc, "$1 day$tmp";
   }
   if ($arg =~ /(\d+)w(eeks?)?/) {
     $time += (86400 * 7 * $1);
     $tmp = ($1 > 1) ? "s" : "";
-    $desc = "$1 week$tmp $desc";
+    unshift @desc, "$1 week$tmp";
   }
   if ($arg =~ /(\d+)m(onths?)?([^i]|$)/) {
     $time += (86400 * 30 * $1);
     $tmp = ($1 > 1) ? "s" : "";
-    $desc = "$1 month$tmp $desc";
+    unshift @desc, "$1 month$tmp";
   }
   if ($arg =~ /(\d+)y(ears?)?/) {
     $time += (86400 * 365 * $1);
     $tmp = ($1 > 1) ? "s" : "";
-    $desc = "$1 year$tmp $desc";
+    unshift @desc, "$1 year$tmp";
   }
 
   $cal = 0;
@@ -714,7 +725,7 @@ sub str_to_offset {
     }
     $time += (86400 * $1);
     $tmp = ($1 > 1) ? "s" : "";
-    $desc = "$1 calendar day$tmp $desc";
+    unshift @desc, "$1 calendar day$tmp";
     $cal = 1;
   }
   if ($arg =~ /(\d+)c(alendar)?w(eeks?)?/) {
@@ -730,7 +741,7 @@ sub str_to_offset {
     }
     $time += (86400 * 7 * $1);
     $tmp = ($1 > 1) ? "s" : "";
-    $desc = "$1 calendar week$tmp $desc";
+    unshift @desc, "$1 calendar week$tmp";
     $cal = 1;
   }
   if ($arg =~ /(\d+)c(alendar)?m(onths?)?/) {
@@ -755,7 +766,7 @@ sub str_to_offset {
       $time += (86400 * $days[$tmp]);
     }
     $tmp = ($1 > 1) ? "s" : "";
-    $desc = "$1 calendar month$tmp $desc";
+    unshift @desc, "$1 calendar month$tmp";
     $cal = 1;
   }
   if ($arg =~ /(\d+)c(alendar)?y(ears?)?/) {
@@ -785,14 +796,14 @@ sub str_to_offset {
       }
     }
     $tmp = ($1 > 1) ? "s" : "";
-    $desc = "$1 calendar year$tmp $desc";
+    unshift @desc, "$1 calendar year$tmp";
     $cal = 1;
   }
 
   if ($arg =~ /(\d+)(am|pm)/i) {
     $tmp = $1;
     $i = $2;
-    $desc .= " at $1 $2";
+    push @desc, "at $1 $2";
     $tmp = 12 if ($tmp > 12);
     $tmp = 0 if ($tmp == 12);
     $tmp += 12 if ($i =~ /pm/i);
@@ -824,7 +835,7 @@ sub str_to_offset {
   }
 
   if ($as_string) {
-    $desc;
+    join(" ", @desc);
   }
   else {
     $time;
