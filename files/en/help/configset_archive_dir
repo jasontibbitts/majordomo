@@ -8,44 +8,66 @@ Password Notes: Visible only with password. Set with global password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname archive_dir = /archives/listname
+configset listname archive_dir = /usr/local/archives/listname
 
 
-The directory where the mailing list archive is kept.
+$INCLUDE-config/archive_dir
 
-If this is not set, Majordomo will look for a directory named "archive" in
-the public directory of the filespace.  If it exists, archives will be
-placed there.  If not, archives will not be generated and digests will not
-function.
+In the examples that follow, substitute the name of your mailing list
+wherever you see LISTNAME.
 
-There is normally NO NEED TO USE the archive_dir command!
+The "/public/archive" directory is normally created automatically when a
+mailing list is created with the createlist command.  To see if this
+directory exists, use the following command:
 
-WARNING: If you use "configset archive_dir" to change the default archive
-directory location, the directory created by "createlist" will NOT be
-renamed... you have to use "put-dir" to create your archive directory,
-or else the files will fall into the default directory and neither "get"
-nor "archive-get" will be able to find them.
+   index LISTNAME /public/archive
 
-Archives will start accumulating as soon as an "archive" directory appears
-in the public area of the list's filespace.  This can be done by the command
-   put-dir listname /public/archive List Archives
-(properly approved with the appropriate password, of course). Refer to
-"help put" for more details.
+If the "/public/archive" directory does not exist, it can be created
+with the following command:
 
-Archives will also start accumulating as soon as the archive_dir variable is
-set and the directory exists with the right protections, but using "put-dir"
-to create the directory in the default location is easier.
+   put-dir LISTNAME /public/archive List Archives
 
-There is no need to create additional aliases. Archives are free of fronters,
-footers, most header modifications and subject prefixing. The archive system
-will automatically create a ".index" directory to contain various indices.
+Refer to "help admin_documents", "help index", and "help put" for more 
+information about the file space of your mailing list.
+
+If you decide to change this setting, there are several criteria that
+must be met:
+
+  * You must specify the full path to the directory.  This requires
+    that you have some knowledge about the file systems of the computer
+    on which Majordomo is running.  The path must begin with a '/'.
+
+  * The directory that you specify must already exist.  Majordomo will 
+    not create it for you.
+
+  * The Majordomo server must have sufficient credentials to create
+    new files in the directory that you specify.
+
+If you change the value of this setting, any existing archives will
+remain in their current location.  
+
+If you choose a directory that is outside the file space of your list,
+the archive files will not be accessible with the index, get, and put
+commands.
+
+Messages that are stored in the archives are free of fronters, footers,
+and other alterations that Majordomo usually makes to posted messages.
+
+Majordomo will automatically create a ".index" directory under the
+archive directory.  This ".index" directory is used to store database
+files that allow the archive command to work properly.
 
 
 See Also:
-   help archive                      (for how to retrieve archived messages)
-   help createlist              (for how the default directory gets created)
-   help put (for how to create the non-default dir specified by archive_dir)
+   help admin_delivery
+   help admin_documents
+   help archive 
+   help configset_archive_date
+   help configset_archive_size
+   help configset_archive_split
+   help configset_archive_url
+   help createlist
+   help index
+   help put 
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
