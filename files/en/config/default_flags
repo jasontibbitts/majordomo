@@ -1,2 +1,16 @@
-A string containing the flags to be given to new subscribers unless they
-choose otherwise. A list of all possible flags is contained in "help set".
+A list of flags that new subscribers receive.  The flags include:
+
+  ackdeny
+  ackpost
+  ackreject
+  ackstall
+  eliminatecc
+  hideaddress
+  hideall  
+  postblock
+  prefix
+  replyto
+  rewritefrom
+  selfcopy
+
+Use the "help set" command to see a detailed description of the flags.

@@ -1,5 +1,15 @@
 Notes on upgrading from alpha1 or before:
 
+2000.12.05 (CVS):
+
+The aliases, allowed_flags, default_flags, and nonmember_flags settings
+now take an array of full names instead of single-letter abbreviations.
+
+The previous format of each setting is still supported.  If these
+settings are actually used by Majordomo, the values will be 
+converted automatically.  However, any attempt to change these settings
+to use the old format will fail.
+
 2000.08.28 (CVS):
 
 Due to the addition of the "triggers" configuration setting, only

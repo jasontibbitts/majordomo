@@ -1,41 +1,30 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname allowed_flags = [VALUE]
+configset listname allowed_flags <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : ACHPRSW
-Data Type     : flags, choose from: A C H P R S W
+Default Value : ackdeny...
+Data Type     : enum_array
 Category      : reply deliver
 Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname allowed_flags = ACHPRS
+configset listname allowed_flags <<AMN
+ackstall
+eliminatecc
+prefix
+replyto
+selfcopy
+AMN
 
-
-A string containing the flags that users are allowed to adjust.
-Include only the uppercase flag groupings here:
-  A - controls set noack, ackall, ackimportant, ackstall, ackdeny, ackpost, ackreject
-  C - controls set noeliminatecc, eliminatecc
-  H - controls set nohide, hideaddress, hideall
-  P - controls set noprefix, prefix
-  R - controls set noreplyto, replyto
-  S - controls set noselfcopy, selfcopy
-  W - controls set norewritefrom, rewritefrom
-  O - controls set nopostblock, postblock
-If this is completely empty, users cannot adjust any of their flags.
-The list owner can, of course, change anything using the list password.
-A list of all possible flags is contained in "help set".
-
-NOTE: These allow or disallow changes by subscribers themselves on a
-per-list per-subscriber basis. You cannot restrict access to just one
-flag setting, as with "set ackpost" without restricting access to all
-the flags in that group (like "set noack").
-
+$INCLUDE-config/allowed_flags
 
 See Also:
+   help configset_allowed_classes (restricts other subscription options)
+   help configset_default_flags   (sets per-list defaults before subscribing)
+   help configset_nonmember_flags (sets non-subscriber defaults for ack messages)
    help set    (for how a user can set these and other options after subscribing)
-   help configset allowed_classes          (restricts other subscription options)
-   help configset default_flags       (sets per-list defaults before subscribing)
-   help configset nonmember_flags (sets non-subscriber defaults for ack messages)
 
 For a list of all help topics send this one-line message
    help topics

@@ -1,27 +1,37 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname aliases = [VALUE]
+configset listname aliases <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : ORQ
-Data Type     : flags, choose from: A M O R Q S U
+Default Value : (owner request resend)
+Data Type     : enum_array
 Category      : miscellany
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname aliases = OSU
+configset listname aliases <<ALBM
+owner
+request
+resend
+subscribe
+unsubscribe
+ALBM
 
 
-A string containing the aliases that will be made available
-for this list.  After this value has been changed, the
-createlist-regen command must be run to recreate the aliases.
-  A    An alias for each auxiliary list in the "sublists" setting.
-  M    LIST-moderator
-  O    LIST-owner
-  R    LIST
-  Q    LIST-request
-  S    LIST-subscribe
-  U    LIST-unsubscribe
-Currently, O R and Q are mandatory.
+A list of aliases that will be made available for this list.  
+After this value has been changed, the createlist-regen command 
+must be run to recreate the aliases.
+
+  auxiliary   An alias for each auxiliary list in the "sublists" setting.
+  moderate    LIST-moderator
+  owner       LIST-owner
+  request     LIST-request
+  resend      LIST
+  subscribe   LIST-subscribe
+  unsubscribe LIST-unsubscribe
+
+Currently, owner, resend, and request are mandatory.
 
 NOTE:  Do not confuse this command (used by list owners) with the
 "alias" command (intended for regular subscribers).
@@ -48,11 +58,11 @@ request_answer setting and  (list-specific) request_response file.
   owner                message is forwarded to the list owners
   anything else        the request_response file is sent back.
 
-If the 'A' flag in the "configset aliases" is used, an alias will
+If the 'auxiliary' flag in the "configset aliases" is used, an alias will
 be created for each auxiliary list.  For example, to reach the
 "testers" sublist of the mj2-dev list, a message could be sent
 to the (fictitious) address mj2-dev-testers@csf.colorado.edu
-Without the 'A' flag, the "post" command is the only way to send
+Without the 'auxiliary' flag, the "post" command is the only way to send
 messages to a sublist.
 
 
@@ -61,13 +71,13 @@ See Also:
    help announce
    help createlist (for the -regen option that creates new aliases)
    help post
-   help configset moderator
-   help configset moderators
-   help configset owners
-   help configset request_answer
-   help confitset sublists
-   help configset whoami
-   help configset whoami_owner
+   help configset_moderator
+   help configset_moderators
+   help configset_owners
+   help configset_request_answer
+   help configset_sublists
+   help configset_whoami
+   help configset_whoami_owner
 
 For a list of all help topics send this one-line message
    help topics

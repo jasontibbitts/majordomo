@@ -1,7 +1,7 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname subject_prefix = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : no default
+Default Value : [\$LIST]
 Data Type     : string
 Category      : deliver
 Password Notes: Visible only with password. 

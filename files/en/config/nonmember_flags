@@ -1,7 +1,11 @@
-A string containing the flags which apply to users who are not list members
-when they send messages to the list.  Only acknowledgement flags make sense in
-this case.  They are:
-  b - ackstall
-  d - ackdeny
-  f - ackpost
-  j - ackreject
+A list of flags which apply to users who are not list members when they 
+send messages to the list.  Only acknowledgement flags and postblock
+make sense in this case.  These flags include:
+
+  ackdeny
+  ackpost
+  ackreject
+  ackstall
+  postblock
+
+Use the "help set" command to see a detailed description of the flags.

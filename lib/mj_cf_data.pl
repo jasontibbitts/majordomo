@@ -195,8 +195,9 @@ EOC
    },
    'aliases' =>
    {
-    'type'   => 'flags',
-    'values' => [qw(A M O R Q S U)],
+    'type'   => 'enum_array',
+    'values' => [qw(auxiliary moderator owner request 
+                    resend subscribe unsubscribe)],
     'groups' => [qw(miscellany)],
     'visible'=> 0,
     'local'  => 1,
@@ -204,8 +205,10 @@ EOC
    },
    'default_flags' =>
    {
-    'type'   => 'flags',
-    'values' => [qw(b C d f h H j P R S W)],
+    'type'   => 'enum_array',
+    'values' => [qw(ackstall ackdeny ackpost ackreject eliminatecc 
+                    hideaddress hideall postblock prefix replyto 
+                    rewritefrom selfcopy)],
     'groups' => [qw(reply deliver)],
     'visible'=> 0,
     'local'  => 1,
@@ -213,17 +216,19 @@ EOC
    },
    'nonmember_flags' =>
    {
-    'type'   => 'flags',
-    'values' => [qw(b d f j)],
-    'groups' => [qw(reply)],
+    'type'   => 'enum_array',
+    'values' => [qw(ackstall ackdeny ackpost ackreject postblock)],
+    'groups' => [qw(reply deliver)],
     'visible'=> 0,
     'local'  => 1,
     'mutable'=> 1,
    },
    'allowed_flags' =>
    {
-    'type'   => 'flags',
-    'values' => [qw(A C H P R S W)],
+    'type'   => 'enum_array',
+    'values' => [qw(ackdeny ackpost ackreject ackstall eliminatecc 
+                    hideaddress hideall postblock prefix 
+                    replyto selfcopy rewritefrom)],
     'groups' => [qw(reply deliver)],
     'visible'=> 1,
     'local'  => 1,

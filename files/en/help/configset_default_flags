@@ -1,18 +1,21 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-configset listname default_flags = [VALUE]
+configset listname default_flags <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : SPR
-Data Type     : flags, choose from: b C d f h H j P R S W
+Default Value : (prefix replyto selfcopy)
+Data Type     : enum_array
 Category      : reply deliver
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname default_flags = SPR
+configset listname default_flags <<LLL
+eliminatecc
+selfcopy
+LLL
 
-
-A string containing the flags to be given to new subscribers unless they
-choose otherwise. A list of all possible flags is contained in "help set".
+$INCLUDE-config/default_flags
 
 NOTE: These supply defaults for new subscribers. Once subscribed, the
 user can change their own settings on a per-list per-subscriber basis.
@@ -22,10 +25,10 @@ settings, and a better description of what each option does.
 
 
 See Also:
+   help configset_allowed_flags   (restricts subscribers ability to use set)
+   help configset_default_class   (controls delivery class of 'digest', 'each', etc)
+   help configset_nonmember_flags (sets non-subscriber defaults for ack messages)
    help set       (for how a user can set these options after subscribing)
-   help configset default_class   (controls subscription class of 'digest', 'each', etc)
-   help configset allowed_flags   (restricts subscribers ability to use set)
-   help configset nonmember_flags (sets non-subscriber defaults for ack messages)
 
 For a list of all help topics send this one-line message
    help topics
