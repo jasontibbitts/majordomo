@@ -1343,6 +1343,7 @@ sub parse_address_array {
   my $out = [];
 
   for my $i (@$arr) {
+    next unless $i;
     my ($ok, $mess, $addr) = $self->parse_address($i, $var);
     return (0, $mess) unless $ok;
     push @$out, $addr;
