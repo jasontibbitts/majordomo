@@ -68,7 +68,7 @@ unless ($opts{'Z'}) {
   die("Not running as GID $::GID") unless $) == $::GID;
 }
 
-if ($opts{'lockdir'} && opts{'Z'}) {
+if ($opts{'lockdir'} && $opts{'Z'}) {
   $opts{lockdir} =~ /(.*)/;
   ;$::LOCKDIR = $1; # Wierdness to prevent installbin expansion.
   if ($> != $< || $) != $( || -u $0) {
