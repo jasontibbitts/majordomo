@@ -885,7 +885,11 @@ my %commands =
                                    'arg2'  => 'part'
                                   },
                   },
-    # The token is the access restriction
+    'access'   => {
+                   'default' => 'allow',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%generic_actions,
+                  },
    },
    'unalias' =>
    {
