@@ -85,17 +85,17 @@ sub t_gen {
   return $token;
 }
 
-=head2 t_add(user, time, approvals, cmdline, request, list, arglist)
+=head2 t_add(type, list, command, user, victim, mode, cmdline, approvals, ...)
 
-This adds a token to the database.  The token itself is generated, then a
-database entry is added with all of the information filled in.  This will
-loop intil a token is generated that does not already exist in the
-database.
+This adds a token to the database.  The token identifier is generated
+randomly, then a database entry is added with all of the information 
+filled in, using the identifier as the key. 
 
 =cut
 sub t_add {
   my $self = shift;
-  my ($token, $data, $ok);
+  my ($data, $ok, $tmp, $token);
+  $tmp = $::log->elapsed;
   
   $self->_make_tokendb;
   $data =
@@ -129,6 +129,13 @@ sub t_add {
     ($ok, undef) = $self->{'tokendb'}->add("",$token,$data);
     last if $ok;
   }
+
+  # Log the creation of the token for debugging purposes.
+  $self->inform('GLOBAL', 'newtoken',
+                $data->{'user'}, $data->{'victim'},
+                "tokeninfo $token", "$self->{'interface'}",
+                1, 0, 0, '', $::log->elapsed - $tmp);
+
   return $token;
 }
 
