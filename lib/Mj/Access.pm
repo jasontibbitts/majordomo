@@ -1311,6 +1311,22 @@ sub _d_post {
     return $self->_a_deny(@_) if $args->{$i};
   }
 
+  # Consult if one person attempts to post a message for another
+  # without using the other's password
+  if (($args->{'mismatch'} or $args->{'posing'}) 
+       and not $args->{'user_password'}) {
+
+    $args->{'reasons'} = 
+     "$self->{'sessionuser'} is posting a message for $td->{'user'}.\002"
+     . $args->{'reasons'} if ($args->{'posing'});
+
+    $args->{'reasons'} = 
+     "$td->{'user'} is posting a message for $td->{'victim'}.\002"
+     . $args->{'reasons'} if ($args->{'mismatch'});
+
+    return $self->_a_consult(@_);
+  }
+
   # Immediately consult for moderated lists
   $moderate = $self->_list_config_get($td->{'list'}, 'moderate');
   $args->{'reasons'} = "The $td->{'list'} list is moderated.\002" .
