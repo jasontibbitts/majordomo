@@ -178,28 +178,28 @@ EOM
 
 EOM
     }
-    if($have{'DBI'} && $have{'DBD::Pg'}) {
-      $pgsql = "pgsql";
-      $msg .= <<EOM;
-  You have the PostgreSQL DBI module installed, so Perl has access to advanced
-  database routines that Majordomo can use to store the various data it
-  collects.
-
-EOM
-    }
+    # if($have{'DBI'} && $have{'DBD::Pg'}) {
+      # $pgsql = "pgsql";
+      # $msg .= <<EOM;
+  # You have the PostgreSQL DBI module installed, so Perl has access to advanced
+  # database routines that Majordomo can use to store the various data it
+  # collects.
+# 
+# EOM
+    # }
     $msg .= <<EOM;
-  Majordomo also has a simple database interface implemented
-  with text files which will be used if you answer no to this question;
-  databases using this method can be viewed and edited by hand, but access
-  to them is very slow.
+  Majordomo has a simple database interface, implemented with text files, 
+  which will be used if you answer "text" to this question.  Databases 
+  using this method can be viewed and edited by hand, but access to them 
+  is very slow.
 
   Note that the database backend cannot easily be changed after the fact.
 
-  IMPORTANT: if you are upgrading, you must convert your existing databases;
-  Majordomo will not do this for you.  Please read the README.UPGRADE
-  document for more information.
+  IMPORTANT: if you change backends, you must convert your existing 
+  databases.  Majordomo will not do this for you.  Please read the 
+  README.UPGRADE document for more information.
 
-What backend should Majordomo use ($db $pgsql text)?
+What backend should Majordomo use ($db  text)?
 EOM
     $def = "text";
     if(defined($config->{database_backend})) {
