@@ -266,7 +266,11 @@ sub configset {
 sub configshow {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
-  my ($ok, $mess, $varresult, $var, $val, $tag, $auto);
+  my ($list, $ok, $mess, $varresult, $var, $val, $tag, $auto);
+
+  $list = $request->{'list'};
+  $list .= ":$request->{'sublist'}"
+    if ($request->{'sublist'} and $request->{'sublist'} ne 'MAIN');
 
   $ok = shift @$result;
   for $varresult (@$result) {
@@ -290,7 +294,7 @@ sub configshow {
       # Process as an array
       $tag = Majordomo::unique2();
       eprint ($out, $type, 
-              indicate("${auto}configset $request->{'list'} $var \<\< END$tag\n", 1));
+              indicate("${auto}configset $list $var \<\< END$tag\n", 1));
       for (@$val) {
           eprint ($out, $type, indicate("$auto$_", 1)) if defined $_;
       }
@@ -301,10 +305,10 @@ sub configshow {
       $val = "" unless defined $val;
       if (length $val > 40) {
         eprint ($out, $type, 
-          indicate("${auto}configset $request->{'list'} $var =\\\n    $auto$val\n", 1));
+          indicate("${auto}configset $list $var =\\\n    $auto$val\n", 1));
       }
       else {
-        eprint ($out, $type, indicate("${auto}configset $request->{'list'} $var = $val\n", 1));
+        eprint ($out, $type, indicate("${auto}configset $list $var = $val\n", 1));
       }
       if ($request->{'mode'} !~ /nocomments/) {
         print $out "\n";
@@ -470,7 +474,7 @@ sub lists {
   select $out;
   $count = 0;
 
-  $site   = $mj->global_config_get($request->{'user'}, $request->{'pass'}, 
+  ($site) = $mj->global_config_get($request->{'user'}, $request->{'pass'}, 
                                    "site_name");
   $site ||= $mj->global_config_get($request->{'user'}, $request->{'pass'}, 
                                    "whoami");
@@ -514,7 +518,7 @@ sub lists {
                   $_);
           $flags = 'shown';
         }
-        if ($request->{'mode'} =~ /aux/) {
+        if ($request->{'mode'} =~ /full/) {
           eprintf($out, $type, "%sSubscribers: %4d\n", ' ' x 27, 
                                $data->{'subs'})  if (exists $data->{'subs'});
           eprintf($out, $type, "%sPosts: %10d in the past 30 days\n", ' ' x 27, 
@@ -755,6 +759,7 @@ sub report {
   $begin = strftime("%Y-%m-%d %H:%M", @tmp);
   @tmp = localtime($request->{'end'});
   $end = strftime("%Y-%m-%d %H:%M", @tmp);
+  $today = '';
 
   $mess = sprintf "Activity for %s from %s to %s\n\n", 
                   $request->{'list'}, $begin, $end;
@@ -774,27 +779,33 @@ sub report {
     }
     last unless scalar @$chunk;
     for $data (@$chunk) {
-      if ($data->[1] eq 'bounce') {
-        ($victim = $data->[4]) =~ s/\(bounce from (.+)\)/$1/;
-      }
-      else {
-        $victim = ($data->[1] =~ /post|owner/) ? $data->[2] : $data->[3];
-        # Remove the comment from the victim's address.
-        $victim =~ s/.*<([^>]+)>.*/$1/;
-      }
-      @tmp = localtime($data->[9]);
-      $end = strftime("%d %b %H:%M", @tmp);
-      if (defined $data->[10]) {
-        $end .= ", $data->[10]";
-      }
-
       if ($request->{'mode'} !~ /summary/) {
-        if ($request->{'list'} eq 'ALL') { 
-          $mess = sprintf "%-11s %-16s %-22s %-7s %s\n", $data->[1],
-                  $data->[0], $victim, $outcomes{$data->[6]}, $end;
+        if ($data->[1] eq 'bounce') {
+          ($victim = $data->[4]) =~ s/\(bounce from (.+)\)/$1/;
         }
         else {
-          $mess = sprintf "%-11s %-38s %-7s %s\n", $data->[1],
+          $victim = ($data->[1] =~ /post|owner/) ? $data->[2] : $data->[3];
+          # Remove the comment from the victim's address.
+          $victim =~ s/.*<([^>]+)>.*/$1/;
+        }
+        @tmp = localtime($data->[9]);
+        $day = strftime("  %d %B %Y\n", @tmp);
+        if ($day ne $today) {
+          $today = $day;
+          eprint($out, $type, $day);
+        }
+        $end = strftime("%H:%M", @tmp);
+        if (defined $data->[10]) {
+          $end .= " $data->[10]";
+        }
+
+        if ($request->{'list'} eq 'ALL') { 
+          $mess = sprintf "%-11s %-16s %-30s %-7s %s\n", 
+                          $data->[1], $data->[0], $victim,
+                          $outcomes{$data->[6]}, $end;
+        }
+        else {
+          $mess = sprintf "%-11s %-44s %-7s %s\n", $data->[1],
                   $victim, $outcomes{$data->[6]}, $end;
         }
      
@@ -811,7 +822,7 @@ sub report {
   }
   if ($request->{'mode'} =~ /summary/) {
     if (scalar keys %stats) {
-      $mess = sprintf "     Command: Total   Succeed Stall Fail\n";
+      $mess = sprintf "     Command: Total    Succeed Stall Fail\n";
     }
     else {
       $mess = "There was no activity.\n";
@@ -826,13 +837,6 @@ sub report {
 
   $request->{'command'} = "report_done";
   ($ok, @tmp) = @{$mj->dispatch($request)};
-  if ($ok and $request->{'mode'} =~ /summary/) {
-    $mess = "\nThis report includes the following subsidiary lists:\n";
-    eprint($out, $type, $mess);
-    for $mess (@tmp) {
-      eprint($out, $type, "  $mess\n");
-    }
-  }
   1;
 }
 
@@ -1211,10 +1215,10 @@ sub who {
     $template = join ("\n", @$tmpl);
   }
   elsif ($request->{'list'} eq 'GLOBAL') {
-    $template = '$FULLADDR $PAD $LISTS';
+    $template = '$FULLADDR:-48 $LISTS';
   }
   else {
-    $template = '$FULLADDR $PAD $FLAGS $CLASS';
+    $template = '$FULLADDR:-48 $FLAGS:-9 $CLASS';
   }
  
   $request->{'command'} = "who_chunk";
@@ -1234,7 +1238,6 @@ sub who {
         for $j (keys %$i) {
           $subs->{uc $j} = $i->{$j};
         }
-        $subs->{'PAD'} = " " x (48 - length($i->{'fulladdr'}));
         if ($request->{'list'} ne 'GLOBAL' or $request->{'sublist'} ne 'MAIN') {
           my ($fullclass) = $i->{'class'};
           $fullclass .= "-" . $i->{'classarg'} if ($i->{'classarg'});
