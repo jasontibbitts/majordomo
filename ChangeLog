@@ -1,3 +1,10 @@
+2000-09-11  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Archive.pm (remove, sync, _sync_msgs): New routines.
+	Allow groups of messages to be deleted from the archives,
+	and individual archive files to be indexed, with the archive-delete
+	and archive-sync commands.
+
 2000-09-06  Michael Yount <csf@moscow.com>
 
 	* files/en/config/post_limits:  New local configuration

@@ -300,6 +300,284 @@ sub add_done {
   ("$arc/$msgno", $data);
 }
 
+=head2 remove(message_num, data)
+
+This takes a message number (as "archive/number") and deletes it
+from the archive.  If data is not provided, it is looked up from the
+index.
+
+=cut
+use Mj::FileRepl;
+sub remove {
+  my $self = shift;
+  my $msg  = shift;
+  my $data = shift;
+  my $log = new Log::In 150, $msg;
+  my ($arc, $buf, $count, $dir, $fh, $file, $i, $res, $size, $sub);
+
+  # Figure out appropriate index database and message number
+  ($arc, $msg) = $msg =~ m!([^/]+)/(.*)!;
+  $dir = $self->{dir};
+
+  unless ($data) {
+    # Look up the data for the message
+    $self->_make_index($arc);
+    $data = $self->{'indices'}{$arc}->lookup($msg);
+    return unless $data;
+  }
+  $self->_read_counts($arc);
+  if ($self->{'splits'}{$arc}{'msgs'} == $msg) {
+    for ($i = $msg - 1; $i > 0; $i--) {
+      last if $self->{'indices'}{$arc}->lookup($i);
+    }
+    $self->{'splits'}{$arc}{'msgs'} = $i;
+  }
+  $self->{'splits'}{$arc}{'lines'} -= $data->{'lines'};
+
+  # Open FH on appropriate split
+  if ($data->{'split'} ne '0') {
+    # Untaint
+    $data->{'split'} =~ /(\d+)/;  $sub = "$arc-$1";
+    $self->_read_counts($sub);
+    $self->{'splits'}{$sub}{'msgs'}--;
+    $self->{'splits'}{$sub}{'lines'} -= $data->{'lines'};
+    $file= "$dir/$self->{'list'}.$sub";
+  }
+  else {
+    $file= "$dir/$self->{'list'}.$arc";
+  }
+  $fh = new Mj::FileRepl $file;
+  return unless $fh;
+
+  # Copy the original archive up to the beginning of the deleted message.
+  for ($count = $data->{byte} ; $count > 0; ) {
+    $size = $count > 4096 ? 4096 : $count;
+    $res = $fh->{'oldhandle'}->read($buf, $size);
+    if (!$res) {
+      $fh->abandon;
+      return;
+    }
+    $count -= $res;
+    $fh->{'newhandle'}->print($buf);
+  }
+
+  # Seek to message end and copy the remainder of the file.
+  $fh->{'oldhandle'}->seek($data->{byte} + $data->{bytes} + 1, 0);
+  $fh->copy;
+  $fh->commit;
+
+  my $realign = sub {
+    my $key = shift;
+    my $values = shift;
+    
+    if ($key > $msg) {
+      $values->{'byte'} -= $data->{'bytes'};
+      $values->{'line'} -= $data->{'lines'};
+      return (0, 1);
+    }
+    elsif ($key == $msg) {
+      return (1, 1, undef);
+    }
+    return (0, 0);
+  };
+
+  $self->{'indices'}{$arc}->mogrify($realign);
+
+  $self->_write_counts($arc);
+  if ($arc ne $sub) {
+    $self->_write_counts($sub);
+  }
+
+  # Return
+  $data;
+}
+
+=head2 sync(archive_file, temporary_dir, quote_pattern)
+
+Parse an archive of messages and extract the data for the index.
+If the archive has not previously been indexed, create a new one.
+If the archive has previously been indexed, assign new message
+data to messages lacking an X-Archive-Number header, with 
+sequence numbering starting where the old archive left off.
+
+=cut
+use File::Basename;
+sub sync {
+  my $self = shift;
+  my $arc  = shift;
+  my $tmpdir = shift;
+  my $qp = shift;
+  my $log  = new Log::In 250, "$arc, $qp";
+  my (@msgs, $btotal, $count, $data, $ltotal, $ok, $split, $sub, $values);
+
+  # Untaint the archive name.
+  $arc = basename($arc);
+  $arc =~ /^((?:[\w\-\.]+\.)?\d+)(-\d\d)?$/;
+  $sub = defined $2 ? "$1$2" : $1;
+  $split = defined $2 ? substr $2, 1, 2 : '';
+  return (0, "Illegal archive name: \"$arc\"\n") unless $sub;
+  $arc = $1;
+
+  # Verify that the file in question exists.  
+  return (0, "No such archive:  \"$sub\"\n") 
+    unless (-f "$self->{'dir'}/$self->{'list'}.$sub");
+
+  # If an index exists for the archive, load its counts.
+  if (exists $self->{'archives'}{$arc}) {
+    $self->_read_counts($arc);
+    if ($arc ne $sub and exists $self->{'splits'}{$sub}) { 
+      $self->_read_counts($sub);
+    }
+    # Keep track of highest message number.
+    $count = $self->{'splits'}{$arc}{'msgs'};
+  }
+  else {
+    $count = 0;
+  }
+
+  # Add X-Archive-Number headers to the archive and collect data.
+  # The first return value is a count of messages.
+  ($ok, @msgs) = $self->_sync_msgs($sub, $tmpdir, $split, $count, $qp);
+
+  unless ($ok > 0) {
+    return (0, $msgs[0]);
+  }
+
+  # instantiate the archive
+  return (0, "Unable to create index.\n") unless $self->_make_index($arc);
+
+  # remove all entries with the same "split" from the index. 
+  my $erase = sub {
+    my $key = shift;
+    my $values = shift;
+   
+    if ($values->{'split'} eq $split) {
+      return (1, 1, undef);
+    }
+    return (0, 0);
+  };
+
+  # modify the index, removing all data for this split
+  $self->{'indices'}{$arc}->mogrify($erase);
+  $ltotal = 0;
+  $btotal = 0;
+
+  for $data (@msgs) {
+    ($num, $values) = @$data;
+    $values->{'line'} = $ltotal + 1;
+    $values->{'byte'} = $btotal;
+    $ltotal += $values->{'lines'};
+    $btotal += $values->{'bytes'};
+    $values->{'bytes'}--;
+    $self->{'indices'}{$arc}->add('', $num, $values);
+    $count = $num if ($num > $count);
+  }
+
+  if (exists $self->{'splits'}{$arc}{'lines'}) {
+    $self->{'splits'}{$arc}{'lines'} += 
+      $ltotal - $self->{'splits'}{$sub}{'lines'};
+    $self->{'splits'}{$arc}{'msgs'} = $count;
+  }
+  else {
+    $self->{'splits'}{$arc}{'lines'} = $ltotal;
+    $self->{'splits'}{$arc}{'msgs'} = $ok;
+  }
+  $self->_write_counts($arc);
+
+  if ($arc ne $sub) {
+    $self->{'splits'}{$sub}{'lines'} = $ltotal;
+    $self->{'splits'}{$sub}{'msgs'} = $ok;
+    $self->_write_counts($sub);
+  }
+
+  (1, "Archive \"$sub\" has been synchronized.\n");
+}
+
+=head2 _sync_msgs(file, tmpdir, split, message_count, quote_pattern) 
+
+Processes an archive to collect data and add headers.
+Replaces the old archive with the new.
+Returns a count of messages and a hash with data for each message.
+
+=cut
+use Mj::FileRepl;
+use Mj::MIMEParser;
+sub _sync_msgs {
+  my ($self, $file, $tmpdir, $split, $count, $qp) = @_;
+  my $log = new Log::In 250, $file;
+  my (@out, $arcname, $arcnum, $blank, $data, $entity, $line, 
+      $lines, $mbox, $num, $parser, $seen, $tmpfh, $tmpfile); 
+ 
+  $file =~ /^((?:[\w\-\.]+\.)?\d+)(-\d\d)?$/;
+  $arcname = $1;
+  $mbox = new Mj::FileRepl("$self->{'dir'}/$self->{'list'}.$file");
+  return (0, "Unable to replace archive $file.\n") unless $mbox;
+
+  $tmpfile = Majordomo::tempname;
+  $tmpfh =  new IO::File "> $tmpfile";
+  return (0, "Unable to open temporary file.\n") unless $tmpfh;
+
+  $parser = new Mj::MIMEParser;
+  return (0, "Unable to create parser.\n") unless $parser;
+  $parser->output_dir($tmpdir);
+
+  $lines = $seen = 0;
+  $count++;
+  $data = {};
+  $out = ();
+  $blank = 1;
+
+  while (1) {
+    $line = $mbox->{'oldhandle'}->getline; 
+    if ($blank && (!$line or $line =~ /\AFrom .*\d{4}/)) {
+      # If a message has been seen, close the temporary file
+      # and update the index.
+      if ($seen) {
+        $tmpfh->close;
+        $entity = $parser->parse_open($tmpfile);
+        return (0, "Unable to parse mailbox.\n") unless $entity;
+        $arcnum = $entity->head->get("X-Archive-Number");
+        unless ($arcnum =~ m#$arcname/\d+#) {
+          $arcnum = "$arcname/$count";
+          $entity->head->replace("X-Archive-Number", $arcnum);
+          $count++;
+        }
+        $arcnum =~ m#/(\d+)$#; $num = $1;
+        $data = Mj::MIMEParser::collect_data($entity, $qp);
+        $data->{'bytes'} = (stat($tmpfile))[7];
+        $data->{'lines'} = $lines;
+        $data->{'split'} = $split;
+        push @out, [$num, $data];
+        $lines = 0;
+
+        $entity->print($mbox->{'newhandle'});
+        $entity->purge;
+        last unless $line;
+        $mbox->{'newhandle'}->print($line);
+        # reopen the temporary file
+        $tmpfh =  new IO::File "> $tmpfile";
+        return (0, "Unable to open temporary file.\n") unless $tmpfh;
+      }
+      else {
+        $mbox->{'newhandle'}->print($line);
+      }
+      $seen++;
+      $blank = 0;
+    }
+    elsif ($seen and !$blank) {
+      $blank = ($line =~ m#\A\Z#o) ? 1 : 0;
+    }
+    last unless $line;
+    $lines++;
+    $tmpfh->print($line);
+  }
+  $mbox->commit;
+  $tmpfh->close;
+  unlink $tmpfile;
+
+  ($seen, @out);
+}
+
 =head2 get_message(message_num, data)
 
 This takes a message number (as archive/number) and sets up the archive''s
@@ -538,14 +816,13 @@ sub first_n {
   $arc ||= shift @arcs;
   return unless $arc;
 
-  $final = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
+  ($final) = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
 
   while ($ct >= $final) {
     $ct -= $final;
     $arc = shift @arcs;
     last unless $arc;
-    $final = $self->last_message($arc);
-    $final =~ m!\d+/(\d+)!;
+    ($final) = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
   }
 
   while ($arc) {
@@ -595,15 +872,13 @@ sub last_n {
   $arc ||= pop @arcs;
   return unless $arc;
 
-  $final = $self->last_message($arc);
-  ($num) = $final =~ m!\d+/(\d+)!;
+  ($final) = $self->last_message($arc) =~ m!\d+/(\d+)!;
  
-  while ($ct >= $num) {
+  while ($ct >= $final) {
     $ct -= $num;
     $arc = pop @arcs;
     last unless $arc;
-    $final = $self->last_message($arc);
-    $final =~ m!\d+/(\d+)!;
+    ($final) = $self->last_message($arc) =~ m!\d+/(\d+)!;
   }
 
   while ($arc) {
@@ -864,22 +1139,24 @@ sub _arc_name {
   my $split = shift;
   my $time  = shift || time;
   my $log = new Log::In 200, "$split, $time";
-  my ($mday, $month, $week, $year);
+  my ($mday, $month, $quarter, $week, $year);
 
   # Extract data from the given time
   ($mday, $month, $year) = (localtime($time))[3,4,5];
 
   # Week 1 is from day 0 to day 6, etc.
-  $week = 1+(int(($mday-1)/7));
+  $week = 1 + int(($mday-1)/7);
   $year += 1900;
+  $quarter = 1 + int($month/3);
   $month++;
   $month = "0$month" if $month < 10;
   $mday  = "0$mday"  if $mday  < 10;
 
   return "$year"            if $split eq 'yearly';
+  return "$year$quarter"    if $split eq 'quarterly';
   return "$year$month"      if $split eq 'monthly';
-  return "$year$month$mday" if $split eq 'daily';
   return "$year$month$week" if $split eq 'weekly';
+  return "$year$month$mday" if $split eq 'daily';
 }
 
 =head2 _read_counts
@@ -1058,7 +1335,7 @@ sub expand_range {
         if ($self->{'sublist'}) {
           $i = "$self->{'sublist'}.$i";
         }
-        push (@out, [$i, $tmp]) if ($self->get_data($i));
+        push (@out, [$i, $j]) if ($j = $self->get_data($i));
       }
       next;
     }
@@ -1160,7 +1437,8 @@ sub _parse_message_range {
     my $log = new Log::In 250, "$arch1 $msg1 $arch2 $msg2";
     
 
-    if (!$msg1 || !$msg2 || !($arch1 || $arch2) || ($arch1 gt $arch2)) {
+    if (!$msg1 || !$msg2 || !($arch1 || $arch2) || 
+        ($arch2 and ($arch1 gt $arch2))) {
       return @out;
     }
     if (!$arch1) {
@@ -1168,11 +1446,11 @@ sub _parse_message_range {
       ($final) = $self->last_message($arch2) =~ m!^[^/]+/(.*)$!;
       # number of messages to skip
       $num = $final - $msg2;
-      @out = $self->last_n($msg1 + $num, $num, $arch2);
+      @out = $self->last_n($msg1, $num, $arch2);
     }
     elsif (!$arch2) {
       # message - number; use first_n to retrieve succeeding message numbers.
-      @out = $self->first_n($msg1 + $msg2 -1, $msg1 - 1, $arch1);
+      @out = $self->first_n($msg2, $msg1 - 1, $arch1);
     }
     else {
       # message - message; 
