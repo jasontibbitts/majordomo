@@ -14,6 +14,7 @@ allow for base usage of any database supported by DBI/DBD
 =cut
 
 package Mj::SimpleDB::SQL;
+use Mj::SimpleDB::Base;
 use DBI;
 use Mj::Lock;
 use Mj::Log;

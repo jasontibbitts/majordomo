@@ -458,33 +458,46 @@ These are very simple.  Note that because the act of starting a sequence
 also returns the first element, we have a tiny bit of complexity in _get.
 
 =cut
-sub get_start {
-  my $self = shift;
+{
+  my $sth;
+  my $db;
 
-  $self->{get_going} = 0;
-  $self->{db} = $self->_make_db;
-  return unless $self->{db};
-  1;
-}
+  sub get_start {
+    my $self = shift;
+    my $log   = new Log::In 201, "$self->{filename}";
 
-sub get_done {
-  my $self = shift;
-  $self->{db}        = undef;
-  $self->{get_going} = 0;
-}
+    $sth->finish() if (defined($sth));
 
-sub _get {
-  my $self = shift;
-  my($k, $v, $stat) = (0, 0);
-  if ($self->{get_going}) {
-    $stat = $self->{db}->seq($k, $v, 1); # next
+    $db = $self->_make_db;
+
+    $sth = $db->prepare_cached("SELECT key, ".
+				join(",", @{$self->{fields}}).
+				" FROM $self->{file} WHERE domain = ? AND list = ?");
+
+    $sth->execute($self->{domain}, $self->{list});
+
+    return unless $sth;
+    1;
   }
-  else {
-    $stat = $self->{db}->seq($k, $v, 1); # first
-    $self->{get_going} = 1;
+
+  sub get_done {
+    my $self = shift;
+    my $log   = new Log::In 201, "$self->{filename}";
+
+    $sth->finish();
+    $db = undef;
+    $sth = undef;
   }
-  return unless $stat == 0;
-  ($k, $v);
+
+  sub _get {
+    my $self = shift;
+    my $log   = new Log::In 201, "$self->{filename}";
+    my($k, $v) = (0, 0);
+    $v = $sth->fetchrow_hashref();
+    $k = delete $v->{key};
+    return unless defined($k);
+    ($k, $v);
+  }
 }
 
 =head2 get_quick(count)
@@ -525,7 +538,7 @@ sub get {
   for ($i=0; $i<$count; $i++) {
     ($key, $val) = $self->_get;
     last KEYS unless $key;
-    push @keys, ($key, $self->_unstringify($val));
+    push @keys, ($key, $val);
   }
   return @keys;
 }
@@ -558,18 +571,14 @@ sub get_matching_quick {
   my $count = shift;
   my $field = shift;
   my $value = shift;
-  my (@keys, $data, $i, $k, $v);
+  my (@keys, $i, $k, $v);
 
   for ($i=0; $i<$count; $i++) {
     ($k, $v) = $self->_get;
     last unless $k;
 
-    # We may be able to skip the unstringification step
-    redo unless _re_match(/\001\Q$value\E/, $v);
-
-    $data = $self->_unstringify($v);
-    if (defined($data->{$field}) && 
-	$data->{$field} eq $value)
+    if (defined($v->{$field}) && 
+	$v->{$field} eq $value)
       {
 	push @keys, $k;
 	next;
@@ -585,14 +594,13 @@ sub get_matching_quick_regexp {
   my $count = shift;
   my $field = shift;
   my $value = shift;
-  my (@keys, $data, $i, $k, $v);
+  my (@keys, $i, $k, $v);
 
   for ($i=0; $i<$count; $i++) {
     ($k, $v) = $self->_get;
     last unless $k;
-#    redo unless _re_match($value, $v);
-    $data = $self->_unstringify($v);
-    if (defined($data->{$field}) && _re_match($value, $data->{$field})) {
+
+    if (defined($v->{$field}) && _re_match($value, $v->{$field})) {
       push @keys, $k;
       next;
     }
@@ -607,24 +615,23 @@ sub get_matching {
   my $count = shift;
   my $field = shift;
   my $value = shift;
-  my (@keys, $code, $data, $i, $k, $tmp, $v);
+  my (@keys, $code, $i, $k, $tmp, $v);
 
   $code = 1 if ref($field) eq 'CODE';
 
   for ($i=0; ($count ? ($i<$count) : 1); $i++) {
     ($k, $v) = $self->_get;
     last unless $k;
-    redo if (!$code && ! _re_match("/\001\Q$value\E/", $v));
-    $data = $self->_unstringify($v);
+
     if ($code) {
-      $tmp = &$field($k, $data);
+      $tmp = &$field($k, $v);
       last unless defined $tmp;
-      push @keys, ($k, $data) if $tmp;
+      push @keys, ($k, $v) if $tmp;
     }
-    elsif (defined($data->{$field}) && 
-	$data->{$field} eq $value)
+    elsif (defined($v->{$field}) &&
+	$v->{$field} eq $value)
       {
-	push @keys, ($k, $data);
+	push @keys, ($k, $v);
 	next;
       }
     redo;
@@ -638,15 +645,14 @@ sub get_matching_regexp {
   my $field = shift;
   my $value = shift;
   my $log   = new Log::In 121, "$self->{filename}, $count, $field, $value";
-  my (@keys, $data, $i, $k, $v);
+  my (@keys, $i, $k, $v);
 
   for ($i=0; $i<$count; $i++) {
     ($k, $v) = $self->_get;
     last unless $k;
-#    redo unless _re_match($value, $v);
-    $data = $self->_unstringify($v);
-    if (defined($data->{$field}) && _re_match($value, $data->{$field})) {
-      push @keys, ($k, $data);
+
+    if (defined($v->{$field}) && _re_match($value, $v->{$field})) {
+      push @keys, ($k, $v);
       next;
     }
     redo;
