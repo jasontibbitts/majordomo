@@ -1,0 +1,15 @@
+  <input type="submit" name="func" value="set">
+</form>
+<p>
+See the 
+$HELP:SET 
+help page for a detailed explanation of the settings.
+</p>
+<p>
+Normally, a checkbox will appear next to the name of each
+setting, but the moderators can use the 
+$HELP:ALLOWED_FLAGS
+configuration setting to keep you from changing your settings.
+Each setting that you cannot change will be marked with an <b>X</b> if 
+the flag is set, and an <b>O</b> if it is not.
+</p>
