@@ -1,3 +1,8 @@
+2000-06-05  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Format.pm (who): Restructure a bit and allow for 'export'
+	mode, which generates commands needed to regenerate a list.
+
 2000-06-01  Michael Yount  <csf@moscow.com>
 	* lib/Majordomo.pm:  Add variable substitutions for
 	the faq, info, and intro commands.

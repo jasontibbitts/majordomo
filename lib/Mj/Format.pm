@@ -816,7 +816,7 @@ sub who {
 				      "chunksize");
   
   $ind = $template = '';
-  unless ($mode =~ /short/) {
+  unless ($mode =~ /export|short/) {
     eprint($out, $type, "Members of list \"$list\":\n");
     $ind = '  ';
   }
@@ -838,10 +838,7 @@ sub who {
     for $i (@lines) {
       $subs = {};
       next unless (ref ($i) eq 'HASH');
-      if ($mode !~ /enhanced/) {
-        $result = $i->{'fulladdr'};
-      }
-      else {
+      if ($mode =~ /enhanced/) {
         for $j (keys %$i) {
           $subs->{uc $j} = $i->{$j};
         }
@@ -861,13 +858,20 @@ sub who {
         $result = $mj->substitute_vars_string($template, $subs);
         chomp $result;
       }
+      elsif ($mode =~ /export/) {
+	$result = "subscribe $i->{'fulladdr'}";
+      }
+      else {
+        $result = $i->{'fulladdr'};
+      }
+
       $count++;
       eprint($out, $type, "$ind$result\n");
     }
   }
   $mj->dispatch('who_done', @stuff);
   
-  unless ($mode =~ /short/) {
+  unless ($mode =~ /short|export/) {
     eprintf($out, $type, "%s listed subscriber%s\n", 
 	    ($count || "No"),
 	    ($count == 1 ? "" : "s"));
