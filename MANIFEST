@@ -157,6 +157,7 @@ files/en/.ack_stall
 files/en/.ack_success
 files/en/.ack_timeout
 files/en/.approved_reject
+files/en/.bounce_detected
 files/en/.bounceprobe
 files/en/.config
 files/en/.confirm
@@ -212,6 +213,7 @@ files/en/ack_stall
 files/en/ack_success
 files/en/ack_timeout
 files/en/approved_reject
+files/en/bounce_detected
 files/en/bounceprobe
 files/en/config/.access_password_override
 files/en/config/.access_rules
@@ -520,6 +522,10 @@ files/en/error/.at_symbol
 files/en/error/.body_length
 files/en/error/.body_part_consult
 files/en/error/.body_part_deny
+files/en/error/.bounce_error
+files/en/error/.bounce_rule
+files/en/error/.bounce_unsub
+files/en/error/.bounce_user
 files/en/error/.bracketed_addresses
 files/en/error/.denied_post
 files/en/error/.digest_mode
@@ -557,6 +563,8 @@ files/en/error/.multiple_addresses
 files/en/error/.nested_brackets
 files/en/error/.no_address
 files/en/error/.no_domain
+files/en/error/.no_entity
+files/en/error/.no_file
 files/en/error/.no_headers
 files/en/error/.no_list
 files/en/error/.no_local_part
@@ -566,6 +574,7 @@ files/en/error/.no_stall
 files/en/error/.no_token
 files/en/error/.no_visible
 files/en/error/.not_extracted
+files/en/error/.not_subscribed
 files/en/error/.over_message_limit
 files/en/error/.over_time_limit
 files/en/error/.password_length
@@ -573,6 +582,7 @@ files/en/error/.password_level
 files/en/error/.pattern_mode
 files/en/error/.pending_delivery
 files/en/error/.post_block
+files/en/error/.probe_bounce
 files/en/error/.relocated_list
 files/en/error/.restrict_post
 files/en/error/.rhs_domain_literal
@@ -586,15 +596,18 @@ files/en/error/.sublist_post
 files/en/error/.taboo_body
 files/en/error/.taboo_header
 files/en/error/.taboo_inverted
+files/en/error/.token_deleted
 files/en/error/.top_level_domain
 files/en/error/.total_header_length
 files/en/error/.undefined_address
 files/en/error/.under_message_limit
 files/en/error/.under_time_limit
+files/en/error/.unknown_bounce
 files/en/error/.unknown_list
 files/en/error/.unknown_setting
 files/en/error/.unknown_token
 files/en/error/.unmatched_paren
+files/en/error/.unparsed_entity
 files/en/error/.unregistered
 files/en/error/.word_separator
 files/en/error/absolute_path
@@ -614,6 +627,10 @@ files/en/error/at_symbol
 files/en/error/body_length
 files/en/error/body_part_consult
 files/en/error/body_part_deny
+files/en/error/bounce_error
+files/en/error/bounce_rule
+files/en/error/bounce_unsub
+files/en/error/bounce_user
 files/en/error/bracketed_addresses
 files/en/error/denied_post
 files/en/error/digest_mode
@@ -651,6 +668,8 @@ files/en/error/multiple_addresses
 files/en/error/nested_brackets
 files/en/error/no_address
 files/en/error/no_domain
+files/en/error/no_entity
+files/en/error/no_file
 files/en/error/no_headers
 files/en/error/no_list
 files/en/error/no_local_part
@@ -660,6 +679,7 @@ files/en/error/no_stall
 files/en/error/no_token
 files/en/error/no_visible
 files/en/error/not_extracted
+files/en/error/not_subscribed
 files/en/error/over_message_limit
 files/en/error/over_time_limit
 files/en/error/password_length
@@ -667,6 +687,7 @@ files/en/error/password_level
 files/en/error/pattern_mode
 files/en/error/pending_delivery
 files/en/error/post_block
+files/en/error/probe_bounce
 files/en/error/relocated_list
 files/en/error/restrict_post
 files/en/error/rhs_domain_literal
@@ -680,15 +701,18 @@ files/en/error/sublist_post
 files/en/error/taboo_body
 files/en/error/taboo_header
 files/en/error/taboo_inverted
+files/en/error/token_deleted
 files/en/error/top_level_domain
 files/en/error/total_header_length
 files/en/error/undefined_address
 files/en/error/under_message_limit
 files/en/error/under_time_limit
+files/en/error/unknown_bounce
 files/en/error/unknown_list
 files/en/error/unknown_setting
 files/en/error/unknown_token
 files/en/error/unmatched_paren
+files/en/error/unparsed_entity
 files/en/error/unregistered
 files/en/error/word_separator
 files/en/faq
@@ -4488,6 +4512,8 @@ t/bounces/11
 t/bounces/11.desc
 t/bounces/12
 t/bounces/12.desc
+t/bounces/13
+t/bounces/13.desc
 t/bounces/2
 t/bounces/2.desc
 t/bounces/3

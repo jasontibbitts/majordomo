@@ -1,0 +1,7 @@
+Detected a bounce of message #$SEQNO, list $LIST
+  (bounce type $HANDLER)
+
+$BOUNCE_DATA
+
+The bounce message is attached below.
+
