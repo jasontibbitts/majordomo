@@ -3,5 +3,5 @@ for posting messages to a list. The format of each line is:
   pattern | soft_limit_conditions[,more] | hard_limit_conditions[,more]
 The pattern will be matched against the e-mail address of the author
 of the message.  The conditions will be applied if the pattern matches.
-(See "help configseet post_limits" for syntax details, and "help patterns"
+(See "help configset post_limits" for syntax details, and "help patterns"
 for details on regular expressions.)
