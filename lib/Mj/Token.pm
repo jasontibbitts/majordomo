@@ -309,7 +309,8 @@ sub consult {
   my $log  = new Log::In 50;
   my (%file, @mod1, @mod2, $data, $desc, $ent, $expire, $expire_days,
       $file, $group, $i, $mj_addr, $mj_owner, $remind, $remind_days, $repl,
-      $sender, $subject, $tmp, $token, $url, $reminded, $permanent, $reasons);
+      $sender, $size, $subject, $tmp, $token, $url, $reminded, $permanent,
+      $reasons);
   my $list = $args{'list'};
 
   return unless $self->_make_tokendb;
@@ -1053,7 +1054,7 @@ Create a temporary password for improved security.
 
 sub gen_latchkey {
   my ($self, $password) = @_;
-  my ($duration, $token);
+  my ($data, $duration, $ok, $token);
 
   $self->_make_latchkeydb;
   return unless defined $self->{'latchkeydb'};
