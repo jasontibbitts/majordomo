@@ -123,6 +123,9 @@ will vary depending upon the mailing list.
 \$SUBLIST     $SUBLIST
   (An auxiliary list, if one is used.  See "help auxiliary_list" for details.)
 
+\$UCLIST      $UCLIST
+  (The name of the current mailing list, in capital letters)
+
 \$VERSION     $VERSION
   (Which version of Majordomo 2 is used at this site.)
 
@@ -160,6 +163,9 @@ the error, format, and reply files will be presented here.
   The command line that would be used to issue a command via e-mail
   or the mj_shell program.
 
+\$CMDPASS
+  The password with which the current command was issued.
+
 \$DATE
   The date at which a request was originally issued;  in some cases
   this may be the Date header from a posted message.
@@ -179,9 +185,8 @@ the error, format, and reply files will be presented here.
   setting (see "help configset_resend_host" for more details).
 
 \$PASSWORD
-  The password with which a command was issued, or
   The personal password corresponding to a particular e-mail address.
- 
+
 \$REMIND 
   The number of days before a reminder for a request that requires
   confirmation, is sent to the person whom the request affects.
