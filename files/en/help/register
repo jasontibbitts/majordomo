@@ -1,9 +1,10 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-register-nowelcome-password [newpassword] address
+register[-nowelcome][-password][-welcome] [newpassword] address
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 address,     required,     is a previously unregistered address
 -nowelcome,  if specified, suppresses the new registration message
 -password,   if specified, takes the first arg as the new password
+-welcome,    if specified, sends the new registration message
 newpassword, if specified, is the initial password for address
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -34,7 +35,13 @@ password must be at least as long as the system administrator wants
 it (admins should refer to "help configset password_min_length").
 
 Unless the "-nowelcome" option is used, Majordomo will send a message
-to "address" with an explanation of how to use the password.
+to "address" with an explanation of how to unregister. The site manager
+can decide how many files, if any, new registrants will receive.
+
+The registry may be configured such that a welcome message is not
+sent automatically (see "help configset welcome" for an explanation.)
+In this case, using the "-welcome" mode will cause the welcome
+files to be sent.
 
 When an address is first subscribed to any list at this site, it is
 automatically put in the registration database and the register command
@@ -72,9 +79,11 @@ databases all at one time.
 
 
 See Also:
-   help changeaddr  (which replaces one address with another)
+   help changeaddr (which replaces one address with another)
    help configset access_rules_variables (set/test for this command)
    help configset password_min_length    (set minimum password length)
+   help configset welcome        (determines if welcome messages are sent)
+   help configset welcome_files  (determines which welcome messages are sent)
    help password   (which changes an individual's password)
    help rekey      (for how to repair the registry)
    help subscribe  (does an automatic registration)
