@@ -144,10 +144,10 @@ sub unlock {
 
   close $self->{'handle'};
   
-  # This has caused problems in the past, but it seems to be OK at the
-  # moment, perhaps due to other changes.
-  unlink $self->{lname} ||
-    $::log->abort("Failed unlinking $self->{lname}, $!");
+  # Removing the lock file at any time seems to completely hose things on
+  # some platforms.
+  #unlink $self->{lname} ||
+  #  $::log->abort("Failed unlinking $self->{lname}, $!");
   
   delete $self->{'handle'};
 

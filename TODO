@@ -20,6 +20,23 @@ Top of the list
 ! Make sure that archives get a separate umask, so that people can
   download them.
 
+- Tool to incorporate mbox files into an archive.
+  Can run from alias (like archive2.pl) or can slurp an entire folder.
+  Can take a list (in which case it sucks things from the list's config) or
+    the necessary variables (dir, split, size) directly.
+
+  Import from files:
+   mj_archive -d domain -l list file1 file2
+
+  In an alias (read 1 message from stdin):
+   mj_archive -d domain -l list
+
+  Without a list, import from files:
+   mj_archive -r directory -p split -z size file1 file2
+
+  Without a list, import from stdin:
+   mj_archive -r directory -p split -z size
+
 ! Split up _post a bit.  Remove reply-to and subject_prefix handling to
   separate functions.
 

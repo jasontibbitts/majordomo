@@ -1,5 +1,8 @@
 Sun May 10 00:33:48 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Mj/Lock.pm (unlock): OK, don't delete the lockfile since it
+ 	leads to catastrophic list loss on my Solaris machine.
+
 	* lib/mj_cf_defs.pl: Remove hpc web server from the default.
 
 	* postinstall: Properly set permissions on all installed files,

@@ -256,9 +256,10 @@ sub add {
 
 =head2 get_message(message_num)
 
-This takes a message number and sets up the archive''s iterator to read it.
+This takes a message number (as archive/number) and sets up the archive''s
+iterator to read it.
 
-What to return?  Perhaps all useful message data, in a listref?
+What to return?  Perhaps all useful message data, in a hashref?
 
 =cut
 sub get_message {
@@ -268,8 +269,8 @@ sub get_message {
   my ($cache, $file);
 
   # Figure out appropriate index file
-  ($file) = $msg =~ /(.*)\.(.*)/;
-  $idx = "$self->{dir}/.I$file";
+  ($file) = $msg =~ m!([^/]+)/(.*)!;
+  $idx = "$self->{dir}/.index/.I$file";
 
   # If cached data, look at end to see if what we want is contained within.
   $cache = $self->{icache}{$file};

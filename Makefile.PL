@@ -499,7 +499,6 @@ Please choose a password.
   Each domain is given a single global password that can be used for all
     list functions.  This password is independent of the individual list
     passwords.
-
 EOM
     $def = $config->{'domain'}{$i}{'master_password'};
     $config->{'domain'}{$i}{'master_password'} = get_str($msg, $def);
