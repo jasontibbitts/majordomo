@@ -529,12 +529,14 @@ sub list_access_check {
       $arg,                 # Action argument
       $allow,               # Return code: is operation allowed?
       $stat,                # Description of return code
+      $current,             # List of lists of time specifications
       $mess,                # Message to be returned (from 'reply' action)
       $ent,                 # MIME Entity for actions needing to send mail
       $deffile,             # The default replyfile if none is given
       $saw_terminal,        # Flag: did a rule emit a terminal action
       $reasons,             # The \n separated list of bounce reasons
-      $i,                   # duh
+      $i,                   # iterator
+      $j,                   # iterator
       $func,
       $fileinfo,
       $pdata,               # latchkey data
@@ -587,7 +589,7 @@ sub list_access_check {
     # Check the password against the requester
     $ok = $self->validate_passwd($requester, $passwd, $list, $request);
     if ($ok > 0) {
-      $args{'master_password'} = 1;
+      $args{'master_password'} = $ok;
     }
     if ($args{'mismatch'}) {
       # Check the password against the victim
@@ -653,9 +655,12 @@ sub list_access_check {
 	$memberof{$i} = $self->{'lists'}{$tmpl}->is_subscriber($victim, $tmpa);
       }
     }
-    $current = 0;
-    if ($access->{$request}{'check_time'}) {
-      $current = Mj::Digest::in_clock($access->{$request}{'check_time'});
+    $current = [];
+    for ($i = 0; $i < scalar @{$access->{$request}{'check_time'}}; $i++) {
+      for ($j = 0; $j < scalar @{$access->{$request}{'check_time'}[$i]}; $j++) {
+        $current->[$i][$j] = 
+          Mj::Digest::in_clock($access->{$request}{'check_time'}[$i][$j]);
+      }
     }
 
     # Add some chunks of the address to the set of matchable variables
@@ -674,81 +679,6 @@ sub list_access_check {
 		   memberof => \%memberof,
 		  );
 
-#      # Prepare to execute the rules
-#      $skip = 0;
-#      $cpt = new Safe;
-#      $cpt->permit_only(@permitted_ops);
-#      $cpt->share(qw(%args %memberof $current $skip));
-
-#      # Loop until we get a terminal action
-#     RULE:
-#      while (1) {
-#        $actions = $cpt->reval($access->{$request}{'code'});
-#        warn "Error found when running access_rules code:\n$@" if $@;
-
-#        # The first element of the action array is the ID of the matching
-#        # rule.  If we have to rerun the rules, we will want to skip to the
-#        # next one.
-#        $actions ||= [0, 'default'];
-#        $skip = shift @{$actions};
-
-#        # Now go over the actions we received.  We must process 'set' and
-#        # 'unset' here so that they'll take effect if we have to rerun the
-#        # rules.  Other actions are pushed into @final_actions.  If we hit a
-#        # terminal action we stop rerunning rules.
-#       ACTION:
-#        for $i (@{$actions}) {
-#  	($func, $arg) = split(/[=-]/, $i, 2);
-#          # Remove enclosing parentheses
-#          if ($arg) {
-#              $arg =~ s/^\((.*)\)$/$1/;
-#              $i = "$func=$arg";
-#          }
-
-#  	if ($func eq 'set') {
-#  	  # Set a variable.
-#  	  ($arg, $value) = split(/[=-]/, $arg, 2);
-#  	  if ($arg and ($ok2 = rules_var($request, $arg))) {
-#              if ($value and $arg eq 'delay') {
-#                my ($time) = time;
-#                $args{'delay'} = Mj::List::_str_to_time($value) || $time + 1;
-#                $args{'delay'} -= $time;
-#              }
-#              elsif ($value and $ok2 > 1) {
-#                $args{$arg} = $value;
-#              }
-#              else {
-#                $args{$arg} ||= 1;
-#              }
-#  	  }
-#  	  next ACTION;
-#  	}
-#  	elsif ($func eq 'unset') {
-#  	  # Unset a variable.
-#  	  if ($arg and rules_var($request, $arg)) {
-#  	    $args{$arg} = 0;
-#  	  }
-#  	  next ACTION;
-#  	}
-#          elsif ($func eq 'reason') {
-#            if ($arg) {
-#              $arg =~ s/^\"(.*)\"$/$1/;
-#              $args{'reasons'} = "$arg\002" . $args{'reasons'};
-#            }
-#            next ACTION;
-#          }
-
-#  	# We'll process the function later.
-#  	push @final_actions, $i;
-
-#  	$saw_terminal ||= action_terminal($func);
-#        }
-
-#        # We need to stop if we saw a terminal action in the results of the
-#        # last rule
-#        last RULE if $saw_terminal;
-#      }
-#    }
   }
   # What if we don't have a rule for this action?
   else {

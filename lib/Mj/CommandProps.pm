@@ -51,15 +51,16 @@ my %generic_modes =
 # a standard set of access_rules variables
 # this set is re-used for most of $commands{???}{'access'}{'legal'} below
 my %reg_legal =
-  ('master_password'=>1,
-   'user_password'  =>1,
+  (
    'mismatch'       =>1,
    'posing'         =>1,
+   'user_password'  =>1,
    'addr'           =>3,
    'delay'          =>3,
    'fulladdr'       =>3,
    'host'           =>3,
    'interface'      =>3,
+   'master_password'=>3,
    'mode'           =>3,
    'sublist'        =>3,
   );
