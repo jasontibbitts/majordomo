@@ -302,7 +302,7 @@ sub reset {
 =head2 setcomment(comment)
    
 This changes the comment portion of an address.  As a side effect, it
-will coerce the full address to route-address form.
+will coerce the full address to name-addr form.
 
 =cut
 sub setcomment {
@@ -315,7 +315,16 @@ sub setcomment {
   $strip = $self->strip;
   $orig = $self->full;
 
-  $newaddr = qq("$comment" <$strip>);
+  # Add quotes to the comment if it contains special characters
+  # and is not already quoted.
+  if ($comment =~ /[^\w\s!#\$\%\&\@'*+\-\/=?\^`\{\}|~]/
+      and $comment !~ /^\s*".*"\s*$/) {
+    $newaddr = qq("$comment" <$strip>);
+  }
+  else {
+    $newaddr = qq($comment <$strip>);
+  }
+
   $self->reset($newaddr);
 
   ($ok, $mess, $loc) = $self->valid;
@@ -592,9 +601,7 @@ sub _xform {
 #  my $log = new Log::In 120, $self->{'full'};
 
   # Parse the address if we need to; bomb if it is invalid
-  unless ($self->{parsed}) {
-    return 0 unless $self->_parse;
-  }
+  return 0 unless $self->isvalid;
 
   # Exit successfully if we have nothing to do
   unless ($self->{p}{xforms} && @{$self->{p}{xforms}}) {

@@ -1,3 +1,10 @@
+2004-11-05  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Addr.pm:  (setcomment)  Add quotes if needed.
+	(_xform)  Always validate the address.  Thanks to SRE.
+
+	* lib/Mj/Resend.pm:  (_exclude)  Skip invalid addresses.
+
 2004-11-04  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Format.pm:  (g_get, index, put)  Use the FULLPATH
