@@ -287,20 +287,9 @@ sub handle_bounce_user {
       $func, $i, $mess, $ok, $rules, $saw_terminal, $sdata, $status, $tmpa,
       $tmpl, $value);
 
-#    # We must share some things with a Safe compartment, so they must be in
-#    # lexicals.
-#    local(%args, %memberof, $skip);
-
   my $user   = $params{user};
   my $list   = $params{list};
   my $parser = shift || 'unknown';
-#    my @permitted_ops = qw(
-#       anonlist  const    enter  eq
-#       ge        gt       helem  le
-#       leaveeval lt       ne     not
-#       null      pushmark refgen return
-#       rv2sv     seq      sne
-#      );
 
   $status = $params{status};
 

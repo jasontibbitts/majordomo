@@ -1,3 +1,11 @@
+2000-12-08  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (_list_config_set): When addr_xforms changes,
+	store the new value in the address parser.
+
+	* lib/Mj/Config.pm (set): Return the parsed data, if there is any,
+	on a successful set.
+
 2000-12-07  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/CommandProps.pm: Make %actions the hash of all supported

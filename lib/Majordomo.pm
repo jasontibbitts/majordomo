@@ -1761,9 +1761,16 @@ sub _list_config_set {
   $type = $self->config_get_type($var);
   if ($out[0] == 1) {
     # Now do some special stuff depending on the variable
+
+    # Regenerate password
     if ($type eq 'pw' || $type eq 'passwords') {
       $self->_list_config_unlock($list);
       $self->_build_passwd_data($list, 'force');
+    }
+
+    # Store new addr_xforms in the address parser
+    elsif ($var eq 'addr_xforms') {
+      Mj::Addr::set_params('xforms' => $out[2]);
     }
   }
   @out;

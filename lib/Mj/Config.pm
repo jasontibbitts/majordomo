@@ -830,7 +830,7 @@ sub set {
     if $self->isparsed($var);
 
   $self->{'dirty'} = 1;
-  (1, $error);
+  (1, $error, $parsed);
 }
 
 =head2 atomic_set(var, updatesub)

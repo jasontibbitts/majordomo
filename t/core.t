@@ -1,17 +1,18 @@
 # Test Majordomo by calling core routines.
-$debug = 0;
-$tmpdir = "/tmp/mjtest.$$";
-
 use lib "blib/lib";
 use Carp qw(cluck);
-$SIG{__WARN__} = sub {cluck "--== $_[0]"};
+use Data::Dumper;
 
-print "1..12\n";
+$SIG{__WARN__} = sub {cluck "--== $_[0]"};
 
 $| = 1;
 $counter = 1;
+$debug = 0;
+$tmpdir = "/tmp/mjtest.$$";
 
-# 1 - Load the stashed configuration
+print "1..19\n";
+
+print "Load the stashed configuration\n";
 eval('$config = require ".mj_config"');
 $a = $config;
 undef $a;     # Quiet 'used only once' warning.
@@ -56,11 +57,11 @@ close SITE;
 # Set up variables that need to be set; avoid warnings
 $::LOCKDIR = $::LOCKDIR = "$tmpdir/locks";
 
-#2 - Load the module
+print "Load the module\n";
 eval "require Majordomo";
 ok(1, !$@);
 
-#3 - Load the logging module
+print "Load the logging module\n";
 eval "require Mj::Log";
 ok(1, !$@);
 
@@ -79,16 +80,15 @@ if ($debug) {
 	     );
 }
 
-#4 - Allocate a Majordomo object
+print "Allocate a Majordomo object\n";
 $mj = new Majordomo "$tmpdir", 'test';
 ok(1, !!$mj);
 
-#5 - Connect to it
+print "Connect to it\n";
 $ok = $mj->connect('testsuite', "Testing, pid $$\n");
 ok(1, !!$ok);
 
-#6 - Use the site password to set the domain's master password.  Screw it
-#up once just to check.
+print "Use the site password to set the domain's master password.\nScrew it up once just to check.\n";
 $request = {password => 'badpass',
 	    command  => 'configset',
 	    list     => 'GLOBAL',
@@ -99,25 +99,25 @@ $request = {password => 'badpass',
 $result = $mj->dispatch($request);
 ok(0, $result->[0]);
 
-#7 - Now use the proper password
+print "Now use the proper password\n";
 $request->{password} = 'hurl';
 $result = $mj->dispatch($request);
 ok(1, $result->[0]);
 
-#8 - Set whereami
+print "Set whereami\n";
 $request->{password} = 'gonzo';
 $request->{setting}  = 'whereami';
 $request->{value}    = ['example.com'];
 $result = $mj->dispatch($request);
 ok(1, $result->[0]);
 
-#9 - Make sure whereami got set
+print "Make sure whereami got set\n";
 $request->{command}  = 'configshow';
 $request->{groups}   = ['whereami'];
 $result = $mj->dispatch($request);
 ok('example.com', $result->[1][3]);
 
-#10 - Create a list
+print "Create a list\n";
 $result = $mj->dispatch({user     => 'unknown@anonymous',
 			 password => 'gonzo',
 			 command  => 'createlist',
@@ -126,33 +126,80 @@ $result = $mj->dispatch({user     => 'unknown@anonymous',
 			 victims  => ['nobody@example.com']});
 ok(1, $result->[0]);
 
-#11 - Make sure the list was created
+print "Make sure the list was created\n";
 $result = $mj->dispatch({user     => 'unknown@anonymous',
 			 command  => 'lists'});
 ok('bleeargh', $result->[1]{list});
 
-#12 - Set inform so we don't send any mail
+print "Set inform so we don't send any mail\n";
 $result = $mj->dispatch({user     => 'unknown@anonymous',
 			 password => 'gonzo',
 			 command  => 'configset',
+			 list     => 'bleeargh',
 			 setting  => 'inform',
 			 value    => ['subscribe   : all : ignore',
 				      'unsubscribe : all : ignore'],
 			 });
 ok(1, $result->[0]);
 
+print "Set up some transforms\n";
+$result = $mj->dispatch({user     => 'unknown@anonymous',
+			 password => 'gonzo',
+			 command  => 'configset',
+			 list     => 'GLOBAL',
+			 setting  => 'addr_xforms',
+			 value    => ['trim mbox',
+				      'ignore case',
+				      'map example.net to example.com',
+				      'two level',
+				     ],
+			});
+ok(1, $result->[0]);
+
+print "Subscribe an address\n";
+$result = $mj->dispatch({user     => 'unknown@anonymous',
+			 password => 'gonzo',
+			 command  => 'subscribe',
+			 mode     => 'quiet-nowelcome',
+			 list     => 'bleeargh',
+			 victims  => ['Frobozz <ZoRk+infocom@Trinity.Example.NET>'],
+			});
+ok(1, $result->[0]);
+
+print "Make sure the subscribe worked\n";
+$request = {user     => 'unknown@anonymous',
+	    password => 'gonzo',
+	    command  => 'who_start',
+	    list     => 'bleeargh',
+	   };
+$result = $mj->dispatch($request);
+
+ok(1, $result->[0]);
+
+$request->{command} = 'who_chunk';
+$result = $mj->dispatch($request, 1000);
+
+ok(1, $result->[0]);
+ok('Frobozz <ZoRk+infocom@Trinity.Example.NET>',$result->[1]{fulladdr});
+ok('ZoRk+infocom@trinity.example.net',          $result->[1]{stripaddr});
+
+print " addr_xforms, too\n";
+ok('zork@example.com',                          $result->[1]{canon});
+
+
+
+
 # Shut things down and delete the temporary directory.  For some reason,
 # some systems refuse to delete the directory.  I think this may have
 # something to do with NFS.
 undef $mj;
-system("/bin/rm -rf $tmpdir");
 
 exit 0;
 
 sub ok {
   my $expected = shift;
   my $result   = shift;
-  if ($result =~ /$expected/) {
+  if ($result eq $expected) {
     print "ok $counter\n";
   }
   else {
@@ -163,69 +210,10 @@ sub ok {
   $counter++;
 }
 
-__END__
-
-# 7. Subscribe an address, being careful not to send mail
-$e = qq!\Qzork\@example.com was added to bleeargh.\n!;
-$r = run('-p gonzo subscribe=quiet bleeargh zork@example.com');
-ok($e, $r);
-
-# 8. Make sure they're there
-$e = qq!Members of list "bleeargh":\n  zork\@example.com\n1 listed subscriber\n!;
-$r = run('who bleeargh');
-ok($e, $r);
-
-# 9. Add an address to an auxiliary list
-$e = qq!\Qdeadline\@example.com was added to bleeargh:harumph.\n!;
-$r = run('-p gonzo auxadd bleeargh harumph deadline\@example.com');
-ok($e, $r);
-
-# 10. Make sure it showed up
-$e = qq!\QMembers of list "bleeargh:harumph":\n  deadline\@example.com\n1 listed subscriber\n!;
-$r = run('-p gonzo auxwho bleeargh harumph');
-ok($e, $r);
-
-# 11. Add an alias
-$e = qq!\Qenchanter\@example.com successfully aliased to zork\@example.com.\n!;
-$r = run('-p gonzo -u zork@example.com alias enchanter@example.com');
-ok($e, $r);
-
-# 12. Add an alias to the first alias
-$e = qq!\Qplanetfall\@example.com successfully aliased to enchanter\@example.com.\n!;
-$r = run('-p gonzo -u enchanter@example.com alias planetfall@example.com');
-ok($e, $r);
-
-# 13. Set a password
-$e = qq!\QPassword set.\n!;
-$r = run('-p gonzo -u enchanter@example.com password-quiet suspect');
-ok($e, $r);
-
-# 14. Unsubscribe the aliased address using the set password
-$e = qq!\Qzork\@example.com was removed from bleeargh.\n!;
-$r = run('-p suspect unsubscribe bleeargh enchanter@example.com');
-ok($e, $r);
-
-
-
-sub run {
-  if ($config->{'wrappers'}) {
-    $cmd = "$^X -T -I. -Iblib/lib blib/script/.mj_shell -Z --lockdir $tmpdir/locks -t $tmpdir -d test " . shift;
-  }
-  else {
-    $cmd = "$^X -T -I. -Iblib/lib blib/script/mj_shell -Z --lockdir $tmpdir/locks -t $tmpdir -d test " . shift;
-  }
-  $cmd .= " -D"
-    if (shift());
-
-#  warn "$cmd\n";
-  return `$cmd`;
-}
-
 END {
   system("/bin/rm -rf $tmpdir");
 }
 
-1;
 #
 ### Local Variables: ***
 ### cperl-indent-level:2 ***
