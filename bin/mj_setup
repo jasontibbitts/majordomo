@@ -1,6 +1,320 @@
 #!/usr/bin/perl -wT
+BEGIN {
+  $::CONFFILE = "blah";
+  $::UID      = "baduid";
+  $::GID      = "badgid";
+}
 
-$::CONFFILE = "blah";
+use strict;
+use IO::File;
+use Getopt::Long;
+use Data::Dumper;
+use Carp;
 
-print "This is a placeholder.\n";
+
+my (%opts, @goargs, $conf, $i, $nosep, $sepclear);
+
+# Information on all of the settings
+my @var =
+  (
+   {
+    'name' => 'site_password',
+    'type' => 'str_nospace',
+    'desc' => 'Master Site Password',
+    'head' => 'Basic Security Configuration',
+    'ques' => 'Please choose a site password.
+  Majordomo allows a single site password that allows the holder to perform
+  any function on any list in any virtual domain at the site, in addition
+  to various more specific passwords.  It should be chosen with care.  It
+  can be of arbitrary length, but cannot contain spaces.
+',
+   },
+  );
+
+# Check IDs: must be run as the majordomo user
+if ($> != $::UID || $) != $::GID) {
+  print STDERR "This program must be run under the Majordomo user and group:\n";
+  print STDERR "   UID: $::UID, GID: $::GID\n";
+  exit 1;
+}
+
+# XXX or run setuid and prompt for the password?
+
+# Parse options.  Build option list from @var array, call GetOptions
+@goargs=(qw());
+for $i (@var) {
+  push @goargs, "$i->{name}=s";
+}
+print Dumper \@goargs;
+GetOptions(\%opts, @goargs);
+
+# If majordomo.cf exists, load it.
+if (-f $::CONFFILE) {
+  print "Found existing config file in $::CONFFILE.\n";
+  $conf = do "$::CONFFILE";
+
+  # Check for errors
+  unless (defined $conf) {
+    if ($@) {
+      die "Cannot compile config file $::CONFFILE: $@";
+    }
+    die "Cannot read config file $::CONFFILE: $!";
+  }
+}
+else {
+  print "Generating new config file in $::CONFFILE.\n";
+  $conf = {};
+}
+
+
+# Fill in config structure from given options
+
+# If no options given (or if interactive option given) go interactive
+
+# Write out majordomo.cf.  Use given umask?
+
+
+print "Note: this script does not yet do anything.\n";
 exit 0;
+
+# Various subroutines
+sub prompt ($;$) {
+  sep();
+  my($mess,$def) = @_;
+  my $ISA_TTY = -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT));
+  Carp::confess("prompt function called without an argument")
+    unless defined $mess;
+  my $dispdef = defined $def ? "[$def] " : " ";
+  $def = defined $def ? $def : "";
+  my $ans;
+  if ($ISA_TTY || -s STDIN) {
+    local $|=1;
+    print "$mess $dispdef->";
+    chomp($ans = <STDIN>);
+    # show the output if we're reading from a response file
+    print $ans, "\n" unless $ISA_TTY;
+  }
+  # and if it's NOT a tty? return undef?
+  return $ans if(length $ans);
+  return $def;
+}
+
+sub get_str {
+  return prompt(shift, shift);
+}
+
+sub get_str_nospace {
+  my $msg = shift;
+  my $def = shift;
+  my $ans;
+  while (1) {
+    $ans = get_str($msg, $def);
+    return $ans unless $ans =~ /\s/;
+    $msg = "Spaces are not allowed.\n";
+  }
+}
+
+sub get_enum {
+  my $msg  = shift;
+  my $def  = shift;
+  my $vals = shift;
+  my $ans;
+  while (1) {
+    $ans = get_str($msg, $def);
+    if (grep {$ans eq $_} @$vals) {
+      return $ans;
+    }
+    $msg = "Allowed values are:\n";
+    for my $i (@$vals) {
+      $msg .= "  $i\n";
+    }
+  }
+}
+
+# Query for the existence of a file.
+sub get_file {
+  my ($msg, $def, $exist, $exe, $path, $force) = @_;
+  my ($file);
+ OUTER:
+  while (1) {
+    my $ans = prompt($msg, $def);
+    $file = ($ans =~ /(\S*)/)[0];
+
+    # We always require some input, else we wouldn't be asking
+    unless (length $file) {
+      $msg = "You must enter something.\n";
+      next;
+    }
+
+    # If existence isn't required, we can exit as soon as we have anything
+    # at all
+    last if !$exist;
+
+    # If it's executable, we're done.  If it simply exists and we don't
+    # need executability, we're also done.
+    last if -x $file;
+    last if -f $file && !$exe;
+
+    # Now we can run over the path
+    if ($path) {
+      for my $i (split(':', $ENV{PATH})) {
+        last OUTER if -x "$i/$file";
+      }
+    }
+
+    # So it didn't exist or wasn't executable.  Complain a bit.  If $force
+    # is true, we require that the file be there and so we make another
+    # round.  Otherwise we can just make sure that the user really intended
+    # to type what they typed.
+    if ($force) {
+      if ($exe) {
+        $msg = "You must enter the name of an existing executable file.\n";
+        next;
+      }
+      $msg = "You must enter the name of an existing file.\n";
+      next;
+    }
+    if ($exe) {
+      last if get_bool("$file does not exist or is not executable; use anyway?");
+    }
+    else {
+      last if get_bool("$file does not exist; use anyway?");
+    }
+  }
+  $file;
+}
+
+sub get_dir {
+  my ($msg, $def, $empty) = @_;
+  my ($dir);
+  while (1) {
+    my $ans = prompt($msg, $def);
+    $dir = ($ans =~ /(\S*)/)[0];
+    last if !length $dir && $empty;
+    next unless length $dir;
+    unless ($dir =~ m!^/!) {
+      $msg .= "\nYou must enter a complete pathname, beginning with '/'.";
+      next;
+    }
+    last if -d $dir;
+    last if get_bool("$dir does not exist; use anyway?");
+  }
+  $dir;
+}
+
+sub get_uid {
+  my ($msg, $def) = @_;
+  my ($uid);
+
+  while (1) {
+    my $ans = prompt($msg, $def);
+    $uid = ($ans =~ /(\S*)/)[0];
+    unless (length $uid) {
+      $msg .= "\nYou must enter a real username or a numeric ID.\n";
+      next;
+    }
+    last if getpwnam $uid ;
+    last if $uid =~ /\d+/ && ($uid = getpwuid($uid));
+    $msg .= "\n$uid can't be interpreted, please enter a valid user number.\n";
+  }
+  $uid;
+}
+
+sub get_gid {
+  my ($msg, $def) = @_;
+  my ($gid);
+
+  while (1) {
+    my $ans = prompt($msg, $def);
+    $gid = ($ans =~ /(\S*)/)[0];
+    unless (length $gid) {
+      $msg .= "\nYou must enter a real groupname or a numeric ID.\n";
+      next;
+    }
+    last if getgrnam $gid;
+    last if $gid =~ /\d+/ && ($gid = getgrgid($gid));
+    $msg .= "\n$gid can't be interpreted, please enter a valid group number.\n";
+  }
+  $gid;
+}
+
+
+sub get_bool {
+  my ($msg, $def) = @_;
+  chomp $msg;
+  my $val = prompt($msg, $def ? "yes" : "no");
+  $val =~ /^y/i ? 1:0;
+}
+
+sub get_domain_list {
+  my ($msg, $def, $empty) = @_;
+  my ($elem, $list);
+  sep();
+  my $nosep = 1;
+  $list = [];
+  print $msg;
+
+  while (1) {
+    my $ans = prompt("", (@{$def} ? shift @{$def} : undef));
+    $elem = ($ans =~ /(\S*)/)[0];
+    unless (length $elem) {
+      last if $empty;
+      last if @{$list};
+      print "Empty list not allowed!\n";
+      next;
+    }
+    # Hack to test for valid domains
+    if ($elem =~ /[^a-zA-Z0-9\.\-]/) {
+      print "Invalid domain name.\n";
+      print "Only letters, digits, period and hyphen are allowed.\n";
+      next;
+    }
+    push @{$list}, $elem;
+  }
+  $list;
+}
+
+sub sep {
+  return if $nosep;
+  if ($sepclear) {
+    print `clear`;
+    return;
+  }
+  print "\n", '-'x76, "\n";
+}
+
+=head1 NAME
+
+mj_setup - Create and manage majordomo.cf file and majordomo domain list
+
+=head1 SYNOPSIS
+
+B<mj_setup>
+
+=head1 DESCRIPTION
+
+This populates and manages the system-wide majordomo.cf file.
+
+=cut
+
+=head1 COPYRIGHT
+
+Copyright (c) 1997-2002 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+#^L
+### Local Variables: ***
+### mode:cperl ***
+### cperl-indent-level:2 ***
+### End: ***
