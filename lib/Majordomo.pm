@@ -3752,7 +3752,7 @@ sub reject {
          'REQUESTER'  => $data->{'user'},
          'VICTIM'     => $data->{'victim'},
          'CMDLINE'    => $data->{'cmdline'},
-         'DATE'       => scalar localtime($data->{'time'});
+         'DATE'       => scalar localtime($data->{'time'}),
          'REQUEST'    => $data->{'command'},
          'LIST'       => $data->{'list'},
          'SESSIONID'  => $data->{'sessionid'},
