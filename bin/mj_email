@@ -43,10 +43,8 @@ use Getopt::Std;
 use Data::Dumper;
 use MIME::Parser;
 use IO::File;
-my (%opts, @entities, $args, $av, $command, $debug_file, $debug_log,
-    $debug_reply, $deflist, $entity, $head, $i, $line, $list, $ok,
-    $reply_to, $reply_to_strip, $sender, $sub_addin, $subject, $tag,
-    $tlist, $top, $token);
+my (%opts, $entity, $head, $mime_parser, $mj, $ok, $request_ans, $user,
+    $uuser);
 
 umask oct($::UMASK);
 
@@ -61,9 +59,13 @@ $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb"; # Needed for Syslog to get hostname.
 # Parse the command line arguments.
 # -d - specify domain to serve (arg)
 # -l - specify deflist (arg)
-# -t - specify directory containing domains
+# -m - run at main majordomo address; -l ignored.
+# -o - run as owner answerer
+# -q - run as request answerer; -l _required_.
+# -r - run as resend; -l _required_.
+# -t - specify directory containing domains (arg)
 # -v - specify debug verbosity (arg), default 50.
-getopts('d:l:t:v:', \%opts);
+getopts('d:l:moqrt:v:', \%opts);
 
 # We must untaint the top level dir and the domain because they are used to
 # generate filenames; it's safe since they were supplied by the site owner.
@@ -72,9 +74,12 @@ $opts{d} = $1;
 $opts{t} ||= $::LISTDIR;
 $opts{t} =~ /(.*)/;
 $opts{t} = $1;
+if ($opts{l}) {
+  $opts{l} =~ /(.*)/;
+  $opts{l} = $1;
+}
 
 $opts{v} ||= 0;
-$deflist = $opts{l};
 
 # Open a log
 $::log = new Mj::Log;
@@ -97,144 +102,48 @@ $::log->in(20, undef, "info", "Majordomo Email client - ".scalar(localtime));
 $::log->startup_time();
 
 # Make a Majordomo object
-$::mj = new Majordomo $opts{t}, $opts{d};
-my $mj = $::mj;
+$::mj = new Majordomo $opts{t}, $opts{d}; $mj = $::mj;
 
-$::log->in(85, undef, "info", "Seting MIME parser properties");
-my $mime_parser = new MIME::Parser;
-$mime_parser->output_to_core($mj->global_config_get(undef, undef, undef,
-						    "email", "max_in_core"));
-$mime_parser->output_dir($::TMPDIR);
-$mime_parser->output_prefix("mje");
-$::log->out;
-
-# One line does all of the parsing!
-$::log->in(80, undef, "info", "Taking apart the incoming message");
-$entity = $mime_parser->read(\*STDIN);
-$::log->out;
-
-# Connect
-$mj->connect('email', $entity->head->as_string);
-
-# Get the header.
-$::log->in(80, undef, "info", "Parsing the header");
-$head = $entity->head;
-$head->unfold;
-$::log->out;
-
-# Parse commands in the subject here; we do this early to get the debug log
-# going.  XXX Support ACCEPT, DENY, LIST and PASS in the subject, too.  The
-# first two for quick confirmation token processing; the latter two for
-# bypassing failed "access" checks.
-
-$subject = $head->get('subject') || "";
-
-# Look for a possible token
-$token = $mj->t_recognize($subject);
-
-if ($subject =~ s/DEBUG\s*(\d+)\s*//) {
-  $debug_reply = $1;
-  $debug_file  = "$::TMPDIR/mje.$$.debug";
-  $debug_log =
-    $::log->add(method      => 'file',
-		filename    => $debug_file,
-		id          => 'mje',
-		level       => $debug_reply,
-		subsystem   => 'mail',
-		log_entries => 1,
-		log_exits   => 1,
-		log_args    => 1,
-	       );
+# if at list address, resend.
+if ($opts{r}) {
+  $::log->abort("mj_email called with -r and without -l!")
+    unless $opts{l};
+  resend($mj, $opts{l});
 }
-
-
-# Now we try to figure out who to send the replies to.
-# $reply_to also becomes the default target for subscribe/unsubscribe
-# 
-$reply_to = $head->get('reply-to') ||
-  $head->get('from') ||
-  $head->get('apparently-from');
-chomp $reply_to;
-($ok, $reply_to_strip, undef) = $mj->addr_validate($reply_to);
-unless ($ok) {
-  # We can't get the stripped address, so we can't reply
-  # We should send something to the owner or something
-  $::log->abort("Invalid return address: $reply_to, $reply_to_strip");
-}
-
-$::log->message(35, "info", "Message from $reply_to.");
-
-# Need to bail if we're talking to outselves, either here (it's convenient)
-# or when checking access.
-
-if ($mj->global_config_get(undef, undef, undef, "email", "return_subject") &&
-    defined($head->get('subject')) && $head->get('subject') =~ /\S/)
-  {
-    $sub_addin = ": " . (substr($head->get('subject'), 0, 40));
-    chomp $sub_addin;
-  } 
-else {
-  $sub_addin = '';
-}
-
-(undef, @entities) = 
-  Mj::Parser::parse_entity($mj, "", , "email", $::TMPDIR, 
-			   {
-			    'reply_to' => $reply_to,
-			    'deflist'  => $deflist,
-			    'token'    => $token,
-			   },
-			   $entity,
-			  );
-if ($debug_reply) {
-  push @entities, build MIME::Entity
-    (
-     Path        => "$debug_file",
-     Description => "Debugging information",
-     Top         => 0,
-   );
-}
-
-# Somehow we need to put together all of the entities and the debug info.
-# If we just have one entity, we add the necessary headers and send it
-# (this avoids attaching useless MIME crap).  If we have multiple entities
-# then we build a top and attach them all to it.
-if (@entities == 1) {
-  $top = shift @entities;
-  # XXX This is nasty, because MIME-Tools might start supporting a newer
-  # MIME version at any time, but we have to do this until we get
-  # MIME::Entity::make_top.
-  $top->head->replace('MIME-Version', '1.0');
-}
-else {
-  $top = build MIME::Entity
-    Type => "multipart/mixed";
-
-  for $i (@entities) {
-    $top->add_part($i);
+# if at -request (-q) pull out global 'request_answer' variable and figure
+# out what to do
+elsif ($opts{'q'}) {
+  $::log->abort("mj_email called with -q and without -l!")
+    unless $opts{l};
+  $request_ans = $mj->global_config_get(undef, undef, undef, 'email',
+					'request_answer');
+  if ($request_ans eq 'majordomo') {
+    parse_commands($mj, $opts{l});
+  }
+  elsif ($request_ans eq 'owner') {
+    forward_to_owner($mj, $opts{l});
+  }
+  else {
+    respond_with_file($mj, $opts{l});
   }
 }
+# if at -owner (-o) look for bounces and forward everything else to the
+# owner
+elsif ($opts{o}) {
+  # forward to owner; if -l is present, forward to that list else assume
+  # we're majordomo-owner.
+  forward_to_owner($mj, $opts{l} || 'GLOBAL');
+}
+  
+# if at majordomo (-m) parse as normal
+elsif ($opts{'m'}) {
+  parse_commands($mj);
+}
 
-$head = $top->head;
-$head->replace('to'     , $reply_to);
-$head->replace('subject', "Majordomo results$sub_addin");
-$head->replace('from'   , $mj->global_config_get(undef, undef, undef,
-						 "email", "whoami"));
-
-$sender = $mj->global_config_get(undef, undef, undef, "email", "whoami_owner");
-$::log->delete($debug_log) if defined $debug_log;
-open BLAH, ">$::TMPDIR/mje.$$.final" ||
-  $::log->abort("Couldn't open final output file, $!");
-$top->print(\*BLAH);
-close BLAH;
-
-$mj->mail_message($sender, "$::TMPDIR/mje.$$.final", $reply_to_strip);
-
-# Purge all tempfiles created by the entities.  XXX Ugh, need to clean up
-# the variable names.
-$entity->purge;
-$top->purge;
-unlink "$::TMPDIR/mje.$$.final";
+# else something's screwed; we already processed the resend case earlier
+else {
+  $::log->abort("mj_email not called with -m, -o, or -r!");
+}
 
 $::log->message(50, "info", "-----Calling destructors-----");
 undef $mj;
@@ -242,6 +151,237 @@ undef $::mj;
 
 $::log->out;  
 exit 0;
+
+# Forward the message to the list owner.  Call owner_start, owner_chunk,
+# owner_done passing in all of the message.
+sub forward_to_owner {
+  my ($mj, $list) = @_;
+  my (@stuff, $sess);
+
+  @stuff = ('', '', '', 'owner', "(message to $list-owner)", '', $list, '');
+  $sess = connect_no_parse($mj, 'owner');
+
+  ($ok) = $mj->dispatch('owner_start', @stuff);
+  return unless $ok;
+
+  $_ = $sess;
+  while (1) {
+    last unless defined $_;
+    ($ok) = $mj->dispatch('owner_chunk', @stuff, $_);
+    return unless $ok;
+    $_ = <STDIN>;
+  }
+  ($ok) = $mj->dispatch('owner_done', @stuff);
+  return unless $ok;
+  1;
+}
+
+# Resend a message; call post_start, post_chunk, post_done passing in all
+# of the message.
+sub resend {
+  my ($mj, $list) = @_;
+  my (@out, @stuff, $sess);
+
+  $sess = connect_no_parse($mj, 'resend');
+
+  @stuff = ('', '', '', 'resend', "(post to $list)", '', $list, '');
+
+  ($ok) = $mj->dispatch('post_start', @stuff);
+  return unless $ok;
+
+  $_ = $sess;
+  while (1) {
+    last unless defined $_;
+    ($ok) = $mj->dispatch('post_chunk', @stuff, $_);
+    return unless $ok;
+    $_ = <STDIN>;
+  }
+  ($ok) = $mj->dispatch('post_done', @stuff);
+  return unless $ok;
+  1;
+}
+
+# Just call the response_file method.
+sub respond_with_file {
+  my ($mj, $list) = @_;
+  my $user;
+
+  (undef, undef, $user) = connect_and_parse($mj, 'request');
+  $mj->dispatch('request_response', $user, '', '', 'email', '', '', $list,
+		$user);
+  1;
+}
+
+# These two functions exist because there are times when we can avoid
+# loading the MIME modules in the client.  To connect, all we need is the
+# header of the incoming message.  If we do no MIME parsing here (such as
+# when we're forwarding to the owner or resending) we can just pull in
+# everything until the first blank line.
+
+# This pulls in the header, connects to the given majordomo object, and
+# returns the header _including_ the first blank line.  Standard input will
+# contain the remainder of the message.
+sub connect_no_parse {
+  my ($mj, $int) = @_;
+  my ($i, $sess);
+
+  while (defined($i = <STDIN>)) {
+    if ($i =~ /^\n/) {
+      $mj->connect($int, $sess);
+      $sess .= $i;
+      last;
+    }
+    $sess .= $i;
+  }
+  $sess;
+}
+
+# This parses the message and connects to the provided Majordomo object.
+# The MIME entity, unfolded header and user/reply address will be returned.
+sub connect_and_parse {
+  my ($mj, $int) = @_;
+  my($entity, $head, $mime_parser, $ok, $user, $uuser);
+
+  $::log->in(85, undef, "info", "Seting MIME parser properties");
+  $mime_parser = new MIME::Parser;
+  $mime_parser->output_to_core($mj->global_config_get(undef, undef, undef,
+						      $int,
+						      "max_in_core"));
+  $mime_parser->output_dir($::TMPDIR);
+  $mime_parser->output_prefix("mje");
+  $::log->out;
+
+  # One line does all of the parsing!
+  $::log->in(80, undef, "info", "Taking apart the incoming message");
+  $entity = $mime_parser->read(\*STDIN);
+  $::log->out;
+  
+  # Connect
+  $mj->connect($int, $entity->head->as_string);
+  
+  # Get the header.
+  $::log->in(80, undef, "info", "Parsing the header");
+  $head = $entity->head;
+  $head->unfold;
+  $::log->out;
+
+  $uuser = $head->get('reply-to') || $head->get('from') ||
+      $head->get('apparently-from');
+  chomp $uuser;
+  ($ok, $user, undef) = $mj->addr_validate($uuser);
+  unless ($ok) {
+    # We can't get the stripped address, so we can't reply
+    # We should send something to the owner or something
+    $::log->abort("Invalid return address: $uuser, $user");
+  }
+  ($entity, $head, $user);
+}
+
+# Parse commands in the subject here; we do this early to get the debug log
+# going.  XXX Support ACCEPT, DENY, LIST and PASS in the subject, too.  The
+# first two for quick confirmation token processing; the latter two for
+# bypassing failed "access" checks.
+sub parse_commands {
+  my ($mj, $deflist) = @_;
+  my (@entities, $args, $av, $command, $debug_file, $debug_log,
+      $debug_reply, $entity, $head, $i, $line, $list, $ok, $sender,
+      $sub_addin, $subject, $tag, $tlist, $top, $token);
+
+  ($entity, $head, $user) = connect_and_parse($mj, 'email');
+  $subject = $head->get('subject') || "";
+
+  # Look for a possible token
+  $token = $mj->t_recognize($subject);
+
+  if ($subject =~ s/DEBUG\s*(\d+)\s*//) {
+    $debug_reply = $1;
+    $debug_file  = "$::TMPDIR/mje.$$.debug";
+    $debug_log =
+      $::log->add(method      => 'file',
+		  filename    => $debug_file,
+		  id          => 'mje',
+		  level       => $debug_reply,
+		  subsystem   => 'mail',
+		  log_entries => 1,
+		  log_exits   => 1,
+		  log_args    => 1,
+		 );
+  }
+
+  $::log->message(35, "info", "Message from $user.");
+  
+  # Need to bail if we're talking to outselves, either here (it's convenient)
+  # or when checking access.
+  
+  if ($mj->global_config_get(undef, undef, undef, 'email', 'return_subject') &&
+      defined($head->get('subject')) && $head->get('subject') =~ /\S/)
+    {
+      $sub_addin = ': ' . (substr($head->get('subject'), 0, 40));
+      chomp $sub_addin;
+    } 
+  else {
+    $sub_addin = '';
+  }
+
+  (undef, @entities) = 
+    Mj::Parser::parse_entity($mj, '', , "email", $::TMPDIR, 
+			     {
+			      'reply_to' => $user,
+			      'deflist'  => $deflist,
+			      'token'    => $token,
+			     },
+			     $entity,
+			    );
+  if ($debug_reply) {
+    push @entities, build MIME::Entity
+      (
+       Path        => "$debug_file",
+       Description => "Debugging information",
+       Top         => 0,
+      );
+  }
+  
+  # Somehow we need to put together all of the entities and the debug info.
+  # If we just have one entity, we add the necessary headers and send it
+  # (this avoids attaching useless MIME crap).  If we have multiple
+  # entities then we build a top and attach them all to it.
+  if (@entities == 1) {
+    $top = shift @entities;
+    # XXX This is nasty, because MIME-Tools might start supporting a newer
+    # MIME version at any time, but we have to do this until we get
+    # MIME::Entity::make_top.
+    $top->head->replace('MIME-Version', '1.0');
+  }
+  else {
+    $top = build MIME::Entity
+      Type => "multipart/mixed";
+    
+    for $i (@entities) {
+      $top->add_part($i);
+    }
+  }
+
+  $head = $top->head;
+  $head->replace('to'     , $user);
+  $head->replace('subject', "Majordomo results$sub_addin");
+  $head->replace('from'   , $mj->global_config_get(undef, undef, undef,
+						   "email", "whoami"));
+  
+  $sender = $mj->global_config_get(undef, undef, undef, "email", "whoami_owner");
+  $::log->delete($debug_log) if defined $debug_log;
+  open BLAH, ">$::TMPDIR/mje.$$.final" ||
+    $::log->abort("Couldn't open final output file, $!");
+  $top->print(\*BLAH);
+  close BLAH;
+  
+  $mj->mail_message($sender, "$::TMPDIR/mje.$$.final", $user);
+  
+  # Purge all tempfiles created by the entities.  XXX Ugh, need to clean up
+  # the variable names.
+  $entity->purge;
+  $top->purge;
+  unlink "$::TMPDIR/mje.$$.final";
+}
 
 =head1 COPYRIGHT
 

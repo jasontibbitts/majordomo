@@ -710,7 +710,9 @@ sub generate_wrappers {
   print "\nGenerating the wrappers...";
   @EXES = ();
 
-  mkdir('wrappers', 0777) || die("Can't create wrappers dir: $!");
+  unless (-d 'wrappers') {
+    mkdir('wrappers', 0777) || die("Can't create wrappers dir: $!");
+  }
 
   for my $i (@SIDSCRIPTS) {
     link("./bin/$i", "./bin/.$i");

@@ -43,6 +43,7 @@ die "Can't do postinstall unless Makefile.PL has been run!"
    'en/repl_chain'		=> 'Default chained mailreply file',
    'en/repl_deny'		=> 'Default denial replyfile',
    'en/repl_forward'		=> 'Default forward replyfile',
+   'en/request_response'        => 'Automated response from $REQUEST',
    'en/subscribe_to_self'	=> 'Attempt to subscribe $LIST to itself',
    'en/token_reject'		=> 'Rejected token $TOKEN',
    'en/token_reject_owner'      => 'Token rejected by $REJECTER',
@@ -221,7 +222,13 @@ sub set_script_perms {
   my $scripts    = shift;
   print "Setting permissions...";
   $id = $config->{'install_dir'};
+  if ($config->{wrappers}) {
+    for my $i (@$sidscripts) {
+      push @$scripts, ".$i";
+    }
+  }
   map {$_ = "$id/bin/$_" unless /\//} @$sidscripts, @$scripts;
+    
   $uid = getpwnam($config->{'uid'});
   $gid = getgrnam($config->{'gid'});
 

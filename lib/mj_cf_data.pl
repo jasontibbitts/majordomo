@@ -1498,8 +1498,22 @@ EOC
     'global' => 1,
     'local'  => 1,
     'visible'=> 1,
+    'mutable'=> 1,
     'comment'=> <<EOC,
 Where to bounces from the whoami address go?
+EOC
+   },
+   'owners' =>
+   {
+    'type'   => 'address_array',
+    'groups' => [qw(majordomo)],
+    'global' => 1,
+    'local'  => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+Who owns this list or majordomo installation?  Majordomo will internally
+forward mail received at the -owner address to all of these addresses.
 EOC
    },
    'tmpdir' =>
@@ -1691,8 +1705,26 @@ server(s).  Note that this variable will be ignored if the MTA is qmail,
 because qmail does an equivalent kind of bounce probing itself.
 EOC
    },
+   'request_answer' =>
+   {
+    'type'   => 'enum',
+    'values' => [qw(majordomo owner response)],
+    'groups' => [qw(general)],
+    'local'  => 0,
+    'global' => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+    'comment'=> <<EOC,
+This variable controls what happens to messages sent to the
+'listname-request' address.  The possible valies, and their effects:
 
-  );
+majordomo - the message will be processed for commands
+owner     - the message will be sent to the list owner
+response  - the contents of the file 'request_reply' will be returned
+            to the sender of the message.
+EOC
+   },
+   );
 
 $file_header = q(# Most of this is completely bogus!
 

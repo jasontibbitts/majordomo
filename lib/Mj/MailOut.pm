@@ -130,6 +130,54 @@ sub deliver {
   Mj::Deliver::deliver(%args);
 }
 
+=head2 owner_*
+
+These functions comprise an iterative interface to a function which
+forwards a message to the owner(s) of a mailing list.
+
+=cut
+sub owner_start {
+  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
+      $list) = @_;
+  my $log  = new Log::In 30, "$list";
+
+  my $tmp  = $self->_global_config_get('tmpdir');
+  my $file = "$tmp/post." . $self->unique;
+  $self->{'owner_file'} = $file;
+  $self->{'owner_fh'} = new IO::File ">$file" or
+    $log->abort("Can't open $file, $!");
+  1;
+}
+
+sub owner_chunk {
+  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
+      $list, $vict, $data) = @_;
+  $self->{'owner_fh'}->print($data);
+}
+
+sub owner_done {
+  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
+      $list) = @_;
+  $list ||= 'GLOBAL';
+  my $log  = new Log::In 30, "$list";
+  my (@owners, $owner);
+
+  $self->{'owner_fh'}->close;
+  $self->_make_list($list);
+
+  # Extract the owners
+  $owner  = $self->_list_config_get($list, 'whoami_owner');
+  @owners = @{$self->_list_config_get($list, 'owners')};
+
+  # Mail the file
+  $self->mail_message($owner, $self->{'owner_file'}, @owners);
+
+  unlink $self->{'owner_file'};
+  undef $self->{'owner_fh'};
+  undef $self->{'owner_file'};
+  1;
+}
+
 =head2 welcome(list, address)
 
 This welcomes a subscriber to the list by sending them the messages

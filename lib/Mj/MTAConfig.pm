@@ -62,18 +62,18 @@ EOS
 
   if ($list eq 'GLOBAL') {
     return ($head, qq(# Aliases for Majordomo at $dom
-majordomo:       "|$bin/mj_email -d $dom"
-owner-majordomo: $own,
-majordomo-owner: $own,
+majordomo:       "|$bin/mj_email -m -d $dom"
+majordomo-owner: "|$bin/mj_email -o -d $dom"
+owner-majordomo: majordomo-owner,
 # End aliases for Majordomo at $dom
 ));
   }
   else {
     return ($head, qq(# Aliases for $list at $dom
-$list:         "|$bin/mj_resend -d $dom -l $list"
-$list-request: "|$bin/mj_email  -d $dom -l $list"
-$list-owner:   $own,
-owner-$list:   $own,
+$list:         "|$bin/mj_email -r -d $dom -l $list"
+$list-request: "|$bin/mj_email -q -d $dom -l $list"
+$list-owner:   "|$bin/mj_email -o -d $dom -l $list"
+owner-$list:   $list-owner,
 # End aliases for $list at $dom
 ));
   }

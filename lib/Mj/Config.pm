@@ -64,6 +64,7 @@ $VERSION = "1.0";
    'lists'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'put'         => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'rekey'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
+   'request_response' => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'showtokens'  => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'unsubscribe' => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'which'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
@@ -854,9 +855,7 @@ sub set_to_default {
   my $var  = shift;
 
   $::log->in(150, "$self->{'list'}, $var");
-  unless ($self->{'loaded'}) {
-    $self->load;
-  }
+  $self->lock;
   
   if (exists $self->{'vars'}{$var}) {
     delete $self->{'data'}{'raw'}{$var};

@@ -54,7 +54,7 @@ $Mj::Config::default_string = q(
  'moderator'            => undef,
  'moderators'           => [],
  'moderator_group'      => 0,
- 'sender'               => $list eq 'GLOBAL' ? "majordomo-owner" : "owner-$list",
+ 'sender'               => $list eq 'GLOBAL' ? "majordomo-owner" : "$list-owner",
  'maxlength'            => 40000,
  'precedence'           => "bulk",
  'reply_to'             => undef,
@@ -132,7 +132,7 @@ $Mj::Config::default_string = q(
  'site_name'            => 'Majordomo',
  'whereami'             => undef,
  'whoami'               => $list eq 'GLOBAL' ? 'majordomo' : $list,
- 'whoami_owner'         => $list eq 'GLOBAL' ? 'owner-majordomo' : "owner-$list",
+ 'whoami_owner'         => $list eq 'GLOBAL' ? 'majordomo-owner' : "$list-owner",
  'tmpdir'               => '/tmp',
  'max_in_core'          => '20000',
  'return_subject'       => 1,
@@ -159,5 +159,7 @@ $Mj::Config::default_string = q(
  'max_total_header_length'=> 2048,
  'nonmember_flags'      => '',
  'default_flags'        => 'S',
+ 'request_answer'       => 'majordomo',
+ 'owners'               => [],
 };
 );

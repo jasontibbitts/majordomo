@@ -448,7 +448,7 @@ They each take the following:
   arg       - the argument passed to the action, i.e. 
                 allow=2
   mj_owner  - the majordomo-owner
-  sender    - the sender (owner-list, usually)
+  sender    - the sender (list-owner, usually)
   list      - the list name
   request   - the various request parameters
   requester
@@ -615,7 +615,8 @@ sub _a_default {
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
   my $log = new Log::In 150, "$request";
   my ($access, $fun);
-  my %allowed_requests   = ('access'=>1, 'help'=>1, 'lists'  =>1);
+  my %allowed_requests   = ('access'=>1, 'help'=>1, 'lists'  =>1,
+			    'request_response' =>1);
   my %confirmed_requests = ('alias' =>1, 'set' =>1, 'unalias'=>1);
   my %access_requests    = ('which' =>1, 'info'=>1, 'intro'  =>1,
 			    'index' =>1, 'who' =>1, 'get'    =>1,

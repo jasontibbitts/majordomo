@@ -26,11 +26,11 @@ use strict;
 Bouncefilter uses envelope sender addresses that are in one of the
 following formats:
 
-(1)  owner-list+$type\@whereami
+(1)  list-owner+$type\@whereami
 
-(2)  owner-list+$type=$host=$user\@whereami
+(2)  list-owner+$type=$host=$user\@whereami
 
-(3)  owner-list+$type=$abbrev\@whereami
+(3)  list-owner+$type=$abbrev\@whereami
 
 (4)  bouncefilter+$type=$abbrev\@whereami
 
@@ -91,17 +91,17 @@ sub parse_to {
     $::log->message(5, "mail", "parse_to: no '\@' in $to");
     return 0;
   }
-  if ($left=~/^owner-([^\=\+]*)\+([^\=]*)=([^\=]*)=([^\=]*)/i) {
+  if ($left=~/^([^\=\+]*)-owner\+([^\=]*)=([^\=]*)=([^\=]*)/i) {
     # format (3)
     $list=$1;
     $type=$2;
     $addr="$4\@$3";
-  } elsif ($left=~/^owner-([^\=\+]*)\+([^\=]*)=([^\=]*)/i) {
+  } elsif ($left=~/^([^\=\+]*)-owner\+([^\=]*)=([^\=]*)/i) {
     # format (2)
     $list=$1;
     $type=$2;
     $addr=lookup_abbrev($3);
-  } elsif ($left=~/^owner-([^\=\+]*)\+([^\=]*)/i) {
+  } elsif ($left=~/^([^\=\+]*)-owner\+([^\=]*)/i) {
     # format (1)
     return (1, $host, 0, $2, time(), 0, '-', $1);
   } elsif ($left=~/^[a-z0-9]*\+([^\=]*)=([^\=]*)=([^\=]*)/i) {

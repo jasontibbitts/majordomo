@@ -1,0 +1,63 @@
+This pre-recorded message is being sent in response to your recent
+email to $REQUEST.
+
+All routine administrative requests (including subscriptions and
+unsubscriptions) concerning this mailing list are handled by an
+automated server.  Please read this message carefully to find the
+information relevant to you.
+
+SUBSCRIBING
+===========
+
+To subscribe to $list, send the following in the body (not
+the subject line) of an email message to "$MAJORDOMO":
+
+        subscribe $LIST
+
+This will subscribe the account from which you send the message to
+the $LIST list.
+
+If you wish to subscribe another address instead (such as a local
+redistribution list), you can use a command of the form:
+
+        subscribe $LIST other-address@your_site.your_net
+
+UNSUBSCRIBING
+=============
+
+To unsubscribe from $LIST, send the following in the body (not
+the subject line) of an email message to "$whoami":
+
+        unsubscribe $LIST
+
+This will unsubscribe the account from which you send the message.
+If you are subscribed with some other address, you'll have to send
+a command of the following form instead:
+
+        unsubscribe $LIST other-address@your_site.your_net
+
+If you don't know what address you are subscribed with, you can send
+the following command to see who else is on the list (assuming that
+information isn't designated "private" by the owner of the list):
+
+        who $LIST
+
+If you want to search non-private lists at this server, you can do that
+by sending a command like:
+
+        which string
+
+This will return a list of all entries on all lists that contain "string".
+
+HELP
+====
+
+To find out more about the automated server and the commands it
+understands, send the following command to "$MAJORDOMO":
+
+        help
+
+If you feel you need to reach a human, send email to:
+
+        $OWNER
+

@@ -236,9 +236,12 @@ my %functions =
    'info'        => {'top_half' => 1, 'iterator' => 1},
    'intro'       => {'top_half' => 1, 'iterator' => 1},
    'lists'       => {'top_half' => 1},
+   'owner'       => {'top_half' => 1, 'iterator' => 1},
+   'post'        => {'top_half' => 1, 'iterator' => 1},
    'put'         => {'top_half' => 1, 'iterator' => 1},
    'reject'      => {'top_half' => 1},
    'rekey'       => {'top_half' => 1},
+   'request_response' => {'top_half' => 1},
    'sessioninfo' => {'top_half' => 1},
    'set'         => {'top_half' => 1},
    'show'        => {'top_half' => 1},
@@ -525,7 +528,7 @@ default.
 =cut
 sub list_config_set_to_default {
   my ($self, $user, $passwd, $auth, $interface, $list, $var) = @_;
-  my (@levels, $ok, $mess, $level);
+  my (@groups, @levels, $ok, $mess, $level);
   $self->_make_list($list);
   
   unless (defined $passwd) {
@@ -540,7 +543,7 @@ sub list_config_set_to_default {
   # Validate passwd, check for proper auth level.
   ($ok, $mess, $level) =
     $self->validate_passwd($user, $passwd, $auth,
-			   $interface, $list, 'config_$var');
+			   $interface, $list, "config_$var");
   unless ($ok) {
     return (0, "Password does not authorize $user to alter $var.\n");
   }
@@ -1168,29 +1171,6 @@ sub _intro {
   return 1;
 }
 
-# sub help_chunk {
-#   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode, $list, $vict,
-#       $chunksize) = @_;
-#   my ($i, $line, $out);
-
-#   return unless $self->{'help_fh'};
-#   for ($i = 0; $i < $chunksize; $i++) {
-#     $line = $self->{'help_fh'}->getline;
-#     last unless defined $line;
-#     $out = '' unless $out;
-#     $out .= $line;
-#   }
-#   return (1, $out);
-# }
-
-# sub help_done {
-#   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode) = @_;
-#   my $log = new Log::In 50;
-#   return unless $self->{'help_fh'};
-#   undef $self->{'help_fh'};
-#   1;
-# }
-
 =head2 put_start(..., file, subject, content_type, content_transfer_encoding)
 
 This starts the file put operation.
@@ -1268,6 +1248,80 @@ sub put_done {
   
   $self->{'lists'}{$list}->fs_put_done;
 }
+
+=head2 request_response(...)
+
+This is a simple function which mails a list''s request_response file to
+the victim.  It does not handle returning the file inline (because the
+intent is for it to be called from an email interface without returning any
+status.)
+
+=cut
+sub request_response {
+  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode, $list,
+      $vict) = @_;
+  my $log = new Log::In 50, "$list, $vict";
+  my ($mess, $ok, $whereami);
+  
+  ($ok, $mess) =
+    $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
+                             $list, 'request_response', $user, $vict, '',
+                             '', '');
+  unless ($ok > 0) {
+    return ($ok, $mess);
+  }
+  $self->_request_response($list, $user, $vict, $mode, $cmdline);
+}
+
+use MIME::Entity;
+use Mj::MailOut;
+sub _request_response {
+  my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
+  my $log = new Log::In 35, "$list";
+  my (%subst, $cset, $desc, $enc, $ent, $file, $list_own, $majord,
+      $majord_own, $mess, $sender, $site, $type, $whereami);
+
+  $self->_make_list($list);
+
+  ($file, $desc, $type, $cset, $enc) = 
+    $self->_list_file_get($list, 'request_response');
+  return unless $file;
+
+  # Build the entity and mail out the file
+  $sender = $self->_list_config_get($list, 'sender');
+  $whereami = $self->_global_config_get('whereami');
+  $majord   = $self->_global_config_get('whoami');
+  $majord_own = $self->_global_config_get('whoami_owner');
+  $site       = $self->_global_config_get('site_name');
+  $list_own   = $self->_list_config_get($list, 'whoami_owner');
+
+  %subst = (
+	    REQUEST   => "$list-request\@$whereami",
+	    MAJORDOMO => "$majord\@$whereami",
+	    OWNER     => "$list_own\@$whereami",
+	    SITE      => $site,
+	    LIST      => $list,
+	   );
+
+  # Expand variables
+  $desc = $self->substitute_vars_string($desc, %subst);
+  $file = $self->substitute_vars($file, %subst);
+
+  $ent = build MIME::Entity
+    (
+     Path     => $file,
+     Type     => $type,
+     Charset  => $cset,
+     Encoding => $enc,
+     Subject  => $desc || "Your message to $list-request",
+     Top      => 1,
+     Filename => undef,
+    );
+
+  $self->mail_entity($sender, $ent, $victim);
+  1;
+}
+
 
 sub index {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode, $list, $vict,
@@ -1959,6 +2013,8 @@ sub _createlist {
     return (0, "List already exists.\n")
       if exists $self->{'lists'}{$list};
 
+    $self->{'lists'}{$list} = undef;
+
     unless (-d $dir) {
       mkdir $dir, 0777 
 	or $log->abort("Couldn't make $dir, $!");
@@ -1983,8 +2039,12 @@ sub _createlist {
 					     );
   }
   
-  # XXX Now do some basic configuration and mail owner information.
-  
+  # Now do some basic configuration
+  $self->_make_list($list);
+  $self->_list_config_set($list, 'owners', $owner);
+
+  # XXX mail the owner some useful information
+
   return (1, $head, $mess);
 }
 
