@@ -1,3 +1,11 @@
+Mon Oct 19 19:08:59 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Format.pm (createlist): Don't print out headers and alias
+ 	blocks if none were returned from the core.
+
+	* lib/Mj/Digest.pm (_open_state,_close_state): Add logging so we
+ 	can see how long this is taking.
+
 Sat Oct 17 13:30:06 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* installbin: Take 'startperl' from .mj_config instead of from

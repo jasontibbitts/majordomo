@@ -230,8 +230,8 @@ sub createlist {
   # Now print out the header and the aliases/instructions/whatever, if
   # we had any successful creations.
   if (@$arg1) {
-    eprint($out, $type, "\n$head\n") unless $mode =~ /noheader/;
-    eprint($out, $type, "$mess");
+    eprint($out, $type, "\n$head\n") unless $mode =~ /noheader/ || !$head;
+    eprint($out, $type, "$mess") if $mess;
   }
   return scalar(@$arg1) ? 1 : 0;
 }

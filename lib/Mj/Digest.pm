@@ -340,6 +340,7 @@ and unlocks it.
 sub _open_state {
   my $self = shift;
   my $file = "$self->{'dir'}/_digests";
+  my $log = new Log::In 200, "$file";
 
   unless (-f $file) {
     open DIGEST, ">>$file";
@@ -356,6 +357,7 @@ sub _close_state {
   my $self = shift;
   my $data = shift;
   my $dirty= shift;
+  my $log = new Log::In 200;
 
   unless ($dirty) {
     $self->{'datafh'}->abandon;

@@ -26,6 +26,23 @@ The interface can pass bad passwords to some functions (config_get_vars)
 Top of the list 
 ---------------
 
+! Auto-maintain aliases:
+   Single directory under topdir containing all aliases.  Must be mode
+   755 or tighter (apply umask to 755).
+
+  In site config, add 'maintain_aliases' variable, default '0'.
+  
+  In Makefile.PL, if $mta eq 'sendmail', ask if aliases are to be
+  maintained.
+
+  In postinstall, if maintain_aliases is true, make the 'aliases' directory
+  and call 'createlist-rebuild' as part of the installation.
+
+  Add 'del_one' in Mj::MTAConfig::Sendmail; opensa filerepl and copies the
+  alias file until the opening comment is hit, then it skips until after the
+  closing comment, then prints the rest of the file.  Use this for a
+  'createlist-delete' routine.
+
 ! Archiver:
     Build index from existing file (sync)
     Delete message from archive?
