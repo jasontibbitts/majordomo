@@ -18,8 +18,8 @@ the beginning of the archive file in bytes and lines.  This enables fast
 retrieval with a single seek and a sysread.
 
 Archives have specific names: listname-yyymmcc, where yyy is the 4 digit
-year, mm is the two digit month, and cc is a two digit count (could be week
-number, or day number, or an arbitrary counter).
+year, mm is the two digit month, and cc is a one or two digit count 
+(could be week number, or day number, or an arbitrary counter).
 
 Note that the addition operation should if at all possible _not_ cause a
 load of any data.  This precludes any Data::Dumped structure for the index.
@@ -423,6 +423,32 @@ sub get_to_file {
   ($data, $file);
 }
 
+=head2 get_all_data(archive)
+
+Load all of the data for a particular into a list.
+
+=cut
+sub get_all_data {
+  my $self = shift;
+  my $arc  = shift;
+  my $log = new Log::In 150, $arc;
+  my (@out, $data);
+
+  @out = ();
+  # Restore sublist name if needed.
+  if ($self->{'sublist'} and $arc !~ /^$self->{'sublist'}/) {
+    $arc = "$self->{'sublist'}.$arc";
+  }
+
+  return unless $self->_make_index($arc);
+  return unless $self->{'indices'}{$arc}->get_start;
+  while (@chunk = $self->{'indices'}{$arc}->get(100)) {
+    push @out, @chunk;
+  }
+  $self->{'indices'}{$arc}->get_done;
+  @out;
+}
+
 =head2 get_data(message)
 
 This just retrieves the data for a message, or undef if the message does
@@ -432,7 +458,7 @@ not exist.
 sub get_data {
   my $self = shift;
   my $msg  = shift;
-  my $log = new Log::In 150, "$msg";
+  my $log = new Log::In 150, $msg;
   my ($arc, $data);
 
   # Figure out appropriate index database and message number
@@ -443,7 +469,7 @@ sub get_data {
     $arc = "$self->{'sublist'}.$arc";
   }
 
-  $self->_make_index($arc);
+  return unless $self->_make_index($arc);
 
   # Look up the data for the message
   $self->{'indices'}{$arc}->lookup($msg);
@@ -490,7 +516,7 @@ sub first_n {
   my $n    = shift;
   my $ct   = shift || 0;
   my $arc  = shift;
-  my (@arcs, @msgs, $msg, $final, $num);
+  my (@arcs, @data, @msgs, $final, $key, $msg, $value);
 
   if ($arc and $self->{'sublist'}) {
     $arc = "$self->{'sublist'}.$arc";
@@ -507,31 +533,30 @@ sub first_n {
 
   $arc ||= shift @arcs;
 
-  $num = 1;
   $final = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
-  while (1) {
-    if ($ct <= 0) {
-      $msg = $self->get_data("$arc/$num");
-      if (defined $msg) {
-        push @msgs, ["$arc/$num", $msg];
-      }
-      else {
-        # do not count against the total
-        $n++;
-      }
+
+  while ($ct >= $final) {
+    $ct -= $final;
+    $arc = shift @arcs;
+    last unless $arc;
+    $final = $self->last_message($arc);
+    $final =~ m!\d+/(\d+)!;
+  }
+
+  while ($arc) {
+    @data = $self->get_all_data($arc);
+    while (@data and $ct > 0) {
+      shift @data; shift @data;
+      $ct--;
     }
-    $n--;
-    $ct--;
-    last unless $n>0;
-    $num++;
-    unless ($num <= $final) {
-      # Move to next archive.
-      $arc = shift @arcs;
-      last unless $arc;
-      # Set $final to its last message number
-      ($final) = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
-      $num = 1;
+    while (@data and $n > 0) {
+      $key = shift @data;
+      $value = shift @data;
+      push @msgs, ["$arc/$key", $value];
+      $n--;
     }
+    last if ($n <= 0);
+    $arc = shift @arcs;
   }
   @msgs;
 }
@@ -546,7 +571,7 @@ sub last_n {
   my $n    = shift;
   my $ct   = shift || 0;
   my $arc  = shift;
-  my (@arcs, @msgs, $msg, $final, $num);
+  my (@arcs, @data, @msgs, $final, $key, $msg, $value);
 
   if ($arc and $self->{'sublist'}) {
     $arc = "$self->{'sublist'}.$arc";
@@ -565,29 +590,29 @@ sub last_n {
 
   $final = $self->last_message($arc);
   ($num) = $final =~ m!\d+/(\d+)!;
+ 
+  while ($ct >= $num) {
+    $ct -= $num;
+    $arc = pop @arcs;
+    last unless $arc;
+    $final = $self->last_message($arc);
+    $final =~ m!\d+/(\d+)!;
+  }
 
-  while (1) {
-    if ($ct <= 0) {
-      $msg = $self->get_data("$arc/$num"); 
-      if (defined $msg) {
-        unshift @msgs, ["$arc/$num", $msg];
-      }
-      else {
-        # do not count against the total
-        $n++;
-      }
+  while ($arc) {
+    @data = $self->get_all_data($arc);
+    while (@data and $ct > 0) {
+      pop @data; pop @data;
+      $ct--;
     }
-    $n--;
-    $ct--;
-    last unless $n>0;
-    $num--;
-    unless ($num > 0) {
-      # Move to previous archive.
-      $arc = pop @arcs;
-      last unless $arc;
-      # Set $num to its last message number
-      ($num) = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
+    while (@data and $n > 0) {
+      $value = pop @data;
+      $key = pop @data;
+      unshift @msgs, ["$arc/$key", $value];
+      $n--;
     }
+    last if ($n <= 0);
+    $arc = pop @arcs;
   }
   @msgs;
 }
@@ -984,6 +1009,15 @@ sub expand_range {
     # Remove date separator.
     $i =~ s/(\d)[\-](\d)/$1$2/g;
 
+    # Deal with "mowdhm" format
+    if ($i =~ /^\d[\dmwdh]*[mwdh]$/) {
+      $j = time;
+      $i = 2 * $j - Mj::List::_str_to_time($i);
+      next unless $i;
+      push @out, $self->expand_date($i, $j, '');
+      next;
+    }
+      
     # Do we have a count, a date or a message?
     ($a1, $m1) = $self->_parse_archive_arg($i);
     if (!$a1 && !$m1) {
