@@ -1356,7 +1356,7 @@ sub expand_range {
     next if $i eq ',';
     return if $i eq '-';
 
-    if ($i =~ /^([\w\.\d]+)\.([\d\/\-a-z]+)$/) {
+    if ($i =~ /^([\w\.]+)\.([\d\/\-a-z]+)$/) {
       $self->{'sublist'} = $1;
       $i = $2;
     }
