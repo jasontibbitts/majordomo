@@ -101,6 +101,7 @@ that are not otherwise supported by the interface.
 
 (standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, PASSWORD, USER)
 
+
 configshow
 ----------
 (text, wwwadm)  This file displays the comments and value of one
@@ -327,6 +328,14 @@ a list name and password are requested.  For the wwwusr interface,
 an e-mail address and password are requested.
 
 (standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, ERROR, PASSWORD, USER)
+
+
+password
+--------
+(text, wwwusr)  This file indicates that a new personal password has
+been mailed to the victim's address.
+
+(standard plus VICTIM)
 
 
 show
