@@ -804,6 +804,7 @@ sub _check_body {
 			pushmark return rv2sv stub));
 
   # Recursively check the body
+  $avars->{'mime_header_length'} = 0;
   $self->_r_ck_body($list, $ent, $reasons, $avars, $safe, $qreg, $mcode, 
             $tcode, $inv, $max, , $maxlen, 'toplevel', 1);
 
