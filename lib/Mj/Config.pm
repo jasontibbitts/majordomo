@@ -2096,7 +2096,7 @@ sub parse_pw {
   my $self = shift;
   my $str  = shift;
   my $var  = shift;
-  my $log  = new Log::In 150, "$var, $str";
+  my $log  = new Log::In 150, $var;
 
   return (0, "Cannot contain whitespace.")
     if $str =~ /\s/;
