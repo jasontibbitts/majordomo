@@ -14,7 +14,8 @@ Patterns are used by various commands and configuration settings:
     the body of a posted message.
   By the admin_headers and taboo_headers settings, to match lines in
     the headers of a posted message.
-  By the attachment_rules setting, to match message content types.
+  By the attachment_filters and attachment_rules settings, to match 
+    message content types.
   By the quote_pattern setting, to count the lines in the body of a
     posted message that are marked as being written by someone else.
   By the signature_separator setting, to match the beginning of 
@@ -286,6 +287,7 @@ the pattern is used.
   In the lists command, an exact, case-insensitive match.
   In the which and who commands, a case-sensitive substring match.
 
+  In the attachment_filters setting, an exact, case-insensitive match.
   In the attachment_rules setting, an exact, case-insensitive match.
   In the post_limits setting, a case-insensitive substring match.
 
@@ -301,6 +303,7 @@ See Also:
    help configset_advertise
    help configset_admin_body
    help configset_admin_headers
+   help configset_attachment_filters
    help configset_attachment_rules
    help configset_bounce_probe_pattern
    help configset_bounce_rules

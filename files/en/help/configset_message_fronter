@@ -60,7 +60,7 @@ destroying the content of structured messages.)
 See Also:
    help admin_delivery
    help commands          (for backslash replacement notes)
-   help configset_attachment_rules (to remove unwanted body parts from a message)
+   help configset_attachment_filters (to remove or alter parts of a message)
    help configset_message_footer (to add a footer to the message)
    help configset_message_footer_frequency (for how often the foonter is sent)
    help configset_message_fronter_frequency (for how often the fronter is sent)

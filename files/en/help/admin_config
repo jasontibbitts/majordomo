@@ -141,18 +141,21 @@ help page, to which you can refer if you need to learn more.
   "help configset_description_long" for more details.
 
 
-4. attachment_rules
+4. attachment_rules and attachment_filters
 
   The widespread appearance of virii and worms in e-mail messages makes
   content screening a necessity.  The attachment_rules setting can be
   used to moderate or deny messages based on the type of attachments,
   or to remove attachments from messages before they are delivered.
   For example, to moderate all messages with application/octet-stream
-  parts, and to remove all HTML body parts, use this command:
+  parts, and to remove all HTML body parts, use these command:
 
 configset LISTNAME attachment_rules <<LLL
 application/octet-stream | consult
-text/html | discard
+LLL
+
+configset LISTNAME attachment_filters <<LLL
+text/html | discard 
 LLL
 
 
