@@ -1,16 +1,16 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-archive-delete            listname filespec
-archive-get               listname filespec
-archive-get-immediate     listname filespec
-archive-get-digest[-mime] listname filespec
-archive-index             listname filespec
-archive-stats             listname filespec
-archive-summary           listname
-archive-sync              listname pattern
+archive-delete[-hidden][-force]    listname filespec
+archive-get[-immediate][-hidden]   listname filespec
+archive-get-digest[-mime][-hidden] listname filespec
+archive-index[-hidden]             listname filespec
+archive-stats[-hidden]             listname filespec
+archive-summary                    listname
+archive-sync                       listname pattern
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is the name of a regular list at this site
 filespec, required, is a single value or range of values (see below)
 pattern,  required, is a single value or pattern matching archive file names
+-hidden, if specified, displays only hidden messages (admins only)
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The archive command is used to retrieve posted messages that have been
@@ -19,6 +19,9 @@ sent to a mailing list.  It also offers two special command modes
 contents of the archives.  All of the other command modes are
 potentially available to both subscribers and administrators.  Each
 command mode is detailed in a separate section of this document.
+
+In the examples that follow, where you see LISTNAME, instead use the 
+name of an actual mailing list.
 
 Most of the commands use a flexible but complicated file specification
 syntax ("filespec").  The filespec allows you to indicate exactly which
@@ -29,9 +32,14 @@ In addition, a here document can be used to specify patterns which limit
 the scope of the messages retrieved by the archive command.  Each
 pattern should be preceded by a "~s" to search the subjects of messages,
 and a "~a" to search the addresses of the people who posted the
-messages.  For example, the following pattern would match messages that
-have the word "Unknown" in the subject header:
+messages.  For example, the following command would match messages that
+were posted in the year 2001 and have the word "Unknown" in the subject 
+header:
+
+archive-index LISTNAME 2001 <<ABCD
   ~s/Unknown/
+ABCD
+
 Only messages that match all of the patterns will be retrieved.  See
 "help here_document" and "help patterns" for more details on here
 documents and pattern matching.
@@ -47,21 +55,18 @@ Messages sent to auxiliary lists are also archived, and made available
 using the archive-get command with an extra argument.  Examples are
 shown in the filespec section.
 
-In the examples that follow, where you see LIST, instead use the name of
-an actual mailing list.
-
                              archive-summary
 
 The archive-summary command is used to see which archives are available
 for a mailing list.  It is usually similar to the 
 
-  index LIST archive
+  index LISTNAME archive
 
 command, but it also displays the number of messages, lines, and bytes
 in each archive file.  This command does not take a filespec or other
 argument at the moment.  Just use
 
-  archive-summary LIST
+  archive-summary LISTNAME
 
 
                               archive-index
@@ -108,7 +113,7 @@ of messages posted by each address to a mailing list for the messages
 specified by "filespec". For instance, to find out who posted most often
 on a mailing list during September 2000, use this command:
 
-  archive-stats LIST 200009
+  archive-stats LISTNAME 200009
 
 
                  archive-delete (for administrators only)
@@ -116,12 +121,23 @@ on a mailing list during September 2000, use this command:
 The archive-delete option takes the usual arguments: dates, message
 counts, message numbers, and combinations thereof.   It is possible to
 delete all of the archives for a mailing list with one command, and a
-message can be prevented from appearing in a digest by deleting it, so
-use this mode with extreme caution.  If you wish to delete a recent
-message from the archives, but want to make sure that all digests
-containing the message have been sent, use the "digest-status" command
-to examine the state of the digests.  See "help digest" for more
-details.
+message can be prevented from appearing in a digest by deleting it.  Use
+the archive-index command before running the archive-delete command if
+you wish to verify which messages will be deleted.  If you wish to
+delete a recent message from the archives, but want to make sure that
+all digests containing the message have been sent, use the
+"digest-status" command to examine the state of the digests.  See 
+"help digest" for more details.
+
+Example:
+  digest-status LISTNAME ALL
+
+If you attempt to delete a message that has not yet been delivered in a
+digest, that message will not be removed unless you use the "force"
+command mode.
+
+Example:
+  archive-delete-force LISTNAME 200107/14
 
 After one or more messages have been deleted, the numbers of the
 remaining messages are not changed. For example, if message number
@@ -129,6 +145,20 @@ remaining messages are not changed. For example, if message number
 messages in the August 2000 archive.  Deleting a message causes the
 index and count files to be updated automatically, so "archive-sync" is
 not needed after "archive-delete".
+
+Messages that are posted by people with the "hidepost" setting will
+be marked as hidden, and an "X-no-archive: yes" header will be added to
+those messages.  In addition, messages that match the patterns in
+the noarchive_body and noarchive_headers configuration settings will
+receive the same treatment.  If the "hidden" command mode is used, only
+messages that are marked as hidden will be deleted.  The hidden command
+mode also applies to the archive-get and archive_index commands.  An
+administrative password is required to use it.
+
+The message archives are used by the delivery system to construct
+message digests.  If an attempt is made to delete a message that
+is awaiting delivery as part of a digest, it will not be removed unless
+the "force" command mode is also used.
 
                   archive-sync (for administrators only)
 
@@ -145,7 +175,7 @@ option.
 The archive-sync command takes one argument, which must be the
 date of a particular archive file or a Majordomo pattern matching
 one or more archive files (see "help patterns").  For example,
-  archive-sync mj2-dev 200005
+  archive-sync LISTNAME 200005
 would synchronize the May 2000 archive databases with the
 messages themselves.  
 
@@ -153,7 +183,7 @@ Alternately, if you have a bunch of files to process at once, you can
 specify a pattern and all files matching that pattern will be
 synchronized.  For example,
 
-  archive-sync LIST /19991/
+  archive-sync LISTNAME /19991/
 
 would synchronize the October, November, and December 1999 archives.
 The archive names against which the pattern is matched may be seen using
@@ -265,6 +295,17 @@ The index and get commands may not allow archive retrieval if "configset
 archive_dir" is set to somewhere outside the list's file space, but they
 may work if the file system permissions are set appropriately. Contact
 your system administrator if you get messages like "permission denied".
+
+Mail headers can be used by people who post messages to a mailing list
+to indicate that they do not wish the message to be displayed in a
+public archive.  Majordomo honors the following two headers by default:
+
+  X-no-archive: yes
+  Restrict: no-external-archive
+
+Additional headers can be supported by changing the noarchive_headers
+configuration setting; see "help configset_noarchive_headers" for
+more details.
 
 
 See Also:
