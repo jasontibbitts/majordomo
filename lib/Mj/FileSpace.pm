@@ -217,7 +217,7 @@ sub put {
 
   # Check for legal name
   return (0, "Illegal file name.")
-    unless $self->_legal_file_name($file);
+    unless $self->legal_file_name($file);
 
   $path = "$self->{'dir'}/$file";
 
@@ -304,7 +304,7 @@ sub put_start {
   my ($data, $dir, $dpath, $oldperm, $path);
 
   # Check for legal name
-  $file = $self->_legal_file_name($file);
+  $file = $self->legal_file_name($file);
   return (0, "Illegal file name.")
     unless $file;
 
@@ -374,7 +374,7 @@ sub mkdir {
   my ($base, $data, $dpath, $oldperm, $path);
 
   # Check for legal name
-  $dir = $self->_legal_file_name($dir);
+  $dir = $self->legal_file_name($dir);
   return (0, "Illegal file name.")
     unless $dir;
 
@@ -417,33 +417,102 @@ sub mkdir {
 
 =head2 delete(file, force)
 
-This deletes a file.  If the permissions do not include "w", the force
-option must be given.  If the permissions are "!", nothing will be done.
-If the file does not exist, nothing will be done.
+This deletes a file or directory.  If the permissions do not include "w", 
+the force option must be given.  If the permissions are "!", nothing will 
+be done.  If the file does not exist, nothing will be done.
 
-XXX Handle directories?
+Directories that are not empty will not be removed unless the
+force variable is set.
 
 =cut
 sub delete {
   my $self  = shift;
   my $file  = shift;
   my $force = shift;
-  my $log   = new Log::In 150, "$file";
-  my ($perms, $path);
+  my $log   = new Log::In 150, $file;
+  my ($mess, $ok, $perms, $path);
   
   # Check for legal name
-  return unless $self->_legal_file_name($file);
+  return (0, qq(Illegal file name: "$file"\n))
+    unless $self->legal_file_name($file);
 
   $path = "$self->{'dir'}/$file";
-  return unless -f $path;
+
+  return (0, qq("/$file" does not exist.\n))
+    unless (-e $path);
+
+  return (0, qq("/$file" is not a plain file or directory.\n))
+    unless (-f $path or -d $path);
+
   $perms = $self->get_permissions($file);
-  return if $perms eq "!";
-  return if $perms !~ "w" && !$force;
-  unlink $path ||
-    $log->abort("Mj::FileSpace::delete - can't unlink $path, $!");
+  return (0, qq(The file "$file" cannot be deleted.\n))
+    if $perms eq "!";
+
+  if (-f $path or -l $path) {
+    return (0, qq(The file "$file" must be deleted by force.\n))
+      if ($perms !~ "w" and !$force);
+    return (0, qq(Unable to remove file "$file": $!\n))
+      unless (unlink $path);
+  }
+  elsif (-d $path) {
+    return (0, qq(The directory "$file" must be deleted by force.\n))
+      if ($perms !~ "d" and !$force);
+    if ($force) {
+      ($ok, $mess) = &_empty_dir($path);
+      return ($ok, $mess)
+        unless $ok;
+      return (0, qq(Unable to remove directory "$file" completely: $!\n))
+        unless (rmdir $path);
+    }
+    else {
+      return (0, qq(Unable to remove directory "$file": $!\n))
+        unless (rmdir $path);
+    }
+  }
   unlink $self->_dotfile($file); # Don't complain if it wasn't there
   return 1;
 }
+
+=head2 _empty_dir(dir)
+
+This function recursively removes the contents of a directory.
+
+=cut
+sub _empty_dir {
+  my $dir = shift;
+  my $depth = shift;
+  my $log  = new Log::In 210, $dir;
+  my ($dirh) = gensym();
+  my ($file, $mess, $ok);
+
+  $depth++;
+
+  # arbitrary attempt to avoid loops.
+  return (0, "Directory depth 100 exceeded.\n")
+    if ($depth > 100);
+
+  opendir ($dirh, $dir) 
+    or return (0, qq(Cannot open directory "$dir": $!\n));
+  while ($file = readdir($dirh)) {
+    next if ($file eq '.' or $file eq '..');
+    $file =~ /(.*)/; $file = $1;
+
+    if (! -d "$dir/$file") {
+      return (0, qq(Cannot unlink "$file": $!\n))
+        unless (unlink "$dir/$file");
+    }
+    else {
+      ($ok, $mess) = &_empty_dir("$dir/$file", $depth);
+      return ($ok, $mess)
+        unless $ok;
+      return (0, qq(Cannot remove directory "$file": $!\n))
+        unless (rmdir "$dir/$file");
+    }
+  }
+  close $dirh;
+  return (1, '');
+}
+
 
 =head2 get_permissions(file)
 
@@ -476,7 +545,12 @@ sub index {
   my $log = new Log::In 200, "$dir";
   my (@files, @out, $data, $file, $i, $name);
 
+  return (0, qq(The directory "$dir" does not exist.\n))
+    unless (-d "$self->{'dir'}/$dir");
+
   @files = $self->_find_legal_files("$self->{'dir'}/$dir", !$recurse);
+  return (0, qq(The directory "$dir" is empty.\n))
+    unless (scalar @files);
 
   for $file (@files) {
     # Add the file data unless it's a directory and we don't want them or
@@ -498,17 +572,17 @@ sub index {
 		   );
       }
   }
-  @out;
+  (1, @out);
 }
 
-=head2 _legal_file_name(string)
+=head2 legal_file_name(string)
 
 This returns the untainted file name if it is legal to store in a
 filespace.  Currently illegal things are a leading '/', '//' anywhere and
 '..'  anywhere.
 
 =cut
-sub _legal_file_name {
+sub legal_file_name {
   my $self = shift;
   my $file = shift;
   
@@ -517,6 +591,7 @@ sub _legal_file_name {
   return if $file =~ m|//|;   # No double-slashes (just in case)
   return if $file =~ m|\.\.|; # No double-dots (attempt to escape up)
   return if $file =~ m|\\|;   # No backslashes (DOS?)
+  return if $file =~ m|/\.|;   # No leading dot after a directory.
 
   $file =~ /(.*)/; # Untaint; we've decided it's OK.
   return $1;
@@ -538,7 +613,9 @@ sub _find_legal_files {
   my $pre  = shift || "";
   my $log  = new Log::In 200, "$dir, $pre";
   my (@out, $ent);
-  
+ 
+  return unless (-d $dir);
+ 
   my $dh = new DirHandle $dir;
   return unless $dh;
   while (defined($ent = $dh->read)) {
