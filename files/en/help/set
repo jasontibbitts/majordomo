@@ -23,6 +23,7 @@ the others in the set):
   5. list mail if you already got a CC (eliminatecc, noeliminatecc)
   6. subject prefix added by owner (prefix, noprefix)
   7. replyto header added by owner (replyto, noreplyto)
+  8. rewrite From: header when you post messages (rewritefrom, norewritefrom)
 
 At the bottom of this file is a summary of all possible flags and a
 cross reference to default settings that might be useful to list owners. 
@@ -78,8 +79,6 @@ NOTE: You can use "nomail" or "vacation", they are identical commands.
      set LISTNAME digest YourEmailAddressHere
   where "LISTNAME" is replaced with the name of the list.
 
-WARNING: The "set digest" option is not fully implemented as of 2/99.
-
   Along with 'digest', you can specify which digest you want to receive and
   how you want it formatted. For example, you can send one of these commands
   in a message to $MJ
@@ -90,12 +89,10 @@ WARNING: The "set digest" option is not fully implemented as of 2/99.
      mime  - a format supported by many of the newer mail clients.
      text  - the old, plain text digest format
      index - just an index of messages; you can retrieve the ones you want
-             to see using the 'archive' command.
+             to see using the 'archive-get' command.
   The name of the digest, 'daily' and 'weekly' in the examples above, is
   optional. You can leave the digest name and format off the command to get
   the defaults provided by the list owner.
-
-WARNING: The "archive" command is not implemented as of 2/99, "get" may work?
 
   You should refer to the introductory document for a list of which
   digests are available to you. You may choose a digest name based on
@@ -239,6 +236,28 @@ WARNING: Different mail tools interpret the From, Sender, and Reply-To
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+8.  These control rewriting the From: header.  When you subscribe
+    to a Majordomo mailing list, the comment is stored in addition
+    to your address.  When you post messages to a list, Majordomo
+    can rewrite the From: header to be identical to the one with
+    which you subscribed.
+      rewritefrom   - change the From: header
+      norewritefrom - leave the From: header alone
+
+    This might be useful, for example, to someone who is moderating
+    a mailing list.  Instead of having one's name appear in the 
+    From: header, Majordomo could automatically make it appear like this:
+      List Moderator <someone@example.com>
+    
+    To rewrite the From: header, send this one-line command 
+    to $MJ
+       set LISTNAME rewritefrom YourEmailAddressHere
+    where "LISTNAME" is replaced with the name of the list.
+
+    Remember to put in your actual email address and the real list name.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 Here is a summary of all possible flags, grouped into mutually
 exclusive sets (specify only one of each set, because each one will
 override the others in the set). Detailed descriptions are above.
@@ -278,12 +297,17 @@ NOTE: "nomail" and "vacation" are identical, use whichever you like.
    set LISTNAME replyto EmailAddress                ('R' in default_flags)
    set LISTNAME noreplyto EmailAddress             (no R in default_flags)
 
+8. Rewrite the comment in the From: header:
+   set LISTNAME rewritefrom EmailAddress            ('W' in default_flags)
+   set LISTNAME norewritefrom EmailAddress         (no W in default_flags)
+
 
 See Also:
    help configset ack_attach_original (attaches post to error message if stalled)
    help configset ack_denials_always  (overrides "noack" for denied posts)
    help configset allowed_flags       (restricts subscribers ability to use set)
    help configset default_flags       (sets per-list defaults before subscribing)
+   help subscribe (allows you to choose the comment that appears with your address)
 
 For a list of all help topics send this one-line message
    help topics
