@@ -495,8 +495,8 @@ sub parse_command {
     $true_command = "put";
   }
 
-  if ($true_command eq "configedit" or
-      $true_command eq "get" and $mode =~ /edit/) {
+  if ($true_command eq "configedit" or ($mode =~ /edit/ and
+      $true_command =~ /^(faq|get|info|intro)/)) {
     $display = 'editor';
   }
   else {
