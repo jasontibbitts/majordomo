@@ -15,420 +15,311 @@ The text which follows is simply a copy of the man page:
 
 % man mj_shell
 
-MJ_SHELL(1)    User Contributed Perl Documentation    MJ_SHELL(1)
-
-
 NAME
-       mj_shell - Majordomo command line interface
+    mj_shell - Majordomo command line interface
 
 SYNOPSIS
-       mj_shell [-D] [-d domain] [-t topdir] [-p password]
-       [command [args]]
+    mj_shell [-D] [-R] [-d domain] [-t topdir] [-p password] [command
+    [args]]
 
 DESCRIPTION
-       mj_shell provides a command line interface to the
-       Majordomo core functionality.  It provides both a single
-       command interface, where a command is given directly on
-       the command line, and an interface into the full text
-       parser, where commands are parsed out of a file.  Anything
-       that can be done through the email interface can be done
-       through the shell interface.
+    mj_shell provides a command line interface to the Majordomo core
+    functionality. It provides both a single command interface, where a
+    command is given directly on the command line, and an interface into the
+    full text parser, where commands are parsed out of a file. Anything that
+    can be done through the email interface can be done through the shell
+    interface.
 
-       mj_shell also provides a convenient 'configedit' command
-       that opens an editor on a set of config variables and
-       allows them to be edited directly.
+    mj_shell also provides a convenient 'configedit' command that opens an
+    editor on a set of config variables and allows them to be edited
+    directly.  Similarly, the 'get-edit' command will start a text editor
+    program to allow a file to be edited and replaced easily.
 
-       If called without a command file, mj_shell will enter an
-       interactive mode where you can enter commands and have
-       their results returned without rerunning mj_shell.
+    If called without a command file, mj_shell will enter an interactive
+    mode where you can enter commands and have their results returned
+    without rerunning mj_shell.
 
-       Executing single commands
+  Executing single commands
 
-       mj_shell allows the user to execute a single command
-       directly, just by placing it and its arguments on the
-       command line:
+    mj_shell allows the user to execute a single command directly, just by
+    placing it and its arguments on the command line:
 
-         mj_shell who mylist
-         mj_shell subscribe mylist whoever@example.com
+      mj_shell who mylist
+      mj_shell subscribe mylist whoever@example.com
 
-       For a list of supported commands, execute
+    For a list of supported commands, execute
 
-         mj_shell help commands
+      mj_shell help topics
+      mj_shell help admin_commands
 
+  Passwords
 
-       Passwords
+    The -p switch specifies that the command should be executed with the
+    given password. For general information on how passwords work in
+    Majordomo, execute
 
-       The -p switch specifies that the command should be
-       executed with the given password.  For general information
-       on how passwords work in Majordomo, execute
+      mj_shell help admin_passwords
 
-         mj_shell help admin passwords
+  Command modes
 
+    The specific behavior of most of the commands can be altered through the
+    use of command modes. Most commands take the 'noinform' and 'nolog'
+    modes, which turn off owner information and logging, respectively. The
+    subscribe command takes the 'nowelcome' mode, which prevents the
+    introductory welcome message from being sent out to new subscribers.
 
-       Command modes
+    To specify one or more modes, separate them from the command with
+    hyphens, as follows:
 
-       The specific behavior of most of the commands can be
-       altered through the use of command modes.  Most commands
-       take the 'noinform' and 'nolog' modes, which turn off
-       owner information and logging, respectively.  The
-       subscribe command takes the 'nowelcome' mode, which
+      mj_shell -p pass subscribe-noinform-nowelcome mylist user@example.com
 
+    For information on which commands take which modes, execute
 
+      mj_shell help admin_commands
 
-6/Feb/99               perl 5.004, patch 04                     1
+  Commands taking multiple or array arguments
 
+    Some commands, like subscribe, can take multiple arguments (in this
+    case, a list of addresses to subscribe). Others, like configset,
+    sometimes take array arguments. These are handled in mj_shell by placing
+    the multiline part of the command in a file and specifying the file
+    using the -f switch. For example, if 'addr_file' contains a list of
+    addresses, one per line, you can do the following:
 
+      mj_shell -p pass -f addr_file subscribe=noinform,nowelcome mylist
 
+    For another example, if the file 'inform_file' contains the following:
 
+      subscribe   : all : ignore
+      unsubscribe : all : ignore
 
-MJ_SHELL(1)    User Contributed Perl Documentation    MJ_SHELL(1)
+    Then
 
+      mj_shell -p pass -f inform_file configset mylist inform
 
-       prevents the introductory welcome message from being sent
-       out to new subscribers.
+    would set the inform variable such that the list owner would not be
+    informed of subscribe and unsubscribe requests. (Execute
 
-       To specify one or more modes, separate them with commas
-       and attach them to the command with an equals sign, as
-       follows:
+      mj_shell help configshow
+      mj_shell help configset
 
-         mj_shell -p pass subscribe=noinform,nowelcome mylist user@example.com
+    for more information about configuration variables.)
 
-       For information on which commands take which modes,
-       execute
+  Executing multiple commands
 
-         mj_shell help admin commands
+    For performing more involved tasks, mj_shell gives access to the full
+    Majordomo text parser, which is also used to parse commands from the
+    body of an email message. Place multiple commands in a file, and pass
+    the filename to mj_shell using the -F switch.
 
+    For example, if 'cmd_file' contains the following lines:
 
-       Commands taking multiple or array arguments
+      subscribe mylist usera@example.com
+      subscribe mylist userb@example.com
+      show mylist usera@example.com
+      show mylist userb@example.com
 
-       Some commands, like subscribe, can take multiple arguments
-       (in this case, a list of addresses to subscribe).  Others,
-       like configset, sometimes take array arguments.  These are
-       handled in mj_shell by placing the multiline part of the
-       command in a file and specifying the file using the -f
-       switch.  For example, if 'addr_file' contains a list of
-       addresses, one per line, you can do the following:
+    all of the commands can be executed by calling mj_shell as follows:
 
-         mj_shell -p pass -f addr_file subscribe=noinform,nowelcome mylist
+      mj_shell -p pass -F cmd_file
 
-       For another example, if the file 'inform_file' contains
-       the following:
+    The text parser also allows some advanced features. Multiline arguments
+    can be specified by a syntax similar to the shell 'here document'
+    feature. An example is simpler than a description; you could place the
+    following in 'cmd_file':
 
-         subscribe   : all : ignore
-         unsubscribe : all : ignore
+      subscribe mylist << ENDA
+      usera@example.com
+      userb@example.com
+      ENDA
 
-       Then
+      show mylist << ENDB
+      usera@example.com
+      userb@example.com
+      ENDB
 
-         mj_shell -p pass -f inform_file configset mylist inform
+      configset mylist inform << AAA
+      subscribe   : all : ignore
+      unsubscribe : all : ignore
+      AAA
 
-       would set the inform variable such that the list owner
-       would not be informed of subscribe and unsubscribe
-       requests.  (Execute
+    to additionally set the 'inform' variable. (In this example the syntax
+    is not much shorter, but for longer address lists it can save much
+    typing.) The '<<' begins the multiline argument, and must be at the end
+    of the command line. The tag must consist of at least three uppercase
+    letters, and appears both directly after the '<<' and alone on a line
+    after all of the data.
 
-         mj_shell help admin config
+    Multiline arguments can also be included in external files. The external
+    files given using one or more -f options on the mj_shell command line,
+    and their contents are referenced by placing '<@' followed by a number;
+    using '3' would reference the file named by the third -f option. For
+    example, if the file 'addrs' contains:
 
-       for more information about configuration variables.)
+      usera@example.com
+      userb@example.com
 
-       Executing multiple commands
+    'inform' contains:
 
-       For performing more involved tasks, mj_shell gives access
-       to the full Majordomo text parser, which is also used to
-       parse commands from the body of an email message.  Place
-       multiple commands in a file, and pass the filename to
-       mj_shell using the -F switch.
+      subscribe   : all : ignore
+      unsubscribe : all : ignore
 
-       For example, if 'cmd_file' contains the following lines:
+    and 'commands' contains:
 
+      subscribe mylist <@1
+      show mylist <@1
+      configset mylist inform <@2
 
+    then the command
 
-6/Feb/99               perl 5.004, patch 04                     2
-
-
-
-
-
-MJ_SHELL(1)    User Contributed Perl Documentation    MJ_SHELL(1)
-
-
-         subscribe mylist usera@example.com
-         subscribe mylist userb@example.com
-         show mylist usera@example.com
-         show mylist userb@example.com
-
-       all of the commands can be executed by calling mj_shell as
-       follows:
-
-         mj_shell -p pass -F cmd_file
-
-       The text parser also allows some advanced features.
-       Multiline arguments can be specified by a syntax similar
-       to the shell 'here document' feature.  An example is
-       simpler than a description; you could place the following
-       in 'cmd_file':
-
-         subscribe mylist << ENDA
-         usera@example.com
-         userb@example.com
-         ENDA
-
-         show mylist << ENDB
-         usera@example.com
-         userb@example.com
-         ENDB
-
-         configset mylist inform << AAA
-         subscribe   : all : ignore
-         unsubscribe : all : ignore
-         AAA
-
-       to additionally set the 'inform' variable.  (In this
-       example the syntax is not much shorter, but for longer
-       address lists it can save much typing.)  The '<<' begins
-       the multiline argument, and must be at the end of the
-       command line.  The tag must consist of at least three
-       uppercase letters, and appears both directly after the
-       '<<' and alone on a line after all of the data.
-
-       Multiline arguments can also be included in external
-       files.  The external files given using one or more -f
-       options on the mj_shell command line, and their contents
-       are referenced by placing '<@' followed by a number; using
-       '3' would reference the file named by the third -f option.
-       For example, if the file 'addrs' contains:
-
-         usera@example.com
-         userb@example.com
-
-       'inform' contains:
-
-         subscribe   : all : ignore
-         unsubscribe : all : ignore
-
-
-
-
-6/Feb/99               perl 5.004, patch 04                     3
-
-
-
-
-
-MJ_SHELL(1)    User Contributed Perl Documentation    MJ_SHELL(1)
-
-
-       and 'commands' contains:
-
-         subscribe mylist <@1
-         show mylist <@1
-         configset mylist inform <@2
-
-       then the command
-
-         mj_shell -F commands -f addrs -f inform
-
-       would do the same as the previous example.
-
-       In addition, the text parser supports the special
-       'default' command, which sets some default parameter for
-       following commands.  The 'default list' command (followed
-       by a list name) sets the default list, while the 'default
-       password' command sets the password.  Thus the 'commands'
-       file in the previous example can be replaced by:
-
-         default list mylist
-         subscribe <@1
-         show <@1
-         configset inform <@2
-
-       The default list or password can be cleared by using
-       'default list' or 'default password' with no list or
-       password.
-
-       The configedit command
-
-       There is one command which is exclusive to mj_shell, the
-       configedit command.  This enables a list owner to retrieve
-       the values of one or more configuration variables, modify
-       them in an editor, and save the new values in a single
-       operation.
-
-       Note that the configedit command is not supported on all
-       platforms, but can be emulated by the following set of
-       operations:
-
-         mj_shell -p pass configshow list vars > tempfile
-         (edit tempfile)
-         mj_shell -p pass -F tempfile
-
-
-       Switches
-
-       Here are all of the command line switches that mj_shell
-       accepts:
-
-       -D  Specifies that full debugging information will be sent
-           to standard output.
-
-
-
-
-
-6/Feb/99               perl 5.004, patch 04                     4
-
-
-
-
-
-MJ_SHELL(1)    User Contributed Perl Documentation    MJ_SHELL(1)
-
-
-       -d domain
-           Specifies the domain of lists to operate on.  The
-           default domain is chosen at install time; for
-           installations supporting more than one domain, this
-           switch must be used to distinguish between them.
-
-       -F filename
-           Specifies that the text parser will be run on
-           filename.  All non-option arguments on the mj_shell
-           command line will be ignored.
-
-       -f filename
-           Specifies that the contents of filename will be used
-           either as a multiline argument for a given command, or
-           for an external argument for a '<@' specifier in the
-           text parser.
-
-           More than one -f argument is permitted, though
-           multiple instances are only used by the text parser.
-
-           filename can also be the string '-', in which case
-           standard input is read.
-
-       -l language
-           Specifies the user''s preferred language.  This should
-           be in the standard two-letter (ISO 639) form, plus
-           subtags as outlined in RFC 1766.  (For example, en for
-           English, de for German, or no-nynorsk for
-           Norwegian/Nynorsk.)  Case is not significant.
-           Multiple preferences can be specified in order by
-           separating them with commas or using multiple -l
-           options.
-
-           Note that the server may not have all files available
-           in all supported languages.  If a file does not exist
-           in the preferred language, the other supplied
-           languages are searched in order and finally English is
-           used if no other choice is available.  In conformance
-           with RFC 1766, tags are not considered separately from
-           tags, so in the Nynorsk example above, plain Norwegian
-           would not be returned unless it was listed as an
-           additional preference.
-
-       -p password
-           Specifies a password that a command will be run with,
-           or the default password for commands run by the text
-           parser.
-
-       -t directory
-           This specifies the directory which is the top level of
-           the Majordomo lists directory structure.  This is
-           generally compiled in at installation time, but some
-           sites may have different directory structures.
-
-
-
-
-6/Feb/99               perl 5.004, patch 04                     5
-
-
-
-
-
-MJ_SHELL(1)    User Contributed Perl Documentation    MJ_SHELL(1)
-
-
-       -u user
-           Specifies the user that commands will run as.  Note
-           that this does not change the system UID, but only
-           affects the user (really the email address) that is
-           passed to the Majordomo core for access checking and
-           which is used as the default for certain commands.
-           Normally the user is determined from a combination of
-           environment variables and the result of the 'hostname'
-           function, but this information is not always accurate.
-
-           Please note that this can be used for nefarious
-           purposes, but that it does not pose any additional
-           security risk since mail sent to the email processor
-           can be trivially forged.  List owners are strongly
-           urged not to rely on users and email addresses for
-           security, but instead to rely on passwords and to
-           enable confirmation on all security sensitive
-           commands.
-
-       -Z  Specifies that UID/GID tests will not be done.
-           Normally mj_shell will check to make sure that it is
-           running as the user and group specified during
-           installation.  Failure of this test generally
-           indicates an installation error; either the wrappers
-           or the scripts themselves shouldf be installed setuid
-           and setgid to the Majordomo user and group.  Using the
-           -Z option enables mj_shell to run even with this
-           misconfiguration, though other operations may fail and
-           file ownerships will not be set correctly.
-
-           This option is mainly used by the test scripts, so
-           that they can run before the software has been
-           completely installed.
-
-       --aliascomplete
-           When running in interactive mode, mj_shell provides
-           for completion of Majordomo commands.  It does not
-           normally complete command aliases (such as 'remove'
-           for 'unsubscribe') but supplying this switch will
-           cause it to do so.
-
-       --id
-           Forces mj_shell to print out the real and effective
-           user and group IDs at the beginning of execution.
-           Used for debugging.
-
-       --noornaments
-           When running in interactive mode, mj_shell will use
-           ornamentation to spruce up the prompt of the
-           underlying ReadLine library supports it.  The
-           --noormanemts switch will turn these off.
-
-COPYRIGHT
-       Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo
-
-
-
-6/Feb/99               perl 5.004, patch 04                     6
-
-
-
-
-
-MJ_SHELL(1)    User Contributed Perl Documentation    MJ_SHELL(1)
-
-
-       Development Group.  All rights reserved.
-
-       This program is free software; you can redistribute it
-       and/or modify it under the terms of the license detailed
-       in the LICENSE file of the Majordomo2 distribution.
-
-       This program is distributed in the hope that it will be
-       useful, but WITHOUT ANY WARRANTY; without even the implied
-       warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-       PURPOSE.  See the Majordomo2 LICENSE file for more
-       detailed information.
-
-
-6/Feb/99               perl 5.004, patch 04                     7
-
+      mj_shell -F commands -f addrs -f inform
+
+    would do the same as the previous example.
+
+    In addition, the text parser supports the special 'default' command,
+    which sets some default parameter for following commands. The 'default
+    list' command (followed by a list name) sets the default list, while the
+    'default password' command sets the password. Thus the 'commands' file
+    in the previous example can be replaced by:
+
+      default list mylist
+      subscribe <@1
+      show <@1
+      configset inform <@2
+
+    The default list or password can be cleared by using 'default list' or
+    'default password' with no list or password.
+
+    In interactive mode, multiline arguments and the 'default delay,'
+    'default password,' and 'default user' commands are supported. Use the
+    command
+
+      mj_shell help default
+
+    to learn more about the default command.
+
+  The configedit command
+
+    There is one command which is exclusive to mj_shell, the configedit
+    command. This enables a list owner to retrieve the values of one or more
+    configuration variables, modify them in an editor, and save the new
+    values in a single operation.
+
+    Note that the configedit command is not supported on all platforms, but
+    can be emulated by the following set of operations:
+
+      mj_shell -p pass configshow list vars > tempfile
+      (edit tempfile)
+      mj_shell -p pass -F tempfile
+
+  Switches
+
+    Here are all of the command line switches that mj_shell accepts:
+
+    -D  Specifies that full debugging information will be sent to standard
+        output.
+
+    -d *domain*
+        Specifies the domain of lists to operate on. The default domain is
+        chosen at install time; for installations supporting more than one
+        domain, this switch must be used to distinguish between them.
+
+    -F *filename*
+        Specifies that the text parser will be run on *filename*. All
+        non-option arguments on the mj_shell command line will be ignored.
+
+    -f *filename*
+        Specifies that the contents of *filename* will be used either as a
+        multiline argument for a given command, or for an external argument
+        for a '<@' specifier in the text parser.
+
+        More than one -f argument is permitted, though multiple instances
+        are only used by the text parser.
+
+        *filename* can also be the string '-', in which case standard input
+        is read.
+
+    -l *language*
+        Specifies the user's preferred language. This should be in the
+        standard two-letter (ISO 639) form, plus subtags as outlined in RFC
+        1766. (For example, en for English, de for German, or no-nynorsk for
+        Norwegian/Nynorsk.) Case is not significant. Multiple preferences
+        can be specified in order by separating them with commas or using
+        multiple -l options.
+
+        Note that the server may not have all files available in all
+        supported languages. If a file does not exist in the preferred
+        language, the other supplied languages are searched in order and
+        finally English is used if no other choice is available. In
+        conformance with RFC 1766, tags are not considered separately from
+        tags, so in the Nynorsk example above, plain Norwegian would not be
+        returned unless it was listed as an additional preference.
+
+    -p *password*
+        Specifies a password that a command will be run with, or the default
+        password for commands run by the text parser.
+
+    -R  As a debugging aid, specifies that mj_shell should dump the request
+        structures sent to the Majordomo library and the result structures
+        received from the library.
+
+    -t *directory*
+        This specifies the directory which is the top level of the Majordomo
+        lists directory structure. This is generally compiled in at
+        installation time, but some sites may have different directory
+        structures.
+
+    -u *user*
+        Specifies the user that commands will run as. Note that this does
+        not change the system UID, but only affects the user (really the
+        email address) that is passed to the Majordomo core for access
+        checking and which is used as the default for certain commands.
+        Normally the user is determined from a combination of environment
+        variables and the result of the 'hostname' function, but this
+        information is not always accurate.
+
+        Please note that this can be used for nefarious purposes, but that
+        it does not pose any additional security risk since mail sent to the
+        email processor can be trivially forged. List owners are strongly
+        urged not to rely on users and email addresses for security, but
+        instead to rely on passwords and to enable confirmation on all
+        security sensitive commands.
+
+    -Z  Specifies that UID/GID tests will not be done. Normally mj_shell
+        will check to make sure that it is running as the user and group
+        specified during installation. Failure of this test generally
+        indicates an installation error; either the wrappers or the scripts
+        themselves shouldf be installed setuid and setgid to the Majordomo
+        user and group. Using the -Z option enables mj_shell to run even
+        with this misconfiguration, though other operations may fail and
+        file ownerships will not be set correctly.
+
+        This option is mainly used by the test scripts, so that they can run
+        before the software has been completely installed.
+
+    --aliascomplete
+        When running in interactive mode, mj_shell provides for completion
+        of Majordomo commands. It does not normally complete command aliases
+        (such as 'remove' for 'unsubscribe') but supplying this switch will
+        cause it to do so.
+
+    --id
+        Forces mj_shell to print out the real and effective user and group
+        IDs at the beginning of execution. Used for debugging.
+
+    --noornaments
+        When running in interactive mode, mj_shell will use ornamentation to
+        spruce up the prompt of the underlying ReadLine library supports it.
+        The --noormanemts switch will turn these off.
+
+
+See Also:
+   help admin
+   help admin_commands
+   help configset
+   help configshow
+   
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ
+

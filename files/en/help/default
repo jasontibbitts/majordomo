@@ -1,61 +1,69 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 default variable value
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-variable, required, must be either "list", "password", or "user"
+variable, required, must be "delay", "list", "password", or "user"
 value, if specified, is the string to be used in following commands
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 NOTE: This help file is for the command called "default". To get
       basic help, just send "help" to the server (not "help default").
 
-WARNING: Some options of this command are not implemented in mj_shell,
-         as indicated below, and are available ONLY for email commands.
-
 The 'default' command sets certain defaults used by the command parser
 for processing one or more commands. The more commands you have, the
 more "default" helps you. It is most often used by list owners and
 administrators, but can also be used by subscribers.
 
-This is not a general variable mechanism, it is ONLY for providing
-the listed values. If the value is omitted, the default setting is
-removed. This allows you to have a default for some commands but
-not for others.
+This is not a general variable mechanism; it only works for the 
+four variables described in the next section.  If the value is omitted, 
+the default setting is removed.  This allows you to set one of the
+four variables for some commands but not for others.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-The following defaults can be set, as explained below:
+The following default variables can be set, as explained below:
 
-Section 1: default language XX (Not implemented.)
-   Sets the default language preference list to the comma-separated
-   list of two-letter language abbreviations.
+Section 1: default delay TIMESPEC
+   Postpones commands, making them occur in the future instead of
+   when the command is parsed.
 
 Section 2: default list LISTNAME
    Sets the default list for commands to the provided list.
-   To clear the default list, don't supply one. NOT supported
-   by mj_shell, available only to email interface.
+   To clear the default list, leave LISTNAME blank. This 
+   command is NOT supported by mj_shell, only by the email interface.
 
 Section 3: default password STRING
    Approves all following commands with the given password.
    To clear the password, don't supply one.
 
-Section 4: default prefix STRING (Not implemented.)
-   Sets a prefix that (if present) will be deleted from the beginning
-   of all following lines.
-
-Section 5: default user ADDRESS
+Section 4: default user ADDRESS
    Replaces the address found in the "From:" field of your email headers.
-
-Section 6: default delay TIMESPEC
-   Postpones commands, making them occur in the future instead of
-   when the command is parsed.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Section 1: default language XX (Not implemented.)
+Section 1: default delay TIMESPEC
 
-The 'language' command (not implemented) is equivalent to the 'default
-language' command, and may someday be supplied for the benefit of those
-who do not wish to see server messages in English.
+This command postpones OTHER commands, making them occur in the
+future instead of when the other command is parsed. The TIMESPEC
+is detailed in the "Time Period" section of "help times".
+
+For example,
+  default delay 3h
+would cause all subsequent commands to be delayed by three hours,
+but only if an admin password is supplied and access_password_override
+is enabled.
+
+The delay command also supports a non-standard time specification
+of "seconds", in which there is nothing after an integer:
+  default delay 3
+would set the delay to 3 seconds.  This is useful if you want a
+command to be executed by the very next delay trigger. (The delay
+trigger times are list-specific.  See "help
+By default, delay triggers occur every hour.
+
+A delay can also be specified in the access_rules setting, where
+there is both a 'delay' action and a 'delay' variable.
+
+See "help delay" for more information about delays.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -63,11 +71,15 @@ Section 2: default list LISTNAME
 
 Setting a default list makes the list an optional argument for all
 commands which take one (excepting the createlist command). To clear
-the default list for additional commands, don't supply one.
+the default list for additional commands, use the following command:
+
+  default list
 
 Note that this is not without ambiguity, as the parser cannot always
 tell when the default list is implied.  When running at the -request
 address, the parser generally starts with a default list in place.
+
+This command is not available in the mj_shell interface.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -83,7 +95,7 @@ List administrators will find it especially useful when returning
 the output of a 'configshow' command to the parser to change some
 variables; simply add the 'default password' command to the beginning
 of the message or file, and the parser will accept the 'configset'
-commands exactly as dumped by the configshow command.
+commands exactly as displayed by the configshow command.
 
 Defaulting a password make it much simpler to submit multiple
 commands to the parser in one fell swoop.  For example, it makes
@@ -97,14 +109,7 @@ or:
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Section 4: default prefix STRING (Not implemented.)
-
-Sets a prefix that (if present) will be DELETED, not ADDED, from the
-beginning of all following lines before the commands are processed.
-
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-Section 5: default user ADDRESS
+Section 4: default user ADDRESS
 
 ADDRESS is a regular email address, optionally containing comments.
 For example:
@@ -153,38 +158,16 @@ or:
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Section 6: default delay TIMESPEC
-
-This command postpones OTHER commands, making them occur in the
-future instead of when the other command is parsed. The TIMESPEC
-is detailed in the "Time Period" section of "help times".
-
-For example,
-  default delay 3h
-would cause all subsequent commands to be delayed by three hours,
-but only if an admin password is supplied and access_password_override
-is enabled.
-
-The delay command also supports a non-standard time specification
-of "seconds", in which there is nothing after an integer:
-  default delay 3
-would set the delay to 3 seconds.  This is useful if you want a
-command to be executed by the very next delay trigger. (The delay
-trigger times are list-specific, and set by "configset triggers".)
-By default, delay triggers occur every hour.
-
-A delay can also be specified in "configset access rules", where
-there is both a 'delay' action and a 'delay' variable.
-
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 See Also:
    help accept     (which may be required if default is not used)
-   help approve    (like "default", but for only one command)
+   help admin_passwords (to learn how administrative passwords are used)
+   help approve    (like "default password", but for only one command)
+   help configset_access_rules (for another way to delay actions)
+   help configset_triggers (determines when postponed requests are completed)
    help changeaddr (for how to replace one address with another)
+   help delay      (for an overview of how to postpone requests)
    help password   (which changes an individual's password)
    help set        (for how to change some or all subscriptions)
-   help configset access_rules (for another way to delay actions)
 
 For a list of all help topics send this one-line message
    help topics

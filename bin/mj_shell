@@ -570,6 +570,8 @@ interface.
 
 B<mj_shell> also provides a convenient 'configedit' command that opens an
 editor on a set of config variables and allows them to be edited directly.
+Similarly, the 'get-edit' command will start a text editor program
+to allow a file to be edited and replaced easily.
 
 If called without a command file, B<mj_shell> will enter an interactive
 mode where you can enter commands and have their results returned without
@@ -585,7 +587,7 @@ placing it and its arguments on the command line:
 
 For a list of supported commands, execute
 
-  mj_shell help commands
+  mj_shell help topics
 
 =head2 Passwords
 
@@ -593,7 +595,7 @@ The B<-p> switch specifies that the command should be executed with the
 given password.  For general information on how passwords work in
 Majordomo, execute
 
-  mj_shell help admin passwords
+  mj_shell help admin_passwords
 
 =head2 Command modes
 
@@ -603,14 +605,14 @@ which turn off owner information and logging, respectively.  The
 B<subscribe> command takes the 'nowelcome' mode, which prevents the
 introductory welcome message from being sent out to new subscribers.
 
-To specify one or more modes, separate them with commas and attach them to
-the command with an equals sign, as follows:
+To specify one or more modes, separate them from the command with 
+hyphens, as follows:
 
-  mj_shell -p pass subscribe=noinform,nowelcome mylist user@example.com
+  mj_shell -p pass subscribe-noinform-nowelcome mylist user@example.com
 
 For information on which commands take which modes, execute
 
-  mj_shell help admin commands
+  mj_shell help admin_commands
 
 =head2 Commands taking multiple or array arguments
 
@@ -635,7 +637,8 @@ Then
 would set the inform variable such that the list owner would not be
 informed of subscribe and unsubscribe requests.  (Execute
 
-  mj_shell help admin config
+  mj_shell help configshow
+  mj_shell help configset
 
 for more information about configuration variables.)
 
@@ -722,7 +725,15 @@ previous example can be replaced by:
   configset inform <@2
 
 The default list or password can be cleared by using 'default list' or
-'default password' with no list or password.
+'default password' with no list or password.  
+
+In interactive mode, multiline arguments and the 'default delay,'
+'default password,' and 'default user' commands are supported.
+Use the command
+
+  mj_shell help default
+
+to learn more about the default command.
 
 =head2 The configedit command
 
@@ -854,7 +865,7 @@ B<--noormanemts> switch will turn these off.
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2000 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
