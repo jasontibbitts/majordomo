@@ -428,6 +428,7 @@ sub generate_wrappers {
   }
 
   for my $i (@SIDSCRIPTS) {
+    unlink "./bin/.$i" if (-f "./bin/.$i");
     link("./bin/$i", "./bin/.$i");
     open(WRAP, ">wrappers/$i.c") || die("Can't create wrappers/$i.c: $!");
     print WRAP "main(ac, av)

@@ -1,7 +1,10 @@
          Notes on upgrading from previous versions of Majordomo 2
 
-It is important to run the "make clean" shell command before reinstalling.
-If you do not, some of the programs in bin/ may not be upgraded.
+2000.01.27 (CVS):
+
+Digest bounces are now numbered, to allow the bounce rules to apply
+to digest recipients.  The bounce numbers for digests begin with
+a zero, to differentiate them from regular bounce numbers.
 
 2000.01.25 (CVS):
 
