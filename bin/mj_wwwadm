@@ -673,7 +673,7 @@ elsif ($func ne 'showtokens') {
       }
       $request->{'newpasswd'} = $cgi->param('newpasswd');
     }
-    $tmp = $cgi->param('owners');
+    $tmp = $cgi->param('owners') || '';
     $tmp =~ s/\r?\n$//;
     if ($tmp !~ /\S/ and $user =~ /example.com/) {
       &newlist($mj, $subs, $mj->format_error('undefined_address', 'GLOBAL'))
