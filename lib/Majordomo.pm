@@ -2531,7 +2531,7 @@ sub accept {
 
     # Now call inform so the results are logged
     $self->inform($data->{'list'},
-          $data->{'type'},
+          ($data->{'type'} eq 'consult')? 'consult' : $data->{'command'},
           $data->{'user'},
           $data->{'victim'},
           $data->{'cmdline'},
@@ -4650,9 +4650,8 @@ sub who_chunk {
       # GLOBAL has no flags or classes or bounces
       if ($request->{'list'} ne 'GLOBAL') {
         if ($request->{'mode'} =~ /bounces/) {
-          $addr = new Mj::Addr($i->{'fulladdr'});
-          next unless $addr;
-          $i->{'bouncedata'} = $self->{'lists'}{$request->{'list'}}->bounce_get($addr);
+          next unless $i->{'bounce'};
+          $i->{'bouncedata'} = $self->{'lists'}{$request->{'list'}}->_bounce_parse_data($i->{'bounce'});
           next unless $i->{'bouncedata'};
           $i->{'bouncestats'} = 
             $self->{'lists'}{$request->{'list'}}->bounce_gen_stats($i->{'bouncedata'});
