@@ -69,7 +69,7 @@ sub mail_message {
     $args{'manip'}   = 1;
     $args{'sender'}  = $sender->{'addr'};
     $args{'sendsep'} = $self->_site_config_get('mta_separator'),
-    $args{'seqnum'}  = $sender->{'type'} . $sender->{'data'};
+    $args{'classes'}{'all'}{'seqnum'} = $sender->{'type'} . $sender->{'data'};
   }
   else {
     $args{'manip'}   = 0;
@@ -124,7 +124,6 @@ sub deliver {
   my $list    = shift;
   my $sublist = shift || '';
   my $sender  = shift;
-  my $seqno   = shift;
   my $classes = shift;
 
   my $log = new Log::In 30;
@@ -132,13 +131,7 @@ sub deliver {
 
   # Figure out some data related to bounce probing
   $buckets = $self->_list_config_get($list, 'bounce_probe_frequency');
-  #
-  if (defined $seqno) {
-    $bucket  = $seqno % $buckets if $buckets;
-  }
-  else {
-    $bucket = int(rand $buckets) if $buckets;
-  }
+  $bucket  = int(rand $buckets) if $buckets;
   $regexp  = $self->_list_config_get($list, 'bounce_probe_pattern');
 
   %args =
@@ -153,7 +146,6 @@ sub deliver {
      rules   => $self->_list_config_get($list, 'delivery_rules'),
      sender  => $sender,
      sendsep => $self->_site_config_get('mta_separator'),
-     seqnum  => "M" . $seqno,
     );
 
   if ($list ne 'GLOBAL' or ($sublist and $sublist ne 'MAIN')) {
@@ -218,7 +210,6 @@ sub probe {
      rules   => $self->_list_config_get($list,'delivery_rules'),
      sender  => $sender,
      sendsep => $self->_site_config_get('mta_separator'),
-     seqnum  => 'M0',
     );
 
   if ($list ne 'GLOBAL' or ($sublist and $sublist ne 'MAIN')) {
