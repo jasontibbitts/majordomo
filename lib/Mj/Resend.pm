@@ -377,7 +377,10 @@ sub _add_headers {
   $tmp = '<' . $tmp . '@' . 
          $self->_global_config_get('whereami') . '>';
   $head->add('Message-ID', $tmp);
-  $head->add('Content-type', 'text/plain; charset=iso-8859-1');
+  $head->add('MIME-Version', '1.0');
+  $head->add('Content-Type', 'text/plain; charset=iso-8859-1');
+  $head->add('Content-Disposition', 'inline');
+  $head->add('Content-Transfer-Encoding', '8bit');
 
   return $head;
 }
@@ -1270,6 +1273,7 @@ No returns; implicitly modifies the the list referenced by reasons and the
 hash referenced by avars.
 
 =cut
+use Safe;
 sub _ck_theader {
   my $self    = shift;
   my $list    = shift;
