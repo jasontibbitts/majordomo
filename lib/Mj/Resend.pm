@@ -402,7 +402,11 @@ sub _post {
       'subject'    => $subject,
      },
     );
- ($msgnum, $arcdata) = $self->{'lists'}{$list}->archive_add_done($file);
+
+  # Only call this if we got back a message number because there isn't an
+  # archive around if we didn't.
+  ($msgnum, $arcdata) = $self->{'lists'}{$list}->archive_add_done($file)
+   if $msgnum;
 
   # Cook up a substitution hash
   $subs = {

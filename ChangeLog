@@ -1,3 +1,8 @@
+Thu Mar 25 23:01:33 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Fix problem calling archive_add_done
+ 	when archive_add_start failed.
+
 Mon Mar 22 18:57:15 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Resend.pm (_post): Call archive_add_start/done.
