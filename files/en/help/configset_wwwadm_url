@@ -1,0 +1,24 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  wwwadm_url = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : [defined during installation]
+Data Type     : string
+Category      : access
+Password Notes: Visible only with password. Set with global password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset GLOBAL wwwadm_url = no server configured
+
+$INCLUDE-config/wwwadm_url
+
+See Also:
+   help configset_confirm_url
+   help configset_wwwusr_url
+   help mj_confirm
+   help mj_wwwadm
+   help mj_wwwusr
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

@@ -33,9 +33,11 @@ added, it is chosen at random from the fronters given here. The
 frequency with which fronters appear can be controlled with
 "configset listname message_fronter_frequency".
 
-The fronter text will undergo variable substitution (and possibly
-auto-inclusion of OTHER files) as it is added to the message.
-See "help variables" for a list of substitutions which are supported.
+The fronter text will undergo variable substitution as it is added
+to the message.   The variables supported include the standard substitutions,
+plus ARCHIVE, ARCURL, DATE, SENDER, SEQNO, SUBJECT, SUBSCRIBED, and USER.
+See "help variables" for more information.
+
 
 Within the here document (between the tags), the '-' character takes
 on a special significance if it is the first character on the line.
@@ -51,14 +53,17 @@ to message_fronters and message_footers.
 
 Note that for multipart messages, fronters appear as separate parts at
 the beginning of the message and that fronters are not added at all to
-single part message that are not of type text/plain.  (This avoids
+single-part messages that are not of type text/plain.  (This avoids
 destroying the content of structured messages.)
 
 
 See Also:
-   help commands (for backslash replacement notes)
-   help configset message_fronter_frequency (for how often the fronter is sent)
-   help variables (for a list of all possible variables and what they mean)
+   help commands          (for backslash replacement notes)
+   help configset_attachment_rules (to remove unwanted body parts from a message)
+   help configset_message_footer (to add a footer to the message)
+   help configset_message_footer_frequency (for how often the foonter is sent)
+   help configset_message_fronter_frequency (for how often the fronter is sent)
+   help variables         (for an explanation of substitution variables) 
 
 For a list of all help topics send this one-line message
    help topics

@@ -11,11 +11,11 @@ EXAMPLE:
   report-summary nectarine ALL 12h
 
 Activity for nectarine from 2000-08-03 02:53 to 2000-08-03 14:53
-     Command: Total  (Succeed/Stall/Fail)
-    announce:    7   (   6/   0/   1)
-         faq:    1   (   1/   0/   0)
-      report:    2   (   1/   0/   1)
-         who:    1   (   1/   0/   0)
+     Command:   Total  Succeed Stall Fail 
+    announce:    7      6       0     1 
+         faq:    1      1       0     0 
+      report:    2      1       0     1 
+         who:    1      1       0     0 
 
 The "report" command obtains raw or summarized data for recent log
 entries for a mailing list, and can be constrained by action or date.
@@ -23,7 +23,7 @@ The "-summary" switch results in a table summarizing how many of each
 kind of event occurred, and without the switch each event is reported.
 
 The specified "listname" can be any regular list, or "ALL" to report
-on all regular lists, or one of the pseudo-lists "DEFAULT" or "GLOBAL".
+on all mailing lists, or one of the pseudo-lists "DEFAULT" or "GLOBAL".
 Reporting on "GLOBAL" will inform you about commands such as accept,
 reject, lists, which, help. Reporting on "DEFAULT" shows commands that
 act on the system defaults, like "configset DEFAULT". Reporting on a
@@ -38,8 +38,8 @@ that can be reported, and note that these ADDITIONAL actions can be
 specified with the report command:
   badtoken:   A bad token was given with the accept command.
   bounce:     A bounce to the list owner that had an identified address.
-  consult:    A consult token was accepted.
-  connect:    A connection failed due to the GLOBAL 'access' setting.
+  consult:    A consult token was accepted for a posted message.
+  connect:    A connection failed due to the GLOBAL configuration settings.
   ALL:        Everything except for 'bounce' and 'trigger.'
 
 If you specify a "date" field, the report will be restricted to a
@@ -47,14 +47,14 @@ period of time. Without "date", all events since the software was
 installed will be reported. Dates can be specified in several formats:
  1. for the last N hours, days, weeks, months, or years, use the
     format shown in the "Time Period" section of "help times".
-    For example, "3h" reports on events during the last 3 hours
+    For example, "3h" reports on events during the last 3 hours.
  2. for a given year, month, week, or day, use the format shown in
     the "Time Stamp" section of "help times". For example, "200007"
-    reports on events during the month of July 2000
+    reports on events during the month of July 2000.
 
 
 See Also:
-   help configset access_rules (to limit access to this command)
+   help configset_access_rules (to limit access to this command)
    help times (for how to specify the report period)
 
 For a list of all help topics send this one-line message

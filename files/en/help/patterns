@@ -2,10 +2,32 @@
 
 Section 1 - Introduction to Patterns
 
+Patterns are used by various commands and configuration settings:
+
+  By the archive-sync command, to match archive names.
+  By the lists command, to match list names.
+  By the set-regex, unregister-regex, unsubscribe-regex, which, 
+    and who commands, to match e-mail addresses.
+
+  By the access_rules, advertise, bounce_probe_pattern, bounce_rules,
+    delivery_rules, noadvertise, and post_limits settings, to match 
+    e-mail addresses.
+  By the admin_body and taboo_body settings, to match lines in
+    the body of a posted message.
+  By the admin_headers and taboo_headers settings, to match lines in
+    the headers of a posted message.
+  By the attachment_rules setting, to match message content types.
+  By the quote_pattern setting, to count the lines in the body of a
+    posted message that are marked as being written by someone else.
+  By the signature_separator setting, to match the beginning of 
+    an e-mail signature.
+
+
 There are three supported types of pattern, described below:
   Section 2 - Substring Patterns
   Section 3 - Shell-Like Patterns
   Section 4 - Perl-Like Regular Expressions
+  Section 5 - Undelimited Patterns
 
 There are a number of examples of Perl regexps below:
   Example 4.1  - a list of special characters
@@ -30,12 +52,9 @@ Where you can use a SIMPLE pattern, enclose it in "double quotes":
   "user@example.com"
   "example.com"i
 where the trailing 'i' specifies case insensitivity, and without
-it upper and lower case characters are considered to be unique.
+it upper and lower case characters are considered to be distinct.
 
-Patterns in Majordomo can OFTEN (but not necessarily always) be
-negated with a leading "!". See the example below, and contact the
-developers if you believe there is a place where inverted matching
-makes sense but doesn't seem to work.
+Patterns in Majordomo can always be negated with a leading "!". 
 
 If you need more complicated matching, enclose it in %percent signs%:
   %user@*example.com%i
@@ -279,9 +298,52 @@ in the context you want to use them.
 For example
    who-regexp listname !/xxx\\.com/
 will produce a list of subscribers to "listname" that are NOT from the
-'xxx.com' domain. Be careful to escape the period, which otherwise becomes
-a wild card with potentially unexpected results.
+'xxx.com' domain. Be careful to escape the period, which otherwise will
+match any character, not just a period.
 
++ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
+
+Section 5 - Undelimited Patterns
+
+In the previous sections, all of the patterns were considered to be
+enclosed in quotes, slashes, or percent signs.  It is legitimate 
+to use patterns without enclosing them in those delimiters in some
+cases.  However, the kind of matching done will depend upon where 
+the pattern is used.
+
+  In the archive-sync command, an exact match.
+  In the lists command, an exact, case-insensitive match.
+  In the which and who commands, a case-sensitive substring match.
+
+  In the attachment_rules setting, an exact, case-insensitive match.
+  In the post_limits setting, a case-insensitive substring match.
+
+  In all of the other cases mentioned in the first section, pattern
+  delimiters are required.
+
+
+See Also:
+  help archive
+  help configset_access_rules
+  help configset_advertise
+  help configset_admin_body
+  help configset_admin_headers
+  help configset_attachment_rules
+  help configset_bounce_probe_pattern
+  help configset_bounce_rules
+  help configset_delivery_rules
+  help configset_noadvertise
+  help configset_post_limits
+  help configset_quote_pattern
+  help configset_signature_separator
+  help configset_taboo_body
+  help configset_taboo_headers
+  help lists
+  help set
+  help unregister
+  help unsubscribe
+  help which
+  help who
 
 For a list of all help topics send this one-line message
    help topics

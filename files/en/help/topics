@@ -32,8 +32,10 @@ These help files are introductory documents:
    help admin
    help admin_commands
    help commands
-   help help
+   help mj_confirm
    help mj_shell
+   help mj_wwwadm
+   help mj_wwwusr
    help overview
    help topics
 
@@ -44,7 +46,10 @@ These help files discuss complicated topics in detail:
    help auxiliary_list
    help configset_access_rules_variables
    help delay
+   help error_files
+   help format_files
    help patterns
+   help reply_files
    help times
    help variables
 
@@ -66,6 +71,7 @@ These help files describe Majordomo commands:
    help end
    help faq
    help get
+   help help
    help index
    help info
    help intro
@@ -231,5 +237,7 @@ These help files describe configuration settings:
    help configset_who_access
    help configset_whoami
    help configset_whoami_owner
+   help configset_wwwadm_url
+   help configset_wwwusr_url
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

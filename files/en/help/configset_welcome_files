@@ -37,9 +37,10 @@ that the file will be attached to the previous file.  The default is "N".
 
 If the "N" or "P" in the second field of the second line is followed by
 an "S", the file will undergo variable substitution (and possibly
-auto-inclusion of OTHER files). See "help variables" for a list of
-substitutions which are supported, but be aware that without the "S"
-no substitutions will be done on the subject or body of the email.
+auto-inclusion of OTHER files).  The variables supported include 
+the standard substitutions, plus USER and PASSWORD.  See "help variables" 
+for a description of each substitution variable, but be aware that without 
+the "S" no substitutions will be done on the subject or body of the message.
 
 Here is another example:
 

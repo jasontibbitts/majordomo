@@ -1,47 +1,17 @@
-(More detailed help is available on many topics, including details
-of every command you can send to the server: refer to "help topics".)
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+help [topic]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+topic, if present, is the name of a Majordomo help file
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-Majordomo is an automated system which allows users to subscribe and
-unsubscribe to mailing lists, and to retrieve files from list archives.
-This is version $VERSION of Majordomo2
-
-This help message is from the Majordomo list management system at
-     $SITE
-You interact with the Majordomo software by sending commands to
-     $MJ
-in the body of a mail message. Please do not put your commands in
-the subject! Majordomo only processes commands in the message body.
-
-You may put multiple Majordomo commands in the same mail message.
-Put each command on a line by itself, and remember that commands
-are NOT case sensitive: you can replace lower case characters with
-upper case, and vice versa. Some commands also have abbreviations
-and alternate command names, like "subscribe" (for which "sub" works)
-and "unsubscribe" (for which "unsub" and "signoff" both work).
-
-If you put the command "end" (without quotes) in your message,
-Majordomo will stop reading commands at that line (see "help end").
-Your site administrator may also configure Majordomo to stop reading
-commands at commonly used signature block separator lines.
-
-To subscribe or unsubscribe from the LISTNAME email broadcast list
-at this site, send a one-line message to $MJ:
-    subscribe LISTNAME YourEmailAddress
-or
-    unsubscribe LISTNAME YourEmailAddress
-replacing "LISTNAME" with the name of the list and replacing
-"YourEmailAddress" with the address you want to add to or remove
-from the list. Additional commands may be required, but you will
-receive messages telling you what to do if necessary.
-
-Additional information is available from this server in the form of
-help topics. You are reading the basic help file now, obtained by just
-sending "help" to the server. For other topics, send one or more of the
-commands described below to $MJ
+Majordomo 2 is computer software that automates the distribution of
+electronic mail messages on mailing lists.  The majordomo help system 
+has many documents that will help you understand how Majordomo 2 works.  
+All of these documents can be retrieved using the help command.
 
 To find out what you, as a list subscriber, can do with Majordomo
 (finding out about lists, subscribing, unsubscribing, getting files
-from the server, confirmations, passwords, etc.) send:
+from the server, confirmations, passwords, etc.) use this command:
    help overview
 
 For a complete subscriber (or end-user) command reference, send:
@@ -51,30 +21,25 @@ If you are the owner or moderator of a mailing list, you will want
 to use one or both of the following commands to get information about
 the special Majordomo commands for mailing list administration:
    help admin
-   help admin commands
+   help admin_commands
 
-To retrieve a new copy of this help file, send the command:
-   help help
+There are two shortcuts available in the help system to make typing topic 
+names a little easier.  The first is that anywhere an underscore, _, 
+is seen, you can use a space instead.  For example,
+  help admin_passwords
+and 
+  help admin passwords
+return the same document.
 
-To retrieve a complete list of ALL available topics, send:
-   help topics
+Also, list administrators who wish to learn about configuration settings
+can omit the leading "configset_" from the topic name.  For example,
+  help configset_digests
+is the same as
+  help digests
 
-To contact the owner of a specific list, send mail to the "-owner"
-address which exists for every list. For example, to contact the
-owner of the hypothetical list
-    some-list@$WHEREAMI
-you would send mail to:
-    some-list-owner@$WHEREAMI
-
-To contact a human site manager, send mail to $MJOWNER
-
-A Note to Longtime Majordomo Users: Majordomo 2.0 tries as hard as
-possible to be backwards-compatible with previous versions of Majordomo.
-All user commands and many admin commands from previous versions should
-work; those that don't will provide you with a pointer to their replacements.
-
-See Also:
-   help configset access_rules_variables (set/test for this command)
+(The longer command represents the actual name of the help file.  This is 
+important for site administrators to remember if they decide to extend the help 
+system by improving or adding help files, using the get and put commands.)
 
 For a list of all help topics send this one-line message
    help topics

@@ -13,9 +13,9 @@ EXAMPLE:
 configset listname message_footer << ENDTAG
 -
 ----------------------------(end of broadcast)---------------------------
-Terms and conditions for this server:  send email to  info@nonwhere.org
-Administrative commands like unsubscribe send to majordomo@nonwhere.org
-Help: Try listname-owner@nonwhere.org first then try admin@nonwhere.org
+Terms and conditions for this server:  send email to  info@example.org
+Administrative commands like unsubscribe send to majordomo@example.org
+Help: Try listname-owner@example.org first then try admin@example.org
 ENDTAG
 
 
@@ -26,9 +26,10 @@ added, it is chosen at random from the footers given here. The
 frequency with which footers appear can be controlled with
 "configset listname message_footer_frequency".
 
-The footer text will undergo variable substitution (and possibly
-auto-inclusion of OTHER files) as it is added to the message.
-See "help variables" for a list of substitutions which are supported.
+The footer text will undergo variable substitution as it is added
+to the message.  The variables supported include the standard substitutions,
+plus ARCHIVE, ARCURL, DATE, SENDER, SEQNO, SUBJECT, SUBSCRIBED, and USER.
+See "help variables" for more information.
 
 Within the here document (between the tags), the '-' character takes
 on a special significance if it is the first character on the line.
@@ -44,14 +45,18 @@ to message_fronters and message_footers.
 
 Note that for multipart messages, footers appear as separate parts at
 the end of the message and that footers are not added at all to single
-part message that are not of type text/plain.  (This avoids destroying
+part messages that are not of type text/plain.  (This avoids destroying
 the content of structured messages.)
 
 
 See Also:
-   help commands (for backslash replacement notes)
-   help configset message_footer_frequency (for how often the footer is sent)
-   help variables (for a list of all possible variables and what they mean)
+   help commands          (for backslash replacement notes)
+   help configset_attachment_rules (to remove unwanted body parts from a message)
+   help configset_message_footer_frequency (for how often the foonter is sent)
+   help configset_message_fronter (to add a fronter to the message)
+   help configset_message_fronter_frequency (for how often the fronter is sent)
+   help variables         (for an explanation of substitution variables)
+
 
 For a list of all help topics send this one-line message
    help topics

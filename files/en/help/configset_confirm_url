@@ -17,7 +17,9 @@ messages that are sent out.
 
 The URL will undergo variable substitution as it is added to
 the message requesting confirmation. See "help variables" for
-a list of substitutions which are supported.
+a discussion of substitutions.  The appropriate token
+will be substituted for \$TOKEN in the value.  No other 
+substitutions are supported.
 
 
 See Also:

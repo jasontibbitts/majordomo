@@ -21,27 +21,27 @@ will receive the  message. The default is all classes. (When delivering
 an announcement, the "each" and "nomail" classes are used to distinguish
 addresses subscribed to one or more lists from those that aren't.)
 
-Along with the announce command goes a special substitution
-in the delivery module.  Any unescaped occurrence of
-\$MSGRCPT will be replaced by the address of the recipient.
-(See "help variables" for a complete list of variables that
-can be substituted when files are sent by various commands.)
-One way this could be used is to add a footer to the
-end of each message:
+The file that is distributed is a template that supports keyword
+variable substitutions.  The variables supported include the standard 
+substitutions, as documented in "help variables", plus \$REQUESTER and 
+\$USER.  In addition, any unescaped occurrence of \$MSGRCPT will be replaced 
+by the address of the recipient of each copy of the announcement. 
+One way this could be used is to include a notice in the announcement
+indicating the subscription address, such as:
   You are subscribed to the mj2-dev list as \$MSGRCPT.
 
-The announce command uses \$MSGRCPT to change the To:
-header of the announcement, so it contains the address
-of the recipient instead of the address of the list.
-The announce command also lets you choose which class
-of recipients receives the announcement.  For instance,
+The announce command uses \$MSGRCPT to change the To: header of the 
+announcement, so it contains the address of the recipient instead of 
+the address of the mailing list.  The announce command also lets you 
+choose which class of recipients receives the announcement.  For instance,
   announce-nomail listname /expiration
-could be used to send a notice about expiring inactive
-subscriptions to all people with postponed subscriptions.
+could be used to send a notice about expiring inactive subscriptions to all 
+people with postponed subscriptions (the "nomail" setting; see "help set"
+for an explanation of the different delivery classes).
 
 
 See Also:
-   help configset access_rules (to limit access to this command)
+   help configset_access_rules (to limit access to this command)
    help set (for how to switch subscriptions between delivery classes)
    help variables (for substitutions that can be made in "filename")
 

@@ -1,19 +1,30 @@
-This file is specific to administrators! To get suggestions from a
-user's perspective (as a list subscriber) send "help overview" or
-"help commands" to the server at $MJ
+                 Substitution variables and file templates
 
-Majordomo variables, for the purpose of message or file substitution,
-are all upper case words with a leading dollar sign (common in Unix).
+When Majordomo sends a reply message in response to a request, the document
+that it sends is usually a template.  The template may have one or more 
+keyword variables, for which Majordomo automatically substitutes the 
+appropriate value.  Majordomo variables, for the purpose of message 
+or file substitution, are upper case words with a leading dollar sign.
 
-This file should contain ALL substitution variables, grouped by
-which file or command they apply to. This file does NOT contain ANY
-variables suitable for use in access_rules tests (for that kind of
-variable, see "help configset access_rules_variables"), although it
-does contain variables that can be evaluted in messages sent to the
-user by access_rules.
+For example, when you use the command
+  help overview
+The first line of the template says
+  An Overview of Majordomo 2, version \$VERSION
+However, what you see on your screen is
+  An Overview of Majordomo 2, version $VERSION
+
+Majordomo automatically substitutes the version number for the 
+VERSION keyword variable.
+
+The most important use of variable substitutions is in the faq, info, and
+intro files that are available through the commands with the same names.
+
+Substitution variables are not the same as access rule variables.
+See "help configset_access_rules_variables" for more information about
+access rules variables.
 
 As an example of a variable, using this string in a file
-  \$MAJORDOMO
+  \$MJ
 will cause the the address of the majordomo email interface to be
 inserted before the user sees the file contents.
 
@@ -25,217 +36,252 @@ user may see the actual variable name if you use a variable in the
 wrong place. The most problematic variable in this respect is
 "\$VICTIM", which is descriptive but may cause minor panic.
 
-Note that \$INCLUDE is a special case, not mentioned in the per-file
-list below, but available whenever any other variable substitution
-is present! Most files may be modified 'on the fly' using \$INCLUDE
-to auto-include other files as they are sent out. You can nest
+The \$INCLUDE variable is a special case, not mentioned in the per-file
+list below, but available in many cases when other variable substitution
+is present! Documents may be combined 'on the fly' using \$INCLUDE
+to insert other files as they are sent out. You can nest
 includes 3 levels deep, so an included file can include another
 file. More than 3 levels of nesting is taken to be an infinite loop,
 and the inclusion is terminated with an error message.
 
 If you use \$INCLUDE, the syntax is different than other variables.
 This variable MUST be followed with a dash and then the path to the
-file you want to include. Nothing else can be on the line before
-the \$INCLUDE or after the file name. For example
+file you want to include.  Nothing can follow the file name. For example
   \$INCLUDE-help/topics
 will pull the contents of "help topics" into your current file,
 usually from the SITE/files/en/help directory. This variable should
 be used only by skilled administrators, and only with full testing
 before the files are released. It is especially critical to test
-error messages, which may be hard to simulate. Proof is left to
-the user that other pathnames will work.
+error messages, which may be hard to simulate.  See "help reply_files"
+for more information about which files support the \$INCLUDE variable.
 
-If you mis-spell a variable, or use one that is not defined,
+If you misspell a variable, or use one that is not defined,
 it will show up in the mail message exactly as you typed it (dollar
 sign and all), so watch for these and be aware that unevaluated
-variables do NOT cause errors to be logged.
+variables do not cause errors to be logged.
 
 You can keep variable evaluation from happening by escaping the
 dollar sign with a backslash, as in
   \\$MAJORDOMO
 which will appear as simply "\$MAJORDOMO" to the user.
 
-See "help put" for information on how to change or create the various
-files mentioned below, and for the meaning/use of each file.
+In addition, the text can be padded and justified, as illustrated
+in this example:
+  \$LIST:-18 X \$COMMAND:11
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+The name of the mailing list is padded with spaces to at least 18 characters
+and left-justified.  The command is padded to at least 11 characters and
+right-justified.  If the mailing list name is "aardvark" and the command
+is "subscribe" then this line would be displayed as
+  aardvark           X   subscribe           
 
-Below is a list of all the variables a list or site administrator
-may use.
+Padding in this manner is very useful for commands, such as who-enhanced,
+that display a table of data with each column aligned properly.
 
-In the "ack_rejection" file, these variables are evaluated
-only in the message body:
-  \$MESSAGE   => The rejection message given by the list owner, if any
-  \$REQUEST   => The submitted command line
-  \$DATE      => The date of original request
+See "help get" and "help put" for information on how to see, change,
+or create the error, format, and reply files that use these substitutions.
 
-In the "ack_stall", "ack_success", and "ack_denial" files, this variable
-is evaluated in both the subject and message body:
-  \$LIST      => The name of the list
+Standard substitution variables
+-------------------------------
 
-In the "ack_stall" and "ack_denial" files, this variable is evaluated
-only in the message body:
-  \$MESSAGE   => The stall/denial message returned from access_rules
-                 or the rejection message given by the moderator when
-                 the token is rejected
+There is a set of standard substitutions, that apply to most
+of the Majordomo error, format, and reply files.  Their names and values
+(in the context of the GLOBAL list) are shown in the following list.  Naturally, 
+some of the variables (LIST, OWNER, REQUEST, SUBLIST, and WHOAMI)
+will vary depending upon the mailing list.
 
-In the "ack_timeout" file, no variable substitutions are done.
+\$CONFIRM_URL $CONFIRM_URL
+  (The location of the WWW interface for token confirmation)
 
-In a file sent by the "announce" command, only these variable are evaluated:
-  \$LIST      => the name of the list the announce file is being sent to
-  \$MJ        => the address Majordomo receives commands at
-  \$MJOWNER   => the address of the owner of this Majordomo installation
-  \$MSGRCPT   => the address of the recipient (each msg individually addressed).
-  \$SITE      => the name of the site (a text string from "configset GLOBAL site_name")
-  \$USER      => the address of the person who made the announcement
-  \$VERSION   => the version of Majordomo
-  \$WHEREAMI  => the site domain (a text string from "configset GLOBAL whereami")
-  \$WHOAMI    => the address of the list the announce file is being sent to
-  \$OWNER     => the address of the list owner
+\$DOMAIN      $DOMAIN
+  (The name of the current domain, as determined at installation time)
 
-In the "confirm" and "consult" files, these variables are evaluated
-in both the subject and message body:
-  \$CMDLINE   => The command that was sent (or would have been sent
-                 if the command had come in via email)
-  \$EXPIRE    => The number of days until the token expires
-  \$LIST      => The list the request was made to
-  \$MJ        => The address Majordomo receives commands at
-  \$MJOWNER   => The address of the owner of this Majordomo installation
-  \$OWNER     => The address of the list owner
-  \$REQUEST   => The type of request that was made
-  \$REQUESTER => The user who made the request
-  \$TOKEN     => The token that is to be returned
-  \$URL       => The URL that can be visited to accept the token
-                  (as set by confirm_url, but with \$TOKEN replaced)
-  \$VICTIM    => The user who will be acted on by the request
+\$LIST        $LIST
+  (The name of the current mailing list, or GLOBAL)
 
-In the URL set by "configset GLOBAL confirm_url" this variable is evaluated:
-  \$TOKEN     => The token being confirmed.
+\$MJ          $MJ
+  (The e-mail address of the majordomo server)
 
-In the various digest files, no variable substitutions are done.
+\$MAJORDOMO   $MAJORDOMO
+  (The e-mail address of the majordomo server)
 
-In the "info" file, no variable substitutions are done.
-  (as of 6/2000 some substitutions are done, not sure which ones)
+\$MJOWNER     $MJOWNER
+  (The e-mail address of the administrator of this domain)
 
-In the "inform" file, these variables are evaluated in the subject:
-  \$LIST      => The name of the list
-  \$REQUEST   => the request
-  \$UREQUEST  => the _upcased_ request (to be like 1.9x)
+\$OWNER       $OWNER
+  (The e-mail address of the administrator of the current mailing list)
 
-In the "inform" file, these variables are evaluated in the msg body:
-  \$CMDLINE   => the command that was sent
-  \$COMMENT   => may (or may not) hold explanatory text relating to
-                 the event that was logged (i.e. why an action failed)
-  \$INTERFACE => the interface that generated the event ('email', 'shell', etc.)
-  \$LIST      => the list the request acted on
-  \$REQUEST   => the request that was made
-  \$REQUESTER => the user who made the request
-  \$SESSIONID => the randomly assigned session number for this event
-                 (see "help sessioninfo" for a discussion of session IDs)
-  \$STATUS    => the numeric status of the action (   -1,       0,       1)
-  \$STATDESC  => the textual status of the action (stall, failure, success)
-  \$TIME      => the elapsed time taken by the request
-  \$USER      => same as \$VICTIM
-  \$VICTIM    => the user who will be effected by the request
+\$PWLENGTH    $PWLENGTH     
+  (The minimum length of a new password.  See "help password" and 
+   "help admin_passwords" for details.)
 
-In the "intro" file, no variable substitutions are done.
-  (as of 6/2000 some substitutions are done, not sure which ones)
+\$REQUEST     $REQUEST   
+  (The "request" address for a mailing list)
 
-In the "faq" file, no variable substitutions are done.
-  (as of 6/2000 some substitutions are done, not sure which ones)
+\$SITE        $SITE
+  (The name of this site)
 
-For a post to any email list: In the text supplied as headers added by
-"configset listname message_headers", in the footer/fronter added by
-"configset listname message_footer" and "configset listname message_fronter",
-these variables are evaluated in both the subject and message body:
-  \$ARCHIVE   => the number of this message in the archives
-  \$ARCURL    => the string specified by "configset listname archive_url"
-  \$AUTHOR    => the address of the person making the post
-  \$DATE      => the date of original request
-  \$LIST      => the name of the current list
-  \$MJ        => the server address, where accept/reject commands go
-  \$MJOWNER   => the address of the domain owner
-  \$OWNER     => the address of the list owner
-  \$SENDER    => the sender as taken from the from line
-  \$SEQNO     => the contents of the sequence_number variable, which is
-                 automatically incremented each time a message is posted
-  \$SITE      => the name of the site (a text string from "configset GLOBAL site_name")
-  \$SUBJECT   => the subject line from the REQUESTOR's header
-  \$SUBLIST   => the name of the sublist that the post is being sent to
-  \$SUBSCRIBED=> empty string if USER is subscribed, else the string "(not)"
-  \$USER      => the user's address
-  \$VERSION   => the version of Majordomo.
-  \$WHEREAMI  => the site domain (a text string from "configset GLOBAL whereami")
-  \$WHOAMI    => the address of the list the post is being sent to
+\$SUBLIST     $SUBLIST
+  (An auxiliary list, if one is used.  See "help auxiliary_list" for details.)
 
-For a post to any email list, in the text supplied as headers added by
-"configset listname reply_to" these variables are evaluated:
-  \$HOST      => the hostname of the server (from the resend_host variable)
-  \$LIST      => The name of the list
-  \$SENDER    => the address of person who sent the message
-  \$SEQNO     => the message sequence number
+\$VERSION     $VERSION
+  (Which version of Majordomo 2 is used at this site.)
 
-In "replyfile" and "mailfile", sent by access_rules, these
-variables are evaluated in both the subject and message body:
-  \$CMDLINE   => the command which REQUESTER sent
-  \$EXPIRE    => token_lifetime setting, how long the 'accept' can wait
-  \$LIST      => GLOBAL or the individual list, depending on the action
-  \$MJ        => the server address, where accept/reject commands go
-  \$MJOWNER   => the address of the domain owner
-  \$OWNER     => the address of the list owner
-  \$REMIND    => token_remind setting, in case a token is forgotten
-  \$REQUESTER => the address which initiated the action
-  \$SUBJECT   => the subject line from the REQUESTOR's header
-  \$SUBLIST   => the name of the sublist that the post is being sent to
-  \$VICTIM    => the address of the person affected by the action
+\$WHEREAMI    $WHEREAMI
+  (The name of the current domain.)
 
-In the subject prefix added by "configset listname subject_prefix"
-these variables are evaluated in the subject only:
-  \$LIST      => The name of the list
-  \$SEQNO     => the contents of the sequence_number variable, which is
-                 automatically incremented each time a message is posted
-  \$VERSION   => the version of Majordomo
+\$WHOAMI      $WHOAMI
+  (The list address, or the Majordomo server address in a GLOBAL context.)
 
-In the default "welcome" file, which is sent when not overridden by
-"configset listname welcome_files", these variables are evaluated in
-both the subject and message body:
-  \$LIST      => the name of the list
-  \$MAJORDOMO => the address of the majordomo email interface
-  \$MJOWNER   => the site owner's address
-  \$OWNER     => the list owner's address
-  \$REQUEST   => the request address
-  \$SITE      => the name of the site (a text string from "configset GLOBAL site_name")
-  \$USER      => the user's address
+\$WWWADM_URL  $WWWADM_URL
+  (The location of the WWW interface for list administrators)
 
-In files sent by "configset listname welcome_files", these variables
-are evaluated in both the subject and message body, but ONLY if the
-"S" option is supplied to cause substitutions:
-  \$LIST      => The name of the list
-  \$MJ        => the address of the majordomo server
-  \$MJOWNER   => the address of the domain owner
-  \$OWNER     => the address of the list owner
-  \$REQUEST   => the list-request address
-  \$USER      => the address of the user
+\$WWWUSR_URL  $WWWUSR_URL
+  (The location of the WWW interface for list subscribers)
 
-In messages sent to the user as a result of "configset access_rules",
-as it applies to a list, but which are NOT generated from a replyfile
-or mailfile, these variables are evaluated in the message body:
-  \$LIST      => The name of the list
-  \$NOTIFY    => same as \$VICTIM
-  \$REASONS   => why the access was denied
-  \$REQUEST   => the list-request address
-  \$REQUESTER => the address which initiated the action
-  \$VICTIM    => the address of the person affected by the action
+Other variables used by reply files
+-----------------------------------
+
+See "help reply_files" for an overview of each of the reply files.
+
+In time, a complete list of the other substitutions supported by 
+the error, format, and reply files will be presented here.
+
+\$ARCHIVE
+  The archive number of a posted message, for example "200008/124".
+  This is not the same as the sequence number;  see "help archive"
+  for more details.
+
+\$ARCURL
+  The URL that allows access to an external archive.  This value is
+  determined by the archive_url configuration setting;  see 
+  "help configset_archive_url" for more information.
+
+\$CMDLINE
+  The command line that would be used to issue a command via e-mail
+  or the mj_shell program.
+
+\$DATE
+  The date at which a request was originally issued;  in some cases
+  this may be the Date header from a posted message.
+
+\$EXPIRE   
+  The number of days before a request that has been stalled expires.
+  This value is determined by the token_lifetime configuration setting
+  (see "help configset_token_lifetime" for details).
+
+\$FULFILL
+  The date at which a delayed request will be completed
+  (see "help delay" for more information).
+
+\$HOST
+  The host from which a posted message is distributed to the subscribers
+  of a mailing list.  This value comes from the resend_host configuration
+  setting (see "help configset_resend_host" for more details).
+
+\$PASSWORD
+  The password with which a command was issued, or
+  The personal password corresponding to a particular e-mail address.
+ 
+\$REMIND 
+  The number of days before a reminder for a request that requires
+  confirmation, is sent to the person whom the request affects.
+  This value is determined by the token_remind configuration setting
+  (see "help configset_token_remind" for details).
+
+\$REASONS
+  The reasons, supplied by the access rules, that a request was denied
+  or stalled (see "help configset_access_rules" for more details).
+
+\$REQUESTER
+  The e-mail address from which a Majordomo request was sent.
+
+\$SENDER
+  The e-mail address from which a posted message was sent, or the
+  envelope address used by a mailing list to deliver messages to the
+  subscribers.
+
+\$SEQNO
+  The sequence number of a message posted to a mailing list.  This
+  value comes from the sequence_number configuration setting (see
+  "help configset_sequence_number for more information).
+
+\$SUBJECT
+  The Subject header of a posted message.
+
+\$SUBLIST
+  The name of the auxiliary list to which a command applies (see
+  "help auxiliary_list" for more information).
+
+\$SUBSCRIBED
+  If a message was posted by a subscriber to the mailing list, this
+  value is empty.  If not, it is the word "not".
+ 
+\$USER
+  The e-mail address from which a Majordomo request was originally sent.
+  (this needs to be reconciled with \$REQUESTER)
+
+\$VICTIM 
+  The e-mail address of the person affected by a Majordomo command.
+
+Extensions for error and format files
+-------------------------------------
+
+Beyond the standard reply files, Majordomo comes with error and format
+files that determine the output of the individual Majordomo commands.
+Error files are used to display explanations when a command is 
+incorrect, not permitted, or otherwise unavailable.  Format files
+display the output of the individual commands, and vary depending
+upon the interface.  Currently, the e-mail and mj_shell interfaces
+use the "text" format files, whereas the web interfaces use
+the "wwwadm" and "wwwusr" format files.
+
+There are three extensions to the substitutions which are used
+by the error and format files. 
+
+1. A keyword variable prefixed with a question mark instead of a dollar
+sign will cause the whole line to be omitted from the output
+if the value is not set.
+
+Example:
+  The archive is available on the web at ?ARCURL
 
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+2. A substitution value that is actually an array of values will
+cause the same line to be displayed multiple times, once for
+each value in the array.  Other substitutions on the same line, which
+only have one value, will be displayed only on the first line.
+
+Example:
+  \$LIST:-23 $DESCRIPTION
+
+(This example is used by the lists command to display a list name and
+a multiple-line description of the mailing list.  Although the list name 
+only appears on the first line, a 23 space indentation appears on each 
+succeeding line, which keeps the lines of the description aligned with
+one another.)
+
+3. The special \$HELP substitution, following by a colon and the name 
+of a help page (in upper-case letters), will cause a hypertext link 
+to that page to appear in the output of the WWW interfaces.  In the text 
+formatting files, the variable is simply replaced by the name of the 
+page, in lower-case letters.
+
+Example:
+  You may change your delivery class using the \$HELP:SET command.
+
 
 See Also:
    help configset access_rules  (for mailfile and deny usage)
    help configset access_rules_variables (for access_rules variables)
    help configset welcome_files (for additional files that can be sent)
    help digest                  (for additional file names and usage)
+   help error_files
+   help format_files
+   help get                     (obtain existing files)
    help put                     (create or update files by email)
+   help reply_files
+
 
 For a list of all help topics send this one-line message
    help topics

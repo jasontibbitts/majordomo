@@ -8,13 +8,14 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname subject_prefix = Mj2:$LIST
+configset listname subject_prefix = [\$LIST: \$SEQNO]
 
 
-This word will be prefixed to the subject line, if it is not already
-in the subject. The subject text will undergo variable substitution
-as it is added to the message. See "help variables" for a list of
-substitutions which are supported.
+The contents of this setting will be prefixed to the Subject header
+of every message that is posted to a mailing list.  Only subscribers
+with the prefix setting will see the prefix (see "help set" for 
+more information). This value supports the standard variable substitutions, 
+plus the \$SEQNO substitution (see "help variables" for more details).
 
 When deciding if the prefix text is already in the subject, Majordomo
 ignores leading tags like "Re:" and "FWD:" that are commonly used for
@@ -23,7 +24,9 @@ the existing Majordomo prefix, a duplicate prefix may be added.
 
 
 See Also:
-   help configset message_headers (for adding arbitrary headers)
+   help configset_delete_headers  (to remove headers from a posted message)
+   help configset_message_headers (to add headers to a posted message)
+   help set       (for a description of the prefix setting)
    help variables (for a list of all possible variables and what they mean)
 
 For a list of all help topics send this one-line message

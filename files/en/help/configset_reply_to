@@ -10,26 +10,30 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset listname reply_to = $SENDER
 
+Majordomo adds a Reply-to header to posted messages with this value
+if the value is set.  Only subscribers with the replyto setting
+will see this header (see "help set" for more information).
 
-Put a reply-to header with value <value> into the outgoing message.
 NOTE: A pre-existing Reply-To: header (such as one added by the user's
-mail tool) will NOT be replaced unless override_reply_to is true.
+mail tool) will NOT be replaced unless the override_reply_to configuration
+setting has a true value.
 
 Another way to get reply-to headers is with "configset message_headers",
-but that is normally done only for the GLOBAL pseudo-list. This command
-is more flexible in that it can supply defaults but dissappear when
-there is already such a header. Reply-To, no matter how it is supplied,
-should override the Sender header.
+but that is normally done only for the GLOBAL pseudo-list. The reply_to
+setting is more flexible in that it does not always override existing
+headers.
 
 The header text will undergo variable substitution as it is added to
-the message. See "help variables" for a list of substitutions which
-are supported.
+the message.  These variables include the standard substitutions, plus
+HOST, SENDER, and SEQNO.  See "help variables" for a description of these
+substitutions.
 
 
 See Also:
-   help configset message_headers (for adding arbitrary headers)
-   help configset override_reply_to (which may keep this from working)
-   help configset sender (to supply yet another header field)
+   help configset_delete_headers (to remove headers from a posted message)
+   help configset_message_headers (to add headers to a posted message)
+   help configset_override_reply_to (which may keep this from working)
+   help configset_sender (to supply yet another header field)
    help variables (for a list of all possible variables and what they mean)
 
 For a list of all help topics send this one-line message

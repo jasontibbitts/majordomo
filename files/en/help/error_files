@@ -1,0 +1,59 @@
+                           Majordomo error files
+
+In an effort to support error messages that are easy to understand and localize,
+the error messages are gradually being moved out of the source code and into
+separate files.  Each error file is a template file that supports variable 
+substitution.  The files are site-specific, but can be retrieved and customized 
+on a per-domain basis using the get command.  For example, to customize the 
+password_length file, use this command:
+  get-edit GLOBAL /error/password_length
+
+Error files are never returned directly.  Instead, their text is incorporated
+into the appropriate format file for the command that generated the error
+(see "help format_files" for further details).
+
+The variable substitutions supported by each file are listed in parentheses.
+
+invalid_command
+---------------
+This error message is displayed if a command is requested that Majordomo
+does not support.
+
+(standard plus COMMAND)
+
+invalid_mode
+------------
+This error message is displayed in a command mode is requested that
+Majordomo does not support for a particular command.
+
+(standard plus MODE, MODES)
+
+password_length
+---------------
+This error message is displayed if the password command is used to
+attempt to create a personal password that is too small (see "help password"
+and "help configset_password_min_length" for more details).
+
+(standard substitutions only)
+
+unregistered
+------------
+This error message is displayed if the password command is used to change
+the password for an e-mail address that is not yet registered at this
+domain (see "help register" for more details on registering).
+
+(standard plus VICTIM)
+
+
+See Also:
+
+   help admin_domain
+   help format_files
+   help get
+   help reply_files
+   help variables
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
+

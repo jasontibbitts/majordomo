@@ -228,6 +228,8 @@ files/en/config/which_access
 files/en/config/who_access
 files/en/config/whoami
 files/en/config/whoami_owner
+files/en/config/wwwadm_url
+files/en/config/wwwusr_url
 files/en/confirm
 files/en/confirm_noweb
 files/en/consult
@@ -249,7 +251,6 @@ files/en/format/text/configshow_array
 files/en/format/text/configshow_categories
 files/en/format/text/configshow_enum
 files/en/format/text/configshow_error
-files/en/format/text/configshow_flags
 files/en/format/text/configshow_foot
 files/en/format/text/configshow_head
 files/en/format/text/configshow_none
@@ -287,7 +288,6 @@ files/en/format/wwwadm/configshow_array
 files/en/format/wwwadm/configshow_categories
 files/en/format/wwwadm/configshow_enum
 files/en/format/wwwadm/configshow_error
-files/en/format/wwwadm/configshow_flags
 files/en/format/wwwadm/configshow_foot
 files/en/format/wwwadm/configshow_head
 files/en/format/wwwadm/configshow_none
@@ -344,6 +344,7 @@ files/en/help/accept
 files/en/help/access
 files/en/help/admin
 files/en/help/admin_commands
+files/en/help/admin_domain
 files/en/help/admin_passwords
 files/en/help/advertise
 files/en/help/alias
@@ -478,14 +479,18 @@ files/en/help/configset_which_access
 files/en/help/configset_who_access
 files/en/help/configset_whoami
 files/en/help/configset_whoami_owner
+files/en/help/configset_wwwadm_url
+files/en/help/configset_wwwusr_url
 files/en/help/configshow
 files/en/help/createlist
 files/en/help/default
 files/en/help/delay
 files/en/help/digest
 files/en/help/end
+files/en/help/error_files
 files/en/help/exit
 files/en/help/faq
+files/en/help/format_files
 files/en/help/get
 files/en/help/help
 files/en/help/index
@@ -493,7 +498,10 @@ files/en/help/info
 files/en/help/intro
 files/en/help/lists
 files/en/help/man
+files/en/help/mj_confirm
 files/en/help/mj_shell
+files/en/help/mj_wwwadm
+files/en/help/mj_wwwusr
 files/en/help/mkdigest
 files/en/help/newconfig
 files/en/help/newfaq
@@ -510,6 +518,7 @@ files/en/help/register
 files/en/help/reject
 files/en/help/rekey
 files/en/help/remove
+files/en/help/reply_files
 files/en/help/report
 files/en/help/request_response
 files/en/help/sessioninfo
@@ -661,6 +670,8 @@ t/addr.t
 t/bounce.t
 t/bounces/1
 t/bounces/1.desc
+t/bounces/10
+t/bounces/10.desc
 t/bounces/2
 t/bounces/2.desc
 t/bounces/3
@@ -675,6 +686,8 @@ t/bounces/7
 t/bounces/7.desc
 t/bounces/8
 t/bounces/8.desc
+t/bounces/9
+t/bounces/9.desc
 t/checksubs
 t/core.t
 t/db-dbmbtree.t

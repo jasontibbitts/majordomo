@@ -14,11 +14,13 @@ Password Notes: none
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
+
 configset listname message_headers << ENDTAG
-X-Loop: msg $SEQNO from listname@nowhere.org
+X-Loop: msg $SEQNO from listname@example.org
 ENDTAG
+
 configset GLOBAL message_headers << ENDTAG
-X-Loop: Mj2 server at NoWhere.Org
+X-Loop: Mj2 server at Example.Org
 Reply-To: $MJ
 ENDTAG
 
@@ -28,40 +30,41 @@ when a regular list is specified, or to the headers of replies
 from the server (such as token confirmation requests) when the
 GLOBAL pseudo-list is specified.
 
-WARNING: A "Reply-To" header is REQUIRED for the GLOBAL pseudo-list
+WARNING: A "Reply-to" header is required for the GLOBAL pseudo-list
 to function properly. Make sure you don't delete it if you replace
 the defaults! This will be the address that confirmation tokens
 (for commands like subscribe and set) go to with a default reply,
 and without it confirmations may go to the list owner, depending
-on the values in "configset sender", and "configset whoami".
+on the values in the sender and whoami configuration settings.
 
-There are header traps in place: See "help configset block_headers"
-for a description of headers which are both added and looked for.
-(Specifically, X-Loop has special meaning!) List owners are encouraged
-to add an X-Loop header to outgoing posts, using "configset message_headers",
-as an additional safety precaution. This is a good place to include
-an evaluated variable for the list name (so filters can always figure
-out which list the post came from) and perhaps a sequence number.
+There are header traps in place: See "help configset_block_headers"
+for a description of headers which will cause Majordomo to 
+reject a message without examining it for commands.
 
-Whenever a post is accepted, it is re-mailed to the list 
-address with an Approved: header included.  Any existing
-Delivered-To headers are removed to reduce the chance of a bounce.
+Whenever a posted message is approved by the moderators using the 
+accept command, it is re-mailed to the list address with an Approved: 
+header included.  This causes the message to be delivered immediately
+without undergoing any access checks.  Any existing Delivered-To headers 
+are removed from the message to reduce the chance of a bounce.
 
-For regular lists, there are other header fields that can be added
-with different variables available. See "help configset reply_to"
-and "help configset sender" for additional information. You normally
-don't need to control list replies with "configset message_headers".
+For regular lists, there are other header fields that can be added or changed
+using different configuration settings. See "help configset_reply_to",
+"help configset_sender", "help configset_precedence", and 
+"help configset_subject_prefix"  for additional information. You normally
+will not need to control your mailing list's reply address with the
+message_headers setting.
 
 This header text will undergo variable substitution as it is added
-to the message. See "help variables" for a list of substitutions
-which are supported.
+to the message.   The variables supported include the standard substitutions,
+plus ARCHIVE, ARCURL, DATE, SENDER, SEQNO, SUBJECT, SUBSCRIBED, and USER.
+See "help variables" for more information.
 
 
 See Also:
-   help configset block_headers (for how to block server commands)
-   help configset precedence    (for how to add a special header)
-   help configset reply_to
-   help configset sender
+   help configset_block_headers (for how to block server commands)
+   help configset_precedence    (for how to add a special header)
+   help configset_reply_to
+   help configset_sender
    help variables (for a list of all possible variables and what they mean)
 
 For a list of all help topics send this one-line message

@@ -1,0 +1,431 @@
+                           Majordomo format files
+
+Majordomo uses formatting files to allow the output of Majordomo commands
+to be customized according to the interface, and potentially the language,
+used by the person making the request.
+
+Formatting files are templates that support keyword variable substitutions.
+See "help variables" for more information on the use of keyword variables.
+
+At present, there are three interfaces supported:  text, wwwadm, and wwwusr.
+The text formatting is used for responses to requests from e-mail messages
+and the mj_shell program.  The wwwadm and wwwusr formatting is used by
+the WWW CGI programs.  Most format files are not supported by all three
+interfaces;  the interfaces are listed in parentheses at the beginning of
+the description for each file.
+
+It is possible to retrieve any of these files using the get command,
+according to the interface name.  For example, to retrieve the 
+configshow_categories file for the wwwadm interface, use the command
+  get-edit GLOBAL /format/wwwadm/configshow_categories
+
+The get-edit command wraps the file in a "put" command to make editing and
+replacing the file easier.  Note that the format files are stored in
+a directory that is used by all domains at this site.  If you use the
+put command to improve a format file, you will actually be creating a
+copy of the file that is stored within a file space that is specific
+to one list in one domain.  See "help admin_domain" for a details about
+how domains are managed by Majordomo.
+
+command
+-------
+(wwwadm)  This file displays a command form, a simple way to issue commands
+that are not otherwise supported by the interface.
+
+(standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, PASSWORD, USER)
+
+configshow
+----------
+(text, wwwadm)  This file displays the comments and value of one
+configuration setting.  It is used for all of the settings that do
+not fall into a more specific category (array, enum, or short;
+see below for more details).
+
+(standard plus CGIDATA, CGIURL, COMMENT, PASSWORD, SETCOMMAND, 
+ USER, VALUE, VARIABLE)
+
+
+configshow_array
+----------------
+(text, wwwadm)  This file displays the comments and value of one
+configuration setting.  It is used for all settings that require
+an array of values.
+
+(standard plus CGIDATA, CGIURL, COMMENT, LINES, PASSWORD, SETCOMMAND, 
+ USER, VALUE, VARIABLE)
+
+
+configshow_categories
+---------------------
+(text, wwwadm)  This file displays a list of configuration categories.
+
+(standard plus CATEGORIES, CGIDATA, CGIURL, COMMENT, COUNT, PASSWORD, USER)
+
+
+configshow_enum
+---------------
+(text, wwwadm)  This file displays the comments and value of one
+configuration setting.  It is used for settings, such as subscribe_policy,
+that have one of a specific set of values.
+
+(standard plus CGIDATA, CGIURL, CHECKED, COMMENT, PASSWORD, SELECTED, 
+ SETCOMMAND, SETTINGS, USER, VALUE, VARIABLE)
+
+
+configshow_error
+----------------
+(text, wwwadm)  This file displays an error message if the configshow
+command fails.
+
+(standard plus CGIDATA, CGIURL, ERROR, PASSWORD, USER)
+
+
+configshow_foot
+---------------
+(text, wwwadm)  This file displays supplementary information at
+the bottom of the configshow output.  It is not used in
+"categories" mode.
+
+(standard plus CGIDATA, CGIURL, COMMENT, PASSWORD, USER)
+
+
+configshow_head
+---------------
+(text, wwwadm)  This file displays supplementary information at
+the top of the configshow output.  It is not used in "categories"
+mode.
+
+(standard plus CGIDATA, CGIURL, COMMENT, PASSWORD, USER)
+
+
+configshow_none
+---------------
+(text, wwwadm)  This file displays a message indicating that no
+visible settings were found.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, USER)
+
+
+configshow_short
+----------------
+(text, wwwadm)  This file displays the comments and value of one
+configuration setting.  It applies to settings that have short
+(numeric or word) values.
+
+(standard plus CGIDATA, CGIURL, COMMENT, PASSWORD, SETCOMMAND, 
+ USER, VALUE, VARIABLE)
+
+
+error
+-----
+(wwwadm, wwwusr)  This file displays an error message when a
+WWW request fails during initialization and sanity checks.
+
+(standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, PASSWORD, USER)
+
+
+foot
+----
+(wwwadm, wwwusr)  This file displays supplementary information
+at the bottom of every web page.
+
+(standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, PASSWORD, USER)
+
+
+head
+----
+(wwwadm, wwwusr)  This file displays supplementary information
+at the top of every web page.
+
+(standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, PASSWORD, USER)
+
+
+lists
+-----
+(text, wwwadm, wwwusr)  Displays information about a mailing list
+when "full" command mode is not used.
+
+(standard plus ARCURL, CATEGORY, CGIDATA, CGIURL, DESCRIPTION, DIGESTS,
+ FLAGS, LIST, OWNER, PASSWORD, PATTERN, POSTS, SUBS, USER, WHOAMI)
+
+
+lists_category
+--------------
+(text, wwwadm, wwwusr)  This file displays each category name
+(see "help configset_category" for more details).  It is not
+displayed if the "tiny" command mode is used.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, PATTERN, USER)
+
+
+lists_enhanced
+--------------
+(text, wwwadm, wwwusr)  This file displays supplementary information
+at the end of the output when the "enhanced" command mode is used.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, PATTERN, USER)
+
+
+lists_error
+-----------
+(text, wwwadm, wwwusr) This file displays an error message if the 
+lists command fails.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, PATTERN, USER)
+
+
+lists_foot
+----------
+(text, wwwadm, wwwusr)  This file displays supplementary information
+at the bottom of the output.  It is not displayed if the compact
+or tiny command modes are used.
+
+(standard plus CGIDATA, CGIURL, COUNT, PASSWORD, PATTERN, USER)
+
+
+lists_full
+----------
+(text, wwwadm, wwwusr)  This file displays a wealth of information
+about a mailing list (name, description, digests, etc.) when the
+"full" command mode is used.
+
+(standard plus ARCURL, CATEGORY, CGIDATA, CGIURL, DESCRIPTION, DIGESTS,
+ FLAGS, LIST, OWNER, PASSWORD, PATTERN, POSTS, SUBS, USER, WHOAMI)
+
+
+lists_head
+----------
+(text, wwwadm, wwwusr)  This file displays supplementary information
+at the top of the output, but not in compact or tiny mode.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, PATTERN, USER)
+
+
+lists_none
+----------
+(text, wwwadm, wwwusr)  This file indicates that no mailing lists were
+found.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, PATTERN, USER)
+
+login
+-----
+(wwwadm, wwwusr)  This file displays an HTML form that allows
+vital information to be entered or changed.  For the wwwadm interface,
+a list name and password are requested.  For the wwwusr interface,
+an e-mail address and password are requested.
+
+(standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, ERROR, PASSWORD, USER)
+
+
+show
+----
+(text, wwwusr)  This file displays the data for one mailing list
+subscription.
+
+(standard plus ALIAS, ALIASES, CGIDATA, CGIURL, CHANGETIME, CHECKBOX, 
+ CLASS_DESCRIPTIONS, CLASSES, COUNT, LIST, NUMBERED_BOUNCES, PASSWORD, 
+ RCHANGETIME, REGTIME, SELECTED, SETTINGS, SUBLIST, UNNUMBERED_BOUNCES, 
+ USER, VICTIM, XFORM and others)
+
+
+show_error
+----------
+(text, wwwusr)  This file is displayed if the show command stalls
+or fails.
+
+(standard plus CGIDATA, CGIURL, ERROR, PASSWORD, USER, VICTIM)
+
+
+show_foot
+---------
+(text, wwwusr)  This file displays supplementary data at the bottom
+of the output.
+
+(standard plus ALIAS, ALIASES, CGIDATA, CGIURL, COUNT, PASSWORD, RCHANGETIME, 
+ REGTIME, SETTINGS, USER, VICTIM, XFORM and others)
+
+
+show_head
+---------
+(text, wwwusr)  This file displays supplementary information at
+the top of the output.
+
+(standard plus ALIAS, ALIASES, CGIDATA, CGIURL, COUNT, PASSWORD, RCHANGETIME, 
+ REGTIME, SETTINGS, USER, VICTIM, XFORM and others)
+
+
+show_none
+---------
+(text, wwwusr)  This file is displayed if the address is not subscribed
+to any mailing lists.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, USER, VICTIM)
+
+
+showtokens
+----------
+(text, wwwadm)  This file displays data for all tokens for
+a mailing list.
+
+(standard plus CGIDATA, CGIURL, COUNT, ERROR, PASSWORD, TOKENDATA, USER)
+
+showtokens_all
+--------------
+(text, wwwadm)  This file displays data for a all tokens when
+tokens for "ALL" lists are shown.
+
+(standard plus CGIDATA, CGIURL, COUNT, ERROR, PASSWORD, TOKENDATA, USER)
+
+showtokens_all_data
+-------------------
+(text, wwwadm)  This file displays data for a single token when
+tokens for "ALL" lists are shown.
+
+(standard plus ADATE, ATYPE, CGIDATA, CGIURL, CMDLINE, COMMAND, DATE,
+ ERROR, LIST, PASSWORD, SIZE, TOKEN, TYPE, USER)
+
+showtokens_data
+---------------
+(text, wwwadm)  This file displays data for a single token.
+
+(standard plus ADATE, ATYPE, CGIDATA, CGIURL, CMDLINE, COMMAND, DATE,
+ ERROR, LIST, PASSWORD, SIZE, TOKEN, TYPE, USER)
+
+showtokens_error
+----------------
+(text, wwwadm)  This file displays an error message if the showtokens
+command fails.
+
+(standard plus CGIDATA, CGIURL, ERROR, PASSWORD, USER)
+
+showtokens_foot
+---------------
+(wwwadm)  This file displays supplementary information at the bottom
+of the output.  It is used by the wwwadm interface to allow tokens
+for more than one list to be displayed at one time.
+
+(standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, PASSWORD, USER)
+
+showtokens_head
+---------------
+(wwwadm)  This file displays supplementary information at the top
+of the output.  It is used by the wwwadm interface to allow tokens
+for more than one list to be displayed at one time.
+
+(standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, PASSWORD, USER)
+
+showtokens_none
+---------------
+(text, wwwadm)  This file displays a message that no tokens were found.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, USER)
+
+
+tokeninfo_error
+---------------
+(text, wwwadm)  This file displays an error message when the tokeninfo
+command fails.
+
+(standard plus CGIDATA, CGIURL, ERROR, PASSWORD, USER)
+
+
+tokeninfo_foot
+--------------
+(text, wwwadm)  This file displays supplementary information at
+the bottom of the output.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, DATE, ERROR, EXPIRE, 
+ PASSWORD, REASONS, TOKEN, TYPE, USER)
+
+tokeninfo_head
+--------------
+(text, wwwadm)  This file displays supplementary information at the
+top of the output.
+
+(standard plus APPROVALS, CGIDATA, CGIURL, CMDLINE, DATE, ERROR, EXPIRE, 
+ PASSWORD, REASONS, TOKEN, TYPE, USER)
+
+welcome
+-------
+(wwwadm, wwwusr)  This file displays basic instructions for the use of 
+each WWW interface.
+
+(standard plus CGIDATA, CGIURL, COMMAND, DOMAIN, PASSWORD, USER)
+
+who
+---
+(text, wwwadm)  This file displays the address and other data for one 
+subscription to a mailing list.  This file is not displayed if
+the export command mode is used.
+
+(standard plus CLASSDESC, CGIDATA, CGIURL, CHUNKSIZE, CLASS, CLASS_DESCRIPTIONS, 
+ CLASS_SELECTED, CLASSDESC, CLASSES, FLAGS, FLAGDESC, FULLADDR, LASTCHANGE,
+ PASSWORD, PATTERN, REMOVE, SETTING_CHECKED, SETTING_SELECTED, SETTINGS, START, 
+ USER and others)
+
+
+who_error
+---------
+(text, wwwadm)  This file displays an error message if the who
+command stalls or fails.
+
+(standard plus CGIDATA, CGIURL, ERROR, PASSWORD, PATTERN, REMOVE, START, USER)
+
+
+who_foot
+--------
+(text, wwwadm)  This file displays supplementary information at the top
+of the output.  This file is not displayed if the alias, export, or
+short command mode is used.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, PATTERN, REMOVE, START, USER)
+
+
+who_head
+--------
+(text, wwwadm)  This file displays supplementary information at the top
+of the output.  This file is not displayed if the alias, export, or
+short command mode is used.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, PATTERN, REMOVE, START, USER)
+
+
+who_registry
+------------
+(text, wwwadm)  This file displays data for one registry entry.
+It is used only for the GLOBAL pseudo-list.  This file is not displayed
+if the alias or export command mode is used.
+
+(standard plus CANON, CGIDATA, CGIURL, FULLADDR, LASTCHANGE, LISTS
+ PASSWORD, PATTERN, REMOVE, START, STRIPADDR, USER and others)
+
+
+who_registry_foot
+-----------------
+(text, wwwadm)  This file displays supplementary information at the
+bottom of the output.  It is used only for the GLOBAL pseudo-list.  
+This file is not displayed if the alias, export, or short command mode is used.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, PATTERN, REMOVE, START, USER)
+
+
+who_registry_head
+-----------------
+(text, wwwadm)  This file displays supplementary information at the
+top of the output.  It is used only for the GLOBAL pseudo-list.  
+This file is not displayed if the alias, export, or short command mode is used.
+
+(standard plus CGIDATA, CGIURL, PASSWORD, PATTERN, REMOVE, START, USER)
+
+
+See Also:
+   help admin_domain
+   help error_files
+   help reply_files
+   help variables
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
+

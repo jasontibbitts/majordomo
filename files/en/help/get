@@ -1,37 +1,42 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-get[-edit][-immedate] listname filename [address]
+get[-edit][-immediate] listname filename
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (or GLOBAL)
 filename, required, is the pathname of the file to be sent
-address,    if specified, is where the file should be sent via email
 -edit,      if specified, allows a document to be edited and replaced easily
 -immediate, if specified, returns text inline instead of separate email
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-This command returns a file from the list, which the list owner must
-have previously stored there. If no such file exists, or if you are
-not authorized to get it, the "get" command returns an error message.
-(Normally archived posts are retrieved with "archive-get", and the
-index and get commands will not allow archive retrieval if "archive_dir"
-is set to somewhere outside the list's file space.)
+Each mailing list has a "file space," a collection of directories
+in which important documents are stored.  It is possible to view
+the contents of the file space with the index command, and to
+retrieve individual files in the file space with the get command.
+Documents in the file space typically include archives of posted
+messages, and the "faq," "info," and "intro" documents which are
+displayed using the corresponding commands with the same names.
 
-Files retrieved with the 'get' command are normally mailed to you
-in a separate message (one per file); 'get-immediate' will return the
-file inline instead of mailing it as a separate message.  The 'intro',
-'info' and 'faq' commands are shortcuts for 'get'. For example,
-"get LISTNAME faq" is equivalent to "faq LISTNAME".
-
-Each list may be set up so that different sets of people can "get"
-files from it. If get fails, contact the list owner to make sure you
-asked for the right file name or try "index-recursive listname" to
-get a list of all files you can access.
+Files retrieved with the get command are normally mailed to you
+in a separate message, one file per message. The get-immediate command 
+will cause each document to be returned inline, instead of being mailed
+in a separate message.  
 
 File names are case sensitive! Be sure to type upper and
-lower case letters exactly as they are shown by "index".
+lower case letters exactly as they are shown by the index command.
 List names are NOT case sensitive.
 
+The faq, info, and intro commands are nearly shortcuts for the get
+command. For example, "get LISTNAME /faq" and "faq LISTNAME" will
+return the same document, but the faq command will perform keyword
+substitutions that enhance the content; see "help variables" for 
+more details.
+
+Each mailing list has a configuration setting, get_access, which
+controls who can retrieve files from the file space.  If you 
+attempt to retrieve a file with a restrictive get_access setting,
+you may receive a "permission denied" error.
+
 Note that "filename" is actually a file pathname, and may include
-one or more levels of directories (also called folders). The "index"
+one or more levels of directories (also called folders). The index
 command will show which entries are files and which are directories.
 For example, if list "MYLIST" contains a file called "TOPFILE" in
 addition to a directory "SUBDIR" and a file in that directory which
@@ -40,20 +45,44 @@ is called "ANOTHERFILE", then these commands would be valid:
   get MYLIST SUBDIR/ANOTHERFILE
 where a slash "/" separates the directory name from the file name.
 
-The "edit" command mode causes the entire file to be wrapped in a "put"
-command.  This makes it easy for list owners to edit and replace 
-an existing file.
+The get-edit command causes the entire file to be wrapped in a "put"
+command.  This makes it easy for you to edit and replace an existing 
+file.
+
+Normally, archived posts are retrieved with the archive-get command, 
+and the index and get commands will not allow archive retrieval if 
+the archive_dir configuration setting is set to somewhere outside 
+the list's file space.
+
+                           Notes for list owners:
+
+Each list's file space consists of a private top-level directory, which
+in turn contains a "public" directory.  The files outside
+the public directory cannot be accessed with the get command
+unless an administrative password is used.
+
+When the file name specified with the get command begins with
+a solidus, '/',  Majordomo looks for the file relative to the top-level 
+directory.  If the file name does not begin with a solidus, Majordomo 
+looks for the file underneath the public directory.
+
+To see the difference between the top-level and public directories,
+use the following two commands:
+
+  index-recursive LISTNAME /
+  index-recursive LISTNAME
 
 See Also:
-   help configset access_rules_variables (set/test for this command)
-   help configset archive_access (to restrict access to special files)
-   help configset get_access (determines who can get files from a list)
    help archive    (for how to get special files)
-   help faq        (shortcut for 'get' with specific arguments)
+   help configset_access_rules_variables (set/test for this command)
+   help configset_archive_access (to restrict access to special files)
+   help configset_get_access (determines who can get files from a list)
+   help faq        (retrieves the "/faq" file, with keyword substitutions)
    help index      (find out which files are available for "get")
-   help info       (shortcut for 'get' with specific arguments)
-   help intro      (shortcut for 'get' with specific arguments)
+   help info       (retrieves the "/info" file, with keyword substitutions)
+   help intro      (retrieves the "/intro" file, with keyword substitutions)
    help put        (to create files or directories under a list)
+   help variables  (to see which keyword substitutions are supported)
 
 
 For a list of all help topics send this one-line message

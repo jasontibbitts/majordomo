@@ -1,0 +1,381 @@
+                           Majordomo reply files
+
+In response to a command, Majordomo will sometimes need to provide
+the person who issued the command with extra information.  For example,
+when you subscribe to a Majordomo mailing list, you will usually receive
+a welcome message, part of which contains instructions for leaving the
+mailing list.  These instructions are one example of a Majordomo reply
+file.
+
+The rest of this document lists each reply file that is a standard
+part of Majordomo.  It is possible for mailing list administrators
+to use different reply files, through configuration settings such
+as access_rules and welcome_files.
+
+Each reply file is a template, in which Majordomo will automatically
+substitute the appropriate values for certain keywords (see "help variables"
+for more details).  For example, the keyword \$LIST will be replaced
+by the name of the appropriate mailing list.  The substitutions supported
+by each file are listed in parentheses.  The substitutions will also affect
+the contents of the Subject header of the reply in many cases.
+
+ack_archive  
+-----------
+This file is sent when a moderated message is approved, but only
+sent to the archive, by one of the moderators.  This happens when the 
+moderator uses the accept-archive command.  The reply is only sent if the 
+"ackpost" flag is set for the address in question (see "help set" for
+a description of flags).
+
+(standard plus ARCHIVE, ARCURL, DATE, SENDER, SEQNO, SUBJECT, SUBSCRIBED, USER)
+
+    
+ack_delay    
+---------
+This file is sent when a command is delayed.   See "help delay" for
+a description of what can cause a command to be delayed.
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, VICTIM)
+
+
+ack_denial
+----------
+This file is sent when a posted message is denied by the access rules.
+The reply is only sent if the "ackdeny" flag is set for the address from 
+which the message was posted (see "help set" for a description of all flags.)
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, VICTIM)
+
+
+ack_rejection
+-------------
+This file is sent when a posted message is rejected by one of the mailing 
+list moderators.  The reply is only sent if the "ackreject" flag is set 
+for the address from which the request was made (see "help set" for a 
+description of all flags.)
+
+(standard plus CMDLINE, COMMAND, DATE, MESSAGE, REJECTER, REQUESTER,
+SESSIONID, SESSION, TOKEN, VICTIM)
+
+
+ack_stall
+---------
+This file is sent when any posted message is held for approval ("moderated")
+due to the access rules for the mailing list to which the message was 
+posted.  The reply is only sent if the "ackstall" flag is set for the 
+address from which the message was posted (see "help set" for a description 
+of all flags.)
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, VICTIM)
+
+
+ack_success
+-----------
+This file is sent when a posted message has been processed successfully,
+and is in the process of being delivered to the subscribers of a mailing
+list.  The reply is only sent if the "ackpost" flag is set for the 
+address from which the message was posted (see "help set" for a description 
+of all flags.)
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, VICTIM)
+
+
+ack_timeout
+-----------
+In principle, this file would be sent when a stalled request vanishes
+because its time has expired (see "help configset_token_lifetime" for
+more details).  However, it is not presently used, because this feature
+has not been implemented.
+
+
+confirm
+-------
+This file is sent when a request requires confirmation of the victim
+(the person whose e-mail address the request affects).   It contains
+instructions for confirmation (see "help accept" and "help reject"
+for more details).  A different file may be used by customizing
+the access_rules configuration setting (see "help configset_access_rules"
+for more details).
+
+(standard plus APPROVALS, ARG1, ARG2, ARG3, CMDLINE, COMMAND, EXPIRE,
+ NOTIFY, REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, URL, VICTIM)
+
+
+confirm_noweb
+------------
+Like confirm, for sites that run Majordomo without WWW support.
+
+
+consult
+-------
+This file is sent when a request requires the approval of one or
+more list moderators.  It contains instructions for approval (see 
+"help accept" and "help reject" for more details).  A different file 
+may be used by customizing the access_rules configuration setting 
+(see "help configset_access_rules" for more details).
+
+(standard plus APPROVALS, ARG1, ARG2, ARG3, CMDLINE, COMMAND, EXPIRE,
+ REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, URL, VICTIM)
+
+
+consult_noweb
+-------------
+Like consult, for sites that run Majordomo without WWW support.
+
+
+delay
+-----
+This file is sent when a request is delayed (see "help delay" for
+an explanation of how requests are delayed).  It contains
+instructions for rejecting the request or approving it immediately
+(see "help accept" and "help reject" for more details).  A different 
+file may be used by customizing the access_rules configuration setting 
+(see "help configset_access_rules" for more details).
+
+(standard plus APPROVALS, ARG1, ARG2, ARG3, CMDLINE, COMMAND, EXPIRE,
+ FULFILL, NOTIFY, REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, URL, 
+ VICTIM)
+
+
+delay_noweb
+-----------
+Like delay, for sites that run Majordomo without WWW support.
+
+
+digest_preindex
+---------------
+This file is displayed immediately before the digest index when a
+digest of posted messages is sent to the members of a mailing list.
+There are two other files which may be used, digest_postindex and
+digest_footer.  There are no stock files for digest_postindex and 
+digest_footer; list owners who wish to use them will have to create them.
+
+(standard plus ARCURL, DIGESTDESC, DIGESTNAME, DIGESTTYPE, ISSUE, 
+ SENDER, VOLUME)
+
+
+faq
+---
+This file is sent in response to the faq command if no faq document
+exists for the list in question.  (See "help faq" and "help newfaq" for
+more details.)
+
+(standard plus LASTCHANGE and USER)
+
+
+farewell
+--------
+This file is sent to an address that is removed from a mailing list by
+the unsubscribe-farewell command.
+
+(standard plus PASSWORD and VICTIM)
+
+
+file_sent
+---------
+This file is sent in reply when the get command is used to retrieve
+a file in a separate message.  It informs the person making the
+request that the file was sent in a separate message
+
+(no substitutions are supported)
+
+
+info
+----
+This file is sent in response to the info command if no info document
+exists for the list in question.  (See "help info" and "help newinfo" for
+more details.)
+
+(standard plus LASTCHANGE and USER)
+
+
+inform
+------
+This file is sent to the list owners as required by the inform
+configuration setting (see "help configset_inform" for more details).
+
+(COMMAND, LIST, and UCOMMAND in the Subject header)
+(CMDLINE, COMMAND, COMMENT, INTERFACE, LIST, REQUESTER, SESSIONID,
+ STATUS, STATDESC, TIME, USER, VICTIM)
+
+
+intro
+-----
+This file is sent in response to the intro command if no intro document
+exists for the list in question.  (See "help intro" and "help newintro" for
+more details.)
+
+(standard plus LASTCHANGE and USER)
+
+
+new_list
+--------
+This message is sent to each list owner when a new list is created with
+the createlist command, unless the quiet command mode is used (see
+"help createlist" for more details).
+
+(standard plus PASSWORD and USER)
+
+
+new_password
+------------
+This file is sent when a personal password is changed using the password
+command (see "help password" for more details).
+
+(standard plus PASSWORD and VICTIM)
+
+
+registered
+----------
+This file is sent when a new address is added to the registry using the
+register command (see "help register" for more details).  A different
+file may be used by customizing the GLOBAL welcome_files configuration
+setting (see "help configset_welcome_files" for details).
+
+(standard plus PASSWORD and USER)
+
+
+repl_chain
+----------
+This file is sent in the middle of a confirm_consult approval process,
+when the request has been confirmed by the victim but not yet approved
+by the list moderators.  
+
+(standard plus CMDLINE, COMMAND, DATE, NOTIFY, REQUESTER, SESSIONID, VICTIM)
+
+
+repl_confcons
+-------------
+This file is sent at the start of a confirm_consult approval process,
+when the request has not been confirmed by the victim nor approved
+by the list moderators.  It indicates that the request requires confirmation.
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+
+
+repl_confirm
+------------
+This file is sent when the access rules require that a request 
+be confirmed by the person whom it affects.  It indicates whose
+approval is needed.
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+
+
+repl_confirm2
+-------------
+This file indicates that the access rules require confirmation from
+both the originator and the person whom a Majordomo command affects.
+It indicates the e-mail addresses of both people.
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+
+
+repl_consult
+------------
+This file is sent when the access rules require that a request
+be approved by the moderators of a mailing list.
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+
+
+repl_delay
+----------
+This file is sent a Majordomo command is delayed (see "help delay"
+for an explanation of how commands are delayed).
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+
+
+repl_deny
+---------
+This file is sent when a Majordomo command is denied by the access
+rules.
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+
+
+repl_forward
+------------
+This file is sent when a posted message or Majordomo request is
+forwarded to a different e-mail address, usually another site
+(see "help configset_access_rules" for an explanation of how
+forwarding works).
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+
+
+repl_fulfill
+------------
+This file is sent when a request is fulfilled automatically after
+it was delayed for some period of time (see "help delay" for an
+explanation of how commands are delayed).
+
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+
+
+request_response
+----------------
+This file is sent when the request_answer configuration setting for
+a mailing list is set to "response" and there is no request_response
+file in the file space of the list in question.
+
+(standard plus REQUESTER and USER)
+
+
+subscribe_to_self
+-----------------
+This error message is displayed when an attempt is made to subscribe a
+mailing list's address to that same mailing list.
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+
+
+token_reject
+------------
+This file is sent when a "confirm" request is rejected.  It contains
+message headers or other information that indicate who made the request.
+It is sent to the person whom the request affects.
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, VICTIM)
+
+
+token_reject_owner
+------------------
+This file is sent when a "confirm" request is rejected.  It contains
+message headers or other information that indicate who made the request.
+It is sent to the list administrators.
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, VICTIM)
+
+
+token_remind
+------------
+This file is sent as a reminder that a Majordomo command that requires
+confirmation has not yet been approved.
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, VICTIM)
+
+
+welcome
+-------
+This file is sent to new mailing list subscribers.  It is possible
+to configure the welcome_files setting to send a different file
+(see "help configset_welcome" and "help configset_welcome_files" for
+details).
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+
+
+See Also:
+   help configset_access_rules  (for mailfile and deny usage)
+   help configset_access_rules_variables (for access_rules variables)
+   help configset_welcome_files (for additional files that can be sent)
+   help digest                  (for additional file names and usage)
+   help put                     (create or update files by email)
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
+

@@ -1,0 +1,110 @@
+                          Managing Virtual Domains
+
+Each Majordomo installation is capable of supporting one or many virtual
+domains.  Each domain, likewise, is capable of supporting one or many
+electronic mailing lists.  In an attempt to make management easier, some
+characteristics are shared by all of the mailing lists within a domain.
+However, there is at present no sharing between different domains at
+the same site.
+
+There are two ways to add virtual domains.  The first way is to reinstall
+the software entirely, answering the questions about each virtual domain
+that the site manager wishes to support.  The second way is to run the
+"make domain" shell command from the Majordomo source directory.
+
+Each domain has two special pseudo-lists, GLOBAL and DEFAULT.  
+
+The GLOBAL pseudo-list is used to manage Majordomo commands which are
+not specific to any one mailing list.   These commands include
+accept, alias, changeaddr, createlist, password, register, reject, rekey,
+sessioninfo, show, tokeninfo, unalias, unregister, and which.  
+
+The DEFAULT pseudo-list is used to provide default configuration settings
+to all of the mailing lists except the GLOBAL pseudo-list.  When Majordomo
+attempts to determine the current value of a configuration setting for a 
+mailing list, it first checks the table of settings for the list itself.
+This table will only contain values if the list owners have explicitly
+added them with the configset command.  In contrast, the configdef command 
+is used to remove values from the table.  If a configuration setting has no 
+entry in the list's table, the DEFAULT list is checked next.  If the setting has 
+no entry in table for the DEFAULT list, a default value is supplied by the 
+software.
+
+The DEFAULT list is valuable because it allows you to change the settings
+of all of the mailing lists within a domain at once.  It has been suggested
+that one DEFAULT list is not enough.  If your site has two or more basic styles
+of mailing list (discussion lists and announcement lists, for example) for
+which you would like to provide default settings, it would be helpful to
+choose which set of default values to use for each list.  Unfortunately,
+this has not yet been implemented.
+
+The most important use of the DEFAULT list is to configure each domain
+to supply at least one digest to each mailing list, using the "digests"
+configuration setting.  Majordomo does not define any digests by default
+(see "help configset_digests" for more details).
+  
+The DEFAULT and GLOBAL lists can also be used to make files available
+to all of the mailing lists within a domain.  See "help get" and 
+"help configset file_share" for more details.  There is also a Stock
+directory for files that are supplied by Majordomo, like this help
+file.  These files can be obtained using the get command, and replaced
+using the put command; however, there is no way to overwrite the files
+in the Stock directory.  If you use the get and put commands to edit
+and improve the files, your changes will only affect one domain at
+a site.  If you wish to make changes to Stock files that affect all
+domains, you will need to edit the files in the Majordomo source
+distribution and reinstall the software.
+
+Each domain has several databases which apply to all of the mailing
+lists within that domain.  
+
+* The subscriber registry that keeps the personal password and other 
+information about each e-mail address that is subscribed to a mailing
+list at that domain.  This registry is separate from the individual
+subscriber database for each mailing list.
+
+* The token identifiers for requests that have been delayed, or
+require confirmation or approval from the moderators of a mailing list.
+
+* The alias database, which allows subscribers to tell Majordomo that
+two e-mail addresses should be treated the same.
+
+* The duplicate databases, which store data about every message that is
+delivered to a mailing list within the domain.  This allows subscribers
+to avoid cross-posted messages, using the "unique" delivery class
+(see "help set" for an explanation of delivery classes).
+
+The GLOBAL list shares (only) four configuration settings with all
+of the other mailing lists in the same domain.  These settings
+are admin_body, admin_headers, taboo_body, and taboo_headers.  These
+settings are combined with a mailing list's individual settings when
+Majordomo attempts to find prohibited content in posted messages.
+
+
+See Also:
+   help accept
+   help alias
+   help changeaddr
+   help configdef
+   help configset
+   help configset_admin_body
+   help configset_admin_headers
+   help configset_taboo_body
+   help configset_taboo_headers
+   help createlist
+   help password
+   help register
+   help reject
+   help rekey
+   help sessioninfo
+   help show
+   help tokeninfo
+   help unalias
+   help unregister
+   help which
+
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
+
