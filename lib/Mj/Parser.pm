@@ -172,11 +172,12 @@ sub parse_part {
 
   my $log         = new Log::In 50, "$interface, $title";
   my (@arglist, @help, $action, $cmdargs, $attachhandle, $command, $count,
-      $ent, $fail_count, $function, $garbage, $list, $mode, $name,
+      $delay, $ent, $fail_count, $function, $garbage, $list, $mode, $name,
       $ok, $ok_count, $out, $outfh, $password, $pend_count, $replacement,
       $sigsep, $tlist, $true_command, $unk_count, $user);
 
   $count = $ok_count = $pend_count = $fail_count = $unk_count = $garbage = 0;
+  $delay = 0;
   $user = $args{'reply_to'};
   $sigsep = $mj->global_config_get(undef, undef, 'signature_separator');
 
@@ -341,7 +342,18 @@ sub parse_part {
         else {
           $user = $args{'reply_to'};
         }
-	    print $outhandle "User set to \"$user\".\n";
+        print $outhandle "User set to \"$user\".\n";
+      }
+      elsif ($action eq 'delay') {
+        if ($cmdargs) {
+          my ($now) = time;
+          $delay = Mj::List::_str_to_time($cmdargs) || $now; 
+          $delay -= $now;
+        }
+        else {
+          $delay = 0;
+        }
+        print $outhandle "Delay set to $delay seconds.\n";
       }
       else {
         print $outhandle "Illegal action \"$action\" for default.\n";
@@ -372,11 +384,13 @@ sub parse_part {
       $cmdargs ||= '';
 
       # initialize basic information
-      $request->{'command'} = $true_command;
-      $request->{'user'} = $user;
+      $request->{'command'}  = $true_command;
+      $request->{'delay'}    = $delay;
+      $request->{'list'}     = $list;
+      $request->{'mode'}     = $mode;
       $request->{'password'} = $password || $args{'password'};
-      $request->{'mode'} = $mode;
-      $request->{'list'} = $list;
+      $request->{'user'}     = $user;
+
       # deal with arguments
       parse_args($request, $cmdargs, \@arglist, $attachhandle);
 
