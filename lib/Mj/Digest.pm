@@ -268,6 +268,7 @@ sub choose {
   }
 
   # Recalculate bytecount, oldest, newest.
+  $s->{lastrun} = time;
   $s->{bytecount} = 0; $s->{oldest} = 0;  $s->{newest} = 0;
   for my $i (@$msgs) {
     $s->{bytecount} += $i->[1]{bytes};
@@ -347,6 +348,7 @@ sub _open_state {
 
   $self->{'datafh'} = new Mj::FileRepl($file);
   do $file;
+  $VAR1;
 }
 
 use Data::Dumper;
