@@ -3,6 +3,7 @@
 	* lib/Majordomo.pm (connect): Add modes to mkdir calls to appease
 	old versions of Perl.  When trying to make directories a second
 	time, add some debugging output.
+	(s_recognize): Don't return $dir2 with a trailing slash.
 
 2002-07-16  Michael Yount <csf@moscow.com>
 

@@ -6392,7 +6392,7 @@ sub s_recognize {
 
     if (-f $file || $nocheck) {
       return ($id, $file, "$self->{ldir}/GLOBAL/sessions/$d1",
-	      "$self->{ldir}/GLOBAL/sessions/$d1/$d2/")
+	      "$self->{ldir}/GLOBAL/sessions/$d1/$d2")
 	if wantarray;
       return $id;
     }
