@@ -101,7 +101,7 @@ $::log->message(50, "info", "-----Expiring locks-----");
 # this will hang indefinitely while the global lock is held by someone
 # else.  On Linux this does not prevent other processes from acquiring the
 # global lock, but on some other OSes it might.  Sigh.
-Mj::Lock::expire_locks();
+Mj::Lock::expire_locks() if $opts{t} =~ /^d/;
 
 $::log->out;
 

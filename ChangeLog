@@ -1,5 +1,9 @@
 Mon Aug 10 00:00:00 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Majordomo.pm: Bump version number.
+
+	* bin/mj_trigger: Only expire locks on the daily run.
+
 	* lib/Mj/MTAConfig.pm (sendmail): Use $whoami instead of
  	'majordomo' in constructing default aliases.
 
