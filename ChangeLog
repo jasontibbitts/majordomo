@@ -1,3 +1,44 @@
+2002-06-13  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm, mj_wwwadm, mj_wwwusr:  
+	Preformatting command results is no longer necessary
+	in the mj_confirm and mj_wwwusr interfaces.
+	Give precedence to query data over path info in
+	determining the domain.
+	Escape data more consistently to avoid vulnerabilities.
+	Make the "surrender" output more consistent.
+
+	* lib/Majordomo.pm:  (standard_subs)  If the list name
+	is invalid, the LIST substitution is set to the 
+	empty string.
+	
+	* lib/Mj/Access.pm:  (list_access_check)  Test admin
+	passwords against the sessionuser.
+	Thanks to Nick Simicich.
+
+	* lib/Mj/Addr.pm:  (_validate)  Initialize lengths
+	to avoid warnings.
+
+	* lib/Mj/Config.pm:  (parse_address)  Bugfix:  Use
+	a callback to determine the "whereami" domain.
+	(parse_attachment_filters)  Support the "clean"
+	action, which sanitizes HTML.
+
+	* lib/Mj/Format.pm:  (help, post, put)  Add format file
+	support.
+	(show)  Add *_CHECKBOX substitution support for personal
+	settings.
+	(escape, uescape, qescape)  Return the empty string in response 
+	to undefined input.
+
+	* lib/Mj/Resend.pm:  (_r_strip_body, _clean_text)  Support the
+	"clean" attachment filter, which removes potentially dangerous
+	content from text/html body parts.
+
+	* lib/Mj/Util.pm:  (clean_html)  Given a file containing
+	HTML and lists of unwanted attributes and elements, remove
+	them from the file.
+
 2002-06-10  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Filespace.pm:  (index)  Return data in a hashref

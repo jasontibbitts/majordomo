@@ -924,6 +924,7 @@ sub standard_subs {
   ($list, $sublist) = $self->valid_list($olist, 1, 1);
   unless ($list) {
     $list = 'GLOBAL';
+    $olist = '';
     $sublist = '';
   }
 
@@ -3166,6 +3167,7 @@ sub _index {
   my $log = new Log::In 35, "$list, $dir";
   my ($nodirs, $recurse);
 
+  # XLANG
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
 
@@ -3178,6 +3180,7 @@ sub _index {
   $dir =~ s!/$!!;
 
   unless (!$dir or $self->{'lists'}{$list}->fs_legal_file_name($dir)) {
+    # XLANG
     return (0, qq(The path "/$dir" is not valid.\n));
   }
 
