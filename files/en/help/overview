@@ -207,25 +207,30 @@ Receiving Messages in a Digest
 
     set LISTNAME digest
 
-  In addition, there are three digest formats available, MIME, text,
-  and index.  MIME digests cause each message to be included as an
-  attachment; this is the most common format.  Text digests have
-  all of the messages collected into one attachment.  Index digests
-  list only the table of contents, not any of the actual messages.
-  To choose a new digest, add its name to the set command:
-   
+  Three digest formats are available for every digest:  MIME, text, and
+  index.  MIME digests contain every part of every message, including any
+  attachments; this is the most common format.  Text digests include only
+  plain text message parts.  Index digests display the subject line
+  and other information about each message, but the message contents 
+  are omitted.  
+
+  To choose a new digest format, add its name after the word "digest"
+  in the set command, for example: 
+
     set LISTNAME digest-mime
 
-  Each mailing list can have several digests.  To see details for a 
-  particular mailing list, use the command
+  Each mailing list can have several digests.  To see a description
+  of the digests that are available for a particular mailing list, 
+  use the following command:
 
     lists-full LISTNAME
 
   As an example, if a list has three digests (daily, weekly, biweekly),
-  you can include their names in the set command:
+  you can include their names in the set command, for example:
    
     set LISTNAME digest-daily-index
     set LISTNAME digest-weekly
+    set LISTNAME digest-biweekly-mime
    
 Going on Vacation
 -----------------
