@@ -669,7 +669,7 @@ sub tokeninfo {
       $tmode, $tlist, $tvict, $targ1, $targ2, $targ3, $ttype, $tapprovals,
       $ttime, $tsessid, $tsess) = @_;
   my $log = new Log::In 29, "$token";
-  my ($time);
+  my ($time, @reasons);
   select $out;
 
   unless ($ok>0) {
@@ -686,6 +686,14 @@ By:           $trequ
 From command: $tcmd
 EOM
 
+  # Indicate reasons
+  if ($targ2) {
+    @reasons = split "\002", $targ2;
+    for (@reasons) {
+      eprint($out, $type, "Reason: $_\n");
+    }
+  }
+    
   if ($tsess) {
     eprint($out, $type, "\nInformation about the session ($tsessid):\n$tsess");
   }
