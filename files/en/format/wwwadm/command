@@ -35,7 +35,7 @@
       <option> unsubscribe-farewell
       <option> unsubscribe-nofarewell
       <option> which
-      <option> who-bounce
+      <option> who-bounce-enhanced
       <option> who-enhanced
       <option> who-short
     </select>

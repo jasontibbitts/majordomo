@@ -12,8 +12,7 @@ public view.
 </p>
 
 <p>
-<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=archive-summary">
-Other Archives
-</a>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=archive-summary-reverse">
+Summary</a> of Message Archives
 </p>
 
