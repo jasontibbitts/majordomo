@@ -19,16 +19,22 @@ To test subscriber data against registry data and fix both subscriber lists
 and the registry if they are inconsistent, use "rekey-repair". This may add
 subscribers to lists if the registry says they should be there, or it may
 add entries to the registry if the lists have subscriptions that have been
-dropped from the registry. Whether or not changes are made to the subscriber
+dropped from the registry. It chooses maximum coverage, adding entries and
+never deleting them. Whether or not changes are made to the subscriber
 lists or the registry, the database keys WILL be regenerated. Any address
 that is changed by this command will receive a new personal password via email.
 
+NOTE: rekey-repair only changes a password if it is forced to create an
+entirely new registry entry for a particular address. It won't change the
+password in existing registry entries even if it changes those entries.
+
 The 'rekey-repair' command notifies people whose subscriptions or register
 entries were altered. You can suppress this notification, and keep from
-sending the new password, with 'rekey-repair-quiet'. Once again, the
-database keys WILL be regenerated. Note that suppressing the new password
-message means subscribers who have saved their password will be unable to
-use it and will not know why.
+sending new passwords to newly created entries, with 'rekey-repair-quiet'.
+Once again, the database keys WILL be regenerated. Note that suppressing
+the new password message means subscribers who have saved their password
+will be unable to use it and will not know why... but once again it applies
+only to entirely new entries where the old password was non-functional anyway.
 
 Be _very careful_ with this command.  It is possible, with a bad setting
 of addr_xforms, to severely damage your address database. If there were
