@@ -734,6 +734,7 @@ FINISH:
         'FULFILL' => scalar localtime (time + $args{'delay'}),
         'NOTIFY'  => $victim,
 	'REASONS' => $reasons,
+        'REQUESTER' => $requester,
 	'VICTIM'  => $victim,
        },
       ) if $mess;
@@ -1044,6 +1045,12 @@ sub _a_mailfile {
 
   $subs = {
     $self->standard_subs($td->{'list'}),
+    'CMDLINE' => $td->{'cmdline'},
+    'FULFILL' => scalar localtime (time + $args->{'delay'}),
+    'NOTIFY'  => $td->{'victim'},
+    'REASONS' => $args->{'reasons'},
+    'REQUESTER' => $td->{'user'},
+    'VICTIM'  => $td->{'victim'} || '',
   };
 
   ($file, %file) = $self->_list_file_get($td->{'list'}, $arg, $subs, 1);
