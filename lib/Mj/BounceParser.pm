@@ -328,8 +328,8 @@ sub parse_dsn {
   my $ent  = shift;
   my $data = shift;
   my $hints= shift;
-  my (@status, $action, $diag, $fh, $i, $line, $nodiag, $ok, $to, $type,
-      $user);
+  my (@status, $action, $diag, $fh, $i, $last, $line, $nodiag, $ok, $to,
+      $type, $user);
 
   # Check the Content-Type
   $type = $ent->head->get('content-type');
@@ -365,7 +365,8 @@ sub parse_dsn {
  REC:
   for ($i = 0; 1; $i++) {
 
-    # Eat any blank lines at the start of the block
+    # Eat any blank lines at the start of the block; this skips the
+    # per-message entries.
     while (1) {
       $line = $fh->getline;
       last REC unless defined $line;
@@ -376,9 +377,15 @@ sub parse_dsn {
     # know $line is non-blank after the previous loop
     while (1) {
       chomp $line;
-      $line =~ /([^:]+):\s*(.*)/;
-      $status[$i] = {} unless $status[$i];
-      $status[$i]->{lc($1)} = $2;
+      if ($last && $line =~ /^\s+(.*)\s*$/) {
+	$status[$i]->{$last} .= " $1";
+      }
+      else {
+	$line =~ /([^:]+):\s*(.*)/;
+	$status[$i] = {} unless $status[$i];
+	$status[$i]->{lc($1)} = $2;
+	$last = lc($1);
+      }
       $line = $fh->getline;
       last REC unless defined $line;
       next REC if $line =~ /^\s*$/;

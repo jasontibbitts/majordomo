@@ -3,6 +3,8 @@
 	* lib/Mj/BounceParser.pm (parse): Accept owner-list as well as
 	list-owner in To: lines when extracting special envelope info.
 	(parse_dsn): Be more tolerant of weird Action: entries.
+	(parse_dsn): Parse Postfix-format continued per-user entries
+	properly.
 
 2003-03-11  Michael Yount <csf@moscow.com>
 
