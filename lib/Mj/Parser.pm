@@ -174,7 +174,7 @@ sub parse_part {
   my (@arglist, @help, $action, $cmdargs, $attachhandle, $command, $count,
       $delay, $ent, $fail_count, $function, $garbage, $list, $mode, $name,
       $ok, $ok_count, $out, $outfh, $password, $pend_count, $replacement,
-      $sigsep, $tlist, $true_command, $unk_count, $user);
+      $sigsep, $sublist, $tlist, $true_command, $unk_count, $user);
 
   $count = $ok_count = $pend_count = $fail_count = $unk_count = $garbage = 0;
   $delay = 0;
@@ -289,15 +289,15 @@ sub parse_part {
         print $outhandle "A list name is required.\n";
         next CMDLINE;
       }
-      unless (defined
-              ($list = $mj->valid_list
-               ($tlist,
-                command_prop($true_command, 'all'),
-                command_prop($true_command, 'global'))))
-        {
+      ($list, $sublist) = $mj->valid_list($tlist,
+                                command_prop($true_command, 'all'),
+                                command_prop($true_command, 'global'));
+
+      unless (defined $list) {
           print $outhandle "Illegal list \"$tlist\".\n";
           next CMDLINE;
-        }
+      }
+      $list .= ":$sublist" if (length $sublist);
     }
     # Bomb if given here args or an attachment when not supposed to
     if (command_prop($true_command, "nohereargs") &&
@@ -675,7 +675,7 @@ sub add_deflist {
   my $line      = shift;
   my $deflist   = shift;
   my $reply_to  = shift;
-  my $list;
+  my ($list, $tmp);
 
   # If no deflist, add nothing
   return $line unless $deflist;
@@ -688,7 +688,8 @@ sub add_deflist {
   $line = $2 || "";
 
   # XXX Possibly allow "list@host" and "list" to be equal?
-  return "$list$line" if ($mj->valid_list($list, 1, 1));
+  ($tmp) = $mj->valid_list($list, 1, 1);
+  return "$list$line" if $tmp;
 
   return "$deflist $list$line";
 }
