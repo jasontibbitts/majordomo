@@ -187,7 +187,7 @@ of the author.
 =cut
 sub idx_numbered {
   my ($type, $msg, $data) = @_;
-  return sprintf "%-10s: %s\n  %s\n", 
+  return sprintf "  %-10s: %s\n    %s\n", 
                   $msg || '???',
                   $data->{'subject'} || '(no subject)',
                   $data->{'from'} || '(anonymous)';
