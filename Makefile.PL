@@ -89,7 +89,7 @@ unless (check_syslog() && $ok) {
 my $config = configure();
 
 # Now we can set these up based on what we got from configure.
-if ($config->{mta} eq 'sendmail') {
+if ($config->{mta} eq 'sendmail' or $config->{mta} eq 'qmail') {
   @SIDSCRIPTS = qw(mj_email mj_enqueue mj_shell mj_confirm
                    mj_shutdown mj_wwwadm mj_wwwusr);
   @SCRIPTS = qw(mj_trigger mj_queueserv mj_queuerun mj_setup);
