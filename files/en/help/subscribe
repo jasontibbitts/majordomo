@@ -1,9 +1,13 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-subscribe-nowelcome listname address
+subscribe[-nowelcome][-welcome] listname [address]
+subscribe-set[-nowelcome][-welcome] listname setting[,setting,...] [address]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-address,    required, is an email address not previously subscribed
+address,    if specified, is an email address not previously subscribed
 listname,   required, is the name of a list at this site
 -nowelcome, if specified, suppresses the new subscriber message(s)
+-welcome,   if specified, distributes the new subscriber message(s)
+-set,       if specified, changes the settings for the new subscription
+setting,    if specified, is a personal setting (see "help set" for details)
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 The "subscribe" command adds an "address" to the named list. Unless
@@ -14,43 +18,59 @@ be replied to with an "accept" command before the subscription is done.
 
 To subscribe to the LISTNAME email broadcast list at this site,
 as simply as possible, send this one-line message to $MJ:
-    subscribe LISTNAME YourEmailAddress
-replacing "LISTNAME" with the name of the list and replacing
-"YourEmailAddress" with the address you want to subscribe to the
-list. Additional commands may be required, but you will receive
-messages telling you what to do if necessary.
+    subscribe LISTNAME 
+replacing "LISTNAME" with the name of the list.
 
-If the address you wish to subscribe to the list is the same as
+If the address you wish to subscribe to the list is different from
 the address from which you are sending the message, the command
 may be written instead as:
-    subscribe LISTNAME
+    subscribe LISTNAME EmailAddress
+replacing "EmailAddress" with the address you want to subscribe to 
+the list.
+
+In some cases, confirmation from the new subscriber is required.
+A message with "CONFIRM" in the subject line is sent to the new
+subscriber's address.  The confirmation message contains instructions
+for confirming the subscription (using the "accept" command).
 
 Sometimes the list name plus your email address is too long, and
 your mail tool will 'wrap' the line by inserting a hard return or
 line break. See the syntax section of "help commands" for how to
 diagnose and fix this problem.
 
-When an address is first subscribed to any list at this site, it is
-automatically put in the registration database and the register command
-can not be used until that address is unregistered. Unregistering will
-automatically remove that address from all lists at this site, or the
-unsubscribe command can be used to selectively remove an address from
-one list at a time.
-
-It is possible to register, get a password, and then use "approve"
-to subscribe to several lists instead of using "accept" to confirm
-each subscription. List owners and site administrators with list
-passwords can also pre-approve subscriptions to bypass "accept".
+The first time an address is subscribed to a list at this site, an entry
+in the registration database is created for that address, and a personal
+password is assigned.  Only one password is assigned to a given address,
+regardless of the number of subscriptions.  Using the "approve" command
+with the personal password will usually allow you to avoid the 
+confirmation process (see "help approve" and "help password" for more
+details.)  List owners can use their list's administrative password
+to avoid the confirmation process.
 
 Unless the "-nowelcome" option is used, Majordomo will send a message
-to "address" with an explanation of how to use the list. Each list
+to "address" with an explanation of how to leave the list. Each list
 owner can decide how many files, if any, new subscribers will receive.
+
+Some lists may be configured such that a welcome message is not
+sent automatically (see "help configset welcome" for an explanation.)
+In this case, using the "-welcome" mode will cause the welcome
+files to be sent.
+
+The "-set" mode is used to initialize the settings for a new subscription
+(see "help set" for a description of the different settings.)  For
+example, if you wish to receive the messages posted to the list in
+a digest, use this command:
+  subscribe-set LISTNAME digest
+
+More than one setting can be specified by joining the settings with
+commas, for instance:
+  subscribe-set LISTNAME digest,noreplyto
 
 If for some reason you wish to have the mailings go to a different address
 (a friend's address, a specific other system on which you have an account,
 or an address which is more correct than the one that automatically appears 
 in the "From:" header on the mail you send), you would add that address to
-the command. The "accept" confirmation would then be sent to that address.
+the command. The confirmation would then be sent to that address.
 
 The reason that many lists require additional confirmation is that it is in
 general impossible to verify that the address being subscribed to the list
@@ -89,7 +109,7 @@ introductory message containing list policies and features.  Save this
 message for future reference; it will also contain exact directions for
 unsubscribing.  If you lose the intro mail and would like another copy of
 the policies, send this message to $MJ
-        intro LISTNAME
+        info LISTNAME
 (substituting, of course, the real name of your list for "LISTNAME").
 
 If a subscriber changes from one email address to another, it is
@@ -97,12 +117,32 @@ not necessary to unregister and re-subscribe to all the lists.
 The "changeaddr" command can update the registry and subscriber
 databases all at one time.
 
+List owners can subscribe more than one address to a mailing list
+using a "here document" or "here file" (see "help commands" for
+a description of here files.)  For example, to subscribe the
+addresses a@example.com and b@example.com to a list, the owner
+could use the following command:
+
+subscribe LISTNAME <<ABC
+a@example.com
+b@example.com
+ABC
+
+List owners can also add addresses to a collection called an "auxiliary 
+subscriber list" (see "help auxiliary_list" for more details.)
+
 
 See Also:
+   help accept      (which is used to confirm subscriptions)
    help approve     (which can eliminate the need to use "accept")
+   help auxiliary_list (which is used to manage a set of addresses)
    help changeaddr  (which replaces one address with another)
+   help commands    (for an explanation of "here files")
    help configset access_rules_variables (set/test for this command)
+   help configset welcome       (determines if welcome messages are sent)
+   help configset welcome_files (determines which welcome messages are sent)
    help password    (which changes an individual's password)
+   help register    (which registers, and creates a password for, an address)
    help unsubscribe (which removes an address from just one list)
    help unregister  (which removes an address from all lists)
 
