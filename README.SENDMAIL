@@ -19,7 +19,7 @@ suggest aliases and do nothing to collect them.  Otherwise they will be
 accumulated in a directory called 'ALIASES' in files named after the domain
 being served.  Appropriate permissions will be used to satisfy the picky
 nature of recent versions of Sendmail, but some Sendmail versions are so
-picky that this is not suffient, so Mj2 can make root-owned symbolic links
+picky that this is not sufficient, so Mj2 can make root-owned symbolic links
 on an appropriate place of your choosing to get around this.
 
 Note that you can use the generated alias and virtuser files as guides;
@@ -175,3 +175,94 @@ incomplete build of the alias database will result.  It may be worthwhile
 to call newaliases from crontab occasionally to make sure that things can't
 stay in an inconsistent state for long.
 
+
+Performance tuning:
+
+For large lists you may find that the connection between Majordomo
+and sendmail appears to hang.  In this case you will see entries
+like the following in the mail log:
+
+    Jan  4 16:53:19 snagglepuss sm-mta[22238]: g04NpIjX015520: timeout
+    waiting for input from local during Draining Input
+
+The reason for this is that sendmail will attempt to canonify the
+hostnames of each address Majordomo submits to it, and this requires a
+DNS lookup.  If the DNS server for a particular hostname is not
+responding, Sendmail will stall the entire transaction until the DNS
+lookup times out.  This can take five minutes or more, during which
+nothing gets done.  Majordomo may even time out the transaction and log
+a delivery failure for the address.
+
+The simplest way to solve this is to have Majordomo send its messages
+to sendmail over a different port with hostname canonification
+disabled.  Port 24 is reserved for private mail systems so that is
+a good choice.  In sendmail 8.12 and higher you can include the
+following in your .mc file.
+
+    DAEMON_OPTIONS(`address=localhost, Port=24, Name=NCMSA, M=EC')
+
+This will cause sendmail to accept messages to the localhost address
+on port 24 with canonification disabled.
+
+To make Majordomo use the new port we need to modify the delivery_rules
+setting.  The following example injects messages to port 24 on the
+local host enables the esmtp and dsn options (since modern versions
+of sendmail support these), and increases the default timeout.
+
+configset DEFAULT delivery_rules <<ENDAAB
+ALL
+hosts=(localhost=(port=24, timeout=600, esmtp, dsn))
+ENDAAB
+
+You probably will want to do the same for the GLOBAL pseudo-list.
+
+
+Other performance tweaks:
+
+The HostStatusDirectory option can be used to keep host status
+information in the queue so that the information is shared between
+different sendmail processes.  To enable this, add the following to
+your .mc file:
+
+    define(`confHOST_STATUS_DIRECTORY', `.hoststat')dnl
+
+and create a .hoststat directory in /var/spool/mqueue.  You can
+also change the default timeout of this information (30 minutes)
+with the Timeout.hoststatus variable.  In the .mc file this is set
+like so:
+
+    define(`confTO_HOSTSTATUS', `1h')dnl
+
+If you have a very large backlog of messages in the mail queue, you
+may wish to split things up a bit since most Unix filesystems perform
+poorly when there are thousands of files in a single directory.
+The simplest way to do that is to create df, qf, and xf directories
+in /var/spool/mqueue.  You must do this while sendmail is not running
+and you should move the existing df, qf, and xf files to the
+corresponding directories.  It is also possible to use multiple
+queues.  See the sendmail operator's guide for information.
+
+With a very large mail queue it can take a long time for the single
+sendmail queue runner that wakes up periodically (usually every 15
+or 30 minutes) to processes the queued entries.  It is possible to
+start multiple sendmail daemons whose only function is to run the
+queue.  The following example starts 3 additional queue runners that
+wake up every 15 minutes.  These do not interfere with each other
+since sendmail locks each message before processing it.
+
+    sendmail -OPidFile=/var/run/sendmail-q1.pid -L sm-queue -q15m 
+    sendmail -OPidFile=/var/run/sendmail-q2.pid -L sm-queue -q15m 
+    sendmail -OPidFile=/var/run/sendmail-q3.pid -L sm-queue -q15m 
+
+Note that it is important to specify a different pid file for each one.
+
+If your operating system has System V shared memory support and you
+have compiled sendmail with SM_CONF_SHM defined you can use the
+SharedMemoryKey option to keep free space information in a shared
+memory segment so that each sendmail process does not have to check
+for free disk space.  The following in the .mc file enables this:
+
+    define(`confSHARED_MEMORY_KEY', `252525')dnl
+
+The key is arbitrary (though it does need to be unique).
+Note that the sendmail build process does not define SM_CONF_SHM by default.
