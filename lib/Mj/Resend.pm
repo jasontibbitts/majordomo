@@ -22,7 +22,7 @@ Order of operation:
 
  Pull in message, parse into MIME entities and header [1]
  Check for approval.
- Apply admin_headers and taboo_headers.
+ Apply admin_headers, taboo_headers, and noarchive_headers.
  Apply admin_body to first n lines of first text part.
  Apply taboo_body to all text parts.  (What is a text part?)
  Find "illegal" MIME parts.
@@ -235,7 +235,7 @@ sub post {
            DATE     => scalar localtime,
 	   HEADERS  => $ent->head->stringify,
 	   SUBJECT  => $subject || '(no subject)',
-           USER     => $user->full,
+           USER     => "$user",
 	  };
 
   $desc = $fileinfo->{description};
@@ -424,8 +424,8 @@ sub _post {
   my(%ackinfo, %avars, %deliveries, %digest, @dfiles, @dtypes, @dup, @ent, 
      @files, @refs, @tmp, @skip, $ack_attach, $ackfile, $arcdata, $arcdate,
      $arcent, $archead, $date, $desc, $digests, $dissues, $dup,
-     $exclude, $head, $i, $j, $msgnum, $nent, $precedence, $prefix, 
-     $rand, $replyto, $sender, $seqno, $subject, $sl, $subs, 
+     $exclude, $head, $hidden, $i, $j, $msgnum, $nent, $precedence, 
+     $prefix, $rand, $replyto, $sender, $seqno, $subject, $sl, $subs, 
      $tmp, $tmpdir, $tprefix, $whereami);
 
   return (0, "Unable to access list $list.\n")
@@ -552,8 +552,15 @@ sub _post {
     $arcdate = time;
   }
 
-  # XXX X-no-archive handling should be implemented here. 
-  # (alter sublist or adjust data)
+  $hidden = 0;
+  if ($mode =~ /hide/
+      or (defined($avars{noarchive}) and 
+          ($avars{noarchive} > 0 or $avars{noarchive} =~ /\D/))
+      or $self->{'lists'}{$list}->flag_set('hidepost', $user, $sl)
+      ) 
+  {
+    $hidden = 1;
+  }
 
   ($msgnum) = $self->{'lists'}{$list}->archive_add_start
     ($sender,
@@ -562,6 +569,7 @@ sub _post {
       'bytes'      => (stat($file))[7],
       'date'       => $arcdate,
       'from'       => "$user", # Stringify on purpose
+      'hidden'     => $hidden,
       'quoted'     => $avars{quoted_lines},
       'refs'       => join("\002", @refs),
       'subject'    => $subject,
@@ -575,6 +583,8 @@ sub _post {
     $archead->replace('X-Archive-Number', $msgnum);
     $archead->replace('X-Sequence-Number', $seqno) 
       unless ($sl or $mode =~ /archive/);
+    $archead->replace('X-No-Archive', 'yes')
+      if $hidden;
 
     # Print out the archive copy
     $tmp = "$tmpdir/mjr.$$.$rand.arc";
@@ -609,6 +619,8 @@ sub _post {
       $i = $self->substitute_vars_string($i, $subs);
       $head->add(undef, $i);
     }
+    $archead->replace('X-No-Archive', 'yes')
+      if $hidden;
     if ($precedence = $self->_list_config_get($list, 'precedence')) {
       $head->add('Precedence', $precedence);
     }
@@ -838,7 +850,8 @@ sub _check_approval {
   my $ent  = shift;
   my $user = shift;
   my $log  = new Log::In 40;
-  my ($body, $fh, $i, $line, $part, $passwd, $pre, $token);
+  my ($body, $data, $fh, $i, $line, $ok, $part, $passwd, 
+      $pre, $sender, $time, $token);
 
   $pre = $ent->preamble;
 
@@ -892,7 +905,19 @@ sub _check_approval {
   }
 
   if ($token) {
-    $token = undef unless $self->t_reject($token);
+    $time = $::log->elapsed;
+    ($ok, $data) = $self->t_reject($token);
+    if ($ok) {
+      $self->inform('GLOBAL', 'reject',
+                $user, $data->{'user'}, "reject $token",
+                $self->{'interface'}, $ok, 0, 0, 
+                qq(The token was rejected using the "approved" feature.),
+                $::log->elapsed - $time);
+      # No notice is sent to the list owners.
+    }
+    else {
+      $token = undef;
+    }
   }
 
   return (1, $passwd, $token);
@@ -930,10 +955,17 @@ sub _check_poster {
   }
 
   # Extract flags
+  $avars->{post_block} = $avars->{hide_post} = '';
   $avars->{post_block} = $self->{lists}{$list}->flag_set('postblock', $user);
   if ($avars->{post_block}) {
     push @$reasons, "The postblock flag is set for $user."; # XLANG
   }
+
+  $avars->{hide_post} = $self->{lists}{$list}->flag_set('hidepost', $user);
+  if ($avars->{hide_post}) {
+    push @$reasons, "The hidepost flag is set for $user."; # XLANG
+  }
+
 
   $avars->{limit} = 0;
   $avars->{limit_soft} = 0;
@@ -1113,7 +1145,7 @@ sub _check_body {
 
   # Extract the code from the config variables XXX Move to separate func
   for $i ('GLOBAL', $list) {
-    for $j ('admin_body', 'taboo_body') {
+    for $j ('admin_body', 'taboo_body', 'noarchive_body') {
       $data = $self->_list_config_get($i, $j);
       push @inv, @{$data->{'inv'}};
       $tcode->{$i}{$j} = $data->{'code'};
@@ -1323,7 +1355,7 @@ sub _ck_theader {
 
   $code = {};
   for $i ('GLOBAL', $list) {
-    for $j ('admin_headers', 'taboo_headers') {
+    for $j ('admin_headers', 'taboo_headers', 'noarchive_headers') {
       $data = $self->_list_config_get($i, $j);
       push @inv, @{$data->{'inv'}};
       $code->{$j}{$i} = $data->{'code'};
@@ -1362,7 +1394,7 @@ sub _ck_theader {
 
       # Now run all of the taboo codes
       for $k ('GLOBAL', $list) {
-	for $l ('admin_headers', 'taboo_headers') {
+	for $l ('admin_headers', 'taboo_headers', 'noarchive_headers') {
 
 	  # Eval the code
 	  @matches = $safe->reval($code->{$l}{$k});
@@ -1419,7 +1451,7 @@ sub _ck_tbody_line {
   $safe->share(qw($text $line));
 
   for $i ('GLOBAL', $list) {
-    for $j ('admin_body', 'taboo_body') {
+    for $j ('admin_body', 'taboo_body', 'noarchive_body') {
       # Eval the code
       @matches = $safe->reval($code->{$i}{$j});
       warn $@ if $@;
@@ -1519,7 +1551,7 @@ sub _describe_taboo {
   my $avars   = shift;
   my ($list, $var, $rule, $match, $line, $sev, $class, $inv) = @_;
   my $log = new Log::In 300, "$list, $var, $class";
-  my ($admin, $global, $reason, $trunc, $type);
+  my ($global, $name, $reason, $trunc, $type);
 
   # Make sure messages are pretty
   $match =~ s/\s+$// if defined $match;
@@ -1541,13 +1573,17 @@ sub _describe_taboo {
     $type .= "global_";
     $global = 1;
   }
+
   if ($var =~ /^admin/i) {
-    $type .= "admin_$class";
-    $admin = 1;
+    $name = "admin";
+  }
+  elsif ($var =~ /^noarchive/i) {
+    $name = "noarchive";
   }
   else {
-    $type .= "taboo_$class";
+    $name = "taboo";
   }
+  $type .= "${name}_${class}";
   $avars->{$type} += $sev;
 
   # Set bounce variables and push a reason; note that classes in upper case
@@ -1566,12 +1602,7 @@ sub _describe_taboo {
     push @$reasons, $reason;
 
     # Bump the combined match variables
-    if ($admin) {
-      $avars->{admin} += $sev;
-    }
-    else {
-      $avars->{taboo} += $sev;
-    }
+    $avars->{$name} += $sev;
   }
 }
 
@@ -2135,7 +2166,7 @@ sub do_digests {
 	        $dtext->{$j}{$k}{'name'} = $file;
 	        $dtext->{$j}{$k}{'data'} = \%file;
 	        push @nuke, $file;
-	        last; # missing until 5/22/01 --> always used least specific file
+	        last;
 	      }
 	    }
 	  }
