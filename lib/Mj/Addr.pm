@@ -1282,6 +1282,7 @@ to be a legal top-level domain.\n");
    'so' => 1,
    'sr' => 1,
    'st' => 1,
+   'su' => 1,
    'sv' => 1,
    'sy' => 1,
    'sz' => 1,
