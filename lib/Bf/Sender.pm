@@ -29,13 +29,13 @@ following formats:
 
 (1)  list-owner+$type\@whereami
 
-(2)  list-owner+$type=$host=$user\@whereami
+(2)  list-owner+$type=$user=$host\@whereami
 
 (3)  list-owner+$type=$abbrev\@whereami
 
 (4)  bouncefilter+$type=$abbrev\@whereami
 
-(5)  bouncefilter+$type=$host=$user\@whereami
+(5)  bouncefilter+$type=$user=$host\@whereami
 
 where $type is one of the following:
 
@@ -96,7 +96,7 @@ sub parse_to {
     # format (3)
     $list=$1;
     $type=$2;
-    $addr="$4\@$3";
+    $addr="$3\@$4";
   } elsif ($left=~/^([^\=\+]*)-owner\+([^\=]*)=([^\=]*)/i) {
     # format (2)
     $list=$1;
@@ -108,7 +108,7 @@ sub parse_to {
   } elsif ($left=~/^[a-z0-9]*\+([^\=]*)=([^\=]*)=([^\=]*)/i) {
     # format (4)
     $type=$1;
-    $addr="$3\@$2";
+    $addr="$2\@$3";
   } elsif ($left=~/^[a-z0-9]*\+([^\=]*)=([^\=]*)/i) {
     # format (5)
     $type=$1;
@@ -163,7 +163,7 @@ sub M_probe_sender ($$$$) {
   $sender =~ s/\Q$tag\E[^@]*//;
 
   ($loc, $dom) = &encode_verp($addr);
-  $info="$tag$type=$dom=$loc";
+  $info="$tag$type=$loc=$dom";
   $sender=~/([^@]*)(.*)/;
 
   # We might have to shorten something here
@@ -185,7 +185,7 @@ sub any_probe_sender ($$$$) {
   $sender =~ s/\Q$tag\E[^@]*//;
 
   ($loc, $dom) = &encode_verp($addr);
-  $info="$tag$type=$dom=$loc";
+  $info="$tag$type=$loc=$dom";
   $sender=~/([^@]*)(.*)/;
   if (length($1)+length($info)>63) {
     $info="$tag$type=".make_abbrev($addr);
@@ -290,6 +290,8 @@ sub open_abbrev_database {
 }
 
 =head1 RECENT CHANGES
+
+JL, 09-12-2002: - reverse verp to loc=dom to match what MTAs do
 
 MY, 28-07-2001: - Add encoding and decoding routines based upon code
                   by Jason Tibbitts.

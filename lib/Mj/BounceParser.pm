@@ -101,10 +101,10 @@ Envelope types currently in use:
   D - delay tokens
   M - messages.  May take several forms:
       M26 - message 26
-      M26=host=user - message 26, user@host
+      M26=user=host - message 26, user@host
   DV - digests
       DV20N3 - volume 20 number 3
-      DV20N3=host=user - volume 20 number 2, user@host
+      DV20N3=user=host - volume 20 number 2, user@host
 
 =cut
 
@@ -168,7 +168,7 @@ sub parse {
   elsif ($info =~ /^M(\d{0,5})=([^=]+)=([^=]+)/i) {
     $type   = 'M';
     $msgno  = $1;
-    $user   = "$3\@$2";
+    $user   = "$2\@$3";
   }
   elsif ($info =~ /^M(\d{1,5})/i) {
     $type   = 'M';
@@ -179,7 +179,7 @@ sub parse {
   elsif ($info =~ /^DV(\d{1,5})N(\d{1,5})=([^=]+)=([^=]+)/i) {
     $type   = 'M';
     $msgno  = $1 . $2;
-    $user   = "$4\@$3";
+    $user   = "$3\@$4";
   }
   elsif ($info =~ /^DV(\d{1,5})N(\d{1,5})/i) {
     $type   = 'M';
