@@ -275,7 +275,7 @@ elsif ($func eq 'set' and $goodpass) {
 # subscriber's account.  The third offers help.
 
 if ($user and $isreg and $goodpass) {
-  if ($func !~ /lists|faq|info|intro|subscribe/) {  
+  if ($func !~ /^(lists|faq|info|intro|subscribe)/) {  
     &showdata($mj, $user, $passw);
     print  "</form></body></html>\n";
     exit 0;
