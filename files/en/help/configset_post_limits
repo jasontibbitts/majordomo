@@ -11,7 +11,8 @@ Password Notes: Visible only with password.
 
 EXAMPLE:
 configset listname post_limits <<ENDTAG
-/example.com/ | 3/20 | 5/3d12h,10/1m
+/joe\@example.com/ |      |
+/example.com/      | 3/20 | 5/3d12h,10/1m
 ENDTAG
 
 
@@ -32,13 +33,23 @@ a hard limit causes the post to be denied by default. Hard limits take
 precedence, and what happens when either kind of limit is reached can
 be controlled by the list owner (see "help configset access_rules").
 
+NOTE: If the conditions are null, as in the first line of the example
+above, the matching address can be exempted from the remaining rules.
+The first pattern to match stops the search, and later patterns will
+not operate on the same address. When a pattern matches, the full
+address against which it matched is stored for later checking. Two
+addresses matching the same pattern do NOT contribute to satisfying
+the same condition, each address is tallied separately.
+
 The format of post_limits is a series of lines containing a pattern,
 a comma-separated list of soft limits, and a comma-separated list of
-hard limits. For the example above, all example.com addresses would
-be soft limited to 3 messages out of the last 20 (the list owner would
-be consulted if that percentage were exceeded), and hard limited to 5
-in the last 3.5 days or 10 in the last month (the attempted post would
-be denied without bothering the list owner).
+hard limits. For the example above, all example.com addresses OTHER
+than "joe@example.com" would be soft limited to 3 messages out of the
+last 20 (the list owner would be consulted if that percentage were
+exceeded), and hard limited to 5 in the last 3.5 days or 10 in the
+last month (the attempted post would be denied without bothering the
+list owner). Joe is exempt because testing terminates with the first
+matched pattern and there are no conditions to execute.
 
 Conditions are expressed as ratios (the number of posts out of a group
 of posts), or frequencies (the number of posts in a period of time). For
