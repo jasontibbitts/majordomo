@@ -82,7 +82,7 @@ sub validate_passwd {
       $pdata = $self->{'latchkeydb'}->lookup($passwd);
       if (defined $pdata) {
         if (time <= $pdata->{'expire'}) {
-          $shpass = $pdata->{'arg1'};
+          $shpass = $pdata->{'chain1'};
           unless (ep_recognize($shpass)) {
             $shpass = ep_convert($shpass);
           }
@@ -273,7 +273,8 @@ sub _build_passwd_data {
       # First canonize each address
       for ($j=0; $j<@{$table->[$i][2]}; $j++) {
 	$addr = new Mj::Addr($table->[$i][2][$j]);
-	next unless $addr->valid;
+        next unless (defined $addr);
+	next unless $addr->isvalid;
 	$table->[$i][2][$j] = $addr->canon;
       }
 
@@ -663,6 +664,7 @@ sub list_access_check {
     @final_actions = ('default');
   }
 
+
 FINISH:
   # Call the _a_ action routines.
   for $i (@final_actions) {
@@ -854,6 +856,11 @@ sub _a_confirm {
                  'reasons'=> $args->{'reasons'},
                 );
 
+  if (exists ($notify->[0]->{'group'}) and 
+      $notify->[0]->{'group'} eq 'requester') {
+    return (-1, 'repl_confirm_req');
+  }
+ 
   return (-1, 'repl_confirm');
 }
 
@@ -878,7 +885,8 @@ sub _a_confirm2 {
   }
 
   $defaults = n_defaults('confirm', $td->{command});
-  $reply = 'repl_confirm';
+  # Workaround; ideally, the reply file would be simply repl_confirm.
+  $reply = 'repl_confirm_req';
   $dfl2 = '';
 
   # Confirm file, consult file, consult group, consult approvals
