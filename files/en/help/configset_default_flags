@@ -46,6 +46,7 @@ These flags correspond to these "set" commands:
           S  - set listname selfcopy        EmailAddress
       (no S) - set listname noselfcopy      EmailAddress
           W  - set listname rewritefrom     EmailAddress
+      (no W) - set listname norewritefrom   EmailAddress
 
 See Also:
    help set       (for how a user can set these options after subscribing)
