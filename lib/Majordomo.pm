@@ -1331,13 +1331,23 @@ sub format_error {
   my $name = shift;
   my $list = shift;
   my %subs = @_;
-  my ($subs, $tmp);
+  my ($subs, $tmp, $truelist);
+
+  unless (defined $list and length $list) {
+    $list = 'GLOBAL';
+  }
+  # Accounts for any relocated lists
+  ($truelist) = $self->valid_list($list, 1, 1);
+  unless (defined $truelist and length $truelist) {
+    $truelist = 'GLOBAL';
+  }
 
   $subs = { $self->standard_subs($list),
             %subs
           };
 
-  $tmp = $self->_list_file_get_string(list => 'GLOBAL', file => "error/$name");
+  $tmp = $self->_list_file_get_string('list' => $truelist, 
+                                      'file' => "error/$name");
   $self->substitute_vars_format($tmp, $subs);
 }
 
@@ -5656,8 +5666,8 @@ sub reject {
   my $log = new Log::In 30, "@{$request->{'tokens'}}";
   my (%file, @out, $ack_attach, $data, $desc, $ent, $file, $in, $inf,
       $inform, $line, $list_owner, $mess, $mj_addr, $mj_owner, $ok,
-      $owner, $reason, $rejecter, $repl, $rfile, $sess, $site, 
-      $t, $token, $victim);
+      $owner, $reason, $rejecter, $repl, $rfile, $sess, $sfile, $site, 
+      $t, $tmp, $token, $victim);
 
   return (0, $self->format_error('no_token', 'GLOBAL'))
     unless (scalar(@{$request->{'tokens'}}));
@@ -5788,6 +5798,8 @@ sub reject {
         $ack_attach = $self->_list_config_get($data->{'list'},
                                               'ack_attach_original');
 
+        ($tmp, $sfile) = $self->s_recognize($data->{'sessionid'}, 0);
+
         if ($data->{'command'} eq 'post' and (-f $data->{'arg1'})
            and ($ack_attach->{'reject'} or $ack_attach->{'all'})) {
           $ent->make_multipart;
@@ -5799,15 +5811,15 @@ sub reject {
                        'Encoding'    => '8bit',
                       );
         }
-        elsif (-f "$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}") {
+        elsif ($tmp and -f $sfile) {
           $ent->make_multipart;
           $ent->attach(
-                         'Description' => "Information about session $data->{'sessionid'}",
-                         'Filename'    => undef,
-                         'Path'        => "$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}",
-                         'Type'        => 'text/plain',
-                         'Encoding'    => '8bit',
-                        );
+            'Description' => "Information about session $data->{'sessionid'}",
+            'Filename'    => undef,
+            'Path'        => $sfile,
+            'Type'        => 'text/plain',
+            'Encoding'    => '8bit',
+          );
         }
 
         $self->mail_entity($mj_owner, $ent, $data->{'victim'});
@@ -6384,7 +6396,7 @@ sub s_recognize {
 
     if (-f $file && !$nocheck) {
       return ($id, $file) if wantarray;
-      return $id
+      return $id;
     }
 
     $d1 = substr($id, 0, 2);
