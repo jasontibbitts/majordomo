@@ -549,7 +549,6 @@ sub _sync_msgs {
   $lines = $seen = 0;
   $count++;
   $data = {};
-  $out = ();
   $blank = 1;
 
   while (1) {
@@ -902,7 +901,7 @@ sub last_n {
   ($final) = $self->last_message($arc) =~ m!\d+/(\d+)!;
  
   while ($ct >= $final) {
-    $ct -= $num;
+    $ct -= $final;
     $arc = pop @arcs;
     last unless $arc;
     ($final) = $self->last_message($arc) =~ m!\d+/(\d+)!;
