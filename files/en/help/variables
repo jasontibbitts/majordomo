@@ -161,6 +161,22 @@ See "help error_files" for a description of each of the error files.
 See "help format_files" for a description of each of the format files.
 See "help reply_files" for a description of each of the reply files.
 
+\$ACKDENY_CHECKBOX
+\$ACKPOST_CHECKBOX
+\$ACKREJECT_CHECKBOX
+\$ACKSTALL_CHECKBOX
+\$ELIMINATECC_CHECKBOX
+\$HIDEADDRESS_CHECKBOX
+\$HIDEALL_CHECKBOX
+\$HIDEPOST_CHECKBOX
+\$POSTBLOCK_CHECKBOX
+\$PREFIX_CHECKBOX
+\$REPLYTO_CHECKBOX
+\$REWRITEFROM_CHECKBOX
+\$SELFCOPY_CHECKBOX
+  Check boxes for HTML forms used by the WWW interfaces to display a
+  personal setting for a particular subscription.
+
 \$ALIASES
   The mail aliases required by your system's message transport 
   software for one or more mailing lists.
