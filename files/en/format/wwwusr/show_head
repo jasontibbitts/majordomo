@@ -22,6 +22,12 @@ for "on" and an <b>O</b> for "off".
 </p>
 
 <p>
+To see more information about a mailing list, such as the number
+of subscribers and message archive location, click the <b>Info</b>
+link next to the name of a mailing list.
+</p>
+
+<p>
   <input type="submit" name="func" value="unsubscribe">
   <input type="submit" name="func" value="set">
 </p>
