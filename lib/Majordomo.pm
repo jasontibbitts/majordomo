@@ -346,14 +346,18 @@ sub connect {
   $self->{sessionfh} = gensym();
 
   # Create directories if necessary, and open the session file;
-  mkdir $dir1;
-  mkdir $dir2;
+  mkdir($dir1, 0777);
+  mkdir($dir2, 0777);
   unless (open ($self->{sessionfh}, ">>$sfile")) {
     # Directory might just have been deleted due to expiry; try again.
     # This assumes that there is only one process doing expiry, so our
     # directories can't be deleted twice.
-    mkdir $dir1;
-    mkdir $dir2;
+    unless (mkdir($dir1, 0777)) {
+      warn "Can't mkdir $dir1: $!";
+    }
+    unless (mkdir($dir2, 0777)) {
+      warn "Can't mkdir $dir2: $!";
+    }
     $log->abort("Can't write session file to $sfile, $!")
       unless (open ($self->{sessionfh}, ">>$sfile"));
   }
