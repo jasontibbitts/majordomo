@@ -250,6 +250,7 @@ sub dump_body {
   my $fh  = shift;
   my ($body, $line);
 
+  return unless (defined $ent);
   $body = $ent->open('r');
   return unless (defined $body);
   while (defined($line = $body->getline)) {
