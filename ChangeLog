@@ -1,3 +1,16 @@
+2002-07-09  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm (standard_subs): Add the DATE substitution.  No
+	reason it can't be available everywhere.
+
+	* lib/Mj/Resend.pm (post): Remove DATE substitution.
+
+	* lib/Majordomo.pm (standard_subs): Add the fronter/footer stuff,
+	so the substitutions are available everywhere.  Make sure we don't
+	have any recursion.
+
+	* lib/Mj/MailOut.pm (welcome): Remove the fronter/footer stuff.
+	
 2002-07-08  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Fix typo.

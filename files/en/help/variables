@@ -92,6 +92,11 @@ of the Majordomo error, format, and reply files.  Their names and values
 some of the variables (LIST, OWNER, REQUEST, SUBLIST, and WHOAMI)
 will vary depending upon the mailing list.
 
+\$ALL_FOOTERS
+\$ALL_FRONTERS
+  All of the list's message_footers and message_fronters, respectively (if
+  any), separated by blank lines.
+
 \$ARCURL      $ARCURL
   (The URL that allows access to an external archive.  This value is
    determined by the archive_url configuration setting;  see 
@@ -101,8 +106,17 @@ will vary depending upon the mailing list.
   (The location of the WWW interface to confirm a subscription,
    posted message, or other Majordomo command.)
 
+\$DATE
+  The date at which a request was originally issued;  in some cases
+  this may be the Date header from a posted message.
+
 \$DOMAIN      $DOMAIN
   (The name of the current domain, as determined at installation time)
+
+\$FOOTER
+\$FRONTER
+  The list's message_frooter and message_fronter, respectively.  If there
+  are multiple fronters or footers, the first of each will be used.
 
 \$LIST        $LIST
   (The name of the current mailing list, or GLOBAL)
@@ -122,6 +136,10 @@ will vary depending upon the mailing list.
 \$PWLENGTH    $PWLENGTH     
   (The minimum length of a new password.  See "help password" and 
    "help admin_passwords" for details.)
+
+\$RANDOM_FOOTER
+\$RANDOM_FRONTER
+  A randomly chosen message_footer and message_fronter, respectively.
 
 \$REQUEST     $REQUEST   
   (The "request" address for a mailing list)
@@ -180,11 +198,6 @@ See "help reply_files" for a description of each of the reply files.
 \$ALIASES
   The mail aliases required by your system's message transport 
   software for one or more mailing lists.
-
-\$ALL_FOOTERS
-\$ALL_FRONTERS
-  All of the list's message_footers and message_fronters, respectively,
-  separated by blank lines.
 
 \$APPROVALS
   The number of people who must use the accept command to approve
@@ -252,10 +265,6 @@ See "help reply_files" for a description of each of the reply files.
 \$COUNT
   The number of settings in a particular configuration category.
 
-\$DATE
-  The date at which a request was originally issued;  in some cases
-  this may be the Date header from a posted message.
-
 \$DESCRIPTION
   A description of a mailing list, as determined by the description
   and description_long configuration settings.  Also, a description
@@ -287,11 +296,6 @@ See "help reply_files" for a description of each of the reply files.
 
 \$FINISH
   The date of the latest of a group of messages or requests.
-
-\$FOOTER
-\$FRONTER
-  The list's message_frooter and message_fronter, respectively.  If there
-  are multiple fronters or footers, the first of each will be used.
 
 \$FULFILL
   The date at which a delayed request will be completed
@@ -368,10 +372,6 @@ See "help reply_files" for a description of each of the reply files.
 \$QSADDR
   An e-mail address, altered to allow it to be included safely in the
   query string of a URL.
-
-\$RANDOM_FOOTER
-\$RANDOM_FRONTER
-  A randomly chosen message_footer and message_fronter, respectively.
 
 \$REMIND 
   The number of days before a reminder for a request that requires

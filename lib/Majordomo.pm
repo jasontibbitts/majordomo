@@ -924,7 +924,10 @@ substitutions, used in various places in the Mj modules.
 sub standard_subs {
   my $self = shift;
   my $olist = shift;
-  my ($curl, $list, $sublist, $whereami, $whoami);
+
+  my ($all_footers, $all_fronters, $curl, $footer, $footers, $fronter,
+      $fronters, $i, $list, $random_footer, $random_fronter, $sublist,
+      $whereami, $whoami);
 
   ($list, $sublist) = $self->valid_list($olist, 1, 1);
   unless ($list) {
@@ -951,6 +954,7 @@ sub standard_subs {
     'ARCURL'      => $self->_list_config_get($list, 'archive_url'),
     'CONFIRM_URL' => $self->substitute_vars_string(
                        $curl, {'TOKEN' => ''}),
+    'DATE'        => scalar localtime,
     'DOMAIN'      => $self->{'domain'},
     'LIST'        => $olist,
     'MAJORDOMO'   => $self->_global_config_get('whoami'),
@@ -971,6 +975,42 @@ sub standard_subs {
     'WWWADM_URL'  => $self->_global_config_get('wwwadm_url'),
     'WWWUSR_URL'  => $self->_global_config_get('wwwusr_url'),
   );
+
+  $fronters = $self->_list_config_get($list, 'message_fronter') || [];
+  $footers  = $self->_list_config_get($list, 'message_footer')  || [];
+  $all_fronters = $all_footers = '';
+  for $i (@$fronters) { $all_fronters .= join("\n", @$i, '', ''); }
+  for $i (@$footers)  { $all_footers  .= join("\n", @$i, '', ''); }
+  chomp $all_fronters; chomp $all_fronters;
+  chomp $all_footers;  chomp $all_footers;
+
+  $fronter = $self->substitute_vars_string
+    (@$fronters ? join("\n", @{$fronters->[0]}) : '',
+     \%subs,
+    );
+  $footer = $self->substitute_vars_string
+    (@$footers ? join("\n", @{$footers->[0]}) : '',
+     \%subs,
+    );
+
+  $random_fronter = $self->substitute_vars_string
+    (@$fronters ? join("\n", @{@$fronters[rand(@$fronters)]}) : '',
+     \%subs,
+    );
+  $random_footer = $self->substitute_vars_string
+    (@$footers  ? join("\n", @{@$footers[rand(@$footers)]})   : '',
+     \%subs,
+    );
+  $all_fronters = $self->substitute_vars_string($all_fronters, \%subs);
+  $all_footers  = $self->substitute_vars_string($all_footers,  \%subs);
+
+  $subs{FRONTER} = $fronter;
+  $subs{FOOTER}  = $footer;
+  $subs{RANDOM_FRONTER} = $random_fronter;
+  $subs{RANDOM_FOOTER}  = $random_footer;
+  $subs{ALL_FRONTERS}   = $all_fronters;
+  $subs{ALL_FOOTERS}    = $all_footers;
+
   %subs;
 }
 

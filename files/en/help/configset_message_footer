@@ -49,6 +49,15 @@ Fronters are not added at all to single-part messages that are not of
 type text/plain.  This avoids destroying the content of structured
 messages.  
 
+Note that the footers are themselves available in other documents as
+the substitution variables FOOTER, RANDOM_FOOTER, and ALL_FOOTERS.
+Also note that you can't substitute fronters or footers into your
+footers, as this would lead to an endless loop and the destruction of
+the planet, and that some of the substitutions (HOST, MSGNO, SENDER,
+SEQNO, SUBJECT, SUBSCRIBED, and USER) don't really make any sense
+except in the context of a posted message.
+
+
 See Also:
    help admin_delivery
    help commands

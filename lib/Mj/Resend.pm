@@ -234,7 +234,6 @@ sub post {
   $subs = {
            $self->standard_subs($list),
            CMDLINE  => "(post to $list)",
-           DATE     => scalar localtime,
 	   HEADERS  => $ent->head->stringify,
 	   SUBJECT  => $subject || '(no subject)',
            USER     => "$user",
