@@ -1161,7 +1161,7 @@ sub expire_subscriber_data {
 
     # Expire old bounce data.
     if ($data->{bounce}) {
-      @b1 = split(/\s/, $data->{bounce});
+      @b1 = split(/\s+/, $data->{bounce});
       $c = 0;
       while (1) {
 	last if $c > $maxbouncecount;
@@ -1171,6 +1171,7 @@ sub expire_subscriber_data {
 	push @b2, $b; $c++;
 	$u = 1;
       }
+      $data->{bounce} = join(' ', @b2);
     }
 
     # Update if necessary
@@ -1718,18 +1719,19 @@ last two are generated using bounces for which message numbers were
 collected and require a pool of that type bounce (two and five, resp.)
 before any statistics are generated.
 
-=cut
+=cut 
 sub bounce_gen_stats {
-  my $self  = shift;
+  my $self = shift;
   my $bdata = shift;
-  my $now   = time;
-  my (@numbered, @times, $maxbounceage, $stats);
+  my $now = time;
+  my (@numbered, @times, $maxbounceage, $maxbouncecount, $stats);
 
   return unless $bdata;
 
   # We don't do a monthly view unless we're collecting a month's worth of
   # data
-  $maxbounceage = 31 * 60*60*24; # XXXX
+  $maxbounceage   = $self->config_get('bounce_max_age');
+  $maxbouncecount = $self->config_get('bounce_max_count');
   if ($maxbounceage >= 30 * 60*60*24) {
     $do_month = 1;
   }
@@ -1758,6 +1760,8 @@ sub bounce_gen_stats {
   if ($stats->{numbered} && $stats->{numbered} >= 5) {
     $stats->{bouncedpct} = int(.5 + 100*($stats->{numbered} / $stats->{span}));
   }
+
+  $stata->{maxcount} = $maxbouncecount;
 
   # Extract breakdown by time
   for $i (@{$bdata->{UM}}, @times) {

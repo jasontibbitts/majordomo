@@ -19,6 +19,8 @@ use Mj::FakeLog;
 #$Mj::FakeLog::verbose = 1;
 
 $parser = new MIME::Parser;
+$parser->output_dir('/tmp');
+
 $total  = 0;
 $parsed = 0;
 $users  = 0;

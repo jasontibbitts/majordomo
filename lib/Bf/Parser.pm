@@ -4,7 +4,35 @@ Bf::Parser.pm - Functions for taking apart bounce messages.
 
 =head1 DESCRIPTION
 
-blah
+A set of routines for parsing bounces.
+
+MTAs whose bounces are parsed:
+  Any which properly support DSNs.
+  Exim
+  Qmail (and Yahoo)
+  Postfix
+  MS Exchange
+  Classic Sendmail
+  Compuserve
+  Lotus
+  Post.Office
+  SoftSwitch
+  Netscape Mail Server's broken DSNs
+  SMTP32
+
+MTAs whose bounces aren't parsed:
+  Mercury
+  SLMail
+  Bigfoot TOE mail
+  EMWAC SMTPRS
+
+These are all doable (though not easy), but rare enough that the difficulty
+currently outweighs the benefit.  If you're getting a lot of them, let me
+know or implement a parser yourself.
+
+MTAs whose bounces aren't boing to be parsed:
+  MMDF (who came up with these bounces?)
+
 
 =head1 SYNOPSIS
 
@@ -86,6 +114,7 @@ sub parse {
   $ok or ($ok = parse_lotus     ($ent, $data, $hints));
   $ok or ($ok = parse_postoffice($ent, $data, $hints));
   $ok or ($ok = parse_softswitch($ent, $data, $hints));
+  $ok or ($ok = parse_smtp32    ($ent, $data, $hints));
 
   # Look for useful bits in the To: header (assuming we even have one)
   $to = $ent->head->get('To');
@@ -451,8 +480,7 @@ sub parse_exim {
     return unless defined $line;
     chomp $line;
     next if $line =~ /^\s*$/;
-    last if (lc($line) eq 
-	     'this message was created automatically by mail delivery software.');
+    last if $line =~ /^\s*this message was created automatically by mail delivery software/i;
   }
 
   # We've just seen the line, so we know we have an Exim-format bounce.
@@ -660,6 +688,45 @@ sub parse_sendmail {
     check_dsn_diags($ent, $data);
   }
   $ok;
+}
+
+=head2 parse_smtp32
+
+Attempts to parse the bounces issued by an MTA I've never heard of called
+SMTP32.
+
+It identifies itself by an X-Mailer header:
+
+X-Mailer: <SMTP32 v991129>
+
+The only thing we care about is the first line of the bounce, which looks
+something like:
+
+User mailbox exceeds allowed size: xxxx@yyyy.net
+
+=cut
+sub parse_smtp32 {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my ($bh, $diag, $line, $user);
+
+  return unless $ent->head->get('X-Mailer') =~ /SMTP32/i;
+
+  return if $ent->parts;
+  $bh = $ent->bodyhandle->open('r');
+  return unless $bh;
+
+  while (1) {
+    $line = $bh->getline;
+    last unless $line =~ /^\s*$/;
+  }
+  return unless $line =~ /([^:]+):\s+(.*)/;
+  $user = $2; $diag = $1;
+  $data->{$user}{'status'} = 'failure';
+  $data->{$user}{'diag'}   = $diag;
+
+  'SMTP32';
 }
 
 =head2 parse_softswitch
@@ -937,7 +1004,7 @@ sub check_dsn_diags {
   while (1) {
     $line = $fh->getline;
     return unless defined $line;
-    last if $line =~ /transcript of session follows/i;
+    last if $line =~ /^\s*-+\s*transcript of session follows/i;
   }
 
   # We try to find a line that looks like an SMTP response, since that will
@@ -963,7 +1030,7 @@ sub check_dsn_diags {
 	$line =~ /^<<<\s*\d{3}\s*(.*)\.{3}\s*(.*)$/i  ||
 	$line =~ /^<<<\s*\d{3}\s*([^\s]*)\s+(.*)$/i   ||
 	$line =~ /^\d{3}\s*([^\s]*)\.{3}\s*(.*)$/i    ||
-	$line =~ /^<(.*)>[\s\.]*(.*)$/i
+	$line =~ /^<(.*)>[\s\.]+(.*)$/i
        )
       {
 	$user = $1; $diag = $2;

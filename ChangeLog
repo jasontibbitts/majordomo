@@ -1,3 +1,18 @@
+2000-06-23  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/List.pm (bounce_gen_stats): Use the configuration
+	variables instead of hardcoding things.
+
+	* lib/Bf/Parser.pm (parse_exim): Don't require an exact match on
+	the identification string, since some versions include extra text.
+	(parse_smtp32): New function to parse bounces from SMTP32.
+	(check_dsn_diags): Tighten up the search for the line that starts
+	the session transcript; AOL includes something that looks like it
+	in the chatty portion of the bounce as an explanation.
+
+	* lib/Mj/List.pm (expire_subscriber_data): Forgot to actually
+	expire any bounce data.
+
 2000-06-22  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Bf/Parser.pm (parse_postoffice): Parse bounces from

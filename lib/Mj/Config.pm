@@ -1203,7 +1203,7 @@ sub parse_access_rules {
   # We start with no warnings.
   $warn = '';
   $count = 0;
-  
+
   # Do the table parse: two multi-item, single field lines, one multiline
   # field
   ($table, $error) = parse_table('fmfmx', $arr);
@@ -1213,11 +1213,11 @@ sub parse_access_rules {
 
   # Iterate over the rules
   for ($i=0; $i<@$table; $i++) {
-    
+
     # Iterate over the requests.
     for ($j=0; $j<@{$table->[$i][0]}; $j++) {
       $rules{$table->[$i][0][$j]} ||= [];
-      
+
       # Add an action-rule pair to the list of rules corresponding to the
       # appropriate request in the rule hash.  The lines of the rule are
       # joined with spaces.
@@ -1225,7 +1225,7 @@ sub parse_access_rules {
 	   ($table->[$i][1], join(' ',@{$table->[$i][2]})));
     }
   }
-  
+
   # Now iterate over the keys in the rules hash; this will give us
   # request/[action, rule, action, rule] pairs
   for $i (keys %rules) {
@@ -1237,7 +1237,7 @@ sub parse_access_rules {
       return (0, "\nIllegal request name: $i.\nLegal requests are:\n".
 	      join(' ', sort(@tmp)))
     }
-    
+
     # Iterate over the action/rule pairs
     while (($action, $rule) = splice @{$rules{$i}}, 0, 2) {
       $count++;
@@ -1286,7 +1286,7 @@ sub parse_access_rules {
       # Compile the rule
       ($ok, $error, $part, $check_main, $check_aux) =
 	_compile_rule($i, $action, $evars, $rule, $count);
-      
+
       # If the compilation failed, we return the error
       return (0, "\nError compiling rule for $i: $error")
 	unless $ok;
@@ -1297,7 +1297,7 @@ sub parse_access_rules {
 	$data->{$i}{'check_aux'}{$j} = 1;
       }
     }
-    
+
     $data->{$i}{'code'} .= "\nreturn [0, 'default'];\n";
   }
   # If we get this far, we know we shouldn't have any errors, but maybe
