@@ -1,4 +1,6 @@
-One of five values: open, open+password, list, list+password, closed.  
+The archive_access setting determines who is able to use the archive
+command.  The setting has five possible values: 
+  open, open+password, list, list+password, and closed.  
 
 Open allows anyone access to the archive command.  
 
@@ -10,6 +12,7 @@ List allows only list members access.
 List+password allows list members to issue this command, but only
 if they use their personal password.
 
-Closed disables the archive command for everyone but the list administrators. 
-Note that some command modes (archive-sync, archive-delete) are only
-available to administrators, regardless of this setting.
+Closed disables the archive command for everyone but the list
+administrators.  Note that some command modes (archive-sync,
+archive-delete) are only available to administrators, regardless of the
+value of this setting.
