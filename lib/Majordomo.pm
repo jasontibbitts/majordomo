@@ -1498,11 +1498,23 @@ sub faq_start {
 sub _faq {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my ($file);
+  my ($file, $subs);
 
   $self->_make_list($list);
 
-  ($file) = $self->_list_file_get($list, 'faq');
+  $subs =
+    {VERSION  => $Majordomo::VERSION,
+     WHEREAMI => $self->_global_config_get('whereami'),
+     WHOAMI   => $self->_list_config_get($list, 'whoami'),
+     MJ       => $self->_global_config_get('whoami'),
+     MJOWNER  => $self->_global_config_get('sender'),
+     OWNER    => $self->_list_config_get($list, 'sender'),
+     SITE     => $self->_global_config_get('site_name'),
+     USER     => $requ,
+     LIST     => $list,
+    };
+
+  ($file) = $self->_list_file_get($list, 'faq', $subs);
   
   unless ($file) {
     return (0, "No FAQ available.\n");
@@ -1580,11 +1592,23 @@ sub info_start {
 sub _info {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my ($file);
+  my ($file, $subs);
 
   $self->_make_list($list);
 
-  ($file) = $self->_list_file_get($list, 'info');
+  $subs =
+    {VERSION  => $Majordomo::VERSION,
+     WHEREAMI => $self->_global_config_get('whereami'),
+     WHOAMI   => $self->_list_config_get($list, 'whoami'),
+     MJ       => $self->_global_config_get('whoami'),
+     MJOWNER  => $self->_global_config_get('sender'),
+     OWNER    => $self->_list_config_get($list, 'sender'),
+     SITE     => $self->_global_config_get('site_name'),
+     USER     => $requ,
+     LIST     => $list,
+    };
+
+  ($file) = $self->_list_file_get($list, 'info', $subs);
   
   unless ($file) {
     return (0, "No info available.\n");
@@ -1615,11 +1639,23 @@ sub intro_start {
 sub _intro {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my ($file);
+  my ($file, $subs);
 
   $self->_make_list($list);
 
-  ($file) = $self->_list_file_get($list, 'intro');
+  $subs =
+    {VERSION  => $Majordomo::VERSION,
+     WHEREAMI => $self->_global_config_get('whereami'),
+     WHOAMI   => $self->_list_config_get($list, 'whoami'),
+     MJ       => $self->_global_config_get('whoami'),
+     MJOWNER  => $self->_global_config_get('sender'),
+     OWNER    => $self->_list_config_get($list, 'sender'),
+     SITE     => $self->_global_config_get('site_name'),
+     USER     => $requ,
+     LIST     => $list,
+    };
+
+  ($file) = $self->_list_file_get($list, 'intro', $subs);
   
   unless ($file) {
     return (0, "No intro available.\n");

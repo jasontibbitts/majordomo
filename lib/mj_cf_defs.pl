@@ -16,14 +16,14 @@ variables and functions from other packages.
 
 $Mj::Config::default_string = q(
 {
- 'faq_access'           => "list",
+ 'faq_access'           => "open",
  'get_access'           => "list",
  'archive_access'       => "list",
  'index_access'         => "open",
  'who_access'           => "open",
  'which_access'         => "open",
  'info_access'          => "open",
- 'intro_access'         => "list",
+ 'intro_access'         => "open",
  'advertise'            => [],
  'noadvertise'          => [],
  'advertise_subscribed' => 1,

@@ -1,3 +1,7 @@
+2000-06-01  Michael Yount  <csf@moscow.com>
+	* lib/Majordomo.pm:  Add variable substitutions for
+	the faq, info, and intro commands.
+
 2000-05-28  Michael Yount  <csf@moscow.com>
 	* lib/Mj/CommandProps.pm:  Allow faq, info, and intro
 	to be used with the GLOBAL and DEFAULT lists.
