@@ -3921,7 +3921,8 @@ sub archive_chunk {
     # Exclude messages that are awaiting digest delivery if "delete" mode
     # is used without "force" mode.
     if ($request->{'mode'} !~ /force/) {
-      $j = $list->digest_examine('ALL');
+      $dig = $self->_list_config_get($request->{'list'}, 'digests');
+      $j = $list->digest_examine([ keys %$dig ]);
       for $i (sort keys %$j) {
         next if ($i eq 'default_digest');
         $dig = $j->{$i};
@@ -5820,7 +5821,7 @@ sub set {
 sub _set {
   my ($self, $list, $user, $vict, $mode, $cmd, $setting, $d, $sublist, $force) = @_;
   my (@addrs, @lists, @out, @tmp, $addr, $check, $chunksize, $count, 
-      $data, $db, $file, $k, $l, $ok, $owner, $res, $v);
+      $data, $db, $file, $format, $k, $l, $ok, $owner, $res, $v);
 
   $check = 0;
   if ($mode =~ /check/ or ! $setting) {
@@ -5911,13 +5912,16 @@ sub _set {
             and exists $res->{'digest'}->{'messages'}
             and scalar(@{$res->{'digest'}->{'messages'}})) {
 
+          $format = $res->{'digest'}->{'index'} ||
+                    $self->_list_config_get($l, 'digest_index_format');
+
           ($file) = $self->{'lists'}{$l}->digest_build
             (messages      => $res->{'digest'}->{'messages'},
              type          => $res->{'digest'}->{'type'},
              subject       => "Partial digest for the $l list",
              to            => "$addr",
              tmpdir        => $tmpdir,
-             index_line    => $self->_list_config_get($l, 'digest_index_format'),
+             index_line    => $format,
              index_header  => "Custom-Generated Digest",
              index_footer  => "\n",
             );
@@ -6103,7 +6107,7 @@ sub _showtokens {
     next if ($data->{'type'} eq 'delay' and $mode !~ /delay/);
     next if ($data->{'type'} eq 'async' and $mode !~ /async/);
     next if ($data->{'type'} eq 'alias' and $mode !~ /alias/);
-    next if ($data->{'type'} eq 'alias' and $mode !~ /probe/);
+    next if ($data->{'type'} eq 'probe' and $mode !~ /probe/);
 
     # Obtain file size for posted messages
     if ($data->{'command'} eq 'post') {
@@ -6665,8 +6669,11 @@ sub _unsubscribe {
 
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
-  return (0, "Unable to access subscriber list \"$sublist\".\n")
-    unless $self->{'lists'}{$list}->valid_aux($sublist);
+
+  if (defined $sublist) {
+    return (0, "Unable to access subscriber list \"$sublist\".\n")
+      unless $self->{'lists'}{$list}->valid_aux($sublist);
+  }
 
   # Use both the list and sublist in file substitutions.
   $flist = $list;
