@@ -3020,7 +3020,7 @@ sub _request_response {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
   my (%file, $cset, $desc, $dom, $enc, $ent, $file, $hdr, $list_own, 
-      $mess, $sender, $subst, $type);
+      $mess, $sender, $subs, $type);
 
   return unless $self->_make_list($list);
 
@@ -3036,15 +3036,15 @@ sub _request_response {
   $sender = $self->_list_config_get($list, 'sender');
   $list_own   = $self->_list_config_get($list, 'whoami_owner');
 
-  $subst = {
-            $self->standard_subs($list),
-            'REQUESTER' => "$requ",
-            'USER'      => "$requ",
-	   };
+  $subs = {
+           $self->standard_subs($list),
+           'REQUESTER' => "$requ",
+           'USER'      => "$requ",
+	  };
 
   # Expand variables
-  $desc = $self->substitute_vars_string($file{'description'}, $subst);
-  $file = $self->substitute_vars($file, $subst);
+  $desc = $self->substitute_vars_string($file{'description'}, $subs);
+  $file = $self->substitute_vars($file, $subs);
 
   $ent = build MIME::Entity
     (
@@ -3062,11 +3062,12 @@ sub _request_response {
 
   if ($ent) {
     for $hdr ($self->_global_config_get('message_headers')) {
-      $hdr = $self->substitute_vars_string($hdr, $subst);
+      $hdr = $self->substitute_vars_string($hdr, $subs);
       $ent->head->add(undef, $hdr);
     }
 
     $self->mail_entity($sender, $ent, $victim);
+    $ent->purge;
     return (1, '');
   }
   else {
