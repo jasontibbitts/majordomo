@@ -600,10 +600,10 @@ sub make_setting {
           }
         }
         # Ordinary flags are cleared individually.
-        $flags =~ s/$flags{$inv}->[3]//ig;
+        $flags =~ s/$flags{$inv}->[3]//g;
       }
       else {
-        # Remove all in group ('noack' and 'ackall' clear all ack flags)
+        # Remove all in group ('noack' and 'noackall' clear all ack flags)
         for (keys %flags) {
           if ($flags{$_}->[0] eq $flags{$rset}->[0] and $flags{$_}->[3]) {
             $flags =~ s/$flags{$_}->[3]//ig; 
@@ -2758,8 +2758,8 @@ sub bounce_gen_stats {
   my $self = shift;
   my $bdata = shift;
   my $now = time;
-  my (@numbered, @times, $do_month, $i, $lastnum, $maxbounceage,
-      $maxbouncecount, $seqendtime, $seqstarttime, $stats);
+  my (@numbered, @times, $i, $lastnum, $maxbounceage, $maxbouncecount, 
+      $seqendtime, $seqstarttime, $stats);
 
   # Initialize $stats
   $stats = {
@@ -2783,9 +2783,6 @@ sub bounce_gen_stats {
   # We don't do a monthly view unless we're collecting a month's worth
   $maxbounceage   = $self->config_get('bounce_max_age');
   $maxbouncecount = $self->config_get('bounce_max_count');
-  if ($maxbounceage >= 30) {
-    $do_month = 1;
-  }
 
   @numbered = sort {$a <=> $b} keys(%{$bdata->{M}});
   if (@numbered) {
@@ -2824,7 +2821,7 @@ sub bounce_gen_stats {
     if (($now - $i) < 7*24*60*60) {
       $stats->{week}++;
     }
-    if ($do_month && ($now - $i) < 30*24*60*60) {
+    if (($now - $i) < 30*24*60*60) {
       $stats->{month}++;
     }
   }
@@ -2837,8 +2834,9 @@ sub bounce_gen_stats {
 
 =head2 expire_bounce_data
 
-This converts members with timed nomail classes back to their old class
-when the vacation time is passed and removes old bounce data.
+This removes old bounce data in two stages.  First, the
+data for non-subscribers are removed; second, the data for
+subscribers are removed.
 
 =cut
 sub expire_bounce_data {
@@ -2847,7 +2845,6 @@ sub expire_bounce_data {
   my $maxbouncecount = $self->config_get('bounce_max_count');
   my $maxbounceage   = $self->config_get('bounce_max_age') * 60*60*24;
   my $bounceexpiretime = $time - $maxbounceage;
-  my $ali;
 
   my $mogrify = sub {
     my $key  = shift;
@@ -2894,6 +2891,43 @@ sub expire_bounce_data {
 
   $self->_make_bounce;
   $self->{bounce}->mogrify($mogrify);
+
+  my $mogrify2 = 
+  sub {
+    my $key  = shift;
+    my $data = shift;
+    my (@b1, @b2, $c, $t, $u);
+    
+    if ($data->{bounce}) {
+      @b1 = split(/\s+/, $data->{bounce});
+      @b2 = ();
+      $c = 0;
+
+      while (1) {
+       # Stop now if we have too many bounces
+       if ($c >= $maxbouncecount) {
+         $u = 1;
+         last;
+       }
+
+       $b = pop @b1; last unless defined $b;
+       ($t) = $b =~ /^(\d+)\w/;
+       if ($t < $bounceexpiretime) {
+         $u = 1;
+         next;
+       }
+       unshift @b2, $b; $c++;
+      }
+      $data->{bounce} = join(' ', @b2) if $u;
+    }
+
+    if ($u) {
+      return (0, 1, $data);
+    }
+    return (0, 0);
+  };
+
+  $self->{'sublists'}{'MAIN'}->mogrify($mogrify2);
 
   1;
 }
