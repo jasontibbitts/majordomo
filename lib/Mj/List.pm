@@ -14,7 +14,7 @@ functionality for Majordomo.
 
 A list owns a Config object to maintain configuration data, a
 SubscriberList object to store the list of subscribers and their data,
-various AddressList objects, an Archive object, and a Digest object
+auxiliary SubscriberLists, an Archive object, and a Digest object
 handling all archiving and digesting aspects of the list.
 
 =cut
@@ -897,6 +897,34 @@ sub get_member {
   
   return ($addr->canon, $self->{'subs'}->lookup($addr->canon));
 }
+
+=head2 count_subs {
+
+  Counts the number of entries in the subscriber database.
+
+=cut
+sub count_subs {
+  my $self = shift;
+  my $sublist = shift;
+  my (@count, $db);
+  my ($total) = 0;
+ 
+  if ($sublist) {
+    return unless $self->_make_aux($sublist);
+    $db = $self->{'auxlists'}{$sublist}; 
+  }
+  else {
+    $db = $self->{'subs'};
+  }
+   
+  return unless $db->get_start;
+  while (@count = $db->get_quick(1000)) {
+    $total += scalar @count;
+  }
+  $db->get_done;
+  $total;
+}
+
 
 =head2 rekey()
 
