@@ -393,7 +393,7 @@ sub configshow {
 
   for $varresult (@$result) {
     ($ok, $mess, $data, $var, $val) = @$varresult;
-    $subs->{'VARIABLE'} = $var;
+    $subs->{'SETTING'} = $var;
 
     if (! $ok) {
       $subs->{'ERROR'} = $mess;
