@@ -520,7 +520,7 @@ acknowledgement messages such as confirmation requests.
 =cut
 sub gen_cmdline {
   my ($request) = shift;
-  my ($cmdline, $hereargs, $variable, $useopts, $om, $arguments, @tmp);
+  my ($cmdline, $hereargs, $variable, $arguments, @tmp);
 
   return unless (ref $request eq 'HASH');
   if ($request->{'command'} =~ /owner/) {
@@ -551,24 +551,18 @@ sub gen_cmdline {
   $arguments = function_prop($request->{'command'}, 'arguments');
 
   if (defined $arguments) {
-    $useopts = 1;
-    $om = $arguments->{'optmode'};
-
-    # Do not use optional variables unless required
-    if ($arguments->{'optmode'} and ($request->{'mode'} !~ /$om/)) {
-      $useopts = 0;
-    }
-
     for $variable (sort keys %$arguments) {
-      next if ($variable eq 'optmode' or $variable eq 'split');
-      next if (!$useopts and ($arguments->{$variable} =~ /OPT/));
-      # next if ($variable eq 'newpasswd');
+      next if ($variable eq 'split');
+      next if ($variable eq 'newpasswd');
+      next if (exists $arguments->{$variable}->{'include'}
+               and $request->{'mode'} !~ /$arguments->{$variable}->{'include'}/);
+      next if (exists $arguments->{$variable}->{'exclude'}
+               and $request->{'mode'} =~ /$arguments->{$variable}->{'exclude'}/);
       if ($variable eq 'victims' and defined $request->{'victim'}) {
         $cmdline .= " $request->{'victim'}";
         next;
       }
       last if (defined $hereargs and ($variable eq $hereargs));
-      next unless (defined $request->{$variable});
       if ($arguments->{$variable} ne 'ARRAY') {
         $cmdline .= " $request->{$variable}";
       }
@@ -4178,13 +4172,13 @@ The classes are:
 =cut
 sub set {
   my ($self, $request) = @_;
-  my $log = new Log::In 30, "$request->{'list'}, $request->{'setting'}";
   my ($force, $ok, $mess);
+  $request->{'auxlist'} = '' unless $request->{'mode'} =~ /aux/;
+  $request->{'setting'} = '' if $request->{'mode'} =~ /check/;
+  my $log = new Log::In 30, "$request->{'list'}, $request->{'setting'}";
  
   return (0, "The set command is not supported for the $request->{'list'} list.\n")
     if ($request->{'list'} eq 'GLOBAL' or $request->{'list'} eq 'DEFAULT'); 
-
-  $request->{'auxlist'} = '' unless $request->{'mode'} =~ /aux/;
 
   ($ok, $mess) =
     $self->list_access_check($request->{'password'}, $request->{'mode'}, 
@@ -4206,10 +4200,10 @@ sub set {
 sub _set {
   my ($self, $list, $user, $addr, $mode, $cmd, $setting, $d, $sublist, $force) = @_;
   my (@lists, @out, $check, $data, $l, $ok, $res);
-  $check = $setting ? 0 : 1;
-  if ($setting eq 'check') {
+
+  $check = 0;
+  if ($mode =~ /check/ or ! $setting) {
     $check = 1;
-    $setting = '';
   }
 
   if ($list eq 'ALL') {
@@ -4589,6 +4583,7 @@ sub trigger {
     $self->t_expire;
     $self->t_remind;
     $self->s_expire;
+    $self->l_expire;
     # Loop over lists
     $self->_fill_lists;
     for $list (keys %{$self->{'lists'}}) {
