@@ -113,6 +113,7 @@ sub new {
   $self->{sublists} = {};
   $self->{backend}  = $args{backend};
   $self->{callbacks}= $args{callbacks};
+  $self->{domain}   = $args{domain};
   $self->{ldir}     = $args{dir};
   $self->{name}     = $args{name};
   $self->{sdirs}    = 1; # Obsolete goody
@@ -124,7 +125,13 @@ sub new {
   # XXX This should probably be delayed
   unless ($args{name} eq 'GLOBAL' or $args{name} eq 'DEFAULT') {
     $self->{sublists}{'MAIN'} = 
-      new Mj::SubscriberList $subfile, $args{'backend'};
+      new Mj::SubscriberList (
+                              'backend' => $self->{'backend'},
+                              'domain'  => $self->{'domain'},
+                              'file'    => '_subscribers', 
+                              'list'    => $self->{'name'},
+                              'listdir' => $self->{'ldir'},
+                             );
   }
 
   $self->{'templates'}{'MAIN'} = new Mj::Config
@@ -182,7 +189,7 @@ __END__
 
 These functions operate on the subscriber list itself.
 
-=head2 add(mode, address, class, flags)
+=head2 add(mode, address, sublist, data)
 
 Adds an address (which must be an Mj::Addr object) to a subscriber list.
 The canonical form of the address is used for the database key, and the
@@ -198,35 +205,63 @@ sub add {
   my $self  = shift;
   my $mode  = shift || '';
   my $addr  = shift;
-  my $flags = shift || $self->get_flags('default_flags');
-  my $class = shift;
-  my $carg  = shift;
-  my $carg2 = shift;
   my $sublist = shift || 'MAIN';
-  my (@out, $i, $ok, $data);
+  my %data  = @_;
+  my (@out, $i, $ok, $class, $carg, $carg2);
 
-  $::log->in(120, "$mode, $addr");
+  my $log = new Log::In 120, "$mode, $addr";
 
-  ($class, $carg, $carg2) = $self->default_class
-    unless $class;
+  $data{'flags'} ||= $self->get_flags('default_flags');
 
-  $data = {
-	   'fulladdr'  => $addr->full,
-	   'stripaddr' => $addr->strip,
-	   'subtime'   => time,
-	   # Changetime handled automatically
-	   'class'     => $class,
-	   'classarg'  => $carg,
-	   'classarg2' => $carg2,
-	   'flags'     => $flags,
-	  };
+  unless ($data{'class'}) {
+    ($class, $carg, $carg2) = $self->default_class;
+    $data{'class'}     = $class;
+    $data{'classarg'}  = $carg;
+    $data{'classarg2'} = $carg2;
+  }
+
+  $data{'fulladdr'}  = $addr->full;
+  $data{'stripaddr'} = $addr->strip;
+  $data{'subtime'}   = time;
+  # Changetime handled automatically
 
   return (0, "Unable to access subscriber list $sublist")
     unless $self->_make_aux($sublist);
 
-  @out = $self->{'sublists'}{$sublist}->add($mode, $addr->canon, $data);
-  $::log->out;
-  @out;
+  $self->{'sublists'}{$sublist}->add($mode, $addr->canon, \%data);
+}
+
+=head2 update(mode, address, sublist, data)
+
+Change the data for an address (which must be an Mj::Addr object) 
+in a subscriber list.
+
+The canonical form of the address is used for the database key, and the
+other subscriber data is computed and stored in a hash which is passed to
+SubscriberList::replace.
+
+This passes out the return of SubscriberList::replace, which is of the form
+(flag, data) where data holds a ref to the subscriber data if there was a
+failure due to an existing entry.
+
+=cut
+sub update {
+  my $self  = shift;
+  my $mode  = shift || '';
+  my $addr  = shift;
+  my $sublist = shift || 'MAIN';
+  my $data = shift;
+  my (@out, $i, $ok, $class, $carg, $carg2);
+
+  my $log = new Log::In 120, "$mode, $addr";
+
+  return (0, "No data supplied") unless ref $data;
+  return (0, "No address supplied") unless ref $addr;
+
+  return (0, "Unable to access subscriber list $sublist")
+    unless $self->_make_aux($sublist);
+
+  $self->{'sublists'}{$sublist}->replace($mode, $addr->canon, $data);
 }
 
 =head2 remove(mode, address)
@@ -1645,7 +1680,13 @@ sub _make_aux {
 
   unless (defined $self->{'sublists'}{$name}) {
     $self->{'sublists'}{$name} =
-      new Mj::SubscriberList $self->_file_path("X$name"), $self->{backend};
+      new Mj::SubscriberList (
+                              'backend' => $self->{'backend'},
+                              'domain'  => $self->{'domain'},
+                              'file'    => "X$name", 
+                              'list'    => $self->{'name'},
+                              'listdir' => $self->{'ldir'},
+                             );
   }
   1;
 }
@@ -1897,6 +1938,10 @@ sub config_lock {
 
 sub config_unlock {
   shift->{'config'}->unlock;
+}
+
+sub config_regen {
+  shift->{'config'}->regen;
 }
 
 sub config_get_allowed {
