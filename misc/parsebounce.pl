@@ -41,6 +41,8 @@ for $file (@ARGV) {
 			    '+',
 			   );
 
+  $handler ||= 'unknown';
+
   if ($type eq 'M') {
     print "Parsed this bounce: message #$msgno, bounce type: $handler.\n";
     $parsed++;

@@ -118,6 +118,7 @@ sub parse {
   $ok or ($ok = parse_postoffice($ent, $data, $hints));
   $ok or ($ok = parse_softswitch($ent, $data, $hints));
   $ok or ($ok = parse_smtp32    ($ent, $data, $hints));
+  $ok or ($ok = parse_mms       ($ent, $data, $hints));
 
   # XXX Remove parse_compuserve2 once it is verified that no more bounces
   # are being produced in that format.
@@ -663,6 +664,56 @@ sub parse_lotus {
   }
 
   'Lotus';
+}
+
+=head2 parse_mms
+
+Attempts to parse the bounces issued by Tumbleweed MMS (whatever that is).
+These bounces are multipart; the first part looks like this:
+
+The MMS SMTP Relay is returning your message because:
+
+        Unable to deliver to recipient on remote mail host:
+                <user@example.com> - 550 <user@example.com>... User unknown
+
+The bounce message is attached in the second part.
+
+=cut
+sub parse_mms {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my ($bh, $diag, $line, $ok, $user);
+
+  # Multipart bounces, first part must be simple
+  return unless $ent->parts;
+  return if $ent->parts(0)->parts;
+
+  # The first non-blank line must contain the greeting
+  $bh = $ent->parts(0)->bodyhandle->open('r');
+  return unless $bh;
+
+  while (1) {
+    $line = $bh->getline;
+    return unless defined $line;
+    next if $line =~ /^\s*$/;
+    last if $line =~ /^\s*The MMS SMTP Relay is returning your message/i;
+    return;
+  }
+
+  # User and diagnostic are one one line
+  while (1) {
+    $line = $bh->getline;
+    return $ok unless defined $line;
+    next if $line =~ /^\s*$/;
+    if ($line =~ /^\s*<(.*)> - (.*)\s*$/) {
+      $user = $1;
+      $diag = $2;
+      $data->{$user}{'diag'}   = $diag;
+      $data->{$user}{'status'} = 'failure';
+      $ok = 'Tumbleweed MMS';
+    }
+  }
 }
 
 =head2 parse_msn

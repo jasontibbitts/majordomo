@@ -2,6 +2,7 @@
 
 	* lib/Mj/BounceParser.pm (parse_postoffice): Handle older
 	Post.Office bounces.
+	(parse_mms): New function to parse Tumbleweed MMS bounces.
 
 2000-11-14  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
