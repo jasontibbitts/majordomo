@@ -13,8 +13,8 @@ EXAMPLE:
 configset GLOBAL filedir = /usr/files
 
 
-The directory where the filespace for the list is kept.
-If you leave this variable undefined (e.g. nothing after the "="),
+The directory where the file space for the list is kept.
+If you leave this variable undefined (i.e., nothing after the "="),
 the "put" command will create files inside "listname/files/public"
 by default, and inside "listname/files" if you start the put path
 with a slash. See "help put" for details.
@@ -23,6 +23,7 @@ If you define this variable, you must make sure that Majordomo has
 permission to access the directory and the files in it. Defining
 "filedir" may affect many commands like "get", "put", "index", and
 even "help" if you have stored files in the GLOBAL pseudo-list.
+
 For a list of all help topics send this one-line message
    help topics
 to the server at $MJ
