@@ -20,12 +20,35 @@ generated.  Values of 500 are generally sufficient for bug reporting;
 at 1000 a complete SMTP trace is generated which is useful for
 debugging MTA problems.
 
+Functions that are called very often and have very simple code or
+predictable results are logged at a very high level so as to not
+pollute the logging results. Generally, debug info is logged in
+the following ranges:
+   1   -  25: Emergencies anywhere.
+   26  -  50: Important External interface functions
+   51  - 100: Important core Majordomo functions
+   101 - 150: Unimportant interface functions
+   150 - 200: Unimportant core functions
+
+PROGRAMMERS: Consider just removing logging from anything you want to
+put at a lower level, at least for production.  In fact, for production
+we should probably make a script to comment out really low logging info.
+   150 - Config file loading + saving
+   155 - Config-file sub-saving
+   160 - Config file sub-loading
+   170 - Config defaulting
+   180 - Config::get and upstream callers
+   200 - Majordomo::list_legal_name
+
+Note that currently the code doesn't really pay much attention to these,
+but it needs to.
+
 Note that this only effects the generation of the MTA configuration
 information (i.e. suggested aliases) so that configuration information
-will have to be updated for this value to have any effect.
+will have to be updated for this value to have any effect. If the
+MTA configuration is being automatically maintained by Majordomo,
+it should be regenerated (using createlist-regen).
 
-If the MTA configuration is being automatically maintained by
-Majordomo, it should be regenerated (using createlist-regen).
 WARNING: Debug files in the tmpdir are not screened for security!
          They may contain sensitive information that even the
          average list owner should not have access to.

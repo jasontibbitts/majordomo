@@ -20,7 +20,8 @@ alias file (currently just Sendmail) the aliases are automatically
 maintained so just editing the file doesn't preserve the setting.  In this
 case, set the 'debug' config variable to the list to some value (500 is
 appropriate) and run createlist-regen.  This will regenerate the aliases
-with the new debug level in place.
+with the new debug level in place. For more information, see the help
+file for "configset debug", namely files/en/help/configset_debug.
 
 Debugging information from mj_email will be stored in Mj2's private temp
 directory, wherever that was configured to be.  There is one exception: if

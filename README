@@ -13,7 +13,8 @@ writing additional instructions for other MTAs).
 Check README.DIRECTORIES if you'd like to know the complete layout of a
 running Majordomo2 system, or README.INTERNALS for some information about
 the internal layout of Majordomo2.  See README.DEBUGGING for some tips on
-degugging.
+degugging, and read "help configset_debug" for how to set up your system
+to log information you need for that debugging.
 
 This is an alpha release of Majordomo 2.0.  It can easily be used to run a
 number of lists.  Nearly all Majordomo 1.94.4 functionality is available
