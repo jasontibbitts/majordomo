@@ -11,7 +11,7 @@ Password Notes: Visible only with password.
 
 EXAMPLE:
 configset listname message_fronter << ENDTAG
- NOTE: Use "reply-to-all" to CC list, "reply-to-sender" for private msg
+- NOTE: Use "reply-to-all" to CC list, "reply-to-sender" for private msg
 --------------------------(start of broadcast)--------------------------
 -
 
@@ -20,7 +20,7 @@ TIP 1: subscribe and unsubscribe commands go to majordomo@nonwhere.org
 -
 
 TIP 2: you can get off all lists at once with the unregister command
-    (send "unregister YourEmailAddressHere" to majordomo@nonwhere.org)
+-    (send "unregister YourEmailAddressHere" to majordomo@nonwhere.org)
 --------------------------(start of broadcast)--------------------------
 -
 ENDTAG
@@ -38,13 +38,16 @@ auto-inclusion of OTHER files) as it is added to the message.
 See "help variables" for a list of substitutions which are supported.
 
 Within the here document (between the tags), the '-' character takes
-on a special significance:
-   To embed a blank line in the fronter, put a '-' as the first
-       and ONLY character on the line (as in the example above).
-   To preserve whitespace at the beginning of a line, put a - on the
-       line before the whitespace to be preserved
-   To put a literal '-' at the beginning of a line, double it.
-This syntax applies only to message_fronters and message_footers.
+on a special significance if it is the first character on the line.
+If it is the one and only character on the line, it is removed and
+a blank line is written out (allowing you to imbed blank lines without
+the server thinking you have started another fronter). If the first
+character is '-' and the second is a space or a tab or another '-',
+the first '-' is removed without changing anything else. If the
+second character is a printing character, the leading '-' is left
+alone. Note that leading white space does NOT have to be escaped
+with a dash, but it can be if you wish. This syntax applies only
+to message_fronters and message_footers.
 
 Note that for multipart messages, fronters appear as separate parts at
 the beginning of the message and that fronters are not added at all to
