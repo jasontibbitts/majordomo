@@ -249,7 +249,7 @@ sub is_subscriber {
   return unless $addr->isvalid;
   return if $addr->isanon;
 
-  if ($sublist) {
+  if ($sublist and ($sublist ne 'MAIN')) {
     return $self->aux_is_member($sublist, $addr);
   }
 
