@@ -234,9 +234,9 @@ sub confirm {
   return unless $self->_make_tokendb;
   $args{'command'} =~ s/_(start|chunk|done)$//;
 
+  $args{'list'} = 'GLOBAL' unless command_prop($args{'command'}, 'list');
   $list = $args{'list'};
   $list = 'GLOBAL' if ($list eq 'ALL');
-  $list = 'GLOBAL' unless command_prop($args{'command'}, 'list');
 
   $permanent = 0;
   if (exists $args{'expire'} and $args{'expire'} >= 0) {
@@ -335,7 +335,7 @@ sub confirm {
 
   # Make a token and add it to the database
   $realtoken = 
-    $self->t_add($ttype, $list, $args{'command'}, $args{'user'}, 
+    $self->t_add($ttype, $args{'list'}, $args{'command'}, $args{'user'}, 
                  $args{'victim'}, $args{'mode'}, $args{'cmdline'}, 
                  $approvals, $args{'chain1'}, $args{'chain2'}, $args{'chain3'},
                  $args{'approver'}, $args{'arg1'}, $args{'arg2'}, $args{'arg3'}, 
@@ -418,9 +418,9 @@ sub confirm {
     for $j (@recip) {
       if ($dest->{'approvals'} > 1 or scalar(@notify) > 1) {
         $token = 
-          $self->t_add('alias', $list, $args{'command'}, $args{'user'}, 
-                 $args{'victim'}, $args{'mode'}, $args{'cmdline'}, 
-                 1, $realtoken, $dest->{'group'}, '',
+          $self->t_add('alias', $args{'list'}, $args{'command'}, 
+                 $args{'user'}, $args{'victim'}, $args{'mode'}, 
+                 $args{'cmdline'}, 1, $realtoken, $dest->{'group'}, '',
                  '', $args{'arg1'}, $args{'arg2'}, $args{'arg3'}, 
                  $expire, $remind[$i]->[0], $remind[$i]->[1], 
                  $permanent, $args{'reasons'});
