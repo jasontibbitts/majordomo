@@ -166,6 +166,9 @@ Love, Jane
 
 ABC
 
+For security reasons, an administrative password is usually required to
+replace the contents of a posted message for a "confirm" token.
+
 
 See Also:
    help accept
