@@ -231,6 +231,7 @@ Auxiliary lists
 ---------------
 Convert the owners and bounce_recipients addresses into auxiliary
 lists to support address validation and access controls.
+(DEFAULT values should continue to be available.)
 
 Note that this has implications for how we choose moderator groups and
 such.  If we assume that the list is small, then we can just pull out the
@@ -271,25 +272,35 @@ cannot turn it off.  It should be very easy to make bounce_rules apply to
 GLOBAL.  Tracking of bounces may need to be turned off for GLOBAL, though.
 
 
-better MIME/attachment_rules handling
--------------------------------------
-attachment_rules is not currently flexible enough to handle the kinds of
-transformations that folks want.  Most important is the flattening of
-multipart/alternative, but folks also want HTML->text and RTF->text, both
-of which should have Perl modules.  Hooking them up should not be
-difficult.  Making attachment_rules accept some reasonable syntax might be
-difficult.
-
-Hey, there's a program for dealing with TNEF crap as well, but these days
-we don't see all that much of it.
+Registration files for first-time subscribers
+---------------------------------------------
+When an unregistered address is subscribed to a mailing list, it should
+be possible to mail a registration message, based upon the GLOBAL
+welcome_files setting, to that address automatically.
 
 
-Renaming a mailing list
------------------------
-Automatically handle archive file renaming, registry updates, and
-alias and configuration file regeneration to allow a list to change 
-names within a domain.
+Counting recipients
+-------------------
+In addition to using header length limits for posts, it should be
+possible to limit access based upon the number of recipients in the To
+and Cc headers.  In addition, the "References" header should be given
+special consideration, because it most frequently surpasses the header
+length limits.
 
+
+Repairing individual subscriber databases
+-----------------------------------------
+Because of the time required for the rekey command, the rekey-repair and
+rekey-verify options should have the option of examining or modifying a
+select number of mailing lists.
+
+
+Editing moderated messages with the wwwadm interface
+----------------------------------------------------
+In the wwwadm interface, the tokeninfo command displays the raw message,
+including all of the headers and attachments.  This could be improved to
+allow text parts to be edited, headers to be displayed more selectively,
+and attachments to be discarded.
 
 =======================
 Totally out there stuff
