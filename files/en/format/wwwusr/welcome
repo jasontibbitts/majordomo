@@ -28,7 +28,7 @@ When you finish this session, click the <b>Sign Out</b> link.
   <td>
 Click the <b>Mailing Lists</b> link to see a list of e-mail 
 lists at $DOMAIN.  From there, click the name of a list to see
-detailed information about that list, a link to the message archive,
+detailed information about that list, a link to the message archives,
 and a subscription form.
   </td>
 </tr>
@@ -138,6 +138,9 @@ The following documents give a good introduction.
 
   <dt>$HELP:LISTS</dt>
     <dd>How to get a list of mailing lists at $DOMAIN.</dd>
+
+  <dt>$HELP:PASSWORD</dt>
+    <dd>How to view or change your personal password.</dd>
 
   <dt>$HELP:REGISTER</dt>
     <dd>How to get a password without subscribing to a list.</dd>
