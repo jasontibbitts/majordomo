@@ -1,3 +1,11 @@
+2003-06-20  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (connect)  Close the session handle
+	explicitly to avoid potential descriptor leak.
+
+	* lib/Mj/Token.pm:  Improve error checking when 
+	_make_tokendb is called.
+
 2003-06-12  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwusr:  Give a clearer response when someone signs

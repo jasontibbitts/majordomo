@@ -350,6 +350,8 @@ sub connect {
 
   ($self->{sessionid}, $sfile, $dir1, $dir2) =
     $self->s_recognize($id, 'nocheck');
+
+  close $self->{'sessionfh'} if (exists $self->{'sessionfh'});
   $self->{sessionfh} = gensym();
 
   # Create directories if necessary, and open the session file;
@@ -369,6 +371,7 @@ sub connect {
       unless (open ($self->{sessionfh}, ">>$sfile"));  # XLANG
   }
 
+  # Autoflush
   select((select($self->{sessionfh}), $| = 1)[0]);
 
   # Do not log "Approved:" passwords
@@ -6953,7 +6956,10 @@ sub _showtokens {
     $mode =~ /(alias|async|confirm|consult|delay|probe)/;
 
   # We have access; open the token database and start pulling data.
-  $self->_make_tokendb;
+  # XLANG
+  return (0, "Unable to initialize token database.\n")
+    unless $self->_make_tokendb;
+
   $self->{'tokendb'}->get_start();
   while (1) {
     ($token, $data) = $self->{'tokendb'}->get(1);
