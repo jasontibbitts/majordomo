@@ -1,3 +1,15 @@
+Mon Jun 15 01:43:59 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Deliver/SMTP.pm (getresp): Accept and pass on $tomult.
+	(RCPT): Quintuple the timeout value.
+
+	* lib/Mj/Deliver/Connection.pm (getline): Add timeout multiplier.
+
+	* lib/Mj/Addr.pm (validate): Fix bug with !require_fqdn and
+ 	addresses with no '@'.
+
+	* Makefile.PL: Add and rearrange a couple of prerequisites.
+
 Sun Jun 14 01:01:36 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/File.pm (open): Allow modes beginning with 'U' to specify

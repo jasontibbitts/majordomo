@@ -81,15 +81,17 @@ sub send {
   $self->{'connection'}->print("$comm\r\n");
 }
 
-=head2 getresp(ignore_non_fatal_errors)
+=head2 getresp(ignore_non_fatal_errors, timeout_multiplier)
 
 Get the complete SMTP response to a command.  This parses out the error
 codes and handles continued lines properly.
 
-If the optional parameter is true, getresp will return -1 when encountering
-an error which is non-fatal.  This happens when an RCPT generates an error
-indicating that the address is somehow illegal; the transaction can
-continue but the address should not be retried.
+If the optional parameter $ignore is true, getresp will return -1 when
+encountering an error which is non-fatal.  This happens when an RCPT
+generates an error indicating that the address is somehow illegal; the
+transaction can continue but the address should not be retried.
+
+If $tomult is supplied, it will be used to scale the read timeout.
 
 Returns a list:
 
@@ -107,13 +109,14 @@ Will return the empty list if a socket read timed out.
 sub getresp {
   my $self   = shift;
   my $ignore = shift;
+  my $tomult = shift || 1;
   my $log = new Log::In 550;
   my ($code, $error, $message, $multi, $resp, $text);
 
   $message = "";
 
   while (1) {
-    $resp = $self->{'connection'}->getline;
+    $resp = $self->{'connection'}->getline($tomult);
     # Guard against read timeouts
     unless (defined $resp) {
       warn "Timed out getting response?";
@@ -178,7 +181,7 @@ Perform a complete SMTP command transaction.
 sub transact {
   my $self = shift;
   return 0 unless $self->send(shift);
-  $self->getresp;
+  $self->getresp(shift || 1);
 }
 
 =head2 SMTP commands
@@ -187,13 +190,16 @@ These implement the various SMTP and ESMTP commands that we care about:
 
 DATA, EHLO, HELO, MAIL, ONEX, RCPT, RSET, ".".
 
+Note that RCPT allows five times the normal timeout value, because some
+MTAs will wait for a DNS lookup to complete before returning.
+
 =cut
 sub DATA { shift->transact("DATA"                    )}
 sub EHLO { shift->transact("EHLO ".shift             )}
 sub HELO { shift->transact("HELO ".shift             )}
 sub MAIL { shift->transact("MAIL FROM: <".shift().">")}
 sub ONEX { shift->transact("ONEX"                    )}
-sub RCPT { shift->transact("RCPT TO: <".shift().">"  )}
+sub RCPT { shift->transact("RCPT TO: <".shift().">",5)}
 sub RSET { shift->transact("RSET"                    )}
 
 sub enddata {

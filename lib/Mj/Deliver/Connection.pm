@@ -71,7 +71,7 @@ sub print {
 =head2 getline
 
 This grabs a line from the connection, timing out (and returning undef)
-appropriately.
+appropriately.  If tomult is specified, it linearly scales the timeout.
 
 Because select and getline (and buffered input in general) don''t mix, we
 maintain our own buffer and read a chunk off of the socket whenever it is
@@ -84,10 +84,12 @@ original reason for this module, but...)
 =cut
 sub getline {
   my $self = shift;
+  my $tomult = shift || 1;
   my ($len);
   
   while(!length($self->{buffer}) || $self->{buffer} !~ /\n/) {
-    return undef unless $self->{outsel}->can_read($self->{timeout});
+    return undef
+      unless $self->{outsel}->can_read($self->{timeout}*$tomult);
     $len = $self->{outhandle}->sysread($self->{buffer}, 1024,
 				       length($self->{buffer}));
     return undef unless $len;

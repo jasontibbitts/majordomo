@@ -61,6 +61,7 @@ $VERSION = "1.0";
    'index'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'info'        => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'intro'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
+   'lists'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'put'         => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'rekey'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'showtokens'  => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
