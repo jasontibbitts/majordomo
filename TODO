@@ -233,6 +233,12 @@ such.  If we assume that the list is small, then we can just pull out the
 addresses.  But some features of sublists would then not be available.
 
 
+Access variables for moderators/owners
+--------------------------------------
+Barring the previous item, we should at least have $is_owner and
+$is_moderator access variables.
+
+
 BerkeleyDB database backend
 ---------------------------
 Instead of DB_File, use the BerkeleyDB module to gain access to the
