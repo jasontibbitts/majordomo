@@ -330,9 +330,9 @@ sub _eclass {
 
   # First deal with 'each'; this is the common case, so it comes first.
   # Use the 'P' and 'R' flags to determine the class name.
-  if ($class eq 'each') {
+  if ($class eq 'each' or $class eq 'unique') {
     $flags = $data->{flags};
-    return "each-" . (index($flags, 'P')<0 ? 'noprefix-' : 'prefix-') .
+    return "$class-" . (index($flags, 'P')<0 ? 'noprefix-' : 'prefix-') .
       (index($flags, 'R')<0 ? 'noreplyto' : 'replyto');
   }
 
