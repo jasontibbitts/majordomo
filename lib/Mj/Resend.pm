@@ -1376,7 +1376,7 @@ sub _r_ck_header {
 
 	  # Eval the code
 	  @matches = $safe->reval($code->{$l}{$k});
-	  warn $@ if $@;
+	  warn "Error processing $l:  $@" if $@;
 
 	  # Run over the matches that resulted
 	  while (($rule, $match, $sev, $class, $inv) = splice(@matches, 0, 5)) {
@@ -1609,9 +1609,9 @@ sub _r_strip_body {
 
   # Create a Safe compartment
   my ($safe) = new Safe;
-  $safe->permit_only(qw(aassign const gt le leaveeval lineseq list 
-                        not null padany push pushmark return rv2sv 
-                        stub subst undef));
+  $safe->permit_only(qw(aassign and const gt le leaveeval lineseq list 
+                        match not null padany push pushmark return 
+                        rv2sv stub subst undef));
   $safe->share(qw($level));
   local ($_);
   @newparts = ();
@@ -1625,6 +1625,8 @@ sub _r_strip_body {
       $char = $i->head->mime_attr('content-type.charset') 
                 || 'iso-8859-1';
       ($verdict, $xform) = $safe->reval($code);
+      warn "Error filtering type $mt:  $@" if $@;
+
       if ($verdict eq 'allow') {
         push @newparts, $i;
       }
@@ -1723,6 +1725,7 @@ sub _r_strip_body {
     $char = $ent->head->mime_attr('content-type.charset') 
               || 'iso-8859-1';
     ($verdict, $xform) = $safe->reval($code);
+    warn "Error filtering type $mt:  $@" if $@;
 
     if ($verdict eq 'format') {
       $log->message(50, 'info', "Formatting MIME type $mt");
@@ -1979,7 +1982,7 @@ sub _check_mime {
   # Evaluate the matching code
   $_      = $type;
   $action = $safe->reval($code);
-  $::log->complain($@) if $@;
+  warn "Error processing type $type:  $@" if $@;
   if ($action eq 'consult') {
     push @$reasons, $self->format_error('body_part_consult', $list,
                                         'PART' => $part,
