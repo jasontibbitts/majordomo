@@ -1277,8 +1277,8 @@ sub _check_header {
   # admin_headers, and noarchive_headers settings.
   for $i (keys %$invars) {
     ($k, $l, $rule, $sev, $class) = split('\t', $i);
-    _describe_taboo($reasons, $avars, $k, $l, $rule, undef, undef, $sev,
-		    $class, 1)
+    $self->describe_taboo($reasons, $avars, $k, $l, $rule, 
+                          undef, undef, $sev, $class, 1);
   }
 
   1;
@@ -1386,8 +1386,8 @@ sub _r_ck_header {
 	      delete $invars->{"$k\t$l\t$rule\t$sev\t$class"};
 	    }
 	    else {
-	      _describe_taboo($reasons, $avars, $k, $l, $rule, $match,
-			      undef, $sev, $class, $inv);
+	      $self->describe_taboo($reasons, $avars, $k, $l, $rule, 
+                                    $match, undef, $sev, $class, $inv);
 	    }
 	  }
 	}
@@ -1465,8 +1465,8 @@ sub _check_body {
   # Now look at what's left in %$inv and build reasons from it
   for $i (keys %$inv) {
     ($l, $var, $rule, $sev, $class) = split('\t', $i);
-    _describe_taboo($reasons, $avars, $list, $var, $rule, undef, undef,
-		    $sev, $class, 1)
+    $self->describe_taboo($reasons, $avars, $list, $var, $rule, 
+                          undef, undef, $sev, $class, 1);
   }
 }
 
@@ -1514,8 +1514,8 @@ sub _r_ck_body {
     # Call the taboo matcher on the line if we're not past the max line;
     # pay attention to $max == 0 case
     if (!$max || $line <= $max) {
-      _ck_tbody_line($list, $reasons, $avars, $safe, $tcode, $inv, $line,
-		     $text);
+      $self->_ck_tbody_line($list, $reasons, $avars, $safe, $tcode, 
+                            $inv, $line, $text);
     }
 
     # Update checksum counters.  The partial checksum only applies
@@ -1858,11 +1858,13 @@ sub clean_text {
 
 =head2 _ck_tbody_line
 
-This checks a line from the message against the prebuilt taboo code from
-the config file.
+This method checks a line from the message against the prebuilt taboo
+code from the taboo_body, admin_body, or noarchive_body configuration
+settings.
 
 =cut
 sub _ck_tbody_line {
+  my $self    = shift;
   my $list    = shift;
   my $reasons = shift;
   my $avars   = shift;
@@ -1891,8 +1893,8 @@ sub _ck_tbody_line {
 	  delete $inv->{"$i\t$j\t$rule\t$sev\t$class"};
 	}
 	else {
-	  _describe_taboo($reasons, $avars, $i, $j, $rule, $match,
-			  $line, $sev, $class, $invert);
+	  $self->describe_taboo($reasons, $avars, $i, $j, $rule, 
+                                $match, $line, $sev, $class, $invert);
 	}
       }
     }
@@ -1947,81 +1949,6 @@ sub _check_mime {
     $avars->{mime_require} = 1;
     $log->out('require');
   }
-}
-
-=head2 _describe_taboo
-
-Takes the various results from a taboo match (i.e. what an eval of thematch
-code returns), builds the proper descriptions and such, and modifies the
-supplied array and hashrefs to reflect the reasons and the variables given
-in the match data.
-
-Note that there is no return value, other than the modification of reasons
-and avars.
-
-=cut
-sub _describe_taboo {
-  my $reasons = shift;
-  my $avars   = shift;
-  my ($list, $var, $rule, $match, $line, $sev, $class, $inv) = @_;
-  my $log = new Log::In 300, "$list, $var, $class";
-  my ($global, $name, $reason, $trunc, $type);
-
-  # Make sure messages are pretty
-  $match =~ s/\s+$// if defined $match;
-
-  # Remove ^A characters, the token database field separator.
-  $match =~ s/\001//g if defined $match;
-
-  # Chomp the match down to something manageable, so we don't get hideously
-  # long strings in bounce messages.  Include a bit more than the length of
-  # a standard line here.
-  $trunc = '';
-  if (defined($match) && length($match) > 100) {
-    $match = substr($match, 0, 100);
-    # XLANG
-    $trunc = ' (truncated)';
-  }
-
-  # Build match type and set the appropriate access variable
-  if ($list eq 'GLOBAL') {
-    $type = 'global_';
-    $global = 1;
-  }
-
-  if ($var =~ /^([a-z]+)_/i) {
-    $name = $1;
-  }
-  else {
-    $name = $var;
-  }
-
-  $type .= "${name}_${class}";
-  $avars->{$type} += $sev;
-
-  # Set bounce variables and push a reason; note that classes in upper case
-  # don't generate reasons.
-  unless ($class eq uc($class)) {
-    $type =~ s/\_/ /g; # underscores to spaces
-    if ($inv) {
-      # XLANG
-      $reason = uc("inverted $type") . ": $rule failed to match";
-    }
-    elsif ($line) {
-      # XLANG
-      $reason = uc($type) . ": $rule matched \"$match\"$trunc at line $line";
-    }
-    else {
-      # XLANG
-      $reason = uc($type) . ": $rule matched \"$match\"$trunc";
-    }
-    push @$reasons, $reason;
-
-    # Bump the combined match variables
-    $avars->{$name} += $sev;
-  }
-
-  1;
 }
 
 =head2 _trim_approved
