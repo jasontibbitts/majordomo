@@ -121,9 +121,9 @@ sub ask_basic {
   if ($have{'DBI'} && ($have{'DBD::Pg'} || $have{'DBD::mysql'})) {
     # SQL support is not implemented.
     #
-    # $db = 'sql';
-    # unshift @backends, 'sql';
-    # $msg .= retr_msg('database_sql', $lang);
+    $db = 'sql';
+    unshift @backends, 'sql';
+    $msg .= retr_msg('database_sql', $lang);
   }
  
   if ($have{'DB_File'}) {

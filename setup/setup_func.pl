@@ -209,7 +209,6 @@ sub do_site_config {
   $data = {
 	   'site_password'      => $pw,
 	   'install_dir'        => $config->{'install_dir'},
-	   'database_backend'   => $config->{'database_backend'},
 	   'mta'                => $config->{'mta'},
 	   'mta_options'        => $mtaopts,
 	   'mta_separator'      => $config->{'mta_separator'},
@@ -217,6 +216,11 @@ sub do_site_config {
 	   'cgi_url'            => $config->{'cgi_url'},
 	   'queue_mode'         => $config->{'queue_mode'},
 	  };
+  if ($config->{'database_backend'} ne 'sql') {
+    $data->{'database_backend'} = $config->{'database_backend'};
+  } else {
+    $data->{'database_backend'} = $config->{'database'}{'type'};
+  }
 
   # Open the site config file
   open SITE, ">$config->{'lists_dir'}/SITE/config.pl"
