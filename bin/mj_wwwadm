@@ -47,7 +47,7 @@ use Mj::TextOutput;
 use Mj::Addr;
 
 my ($cgi, $domain, $mj, $ok, $sess, $token);
-my ($ofunc, $func, $user, $passw, $mode, $list, $vict, $extra);
+my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, $vict, $extra);
 my ($line, $st, $file, $fh, $cgiurl, $cmdform, $localpart);
 
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
@@ -81,11 +81,19 @@ $mj = new Majordomo $::LISTDIR, $domain;
 $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
 
 # Generate the session information
-for my $i ('REMOTE_ADDR','REMOTE_PORT') {
+for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
   $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
 }
 $sess .= scalar(localtime(time)) . "\n";
+# XXX Check result
 $mj->connect('mj_wwwadm', $sess);
+
+$pathinfo = 'GLOBAL';
+if (exists $ENV{'PATH_INFO'}) {
+  $pathinfo = $ENV{'PATH_INFO'};
+  $pathinfo =~ m#/([^/\s]+)#;
+  $pathinfo = $1;
+}
 
 # GET poses a security risk due to passwords being visible
 # Set HTML form variables
@@ -93,13 +101,13 @@ $ofunc   = $cgi->param('func') || "help";
 $localpart = $ENV{'REMOTE_ADDR'} || "mj_wwwadm";
 $user    = new Mj::Addr("$localpart\@example.com");
 $passw   = $cgi->param('passw') || '';
-$list    = $cgi->param('list') || 'GLOBAL';
+$list    = $cgi->param('list') || $pathinfo;
 $extra   = $cgi->param('extra') || '';
 $st      = $cgi->param('st') || '';
 if ($st eq 'on') { $st = 'checked'; }
 
 # Extract "mode" from command name
-if ($ofunc =~ /([^\s-]+)-(.*)/) {
+if ($ofunc =~ /([^\s=-]+)[=-](.*)/) {
   $func = $1;
   $mode = $2;
 }
@@ -127,6 +135,7 @@ command:
 <option> lists-aux
 <option> reject
 <option> sessioninfo
+<option> set
 <option> showtokens
 <option> subscribe
 <option> subscribe-nowelcome
@@ -135,6 +144,7 @@ command:
 <option> unregister
 <option> which
 <option> who-enhanced
+<option> about this service
 </select>
 <input size=24 name=extra value="$extra">
 <input type=checkbox name=st $st>show pending requests<br>
@@ -160,6 +170,11 @@ EOM
 
 print $cmdform;
 
+if (! $cgi->param('func') or $func =~ /about/) {
+  &usage($mj);
+  exit 0;
+}
+
 no strict 'refs';
 # Make sure the command is valid
 unless (defined ${Mj::TextOutput::}{$func}) {
@@ -167,15 +182,11 @@ unless (defined ${Mj::TextOutput::}{$func}) {
   $::log->message(50, "info",  "Invalid command $func in form data.");
   exit 0;
 }
+
 # Make sure the list name is valid
 if ($list ne '') {
-  # $mj->get_all_lists($user, $passw, undef, "mj_wwwadm");
-  if ((-d "$mj->{'ldir'}/$list" and $mj->legal_list_name($list))
-        or $list eq 'ALL') {
-    # untaint for locks and configuration changes
-    $list =~ /(.*)/; $list = $1;
-  }
-  else {
+  unless ((-d "$mj->{'ldir'}/$list" and ($list = $mj->legal_list_name($list)))
+           or $list eq 'ALL') {
     print "<h3>Invalid list name: $list</h3>\n";
     $::log->message(50, "info",  "Invalid list $list in form data.");
     exit 0; 
@@ -308,6 +319,104 @@ EOM
 EOM
 }
 
+sub usage {
+  my ($mj) = shift;
+  my $site  = $mj->_global_config_get('site_name');
+  my $serveraddr = $mj->_global_config_get('whoami');
+  my $serveradmin = $mj->_global_config_get('whoami_owner');
+
+  print <<EOM;
+Welcome to $site!  This is the Majordomo 2 administrative interface
+for the $list mailing list.  Below you will learn how it works.
+It is always possible to return to this introduction by choosing
+"about this service" from the menu above and pressing the 
+"Issue command" button.
+<p>
+At the top of this page is a form that will allow you to issue 
+most of the commands you will need to administrate a mailing list.
+To use it, first choose a command from the command menu.
+Some commands, like "lists-aux," have a hyphen in their names.
+The part that comes after the hyphen is called the "command mode."
+Some of the commands may be unfamiliar to you.
+<p>
+To learn more about a particular command, choose "help" in 
+the menu above, then type the name of the command without
+the command mode in the box immediately to the right.
+Finally, press the "Issue command" button, and you will
+see a summary of how the command works.  You can get the
+same summary by sending the <b>help</b> command in the body of
+an e-mail message to 
+<a href="mailto:$serveraddr">$serveraddr</a>.
+<p>
+Most commands require a password, so please type the password
+for the $list mailing list into the <b>password:</b> box at the 
+top of the page.  If you wish to administer a different list,
+simply type its name into the <b>mailing list:</b> box.
+<p>
+The command form at the top of the page will always appear
+when you issue a command.  If the <b>show pending requests</b>
+button is pressed, you will also see at the bottom of the page
+all of the pending requests for your list.  Requests can
+be any number of things:  a subscription or set request that
+one of your subscribers has not yet confirmed, a request
+for help that was sent to the mailing list by mistake, or
+a posted message that is held for your approval because a
+header line was too long, for example.
+<p>
+If there are no pending requests, you will see a message like
+<pre>
+No tokens for $list.
+</pre>
+However, if there are requests available, you will see a form
+that looks like this:
+<form method=POST action="/cgi-bin/test-cgi">
+<input type=submit name=func value="tokeninfo-full">
+<input type=submit name=func value="tokeninfo">
+<input type=submit name=func value="accept">
+<input type=submit name=func value="accept-archive">
+<input type=submit name=func value="reject">
+<input type=hidden name=st value=>
+<input type=hidden name=list value=$list>
+<input type=hidden name=passw value=yourpassword>
+<br>
+Choose one request from the list below,
+then press one of the buttons above.
+<pre>
+<input type=radio name=extra value=13D7-C445-6A37>13D7-C445-6A37 post   2000-05-12 20:27:46 Someone You Know &lt;someone\@example.com&gt;
+<input type=radio name=extra value=8E49-E388-BADC>8E49-E388-BADC post   2000-05-13 10:27:46 Someone New &lt;unknown\@example.org&gt;
+2 tokens shown.
+</pre>
+</form>
+In the list of requests, the first column lists the "token ID," which 
+is unique to that request.  Next is the type of request.  Generally,
+<b>subscribe</b> and <b>set</b> requests need to be confirmed by
+the subscribers themselves, but any other request should be handled 
+by the list owners.  The remaining columns contain the date of
+the request and the e-mail address of the person who made it.
+<p>
+There are five buttons available to deal with a pending request.
+<ol>
+<li>The tokeninfo-full button will show the headers of the message
+that caused the request, plus the message itself if the request
+is a <b>post</b>.
+<li>The tokeninfo button will show the headers of the message
+and a summary of the request.
+<li>The accept button will approve the request.
+<li>The accept-archive button will approve the request, but
+if it is a <b>post</b>, the message will be stored in
+the archive but not distributed to the subscribers.
+<li>The reject button will deny the request.
+</ol>
+Requests will eventually expire unless someone handles them.
+By default, the lifetime of a token is one week.
+<p>
+If you have questions about this interface, send mail to your
+site administrator at 
+<a href="mailto:$serveradmin">$serveradmin</a>.
+</body>
+</html>
+EOM
+}
 =head1 COPYRIGHT
 
 Copyright (c) 2000 Jason Tibbitts for The Majordomo Development
