@@ -1,0 +1,11 @@
+<!-- Majordomo alias format file -->
+<p>
+The alias command succeeded.
+</p>
+
+<p>
+  $VICTIM
+is now an alias for
+  $USER
+</p>
+

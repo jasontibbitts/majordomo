@@ -562,6 +562,8 @@ files/en/format/text/.accept_error
 files/en/format/text/.accept_foot
 files/en/format/text/.accept_head
 files/en/format/text/.accept_stall
+files/en/format/text/.alias
+files/en/format/text/.alias_error
 files/en/format/text/.archive_attachment
 files/en/format/text/.archive_container
 files/en/format/text/.archive_edit_foot
@@ -658,6 +660,8 @@ files/en/format/text/.tokeninfo_remind
 files/en/format/text/.tokeninfo_replace
 files/en/format/text/.tokeninfo_text_foot
 files/en/format/text/.tokeninfo_text_head
+files/en/format/text/.unalias
+files/en/format/text/.unalias_error
 files/en/format/text/.unregister
 files/en/format/text/.unregister_error
 files/en/format/text/.unsubscribe
@@ -671,6 +675,8 @@ files/en/format/text/accept_error
 files/en/format/text/accept_foot
 files/en/format/text/accept_head
 files/en/format/text/accept_stall
+files/en/format/text/alias
+files/en/format/text/alias_error
 files/en/format/text/archive_attachment
 files/en/format/text/archive_container
 files/en/format/text/archive_edit_foot
@@ -767,6 +773,8 @@ files/en/format/text/tokeninfo_remind
 files/en/format/text/tokeninfo_replace
 files/en/format/text/tokeninfo_text_foot
 files/en/format/text/tokeninfo_text_head
+files/en/format/text/unalias
+files/en/format/text/unalias_error
 files/en/format/text/unregister
 files/en/format/text/unregister_error
 files/en/format/text/unsubscribe
@@ -780,6 +788,8 @@ files/en/format/wwwadm/.accept_error
 files/en/format/wwwadm/.accept_foot
 files/en/format/wwwadm/.accept_head
 files/en/format/wwwadm/.accept_stall
+files/en/format/wwwadm/.alias
+files/en/format/wwwadm/.alias_error
 files/en/format/wwwadm/.archive_attachment
 files/en/format/wwwadm/.archive_container
 files/en/format/wwwadm/.archive_edit_foot
@@ -885,6 +895,8 @@ files/en/format/wwwadm/.tokeninfo_remind
 files/en/format/wwwadm/.tokeninfo_replace
 files/en/format/wwwadm/.tokeninfo_text_foot
 files/en/format/wwwadm/.tokeninfo_text_head
+files/en/format/wwwadm/.unalias
+files/en/format/wwwadm/.unalias_error
 files/en/format/wwwadm/.unregister
 files/en/format/wwwadm/.unregister_error
 files/en/format/wwwadm/.unsubscribe
@@ -901,6 +913,8 @@ files/en/format/wwwadm/accept_error
 files/en/format/wwwadm/accept_foot
 files/en/format/wwwadm/accept_head
 files/en/format/wwwadm/accept_stall
+files/en/format/wwwadm/alias
+files/en/format/wwwadm/alias_error
 files/en/format/wwwadm/archive_attachment
 files/en/format/wwwadm/archive_container
 files/en/format/wwwadm/archive_edit_foot
@@ -1007,6 +1021,8 @@ files/en/format/wwwadm/tokeninfo_remind
 files/en/format/wwwadm/tokeninfo_replace
 files/en/format/wwwadm/tokeninfo_text_foot
 files/en/format/wwwadm/tokeninfo_text_head
+files/en/format/wwwadm/unalias
+files/en/format/wwwadm/unalias_error
 files/en/format/wwwadm/unregister
 files/en/format/wwwadm/unregister_error
 files/en/format/wwwadm/unsubscribe
@@ -1023,6 +1039,8 @@ files/en/format/wwwconfirm/.accept_error
 files/en/format/wwwconfirm/.accept_foot
 files/en/format/wwwconfirm/.accept_head
 files/en/format/wwwconfirm/.accept_stall
+files/en/format/wwwconfirm/.alias
+files/en/format/wwwconfirm/.alias_error
 files/en/format/wwwconfirm/.archive_attachment
 files/en/format/wwwconfirm/.archive_container
 files/en/format/wwwconfirm/.archive_edit_foot
@@ -1109,6 +1127,8 @@ files/en/format/wwwconfirm/.tokeninfo_remind
 files/en/format/wwwconfirm/.tokeninfo_replace
 files/en/format/wwwconfirm/.tokeninfo_text_foot
 files/en/format/wwwconfirm/.tokeninfo_text_head
+files/en/format/wwwconfirm/.unalias
+files/en/format/wwwconfirm/.unalias_error
 files/en/format/wwwconfirm/.unregister
 files/en/format/wwwconfirm/.unregister_error
 files/en/format/wwwconfirm/.unsubscribe
@@ -1123,6 +1143,8 @@ files/en/format/wwwconfirm/accept_error
 files/en/format/wwwconfirm/accept_foot
 files/en/format/wwwconfirm/accept_head
 files/en/format/wwwconfirm/accept_stall
+files/en/format/wwwconfirm/alias
+files/en/format/wwwconfirm/alias_error
 files/en/format/wwwconfirm/archive_attachment
 files/en/format/wwwconfirm/archive_container
 files/en/format/wwwconfirm/archive_edit_foot
@@ -1209,6 +1231,8 @@ files/en/format/wwwconfirm/tokeninfo_remind
 files/en/format/wwwconfirm/tokeninfo_replace
 files/en/format/wwwconfirm/tokeninfo_text_foot
 files/en/format/wwwconfirm/tokeninfo_text_head
+files/en/format/wwwconfirm/unalias
+files/en/format/wwwconfirm/unalias_error
 files/en/format/wwwconfirm/unregister
 files/en/format/wwwconfirm/unregister_error
 files/en/format/wwwconfirm/unsubscribe
@@ -1218,6 +1242,8 @@ files/en/format/wwwconfirm/who
 files/en/format/wwwconfirm/who_error
 files/en/format/wwwconfirm/who_foot
 files/en/format/wwwconfirm/who_head
+files/en/format/wwwusr/.alias
+files/en/format/wwwusr/.alias_error
 files/en/format/wwwusr/.archive_attachment
 files/en/format/wwwusr/.archive_container
 files/en/format/wwwusr/.archive_edit_foot
@@ -1273,12 +1299,16 @@ files/en/format/wwwusr/.show_none
 files/en/format/wwwusr/.subscribe
 files/en/format/wwwusr/.subscribe_error
 files/en/format/wwwusr/.subscribe_none
+files/en/format/wwwusr/.unalias
+files/en/format/wwwusr/.unalias_error
 files/en/format/wwwusr/.unregister
 files/en/format/wwwusr/.unregister_error
 files/en/format/wwwusr/.unsubscribe
 files/en/format/wwwusr/.unsubscribe_error
 files/en/format/wwwusr/.welcome
 files/en/format/wwwusr/accept
+files/en/format/wwwusr/alias
+files/en/format/wwwusr/alias_error
 files/en/format/wwwusr/archive_attachment
 files/en/format/wwwusr/archive_container
 files/en/format/wwwusr/archive_edit_foot
@@ -1335,6 +1365,8 @@ files/en/format/wwwusr/subscribe
 files/en/format/wwwusr/subscribe_error
 files/en/format/wwwusr/subscribe_none
 files/en/format/wwwusr/template
+files/en/format/wwwusr/unalias
+files/en/format/wwwusr/unalias_error
 files/en/format/wwwusr/unregister
 files/en/format/wwwusr/unregister_error
 files/en/format/wwwusr/unsubscribe
