@@ -2,6 +2,10 @@ The moderator of the $LIST list has rejected your request:
 
 $CMDLINE
 
+which you made on
+
+$DATE
+
 If a reason was given, it appears below:
 
 $MESSAGE

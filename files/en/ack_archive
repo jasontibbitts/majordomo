@@ -4,4 +4,4 @@ Your message to the $LIST list, posted on
 with subject
   $SUBJECT
 
-has been successfully delivered to all recipients.
+has been archived but not delivered to all recipients.

@@ -94,6 +94,7 @@ files/de/token_reject
 files/de/token_reject_owner
 files/de/token_remind
 files/de/welcome
+files/en/ack_archive
 files/en/ack_denial
 files/en/ack_rejection
 files/en/ack_stall

@@ -3,10 +3,11 @@
 $files =
   {
    # english generic files
+   'en/ack_archive'                                   => ['Archived post to $LIST',                   'us-ascii', '7bit'],
    'en/ack_denial'                                    => ['Denied post to $LIST',                     'us-ascii', '7bit'],
    'en/ack_rejection'                                 => ['Rejection of Majordomo Request "$REQUEST"','us-ascii', '7bit'],
    'en/ack_stall'                                     => ['Stalled post to $LIST',                    'us-ascii', '7bit'],
-   'en/ack_success'                                   => ['Success',                                  'us-ascii', '7bit'],
+   'en/ack_success'                                   => ['Successful post to $LIST',                 'us-ascii', '7bit'],
    'en/ack_timeout'                                   => ['Timeout',                                  'us-ascii', '7bit'],
    'en/digest_preindex'                               => ['Index',                                    'us-ascii', '7bit'],
    'en/faq'                                           => ['Default faq reply',                        'us-ascii', '7bit'],
