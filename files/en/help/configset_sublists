@@ -8,3 +8,31 @@ Data Type     : sublist_array
 Variable Group: lists
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset foodgroups sublists <<ENDTAG
+dairy : moo-based consumables
+vegetables : dug up or cut down
+fruit : pull hard
+chocolate : 5 portions daily
+beer : to wash the taste of vegetables away
+ENDTAG
+
+
+The sublists setting is used to explicitly state which auxiliary
+lists are given aliases and displayed by the lists-aux command.
+Each line contains a sublist name (the sublist must already exist)
+followed by an optional colon and description. The description is
+used in the output of the lists-aux command.
+
+If the 'A' flag is used in the aliases configuration, only auxiliary
+lists mentioned here will be given aliases (see "help configset aliases"). 
+
+
+See Also:
+   help lists
+   help configset aliases
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
