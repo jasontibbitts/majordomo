@@ -13,9 +13,10 @@ require "setup/ask_domain.pl";
 require "setup/query_util.pl";
 require "setup/install_util.pl";
 require "setup/setup_func.pl";
+use vars qw($config);
 my (@domains, $newdomain);
 
-my ($config) = eval { require ".mj_config" };
+$config = eval { require ".mj_config" };
 die "Can't add a domain unless Makefile.PL has been run!"
   unless $config;
 
@@ -66,6 +67,7 @@ while (1) {
               scalar getgrnam($config->{'gid'}),
               $config->{'umask'},
              );
+  print ".ok\n";
 
   do_default_config($newdomain);
   install_config_templates($config, $newdomain);

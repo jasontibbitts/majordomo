@@ -1,7 +1,7 @@
 # This file contains routines used by the postinstall script to do initial
 # site and domain setup.
 
-use vars(qw($msg0 $msg4 $config $quiet $verb));
+use vars(qw($config $msg0 $msg4 $quiet $verb));
 
 $msg0 = <<EOM;
 
@@ -89,8 +89,7 @@ sub create_dirs_dom {
   print DF "Spooled Files\nd\n\n\n\n\n";
   close DF;
   dot();
-  chownmod(scalar getpwnam($config->{'uid'}), scalar getgrnam($config->{'gid'}),
-           (0777 & ~oct($config->{'umask'})), "$l/$d/GLOBAL/files/.spool");
+  chownmod($uid, $gid, (0777 & ~oct($um)), "$l/$d/GLOBAL/files/.spool");
   dot();
 
   open DF, ">$l/$d/GLOBAL/files/.public"
@@ -98,8 +97,7 @@ sub create_dirs_dom {
   print DF "Public Files\nd\n\n\n\n\n";
   close DF;
   dot();
-  chownmod(scalar getpwnam($config->{'uid'}), scalar getgrnam($config->{'gid'}),
-           (0777 & ~oct($config->{'umask'})), "$l/$d/GLOBAL/files/.public");
+  chownmod($uid, $gid, (0777 & ~oct($um)), "$l/$d/GLOBAL/files/.public");
   dot();
 }
 

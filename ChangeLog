@@ -7,6 +7,9 @@
 	* lib/Mj/MTAConfig.pm:  (add_alias)  Correct the VUT entries
 	for -(un)subscribe addresses.  Thanks to Roger Klorese.
 
+	* setup/newdomain.pl:  Bugfix:  Consider $config a global
+	variable.  Thanks to Roger Klorese.
+
 2001-07-04  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Format.pm:  (lists)  Use an empty string instead
