@@ -32,6 +32,11 @@ Where you can use a SIMPLE pattern, enclose it in "double quotes":
 where the trailing 'i' specifies case insensitivity, and without
 it upper and lower case characters are considered to be unique.
 
+Patterns in Majordomo can OFTEN (but not necessarily always) be
+negated with a leading "!". See the example below, and contact the
+developers if you believe there is a place where inverted matching
+makes sense but doesn't seem to work.
+
 If you need more complicated matching, enclose it in %percent signs%:
   %user@*example.com%i
 where an asterisk matches any number of any character.
@@ -98,11 +103,6 @@ regexps and if they have syntax errors relating to unescaped '@' symbols,
 they are all escaped and the pattern is checked again.  This solves the
 bulk of the problems.  Be careful, though, when writing Perl code; the
 enhanced Majordomo regexps will only provide you with syntax errors.
-
-Perl regexps in Majordomo can OFTEN (but not necessarily always) be
-negated with a leading "!". See the example below, and contact the
-developers if you believe there is a place where inverted matching
-makes sense but doesn't seem to work.
 
 What follows is a basic discussion of Perl regular expressions.  All '@'
 symbols will be shown escaped for correctness.  For more information,
