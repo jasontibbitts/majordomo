@@ -126,7 +126,7 @@ sub idx_subject {
   return "  $sub\n";
 }
 
-=head2 idx_wasilko
+=head2 idx_subject_author
 
 This formats an index line like the following:
 
@@ -138,7 +138,7 @@ This formats an index line like the following:
 Original code by Jeff Wasilko. '
 
 =cut
-sub idx_wasilko {
+sub idx_subject_author {
   my ($type, $msg, $data) = @_;
   my ($from, $sub, $width);
 

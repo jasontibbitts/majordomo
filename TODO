@@ -79,6 +79,17 @@ access variables.
 
 ---- Alpha 2 Release ----
 
+! Database: Mj::DBM
+  
+  Thin wrapper around AnyDBM_File; prefers (via @ISA trick) DB_File,
+  GDBM_File, NDBM_File, ODBM_File, SDBM_File.
+
+  Automatically handle locking using Mj::Lock.
+
+  Provide tied interface?
+  
+ 
+
 ! Auto-maintain aliases:
   Add 'del_one' in Mj::MTAConfig::Sendmail; opens a filerepl and copies the
   alias file until the opening comment is hit, then it skips until after the

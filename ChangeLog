@@ -1,3 +1,11 @@
+Tue Feb  2 22:10:27 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Digest/Build.pm (idx_subject_author): Renamed from
+ 	idx_wasilko.
+
+	* lib/Majordomo.pm (get_done): Fix undef warning; don't unlink
+ 	temporaries if there were none to unlink.
+
 Mon Feb  1 13:09:50 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Resend.pm (_exclude): Make sure not to try to canonize

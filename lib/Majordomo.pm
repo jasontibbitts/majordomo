@@ -1389,7 +1389,7 @@ sub get_done {
   my $self = shift;
   my $log = new Log::In 50;
   return unless $self->{'get_fh'};
-  unlink @{$self->{'get_temps'}};
+  unlink @{$self->{'get_temps'}} if $self->{'get_temps'};
   undef $self->{'get_fh'};
   undef $self->{'get_temps'};
   undef $self->{'get_subst'};
