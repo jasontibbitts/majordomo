@@ -1,3 +1,9 @@
+2001-01-20  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (p_expire)  Remove old data from the
+	parser database, using the session_lifetime setting for
+	the cutoff age.
+
 2001-01-18  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_archive)  Add support for summary mode,

@@ -1447,6 +1447,53 @@ sub common_subs {
   (1, $out);
 }
       
+=head2 p_expire
+
+This removes all parser database entries older that the GLOBAL
+'session_lifetime' setting in days.  The parser database is
+used to keep track of requests without valid commands, to prevent
+mail loops.
+
+=cut
+sub p_expire {
+  my $self = shift;
+  my $log = new Log::In 60;
+  my $days = $self->_global_config_get('session_lifetime') || 1;
+  return unless (defined $days and $days >= 0);
+  my $now = time;
+  my ($expiretime) = $now - (86400 * $days);
+
+  $self->_make_parser_data;
+  return unless $self->{'parserdata'};
+
+  my $mogrify = sub {
+    my $key  = shift;
+    my $data = shift;
+    my (@b1, @b2, $b, $t);
+
+    # Fast exit if we have no post data
+    return (0, 0) if !$data->{events};
+
+    # Expire old posted message data.
+    @b1 = split(/\s+/, $data->{events});
+    while (1) {
+      $b = pop @b1; last unless defined $b;
+      ($t) = $b =~ /^(\d+)\w/;
+      next if $t < $expiretime;
+      push @b2, $b;
+    }
+    $data->{events} = join(' ', @b2);
+
+    # Update if necessary
+    if (@b2) {
+      return (0, 1, $data);
+    }
+    return (0, 0);
+  };
+
+  $self->{'parserdata'}->mogrify($mogrify);
+}
+
 =head2 s_expire
 
 Miscellaneous internal function.
@@ -1460,6 +1507,7 @@ sub s_expire {
   my $self = shift;
   my $log = new Log::In 60;
   my $days = $self->_global_config_get('session_lifetime');
+  return unless (defined $days and $days >= 0);
   my $now = time;
   my (@nuke, $dh, $dir, $i, $time);
 
@@ -5629,9 +5677,10 @@ sub trigger {
                     $tmp->[0], 0, 0, $mess, $::log->elapsed - $elapsed);
     }
   }
-  # Mode: daily or session - expire session data
+  # Mode: daily or session - expire session and parser data
   if ($mode =~ /^(da|s)/ or grep {$_ eq 'session'} @ready) {
     $self->s_expire;
+    $self->p_expire;
   }
   # Mode: daily or log - expire log entries
   if ($mode =~ /^(da|l)/ or grep {$_ eq 'log'} @ready) {
