@@ -422,8 +422,12 @@ See "help reply_files" for a description of each of the reply files.
   value comes from the sequence_number configuration setting (see
   "help configset_sequence_number" for more information).
 
+\$SESSIONUSER
+  The e-mail address of the person who initiated a majordomo session.
+
 \$SETTING
-  The name of a configuration setting category, in capital letters.
+  The name of a configuration setting category, in capital letters,
+  or the name of a configuration setting.
 
 \$SETTINGS
   The names of the configuration settings within a particular 
