@@ -477,6 +477,9 @@ sub login {
   my ($str, $tmp);
 
   $subs->{'ERROR'} = $message;
+  $subs->{'COMMAND'} = "welcome"
+   if ($subs->{'COMMAND'} eq "login");
+
   if ($message) {
     $::log->message(50, "info", $message);
     $mj->inform('GLOBAL', 'connect', $subs->{'USER'}, 
