@@ -325,7 +325,7 @@ sub configset {
 sub configshow {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
-  my ($array, $auto, $enum, $gen, $gsubs, $list, $mess, 
+  my ($array, $auto, $enum, $gen, $gsubs, $isauto, $list, $mess, 
       $mode, $mode2, $ok, $short, $str, $subs,
       $tag, $tmp, $val, $var, $varresult);
 
@@ -373,7 +373,8 @@ sub configshow {
 
   if ($request->{'mode'} !~ /categories/) {
     $subs = {};
-    $gsubs->{'COMMENT'} = ($request->{'mode'} !~ /nocomments/) ? '#' : '';
+    $gsubs->{'COMMENTS'} = ($request->{'mode'} !~ /nocomments/) ? '#' : '';
+    $subs->{'COMMENTS'} = ($request->{'mode'} !~ /nocomments/) ? '#' : '';
     $tmp = $mj->format_get_string($type, 'configshow_head');
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
@@ -381,9 +382,9 @@ sub configshow {
   else {
     $subs = { %$gsubs };
     $subs->{'CATEGORIES'} = [];
-    $subs->{'COMMENT'} = [];
     $subs->{'COUNT'} = [];
   }
+  $subs->{'COMMENT'} = [];
 
   $gen   = $mj->format_get_string($type, 'configshow');
   $array = $mj->format_get_string($type, 'configshow_array');
@@ -391,7 +392,7 @@ sub configshow {
   $short = $mj->format_get_string($type, 'configshow_short');
 
   for $varresult (@$result) {
-    ($ok, $mess, $var, $val) = @$varresult;
+    ($ok, $mess, $data, $var, $val) = @$varresult;
     $subs->{'VARIABLE'} = $var;
 
     if (! $ok) {
@@ -410,7 +411,13 @@ sub configshow {
     }
       
 
-    $subs->{'COMMENT'} = '';
+    $subs->{'COMMENT'}  = '';
+    $subs->{'DEFAULTS'} = $data->{'defaults'};
+    $subs->{'ENUM'}     = $data->{'enum'};
+    $subs->{'GROUPS'}   = $data->{'groups'};
+    $subs->{'LEVEL'}    = $ok;
+    $subs->{'TYPE'}     = $data->{'type'};
+
     if ($request->{'mode'} !~ /nocomments/) {
       $mess =~ s/^/# /gm if ($type eq 'text');
       chomp $mess;
@@ -419,7 +426,7 @@ sub configshow {
     }
 
     $auto = '';
-    if ($ok < 1) {
+    if ($data->{'auto'}) {
       $auto = '# ';
     }
 
@@ -645,7 +652,7 @@ sub index {
 
   my ($ok, @in) = @$result;
   unless ($ok > 0) {
-    eprint($out, $type, "Index failed.\n");
+    eprint($out, $type, &indicate("The index command failed.\n", $ok));
     eprint($out, $type, &indicate($in[0], $ok)) if $in[0];
     return $ok;
   }
@@ -878,6 +885,7 @@ sub post {
      
       # YYY  Needs check for errors 
       ($ok, $mess) = @{$mj->dispatch($request, $i)};
+      last unless $ok;
     }
     
 
@@ -908,13 +916,14 @@ sub put {
   my ($act, $chunk, $handled, $i);
   my ($ok, $mess) = @$result;
 
-  if    ($request->{'file'} eq '/info' ) {$act = 'Newinfo' }
-  elsif ($request->{'file'} eq '/intro') {$act = 'Newintro'}
-  elsif ($request->{'file'} eq '/faq'  ) {$act = 'Newfaq'  }
-  else                                   {$act = 'Put'     }
+  if    ($request->{'file'} eq '/info' ) {$act = 'newinfo' }
+  elsif ($request->{'file'} eq '/intro') {$act = 'newintro'}
+  elsif ($request->{'file'} eq '/faq'  ) {$act = 'newfaq'  }
+  else                                   {$act = 'put'     }
 
   unless ($ok) {
-    eprint($out, $type, "$act failed.\n");
+    eprint($out, $type, &indicate("The $act command failed.\n", $ok));
+    eprint($out, $type, &indicate($mess, $ok)) if $mess;
     return $ok;
   }
 
@@ -952,15 +961,15 @@ sub put {
   }
 
   if ($ok > 0) {
-    eprint($out, $type, "$act succeeded.\n");
+    eprint($out, $type, "The $act command succeeded.\n");
   }
   elsif ($ok < 0) {
-    eprint($out, $type, "$act stalled.\n");
+    eprint($out, $type, &indicate("The $act command stalled.\n", $ok));
   }
   else {
-    eprint($out, $type, "$act failed.\n");
+    eprint($out, $type, &indicate("The $act command failed.\n", $ok));
   }
-  eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+  eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
 
   return $ok;
 } 
