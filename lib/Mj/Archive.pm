@@ -1345,7 +1345,7 @@ sub expand_range {
   my $self = shift;
   my $lim  = shift;
   my $args = shift; 
-  my (@out, @args, $i, $j, $ct, $a1, $m1, $a2, $m2);
+  my (@out, @args, $i, $j, $ct, $a1, $m1, $a2, $m2, $tmp);
 
   @args = split " ", $args;
   # Walk the arg list
@@ -1356,7 +1356,7 @@ sub expand_range {
     next if $i eq ',';
     return if $i eq '-';
 
-    if ($i =~ /^([\w\.\d]+)\.([\d\/\-mwdh]+)$/) {
+    if ($i =~ /^([\w\.\d]+)\.([\d\/\-a-z]+)$/) {
       $self->{'sublist'} = $1;
       $i = $2;
     }
@@ -1366,10 +1366,12 @@ sub expand_range {
     # Remove date separator.
     $i =~ s/(\d)[\-](\d)/$1$2/g;
 
-    # Deal with "mowdhm" format
-    if ($i =~ /^\d[\dmwdh]*[mwdh]$/) {
+    # Deal with "mwdhmis" format
+    if ($i =~ /^\d[\da-z]*[a-z]$/) {
       $j = time;
-      $i = 2 * $j - str_to_time($i);
+      $tmp = str_to_time($i);
+      next unless (defined($tmp) and $tmp > 0);
+      $i = 2 * $j - $tmp;
       next unless $i;
       push @out, $self->expand_date($i, $j, '');
       next;
