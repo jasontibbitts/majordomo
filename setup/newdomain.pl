@@ -46,7 +46,8 @@ while (1) {
   exit 0 unless $newdomain;
 
   if ($newdomain =~ /[^A-Za-z0-9\.\-]/) {
-    print qq(\n**** The domain "$newdomain" is not legitimate.\n\n);
+    print qq(\n**** The domain "$newdomain" is not legitimate.\n);
+    print qq(**** Only letters, digits, period, and hyphen are allowed.\n\n);
     next;
   }
 
