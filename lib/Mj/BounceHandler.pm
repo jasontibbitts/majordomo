@@ -381,8 +381,11 @@ sub handle_bounce_user {
     # Do we need to inform the owner?  inform does, and everything else
     # does unless given an argument of 'quiet'.
     if ($func eq 'inform' || $arg !~ /quiet/) {
-      $mess = _gen_bounce_message(\%args, \%params, \@final_actions);
+      $mess = _gen_bounce_message($user, \%args, \%params, \@final_actions);
     }
+
+    # If we're only informing, we're done
+    next if $func eq 'inform';
 
     # The only thing left is remove
     if ($func ne 'remove') {
@@ -399,7 +402,7 @@ sub handle_bounce_user {
 }
 
 sub _gen_bounce_message {
-  my ($args, $params, $actions) = @_;
+  my ($user, $args, $params, $actions) = @_;
   my $mess = '';
   $mess .= "  User:        $user\n";
   $mess .= "  Subscribed:  " .($args->{subscribed}?'yes':'no')."\n";

@@ -1,3 +1,9 @@
+2000-12-11  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/BounceHandler.pm (handle_bounce_user): Pass $user to
+        _gen_bounce_message.
+	(handle_bounce_user): Stop warning "don't know how to inform".
+
 2000-12-11  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/List.pm (bounce_gen_stats): Handle generating statistics
