@@ -115,7 +115,7 @@ will vary depending upon the mailing list.
 
 \$FOOTER
 \$FRONTER
-  The list's message_frooter and message_fronter, respectively.  If there
+  The list's message_footer and message_fronter, respectively.  If there
   are multiple fronters or footers, the first of each will be used.
 
 \$LIST        $LIST
