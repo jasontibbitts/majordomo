@@ -1,5 +1,28 @@
 Sun Feb 21 00:38:40 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Digest/Index.pm (done): Add To and From headers.
+
+	* bin/mj_email (do_qmail): New function.  When called with -Q,
+ 	look at $ENV{LOCAL} and fake various elements of %opts to make it
+ 	look to the rest of the code as if the appropriate flags had been
+ 	passed.
+  	
+	Delay loading most modules until after the qmail checks have been
+ 	done.
+
+	* lib/Mj/Digest/MIME.pm (new): Use 'to' argument.
+
+	* lib/Mj/Digest/Text.pm (new): Use 'to' argument.
+
+	* lib/Mj/Digest/Build.pm (build): Pass on 'to' argument.
+
+	* lib/Mj/Resend.pm (_post): Pass 'to' parameter to digest_build
+ 	containing the list address (which is close to what Mj1 does, but
+ 	not exactly since we don't have a list-digest address anywhere).
+
+	* bin/mj_email (connect_no_parse): Allow /r/n as well as /n to be
+ 	a blank line.
+
 	* postinstall (do_default_config): Bring prompt for global
  	password in line with what is actually done.
 

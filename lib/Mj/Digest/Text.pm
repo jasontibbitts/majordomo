@@ -51,6 +51,7 @@ sub new {
     (Type     => 'text/plain',
      Subject  => $args{'subject'} || '',
      From     => $args{'from'},
+     To       => $args{'to'},
      Filename => undef,
      Data     => '',
      # More fields here
@@ -187,7 +188,7 @@ sub get_text {
     $fh->print("\n----- End Included Message -----\n");
   }
   else {
-    $fh->print("\n\nAttachment of type $type removed.\n");
+    $fh->print("\n\n[Attachment of type $type removed.]\n");
   }
 }
 

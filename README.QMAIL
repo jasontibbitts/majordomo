@@ -1,0 +1,39 @@
+This is a skeleton document containing what the author knows about qmail
+(which isn't much).  Please feel free to submit embellishments and
+corrections.
+
+qmail supports two (perhaps more?) methods of routing mail to Majordomo for
+a particular domain.  Majordomo can go in the .qmail-default file (the
+simplest, preferred method) or you can make several .qmail files for each
+list and place them in the proper directory.  Majordomo supports the former
+method automatically.
+
+Majordomo receives messages via a single mj_email command.  When given the
+-Q option, mj_email examines the contents of the LOCAL environment variable
+and figures out what it should be doing.  If it sees that the address is
+bound for some Majordomo-run address is does the appropriate processing and does one of two things:
+
+  if the -S option was given, it will 'exit 99' to stop processing of further
+  lines in the .qmail-default file
+
+  if the -S option was not given, it will 'exit 0' and qmail will continue
+  to process other lines in the .qmail-default file
+
+The -S option may make it possible for Majordomo to coexist with other
+programs that make use of the -default mechanism.
+
+
+About automatic configuration:
+
+During the configuration process, if Majordomo is told that it is running
+under qmail it will ask if it should set up the necessary .qmail-default
+files itself.  If so, it will prompt for the location of the qmail
+directory for each domain and will create .qmail-default files there unless
+those files already exist and contain lines that Majordomo doesn't
+recognise (in which case it will complain and do nothing).
+
+If you elect not to have Majordomo maintain the .qmail-default files, you
+can do so yourself.  If you elect not to use the -default mechanism at all
+you must instead make .qmail files for each list, -request and -owner
+address at your site.
+

@@ -303,7 +303,7 @@ sub _post {
   my(%avars, %deliveries, %digest, @dfiles, @dtypes, @ent, @files, @refs,
      @tmp, @skip, $arcdata, $arcent, $archead, $digests, $dissues,
      $exclude, $head, $i, $j, $msgnum, $prefix, $replyto, $sender, $seqno,
-     $subject, $subs, $tmp, $tmpdir, $tprefix);
+     $subject, $subs, $tmp, $tmpdir, $tprefix, $whereami);
 
   $self->_make_list($list);
   $tmpdir = $self->_global_config_get('tmpdir');
@@ -472,6 +472,7 @@ sub _post {
       # Note that when we set the new value, we must do it in an unparsed
       # form.
       @tmp = ();
+      $whereami = $self->_global_config_get('whereami');
       $self->_list_config_lock($list);
       $dissues = $self->_list_config_get($list, 'digest_issues');
       
@@ -494,6 +495,7 @@ sub _post {
 	   types        => [@dtypes],
 	   subject      => $digests->{$i}{desc} . " V$dissues->{$i}{volume} #$dissues->{$i}{issue}",
 	   from         => $sender,
+	   to           => "$list\@$whereami",
 	   tmpdir       => $tmpdir,
 	   index_line   => $self->_list_config_get($list, 'digest_index_format'),
 	   index_header => "index header\n",

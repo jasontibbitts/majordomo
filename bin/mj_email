@@ -18,6 +18,8 @@ BEGIN {
   die("Not running as UID $::UID") unless $> == $::UID;
   die("Not running as GID $::GID") unless $) == $::GID;
 
+  # Qyiet warning
+  $::LOCKDIR;
 }
 
 =head1 NAME
@@ -35,14 +37,7 @@ each command therein.
 use lib "$::LIBDIR";
 use strict;
 no strict "refs";
-use Majordomo;
-use Mj::Parser;
-use Mj::Deliver::Envelope;
-use Mj::Log;
 use Getopt::Std;
-use Data::Dumper;
-use Mj::MIMEParser;
-use IO::File;
 my (%opts, $entity, $head, $mime_parser, $mj, $ok, $request_ans, $user,
     $uuser);
 
@@ -66,7 +61,12 @@ $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb"; # Needed for Syslog to get hostname.
 # -r - run as resend; -l _required_.
 # -t - specify directory containing domains (arg)
 # -v - specify debug verbosity (arg), default 50.
-getopts('d:l:moqrt:v:', \%opts);
+# -Q - figure out addresses from $ENV{LOCAL} (for qmail)
+# -S - when done, exit 99 instead of 0 (for qmail)
+getopts('d:l:moqQrSt:v:', \%opts);
+
+# Deal with -Q option
+do_qmail() if $opts{'Q'};
 
 # Redirect standard error output again now that we've parsed the options
 if (! -t STDERR) {
@@ -92,6 +92,9 @@ if ($opts{l}) {
 
 $opts{v} ||= 0;
 
+# Pull in the logging module
+eval 'use Mj::Log';
+
 # Open a log
 $::log = new Mj::Log;
 $::log->add
@@ -111,6 +114,20 @@ $::log->add
 
 $::log->in(20, undef, "info", "Majordomo Email client - ".scalar(localtime));
 $::log->startup_time();
+
+# Now pull in the rest of the modules we need.  This is delayed until after
+# compile time in order to make qmail checking fast if we were called but
+# we do not handle the address.
+$::log->in(21, undef, 'info', 'Loading modules');
+eval '
+  use Majordomo;
+  use Mj::Parser;
+  use Mj::Deliver::Envelope;
+  use Mj::MIMEParser;
+  use Data::Dumper;
+  use IO::File;
+';
+$::log->out;
 
 # Make a Majordomo object
 $::mj = new Majordomo $opts{t}, $opts{d}; $mj = $::mj;
@@ -165,7 +182,7 @@ undef $mj;
 undef $::mj;
 
 $::log->out;  
-exit 0;
+exit ($opts{'S'} ? 99 : 0);
 
 # Forward the message to the list owner.  Call owner_start, owner_chunk,
 # owner_done passing in all of the message.
@@ -250,7 +267,7 @@ sub connect_no_parse {
   my ($i, $sess);
 
   while (defined($i = <STDIN>)) {
-    if ($i =~ /^\n/) {
+    if ($i =~ /^\r?\n/) {
       $mj->connect($int, $sess, 'unknown@anonymous');
       $sess .= $i;
       last;
@@ -300,8 +317,8 @@ sub connect_and_parse {
   # If it failed, just clean up and exit.  Should probably tell the owner.
   unless (defined($ok)) {
     $entity->purge;
-    exit 0;
-#    $::log->abort("Connect failed: $suser");
+    exit ($opts{'S'} ? 99 : 0);
+    #    $::log->abort("Connect failed: $suser");
   }
   
 #   ($ok, $user, undef) = $mj->addr_validate($uuser);
@@ -417,6 +434,58 @@ sub parse_commands {
   $entity->purge;
   $top->purge;
   unlink "$::TMPDIR/mje.$$.final";
+}
+
+
+# look in $ENV{LOCAL} which tells us the local-part of the address we're
+# being run at, and fake the other options.  Expect that we were called
+# with -d giving us the correct domain, so we don't have to fake that.
+sub do_qmail {
+  my $addr = lc($ENV{LOCAL});
+  my($list, $fun);
+
+  # First look at majordomo addresses
+  if ($addr eq 'majordomo') {
+    $opts{'m'} = 1;
+    return;
+  }
+  if ($addr eq 'majordomo-owner' || $addr eq 'owner-majordomo') {
+    $opts{'o'} = 1;
+    return;
+  }
+
+  # Now assume we have a list address; look for owner-, -owner, -request.
+  # Note breakage if the list name actually has any of these in it.
+  if ($addr =~ /^owner-(.*)$/) {
+    $list = $1; $fun = 'owner';
+  }
+  # Note that we don't anchor to the end; we may be receiving a probe
+  elsif ($addr =~ /^(.*)-owner/) {
+    $list = $1; $fun = 'owner';
+  }
+  elsif ($addr =~ /^(.*)-request$/) {
+    $list = $1; $fun = 'request';
+  }
+  else {
+    $list = $addr; $fun = 'list';
+  }
+
+  # Now we have the (supposed) list name.  Check that it exists by looking
+  # directly into $::LISTDIR/$opts{'d'}.  Of course this assumes things
+  # about the structure of the internal storage, but we have to trust that
+  # or else go through some other expensive operations.  In this case, we
+  # want to be quick.
+  unless (-d "$::LISTDIR/$opts{'d'}/$list") {
+    # It's not bound for us; just exit 0 so the next entry in
+    # .qmail-default will be parsed.
+    exit 0;
+  }
+
+  # It is bound for us; fix up the options
+  $opts{'l'} = $list;
+  $fun eq 'list'    and $opts{'r'} = 1;
+  $fun eq 'owner'   and $opts{'o'} = 1;
+  $fun eq 'request' and $opts{'q'} = 1;
 }
 
 =head1 COPYRIGHT

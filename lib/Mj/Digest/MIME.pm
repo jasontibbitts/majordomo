@@ -47,6 +47,7 @@ sub new {
     (Type     => 'multipart/mixed',
      Subject  => $args{'subject'} || '',
      From     => $args{'from'},
+     To       => $args{'to'},
      Filename => undef,
      # More fields here
     );

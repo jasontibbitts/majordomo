@@ -91,8 +91,10 @@ sub done {
   $self->{top} = build MIME::Entity
     (Type     => 'text/plain',
      Subject  => $self->{subject},
-     Data     => $self->{'index'},
+     From     => $args{'from'},
+     To       => $args{'to'},
      Filename => undef,
+     Data     => $self->{'index'},
      # More fields here
     );
 
