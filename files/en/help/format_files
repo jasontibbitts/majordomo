@@ -11,7 +11,7 @@ At present, there are four interfaces supported:  text, wwwadm,
 wwwconfirm, and wwwusr.  The text formatting is used for responses to
 requests from e-mail messages and the mj_shell program.  The wwwadm,
 wwwconfirm, wwwusr formatting is used by the WWW CGI programs.  Most
-format files are not supported by all three interfaces;  the interfaces
+format files are not supported by all four interfaces;  the interfaces
 are listed in parentheses at the beginning of the description for each
 file.
 
@@ -243,7 +243,7 @@ of messages when the archive-get-immediate command is used.
 
 archive_msg_head
 ----------------
-(ALL)  This file is displayed at the end of a group
+(ALL)  This file is displayed at the top of a group
 of messages when the archive-get-immediate command is used.
 
 (standard plus ARCHIVE, AUTHOR_NEXT, AUTHOR_PREV, BODY_LINES,
@@ -344,7 +344,7 @@ changeaddr
 
 changeaddr_error
 ----------------
-(ALL)  This file is displayed when the alias command stalls or fails.
+(ALL)  This file is displayed when the changeaddr command stalls or fails.
 
 (standard plus CGIDATA, CGIURL, CMDPASS, ERROR, QSADDR, STRIPADDR, 
  USER, VICTIM)
