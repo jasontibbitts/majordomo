@@ -1,0 +1,30 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste subject_re_strip = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : yes
+Type de donnée    : booléen, entre : 0 n no, 1 y yes
+Catégorie         : moderate
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+ 
+EXEMPLE :
+configset liste subject_re_strip = yes
+
+Fonctionne en parallelle avec "subject_re_pattern", pour supprimer les
+indicateurs de réponses accumulés.
+
+Certains logiciels de courrier utilisent des chaînes autres que "Re:"
+dans les réponses, comme : "SV:", "AW:", "RE^2:", etc. comme
+indicateurs de réponses. Lorsque plusieurs logiciels ce courriers
+insistent en ajoutant le leur, les messages peuvent en transporter une
+bonne couche. Lorsque "subject_re_strip" est actif, tous les
+indicateurs de réponses qui correspondent à "subject_re_pattern"
+seront supprimés et remplacés par "Re:".
+
+
+Référez vous aussi à :
+   help admin_delivery
+   help configset_subject_prefix
+   help configset_subject_re_pattern
+
+$INCLUDE-help/foot

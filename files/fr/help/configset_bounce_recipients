@@ -1,0 +1,37 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  bounce_recipients <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+configset liste bounce_recipients <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : aucune
+Type de donnée    : adresses
+Catégorie         : bounce
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset liste bounce_recipients << ENDTAG
+joe@blow.org
+ENDTAG
+
+$INCLUDE-config/bounce_recipients
+
+Référez vous aussi à :
+   help admin_subscribers
+   help configset_bounce_max_age   (combien de temps les erreurs d'un
+				    utilisateur seront gardées)
+   help configset_bounce_max_count (nombre maximum de messages en
+				    erreur qui seront gardées pour un
+				    abonné)
+   help configset_bounce_probe_frequency (combien de temps entre
+					  chaque test)
+   help configset_bounce_probe_pattern   (force les tests pour les
+					  adresses correspondantes)
+   help configset_owners                 (comment spécifier le
+					  gestionnaire de la liste)
+
+$INCLUDE-help/foot

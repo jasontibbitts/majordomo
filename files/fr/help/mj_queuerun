@@ -1,0 +1,29 @@
+NOM
+    mj_queuerun - programme traitant les queues
+
+DESCRIPTION
+    Le programme de traitement des queues, mj_queuerun, examine une
+    série de répertoires de queues pour y trouver des messages. Chaque
+    message qu'il trouve sera traité à moins qu'un autre programme
+    soit déjà en train de le traiter. Lorsqu'un répertoire contient
+    plus d'un messages, les messages seront traités dans le désordre.
+
+    Un compteur est gardé pour chaque message dans chaque répertoire.
+    Si un probleme technique a fait échouer un programme de
+    queue, un message peut être examiné plus d'une fois. Si un message
+    ne peut pas être traité au bout de trois fois, un message
+    d'urgenec sera gardé pour la quatrième fois. Si le messate ne peut
+    être traité la quatrième fois, il sera supprimé.
+
+    Apres que tous les messages ont été traités, le programme attendra
+    qu'un nouveau message lui soit attribué par le serveur de queue,
+    mj_queueserv. Si un message est recu, il examinera de nouveau tous
+    les répertoires. Sinon, il attendra un peu et quittera.
+
+Référez vous aussi à :
+   help mj_email
+   help mj_enqueue
+   help mj_queueserv
+   help mj_shutdown
+
+$INCLUDE-help/foot

@@ -1,0 +1,33 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste digest_issues <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : aucune
+Type de donnée    : compilations
+Catégorie         : deliver
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+# configset honey digest_issues <<ENDAAC
+# weekly : 1  : 36
+# daily : 1  : 200
+# ENDAAC
+
+
+$INCLUDE-config/digest_issues
+
+Pour modifier le numéro de volume d'une compilation, la commande
+"digest-incvol" devrait être utilisée. Référez vous à "help digest"
+pour plus de détails.
+
+
+Référez vous aussi à :
+   help admin_delivery
+   help configset_digests (sur la manière de configurer les
+			   compilations)
+   help configset_digest_index_format
+   help digest
+
+$INCLUDE-help/foot

@@ -1,0 +1,30 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  addr_require_fqdn = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : yes
+Type de donnée    : booléen, entre : 0 n no, 1 y yes
+Catégorie         : address
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset GLOBAL addr_require_fqdn = 1
+
+
+$INCLUDE-config/addr_require_fqdn
+
+Pour permettre à Majordomo de fonctionner sur des sites ou les
+serveurs de messagerie gèrent mal les noms de domaines, désactivez ce
+paramètre
+
+
+Référez vous aussi à :   help admin_domain
+   help admin_subscribers
+   help configset_addr_allow_at_in_phrase
+   help configset_addr_allow_bang_paths
+   help configset_addr_allow_comments_after_route
+   help configset_addr_allow_ending_dot
+   help configset_addr_limit_length
+   help configset_addr_strict_domain_check
+
+$INCLUDE-help/foot

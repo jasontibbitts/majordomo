@@ -1,0 +1,30 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  advertise <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+configset liste advertise <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : aucune
+Type de donnée    : tableau d'expressions rationnelles
+Catégorie         : lists
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset GLOBAL advertise << ENDTAG
+/hotbot/i
+ENDTAG
+
+$INCLUDE-config/advertise
+
+Référez vous à "help configset noadvertise" pour plus de détails,
+incluant comment utiliser "access_rules" pour remplacer "advertise" et
+"noadvertise".
+
+Référez vous aussi à :
+   help lists
+
+$INCLUDE-help/foot

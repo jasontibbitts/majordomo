@@ -1,0 +1,32 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+help unknowntopic
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ERREUR - Le document que vous demandez n'existe pas.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+Vous recevez ce message car vous avez demandé un document d'aide qui
+n'existe pas. Vérifiez la facon dont vous l'avez ortographié et
+réésayez !
+
+La commande "help" renvoie un document d'aide depuis le serveur, si de
+l'aide est disponible sur le sujet en question. Si le sujet demandé
+n'est pas disponible, ce fichier est renvoyé.
+
+Pour avoir la liste de tous les sujets possibles, envoyez la commande
+suivante :
+   help topics
+dans le corps d'un message à $MJ.
+
+Pour avoir une introduction au systeme d'aide, envoyez la commande
+suivante :
+   help help
+dans le corps d'un message à $MJ.
+
+Toutes les commandes ont un fichier d'aide, mais vous voudrez
+probablement commencer avec :
+   help overview
+si vous êtes abonné à une liste, ou
+   help admin
+si vous gérez une liste, pour une introduction de base à Majordomo.
+
+$INCLUDE-help/foot
