@@ -1320,6 +1320,13 @@ sub parse_address {
 
   return (1, '', '') unless $str;
 
+  if ($self->{'list'} =~ /^DEFAULT/ and 
+      $str =~ /([^\\]|^)\$\QLIST\E(\b|$)/) 
+  {
+    return (0, 'The $LIST substitution is not supported for DEFAULT lists.');
+    # XLANG
+  }
+
   # Substitute the list name for "$LIST"
   $str =~ s/([^\\]|^)\$\QLIST\E(\b|$)/$1$self->{'list'}/g;
 
