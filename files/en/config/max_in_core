@@ -1,2 +1,4 @@
-The maximum size of a message part to hold in memory; parts larger
-than this will be held in temporary files.
+The max_in_core setting contains the maximum number of bytes of memory
+that will be used to store part of an e-mail message.  Parts larger
+than this size will be stored in temporary files instead while the
+message is being processed.

@@ -11,9 +11,15 @@ EXAMPLE:
 configset GLOBAL max_in_core = 40000
 
 
-The maximum size of a message part to hold in memory; parts larger
-than this will be held in temporary files.
+$INCLUDE-config/max_in_core
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+When Majordomo processes a message, it is disassembled into parts by the
+MIME message parser.  Limiting the amount of memory in use will cause
+messages to be processed slightly more slowly.
+
+
+See Also:
+   help admin_domain
+   help configset_chunksize
+
+$INCLUDE-help/foot
