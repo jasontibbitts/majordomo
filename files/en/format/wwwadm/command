@@ -7,22 +7,22 @@
   <td>
     Command:&nbsp;&nbsp;
     <select name=func>
-      <option> about this service
-      <option> accept
+      <option> help
       <option> archive-index
       <option> archive-get
+      <option> archive-stats
+      <option> digest-force
+      <option> digest-status
+      <option> report
+      <option> report-summary
+      <option> accept
       <option> configdef
       <option> configshow
       <option> configshow-categories
       <option> configset
-      <option> digest-status
       <option> get
-      <option> help
       <option> index-recursive
-      <option> lists-full-long
       <option> reject
-      <option> report
-      <option> report-summary
       <option> sessioninfo
       <option> set
       <option> showtokens
