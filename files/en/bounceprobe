@@ -3,7 +3,7 @@ This message is being sent to you from
   $SITE
 because your address
   $VICTIM
-has been bouncing (failing to deliver) messages from the mailing list
+has been bouncing (failing to receive) messages from the mailing list
   $LIST
 
 SessionID:
@@ -46,7 +46,7 @@ expander.  If this is the case, it should be immediately obvious from the
 address above (since it will most likely be the address of the list
 expander and not your address).
 
-Your Internet probider may be having some troubles.  Check with them to
+Your Internet provider may be having some troubles.  Check with them to
 make sure that everything is in working order.
 
 Someone may be faking up bounces and sending them to the list server in
