@@ -3122,8 +3122,7 @@ sub _rekey {
       my $data = shift;
       my (@out, $addr, $newkey, $changekey);
 
-      # Allocate an Mj::Addr object from stripaddr and transform it.  XXX
-      # Why not canon instead?
+      # Allocate an Mj::Addr object from stripaddr and transform it.
       $addr = new Mj::Addr($data->{'stripaddr'});
       $newkey = $addr->xform;
       $changekey = ($newkey ne $key);
@@ -3131,10 +3130,9 @@ sub _rekey {
     };
   $self->{reg}->mogrify($sub);
 
-  # loop over all lists, but skip GLOBAL.  XXX What about GLOBAL auxlists?
+  # loop over all lists
   $self->_fill_lists;
   for $list (keys(%{$self->{lists}})) {
-    next if $list eq 'GLOBAL';
     $self->_make_list($list);
     $self->{'lists'}{$list}->rekey;
   }

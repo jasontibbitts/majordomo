@@ -711,7 +711,7 @@ the event that the transformation rules change.
 =cut
 sub rekey {
   my $self = shift;
-  $self->subscriber_rekey;
+  $self->subscriber_rekey unless $self->{name} eq 'GLOBAL';
   $self->aux_rekey_all;
 }
 

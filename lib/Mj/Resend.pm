@@ -477,10 +477,12 @@ sub _post {
   # Inform sender of successful delivery
   
   # Clean up and say goodbye
-  unlink @dfiles;
   for ($i = 0; $i < @ent; $i++) {
-    unlink $files[$i];
     $ent[$i]->purge;
+  }
+  for $i (keys %deliveries) {
+    unlink $deliveries{$i}{file}
+      if $deliveries{$i}{file};
   }
   $arcent->purge;
   1;
