@@ -7,7 +7,7 @@ BEGIN {
   $::UMASK  = "007";
   $::UID    = "baduid";
   $::GID    = "badgid";
-#  $::TMPDIR = "/tmp";
+  $::TMPDIR = "/tmp";
 #  $Exporter::Verbose = 1;
 #  $AutoLoader::Verbose = 1;
 #  $AutoLoader::Notruncate = 1;
@@ -92,10 +92,11 @@ if ($opts{'lockdir'} && $opts{'Z'}) {
 $::log = new Mj::Log;
 $::log->add
   (
-   method      => 'syslog',
+   method      => 'file',
    id          => 'mjs',
    level       => 50,
    subsystem   => 'mail',
+   filename    => "$::TMPDIR/mj_shell.debug", 
    log_entries => 1,
    log_exits   => 1,
    log_args    => 1,
