@@ -311,7 +311,7 @@ choose otherwise.  Possible flags are:
 
   A - ackall
   a - ackimportant
-  C - elimatecc
+  C - eliminatecc
   H - hideall
   h - hideaddress
   P - prefix

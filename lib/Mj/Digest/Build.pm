@@ -76,6 +76,7 @@ sub build {
        indexfn      => $idxfnref,
        index_header => $args{index_header},
        tmpdir       => $args{tmpdir},
+       from         => $args{from},
       );
   }
 

@@ -3603,12 +3603,15 @@ sub trigger {
     $self->_fill_lists;
     for $list (keys %{$self->{'lists'}}) {
 
-      # GLOBAL never has duplicate databases
+      # GLOBAL never has duplicate databases or members
       next if $list eq 'GLOBAL';
       $self->_make_list($list);
 
       # Expire checksum and message-id databases
       $self->{'lists'}{$list}->expire_dup;
+
+      # Expire vacation settings
+      $self->{'lists'}{$list}->expire_vacation;
     }
   }
 

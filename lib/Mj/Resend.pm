@@ -299,6 +299,8 @@ sub _post {
   $seqno  = $self->_list_config_get($list, 'sequence_number');
   $self->_list_config_set($list, 'sequence_number', $seqno+1);
   $self->_list_config_unlock($list);
+  $log->message(35,'info',"Sending message $seqno");
+  $self->{sessionfh}->print("Post: sequence #$seqno.\n");
 
   # trick: if $file is a ref to a MIME::Entity, we can skip the parse
   if (ref($file) eq "MIME::Entity") {
@@ -458,10 +460,11 @@ sub _post {
       $self->_list_config_lock($list);
       $dissues = $self->_list_config_get($list, 'digest_issues');
       
-      for $i (keys %digest) {
+      for $i (keys %$digests) {
+	next if $i eq 'default_digest';
 	$dissues->{$i}{volume} ||= 1; $dissues->{$i}{issue} ||= 1;
 	push @tmp, "$i : $dissues->{$i}{volume} " .
-	  " : " . ($dissues->{$i}{issue}+1);
+	  " : " . ($dissues->{$i}{issue}+($digest{$i} ? 1 : 0));
       }
       $self->_list_config_set($list, 'digest_issues', @tmp);
       $self->_list_config_unlock($list);
@@ -927,12 +930,12 @@ sub _check_mime {
   my $code    = shift;
   my $maxlen  = shift;
   my $part    = shift;
-  my $log = new Log::In 250;
+  my $type    = $ent->mime_type;
+  my $log = new Log::In 250, "$type";
   local($_);
   my ($action, $head, $len, $type);
 
-  # Extract the MIME type and evaluate the matching code
-  $type   = $ent->mime_type;
+  # Evaluate the matching code
   $_      = $type;
   $action = $safe->reval($code);
   $::log->complain($@) if $@;

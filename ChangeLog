@@ -1,3 +1,37 @@
+Tue Feb 16 00:54:20 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Access.pm (list_access_check): Log access variables
+ 	passed to us.
+
+	* lib/Mj/Resend.pm (_check_mime): Improve logging a bit.
+
+Mon Feb 15 22:03:16 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/List.pm (make_setting): Restructure code for classes
+ 	taking a time.  Be sure to erase the original class args even if
+ 	the new class doesn't have args.  For timed classes, save old
+ 	class data in classarg2.
+	(expire_vacation): New function: find all list members set to
+ 	'nomail' with an expire time and reset them to their previous
+ 	classes.
+
+	* lib/Majordomo.pm (trigger): Call expire_vacation for each list.
+
+	* lib/mj_cf_data.pl: Fix typo.
+
+Sat Feb  6 17:11:35 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Always build complete digest_issues
+ 	variable, but only increment issue numbers for digests we are
+ 	sending out.
+
+Fri Feb  5 18:49:16 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (_post): Add a message indicating what sequence
+ 	number we're posting.  Also print this out to the session log.
+
+	* lib/Mj/List.pm (flag_set): Add better logging info.
+
 Thu Feb  4 15:46:23 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Deliver/Dest.pm (sendenvelope): Fix precedence problem

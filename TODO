@@ -10,6 +10,7 @@ The interface can pass bad passwords to some functions (config_get_vars)
   and get a result indistinguishable from using no password. 
 Untainting sometimes happens in the wrong place; in a C/S model, we won't
   trust what comes in over the network.
+Multiple digests get issue numbers hosed?
 
 Requests from SRE
 -----------------
@@ -54,6 +55,9 @@ Make Deliver take a list of delivery hashes, so you can pass in a whole
   as long as they're in a different delivery hash).  This would allow a
   queue runner to deliver multiple messages to one list with only one
   database scan.
+Do more substitutions in mailfile actions.  Allow a hashref of
+  substitutions to be passed in.
+digest-headers variable?
 
 Can filespace system entirely.  To see if a file exists, just stat it.
 Store additional info in a dotfile.  Only difficult rewrite is index.

@@ -335,8 +335,9 @@ sub set {
 
 =head2 make_setting
 
-This takes a string and a flag list and returns a class, a class argument,
-and a new flag list which reflect the information present in the string.
+This takes a string and a flag list and class info and returns a class,
+class arguments, and a new flag list which reflect the information present
+in the string.
 
 =cut
 sub make_setting {
@@ -385,18 +386,48 @@ sub make_setting {
     }
     else {
       # Process class setting
-      $carg1 = $carg2 = '';
+
+      # Just a plain class
       if ($classes{$rset}->[1] == 0) {
 	$class = $rset;
+	$carg1 = $carg2 = '';
       }
+
+      # A class taking a time (nomail/vacation)
       elsif ($classes{$rset}->[1] == 1) {
+	# If passed 'return', immediately set things back to the saved
+	# settings if there were any
+	if ($arg eq 'return'} {
+	  return (0, "Not currently in nomail mode.\n")
+	    unless $classes{$class}->[0] eq 'nomail';
+	  return (0, "No saved settings to return to.\n")
+	    unless $carg2;
+
+	  ($class, $carg1, $carg2) = split("\002", $carg2);
+	  $class = 'each' unless defined($class) && $classes{$class};
+	  $carg1 = ''     unless defined($carg1);
+	  $carg2 = ''     unless defined($carg2);
+	}
+
 	# Convert arg to time;
-	if ($arg) {
+	elsif ($arg) {
+	  # Eliminate recursive stacking if a user already on timed
+	  # vacation sets timed vacation again; just update the time and
+	  # don't save away the class info.
+	  if ($classes{$class}->[0] ne 'nomail') {
+	    $carg2 = join("\002", $class, $carg1, $carg2); # Save the old class info
+	  }
 	  $carg1 = _str_to_time($arg);
 	  return (0, "Invalid time $arg.\n") unless $carg1; # XLANG
+	  $class = $rset;
 	}
-	$class = $rset;
+	else {
+	  $class = $rset;
+	  $carg1 = $carg2 = '';
+	}
       }
+
+      # Digest mode
       elsif ($rset eq 'digest') {
 	# Process the digest data and pick apart the class
 	$dig = $self->config_get('digests');
@@ -512,6 +543,7 @@ sub flag_set {
   my $addr = shift;
   my $force= shift;
   my $log  = new Log::In 150, "$flag, $addr";
+  $log->out('no');
   my ($flags, $data);
   return unless $flags{$flag};
   return unless $addr->isvalid;
@@ -530,6 +562,7 @@ sub flag_set {
   }
 
   return unless $flags =~ /$flags{$flag}[3]/;
+  $log->out('yes');
   1;
 }
 
@@ -1044,6 +1077,41 @@ sub expire_dup {
 
   return @nuked
 }
+
+=head2 expire_vacation
+
+This converts members with timed nomail classes back to their old class
+when the vacation time is passed.
+
+=cut
+sub expire_vacation {
+  my $self = shift;
+  my $time = time;
+
+  my $mogrify = sub {
+    my $key  = shift;
+    my $data = shift;
+    my ($c, $a1, $a2);
+
+    # Fast exit unless we have a timed nomail class and the time has expired
+    return (0, 0) 
+      unless ($data->{class} eq 'nomail' &&
+	      $data->{classarg} &&
+	      $time > $data->{classarg});
+
+    # Now we know we must expire; extract the args
+    ($c, $a1, $a2) = split("\002", $data->{classarg2});
+    $data->{'class'}     = defined $c  ? $c  : 'each';
+    $data->{'classarg'}  = defined $a1 ? $a1 : '';
+    $data->{'classarg2'} = defined $a2 ? $a2 : '';
+
+    # And update the entry
+    return (0, 1, $data);
+  };
+
+  $self->{subs}->mogrify($mogrify);
+}
+
 
 =head2 _make_aux (private)
 

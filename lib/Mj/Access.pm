@@ -376,7 +376,7 @@ sub global_access_check {
      seq
      sne
     );
-
+use Data::Dumper;
 sub list_access_check {
   # We must share some of these variables with the compartment, so they
   # can't be lexicals
@@ -396,6 +396,8 @@ sub list_access_check {
   local %args      = @_;
 
   my $log = new Log::In 60, "$list, $request";
+
+  $log->message(450, "info", "Access variables: ". Dumper \%args);
 
   my ($password_override,   # Does a supplied password always override
                             # other restrictions?
