@@ -230,6 +230,13 @@ will fail.
 
 (standard plus MSGNO)
 
+mime_header_length
+------------------
+This message is displayed when a posted message contains a MIME header
+that longer than the limit in the max_mime_header_length setting.
+
+(standard plus LIMIT, SIZE)
+
 missing_mode
 ------------
 This message is displayed if a command is issued with a command mode
@@ -318,6 +325,20 @@ actual value of the setting.
 
 (standard plus EXPECTED, SETTING, VALUE)
 
+over_message_limit
+------------------
+This message is displayed when a proportional soft or hard limit in the
+post_limits setting is exceeded.
+
+(standard plus COUNT, TOTAL)
+
+over_time_limit
+------------------
+This message is displayed when a temporal soft or hard limit in the
+post_limits setting is exceeded.
+
+(standard plus COUNT, TIME)
+
 password_length
 ---------------
 This error message is displayed if the password command is used to
@@ -373,6 +394,13 @@ angle bracket.
 
 (standard substitutions only)
 
+single_header_length
+--------------------
+This message is displayed when one or more of the headers of a posted
+message is longer than the limit in the max_header_line_length setting.
+
+(standard plus LIMIT, SIZE)
+
 source_route
 ------------
 This message is displayed if an e-mail address contains a source route
@@ -413,11 +441,32 @@ edu) does not appear in the list of valid domains.
 
 (standard substitutions only)
 
+total_header_length
+-------------------
+This message is displayed when the total size of the headers of a posted
+message is larger than the limit in the max_total_header_length setting.
+
+(standard plus LIMIT, SIZE)
+
 undefined_address
 -----------------
 This error message is displayed if an e-mail address is empty.
 
 (standard plus ADDRESS, ERROR)
+
+under_message_limit
+-------------------
+This message is displayed when a proportional lower limit in the
+post_limits setting is not met.
+
+(standard plus COUNT, TOTAL)
+
+under_time_limit
+----------------
+This message is displayed when a temporal lower limit in the
+post_limits setting is not met.
+
+(standard plus COUNT, TIME)
 
 unknown_list
 ------------

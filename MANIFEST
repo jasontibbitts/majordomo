@@ -533,6 +533,7 @@ files/en/error/.lhs_domain_literal
 files/en/error/.local_part_length
 files/en/error/.make_list
 files/en/error/.message_number
+files/en/error/.mime_header_length
 files/en/error/.missing_mode
 files/en/error/.multiple_addresses
 files/en/error/.nested_brackets
@@ -545,6 +546,8 @@ files/en/error/.no_route
 files/en/error/.no_token
 files/en/error/.no_visible
 files/en/error/.not_extracted
+files/en/error/.over_message_limit
+files/en/error/.over_time_limit
 files/en/error/.password_length
 files/en/error/.password_level
 files/en/error/.pending_delivery
@@ -553,12 +556,16 @@ files/en/error/.relocated_list
 files/en/error/.rhs_domain_literal
 files/en/error/.right_brackets
 files/en/error/.setting_unchanged
+files/en/error/.single_header_length
 files/en/error/.source_route
 files/en/error/.spool_file
 files/en/error/.stalled_post
 files/en/error/.sublist_post
 files/en/error/.top_level_domain
+files/en/error/.total_header_length
 files/en/error/.undefined_address
+files/en/error/.under_message_limit
+files/en/error/.under_time_limit
 files/en/error/.unknown_list
 files/en/error/.unknown_setting
 files/en/error/.unknown_token
@@ -597,6 +604,7 @@ files/en/error/lhs_domain_literal
 files/en/error/local_part_length
 files/en/error/make_list
 files/en/error/message_number
+files/en/error/mime_header_length
 files/en/error/missing_mode
 files/en/error/multiple_addresses
 files/en/error/nested_brackets
@@ -609,6 +617,8 @@ files/en/error/no_route
 files/en/error/no_token
 files/en/error/no_visible
 files/en/error/not_extracted
+files/en/error/over_message_limit
+files/en/error/over_time_limit
 files/en/error/password_length
 files/en/error/password_level
 files/en/error/pending_delivery
@@ -617,12 +627,16 @@ files/en/error/relocated_list
 files/en/error/rhs_domain_literal
 files/en/error/right_brackets
 files/en/error/setting_unchanged
+files/en/error/single_header_length
 files/en/error/source_route
 files/en/error/spool_file
 files/en/error/stalled_post
 files/en/error/sublist_post
 files/en/error/top_level_domain
+files/en/error/total_header_length
 files/en/error/undefined_address
+files/en/error/under_message_limit
+files/en/error/under_time_limit
 files/en/error/unknown_list
 files/en/error/unknown_setting
 files/en/error/unknown_token
@@ -3510,7 +3524,6 @@ files/fr/format/wwwconfirm/.who
 files/fr/format/wwwconfirm/.who_error
 files/fr/format/wwwconfirm/.who_foot
 files/fr/format/wwwconfirm/.who_head
-files/fr/format/wwwconfirm/§
 files/fr/format/wwwconfirm/accept
 files/fr/format/wwwconfirm/accept_error
 files/fr/format/wwwconfirm/accept_foot
