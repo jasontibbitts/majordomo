@@ -164,7 +164,7 @@ sub deliver {
     # Add each address to the appropriate destination.
   ADDR:
     while (($canon, $datref) = splice(@data, 0, 2)) {
-      if (length $sublist or $list->{'name'} ne 'GLOBAL') {
+      if ($sublist ne 'MAIN' or $list->{'name'} ne 'GLOBAL') {
         $eclass = _eclass($datref);
       }
       else {
