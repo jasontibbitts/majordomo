@@ -40,7 +40,7 @@ you would do it this way in Mj2:
 Instead of adding addresses to the listname.allow file by hand, you do
 something like this in Mj2 (to add the addresses to the auxiliary list
 "allow" belonging to "listname"):
-  auxadd listname allow <<END
+  subscribe listname:allow <<END
 address1@example.com
 address2@example.com
 END
@@ -78,7 +78,7 @@ have users sign up to "posters" and put this in restrict_post:
 
 See Also:
    help alias  (for how to make two posting addresses equivalent)
-   help auxadd (for maintaining an auxiliary list)
+   help auxiliary_list (an introduction to auxiliary lists)
    help set    (for 'nomail', which suppresses posts to a subscribed address)
 
 For a list of all help topics send this one-line message
