@@ -147,6 +147,7 @@ These help files describe configuration settings:
    help configset_dup_lifetime
    help configset_faq_access
    help configset_get_access
+   help configset_inactive_lifetime
    help configset_index_access
    help configset_info_access
    help configset_inform
@@ -217,6 +218,7 @@ These help files describe configuration settings:
    help configset_moderators
    help configset_nonmember_flags
    help configset_override_reply_to
+   help configset_post_lifetime
    help configset_post_limits
    help configset_precedence
    help configset_purge_received
