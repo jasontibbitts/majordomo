@@ -1,3 +1,11 @@
+Mon Feb 22 01:04:48 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Digest/Index.pm (done): Fix $args problem: copy in args
+ 	during object construction, since we don't have the hash at the
+ 	end.
+
+	* setup/ask_basic.pl (ask_basic): Enable qmail as a supported MTA.
+
 Sun Feb 21 00:38:40 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Digest/Index.pm (done): Add To and From headers.

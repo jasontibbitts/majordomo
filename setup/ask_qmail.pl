@@ -1,26 +1,19 @@
-sub ask_qmail {
-  my($comfig, $dom) = @_;
+sub ask_qmail_domain {
+  my($config, $dom) = @_;
 
   $msg = <<EOM;
 
 What is the qmail alias directory for this domain?
-    Majordomo will create .qmail files in this directory for lists (and 
-    the Majordomo aliases) in this Majordomo installation.
+    Majordomo will create a .qmail-default file in this directory.
 EOM
   $def = $config->{'domain'}{$i}{'aliasdir'};
   $config->{'domain'}{$i}{'aliasdir'} = get_str($msg, $def);
+}
+
+sub ask_qmail {
+  my($config) = @_;
 
   $msg = <<EOM;
-
-What virtual domain prefix should Majordomo prepend to aliases in this
-domain?
-    If you leave this value blank, Majordomo will create files of the 
-    form .qmail-testlist-owner.  A value of foo would create files such
-    as .qmail-foo-testlist, .qmail-foo-testlist-owner, etc.
-EOM
-  $def = $config->{'domain'}{$i}{'aliasprefix'};
-  $config->{'domain'}{$i}{'aliasprefix'} = get_str($msg, $def);
-}
 
 
 

@@ -225,12 +225,15 @@ EOM
   $def = $config->{'mta'} ||
     (-x '/usr/lib/sendmail'  && 'sendmail') ||
     (-x '/usr/sbin/sendmail' && 'sendmail');
-#  $config->{'mta'} = get_enum($msg, $def, [qw(none sendmail qmail)]);
-  $config->{'mta'} = get_enum($msg, $def, [qw(none sendmail)]);
+  $config->{'mta'} = get_enum($msg, $def, [qw(none sendmail qmail)]);
 
   if ($config->{'mta'} eq 'sendmail') {
     require "setup/ask_sendmail.pl";
     ask_sendmail($config);
+  }
+  elsif ($config->{'mta'} eq 'qmail') {
+    require "setup/ask_qmail.pl";
+    ask_qmail($config);
   }
 
   #---- Ask for virtual domains

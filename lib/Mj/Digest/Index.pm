@@ -47,6 +47,8 @@ sub new {
   $self->{'count'} = 0;
   $self->{'index'} = $args{'index_header'} || '';
   $self->{'subject'} = $args{'subject'} || '';
+  $self->{'from'} = $args{'from'};
+  $self->{'to'} = $args{'to'};
   $self;
 }
 
@@ -91,8 +93,8 @@ sub done {
   $self->{top} = build MIME::Entity
     (Type     => 'text/plain',
      Subject  => $self->{subject},
-     From     => $args{'from'},
-     To       => $args{'to'},
+     From     => $self->{'from'},
+     To       => $self->{'to'},
      Filename => undef,
      Data     => $self->{'index'},
      # More fields here
