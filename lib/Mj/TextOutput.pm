@@ -235,7 +235,7 @@ sub configset {
 
   Mj::Format::configset
     ($mj, $outfh, $outfh, 'text', $user, $passwd, $auth, $interface,
-     'configset', $mode, $list, $user, $var, join('%~%', @arglist), '',
+     'configset', $mode, $list, $user, $var, join("\002", @arglist), '',
      $mj->list_config_set($user, $passwd, $auth, $interface, $list, $var,
 			  @arglist));
 }

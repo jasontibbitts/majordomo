@@ -87,16 +87,16 @@ sub _stringify {
   # Could this be done with map?
   for $i (@{$self->{'fields'}}) {
     $string .= defined($argref->{$i}) ? $argref->{$i} : '';
-    $string .= "\t";
+    $string .= "\001";
   }
   
-  $string =~ s/\t$//;
+  $string =~ s/\001$//;
   $string;
 }
 
 sub _unstringify {
   my $self = shift;
-  my @args = split("\t", shift, @{$self->{fields}});
+  my @args = split("\001", shift, @{$self->{fields}});
   my $hashref = {};
 
   for my $i (@{$self->{'fields'}}) {
@@ -116,7 +116,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.

@@ -1,5 +1,16 @@
 Thu Sep 10 00:10:08 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Majordomo.pm (_reg_add): Reference _gen_pw in its package.
+	(_subscribe): Switch order of list add and registry add, since the
+ 	former will bomb if the address already exists.
+
+	* general: Global change from magiv %~% separator to \002.
+
+	* lib/Mj/SimpleDB/Text.pm: Change all uses of \t to \001.
+
+	* lib/Mj/SimpleDB/Base.pm (_stringify): Use \001 as separator, not \t.
+	(_unstringify): Ditto.
+
 	* lib/Majordomo.pm (auxadd): Cleanup.
 
 	* lib/Mj/Access.pm (validate_passwd): Make sure we have some

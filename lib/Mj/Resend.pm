@@ -164,7 +164,7 @@ sub post {
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
     $avars->{admin} || $avars->{bad_approval} || '';
 
-  # Bounce if necessary: concatenate all possible reasons with %~%, call
+  # Bounce if necessary: concatenate all possible reasons with \002, call
   # access_check with filename as arg1 and reasons as arg2.  XXX Victim
   # here should be the user in the headers; requester should be the user
   # making the request.  We should only regenerate user if it is not set.
@@ -176,13 +176,13 @@ sub post {
     ($ok, $mess) =
       $self->list_access_check
 	($passwd, undef, $int, $mode, $cmd, $list, "post", $user, '',
-	 $file, join('%~%', @$reasons), join('%~%', %$avars), %$avars);
+	 $file, join("\002", @$reasons), join("\002", %$avars), %$avars);
   }
 
   $owner = $self->_list_config_get($list, 'sender');
   if ($ok > 0) {
     return $self->_post($list, $user, $user, $mode, $cmd,
-			$ent, '', join('%~%', %$avars));
+			$ent, '', join("\002", %$avars));
   }
   elsif ($ok < 0) {
     # ack the stall if necessary.  Note that we let the access call
@@ -295,7 +295,7 @@ sub _post {
 
   $self->_make_list($list);
   $tmpdir = $self->_global_config_get('tmpdir');
-  %avars = split('%~%', $avars);
+  %avars = split("\002", $avars);
 
   # Atomically update the sequence number
   $self->_list_config_lock($list);

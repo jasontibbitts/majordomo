@@ -261,7 +261,7 @@ address.
 XXX Somehow communicate the reason the request was bounced?  This must go
 in the subject and must include the possibility of multiple bounce reasons.
 arg1 will be the name of the message file and arg2 will be the list of
-reasons, concatenated with %~%.
+reasons, concatenated with \002.
 
 XXX Multiple moderators?  Choose from list of moderators?  The 'moderator'
 variable lists the moderator as normal.  The 'moderators' array allows the

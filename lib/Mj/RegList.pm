@@ -23,7 +23,7 @@ seconds since epoch):
   Time of last change
   Password (encrypted)
   Preferred language
-  Lists (%~% separated)
+  Lists (\002 separated)
   Flags
   Bounce data
   Warnings data

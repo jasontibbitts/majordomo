@@ -121,7 +121,7 @@ sub add {
 
   if ($mode =~ /force/i || !($data = $self->lookup($key, $fh))) {
     $fh->seek(0,2);
-    $fh->print("$key\t" . $self->_stringify($argref) . "\n");
+    $fh->print("$key\001" . $self->_stringify($argref) . "\n");
     $done = 1;
   }
   $fh->close;
@@ -237,7 +237,7 @@ sub replace {
       else {
 	$data->{$field} = $value;
       }
-      $fh->print("$match\t" . $self->_stringify($data) . "\n");
+      $fh->print("$match\001" . $self->_stringify($data) . "\n");
       push @out, $match;
       if ($mode !~ /allmatching/) {
 	$fh->copy;
@@ -260,7 +260,7 @@ sub replace {
       else {
 	$data->{$field} = $value;
       }
-      $fh->print("$key\t" . $self->_stringify($data) . "\n");
+      $fh->print("$key\001" . $self->_stringify($data) . "\n");
       push @out, $key;
       if ($mode !~ /allmatching/) {
 	$fh->copy;
@@ -318,7 +318,7 @@ sub mogrify {
  RECORD:
   while (defined ($record = $fh->getline)) {
     chomp $record;
-    ($key, $encoded) = split("\t",$record, 2);
+    ($key, $encoded) = split("\001",$record, 2);
     $data = $self->_unstringify($encoded);
     ($changekey, $changedata, $newkey) = &$code($key, $data);
 
@@ -342,7 +342,7 @@ sub mogrify {
     if ($changedata) {
       $encoded = $self->_stringify($data, ($changedata < 0));
     }
-    $fh->print("$key\t$encoded\n");
+    $fh->print("$key\001$encoded\n");
   }
   if ($changed) {
     $fh->commit;
@@ -410,7 +410,7 @@ sub get_quick {
   for ($i=0; $i<$count; $i++) {
     $key = $self->{'get_handle'}->getline;
     last KEYS unless $key;
-    ($key) = split("\t",$key,2);
+    ($key) = split("\001",$key,2);
     push @keys, $key;
   }
   return @keys;
@@ -433,7 +433,7 @@ sub get {
   for ($i=0; $i<$count; $i++) {
     $key = $self->{'get_handle'}->getline;
     last KEYS unless $key;
-    $key =~ /(.*?)\t(.*)/;
+    $key =~ /(.*?)\001(.*)/;
     push @keys, ($1, $self->_unstringify($2));
   }
   return @keys;
@@ -465,9 +465,9 @@ sub get_matching_quick {
   my (@keys, $key, $data, $i);
 
   for ($i=0; $i<$count; $i++) {
-    $key = $self->{'get_handle'}->search("/\t\Q$value\E/");
+    $key = $self->{'get_handle'}->search("/\001\Q$value\E/");
     last unless $key;
-    ($key, $data) = split("\t", $key, 2);
+    ($key, $data) = split("\001", $key, 2);
     $data = $self->_unstringify($data);
     if (defined($data->{$field}) && 
 	$data->{$field} eq $value)
@@ -491,7 +491,7 @@ sub get_matching_quick_regexp {
   for ($i=0; $i<$count; $i++) {
     $key = $self->{'get_handle'}->search("$value");
     last unless $key;
-    ($key, $data) = split("\t", $key, 2);
+    ($key, $data) = split("\001", $key, 2);
     $data = $self->_unstringify($data);
     if (defined($data->{$field}) && _re_match($value, $data->{$field})) {
       push @keys, $key;
@@ -511,10 +511,10 @@ sub get_matching {
   my (@keys, $key, $data, $i);
 
   for ($i=0; ($count ? ($i<$count) : 1); $i++) {
-    $key = $self->{'get_handle'}->search("/\t\Q$value\E/");
+    $key = $self->{'get_handle'}->search("/\001\Q$value\E/");
     last unless $key;
     chomp $key;
-    ($key, $data) = split("\t", $key, 2);
+    ($key, $data) = split("\001", $key, 2);
     $data = $self->_unstringify($data);
     if (defined($data->{$field}) && 
 	$data->{$field} eq $value)
@@ -538,7 +538,7 @@ sub get_matching_regexp {
   for ($i=0; $i<$count; $i++) {
     $key = $self->{'get_handle'}->search("$value");
     last unless $key;
-    ($key, $data) = split("\t", $key, 2);
+    ($key, $data) = split("\001", $key, 2);
     $data = $self->_unstringify($data);
     if (defined($data->{$field}) && _re_match($value, $data->{$field})) {
       push @keys, ($key, $data);
@@ -570,10 +570,10 @@ sub lookup_quick {
     $::log->abort("SimpleDB::lookup_quick called with null key.");
   }
   
-  my $out = $fh->search("/^\Q$key\E\t/");
+  my $out = $fh->search("/^\Q$key\E\001/");
   return undef unless defined $out;
   chomp $out;
-  return (split("\t",$out,2))[1];
+  return (split("\001",$out,2))[1];
 }
 
 sub lookup_quick_regexp {
@@ -587,7 +587,7 @@ sub lookup_quick_regexp {
 
   while (defined ($match = $fh->search($reg))) {
     chomp $match;
-    ($key, $match) = split("\t", $match, 2);
+    ($key, $match) = split("\001", $match, 2);
     if (_re_match($reg, $key)) {
       return ($key, $match);
     }

@@ -527,7 +527,7 @@ sub list_access_check {
   # post request.
   $reasons = '';
   if ($request eq 'post') {
-    $reasons = join("\n", split('%~%', $arg2));
+    $reasons = join("\n", split("\002", $arg2));
   }
 
   # Expand variables in the returned message.  XXX Obviously add some

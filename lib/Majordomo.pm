@@ -585,7 +585,7 @@ sub _reg_add {
   }
 
   # If password is undef in args, generate one
-  $args{password} = _gen_pw()
+  $args{password} = Mj::Access::_gen_pw()
     if exists $args{password} && !defined $args{password};
 
   # Copy arguments 
@@ -597,9 +597,9 @@ sub _reg_add {
   }
 
   if ($args{list}) {
-    @lists = split('%~%', $data->{'lists'});
+    @lists = split("\002", $data->{'lists'});
     push @lists, $args{list};
-    $data->{'lists'} = join('%~%', @lists);
+    $data->{'lists'} = join("\002", @lists);
   }
 
   # Replace or add the entry
@@ -647,7 +647,7 @@ sub _reg_lookup {
   return undef unless $reg;
 
   $subs = {};
-  for my $i (split('%~%', $reg->{'lists'})) {
+  for my $i (split("\002", $reg->{'lists'})) {
     $subs->{$i} = 1;
   }
   # Use this cached data for non-critical things only.  Don't try to modify
@@ -688,11 +688,11 @@ sub _reg_remove {
       my $data = shift;
       my (@lists, @out, $i);
 
-      @lists = split('%~%', $data->{'lists'});
+      @lists = split("\002", $data->{'lists'});
       for $i (@lists) {
 	push @out, $i unless $i eq $list;
       }
-      $data->{'lists'} = join('%~%', @out);
+      $data->{'lists'} = join("\002", @out);
       $data;
     };
       
@@ -1524,13 +1524,13 @@ sub put_start {
   ($ok, $mess) =
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
 			     $list, 'put', $user, $vict, $file, $subj,
-			     "$type%~%$cset%~%$cte%~%$lang");
+			     "$type\002$cset\002$cte\002$lang");
   unless ($ok > 0) {
     return ($ok, $mess);
   }
 
   $self->_put($list, $user, $vict, $mode, $cmdline, $file, $subj,
-	      "$type%~%$cset%~%$cte%~%$lang");
+	      "$type\002$cset\002$cte\002$lang");
 }
 
 sub _put {
@@ -1539,7 +1539,7 @@ sub _put {
   my ($cset, $enc, $lang, $mess, $ok, $type);
 
   # Extract the encoded type and encoding
-  ($type, $cset, $enc, $lang) = split('%~%', $stuff);
+  ($type, $cset, $enc, $lang) = split("\002", $stuff);
 
   my $log = new Log::In 35, "$list, $file, $subj, $type, $cset, $enc, $lang";
   $self->_make_list($list);
@@ -2891,7 +2891,7 @@ sub show {
   
   # Alias, inverse aliases
   push @out, $addr->alias;
-  $aliases = join('%~%',$self->_alias_reverse_lookup($addr));
+  $aliases = join("\002",$self->_alias_reverse_lookup($addr));
   push @out, $aliases;
 
   # Registration data
@@ -2903,7 +2903,7 @@ sub show {
 	      $data->{'regtime'}, $data->{'changetime'}, $data->{'lists'});
 
   # Lists
-  for $i (split('%~%', $data->{'lists'})) {
+  for $i (split("\002", $data->{'lists'})) {
     $self->_make_list($i);
 
     # Get membership info with no aliasing (since we already did it all)
@@ -3067,19 +3067,18 @@ sub _subscribe {
     return (0, $class);
   }
 
-  # Add to/update registration database
-  ($exist, $rdata) =
-    $self->_reg_add($vict, 'password' => undef, 'list' => $list);
-
   # Add to list
   ($ok, $data) =
     $self->{'lists'}{$list}->add($mode, $vict, $class, $classarg, $flags);
   
-  # We shouldn't fail, because we trust the reg. database to be correct
   unless ($ok) {
     $log->out("failed, existing");
     return (0, "Already subscribed as $data->{'fulladdr'}.\n");
   }
+
+  # dd to/update registration database
+  ($exist, $rdata) =
+    $self->_reg_add($vict, 'password' => undef, 'list' => $list);
 
   $welcome = $self->_list_config_get($list, "welcome");
   $welcome = 1 if $mode =~ /welcome/;

@@ -1,8 +1,45 @@
 Notes on upgrading from alpha1 or before:
 
-This version is _incompatible_ with list database created earlier.  There
-is currently no migration mechanism.  The list databases must be deleted
-and recreated.
+This version is _incompatible_ with list database created earlier.  This
+comes from the fact that both the format of databases has changed (tabs are
+replaced by \001) and the move to a registration database.  To migrate,
+first make a backup of $::LISTDIR.  Then make temporary directory somewhere
+safe and out of the Majordomo directory tree, Then, from that directory,
+run the following to get the addresses on each list out into files that can
+be imported later:
+
+#!/bin/sh
+for i in `mj_shell -p password lists-tiny`;
+do
+  mj_shell -p password who $i |
+  perl -e '$e = <>;$l = ""; while (<>) {print $l; $l=$_}'
+  > $i
+done
+
+Then cd to $::LISTDIR (the directory holding all of your domains) and
+delete all of the subscriber databases:
+
+find . -name _subscribers.T -print -exec rm {} \;
+
+Then run the following (still in $::LISTDIR) to convert the database field
+separators:
+
+find . -name \*.T -print -exec perl -p -i.bak -e 's/\t/\001/g; s/%~%/\002/g' {} \;
+
+Then build and install in the usual way.
+
+Then cd back to that safe directory and run the following:
+
+for i in *; do mj_shell -p password -f $i subscribe-quiet-noinform $i;done
+
+to rebuild the subscriber databases and construct the registration database
+properly.  Note that this will not preserve flag settings or other bits of
+per-subscriber data.  After verifying proper functioning, you can delete
+the .bak files; cd to $::LISTDIR and do:
+
+find . -name \*.bak -print -exec rm {} \;
+
+The upgrade should be finished.
 
 postinstall (which is run at the end of the 'make install' step) is now
 much less verbose; use 'make install VERBOSE=1 ASK=1' to get the old
@@ -24,7 +61,7 @@ questions again.  Things are likely to misbehave if the proper
 configuration options are not defined properly (or at all).
 
 You must answer 'y' to the "Create directories" prompt after make install
-in order to creat the new lock directory.  You can also delete any and all
+in order to create the new lock directory.  You can also delete any and all
 '.L' files that may exist in your lists directory.
 
 The archiving scheme has changed completely; any archives that may have

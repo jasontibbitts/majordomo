@@ -150,7 +150,7 @@ sub configset {
       $list, $vict, $var, $args, $arg3, $ok, $mess) = @_;
   my (@arglist);
 
-  @arglist = split('%~%', $args);
+  @arglist = split("\002", $args);
   eprint($out, $type, indicate($mess, 0)) if $mess;
   if ($ok) {
     eprintf($out, $type, "%s set to \"%s%s\".\n",
@@ -501,7 +501,7 @@ sub show {
   }
   if ($aliases) {
     $fl=0;
-    for $i (split('%~%',$aliases)) {
+    for $i (split("\002",$aliases)) {
       next if $i eq $addr;
       eprint($out, $type, "    Address(es) aliased to this address:\n")
 	unless ($fl);
@@ -519,7 +519,7 @@ sub show {
   eprint($out, $type, "    Registered at ".gmtime($regtime)." GMT.\n");
   eprint($out, $type, "    Registration data last changed at ".gmtime($changetime)." GMT.\n");
 
-  @lists = split('%~%', $lists);
+  @lists = split("\002", $lists);
   unless (@lists) {
     eprint($out, $type, "    Address is not subscribed to any lists\n");
     return 1;
