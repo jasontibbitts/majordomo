@@ -2458,12 +2458,15 @@ sub compile_pattern {
   my $mult = shift;
   my ($err, $id1, $id2, $mod, $pat, $re);
 
+  # Mapping of shell specials to regexp specials
+  my %sh = ('?'=>'.', '*'=>'.*', '['=>'[', ']'=>']');
+
   # Extract leading and trailing characters and the pattern; remove
   # whitespace
   ($id1, $pat, $id2, $mod) = $str =~ /^\s*      # Leading whitespace
-                                       ([\/\"]) # Opening delimiter
+                                       ([\/\"\%\_]) # Opening delimiter
                                        (.*)     # The pattern
-                                       ([\/\"]) # Closing delimiter
+                                       ([\/\"\%\_]) # Closing delimiter
                                        ([ix]+)?  # Allosed modifiers
                                        \s*$     # Trailing whitespacce
 				     /x;
@@ -2482,7 +2485,7 @@ sub compile_pattern {
     return (1, '', $re);
   }
   if ($id1 eq '/') {
-    # Substring pattern; fail if the closing '/' is missing
+    # Perl pattern; fail if the closing '/' is missing
     return (0, "Error in pattern '$str': no closing '/'.\n")
       unless $id2 eq '/';
     $re = "/$pat/$mod";
@@ -2499,6 +2502,21 @@ sub compile_pattern {
     return (0, "Error in regexp '$str'\n$err") if $err;
     return (1, '', $re);
   }  
+  if ($id1 eq '%') {
+    # Shell-like pattern; fail if the closing '%' is absent
+    return (0, "Error in pattern '$str': no closing '\%'.\n")
+      unless $id2 eq '%';
+
+    # Simple conversion of shell-like patterns to Perl; thanks to the Perl
+    # Cookbook
+    $pat =~ s/(.)/ $sh{$1} || "\Q$1"/ge;
+    $re = "/$pat/$mod";
+
+    # Check validity of the regexp
+    $err = (Majordomo::_re_match($re, "justateststring"))[1];
+    return (0, "Error in regexp '$str'\n$err") if $err;
+    return (1, '', $re);
+  }
   return (0, "Unrecognized pattern '$str'.\n");
 }
 

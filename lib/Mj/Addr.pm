@@ -377,7 +377,14 @@ Returns true if two Mj::Addr objects are equivalent, false otherwise.
 =cut
 sub match {
   my ($a1, $a2) = @_;
+
+  return 0 unless $a1->isvalid;
+  return 0 if     $a1->isanon;
+
   if (ref $a2 eq 'Mj::Addr') {
+    return 0 unless $a2->isvalid;
+    return 0 if     $a2->isanon;
+
     return $a1->canon eq $a2->canon;
   }
   $a1->canon eq $a2;

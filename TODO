@@ -33,20 +33,16 @@ Access: call Mj::is_subscriber instead of List::is_subscriber.
 Pass stripped address to access restriction language: $svictim =
 $victim->strip; share $svictim (local); pass to reval.
 
-Fix parse_taboo_body and parse_taboo_header to call parse_regexp so the
-cool parsing effects everything.
-
-Fix comands that take regexps to call Config::parse_regexp to get back a
-Perl regexp to use.
-  which
-
-Invalid addresses and never compare equal to anything else.
+Check validity of addresses in Resend::post and pass the results in as
+access variables.
 
 ! Auto-maintain aliases:
   Add 'del_one' in Mj::MTAConfig::Sendmail; opensa filerepl and copies the
   alias file until the opening comment is hit, then it skips until after the
   closing comment, then prints the rest of the file.  Use this for a
   'createlist-delete' routine.
+
+  Call out to commands to rebuild aliases and VUT files.
 
 ! Archiver:
     Build index from existing file (sync)
@@ -60,8 +56,7 @@ Invalid addresses and never compare equal to anything else.
 
 ! Digest:
 
-Switch around parameters order in digests variable.
-Allow a time of 'any'.
+Allow a time of 'any'?
 report-digest command to show status of digest spools.
 
   Configurables:

@@ -665,7 +665,7 @@ EOM
     # about it to enable a conversion.
 
     print "\nSorry, old list conversion not yet implemented.  Use:\n";
-    print "mj_shell -p password creatlist list owner\@address\n";
+    print "mj_shell -p password createlist list owner\@address\n";
     print "mj_shell -p password -f old_list_file subscribe=quiet,noinform new_list\n";
     print "To convert lists.\n";
   }

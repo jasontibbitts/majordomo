@@ -1,5 +1,12 @@
 Tue Nov 17 00:06:34 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Config.pm (compile_pattern): Add shell-like patterns.
+
+	* Makefile.PL (configure): Fix typo.
+
+	* lib/Mj/Addr.pm (match): Make sure addresses being compared are
+ 	valid and not anonymous.
+
 	* lib/Mj/MailOut.pm (deliver): MTA is now in the site config.
 
 Mon Nov 16 15:40:58 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
