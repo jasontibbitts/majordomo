@@ -239,9 +239,10 @@ sub parse_part {
 
   my $log         = new Log::In 50, "$interface, $title";
   my (@arglist, @help, $action, $cmdargs, $attachhandle, $command, $count,
-      $delay, $ent, $fail_count, $function, $garbage, $list, $mode, $name,
-      $ok, $ok_count, $out, $outfh, $password, $pend_count, $replacement,
-      $sigsep, $sublist, $tlist, $true_command, $unk_count, $user);
+      $delay, $ent, $fail_count, $function, $garbage, $list, $mess,
+      $mode, $name, $ok, $ok_count, $out, $outfh, $password, 
+      $pend_count, $replacement, $sigsep, $sublist, $tlist, 
+      $true_command, $unk_count, $user);
 
   $count = $ok_count = $pend_count = $fail_count = $unk_count = $garbage = 0;
   $delay = 0;
@@ -353,13 +354,15 @@ sub parse_part {
         print $outhandle "A list name is required.\n";
         next CMDLINE;
       }
-      ($list, $sublist) = $mj->valid_list($tlist,
-                                command_prop($true_command, 'all'),
-                                command_prop($true_command, 'global'));
+      ($list, $sublist, $mess) = $mj->valid_list($tlist,
+                                  command_prop($true_command, 'all'),
+                                  command_prop($true_command, 'global'));
 
-      unless (defined $list) {
-          print $outhandle "Illegal list \"$tlist\".\n";
-          next CMDLINE;
+      if (length $mess) { 
+        print $outhandle "$mess\n";
+      }
+      unless ($list) {
+        next CMDLINE;
       }
       $list .= ":$sublist" if (length $sublist);
     }
