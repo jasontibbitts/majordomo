@@ -1,3 +1,9 @@
+2003-11-19  Michael Yount <csf@moscow.com>
+
+	* convertdb.pl:  Support db->text conversions, and 
+	improve error checking.
+	Thanks to Mohamed Lrhazi.
+
 2003-11-18  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_put)  If the file description is
