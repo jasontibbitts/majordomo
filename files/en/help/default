@@ -173,7 +173,8 @@ command to be executed by the very next delay trigger. (The delay
 trigger times are list-specific, and set by "configset triggers".)
 By default, delay triggers occur every hour.
 
-A delay can also be specified in "configset access rules".
+A delay can also be specified in "configset access rules", where
+there is both a 'delay' action and a 'delay' variable.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -183,6 +184,7 @@ See Also:
    help changeaddr (for how to replace one address with another)
    help password   (which changes an individual's password)
    help set        (for how to change some or all subscriptions)
+   help configset access_rules (for another way to delay actions)
 
 For a list of all help topics send this one-line message
    help topics

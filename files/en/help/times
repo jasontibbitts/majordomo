@@ -51,8 +51,8 @@ To include a specific WEEK use a four-digit year, plus a two-digit
 month (with a leading '0' if needed), plus a ONE-DIGIT week:
    2000011  for the first week of January 2000
 
-To include a specific DAY use a four-digit year, plus a two-digit
-month (with a leading '0' if needed), plus a TWO-DIGIT day:
+To include a specific DAY use a four-digit year, a two-digit month,
+and a TWO-DIGIT day (with a leading '0' on day and month if needed):
    20000802 for the day   of 02 August 2000
 
 NOTE: There is a subtle difference between day and week time stamps...

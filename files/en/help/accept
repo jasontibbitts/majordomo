@@ -1,7 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-accept [-archive] [token] [comment]
+accept [-archive] [-delay] [token] [comment]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -archive, if specified, archives a message without distributing it
+-delay,   if specified, postpones the action as per "default delay"
 token,    if specified, is the magic number sent to you by Majordomo
 comment,  if specified, is passed from the owner to the subscriber
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -46,6 +47,11 @@ keep the discussion from overwhelming the participants.  The
 "archive only" messages may be seen by the public at a later time,
 through a WWW archive, or using majordomo's "archive" command.
 
+For consult tokens, the accept-delay command will convert the token
+type to "delay," delay the acceptance by the amount of time specified
+by a preceding delay command (see "help default" and scroll down to the
+delay section), and reduce the number of approvals still needed by one.
+
 Site administrators should refer to "help configset access_rules" for
 ways to change the message which asks for accept/reject tokens.
 
@@ -56,6 +62,7 @@ must have the "ackall" flag set to receive an acknowledgement.
 
 See Also:
    help approve                  (which can eliminate the need to use "accept")
+   help default                  (for details on the "delay" option)
    help reject                   (the opposite action of "accept")
    help showtokens               (for a list of unhandled requests)
    help tokeninfo                (for details about a particular request)
