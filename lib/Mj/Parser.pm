@@ -713,7 +713,7 @@ sub parse_args {
         $request->{$argname} = $k;
       }
       elsif ($arguments->{$argname} eq 'ARRAYELEM') {
-        $request->{$argname} = [$k] if ($k);
+        push @{$request->{$argname}}, $k;
       }
       elsif ($arguments->{$argname} eq 'ARRAY') {
         unless (exists $request->{$argname}) {
