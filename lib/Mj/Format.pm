@@ -833,7 +833,7 @@ sub subscribe {
 sub tokeninfo {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$request->{'token'}";
-  my ($time);
+  my ($expire, $time);
   my ($ok, $data, $sess) = @$result;
 
   unless ($ok > 0) {
@@ -841,7 +841,8 @@ sub tokeninfo {
     return $ok;
   }
   
-  $time = localtime($data->{'time'});
+  $time   = localtime($data->{'time'});
+  $expire = localtime($data->{'expire'});
 
   eprint($out, $type, <<EOM);
 Information about token $request->{'token'}:
@@ -849,6 +850,7 @@ Generated at: $time
 By:           $data->{'user'}
 Type:         $data->{'type'}
 From command: $data->{'cmdline'}
+Expires:      $expire
 EOM
 
   # Indicate reasons
@@ -1039,6 +1041,8 @@ sub who {
       eprint($out, $type, "$ind$line\n");
       if ($request->{'mode'} =~ /bounces/ && exists $i->{'bouncestats'}) {
         my $tmp = "$ind  Bounces in the past week: $i->{'bouncestats'}->{'week'}\n";
+        eprint($out, $type, $tmp);
+        $tmp = "$ind  Bounces in the past month: $i->{'bouncestats'}->{'month'}\n";
         eprint($out, $type, $tmp);
       }
     }
