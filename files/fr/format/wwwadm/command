@@ -24,7 +24,6 @@
       <option>index-recursive</option>
       <option>reject</option>
       <option>report</option>
-      <option>report-full</option>
       <option>report-summary</option>
       <option>sessioninfo</option>
       <option>set</option>
