@@ -7,7 +7,7 @@ configset listname triggers <<TAG
 [VALUE LINES]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : bounce   | daily ... (only first item is shown)
+Default Value : checksum | daily ... (only first item is shown)
 Data Type     : triggers, choose from: bounce checksum delay log post session token
 Variable Group: majordomo
 Password Notes: Visible only with password. Set with global password. 
