@@ -698,18 +698,19 @@ would produce a string "1d1h" (for one day, one hour).
 =cut
 sub _time_to_str {
   my $arg = shift;
-  return "0h" unless ($arg and $arg > 0);
+  my $long = shift || 0;
+  return $long ? "0 hours" : "0h" unless ($arg and $arg > 0);
   my ($i, $out);
   $out = '';
 
   $i = int($arg / (7 * 86400));
   $arg %= (7 * 86400);
-  $out .= "${i}w" if $i;
+  $out .= $long ? ($i > 1)? "$i weeks " : "1 week " : "${i}w" if $i;
   $i = int($arg / 86400);
   $arg %= (86400);
-  $out .= "${i}d" if $i;
+  $out .= $long ? ($i > 1)? "$i days " : "1 day " : "${i}d" if $i;
   $i = int(($arg + 1800) / 3600);
-  $out .= "${i}h" if $i;
+  $out .= $long ? ($i > 1)? "$i hours" : "1 hour" : "${i}h" if $i;
 
   $out;
 }
@@ -944,7 +945,7 @@ sub get_member {
 
 =head2 count_subs {
 
-  Counts the number of entries in the subscriber database.
+  Counts the number of entries in a subscriber database.
 
 =cut
 sub count_subs {
@@ -1420,6 +1421,114 @@ sub expire_dup {
   return @nuked
 }
 
+=head2 post_add
+
+Add a post event to the post database, and return the parsed
+data.
+
+=cut
+sub post_add {
+  my($self, $addr, $time, $type, $number) = @_;
+  my $log = new Log::In 150, "$time #$number";
+  my($data, $event, $ok);
+
+  unless (exists $self->{'posts'}) {
+    $self->{'posts'} = new Mj::AddressList $self->_file_path("_posts"), 
+                                           $self->{'backend'};
+  }
+
+  return unless $self->{'posts'};
+    
+  $event = "$time$type$number";
+  $data = $self->{'posts'}->lookup($addr->canon);
+  if ($data) {
+    $data->{'comment'} .= " $event";
+    $self->{'posts'}->replace('', $addr->canon, $data);
+  }
+  else {
+    $data = {};
+    $data->{'comment'} = $event;
+    $self->{'posts'}->add('', $addr->canon, $data);
+  }
+}
+
+=head2 get_post_data
+
+This converts members with timed nomail classes back to their old class
+when the vacation time is passed and removes old bounce data.
+
+=cut
+use Mj::AddressList;
+sub get_post_data {
+  my $self = shift;
+  my $addr = shift;
+  my (@msgs);
+
+  unless (exists $self->{'posts'}) {
+    $self->{'posts'} = new Mj::AddressList $self->_file_path("_posts"), 
+                                           $self->{'backend'};
+  }
+
+  return unless $self->{'posts'};
+  my $data = $self->{'posts'}->lookup($addr->canon);
+  if ($data) {
+    @msgs = split ' ', $data->{'comment'};
+    $data = {};
+    for (@msgs) {
+      if ($_ =~ /(\d+)\w(\d+)/) {
+        $data->{$2} = $1;
+      }
+    }
+  }
+  $data;
+}
+
+=head2 expire_post_data
+
+This expires old data about posted messages.
+
+=cut
+use Mj::AddressList;
+sub expire_post_data {
+  my $self = shift;
+  # XXX Use twice the lifetime of duplicates.
+  my $expiretime = time - $self->config_get('dup_lifetime') * 2*60*60*24;
+
+  unless (exists $self->{'posts'}) {
+    $self->{'posts'} = new Mj::AddressList $self->_file_path("_posts"), 
+                                           $self->{'backend'};
+  }
+
+  return unless $self->{'posts'};
+
+  my $mogrify = sub {
+    my $key  = shift;
+    my $data = shift;
+    my (@b1, @b2, $b, $t);
+
+    # Fast exit if we have no expired timers and no bounce data
+    return (0, 0) if !$data->{comment};
+
+    # Expire old posted message data.
+    @b1 = split(/\s+/, $data->{comment});
+    while (1) {
+      $b = pop @b1; last unless defined $b;
+      ($t) = $b =~ /^(\d+)\w/;
+      next if $t < $expiretime;
+      push @b2, $b; 
+    }
+    $data->{comment} = join(' ', @b2);
+
+    # Update if necessary
+    if (@b2) {
+      return (0, 1, $data);
+    }
+    return (0, 0);
+  };
+
+  $self->{'posts'}->mogrify($mogrify);
+}
+
 =head2 expire_subscriber_data
 
 This converts members with timed nomail classes back to their old class
@@ -1781,6 +1890,16 @@ sub archive_expand_range {
   my $self = shift;
   return unless $self->_make_archive;
   $self->{'archive'}->expand_range(@_);
+}
+
+sub count_posts {
+  my $self = shift;
+  my $days = shift;
+  my (@msgs) = ();
+  return 0 unless (defined $days and $days > 0);
+  return 0 unless $self->_make_archive;
+  @msgs = $self->{'archive'}->expand_range(0, $days . "d");
+  return scalar @msgs;
 }
 
 
