@@ -67,7 +67,8 @@ to see your current subscriptions.
 Majordomo has over 100 cross-referenced help files, which you can 
 browse by pressing <b>Help</b>.
 They describe how to email commands to Majordomo at 
-<a href="mailto:$MJ">$MJ</a>.  
+<a href="mailto:$MJ">$MJ</a>.  The help pages may be displayed in
+a new window in your web browser.
 The following files give a good introduction.
 
 <dl>

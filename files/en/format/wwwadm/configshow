@@ -1,6 +1,7 @@
 <!-- Majordomo configshow format file -->
 <dt>
-  <input type=checkbox name=extra value="$SETTING">$SETTING 
+  <input type=checkbox name=extra value="$SETTING">
+  $HELPLINK
   (level $LEVEL)
 
 <dd>

@@ -1,19 +1,25 @@
 <!-- Majordomo configshow_head format file -->
 <h4 align=center>Configuration Settings</h4>
 
+  Press the checkbox next to the name of each setting you wish 
+  to change or study, then press one of the three buttons. 
+
 <ul>
-  <li>Press the checkbox next to the name of each setting 
-      you wish to change or study. 
   <li>To see the help pages for the settings you chose, press
       the <b>help</b> button.
   <li>To reset the settings you chose to their default values,
       press the <b>configdef</b> button.
   <li>To change the values of the settings you chose, modify the
       values, then press the <b>configset</b> button.
-  <li>There are five levels of administrative passwords.  Changing
-      a setting requires a certain level or higher.  See the 
-      $HELP:ADMIN_PASSWORDS help page for more details.
 </ul>
+
+  There are five levels of administrative passwords.  Changing a setting 
+  requires a certain level or higher.  See the 
+  $HELP:ADMIN_PASSWORDS 
+  help page for more details.
+<p>
+  Clicking the name of a configuration setting will display the
+  help page for that setting in a separate window.
 
 <form method=POST action="$CGIURL">
   <input type=hidden name=list value="$LIST">
