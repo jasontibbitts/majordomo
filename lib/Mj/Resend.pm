@@ -1705,16 +1705,10 @@ sub _r_strip_body {
 
         if ($txtfile) {
           # Create an entity from the cleaned file.
-          $nent =
-            build MIME::Entity(
-              'Type' => $mt,
-              'Path' => $txtfile,
-              'Charset' => $char,
-              'Description' => "Cleaned $mt message part",
-              'Encoding' => $enc,
-            );
+          $nent = build MIME::Entity('Path' => $txtfile);
          
           if ($nent) { 
+            $nent->head($i->head->dup);
             push @newparts, $nent;
             push @changes, [$mt, 'clean'];
             $self->{'body_changed'} = 1;
@@ -1752,20 +1746,14 @@ sub _r_strip_body {
         if ($txtfile) {
           # Create a new plain text entity and include it
           # in the list of new parts.
-          # Will the new entity be purged automatically?
-          # XLANG
-          $nent =
-            build MIME::Entity(
-              'Type' => 'text/plain',
-              'Path' => $txtfile,
-              'Charset' => $char,  
-              'Description' => "Reformatted $mt message",
-              'Encoding' => $enc,
-            );
+          $nent = build MIME::Entity('Path' => $txtfile);
           
           if ($nent) { 
+            $nent->head($i->head->dup);
+            $nent->head->mime_attr('Content-Type' => 'text/plain');
             push @newparts, $nent;
             push @changes, [$mt, 'format'];
+            $i->purge;
             $self->{'body_changed'} = 1;
           }
           else {
@@ -1807,9 +1795,9 @@ sub _r_strip_body {
       if ($txtfile) {
         # Create a new body from the text file.
         $i = new MIME::Body::File "$txtfile";
+        $ent->bodyhandle->purge;
         $ent->bodyhandle($i);
-        $i = $ent->head;
-        $i->replace('Content-Type', "text/plain; charset=$char");
+        $ent->head->mime_attr('Content-Type' => 'text/plain');
         push @changes, [$mt, 'format'];
         $self->{'body_changed'} = 1;
       }
