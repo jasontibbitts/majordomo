@@ -1,3 +1,30 @@
+2001-06-20  Michael Yount <csf@moscow.com>
+
+	* bin/mj_shell:  Note that the -D option causes the debugging
+	output to be sent to stderr, not stdout.  Thanks to Paul
+	Hancock.
+
+	* lib/Majordomo.pm:  (_list_sync_owners)  Bugfix:  Use the
+	correct address when the GLOBAL:owners auxiliary list is
+	changed.
+
+	* lib/Mj/Archive.pm:  (_expand_message_range) Bugfix: 
+	Initialize the archive name and number correctly.
+	(remove) Bugfix:  Always look up the data for each message.
+	Thanks to SRE.
+
+	* lib/Mj/Config.pm:  (load)  Bugfix:  Use the GLOBAL 
+	installation defaults with the DEFAULT list.
+	(regen, set) Bugfix:  Do not parse addresses for the DEFAULT list.
+	(isparsed)  Move the DEFAULT/address exception to the
+	regen and set routines.  Thanks to Paul Hancock.
+
+	* lib/Mj/Format.pm:  (configshow)  Bugfix:  check for
+	equivalence when comparing enumerated values.  Thanks to Duncan
+	Hill.
+	(lists) Bugfix:  Initialize "legend" variable for the
+	lists-enhanced command.  Thanks to Paul Hancock.
+
 2001-06-05  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* bin/mj_shell: Don't rely on $ENV{LOGNAME}; use getpwuid($<)

@@ -1970,7 +1970,7 @@ sub _list_config_set {
     # setting was changed.
     elsif ($var eq 'owners') {
       $self->_list_config_unlock($list);
-      $self->_list_sync_owners($list, $owners, $_[0]);
+      $self->_list_sync_owners($list, $owners, \@_);
     }
   }
   @out;
@@ -2067,8 +2067,8 @@ sub _list_sync_owners {
       next if ($seen{$i} < 0);
       $self->{'lists'}{'GLOBAL'}->add('', $owners{$i}, 'owners',
                                       'groups' => $list);
-      $self->inform('GLOBAL', 'subscribe', $requ, $addr,
-                    "subscribe GLOBAL:owners $addr",
+      $self->inform('GLOBAL', 'subscribe', $requ, $i,
+                    "subscribe GLOBAL:owners $i",
                     $self->{'interface'}, 1, 1, 0, 
                     '',
                     $::log->elapsed - $time);
@@ -2093,8 +2093,8 @@ sub _list_sync_owners {
       else {
         # remove and inform
         $self->{'lists'}{'GLOBAL'}->remove('', $owners{$i}, 'owners');
-        $self->inform('GLOBAL', 'unsubscribe', $requ, $addr,
-                      "unsubscribe GLOBAL:owners $addr",
+        $self->inform('GLOBAL', 'unsubscribe', $requ, $i,
+                      "unsubscribe GLOBAL:owners $i",
                       $self->{'interface'}, 1, 1, 0, 
                       '', $::log->elapsed - $time);
 
