@@ -255,11 +255,11 @@ unless (command_legal($func)) {
 }
 
 # Make sure the list names are valid
-for ($i = 1; $i <= scalar(@lists); $i++) {
-  if ($lists[$i-1] ne '') {
-    unless ($lists[$i-1] = $mj->valid_list($lists[$i-1], 1, 1)) {
-      print "<h3>Invalid list name: $lists[$i-1]</h3>\n";
-      $::log->message(50, "info",  "Invalid list $lists[$i-1] in form data.");
+for ($i = 0; $i < scalar(@lists); $i++) {
+  if ($lists[$i] ne '') {
+    unless ($lists[$i] = $mj->valid_list($lists[$i], 1, 1)) {
+      print "<h3>Invalid list name: $lists[$i]</h3>\n";
+      $::log->message(50, "info",  "Invalid list $lists[$i] in form data.");
       exit 0; 
     }
   }
