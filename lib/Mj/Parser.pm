@@ -434,8 +434,8 @@ construct or an attachment specified by an <@ ID construct.
 
  In:  an input filehandle
       an output filehandle
-
       a string containing the first line of the command
+
  Out: the name of the command from the line
       the first-line arguments
       a filehandle from which to draw arguments
@@ -533,12 +533,19 @@ sub parse_line {
 	$out .= ">>>> Found tag $tag.\n";
 	last;
       }
+
+      # process leading dashes in here documents
+      # dash space         --> remove dash
+      # doubled up         --> remove one dash
+      # single dash        --> empty line
+      # dash anything else --> don't change
+      $line =~ s/^-([\s-]|$)/$1/;
       
-      # Here warn if this looks like a command followed by another TAG.
+      # XXX ? # Here warn if this looks like a command followed by another TAG.
       
       push @arglist, $line;
       
-      # Here give some indication of the line that we snarfed.
+      # XXX ? # Here give some indication of the line that we snarfed.
     }
   }
   
