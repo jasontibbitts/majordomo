@@ -349,7 +349,7 @@ What umask should Majordomo use?
 
 What should umask be set to?
 EOM
-  $def = $config->{umask} || '0700';
+  $def = $config->{umask} || '077';
   $config->{umask} = get_str($msg, $def);
 
   #---- Ask for default install location
