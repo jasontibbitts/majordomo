@@ -382,13 +382,6 @@ sub _post {
   (undef, $arcent) = $self->_subject_prefix($arcent, $list, $seqno);
   $archead = $arcent->head;
 
-  # Print out the archive copy
-  $file = "$tmpdir/mjr.$$.arc";
-  open FINAL, ">$file" ||
-    $::log->abort("Couldn't open archive output file, $!");
-  $arcent->print(\*FINAL);
-  close FINAL;
-
   # Pass to archive.  XXX Is $user good enough, or should we re-extract?
   $subject = $archead->get('subject') || ''; chomp $subject;
   ($msgnum) = $self->{'lists'}{$list}->archive_add_start
@@ -405,8 +398,20 @@ sub _post {
 
   # Only call this if we got back a message number because there isn't an
   # archive around if we didn't.
-  ($msgnum, $arcdata) = $self->{'lists'}{$list}->archive_add_done($file)
-   if $msgnum;
+  if ($msgnum) {
+    $archead->replace('X-Archive-Number', $msgnum);
+
+    # Print out the archive copy
+    $file = "$tmpdir/mjr.$$.arc";
+    open FINAL, ">$file" ||
+      $::log->abort("Couldn't open archive output file, $!");
+    $arcent->print(\*FINAL);
+    close FINAL;
+
+    ($msgnum, $arcdata) = $self->{'lists'}{$list}->archive_add_done($file);
+
+    unlink "$file";
+  }
 
   # Cook up a substitution hash
   $subs = {
@@ -445,8 +450,7 @@ sub _post {
   # Generate the exclude list
   $exclude = $self->_exclude($ent[0], $list, $user);
 
-  # Unlink archive copy and print delivery messages to files
-  unlink "$file";
+  # Print delivery messages to files
   for ($i = 0; $i < @ent; $i++) {
     $files[$i] = "$tmpdir/mjr.$$.final$i";
     open FINAL, ">$files[$i]" ||

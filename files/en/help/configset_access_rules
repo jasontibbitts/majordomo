@@ -165,26 +165,47 @@ Up to next blank line - code
   (, ) - enclose groups of conditions
 
   Username match:
-  /expression/ - a Perl regular expression applied to the requesting user's
-    address.
+  /expression/
+  "string"
+  %dos pattern%  - a Majordomo pattern applied to the requesting user's
+                   address (without its comments).
+
+  Expression match:
+  \$variable =~ /expression/ - true if the given pattern matches the contents
+                               of the variable.  Any Majordomo pattern
+                               works in place of /expression/.
+  
+  \$variable !~ /expression/ - true if the given mattern does not match the
+                               contents of the variable.
+
 
   Membership check:
   @, @MAIN - these are equivalent, and check to see that the user is a
-    list subscriber.
+             list subscriber.
   @auxlist - checks to see that the user is a member of the named auxiliary
-    list.
+             list.
 
   Variable check:
   \$variable - checks to see that the supplied variable is true.
-  \$variable=value - checks that the variable equals (stringwise) the given
-    value.
+  \$variable op value - applies a binary operation.  Posible ops are:
+      String ops:
+      =   - equal, as a string
+      !=  - not equal, as a string
+
+      Numeric ops:
+      >   - greater than
+      >=  - greater than or equal to
+      <   - less then
+      <=  - less than or equal to
+      ==  - equal to
+      <>  - not equal to
 
 Semantics: 
   Rules for a particular request are processed in order; the _first_ rule
   that matches is taken.
 
   If no rules match, the "default" action is taken, which results in a
-  reasonable emulation of the 1.94.3 behavior using *_access, moderate,
+  reasonable emulation of the 1.94.4 behavior using *_access, moderate,
   restrict_post, etc.
 
 Supported variables:
@@ -241,11 +262,6 @@ Section 2 - Hints and suggestions for how and why to use access_rules
   mj_shell and review the spew or save it to contact the author. The
   syntax of access_rules is complex but powerful. Be sure to test it.
 
-  If you have parsing errors, remember to escape the "@" in addresses:
-     post
-     deny
-     /joe\\@blow.com/
-
   If your rules don't match expected addresses, watch case sensitivity:
      post
      deny
@@ -258,31 +274,17 @@ Section 2 - Hints and suggestions for how and why to use access_rules
 
   deny    - post never shows up at all when expression matches
   consult - post goes to list owner for "accept" when expression matches
-  confirm - post MAY go to message originator for "accept"
+  confirm - post goes to message originator for "accept"
 
-  The problem with "deny" is that neither the owner nor the person trying
-  to post gets a notice. The post just evaporates since there isn't
-  generally any kind of reply channel when doing a post. (Unlike when you
-  send commands, where there is a message set up for the purpose of sending
-  back the results of the commands.) There are additional actions that the
-  "mailfile" and "replyfile" options can provide in some cases.
-
-  If what you need is for the owner to review and approve the post, not for
-  it to just vanish, use "consult". The "confirm" option is when the person
-  making the post needs to be asked, while "consult" asks the list owner.
-
-  In some cases, "confirm" cannot know who the originator was. In others,
-  it will ask the "victim" for approval (like when you send from one
-  account to subscribe a second account). It is possible, but not certain,
-  that some confirmations will go the list owner or the site administrator
-  (essentially the "consult" behavior but when "confirm" is used).
-
-  WARNING: As of 2/99, using deny with "set listname noack" and replyfile
-  in access_rules can mean the user gets not message, the owner gets no
-  message, and the list gets no post. Errors simply vanish in some cases.
-  If you are using "deny", make sure to use "configset default_flags"
-  or else use "set" to add "ackall" flags to each user's subscription.
-  See "help who" for a technique to change user flags for the entire list.
+  Denials are very drastic.  Majordomo has always tended to give the list
+  owner the final word before something is rejected out of hand, but
+  access_rules allows more control.  Shutting off certain commands
+  (generally 'who' and 'which') and removing 'post' access for certain
+  classes of users is often warranted but it may be useful to consider
+  allowing some limited form of access.  For instance, allowing 'who' to
+  list members but adding 'hideaddress' ('h') to default_flags or requiring
+  nonmenbers to confirm their posts instead of rejecting posts from
+  nonmenbers.
 
 
 2.3 - restricting non-subscriber posts

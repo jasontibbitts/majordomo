@@ -1,44 +1,21 @@
      Majordomo2 - Basic Help File - updated 3 Mar 99
 (more detailed help is available on many topics: see below)
 
-Majordomo is an automated system which allows users to subscribe and
-unsubscribe to mailing lists, and to retrieve files from list archives.
-You are using version $VERSION of Majordomo2
+Majordomo is an automated system which allows users to subscribe to and
+unsubscribe from mailing lists, and to retrieve files from list archives.
+This is version $VERSION of Majordomo2
 
 This help message is from the Majordomo list management system at
      $SITE
 You interact with the Majordomo software by sending commands to
      $MJ
-in the body of a mail message. Please do not put your commands in
-the subject! Majordomo only processes commands in the message body.
-
-You may put multiple Majordomo commands in the same mail message.
-Put each command on a line by itself, and remember that all commands
-are case sensitive: don't replace lower case characters with upper
-case, and vice versa. If you put the command "end" (without quotes)
-in your message, Majordomo will stop reading commands at that line.
-The "end" command is only required if you use a "signature block" at
-the end of your mail, or if your mail program appends additional text
-to your mail, because Majordomo may mistakenly believe that these
-additional lines are commands and you may get strange error messages.
-
-Additional information is available from this server in the form of
-help topics. You are reading the basic help file now, obtained by just
-sending "help" to the server. For other topics, send one or more of the
-commands below to $MJ
-   help user overview
-   help user commands
-   help admin overview
-   help admin commands
-(other help files are available, including details of every command
-you can send to the server, and those files are listed in the ones
-that are mentioned here)
+in the body of a mail message. Please do not put your commands in the
+subject! Majordomo only processes commands in the message body.  You may
+put multiple Majordomo commands in the same mail message; put each command
+on a line by itself.
 
 For another copy of this message, send:
-   help help
-
-To get a complete list of ALL available topics, send:
-   help topics
+   help
 
 To find out what you, as a list subscriber, can do with Majordomo
 (finding out about lists, subscribing, unsubscribing, getting files
@@ -56,6 +33,9 @@ other people, storing files, approving posts, etc.) send:
 For a complete list administrator command reference, send:
    help admin commands
 
+To get a complete list of ALL available topics, send:
+   help topics
+
 To contact the owner of a specific list, send mail to the "-owner"
 address which exists for every list. For example, to contact the
 owner of the hypothetical list
@@ -65,20 +45,8 @@ you would send mail to:
 
 To contact a human site manager, send mail to $MJOWNER
 
-NOTE: A major design goal of Majordomo 2 is to provide something that looks
-exactly like Majordomo 1.94.4 to the users.  All existing instructions for
-end users of Majordomo-managed lists should still be applicable, excepting
-places where changes in previous behavior were required to fix bugs or plug
-security holes.  (Note that the changes in the confirmation process both
-fix bugs and improve security and also make things much easier on users.)
-The situation is much the same for list owners, but the approval and config
-procedures have changed.  There is some backwards compatibility here,
-though, and more may be forthcoming.  There are, of course, many more
-variables that can be set.
-
-For a list of topics, or this text, send one of the next two lines
-   help topics
-   help help
-to the server at $MJ
-
-Generated 8 Mar 1999 by SRE, web version available
+NOTE: Majordomo 2.0 tries as hard as possible to be 
+backwards-compatible with previous versions of Majordomo.  All user 
+commands and many admin commands from previous versions should work; 
+those that don't will provide you with a pointer to their 
+replacements.

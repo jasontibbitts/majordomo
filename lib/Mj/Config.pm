@@ -2694,18 +2694,66 @@ sub _compile_rule {
       }
       $o .= "\n    "."  "x$indent;
       if ($invert) {
-	$o .= "(\$victim !~ $re)";
+	$o .= "(\$args{'addr'} !~ $re)";
 	$invert = 0;
       }
       else {
-	$o .= "(\$victim =~ $re)";
+	$o .= "(\$args{'addr'} =~ $re)";
       }
       $need_or = 1;
       next;
     }
-    
+
+    # Process $variable =~ /reg\/exp/
+    if (s:
+ 	^               # Beginning
+ 	\$              # $ designates a variable
+ 	(\w+)           # the variable name, match 1
+ 	\s*
+	(\=\~|\!\~)     # The binding operator =~ or !~ , match 2
+ 	\s*
+	(               # Enclose the full pattern, match 3
+	 ([\/\"\%\_])   # A pattern delimiter match 4
+	 .*?            # The pattern
+	 (?!\\).\4      # The same pattern delimiter, not backwhacked
+	 [ix]?          # Possible pattern modifier
+	)
+	::x             # Replace with nothing
+       )
+      {
+	$var = $1;
+	$op = $2; $iop = '!~'; $iop = '=~' if $op eq '!~';
+	($ok, $err, $re) = compile_pattern($3, 0);
+	unless ($ok) {
+	  $e .= $err;
+	  last;
+	}
+
+	unless (rules_var($request, $var, 3)) {
+	  @tmp = rules_vars($request, 3);
+	  $e .= "Illegal match variable for $request: $var.Legal variables which you can match against are:\n".
+	    join(' ', sort(@tmp));
+	  last;
+	}
+	
+	if ($need_or) {
+	  $o .= "  ||";
+	}
+	$o .= "\n    "."  "x$indent;
+	if ($invert) {
+	  $o .= "(\$args{'$var'} $iop $re)";
+	  $invert = 0;
+	}
+	else {
+	  $o .= "(\$args{'$var'} $op $re)";
+	}
+	$need_or = 1;
+	next;
+      }
+
     # Process open group '('
     if (s:^\(::) {
+#warn "open group";
       $o .= "\n    "."  "x$indent;
       if ($invert) {
 	$o .= "!";
@@ -2718,6 +2766,7 @@ sub _compile_rule {
     
     # Process close group ')'
     if (s:^\)::) {
+#warn "close group";
       if ($invert) {
 	$e .= "Can't invert close_group!\n";
 	last;
@@ -2801,7 +2850,7 @@ sub _compile_rule {
  	//x)                    # or a close
       {
 	($var, $op, $arg) = ($1, $2, $3);
-#warn "$var:$op:$arg";
+#warn "var comparison V$var O$op A$arg";
 	$op ||= '';
 	
 	# Weed out bad variables, but allow some special cases
@@ -2828,22 +2877,22 @@ sub _compile_rule {
 	    $o .= "(\$args{'$var'})";
 	  }
 	}
-	
+
 	# String equality comparisons
 	elsif ($op eq '!=' || $op eq '=') {
 	  $op eq '!=' and $op = 'ne' and $iop = 'eq';
 	  $op eq '='  and $op = 'eq' and $iop = 'ne';
 	  
-	  if ($op eq '=') {
-	    if ($invert) {
-	      $o .= "(\$args{'$var'} $iop \"$arg\")";
-	      $invert = 0;
-	    }
-	    else {
-	      $o .= "(\$args{'$var'} $op \"$arg\")";
-	    }
+	  if ($invert) {
+	    $o .= "(\$args{'$var'} $iop \"$arg\")";
+	    $invert = 0;
+	  }
+	  else {
+	    $o .= "(\$args{'$var'} $op \"$arg\")";
 	  }
 	}
+
+	# Numeric comparisons; first make sure we allow them
 	else {
 	  if ($var !~ /(global_)?(admin_|taboo_)\w+/ &&
 	      rules_var($request, $var) != 2) {
@@ -2851,7 +2900,6 @@ sub _compile_rule {
 	    last;
 	  }
 
-	  # Numeric comparisons
 	  $op eq '<=' and $iop = '>';
 	  $op eq '>'  and $iop = '<=';
 	  $op eq '>=' and $iop = '<';

@@ -491,10 +491,16 @@ sub list_access_check {
       }
     }
 
+    # Add some addresses to 
+    $victim->strip =~ /.*\@(.*)$/;
+    $args{'host'}     = $1;
+    $args{'addr'}     = $victim->strip;
+    $args{'fulladdr'} = $victim->full;
+   
     # Now execute the code
     $cpt = new Safe;
     $cpt->permit_only(@permitted_ops);
-    $cpt->share(qw($victim %args %memberof));
+    $cpt->share(qw(%args %memberof));
     $actions = $cpt->reval($access->{$request}{'code'});
     warn "Error found when running access_rules code:\n$@" if $@;
   }

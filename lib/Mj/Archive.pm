@@ -222,8 +222,8 @@ sub add_start {
   $self->{state}{fh}     = $fh;
   $self->{state}{sender} = $sender;
 
-  # Return the message number
-  $self->{state}{msgno};
+  # Return the full message number
+  "$arc/$self->{state}{msgno}";
 }
 
 sub add_done {

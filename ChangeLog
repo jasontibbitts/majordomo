@@ -1,3 +1,29 @@
+Sun Mar 28 02:23:03 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Archive.pm (add_start): Be sure to return the full
+ 	message number, not just the offset from the beginning of this
+ 	archive.
+
+	* lib/Mj/Resend.pm (_post): Make sure archive number gets into
+ 	archived copy of message.
+
+	* lib/Mj/CommandProps.pm: Added addr, host, fulladdr as legal
+ 	access variables for everything.
+	(rules_var): Take a type.
+	(rules_vars): Taks a type; return only vars with that type.
+
+	* lib/Mj/Config.pm (_compile_rule): Merge %strings into %args;
+ 	implement =~ binding to regexp matches.
+
+Sat Mar 27 23:19:50 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Access.pm (list_access_check): Share a %strings hash,
+ 	share it with the compartment and fill it with various strings the
+ 	user can match against.
+
+	* lib/Mj/Config.pm (_compile_rule): /.../ matches match against
+ 	$strings{stripaddr}, not $victim.
+
 Thu Mar 25 23:01:33 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Config.pm (_compile_rule): Escape backslashes and single

@@ -40,6 +40,9 @@ my %reg_legal =
   ('master_password'=>1,
    'user_password'  =>1,
    'mismatch'       =>1,
+   'addr'           =>3,
+   'fulladdr'       =>3,
+   'host'           =>3,
   );
 
 # The %commands hash contains the commands and a list of properties for
@@ -271,10 +274,13 @@ my %commands =
     'access'   => {
 		   'default' => 'special',
 		   'legal'   => {
-				 'master_password',
-				 'user_password',
-				 'mismatch',
-				 'password_length',
+				 'master_password'  => 1,
+				 'user_password'    => 1, 
+				 'mismatch'         => 1,
+				 'password_length'  => 2,
+				 'addr'             => 3,
+				 'fulladdr'         => 3,
+				 'host'             => 3,
 				},
 		   'actions' => \%reg_actions,
 		  },
@@ -310,6 +316,9 @@ my %commands =
 		    'quoted_lines'                 => 2,
 		    'total_header_length'          => 2,
 		    'total_header_length_exceeded' => 1,
+		    'addr'                         => 3,
+		    'fulladdr'                     => 3,
+		    'host'                         => 3,
 		   },
 		   'actions' => \%reg_actions,
 		  },
@@ -397,6 +406,9 @@ my %commands =
 				 'user_password'  => 1,
 				 'mismatch'       => 1,
 				 'matches_list'   => 1,
+				 'addr'           => 3,
+				 'fulladdr'       => 3,
+				 'host'           => 3,
 				},
 		   'actions' => \%reg_actions,
 		  },
@@ -583,15 +595,30 @@ sub rules_requests {
 }
 
 sub rules_var {
-  my $req = shift;
-  my $var = shift;
+  my $req  = shift;
+  my $var  = shift;
+  my $type = shift;
+
+  if (defined $type) {
+    return $commands{$req}{'access'}{'legal'}{$var} &&
+      $commands{$req}{'access'}{'legal'}{$var} == $type;
+  }
   $commands{$req}{'access'}{'legal'}{$var};
 }
 
 sub rules_vars {
-  my $req = shift;
-  return keys %{$commands{$req}{'access'}{'legal'}}
-    if rules_request($req);
+  my $req  = shift;
+  my $type = shift;
+
+  if (defined $type) {
+    return grep {$commands{$req}{'access'}{'legal'}{$_} == $type} 
+      keys %{$commands{$req}{'access'}{'legal'}}
+	if rules_request($req);
+  }
+  else {
+    return keys %{$commands{$req}{'access'}{'legal'}}
+      if rules_request($req);
+  }
   ();
 }
 

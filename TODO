@@ -11,12 +11,6 @@ The interface can pass bad passwords to some functions (config_get_vars)
 Untainting sometimes happens in the wrong place; in a C/S model, we won't
   trust what comes in over the network.
 
-Need to escape ' and \ in single-quoted strings generated in access_rules
-parsing.
-
-What form of the address is matched by /.../ in access_rules?
-
-
 Requests from SRE
 -----------------
 register-update - if stripped address is the same, update the comment.
