@@ -294,8 +294,10 @@ sub post {
     unlink $file;
   }
 
+  # Purging will unlink the spool file.
+  # $nent->purge if $nent;
+
   # Clean up after ourselves;
-  $nent->purge if $nent;
   $ent->purge;
   ($ok, $rtnhdr);
 }
