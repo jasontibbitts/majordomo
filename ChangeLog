@@ -1,3 +1,61 @@
+2001-09-18  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (_archive)  Add support for the "subject,"
+	"author," "date," and "thread" command modes, which sort the results 
+	accordingly, and the "reverse" command mode, which reverses the 
+	order of the results.
+	(_digest)  Use the whoami_owner setting instead of the sender
+	setting in the From: address of digests.
+	The version number is now 0.1200109180.
+	(connect)  Do not display the password provided in an Approved
+	header.
+	(gen_cmdline)  Display "PASSWORD" in place of a new password
+	in the command line.
+
+	* lib/Mj/Archive.pm:  Add "msgid" to the list of index fields
+	in anticipation of message threading.
+	(add_start)  Force message counts to be reread to avoid a 
+	race condition.  Thanks to Roger Klorese.
+
+	* lib/Mj/CommandProps.pm:  Add support for the author, date,
+	rev, subject, and thread modes of the archive command.
+
+	* lib/Mj/Config.pm:  (_compile_rule)  Bugfix:  replace
+	leading and trailing quotes, and quote metacharacters in string
+	comparisons.  Thanks to Marc Fournier.
+
+	* lib/Mj/Deliver/Dest.pm:  (sender)  Bugfix:  test to
+	see if the envelope is defined before changing the sender.
+
+	* lib/Mj/Format.pm:  (digest)  Add missing 'maxmsg' and 
+	'minsize' data to the output of the digest-status command.
+	(archive)  Bugfix:  call the archive_done core routine when
+	no messages were found to avoid continuation of admin
+	privileges.
+	(help)  Bugfix:  include the list name in help links.  Thanks to
+	Roger Klorese.
+	
+	* lib/Mj/List.pm:  (should_ack)  Return 0 if the ack
+	would be sent to the list's address.  Thanks to Roger Klorese.
+
+	* lib/Mj/MIMEParser.pm:  (collect_data)  Include the message-id
+	in the data collected.
+
+	* lib/Mj/Resend.pm:  (post)  Use the whoami_owner address
+	in the From header of acks.
+	(_post)  Include the message-id in the archive data.
+	Bugfix:  exclude invalid headers from the message_headers
+	setting.
+	(do_digests)  Add headers here rather than in _post() and
+	elsewhere.
+
+	* lib/Mj/Token.pm:  (t_remind)  Use the whoami_owner address
+	in the From header of reminders.
+
+	* lib/Mj/Util.pm:  (sort_msgs, find_thread_root)  New routines.
+	Sort messages by author, date, subject, or thread, or present
+	them in reverse order.
+
 2001-09-16  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* bin/mj_email (parse_commands): 
@@ -128,7 +186,7 @@
 	* lib/Mj/Resend.pm:  (_post)  Abort if close() fails on a
 	filehandle opened for writing.  
 	Add "X-Content-Reformatted" and "X-Content-Discarded" headers 
-        to messages that have been altered due to the attachment rules.  
+	to messages that have been altered due to the attachment rules.  
 	Add headers to digests based upon the precedence, reply_to, and 
 	message_headers settings, for consistency with Mj1 digests.
 	Thanks to Roger Klorese.

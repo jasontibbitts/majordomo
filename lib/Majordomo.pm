@@ -76,7 +76,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform Mj::BounceHandler);
-$VERSION = "0.1200109030";
+$VERSION = "0.1200109180";
 $unique = 'AAA';
 
 use strict;
@@ -302,6 +302,9 @@ sub connect {
   # Open the session file; 
   $log->abort("Can't write session file to $self->{ldir}/GLOBAL/sessions/$id, $!")
     unless (open ($self->{sessionfh}, ">>$self->{ldir}/GLOBAL/sessions/$id"));
+
+  # Do not log "Approved:" passwords
+  $sess =~ s/^(approved:[ \t]*)(\S+)/$1PASSWORD/gim;
 
   print {$self->{sessionfh}} "Source: $int\n"; #XLANG
   print {$self->{sessionfh}} "PID:    $$\n\n"; #XLANG
@@ -778,9 +781,6 @@ sub gen_cmdline {
       # "split" is a pattern used to separate arguments in some commands.
       next if ($variable eq 'split');
 
-      # a new password should never be displayed
-      next if ($variable eq 'newpasswd');
-
       # exclude and include arrays are used in Mj::CommandProps.pm
       # to distinguish arguments that may be present or absent
       # depending upon the command mode.
@@ -788,10 +788,25 @@ sub gen_cmdline {
                and $request->{'mode'} !~ /$arguments->{$variable}->{'include'}/);
       next if (exists $arguments->{$variable}->{'exclude'}
                and $request->{'mode'} =~ /$arguments->{$variable}->{'exclude'}/);
+
+      # a new password should never be displayed
+      if ($variable eq 'newpasswd') {
+        # The misnomer is due to a 3-argument limit in the token db.
+        if ($base eq 'createlist' and $request->{'mode'} =~ /rename/) {
+          # show new list name
+          $cmdline .= " $request->{'newpasswd'}";
+        }
+        else {
+          $cmdline .= " PASSWORD";
+        }
+        next;
+      }
+
       if ($variable eq 'victims' and defined $request->{'victim'}) {
         $cmdline .= " $request->{'victim'}";
         next;
       }
+
       last if (defined $hereargs and ($variable eq $hereargs));
       if (exists $request->{$variable} and $arguments->{$variable} ne 'ARRAY') {
         $cmdline .= " $request->{$variable}" 
@@ -3773,11 +3788,12 @@ sub archive_start {
     return ($ok, $out);
   }
 
-  $self->{'arcadmin'} = 1 if ($ok > 1);
-  if ($request->{'mode'} =~ /delete|sync/) {
-    return (0, "Insufficient privileges to alter the archive.\n")
+  if ($request->{'mode'} =~ /delete|sync|hidden/) {
+    return (0, "An admin password is needed to alter the archive or view
+hidden messages.\n")
       unless ($ok > 1);
   }
+  $self->{'arcadmin'} = 1 if ($ok > 1);
 
   $self->_archive($request->{'list'}, $request->{'user'}, $request->{'user'}, 
                   $request->{'mode'}, $request->{'cmdline'},
@@ -3790,7 +3806,7 @@ sub _archive {
   my ($self, $list, $user, $vict, $mode, $cmdline, $args, $patterns) = @_;
   my $log = new Log::In 30, "$list, $args";
   my (@msgs, @patterns, @tmp, $data, $i, $j, $mess, $ok, 
-      $private, $regex, $type);
+      $private, $re_pattern, $regex, $type);
   return 1 unless ($args or $mode =~ /summary/);
   return (0, "Unable to initialize list $list.\n")
     unless $self->_make_list($list);
@@ -3849,6 +3865,13 @@ sub _archive {
     }
   }
   $self->{'archct'} = 1;
+
+  if ($mode =~ /author|date|reverse|subject|thread/) {
+    eval ("use Mj::Util qw(sort_msgs)");
+    $re_pattern = $self->_list_config_get($list, 'subject_re_pattern');
+    @msgs = sort_msgs(\@msgs, $mode, $re_pattern);
+  }
+
   return (1, @msgs);
 }
 
@@ -4759,7 +4782,7 @@ sub _digest {
   my ($self, $list, $requ, $vict, $mode, $cmd, $digest) = @_;
   my $log  = new Log::In 35, "$mode, $list, $digest";
   my (@desc, @req, @sup, $d, $deliveries, $digests, $force, $i, $issues, 
-      $mess, $sender, $subs, $tmpdir, $whereami);
+      $mess, $owner, $sender, $subs, $tmpdir, $whereami);
 
   $digests = $self->_list_config_get($list, 'digests');
   return (0, "No digests have been configured for the $list list.\n")
@@ -4802,10 +4825,15 @@ sub _digest {
   if ($mode =~ /(check|force)/) {
     # A simple substitution hash; do_digests will add to it
     $sender   = $self->_list_config_get($list, 'sender');
+    $owner    = $self->_list_config_get($list, 'whoami_owner');
     $whereami = $self->_global_config_get('whereami');
     $tmpdir   = $self->_global_config_get('tmpdir');
     $subs = {
               $self->standard_subs($list),
+              ARCURL   => $self->_list_config_get($list, 'archive_url'),
+              DATE     => scalar(localtime()),
+              HOST     => $self->_list_config_get($list, 'resend_host'),
+              SENDER   => $sender,
 	    };
     if ($mode =~ /force/) {
       $force = 1;
@@ -4822,7 +4850,7 @@ sub _digest {
       $deliveries = {};
       $self->do_digests('list'       => $list,     'run'        => $d,
                         'force'      => $force,    'deliveries' => $deliveries,
-                        'substitute' => $subs,     'sender'     => $sender,
+                        'substitute' => $subs,     'sender'     => $owner,
                         'whereami'   => $whereami, 'tmpdir'     => $tmpdir,
                         # 'msgnum' => undef, 'arcdata' => undef,
                        );
@@ -4833,7 +4861,8 @@ sub _digest {
         for $i (keys %$deliveries) {
           unlink $deliveries->{$i}{file}
             if $deliveries->{$i}{file};
-          $issues->{$i}++;
+          $i =~ s/^digest-(.+)-(\w+)$/$1/;
+          $issues->{$i}++ if ($2 eq 'index');
         }
       }
       else {
@@ -4845,12 +4874,13 @@ sub _digest {
     # Indicate which digests were issued. 
     # (XXX Move to Mj::Format::digest.)
     if (scalar keys %$issues) {
-      for $i (keys %$issues) {
-        $mess .= qq("$i" issues: $issues->{$i}\n);
+      for $i (sort keys %$issues) {
+        $mess .= sprintf "%12s digest issues delivered: $issues->{$i}\n", 
+                         qq("$i");
       }
     }
     else {
-      $mess .= "No digests were issued.\n";
+      $mess .= "No digests were ready for delivery.\n";
     }
     return (1, $mess);
   }
