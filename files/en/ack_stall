@@ -1,6 +1,8 @@
-Your message to $LIST has been delayed
-pending approval of the list owner for
-the following reason(s):
+Your message to $LIST has been delayed, and requires the approval 
+of the moderators, for the following reason(s):
 
 $REASONS
 
+If you do not wish the message to be posted, or have other concerns, 
+please send a message to the list owners at the following address: 
+  $OWNER
