@@ -1,13 +1,6 @@
 <!-- Majordomo welcome format file -->
 <pre>?ERROR</pre>
 
-<p>
-Welcome to $SITE.
-The links at the top and bottom of the page will help you to 
-manage one or more of your mailing lists.  You can return
-to this introduction at any time by pressing <b>Help</b>.
-</p>
-
 <table cellspacing="15" width="100%">
 <tr>
   <td valign="top">Sign In
@@ -15,8 +8,8 @@ to this introduction at any time by pressing <b>Help</b>.
   <td>
 
 If you finish administering the $LIST list and wish to change
-to another list, press <b>Sign In</b>.  You will be prompted
-for a new mailing list name and password.
+to another list, click the <b>Sign In</b> link at the top
+or bottom of this page.
 
   </td>
 </tr>
@@ -25,8 +18,8 @@ for a new mailing list name and password.
   </td>
   <td>
 
-When you finish administering the $LIST list,
-press <b>Sign Out</b> to end the session.
+If you finish administering the $LIST list and wish to end
+this session, click the <b>Sign Out</b> link.
 
   </td>
 </tr>
@@ -36,8 +29,9 @@ press <b>Sign Out</b> to end the session.
   <td>
 
 Occasionally, posted messages, subscriptions, and other requests will
-need your approval before they are completed.  Press <b>Moderation</b>
-to see all of the requests that are being held for approval.
+need your approval before they are completed.  Click the
+<b>Moderation</b> link to see all of the requests that are being held
+for approval.
 [<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=welcome&amp;doc=showtokens">more</a>]
 
   </td>
@@ -47,7 +41,7 @@ to see all of the requests that are being held for approval.
   </td>
   <td>
 
-Press <b>Subscribers</b> if you wish to view or search the 
+Click the <b>Subscribers</b> link to view or search the 
 list of subscribers, add subscribers, remove subscribers, or
 change the personal settings of some subscribers.
 
@@ -61,8 +55,7 @@ change the personal settings of some subscribers.
 Majordomo has over 100 configuration settings which you can
 use to fine-tune the performance of your mailing list.  To manage them 
 more easily, they have been divided into several categories.
-Press <b>Configuration</b> to see a list of these categories.
-You can then view and change the current settings.
+Click the <b>Configuration</b> link to see a list of these categories.
 
   </td>
 </tr>
@@ -71,8 +64,8 @@ You can then view and change the current settings.
   </td>
   <td>
 
-Press <b>List Info</b> to see what information about your list is
-presented when people visit the 
+Click the <b>List Info</b> link to see what information about your list
+is presented when people visit the 
 <a href="$WWWUSR_URL">web interface for subscribers</a>.
 <p>
 You can also edit the welcome message, FAQ, and other documents; see
@@ -100,7 +93,13 @@ commands are supported only by the command form.
   <td valign="top">Help
   </td>
   <td>
-
+Click the <b>Help</b> link to return to this page.
+  </td>
+</tr>
+<tr>
+  <td align="top">Issue Commands by E-mail
+  </td>
+  <td>
 Majordomo has over 100 cross-referenced help documents.
 They describe how to email commands to Majordomo at
 <a href="mailto:$MJ">$MJ</a>.  

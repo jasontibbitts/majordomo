@@ -1,41 +1,16 @@
 <!-- Majordomo welcome_global format file -->
 <pre>?ERROR</pre>
 
-<p>
-Welcome to $SITE.
-The links at the top and bottom of the page will help you to manage the
-$DOMAIN domain.  You can return to this introduction at any time by
-pressing <b>Help</b>.
-</p>
-
 <table cellspacing="15" width="100%">
 <tr>
   <td valign="top">Sign In
   </td>
   <td>
 
-  <p>
 If you finish administering the $LIST list and wish to change
-to another list, press <b>Sign In</b>.  You will be prompted
-for a new mailing list name and password.  Your temporary password 
-for this session will continue to be valid.
-  </p>
+to another list, click the <b>Sign In</b> link at the top
+or bottom of this page.
 
-  <p>
-To administer a different domain at this site, type the domain name
-into the <b>Domain</b> box.  Press the <b>change domain</b> button
-to receive instructions for entering your credentials.
-
-  <form method="POST" action="$CGIURL">
-    <input type="hidden" name="user" value="$USER">
-    <input type="hidden" name="func" value="login">
-    <input type="hidden" name="list" value="GLOBAL">
-    Domain:
-    <input name="domain" size="45" value="">
-    <input type="submit" name="f" value="change domain">
-  </form>
-  
-  </p>
   </td>
 </tr>
 <tr>
@@ -44,8 +19,7 @@ to receive instructions for entering your credentials.
   <td>
 
 If you finish administering the $LIST list and wish to end
-this session, press <b>Sign Out</b>.  Your temporary password
-for this session will be invalidated.
+this session, click the <b>Sign Out</b> link.
 
   </td>
 </tr>
@@ -54,14 +28,10 @@ for this session will be invalidated.
   </td>
   <td>
 
-Occasionally, posted messages, subscriptions, and other requests
-will need your approval before they are completed.  Press 
-<b>Moderation</b> to see all of the unfinished requests for every
-mailing list at $SITE. 
-The requests labeled <b>consult</b> await the approval of an
-administrator, whereas the requests labeled <b>confirm</b> await the
-approval of the people who made them.  The requests labeled <b>delay</b>
-will be completed automatically at a later time.
+Occasionally, posted messages, subscriptions, and other requests will
+need your approval before they are completed.  Click the
+<b>Moderation</b> link to see all of the requests that are being held
+for approval, for every mailing list at $SITE. 
 
   </td>
 </tr>
@@ -70,10 +40,10 @@ will be completed automatically at a later time.
   </td>
   <td>
 
-Press <b>Registry</b> to see the first 20 e-mail addresses of
-people who have registered at $SITE.  
-Whenever someone joins a mailing list, the e-mail address of that person
-is registered automatically.  
+Click the <b>Registry</b> link to view or search the e-mail addresses of
+people who have registered at $SITE.  Whenever someone subscribes to a
+mailing list, the e-mail address of that person is registered
+automatically.  
 
   </td>
 </tr>
@@ -82,11 +52,10 @@ is registered automatically.
   </td>
   <td>
 
-Majordomo has over 100 GLOBAL configuration settings which you can
+Majordomo has over 100 GLOBAL configuration settings, which you can
 use to fine-tune the performance of your domain.  To manage them 
 more easily, they have been divided into several categories.
-Press <b>Configuration</b> to see a list of these categories.
-You can then view and change the current settings.
+Click the <b>Configuration</b> link to see a list of these categories.
 
   </td>
 </tr>
@@ -95,11 +64,10 @@ You can then view and change the current settings.
   </td>
   <td>
 
-Majordomo has over 100 DEFAULT configuration settings which you can
-use to set the default values for every mailing list in this domain.  
-To manage them more easily, they have been divided into several 
-categories.  Press <b>Defaults</b> to see a list of these categories.
-You can then view and change the current settings.
+Majordomo has over 100 DEFAULT configuration settings, which you can use
+to set the default values for every mailing list in this domain.  To
+manage them more easily, they have been divided into several categories.
+Click the <b>Defaults</b> link to see a list of these categories.
 
   </td>
 </tr>
@@ -108,8 +76,9 @@ You can then view and change the current settings.
   </td>
   <td>
 
-If you wish to create, rename, or destroy a mailing list, press 
-<b>Create Lists</b>.
+If you wish to create, rename, or destroy a mailing list, click
+the <b>Create Lists</b> link.
+
   </td>
 </tr>
 <tr>
@@ -117,8 +86,7 @@ If you wish to create, rename, or destroy a mailing list, press
   </td>
   <td>
 
-Although the other features of this WWW service will allow you
-to perform many common tasks, not every task is supported yet.
+Not every Majordomo command is supported by this web interface.
 However, the <b>Command Form</b> offers a primitive way of 
 issuing commands that may be easier for experienced administrators.
 <p>
@@ -132,6 +100,33 @@ commands are supported only by the command form.
   </td>
   <td>
 
+Click the <b>Help</b> link to return to this page.
+
+  </td>
+</tr>
+<tr>
+  <td valign="top">Change Domains
+  </td>
+  <td>
+
+To administer a different domain at this site, type the domain name
+into the <b>Domain</b> box.  Press the <b>change domain</b> button
+to receive instructions for entering your credentials.
+
+  <form method="POST" action="$CGIURL">
+    <input type="hidden" name="user" value="$USER">
+    <input type="hidden" name="func" value="login">
+    <input type="hidden" name="list" value="GLOBAL">
+    Domain:
+    <input name="domain" size="45" value="">
+    <input type="submit" name="f" value="change domain">
+  </form>
+  </td>
+</tr>
+<tr>
+  <td valign="top">Issue Commands by E-mail
+  </td>
+  <td>
 Majordomo has over 100 cross-referenced help documents.
 They describe how to email commands to Majordomo at
 <a href="mailto:$MJ">$MJ</a>.  
