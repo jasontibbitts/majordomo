@@ -1,3 +1,9 @@
+2000-12-04  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* setup/ask_domain.pl (ask_domain): Make it clear that the
+        expected answer to "What is the email address of the
+        owner of this Majordomo installation" is not "majordomo-owner".
+
 2000-12-03  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/List.pm (expire_subscriber_data): Bug fix: when all

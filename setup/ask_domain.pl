@@ -33,7 +33,11 @@ EOM
 $hdr
 
 What is the email address of the owner of this Majordomo installation?
-(be sure to enter the full address, as in 'owner\@mydomain.com')
+ (Be sure to enter the full address, as in 'owner\@mydomain.com'.)
+ Note that this is not something like 'majordomo-owner\@mydomain.com';
+  this should be the actual email address of the person who will receive
+  mail that is sent to majordomo-owner.
+
 EOM
   $def = $cfg->{'owner'};
   # XXX Should probably have a get_addr routine, but we might have
