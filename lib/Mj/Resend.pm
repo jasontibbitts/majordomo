@@ -933,7 +933,7 @@ sub _check_approval {
     while (defined ($line = $fh->getline)) {
       last if $line =~ /\S/;
     }
-    if (defined($line) && $line =~ /Approved:\s*([^\s,]+)\s*,?\s*(.*)\s*/i) {
+    if (defined($line) && $line =~ /Approved:\s*([^\s,]+)\s*,?\s*(\S*)\s*/i) {
       ($passwd, $token) = ($1, $2);
     }
   }
@@ -946,7 +946,7 @@ sub _check_approval {
       unless $self->validate_passwd($user, $passwd, $list, 'post') > 0;
   }
 
-  if ($token) {
+  if ($token = $self->t_recognize($token)) {
     $time = $::log->elapsed;
     ($ok, $data) = $self->t_reject($token);
     if ($ok) {
