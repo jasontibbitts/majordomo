@@ -486,8 +486,11 @@ sub generate_wrappers {
   }
 
   for my $i (@SIDSCRIPTS) {
-    unlink "./bin/.$i" if (-f "./bin/.$i");
-    link("./bin/$i", "./bin/.$i");
+    if (-f "./bin/.$i") {
+      unlink "./bin/.$i" || die("Unable to unlink bin/.$i: $!");
+    }
+    link("./bin/$i", "./bin/.$i") 
+      || die("Unable to create link for bin/.$i: $!");
     open(WRAP, ">wrappers/$i.c") || die("Can't create wrappers/$i.c: $!");
     print WRAP "main(ac, av)
     char **av;
@@ -512,7 +515,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
