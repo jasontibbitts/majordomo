@@ -1,21 +1,25 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 set listname flag address
+set ALL      flag address
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname, required, is an email list at this site
+listname, required, is an email list at this site (ALL is special case)
 flag,     required, is a subscription parameter (listed below)
 address,  required, is an address already subscribed to listname
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+This command sets the values of various subscription parameters, some
+of which can be pre-set by the list owner. Each time you use "set",
+you will get back a summary of all of your settings. If you use the
+pseudo-list "ALL" instead of a specific list name, your subscription
+will be changed for every list to which you are subscribed.
 
 WARNING: If you set "noack", you may accidentally cause error
 messages to vanish. (This is especially true when your list is
 configured using using the "replyfile" option - if you are a
 list owner, you should see "help configset access_rules".)
 
-This command sets the values of various subscription parameters, some
-of which can be pre-set by the list owner. The list owner can also
-prevent subscribers from changing settings. The settings can be grouped
-as follows (specify only one of each set, because each one will override
-the others in the set):
+The settings can be grouped as follows (specify only one of each
+group, because each one will override the others in the group):
   1. subscription class (each, digest, nomail)
   2. informative messages (ackall, ackimportant, noack)
   3. copies of your own posts (selfcopy, noselfcopy)
@@ -42,7 +46,7 @@ manner if settings are changed without the subscriber's reply.
 1. You can set your subscription class, which controls how (and if) you
    receive messages from the server.  There are three basic classes:
      each   - you get each message as it is posted.
-     digest - you get periodic collections of messages.
+     digest - you get periodic collections of messages (extra options below).
      nomail - you get nothing.
 
 
@@ -283,6 +287,8 @@ exclusive sets (specify only one of each set, because each one will
 override the others in the set). Detailed descriptions are above.
 
 Remember to put in your actual email address and the real list name!
+If you use the special pseudo-list name "ALL", this command changes
+each place where the specified address is subscribed.
 
 1. Subscription class:                 (no such options in default_flags)
    set LISTNAME each EmailAddress                  (default subscription)
@@ -301,7 +307,7 @@ NOTE: "nomail" and "vacation" are identical, use whichever you like.
    set LISTNAME noselfcopy EmailAddress            (no S in default_flags)
 
 4. Whether you want to be visible with "who":
-   set LISTNAME hideal EmailAddressl                ('H' in default_flags)
+   set LISTNAME hideall EmailAddressl               ('H' in default_flags)
    set LISTNAME hideaddress EmailAddress            ('h' in default_flags)
    set LISTNAME nohide EmailAddress          (no h, no H in default_flags)
 
@@ -323,7 +329,7 @@ NOTE: "nomail" and "vacation" are identical, use whichever you like.
 
 
 See Also:
-   help configset access_rules        (to require token confirmation of set changes)
+   help configset access_rules        (to restrict or allow access to 'set' changes)
    help configset ack_attach_original (attaches post to error message if stalled)
    help configset ack_denials_always  (overrides "noack" for denied posts)
    help configset allowed_flags       (restricts subscribers ability to use set)
