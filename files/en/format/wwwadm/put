@@ -1,7 +1,7 @@
 <!-- Majordomo put format file -->
 <p>
 The $COMMAND command succeeded.  The file "$FILE" was updated.
-(<a href="$CGIURL?$CGIDATA&amp;func=get-edit&amp;list=$LIST&amp;extra=$PATH$FILE">Edit 
+(<a href="$CGIURL?$CGIDATA&amp;func=get-edit&amp;list=$LIST&amp;extra=$FULLPATH">Edit 
 this File</a>)
 </p>
 
@@ -12,7 +12,7 @@ this File</a>)
   <input type="hidden" name="passw" value="$CMDPASS">
   <input type="hidden" name="list" value="$LIST">
   <input type="hidden" name="func" value="get-edit">
-  <input type="hidden" name="extra" value="$PATH$FILE">
+  <input type="hidden" name="extra" value="$FULLPATH">
 Send this file in an e-mail message to: 
   <input name="victims" size="36">
   <input type="submit" value="Send">

@@ -9,7 +9,7 @@
   <td valign="top">$DESCRIPTION
   </td>
   <td valign="top" align="center">
-  <a href="$CGIURL?$CGIDATA&amp;func=put-delete&amp;list=$LIST&amp;extra=$PATH$FILE">
+  <a href="$CGIURL?$CGIDATA&amp;func=put-delete&amp;list=$LIST&amp;extra=$FULLPATH">
   Delete</a>
   </td>
 </tr>

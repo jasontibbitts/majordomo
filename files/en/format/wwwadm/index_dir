@@ -1,7 +1,7 @@
 <!-- Majordomo index_dir format file -->
 <tr>
   <td valign="top">
-  <a href="$CGIURL?$CGIDATA&amp;func=index&amp;list=$LIST&amp;extra=$PATH$FILE">
+  <a href="$CGIURL?$CGIDATA&amp;func=index&amp;list=$LIST&amp;extra=$FULLPATH">
   $FILE</a>
   </td>
   <td valign="top">
@@ -11,7 +11,7 @@
   <td valign="top">$DESCRIPTION
   </td>
   <td valign="top" align="center">
-  <a href="$CGIURL?$CGIDATA&amp;func=put-delete&amp;list=$LIST&amp;extra=$PATH$FILE">
+  <a href="$CGIURL?$CGIDATA&amp;func=put-delete&amp;list=$LIST&amp;extra=$FULLPATH">
   Delete</a>
   </td>
 </tr>

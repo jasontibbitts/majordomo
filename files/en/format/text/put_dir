@@ -1,2 +1,2 @@
 The $COMMAND command succeeded.
-The directory "$PATH$FILE" was created or updated.
+The directory "$FULLPATH" was created or updated.
