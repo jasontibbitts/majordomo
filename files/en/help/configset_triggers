@@ -14,27 +14,35 @@ Password Notes: Visible only with password. Set with global password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset  GLOBAL  triggers <<ENDGLOBAL
+configset GLOBAL triggers <<ENDGLOBAL
+checksum | 3rd(17),10th(9),17th(11),24th(19)
+delay    | hourly
+log      | weekly
 session  | monday(6,12,18), thursday(8)
 token    | always  
-checksum | 3rd(17),10th(9),17th(11),24th(19)
 ENDGLOBAL
-configset  GLOBAL  triggers <<ENDLIST
-delay | hourly
+
+configset ANOTHER_LIST triggers <<ENDLIST
+bounce   | daily
+checksum | 3rd(17),10th(9),17th(11),24th(19)
+delay    | hourly
+post     | thursday
 ENDLIST
 
-
-Triggers are used to send reminders and to remove expired data from
-the databases.  Each trigger consists of a name and a set of times
-during which the trigger is issued.  The data are separated by
-vertical bars ('|') or colons, as in:
+Triggers are actions that occur periodically.  Each trigger consists 
+of a name and a set of times during which the trigger is issued.  
+The name and times are separated by vertical bars ('|') or colons, as in:
   session  | monday(6,12,18), thursday(8)
 
-NOTE: A value for each trigger in the "triggers" setting is required!
+When the software was installed, a cron job should have been set up to
+call the mj_trigger program on an hourly basis.  During the hourly
+cron job, the times for each trigger in the triggers setting are
+compared to the current day and time.  Triggers whose times match
+the current time are executed by the mj_trigger program.
 
 Here are the actions which can be triggered via the GLOBAL pseudo-list:
  checksum - Expire posted message checksums and message-id data.
- delay    - Do things indicated by delay tokens or delay access rules.
+ delay    - Complete delayed requests.
  log      - Expire entries from the main log.
  session  - Expire old session data.
  token    - Issue reminders and remove expired tokens and temporary passwords.
@@ -42,19 +50,14 @@ Here are the actions which can be triggered via the GLOBAL pseudo-list:
 Here are the actions which can be triggered via the regular lists:
  bounce   - Expire subscriber data, such as bounces and vacation settings.
  checksum - Expire posted message checksums and message-id data.
- delay    - Do things indicated by delay tokens or delay access rules.
+ delay    - Complete delayed requests and post delayed messages.
  post     - Expire data from the "post_limits" database.
 
-When the software was installed, a cron job should have been set up to
-call mj_trigger periodically. The suggested setting is to do this on an
-hourly basis ONLY, to avoid doing the same thing multiple times. When
-that cron job triggers a check of various time-based actions, any
-action which is due or overdue will be performed. Digests are ALWAYS
-checked during the hourly trigger.
+NOTE: A value for each action in the "triggers" setting is required!
 
 The times field follows the standard Majordomo syntax (see "help times").
-Note the special cases of "always" which issues the specified trigger
-whenever cron runs ANY trigger, and "never" which skips the specified trigger.
+"always" and "hourly" are identical:  the specified trigger is always run.  
+"never" skips the specified trigger.
 
 
 See Also:
