@@ -324,9 +324,24 @@ sub dispatch {
   ($base_fun = $request->{'command'}) =~ s/_(start|chunk|done)$//;
   $continued = 1 if $request->{'command'} =~ /_(chunk|done)/;
   $request->{'list'} ||= 'GLOBAL';
+
   $request->{'user'} ||= 'unknown@anonymous';
+  $request->{'password'} ||= '';
   $request->{'mode'} ||= '';
   $request->{'mode'} = lc $request->{'mode'};
+
+  my $log  = new Log::In $level, "$request->{'command'}, $request->{'user'}";
+
+  $log->abort('Not yet connected!') unless $self->{'sessionid'};
+
+  unless (function_legal($request->{'command'})) {
+    return [0, "Illegal command \"$request->{'command'}\".\n"];
+  }
+
+  unless (defined $self->valid_list($request->{'list'}, 1, 1)) {
+    return [0, "Illegal list: \"$request->{'list'}\".\n"];
+  }
+
   if ($request->{'password'} =~ /^[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}$/) {
     # The password given appears to be a latchkey, a temporary password.
     # If the latchkey exists and has not expired, convert the latchkey
@@ -341,14 +356,6 @@ sub dispatch {
     }
   }
 
-  my $log  = new Log::In $level, "$request->{'command'}, $request->{'user'}";
-
-  $log->abort('Not yet connected!') unless $self->{'sessionid'};
-
-  unless (function_legal($request->{'command'})) {
-    return [0, "Illegal core function: $request->{'command'}.\n"];
-  }
-
   # Turn some strings into addresses and check their validity; never with a
   # continued function (they never need it) and only if the function needs
   # validated addresses.
@@ -360,7 +367,8 @@ sub dispatch {
     ($ok, $mess) = $request->{'user'}->valid;
     return [0, "$request->{'user'} is an invalid address:\n$mess"]
       unless $ok;
- 
+
+    # Each of the victims must be verified. 
     if (exists ($request->{'victims'}) and ($request->{'mode'} !~ /regex/)) {
       my ($addr, @tmp);
       while (@{$request->{'victims'}}) {
@@ -499,8 +507,8 @@ sub gen_cmdline {
     return 1;
   }
   if ($request->{'command'} =~ /post/) {
-    if (length $request->{'sublist'}) {
-      $request->{'cmdline'} = "(post to $request->{'list'}:$request->{'sublist'})";
+    if (length $request->{'auxlist'}) {
+      $request->{'cmdline'} = "(post to $request->{'list'}:$request->{'auxlist'})";
     }
     else {
       $request->{'cmdline'} = "(post to $request->{'list'})";
@@ -2507,14 +2515,14 @@ sub accept {
   my $log = new Log::In 30, scalar(@{$request->{'tokens'}}) . " tokens";
   my ($token, $ttoken, @out);
 
-  return (0, ["No token supplied.\n"])
+  return (0, "No token supplied.\n")
     unless (scalar(@{$request->{'tokens'}}));
 
   # XXX Log an entry for each token / only recognized tokens? 
   for $ttoken (@{$request->{'tokens'}}) {
     $token = $self->t_recognize($ttoken);
     if (! $token) {
-      push @out, 0, ["Illegal token $ttoken.\n"];
+      push @out, 0, "Illegal token $ttoken.\n";
       next;
     }
 
@@ -2791,22 +2799,22 @@ This adds an address to a lists named auxiliary address list.
 =cut
 sub auxadd {
   my ($self, $request) = @_;
-  my $log = new Log::In 30, "$request->{'list'}, $request->{'sublist'}";
+  my $log = new Log::In 30, "$request->{'list'}, $request->{'auxlist'}";
   my (@out, $addr, $ok, $mess);
 
   $self->_make_list($request->{'list'});
 
-  return (0, "Illegal sublist name \"$request->{'sublist'}\".")
-    unless $self->legal_list_name($request->{'sublist'});
+  return (0, "Illegal auxiliary list name \"$request->{'auxlist'}\".")
+    unless $self->legal_list_name($request->{'auxlist'});
 
-  $request->{'sublist'} =~ /(.*)/;  
-  $request->{'sublist'} = $1;  
+  $request->{'auxlist'} =~ /(.*)/;  
+  $request->{'auxlist'} = $1;  
 
   ($ok, $mess) =
     $self->list_access_check($request->{'password'}, $request->{'mode'}, 
                              $request->{'cmdline'}, $request->{'list'}, 
                              'auxadd', $request->{'user'}, $request->{'victim'}, 
-                             $request->{'sublist'}, '','');
+                             $request->{'auxlist'}, '','');
 
   unless ($ok > 0) {
     $log->message(30, "info", "$request->{'victim'}: noaccess");
@@ -2814,7 +2822,7 @@ sub auxadd {
   }
   
   $self->_auxadd($request->{'list'}, $request->{'user'}, $request->{'victim'}, 
-    $request->{'mode'}, $request->{'cmdline'}, $request->{'sublist'});
+    $request->{'mode'}, $request->{'cmdline'}, $request->{'auxlist'});
 }
 
 sub _auxadd {
@@ -2843,15 +2851,15 @@ This removes an address from a lists named auxiliary address list.
 sub auxremove {
   my ($self, $request) = @_;
   my (@removed, @out, $error, $ok);
-  my $log = new Log::In 30, "$request->{'list'}, $request->{'sublist'}";
+  my $log = new Log::In 30, "$request->{'list'}, $request->{'auxlist'}";
 
   $self->_make_list($request->{'list'});
 
-  return (0, "Illegal sublist name \"$request->{'sublist'}\".")
-    unless $self->legal_list_name($request->{'sublist'});
+  return (0, "Illegal auxiliary list name \"$request->{'auxlist'}\".")
+    unless $self->legal_list_name($request->{'auxlist'});
 
-  $request->{'sublist'} =~ /(.*)/;  
-  $request->{'sublist'} = $1;  
+  $request->{'auxlist'} =~ /(.*)/;  
+  $request->{'auxlist'} = $1;  
 
   if ($request->{'mode'} =~ /regex/) {
     ($ok, $error, $request->{'victim'}) 
@@ -2863,7 +2871,7 @@ sub auxremove {
     $self->list_access_check($request->{'password'}, $request->{'mode'},
                              $request->{'cmdline'}, $request->{'list'}, 
                              'auxremove', $request->{'user'}, $addr, 
-                             $request->{'sublist'} ,'','');
+                             $request->{'auxlist'} ,'','');
   unless ($ok > 0) {
     $log->message(30, "info", "$addr: noaccess");
     return ($ok, $error);
@@ -2871,7 +2879,7 @@ sub auxremove {
   
   $self->_auxremove($request->{'list'}, $request->{'user'}, 
                     $request->{'victim'}, $request->{'mode'}, 
-                    $request->{'cmdline'}, $request->{'sublist'});
+                    $request->{'cmdline'}, $request->{'auxlist'});
 }
 
 sub _auxremove {
@@ -2902,62 +2910,18 @@ These implement iterative access to an auxiliary list.
 
 =cut
 sub auxwho_start {
-  my ($self, $request) = @_;
-  my $log = new Log::In 30, "$request->{'list'}, $request->{'sublist'}";
-  my ($ok, $error);
+  &who_start(@_);
+}
 
-  ($ok, $error) = 
-    $self->list_access_check($request->{'password'}, $request->{'mode'},
-                             $request->{'cmdline'}, $request->{'list'}, 
-                             'auxwho', $request->{'user'});
-
-  return ($ok, $error) unless ($ok > 0);
-
-  return (0, "Illegal sublist name \"$request->{'sublist'}\".")
-    unless $self->legal_list_name($request->{'sublist'});
-
-  $self->_make_list($request->{'list'});
-  $self->{'lists'}{$request->{'list'}}->_fill_aux;
-
-  return (0, "Unknown sublist name \"$request->{'sublist'}\".")
-    unless exists 
-      ($self->{'lists'}{$request->{'list'}}->{'auxlists'}{$request->{'sublist'}});
-
-  $request->{'sublist'} =~ /(.*)/;  
-  $request->{'sublist'} = $1;  
-
-  $self->{'lists'}{$request->{'list'}}->aux_get_start($request->{'sublist'});
+sub _auxwho {
+  &_who(@_);
 }
 
 sub auxwho_chunk {
-  my ($self, $request, $chunksize) = @_;
-  my (@chunk, @out, $i);
-
-  $::log->in(100, "$request->{'list'}, $request->{'sublist'}");
-
-  @chunk = $self->{'lists'}{$request->{'list'}}->aux_get_chunk($request->{'sublist'}, $chunksize);
-  
-  unless (@chunk) {
-    $::log->out("finished");
-    return (0, '');
-  }
- 
-  # Here eliminate addresses that are unlisted
-  for $i (@chunk) {
-    # Call List::unlisted or whatever.
-    push @out, $i;
-  }
-  
-  $::log->out;
-  return (1, @out);
-}
+  &who_chunk(@_);
 
 sub auxwho_done {
-  my ($self, $request) = @_;
-  my $log = new Log::In 30, "$request->{'list'}, $request->{'sublist'}";
-
-  $self->{'lists'}{$request->{'list'}}->aux_get_done($request->{'sublist'});
-  (1, '');
+  &who_done(@_);
 }
 
 sub configdef {
@@ -3482,7 +3446,7 @@ sub reject {
   my ($list_owner, $mj_addr, $mj_owner, $ok, $mess, $reason, $repl, $rfile);
   my ($sess, $site, $token, $victim);
 
-  return (0, ["No token supplied.\n"])
+  return (0, "No token supplied.\n")
     unless (scalar(@{$request->{'tokens'}}));
 
   $site       = $self->_global_config_get('site_name');
@@ -3847,7 +3811,6 @@ sub set {
   my $log = new Log::In 30, "$request->{'list'}, $request->{'setting'}";
   my ($ok, $mess);
  
-  # YYY Check access
   unless (defined $request->{'setting'}) {
     return (0, "No setting defined.\n");
   }
@@ -3855,7 +3818,7 @@ sub set {
   return (0, "The set command is not supported for the $request->{'list'} list.\n")
     if ($request->{'list'} eq 'GLOBAL' or $request->{'list'} eq 'DEFAULT'); 
 
-  $request->{'sublist'} = '' unless $request->{'mode'} =~ /aux/;
+  $request->{'auxlist'} = '' unless $request->{'mode'} =~ /aux/;
 
   ($ok, $mess) =
     $self->list_access_check($request->{'password'}, $request->{'mode'}, 
@@ -3891,7 +3854,7 @@ sub _set {
     if ($ok) {
       $res->{'victim'}   = $addr;
       $res->{'list'}     = $l;
-      $res->{'sublist'}  = $sublist;
+      $res->{'auxlist'}  = $sublist;
       $res->{'flagdesc'} = [$self->{'lists'}{$l}->describe_flags($res->{'flags'})];
       $res->{'classdesc'} = $self->{'lists'}{$l}->describe_class(@{$res->{'class'}});
     }
@@ -4609,10 +4572,12 @@ the setup and returns.
 use Mj::Config;
 sub who_start {
   my ($self, $request) = @_;
-  my $log = new Log::In 30, "$request->{'list'}";
-  my ($ok, $error);
+  $request->{'auxlist'} ||= '';
+  my $log = new Log::In 30, "$request->{'list'}, $request->{'auxlist'}";
+  my ($base, $ok, $error);
 
-  $self->_make_list($request->{'list'});
+  $base = $request->{'command'}; $base =~ s/_start//i;
+
   if ($request->{'regexp'}) {
     ($ok, $error, $regexp) = Mj::Config::compile_pattern($request->{'regexp'}, 0);
     return ($ok, $error) unless $ok;
@@ -4621,8 +4586,8 @@ sub who_start {
   ($ok, $error) = 
     $self->list_access_check($request->{'password'}, $request->{'mode'}, 
                              $request->{'cmdline'}, $request->{'list'}, 
-                             "who", $request->{'user'}, $request->{'user'}, 
-                             $request->{'regexp'});
+                             $base, $request->{'user'}, $request->{'user'}, 
+                             $request->{'regexp'}, $request->{'auxlist'});
 
   unless ($ok > 0) {
     $log->out("noaccess");
@@ -4631,15 +4596,17 @@ sub who_start {
 
   $self->{'unhide_who'} = ($ok > 1 ? 1 : 0);
   $self->_who($request->{'list'}, $request->{'user'}, '', 
-              $request->{'mode'}, $request->{'cmdline'}, $request->{'regexp'});
+              $request->{'mode'}, $request->{'cmdline'}, 
+              $request->{'regexp'}, $request->{'auxlist'});
 }
 
 sub _who {
-  my ($self, $list, $requ, $victim, $mode, $cmdline, $regexp) = @_;
+  my ($self, $list, $requ, $victim, $mode, $cmdline, $regexp, $sublist) = @_;
   my $log = new Log::In 35, "$list";
-  my ($fh, $listing);
+  my ($fh, $listing, $mess, $ok);
   my ($tmpl) = '';
   $listing = [];
+  $sublist ||= '';
 
   if ($list eq 'GLOBAL' or $list eq 'DEFAULT') {
     $self->{'reg'}->get_start;
@@ -4649,7 +4616,14 @@ sub _who {
   }
   else {
     $self->_make_list($list);
-    $self->{'lists'}{$list}->get_start;
+    if (length $sublist) {
+      return (0, "Unknown auxiliary list name \"$sublist\".")
+        unless ($self->{'lists'}{$list}->validate_aux($sublist));
+      $self->{'lists'}{$list}->aux_get_start($sublist);
+    }
+    else {
+      $self->{'lists'}{$list}->get_start;
+    }
     if ($mode =~ /enhanced/) {
       ($tmpl) = $self->_list_file_get('GLOBAL', 'who_subscriber');
     }
@@ -4671,7 +4645,7 @@ use Safe;
 sub who_chunk {
   my ($self, $request, $chunksize) = @_;
   my $log = new Log::In 100, "$request->{'list'}, $request->{'regexp'}, $chunksize";
-  my (@chunk, @out, $i, $j, $addr, $strip);
+  my (@chunk, @out, @tmp, $addr, $i, $j, $strip);
 
   # who for DEFAULT returns nothing
   if ($request->{'list'} eq 'DEFAULT') {
@@ -4679,11 +4653,14 @@ sub who_chunk {
   }
   # who for GLOBAL will search the registry
   if ($request->{'list'} eq 'GLOBAL') {
-    my @tmp;
     @tmp = $self->{'reg'}->get($chunksize);
     while ((undef, $i) = splice(@tmp, 0, 2)) {
       push @chunk, $i;
     }
+  }
+  elsif (length $request->{'auxlist'}) {
+    @chunk = $self->{'lists'}{$request->{'list'}}->aux_get_chunk(
+               $request->{'auxlist'}, $chunksize);
   }
   else {
     @chunk = $self->{'lists'}{$request->{'list'}}->get_chunk($chunksize);
@@ -4695,7 +4672,8 @@ sub who_chunk {
   }
 
   for $i (@chunk) {
-    next if $regexp && !_re_match($request->{'regexp'}, $i->{'fulladdr'}); 
+    next if ($request->{'regexp'} 
+             and !_re_match($request->{'regexp'}, $i->{'fulladdr'})); 
     # If we're to show it all...
     if ($self->{'unhide_who'}) {
       # GLOBAL has no flags or classes or bounces
@@ -4761,6 +4739,9 @@ sub who_done {
 
   if ($request->{'list'} eq 'GLOBAL' or $request->{'list'} eq 'DEFAULT') {
     $self->{'reg'}->get_done;
+  }
+  elsif (length $request->{'auxlist'}) {
+    $self->{'lists'}{$request->{'list'}}->aux_get_done($request->{'auxlist'});
   }
   else {
     $self->{'lists'}{$request->{'list'}}->get_done;

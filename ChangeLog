@@ -1,3 +1,14 @@
+2000-07-28  Michael Yount <csf@moscow.com>
+
+    * lib/Mj/CommandProps.pm:  Use "auxlist" instead of "sublist."
+	The argument names must be alphabetical in relation to the
+	order in which the arguments appear on the command line.
+	Using "auxlist" allows more flexibility in choosing names
+	for the other arguments.
+
+	* lib/Majordomo.pm, lib/Mj/Format.pm:  Combine code for
+	the who and auxwho commands.
+
 2000-07-27  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Archive.pm:  Make archives of auxiliary lists available.

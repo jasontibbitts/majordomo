@@ -57,11 +57,12 @@ sub accept {
   @tokens = @$result;
   while (@tokens) {
     $ok  =  shift @tokens;
-    ($mess, $data, $rresult) = @{shift @tokens};
     if ($ok <= 0) {
+      $mess = shift @tokens;
       eprint($err, $type, &indicate($mess, $ok));
       next;
     }
+    ($mess, $data, $rresult) = @{shift @tokens};
 
     # Print some basic data
     eprint($out, $type, "Token for command:\n    $data->{'cmdline'}\n");
@@ -155,8 +156,6 @@ sub archive {
   $ok;
 }
 
-# auxsubscribe and auxunsubscribe are formatted by the sub and unsub
-# routines.
 sub auxadd {
   subscribe(@_);
 }
@@ -165,50 +164,8 @@ sub auxremove {
   unsubscribe(@_);
 }
 
-# XXX Merge this with who below; they share most of their code.
 sub auxwho  {
-  my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, "$type, $request->{'list'}, $request->{'sublist'}";
-  my (@lines, $chunksize, $count, $error, $i, $line, $ret);  
-
-  my ($ok, $mess) = @$result;
-
-  if ($ok <= 0) {
-    eprint($out, $type, "Could not access $request->{'sublist'}:\n");
-    eprint($out, $type, &indicate($mess, $ok));
-    return $ok;
-  }
-  
-  # We know we succeeded
-  $count = 0;
-  $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
-                                      "chunksize");
-  
-  eprint($out, $type, "Members of auxiliary list \"$request->{'list'}:$request->{'sublist'}\":\n");
-  
-  $request->{'command'} = "auxwho_chunk";
-
-  while (1) {
-    ($ret, @lines) = 
-      @{$mj->dispatch($request, $chunksize)};
-    
-    
-    last unless $ret > 0;
-    for $i (@lines) {
-      $count++;
-      $line = sprintf "  %-48s %7s %s\n", $i->{'stripaddr'}, 
-                                          $i->{'flags'}, $i->{'class'};
-      eprint($out, $type, $line);
-    }
-  }
-  $request->{'command'} = "auxwho_done";
-  $mj->dispatch($request);
-  
-  eprintf($out, $type, "%s listed member%s\n",
-    ($count || "No"),
-    ($count == 1 ? "" : "s"));
-
-  return $ok;
+  who (@_);
 }
 
 sub configdef {
@@ -611,17 +568,17 @@ sub register {
 sub reject {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type";
-  my ($token, $data, @tokens, $ok, $res);
+  my ($data, $ok, $res, $token, @tokens);
 
   @tokens = @$result; 
 
   while (@tokens) { 
     ($ok, $res) = splice @tokens, 0, 2;
-    ($token, $data) = @$res;
     unless ($ok) {
-      eprint($out, $type, indicate($token, $ok));
+      eprint($out, $type, indicate($res, $ok));
       next;
     }
+    ($token, $data) = @$res;
     eprint($out, $type, "Token '$token' for command:\n    $data->{'cmdline'}\n");
     eprint($out, $type, "issued at: ", scalar gmtime($data->{'time'}), " GMT\n");
     eprint($out, $type, "from session: $data->{'sessionid'}\n");
@@ -677,8 +634,8 @@ sub set {
     ($ok, $change) = splice @changes, 0, 2;
     if ($ok > 0) {
         $list = $change->{'list'};
-        if (length $change->{'sublist'}) {
-          $list .= ":$change->{'sublist'}";
+        if (length $change->{'auxlist'}) {
+          $list .= ":$change->{'auxlist'}";
         }
         eprint($out,
          $type,
@@ -988,13 +945,19 @@ sub which {
 
 sub who {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, "$type, $request->{'list'}, $request->{'regexp'}";
   my (@lines, @out, @stuff, $chunksize, $count, $error, $i, $ind, $ret);
-  my ($template, $tmp, $subs, $fh, $line, $mess, $numbered);
-
+  my ($template, $tmp, $subs, $fh, $line, $mess, $numbered, $source);
   my ($ok, $regexp, $tmpl) = @$result;
+
+  $request->{'auxlist'} ||= '';
+  $source = $request->{'list'};
+  if (length $request->{'auxlist'}) {
+    $source .= ":$request->{'auxlist'}";
+  }
+  my $log = new Log::In 29, "$type, $source, $request->{'regexp'}";
+
   if ($ok <= 0) {
-    eprint($out, $type, "Could not access $request->{'list'}:\n");
+    eprint($out, $type, "Could not access \"$source\":\n");
     eprint($out, $type, &indicate($regexp, $ok)) if $regexp;
     return $ok;
   }
@@ -1008,7 +971,7 @@ sub who {
   $ind = $template = '';
 
   unless ($request->{'mode'} =~ /export|short/) {
-    eprint($out, $type, "Members of list \"$request->{'list'}\":\n");
+    eprint($out, $type, "Members of list \"$source\":\n");
     $ind = '  ';
   }
 
@@ -1171,8 +1134,8 @@ sub g_sub {
     for (@$addr) {
       my ($verb) = ($ok > 0)?  $act : "not $act";
       $verb =~ s/LIST/$request->{'list'}/;
-      if (exists $request->{'sublist'}) {
-        $verb .= ":$request->{'sublist'}";
+      if (exists $request->{'auxlist'}) {
+        $verb .= ":$request->{'auxlist'}";
       }
       eprint($out, $type, "$_ was $verb.\n");
     }
