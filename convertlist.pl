@@ -23,6 +23,7 @@ my %delete = (
 	      digest_rm_fronter => 1,
 	      digest_volume     => 1,
 	      digest_work_dir   => 1,
+	      filedir           => 1,
 	      mungedomain       => 1,
 	      strip             => 1,
 	     );
@@ -230,7 +231,7 @@ What do you want to name this auxiliary list?
 
 EOM
 	$aux = get_str($msg, $1);
-	print CMD "auxadd $list $aux <\@$filecount\n";
+	print CMD "subscribe $list:$aux <\@$filecount\n";
 	$filecount++;
 	push @args, ('-f', "$opts{o}/$i");
 	push @{$config{restrict_post}}, $aux;
@@ -292,19 +293,21 @@ EOM
     }
   }
 
-  print CMD "\nsubscribe-noinform-nowelcome $list <\@$filecount\n\n";
-  push @args, "-f", "$opts{o}/$list";
-  if ($digest) {
+  if (-r "$opts{o}/$list" and -s "$opts{o}/$list") {
+    print CMD "\nsubscribe-noinform-nowelcome $list <\@$filecount\n\n";
+    push @args, "-f", "$opts{o}/$list";
     $filecount++;
+  }
+  if ($digest and (-r "$opts{o}/$list-digest" and 
+                   -s "$opts{o}/$list-digest")) 
+  {
     print CMD "subscribe-set-noinform-nowelcome $list digest-daily <\@$filecount\n\n";
     push @args, "-f", "$opts{o}/$list-digest";
+    $filecount++;
   }
-
 
   print CMD "# mj_shell will be called with the following arguments:\n";
   print CMD "# @args\n\n";
-
-
 
   close CMD;
 
@@ -312,7 +315,8 @@ EOM
   # Offer to edit it
   $editor = $ENV{EDITOR} || $ENV{VISUAL} || '/bin/vi';
   @editor = split(' ',$editor);
-  if (get_bool("Do you want to edit the command file before executing it?\n", 1)) {
+  if (get_bool("Do you want to edit the command file before executing it?\n", 1)) 
+  {
     $err = system(@editor, $file);
   }
 
