@@ -237,13 +237,13 @@ sub lookup_abbrev ($) {
 sub open_abbrev_database {
   # XXX - More work needed here. This is currently a NO-OP under Mj2
 
-  use Fcntl;
-  my $dir=eval('&Bf::Config::DataDir');
-  if ($dir) {
-    require AnyDBM_File;
-    tie(%Bf::Sender::abbrev, "AnyDBM_File", "$dir/abbrev.AnyDBM", 
-	O_RDWR|O_CREAT, 0644);
-  }
+  # use Fcntl;
+  # my $dir=eval('&Bf::Config::DataDir');
+  # if ($dir) {
+   #  require AnyDBM_File;
+    # tie(%Bf::Sender::abbrev, "AnyDBM_File", "$dir/abbrev.AnyDBM", 
+# 	O_RDWR|O_CREAT, 0644);
+ #  }
 }
 
 =head1 RECENT CHANGES
