@@ -16,7 +16,7 @@
   (
    'accept'         => [qw(email shell)],
    'alias'          => [qw(email shell list global)],
-   'approve'        => [qw(email shell_parsed)],
+   'approve'        => [qw(email shell)],
    'auxsubscribe'   => [qw(email shell list global)],
    'auxunsubscribe' => [qw(email shell list global all)],
    'auxwho'         => [qw(email shell list global)],

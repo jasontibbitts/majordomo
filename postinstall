@@ -115,7 +115,7 @@ EOM
 
 $msg3 = <<EOM;
 
-Majorodmo stores response files (the confirmation message, the various help
+Majordomo stores response files (the confirmation message, the various help
  texts, etc.) separately instead of placing them into the program code.
  These files must be installed into the Majordomo system.  Note that these
  go into a special file area and will not overrwite any response files

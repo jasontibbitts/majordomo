@@ -196,6 +196,7 @@ sub parse_part {
     
     # Pull off a command mode
     ($command, $mode) = $command =~ /([^=-]+)[=-]?(.*)/;
+    next CMDLINE unless $command;
     $mode = '' unless defined $mode;
     
     $true_command = command_legal($command);

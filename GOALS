@@ -4,7 +4,7 @@ Some Goals for Majordomo2
 General:
 
 Provide a system that exceeds Majordomo1 in all ways while still remaining
-'compativle'.  To be more powerful, easier to install and maintain, more
+'compatible'.  To be more powerful, easier to install and maintain, more
 secure, and faster than Majordomo1.  To be, at least on some level, simpler
 than Majordomo1.
 
@@ -15,7 +15,7 @@ functionality is added.  Old instructions must still work.
 Some change from the list owner standpoint can be allowed, but only to fix
 broken behavior.
 
-Simplicity is in the eye of the beholder; certainly the tigher internal
+Simplicity is in the eye of the beholder; certainly the tighter internal
 integration between the various parts makes for a more complicated
 situation than Majordomo1's disconnected pieces strung together with mail
 aliases.  Internally, though, the code paths are well ordered and all
@@ -28,7 +28,7 @@ Speed is the most difficult; Majordomo is larger and the interdependencies
 add up to increased compilation time.  On the other hand, the use of
 databases and such can post great gains when dealing with even moderately
 sized lists.  The daemon mode would serve to eliminate almost all
-compliation overhead.
+compilation overhead.
 
 
 Alpha 2:

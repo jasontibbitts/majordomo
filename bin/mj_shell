@@ -47,11 +47,12 @@ umask oct($::UMASK);
 #  --id : print UID and GIDs.
 #  --lockdir : specify the lock directory.  Only valid if -Z is set and the
 #    real and effective UIDs match (i.e. we're not running setuid).
+# --noornaments : in interactive mode, don't dress up the prompt.
 
 Getopt::Long::config('no_ignore_case', 'bundling');
 
 GetOptions(\%::opts, 'D', 'd=s', 'F=s', 'f=s@', 'p=s', 't=s', 'u=s', 'Z',
-	   'id', 'lockdir=s');
+	   'id', 'lockdir=s', 'noornaments');
 
 #use Data::Dumper;
 #print Dumper \%opts;
@@ -148,7 +149,12 @@ if ($opts{F}) {
   my $infh = IO::File->new("$opts{F}") || die "Can't open $opts{F}: $!";
   $result = parse_file($infh, $opts{F}, \@in, $user, $opts{p});
 }
-# Else we're working with the command line
+# If we don't have any arguments left and we weren't given a command file,
+# we're to run interactively
+elsif (@ARGV == 0) {
+  parse_interactive(\@in, $opts{p}, $opts{noornaments});
+}
+# Else we're to interpret the command line
 else {
   $result = parse_command(shift @ARGV, (join(' ', @ARGV)), $opts{p});
 }
@@ -161,6 +167,32 @@ if ($result) {
   exit 0;
 }
 exit 1;
+
+# A simple interactive routine.
+sub parse_interactive {
+  my ($in, $pass, $noornaments) = @_;
+  my ($args, $cmd, $cmdline, $features, $prompt, $term);
+  require Term::ReadLine;
+
+  $term = Term::ReadLine->new('Interactive Majordomo Shell Interface');
+  $prompt = "Enter a Majordomo command >";
+  $features = $term->Features;
+  $term->ornaments(1) if $features->{ornaments} && !$noornaments;
+
+  print "Entering interactive mode; enter 'quit' to exit.\n\n";
+
+  while (defined($cmdline = $term->readline($prompt))) {
+    print "\n";
+    if ($cmdline =~ /^(end|exit|quit|\.)$/i) {
+      print "Exiting.\n"; return 1;
+    }
+    ($cmd, $args) = $cmdline =~ /(\S*)\s*(.*)/;
+    if ($cmd) {
+      parse_command($cmd, $args, $pass);
+    }
+    print "\n";
+  }
+}
 
 sub parse_command {
   my $command = shift;
@@ -184,6 +216,13 @@ sub parse_command {
       return 0;
     }
   
+  if ($true_command eq 'approve') {
+    ($pass, $command, $args) = $args =~ /(\S+)\s*(\S*)\s*(.*)/;
+    print STDERR "**** approve requires a password!\n"
+      unless $pass;
+    return parse_command($command, $args, $pass);
+  }
+
   if (Mj::Parser::command_property($true_command, "list")) {
     ($tlist, $args) = split(" ", $args, 2);
     $tlist ||= "";
@@ -262,7 +301,7 @@ sub parse_command {
     $result = 
       &{"Mj::TextOutput::$true_command"}($mj, $command,
 					 $user,
-					 $opts{p}, undef, "shell",
+					 $pass, undef, "shell",
 					 $in[0], \*STDOUT,
 					 $mode, $list, $args);
     return $result;
@@ -305,6 +344,10 @@ interface.
 
 B<mj_shell> also provides a convenient 'configedit' command that opens an
 editor on a set of config variables and allows them to be edited directly.
+
+If called without a command file, B<mj_shell> will enter an interactive
+mode where you can enter commands and have their results returned without
+rerunning B<mj_shell>.
 
 =head2 Executing single commands
 
@@ -471,7 +514,7 @@ be emulated by the following set of operations:
 
 =head2 Switches
 
-Here are all of the command line switches that B<mj_shell> takes:
+Here are all of the command line switches that B<mj_shell> accepts:
 
 =over 4
 
@@ -546,6 +589,12 @@ the software has been completely installed.
 
 Forces B<mj_shell> to print out the real and effective user and group IDs
 at the beginning of execution.  Used for debugging.
+
+=item B<--noornaments>
+
+When running in interactive mode, B<mj_shell> will use ornamentation to
+spruce up the prompt of the underlying ReadLine library supports it.  The
+B<--noormanemts> switch will turn these off.
 
 =head1 COPYRIGHT
 
