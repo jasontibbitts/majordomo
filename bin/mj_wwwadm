@@ -230,7 +230,8 @@ else {
 
 #----- Should the header and footer be displayed? -----#
 $raw = 0;
-if (($func eq 'tokeninfo' and $mode =~ /part/) or 
+if (($func eq 'tokeninfo' and $mode =~ /part/ 
+     and $mode !~ /delete|edit|replace/) or 
     ($func eq 'archive' and $mode =~ /get/ and $mode =~ /part/))
 {
   $raw = 1;
