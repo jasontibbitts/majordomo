@@ -25,14 +25,7 @@ Reply-To: $MJ
 ENDTAG
 
 
-These headers will be appended to the headers of a posted message
-when a regular list is specified, or to the headers of replies
-from the server (such as token confirmation requests) when the
-GLOBAL pseudo-list is specified.  They will not replace any
-existing headers.  However, it is possible to use the delete_headers
-setting or purge_received setting in combination with the 
-message_headers setting if you wish to replace certain headers
-in posted messages.
+$INCLUDE-config/message_headers
 
 A "Reply-To" header is required for the GLOBAL pseudo-list to 
 function properly.  Do not delete it if you change this setting.

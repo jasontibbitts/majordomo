@@ -18,13 +18,11 @@ configset GLOBAL taboo_body << ENDTAG
 /X-Loop:/ 0,1,body
 ENDTAG
 
+$INCLUDE-config/taboo_body
 
-If any line of the body matches one of these regexps, then the message
-will be bounced for review. Syntax is described in "help configset admin_body".
-
-NOTE: For help on taboo_body, please send "help configset admin_body"
-to the server. All syntax and information is identical, just
-substitute the string "taboo_" wherever you see "admin_" in that file.
+For help on the taboo_body setting, please see "help configset admin_body"
+All syntax and information is identical, just substitute the prefix
+"taboo_" wherever you see "admin_" in that file.
 
 See "help configset access_rules" for how to send informative messages
 when one of the taboo_body lines matches.
@@ -33,6 +31,7 @@ The admin_body, admin_headers, noarchive_body, noarchive_headers,
 taboo_body, and taboo_headers settings have a special characteristic.
 When these six settings are applied to a message that has been posted to
 a mailing list, the patterns in the GLOBAL settings are also used.
+
 
 See Also:
    help admin_moderate

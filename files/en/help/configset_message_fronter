@@ -26,12 +26,7 @@ TIP 2: you can get off all lists at once with the unregister command
 ENDTAG
 
 
-This contains blocks of text, called fronters, that can be added to
-the beginning of outgoing messages.  You can include multiple fronters
-here by separating them by blank lines.  When a fronter is to be
-added, it is chosen at random from the fronters given here. The
-frequency with which fronters appear can be controlled with
-"configset listname message_fronter_frequency".
+$INCLUDE-config/message_fronter
 
 The fronter text will undergo variable substitution as it is added to
 the message.   The variables supported include the standard

@@ -12,8 +12,7 @@ EXAMPLE:
 configset listname subject_re_pattern = \
     /(?: (?: re | sv |aw |antwort | re\^\d+ | re\[\d+\] ):\s*)+/ix
 
-A pattern used to match Re: and other text that user mail programs
-place in the subject header to indicate replies.
+$INCLUDE-config/subject_re_pattern
 
 Majordomo uses this for three things:
 

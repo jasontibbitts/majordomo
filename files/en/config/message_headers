@@ -1,7 +1,7 @@
 These headers will be added to the e-mail headers of every posted
 message or digest that is sent to the subscribers.
 
-The headers in the GLOBAL "message_headers" setting will be added to
-every message that the Majordomo server sends in response to a command.
-Therefore, the GLOBAL "message_headers" setting should always contain a
-Reply-To header that has the address of the Majordomo server.
+The headers in the GLOBAL "message_headers" setting will only be added
+to every message that the Majordomo server sends in response to a
+command.  Therefore, the GLOBAL "message_headers" setting should always
+contain a Reply-To header that has the address of the Majordomo server.
