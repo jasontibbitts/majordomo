@@ -98,6 +98,7 @@ exit;
 sub mta_append {
   no strict 'refs';
   my $nhead = 0;
+  my @domains = get_domains();
   require "setup/mta_$config->{mta}.pl";
 
   # First do the generalized setup
@@ -107,23 +108,31 @@ sub mta_append {
     or die "Cannot open $config->{lists_dir}/ALIASES/mj-domains:\n$!";
 
   for my $i (@_) {
-    print DOMAINS "$i\n";
     &{"setup_$config->{mta}_domain"}($config, $i, $nhead);
     $nhead = 1;
-    push @{$config->{'domains'}}, $i;
+
+    unless (grep { lc $_ eq lc $i } @domains) {
+      print DOMAINS "$i\n";
+    }
+
+    unless (grep { lc $_ eq lc $i } @{$config->{'domains'}}) {
+      push (@{$config->{'domains'}}, $i);
+    }
   }
   close DOMAINS;
 }
 
 sub get_domains {
-  my (@out);
+  my @out;
 
-  open DOMAINS, "< $config->{lists_dir}/ALIASES/mj-domains" 
-    or die "Cannot open $config->{lists_dir}/ALIASES/mj-domains.\n$!";
+  unless (open (DOMAINS, "< $config->{lists_dir}/ALIASES/mj-domains")) {
+    warn "Cannot open $config->{lists_dir}/ALIASES/mj-domains.\n$!";
+    return;
+  }
 
   while (<DOMAINS>) {
     chomp $_;
-    push @out, $_ if ($_);
+    push @out, $_ if (defined $_ and length $_);
   }
 
   close DOMAINS;
