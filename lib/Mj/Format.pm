@@ -78,10 +78,10 @@ sub accept {
               'CMDPASS'  => $request->{'password'},
               'ERROR'    => '',
               'FAIL'     => '',
-              'NOTIFY'   => '',
+              'NOTIFIED' => '',
               'STALL'    => '',
               'SUCCEED'  => '',
-              'TOKEN'    => $mess,
+              'TOKEN'    => $data->{'token'},
               'USER'     => &escape("$request->{'user'}", $type),
             };
 
@@ -101,7 +101,7 @@ sub accept {
     if ($ok < 0) {
       $subs->{'ERROR'} = $mess;
 
-      $tmp = $mj->format_get_string($type, 'accept_error');
+      $tmp = $mj->format_get_string($type, 'accept_stall');
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out &indicate($type, "$str\n", $ok); 
       next;
@@ -110,7 +110,7 @@ sub accept {
     # If we accepted a consult token, we can stop now.
     if ($data->{'type'} eq 'consult') {
       if ($data->{'ack'}) {
-        $subs->{'NOTIFY'} = " ";
+        $subs->{'NOTIFIED'} = " ";
         if (ref($rresult) eq 'ARRAY') {
           if ($rresult->[0] > 0) {
             $subs->{'SUCCEED'} = " ";
@@ -1260,21 +1260,35 @@ sub password {
 
   my ($ok, $mess) = @$result; 
 
-  if ($ok>0) {
-    $subs = {
-             $mj->standard_subs('GLOBAL'),
-             'VICTIM' => "$request->{'victim'}",
-            };
+  $subs = {
+           $mj->standard_subs('GLOBAL'),
+           'CGIDATA' => $request->{'cgidata'} || '',
+           'CGIURL'  => $request->{'cgiurl'} || '',
+           'CHANGED' => ($request->{'mode'} =~ /show/)? '' : " ",
+           'CMDPASS' => $request->{'password'},
+           'NOTIFIED'=> " ",
+           'USER'    => "$request->{'user'}",
+           'VICTIM'  => "$request->{'victim'}",
+          };
+
+  if (ref $request->{'victim'} and $request->{'victim'}->isvalid) {
+    $subs->{'QSADDR'} = &qescape($request->{'victim'}->strip, $type);
+    $subs->{'STRIPADDR'} = $request->{'victim'}->strip;
+  }
+
+  if ($ok > 0) {
     $tmp = $mj->format_get_string($type, 'password');
-    $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out &indicate($type, "$str\n", $ok, 1);
+    if ($request->{'mode'} =~ /quiet/) {
+      $subs->{'NOTIFIED'} = '',
+    }
   }
   else {
-    eprint($out, $type, &indicate($type, "Password not set.\n", $ok));
+    $tmp = $mj->format_get_string($type, 'password_error');
+    $subs->{'ERROR'} = $mess;
   }
-  if ($mess) {
-    eprint($out, $type, &indicate($type, $mess, $ok));
-  }
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print $out &indicate($type, "$str\n", $ok, 1);
+
   $ok;
 }
 
@@ -1423,7 +1437,7 @@ sub reject {
               'CGIURL'   => $request->{'cgiurl'},
               'CMDPASS'  => $request->{'password'},
               'ERROR'    => '',
-              'NOTIFY'   => '',
+              'NOTIFIED' => '',
               'TOKEN'    => $token,
               'USER'     => &escape("$request->{'user'}", $type),
             };
@@ -1453,7 +1467,7 @@ sub reject {
     if ($request->{'mode'} !~ /quiet/ and 
         ($data->{'type'} ne 'consult' or $data->{'ack'})) 
     {
-      $subs->{'NOTIFY'} = " ";
+      $subs->{'NOTIFIED'} = " ";
     }
 
     $tmp = $mj->format_get_string($type, 'reject');
