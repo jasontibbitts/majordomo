@@ -15,7 +15,7 @@ with one another.
 
 Majordomo makes use of two databases to keep a record of every address
 that is subscribed to a mailing list.  In the central registry, the
-personal password and a list of subscriptions for each address is
+personal password and a list of subscriptions for each address are
 stored.  In the subscriber databases, the personal settings for each
 subscription are stored.  Each entry in both kinds of database has a
 "key" which is an e-mail address, called the "canonical address."  
