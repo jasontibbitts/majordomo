@@ -197,6 +197,7 @@ sub post {
   $avars->{mime} = $avars->{mime_consult} || $avars->{mime_deny} || '';
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
     $avars->{admin} || $avars->{bad_approval} || '';
+  $avars->{'sublist'} = $request->{'sublist'};
 
   # Bounce if necessary: concatenate all possible reasons with \002, call
   # access_check with filename as arg1 and reasons as arg2.  XXX Victim
@@ -366,22 +367,31 @@ sub _post {
   my(%avars, %deliveries, %digest, @dfiles, @dtypes, @ent, @files, @refs,
      @tmp, @skip, $arcdata, $arcent, $archead, $digests, $dissues, $rtnhdr,
      $exclude, $head, $i, $j, $msgnum, $precedence, $prefix, $replyto,
-     $sender, $seqno, $subject, $date, $subs, $tmp, $tmpdir, $tprefix, $whereami);
+     $sender, $seqno, $subject, $sl, $date, $subs, $tmp, $tmpdir, $tprefix, $whereami);
 
-  $self->_make_list($list);
+  return (0, "Unable to access list $list.\n") 
+    unless $self->_make_list($list);
   $tmpdir   = $self->_global_config_get('tmpdir');
   $whereami = $self->_global_config_get('whereami');
   $sender   = $self->_list_config_get($list, "sender");
   
   %avars = split("\002", $avars);
+  # Is the message being sent to a sublist?
+  $sl = (exists $avars{'sublist'}) && ($avars{'sublist'} ne '');
 
-  # Atomically update the sequence number
-  $self->_list_config_lock($list);
-  $seqno  = $self->_list_config_get($list, 'sequence_number');
-  $self->_list_config_set($list, 'sequence_number', $seqno+1);
-  $self->_list_config_unlock($list);
-  $log->message(35,'info',"Sending message $seqno");
-  $self->{sessionfh}->print("Post: sequence #$seqno.\n");
+  unless ($sl) {
+    # Atomically update the sequence number
+    $self->_list_config_lock($list);
+    $seqno  = $self->_list_config_get($list, 'sequence_number');
+    $self->_list_config_set($list, 'sequence_number', $seqno+1);
+    $self->_list_config_unlock($list);
+    $log->message(35,'info',"Sending message $seqno");
+    $self->{sessionfh}->print("Post: sequence #$seqno.\n");
+  }
+  else {
+    $log->message(35,'info',"Sending message to $avars{'sublist'}");
+    $self->{sessionfh}->print("Post: sublist $avars{'sublist'}.\n");
+  }
 
   # trick: we take a pre-parsed entity as an extra argument; if it's
   # defined, we can skip the parse step.  Note that after this, $file will
@@ -409,12 +419,14 @@ sub _post {
   $ent[0] = $self->_trim_approved($ent[0]);
   $head = $ent[0]->head;
   $head->modify(0);
+  $rtnhdr = $user->full;
 
   # Make duplicate archive/digest entity
-  $arcent = $ent[0]->dup;
-  $archead = $arcent->head;
-  $archead->modify(0);
-  $rtnhdr = $user->full;
+  unless ($sl) {
+    $arcent = $ent[0]->dup;
+    $archead = $arcent->head;
+    $archead->modify(0);
+  }
 
   # Convert/drop MIME parts.  Bill?
   
@@ -424,39 +436,41 @@ sub _post {
   push @skip, 'Received' if $self->_list_config_get($list, 'purge_received');
   for $i (@skip) {
     $head->delete($i);
-    $archead->delete($i);
+    $archead->delete($i) unless ($sl);
   }
 
   # Pass to archiver; first extract all references
-  $tmp = $archead->get('references') || '';
-  while ($tmp =~ s/<([^>]*)>//) {
-    push @refs, $1;
-  }
-  $tmp = $archead->get('in-reply-to') || '';
-  while ($tmp =~ s/<([^>]*)>//) {
-    push @refs, $1;
-  }
+  unless ($sl) {
+    $tmp = $archead->get('references') || '';
+    while ($tmp =~ s/<([^>]*)>//) {
+      push @refs, $1;
+    }
+    $tmp = $archead->get('in-reply-to') || '';
+    while ($tmp =~ s/<([^>]*)>//) {
+      push @refs, $1;
+    }
 
-  # Strip the subject prefix from the archive copy.  Note that this
-  # function can have odd side effects because it plays with the entities,
-  # so we re-extract $archead at this point.
-  (undef, $arcent) = $self->_munge_subject($arcent, $list, $seqno);
-  $archead = $arcent->head;
+    # Strip the subject prefix from the archive copy.  Note that this
+    # function can have odd side effects because it plays with the entities,
+    # so we re-extract $archead at this point.
+    (undef, $arcent) = $self->_munge_subject($arcent, $list, $seqno);
+    $archead = $arcent->head;
 
-  # Pass to archive.  XXX Is $user good enough, or should we re-extract?
-  $subject = $archead->get('subject') || ''; chomp $subject;
-  $date = $archead->get('date') || ''; chomp $date;
-  ($msgnum) = $self->{'lists'}{$list}->archive_add_start
-    ($sender,
-     {
-      'body_lines' => $avars{lines},
-      'from'       => "$user", # Stringify on purpose
-      'quoted'     => $avars{quoted_lines},
-      'refs'       => join("\002",@refs),
-      'subject'    => $subject,
-      'bytes'      => (stat($file))[7],
-     },
-    );
+    # Pass to archive.  XXX Is $user good enough, or should we re-extract?
+    $subject = $archead->get('subject') || ''; chomp $subject;
+    $date = $archead->get('date') || ''; chomp $date;
+    ($msgnum) = $self->{'lists'}{$list}->archive_add_start
+      ($sender,
+       {
+        'body_lines' => $avars{lines},
+        'from'       => "$user", # Stringify on purpose
+        'quoted'     => $avars{quoted_lines},
+        'refs'       => join("\002",@refs),
+        'subject'    => $subject,
+        'bytes'      => (stat($file))[7],
+       },
+      );
+  } # !$sl
 
   # Only call this if we got back a message number because there isn't an
   # archive around if we didn't.
@@ -566,7 +580,7 @@ sub _post {
     }
 
     # Invoke delivery routine
-    $self->deliver($list, $sender, $seqno, \%deliveries);
+    $self->deliver($list, $avars{'sublist'}, $sender, $seqno, \%deliveries);
 
     # Inform sender of successful delivery
     
@@ -579,7 +593,7 @@ sub _post {
   for ($i = 0; $i < @ent; $i++) {
     $ent[$i]->purge;
   }
-  $arcent->purge;
+  $arcent->purge if $arcent;
 
   # We're done with the file by this point, so we should remove it.
   # This step must be done last: if _post is called by Mj::Token::t_accept,
