@@ -20,6 +20,11 @@ replacing "LISTNAME" with the name of the list and replacing
 list. Additional commands may be required, but you will receive
 messages telling you what to do if necessary.
 
+If the address you wish to subscribe to the list is the same as
+the address from which you are sending the message, the command
+may be written instead as:
+    subscribe LISTNAME
+
 Sometimes the list name plus your email address is too long, and
 your mail tool will 'wrap' the line by inserting a hard return or
 line break. See the syntax section of "help commands" for how to
