@@ -4252,8 +4252,9 @@ Useful modes include:
 
 sub archive_start {
   my ($self, $request) = @_;
-  my $log = new Log::In 30, "$request->{'list'}, $request->{'args'}";
   my (@tmp, $i, $mess, $ok, $out, $pattern, $type);
+  $request->{'args'} = '' unless (defined $request->{'args'});
+  my $log = new Log::In 30, "$request->{'list'}, $request->{'args'}";
 
   return (0, $self->format_error('no_messages', $request->{'list'}))
     unless ($request->{'mode'} =~ /summary/ or $request->{'args'});

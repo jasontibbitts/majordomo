@@ -1,3 +1,19 @@
+2004-09-09  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  (archive_start)  Initialize to avoid
+	warnings.
+
+	* lib/Mj/Access.pm:  (list_access_check)  Initialize the
+	victim variable.
+	(_a_default)  Supply a reason when "list" access causes
+	a request to be denied.
+
+	* lib/Mj/Format.pm:  (g_get)  File and directory substitutions
+	only apply to the "get" command.
+
+	* lib/Mj/List.pm:  (is_subscriber)  Add a definition test
+	to avoid crashing.
+
 2004-09-08  Michael Yount <csf@moscow.com>
 
 	* bin/mj_confirm:  Clear the token after the accept or
