@@ -16,6 +16,7 @@ blah
 
 package Mj::BounceHandler;
 use Mj::Log;
+use Symbol;
 use AutoLoader 'AUTOLOAD';
 
 $VERSION = "0.0";

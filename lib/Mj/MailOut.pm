@@ -20,6 +20,7 @@ Mj::Deliver.pm.
 =cut
 package Mj::MailOut;
 use strict;
+use Symbol;
 
 use AutoLoader 'AUTOLOAD';
 1;
@@ -240,7 +241,6 @@ forwards a message to the owner(s) of a mailing list.
 
 =cut
 use Mj::BounceHandler;
-use Symbol;
 sub owner_start {
   my ($self, $request) = @_;
   my $log  = new Log::In 30, "$request->{'list'}";
