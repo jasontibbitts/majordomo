@@ -20,7 +20,7 @@ require Exporter;
                 find_thread_root gen_pw in_clock n_build n_defaults 
                 n_validate plain_to_hyper process_rule re_match 
                 reconstitute reflow_plain sort_msgs str_to_time 
-                time_to_str);
+                str_to_offset time_to_str);
 
 use AutoLoader 'AUTOLOAD';
 
@@ -572,20 +572,20 @@ sub re_match {
   return $match;
 }
 
-=head2 str_to_time(string)
+=head2 str_to_offset(string)
 
-This converts a string to a number of seconds since 1970 began.
-
+This converts a string to a number of seconds.  If it doesn''t recognize the
+string, it will return undef.
 
 =cut
-sub str_to_time {
-  my $arg = shift;
+sub str_to_offset {
+  my $arg = shift || '';
   my $log = new Log::In 150, $arg;
-  my $time = 0;
+  my $time;
 
   # Treat a plain number as a count of seconds.
   if ($arg =~ /^(\d+)$/) {
-    return time + $arg;
+    return $arg;
   }
 
   if ($arg =~ /(\d+)s(econds?)?/) {
@@ -609,14 +609,27 @@ sub str_to_time {
   if ($arg =~ /(\d+)y(ears?)?/) {
     $time += (86400 * 365 * $1);
   }
-  if ($time) {
-    $time += time;
-  }
-  else {
+  unless (defined $time) {
     # We try calling Date::Manip::ParseDate
     $time = _str_to_time_dm($arg);
+    $time -= time if (defined $time);
   }
   $time;
+}
+
+=head2 str_to_time(string)
+
+This converts a string to a number of seconds since 1970 began.
+
+
+=cut
+sub str_to_time {
+  my $arg = shift;
+  my $log = new Log::In 150, $arg;
+  my $time = &str_to_offset($arg);
+
+  $time += time if (defined $time);
+  return $time;
 }
 
 =head2 _str_to_time_dm(string)
