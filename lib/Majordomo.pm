@@ -336,7 +336,7 @@ sub connect {
   return wantarray ? ($id, $user->strip) : $id;
 }
 
-=head2 dispatch(function, user, passwd, auth, interface, mode, cmdline, list, victim, ...)
+=head2 dispatch(request, extra)
 
 This is the main interface to all non-utility functionality of the
 Majordomo core.  It handles calling the appropriate function and logging
@@ -373,7 +373,7 @@ processing done at the beginning.
 =cut
 sub dispatch {
   my ($self, $request, $extra) = @_;
-  my (@addr, @res, $addr, $base_fun, $comment, $continued, $data, 
+  my (@addr, @modes, @res, @tmp, $addr, $base_fun, $comment, $continued, $data, 
       $elapsed, $func, $l, $mess, $ok, $out, $over, $sl, $validate);
   my ($level) = 29;
   $level = 500 if ($request->{'command'} =~ /_chunk$/);
@@ -404,7 +404,8 @@ sub dispatch {
   $log->abort('Not yet connected!') unless $self->{'sessionid'};
 
   unless (function_legal($request->{'command'})) {
-    return [0, "Illegal command \"$request->{'command'}\".\n"];
+    return [0, $self->format_error('invalid_command', 'GLOBAL',
+                                   'COMMAND' => $request->{'command'})];
   }
 
 
@@ -427,6 +428,18 @@ sub dispatch {
 
   $request->{'sublist'} = $sl if (length $sl);
   $request->{'time'} ||= $::log->elapsed;
+
+  if ($request->{'mode'}) {
+    @tmp = split /[=-]/, $request->{'mode'};
+    @modes = keys %{function_prop($request->{'command'}, 'modes')};
+    for $l (@tmp) {
+      unless (grep { $l =~ /^$_/ } @modes) {
+        $mess = join "\n", sort @modes;
+        return [0, qq(Invalid command mode: "$l"\nValid modes include:\n$mess\n)];
+      }
+    }
+  }
+        
 
   # Turn some strings into addresses and check their validity; never with a
   # continued function (they never need it) and only if the function needs
@@ -1654,6 +1667,7 @@ sub list_config_set_to_default {
     return (0, "$user is invalid:\n$mess");
   }
 
+  # Validate by category.
   # Validate passwd, check for proper auth level.
   ($ok, $mess, $level) =
     $self->validate_passwd($user, $passwd, $list, "config_$var");
