@@ -1,3 +1,38 @@
+2001-03-25  Michael Yount <csf@moscow.com>
+
+	* bin/mj_shell: (parse_interactive)  Bugfix:  allow continuation
+	lines and a here document in the same command.
+
+	* lib/Majordomo.pm: (dispatch)  Bugfix:  reset the timer after 
+	inform() is called to log the correct elapsed time for multiple
+	commands.
+	(who_chunk)  Bugfix:  allow the alias and common command modes
+	to work together.
+
+	* lib/mj_cf_data.pl, mj_cf_defs.pl:  Support the new config_defaults
+	configuration setting.
+
+	* lib/Mj/Archive.pm:  (expand_range) Bugfix:  support the time
+	span format with full names (e.g., "months" instead of "m").
+
+	* lib/Mj/Config.pm:  (load, parse_config_array)  Add support
+	for configuration templates through the config_defaults setting.
+	This setting has higher priority than the DEFAULT list, but
+	lower priority than a list's main configuration settings.
+	All templates must be stored under the DEFAULT list.
+	(parse_limits) Bugfix:  support the time span format with
+	full names.
+
+	* lib/Mj/Format.pm:  (who) Include "noinform" in the commands
+	displayed by the who-export command.
+
+	* lib/Mj/Parser.pm:  (parse_line) Bugfix:  trim backslashes after
+	removing leading and trailing white space.
+	(parse_args)  Remove trailing white space from the arguments.
+
+	* lib/Mj/Util.pm:  (str_to_time)  Add support for "mi"
+	abbreviation for minutes.
+
 2001-03-24  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* bin/mj_shell (parse_command): Look for both /usr/bin/more and

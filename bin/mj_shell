@@ -234,8 +234,9 @@ exit 1;
 # A simple interactive routine.
 sub parse_interactive {
   my ($in, $pass, $disp) = @_;
-  my ($args, @arglist, $attr, $cmd, $cmdline, $defaults, $features, $go,
-      $hereline, $hist, $lib, $needmore, $prompt, $res, $stoptag, $term);
+  my ($args, @arglist, $attr, $cmd, $cmdline, $contd, $defaults, $features, 
+      $go, $hereline, $hist, $lib, $needmore, $prompt, $res, $stoptag, 
+      $term, $tmp);
 
   $^W = 0;
   require Term::ReadLine;
@@ -280,57 +281,78 @@ EOM
     $i = $/; $/ = $i; # Silence weird Perl bug
     $hist = "$cmdline\n";
 
-    # Trim leading and trailing whitespace and remove tabs
-    $cmdline =~ s/^\s*(.*?)\s*$/$1/;
-    $cmdline =~ s/\t/ /g;
-
     @arglist = ();
     # Process multi-line commands.  It must be possible to execute
     # the commands directly from the history buffer, as well as
     # from the command prompt.
     #
-    # First, here documents.
-    if ($cmdline =~ /^([^\n]+)\s+\<\<\s*([A-Z]{3}[A-Z0-9]*)(\n|$)/) {
-      $hereline = $cmdline;
-      $cmdline = $1;
-      $stoptag = $2;
-      $needmore = ($3 ne "\n");
-      unless ($needmore) {
-          @arglist = split "\n", $hereline;
-          shift @arglist;
-          if ($arglist[$#arglist] =~ /^$stoptag$/) {
-            pop @arglist;
-          }
-      }
-      # here document
-      while ($needmore) {
-        $hereline = $term->readline("> ");
-        $hist .= "$hereline\n";
-        last if $hereline =~ /^$stoptag$/;
-        push @arglist, $hereline;
-      }
-    }
-    # Second, continuation lines.
-    elsif ($cmdline =~ /^[^\n]+[^\\](\\\\)*\\(\n|$)/) {
-      if ($2 ne "\n") {
+    # Process continuation lines.
+    if ($cmdline =~ /[^\\]\\(\n|$)/) {
+      if ($1 ne "\n") {
         $cmdline =~ s/\\$/ /;
         $needmore = 1;
       }
       else {
         $cmdline = join (" ", split (/\\\n/ , $cmdline));
-        if ($cmdline =~ s#([^\\](\\\\)*)\\$#$1#) {
+        if ($cmdline =~ s#([^\\])\\$#$1#) {
           $needmore = 1;
         }
       }
       while ($needmore) {
         $hereline = $term->readline("> ");
         $hist .= "$hereline\n";
-        if ($hereline =~ s#([^\\](\\\\)*)\\$#$1 #) {
+        if ($hereline =~ s#([^\\])\\$#$1 #) {
         }
         else {
           $needmore = 0;
         }
         $cmdline .=  $hereline;
+      }
+    }
+
+    # Trim leading and trailing whitespace and remove tabs
+    $cmdline =~ s/^\s*(.*?)\s*$/$1/;
+    $cmdline =~ s/\t/ /g;
+
+    # Change a trailing, escaped backslash to a simple backslash
+    $cmdline =~ s/\\\\$/\\/;
+
+    # Process here documents.
+    if ($cmdline =~ /^([^\n]+)\s+\<\<\s*([A-Z]{3}[A-Z0-9]*)(\n|$)/) {
+      $hereline = $cmdline;
+      $cmdline = $1;
+      $stoptag = $2;
+      $needmore = ($3 ne "\n");
+      unless ($needmore) {
+        @arglist = split "\n", $hereline;
+        shift @arglist;
+        if ($arglist[$#arglist] =~ /^$stoptag$/) {
+          pop @arglist;
+        }
+        for ($i = 0 ; $i < scalar @arglist ; $i++) {
+          # Change a trailing, escaped backslash to a simple backslash
+          $arglist[$i] =~ s/\\\\$/\\/;
+        }
+      }
+      # here document
+      $contd = 0;
+      while ($needmore) {
+        $hereline = $term->readline("> ");
+        $hist .= "$hereline\n";
+        last if $hereline =~ /^$stoptag$/;
+        if ($contd) {
+          $tmp = pop @arglist;
+          $hereline = $tmp . $hereline;
+        }
+        if ($hereline =~ s#([^\\])\\$#$1 #) {
+          $contd = 1;
+        }
+        else {
+          # Change a trailing, escaped backslash to a simple backslash
+          $hereline =~ s/\\\\$/\\/;
+          $contd = 0;
+        }
+        push @arglist, $hereline;
       }
     }
 
@@ -355,7 +377,7 @@ sub parse_command {
   my $pass    = shift;
   my $dfl     = shift;
   my @arglist = @_;
-  my ($display, $list, $mode, $request, $sublist, $tlist);
+  my ($display, $list, $mode, $prog, $request, $sublist, $tlist);
   $pass ||= '';  $pass =~ /(.*)/; $pass = $1;
 
   unless ($command) {
@@ -521,12 +543,14 @@ sub parse_command {
     # Pull the editor out of the environment and untaint it. This is safe
     # because we only exec the editor as the calling user.
     if ($display eq 'editor') {
-      $editor = $ENV{EDITOR} || $ENV{VISUAL} || '/bin/vi';
+      $editor = ($ENV{EDITOR} || $ENV{VISUAL} 
+                 || (-f '/bin/vi'     && '/bin/vi')
+                 || (-f '/usr/bin/vi' && '/usr/bin/vi'));
     }
     else {
       $editor = ($ENV{PAGER}
-		 || (-f '/usr/bin/more' && '/usr/bin/more')
-		 || (-f '/bin/more'     && '/bin/more'));
+                || (-f '/usr/bin/more' && '/usr/bin/more')
+                || (-f '/bin/more'     && '/bin/more'));
     }
 
     $editor =~ /(.*)/;
