@@ -29,7 +29,18 @@ use Mj::SubscriberList;
 use Mj::Config qw(parse_table);
 use Mj::Addr;
 use Mj::Log;
-use vars (qw($addr %flags %noflags %classes %digest_types));
+use vars (qw($addr %alias %flags %noflags %classes %digest_types));
+
+%alias =
+  (
+   'A'  => 'auxiliary',
+   'M'  => 'moderate',
+   'O'  => 'owner',
+   'Q'  => 'request',
+   'R'  => 'resend',
+   'S'  => 'subscribe',
+   'U'  => 'unsubscribe',
+  );
 
 # Flags -> [realflag, inverted (2=umbrella), invertible, flag]
 %flags = 
@@ -42,8 +53,8 @@ use vars (qw($addr %flags %noflags %classes %digest_types));
    'ackstall'     => ['ackall',       0,1,'b'],
    'noack'        => ['ackall',       1,0,'' ],
    'selfcopy'     => ['selfcopy',     0,1,'S'],
-   'hideall'      => ['hideall',      0,0,'H'],
-   'hideaddress'  => ['hideall',      0,0,'h'],
+   'hideall'      => ['hideall',      0,1,'H'],
+   'hideaddress'  => ['hideall',      0,1,'h'],
    'nohide'       => ['hideall',      1,0,'' ],
    'showall'      => ['hideall',      1,0,'' ],
    'eliminatecc'  => ['eliminatecc',  0,1,'C'],
@@ -187,7 +198,7 @@ sub add {
   my $self  = shift;
   my $mode  = shift || '';
   my $addr  = shift;
-  my $flags = shift || $self->default_flags;
+  my $flags = shift || $self->get_flags('default_flags');
   my $class = shift;
   my $carg  = shift;
   my $carg2 = shift;
@@ -311,7 +322,7 @@ actually change any values.
 
 If $force is true, we don't check to see if the class or flag setting is in
 the allowed set.  This is used if the owner is changing normally off-limits
-settings.  (XXX Allowed sets not implemented.)
+settings.  
 
 =cut
 sub set {
@@ -323,12 +334,42 @@ sub set {
   my $force= shift;
   my $log  = new Log::In 150, "$addr, $oset";
   my (@allowed, @class, @flags, @settings, $baseflag, $carg1, 
-      $carg2, $class, $data, $db, $digest, $flags, $inv, $isflag, 
+      $carg2, $class, $data, $db, $digest, $flags, $i, $inv, $isflag, 
       $key, $list, $mask, $ok, $rset);
 
   $oset = lc $oset;
   @settings = split(',', $oset);
 
+  unless ($force) {
+    # Derive list of allowed settings.
+    $mask = $self->get_flags('allowed_flags');
+    for $j (sort keys %flags) {
+      $baseflag = $flags{$j}->[3];
+      if (! $flags{$j}->[1]) {
+        # Ordinary flag:  see if it appears in the mask.
+        if ($mask =~ /$baseflag/) {
+          push @flags, $j;
+          push @flags, "no$j" if ($flags{$j}->[2]);
+        }
+      }
+      else {
+        # umbrella/inverted flag:  all flags in the group must be set
+        $ok = 1;
+        for $i (keys %flags) {
+          next unless ($flags{$i}->[0] eq $flags{$j}->[0]);
+          next if ($flags{$i}->[1]);
+          $set = $flags{$i}->[3];
+          unless ($mask =~ /$set/) {
+            $ok = 0;
+            last;
+          }
+        }
+        push @flags, $j if ($ok);
+      }
+    }
+  }
+        
+   
   # Loop over settings, checking for legality
   for $set (@settings) {
     ($inv = $set) =~ s/^no//;
@@ -337,36 +378,27 @@ sub set {
 
     if (exists $flags{$set}) {
       $rset = $flags{$set}->[0];
-      $isflag = 1;
+      $isflag = $set;
     }
     elsif (exists $flags{$inv}) {
       $rset = $flags{$inv}->[0];
-      $isflag = 1;
+      $isflag = $inv;
     }
     elsif ($rset = $classes{$class[0]}->[0]) {
       $isflag = 0;
     }
     else {
       $log->out("failed, invalid action");
-      return (0, "Invalid setting: $set.\n"); # XLANG
+      # XLANG
+      return (0, "Invalid setting: $set.\n"); 
     }
 
     unless ($force) {
-      # Check the setting against the allowed flag mask.
+      # Check the setting against the allowed group of flags.
       if ($isflag) {
-	$mask = $self->config_get('allowed_flags');
-        $baseflag = $flags{$rset}->[3];
-	# Make sure base flag is in the set.
-        unless ($mask =~ /$baseflag/) {
-          @allowed = ();
-          for (keys %flags) {
-            $baseflag = $flags{$flags{$_}->[0]}->[3];
-            if ($mask =~ /$baseflag/) {
-              push @allowed, $_;
-              push @allowed, "no$_" if ($flags{$_}->[2]);
-            }
-          }
-          $baseflag = join "\n               ", @allowed;
+        unless (grep {$_ eq $set} @flags) {
+          $baseflag = join "\n               ", @flags;
+          # XLANG
           return (0, "Unauthorized flag: $set\nAllowed flags: $baseflag\n");
         }
       }
@@ -378,6 +410,7 @@ sub set {
 	# the given class.
         unless (grep {$_ eq $rset} @allowed) {
           $data = join " ", @allowed;
+          # XLANG
           return (0, "Unauthorized class: $set\nAllowed classes: $data\n");
         }
       }
@@ -416,6 +449,7 @@ sub set {
       $self->make_setting($set, $data->{'flags'}, $data->{'class'},
 			  $data->{'classarg'}, $data->{'classarg2'});
     return ($ok, $flags) unless $ok;
+    # XLANG
     return (0, "Digest mode is not supported by auxiliary lists.") 
       if ($subl ne 'MAIN' and $class eq 'digest');
 
@@ -655,7 +689,7 @@ sub should_ack {
 
   unless (defined $data) {
     $data = {};
-    $data->{'flags'} = $self->config_get('nonmember_flags');
+    $data->{'flags'} = $self->get_flags('nonmember_flags');
   }
   # Ack if the victim has the (deprecated) 'ackall' or 'ackimportant' setting.
   return 1 if ($data->{'flags'} =~ /A/i);
@@ -774,16 +808,37 @@ sub default_class {
   return ('each', '', '');
 }
 
-=head2 default_flags
+=head2 get_flags 
 
-This returns the default flags (as a string) for new subscribers.
+This returns the default, allowed, or nonmember flags 
+as a string of abbreviations.
 
 This should be a per-list variable, or a whole set of list variables.
 
 =cut
-sub default_flags {
+sub get_flags {
   my $self = shift;
-  return $self->config_get('default_flags');
+  my $setting = shift;
+  my (@newvalues, $f, $out, $values);
+
+  $values = $self->config_get($setting);
+  if (ref $values eq 'HASH') {
+    $out = '';
+    for $f (keys %$values) {
+      $out .= $flags{$f}->[3];
+    }
+
+    return $out;
+  }
+  else {
+    # Get the unparsed value.
+    $values = $self->config_get($setting, 1);
+    $values =~ s/[Aa]/bdfj/;
+    @newvalues = $self->describe_flags($values, 1);
+    $self->config_set($setting, @newvalues);
+    $self->config_unlock;
+    return $values;
+  }
 }
 
 =head2 flag_set(flag, address, sublist)
@@ -817,7 +872,7 @@ sub flag_set {
       $flags = $data->{flags};
     }
     else {
-      $flags = $self->config_get('nonmember_flags');
+      $flags = $self->get_flags('nonmember_flags');
     }
     $addr->cache("$self->{name}-flags", $flags)
       unless defined $sublist;
@@ -837,7 +892,7 @@ flag_string.
 sub describe_flags {
   my $self    = shift;
   my $flags   = shift || "";
-  my $setting = shift;
+  my $noneg   = shift || "";
   my %nodesc  = reverse %noflags;
   my (%desc, @out, $i, $seen);
 
@@ -856,6 +911,7 @@ sub describe_flags {
       $seen .= $i;
     }
     else {
+      next if $noneg;
       unless ($flags{$desc{$i}}->[1] == 2 || $seen =~ /$i/i || $flags =~ /$i/i) {
 	push @out, $nodesc{$i} || "no$desc{$i}"; # XLANG
 	$seen .= $i;
@@ -920,12 +976,13 @@ Return a hashref containing complete data about settings:
 sub get_setting_data {
   my $self = shift;
   my $log = new Log::In 150;
-  my (@classes, $allowed, $class, $dd, $dfl, $dig, $flag, $i, $out);
+  my (@classes, $allowed, $class, $dd, $dfl, $dig, $flag, 
+      $flagmask, $i, $out);
 
   $out = { 'classes' => [], 'flags' => [] };
 
-  $flagmask = $self->config_get('allowed_flags');
-  $dfl = $self->config_get('default_flags');
+  $flagmask = $self->get_flags('allowed_flags');
+  $dfl = $self->get_flags('default_flags');
 
   $i = 0;
   for $flag (sort keys %flags) {
@@ -1182,7 +1239,7 @@ sub aux_rekey {
       $data->{'subtime'}  ||= $data->{'changetime'};
       $data->{'fulladdr'} ||= $data->{'stripaddr'};
       $data->{'class'}    ||= 'each';
-      $data->{'flags'}    ||= $self->default_flags;
+      $data->{'flags'}    ||= $self->get_flags('default_flags');
 
       if (ref $reg and $name eq 'MAIN') {
         if (exists $regent{$newkey}) {
