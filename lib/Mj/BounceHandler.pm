@@ -127,11 +127,16 @@ sub handle_bounce_message {
   $mess  = "Detected a bounce of message #$args{msgno}, list $list.\n";
   $mess .= "  (bounce type $args{handler})\n\n";
 
-  $sender   = $self->_list_config_get('GLOBAL', 'sender');
-  $lsender  = $self->_list_config_get($list, 'sender');
   @owners   = @{$self->_list_config_get($list, 'owners')};
   @bouncers = @{$self->_list_config_get($list, 'bounce_recipients')};
   @bouncers = @owners unless @bouncers;
+  if ($list eq 'GLOBAL') {
+    $sender = $owners[0];
+  }
+  else {
+    $sender  = $self->_list_config_get('GLOBAL', 'sender');
+  }
+  $lsender  = $self->_list_config_get($list, 'sender');
 
   # If we have an address or subscriber ID from the envelope, we can only
   # have one and we know it's correct.  First we have to get from that to
@@ -226,10 +231,10 @@ sub handle_bounce_token {
     }
   }
 
-  $sender   = $self->_global_config_get('sender');
   @owners   = @{$self->_global_config_get('owners')};
   @bouncers = @{$self->_global_config_get('bounce_recipients')};
   @bouncers = @owners unless @bouncers;
+  $sender = $owners[0];
 
   # Build a new message which includes the explanation from the bounce
   # parser and attach the original message.
@@ -366,81 +371,6 @@ sub handle_bounce_user {
 		     args     => \%args,
 		     memberof => \%memberof,
 		    );
-
-#        # Prepare to execute the rules
-#        $skip = 0;
-#        $cpt = new Safe;
-#        $cpt->permit_only(@permitted_ops);
-#        $cpt->share(qw(%args %memberof $skip));
-
-#        # Loop until we get a terminal action
-#      RULE:
-#        while (1) {
-#  	$actions = $cpt->reval($rules->{code});
-#  	warn "Error found when running bounce_rules code:\n$@" if $@;
-
-#  	# The first element of the action array is the ID of the matching
-#  	# rule.  If we have to rerun the rules, we will want to skip to the
-#  	# next one.
-#  	$actions ||= [0, 'ignore'];
-#  	$skip = shift @{$actions};
-
-#  	# Now go over the actions we received.  We must process 'set' and
-#  	# 'unset' here so that they'll take effect if we have to rerun the
-#  	# rules.  Other actions are pushed into @final_actions.  If we hit a
-#  	# terminal action we stop rerunning rules.
-#        ACTION:
-#  	for $i (@{$actions}) {
-#  	  ($func, $arg) = split(/[=-]/, $i, 2);
-#  	  # Remove enclosing parentheses
-#  	  if ($arg) {
-#              $arg =~ s/^\((.*)\)$/$1/;
-#              $i = "$func=$arg";
-#  	  }
-
-#  	  if ($func eq 'set') {
-#  	    # Set a variable.
-#  	    ($arg, $value) = split(/[=-]/, $arg, 2);
-#  	    if ($arg and ($ok = rules_var('_bounce', $arg))) {
-#  	      if ($value and $arg eq 'delay') {
-#  		my ($time) = time;
-#  		$args{'delay'} = Mj::List::_str_to_time($value) || $time + 1;
-#  		$args{'delay'} -= $time;
-#  	      }
-#  	      elsif ($value and $ok > 1) {
-#  		$args{$arg} = $value;
-#  	      }
-#  	      else {
-#  		$args{$arg} ||= 1;
-#  	      }
-#  	    }
-#  	    next ACTION;
-#  	  }
-#  	  elsif ($func eq 'unset') {
-#  	    # Unset a variable.
-#  	    if ($arg and rules_var('_bounce', $arg)) {
-#  	      $args{$arg} = 0;
-#  	    }
-#  	    next ACTION;
-#  	  }
-#  	  elsif ($func eq 'reason') {
-#  	    if ($arg) {
-#  	      $arg =~ s/^\"(.*)\"$/$1/;
-#  	      $args{'reasons'} = "$arg\002" . $args{'reasons'};
-#  	    }
-#  	    next ACTION;
-#  	  }
-
-#  	  # We'll process the function later.
-#  	  push @final_actions, $i;
-
-#  	  $saw_terminal ||= action_terminal($func);
-#  	}
-
-#  	# We need to stop if we saw a terminal action in the results of the
-#  	# last rule
-#  	last RULE if $saw_terminal;
-#        }
 
       # XXX Don't actually do anything yet
       $mess .= "  Bounce rules said: @final_actions.\n";
