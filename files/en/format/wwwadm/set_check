@@ -1,7 +1,162 @@
 <!-- Majordomo set_check format file -->
-Settings for $VICTIM on the "$LIST" list:
-  Receiving $CLASSDESC
-  Flags:
-    $FLAGDESC
-Last changed on $CHANGETIME
- 
+<h4 align=center>Settings for $FULLADDR</h4>
+  <input type="hidden" name="victims" value="$VICTIM">
+
+<p>
+Once you have changed the personal settings,
+press the <b>set</b> button to make the changes permanent.<br>
+  <input type="submit" name="func" value="set">
+</p>
+<p>
+
+<dl>
+  <dt>
+  Delivery class:
+  <select name="$VICTIM">
+    <option value="$CLASSES" $SELECTED>$CLASS_DESCRIPTIONS
+  </select>
+  </dt>
+  <dd>The delivery class determines how the messages which are
+      posted to the $LIST list are delivered to $VICTIM.
+      The following choices are available from the menu:</dd>
+    <dl>
+      <dt><b>each message as it is posted</b> (each)</dt>
+      <dd>The subscriber will receive a separate copy of each message.</dd>
+
+      <dt><b>each unduplicated message</b> (unique)</dt>
+      <dd>The subscriber will receive a separate copy of each message,
+      unless it has already been posted to another mailing
+      list at $SITE to which the subscriber is subscribed.</dd>
+
+      <dt><b>no messages</b> (nomail)</dt>
+      <dd>The subscriber will receive no mail at all from the $LIST list.</dd>
+
+      <dt><b>resume receiving messages</b> (mail)</dt>
+      <dd>If the subscriber is currently receiving <b>no messages</b>, the subscriber
+      will begin receiving messages again.  Otherwise, this
+      option has no effect.</dd>
+
+      <dt><i>anything else...</i> (digest)</dt>
+      <dd>The subscriber will receive the messages bundled in a digest.  
+      Each digest has three formats:</dd>
+      <dl>
+        <dt>index</dt>
+        <dd>The subscriber will receive a summary of the messages in the
+        digest, but not the messages themselves.</dd>
+
+        <dt>mime</dt>
+        <dd>Each message will be included as an attachment.</dd>
+
+        <dt>text</dt>
+        <dd>Only the text of each message will be included in the digest.
+        No message attachments (web pages, images, etc.) will be
+        sent to the subscriber.</dd>
+      </dl>
+       
+    </dl>
+
+    <p>
+    See the $HELP:SET help page 
+    for more information about digests and other delivery classes.
+    </p>
+
+  </dd>
+</dl>
+
+<p>
+The delivery class offers several choices, but the other personal 
+settings have only two values, <b>on</b> or <b>off</b>.  Press
+the checkbox next to the name of a setting to change its value.
+</p>
+
+<dl>
+  <dt>$ACKDENY_CHECKBOX ackdeny</dt>
+  <dd>
+    Select this to be notify the subscriber when posted messages 
+    are denied by the access restrictions of a list.
+  </dd>
+
+  <dt>$ACKPOST_CHECKBOX ackpost</dt>
+  <dd>
+    Select this to notify the subscriber when
+    posted messages have been accepted and are being delivered.
+  </dd>
+
+  <dt>$ACKREJECT_CHECKBOX ackreject</dt>
+  <dd>
+    Select this to notify the subscriber when posted messages 
+    or majordomo commands are rejected by one of
+    the moderators.
+  </dd>
+
+  <dt>$ACKSTALL_CHECKBOX ackstall</dt>
+  <dd>
+    Select this to notify the subscriber when
+    posted messages are being reviewed by the moderators
+    before they appear on a mailing list.
+  </dd>
+
+  <dt>$ELIMINATECC_CHECKBOX eliminatecc</dt>
+  <dd>
+    Select this to keep the subscriber from receiving two copies
+    when someone sends a message both to the subscriber and to the list.
+  </dd>
+
+  <dt>$HIDEADDRESS_CHECKBOX hideaddress</dt>
+  <dd>
+    Select this to keep the subscriber's address from appearing
+    when someone reviews the list of subscribers with the 
+    $HELP:WHO command.
+  </dd>
+
+  <dt>$HIDEALL_CHECKBOX hideall</dt>
+  <dd>
+    Select this to keep the subscriber's name or address 
+    from appearing when someone reviews the list of subscribers
+    with the $HELP:WHO command.
+  </dd>
+
+  <dt>$HIDEPOST_CHECKBOX hidepost</dt>
+  <dd>
+    Select this to keep the messages that the subscriber posts
+    to the mailing list from appearing in a public archive.
+  </dd>
+
+  <dt>$POSTBLOCK_CHECKBOX postblock</dt>
+  <dd>
+    Select this to cause all messages posted by the subscriber
+    to be moderated.
+  </dd>
+
+  <dt>$PREFIX_CHECKBOX prefix</dt>
+  <dd>
+    Select this to display a prefix which indicates the name of the
+    mailing list in the Subject header of every message.
+  </dd>
+
+  <dt>$REPLYTO_CHECKBOX replyto</dt>
+  <dd>
+    Select this to cause the subscriber's replies to be sent to the
+    $LIST mailing list.  Otherwise, the subscriber's replies may be 
+    sent to the authors of the messages to which the subscriber reply.
+  </dd>
+
+  <dt>$REWRITEFROM_CHECKBOX rewritefrom</dt>
+  <dd>
+    Select this to change the From header
+    in messages the subscriber sends to the list.  The From header will then be
+    rewritten to appear as it did when the subscriber first joined the list.
+  </dd>
+
+  <dt>$SELFCOPY_CHECKBOX selfcopy</dt>
+  <dd>
+    Select this to cause the subscriber to receive a copy of each message
+    that the subscriber posts to the mailing list.
+  </dd>
+</dl>
+
+<p>
+$VICTIM has been subscribed to the $LIST list since 
+$SUBTIME.<br>
+This subscription was last changed on $CHANGETIME.
+</p>
