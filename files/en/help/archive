@@ -314,20 +314,30 @@ the "force" command mode is also used.
 
 archive-sync (for administrators only)
 --------------------------------------
-The archive-sync command allows list administrators to upload old
-archives, or to replace existing archives, after the archive files have
-been changed using the put command.
+The archive-sync command synchronizes the messages in one or more
+archive files with the archive databases.  It allows list administrators
+to update the databases after new archives have been imported into a
+mailing list's file space.
 
-Only use "archive-sync" when you have manually edited a file at the
-operating system level. You may also have to delete old archive database
-files and strip special lines out of the archive to make this work. For
-expert use only! Back up your directories before attempting to use this
-option.
+The archive-sync command is necessary after you alter the archives using
+some means outside of Majordomo (for example, editing an archive file
+using an operating system command.)  It is also necessary after you
+upload an archive file using the put command.  
+
+The archive-sync command expects messages in an archive file to be in
+"mbox" format.  Each message must begin with a line containing the
+word "From" followed by the e-mail address of the message's author
+and the date of the message, for example:
+
+From z@example.com  Sun Jan  9 21:56:07 2000
+
 
 The archive-sync command takes one argument, which must be the
 date of a particular archive file or a Majordomo pattern matching
 one or more archive files (see "help patterns").  For example,
+
   archive-sync LISTNAME 200005
+
 would synchronize the May 2000 archive databases with the
 messages themselves.  
 
@@ -335,16 +345,23 @@ Alternately, if you have a bunch of files to process at once, you can
 specify a pattern and all files matching that pattern will be
 synchronized.  For example,
 
-  archive-sync LISTNAME /19991/
+  archive-sync LISTNAME /^19991/
 
-would synchronize the October, November, and December 1999 archives.
-The archive names against which the pattern is matched may be seen using
+would synchronize the October, November, and December, 1999 archives.
+The archive names against which the pattern is matched can be seen using
 the archive-summary command.
 
-In the file system, all archive file names must begin with the list
-name, and the list name should NOT be included in the "filespec" field.
-This is important to remember if you upload archives into the archive
-directory using the put command.
+In your mailing list's file space, all archive file names must begin
+with the list name, followed by a period and the date of the archive,
+for example:
+
+  LISTNAME.200204
+
+However, when you list archive files to synchronize, only the date
+should be included, for example:
+
+  archive-sync LISTNAME 200204
+
 
 When using archive-sync, any message without an X-Archive-Number header
 will be given a new number, one greater than the highest number in the
