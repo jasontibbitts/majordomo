@@ -28,6 +28,10 @@
 	(showtokens)  Add support for the "probe" command mode,
 	which will allow probe tokens to be displayed.
 
+	* lib/Mj/BounceHandler.pm:  (handle_bounce_token)  Send
+	notices concerning bounced tokens to list owners, and
+	possibly the requester, instead of domain owners.
+
 	* lib/Mj/CommandProps.pm:  Support the report-full and
 	showtokens-probe commands.
 

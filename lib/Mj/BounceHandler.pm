@@ -274,7 +274,8 @@ it didn't get where it was going.
 sub handle_bounce_token {
   my($self, %args) = @_;
   my $log  = new Log::In 35;
-  my(@owners, @bouncers, $del, $from, $i, $mess, $nent, $sender);
+  my(%file, @owners, @bouncers, $data, $del, $desc, $dest, $ent, $file, $from, 
+     $i, $ok, $reasons, $sender, $subs, $time);
 
   # Dump the body to the session file
   $args{entity}->print_body($self->{sessionfh});
@@ -282,43 +283,98 @@ sub handle_bounce_token {
   # If we parsed out a failure, delete the token
   # unless it is for a delayed action.
   $del = '';
-  for $i (keys %{$args{data}}) {
+  $reasons = '';
+  for $i (keys %{$args{'data'}}) {
     last if $args{'type'} eq 'D';
-    if ($args{data}{$i}{status} eq 'failure') {
-      $self->t_reject($args{token});
-      $del = "This token has been deleted.\n\n";
+    if ($args{'data'}{$i}{'diag'}) {
+      $reasons .= $args{'data'}{$i}{'diag'} . "\n";
+    }
+    if ($args{'data'}{$i}{'status'} eq 'failure') {
+      $time = $::log->elapsed;
+      ($ok, $data) = $self->t_reject($args{token});
+      $del = 'The token has been deleted.' if ($ok);
+      $self->inform('GLOBAL', 'reject',
+		qq("Automatic Bounce Processor" <$args{'sender'}>),
+		$data->{'victim'}, "reject $args{'token'}",
+		$self->{'interface'}, $ok, 0, 0, 
+		qq(A confirmation message could not be delivered.),
+		$::log->elapsed - $time);
       last;
     }
   }
 
-  @owners   = @{$self->_global_config_get('owners')};
-  @bouncers = @{$self->_global_config_get('bounce_recipients')};
+  unless ($del) {
+    ($ok, $data) = $self->t_info($args{'token'});
+  }
+
+  unless (($i) = $self->_make_list($data->{'list'})) {
+    return 1;
+  }
+
+  @owners   = @{$self->_list_config_get($data->{'list'}, 'owners')};
+  @bouncers = @{$self->_list_config_get($data->{'list'}, 'bounce_recipients')};
   @bouncers = @owners unless @bouncers;
   $sender = $owners[0];
-  $from = $self->_global_config_get('sender');
+  $from = $self->_list_config_get($data->{'list'}, 'whoami_owner');
+  $dest = $from;
+  
+  # send a notice to the requester if the requester and victim
+  # addresses are different.
+  if (defined($data) and length($del) and $data->{'user'}
+      ne $data->{'victim'} and $data->{'type'} eq 'confirm') 
+  {
+     $dest = $data->{'user'};
+     push @bouncers, $data->{'user'};
+  }
+
+  $subs = {
+           $self->standard_subs($data->{'list'}),
+           'CMDLINE'    => $data->{'cmdline'},
+           'COMMAND'    => $data->{'command'},
+           'DATE'       => scalar localtime ($data->{'time'}),
+           'DELETED'    => $del,
+           'HANDLER'    => $args{'handler'},
+           'REASONS'    => $reasons || '(reasons unknown)',
+           'REQUESTER'  => $data->{'user'},
+           'SESSIONID'  => $data->{'sessionid'},
+           'TOKEN'      => $args{'token'},
+           'VICTIM'     => $data->{'victim'},
+          };
+
+  ($file, %file) = $self->_list_file_get($data->{'list'}, 'token_bounce');
+  return 1 unless $file;
+
+  # Expand variables
+  $desc = $self->substitute_vars_string($file{'description'}, $subs);
+  $file = $self->substitute_vars($file, $subs);
 
   # Build a new message which includes the explanation from the bounce
   # parser and attach the original message.
-  $nent = build MIME::Entity
+  $ent = build MIME::Entity
     (
-     Data     => [ "Detected a bounce of token $args{token}.\n",
-		   "  (bounce type $args{handler})\n\n",
-		   $del,
-		   "The bounce message is attached below.\n\n",
-		 ],
-     -Subject => "Bounce of token $args{token} detected",
-     -To      => $from,
+     Path     => $file,
+     Type     => $file{'c-type'},
+     Charset  => $file{'charset'},
+     Encoding => $file{'c-t-encoding'},
+     Subject  => $desc,
+     -To      => $dest,
      -From    => $from,
+     Top      => 1,
+     Filename => undef,
+     'Content-Language:' => $file{'language'},
     );
-  $nent->attach(Type        => 'message/rfc822',
-		Description => 'Original message',
-		Path        => $args{file},
-		Filename    => undef,
-	       );
-  $self->mail_entity($sender, $nent, @bouncers);
 
-  $nent->purge if $nent;
+  $ent->attach(Type        => 'message/rfc822',
+               Description => 'Original message',
+               Path        => $args{file},
+               Filename    => undef,
+              );
 
+  if ($ent and $sender and scalar @bouncers) {
+    $self->mail_entity($sender, $ent, @bouncers);
+  }
+
+  $ent->purge if $ent;
   1;
 }
 
