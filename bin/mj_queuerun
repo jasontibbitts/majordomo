@@ -452,7 +452,7 @@ sub respond_with_file {
 # contain the remainder of the message.
 sub connect_no_parse {
   my ($mj, $int) = @_;
-  my (@hdr, $from, $head, $i, $id, $sess);
+  my (@hdr, $err, $from, $head, $i, $id, $sess);
   $from = 'unknown@anonymous';
 
   while (defined($i = <MSG>)) {
@@ -463,7 +463,10 @@ sub connect_no_parse {
         $head->get('apparently-from') || 'unknown@anonymous';
       chomp $from;
       $id = $mj->connect($int, $sess, $from);
-      return unless defined $id;
+      unless (defined $id) {
+	$::log->complain("Error when connecting: $err");
+	return;
+      }
       $sess .= $i;
       last;
     }
@@ -517,6 +520,7 @@ sub connect_and_parse {
   # If it failed, just clean up and return.  XXX We probably should warn
   # the owner here.
   unless (defined($ok)) {
+    $::log->complain("Error connecting: $suser");
     $entity->purge;
     return;
   }

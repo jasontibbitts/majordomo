@@ -304,7 +304,7 @@ sub respond_with_file {
 
 sub connect_no_parse {
   my ($mj, $int) = @_;
-  my (@hdr, $from, $head, $i, $id, $sess);
+  my (@hdr, $err, $from, $head, $i, $id, $sess);
   $from = 'unknown@anonymous';
 
   while (defined($i = <STDIN>)) {
@@ -314,8 +314,11 @@ sub connect_no_parse {
       $from = $head->get('from') ||
         $head->get('apparently-from') || 'unknown@anonymous';
       chomp $from;
-      $id = $mj->connect($int, $sess, $from);
-      return unless defined $id;
+      ($id, $err) = $mj->connect($int, $sess, $from);
+      unless (defined $id) {
+	$::log->complain("Error when connecting: $err");
+	return;
+      }
       $sess .= $i;
       last;
     }
@@ -343,7 +346,7 @@ sub connect_and_parse {
   $::log->in(80, undef, "info", "Taking apart the incoming message");
   $entity = $mime_parser->read(\*STDIN);
   $::log->out;
-  
+
   # Get the header.
   $::log->in(80, undef, "info", "Parsing the header");
   $head = $entity->head;
@@ -358,17 +361,12 @@ sub connect_and_parse {
 
   # If it failed, just clean up and exit.  Should probably tell the owner.
   unless (defined($ok)) {
+    $::log->complain("Error connecting: $suser");
     $entity->purge;
     exit ($opts{'S'} ? 99 : 0);
     #    $::log->abort("Connect failed: $suser");
   }
-  
-#   ($ok, $user, undef) = $mj->addr_validate($uuser);
-#   unless ($ok) {
-#     # We can't get the stripped address, so we can't reply
-#     # We should send something to the owner or something
-#     $::log->abort("Invalid return address: $uuser, $user");
-#   }
+
   ($entity, $head, $suser, $user);
 }
 
