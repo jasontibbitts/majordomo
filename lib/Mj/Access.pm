@@ -758,6 +758,13 @@ sub _a_conf_cons {
   my ($defaults, $dfl2, $file1, $file2, $group, $approvals, $notify);
   my $log = new Log::In 150, $td->{'command'};
 
+  if ($args->{'nostall'}) {
+    $args->{'reasons'} = "This command cannot be delayed.\n" . 
+      "The 'nostall' access variable has been set.\003" .
+       $args->{'reasons'};
+    return $self->_a_deny('', $td, $args);
+  }
+  
   $defaults = n_defaults('confirm', $td->{command});
   $dfl2 = n_defaults('consult', $td->{command});
 
@@ -796,6 +803,13 @@ sub _a_confirm {
   my $log = new Log::In 150, $td->{'command'};
   my ($defaults, $notify);
 
+  if ($args->{'nostall'}) {
+    $args->{'reasons'} = "This command cannot be delayed.\n" . 
+      "The 'nostall' access variable has been set.\003" .
+       $args->{'reasons'};
+    return $self->_a_deny('', $td, $args);
+  }
+  
   $defaults = n_defaults('confirm', $td->{command});
 
   if (defined($arg) and length($arg)) {
@@ -821,6 +835,13 @@ sub _a_confirm2 {
   my ($chain, $defaults, $dfl2, $notify, $reply, $tmp);
   my $log = new Log::In 150, $td->{'command'};
 
+  if ($args->{'nostall'}) {
+    $args->{'reasons'} = "This command cannot be delayed.\n" . 
+      "The 'nostall' access variable has been set.\003" .
+       $args->{'reasons'};
+    return $self->_a_deny('', $td, $args);
+  }
+  
   if ($args->{'user_password'} and not $args->{'mismatch'}) {
     # The requester and victim are identical
     # and the password was supplied, so allow the command.
@@ -882,6 +903,13 @@ sub _a_consult {
   my $log = new Log::In 150, $td->{'command'};
   my ($defaults, $file, $group, $notify, $size);
 
+  if ($args->{'nostall'}) {
+    $args->{'reasons'} = "This command cannot be delayed.\n" . 
+      "The 'nostall' access variable has been set.\003" .
+       $args->{'reasons'};
+    return $self->_a_deny('', $td, $args);
+  }
+  
   $defaults = n_defaults('consult', $td->{command});
 
   ($file, $arg, $group, $size) = split (/\s*,\s*/, $arg || "");
@@ -918,6 +946,13 @@ sub _a_delay {
   my $log = new Log::In 150, "$td->{'command'}, $arg";
   my ($defaults, $delay, $file, $notify);
 
+  if ($args->{'nostall'}) {
+    $args->{'reasons'} = "This command cannot be delayed.\n" . 
+      "The 'nostall' access variable has been set.\003" .
+       $args->{'reasons'};
+    return $self->_a_deny('', $td, $args);
+  }
+  
   $defaults = n_defaults('delay', $td->{command});
 
   ($file, $arg) = split (/\s*,\s*/, $arg || "");
@@ -954,6 +989,13 @@ sub _a_forward {
       $subject, $tmpdir, $whoami);
   my $log = new Log::In 150, $arg;
 
+  if ($args->{'nostall'}) {
+    $args->{'reasons'} = "This command cannot be delayed.\n" . 
+      "The 'nostall' access variable has been set.\003" .
+       $args->{'reasons'};
+    return $self->_a_deny('', $td, $args);
+  }
+  
   $cmdline = $td->{'cmdline'};
 
   if ($td->{'command'} !~ /post/) {
