@@ -1669,8 +1669,8 @@ sub post {
 
 sub put {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($act, $chunk, $chunksize, $handled, $i, $mess, $ok, $str,
-      $subs, $tmp);
+  my ($act, $chunk, $chunksize, $dir, $file, $handled, $i, $mess, 
+      $ok, $parent, $path, $str, $subs, $tmp);
   ($ok, $mess) = @$result;
 
   if    ($request->{'file'} eq '/info' ) {$act = 'newinfo' }
@@ -1678,12 +1678,22 @@ sub put {
   elsif ($request->{'file'} eq '/faq'  ) {$act = 'newfaq'  }
   else                                   {$act = 'put'     }
 
+  $path = $file = $parent = $dir = '';
+  $path = $request->{'file'};
+  if ($path =~ m#(.*/)([^/]+)$#) {
+    $dir = $1;
+    $file = $2;
+    ($parent = $dir) =~ s#[^/]+/+$##;
+  }
+
   $subs = { $mj->standard_subs($request->{'list'}),
            'CGIDATA'  => $request->{'cgidata'},
            'CGIURL'   => $request->{'cgiurl'},
            'CMDPASS'  => &escape($request->{'password'}, $type),
            'COMMAND'  => $act,
-           'FILE'     => &escape($request->{'file'}, $type),
+           'FILE'     => &escape($file),
+           'PARENT'   => &escape($parent),
+           'PATH'     => &escape($dir),
            'USER'     => &escape("$request->{'user'}", $type),
           };
 

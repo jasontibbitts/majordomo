@@ -1007,14 +1007,15 @@ put
 ---
 (text, wwwadm)  This file is displayed when the put command succeeds.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, FILE, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, FILE, PARENT, PATH, USER)
 
 
 put_error
 ---------
 (text, wwwadm)  This file is displayed when the put command fails.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, ERROR, FILE, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, ERROR, FILE, PARENT,
+ PATH, USER)
 
 
 register
