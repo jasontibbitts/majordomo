@@ -243,7 +243,7 @@ sub post {
   # We handled the OK case, so we have either a stall or a denial.
   # If we got an empty return message, this is a signal not to ack anything
   # and so we just return;
-  unless (defined $mess && length $mess) {
+  unless (defined $mess and length $mess and $mess ne 'NONE') {
     # Unlink the spool file if the post was denied.
     unlink $request->{'file'} unless $ok; 
     unlink @{$self->{'post_temps'}} if $self->{'post_temps'};
