@@ -1551,8 +1551,7 @@ sub _r_strip_body {
         $txtfile = $self->_clean_text($i);
 
         if ($txtfile) {
-          # Create a new plain text entity and include it
-          # in the list of new parts.
+          # Create an entity from the cleaned file.
           push @newparts, 
             build MIME::Entity(
               'Type' => $_,
@@ -2377,7 +2376,7 @@ to various lists if appropriate:
 =cut
 sub _exclude {
   my($self, $ent, $list, $sublist, $user) = @_;
-  my(@addrs, $addr, $cc, $exclude, $i, $to);
+  my(@addrs, $addr, $cc, $exclude, $i, $members, $nonmembers, $to);
 
   $exclude    = {};
   $members    = {};
