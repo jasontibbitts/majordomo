@@ -11,15 +11,14 @@ size reasons.
 =head1 SYNOPSIS
 
  # See that the user is allowed to use the password to subscribe addresses
- $mj->validate_password($user, $passwd, undef, "shell", "mylist", "subscribe");
+ $mj->validate_password($user, $passwd, "mylist", "subscribe");
 
  # Eradicate the cached, parsed password tables
  $mj->flush_passwd_data;
 
  # Check that a user is allowed to get a file, automatically handling
  # confirmation tokens if the list owner has so configured it
- $mj->list_access_check($passwd, undef, "web", $mode, $cmdline,
-                        $list, "get", $user);
+ $mj->list_access_check($passwd, $mode, $cmdline, $list, "get", $user);
 
 =cut
 package Mj::Access;
@@ -63,8 +62,7 @@ is _not_ allowed to do something.
 
 =cut
 sub validate_passwd {
-  my ($self, $user, $passwd, $auth, $interface,
-      $list, $action, $global_only) = @_;
+  my ($self, $user, $passwd, $list, $action, $global_only) = @_;
   my (@try, $c, $i, $j, $reg);
   return 0 unless defined $passwd;
   my $log = new Log::In 100, "$user, $list, $action";
@@ -346,7 +344,7 @@ Note that if you do confirm and mailfile, the user will get two messages.
 =cut
 sub global_access_check {
   my $self = shift;
-  splice(@_, 5, 0, 'GLOBAL');
+  splice(@_, 3, 0, 'GLOBAL');
   $self->list_access_check(@_);
 }
 
@@ -385,8 +383,6 @@ sub list_access_check {
   # can't be lexicals
   my    $self      = shift;
   local $passwd    = shift;
-  my    $auth      = shift;
-  my    $interface = shift;
   my    $mode      = shift || '';
   my    $cmdline   = shift;
   my    $list      = shift;
@@ -454,15 +450,13 @@ sub list_access_check {
   $args{'user_password'}   = 0;
   if ($passwd) {
     # Check the password against the requester
-    $ok = $self->validate_passwd($requester, $passwd, $auth,
-				 $interface, $list, $request);
+    $ok = $self->validate_passwd($requester, $passwd, $list, $request);
     if ($ok > 0) {
       $args{'master_password'} = 1;
     }
     if ($args{'mismatch'}) {
       # Check the password against the victim
-      $ok2 = $self->validate_passwd($victim, $passwd, $auth,
-				    $interface, $list, $request);
+      $ok2 = $self->validate_passwd($victim, $passwd, $list, $request);
       if ($ok2 < 0) {
 	$args{'user_password'} = 1;
       }
@@ -574,14 +568,14 @@ sub list_access_check {
 	  }
 	  next ACTION;
 	}
-    elsif ($func eq 'reason') {
-      if ($arg) {
-        my $reason = $arg;
-        $reason =~ s/^\"(.*)\"$/$1/;
-        $arg2 = "$reason\002" . $arg2;
-      }
-	  next ACTION;
-	}
+        elsif ($func eq 'reason') {
+          if ($arg) {
+            my $reason = $arg;
+            $reason =~ s/^\"(.*)\"$/$1/;
+            $arg2 = "$reason\002" . $arg2;
+          }
+          next ACTION;
+        }
 
 	# We'll process the function later.
 	push @final_actions, $i;
@@ -645,7 +639,7 @@ sub list_access_check {
 	'REQUEST' => $request,
 	'REQUESTER' => $requester,
 	'VICTIM'  => $victim,
-    'NOTIFY'  => $victim,
+        'NOTIFY'  => $victim,
 	'REASONS' => $reasons,
        },
       ) if $mess;
