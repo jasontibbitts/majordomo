@@ -1,4 +1,11 @@
-         Notes on upgrading from previous versions of Majordomo 2
+        Notes on upgrading from previous versions of Majordomo 2
+2001.09.03 (CVS):
+
+Two modules, HTML::TreeBuilder and HTML::FormatText, are now required
+to enable HTML message processing.  Commands issued in HTML-only
+messages will be processed, and the attachment_rules configuration 
+setting has a "format" action that allows text/html, text/enriched,
+or text/richtext messages to be converted into plain text.
 
 2001.03.01 (CVS):
 
