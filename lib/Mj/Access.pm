@@ -491,8 +491,10 @@ sub list_access_check {
   # Initialize access variables
   $args{'master_password'} = 0;
   $args{'user_password'}   = 0;
-  $args{'delay'}           = 0;
+  $args{'chain'}           = 1;
+  $args{'expire'}          = -1;
   $args{'interface'}       = $self->{'interface'};
+  $args{'notify'}          = [];
   $args{'reasons'}       ||= '';
   $args{'sublist'}         = $sublist;
 
@@ -569,6 +571,10 @@ sub list_access_check {
       }
       return $self->_a_allow(2**30);
     }
+  }
+  else {
+    # Delay mode is only available if an administrative password is used.
+    $args{'delay'} = 0;
   }
 
   $access = $self->_list_config_get($list, 'access_rules');
@@ -738,135 +744,195 @@ sub _a_allow {
 # The confirm+consult action, appreviated to appease the autoloader.
 # Accepts four parameters: file for confirmation, file for consultation,
 # moderator group to consult, number of approvals to require.
+use Mj::Util qw(n_build n_defaults);
 sub _a_conf_cons {
   my ($self, $arg, $td, $args) = @_;
-  my ($file1, $file2, $group, $approvals);
+  my ($defaults, $dfl2, $file1, $file2, $group, $approvals, $notify);
   my $log = new Log::In 150, $td->{'command'};
+
+  $defaults = n_defaults('confirm');
+  $dfl2 = n_defaults('consult');
 
   # Confirm file, consult file, consult group, consult approvals
   ($file1, $file2, $group, $approvals) = split /\s*,\s*/, $arg;
 
+  if (defined($file1) and length($file1)) {
+    $defaults->{'file'} = $file1;
+  }
+  if (defined($file2) and length($file2)) {
+    $dfl2->{'file'} = $file2;
+  }
+  if (defined($group) and length($group)) {
+    $dfl2->{'group'} = $group;
+  }
+  if (defined($approvals) and $approvals > 0) {
+    $dfl2->{'approvals'} = $approvals;
+  }
+
+  $notify = n_build($args->{'notify'}, $defaults, $dfl2);
+
   $self->confirm(%$td,
-                 'file'      => $file1 || "confirm",
-		 'notify'    =>	$td->{'victim'},
-                 'reasons'   => $args->{'reasons'},
-		 'approvals' => 1,
-		 'chain'     => [$file2 || 'consult',
-				 $group || 'default',
-				 $approvals || 1,
-				 'repl_chain',
-				],
-		 'args'      => [$td->{'arg1'}, $td->{'arg2'}, $td->{'arg3'}],
-		);
+                 'chain'  => $args->{'chain'},
+                 'expire' => $args->{'expire'},
+                 'notify' => $notify,
+                 'reasons'=> $args->{'reasons'},
+                );
 
   return (-1, 'repl_confcons');
 }
 
 # Accepts just a filename
+use Mj::Util qw(n_build n_defaults);
 sub _a_confirm {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150, $td->{'command'};
+  my ($defaults, $notify);
+
+  $defaults = n_defaults('confirm');
+
+  if (defined($arg) and length($arg)) {
+    $defaults->{'file'} = $arg;
+  }
+
+  $notify = n_build($args->{'notify'}, $defaults);
 
   $self->confirm(%$td,
-                 'file'      => $arg || 'confirm',
-		 'notify'    =>	$td->{'victim'},
-                 'reasons'   => $args->{'reasons'},
-		 'approvals' => 1,
-		 'args'      => [$td->{'arg1'}, $td->{'arg2'}, $td->{'arg3'}],
-		);
+                 'chain'  => $args->{'chain'},
+                 'expire' => $args->{'expire'},
+                 'notify' => $notify,
+                 'reasons'=> $args->{'reasons'},
+                );
 
   return (-1, 'repl_confirm');
 }
 
 # Confirm with both the requester and the victim, victim first.
+use Mj::Util qw(n_build n_defaults);
 sub _a_confirm2 {
   my ($self, $arg, $td, $args) = @_;
-  my ($chain, $tmp, $reply, $notify);
+  my ($chain, $defaults, $dfl2, $notify, $reply, $tmp);
   my $log = new Log::In 150, $td->{'command'};
 
-  $reply = "repl_confirm";
-  $notify = $td->{'victim'};
-
-  # Confirm file, consult file, consult group, consult approvals
-  my ($file1, $file2, $group, $approvals) = split /\s*,\s*/, $arg;
-  if ($args->{'mismatch'}) {
-    if (!$args->{'user_password'}) {
-      $chain  = [$file2 || 'confirm', $group || 'requester',
-               $approvals || 1, 'repl_confirm' ];
-      $reply = "repl_confirm2";
-    }
-    # confirm with the requester if the victim's password was supplied.
-    else {
-      $notify = $td->{'user'};
-    }
-  }
-  elsif ($args->{'user_password'}) {
+  if ($args->{'user_password'} and not $args->{'mismatch'}) {
     # The requester and victim are identical
     # and the password was supplied, so allow the command.
     return 1;
   }
 
+  $defaults = n_defaults('confirm');
+  $reply = "repl_confirm";
+  $dfl2 = '';
+
+  # Confirm file, consult file, consult group, consult approvals
+  my ($file1, $file2, $group, $approvals) = split /\s*,\s*/, $arg;
+
+  if (defined($file1) and length($file1)) {
+    $defaults->{'file'} = $file1;
+  }
+
+  if ($args->{'mismatch'}) {
+    if (!$args->{'user_password'}) {
+      $dfl2 = { %$defaults };
+      $dfl2->{'file'} = 'confirm';
+      $dfl2->{'group'} = 'requester';
+      if (defined($file2) and length($file2)) {
+        $dfl2->{'file'} = $file2;
+      }
+      if (defined($group) and length($group)) {
+        $dfl2->{'group'} = $group;
+      }
+      if (defined($approvals) and $approvals > 0) {
+        $dfl2->{'approvals'} = $approvals;
+      }
+      $reply = "repl_confirm2";
+    }
+    else {
+      # confirm with the requester if the victim's password was supplied.
+      $defaults->{'group'} = 'requester';
+    }
+  }
+  # else no mismatch and no password:  fall through.
+
+  $notify = n_build($args->{'notify'}, $defaults, $dfl2);
+
   $self->confirm(%$td,
-                 'file'      => $file1 || 'confirm',
-		 'notify'    =>	$notify,
-		 'approvals' => 1,
-                 'reasons'   => $args->{'reasons'},
-		 'chain'     => $chain,
-		 'args'      => [$td->{'arg1'}, $td->{'arg2'}, $td->{'arg3'}],
-		);
+                 'chain'  => $args->{'chain'},
+                 'expire' => $args->{'expire'},
+                 'notify' => $notify,
+                 'reasons'=> $args->{'reasons'},
+                );
 
   return (-1, $reply);
 }
 
 # Accepts four parameters: filename, approvals, the moderator group, the
-# number of moderators.  XXX Possibly allow the push of a bounce reason, or
-# can the whole moderator group thing.
+# number of moderators.  
 
+use Mj::Util qw(n_build n_defaults);
 sub _a_consult {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150, $td->{'command'};
-  my ($file, $group, $size);
+  my ($defaults, $file, $group, $notify, $size);
 
+  $defaults = n_defaults('consult');
+                
   ($file, $arg, $group, $size) = split (/\s*,\s*/, $arg || "");
-  $self->consult(%$td,
-                 'file'      => $file || 'consult',
-		 'group'     => $group || 'default',
-		 'size'      => $size || 0,
-                 'reasons'   => $args->{'reasons'},
-		 'approvals' => $arg || 1,
-		 'args'      => [$td->{'arg1'}, $td->{'arg2'}, $td->{'arg3'}],
-		);
+
+  if (defined($file) and length($file)) {
+    $defaults->{'file'} = $file;
+  }
+  if (defined($arg) and length($arg)) {
+    $defaults->{'approvals'} = $arg;
+  }
+  if (defined($group) and length($group)) {
+    $defaults->{'group'} = $group;
+  }
+  if (defined($size) and length($size)) {
+    $defaults->{'pool'} = $size;
+  }
+
+  $notify = n_build($args->{'notify'}, $defaults);
+
+  $self->confirm(%$td, 
+                 'chain'  => $args->{'chain'},
+                 'expire' => $args->{'expire'},
+                 'notify' => $notify,
+                 'reasons'=> $args->{'reasons'},
+                );
 
   return (-1, $td->{'command'} =~ /post/ ? 'ack_stall' : 'repl_consult');
 }
 
 # Accepts a filename and a delay
-use Mj::Util 'str_to_time';
+use Mj::Util qw(str_to_time n_build n_defaults);
 sub _a_delay {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150, "$td->{'command'}, $arg";
-  my ($delay, $file);
+  my ($defaults, $delay, $file, $notify);
+
+  $defaults = n_defaults('delay');
 
   ($file, $arg) = split (/\s*,\s*/, $arg || "");
-  if ($arg) {
+  if (defined($arg) and length($arg)) {
     $delay = str_to_time($arg) - time;
     if ($delay > 0) {
-      $td->{'delay'} = $delay;
+      $args->{'expire'} = $delay;
       # For the result message
       $args->{'delay'} = $delay;
     }
   }
-  elsif ($args->{'delay'}) {
-    $td->{'delay'} = $args->{'delay'};
+  elsif (defined($args->{'delay'}) and length($args->{'delay'})) {
+    $args->{'expire'} = $args->{'delay'};
   }
 
-  $self->delay(%$td,
-               'file'      => $file || 'delay',
-               'notify'    => $td->{'victim'},
-               'approvals' => 1,
-               'reasons'   => $args->{'reasons'} || '',
-               'args'      => [$td->{'arg1'}, $td->{'arg2'}, $td->{'arg3'}],
-              );
+  $notify = n_build($args->{'notify'}, $defaults);
+
+  $self->confirm(%$td,
+                 'chain'  => $args->{'chain'},
+                 'expire' => $args->{'expire'},
+                 'notify' => $notify,
+                 'reasons'=> $args->{'reasons'},
+                );
 
   return (-1, $td->{'command'} =~ /post/ ? 'ack_delay' : 'repl_delay');
 }
@@ -951,10 +1017,11 @@ sub _a_reply {
   return (undef, undef, "$arg\n");
 }
 
+use Symbol;
 sub _a_replyfile {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150, $arg;
-  my (%file, $file, $line, $out);
+  my (%file, $fh, $file, $line, $out);
 
   # Given 'NONE', return an empty message.  This means something to the
   # 'post' request.
@@ -963,11 +1030,13 @@ sub _a_replyfile {
   # Retrieve the file, but don't fail
   ($file, %file) = $self->_list_file_get($td->{'list'}, $arg, undef, 1);
 
-  open (FH, "< $file")
+  $fh = gensym();
+  open ($fh, "< $file")
     or $log->abort("Cannot read file $file, $!");
-  while (defined ($line = <FH>)) {
+  while (defined ($line = <$fh>)) {
     $out .= $line;
   }
+  close ($fh);
   return (undef, undef, $out, \%file);
 }
 
@@ -1079,7 +1148,7 @@ sub _a_default {
     elsif ($access =~ /^list/ &&
 	   $self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'victim'}))
       {
-         if (($args{'mismatch'} or $args{'posing'})
+         if (($args->{'mismatch'} or $args->{'posing'})
              and ! $args->{'user_password'}) 
          {
            $action = "_a_confirm";
@@ -1347,7 +1416,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
