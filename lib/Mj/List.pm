@@ -2524,7 +2524,7 @@ sub digest_incvol {
   $digests ||= $self->config_get('digests');
   $inc     ||= [keys(%$digests)];
 
-  use Data::Dumper; print Dumper $inc;
+  # use Data::Dumper; print Dumper $inc;
 
   # Build a quick lookup hash
   for $i (@$inc) {
