@@ -241,10 +241,10 @@ if (($func eq 'tokeninfo' and $mode =~ /part/
 unless ($raw) {
   print $cgi->header('-expires' => '+50s');
   if ($lists[0] =~ /^(ALL|DEFAULT|GLOBAL)/) {
-    $tmp = $mj->format_get_string('wwwadm', 'head_global');
+    $tmp = $mj->format_get_string('wwwadm', 'head_global', 'GLOBAL');
   }
   else {
-    $tmp = $mj->format_get_string('wwwadm', 'head');
+    $tmp = $mj->format_get_string('wwwadm', 'head', $lists[0]);
   }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
@@ -438,10 +438,11 @@ if (@extra and $func ne 'showtokens') {
       {
         print $cgi->header('-expires' => '+50s');
         if ($request->{'list'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
-          $tmp = $mj->format_get_string('wwwadm', 'head_global');
+          $tmp = $mj->format_get_string('wwwadm', 'head_global',
+                                        'GLOBAL');
         }
         else {
-          $tmp = $mj->format_get_string('wwwadm', 'head');
+          $tmp = $mj->format_get_string('wwwadm', 'head', $lists[0]);
         }
         $str = $mj->substitute_vars_format($tmp, $subs);
         print STDOUT "$str\n";
@@ -633,7 +634,7 @@ elsif ($commands{$func}->[2] eq 'newlist') {
 elsif ($commands{$func}->[2] eq 'showtokens') {
   # A separate head and foot are needed because this interface
   # can display tokens for any number of mailing lists.
-  $tmp = $mj->format_get_string('wwwadm', 'showtokens_head');
+  $tmp = $mj->format_get_string('wwwadm', 'showtokens_head', $lists[0]);
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
 
@@ -657,7 +658,7 @@ elsif ($commands{$func}->[2] eq 'showtokens') {
   }
 
   $subs->{'COUNT'} = $i;
-  $tmp = $mj->format_get_string('wwwadm', 'showtokens_foot');
+  $tmp = $mj->format_get_string('wwwadm', 'showtokens_foot', $lists[0]);
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
 
@@ -705,10 +706,10 @@ elsif ($commands{$func}->[2] ne $func) {
 #----- Print the Footer -----#
 unless ($raw and $result->[0]) {
   if ($request->{'list'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
-    $tmp = $mj->format_get_string('wwwadm', 'foot_global');
+    $tmp = $mj->format_get_string('wwwadm', 'foot_global', 'GLOBAL');
   }
   else {
-    $tmp = $mj->format_get_string('wwwadm', 'foot');
+    $tmp = $mj->format_get_string('wwwadm', 'foot', $lists[0]);
   }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
@@ -723,11 +724,11 @@ sub command {
   $subs->{'ERROR'} = Mj::Format::escape($message);
   $::log->message(50, "info", $message) if $message;
 
-  $tmp = $mj->format_get_string('wwwadm', 'command');
+  $tmp = $mj->format_get_string('wwwadm', 'command', 'GLOBAL');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 
-  $tmp = $mj->format_get_string('wwwadm', 'foot');
+  $tmp = $mj->format_get_string('wwwadm', 'foot', 'GLOBAL');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
   
@@ -775,11 +776,11 @@ sub login {
     $::log->message(50, "info", $message);
   }
 
-  $tmp = $mj->format_get_string('wwwadm', 'login');
+  $tmp = $mj->format_get_string('wwwadm', 'login', $subs->{'LIST'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 
-  $tmp = $mj->format_get_string('wwwadm', 'foot');
+  $tmp = $mj->format_get_string('wwwadm', 'foot', $subs->{'LIST'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
   
@@ -817,22 +818,24 @@ sub usage {
   $::log->message(50, "info", $message) if $message;
 
   if (defined $helpfile and length $helpfile) {
-    $tmp = $mj->format_get_string('wwwadm', "welcome_$helpfile");
+    $tmp = $mj->format_get_string('wwwadm', "welcome_$helpfile",
+                                  $subs->{'LIST'});
   }
   elsif ($subs->{'LIST'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
-    $tmp = $mj->format_get_string('wwwadm', 'welcome_global');
+    $tmp = $mj->format_get_string('wwwadm', 'welcome_global',
+                                  $subs->{'LIST'});
   }
   else {
-    $tmp = $mj->format_get_string('wwwadm', 'welcome');
+    $tmp = $mj->format_get_string('wwwadm', 'welcome', $subs->{'LIST'});
   }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 
   if ($subs->{'LIST'} =~ /^(ALL|DEFAULT|GLOBAL)/) {
-    $tmp = $mj->format_get_string('wwwadm', 'foot_global');
+    $tmp = $mj->format_get_string('wwwadm', 'foot_global', "GLOBAL');
   }
   else {
-    $tmp = $mj->format_get_string('wwwadm', 'foot');
+    $tmp = $mj->format_get_string('wwwadm', 'foot', $subs->{'LIST'});
   }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";

@@ -2292,12 +2292,22 @@ sub format_get_string {
   my $self = shift;
   my $type = shift;
   my $file = shift;
+  my $list = shift;
   my $out;
+  unless (defined $list and length $list) {
+    $list = 'GLOBAL';
+  }
 
-  $out = $self->_list_file_get_string(list => 'GLOBAL',
+  $out = $self->_list_file_get_string(list => $list,
 				      file => "format/$type/$file",
 				     );
-  chomp($out) if (defined $out);
+
+  if (defined $out) {
+    chomp $out;
+  }
+  else {
+    $out = '';
+  }
   $out;
 }
 
@@ -3237,6 +3247,11 @@ sub _list_file_get {
   my $list = $args{list};
   my $file = $args{file};
   my $lang = $args{lang};
+
+  # Account for list:sublist
+  if ($list =~ /^([^:\s]+):/) {
+    $list = $1;
+  }
 
   $list = 'GLOBAL' if ($list eq 'ALL');
   return unless $self->_make_list($list);

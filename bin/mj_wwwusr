@@ -256,7 +256,7 @@ if ($ofunc eq 'welcome') {
 }
 
 #----- List check -----#
-@lists   = $cgi->param('list');
+@lists = $cgi->param('list');
 if ($commands{$func}->[2] and ! scalar @lists) {
   &usage($mj, $cgi, $subs, 
          qq(A mailing list must be provided to use the "$func" command.),
@@ -294,7 +294,7 @@ Mj::Parser::parse_args ($request, $extra, '') if ($extra);
 #----- Print the generic page header -----#
 unless ($raw) {
   print $cgi->header(-expires => '+10s');
-  $tmp = $mj->format_get_string('wwwusr', 'head');
+  $tmp = $mj->format_get_string('wwwusr', 'head', $lists[0]);
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 }
@@ -356,7 +356,7 @@ for $list (@lists) {
 
     if (! $result->[0] or $part eq '0') {
       print $cgi->header(-expires => '+10s');
-      $tmp = $mj->format_get_string('wwwusr', 'head');
+      $tmp = $mj->format_get_string('wwwusr', 'head', $list);
       $str = $mj->substitute_vars_format($tmp, $subs);
       print STDOUT "$str\n";
       $raw = 0;
@@ -432,7 +432,7 @@ if ($commands{$func}->[3] ne $func and $ofunc ne 'set-check') {
 
 #----- Print the Footer -----#
 unless ($raw) {
-  $tmp = $mj->format_get_string('wwwusr', 'foot');
+  $tmp = $mj->format_get_string('wwwusr', 'foot', $lists[0]);
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 }
@@ -471,16 +471,16 @@ sub login {
 
   if ($printhdr) {
     print $cgi->header(-expires => '+10s');
-    $tmp = $mj->format_get_string('wwwusr', 'head');
+    $tmp = $mj->format_get_string('wwwusr', 'head', $subs->{'LIST'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print STDOUT "$str\n";
   }
 
-  $tmp = $mj->format_get_string('wwwusr', 'login');
+  $tmp = $mj->format_get_string('wwwusr', 'login', $subs->{'LIST'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 
-  $tmp = $mj->format_get_string('wwwusr', 'foot');
+  $tmp = $mj->format_get_string('wwwusr', 'foot', $subs->{'LIST'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
   
@@ -495,22 +495,23 @@ sub usage {
   $::log->message(50, "info", $message) if $message;
 
   print $cgi->header(-expires => '+10s');
-  $tmp = $mj->format_get_string('wwwusr', 'head');
+  $tmp = $mj->format_get_string('wwwusr', 'head', $subs->{'LIST'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 
   $tmp = '';
   if (defined $helpfile and length $helpfile) {
-    $tmp = $mj->format_get_string('wwwusr', "welcome_$helpfile");
+    $tmp = $mj->format_get_string('wwwusr', "welcome_$helpfile",
+                                  $subs->{'LIST'});
   }
 
   unless (defined $tmp and length $tmp) {
-    $tmp = $mj->format_get_string('wwwusr', 'welcome');
+    $tmp = $mj->format_get_string('wwwusr', 'welcome', $subs->{'LIST'});
   }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
 
-  $tmp = $mj->format_get_string('wwwusr', 'foot');
+  $tmp = $mj->format_get_string('wwwusr', 'foot', $subs->{'LIST'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print STDOUT "$str\n";
   

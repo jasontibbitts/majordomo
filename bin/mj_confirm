@@ -235,7 +235,7 @@ if ($func eq 'tokeninfo'
 else {
   #----- Print the header -----#
   print $cgi->header(-expires => '+10s');
-  $tmp = $mj->format_get_string('wwwconfirm', 'head');
+  $tmp = $mj->format_get_string('wwwconfirm', 'head', 'GLOBAL');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
 }
@@ -247,7 +247,7 @@ unless ($func eq 'tokeninfo'
         and $request->{'mode'} eq 'part'
         and $result->[0] > 0) 
 {
-  $tmp = $mj->format_get_string('wwwconfirm', 'foot');
+  $tmp = $mj->format_get_string('wwwconfirm', 'foot', 'GLOBAL');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
 }
@@ -265,7 +265,7 @@ sub login {
   $subs->{'COMMAND'} = "tokeninfo"
    if ($subs->{'COMMAND'} eq "login");
 
-  $tmp = $mj->format_get_string('wwwconfirm', 'head');
+  $tmp = $mj->format_get_string('wwwconfirm', 'head', 'GLOBAL');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
   
@@ -274,11 +274,11 @@ sub login {
     $::log->message(50, "info", $message);
   }
 
-  $tmp = $mj->format_get_string('wwwconfirm', 'login');
+  $tmp = $mj->format_get_string('wwwconfirm', 'login', 'GLOBAL');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
 
-  $tmp = $mj->format_get_string('wwwconfirm', 'foot');
+  $tmp = $mj->format_get_string('wwwconfirm', 'foot', 'GLOBAL');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
   
@@ -293,22 +293,23 @@ sub usage {
   $subs->{'ERROR'} = Mj::Format::escape($message);
   $::log->message(50, "info", $message) if $message;
 
-  $tmp = $mj->format_get_string('wwwconfirm', 'head');
+  $tmp = $mj->format_get_string('wwwconfirm', 'head', 'GLOBAL');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
 
   $tmp = ''; 
   if (defined $helpfile and length $helpfile) {
-    $tmp = $mj->format_get_string('wwwconfirm', "welcome_$helpfile");
+    $tmp = $mj->format_get_string('wwwconfirm', "welcome_$helpfile",
+                                  'GLOBAL');
   }
 
   unless (defined $tmp and length $tmp) {
-    $tmp = $mj->format_get_string('wwwconfirm', 'welcome');
+    $tmp = $mj->format_get_string('wwwconfirm', 'welcome', 'GLOBAL');
   }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
 
-  $tmp = $mj->format_get_string('wwwconfirm', 'foot');
+  $tmp = $mj->format_get_string('wwwconfirm', 'foot', 'GLOBAL');
   $str = $mj->substitute_vars_format($tmp, $subs);
   print "$str\n";
   

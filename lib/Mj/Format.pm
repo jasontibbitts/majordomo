@@ -63,7 +63,7 @@ sub accept {
       $mess = shift @tokens;
       $gsubs->{'ERROR'} = $mess;
 
-      $tmp = $mj->format_get_string($type, 'accept_error');
+      $tmp = $mj->format_get_string($type, 'accept_error', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $gsubs);
       print $out &indicate($type, "$str\n", $ok); 
 
@@ -101,7 +101,7 @@ sub accept {
     if ($ok < 0) {
       $subs->{'ERROR'} = $mess;
 
-      $tmp = $mj->format_get_string($type, 'accept_stall');
+      $tmp = $mj->format_get_string($type, 'accept_stall', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out &indicate($type, "$str\n", $ok); 
       next;
@@ -125,12 +125,12 @@ sub accept {
         }
       }
 
-      $tmp = $mj->format_get_string($type, 'accept');
+      $tmp = $mj->format_get_string($type, 'accept', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out &indicate($type, "$str\n", $ok); 
     }
     else {
-      $tmp = $mj->format_get_string($type, 'accept_head');
+      $tmp = $mj->format_get_string($type, 'accept_head', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out &indicate($type, "$str\n", $ok); 
 
@@ -142,7 +142,7 @@ sub accept {
         $ok = &$fun($mj, $out, $err, $type, $data, $rresult);
       }
 
-      $tmp = $mj->format_get_string($type, 'accept_foot');
+      $tmp = $mj->format_get_string($type, 'accept_foot', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out &indicate($type, "$str\n", $ok); 
     }
@@ -164,13 +164,13 @@ sub alias {
           };
 
   if ($ok > 0) { 
-    $tmp = $mj->format_get_string($type, 'alias');
+    $tmp = $mj->format_get_string($type, 'alias', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok, 1);
   }
   else {
     $subs->{'ERROR'} = &escape($mess, $type);
-    $tmp = $mj->format_get_string($type, 'alias_error');
+    $tmp = $mj->format_get_string($type, 'alias_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok, 1);
   }
@@ -193,13 +193,13 @@ sub announce {
           };
 
   if ($ok > 0) { 
-    $tmp = $mj->format_get_string($type, 'announce');
+    $tmp = $mj->format_get_string($type, 'announce', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok, 1);
   }
   else {
     $subs->{'ERROR'} = &escape($mess, $type);
-    $tmp = $mj->format_get_string($type, 'announce_error');
+    $tmp = $mj->format_get_string($type, 'announce_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok, 1);
   }
@@ -226,13 +226,13 @@ sub archive {
 
   if ($ok <= 0) { 
     $subs->{'ERROR'} = $msgs[0];
-    $tmp = $mj->format_get_string($type, 'archive_error');
+    $tmp = $mj->format_get_string($type, 'archive_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok, 1);
     return $ok;
   }
   unless (@msgs) {
-    $tmp = $mj->format_get_string($type, 'archive_none');
+    $tmp = $mj->format_get_string($type, 'archive_none', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
     # reset the arcadmin flag.
@@ -250,11 +250,11 @@ sub archive {
     }
   }
   elsif ($request->{'mode'} =~ /summary/) {
-    $tmp = $mj->format_get_string($type, 'archive_summary_head');
+    $tmp = $mj->format_get_string($type, 'archive_summary_head', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
 
-    $tmp = $mj->format_get_string($type, 'archive_summary');
+    $tmp = $mj->format_get_string($type, 'archive_summary', $request->{'list'});
 
     for $i (@msgs) {
       ($mess, $data) = @$i;
@@ -268,13 +268,13 @@ sub archive {
       print $out "$str\n";
     }
 
-    $tmp = $mj->format_get_string($type, 'archive_summary_foot');
+    $tmp = $mj->format_get_string($type, 'archive_summary_foot', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
   elsif ($request->{'mode'} =~ /get|delete|edit|replace/) {
     if ($request->{'mode'} !~ /part|edit/) {
-      $tmp = $mj->format_get_string($type, 'archive_get_head');
+      $tmp = $mj->format_get_string($type, 'archive_get_head', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
@@ -307,7 +307,7 @@ sub archive {
     }
 
     if ($request->{'mode'} !~ /part|edit/) {
-      $tmp = $mj->format_get_string($type, 'archive_get_foot');
+      $tmp = $mj->format_get_string($type, 'archive_get_foot', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
@@ -343,17 +343,17 @@ sub archive {
       push @{$subs->{'POSTS'}}, $stats{$i}{'count'};
       push @{$subs->{'KILOBYTES'}}, int(($stats{$i}{'size'} + 512) / 1024);
     }
-    $tmp = $mj->format_get_string($type, 'archive_stats');
+    $tmp = $mj->format_get_string($type, 'archive_stats', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
   else {
     # The archive-index command.
-    $tmp = $mj->format_get_string($type, 'archive_head');
+    $tmp = $mj->format_get_string($type, 'archive_head', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
 
-    $tmp = $mj->format_get_string($type, 'archive_index');
+    $tmp = $mj->format_get_string($type, 'archive_index', $request->{'list'});
     for $i (@msgs) {
       $data = $i->[1];
       $data->{'subject'} ||= "(No Subject)";
@@ -379,7 +379,7 @@ sub archive {
       print $out "$str\n";
     }
 
-    $tmp = $mj->format_get_string($type, 'archive_foot');
+    $tmp = $mj->format_get_string($type, 'archive_foot', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
@@ -412,7 +412,7 @@ sub _archive_part {
               'MSGNO'   => $msgno,
               'USER'    => &escape("$request->{'user'}", $type),
             };
-    $tmp = $mj->format_get_string($type, 'archive_error');
+    $tmp = $mj->format_get_string($type, 'archive_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", 0, 1);
     return 0;
@@ -449,7 +449,7 @@ sub _archive_part {
     }
 
     if ($request->{'mode'} =~ /edit/) {
-      $tmp = $mj->format_get_string($type, 'archive_edit_head');
+      $tmp = $mj->format_get_string($type, 'archive_edit_head', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
@@ -473,7 +473,7 @@ sub _archive_part {
     }
 
     if ($request->{'mode'} =~ /edit/) {
-      $tmp = $mj->format_get_string($type, 'archive_edit_foot');
+      $tmp = $mj->format_get_string($type, 'archive_edit_foot', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
@@ -487,11 +487,11 @@ sub _archive_part {
     if ($request->{'mode'} =~ /delete/) {
       ($ok, $tmp) = @{$mj->dispatch($request, $result)};
       if ($ok) {
-        $tmp = $mj->format_get_string($type, 'archive_part_delete');
+        $tmp = $mj->format_get_string($type, 'archive_part_delete', $request->{'list'});
       }
       else {
         $subs->{'ERROR'} = $tmp;
-        $tmp = $mj->format_get_string($type, 'archive_error');
+        $tmp = $mj->format_get_string($type, 'archive_error', $request->{'list'});
       }
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
@@ -499,11 +499,11 @@ sub _archive_part {
     elsif ($request->{'mode'} =~ /replace/) {
       ($ok, $tmp) = @{$mj->dispatch($request, $result)};
       if ($ok) {
-        $tmp = $mj->format_get_string($type, 'archive_part_replace');
+        $tmp = $mj->format_get_string($type, 'archive_part_replace', $request->{'list'});
       }
       else {
         $subs->{'ERROR'} = $tmp;
-        $tmp = $mj->format_get_string($type, 'archive_error');
+        $tmp = $mj->format_get_string($type, 'archive_error', $request->{'list'});
       }
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
@@ -514,7 +514,7 @@ sub _archive_part {
       $subs->{uc $j} = &escape($data->{$j}, $type);
     }
 
-    $tmp = $mj->format_get_string($type, 'archive_msg_head');
+    $tmp = $mj->format_get_string($type, 'archive_msg_head', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
 
@@ -551,7 +551,7 @@ sub _archive_part {
               $hsubs->{"HEADER_$j"} = $tmp[0];
             }
           }
-          $tmp = $mj->format_get_string($type, 'archive_header');
+          $tmp = $mj->format_get_string($type, 'archive_header', $request->{'list'});
           $str = $mj->substitute_vars_format($tmp, $subs);
           $str = $mj->substitute_vars_format($str, $hsubs);
           print $out "$str\n";
@@ -562,41 +562,41 @@ sub _archive_part {
       if ($msgdata->{$i}->{'type'} =~ m#^text/plain#i) {
         $request->{'part'} = $i;
         $request->{'mode'} = 'get-part';
-        $tmp = $mj->format_get_string($type, 'archive_text_head');
+        $tmp = $mj->format_get_string($type, 'archive_text_head', $request->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
 
         ($ok, $tmp) = @{$mj->dispatch($request, $result)};
         eprint($out, $type, $tmp);
 
-        $tmp = $mj->format_get_string($type, 'archive_text_foot');
+        $tmp = $mj->format_get_string($type, 'archive_text_foot', $request->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
       }
       
       # Display images.
       elsif ($msgdata->{$i}->{'type'} =~ /^image/i) {
-        $tmp = $mj->format_get_string($type, 'archive_image');
+        $tmp = $mj->format_get_string($type, 'archive_image', $request->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
       }
 
       # Display containers, such as multipart types.
       elsif (! length ($msgdata->{$i}->{'size'})) {
-        $tmp = $mj->format_get_string($type, 'archive_container');
+        $tmp = $mj->format_get_string($type, 'archive_container', $request->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
       }
 
       # Display summaries of other body parts.
       else {
-        $tmp = $mj->format_get_string($type, 'archive_attachment');
+        $tmp = $mj->format_get_string($type, 'archive_attachment', $request->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
       }
     }
 
-    $tmp = $mj->format_get_string($type, 'archive_msg_foot');
+    $tmp = $mj->format_get_string($type, 'archive_msg_foot', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
 
@@ -619,13 +619,13 @@ sub changeaddr {
           };
 
   if ($ok > 0) { 
-    $tmp = $mj->format_get_string($type, 'changeaddr');
+    $tmp = $mj->format_get_string($type, 'changeaddr', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok, 1);
   }
   else {
     $subs->{'ERROR'} = &escape($mess, $type);
-    $tmp = $mj->format_get_string($type, 'changeaddr_error');
+    $tmp = $mj->format_get_string($type, 'changeaddr_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok, 1);
   }
@@ -653,13 +653,13 @@ sub configdef {
     $subs->{'SETTING'} = $var;
 
     if ($ok > 0) {
-      $tmp = $mj->format_get_string($type, 'configdef');
+      $tmp = $mj->format_get_string($type, 'configdef', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
     else {
       $subs->{'ERROR'} = &escape($mess, $type);
-      $tmp = $mj->format_get_string($type, 'configdef_error');
+      $tmp = $mj->format_get_string($type, 'configdef_error', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out &indicate($type, "$str\n", $ok);
     }
@@ -693,19 +693,19 @@ sub configset {
 
   if ($ok) {
     if ($request->{'mode'} =~ /append/) {
-      $tmp = $mj->format_get_string($type, 'configset_append');
+      $tmp = $mj->format_get_string($type, 'configset_append', $request->{'list'});
     }
     elsif ($request->{'mode'} =~ /extract/) {
-      $tmp = $mj->format_get_string($type, 'configset_extract');
+      $tmp = $mj->format_get_string($type, 'configset_extract', $request->{'list'});
     }
     else {
-      $tmp = $mj->format_get_string($type, 'configset');
+      $tmp = $mj->format_get_string($type, 'configset', $request->{'list'});
     }
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
   else {
-    $tmp = $mj->format_get_string($type, 'configset_error');
+    $tmp = $mj->format_get_string($type, 'configset_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok);
   }
@@ -754,14 +754,14 @@ sub configshow {
   unless ($ok) {
     $mess = shift @$result;
     $gsubs->{'ERROR'} = $mess;
-    $tmp = $mj->format_get_string($type, 'configshow_error');
+    $tmp = $mj->format_get_string($type, 'configshow_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out &indicate($type, "$str\n", $ok);
     return $ok;
   }
 
   unless (scalar @$result) {
-    $tmp = $mj->format_get_string($type, 'configshow_none');
+    $tmp = $mj->format_get_string($type, 'configshow_none', $request->{'list'});
     $mess = $mj->substitute_vars_format($tmp, $gsubs);
     print $out &indicate($type, "$mess\n", $ok);
     return $ok;
@@ -772,21 +772,21 @@ sub configshow {
   $subs->{'COMMENT'} = '';
 
   if ($request->{'mode'} !~ /categories/) {
-    $tmp = $mj->format_get_string($type, 'configshow_head');
-    $gen   = $mj->format_get_string($type, 'configshow');
+    $tmp = $mj->format_get_string($type, 'configshow_head', $request->{'list'});
+    $gen   = $mj->format_get_string($type, 'configshow', $request->{'list'});
   }
   else {
-    $tmp = $mj->format_get_string($type, 'configshow_categories_head');
-    $gen = $mj->format_get_string($type, 'configshow_categories');
+    $tmp = $mj->format_get_string($type, 'configshow_categories_head', $request->{'list'});
+    $gen = $mj->format_get_string($type, 'configshow_categories', $request->{'list'});
   }
   $str = $mj->substitute_vars_format($tmp, $gsubs);
   print $out "$str\n";
 
-  $array = $mj->format_get_string($type, 'configshow_array');
-  $bool  = $mj->format_get_string($type, 'configshow_bool');
-  $enum  = $mj->format_get_string($type, 'configshow_enum');
-  $earray= $mj->format_get_string($type, 'configshow_enum_array');
-  $short = $mj->format_get_string($type, 'configshow_short');
+  $array = $mj->format_get_string($type, 'configshow_array', $request->{'list'});
+  $bool  = $mj->format_get_string($type, 'configshow_bool', $request->{'list'});
+  $enum  = $mj->format_get_string($type, 'configshow_enum', $request->{'list'});
+  $earray= $mj->format_get_string($type, 'configshow_enum_array', $request->{'list'});
+  $short = $mj->format_get_string($type, 'configshow_short', $request->{'list'});
 
   for $varresult (@$result) {
     ($ok, $mess, $data, $var, $val) = @$varresult;
@@ -794,7 +794,7 @@ sub configshow {
 
     if (! $ok) {
       $subs->{'ERROR'} = $mess;
-      $tmp = $mj->format_get_string($type, 'configshow_error');
+      $tmp = $mj->format_get_string($type, 'configshow_error', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out &indicate($type, "$str\n", $ok);
       next;
@@ -948,10 +948,10 @@ sub configshow {
   }
 
   if ($request->{'mode'} =~ /categories/) {
-    $tmp = $mj->format_get_string($type, 'configshow_categories_foot');
+    $tmp = $mj->format_get_string($type, 'configshow_categories_foot', $request->{'list'});
   }
   else {
-    $tmp = $mj->format_get_string($type, 'configshow_foot');
+    $tmp = $mj->format_get_string($type, 'configshow_foot', $request->{'list'});
   }
   $str = $mj->substitute_vars_format($tmp, $gsubs);
   print $out "$str\n";
@@ -975,7 +975,7 @@ sub createlist {
 
   unless ($ok > 0) {
     $subs->{'ERROR'} = $mess;
-    $tmp = $mj->format_get_string($type, 'createlist_error');
+    $tmp = $mj->format_get_string($type, 'createlist_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok, 1);
     return $ok;
@@ -987,19 +987,19 @@ sub createlist {
   }
 
   if ($request->{'mode'} =~ /destroy/) {
-    $tmp = $mj->format_get_string($type, 'createlist_destroy');
+    $tmp = $mj->format_get_string($type, 'createlist_destroy', $request->{'list'});
   }
   elsif ($request->{'mode'} =~ /nocreate/) {
-    $tmp = $mj->format_get_string($type, 'createlist_nocreate');
+    $tmp = $mj->format_get_string($type, 'createlist_nocreate', $request->{'list'});
   }
   elsif ($request->{'mode'} =~ /regen/) {
-    $tmp = $mj->format_get_string($type, 'createlist_regen');
+    $tmp = $mj->format_get_string($type, 'createlist_regen', $request->{'list'});
   }
   elsif ($request->{'mode'} =~ /rename/) {
-    $tmp = $mj->format_get_string($type, 'createlist_rename');
+    $tmp = $mj->format_get_string($type, 'createlist_rename', $request->{'list'});
   }
   else {
-    $tmp = $mj->format_get_string($type, 'createlist');
+    $tmp = $mj->format_get_string($type, 'createlist', $request->{'list'});
   }
 
   $str = $mj->substitute_vars_format($tmp, $subs);
@@ -1027,20 +1027,20 @@ sub digest {
 
   unless ($ok > 0) {
     $gsubs->{'ERROR'} = $mess;
-    $tmp = $mj->format_get_string($type, 'digest_error');
+    $tmp = $mj->format_get_string($type, 'digest_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out &indicate($type, "$str\n", $ok);
     return $ok;
   }
 
   if ($request->{'mode'} =~ /incvol/) {
-    $tmp = $mj->format_get_string($type, 'digest_incvol');
+    $tmp = $mj->format_get_string($type, 'digest_incvol', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
   }
   elsif ($request->{'mode'} =~ /status/) {
     unless (ref $mess eq 'HASH') {
-      $tmp = $mj->format_get_string($type, 'digest_none');
+      $tmp = $mj->format_get_string($type, 'digest_none', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $gsubs);
       print $out "$str\n";
       return 1;
@@ -1108,11 +1108,11 @@ sub digest {
       $subs->{'SIZE'} = $digest->{'bytecount'} 
         if ($digest->{'bytecount'});
 
-      $tmp = $mj->format_get_string($type, 'digest_status_head');
+      $tmp = $mj->format_get_string($type, 'digest_status_head', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
 
-      $tmp = $mj->format_get_string($type, 'digest_status');
+      $tmp = $mj->format_get_string($type, 'digest_status', $request->{'list'});
 
       for $msgdata (@{$digest->{'messages'}}) {
         $subs->{'MSGNO'} = $msgdata->[0];
@@ -1130,20 +1130,20 @@ sub digest {
         print $out "$str\n";
       }
 
-      $tmp = $mj->format_get_string($type, 'digest_status_foot');
+      $tmp = $mj->format_get_string($type, 'digest_status_foot', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     } 
   }
   else {
-    $tmp = $mj->format_get_string($type, 'digest_head');
+    $tmp = $mj->format_get_string($type, 'digest_head', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
 
     # force or check mode
     if (ref $mess eq 'HASH' and scalar keys %$mess) {
       $subs = { %$gsubs };
-      $tmp = $mj->format_get_string($type, 'digest');
+      $tmp = $mj->format_get_string($type, 'digest', $request->{'list'});
 
       for $i (sort keys %$mess) {
         $subs->{'DIGESTNAME'} = &escape($i, $type);
@@ -1153,12 +1153,12 @@ sub digest {
       }
     }
     else {
-      $tmp = $mj->format_get_string($type, 'digest_none');
+      $tmp = $mj->format_get_string($type, 'digest_none', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $gsubs);
       print $out "$str\n";
     }
 
-    $tmp = $mj->format_get_string($type, 'digest_foot');
+    $tmp = $mj->format_get_string($type, 'digest_foot', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
   }
@@ -1189,13 +1189,13 @@ sub help {
 
   unless ($ok > 0) {
     $subs->{'ERROR'} = &escape($mess, $type);
-    $tmp = $mj->format_get_string($type, 'help_error');
+    $tmp = $mj->format_get_string($type, 'help_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok);
     return $ok;
   }
 
-  $tmp = $mj->format_get_string($type, 'help_head');
+  $tmp = $mj->format_get_string($type, 'help_head', $request->{'list'});
   if (defined $tmp and length $tmp) {
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n" if (length $str);
@@ -1229,7 +1229,7 @@ sub help {
   $request->{'command'} = "help_done";
   $mj->dispatch($request);
 
-  $tmp = $mj->format_get_string($type, 'help_foot');
+  $tmp = $mj->format_get_string($type, 'help_foot', $request->{'list'});
   if (defined $tmp and length $tmp) {
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n" if (length $str);
@@ -1344,7 +1344,7 @@ sub lists {
 
   if ($ok <= 0) {
     $gsubs->{'ERROR'} = &escape($lists[0], $type);
-    $tmp = $mj->format_get_string($type, 'lists_error');
+    $tmp = $mj->format_get_string($type, 'lists_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out &indicate($type, "$str\n", $ok, 1);
     return 1;
@@ -1352,19 +1352,19 @@ sub lists {
   
   if (@lists) {
     unless ($request->{'mode'} =~ /compact|tiny/) {
-      $tmp = $mj->format_get_string($type, 'lists_head');
+      $tmp = $mj->format_get_string($type, 'lists_head', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $gsubs);
       print $out "$str\n";
     }
  
     if ($request->{'mode'} =~ /full/ and $request->{'mode'} !~ /config/) { 
-      $basic_format = $mj->format_get_string($type, 'lists_full');
+      $basic_format = $mj->format_get_string($type, 'lists_full', $request->{'list'});
     }
     else {
-      $basic_format = $mj->format_get_string($type, 'lists');
+      $basic_format = $mj->format_get_string($type, 'lists', $request->{'list'});
     }
 
-    $cat_format = $mj->format_get_string($type, 'lists_category');
+    $cat_format = $mj->format_get_string($type, 'lists_category', $request->{'list'});
 
     while (@lists) {
       $data = shift @lists;
@@ -1419,7 +1419,7 @@ sub lists {
   }
   else {
     # No lists were found.
-    $tmp = $mj->format_get_string($type, 'lists_none');
+    $tmp = $mj->format_get_string($type, 'lists_none', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
   }
@@ -1430,7 +1430,7 @@ sub lists {
             %{$gsubs},
             'COUNT' => $count,
           };
-  $tmp = $mj->format_get_string($type, 'lists_foot');
+  $tmp = $mj->format_get_string($type, 'lists_foot', $request->{'list'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
 
@@ -1441,7 +1441,7 @@ sub lists {
               'SUBSCRIPTIONS' =>  $legend,
               'USER'          => &escape("$request->{'user'}", $type),
             };
-    $tmp = $mj->format_get_string($type, 'lists_enhanced');
+    $tmp = $mj->format_get_string($type, 'lists_enhanced', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
@@ -1472,13 +1472,13 @@ sub password {
   }
 
   if ($ok > 0) {
-    $tmp = $mj->format_get_string($type, 'password');
+    $tmp = $mj->format_get_string($type, 'password', $request->{'list'});
     if ($request->{'mode'} =~ /quiet/) {
       $subs->{'NOTIFIED'} = '',
     }
   }
   else {
-    $tmp = $mj->format_get_string($type, 'password_error');
+    $tmp = $mj->format_get_string($type, 'password_error', $request->{'list'});
     $subs->{'ERROR'} = $mess;
   }
   $str = $mj->substitute_vars_format($tmp, $subs);
@@ -1526,13 +1526,13 @@ sub post {
   }
 
   if ($ok > 0) {
-    $tmp = $mj->format_get_string($type, 'post');
+    $tmp = $mj->format_get_string($type, 'post', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
   else {
     $subs->{'ERROR'} = &escape($mess, $type);
-    $tmp = $mj->format_get_string($type, 'post_error');
+    $tmp = $mj->format_get_string($type, 'post_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok);
   }
@@ -1562,7 +1562,7 @@ sub put {
 
   unless ($ok) {
     $subs->{'ERROR'} = &escape($mess, $type);
-    $tmp = $mj->format_get_string($type, 'put_error');
+    $tmp = $mj->format_get_string($type, 'put_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok);
     return $ok;
@@ -1601,13 +1601,13 @@ sub put {
   }
 
   if ($ok > 0) {
-    $tmp = $mj->format_get_string($type, 'put');
+    $tmp = $mj->format_get_string($type, 'put', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
   else {
     $subs->{'ERROR'} = &escape($mess, $type);
-    $tmp = $mj->format_get_string($type, 'put_error');
+    $tmp = $mj->format_get_string($type, 'put_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok);
   }
@@ -1638,7 +1638,7 @@ sub reject {
     unless ($ok) {
       $gsubs->{'ERROR'} = $mess;
 
-      $tmp = $mj->format_get_string($type, 'reject_error');
+      $tmp = $mj->format_get_string($type, 'reject_error', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $gsubs);
       print $out &indicate($type, "$str\n", $ok); 
 
@@ -1673,7 +1673,7 @@ sub reject {
     if ($ok < 0) {
       $subs->{'ERROR'} = $mess;
 
-      $tmp = $mj->format_get_string($type, 'reject_error');
+      $tmp = $mj->format_get_string($type, 'reject_error', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out &indicate($type, "$str\n", $ok); 
       next;
@@ -1685,7 +1685,7 @@ sub reject {
       $subs->{'NOTIFIED'} = " ";
     }
 
-    $tmp = $mj->format_get_string($type, 'reject');
+    $tmp = $mj->format_get_string($type, 'reject', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok); 
   }
@@ -1795,7 +1795,7 @@ sub report {
 
   unless ($ok > 0) {
     $gsubs->{'ERROR'} = &escape($mess, $type);
-    $tmp = $mj->format_get_string($type, 'report_error');
+    $tmp = $mj->format_get_string($type, 'report_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out &indicate($type, "$str\n", $ok);
     return $ok;
@@ -1817,10 +1817,10 @@ sub report {
   $count = 0;
 
   if ($request->{'mode'} =~ /summary/) {
-    $tmp = $mj->format_get_string($type, 'report_summary_head');
+    $tmp = $mj->format_get_string($type, 'report_summary_head', $request->{'list'});
   }
   else {
-    $tmp = $mj->format_get_string($type, 'report_head');
+    $tmp = $mj->format_get_string($type, 'report_head', $request->{'list'});
   }
   $str = $mj->substitute_vars_format($tmp, $gsubs);
   print $out &indicate($type, "$str\n", $ok);
@@ -1831,22 +1831,22 @@ sub report {
 
   $request->{'command'} = "report_chunk";
 
-  $df = $mj->format_get_string($type, 'report_day');
+  $df = $mj->format_get_string($type, 'report_day', $request->{'list'});
   if ($request->{'mode'} =~ /full/) {
-    $event = $mj->format_get_string($type, 'report_full');
+    $event = $mj->format_get_string($type, 'report_full', $request->{'list'});
   }
   elsif ($request->{'mode'} =~ /summary/) {
-    $event = $mj->format_get_string($type, 'report_summary');
+    $event = $mj->format_get_string($type, 'report_summary', $request->{'list'});
   }
   else {
-    $event = $mj->format_get_string($type, 'report');
+    $event = $mj->format_get_string($type, 'report', $request->{'list'});
   }
 
   while (1) {
     ($ok, $chunk) = @{$mj->dispatch($request)};
     unless ($ok) {
       $gsubs->{'ERROR'} = &escape($chunk, $type);
-      $tmp = $mj->format_get_string($type, 'report_warning');
+      $tmp = $mj->format_get_string($type, 'report_warning', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $gsubs);
       print $out &indicate($type, "$str\n", $ok);
       last;
@@ -1919,7 +1919,7 @@ sub report {
   ($ok, @tmp) = @{$mj->dispatch($request)};
 
   if (! $count) {
-    $tmp = $mj->format_get_string($type, 'report_none');
+    $tmp = $mj->format_get_string($type, 'report_none', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
   }
@@ -1945,10 +1945,10 @@ sub report {
   $gsubs->{'COUNT'} = $count;
 
   if ($request->{'mode'} =~ /summary/) {
-    $tmp = $mj->format_get_string($type, 'report_summary_foot');
+    $tmp = $mj->format_get_string($type, 'report_summary_foot', $request->{'list'});
   }
   else {
-    $tmp = $mj->format_get_string($type, 'report_foot');
+    $tmp = $mj->format_get_string($type, 'report_foot', $request->{'list'});
   }
   $str = $mj->substitute_vars_format($tmp, $gsubs);
   print $out "$str\n";
@@ -1972,19 +1972,19 @@ sub sessioninfo {
 
   if ($ok <= 0) {
     $subs->{'ERROR'} = &escape($mess, $type);
-    $tmp = $mj->format_get_string($type, 'sessioninfo_error');
+    $tmp = $mj->format_get_string($type, 'sessioninfo_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok);
     return $ok;
   }
 
-  $tmp = $mj->format_get_string($type, 'sessioninfo_head');
+  $tmp = $mj->format_get_string($type, 'sessioninfo_head', $request->{'list'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
 
   g_get("sessioninfo", @_);
 
-  $tmp = $mj->format_get_string($type, 'sessioninfo_foot');
+  $tmp = $mj->format_get_string($type, 'sessioninfo_foot', $request->{'list'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
 
@@ -2009,18 +2009,18 @@ sub set {
           };
 
   $files = {
-            'error' => $mj->format_get_string($type, 'set_error'),
-            'head' => $mj->format_get_string($type, 'set_head'),
-            'foot' => $mj->format_get_string($type, 'set_foot'),
+            'error' => $mj->format_get_string($type, 'set_error', $request->{'list'}),
+            'head' => $mj->format_get_string($type, 'set_head', $request->{'list'}),
+            'foot' => $mj->format_get_string($type, 'set_foot', $request->{'list'}),
            };
 
   if ($request->{'mode'} =~ /check/) {
-    $files->{'main'} = $mj->format_get_string($type, 'set_check');
+    $files->{'main'} = $mj->format_get_string($type, 'set_check', $request->{'list'});
     $str = $mj->substitute_vars_format($files->{'head'}, $subs);
     print $out "$str\n";
   }
   else {
-    $files->{'main'} = $mj->format_get_string($type, 'set');
+    $files->{'main'} = $mj->format_get_string($type, 'set', $request->{'list'});
   }
 
   while (@changes) {
@@ -2177,7 +2177,7 @@ sub show {
               'ERROR' => $error,
             };
 
-    $tmp = $mj->format_get_string($type, 'show_error');
+    $tmp = $mj->format_get_string($type, 'show_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok);
 
@@ -2200,7 +2200,7 @@ sub show {
   }
 
   unless ($data->{regdata}) {
-    $tmp = $mj->format_get_string($type, 'show_none');
+    $tmp = $mj->format_get_string($type, 'show_none', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
     return 1;
@@ -2226,11 +2226,11 @@ sub show {
     }
   }
 
-  $tmp = $mj->format_get_string($type, 'show_head');
+  $tmp = $mj->format_get_string($type, 'show_head', $request->{'list'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
 
-  $show = $mj->format_get_string($type, 'show');
+  $show = $mj->format_get_string($type, 'show', $request->{'list'});
 
   for $i (@lists) {
     $lsubs = { %$subs };
@@ -2323,7 +2323,7 @@ sub show {
     print $out "$str\n";
   }
 
-  $tmp = $mj->format_get_string($type, 'show_foot');
+  $tmp = $mj->format_get_string($type, 'show_foot', $request->{'list'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
 
@@ -2355,7 +2355,7 @@ sub showtokens {
 
   ($ok, @tokens) = @$result;
   unless (@tokens) {
-    $tmp = $mj->format_get_string($type, 'showtokens_none');
+    $tmp = $mj->format_get_string($type, 'showtokens_none', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out &indicate($type, "$str\n", $ok, 1);
     return $ok;
@@ -2366,7 +2366,7 @@ sub showtokens {
              %{$gsubs},
              'ERROR'  => $tokens[0],
             };
-    $tmp = $mj->format_get_string($type, 'showtokens_error');
+    $tmp = $mj->format_get_string($type, 'showtokens_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok, 1);
     return $ok;
@@ -2379,8 +2379,8 @@ sub showtokens {
                    return $a->{'time'} <=> $b->{'time'};
                  } @tokens;
 
-  $bf = $mj->format_get_string($type, 'showtokens');
-  $df = $mj->format_get_string($type, 'showtokens_data');
+  $bf = $mj->format_get_string($type, 'showtokens', $request->{'list'});
+  $df = $mj->format_get_string($type, 'showtokens_data', $request->{'list'});
   $list = '';
   $count = 0;
 
@@ -2422,7 +2422,7 @@ sub showtokens {
            'COUNT' => $count,
           };
               
-  $tmp = $mj->format_get_string($type, 'showtokens_all');
+  $tmp = $mj->format_get_string($type, 'showtokens_all', $request->{'list'});
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
   1;
@@ -2446,7 +2446,7 @@ sub tokeninfo {
               'ERROR'   => $data,
               'USER'    => &escape("$request->{'user'}", $type),
             };
-    $tmp = $mj->format_get_string($type, 'tokeninfo_error');
+    $tmp = $mj->format_get_string($type, 'tokeninfo_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok, 1);
     return $ok;
@@ -2483,23 +2483,23 @@ sub tokeninfo {
   }
 
   if ($request->{'mode'} =~ /nosession/) {
-    $tmp = $mj->format_get_string($type, "tokeninfo_nosession_$data->{'command'}");
+    $tmp = $mj->format_get_string($type, "tokeninfo_nosession_$data->{'command'}", $request->{'list'});
     unless ($tmp) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_nosession');
+      $tmp = $mj->format_get_string($type, 'tokeninfo_nosession', $request->{'list'});
     }
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
     return 1;
   }
   elsif ($request->{'mode'} =~ /remind/) {
-    $tmp = $mj->format_get_string($type, "tokeninfo_remind");
+    $tmp = $mj->format_get_string($type, "tokeninfo_remind", $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
   }
 
-  $tmp = $mj->format_get_string($type, "tokeninfo_head_$data->{'command'}");
+  $tmp = $mj->format_get_string($type, "tokeninfo_head_$data->{'command'}", $request->{'list'});
   unless ($tmp) {
-    $tmp = $mj->format_get_string($type, 'tokeninfo_head');
+    $tmp = $mj->format_get_string($type, 'tokeninfo_head', $request->{'list'});
   }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
@@ -2514,9 +2514,9 @@ sub tokeninfo {
   $request->{'command'} = 'tokeninfo_done';
   $mj->dispatch($request);
 
-  $tmp = $mj->format_get_string($type, "tokeninfo_foot_$data->{'command'}");
+  $tmp = $mj->format_get_string($type, "tokeninfo_foot_$data->{'command'}", $request->{'list'});
   unless ($tmp) {
-    $tmp = $mj->format_get_string($type, 'tokeninfo_foot');
+    $tmp = $mj->format_get_string($type, 'tokeninfo_foot', $request->{'list'});
   }
   $str = $mj->substitute_vars_format($tmp, $subs);
   print $out "$str\n";
@@ -2540,7 +2540,7 @@ sub _tokeninfo_post {
               'ERROR'   => "No message data was found.\n",
               'USER'    => &escape("$request->{'user'}", $type),
             };
-    $tmp = $mj->format_get_string($type, 'tokeninfo_error');
+    $tmp = $mj->format_get_string($type, 'tokeninfo_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", 0, 1);
     return 0;
@@ -2574,9 +2574,9 @@ sub _tokeninfo_post {
   }
 
   if ($request->{'mode'} =~ /nosession/) {
-    $tmp = $mj->format_get_string($type, "tokeninfo_nosession_post");
+    $tmp = $mj->format_get_string($type, "tokeninfo_nosession_post", $request->{'list'});
     unless ($tmp) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_nosession');
+      $tmp = $mj->format_get_string($type, 'tokeninfo_nosession', $request->{'list'});
     }
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
@@ -2599,7 +2599,7 @@ sub _tokeninfo_post {
 
     # Display head file
     if ($request->{'mode'} =~ /edit/) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_edit_head');
+      $tmp = $mj->format_get_string($type, 'tokeninfo_edit_head', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
@@ -2631,7 +2631,7 @@ sub _tokeninfo_post {
     # Display foot file
     if ($request->{'mode'} =~ /edit/) {
       $tmp = ($lastchar eq "\n")? '' : '\n';
-      $tmp .= $mj->format_get_string($type, 'tokeninfo_edit_foot');
+      $tmp .= $mj->format_get_string($type, 'tokeninfo_edit_foot', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
@@ -2639,25 +2639,25 @@ sub _tokeninfo_post {
   else {
     # Print result message.
     if ($request->{'mode'} =~ /delete/) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_delete');
+      $tmp = $mj->format_get_string($type, 'tokeninfo_delete', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
     elsif ($request->{'mode'} =~ /remind/) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_remind');
+      $tmp = $mj->format_get_string($type, 'tokeninfo_remind', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
     elsif ($request->{'mode'} =~ /replace/) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_replace');
+      $tmp = $mj->format_get_string($type, 'tokeninfo_replace', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
     }
 
     # Print head.
-    $tmp = $mj->format_get_string($type, 'tokeninfo_head_post');
+    $tmp = $mj->format_get_string($type, 'tokeninfo_head_post', $request->{'list'});
     unless ($tmp) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_head');
+      $tmp = $mj->format_get_string($type, 'tokeninfo_head', $request->{'list'});
     }
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
@@ -2698,7 +2698,7 @@ sub _tokeninfo_post {
               $hsubs->{"HEADER_$j"} = $tmp[0];
             }
           }
-          $tmp = $mj->format_get_string($type, 'tokeninfo_header');
+          $tmp = $mj->format_get_string($type, 'tokeninfo_header', $request->{'list'});
           $str = $mj->substitute_vars_format($tmp, $subs);
           $str = $mj->substitute_vars_format($str, $hsubs);
           print $out "$str\n";
@@ -2708,7 +2708,7 @@ sub _tokeninfo_post {
       # Display the contents of plain text parts.
       if ($msgdata->{$i}->{'type'} =~ m#^text/plain#i) {
         $request->{'part'} = $i;
-        $tmp = $mj->format_get_string($type, 'tokeninfo_text_head');
+        $tmp = $mj->format_get_string($type, 'tokeninfo_text_head', $request->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
 
@@ -2719,37 +2719,37 @@ sub _tokeninfo_post {
           last unless $ok;
         }
 
-        $tmp = $mj->format_get_string($type, 'tokeninfo_text_foot');
+        $tmp = $mj->format_get_string($type, 'tokeninfo_text_foot', $request->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
       }
       
       # Display images.
       elsif ($msgdata->{$i}->{'type'} =~ /^image/i) {
-        $tmp = $mj->format_get_string($type, 'tokeninfo_image');
+        $tmp = $mj->format_get_string($type, 'tokeninfo_image', $request->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
       }
 
       # Display containers, such as multipart types.
       elsif (! length ($msgdata->{$i}->{'size'})) {
-        $tmp = $mj->format_get_string($type, 'tokeninfo_container');
+        $tmp = $mj->format_get_string($type, 'tokeninfo_container', $request->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
       }
 
       # Display summaries of other body parts.
       else {
-        $tmp = $mj->format_get_string($type, 'tokeninfo_attachment');
+        $tmp = $mj->format_get_string($type, 'tokeninfo_attachment', $request->{'list'});
         $str = $mj->substitute_vars_format($tmp, $subs);
         print $out "$str\n";
       }
     }
        
     # Print foot. 
-    $tmp = $mj->format_get_string($type, 'tokeninfo_foot_post');
+    $tmp = $mj->format_get_string($type, 'tokeninfo_foot_post', $request->{'list'});
     unless ($tmp) {
-      $tmp = $mj->format_get_string($type, 'tokeninfo_foot');
+      $tmp = $mj->format_get_string($type, 'tokeninfo_foot', $request->{'list'});
     }
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out "$str\n";
@@ -2775,13 +2775,13 @@ sub unalias {
           };
 
   if ($ok > 0) { 
-    $tmp = $mj->format_get_string($type, 'unalias');
+    $tmp = $mj->format_get_string($type, 'unalias', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok, 1);
   }
   else {
     $subs->{'ERROR'} = &escape($mess, $type);
-    $tmp = $mj->format_get_string($type, 'unalias_error');
+    $tmp = $mj->format_get_string($type, 'unalias_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", $ok, 1);
   }
@@ -2820,7 +2820,7 @@ sub which {
   # Deal with initial failure
   if ($ok <= 0) {
     $gsubs->{'ERROR'} = &escape($matches[0], $type);
-    $tmp = $mj->format_get_string($type, 'which_error');
+    $tmp = $mj->format_get_string($type, 'which_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out &indicate($type, "$str\n", $ok);
     return $ok;
@@ -2830,19 +2830,19 @@ sub which {
   $total = 0;
 
   unless (scalar @matches) {
-    $tmp = $mj->format_get_string($type, 'which_none');
+    $tmp = $mj->format_get_string($type, 'which_none', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
     return $ok;
   }
 
-  $tmp = $mj->format_get_string($type, 'which_head');
+  $tmp = $mj->format_get_string($type, 'which_head', $request->{'list'});
   $str = $mj->substitute_vars_format($tmp, $gsubs);
   print $out &indicate($type, "$str\n", $ok);
 
   $subs = { %$gsubs };
-  $fmt = $mj->format_get_string($type, 'which_data');
-  $lfmt = $mj->format_get_string($type, 'which');
+  $fmt = $mj->format_get_string($type, 'which_data', $request->{'list'});
+  $lfmt = $mj->format_get_string($type, 'which', $request->{'list'});
 
   while (@matches) {
     ($list, $match) = @{shift @matches};
@@ -2850,7 +2850,7 @@ sub which {
     # If $list is undefined, we have a message instead.
     unless (defined $list and length $list) {
       $subs->{'ERROR'} = $match;
-      $tmp = $mj->format_get_string($type, 'which_warning');
+      $tmp = $mj->format_get_string($type, 'which_warning', $request->{'list'});
       $str = $mj->substitute_vars_format($tmp, $subs);
       print $out "$str\n";
       next;
@@ -2873,7 +2873,7 @@ sub which {
   }
 
   $gsubs->{'COUNT'} = $total;
-  $tmp = $mj->format_get_string($type, 'which_foot');
+  $tmp = $mj->format_get_string($type, 'which_foot', $request->{'list'});
   $str = $mj->substitute_vars_format($tmp, $gsubs);
   print $out "$str\n";
 
@@ -2895,20 +2895,20 @@ sub who {
 
   if ($request->{'sublist'} ne 'MAIN') {
     $source .= ":$request->{'sublist'}";
-    $tmp = $mj->format_get_string($type, 'who');
-    $head = $mj->format_get_string($type, 'who_head');
-    $foot = $mj->format_get_string($type, 'who_foot');
+    $tmp = $mj->format_get_string($type, 'who', $request->{'list'});
+    $head = $mj->format_get_string($type, 'who_head', $request->{'list'});
+    $foot = $mj->format_get_string($type, 'who_foot', $request->{'list'});
   }
   elsif ($source eq 'GLOBAL') {
     $remove = "unregister";
-    $tmp = $mj->format_get_string($type, 'who_registry');
-    $head = $mj->format_get_string($type, 'who_registry_head');
-    $foot = $mj->format_get_string($type, 'who_registry_foot');
+    $tmp = $mj->format_get_string($type, 'who_registry', $request->{'list'});
+    $head = $mj->format_get_string($type, 'who_registry_head', $request->{'list'});
+    $foot = $mj->format_get_string($type, 'who_registry_foot', $request->{'list'});
   }
   else {
-    $tmp = $mj->format_get_string($type, 'who');
-    $head = $mj->format_get_string($type, 'who_head');
-    $foot = $mj->format_get_string($type, 'who_foot');
+    $tmp = $mj->format_get_string($type, 'who', $request->{'list'});
+    $head = $mj->format_get_string($type, 'who_head', $request->{'list'});
+    $foot = $mj->format_get_string($type, 'who_foot', $request->{'list'});
   }
  
   my $log = new Log::In 29, "$type, $source, $request->{'regexp'}";
@@ -2928,7 +2928,7 @@ sub who {
 
   if ($ok <= 0) {
     $gsubs->{'ERROR'} = &indicate($type, $regexp, $ok);
-    $tmp = $mj->format_get_string($type, 'who_error');
+    $tmp = $mj->format_get_string($type, 'who_error', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
     return $ok;
@@ -3215,7 +3215,7 @@ sub g_get {
              'ERROR' => $mess || '',
             };
 
-    $tmp = $mj->format_get_string($type, 'get_error');
+    $tmp = $mj->format_get_string($type, 'get_error', $request->{'list'});
     $chunk = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$chunk\n", $ok);
 
@@ -3249,10 +3249,10 @@ sub g_get {
         $subs->{'CMDLINE'} = "new$base $request->{'list'}";
         $subs->{'CMDARGS'} = '';
       }
-      $tmp = $mj->format_get_string($type, 'get_edit_head');
+      $tmp = $mj->format_get_string($type, 'get_edit_head', $request->{'list'});
     }
     else {
-      $tmp = $mj->format_get_string($type, 'get_head');
+      $tmp = $mj->format_get_string($type, 'get_head', $request->{'list'});
     }
     $chunk = $mj->substitute_vars_format($tmp, $subs);
     print $out "$chunk\n";
@@ -3280,10 +3280,10 @@ sub g_get {
   if ($base ne 'sessioninfo') {
     $chunk = ($lastchar eq "\n")?  '' : "\n";
     if ($request->{'mode'} =~ /edit/) {
-      $tmp = $mj->format_get_string($type, 'get_edit_foot');
+      $tmp = $mj->format_get_string($type, 'get_edit_foot', $request->{'list'});
     }
     else {
-      $tmp = $mj->format_get_string($type, 'get_foot');
+      $tmp = $mj->format_get_string($type, 'get_foot', $request->{'list'});
     }
     $chunk .= $mj->substitute_vars_format($tmp, $subs);
     print $out "$chunk\n";
@@ -3332,12 +3332,12 @@ sub g_sub {
             'USER'     => &escape("$request->{'user'}", $type),
           };
 
-  $fail = $mj->format_get_string($type, "${act}_error");
-  $succeed = $mj->format_get_string($type, $act);
+  $fail = $mj->format_get_string($type, "${act}_error", $request->{'list'});
+  $succeed = $mj->format_get_string($type, $act, $request->{'list'});
 
   @res = @$result;
   unless (scalar (@res)) {
-    $tmp = $mj->format_get_string($type, 'subscribe_none');
+    $tmp = $mj->format_get_string($type, 'subscribe_none', $request->{'list'});
     $str = $mj->substitute_vars_format($tmp, $subs);
     print $out &indicate($type, "$str\n", 0); 
 

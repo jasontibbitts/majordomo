@@ -1,3 +1,9 @@
+2002-07-04  Michael Yount <csf@moscow.com>
+
+	* bin/mj_confirm, mj_wwwadm, mj_wwwusr, 
+	  lib/Majordomo.pm, lib/Mj/Format.pm:  Include the list
+	  name in the arguments when calling Majordomo::format_get_string.
+
 2002-06-30  Michael Yount <csf@moscow.com>
 
 	* Makefile.PL:  Add language choice support.
@@ -3335,7 +3341,7 @@
 
 2000-12-17  Michael Yount <csf@moscow.com>
 
-	* lib/Mj/Parser: (parse_part)  Inform about "parse" failure if
+	* lib/Mj/Parser.pm: (parse_part)  Inform about "parse" failure if
 	no valid commands were found.
 
 2000-12-16  Michael Yount <csf@moscow.com>
