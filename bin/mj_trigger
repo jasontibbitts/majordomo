@@ -92,9 +92,7 @@ if ($opts{d}) {
 }
 
 $request = {
-    'auth'      => '',
     'command'   => 'trigger',
-    'interface' => 'trigger',
     'list'      => 'GLOBAL',
     'mode'      => $opts{t},
     'password'  => '',

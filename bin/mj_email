@@ -152,8 +152,7 @@ if ($opts{r}) {
 elsif ($opts{'q'}) {
   $::log->abort("mj_email called with -q and without -l!")
     unless $opts{l};
-  $request_ans = $mj->global_config_get(undef, undef, undef, 'email',
-					'request_answer');
+  $request_ans = $mj->global_config_get(undef, undef, 'request_answer');
   if ($request_ans eq 'majordomo') {
     parse_commands($mj, $opts{l});
   }
@@ -203,9 +202,7 @@ sub forward_to_owner {
   # it.  The regexp doesn't harm the body $sess contains only the headers.
   $sess =~ s/^From .*?\r?\n//;
   $request = {
-    'auth'      => '',
     'command'   => 'owner_start',
-    'interface' => 'owner',
     'list'      => $list,
     'mode'      => '',
     'password'  => '',
@@ -242,9 +239,7 @@ sub resend {
   # it.  The regexp doesn't harm the body $sess contains only the headers.
   $sess =~ s/^From .*?\r?\n//;
   $request = {
-    'auth'      => '',
     'command'   => 'post_start',
-    'interface' => 'resend',
     'list'      => $list,
     'mode'      => '',
     'password'  => '',
@@ -275,9 +270,7 @@ sub respond_with_file {
   
   (undef, undef, $user) = connect_and_parse($mj, 'request');
   $request = {
-    'auth'      => '',
     'command'   => 'request_response',
-    'interface' => 'email',
     'list'      => $list,
     'mode'      => '',
     'password'  => '',
@@ -322,8 +315,7 @@ sub connect_and_parse {
 
   $::log->in(85, undef, "info", "Seting MIME parser properties");
   $mime_parser = new Mj::MIMEParser;
-  $mime_parser->output_to_core($mj->global_config_get(undef, undef, undef,
-						      $int,
+  $mime_parser->output_to_core($mj->global_config_get(undef, undef, 
 						      "max_in_core"));
   $mime_parser->output_dir($::TMPDIR);
   $mime_parser->output_prefix("mje");
@@ -398,7 +390,7 @@ sub parse_commands {
   # Need to bail if we're talking to ourselves, either here (it's convenient)
   # or when checking access.
   
-  if ($mj->global_config_get(undef, undef, undef, 'email', 'return_subject') &&
+  if ($mj->global_config_get(undef, undef, 'return_subject') &&
       defined($head->get('subject')) && $head->get('subject') =~ /\S/)
     {
       $sub_addin = ': ' . (substr($head->get('subject'), 0, 40));
@@ -410,7 +402,6 @@ sub parse_commands {
 
   (undef, @entities) = 
     Mj::Parser::parse_entity($mj,
-                             interface  => 'email',
                              tmpdir     => $::TMPDIR, 
                              entity     => $entity,
                              reply_to   => $uuser,
@@ -449,12 +440,10 @@ sub parse_commands {
   $head = $top->head;
   $head->replace('to'      , $uuser);
   $head->replace('subject' , "Majordomo results$sub_addin");
-  $head->replace('from'    , $mj->global_config_get(undef, undef, undef,
-						   'email', 'whoami_owner'));
-  $head->replace('reply-to', $mj->global_config_get(undef, undef, undef,
-						   'email', 'whoami'));
+  $head->replace('from'    , $mj->global_config_get(undef, undef, 'whoami_owner'));
+  $head->replace('reply-to', $mj->global_config_get(undef, undef, 'whoami'));
   
-  $sender = $mj->global_config_get(undef, undef, undef, 'email', 'sender');
+  $sender = $mj->global_config_get(undef, undef, 'sender');
   $::log->delete($debug_log) if defined $debug_log;
   open BLAH, ">$::TMPDIR/mje.$$.final" ||
     $::log->abort("Couldn't open final output file, $!");

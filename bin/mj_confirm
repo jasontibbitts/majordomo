@@ -114,17 +114,14 @@ EOM
 
 # Extract some useful configuration variables
 $site_name =
-  $mj->global_config_get(undef, undef, undef, "wconfirm",
-			 "site_name");
+  $mj->global_config_get(undef, undef, "site_name");
 
 # Parse the token and extract some useful data from it
 $token = $mj->t_recognize($ptoken) || "";
 $ok = 0;
 
 $request = {
-    'auth'      => '',
     'command'   => 'tokeninfo',
-    'interface' => 'wconfirm',
     'list'      => '',
     'mode'      => '',
     'password'  => '',

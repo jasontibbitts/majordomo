@@ -104,7 +104,7 @@ for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
   $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
 }
 $sess .= scalar(localtime(time)) . "\n";
-$serveradmin = $mj->_global_config_get('whoami_owner');
+$serveradmin = $mj->global_config_get(undef, undef, 'whoami_owner');
 
 ($ok, $mess) = $mj->connect('mj_wwwadm', $sess);
 unless ($ok) {
@@ -137,7 +137,8 @@ $ofunc   = $cgi->param('func') || "help";
 $localpart = $ENV{'REMOTE_ADDR'} || "mj_wwwadm";
 $user    = new Mj::Addr("$localpart\@example.com");
 $passw   = $cgi->param('passw') || '';
-@lists   = $cgi->param('list') or ($pathinfo);
+@lists   = ($pathinfo);
+@lists   = $cgi->param('list') if $cgi->param('list');
 @mlists  = $cgi->param('mlist');
 @extra   = $cgi->param('extra');
 $st      = $cgi->param('st') || '';
@@ -270,8 +271,7 @@ if ($passw eq '' and $func !~ /help|lists|accept|reject|tokeninfo/) {
 elsif ($passw ne '') {
   # Check the password against the requester
   for $i (@lists) {
-    $ok = $mj->validate_passwd($user, $passw, undef,
-                               "mjadm", $i, $func);
+    $ok = $mj->validate_passwd($user, $passw, $i, $func);
     if ($ok <= 0) {
       print "<h3>The password you provided is invalid for the $i list</h3>\n";
       $::log->message(50, "info",  "Invalid password in form data.");
@@ -290,9 +290,7 @@ if ($func eq 'auxadd' or $func eq 'auxremove') {
 }
 
 $request = {
-    'auth'      => '',
     'command'   => $func,
-    'interface' => 'mjadm',
     'list'      => $lists[0],
     'mode'      => $mode,
     'password'  => ($func =~ /help|which|lists/)? '' : $passw, 
@@ -496,7 +494,7 @@ EOM
     $body = $showspool = 0;
     $chunksize = $tmp =
       $mj->global_config_get($request->{'user'}, $request->{'password'},
-                             $request->{'auth'}, 'mjadm', "chunksize");
+                             "chunksize");
     if ($request->{'mode'} eq 'full' and $data->{'command'} eq 'post') {
       $chunksize = 1;
       $showspool = 1;
@@ -560,7 +558,6 @@ EOM
   # We know we succeeded
   $count = 0;
   $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'}, 
-                                      $request->{'auth'}, $request->{'interface'},
                                       "chunksize");
   return unless $chunksize;  
   $request->{'command'} = "who_chunk";
@@ -616,15 +613,15 @@ EOM
         unless ($request->{'list'} eq $_);
     }
   }
-  print "</form>\n";
+  print "<input type=submit name=func value=$remove></form>\n";
   select STDOUT;
 }
 
 sub usage {
   my ($mj) = shift;
-  my $site  = $mj->_global_config_get('site_name');
-  my $serveraddr = $mj->_global_config_get('whoami');
-  my $serveradmin = $mj->_global_config_get('whoami_owner');
+  my $site  = $mj->global_config_get(undef, undef, 'site_name');
+  my $serveraddr = $mj->global_config_get(undef, undef, 'whoami');
+  my $serveradmin = $mj->global_config_get(undef, undef, 'whoami_owner');
 
   print <<EOM;
 Welcome to the Majordomo 2 administrative interface at $site!

@@ -84,7 +84,7 @@ $mj = new Majordomo $::LISTDIR, $domain;
 
 $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwusr";
 $admurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
-$serveradmin = $mj->_global_config_get('whoami_owner');
+$serveradmin = $mj->global_config_get(undef, undef, 'whoami_owner');
 $pathinfo = '';
 
 # Generate the session information
@@ -100,8 +100,8 @@ if (exists $ENV{'PATH_INFO'}) {
   $pathinfo = $1;
 }
 
-$site        = $mj->_global_config_get('site_name');
-$serveraddr  = $mj->_global_config_get('whoami');
+$site        = $mj->global_config_get(undef, undef, 'site_name');
+$serveraddr  = $mj->global_config_get(undef, undef, 'whoami');
 $falseuser   = "x$ENV{'REMOTE_ADDR'}\@example.com";
 # GET poses a security risk due to passwords being visible
 # Set HTML form variables
@@ -180,9 +180,7 @@ if ($user and $passw) {
 ## Construct the request
 ##
 $request = {
-  'auth'      => '',
   'command'   => $func,
-  'interface' => 'mjusr',
   'list'      => $list,
   'mode'      => $mode,
   'password'  => $passw,
@@ -433,9 +431,9 @@ sub format_print {
 
 sub usage {
   my ($mj) = shift;
-  my $site  = $mj->_global_config_get('site_name');
-  my $serveraddr = $mj->_global_config_get('whoami');
-  my $serveradmin = $mj->_global_config_get('whoami_owner');
+  my $site  = $mj->global_config_get(undef, undef, 'site_name');
+  my $serveraddr = $mj->global_config_get(undef, undef, 'whoami');
+  my $serveradmin = $mj->global_config_get(undef, undef, 'whoami_owner');
 
   print <<EOM;
 <p>

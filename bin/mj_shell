@@ -305,9 +305,7 @@ sub parse_command {
     $fh = new IO::File "$::WTMPDIR/mjs.$$.AAA", O_WRONLY|O_CREAT, 0600;
     $> = $tmpu; $) = $tmpg;
     $request = {
-      'auth'      => '',
       'command'   => 'configshow',
-      'interface' => 'shell',
       'list'      => $list,
       'mode'      => $mode,
       'password'  => $pass,
@@ -367,9 +365,7 @@ sub parse_command {
 
   else {
     $request = {
-      'auth'      => '',
       'command'   => $true_command,
-      'interface' => 'shell',
       'list'      => $list,
       'mode'      => $mode,
       'password'  => $pass,
@@ -400,7 +396,6 @@ sub parse_file {
 			   outfh       => \*STDOUT,
 			   attachments => $att,
 			   title       => $file,
-			   interface   => 'shell', 
 			    'reply_to' => $user,
 			    password   => $pass,
 			  );
