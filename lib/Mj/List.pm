@@ -1275,6 +1275,17 @@ sub expire_subscriber_data {
     return (0, 0);
   };
 
+  # If the list is configured to allow posting to 
+  # auxiliary lists, the subscriber data for
+  # them must be expired as well.
+  $ali = $self->config_get('aliases');
+  if ($ali =~ /A/) {
+    $self->_fill_aux;
+    for (keys %{$self->{'auxlists'}}) {
+      $self->_make_aux($_);
+      $self->{'auxlists'}{$_}->mogrify($mogrify);
+    }
+  }     
   $self->{subs}->mogrify($mogrify);
 }
 

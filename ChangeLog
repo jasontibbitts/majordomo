@@ -8,6 +8,9 @@
 
 	* lib/Majordomo.pm, lib/Mj/Format.pm:  Combine code for
 	the who and auxwho commands.
+ 
+	* lib/Mj/List.pm (expire_subscriber_data): Expire auxiliary
+	list data.
 
 2000-07-27  Michael Yount <csf@moscow.com>
 
