@@ -459,10 +459,11 @@ sub connect_no_parse {
     if ($i =~ /^\r?\n/) {
       @hdr = split /\n/, $sess;
       $head = new Mail::Header(\@hdr);
-      chomp($from = $head->get('from') ||
-        $head->get('apparently-from')) || 'unknown@anonymous';
+      $from = $head->get('from') ||
+        $head->get('apparently-from') || 'unknown@anonymous';
+      chomp $from;
       $id = $mj->connect($int, $sess, $from);
-      return unless $id;
+      return unless defined $id;
       $sess .= $i;
       last;
     }
