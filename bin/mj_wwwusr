@@ -250,16 +250,13 @@ if ($func eq 'set') {
   $request->{'setting'} = join ",", @settings;
 }
 
-
-$result = $mj->dispatch($request); 
-&surrender("Unable to obtain result from Majordomo.\n") unless $result;
-
-$file = Majordomo::tempname();
+$file = &Majordomo::tempname();
 $fh = new IO::File ">$file";
 &surrender("Unable to create temporary file.\n") unless defined $fh;
 
-
 if ($func ne 'show' and $func ne 'lists') {
+  $result = $mj->dispatch($request); 
+  &surrender("Unable to obtain result from Majordomo.\n") unless $result;
   print $fh "<pre>\n";
   &{"Mj::Format::$func"}($mj, $fh, $fh, 'html', $request, $result);
   print $fh "</pre>\n";
