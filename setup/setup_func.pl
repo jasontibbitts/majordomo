@@ -416,9 +416,21 @@ sub tempfile {
   die "Cannot open a temporary file after ten tries: $!";
 }
 
+use Data::Dumper;
+sub save_mj_config {
+  my $config = shift;
+
+  open(CONFIG, ">.mj_config") || die ("Cannot create .mj_config: $!");
+  print CONFIG Dumper($config);
+  close CONFIG;
+  if ($config->{save_passwords}) {
+    chmod 0600, '.mj_config';
+  }
+}
+
 =head1 COPYRIGHT
 
-Copyright (c) 1999, 2002 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1999, 2002, 2003 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it

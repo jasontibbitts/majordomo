@@ -1,0 +1,13 @@
+Site Configuration
+
+When Majordomo is installed, some information that applies to every
+Majordomo domain is saved in the site configuration file.  This file is
+located at
+  $FILE
+
+The following series of questions will allow you to revise the MTA
+information or the site master password.  After you have answered all of
+the questions, a copy of your answers will be saved in the .mj_config
+file in the current directory.  You will then be given the option of
+updating the site configuration file.
+

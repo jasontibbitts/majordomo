@@ -1,0 +1,11 @@
+Site Configuration
+
+Do you want to update the site configuration file?
+
+If you say yes, the site configuration file at
+  $FILE
+will be overwritten with the answers you just gave.
+
+If you answer no, you can update the configuration by running the
+"make install" command to reinstall the software.
+

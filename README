@@ -250,6 +250,12 @@ additional virtual domains.  To do so, run the shell command
   make domain
 (usually as the root user) in the top-level source directory.
 
+It is also possible to change the sitewide configuration (such as the
+site master password and queueing options) without reinstalling the
+software.  To do so, run the shell command
+  make siteconfig
+(usually as the root user) in the top-level source directory.
+
 
 Interacting with Majordomo:
 

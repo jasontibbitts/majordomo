@@ -153,6 +153,9 @@ clean ::
 domain ::
 	$(PERL) -w setup/newdomain.pl
 
+siteconfig ::
+	$(PERL) -w setup/siteconfig.pl
+
 install :: postinstall
 postinstall ::
 	$(PERL) -w postinstall
@@ -390,12 +393,7 @@ sub configure {
   $config->{version} = $config_version;
 
   #---- Save the configuration information in a file.
-  open(CONFIG, ">.mj_config") || die ("Cannot create .mj_config: $!");
-  print CONFIG Dumper($config);
-  close CONFIG;
-  if ($config->{save_passwords}) {
-    chmod 0600, '.mj_config';
-  }
+  save_mj_config($config);
   return $config;
 }
 
@@ -462,8 +460,8 @@ int main(int ac, char ** av)
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2002, 2003 Jason Tibbitts for The Majordomo 
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

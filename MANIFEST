@@ -4014,6 +4014,7 @@ setup/messages/en/regen_aliases
 setup/messages/en/response_files
 setup/messages/en/run_make
 setup/messages/en/runner_wait
+setup/messages/en/save_config_pl
 setup/messages/en/save_passwords
 setup/messages/en/script_perms
 setup/messages/en/server_address
@@ -4027,6 +4028,7 @@ setup/messages/en/syslog_error
 setup/messages/en/tmp_dir
 setup/messages/en/umask
 setup/messages/en/unwritable_dir
+setup/messages/en/update_siteconfig
 setup/messages/en/use_nonexistent
 setup/messages/en/use_unexecutable
 setup/messages/en/user_group_mismatch
@@ -4152,6 +4154,7 @@ setup/mta_sendmail.pl
 setup/newdomain.pl
 setup/query_util.pl
 setup/setup_func.pl
+setup/siteconfig.pl
 t/README
 t/addr.t
 t/bounce.t

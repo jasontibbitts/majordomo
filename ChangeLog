@@ -1,3 +1,11 @@
+2003-02-07  Michael Yount <csf@moscow.com>
+
+	* Makefile.PL:  "make siteconfig" will allow some sitewide
+	configuration values to be changed without reinstalling.
+
+	* setup/siteconfig.pl:  Allow the site master password and
+	MTA configuration values to be changed without reinstalling.
+
 2003-02-05  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwusr:  (surrender)  Add a domain parameter to make
