@@ -519,6 +519,9 @@ sub _post {
       elsif ($i->[1] eq 'discard') {
         $head->add('X-Content-Discarded', "$i->[0]");
       }
+      elsif ($i->[1] eq 'clean') {
+        $head->add('X-Content-Cleaned', "$i->[0]");
+      }
     }
   }
   
@@ -631,14 +634,14 @@ sub _post {
   # Cook up a substitution hash
   $subs = {
          $self->standard_subs($list),
-         DATE     => $date,
-         HOST     => $self->_list_config_get($list, 'resend_host'),
-         MSGNO    => $msgnum,
-         SENDER   => "$user",
-         SEQNO    => $seqno,
-         SUBJECT  => $subject || '(no subject)',
-         SUBSCRIBED => ($avars{'days_since_subscribe'} < 0) ? "not" : "",
-         USER     => "$user",
+         'DATE'       => $date,
+         'HOST'       => $self->_list_config_get($list, 'resend_host'),
+         'MSGNO'      => $msgnum,
+         'SENDER'     => "$user",
+         'SEQNO'      => $seqno,
+         'SUBJECT'    => $subject || '(no subject)',
+         'SUBSCRIBED' => ($avars{'days_since_subscribe'} < 0) ? "not" : "",
+         'USER'       => "$user",
   };
 
   if ($mode !~ /archive/) {
@@ -1545,6 +1548,27 @@ sub _r_strip_body {
       if ($verdict eq 'allow') {
         push @newparts, $i;
       }
+      elsif ($verdict eq 'clean') {
+        $txtfile = $self->_clean_text($i);
+
+        if ($txtfile) {
+          # Create a new plain text entity and include it
+          # in the list of new parts.
+          push @newparts, 
+            build MIME::Entity(
+              'Type' => $_,
+              'Path' => $txtfile,
+              'Description' => "Cleaned $_ message",
+              'Encoding' => '8bit',
+            );
+          
+          push @changes, [$_, 'clean'];
+        }
+        else {
+          $log->message(50, 'info', "No changes made to $_");
+          push @newparts, $i;
+        }
+      }
       elsif ($verdict eq 'discard') {
         if ($level == 2 and scalar(@parts) == 1) {
           $log->message(50, 'info', "Cannot discard a top-level single part.");
@@ -1637,7 +1661,7 @@ sub _format_text {
   my $log = new Log::In 50, $width;
   my ($body, $formatter, $outfh, $tmpdir, $tree, $txtfile, $type);
   unless (defined $entity) {
-    $log->message(50, 'info', "Entity has no body.");
+    $log->message(50, 'info', "Entity is undefined.");
     return;
   }
 
@@ -1717,6 +1741,62 @@ sub _format_text {
   return $txtfile;
 }
 
+=head2 _clean_text(entity)
+
+Removes selected HTML elements and attributes from a text/html
+body part.
+
+=cut
+use Symbol;
+use Mj::Util qw(clean_html);
+sub _clean_text {
+  my $self = shift;
+  my $entity = shift;
+  my $log = new Log::In 50;
+  my (@attr, @elem, $body, $outfh, $tmpdir, $txtfile, $type);
+
+  unless (defined $entity) {
+    $log->message(50, 'info', "Entity is undefined.");
+    return;
+  }
+
+  $type = $entity->effective_type;
+  unless ($entity->effective_type =~ /^text\/html/i) {
+    $log->message(50, 'info', "Formatting is not supported for type $type.");
+    return;
+  }
+
+  # Make certain this is a single-part entity with a body.
+  unless ($entity->bodyhandle) {
+    $log->message(50, 'info', "Entity has no body.");
+    return;
+  }
+
+  # Create a temporary file.
+  $tmpdir = $self->_global_config_get('tmpdir');
+  $txtfile = "$tmpdir/mjr." . Majordomo::unique() . ".in";
+  $outfh = gensym();
+  open($outfh, "> $txtfile");
+  unless ($outfh) {
+    $log->message(50, 'info', "Unable to open $txtfile: $!");
+    return;
+  }
+      
+  $entity->print_body($outfh);
+  close ($outfh)
+    or $::log->abort("Unable to close file $txtfile: $!");
+
+  @attr = qw(background onblur onchange onclick ondblclick onfocus 
+             onkeydown onkeypress onkeyup onload onmousedown 
+             onmousemove onmouseout onmouseover onmouseup onreset 
+             onselect onunload);
+
+  @elem = qw(applet base embed form frame iframe ilayer img input 
+             layer link meta object option script select textarea);
+
+  return unless &clean_html($txtfile, \@attr, \@elem);
+  return $txtfile;
+}
 
 =head2 _ck_tbody_line
 
@@ -2521,8 +2601,9 @@ sub do_digests {
 	}
         # XXX The status and password values (1, 0) may be inaccurate.
 	$self->inform($list, "digest", 'unknown@anonymous', 'unknown@anonymous',
-                  "digest $list $i", "resend", 1, 0, 0, '', 
-                  $::log->elapsed - $elapsed);
+           "digest $list $i", "resend", 1, 0, 0, 
+           "Volume $dissues->{$i}{'volume'}, Issue $dissues->{$i}{'issue'}", 
+            $::log->elapsed - $elapsed);
       }
     }
   }
@@ -2530,7 +2611,7 @@ sub do_digests {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
