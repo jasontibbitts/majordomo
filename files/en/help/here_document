@@ -37,14 +37,15 @@ type them, but there are some exceptions:
 
   * In the message_footer and message_fronter configuration settings, 
     lines beginning with hyphens are treated specially.  Please see
-    "help configset_message_footer" and "help configset_fronter"
+    "help configset_message_footer" and "help configset_message_fronter"
     for more information.
 
   * Any line in a here document that ends with a single backslash '\'
     will be catenated with the next line.  This can have unusual effects
     unless some effort is made to double the backslashes, '\\', in
     which case the extra backslash is removed, and the lines are not
-    catenated.
+    catenated.  (This does not apply to commands that you type when
+    you are using the mj_shell program interactively.)
 
 The contents of the here document will vary from command to command.
 For instance, a list administrator using the subscribe command can
