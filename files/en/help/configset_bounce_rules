@@ -8,3 +8,63 @@ Data Type     : bounce_rules
 Variable Group: bounce
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset listname bounce_rules <<ENDTAG
+ENDTAG
+
+
+Jason is working on adding bounce_rules and thus completing the basic
+bounce handling feature set. In CVS, the variable and its parser are
+there but it is not acted upon.  This will probably change tonight or
+tomorrow as he puts in the rest of the code.
+
+Currently bounce_rules is very simple. It has a syntax much like access_rules,
+but without the first line specifying the request list, so each rule is just a
+line with actions and several lines of conditionals; a blank line separates rules.
+
+Currently there are two actions:
+  unsubscribe - removes the user [1]
+  ignore      - does nothing
+
+The owner is still sent the bounce notice as before.  The variables
+currently recognized [2] are:
+  days_since_subscribe
+  consecutive - number of consecutive messages bounced
+  day         - number of bounces in the last 24 hours
+  week        - number of bounces in the last 7 days
+  month       - number of bounces in the last 30 days
+  bouncedpct  - percentage of bounced messages calculated from the lowest
+                and highest bounced messages and the count of numbered
+                bounced messages: (highest - lowest +1) / count
+
+Obviously we will want some way to control what bounce notices the list
+owner sees.  I think there are two ways to go; we can keep bounce_rules
+simple and use other variables to control what the owner sees or we can add
+additional actions to bounce_rules and give the owner lots of freedom about
+when to be notified.  I'm not really sure which is the way to go.  I'd like
+to avoid a mixed approach (where you can do things with the rules and with
+the variables).
+
+1] This will eventually include a final probe message that must bounce for
+   the removal to take effect.
+
+2] I recall that there was some question as to the validity of these
+   statistics while I was away.  I think it revolved around not correlating
+   "bounces per day/week/month" with messages passing through the list
+   during that time.  I counter that this is the best that we can do, since
+   the bounces can be received an arbitrary amount of time (I've seen four
+   weeks) after the message is sent.  The point is to build up an accurate
+   picture of what list messages are bouncing without trying to do any
+   correlation with list messages.  Not that it can't be done, but that it
+   can't be done "simply".  Sure, we could look up the date of the message
+   in the archive and compute a "bounce delay time", but that doesn't
+   qualify as "simple".
+
+
+See Also:
+   help configset access_rules (for basic syntax, needs to be copied here)
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

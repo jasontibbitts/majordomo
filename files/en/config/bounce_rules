@@ -1,1 +1,3 @@
-dummy file for bounce_rules, created Mon Aug 21 21:10:47 2000
+Currently bounce_rules is very simple. It has a syntax much like access_rules,
+but without the first line specifying the request list, so each rule is just a
+line with actions and several lines of conditionals; a blank line separates rules.
