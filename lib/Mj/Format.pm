@@ -371,6 +371,9 @@ sub configshow {
   elsif ($request->{'mode'} =~ /extract/) {
     $mode = $mode2 = '-extract';
   }
+  elsif ($request->{'mode'} =~ /noforce/) {
+    $mode = $mode2 = '-noforce';
+  }
 
   $cgidata = &cgidata($mj, $request);
   $request->{'cgiurl'} ||= '';
