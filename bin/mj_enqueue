@@ -4,6 +4,7 @@ BEGIN {
 #  $::LIBDIR = "/path/to/lib";
   $::LISTDIR= "/path/to/lists";
   $::TMPDIR = "/tmp/mj";
+  $::LOCKDIR= "/tmp/mj";
 #  $::WTMPDIR= "/tmp";
   $::UMASK  = "007";
   $::UID    = "baduid";
@@ -203,8 +204,8 @@ unless (socket(SOCK, PF_UNIX, SOCK_STREAM, 0)) {
 if (!($ok = connect(SOCK, sockaddr_un($rendezvous)))) {
   # Couldn't connect to the server.  First, exclude other mj_enqueue
   # programs from starting one.
-  open LOCK, ">> $::TMPDIR/mj_queueserv.lock" or
-    die "Couldn't open lockfile $::TMPDIR/mj_queueserv.lock: $!";
+  open LOCK, ">> $::LOCKDIR/mj_queueserv.lock" or
+    die "Couldn't open lockfile $::LOCKDIR/mj_queueserv.lock: $!";
 
   unless (flock(LOCK, $::LOCK_EX|$::LOCK_NB)) {
     logmsg "Another process is starting the server";

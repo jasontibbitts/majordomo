@@ -1,3 +1,14 @@
+2004-10-30  Michael Yount <csf@moscow.com>
+
+	* bin/mj_enqueue:  Place the mj_queueserv lock in the lock
+	directory.  Suggested by SRE.
+
+	* lib/Mj/Lock.pm:  (expire_locks)  Do not remove the queueserv
+	lock file.
+
+	* setup/setup_func.pl:  (make_alias_symlinks)  Unlink before
+	creating a symlink.  Thanks to SRE.
+
 2004-10-27  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (list_config_get)  Retrieve GLOBAL
