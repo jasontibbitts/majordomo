@@ -1,0 +1,23 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname archive_date = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : delivery
+Data Type     : enum, choose from arrival or delivery
+Category      : archive
+Password Notes: Visible only with password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset listname archive_date = arrival
+
+$INCLUDE-config/archive_date
+
+See Also:
+   help admin
+   help admin_delivery
+   help archive
+   help configset_archive_dir
+   help configset_archive_size
+   help configset_archive_split
+
+$INCLUDE-help/foot
