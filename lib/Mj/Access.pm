@@ -687,7 +687,7 @@ sub _a_replyfile {
   while (defined ($line = $fh->getline)) {
     $out .= $line;
   }
-  return (undef, undef, $out, $file);
+  return (undef, undef, $out);
 }
 
 use MIME::Entity;

@@ -1,5 +1,8 @@
 Fri Jan 29 00:11:52 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Access.pm (_a_replyfile): Aargh!  Don't delete the
+ 	replyfile arguments!  We want to keep those around!
+
 	* lib/Mj/Config.pm (parse_digest_issues): Fix stupid bug: forgot
  	to actually give any data to the table parser.
 
