@@ -79,7 +79,7 @@ while (1) {
     make_alias_symlinks($newdomain,
                         $config->{sendmail_symlink_location});
     &dot;
-    print ".ok\n";
+    print ".done\n";
   }
 
   # save the values in the configuration file.
