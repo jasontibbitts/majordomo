@@ -1,10 +1,14 @@
 <!-- Majordomo archive_text_head format file -->
 <p>
-[Volet $PART $CONTENT_TYPE ($SIZE kilo octets)]<br>
+[Volet $PART $CONTENT_TYPE $CHARSET ($SIZE kilo octets)]<br>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PARTh&amp;func=archive-get-part" target="_part">
     (Voir les en-têtes dans une fenêtre
     séparée)
+  </a>
+
+  <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PART&amp;func=archive-get-part-clean" target="_part">
+    (Voir le texte dans une fen^etre séparée)
   </a>
 
   <a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;extra=$MSGNO%20$PARTh&amp;func=archive-part-edit">

@@ -16,10 +16,17 @@ Il peut être utile de désactiver ce paramètre si des mots, comme
 "unsubscribe", qui sont aussi des commandes Majordomo sont souvent
 utilisées dans les discussions.
 
+Lorsqu'un message est posté sur une liste, le message est vérifié en
+utilisant les motifs des paramètres "admin_body" et "admin_headers" de
+la liste. Le message est aussi vérifié en utilisant les motifs de ces
+paramètres pour la pseudo liste GLOBAL.
+
 
 Référez vous aussi à :
    help admin_moderate
    help configset_admin_body
    help configset_admin_headers
+   help configset_taboo_body
+   help configset_taboo_headers
 
 $INCLUDE-help/foot

@@ -1,5 +1,5 @@
 <!-- Majordomo archive_text_head format file -->
 <p>
-[Volet $PART $CONTENT_TYPE ($SIZE kilo octets)]
+[Volet $PART $CONTENT_TYPE $CHARSET ($SIZE kilo octets)]
 </p>
 <pre>

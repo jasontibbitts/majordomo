@@ -258,6 +258,9 @@ réponses
   indiquer si le mot de passe a été modifié ou juste rapporté. Sa
   valeur est " " si le mot de passe a été modifié, '' sinon.
 
+\$CHARSET
+  Le jeu de caractères d'un message ou d'un volet de message.
+
 \$CHUNKSIZE
   Le nombre d'adresses affichées en même temps par la commande "who"
   sur l'interface wwwadm.
@@ -275,6 +278,9 @@ réponses
 \$CONSULT
   " " si e type d'une commande en attente est "consult". '' sinon.
   "consult" signifie que le modérateur doit confirmer la commande.
+
+\$CONTENT_TYPE
+  Le type de contenu d'un message ou d'un volet de message.
 
 \$COUNT
   Le nombre de paramètres dans une catégorie de configuration.
@@ -382,6 +388,9 @@ réponses
 \$OLDLIST
   Le nom originel de la liste qui a été renommé avec la commande
   "createlist".
+
+\$PART
+  Le numéro du volet d'un message posté.
 
 \$PASSWORD
   Le mot de passe personnel correspondant à une adresse email

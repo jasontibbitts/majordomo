@@ -1,9 +1,12 @@
 <p>
-[Volet $PART $CONTENT_TYPE ($SIZE kilo octets)]<br>
-
+[Volet $PART $CONTENT_TYPE $CHARSET ($SIZE kilo octets)]<br>
   <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PARTh&amp;a=tokeninfo-part" target="_part">
     (Afficher les en-têtes dans une fenêtre
     séparée)
+  </a>
+
+  <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PART&amp;a=tokeninfo-part" target="_part">
+    (Voir le texte dans une fen^etre séparée)
   </a>
 
   <a href="$CGIURL?$CGIDATA&amp;t=$TOKEN&amp;p=$PARTh&amp;a=tokeninfo-part-edit">

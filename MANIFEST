@@ -1,3 +1,4 @@
+
 BUGS
 CREDITS
 ChangeLog
@@ -2609,6 +2610,7 @@ files/fr/error/.lhs_domain_literal
 files/fr/error/.local_part_length
 files/fr/error/.make_list
 files/fr/error/.message_number
+files/fr/error/.mime_header_length
 files/fr/error/.missing_mode
 files/fr/error/.multiple_addresses
 files/fr/error/.nested_brackets
@@ -2621,6 +2623,8 @@ files/fr/error/.no_route
 files/fr/error/.no_token
 files/fr/error/.no_visible
 files/fr/error/.not_extracted
+files/fr/error/.over_message_limit
+files/fr/error/.over_time_limit
 files/fr/error/.password_length
 files/fr/error/.password_level
 files/fr/error/.pending_delivery
@@ -2629,12 +2633,16 @@ files/fr/error/.relocated_list
 files/fr/error/.rhs_domain_literal
 files/fr/error/.right_brackets
 files/fr/error/.setting_unchanged
+files/fr/error/.single_header_length
 files/fr/error/.source_route
 files/fr/error/.spool_file
 files/fr/error/.stalled_post
 files/fr/error/.sublist_post
 files/fr/error/.top_level_domain
+files/fr/error/.total_header_length
 files/fr/error/.undefined_address
+files/fr/error/.under_message_limit
+files/fr/error/.under_time_limit
 files/fr/error/.unknown_list
 files/fr/error/.unknown_setting
 files/fr/error/.unknown_token
@@ -2673,6 +2681,7 @@ files/fr/error/lhs_domain_literal
 files/fr/error/local_part_length
 files/fr/error/make_list
 files/fr/error/message_number
+files/fr/error/mime_header_length
 files/fr/error/missing_mode
 files/fr/error/multiple_addresses
 files/fr/error/nested_brackets
@@ -2685,6 +2694,8 @@ files/fr/error/no_route
 files/fr/error/no_token
 files/fr/error/no_visible
 files/fr/error/not_extracted
+files/fr/error/over_message_limit
+files/fr/error/over_time_limit
 files/fr/error/password_length
 files/fr/error/password_level
 files/fr/error/pending_delivery
@@ -2693,12 +2704,16 @@ files/fr/error/relocated_list
 files/fr/error/rhs_domain_literal
 files/fr/error/right_brackets
 files/fr/error/setting_unchanged
+files/fr/error/single_header_length
 files/fr/error/source_route
 files/fr/error/spool_file
 files/fr/error/stalled_post
 files/fr/error/sublist_post
 files/fr/error/top_level_domain
+files/fr/error/total_header_length
 files/fr/error/undefined_address
+files/fr/error/under_message_limit
+files/fr/error/under_time_limit
 files/fr/error/unknown_list
 files/fr/error/unknown_setting
 files/fr/error/unknown_token
