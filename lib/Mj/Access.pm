@@ -24,6 +24,7 @@ size reasons.
 =cut
 package Mj::Access;
 use Mj::Config qw(parse_table);
+use Mj::CommandProps qw(:rules);
 use strict;
 use vars qw($skip $victim $passwd @permitted_ops %args %memberof %requests);
 
@@ -547,12 +548,16 @@ sub list_access_check {
 	($func, $arg) = split(/[=-]/,$i,2);
 	if ($func eq 'set') {
 	  # Set a variable.
-	  warn "Setting $arg";
+      if ($arg and rules_var($request, $arg)) {
+        $args{$arg} ||= 1;
+      }
 	  next ACTION;
 	}
 	if ($func eq 'unset') {
 	  # Unset a variable.
-	  warn "Unsetting $arg";
+      if ($arg and exists $args{$arg}) {
+        delete $args{$arg};
+      }
 	  next ACTION;
 	}
 
