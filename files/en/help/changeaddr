@@ -7,21 +7,30 @@ address, required, is a previously registered address
 The "changeaddr" command replaces an "address" in the registration
 database with the address in the sender's "From:" or "Apparently-from:"
 header, including any comments. Address comments are ignored if they
-exist in the command:
+exist in the command. These are all equivalent:
   changeaddr joe@blow.org
-or
   changeaddr Joe Blow <joe@blow.org>
-are equivalent.
+  changeaddr joe@blow.org (Joe Blow)
 
 The registration database, and all lists to which the "address" is
 subscribed, are updated. As of April 2000, "changeaddr" adjusts
 aliases automatically, as does the unregister command, but it does
 not yet deal with auxiliary lists
 
-A confirmation token will be sent to the given "address" AND to the
-address making the request, to verify this action. Both tokens must
-be replied to with an "accept" command, unless an authorized password
-is used with "approve".
+Unless the password for "address" is used, a confirmation token will
+be sent to the given "address" AND to the address making the request,
+to verify this action. If confirmation is required, BOTH tokens must
+be replied to with an "accept" command before the change will be made.
+
+NOTE: If the command is sent from the same address as used in the
+command, only one confirmation will be required. This can be useful
+for changing the comment fields in all subscriptions at once. For
+example, if a user had previously subscribed as "Joe <joe@blow.org>"
+but wanted his last name to appear also, he could fix his email
+headers and send this command "From: Joe Blow <joe@blow.org>":
+  changeaddr joe@blow.org
+to re-register and re-subscribe, changing all occurrances of the
+old address (and comments) to the same address (with new comments).
 
 See Also:
    help alias       (which makes two addresses equivalent)
