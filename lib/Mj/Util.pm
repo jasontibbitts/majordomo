@@ -496,7 +496,8 @@ sub re_match {
   unless (ref $safe eq 'Safe') {
     eval ("use Safe");
     $safe = new Safe;
-    $safe->permit_only(qw(const leaveeval not null pushmark return rv2sv stub));
+    $safe->permit_only(qw(concat const leaveeval not null pushmark 
+                          regcreset return rv2sv stub));
   }
 
   # Hack; untaint things.  That's why we're running inside a safe
