@@ -103,7 +103,7 @@ sub inform {
 1;
 __END__
 
-=head2 _mail_inform(list, request, requester, user, cmdline, interface, success, passworded, comment, )
+=head2 _inform_owner(list, request, requester, user, cmdline, interface, success, passworded, comment)
 
 This is a helper function for inform; it constructs a mesage and mails it
 to the owner.  This is removed from inform so that MIME::Entity does not
