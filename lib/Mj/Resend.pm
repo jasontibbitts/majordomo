@@ -90,7 +90,7 @@ __END__
 use Mj::MIMEParser;
 use File::Copy 'mv';
 sub post {
-  my($self, $user, $passwd, $auth, $int, $cmd, $mode, $list, $file) = @_;
+  my($self, $request) = @_;
   my ($owner,                # The list owner address
       $token,                # Token lifted from approval check, to be deleted
       $parser,               # MIME::Parser
@@ -114,8 +114,10 @@ sub post {
       $spool,                # File to spool 
       $subject,              # Header 
       $date,                 # Header
+      $user,                 # Obtained from headers
+      $passwd, 
      );
-  my $log = new Log::In 30, "$list, $user, $file"; 
+  my $log = new Log::In 30, "$request->{'list'}, $request->{'user'}, $request->{'file'}"; 
   $tmpdir = $self->_global_config_get("tmpdir");
 
   $parser = new Mj::MIMEParser;
@@ -123,7 +125,7 @@ sub post {
   $parser->output_dir($tmpdir);
   $parser->output_prefix("mjr");
   
-  $fh = new IO::File "<$file";
+  $fh = new IO::File "<$request->{'file'}";
   $ent = $parser->read($fh);
   # If perl is configured without Config{'d_flock'}, this close call
   # will cause the lock on the queue file to be dropped, creating
@@ -133,8 +135,9 @@ sub post {
   # Fail gracefully: 
   if (! $ent) {
     $spool = "$tmpdir/unparsed." . Majordomo::unique();
-    mv ($file, $spool);
-    $self->inform("GLOBAL", "post", $user, $user, $cmd, "resend",
+    mv ($request->{'file'}, "$spool");
+    $self->inform("GLOBAL", "post", $request->{'user'}, $request->{'user'},
+        $request->{'cmdline'}, "resend",
         0, 0, -1, "Unable to parse message; moved to $spool.");
     return (0, "Unable to parse message.");
   }
@@ -171,7 +174,7 @@ sub post {
   # XXX Pass in the password we were called with, so that passwords
   # can be passed out-of-band.
   ($ok, $passwd, $token) =
-    $self->_check_approval($list, $thead, $ent, $user);
+    $self->_check_approval($request->{'list'}, $thead, $ent, $user);
   $approved = ($ok>0) && $passwd;
 
   unless ($ok) {
@@ -180,13 +183,13 @@ sub post {
   }
 
   # Check poster
-  $self->_check_poster($list, $user, $reasons, $avars);
+  $self->_check_poster($request->{'list'}, $user, $reasons, $avars);
 
   # Check header
-  $self->_check_header($list, $thead, $reasons, $avars);
+  $self->_check_header($request->{'list'}, $thead, $reasons, $avars);
 
   # Recursively check bodies
-  $self->_check_body($list, $ent, $reasons, $avars);
+  $self->_check_body($request->{'list'}, $ent, $reasons, $avars);
 
   # Construct some aggregate variables;
   $avars->{dup} = $avars->{dup_msg_id} || $avars->{dup_checksum} ||
@@ -215,19 +218,22 @@ sub post {
 
     ($ok, $mess, $fileinfo) =
       $self->list_access_check
-	($passwd, undef, $int, $mode, $cmd, $list, "post", $user, '',
-	 $file, join("\002", @$reasons), join("\002", %$avars), %$avars);
+	($passwd, undef, $request->{'interface'}, $request->{'mode'}, 
+     $request->{'cmdline'}, $request->{'list'}, "post", $user, '',
+	 $request->{'file'}, join("\002", @$reasons), join("\002", %$avars), 
+     %$avars);
   }
 
-  $owner = $self->_list_config_get($list, 'sender');
+  $owner = $self->_list_config_get($request->{'list'}, 'sender');
   if ($ok > 0) {
-    return $self->_post($list, $user, $user, $mode, $cmd,
-			$file, '', join("\002", %$avars), $ent);
+    return $self->_post($request->{'list'}, $user, $user, $request->{'mode'}, 
+            $request->{'cmdline'}, $request->{'file'}, '', 
+            join("\002", %$avars), $ent);
   }
 
   # Some substitutions will be done by the access routine, but we have
   # extensive information about the message here so we can do some more.
-  $subs = {LIST     => $list,
+  $subs = {LIST     => $request->{'list'},
 	   HEADERS  => $ent->head->stringify,
 	   SUBJECT  => ($ent->head->get('subject') || '(none)'),
 	   VERSION  => $Majordomo::VERSION,
@@ -241,7 +247,7 @@ sub post {
   if ($desc) {
     $desc = $self->substitute_vars_string($desc, $subs);
   }
-  $ack_attach = $self->_list_config_get($list, 'ack_attach_original');
+  $ack_attach = $self->_list_config_get($request->{'list'}, 'ack_attach_original');
   chomp($date = $thead->get('date')); 
   chomp($subject = ($thead->get('subject')|| '')); 
 
@@ -255,9 +261,9 @@ sub post {
   # Otherwise, decide what to ack
   # Stall:  ack if flags say so
   # Denial: ack if flags say so or if ack_denials_always is set
-  if ($self->{'lists'}{$list}->flag_set('ackimportant', $user)
+  if ($self->{'lists'}{$request->{'list'}}->flag_set('ackimportant', $user)
       ||
-      $self->{'lists'}{$list}->flag_set('ackall', $user)
+      $self->{'lists'}{$request->{'list'}}->flag_set('ackall', $user)
       ||
       ($ok == 0 && $self->_list_config_get($list, 'ack_denials_always'))
      )
@@ -315,9 +321,8 @@ Hmmm.
 
 =cut
 sub post_start  {
-  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
-      $list) = @_;
-  my $log  = new Log::In 30, "$list";
+  my ($self, $request) = @_;
+  my $log  = new Log::In 30, "$request->{'list'}";
 
   my $tmp  = $self->_global_config_get('tmpdir');
   my $file = "$tmp/post." . Majordomo::unique();
@@ -325,26 +330,26 @@ sub post_start  {
   $self->{'post_fh'} = new IO::File ">$file" or
     $log->abort("Can't open $file, $!");
 
-  1;
+  (1, '');
 }
 
 sub post_chunk {
-  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
-      $list, $vict, $data) = @_;
+  my ($self, $request, $data) = @_;
   $self->{'post_fh'}->print($data);
+  (1, '');
 }
 
 sub post_done {
-  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
-      $list) = @_;
+  my ($self, $request) = @_;
   my $log  = new Log::In 30;
   my ($ok, $mess);
 
   $self->{'post_fh'}->close;
 
+  $request->{'file'} = $self->{'post_file'};
+
   ($ok, $mess) =
-    $self->post($user, $passwd, $auth, $interface, $cmdline, $mode,
-	      $list, $self->{'post_file'});
+    @{$self->post($request)};
 
   unlink $self->{'post_file'};
   undef $self->{'post_fh'};
@@ -1679,7 +1684,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
 Majordomo2 distribution.
 
-his program is distributed in the hope that it will be useful, but WITHOUT
+This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
 detailed information.
