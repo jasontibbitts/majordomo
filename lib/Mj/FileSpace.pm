@@ -572,12 +572,12 @@ sub index {
   my $log = new Log::In 200, "$dir";
   my (@files, @out, $data, $file, $i, $name);
 
+  # XLANG
   return (0, qq(The directory "$dir" does not exist.\n))
     unless (-d "$self->{'dir'}/$dir");
 
   @files = $self->_find_legal_files("$self->{'dir'}/$dir", !$recurse);
-  return (0, qq(The directory "$dir" is empty.\n))
-    unless (scalar @files);
+  return (1, '') unless (scalar @files);
 
   for $file (@files) {
     # Add the file data unless it's a directory and we don't want them or
