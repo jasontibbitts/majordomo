@@ -22,35 +22,32 @@ First, the requests which can be processed:
  3 - alias             default access is confirm
  4 - announce          default access is deny
  5 - archive           default access is access
- 6 - auxadd            default access is deny
- 7 - auxremove         default access is deny
- 8 - auxwho            default access is deny
- 9 - changeaddr        default access is confirm2
-10 - createlist        default access is deny
-11 - digest            default access is deny
-12 - faq               default access is access
-13 - get               default access is access
-14 - help              default access is allow
-15 - index             default access is access
-16 - info              default access is access
-17 - intro             default access is access
-18 - lists             default access is allow
-19 - password          default access is confirm
-20 - post              default access is special
-21 - put               default access is deny
-22 - register          default access is confirm
-23 - rekey             default access is deny
-24 - report            default access is deny
-25 - request_response  default access is allow
-26 - set               default access is policy
-27 - show              default access is mismatch
-28 - showtokens        default access is deny
-29 - subscribe         default access is policy
-30 - unalias           default access is confirm
-31 - unregister        default access is confirm
-32 - unsubscribe       default access is policy
-33 - which             default access is access
-34 - who               default access is access
+ 6 - changeaddr        default access is confirm2
+ 7 - createlist        default access is deny
+ 8 - digest            default access is deny
+ 9 - faq               default access is access
+10 - get               default access is access
+11 - help              default access is allow
+12 - index             default access is access
+13 - info              default access is access
+14 - intro             default access is access
+15 - lists             default access is allow
+16 - password          default access is confirm
+17 - post              default access is special
+18 - put               default access is deny
+19 - register          default access is confirm
+20 - rekey             default access is deny
+21 - report            default access is deny
+22 - request_response  default access is allow
+23 - set               default access is policy
+24 - show              default access is mismatch
+25 - showtokens        default access is deny
+26 - subscribe         default access is policy
+27 - unalias           default access is confirm
+28 - unregister        default access is confirm
+29 - unsubscribe       default access is policy
+30 - which             default access is access
+31 - who               default access is access
 
 + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 
@@ -65,6 +62,7 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
 2 - variables for advertise
@@ -76,6 +74,7 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
 3 - variables for alias
@@ -87,6 +86,7 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
 4 - variables for announce
@@ -98,6 +98,7 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
 5 - variables for archive
@@ -109,9 +110,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-6 - variables for auxadd
+6 - variables for changeaddr
   addr
   delay
   fulladdr
@@ -120,9 +122,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-7 - variables for auxremove
+7 - variables for createlist
   addr
   delay
   fulladdr
@@ -131,9 +134,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-8 - variables for auxwho
+8 - variables for digest
   addr
   delay
   fulladdr
@@ -142,9 +146,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-9 - variables for changeaddr
+9 - variables for faq
   addr
   delay
   fulladdr
@@ -153,9 +158,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-10 - variables for createlist
+10 - variables for get
   addr
   delay
   fulladdr
@@ -164,9 +170,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-11 - variables for digest
+11 - variables for help
   addr
   delay
   fulladdr
@@ -175,9 +182,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-12 - variables for faq
+12 - variables for index
   addr
   delay
   fulladdr
@@ -186,9 +194,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-13 - variables for get
+13 - variables for info
   addr
   delay
   fulladdr
@@ -197,9 +206,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-14 - variables for help
+14 - variables for intro
   addr
   delay
   fulladdr
@@ -208,9 +218,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-15 - variables for index
+15 - variables for lists
   addr
   delay
   fulladdr
@@ -219,42 +230,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-16 - variables for info
-  addr
-  delay
-  fulladdr
-  host
-  master_password
-  mismatch
-  mode
-  posing
-  user_password
-
-17 - variables for intro
-  addr
-  delay
-  fulladdr
-  host
-  master_password
-  mismatch
-  mode
-  posing
-  user_password
-
-18 - variables for lists
-  addr
-  delay
-  fulladdr
-  host
-  master_password
-  mismatch
-  mode
-  posing
-  user_password
-
-19 - variables for password
+16 - variables for password
   addr
   delay
   fulladdr
@@ -264,9 +243,10 @@ Second, the variables available for each request (see bottom for explanations):
   mode
   password_length
   posing
+  sublist
   user_password
 
-20 - variables for post
+17 - variables for post
   addr
   admin
   any
@@ -304,7 +284,7 @@ Second, the variables available for each request (see bottom for explanations):
   total_header_length_exceeded
   user_password
 
-21 - variables for put
+18 - variables for put
   addr
   delay
   fulladdr
@@ -313,9 +293,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-22 - variables for register
+19 - variables for register
   addr
   delay
   fulladdr
@@ -324,9 +305,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-23 - variables for rekey
+20 - variables for rekey
   addr
   delay
   fulladdr
@@ -335,9 +317,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-24 - variables for report
+21 - variables for report
   addr
   delay
   fulladdr
@@ -346,9 +329,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-25 - variables for request_response
+22 - variables for request_response
   addr
   delay
   fulladdr
@@ -357,9 +341,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-26 - variables for set
+23 - variables for set
   addr
   delay
   fulladdr
@@ -368,9 +353,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-27 - variables for show
+24 - variables for show
   addr
   delay
   fulladdr
@@ -379,9 +365,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-28 - variables for showtokens
+25 - variables for showtokens
   addr
   delay
   fulladdr
@@ -390,19 +377,23 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-29 - variables for subscribe
+26 - variables for subscribe
   addr
+  delay
   fulladdr
   host
   master_password
   matches_list
   mismatch
+  mode
   posing
+  sublist
   user_password
 
-30 - variables for unalias
+27 - variables for unalias
   addr
   delay
   fulladdr
@@ -411,9 +402,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-31 - variables for unregister
+28 - variables for unregister
   addr
   delay
   fulladdr
@@ -422,9 +414,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-32 - variables for unsubscribe
+29 - variables for unsubscribe
   addr
   delay
   fulladdr
@@ -433,9 +426,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-33 - variables for which
+30 - variables for which
   addr
   delay
   fulladdr
@@ -444,9 +438,10 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
-34 - variables for who
+31 - variables for who
   addr
   delay
   fulladdr
@@ -455,6 +450,7 @@ Second, the variables available for each request (see bottom for explanations):
   mismatch
   mode
   posing
+  sublist
   user_password
 
 + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
@@ -571,7 +567,7 @@ Third, an explanation of each variable:
                                the pattern in 'configset quote_pattern'
 
                      sublist - is set to the name of the sublist, if a
-                               message was posted to an auxiliary list
+                               requestinvolves an auxiliary list
 
                        taboo - is set if any taboo_* variable is set (note
                                that taboo configsets can create new
