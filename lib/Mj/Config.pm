@@ -612,52 +612,81 @@ sub regen {
 
 =head2 _upgrade
 
-Make changes to the format of raw settings in the main configuration 
-file to bring them up to date.  To complete the upgrade, the 
+Make changes to the format of raw settings in the main configuration
+file to bring them up to date.  To complete the upgrade, the
 settings must subsequently be parsed and saved.
 
 =cut
 
 sub _upgrade {
   my $self = shift;
-  my (@tmp, @vars, $config, $i, $j, $setting, $table, $tmp, $version);
+  my (@tmp, @vars, $config, $func, $i, $j, $setting, $table, $tmp, $version);
 
-  $config = $self->{'source'}{'MAIN'}; 
-  return 1 if (exists $config->{'VERSION'} and 
-               $config->{'VERSION'} == $Mj::Config::VERSION);
+  # Hash of settings and the versions they become invalid at
+  my %upgrades =
+    (
+     'aliases'   => 1.1,
+     'digests'   => 1.1,
+     'moderator' => 1.1,
+    );
+
+  $config = $self->{'source'}{'MAIN'};
+
+  # Exit early if the existing config file is current.
+  return 1 if (exists $config->{'VERSION'} and
+	       $config->{'VERSION'} == $Mj::Config::VERSION);
 
   $version = $config->{'VERSION'} || 1.0;
 
-  if ($version < 1.1) {
-    # Convert any existing "moderator" address to the "moderators"
-    # setting.
-    if (exists ($config->{'raw'}->{'moderator'}) and 
-        ! exists ($config->{'raw'}->{'moderators'})) 
-    {
-     $config->{'raw'}->{'moderators'} = [ $config->{'raw'}->{'moderator'} ];
+  for $i (keys %upgrades) {
+    if ($version < $upgrades{$i}) {
+      $func = "_upgrade_$i";
+      $self->$func($version, $config);
     }
 
-    # Convert the old aliases flags to a list.
-    if (exists $config->{'raw'}->{'aliases'}) {
-      $tmp = $config->{'raw'}->{'aliases'};
-      if (ref $tmp ne 'ARRAY') {
-        # Convert aliases from old to new format
-        @tmp = ();
-        for ($j = 0 ; $j < length $tmp; $j++) {
-          $setting = substr $tmp, $j, 1;
-          push (@tmp, $Mj::List::alias{$setting}) 
-            if (defined $Mj::List::alias{$setting});
-        }
-        $config->{'raw'}->{'aliases'} = [ @tmp ];
+  }
+
+  $config->{'VERSION'} = $Mj::Config::VERSION;
+
+  1;
+}
+
+
+# Convert the old aliases flags to a list.
+sub _upgrade_aliases {
+  my ($self, $version, $config) = @_;
+  my (@tmp, $j, $setting, $tmp);
+
+  return unless $version < 1.1;
+
+   if (exists $config->{'raw'}->{'aliases'}) {
+    $tmp = $config->{'raw'}->{'aliases'};
+    if (ref $tmp ne 'ARRAY') {
+      # Convert aliases from old to new format
+      @tmp = ();
+      for ($j = 0 ; $j < length $tmp; $j++) {
+	$setting = substr $tmp, $j, 1;
+	push (@tmp, $Mj::List::alias{$setting}) 
+	  if (defined $Mj::List::alias{$setting});
       }
+      $config->{'raw'}->{'aliases'} = [ @tmp ];
     }
+  }
+}
 
-    @vars = qw(name times minsize maxsize maxage separate 
-               minage type sort index desc subject);
+# Convert old table-based digests to new format
+sub _upgrade_digests {
+  my ($self, $version, $config) = @_;
+  my (@tmp, @vars, $i, $j, $table, $tmp);
 
-    if (exists ($config->{'raw'}->{'digests'}) and
-        defined ($config->{'raw'}->{'digests'}->[0]) and
-        $config->{'raw'}->{'digests'}->[0] =~ /\|/) 
+  return unless $version < 1.1;
+
+  @vars = qw(name times minsize maxsize maxage separate
+             minage type sort index desc subject);
+
+  if (exists ($config->{'raw'}->{'digests'}) and
+      defined ($config->{'raw'}->{'digests'}->[0]) and
+      $config->{'raw'}->{'digests'}->[0] =~ /\|/)
     {
       @tmp = ();
 
@@ -693,20 +722,28 @@ sub _upgrade {
 
           for ($j = 4; $j < scalar @vars; $j++) {
             if (length $table->[$i][$j])
-            {
-              push @tmp, "$vars[$j]=$table->[$i][$j]";
-            }
+	      {
+		push @tmp, "$vars[$j]=$table->[$i][$j]";
+	      }
           }
           push @tmp, '';
         }
         $config->{'raw'}->{'digests'} = [ @tmp ];
       }
     }
-  }
+}
 
-  $config->{'VERSION'} = $Mj::Config::VERSION;
+# Convert any existing "moderator" address to the "moderators"
+# setting.
+sub _upgrade_moderator {
+  my ($self, $version, $config) = @_;
+  return unless $version < 1.1;
 
-  1;
+  if (exists ($config->{'raw'}->{'moderator'}) and
+      ! exists ($config->{'raw'}->{'moderators'}))
+    {
+      $config->{'raw'}->{'moderators'} = [ $config->{'raw'}->{'moderator'} ];
+    }
 }
 
 =head2 default(variable)

@@ -69,11 +69,11 @@ included in the welcome messages.
 Here is another example:
 
 configset LISTNAME welcome_files <<END
-Welcome to the $LIST mailing list!
+Welcome to the \$LIST mailing list!
 welcome
 Picture of the list owner!
 owner.jpg 
-Q and A for the $LIST mailing list
+Q and A for the \$LIST mailing list
 /faq : NSE
 END
 
@@ -91,9 +91,9 @@ newcomers who have not previously joined a mailing list at
 $DOMAIN:
 
 configset LISTNAME welcome_files <<END
-Welcome to the $LIST mailing list!
+Welcome to the \$LIST mailing list!
 welcome : S
-Your registration at $SITE
+Your registration at \$SITE
 registered : US
 END
 

@@ -1,3 +1,8 @@
+2002-09-15  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/Config.pm (_upgrade): Restructure; break out upgrade
+	functions.
+
 2002-08-10  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Access.pm:  (_a_mailfile)  Bugfix:  convert Mj::Addr
