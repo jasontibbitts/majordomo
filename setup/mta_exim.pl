@@ -17,6 +17,10 @@ EOM
   # Since it is up to us tp specify this, don't bother asking the user
   # about it.
   $config->{mta_separator} = '+';
+
+  # Exim also needs slightly more liberal permissions on the directory
+  # where aliases are kept.
+  $config->{mta_umask} = "066";
 }
 
 sub setup_exim {};
@@ -34,7 +38,8 @@ sub setup_exim_domain {
   print <<EOM;
 
 ---------------------------------------------------------------------------
-The following director should be placed in your Exim configuration file.
+The following director should be placed in the Directors section of your
+Exim configuration file:
 
 majordomo_aliases:
 	driver = aliasfile

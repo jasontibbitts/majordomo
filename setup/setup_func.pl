@@ -29,7 +29,24 @@ sub create_dirs {
   print "Making directories:" unless $quiet;
   print "$l, $tmp, $uid, $gid\n" if $verb;
 
-  safe_mkdir($l,           0777 & ~oct($um), $uid, $gid);dot;
+  # We need to make sure the top level lists directory and the ALIASES
+  # directory have permissions open enough to allow the MTA to read them.
+  if ($config->{maintain_mtaconfig}) {
+    if ($config->{mta_umask}) {
+      safe_mkdir($l,           0777 & ~(oct($um) & oct($config->{mta_umask})),
+		 $uid, $gid); dot;
+      safe_mkdir("$l/ALIASES", 0755 & ~(oct($um) & oct($config->{mta_umask})),
+		 $uid, $gid); dot;
+    }
+    else {
+      safe_mkdir($l,           0777 & ~oct($um), $uid, $gid);dot;
+      safe_mkdir("$l/ALIASES", 0755 & ~oct($um), $uid, $gid);dot;
+    }
+  }
+  else {
+    safe_mkdir($l, 0777 & ~oct($um), $uid, $gid);dot;
+  }
+
   safe_mkdir($tmp,         0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$tmp/locks", 0777 & ~oct($um), $uid, $gid);dot;
 
@@ -37,9 +54,6 @@ sub create_dirs {
   safe_mkdir("$l/SITE",       0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$l/SITE/files", 0777 & ~oct($um), $uid, $gid);dot;
 
-  if ($config->{maintain_mtaconfig}) {
-    safe_mkdir("$l/ALIASES", 0755 & ~oct($um), $uid, $gid);dot;
-  }
 
   for $i (@$doms) {
     create_dirs_dom($l, $i, $uid, $gid, $um);

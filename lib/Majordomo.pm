@@ -77,7 +77,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform);
-$VERSION = "0.1200003221";
+$VERSION = "0.1200003230";
 $unique = 'AAA';
 
 use strict;
@@ -3379,11 +3379,19 @@ sub _rekey {
 Returns the stored text for a given session id.
 
 =cut
+use Mj::FileSpace;
 sub sessioninfo {
   my ($self, $user, $passwd, $auth, $interface, $request, $mode,
       $spoolfile, $vict, $sessionid) = @_;
   my $log = new Log::In 30, "$sessionid";
   my($file, $in, $line, $sess);
+
+  return (0, "You must supply a session identifier.\n")
+    unless $sessionid;
+
+  if ($sessionid !~ /^[0-9a-f]{32}$/) {
+    return (0, "Illegal session identifier $sessionid.\n");
+  }
   
   if ($request eq 'post' and $mode =~ /full/ and (-f $spoolfile)) {
     $file = $spoolfile;
