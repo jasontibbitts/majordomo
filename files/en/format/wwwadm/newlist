@@ -85,7 +85,7 @@ Press the <b>createlist-destroy</b> button to destroy the list.
 </form>
 
 <p>
-<a href="$CGIURL?$CGIDATA&func=lists">List of Lists</a>
+<a href="$CGIURL?$CGIDATA&list=$LIST&func=lists">List of Lists</a>
 </p>
 
 
