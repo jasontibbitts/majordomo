@@ -1,13 +1,2 @@
 A string containing the flags to be given to new subscribers unless they
-choose otherwise.  Possible flags are:
-  b - ackstall
-  C - eliminatecc
-  d - ackdeny
-  f - ackpost
-  H - hideall
-  h - hideaddress
-  j - ackreject
-  P - prefix
-  R - replyto
-  S - selfcopy
-  W - rewritefrom
+choose otherwise. A list of all possible flags is contained in "help set".

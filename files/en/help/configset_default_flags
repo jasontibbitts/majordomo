@@ -11,40 +11,17 @@ EXAMPLE:
 configset listname default_flags = SPR
 
 
+Bring flag fields and documents up to date.
+
 A string containing the flags to be given to new subscribers unless they
-choose otherwise.  Possible flags are:
-  A - ackall
-  a - ackimportant
-  C - eliminatecc
-  H - hideall
-  h - hideaddress
-  P - prefix
-  R - replyto
-  S - selfcopy
-  W - rewritefrom
+choose otherwise. A list of all possible flags is contained in "help set".
+
 NOTE: These supply defaults for new subscribers. Once subscribed, the
 user can change their own settings on a per-list per-subscriber basis.
 
 See "help set" for more information, including digest and nomail
 settings, and a better description of what each option does.
 
-These flags correspond to these "set" commands:
-          A  - set listname ackall          EmailAddress
-          a  - set listname ackimportant    EmailAddress
-(no a, no A) - set listname noack           EmailAddress
-          C  - set listname eliminatecc     EmailAddress
-      (no C) - set listname noeliminatecc   EmailAddress
-          H  - set listname hideall         EmailAddress
-          h  - set listname hideaddress     EmailAddress
-(no h, no H) - set listname nohide          EmailAddress
-          P  - set listname prefix          EmailAddress
-      (no P) - set listname noprefix        EmailAddress
-          R  - set listname replyto         EmailAddress
-      (no R) - set listname noreplyto       EmailAddress
-          S  - set listname selfcopy        EmailAddress
-      (no S) - set listname noselfcopy      EmailAddress
-          W  - set listname rewritefrom     EmailAddress
-      (no W) - set listname norewritefrom   EmailAddress
 
 See Also:
    help set       (for how a user can set these options after subscribing)

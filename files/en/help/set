@@ -25,19 +25,28 @@ messages to vanish. (This is especially true when your list is
 configured using using the "replyfile" option - if you are a
 list owner, you should see "help configset access_rules".)
 
-The settings can be grouped as follows (specify only one of each
-group, because each one will override the others in the group):
-  1. subscription class or subclass (each, nomail, digest, digest-XXX)
-  2. informative messages (ackall, ackimportant, noack)
+                         TABLE OF CONTENTS
+The settings can be grouped as follows, and each of these numbered items
+is in a separate section below (specify only one of each group, because
+each one will override the others in the group):
+  1. subscription class or subclass
+      (each, nomail, vacation, digest, digest-XXX)
+  2. informative messages
+      (noack, ackall, ackimportant, ackstall, ackdeny, ackpost, ackreject)
   3. copies of your own posts (selfcopy, noselfcopy)
-  4. being visible with "who" (hideall, hideaddress, nohide)
+  4. being visible with "who" (hideall, hideaddress, nohide, showall)
   5. list mail if you already got a CC (eliminatecc, noeliminatecc)
   6. subject prefix added by owner (prefix, noprefix)
   7. replyto header added by owner (replyto, noreplyto)
   8. rewrite "From:" header when you post (rewritefrom, norewritefrom)
+  9. summary of all possible flags
 
 At the bottom of this file is a summary of all possible flags and a
 cross reference to default settings that might be useful to list owners.
+With the exception of subscription class, the default settings can be
+pre-configured (see "help configset default_flags") by the list owner,
+and the ability to change settings can be restricted by the list owner
+(see "help configset allowed_flags").
 
 NOTE TO LIST OWNERS: See "help configset access_rules" for how to
 eliminate confirmation of set commands. The default is to require
@@ -48,17 +57,24 @@ subscribers are open to denial of service attacks (like malicious
 was changed, but may miss post or may not get them in a timely
 manner if settings are changed without the subscriber's reply.
 
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  1. subscription class or subclass
+      (each, nomail, vacation, digest, digest-XXX)
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-1. You can set your subscription class, which controls how (and if) you
-   receive messages from the server.  There are three basic classes:
+You can set your subscription class, which controls how (and if) you
+receive messages from the server.  There are three basic classes:
      each   - you get each message as it is posted.
      digest - you get periodic collections of messages.
      nomail - you get nothing.
-   For the class of "digest", the list owner can define sub-classes on
-   a per-list basis. Typical sub-classes, NOT always present, might be:
+For the class of "digest", the list owner can define sub-classes on
+a per-list basis. Typical sub-classes, NOT always present, might be:
      digest-weekly
      digest-daily
+
+
+1a) Subscription Class of "each":
 
   To receive each message from the list as it is posted, send this
   one-line command to $MJ
@@ -66,6 +82,10 @@ manner if settings are changed without the subscriber's reply.
   where "LISTNAME" is replaced with the name of the list. This will turn
   off (or cancel) the digest and/or nomail options if they are in effect.
 
+
+1b) Subscription Class of "nomail":
+
+  NOTE: You can use "nomail" or "vacation", they are identical commands.
 
   To temporarily suspend all messages from the list, without unsubscribing,
   send this one-line command to $MJ
@@ -93,14 +113,17 @@ manner if settings are changed without the subscriber's reply.
   which suspends email for one month. Remember that "LISTNAME" is replaced
   with the name of the list where you are subscribed. If you come back
 
-NOTE: You can use "nomail" or "vacation", they are identical commands.
 
+1c) Subscription Class of "digest":
 
   To receive groups of messages or just a list of messages from the list,
   instead of receiving each message one at a time, send this one-line
   command to $MJ
      set LISTNAME digest YourEmailAddressHere
   where "LISTNAME" is replaced with the name of the list.
+
+
+1d) Subscription Class of "digest" with a sub-class of digest name:
 
   Along with 'digest', you can specify which sub-class of digest you want to
   receive and how you want it formatted. For example, you can send one of these
@@ -130,27 +153,47 @@ NOTE: You can use "nomail" or "vacation", they are identical commands.
   or you can contact the list owner at the special address
   LISTNAME-owner@$WHEREAMI
 
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  2. informative messages
+     (noack, ackall, ackimportant, ackstall, ackdeny, ackpost, ackreject)
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-2. To control what parts of the process Majordomo informs you of
-   once your message is submitted, send one of these commands to
-   the server $MJ
+To control what parts of the process Majordomo informs you of
+once your message is submitted, send one of these commands to
+the server $MJ
 
-    set LISTNAME noack YourEmailAddressHere
-       - You receive nothing about posts, whether they go to the list or
-         bounce to the owner for review or are denied. You should monitor
-         the list to see if your msg is posted.
+   set LISTNAME noack YourEmailAddressHere
+     - You receive nothing about posts, whether they go to the list or
+       bounce to the owner for review or are denied. You should monitor
+       the list to see if your msg is posted, and you may not see
+       important messages about your subscription.
 
-    set LISTNAME ackimportant YourEmailAddressHere
-       - You are notified if the message is held up for approval or
-         denied due to rules the owner has set up for the list.
+   set LISTNAME ackstall YourEmailAddressHere
+     - You are notified if an attempted post is bounced to the moderators
+       or the list owner for approval prior to distribution.
 
-    set LISTNAME ackall YourEmailAddressHere
-       - You receive everything you do when using "ackimportant", plus
-         when your message is posted to the list you get a confirmation.
+   set LISTNAME ackdeny YourEmailAddressHere
+     - You are notified if an attempted post is denied by the access rules
+       the list owner has established for this list.
 
-NOTE: As of 2/99, there is no posted message confirmation, so ackall
-      and ackimportant are identical. This will change in the future.
+   set LISTNAME ackpost YourEmailAddressHere
+     - You are notified if an attempted post is actually sent to the list.
+       Note that this does NOT imply that it was sucessfully distributed
+       to all the subscribers, just that it was queued for delivery.
+
+   set LISTNAME ackreject YourEmailAddressHere
+     - You are notified if an attempted post is rejected by the moderators
+       or the list owner prior to distribution.
+
+   set LISTNAME ackimportant YourEmailAddressHere
+     - You are notified if an attempted post is held up for approval or
+       denied due to rules the owner has set up for the list. This setting
+       automatically enables ackstall, ackdeny, ackpost, and ackreject.
+
+   set LISTNAME ackall YourEmailAddressHere
+     - You receive everything you do when using "ackimportant", plus
+       when your message is posted to the list you get a confirmation.
 
 NOTE: To override "noack" for denied posts, or to send additional information,
       the list owner can configure the list to override the user's settings.
@@ -168,12 +211,15 @@ WARNING: Using "noack", the default, can make error messages vanish if
       set LISTNAME ackall YourEmailAddressHere
    Remember to put in your actual email address and the real list name.
 
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  3. copies of your own posts (selfcopy, noselfcopy)
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-3. These control whether or not you get a copy of your own message sent back
-   to you.  (Assuming you are receiving 'each' message; 'digest' users will
-   always see their own messages in the digest and 'nomail' users will
-   obviously not receive their messages).
+These control whether or not you get a copy of your own message sent back
+to you.  (Assuming you are receiving 'each' message; 'digest' users will
+always see their own messages in the digest and 'nomail' users will
+obviously not receive their messages).
 
    To get copies of your own post from the list "LISTNAME", send this
    one-line command to $MJ
@@ -185,112 +231,124 @@ WARNING: Using "noack", the default, can make error messages vanish if
 
    Remember to put in your actual email address and the real list name.
 
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  4. being visible with "who" (hideall, hideaddress, nohide, showall)
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-4. These control whether or not users can see your address using 'who':
+These control whether or not users can see your address using 'who':
      hideall     - 'who' shows nothing about you.
      hideaddress - 'who' shows your name but not your email address
      nohide      - 'who' shows both your name and your address
      showall     - same as "nohide", shows all information
 
-   For maximum privacy, send this one-line command to $MJ
+For maximum privacy, send this one-line command to $MJ
       set LISTNAME hideall YourEmailAddressHere
-   where "LISTNAME" is replaced with the name of the list.
+where "LISTNAME" is replaced with the name of the list.
 
-   Remember to put in your actual email address and the real list name.
+Remember to put in your actual email address and the real list name.
 
-   The list owner can disable the "who" command several different ways,
-   so even if you use "nohide" here others may be unable to get your
-   name from the subscriber list. See "help who" for details.
+The list owner can disable the "who" command several different ways,
+so even if you use "nohide" here others may be unable to get your
+name from the subscriber list. See "help who" for details.
 
-   Your email address is stored separately from comment fields that were
-   with it when you subscribed. The "hideaddress" setting will leave those
-   comments visible, but only if you provided them when you registered or
-   when you subscribed. For example, "Joe Blow <joe@blow.org>" has a
-   comment (or name) of "Joe Blow"... but no one knows if that comment
-   will be there for each subscriber or if it will represent a real name.
+Your email address is stored separately from comment fields that were
+with it when you subscribed. The "hideaddress" setting will leave those
+comments visible, but only if you provided them when you registered or
+when you subscribed. For example, "Joe Blow <joe@blow.org>" has a
+comment (or name) of "Joe Blow"... but no one knows if that comment
+will be there for each subscriber or if it will represent a real name.
+
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  5. list mail if you already got a CC (eliminatecc, noeliminatecc)
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-5. These control carbon copy elimination.  If this is on and your address
-   appears in the To: or CC: headers of a message that Majordomo is
-   processing, it will not send an additional copy to you.  This helps to
-   cut down on many of those annoying duplicates that are often received,
-   but it deprives you of the additional processin that Majordomo does on a
-   message (subject prefixes, additional headers, etc.).
+These control carbon copy elimination.  If this is on and your address
+appears in the To: or CC: headers of a message that Majordomo is
+processing, it will not send an additional copy to you.  This helps to
+cut down on many of those annoying duplicates that are often received,
+but it deprives you of the additional processin that Majordomo does on a
+message (subject prefixes, additional headers, etc.).
      eliminatecc   - turns CC elimination on
      noeliminatecc - turns it off
 
-   To make sure you get all messages, even though they may be duplicates,
-   send this one-line command to $MJ
+To make sure you get all messages, even though they may be duplicates,
+send this one-line command to $MJ
       set LISTNAME noeliminatecc YourEmailAddressHere
-   where "LISTNAME" is replaced with the name of the list.
+where "LISTNAME" is replaced with the name of the list.
+Remember to put in your actual email address.
 
-   Remember to put in your actual email address and the real list name.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  6. subject prefix added by owner (prefix, noprefix)
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-6. These control subject prefix generation.  If the list owner has defined a
-   prefix, you can specify whether or not you want to see it.
+These control subject prefix generation.  If the list owner has defined a
+prefix, you can specify whether or not you want to see it.
      prefix   - always add the prefix
      noprefix - never show the prefix
 
-   To eliminate offensive subject prefixes, send this one-line command
-   to $MJ
+To eliminate offensive subject prefixes, send this one-line command
+to $MJ
       set LISTNAME noprefix YourEmailAddressHere
-   where "LISTNAME" is replaced with the name of the list.
+where "LISTNAME" is replaced with the name of the list.
+Remember to put in your actual email address.
 
-   Remember to put in your actual email address and the real list name.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  7. replyto header added by owner (replyto, noreplyto)
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-7. These control Reply-To: header generation.  If the list owner has defined
-   a Reply-To: header, you can specify whether or not you want to see it.
+These control Reply-To: header generation.  If the list owner has defined
+a Reply-To: header, you can specify whether or not you want to see it.
      replyto   - always add the Reply-To: header
      noreplyto - never add the header (but if the poster has provided one,
                  you will see it)
 
-   To eliminate list-specific Reply-To fields, send this one-line command
-   to $MJ
+To eliminate list-specific Reply-To fields, send this one-line command to $MJ
       set LISTNAME noreplyto YourEmailAddressHere
-   where "LISTNAME" is replaced with the name of the list.
-
-   Remember to put in your actual email address and the real list name.
+where "LISTNAME" is replaced with the name of the list.
+Remember to put in your actual email address.
 
 WARNING: Different mail tools interpret the From, Sender, and Reply-To
          fields in different ways. Some don't even show you all the headers,
          so you should always check who a reply will go to before you send it.
 
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  8. rewrite "From:" header when you post (rewritefrom, norewritefrom)
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-8.  These control rewriting the "From:" header.  When you subscribe
-    to a Majordomo mailing list, a comment may be stored in addition
-    to your address.  For example, "joe blow" is the comment in
+These control rewriting the "From:" header.  When you subscribe
+to a Majordomo mailing list, a comment may be stored in addition
+to your address.  For example, "joe blow" is the comment in
        joe blow <joe@nowhere.com>
-    or
-       "joe blow" joe@nowhere.com
+or
+      "joe blow" joe@nowhere.com
 
-    When you post messages to a list, Majordomo can rewrite the "From:"
-    header to be identical to the one with which you subscribed:
+When you post messages to a list, Majordomo can rewrite the "From:"
+header to be identical to the one with which you subscribed:
       rewritefrom   - change the From: header
       norewritefrom - leave the From: header alone
 
-    This might be useful, for example, to someone who is moderating
-    a mailing list.  Instead of having one's name appear in the 
-    From: header, Majordomo could automatically make it appear like this:
+This might be useful, for example, to someone who is moderating a
+mailing list.  Instead of having one's name appear in the  "From:"
+header, Majordomo could automatically make it appear like this:
       List Moderator <someone@example.com>
     
-    To rewrite the From: header, send this one-line command 
-    to $MJ
+To rewrite the From: header, send this one-line command to $MJ
        set LISTNAME rewritefrom YourEmailAddressHere
-    where "LISTNAME" is replaced with the name of the list.
+where "LISTNAME" is replaced with the name of the list.
 
-    Remember to put in your actual email address and the real
-    list name. Your address, shown as "YourEmailAddressHere"
-    above, is used to look up your subscription to the specified
-    list. It is NOT used as the new From: field.
+Your address, shown as "YourEmailAddressHere" above, is used to look up
+your subscription to the specified list. It is NOT used as the new "From:"
+field. Remember to put in your actual email address and the real list name. 
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  9. summary of all possible flags
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Here is a summary of all possible flags, grouped into mutually
 exclusive sets (specify only one of each set, because each one will
@@ -303,49 +361,54 @@ each place where the specified address is subscribed.
 1. Subscription class:                 (no such options in default_flags)
    set LISTNAME each EmailAddress                  (default subscription)
    set LISTNAME digest[-name][-index][-text][-mime] EmailAddress
-   set LISTNAME nomail[-time] EmailAddress
+   set LISTNAME   nomail[-time] EmailAddress
    set LISTNAME vacation[-time] EmailAddress
 NOTE: "nomail" and "vacation" are identical, use whichever you like.
 
-2. Informative messages about your post:
-   set LISTNAME ackall EmailAddress                 ('A' in default_flags)
+2. Informative messages about your post:       (controlled by A,a,b,d,f,j)
+   set LISTNAME ackall       EmailAddress           ('A' in default_flags)
    set LISTNAME ackimportant EmailAddress           ('a' in default_flags)
-   set LISTNAME noack EmailAddress           (no a, no A in default_flags)
+   set LISTNAME ackstall     EmailAddress           ('b' in default_flags)
+   set LISTNAME ackdeny      EmailAddress           ('d' in default_flags)
+   set LISTNAME ackpost      EmailAddress           ('f' in default_flags)
+   set LISTNAME ackreject    EmailAddress           ('j' in default_flags)
+   set LISTNAME noack EmailAddress  (none of A,a,b,d,f,j in default_flags)
 
-3. Whether you want a copy of your own posts:
-   set LISTNAME selfcopy EmailAddress               ('S' in default_flags)
+3. Whether you want a copy of your own posts:            (controlled by S)
+   set LISTNAME   selfcopy EmailAddress             ('S' in default_flags)
    set LISTNAME noselfcopy EmailAddress            (no S in default_flags)
 
-4. Whether you want to be visible with "who":
-   set LISTNAME hideall EmailAddressl               ('H' in default_flags)
-   set LISTNAME hideaddress EmailAddress            ('h' in default_flags)
-   set LISTNAME nohide EmailAddress          (no h, no H in default_flags)
+4. Whether you want to be visible with "who":            (controlled by H)
+   set LISTNAME   hideall     EmailAddressl         ('H' in default_flags)
+   set LISTNAME   hideaddress EmailAddress          ('h' in default_flags)
+   set LISTNAME nohide        EmailAddress  (none of H,h in default_flags)
 
-5. Suppress list mail if you already got a CC:
-   set LISTNAME eliminatecc EmailAddress            ('C' in default_flags)
+5. Suppress list mail if you already got a CC:           (controlled by C)
+   set LISTNAME   eliminatecc EmailAddress          ('C' in default_flags)
    set LISTNAME noeliminatecc EmailAddress         (no C in default_flags)
 
-6. Suppress subject prefix added by owner:
-   set LISTNAME prefix EmailAddress                 ('P' in default_flags)
+6. Suppress subject prefix added by owner:               (controlled by P)
+   set LISTNAME   prefix EmailAddress               ('P' in default_flags)
    set LISTNAME noprefix EmailAddress              (no P in default_flags)
 
-7. Suppress replyto header added by owner:
-   set LISTNAME replyto EmailAddress                ('R' in default_flags)
+7. Suppress replyto header added by owner:               (controlled by R)
+   set LISTNAME   replyto EmailAddress              ('R' in default_flags)
    set LISTNAME noreplyto EmailAddress             (no R in default_flags)
 
-8. Rewrite the comment in the From: header:
-   set LISTNAME rewritefrom EmailAddress            ('W' in default_flags)
+8. Rewrite the comment in the From: header:              (controlled by W)
+   set LISTNAME   rewritefrom EmailAddress          ('W' in default_flags)
    set LISTNAME norewritefrom EmailAddress         (no W in default_flags)
 
 
 See Also:
-   help configset access_rules        (to restrict or allow access to 'set' changes)
+   help configset access_rules           (to restrict or allow access to 'set' changes)
    help configset access_rules_variables (set/test for this command)
-   help configset ack_attach_original (attaches post to error message if stalled)
-   help configset ack_denials_always  (overrides "noack" for denied posts)
-   help configset allowed_flags       (restricts subscribers ability to use set)
-   help configset default_flags       (sets per-list defaults before subscribing)
-   help configshow                    (for how to get a list of availabel digests)
+   help configset ack_attach_original    (attaches post to error message if stalled)
+   help configset ack_denials_always     (overrides "noack" for denied posts)
+   help configset allowed_flags          (restricts subscribers ability to set flags)
+   help configset allowed_classes        (restricts subscribers ability to set digest)
+   help configset default_flags          (sets per-list defaults before subscribing)
+   help configshow                       (for how to get a list of availabel digests)
    help subscribe (allows you to choose the comment that appears with your address)
    help who       (-export option can extract all the set commands for an entire list)
 
