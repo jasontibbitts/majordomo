@@ -463,6 +463,10 @@ sub connect_and_parse {
   $user = $head->get('from') || $head->get('apparently-from');
   chomp $user;
 
+  unless ($user) {
+    $entity->purge;
+    return;
+  }
 
   # Connect; gives back the stripped user
   ($ok, $suser) = $mj->connect($int, $entity->head->as_string, $user);

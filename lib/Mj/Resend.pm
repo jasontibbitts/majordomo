@@ -133,7 +133,7 @@ sub post {
   # Fail gracefully: 
   if (! $ent) {
     $spool = "$tmpdir/unparsed." . Majordomo::unique();
-    mv ($file, "$spool");
+    mv ($file, $spool);
     $self->inform("GLOBAL", "post", $user, $user, $cmd, "resend",
         0, 0, -1, "Unable to parse message; moved to $spool.");
     return (0, "Unable to parse message.");
@@ -156,6 +156,15 @@ sub post {
   # command.
   chomp($user = $thead->get('from') ||
 	$thead->get('apparently-from'));
+
+  if (! $user) {
+    $spool = "$tmpdir/unparsed." . Majordomo::unique();
+    mv ($file, $spool);
+    $self->inform("GLOBAL", "post", $user, $user, $cmd, "resend",
+        0, 0, -1, "Unable to determine sender; moved to $spool.");
+    return (0, "Unable to parse message.");
+  }
+
   $user = new Mj::Addr($user);
   $reasons = []; $avars = {};
 
