@@ -2,16 +2,13 @@ sub ask_exim {
   my $config = shift;
   my ($def, $msg);
 
-    #---- Ask if aliases should be maintained
-  $msg = <<EOM;
-Should Majordomo maintain your aliases automatically?
- Majordomo can automatically maintain your Exim aliases for you.  You
-  still have to do some manual setup (see README.EXIM) but this only
-  needs to be done once; after that you can add lists without doing any
-  configuration whatsoever.
- If you say no, Majordomo  will provide you with information to paste into
-  your aliases file when you add new lists.
-EOM
+  #---- Determine version number
+  $msg = retr_msg('exim_version', $lang);
+  $def = $config->{'exim_version'} || 3;
+  $config->{'exim_version'} = get_enum($msg, $def, [qw(3 4)]);
+
+  #---- Ask if aliases should be maintained
+  $msg = retr_msg('maintain_aliases', $lang, 'MTA' => 'EXIM');
   $def = $config->{'maintain_mtaconfig'} || 1;
   $config->{'maintain_mtaconfig'} = get_bool($msg, $def);
 
@@ -36,51 +33,45 @@ sub setup_exim_domain {
   require "setup/mta_sendmail.pl";
   setup_sendmail_domain($config, $dom);
 
-  # Now just suggest some info
-  if ($dom eq $whereami) {
-    print <<EOM;
+  #---- Suggest routers or directors for the exim configuration file.
+  if ($config->{'exim_version'} eq '4') {
+    # If the majordomo domain and internet domain are identical,
+    # suggest a generic router.
+    if ($dom eq $whereami) {
+      print retr_msg('exim_router', $lang, 
+                     'LISTS_DIR' => $config->{'lists_dir'}, 
+                     'SEPARATOR' => $config->{'mta_separator'},
+                     'UID' => $config->{'uid'},
+                    );
+    } 
+    else {
+      print retr_msg('exim_router_custom', $lang, 
+                     'DOMAIN'    => $dom,
+                     'LISTS_DIR' => $config->{'lists_dir'}, 
+                     'SEPARATOR' => $config->{'mta_separator'},
+                     'UID'       => $config->{'uid'},
+                     'WHEREAMI'  => $whereami,
+                    );
+    }
 
----------------------------------------------------------------------------
-The following director should be placed in the Directors section of your
-Exim configuration file:
-
-majordomo_aliases:
-    driver = aliasfile
-    pipe_transport = address_pipe
-    suffix = \"$config->{mta_separator}*\"
-    suffix_optional
-    user = $config->{uid}
-    domains = lsearch;$config->{lists_dir}/ALIASES/mj-domains
-    file = $config->{lists_dir}/ALIASES/mj-alias-\${domain}
-    search_type = lsearch
-
-Improvements to this description are welcomed.
----------------------------------------------------------------------------
-
-EOM
-  } 
+  }
   else {
-  
-    print <<EOM;
-
----------------------------------------------------------------------------
-The following director should be placed in the Directors section of your
-Exim configuration file:
-
-majordomo_aliases_$dom:
-    driver = aliasfile
-    pipe_transport = address_pipe
-    suffix = \"$config->{mta_separator}*\"
-    suffix_optional
-    user = $config->{uid}
-    domains = $whereami
-    file = $config->{lists_dir}/ALIASES/mj-alias-$dom
-    search_type = lsearch
-
-Improvements to this description are welcomed.
----------------------------------------------------------------------------
-
-EOM
+    if ($dom eq $whereami) {
+      print retr_msg('exim_director', $lang, 
+                     'LISTS_DIR' => $config->{'lists_dir'}, 
+                     'SEPARATOR' => $config->{'mta_separator'},
+                     'UID' => $config->{'uid'},
+                    );
+    } 
+    else {
+      print retr_msg('exim_director_custom', $lang, 
+                     'DOMAIN'    => $dom,
+                     'LISTS_DIR' => $config->{'lists_dir'}, 
+                     'SEPARATOR' => $config->{'mta_separator'},
+                     'UID'       => $config->{'uid'},
+                     'WHEREAMI'  => $whereami,
+                    );
+    }
   }
 }
 
