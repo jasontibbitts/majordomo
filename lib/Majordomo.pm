@@ -5930,7 +5930,7 @@ Returns all available information about a token, including the session data
 sub tokeninfo {
   my ($self, $request) = @_;
   my $log = new Log::In 30, $request->{'token'};
-  my ($ok, $error, $data, $gurl, $mj_owner, $origmsg, $sender, 
+  my ($ok, $ent, $error, $data, $gurl, $mj_owner, $origmsg, $sender, 
       $sess, $spool, $victim);
 
   # Don't check access for now; users should always be able to get
