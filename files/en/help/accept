@@ -1,8 +1,9 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-accept[-archive] [token] [comment]
+accept[-archive][-hide] [token] [comment]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -archive, if specified, archives a message without distributing it
-token,    if specified, is the magic number sent to you by Majordomo
+-hide,    if specified, omits a message from public archives
+token,    if specified, is a 12-digit identifier
 comment,  if specified, is passed from the owner to the subscriber
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -47,7 +48,11 @@ proven useful in short-term, moderated discussions, when messages that
 would be acceptable under other circumstances are not distributed, to keep
 the discussion from overwhelming the participants.  The "archive only"
 messages may be seen by the public at a later time, through a WWW archive,
-or using Majordomo's "archive" command.
+or using Majordomo's "archive" command.  Similarly, the
+'accept-hide' command can be used to mark a message as "hidden" in
+the list's archive.  An "X-no-archive: yes" header will be added to
+the message, and the message will only be visible through the archive
+command to people with administrative access.
 
 For consult tokens, the presence of a delay will convert the token type
 to "delay," delay the acceptance by the amount of time specified by a
