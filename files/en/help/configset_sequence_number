@@ -14,14 +14,20 @@ configset listname sequence_number = 101
 This is the sequence number used to number messages which pass through
 the list.  It is automatically incremented by one for each message. 
 It may be manually set here, but watch out for apparently duplicate
-messages if you set up your headers so your subscribers can track
-the number (useful to debug sporadic delivery, etc).
+messages if you configure the headers of posted messages to display
+the sequence number.
 
+One advantage of displaying the sequence number in the headers is
+that it will become clear to subscribers if some messages have
+not been delivered to them.  It is possible for subscribers to
+obtain a new copy of posted messages using the archive command
 
 See Also:
-   help configset message_headers (for how to insert this number)
-   help configset reply_to        (for how to insert this number)
-   help configset subject_prefix  (for how to insert this number)
+   help archive (to retrieve previously posted messages)
+   help configset_archive_access  (to limit who can use the archive command)
+   help configset_message_headers (for how to insert this number)
+   help configset_reply_to        (for how to insert this number)
+   help configset_subject_prefix  (for how to insert this number)
 
 For a list of all help topics send this one-line message
    help topics
