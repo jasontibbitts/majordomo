@@ -145,17 +145,17 @@ sub parse {
   # M\d{1,5}=user=host
   # T.*
   # various other special types which we don't use right now.
-  elsif ($info =~ /M(\d{1,5})=([^=]+)=([^=]+)/i) {
+  elsif ($info =~ /^M(\d{0,5})=([^=]+)=([^=]+)/i) {
     $type   = 'M';
     $msgno  = $1;
     $user   = "$3\@$2";
   }
-  elsif ($info =~ /M(\d{1,5})/i) {
+  elsif ($info =~ /^M(\d{1,5})/i) {
     $type   = 'M';
     $msgno  = $1;
     $user   = undef;
   }
-  elsif ($info =~ /T(.*)/i) {
+  elsif ($info =~ /^T(.*)/i) {
     $type  = 'T';
     $msgno = $1;
     $user  = undef;
