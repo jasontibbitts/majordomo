@@ -162,8 +162,11 @@ sub remove {
   
   if ($mode =~ /regex/) {
     while (1) {
-      # Note that lookup on a FileRepl automatically copies for us.
-      ($match, $data) = $self->lookup_regexp($key, $fh);
+      # Note that lookup on a FileRepl automatically copies for us, unless
+      # the match is false (matches in the line but doesn't match the key).
+      # For that, we pass the special flag that causes lookup_regexp to
+      # write back false matches.
+      ($match, $data) = $self->lookup_regexp($key, $fh, 1);
       last unless defined $match;
       push @out, ($match, $data);
       if ($mode !~ /allmatching/) {
@@ -174,7 +177,7 @@ sub remove {
   }
   else {
     while (1) {
-      # Note that lookup on a FileRepl automatically copies for us.
+      # Note that lookup on a FileRepl automatically copies for us
       ($data) = $self->lookup($key, $fh);
       last unless defined $data;
       push @out, ($key, $data);
@@ -602,15 +605,19 @@ sub lookup_quick_regexp {
   my $reg  = shift;
   return unless -f $self->{'name'};
   my $fh   = shift || new Mj::File $self->{'name'}, '<', $self->{lock};
+  my $wb  = shift;
   $fh->untaint;
 
-  my ($key, $match);
+  my ($key, $match, $line);
 
-  while (defined ($match = $fh->search($reg))) {
-    chomp $match;
-    ($key, $match) = split("\001", $match, 2);
+  while (defined ($line = $fh->search($reg))) {
+    chomp $line;
+    ($key, $match) = split("\001", $line, 2);
     if (_re_match($reg, $key)) {
       return ($key, $match);
+    }
+    elsif ($wb) {
+      $fh->print("$line\n");
     }
   }
   return;

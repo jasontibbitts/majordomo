@@ -169,7 +169,9 @@ and you want to skip parts of the installation process, you can use SKIP to
 skip it all or ASK to have the process prompt you.  Also note that
 MakeMaker understands the VERBINST flag to quiet its part of the
 installation; you must set it to zero (i.e. 'make install VERBINST=0') to
-use it.
+use it.  Finally, for a the quickest possible installation, you can skip
+the installation of the manual pages by using "make pure_all" and
+"make pure_install VERBINST=0 SKIP=1" (the latter, of course, as root).
 
 Finally Majordomo2 will be installed, and some configuration information
 will be suggested.  Be aware that this configuration information may not be
@@ -209,10 +211,9 @@ this:
 
 mj_shell -p password createlist list-name owner@address
 
-This will give you the necessary aliases to add to the appropriate file, if
-you're running Sendmail.  Note that for sites running virtual domains the
-suggestions may not be completely correct and additions to other files (the
-virtusertable, most likely).
+If you've configured Majordomo to take care of your MTA configuration for
+you and configured your MTA appropriately, everything should be taken care
+of.  Otherwise this will give you the necessary configuration information.
 
 You can pull in a set of addresses from a Majordomo 1.9x list like this:
 

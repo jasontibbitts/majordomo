@@ -705,10 +705,6 @@ sub aux_add {
   my $mode = shift;
   my $addr = shift;
   my ($ok, $caddr, $data);
-  
-  unless ($self->{'sdirs'}) {
-    $::log->abort("Mj::File::aux_add called in old directory structure.");
-  }
 
   $data  =
     {
@@ -733,17 +729,11 @@ sub aux_remove {
   my $name = shift;
   my $mode = shift;
   my $addr = shift;
+  my $log = new Log::In 150, "$name, $mode, $addr";
   my ($ok);
 
-  unless ($self->{'sdirs'}) {
-    $::log->abort("Mj::File::aux_remove called in old directory structure.");
-  }
-
   unless ($mode =~ /regexp/) {
-    ($ok, $addr, undef) = $self->{'av'}->validate($addr);
-    # Whorf unless ok?
-    
-    $addr = $self->canon($addr)
+    $addr = $addr->canon;
   }
 
   $self->_make_aux($name);
@@ -759,10 +749,6 @@ sub aux_get_start {
   my $self = shift;
   my $name = shift;
   
-  unless ($self->{'sdirs'}) {
-    $::log->abort("Mj::File::aux_get_start called in old directory structure.");
-  }
-
   $self->_make_aux($name);
   $self->{'auxlists'}{$name}->get_start;
 }
@@ -795,9 +781,6 @@ sub aux_get_done {
   my $self = shift;
   my $name = shift;
   my $log  = new Log::In 150, "$name";
-  unless ($self->{'sdirs'}) {
-    $::log->abort("Mj::File::aux_get_done called in old directory structure.");
-  }
 
   $self->_make_aux($name);
   $self->{'auxlists'}{$name}->get_done;

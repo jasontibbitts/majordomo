@@ -50,8 +50,10 @@ sub lookup_regexp {
   my $self = shift;
   my $key  = shift;
   my $fh   = shift;
+  my $wb   = shift; # Should fake matches be written back (the backend may
+                    # not need this, but the text backend does)
 
-  my ($match, $ex) = $self->lookup_quick_regexp($key, $fh);
+  my ($match, $ex) = $self->lookup_quick_regexp($key, $fh, $wb);
 
   return ($match, $self->_unstringify($ex)) if defined $match;
   return;

@@ -21,9 +21,9 @@ Messages with empty first part always checksum the same?
 The interface can pass in bad lists and nothing checks them.  Explosions
   result.
 The interface can pass bad passwords to some functions (config_get_vars)
-  and get a result indistinguishable from using no password.
-Call parse_regexp in _compile rule so we can process all regexps the same
-  way.
+  and get a result indistinguishable from using no password. 
+Untainting sometimes happens in the wrong place; in a C/S model, we won't
+  trust what comes in over the network.
 
 Top of the list 
 ---------------
@@ -33,12 +33,13 @@ Access: call Mj::is_subscriber instead of List::is_subscriber.
 Pass stripped address to access restriction language: $svictim =
 $victim->strip; share $svictim (local); pass to reval.
 
-
 Fix _compile_rule, parse_taboo_body and parse_taboo_header to call
 parse_regexp so the cool parsing effects everything.
 
 Fix comands that take regexps to call Config::parse_regexp to get back a
 Perl regexp to use.
+  auxwho
+  which
 
 Invalid addresses and never compare equal to anything else.
 

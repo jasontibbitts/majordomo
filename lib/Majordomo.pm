@@ -410,7 +410,7 @@ regexp syntax checker.
 sub _re_match {
   my    $re = shift;
   local $_  = shift;
-#  my $log  = new Log::In 200, "$re, $str";
+#  my $log  = new Log::In 200, "$re, $_";
   my ($match, $warn);
   return 1 if $re eq 'ALL';
 
@@ -2495,7 +2495,7 @@ sub auxremove {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $addr, $subl) = @_;
   my(@removed, @out, $error, $ok);
-  my $log = new Log::in 30, "$list, $subl, $addr";
+  my $log = new Log::In 30, "$list, $subl, $addr";
 
   $self->_make_list($list);
   $user = new Mj::Addr($user);
@@ -2528,7 +2528,7 @@ sub auxremove {
     $log->out("noaccess");
     return ($ok, $error);
   }
-  
+
   $self->_auxremove($list, $user, $addr, $mode, $cmdline, $subl);
 }
 
@@ -2539,7 +2539,7 @@ sub _auxremove {
 
   $self->_make_list($list);
 
-  @removed = $self->{'lists'}{$list}->aux_remove($subl, $mode, $addr);
+  @removed = $self->{'lists'}{$list}->aux_remove($subl, $mode, $vict);
 
   unless (@removed) {
     $log->out("failed, nomatching");
@@ -2547,7 +2547,7 @@ sub _auxremove {
   }
 
   while (($key, $data) = splice(@removed, 0, 2)) {
-    push (@out, $data->{'fulladdr'});
+    push (@out, $data->{'stripaddr'});
   }
   (1, @out);
 }

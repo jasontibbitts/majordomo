@@ -1,3 +1,20 @@
+Sat Nov 14 15:54:59 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/List.pm: Some general removal of old single-directory
+ 	stuff.
+
+	* lib/Mj/SimpleDB/Text.pm (lookup_quick_regexp): Restructure; take
+ 	an additional flag: if ew got a hit but the regexp didn't match
+ 	the key then write the match back.
+
+	* lib/Mj/SimpleDB/Base.pm (lookup_regexp): Pass that flag on.
+
+	* lib/Mj/SimpleDB/Text.pm (remove): Pass a special flag to make
+ 	lookup_quick_regexp write back false matches.
+
+	* lib/Majordomo.pm (_auxremove): Return the stripped address,
+ 	since that's the only thing we stored.
+
 Fri Nov 13 01:03:17 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Majordomo.pm (who_start): Only parse the regexp if one was

@@ -285,10 +285,10 @@ sub search_copy {
     return undef;
   }
   # Else we weren't passed a subroutine.
-  while ($line = $self->{'oldhandle'}->getline) {
+  while (defined ($line = $self->{'oldhandle'}->getline)) {
     for $re (@_) {
       if (Majordomo::_re_match($re, $line)) {
-        $::log->out;
+        $::log->out("matched: $line");
         return $line;
       }
     }

@@ -143,16 +143,17 @@ sub auxadd {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27;
-  my (@addresses, $file);
+  my (@addresses, $subl);
 
-  ($file, @addresses) = (split(" ", $args, 2), @arglist);
-  
+  ($subl, @addresses) = (split(" ", $args, 2), @arglist);
+  @addresses = ($user) unless @addresses;
+
   # Untaint $file;
-  $file =~ /(.*)/;
-  $file = $1;
+  $subl =~ /(.*)/;
+  $subl = $1;
 
    g_add($mj, $name, $user, $passwd, $auth, $interface,
-	 $infh, $outfh, $mode, $list, $file, 1,
+	 $infh, $outfh, $mode, $list, $subl, 1,
 	 @addresses);
 }
 
@@ -992,7 +993,7 @@ sub g_add {
   my ($mj, $name, $user, $pass, $auth, $int, $infh, $outfh, $mode,
       $list, $file, $aux, @addresses) = @_;
   my (@good, @bad, @maybe, $ok, $mess, $i);
-  
+
   while (1) {
     $i = $infh ? $infh->getline : shift @addresses;
     last unless $i;
@@ -1064,7 +1065,7 @@ sub g_remove {
       ($ok, @out) =
 	$mj->dispatch('unregister', $user, $pass, $auth, $int, 
 		      "unregister".($mode?"-$mode":"")." $i",
-		      $mode, $list, $i, $file);
+		      $mode, '', $i);
     }
     else {
       $::log->abort("g_remove called illegally!");
@@ -1087,7 +1088,7 @@ sub g_remove {
   
   if ($type eq 'auxremove') {
     # For auxlist stuff, just report the auxlist as the list name
-    $list = $file if $aux;
+    $list = "$list/$file";
     $type = 'unsubscribe';
   }
   if ($type eq 'unsubscribe') {
