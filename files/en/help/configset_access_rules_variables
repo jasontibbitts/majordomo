@@ -3,6 +3,11 @@ through 'configset access_rules', and also shows which variables can
 be tested, set, and unset while handling those requests. Please refer
 to "help configset access_rules" for full syntax.
 
+This file does NOT contain ANY file substitution variables, which
+cause new strings to be inserted in files as they are used to
+generate messages for the user (for that kind of variable, see
+"help variables").
+
 There are three sections below:
  - the requests which can be processed
  - the variables available for each request
@@ -40,7 +45,7 @@ First, the requests which can be processed:
 26 - showtokens        default access is deny
 27 - subscribe         default access is policy
 28 - unalias           default access is confirm
-29 - unregister        default access is confirm2
+29 - unregister        default access is confirm
 30 - unsubscribe       default access is policy
 31 - which             default access is access
 32 - who               default access is access
@@ -481,7 +486,7 @@ total_header_length_exceeded - is set if 'total_header_length' exceeds the
 See Also:
    help access    (for the special case of granting/denying all access)
    help post      (for the special case of restricting who can post msgs)
-   help variables (for a list of all possible variables and what they mean)
+   help variables (for file substitution variables)
    help configset access_rules           (to restrict access to any command)
    help configset archive_access      (for     archive-related access_rules)
    help configset faq_access          (for         faq-related access_rules)

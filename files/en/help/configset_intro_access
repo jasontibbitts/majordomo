@@ -3,7 +3,7 @@ configset  GLOBAL  intro_access = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset listname intro_access = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : list
+Default Value : open
 Data Type     : enum, choose from: open closed list
 Variable Group: access, majordomo
 Password Notes: Visible only with password. 

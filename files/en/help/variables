@@ -4,8 +4,11 @@ user's perspective (as a list subscriber) send "help overview" or
 
 Majordomo variables, for the purpose of message or file substitution,
 are all upper case words with a leading dollar sign (common in Unix).
+
 This file should contain ALL substitution variables, grouped by
-which file or command they apply to.
+which file or command they apply to. This file does NOT contain ANY
+variables suitable for use in access_rules tests (for that kind of
+variable, see "help configset access_rules_variables").
 
 As an example of a variable, using this string in a file
   \$MAJORDOMO
@@ -96,12 +99,13 @@ In the URL set by "configset GLOBAL confirm_url" this variable is evaluated:
 
 In the various digest files, no variable substitutions are done.
 
+In the "info" file, no variable substitutions are done.
+  (as of 6/2000 some substitutions are done, not sure which ones)
+
 In the "inform" file, these variables are evaluated in the subject:
   \$UREQUEST  => the _upcased_ request (to be like 1.9x)
   \$REQUEST   => the request
   \$LIST      => The name of the list
-
-In the "info" file, no variable substitutions are done.
 
 In the "inform" file, these variables are evaluated in the msg body:
   \$VICTIM    => the user who will be effected by the request
@@ -112,8 +116,10 @@ In the "inform" file, these variables are evaluated in the msg body:
   \$STATUS    => the status of the action (succeed, fail, stall)
 
 In the "intro" file, no variable substitutions are done.
+  (as of 6/2000 some substitutions are done, not sure which ones)
 
 In the "faq" file, no variable substitutions are done.
+  (as of 6/2000 some substitutions are done, not sure which ones)
 
 In the footer/fronter added by "configset listname message_footer"
 and "configset listname message_fronter" these variables are
@@ -179,6 +185,7 @@ are evaluated in both the subject and message body:
 
 See Also:
    help configset access_rules  (for mailfile and deny usage)
+   help configset access_rules_variables (for access_rules variables)
    help configset welcome_files (for additional files that can be sent)
    help digest                  (for additional file names and usage)
    help put                     (create or update files by email)
