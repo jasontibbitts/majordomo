@@ -338,7 +338,7 @@ sub post_start  {
 }
 
 use MIME::Head;
-use MD5;
+use Digest::SHA1 qw(sha1_hex);
 sub _add_headers {
   my ($self, $request) = @_;
   my $log  = new Log::In 30, $request->{'list'};
@@ -373,7 +373,7 @@ sub _add_headers {
                  $month, $now[5] + 1900, $now[2], $now[1], $now[0];
   $head->add('Date', $tmp);
 
-  $tmp = MD5->hexhash($head->as_string . rand(9));
+  $tmp = sha1_hex($head->as_string . rand(9));
   $tmp = '<' . $tmp . '@' . 
          $self->_global_config_get('whereami') . '>';
   $head->add('Message-ID', $tmp);
@@ -1131,7 +1131,7 @@ sub _check_body {
   }
 }
 
-use MD5;
+use Digest::SHA1;
 sub _r_ck_body {
   my ($self, $list, $ent, $reasons, $avars, $safe, $qreg, $mcode, $tcode,
       $inv, $max, $maxlen, $part, $first) = @_;
@@ -1158,13 +1158,14 @@ sub _r_ck_body {
     return;
   }
 
-  # Now do some inits
-  $sum1 = new MD5; $sum2 = new MD5;
+  # Initialize the body and partial body checksums.
+  $sum1 = new Digest::SHA1; 
+  $sum2 = new Digest::SHA1;
 
   # Check MIME status and any other features of the entity as a whole
   _check_mime($reasons, $avars, $safe, $ent, $mcode, $maxlen, $part);
 
-  # Now the meat.  Open the body
+  # Now the meat.  Open the body.
   $body = $ent->bodyhandle->open('r');
   $line = 1;
 
@@ -1177,8 +1178,12 @@ sub _r_ck_body {
 		     $text);
     }
 
-    # Update checksum counters
-    if ($first) {$sum1->add($text); $sum2->add($text) if $line <= 10;}
+    # Update checksum counters.  The partial checksum only applies
+    # to the first ten lines of the body.
+    if ($first and $sum1 and $sum2) {
+      $sum1->add($text); 
+      $sum2->add($text) if $line <= 10;
+    }
 
     # Calculate a few message metrics
     $avars->{lines}++;
@@ -1195,7 +1200,7 @@ sub _r_ck_body {
   $avars->{body_length} =~ /(\d+)/;
   $avars->{body_length} = $1;
 
-  if ($first) {
+  if ($first and $sum1 and $sum2) {
     $sum1 = $sum1->hexdigest;
     $avars->{checksum} = $sum1;
     if($data = $self->{'lists'}{$list}->check_dup($sum1, 'sum')) {
