@@ -865,7 +865,7 @@ substitutions, used in various places in the Mj modules.
 sub standard_subs {
   my $self = shift;
   my $olist = shift;
-  my ($list, $sublist, $whereami, $whoami);
+  my ($curl, $list, $sublist, $whereami, $whoami);
 
   ($list, $sublist) = $self->valid_list($olist, 1, 1);
   unless ($list) {
@@ -885,8 +885,11 @@ sub standard_subs {
     $whoami = $self->_list_config_get($list, 'whoami');
   }
 
+  $curl = $self->_global_config_get('confirm_url');
+
   my %subs = (
-    'CONFIRM_URL' => $self->_global_config_get('confirm_url'),
+    'CONFIRM_URL' => $self->substitute_vars_string(
+                       $curl, {'TOKEN' => ''}),
     'DOMAIN'      => $self->{'domain'},
     'LIST'        => $olist,
     'MAJORDOMO'   => $self->_global_config_get('whoami'),
