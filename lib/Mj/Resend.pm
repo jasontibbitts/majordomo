@@ -520,6 +520,8 @@ sub _post {
   };
 
   if ($mode !~ /archive/) {
+    # Update post data
+    $self->{'lists'}{$list}->post_add($user, time, 'F', $seqno);
     # Add headers
     for $i ($self->_list_config_get($list, 'message_headers')) {
       $i = $self->substitute_vars_string($i, $subs);
@@ -657,8 +659,6 @@ sub _post {
       unlink $deliveries{$i}{file}
         if $deliveries{$i}{file};
     }
-    # Update post data
-    $self->{'lists'}{$list}->post_add($user, time, 'F', $seqno);
   } # not archive mode
  
   # Inform sender of successful delivery
