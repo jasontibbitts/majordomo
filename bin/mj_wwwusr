@@ -417,12 +417,12 @@ EOM
 <input type=submit name=func value="changeaddr">
 <p>
 To unsubscribe, press the radio button for the 
-appropriate list, then press the <b>unsubscribe</b> button above.
-<br>
+appropriate list, then press the <b>unsubscribe</b> button.
+<p>
 To change settings, press the radio button for a
 list, choose the settings you want, then press the <b>set</b> button
 above.  The settings are described at the bottom of this page.
-<br>
+<p>
 To change addresses, type your new address into this box:<br>
 <input size=48 name=extra><br>
 and press the <b>changeaddr</b> button.  Majordomo may send
