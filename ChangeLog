@@ -1,3 +1,20 @@
+2002-07-16  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm (s_expire): Expire recursively.  Attempt to
+	delete session directories as well.
+
+2002-07-14  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm (s_recognize): Look for the session in the
+	appropriate subdirs as well.  Return the full path to the session
+	and other useful info.  Take a flag to turn off file existence
+	checks and just check the form of the session (and return a full
+	pathname).
+	
+	(connect): Make session subdirs as necessary.
+	(sessioninfo_start): Look where s_recognize says to look instead
+	of in a hardcoded directory.
+
 2002-07-12  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Mj/CommandProps.pm: Add nofarewell mode.

@@ -284,7 +284,8 @@ sub connect {
   my $addr = shift || 'unknown@anonymous';
   my $pw   = shift || '';
   my $log = new Log::In 50, "$int, $addr";
-  my ($err, $expire, $id, $ok, $path, $pdata, $req, $user);
+  my ($dir1, $dir2, $err, $expire, $id, $ok, $path, $pdata, $req, $sfile,
+      $user);
 
   $user = new Mj::Addr($addr);
 
@@ -340,13 +341,23 @@ sub connect {
                            # to leak information through the digest
                            # algorithm.
 
-
-  $self->{sessionid} = $id;
+  ($self->{sessionid}, $sfile, $dir1, $dir2) =
+    $self->s_recognize($id, 'nocheck');
   $self->{sessionfh} = gensym();
 
-  # Open the session file;
-  $log->abort("Can't write session file to $self->{ldir}/GLOBAL/sessions/$id, $!")
-    unless (open ($self->{sessionfh}, ">>$self->{ldir}/GLOBAL/sessions/$id"));
+  # Create directories if necessary, and open the session file;
+  mkdir $dir1;
+  mkdir $dir2;
+  unless (open ($self->{sessionfh}, ">>$sfile")) {
+    # Directory might just have been deleted due to expiry; try again.
+    # This assumes that there is only one process doing expiry, so our
+    # directories can't be deleted twice.
+    mkdir $dir1;
+    mkdir $dir2;
+    $log->abort("Can't write session file to $sfile, $!")
+      unless (open ($self->{sessionfh}, ">>$sfile"));
+  }
+
   select((select($self->{sessionfh}), $| = 1)[0]);
 
   # Do not log "Approved:" passwords
@@ -1738,32 +1749,48 @@ sub p_expire {
 Miscellaneous internal function.
 
 This removes all spooled sessions older than 'session_lifetime' days old.
-We stat all of the files in the sessions directory and delete the old ones.
+Empty session directories will be deleted (except the top-level directory,
+not that it could ever be empty).
 
 =cut
 
 use DirHandle;
 sub s_expire {
   my $self = shift;
-  my $log = new Log::In 60;
+  my $dir  = shift;
+#  my $log = new Log::In 60, "$dir";
+  my $log = new Log::In 60 if !$dir;
+
   my $days = $self->_global_config_get('session_lifetime');
   return unless (defined $days and $days >= 0);
-  my $now = time;
-  my (@nuke, $dh, $dir, $i, $time);
 
-  $dir = "$self->{ldir}/GLOBAL/sessions";
-  $dh  = new DirHandle $dir;
+  my $now = time;
+  my ($dh, $i, $nodel, $time);
+
+  unless ($dir) {
+    $dir = "$self->{ldir}/GLOBAL/sessions";
+    $nodel = 1;
+  }
+
+  $dh = new DirHandle $dir;
 
   while(defined($i = $dh->read)) {
+    next if $i eq '.' or $i eq '..';
+
     # Untaint the filename, so we can delete it later
     $i =~ /(.*)/; $i = $1;
+
+    if (-d "$dir/$i") {
+      $self->s_expire("$dir/$i");
+      rmdir "$dir/$i" unless $nodel;
+      next;
+    }
+
     $time = (stat("$dir/$i"))[9];
     if ($time + $days*86400 < $now) {
-      push @nuke, $i;
       unlink "$dir/$i";
     }
   }
-  @nuke;
 }
 
 
@@ -6294,7 +6321,7 @@ use IO::File;
 sub sessioninfo_start {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'sessionid'}";
-  my ($file, $sess);
+  my ($d1, $d2, $file, $sess);
 
   # XLANG
   return (0, "You must supply a session identifier.\n")
@@ -6304,18 +6331,17 @@ sub sessioninfo_start {
 
   # The session identifier can be a 32-character MD5 digest, or
   # a 40-character SHA-1 digest.
-  $sess = $self->s_recognize($request->{'sessionid'});
+  ($sess, $file) = $self->s_recognize($request->{'sessionid'});
   unless (defined $sess) {
     # XLANG
     return (0, qq(The session ID "$request->{'sessionid'}" is invalid.\n));
   }
 
-  if ($sess eq '0') {
+  # defined but false means it's a legal ID but doesn't exist
+  unless ($sess) {
     # XLANG
     return (0, qq(The session ID "$request->{'sessionid'}" has expired.\n));
   }
-
-  $file = "$self->{ldir}/GLOBAL/sessions/$sess" ;
 
   $self->{'get_fh'} = new IO::File $file;
   unless ($self->{'get_fh'}) {
@@ -6336,15 +6362,38 @@ The id is examined to see if it is a valid session number.
 A session number consists only of digits and lower-case letters,
 and is 32 or 40 characters long.
 
+if $nocheck is true, this will validate the form of the ID and return the
+full path to the session file but won't check to see if the file exists.
+
 =cut
 sub s_recognize {
-  my $self = shift;
-  my $id  = shift || "";
+  my $self    = shift;
+  my $id      = shift || "";
+  my $nocheck = shift;
   my $log  = new Log::In 60;
+  my($d1, $d2, $file);
 
   if ($id =~ /^([0-9a-f]{32}([0-9a-f]{8})?)$/) {
-    return 0 unless (-f "$self->{ldir}/GLOBAL/sessions/$id");
-    return $1;
+    $id = $1; # Untaint
+    $file = "$self->{ldir}/GLOBAL/sessions/$id";
+
+    if (-f $file && !$nocheck) {
+      return ($id, $file) if wantarray;
+      return $id
+    }
+
+    $d1 = substr($id, 0, 2);
+    $d2 = substr($id, 2, 2);
+    $file = "$self->{ldir}/GLOBAL/sessions/$d1/$d2/$id";
+
+    if (-f $file || $nocheck) {
+      return ($id, $file, "$self->{ldir}/GLOBAL/sessions/$d1",
+	      "$self->{ldir}/GLOBAL/sessions/$d1/$d2/")
+	if wantarray;
+      return $id;
+    }
+    return (0, $file) if wantarray;
+    return 0;
   }
   return;
 }
