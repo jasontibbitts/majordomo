@@ -259,7 +259,7 @@ sub parse_command {
     ($pass, $command, $args) = $args =~ /(\S+)\s*(\S*)\s*(.*)/;
     print STDERR "**** approve requires a password!\n"
       unless $pass;
-    return parse_command($command, $args, $pass);
+    return parse_command($command, $args, $pass, @arglist);
   }
 
   if (command_prop($true_command, "list")) {
