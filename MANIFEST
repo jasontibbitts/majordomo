@@ -258,6 +258,7 @@ files/en/help/configset_advertise
 files/en/help/configset_advertise_subscribed
 files/en/help/configset_allowed_classes
 files/en/help/configset_allowed_flags
+files/en/help/configset_archive_access
 files/en/help/configset_archive_dir
 files/en/help/configset_archive_size
 files/en/help/configset_archive_split
@@ -327,6 +328,7 @@ files/en/help/configset_save_denial_checksums
 files/en/help/configset_sender
 files/en/help/configset_sequence_number
 files/en/help/configset_session_lifetime
+files/en/help/configset_set_policy
 files/en/help/configset_signature_separator
 files/en/help/configset_site_name
 files/en/help/configset_subject_prefix
