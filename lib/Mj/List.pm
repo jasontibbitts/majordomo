@@ -113,9 +113,10 @@ sub new {
 
   $self->{'config'} = new Mj::Config
     (
-     list      => $args{'name'},
-     dir       => $args{'dir'},
-     callbacks => $args{'callbacks'},
+     list        => $args{'name'},
+     dir         => $args{'dir'},
+     callbacks   => $args{'callbacks'},
+     defaultdata => $args{'defaultdata'},
     );
 
   # We have to figure out our database backend for ourselves if we're

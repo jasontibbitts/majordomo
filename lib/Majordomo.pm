@@ -136,6 +136,7 @@ sub new {
   $self->{'sitedir'}= "$topdir/SITE";
   $self->{'domain'} = $domain;
   $self->{'lists'}  = {};
+  $self->{'defaultdata'} = '';
 
   unless (-d $self->{'ldir'}) {
     return "The domain '$domain' does not exist!";
@@ -462,6 +463,11 @@ sub get_all_lists {
   $user = new Mj::Addr($user);
   $self->_fill_lists;
   $always = $self->_global_config_get('advertise_subscribed');
+
+  # Avoid having to reload the DEFAULT configuration
+  # files for every list.
+  $list = '';
+  $self->{'defaultdata'} = $self->{'lists'}{'DEFAULT'}->{'config'}->{'dfldata'};
 
   for $list (keys %{$self->{'lists'}}) {
     next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
@@ -2381,6 +2387,7 @@ sub _make_list {
     new Mj::List(name      => $list,
 		 dir       => $self->{ldir},
 		 backend   => $self->{backend},
+                 defaultdata  => $self->{defaultdata},
 		 callbacks =>
 		 {
 		  'mj.list_file_get' => 
@@ -2439,7 +2446,7 @@ sub valid_list {
     return undef;
   }
 
-  $self->_fill_lists;
+#  $self->_fill_lists;
   
   if (($name eq 'ALL' && $all) ||
       (($name eq 'GLOBAL' or $name eq 'DEFAULT') && $global))
@@ -2451,7 +2458,8 @@ sub valid_list {
     }
 
   $name = lc($name);
-  if (exists $self->{'lists'}{$name}) {
+  $self->_make_list($name);
+  if ($self->{'lists'}{$name}) {
     # untaint
     $name =~ /(.*)/;
     $name = $1;

@@ -121,6 +121,7 @@ sub new {
   $self->{'vars'}           = \%Mj::Config::vars;
   # $self->{'file_header'}    = \$Mj::Config::file_header;
   $self->{'default_string'} = \$Mj::Config::default_string;
+  $self->{'dfldata'}        = $args{'defaultdata'};
   $self->{'locked'}         = 0;
   $self->{'mtime'}          = 0;
   $::log->out;
@@ -376,7 +377,7 @@ sub load {  # XXX unfinished
     $self->_save_new;
   }
 
-  $self->_load_dfl;
+  $self->_load_dfl unless $self->{'dfldata'};
 
   $self->{loaded} = 1;
   1;
@@ -1106,7 +1107,6 @@ sub _defaults {
   local($list) = $self->{'list'};
   my $log = new Log::In 250, "$list";
 
-  $::log->in(170, $list);
   $self->{'defaulting'} = 1;
 
   $self->{'defaults'} = eval ${$self->{'default_string'}};
@@ -1115,7 +1115,6 @@ sub _defaults {
   }
   
   delete $self->{'defaulting'};
-  $::log->out;
   1;
 }
 
