@@ -112,12 +112,12 @@ use Mj::CommandProps qw(:function :command);
 #BEGIN{sub UNIVERSAL::import {warn "Importing $_[0]"};};
 #BEGIN{sub CORE::require {warn "Requiring $_[0]"; CORE::require(@_);};};
 
-# sub is_tainted {
-#   return ! eval {
-#     eval("#" . substr(join("", @_), 0, 0));
-#     1;
-#   };
-# }
+sub is_tainted {
+  return ! eval {
+    eval("#" . substr(join("", @_), 0, 0));
+    1;
+  };
+}
 
 =head2 domains(topdir)
 
