@@ -21,6 +21,7 @@ The rest of this document focuses on the details of moderation:
   * Why does a request become moderated?
   * Is the person who made the request notified of what happens?
   * How can you decide what requests are and are not moderated?
+  * How can messages be discarded automatically instead of moderated?
 
 The last section of this document presents solutions for common
 moderation problems.
@@ -28,7 +29,8 @@ moderation problems.
 The examples in this document assume that you know how to use your 
 list's administrative password.  Please review "help admin_passwords",
 if you have not already done so.  In each example, replace LISTNAME
-with the name of your mailing list.
+with the name of your mailing list.  Replace ADDRESS with a valid e-mail
+address.
 
 
 What's the difference between an owner and a moderator?
@@ -124,9 +126,11 @@ decision to send a notice is based upon the victim's personal settings.
   * When any request is rejected, a notice is sent if the "ackreject" setting
     is turned on.
 
-If the victim is a subscriber to the mailing list, the settings are determined
-from the victim's subscription.  Otherwise, the settings are determined
-by the list's nonmember_flags configuration setting.
+If the victim is a subscriber to the mailing list, the settings are
+determined by the victim's settings.  Otherwise, the settings are
+determined by the list's nonmember_flags configuration setting.  See
+"help set" and "help configset_nonmember_flags" for details on changing
+those settings.
 
 
 Causes of moderation
@@ -365,6 +369,49 @@ reposting a message easier; it depends upon the software that you use to
 read e-mail.
 
 
+Denying access
+--------------
+
+In some cases, it may be necessary to discard posted messages from
+certain people automatically.  There are several ways to accomplish
+this.
+
+The "postblock" flag, which normally causes messages to be moderated,
+can be used to discard messages.  To enable this feature, add the
+following rule to the access_rules setting:
+
+post
+deny, reason="The postblock flag causes messages to be denied."
+$post_block
+
+Then, if you wish to deny all messages from non-subscribers, add
+"postblock" to the nonmember_flags configuration setting.  To deny
+messages from a particular subscriber, use the set command to turn on
+the postblock flag for that subscriber:
+
+  set LISTNAME postblock ADDRESS
+
+
+Another way to deny messages from a select group of people is to use an
+auxiliary list.  In the access_rules setting, use the following rule:
+
+post
+deny, reason="Posted messages from this address have been banned."
+@banned
+
+Then, to deny posted messages from a particular address, use the
+following command:
+
+  subscribe LISTNAME:banned ADDRESS
+
+
+If the "ackdeny" flag is set, the person whose message is denied will be
+sent a notice.  If the "ack_attach_original" configuration setting
+includes the word "fail," the message that was denied will be attached
+to the reply.  See "help set" and "help configset_ack_attach_original"
+for more details.
+
+
 Moderator groups (advanced topic)
 ---------------------------------
 
@@ -558,6 +605,7 @@ See Also:
    help configdef
    help configset
    help configset_access_rules
+   help configset_ack_attach_original
    help configset_default_flags
    help configset_moderator
    help configset_moderators
