@@ -159,6 +159,30 @@ sub add {
   return $#{$self->{'dests'}};
 }
 
+=head2 set_level(level, id)
+
+This sets the logging level for a certain destination ID, or all IDs if $id
+is not defined.
+
+=cut
+sub set_level {
+  my $self  = shift;
+  my $level = shift;
+  my $dest  = shift;
+  my(@tmp, $i);
+
+  if (defined $dest) {
+    @tmp = ($dest);
+  }
+  else {
+    @tmp = (0..$#{$self->{'dests'}});
+  }
+
+  for $i (@tmp) {
+    $self->{'dests'}[$i]{'level'} = $level;
+  }
+}
+
 =head2 delete(id)
 
 This deactivates a logging destination and closes an open file or syslog

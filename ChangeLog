@@ -1,3 +1,16 @@
+Sat Apr 17 00:48:17 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_queuerun (run_queue): Set debugging levels based on
+ 	'debug' config variables for each domain and list.
+
+	* lib/Mj/Log.pm (set_level): New function: set logging level after
+ 	the fact.
+
+	* lib/mj_cf_data.pl: Make 'debug' variable visible to the
+ 	interface so mj_queuerun can set the log level dynamically.
+
+	* bin/mj_enqueue: Pass -v option value to mj_queueserv.
+
 Fri Apr 16 18:25:38 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Resend.pm (_post): Take an entity as a phantom extra

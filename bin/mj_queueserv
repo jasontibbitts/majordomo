@@ -11,6 +11,8 @@ BEGIN {
 #  $Exporter::Verbose = 1;
 #  $AutoLoader::Verbose = 1;
 #  $AutoLoader::Notruncate = 1;
+  $::UID    = "baduid";
+  $::GID    = "badgid";
   $::TIMEOUT = 30;
   $::CONCURRENCY = 5;
   $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
@@ -19,6 +21,10 @@ BEGIN {
   if (! -t STDERR) {
     open (STDERR, ">>$::TMPDIR/mj_queueserv.debug");
   }
+
+  # Croak if install was botched
+  die("Not running as UID $::UID") unless $> == $::UID;
+  die("Not running as GID $::GID") unless $) == $::GID;
 }
 
 use Socket;
@@ -38,6 +44,9 @@ my(@child, @parent, $ein, $eout, $i, $in, $line, $nfound, $out, $pid,
 my $NAME = "$::TMPDIR/mj_queueserv";
 my $uaddr = sockaddr_un($NAME);
 my $proto = getprotobyname('tcp');
+my $debug = '';
+$debug = " -v $ARGV[0]" if defined $ARGV[0];
+$debug =~ /(.*)/; $debug = $1; # Only mj_enqueue calls us, so $ARGV[0] is safe.
 
 # Become a daemon
 $pid = fork;
@@ -157,7 +166,7 @@ while (1) {
       open *STDIN , "<&$in";
       open *STDOUT, ">&$out";
 
-      exec "$::BINDIR/mj_queuerun";
+      exec "$::BINDIR/mj_queuerun$debug";
       # Never get here...
     }
     else {

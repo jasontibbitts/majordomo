@@ -460,9 +460,9 @@ EOC
    {
     'type'   => 'integer',
     'groups' => [qw(mtaconfig)],
-    'visible'=> 0,
-    'local'  => 1,
+    'visible'=> 1,
     'mutable'=> 0,
+    'local'  => 1,
     'global' => 1,
    },
    'addr_allow_at_in_phrase' =>

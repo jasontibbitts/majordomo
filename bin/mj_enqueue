@@ -126,7 +126,7 @@ if (!($ok = connect(SOCK, sockaddr_un($rendezvous)))) {
       exit 0;
     }
     # Child...
-    exec "$::BINDIR/mj_queueserv";
+    exec "$::BINDIR/mj_queueserv $opts{'v'}";
   }
 }
 
