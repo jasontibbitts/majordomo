@@ -241,7 +241,7 @@ sub handle_bounce_probe {
   # condition, and someone should be notified.
   return 1 if !$ok || !$data;
 
-  $self->t_remove($args{token}?);
+  $self->t_remove($args{token});
 
   $user = new Mj::Addr $data->{victim};
 
