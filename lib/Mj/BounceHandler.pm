@@ -702,7 +702,7 @@ sub _hbr_probe {
   # Now create the token
   $token =
     $self->confirm(
-		   command  => 'bounceprobe',
+		   command  => 'unsubscribe',
 		   list     => $args{list},
 		   victim   => $args{user},
 		   user     => $self->_list_config_get($args{list}, 'sender'),
