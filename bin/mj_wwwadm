@@ -171,10 +171,18 @@ else {
   $mode = '';
 }
 
-#----- Determine the adminstrative password -----#
-$opass = $passw = $cgi->param('passw') || '';
-if (length $opass) {
-  $opass =~ /(\S+)/; $passw = $1;
+#----- Determine the administrative password -----#
+$opass = $cgi->param('passw');
+if (defined $opass and length $opass) {
+  if ($opass =~ /(\S+)/) { 
+    $passw = $1;
+  }
+  else {
+    $passw = '';
+  }
+}
+else {
+  $opass = $passw = '';
 }
 
 #----- Connect to the server -----#

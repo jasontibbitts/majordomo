@@ -1,3 +1,8 @@
+2002-07-22  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwusr:  Allow continued session information to
+	be saved in a single file.
+
 2002-07-19  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Majordomo.pm (connect): Add modes to mkdir calls to appease

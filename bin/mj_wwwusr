@@ -143,17 +143,29 @@ $sess .= "Date: " . scalar(localtime(time)) . "\n";
 $falseuser   = "x$ENV{'REMOTE_ADDR'}\@example.com";
 $user    = $cgi->param('user') || $pathinfo || $falseuser;
 
+#----- Determine the password -----#
+$opass = $cgi->param('passw');
+if (defined $opass and length $opass) {
+  if ($opass =~ /(\S+)/) {
+    $passw = $1;
+  }
+  else {
+    $passw = '';
+  }
+}
+else {
+  $opass = $passw = '';
+}
+
 #----- Connect to the server -----#
-($ok, $mess) = $mj->connect('wwwusr', $sess, $user);
+($ok, $mess) = $mj->connect('wwwusr', $sess, $user, $passw);
 
 unless ($ok) {
   &surrender($cgi, $mess);
 }
 
 #----- Create a temporary password -----#
-$opass = $passw = $cgi->param('passw') || '';
 if (length $opass) {
-  $opass =~ /(\S+)/; $passw = $1;
   $passw = $mj->gen_latchkey($passw) 
     unless ($mj->t_recognize($passw));
 }
