@@ -38,7 +38,7 @@ ok($e, $r);
 
 # Make sure it's there
 $e = "\Q  bleeargh\n";
-$r = run('lists=tiny', 1);
+$r = run('lists=tiny');
 ok($e, $r);
 
 # Have to turn off information or we die trying to inform the nonexistant owner
@@ -75,7 +75,7 @@ ok($e, $r);
 
 # Add an alias
 $e = qq!\Qenchanter\@example.com successfully aliased to zork\@example.com.\n!;
-$r = run('-p gonzo -u zork@example.com alias bleeargh enchanter@example.com');
+$r = run('-p gonzo -u zork@example.com alias enchanter@example.com');
 ok($e, $r);
 
 # Unsubscribe the aliased address to make sure it took

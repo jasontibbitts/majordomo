@@ -59,21 +59,21 @@ sub accept {
   my ($start, $end);
 
   if ($ok <= 0) {
-    eprint $err, $type, &indicate($mess, $ok);
+    eprint($err, $type, &indicate($mess, $ok));
     return $ok>0;
   }
 
   # Print some basic data
-  eprint $out, $type, "Token for command:\n    $rcmd\n";
-  eprint $out, $type, "issued at: ", scalar gmtime($rtime), " GMT\n";
-  eprint $out, $type, "from sessionid: $rsessionid\n";
+  eprint($out, $type, "Token for command:\n    $rcmd\n");
+  eprint($out, $type, "issued at: ", scalar gmtime($rtime), " GMT\n");
+  eprint($out, $type, "from sessionid: $rsessionid\n");
 
   # If we accepted a consult token, we can stop now.
   if ($rreq eq 'consult') {
-    eprint $out, $type, "was accepted.\n\n";
+    eprint($out, $type, "was accepted.\n\n");
     return 1;
   }
-  eprint $out, $type, "was accepted with these results:\n\n";
+  eprint($out, $type, "was accepted with these results:\n\n");
 
   # Then call the appropriate formatting routine to format the real command
   # return.
@@ -92,11 +92,11 @@ sub alias {
       $list, $vict, $arg1, $arg2, $arg3, $ok, $mess) = @_;
 
   if ($ok > 0) { 
-    eprint $out, $type, "$arg1 successfully aliased to $user.\n";
+    eprint($out, $type, "$arg1 successfully aliased to $user.\n");
   }
   else {
-    eprint $out, $type, "$arg1 not successfully aliased to $user.\n";
-    eprint $out, $type, &indicate($mess, $ok);
+    eprint($out, $type, "$arg1 not successfully aliased to $user.\n");
+    eprint($out, $type, &indicate($mess, $ok));
   }
   $ok>0;
 }
@@ -112,8 +112,8 @@ sub auxwho  {
   my (@lines, @out, @stuff, $chunksize, $count, $error, $i, $ret);  
 
   if ($ok <= 0) {
-    eprint $out, $type, "Could not access $sublist:\n";
-    eprint $out, $type, &indicate($mess, $ok);
+    eprint($out, $type, "Could not access $sublist:\n");
+    eprint($out, $type, &indicate($mess, $ok));
     return $ok>0;
   }
   
@@ -123,7 +123,7 @@ sub auxwho  {
   $chunksize = $mj->global_config_get($user, $pass, $auth, $int,
 				      "chunksize");
   
-  eprint $out, $type, "Members of auxiliary list \"$list/$sublist\":\n";
+  eprint($out, $type, "Members of auxiliary list \"$list/$sublist\":\n");
   
   while (1) {
     ($ret, @lines) = $mj->dispatch('auxwho_chunk', @stuff, $chunksize);
@@ -131,20 +131,35 @@ sub auxwho  {
     last unless $ret > 0;
     for $i (@lines) {
       $count++;
-      eprint $out, $type, "    $i\n";
+      eprint($out, $type, "    $i\n");
     }
   }
   $mj->dispatch('auxwho_done', @stuff);
   
-  eprintf $out, $type, "%s listed member%s\n", 
+  eprintf($out, $type, "%s listed member%s\n",
     ($count || "No"),
-    ($count == 1 ? "" : "s");
+    ($count == 1 ? "" : "s"));
 
   return $ok>0;
 }
 
 sub configdef {}
-sub configset {}
+
+sub configset {
+  my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
+      $list, $vict, $var, $args, $arg3, $ok, $mess) = @_;
+  my (@arglist);
+
+  @arglist = split('%~%', $args);
+  eprint($out, $type, indicate($mess, 0)) if $mess;
+  if ($ok) {
+    eprintf($out, $type, "%s set to \"%s%s\".\n",
+	    $var, $arglist[0] || '',
+	    $arglist[1] ? "..." : "");
+  }
+  $ok;
+}
+
 sub configshow {}
 
 sub createlist {
@@ -177,33 +192,33 @@ sub createlist {
   # and $mess.  So we first report on the status of the create
   # requests, then output the head and the results.
   if (@$arg1 && $mode !~ /noheader/) {
-    eprintf $out, $type, ("The following list%s %s:\n",
+    eprintf($out, $type, ("The following list%s %s:\n",
 			  @$arg1==1 ? " was" : "s were",
-			  $mode =~ /nocreate/ ? "generated" : "created");
+			  $mode =~ /nocreate/ ? "generated" : "created"));
     for $i (@$arg1) {
-      eprint $out, $type, "  $i\n";
+      eprint($out, $type, "  $i\n");
     }
   }
   if (@$arg2 || @$arg3) {
-    eprintf $out, $type, ("The following list%s not %s:\n",
+    eprintf($out, $type, ("The following list%s not %s:\n",
 			  (@$arg2+@$arg3)==2 ? " was" : "s were",
-			  $mode =~ /nocreate/ ? "generated" : "created");
+			  $mode =~ /nocreate/ ? "generated" : "created"));
 
     while (($i, $m) = splice @$arg2, 0, 2) {
-      eprint $out, $type, "  $i\n";
-      eprint $out, $type, indicate($m, 0) if $m;
+      eprint($out, $type, "  $i\n");
+      eprint($out, $type, indicate($m, 0)) if $m;
     }
     while (($i, $m) = splice @$arg3, 0, 2) {
-      eprint $out, $type, "  $i\n";
-      eprint $out, $type, indicate($m, -1) if $m;
+      eprint($out, $type, "  $i\n");
+      eprint($out, $type, indicate($m, -1)) if $m;
     }
   }
 
   # Now print out the header and the aliases/instructions/whatever, if
   # we had any successful creations.
   if (@$arg1) {
-    eprint $out, $type, "\n$head\n" unless $mode =~ /noheader/;
-    eprint $out, $type, "$mess";
+    eprint($out, $type, "\n$head\n") unless $mode =~ /noheader/;
+    eprint($out, $type, "$mess");
   }
   return scalar(@$arg1) ? 1 : 0;
 }
@@ -224,8 +239,8 @@ sub index {
   @width = (0, 0, 0, 0, 0, 0, 0, 0, 0);
 
   unless ($ok > 0) {
-    eprint $out, $type, "Index failed.\n";
-    eprint $out, $type, &indicate($mess, $ok);
+    eprint($out, $type, "Index failed.\n");
+    eprint($out, $type, &indicate($mess, $ok));
     return $ok;
   }
 
@@ -256,11 +271,11 @@ sub index {
   $width[6] ||= 5;
 
   if (@index) {
-    eprint $out, $type, "Files in $dir:\n" unless $mode =~ /short/;
+    eprint($out, $type, "Files in $dir:\n") unless $mode =~ /short/;
     for $i (@index) {
       $count++;
       if ($mode =~ /short/) {
-	eprint $out, $type, "  $i->[0]\n";
+	eprint($out, $type, "  $i->[0]\n");
 	next;
       }
       elsif ($mode =~ /long/) {
@@ -274,11 +289,11 @@ sub index {
       }
     }
     return 1 if $mode =~ /short/;
-    eprint $out, $type, "\n";
-    eprintf $out, $type, "%d file%s.\n", $count,$count==1?'':'s';
+    eprint($out, $type, "\n");
+    eprintf($out, $type, "%d file%s.\n", $count,$count==1?'':'s');
   }
   else {
-    eprint $out, $type, "No files.\n";
+    eprint($out, $type, "No files.\n");
   }
   1;
 }
@@ -301,7 +316,7 @@ sub lists {
     while (($list, $desc, $flags) = splice(@lists, 0, 3)) {
       $count++;
       if ($mode =~ /tiny/) {
-	eprint $out, $type, "  $list\n";
+	eprint($out, $type, "  $list\n");
 	next;
       }
       $desc ||= "";
@@ -309,26 +324,26 @@ sub lists {
       $desc[0] ||= "(no description)";
       for (@desc) {
 	$legend{'+'} = 1 if $flags =~ /S/;
-	eprintf $out, $type, " %s%-23s %-.56s\n", 
+	eprintf($out, $type, " %s%-23s %-.56s\n", 
 	$flags=~/S/ ? '+' : ' ',
 	$list,
-	$_;
+	$_);
 	$list  = " .";
 	$flags = "";
       }
     }
   }
   return 1 if $mode =~ /short|tiny/;
-  eprint $out, $type, "\n";
-  eprintf $out, $type, "There %s %s list%s.\n", $count==1?("is",$count,""):("are",$count==0?"no":$count,"s");
+  eprint($out, $type, "\n");
+  eprintf($out, $type, "There %s %s list%s.\n", $count==1?("is",$count,""):("are",$count==0?"no":$count,"s"));
   if (%legend) {
-    eprint $out, $type, "\n";
-    eprint $out, $type, "Legend:\n";
-    eprint $out, $type, " + - you are subscribed to the list\n" if $legend{'+'};
+    eprint($out, $type, "\n");
+    eprint($out, $type, "Legend:\n");
+    eprint($out, $type, " + - you are subscribed to the list\n") if $legend{'+'};
   }
-  eprint $out, $type, "\n";
+  eprint($out, $type, "\n");
   if ($count) {
-    eprint $out, $type, "Use the 'info listname' command to get more\n information about a specific list.\n";
+    eprint($out, $type, "Use the 'info listname' command to get more\n information about a specific list.\n");
   }
   1;
 }
@@ -339,12 +354,12 @@ sub post {
 
   select $out;
   if ($ok>0) {
-    eprint $out, $type, "Post succeeded.\n";
+    eprint($out, $type, "Post succeeded.\n");
   }
   else {
-    eprint $out, $type, "Post failed.\n";
+    eprint($out, $type, "Post failed.\n");
   }
-  eprint $out, $type, indicate($mess, $ok, 1) if $mess;
+  eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
 
   return $ok>0;
 }
@@ -361,15 +376,19 @@ sub put {
 
   select $out;
   if ($ok>0) {
-    eprint $out, $type, "$act succeeded.\n";
+    eprint($out, $type, "$act succeeded.\n");
   }
   else {
-    eprint $out, $type, "$act failed.\n";
+    eprint($out, $type, "$act failed.\n");
   }
-  eprint $out, $type, indicate($mess, $ok, 1) if $mess;
+  eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
 
   return $ok>0;
 } 
+
+sub register {
+  g_sub('reg', @_)
+}
 
 sub reject {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
@@ -380,15 +399,15 @@ sub reject {
   
   select $out;
   unless ($ok) {
-    eprint $out, $type, indicate($mess, $ok);
+    eprint($out, $type, indicate($mess, $ok));
     return $ok>0
   }
 
-  eprint $out, $type, "Token '$token' for command:\n    $rcmd\n";
-  eprint $out, $type, "issued at: ", scalar gmtime($rtime), " GMT\n";
-  eprint $out, $type, "from session: $sessionid\n";
-  eprint $out, $type, "has been rejected.  Further information about this\n";
-  eprint $out, $type, "rejection is being sent to responsible parties.\n";
+  eprint($out, $type, "Token '$token' for command:\n    $rcmd\n");
+  eprint($out, $type, "issued at: ", scalar gmtime($rtime), " GMT\n");
+  eprint($out, $type, "from session: $sessionid\n");
+  eprint($out, $type, "has been rejected.  Further information about this\n");
+  eprint($out, $type, "rejection is being sent to responsible parties.\n");
   $ok>0;
 }
 
@@ -398,11 +417,11 @@ sub rekey {
   my $log = new Log::In 29, "$type";
  
  if ($ok>0) {
-   eprint $out, $type, "$list rekeyed.\n";
+   eprint($out, $type, "$list rekeyed.\n");
  }
  else {
-   eprint $out, $type, "$list not rekeyed.\n";
-   eprint $out, $type, &indicate($mess, $ok);
+   eprint($out, $type, "$list not rekeyed.\n");
+   eprint($out, $type, &indicate($mess, $ok));
  }
  $ok>0;
 }
@@ -412,11 +431,11 @@ sub sessioninfo {
       $list, $vict, $sid, $arg2, $arg3, $ok, $mess, $sess) = @_;
 
   unless ($ok>0) {
-    eprint $out, $type, &indicate($mess, $ok);
+    eprint($out, $type, &indicate($mess, $ok));
     return ($ok>0);
   }
-  eprint $out, $type, "Stored information from session $sid\n";
-  eprint $out, $type, $sess;
+  eprint($out, $type, "Stored information from session $sid\n");
+  eprint($out, $type, $sess);
   1;
 }
 
@@ -428,64 +447,88 @@ sub set {
   $mess ||= '';
 
   if ($ok>0) {
-    eprint $out, $type, "Settings for $vict changed.\n";
+    eprint($out, $type, "Settings for $vict changed.\n");
   }
   else {
-    eprint $out, $type, "Settings for $vict not changed.\n";
+    eprint($out, $type, "Settings for $vict not changed.\n");
   }
-  eprint $out, $type, &indicate($mess, $ok, 1);
+  eprint($out, $type, &indicate($mess, $ok, 1));
   1;
 }
 
 sub show {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
-      $list, $vict, $arg1, $arg2, $arg3, $ok, $addr, $comm, $xform,
-      $alias, $aliases, $flag, $fulladdr, $class, $subtime, $changetime,
-      $flags) = @_;
+      $list, $vict, $arg1, $arg2, $arg3, $ok, $addr, $comm, $xform, $alias,
+      $aliases, $flag1, $fulladdr, $stripaddr, $lang, $data1, $data2,
+      $data3, $data4, $data5, $regtime, $changetime, $lists) =
+	splice(@_, 0, 33);
   my $log = new Log::In 29, "$type, $vict";
-  my ($i);
+  my (@lists, $class, $fl, $i, $lchangetime, $lclass, $lflags, $lfull,
+      $subtime);
 
-  eprint $out, $type, "  Address: $vict\n";
+  eprint($out, $type, "  Address: $vict\n");
 
   unless ($ok) {
-    eprint $out, $type, "    Address is invalid.\n";
+    eprint($out, $type, "    Address is invalid.\n");
     $addr = prepend('      ', $addr);
-    eprint $out, $type, "$addr\n";
+    eprint($out, $type, "$addr\n");
     return 0;
   }
    
-  eprint $out, $type, "    Address is valid.\n";
-  eprint $out, $type, "      Mailbox: $addr\n" if $addr ne $vict;
-  eprint $out, $type, "      Comment: $comm\n" if defined $comm && $comm ne "";
+  eprint($out, $type, "    Address is valid.\n");
+  eprint($out, $type, "      Mailbox: $addr\n") if $addr ne $vict;
+  eprint($out, $type, "      Comment: $comm\n") if defined $comm && $comm ne "";
   if ($addr ne $xform) {
-    eprint $out, $type, "    Address transforms to:\n";
-    eprint $out, $type, "      $xform\n";
+    eprint($out, $type, "    Address transforms to:\n");
+    eprint($out, $type, "      $xform\n");
   }
-  if ($xform ne $alias) {
-    eprint $out, $type, "    Address aliased to:\n";
-    eprint $out, $type, "      $alias\n";
+#  if ($xform ne $alias && $addr ne $alias && $stripaddr && $stripaddr ne $alias) {
+  if ($addr ne $alias) {
+    eprint($out, $type, "    Address aliased to:\n");
+    eprint($out, $type, "      $alias\n");
   }
   if ($aliases) {
-    eprint $out, $type, "    Address(es) aliased to this address:\n";
-    for $i (split(',',$aliases)) {
-      eprint $out, $type, "      $i\n";
+    $fl=0;
+    for $i (split('%~%',$aliases)) {
+      next if $i eq $addr;
+      eprint($out, $type, "    Address(es) aliased to this address:\n")
+	unless ($fl);
+      eprint($out, $type, "      $i\n");
+      $fl=1;
     }
   }
   
-  unless ($flag) {
-    eprint $out, $type, "    Address is not subscribed to $list.\n";
+  unless ($flag1) {
+    eprint($out, $type, "    Address is not registered.\n");
     return 1;
   }
-  eprint $out, $type, "    Address is subscribed to $list as:\n";
-  eprint $out, $type, "      $fulladdr\n";
-  eprint $out, $type, "    Subscribed at ".gmtime($subtime)." GMT.\n";
-  eprint $out, $type, "    Receiving $class.\n";
-  eprint $out, $type, "    Subscriber flags:\n";
-  for $i (split(',',$flags)) {
-    eprint $out, $type, "      $i\n";
+  eprint($out, $type, "    Address is registered as:\n");
+  eprint($out, $type, "      $fulladdr\n");
+  eprint($out, $type, "    Registered at ".gmtime($regtime)." GMT.\n");
+  eprint($out, $type, "    Registration data last changed at ".gmtime($changetime)." GMT.\n");
+
+  @lists = split('%~%', $lists);
+  unless (@lists) {
+    eprint($out, $type, "    Address is not subscribed to any lists\n");
+    return 1;
   }
-  eprint $out, $type, "    Data last changed at ".gmtime($changetime)." GMT.\n";
-  
+  eprintf($out, $type, "    Address is subscribed to %s list%s:\n",
+	  scalar(@lists), @lists == 1?'':'s');
+
+  for $i (@lists) {
+    ($lfull, $class, $subtime, $lchangetime, $lflags) = splice(@_, 0, 5);
+    eprint($out, $type, "      $i:\n");
+    eprint($out, $type, "        Subscribed as $lfull.\n") if $lfull ne $addr;
+    eprint($out, $type, "        Subscribed at ".gmtime($subtime)." GMT.\n");
+    eprint($out, $type, "        Receiving $class.\n");
+    eprint($out, $type, "        Subscriber flags:\n");
+    for $i (split(',',$lflags)) {
+      eprint($out, $type, "          $i\n");
+    }
+    eprint($out, $type, "        Data last changed at ".
+	   gmtime($lchangetime)." GMT.\n");
+    
+  }
   return 1;
 }
 
@@ -548,20 +591,21 @@ sub tokeninfo {
   select $out;
 
   unless ($ok>0) {
-    eprint $out, $type, &indicate($mess, $ok);
+    eprint($out, $type, &indicate($mess, $ok));
     return ($ok>0);
   }
   
   $time = localtime($ttime);
 
-  eprint $out, $type, <<EOM;
+  eprint($out, $type, <<EOM);
 Information about token $token:
 Generated at: $time
 By:           $trequ
 From command: $tcmd
 EOM
+
   if ($tsess) {
-    eprint $out, $type, "\nInformation about the session ($tsessid):\n$tsess";
+    eprint($out, $type, "\nInformation about the session ($tsessid):\n$tsess");
   }
   1;
 }
@@ -571,11 +615,11 @@ sub unalias {
       $list, $vict, $arg1, $arg2, $arg3, $ok, $mess) = @_;
   my $log = new Log::In 29, "$type, $vict, $arg1";
   if ($ok > 0) { 
-    eprint $out, $type, "Alias from $arg1 to $vict successfully removed.\n";
+    eprint($out, $type, "Alias from $arg1 to $vict successfully removed.\n");
   }
   else {
-    eprint $out, $type, "Alias from $arg1 to $vict not successfully removed.\n";
-    eprint $out, $type, &indicate($mess, $ok);
+    eprint($out, $type, "Alias from $arg1 to $vict not successfully removed.\n");
+    eprint($out, $type, &indicate($mess, $ok));
   }
   $ok>0;
 }
@@ -592,7 +636,7 @@ sub which {
 
   # Deal with initial failure
   if ($ok <= 0) {
-    eprint $out, $type, &indicate($mess, $ok);
+    eprint($out, $type, &indicate($mess, $ok));
     return $ok>0;
   }
 
@@ -605,43 +649,43 @@ sub which {
   # contains messages.
   if (@matches) {
     if ($mode =~ /regexp/) {
-      eprint $out, $type, "The expression '$arg1' matches the following\n";
+      eprint($out, $type, "The expression '$arg1' matches the following\n");
     }
     else {
-      eprint $out, $type, "The string '$arg1' appears in the following\n";
+      eprint($out, $type, "The string '$arg1' appears in the following\n");
     }
-    eprint $out, $type, "entries in lists served by $whoami:\n";
-    eprintf $out, $type, "\n%-23s %s\n", "List", "Address";
-    eprintf $out, $type, "%-23s %s\n",   "----", "-------";
+    eprint($out, $type, "entries in lists served by $whoami:\n");
+    eprintf($out, $type, "\n%-23s %s\n", "List", "Address");
+    eprintf($out, $type, "%-23s %s\n",   "----", "-------");
   }
 
   while (($list, $match) = splice @matches, 0, 2) {
     
     # If $list is undef, we have a message instead.
     if (!$list) {
-      eprint $out, $type, $match;
+      eprint($out, $type, $match);
       next;
     }
     
-    eprintf $out, $type, "%-23s %s\n", $list, $match;
+    eprintf($out, $type, "%-23s %s\n", $list, $match);
     $list_count++;
     $total_count++;
 
     if ($list_count > 3 && $list ne $last_list) {
-      eprintf $out, $type, "-- %s match%s this list\n",
-      $list_count,  ($list_count == 1 ? "" : "es");
+      eprintf($out, $type, "-- %s match%s this list\n",
+      $list_count,  ($list_count == 1 ? "" : "es"));
       $list_count = 0;
       $last_list = $list;
     }
   }
 
   if ($total_count) {
-    eprintf $out, $type, "--- %s match%s total\n\n",
-    $total_count, ($total_count == 1 ? "" : "es");
+    eprintf($out, $type, "--- %s match%s total\n\n",
+    $total_count, ($total_count == 1 ? "" : "es"));
   }
   else {
-    eprint $out, $type, "The string '$arg1' appears in no lists\n";
-    eprint $out, $type, "served by $whoami.\n";
+    eprint($out, $type, "The string '$arg1' appears in no lists\n");
+    eprint($out, $type, "served by $whoami.\n");
   }
   $ok>0;
 }
@@ -654,8 +698,8 @@ sub who {
   my (@lines, @out, @stuff, $chunksize, $count, $error, $i, $ret);  
 
   if ($ok <= 0) {
-    eprint $out, $type, "Could not access $list:\n";
-    eprint $out, $type, &indicate($mess, $ok);
+    eprint($out, $type, "Could not access $list:\n");
+    eprint($out, $type, &indicate($mess, $ok));
     return $ok>0;
   }
   
@@ -665,7 +709,7 @@ sub who {
   $chunksize = $mj->global_config_get($user, $pass, $auth, $int,
 				      "chunksize");
   
-  eprint $out, $type, "Members of list \"$list\":\n";
+  eprint($out, $type, "Members of list \"$list\":\n");
   
   while (1) {
     ($ret, @lines) = $mj->dispatch('who_chunk', @stuff, $regexp, $chunksize);
@@ -673,14 +717,14 @@ sub who {
     last unless $ret > 0;
     for $i (@lines) {
       $count++;
-      eprint $out, $type, "    $i\n";
+      eprint($out, $type, "    $i\n");
     }
   }
   $mj->dispatch('who_done', @stuff);
   
-  eprintf $out, $type, "%s listed subscriber%s\n", 
+  eprintf($out, $type, "%s listed subscriber%s\n", 
     ($count || "No"),
-    ($count == 1 ? "" : "s");
+    ($count == 1 ? "" : "s"));
 
   return $ok>0;
 }
@@ -692,9 +736,9 @@ sub g_get {
   select $out;
 
   unless ($ok>0) {
-    eprint $out, $type, "$fail\n";
+    eprint($out, $type, "$fail\n");
   }
-  eprint $out, $type, indicate($mess, $ok, 1) if $mess;
+  eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
 
   $chunksize = $mj->global_config_get($user, $pass, $auth, $int, "chunksize");
 
@@ -703,7 +747,7 @@ sub g_get {
 				  $int, $cmd, $mode, '', '',
 				  $chunksize);
     last unless defined $chunk;
-    eprint $out, $type, $chunk;
+    eprint($out, $type, $chunk);
   }
 
   $mj->dispatch('get_done', $user, $pass, $auth, $int, $cmd, $mode);
@@ -736,10 +780,13 @@ sub g_sub {
 
   $tok = 0;
   if ($act eq 'sub') {
-    $act = 'added to';
+    $act = 'added to ';
+  }
+  elsif ($act eq 'reg') {
+    $act = 'registered'; $list = '';
   }
   else {
-    $act = 'removed from';
+    $act = 'removed from ';
   }
 
   # If $arg1 isn't a listref, assume we're formating a single address
@@ -761,38 +808,38 @@ sub g_sub {
   # Now print the multi-address format.
   if (@$arg1) {
     $tok = 1;
-    eprintf $out, $type, ("The following address%s %s %s:\n",
-		 @$arg1==2 ? " was" : "es were",
-		 $act, $list);
+    eprintf($out, $type, ("The following address%s%s%s:\n",
+		 @$arg1==2 ? " was " : "es were ",
+		 $act, $list));
     while (($i, $mess) = splice @$arg1, 0, 2) {
-      eprint $out, $type, "  $i\n";
+      eprint($out, $type, "  $i\n");
       if ($mess) {
 	$mess = prepend('    ', $mess);
-	eprint $out, $type, "$mess\n";
+	eprint($out, $type, "$mess\n");
       }
     }
   }
   if (@$arg2) {
-    eprint $out, $type, "\n" if @$arg1;
-    eprintf $out, $type, ("**** The following %s not successfully %s %s:\n",
-		 @$arg2==2 ? "was" : "were", $act, $list);
+    eprint($out, $type, "\n") if @$arg1;
+    eprintf($out, $type, ("**** The following %s not successfully %s%s:\n",
+		 @$arg2==2 ? "was" : "were", $act, $list));
     while (($i, $mess) = splice @$arg2, 0, 2) {
-      eprint $out, $type, "  $i\n";
+      eprint($out, $type, "  $i\n");
       if ($mess) {
 	$mess = prepend('    ', $mess);
-	eprint $out, $type, "$mess\n";
+	eprint($out, $type, "$mess\n");
       }
     }
   }
   if (@$arg3) {
-    eprint $out, $type, "\n" if @$arg1 || @$arg2;
-    eprintf $out, $type, ("**** The following require%s additional action:\n",
-		 @$arg3==2 ? "s" : "");
+    eprint($out, $type, "\n") if @$arg1 || @$arg2;
+    eprintf($out, $type, ("**** The following require%s additional action:\n",
+		 @$arg3==2 ? "s" : ""));
     while (($i, $mess) = splice @$arg3, 0, 2) {
-      eprint $out, $type, "  $i\n";
+      eprint($out, $type, "  $i\n");
       if ($mess) {
 	$mess = prepend('    ', $mess);
-	eprint $out, $type, "$mess\n";
+	eprint($out, $type, "$mess\n");
       }
     }
   }
@@ -814,7 +861,7 @@ sub eprintf {
   my $fh   = shift;
   my $type = shift;
   if ($type eq 'html') {
-    print $fh escape(sprintf(shift, @_));
+    print $fh &escape(sprintf(shift, @_));
   }
   else {
     printf $fh @_;

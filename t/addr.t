@@ -85,10 +85,10 @@ $::log->add
 
   );
 
-print "1..52\n";
+print "1..51\n";
 
 # Allocate a validator with some default settings
-$av = new Mj::Addr
+Mj::Addr::set_params
    (
      'allow_at_in_phrase'          => 0,
      'allow_bang_paths'            => 0,
@@ -98,16 +98,18 @@ $av = new Mj::Addr
      'require_fqdn'                => 1,
      'strict_domain_check'         => 1,
     );
-print "ok\n" if $av;  
 
 for ($i = 0; $i<@t; $i++) {
   if ($t[$i][0] < 0) {
-    $av->params($t[$i][1] => $t[$i][2]);
+    Mj::Addr::set_params($t[$i][1] => $t[$i][2]);
     print "ok\n";
     next;
   }
 
-  ($ok, $addr, $com) = $av->validate($t[$i][1]);
+  $a = new Mj::Addr($t[$i][1]);
+  $ok = $a->isvalid;
+  $com  = $a->comment;
+  $addr = $a->strip;
   if ($ok eq $t[$i][0]) {
     print "ok\n";
 

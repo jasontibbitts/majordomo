@@ -130,7 +130,7 @@ sub getresp {
     last if $multi eq " ";
   }
   if ($ignore && $code =~ /^(55[0123])|(45[012])$/) {
-    if ($code == 552 && $code == 452) {
+    if ($code == 552 || $code == 452) {
       $error = -2;
     }
     else {

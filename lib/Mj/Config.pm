@@ -63,6 +63,7 @@ $VERSION = "1.0";
    'intro'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'lists'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'put'         => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
+   'register'    => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'rekey'       => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'request_response' => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
    'showtokens'  => {'legal'=>{'password_valid'=>1,'mismatch'=>1}},
@@ -185,7 +186,6 @@ sub new {
   $self->{'list'}           = $list;
   $self->{'ldir'}           = shift;
   $self->{'sdirs'}          = shift;
-  $self->{'av'}             = shift;
   $self->{'vars'}           = \%Mj::Config::vars;
   $self->{'file_header'}    = \$Mj::Config::file_header;
   $self->{'default_string'} = \$Mj::Config::default_string;
@@ -794,7 +794,7 @@ sub set {
   }
 
   # Parse and syntax check
-  ($ok, $error, $parsed, $rebuild_passwd) = $self->parse($var, $data);
+  ($ok, $error, $parsed) = $self->parse($var, $data);
   unless ($ok) {
     $log->out('parsing error');
     return (0, $error);
@@ -804,8 +804,6 @@ sub set {
   $self->{'data'}{'raw'}{$var} = $data;
   $self->{'data'}{'parsed'}{$var} = $parsed
     if $self->isparsed($var);
-
-  $self->rebuild_passwd if $rebuild_passwd;
 
   $self->{'dirty'} = 1;
   1;
@@ -1254,7 +1252,8 @@ sub parse_address {
     $str .= "\@" . $::mj->_global_config_get('whereami');
   }    
 
-  my ($ok, $mess) = $self->{'av'}->validate($str);
+  my $addr = new Mj::Addr($str);
+  my ($ok, $mess) = $addr->valid;
   
   return (1, '', $str) if $ok;
   return (0, $mess);
@@ -1607,7 +1606,8 @@ sub parse_enum {
   }
   
   $log->out('illegal value');
-  return (0, 'Illegal value.');
+  return (0, "Illegal value '$str'.\nLegal values are:\n".
+	  join(' ', @{$self->{'vars'}{$var}{'values'}}));
 }
 
 =head2 parse_inform
@@ -1731,7 +1731,6 @@ shouldn''t fail in this case, so the old password must continue to be
 valid, but the new password must be valid also.
 
 =cut
-use Mj::Access;
 sub parse_pw {
   my $self = shift;
   my $str  = shift;
@@ -1741,7 +1740,7 @@ sub parse_pw {
   return (0, "Cannot contain whitespace.")
     if $str =~ /\s/;
 
-  (1, undef, undef, 1);
+  (1, undef, undef);
 }
 
 
@@ -1752,7 +1751,6 @@ Currently a placeholder; because of the special nature of passwords
 parse them here.  We can do some syntax checking, though.
 
 =cut
-use Mj::Access;
 sub parse_passwords {
   my $self = shift;
   my $arr  = shift;
@@ -1764,9 +1762,7 @@ sub parse_passwords {
   return (0, "Error parsing table: $error.")
     if $error;
 
-  $::mj->_build_passwd_data($self->{'list'}, 'force');
-  
-  (1, undef, undef, 1);
+  (1, undef, undef);
 }
 
 =head2 parse_regexp
@@ -2109,23 +2105,6 @@ sub parse_xform_array {
 
 These aren''t Config object methods but instead are utility routines that
 are useful for operating on config information.
-
-=head2 rebuild_passwd
-
-A quick routine to force a rebuild of the password data that the
-Majordomo object keeps around; we do this so that changes to the
-password-related config variables can be immediately reflected in the
-operating state.
-
-XXX One could argue that the set routine should pass back a flag so
-that the Majordomo object can take care of this itself.
-
-=cut
-sub rebuild_passwd {
-  my $self = shift;
-  
-  $::mj->_build_passwd_data($self->{'list'}, 'force');
-}
 
 =head2 global_get
 

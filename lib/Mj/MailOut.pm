@@ -184,25 +184,35 @@ This welcomes a subscriber to the list by sending them the messages
 specified in the 'welcome_files' variable. If one of the files in the
 welcome message does not exist, it is ignored.
 
-XXX Substitute variables in the subject.
-
 =cut
 use MIME::Entity;
 sub welcome {
   my $self = shift;
   my $list = shift;
   my $addr = shift;
+  my %args = @_;
   my $log = new Log::In 150, "$list, $addr";
-  my (@mess, @temps, $count, $cset, $head, $final, $subj,
-      $file, $desc, $c_type, $c_t_encoding, $top, $i, $j);
+  my (%subs, @mess, @temps, $count, $cset, $head, $final, $subj, $file,
+      $desc, $c_type, $c_t_encoding, $top, $i, $j);
 
   # Extract some necessary variables from the config files
   my $whoami        = $self->_global_config_get('whoami');
   my $whoami_owner  = $self->_global_config_get('whoami_owner');
   my $whereami      = $self->_global_config_get('whereami');
   my $tmpdir        = $self->_global_config_get('tmpdir');
+  my $site          = $self->_global_config_get('site_name');
   my $sender        = $self->_list_config_get($list, 'sender');
   my $table         = $self->_list_config_get($list, 'welcome_files');
+
+  %subs = ('LIST' => $list,
+	   'REQUEST'  => "$list-request\@$whereami",
+	   'MAJORDOMO'=> $whoami,
+	   'USER'     => $addr,
+	   'SITE'     => $site,
+	   'MJOWNER'  => $whoami_owner,
+	   'OWNER'    => $sender,
+	   %args,
+	  );
   
   # Loop over the table, processing parts and substituting values
   $count = 0;
@@ -216,23 +226,11 @@ sub welcome {
     # XXX Need to complain here
     next unless $file;
 
-    $subj =
-      $self->substitute_vars_string(
-				    $table->[$i][0] || $desc,
-				    'LIST' => $list,
-				   );
+    $subj = $self->substitute_vars_string($table->[$i][0] || $desc, %subs);
     
-    # We may have to substitute variables...
+    # We may have to substitute variables in the file
     if ($table->[$i][2] =~ /S/) {
-      $file =
-	$self->substitute_vars($file, 
-			       'LIST'     => $list,
-			       'REQUEST'  => "$list-request\@$whereami",
-			       'MAJORDOMO'=> $whoami,
-			       'USER'     => $addr,
-			       'MJOWNER'  => $whoami_owner,
-			       'OWNER'    => $sender,
-			      );
+      $file = $self->substitute_vars($file, %subs);
       push @temps, $file;
     };
     

@@ -25,6 +25,7 @@ $Mj::Config::default_string = q(
  'intro_access'         => "list",
  'advertise'            => [],
  'noadvertise'          => [],
+ 'advertise_subscribed' => 1,
  'access_password_override' => 1,
  'access_rules'         => [],
  'addr_allow_at_in_phrase' => 0,

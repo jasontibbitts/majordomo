@@ -49,9 +49,9 @@ sub t_recognize {
   $1;
 }
 
-use AutoLoader 'AUTOLOAD';
+#use AutoLoader 'AUTOLOAD';
 1;
-__END__
+#__END__
 
 =head2 t_gen()
 
@@ -464,7 +464,7 @@ sub t_accept {
   my $token = shift;
   my $log   = new Log::In 50, "$token";
   my (@out, $data, $ent, $ffunc, $func, $line, $mess, $ok, $outfh,
-      $sender, $tmp);
+      $req, $sender, $tmp, $vict);
 
   $self->_make_tokendb;
   $data = $self->{'tokendb'}->lookup($token);
@@ -512,19 +512,30 @@ sub t_accept {
     return (-1, $mess, $data, -1);
   }
 
-  # We know we want to carry out the action, so call the core routine
-  # and stash the results
-  $func = "_$data->{'request'}";
+  $func = "$data->{'request'}";
+  $req  = $data->{'requester'};
+  $vict = $data->{'victim'};
+
+  # Convert addresses to Addr objects for the subfunction unless it is
+  # marked (in %Majordomo::functions) as not needing Addr objects.
+  unless ($Majordomo::functions{$func} &&
+	  $Majordomo::functions{$func}{noaddr})
+    {
+      $req  = new Mj::Addr($req);
+      $vict = new Mj::Addr($vict);
+    }
+  
+  $func = "_$func";
   @out = $self->$func($data->{'list'},
-		      $data->{'requester'},
-		      $data->{'victim'},
-		      $data->{'mode'},
-		      $data->{'cmdline'},
-		      # really, really, really gross hack
-		      ($data->{'request'} eq 'post' ? $token : $data->{'arg1'}),
-		      $data->{'arg2'},
-		      $data->{'arg3'},
-		     );
+		       $req,
+		       $vict,
+		       $data->{'mode'},
+		       $data->{'cmdline'},
+		       # really, really, really gross hack
+		       ($data->{'request'} eq 'post' ? $token : $data->{'arg1'}),
+		       $data->{'arg2'},
+		       $data->{'arg3'},
+		      );
 
   # Nuke the token, and delete any spooled files associated with it.
   $self->t_remove($token, 1);

@@ -1,6 +1,11 @@
 #!/usr/local/bin/perl-latest -w
 use Mj::SimpleDB;
 use Mj::Log;
+use Safe;
+
+$Majordomo::safe = new Safe;
+#    $safe->reval('$^W=0');
+$Majordomo::safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
 
 $NUM = 100;
 
@@ -71,7 +76,7 @@ for (my $i = 0; $i < $NUM; $i++) {
 okif($ok);
 
 # Delete one of them
-($key, $data, $oops) = $db->remove('regexp', 'test\d');
+($key, $data, $oops) = $db->remove('regexp', '/test\d/');
 okeq("test0", $key);
 okunless($oops);
 
@@ -86,13 +91,13 @@ okeq('zzzz1',  $data->{a});
 okeq('wumpus', $data->{c});
 
 # Alter them all
-@stuff = $db->replace('regexp,allmatching', 'test', 'c', 'oink');
+@stuff = $db->replace('regexp,allmatching', '/test/', 'c', 'oink');
 oke(scalar @stuff, $NUM);
 
 # Delete the lot
 $ok = 1;
 $i = 1;
-@stuff = $db->remove('regexp,allmatching', 'test\d');
+@stuff = $db->remove('regexp,allmatching', '/test\d/');
 while (($key, $data) = splice @stuff, 0, 2) {
   # XXX Oops; may not get them back in any order
   $ok = 0 if $key ne "test$i";

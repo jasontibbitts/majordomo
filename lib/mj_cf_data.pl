@@ -138,6 +138,24 @@ not be listed in the output of a lists command.  Noadvertise overrides
 advertise.
 EOC
    },
+   'advertise_subscribed' =>
+   {
+    'type'   => 'bool',
+    'groups' => [qw(majordomo access advertise lists)],
+    'visible'=> 0,
+    'global' => 1,
+    'comment'=> <<EOC,
+If this is on, users that are subscribed to a list will always be
+shown that list, regardless of any advertise restriction; the list's
+advertise restrictions will not even be consulted.  This can result in
+a performance increase.
+
+If this is off, the list's advertise restrictions will be consulted
+normally.  This will still result in the same behavior unless an
+access_rules entry is used to override the normal processing of
+advertise/noadvertise, but list owners will then have the choice.
+EOC
+   },
    'inform' =>
    {
     'type'   => 'inform',
@@ -1304,32 +1322,20 @@ EOC
    'addr_xforms' =>
    {
     'type'   => 'xform_array',
-    'groups' => [qw(majordomo xform)],
+    'groups' => [qw(addr)],
     'visible'=> 0,
     'global' => 1,
-    'local'  => 1,
+    'local'  => 0,
     'mutable'=> 1,
     'comment'=> <<EOC,
 A list of transformations to be applied to addresses before comparing
 them for equivalency.  This can be used to remove the '+mailbox' part
 of an address, or to remove the machine name from addresses in a
 domain.  Transforms should listed one per line, and should be in the
-form /pattern/replacement/.  For example, /(.*)\\+.*(\\@.*)/\$1\$2/
+form /pattern/replacement/.  For example, /(.*?)\\+.*(\\@.*)/\$1\$2/
 removes the '+mailbox' specifier from an address.  NOTE: these
-transforms must be idempotent; that is, they must give the same result
-when applied multiple times in succession.
-EOC
-   },
-   'apply_global_xforms' =>
-   {
-    'type'   => 'bool',
-    'groups' => [qw(majordomo xform)],
-    'visible'=> 0,
-    'local'  => 1,
-    'mutable'=> 1,
-    'comment'=> <<EOC,
-Should the site-wide set of address transformations be applied, in
-addition to the list-specific ones?
+transforms must give the same result when applied multiple times in
+succession.
 EOC
    },
    'master_password' =>
@@ -1379,9 +1385,11 @@ EOC
     'groups' => [qw(majordomo welcome)],
     'visible'=> 0,
     'local'  => 1,
+    'global' => 1,
     'mutable'=> 1,
     'comment'=> <<EOC,
-If this is on, new subscribers will be sent a welcome message.
+If this is on, new subscribers (or registered users) will be sent a welcome
+message.
 EOC
    },
    'welcome_files' =>
@@ -1390,6 +1398,7 @@ EOC
     'groups' => [qw(majordomo welcome)],
     'visible'=> 0,
     'local'  => 1,
+    'global' => 1,
     'mutable'=> 1,
     'comment'=> <<EOC,
 

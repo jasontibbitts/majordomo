@@ -84,6 +84,7 @@ sub parse_entity {
        Top         => 0,
        Data        => ["Ignoring part of type $type.\n"]
       );
+    $ok = 0;
   }
   else {
     # We have a plain text part; parse it.

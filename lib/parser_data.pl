@@ -20,7 +20,7 @@
 %commands = 
   (
    'accept'         => [qw(email shell real)],
-   'alias'          => [qw(email shell list global real)],
+   'alias'          => [qw(email shell real)],
    'approve'        => [qw(email shell interp)],
    'auxsubscribe'   => [qw(email shell list global real)],
    'auxunsubscribe' => [qw(email shell list global all real)],
@@ -49,11 +49,12 @@
    'passwd'         => [qw(email shell list obsolete=configset real)],
    'post'           => [qw(email shell list real)],
    'put'            => [qw(email shell list global real)],
+   'register'       => [qw(email shell real)],
    'reject'         => [qw(email shell real)],
    'rekey'          => [qw(email shell list global all real)],
    'sessioninfo'    => [qw(email shell real)],
    'set'            => [qw(email shell list real)],
-   'show'           => [qw(email shell list real)],
+   'show'           => [qw(email shell real)],
    'showtokens'     => [qw(email shell list global all real)],
    'subscribe'      => [qw(email shell list real)],
    'tokeninfo'      => [qw(email shell real)],

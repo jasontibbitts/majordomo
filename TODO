@@ -17,22 +17,126 @@ Cut alpha 2.
 Bugs?
 -----
 
-Alias manipulation commands need to make the alias database.
-
 Messages with empty first part always checksum the same?
 
+Dispatch should log password failures for overriding logging.
+
+Always allocating address objects for every core call costs for iterators;
+invent some handle method instead so we can cache state between calls.
+
+Addr objects make it difficult to have inputs that are either regexps or
+addresses.  There are only two of these, so they can probably be worked
+around easily.
+
+When sending to the owner, actually look up 'owners' instead of sending to
+the owner alias and having to run things again.
+
+SimpleDB::replace is now very close to mogrify.
 
 Top of the list 
 ---------------
 
-! Make addresses first class objects.  Make Addr.pm a real module.
-  Configure package defaults to set up parser variables then allocate
-  addresses.  Any time a Majordomo function takes an address, it should new
-  a Mj::Addr and use it instead.
+Done:
+new
+dispatch
+get_all_lists
+s_expire
+global_config_get
+list_config_get
+list_config_set (debug)
+list_config_set_to_default (debug)
+save_configs
+_global_config_get
+_list_config_get
+_list_config_set
+_list_config_lock
+_list_config_unlock
+config_get_allowed
+config_get_comment
+config_get_groups
+config_get_intro
+config_get_isarray
+config_get_isauto
+config_get_type
+config_get_visible
+config_get_mutable
+config_get_default
 
-  Mj::Addr should internally cache stripped and canonical forms.  Mj::Addr
-  will need an alias database to work off of (if aliasing is to be used),
-  and should be passed in as a parameter (or set as a class default).
+domain
+_re_match
+substitute_vars
+substitute_vars_string
+unique
+unique2
+tempname
+get_start
+_get
+_get_mailfile
+get_chunk
+get_done
+faq_start
+_faq
+help_start
+info_start
+_info
+intro_start
+_intro
+put_start
+_put
+put_chunk
+put_done
+request_response
+_request_response
+index
+_index
+_list_file_get
+_list_file_put
+_list_file_delete
+list_file_sync
+_fill_lists
+_make_lists
+legal_list_name
+valid_list
+accept
+alias
+_alias
+archive
+auxadd
+_auxadd
+auxremove
+auxwho_start
+auxwho_chunk
+auxwho_done
+createlist
+_createlist
+lists
+reject
+register
+_register
+
+sessioninfo
+
+Partially done:
+
+
+Skipped:
+config_get_vars
+
+
+Need to do:
+rekey
+
+
+! Convert everything to use new Addr object.
+
+  All levels below Majordomo should expect to get Addr objects.  overloaded
+  stringification should ensure that printed strings are OK.
+
+Issues:
+
+regexp matching within access_rules code.  This happens only on the victim;
+if it is problematic, stringify $victim before evalling the code.
+
 
 ! Master address database:
   One global database storing some information on each address subscribed
@@ -53,7 +157,6 @@ Top of the list
 
   Following routines affected:
 
-    Majordomo::new - open the database appropriately.
     subscribe - add or update master database entry
     unsub - update (or optionally remove) master database entry
     show - don't take a list, do global access check.  just dump all data.
@@ -69,7 +172,12 @@ Top of the list
     need routine to add and remove to/from master database.  remove
     function should also kill aliases.
 
-Make new database wrapper to hold regustrations: RegList.pm.
+Need these functions to manipulate the reglist:
+
+  _register - actually do the registration
+  reg_add_list - add an additional list to a user's registration.
+  password - change a password (later)
+  crypt - encrypt a password (just call MD5)
 
 ! Master alias database.
 
@@ -91,6 +199,10 @@ Make new database wrapper to hold regustrations: RegList.pm.
     Anything which calls canon at the list level cannot; these routines
     must assume that a canonical address has been passed, and upstream
     routines are responsible for canonizing appropriately.
+
+! Rewrite shell.t to just build the file, call mj_shell once (or perhaps
+  just a few times) and check the output.  This should improve test times
+  quite a bit.
 
 -- Snapshot
 
@@ -178,7 +290,6 @@ Make new database wrapper to hold regustrations: RegList.pm.
 ! Format: finish rewriting the following
     filesync
     configshow
-    configset
     configdef
 
 - allow mime-match classes just like taboo classes.
@@ -399,6 +510,37 @@ original string (or a really bad but mildly polite Japanese translation of
 it).
 
 At least, that's the plan.
+
+Ramp up to translation slowly:
+
+    'translate' core call.
+    One multilevel hash, static, in a require'd file:
+
+    %trans = (
+      'english' =>
+        {
+         'tag' => "Subst string",
+        }
+    )
+
+Expand to hardcoded translations of other languages, fall back to English,
+fall back to just printing the returned string (so if no messages are
+changed, you always get English).
+
+Interface needs to be able to tell the core what the user is or otherwise
+figure out what the user's language preference is _if_ one is not passed to
+the interface somehow (prefer-language: header, 'default language' command,
+etc.)  This gets pulled out of the registration database, which allows us
+to not need a list object to get a language preference, which greatly
+simplifies things.
+
+Then the 'translate' call just takes a language parameter and do the proper
+lookup.
+
+_Then_ extend things to weird per-list loading _only if_ someone decided
+they want it.
+
+We already support translated long documents.
 
 
 - Daemon model.  Startup time is always going to plague us.  The solution

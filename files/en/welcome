@@ -1,4 +1,7 @@
 Welcome to the $LIST mailing list!
+Your password at $SITE is
+
+$PASSWORD
 
 Please save this message for future reference.  Thank you.
 
@@ -6,15 +9,14 @@ If you ever want to remove yourself from this mailing list,
 send the following command in email to
 $REQUEST:
 
-    unsubscribe $USER
+approve $PASSWORD unsubscribe $USER
 
-Or you can send mail to $MAJORDOMO with the following
-command in the body of a message:
-
-    unsubscribe $LIST $USER
+Note that this works even if your address changes; for that reason (among
+others) it is important that you have this message handy when it comes time
+for you to leave the the list.
 
 If you ever need to get in contact with the owner of the list,
-(if you have trouble unsubscribing, or have questions about the
+(if you have trouble unsubscribing or have questions about the
 list itself) send email to $OWNER.
 This is the general rule for most mailing lists when you need
 to contact a human.

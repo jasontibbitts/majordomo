@@ -181,35 +181,43 @@ matching lines from a file.
 =cut
 sub search {
   my $self = shift;
-  my ($re, $sub, $temp);
+  my ($line, $re, $sub, $temp);
   
-#  $::log->in(110, "@_");
   if (ref $_[0] eq 'CODE') {
     $sub = shift;
-    while ($_ = $self->{'handle'}->getline) {
+    while ($line = $self->{'handle'}->getline) {
       chomp;
-      $temp = &$sub($_);
+      $temp = &$sub($line);
       if (defined $temp) {
-#	$::log->out("saw $temp");
 	return $temp;
       }
     }
-#    $::log->out("not found");
     return undef;
   }
   
-  # Else we have an array of regexps.  Will making a special case for one improve speed?
-  while ($_ = $self->{'handle'}->getline) {
+  # Else we have an array of regexps.
+  while ($line = $self->{'handle'}->getline) {
     for $re (@_) {
-      if (/$re/) {
-#	$::log->out("found $_");
-	return $_;
+      if (_re_match($re, $line)) {
+	return $line;
       }
     }
   }
-#  $::log->out("not found");
   return undef;
 }
+
+sub _re_match {
+  my $re   = shift;
+  my $addr = shift;
+  my $match;
+  return 1 if $re eq 'ALL';
+
+  local($^W) = 0;
+  $match = $Majordomo::safe->reval("'$addr' =~ $re");
+  $::log->complain("_re_match error: $@") if $@;
+  return $match;
+}
+
 
 =head1 COPYRIGHT
 

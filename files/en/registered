@@ -1,0 +1,25 @@
+You have been registered at $SITE.
+Note that you are not yet a member of any lists; you must join them
+individually.
+
+Your initial password is:
+
+$PASSWORD
+
+You may use your password to bypass the confirmation process when you
+interact with this server.  To use your password when interacting via
+email, you use the 'approve' command.  Some examples follow; note that
+'example' is a fictional list name.
+
+Join the 'example' list without confirming your address:
+approve $PASSWORD subscribe example
+
+Remove yourself from the 'example' list even if your address changes:
+approve $PASSWORD unsubscribe example $USER
+
+See the help document "passwords" for more information.  To retrieve this
+document, send a message to $MAJORDOMO containing the line:
+
+help passwords
+
+To reach a person, send mail to $MJOWNER.

@@ -188,7 +188,7 @@ sub remove {
   return;
 }
 
-=head2 replace(mode, key, field_or_hashref, value)
+=head2 replace(mode, key, field, value)
 
 This replaces the value of a field in one or more rows with a different
 value.  The mode parameter controls how this operates.  If mode=~/regex/,
@@ -196,7 +196,10 @@ key is taken as a regular expression, otherwise it is taken as the key to
 modify.  If mode=~/allmatching/, all matching rows are modified, else only
 the first is.
 
-If field is a reference, it is used as the hash of data and values.
+If field is a hash reference, it is used as the hash of data and values.
+If field is a code reference, it is executed and the resulting hash is
+ written back as the data.  Unlike the mogrify function, this cannot change
+ the key.
 
 Returns a list of keys that were modified.
 
@@ -225,8 +228,11 @@ sub replace {
       # Note that lookup implicitly copies for us.
       ($match, $data) = $self->lookup_regexp($key, $fh);
       last unless defined $match;
-      if (ref $field) {
+      if (ref($field) eq 'HASH') {
 	$data = $field;
+      }
+      elsif (ref($field) eq 'CODE') {
+	$data = &$field($data);
       }
       else {
 	$data->{$field} = $value;
@@ -245,8 +251,11 @@ sub replace {
       last unless defined $data;
       
       # Update the value, and the record.
-      if (ref $field) {
+      if (ref($field) eq 'HASH') {
 	$data = $field;
+      }
+      elsif (ref($field) eq 'CODE') {
+	$data = &$field($data);
       }
       else {
 	$data->{$field} = $value;
@@ -456,7 +465,7 @@ sub get_matching_quick {
   my (@keys, $key, $data, $i);
 
   for ($i=0; $i<$count; $i++) {
-    $key = $self->{'get_handle'}->search("\t\Q$value\E");
+    $key = $self->{'get_handle'}->search("/\t\Q$value\E/");
     last unless $key;
     ($key, $data) = split("\t", $key, 2);
     $data = $self->_unstringify($data);
@@ -504,7 +513,7 @@ sub get_matching {
   my (@keys, $key, $data, $i);
 
   for ($i=0; ($count ? ($i<$count) : 1); $i++) {
-    $key = $self->{'get_handle'}->search("\t\Q$value\E");
+    $key = $self->{'get_handle'}->search("/\t\Q$value\E/");
     last unless $key;
     chomp $key;
     ($key, $data) = split("\t", $key, 2);
@@ -565,7 +574,7 @@ sub lookup_quick {
     $::log->abort("SimpleDB::lookup_quick called with null key.");
   }
   
-  my $out = $fh->search("^\Q$key\E\t");
+  my $out = $fh->search("/^\Q$key\E\t/");
   return undef unless defined $out;
   chomp $out;
   return (split("\t",$out,2))[1];
@@ -583,13 +592,24 @@ sub lookup_quick_regexp {
   while (defined ($match = $fh->search($reg))) {
     chomp $match;
     ($key, $match) = split("\t", $match, 2);
-    if ($key =~ /$reg/) {
+    if (_re_match($reg, $key)) {
       return ($key, $match);
     }
   }
   return;
 }
 
+sub _re_match {
+  my $re   = shift;
+  my $addr = shift;
+  my $match;
+  return 1 if $re eq 'ALL';
+
+  local($^W) = 0;
+  $match = $Majordomo::safe->reval("'$addr' =~ $re");
+  $::log->complain("_re_match error: $@") if $@;
+  return $match;
+}
 1;
 
 =head1 COPYRIGHT

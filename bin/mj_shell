@@ -12,7 +12,7 @@ BEGIN {
 #  $Exporter::Verbose = 1;
 #  $AutoLoader::Verbose = 1;
 #  $AutoLoader::Notruncate = 1;
-  $SIG{__WARN__} = sub {print "--== $_[0]"};
+  $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
 }
 
 #print join("\n", keys(%INC)), "\n";
@@ -99,7 +99,7 @@ if ($opts{D}) {
     (	
      method      => 'handle',
      id          => 'mjs',
-     handle      => \*STDOUT,
+     handle      => \*STDERR,
      level       => 5000,
      subsystem   => 'mail',
      log_entries => 1,
@@ -179,14 +179,14 @@ sub parse_interactive {
   require Term::ReadLine;
 
   $term = Term::ReadLine->new('Interactive Majordomo Shell Interface');
-  $prompt = "Enter a Majordomo command >";
+  $prompt = "Majordomo>";
   $features = $term->Features;
   $term->ornaments(1) if $features->{ornaments} && $opts{ornaments};
   $readline::rl_completion_function = # Shut up warnings...
     $readline::rl_completion_function = '::completer'; 
 
   # use Data::Dumper; print Dumper $features;
-  print "Entering interactive mode; the 'end' command exits.\n\n";
+  print "Entering Majordomo interactive mode.\nType majordomo commands; the 'end' command exits.\n\n";
 
   while (defined($cmdline = $term->readline($prompt))) {
     print "\n";

@@ -390,6 +390,7 @@ sub message {
 
 sub DESTROY {
   my $self = shift;
+#warn " ".(caller(2))[3];
   $::log->out($self->{'msg'});
 }
 

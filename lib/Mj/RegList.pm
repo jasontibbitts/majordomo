@@ -51,7 +51,7 @@ use vars qw(@ISA);
 
 @ISA=qw(Mj::SimpleDB);
 
-my @fields = (qw(stripaddr fulladdr regtime changetime password language
+my @fields = (qw(stripaddr fulladdr changetime regtime password language
 		 lists flags bounce warnings data1 data2 data3 data4
 		 data5));
 

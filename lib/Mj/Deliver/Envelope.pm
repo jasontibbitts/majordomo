@@ -48,14 +48,15 @@ host, port, timeout and local have reasonable defaults supplied by the SMTP
 object.  sender has no default.  You can specify a file (or change the file
 being used) and add addresses later.
 
-This will return undef if the SMTP greeting handshake or setup fails.
+This will return undef if the SMTP greeting handshake, setup or initial
+addressing fails.
 
 =cut
 sub new {
   my $type  = shift;
   my $class = ref($type) || $type;
   my %args  = @_;
-  my ($code, $mess, $val);
+  my ($code, $mess, $ok, $val);
   my $log = new Log::In 545, "$args{host}";
 
   my $self = {};
@@ -86,7 +87,8 @@ sub new {
   
   $args{'addresses'} ||= $args{'addrs'};
   if (defined $args{'addresses'}) {
-    $self->address($args{'addresses'});
+    $ok = $self->address($args{'addresses'});
+    return undef if $ok < 0;
   }
 
   $self;

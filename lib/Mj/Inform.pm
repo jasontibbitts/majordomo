@@ -66,6 +66,8 @@ sub inform {
   $log->abort("Cannot open $file, $!")
     unless $fh;
 
+  $user ||= ''; $requ ||= '';
+
   # Log the data
   my $line = join("\t", $list, $req, $requ, $user, $cmd, $int, $stat,
 		  $pass, $self->{'sessionid'}, time);

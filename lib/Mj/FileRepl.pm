@@ -4,7 +4,8 @@ use strict;
 use IO::File;
 use Mj::Lock;
 use Mj::Log;
-use vars qw($AUTOLOAD $VERSION);
+use Safe;
+use vars qw($AUTOLOAD $VERSION $safe);
 
 =head1 NAME
 
@@ -44,7 +45,7 @@ sub new {
   $self->{'oldhandle'} = new IO::File;
   $self->{'newhandle'} = new IO::File;
   bless $self, $class;
-  
+
   if (@_) {
     $self->open(@_);
   }
@@ -269,7 +270,7 @@ This, like File::search, manipulates its internal filehandles itself.
 =cut
 sub search_copy {
   my $self = shift;
-  my ($re, $sub, $temp);
+  my ($line, $re, $sub, $temp);
 
   $::log->in(110, "@_");
   if (ref $_[0] eq 'CODE') {
@@ -284,14 +285,14 @@ sub search_copy {
     return undef;
   }
   # Else we weren't passed a subroutine.
-  while ($_ = $self->{'oldhandle'}->getline) {
+  while ($line = $self->{'oldhandle'}->getline) {
     for $re (@_) {
-      if (/$re/) {
+      if (_re_match($re, $line)) {
         $::log->out;
-        return $_;
+        return $line;
       }
     }
-    $self->{'newhandle'}->print("$_");
+    $self->{'newhandle'}->print("$line");
   }
   $::log->out;
   return undef;
@@ -329,6 +330,19 @@ sub _savename {
   $name =~ m|^(.*/)?(.*)$|;
   return ($1 || "") . ".S" . $2 . $$;
 }
+
+sub _re_match {
+  my $re   = shift;
+  my $addr = shift;
+  my $match;
+  return 1 if $re eq 'ALL';
+
+  local($^W) = 0;
+  $match = $Majordomo::safe->reval("'$addr' =~ $re");
+  $::log->complain("_re_match error: $@") if $@;
+  return $match;
+}
+
 
 =head1 COPYRIGHT
 

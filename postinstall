@@ -43,6 +43,7 @@ $| = 1;
    'en/info'			=> 'Info',
    'en/intro'			=> 'Intro',
    'en/welcome'			=> 'Welcome',
+   'en/registered'        	=> 'Welcome to $SITE',
    'en/inform'			=> '$UREQUEST $LIST',
    'en/repl_consult'		=> 'Default consult mailreply file',
    'en/repl_confirm'		=> 'Default confirm mailreply file',

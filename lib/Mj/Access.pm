@@ -55,7 +55,7 @@ is _not_ allowed to do something.
 sub validate_passwd {
   my ($self, $user, $passwd, $auth, $interface,
       $list, $action, $global_only) = @_;
-  my (@try, $i, $j);
+  my (@try, $c, $i, $j);
   
   return unless defined $passwd;
 
@@ -73,8 +73,11 @@ sub validate_passwd {
     
     # Check for access specific to this user, and to any user
     for $j ('ALL', $user) {
-      unless ($j eq 'ALL') {
-	$j = $self->{'lists'}{$i}->canon($j);
+      if ($j eq 'ALL') {
+	$c = 'ALL';
+      }
+      else {
+	$c = $j->canon;
       }
 
       # We have two special permission groups and the specific check.  Add
@@ -85,18 +88,18 @@ sub validate_passwd {
       # cluttering up the data structure.
       if (($self->{'pw'}{$i} &&
 	   $self->{'pw'}{$i}{$passwd} &&
-	   $self->{'pw'}{$i}{$passwd}{$j} &&
-	   $self->{'pw'}{$i}{$passwd}{$j}{'ALL'}) ||
+	   $self->{'pw'}{$i}{$passwd}{$c} &&
+	   $self->{'pw'}{$i}{$passwd}{$c}{'ALL'}) ||
 	  ($action =~ /^config/ && ($self->{'pw'} &&
 				    $self->{'pw'}{$i} &&
 				    $self->{'pw'}{$i}{$passwd} &&
-				    $self->{'pw'}{$i}{$passwd}{$j} &&
-				    $self->{'pw'}{$i}{$passwd}{$j}{'config_ALL'})) ||
+				    $self->{'pw'}{$i}{$passwd}{$c} &&
+				    $self->{'pw'}{$i}{$passwd}{$c}{'config_ALL'})) ||
 	  ($self->{'pw'} &&
 	   $self->{'pw'}{$i} &&
 	   $self->{'pw'}{$i}{$passwd} &&
-	   $self->{'pw'}{$i}{$passwd}{$j} &&
-	   $self->{'pw'}{$i}{$passwd}{$j}{$action}))
+	   $self->{'pw'}{$i}{$passwd}{$c} &&
+	   $self->{'pw'}{$i}{$passwd}{$c}{$action}))
 	{
 	  $::log->out("approved");
 	  return 1;
@@ -356,8 +359,8 @@ sub list_access_check {
   }
 
   # Figure out if $requester and $victim are the same
-  $args{'mismatch'} =
-    !$self->{'lists'}{$list}->addr_match($requester, $victim);
+  $args{'mismatch'} = !($requester eq $victim)
+    unless defined($args{'mismatch'});
 
   $access = $self->_list_config_get($list, 'access_rules');
 
@@ -690,22 +693,22 @@ sub _d_advertise {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3) = @_;
   my $log = new Log::In 150, "";
-  my (@adv, @noadv, $i, $safe);
+  my (@adv, @noadv, $i);
 
-  $safe = new Safe;
-  $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
+#  $safe = new Safe;
+#  $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
   
   @adv = $self->_list_config_get($list, 'advertise');
 
   for $i (@adv) {
-    return 1 if Majordomo::_re_match($safe, $i, $requester);
+    return 1 if Majordomo::_re_match($i, $requester);
   }
 
   # Somewhat complicated; we try not to check membership unless we
   # need to; we do so only if we would otherwise deny.
   @noadv = $self->_list_config_get($list, 'noadvertise');
   for $i (@noadv) {
-    if (Majordomo::_re_match($safe, $i, $requester)) {
+    if (Majordomo::_re_match($i, $requester)) {
       if ($self->{'lists'}{$list}->is_subscriber($requester)) {
 	return 1;
       }
@@ -781,7 +784,10 @@ sub _d_post {
     if $args{'admin'} && $self->_list_config_get($list, 'administrivia');
 
   for $i (@consult_vars) {
-    return $self->_a_consult(@_) if defined($args{$i}) && $args{$i} > 0;
+    # Consult only if the value is defined and is either a string or a
+    # positive integer.
+    return $self->_a_consult(@_)
+      if defined($args{$i}) && ($args =~ /\D/ || $args{$i} > 0);
   }
 
   return $self->_a_allow(@_);

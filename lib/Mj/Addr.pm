@@ -1,31 +1,66 @@
 =head1 NAME
 
-Mj::Addr - address manipulation functions for Majordomo
+Mj::Addr - Address object for Majordomo
 
 =head1 SYNOPSIS
 
- $av = new Mj::Addr(%params)
- ($ok, $strip, $comment) = $av->validate($address);
+ Mj::Addr::set_defs(%params);
+ $addr = new Mj::Addr($string, %params);
+ ($ok, $message) = $addr->valid; # Tests syntactic legality, returns
+                                 # problem description
+ $strip   = $addr->strip;        # Remove comments
+ $comment = $addr->comment;      # Extract comments
+
+ if ($addr1->canon eq $addr2->canon) {
+   # They are, after aliasing and transformation, equivalent
+ }
 
 =head1 DESCRIPTION
 
-This is a small module for checking the validity of addresses and
-separating the mailbox and the comment portions from them.  It is placed in
-the form of a module so that various parameters can be set for all
-validations without setting global variables.
+This module implements an object encapsulating an address.  Majordomo needs
+to see several forms of an address at various times, and sometimes needs to
+deal with more than one form at a time.  Majordomo needs these forms:
+
+  full - the address and all of its comments
+  stripped - the address without its comments
+  comments - the comments without the address.  Note that you cannot deduce
+             the full address from the stripped address and the comments.
+  transformed - the address after transformations have been applied.
+  canonical - the stripped address after both aliasing and transformation
+              have taken place.  All comparisons should happen on canonical
+              addresses, and can be carried out by comparing stringwise.
+
+Majordomo also needs to check whether or not an address is valid, and upon
+encountering an invalid address have access to a user-friendly (or at least
+somewhat explanatory) message as to the nature of the syntactic anomaly.
 
 =cut
 
 package Mj::Addr;
 use strict;
-use vars qw(%top_level_domains);
+use vars qw($addr %defaults %top_level_domains);
 use Mj::Log;
+use overload 
+  '=='   => \&match,
+  'eq'   => \&match,
+  '""'   => \&full,
+  'bool' => \&isvalid;
 
-=head2 new
+# Some reasonable defaults; still require xforms and an aliaslist
+%defaults = ('allow_at_in_phrase'          => 0,
+	     'allow_bang_paths'            => 0,
+	     'allow_comments_after_route'  => 0,
+	     'allow_ending_dot'            => 0,
+	     'limit_length'                => 1,
+	     'require_fqdn'                => 1,
+	     'strict_domain_check'         => 1,
+	    );
 
-This allocates an address validator object.  This is made an object so that
-certain configuration values can be assigned to it without using package
-globals.
+=head2 set_defs
+
+This sets the defaults for all Mj::Addr objects allocated afterwards.  It
+takes a hash of parameter, value pairs.  The parameters can be set all at
+once or at various times.
 
 The following parameters can be set to either 0 or 1:
 
@@ -52,9 +87,16 @@ The following parameters can be set to either 0 or 1:
         a table which is hard-coded at the end of this file, and which might
         possibly be outdated by the time you''re reading this.
 
-Example:
+The following parameters take other values:
 
-  $av = new Mj::Addr
+  aliaslist - a reference to a Mj::AliasList object, used to perform alias
+              lookups.
+
+  xforms    - a reference to an array of address transforms, described in
+              the Majordomo config file.
+
+Example, illustrating the default settings:
+  Mj::Addr::set_params
     (
      allow_at_in_phrase          => 0,
      allow_bang_paths            => 0,
@@ -66,31 +108,391 @@ Example:
     );
 
 =cut
-sub new {
-  my $type  = shift;
-  my $class = ref($type) || $type;
-  my $self  = {@_};
-  my $log = new Log::In 150;
-  bless $self, $class;
-  $self;
-}
-
-=head2 params
-
-This sets the validator parameters.  For bootstrapping purposes these must
-be settable separately from allocation.
-
-=cut
-sub params {
-  my $self = shift;
+sub set_params {
   my %params = @_;
   my($key, $val);
   while (($key, $val) = each %params) {
-    $self->{$key} = $val;
+    $defaults{$key} = $val;
   }
 }
 
-=head2 validate
+=head2 new($addr, %params)
+
+This allocates and returns an Mj::Addr object using the given string as the
+address.  Parameters not mentioned will be filled in with the defaults or
+any previously set parameters.  If the passed valie is already an Mj::Addr
+object, it will just be returned.  This lets you do
+
+  $addr = new Mj::Addr($addr)
+
+without worring about whether you were passed an address or not.  Cached
+data is preserved by this, too.
+
+The string does not have to be a valid address, but various calls will
+return undef if it is not.  If having a valid address is important, a call
+to the 'valid' method should be made shortly afterwards.
+
+Class layout (hash):
+  p - hashref parameters
+  cache - hashref of cached data
+  full - the full address
+  strip - the stripped address
+  comment - the comments
+  xform - the transformed address
+  alias - the full form of the address after aliasing
+  canon - the canonical address (stripped form of address after aliasing)
+
+  parsed - has the full address been parsed yet?
+  valid  - is the address valid
+  message - syntax error message
+
+Only canonical addresses should be used for comparison.
+
+The cache field is intended to be used to stuff additional data in an
+address, so that it can carry it along as it is passed throughout the
+system.  This is intended to eliminate some needless calls to retrieve
+flags and such.
+
+Be aware of stale data; these addresses will accumulate information and
+cache it; this saves time but can cause interesting problems if the cached
+data is outdated.  These objects should probably not live very long lives.
+They should definitely not be cached between connections.
+
+=cut
+sub new {
+  my $type  = shift;
+  my $class = ref($type) || $type;
+  my $self  = {};
+  my $val = shift;
+  my $key;
+
+  return $val if ref($val) eq 'Mj::Addr';
+
+  $self->{'full'} = $val;
+  return undef unless $self->{'full'};
+#  my $log = new Log::In 150, $self->{'full'};
+  bless $self, $class;
+
+  # Copy in defaults, then override.
+  while (($key, $val) = each %defaults) {
+    $self->{p}{$key} = $val;
+  }
+  while (($key, $val) = each %_) {
+    $self->{p}{$key} = $val;
+  }
+  $self;
+}
+
+=head2 reset($addr)
+
+Clears out any cached data and resets the address to a new string.  This
+has less overhead than destroying and creating anew large numbers of
+Mj::Addr objects in a loop.
+
+If $addr is not defined, just resets the cached data.
+
+=cut
+sub reset {
+  my $self = shift;
+  my $addr = shift;
+#  my $log = new Log::In 150, $self->{'full'};
+
+  delete $self->{'cache'};
+  if ($addr) {
+    $self->{'full'} = $addr;
+    delete $self->{'strip'};
+    delete $self->{'comment'};
+    delete $self->{'xform'};
+    delete $self->{'alias'};
+    delete $self->{'canon'};
+  }
+}
+
+=head2 full
+
+Extracts the full address.  This is in all cases just the string that was
+passed in when the object was created.
+
+=cut
+sub full {
+  my $self = shift;
+#  my $log = new Log::In 150, $self->{'full'};
+  $self->{'full'};
+}
+
+=head2 strip
+
+Extracts the stripped address.
+
+=cut
+sub strip {
+  my $self = shift;
+#  my $log = new Log::In 150, $self->{'full'};
+
+  $self->_parse unless $self->{parsed};
+  $self->{'strip'};
+}
+
+=head2 comment
+
+Extracts the comment.
+
+=cut
+sub comment {
+  my $self = shift;
+#  my $log = new Log::In 150, $self->{'full'};
+
+  $self->_parse unless $self->{parsed};
+  $self->{'comment'};
+}
+
+=head2 valid, isvalid
+
+Verifies that the address is valid and returns a list:
+  flag    - true if the address is valid.
+  message - a syntax error if the message is invalid.
+
+isvalid returns only the flag.
+
+=cut
+sub valid {
+  my $self = shift;
+#  my $log = new Log::In 150, $self->{'full'};
+
+#  use Data::Dumper; print Dumper $self;
+
+  $self->_parse unless $self->{parsed};
+  ($self->{'valid'}, $self->{message});
+}
+
+sub isvalid {
+  my $self = shift;
+#  my $log = new Log::In 150, $self->{'full'};
+
+  $self->_parse unless $self->{parsed};
+  $self->{'valid'};
+}  
+
+=head2 xform
+
+Returns the transformed form of the address.  This will be equivalent to
+the stripped form unless the xform parameter is set to something which
+modifies the address.
+
+=cut
+sub xform {
+  my $self = shift;
+#  my $log = new Log::In 150, $self->{'full'};
+
+  $self->_xform unless $self->{xformed};
+  $self->{'xform'};
+}
+
+=head2 alias
+
+Returns the aliased form of the address; that is, the full address
+including comments that the address is aliased to.
+
+=cut
+sub alias {
+  my $self = shift;
+#  my $log = new Log::In 150, $self->{'full'};
+
+  $self->_alias unless $self->{aliased};
+  $self->{alias};
+}
+
+=head2 canon
+
+Returns the canonical form of the address.  Will be the same as the xform
+form unless the aliaslist parameter is set and the address aliases to
+something.
+
+=cut
+sub canon {
+  my $self = shift;
+#  my $log = new Log::In 150, $self->{'full'};
+  $self->_alias unless $self->{aliased};
+  $self->{'canon'};
+}
+
+=head2 cache($tag, $data)
+
+Caches some data within the Mj::Addr object.
+
+=cut
+sub cache {
+  my ($self, $tag, $data) = @_;
+#  my $log = new Log::In 150, $self->{'full'};
+  $self->{'cache'}{$tag} = $data;
+}
+
+=head2 retrieve($tag)
+
+Retrieves some cached data.
+
+=cut
+sub retrieve {
+  my ($self, $tag) = @_;
+#  my $log = new Log::In 150, "$self->{'full'}, $tag";
+  $self->{'cache'}{$tag};
+}
+
+=head2 flush
+
+Deletes any cached data.
+
+=cut
+sub flush {
+  my $self = shift;
+  delete $self->{'cache'};
+}
+
+=head2 match($addr1, $addr2)
+
+Returns true if two Mj::Addr objects are equivalent, false otherwise.
+
+=cut
+sub match {
+  my ($a1, $a2) = @_;
+  if (ref $a2 eq 'Mj::Addr') {
+    return $a1->canon eq $a2->canon;
+  }
+  $a1->canon eq $a2;
+}
+
+=head2 _parse
+
+Parse an address, extracting the valid flag, a syntax error (if any), the
+stripped address and the comments.
+
+=cut
+sub _parse {
+  my $self = shift;
+
+  my ($ok, $v1, $v2) = $self->_validate;
+
+  if ($ok) {
+    $self->{'strip'}   = $v1;
+    $self->{'comment'} = $v2;
+    $self->{'valid'}   = 1;
+    $self->{message} = '';
+  }
+  else {
+    $self->{'strip'}   = undef;
+    $self->{'comment'} = undef;
+    $self->{'valid'}   = 0;
+    $self->{message} = $v1;
+  }
+  $self->{parsed} = 1;
+  $self->{'valid'};
+}
+
+=head2 _xform
+
+Apply transformations (if any) to the address.  They are applied in order;
+care should be taken that they are idempotent and that the collection is
+idempotent.  This means that the result of applying them repeatedly is the
+same as the result of applying them once.
+
+Transformations look somewhat like the usual regular expression transforms:
+
+/(.*?)\+.*(\@.*)/$1$2/
+
+removes the sendmail +mailbox specifier from the address, which turns
+tibbs+blah@hurl.edu into tibbs@hurl.edu.  Note that applying this
+repeatedly leaves the address alone.  When there is more than one plus, all
+are removed.
+
+/(.*\@).*?\.(hurl\.edu)/$1$2/
+
+Removes the machine name from the hurl.edu domain, which turns
+tibbs@a2.hurl.edu into tibbs@hurl.edu.  Note that applying this repeatedly
+leaves the address alone.
+
+No transformations are necessary to downcase hostnames in addresses; that
+is done automatically by the address parser.
+
+=cut
+use Safe;
+sub _xform {
+  my $self = shift;
+  my (@xforms, $cpt, $i, $eval);
+
+#  my $log = new Log::In 120, $self->{'full'};
+
+  # Parse the address if we need to; bomb if it is invalid
+  unless ($self->{parsed}) {
+    return 0 unless $self->_parse;
+  }
+
+  # Exit successfully if we have nothing to do
+  unless ($self->{p}{xforms} && @{$self->{p}{xforms}}) {
+    $self->{'xform'} = $self->{'strip'};
+    return 1;
+  }
+
+  local $addr = $self->{'strip'};
+
+  # Set up the Safe compartment
+  $cpt = new Safe;
+  $cpt->permit_only(qw(const rv2sv concat leaveeval));
+  $cpt->share('$addr');
+
+  for $i (@{$self->{p}{xforms}}) {
+    # Do the substitution in a _very_ restrictive Safe compartment
+    $eval = "\$addr =~ s$i";
+    $cpt->reval($eval);
+
+    # Log any messages
+    if ($@) {
+      $::log->message(10,
+		      "info",
+		      "Mj::Addr::xform: error in Safe compartment: $@"
+		     );
+    }
+  }
+  $self->{'xform'} = $addr;
+  1;
+}
+
+=head2 _alias
+
+Do an alias lookup on an address.
+
+=cut
+sub _alias {
+  my $self = shift;
+  my $data;
+#  my $log = new Log::In 150, $self->{'full'};
+
+  # Make sure we've transformed first, and bomb if we can't.
+  unless ($self->{xformed}) {
+    return 0 unless $self->_xform;
+  }
+
+  # Copy over unaliased values and exit if we have nothing to do
+  unless ($self->{p}{aliaslist}) {
+    $self->{'canon'} = $self->{'xform'};
+    $self->{'alias'} = $self->{'xform'};
+    return 1;
+  }
+
+  $data = $self->{p}{aliaslist}->lookup($self->{'xform'});
+  if ($data) {
+    $self->{'canon'} = $data->{target};
+    $self->{'alias'} = $data->{striptarget};
+  }
+  else {
+    $self->{'canon'} = $self->{'xform'};
+    $self->{'alias'} = $self->{'xform'};
+  }
+  $self->{aliased} = 1;
+  1;
+}
+
+
+=head2 validate (internal method)
 
 Intended to check an address for validity and report back problems in a way
 that the user can understand.  This is hard to do.  This routine tries to
@@ -105,9 +507,9 @@ than one host.
 
 =cut
 
-sub validate {
+sub _validate {
   my $self  = shift;
-  local($_) = shift;
+  local($_) = $self->{'full'};
   my $log = new Log::In 150, $_;
   my (@comment, @phrase, @route, @words, $angle, $bang_path, $comment,
       $domain_literal, $i, $right_of_route, $lhs_length, $nest, $rhs_length,
@@ -115,18 +517,15 @@ sub validate {
 
   my $specials = q|()<>@,;:\".[]|;
 
-  $::log->in(130, $_);
-  
   # We'll be interpolating arrays into strings and we don't want any
   # spaces.
   $"=''; #";
-
 
   # Trim trailing whitespace; it hoses the algorithm
   s/\s+$//;
   
   if ($_ eq "") {
-    $::log->out("failed");
+    $log->out("failed");
     return (0, "Nothing at all in that address.\n");
   }
 
@@ -162,7 +561,7 @@ sub validate {
       
       # If we don't have enough closing parentheses, we're hosed
       if ($nest) {
-	$::log->out("failed");
+	$log->out("failed");
 	return (0, "Unmatched parenthesis in $comment $_\n");
       }
       
@@ -191,14 +590,14 @@ sub validate {
       push @route,  $1 if $angle;
 
       unless ($on_rhs) {
-	$::log->out("failed");
+	$log->out("failed");
 	return (0, "Domain literals (words in square brackets) are only permitted on
 the right hand side of an address: $1 $_
 Did you mistakenly enclose the entire address in square brackets?
 ");
       }
       unless ($words[-2] && $words[-2] =~ /^[.@]/) {
-	$::log->out("failed");
+	$log->out("failed");
 	return (0, "Domain literals (words in square brackets) are only permitted after
 a '.' or a '\@': $words[-2] _$1_$_\n");
       }
@@ -225,7 +624,7 @@ a '.' or a '\@': $words[-2] _$1_$_\n");
 
       # XXX #17 need to do something different here when in a route.
       if ($1 eq ',') {
-	$::log->out("failed");
+	$log->out("failed");
 	if ($angle) {
 	  return (0, "Source routes are not allowed, at
 @words[0..$#words-1] _$1_ $_
@@ -249,13 +648,13 @@ Did you mistype a period as a comma?\n");
       elsif ($1 eq '<') {
 	$angle++;
 	if ($angle > 1) {
-	  $::log->out("failed");
+	  $log->out("failed");
 	  return (0, "Angle brackets cannot nest at: $words[-2] _$1_ $_\n");
 	}
 
 	# Make sure we haven't already seen a route address
 	if (@route) {
-	  $::log->out("failed");
+	  $log->out("failed");
 	  return (0, "Only one bracketed address permitted at: @words[0..$#words-1] _$1_ $_\n");
 	}
 
@@ -264,7 +663,7 @@ Did you mistype a period as a comma?\n");
 	$angle--;
 	pop @route;
 	if ($angle < 0) {
-	  $::log->out("failed");
+	  $log->out("failed");
 	  return (0, sprintf("Too many closing angles at %s_%s_%s\n",
 			    $words[-2]||"", $1, $_));
 	}
@@ -274,18 +673,18 @@ Did you mistype a period as a comma?\n");
       # The following can be if instead of elsif, but we choose to postpone
       # some tests until later to give better messages.
       elsif ($words[-2] && $words[-2] =~ /^[\Q$specials\E]$/) {
-	$::log->out("failed");
+	$log->out("failed");
 	return (0, sprintf("Illegal combination of characters at: %s _%s %s_ %s\n",
 			  $words[-3]||"", $words[-2], $words[-1], $_));
       }
       next;
     }
 
-    $::log->out("failed");
+    $log->out("failed");
     return (0, "Unrecognized address component in $_\n");
   }
   if ($angle) {
-    $::log->out("failed");
+    $log->out("failed");
     return (0, "Unmatched open angle bracket in address.\n");
   }
 
@@ -318,19 +717,19 @@ Did you mistype a period as a comma?\n");
       
       # If we're right of the route address, nothing is allowed to appear.
       # This is common, however, and is overrideable.
-      if (!$self->{'allow_comments_after_route'} && $right_of_route) {
-	$::log->out("failed");
+      if (!$self->{p}{'allow_comments_after_route'} && $right_of_route) {
+	$log->out("failed");
 	return (0, "Nothing is allowed to the right of an address in angle brackets.\n");
       }
 
       # We might be lenient and allow '@' in the phrase
-      if ($self->{'allow_at_in_phrase'} && $words[$i] =~ /^\@/) {
+      if ($self->{p}{'allow_at_in_phrase'} && $words[$i] =~ /^\@/) {
 	next;
       }
 
       # Other specials are illegal 
       if ($words[$i] =~ /^[\Q$specials\E]/) {
-	$::log->out("failed");
+	$log->out("failed");
 	return (0, sprintf("Illegal character in comment portion of address at: %s _%s_ %s\n",
 			   $words[$i-1] || "", $words[$i], $words[$i+1] || ""));
       }
@@ -344,7 +743,7 @@ Did you mistype a period as a comma?\n");
   # @domain,@domain,@domain:addr@domain syntax.
 
   unless (@words) {
-    $::log->out("failed");
+    $log->out("failed");
     return (0, "Nothing but comments in that address.\n");
   }
 
@@ -353,7 +752,7 @@ Did you mistype a period as a comma?\n");
   # must begin and end with an atom.  (We can be lenient and allow it to
   # end with a '.', too.)
   if ($words[0] =~ /^[.@]/) {
-    $::log->out("failed");
+    $log->out("failed");
     return (0, "The address cannot begin with either '.' or '\@'.\n");
   }
   
@@ -361,16 +760,16 @@ Did you mistype a period as a comma?\n");
 
   # We can bail out early if we have just a bang path
   if ($#words == 0 &&
-      $self->{'allow_bang_paths'} &&
+      $self->{p}{'allow_bang_paths'} &&
       $words[0] =~ /[a-z0-9]\![a-z]/i)
     {
-      $::log->out;
+      $log->out;
       return (1, $words[0], join(" ", @comment)||"");
     }
   
   for $i (0..$#words) {
     if ($i > 0 &&$words[$i] !~ /^[.@]/ && $words[$i-1] && $words[$i-1] !~ /^[.@]/) {
-      $::log->out("failed");
+      $log->out("failed");
       return (0, "Individual words are not allowed without an intervening '.' or '\@'
 at: $words[$i-1] $words[$i]
 Did you supply just your full name?  Did you include your full name
@@ -387,8 +786,8 @@ Did you try to perform an action on two lists at once?
     if($on_rhs) {
       $words[$i] = lc($words[$i]);
       $rhs_length += length($words[$i]);
-      if ($self->{'limit_length'} && $rhs_length > 64) {
-	$::log->out("failed");
+      if ($self->{p}{'limit_length'} && $rhs_length > 64) {
+	$log->out("failed");
 	return (0, "The hostname exceeds 64 characters in length.\n");
       }
       # Hostname components must be only alphabetics, ., or -; can't start
@@ -396,21 +795,21 @@ Did you try to perform an action on two lists at once?
       if (($words[$i] =~ /[^a-zA-Z0-9.-]/ ||
 	   $words[$i] =~ /^-/) && $words[$i] !~ /^[\[\]]/)
 	{
-	  $::log->out("failed");
+	  $log->out("failed");
 	  return (0, "Host name component \"$words[$i]\" contains illegal characters.\n");
 	}
     }
     else {
       $lhs_length += length($words[$i]);
-      if ($self->{'limit_length'} && $lhs_length > 64) {
-	$::log->out("failed");
+      if ($self->{p}{'limit_length'} && $lhs_length > 64) {
+	$log->out("failed");
 	return (0, "The user name exceeds 64 characters in length.\n");
       }
       # Username components must lie betweem 040 and 0177.  (It's really
       # more complicated than that, but this will catch most of the
       # problems.)
       if ($words[$i] =~ /[^\040-\177]/) {
-	$::log->out("failed");
+	$log->out("failed");
 	return (0, "User name component \"$words[$i]\" contains illegal characters.\n");
       }
     }
@@ -424,25 +823,25 @@ Did you try to perform an action on two lists at once?
     }
   }
   
-  if ($self->{'require_fqdn'} && !$on_rhs) {
+  if ($self->{p}{'require_fqdn'} && !$on_rhs) {
     if ($top_level_domains{lc($words[-1])}) {
-      $::log->out("failed");
+      $log->out("failed");
       return (0, "It looks like you have supplied just a domain name
 without the rest of the address.\n");
     }
     else {
-      $::log->out("failed");
+      $log->out("failed");
       return (0, "You did not include a hostname as part of the address.\n");
     }
   }
 
   if ($words[-1] eq '@') {
-    $::log->out("failed");
+    $log->out("failed");
     return (0, "The address cannot end with an '\@'.  You must supply a hostname.\n");
   }
 
-  if (!$self->{'allow_ending_dot'} && $words[-1] eq '.') {
-    $::log->out("failed");
+  if (!$self->{p}{'allow_ending_dot'} && $words[-1] eq '.') {
+    $log->out("failed");
     return (0, "The address cannot end with a '.'.\n");
   }
 
@@ -451,11 +850,11 @@ without the rest of the address.\n");
   # got to the right hand side; this case will have bombed out earlier of a
   # domain name is required.
   if ($on_rhs) {
-    if ($self->{'require_fqdn'} && $subdomain < 2 && !$domain_literal) {
-      $::log->out("failed");
+    if ($self->{p}{'require_fqdn'} && $subdomain < 2 && !$domain_literal) {
+      $log->out("failed");
       return (0, "You did not include a complete hostname.\n");
     }
-    if (($self->{'strict_domain_check'} &&
+    if (($self->{p}{'strict_domain_check'} &&
 	 $words[-1] !~ /^\[/ &&
 	 !$top_level_domains{lc($words[-1])}) ||
 	$words[-1] !~ /[\w-]{2,5}/)
@@ -465,13 +864,13 @@ without the rest of the address.\n");
 	    $words[-5] && $words[-5] !~ /\D/ &&
 	    $words[-7] && $words[-7] !~ /\D/)
 	  {
-	    $::log->out("failed");
+	    $log->out("failed");
 	    return (0, "It looks like you are trying to supply your IP address
 instead of a hostname.  To do, you must enclose it in
 square brackets like so: [" . join("",@words[-7..-1]) . "]\n");
 	  }
 	
-	$::log->out("failed");
+	$log->out("failed");
 	return (0, "The domain you provided, $words[-1], does not seem
 to be a legal top-level domain.\n");
       }
@@ -480,7 +879,7 @@ to be a legal top-level domain.\n");
   my $addr = join("", @words);
   my $comm = join(" ", @comment) || "";
 
-  $::log->out;
+  $log->out('ok');
   (1, $addr, $comm);
 }
 

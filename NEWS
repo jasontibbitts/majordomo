@@ -3,8 +3,78 @@
 Here you'll find information on major changes.  (Read the ChangeLog
 for the boring stuff.)  Items at the top are newer.
 
+A new variable, 'advertise_subscribed' serves to globally select whether
+users will be able to see a list if they are subscribed.  If this is off,
+the normal access restrictions on advertising apply.  (Note that the
+default is still to show the list, so this only servers to improve
+performance slightly.)
+
+The show command shows everything about an address, including data on all
+lists it is a member of.
+
+An internal rewrite has given a single database holding information about
+all subscribers to all lists.  A new 'register' command adds users to this
+database without subscribing them to any lists.  The register keeps track
+of the lists a user is subscribed to, so several operations require only
+one database access.  This permits a single alias database and a simple
+per-user password system.
+
+The postinstall process is now very quiet unless verbosity is requested.
+
+The shell interface has an interactive mode, with completion of commands,
+lists and config variables.
+
+Majordomo is immune to bad suggested filenames in MIME parts.
+
+Resend can filter for long headers in MIME parts, partly to remove concerns
+about messages which trigger buffer overflows in clients.
+
+The createlist command can be used to generate an entire alias file for a
+domain.
+
+The separate mj_email, mj_resend and an abortive mj_request interfaces are
+now unified into a single mj_email interface which accepts options to
+control what is done with a message.  This command accepts mail from all
+addresses (majordomo, list, list-request, list-owner) and does what is
+appropriate.  Mail to list-owner is directed to the owners stored in a
+config variable 'owners' while mail to list-request is acted on according
+to the variable 'request-answer'.  Mail to list-request can be sent to the
+owner, replied to with a canned (and owner-selectable) message, or parsed
+for commands.
+
+The database engine has been abstracted to allow different backends, with
+automatic conversion as necessary.  Only the Text backend is currently
+supported.
+
+Lockfiles are stored in a separate directory.
+
+The configuration procedure can be told not to store passwords; they will
+be prompted for at install time.
+
+Taboo matchers allow negative severities.
+
+Commands take modes/options with '=' or '-' as a separator, allowing the
+more sensible 'command-action' form.
+
+The message that is sent to the archives does not need to be identical to
+the message distributed to the users.  Header modifications and
+fronters/footers are not present in the archived version.  Attachments
+stripped before sending can be present in the archived copy.
+
+Archiving works; the archiver keeps index files containing data on each
+message.  Messages in the archive are assigned numbers and the index
+provides exact byte offsets into the archive files.  Archives can be split
+by year, month, week, or day and further split by size.
+
+Reply-To: headers work.
+
+An mj_trigger command provides a way to signal Majordomo that periodic tasks
+should be run.  Two commands in the Majordomo user's crontab are all that
+is required to have Majordomo take care of all necessary periodic
+functions.
+
 Default subscription flags can be set, along with a separate setting for
-the flags assocuated with nonmembers.
+the flags associated with nonmembers.
 
 A preliminary system for internationalization is in place although it is
 not yet accessible to the user.  The owner can set a default language for
@@ -56,7 +126,7 @@ for illegal types are implemented, which means that you can set
 attachment_rules such that messages containing certain MIME types can
 be bounced or denied.
 
-Fronters and footers are now implemented.  The provsion is made to
+Fronters and footers are now implemented.  The provision is made to
 have several fronters and several footers and to randomly choose
 between them.  Also, additional variables controlling how often
 fronters and footers are added are implemented.  Care is taken so that

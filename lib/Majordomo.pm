@@ -81,16 +81,19 @@ $VERSION = "0.1199808100";
 
 use strict;
 no strict 'refs';
-use vars (qw($str));
+use vars (qw($safe));
 use IO::File;
 use Mj::Log;
 use Mj::List;
+use Mj::AliasList;
+use Mj::RegList;
 use Mj::Addr;
 use Mj::Access;
 use Mj::MailOut;
 use Mj::Token;
 use Mj::Resend;
 use Mj::Inform;
+use Safe;
 
 # sub is_tainted {
 #   return ! eval {
@@ -114,7 +117,7 @@ sub new {
   my $topdir = shift;
   my $domain = shift;
 
-  $::log->in(50, "$topdir, $domain");
+  my $log = new Log::In 50, "$topdir, $domain";
 
   my $self   = {};
   bless $self, $class;
@@ -124,44 +127,37 @@ sub new {
   $self->{'lists'}  = {};
   $self->{'unique'} = 'AAA';
 
-  # We'll have to do this anyway, so do it here and leave it out of the
-  # rest of the code.
-  $self->{'av'} = new Mj::Addr
-    (
-     'allow_at_in_phrase'          => 0,
-     'allow_bang_paths'            => 0,
-     'allow_comments_after_route'  => 0,
-     'allow_ending_dot'            => 0,
-     'limit_length'                => 1,
-     'require_fqdn'                => 1,
-     'strict_domain_check'         => 1,
-    );
-  
   $self->{backend} = ''; # Suppress warnings
   $self->_make_list('GLOBAL');
-
   $self->{backend} = $self->_global_config_get('database_backend');
+  $self->{alias} = new Mj::AliasList("$self->{ldir}/GLOBAL/_aliases",
+				     $self->{backend});
+  $self->{reg}   = new Mj::RegList("$self->{ldir}/GLOBAL/_register",
+				     $self->{backend});
 
   # Pull in the constants for our address validator
-  $self->{'av'}->params
+  Mj::Addr::set_params
     (
+     'aliaslist'        => $self->{alias},
+     'allow_bang_paths' => $self->_global_config_get('addr_allow_bang_paths'),
+     'allow_ending_dot' => $self->_global_config_get('addr_allow_ending_dot'),
+     'limit_length'     => $self->_global_config_get('addr_limit_length'),
+     'require_fqdn'     => $self->_global_config_get('addr_require_fqdn'),
+     'xforms'           => [$self->_global_config_get('addr_xforms')],
      'allow_at_in_phrase'
-     => $self->_global_config_get('addr_allow_at_in_phrase'),
-     'allow_bang_paths'
-     => $self->_global_config_get('addr_allow_bang_paths'),
+       => $self->_global_config_get('addr_allow_at_in_phrase'),
      'allow_comments_after_route'
-     => $self->_global_config_get('addr_allow_comments_after_route'),
-     'allow_ending_dot'
-     => $self->_global_config_get('addr_allow_ending_dot'),
-     'limit_length'
-     => $self->_global_config_get('addr_limit_length'),
-     'require_fqdn'
-     => $self->_global_config_get('addr_require_fqdn'),
+       => $self->_global_config_get('addr_allow_comments_after_route'),
      'strict_domain_check'
-     => $self->_global_config_get('addr_strict_domain_check'),
+       => $self->_global_config_get('addr_strict_domain_check'),
     );
 
-  $::log->out;
+  unless (defined($safe)) {
+    $safe = new Safe;
+#    $safe->reval('$^W=0');
+    $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
+  }
+
   $self;
 }
 
@@ -207,7 +203,7 @@ sub connect {
   # Open the session file; overwrite in case of a conflict;
   $self->{sessionid} = $id;
   $self->{sessionfh} =
-    new Mj::File("$self->{ldir}/GLOBAL/sessions/$id", '>');
+    new IO::File(">$self->{ldir}/GLOBAL/sessions/$id");
   
   $log->abort("Can't write session file to $self->{ldir}/GLOBAL/sessions/$id, $!")
     unless $self->{sessionfh};
@@ -218,41 +214,41 @@ sub connect {
   return $id;
 }
 
-
 # A hash of functions that the dispatcher will allow.  The hash value will
 # eventually convey more useful information.
 my %functions =
   (
-   'accept'      => {'top_half' => 1},
-   'alias'       => {'top_half' => 1},
-   'auxadd'      => {'top_half' => 1},
-   'auxremove'   => {'top_half' => 1},
-   'auxwho'      => {'top_half' => 1, 'iterator' => 1},
-   'createlist'  => {'top_half' => 1},
-   'faq'         => {'top_half' => 1, 'iterator' => 1},
-   'get'         => {'top_half' => 1, 'iterator' => 1},
-   'help'        => {'top_half' => 1, 'iterator' => 1},
-   'index'       => {'top_half' => 1},
-   'info'        => {'top_half' => 1, 'iterator' => 1},
-   'intro'       => {'top_half' => 1, 'iterator' => 1},
-   'lists'       => {'top_half' => 1},
-   'owner'       => {'top_half' => 1, 'iterator' => 1},
-   'post'        => {'top_half' => 1, 'iterator' => 1},
-   'put'         => {'top_half' => 1, 'iterator' => 1},
-   'reject'      => {'top_half' => 1},
-   'rekey'       => {'top_half' => 1},
-   'request_response' => {'top_half' => 1},
-   'sessioninfo' => {'top_half' => 1},
-   'set'         => {'top_half' => 1},
-   'show'        => {'top_half' => 1},
-   'showtokens'  => {'top_half' => 1},
-   'subscribe'   => {'top_half' => 1},
-   'tokeninfo'   => {'top_half' => 1},
-   'trigger'     => {'top_half' => 1},
-   'unalias'     => {'top_half' => 1},
-   'unsubscribe' => {'top_half' => 1},
-   'which'       => {'top_half' => 1},
-   'who'         => {'top_half' => 1, 'iterator' => 1},
+   'accept'      => {'top' => 1},
+   'alias'       => {'top' => 1},
+   'auxadd'      => {'top' => 1},
+   'auxremove'   => {'top' => 1},
+   'auxwho'      => {'top' => 1, 'iter' => 1},
+   'createlist'  => {'top' => 1},
+   'faq'         => {'top' => 1, 'iter' => 1},
+   'get'         => {'top' => 1, 'iter' => 1},
+   'help'        => {'top' => 1, 'iter' => 1},
+   'index'       => {'top' => 1},
+   'info'        => {'top' => 1, 'iter' => 1},
+   'intro'       => {'top' => 1, 'iter' => 1},
+   'lists'       => {'top' => 1},
+   'owner'       => {'top' => 1, 'iter' => 1, 'noaddr' => 1},
+   'post'        => {'top' => 1, 'iter' => 1},
+   'put'         => {'top' => 1, 'iter' => 1},
+   'reject'      => {'top' => 1},
+   'register'    => {'top' => 1},
+   'rekey'       => {'top' => 1},
+   'request_response' => {'top' => 1},
+   'sessioninfo' => {'top' => 1},
+   'set'         => {'top' => 1},
+   'show'        => {'top' => 1},
+   'showtokens'  => {'top' => 1},
+   'subscribe'   => {'top' => 1},
+   'tokeninfo'   => {'top' => 1},
+   'trigger'     => {'top' => 1},
+   'unalias'     => {'top' => 1},
+   'unsubscribe' => {'top' => 1, 'noaddr' => 1},
+   'which'       => {'top' => 1},
+   'who'         => {'top' => 1, 'iter' => 1},
   );
 
 =head2 dispatch(function, user, passwd, auth, interface, mode, cmdline, list, victim, ...)
@@ -270,22 +266,34 @@ This uses the %functions hash to determine what a particular function
 needs.  The keys of this hash are the function names; the values are
 hashrefs with the following keys:
 
-  top_half ------- if this exists, control will be passed to the top half
+  top ------- if this exists, control will be passed to the top half
     function with the same name as the function.  No other processing will
     be done.
 
-  iterator ------- true if this function is really a trio of iterator
+  iter ------- true if this function is really a trio of iterator
     functions; the dispatcher will accept the three functions $fun_start,
     $fun_chunk and $fun_done.  Only the first will be security checked.
+
+  noaddr - true if no address pasring should be done.  Normally the
+  dispatcher whii create and initialize appropriate address objects, but
+  some calls either never use the addresses or are not expected to be
+  called with legal addresses.  These functions should expect to be passed
+  strings instead of Mj::Addr objects, and should create those objects
+  themselves if they ever do need to operate on addresses.
+
+Note that the _chunk and _done iterator functions have 'noaddr' implied.
+(They''re called repeatedly and have everything that needs address
+processing done at the beginning.
 
 =cut
 sub dispatch {
   my ($self, $fun, $user, $pass, $auth, $int, $cmd, $mode, $list, $vict,
       @extra) = @_;
   my $log  = new Log::In 29, "$fun" unless $fun =~ /_chunk$/;
-  my(@out, $base_fun, $ok, $over);
+  my(@out, $base_fun, $continued, $mess, $ok, $over);
 
   ($base_fun = $fun) =~ s/_(start|chunk|done)$//;
+  $continued = 1 if $fun =~ /_(chunk|done)/;
   $list ||= 'GLOBAL';
   $vict ||= '';
   $mode ||= '';
@@ -296,8 +304,13 @@ sub dispatch {
     return (0, "Illegal core function: $fun");
   }
 
-  if (($base_fun ne $fun) && !$functions{$base_fun}{'iterator'}) {
+  if (($base_fun ne $fun) && !$functions{$base_fun}{'iter'}) {
     return (0, "Illegal core function: $fun");
+  }
+
+  # Turn some strings into addresses
+  unless ($continued || $functions{$base_fun}{'noaddr'}) {
+    $user = new Mj::Addr($user); $vict = new Mj::Addr($vict);
   }
 
   if ($mode =~ /nolog/) {
@@ -319,7 +332,18 @@ sub dispatch {
     $over = 0;
   }
 
-  if ($functions{$base_fun}{'top_half'}) {
+  unless ($continued || $functions{$base_fun}{'noaddr'}) {
+    ($ok, $mess) = $user->valid;
+    return (0, "$user is an invalid address:\n$mess")
+      unless $ok;
+    if ($vict) {
+      ($ok, $mess) = $vict->valid;
+      return (0, "$vict is an invalid address:\n$mess")
+	unless $ok;
+    }
+  }
+
+  if ($functions{$base_fun}{'top'}) {
     @out = $self->$fun($user, $pass, $auth, $int, $cmd, $mode, $list, $vict, @extra);
   }
   else {
@@ -334,29 +358,40 @@ sub dispatch {
   @out;
 }
 
-use AutoLoader 'AUTOLOAD';
+#use AutoLoader 'AUTOLOAD';
 1;
-__END__
+#__END__
+
+=head1 Utility functions
+
+These functions are called from various places in the code to do verious
+small tasks.
 
 =head2 get_all_lists(user, passwd, auth, interface)
 
-Utility function.
-
 This just grabs all of the lists that are accessible by the user and
-returns them in an array.  Because of the access checking, it will have the
-side effect of loading the configurations for all of the lists.
+returns them in an array.
 
 =cut
 sub get_all_lists {
   my ($self, $user, $passwd, $auth, $interface) = @_;
-  my (@lists, $list);
+  my $log = new Log::In 100;
+  my (@lists, $always, $list);
 
-  $::log->in(100);
-
+  $user = new Mj::Addr($user);
   $self->_fill_lists;
+  $always = $self->_global_config_get('advertise_subscribed');
 
   for $list (keys %{$self->{'lists'}}) {
     next if $list eq 'GLOBAL';
+
+    # If membership always overrides advertising:
+    if ($always && $self->is_subscriber($user, $list)) {
+      push @lists, $list;
+      next;
+    }
+
+    # Else do the full check
     $self->_make_list($list);
     if ($self->list_access_check($passwd, $auth, $interface, '', 'lists',
 				 $list, 'advertise', $user))
@@ -364,23 +399,412 @@ sub get_all_lists {
 	push @lists, $list;
       }
   }
-
-  $::log->out;
   @lists;
 }
 
-=head2 addr_validate(address)
+=head2 domain
 
-Utility function.
+This returns the domain that this Majordomo object is running in.
 
-This validates and strips an address using the Majordomo object''s internal
-address validator.
+XXX The interface should already know, since _it_ told _us_.  This is only
+used by deep objects making calls to us.
 
 =cut
-sub addr_validate {
+sub domain {
   my $self = shift;
-  $self->{'av'}->validate(@_);
+  return $self->{'domain'};
 }
+
+=head2 _re_match
+
+This expects a safe compartment to already be set up, and matches a
+string against a regular expression within that safe compartment.  The
+special 'ALL' regexp is also accepted, and always matches.
+
+If called in an array context, also returns any errors encountered
+while compiling the match code, so that this can be used as a general
+regexp syntax checker.
+
+=cut
+sub _re_match {
+  my $re  = shift;
+  my $str = shift;
+#  my $log  = new Log::In 200, "$re, $str";
+  my $match;
+  return 1 if $re eq 'ALL';
+
+  # Hack; untaint things.  That's why we're running inside a safe
+  # compartment.
+  $str =~ /(.*)/;
+  $str = $1;
+  $re =~ /(.*)/;
+  $re = $1;
+
+  local($^W) = 0;
+  $match = $safe->reval("'$str' =~ $re");
+  $::log->complain("_re_match error: $@") if $@;
+  if (wantarray) {
+    return ($match, $@);
+  }
+  return $match;
+}
+
+=head2 substitute_vars(file, subhash)
+
+This routine iterates over a file and expands embedded "variables".  It
+takes a file and a hash, the keys of which are the tags to be expanded.
+
+=cut
+sub substitute_vars {
+  my $self = shift;
+  my $file = shift;
+  my %subs = @_;
+  my ($tmp, $in, $out, $i);
+
+  $tmp = $self->_global_config_get("tmpdir");
+  $tmp = "$tmp/mj-tmp." . $self->unique;
+  $in  = new Mj::File "$file"
+    || $::log->abort("Cannot read file $file, $!");
+  $out  = new IO::File ">$tmp"
+    || $::log->abort("Cannot write to file $tmp, $!");
+  
+  while (defined ($i = $in->getline)) {
+    $i = $self->substitute_vars_string($i, %subs);
+    $out->print($i);
+  }
+  $in->close;
+  $out->close;
+  $tmp;
+}
+  
+sub substitute_vars_string {
+  my $self = shift;
+  my $str  = shift;
+  my %subs = @_;
+  my $i;
+
+  for $i (keys %subs) {
+    $str =~ s/\$\Q$i\E\b/$subs{$i}/g;
+  }
+  $str;
+}
+
+=head2 unique, unique2, tempname
+
+Request a unique value/filename.  The value returned by unique is
+guaranteted to be different for successive calls and for calls in
+different processes.  The value returned by unique2 is only guaranteed
+to be different for successive calls.  Use unique to generate
+filenames; use unique2 to generate parser tags and such.  Use tempname
+to generate temporary filenames in the configured temporary directory.
+
+=cut
+sub unique {
+  my $self = shift;
+
+  my $unique = "$$.$self->{'unique'}";
+  $self->{'unique'}++;
+  $unique;
+}
+
+sub unique2 {
+  my $self = shift;
+
+  my $unique = $self->{'unique'};
+  $self->{'unique'}++;
+  $unique;
+}
+
+sub tempname {
+  my $self = shift;
+
+  my $tmp = $self->_global_config_get("tmpdir");
+  return "$tmp/mj-tmp." . $self->unique;
+}
+
+=head2 _gen_pw
+
+Generate a password ramdomly.
+
+One of the implemnentations is cribbed from an email to majordomo-workers
+sent by OXymoron.  The other is trivial anyway.  I don''t know which I like
+more.
+
+=cut
+sub _gen_pw {
+  my $log = new Log::In 200;
+#   my @forms = qw(
+# 		 xxxxxxx
+# 		 xxxxxx0
+# 		 000xxxx
+# 		 xxx0000
+# 		 xxxx000
+# 		 0xxxxx0
+# 		 xxxxx00
+# 		 00xxxxx
+# 		 xxx00xxx
+# 		 00xxxx00
+# 		 Cvcvcvc
+# 		 cvcvc000
+# 		 000cvcvc
+# 		 Cvcvcvc0
+# 		 xxx00000
+# 		);
+  
+#   my %groups= (
+# 	       'x' => "abcdefghijkmnpqrstuvwxyz",
+# 	       'X' => "ABCDEFGHJKLMNPQRSTUVWXYZ",
+# 	       'c' => "bcdfghjklmnpqrstvwxyz",
+# 	       'C' => "BCDFGHJKLMNPQRSTVWXYZ",
+# 	       'v' => "aeiou",
+# 	       'V' => "AEIOU",
+# 	       '0' => "0123456789"
+# 	      );
+
+#   $pw=$forms[int(rand(@forms))];
+#   $pw=~s/(.)/substr($groups{$1},int(rand(length($groups{$1}))),1)/ge;
+
+  my $chr = 'ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnpqrstyvwxyz23456789';
+  my $pw;
+  
+  for my $i (1..6) {
+    $pw .= substr($chr, rand(length($chr)), 1);
+  }
+  $pw;
+}
+
+=head2 _reg_add($addr, %args)
+
+Adds a user to the registration database.
+
+addr should be a Mj::Addr object so that the necessary data can be obtained
+from it.
+
+Args is a hash; all keys in the reglist database are recignized, with the
+followig exceptions:
+
+password - the password of the user being added; if it is undefined, a
+pasword will be generated.
+
+list - a list to add to the set of lists that the user is in.
+
+update - should an existing entry be updated with any database values in
+args.  Note that if list has a value and update is false, only the new list
+will be added and all other entries will remain the same (besides
+changetime).
+
+Returns:
+  flag - was the user already in the database
+
+Problem: when we are called from subscribe, we need to add the address is
+it isn''t already there, so we have to provide some default data so that
+this can happen all in one pass.  But this results in the old data being
+overrwitten.
+
+=cut
+sub _reg_add {
+  my $self = shift;
+  my $addr = shift;
+  my %args = @_;
+  my $log = new Log::In 200;
+  my (@lists, $data, $existing);
+  
+  # Look up the user
+  $data = $self->{reg}->lookup($addr->canon);
+
+  # If the entry doesn't exist, we need to generate a new one.
+  if ($data) {
+    $existing = 1;
+  }
+  else {
+    # Make a new registration
+    $data = {
+	     stripaddr => $addr->strip,
+	     fulladdr  => $addr->full,
+	     regtime   => time,
+	     language  => '',
+             'lists'   => '',
+	     flags     => '',
+             bounce    => '',
+             warnings  => '',
+             data1     => '',
+             data2     => '',
+             data3     => '',
+             data4     => '',
+             data5     => '',
+	    };
+  }
+
+  # If password is undef in args, generate one
+  $args{password} = _gen_pw()
+    if exists $args{password} && !defined $args{password};
+
+  # Copy arguments 
+  if (!$existing || $args{replace}) {
+    for my $i (qw(regtime password language lists flags bounce warnings
+	       data1 data2 data3 data4 data5)) {
+      $data->{$i} = $args{$i} if $args{$i};
+    }
+  }
+
+  if ($args{list}) {
+    @lists = split('%~%', $data->{'lists'});
+    push @lists, $args{list};
+    $data->{'lists'} = join('%~%', @lists);
+  }
+
+  # Replace or add the entry
+  if ($existing && ($args{update} || $args{'list'})) {
+    $self->{reg}->replace('', $addr->canon, $data);
+  }
+  else {
+    $self->{reg}->add('', $addr->canon, $data);
+  }
+  return ($existing, $data);
+}
+
+=head2 _reg_lookup($addr, $regdata)
+
+This looks up an address in the registration database and caches the
+results within the Addr object.  The registration data is returned.
+
+It the optional $regdata parameter is provided, it will be used as the
+registration data instead of a database lookup.  This will result in the
+appropriate data being cached without any lookups being done.
+
+This caches registration data under the 'reg' tag and a hash of subscribed
+lists under the 'subs' tag.
+
+Returns the registration data that was looked up.
+
+=cut
+sub _reg_lookup {
+  my $self = shift;
+  my $addr = shift;
+  my $reg  = shift;
+  my ($subs);
+
+  $reg = $self->{reg}->lookup($addr->canon) unless $reg;
+  return undef unless $reg;
+
+  $subs = {};
+  for my $i (split('%~%', $reg->{'lists'})) {
+    $subs->{$i} = 1;
+  }
+  # Use this cached data for non-critical things only.  Don't try to modify
+  # it and write it back.
+  $addr->cache('reg',  $reg);
+  $addr->cache('subs', $subs);
+  $reg;
+}
+
+=head2 _reg_remove($addr, $list)
+
+Removes a list from the set of subscribed lists in a user''s register
+entry.
+
+Note that this does not remove the entry altogether if the user has left
+their last list.  They may be intending to join another list immediately or
+in the near future, so removing their password would be a bad thing.
+
+XXX A periodic process could cull stale registrations, or a command could
+be provided to remove a user''s reguistration (unsubscribing them from all
+of their lists in the process).
+
+XXX There is a race here between removing the user from the list and
+removing the list from the user''s registration.  This should be rare, but
+not impossible.  To solve this we need to lock some special file (the
+global lock, perhaps?) or add a lock primitive to the database backends so
+that we can modify both atomically.
+
+=cut
+sub _reg_remove {
+  my $self = shift;
+  my $addr = shift;
+  my $list = shift;
+  my $log  = new Log::In 200, "$addr, $list";
+
+  my $sub =
+    sub {
+      my $data = shift;
+      my (@lists, @out, $i);
+
+      @lists = split('%~%', $data->{'lists'});
+      for $i (@lists) {
+	push @out, $i unless $i eq $list;
+      }
+      $data->{'lists'} = join('%~%', @out);
+      $data;
+    };
+      
+  $addr->flush;
+  $self->{'reg'}->replace('', $addr->canon, $sub);
+}
+
+
+=head2 _alias_reverse_lookup($addr)
+
+This finds all aliases that point to a single address, except for the
+circular bookkeeping alias.
+
+Note that this returns strings, not address objects.  Since the results of
+this routine will normally be used as keys for alias removal (upon
+deregistration) or for display to the user, this isn''t a concern.
+
+=cut
+sub _alias_reverse_lookup {
+  my $self = shift;
+  my $addr = shift;
+  my (@data, @out, $data, $key);
+  
+  $self->{'alias'}->get_start;
+  
+  # Grab _every_ matching entry
+  @data = $self->{'alias'}->get_matching(0, 'target', $addr->canon);
+  $self->{'alias'}->get_done;
+  
+  while (($key, $data) = splice(@data, 0, 2)) {
+    unless ($key eq $data->{'target'}) {
+      push @out, $data->{'stripsource'};
+    }
+  }
+  @out;
+}
+
+=head2 is_subscriber($addr, $list, $regdata)
+
+This checks to see if an address is subscribed to a list.  Since the
+registration database holds all of the necessary information, we don''t
+have to consult any lists, nor do we have to even create the lists.
+
+Returns true if the user is a member of the given list.
+
+=cut
+sub is_subscriber {
+  my $self = shift;
+  my $addr = shift;
+  my $list = shift;
+  my $reg  = shift;
+  my ($subs);
+
+  # If passed some data, prime the cache
+  if ($reg) {
+    $self->_reg_lookup($addr, $reg);
+  }
+  # Pull out the membership hash
+  $subs = $addr->retrieve('subs');
+
+  # Finally, do a lookup to get the data;
+  unless ($subs) {
+    $self->_reg_lookup($addr);
+    $subs = $addr->retrieve('subs');
+  }
+
+  return 0 unless $subs;
+  return 1 if $subs->{$list};
+  0;
+}
+
 
 =head2 s_expire
 
@@ -424,18 +848,14 @@ will likely not exist at all in a client-side implementation.
 
 =head2 global_config_get(user, passwd, auth, interface, variable)
 
-Retrieve the value of a global config variable.  This just passes the
-request in to the global list, but also contains a hack so that
-majordomo.cf still works.
+Retrieve the value of a global config variable by passing the appropriate
+parameters to list_config_get.
 
 =cut
 sub global_config_get {
-  my ($self, $user, $passwd, $auth, $interface, $var) = @_;
-
-  # Check access levels and such here.  Only interface code has to go
-  # through checks on config variables.
- 
-  $self->{'lists'}{'GLOBAL'}->config_get($var);
+  my ($self, $user, $passwd, $auth, $interface, $var, $raw) = @_;
+  $self->list_config_get($user, $passwd, $auth, $interface,
+			 'GLOBAL', $var, $raw);
 }
 
 =head2 list_config_get(user, passwd, auth, interface, list, var)
@@ -461,6 +881,10 @@ sub list_config_get {
     return $self->_list_config_get($list, $var, $raw);
   }
 
+  # Make sure we have a real user before checking passwords
+  $user = new Mj::Addr($user);
+  return unless $user->isvalid;
+
   for $i ($self->config_get_groups($var)) {
     $ok = $self->validate_passwd($user, $passwd, $auth, $interface,
 				   $list, "config_$i");
@@ -479,9 +903,11 @@ Alters the value of a list''s config variable.  Returns a list:
  flag    - true if command succeeded
  message - to be shown to user if present
 
+Ugh, we need to call inform but it clutters up the code badly.
+
 =cut
 sub list_config_set {
-  my ($self, $user, $passwd, $auth, $interface, $list, $var) =
+  my ($self, $user, $passwd, $auth, $int, $list, $var) =
     splice(@_, 0, 7);
   my $log = new Log::In 150, "$list, $var";
   my (@groups, @out, $i, $mess, $ok, $global_only);
@@ -489,58 +915,67 @@ sub list_config_set {
   $self->_make_list($list);
 
   if (!defined $passwd) {
-    @out = (0, "No passwd supplied.\n");
+    $self->inform($list, 'config_set', $user, $user, "configset $list $var",
+		  $int, 0, 0, 0);
+    return (0, "No passwd supplied.\n");
+  }
+
+  $user = new Mj::Addr($user);
+  ($ok, $mess) = $user->valid;
+  if (!$ok) {
+    $self->inform($list, 'config_set', $user, $user, "configset $list $var",
+		  $int, 0, 0, 0);
+    return (0, "$user is invalid\n$mess");
+  }
+
+
+  @groups = $self->config_get_groups($var);
+  if (!@groups) {
+    $self->inform($list, 'config_set', $user, $user, "configset $list $var",
+		  $int, 0, 0, 0);
+    return (0, "Unknown variable \"$var\".\n");
+  }
+  $global_only = 1;
+  if ($self->config_get_mutable($var)) {
+    $global_only = 0;
+  }
+  
+  # Validate passwd
+  for $i (@groups) {
+    $ok = $self->validate_passwd($user, $passwd, $auth, $int,
+				 $list, "config_$i", $global_only);
+    last if $ok;
+  }
+  if (!$ok) {
+    $self->inform($list, 'config_set', $user, $user, "configset $list $var",
+		  $int, 0, 1, 0);
+    return (0, "Password does not authorize $user to alter $var.\n");
+  }
+
+  # Untaint the stuff going in here.  The security implications: this
+  # may (after suitable interpretation) turn into code or an eval'ed
+  # regexp.  We are sure (for other reasons) do do everything in
+  # suitable Safe compartments.  Besides, the generated code/regexps
+  # will be saved out and read in later, at which point they will be
+  # untainted for free.  This this untainting only lets us make use
+  # of a variable setting in the same session that sets it without
+  # failing.
+  for ($i = 0; $i < @_; $i++) {
+    $_[$i] =~ /(.*)/;
+    $_[$i] = $1;
+  }
+  
+  # Get possible error value and print it here, for error checking.
+  ($ok, $mess) = $self->_list_config_set($list, $var, @_);
+  $self->_list_config_unlock($list);
+  if (!$ok) {
+    @out = (0, "Error parsing $var: $mess\n");
   }
   else {
-    @groups = $self->config_get_groups($var);
-    if (!@groups) {
-      @out =(0, "Unknown variable \"$var\".\n");
-    }
-    else {
-      $global_only = 1;
-      if ($self->config_get_mutable($var)) {
-	$global_only = 0;
-      }
-
-      # Validate passwd
-      for $i (@groups) {
-	$ok = $self->validate_passwd($user, $passwd, $auth, $interface,
-				     $list, "config_$i", $global_only);
-	last if $ok;
-      }
-      if (!$ok) {
-	@out = (0, "Password does not authorize $user to alter $var.\n");
-      }
-      else {
-	
-	# Untaint the stuff going in here.  The security implications: this
-	# may (after suitable interpretation) turn into code or an eval'ed
-	# regexp.  We are sure (for other reasons) do do everything in
-	# suitable Safe compartments.  Besides, the generated code/regexps
-	# will be saved out and read in later, at which point they will be
-	# untainted for free.  This this untainting only lets us make use
-	# of a variable setting in the same session that sets it without
-	# failing.
-	for ($i = 0; $i < @_; $i++) {
-	  $_[$i] =~ /(.*)/;
-	  $_[$i] = $1;
-	}
-	
-	# Get possible error value and print it here, for error checking.
-	($ok, $mess) = $self->{'lists'}{$list}->config_set($var, @_);
-	$self->_list_config_unlock($list);
-	if (!$ok) {
-	  @out = (0, "Error parsing $var: $mess\n");
-	}
-	else {
-	  @out = (1);;
-	}
-      }
-    }
+    @out = (1);;
   }
-
   $self->inform($list, 'config_set', $user, $user, "configset $list $var",
-		$interface, $out[0], !!$passwd+0, 0);
+		$int, $out[0], !!$passwd+0, 0);
   @out;
 }
 
@@ -551,34 +986,43 @@ default.
 
 =cut
 sub list_config_set_to_default {
-  my ($self, $user, $passwd, $auth, $interface, $list, $var) = @_;
+  my ($self, $user, $passwd, $auth, $int, $list, $var) = @_;
   my (@groups, @out, $ok, $mess, $level);
   $self->_make_list($list);
   
   if (!defined $passwd) {
-    @out = (0, "No password supplied.\n");
+    $self->inform($list, 'configdefault', $user, $user, "configdefault
+		  $list $var", $int, 0, 0, 0);
+    return (0, "No password supplied.\n");
+  }
+  @groups = $self->config_get_groups($var);
+  if (!@groups) {
+    $self->inform($list, 'configdefault', $user, $user, "configdefault
+		  $list $var", $int, 0, 0, 0);
+    return (0, "Unknown variable \"$var\".\n");
+  }
+
+  $user = new Mj::Addr($user);
+  ($ok, $mess) = $user->valid;
+  unless ($ok) {
+    $self->inform($list, 'configdefault', $user, $user, "configdefault
+		  $list $var", $int, 0, 0, 0);
+    return (0, "$user is invalid:\n$mess");
+  }
+
+  # Validate passwd, check for proper auth level.
+  ($ok, $mess, $level) =
+    $self->validate_passwd($user, $passwd, $auth,
+			   $int, $list, "config_$var");
+  if (!$ok) {
+    @out = (0, "Password does not authorize $user to alter $var.\n");
   }
   else {
-    @groups = $self->config_get_groups($var);
-    if (!@groups) {
-      @out = (0, "Unknown variable \"$var\".\n");
-    }
-    else {
-      # Validate passwd, check for proper auth level.
-      ($ok, $mess, $level) =
-	$self->validate_passwd($user, $passwd, $auth,
-			       $interface, $list, "config_$var");
-      if (!$ok) {
-	@out = (0, "Password does not authorize $user to alter $var.\n");
-      }
-      else {
-	@out = $self->{'lists'}{$list}->config_set_to_default($var);
-      }
-    }
+    @out = $self->{'lists'}{$list}->config_set_to_default($var);
   }
   $self->inform($list, 'configdefault', $user, $user,
 		"configdefault $list $var",
-		$interface, $out[0], !!$passwd+0, 0);
+		$int, $out[0], !!$passwd+0, 0);
   @out;
 }
 
@@ -612,6 +1056,10 @@ sub _global_config_get {
 Thesw are unchecked interfaces to the config variables, provided for
 internal use.
 
+_list_config_set will look at the type of the set variable and determine if
+any internal data structures need to be rebuilt in order to maintain
+consistency with the saved state.
+
 =cut
 sub _list_config_get {
   my $self = shift;
@@ -625,10 +1073,20 @@ sub _list_config_get {
 sub _list_config_set {
   my $self = shift;
   my $list = shift;
-  
+  my $var  = shift;
+  my (@out);
+
   $list = 'GLOBAL' if $list eq 'ALL';
   $self->_make_list($list);
-  $self->{'lists'}{$list}->config_set(@_);
+  @out = $self->{'lists'}{$list}->config_set($var, @_);
+
+  if ($out[0] == 1) {
+    # Now do some special stuff depending on the variable
+    if ($self->config_get_type($var) eq 'password') {
+      $self->_build_passwd_data($list, 'force');
+    }
+  }
+  @out; 
 }
 
 sub _list_config_lock {
@@ -729,12 +1187,22 @@ This returns the default value of a lists variable.
 =cut
 sub config_get_default {
   my ($self, $user, $passwd, $auth, $interface, $list, $var) = @_;
+  my ($i, $ok);
 
-  $self->_fill_lists;
   $self->_make_list($list);
- 
-  # XXX Should check access here.  Sigh.
 
+  # Make sure we have a real user before checking passwords
+  $user = new Mj::Addr($user);
+  return unless $user->isvalid;
+
+  for $i ($self->config_get_groups($var)) {
+    $ok = $self->validate_passwd($user, $passwd, $auth, $interface,
+				 $list, "config_$i");
+    last if $ok;
+  }
+  unless ($ok) {
+    return;
+  }
   $self->{'lists'}{$list}->config_get_default($var);
 }
 
@@ -789,131 +1257,6 @@ sub config_get_vars {
   $::log->out($ok?"validated":"not validated");
   @out;
 }
-
-=head2 domain
-
-This returns the domain that this Majordomo object is running in.
-
-XXX The interface should already know, since _it_ told _us_.  This is only
-used by deep objects making calls to us.
-
-=cut
-sub domain {
-  my $self = shift;
-  return $self->{'domain'};
-}
-
-=head2 _re_match
-
-This expects a safe compartment to already be set up, and matches a
-string against a regular expression within that safe compartment.  The
-special 'ALL' regexp is also accepted, and always matches.
-
-If called in an array context, also returns any errors encountered
-while compiling the match code, so that this can be used as a general
-regexp syntax checker.
-
-=cut
-sub _re_match {
-  my $safe = shift;
-  my $re   = shift;
-  local $str  = shift;
-#  my $log  = new Log::In 200, "$re, $str";
-  my $match;
-  return 1 if $re eq 'ALL';
-
-  # Hack; untaint things.  That's why we're running inside a safe
-  # compartment.
-  $str =~ /(.*)/;
-  $str = $1;
-  $re =~ /(.*)/;
-  $re = $1;
-
-  $safe->share('$str');
-  $match = $safe->reval("\$str =~ $re");
-  if (wantarray) {
-    return ($match, $@);
-  }
-  $::log->complain("_re_match error: $@") if $@;
-  return $match;
-}
-
-
-##############
-
-=head2 substitute_vars(file, subhash)
-
-This routine iterates over a file and expands embedded "variables".  It
-takes a file and a hash, the keys of which are the tags to be expanded.
-
-=cut
-sub substitute_vars {
-  my $self = shift;
-  my $file = shift;
-  my %subs = @_;
-  my ($tmp, $in, $out, $i);
-
-  $tmp = $self->_global_config_get("tmpdir");
-  $tmp = "$tmp/mj-tmp." . $self->unique;
-  $in  = new Mj::File "$file"
-    || $::log->abort("Cannot read file $file, $!");
-  $out  = new IO::File ">$tmp"
-    || $::log->abort("Cannot write to file $tmp, $!");
-  
-  while (defined ($i = $in->getline)) {
-    $i = $self->substitute_vars_string($i, %subs);
-    $out->print($i);
-  }
-  $in->close;
-  $out->close;
-  $tmp;
-}
-  
-sub substitute_vars_string {
-  my $self = shift;
-  my $str  = shift;
-  my %subs = @_;
-  my $i;
-
-  for $i (keys %subs) {
-    $str =~ s/\$\Q$i\E\b/$subs{$i}/g;
-  }
-  $str;
-}
-
-=head2 unique, unique2, tempname
-
-Request a unique value/filename.  The value returned by unique is
-guaranteted to be different for successive calls and for calls in
-different processes.  The value returned by unique2 is only guaranteed
-to be different for successive calls.  Use unique to generate
-filenames; use unique2 to generate parser tags and such.  Use tempname
-to generate temporary filenames in the configured temporary directory.
-
-=cut
-sub unique {
-  my $self = shift;
-
-  my $unique = "$$.$self->{'unique'}";
-  $self->{'unique'}++;
-  $unique;
-}
-
-sub unique2 {
-  my $self = shift;
-
-  my $unique = $self->{'unique'};
-  $self->{'unique'}++;
-  $unique;
-}
-
-sub tempname {
-  my $self = shift;
-
-  my $tmp = $self->_global_config_get("tmpdir");
-  return "$tmp/mj-tmp." . $self->unique;
-}
-
 
 ##################
 
@@ -1576,8 +1919,7 @@ sub _make_list {
   return if $list eq 'ALL';
   unless ($self->{'lists'}{$list}) {
     $self->{'lists'}{$list} =
-      new Mj::List($list, $self->{ldir}, $self->{sdirs}, $self->{av},
-		   $self->{backend});
+      new Mj::List($list, $self->{ldir}, $self->{sdirs}, $self->{backend});
   }
   1;
 }
@@ -1752,24 +2094,65 @@ sub accept {
 	  @out);
 }
 
-=head2 alias(..., list, source, target)
+=head2 alias(..., list, to, from)
 
 Adds an alias from one address to another.
+
+Note that, as a user, you do aliasing by adding addresses which are
+equivaent to the one you joined with.  That means you add pointers _from_
+various addresses _to_ your registered address.
+
+'to' is the victim here, because you can harass someone by adding your
+address pointing to theres and thus manipulate their data (assuming that
+the list does some security based on whether or not the addresses match).
+
+Considerations:
+
+'to' must be registered.
+
+'to' can undergo alias processing; this just lets you add additional
+  aliases to your real address from an aliased address.  The real address
+  gets in the database.
+
+'from' cannot be registered (else you would never be able to do anything
+  with 'from', because any references to it would be converted by aliasing
+  to 'to'.
+'from' can''t be aliased to anything.
+
+Possibilities:
+
+(before aliasing)
+
+y -> z : Normal case
+
+(x -> y) -> z : Cannot happen, x cannot be registered so cannot be aliased.
+
+x -> (y -> z) : alias y to z.  Lookup aliases on the target address.
+
+(w -> x) -> (y -> z) : cannot happen because w cannot be registered.
+
+(after aliasing)
+a -> b : if b -> a, fail (cycle)
+         if a -> c, fail (cannot happen after aliasing)
+         if b -> c, fail (chains illegal)
+
+The alias database does the latter checks to ensure the consistency of the
+alias database.  Some of them make no sense after the lookups and
+processing done here, but it''s possible that something external or code
+elsewhere will want to add aliases, so the checks still make sense.
 
 =cut
 sub alias {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $to, $from) = @_;
-  my $log = new Log::In 30, "$list, $to, $from";
-  my ($ok, $mess, $mismatch);
+  my $log = new Log::In 30, "$to, $from";
+  my ($a2, $ok, $mess, $mismatch);
 
-  $self->_make_list($list);
-  $mismatch = !$self->{'lists'}{$list}->addr_match($user, $from);
+  $from = new Mj::Addr($from);
   ($ok, $mess) = 
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
 			     $list, 'alias', $user, $to, $from, '','',
 			     'mismatch' => $mismatch);
-  
   unless ($ok > 0) {
     $log->out("noaccess");
     return ($ok, $mess);
@@ -1779,14 +2162,45 @@ sub alias {
 
 sub _alias {
   my ($self, $list, $requ, $to, $mode, $cmdline, $from) = @_;
-  my $log = new Log::In 35, "$list, $to, $from";
+  my $log = new Log::In 35, "$to, $from";
+  my ($data, $err, $fdata, $ok, $tdata);
+  
+  # the dispatcher doesn't do this one for us.
+  $from = new Mj::Addr($from);
 
-  $self->_make_list($list);
+  # Check that the target (after aliasing) is registered
+  $tdata = $self->{reg}->lookup($to->alias);
+  return (0, "$to is not registered here.\n")
+    unless $tdata;
 
-  # I got the internal call's arguments backwards.
-  my($ok, $err) = $self->{'lists'}{$list}->alias_add($mode, $from, $to);
-#  $self->inform($list, 'alias', $requ, $to, $cmdline, $ok);
-  ($ok, $err);
+  # Check that the transformed but unaliased source is _not_ registered, to
+  # prevent cycles.
+  $fdata = $self->{reg}->lookup($from->xform);
+
+  return (0, "$from is already registered here.\n")
+    if $fdata;
+
+  # Add bookkeeping alias; don't worry if it fails
+  $data = {
+ 	   'striptarget' => $to->strip,
+ 	   'stripsource' => $from->strip,
+ 	   'target'     => $to->alias,
+ 	  };
+  $self->{'alias'}->add("", $to->xform, $data);
+
+  # Add alias
+  $data = {
+	   'target'     => $to->alias,
+	   'stripsource' => $from->strip,
+	   'striptarget' => $to->strip,
+	  };
+  
+  ($ok, $err) = $self->{'alias'}->add("", $from->xform, $data);
+  unless ($ok) {
+    # Really, this cannot happen.
+    return (0, $err);
+  }
+  return 1;
 }
 
 =head2 archive(..., list, args)
@@ -1859,7 +2273,6 @@ sub auxadd {
   my(@out, $ok, $mess, $mismatch);
 
   $self->_make_list($list);
-  $mismatch = !$self->{'lists'}{$list}->addr_match($user, $addr);
   ($ok, $mess) =
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
 			     $list, 'auxadd', $user, $addr, $name, '','',
@@ -1992,18 +2405,22 @@ is the owner, since this is who will be sent introductory information.
 use Mj::MTAConfig;
 sub createlist {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode, $d1, 
-      $uowner, $list) = @_;
-  my($mess, $ok, $owner);
+      $owner, $list) = @_;
+  my($mess, $ok);
 
   return (0, '', "Must supply a list name.\n")
     unless $list;
 
-  return (0, '', "Must supply an address for the owner.\n")
-    unless $uowner || $list eq 'ALL';
+  unless ($list eq 'ALL') {
+    return (0, '', "Must supply an address for the owner.\n")
+      unless $owner;
+    
+    $owner = new Mj::Addr($owner);
+    ($ok, $mess) = $owner->valid;
+    return (0, '', "Owner address is invalid:\n$mess") unless $ok;
+  }
 
-  ($ok, $owner) = $self->{av}->validate($uowner);
-  return (0, '', "Owner address is invalid:\n$owner") unless $ok;
-
+  $owner ||= '';
   my $log = new Log::In 50, "$list, $owner";
 
   return (0, "Illegal list name: $list")
@@ -2033,12 +2450,13 @@ sub _createlist {
   my $log = new Log::In 35, "$list";
   my(@lists, $bdir, $dir, $dom, $head, $mess, $mta, $rmess, $who);
 
-  $mta  = $self->_global_config_get('mta');
-  $dom  = $self->{'domain'};
-  $bdir = $self->_global_config_get('install_dir');
+  $owner = new Mj::Addr($owner);
+  $mta   = $self->_global_config_get('mta');
+  $dom   = $self->{'domain'};
+  $bdir  = $self->_global_config_get('install_dir');
   $bdir .= "/bin";
-  $who  = $self->_global_config_get('whoami');
-  $who =~ s/@.*$//; # Just want local part
+  $who   = $self->_global_config_get('whoami');
+  $who   =~ s/@.*$//; # Just want local part
 
   if ($mode !~ /nocreate/ && $list ne 'GLOBAL' && $list ne 'ALL') {
     # Untaint $list - we know it's a legal name, so no slashes, so it's safe
@@ -2063,7 +2481,7 @@ sub _createlist {
   if ($mode !~ /nocreate/ && $list ne 'ALL') {
     # Now do some basic configuration
     $self->_make_list($list);
-    $self->_list_config_set($list, 'owners', $owner);
+    $self->_list_config_set($list, 'owners', "$owner");
     
     # XXX mail the owner some useful information
   }
@@ -2120,7 +2538,10 @@ sub lists {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode) = @_;
   my $log = new Log::In 30, "$mode";
   my (@out, $list, $desc, $flags, $count, $limit, $ok, $err);
-  
+
+  # Stuff the registration information to save lots of database lookups
+  $self->_reg_lookup($user);
+
   # Check global access
   ($ok, $err) =
     $self->global_access_check($passwd, $auth, $interface, $mode, $cmdline,
@@ -2129,8 +2550,8 @@ sub lists {
     return (0, $err);
   }
 
-  $mode ||= $self->_global_config_get("default_lists_format");
-  $limit = $self->_global_config_get("description_max_lines");
+  $mode ||= $self->_global_config_get('default_lists_format');
+  $limit =  $self->_global_config_get('description_max_lines');
 
   if ($mode =~ /compact/) {
     $limit = 1;
@@ -2149,7 +2570,7 @@ sub lists {
     $desc ||= $self->_list_config_get($list, "description");
 
     if ($mode =~ /enhanced/) {
-      $flags .= 'S' if $self->{'lists'}{$list}->is_subscriber($user);
+      $flags .= 'S' if $self->is_subscriber($user, $list);
     }
     push @out, $list, $desc, $flags;
   }
@@ -2196,13 +2617,11 @@ sub reject {
     $mj_owner   = $self->_global_config_get("whoami_owner");
 
     # Extract the session data
-    ($file) =
-      $self->_list_file_get('GLOBAL', "sessions/$data->{'sessionid'}");
+    $in = new IO::File(">$self->{ldir}/GLOBAL/sessions/$data->{'sessionid'}");
+
     # If the file no longer exists, what should we do?  We assume it's just
     # a really old token and say so.
-    if ($file) {
-      $in = new Mj::File "$file"
-	|| $::log->abort("Cannot read file $file, $!");
+    if ($in) {
       while (defined($line = $in->getline)) {
 	$sess .= $line;
       }
@@ -2303,6 +2722,75 @@ sub reject {
 	 );
 }
 
+=head2 register
+
+This adds a user to the registration database without actually adding them
+to any lists.
+
+Modes: nopassword   - don''t assign a password
+       randpassword - assign a random password
+
+else a password is a required argument.
+
+XXX Add a way to take additional data, like the language.
+
+=cut
+sub register {
+  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode, $d, $addr,
+      $pw) = @_;
+  my ($ok, $error);
+  my $log = new Log::In  30, "$addr, $mode";
+  
+  # Do a list_access_check here for the address; subscribe if it succeeds.
+  # The access mechanism will automatically generate failure notices and
+  # confirmation tokens if necessary.
+  ($ok, $error) =
+    $self->global_access_check($passwd, $auth, $interface, $mode, $cmdline,
+			     'register', $user, $addr, $pw, '', '');
+  unless ($ok > 0) {
+    $log->out("noaccess");
+    return ($ok, $error);
+  }
+  $self->_register('', $user, $addr, $mode, $cmdline, $pw);
+}
+
+sub _register {
+  my $self  = shift;
+  my $d     = shift;
+  my $requ  = shift;
+  my $vict  = shift;
+  my $mode  = shift;
+  my $cmd   = shift;
+  my $pw    = shift;
+  my $log   = new Log::In 35, "$vict";
+  my ($ok, $data, $exist, $welcome);
+  
+  if ($mode =~ /randpass/) {
+    $pw = undef;
+  }
+
+  # Add to/update registration database
+  ($exist, $data) = $self->_reg_add($vict, 'password' => $pw);
+  
+  # We shouldn't fail, because we trust the reg. database to be correct
+  if ($exist) {
+    $log->out("failed, existing");
+    return (0, "Already registered as $data->{'fulladdr'}.\n");
+  }
+  
+  $welcome = $self->_global_config_get('welcome');
+  $welcome = 1 if $mode =~ /welcome/;
+  $welcome = 0 if $mode =~ /(nowelcome|quiet)/;
+  
+  if ($welcome) {
+    $ok = $self->welcome('GLOBAL', $vict, 'PASSWORD' => $pw);
+    unless ($ok) {
+      # Perhaps complain to the list owner?
+    }
+  }
+  return (1);
+}
+
 
 =head2 rekey(..., list)
 
@@ -2350,7 +2838,7 @@ sub sessioninfo {
   my $log = new Log::In 30, "$sessionid";
   my($file, $in, $line, $sess);
 
-  $in = new Mj::File "$self->{ldir}/GLOBAL/sessions/$sessionid"
+  $in = new IO::File "$self->{ldir}/GLOBAL/sessions/$sessionid"
     || return (0, "No such session.\n");
   while (defined($line = $in->getline)) {
     $sess .= $line;
@@ -2395,20 +2883,12 @@ sub set {
   my $log = new Log::In 30, "$list, $addr, $action";
   my ($isflag, $ok, $raction);
  
-  ($ok, $addr, undef) = $self->{'av'}->validate($addr);
-  unless ($ok) {
-    $log->out("failed, invalidaddr");
-    return (0, "Invalid address:\n$addr");
-  }
-
-  $self->_make_list($list);
-
   # Check access
 
   return $self->{'lists'}{$list}->set($addr, $action, $arg);
 }
 
-=head2 show(..., mode, list, address)
+=head2 show(..., mode,, address)
 
 Perform the show command.  This retrieves a pile of information about an
 address and stuffs it in a list.
@@ -2422,7 +2902,9 @@ Returns:
  xform      - the address after transformations are applied
  alias      - the result of an aliasing lookup
  aliases    - comma separated of equivalently aliased addresses
- flag       - true of address is a subscriber
+ all of the database fields
+
+ One per list joined:
  (
  fulladdr   - the full subscription address
  class      - the subscription class
@@ -2435,53 +2917,59 @@ Returns:
 =cut
 sub show {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
-      $list, $addr) = @_;
-  my (@out, $ok, $comm, $data, $aliases);
+      $d, $addr) = @_;
+  my (@out, $aliases, $comm, $data, $i, $mess, $ok);
+  my $log = new Log::In 30, "$addr";
 
-  $::log->in(30, "$list, $addr");
-
-  ($ok, $addr, $comm) = $self->{'av'}->validate($addr);
+  ($ok, $mess) = $addr->valid;
   unless ($ok) {
-    $::log->out;
-    return (0, $addr);
+    return (0, $mess);
   }
-  push @out, ($ok, $addr, $comm);
-
-  $self->_make_list($list);
+  push @out, ($ok, $addr->strip, $addr->comment);
 
   # Transform
-  $addr = $self->{'lists'}{$list}->transform($addr);
-  push @out, $addr;
+  push @out, $addr->xform;
   
-  # Alias
-  $addr = $self->{'lists'}{$list}->alias_lookup($addr) || $addr;
-  push @out, $addr;
-  
-  $aliases = join(',',$self->{'lists'}{$list}->alias_reverse_lookup($addr));
+  # Alias, inverse aliases
+  push @out, $addr->alias;
+  $aliases = join('%~%',$self->_alias_reverse_lookup($addr));
   push @out, $aliases;
 
-  # Get membership info with no aliasing (since we already did it all)
-  (undef, $data) = $self->{'lists'}{$list}->get_member($addr, 1);
+  # Registration data
+  $data = $self->{reg}->lookup($addr->canon);
+  return @out unless $data;
+  push @out, (1, $data->{'fulladdr'}, $data->{'stripaddr'},
+	      $data->{'language'}, $data->{'data1'}, $data->{'data2'},
+	      $data->{'data3'}, $data->{'data4'}, $data->{'data5'},
+	      $data->{'regtime'}, $data->{'changetime'}, $data->{'lists'});
 
-  unless ($data) {
-    $::log->out;
-    return (@out, 0);
+  # Lists
+  for $i (split('%~%', $data->{'lists'})) {
+    $self->_make_list($i);
+
+    # Get membership info with no aliasing (since we already did it all)
+    (undef, $data) = $self->{'lists'}{$i}->get_member($addr);
+
+    # It is possible that the registration database is hosed, and the user
+    # really isn't on the list.  Just skip it in this case.
+    if ($data) {
+      # Extract some useful data
+      push @out, ($data->{'fulladdr'},
+		  $self->{'lists'}{$i}->describe_class($data->{'class'},
+						       $data->{'classarg'}),
+		  $data->{'subtime'}, $data->{'changetime'},
+		 );
+      
+      # Deal with flags
+      push @out, (join(',',
+		       $self->{'lists'}{$i}->describe_flags($data->{'flags'})
+		      )
+		 );
+    }
+    else {
+      push @out, ('Database error') x 2, 0, 0, 'Database error';
+    }
   }
-  
-  # Extract some useful data
-  push @out, (1,
-	      $data->{'fulladdr'},
-	      $self->{'lists'}{$list}->describe_class($data->{'class'},
-						      $data->{'classarg'}),
-	      $data->{'subtime'}, $data->{'changetime'},
-	     );
-  
-  # Deal with flags
-  push @out, (join(',',
-		   $self->{'lists'}{$list}->describe_flags($data->{'flags'})
-		  )
-	     );
-  $::log->out;
   @out;
 }
 
@@ -2569,24 +3057,18 @@ message.
 sub subscribe {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $addr, $class, $flags) = @_;
-  my ($ok, $error, $i, $matches_list, $mismatch, $whereami);
+  my ($ok, $error, $i, $matches_list, $mismatch, $tmp, $whereami);
   
   my $log = new Log::In  30, "$list, $addr, $mode";
   
   $self->_make_list($list);
 
-  # Validate the address
-  ($ok, $error, undef) = $self->{'av'}->validate($addr);
-  unless ($ok) {
-    $log->out("failed, invalidaddr");
-    return (0, "Invalid address:\n$error");
-  }
-
   # Do a list_access_check here for the address; subscribe if it succeeds.
   # The access mechanism will automatically generate failure notices and
   # confirmation tokens if necessary.
   $whereami     = $self->_global_config_get('whereami');
-  $matches_list = $self->{'lists'}{$list}->addr_match($addr, "$list\@$whereami");
+  $tmp = new Mj::Addr("$list\@$whereami");
+  $matches_list = $addr eq $tmp;
   ($ok, $error) =
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
 			     $list, 'subscribe', $user, $addr, $class,
@@ -2608,7 +3090,7 @@ sub _subscribe {
   my $class = shift;
   my $flags = shift;
   my $log   = new Log::In 35, "$list, $vict";
-  my ($ok, $classarg, $cstr, $data, $welcome);
+  my ($ok, $classarg, $cstr, $data, $exist, $rdata, $welcome);
 
   $self->_make_list($list);
 
@@ -2617,7 +3099,7 @@ sub _subscribe {
   # we have to somehow remove modes that we know might get to us but
   # that aren't legal subscriber flags, so that make_setting() doesn't
   # yell at us.  XXX Make this a variable somewhere.
-  ($cstr = $mode) =~ s/(quiet|(no)?(welcome|inform|log)),?//g;
+  ($cstr = $mode) =~ s/(quiet|(no)?(welcome|inform|log))[-,]?//g;
   
   ($ok, $class, $classarg, $flags) =
     $self->{'lists'}{$list}->make_setting($cstr, "");
@@ -2626,9 +3108,15 @@ sub _subscribe {
     return (0, $class);
   }
 
+  # Add to/update registration database
+  ($exist, $rdata) =
+    $self->_reg_add($vict, 'password' => undef, 'list' => $list);
+
+  # Add to list
   ($ok, $data) =
     $self->{'lists'}{$list}->add($mode, $vict, $class, $classarg, $flags);
   
+  # We shouldn't fail, because we trust the reg. database to be correct
   unless ($ok) {
     $log->out("failed, existing");
     return (0, "Already subscribed as $data->{'fulladdr'}.\n");
@@ -2639,7 +3127,7 @@ sub _subscribe {
   $welcome = 0 if $mode =~ /(nowelcome|quiet)/;
 
   if ($welcome) {
-    $ok = $self->welcome($list, $vict);
+    $ok = $self->welcome($list, $vict, 'PASSWORD' => $rdata->{password});
     unless ($ok) {
       # Perhaps complain to the list owner?
     }
@@ -2777,10 +3265,12 @@ sub unsubscribe {
   my (@out, @removed, $mismatch, $ok, $regexp, $error, $key, $data);
 
   $self->_make_list($list);
+  $user = new Mj::Addr($user);
 
   unless ($mode =~ /regex/) {
     # Validate the address
-    ($ok, $error, undef) = $self->{'av'}->validate($addr);
+    $addr = new Mj::Addr($addr);
+    ($ok, $error) = $addr->valid;
     unless ($ok) {
       $log->out("failed, invalidaddr");
       return (0, "Invalid address:\n$error");
@@ -2790,10 +3280,11 @@ sub unsubscribe {
   if ($mode =~ /regex/) {
     $mismatch = 0;
     $regexp   = 1;
+    # Untaint the regexp
+    $addr =~ /(.*)/; $addr = $1;
   }
   else {
-    # Check for mismatch; second address already validated.
-    $mismatch = !$self->{'lists'}{$list}->addr_match($user, $error, 0, 0, 1, 0);
+    $mismatch = !($user eq $addr);
     $regexp   = 0;
   }
   ($ok, $error) =
@@ -2818,13 +3309,18 @@ sub _unsubscribe {
   $self->_make_list($list);
 
   (@removed) = $self->{'lists'}{$list}->remove($mode, $vict);
-  
+
   unless (@removed) {
     $log->out("failed, nomatching");
     return (0, "No matching addresses.\n");
   }
 
   while (($key, $data) = splice(@removed, 0, 2)) {
+
+    # Convert to an Addr and remove the list from that addr's registration
+    # entry.
+    $key = new Mj::Addr($key);
+    $self->_reg_remove($key, $list);
     push (@out, $data->{'fulladdr'});
   }
 
@@ -2894,7 +3390,7 @@ sub which {
     ($max_list_hits, $err) =
       $self->list_access_check($pass, $auth, $int, $mode, $cmd,
 			       $list, "which", $user);
-    
+     
     next unless $max_list_hits;
     
     # We are authenticated and ready to search.
@@ -2987,7 +3483,7 @@ sub who_chunk {
   my $log = new Log::In 100, "$list, $regexp, $chunksize";
   my (@chunk, @out, $i, $ok, $addr, $com, $safe);
 
-  $regexp = "/$regexp/i" if $regexp;
+#  $regexp = "/$regexp/i" if $regexp;
 
   @chunk = $self->{'lists'}{$list}->get_chunk($chunksize);
   
@@ -2996,13 +3492,8 @@ sub who_chunk {
     return 0;
   }
  
-  if ($regexp) {
-    $safe = new Safe;
-    $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
-  }
-
   for $i (@chunk) {
-    next if $regexp && !_re_match($safe, $regexp, $i->{fulladdr}); 
+    next if $regexp && !_re_match($regexp, $i->{fulladdr}); 
     # If we're to show it all...
     if ($self->{'unhide_who'}) {
       push @out, $i->{'fulladdr'};

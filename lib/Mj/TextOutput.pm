@@ -102,12 +102,12 @@ the order?  This could alias several addresses to one.
 =cut
 sub alias {
   my ($mj, $name, $user, $passwd, $auth, $interface,
-      $infh, $outfh, $mode, $list, $args, @arglist) = @_;
-  my $log = new Log::In 27, "$list, $user, $args";
+      $infh, $outfh, $mode, $d, $args, @arglist) = @_;
+  my $log = new Log::In 27, "$user, $args";
   my ($ok, $mess);
 
   my @stuff = ($user, $passwd, $auth, $interface,
-	       "alias".($mode?"=$mode":"")." $list $args", $mode, $list,
+	       "alias".($mode?"=$mode":"")." $args", $mode, '',
 	       $user);
 
   Mj::Format::alias($mj, $outfh, $outfh, 'text', @stuff, $args, '','',
@@ -233,17 +233,11 @@ sub configset {
     }
   }
 
-  ($ok, $mess) =
-    $mj->list_config_set($user, $passwd, $auth, $interface,
-			 $list, $var, @arglist);
-
-  print $outfh "**** $mess" if $mess;
-  if ($ok) {
-    printf $outfh ("%s set to \"%s%s\".\n",
-		   $var, $arglist[0] || '',
-		   $arglist[1] ? "..." : "");
-  }
-  return $ok;
+  Mj::Format::configset
+    ($mj, $outfh, $outfh, 'text', $user, $passwd, $auth, $interface,
+     'configset', $mode, $list, $user, $var, join('%~%', @arglist), '',
+     $mj->list_config_set($user, $passwd, $auth, $interface, $list, $var,
+			  @arglist));
 }
   
 
@@ -594,6 +588,58 @@ sub put {
 		 );
 }
 
+=head2 register
+
+This adds a user to the registration database without adding them to any
+lists.
+
+Modes: randpassword - assign a random password
+
+else a password is a required argument.
+
+=cut
+sub register {
+  my ($mj, $name, $user, $passwd, $auth, $int,
+      $infh, $outfh, $mode, $d, $args, @arglist) = @_;
+  my $log = new Log::In 27, "$args";
+  my (@addresses, @bad, @good, @maybe, $arg1, $arg2, $cmd, $i, $mess, $ok,
+      $pw);
+
+  ($arg1, $arg2) = split(/\s+/, $args, 2);
+  if ($infh && $mode =~ /randpass/) {
+    $addresses[0] = $arg1; $pw = '';
+    $cmd = "register".($mode?"=$mode":"")." ";
+  }
+  else {
+    $addresses[0] = $arg2; $pw = $arg1;
+    $cmd = "register".($mode?"=$mode":"")." $pw ";
+  }
+  @addresses = @arglist unless $addresses[0];
+  @addresses = $user unless $addresses[0];
+
+  while (1) {
+    $i = $infh ? $infh->getline : shift @addresses;
+    last unless $i;
+    chomp $i;
+    ($ok, $mess) =
+      $mj->dispatch('register', $user, $passwd, $auth, $int, $cmd.$i, $mode,
+		    '', $i, $pw);
+ 
+    if   ($ok > 0) {
+      push @good, ($i, $mess);
+    }
+    elsif ($ok < 0) {
+      push @maybe, ($i, $mess);
+    }
+    else {
+      push @bad, ($i, $mess);
+    }
+  }
+  return
+    Mj::Format::register($mj, $outfh, $outfh, 'text', $user, $passwd, $auth,
+			  $int, '', $mode, '', '',
+			  \@good, \@bad, \@maybe);
+}
 =head2 reject
 
 This rejects a token or a list of tokens.
@@ -728,13 +774,13 @@ This displays various types of subscriber information.
 sub show {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
-  my $log = new Log::In 27, "$list, $args";
+  my $log = new Log::In 27, "$args";
   my (@addresses, @stuff, $i, $ok, $rok);
 
   @addresses = $args || @arglist || $user;
 
   @stuff = ($user, $passwd, $auth, $interface,
-	    "show".($mode?"=$mode":"")." $list $args",
+	    "show".($mode?"=$mode":"")." $args",
 	    $mode, $list);
 
   while (1) {

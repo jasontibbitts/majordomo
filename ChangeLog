@@ -1,4 +1,237 @@
+Sun Aug 30 00:04:51 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (set): No need to validate the addresses.
+	(sessioninfo): No locking on session files.
+	(connect): Ditto.
+	(reject): Sessions don't go through the filespace. (How long has
+ 	this been broken?)
+
+	* lib/Mj/SimpleDB/Text.pm (get_matching): Enclose regexp in '/'
+ 	delimiters.
+	(get_matching_quick): Ditto.
+	(replace): Can take a coderef to use to modify the values.  This
+ 	brings it very close to the mogrify function.
+
+	* lib/Majordomo.pm (_reg_remove): New function to remove a list
+ 	fron the register entry.
+
+	* lib/Mj/Addr.pm (flush): New function to get rid of cached data.
+
+	* lib/Majordomo.pm (get_all_lists): Pay attention to
+ 	advertise_subscribed to avoid looking into lists if it isn't
+ 	necessary.
+	(get_all_lists): Convert $user to an addr object.  Since this is a
+ 	utility function, the dispatcher isn't involved to do this
+ 	automatically.
+
+	* lib/mj_cf_data.pl: Added advertise_subscribed variable.
+
+	* lib/Majordomo.pm (is_subscriber): Don't assume that the user is
+ 	registered; return false if we can't find any registration data at
+ 	all.
+	(_reg_lookup): Return undef without caching anything if the user
+ 	is not registered.
+	(_reg_add): Silence warnings.
+
+	* lib/Mj/Addr.pm (_xform): If no transforming to do, copy stripped
+ 	version to xformed version.  This fixes the test suite.
+
+	* lib/Mj/Access.pm (_d_advertise): Call _re_match properly; no
+ 	need to create a Safe object.
+
+Sat Aug 29 16:39:08 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* t/shell.t: Change alias test not to use a list.
+
+	* lib/Mj/File.pm (_re_match): New function.
+	(search): Use _re_match for safety.
+
+	* lib/Majordomo.pm (new): Create a package global Safe object if
+ 	necessary, for use in regexp matches.
+	(who_chunk): Just use the package global Safe object.
+	(_re_match): Don't take a Safe object; use the package global.
+	(_re_match): Turn off warnings so that problems in the compartment
+ 	don't leak.
+
+	* lib/Mj/FileRepl.pm (new): Allocate a package-global Safe
+ 	compartment if necessary, for regexp matches.
+	(_re_match): New function; use the package-global Safe compartment
+ 	to match regexps.
+
+Fri Aug 28 16:51:06 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Deliver/Envelope.pm (new): Return undef if initial
+ 	addressing fails.
+
+	* lib/Mj/Deliver/SMTP.pm (getresp): Correct a typo && -> ||
+
+	* lib/Mj/Token.pm (t_accept): Make Addr objects unless the
+ 	function doesn't take them.
+
+	* lib/Mj/List.pm (remove): Don't make an Addr, just deal with one
+ 	if we get it (unless we're removing a regexp).
+
+	* lib/Majordomo.pm (unsubscribe): Changes to work with Addr
+ 	object.  Be careful that if we have a regexp instead of an address
+ 	for a victim, we don't try to make an Addr out of it.
+
+	* lib/Mj/Access.pm (list_access_check): Don't check for mismatch
+ 	if its already defined.
+
+	* lib/Mj/List.pm (is_subscriber): Look at any data cached in the
+ 	address before doing a database lookup.
+
+Wed Aug 26 00:50:05 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (_reg_lookup): New function; look up and cache
+ 	registration data within an Addr.
+	(is_subscriber): New function; check membership to a list but use
+ 	the data in the registration database instead of consulting the
+ 	list.  Also make use of any cached reg data.
+
+Sat Aug 22 01:53:10 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (alias): No longer takes a list.
+
+	* lib/Mj/List.pm (get_member): Clean up to handle Addr objects.
+
+Fri Aug 21 00:39:03 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/SimpleDB/Base.pm (_unstringify): Always split out to the
+ 	last field, avoiding undefs for trailing empty fields.
+
+	* lib/Mj/TextOutput.pm (show): Don't take a list.
+
+	* lib/parser_data.pl: 'alias' and 'show' doesn't take lists any longer.
+
+	* lib/Majordomo.pm (dispatch): Don't do Addr parsing for continued
+ 	functions, and add 'noaddr' function attribute to turn it off for
+ 	regular functions.
+	(_alias_reverse_lookup): Moved from Mj::List and modified
+ 	appropriately.
+
+	* files/en/welcome: Now include the user's password.
+
+Thu Aug 20 00:46:26 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (configset): Call formatting routine for
+ 	better output.
+
+	* lib/Mj/Format.pm (configset): New function.
+
+	* lib/Majordomo.pm (_list_config_set): Rebuild password data if
+ 	necessary.
+
+	* lib/Mj/Config.pm: Remove rebuild_password nonsense.
+
+	* lib/Majordomo.pm (list_config_set): Call _list_config_set
+ 	instead of calling the list directly.
+
+	* lib/Mj/Config.pm (parse_enum): Add a better error message.
+
+	* lib/Mj/List.pm (is_subscriber): Use Mj::Addr properly.
+
+	* lib/Mj/MailOut.pm (welcome): Substitute all variables in the
+ 	subject.
+	(welcome): Consolidate substitutions.
+
+	* lib/Mj/Format.pm: Fixed a few hundred warnings due to eprinf
+ 	calls.
+
+	* postinstall: Add registered file.
+
+	* lib/Mj/MailOut.pm (welcome): Added SITE variable.
+
+Wed Aug 19 17:01:33 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/RegList.pm: Swap changetime and regtime.
+
+Tue Aug 18 00:08:09 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (_gen_pw): New function.  Generate some garbage
+ 	as a password.
+
+	* lib/Mj/MailOut.pm (welcome): Accept an additional hash of
+ 	arguments to be directly substituted into the message.
+
+	* lib/Mj/Format.pm (register): New function.
+	(g_sub): Add code to deal with registration; redo some spacing to
+ 	make registration message come out right.
+
+	* lib/Mj/Config.pm: Add register as a legal access routine.
+
+	* bin/mj_shell (parse_interactive): Shorten the prompt a bit.
+
+	* lib/parser_data.pl: Add register as a legal command.
+
+	* lib/Majordomo.pm: Add register command.
+
+Mon Aug 17 00:00:25 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/List.pm (aux_add): Fix Addr problems.
+
+	* lib/Majordomo.pm (alias): No need to construct $mismatch.
+
+	* bin/mj_shell: Print warnings to standard error.
+
+	* lib/Mj/Access.pm (validate_passwd): Properly extrace canonical
+ 	form of the address.
+	(list_access_check): Compare address properly when computing
+ 	$mismatch.
+
+	* t/addr.t: Deal with new Addr object stuff.
+
+	* lib/Mj/Inform.pm (inform): Make sure addresses aren't undef.
+
+Sun Aug 16 00:42:06 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (createlist): Deal with Addr object.
+
+	* lib/Mj/List.pm (new): Don't take 'av'.
+
+	* lib/Majordomo.pm (_make_list): Don't pass 'av'.
+
+	* lib/Mj/List.pm (add): Make use of the Addr object.
+	(remove): Make use of Addr object; don't deal with aliases.
+
+	* lib/Mj/Config.pm (parse_address): Use Addr object.
+	(new): Don't take 'av'.
+
+	* lib/Mj/Addr.pm (match): Tweak in case the second argument is not
+ 	an Addr.
+
+	* lib/Majordomo.pm (new): Allocate the RegList.
+	(addr_validate): Removed.
+
+	* lib/Mj/List.pm: Removed all aliasing functions.
+
+	* lib/Mj/Token.pm (t_accept): Convert arguments coming out of a
+ 	token which are always addresses into Addr objects.  All top and
+ 	bottom half functions should now be able to assume that the
+ 	arguments that always hold addresses now hold Addr objects.
+
+	* lib/Majordomo.pm (dispatch): Convert addresses that are always
+ 	present in the argument lists to Addr objects.
+
+	* lib/Mj/Addr.pm: Add some overloading to lessen the pain of
+ 	conversion.
+
+	* lib/Majordomo.pm (new): Begin rewrite to use master alias
+ 	database and new address parsing.
+
+	* lib/mj_cf_data.pl: Remove 'apply_global_addr_xforms' and make
+ 	'addr_xforms' global only.  The new addess parsing rewrite allows
+ 	only global transforms.
+
+	* lib/Mj/Addr.pm: Begin bug rewrite to make addresses first-class
+ 	objects instead of strings that operations are applied to.
+	Completed big rewrite, now on to the rest of the code.
+
 Sat Aug 15 16:33:58 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Access.pm (_d_post): Remove 'non-numeric' warning.
+
+	* lib/Mj/Parser.pm (parse_entity): Remove undef warning.
 
 	* lib/Mj/Lock.pm (lock): Don't save master_handle if not doing
  	master locking.

@@ -31,7 +31,7 @@ use Mj::SimpleDB;
 use strict;
 use vars qw($AUTOLOAD);
 
-my @fields = qw(target fullsource fulltarget changetime);
+my @fields = qw(target stripsource striptarget changetime);
 
 =head2 new(path)
 
@@ -88,7 +88,7 @@ sub add {
   # If the source is aliased to anything, die.
   if ($data = $self->lookup($key)) {
     $::log->out("failed");
-    return (0, "$args->{'fullsource'} is already aliased (to $data->{'target'}).\n");
+    return (0, "$args->{'stripsource'} is already aliased (to $data->{'target'}).\n");
   }
   
   $data = $self->lookup($args->{'target'});
