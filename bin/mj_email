@@ -245,11 +245,11 @@ sub resend {
   $sublist ||= '';
 
   $request = {
+    'auxlist'   => $sublist,
     'command'   => 'post_start',
     'list'      => $list,
     'mode'      => '',
     'password'  => '',
-    'sublist'   => $sublist,
     'user'      => '',
   };
 

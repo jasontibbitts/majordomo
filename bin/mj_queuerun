@@ -403,12 +403,12 @@ sub resend {
 
   $sublist ||= '';
   $request = {
+    'auxlist'   => $sublist,
     'command'   => 'post',
     'file'      => $file,
     'list'      => $list,
     'mode'      => '',
     'password'  => '',
-    'sublist'   => $sublist,
     'user'      => '',
   };
 
