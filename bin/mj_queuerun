@@ -388,10 +388,8 @@ sub forward_to_owner {
 
 # Resend a message; call post but instead of doing the copy operation, just
 # use the spooled message.  #XXX Beware of who gets to unlink it.
-# call post_start, post_chunk, post_done passing in all
-# of the message.
 sub resend {
-  my ($mj, $list) = @_;
+  my ($mj, $list, $file) = @_;
   my ($ok, $mess, $request, $sess);
 
   $sess = connect_no_parse($mj, 'resend');
@@ -403,7 +401,8 @@ sub resend {
   $sess =~ s/^From .*?\r?\n//;
   $request = {
     'auth'      => '',
-    'command'   => 'post_start',
+    'command'   => 'post',
+    'file'      => $file,
     'interface' => 'resend',
     'list'      => $list,
     'mode'      => '',
@@ -411,18 +410,6 @@ sub resend {
     'user'      => '',
   };
 
-  ($ok, $mess) = @{$mj->dispatch($request)};
-  return unless $ok;
-
-  $_ = $sess;
-  $request->{'command'} = 'post_chunk';
-  while (1) {
-    last unless defined $_;
-    ($ok, $mess) = @{$mj->dispatch($request, $_)};
-    return unless $ok;
-    $_ = <MSG>;
-  }
-  $request->{'command'} = 'post_done';
   ($ok, $mess) = @{$mj->dispatch($request)};
   return unless $ok;
   1;
