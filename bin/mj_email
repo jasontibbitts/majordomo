@@ -115,6 +115,10 @@ $::log->startup_time();
 # Make a Majordomo object
 $::mj = new Majordomo $opts{t}, $opts{d}; $mj = $::mj;
 
+unless (ref $::mj) {
+  $::log->abort("Cannot create Majordomo object: $::mj");
+}
+
 # if at list address, resend.
 if ($opts{r}) {
   $::log->abort("mj_email called with -r and without -l!")

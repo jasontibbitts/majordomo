@@ -1,4 +1,18 @@
+Fri Nov 13 01:03:17 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (who_start): Only parse the regexp if one was
+ 	given.
+	(unsubscribe): Rewrite to properly parse addresses and general
+ 	patterns.
+	(auxremove): Rewrite to mirror unsubscribe.  Now includes access
+ 	checking.
+
+	* lib/Mj/CommandProps.pm: auxremove must be marked 'noaddr'
+ 	because it can take a regexp as a victim.
+
 Thu Nov 12 00:33:44 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_email: Abort if Majordomo->new returns a string.
 
 	* lib/Mj/Config.pm (compile_pattern): Allow more than one
  	modifier.

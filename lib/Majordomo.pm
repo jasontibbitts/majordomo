@@ -2493,24 +2493,66 @@ This removes an address from a lists named auxiliary address list.
 =cut
 sub auxremove {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
-      $list, $addr, $name) = @_;
-  my(@removed, @out, $key, $data);
-  
-  $::log->in(30, "$list, $name, $addr");
+      $list, $addr, $subl) = @_;
+  my(@removed, @out, $error, $ok);
+  my $log = new Log::in 30, "$list, $subl, $addr";
+
   $self->_make_list($list);
-  @removed = $self->{'lists'}{$list}->aux_remove($name, $mode, $addr);
+  $user = new Mj::Addr($user);
+  ($ok, $error) = $user->valid;
+  unless ($ok) {
+    $log->out("failed, invalidaddr");
+    return (0, "Invalid address:\n$error");
+  }
+
+  if ($mode =~ /regex/) {
+    ($ok, $error, $addr) = Mj::Config::compile_pattern($addr, 0);
+    return (0, $error) unless $ok;
+  }
+  else {
+    # Validate the address
+    $addr = new Mj::Addr($addr);
+    ($ok, $error) = $addr->valid;
+    unless ($ok) {
+      $log->out("failed, invalidaddr");
+      return (0, "Invalid address:\n$error");
+    }
+  }
+
+  ($ok, $error) =
+    $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
+			     $list, 'auxremove', $user, $addr, $subl
+			     ,'','', 'regexp' => $regexp,
+			    );
+  unless ($ok>0) {
+    $log->out("noaccess");
+    return ($ok, $error);
+  }
+  
+  $self->_auxremove($list, $user, $addr, $mode, $cmdline, $subl);
+}
+
+sub _auxremove {
+  my($self, $list, $requ, $vict, $mode, $cmd, $subl) = @_;
+  my $log = new Log::In 35, "$list, $vict";
+  my(@out, @removed, $key, $data);
+
+  $self->_make_list($list);
+
+  @removed = $self->{'lists'}{$list}->aux_remove($subl, $mode, $addr);
 
   unless (@removed) {
-    $::log->out("failed, nomatching");
+    $log->out("failed, nomatching");
     return (0, "No matching addresses.\n");
   }
 
   while (($key, $data) = splice(@removed, 0, 2)) {
-    push @out, $data->{'stripaddr'};
+    push (@out, $data->{'fulladdr'});
   }
-  $::log->out;
   (1, @out);
 }
+
+
 
 =head2 auxwho_start, auxwho_chunk, auxwho_done
 
@@ -3557,12 +3599,24 @@ sub unsubscribe {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $addr) = @_;
   my $log = new Log::In 30, "$list, $addr";
-  my (@out, @removed, $mismatch, $ok, $regexp, $error, $key, $data);
+  my (@out, @removed, $mismatch, $ok, $regexp, $error);
 
   $self->_make_list($list);
   $user = new Mj::Addr($user);
+  ($ok, $error) = $user->valid;
+  unless ($ok) {
+    $log->out("failed, invalidaddr");
+    return (0, "Invalid address:\n$error");
+  }
 
-  unless ($mode =~ /regex/) {
+  if ($mode =~ /regex/) {
+    $mismatch = 0;
+    $regexp   = 1;
+    # Parse the regexp
+    ($ok, $error, $addr) = Mj::Config::compile_pattern($addr, 0);
+    return (0, $error) unless $ok;
+  }
+  else {
     # Validate the address
     $addr = new Mj::Addr($addr);
     ($ok, $error) = $addr->valid;
@@ -3570,18 +3624,10 @@ sub unsubscribe {
       $log->out("failed, invalidaddr");
       return (0, "Invalid address:\n$error");
     }
-  }
-
-  if ($mode =~ /regex/) {
-    $mismatch = 0;
-    $regexp   = 1;
-    # Untaint the regexp
-    $addr =~ /(.*)/; $addr = $1;
-  }
-  else {
     $mismatch = !($user eq $addr);
     $regexp   = 0;
   }
+
   ($ok, $error) =
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
 			     $list, 'unsubscribe', $user, $addr, '','','',
@@ -3751,8 +3797,10 @@ sub who_start {
   my ($ok, $error);
 
   $self->_make_list($list);
-  ($ok, $error, $regexp) = Mj::Config::compile_pattern($regexp, 0);
-  return (0, $error) unless $ok;
+  if ($regexp) {
+    ($ok, $error, $regexp) = Mj::Config::compile_pattern($regexp, 0);
+    return (0, $error) unless $ok;
+  }
 
   ($ok, $error) = 
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,

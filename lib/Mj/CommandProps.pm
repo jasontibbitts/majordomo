@@ -153,7 +153,7 @@ my %commands =
    'auxremove' =>
    {
     'parser' => [qw(email shell list global all real)],
-    'dispatch' => {'top' => 1},
+    'dispatch' => {'top' => 1, 'noaddr' => 1},
     'access'   => {
 		   'default' => 'deny',
 		   'legal'   => \%reg_legal,
