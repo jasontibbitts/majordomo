@@ -1,3 +1,66 @@
+2001-01-25  Michael Yount <csf@moscow.com>
+
+	* bin/mj_shell:  Untaint the password.  Allow multiple
+	files to be processed with the -F option.
+
+	* lib/Majordomo.pm:  (configdef)  Do not allow the installation
+	settings, in the GLOBAL:_install and DEFAULT:_install templates,
+	to be reset.
+	(_createlist, _list_config_regen)  Regenerate the parsed values 
+	for the GLOBAL:_install and DEFAULT:_install templates.
+	(_list_sync_owners)  New routine.  Assess the old and new owners
+	settings and update the GLOBAL:owners sublist accordingly.
+	(sync_owners)  Use the "groups" field in the SubscriberList
+	to store a list of mailing lists owned by a particular address
+
+	* lib/mj_cf_defs.pl:  Use a substitution hash to set configured
+	values; this will correct the quoting problems noted by
+	Peter Ajamian.
+
+	* lib/Mj/Config.pm:  (isparsed) Addresses are not parsed
+	by DEFAULT lists.  This allows "$LIST" substitutions to
+	be applicable to each list using the defaults individually.
+	(_defaults)  Removed.  _load_dfl is used to load
+	all default values from configuration files.
+	(parse_address)  Retrieve the "whereami" value with get()
+	instead of always using the installation settings.
+	(regen)  New routine.  Reconstruct the parsed configuration
+	data from the raw configuration data, and save the result
+	in the configuration file.
+
+	* lib/Mj/Deliver.pm:  (deliver) Access address lists directly.
+	Mj::SubscriberList and Mj::RegList, as well as a list of 
+	addresses can be used.  This routine is now used to deliver
+	all mail that Majordomo sends.
+
+	* lib/Mj/List.pm:  (new)  Include the domain in the data stored
+	by the List object.  Adjust SubscriberList instantiation arguments
+	to allow future backend enhancements.
+	(config_regen)  New routine.  Wrapper for Mj::Config::regen.
+	(update)  New routine.  Offer a generic way to replace the
+	data for an existing subscriber database entry.
+
+	* lib/Mj/MailOut.pm:  (mail_message, deliver, probe)  Call
+	Mj::Deliver::deliver using a revised set of arguments.  This
+	allows the Mj::Deliver and related modules to be detached
+	from Mj::List, eventually to allow asynchronous delivery.
+
+	* lib/Mj/Resend.pm:  (post_start)  Add support for the addhdr
+	command mode, which treats the here args as a (plain text) message 
+	body, and generates the necessary headers.
+	(_add_headers)  New routine.  Add From, To, Subject, Date,
+	Message-Id, and Content-type headers.
+
+	* lib/Mj/SubscriberList.pm:  Rename the "rewritefrom" field to
+	"groups."  This field is used by the GLOBAL:owners sublist
+	to store a list of supported lists.
+
+	* setup/setup_func.pl:  (do_default_config)  Create 
+	DEFAULT:_install and GLOBAL:_install configuration files.
+	mj_cf_defs.pl is no longer used directly by Majordomo.
+	(install_config_templates)  Do not reveal the domain password
+	during installation.
+
 2001-01-20  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (p_expire)  Remove old data from the

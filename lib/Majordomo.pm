@@ -171,15 +171,6 @@ sub new {
   $log->abort("Can't find site config file $topdir/SITE/config.pl: $!")
     unless $self->{'sitedata'}{'config'}; #XLANG
 
-  # Pull in config variable default string for this domain
-  if (-f "$topdir/LIB/cf_defs_$domain.pl") {
-    require "$topdir/LIB/cf_defs_$domain.pl";
-  }
-  else {
-    # This will search the library path
-    require "mj_cf_defs.pl";
-  }
-
   $self->{backend} = $self->_site_config_get('database_backend');
   $log->abort("Can't create GLOBAL list: $!")
     unless $self->_make_list('GLOBAL'); #XLANG
@@ -1872,6 +1863,11 @@ sub _list_config_set {
 
   $list = 'GLOBAL' if $list eq 'ALL';
   return unless $self->_make_list($list);
+
+  if ($var eq 'owners') {
+    $owners = $self->{'lists'}{$list}->config_get($var);
+  }
+
   @out = $self->{'lists'}{$list}->config_set($var, @_);
 
   $type = $self->config_get_type($var);
@@ -1893,7 +1889,7 @@ sub _list_config_set {
     # setting was changed.
     elsif ($var eq 'owners') {
       $self->_list_config_unlock($list);
-      $self->sync_owners($self->{'sessionuser'});
+      $self->_list_sync_owners($list, $owners, $_[0]);
     }
   }
   @out;
@@ -1923,6 +1919,105 @@ sub _list_set_config {
 
   return unless $self->_make_list($list);
   $self->{'lists'}{$list}->set_config(@_);
+}
+
+=head2 _list_config_regen(list, sublist)
+
+This private function takes the raw data in a configuration
+file and recreates the corresponding parsed data.  It
+is used during installation to bootstrap the GLOBAL:_install
+and DEFAULT:_install configuration files, which are used
+to provide default values for all configuration settings.
+
+=cut
+sub _list_config_regen {
+  my $self = shift;
+  my $list = shift;
+  my $sublist = shift;
+  my ($error, $ok);
+
+  return unless $self->_list_set_config($list, $sublist);
+  ($ok, $error) = $self->{'lists'}{$list}->config_regen;
+  $self->_list_set_config($list, 'MAIN');
+  ($ok, $error);
+}
+
+=head2 _list_sync_owners (list, old, new)
+
+This private function adjusts the GLOBAL:owners auxiliary
+list when the owner addresses for one list are changed.
+
+=cut
+sub _list_sync_owners {
+  my $self = shift;
+  my $list = shift;
+  my $old = shift;
+  my $new = shift;
+  my $log = new Log::In 150, $list;
+
+  my (%owners, %seen, @lists, $addr, $data, $i, $j, $requ, 
+      $strip, $time);
+
+  $requ = $self->{'sessionuser'};
+  ($i) = $self->valid_list($list);
+  return unless $i;
+
+  for $i (@$old) {
+    $addr = new Mj::Addr($i);
+    next unless $addr->isvalid;
+    $strip = $addr->strip;
+    $seen{$strip}--;
+    $owners{$strip} = $addr;
+  }
+  for $i (@$new) {
+    $addr = new Mj::Addr($i);
+    next unless $addr->isvalid;
+    $strip = $addr->strip;
+    $seen{$strip}++;
+    $owners{$strip} = $addr;
+  }
+  for $i (keys %owners) {
+    next unless $seen{$i};
+    $time = $::log->elapsed;
+    $data = $self->{'lists'}{'GLOBAL'}->is_subscriber($owners{$i}, 'owners');
+    unless ($data) {
+      next if ($seen{$i} < 0);
+      $self->{'lists'}{'GLOBAL'}->add('', $owners{$i}, 'owners',
+                                      'groups' => $list);
+      $self->inform('GLOBAL', 'subscribe', $requ, $addr,
+                    "subscribe GLOBAL:owners $addr",
+                    $self->{'interface'}, 1, 1, 0, 
+                    '',
+                    $::log->elapsed - $time);
+
+      next;
+    }
+    @lists = split "\002", $data->{'groups'};
+    
+    if ($seen{$i} > 0) {
+      unless (grep { $_ eq $list } @lists) {
+        push @lists, $list;
+        $data->{'groups'} = join "\002", sort @lists;
+        $self->{'lists'}{'GLOBAL'}->update('', $owners{$i}, 'owners', $data);
+      }
+    }
+    else {
+      @lists = grep { $_ ne $list } @lists;
+      if (@lists) {
+        $data->{'groups'} = join "\002", sort @lists;
+        $self->{'lists'}{'GLOBAL'}->update('', $owners{$i}, 'owners', $data);
+      }
+      else {
+        # remove and inform
+        $self->{'lists'}{'GLOBAL'}->remove('', $owners{$i}, 'owners');
+        $self->inform('GLOBAL', 'unsubscribe', $requ, $addr,
+                      "unsubscribe GLOBAL:owners $addr",
+                      $self->{'interface'}, 1, 1, 0, 
+                      '', $::log->elapsed - $time);
+
+      }
+    }
+  }
 }
 
 =head2 config_get_allowed, config_get_comment, config_get_intro,
@@ -2802,7 +2897,7 @@ sub _list_file_get {
   @search = $self->_list_config_get($list, 'file_search');
 
   $lang ||= $self->_list_config_get($list, 'default_language'); 
-  @langs = split(/\s*,\s*/, $lang);
+  @langs = split(/\s*,\s*/, $lang) if $lang;
 
   # Build @paths list; maintain %paths hash to determine uniqueness.
   for $i (@search, 'DEFAULT:', 'GLOBAL:$LANG', 'GLOBAL:',
@@ -3061,6 +3156,7 @@ sub _make_list {
   $tmp =
     new Mj::List(name      => $list,
 		 dir       => $self->{ldir},
+                 domain    => $self->{domain},
 		 backend   => $self->{backend},
                  'defaultdata'  => $self->{'defaultdata'},
                  'installdata'  => $self->{'installdata'},
@@ -3717,7 +3813,15 @@ sub configdef {
   my $log = new Log::In 30, "$request->{'list'}, @{$request->{'setting'}}";
 
   return (0, ["No configuration settings were specified.\n", ''])
-    unless (@{$request->{'setting'}});
+    unless (@{$request->{'setting'}}); # XLANG
+
+  return (0, ["The GLOBAL:_install template values cannot be reset.\n", ''])
+    if ($request->{'list'} eq 'GLOBAL' and 
+        $request->{'sublist'} eq '_install'); # XLANG
+
+  return (0, ["The DEFAULT:_install template values cannot be reset.\n", ''])
+    if ($request->{'list'} eq 'DEFAULT' and 
+        $request->{'sublist'} eq '_install'); # XLANG
 
   for $var (@{$request->{'setting'}}) {
     ($ok, $mess) =
@@ -4087,7 +4191,14 @@ sub _createlist {
 
     # Synchronize the GLOBAL:owners auxiliary list with the current group
     # of list owners.
-    $self->sync_owners($requ) if ($mode =~ /regen/);
+    $self->sync_owners($requ);
+
+    # Convert the raw data in the installation default configuration
+    # settings into parsed data.
+    if ($mode =~ /regen/) {
+      $self->_list_config_regen('GLOBAL', '_install');
+      $self->_list_config_regen('DEFAULT', '_install');
+    }
 
     # Extract lists and owners
     $args{'regenerate'} = 1;
@@ -4222,32 +4333,47 @@ the contents of each "owners" configuration setting.
 
 sub sync_owners {
   my ($self, $requ) = @_;
-  my (@deletions, @tmp, $addr, $i, $j, $out, $owners, $strip, $time);
+  my (%owners, %seen, @deletions, @tmp, $addr, $data, $i, $j, $lists, $out, 
+      $owners, $strip, $time);
+  my $log = new Log::In 150;
   $self->_fill_lists;
   $out = {};
-  for $i (sort keys %{$self->{'lists'}}) {
+
+  for $i (keys %{$self->{'lists'}}) {
     $owners = $self->_list_config_get($i, 'owners');
     for $j (@$owners) {
-      $time = $::log->elapsed;
       $addr = new Mj::Addr($j);
       next unless $addr->isvalid;
       $strip = $addr->strip;
+      # If this address has already been processed, update its 
+      # data and continue.
       if (exists $out->{$strip}) {
         push @{$out->{$strip}}, $i;
+        next;
       }
       else {
         $out->{$strip} = [$i];
+        $owners{$strip} = $addr;
       }
-      unless ($self->{'lists'}{'GLOBAL'}->is_subscriber($addr, 'owners')) {
-        $self->_subscribe('GLOBAL', $requ, $addr, '', 
-                          "subscribe GLOBAL:owners $addr", '', 'owners');
-        $self->inform('GLOBAL', 'subscribe', $requ, $addr,
-                      "subscribe GLOBAL:owners $addr",
-                      $self->{'interface'}, 1, 1, 0, 
-                      '',
-                      $::log->elapsed - $time);
+    }
+  }
+  for $addr (keys %owners) {
+    $time = $::log->elapsed;
+    $data = $self->{'lists'}{'GLOBAL'}->is_subscriber($owners{$addr}, 'owners');
+    $lists = join "\002", sort @{$out->{$addr}};
 
-      }
+    if ($data) {
+      $data->{'groups'} = $lists;
+      $self->{'lists'}{'GLOBAL'}->update('', $owners{$addr}, 'owners', $data);
+    }
+    else {
+      $self->{'lists'}{'GLOBAL'}->add('', $owners{$addr}, 'owners', 
+                                      'groups' => $lists);
+
+      $self->inform('GLOBAL', 'subscribe', $requ, $addr,
+                    "subscribe GLOBAL:owners $addr",
+                    $self->{'interface'}, 1, 1, 0, 
+                    '', $::log->elapsed - $time);
     }
   }
   # Synchronize the GLOBAL::owners sublist with the current
@@ -5550,7 +5676,12 @@ sub _subscribe {
 
   # Add to list
   ($ok, $data) =
-    $self->{'lists'}{$list}->add($mode, $vict, $flags, $class, $classarg, $classarg2, $sublist);
+    $self->{'lists'}{$list}->add($mode, $vict, $sublist,
+                                 'flags' => $flags, 
+                                 'class' => $class, 
+                                 'classarg' => $classarg, 
+                                 'classarg2' => $classarg2, 
+                                );
 
   unless ($ok) {
     $log->out("failed, existing");
