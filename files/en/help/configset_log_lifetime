@@ -1,0 +1,8 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  log_lifetime = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : 31
+Data Type     : integer
+Variable Group: majordomo
+Password Notes: Visible only with password. Set with global password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

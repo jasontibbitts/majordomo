@@ -2,7 +2,7 @@
 configset  GLOBAL  tmpdir = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : [defined during installation]
-Data Type     : word
+Data Type     : directory
 Variable Group: majordomo
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

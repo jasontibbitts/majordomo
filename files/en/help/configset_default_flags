@@ -2,7 +2,7 @@
 configset listname default_flags = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : SPR
-Data Type     : string
+Data Type     : flags, choose from: b C d f h H j P R S W
 Variable Group: flags
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

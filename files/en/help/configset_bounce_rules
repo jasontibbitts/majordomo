@@ -1,0 +1,10 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname bounce_rules <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : no default
+Data Type     : bounce_rules
+Variable Group: bounce
+Password Notes: Visible only with password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

@@ -2,7 +2,7 @@
 configset listname nonmember_flags = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 
-Data Type     : string
+Data Type     : flags, choose from: b d f j
 Variable Group: flags
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

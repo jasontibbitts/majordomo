@@ -3,7 +3,7 @@ configset listname bounce_max_age = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : 31
 Data Type     : integer
-Variable Group: resend, bounce
+Variable Group: bounce
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 

@@ -12,7 +12,6 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset listname allowed_classes << ENDTAG
 each
-digest
 nomail
 ENDTAG
 
@@ -20,6 +19,16 @@ ENDTAG
 A list of the classes that a user is allowed to put themselves into.
 If a less specific class like 'digest' is given, users are allowed
 to put themselves into any of the more specific classes.
+
+Subscription class can be changed by the "set" command. Available
+classes are each, digest, nomail. By default, a user is free to
+choose any of these three classes. The example above prohibits the
+user from choosing to receive digests.
+
+
+See Also:
+   help set                    (to change subscription class)
+   help configset access_rules (to limit access to commands like "set")
 
 For a list of all help topics send this one-line message
    help topics

@@ -1,8 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname allowed_flags = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : ACHPRS
-Data Type     : string
+Default Value : ACHPRSW
+Data Type     : flags, choose from: A C H P R S W
 Variable Group: flags
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

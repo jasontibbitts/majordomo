@@ -130,6 +130,7 @@ files/en/config/bounce_max_age
 files/en/config/bounce_max_count
 files/en/config/bounce_probe_frequency
 files/en/config/bounce_probe_pattern
+files/en/config/bounce_rules
 files/en/config/bounce_recipients
 files/en/config/category
 files/en/config/chunksize
@@ -275,12 +276,14 @@ files/en/help/configset_archive_access
 files/en/help/configset_archive_dir
 files/en/help/configset_archive_size
 files/en/help/configset_archive_split
+files/en/help/configset_archive_url
 files/en/help/configset_attachment_rules
 files/en/help/configset_bounce_max_age
 files/en/help/configset_bounce_max_count
 files/en/help/configset_bounce_probe_frequency
 files/en/help/configset_bounce_probe_pattern
 files/en/help/configset_bounce_recipients
+files/en/help/configset_bounce_rules
 files/en/help/configset_category
 files/en/help/configset_chunksize
 files/en/help/configset_comments
@@ -311,6 +314,8 @@ files/en/help/configset_index_access
 files/en/help/configset_info_access
 files/en/help/configset_inform
 files/en/help/configset_intro_access
+files/en/help/configset_latchkey_lifetime
+files/en/help/configset_log_lifetime
 files/en/help/configset_master_password
 files/en/help/configset_max_header_line_length
 files/en/help/configset_max_in_core
@@ -348,6 +353,7 @@ files/en/help/configset_set_policy
 files/en/help/configset_signature_separator
 files/en/help/configset_site_name
 files/en/help/configset_subject_prefix
+files/en/help/configset_sublists
 files/en/help/configset_subscribe_policy
 files/en/help/configset_taboo_body
 files/en/help/configset_taboo_headers

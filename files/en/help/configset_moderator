@@ -2,7 +2,7 @@
 configset listname moderator = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : no default
-Data Type     : word
+Data Type     : address
 Variable Group: resend, access
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
