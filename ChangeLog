@@ -1,3 +1,10 @@
+2000-06-18  Michael Yount  <csf@moscow.com>
+	* lib/Mj/Access.pm, lib/Mj/Resend.pm, lib/Mj/Token.pm:
+	Prevent race condition when queue file is attached
+	to consult message, by spooling file before list_access_check()
+	is called in Mj::Resend::post().  Remove "unspooled_file"
+	variable.
+
 2000-06-15  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Bf/Parser.pm (parse_compuserve): New function to parse

@@ -815,7 +815,6 @@ sub _a_confirm2 {
 # number of moderators.  XXX Possibly allow the push of a bounce reason, or
 # can the whole moderator group thing.
 
-# XXX Note severe hack with 'unspooled_file'
 sub _a_consult {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %extra) = @_;
@@ -833,7 +832,6 @@ sub _a_consult {
 		 'cmdline'   => $cmdline,
 		 'approvals' => $arg || 1,
 		 'args'      => [$arg1, $arg2, $arg3],
-		 'unspooled_file' => $extra{'unspooled_file'},
 		);
 
   return (-1, $request eq 'post' ? 'ack_stall' : 'repl_consult');

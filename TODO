@@ -82,16 +82,6 @@ New stored token format:
 
   Token::t_remove should just return the hash uninterpreted.
 
-Back out severe hack:
-
-  Mj::Resend::post -> list_access_check call has 'unspooled_file' extra
-  argument.
-  Mj::Access::_a_consult -> pass on 'unspooled_file' from the access
-  variables.
-  Mj::Token::consult -> use unspooled file in mailing out the warning if
-  it's defined.  This should allow the confirm_consult case to function as
-  well.
-
 We do want speed, so Storable is warranted, but not for token storage and
 we require Data::Dumper for other things anyway.  For the list stuff, it is
 nice to be able to compare without unstringifying, so it is probably

@@ -210,13 +210,13 @@ sub post {
       $spool = $self->t_gen;
       last unless -f "$self->{ldir}/GLOBAL/spool/$spool";
     }
+    mv($file, "$self->{'ldir'}/GLOBAL/spool/$spool");
+    $file = "$self->{'ldir'}/GLOBAL/spool/$spool";
 
-    # XXX Note severe hack with 'unspooled_file'
     ($ok, $mess, $fileinfo) =
       $self->list_access_check
 	($passwd, undef, $int, $mode, $cmd, $list, "post", $user, '',
-	 "$self->{ldir}/GLOBAL/spool/$spool", join("\002", @$reasons),
-	 join("\002", %$avars), %$avars, 'unspooled_file' => $file);
+	 $file, join("\002", @$reasons), join("\002", %$avars), %$avars);
   }
 
   $owner = $self->_list_config_get($list, 'sender');
@@ -289,9 +289,9 @@ sub post {
       $self->mail_entity($owner, $nent, $user);
     }
 
-  # If the request is stalled, we need to spool the file.
-  if ($ok < 0) {
-    mv($file, "$self->{ldir}/GLOBAL/spool/$spool");
+  # If the request failed, we need to unlink the file.
+  if (!$ok) {
+    unlink $file;
   }
 
   # Clean up after ourselves;

@@ -397,8 +397,7 @@ sub consult {
     $ent->make_multipart;
     $ent->attach(Type        => 'message/rfc822',
                  Description => 'Original message',
-                 # Note serious hack here
-                 Path        => $args{'unspooled_file'} || $args{'args'}[0],
+                 Path        => $args{'args'}[0],
                  Filename    => undef,
                 );
   }
