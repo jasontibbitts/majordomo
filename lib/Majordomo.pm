@@ -337,7 +337,7 @@ processing done at the beginning.
 =cut
 sub dispatch {
   my ($self, $request, $extra) = @_;
-  my (@res, $base_fun, $comment, $continued, $data, $func, 
+  my (@res, $base_fun, $comment, $continued, $data, $elapsed, $func, 
       $mess, $ok, $out, $over);
   my ($level) = 29;
   $level = 500 if ($request->{'command'} =~ /_chunk$/);
@@ -349,7 +349,7 @@ sub dispatch {
   $request->{'list'}     ||= 'GLOBAL';
   $request->{'mode'}     ||= '';
   $request->{'mode'}       = lc $request->{'mode'};
-  $request->{'mode'}       =~ /([a-z-]+)/; 
+  $request->{'mode'}       =~ /([a-z-]*)/; 
   $request->{'mode'}       = $1;
   $request->{'password'} ||= '';
   $request->{'user'}     ||= 'unknown@anonymous';
@@ -368,6 +368,7 @@ sub dispatch {
   }
   # Untaint
   $request->{'list'} = $ok;
+  $request->{'time'} ||= $::log->elapsed;
 
   # XXX Move this to Mj::Access.
   if ($self->t_recognize($request->{'password'})) {
@@ -467,17 +468,19 @@ sub dispatch {
       
     # Inform on post_done and post and owner_done, 
     # but not on post_start or owner_start.
-    $over = 2 if ($request->{'command'} eq 'post_start');
-    $over = 2 if ($request->{'command'} eq 'owner_start');
+    $over = 2 if ($request->{'command'} eq 'post_start' or 
+                  $request->{'command'} eq 'owner_start' or 
+                  ($request->{'command'} =~ /_start$/ and $res[0] == 1));
 
     # Inform unless overridden or continuing an iterator
     unless ($over == 2 || 
-            $request->{'command'} =~ /(_chunk|(?<!post|wner)_done)$/) {
+            $request->{'command'} =~ /_chunk$/) {
+      $elapsed = sprintf ("%.3f", $::log->elapsed - $request->{'time'});
       # XXX How to handle an array of results?
       $self->inform($request->{'list'}, $base_fun, $request->{'user'}, 
                     $request->{'victim'}, $request->{'cmdline'}, 
                     $self->{'interface'}, $res[0], 
-                    !!$request->{'password'}+0, $over, $comment);
+                    !!$request->{'password'}+0, $over, $comment, $elapsed);
     }
   }
   $out;
@@ -585,7 +588,7 @@ sub gen_cmdline {
   $base = "$request->{'command'}";
   $base =~ s/_(start|chunk|done)//;
   $cmdline = $base;
-  if ($request->{'mode'}) {
+  if (length $request->{'mode'}) {
     $cmdline .= "-$request->{'mode'}";
   }
   # Add LIST if the command requires one

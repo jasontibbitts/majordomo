@@ -1,3 +1,19 @@
+2000-10-02  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm (dispatch):  Inform on *_done commands.
+	Do not inform on *_start commands if they succeed.
+	Track the elapsed time taken by a request.
+
+	* lib/Mj/Format.pm (report):  Display the elapsed time
+	if one is given.
+
+	* lib/Mj/Inform.pm (inform):  Store the elapsed time of
+	the command in the log.
+	(_inform_owner)  Include TIME substitution, for the elapsed time.
+
+	* lib/Mj/Log.pm (elapsed):  New routine.  Return the amount
+	of time elapsed since the first call to in().
+
 2000-10-02  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* lib/Mj/Resend.pm (_check_mime): Don't fault messages for
