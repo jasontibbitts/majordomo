@@ -164,6 +164,53 @@ If a moderated message is approved by the moderators with the
 applied when the message is delivered.
 
 
+Example - Remove all attachments
+--------------------------------
+The following filters will remove all attachments that are not
+plain text, and convert HTML and enriched-text single-part messages into 
+plain text.
+
+text/plain | allow
+ALL | discard
+text/html | format
+text/enriched | format
+
+The second filter will discard all parts that are not plain text from
+multipart messages.  The second filter will take precedence for all
+message parts that are not plain text.  However, the "discard" action is
+ignored for single-part messages, so the third and fourth filters will
+affect single-part messages that contain HTML or enriched text.
+
+This example has two potential side effects.  If a single-part message
+is posted that is not text/plain, text/html, or text/enriched, it will
+not be affected by the filters.  Also, if a multipart message is posted
+that does not have a text/plain part, all of its parts will be
+discarded, leaving the message blank.
+
+
+Example - Remove all non-text attachments
+-----------------------------------------
+The following filters will remove all attachments that are not plain
+text, HTML, or enriched-text, and convert HTML and enriched-text parts
+into plain text.
+
+text/plain | allow
+text/html | format
+text/enriched | format
+ALL | discard
+
+This example has two potential side effects.  If a single-part message
+is posted that is not text/plain, text/html, or text/enriched, it will
+not be affected by the filters.  Also, if a multipart message is posted
+that has more than one text part, it may continue to have more than
+one text part after the message has been filtered.
+
+The best way to cope with messages that might trigger one of these
+side effects is to use the attachment_rules setting to restrict access
+for messages that do not contain a (plain) text part.  See
+"help configset_attachment_rules" for more details.
+
+
 Unimplemented features
 ----------------------
 The "attachment_filters" setting does not alter portions of text messages
