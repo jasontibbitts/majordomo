@@ -518,7 +518,7 @@ my %commands =
    },
    'lists' =>
    {
-    'parser'   => [qw(email shell noargs nohereargs real)],
+    'parser'   => [qw(email shell nohereargs real)],
     'dispatch' => {'top' => 1,
                    'arguments' => { 'regexp' => {'type' => 'SCALAR'}},
                    'modes'    =>  {
@@ -572,9 +572,13 @@ my %commands =
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1,  'noaddr' => 1,
+                   'arguments' => {'subject' => {'type' => 'SCALAR',
+                                                 'include' => 'addhdr'},
+                                  },
                    'hereargs'  =>   'message',
                    'modes'    =>  {
                                    %generic_modes,
+                                   'addhdr'      => 1,
                                    'archive'     => 1,
                                   },
                    'tokendata' => { 'arg1'   => 'file',
