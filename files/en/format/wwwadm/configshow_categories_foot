@@ -2,6 +2,6 @@
 
 </dl>
 
-<input type=submit name=func value="configshow">
+<input type="submit" name="func" value="configshow">
 </form>
 
