@@ -1390,7 +1390,7 @@ sub _exclude {
 
   # The user doesn't get a copy if they don't have 'selfcopy' set.
   $exclude->{$user->canon} = 1
-    if !$self->{'lists'}{$list}->flag_set('selfcopy', $user);
+    if $user->isvalid && !$self->{'lists'}{$list}->flag_set('selfcopy', $user);
 
   # Extract addresses from headers
   $to = $ent->head->get('To', 0); chomp $to if $to;

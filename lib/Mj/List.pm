@@ -514,7 +514,8 @@ sub flag_set {
   my $log  = new Log::In 150, "$flag, $addr";
   my ($flags, $data);
   return unless $flags{$flag};
-
+  return unless $addr->isvalid;
+  
   $flags = $addr->retrieve("$self->{name}-flags");
 
   if ($force || !defined($flags)) {

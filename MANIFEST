@@ -15,6 +15,7 @@ MANIFEST.SKIP
 Makefile.PL
 NEWS
 NEWSTUFF
+OPTIMIZING
 README
 README.SENDMAIL
 README.UPGRADE
@@ -95,11 +96,12 @@ files/en/help/admin_commands
 files/en/help/admin_configuration
 files/en/help/admin_passwords
 files/en/help/commands
-files/en/help/default
+files/en/help/help
 files/en/help/parser
 files/en/help/patterns
 files/en/help/subscribe
 files/en/help/topics
+files/en/help/unknowntopic
 files/en/info
 files/en/inform
 files/en/intro
@@ -137,6 +139,9 @@ lib/Mj/Deliver/SMTP.pm
 lib/Mj/Deliver/Sorter.pm
 lib/Mj/Digest.pm
 lib/Mj/Digest/Build.pm
+lib/Mj/Digest/Index.pm
+lib/Mj/Digest/MIME.pm
+lib/Mj/Digest/Text.pm
 lib/Mj/File.pm
 lib/Mj/File.pm.debug
 lib/Mj/FileRepl.pm
@@ -196,6 +201,11 @@ misc/usetree
 misc/validate_addresses
 postinstall
 report
+setup/ask_basic.pl
+setup/ask_domain.pl
+setup/ask_qmail.pl
+setup/ask_sendmail.pl
+setup/query_util.pl
 t/README
 t/addr.t
 t/checksubs

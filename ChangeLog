@@ -1,5 +1,14 @@
 Mon Feb  1 13:09:50 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Resend.pm (_exclude): Make sure not to try to canonize
+ 	the user address if it isn't valid.
+
+	* lib/Mj/List.pm (flag_set): An address has no flags set if it
+ 	isn't valid.
+
+	* lib/Mj/Deliver/Envelope.pm (new): Be a bit more tolerant of
+ 	envelopes with no sender.
+
 	* lib/Mj/Deliver/SMTP.pm (senddata): Don't print anything to the
  	debug log.
 

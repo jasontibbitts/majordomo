@@ -72,9 +72,9 @@ sub new {
 
   return undef unless $self->{'smtp'};
 
-  unless (defined $args{'sender'}) {
-    $::log->abort("Must provide a sender when opening an envelope");
-    die;
+  unless ($args{'sender'}) {
+    warn "Must provide a sender when opening an envelope; using bogus default.";
+    $args{'sender'} = 'misconfigured@example.com';
   }
 
   $self->{'sender'} = $args{'sender'};
