@@ -28,6 +28,7 @@ my %actions =
    'consult'         => {files => [0],   terminal => 1,},
    'confirm_consult' => {files => [0,1], terminal => 1,},
    'default'         => {files => [],    terminal => 1,},
+   'delay'           => {files => [0],   terminal => 1,},
    'deny'            => {files => [],    terminal => 1,},
    'forward'         => {files => [],    terminal => 1,},
 #  'log'             => 1,
@@ -51,6 +52,7 @@ my %reg_legal =
    'mismatch'       =>1,
    'posing'         =>1,
    'addr'           =>3,
+   'delay'          =>3,
    'fulladdr'       =>3,
    'host'           =>3,
    'mode'           =>3,
@@ -67,6 +69,7 @@ my %reg_legal =
         'body_length_exceeded' => "is set if 'body_length' exceeds the value in 'configset LISTNAME maxlength'",
                  'body_length' => "contains the number of characters actually in the message body, see 'body_length_exceeded' for test",
         'days_since_subscribe' => "contains the number of days since the user signed up (used for a cooling off period before allowing posting)",
+                       'delay' => "a string specifying the amount of time to delay a command",
                          'dup' => "is set if any of dup_checksum, dup_partial_checksum, or dup_msg_id are set",
                 'dup_checksum' => "is set if the checksum of the message has been seen before",
                   'dup_msg_id' => "is set if the message ID has been seen before",
@@ -119,7 +122,7 @@ my %commands =
   (
    # Commands implemented by the parser/marshaller only
    'approve'    => {'parser' => [qw(email shell interp)]},
-   'default'    => {'parser' => [qw(email shell_parsed real)]},
+   'default'    => {'parser' => [qw(email shell shell_parsed real)]},
    'end'        => {'parser' => [qw(email shell interp)]},
    'config'     => {'parser' => [qw(email list obsolete=configshow real)]},
    'configshow' => {'parser' => [qw(email shell list global real)],
@@ -281,7 +284,7 @@ my %commands =
     'dispatch' => {'top' => 1, 'iter' => 1,
                    'arguments' => {'auxlist' => {'type' => 'SCALAR',},
                                    'regexp'  => {'type' => 'SCALAR'}},
-                   'tokendata' => {'arg3'    => 'auxlist',
+                   'tokendata' => {'arg2'    => 'auxlist',
                                    'arg1'    => 'regexp'}
                   },
     'access'   => {
@@ -429,16 +432,10 @@ my %commands =
                                    'victim'  => 'victims'}
                   },
     'access'   => {
-                   'default' => 'special',
+                   'default' => 'confirm',
                    'legal'   => {
-                                 'master_password'  => 1,
-                                 'user_password'    => 1,
-                                 'mismatch'         => 1,
-                                 'posing'           => 1,
+                                 %reg_legal,
                                  'password_length'  => 2,
-                                 'addr'             => 3,
-                                 'fulladdr'         => 3,
-                                 'host'             => 3,
                                 },
                    'actions' => \%actions,
                   },
@@ -446,18 +443,17 @@ my %commands =
    'post' =>
    {
     'parser'   => [qw(email shell list real)],
-    'dispatch' => {'top' => 1, 'iter' => 1, 'noaddr' => 1,
+    'dispatch' => {'top' => 1, 'iter' => 1, 
                    'arguments' => { 'auxlist' => {'type' => 'SCALAR'} },
                    'hereargs'  =>   'message',
+                   'tokendata' => { 'arg1'   => 'file',
+                                    'arg3'   => 'vars',}
                   },
     'access'   => {
                    'default' => 'special',
                    'legal'   =>
                    {
-                    'master_password'              => 1,
-                    'user_password'                => 1,
-                    'mismatch'                     => 1,
-                    'posing'                       => 1,
+                    %reg_legal,
                     'any'                          => 1,
                     'bad_approval'                 => 1,
                     'body_length'                  => 2,
@@ -480,14 +476,12 @@ my %commands =
                     'mime_header_length'           => 2,
                     'mime_header_length_exceeded'  => 1,
                     'mime'                         => 1,
+                    'mode'                         => 3,
                     'percent_quoted'               => 2,
                     'quoted_lines'                 => 2,
+                    'sublist'                      => 3,
                     'total_header_length'          => 2,
                     'total_header_length_exceeded' => 1,
-                    'addr'                         => 3,
-                    'fulladdr'                     => 3,
-                    'host'                         => 3,
-                    'sublist'                      => 3,
                    },
                    'actions' => \%actions,
                   },
@@ -558,7 +552,7 @@ my %commands =
                    'arguments' => {'action'  => {'type' => 'SCALAR',},
                                    'date'    => {'type' => 'SCALAR',},},
                    'tokendata' => {'arg1'   => 'action',
-                                   'arg3'   => 'date'}
+                                   'arg2'   => 'date'}
                   },
     'access'   => {
                    'default' => 'deny',
@@ -586,7 +580,7 @@ my %commands =
                    'hereargs'  => 'victims',
                    'tokendata' => {'victim' => 'victims',
                                    'arg1'   => 'setting',
-                                   'arg3'   => 'auxlist'}
+                                   'arg2'   => 'auxlist'}
                   },
     'access'   => {
                    'default' => 'policy',
