@@ -1,3 +1,8 @@
+2001-08-14  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/MTAConfig.pm (add_alias): Bugfix - remove extra dash in
+	VUT setup for list owner.
+
 2001-08-08  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/BounceHandler.pm:  (handle_bounce_message) 

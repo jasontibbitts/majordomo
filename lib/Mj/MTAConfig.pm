@@ -214,7 +214,7 @@ EOB
 # VUT entries for Majordomo at $dom
 $who\@$dom         $who$vut
 $who-owner\@$dom   $who$vut-owner
-owner-$who-\@$dom  owner-$who$vut
+owner-$who\@$dom  owner-$who$vut
 # End VUT entries for Majordomo at $dom
 EOB
   }
