@@ -88,7 +88,7 @@ use AutoLoader 'AUTOLOAD';
 __END__
 
 use Mj::MIMEParser;
-use File::Copy mv;
+use File::Copy 'mv';
 sub post {
   my($self, $user, $passwd, $auth, $int, $cmd, $mode, $list, $file) = @_;
   my ($owner,                # The list owner address
@@ -358,8 +358,11 @@ sub _post {
     $mime_parser->output_to_core($self->_global_config_get("max_in_core"));
     $mime_parser->output_dir($tmpdir);
     $mime_parser->output_prefix("mjr");
-    $ent[0] = $mime_parser->read(SPOOL);
+    $ent[0] = $mime_parser->read(\*SPOOL);
   }
+
+warn "BLAH";
+$ent[0]->print(\*STDERR);
 
   # Trim off approvals, get back a new entity
   $ent[0] = $self->_trim_approved($ent[0]);

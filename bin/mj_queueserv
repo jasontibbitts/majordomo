@@ -19,7 +19,8 @@ BEGIN {
 
   # Redirect standard error output.
   if (! -t STDERR) {
-    open (STDERR, ">>$::TMPDIR/mj_queueserv.debug");
+    open (STDERR, ">>$::TMPDIR/mj_queueserv.debug") or
+      die "Can't redirect debug output to $::TMPDIR/mj_queueserv.debug: $!";
   }
 
   # Croak if install was botched
@@ -54,15 +55,15 @@ exit if $pid;
 die "Couldn't fork: $!" unless defined($pid);
 POSIX::setsid() or die "Can't start a new session: $!";
 
-$SIG{CHLD} = 'IGNORE';
+$SIG{CHLD} = sub {wait};
 $SIG{PIPE} = 'IGNORE';
 
 logmsg("Majordomo Queue Server - ".scalar(localtime));
 
-socket(Server,PF_UNIX,SOCK_STREAM,0)        || die "socket: $!";
+socket(Server,PF_UNIX,SOCK_STREAM,0)        or die "socket: $!";
 unlink($sock);
-bind  (Server, $uaddr)                      || die "bind: $!";
-listen(Server,SOMAXCONN)                    || die "listen: $!";
+bind  (Server, $uaddr)                      or die "bind: $!";
+listen(Server,SOMAXCONN)                    or die "listen: $!";
 
 logmsg "Server started on $sock";
 
@@ -158,7 +159,7 @@ while (1) {
     # Setup a pipe set for the child
     $child[$i]  = new IO::Handle; $child[$i]->autoflush(1);
     $parent[$i] = new IO::Handle; $parent[$i]->autoflush(1);
-    socketpair($child[$i], $parent[$i], AF_UNIX, SOCK_STREAM, PF_UNSPEC) || die "Socketpair: $!";
+    socketpair($child[$i], $parent[$i], AF_UNIX, SOCK_STREAM, PF_UNSPEC) or die "Socketpair: $!";
 
     # Start a runner
     if (!($pid = fork)) {
@@ -224,3 +225,45 @@ while (1) {
 # Out of while() loop; time to die.
 logmsg "Shutting down";
 exit;
+
+=head1 NAME
+
+mj_queueserv - Overseer of mj_queuerun processes.
+
+=head1 SYNOPSIS
+
+Started only from mj_enqueue; not to be run by hand.
+
+=head1 DESCRIPTION
+
+This is a small process that oversees a pool of mj_queuerun processes.  It
+is intended to be started by mj_enqueue and only one should ever be active
+at any time.
+
+mj_queueserv immediately forks and disassociates itself from its parent
+process so it can run as a daemon.  It opens a socket and awaits
+connections; if it sits idle for a period of time or if instructed to (see
+L<mj_shutdown>) it will exit (as will any existing mj_queuerun processes,
+once they have finished their work).
+
+=head1 COPYRIGHT
+
+Copyright (c) 1999 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+his program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+#
+### Local Variables: ***
+### mode:cperl ***
+### cperl-indent-level:2 ***
+### End: ***

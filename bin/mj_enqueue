@@ -16,7 +16,8 @@ BEGIN {
 
   # Redirect standard error output.
   if (! -t STDERR) {
-    open (STDERR, ">>$::TMPDIR/mj_enqueue.debug");
+    open (STDERR, ">>$::TMPDIR/mj_enqueue.debug") or
+      die "Can't redirect debug output to $::TMPDIR/mj_enqueue.debug: $!";
   }
 
   # Croak if install was botched
@@ -131,7 +132,7 @@ unless (socket(SOCK, PF_UNIX, SOCK_STREAM, 0)) {
 if (!($ok = connect(SOCK, sockaddr_un($rendezvous)))) {
   # Couldn't connect to the server.  First, exclude other mj_enqueue
   # programs from starting one.
-  open LOCK, ">> $::TMPDIR/mj_queueserv.lock" ||
+  open LOCK, ">> $::TMPDIR/mj_queueserv.lock" or
     die "Couldn't open lockfile $::TMPDIR/mj_queueserv.lock: $!";
 
   unless (flock(LOCK, $::LOCK_EX|$::LOCK_NB)) {
@@ -154,7 +155,7 @@ if (!($ok = connect(SOCK, sockaddr_un($rendezvous)))) {
 }
 
 # Poll with linear backoff until server starts up
-for ($i = 0; $i < 10 || die "connect: $!"; $i++) {
+for ($i = 0; $i < 10 or die "connect: $!"; $i++) {
   last if $ok;
   sleep $i;
   close SOCK;

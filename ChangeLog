@@ -1,3 +1,13 @@
+Sat Jun  5 11:50:49 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_queueserv: Cleaned up some || -> or confusion.
+
+	* bin/mj_enqueue: ditto.
+
+Thu Jun  3 20:40:32 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm: Forgot to quote 'mv'.
+
 Tue Jun  1 22:34:01 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Majordomo.pm (dispatch): Make sure that $user is defined and
