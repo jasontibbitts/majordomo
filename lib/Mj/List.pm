@@ -994,24 +994,10 @@ sub fs_delete {
 }
 
 use Mj::FileSpace;
-sub fs_sync {
-  my $self = shift;
-  $self->_make_fs || return;
-  $self->{'fs'}->sync;
-}
-
-use Mj::FileSpace;
 sub fs_index {
   my $self = shift;
   $self->_make_fs || return;
   $self->{'fs'}->index(@_);
-}
-
-use Mj::FileSpace;
-sub fs_mogrify {
-  my $self = shift;
-  $self->_make_fs || return;
-  $self->{'fs'}->mogrify(@_);
 }
 
 use Mj::FileSpace;

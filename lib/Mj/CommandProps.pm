@@ -200,16 +200,6 @@ my %commands =
 		   'actions' => \%reg_actions,
 		  },
    },
-   'filesync' =>
-   {
-    'parser' => [qw(email shell list global all real)],
-    'dispatch' => {'top' => 1},
-    'access'   => {
-		   'default' => 'deny',
-		   'legal'   => \%reg_legal,
-		   'actions' => \%reg_actions,
-		  },    
-   },
    'get' =>
    {
     'parser'   => [qw(email shell list global real)],

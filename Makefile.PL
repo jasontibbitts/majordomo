@@ -14,10 +14,7 @@ BEGIN {
 # A version variable we can use to force users to reconfigure when we add
 # new questions.
 my $config_version = 3;
-
-my @SIDSCRIPTS = qw(mj_email mj_shell mj_confirm);
-my @SCRIPTS = qw(mj_trigger);
-my @EXES = map {"./bin/$_"} @SIDSCRIPTS, @SCRIPTS;
+my(@SIDSCRIPTS, @SCRIPTS, @EXES);
 
 # MakeMaker has begun to displease me
 my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\$(MAN3EXT)")}
@@ -28,11 +25,10 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; ("lib/$_" => "\$(INST_MAN3DIR)/$a.\
       Mj/Deliver/Prober.pm Mj/Deliver/QQEnvelope.pm Mj/Deliver/SMTP.pm
       Mj/Deliver/Sorter.pm Mj/Digest.pm Mj/Digest/Build.pm
       Mj/Digest/Index.pm Mj/Digest/MIME.pm Mj/Digest/Text.pm Mj/File.pm
-      Mj/FileRepl.pm Mj/FileSpace.pm Mj/FileSpaceDB.pm Mj/Format.pm
-      Mj/Inform.pm Mj/List.pm Mj/Lock.pm Mj/Log.pm Mj/MailOut.pm
-      Mj/MIMEParser.pm Mj/Parser.pm Mj/Resend.pm Mj/SimpleDB.pm
-      Mj/SubscriberList.pm Mj/TextOutput.pm Mj/Token.pm Mj/TokenDB.pm
-      Bf/Sender.pm mj_cf_data.pl mj_cf_defs.pl );
+      Mj/FileRepl.pm Mj/FileSpace.pm Mj/Format.pm Mj/Inform.pm Mj/List.pm
+      Mj/Lock.pm Mj/Log.pm Mj/MailOut.pm Mj/MIMEParser.pm Mj/Parser.pm
+      Mj/Resend.pm Mj/SimpleDB.pm Mj/SubscriberList.pm Mj/TextOutput.pm
+      Mj/Token.pm Mj/TokenDB.pm Bf/Sender.pm mj_cf_data.pl mj_cf_defs.pl );
 
 #### Prerequisite checking
 
@@ -71,6 +67,18 @@ unless (check_syslog() &&
 #### Interactive configuration
 
 my $config = configure();
+
+# Now we can set these up based on what we got form configure.
+if ($config->{mta} eq 'qmail') {
+  @SIDSCRIPTS = qw(mj_shell mj_confirm);
+  @SCRIPTS = qw(mj_email mj_trigger);
+}
+else {
+  @SIDSCRIPTS = qw(mj_email mj_shell mj_confirm);
+  @SCRIPTS = qw(mj_trigger);
+}
+@EXES = map {"./bin/$_"} @SIDSCRIPTS, @SCRIPTS;
+
 my $prefix = $config->{'install_dir'};
 
 #### Build the wrapper binaries if necessary

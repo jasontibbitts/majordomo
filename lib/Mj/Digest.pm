@@ -221,6 +221,8 @@ sub decide {
   my $log = new Log::In 250;
   my $time = time;
 
+  $log->out('no');
+
   # Check time; bail if not right time
   return 0 unless in_clock($p->{'times'});
 
@@ -228,7 +230,10 @@ sub decide {
   return 0 if $p->{separate} && ($time - $s->{lastrun}) < $p->{separate};
 
   # Check oldest message, push digest if too old (maxage)
-  return 1 if $p->{maxage} && $time - $s->{oldest} > $p->{maxage};
+  if ($p->{maxage} && $time - $s->{oldest} > $p->{maxage}) {
+    $log->out('yes');
+    return 1;
+  }
 
   # Check sizes; bail if not enough messages or not enough bytes (minsize,
   # minmsg)
@@ -240,6 +245,7 @@ sub decide {
   return 0 unless !$p->{minage} || ($time - $s->{newest}) >= $p->{minage};
 
   # OK, we found no reason _not_ to push a digest
+  $log->out('yes');
   1;
 }
 

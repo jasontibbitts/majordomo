@@ -55,68 +55,44 @@ sub create_dirs_dom {
   my $gid = shift;
   my $um  = shift;
 
-  printf "ok.\nMaking directories for %s, mode %lo.\n", $d, (0777 & ~oct($um))
-    if $verb;
+  printf "ok.\nMaking directories for %s, mode %lo.", $d, (0777 & ~oct($um));
   safe_mkdir("$l/$d",                    0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$l/$d/GLOBAL",             0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$l/$d/GLOBAL/sessions",    0777 & ~oct($um), $uid, $gid);dot;
   safe_mkdir("$l/$d/GLOBAL/files",       0777 & ~oct($um), $uid, $gid);dot;
+  safe_mkdir("$l/$d/GLOBAL/files/public",0777 & ~oct($um), $uid, $gid);dot;
+  safe_mkdir("$l/$d/GLOBAL/files/spool", 0777 & ~oct($um), $uid, $gid);dot;
+
+  # Make the dotfiles so they show up properly in an index
+  open DF, ">$l/$d/GLOBAL/files/.spool"
+    or die "Can't open $l/$d/GLOBAL/files/.spool: $!";
+  print DF "Spooled Files\nd\n\n\n\n\n";
+  close DF;
+  dot;
+  chown (scalar getpwnam($config->{'uid'}),
+	 scalar getgrnam($config->{'gid'}),
+	 "$l/$d/GLOBAL/files/.spool")
+    or die "Can't chown $l/$d/GLOBAL/files/.spool: $!";
+  dot;
+  chmod ((0777 & ~oct($config->{'umask'}), "$l/$d/GLOBAL/files/.spool"))
+    or die "Can't chmown $l/$d/GLOBAL/files/.spool: $!";
+  dot;
+  
+  open DF, ">$l/$d/GLOBAL/files/.public"
+    or die "Can't open $l/$d/GLOBAL/files/.public: $!";
+  print DF "Public Files\nd\n\n\n\n\n";
+  close DF;
+  dot;
+  chown (scalar getpwnam($config->{'uid'}),
+	 scalar getgrnam($config->{'gid'}),
+	 "$l/$d/GLOBAL/files/.public")
+    or die "Can't chown $l/$d/GLOBAL/files/.public: $!";
+  dot;
+  chmod ((0777 & ~oct($config->{'umask'}), "$l/$d/GLOBAL/files/.public"))
+    or die "Can't chmown $l/$d/GLOBAL/files/.public: $!";
+  dot;
 }
 
-# Do basic configuration for a domain
-sub do_config {
-  my $dom = shift;
-  my(@args, $arg, $errcount, $i, $ignore, $msg, $pw);
-
-  # Prompt for the site password if necessary
-  $pw = $config->{'site_password'};
-  unless ($pw) {
-    $pw = get_str($msg4);
-    $config->{'site_password'} = $pw;
-  }
-
-  print "Configuring $dom:" unless $quiet;
-
-  # Build the command line
-  @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F",
-	   "$config->{wtmpdir}/inst.$$");
-
-  # Build the command file
-  open FILE, ">$config->{wtmpdir}/inst.$$";
-#  print FILE "approve $config->{site_password} configset GLOBAL master_password = $pw\n";
-  print FILE "default password $pw\n";
-
-  # Make the necessary directories in the GLOBAL filespace
-  print FILE "put-dir GLOBAL /spool Spooled Files\n";
-  print FILE "put-dir GLOBAL /public Public Files\n";
-  close FILE;
-  # Make sure the file can be read by the Majordomo user.  XXX This is a
-  # slight security hole.  We're root, so we should play with chowning the
-  # file.
-  chmod(0644, "$config->{wtmpdir}/inst.$$");dot;
-
-  $cmdline = join(' ', @args);
-  open SHELL, "$cmdline|" or die "Error executing $args[0], $?";
-  while (<SHELL>) {
-    print if $verb;
-    dot if /^>>>> / && !$verb;
-    if (/^\*\*\*\* /) {
-      print unless $verb;
-      $errcount++;
-    }
-  }
-  close SHELL;
-  unlink "$config->{wtmpdir}/inst.$$";
-
-  if ($errcount) {
-    print "\nWarning: there were unexpected errors!\nInstallation may be incorrect!\n";
-  }
-  else {
-    print "ok.\n" unless $quiet;
-  }
-}
-
- 
 # Write out a file containing defaults for all of the various config
 # variables; some of these defaults are chosen from the installer's
 # responses to the configurator.
@@ -160,6 +136,7 @@ sub do_default_config {
       s!(^ \'$i\'.*)DEFAULT(.*)!$1$arg$2!;
     }
     print DEFS $_;
+    dot;
   }
   close MASTER;
   close DEFS;

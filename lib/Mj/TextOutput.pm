@@ -390,18 +390,6 @@ sub faq {
 		  );
 }
 
-
-# XXX This is nasty and needs to be done properly.
-sub filesync {
-  my ($mj, $name, $user, $passwd, $auth, $interface,
-      $infh, $outfh, $mode, $list, $args, @arglist) = @_;
-  my $log = new Log::In 27, $list;
-
-  $mj->list_file_sync($user, $passwd, $auth, $interface, '', '', $list);
-  print $outfh "File database for $list synchronized.\n";
-  1;
-}
-
 sub get {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;

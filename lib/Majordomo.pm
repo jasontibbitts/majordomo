@@ -2001,18 +2001,6 @@ sub _list_file_delete {
   $self->{'lists'}{$list}->fs_delete(@_);
 }
 
-=head2 list_file_sync(..., list)
-
-This calls the lists sync function to bring the file database up to date.
-
-=cut
-sub list_file_sync {
-  my ($self, $user, $passwd, $auth, $interface, $cmd, $mode, $list) = @_;
-
-  $self->_make_list($list);
-  $self->{'lists'}{$list}->fs_sync;
-}
-
 =head2 _get_stock(file)
 
 This looks through the set of stock files in a final attempt to find a

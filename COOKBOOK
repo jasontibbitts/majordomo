@@ -41,13 +41,17 @@ Solution 3 (most flexible):
 
   access_rules <<END
   post
-  deny, mailfile=membersonly
+  deny, replyfile=membersonly
   !@MAIN && !@posters
   END
 
   This rule denies all postings from users who are not in the main list and
   are not in the 'posters' sublist.  They will be sent the named denial
-  message if they try to post.
+  message if they try to post.  Be sure you either have
+  'always_ack_denials' set or you have 'a' or 'A' in 'nonmember_flags' so
+  that users will see these messages.  Also put 'fail' (or 'all') in
+  'ack_attach_original' if you would like these users to receive a copy of
+  their message back with the rejection notice.
 
   The 'deny' can be changed to 'consult' to let the list owner approve the
   messages if desired, as with the other two solutions.
@@ -109,7 +113,7 @@ END
 
 access_rules <<END
 post
-deny, mailfile=nocrossposting
+deny, replyfile=nocrossposting
 $taboo_crosspost >= 30
 END
 
@@ -124,3 +128,26 @@ END
 
   Note that because each of your lists doesn't know what comes in to your
   other lists, the poster will get several rejection notices.
+
+Problem:
+-------
+  I want people to read my list for a few days before they post.
+
+Solution:
+  You can do this using access_rules and the $days_since_subscribe
+  variable:
+
+access_rules <<END
+post
+deny, replyfile=membersonly
+!@
+post
+consult, replyfile=waitawhile
+$days_since_subscribe < 3
+END
+
+  Write and upload a suitable files called 'membersonly' and 'waitawhile'
+  and they will be sent to nonmembers and new menbers, respectively (where
+  new members are those who have been signed up for less than three days).
+  Nonmembers will be rejected out of hand, while new members will have to
+  wait for the list owner to approve their messages.

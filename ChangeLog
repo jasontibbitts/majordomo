@@ -1,3 +1,41 @@
+Sat Mar 13 15:57:11 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* postinstall: No need to call do_config; there's nothing left to
+ 	configure.
+
+	* setup/setup_func.pl (create_dirs_dom): Also make the appropriate
+ 	dotfiles.
+
+	* lib/Mj/FileSpace.pm (_legal_file_name): Files with leading dots
+ 	aren't legal (to eliminate potential nasty problem with dotfiles).
+
+	* lib/Mj/Digest.pm (decide): Improve logging.
+
+	* Makefile.PL: Move setting of @SCRIPTS, @SIDSCRIPTS until after
+ 	configuration is complete, so we can change which scripts get
+ 	wrappers.
+
+Fri Mar 12 01:09:18 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/FileSpace.pm (delete): Unlink the dotfile.
+
+	* lib/Mj/List.pm: Removed 'fs_mogrify'.
+
+	* lib/Mj/TextOutput.pm: Removed 'filesync'.
+
+	* lib/Mj/CommandProps.pm: Removed 'filesync'.
+
+	* lib/Mj/FileSpace.pm (get_permissions): Call getdata.
+
+Thu Mar 11 21:35:20 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/FileSpace.pm (new): No database allocated.
+	(get): Call getdata() instead of doing a database lookup.  Bail
+ 	based on a stat, not a database lookup.
+	(getdata): New function, return data for a file based on the
+ 	.file.
+	(_dotfile): New function.
+
 Wed Mar 10 00:02:23 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Majordomo.pm (trigger): Add hourly tickling of digests.

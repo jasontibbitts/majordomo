@@ -1,5 +1,13 @@
 Notes on upgrading from alpha1 or before:
 
+1999.03.13 (CVS):
+
+The FileSpace code is gutted; extended attributes are now contained in
+dotfiles.  In the directory containing domains, run the convertfs.pl script
+(perl /path/to/convertfs.pl) to convert the _filespace.T database to
+appropriate dotfiles.  Be sure to back up before doing this.  You can
+delete the _filespace.T files afterwards.
+
 1999.02.27 (CVS):
 
 mj_trigger no longer needs to be called once per domain.  Thus the crontab

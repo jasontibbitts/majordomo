@@ -32,20 +32,11 @@ Renaming a file changes its name without changing its data.
 Linking a file involves making a symbolic of the file from another list''s
 filespace and copying its data.
 
-Making directories?  Files stored in diretories?
-
-Scan function to make entries for new files automatically?
-
 File permissions:
   R - world readable (gettable)
   w - writable by list owner
   ! - Majordomo doesn''t know about the file, or it does but the file isn''t
       alterable.
-
-A filespace assumes it owns all of the files within it.  If files are
-copied in outside of Majordomo, they will be picked up on the next call to
-scan.  If they are not readable or writable by Majordomo, bad things may
-happen.
 
 =head1 SYNOPSIS
 
@@ -56,7 +47,6 @@ blah
 use strict;
 use DirHandle;
 use IO::File;
-use Mj::FileSpaceDB;
 use File::Copy "cp";
 use Mj::Log;
 
@@ -78,7 +68,6 @@ sub new {
   bless $self, $class;
   $dir =~ s|/$||;
   $self->{'dir'} = $dir;
-  $self->{'db'}  = new Mj::FileSpaceDB "$self->{'dir'}/_filespace", $back;
 
   $self;
 }
@@ -102,8 +91,15 @@ sub get {
   my $log = new Log::In 150, $file;
   my $data;
 
-  $data = $self->{'db'}->lookup($file);
-  return unless $data;
+  # Bail unless the file exists
+  if ($dir) {
+    return unless (-d "$self->{'dir'}/$file" && -r _);
+  }
+  else {
+    return unless (-f "$self->{'dir'}/$file" && -r _);
+  }
+
+  $data = $self->getdata($file);
 
   if (($data->{'permissions'} !~ /R/ && !$force) ||
       $data->{'permissions'} eq '!' ||
@@ -112,12 +108,50 @@ sub get {
       return;
     }
 
-  $data->{'language'} ||= 'en';
-
   if (wantarray) {
     return ("$self->{'dir'}/$file", %$data);
   }
   return "$self->{'dir'}/$file";
+}
+
+=head2 getdata(file)
+
+This looks for a dotfile in the appropriate directory and loads it.  If no
+dotfile is found, some default data is performed (so that files can be
+copied in without difficulty).
+
+=cut
+sub getdata {
+  my $self = shift;
+  my $file = shift;
+  my(@tmp, $data, $fh, $i, $line, $name, $path, $perm);
+
+  $name = $self->_dotfile($file);
+  $path = "$self->{'dir'}/$file";
+
+  $perm = '!';
+  $perm = 'd'  if (-d $path && -r $path);
+  $perm = 'Rw' if (-f $path && -r $path);
+
+  $data = {
+	   'description' => '(none)',
+	   'permissions' => $perm,
+	   'c-type'      => $file =~ m!/$! ? '(dir)' : 'text/plain',
+	   'c-t-encoding'=> '8bit',
+	   'charset'     => 'ISO-8859-1',
+	   'language'    => 'en',
+	  };
+
+  if (-f $name && -r _) {
+    $fh = new IO::File("<$name");
+    for $i (qw(description permissions c-type charset c-t-encoding language)) {
+      $line = $fh->getline;
+      last unless defined $line;
+      chomp($line);
+      $data->{$i} = $line if length($line);
+    }
+  }
+  $data;
 }
 
 =head2 put(file, source, overwrite, description, content-type,
@@ -191,8 +225,27 @@ sub put {
      'permissions' => $perm,
      'language'    => $lang,
     };
-  $self->{'db'}->add("", $file, $data);
+  $self->putdata($file, $data);
   (1, $path);
+}
+
+=head2 putdata(file)
+
+This creates a dotfile in the appropriate place and fills it with the provided data.
+
+=cut
+sub putdata {
+  my $self = shift;
+  my $file = shift;
+  my $data = shift;
+  my($fh, $i, $name);
+
+  $name = $self->_dotfile($file);
+  $fh = new IO::File(">$name");
+  for $i (qw(description permissions c-type charset c-t-encoding language)) {
+    $data->{$i} = '' unless defined $data->{$i};
+    $fh->print("$data->{$i}\n");
+  }
 }
 
 =head2 put_start, put_chunk, put_done
@@ -258,8 +311,7 @@ sub put_start {
      'permissions' => $perm,
      'language'    => $lang,
     };
-  $self->{'db'}->add("", $file, $data);
-
+  $self->putdata($file, $data);
   1;
 }
 
@@ -310,7 +362,7 @@ sub mkdir {
   if (-e $path ) {
     $oldperm = $self->get_permissions($dir);
     if ($oldperm =~ /d/ || ($oldperm =~ /!/ && -d $path)) {
-      $self->{'db'}->remove('', $dir);
+      unlink $self->_dotfile($dir);
     }
     else {
       return (0, "Can't overwrite a file with a directory!");
@@ -327,7 +379,7 @@ sub mkdir {
      'description' => $desc,
      'permissions' => 'd',
     };
-  $self->{'db'}->add("", $dir, $data);
+  $self->putdata($dir, $data);
 
   1;
 }
@@ -358,108 +410,8 @@ sub delete {
   return if $perms !~ "w" && !$force;
   unlink $path ||
     $log->abort("Mj::FileSpace::delete - can't unlink $path, $!");
-  $self->{'db'}->remove("", $file);
+  unlink $self->_dotfile($file); # Don't complain if it wasn't there
   return 1;
-}
-
-=head2 sync
-
-This forces a rebuild of the file database, which has the effect of adding
-any files which are not already in the database, removing any files which
-have been deleted behind Majordomo''s back, and updating the permissions to
-match any restrictions which may have been made.
-
-=cut
-
-sub sync {
-  my $self = shift;
-  my $dir = $self->{'dir'};
-  my $log = new Log::In(200);
-
-  my (%files, @files, $i, $data, $perms);
-
-# Can't use File::Find
-#   # Closure passed to File::Find to select the files we want and put them
-#   # in a hash.
-#   my $wanted = sub {
-# #     unless ($_ =~ /^[._]/ ||
-# # 	   -d $File::Find::name) {
-#     unless ($_ =~ /^[._]/) {
-#       $File::Find::name =~ m!$dir/(.*)!;
-#       $files{$1}++;
-#     }
-#   };
- 
-  # Closure passed to FileSpaceDB (i.e. SimpleDB) to deal with (i.e. delete
-  # or update permissions of) elements existing in the database at the time
-  # of the sync.
-  my $mogrify = sub {
-    my $key  = shift;
-    my $data = shift;
-    my ($changedata, $ours);
-
-    # Delete this record if the file does not exist.
-    unless ($files{$key}) {
-      return (1, 1, undef);
-    }
-
-    # See if we need to update this record.  Stat the file, see if it's
-    # readable and writable by us (effective UID); change permissions if
-    # necessary
-    if (-r "$dir/$key" && -w _) {
-      $ours = 1;
-    }
-    if (-d "$dir/$key" && $ours && $data->{'permissions'} ne 'd') {
-      $data->{'permissions'} = 'd';
-      $changedata = 1;
-    }
-    if ($data->{'permissions'} eq '!' && $ours) {
-      $data->{'permissions'} = 'Rw';
-      $changedata = 1;
-    }
-    if ($data->{'permissions'} ne '!' && !$ours) {
-      $data->{'permissions'} = '!';
-      $changedata = 1;
-    }
-    
-    # We've operated on this file...
-    delete $files{$key};
-    
-    # No change to the key, perhaps change the data.
-    return (0, $changedata);
-  };
-  
-  # Generate the list of files in the directory Can't use File::Find
-  # because it isn't taint-safe, so we have to roll our own
-  @files = $self->_find_legal_files($self->{'dir'});
-  for (@files) {
-    $files{$_}++;
-  }
-
-  # Do the mogrify routine.
-  $self->{'db'}->mogrify($mogrify);
-
-  # Any keys left in the hash are new, and must be added
-  for $i (keys %files) {
-    if (-r "$dir/$i" && -w _) {
-      $perms = "Rw";
-    }
-    elsif (-d _) {
-      $perms = "d";
-    }
-    else {
-      $perms = "!";
-    }
-    $data = 
-      {
-       'permissions' => $perms,
-       'c-type'      => $i =~ m!/$! ? '(dir)' : 'text/plain',
-       'charset'     => 'ISO-8859-1',
-       'c-t-encoding'=> '8bit',
-       'description' => '(none)',
-      };
-    $self->{'db'}->add("", $i, $data);
-  }
 }
 
 =head2 get_permissions(file)
@@ -472,8 +424,7 @@ sub get_permissions {
   my $self = shift;
   my $file = shift;
   my $log  = new Log::In 210, "$file";
-  my $data = $self->{'db'}->lookup($file);
-  return "!" unless $data;
+  my $data = $self->getdata($file);
   return $data->{'permissions'};
 }  
 
@@ -492,20 +443,19 @@ sub index {
   my $nodirs  = shift;
   my $recurse = shift;
   my $log = new Log::In 200, "$dir";
-  my (@out, $data, $file, $name);
+  my (@files, @out, $data, $file, $i, $name);
 
-  $self->{'db'}->get_start;
+  @files = $self->_find_legal_files($self->{'dir'}, !$recurse);
 
-  while (1) {    
-    ($file, $data) = $self->{'db'}->get(1);
-    last unless $file;
+  for $file (@files) {
     next unless $file =~ m!$dir/! || !$dir;
     ($name = $file) =~ s!^$dir/!!;
     next unless $name;
-  
+
     # Add the file data unless it's a directory and we don't want them or
     # it's a file in a directory (contains something after a slash) and we
     # don't want to recurse.
+    $data = $self->getdata($file);
     unless (($nodirs && $data->{'permissions'} eq 'd') ||
 	    (!$recurse && $name =~ m!/.+!))
       {
@@ -516,18 +466,7 @@ sub index {
 		    (stat("$self->{'dir'}/$file"))[7]);
       }
   }
-  $self->{'db'}->get_done;
   @out;
-}
-
-=head2 mogrify
-
-This just calles the FileSpaceDB''s mogrify routine.
-
-=cut
-sub mogrify {
-  my $self = shift;
-  $self->{'db'}->mogrify(@_);
 }
 
 =head2 _legal_file_name(string)
@@ -541,12 +480,13 @@ sub _legal_file_name {
   my $self = shift;
   my $file = shift;
   
-  return if $file =~ m|^/|;
-  return if $file =~ m|//|;
-  return if $file =~ m|\.\.|;
-  return if $file =~ m|\\|;
+  return if $file =~ m|^/|;   # No leading slashes
+  return if $file =~ m|^\.|;  # No leading dots (reserved for dotfiles
+  return if $file =~ m|//|;   # No double-slashes (just in case)
+  return if $file =~ m|\.\.|; # No double-dots (attempt to escape up)
+  return if $file =~ m|\\|;   # No backslashes (DOS?)
 
-  $file =~ /(.*)/;
+  $file =~ /(.*)/; # Untaint; we've decided it's OK.
   return $1;
 }
 
@@ -555,11 +495,14 @@ sub _legal_file_name {
 Since File::Find isn''t taint-clean, we have to roll our own.  We can be
 pretty simplistic, though.
 
+If $flat is true, we won''t recurse.
+
 =cut
 
 sub _find_legal_files {
   my $self = shift;
   my $dir  = shift;
+  my $flat = shift;
   my $pre  = shift || "";
   my $log  = new Log::In 200, "$dir, $pre";
   my (@out, $ent);
@@ -570,15 +513,35 @@ sub _find_legal_files {
     next if $ent =~ /^[._]/;
     push @out, "$pre$ent";
     if (-d "$dir/$ent") {
-      push @out, $self->_find_legal_files("$dir/$ent", "$pre$ent/");
+      next if $flat;
+      push @out, $self->_find_legal_files("$dir/$ent", 0, "$pre$ent/");
     }
   }
   @out;
 }
 
+=head2 _dotfile(file)
+
+This returns the full path to the dotfile corresponding to the provided
+file (which should be the path relative to the filespace, not the full
+path).
+
+=cut
+sub _dotfile {
+  my $self = shift;
+  my $file = shift;
+
+  $file =~ m!^(.*/)?(.*?)/?$!;
+  if (defined $1) {
+    return "$self->{'dir'}/$1.$2";
+  }
+  return "$self->{'dir'}/.$2";
+}
+
+
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1999 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it

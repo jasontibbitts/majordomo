@@ -206,8 +206,6 @@ sub digest {
   $ok;
 }
 
-sub filesync {}
-
 sub faq   {g_get("FAQ failed.",   @_)}
 sub get   {g_get("Get failed.",   @_)}
 sub help  {g_get("Help failed.",  @_)}

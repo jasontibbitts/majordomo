@@ -35,10 +35,7 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
-Can filespace system entirely.  To see if a file exists, just stat it.
-Store additional info in a dotfile.  Only difficult rewrite is index.
-
-
+qmail support.
 
 Move all aliases into one file, and all vut entries into one file, to make
   sendmail configuration easier.
