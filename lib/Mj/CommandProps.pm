@@ -14,8 +14,8 @@ require Exporter;
                                   commands_matching command_list)],
                 'function' => [qw(function_legal function_prop)],
                 'rules'    => [qw(rules_request rules_requests rules_var
-                                  rules_vars rules_action
-                                  rules_actions action_files)],
+                                  rules_vars rules_action rules_actions 
+                                  action_files)],
                 'access'   => [qw(access_def)],
        );
 use strict;
@@ -33,6 +33,7 @@ my %actions =
    'forward'         => {files => [],    terminal => 1,},
 #  'log'             => 1,
    'mailfile'        => {files => [0],},
+   'notify'          => {files => [],},
    'reason'          => {files => [],},
    'reply'           => {files => [],},
    'replyfile'       => {files => [0],},
@@ -56,6 +57,7 @@ my %generic_actions =
    'forward'         => 1,
 #  'log'             => 1,
    'mailfile'        => 1,
+   'notify'          => 1,
    'reason'          => 1,
    'reply'           => 1,
    'replyfile'       => 1,
@@ -73,21 +75,24 @@ my %generic_modes =
 
 # a standard set of access_rules variables
 # this set is re-used for most of $commands{???}{'access'}{'legal'} below
+# The values on the right-hand side indicate the type.
+
 my %reg_legal =
   (
-   'mismatch'       =>1,
-   'posing'         =>1,
-   'user_password'  =>1,
-   'master_password'=>2,
-   'addr'           =>3,
-   'delay'          =>3,
-   'fulladdr'       =>3,
-   'host'           =>3,
-   'interface'      =>3,
-   'mode'           =>3,
-   'sublist'        =>3,
+   'chain'          =>  'bool',
+   'mismatch'       =>  'bool',
+   'posing'         =>  'bool',
+   'user_password'  =>  'bool',
+   'master_password'=>  'integer',
+   'addr'           =>  'string',
+   'fulladdr'       =>  'string',
+   'host'           =>  'string',
+   'interface'      =>  'string',
+   'mode'           =>  'string',
+   'sublist'        =>  'string',
+   'delay'          =>  'timespan',
+   'expire'         =>  'timespan',
   );
-
 
 # The %commands hash contains the commands and a list of properties for
 # each.  Properties supported:
@@ -494,10 +499,6 @@ my %commands =
                    'actions' => \%generic_actions,
                   },
    },
-   # mkdigest is fake; it just calls digest-force, but aliases don't work
-   # for modes
-   'mkdigest'       => {'parser' => [qw(email shell list)],
-                          },
    'password' =>
    {
     'parser'   => [qw(email shell nohereargs real)],
@@ -518,7 +519,7 @@ my %commands =
                    'default' => 'confirm',
                    'legal'   => {
                                  %reg_legal,
-                                 'password_length'  => 2,
+                                 'password_length'  => 'integer',
                                 },
                    'actions' => \%generic_actions,
                   },
@@ -544,35 +545,35 @@ my %commands =
                    'legal'   =>
                    {
                     %reg_legal,
-                    'any'                          => 1,
-                    'bad_approval'                 => 1,
-                    'body_length'                  => 2,
-                    'body_length_exceeded'         => 1,
-                    'taboo'                        => 2,
-                    'admin'                        => 2,
-                    'days_since_subscribe'         => 2,
-                    'dup'                          => 1,
-                    'dup_msg_id'                   => 1,
-                    'dup_checksum'                 => 1,
-                    'dup_partial_checksum'         => 1,
-                    'invalid_from'                 => 1,
-                    'limit'                        => 1,
-                    'limit_hard'                   => 1,
-                    'limit_soft'                   => 1,
-                    'lines'                        => 2,
-                    'max_header_length'            => 2,
-                    'max_header_length_exceeded'   => 1,
-                    'mime_consult'                 => 1,
-                    'mime_deny'                    => 1,
-                    'mime_header_length'           => 2,
-                    'mime_header_length_exceeded'  => 1,
-                    'mime'                         => 1,
-                    'mode'                         => 3,
-                    'percent_quoted'               => 2,
-                    'post_block'                   => 1,
-                    'quoted_lines'                 => 2,
-                    'total_header_length'          => 2,
-                    'total_header_length_exceeded' => 1,
+                    'any'                          => 'bool',
+                    'bad_approval'                 => 'bool',
+                    'body_length'                  => 'integer',
+                    'body_length_exceeded'         => 'bool',
+                    'taboo'                        => 'integer',
+                    'admin'                        => 'integer',
+                    'days_since_subscribe'         => 'integer',
+                    'dup'                          => 'bool',
+                    'dup_msg_id'                   => 'bool',
+                    'dup_checksum'                 => 'bool',
+                    'dup_partial_checksum'         => 'bool',
+                    'invalid_from'                 => 'bool',
+                    'limit'                        => 'bool',
+                    'limit_hard'                   => 'bool',
+                    'limit_soft'                   => 'bool',
+                    'lines'                        => 'integer',
+                    'max_header_length'            => 'integer',
+                    'max_header_length_exceeded'   => 'bool',
+                    'mime_consult'                 => 'bool',
+                    'mime_deny'                    => 'bool',
+                    'mime_header_length'           => 'integer',
+                    'mime_header_length_exceeded'  => 'bool',
+                    'mime'                         => 'bool',
+                    'mode'                         => 'string',
+                    'percent_quoted'               => 'integer',
+                    'post_block'                   => 'bool',
+                    'quoted_lines'                 => 'integer',
+                    'total_header_length'          => 'integer',
+                    'total_header_length_exceeded' => 'bool',
                    },
                    'actions' => \%generic_actions,
                   },
@@ -740,6 +741,7 @@ my %commands =
                    'arguments' => {'action' => {'type' => 'SCALAR'}},
                    'modes'    =>  {
                                    %generic_modes,
+                                   'alias'       => 1,
                                    'async'       => 1,
                                    'delay'       => 1,
                                   },
@@ -774,7 +776,7 @@ my %commands =
                    'default' => 'policy',
                    'legal'   => {
                                  %reg_legal,
-                                 'matches_list'   => 1,
+                                 'matches_list'   => 'bool',
                                 },
                    'actions' => \%generic_actions,
                   },
@@ -937,6 +939,7 @@ my %aliases =
    'configdefault'  => 'configdef',
    'exit'           => 'end',
    'man'            => 'help',
+   'mkdigest'       => 'digest',
    'quit'           => 'end',
    'remove'         => 'unsubscribe',
    'signoff'        => 'unsubscribe',
@@ -1064,7 +1067,7 @@ sub rules_var {
 
   if (defined $type) {
     return $commands{$req}{'access'}{'legal'}{$var} &&
-      $commands{$req}{'access'}{'legal'}{$var} == $type;
+      $commands{$req}{'access'}{'legal'}{$var} eq $type;
   }
   $commands{$req}{'access'}{'legal'}{$var};
 }
@@ -1076,7 +1079,7 @@ sub rules_vars {
   my $type = shift;
 
   if (defined $type) {
-    return grep {$commands{$req}{'access'}{'legal'}{$_} == $type}
+    return grep {$commands{$req}{'access'}{'legal'}{$_} eq $type}
       keys %{$commands{$req}{'access'}{'legal'}}
         if rules_request($req);
   }
