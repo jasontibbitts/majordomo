@@ -575,6 +575,7 @@ my %commands =
                     'mime_header_length_exceeded'  => 'bool',
                     'mime'                         => 'bool',
                     'mode'                         => 'string',
+		    'nonempty_lines'               => 'integer',
                     'percent_quoted'               => 'integer',
                     'post_block'                   => 'bool',
                     'quoted_lines'                 => 'integer',

@@ -142,6 +142,7 @@ The post command also uses these variables:
   mime_header_length            number
   mime_header_length_exceeded   boolean
   mode                          string
+  nonempty_lines                number
   percent_quoted                number
   post_block                    boolean
   quoted_lines                  number
@@ -333,6 +334,11 @@ mismatch
 mode
   This variable contains the command mode.  For example, it contains 
   "enhanced" when the who-enhanced command is used.
+
+nonempty_lines
+  This variable contains a count of the number of lines in the message
+  which are not empty (i.e. which consist of at least one non-whitespace
+  character).
 
 password_length
   This variable contains the length in characters of a new personal 

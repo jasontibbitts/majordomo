@@ -1189,7 +1189,7 @@ sub _r_ck_body {
   }
 
   # Initialize the body and partial body checksums.
-  $sum1 = new Digest::SHA1; 
+  $sum1 = new Digest::SHA1;
   $sum2 = new Digest::SHA1;
 
   # Check MIME status and any other features of the entity as a whole
@@ -1211,13 +1211,14 @@ sub _r_ck_body {
     # Update checksum counters.  The partial checksum only applies
     # to the first ten lines of the body.
     if ($first and $sum1 and $sum2) {
-      $sum1->add($text); 
+      $sum1->add($text);
       $sum2->add($text) if $line <= 10;
     }
 
     # Calculate a few message metrics
     $avars->{lines}++;
     $avars->{body_length} += length($text);
+    $avars->{nonempty_lines}++ if $text =~ /\S/;
     $avars->{quoted_lines}++ if re_match($qreg, $text);
     $line++;
   }

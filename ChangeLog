@@ -1,3 +1,11 @@
+2001-05-03  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/CommandProps.pm: nonempty_lines is a legal access
+        variable.
+
+	* lib/Mj/Resend.pm (_r_ck_body): Count lines containing something
+        other than whitespace in the "nonempty_lines" variable.
+
 2001-04-17  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Token.pm:  (t_accept)  Bugfix:  do not chain
