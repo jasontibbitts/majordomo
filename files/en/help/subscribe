@@ -52,7 +52,7 @@ to "address" with an explanation of how to leave the list. Each list
 owner can decide how many files, if any, new subscribers will receive.
 
 Some lists may be configured such that a welcome message is not
-sent automatically (see "help configset welcome" for an explanation.)
+sent automatically (see "help configset_welcome" for an explanation.)
 In this case, using the "-welcome" mode will cause the welcome
 files to be sent.
 
@@ -130,6 +130,8 @@ ABC
 
 List owners can also add addresses to a collection called an "auxiliary 
 subscriber list" (see "help auxiliary_list" for more details.)
+Welcome messages are never sent when an address is added to an auxiliary
+list.
 
 $INCLUDE-help/admin_modes
 
