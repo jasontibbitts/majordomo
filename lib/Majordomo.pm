@@ -3415,6 +3415,7 @@ sub accept {
     # Now call inform so the results are logged
     $self->inform($data->{'list'},
           ($data->{'type'} eq 'consult' 
+           and $request->{'mode'} !~ /archive/
            and $data->{'command'} eq 'post')? 
            'consult' : $data->{'command'},
           $data->{'user'},
@@ -3944,6 +3945,9 @@ Change a configuration setting to a particular value
 
 sub configset {
   my ($self, $request) = @_;
+  return (0, "The name of the setting to be changed is missing.\n")
+    unless (defined $request->{'setting'} and 
+            length $request->{'setting'});
   my $log = new Log::In 30, "$request->{'list'}, $request->{'setting'}";
 
   $self->list_config_set($request);
