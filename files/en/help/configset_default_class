@@ -8,19 +8,40 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname default_class = each
+configset listname default_class = digest
 
 
-When users first subscribe, they will be placed into this subscription
-class. If the class given does not exist, they will be placed into the
-'each' class, where they receive each message. All possible classes
-are listed in "help set".
+$INCLUDE-config/default_class
+
+The default class is usually a single word (digest, each, nomail, or
+unique).  If you choose the "digest" default class, new subscribers will
+be placed in the default digest by default.  The default digest is the
+digest that appears first in the digests configuration setting.  If you
+wish to use another digest, add a dash and its name to the word
+"digest".   For example, to make the "weekly" digest the default class,
+use the following command:
+
+  configset LISTNAME default_class = digest-weekly
+
+The value that you supply is not validated.  If you choose a default
+class that is not supported, the "each" class will be used instead.
+
+The default_class only affects subscriptions that do not mention the
+class explicitly.  For example, if someone uses the following command to
+subscribe to a mailing list:
+
+  subscribe-set LISTNAME nomail
+
+the new subscription will have the "nomail" delivery class, regardless
+of the value of the default_class setting.
 
 
 See Also:
+   help admin_subscribers
+   help configset_allowed_classes
+   help configset_allowed_flags
+   help configset_default_flags
    help set
-   help configset default_flags
+   help subscribe
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

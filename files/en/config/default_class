@@ -1,4 +1,4 @@
-When users first subscribe, they will be placed into this subscription
-class. If the class given does not exist, they will be placed into the
-'each' class, where they receive each message. All possible classes
-are listed in "help set".
+The default_class setting contains a delivery class.  When new
+subscribers join your mailing list, they will be given this class by
+default.  See the "help set" document for an introduction to delivery
+classes.
