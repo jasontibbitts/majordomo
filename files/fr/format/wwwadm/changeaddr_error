@@ -1,0 +1,8 @@
+<!-- Majordomo changeaddr_error format file -->
+<p>
+  $VICTIM
+n'a pas été modifiée en
+  $USER
+</p>
+
+<pre>?ERROR</pre>

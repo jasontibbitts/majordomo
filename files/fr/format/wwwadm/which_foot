@@ -1,0 +1,78 @@
+<!-- Majordomo which_foot format file -->
+</table>
+
+<p>
+Abonnements trouvés : $COUNT
+</p>
+
+<h4 align=center>Search the Registry</h4>
+
+<ol>
+  <li>Choisissez l'une des deux methodes de recherches ci dessous en
+      pressant le bouton approprié.</li>
+  <li>Entrez un motif de recherche dans le champ <b>Motif de
+      recherche</b>. (Référez vous au document d'aide
+      $HELP:PATTERNS
+      pour apprendre a écrire des motifs de recherche.)</li>
+  </li>
+  <li>Entrez le nombre d'adresses que vous désirez afficher à chaque
+      fois dans le champ <b>nombre d'adresses</b>. (C'est une limite
+      propre a chaque liste si vous utilisez la commande <b>which</b>
+      pour rechercher.)
+  </li>
+  <li>Cliquez sur le bouton <b>Chercher</b>.</li>
+</ol>
+
+<form method="POST" action="$CGIURL">
+
+  <input name="list" type="hidden" value="$LIST">
+  <input name="passw" type="hidden" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+
+  <input type="radio" name="func" value="who">
+  Cherchez le registre (en utilisant la commande $HELP:WHO)<br>
+
+  <input type="radio" name="func" value="which" checked>
+  Chercher toutes les listes (en utilisant la commande
+  $HELP:WHICH)<br>
+
+  Motif de recheche : <input name="pattern" value=".">
+
+  Nombre d'adresses a afficher :
+    <input name="chunksize" size="10" value="$CHUNKSIZE">
+
+  <input type="submit" value="search">
+
+</form>
+
+<h4 align=center>Enregistrez ou supprimez des adresses du registre</h4>
+
+<ol>
+  <li>Choisissez l'une des trois méthodes d'ajout ou de suppression en
+      cochant le bouton approprié.</li>
+  <li>Entrez les adresses email dans le champ, une adresse par ligne.</li>
+  <li>Appuyez sur le bouton <b>Valider</b>.</li>
+</ol>
+
+<form method="POST" action="$CGIURL">
+  <input type="hidden" name="list" value="$LIST">
+  <input type="hidden" name="passw" value="$CMDPASS">
+  <input type="hidden" name="user" value="$USER">
+  
+  <input type="radio" name="func" value="register-welcome" checked> 
+  Ajouter des adresses au registre.
+  Leur envoyer un message de bienvenue.<br>
+
+  <input type="radio" name="func" value="register-nowelcome"> 
+  Ajouter des adresses au registre.
+  <b>Ne pas</b> leur envoyer de message de bienvenue.<br>
+
+  <input type="radio" name="func" value="unregister"> 
+  Supprimer les adresses du registre.
+
+  <textarea name="victims" rows="8" cols="70">
+  </textarea>
+
+  <input type="submit" value="Valider">
+</form>
+

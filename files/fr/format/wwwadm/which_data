@@ -1,0 +1,14 @@
+<!-- Majordomo which_data format file -->
+<tr>
+  <td>
+    $LIST
+  </td>
+
+  <td>
+    <a href="$CGIURL?$CGIDATA&list=$LIST&func=set-check&extra=$QSADDR"
+     target="_which">
+      $STRIPADDR
+    </a>
+  </td>
+</tr>
+
