@@ -748,7 +748,8 @@ package Mj::Config;
    'triggers' =>
    {
     'type'   => 'triggers',
-    'values' => [qw(bounce checksum delay log post session token)],
+    'values' => [qw(bounce checksum delay inactive log post session
+                    token vacation)],
     'groups' => [qw(miscellany)],
     'local'  => 1,
     'global' => 1,
@@ -1028,6 +1029,24 @@ package Mj::Config;
     'mutable'=> 1,
    },
    'dup_lifetime' =>
+   {
+    'type'   => 'integer',
+    'groups' => [qw(moderate)],
+    'global' => 1,
+    'local'  => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+   },
+   'post_lifetime' =>
+   {
+    'type'   => 'integer',
+    'groups' => [qw(moderate)],
+    'global' => 0,
+    'local'  => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+   },
+   'inactive_lifetime' =>
    {
     'type'   => 'integer',
     'groups' => [qw(moderate)],

@@ -131,6 +131,7 @@ $Mj::Config::default_string = q(
  'file_search'          => [':$LANG', ':'],
  'file_share'           => [],
  'get_access'           => "list",
+ 'inactive_lifetime'    => -1,
  'index_access'         => "open",
  'info_access'          => "open",
  'inform'               => [
@@ -173,6 +174,7 @@ $Mj::Config::default_string = q(
  'owners'               => ($list eq 'GLOBAL') ? [$subs->{'owners'}] : [],
  'password_min_length'  => 4,
  'passwords'            => [],
+ 'post_lifetime'        => 60,
  'post_limits'          => [],
  'precedence'           => "bulk",
  'priority'             => 10,
@@ -205,6 +207,7 @@ $Mj::Config::default_string = q(
                            [
                              'checksum | daily',
                              'delay    | hourly',
+                             'inactive | daily',
                              'log      | daily',
                              'session  | daily',
                              'token    | daily'
@@ -213,7 +216,9 @@ $Mj::Config::default_string = q(
                              'bounce   | daily',
                              'checksum | daily',
                              'delay    | hourly',
+                             'inactive | daily',
                              'post     | daily',
+                             'vacation | daily',
                            ],
  'unsubscribe_policy'   => "open",
  'welcome'              => 1,
