@@ -37,5 +37,6 @@ you wish to unsubscribe without using your password.)<br>
 </form>
 
 <tr><td>List of Lists<td>
-<a href="$CGIURL?$CGIDATA&func=lists-long">View all of the mailing lists</a>
+<a href="$CGIURL?$CGIDATA&func=lists-long">View every mailing list
+for which access is authorized.</a>
 

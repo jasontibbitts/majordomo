@@ -673,7 +673,7 @@ and that match the regular expression, and returns them in an array.
 sub get_all_lists {
   my ($self, $user, $passwd, $regexp) = @_;
   my $log = new Log::In 100;
-  my (@lists, $always, $list, $req);
+  my (@lists, $always, $list, $ok, $req);
 
   $user = new Mj::Addr($user);
   $self->_fill_lists;
@@ -707,9 +707,8 @@ sub get_all_lists {
             'user'     => $user
            };
 
-    if ($self->list_access_check($req)) {
-      push @lists, $list;
-    }
+    ($ok) = $self->list_access_check($req);
+    push (@lists, $list) if $ok;
   }
   sort @lists;
 }
