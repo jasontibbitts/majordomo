@@ -1,95 +1,190 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-digest[-check][-force][-incvol][-status] listname [digestname]
+digest                listname
+digest-check[-repeat] listname [digestname]
+digest-force[-repeat] listname [digestname]
+digest-incvol         listname [digestname]
+digest-status         listname [digestname]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-must specify exactly one of -check, -force, -incvol, or -status
-   -check,  if specified, pushes a digest if necessary
-   -force,  if specified, pushes a digest needed or not
-   -incvol, if specified, increments the volume number
-digestname, if specified, is the name of a list digest
+-check,  if specified, pushes a digest if necessary
+-force,  if specified, pushes a digest needed or not
+-incvol, if specified, increments the volume number
+-repeat, if specified, causes multiple issues to be delivered
+-status, if specified, displays pending messages and other statistics
 listname, required, is the name of a list at this site
+digestname, if specified, is the name of a list digest
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-In all cases, leaving off the digestname operates on all of the
-lists's digests. You must have list archives enabled to create digests.
+The digest command is used to cause messages to be bundled into digests
+and delivered to subscribers who have a "digest" delivery mode (see
+"help set" for a description of delivery modes).  Each mailing list can
+support multiple digests, as determined by the "digests" configuration
+setting (see "help configset_digests" for more details).  An
+administrative password is usually required to issues the digest
+command.
 
-digest-incvol listname digestname
-  increments the volume number.  (Yes, you could do it with a configset as
-  well, but this is nice to do from cron once a year.)
+In the examples that follow, substitute the name of a valid mailing list
+for LISTNAME.
 
-digest-check listname digestname
-  checks to see if a digest should be pushed and pushes it if necessary.
+If no command mode is used, a list of supported digests and their
+descriptions will be displayed.  For example, the command
 
-digest-force listname digestname
-  forces a digest push _now_, even if it doesn't have enough messages in it
-  to go normally.  This is for people who want a digest to go at midnmight,
-  regardless or whether or not it will be full.
+  digest LISTNAME
 
-digest-status listname digestname
-  shows the current data for one or more digests.
-  Here is sample of the output:
-    Digest Name                weekly
-    Last delivered on          Mon Aug 14 21:15:06 2000
-    Age of oldest message      407014 seconds
-    Oldest age allowed         518400 seconds
-    Age of newest message      2402 seconds
-    Messages awaiting delivery 194
-    Message total size         2006561 bytes
-    Maximum size of a digest   102400 bytes
-    200008/660     On the road to a PGM panic...........
-     by "THC" <thchi@xxxxxxx.xx.jp>                      Mon Aug 14 23:15:20 2000
-    (summaries of the other 193 messages elided)
+might display the following information for a mailing list that supports
+"daily" and "weekly" digests:
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  daily         Daily digest
+  weekly        Weekly digest
 
-There are three places where "put" files are used in digests:
-  preindex  - before the index
-  postindex - after the index
-  footer    - at the very end
+If you know the name of a digest, you can see a list of messages waiting
+to be delivered with the digest-status command.  For example, the
+command:
 
-There are three types of digest:
-  text
-  mime
-  index  (an index digest has no footer)
+  digest-status LISTNAME weekly
 
-The list owner can define any number of named digests with various
-generation parameters, as explained above.
+might display the following information:
 
-If you have a digest called "weekly" and a "mime" digest is
-being sent out, Majordomo will look for the following files
-in the usual search list for the preindex text:
-   digest_weekly_mime_preindex
-   digest_weekly_preindex
-   digest_mime_preindex
-   digest_preindex
+  Digest Name                weekly
+  Last delivered on          Mon Aug 14 21:15:06 2000
+  Age of oldest message      407014 seconds
+  Oldest age allowed         518400 seconds
+  Age of newest message      2402 seconds
+  Messages awaiting delivery 194
+  Message total size         2006561 bytes
+  Maximum size of a digest   102400 bytes
+  200008/660     On the road to a PGM panic...........
+   by "THC" <thchi@xxxxxxx.xx.jp>                      Mon Aug 14 23:15:20 2000
+   (summaries of the other 193 messages have been omitted)
 
-Of course, 'weekly' is replaced by the actual digest name for the
-list and selected by the subscriber, and 'mime' is replaced by the
-type of digest the user has selected.
+Although the last example only applied to the "weekly" digest, it is
+possible to apply the digest command to every digest supported by a
+mailing list.  To do this, either omit the digest name entirely, or use
+the "ALL" keyword.  The following two commands are identical:
 
-Similarly for postindex:
-   digest_weekly_mime_postindex
-   digest_weekly_postindex
-   digest_mime_postindex
-   digest_postindex
+  digest-status LISTNAME
+  digest-status LISTNAME ALL
 
-Finally, the footer follows the same pattern:
-   digest_weekly_mime_footer
-   digest_weekly_footer
-   digest_mime_footer
-   digest_footer
+  
+The check, force, and repeat command modes
+------------------------------------------
+Digests are usually delivered automatically, based upon the constraints
+in the "digests" configuration setting.  However, it is also possible to
+cause digests to be delivered with the digest-check and digest-force
+commands.
 
-Repeat these three groups of files (preindex, postindex, footer) for
-each digest name and each digest type, and potentially for each list
-on your server, and you have lots of files to "put"!
+The digest-check command examines the rules in the "digests"
+configuration setting, and causes a digest to be delivered if it meets
+the time constraints.  For example, the command:
 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  digest-check LISTNAME weekly
+
+would cause one issue of the "weekly" digest to be delivered if the
+constraints are met.  To deliver several issues with one command, it is
+also necessary to use the "repeat" command mode, e.g.,
+
+  digest-check-repeat LISTNAME weekly
+
+In "check" mode the "separate" field in the "digests" configuration setting, 
+which specifies the minimum time between digests, must be set to 0 or
+some other small number for more than one digest to be issued.
+
+To override the "separate" field and other time constraints, use the
+"force" command mode instead of the "check" command mode.  For example,
+
+  digest-force LISTNAME daily
+
+would force one issue of the "daily" digest to be delivered.  To force
+multiple issues to be delivered, use "repeat" mode, for example:
+
+  digest-force-repeat LISTNAME daily
+
+
+The incvol command mode
+-----------------------
+Each digest has a volume and issue number.  Whenever a digest is
+delivered, the issue number is increased by one automatically.  There
+are two ways to increase the volume number.  One way is to change
+the "digest_issues" configuration setting with the configset command.  
+The other way is to use the "digest-incvol" command.  For example,
+if the "daily" digest is delivering issues for volume number 3, the
+command:
+
+  digest-incvol LISTNAME daily
+
+will increase the volume number to 4.
+
+The "triggers" configuration setting can be used to issue the
+digest-incvol command periodically if the command is stored in a file.
+See "help configset_triggers" for more details.
+
+
+Changing the appearance of digests
+----------------------------------
+
+There are three digest formats:  index, mime, and text.
+Each digest consists of the following sections:
+
+  * An optional preindex, which usually shows the digest name, 
+    volume, and issue number.
+
+  * An index, the contents of which are determined by the
+    digest_index_format configuration setting.
+
+  * An optional postindex.
+
+  * The e-mail messages (absent in "index" format digests).
+
+  * An optional footer (absent in "index" format digests).
+
+The preindex, postindex, and footer can be customized using the put
+command.  The customizations can be specific to a particular digest
+name, such as the "weekly" digest; to a specific format, such as the
+"mime" format; or to every digest.  When Majordomo determines which
+customizations to use, it searches for files in the following order:
+
+  digest_NAME_FORMAT_FILE
+  digest_NAME_FILE
+  digest_FORMAT_FILE
+  digest_FILE
+
+For example, if your mailing list has a digest called "weekly" and a 
+"mime" format digest is being delivered, Majordomo will look for the following 
+files for the postindex:
+
+  digest_weekly_mime_postindex
+  digest_weekly_postindex
+  digest_mime_postindex
+  digest_postindex
+
+As an example, you might want to indicate in the postindex of "text"
+format digests that all of the message attachments have been omitted.
+The following command would accomplish that:
+
+put LISTNAME /digest_text_postindex  Text postindex <<LMN
+  All of the messages in this digest are presented in plain text.
+  Any attachments that may have accompanied the original messages
+  have been thrown away.
+LMN
+
+Please see "help get" and "help put" for more information on retrieving
+and replacing files.
+
+Each preindex, postindex, and footer file supports variable
+substitutions.  Please see the digest_preindex description in 
+"help reply_files" for a list of the supported substitutions.
+
+A list must have an archive in order to create digests (see "help
+configset_archive_dir" for more details).
+
 
 See Also:
-   help access_variables       (to restrict access to the digest command)
    help configset_access_rules (to restrict access to the digest command)
    help configset_archive_dir  (to change the location of the archives)
-   help configset_digests      (to configure digests)
-   help put       (to create an archive directory or pre/post/foot files)
+   help configset_digest_index_format (to configure the index)
+   help configset_digest_issues (to configure the volume and issue number)
+   help configset_digests       (to configure digests)
+   help get       
+   help put (to customize preindex, postindex, or footer files)
    help variables (to learn about substitution variables)
 
 $INCLUDE-help/foot
