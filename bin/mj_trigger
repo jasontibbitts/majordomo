@@ -162,6 +162,11 @@ $::log->add
 $::log->in(20, undef, "info", "Majordomo periodic trigger - ".scalar(localtime));
 $::log->startup_time();
 
+unless ($opts{t}) {
+  print "No trigger type was specified.\n";
+  exit 0;
+}
+  
 $request = {
     'command'   => 'trigger',
     'list'      => 'GLOBAL',

@@ -1,3 +1,12 @@
+2002-04-20  Michael Yount <csf@moscow.com>
+
+	* bin/mj_queuerun, mj_queueserv, mj_shutdown:  Add 3rd
+	argument to syswrite() calls for compatibility with
+	perl 5.005.02 and earlier versions.  Thanks to Larry Rosenbaum.
+
+	* bin/mj_trigger:  Issue error if the "-t" option is absent.
+	Thanks to Brock Rozen.
+
 2002-04-18  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
 	* Makefile.PL (generate_wrappers): Use standard C instead of
