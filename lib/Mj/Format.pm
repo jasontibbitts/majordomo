@@ -3098,6 +3098,7 @@ sub who {
       elsif ($request->{'mode'} =~ /enhanced/) {
         if ($request->{'list'} ne 'GLOBAL' or $request->{'sublist'} ne 'MAIN') {
           $fullclass = $i->{'class'};
+          $fullclass = 'nomail' if ($fullclass =~ /^nomail-/);
           $fullclass .= "-" . $i->{'classarg'} if ($i->{'classarg'});
           $fullclass .= "-" . $i->{'classarg2'} if ($i->{'classarg2'});
           $subs->{'CLASS'} = $fullclass;
