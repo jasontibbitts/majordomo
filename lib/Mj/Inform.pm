@@ -133,7 +133,8 @@ sub _inform_owner {
   my $strip;
 
   my $whereami = $self->_global_config_get('whereami');
-  my $owner    = $self->_list_config_get($list, 'sender');
+  my $owner    = $self->_list_config_get($list, 'whoami_owner');
+  return unless ($owner);
   my $sender   = $self->_global_config_get('whoami');
   my $statdesc = $stat < 0 ? 'stall' : $stat > 0 ? 'success' : 'failure';
 
