@@ -1746,7 +1746,7 @@ sub bounce_gen_stats {
     $do_month = 1;
   }
 
-  @numbered = sort keys(%{$bdata->{M}});
+  @numbered = sort {$a <=> $b} keys(%{$bdata->{M}});
   if (@numbered) {
     $stats->{span} = $numbered[$#numbered] - $numbered[0] + 1;
   }
