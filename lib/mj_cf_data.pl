@@ -17,6 +17,9 @@ keys are used:
  local   - true if the variable is list-specific.
  global  - true if the variable is part of the global Majordomo config
            (note that a variable may be both local and global).
+ wizard  - Importance of and/or level of skill required to understand
+           a setting.  Level 1 settings are "essential" and must be
+           understood by novice list owners.
  visible - Level of password validation required to see a variable (0-5).
  mutable - Level of password validation required to change a variable (1-5).
 
@@ -26,7 +29,7 @@ keys are used:
            3 - domain auxiliary password (from the passwords setting)
            2 - list master password
            1 - list auxiliary password
-           Each level includes all of the higher levels as well.
+           Each level includes all of the lower-numbered levels as well.
 
 =cut
  
@@ -42,6 +45,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 4,
+    'wizard' => 9,
    },
    'config_defaults' => 
    {
@@ -50,6 +54,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'faq_access' => 
    {
@@ -60,6 +65,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'get_access' => 
    {
@@ -70,6 +76,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'archive_access' => 
    {
@@ -80,6 +87,7 @@ package Mj::Config;
     'global' => 0,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'index_access' =>
    {
@@ -90,6 +98,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'who_access' =>
    {
@@ -100,6 +109,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'which_access' =>
    {
@@ -110,6 +120,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'info_access' =>
    {
@@ -120,6 +131,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'intro_access' =>
    {
@@ -130,6 +142,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'advertise' =>
    {
@@ -139,6 +152,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'noadvertise' =>
    {
@@ -148,6 +162,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'advertise_subscribed' =>
    {
@@ -156,6 +171,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 3,
+    'wizard' => 9,
    },
    'ack_attach_original' =>
    {
@@ -166,6 +182,7 @@ package Mj::Config;
     'global' => 0,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'inform' =>
    {
@@ -175,6 +192,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'post_limits' =>
    {
@@ -184,6 +202,7 @@ package Mj::Config;
     'global' => 0,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'access_password_override' =>
    {
@@ -193,6 +212,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'access_rules' =>
    {
@@ -202,6 +222,17 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
+   },
+   'active' =>
+   {
+    'type'   => 'bool',
+    'groups' => [qw(access)],
+    'local'  => 1,
+    'global' => 0,
+    'visible'=> 1,
+    'mutable'=> 2,
+    'wizard' => 1,
    },
    'attachment_rules' =>
    {
@@ -211,6 +242,7 @@ package Mj::Config;
     'global' => 0,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'attachment_filters' =>
    {
@@ -220,6 +252,7 @@ package Mj::Config;
     'global' => 0,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'aliases' =>
    {
@@ -231,6 +264,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 3,
+    'wizard' => 9,
    },
    'priority' =>
    {
@@ -240,6 +274,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 3,
     'mutable'=> 5,
+    'wizard' => 9,
    },
    'default_flags' =>
    {
@@ -251,6 +286,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'nonmember_flags' =>
    {
@@ -260,6 +296,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'allowed_flags' =>
    {
@@ -271,6 +308,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 0,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'default_class' =>
    {
@@ -279,6 +317,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'allowed_classes' =>
    {
@@ -288,6 +327,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 0,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'delivery_rules' =>
    {
@@ -297,6 +337,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 3,
+    'wizard' => 9,
    },
    'comments' =>
    {
@@ -306,6 +347,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'category' =>
    {
@@ -314,6 +356,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'description' =>
    {
@@ -322,6 +365,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'description_long' =>
    {
@@ -330,6 +374,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'set_policy' =>
    {
@@ -341,6 +386,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'subscribe_policy' =>
    {
@@ -351,6 +397,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'unsubscribe_policy' =>
    {
@@ -361,6 +408,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'max_header_line_length' =>
    {
@@ -369,6 +417,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'max_mime_header_length' =>
    {
@@ -377,6 +426,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'max_total_header_length' =>
    {
@@ -385,6 +435,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'maxlength' =>
    {
@@ -393,6 +444,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'moderate' =>
    {
@@ -401,6 +453,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'moderators' =>
    {
@@ -409,6 +462,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'moderator_group' =>
    {
@@ -417,6 +471,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'sender' =>
    {
@@ -426,6 +481,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 0,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'precedence' =>
    {
@@ -434,6 +490,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'reply_to' =>
    {
@@ -442,6 +499,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'override_reply_to' =>
    {
@@ -450,6 +508,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'purge_received' =>
    {
@@ -458,6 +517,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'quote_pattern' =>
    {
@@ -466,6 +526,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'resend_host' =>
    {
@@ -474,6 +535,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'restrict_post' =>
    {
@@ -482,6 +544,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'sequence_number' =>
    {
@@ -491,6 +554,7 @@ package Mj::Config;
     'global' => 0,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
     'auto'   => 1,
    },
    'administrivia' =>
@@ -500,6 +564,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'debug' =>
    {
@@ -509,6 +574,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 0,
     'mutable'=> 3,
+    'wizard' => 9,
    },
    'addr_allow_at_in_phrase' =>
    {
@@ -518,6 +584,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'addr_allow_bang_paths' =>
    {
@@ -527,6 +594,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'addr_allow_comments_after_route' =>
    {
@@ -536,6 +604,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'addr_allow_ending_dot' => 
    {
@@ -545,6 +614,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'addr_limit_length' =>
    {
@@ -554,6 +624,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'addr_require_fqdn' =>
    {
@@ -563,6 +634,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'addr_strict_domain_check' =>
    {
@@ -572,6 +644,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'archive_date' =>
    {
@@ -581,6 +654,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'archive_dir' =>
    {
@@ -589,6 +663,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 3,
+    'wizard' => 9,
    },
    'archive_size' =>
    {
@@ -597,6 +672,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'archive_split' =>
    {
@@ -606,6 +682,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'message_fronter' =>
    {
@@ -614,6 +691,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'message_fronter_frequency' =>
    {
@@ -622,6 +700,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'message_footer' =>
    {
@@ -630,6 +709,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'message_footer_frequency' =>
    {
@@ -638,6 +718,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'message_headers' =>
    {
@@ -647,6 +728,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 0,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'delete_headers' =>
    {
@@ -655,6 +737,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'subject_re_pattern' =>
    {
@@ -663,7 +746,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 0,
     'mutable'=> 1,
-    'wizard' => 10,
+    'wizard' => 9,
    },
    'subject_re_strip' =>
    {
@@ -672,7 +755,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 0,
     'mutable'=> 1,
-    'wizard' => 2,
+    'wizard' => 9,
    },
    'subject_prefix' =>
    {
@@ -691,6 +774,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'admin_body' =>
    {
@@ -700,6 +784,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'taboo_headers' =>
    {
@@ -709,6 +794,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'taboo_body' =>
    {
@@ -718,6 +804,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'block_headers' =>
    {
@@ -726,6 +813,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'noarchive_headers' =>
    {
@@ -735,6 +823,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'noarchive_body' =>
    {
@@ -744,6 +833,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'triggers' =>
    {
@@ -755,6 +845,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 2,
+    'wizard' => 9,
    },
    'digests' =>
    {
@@ -763,6 +854,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'digest_index_format' =>
    {
@@ -773,6 +865,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'digest_issues' =>
    {
@@ -782,6 +875,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
     'auto'   => 1,
    },
    'addr_xforms' =>
@@ -792,6 +886,7 @@ package Mj::Config;
     'local'  => 0,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'master_password' =>
    {
@@ -801,6 +896,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 2,
     'mutable'=> 2,
+    'wizard' => 9,
    },
    'passwords' =>
    {
@@ -810,6 +906,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 2,
     'mutable'=> 2,
+    'wizard' => 9,
    },
    'password_min_length' =>
    {
@@ -818,6 +915,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 0,
     'mutable'=> 3,
+    'wizard' => 9,
    },
    'welcome' =>
    {
@@ -827,6 +925,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'welcome_files' =>
    {
@@ -836,6 +935,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'file_search' =>
    {
@@ -844,6 +944,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'file_share' =>
    {
@@ -852,6 +953,77 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
+   },
+   'bounce_recipients' =>
+   {
+    'type'   => 'address_array',
+    'groups' => [qw(bounce)],
+    'global' => 1,
+    'local'  => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+    'wizard' => 9,
+   },
+   'owners' =>
+   {
+    'type'   => 'address_array',
+    'groups' => [qw(moderate)],
+    'global' => 1,
+    'local'  => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+    'wizard' => 9,
+   },
+   'whoami' =>
+   {
+    'type'   => 'address',
+    'groups' => [qw(miscellany)],
+    'global' => 1,
+    'local'  => 1,
+    'visible'=> 0,
+    'mutable'=> 1,
+    'wizard' => 9,
+   },
+   'whoami_owner' =>
+   {
+    'type'   => 'address',
+    'groups' => [qw(miscellany)],
+    'global' => 1,
+    'local'  => 1,
+    'visible'=> 0,
+    'mutable'=> 1,
+    'wizard' => 9,
+   },
+   'default_language' =>
+   {
+    'type'   => 'string',
+    'groups' => [qw(reply)],
+    'global' => 1,
+    'local'  => 1,
+    'visible'=> 0,
+    'mutable'=> 1,
+    'wizard' => 9,
+   },
+   'sublists' =>
+   {
+    'type'   => 'sublist_array',
+    'groups' => [qw(lists)],
+    'global' => 0,
+    'local'  => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+    'wizard' => 9,
+   },
+   'archive_url' =>
+   {
+    'type'   => 'string',
+    'groups' => [qw(archive)],
+    'local'  => 1,
+    'global' => 1,
+    'visible'=> 1,
+    'mutable'=> 1,
+    'wizard' => 9,
    },
 # Purely global configuration variables below
    
@@ -862,6 +1034,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 0,
     'mutable'=> 1,
+    'wizard' => 1,
    },
    'whereami' =>
    {
@@ -870,42 +1043,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
-   },
-   'whoami' =>
-   {
-    'type'   => 'address',
-    'groups' => [qw(miscellany)],
-    'global' => 1,
-    'local'  => 1,
-    'visible'=> 0,
-    'mutable'=> 1,
-   },
-   'whoami_owner' =>
-   {
-    'type'   => 'address',
-    'groups' => [qw(miscellany)],
-    'global' => 1,
-    'local'  => 1,
-    'visible'=> 0,
-    'mutable'=> 1,
-   },
-   'bounce_recipients' =>
-   {
-    'type'   => 'address_array',
-    'groups' => [qw(bounce)],
-    'global' => 1,
-    'local'  => 1,
-    'visible'=> 1,
-    'mutable'=> 1,
-   },
-   'owners' =>
-   {
-    'type'   => 'address_array',
-    'groups' => [qw(moderate)],
-    'global' => 1,
-    'local'  => 1,
-    'visible'=> 1,
-    'mutable'=> 1,
+    'wizard' => 1,
    },
    'tmpdir' =>
    {
@@ -914,6 +1052,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'max_in_core' =>
    {
@@ -922,6 +1061,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 0,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'return_subject' =>
    {
@@ -930,6 +1070,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 0,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'chunksize' =>
    {
@@ -938,15 +1079,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 0,
     'mutable'=> 1,
-   },
-   'default_language' =>
-   {
-    'type'   => 'string',
-    'groups' => [qw(reply)],
-    'global' => 1,
-    'local'  => 1,
-    'visible'=> 0,
-    'mutable'=> 1,
+    'wizard' => 9,
    },
    'default_lists_format' =>
    {
@@ -956,6 +1089,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'description_max_lines' =>
    {
@@ -964,24 +1098,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
-   },
-   'sublists' =>
-   {
-    'type'   => 'sublist_array',
-    'groups' => [qw(lists)],
-    'global' => 0,
-    'local'  => 1,
-    'visible'=> 1,
-    'mutable'=> 1,
-   },
-   'archive_url' =>
-   {
-    'type'   => 'string',
-    'groups' => [qw(archive)],
-    'local'  => 1,
-    'global' => 1,
-    'visible'=> 1,
-    'mutable'=> 1,
+    'wizard' => 9,
    },
    'confirm_url' =>
    {
@@ -991,6 +1108,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'www_help_window' =>
    {
@@ -1000,6 +1118,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 0,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'wwwadm_url' =>
    {
@@ -1009,6 +1128,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'wwwusr_url' =>
    {
@@ -1018,6 +1138,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'token_remind' =>
    {
@@ -1027,6 +1148,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'dup_lifetime' =>
    {
@@ -1036,6 +1158,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'post_lifetime' =>
    {
@@ -1045,6 +1168,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'inactive_lifetime' =>
    {
@@ -1054,6 +1178,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'save_denial_checksums' =>
    {
@@ -1063,6 +1188,7 @@ package Mj::Config;
     'local'  => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'latchkey_lifetime' =>
    {
@@ -1071,6 +1197,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'log_lifetime' =>
    {
@@ -1079,6 +1206,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'session_lifetime' =>
    {
@@ -1087,6 +1215,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
   },
    'token_lifetime' =>
    {
@@ -1096,6 +1225,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'bounce_probe_frequency' =>
    {
@@ -1105,6 +1235,7 @@ package Mj::Config;
     'global' => 0,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'bounce_probe_pattern' =>
    {
@@ -1114,6 +1245,7 @@ package Mj::Config;
     'global' => 0,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'bounce_max_age' =>
    {
@@ -1123,6 +1255,7 @@ package Mj::Config;
     'global' => 0,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'bounce_max_count' =>
    {
@@ -1132,6 +1265,7 @@ package Mj::Config;
     'global' => 0,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'bounce_rules' =>
    {
@@ -1141,6 +1275,7 @@ package Mj::Config;
     'global' => 0,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'relocated_lists' =>
    {
@@ -1150,6 +1285,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 1,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'request_answer' =>
    {
@@ -1160,6 +1296,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 0,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    'signature_separator' =>
    {
@@ -1169,6 +1306,7 @@ package Mj::Config;
     'global' => 1,
     'visible'=> 0,
     'mutable'=> 1,
+    'wizard' => 9,
    },
    );
 
