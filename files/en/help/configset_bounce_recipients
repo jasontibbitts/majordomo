@@ -1,8 +1,16 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-bounce_recipients listname <<TAG
+configset  GLOBAL  bounce_recipients <<TAG
+[VALUE LINES]
+TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname, required, is an email list at this site (not GLOBAL)
-<<TAG, if specified, provides more than one line of data (here file)
+configset listname bounce_recipients <<TAG
+[VALUE LINES]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : no default
+Data Type     : address_array
+Variable Group: majordomo
+Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
@@ -11,10 +19,11 @@ joe@blow.org
 ENDTAG
 
 
-Who will receive error messages for this list?  Majordomo will internally
-forward mail received at the -owner address to all of these addresses if
-the mail is identified as a bounce message.  If this variable is unset,
-bounces will be forwarded to the list owners.
+Specifies who will receive error messages for the named list, or for
+the GLOBAL pseudo-list.  Majordomo will internally forward mail
+received at the -owner address to all of these addresses if the
+mail is identified as a bounce message. If this variable is unset,
+or specified without data, bounces will be sent to the list owners.
 
 See Also:
    help configset owners (for how to specify the list owner)
