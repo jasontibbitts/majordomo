@@ -254,6 +254,7 @@ sub owner_done {
 
       # Build a new message which includes the explanation from the bounce
       # parser and attach the original message.
+      $subj ||= 'Bounce detected';
       $nent = build MIME::Entity
 	(
 	 Data     => [ $mess,
