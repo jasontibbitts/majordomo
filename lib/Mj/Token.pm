@@ -152,21 +152,57 @@ This adds a token to the database and mails out a message to the
 moderators, requester, or victim.
 
 Moderator addresses can be taken from auxiliary lists, from the
-moderators configuration setting, or from the moderator configuration
-setting.
+moderators configuration setting, the moderator configuration
+setting, or the whoami_owner configuration setting.
 
-This function takes:
+This function relies upon the existence of a list reference
+of "notify" hash references, and several other pieces of data.
 
-  file  - name of template file to mail to owner
-  group - name of moderator group to use
-  list
-  request (command)
-  requester (user)
-  victim
-  mode
-  cmdline
-  approvals - number of approvals required
-  args - listref of (currently 3) arguments for the real command
+The following data apply to all notifications:
+
+  chain    If this variable is set, notifications are sequential.
+           If it is not set, notifications are simultaneous.
+           The notify hash for each "chained" notification is
+           packed into a string using the "condense" routine.
+  expire   The number of seconds before the request expires.
+           If this value is not set explicitly, it will be
+           obtained from the token_lifetime setting.
+  
+The following data can vary from notification to notification:
+
+  approvals This variable determines how many approvals are
+            required for the request to be completed.
+  attach    This variable determines whether or not the original
+            message (usually a posted message or delivery error)
+            is attached to the notification.
+  bounce    If set to -1, a probe token is used.
+  file      The file that supplies the text of the notification.
+  fulfill   If this variable is set, the request will be 
+            completed if it expires.  This is used for 
+            delay tokens.
+  group     This variable determines who is notified.  It can
+            be "none" (no notice is sent), "requester,"
+            "victim," or the name of an auxiliary list containing
+            the addresses of moderators.
+  pool      This variable determines the number of moderators who will 
+            receive a notification.  If the number is less than the
+            total number of moderators, they will be selected randomly.
+  remind    This variable gives the number of seconds before a reminder
+            message will be sent, if the request is not accepted or
+            rejected before that time.
+  
+In addition, information about the request must be supplied:
+  arg1     Command arguments.
+  arg2
+  arg3
+  cmdline  The full command line, including command, mode, list, and
+           arguments.
+  command  The command that requires approval.
+  list     The mailing list.
+  mode     The command mode.
+  reasons  The reasons the request was stalled.
+  user     The address from which the request was made.
+  victim   The address affected by the request.
 
 =cut
 use MIME::Entity;
@@ -566,9 +602,9 @@ sub t_accept {
   }
  
   # Allow "accept-archive" to store a message in the archive but
-  # not distribute it on to a mailing list.  Note that this could
-  # have interesting side effects, good and bad, if used in
-  # other ways.
+  # not distribute it on to a mailing list.  Also allow
+  # "accept-hide" to mark a message as "hidden" when it
+  # is stored in the archive.
   if (defined $mode and $data->{'command'} =~ /^post/) {
     $data->{'mode'} .= $data->{'mode'} ? "-$mode" : $mode;
   }
@@ -702,7 +738,7 @@ sub t_accept {
     $self->mail_entity($sender, $ent, $server) if ($server and $ent);
 
     $data->{'type'} = $origtype;
-    return (1, '', $data, [1]);
+    return (1, $token, $data, [1]);
   }
   else {
     $vict = new Mj::Addr($data->{'victim'}) unless (defined $vict);
@@ -724,7 +760,7 @@ sub t_accept {
 
   # If we're accepting a confirm token, we can just return the results
   # so that they'll be formatted by the core accept routine.
-  return (1, '', $data, \@out) 
+  return (1, $token, $data, \@out) 
     if ($data->{'type'} eq 'confirm' or $data->{'type'} eq 'async');
 
   # So we're accepting a consult or delay token. We need to give back some
@@ -742,7 +778,7 @@ sub t_accept {
     # First make a tempfile
     ($tmp, %file) = $self->_list_file_get($data->{'list'}, "repl_fulfill", $repl);
     $outfh = new IO::File ">>$tmp";
-    return (1, '', $data, [@out]) unless $outfh;
+    return (1, $token, $data, [@out]) unless $outfh;
 
     # Convert the token data into the appropriate hash entries
     # that would have appeared in the original $request hash
@@ -774,7 +810,7 @@ sub t_accept {
     unlink $tmp;
   }
 
-  return (1, '', $data, [@out]);
+  return (1, $token, $data, [@out]);
 }
 
 =head2 t_reject(token)
