@@ -101,8 +101,8 @@ The rest of this document deals with messages that are delivered
 separately.
 
 
-Personal delivery settings
---------------------------
+Delivery settings
+-----------------
 
 There are two message headers that can vary from subscriber to subscriber.
 A prefix can be added to the Subject of a message to make it clear to
@@ -156,15 +156,15 @@ For more information, read the following documents:
 Changing the headers
 --------------------
 
-Aside from the personal delivery settings in the last section, any
-changes made to a message will affect all of the people who receive
-separate copies of the message.  The message_headers and delete_headers
-configuration settings can be used to add or remove any header in a
-posted message.  The delete_headers changes are applied first, so the
-two settings can be used in tandem to replace existing headers. For
-example, the following commands will remove any existing To or Cc
-headers, and place the list address in the To header of the message.
-This could be used to cut down on duplicates and prevent cross-posting.
+Aside from the delivery settings in the last section, any changes made
+to a message will affect all of the people who receive separate copies
+of the message.  The message_headers and delete_headers configuration
+settings can be used to add or remove any header in a posted message.
+The delete_headers changes are applied first, so the two settings can be
+used in tandem to replace existing headers. For example, the following
+commands will remove any existing To or Cc headers, and place the list
+address in the To header of the message.  This could be used to cut down
+on duplicates and prevent cross-posting.
 
 configset-append LISTNAME delete_headers <<JKL
 To
