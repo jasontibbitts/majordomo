@@ -1,8 +1,14 @@
+2004-01-19  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Access.pm:  (check_headers)  Bugfix:
+	Add missing Safe compartment operations for perl 5.8.
+	Thanks to Brock Rozen.
+
 2004-01-17  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Parser.pm:  (parse_part)  Bugfix:  fix typo
 	that prevented results from being mailed to a 3d party.
-	Thanks to Dean.
+	Thanks to Dean Collins.
 
 2004-01-14  Michael Yount <csf@moscow.com>
 
