@@ -12,27 +12,57 @@ Password Notes: Visible only with password.
 EXAMPLE:
 configset GLOBAL addr_xforms << ENDTAG
 /\@.+\.msn.com$/\@msn.com/i
-/(.*)/\L$1/
+ignore case
 ENDTAG
 
 
-NOTE: these transforms must give the same result when applied multiple
-times in succession.
+A list of transformations to be applied to ALL addresses before comparing
+them for equivalency or storing them in the internal database. This can
+be used to remove the '+mailbox' part of an address, or to remove the
+machine name from addresses in a domain, or even to make all addresses
+fully case insensitive. Transforms should listed one per line, and should
+be in the form /pattern/replacement/ unless a special string is used. 
 
-A list of transformations to be applied to addresses before comparing
-them for equivalency.  This can be used to remove the '+mailbox' part
-of an address, or to remove the machine name from addresses in a
-domain, or even to make all addresses fully case insensitive (which
-is technically a violation of the spec for addresses, but most domains
-do choose to be case insensitive).  Transforms should listed one per
-line, and should be in the form /pattern/replacement/. 
+NOTE: These transforms must continue to give the same result when applied
+to the same email address multiple times in succession.
 
-To remove the "+mailbox" specifier from an address:
-  /(.*?)\+.*(\@.*)/$1$2/
+Instead of complicated regular expressions (see "help patterns"), you
+can use the following strings, one string per line:
+  ignore case - ignore case in local parts of all addresses
+  mungedomain - like Mj1, same as "two level" in Mj2
+  two level   - strips all but the first 2 domain levels from addresses
+  three level - strips all but the first 3 domain levels from addresses
+  trim mbox   - removes the +mailbox from the local part of all addresses
+
 
 To make all addresses case insensitive (for purposes of subscribe,
 unsubscribe, access_rules, etc):
-  /(.*)/\L$1/
+   /(.*)/\L$1/
+or just use the special string
+   ignore case
+The user portion of an address is not usually case sensitive, though on
+some systems it is.  By default Majordomo pays attention to case when
+comparing addresses in order to follow all relevant standards and be
+completely safe when faced with the innumerable number of addresses it
+must deal with, but this may be surprising to those who expect the
+opposite behavior. Domain names are never case sensitive.
+
+Tostrip useless domain levels from an address at a single domain,
+making "jane@mail.xyz.com" equivalent to "jane@xyz.com":
+   /\@.+\.xyz.com$/\@xyz.com/i
+or to take the same action for ALL domains, just use the special string
+   two level
+
+To remove the "+mailbox" specifier from an address, changing from
+"joe+remote@xyz.com" to just "joe@xyz.com":
+   /(.*?)\+.*(\@.*)/$1$2/
+or just use the special string
+   trim mbox
+
+
+See Also:
+   help patterns (for details of regular expressions and replacement strings)
+   help configset access_rules (for how to trap or match specific addresses)
 
 For a list of all help topics send this one-line message
    help topics
