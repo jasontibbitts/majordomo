@@ -543,13 +543,15 @@ sub lists {
   eprint($out, $type, "\n") unless $request->{'mode'} =~ /long|enhanced/;
   eprintf($out, $type, "There %s %s list%s.\n", $count==1?("is",$count,""):("are",$count==0?"no":$count,"s"));
   if (%legend) {
-    eprint($out, $type, "\n");
-    eprint($out, $type, "Legend:\n");
-    eprint($out, $type, " + - you are subscribed to the list\n") if $legend{'+'};
+    eprint($out, $type, "\nLegend:\n");
+    eprint($out, $type, " '+'  appears next to lists on which you are subscribed\n") if $legend{'+'};
   }
-  eprint($out, $type, "\n");
+  else {
+    eprint($out, $type, "\nYou are not subscribed to any lists using this email address.\n")
+  }
+  eprint($out, $type, "\nUse the 'show' command to get more information about your subscriptions.\n");
   if ($count) {
-    eprint($out, $type, "Use the 'info listname' command to get more\n information about a specific list.\n");
+    eprint($out, $type, "\nUse the 'info listname' command to get more information about a specific list.\n");
   }
   1;
 }
