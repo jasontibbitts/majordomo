@@ -1,3 +1,7 @@
+2000-11-22  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Format.pm: Correct various syntax errors.
+
 2000-11-18  Michael Yount <csf@moscow.com>
 
 	* README.CALLING:  Somewhat outdated file describing the 

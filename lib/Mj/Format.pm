@@ -670,13 +670,13 @@ sub lists {
   $global_subs = {
            $mj->standard_subs('GLOBAL'),
            'CGIDATA' => cgidata($mj, $request),
-           'CGIURL' => $request->{'cgiurl'};
+           'CGIURL' => $request->{'cgiurl'},
           };
 
   if ($ok <= 0) {
     $tmp = $mj->format_get_string($type, 'lists_error');
     $str = $mj->substitute_vars_format($tmp, $global_subs);
-    print $out indicate("$str\n", $ok, 1);
+    print $out &indicate("$str\n", $ok, 1);
     return 1;
   }
   
@@ -684,7 +684,7 @@ sub lists {
     unless ($request->{'mode'} =~ /compact|tiny/) {
       $tmp = $mj->format_get_string($type, 'lists_head');
       $str = $mj->substitute_vars_format($tmp, $global_subs);
-      print $out "$str\n");
+      print $out "$str\n";
     }
  
     if ($request->{'mode'} =~ /full/ and $request->{'mode'} !~ /config/) { 
@@ -1157,7 +1157,7 @@ sub show {
 
     $tmp = $mj->format_get_string($type, 'show_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out indicate("$str\n", $ok, 1);
+    print $out &indicate("$str\n", $ok, 1);
 
     return $ok;
   }
@@ -1175,7 +1175,7 @@ sub show {
 
     $tmp = $mj->format_get_string($type, 'show_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out indicate("$str\n", $ok, 1);
+    print $out &indicate("$str\n", $ok, 1);
 
     return $ok;
   }
@@ -1342,7 +1342,7 @@ sub showtokens {
   unless (@tokens) {
     $tmp = $mj->format_get_string($type, 'showtokens_none');
     $str = $mj->substitute_vars_format($tmp, $global_subs);
-    print $out indicate("$str\n", $ok, 1);
+    print $out &indicate("$str\n", $ok, 1);
     return $ok;
   }
   unless ($ok > 0) {
@@ -1352,7 +1352,7 @@ sub showtokens {
             };
     $tmp = $mj->format_get_string($type, 'showtokens_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out indicate("$str\n", $ok, 1);
+    print $out &indicate("$str\n", $ok, 1);
     return $ok;
   }
 
@@ -1423,7 +1423,7 @@ sub tokeninfo {
     $subs->{'ERROR'} = $data;
     $tmp = $mj->format_get_string($type, 'tokeninfo_error');
     $str = $mj->substitute_vars_format($tmp, $subs);
-    print $out indicate("$str\n", $ok, 1);
+    print $out &indicate("$str\n", $ok, 1);
     return $ok;
   }
 
