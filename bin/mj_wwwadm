@@ -222,6 +222,7 @@ if ($list ne '') {
     $::log->message(50, "info",  "Invalid list $list in form data.");
     exit 0; 
   }
+  $list =~ /(.*)/; $list = $1;
 }
 
 # The archive-get and archive-index commands must use immediate mode,

@@ -33,7 +33,7 @@ $quiet = $ENV{QUIET};
 $| = 1;
 
 # List of script files to be installed.
-@sidscripts = (qw(mj_resend mj_shell mj_confirm mj_shutdown mj_wwwadm));
+@sidscripts = (qw(mj_resend mj_shell mj_confirm mj_shutdown mj_wwwadm mj_wwwusr));
 @scripts = (qw(mj_trigger mj_queueserv mj_queuerun));
 
 if ($config->{mta} eq 'sendmail') {
@@ -62,6 +62,8 @@ if ($config->{cgi_bin}) {
   copy_file('mj_confirm', "$config->{install_dir}/bin",
 	    $config->{cgi_bin}, $config->{cgi_link});
   copy_file('mj_wwwadm', "$config->{install_dir}/bin",
+	    $config->{cgi_bin}, $config->{cgi_link});
+  copy_file('mj_wwwusr', "$config->{install_dir}/bin",
 	    $config->{cgi_bin}, $config->{cgi_link});
 }
 

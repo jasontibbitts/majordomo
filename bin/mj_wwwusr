@@ -1,0 +1,499 @@
+#!/usr/local/bin/perl-latest -wT
+BEGIN {
+  $::LIBDIR = 'unset';
+  $::LISTDIR= 'unset';
+  $::DEFDOM = 'unset';
+  $::TMPDIR = 'unset';
+  $::LOCKDIR= "blah";
+  $::UMASK  = "007";
+  $SIG{__WARN__} = sub {print STDERR "--== $_[0]"};
+
+  # Redirect standard error output.
+  if (! -t STDERR) {
+    open (STDERR, ">>$::TMPDIR/mj_wwwusr.debug");
+  }
+}
+
+=head1 NAME
+
+mj_wwwusr - demonstration of majordomo user interface .
+
+=head1 SYNOPSIS
+
+Extend this file to create specialized CGI scripts.
+
+=head1 DESCRIPTION
+
+When utilizing majordomo with a CGI script, there are
+several basic steps that must be taken, including initializing
+majordomo variables,  creating a log (STDERR by default), 
+initializing a CGI object, and starting a majordomo session
+with connect().
+
+This script performs these basic steps, easing the 
+creation of new CGI scripts.  Adapt it to suit your needs.
+
+Note that it may be necessary to install a setuid wrapper
+for any script based upon this example.
+
+=cut
+use lib "$::LIBDIR";
+use strict;
+use CGI;
+use Majordomo;
+use Mj::Format;
+use Mj::Log;
+use Mj::TextOutput;
+use Mj::Addr;
+
+my ($cgi, $domain, $mj, $ok, $mess, $serveradmin, $sess, $goodpass, $isreg);
+my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, $vict, $extra);
+my ($line, $site, $file, $fh, $cgiurl, $admurl, $cmdform, $serveraddr, $falseuser);
+
+$ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
+
+umask oct($::UMASK);
+
+# Change the log level to a higher number (500) for complete debugging
+$::log = new Mj::Log;
+$::log->add
+  (
+   method      => 'handle',
+   id          => 'mjusr',
+   handle      => \*STDERR,
+   level       => 50,
+   subsystem   => 'mail',
+   log_entries => 1,
+   log_exits   => 1,
+   log_args    => 1,
+  );
+
+$::log->in(20, undef, "info", "Majordomo 2 WWW for Subscribers - ".scalar(localtime)." from $ENV{'REMOTE_ADDR'}");
+$::log->startup_time();
+
+# Start up the page and parse the URL
+$cgi = new CGI;
+print $cgi->header;
+$domain = $::DEFDOM;
+
+# Make the Majordomo object
+$mj = new Majordomo $::LISTDIR, $domain;
+unless (ref $mj) {
+  print <<EOM;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd"> 
+<html><head>
+<title>Majordomo 2 WWW for Subscribers: Error</title>
+</head>
+<body>
+<h2>Error: $mj</h2>
+</body></html>
+EOM
+  exit 0;
+}
+
+$cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwusr";
+$admurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
+
+# Generate the session information
+for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
+  $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
+}
+$sess .= scalar(localtime(time)) . "\n";
+$serveradmin = $mj->_global_config_get('whoami_owner');
+
+
+$pathinfo = '';
+if (exists $ENV{'PATH_INFO'}) {
+  $pathinfo = $ENV{'PATH_INFO'};
+  $pathinfo =~ m#/([^/\s]+)#;
+  $pathinfo = $1;
+}
+
+$site        = $mj->_global_config_get('site_name');
+$serveraddr  = $mj->_global_config_get('whoami');
+$falseuser   = "x$ENV{'REMOTE_ADDR'}\@example.com";
+# GET poses a security risk due to passwords being visible
+# Set HTML form variables
+$ofunc   = $cgi->param('func') || "";
+$user    = $cgi->param('user') || $pathinfo || $falseuser;
+$user    = new Mj::Addr($user) if $user;
+$isreg   = $mj->{'reg'}->lookup($user->canon) if $user;
+$passw   = $cgi->param('passw') || '';
+$list    = $cgi->param('list') || 'GLOBAL';
+$extra   = $cgi->param('extra') || '';
+
+($ok, $mess) = $mj->connect('mj_wwwusr', $sess, $user);
+unless ($ok) {
+  print <<EOM;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd"> 
+<html><head>
+<title>Majordomo 2 WWW for Subscribers: Error</title>
+</head>
+<body>
+<h2>Error: $mess</h2>
+Please contact
+<a href="mailto:$serveradmin">$serveradmin</a> and report
+this error.
+</body></html>
+EOM
+  exit 0;
+}
+
+# Extract "mode" from command name
+if ($ofunc =~ /([^\s=-]+)[=-](.*)/) {
+  $func = $1;
+  $mode = $2;
+}
+else { 
+  $func = $ofunc;
+  $mode = '';
+}
+
+$cmdform = <<EOM;
+<form method=POST action=$cgiurl>
+e-mail address:
+<input size=34 name=user value="$user">
+password:
+<input size=10 name=passw type=password value="$passw"><br>
+<input type=submit name=func value="about this service">
+<input type=submit name=func value="lists">
+EOM
+
+print <<EOM;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd"> 
+<html><head>
+<title>Majordomo 2 WWW for Subscribers</title>
+</head>
+<body>
+<h2 align=center>List Information and Account Maintenance</h2>
+Welcome to $site!  Here you will find information about our
+mailing lists and your account on our Majordomo 2 list server.
+Type your e-mail address into the first box.  If you are
+already registered at this site, typing your password into
+the second box will allow you to change your account.
+<p>
+This service offers three different pages: a list of
+mailing lists, details about your account, and a help
+page.  These pages may be reached by pressing the "lists,"
+"show," or "about this service" buttons at any time.
+"show" will only work if your address is registered here
+and you have typed your password into the password box.
+$cmdform
+EOM
+
+if (defined $isreg) {
+  print "<input type=submit name=func value=\"show\">\n";
+}
+
+# Print help information if it was requested
+if ($func =~ /about/) {
+  &usage($mj);
+  exit 0;
+}
+
+no strict 'refs';
+
+# Verify address
+($ok, $mess) = $user->valid;
+unless ($ok) {
+  print "$user is an invalid address: $mess";
+  exit 0;
+}
+
+# Make sure the command is valid
+if ($func and not defined ${Mj::TextOutput::}{$func}) {
+  print "Illegal command: $func\n";
+  $::log->message(50, "info",  "Invalid command $func in form data.");
+  exit 0;
+}
+
+# Make sure the list name is valid
+if ($list ne '') {
+  unless ((-d "$mj->{'ldir'}/$list" and $mj->legal_list_name($list))
+           or $list eq 'ALL') {
+    print "<h3>Invalid list name: $list</h3>\n";
+    $::log->message(50, "info",  "Invalid list $list in form data.");
+    exit 0; 
+  }
+  $list =~ /(.*)/; $list = $1;
+}
+
+if ($user and $passw) {
+  $goodpass = 
+    $mj->validate_passwd($user, $passw, '', 'mj_wwwusr', 'GLOBAL', 'show'); 
+}
+
+if ($func and $func =~ /info|intro|faq|subscribe/) {
+  if ($func =~ /subscribe/ and $user->strip =~ /example.(com|net|org)/) {
+    print "<p>Please do not (un)subscribe example.com addresses.\n";
+    &usage($mj);
+    exit 0;
+  }
+  $file = Majordomo::tempname();
+  $fh = new IO::File ">$file";
+  &{"Mj::TextOutput::$func"}($mj, $func, $user, $passw, 
+                           undef, "mjusr",
+                           undef, $fh, $mode, $list, $extra, ());
+  $fh->close();
+  # process results of TextOutput
+  &format_print($file);
+  unlink $file;
+}
+elsif ($func eq 'set' and $goodpass) {
+  my ($i, $j, @settings);
+  my @params = $cgi->param;
+  for $j (qw(delivery ack eliminatecc hide prefix replyto selfcopy rewritefrom)) {
+    $i = "$list:$j";
+    if ($j eq 'delivery') {
+      push @settings, $cgi->param($i);
+    }
+    elsif ($j eq 'hide' or $j eq 'ack') {
+      $cgi->param($i) eq 'on' ? 
+        push @settings, "${j}all" :
+        push @settings, "no$j";
+    } 
+    else {
+      $cgi->param($i) eq 'on' ? 
+        push @settings, $j :
+        push @settings, "no$j";
+    }
+  }
+  print "<br>set $list";
+  for $i (@settings) {
+    ($ok, $mess) =
+      $mj->dispatch('set', $user, $passw, '', 
+                    'mj_wwwusr', "set $list $i", '', $list, '', $i);
+    print " $i";
+  }
+  print "<br>\n";
+}
+
+
+# There are three screens which this script displays.  The
+# first is a list of all lists that are visible to the 
+# subscriber.  The second contains information about the
+# subscriber's account.  The third offers help.
+
+if ($user and $isreg and $goodpass) {
+  if ($func !~ /lists|faq|info|intro|subscribe/) {  
+    &showdata($mj, $user, $passw);
+    print  "</form></body></html>\n";
+    exit 0;
+  }
+}
+
+&showlists($mj, $user, $passw);
+print  "</body></html>\n";
+exit 0;
+
+#---------------- Subroutines -----------------#
+sub showlists {
+  my $mj = shift;
+  my $user = shift;
+  my $passw = shift;
+  my ($list, $cat, $desc, $flags);
+  my ($ok, $mess, @listdata) = 
+    $mj->dispatch('lists', $user, $passw, '', 'mj_wwwusr', 'lists', 'enhanced');
+  # Iterate over lists and add form buttons
+  if (! $ok) {
+    print "<h2>Error: $mess</h2>\n";
+    return;
+  }
+  print <<EOM;
+<br>
+<input type=submit name=func value=subscribe>
+<input type=submit name=func value=faq>
+<input type=submit name=func value=info>
+<input type=submit name=func value=intro><br>
+<b>Select a mailing list, then press one of the buttons above.</b>
+<pre>
+EOM
+  while (($list, $cat, $desc, $flags) = splice @listdata, 0, 4) {
+    $desc ||= "(no description)";
+    print "<input type=radio name=list value=$list>";
+    printf "%-24s %-12s %s\n", $list, $cat, $desc;
+  }
+  print "</pre></form>\n";
+}
+
+sub showdata {
+  my $mj = shift;
+  my $user = shift;
+  my $passw = shift;
+  my ($i, $j, $fl, @lists, $lfull, $class, $subtime); 
+  my ($lflags, $lchangetime, $changetime);
+  my ($ok, @listdata) =
+    $mj->dispatch('show', $user, $passw, '', 'mj_wwwusr', 'show', '');
+  # Present the data, including form buttons.
+  if ($ok < 1) {
+    print "<h2>Error: $listdata[2]</h2>\n";
+    return $ok;
+  }
+  if ($listdata[4]) {
+    $fl=0;
+    for $i (split("\002",$listdata[4])) {
+      next if $i eq $listdata[0];
+      print "Aliases:<br><ul>\n"
+        unless ($fl);
+      print "<li>$i\n";
+      $fl=1;
+    }
+    print "</ul>\n";
+  }
+  @lists = split("\002", $listdata[16]);
+  unless (@lists) {
+    print "Address is not subscribed to any lists\n";
+    return 1;
+  }
+  print "<table border><th>Mailing List<th>Delivery Mode<th>Ack<th>EliminateCC\n";
+  print "<th>Hide<th>Prefix<th>ReplyTo<th>SelfCopy<th>RewriteFrom\n";
+  for $i (@lists) {
+    ($lfull, $class, $subtime, $lchangetime, $lflags) = splice(@listdata, 17, 5);
+    print <<EOM;
+    <tr><td align=center><input type=radio name=list value=$i>$i<br>
+    <td align=center><select name="$i:delivery">
+EOM
+    for $j (qw (each digest nomail)) {
+      print $class =~ /$j/ ? "<option selected> $j\n" : "<option> $j\n";
+    }
+    print "</select>\n";
+    for $j (split(',',$lflags)) {
+      $j =~ /(no)?(.+)/;  print $1 ?
+          "<td align=center><input type=checkbox name=\"$i:$2\">"
+        : "<td align=center><input type=checkbox name=\"$i:$2\" checked>";
+    }
+  }
+  print <<EOM;
+</table>
+To unsubscribe, press the radio button for the 
+appropriate list, then press the "unsubscribe" button below.
+<br>
+To change settings, press the radio button for a
+list, choose the settings you want, then press the "set" button
+below.<br>
+<input type=submit name=func value="set">
+<input type=submit name=func value="unsubscribe">
+<h2>What do the settings mean?</h2>
+<ul>
+<li>Delivery Mode: "each" means that you will receive each
+message.  "digest" means that messages will be bundled into
+a collection called a digest, which is sent periodically.
+"nomail" means that you will receive no mail from the list.
+This is a useful setting if you wish to postpone mail 
+while you are traveling, for example.
+<li>Ack:  Select this if you want to receive acknowledgements if your
+posted messages need to be reviewed by the list owners
+before they appear on a mailing list.
+<li>EliminateCC: Select this if you do not want two copies
+when someone sends a message both to you and to the list.
+<li>Hide:  Select this if you do not want your address to appear
+when someone reviews the list of subscribers.
+<li>Prefix:  Select this if you want to see a prefix which indicates
+the name of the mailing list in the Subject header of every message.
+This only matters if the list owners have configured the list to
+create a prefix.
+<li>ReplyTo:  Select this if you want your replies to go to the
+mailing list instead of to the person who wrote the original message.
+This only matters if the list owners have configured the list to 
+allow replies to go to the list.
+<li>SelfCopy:  Select this if you want to receive a copy of messages
+that you post to the mailing list.
+<li>RewriteFrom:  Select this if you want to change the From header 
+in messages you send to the list.  The From header will then be
+rewritten to appear as it did when you subscribed to the list.
+</ul>
+<hr>
+EOM
+  print "Registered at ".gmtime($listdata[14])." UTC.<br>\n";
+  print "Last changed at ".gmtime($listdata[15])." UTC.<br>\n";
+}
+  
+sub format_print {
+  my $file = shift;
+  my ($line, $summarize, $hdrs);
+  $summarize = $hdrs = 0;
+
+  $fh = new IO::File "<$file";
+  if (! $fh) { 
+    print  "<h3>Unable to get results</h3>\n";
+    exit 0;
+  }
+  print  "<pre>\n";
+  my %esc = ( '&'=>'amp', '"'=>'quot', '<'=>'lt', '>'=>'gt');
+  while ($line = <$fh>) {
+    $line =~ s/([<>\"&])/\&$esc{$1};/mg; 
+    $line =~ s/([\x80-\xFF])/'&#'.unpack('C',$1).';'/eg;
+    print $line;
+  }
+  $fh->close();
+  print "</pre>\n";
+}
+
+sub usage {
+  my ($mj) = shift;
+  my $site  = $mj->_global_config_get('site_name');
+  my $serveraddr = $mj->_global_config_get('whoami');
+  my $serveradmin = $mj->_global_config_get('whoami_owner');
+
+  print <<EOM;
+<p>
+Welcome to $site!  This is the Majordomo 2 subscriber interface.
+Below you will learn how it works.
+It is always possible to return to this introduction by pressing 
+the "about this service" button.
+<p>
+This interface serves two main purposes.  The first is to 
+allow the public to learn about and subscribe to the mailing 
+lists at $site.  The second is to allow subscribers to change
+the settings for their subscriptions and to remove themselves
+from mailing lists.
+<p>
+If you simply wish to get information about the mailing lists,
+the URL for this service is: <br>
+ <a href="$cgiurl">$cgiurl</a><br>
+However, if you want to access your account, add a solidus ("/")
+and your e-mail address: <br>
+ <a href="$cgiurl/$user">$cgiurl/$user</a><br>
+When the list of lists appears, type in your password and
+press the show button.  Your password appears in the 
+welcome message you receive every time you subscribe to 
+a mailing list, so be sure to save those messages.
+<p>
+It is possible for you to subscribe to mailing lists without
+using a password.  However, you will probably need to go
+through an extra confirmation step.  Confirmation instructions
+will be sent via e-mail to your address.
+<p>
+Majordomo 2 also has an
+<a href="$admurl">interface for list owners</a>.
+<p>
+If you have questions about this service, please write to
+the site administrator at
+<a href="mailto:$serveradmin">$serveradmin</a>.
+EOM
+}
+=head1 COPYRIGHT
+
+Copyright (c) 2000 Jason Tibbitts for The Majordomo Development
+Group.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2 LICENSE file for more
+detailed information.
+
+=cut
+
+#^L
+### Local Variables: ***
+### cperl-indent-level:2 ***
+### End: ***
+
+

@@ -36,6 +36,7 @@ bin/mj_shell
 bin/mj_shutdown
 bin/mj_trigger
 bin/mj_wwwadm
+bin/mj_wwwusr
 convertdb.pl
 convertfs.pl
 convertlist.pl

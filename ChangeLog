@@ -1,3 +1,8 @@
+2000-05-25  Michael Yount  <csf@moscow.com>
+	* bin/mj_wwwusr: New prototype of WWW interface for users.
+	It currently supports the functionality of lists, faq,
+	info, intro, show, set, subscribe, and unsubscribe.
+
 2000-05-24  Michael Yount  <csf@moscow.com>
 	* bin/mj_wwwadm, bin/mj_confirm: Add error checks for return
 	values from new() and connect().  Untaint domain name.
