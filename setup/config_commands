@@ -2,24 +2,36 @@
 # They create configuration templates for the DEFAULT list to 
 # solve common problems related to list configuration.
 
+# When a template is added, make a note of it at the end of the 
+# admin_config help file, in the "Templates" section.
+
+# The "comments" setting should contain a description of each
+# template.  The width of a description line should be no
+# greater than 50 characters.
+
 # DEFAULT:personal:  Place the address of the recipient in the To header.
 #   Add a footer that explains how to unsubscribe.
 
 configset DEFAULT:personal comments <<LLL
-  The "personal" template is used to cause a separate copy of
-  each message posted to a mailing list to each subscriber.
-  The address of the subscriber will appear in the "To:" header,
-  and the "Reply-To:" header will contain the list's address.
+This template is used to cause a separate copy of
+each message posted to a mailing list to be sent
+to each subscriber.  The address of the subscriber 
+will appear in the "To:" header, and the "Reply-To:" 
+header will contain the list's address.
 
-  To apply these settings to a mailing list, use the command
-    configshow-merge-append DEFAULT:personal YOURLIST
-  (substituting the name of your mailing list for YOURLIST.)
-  The append mode is necessary because the default delete_headers
-  setting contains existing values.
+To apply these settings to a mailing list, 
+use the following command:
 
-  Because a separate copy of the message is posted to each 
-  recipient, these settings may strain your mail server.  Use
-  with caution.
+configshow-merge-append DEFAULT:personal YOURLIST
+
+(substitute the name of your mailing list 
+for YOURLIST). The "append" mode is necessary 
+because the delete_headers setting contains 
+existing values.
+
+Because a separate copy of the message is posted 
+to each recipient, these settings may strain your 
+mail server.  Use with caution.
 LLL
 
 configset DEFAULT:personal bounce_probe_frequency = 1
