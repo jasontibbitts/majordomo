@@ -1,0 +1,5 @@
+The document or directory at
+  $PATH
+has an absolute path, beginning with a slash, '/'.  An administrative
+password is required to access any document or directory with an 
+absolute path.
