@@ -12,14 +12,39 @@ Switch over one of my lists.  (How?  Manually maintain subscription
 Top of the list 
 ---------------
 
-! Install different version of repl_confirm is no web server configured.
+! Make sure that $SENDER is reset properly after _trim_approval is called,
+  so we pick up the real sender, not the approver.
 
 ! Make sure all sent mails have To: headers.
+
+! Begin generalization of database mechanism.
+  Move most of SimpleDB.pm into SimpleDB/Text.pm.  Make a new SimpleDD::new
+  that takes an additional argument ('method') and uses the appropriate
+  submodule.  Should probably also have a 'convert' method.  All submethods
+  should have an 'export' method that writes to a file.  Perhaps 'new'
+  should autoconvert.
+
+  Recode every simpledb::new call to provide a method.  Makefile.PL can
+  check for availability of certain modules and configure the backend
+  database appropriately.
+
+  t/db.t will need work; it should test everything that's available and
+  skip the rest.
+
+  Modules to be used: Text, BerkDB, MySQL.
 
 ! Finish archive interface.
 
 ! Make sure that archives get a separate umask, so that people can
   download them.
+
+- Add Makefile.PL section to look for features in addition to
+  prerequisites; if the necessary modules are present, the features will be
+  enabled.
+
+  Features: Time::HiRes
+            DB_File (or BerkeleyDB?)
+            whatever the MySQL module is
 
 - Tool to incorporate mbox files into an archive.
   Can run from alias (like archive2.pl) or can slurp an entire folder.

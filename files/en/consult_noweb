@@ -1,0 +1,11 @@
+A user has made the following request:
+
+  $CMDLINE
+
+If you want this action to be taken, please reply to this message
+with the word "accept" (without quotes) on a line by itself.
+
+If you do not respond within $EXPIRE days, this token will expire.
+
+If you do not wish to allow this request, you may reject it by replying to
+this message with the word "reject" (without quotes) on a line by itself.

@@ -1,3 +1,9 @@
+Fri May 15 15:37:53 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* postinstall (install_response_files): Hacks to allow source
+ 	filenames different from destination filenames, for *_noweb files.
+	Add support for *_noweb files, conditional on $config->{cgi_bin}.
+
 Thu May 14 01:22:42 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/Archive.pm (add): Changed naming to more closely match

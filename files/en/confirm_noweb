@@ -1,0 +1,15 @@
+Someone (possibly you) has made the following request:
+
+  $CMDLINE
+
+If you want this action to be taken, please reply to this message
+with the word "accept" (without quotes) on a line by itself.
+
+If you do not respond within $REMIND days, a reminder will be sent.
+If you do not respond within $EXPIRE days, this token will expire.
+
+If you did not originate this request, believe it to be in error, or do
+not want it to be carried out, you may reject it by replying to this
+message with the word "reject" (without quotes) on a line by itself.
+
+If you would like to communicate with a person, send mail to $OWNER.

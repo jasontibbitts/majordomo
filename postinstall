@@ -31,8 +31,6 @@ die "Can't do postinstall unless Makefile.PL has been run!"
    'en/ack_stall'	        => 'Stall',
    'en/ack_success'	        => 'Success',
    'en/ack_timeout'	        => 'Timeout',
-   'en/confirm'			=> 'CONFIRM from $LIST',
-   'en/consult'			=> 'CONSULT from $LIST',
    'en/faq'			=> 'Default faq reply',
    'en/file_sent'		=> 'File has been sent',
    'en/info'			=> 'Info',
@@ -58,6 +56,15 @@ die "Can't do postinstall unless Makefile.PL has been run!"
    'en/help/admin_configuration'=> 'Overview of configuration variables and methods',
    'en/help/admin_passwords'	=> 'Information on Majordomo security and passwords',
   );
+
+if ($config->{cgi_bin}) {
+  $files{'en/confirm'} = 'CONFIRM from $LIST';
+  $files{'en/consult'} = 'CONSULT from $LIST';
+}
+else {
+  $files{'en/confirm'} = ['CONFIRM from $LIST', 'en/confirm_noweb'];
+  $files{'en/consult'} = ['CONSULT from $LIST', 'en/consult_noweb'];
+}
 
 # These have to be ordered...
 @dirs =
@@ -298,8 +305,14 @@ sub install_response_files {
   # Put the files
   $i = 1;
   while (($file, $subj) = each %{$files}) {
-    print FILE "put GLOBAL /stock/$file $subj <\@$i\n";
-    cp("files/$file", "$config->{wtmpdir}/inst.$$.$i");
+    if (ref($subj)) {
+      print FILE "put GLOBAL /stock/$file $$subj[0] <\@$i\n";
+      cp("files/$$subj[1]", "$config->{wtmpdir}/inst.$$.$i");
+    }
+    else {
+      print FILE "put GLOBAL /stock/$file $subj <\@$i\n";
+      cp("files/$file", "$config->{wtmpdir}/inst.$$.$i");
+    }
     chmod(0644, "$config->{wtmpdir}/inst.$$.$i");
     push @args, ("-f", "$config->{wtmpdir}/inst.$$.$i");
     $i++;
