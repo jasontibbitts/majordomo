@@ -818,6 +818,8 @@ my %commands =
                                    %generic_modes,
                                    'alias'       => 1,
                                    'async'       => 1,
+                                   'confirm'     => 1,
+                                   'consult'     => 1,
                                    'delay'       => 1,
                                    'probe'       => 1,
                                   },
