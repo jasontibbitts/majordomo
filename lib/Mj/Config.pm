@@ -720,6 +720,7 @@ sub lock {
 sub unlock {
   my $self = shift;
   my $log  = new Log::In 150;
+  my $ok;
 
   # Bail if not locked.
   return unless $self->{locked};
@@ -727,8 +728,8 @@ sub unlock {
   $self->{mtime} = time;
   if ($self->{dirty}) {
     # Save (print out) the file and commit
-    $self->{fh}->print(Dumper $self->{'data'});
-    $self->{fh}->commit;
+    $ok = $self->{fh}->print(Dumper $self->{'data'});
+    $ok ? $self->{fh}->commit : $self->{fh}->abandon;
   }
   else {
     # Nothing was changed; don't bother writing
@@ -948,7 +949,7 @@ Dumps out the non-default variables in the Config object.
 =cut
 sub _save_new {
   my $self = shift;
-  my ($file, $name);
+  my ($file, $name, $ok);
 
   $::log->in(155, "$self->{'list'}");
   $name = $self->_filename;
@@ -960,9 +961,9 @@ sub _save_new {
     $file = new Mj::File "$name", ">";
   }
 
-  $file->print(Dumper $self->{'data'});
+  $ok = $file->print(Dumper $self->{'data'});
   
-  $file->commit;
+  $file->commit if $ok;
   $::log->out;
 }
 
