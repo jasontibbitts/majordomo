@@ -38,12 +38,14 @@ sub new {
   $self->{seqnum}  = $args{seqnum};
   $self->{sendsep} = $args{sendsep};
   $self->{addrs}   = [];
-  $self->{dest}    = Mj::Deliver::Dest->new(data   => $args{data},
-					    file   => $args{file},
-					    sender => $self->{sender},
-					    lhost  => $args{lhost},
-					    single => 1,
-					   );
+  $self->{dest}= 
+    Mj::Deliver::Dest->new( data   => $args{data},
+                            file   => $args{file},
+                            sender => $self->{sender},
+                            lhost  => $args{lhost},
+                            single => 1,
+                            qmail_path => $args{qmail_path},
+                          );
   $self;
 }
 
@@ -84,8 +86,8 @@ sub flush {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997-2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997-2002, 2004 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

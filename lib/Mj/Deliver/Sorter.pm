@@ -38,6 +38,7 @@ sub new {
   $self->{'sender'} = $args{sender};
   $self->{'nosort'} = $args{nosort};
   $self->{'addrs'}  = [];
+  $self->{'qmail_path'} = $args{'qmail_path'};
   $self;
 }
 
@@ -83,13 +84,12 @@ sub flush {
   }
 
   $self->{'data'}{'total'} = scalar(@{$self->{'addrs'}});
-#  print "Allocating Dest\n";
   $dest = Mj::Deliver::Dest->new(data   => $self->{'data'},
                                  file   => $self->{'file'},
                                  sender => $self->{'sender'},
-                                 lhost  => $self->{'lhost'}
+                                 lhost  => $self->{'lhost'},
+                                 qmail_path => $self->{'qmail_path'},
 				);
-#  print "Allocated Dest\n";
 
   for (my $i=0; $i < @{$self->{'addrs'}}; $i++) {
     $dest->add(@{$self->{'addrs'}[$i]});
@@ -102,8 +102,8 @@ sub flush {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2002, 2004 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

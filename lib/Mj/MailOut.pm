@@ -43,7 +43,15 @@ sub mail_message {
   my $file   = shift;
   my @addrs  = @_;
   my $log = new Log::In 30, "$file, $sender, $addrs[0]";
-  my (%args, @a, $i);
+  my (%args, @a, $i, $mtaopts, $qp);
+
+  $mtaopts = { %{$self->_site_config_get('mta_options')} };
+  $qp = '';
+  if (exists $mtaopts->{'qmail_path'}) {
+    $qp = $mtaopts->{'qmail_path'};
+    $qp = '' unless (-d $qp and -x $qp);
+  }
+  $args{'qmail_path'} = $qp;
 
   $args{'rules'} = $self->_global_config_get('delivery_rules');
   $args{'dbtype'} = 'none';
@@ -155,12 +163,19 @@ sub deliver {
   my $classes = shift;
 
   my $log = new Log::In 30;
-  my(%args, $bucket, $buckets, $regexp, $subdb);
+  my(%args, $bucket, $buckets, $mtaopts, $qp, $regexp, $subdb);
 
   # Figure out some data related to bounce probing
   $buckets = $self->_list_config_get($list, 'bounce_probe_frequency');
   $bucket  = int(rand $buckets) if $buckets;
   $regexp  = $self->_list_config_get($list, 'bounce_probe_pattern');
+
+  $mtaopts = { %{$self->_site_config_get('mta_options')} };
+  $qp = '';
+  if (exists $mtaopts->{'qmail_path'}) {
+    $qp = $mtaopts->{'qmail_path'};
+    $qp = '' unless (-d $qp and -x $qp);
+  }
 
   %args =
     (
@@ -172,6 +187,7 @@ sub deliver {
      listdir => $self->{'ldir'},
      list    => $list,
      manip   => 1,
+     qmail_path => $qp,
      rules   => $self->_list_config_get($list, 'delivery_rules'),
      sender  => $sender,
      sendsep => $self->_site_config_get('mta_separator'),
@@ -223,6 +239,14 @@ sub probe {
   my $sender  = shift;
   my $classes = shift;
   my $sublist = shift || 'MAIN';
+  my ($mtaopts, $qp);
+
+  $mtaopts = { %{$self->_site_config_get('mta_options')} };
+  $qp = '';
+  if (exists $mtaopts->{'qmail_path'}) {
+    $qp = $mtaopts->{'qmail_path'};
+    $qp = '' unless (-d $qp and -x $qp);
+  }
 
   my %args =
     (
@@ -236,6 +260,7 @@ sub probe {
      list    => $list,
      listdir => $self->{'ldir'},
      manip   => 1,
+     qmail_path => $qp,
      regexp  => 'ALL',
      rules   => $self->_list_config_get($list,'delivery_rules'),
      sender  => $sender,
@@ -491,8 +516,8 @@ sub extend_sender {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997-2000 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997-2000, 2004 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

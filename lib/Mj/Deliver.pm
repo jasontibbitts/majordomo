@@ -298,6 +298,7 @@ sub _setup {
 				    file   => $args{classes}{$i}{file},
                                     sender => $sender,
                                     lhost  => $args{lhost},
+                                    qmail_path => $args{qmail_path},
 				   );
 	}
 	# Need a non-sorting Sorter to count the addresses for numbatches
@@ -310,6 +311,7 @@ sub _setup {
                                       sender => $sender,
                                       lhost  => $args{lhost},
 				      nosort => 1,
+                                      qmail_path => $args{qmail_path},
 				     );
 	  }
 	# Nothing special, so allocate a plain destination
@@ -319,6 +321,7 @@ sub _setup {
 				  file   => $args{classes}{$i}{file},
                                   sender => $sender,
                                   lhost  => $args{lhost},
+                                  qmail_path => $args{qmail_path},
 				 );
 	}
       }
@@ -334,6 +337,7 @@ sub _setup {
 				  seqnum  => $args{classes}{$i}{seqnum},
 				  sendsep => $args{sendsep},
                                   lhost   => $args{lhost},
+                                  qmail_path => $args{qmail_path},
 				 );
       }
     }
@@ -371,8 +375,8 @@ sub _eclass {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997-2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997-2002, 2004 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

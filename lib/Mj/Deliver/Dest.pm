@@ -99,6 +99,7 @@ sub new {
   $self->{file}       = $args{file} || $data->{file};
   $self->{nobounces}  = $args{nobounces};
   $self->{data}       = $data;
+  $self->{qmail_path} = $args{qmail_path};
 
   # Figure out method and args;
   if ($args{single}) {
@@ -249,6 +250,7 @@ sub make_qqenvelope {
 				 'sender' => $self->{'sender'},
 				 'file'   => $self->{'file'},
 				 'host'   => $host,
+                                 'qmail_path' => $self->{'qmail_path'},
 				 %{$self->{'hostdata'}{$host}},
 				);
 }
@@ -702,8 +704,8 @@ EOM
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997-2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997-2002, 2004 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

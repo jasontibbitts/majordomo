@@ -8,7 +8,7 @@ blah
 
 =head1 DESCRIPTION
 
-This is an object that is call compatible with the Envlope object.  It
+This is an object that is call compatible with the Envelope object.  It
 consists of a sender, recipients and a message.  When the envelope is sent
 it uses the qmail-queue program to inject the message into the local mail
 system.
@@ -20,7 +20,7 @@ Thanks to Ryan Tadlock for this code.
 package Mj::Deliver::QQEnvelope;
 use strict;
 # I need tmpnam and open from posix, I probably can work around their
-# absense but I haven't put the code together yet.
+# absence but I haven't put the code together yet.
 use POSIX;
 use IO::File;
 use Mj::Log;
@@ -45,20 +45,21 @@ sub new {
   my $class = ref($type) || $type;  
   my %args  = @_;
   my $log   = new Log::In 150;
-  my($addfile);
+  my ($addfile);
   
   my $self = {};
   bless $self, $class;
   $addfile = POSIX::tmpnam;
   $self->{'addname'} = $addfile;
 
-  # This isn't really neccessary but I want to maintain call compatibility
+  # This isn't really necessary but I want to maintain call compatibility
   # with the Envelope object.
   unless (defined $args{'sender'}) {
     $log->abort("Must provide a sender when opening an envelope");  
   }
 
   $self->{'sender'} = $args{'sender'};
+  $self->{'qmail_path'} = $args{'qmail_path'};
 
   if (defined $args{'file'}) {
     $self->file($args{'file'});
@@ -143,18 +144,18 @@ in some way unreadable.
 sub send {
   my $self = shift;
   my $log  = new Log::In 150;
-  my ($pid, $fd1, $fd2, $addfile);
+  my ($addfile, $fd1, $fd2, $pid, $qp);
   
   $log->abort("Sending unaddressed envelope") unless $self->{'addressed'};
   $log->abort("Sending empty envelope")       unless $self->{'file'};
-  $self->{'addfile'}->print( "\00");
+  $self->{'addfile'}->print("\00");
   $self->{'addfile'}->close()
     or $::log->abort("Unable to close file $self->{'addname'}: $!");
 
   if ($pid = fork()) {
-    waitpid $pid,0;
+    waitpid $pid, 0;
     unlink $self->{'addname'};
-  } 
+  }
   elsif (defined $pid) {
     close STDIN;
     close STDOUT;
@@ -163,7 +164,14 @@ sub send {
     unless (($fd1 == 0) && ($fd2 == 1) ) {
       $log->abort("Unable to produce proper file descriptors");
     }
-    $ENV{PATH} = "/bin:/usr/bin:/var/qmail/bin/";
+
+    $qp = $self->{'qmail_path'};
+    if (-d $qp and -x $qp)  {
+      $ENV{PATH} = "$qp:/bin:/usr/bin:/var/qmail/bin/";
+    }
+    else {  
+      $ENV{PATH} = "/bin:/usr/bin:/var/qmail/bin/";
+    }
     exec "qmail-queue";
   }
   else {
@@ -184,7 +192,7 @@ sub DESTROY {
   my $self = shift;
   
   if (defined $self->{'addname'}) {
-    if ( -e $self->{'addname'}){
+    if (-e $self->{'addname'}){
       unlink $self->{'addname'} ;
     }
   }
@@ -193,8 +201,8 @@ sub DESTROY {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2002, 2004 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the
