@@ -5728,8 +5728,8 @@ iterator is finished.  If the value is one, the iterator is not yet
 finished even though there may be no listed subscribers in this chunk.
 Keep calling until the value is zero.
 
-_who is the bottom half; it just calls the internal get_start routine to do
-the setup and returns.
+_who is the bottom half; it just calls the internal get_start routine to 
+initialize the registry, alias database, or subscriber list.  
 
 =cut
 use Mj::Config;
@@ -5820,7 +5820,8 @@ sub _who {
     return (0, "The DEFAULT list never has subscribers");
   }
   elsif ($list eq 'GLOBAL' and $sublist eq 'MAIN') {
-    $self->{'reg'}->get_start;
+    return (0, "Unable to initialize registry.\n") 
+      unless $self->{'reg'}->get_start;
   }
   else {
     return (0, "Unable to initialize list $list.\n")
@@ -5828,7 +5829,8 @@ sub _who {
     return (0, "Unknown auxiliary list name \"$sublist\".")
       unless ($ok = $self->{'lists'}{$list}->valid_aux($sublist));
     $sublist = $ok;
-    $self->{'lists'}{$list}->get_start($sublist);
+    return (0, qq(Unable to initialize the "$list" subscriber list.\n)) 
+      unless $self->{'lists'}{$list}->get_start($sublist);
   }
 
   $settings = $self->{'lists'}{$list}->get_setting_data;
