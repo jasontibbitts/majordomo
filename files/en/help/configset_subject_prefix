@@ -12,11 +12,14 @@ configset listname subject_prefix = Mj2:$LIST
 
 
 This word will be prefixed to the subject line, if it is not already
-in the subject.
+in the subject. The subject text will undergo variable substitution
+as it is added to the message. See "help variables" for a list of
+substitutions which are supported.
 
-The subject text will undergo variable substitution as it is added to
-the message. See "help variables" for a list of substitutions which
-are supported.
+When deciding if the prefix text is already in the subject, Majordomo
+ignores leading tags like "Re:" and "FWD:" that are commonly used for
+indicating replies. If non-standard prefixes have been inserted before
+the existing Majordomo prefix, a duplicate prefix may be added.
 
 
 See Also:

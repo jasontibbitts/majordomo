@@ -22,7 +22,7 @@ ENDTAG
 
 
 If any of the headers matches one of these regexps, then the message
-will be bounced for review. Syntax is described in "help configset admin_body".
+will be bounced (sent to the list owner) for review.
 
 NOTE: For help on admin_headers, please send "help configset admin_body"
 to the server. All syntax and information is identical, but the "nn"

@@ -22,8 +22,7 @@ Data on the various digests that the list supports (not supported for sublists!)
 Each digest is defined by two lines.  The first line contains data in the
 following order, separated by vertical bars ('|') or colons:
   name    | times  | minsizes | maxsizes | maxage | separate | minage | deftype
-The second line holds a description of the digest. The full syntax is described
-in "help configset digests".
+The second line holds a description of the digest.
 
 A digest is defined by a name, a description, and several pieces of data that
 tell Majordomo when an issue should be generated. Here is a brief description

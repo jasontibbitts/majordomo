@@ -26,28 +26,22 @@ the databases.  Each trigger consists of a name and a set of times
 during which the trigger is issued.  The data are separated by
 vertical bars ('|') or colons, as in:
   session  | monday(6,12,18), thursday(8)
-The six trigger names (bounce, checksum, log, post, session, token)
-and full syntax are described in "help configset triggers".
 
 Here are the available actions which can be triggered:
-bounce   - Expire subscriber data, such as bounces and vacation settings.
-checksum - Expire posted message checksums and message-id data.
-log      - Expire entries from the main log.
-post     - Expire data from the "post_limits" database.
-session  - Expire old session data.
-token    - Issue reminders and remove expired tokens and temporary passwords.
+ bounce   - Expire subscriber data, such as bounces and vacation settings.
+ checksum - Expire posted message checksums and message-id data.
+ delay    - Do things indicated by delay tokens or delay access rules.
+ log      - Expire entries from the main log.
+ post     - Expire data from the "post_limits" database.
+ session  - Expire old session data.
+ token    - Issue reminders and remove expired tokens and temporary passwords.
 
 When the software was installed, a cron job should have been set up to
 call mj_trigger periodically. The suggested setting is to do this on an
 hourly basis ONLY, to avoid doing the same thing multiple times. When
 that cron job triggers a check of various time-based actions, any
 action which is due or overdue will be performed. Digests are ALWAYS
-checked during the hourly trigger. The other triggers (bounce, checksum,
-log, post, session, token) are still checked during the daily trigger,
-if it is run by cron, for backward compatibility. The default "triggers"
-setting when the software was installed will also cause them to be checked
-daily, so any daily cron trigger should be turned off unless the
-"configset triggers" setting is emptied.
+checked during the hourly trigger.
 
 The times follow the same syntax as the "times" portion of the digests
 configuration setting.  There are several ways to indicate times:

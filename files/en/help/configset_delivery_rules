@@ -22,13 +22,11 @@ delivery and a batch size.  (This duplicates much of the functionality
 of bulk_mailer, for those familiar with it.) Smaller batch sizes will
 keep malformed addresses from killing the entire delivery, but the
 optimal batch size depends on your mail handler and net connections.
-The full syntax is described in "help configset delivery_rules".
 
 Each delivery destination should begin with a line containing either a
 regular expression, or the word ALL.  Addreses are compared against
 these in order; the first matching destination is chosen.  This
 enables you to choose which addresses go to which sets of hosts.
-
 The remaining lines (up until the next blank) should consist of
 various parameters which affect delivery. Parameters can be backup,
 hosts, maxaddrs, maxdomains, minseparate, numbatches, sort.

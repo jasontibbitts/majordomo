@@ -5,4 +5,3 @@ unfortunately somewhat complicated mechanism for precisely restricting
 access to Majordomo functions.
 
 Full syntax is described in "help configset access_rules".
-

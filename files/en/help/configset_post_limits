@@ -19,10 +19,10 @@ ENDTAG
 The "post_limits" variable controls the per-address or per-domain limits
 for posting messages to a list. The format of each line is:
   pattern | soft_limit_conditions[,more] | hard_limit_conditions[,more]
-The pattern will be matched against the e-mail address of the author
-of the message.  The conditions will be applied if the pattern matches.
-(See "help configset post_limits" for syntax details, and "help patterns"
-for details on regular expressions.)
+The pattern will be matched against the e-mail address of the author of
+the message. The conditions will be applied if the pattern matches.
+
+See "help patterns" for details on regular expressions.
 
 The two required conditions determine the "soft" and "hard" limits,
 respectively. Each set of conditions is a comma-separated list of ratios

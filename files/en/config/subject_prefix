@@ -1,6 +1,4 @@
 This word will be prefixed to the subject line, if it is not already
-in the subject.
-
-The subject text will undergo variable substitution as it is added to
-the message. See "help variables" for a list of substitutions which
-are supported.
+in the subject. The subject text will undergo variable substitution
+as it is added to the message. See "help variables" for a list of
+substitutions which are supported.

@@ -3,5 +3,6 @@ what will be logged.  The format of each line is:
   request | status | actions
 where request is any Mj2 command (like subscribe, lists, post, etc.),
 status is a comma separated list of "succeed, fail, stall, all", and
-actions is a comma separated list of "ignore, report, inform". The full
-syntax is described in "help configset inform".
+actions is a comma separated list of "ignore, report, inform".
+
+Full syntax is described in "help configset inform".

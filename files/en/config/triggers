@@ -3,5 +3,4 @@ the databases.  Each trigger consists of a name and a set of times
 during which the trigger is issued.  The data are separated by
 vertical bars ('|') or colons, as in:
   session  | monday(6,12,18), thursday(8)
-The six trigger names (bounce, checksum, log, post, session, token)
-and full syntax are described in "help configset triggers".
+Full syntax and possible names are described in "help configset triggers".
