@@ -75,7 +75,6 @@ exactly once, doing all the copying and checksumming that is required.
 
 package Mj::Resend;
 use Mj::Log;
-use IO::File;
 use strict;
 
 use vars qw($line $text $type);
@@ -85,6 +84,7 @@ use AutoLoader 'AUTOLOAD';
 __END__
 
 use Mj::MIMEParser;
+use IO::File;
 use File::Copy 'mv';
 sub post {
   my($self, $request) = @_;
@@ -187,6 +187,7 @@ sub post {
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
     $avars->{admin} || $avars->{bad_approval} || $avars->{invalid_from} || '';
   $avars->{'sublist'} = $request->{'sublist'} || '';
+  $avars->{'time'} = time;
 
   # Bounce if necessary: concatenate all possible reasons with \002, call
   # access_check with filename as arg1 and reasons as arg2.  Victim
@@ -304,6 +305,7 @@ since the message doesn''t actually have to pass through the mail system.
 Hmmm.
 
 =cut
+use IO::File;
 sub post_start  {
   my ($self, $request) = @_;
   my $log  = new Log::In 30, "$request->{'list'}";
@@ -411,16 +413,17 @@ sub post_done {
 }
 
 use Mj::MIMEParser;
+use Mj::Util qw(gen_pw);
 sub _post {
   my($self, $list, $user, $victim, $mode, $cmdline, $file, $arg2,
      $avars, $ent) = @_;
   my $log  = new Log::In 35, "$list, $user, $file";
 
   my(%ackinfo, %avars, %deliveries, %digest, @dfiles, @dtypes, @dup, @ent, 
-     @files, @refs, @tmp, @skip, $ack_attach, $ackfile, $arcdata, 
+     @files, @refs, @tmp, @skip, $ack_attach, $ackfile, $arcdata, $arcdate,
      $arcent, $archead, $date, $desc, $digests, $dissues, $dup,
      $exclude, $head, $i, $j, $msgnum, $nent, $precedence, $prefix, 
-     $replyto, $sender, $seqno, $subject, $sl, $subs, 
+     $rand, $replyto, $sender, $seqno, $subject, $sl, $subs, 
      $tmp, $tmpdir, $tprefix, $whereami);
 
   return (0, "Unable to access list $list.\n")
@@ -449,11 +452,11 @@ sub _post {
     $self->_list_config_set($list, 'sequence_number', $seqno+1);
     $self->_list_config_unlock($list);
     $log->message(35,'info',"Sending message $seqno");
-    $self->{sessionfh}->print("Post: sequence #$seqno.\n");
+    print {$self->{sessionfh}} "Post: sequence #$seqno.\n";
   }
   else {
     $log->message(35,'info',"Sending message to $sl");
-    $self->{sessionfh}->print("Post: auxiliary list $sl.\n");
+    print {$self->{sessionfh}} "Post: auxiliary list $sl.\n";
   }
 
   # trick: we take a pre-parsed entity as an extra argument; if it's
@@ -505,6 +508,11 @@ sub _post {
     $archead->delete($i);
   }
 
+  while (1) {
+    $rand = gen_pw(6);
+    last unless (-f "$tmpdir/mjr.$$.$rand.arc");
+  }
+
   # Pass to archiver; first extract all references
   $tmp = $archead->get('references') || '';
   while ($tmp =~ s/<([^>]*)>//) {
@@ -526,6 +534,20 @@ sub _post {
   $subject =~ /(.*)/; $subject = $1;
   $date = $archead->get('date') || scalar localtime; chomp $date;
   $date =~ /(.*)/; $date = $1;
+  $arcdate = $self->_list_config_get($list, 'archive_date');
+  if ($arcdate eq 'arrival') {
+    $arcdate = $avars{'time'};
+    # Untaint
+    if ($arcdate =~ /^(\d+)$/) {
+      $arcdate = $1;
+    }
+    else {
+      $arcdate = time;
+    }
+  }
+  else {
+    $arcdate = time;
+  }
 
   # XXX X-no-archive handling should be implemented here. 
   # (alter sublist or adjust data)
@@ -535,7 +557,7 @@ sub _post {
      {
       'body_lines' => $avars{lines},
       'bytes'      => (stat($file))[7],
-      'date'       => time,
+      'date'       => $arcdate,
       'from'       => "$user", # Stringify on purpose
       'quoted'     => $avars{quoted_lines},
       'refs'       => join("\002", @refs),
@@ -551,7 +573,7 @@ sub _post {
     $archead->replace('X-Sequence-Number', $seqno) unless $sl;
 
     # Print out the archive copy
-    $tmp = "$tmpdir/mjr.$$.arc";
+    $tmp = "$tmpdir/mjr.$$.$rand.arc";
     open FINAL, ">$tmp" ||
       $::log->abort("Couldn't open archive output file, $!");
     $arcent->print(\*FINAL);
@@ -645,7 +667,7 @@ sub _post {
 
     # Print delivery messages to files
     for ($i = 0; $i < @ent; $i++) {
-      $files[$i] = "$tmpdir/mjr.$$.final$i";
+      $files[$i] = "$tmpdir/mjr.$$.$rand.final$i";
       open FINAL, ">$files[$i]" ||
         $::log->abort("Couldn't open final output file, $!");
       $ent[$i]->print(\*FINAL);
@@ -882,6 +904,7 @@ This computes various pieces of data about the poster:
   whether the user has the moderate or nopost flags set
 
 =cut
+use Mj::Util qw(re_match);
 sub _check_poster {
   my $self    = shift;
   my $list    = shift;
@@ -919,7 +942,7 @@ sub _check_poster {
   # or soft limit has been reached.  Stop after the first
   # rule whose pattern matches the address.
   for ($i = 0 ; $i <= $#$rules ; $i++) {
-    if (Majordomo::_re_match($rules->[$i]->{'pattern'}, $user->canon)) {
+    if (re_match($rules->[$i]->{'pattern'}, $user->canon)) {
       ($ok, $mess) = $self->_within_limits($list, $data, $rules->[$i]->{'soft'},
                                           $rules->[$i]->{'hard'});
       if ($ok) {
@@ -1132,6 +1155,7 @@ sub _check_body {
 }
 
 use Digest::SHA1;
+use Mj::Util qw(re_match);
 sub _r_ck_body {
   my ($self, $list, $ent, $reasons, $avars, $safe, $qreg, $mcode, $tcode,
       $inv, $max, $maxlen, $part, $first) = @_;
@@ -1188,7 +1212,7 @@ sub _r_ck_body {
     # Calculate a few message metrics
     $avars->{lines}++;
     $avars->{body_length} += length($text);
-    $avars->{quoted_lines}++ if Majordomo::_re_match($qreg, $text);
+    $avars->{quoted_lines}++ if re_match($qreg, $text);
     $line++;
   }
 
