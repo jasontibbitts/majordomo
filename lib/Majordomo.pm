@@ -3477,21 +3477,19 @@ sub reject {
 
     # For confirmation tokens, a rejection is a serious thing.  We send a
     # message to the victim with important information.
-    # The explanation could be a file or a string.  
-    # If it contains embedded, unescaped white space, 
-    # treat it as a file.  This must be done for every
-    # token because the reply file sent may vary from list to
-    # list.
     $reason = $rfile = '';
     if ($data->{'type'} eq 'confirm') {
       $rfile = 'token_reject';
     }
     # XXX Allowing a file name to be used gives read access to any file
     # in the list's file space to any moderator of the list.
+    # 
+    # The explanation for a consult rejection could be a file or a string.  
+    # If it contains no white space, treat it as a file.  
     else {
       $rfile = 'ack_rejection';
-      if (defined $request->{'xplanation'}) {
-        if ($request->{'xplanation'} !~ /\S[^\\]\s\S/) {
+      if (length $request->{'xplanation'}) {
+        if ($request->{'xplanation'} =~ /^\S+$/) {
           $rfile = $request->{'xplanation'};
         }
         else {
@@ -3537,17 +3535,17 @@ sub reject {
          'WHOAMI'     => $self->_list_config_get($data->{'list'}, 'whoami'),
         };
    
-    ($file, %file) = $self->_list_file_get($data->{'list'}, $rfile, $repl);
-    unless (defined $file) {
-      ($file, %file) = $self->_list_file_get($data->{'list'}, "token_reject", $repl);
-    }
-    $desc = $self->substitute_vars_string($file{'description'}, $repl);
    
     $victim = new Mj::Addr($data->{'victim'});  
     if ($data->{'type'} eq 'confirm' 
           or
         $self->{'lists'}{$data->{'list'}}->flag_set('ackall', $victim)) 
     {
+      ($file, %file) = $self->_list_file_get($data->{'list'}, $rfile, $repl);
+      unless (defined $file) {
+        ($file, %file) = $self->_list_file_get($data->{'list'}, "token_reject", $repl);
+      }
+      $desc = $self->substitute_vars_string($file{'description'}, $repl);
         
       # Send it off if type confirm or required by settings
       $ent = build MIME::Entity
