@@ -130,7 +130,11 @@ sub post {
   $thead->decode;
   $thead->unfold;
   $::log->out;
-  $reasons = []; $avars = {};
+  $reasons = []; 
+  $avars = { 
+             'taboo'    => 0,
+             'admin'    => 0,
+           };
   $user =  $head->get('from') ||
         $head->get('apparently-from') || 'unknown@anonymous';
   chomp $user;

@@ -1,3 +1,8 @@
+2004-08-09  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Resend.pm:  (post)  Initialize the admin and
+	taboo access variables.
+
 2004-08-03  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Resend.pm:  (do_digests)  Bugfix:  Override the
