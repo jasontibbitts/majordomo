@@ -4,6 +4,9 @@
 	directory unless "noarchive" mode is specified.  Generate
 	a password randomly.  Send the "new_list" file to the 
 	owner unless "nowelcome" mode was specified.
+	Add "destroy" mode, which will remove a list by renaming
+	its directory, but only if there are no subscribers.
+	Destroy mode also regenerates the aliases.
 
 2000-08-05  Michael Yount <csf@moscow.com>
 

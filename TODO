@@ -21,8 +21,6 @@ Bugs?
 -----
 
 Messages with empty first part always checksum the same?
-The interface can pass in bad lists and nothing checks them.  Explosions
-  result.
 The interface can pass bad passwords to some functions (config_get_vars)
   and get a result indistinguishable from using no password. 
 Untainting sometimes happens in the wrong place; in a C/S model, we won't
@@ -42,11 +40,6 @@ Doc changes needed
 
 Top of the list 
 ---------------
-
-Implement naive list deletion functionality:
-  createlist-delete listname
-
-  Only delete if no remaining subscribers.
 
 List converter:
 

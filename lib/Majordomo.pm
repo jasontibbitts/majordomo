@@ -157,8 +157,10 @@ sub new {
   }
 
   $self->{backend} = ''; # Suppress warnings
-  $self->_make_list('GLOBAL');
-  $self->_make_list('DEFAULT');
+  $log->abort("Can't create GLOBAL list: $!")
+    unless $self->_make_list('GLOBAL');
+  $log->abort("Can't create DEFAULT list: $!")
+    unless $self->_make_list('DEFAULT');
   $self->{backend} = $self->_site_config_get('database_backend');
   $self->{alias} = new Mj::AliasList("$self->{ldir}/GLOBAL/_aliases",
 				     $self->{backend});
@@ -479,7 +481,7 @@ sub get_all_lists {
     }
 
     # Else do the full check
-    $self->_make_list($list);
+    next unless $self->_make_list($list);
     if ($self->list_access_check($passwd, '', 'lists',
 				 $list, 'advertise', $user))
       {
@@ -1031,7 +1033,7 @@ sub list_config_get {
   my $log = new Log::In 170, "$list, $var";
   my (@out, $i, $ok);
 
-  $self->_make_list($list);
+  return unless $self->_make_list($list);
 
   # Anyone can see it if it is visible.
   if ($self->config_get_visible($var)) {
@@ -1068,7 +1070,8 @@ sub list_config_set {
   my $log = new Log::In 150, "$list, $var";
   my (@groups, $i, $mess, $ok, $global_only);
 
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
 
   if (!defined $passwd) {
     return (0, "No passwd supplied.\n");
@@ -1140,7 +1143,8 @@ default.
 sub list_config_set_to_default {
   my ($self, $user, $passwd, $list, $var) = @_;
   my (@groups, @out, $ok, $mess, $level);
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
   
   if (!defined $passwd) {
     $self->inform($list, 'configdefault', $user, $user, "configdefault
@@ -1211,7 +1215,7 @@ sub _global_config_get {
   my $var  = shift;
   my $log = new Log::In 150, "$var";
 
-  $self->_make_list('GLOBAL');
+  return unless $self->_make_list('GLOBAL');
   $self->{'lists'}{'GLOBAL'}->config_get($var);
 }
 
@@ -1230,7 +1234,7 @@ sub _list_config_get {
   my $list = shift;
   
   $list = 'GLOBAL' if $list eq 'ALL';
-  $self->_make_list($list);
+  return unless $self->_make_list($list);
   $self->{'lists'}{$list}->config_get(@_);
 }
 
@@ -1241,7 +1245,7 @@ sub _list_config_set {
   my (@out, $type);
 
   $list = 'GLOBAL' if $list eq 'ALL';
-  $self->_make_list($list);
+  return unless $self->_make_list($list);
   @out = $self->{'lists'}{$list}->config_set($var, @_);
 
   $type = $self->config_get_type($var);
@@ -1259,7 +1263,7 @@ sub _list_config_lock {
   my $list = shift;
   
   $list = 'GLOBAL' if $list eq 'ALL';
-  $self->_make_list($list);
+  return unless $self->_make_list($list);
   $self->{'lists'}{$list}->config_lock(@_);
 }
 
@@ -1268,7 +1272,7 @@ sub _list_config_unlock {
   my $list = shift;
   
   $list = 'GLOBAL' if $list eq 'ALL';
-  $self->_make_list($list);
+  return unless $self->_make_list($list);
   $self->{'lists'}{$list}->config_unlock(@_);
 }
 
@@ -1318,7 +1322,7 @@ sub config_get_intro {
   my $self = shift;
   my $list = shift;
   my $var  = shift;
-  $self->_make_list($list);
+  return unless $self->_make_list($list);
   $self->{'lists'}{$list}->config_get_intro($var);
 }
 
@@ -1350,7 +1354,7 @@ sub config_get_whence {
   my $self = shift;
   my $list = shift;
   my $var  = shift;
-  $self->_make_list($list);
+  return unless $self->_make_list($list);
   $self->{'lists'}{$list}->config_get_whence($var);
 }
 
@@ -1369,7 +1373,7 @@ sub config_get_default {
   my ($self, $user, $passwd, $list, $var) = @_;
   my ($i, $ok);
 
-  $self->_make_list($list);
+  return unless $self->_make_list($list);
 
   # Make sure we have a real user before checking passwords
   $user = new Mj::Addr($user);
@@ -1407,7 +1411,7 @@ sub config_get_vars {
   $user = new Mj::Addr($user);
   $lvar = lc($var);
 
-  $self->_make_list($list);
+  return unless $self->_make_list($list);
 
   if ($var eq 'ALL') {
     $ok = $self->validate_passwd($user, $passwd, $list, "config_ALL");
@@ -1488,7 +1492,8 @@ sub _get {
   my $log = new Log::In 35, "$list, $name";
   my (%data, $cset, $desc, $enc, $file, $mess, $nname, $ok, $type);
 
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
 
   # Untaint the file name
   $name =~ /(.*)/; $name = $1;
@@ -1606,7 +1611,8 @@ sub _faq {
   my $log = new Log::In 35, "$list";
   my ($file, $subs);
 
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
 
   $subs =
     {VERSION  => $Majordomo::VERSION,
@@ -1712,7 +1718,8 @@ sub _info {
   my $log = new Log::In 35, "$list";
   my ($file, $subs);
 
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
 
   $subs =
     {VERSION  => $Majordomo::VERSION,
@@ -1761,7 +1768,8 @@ sub _intro {
   my $log = new Log::In 35, "$list";
   my ($file, $subs);
 
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
 
   $subs =
     {VERSION  => $Majordomo::VERSION,
@@ -1902,8 +1910,6 @@ sub put_start {
               $request->{'xdesc'}, $request->{'ocontype'}, $request->{'ocset'}, 
               $request->{'oencoding'}, $request->{'olanguage'}";
   
-  $self->_make_list($request->{'list'});
-
   # Check the password
   ($ok, $mess) =
     $self->list_access_check($request->{'password'}, $request->{'mode'}, 
@@ -1930,7 +1936,8 @@ sub _put {
   ($type, $cset, $enc, $lang) = split("\002", $stuff);
 
   my $log = new Log::In 35, "$list, $file, $subj, $type, $cset, $enc, $lang";
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
 
   # If given an "absolute path", trim it, else stick "public/" onto it
   unless ($file =~ s!^/!!) {
@@ -2002,7 +2009,7 @@ sub _request_response {
   my (%file, $cset, $desc, $enc, $ent, $file, $list_own, $majord,
       $majord_own, $mess, $sender, $site, $subst, $type, $whereami);
 
-  $self->_make_list($list);
+  return unless $self->_make_list($list);
 
   ($file, %file) = $self->_list_file_get($list, 'request_response');
   return unless $file;
@@ -2049,8 +2056,6 @@ sub index {
   my ($ok, $mess, $root);
   my $log = new Log::In  30, "$request->{'list'}, $request->{'path'}";
   
-  $self->_make_list($request->{'list'});
-
   # Are we rooted?  Special case '/help', so index GLOBAL /help works.
   $root = 1 if $request->{'path'} =~ m!^/! && $request->{'path'} ne '/help';
 
@@ -2074,7 +2079,8 @@ sub _index {
   my $log = new Log::In 35, "$list, $dir";
   my ($nodirs, $recurse);
 
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
 
   # If given an "absolute path", trim it, else stick "public/" onto it
   unless ($dir =~ s!^/!!) {
@@ -2126,7 +2132,7 @@ sub _list_file_get {
   my (%paths, @langs, @out, @paths, @search, @share, $ok, $d, $f, $i, $j,
       $l, $p, $tmp);
 
-  $self->_make_list($list);
+  return unless $self->_make_list($list);
   @search = $self->_list_config_get($list, 'file_search');
 
   $lang ||= $self->_list_config_get($list, 'default_language'); 
@@ -2244,7 +2250,7 @@ Calls the lists fs_put function.
 sub _list_file_put {
   my $self = shift;
   my $list = shift;
-  $self->_make_list($list);
+  return unless $self->_make_list($list);
   $self->{'lists'}{$list}->fs_put(@_);
 }
 
@@ -2257,7 +2263,7 @@ sub _list_file_delete {
   my $self  = shift;
   my $list  = shift;
   my $log = new Log::In 150, "$list, $_[0]";
-  $self->_make_list($list);
+  return unless $self->_make_list($list);
   $self->{'lists'}{$list}->fs_delete(@_);
 }
 
@@ -2867,7 +2873,8 @@ sub _archive {
   my ($self, $list, $user, $vict, $mode, $cmdline, $args) = @_;
   my $log = new Log::In 30, "$list, $args";
   return 1 unless $args;
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
   my (@msgs) = $self->{'lists'}{$list}->archive_expand_range(0, $args);
   return (1, @msgs);
 }
@@ -2880,6 +2887,8 @@ sub archive_chunk {
   if (scalar(@$result) <= 0) {
     return (1, "No messages were found which matched your request.\n");
   }
+  return (0, "Unable to initialize list $request->{'list'}.\n")
+    unless $self->_make_list($request->{'list'});
   $list = $self->{'lists'}{$request->{'list'}};
 
  
@@ -2938,8 +2947,6 @@ sub auxadd {
   my $log = new Log::In 30, "$request->{'list'}, $request->{'auxlist'}";
   my (@out, $addr, $ok, $mess);
 
-  $self->_make_list($request->{'list'});
-
   return (0, "Illegal auxiliary list name \"$request->{'auxlist'}\".")
     unless $self->legal_list_name($request->{'auxlist'});
 
@@ -2965,7 +2972,8 @@ sub _auxadd {
   my ($self, $list, $requ, $victim, $mode, $cmdline, $name) = @_;
   my $log = new Log::In 35, "$name, $victim";
 
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
 
   # I got the internal call's arguments backwards.
   my($ok, $data) =
@@ -2988,8 +2996,6 @@ sub auxremove {
   my ($self, $request) = @_;
   my (@removed, @out, $error, $ok);
   my $log = new Log::In 30, "$request->{'list'}, $request->{'auxlist'}";
-
-  $self->_make_list($request->{'list'});
 
   return (0, "Illegal auxiliary list name \"$request->{'auxlist'}\".")
     unless $self->legal_list_name($request->{'auxlist'});
@@ -3023,7 +3029,8 @@ sub _auxremove {
   my $log = new Log::In 35, "$list, $vict";
   my(@out, @removed, $key, $data);
 
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
 
   @removed = $self->{'lists'}{$list}->aux_remove($subl, $mode, $vict);
 
@@ -3205,7 +3212,7 @@ sub _changeaddr {
 
   # Remove from all subscribed lists
   for $l (split("\002", $data->{'lists'})) {
-    $self->_make_list($l);
+    next unless $self->_make_list($l);
     ($lkey, $ldata) = $self->{'lists'}{$l}->remove('', $key);
     if ($ldata) {
       $ldata->{'fulladdr'} = $requ->full;
@@ -3310,8 +3317,34 @@ sub _createlist {
       unless $mode =~ /noheader/;
   }
 
+  # Destroy mode: remove the list, but only if it has no subscribers.
+  if ($mode =~ /destroy/) {
+    return (0, "The GLOBAL and DEFAULT lists cannot be destroyed.\n")
+      if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
+    $desc = $list;
+    return (0, "The $desc list does not exist.\n")
+      # valid_list calls _make_list and untaints the name
+      unless ($list = $self->valid_list($desc));
+    return (0, "Unable to open subscriber list for $list.\n")
+      unless $self->{'lists'}{$list}->get_start;
+    if ($self->{'lists'}{$list}->get_chunk(1)) {
+      $self->{'lists'}{$list}->get_done;
+      return (0, "All addresses must be unsubscribed before destruction.\n");
+    }
+    $self->{'lists'}{$list}->get_done;
+    # Prefix a comma to the list directory name.  Suffix a version number.
+    for ($desc = 0; ; $desc++) {
+      last unless (-d "$self->{'ldir'}/,$list.$desc");
+    }
+    rename("$self->{'ldir'}/$list", "$self->{'ldir'}/,$list.$desc");
+    return (0, "Unable to remove all of the files for $list.\n")
+      if (-d "$self->{'ldir'}/$list");
+    delete $self->{'lists'}{$list};
+    $mess .= "The $list list was destroyed.\n";
+  }
+
   # Should the MTA configuration be regenerated?
-  if ($mode =~ /regen/) {
+  if ($mode =~ /regen/ or $mode =~ /destroy/) {
     unless ($mta && $Mj::MTAConfig::supported{$mta}) {
       return (1, "Unsupported MTA $mta, can't regenerate configuration.\n");
     }
@@ -3325,9 +3358,10 @@ sub _createlist {
       $aliases = $self->_list_config_get($i, 'aliases');
       $sublists = '';
       if ($aliases =~ /A/) {
-        $self->_make_list($i);
-        $self->{'lists'}{$i}->_fill_aux;
-        $sublists = join "\002", keys %{$self->{'lists'}{$i}->{'auxlists'}};
+        if ($self->_make_list($i)) {
+          $self->{'lists'}{$i}->_fill_aux;
+          $sublists = join "\002", keys %{$self->{'lists'}{$i}->{'auxlists'}};
+        }
       }
       push @{$args{'lists'}}, [$i, $debug, $aliases, $sublists];
     }
@@ -3371,6 +3405,7 @@ sub _createlist {
       $self->{'lists'}{$list}->fs_mkdir('public/archive', 'List archives');
     }
 
+    # Send an introduction to the list owner.
     unless ($mode =~ /nowelcome/) {
       $sender = $self->_global_config_get('sender');
 
@@ -3413,7 +3448,7 @@ sub _createlist {
   {
     no strict 'refs';
     $mess = &{"Mj::MTAConfig::$mta"}(%args, 'list' => $list);
-    $mess ||= "$list was created with owner $owner and password $pw.\n";
+    $mess ||= "The $list list was created with owner $owner and password $pw.\n";
   }
 
   return (1, $mess);
@@ -3458,7 +3493,8 @@ sub _digest {
   $d = [$digest];
   $d = undef if $digest eq 'ALL';
 
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
 
   # check, force: call do_digests
   if ($mode =~ /(check|force)/) {
@@ -3913,8 +3949,9 @@ sub _rekey {
   # loop over all lists
   $self->_fill_lists;
   for $list (keys(%{$self->{lists}})) {
-    $self->_make_list($list);
-    $self->{'lists'}{$list}->rekey;
+    if ($self->_make_list($list)) {
+      $self->{'lists'}{$list}->rekey;
+    }
   }
   return (1, '');
 }
@@ -3986,7 +4023,8 @@ sub _report {
       return (0, "Unable to parse date $date.\n");
     }
   }
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
 
   $file = "$self->{'ldir'}/GLOBAL/_log";
   
@@ -4135,7 +4173,9 @@ sub set {
     return ($ok, $mess);
   }
 
-  $self->_make_list($request->{'list'});
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
+
   $self->_set($request->{'list'}, $request->{'user'}, $request->{'victim'}, 
               $request->{'mode'}, $request->{'cmdline'}, $request->{'setting'},
               '', $request->{'auxlist'});
@@ -4249,7 +4289,7 @@ sub _show {
 
   # Lists
   for $i (split("\002", $data->{'lists'})) {
-    $self->_make_list($i);
+    next unless $self->_make_list($i);
 
     # Get membership info with no aliasing (since we already did it all)
     (undef, $data) = $self->{'lists'}{$i}->get_member($addr);
@@ -4301,7 +4341,6 @@ sub showtokens {
       return (0, "$request->{'action'} is not a legal command."); 
     }
   }
-  $self->_make_list($request->{'list'});
   ($ok, $mess) =
     $self->list_access_check($request->{'password'}, $request->{'mode'}, 
                              $request->{'cmdline'}, $request->{'list'}, 
@@ -4367,8 +4406,6 @@ sub subscribe {
   
   my $log = new Log::In  30, "$request->{'list'}, $request->{'victim'}, $request->{'mode'}";
   
-  $self->_make_list($request->{'list'});
-
   # Do a list_access_check here for the address; subscribe if it succeeds.
   # The access mechanism will automatically generate failure notices and
   # confirmation tokens if necessary.
@@ -4407,7 +4444,8 @@ sub _subscribe {
   my $log   = new Log::In 35, "$list, $vict";
   my ($ok, $classarg, $classarg2, $cstr, $data, $exist, $rdata, $welcome);
 
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
 
   # Gross.  We've overloaded the mode string to specify subscriber
   # flags as well, and that mechanism is reasonably nasty as is.  But
@@ -4516,7 +4554,7 @@ sub trigger {
 
       # GLOBAL and DEFAULT never have duplicate databases or members
       next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
-      $self->_make_list($list);
+      next unless $self->_make_list($list);
 
       # Expire checksum and message-id databases
       $self->{'lists'}{$list}->expire_dup;
@@ -4533,7 +4571,7 @@ sub trigger {
     for $list (keys %{$self->{'lists'}}) {
       # Nothing to do to GLOBAL
       next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
-      $self->_make_list($list);
+      next unless $self->_make_list($list);
 
       # Call digest-check; this will do whatever is necessary to tickle the
       # digests.
@@ -4642,7 +4680,7 @@ sub _unregister {
 
     # Remove from all subscribed lists
     for $l (split("\002", $data->{'lists'})) {
-      $self->_make_list($l);
+      next unless $self->_make_list($l);
       $self->{'lists'}{$l}->remove('', $key);
     }
     @aliases = $self->_alias_reverse_lookup($key);
@@ -4671,7 +4709,6 @@ sub unsubscribe {
   my $log = new Log::In 30, "$request->{'list'}";
   my (@out, @removed, $mismatch, $ok, $regexp, $error);
 
-  $self->_make_list($request->{'list'});
   $addr = $request->{'victim'};
   
   if ($request->{'mode'} =~ /regex/) {
@@ -4714,7 +4751,8 @@ sub _unsubscribe {
   my $log = new Log::In 35, "$list, $vict";
   my(@out, @removed, $key, $data);
 
-  $self->_make_list($list);
+  return (0, "Unable to initialize list $list.\n")
+    unless $self->_make_list($list);
 
   (@removed) = $self->{'lists'}{$list}->remove($mode, $vict);
 
@@ -4821,7 +4859,7 @@ sub which {
     next unless $max_list_hits;
 
     # We are authenticated and ready to search.
-    $self->_make_list($list);
+    next unless $self->_make_list($list);
     $self->{'lists'}{$list}->get_start;
     $hits = 0;
 
@@ -4921,7 +4959,8 @@ sub _who {
     }
   }
   else {
-    $self->_make_list($list);
+    return (0, "Unable to initialize list $list.\n")
+      unless $self->_make_list($list);
     if (length $sublist) {
       return (0, "Unknown auxiliary list name \"$sublist\".")
         unless ($ok = $self->{'lists'}{$list}->valid_aux($sublist));
