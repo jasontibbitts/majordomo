@@ -1,3 +1,16 @@
+2001-08-16  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Remove spaces from list names.
+
+	* lib/Majordomo.pm:  (_createlist)  Bugfix:  if a list
+	exists, use its settings to determine the parameters
+	for alias creation.  Otherwise, use both the DEFAULT list
+	and any default templates.
+	Bugfix:  Display the aliases if createlist-nocreate is used
+	and the maintain_config option is turned on.
+	(who_start)  Correct the second list validity test for
+	the who-common command.  Thanks to Roger Klorese.
+
 2001-08-16  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Majordomo.pm (_createlist): Parse digests variable from

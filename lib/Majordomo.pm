@@ -1274,7 +1274,7 @@ sub _reg_add {
   my $addr = shift;
   my %args = @_;
   my $log = new Log::In 200;
-  my (@lists, $data, $existing);
+  my (@lists, $data, $existing, $i);
   
   # Look up the user
   $data = $self->{reg}->lookup($addr->canon);
@@ -1304,7 +1304,7 @@ sub _reg_add {
 
   # Copy arguments 
   if (!$existing || $args{'update'}) {
-    for my $i (qw(regtime password language lists flags bounce warnings
+    for $i (qw(regtime password language lists flags bounce warnings
 	       data1 data2 data3 data4 data5)) {
       $data->{$i} = $args{$i} if $args{$i};
     }
@@ -1351,7 +1351,7 @@ sub _reg_lookup {
   my $addr = shift;
   my $reg  = shift;
   my $cache = shift;
-  my ($subs, $tmp);
+  my ($i, $subs, $tmp);
 
   return undef unless $addr->isvalid;
   return undef if $addr->isanon;
@@ -1365,7 +1365,7 @@ sub _reg_lookup {
   return undef unless $reg;
 
   $subs = {};
-  for my $i (split("\002", $reg->{'lists'})) {
+  for $i (split("\002", $reg->{'lists'})) {
     $subs->{$i} = 1;
   }
   # Use this cached data for non-critical things only.  Don't try to modify
@@ -2200,7 +2200,7 @@ sub config_get_whence {
   my $list = shift;
   my $sublist = shift;
   my $var  = shift;
-  my ($source);
+  my $source;
 
   return unless $self->_make_list($list);
   return unless $self->_list_set_config($list, $sublist);
@@ -4283,69 +4283,29 @@ sub _createlist {
   $list ||= '';
   my $log = new Log::In 35, "$mode, $list";
 
-  my (%args, %data, @lists, @owners, @tmp, $aliases, $bdir, $desc,
-      $digests, $dir, $dom, $debug, $ent, $file, $i, $j, $k, $mess, $mta,
-      $mtaopts, $ok, $priority, $pw, $rmess, $sender, $setting, $shpass,
-      $sublists, $subs, $who);
+  my (%args, %data, @defaults, @lists, @owners, @tmp, $aliases, $bdir,
+      $desc, $digests, $dir, $dom, $debug, $ent, $file, $i, $j, $k, 
+      $mess, $mta, $mtaopts, $ok, $priority, $pw, $rmess, $sender, 
+      $setting, $shpass, $sources, $sublists, $subs, $who);
 
-  unless ($mode =~ /regen|destroy/) {
-    @tmp = split "\002\002", $owner;
-    return (0, "No owner address was specified.\n") unless @tmp;
-    for $owner (@tmp) {
-      $i = new Mj::Addr($owner);
-      return (0, "The owner address \"$owner\" is invalid.\n")
-        unless $i;
-      ($ok, $mess) = $i->valid;
-      return (0, "The owner address \"$owner\" is invalid.\n$mess")
-        unless $ok;
-      push @owners, $i;
-    }
-  }
-
-  $pw    = $self->_global_config_get('password_min_length');
-  $pw    = &gen_pw($pw);
   $mta   = $self->_site_config_get('mta');
   $dom   = $self->{'domain'};
+  $pw    = $self->_global_config_get('password_min_length');
+  $pw    = &gen_pw($pw);
   $bdir  = $self->_site_config_get('install_dir');
   $bdir .= "/bin";
   $who   = $self->_global_config_get('whoami');
   $who   =~ s/@.*$// if $who; # Just want local part
   $mtaopts = $self->_site_config_get('mta_options');
 
-  $aliases = $self->_list_config_get('DEFAULT', 'aliases');
-  unless (ref $aliases eq 'HASH') {
-    $aliases = $self->_list_config_get('DEFAULT', 'aliases', 1);
-    # Convert aliases and flags from old to new format
-    @tmp = ();
-    for ($j = 0 ; $k < length $aliases ; $k++) {
-      $setting = substr $aliases, $j, 1;
-      push @tmp, $Mj::List::alias{$setting};
-    }
-    $self->_list_config_set('DEFAULT', 'aliases', @tmp);
-    $self->_list_config_unlock('DEFAULT');
-    $aliases = $self->_list_config_get('DEFAULT', 'aliases');
-  }
-
-  $digests = $self->_list_config_get('DEFAULT', 'digests');
-  delete($digests->{'default_digest'});
-
   %args = ('bindir'     => $bdir,
 	   'topdir'     => $self->{topdir},
 	   'domain'     => $dom,
 	   'whoami'     => $who,
 	   'options'    => $mtaopts,
-	   'aliases'    => {%$aliases},
-	   'digests'    => [keys(%{$digests})],
 	   'queue_mode' => $self->_site_config_get('queue_mode'),
-	   'priority'   => $self->_list_config_get('DEFAULT', 'priority') || 0,
 	   'domain_priority' => $self->_global_config_get('priority') || 0,
 	  );
-
-  unless ($mtaopts->{'maintain_config'}) {
-    # We know that we'll give back instructions, so pull out the header.
-    $mess = $Mj::MTAConfig::header{$mta} 
-      unless $mode =~ /noheader/;
-  }
 
   # Destroy mode: remove the list, but only if it has no subscribers.
   if ($mode =~ /destroy/) {
@@ -4400,7 +4360,7 @@ sub _createlist {
     $args{'regenerate'} = 1;
     $args{'lists'} = [];
     $self->_fill_lists;
-    for my $i (keys %{$self->{'lists'}}) {
+    for $i (keys %{$self->{'lists'}}) {
       $debug = $self->_list_config_get($i, 'debug');
       $aliases = $self->_list_config_get($i, 'aliases');
       $priority = $self->_list_config_get($i, 'priority') || 0;
@@ -4420,10 +4380,10 @@ sub _createlist {
 
       # Extract the list of sublists that should have aliases generated
       $sublists = [];
-      if (defined $aliases->{'auxiliary'}) {
+      if (exists $aliases->{'auxiliary'}) {
         if ($self->_make_list($i)) {
           @tmp = $self->_list_config_get($i, 'sublists');
-          for my $j (@tmp) {
+          for $j (@tmp) {
             ($j, undef) = split /[\s:]+/, $j, 2;
             push @{$sublists}, $j;
           }
@@ -4448,6 +4408,24 @@ sub _createlist {
     }
     $mess ||= "MTA configuration for $dom regenerated.\n";
     return (1, $mess);
+  }
+
+  @tmp = split "\002\002", $owner;
+  return (0, "No owner address was specified.\n") unless @tmp;
+  for $owner (@tmp) {
+    $i = new Mj::Addr($owner);
+    return (0, "The owner address \"$owner\" is invalid.\n")
+      unless $i;
+    ($ok, $mess) = $i->valid;
+    return (0, "The owner address \"$owner\" is invalid.\n$mess")
+      unless $ok;
+    push @owners, $i;
+  }
+
+  unless ($mtaopts->{'maintain_config'}) {
+    # We know that we'll give back instructions, so pull out the header.
+    $mess = $Mj::MTAConfig::header{$mta} 
+      unless $mode =~ /noheader/;
   }
 
   # Should a list be created?
@@ -4520,6 +4498,83 @@ sub _createlist {
       }
     }
   }
+  else {
+    # In "nocreate" mode, display the aliases instead of adding them
+    # to the file.
+    $args{'options'}{'maintain_config'} = 0;
+  }
+
+  ($i) = $self->valid_list($list);
+  # If the list already exists, use its settings to determine
+  # the aliases.
+  if ($i) {
+    $aliases = $self->_list_config_get($list, 'aliases');
+
+    $digests = $self->_list_config_get($list, 'digests');
+    delete($digests->{'default_digest'});
+
+    $sublists = [];
+    if (exists $aliases->{'auxiliary'}) {
+      @tmp = $self->_list_config_get($list, 'sublists');
+      for $i (@tmp) {
+        ($i, undef) = split /[\s:]+/, $i, 2;
+        push (@{$sublists}, $i) if (length($i));
+      }
+    }
+
+    $priority = $self->_list_config_get($list, 'priority');
+    $debug = $self->_list_config_get($list, 'debug');
+  }
+  # otherwise, use the DEFAULT list and templates to determine
+  # the correct values.
+  else {
+    $sources = {
+                'aliases'  => 'MAIN',
+                'debug'    => 'MAIN',
+                'digests'  => 'MAIN',
+                'priority' => 'MAIN',
+                'sublists' => 'MAIN',
+               };
+
+    @defaults = $self->_list_config_get('DEFAULT', 'config_defaults');
+    for $i (keys %$sources) {
+      for $j (@defaults) {
+        if ($self->config_get_whence('DEFAULT', $j, $i) eq 'MAIN') {
+          $sources->{$i} = $j;
+          last;
+        }
+      }
+    }
+
+    $self->_list_set_config('DEFAULT', $sources->{'aliases'});
+    $aliases = $self->_list_config_get('DEFAULT', 'aliases');
+
+    $self->_list_set_config('DEFAULT', $sources->{'digests'});
+    $digests = $self->_list_config_get('DEFAULT', 'digests');
+    delete($digests->{'default_digest'});
+
+    $sublists = [];
+    if (exists $aliases->{'auxiliary'}) {
+      $self->_list_set_config('DEFAULT', $sources->{'sublists'});
+      @tmp = $self->_list_config_get('DEFAULT', 'sublists');
+      for $i (@tmp) {
+        ($i, undef) = split /[\s:]+/, $i, 2;
+        push (@{$sublists}, $i) if (length($i));
+      }
+    }
+
+    $self->_list_set_config('DEFAULT', $sources->{'priority'});
+    $priority = $self->_list_config_get('DEFAULT', 'priority');
+    $self->_list_set_config('DEFAULT', $sources->{'debug'});
+    $debug = $self->_list_config_get('DEFAULT', 'debug');
+    $self->_list_set_config('DEFAULT', 'MAIN');
+  }
+
+  $args{'aliases'}  = {%$aliases};
+  $args{'debug'}    = $debug;
+  $args{'digests'}  = [keys(%{$digests})];
+  $args{'priority'} = $priority || 0;
+  $args{'sublists'} = $sublists;
 
   {
     no strict 'refs';
@@ -6662,9 +6717,10 @@ sub who_start {
 
   # Common mode allows two subscriber lists to be compared.
   if ($request->{'mode'} =~ /common/) {
-    unless (($list) = $self->valid_list($request->{'list2'}, 0, 1)) {
+    ($list) = $self->valid_list($request->{'list2'}, 0, 1);
+    unless ($list) {
       $log->out("invalid second list \"$request->{'list2'}\"");
-      return (0, "Invalid second list \"$request->{'list2'}\"");
+      return (0, "Invalid or missing second list \"$request->{'list2'}\"");
     }
     $tmp = $request->{'list'};
     $request->{'list'} = $request->{'list2'} = $list;
