@@ -35,7 +35,7 @@ Also, list administrators who wish to learn about configuration settings
 can omit the leading "configset_" from the topic name.  For example,
    help configset_digests
 is the same as
-   help digest
+   help digests
 
 (The longer command represents the actual name of the help file.  This is 
 important for site administrators to remember if they decide to extend the help 
