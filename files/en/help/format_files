@@ -636,7 +636,8 @@ vital information to be entered or changed.  For the wwwadm interface,
 a list name and password are requested.  For the wwwusr interface,
 an e-mail address and password are requested.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, COMMAND, ERROR, USER)
+(standard plus CGIDATA, CGIURL, CHUNKSIZE, CMDPASS, COMMAND, ERROR,
+ EXTRA, USER)
 
 
 newlist
@@ -740,8 +741,8 @@ subscription.
 
 (standard plus ALIAS, ALIASES, CGIDATA, CGIURL, CHANGETIME, CHECKBOX, 
  CLASS_DESCRIPTIONS, CLASSES, CMDPASS, COUNT, LIST, NUMBERED_BOUNCES, 
- RCHANGETIME, OWNERSHIPS, PASSWORD, REGTIME, SELECTED, SETTINGS, SUBLIST, 
- UNNUMBERED_BOUNCES, USER, VICTIM, XFORM and others)
+ RCHANGETIME, OWNERSHIPS, PASSWORD, QSADDR, REGTIME, SELECTED, SETTINGS, 
+ STRIPADDR, SUBLIST, UNNUMBERED_BOUNCES, USER, VICTIM, XFORM and others)
 
 
 show_error
@@ -749,7 +750,8 @@ show_error
 (text, wwwusr)  This file is displayed if the show command stalls
 or fails.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, USER, VICTIM)
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, QSADDR, STRIPADDR,
+ USER, VICTIM)
 
 
 show_foot
@@ -758,8 +760,8 @@ show_foot
 of the output.
 
 (standard plus ALIAS, ALIASES, CGIDATA, CGIURL, CMDPASS, COUNT,
-RCHANGETIME, OWNERSHIPS, PASSWORD, REGTIME, SETTINGS, USER, VICTIM, 
-XFORM and others)
+ RCHANGETIME, OWNERSHIPS, PASSWORD, QSADDR, REGTIME, SETTINGS, 
+ STRIPADDR, USER, VICTIM, XFORM and others)
 
 
 show_head
@@ -768,8 +770,8 @@ show_head
 the top of the output.
 
 (standard plus ALIAS, ALIASES, CGIDATA, CGIURL, CMDPASS, COUNT,
-RCHANGETIME, OWNERSHIPS, PASSWORD, REGTIME, SETTINGS, USER, VICTIM, XFORM 
-and others)
+ OWNERSHIPS, PASSWORD, QSADDR, RCHANGETIME, REGTIME, SETTINGS, 
+ STRIPADDR, USER, VICTIM, XFORM and others)
 
 
 show_none
@@ -777,7 +779,7 @@ show_none
 (text, wwwusr)  This file is displayed if the address is not subscribed
 to any mailing lists.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, USER, VICTIM)
+(standard plus CGIDATA, CGIURL, CMDPASS, QSADDR, STRIPADDR, USER, VICTIM)
 
 
 showtokens

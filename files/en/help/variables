@@ -205,6 +205,10 @@ See "help reply_files" for a description of each of the reply files.
   The URL of the current CGI script, when one of the web interfaces
   is being used.
 
+\$CHUNKSIZE
+  The number of addresses displayed at one time by the who command
+  in the wwwadm interface.
+
 \$CMDLINE
   The command line that would be used to issue a command via e-mail
   or the mj_shell program.
@@ -231,6 +235,10 @@ See "help reply_files" for a description of each of the reply files.
   in some cases the date at which it will expire.  This value is
   determined by the token_lifetime configuration setting 
   (see "help configset_token_lifetime" for details).
+
+\$EXTRA
+  The contents of the "extra" CGI parameter, which usually contains
+  arguments for a command.
 
 \$ERROR
   An error message which describes why a command failed.

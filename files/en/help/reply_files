@@ -208,7 +208,7 @@ new_password
 This file is sent when a personal password is changed using the password
 command (see "help password" for more details).
 
-(standard plus PASSWORD and VICTIM)
+(standard plus PASSWORD, QSADDR, USER, VICTIM)
 
 
 registered
@@ -218,7 +218,7 @@ register command (see "help register" for more details).  A different
 file may be used by customizing the GLOBAL welcome_files configuration
 setting (see "help configset_welcome_files" for details).
 
-(standard plus PASSWORD and USER)
+(standard plus PASSWORD, STRIPADDR, QSADDR, USER, VICTIM)
 
 
 repl_chain
@@ -243,6 +243,15 @@ repl_confirm
 ------------
 This file is sent when the access rules require that a request 
 be confirmed by the person whom it affects.  It indicates whose
+approval is needed.
+
+(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+
+
+repl_confirm_req
+----------------
+This file is sent when the access rules require that a request be
+confirmed by the person who made the request.  It indicates whose
 approval is needed.
 
 (standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
@@ -360,7 +369,8 @@ to configure the welcome_files setting to send a different file
 (see "help configset_welcome" and "help configset_welcome_files" for
 details).
 
-(standard plus CMDLINE, FULFILL, NOTIFY, REASONS, REQUESTER, VICTIM)
+(standard plus CMDLINE, FULFILL, NOTIFY, QSADDR, REASONS, REQUESTER, 
+ STRIPADDR, USER, VICTIM)
 
 
 See Also:
