@@ -1,0 +1,6 @@
+The "$SETTING" configuration setting is unknown.
+
+Some configuration settings are valid only for the GLOBAL pseudo-list.
+Use the "help topics" command to see a complete list of
+configuration settings.
+
