@@ -1,0 +1,288 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+help [sujet]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+tous les sujets possibles sont listés dans ce fichier, "help topics"
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+La commande "help" retourne un fichier d'aide du serveur, si l'aide
+est disponible pour le sujet demandé. Si le sujet demandé n'est pas
+disponible, un fichier d'erreur est renvoyé.
+
+Ci dessous la liste de tous les sujets disponibles ! pour en récupérer
+l'aide, envoyez une ou plusieurs des lignes ci dessous au serveur
+$MJ comme dans :
+   help help
+pour récupérer l'aide basique.
+
+Toutes les commandes ont des fichiers d'aide, mais vous voudrez peut
+être commencer par
+   help overview
+si vous êtes un abonné, ou
+   help admin
+si vous gérez une liste, pour avoir une idée des commandes que vous
+pourrez utiliser.
+
+Si vous cherchez la bonne commande a utiliser, et que vous connaissez
+déjà Majordomo, essayez l'une de ces lignes :
+   help commands
+   help admin_commands
+pour avoir une idée de des commandes que vous voudrez utiliser sans
+avoir a parcourir la liste des commandes ci dessous. Il y a une ligne
+de description pour chaque commande, plus un petit texte
+d'introduction, dans chaque fichier.
+
+Ces fichiers d'aides sont des introductions :
+
+   help admin
+   help admin_commands
+   help admin_config
+   help admin_delivery
+   help admin_documents
+   help admin_moderate
+   help admin_monitor
+   help admin_passwords
+   help admin_subscribers
+   help command_line
+   help commands
+   help overview
+   help topics
+
+Ces fichiers concernent les programmes individuels, qui sont utilisés
+pour fournir les interfaces Majordomo en ligne de commande, par le web
+ou via emails :
+
+   help mj_confirm
+   help mj_email
+   help mj_enqueue
+   help mj_queuerun
+   help mj_queueserv
+   help mj_shell
+   help mj_trigger
+   help mj_wwwadm
+   help mj_wwwusr
+
+Ces fichiers d'aide parlent de sujets avancés en détails :
+
+   help access
+   help access_variables
+   help auxiliary_list
+   help command_parser
+   help delay
+   help error_files
+   help format_files
+   help here_document
+   help patterns
+   help reply_files
+   help times
+   help variables
+
+Ces fichiers d'aide décrivent les commandes Majordomo :
+
+   help accept
+   help alias
+   help announce
+   help approve
+   help archive
+   help changeaddr
+   help configdef
+   help configset
+   help configshow
+   help createlist
+   help default
+   help digest
+   help end
+   help faq
+   help get
+   help help
+   help index
+   help info
+   help intro
+   help lists
+   help owner
+   help password
+   help post
+   help put
+   help register
+   help reject
+   help rekey
+   help report
+   help request_response
+   help sessioninfo
+   help set
+   help show
+   help showtokens
+   help subscribe
+   help tokeninfo
+   help trigger
+   help unalias
+   help unregister
+   help unsubscribe
+   help which
+   help who
+
+Ces fichiers décrivent des commandes qui sont des alias d'autres
+commandes :
+
+   help aliasadd
+   help aliasremove
+   help cancel
+   help config
+   help configdefault
+   help configedit
+   help exit
+   help man
+   help mkdigest
+   help newconfig
+   help newfaq
+   help newinfo
+   help newintro
+   help quit
+   help remove
+   help signoff
+   help stop
+   help sub
+   help unsub
+
+Ces fichiers d'aide décrivent les paramètres de configuration :
+
+                       Pour toutes les listes
+
+   help configset_access_password_override
+   help configset_access_rules
+   help configset_admin_body
+   help configset_admin_headers
+   help configset_advertise
+   help configset_archive_url
+   help configset_bounce_recipients
+   help configset_comments
+   help configset_config_access
+   help configset_debug
+   help configset_default_language
+   help configset_delivery_rules
+   help configset_dup_lifetime
+   help configset_faq_access
+   help configset_get_access
+   help configset_inactive_lifetime
+   help configset_index_access
+   help configset_info_access
+   help configset_inform
+   help configset_intro_access
+   help configset_master_password
+   help configset_message_headers
+   help configset_noadvertise
+   help configset_noarchive_body
+   help configset_noarchive_headers
+   help configset_owners
+   help configset_passwords
+   help configset_priority
+   help configset_sender
+   help configset_set_policy
+   help configset_taboo_body
+   help configset_taboo_headers
+   help configset_token_lifetime
+   help configset_token_remind
+   help configset_triggers
+   help configset_welcome
+   help configset_welcome_files
+   help configset_which_access
+   help configset_who_access
+   help configset_whoami
+   help configset_whoami_owner
+
+                  Uniquement les listes normales
+
+   help configset_ack_attach_original
+   help configset_active
+   help configset_administrivia
+   help configset_aliases
+   help configset_allowed_classes
+   help configset_allowed_flags
+   help configset_archive_access
+   help configset_archive_date
+   help configset_archive_dir
+   help configset_archive_size
+   help configset_archive_split
+   help configset_attachment_filters
+   help configset_attachment_rules
+   help configset_bounce_max_age
+   help configset_bounce_max_count
+   help configset_bounce_probe_frequency
+   help configset_bounce_probe_pattern
+   help configset_bounce_rules
+   help configset_category
+   help configset_config_defaults
+   help configset_default_class
+   help configset_default_flags
+   help configset_delete_headers
+   help configset_description
+   help configset_description_long
+   help configset_digest_index_format
+   help configset_digest_issues
+   help configset_digests
+   help configset_farewell
+   help configset_farewell_files
+   help configset_file_search
+   help configset_file_share
+   help configset_max_header_line_length
+   help configset_max_mime_header_length
+   help configset_max_total_header_length
+   help configset_maxlength
+   help configset_message_footer
+   help configset_message_footer_frequency
+   help configset_message_fronter
+   help configset_message_fronter_frequency
+   help configset_moderate
+   help configset_moderator_group
+   help configset_moderators
+   help configset_nonmember_flags
+   help configset_override_reply_to
+   help configset_post_lifetime
+   help configset_post_limits
+   help configset_precedence
+   help configset_purge_received
+   help configset_quote_pattern
+   help configset_reply_to
+   help configset_resend_host
+   help configset_restrict_post
+   help configset_save_denial_checksums
+   help configset_sequence_number
+   help configset_subject_prefix
+   help configset_subject_re_pattern
+   help configset_subject_re_strip
+   help configset_sublists
+   help configset_subscribe_policy
+   help configset_unsubscribe_policy
+
+                  La pseudo liste GLOBAL uniquement
+
+   help configset_addr_allow_at_in_phrase
+   help configset_addr_allow_bang_paths
+   help configset_addr_allow_comments_after_route
+   help configset_addr_allow_ending_dot
+   help configset_addr_limit_length
+   help configset_addr_require_fqdn
+   help configset_addr_strict_domain_check
+   help configset_addr_xforms
+   help configset_advertise_subscribed
+   help configset_block_headers
+   help configset_chunksize
+   help configset_confirm_url
+   help configset_default_lists_format
+   help configset_description_max_lines
+   help configset_latchkey_lifetime
+   help configset_log_lifetime
+   help configset_max_in_core
+   help configset_password_min_length
+   help configset_relocated_lists
+   help configset_request_answer
+   help configset_return_subject
+   help configset_session_lifetime
+   help configset_signature_separator
+   help configset_site_name
+   help configset_tmpdir
+   help configset_whereami
+   help configset_www_help_window
+   help configset_wwwadm_url
+   help configset_wwwusr_url
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
