@@ -67,6 +67,7 @@ In the "ack_rejection" file, these variables are evaluated
 only in the message body:
   \$MESSAGE   => The rejection message given by the list owner, if any
   \$REQUEST   => The submitted command line
+  \$DATE      => The date of original request
 
 In the "ack_stall", "ack_success", and "ack_denial" files, this variable
 is evaluated in both the subject and message body:
@@ -80,7 +81,7 @@ only in the message body:
 
 In the "ack_timeout" file, no variable substitutions are done.
 
-In a file sent by the "announce" command, only this variable is evaluated:
+In a file sent by the "announce" command, only these variable are evaluated:
   \$LIST      => the name of the list the announce file is being sent to
   \$MJ        => the address Majordomo receives commands at
   \$MJOWNER   => the address of the owner of this Majordomo installation
@@ -150,20 +151,22 @@ evaluated in both the subject and message body:
   \$VERSION   => the version of Majordomo
 
 For a post to any email list, in the text supplied as headers added by
-"configset listname message_headers" these variables are evaluated in
-the subject only:
+"configset listname message_headers" these variables are evaluated:
   \$ARCHIVE   => the number of this message in the archives
   \$ARCURL    => the string specified by "configset listname archive_url"
+  \$AUTHOR    => the address of the person making the post
+  \$DATE      => the date of original request
   \$LIST      => the name of the current list
   \$OWNER     => the address of the list owner
   \$SENDER    => the sender as taken from the from line
   \$SEQNO     => the contents of the sequence_number variable, which is
                  automatically incremented each time a message is posted
+  \$SUBLIST   => the name of the sublist that the post is being sent to
   \$VERSION   => the version of Majordomo.
   \$WHOAMI    => the address of the list the post is being sent to
 
 For a post to any email list, in the text supplied as headers added by
-"configset listname reply_to" these variables are evaluated in the subject only:
+"configset listname reply_to" these variables are evaluated:
   \$HOST      => the hostname of the server (from the resend_host variable)
   \$LIST      => The name of the list
   \$SENDER    => the address of person who sent the message
@@ -180,6 +183,7 @@ variables are evaluated in both the subject and message body:
   \$REMIND    => token_remind setting, in case a token is forgotten
   \$REQUESTER => the address which initiated the action
   \$SUBJECT   => the subject line from the REQUESTOR's header
+  \$SUBLIST   => the name of the sublist that the post is being sent to
   \$VICTIM    => the address of the person affected by the action
 
 In the subject prefix added by "configset listname subject_prefix"
