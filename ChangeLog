@@ -1,3 +1,9 @@
+2000-10-04  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm (trigger):  Use the list-specific triggers
+	setting to determine when the bounce, checksum, and post
+	triggers will be run.
+
 2000-10-03  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Majordomo.pm: Use BounceHandler module; set ISA

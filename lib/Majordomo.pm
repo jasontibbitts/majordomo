@@ -619,7 +619,7 @@ sub gen_cmdline {
         next;
       }
       last if (defined $hereargs and ($variable eq $hereargs));
-      if ($arguments->{$variable} ne 'ARRAY') {
+      if (exists $request->{$variable} and $arguments->{$variable} ne 'ARRAY') {
         $cmdline .= " $request->{$variable}" 
           if length $request->{$variable};
       }
@@ -3389,7 +3389,8 @@ sub _createlist {
       $rmess, $sender, $subs, $sublists, $who);
 
   $owner = new Mj::Addr($owner);
-  $pw    = Mj::Access::_gen_pw;
+  $pw    = $self->_global_config_get('password_min_length');
+  $pw    = Mj::Access::_gen_pw($pw);
   $mta   = $self->_site_config_get('mta');
   $dom   = $self->{'domain'};
   $bdir  = $self->_site_config_get('install_dir');
@@ -4831,7 +4832,7 @@ sub trigger {
   if ($mode =~ /^(da|l)/ or grep {$_ eq 'log'} @ready) {
     $self->l_expire;
   }
-  # Mode: daily or checksum - expire checksum and message-id databases
+  # Mode: daily or checksum - expire GLOBAL checksum and message-id databases
   if ($mode =~ /^(da|c)/ or grep {$_ eq 'checksum'} @ready) {
     $self->{'lists'}{'GLOBAL'}->expire_dup;
   }
@@ -4842,6 +4843,13 @@ sub trigger {
     # GLOBAL and DEFAULT never have bounces, etc.
     next if ($list eq 'GLOBAL' or $list eq 'DEFAULT');
     next unless $self->_make_list($list);
+    @ready = ();
+    $times = $self->_list_config_get($list, 'triggers');
+    for (keys %$times) {
+       if (Mj::Digest::in_clock($times->{$_})) {
+         push @ready, $_;
+       }
+    }
 
     # Mode: daily or checksum - expire checksum and message-id databases
     if ($mode =~ /^(da|c)/ or grep {$_ eq 'checksum'} @ready) {
