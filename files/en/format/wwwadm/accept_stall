@@ -1,0 +1,7 @@
+<!-- Majordomo accept_stall format file -->
+<p>
+The accept command for token $TOKEN succeeded, 
+but further approval is needed.
+</p>
+
+<pre>?ERROR</pre>
