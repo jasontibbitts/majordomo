@@ -1,3 +1,8 @@
+2001-04-17  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Token.pm:  (t_accept)  Bugfix:  do not chain
+	the expiration data.
+
 2001-04-13  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Access.pm:  (list_access_check)  Bugfix:  ensure

@@ -610,10 +610,11 @@ sub t_accept {
       delete $data->{'chain2'};
       delete $data->{'chain3'};
       delete $data->{'chain4'};
-      delete $data->{'expire'};
       delete $data->{'remind'};
-      delete $data->{'reminded'};
     }
+
+    delete $data->{'expire'};
+    delete $data->{'reminded'};
 
     # Which reply file should be sent?
     if ($tmp->{'group'} eq 'requester') {
