@@ -7,7 +7,7 @@
       <option value="$CLASSES" $CLASS_SELECTED>$CLASSES:  $CLASS_DESCRIPTIONS
     </select>
 <tr>
-  <td align=center>$SETTING_CHECKBOX
+  <td align=center><input type=checkbox name="$STRIPADDR" value="$SETTINGS" $SETTING_CHECKED>
 
 <tr><td colspan=12>Diagnostic message from the last bounce: ?BOUNCE_DIAGNOSTIC
 <tr><td colspan=12>Bounces in the past week: ?BOUNCE_WEEK
