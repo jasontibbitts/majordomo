@@ -1516,8 +1516,11 @@ sub _d_advertise {
   my ($adv, $i, $noadv, $strip);
   shift @_;
 
-  $strip = $td->{'user'}->strip;
+  if ($args->{'list_password'}) {
+    return $self->_a_allow(@_);
+  }
 
+  $strip = $td->{'user'}->strip;
   $noadv = $self->_list_config_get($td->{'list'}, 'noadvertise');
   if (ref $noadv eq 'ARRAY' and scalar @$noadv) {
     for $i (@$noadv) {
