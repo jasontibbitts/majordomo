@@ -305,6 +305,9 @@ See "help reply_files" for a description of each of the reply files.
 \$ELAPSED
   The amount of time, in seconds, required for a command to execute.
 
+\$ERROR
+  An error message which describes why a command failed.
+
 \$EXPIRE   
   The number of days before a request that has been stalled expires, or
   in some cases the date at which it will expire.  This value is
@@ -314,9 +317,6 @@ See "help reply_files" for a description of each of the reply files.
 \$EXTRA
   The contents of the "extra" CGI parameter, which usually contains
   arguments for a command.
-
-\$ERROR
-  An error message which describes why a command failed.
 
 \$FAIL
   " " if a command invoked with the "accept" or "default user" command 
@@ -339,6 +339,10 @@ See "help reply_files" for a description of each of the reply files.
   When a bounce message is presented in a recognizable format, this
   variable contains the name of the format (e.g., "DSN" or
   "Compuserve").
+
+\$HEREARGS
+  The contents of the "hereargs" CGI parameter, which usually contains
+  arguments for a command.
 
 \$HOST
   The host from which a posted message is distributed to the subscribers
@@ -584,6 +588,9 @@ See "help reply_files" for a description of each of the reply files.
 \$WILLACK
   " " if an acknowledgement message will be mailed if a token is
   accepted or rejected; '' otherwise.
+
+\$YEARS
+  A list of years for which a message archive exists.
 
 
 Extensions for error and format files
