@@ -133,6 +133,8 @@ elsif ($opts{'c'}) {
     $q3 .= ",$i=$j";
   }
 }
+# Untaint
+$q3 =~ /(.*)/; $q3 = $1;
 
 # Loop through until we have a unique string.  If we loop until ZZ then
 # this will still work but we should be careful about the length of things.

@@ -1,3 +1,13 @@
+2002-11-12  Michael Yount <csf@moscow.com>
+
+	* bin/mj_enqueue:  Untaint alias-dependent information to
+	cooperate with stricter checking under perl 5.8.0.
+	Thanks to Olivier Prenant.
+
+	* lib/Mj/Digest/Text.pm:  (get_text)  Convert single-part
+	HTML messages into plain text in text digests.  Suggested
+	by Roger Klorese.
+
 2002-11-08  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  Make use of the password_level and
