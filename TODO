@@ -291,6 +291,47 @@ of subscribers in each delivery class, and how those numbers have
 changed over time.
 
 
+Virtual User Table support for Postfix
+--------------------------------------
+The current virtual user table support assumes that the MTA is
+Sendmail.  
+
+
+Better tmpdir and debug support
+-------------------------------
+The default value during installation should be on a file system that
+can hold hundreds of megabytes.  It should be possible to rotate logs
+and expire old files automatically.  The debugging level should apply
+to the WWW interfaces also.
+
+
+Simplify the wwwadm list configuration
+--------------------------------------
+Make "help" and "configdef" links.  Remove the requirement to check
+a box of each setting to be changed.  Limit the "config" descriptions
+to one paragraph per setting.  Complete the assignment of settings
+to wizard levels.
+
+
+Record all bounces in the bounce database
+-----------------------------------------
+Subscriber database locking when a bounce arrives can be a bottleneck.
+
+
+Display a summary of list categories
+------------------------------------
+To make the lists command more scalable, implement a lists-categories
+command to see a summary of categories and a lists-category command
+to display lists whose category matches a pattern.
+
+
+Add mode support to the WWW interfaces
+--------------------------------------
+Currently, the command mode must be specified as part of the command
+name.  Support a "mode" CGI variable that allows the mode to be
+determined independently.
+
+
 =======================
 Totally out there stuff
 =======================
