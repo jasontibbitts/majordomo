@@ -17,6 +17,7 @@ mkdir "tmp.$$/bin", 0700 || die;
 mkdir "tmp.$$/locks", 0700 || die;
 mkdir "tmp.$$/SITE", 0700 || die;
 mkdir "tmp.$$/test", 0700 || die;
+mkdir "tmp.$$/tmp", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL", 0700 || die;
 mkdir "tmp.$$/test/DEFAULT", 0700 || die;
 mkdir "tmp.$$/test/GLOBAL/files", 0700 || die;
@@ -198,6 +199,10 @@ sub fixup_script {
   while (defined($line = <OSCRIPT>)) {
     if ($line =~ /^use lib .*;$/) {
       print NSCRIPT '$::LIBDIR = $::LIBDIR;', "\n";
+      next;
+    }
+    elsif ($line =~ /^\s+\$::TMPDIR\s*=/) {
+      print NSCRIPT qq(  \$::TMPDIR = "tmp.$$/tmp";\n);
       next;
     }
     print NSCRIPT $line;
