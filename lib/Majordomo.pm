@@ -4106,6 +4106,12 @@ sub subscribe {
   $whereami     = $self->_global_config_get('whereami');
   $tmp = new Mj::Addr("$request->{'list'}\@$whereami");
   $matches_list = $request->{'victim'} eq $tmp;
+  # Do not add the -unsubscribe alias
+  unless ($matches_list) {
+    $tmp = new Mj::Addr("$request->{'list'}-unsubscribe\@$whereami");
+    $matches_list = $request->{'victim'} eq $tmp;
+  }
+
   ($ok, $error) =
     $self->list_access_check($request->{'password'}, $request->{'mode'}, 
                              $request->{'cmdline'}, $request->{'list'}, 
