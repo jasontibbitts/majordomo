@@ -213,13 +213,15 @@ sub auxwho  {
 sub configdef {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type, $request->{'list'}";
-  my ($ok, $mess, @arglist, $varresult, $var);
+  my ($ok, $mess, $var, @arglist, @results);
 
-  for $varresult (@$result) {
-    ($ok, $mess, $var) = @$varresult;
+  @results = @$result;
+  while (@results) {
+    $ok = shift @results;
+    ($mess, $var) = @{shift @results};
 
     eprint ($out, $type, indicate($mess,$ok)) if $mess;
-    if ($ok) {
+    if ($ok > 0) {
       eprintf($out, $type, "%s set to default value.\n", $var);
     }
   }
@@ -656,7 +658,7 @@ sub set {
     if ($ok > 0) {
         eprint($out,
          $type,
-         &indicate("New settings for $change->{'victim'}->{'stripaddr'} on $change->{'list'}:\n".
+         &indicate("New settings for $change->{'victim'}->{'full'} on $change->{'list'}:\n".
            "  Receiving $change->{'classdesc'}\n".
            "  Flags:\n    ".
            join("\n    ", @{$change->{'flagdesc'}}).
