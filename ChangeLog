@@ -1,5 +1,7 @@
 Sat Apr 17 00:48:17 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* bin/mj_enqueue (logmsg): Add logging function.
+
 	* bin/mj_queuerun (run_queue): Solaris fix: file must be opened
  	for writing for LOCK_EX to work.
 

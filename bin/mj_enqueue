@@ -32,6 +32,7 @@ use Socket;
 use Fcntl qw(:flock :DEFAULT);
 use Getopt::Std;
 use strict;
+sub logmsg { print STDOUT "[$$].Enqueue: @_\n"; }
 my (%opts, $dom, $i, $line, $ok, $pid, $rendezvous, $q1, $q2, $q3, $qdir,
     $qfile, $qfunc);
 
