@@ -1,3 +1,8 @@
+2001-08-15  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm (configshow): Bugfix: in the case of a single
+	scalar variable, returned $auto where we meant to return $data.
+
 2001-08-15  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Format.pm:  (show,who)  Bugfix:  include the third part of

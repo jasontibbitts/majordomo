@@ -4136,7 +4136,7 @@ sub configshow {
       ($val) = $self->list_config_get($request->{'user'}, $request->{'password'}, 
                                     $request->{'list'}, $request->{'sublist'},
                                     $var, 1);
-      push @out, [$level, $comment, $auto, $var, $val];
+      push @out, [$level, $comment, $data, $var, $val];
     }
   }
   return (1, @out);
