@@ -1361,7 +1361,7 @@ sub parse_delivery_rules {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150;
-  my(@dr, $data, $err, $i, $rule, $seen_all, $table);
+  my(@dr, $data, $err, $i, $re, $rule, $seen_all, $table);
 
   $data = [];
 
@@ -1384,21 +1384,24 @@ sub parse_delivery_rules {
 
     ($rule, $err) = parse_keyed(',', '=', '"', '(', ')', @{$table->[$i][1]});
 
-    return (0, "Error parsing rule " . $i+1 . ": $err")
-      if $err;
 
-#    $self->{'delivery_rules'}[$i]{'re'} = $table->[$i][0];
-#    $self->{'delivery_rules'}[$i]{'data'} = $rule;
-    $data->[$i]{'re'} = $table->[$i][0];
+    return (0, "Error parsing rule " . ($i+1) . ": $err")
+      if $err;
     $data->[$i]{'data'} = $rule;
 
-    if ($data->[$i]{'re'} eq 'ALL') {
+    if ($table->[$i][0] eq 'ALL') {
       $seen_all = 1;
+      $data->[$i]{'re'} = $table->[$i][0];
+    }
+    else {
+      ($ok, $err, $re) = compile_pattern($table->[$i][0], 1);
+      return (0, "Error parsing rule " . ($i+1) . ":\n$err")
+	if $err;
+      $data->[$i]{'re'} = $re;
     }
   }
 
   unless ($seen_all) {
-#    $self->{'delivery_rules'}[$i] = {'re'   => 'ALL',
     $data->[$i] = {'re'   => 'ALL',
 		   'data' => {},
 		  };
@@ -1842,7 +1845,7 @@ sub parse_taboo_body {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-  my($class, $data, $inv, $j, $max, $re, $sev, $stop);
+  my($class, $data, $err, $inv, $j, $max, $ok, $pat, $re, $sev, $stop);
 
   $data = {};
   $data->{'inv'} = [];
@@ -1853,10 +1856,15 @@ sub parse_taboo_body {
 
   for $j (@$arr) {
     # Format: !/match/i 10,20,blah
-    ($inv, $re, $stop, undef, undef, $sev, undef, $class) =
+    ($inv, $pat, $stop, undef, undef, $sev, undef, $class) =
       $j =~ /^(\!?)(.*?)\s*(\d*)((,([+-]?\d+)?)(,(\w+))?)?\s*$/;
     $sev = 10 unless defined $sev && length $sev;
     $class ||= 'body';
+
+    # Compile the pattern
+    ($ok, $err, $re) = compile_pattern($pat, 1);
+    return (0, "Error parsing taboo_body line:\n$err")
+      unless $ok;
 
     # For backwards compatibility, we have a different default for
     # admin_body
@@ -1868,24 +1876,24 @@ sub parse_taboo_body {
     if ($inv) {
       if ($stop > 0) {
 	$data->{'code'} .=
-	  "\$line <= $stop && \$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 1));\n";
+	  "\$line <= $stop && \$text =~ $re && (push \@out, (\'$pat\', \$&, $sev, \'$class\', 1));\n";
       }
       else {
 	$data->{'code'} .=
-	  "\$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 1));\n";
+	  "\$text =~ $re && (push \@out, (\'$pat\', \$&, $sev, \'$class\', 1));\n";
       }
-	push @{$data->{'inv'}}, "$self->{list}\t$var\t$re\t$sev\t$class";
+	push @{$data->{'inv'}}, "$self->{list}\t$var\t$pat\t$sev\t$class";
     }
 
     # Build a line of code for a normal match
     else {
       if ($stop > 0) {
 	$data->{'code'} .=
-	  "\$line <= $stop && \$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 0));\n";
+	  "\$line <= $stop && \$text =~ $re && (push \@out, (\'$pat\', \$&, $sev, \'$class\', 0));\n";
       }
       else {
 	$data->{'code'} .=
-	  "\$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 0));\n";
+	  "\$text =~ $re && (push \@out, (\'$pat\', \$&, $sev, \'$class\', 0));\n";
       }
     }
     $max = $stop ? $stop > $max ? $stop : $max : 0; #Whee!
@@ -1915,23 +1923,28 @@ sub parse_taboo_headers {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-  my($class, $data, $inv, $j, $re, $sev);
+  my($class, $data, $err, $inv, $j, $ok, $pat, $re, $sev);
 
   $data = {};
   $data->{'inv'} = [];
 
   $data->{'code'} = "my \@out = ();\n";
   for $j (@$arr) {
-    ($inv, $re, $sev, undef, $class) = $j =~ /^(\!?)(.*?)\s*([+-]?\d+)?(,(\w+))?$/;
+    ($inv, $pat, $sev, undef, $class) = $j =~ /^(\!?)(.*?)\s*([+-]?\d+)?(,(\w+))?$/;
     $sev = 10 unless defined $sev;
     $class ||= 'header';
 
+    # Compile the pattern
+    ($ok, $err, $re) = compile_pattern($pat, 1);
+    return (0, "Error parsing taboo_body line:\n$err")
+      unless $ok;
+
     if ($inv) {
-      $data->{'code'} .= "\$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 1));\n";
-      push @{$data->{'inv'}}, "$self->{list}\t$var\t$re\t$sev\t$class";
+      $data->{'code'} .= "\$text =~ $re && (push \@out, (\'$pat\', \$&, $sev, \'$class\', 1));\n";
+      push @{$data->{'inv'}}, "$self->{list}\t$var\t$pat\t$sev\t$class";
     }
     else {
-      $data->{'code'} .= "\$text =~ $re && (push \@out, (\'$re\', \$&, $sev, \'$class\', 0));\n";
+      $data->{'code'} .= "\$text =~ $re && (push \@out, (\'$pat\', \$&, $sev, \'$class\', 0));\n";
     }
   }
   $data->{'code'} .= "return \@out;\n";
@@ -2540,6 +2553,7 @@ sub _compile_rule {
       $pr,        # Element prologue
       $ep,        # Element epilogie
       $err,       # Generic error holder
+      $ok,
       @tmp,
    );
 
@@ -2563,11 +2577,10 @@ sub _compile_rule {
     }
     
     # Process /reg\/exp/
-    if (s:^(/.*?(?!\\)./)::) {
-      $re = $1;
-      $err = (Majordomo::_re_match($re, "justateststring"))[1];
-      if ($err) {
-	$e .= "Error in regexp '$re',\n$err";
+    if (s:^(([\/\"\%\_]).*?(?!\\).\2[ix]?)::) {
+      ($ok, $err, $re) = compile_pattern($1, 0);
+      unless ($ok) {
+	$e .= $err;
 	last;
       }
 

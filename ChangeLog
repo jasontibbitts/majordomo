@@ -1,4 +1,22 @@
+Mon Nov 16 15:40:58 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Config.pm (parse_taboo_body): Call compile_pattern to get
+ 	generic pattern support and error checking.  Make sure uncompiled
+ 	pattern is displayed in bounce message.
+	(parse_taboo_headers): Ditto.
+	(_compile_rule): Fail when parsing the pattern if $ok is false,
+ 	not if $err is true.
+
+	* lib/Majordomo.pm (list_config_set): Pretty up error message.
+
+	* lib/Mj/Config.pm (_compile_rule): Call compile_pattern to check
+ 	the regexp.  Accept both supported delimiters, and pattern
+ 	modifiers.
+
 Sat Nov 14 15:54:59 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Config.pm (parse_delivery_rules): Allow generalized
+ 	patterns in address matchers.
 
 	* lib/Mj/List.pm: Some general removal of old single-directory
  	stuff.

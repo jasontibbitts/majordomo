@@ -33,12 +33,11 @@ Access: call Mj::is_subscriber instead of List::is_subscriber.
 Pass stripped address to access restriction language: $svictim =
 $victim->strip; share $svictim (local); pass to reval.
 
-Fix _compile_rule, parse_taboo_body and parse_taboo_header to call
-parse_regexp so the cool parsing effects everything.
+Fix parse_taboo_body and parse_taboo_header to call parse_regexp so the
+cool parsing effects everything.
 
 Fix comands that take regexps to call Config::parse_regexp to get back a
 Perl regexp to use.
-  auxwho
   which
 
 Invalid addresses and never compare equal to anything else.

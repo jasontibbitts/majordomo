@@ -904,7 +904,7 @@ sub list_config_set {
   ($ok, $mess) = $self->_list_config_set($list, $var, @_);
   $self->_list_config_unlock($list);
   if (!$ok) {
-    @out = (0, "Error parsing $var: $mess\n");
+    @out = (0, "Error parsing $var:\n$mess");
   }
   else {
     @out = (1);;
