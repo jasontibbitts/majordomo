@@ -160,7 +160,7 @@ package Mj::Config;
    'ack_attach_original' =>
    {
     'type'   => 'enum_array',
-    'values' => [qw(fail stall succeed all)],
+    'values' => [qw(fail reject stall succeed all)],
     'groups' => [qw(reply)],
     'local'  => 1,
     'global' => 0,
