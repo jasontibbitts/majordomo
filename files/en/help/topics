@@ -108,6 +108,7 @@ These help files describe Majordomo commands:
    help set
    help show
    help showtokens
+   help sublist
    help subscribe
    help tokeninfo
    help trigger

@@ -42,12 +42,22 @@ sublist would be
 
   subscribe cabbage:kale lacinato@example.com
 
-A sublist is created simply by adding an address to it.  Other familiar
-commands follow the same pattern:
+Other familiar commands follow the same pattern:
 
   unsubscribe cabbage:broccoli
   who-enhanced cabbage:kale
   set cabbage:kohlrabi nomail vienna@example.net
+
+A sublist can be created by subscribing an e-mail address to it, or
+it can be created explicitly using the "sublist-create" command, for
+example:
+
+  sublist-create cabbage:sprout
+
+Similarly, the "sublist-destroy" command can be used to destroy a
+sublist, for example:
+
+  sublist-destroy cabbage:sprout  
 
 Auxiliary lists can be indicated in the access rules.  For example, the
 following rule allows members of the kale sublist to see the other
@@ -131,6 +141,7 @@ See Also:
    help lists
    help set
    help subscribe
+   help sublist
    help unsubscribe
    help who
 

@@ -1,0 +1,38 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+sublist[-create][-destroy] listname:sublist 
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is the name of a mailing list at this domain
+sublist,  required, is the name of a sublist
+-create,  if specified, causes the sublist to be created
+-destroy, if specified, destroys the sublist
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+The sublist command can be used to create, destroy, or see information
+about a sublist.  Sublists are also called auxiliary lists.  See
+"help auxiliary_list" for more details on their purpose.  The sublist
+command usually requires an administrative password.
+
+The sublist-create command will create a new auxiliary list.  If the
+auxiliary list already exists, an error message will be displayed.
+
+The sublist-destroy command will destroy an existing sublist and all of
+its subscriptions.  If the sublist is listed in the "sublists" setting,
+you must remove it from that setting first.
+
+The plain sublist command will display information, such as the number
+of subscribers and messages posted in the last month, if the sublist
+exists.
+
+A sublist can be made public by adding it to the "sublists"
+configuration setting.  See "help configset_sublists" for more
+information.
+
+
+See Also:
+   help admin_subscribers
+   help auxiliary_list
+   help configset_sublists
+   help subscribe
+   help unsubscribe
+
+$INCLUDE-help/foot

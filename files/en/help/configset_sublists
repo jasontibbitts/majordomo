@@ -31,6 +31,9 @@ createlist-regen command should be run afterward to the regenerate the
 aliases.  See "help configset_aliases" for more information on mail
 aliases.
 
+A sublist can be created or destroyed with the "sublist" command.  See 
+"help sublist" for more details.
+
 
 See Also:
    help admin_monitor
@@ -38,5 +41,6 @@ See Also:
    help configset_aliases
    help createlist
    help lists
+   help sublist
 
 $INCLUDE-help/foot

@@ -31,6 +31,11 @@ people suspend delivery while they are on vacation, then forget to
 resume delivery when they return.  Removing inactive addresses makes the
 subscription databases smaller, which helps Majordomo to run faster.
 
+When a subscription expires, if the "farewell" setting for the mailing
+list in question is turned on, a farewell message will be sent to the
+subscriber.  A farewell message will never be sent when a registration
+expires.
+
 Some mailing lists are configured to allow only subscribers to post
 messages.  Some people who wish to post messages from more than one
 address may subscribe all of their addresses, then put all but one of
@@ -44,6 +49,7 @@ See Also:
    help admin_domain
    help alias
    help configset_dup_lifetime
+   help configset_farewell
    help configset_latchkey_lifetime
    help configset_log_lifetime
    help configset_post_lifetime

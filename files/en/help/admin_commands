@@ -189,10 +189,12 @@ reject [TOKEN]
   message or other request that is being held for approval.
   See "help reject" and "help admin_moderate" for more details.
 
+
 report LISTNAME [DATES] [ACTIONS]
   The report command is used to display or summarize the recent 
   activitiy on a mailing list.  See "help report" and "help admin_monitor"
   for more details.
+
 
 sessioninfo SESSION
   The sessioninfo command is used to learn more about what caused a 
@@ -221,6 +223,11 @@ subscribe LISTNAME [ADDRESS]
   of a regular or auxiliary list.
   See "help subscribe", "help admin_subscribers", and "help auxiliary_list"
   for more details.
+
+
+sublist LISTNAME:SUBLIST
+  The sublist command can be used to create, destroy, or see information
+  about a sublist.  See "help sublist" for more details.
 
 
 tokeninfo TOKEN
