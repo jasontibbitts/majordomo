@@ -4,7 +4,7 @@ configset listname ack_attach_original <<TAG
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : fail stall
-Data Type     : enum_array, choose from: fail stall succeed all
+Data Type     : enum_array, choose from: fail reject stall succeed all
 Category      : reply
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -23,7 +23,8 @@ refers.
 The acknowledgement message itself can be chosen using the "replyfile"
 action in the access_rules setting for the "fail" and "stall" results.
 By default, the acknowledgement files used are ack_success, ack_stall, 
-and ack_denial.  See "help reply_files" for a description of each file.
+ack_rejection, and ack_denial.  See "help reply_files" for a description 
+of each file.
 
 See Also:
    help admin_moderate
