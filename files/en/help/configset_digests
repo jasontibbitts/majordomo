@@ -11,70 +11,64 @@ Password Notes: none
 
 EXAMPLE:
 configset listname digests << ENDTAG
-daily  | 5      | 20K,5m | 40K,10m  | 3d | 1d | | mime  | thread | numbered
-The pre-dawn daily digest  | [\$LIST] Daily digest (\$MESSAGECOUNT messages)
-weekly | fr(23) |20k,5m  | 100k,30m |    |    | | index |    |
-The listname weekly index, generated late friday night.
+daily  
+times=5
+minsize=20
+minmsg=5
+maxsize=40
+maxmsg=10
+maxage=3d
+separate=1d
+type=mime
+sort=thread
+index=numbered
+desc=The pre-dawn daily digest 
+subject=[\$LIST] Daily digest (\$MESSAGECOUNT messages)
+
+weekly
+times=fr(23) 
+minsize=20
+minmsg=5
+maxsize=100
+maxmsg=30
+type=index
+desc=The listname weekly index, generated late friday night.
 ENDTAG
+
 
 $INCLUDE-config/digests
 
-A digest is defined by a name, a description, possibly a subject header
-to be used for the generated digests, and several pieces of data that
-tell Majordomo when an issue should be generated.
+A digest is defined by a name, followed by various fields which contain
+the description, subject header, and several criteria that determine
+when an issue of the digest should be delivered.  The name of the digest
+appears on the first line.  Succeeding lines use a FIELD=VALUE format to
+specify the values of various fields.  Any field that is not mentioned
+explicitly will have a default value.
 
-The following substitutions are available in the subject field:
+Blank lines are used to separate digests from one another.  There is no
+limit on the number of digests that can be supported.
 
-\$LIST         - The name of the list
-\$DIGESTNAME   - The name of the digest
-\$DIGESTDESC   - The description of the digest
-\$DIGESTTYPE   - The type of the digest; see the "deftype" section below
-\$MESSAGECOUNT - The number of messages included in the digest
-\$VOLUME       - The current volume number
-\$ISSUE        - The current issue number
+A brief summary of each field appears in the following table:
 
-Here is a brief description of the data that can be given, with
-more details below:
+Field             Description
+-----    ---------------------------------
+desc     A brief description of the digest.
+index    The format of the table of contents.
+maxage   The oldest age permitted for a message awaiting delivery.
+maxmsg   The maximum number of messages per issue.
+maxsize  The maximum size of an issue in kilobytes.
+minage   The youngest age permitted for a message awaiting delivery.
+minmsg   The minimum total number of messages awaiting delivery.
+minsize  The minimum total size of messages awaiting delivery
+newmsg   Are new messages allowed to invoke delivery?
+separate The minimum time between issues.
+sort     How to sort the messages in an issue.
+subject  The Subject header of the digest mail message.
+times    When can digests be delivered?
+type     The format of the messages in an issue.
 
-name     - A one-word name given to the digest.  It is unwise to name
-           the digest "mime", "text" or "index".
 
-times    - The times field is a list of days and hours during which a
-           digest will be issued (see "help times" for details on the
-           format).  The default is "always", which allows digest creation 
-           at any time, depending upon the other time and size 
-           constraints.
-
-minsize  - The minimum amount of data (measured in messages or
-           kilobytes) which must be collected before a digest will be
-           generated.  The default is no minimum.
-
-maxsize  - The maximum size of digest that will be created.  Specify
-           either messages or kilobytes or both as with minsize.  The
-           default is no maximum.
-
-maxage   - If an article is older than this awaits delivery, a digest 
-           will be created even if enough messages have not been 
-           collected.  This prevents messages from becoming "stale" 
-           on low traffic lists.
-
-separate - The minimum amount of time that separates digests.  The
-           default is 15 minutes.
-
-minage   - A digest will not be created if the most recent message is
-           younger than this.  This is intended to prevent digest
-           creation in the middle of an active discussion.  The default
-           is no minimum age.
-
-type     - This specifies the type of digest that new subscribers get
-           by default.  The default is MIME.  Choices are listed below.
-
-sort     - The order in which the messages in the digest are sorted.
-           The default is numeric.  Choices are listed below.
-
-index    - The format of the table of contents that lists the messages
-           in an issue.  The default is determined by the
-           digest_index_format configuration setting.
+                         When are digests sent?
 
 The following criteria are used to determine if a digest should be sent:
 
@@ -100,10 +94,8 @@ The following criteria are used to determine if a digest should be sent:
       field limit.
 
 
-Each field is described in more detail in the following sections:
+                              Digest names
 
-name
-----
 The name of a digest can be any single word, with some exceptions:
 
   * It should not be the same as a digest type (index, mime, or text).
@@ -112,49 +104,38 @@ The name of a digest can be any single word, with some exceptions:
 
 Digest names are case-insensitive.
 
-times
+
+                             Digest fields
+
+
+Each digest field is described in more detail in the following section.
+
+desc
+----
+The description of the digest usually appears at the top of the table of
+contents of each digest issue and in the Subject header of the digest
+(as determined by the subject field).  
+
+The default value is "Message Digest".
+
+
+index
 -----
-The times field lists days and hours during which digests are permitted
-to be delivered.  The full syntax is described in the "Scheduled times" 
-section of the "help times" document.  For example,
+The index field determines what information to display about each
+message in the table of contents of a digest issue.  The default value
+is determined by the digest_index_format configuration setting.   The
+following values are supported:
 
-  15th(6-8) 
+  numbered
+  numbered_name
+  subject
+  subject_author
+  subject_name
 
-would allow the digest to be delivered between 6 AM and 8 AM on the 15th
-day of every month.
+Please see "help configset_digest_index_format" for examples of each
+format.  See "help digest" for a detailed description of how to
+customize the table of contents.
 
-minsize
--------
-The minsize field limits the minimum size of a digest.  Each size
-can be in messages or kilobytes.  More than one size can be specified
-by separating the sizes with commas.  For example,
-
-  10m requires a minimum number of 10 posted messages.
-
-  20k gives a minimum combined size of 20 kilobytes for the messages;
-
-  10m,20k requires that a digest meet both criteria, 10 messages and
-  20 kilobytes of message data.
-
-The default values are at least one message, and no size limit.
-
-maxsize
--------
-The maxsize field limits the number and combined size of messages
-in one issue of a digest.  This field has no bearing on whether
-or not a digest is issued; it only limits the contents of a particular
-issue of a digest.  A digest will be issued if adding an additional
-message would exceed either the number or combined size limit.  The
-number limit is inclusive; for example, a limit of "10m" would mean
-"10 messages or fewer," not "fewer than 10 messages."
-
-The syntax is identical to the minsize field.
-
-At least one message will be sent in every issue, even if that message
-exceeds the size limit.
-
-The default limits are 4 megabytes per issue, and 200 messages per
-issue.
 
 maxage
 ------
@@ -172,6 +153,82 @@ The syntax of this field is detailed in the "Time spans" section of the
 
 The default is no maximum age.
 
+The age of a particular message is based upon the time of arrival or the
+time of delivery, as determined by the archive_date configuration setting.
+
+
+maxmsg
+------
+The number of messages in a single issue of a digest cannot exceed 
+this value.
+
+The default value is 0, which corresponds to a sanity-check value of
+200 messages.
+
+
+maxsize
+-------
+The maxsize field limits the size of one issue of a digest in kilobytes.
+
+At least one message will be sent in every issue, even if that message
+exceeds the size limit.
+
+The default value is 0, which corresponds to a sanity-check value of
+4 megabytes.
+
+A kilobyte is 1024 bytes.
+
+
+minage
+------
+The arrival of a new message will cause digests to be delivered if
+the criteria are met.  If a digest has no minimum size specified by the
+"minsize" field, a digest may be delivered that contains only the latest 
+message.  
+
+The syntax of this field is detailed in the "Time spans" section of the
+"help times" document.
+
+The default value is 0, no minimum age.
+
+The age of a particular message is based upon the time of arrival or the
+time of delivery, as determined by the archive_date configuration setting.
+
+
+minmsg
+------
+An issue of the digest will not be delivered until the total number of
+messages awaiting delivery is greater than this value.
+
+The default value is 0, meaning no limit.
+
+
+minsize
+-------
+An issue of the digest will not be delivered until the total size of the
+messages awaiting delivery is greater than or equal to this value.  The
+value is in kilobytes.
+
+The default value is 0, meaning no size limit.
+
+
+newmsg
+------
+Digests can be issued when a new message is posted to a mailing list.
+If you do not want new messages to cause digests to be checked, change
+the newmsg field to 0.
+
+The default value is 1, which allows new messages to invoke digest
+delivery.
+
+Digests will always be checked hourly by a periodic trigger, regardless
+of the value of this field.  See "help configset_triggers" for more
+information about periodic triggers.
+
+A new messages will never cause more than one issue of each digest to be
+delivered.
+
+
 separate
 --------
 When messages come in quickly, or when a body of messages builds up
@@ -184,47 +241,19 @@ hour.  This allows digest deliveries to occur more evenly.
 If this value is set to zero, multiple issues of a digest may be mailed
 within a short period of time.  This is useful, for example, if you
 maintain a weekly digest, and wish all issues of the digest to be
-delivered together.
+delivered together.  If a new message causes digest delivery, no more
+than one issue of each digest will be delivered.
 
-This field uses the same format as the maxage field.
+The syntax of this field is detailed in the "Time spans" section of the
+"help times" document.
 
 The default value is 15 minutes.
 
-minage
-------
-The arrival of a new message will cause digests to be delivered if
-the criteria are met.  If a digest has no minimum size specified by the
-"minsize" field, a digest may be delivered that contains only the latest 
-message.  To keep a digest from being triggered by every new message,
-set this field to some small value, for example "20s" for twenty seconds.
-This will work consistently only if the archive_date configuration
-setting is set to "delivery".
-
-This field uses the same format as the maxage field.
-
-The default value is no minimum age.
-
-type
-----
-When subscribers choose to receive messages in a digest, but
-do not specify which format they prefer, this field determines
-which format is used by default.  Three formats are supported:
-
-  index - a summary is mailed, but the message bodies are omitted.
-
-  mime - each post is a separate part of a MIME formatted message.
-
-  text - all posts are concatenated in a plain text message.
-
-See "help digest" for a detailed description of how to customize each
-format.
 
 sort
 ----
-By default, the messages are listed in numeric order, the order in
-which they were delivered to subscribers who receive each message
-individually.  Changing this field will cause the order of the messages
-in each issue to be rearranged.  The choices include:
+The sort field determines the order of the messages within a single issue.
+The choices include:
 
   author  - sort the messages according to the e-mail address of the
             author, by domain.
@@ -233,20 +262,68 @@ in each issue to be rearranged.  The choices include:
             by the time of arrival or the time of delivery, as specified
             in the archive_date configuration setting.
 
+  numeric - sort the messages by number.  This causes the messages in
+            the digest to appear in the same order as they were
+            delivered to the mailing list.
+
   subject - sort the messages alphabetically by the contents of the
             Subject header.
 
   thread  - sort the messages so replies that form a conversation
             are grouped together.
 
-index
------
-The index field determines what information to display about each
-message in the table of contents that lists the messages in a digest
-issue.  The default value is determined by the digest_index_format
-configuration setting.  Please see "help configset_digest_index_format"
-for a list of supported formats.
+The default value is "numeric".
 
+
+subject
+-------
+The subject field determines the contents of the Subject header of the
+each issue of a digest.  It has no effect upon the subject headers of
+the messages within a digest.
+
+The default value is "[$LIST] $DIGESTDESC V$VOLUME #$ISSUE".
+
+The following substitutions are available in the subject field:
+
+\$DIGESTDESC   - The description of the digest (from the "desc" field)
+\$DIGESTNAME   - The name of the digest
+\$DIGESTTYPE   - The type of the digest (from the "type" field)
+\$ISSUE        - The current issue number
+\$LIST         - The name of the list
+\$MESSAGECOUNT - The number of messages in this issue
+\$VOLUME       - The current volume number
+
+See "help variables" for an introduction to substitutions.
+
+
+times
+-----
+The times field lists days and hours during which digests are permitted
+to be delivered.  The full syntax is described in the "Scheduled times" 
+section of the "help times" document.  For example,
+
+  15th(6-8) 
+
+would allow the digest to be delivered between 6 AM and 8 AM on the 15th
+day of every month.
+
+
+type
+----
+The type field determines the appearance of each message within a
+digest.  When subscribers choose to receive messages in a digest, but do not
+specify which type they prefer, this field determines which format is
+used by default.  Three formats are supported:
+
+  index - Only the table of contents is shown.  The messages are omitted.
+
+  mime  - Each message is included in its entirety.
+
+  text  - Only plain text message parts are included.  All attachments
+          are omitted.
+
+
+                                Comments
 
 It is possible to use comments before, between, and after the individual
 digest configuration settings, but not between the two lines that
@@ -257,10 +334,9 @@ See Also:
    help admin_delivery
    help configset_archive_date
    help configset_digest_index_format 
-   help configset_digest_issues (to see the current volume and issue numbers)
-   help digest   (to check digest status or force the delivery of digests)
-   help put      (for how to create the archive directory)
+   help configset_digest_issues
+   help digest
    help times
-   help variables (for how to use substitutions in the subject)
+   help variables
 
 $INCLUDE-help/foot
