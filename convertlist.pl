@@ -189,7 +189,7 @@ EOM
     $pw = get_str($msg);
   }
 
-  print CMD "default password $mjcfg->{site_password}\n";
+  print CMD "default password $pw\n";
 
   print CMD "createlist $list $owner\n";
 
