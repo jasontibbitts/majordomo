@@ -1,4 +1,15 @@
+2000-06-09  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Majordomo.pm (who_chunk): If the user has an expiring nomail
+	class set, return information on the original class.
+
 2000-06-08  Jason L Tibbitts III  <tibbs@math.uh.edu>
+
+	* lib/Mj/List.pm (describe_class): Return nomail expiry times
+	properly in as-setting mode.
+
+	* lib/Mj/TextOutput.pm (set): Rewrite to handle multiple
+        comma-separated states, some with complex syntax.
 
 	* lib/Bf/Parser.pm (check_dsn_netscape): New function to check
         DSNs from netscape messaging server which don't have per-user

@@ -663,7 +663,8 @@ sub describe_class {
   if ($classes{$class}->[1] == 1) {
     if ($arg1) {
       $time = gmtime($arg1);
-      return "$classes{$class}->[2] until $time"; # XLANG
+      return $as_setting? "$class-(epoch $arg1)" :
+	"$classes{$class}->[2] until $time"; # XLANG
     }
     return $classes{$class}->[2];
   }

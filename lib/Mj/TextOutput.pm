@@ -844,25 +844,35 @@ sub set {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27, "$list, $args";
-  my (@addresses, @stuff, $addr, $i, $ok, $rok, $setting);
+  my (@addresses, @stuff, $addr, $char, $i, $ok, $rok, $setting, $state);
 
-  # Deal with action-(arg with spaces) address
-  if ($args =~ /^(\S+?\-\(.*?\))\s*(.*)$/) {
-    $setting = $1;
-    $addr = $2;
-  }
-  # action-arg address
-  elsif ($args =~ /^(\S+?-\S+)\s*(.*)$/) {
-    $setting = $1;
-    $addr = $2;
-  }
-  # action address
-  else {
-    $args =~ /^(\S+)\s*(.*)$/;
-    $setting = $1;
-    $addr = $2;
+  # Need to separate the setting from the address.  Unfortunately, under
+  # some circumstances, the setting can have spaces in it so a quick split
+  # doesn't work.  So we parse the string in a little state machine.
+
+  $state = 'out';
+
+  # Run the state machine
+  while (1) {
+    last unless length($args);
+    $char = substr($args, 0, 1, '');
+
+    if (0) {}
+    # Out state; eat chars until we hit a space or an open paren
+    elsif ($state eq 'out') {
+      last if $char =~ /\s/;
+      $setting .= $char;
+      $state = 'in' if $char eq '(';
+    }
+    # In state; eat chars until hitting a closing paren.
+    elsif ($state eq 'in') {
+      $setting .= $char;
+      $state = 'out' if $char eq ')';
+    }
   }
 
+  # The address is everything that's left over.
+  $addr = $args;
   @addresses = @arglist;
   push (@addresses, $addr) if $addr;
   @addresses = ($user) unless (@addresses);
@@ -881,9 +891,9 @@ sub set {
 		     );
     $rok ||= $ok;
   }
-  
+
   $rok;
-}  
+}
 
 =head2 show
 

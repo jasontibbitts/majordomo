@@ -1693,7 +1693,7 @@ sub password {
     return ($ok, $mess);
   }
 
-  $self->_password($list, $user, $vict, $mode, $cmdline, $pass);  
+  $self->_password($list, $user, $vict, $mode, $cmdline, $pass);
 }
 
 use MIME::Entity;
@@ -4443,6 +4443,16 @@ sub who_chunk {
 						$i->{'classarg2'},
 						1,
 					       );
+      if (($i->{'class'} eq 'nomail') && $i->{'classarg2'}) {
+	# classarg2 holds information on the original class
+	$i->{'origclassdesc'} =
+	  $self->{'lists'}{$list}->describe_class(split("\002",
+							$i->{'classarg2'},
+							3
+						       ),
+						  1,
+						 );
+      }
       push @out, $i;
       next;
     }

@@ -859,8 +859,11 @@ sub who {
         chomp $result;
       }
       elsif ($mode =~ /export/ && $i->{'classdesc'} && $i->{'flagdesc'}) {
-	$result = "subscribe-nowelcome $i->{'fulladdr'}\n" .
-	  "set $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
+	$result = "subscribe-nowelcome $i->{'fulladdr'}\n";
+	if ($i->{'origclassdesc'}) {
+	  $result .= "set $i->{'origclassdesc'} $i->{'stripaddr'}\n";
+	}
+	$result .= "set $i->{'classdesc'},$i->{'flagdesc'} $i->{'stripaddr'}\n";
       }
       else {
         $result = $i->{'fulladdr'};
