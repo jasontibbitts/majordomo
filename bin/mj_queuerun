@@ -75,8 +75,8 @@ sub in {
 use lib "$::LIBDIR";
 use Getopt::Std;
 use strict;
-my (%opts, $ein, $eout, $head, $int, $line, $mime_parser, $mj, $nfound, 
-    $ok, $request_ans, $rin, $rout, $win, $wout);
+my (%opts, $count, $ein, $eout, $head, $int, $line, $mime_parser, 
+    $mj, $nfound, $ok, $request_ans, $rin, $rout, $win, $wout);
 
 umask oct($::UMASK);
 
@@ -136,6 +136,7 @@ $::log->out;
 
 # Now, we're ready.
 out('Starting');
+$count = 0;
 
 # Loop forever
 while (1) {
@@ -251,6 +252,12 @@ sub run_queue {
           # Loop over queue files
         MSG:
           for $tmp (@msgs) {
+            # Hard-coded file limit
+            if ($count >= 1000) {
+              out('Exiting: reached session limit');
+              exit;
+            }
+
 	    $msg = $tmp->[0];
             next MSG if $msg =~ /^\./;
 
@@ -333,6 +340,7 @@ sub run_queue {
               $::log->set_level($debug1) unless $emerg_log;
             }
 
+            $count++;
             $::log->message(10, 'info', 
               "Processing $pri1/$dom/$pri2/$func/$msg at " . time);
 
