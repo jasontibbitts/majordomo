@@ -1383,6 +1383,8 @@ sub rekey {
         next;
       }
 
+      next if ($list eq 'DEFAULT' or $list eq 'GLOBAL');
+
       eprintf($out, $type, "%-20s %4d out of %d\n", $list, $changed, 
               $count + scalar(keys %$unsub));
       if ($request->{'mode'} =~ /repair/) {
@@ -2453,7 +2455,7 @@ sub which {
 
 sub who {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my (%stats, @lines, @out, @stuff, @time, $chunksize, $count, 
+  my (%stats, @lines, @out, @time, @tmp, $chunksize, $count, 
       $error, $fh, $flag, $foot, $fullclass, $gsubs, $head, $i, 
       $j, $line, $mess, $numbered, $ok, $regexp, $remove, $ret, 
       $settings, $source, $str, $subs, $tmp);
@@ -2462,6 +2464,7 @@ sub who {
   $request->{'start'} ||= 1;
   $source = $request->{'list'};
   $remove = "unsubscribe";
+  $stats{'TOTAL'} = 0;
 
   if ($request->{'sublist'} ne 'MAIN') {
     $source .= ":$request->{'sublist'}";
@@ -2561,7 +2564,7 @@ sub who {
   }
 
 
-  unless ($request->{'mode'} =~ /export|short|alias/) {
+  unless ($request->{'mode'} =~ /export|short|alias|summary/) {
     $str = $mj->substitute_vars_format($head, $gsubs);
     print $out "$str\n";
   }
@@ -2571,7 +2574,6 @@ sub who {
     # discard results
     $mj->dispatch($request, $request->{'start'} - 1);
   }
-
 
   $subs = { %$gsubs };
 
@@ -2609,7 +2611,7 @@ sub who {
         eprint($out, $type, "$line\n");
         next;
       }
-      elsif ($request->{'mode'} !~ /bounce|enhanced/) {
+      elsif ($request->{'mode'} !~ /bounce|enhanced|summary/) {
         eprint($out, $type, "  $i->{'fulladdr'}\n");
         next;
       }
@@ -2626,8 +2628,28 @@ sub who {
 
       $subs->{'FULLADDR'} = &escape($i->{'fulladdr'}, $type);
       $subs->{'LASTCHANGE'} = '';
-    
-      if ($request->{'mode'} =~ /enhanced/) {
+
+      # Summary mode:  collect statistics instead of displaying 
+      # information about individual subscribers.
+      if ($request->{'mode'} =~ /summary/) {
+        if ($request->{'list'} ne 'GLOBAL' or $request->{'sublist'} ne 'MAIN') {
+          $stats{$i->{'class'}}++;
+        }
+        else {
+          @tmp = split ("\002", $i->{'lists'});
+          if (scalar @tmp) {
+            for $tmp (@tmp) {
+              $stats{$tmp}++;
+            }
+          }
+          else {
+            $stats{'NONE'}++;
+          }
+        }
+        $stats{'TOTAL'}++;
+        next;
+      }
+      elsif ($request->{'mode'} =~ /enhanced/) {
         if ($request->{'list'} ne 'GLOBAL' or $request->{'sublist'} ne 'MAIN') {
           $fullclass = $i->{'class'};
           $fullclass .= "-" . $i->{'classarg'} if ($i->{'classarg'});
@@ -2679,7 +2701,7 @@ sub who {
             }
           }    
         }    
-      }
+      } # enhanced mode
 
       $subs->{'BOUNCE_DIAGNOSTIC'} = ''; 
       $subs->{'BOUNCE_MONTH'} = ''; 
@@ -2701,8 +2723,29 @@ sub who {
 
   $request->{'command'} = "who_done";
   $mj->dispatch($request);
-     
-  unless ($request->{'mode'} =~ /export|short|alias/) {
+  
+  if ($request->{'mode'} =~ /summary/) {
+    print $out "<pre>\n" if ($type =~ /^www/);
+
+    if ($request->{'list'} ne 'GLOBAL' or $request->{'sublist'} ne 'MAIN') {
+      print $out sprintf("%-12s %s\n", 'Class', 'Subscribers');
+      print $out sprintf("%-12s %5d\n", 'TOTAL', $stats{'TOTAL'});
+      for $tmp (sort keys %stats) {
+        next if ($tmp eq 'TOTAL');
+        print $out sprintf("%-12s %5d\n", $tmp,  $stats{$tmp});
+      }
+    }
+    else {
+      print $out sprintf("%-20s %s\n", 'List', 'Subscribers');
+      print $out sprintf("%-20s %5d\n", 'TOTAL', $stats{'TOTAL'});
+      for $tmp (sort keys %stats) {
+        next if ($tmp eq 'TOTAL');
+        print $out sprintf("%-20s %5d\n", $tmp,  $stats{$tmp});
+      }
+    }
+    print $out "</pre>\n" if ($type =~ /^www/);
+  }   
+  elsif ($request->{'mode'} !~ /export|short|alias/) {
     $gsubs->{'COUNT'} = $count;
     $gsubs->{'PREVIOUS'} = '';
     $gsubs->{'NEXT'} = '';
