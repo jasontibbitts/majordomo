@@ -6,8 +6,9 @@ Mj::Addr - Address object for Majordomo
 
  Mj::Addr::set_params(%params);
  $addr = new Mj::Addr($string, %params);
- ($ok, $message) = $addr->valid; # Tests syntactic legality, returns
-                                 # problem description
+ ($ok, $message, $loc) = $addr->valid; # Tests syntactic legality, returns
+                                       # problem description and
+                                       # location
  $strip   = $addr->strip;        # Remove comments
  $comment = $addr->comment;      # Extract comments
 
@@ -303,7 +304,7 @@ will coerce the full address to route-address form.
 sub setcomment {
   my $self    = shift;
   my $comment = shift;
-  my ($newaddr, $mess, $ok, $orig, $strip);
+  my ($newaddr, $loc, $mess, $ok, $orig, $strip);
 
   $comment =~ s/^\s*["'](.*)["']\s*$/$1/;
 
@@ -313,12 +314,12 @@ sub setcomment {
   $newaddr = qq("$comment" <$strip>);
   $self->reset($newaddr);
 
-  ($ok, $mess) = $self->valid;
+  ($ok, $mess, $loc) = $self->valid;
   unless ($ok) {
     $self->reset($orig);
   }
 
-  return ($ok, $mess);
+  return ($ok, $mess, $loc);
 }
 
 =head2 full
@@ -405,7 +406,7 @@ sub valid {
 #  use Data::Dumper; print Dumper $self;
 
   $self->_parse unless $self->{parsed};
-  ($self->{'valid'}, $self->{message});
+  ($self->{'valid'}, $self->{message}, $self->{'error_location'});
 }
 
 sub isvalid {
@@ -539,6 +540,7 @@ sub _parse {
     $self->{'domain'}   = $v4;
     $self->{'valid'}   = 1;
     $self->{'message'} = '';
+    $self->{'error_location'} = '';
   }
   else {
     $self->{'strip'}   = undef;
@@ -547,6 +549,7 @@ sub _parse {
     $self->{'domain'}  = undef;
     $self->{'valid'}   = 0;
     $self->{'message'} = $v1;
+    $self->{'error_location'} = $v2;
   }
   $self->{'parsed'} = 1;
   $self->{'valid'};
@@ -698,7 +701,7 @@ sub _validate {
 
   if ($_ eq "") {
 #    $log->out("failed");
-    return (0, "Nothing at all in that address.\n");
+    return (0, 'undefined_address');
   }
 
   # We split the address into "words" of either atoms, quoted strings,
@@ -734,7 +737,7 @@ sub _validate {
       # If we don't have enough closing parentheses, we're hosed
       if ($nest) {
 #	$log->out("failed");
-	return (0, "Unmatched parenthesis in $comment $_\n");
+	return (0, 'unmatched_paren', "$comment $_");
       }
 
       # Trim parentheses and trailing space from the comment
@@ -763,15 +766,11 @@ sub _validate {
 
       unless ($on_rhs) {
 #	$log->out("failed");
-	return (0, "Domain literals (words in square brackets) are only permitted on
-the right hand side of an address: $1 $_
-Did you mistakenly enclose the entire address in square brackets?
-");
+	return (0, 'lhs_domain_literal', "$1 $_");
       }
       unless ($words[-2] && $words[-2] =~ /^[.@]/) {
 #	$log->out("failed");
-	return (0, "Domain literals (words in square brackets) are only permitted after
-a '.' or a '\@': $words[-2] _$1_$_\n");
+	return (0, 'rhs_domain_literal', "$words[-2] _$1_$_");
       }
       next;
     }
@@ -803,14 +802,10 @@ a '.' or a '\@': $words[-2] _$1_$_\n");
       if ($1 eq ',') {
 #	$log->out("failed");
 	if ($angle) {
-	  return (0, "Source routes are not allowed, at
-@words[0..$#words-1] _$1_ $_
-Did you mistype a period as a comma?\n");
+	  return (0, 'source_route', "@words[0..$#words-1] _$1_ $_");
 	}
 	pop @words;
-	return (-1, "Multiple addresses not allowed, at
-@words[0..$#words] _$1_ $_
-Did you mistype a period as a comma?\n", join('',@words), $_);
+	return (-1, 'multiple_addresses', join('',@words), $_);
       }
 
       # An '@' special puts us on the right hand side of an address
@@ -818,7 +813,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
 
 	# But we might already be on the RHS
 	if ($on_rhs) {
-	  return (0, "Only one \@ permitted outside of comments at: $words[-1] _$1_ $_\n");
+	  return (0, 'at_symbol', "$words[-1] _$1_ $_");
 	}
 	$on_rhs = 1;
       }
@@ -832,13 +827,13 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
 	$angle++;
 	if ($angle > 1) {
 #	  $log->out("failed");
-	  return (0, "Angle brackets cannot nest at: $words[-2] _$1_ $_\n");
+	  return (0, 'nested_brackets', "$words[-2] _$1_ $_");
 	}
 
 	# Make sure we haven't already seen a route address
 	if (@route) {
 #	  $log->out("failed");
-	  return (0, "Only one bracketed address permitted at: @words[0..$#words-1] _$1_ $_\n");
+	  return (0, 'bracketed_addresses',  "@words[0..$#words-1] _$1_ $_");
 	}
 
       }
@@ -847,8 +842,8 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
 	pop @route;
 	if ($angle < 0) {
 #	  $log->out("failed");
-	  return (0, sprintf("Too many closing angles at %s_%s_%s\n",
-			    $words[-2]||"", $1, $_));
+	  return (0, 'right_brackets', sprintf ("%s_%s_%s",
+			    $words[-2] || "", $1, $_));
 	}
 	next;
       }
@@ -857,18 +852,18 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
       # some tests until later to give better messages.
       elsif ($words[-2] && $words[-2] =~ /^[\Q$specials\E]$/) {
 #	$log->out("failed");
-	return (0, sprintf("Illegal combination of characters at: %s _%s %s_ %s\n",
-			  $words[-3]||"", $words[-2], $words[-1], $_));
+	return (0, 'invalid_char', sprintf("%s _%s %s_ %s",
+                   $words[-3] || "", $words[-2], $words[-1], $_));
       }
       next;
     }
 
 #    $log->out("failed");
-    return (0, "Unrecognized address component in $_\n");
+    return (0, 'invalid_component', $_);
   }
   if ($angle) {
 #    $log->out("failed");
-    return (0, "Unmatched open angle bracket in address.\n");
+    return (0, 'left_brackets', '<');
   }
 
   # So we have the address broken into pieces and have done a bunch of
@@ -902,7 +897,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
       # This is common, however, and is overrideable.
       if (!$self->{p}{'allow_comments_after_route'} && $right_of_route) {
 #	$log->out("failed");
-	return (0, "Nothing is allowed to the right of an address in angle brackets.\n");
+	return (0, 'after_route', $words[$i]);
       }
 
       # We might be lenient and allow '@' in the phrase
@@ -913,8 +908,8 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
       # Other specials are illegal
       if ($words[$i] =~ /^[\Q$specials_nd\E]/) {
 #	$log->out("failed");
-	return (0, sprintf("Illegal character in comment portion of address at: %s _%s_ %s\n",
-			   $words[$i-1] || "", $words[$i], $words[$i+1] || ""));
+	return (0, 'invalid_char', sprintf("%s _%s_ %s", $words[$i-1] || "", 
+                                           $words[$i], $words[$i+1] || ""));
       }
     }
     # We toss the other tokens, since we don't need them anymore.
@@ -927,7 +922,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
 
   unless (@words) {
 #    $log->out("failed");
-    return (0, "Nothing but comments in that address.\n");
+    return (0, 'no_route', '');
   }
 
   # In an addr-spec, every atom must be separated by either a '.' (dots are
@@ -936,7 +931,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
   # end with a '.', too.)
   if ($words[0] =~ /^[.@]/) {
 #    $log->out("failed");
-    return (0, "The address cannot begin with either '.' or '\@'.\n");
+    return (0, 'starting_char', $words[0]);
   }
 
   $on_rhs = 0;
@@ -953,12 +948,7 @@ Did you mistype a period as a comma?\n", join('',@words), $_);
   for $i (0..$#words) {
     if ($i > 0 &&$words[$i] !~ /^[.@]/ && $words[$i-1] && $words[$i-1] !~ /^[.@]/) {
 #      $log->out("failed");
-      return (0, "Individual words are not allowed without an intervening '.' or '\@'
-at: $words[$i-1] $words[$i]
-Did you supply just your full name?  Did you include your full name
-along with your address without surrounding your name by parentheses?
-Did you try to perform an action on two lists at once?
-");
+      return (0, 'word_separator', "$words[$i-1] $words[$i]");
     }
 
     if ($words[$i] eq '@') {
@@ -971,7 +961,7 @@ Did you try to perform an action on two lists at once?
       $rhs_length += length($words[$i]);
       if ($self->{p}{'limit_length'} && $rhs_length > 64) {
 #	$log->out("failed");
-	return (0, "The hostname exceeds 64 characters in length.\n");
+	return (0, 'host_length', $words[$i]);
       }
       # Hostname components must be only alphabetics, ., or -; can't start
       # with -.  We also allow '[' and ']' for domain literals.
@@ -979,21 +969,21 @@ Did you try to perform an action on two lists at once?
 	   $words[$i] =~ /^-/) && $words[$i] !~ /^[\[\]]/)
 	{
 #	  $log->out("failed");
-	  return (0, "Host name component \"$words[$i]\" contains illegal characters.\n");
+	  return (0, 'invalid_char', "$words[$i]");
 	}
     }
     else {
       $lhs_length += length($words[$i]);
       if ($self->{p}{'limit_length'} && $lhs_length > 64) {
 #	$log->out("failed");
-	return (0, "The user name exceeds 64 characters in length.\n");
+	return (0, 'local_part_length', $words[$i]);
       }
       # Username components must lie betweem 040 and 0177.  (It's really
       # more complicated than that, but this will catch most of the
       # problems.)
       if ($words[$i] =~ /[^\040-\177]/) {
 #	$log->out("failed");
-	return (0, "User name component \"$words[$i]\" contains illegal characters.\n");
+	return (0, 'invalid_char', "$words[$i]");
       }
     }
 
@@ -1009,23 +999,22 @@ Did you try to perform an action on two lists at once?
   if ($self->{p}{'require_fqdn'} && !$on_rhs) {
     if ($top_level_domains{lc($words[-1])}) {
 #      $log->out("failed");
-      return (0, "It looks like you have supplied just a domain name
-without the rest of the address.\n");
+      return (0, 'no_local_part', $words[-1]);
     }
     else {
 #      $log->out("failed");
-      return (0, "You did not include a hostname as part of the address.\n");
+      return (0, 'no_domain', $words[-1]);
     }
   }
 
   if ($words[-1] eq '@') {
 #    $log->out("failed");
-    return (0, "The address cannot end with an '\@'.  You must supply a hostname.\n");
+    return (0, 'ending_at', '@');
   }
 
   if (!$self->{p}{'allow_ending_dot'} && $words[-1] eq '.') {
 #    $log->out("failed");
-    return (0, "The address cannot end with a '.'.\n");
+    return (0, 'ending_period', '.');
   }
 
   # Now check the validity of the domain part of the address.  If we've
@@ -1035,7 +1024,7 @@ without the rest of the address.\n");
   if ($on_rhs) {
     if ($self->{p}{'require_fqdn'} && $subdomain < 2 && !$domain_literal) {
 #      $log->out("failed");
-      return (0, "You did not include a complete hostname.\n");
+      return (0, 'incomplete_host', $words[-1]);
     }
     if (($self->{p}{'strict_domain_check'} &&
 	 $words[-1] !~ /^\[/ &&
@@ -1048,14 +1037,11 @@ without the rest of the address.\n");
 	    $words[-7] && $words[-7] !~ /\D/)
 	  {
 #	    $log->out("failed");
-	    return (0, "It looks like you are trying to supply your IP address
-instead of a hostname.  To do so, you must enclose it in
-square brackets like so: [" . join("",@words[-7..-1]) . "]\n");
+	    return (0, 'ip_address', join("",@words[-7..-1]));
 	  }
 	
 #	$log->out("failed");
-	return (0, "The domain you provided, $words[-1], does not seem
-to be a legal top-level domain.\n");
+	return (0, 'top_level_domain', $words[-1]);
       }
   }
 
