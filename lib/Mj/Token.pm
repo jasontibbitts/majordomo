@@ -360,7 +360,8 @@ sub consult {
   # The number of moderators consulted can be limited to a
   # certain (positive) number, in which case moderators
   # are chosen randomly.
-  $size  = $args{'size'} or $self->_list_config_get($list, 'moderator_group');
+  $size  = $args{'size'} || 
+           $self->_list_config_get($list, 'moderator_group') || 0 ;
   if (($size > 0) and (scalar @mod1 > $size)) {
     for ($i = 0; $i < $size && @mod1; $i++) {
       push(@mod2, splice(@mod1, rand @mod1, 1));
@@ -370,7 +371,9 @@ sub consult {
     @mod2 = @mod1;
   }
 
-  ($reasons = $args{'reasons'}) =~ s/\002/\n  /g;
+  ($reasons = $args{'reasons'}) =~ s/\002/\n  /g
+    if ($args{'reasons'});
+  $reasons ||= '';
 
   # Not doing a post, so we send a form letter.
   # First, build our big hash of substitutions.
@@ -578,13 +581,13 @@ sub t_accept {
     $data->{'reminded'} = 1;
     $self->{'tokendb'}->replace('', $token, $data);
     return (-1, sprintf "Request delayed until %s.\n", 
-            scalar localtime ($data->{'expire'}), $data, -1);
+            scalar localtime ($data->{'expire'}), $data, [-1]);
   }
   
   if ($data->{'approvals'} > 0) {
     $self->{'tokendb'}->replace("", $token, $data);
     return (-1, "$data->{'approvals'} approvals are still required", 
-            $data, -1);
+            $data, [-1]);
   }
   
   # Allow "accept-archive" to store a message in the archive but
@@ -658,7 +661,7 @@ sub t_accept {
     }
     $fh->close;
     unlink $file;
-    return (-1, $mess, $data, -1);
+    return (-1, $mess, $data, [-1]);
   } # chain1 
 
   ($func = $data->{'command'}) =~ s/_(start|chunk|done)$//;
@@ -683,7 +686,8 @@ sub t_accept {
       # missing spool file; inform and quit.
       $self->inform("GLOBAL", "post", $data->{'user'}, $data->{'user'},
         $data->{'cmdline'}, "resend",
-        0, 0, -1, "Spool file $data->{'arg1'} is missing; cannot requeue.");
+        0, 0, -1, "Spool file $data->{'arg1'} is missing; cannot requeue.",
+        $::log->elapsed);
       @out = (0, "Unable to locate the posted message.\n");
     }
     else {
