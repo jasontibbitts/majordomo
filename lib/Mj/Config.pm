@@ -2392,7 +2392,7 @@ sub parse_table {
 	push @row, [@group];
       }
       
-      # Process mulifield lines
+      # Process multifield lines
       elsif ($s =~ /^f/g) {
 	@group = split(/\s*[:|]\s*/,$data->[$line]);
 	$elem = 0;
@@ -2431,20 +2431,17 @@ sub parse_table {
 	      # in as part of the string.  XXX This bogosity might not be
 	      # correct...
 	      m{
-		([^\"\(,]*?    # Eat anything that's not " or (
-		 [\"\(]        # A " or (
-		 [^\"\)\\]*    # Anything not " or ) or \
-		 (?:           # Non-backreferencing group
-		  \\.          # Anything after a backslash
-		  [^\"\(\)\\]* # Anything but " or ( or \
-		 )*
-		 [\"\)]       # Closing " or )
-		)
-		\s*,?\s*      # Space and comma
-                
-		# Or less complicated cases
-		| ([^,\s]+)\s*,?\s*
-		| \s*,\s*
+                ((?=.)         # Must not be empty
+                 (?:[^\"\(,\\]|\\[\"\(,])* 
+                 (?:             
+                 \"(?:[^\"\\]|\\.)*(?:\"|$)
+                 |
+                 \((?:[^\)\\]|\\.)*(?:\)|$)
+                 |
+                 )
+                )
+                [\s,]*      # Any number of spaces and commas
+
 	       }gx;
 	    
 	    # The old non-parenthesis version in case I screwed up

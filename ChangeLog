@@ -1,3 +1,11 @@
+2000-08-10  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Access.pm (list_access_check):  Allow reasons
+	to be described for commands other than "post."
+
+	* lib/Mj/Config.pm (parse_table):  Allow parens within
+	quotes and vice-versa when parsing multifield lines.
+
 2000-08-09  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (dispatch) Treat an "owner" command as
