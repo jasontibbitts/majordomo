@@ -492,22 +492,24 @@ sub set {
   $mess ||= '';
 
   if ($ok>0) {
-    eprint($out, $type, "Settings for $vict changed.\n");
+    eprint($out, $type, "Setting \"$setting\" for $vict.\n");
     while (($ok, $flags, $mode1, $mode2, $mode3, $list) =
             splice @changes, 0, 6) {
-      $fullmode = " (unknown digest mode???)";
-      $fullmode = " (not receiving posts)" if $mode1 eq 'nomail';
-      $fullmode = "-$mode2-$mode3 (receiving digests)" if $mode1 eq 'digest';
-      $fullmode = " (receiving messages as they are posted)" if $mode1 eq 'each';
-      # $fullmode = Mj::List::describe_class($mode1,$mode2,$mode3) if $mode1 eq 'digest';
-      $fullflags = join "\n  ", Mj::List::describe_flags($flags);
-      eprint($out, $type, &indicate(
+      if ($ok>0) {
+        $fullmode = " (unknown digest mode???)";
+        $fullmode = " (not receiving posts)" if $mode1 eq 'nomail';
+        $fullmode = "-$mode2-$mode3 (receiving digests)" if $mode1 eq 'digest';
+        $fullmode = " (receiving messages as they are posted)" if $mode1 eq 'each';
+        # $fullmode = Mj::List::describe_class($mode1,$mode2,$mode3) if $mode1 eq 'digest';
+        $fullflags = join "\n  ", Mj::List::describe_flags($list, $flags);
+        eprint($out, $type, &indicate(
        "$list:\n  $mode1$fullmode\n  $fullflags\n(see 'help set' for full explanation)\n", $ok, 1));
+      }
+      # deal with partial failure
+      else {
+        eprint($out, $type, &indicate("$flags\n", $ok, 1));
+      }
     }
-  }
-  elsif (!$ok) {
-    eprint($out, $type, "Changes for $vict must be confirmed.\n");
-    eprint($out, $type, &indicate("$mess\n", $ok, 1));
   }
   else {
     eprint($out, $type, "Settings for $vict not changed.\n");
