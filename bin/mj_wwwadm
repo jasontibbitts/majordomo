@@ -61,7 +61,7 @@ $::log->add
    method      => 'handle',
    id          => 'mjwww',
    handle      => \*STDERR,
-   level       => 0,
+   level       => 50,
    subsystem   => 'mail',
    log_entries => 1,
    log_exits   => 1,
@@ -149,12 +149,23 @@ EOM
 # Select the previous command.
 $cmdform =~ s/option> $ofunc/option selected> $ofunc/;
 
+print <<EOM;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/strict.dtd"> 
+<html><head>
+<title>Majordomo 2 Administration: $func</title>
+</head>
+<body>
+EOM
+
 print $cmdform;
 
 no strict 'refs';
 # Make sure the command is valid
 unless (defined ${Mj::TextOutput::}{$func}) {
   print "Illegal command: $func\n";
+  $::log->message(50, "info",  
+    "Invalid command $command in request from $ENV{'REMOTE_ADDR'} at " . time);
   exit 0;
 }
 # Make sure the list name is valid
@@ -167,6 +178,8 @@ if ($list ne '') {
   }
   else {
     print "<h3>Invalid list name: $list</h3>\n";
+    $::log->message(50, "info",  
+      "Invalid list $list in request from $ENV{'REMOTE_ADDR'} at " . time);
     exit 0; 
   }
 }
@@ -188,6 +201,8 @@ elsif ($passw ne '') {
                                "mjwww", $list, $func);
   if ($ok <= 0) {
     print "<h3>The password you provided is invalid</h3>\n";
+    $::log->message(50, "info",  
+      "Invalid password in request from $ENV{'REMOTE_ADDR'} at " . time);
     exit 0;
   }
 }
@@ -291,6 +306,9 @@ EOM
   $fh->close();
   print STDOUT "</pre>\n";
   print STDOUT "</form>\n" if $summarize;
+  print STDOUT <<EOM;
+</body></html>
+EOM
 }
 
 =head1 COPYRIGHT
