@@ -2913,30 +2913,14 @@ sub parse_welcome_files {
   # Parse the table, one siingle-field line and a line with two fields
   ($table, $error) = parse_table('lfso', $arr);
 
-  return (0, "Error parsing: $error")
+  return (0, "Error parsing welcome files: $error")
     if $error;
 
-#   # Check for an empty table and supply a default; the 'welcome' and 'info'
-#   # files should always exist in the GLOBAL filespace
-#   unless (@$table) {
-#     $table =
-#       [
-#        [
-# 	'Welcome to the $LIST mailing list!',
-# 	'welcome',
-# 	'NS',
-#        ],
-#        [
-# 	"List introductory information",
-# 	'info',
-# 	'PS',
-#        ],
-#       ];
-#   }
-
   for ($i=0; $i < @$table; $i++) {
-    return (0, "Illegal flags $table->[$i][2]")
-      if $table->[$i][2] =~ /[^NPS]/;
+    return (0, "Illegal welcome files flags: $table->[$i][2]")
+      if $table->[$i][2] =~ /[^NPRSU]/;
+    return (0, "The 'R' and 'U' flags cannot be used together.")
+      if ($table->[$i][2] =~ /R/ and $table->[$i][2] =~ /U/);
   }
 
   return (1, '', $table);
