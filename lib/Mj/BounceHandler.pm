@@ -20,7 +20,7 @@ use AutoLoader 'AUTOLOAD';
 
 $VERSION = "0.0";
 use strict;
-use vars qw(%memberof $skip);
+use vars qw(%args %memberof $skip);
 
 1;
 __END__
@@ -277,13 +277,13 @@ sub handle_bounce_user {
   my %params = @_; # Can't use %args, because the access code uses it.
   my $log  = new Log::In 35;
 
-  my (%args, @final_actions, $actions, $arg, $bdata, $cpt, $func, $i,
+  my (@final_actions, $actions, $arg, $bdata, $cpt, $func, $i,
       $mess, $ok, $rules, $saw_terminal, $sdata, $status, $tmpa, $tmpl,
       $value);
 
   # We must share some things with a Safe compartment, so they must be in
   # lexicals.
-  local(%memberof, $skip);
+  local(%args, %memberof, $skip);
 
   my $user   = $params{user};
   my $list   = $params{list};

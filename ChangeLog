@@ -1,5 +1,8 @@
 2000-12-05  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/BounceHandler.pm: %args needs to be local so it can be
+	shared with the compartment during bounce_rules processing.
+
 	* lib/Mj/Config.pm (parse_bounce_rules): Fix off by one error in
 	rule IDs.
 
