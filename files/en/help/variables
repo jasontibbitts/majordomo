@@ -396,6 +396,10 @@ See "help reply_files" for a description of each of the reply files.
 \$MESSAGE_ID
   The message ID, from the "Message-Id" header, of a posted message.
 
+\$MODE
+  The command mode.  For example, the command mode of the "who-enhanced"
+  command would be "enhanced."
+
 \$MSGNO
   The archive name and number of a posted message, for example
   "200008/12".  This is not the same as the sequence number.  

@@ -1541,7 +1541,8 @@ who_error
 (text, wwwadm)  This file displays an error message if the who
 command stalls or fails.
 
-(standard plus CGIDATA, CGIURL, ERROR, CMDPASS, PATTERN, REMOVE, START, USER)
+(standard plus CGIDATA, CGIURL, ERROR, CMDPASS, MODE, PATTERN, REMOVE, 
+ START, USER)
 
 
 who_foot
@@ -1550,7 +1551,7 @@ who_foot
 of the output.  This file is not displayed if the alias, export, or
 short command mode is used.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, REMOVE, START, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, REMOVE, START, USER)
 
 
 who_head
@@ -1559,7 +1560,7 @@ who_head
 of the output.  This file is not displayed if the alias, export, or
 short command mode is used.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, REMOVE, START, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, REMOVE, START, USER)
 
 
 who_registry
@@ -1568,8 +1569,8 @@ who_registry
 It is used only for the GLOBAL pseudo-list.  This file is not displayed
 if the alias or export command mode is used.
 
-(standard plus CANON, CGIDATA, CGIURL, FULLADDR, LASTCHANGE, LISTS
- CMDPASS, PATTERN, QSADDR, REMOVE, START, STRIPADDR, USER and others)
+(standard plus CANON, CGIDATA, CGIURL, CMDPASS, FULLADDR, LASTCHANGE, LISTS,
+ MODE, PATTERN, QSADDR, REMOVE, START, STRIPADDR, USER and others)
 
 
 who_registry_foot
@@ -1578,7 +1579,7 @@ who_registry_foot
 bottom of the output.  It is used only for the GLOBAL pseudo-list.  
 This file is not displayed if the alias, export, or short command mode is used.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, REMOVE, START, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, REMOVE, START, USER)
 
 
 who_registry_head
@@ -1587,11 +1588,12 @@ who_registry_head
 top of the output.  It is used only for the GLOBAL pseudo-list.  
 This file is not displayed if the alias, export, or short command mode is used.
 
-(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, REMOVE, START, USER)
+(standard plus CGIDATA, CGIURL, CMDPASS, MODE, PATTERN, REMOVE, START, USER)
 
 
 See Also:
    help admin_domain
+   help admin_documents
    help error_files
    help reply_files
    help variables
