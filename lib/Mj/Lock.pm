@@ -38,7 +38,7 @@ locks).
 =cut
 use strict;
 use Fcntl qw(:flock);
-use IO::Handle;
+use Symbol;
 
 =head2 new
 
@@ -96,8 +96,8 @@ sub lock {
   my $name    = shift;
   my $mode    = shift;
   my $noblock = shift;
-  my $handle  = new IO::Handle;
-  my $mhandle = new IO::Handle;
+  my $handle  = gensym();
+  my $mhandle = gensym();
   my ($lm, $lname, $mname, $out);
 
   $::log->in(140, "$name, $mode");
@@ -175,7 +175,7 @@ the details hidden.
 
 =cut
 sub expire_locks {
-  my $handle = new IO::Handle;
+  my $handle = gensym();
   my ($file, $mname, $ok);
   $::log->in(200);
   $mname = _name();
@@ -195,7 +195,7 @@ sub expire_locks {
       unless $1 eq $mname || $1 =~ /^\./;
   }
   closedir(DIRH);
-  $handle->close; # Release global lock
+  close $handle; # Release global lock
   $::log->out;
   1;
 }
