@@ -915,8 +915,9 @@ deregistration) or for display to the user, this isn''t a concern.
 
 =cut
 sub _alias_reverse_lookup {
-  my $self = shift;
-  my $addr = shift;
+  my $self    = shift;
+  my $addr    = shift;
+  my $incself = shift;
   my (@data, @out, $data, $key);
   
   $self->{'alias'}->get_start;
@@ -926,8 +927,8 @@ sub _alias_reverse_lookup {
   $self->{'alias'}->get_done;
   
   while (($key, $data) = splice(@data, 0, 2)) {
-    unless ($key eq $data->{'target'}) {
-      push @out, $data->{'stripsource'};
+    unless ($key eq $data->{'target'} and ! $incself) {
+      push @out, $key;
     }
   }
   @out;
@@ -2637,7 +2638,7 @@ sub alias {
   my $log = new Log::In 30, "$request->{'newaddress'}, $request->{'user'}";
   my ($a2, $ok, $mess);
 
-  return [0, "No address supplied.\n"] 
+  return (0, "No address supplied.\n") 
     unless (exists $request->{'newaddress'});
 
   ($ok, $mess) = 
@@ -2663,14 +2664,14 @@ sub _alias {
 
   # Check that the target (after aliasing) is registered
   $tdata = $self->{reg}->lookup($to->alias);
-  return [0, "$to is not registered here.\n"]
+  return (0, "$to is not registered here.\n")
     unless $tdata;
 
   # Check that the transformed but unaliased source is _not_ registered, to
   # prevent cycles.
   $fdata = $self->{reg}->lookup($from->xform);
 
-  return [0, "$from is already registered here.\n"]
+  return (0, "$from is already registered here.\n")
     if $fdata;
 
   # Add bookkeeping alias; don't worry if it fails
@@ -2681,13 +2682,6 @@ sub _alias {
  	  };
   $self->{'alias'}->add("", $to->xform, $data);
 
-  # Add alias
-  $data = {
-	   'target'     => $to->alias,
-	   'stripsource' => $from->strip,
-	   'striptarget' => $to->strip,
-	  };
-  
   ($ok, $err) = $self->{'alias'}->add("", $from->xform, $data);
   unless ($ok) {
     # Really, this cannot happen.
@@ -2749,8 +2743,8 @@ sub _announce {
      WHEREAMI => $self->_global_config_get('whereami'),
      WHOAMI   => $self->_list_config_get($list, 'whoami'),
      MJ       => $self->_global_config_get('whoami'),
-     MJOWNER  => $self->_global_config_get('sender'),
-     OWNER    => $sender,
+     MJOWNER  => $self->_global_config_get('whoami_owner'),
+     OWNER    => $self->_list_config_get($list, 'whoami_owner'),
      SITE     => $self->_global_config_get('site_name'),
      USER     => $user,
      LIST     => $list,
@@ -2824,7 +2818,7 @@ mode to determine what action to take.
 
 Useful modes include:
 
-  get - retrieve a named message (or messages)
+  get - retrieve a named message (or messages).
  
   index - retrieve a list of messages.
 
@@ -2842,16 +2836,15 @@ Useful modes include:
 
   The slash in a named message is required.  (Note that names don''t always
   have six digits; it depends on archive_split.)  Dates hever have slashes.
-  Separators (1998.05.01, 1998-05-01) are allowed in dates and names, by
-  applying s/[\.\-]//g to each date.  Spaces around the dashes in a range
-  are required.  Multiple ranges aren''t supported in a first cut.  If the
-  end of a range is left off, the most recent message or current date is
-  used.
+  Separators (1998-05-01) are allowed in dates and names, by
+  applying s/[\-]//g to each date.  Spaces around the dashes in a range
+  are required.  
 
-  Results are returned in digests unless -immediate is given; in that case,
-  the messages will be returned immediately in mbox format.  The type of
-  digest is selected by a mode; normal, MIME and HTML are possibilities.
-  The digest will be mailed in a separate message.
+  Results for archive-get are returned in one or more digests unless 
+  -immediate is given; in that case, the messages will be returned 
+  immediately in mbox format.  The type of digest is selected by a mode; 
+  mime if "mime" mode is specified; text otherwise.  The digest will be mailed 
+  in a separate message.
 
   Other modes could be used to return other data 
   (probably an array of everything stored within the archive index).
@@ -3120,6 +3113,13 @@ sub configshow {
     }
   }
   for $var (sort keys %all_vars) {
+    $auto = 2;
+    if ($self->config_get_isauto($var)) {
+      $auto = -1;
+    }
+    elsif ($self->config_get_mutable($var)) {
+      $auto = 1;
+    }
     # Process the options
     $comment = '';
     if ($request->{'mode'} !~ /nocomments/) {
@@ -3138,10 +3138,9 @@ sub configshow {
       elsif ($whence == 0) {
         $comment .= "This value was set by the installation defaults.\n";
       }
-    }
-    $auto = 1;
-    if ($self->config_get_isauto($var)) {
-      $auto = -1;
+      if ($auto == 2) {
+        $comment .= "A global password is required to change this value.\n";
+      }
     }
     if ($self->config_get_isarray($var)) {
       @hereargs = ();
@@ -3228,10 +3227,18 @@ sub _changeaddr {
     }
   }
 
-  @aliases = $self->_alias_reverse_lookup($key);
+  @aliases = $self->_alias_reverse_lookup($key, 1);
   for (@aliases) {
-    $self->{'alias'}->replace('', $_, 'target', $requ->canon);
-    $self->{'alias'}->replace('', $_, 'striptarget', $requ->strip);
+    if ($_ eq $vict->canon) {
+      ($lkey, $ldata) = $self->{'alias'}->remove('', $_);
+      $ldata->{'target'} = $requ->canon;
+      $ldata->{'striptarget'} = $requ->strip;
+      $self->{'alias'}->add('', $requ->canon, $ldata);
+    }
+    else {
+      $self->{'alias'}->replace('', $_, 'target', $requ->canon);
+      $self->{'alias'}->replace('', $_, 'striptarget', $requ->strip);
+    }
   }
 
   return (1, @out);
@@ -3306,7 +3313,7 @@ sub _createlist {
   $bdir  = $self->_site_config_get('install_dir');
   $bdir .= "/bin";
   $who   = $self->_global_config_get('whoami');
-  $who   =~ s/@.*$//; # Just want local part
+  $who   =~ s/@.*$// if $who; # Just want local part
   $mtaopts = $self->_site_config_get('mta_options');
 
   %args = ('bindir' => $bdir,
@@ -3714,6 +3721,11 @@ sub reject {
       }
     }
     $list_owner = $self->_list_config_get($data->{'list'}, 'sender');
+    if (! $list_owner) {
+      # This will cope with the inability to create a list.
+      push @out, 0, ["Unable to determine owner of $data->{'list'}."];
+      next;
+    }
 
     # Extract the session data
     # XXX Send this as an attachment instead of storing it in a string.
@@ -3743,6 +3755,7 @@ sub reject {
          'REQUESTER'  => $data->{'user'},
          'VICTIM'     => $data->{'victim'},
          'CMDLINE'    => $data->{'cmdline'},
+         'DATE'       => scalar localtime($data->{'time'});
          'REQUEST'    => $data->{'command'},
          'LIST'       => $data->{'list'},
          'SESSIONID'  => $data->{'sessionid'},
@@ -3752,16 +3765,22 @@ sub reject {
          'WHOAMI'     => $self->_list_config_get($data->{'list'}, 'whoami'),
         };
    
-   
+  
+    $data->{'auxlist'} = '';
+    if ($data->{'command'} eq 'post') {
+      my %avars = split("\002", $data->{'arg3'});
+      $data->{'auxlist'} = $avars{'sublist'} || '';
+    }
     $victim = new Mj::Addr($data->{'victim'});  
     if ($data->{'type'} eq 'confirm' 
           or
-        $self->{'lists'}{$data->{'list'}}->flag_set('ackall', $victim)) 
+        $self->{'lists'}{$data->{'list'}}->should_ack($data->{'auxlist'}, $victim, 'j')) 
     {
       $data->{'ack'} = 1;
       ($file, %file) = $self->_list_file_get($data->{'list'}, $rfile, $repl);
       unless (defined $file) {
-        ($file, %file) = $self->_list_file_get($data->{'list'}, "token_reject", $repl);
+        ($file, %file) = 
+          $self->_list_file_get($data->{'list'}, "token_reject", $repl);
       }
       $desc = $self->substitute_vars_string($file{'description'}, $repl);
         
@@ -4160,12 +4179,8 @@ The classes are:
 sub set {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'list'}, $request->{'setting'}";
-  my ($ok, $mess);
+  my ($force, $ok, $mess);
  
-  unless ($request->{'setting'}) {
-    return (0, "No setting defined.\n");
-  }
-
   return (0, "The set command is not supported for the $request->{'list'} list.\n")
     if ($request->{'list'} eq 'GLOBAL' or $request->{'list'} eq 'DEFAULT'); 
 
@@ -4179,15 +4194,23 @@ sub set {
     $log->out("noaccess");
     return ($ok, $mess);
   }
+  # If the request succeeds immediately, using the master password,
+  # override the allowed_classes and allowed_flags settings if necessary.
+  $force = ($ok > 1)? 1 : 0;
 
   $self->_set($request->{'list'}, $request->{'user'}, $request->{'victim'}, 
               $request->{'mode'}, $request->{'cmdline'}, $request->{'setting'},
-              '', $request->{'auxlist'});
+              '', $request->{'auxlist'}, $force);
 }
 
 sub _set {
-  my ($self, $list, $user, $addr, $mode, $cmd, $setting, $d, $sublist) = @_;
-  my (@lists, @out, $data, $l, $ok, $res);
+  my ($self, $list, $user, $addr, $mode, $cmd, $setting, $d, $sublist, $force) = @_;
+  my (@lists, @out, $check, $data, $l, $ok, $res);
+  $check = $setting ? 0 : 1;
+  if ($setting eq 'check') {
+    $check = 1;
+    $setting = '';
+  }
 
   if ($list eq 'ALL') {
     $data = $self->{'reg'}->lookup($addr->canon);
@@ -4206,7 +4229,15 @@ sub _set {
       push @out, (0, "The $l list apparently does not exist.\n");
       next;
     }
-    ($ok, $res) = $self->{'lists'}{$l}->set($addr, $setting, $sublist);
+    if ($sublist) {
+      unless ($ok = $self->{'lists'}{$l}->valid_aux($sublist)) {
+        push @out, (0, "There is no sublist $sublist of the $l list.\n");
+        next;
+      }
+      $sublist = $ok;
+    }
+    ($ok, $res) = 
+      $self->{'lists'}{$l}->set($addr, $setting, $sublist, $check, $force);
     if ($ok) {
       $res->{'victim'}   = $addr;
       $res->{'list'}     = $l;
@@ -4278,7 +4309,7 @@ sub _show {
   $out{comment} = $addr->comment;
   $out{xform}   = $addr->xform;
   $out{alias}   = $addr->alias;
-  $out{aliases} = [$self->_alias_reverse_lookup($addr)];
+  $out{aliases} = [$self->_alias_reverse_lookup($addr, 0)];
 
   # Registration data
   $data = $self->{'reg'}->lookup($addr->canon);
@@ -4693,7 +4724,7 @@ sub _unregister {
       next unless $self->_make_list($l);
       $self->{'lists'}{$l}->remove('', $key);
     }
-    @aliases = $self->_alias_reverse_lookup($key);
+    @aliases = $self->_alias_reverse_lookup($key, 1);
     for (@aliases) {
       $self->{'alias'}->remove('', $_);
     }
