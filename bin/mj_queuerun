@@ -101,7 +101,7 @@ eval 'use Mj::Log';
 $::log = new Mj::Log;
 $::log->add
   (
-   # If we can pront the messages somewhere, print them, else we dump them
+   # If we can print the messages somewhere, print them, else we dump them
    # to syslog.
 #   method      => (-t STDERR)?'handle':'syslog',
    method      => 'handle',
@@ -173,10 +173,10 @@ exit;
 sub run_queue {
   my $log = new Log::In 25, 'Running queue';
 
-  my(%req, @args, @domains, @fhstatus, @functions, @msgs, @pri1, @pri2,
-     @status, $arg, $debug1, $debug2, $dir, $dom, $emerg_log, $end, $file, 
-     $func, $key, $list, $mj, $msg, $ok, $pri1, $pri2, $start, $statfile,
-     $trycount, $val);
+  my(%req, @args, @domains, @fhstatus, @functions, @msgs, @pri1,
+     @pri2, @status, $arg, $debug1, $debug2, $dir, $dom, $emerg_log,
+     $end, $file, $func, $key, $list, $mj, $msg, $mtime, $ok, $pri1,
+     $pri2, $start, $statfile, $tmp, $trycount, $val);
 
   # Grab the domain priorities from the queue, high priorities first
   opendir(PRI1, "$::LISTDIR/QUEUE") ||
@@ -239,14 +239,18 @@ sub run_queue {
 
           # Read the list of queued messages.  Sort by date, oldest
           # first.
-          @msgs = readdir QDIR;
+	  @msgs = ();
+	  while(defined($msg = readdir QDIR)) {
+	    $mtime = (stat("$dir/$msg"))[9];
+	    push @msgs, [$msg, $mtime] if $mtime;
+	  }
           closedir QDIR;
-          @msgs = sort { (-M "$dir/$b") <=> (-M "$dir/$a") } @msgs;
-          # &shuffle(\@msgs);
+          @msgs = sort { $b->[1] <=> $a->[1] } @msgs;
 
           # Loop over queue files
         MSG:
-          for $msg (@msgs) {
+          for $tmp (@msgs) {
+	    $msg = $tmp->[0];
             next MSG if $msg =~ /^\./;
 
             # Untaint $msg; this is safe because only we are able to write
@@ -259,7 +263,7 @@ sub run_queue {
               # Some other runner may have deleted the file while we were
               # iterating through the directory.  That's OK; note it and go
               # on.
-              $log->message(20, 'info', "Can't open queue file $file: $!");
+              $log->message(20, 'info', "Can't open queue file $file; probably already processed by another runner: $!");
               next MSG;
             }
 
@@ -267,6 +271,7 @@ sub run_queue {
             $ok = flock(MSG, &LOCK_EX|&LOCK_NB);
             unless ($ok) {
               close MSG;
+	      # Nees a log message here?
               next MSG;
             }
             @fhstatus = stat MSG;
