@@ -2458,12 +2458,12 @@ sub valid_list {
     }
 
   $name = lc($name);
-  $self->_make_list($name);
-  if ($self->{'lists'}{$name}) {
+  if (-d "$self->{'ldir'}/$name") {
     # untaint
     $name =~ /(.*)/;
     $name = $1;
-    return $name;
+    $self->_make_list($name);
+    return $name if ($self->{'lists'}{$name});
   }
 
   return undef;
