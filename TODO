@@ -134,8 +134,6 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 
 ! Digest:
 
-report-digest command to show status of digest spools.
-
 Way to force the users to use the digest version:
   allowed_subscribtion_classes - array of names of subscription classes that
   users can join without owner's password approval.  'digest' covers all
@@ -624,7 +622,6 @@ Uncategorized random thinkos:
 retrieve and replace individual subscriber field data, for hard-core admin
  stuff.
 Subscription policy patch -> sponsored subscribes.
-Partial digests when converting to single message receipt.
 archive search engine?
 Integrate Dave's logmail stuff -> stats command.
 Support for multipart/alternative when sending welcome messages.
@@ -691,7 +688,6 @@ If processing a command yields an invalid address error and following line
  does not hold a legal command, join the two lines and try again.
 Export information from the registration database to .htaccess files, so
  owners can restrict access to web archives or whatever.
-Add an X-Header indicating whether or not the posting user is subscribed.
  digest-headers variable?
 Keep a count of addresses delivered to and return this out of the delivery
  module.

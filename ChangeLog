@@ -1,3 +1,41 @@
+2000-08-31  Michael Yount <csf@moscow.com>
+
+	* files/en/config/block_headers:  New global configuration
+	setting.  Connections on the email and request interfaces
+	will be dropped (and the site administrator informed) if
+	headers of the incoming message match the regular expressions
+	in this setting.
+
+	* bin/mj_email, bin/mj_queuerun:  Instead of adding a 
+	hard-coded reply-to header when sending command results,
+	use the global message_headers setting to add headers
+	(x-loop and reply-to headers are added by default).
+
+	* bin/mj_wwwadm and others:  Use COMMAND variable substitution
+	for a majordomo command instead of REQUEST.  REQUEST is used
+	to indicate the LIST-request address.
+
+	* lib/Majordomo.pm: (connect) Block connection if request
+	message headers match patterns in the block_headers setting.
+	(standard_subs) New routine.  Return a hash containing 
+	common variable substitutions.
+
+	* lib/Mj/Access.pm (check_headers): New routine.  Determine
+	if the headers of a request message match the patterns in
+	the block_headers setting.
+
+	* lib/Mj/Token.pm (confirm, consult, remind):  Add headers
+	from the global message_headers setting.
+
+2000-08-30  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm (_set):  Issue a partial digest when the
+	delivery mode changes from digest to each.
+
+	* lib/Mj/Resend.pm (_post):  Add SUBSCRIBED substitution,
+	which is converted to "not" if the message author is not
+	subscribed, or an empty string otherwise.
+
 2000-08-27  Michael Yount <csf@moscow.com>
 
 	* bin/mj_*, setup/query_util.pl :  Allow only letters, digits, 
