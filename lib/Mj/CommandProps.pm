@@ -542,7 +542,7 @@ my %commands =
                    'arguments' => { 'regexp' => {'type' => 'SCALAR'}},
                    'modes'    =>  {
                                    %generic_modes,
-                                   'aux'         => 1,
+                                   'aux'         => {'exclude' => 'compact|config|full|long|short|tiny', },
                                    'compact'     => 1,
                                    'config'      => 1,
                                    'enhanced'    => 1,

@@ -1,5 +1,11 @@
         Notes on upgrading from previous versions of Majordomo 2
 
+2004.10.18 (CVS):
+
+Previously, the lists-aux command show information about regular lists
+and auxiliary lists together.  Now, it only shows information about
+auxiliary lists.
+
 2003.05.29 (CVS):
 
 Previously, messages sent to the Majordomo server which matched a

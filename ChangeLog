@@ -1,3 +1,22 @@
+2004-10-18  Michael Yount <csf@moscow.com>
+
+	* lib/Majordomo.pm:  Version number is now 0.1200410180.
+	(_lists_aux)  The lists-aux command now displays only
+	auxiliary lists.
+	(who_chunk)  Bugfix:  Retrieve subscriber info for sublists
+	of the DEFAULT pseudo-list.
+	(standard_subs)  Add the PLIST substitution, which contains
+	the list name without any sublist.
+
+	* lib/Mj/CommandProps.pm:  The lists-aux command precludes
+	the use of other command modes.
+
+	* lib/Mj/Format.pm:  (lists)  Add format file support for the
+	lists-aux command.
+
+	* lib/Mj/Inform.pm:  (_inform_owner)  Bugfix:  Use GLOBAL
+	settings when informing about the DEFAULT pseudo-list.
+
 2004-10-13  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  Fix substitution typos.
