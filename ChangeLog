@@ -1,5 +1,8 @@
 Mon Nov 23 00:36:07 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
+	* lib/Mj/Deliver.pm (deliver): Fix all calls to _re_match; get rid
+ 	of Safe object.
+
 	* lib/Majordomo.pm (lists): Make compact mode prefer description
  	over description_long[0].
 

@@ -192,7 +192,7 @@ sub deliver {
 
       for ($i=0; $i<@$rules; $i++) {
 	# Eval the RE in a Safe compartment, or look for ALL
-	if (_re_match($safe, $rules->[$i]{'re'}, $addr)) {
+	if (Majordomo::_re_match($rules->[$i]{'re'}, $addr)) {
 	  $probeit ? $probes[$i]->add($addr, $canon) : $dests[$i]->add($addr, $canon);
 	  next ADDR;
 	}
@@ -207,22 +207,22 @@ sub deliver {
   # Rely on destruction to flush the destinations
 }
 
-sub _re_match {
-  my $safe = shift;
-  my $re   = shift;
-  my $addr = shift;
-#  my $log  = new Log::In 200, "$re, $addr";
-  my $match;
-  return 1 if $re eq 'ALL';
+# sub _re_match {
+#   my $safe = shift;
+#   my $re   = shift;
+#   my $addr = shift;
+# #  my $log  = new Log::In 200, "$re, $addr";
+#   my $match;
+#   return 1 if $re eq 'ALL';
 
-#   # Hack; untaint $addr
-#   $addr =~ /./;
-#   $addr = $1;
+# #   # Hack; untaint $addr
+# #   $addr =~ /./;
+# #   $addr = $1;
 
-  $match = $safe->reval("'$addr' =~ $re");
-  $::log->complain("_re_match error: $@") if $@;
-  return $match;
-}
+#   $match = $safe->reval("'$addr' =~ $re");
+#   $::log->complain("_re_match error: $@") if $@;
+#   return $match;
+# }
 
 =head1 COPYRIGHT
 

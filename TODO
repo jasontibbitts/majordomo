@@ -1,19 +1,5 @@
 -*- Text -*-
 
-Plan
-----
-
-Do master database conversion.
-
-Test the hell out of it.
-
-Switch over one of my lists.  (How?  Manually maintain subscription
-  list?  Put Mj2 at the normal address and forward requests to other
-  lists to the old server?  (Hmmm.)
-
-Cut alpha 2.
-
-
 Bugs?
 -----
 
@@ -49,7 +35,7 @@ Generate class choosing function: find is top-level class in a hash.
 
 Pull a chunk of addresses from the database.
 Pull an address.
-Construct the full class name:
+Construct the extended class name:
   (look at flags for 'each'):
   each-replyto-prefix
   each-replyto-noprefix
@@ -59,39 +45,23 @@ Construct the full class name:
   (look at classarg1, classarg2 for digest)
   digest-{name}-{type}
 
-If the class exists in the delivery list:
+If the extended class exists in the delivery list:
   check exclude list
-  place in proper
+  place in proper destination/prober
 
-
-
-Access: call Mj::is_subscriber instead of List::is_subscriber.
-
-Pass stripped address to access restriction language: $svictim =
-$victim->strip; share $svictim (local); pass to reval.
-
-Check validity of addresses in Resend::post and pass the results in as
-access variables.
-
-! Auto-maintain aliases:
-  Add 'del_one' in Mj::MTAConfig::Sendmail; opensa filerepl and copies the
-  alias file until the opening comment is hit, then it skips until after the
-  closing comment, then prints the rest of the file.  Use this for a
-  'createlist-delete' routine.
-
-  Call out to commands to rebuild aliases and VUT files.
-
-! Archiver:
-    Build index from existing file (sync)
-    Delete message from archive?
-    Automatically add meaningful description to created archive files.
-
-    Search the archive
-    Get an index of the archive.
-    How to specify the time period here?  Two dates?  Leave one and it goes
-     from then to now.
+Done.
 
 ! Digest:
+
+RFC1153 (test) digests:
+
+  Flatten all multiparts.  Strip all images.  Reduce to text _only_.
+  Change message/rfc822 parts to plain text bracketed by "---- Begin
+  Included Message ----" and "---- End Included Message ----".
+
+  Need a library of MIME transformations.
+
+  
 
 Allow a time of 'any'?
 report-digest command to show status of digest spools.
@@ -123,17 +93,34 @@ List::digest_generate - actually make all of the digests and stuff them in
   Resend::_post can take those and deliver them to the appropriate classes:
     digest-digestname-digesttype: digest-daily-mime, digest-weekly-html
 
-Optimize digest sending: when a digest is made, the digests will always be
-sent to more then one class.  Therefore it is a waste to scan the list
-twice.  What we want to do is extract matching addresses according to
-class, then stuff them into the appropriate delivery buckets.
 
-To do this, change the args to Mj::Deliver::deliver to take per-class
-args.  Then build a proper selection function, extract out all matching
-entries, and put them in the various delivery buckets all at once.
+Access: call Mj::is_subscriber instead of List::is_subscriber.
 
-Decide on digest classes: class - "digest", classarg1 - digest name,
-classarg2 - digest type?
+Pass stripped address to access restriction language: $svictim =
+$victim->strip; share $svictim (local); pass to reval.
+
+Check validity of addresses in Resend::post and pass the results in as
+access variables.
+
+! Auto-maintain aliases:
+  Add 'del_one' in Mj::MTAConfig::Sendmail; opensa filerepl and copies the
+  alias file until the opening comment is hit, then it skips until after the
+  closing comment, then prints the rest of the file.  Use this for a
+  'createlist-delete' routine.
+
+  Call out to commands to rebuild aliases and VUT files.
+
+! Archiver:
+    Build index from existing file (sync)
+    Delete message from archive?
+    Automatically add meaningful description to created archive files.
+    Automatically create a symlink from archive_dir to files/public/archive
+     if necessary.
+
+    Search the archive
+    Get an index of the messages in the archive.
+    How to specify the time period here?  Two dates?  Leave one and it goes
+     from then to now.
 
 - add nonterminal access_rules.  Now we take the first matching, but we
   could act and keep going.  This could be used to add reasons to a list,
