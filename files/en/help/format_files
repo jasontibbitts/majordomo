@@ -34,6 +34,43 @@ before you edit any format files.  See "help put" and "help index" for
 more information.
 
 
+accept
+------
+(text, wwwadm, wwwconfirm)  This file displays a summary of the result
+when a "consult" token is accepted.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, 
+ FAIL, MODE, NOTIFY, REQUESTER, SESSIONID, STALL, SUCCEED, TOKEN, 
+ USER, VICTIM)
+
+
+accept_error
+-----------
+(text, wwwadm, wwwconfirm)  This file is displayed when the accept
+command fails entirely, or when an individual token which has been 
+accepted fails or stalls.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOKEN, USER)
+
+
+accept_foot
+-----------
+(text, wwwadm, wwwconfirm)  This file is displayed at the end of the
+results when a non-"consult" token is accepted.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, 
+ MODE, NOTIFY, REQUESTER, SESSIONID, TOKEN, USER, VICTIM)
+
+
+accept_head
+-----------
+(text, wwwadm, wwwconfirm)  This file is displayed at before the results
+when a non-"consult" token is accepted.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, 
+ MODE, NOTIFY, REQUESTER, SESSIONID, TOKEN, USER, VICTIM)
+
+
 archive_attachment
 ------------------
 (ALL)  This file displays summary information
@@ -616,6 +653,24 @@ password
 been mailed to the victim's address.
 
 (standard plus VICTIM)
+
+
+reject
+------
+(text, wwwadm, wwwconfirm)  This file displays a summary of the result
+when a token is rejected.
+
+(standard plus CGIDATA, CGIURL, CMDLINE, CMDPASS, COMMAND, DATE, 
+ MODE, NOTIFY, REQUESTER, SESSIONID, TOKEN, USER, VICTIM)
+
+
+reject_error
+-----------
+(text, wwwadm, wwwconfirm)  This file is displayed when the reject
+command fails entirely, or when an individual token which has been 
+rejected fails or stalls.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, TOKEN, USER)
 
 
 set

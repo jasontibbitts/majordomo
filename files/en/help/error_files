@@ -71,6 +71,13 @@ personal password, or expired temporary password, is used.
 
 (standard plus VICTIM)
 
+invalid_token
+-------------
+This error message is displayed when the accept, reject, or tokeninfo
+command is used with a token that has an invalid format.
+
+(standard plus TOKEN)
+
 make_list
 ---------
 This error message is displayed when Majordomo is unable to initialize
@@ -103,6 +110,13 @@ This error message is displayed when a Majordomo command that requires
 a password is issued without one.
 
 (standard plus COMMAND)
+
+no_token
+--------
+This error message is displayed when the accept, reject, or tokeninfo
+command is used, but no token identifier is supplied.
+
+(standard substitutions only)
 
 no_visible
 ----------
