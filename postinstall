@@ -269,7 +269,7 @@ sub do_config {
 
   # Build the command file
   open FILE, ">$config->{wtmpdir}/inst.$$";
-  print FILE "approve GLOBAL.pass configset GLOBAL master_password = $pw\n";
+  print FILE "approve $config->{site_password} configset GLOBAL master_password = $pw\n";
   print FILE "default password $pw\n";
   for $i (qw(tmpdir site_name whoami)) {
     $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};
@@ -282,14 +282,12 @@ sub do_config {
   # file.
   chmod(0644, "$config->{wtmpdir}/inst.$$");dot;
 
-  print "\nDo not be alarmed if the first command fails.\n\n@args\n" if $verb;
-
   $cmdline = join(' ', @args);
   open SHELL, "$cmdline|" or die "Error executing $args[0], $?";
   while (<SHELL>) {
     print if $verb;
     dot if /^>>>> / && !$verb;
-    if (/^\*\*\*\* / && !/Password does not authorize .* to alter master_password./) {
+    if (/^\*\*\*\* /) {
       print unless $verb;
       $errcount++;
     }

@@ -10,6 +10,10 @@ BEGIN {
   require 5.00401;
 }
 
+# A version variable we can use to force users to reconfigure when we add
+# new questions.
+my $config_version = 0;
+
 my @SIDSCRIPTS = qw(mj_email mj_shell mj_resend mj_confirm);
 my @SCRIPTS = qw(mj_trigger);
 my @EXES = map {"./bin/$_"} @SIDSCRIPTS, @SCRIPTS;
@@ -274,12 +278,18 @@ sub configure {
   $config = eval { require ".mj_config" };
   print ' 'x11 . "ok\n";
 
-  if (defined $config) {
-    print "\nFound existing configuration:\n";
-    printhash($config);
-    print "\n";
-    $msg = "Do you want to modify your configuration?\n";
-    return $config unless get_bool($msg, 0);
+  if (defined $config &&
+      defined $config->{version} &&
+      $config->{version} >= $config_version)
+    {
+      print "\nFound existing configuration:\n";
+      printhash($config);
+      print "\n";
+      $msg = "Do you want to modify your configuration?\n";
+      return $config unless get_bool($msg, 0);
+    }
+  elsif ($config) {
+    print "\nFound existing configuration, but it is out of date.\n";
   }
   else {
     $config = {};
@@ -583,6 +593,7 @@ EOM
     print "To convert lists.\n";
   }
 
+  $config->{version} = $config_version;
   #---- Write out the config
   print "\n";
   open(CONFIG, ">.mj_config") || die("Can't create .mj_config: $!");

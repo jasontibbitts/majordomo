@@ -3,6 +3,11 @@
 Here you'll find information on major changes.  (Read the ChangeLog
 for the boring stuff.)  Items at the top are newer.
 
+The 'archive-get' command is supported; this returns digests built out of
+messages from the archive.  Messages from a date or range of dates can be
+requested, as can lists of named messages and the last several messages
+posted.
+
 The user can be removed from the registration database and all lists at
 once with the 'unregister' command.
 

@@ -24,7 +24,7 @@ package Mj::Digest;
 use IO::File;
 use Mj::Log;
 use strict;
-
+use vars qw($VAR1);
 use AutoLoader 'AUTOLOAD';
 1;
 __END__

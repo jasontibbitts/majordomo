@@ -1,10 +1,10 @@
 Notes on upgrading from alpha1 or before:
 
-1998.10.07(CVS):
+1998.10.16(snapshot):
 
-The format of the 'digests' variable has changed slightly.  Nobody should
-be using this yet anyway, but if you have it set then read up on the new
-structure so that you won't get parsing errors.
+The format of the 'digests' variable has changed.  Nobody should be using
+this yet anyway, but if you have it set then read up on the new structure
+so that you won't get parsing errors.
 
 1998.09.23(CVS):
 

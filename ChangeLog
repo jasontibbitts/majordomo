@@ -1,3 +1,22 @@
+Fri Oct 16 15:52:47 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* Makefile.PL (configure): Check for version of stored config file
+ 	and force a reconfiguration if necessary.
+
+	* lib/Majordomo.pm: Bump version number in preparation for
+ 	snapshot.
+
+	* postinstall (do_config): Use the site password to init the
+ 	individual master_passwords.  This means that you can change the
+ 	master_passwords at install time, and that we can avoid that
+ 	single failure at the begging on non-fresh installs.
+
+	* lib/Mj/Digest.pm (_open_state): Fix problem when loading daved
+ 	data with nested references.
+	(choose): Keep track of 'lastrun' time properly.
+	Declare $VAR1 as a package global to prevent failures when
+ 	autoloading is off.
+
 Thu Oct 15 19:22:11 1998  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Config.pm (parse_digests): Redo to accept new element
