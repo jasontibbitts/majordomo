@@ -1780,13 +1780,24 @@ use Date::Format;
 sub report {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my $log = new Log::In 29, "$type";
-  my (%outcomes, %stats, @tmp, $begin, $chunk, $chunksize, 
-      $data, $day, $end, $today, $victim);
+  my (%outcomes, %stats, @tmp, $chunk, $chunksize, $cmd, $count, $data, 
+      $day, $df, $event, $gsubs, $list, $str, $subs, $time, $tmp, 
+      $today, $victim);
   my ($ok, $mess) = @$result;
 
+  $gsubs = { $mj->standard_subs($request->{'list'}),
+             'CGIDATA'  => $request->{'cgidata'},
+             'CGIURL'   => $request->{'cgiurl'},
+             'CMDPASS'  => &escape($request->{'password'}, $type),
+             'ERROR'    => '',
+             'USER'     => &escape("$request->{'user'}", $type),
+           };
+
   unless ($ok > 0) {
-    eprint($out, $type, &indicate($type, "Unable to create report\n", $ok));
-    eprint($out, $type, &indicate($type, $mess, $ok, 1)) if $mess;
+    $gsubs->{'ERROR'} = &escape($mess, $type);
+    $tmp = $mj->format_get_string($type, 'report_error');
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out &indicate($type, "$str\n", $ok);
     return $ok;
   }
 
@@ -1797,14 +1808,22 @@ sub report {
 
   ($request->{'begin'}, $request->{'end'}) = @$mess;
   @tmp = localtime($request->{'begin'});
-  $begin = strftime("%Y-%m-%d %H:%M", @tmp);
-  @tmp = localtime($request->{'end'});
-  $end = strftime("%Y-%m-%d %H:%M", @tmp);
-  $today = '';
+  $gsubs->{'START'} = strftime("%Y-%m-%d %H:%M", @tmp);
 
-  $mess = sprintf "Activity for %s from %s to %s\n\n", 
-                  $request->{'list'}, $begin, $end;
-  eprint($out, $type, $mess) if $mess;
+  @tmp = localtime($request->{'end'});
+  $gsubs->{'FINISH'} = strftime("%Y-%m-%d %H:%M", @tmp);
+
+  $today = '';
+  $count = 0;
+
+  if ($request->{'mode'} =~ /summary/) {
+    $tmp = $mj->format_get_string($type, 'report_summary_head');
+  }
+  else {
+    $tmp = $mj->format_get_string($type, 'report_head');
+  }
+  $str = $mj->substitute_vars_format($tmp, $gsubs);
+  print $out &indicate($type, "$str\n", $ok);
 
   $request->{'chunksize'} = 
     $mj->global_config_get($request->{'user'}, $request->{'password'},
@@ -1812,15 +1831,31 @@ sub report {
 
   $request->{'command'} = "report_chunk";
 
+  $df = $mj->format_get_string($type, 'report_day');
+  if ($request->{'mode'} =~ /full/) {
+    $event = $mj->format_get_string($type, 'report_full');
+  }
+  elsif ($request->{'mode'} =~ /summary/) {
+    $event = $mj->format_get_string($type, 'report_summary');
+  }
+  else {
+    $event = $mj->format_get_string($type, 'report');
+  }
+
   while (1) {
     ($ok, $chunk) = @{$mj->dispatch($request)};
     unless ($ok) {
-      eprint($out, $type, &indicate($type, $chunk, $ok, 1)) if $chunk;
+      $gsubs->{'ERROR'} = &escape($chunk, $type);
+      $tmp = $mj->format_get_string($type, 'report_warning');
+      $str = $mj->substitute_vars_format($tmp, $gsubs);
+      print $out &indicate($type, "$str\n", $ok);
       last;
     }
     last unless scalar @$chunk;
     for $data (@$chunk) {
+      $count++;
       if ($request->{'mode'} !~ /summary/) {
+
         if ($data->[1] eq 'bounce') {
           ($victim = $data->[4]) =~ s/\(bounce from (.+)\)/$1/;
         }
@@ -1829,39 +1864,37 @@ sub report {
           # Remove the comment from the victim's address.
           $victim =~ s/.*<([^>]+)>.*/$1/;
         }
-        @tmp = localtime($data->[9]);
-        $day = strftime("  %d %B %Y\n", @tmp);
+       
+        @tmp   = localtime($data->[9]);
+        $day   = strftime("%d %B %Y", @tmp);
+        $time  = strftime("%H:%M", @tmp);
+
+        $subs = { %$gsubs,
+                  'LIST' => $data->[0],
+                  'COMMAND' => $data->[1],
+                  'REQUESTER' => &escape($data->[2], $type),
+                  'USER' => &escape($data->[3], $type),
+                  'VICTIM' => &escape($victim, $type),
+                  'CMDLINE' => &escape($data->[4], $type),
+                  'INTERFACE' => &escape($data->[5], $type),
+                  'STATUS' => exists ($outcomes{$data->[6]}) ?
+                                $outcomes{$data->[6]} : 'unknown',
+                  'SESSIONID' => $data->[8],
+                  'DATE' => $day,
+                  'TIME' => $time,
+                  'ELAPSED' => $data->[10] || 0,
+                };
+        
         if ($day ne $today) {
           $today = $day;
-          eprint($out, $type, $day);
-        }
-        $end = strftime("%H:%M", @tmp);
-        if (defined $data->[10]) {
-          $end .= " $data->[10]";
+          $str = $mj->substitute_vars_format($df, $subs);
+          print $out "$str\n";
         }
 
-        # display the command, [list,] victim, result, time,
-        # and duration of each command.
-        if ($request->{'list'} eq 'ALL') { 
-          $mess = sprintf "%-11s %-16s %-30s %-7s %s\n", 
-                          $data->[1], $data->[0], $victim,
-                          $outcomes{$data->[6]}, $end;
-        }
-        else {
-          $mess = sprintf "%-11s %-44s %-7s %s\n", $data->[1],
-                  $victim, $outcomes{$data->[6]}, $end;
-        }
-
-        if ($request->{'mode'} =~ /full/) {
-          # display the command line, interface, and session ID.
-          $mess .= sprintf "  %s\n  %-16s %s\n\n", 
-                     $data->[4], $data->[5], $data->[8];
-        }
-     
-        eprint($out, $type, &indicate($type, $mess, $ok, 1)) if $mess;
+        $str = $mj->substitute_vars_format($event, $subs);
+        print $out "$str\n";
       }
-      elsif ($request->{'list'} eq 'ALL') {
-        
+      else {
         # keep both per-list counts and overall totals for each command.
         $stats{$data->[1]}{$data->[0]}{1}  ||= 0;
         $stats{$data->[1]}{$data->[0]}{-1} ||= 0;
@@ -1879,61 +1912,46 @@ sub report {
         $stats{$data->[1]}{'TOTAL'}{'TOTAL'}++;
         $stats{$data->[1]}{'TOTAL'}{'time'} += $data->[10];
       }
-      else {
-        $stats{$data->[1]}{1}  ||= 0;
-        $stats{$data->[1]}{-1} ||= 0;
-        $stats{$data->[1]}{0}  ||= 0;
-        $stats{$data->[1]}{'time'}  ||= 0;
-        $stats{$data->[1]}{$data->[6]}++;
-        $stats{$data->[1]}{'TOTAL'}++;
-        $stats{$data->[1]}{'time'} += $data->[10];
-      }
     }
   }
 
   $request->{'command'} = "report_done";
   ($ok, @tmp) = @{$mj->dispatch($request)};
 
-  if ($request->{'mode'} =~ /summary/) {
-    if (scalar keys %stats) {
-      if ($request->{'list'} eq 'ALL') {
-        $mess = "     Command:" . " "x17 . 
-                "List Total Succeed Stall  Fail   Time\n";
-      }
-      else {
-        $mess = "     Command: Total Succeed Stall  Fail   Time\n";
-      }
-    }
-    else {
-      $mess = "There was no activity.\n";
-    }
-    eprint($out, $type, &indicate($type, $mess, $ok, 1));
-
-    for $end (sort keys %stats) {
-      if ($request->{'list'} eq  'ALL') {
-        for $begin (sort keys %{$stats{$end}}) {
-          # next if key is TOTAL and request is GLOBAL only.
-          $mess = sprintf "%12s: %20s %5d   %5d %5d %5d %6.3f\n", 
-                                 $end, $begin,
-                                 $stats{$end}{$begin}{'TOTAL'},
-                                 $stats{$end}{$begin}{1},
-                                 $stats{$end}{$begin}{'-1'}, 
-                                 $stats{$end}{$begin}{'0'},
-                                 $stats{$end}{$begin}{'time'} / 
-                                 $stats{$end}{$begin}{'TOTAL'};
-          eprint($out, $type, &indicate($type, $mess, $ok, 1)) if $mess;
-        }
-      }
-      else {
-        $mess = sprintf "%12s: %5d   %5d %5d %5d %6.3f\n", 
-                           $end, $stats{$end}{'TOTAL'}, $stats{$end}{1}, 
-                           $stats{$end}{'-1'}, $stats{$end}{'0'},
-                           $stats{$end}{'time'} / 
-                           $stats{$end}{'TOTAL'};
-        eprint($out, $type, &indicate($type, $mess, $ok, 1)) if $mess;
+  if (! $count) {
+    $tmp = $mj->format_get_string($type, 'report_none');
+    $str = $mj->substitute_vars_format($tmp, $gsubs);
+    print $out "$str\n";
+  }
+  elsif ($request->{'mode'} =~ /summary/) {
+    $subs = { %$gsubs };
+    for $cmd (sort keys %stats) {
+      $subs->{'COMMAND'} = $cmd;
+      for $list (sort keys %{$stats{$cmd}}) {
+        next if ($list eq 'TOTAL' and $request->{'list'} ne 'ALL');
+        $subs->{'LIST'}    = $list;
+        $subs->{'COUNT'}   = $stats{$cmd}{$list}{'TOTAL'};
+        $subs->{'SUCCEED'} = $stats{$cmd}{$list}{1};
+        $subs->{'STALL'}   = $stats{$cmd}{$list}{'-1'}; 
+        $subs->{'FAIL'}    = $stats{$cmd}{$list}{'0'};
+        $subs->{'ELAPSED'} = sprintf "%.3f", 
+          $stats{$cmd}{$list}{'time'} / $stats{$cmd}{$list}{'TOTAL'};
+        $str = $mj->substitute_vars_format($event, $subs);
+        print $out "$str\n";
       }
     }
   }
+
+  $gsubs->{'COUNT'} = $count;
+
+  if ($request->{'mode'} =~ /summary/) {
+    $tmp = $mj->format_get_string($type, 'report_summary_foot');
+  }
+  else {
+    $tmp = $mj->format_get_string($type, 'report_foot');
+  }
+  $str = $mj->substitute_vars_format($tmp, $gsubs);
+  print $out "$str\n";
 
   1;
 }
