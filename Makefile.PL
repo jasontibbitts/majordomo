@@ -329,19 +329,47 @@ EOM
   $msg = <<EOM;
 
 Where can Majordomo place secure temporary files?
- Majordomo also needs to write out provate temporary files.  For maximum
-   security, this should be a special directory that is neither readable
-   nor writable by normal users.  (In other words, it should not be /tmp
-   unless you know what you\'re doing.)  Many security problems can arise
-   when any user can create files and links in the temporary directory with
-   the same names that Majordomo would use.
- The installation process will create this directory if it does not exist,
-   but will not enforce any permissions.
+  Majordomo also needs to write out private temporary files.  For maximum
+    security, this should be a special directory that is neither readable
+    nor writable by normal users.  (In other words, it should not be /tmp
+    unless you know what you\'re doing.)  Many security problems can arise
+    when any user can create files and links in the temporary directory with
+    the same names that Majordomo would use.
+  The installation process will create this directory if it does not exist,
+    but will not enforce any permissions.
 EOM
   $def = $config->{'tmpdir'} || "$config->{'wtmpdir'}/mj";
   $config->{'tmpdir'} = get_dir($msg, $def);
 
+  #---- Ask for cgi-bin directory
+  $msg = <<EOM;
 
+Where is the web server\'s cgi-bin directory?
+  Majordomo comes with a program that enables users to conform operations
+    such as subscriptions by using a web page.  It needs to put this program
+    in the proper directory so that the web server will run it.
+  If the machine running Majordomo does not also run a web server, leave
+    this blank.
+EOM
+  $def = $config->{cgi_bin} ||
+    (-d "/home/www/cgi-bin" && "/home/www/cgi-bin") ||
+    (-d "/home/httpd/cgi-bin" && "/home/httpd/cgi-bin") || '';
+  $config->{cgi_bin} = get_dir($msg, $def, 1);
+
+  #---- Ask if we can link to cgi-bin
+  $msg = <<EOM;
+
+Can Majordomo make a link to the program in cgi-bin?
+  Some web servers will allow a link to the file in cgi-bin; others require
+    a separate copy.  Majordomo tries to avoid confusion by keeping all of
+    its files together but if necessary it will put a separate copy of the
+    program.
+  If in doubt, just answer no.
+EOM
+  if ($config->{cgi_bin}) {
+    $def = $config->{cgi_link} || 0;
+    $config->{cgi_link} = get_bool($msg, $def);
+  }
 
   #---- Ask for MTA
   $msg = <<EOM;
@@ -405,9 +433,10 @@ EOM
     $msg = <<EOM;
 
 Please choose a password.
- Each domain is given a single global password that can be used for all
-   list functions.  This password is independent of the individual list
-   passwords.
+  Each domain is given a single global password that can be used for all
+    list functions.  This password is independent of the individual list
+    passwords.
+
 EOM
     $def = $config->{'domain'}{$i}{'master_password'};
     $config->{'domain'}{$i}{'master_password'} = get_str($msg, $def);
@@ -416,10 +445,10 @@ EOM
     $msg = <<EOM;
 
 Where are the Majordomo 1.x lists for $i stored?
- If you have lists that were maintained by Majordomo 1.x, you can convert
-   them for use by Majordomo 2.0.  You will be given the option to do this
-   during the "make postinstall" step at the end of the installation.
- If you have no 1.x lists to convert, enter nothing.
+  If you have lists that were maintained by Majordomo 1.x, you can convert
+    them for use by Majordomo 2.0.  You will be given the option to do this
+    during the "make postinstall" step at the end of the installation.
+  If you have no 1.x lists to convert, enter nothing.
 EOM
     $def = $config->{'domain'}{$i}{'old_lists_dir'};
     $config->{'domain'}{$i}{'old_lists_dir'} = get_dir($msg, $def, 1);

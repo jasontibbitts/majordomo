@@ -7,6 +7,7 @@
 #   (etc.  Perhaps spit out aliases?)
 
 use DirHandle;
+use File::Copy "cp";
 
 # We call mj_shell (which we make sure has the right permissions) to do the
 # dirty work; it would be possible to include the routines directly, but
@@ -98,7 +99,14 @@ Answer 'no' to skip this step; any existing files will be preserved.
 Install response files?
 EOM
 
-set_script_perms(\@sidscripts, \@scripts);
+if ($config->{cgi_bin}) {
+  copy_file('mj_confirm', "$config->{install_dir}/bin",
+	    $config->{cgi_bin}, $config->{cgi_link});
+}
+
+set_script_perms(\@sidscripts, \@scripts, ($config->{cgi_bin} &&
+					   !$config->{cgi_link} &&
+					   "$config->{cgi_bin}/mj_confirm"));
 
 # Create list directories and such
 if (get_bool($msg1)) {
@@ -148,12 +156,27 @@ EOM
 
 exit;
 
+# Copies or links a file from one directory to another.
+sub copy_file {
+  my $script = shift;
+  my $source = shift;
+  my $dest   = shift;
+  my $link   = shift;
+
+  if ($link) {
+    link "$source/$script", "$dest/$script" ||
+      die "Can't make link in $dest, $!.";
+  }
+  cp("$source/$script", "$dest/$script") ||
+    die "Can't copy $source/$script to $dest/$script, $!.";
+}
+
 sub set_script_perms {
   my $sidscripts = shift;
   my $scripts    = shift;
   print "Setting permissions...";
   $id = $config->{'install_dir'};
-  map {$_ = "$id/bin/$_"} @$sidscripts, @$scripts;
+  map {$_ = "$id/bin/$_" unless /\//} @$sidscripts, @$scripts;
   $uid = getpwnam($config->{'uid'});
   $gid = getgrnam($config->{'gid'});
   chown($uid, $gid, @$sidscripts, @$scripts) || die "Couldn't change ownership: $!";
