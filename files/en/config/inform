@@ -9,7 +9,7 @@ separated list of:
   succeed: perform the actions if the request succees.
   fail:    perform the actions if the request fails.
   stall:   perform the actions if the request is stalled.
-  any:     always perform the actions
+  all:     always perform the actions
 
 and actions is a comma separated list of:
 

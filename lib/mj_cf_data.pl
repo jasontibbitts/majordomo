@@ -139,7 +139,7 @@ EOC
    'ack_attach_original' =>
    {
     'type'   => 'enum_array',
-    'values' => [qw(fail stall succeed any)],
+    'values' => [qw(fail stall succeed all)],
     'groups' => [qw(resend)],
     'visible'=> 0,
     'local'  => 1,

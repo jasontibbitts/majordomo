@@ -1,3 +1,11 @@
+Fri Mar  5 17:05:28 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/Resend.pm (post): Also check ack_attach_original = 'any'.
+
+	* lib/mj_cf_data.pl: ack_attach_original takes 'all', not 'any'.
+
+	* lib/Mj/Resend.pm (post): Oops.
+
 Thu Mar  4 00:14:41 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/Resend.pm (post): ack_attach_original uses 'fail', not
