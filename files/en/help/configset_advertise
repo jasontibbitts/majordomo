@@ -18,17 +18,12 @@ configset GLOBAL advertise << ENDTAG
 /hotbot/i
 ENDTAG
 
-
-If the requestor name matches one of these regexps, then the list will
-not be listed in the output of a lists command.  Noadvertise overrides
-advertise.
-
-If address matches in 'advertise', show the list no matter what
-settings are in place for 'noadvertise'.
+$INCLUDE-config/advertise
 
 See "help configset noadvertise" for more details, including how to
 use access_rules to replace both advertise and noadvertise.
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+See Also:
+   help lists
+
+$INCLUDE-help/foot

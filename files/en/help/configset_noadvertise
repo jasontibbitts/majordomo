@@ -18,22 +18,16 @@ configset GLOBAL noadvertise << ENDTAG
 /hotbot/i
 ENDTAG
 
+$INCLUDE-config/noadvertise
 
-If the requestor name matches one of these regexps, then the list will
-not be listed in the output of a lists command.  Noadvertise overrides
-advertise.
-If address matches in 'noadvertise', the list will not be shown unless
-there is a specific reason to show it.
 
-NOTE: If address matches in 'advertise', the list will be shown no
-matter what settings are in place for 'noadvertise'.
+The noadvertise and advertise configuration settings will be 
+overridden by access rules for the "advertise" action.
 
-NOTE: If the requester is a subscriber to the list, the list will be
-shown no matter what settings are in place for 'noadvertise'.
-
-You can probably see that this is more easily handled by access_rules,
-but the advertise pair is there for backwards compatibility. You don't
-need to specify both access_rules and advertise, either one will work!
+If the GLOBAL advertise_subscribed setting is turned on, a
+mailing list will be displayed by the lists command if the
+person making the request is subscribed to the list.  This
+is true regardless of the value of the noadvertise setting.
 
 Here are the access_rules that implement the same functionality as
 advertise and noadvertise:
@@ -52,6 +46,10 @@ allow
 ALL
 ENDACCESSRULES
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+See Also:
+   help configset_advertise
+   help configset_advertise_subscribed
+   help lists
+   help patterns
+
+$INCLUDE-help/foot
