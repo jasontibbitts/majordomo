@@ -541,7 +541,7 @@ sub _check_approval {
   if ($passwd) {
     return
       unless $self->validate_passwd($user, $passwd, undef,
-				    'resend', $list, 'post');
+				    'resend', $list, 'post') > 0;
   }
   
   if ($token) {

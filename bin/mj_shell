@@ -122,7 +122,8 @@ $top = $1;
 $dom =~ /(.*)/;
 $dom = $1;
 
-$lang = join(',',@{$opts{l}});
+$lang = '';
+$lang = join(',',@{$opts{l}}) if $opts{l};
 
 # Deal with the file argument
 if ($opts{f}) {

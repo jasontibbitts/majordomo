@@ -60,8 +60,9 @@ $VERSION = "1.0";
   );
 
 %reg_legal =
-  ('password_valid'=>1,
-   'mismatch'      =>1,
+  ('master_password'=>1,
+   'user_password'  =>1,
+   'mismatch'       =>1,
   );
 
 # This contains all of the legal requests, along with all of the access
@@ -94,7 +95,8 @@ $VERSION = "1.0";
    'which'       => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
    'who'         => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
 
-   'subscribe'   => {'legal'=>{'password_valid' => 1,
+   'subscribe'   => {'legal'=>{'master_password'=> 1,
+			       'user_password'  => 1,
 			       'mismatch'       => 1,
 			       'matches_list'   => 1,
 			      },
@@ -105,7 +107,8 @@ $VERSION = "1.0";
    {
     'legal' =>
     {
-     'password_valid'               => 1,
+     'master_password'              => 1,
+     'user_password'                => 1,
      'mismatch'                     => 1,
      'any'                          => 1,
      'bytes'                        => 2,

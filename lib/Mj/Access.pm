@@ -36,12 +36,21 @@ use vars qw($victim $passwd @permitted_ops %args %memberof %requests);
 This checks the validity of a password and whether or not it permits a
 certain action.
 
-This returns only truth or falsehood; true if the password allows the
-action to be carried out, false if it doesn't.
+This returns 0 if the password is invalid, a positive number if it is an
+access password (that enables a user to carry out secured actiohns) or a
+negative number if it is a user password, used to bypass identity
+confirmation.  If the password happens to be both kinds of passwords, the
+strongest (most positive) possible value will be returned.
 
-Visibility should be handled elsewhere; this routine just shouldn't be
-called for visible variables unless it's to check ahead of time if they
-can't be modified.
+In addition, positive values can be discriminated: the global master
+password returns a value of 4; global subsidiary passwords return 3; list
+master passwords return 2 and list subsidiary passwords return 1.  These
+values may change in the future; generally a check for a positive value is
+sufficient.
+
+Visibility should be handled elsewhere; this routine just shouldn''t be
+called for visible variables unless it''s to check ahead of time if they
+can''t be modified.
 
 The password data is cached so that it does not have to be repeatedly
 parsed.  When password restrictions change, the data should be re-parsed.
@@ -55,11 +64,9 @@ is _not_ allowed to do something.
 sub validate_passwd {
   my ($self, $user, $passwd, $auth, $interface,
       $list, $action, $global_only) = @_;
-  my (@try, $c, $i, $j);
-  
-  return unless defined $passwd;
-
-  $::log->in(100, "$user, $list, $action");
+  my (@try, $c, $i, $j, $reg);
+  return 0 unless defined $passwd;
+  my $log = new Log::In 100, "$user, $list, $action";
   
   if ($global_only) {
     @try = ('GLOBAL');
@@ -89,25 +96,45 @@ sub validate_passwd {
       if (($self->{'pw'}{$i} &&
 	   $self->{'pw'}{$i}{$passwd} &&
 	   $self->{'pw'}{$i}{$passwd}{$c} &&
-	   $self->{'pw'}{$i}{$passwd}{$c}{'ALL'}) ||
-	  ($action =~ /^config/ && ($self->{'pw'} &&
-				    $self->{'pw'}{$i} &&
-				    $self->{'pw'}{$i}{$passwd} &&
-				    $self->{'pw'}{$i}{$passwd}{$c} &&
-				    $self->{'pw'}{$i}{$passwd}{$c}{'config_ALL'})) ||
-	  ($self->{'pw'} &&
+	   $self->{'pw'}{$i}{$passwd}{$c}{'ALL'}))
+	{
+	  $log->out("approved");
+	  return $self->{'pw'}{$i}{$passwd}{$c}{'ALL'};
+	}
+      if ($action =~ /^config/ && ($self->{'pw'} &&
+				   $self->{'pw'}{$i} &&
+				   $self->{'pw'}{$i}{$passwd} &&
+				   $self->{'pw'}{$i}{$passwd}{$c} &&
+				   $self->{'pw'}{$i}{$passwd}{$c}{'config_ALL'}))
+	{
+	  $log->out("approved");
+	  return $self->{'pw'}{$i}{$passwd}{$c}{'config_ALL'};
+	}
+      if  ($self->{'pw'} &&
 	   $self->{'pw'}{$i} &&
 	   $self->{'pw'}{$i}{$passwd} &&
 	   $self->{'pw'}{$i}{$passwd}{$c} &&
-	   $self->{'pw'}{$i}{$passwd}{$c}{$action}))
+	   $self->{'pw'}{$i}{$passwd}{$c}{$action})
 	{
-	  $::log->out("approved");
-	  return 1;
+	  $log->out("approved");
+	  return $self->{'pw'}{$i}{$passwd}{$c}{$action};
 	}
     }
   }
-  $::log->out("failed");
-  return;
+
+  # Now check to see if the user's password matches.  Loookup registration
+  # data; cached data acceptable
+  $reg = $self->_reg_lookup($user, undef, 1);
+
+  # Compare password field; return '-1' if eq.
+  if ($reg && $passwd eq $reg->{'password'}) {
+    $log->out('user approved');
+    return -1;
+  }
+
+  # Finally, fail.
+  $log->out("failed");
+  return 0;
 }
 
 =head2 flush_passwd_data(list)
@@ -164,7 +191,7 @@ sub _build_passwd_data {
 
   if (defined $pw) {
     # XXX If ALL is ever restricted, the master must get extra privs.
-    $self->{'pw'}{$list}{$pw}{'ALL'}{'ALL'} = 1;
+    $self->{'pw'}{$list}{$pw}{'ALL'}{'ALL'} = ($list eq 'GLOBAL' ? 4 : 2);
   }
 
   @pw = $self->_list_config_get($list, "passwords");
@@ -193,11 +220,13 @@ sub _build_passwd_data {
       for ($j=0; $j<@{$table->[$i][1]}; $j++) {
 	if (@{$table->[$i][2]}) {
 	  for $k (@{$table->[$i][2]}) {
-	    $self->{'pw'}{$list}{$table->[$i][0]}{$k}{$table->[$i][1][$j]} = 1;
+	    $self->{'pw'}{$list}{$table->[$i][0]}{$k}{$table->[$i][1][$j]} =
+	      ($list eq 'GLOBAL' ? 3 : 1);
 	  }
 	}
 	else {
-	  $self->{'pw'}{$list}{$table->[$i][0]}{'ALL'}{$table->[$i][1][$j]} = 1;
+	  $self->{'pw'}{$list}{$table->[$i][0]}{'ALL'}{$table->[$i][1][$j]} =
+	    ($list eq 'GLOBAL' ? 3 : 1);
 	}
       }
     }
@@ -206,6 +235,58 @@ sub _build_passwd_data {
   $self->{'pw_loaded'}{$list} = 1;
   return;
 }
+
+=head2 _gen_pw
+
+Generate a password ramdomly.
+
+One of the implemnentations is cribbed from an email to majordomo-workers
+sent by OXymoron.  The other is trivial anyway.  I don''t know which I like
+more.
+
+=cut
+sub _gen_pw {
+  my $log = new Log::In 200;
+#   my @forms = qw(
+# 		 xxxxxxx
+# 		 xxxxxx0
+# 		 000xxxx
+# 		 xxx0000
+# 		 xxxx000
+# 		 0xxxxx0
+# 		 xxxxx00
+# 		 00xxxxx
+# 		 xxx00xxx
+# 		 00xxxx00
+# 		 Cvcvcvc
+# 		 cvcvc000
+# 		 000cvcvc
+# 		 Cvcvcvc0
+# 		 xxx00000
+# 		);
+  
+#   my %groups= (
+# 	       'x' => "abcdefghijkmnpqrstuvwxyz",
+# 	       'X' => "ABCDEFGHJKLMNPQRSTUVWXYZ",
+# 	       'c' => "bcdfghjklmnpqrstvwxyz",
+# 	       'C' => "BCDFGHJKLMNPQRSTVWXYZ",
+# 	       'v' => "aeiou",
+# 	       'V' => "AEIOU",
+# 	       '0' => "0123456789"
+# 	      );
+
+#   $pw=$forms[int(rand(@forms))];
+#   $pw=~s/(.)/substr($groups{$1},int(rand(length($groups{$1}))),1)/ge;
+
+  my $chr = 'ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnpqrstyvwxyz23456789';
+  my $pw;
+  
+  for my $i (1..6) {
+    $pw .= substr($chr, rand(length($chr)), 1);
+  }
+  $pw;
+}
+
 
 =head2 *_access_check(..., request, arghash)
 
@@ -328,7 +409,7 @@ sub list_access_check {
       $func,
       $text,
       $temp,
-      $ok,
+      $ok, $ok2,
       @temps,
      );
   
@@ -336,31 +417,56 @@ sub list_access_check {
 	 %memberof,         # Hash of auxlists the user is in
 	);
 
+  # Figure out if $requester and $victim are the same
+  $args{'mismatch'} = !($requester eq $victim)
+    unless defined($args{'mismatch'});
+
   $list = 'GLOBAL' if $list eq 'ALL';
   $self->_make_list($list);
   $password_override =
     $self->_list_config_get($list, "access_password_override");
 
-  # If we were given a password, it must be valid.
-  $args{'password_valid'} = 0;
+  # If we were given a password, it must be valid.  Note that, in the case
+  # of a mismatch, we make sure that the user password supplied matches
+  # that of the _victim_; you can't use your user password to
+  # forge-subscribe other people.  This also means that we have to check
+  # the password against both addresses before we bomb with an invalid
+  # password error.
+  $args{'master_password'} = 0;
+  $args{'user_password'}   = 0;
   if ($passwd) {
-    $args{'password_valid'} =
-      $self->validate_passwd($requester, $passwd, $auth,
-			     $interface, $list, $request);
-    return (0, "Invalid password.\n") unless $args{'password_valid'};
+    # Check the password against the requester
+    $ok = $self->validate_passwd($requester, $passwd, $auth,
+				 $interface, $list, $request);
+    if ($ok > 0) {
+      $args{'master_password'} = 1;
+    }
+    if ($args{'mismatch'}) {
+      # Check the password against the victim
+      $ok2 = $self->validate_passwd($victim, $passwd, $auth,
+				    $interface, $list, $request);
+      if ($ok2 < 0) {
+	$args{'user_password'} = 1;
+      }
+    }
+    else {
+      # The requester and victim are the same, so no need to recheck
+      if ($ok < 0) {
+	$args{'user_password'} = 1;
+      }
+    }
+    # It's invalid unless one of the flags was set
+    return (0, "Invalid password.\n")
+      unless $args{'master_password'} || $args{'user_password'};
   }
   
-  # If we got a good password _and_ it overrides access restrictions,
-  # we're done.
-  if ($password_override && $args{'password_valid'}) {
+  # If we got a good master password _and_ it overrides access
+  # restrictions, we're done.
+  if ($password_override && $args{'master_password'}) {
     # Return some huge value, because this value is also used as a count
     # for some routines.
     return 2**30;
   }
-
-  # Figure out if $requester and $victim are the same
-  $args{'mismatch'} = !($requester eq $victim)
-    unless defined($args{'mismatch'});
 
   $access = $self->_list_config_get($list, 'access_rules');
 
@@ -633,7 +739,11 @@ sub _a_default {
   # We'll use the arglist almost verbatim in a couple of places.
   shift @_;
 
-  return $self->_a_confirm(@_) if ($confirmed_requests{$request});
+  # Allow these if the user supplied their password, else confirm them.
+  if ($confirmed_requests{$request}) {
+    return $self->_a_allow(@_) if $args{'user_password'};
+    return $self->_a_confirm(@_)
+  }
 
   if ($access_requests{$request}) {
     $access = $self->_list_config_get($list, "${request}_access");
@@ -662,8 +772,10 @@ sub _a_default {
     }
   }
 
+  # If the suplied password was correct for the victim, we don't need to
+  # confirm.
   if ($mismatch_requests{$request}) {
-    if ($args{'mismatch'}) {
+    if ($args{'mismatch'} && !$args{'user_password'}) {
       return $self->_a_confirm(@_);
     }
     return $self->_a_allow(@_);
@@ -805,7 +917,16 @@ sub _d_subscribe {
   # itself
   return (0, 'subscribe_to_self') if $args{'matches_list'};
 
-  # The easy ones
+  # If the user has supplied their password, we never confirm.  We also
+  # don't have to worry about mismatches, since we know we saw the victim's
+  # password.  So we allow it unless the list is closed, and we ignore
+  # confirm settings.
+  if ($args{'user_password'}) {
+    return $self->_a_allow(@_)   if $policy =~ /^(auto|open)/;
+    return $self->_a_consult(@_) if $policy =~ /^closed/;
+  }
+
+  # Now the non-user-approved cases.  The easy ones:
   return $self->_a_allow(@_)     if $policy eq 'auto';
   return $self->_a_confirm(@_)   if $policy eq 'auto+confirm';
   return $self->_a_consult(@_)   if $policy eq 'closed';
@@ -846,4 +967,3 @@ detailed information.
 ### cperl-indent-level:2 ***
 ### cperl-label-offset:-1 ***
 ### End: ***
-

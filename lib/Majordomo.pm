@@ -318,14 +318,14 @@ sub dispatch {
     $ok = $self->validate_passwd($user, $pass, $auth, $int,
 				 'GLOBAL', 'ALL', 1);
     return (0, "The given password is not sufficient to disable logging.")
-      unless $ok;
+      unless $ok > 0;
     $over = -1;
   }
   elsif ($mode =~ /noinform/) {
     $ok = $self->validate_passwd($user, $pass, $auth, $int, $list,
 				 'config_inform');
     return (0, "The given password is not sufficient to disable owner information.")
-      unless $ok;
+      unless $ok > 0;
     $over = 1;
   }
   else {
@@ -522,57 +522,6 @@ sub tempname {
   return "$tmp/mj-tmp." . $self->unique;
 }
 
-=head2 _gen_pw
-
-Generate a password ramdomly.
-
-One of the implemnentations is cribbed from an email to majordomo-workers
-sent by OXymoron.  The other is trivial anyway.  I don''t know which I like
-more.
-
-=cut
-sub _gen_pw {
-  my $log = new Log::In 200;
-#   my @forms = qw(
-# 		 xxxxxxx
-# 		 xxxxxx0
-# 		 000xxxx
-# 		 xxx0000
-# 		 xxxx000
-# 		 0xxxxx0
-# 		 xxxxx00
-# 		 00xxxxx
-# 		 xxx00xxx
-# 		 00xxxx00
-# 		 Cvcvcvc
-# 		 cvcvc000
-# 		 000cvcvc
-# 		 Cvcvcvc0
-# 		 xxx00000
-# 		);
-  
-#   my %groups= (
-# 	       'x' => "abcdefghijkmnpqrstuvwxyz",
-# 	       'X' => "ABCDEFGHJKLMNPQRSTUVWXYZ",
-# 	       'c' => "bcdfghjklmnpqrstvwxyz",
-# 	       'C' => "BCDFGHJKLMNPQRSTVWXYZ",
-# 	       'v' => "aeiou",
-# 	       'V' => "AEIOU",
-# 	       '0' => "0123456789"
-# 	      );
-
-#   $pw=$forms[int(rand(@forms))];
-#   $pw=~s/(.)/substr($groups{$1},int(rand(length($groups{$1}))),1)/ge;
-
-  my $chr = 'ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnpqrstyvwxyz23456789';
-  my $pw;
-  
-  for my $i (1..6) {
-    $pw .= substr($chr, rand(length($chr)), 1);
-  }
-  $pw;
-}
-
 =head2 _reg_add($addr, %args)
 
 Adds a user to the registration database.
@@ -663,7 +612,7 @@ sub _reg_add {
   return ($existing, $data);
 }
 
-=head2 _reg_lookup($addr, $regdata)
+=head2 _reg_lookup($addr, $regdata, $cache)
 
 This looks up an address in the registration database and caches the
 results within the Addr object.  The registration data is returned.
@@ -671,6 +620,10 @@ results within the Addr object.  The registration data is returned.
 It the optional $regdata parameter is provided, it will be used as the
 registration data instead of a database lookup.  This will result in the
 appropriate data being cached without any lookups being done.
+
+If the optional $cache parameter is proviced, the request will be served
+from cached data within the address, if any exists.  This should only be
+used where possibly stale data is acceptable.
 
 This caches registration data under the 'reg' tag and a hash of subscribed
 lists under the 'subs' tag.
@@ -682,7 +635,13 @@ sub _reg_lookup {
   my $self = shift;
   my $addr = shift;
   my $reg  = shift;
-  my ($subs);
+  my $cache = shift;
+  my ($subs, $tmp);
+
+  $tmp = $addr->retrieve('reg');
+  if ($cache && $tmp) {
+    return $tmp;
+  }
 
   $reg = $self->{reg}->lookup($addr->canon) unless $reg;
   return undef unless $reg;
@@ -888,9 +847,9 @@ sub list_config_get {
   for $i ($self->config_get_groups($var)) {
     $ok = $self->validate_passwd($user, $passwd, $auth, $interface,
 				   $list, "config_$i");
-    last if $ok;
+    last if $ok > 0;
   }
-  unless ($ok) {
+  unless ($ok > 0) {
     return;
   }
   $self->_list_config_get($list, $var, $raw);
@@ -944,9 +903,9 @@ sub list_config_set {
   for $i (@groups) {
     $ok = $self->validate_passwd($user, $passwd, $auth, $int,
 				 $list, "config_$i", $global_only);
-    last if $ok;
+    last if $ok > 0;
   }
-  if (!$ok) {
+  if (!($ok>0)) {
     $self->inform($list, 'config_set', $user, $user, "configset $list $var",
 		  $int, 0, 1, 0);
     return (0, "Password does not authorize $user to alter $var.\n");
@@ -1014,7 +973,7 @@ sub list_config_set_to_default {
   ($ok, $mess, $level) =
     $self->validate_passwd($user, $passwd, $auth,
 			   $int, $list, "config_$var");
-  if (!$ok) {
+  if (!($ok>0)) {
     @out = (0, "Password does not authorize $user to alter $var.\n");
   }
   else {
@@ -1198,9 +1157,9 @@ sub config_get_default {
   for $i ($self->config_get_groups($var)) {
     $ok = $self->validate_passwd($user, $passwd, $auth, $interface,
 				 $list, "config_$i");
-    last if $ok;
+    last if $ok > 0;
   }
-  unless ($ok) {
+  unless ($ok>0) {
     return;
   }
   $self->{'lists'}{$list}->config_get_default($var);
@@ -1249,12 +1208,12 @@ sub config_get_vars {
     for $i (@groups) {
       $ok = $self->validate_passwd($user, $passwd, $auth, $interface,
 				     $list, "config_$i");
-      last if $ok;
+      last if $ok > 0;
     }
   }
 
-  @out = $self->{'lists'}{$list}->config_get_vars($var, $ok, ($list eq 'GLOBAL'));
-  $::log->out($ok?"validated":"not validated");
+  @out = $self->{'lists'}{$list}->config_get_vars($var, $ok>0, ($list eq 'GLOBAL'));
+  $::log->out(($ok>0)?"validated":"not validated");
   @out;
 }
 
@@ -2270,17 +2229,15 @@ sub auxadd {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
       $list, $addr, $name) = @_;
   my $log = new Log::In 30, "$list, $name, $addr";
-  my(@out, $ok, $mess, $mismatch);
+  my(@out, $ok, $mess);
 
   $self->_make_list($list);
   ($ok, $mess) =
     $self->list_access_check($passwd, $auth, $interface, $mode, $cmdline,
-			     $list, 'auxadd', $user, $addr, $name, '','',
-			     'mismatch' => $mismatch);
-  
+			     $list, 'auxadd', $user, $addr, $name, '','');
+
   unless ($ok > 0) {
     $log->out("noaccess");
-#    $self->inform($list, 'auxadd', $user, $addr, $cmdline, $ok);
     return ($ok, $mess);
   }
   

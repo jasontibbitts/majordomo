@@ -1,3 +1,49 @@
+Thu Sep 10 00:10:08 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (auxadd): Cleanup.
+
+	* lib/Mj/Access.pm (validate_passwd): Make sure we have some
+ 	registration data before comparing.
+	(_a_default): No need to ever confirm if user_password is true.
+
+Wed Sep  9 00:16:02 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Access.pm (list_access_check): Remember to check against
+ 	the _victim's_ password.
+	(_d_subscribe): Handle the case of a valid user password; don't
+ 	bother confirming.
+
+	* lib/Mj/Config.pm: Add 'user_password' as a legal variable
+ 	appropriately.
+
+	* lib/Mj/Access.pm (list_access_check): Set 'user_password' and
+ 	'master_password' flags correctly given the return from
+ 	validate_passwd.
+
+	* lib/Mj/Resend.pm (_check_approval): Expect positive result from validate_password.
+
+	* lib/Majordomo.pm (dispatch): Expect positive result from
+ 	validate_password.
+	(list_config_get): Ditto.
+	(list_config_set): Ditto.
+	(list_config_set_to_default): Ditto.
+	(config_get_default): Ditto.
+	(config_get_vars): Ditto.
+
+	* bin/mj_shell: Fix undef warning.
+
+	* lib/Majordomo.pm (_reg_lookup): Add 'cache' parameter to serve
+ 	from cached data if available.
+
+	* lib/Mj/Access.pm (_build_passwd_data): Instead of '1', set
+ 	values dependent on master and GLOBAL access.
+	(validate_passwd): Restructure; return the value stored in the
+ 	hash instead of '1'.
+	(_gen_pw): Moved from Majordomo.pm (which is too long).
+
+	* general: Global replacement from password_valid to
+ 	master_password, to make room for user_password.
+
 Tue Sep  8 09:53:46 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Majordomo.pm (_request_response): Fix $desc booboo.

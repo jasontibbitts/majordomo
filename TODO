@@ -29,19 +29,27 @@ around easily.
 When sending to the owner, actually look up 'owners' instead of sending to
 the owner alias and having to run things again.
 
+Inform should mail notifications in the list's preferred language, not the
+GLOBAL one (unless it's a GLOBAL request).
+
 Top of the list 
 ---------------
 
-! Make Access check password against stored user password, set
-password_valid flag, bypass confirmation for valid passwords.
+! Master address database:
+  password - change a password
+  unregister - leave all lists and delete registration entry
 
-Possibilities:
+- Consolidate information about commands, so they are easier to add.  Info
+  we keep, per command:
 
-Make confirm action not bother if the password is valid.
-Just set the flag and let the default actions take care of it.
+  parser properties
+  dispatcher properties
+  access_rules stuff (legal actions, legal vars)
+  default access actions (in _a_default);
 
-The second requires that owners not break things when they write
-access_rules.  The first prevents them from overriding the behavior.
+  Put all of this in one place: command_data.pl.  Remove parser_data.pl and
+  integrate the functions into command_data.pl (so interfaces don't have to
+  care about the format of the data structure).
 
 ! Utility method to set the default language from the interface.
   Check the user's chosen language.  Should the language used be that of
@@ -53,20 +61,56 @@ access_rules.  The first prevents them from overriding the behavior.
 
 -- Snapshot
 
+- Extension mechanism:  one file, in $::TOPDIR/$domain, called
+  local_extensions.pl.  Pulled in after all properties are defined and
+   mj_cf_data is loaded (so the two important hashes have been defined).
+
+  Provide methods to call in local_extensions.pl:
+
+  add_feature: adds a feature to the feature list (to advertise the
+  extension if necessary)
+
+  add_command: adds a command to the big function structure.  Takes lots of
+  data to be filled in.
+
+  add_variable: pushes a variable into the big config hash.
+
+  Adding a function: need four functions:
+    arg marshaller
+    output formatter
+    top half (if not generic)
+    bottom half
+  These have to go in the proper packages.  Rely on the writer to get this right?
+
+
+- Add generic top half functionality, now that the dispatcher does so much.
+ Would eliminate top halves for:
+   alias (with additional parameter for validating additional positional
+     arguments as addresses.
+   auxadd
+   auxremove
+   auxwho_start
+   register
+   rekey
+   set
+   show
+   showtokens
+   unalias
+  Add to dispatcher:
+   exactly which positional arguments to validate as addresses.
+   generic_top_half item
+  Write generic_top_half function:
+    Log in; display some args
+    Make list if necessary.
+    Call access check.
+    Log result.
+    Call bottom half if necessary.
+
 ! One more majordomo routines to work over for the rewrite:
   rekey - this needs to be a generic database-lint routine.  The keys
    should be regenerated from the stripped addresses and the list of lists
    in the reg database should be updated from the actual membership lists.
    This makes this a global function and an extremely time consuming one.
-
-! Master address database:
-
-Need these functions to manipulate the reglist:
-
-  password - change a password (later)
-
-! file_search mechanism should expand $LANG tags to 'tag-subtag-subtag',
-  'tag-subtag', and 'tag'.
 
 ! Dispatch should log password failures for overriding logging.
 
