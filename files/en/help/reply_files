@@ -109,8 +109,8 @@ the access_rules configuration setting (see "help configset_access_rules"
 for more details).
 
 (standard plus APPROVALS, ARG1, ARG2, ARG3, CMDLINE, COMMAND, EXPIRE,
- FULFILL, NOTIFY, REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, URL, 
- VICTIM)
+ FULFILL, NOTIFY, REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, 
+ TOKEN, URL, VICTIM)
 
 
 consult
@@ -122,7 +122,8 @@ may be used by customizing the access_rules configuration setting
 (see "help configset_access_rules" for more details).
 
 (standard plus APPROVALS, ARG1, ARG2, ARG3, CMDLINE, COMMAND, EXPIRE,
- FULFILL, REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, URL, VICTIM)
+ FULFILL, REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, TOKEN, 
+ URL, VICTIM)
 
 
 delay
@@ -135,8 +136,8 @@ file may be used by customizing the access_rules configuration setting
 (see "help configset_access_rules" for more details).
 
 (standard plus APPROVALS, ARG1, ARG2, ARG3, CMDLINE, COMMAND, EXPIRE,
- FULFILL, NOTIFY, REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, URL, 
- VICTIM)
+ FULFILL, NOTIFY, REASONS, REMIND, REQUESTER, REQUESTOR, SESSIONID, 
+ TOKEN, URL, VICTIM)
 
 
 digest_preindex
