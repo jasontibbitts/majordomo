@@ -1833,52 +1833,17 @@ EOM
 Takes a string, converts it to 1 or 0, and returns it.
 
 =cut
+use Mj::Util qw(str_to_bool);
 sub parse_bool {
   my $self = shift;
   my $str  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var, $str";
 
-  # Attempt to be multi-lingual
-  my %yes =
-    (
-     1                => 1,
-     'y'	      => 1,
-     'yes'	      => 1,
-     'yeah'           => 1,
-     'hell yeah'      => 1,
-     'si'	      => 1,		# Spanish
-     'hai'	      => 1,		# Japanese
-     'ii'	      => 1,		# "
-     'ha'	      => 1,		# Japanese (formal)
-     'oui'	      => 1,		# French
-     'damn straight'  => 1,             # Texan
-     'darn tootin'    => 1,
-     'shore nuf'      => 1,
-     'ayuh'           => 1,             # Maine
-    );
+  my $val  = &str_to_bool($str);
+  return (1, '', $val) if ($val >= 0);
 
-  my %no =
-    (
-     ''               => 1,
-     0		      => 1,
-     'n'	      => 1,
-     'no'	      => 1,
-     'iie'	      => 1,	# Japanese
-     'iya'            => 1,
-     'hell no'	      => 1,	# New Yorker
-     'go die'	      => 1,
-     'nyet'	      => 1,
-     'nai'	      => 1,
-     'no way'	      => 1,
-     'as if'	      => 1,
-     'in your dreams' => 1,
-    );
-
-  return (1, '', 0) unless defined $str;
-  return (1, '', 1) if $yes{$str};
-  return (1, '', 0) if $no{$str};
-  (0, 'Could not determine if string means yes or no.');
+  (0, qq(Unable to determine if "$str" means yes or no.));
 }
 
 =head2 parse_bounce_rules
@@ -2072,18 +2037,18 @@ sub parse_delivery_rules {
             $mess  = "Error parsing rule " . ($i+1) . " for host $j:\n";
             $mess .= qq(The "$k" feature is not valid.\nValid features include:\n  );
             $mess .= join "\n  ", @hk;
+            return (0, $mess);
           }
-          return (0, $mess);
-        }
-        if ($k eq 'timeout' and $rule->{$j}->{$k} =~ /[^\d.]/) {
-          $mess  = "Error parsing rule " . ($i+1) . " for host $j:\n";
-          $mess .= qq(The "$k" feature must have a numeric value.\n);
-          return (0, $mess);
-        }
-        elsif ($k eq 'port' and $rule->{$j}->{$k} =~ /[^\d]/) {
-          $mess  = "Error parsing rule " . ($i+1) . " for host $j:\n";
-          $mess .= qq(The "$k" feature must have a numeric value.\n);
-          return (0, $mess);
+          if ($k eq 'timeout' and $rule->{'hosts'}->{$j}->{$k} =~ /[^\d.]/) {
+            $mess  = "Error parsing rule " . ($i+1) . " for host $j:\n";
+            $mess .= qq(The "$k" feature must have a numeric value.\n);
+            return (0, $mess);
+          }
+          elsif ($k eq 'port' and $rule->{'hosts'}->{$j}->{$k} =~ /[^\d]/) {
+            $mess  = "Error parsing rule " . ($i+1) . " for host $j:\n";
+            $mess .= qq(The "$k" feature must have a numeric value.\n);
+            return (0, $mess);
+          }
         }
       }
     }
@@ -2095,8 +2060,8 @@ sub parse_delivery_rules {
             $mess  = "Error parsing rule " . ($i+1) . " for host $j:\n";
             $mess .= qq(The "$k" feature is not valid.\nValid features include:\n  );
             $mess .= join "\n  ", @hk;
+            return (0, $mess);
           }
-          return (0, $mess);
         }
       }
     }
