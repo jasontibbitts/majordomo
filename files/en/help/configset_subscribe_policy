@@ -8,7 +8,7 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname subscribe_policy = open+confirm
+configset listname subscribe_policy = closed
 
 
 One of three values: open, closed, auto; plus an optional modifier:
@@ -20,6 +20,18 @@ maintainer approval for all subscribe requests to the list.  Adding
 '+confirm', (i.e. 'open+confirm') will cause majordomo to send a reply
 back to the subscriber which includes a authentication number which
 must be sent back in with another subscribe command.
+
+This functionality of subscribe_policy is completely encapsulated in
+the access_rules mechanism, but it exists for backwards compatibility
+and because it's simpler to use.
+
+
+See Also:
+   help subscribe (for the command that this policy regulates)
+   help configset access_rules           (to restrict access to any command)
+   help configset access_rules_variables (other things you can test)
+   help configset set_policy             (another shortcut on access control)
+   help configset unsubscribe_policy     (another shortcut on access control)
 
 For a list of all help topics send this one-line message
    help topics

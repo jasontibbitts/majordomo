@@ -1,7 +1,7 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname archive_dir = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : no default
+Default Value : 
 Data Type     : directory
 Variable Group: archive
 Password Notes: Visible only with password. Set with global password. 

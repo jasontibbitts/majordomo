@@ -1,0 +1,34 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset listname archive_access = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : list
+Data Type     : enum, choose from: open closed list
+Variable Group: access, majordomo
+Password Notes: Visible only with password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset listname subscribe_policy = open
+
+
+One of three values: open, list, closed.  Open allows anyone access to this
+command.  List allows only list members access, while closed completely
+disables the command for everyone. Archives are accessed with either the
+'archive-index' and 'archive-get' commands, or with 'index' and 'get'.
+
+This functionality of archive_access is completely encapsulated in
+the access_rules mechanism, but it exists for backwards compatibility
+and because it's simpler to use.
+
+
+See Also:
+   help archive-index (for a command that this policy regulates)
+   help archive-get   (for a command that this policy regulates)
+   help index         (for a command that this policy regulates)
+   help get           (for a command that this policy regulates)
+   help configset access_rules           (to restrict access to any command)
+   help configset access_rules_variables (other things you can test)
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

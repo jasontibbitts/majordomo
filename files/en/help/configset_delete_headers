@@ -3,7 +3,7 @@ configset listname delete_headers <<TAG
 [VALUE LINES]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : X-Confirm-Reading-To ...
+Default Value : X-Confirm-Reading-To ... (only first item is shown)
 Data Type     : string_array
 Variable Group: resend
 Password Notes: Visible only with password. 

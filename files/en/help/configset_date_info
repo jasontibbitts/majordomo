@@ -3,8 +3,8 @@ configset  GLOBAL  date_info = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset listname date_info = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : 1
-Data Type     : bool, choose from: 0 n no 1 y yes
+Default Value : yes
+Data Type     : bool, choose from: 0 n no, 1 y yes
 Variable Group: majordomo, messages
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

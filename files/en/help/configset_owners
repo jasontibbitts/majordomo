@@ -7,7 +7,7 @@ configset listname owners <<TAG
 [VALUE LINES]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : [defined during installation] ...
+Default Value : [defined during installation] ... (only first item is shown)
 Data Type     : address_array
 Variable Group: majordomo
 Password Notes: Visible only with password. 

@@ -1,8 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset  GLOBAL  addr_allow_bang_paths = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : 0
-Data Type     : bool, choose from: 0 n no 1 y yes
+Default Value : no
+Data Type     : bool, choose from: 0 n no, 1 y yes
 Variable Group: addr
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

@@ -1,0 +1,48 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  set_policy = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+configset listname set_policy = [VALUE]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Default Value : open+confirm
+Data Type     : enum, choose from: open closed auto open+confirm closed+confirm auto+confirm
+Variable Group: majordomo, access, subscribe
+Password Notes: Visible only with password. 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset listname subscribe_policy = closed
+
+WARNING: If you choose set_policy 'open', you allow anyone to forge
+         a return address and shut off another subscribers email with
+         'set list nomail'. It is HIGHLY recommended that you use
+         open+confirm instead.
+
+One of three values: open, closed, auto; plus an optional modifier:
+'+confirm'.  Open allows people to change their list settings,
+but attempts to subscribe addresses diferent than where the request is
+coming from will require approval.  Auto allows anybody to change
+anyone's settings to the list without maintainer approval.  Closed 
+requires maintainer approval for all set requests to the list.  Adding
+'+confirm', (i.e. 'open+confirm') will cause majordomo to send a reply
+back to the subscriber which includes a token.  The subscriber 
+must then reply with 'accept' for the command to succeed.
+
+This functionality of subscribe_policy is completely encapsulated within
+the access_rules mechanism, but it exists for backwards compatibility
+and because it's simpler to use.
+
+Using "closed" allows the list owner to set up list defaults which
+are permanent unless the owner changes a subscription with the
+list password. This can be useful for "probation" periods, etc.
+
+
+See Also:
+   help set (for the command that this policy regulates)
+   help configset access_rules           (to restrict access to any command)
+   help configset access_rules_variables (other things you can test)
+   help configset subscribe_policy       (another shortcut on access control)
+   help configset unsubscribe_policy     (another shortcut on access control)
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ

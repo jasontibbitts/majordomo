@@ -2,7 +2,7 @@
 configset listname unsubscribe_policy = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : open
-Data Type     : enum, choose from: open closed auto
+Data Type     : enum, choose from: open closed auto open+confirm closed+confirm auto+confirm
 Variable Group: majordomo, access, subscribe
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -11,10 +11,32 @@ EXAMPLE:
 configset listname unsubscribe_policy = open
 
 
-One of three values: open, closed, auto.  Open allows people to
-unsubscribe themselves from the list.  Auto allows anybody to
-unsubscribe anybody to the list without maintainer approval.  Closed
-requires maintainer approval for all unsubscribe requests to the list.
+WARNING: The default unsubscribe_policy allows anyone to forge
+         a return address and remove another subscriber from the
+         list. It is HIGHLY recommended that you use open+confirm
+         instead. The default is for compatibility with Mj1.
+
+One of three values: open, closed, auto; plus an optional modifier:
+'+confirm'.  Open allows people to unsubscribe themselves from the list,
+but attempts to unsubscribe addresses different from where the request is
+coming from will require approval.  Auto allows anybody to unsubscribe
+anybody to the list without maintainer approval.  Closed requires
+maintainer approval for all unsubscribe requests to the list.  Adding
+'+confirm', (i.e. 'open+confirm') will cause majordomo to send a reply
+back to the subscriber which includes a authentication number which
+must be sent back in with another unsubscribe command.
+
+This functionality of unsubscribe_policy is completely encapsulated in
+the access_rules mechanism, but it exists for backwards compatibility
+and because it's simpler to use.
+
+
+See Also:
+   help unsubscribe (for the command that this policy regulates)
+   help configset access_rules           (to restrict access to any command)
+   help configset access_rules_variables (other things you can test)
+   help configset set_policy             (another shortcut on access control)
+   help configset subscribe_policy       (another shortcut on access control)
 
 For a list of all help topics send this one-line message
    help topics

@@ -3,8 +3,8 @@ configset  GLOBAL  welcome = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 configset listname welcome = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : 1
-Data Type     : bool, choose from: 0 n no 1 y yes
+Default Value : yes
+Data Type     : bool, choose from: 0 n no, 1 y yes
 Variable Group: majordomo, welcome
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

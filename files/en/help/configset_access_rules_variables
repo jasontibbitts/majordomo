@@ -15,7 +15,7 @@ First, the requests which can be processed:
  1 - access            default access is allow
  2 - advertise         default access is special
  3 - alias             default access is confirm
- 4 - archive           default access is mismatch
+ 4 - archive           default access is access
  5 - auxadd            default access is deny
  6 - auxremove         default access is deny
  7 - auxwho            default access is deny
@@ -35,13 +35,13 @@ First, the requests which can be processed:
 21 - register          default access is confirm
 22 - rekey             default access is deny
 23 - request_response  default access is allow
-24 - set               default access is confirm
+24 - set               default access is policy
 25 - show              default access is mismatch
 26 - showtokens        default access is deny
-27 - subscribe         default access is special
+27 - subscribe         default access is policy
 28 - unalias           default access is confirm
 29 - unregister        default access is confirm2
-30 - unsubscribe       default access is special
+30 - unsubscribe       default access is policy
 31 - which             default access is access
 32 - who               default access is access
 

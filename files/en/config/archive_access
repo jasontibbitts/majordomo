@@ -1,3 +1,4 @@
 One of three values: open, list, closed.  Open allows anyone access to this
 command.  List allows only list members access, while closed completely
-disables the command for everyone.
+disables the command for everyone. Archives are accessed with either the
+'archive-index' and 'archive-get' commands, or with 'index' and 'get'.

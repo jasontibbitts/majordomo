@@ -7,7 +7,7 @@ configset listname welcome_files <<TAG
 [VALUE LINES]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : You have been registered at $SITE. ...
+Default Value : You have been registered at $SITE. ... (only first item is shown)
 Data Type     : welcome_files
 Variable Group: majordomo, welcome
 Password Notes: Visible only with password. 

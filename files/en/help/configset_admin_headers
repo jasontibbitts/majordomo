@@ -7,7 +7,7 @@ configset listname admin_headers <<TAG
 [VALUE LINES]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : /^subject:\s*subscribe\b/i ...
+Default Value : /^subject:\s*subscribe\b/i ... (only first item is shown)
 Data Type     : taboo_headers
 Variable Group: resend
 Password Notes: Visible only with password. 

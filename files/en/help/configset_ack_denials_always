@@ -1,8 +1,8 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname ack_denials_always = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : 1
-Data Type     : bool, choose from: 0 n no 1 y yes
+Default Value : yes
+Data Type     : bool, choose from: 0 n no, 1 y yes
 Variable Group: resend
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

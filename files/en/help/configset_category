@@ -1,7 +1,7 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 configset listname category = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : no default
+Default Value : 
 Data Type     : string
 Variable Group: majordomo, lists
 Password Notes: Visible only with password. 

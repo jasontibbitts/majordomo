@@ -3,7 +3,7 @@ configset listname allowed_classes <<TAG
 [VALUE LINES]
 TAG
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Default Value : each ...
+Default Value : each ... (only first item is shown)
 Data Type     : string_array
 Variable Group: class
 Password Notes: Visible only with password. 
