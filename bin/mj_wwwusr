@@ -108,7 +108,7 @@ $site        = $mj->global_config_get(undef, undef, 'site_name');
 $serveraddr  = $mj->global_config_get(undef, undef, 'whoami');
 $falseuser   = "x$ENV{'REMOTE_ADDR'}\@example.com";
 # Set HTML form variables
-$ofunc   = $cgi->param('func') || "lists";
+$ofunc   = $cgi->param('func') || "welcome";
 $user    = $cgi->param('user') || $pathinfo || $falseuser;
 $user    = new Mj::Addr($user) if $user;
 $isreg   = $mj->{'reg'}->lookup($user->canon) if $user;
@@ -152,7 +152,7 @@ else {
 }
 
 # Print help information if it was requested
-if ($func =~ /about/) {
+if (!$func or $func =~ /welcome/) {
   &print_header($user, $passw, $site, $cgiurl);
   &usage($mj);
 }
@@ -231,12 +231,12 @@ if (function_prop($func, 'iter')) {
 # For the 'set' command, convert the CGI data into the appropriate settings.
 if ($func eq 'set') {
   my ($i, $j, @settings);
-  for $j (qw(delivery ack eliminatecc hide prefix replyto selfcopy rewritefrom)) {
+  for $j (qw(delivery ackdeny ackpost ackreject ackstall eliminatecc hide prefix replyto selfcopy rewritefrom)) {
     $i = "$list:$j";
     if ($j eq 'delivery') {
       push @settings, $cgi->param($i);
     }
-    elsif ($j eq 'hide' or $j eq 'ack') {
+    elsif ($j eq 'hide') {
       $cgi->param($i) eq 'on' ? 
         push @settings, "${j}all" :
         push @settings, "no$j";
@@ -257,9 +257,9 @@ $fh = new IO::File ">$file";
 if ($func ne 'show' and $func ne 'lists') {
   $result = $mj->dispatch($request); 
   &surrender("Unable to obtain result from Majordomo.\n") unless $result;
-  print $fh "<pre>\n";
+  print $fh "<pre><small>\n";
   &{"Mj::Format::$func"}($mj, $fh, $fh, 'html', $request, $result);
-  print $fh "</pre>\n";
+  print $fh "</small></pre>\n";
 }
 
 # There are three screens which this script displays.  The
@@ -330,13 +330,13 @@ sub Mj::Format::help {
 
 sub Mj::Format::lists {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($list, $cat, $desc, $flags);
-  my ($ok, $mess, @listdata) = @$result;
+  my ($list, $cat, $data, $desc, $flags, $listurl);
+  my ($ok, @listdata) = @$result;
   select $out;
   # Iterate over lists and add form buttons
   if (! $ok) {
     print <<EOM;
-<h2>Error: $mess</h2>
+<h2>Error: $listdata[0]</h2>
 If you received an "Invalid password" error, here are 
 the possible causes:
 <ul>
@@ -347,32 +347,95 @@ A password is necessary if you wish to use the <b>show, set,</b>
 or <b>unsubscribe</b> command.
 <p>
 A password is probably not necessary if you wish to use the <b>subscribe,
-faq, help, info, intro, lists</b>, or <b>about this service</b> command.
+faq, help, info, intro, lists</b>, or <b>welcome</b> command.
 EOM
 
     return;
   }
-  print <<EOM;
-<input type=submit name=func value=subscribe>
-<input type=submit name=func value=faq>
-<input type=submit name=func value=info>
-<input type=submit name=func value=intro><br>
-<b>Select a mailing list, then press one of the buttons above.
-Leave the password box empty unless you have already been
-assigned a password by majordomo at this site.</b>
-<pre>
+  
+  if (scalar @listdata > 1 and $request->{'mode'} !~ /aux/) {
+    print <<EOM;
+<b>To learn more about a list, click its name.</b>
+<table>
+<th align=left>List&nbsp;<th align=left>Category&nbsp;<th align=left>Description
 EOM
-  for (@listdata) {
-    ($list, $cat, $desc, $flags) =  @$_;
-    $desc ||= "(no description)";
-    print "<input type=radio name=list value=$list>";
-    printf "%-24s %-12s %s\n", $list, $cat, $desc;
+    for $data (@listdata) {
+      $data->{'description'} ||= "(no description)";
+      for (keys %$data) {
+        $data->{$_} = Mj::Format::escape($data->{$_});
+      }
+      $listurl = $cgiurl .
+                 "?domain=$domain" .
+                 "&user=$user" .
+                 "&func=lists-aux-long" .
+                 "&passw=$passw" .
+                 "&extra=/^$data->{'list'}\$/";
+
+      print <<EOM;
+<tr>
+<td><a href="$listurl">$data->{'list'}</a>
+<td>$data->{'category'}
+<td>$data->{'description'}
+EOM
+    }
+    print "</table>\n";
   }
-  unless (@listdata) {
-    print "There are no public lists at this site.\n";
+  elsif (! @listdata) {
+    print "<h4>No public lists were found at this site.</h4>\n";
   }
-  print "</pre></form>\n";
+  # One list; display more thorough details.
+  #   FAQ, Info, Intro, Archive URL, Subscriber count, List address,
+  #   Long description, Owner address.
+  else {
+    $data = $listdata[0];
+    for (keys %$data) {
+      $data->{$_} = Mj::Format::escape($data->{$_});
+    }
+    $listurl = $cgiurl .  "?domain=$domain" .
+                 "&user=$user" .  "&func=%s" .
+                 "&passw=$passw" . 
+                 "&list=$data->{'list'}";
+    print "<dl>\n";
+    print "<dt>List Name\n";
+    printf "<dd>%s\n", (exists $data->{'list'}) ? 
+     sprintf ("<a href=\"$listurl\">$data->{'list'}</a> (click to subscribe)",
+             "subscribe")
+             : "Unknown";
+    print "<dt>Category\n";
+    printf "<dd>%s\n", (exists $data->{'category'}) ? 
+                       $data->{'category'} || "(no category)"
+                       : "Unknown";
+    print "<dt>Description\n";
+    printf "<dd>%s\n", (exists $data->{'description'}) ? 
+                       $data->{'description'} || "(no description)"
+                       : "Unknown";
+    print "<dt>Archive URL\n";
+    printf "<dd>%s\n", (exists $data->{'archive'} and $data->{'archive'}) ? 
+                       "<a href=\"$data->{'archive'}\">$data->{'archive'}</a>" 
+                       : "Unknown";
+    print "<dt>Subscribers\n";
+    printf "<dd>%s\n", (exists $data->{'subs'}) ? 
+                       $data->{'subs'} 
+                       : "Unknown";
+    print "<dt>List Address\n";
+    printf "<dd>%s\n", (exists $data->{'address'}) ? 
+                       "<a href=\"mailto:$data->{'address'}\">$data->{'address'}</a>" 
+                       : "Unknown";
+    print "<dt>List Owner Address\n";
+    printf "<dd>%s\n", (exists $data->{'owner'}) ? 
+                       "<a href=\"mailto:$data->{'owner'}\">$data->{'owner'}</a>" 
+                       : "Unknown";
+    print "<dt>Documentation\n";
+    printf "<dd>%s\n", 
+     sprintf ("<a href=\"$listurl\">Frequently Asked Questions</a><br>\n", "faq")
+     .
+     sprintf ("<a href=\"$listurl\">Introduction to the List</a><br>\n", "intro") 
+     .
+     sprintf ("<a href=\"$listurl\">Welcome Message</a><br>\n", "info"); 
+    print "</dl>\n";
+  } 
   select STDOUT;
+  1;
 }
 
 sub Mj::Format::show {
@@ -399,6 +462,14 @@ sub Mj::Format::show {
     }
     print "</ul>\n";
   }
+  print <<EOM;
+<h4 align=center>Personal Settings</h4>
+<form method=POST action="$cgiurl">
+<input type=hidden name=domain value="$domain">
+<input type=hidden name=user value="$user">
+<input type=hidden name=passw type=password value="$passw">
+EOM
+
   @lists = sort keys %{$listdata->{'lists'}};
   unless (@lists) {
     print <<EOM;
@@ -415,25 +486,25 @@ EOM
   }
 
   print <<EOM;
-<input type=submit name=func value="set">
-<input type=submit name=func value="unsubscribe">
-<input type=submit name=func value="changeaddr">
-<p>
-To unsubscribe, press the radio button for the 
-appropriate list, then press the <b>unsubscribe</b> button.
-<p>
-To change settings, press the radio button for a
-list, choose the settings you want, then press the <b>set</b> button
-above.  The settings are described at the bottom of this page.
-<p>
 To change addresses, type your new address into this box:<br>
-<input size=48 name=extra><br>
+<input size=48 name=extra>
+<input type=submit name=func value="changeaddr"><br>
 and press the <b>changeaddr</b> button.  Majordomo may send
 a message to your new address asking for confirmation.
 <p>
+To change settings, press the radio button for a
+list, choose the settings you want, then press the <b>set</b> button.
+The settings are described at the bottom of this page.
+<p>
+To unsubscribe, press the radio button for the
+appropriate list, then press the <b>unsubscribe</b> button.
+<p>
+<input type=submit name=func value="set">
+<input type=submit name=func value="unsubscribe">
 EOM
 
-  print "<table border><th>Mailing List<th>Delivery Mode<th>Ack<th>EliminateCC\n";
+  print "<table border><th>Mailing List<th>Delivery Mode";
+  print "<th>AckDeny<th>AckPost<th>AckReject<th>AckStall<th>EliminateCC\n";
   print "<th>Hide<th>Prefix<th>ReplyTo<th>SelfCopy<th>RewriteFrom\n";
   for $i (@lists) {
     $lfull      = $listdata->{'lists'}{$i}->{'fulladdr'};
@@ -461,10 +532,12 @@ EOM
     }
   }
   print "</table></form>\n";
-  print "$request->{'user'} was registered on ".gmtime($listdata->{'regdata'}->{'regtime'})." UTC.<br>\n";
+  print "$request->{'user'} was registered on " .
+         gmtime($listdata->{'regdata'}->{'regtime'}) .
+         " UTC.<br>\n";
 
   print <<EOM;
-<h2 align=center>What do the settings mean?</h2>
+<h4 align=center>What do the settings mean?</h4>
 <ul>
 <li>Delivery Mode: "each" means that you will receive each
 message.  "digest" means that messages will be bundled into
@@ -472,8 +545,15 @@ a collection called a digest, which is sent periodically.
 "nomail" means that you will receive no mail from the list.
 This is a useful setting if you wish to postpone mail 
 while you are traveling, for example.
-<li>Ack:  Select this if you want to receive acknowledgements if your
-posted messages need to be reviewed by the list owners
+<li>AckDeny:  Select this to be notified when your
+posted messages are denied by the configuration settings of a list.
+<li>AckPost:  Select this to be notified when your
+posted messages have been accepted and are being delivered.
+<li>AckReject: Select this to be notified when your
+posted messages or majordomo requests are rejected by one of
+the list moderators.
+<li>AckStall:  Select this to be notified when your
+posted messages are being reviewed by the list moderators
 before they appear on a mailing list.
 <li>EliminateCC: Select this if you do not want two copies
 when someone sends a message both to you and to the list.
@@ -495,6 +575,7 @@ rewritten to appear as it did when you subscribed to the list.
 </ul>
 EOM
   select STDOUT;
+  1;
 }
   
 sub format_print {
@@ -521,68 +602,26 @@ sub usage {
           $ENV{'SERVER_PORT'}, $ENV{'SCRIPT_NAME'}, $user;
 
   print <<EOM;
+<h2 align=center>Introduction</h2>
 <p>
-This an introduction to the Majordomo 2 subscriber interface.
+At the top of the screen are two boxes and                 
+four buttons.  <b>If your address is not already present
+in the first box, type it into the first box.</b>
 <p>
-This interface serves two main purposes.  The first is to 
-allow the public to learn about and subscribe to the mailing 
-lists at $site.  The second is to allow subscribers to change
-the settings for their subscriptions and to remove themselves
-from mailing lists.
+The second box is for your password.  Unless you have already
+subscribed to at least one mailing list at this site, you should
+leave this box blank.
 <p>
-Four buttons are always present:
-<ul>
-<li><b>about this service</b> shows this help page.
-<li><b>help</b> takes you into the majordomo help pages.
-<li><b>lists</b> shows all public mailing lists at this site.  
-<li><b>show</b> allows you to change your settings (password required).
-<br>Four buttons will be added when viewing the list of lists:
-<ul>
-<li><b>subscribe</b> causes your address to be added
-to the mailing list you have chosen.  Make sure
-that your e-mail address appears in the "address:" box.
-Unless you have already subscribed to at least one
-list at this site, pressing this button will cause
-a confirmation e-mail message to be sent to your address.
-Follow the instructions in that message to complete
-your subscription.
-<li><b>faq</b> displays a list of frequently asked questions
-and answers for a mailing list, if one exists.
-<li><b>info</b> displays the "welcome message" that all
-new subscribers receive.  It usually describes the policies
-of the list owners.
-<li><b>intro</b> displays an introduction to the topics
-which are discussed on the mailing list, if one exists.
-</ul>
-
-Each mailing list has a radio button to the left
-of its name.  It is important that you choose a mailing
-list before pressing the <b>subscribe, faq, info</b> or
-<b>intro</b> buttons.
-<li><b>show</b> displays information about your account
-if you have already subscribed and if you have typed your
-password into the "password:" box.  If you press the 
-<b>show</b> button without using your password, you 
-will see the list of mailing lists instead.
+If you are subscribed to at least one mailing list here, you
+should have received your password in an e-mail welcome message.
+To change the settings of your subscriptions, type your password
+into the second box and press <b>show</b>.
 <p>
-If you want to access your account, add a solidus ("/")
-and your e-mail address to this URL, for example: <br>
- <a href="$usrcgi">$usrcgi</a><br>
-and bookmark that page for future reference.
-When the list of lists appears, type in your password and
-press the <b>show</b> button.  Your password appears in the 
-welcome message you receive every time you subscribe to 
-a mailing list, so be sure to save those messages.
+To browse the majordomo 2 help pages, press <b>help</b>.
 <p>
-It is possible for you to subscribe to mailing lists without
-using a password.  However, using your password may
-save you an extra step.  Confirmation instructions
-will be sent via e-mail to your address if you do not
-use your password.
+To see a list of public mailing lists, press <b>lists</b>.
 <p>
-Instructions for changing your account appear at the bottom of the 
-screen after you press the <b>show</b> button.
-</ul>
+To return to this introduction, press <b>welcome</b>.
 <hr>
 If you have questions about this service, please write to
 the site administrator at
@@ -617,38 +656,25 @@ sub print_header {
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
 "http://www.w3.org/TR/REC-html40/strict.dtd"> 
 <html><head>
-<title>Majordomo 2 WWW for Subscribers</title>
+<title>$site: mailing lists</title>
 </head>
 <body>
-<h2 align=center>List Information and Account Maintenance</h2>
-Welcome to $site!  Here you will find information about our
-mailing lists and your account on our Majordomo 2 list server.
-<ul>
-<li>Press <b>about this service</b> to see a detailed
-introduction.
-<li>Press <b>help</b> to browse the majordomo help pages.
-<li>Press <b>lists</b> to see a list of mailing lists
-at $site.
-<li>Press <b>show</b> to see details about your account.
-(password required)
-</ul>
-EOM
-
-  print "<h4 align=center>Type your address into the first box</h4>\n"
-    if ($user =~ /example\.com$/i);
-
-  print <<EOM;
+<h4 align=center>$site mailing lists</h4>
+<small>
 <form method=POST action="$cgiurl">
 <input type=hidden name=domain value="$domain">
 address:
-<input size=44 name=user value="$user">
+<input size=30 name=user value="$user">
 password:
-<input size=16 name=passw type=password value="$passw"><br>
-<input type=submit name=func value="about this service">
+<input size=14 name=passw type=password value="$passw">
+<input type=submit name=func value="show">
 <input type=submit name=func value="help">
 <input type=submit name=func value="lists">
-<input type=submit name=func value="show">
+<input type=submit name=func value="welcome">
+</form>
+</small>
 EOM
+
 }
 
 sub print_footer {
