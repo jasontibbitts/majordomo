@@ -13,7 +13,7 @@ EXAMPLE:
 configset listname digests << ENDTAG
 daily  | 5      | 20K,5m | 40K,10m  | 3d | 1d | | mime  | thread | numbered
 The pre-dawn daily digest  | [\$LIST] Daily digest (\$MESSAGECOUNT messages)
-weekly | fr(23) |20k,5m  | 100k,30m |    |    | | index |  |  |
+weekly | fr(23) |20k,5m  | 100k,30m |    |    | | index |  |  numbered
 The listname weekly index, generated late friday night.
 ENDTAG
 

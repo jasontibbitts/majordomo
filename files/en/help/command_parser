@@ -1,8 +1,9 @@
                             The Command Parser
                  how commands in e-mail messages are processed
 
-The parser is the part of Majordomo that extracts commands from e-mail messages.  In the simplest case it just parses commands, one per line.  It can, however, 
-do much more.
+The parser is the part of Majordomo that extracts commands from e-mail
+messages.  In the simplest case it just parses commands, one per line.
+It can, however, do much more.
 
 If a message consists of multiple parts, Majordomo will only process
 commands in the first body part, and only if it is a text/plain 
