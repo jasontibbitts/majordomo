@@ -232,14 +232,14 @@ sub put {
 		     ") VALUES (?, ?, ?, ".
 		     join(", ", map { "?" } @{$self->{fields}}).
 		     ")", undef, $self->{domain}, $self->{list}, $key, 
-		    $self->_escape_value(@args{@{$self->{fields}}}));
+		    @args{@{$self->{fields}}});
 
     return (defined($r) ? 0 : 1);
   } elsif ($exist and $flag == 0) {
     my $r = $db->do("UPDATE $self->{table} SET ".
 		     join(", ", map { "$_ = ? " } $self->_escape_field(@{$self->{fields}})).
 		     " WHERE t_domain = ? AND t_list = ? AND t_key = ?", undef,
-		    $self->_escape_value(@args{@{$self->{fields}}}), $self->{domain}, $self->{list}, $key);
+		    @args{@{$self->{fields}}}, $self->{domain}, $self->{list}, $key);
 		  
     return (defined($r) ? 0 : -1);
   }
@@ -866,6 +866,14 @@ sub _stringify {
   # Supply defaults
   $argref->{'changetime'} = time unless $nochange;
 
+  for (keys(%$argref)) {
+    if (defined($argref->{$_}) && ref($argref->{$_})) {
+      $argref->{$_} .= "";
+    } elsif (defined($argref->{$_}) && $argref->{$_} =~ /^$/o) {
+      $argref->{$_} = undef;
+    }
+  }
+  
   $argref;
 }
 
@@ -878,14 +886,6 @@ sub _unstringify {
 sub _escape_field {
   my $self = shift;
   return @_;
-}
-
-sub _escape_value {
-  my $self = shift;
-  for (@_) {
-    undef ($_) if /^$/o;
-  }
-  return @_
 }
 
 1;
