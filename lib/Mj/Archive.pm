@@ -352,12 +352,11 @@ sub remove {
   ($arc, $msg) = $msg =~ m!([^/]+)/(.*)!;
   $dir = $self->{dir};
 
-  unless ($data) {
-    # Look up the data for the message
-    $self->_make_index($arc);
-    $data = $self->{'indices'}{$arc}->lookup($msg);
-    return unless $data;
-  }
+  # Always look up the data for the message
+  $self->_make_index($arc);
+  $data = $self->{'indices'}{$arc}->lookup($msg);
+  return unless $data;
+  
   $self->_read_counts($arc);
   if ($self->{'splits'}{$arc}{'msgs'} == $msg) {
     for ($i = $msg - 1; $i > 0; $i--) {
@@ -1532,19 +1531,19 @@ sub _parse_message_range {
       # message - message; 
       # Restore sublist name if needed.
       if ($self->{'sublist'} and $arch1 !~ /^$self->{'sublist'}/) {
-        $arc = "$self->{'sublist'}.$arch1";
+        $arch1 = "$self->{'sublist'}.$arch1";
       }
       if ($self->{'sublist'} and $arch2 !~ /^$self->{'sublist'}/) {
-        $arc = "$self->{'sublist'}.$arch2";
+        $arch2 = "$self->{'sublist'}.$arch2";
       }
-      # @arcs will hold all archives newer than $arc, if given
+      # @arcs will hold all archives newer than $arc, if given.
       @arcs  = sort(grep {$_ ge $arch1 and  $_ =~ /^$self->{'sublist'}\.?\d/} 
                     keys(%{$self->{'archives'}}));
 
       $arc = shift @arcs;
       return @out unless $arc;
 
-      $num = 1;
+      $num = $msg1;
       ($final) = $self->last_message($arc) =~ m!^[^/]+/(.*)$!;
 
       while (($arc lt $arch2) || (($arc eq $arch2) && ($num <= $msg2))) {
