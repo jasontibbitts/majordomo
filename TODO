@@ -322,13 +322,6 @@ command to see a summary of categories and a lists-category command
 to display lists whose category matches a pattern.
 
 
-Add mode support to the WWW interfaces
---------------------------------------
-Currently, the command mode must be specified as part of the command
-name.  Support a "mode" CGI variable that allows the mode to be
-determined independently.
-
-
 Hide addresses in mj_wwwusr archives
 ------------------------------------
 To protect the archives from address harvesters, add substitutions
@@ -358,6 +351,12 @@ response messages when only one is necessary.  For example, when someone
 posts a message to the LIST-subscribe address, and confirmation is
 required, both a confirmation message and a result message are sent
 back.
+
+
+Database conversion
+-------------------
+Text-to-DB and DB-to-text conversions for all databases would allow
+backups and list or domain relocation to proceed more smoothly.
 
 
 =======================
