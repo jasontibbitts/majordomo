@@ -32,7 +32,7 @@ the access_rules mechanism, but it exists for backwards compatibility
 and because it's simpler to use.
 
 Regardless of the unsubscribe_policy setting, you cannot use wild
-cards (e.g. "unsubscribe-regexp") without the list password.
+cards (e.g. "unsubscribe-regex") without the list password.
 
 
 See Also:
