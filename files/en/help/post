@@ -1,6 +1,7 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-post listname
+post[-archive] listname
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-archive, if specified, archives a message without distributing it
 listname, required, is the name of a list at this site
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -12,8 +13,23 @@ Majordomo will not add omitted headers, nor does it check the validity
 of the message. All of the normal resend access checks apply.
 
 This enables a Majordomo list to be run without doing any MTA
-configuration at all.  The list will not, however, be terribly
-functional.  This will probably work for announcement lists, though.
+configuration, such as creating aliases.  The list will not, 
+however, be terribly functional.  This will probably work for 
+announcement lists, though.
+
+The "post" command could be used on a moderated list, if the 
+moderators wish to edit a message before distributing it.
+The edited message would still need to be approved with the
+"accept" command, and the original post would have to be denied 
+with the "reject" command.
+
+The "post-archive" command may be used to store a message in the
+mailing list archive, but not distribute it on the mailing list.
+If you maintain a WWW archive of your mailing lists, you might
+wish to include a message that describes how to subscribe to
+the mailing list.  Obviously, you would not want that message to 
+be distributed on the list, since the list's participants are
+already subscribed to the list.
 
 See Also:
    help approve  (which can eliminate the need to use "accept")
