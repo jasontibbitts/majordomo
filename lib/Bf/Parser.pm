@@ -269,7 +269,7 @@ sub parse_exim {
   my $log  = new Log::In 50;
   my $ent  = shift;
   my $data = shift;
-  my ($bh, $line, $ok);
+  my ($bh, $line, $ok, $user);
 
   return 0 if $ent->parts;
   $ok = 0;
@@ -289,6 +289,7 @@ sub parse_exim {
   # Eat stuff until we see an address:
   while (1) {
     $line = $bh->getline;
+    last unless defined $line;
     chomp $line;
 
     # Stop before we get into the bounced message
@@ -296,15 +297,17 @@ sub parse_exim {
 
     # Ignore lines that don't look like indented addresses followed by
     # colons
-    next unless $line =~ /  (.+@.+):$\s*$/;
+    next unless $line =~ /  (.+\@.+):\s*$/;
     
     # We have an address;
-    $data->{$1}{'status'} = 'failure';
+    $ok = 1;
+    $user = $1;
+    $data->{$user}{'status'} = 'failure';
 
     # The next line holds the diagnostic, indented a bit
     $line = $bh->getline;
     chomp $line; $line =~ s/^\s*//;
-    $data->{$1}{'diag'} = $line;
+    $data->{$user}{'diag'} = $line;
   }
 
   # Should never get here.
