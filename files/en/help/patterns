@@ -288,7 +288,7 @@ the pattern is used.
 
   In the archive-sync command, an exact match.
   In the lists and rekey commands, an exact, case-insensitive match.
-  In the which and who commands, a case-sensitive substring match.
+  In the which and who commands, a case-insensitive substring match.
 
   In the attachment_filters setting, an exact, case-insensitive match.
   In the attachment_rules setting, an exact, case-insensitive match.
