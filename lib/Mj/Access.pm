@@ -462,6 +462,7 @@ sub list_access_check {
   my $data      = shift;
   my %args      = @_;
 
+  $data->{'victim'} ||= $data->{'user'};
   my $passwd    = $data->{'password'};
   my $mode      = $data->{'mode'};
   my $cmdline   = $data->{'cmdline'};
@@ -472,7 +473,7 @@ sub list_access_check {
      $list      = 'GLOBAL' unless command_prop($request, 'list');
   my $requester = $data->{'user'};
   my $sublist   = (exists $data->{'sublist'}) ? $data->{'sublist'} : 'MAIN';
-  my $victim    = $data->{'victim'} || $requester;
+  my $victim    = $data->{'victim'};
   my $arg3      = exists $data->{'arg3'} ? $data->{'arg3'} : '';
 
   my $log = new Log::In 60, "$list, $request, $requester, $victim";
@@ -1265,7 +1266,7 @@ use Mj::CommandProps ':access';
 sub _a_default {
   my ($self, $arg, $td, $args) = @_;
   my $log = new Log::In 150, $td->{'command'};
-  my ($access, $policy, $action, $reason, $request);
+  my ($access, $action, $policy, $reason, $request);
   ($request = $td->{'command'}) =~ s/_(start|chunk|done)$//;
 
   # We'll use the arglist almost verbatim in several places.
@@ -1327,29 +1328,34 @@ sub _a_default {
                                     'COMMAND' => $request,
                                     'SETTING' => "${request}_access");
     }
-    elsif ($access =~ /^list/ &&
-	   $self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'victim'}))
-      {
-         if (($args->{'mismatch'} or $args->{'posing'})
-             and ! $args->{'user_password'}) 
-         {
-           $action = "_a_confirm";
-           $reason = $self->format_error('access_mismatch', $td->{'list'},
-                                         'COMMAND' => $request,
-                                         'USER' => "$td->{'user'}",
-                                         'VICTIM' => "$td->{'victim'}")
-             if $args->{'mismatch'};
-
-           $reason = $self->format_error('access_posing', $td->{'list'},
-                                         'COMMAND' => $request,
-                                         'SESSIONUSER' => "$td->{'user'}",
-                                         'USER' => "$td->{'user'}")
-             if $args->{'posing'};
-         }
-         else {
-           $action = "_a_allow";
-         }
+    elsif ($access =~ /^list/) {
+      if (! $self->{'lists'}{$td->{'list'}}->is_subscriber($td->{'victim'})) {
+        $action = "_a_deny";
+        $reason = $self->format_error('not_subscribed', $td->{'list'},
+                                      'COMMAND' => $request,
+                                      'USER' => "$td->{'user'}",
+                                      'VICTIM' => "$td->{'victim'}");
       }
+      elsif (($args->{'mismatch'} or $args->{'posing'})
+              and ! $args->{'user_password'}) 
+      {
+        $action = "_a_confirm";
+        $reason = $self->format_error('access_mismatch', $td->{'list'},
+                                      'COMMAND' => $request,
+                                      'USER' => "$td->{'user'}",
+                                      'VICTIM' => "$td->{'victim'}")
+          if $args->{'mismatch'};
+
+        $reason = $self->format_error('access_posing', $td->{'list'},
+                                      'COMMAND' => $request,
+                                      'SESSIONUSER' => "$td->{'user'}",
+                                      'USER' => "$td->{'user'}")
+          if $args->{'posing'};
+      }
+      else {
+        $action = "_a_allow";
+      }
+    }
   }
 
   elsif (access_def($request, 'policy')) {
