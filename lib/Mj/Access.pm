@@ -29,8 +29,8 @@ use Mj::Config qw(parse_table);
 use Mj::CommandProps qw(:rules);
 use Mj::MIMEParser;
 use strict;
-use vars qw($current $skip $victim $passwd @permitted_ops 
-            %args %memberof %requests);
+use vars qw($current $skip $text $victim $passwd @permitted_ops %args
+            %memberof %requests);
 
 use AutoLoader 'AUTOLOAD';
 1;
@@ -313,9 +313,8 @@ use Mail::Header;
 use Safe;
 sub check_headers {
   my ($self, $sd) = @_;
-  my (@headers, @inv, @matches, $class,
-      $code, $data, $head, $i, $inv, $j, $k, $l, $match,
-      $reasons, $rule, $safe, $sev);
+  my (%inv, @headers, @inv, @matches, $class, $code, $data, $head, $i,
+      $inv, $j, $k, $l, $match, $reasons, $rule, $safe, $sev);
   my $log = new Log::In 200;
   local ($text);
 
@@ -587,7 +586,7 @@ sub list_access_check {
         @final_actions = ('delay');
         goto FINISH;
       }
-      return $self->_a_allow(2**30, $data, $args);
+      return $self->_a_allow(2**30);
     }
     $args{'delay'} = $data->{'delay'};
   }
@@ -961,11 +960,11 @@ use MIME::Entity;
 sub _a_forward {
   my ($self, $arg, $td, $args) = @_;
 
-  my (%avars, $cmdline, $ent, $fh, $mj_owner, $parser, 
+  my (%avars, $cmdline, $ent, $fh, $mj_owner, $parser,
       $subject, $tmpdir, $whoami);
   my $log = new Log::In 150, $arg;
   $cmdline = $td->{'cmdline'};
-  
+
   if ($td->{'command'} !~ /post/) {
     $whoami = $self->_global_config_get('whoami');
     if (lc $whoami eq lc $arg) {
@@ -973,8 +972,8 @@ sub _a_forward {
       $arg = $self->_list_config_get($td->{'list'}, 'whoami_owner');
       $cmdline .= "\nUnable to forward to $arg due to apparent mail loop.";
     }
-      
-    $ent = new MIME::Entity 
+
+    $ent = new MIME::Entity
       [
        "Subject: Forwarded request from $td->{'user'}\n",
        "From: $td->{'user'}\n",
@@ -999,7 +998,7 @@ sub _a_forward {
     $parser->output_to_core($self->_global_config_get("max_in_core"));
     $parser->output_dir($tmpdir);
     $parser->output_prefix("mjf");
-    
+
     $fh = new IO::File "<$arg1";
     $ent = $parser->read($fh);
     # This should be safe, because the file has already
@@ -1330,8 +1329,8 @@ sub _d_post {
       }
       else {
 	$tmp = $i;
-	$tmp =~ s/\Q$list\E[.-_]?//;
-	if ($self->{'lists'}{$list}->aux_is_member($i, $td->{'user'})) {
+	$tmp =~ s/\Q$td->{'list'}\E[.-_]?//;
+	if ($self->{'lists'}{$td->{'list'}}->aux_is_member($i, $td->{'user'})) {
 	  $member = 1;
 	  last;
 	}
