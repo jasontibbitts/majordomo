@@ -339,6 +339,11 @@ sub is_subscriber {
   my $log = new Log::In 170, "$self->{'name'}, $addr";
   my ($data, $ok, $out, $subs);
 
+  unless (defined $addr and ref $addr eq 'Mj::Addr') {
+    $log->out('undefined');
+    return;
+  }
+
   if (!$addr->isvalid) {
     $log->out('invalid');
     return;
