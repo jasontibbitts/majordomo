@@ -19,6 +19,7 @@ Command:&nbsp;&nbsp;
 <option> configshow
 <option> configset
 <option> configdef
+<option> digest-status
 <option> get
 <option> help
 <option> index-recursive
