@@ -1,3 +1,73 @@
+2000-11-18  Michael Yount <csf@moscow.com>
+
+	* README.CALLING:  Somewhat outdated file describing the 
+	request hash calling conventions.
+
+	* bin/mj_shell:  Add editing support for the get-edit
+	command, which wraps a file in a put command, to allow
+	easy editing and replacement using your favorite editor.
+
+	* bin/mj_wwwadm, bin/mj_wwwusr:  Rewrite.  Move all formatting
+	into Mj::Format.  List explicitly the supported commands.
+
+	* files/en/error/*:  New error files.  Allow customization
+	of error messages (only two are used at present).
+
+	* files/en/format/*:  New format files.  Allow customization
+	of command output (only commands that require special
+	formatting in the WWW interfaces are included at present,
+	such as the configshow, lists, and show commands.)
+
+	* files/en/help/configset_*:  Change "Variable Groups" heading
+	to "Category" and revise the categories used.
+
+	* files/en/help/configshow:  Document "categories" mode, 
+	including a list of all ten categories.
+
+	* files/en/help/get:  Document "edit" mode, which wraps a
+	file with a put command, to allow easy editing and replacement.
+
+	* lib/Majordomo.pm:  (dispatch) Improve list validation.
+	(standard_subs) Add DOMAIN and PWLENGTH substitutions.
+	(substitute_vars_format)  New routine.  Allows more extensive
+	line-based formatting, with the following new features:
+          $HELP:LOZENGE   add a hypertext link to the "lozenge" help file
+          ?COMMENT        skip this line if the COMMENT substitution is empty.
+        Also, if a substitution value is a list reference, the formatting
+        of lines in which the variable appears will be spread over multiple
+	lines, one for each array element.  For example, in the lists command,
+        the DESCRIPTION substitution is a list reference.  As a result,
+        the following line in the format file:
+          $LIST:-23 $DESCRIPTION
+        will cause the list name to be displayed only on the first line,
+	while the description may span several lines, all indented.
+	(format_error) New routine.  Retrieve an error file and apply
+	substitutions to it.  Return the result in a string.
+        (format_get_string) New routine.  Obtain a format file as a string.
+	(_get) Add support for the edit command mode.
+	(help_start) Allow abbreviations of configset_ topics.  For example,
+	  help configset_who_access
+	can be abbreviated to
+	  help who_access
+	(password)  Use error files instead of hard-coded messages.
+	(configshow)  Add support for the categories command mode.
+	(createlist)  Allow multiple list owners to be specified,
+	using a here document.
+
+	* lib/Mj/Access.pm (list_access_check, validate_passwd):  
+	Perform latchkey validation.
+
+	* lib/Mj/Archive.pm (expand_range):  Allow mwdh time expansions
+	in arguments containing sublists.
+
+	* lib/Mj/Format.pm (configshow, lists, show, showtokens,
+	tokeninfo, who):  Use file formatting instead of hard-coded
+	output.
+
+	* lib/Mj/List.pm:  (get_setting_data)  New routine.  Obtain data 
+	about the personal settings for a list, including default and
+	allowed values.
+	
 2000-11-15  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Mj/BounceParser.pm (parse_qmail): Support multiline

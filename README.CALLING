@@ -1,0 +1,124 @@
+How majordomo commands are processed:
+
+Each majordomo command has a core subroutine which must be called
+in order to carry out the command.  The core subroutines are 
+executed through Majordomo's command dispatcher.  
+
+The dispatcher expects to receive a reference to an associative array 
+(the "request hash") which contains all of the data necessary to 
+carry out the command.  There are several keys that are common
+to all requests:
+
+auth        An obsolete variable, which will be removed in the future.
+
+command     The name of the core routine to be called.  This
+            may be slightly different than the command itself.
+            For example, an "iterated" commands like get
+            must be called as "get_start," "get_chunk," and "get_done."
+            In addition, some commands are aliases for others.
+            For example, the "newinfo" command is an alias for
+            the "put" command, which is implemented using the
+            "put_start" and related core subroutines.
+
+interface   A short name for the client program that is making the
+            request, usually.
+
+list        The mailing list which the command affects.
+
+mode        The "command mode," a subspecies of the command.  For
+            example, when someone uses the password-rand command
+            to create a new, randomly chosen password, "rand" is
+            the mode.
+
+password    Either a subscriber's password or an owner's password.
+
+user        The e-mail address of the person making the request.
+
+Some or all of these values may be undefined.
+
+In addition, there are keys in the request hash that vary from command
+to command.  When a command is parsed, the parse_args subroutine
+in the Parser module is used to convert the command-specific data
+into the appropriate values in the request hash.  The information
+necessary to do this is kept in the CommandProps module.
+
+Consider the following command:
+
+put pomegranate /subscribers_only.txt Subscribers only, please <<ABC
+  Sorry, only subscribers are allowed to post to the 
+  pomegranate list.  Contact pomegranate-owner if you need help.
+ABC
+
+When this command is parsed by the parse_args routine, it will
+look at the data in the CommandProps module and see the following
+items:
+
+ 'file'     => 'SCALAR'
+ 'xdesc'    => 'SCALAR'
+ 'hereargs' => 'contents'
+
+First, the command-specific data on the command line
+is split into two scalar values, "file" and "xdesc."
+In our example, after parsing, the request hash would include
+the following elements:
+
+ 'file'     => "/subscribers_only.txt"
+ 'xdesc'    => "Subscribers only, please"
+
+In addition, the data in the here document would be stored
+in the "contents" variable in the request hash.
+
+If someone@example.com made this command from the Majordomo shell,
+using password "seeds," the final request hash will look like this:
+
+    $request = {
+      'auth'      => '',
+      'command'   => 'put_start',
+      'contents'  => 
+["  Sorry, only subscribers are allowed to post to the", 
+"  pomegranate list.  Contact pomegranate-owner if you need help."],
+      'file'      => '/subscribers_only.txt',
+      'interface' => 'shell',
+      'list'      => 'pomegranate',
+      'mode'      => '',
+      'password'  => 'seeds',
+      'user'      => 'someone@example.com',
+      'xdesc'     => 'Subscribers only, please'
+    };
+
+If $mj is a reference to a Majordomo object, calling the dispatcher
+is as simple as
+  $result = $mj->dispatch($request);
+
+The result returned by the dispatcher is an array reference.
+Although the data in the array will vary, depending upon
+the command that was issued, the first element of the array
+will always be a status value:  1 for success, 0 for failure,
+and (possibly) -1 for a command that requires further approval
+before it is executed.
+
+The data in the result can be made readable using the Mj::Format
+module, for example:
+  $ok = Mj::Format::put($mj, $out, $out, 'text', $request, $result);
+will cause the human-readable result to be sent to the file handle
+referenced by $out.  
+
+The routines in Mj::Format sometimes have to do extra work in order
+to process the rest of the data.  Several of majordomo's commands
+are "iterated," meaning that the result of the command is 
+obtained one piece at a time.  A smaller amount of memory 
+may be needed, since only a portion of the data is processed at once.
+
+Iterated commands, like "put," have corresponding "put_start,"
+"put_chunk," and "put_done" core routines.  A client program
+can determine if a command is iterated by using the function_prop
+routine from Mj::CommandProps:
+  if (function_prop($func, 'iter')) {
+    $request->{'command'} .= '_start';
+  }
+
+If Mj::Format is used to display the result, it will automatically
+call the dispatcher for the "_chunk" and "_done" routines.
+Otherwise, writing a Majordomo client program requires some knowledge 
+of how the results are structured, which in turn requires reading
+the relevant source code in Majordomo.pm.

@@ -11,12 +11,12 @@ $files =
    'en/ack_success'                                   => ['Successful post to $LIST',                 'us-ascii', '7bit'],
    'en/ack_timeout'                                   => ['Timeout',                                  'us-ascii', '7bit'],
    'en/digest_preindex'                               => ['Index',                                    'us-ascii', '7bit'],
-   'en/faq'                                           => ['Default faq reply',                        'us-ascii', '7bit'],
+   'en/faq'                                           => ['Frequently Asked Questions',               'us-ascii', '7bit'],
    'en/file_not_found'                                => ['File not found',                           'us-ascii', '7bit'],
    'en/file_sent'                                     => ['File has been sent',                       'us-ascii', '7bit'],
-   'en/info'                                          => ['Info',                                     'us-ascii', '7bit'],
+   'en/info'                                          => ['List Information',                         'us-ascii', '7bit'],
    'en/inform'                                        => ['$UCOMMAND $LIST',                          'us-ascii', '7bit'],
-   'en/intro'                                         => ['Intro',                                    'us-ascii', '7bit'],
+   'en/intro'                                         => ['List Introductory Information',            'us-ascii', '7bit'],
    'en/new_list'                                      => ['$LIST mailing list created at $SITE',      'us-ascii', '7bit'],
    'en/new_password'                                  => ['New password at $SITE',                    'us-ascii', '7bit'],
    'en/registered'                                    => ['Welcome to $SITE',                         'us-ascii', '7bit'],
@@ -33,12 +33,455 @@ $files =
    'en/subscribe_to_self'                             => ['Attempt to subscribe $LIST to itself',     'us-ascii', '7bit'],
    'en/token_reject'                                  => ['Rejected token $TOKEN',                    'us-ascii', '7bit'],
    'en/token_reject_owner'                            => ['Token rejected by $REJECTER',              'us-ascii', '7bit'],
-   'en/token_remind'                                  => ['$TOKEN : REMINDER from $LIST',                      'us-ascii', '7bit'],
+   'en/token_remind'                                  => ['$TOKEN : REMINDER from $LIST',             'us-ascii', '7bit'],
+   'en/unknown_file'                                  => ['Unknown file',                             'us-ascii', '7bit'],
    'en/welcome'                                       => ['Welcome',                                  'us-ascii', '7bit'],
-   'en/who_registry'                                  => ['registry data template',                   'us-ascii', '7bit'],
-   'en/who_subscriber'                                => ['subscriber data template',                 'us-ascii', '7bit'],
-   'en/wwwadm_head'                                   => ['command form for WWW admin interface',     'us-ascii', '7bit'],
-   'en/wwwadm_help'                                   => ['introduction to the WWW admin interface',  'us-ascii', '7bit'],
+
+   # English configuration category files 
+   'en/config/categories/access'                  => 
+   ['Configuration category description.',
+    'us-ascii', '7bit'],
+
+   'en/config/categories/address'                 => 
+   ['Configuration category description.',
+    'us-ascii', '7bit'],
+
+   'en/config/categories/archive'                 => 
+   ['Configuration category description.',
+    'us-ascii', '7bit'],
+
+   'en/config/categories/bounce'                  => 
+   ['Configuration category description.',
+    'us-ascii', '7bit'],
+
+   'en/config/categories/deliver'                 => 
+   ['Configuration category description.',
+    'us-ascii', '7bit'],
+
+   'en/config/categories/lists'                   => 
+   ['Configuration category description.',
+    'us-ascii', '7bit'],
+
+   'en/config/categories/miscellany'              => 
+   ['Configuration category description.',
+    'us-ascii', '7bit'],
+
+   'en/config/categories/moderate'                => 
+   ['Configuration category description.',
+    'us-ascii', '7bit'],
+
+   'en/config/categories/password'                => 
+   ['Configuration category description.',
+    'us-ascii', '7bit'],
+
+   'en/config/categories/reply'                   => 
+   ['Configuration category description.',
+    'us-ascii', '7bit'],
+
+   # English error formatting files 
+   'en/error/password_length'                  => 
+   ['Error format.  Warns that a password is too short.',
+    'us-ascii', '7bit'],
+
+   'en/error/unregistered'                     => 
+   ['Error format.  Warns that an address has not been registered.',
+    'us-ascii', '7bit'],
+
+   # English output formatting files (text)
+   'en/format/text/configshow'                        => 
+   ['Plain text configshow command format.  Shows var and value.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/configshow_array'                  => 
+   ['Plain text configshow command format.  Shows var and value.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/configshow_categories'             => 
+   ['Plain text configshow command format.  Shows var and value.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/configshow_enum'                   => 
+   ['Plain text configshow command format.  Shows var and value.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/configshow_error'                  => 
+   ['Plain text configshow command format.  Displays an error.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/configshow_flags'                  => 
+   ['Plain text configshow command format.  Shows var and value.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/configshow_foot'                   => 
+   ['Plain text configshow command format.  Shows foot.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/configshow_head'                   => 
+   ['Plain text configshow command format.  Shows head.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/configshow_none'                   => 
+   ['Plain text configshow command format.  No variables were found.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/configshow_short'                  => 
+   ['Plain text configshow command format.  Shows var and value.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/lists'                             => 
+   ['Plain text lists command format.  Shows list and description.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/lists_category'                    => 
+   ['Plain text lists command format.  Shows the name of a category.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/lists_enhanced'                    => 
+   ['Plain text lists command format.  Shows subscription details.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/lists_error'                       => 
+   ['Plain text lists command format.  Shows an error message.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/lists_foot'                        => 
+   ['Plain text lists command format.  Shows the number of lists.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/lists_full'                        => 
+   ['Plain text lists command format.  Shows digests and other data.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/lists_head'                        => 
+   ['Plain text lists command format.  Shows the site name.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/lists_none'                        => 
+   ['WWW user lists command format file.  Says that no lists were found.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/show'                              => 
+   ['Plain text show command format file.  Shows a table of data.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/show_error'                        => 
+   ['Plain text show command format file.  Displays an error.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/show_foot'                         => 
+   ['Plain text show command format file.  Displayed at the end of the output.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/show_head'                         => 
+   ['Plain text show command format file.  Displayed at the start of the output.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/show_none'                         => 
+   ['Plain text show command format file.  ' .
+    'Shows data for an unregistered address.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/showtokens'                        => 
+   ['Plain text showtokens command format.  Displays tokens for one list.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/showtokens_all'                    => 
+   ['Plain text showtokens command format.  Displays tokens for all lists.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/showtokens_all_data'               => 
+   ['Plain text showtokens command format.  Displays one token.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/showtokens_data'                   => 
+   ['Plain text showtokens command format.  Displays one token.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/showtokens_error'                  => 
+   ['Plain text showtokens command format.  Displays an error.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/showtokens_none'                   => 
+   ['Plain text showtokens command format.  Warns that no tokens were found.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/tokeninfo_error'                   => 
+   ['Plain text tokeninfo command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/tokeninfo_foot'                    => 
+   ['Plain text tokeninfo command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/tokeninfo_head'                    => 
+   ['Plain text tokeninfo command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/who'                               => 
+   ['Plain text who command format.  Displays addresses.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/who_error'                         => 
+   ['Plain text who command format.  Displays an error message.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/who_foot'                          => 
+   ['Plain text who command format.  Displays the foot.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/who_head'                          => 
+   ['Plain text who command format.  Displays the head.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/who_registry'                      => 
+   ['Plain text who command format.  Displays addresses from the registry.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/who_registry_foot'                 => 
+   ['Plain text who command format.  Displays the foot.',
+    'us-ascii', '7bit'],
+
+   'en/format/text/who_registry_head'                 => 
+   ['Plain text who command format.  Displays the head.',
+    'us-ascii', '7bit'],
+
+   # English output formatting files (mj_wwwadm)
+   'en/format/wwwadm/command'                           => 
+   ['WWW Admin command form format file.',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/configshow'                        => 
+   ['WWW Admin configshow command format file.',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/configshow_array'                  => 
+   ['WWW Admin configshow command format file.',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/configshow_categories'             => 
+   ['WWW Admin configshow command format file.',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/configshow_enum'                   => 
+   ['WWW Admin configshow command format file.',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/configshow_error'                  => 
+   ['WWW Admin configshow command format file.',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/configshow_flags'                  => 
+   ['WWW Admin configshow command format file.',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/configshow_foot'                   => 
+   ['WWW Admin configshow command format file.',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/configshow_head'                   => 
+   ['WWW Admin configshow command format file.',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/configshow_none'                   => 
+   ['WWW Admin configshow command format file.',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/configshow_short'                  => 
+   ['WWW Admin configshow command format file.',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/foot'                              => 
+   ['Footer for the WWW admin interface',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/head'                              => 
+   ['Command form for the WWW admin interface',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/lists'                             => 
+   ['WWW admin lists command format file.  Shows list and description.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/lists_category'                    => 
+   ['WWW admin lists command format file.  Shows the name of a category.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/lists_enhanced'                    => 
+   ['WWW admin lists command format file.  Shows subscription details.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/lists_error'                       => 
+   ['WWW admin lists command format file.  Shows an error message.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/lists_foot'                        => 
+   ['WWW admin lists command format file.  Ends a table of data.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/lists_full'                        => 
+   ['WWW admin lists command format file.  Shows digests and other data.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/lists_head'                        => 
+   ['WWW admin lists command format file.  Begins a table of data .',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/lists_none'                        => 
+   ['WWW user lists command format file.  Says that no lists were found.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/login'                             => 
+   ['WWW Admin login format file.',
+     'us-ascii', '7bit'],
+
+   'en/format/wwwadm/showtokens'                        => 
+   ['WWW admin showtokens command format.  Displays tokens for one list.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/showtokens_all'                    => 
+   ['WWW admin showtokens command format.  Displays tokens for all lists.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/showtokens_all_data'               => 
+   ['WWW admin showtokens command format.  Displays one token.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/showtokens_data'                   => 
+   ['WWW admin showtokens command format.  Displays one token.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/showtokens_error'                  => 
+   ['WWW admin showtokens command format.  Displays an error.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/showtokens_foot'                   => 
+   ['WWW admin showtokens command format.  Displays an error.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/showtokens_head'                   => 
+   ['WWW admin showtokens command format.  Displays an error.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/showtokens_none'                   => 
+   ['WWW admin showtokens command format.  Warns that no tokens were found.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/tokeninfo_error'                   => 
+   ['WWW admin tokeninfo command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/tokeninfo_foot'                    => 
+   ['WWW admin tokeninfo command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/tokeninfo_head'                    => 
+   ['WWW admin tokeninfo command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/welcome'                           => 
+   ['Introduction to the WWW admin interface',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/who'                               => 
+   ['WWW admin who command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/who_error'                         => 
+   ['WWW admin who command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/who_foot'                          => 
+   ['WWW admin who command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/who_head'                          => 
+   ['WWW admin who command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/who_registry'                      => 
+   ['WWW admin who command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/who_registry_foot'                 => 
+   ['WWW admin who command format.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwadm/who_registry_head'                 => 
+   ['WWW admin who command format.',
+    'us-ascii', '7bit'],
+
+   # English output formatting files (mj_wwwusr)
+   'en/format/wwwusr/error'                             => 
+   ['WWW user error format file.  Displays an error.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/foot'                              => 
+   ['WWW user footer file.  Displayed at the bottom of every page.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/head'                              => 
+   ['WWW user header file.  Displayed at the top of every page.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/lists'                             => 
+   ['WWW user lists command format file.  Shows list and description.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/lists_category'                    => 
+   ['WWW user lists command format file.  Shows the name of a category.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/lists_enhanced'                    => 
+   ['WWW user lists command format file.  Shows subscription details.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/lists_error'                       => 
+   ['WWW user lists command format file.  Shows an error message.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/lists_foot'                        => 
+   ['WWW user lists command format file.  Ends a table of data.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/lists_full'                        => 
+   ['WWW user lists command format file.  Shows digests and other data.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/lists_head'                        => 
+   ['WWW user lists command format file.  Begins a table of data.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/lists_none'                        => 
+   ['WWW user lists command format file.  Says that no lists were found.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/login'                             => 
+   ['WWW user lists command format file.  Prompt for address and password.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/show'                              => 
+   ['WWW user show command format file.  Shows a table of data.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/show_error'                        => 
+   ['WWW user show command format file.  Displays an error.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/show_foot'                         => 
+   ['WWW user show command format file.  Displayed at the end of the output.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/show_head'                         => 
+   ['WWW user show command format file.  Displayed at the start of the output.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/show_none'                         => 
+   ['WWW user show command format file.  Shows data for an unregistered address.',
+    'us-ascii', '7bit'],
+
+   'en/format/wwwusr/welcome'                           => 
+   ['WWW user introduction format file.  Displays a summary of features.',
+    'us-ascii', '7bit'],
 
    # english help files
    'en/help/accept'                                   => ['detailed help for accept command',         'us-ascii', '7bit'],
