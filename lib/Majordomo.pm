@@ -156,12 +156,11 @@ sub new {
     require "mj_cf_defs.pl";
   }
 
-  $self->{backend} = ''; # Suppress warnings
+  $self->{backend} = $self->_site_config_get('database_backend');
   $log->abort("Can't create GLOBAL list: $!")
     unless $self->_make_list('GLOBAL');
   $log->abort("Can't create DEFAULT list: $!")
     unless $self->_make_list('DEFAULT');
-  $self->{backend} = $self->_site_config_get('database_backend');
   $self->{alias} = new Mj::AliasList(backend => $self->{backend},
                                       domain => $domain,
                                      listdir => $self->{ldir},
@@ -3081,7 +3080,7 @@ sub auxremove {
     $request->{'victim'} =~ /(.*)/; $request->{'victim'} = $1;
   }
   else {
-    $mismatch = ($request->{'victim'} ne $request->{'user'});
+    $mismatch = !($request->{'victim'} eq $request->{'user'});
     $regexp = 0;
   }
 
@@ -4917,7 +4916,7 @@ sub unregister {
     $request->{'victim'} =~ /(.*)/; $request->{'victim'} = $1;
   }
   else {
-    $mismatch = ($request->{'user'} ne $request->{'victim'});
+    $mismatch = !($request->{'user'} eq $request->{'victim'});
     $regexp   = 0;
   }
 
@@ -4997,7 +4996,7 @@ sub unsubscribe {
     $request->{'victim'} =~ /(.*)/; $request->{'victim'} = $1;
   }
   else {
-    $mismatch = ($request->{'user'} ne $request->{'victim'});
+    $mismatch = !($request->{'user'} eq $request->{'victim'});
     $regexp   = 0;
   }
 
