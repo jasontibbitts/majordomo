@@ -136,12 +136,12 @@ TAG
 This is sometimes called a "here file" because all argument lines
 after "<<TAG" and before the matching "TAG" (shown above as "DATA1"
 and "DATA2" are stored in the command as if they had been read from
-a file. The "#" character is NOT a comment character between the tags!
-A blank line is allowed only as the last line in the here document. (??)
+a file. The "#" character is usually NOT a comment character between the tags!
 You can use your own string for "TAG", with a few restrictions:
-  - the string must be letters only, no numbers or punctuation or spaces
-  - the string must be upper case only, no lower case letters
-  - the end "TAG" must be on a line by itself (no indents or comments)
+  - the string must begin with three upper case letters.
+  - after the first three letters, any number of upper case letters
+      or digits can be used.
+  - the end "TAG" must be on a line by itself (no indents or comments).
 It is wise to use different tags for different commands, so they don't
 accidentally mismatch due to typing errors.
 
@@ -209,7 +209,7 @@ end
 faq listname
 ==> returns a Frequently Asked Questions file for listname, if available
 
-get listname filename [address]
+get listname filename 
 ==> retrieves the given file from the list's file storage
 
 help [topics]
