@@ -95,6 +95,10 @@ The subscribe command also uses this variable:
 
   matches_list                  boolean
 
+The tokeninfo command also uses this variable:
+
+  token_type                    string
+
 In addition, the "notify" action in the access_rules configuration setting
 supports several variables.  These variables are only useful inside
 "notify" directives.
@@ -397,6 +401,10 @@ taboo
   for the taboo configuration settings to create access variables.  
   See "help configset_taboo_body" and "help configset_taboo_headers" for
   more details.
+
+token_type
+  This variable contains the type of a token.  The possible values
+  include async, alias, confirm, consult, delay, and probe.
 
 total_header_length
   This variable contains the sum of the lengths of all of the headers
