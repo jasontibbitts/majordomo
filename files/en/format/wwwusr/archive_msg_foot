@@ -49,3 +49,7 @@ Next message, by...
 </tr>
 </table>
 
+<p>
+<a href="$CGIURL?$CGIDATA&amp;list=$LIST&amp;func=archive-get&amp;extra=$MSGNO>
+Mail this message</a> to $USER
+</p>
