@@ -1,0 +1,15 @@
+<!-- Majordomo lists_aux_foot format file -->
+<tr>
+
+<td>
+<a href="$CGIURL?$CGIDATA&amp;func=who-summary&amp;list=$PLIST">
+$PLIST
+</a>
+</td>
+
+<td>
+The main subscriber list
+</td>
+
+</tr>
+</table>

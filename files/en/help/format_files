@@ -858,7 +858,31 @@ lists
 mode is not used.
 
 (standard plus CATEGORY, CGIDATA, CGIURL, CMDPASS, DESCRIPTION, 
- DIGESTS, FLAGS, LIST, OWNER, PATTERN, POSTS, SUBS, USER, WHOAMI)
+ DIGESTS, FLAGS, LIST, PATTERN, POSTS, SUBS, USER, WHOAMI)
+
+
+lists_aux
+---------
+(ALL)  Displays information about an auxiliary list.
+
+(standard plus CATEGORY, CGIDATA, CGIURL, CMDPASS, DESCRIPTION, 
+ FLAGS, LIST, PATTERN, POSTS, SUBS, USER, WHOAMI)
+
+
+lists_aux_foot
+--------------
+(ALL)  This file displays supplementary information at the bottom of a
+list of auxiliary lists.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, PATTERN, USER)
+
+
+lists_aux_head
+--------------
+(ALL)  This file displays supplementary information at the top of the
+list of auxiliary lists.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PATTERN, USER)
 
 
 lists_category
@@ -900,7 +924,7 @@ lists_full
 (name, description, digests, etc.) when the "full" command mode is used.
 
 (standard plus CAN_READ, CATEGORY, CGIDATA, CGIURL, CMDPASS, 
- DESCRIPTION, DIGESTS, FLAGS, LIST, OWNER, PATTERN, POSTS, SUBS, USER, 
+ DESCRIPTION, DIGESTS, FLAGS, LIST, PATTERN, POSTS, SUBS, USER, 
  WHOAMI)
 
 

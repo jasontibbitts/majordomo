@@ -1436,7 +1436,7 @@ sub lists {
   my ($mj, $out, $err, $type, $request, $result) = @_;
   my (%lists, $basic_format, $cat_format, $category, $count, $data, 
       $desc, $digests, $flags, $foot, $gsubs, $head, $i, $legend, $list, 
-      $site, $str, $subs, $tmp);
+      $site, $str, $sublist, $subs, $tmp);
   my $log = new Log::In 29, $type;
   $count = 0;
   $legend = 0;
@@ -1449,7 +1449,7 @@ sub lists {
   my ($ok, @lists) = @$result;
 
   $gsubs = {
-           $mj->standard_subs('GLOBAL'),
+           $mj->standard_subs($request->{'list'}),
            'CGIDATA' => $request->{'cgidata'} || '',
            'CGIURL'  => $request->{'cgiurl'} || '',
            'CMDPASS' => &escape($request->{'password'}, $type),
@@ -1468,7 +1468,12 @@ sub lists {
   }
   
   if (@lists) {
-    if ($request->{'mode'} =~ /full/ and $request->{'mode'} !~ /config/) { 
+    if ($request->{'mode'} =~ /aux/) { 
+      $basic_format = $mj->format_get_string($type, 'lists_aux', $request->{'list'});
+      $head = 'lists_aux_head';
+      $foot = 'lists_aux_foot';
+    }
+    elsif ($request->{'mode'} =~ /full/ and $request->{'mode'} !~ /config/) { 
       $basic_format = $mj->format_get_string($type, 'lists_full', $request->{'list'});
       $head = 'lists_full_head';
       $foot = 'lists_full_foot';
@@ -1489,18 +1494,18 @@ sub lists {
 
     while (@lists) {
       $data = shift @lists;
-      next if ($data->{'list'} =~ /^DEFAULT/ and $request->{'mode'} !~ /config/);
+      next if ($data->{'list'} =~ /^DEFAULT/ and $request->{'mode'} !~ /aux|config/);
       $lists{$data->{'category'}}{$data->{'list'}} = $data;
     }
     
     for $category (sort keys %lists) {
-      if (length $category && $request->{'mode'} !~ /tiny/) {
+      if (length $category && $request->{'mode'} !~ /aux|tiny/) {
         $subs->{'CATEGORY'} = $category;
         $str = $mj->substitute_vars_format($cat_format, $subs);
         print $out "$str\n";
       }
       for $list (sort keys %{$lists{$category}}) {
-        $count++ unless ($list =~ /:/);
+        $count++;
         $data = $lists{$category}{$list};
         $flags = $data->{'flags'} ? "+" : " ";
         if ($request->{'mode'} =~ /tiny/) {
@@ -1508,8 +1513,7 @@ sub lists {
           next;
         }
         $legend++ if $data->{'flags'};
-        $tmp  = $data->{'description'}
-                 || "(no description)";
+        $tmp = $data->{'description'} || "(no description)";
         $desc = [ split ("\n", $tmp) ];
         for ($i = 0; $i < @$desc; $i++) {
           $desc->[$i] = &escape($desc->[$i], $type);
@@ -1519,7 +1523,10 @@ sub lists {
         for $i (sort keys %{$data->{'digests'}}) {
           push @$digests, &escape("$i: $data->{'digests'}->{$i}", $type);
         }
-        $digests = ["(none)\n"] if ($list =~ /:/);
+
+        if ($list =~ /(.+):(.*)/) {
+          $digests = ["(none)\n"];
+        }
 
         $subs = { 
                   %{$gsubs},

@@ -1,0 +1,14 @@
+<!-- Majordomo lists_aux format file -->
+<tr>
+
+<td>
+<a href="$CGIURL?$CGIDATA&amp;func=who-summary&amp;list=$LIST">
+$LIST
+</a>
+</td>
+
+<td>
+$DESCRIPTION
+</td>
+
+</tr>
