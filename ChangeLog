@@ -1,3 +1,10 @@
+2002-02-06  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Archive.pm:  (_write_counts)  Remove database
+	files for archives with no messages.
+	(summary)  Ignore archives with no messages.  Suggested
+	by Brock Rozen.
+       
 2002-02-05  Michael Yount <csf@moscow.com>
 
 	* bin/mj_shell:  Add editor support for the archive-part-edit
