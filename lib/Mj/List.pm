@@ -2484,7 +2484,7 @@ sub bounce_gen_stats {
       $stats->{consecutive} = 1;
     }
   }
-  $stats{consecutive_days} = ($seqendtime - $seqstarttime) / (24*60*60);
+  $stats->{consecutive_days} = ($seqendtime - $seqstarttime) / (24*60*60);
 
   if ($stats->{numbered} && $stats->{span}) {
     $stats->{bouncedpct} = int(.5 + 100*($stats->{numbered} / $stats->{span}));
