@@ -2498,11 +2498,15 @@ sub do_digests {
   my ($self, %args) = @_;
   my $log = new Log::In 40;
   my (%digest, %file, @dfiles, @dtypes, @headers, @msgs, @nuke, @tmp, 
-      $dfl_format, $digests, $dissues, $dtext, $elapsed, $file, $i, 
+      $dfl_format, $digests, $dissues, $dtext, $elapsed, $file, $from, $i, 
       $index_format, $j, $k, $l, $list, $pattern, $seqnum, 
       $sort, $subs, $subject, $whoami);
 
-  $list = $args{'list'}; $subs = $args{'substitute'}; $subs->{LIST} = $list;
+  $list = $args{'list'}; 
+  $subs = $args{'substitute'}; 
+  $subs->{LIST} = $list;
+  $from = $args{'sender'};
+  $whoami = $self->_list_config_get($list, 'whoami');
 
   # Pass to digest if we got back good archive data and there is something
   # in the digests variable.
@@ -2512,6 +2516,14 @@ sub do_digests {
     # Obtain headers
     for $i ($self->_list_config_get($list, 'message_headers')) {
       $i = $self->substitute_vars_string($i, $subs);
+      if ($i =~ /^to:\s*(.*)/i) {
+        $whoami = $1;
+        next;
+      }
+      if ($i =~ /^from:\s*(.*)/i) {
+        $from = $1;
+        next;
+      }
       push (@headers, [undef, $i]) 
         if ($i =~ /^[^\x00-\x1f\x7f-\xff :]+:/);
     }
@@ -2529,7 +2541,6 @@ sub do_digests {
 
     $dfl_format = $self->_list_config_get($list, 'digest_index_format')
                   || 'subject';
-    $whoami = $self->_list_config_get($list, 'whoami');
 
     if ($args{'msgnum'}) {
       # Note that digest_add will eventually call the trigger itself.
@@ -2598,12 +2609,13 @@ sub do_digests {
           @msgs = @{$digest{$i}};
         }
 
+        # XXX Check the headers for "To" and "From" to avoid duplicates.
 	@dfiles = $self->{'lists'}{$list}->digest_build
 	  (messages     => [@msgs],
 	   types        => [@dtypes],
 	   files        => $dtext,
 	   subject      => $subject,
-	   from         => $args{'sender'},
+	   from         => $from,
 	   to           => $whoami,
 	   tmpdir       => $args{'tmpdir'},
 	   index_line   => $index_format,
