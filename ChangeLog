@@ -1,3 +1,18 @@
+2004-12-09  Michael Yount <csf@moscow.com>
+
+	* files/INDEX.pl:  The "unregistered" file has a "noweb"
+	counterpart.
+
+	* lib/Majordomo.pm:  (trigger, _unregister)  Send farewell
+	messages as appropriate when an address is unregistered.
+	Suggested by Brock Rozen.
+
+	* lib/mj_cf_data.pl, mj_cf_defs.pl:  The farewell and
+	farewell_files settings are also GLOBAL.
+
+	* lib/Mj/CommandProps.pm:  Support the unregister-farewell
+	and unregister-nofarewell commands.
+
 2004-12-08  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/CommandProps.pm:  Support the who-noname command,

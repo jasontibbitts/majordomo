@@ -9,6 +9,7 @@ $noweb_files = {
   'en/new_password'     => 1,
   'en/registered'       => 1,
   'en/token_remind'     => 1,
+  'en/unregistered'     => 1,
   'en/welcome'          => 1,
   'de/confirm'          => 1,
   'de/consult'          => 1,
