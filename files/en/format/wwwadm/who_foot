@@ -9,6 +9,17 @@
 
 <h4 align=center>Search the Subscriber List</h4>
 
+<ol>
+  <li>Choose one of the three search methods by pressing
+      the appropriate button.
+  <li>Type a search pattern into the first box. (Please see
+      the $HELP:PATTERNS help document to learn how to write
+      a search pattern.
+  <li>Type the number of addresses you wish to view at
+      one time into the second box.
+  <li>Press the <b>search</b> button.
+</ol>
+
 <form method=POST action="$CGIURL">
   <input name=list type=hidden value="$LIST">
   <input name=passw type=hidden value="$PASSWORD">
@@ -25,53 +36,62 @@
     (using the $HELP:WHICH command)<br>
 
 Search pattern: <input name=pattern value=".">
-<br>
-Number of addresses to show:
-  <input name=chunksize size=10 value="$CHUNKSIZE">
+Number of addresses:
+  <input name=chunksize size=6 value="$CHUNKSIZE">
   <input type=submit value="search">
 </form>
 
 <h4 align=center>Add or Remove Subscribers</h4>
 
+<ol>
+  <li>Choose one of the four add/remove methods by pressing the
+      appropriate button.
+  <li>Type addresses into the box, one address per line.
+  <li>If addresses are being added, choose the personal settings
+      for these addresses with the delivery class menu and
+      setting buttons.  (See the $HELP:SET help document for more
+      details on the delivery class and other settings.)
+  <li>Press the <b>add or remove subscribers</b> button.
+</ol>
+
 <form method=POST action="$CGIURL">
   <input name=list type=hidden value="$LIST">
   <input name=passw type=hidden value="$PASSWORD">
   <input type=hidden name=user value="$USER">
-
+  
   <input type=radio name=func value="subscribe-set-welcome" checked> 
-  Add subscribers with the addresses in the large box.
+  Add subscribers to the $LIST mailing list.
   Send a welcome message. <br>
 
   <input type=radio name=func value="subscribe-set-nowelcome"> 
-  Add subscribers with the addresses the large box. 
+  Add subscribers to the $LIST mailing list.
   <b>Do not</b> send a welcome message.<br>
 
   <input type=radio name=func value="unsubscribe-farewell"> 
-  Remove subscribers with the addresses in the large box.
+  Remove subscribers from the $LIST mailing list.
   Send a farewell message. <br>
 
   <input type=radio name=func value="unsubscribe"> 
-  Remove subscribers with the addresses in the large box.
+  Remove subscribers from the $LIST mailing list.
   <b>Do not</b> send a farewell message. <br>
 
-  <p>
-  Addresses of subscribers:<br>
   <textarea name=victims rows=8 cols=70>
   </textarea>
 
   <p>
-  Give these settings to the new subscribers:
 
-  delivery class: 
-  <select name="setting">
-    <option value="$CLASSES" $CLASS_SELECTED>$CLASSES: $CLASS_DESCRIPTIONS</small>
-  </select>
+Settings for new subscribers:
   <table>
   <tr>
     <td><small>$SETTINGS</small>
   <tr>
     <td align=center><input name=setting type=checkbox value="$SETTINGS" $SETTING_CHECKED>
   </table>
+
+  Delivery class: 
+  <select name="setting">
+    <option value="$CLASSES" $CLASS_SELECTED>$CLASSES: $CLASS_DESCRIPTIONS</small>
+  </select>
 
   <input type=submit value="add or remove subscribers">
 </form>
