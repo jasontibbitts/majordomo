@@ -96,8 +96,7 @@ create a new help file for "help junk", use "put-dir GLOBAL /help"
 and then "put GLOBAL /help/junk". These commands actually create
 the directory ".../GLOBAL/files/help" and within that directory
 the file      ".../GLOBAL/files/help/junk", which is returned by
-the "help junk" command. This behavior (e.g. the location of the
-files and directories) can be altered with "configset filedir".
+the "help junk" command. 
 
 NOTE: Some files are examined for variables that will be replaced
 with other text as the file used. See "help configset access_rules"
@@ -196,12 +195,11 @@ welcome
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 See Also:
-   help commands  (for backslash character replacement notes)
-   help configset access_rules (for confirm, consult, deny, allow clauses)
-   help configset access_rules_variables (set/test for this command)
-   help configset filedir      (to create files in a non-default location)
    help accept    (for how to OK a token)
    help access    (for the special case of granting/denying all access)
+   help commands  (for backslash character replacement notes)
+   help configset_access_rules (for confirm, consult, deny, allow clauses)
+   help configset_access_rules_variables (set/test for this command)
    help digest    (for additional file names and usage)
    help get       (retrieve files by email)
    help index     (find out which files are available for "put")

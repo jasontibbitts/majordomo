@@ -78,7 +78,7 @@ require global priviliges.
 Finally, note that not all per-list variables can be modified by the
 list owner. Some require global privileges. (By default, these
 variables include archive_dir, bounce_probe_frequency, debug, 
-default_language, delivery_rules, dup_lifetime, filedir, file_search, 
+default_language, delivery_rules, dup_lifetime, file_search, 
 file_share, token_lifetime, and token_remind.)
 
 Refer to the help file for each configset variable for about passwords

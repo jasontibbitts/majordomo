@@ -391,7 +391,6 @@ Section 6 - Creating and Running Lists (all the other stuff you need)
    help configset archive_dir
    help configset archive_size
    help configset archive_split
-   help configset filedir
    help configset get_access
    help configset index_access
 
