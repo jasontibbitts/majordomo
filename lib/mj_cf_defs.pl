@@ -36,6 +36,7 @@ $Mj::Config::default_string = q(
  'addr_limit_length'    => 1,
  'addr_require_fqdn'    => 1,
  'addr_strict_domain_check' => 1,
+ 'aliases'              => 'ORQ',
  'allowed_classes'      => [qw(each digest nomail)],
  'allowed_flags'        => 'ACHPRS',
  'archive_dir'          => '',

@@ -192,6 +192,14 @@ EOC
     'global' => 0,
     'mutable'=> 1,
    },
+   'aliases' =>
+   {
+    'type'   => 'string',
+    'groups' => [qw(mtaconfig)],
+    'visible'=> 0,
+    'local'  => 1,
+    'mutable'=> 0,
+   },
    'default_flags' =>
    {
     'type'   => 'string',

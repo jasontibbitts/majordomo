@@ -116,6 +116,7 @@ files/en/config/admin_headers
 files/en/config/administrivia
 files/en/config/advertise
 files/en/config/advertise_subscribed
+files/en/config/aliases
 files/en/config/allowed_classes
 files/en/config/allowed_flags
 files/en/config/archive_access

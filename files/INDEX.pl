@@ -4,7 +4,7 @@ $files =
   {
    # english generic files
    'en/ack_denial'                                    => ['Denied post to $LIST',                     'us-ascii', '7bit'],
-   'en/ack_rejection'                                 => ['Rejection',                                'us-ascii', '7bit'],
+   'en/ack_rejection'                                 => ['Rejection of Majordomo Request "$REQUEST"','us-ascii', '7bit'],
    'en/ack_stall'                                     => ['Stalled post to $LIST',                    'us-ascii', '7bit'],
    'en/ack_success'                                   => ['Success',                                  'us-ascii', '7bit'],
    'en/ack_timeout'                                   => ['Timeout',                                  'us-ascii', '7bit'],
@@ -242,6 +242,7 @@ $files =
    'en/config/administrivia'                   => ['The administrivia variable',                   'us-ascii', '7bit'],
    'en/config/advertise'                       => ['The advertise variable',                       'us-ascii', '7bit'],
    'en/config/advertise_subscribed'            => ['The advertise_subscribed variable',            'us-ascii', '7bit'],
+   'en/config/aliases'                         => ['The aliases variable',                         'us-ascii', '7bit'],
    'en/config/allowed_classes'                 => ['The allowed_classes variable',                 'us-ascii', '7bit'],
    'en/config/allowed_flags'                   => ['The allowed_flags variable',                   'us-ascii', '7bit'],
    'en/config/archive_access'                  => ['The archive_access variable',                  'us-ascii', '7bit'],
