@@ -152,16 +152,27 @@ sub accept {
 
 sub alias {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my ($ok, $mess) = @$result;
+  my ($mess, $ok, $str, $subs, $tmp);
+  ($ok, $mess) = @$result;
+
+  $subs = { $mj->standard_subs('GLOBAL'),
+           'CGIDATA'  => $request->{'cgidata'},
+           'CGIURL'   => $request->{'cgiurl'},
+           'CMDPASS'  => $request->{'password'},
+           'USER'     => &escape("$request->{'user'}", $type),
+           'VICTIM'   => &escape("$request->{'newaddress'}", $type),
+          };
 
   if ($ok > 0) { 
-    eprint($out, $type, "$request->{'newaddress'} was successfully aliased to $request->{'user'}.\n");
+    $tmp = $mj->format_get_string($type, 'alias');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok, 1);
   }
   else {
-    eprint($out, $type, &indicate($type, 
-      qq(The address "$request->{'newaddress'}" was not aliased to "$request->{'user'}".\n), 
-      $ok));
-    eprint($out, $type, &indicate($type, $mess, $ok));
+    $subs->{'ERROR'} = &escape($mess, $type);
+    $tmp = $mj->format_get_string($type, 'alias_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok, 1);
   }
 
   $ok;
@@ -2526,16 +2537,29 @@ sub _tokeninfo_post {
 
 sub unalias {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, "$type, $request->{'user'}, $request->{'victim'}";
-  my ($ok, $mess) = @$result;
+  my ($mess, $ok, $str, $subs, $tmp);
+  ($ok, $mess) = @$result;
+
+  $subs = { $mj->standard_subs('GLOBAL'),
+           'CGIDATA'  => $request->{'cgidata'},
+           'CGIURL'   => $request->{'cgiurl'},
+           'CMDPASS'  => $request->{'password'},
+           'USER'     => &escape("$request->{'user'}", $type),
+           'VICTIM'   => &escape("$request->{'victim'}", $type),
+          };
 
   if ($ok > 0) { 
-    eprint($out, $type, "Alias from $request->{'victim'} to $request->{'user'} successfully removed.\n");
+    $tmp = $mj->format_get_string($type, 'unalias');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok, 1);
   }
   else {
-    eprint($out, $type, "Alias from $request->{'victim'} to $request->{'user'} not removed.\n");
-    eprint($out, $type, &indicate($type, $mess, $ok));
+    $subs->{'ERROR'} = &escape($mess, $type);
+    $tmp = $mj->format_get_string($type, 'unalias_error');
+    $str = $mj->substitute_vars_format($tmp, $subs);
+    print $out &indicate($type, "$str\n", $ok, 1);
   }
+
   $ok;
 }
 
