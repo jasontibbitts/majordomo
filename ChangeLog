@@ -1,3 +1,96 @@
+2000-07-25  Michael Yount <csf@moscow.com>
+
+	* bin/mj_email, bin/mj_enqueue: Add options for new aliases
+	  -c COMMAND    Issue a command (-subscribe, -unsubscribe)
+	  -M            Forward message to moderators (-moderator)
+	  -x SUBLIST    Post a message to an auxiliary list.
+	At present, qmail support does not include auxiliary lists.
+    The -moderator alias follows the same conventions as the
+	-owner alias.  The auxiliary list aliases follow the same
+	conventions as the resend (main list) alias.
+      
+	* bin/mj_queuerun: Handle altered queue file names for new aliases.
+	The file names will end with a comma, followed by an auxiliary
+	list name or command name or 'M' (for -moderator).
+    Remove the unused qmail code.
+
+	* bin/mj_wwwadm, bin/mj_wwwusr: Add support for latchkeys. 
+	Instead of sending the password back to the client with the
+	results, a temporary password is created with a limited lifetime
+	(one hour by default).
+
+	* lib/Majordomo.pm: 
+	(dispatch)  Convert a latchkey into a permanent password.
+	(gen_cmdline) Take into consideration messages posted to
+	auxiliary lists.
+	(_createlist)  Use the "aliases" setting to determine
+	which aliases to use.  Include alias and sublist data
+	when using the MTAConfig module.
+	(reject) Include datum concerning whether or not an 
+	acknowledgement was sent to the victim.
+	(set, _set) Allow use of the "aux" mode to change the 
+	settings for an auxiliary list.
+
+	* lib/Mj/Access.pm (_a_forward):  Allow a posted message
+	to be forwarded to a different address.
+
+	* lib/Mj/CommandProps.pm: Allow the "sublist" variable
+	to be used by the access rules for the "post" command.
+	Allow the use of auxiliary lists with the "set-aux" command.
+
+	* lib/Mj/Deliver.pm (deliver):  Obtain the list of subscribers
+	from an auxiliary list, if that is the destination.
+
+	* lib/Mj/Format.pm: (auxwho)  Use expanded format, like
+	the "who-enhanced" command.
+	(reject) For consult tokens, indicate whether or not the
+	victim was informed.
+	(set) Indicate the sublist if "aux" mode is used.
+	(tokeninfo) Indicate the number of approvals required.
+  
+	* lib/Mj/List.pm:  Cease using AddressList.pm.  Auxiliary
+	lists now use the SubscriberList module.
+	(set, make_setting) Allow settings to be changed for 
+	auxiliary lists.  Digest mode is not supported for sublists.
+    Ensure that digest names are converted to lower case.
+    (aux_add) Extend the data to accommodate the fields of
+	a SubscriberList.
+	(aux_get_chunk) Return all of the data instead of just the address.
+	(aux_get_matching) New subroutine.
+	(aux_rekey) Allow an easy transition from AddressList to 
+	SubscriberList by rekeying.
+	(moderators) New subroutine.  Obtain a list of moderators from
+	1) A named auxiliary list
+	2) The 'moderators' auxiliary list
+	3) The 'moderators' configuration setting
+	4) The 'moderator' configuration setting
+	5) The 'sender' configuration setting
+	in decreasing order of precedence.
+	(_make_aux) Use SubscriberList instead of AddressList
+	(validate_aux) New subroutine. Initialize an auxiliary list if it
+	already exists.
+
+	lib/Mj/MTAConfig.pm: (add_alias) Allow the use of optional
+	(moderator, subscribe, unsubscribe, and auxiliary list) aliases.
+	(regen_aliases) Sort the lists alphabetically.
+
+	lib/Mj/MailOut.pm: (deliver) Add the sublist to the argument list.
+	(owner_done) Direct the message to the moderators instead of
+	the owner, if required.
+
+	lib/Mj/Resend.pm: (post, _post) Allow messages to be posted
+	to auxiliary lists.  Add 'sublist' to the access variables.
+	Do not increase the sequence number, archive the message,
+	or issue digests if the message is posted to a sublist.
+
+	lib/Mj/Token.pm: (consult) Allow moderator groups (auxiliary
+	lists) and group sizes to be used.
+	(t_expire) Expire latchkeys (temporary passwords).
+    (_make_latchkeydb, gen_latchkey, validate_latchkey) New subroutines.
+	Latchkeys are temporary passwords used by the WWW interfaces
+	to prevent the CGI scripts from passing a permanent password
+	back to the client.
+
 2000-07-21  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm (connect): Call inform() if a connection

@@ -39,7 +39,7 @@ use lib "$::LIBDIR";
 use strict;
 no strict "refs";
 use Getopt::Std;
-my (%opts, $entity, $head, $mime_parser, $mj, $ok, $request_ans, $user,
+my (%opts, $entity, $head, $list, $mime_parser, $mj, $ok, $request_ans, $user,
     $uuser);
 
 umask oct($::UMASK);
@@ -54,6 +54,7 @@ if (! -t STDERR) {
 $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb"; # Needed for Syslog to get hostname.
 
 # Parse the command line arguments.
+# -c - specify command to be executed (arg)
 # -d - specify domain to serve (arg)
 # -l - specify deflist (arg)
 # -m - run at main majordomo address; -l ignored.
@@ -62,13 +63,15 @@ $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb"; # Needed for Syslog to get hostname.
 # -r - run as resend; -l _required_.
 # -t - specify directory containing domains (arg)
 # -v - specify debug verbosity (arg), default 50.
+# -x - specify auxiliary list (arg)
+# -M - run as moderator answerer
 # -Q - figure out addresses from $ENV{DEFAULT} (for qmail) or use
 #      $ENV{LOCAL} if $ENV{DEFAULT} does not exist
 #      argument is $whoami for this domain
 # -S - when done, exit 99 instead of 0 (for qmail)
 # -T - for qmail versions prior to 1.03, trim this string from $ENV{LOCAL}.
 
-getopts('d:l:moqQ:rSt:T:v:', \%opts);
+getopts('c:d:l:mMoqQ:rSt:T:v:x:', \%opts);
 
 # Deal with -Q option
 do_qmail() if $opts{'Q'};
@@ -77,9 +80,9 @@ do_qmail() if $opts{'Q'};
 if (! -t STDERR) {
   close STDERR;
   if    ($opts{'m'}) {open (STDERR, ">>$::TMPDIR/mj_majord.debug")}
-  elsif ($opts{'q'}) {open (STDERR, ">>$::TMPDIR/mj_request.debug")}
-  elsif ($opts{'r'}) {open (STDERR, ">>$::TMPDIR/mj_resend.debug")}
-  else               {open (STDERR, ">>$::TMPDIR/mj_email.debug")}
+  elsif ($opts{'q'} or $opts{'c'}) {open (STDERR, ">>$::TMPDIR/mj_request.debug")}
+  elsif ($opts{'r'} or $opts{'x'}) {open (STDERR, ">>$::TMPDIR/mj_resend.debug")}
+  else                             {open (STDERR, ">>$::TMPDIR/mj_email.debug")}
 }
 
 
@@ -93,6 +96,10 @@ $opts{t} = $1;
 if ($opts{l}) {
   $opts{l} =~ /(.*)/;
   $opts{l} = $1;
+}
+if ($opts{c}) {
+  $opts{c} =~ /(.*)/;
+  $opts{c} = $1;
 }
 
 $opts{v} ||= 0;
@@ -129,51 +136,52 @@ eval '
   use Mj::Parser;
   use Mj::Deliver::Envelope;
   use Mj::MIMEParser;
+  use Mj::CommandProps qw(:command);
   use Data::Dumper;
   use IO::File;
 ';
 $::log->out;
 
 # Make a Majordomo object
-$::mj = new Majordomo $opts{t}, $opts{d}; $mj = $::mj;
+$::mj = new Majordomo $opts{'t'}, $opts{'d'}; $mj = $::mj;
 
 unless (ref $::mj) {
   $::log->abort("Cannot create Majordomo object: $::mj");
 }
 
 # if at list address, resend.
-if ($opts{r}) {
+if ($opts{'r'} or $opts{'x'}) {
   $::log->abort("mj_email called with -r and without -l!")
-    unless $opts{l};
-  resend($mj, $opts{l});
+    unless $opts{'l'};
+  resend($mj, $opts{'l'}, $opts{'x'});
 }
 # if at -request (-q) pull out global 'request_answer' variable and figure
 # out what to do
-elsif ($opts{'q'}) {
+elsif ($opts{'q'} or $opts{'c'}) {
   $::log->abort("mj_email called with -q and without -l!")
-    unless $opts{l};
+    unless $opts{'l'};
   $request_ans = $mj->global_config_get(undef, undef, 'request_answer');
   if ($request_ans eq 'majordomo') {
-    parse_commands($mj, $opts{l});
+    parse_commands($mj, $opts{'l'}, $opts{'c'} || '');
   }
   elsif ($request_ans eq 'owner') {
-    forward_to_owner($mj, $opts{l});
+    forward_to_owner($mj, $opts{'l'});
   }
   else {
-    respond_with_file($mj, $opts{l});
+    respond_with_file($mj, $opts{'l'});
   }
 }
-# if at -owner (-o) look for bounces and forward everything else to the
-# owner
-elsif ($opts{o}) {
+# if at -owner (-o) or -moderator (-M) look for bounces and 
+# forward everything else to the owner or moderator
+elsif ($opts{'o'} or $opts{'M'}) {
   # forward to owner; if -l is present, forward to that list else assume
   # we're majordomo-owner.
-  forward_to_owner($mj, $opts{l} || 'GLOBAL');
+  forward_to_owner($mj, $opts{'l'} || 'GLOBAL', $opts{'M'});
 }
   
 # if at majordomo (-m) parse as normal
-elsif ($opts{'m'}) {
-  parse_commands($mj);
+elsif ($opts{'m'} or $opts{'c'}) {
+  parse_commands($mj, $opts{'c'});
 }
 
 # else something's screwed; we already processed the resend case earlier
@@ -191,7 +199,7 @@ exit ($opts{'S'} ? 99 : 0);
 # Forward the message to the list owner.  Call owner_start, owner_chunk,
 # owner_done passing in all of the message.
 sub forward_to_owner {
-  my ($mj, $list) = @_;
+  my ($mj, $list, $moderator) = @_;
   my ($ok, $mess, $sess, $request);
 
   $sess = connect_no_parse($mj, 'owner');
@@ -201,10 +209,12 @@ sub forward_to_owner {
   # Sending this on as part of the headers can hose some MTAs, so we strip
   # it.  The regexp doesn't harm the body $sess contains only the headers.
   $sess =~ s/^From .*?\r?\n//;
+  $moderator ||= '';
+
   $request = {
     'command'   => 'owner_start',
     'list'      => $list,
-    'mode'      => '',
+    'mode'      => $moderator? 'M' : '',
     'password'  => '',
     'user'      => '',
   };
@@ -228,7 +238,7 @@ sub forward_to_owner {
 # Resend a message; call post_start, post_chunk, post_done passing in all
 # of the message.
 sub resend {
-  my ($mj, $list) = @_;
+  my ($mj, $list, $sublist) = @_;
   my ($ok, $mess, @out, $request, $sess);
 
   $sess = connect_no_parse($mj, 'resend');
@@ -238,11 +248,14 @@ sub resend {
   # Sending this on as part of the headers can hose some MTAs, so we strip
   # it.  The regexp doesn't harm the body $sess contains only the headers.
   $sess =~ s/^From .*?\r?\n//;
+  $sublist ||= '';
+
   $request = {
     'command'   => 'post_start',
     'list'      => $list,
     'mode'      => '',
     'password'  => '',
+    'sublist'   => $sublist,
     'user'      => '',
   };
 
@@ -355,14 +368,15 @@ sub connect_and_parse {
 }
 
 # Parse commands in the subject here; we do this early to get the debug log
-# going.  XXX Support ACCEPT, DENY, LIST and PASS in the subject, too.  The
+# going.  XXX Support ACCEPT, REJECT, LIST and PASS in the subject, too.  The
 # first two for quick confirmation token processing; the latter two for
 # bypassing failed "access" checks.
 sub parse_commands {
-  my ($mj, $deflist) = @_;
-  my (@entities, $args, $av, $command, $debug_file, $debug_log,
-      $debug_reply, $entity, $head, $i, $line, $list, $ok, $sender,
-      $sub_addin, $subject, $tag, $tlist, $top, $token, $uuser);
+  my ($mj, $deflist, $command) = @_;
+  my (@entities, $args, $av, $debug_file, $debug_log,
+      $debug_reply, $entity, $fh, $file, $head, $i, $line, $list, $ok,
+      $request, $sender, $sub_addin, $subject, $tag, $tlist, $top, 
+      $token, $uuser);
 
   ($entity, $head, $user, $uuser) = connect_and_parse($mj, 'email');
   $subject = $head->get('subject') || "";
@@ -400,14 +414,42 @@ sub parse_commands {
     $sub_addin = '';
   }
 
-  (undef, @entities) = 
-    Mj::Parser::parse_entity($mj,
-                             tmpdir     => $::TMPDIR, 
-                             entity     => $entity,
-                             reply_to   => $uuser,
-                             deflist    => $deflist,
-                             token      => $token,
-			    );
+  $command = command_legal($command);
+
+  if ($command) {
+    # Iterated commands are not yet considered.
+    $request = {
+      'command'   => $command,
+      'list'      => $deflist,
+      'mode'      => '',
+      'password'  => '',
+      'user'      => $uuser,
+    };
+
+    $file = &Majordomo::tempname();
+    $fh = new IO::File "> $file";
+    if (defined $fh) {
+      no strict 'refs';
+      &{"Mj::Format::$command"}($mj, $fh, $fh, 'text', $request,
+                           $mj->dispatch($request));
+    }
+    $fh->close;
+    push @entities, build MIME::Entity
+      (
+       'Path'        => "$file",
+       '-To'         => $uuser,
+      );
+  }
+  else {
+    (undef, @entities) = 
+      Mj::Parser::parse_entity($mj,
+                               tmpdir     => $::TMPDIR, 
+                               entity     => $entity,
+                               reply_to   => $uuser,
+                               deflist    => $deflist,
+                               token      => $token,
+                  );
+  }
   if ($debug_reply) {
     push @entities, build MIME::Entity
       (
@@ -496,12 +538,21 @@ sub do_qmail {
   if ($addr =~ /^owner-(.*)$/) {
     $list = $1; $fun = 'owner';
   }
+  elsif ($addr =~ /^(.*)-moderator$/) {
+    $list = $1; $fun = 'moderator';
+  }
   # Note that we don't anchor to the end; we may be receiving a probe
   elsif ($addr =~ /^(.*)-owner/) {
     $list = $1; $fun = 'owner';
   }
   elsif ($addr =~ /^(.*)-request$/) {
     $list = $1; $fun = 'request';
+  }
+  elsif ($addr =~ /^(.*)-subscribe$/) {
+    $list = $1; $fun = 'subscribe';
+  }
+  elsif ($addr =~ /^(.*)-unsubscribe$/) {
+    $list = $1; $fun = 'unsubscribe';
   }
   else {
     $list = $addr; $fun = 'list';
@@ -518,11 +569,15 @@ sub do_qmail {
     exit 0;
   }
 
+  # XXX Addresses for auxiliary lists are not considered.
   # It is bound for us; fix up the options
   $opts{'l'} = $list;
-  $fun eq 'list'    and $opts{'r'} = 1;
-  $fun eq 'owner'   and $opts{'o'} = 1;
-  $fun eq 'request' and $opts{'q'} = 1;
+  $fun eq 'list'        and $opts{'r'} = 1;
+  $fun eq 'moderator'   and $opts{'M'} = 1;
+  $fun eq 'owner'       and $opts{'o'} = 1;
+  $fun eq 'request'     and $opts{'q'} = 1;
+  $fun eq 'subscribe'   and $opts{'c'} = "subscribe";
+  $fun eq 'unsubscribe' and $opts{'c'} = "unsubscribe";
 }
 
 =head1 COPYRIGHT

@@ -49,6 +49,7 @@ umask oct($::UMASK);
 $ENV{PATH} = '';
 
 # Parse command line args
+# -c - specify command to be executed (arg)
 # -d - specify domain to serve (arg)
 # -l - specify list (arg)
 # -m - run at main majordomo address; -l ignored.
@@ -59,13 +60,15 @@ $ENV{PATH} = '';
 # -r - run as resend; -l _required_.
 # -t - specify directory containing domains (arg)
 # -v - specify debug verbosity (arg), default 50.
+# -x - specify auxiliary list (arg)
+# -M - run as moderator answerer
 # -Q - figure out addresses from $ENV{DEFAULT} (for qmail) or use
 #      $ENV{LOCAL} if $ENV{DEFAULT} does not exist
 #      argument is $whoami for this domain
 # -S - when done, exit 99 instead of 0 (for qmail)
 # -T - for qmail versions prior to 1.03, trim this string from $ENV{LOCAL}.
 
-getopts('d:l:mop:P:qQ:rSt:T:v:', \%opts);
+getopts('c:d:l:mMop:P:qQ:rSt:T:v:x:', \%opts);
 
 # Deal with -Q option
 do_qmail() if $opts{'Q'};
@@ -77,9 +80,9 @@ $opts{'v'} ||= 0;
 
 # Choose the function; the queue name
 if    ($opts{'m'}) { $qfunc = 'majordomo'}
-elsif ($opts{'o'}) { $qfunc = 'owner'    }
-elsif ($opts{'q'}) { $qfunc = 'request'  }
-elsif ($opts{'r'}) { $qfunc = 'list'     }
+elsif ($opts{'o'} or $opts{'M'}) { $qfunc = 'owner'    }
+elsif ($opts{'q'} or $opts{'c'}) { $qfunc = 'request'  }
+elsif ($opts{'r'} or $opts{'x'}) { $qfunc = 'list'     }
 
 # Figure out the queue directory and make sure everything exists.
 $qdir = "$::LISTDIR/QUEUE/$opts{'P'}/$dom/$opts{'p'}/$qfunc";
@@ -95,6 +98,12 @@ $q1 = chr(ord('A') + (localtime(time))[2]);
 $q2 = 'AA';
 if ($opts{'l'}) { $q3 = "-$opts{'l'}"}
 else            { $q3 = '' }
+
+# Append the command, auxiliary list, or ",M" (for -moderator)
+# to the queue file name.
+if    ($opts{'M'}) { $q3 .= ",M"}
+elsif ($opts{'c'}) { $q3 .= ",$opts{'c'}"}
+elsif ($opts{'x'}) { $q3 .= ",$opts{'x'}"}
 
 # Loop through until we have a unique string.  If we loop until ZZ then
 # this will still work but we should be careful about the length of things.
@@ -235,12 +244,21 @@ sub do_qmail {
   if ($addr =~ /^owner-(.*)$/) {
     $list = $1; $fun = 'owner';
   }
+  elsif ($addr =~ /^(.*)-moderator$/) {
+    $list = $1; $fun = 'moderator'; 
+  }
   # Note that we don't anchor to the end; we may be receiving a probe
-  elsif ($addr =~ /^(.*)-owner/) {
-    $list = $1; $fun = 'owner';
+  elsif ($addr =~ /^(.*)-owner$/) {
+    $list = $1; $fun = 'owner'; 
   }
   elsif ($addr =~ /^(.*)-request$/) {
     $list = $1; $fun = 'request';
+  }
+  elsif ($addr =~ /^(.*)-subscribe$/) {
+    $list = $1; $fun = 'subscribe';
+  }
+  elsif ($addr =~ /^(.*)-unsubscribe$/) {
+    $list = $1; $fun = 'unsubscribe';
   }
   else {
     $list = $addr; $fun = 'list';
@@ -257,11 +275,15 @@ sub do_qmail {
     exit 0;
   }
 
+  # XXX Addresses for auxiliary lists are not considered.
   # It is bound for us; fix up the options
   $opts{'l'} = $list;
-  $fun eq 'list'    and $opts{'r'} = 1;
-  $fun eq 'owner'   and $opts{'o'} = 1;
-  $fun eq 'request' and $opts{'q'} = 1;
+  $fun eq 'list'        and $opts{'r'} = 1;
+  $fun eq 'moderator'   and $opts{'M'} = 1;
+  $fun eq 'owner'       and $opts{'o'} = 1;
+  $fun eq 'request'     and $opts{'q'} = 1;
+  $fun eq 'subscribe'   and $opts{'c'} = "subscribe";
+  $fun eq 'unsubscribe' and $opts{'c'} = "unsubscribe";
 }
 
 # Make a directory safely.  Note that it's OK to fail because the directory
