@@ -933,17 +933,17 @@ sub _a_default {
   my $log = new Log::In 150, $request;
   my ($access, $policy, $action, $reason);
 
-  # First check the hash of allowed requests.
-  if (access_def($request, 'allow')) {
-    return 1;
-  }
-
   # We'll use the arglist almost verbatim in several places.
   shift @_;
 
+  # First check the hash of allowed requests.
+  if (access_def($request, 'allow')) {
+    return $self->_a_allow(@_);
+  }
+
   # Allow these if the user supplied their password, else confirm them.
   if (access_def($request, 'confirm')) {
-    $action = "_a_allow" if $args{'user_password'};
+    return $self->_a_allow(@_) if $args{'user_password'};
     $action = "_a_confirm";
     $reason = "confirm is the default action for $request."
   }
