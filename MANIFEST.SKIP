@@ -5,11 +5,12 @@ hpc.uh.edu
 wrap
 tar
 \.mj
-try.*
+^try.*
 Makefile$
 .*\~
 \#.*\#
 .*.bak
+.*.swp
 \.L.*
 TAGS
 CVS
