@@ -1400,7 +1400,7 @@ EOC
    'digest_index_format' =>
    {
     'type'   => 'enum',
-    'values' => [qw(subject wasilko)],
+    'values' => [qw(subject subject_author)],
     'groups' => ['digest'],
     'visible'=> 0,
     'global' => 0,
@@ -1409,8 +1409,8 @@ EOC
     'comment'=> <<EOC,
 Selects one of the formats for each line in the index listing for the
 digests.  The 'subject' format consists simply of the subjects of the
-messages.  The 'wasilko' format, originally provided by Jeff Wasilko,
-provides an index like the following:
+messages.  The 'subject_author' format, originally provided by Jeff
+Wasilko, provides an index like the following:
 
   A subject                                         [User <user\@example.com>]
   Another subject                      [Another User <otheruser\@example.org>]

@@ -45,7 +45,7 @@ Return additional information from _post so that t_accept can provide
   additional data.
 Finish work on allowed_flags and allowed_classes.
 Update FILES.
-
+Make INCLUDE mechanism for help files.
 
 
 Can filespace system entirely.  To see if a file exists, just stat it.

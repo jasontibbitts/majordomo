@@ -452,7 +452,7 @@ sub _re_match {
   return $match;
 }
 
-=head2 substitute_vars(file, subhash)
+=head2 substitute_vars(file, subhashref, filehandle, list, depth)
 
 This routine iterates over a file and expands embedded "variables".  It
 takes a file and a hash, the keys of which are the tags to be expanded.
@@ -461,18 +461,44 @@ takes a file and a hash, the keys of which are the tags to be expanded.
 sub substitute_vars {
   my $self = shift;
   my $file = shift;
-  my %subs = @_;
-  my ($tmp, $in, $out, $i);
+  my $subs = shift;
+  my $list = shift || 'GLOBAL';
+  my $out  = shift;
+  my $depth= shift || 0;
+  my ($tmp, $in, $i, $inc);
+  my $log = new Log::In 200, "$file, $list, $depth";
 
   $tmp = $tmpdir;
   $tmp = "$tmp/mj-tmp." . unique();
   $in  = new Mj::File "$file"
     || $::log->abort("Cannot read file $file, $!");
-  $out  = new IO::File ">$tmp"
+  $out ||= new IO::File ">$tmp"
     || $::log->abort("Cannot write to file $tmp, $!");
   
   while (defined ($i = $in->getline)) {
-    $i = $self->substitute_vars_string($i, %subs);
+    if ($i =~ /\$INCLUDE-(.*)$/) {
+      warn "Including $1";
+      # Do a _list_file_get.  If we get a file, open it and call
+      # substitute_vars on it, printing to the already opened handle.  If
+      # we don't get a file, print some amusing text.
+      ($inc) =  $self->_list_file_get($list, $1);
+
+      if ($inc) {
+	if ($depth > 3) {
+	  $out->print("Recursive inclusion depth exceeded.\n");
+	}
+	else {
+	  # Got the file; substitute in it, perhaps recursively
+	  $self->substitute_vars($inc, $subs, $list, $out, $depth+1);
+	}
+      }
+      else {
+	warn "Include file $1 not found.";
+	$out->print("Include file $1 not found.\n");
+      }
+      next;
+    }
+    $i = $self->substitute_vars_string($i, $subs);
     $out->print($i);
   }
   $in->close;
@@ -483,12 +509,12 @@ sub substitute_vars {
 sub substitute_vars_string {
   my $self = shift;
   my $str  = shift;
-  my %subs = @_;
+  my $subs = shift;
   my $i;
 
-  for $i (keys %subs) {
+  for $i (keys %$subs) {
     # Don't substitute after backslashed $'s
-    $str =~ s/([^\\]|^)\$\Q$i\E(\b|$)/$1$subs{$i}/g;
+    $str =~ s/([^\\]|^)\$\Q$i\E(\b|$)/$1$subs->{$i}/g;
   }
   $str =~ s/\\([\$\\])/$1/g;
   $str;
@@ -1354,7 +1380,7 @@ sub get_chunk {
     $out .= $line;
   }
   if (defined($out) && $self->{'get_subst'}) {
-    $out = $self->substitute_vars_string($out, %{$self->{'get_subst'}});
+    $out = $self->substitute_vars_string($out, $self->{'get_subst'});
   }
   return (1, $out);
 }
@@ -1363,7 +1389,9 @@ sub get_done {
   my $self = shift;
   my $log = new Log::In 50;
   return unless $self->{'get_fh'};
+  unlink @{$self->{'get_temps'}};
   undef $self->{'get_fh'};
+  undef $self->{'get_temps'};
   undef $self->{'get_subst'};
   1;
 }
@@ -1411,10 +1439,10 @@ sub _faq {
 }
 
 sub help_start {
-  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode, $list, $vict,
+  my ($self, $user, $passwd, $auth, $interface, $cmdline, $list, $mode, $vict,
       $topic) = @_;
   my $log = new Log::In 50, "$user, $topic";
-  my (@info, $file, $mess, $ok);
+  my (@info, $file, $mess, $ok, $subs);
   
   ($ok, $mess) =
     $self->global_access_check($passwd, $auth, $interface, $mode, $cmdline,
@@ -1425,11 +1453,20 @@ sub help_start {
     return ($ok, $mess);
   }
 
+  $subs =
+    {VERSION  => $Majordomo::VERSION,
+     WHEREAMI => $self->_global_config_get('whereami'),
+     WHOAMI   => $self->_global_config_get('whoami'),
+     OWNER    => $self->_global_config_get('whoami_owner'),
+     SITE     => $self->_global_config_get('site_name'),
+     USER     => $user,
+    };
+
   ($topic) = $topic =~ /(.*)/; # Untaint
-  ($file) =  $self->_list_file_get('GLOBAL', "help/$topic");
+  ($file) =  $self->_list_file_get('GLOBAL', "help/$topic", $subs);
 
   unless ($file) {
-    ($file) =  $self->_list_file_get('GLOBAL', "help/unknowntopic");
+    ($file) =  $self->_list_file_get('GLOBAL', "help/unknowntopic", $subs);
   }
   unless ($file) {
     return (0, "No help for that topic.\n");
@@ -1439,14 +1476,7 @@ sub help_start {
   unless ($self->{'get_fh'}) {
     return 0;
   }
-  $self->{'get_subst'} =
-    {VERSION  => $Majordomo::VERSION,
-     WHEREAMI => $self->_global_config_get('whereami'),
-     WHOAMI   => $self->_global_config_get('whoami'),
-     OWNER    => $self->_global_config_get('whoami_owner'),
-     SITE     => $self->_global_config_get('site_name'),
-     USER     => $user,
-    };
+  push @{$self->{'get_temps'}}, $file;
   return 1;
 }
 
@@ -1552,8 +1582,8 @@ use MIME::Entity;
 sub _password {
   my ($self, $list, $user, $vict, $mode, $cmdline, $pass) = @_;
   my $log = new Log::In 35, "$vict";
-  my (%file, %subst, $desc, $ent, $file, $majord, $majord_own, $reg,
-      $sender, $site, $whereami);
+  my (%file, $desc, $ent, $file, $majord, $majord_own, $reg, $sender,
+      $site, $subst, $whereami);
 
   # Make sure user is registered.  XXX This ends up doing two reg_lookops,
   # which should probably be cached
@@ -1575,20 +1605,20 @@ sub _password {
     $majord_own = $self->_global_config_get('whoami_owner');
     $site       = $self->_global_config_get('site_name');
 
-    %subst = (
+    $subst = {
 	      MAJORDOMO => "$majord\@$whereami",
 	      OWNER     => "$majord_own\@$whereami",
 	      SITE      => $site,
 	      LIST      => $list,
 	      PASSWORD  => $pass,
-	     );
+	     };
 
     ($file, %file) = $self->_list_file_get('GLOBAL', 'new_password');
     return 1 unless $file;
 
     # Expand variables
-    $desc = $self->substitute_vars_string($file{'description'}, %subst);
-    $file = $self->substitute_vars($file, %subst);
+    $desc = $self->substitute_vars_string($file{'description'}, $subst);
+    $file = $self->substitute_vars($file, $subst);
 
     $ent = build MIME::Entity
       (
@@ -1713,8 +1743,8 @@ use Mj::MailOut;
 sub _request_response {
   my ($self, $list, $requ, $victim, $mode, $cmdline) = @_;
   my $log = new Log::In 35, "$list";
-  my (%file, %subst, $cset, $desc, $enc, $ent, $file, $list_own, $majord,
-      $majord_own, $mess, $sender, $site, $type, $whereami);
+  my (%file, $cset, $desc, $enc, $ent, $file, $list_own, $majord,
+      $majord_own, $mess, $sender, $site, $subst, $type, $whereami);
 
   $self->_make_list($list);
 
@@ -1729,17 +1759,17 @@ sub _request_response {
   $site       = $self->_global_config_get('site_name');
   $list_own   = $self->_list_config_get($list, 'whoami_owner');
 
-  %subst = (
+  $subst = {
 	    REQUEST   => "$list-request\@$whereami",
 	    MAJORDOMO => "$majord\@$whereami",
 	    OWNER     => "$list_own\@$whereami",
 	    SITE      => $site,
 	    LIST      => $list,
-	   );
+	   };
 
   # Expand variables
-  $desc = $self->substitute_vars_string($file{'description'}, %subst);
-  $file = $self->substitute_vars($file, %subst);
+  $desc = $self->substitute_vars_string($file{'description'}, $subst);
+  $file = $self->substitute_vars($file, $subst);
 
   $ent = build MIME::Entity
     (
@@ -1804,7 +1834,7 @@ sub _index {
 }
   
 
-=head2 _list_file_get(list, file)
+=head2 _list_file_get(list, file, subs, lang, force)
 
 This forms the basic internal interface to a list''s (virtual) filespace.
 All core routines which need to retrieve files should use this function as
@@ -1813,13 +1843,21 @@ it provides all of the i18n functionality for file access.
 This handles figuring out the list''s default language, properly expanding
 the search list and handling the share_list.
 
+If $subs is defined, it should be a hashref of substitutions to be made;
+substitute_vars will be called automatically.
+
 If $lang is defined, it is used in place of any default_language setting.
+
+Note that if $subs is provided, the returned filename will be a temporary
+generated by substitute_vars.  The caller is responsible for cleaning up
+this temporary.
 
 =cut
 sub _list_file_get {
   my $self  = shift;
   my $list  = shift;
   my $file  = shift;
+  my $subs  = shift;
   my $lang  = shift;
   my $force = shift;
   my $log  = new Log::In 130, "$list, $file";
@@ -1887,8 +1925,14 @@ sub _list_file_get {
       @out = $self->{'lists'}{$l}->fs_get($f, $force);
     }
 
-    # We are done if we got something
-    return @out if @out;
+    # Now, if we got something
+    if (@out) {
+      # Substitute if necessary; $out[0] is thefilename
+      if ($subs) {
+	$out[0] = $self->substitute_vars($out[0], $subs, $list);
+      }
+      return @out;
+    }
   }
   return;
 }
@@ -2910,8 +2954,8 @@ sub reject {
   my ($self, $user, $pass, $auth, $int, $cmd, $mode, $list, $vict,
       $token) = @_;
   my $log = new Log::In 30, "$token";
-  my (%file, %repl, $data, $desc, $ent, $file, $in, $inf, $inform, $line,
-      $list_owner, $mj_addr, $mj_owner, $ok, $sess, $site);
+  my (%file, $data, $desc, $ent, $file, $in, $inf, $inform, $line,
+      $list_owner, $mj_addr, $mj_owner, $ok, $repl, $sess, $site);
 
   return (0, "Illegal token $token.\n")
     unless !$token || ($token = $self->t_recognize($token));
@@ -2943,7 +2987,7 @@ sub reject {
       $sess = "Session info has expired.\n";
     }
 
-    %repl = ('OWNER'      => $list_owner,
+    $repl = {'OWNER'      => $list_owner,
 	     'MJ'         => $mj_addr,
 	     'MJOWNER'    => $mj_owner,
 	     'TOKEN'      => $token,
@@ -2956,11 +3000,11 @@ sub reject {
 	     'SESSIONID'  => $data->{'sessionid'},
 	     'SITE'       => $site,
 	     'SESSION'    => $sess,
-	    );
+	    };
     
     ($file, %file) = $self->_list_file_get($data->{'list'}, "token_reject");
-    $file = $self->substitute_vars($file, %repl);
-    $desc = $self->substitute_vars_string($file{'description'}, %repl);
+    $file = $self->substitute_vars($file, $repl);
+    $desc = $self->substitute_vars_string($file{'description'}, $repl);
     
     # Send it off
     $ent = build MIME::Entity
@@ -2983,8 +3027,8 @@ sub reject {
     # Then we send a message to the list owner and majordomo owner if
     # appropriate
     ($file, %file) = $self->_list_file_get($data->{'list'}, "token_reject_owner");
-    $file = $self->substitute_vars($file, %repl);
-    $desc = $self->substitute_vars_string($desc, %repl);
+    $file = $self->substitute_vars($file, $repl);
+    $desc = $self->substitute_vars_string($desc, $repl);
     
     $ent = build MIME::Entity
       (

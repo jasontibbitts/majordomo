@@ -543,10 +543,12 @@ sub list_access_check {
   $mess =
     $self->substitute_vars_string
       ($mess,
-       'LIST'    => $list,
-       'REQUEST' => $request,
-       'VICTIM'  => $victim,
-       'REASONS' => $reasons,
+       {
+	'LIST'    => $list,
+	'REQUEST' => $request,
+	'VICTIM'  => $victim,
+	'REASONS' => $reasons,
+       },
       ) if $mess;
   
   for $i (@temps) {
@@ -698,10 +700,12 @@ sub _a_mailfile {
 
   ($file, %file) = $self->_list_file_get($list, $arg);
   $file = $self->substitute_vars($file,
-				 'LIST'      => $list,
-				 'REQUESTER' => $requester,
-				 'REQUEST'   => $request,
-				 # XXX and so on...
+				 {
+				  'LIST'      => $list,
+				  'REQUESTER' => $requester,
+				  'REQUEST'   => $request,
+				  # XXX and so on...
+				 },
 				);
   $ent = build MIME::Entity
     (

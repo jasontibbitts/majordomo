@@ -109,7 +109,7 @@ sub deliver {
   my $seqno   = shift;
   my $classes = shift;
 
-  my $log = new Log::In 30, $file;
+  my $log = new Log::In 30;
   my(%args, $bucket, $buckets, $mta);
 
   # Figure out some data related to bounce probing
@@ -199,7 +199,7 @@ sub welcome {
   my $addr = shift;
   my %args = @_;
   my $log = new Log::In 150, "$list, $addr";
-  my (%file, %subs, @mess, @temps, $count, $head, $final, $subj, $file,
+  my (%file, @mess, @temps, $count, $head, $file, $final, $subj, $subs,
       $top, $i, $j);
 
   # Extract some necessary variables from the config files
@@ -211,7 +211,7 @@ sub welcome {
   my $sender        = $self->_list_config_get($list, 'sender');
   my $table         = $self->_list_config_get($list, 'welcome_files');
 
-  %subs = ('LIST' => $list,
+  $subs = {'LIST' => $list,
 	   'REQUEST'  => "$list-request\@$whereami",
 	   'MAJORDOMO'=> $whoami,
 	   'USER'     => $addr,
@@ -219,7 +219,7 @@ sub welcome {
 	   'MJOWNER'  => $whoami_owner,
 	   'OWNER'    => $sender,
 	   %args,
-	  );
+	  };
   
   # Loop over the table, processing parts and substituting values
   $count = 0;
@@ -233,11 +233,11 @@ sub welcome {
     next unless $file;
 
     $subj = $self->substitute_vars_string($table->[$i][0] ||
-					  $file{'description'}, %subs);
+					  $file{'description'}, $subs);
 
     # We may have to substitute variables in the file
     if ($table->[$i][2] =~ /S/) {
-      $file = $self->substitute_vars($file, %subs);
+      $file = $self->substitute_vars($file, $subs);
       push @temps, $file;
     };
     

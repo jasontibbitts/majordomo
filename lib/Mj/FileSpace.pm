@@ -113,13 +113,11 @@ sub get {
     }
 
   $data->{'language'} ||= 'en';
-  
-  return ("$self->{'dir'}/$file", %$data);
-# 	  $data->{'description'},
-# 	  $data->{'c-type'},
-# 	  $data->{'charset'},
-# 	  $data->{'c-t-encoding'},
-# 	 );
+
+  if (wantarray) {
+    return ("$self->{'dir'}/$file", %$data);
+  }
+  return "$self->{'dir'}/$file";
 }
 
 =head2 put(file, source, overwrite, description, content-type,

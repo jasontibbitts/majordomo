@@ -168,7 +168,7 @@ sub confirm {
       $cmdline, $approvals, $chain1, $chain2, $chain3, $chain4, $arg1,
       $arg2, $arg3) = @_;
   my $log  = new Log::In 50;
-  my (%file, %repl, $token, $data, $ent, $sender, $url, $file, $mj_addr,
+  my (%file, $repl, $token, $data, $ent, $sender, $url, $file, $mj_addr,
       $mj_owner, $expire, $expire_days, $desc, $remind, $remind_days);
 
   $self->_make_tokendb;
@@ -204,10 +204,10 @@ sub confirm {
   $mj_owner = $self->_global_config_get('whoami_owner');
   $url = $self->_global_config_get('confirm_url');
   $url = $self->substitute_vars_string($url,
-				       'TOKEN' => $token,
+				       {'TOKEN' => $token,},
 				      );
 
-  %repl = ('OWNER'      => $sender,
+  $repl = {'OWNER'      => $sender,
 	   'MJ'         => $mj_addr,
 	   'MJOWNER'    => $mj_owner,
 	   'TOKEN'      => $token,
@@ -225,10 +225,10 @@ sub confirm {
 	   'ARG1'       => $arg1,
 	   'ARG2'       => $arg2,
 	   'ARG3'       => $arg3,
-	  );
+	  };
 
-  $file = $self->substitute_vars($file, %repl);
-  $desc = $self->substitute_vars_string($file{'description'}, %repl);
+  $file = $self->substitute_vars($file, $repl);
+  $desc = $self->substitute_vars_string($file{'description'}, $repl);
 
   # Send it off
   $ent = build MIME::Entity
@@ -300,9 +300,9 @@ sub consult {
       $mode, $cmdline, $approvals, $chain1, $chain2, $chain3, $chain4,
       $arg1, $arg2, $arg3, $sessionid) = @_;
   my $log  = new Log::In 50;
-  my (%file, %repl, @mod1, @mod2, $data, $desc, $ent, $expire,
-      $expire_days, $file, $mj_addr, $mj_owner, $remind, $remind_days,
-      $sender, $subject, $token, $url);
+  my (%file, @mod1, @mod2, $data, $desc, $ent, $expire, $expire_days,
+      $file, $mj_addr, $mj_owner, $remind, $remind_days, $repl, $sender,
+      $subject, $token, $url);
 
   $self->_make_tokendb;
 
@@ -325,7 +325,7 @@ sub consult {
   $mj_owner = $self->_global_config_get("whoami_owner");
   $url = $self->_global_config_get("confirm_url");
   $url = $self->substitute_vars_string($url,
-				       'TOKEN' => $token,
+				       {'TOKEN' => $token,},
 				      );
 
   # This extracts the moderator. XXX We want to rewrite this so that it
@@ -392,7 +392,7 @@ sub consult {
   $::log->abort("Couldn't get $fname from $list")
     unless $file;
 
-  %repl = ('OWNER'      => $sender,
+  $repl = {'OWNER'      => $sender,
 	   'MJ'         => $mj_addr,
 	   'MJOWNER'    => $mj_owner,
 	   'TOKEN'      => $token,
@@ -410,10 +410,10 @@ sub consult {
 	   'ARG1'       => $arg1,
 	   'REASONS'    => $arg2,
 	   'ARG3'       => $arg3,
-	  );
+	  };
 
-  $file = $self->substitute_vars($file, %repl);
-  $desc = $self->substitute_vars_string($file{'description'}, %repl);
+  $file = $self->substitute_vars($file, $repl);
+  $desc = $self->substitute_vars_string($file{'description'}, $repl);
 
   # Send it off
   $ent = build MIME::Entity
@@ -670,8 +670,8 @@ sub t_remind {
   my $self = shift;
   my $log  = new Log::In 60;
   my $time = time;
-  my (%file, %repl, @reminded, @tmp, $data, $desc, $ent, $expire, $file,
-      $gurl, $i, $mj_addr, $mj_owner, $sender, $token, $url);
+  my (%file, @reminded, @tmp, $data, $desc, $ent, $expire, $file,
+      $gurl, $i, $mj_addr, $mj_owner, $repl, $sender, $token, $url);
 
   my $mogrify = sub {
     my $key  = shift;
@@ -706,14 +706,14 @@ sub t_remind {
       # Extract some list-specific variables
       $sender = $self->_list_config_get($data->{'list'}, 'sender');
       $url    = $self->substitute_vars_string($gurl,
-					      'TOKEN' => $token,
+					      {'TOKEN' => $token,},
 					     );
 
       # Find number of days left until it dies
       $expire = int(($data->{'expire'}+43200-time)/86400);
 
       # Generate replacement hash
-      %repl = (OWNER      => $sender,
+      $repl = {OWNER      => $sender,
 	       MJ         => $mj_addr,
 	       MJOWNER    => $mj_owner,
 	       TOKEN      => $token,
@@ -730,11 +730,11 @@ sub t_remind {
 	       ARG1       => $data->{'arg1'},
 	       ARG2       => $data->{'arg2'},
 	       ARG3       => $data->{'arg3'},
-	      );
+	      };
 
       # Substitute values in the file and the description
-      $file = $self->substitute_vars($file, %repl);
-      $desc = $self->substitute_vars_string($file{'description'}, %repl);
+      $file = $self->substitute_vars($file, $repl);
+      $desc = $self->substitute_vars_string($file{'description'}, $repl);
       
       # Build an entity
       $ent = build MIME::Entity

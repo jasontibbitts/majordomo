@@ -119,23 +119,27 @@ sub _inform_owner {
 
   # Substitute in the header
   my $desc = $self->substitute_vars_string($data{'description'},
-					   'UREQUEST' => uc($req),
-					   'REQUEST'  => $req,
-					   'LIST'     => $list,
+					   {
+					    'UREQUEST' => uc($req),
+					    'REQUEST'  => $req,
+					    'LIST'     => $list,
+					   },
 					  );
 
   # Substitute in the body
   $message = $self->substitute_vars($message,
-				    'VICTIM'    => $user,
-				    'USER'      => $user,
-				    'LIST'      => $list,
-				    'REQUEST'   => $req,
-				    'REQUESTER' => $requ,
-				    'CMDLINE'   => $cmd,
-				    'STATUS'    => $stat,
-				    'STATDESC'  => $statdesc,
-				    'INTERFACE' => $int,
-				    'SESSIONID' => $self->{'sessionid'},
+				    {
+				     'VICTIM'    => $user,
+				     'USER'      => $user,
+				     'LIST'      => $list,
+				     'REQUEST'   => $req,
+				     'REQUESTER' => $requ,
+				     'CMDLINE'   => $cmd,
+				     'STATUS'    => $stat,
+				     'STATDESC'  => $statdesc,
+				     'INTERFACE' => $int,
+				     'SESSIONID' => $self->{'sessionid'},
+				     },
 				   );
   my $ent = build MIME::Entity
     (

@@ -304,7 +304,7 @@ sub _post {
     $ent[0] = $file;
   }
   else {
-    ($file) = $self->_list_file_get('GLOBAL', "spool/$file", undef, 1);
+    ($file) = $self->_list_file_get('GLOBAL', "spool/$file", undef, undef, 1);
     my $fh = new IO::File "<$file";
     my $mime_parser = new Mj::MIMEParser;
     $mime_parser->output_to_core($self->_global_config_get("max_in_core"));
@@ -380,11 +380,13 @@ sub _post {
   # Add headers
   for $i ($self->_list_config_get($list, 'message_headers')) {
     $i = $self->substitute_vars_string($i,
-				       'LIST'    => $list,
-				       'VERSION' => $Majordomo::VERSION,
-				       'SENDER'  => $user,
-				       'SEQNO'   => $seqno,
-				       'ARCHIVE' => $msgnum,
+				       {
+					'LIST'    => $list,
+					'VERSION' => $Majordomo::VERSION,
+					'SENDER'  => $user,
+					'SEQNO'   => $seqno,
+					'ARCHIVE' => $msgnum,
+				       },
 				      );
     $head->add(undef, $i);
   }
@@ -1281,7 +1283,7 @@ removed.
 =cut
 sub _subject_prefix {
   my ($self, $ent1, $list, $seqno) = @_;
-  my (%subs, $ent2, $gprefix, $head1, $head2, $prefix, $subject, $subject2);
+  my ($ent2, $gprefix, $head1, $head2, $prefix, $subject, $subject2, $subs);
 
   $ent2  = $ent1->dup;
   $head1 = $ent1->head;
@@ -1289,10 +1291,10 @@ sub _subject_prefix {
 
   $prefix = $self->_list_config_get($list, 'subject_prefix');
 
-  %subs = ('LIST'    => $list,
+  $subs = {'LIST'    => $list,
 	   'VERSION' => $Majordomo::VERSION,
 	   'SEQNO'   => $seqno,
-	  );
+	  };
 
   if ($prefix) {
     # Substitute constant values into the prefix and turn it into a regexp
@@ -1303,7 +1305,7 @@ sub _subject_prefix {
     $gprefix =~ s/\\\$SEQNO/\\d+/;
 
     # Generate the prefix to be prepended
-    $prefix = $self->substitute_vars_string($prefix, %subs);
+    $prefix = $self->substitute_vars_string($prefix, $subs);
 
     $subject = $subject2 = $head1->get('Subject');
 
@@ -1354,10 +1356,12 @@ sub _reply_to {
       $replyto =
 	$self->substitute_vars_string
 	  ($replyto,
-	   'HOST'    => $self->_list_config_get($list, 'resend_host'),
-	   'LIST'    => $list,
-	   'SENDER'  => $user,
-	   'SEQNO'   => $seqno,
+	   {
+	    'HOST'    => $self->_list_config_get($list, 'resend_host'),
+	    'LIST'    => $list,
+	    'SENDER'  => $user,
+	    'SEQNO'   => $seqno,
+	   },
 	  );
       $head->set('Reply-To', $replyto);
     }
