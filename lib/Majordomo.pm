@@ -4021,11 +4021,13 @@ sub configshow {
     $auto = $self->config_get_isauto($var);
     # Process the options
     $comment = '';
+    $whence = $self->config_get_whence($request->{'list'}, 
+                                       $request->{'sublist'}, $var);
+    next if (defined $whence and $whence ne 'MAIN' and 
+             $request->{'mode'} =~ /declared|merge|append/);
+
     if ($request->{'mode'} !~ /nocomments/) {
-      $whence = $self->config_get_whence($request->{'list'}, 
-                                         $request->{'sublist'}, $var);
       if (defined $whence and $whence ne 'MAIN') {
-        next if ($request->{'mode'} =~ /declared|merge|append/);
         $comment = "This value was determined by the $whence settings.\n"; #XLANG
       }
       $intro = $self->config_get_intro($request->{'list'}, $var);
@@ -5661,6 +5663,7 @@ sub _show {
 		   fulladdr   => $data->{'fulladdr'},
 		   stripaddr  => $data->{'stripaddr'},
 		   language   => $data->{'language'},
+                   password   => $data->{'password'},
 		   data1      => $data->{'data1'},
 		   data2      => $data->{'data2'},
 		   data3      => $data->{'data3'},
