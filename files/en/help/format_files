@@ -170,6 +170,22 @@ of the output of the archive-index command.
 (standard plus CGIDATA, CGIURL, CMDPASS, TOTAL_POSTS, USER)
 
 
+archive_get
+-----------
+(ALL)  This file is displayed when the archive-get command is used
+to mail messages from the archive.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, MESSAGECOUNT, TOTAL_POSTS, USER)
+
+
+archive_get_digest
+------------------
+(ALL)  This file is displayed when the archive-get command is used
+to mail messages from the archive in one or more digests.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, MESSAGECOUNT, TOTAL_POSTS, USER)
+
+
 archive_get_foot
 ----------------
 (ALL)  This file is displayed at the bottom of the output
