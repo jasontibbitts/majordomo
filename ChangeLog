@@ -1,3 +1,8 @@
+2000-05-20  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Bf/Parser.pm (parse): Call parse_yahoo.
+	(parse_yahoo): Parse bounces from yahoo.
+
 2000-05-19  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Majordomo.pm: Bump version numver.

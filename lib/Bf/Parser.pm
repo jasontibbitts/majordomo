@@ -77,6 +77,7 @@ sub parse {
   # Try to identify the bounce by parsing it
   $data = {};
   $ok or ($ok = parse_dsn($ent, $data));
+  $ok or ($ok = parse_yahoo($ent, $data));
 # $ok or ($ok = parse_exim($ent, $data));
 
 
@@ -241,6 +242,55 @@ sub parse_dsn {
   }
 
   return 1;
+}
+
+=head2 parse_yahoo
+
+Attempts to parse the bounces issued by Yahoo as of 2000.05.20.
+
+These bounces come from MAILER_DAEMON@yahoo.com, have a subject of "failure
+delivery" and have a body looking like:
+
+Message from  yahoo.com.
+Unable to deliver message to the following address(es).
+
+<someone@yahoo.com>:
+User is over the quota.  You can try again later.
+
+
+--- Original message follows.
+
+followed by a truncated version of the original message.
+
+=cut
+
+sub parse_yahoo {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my (%ok_from, %ok_subj, $bh, $line, $ok);
+
+  %ok_from = {'mailer_daemon\@yahoo.com' => 1};
+  %ok_subj = {'failure delivery'         => 1};
+  $ok = 0;
+
+  # First check the From: and Subject: headers to see if we understand this
+  # bounce
+  return 0 unless $ok_from{lc($ent->head->get('from'))};
+  return 0 unless $ok_subj{lc($ent->head->get('subject'))};
+
+  # Now run through the body.  We look for an address in brackets and, on
+  # the next line, the diagnostic.  We assume that we've failed; I don't
+  # believe that yahoo ever issues warnings.
+  $bh = $ent->bodyhandle->open('r');
+  while (defined($line = $bh->getline)) {
+    if ($line =~ /<(.*)>:/) {
+      $data->{$1}{'status'} = 'failure';
+      $data->{$1}{'diag'}   = $bh->getline;
+      $ok = 1;
+    }
+  }
+  $ok;
 }
 
 =head1 COPYRIGHT
