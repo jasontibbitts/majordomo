@@ -253,7 +253,7 @@ See "help reply_files" for a description of each of the reply files.
   if the password was changed, and '' otherwise.
 
 \$CHARSET
-  The character set of a message or part of a message.
+  The character set of a file, a message, or part of a message.
 
 \$CHUNKSIZE
   The number of addresses displayed at one time by the who command
@@ -281,7 +281,7 @@ See "help reply_files" for a description of each of the reply files.
   "consult" means that the moderators must confirm the command.
 
 \$CONTENT_TYPE
-  The content type of a message or part of a message.
+  The content type of a file, a message, or part of a message.
 
 \$COUNT
   The number of settings in a particular configuration category.
@@ -293,6 +293,7 @@ See "help reply_files" for a description of each of the reply files.
   A description of a mailing list, as determined by the description
   and description_long configuration settings.  Also, a description
   of a digest, as determined by the digests configuration setting.
+  Also, a description of a file.
 
 \$DIAGNOSTIC
   The explanation for a delivery failure that is extracted from a bounce
@@ -304,6 +305,9 @@ See "help reply_files" for a description of each of the reply files.
 
 \$ELAPSED
   The amount of time, in seconds, required for a command to execute.
+
+\$ENCODING
+  The content transfer encoding of a file, a message, or a message part.
 
 \$ERROR
   An error message which describes why a command failed.
@@ -322,6 +326,9 @@ See "help reply_files" for a description of each of the reply files.
   " " if a command invoked with the "accept" or "default user" command 
   failed; '' otherwise.
   Also, a count of commands that failed.
+
+\$FILE
+  The name of a file.
 
 \$FINISH
   The date of the latest of a group of messages or requests.
@@ -359,6 +366,9 @@ See "help reply_files" for a description of each of the reply files.
 
 \$ISSUES
   The number of issues of a digest that were delivered.
+
+\$LANGUAGE
+  The language in which a file is written (e.g., "en" for English).
 
 \$LAST_RUN
 \$NEWEST_AGE
@@ -450,6 +460,10 @@ See "help reply_files" for a description of each of the reply files.
   The original name of a mailing list that has been renamed with
   the createlist command.
 
+\$PARENT
+  The parent directory of a directory that is being displayed by the
+  index command.
+
 \$PART
   The part number of one part of a posted message.
 
@@ -460,7 +474,10 @@ See "help reply_files" for a description of each of the reply files.
 \$PATTERN
   A pattern listed in the taboo_headers configuration setting, or
   another related setting.
-  
+
+\$PERMISSIONS
+  The access permissions for a file or a directory.
+
 \$QSADDR
   An e-mail address, altered to allow it to be included safely in the
   query string of a URL.
@@ -507,6 +524,9 @@ See "help reply_files" for a description of each of the reply files.
 \$SETTINGS
   The names of the configuration settings within a particular 
   configuration category.
+
+\$SIZE
+  The size of a file, a message, or part of a message.
 
 \$STALL
   " " if a command invoked with the "accept" or "default user" command 

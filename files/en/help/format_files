@@ -786,6 +786,70 @@ help_head
 (standard plus CGIDATA, CGIURL, CMDPASS, TOPIC, USER)
 
 
+index_binary
+------------
+(wwwadm, wwwusr)  This file displays information about one non-text
+file in the file space of a mailing list.
+
+(standard plus CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE,
+ DESCRIPTION, ENCODING, FILE, LANGUAGE, PARENT, PATH, PERMISSIONS, SIZE,
+ USER, VICTIM)
+
+
+index_dir
+---------
+(wwwadm, wwwusr)  This file displays information about one directory in 
+the file space of a mailing list.
+
+(standard plus CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE,
+ DESCRIPTION, ENCODING, FILE, LANGUAGE, PARENT, PATH, PERMISSIONS, SIZE, 
+ USER, VICTIM)
+
+
+index_error
+-----------
+(ALL)  This file displays an error message when the index command does
+not succeed immediately.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, ERROR, PARENT, PATH, 
+ USER, VICTIM)
+
+
+index_foot
+----------
+(wwwadm, wwwusr)  This file displays information at the bottom of a list
+of files and directories.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, COUNT, PARENT, PATH, 
+ USER, VICTIM)
+
+
+index_head
+----------
+(wwwadm, wwwusr)  This file displays information at the top of a list of
+files and directories.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PARENT, PATH, USER, VICTIM)
+
+
+index_none
+----------
+(ALL)  This file states that a directory in the file space of a mailing
+list is empty.
+
+(standard plus CGIDATA, CGIURL, CMDPASS, PARENT, PATH, USER, VICTIM)
+
+
+index_text
+----------
+(wwwadm, wwwusr)  This file displays information about one text file in
+the file space of a mailing list.
+
+(standard plus CGIDATA, CGIURL, CHARSET, CMDPASS, CONTENT_TYPE,
+ DESCRIPTION, ENCODING, FILE, LANGUAGE, PARENT, PATH, PERMISSIONS, SIZE, 
+ USER, VICTIM)
+
+
 lists
 -----
 (ALL)  Displays information about a mailing list when the "full" command

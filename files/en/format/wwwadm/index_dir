@@ -1,0 +1,14 @@
+<!-- Majordomo index_dir format file -->
+<tr>
+  <td valign="top">
+  <a href="$CGIURL?$CGIDATA&amp;func=index&amp;list=$LIST&amp;extra=$PATH$FILE">
+  $FILE</a>
+  </td>
+  <td valign="top">
+  </td>
+  <td valign="top">Directory
+  </td>
+  <td valign="top">$DESCRIPTION
+  </td>
+</tr>
+  

@@ -1,0 +1,12 @@
+<!-- Majordomo index_dir format file -->
+<tr>
+  <td valign="top">$FILE
+  </td>
+  <td valign="top">
+  </td>
+  <td valign="top">Directory
+  </td>
+  <td valign="top">$DESCRIPTION
+  </td>
+</tr>
+  

@@ -1,0 +1,11 @@
+<!-- Majordomo index_none format file -->
+<p>
+The directory "$PATH" is empty.
+</p>
+
+<p>
+<a href="$CGIURL?$CGIDATA&amp;func=index&amp;list=$LIST&amp;extra=?PARENT">Up One Level</a><br>
+
+<a href="$CGIURL?$CGIDATA&amp;func=index&amp;list=$LIST&amp;extra=%2F">
+Top Level Index</a>
+</p>

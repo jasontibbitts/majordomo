@@ -1,0 +1,13 @@
+<!-- Majordomo index_foot format file -->
+</table>
+
+<p>
+Files and directories found: $COUNT
+</p>
+
+<p>
+<a href="$CGIURL?$CGIDATA&amp;func=index&amp;list=$LIST&amp;extra=?PARENT">Up One Level</a><br>
+
+<a href="$CGIURL?$CGIDATA&amp;func=index&amp;list=$LIST&amp;extra=%2F">
+Top Level Index</a>
+</p>
