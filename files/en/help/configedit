@@ -20,11 +20,11 @@ name at all retrieves the complete list of variables.
 Unless the '-nocomments' option is used, explanatory information about
 the variable(s) will be returned as well, as with "configshow".
 
-A complete list of variables is included in "help configset".
+A complete list of configset variables is included in "help topics".
 
 See Also:
    help configdefault (to have the variable track the default value)
-   help configset     (to set the variable to a non-default value)
+   help configset     (for complete details on syntax of the variables)
    help configshow    (to display the variable's current value)
 
 For a list of all help topics send this one-line message
