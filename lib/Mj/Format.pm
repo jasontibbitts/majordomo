@@ -95,15 +95,18 @@ sub accept {
 
 sub alias {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-
   my ($ok, $mess) = @$result;
+
   if ($ok > 0) { 
     eprint($out, $type, "$request->{'newaddress'} successfully aliased to $request->{'user'}.\n");
   }
   else {
-    eprint($out, $type, "$request->{'newaddress'} not aliased to $request->{'user'}.\n");
+    eprint($out, $type, &indicate(
+      "$request->{'newaddress'} was not aliased to $request->{'user'}.\n",
+      $ok));
     eprint($out, $type, &indicate($mess, $ok));
   }
+
   $ok;
 }
 
@@ -274,11 +277,16 @@ sub changeaddr {
     eprint($out, $type, "Address changed from $request->{'victim'} to $request->{'user'}.\n");
   }
   elsif ($ok < 0) {
-    eprint($out, $type, "Change from $request->{'victim'} to $request->{'user'} stalled, awaiting approval.\n");
+    eprint($out, $type, &indicate(
+      "Change from $request->{'victim'} to $request->{'user'} stalled, awaiting approval.\n",
+      $ok));
+    eprint($out, $type, &indicate($mess, $ok)) if ($mess);
   }
   else {
-    eprint($out, $type, "Address not changed from $request->{'victim'} to $request->{'user'}.\n");
-    eprint($out, $type, &indicate($mess, $ok));
+    eprint($out, $type, &indicate(
+      "$request->{'victim'} was not changed to $request->{'user'}.\n",
+      $ok));
+    eprint($out, $type, &indicate($mess, $ok)) if ($mess);
   }
   $ok;
 }
@@ -1308,7 +1316,8 @@ EOM
       $summary .=  "    " . join("\n    ", @{$change->{'flagdesc'}}) . "\n\n";
       eprint($out, $type, &indicate($summary, $ok, 1));
       if (exists $change->{'digest'} and ref $change->{'digest'}
-          and exists $change->{'digest'}->{'messages'}) {
+          and exists $change->{'digest'}->{'messages'}
+          and scalar(@{$change->{'digest'}->{'messages'}})) {
         eprint($out, $type, "A partial digest of messages has been mailed.\n");
       }
     }
