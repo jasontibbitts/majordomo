@@ -129,6 +129,7 @@ sub _inform_owner {
   my($self, $list, $req, $requ, $user, $cmd, $int, $stat, $pass, 
      $comment, $elapsed) = @_;
   my $log = new Log::In 150, "$list, $req";
+  my $strip;
 
   my $whereami = $self->_global_config_get('whereami');
   my $owner    = $self->_list_config_get($list, 'sender');
@@ -136,34 +137,36 @@ sub _inform_owner {
   my $statdesc = $stat < 0 ? 'stall' : $stat > 0 ? 'success' : 'failure';
 
   my ($message, %data) = $self->_list_file_get($list, 'inform');
+  if (ref $user) { 
+    $strip = $user->strip;
+  }
+  else {
+    $strip = $user;
+  }
+
+  my $subs = {
+               $self->standard_subs($list),
+               'CMDLINE'   => $cmd,
+	       'COMMAND'   => $req,
+               'COMMENT'   => $comment,
+	       'INTERFACE' => $int,
+	       'REQUESTER' => $requ,
+	       'SESSIONID' => $self->{'sessionid'} || '(none)',
+	       'STATUS'    => $stat,
+	       'STATDESC'  => $statdesc,
+               'STRIPUSER' => $strip,
+               'TIME'      => $elapsed,
+	       'UCOMMAND'  => uc $req,
+	       'USER'      => $user,
+	       'VICTIM'    => $user,
+	     };
 
   # Substitute in the header
-  my $desc = $self->substitute_vars_string($data{'description'},
-					   {
-					    'UCOMMAND' => uc($req),
-					    'COMMAND'  => $req,
-					    'LIST'     => $list,
-					   },
-					  );
+  my $desc = $self->substitute_vars_string($data{'description'}, $subs);
 
-  # Substitute in the body  (standard_subs is not useful here)
-  $message = $self->substitute_vars($message,
-				    {
-				     'CMDLINE'   => $cmd,
-				     'COMMAND'   => $req,
-                                     'COMMENT'   => $comment,
-				     'INTERFACE' => $int,
-				     'LIST'      => $list,
-				     'REQUESTER' => $requ,
-				     'SESSIONID' => $self->{'sessionid'} 
-                                                    || '(none)',
-				     'STATUS'    => $stat,
-				     'STATDESC'  => $statdesc,
-                                     'TIME'      => $elapsed,
-				     'USER'      => $user,
-				     'VICTIM'    => $user,
-				     },
-				   );
+  # Substitute in the body 
+  $message = $self->substitute_vars($message, $subs);
+
   my $ent = build MIME::Entity
     (
      Path        => $message,
