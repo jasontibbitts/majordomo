@@ -2,14 +2,16 @@
 trigger
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The "trigger" command is not intended to be used by end users;
-it's what the mj_trigger utility uses to kick off periodic functions.
-You probably intended to ask for "help configset triggers"!
-
+The trigger command is only available by running the mj_trigger program.
+This program is run once an hour to perform a variety of tasks, such as
+delivering message digests and removing expired data from the databases. 
+The "triggers" and "digests" configuration settings control which tasks
+are run during any given hour.
 
 See Also:
-   help configset triggers (for how to configure periodic tasks)
+   help admin_config
+   help configset_digests
+   help configset_triggers (for how to configure periodic tasks)
+   help mj_trigger
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

@@ -69,6 +69,7 @@ MODE is an extension of the command.  For example, in the "who-enhanced"
 LIST is the name of a mailing list.  Mailing list names can consist of
      any combination of letters, digits, and the following characters:
        . _ -
+     (period, underscore, and hyphen).
 
 ARGUMENTS are extra information needed to complete a command.  The command
           arguments vary from command to command.
@@ -82,6 +83,8 @@ Suggestions for improvements to the Majordomo help system are welcome.
 Please send your comments to mj2-dev@csf.colorado.edu.
 
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+See Also:
+   help get
+   help put
+
+$INCLUDE-help/foot

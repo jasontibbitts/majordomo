@@ -1,13 +1,17 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-owner listname <<TAG
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-listname, required, is an email list at this site
+owner
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-The "owner" command is not intended to be used by end users;
-it's how messages to listanme-owner get routed into the system.
+The owner command is run whenever an e-mail message is sent to the
+LISTNAME-owner or LISTNAME-moderator address for a mailing list.  Access
+to these two addresses can be restricted with the block_headers
+configuration setting.
 
+See Also:
+   help admin_moderate
+   help configset_aliases
+   help configset_block_headers
+   help configset_moderators
+   help configset_owners
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

@@ -1,6 +1,44 @@
-The 'newinfo', 'newintro' and 'newfaq' commands are shortcuts
-for 'put' for the info, intro, and faq files.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+newfaq listname <<TAG
+[CONTENTS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+listname, required, is a mailing list at this site 
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-Text below is from "help put":
+The newfaq command will replace the contents of the "/faq" file
+that is displayed by the faq command.
 
-$INCLUDE-help/put
+The new contents of the faq file must be included in a here document
+(see "help here_document" for more details).  For example, the
+following command would replace the contents of the faq file with
+the sentence "Hello, subscriber!":
+
+newfaq LISTNAME <<ABCD
+Hello, subscriber!
+ABCD
+
+The newfaq command is a convenient way to use the put command.  For
+example, the following use of the put command is identical to the
+newfaq command in the previous example.
+
+put LISTNAME /faq Frequently Asked Questions <<ABCD
+Hello, subscriber!
+ABCD
+
+By default, an administrative password is required to use the newfaq
+command.  The access restrictions for the put command (as determined
+by the access_rules configuration setting) also apply to the newfaq
+command.
+
+
+See Also:
+   help admin_documents
+   help configset_access_rules
+   help here_document
+   help faq
+   help newinfo
+   help newintro
+   help put
+
+$INCLUDE-help/foot

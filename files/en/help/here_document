@@ -4,9 +4,9 @@
 Many Majordomo commands can be written on a single line, for example:
    help admin_commands
 
-Other commands can sometimes require information that spans several
-or dozens of lines.  For example, the newinfo command is used
-to store a welcome message that is seen by new subscribers:
+Other commands can sometimes require information that spans several or
+dozens of lines.  For example, the newinfo command is used to store a
+welcome message that is seen by new subscribers:
 
 newinfo cabbage <<ABC123
 Welcome to the cabbage mailing list.
@@ -15,9 +15,9 @@ The cabbage family has many members, including
 collard greens, kale, broccoli, and cauliflower.
 ABC123
 
-In this case, the "here document" is the text of the welcome message that
-appears between the first command line and the final "ABC123".  The
-two "ABC123" markers are called "tags."  The two tags must be identical.  
+In this case, the "here document" is the text of the welcome message
+that appears between the first command line and the final "ABC123".  The
+two "ABC123" markers are called "tags."  The two tags must be identical.
 The tags must conform to the following rules:
 
   * Tags always begin with three capital letters.
@@ -65,8 +65,8 @@ Majordomo commands.
   * configset               the new value of a configuration setting.
   * createlist              e-mail addresses of the list owners.
   * post                    the contents of a mail message.
-  * newfaq, newinfo         the contents of a new file.
-  * newintro, put           the contents of a new file.
+  * newfaq, newinfo         the new contents of a document.
+  * newintro, put           the new contents of a document.
   * subscribe, unsubscribe  e-mail addresses of subscribers.
   * set, show               e-mail addresses of subscribers.
   * register, unregister    e-mail addresses of subscribers.
@@ -80,8 +80,6 @@ See Also:
    help configset_message_footer
    help configset_message_fronter
    help mj_shell (the command-line interface)
+   help newinfo
 
-
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
