@@ -13,10 +13,9 @@ The change level is the password level required to change a setting
 The wizard level describes the importance of a setting and the
 skill level required to understand it.  
 
-The password level is a whole number between 0 and 5 for
-viewing, and between 1 and 5 for changing.
-
-Higher numbers mean greater restrictions.  The password levels include:
+The password level is a whole number between 0 and 5 for viewing, and
+between 1 and 5 for changing.  Higher numbers mean greater restrictions.
+The password levels include:
 
   5  The site password
   4  The domain master password (from the GLOBAL master_password setting)
