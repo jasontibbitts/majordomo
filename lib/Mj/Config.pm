@@ -3077,7 +3077,8 @@ This splits up a config table.
 sub parse_table {
   my $spec = shift;
   my $data = shift;
-  my (@out, @row, @group, $line, $elem, $s, $f, $error, $sc, $temp);
+  my (@group, @out, @row, $elem, $error, $f, $i, $line, $s,
+      $sc, $temp);
   my $log = new Log::In 150, $spec;
 
   # Strip white space from the beginning and end of each data item.
@@ -3148,7 +3149,7 @@ sub parse_table {
 
       # Process multifield lines
       elsif ($s =~ /^f/g) {
-	@group = split(/\s*[:|]\s*/,$data->[$line]);
+	@group = split(/\s*[:|]\s*/, $data->[$line], length($s) - 1);
 	$elem = 0;
 	while ($s =~ /\s*(.)\s*/g) {
 	  $f = $1;
@@ -3178,11 +3179,11 @@ sub parse_table {
 	  elsif ($f eq 'm') {
 	    $temp = $group[$elem];
 	    $group[$elem] = [];
-	    push @{$group[$elem]}, $+ while $temp =~
-	      # We split the list on commas, but not within quotes or
-	      # parentheses.  Note that the quotes/parentheses will be left
-	      # in as part of the string.  XXX This bogosity might not be
-	      # correct...
+
+            # We split the list on commas, but not within quotes or
+            # parentheses.  Note that the quotes/parentheses will be left
+            # in as part of the string.
+	    while ($temp =~
 	      m{
                 ((?=.)         # Must not be empty
                  (?:[^\"\(,\\]|\\[\"\(,])*
@@ -3195,7 +3196,11 @@ sub parse_table {
                 )
                 [\s,]*      # Any number of spaces and commas
 
-	       }gx;
+	       }gx)
+            {
+              $i = $+; $i =~ s/\s+$//;
+              push @{$group[$elem]}, $i;
+            }
 
 	    # The old non-parenthesis version in case I screwed up
 	    # m{

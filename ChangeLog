@@ -1,3 +1,10 @@
+2001-10-03  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Config.pm:  (parse_table)  Bugfix:  Only split on
+	colons and pipe symbols if necessary.  Thanks to Roger Klorese.
+	Strip trailing white space from elements of a comma-separated
+	list.
+
 2001-10-02  Michael Yount <csf@moscow.com>
 
 	* bin/mj_queuerun:  Log the file being processed after the
