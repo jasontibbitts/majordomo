@@ -414,7 +414,7 @@ sub dispatch {
   # ZZZ Iterate over the list of addresses.
   for (@{$request->{'victims'}}) { 
     $request->{'victim'} = $_;
-    gen_cmdline($request);
+    gen_cmdline($request) unless ($request->{'command'} =~ /_chunk|_done/);
     if (function_prop($request->{'command'}, 'top')) {
       $func = $request->{'command'};
       push @$out, $self->$func($request, $extra);
