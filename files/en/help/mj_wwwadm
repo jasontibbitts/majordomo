@@ -37,6 +37,19 @@ If the GLOBAL www_help_window setting is turned on, all of the links for
 help files will cause the help documents to be displayed in a separate
 window.
 
+More than one mailing list can be moderated at the same time with the
+wwwadm interface, if you use a password that applies to all of the
+lists.  To moderate more than one list, add each list name in the name
+by which this script is called, and place forward slashes between the
+list names.  For example, if you manage mailing lists named "broccoli" and
+"rhubarb," instead of:
+
+  $WWWADM_URL
+
+visit the following location:
+
+  $WWWADM_URL/broccoli/rhubarb
+
 
 See Also:
    help admin
