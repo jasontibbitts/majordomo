@@ -29,6 +29,9 @@ the domain in the GLOBAL whereami configuration setting is used.  If the
 domain is example.com, the "webmaster" sender address would become
 "webmaster@example.com" in this instance.
 
+This setting should not be set to the address of the list, or mail loops
+may occur.
+
 
 See Also:
    help configset_bounce_recipients
