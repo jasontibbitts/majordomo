@@ -15,13 +15,40 @@ Password Notes: Visible only with password.
 
 EXAMPLE:
 configset GLOBAL owners << ENDTAG
-admin@nowhere.org
+admin@example.org
 ENDTAG
 
 
-Who owns this list or majordomo installation?  Majordomo will internally
-forward mail received at the -owner address to all of these addresses.
+$INCLUDE-config/owners
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+For the GLOBAL pseudo-list, all mail sent to 
+  $MJOWNER
+will be delivered to the addresses in this setting.
+
+For regular mailing lists, mail sent to the LISTNAME-owner address will
+be delivered to the addresses in this setting.
+
+The owners may receive other messages:
+
+* An informational message when someone subscribes or unsubscribes.
+  (See "help configset_inform" for more details.)
+
+* Confirmation messages for commands that require administrative approval.
+  (See "help configset_moderators" for more details.)
+
+* Delivery failure notices ("bounces") for posted messages.
+  (See "help configset_bounce_rules" and "help configset_bounce_recipients"
+   for more details.)
+
+
+See Also:
+   help admin
+   help admin_domain
+   help configset_bounce_recipients
+   help configset_bounce_rules
+   help configset_inform
+   help configset_moderators
+   help configset_whoami_owner
+
+$INCLUDE-help/foot
+

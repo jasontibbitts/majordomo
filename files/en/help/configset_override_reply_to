@@ -8,20 +8,29 @@ Password Notes: Visible only with password.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 EXAMPLE:
-configset listname override_reply_to = y
+configset listname override_reply_to = yes
 
 
-If a reply-to header exists in the message and the list is configured
-to add one of its own, should the existing one be deleted and replaced
-with the list's?  If set to no, the list will not add its reply-to
-header if one is already present.
+$INCLUDE-config/override_reply_to
+
+The override_reply_to setting only affects messages that are delivered
+to subscribers with the "replyto" personal setting turned on.  See
+"help set" for more details on personal settings.
+
+To replace the Reply-to header for every recipient of a message, the
+delete_headers and message_headers settings should be used instead.
+This will violate the intent of the "replyto" personal setting.
+
+The override_reply_to setting has no effect on digests.
 
 
 See Also:
-   help configset message_headers
-   help configset reply_to
-   help configset sender
+   help admin_delivery
+   help configset_allowed_flags
+   help configset_default_flags
+   help configset_delete_headers
+   help configset_message_headers
+   help configset_reply_to
+   help set
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot

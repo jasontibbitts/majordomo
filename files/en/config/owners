@@ -1,2 +1,2 @@
-Who owns this list or majordomo installation?  Majordomo will internally
-forward mail received at the -owner address to all of these addresses.
+The owners setting contains one or more e-mail addresses of
+administrators of a mailing list or domain.
