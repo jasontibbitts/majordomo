@@ -5157,7 +5157,8 @@ sub _lists {
                     'flags'       => $flags,
                     'list'        => "$list:$i",
                     'posts' => $self->{'lists'}{$list}->count_posts(30, $i),
-                    'subs'  => $self->{'lists'}{$list}->count_subs($i),
+                    'subs'  => 
+                      $self->{'lists'}{$list}->count_subs($i) || 0,
                    };
       }
     } 
