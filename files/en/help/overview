@@ -2,6 +2,7 @@
 
 This help message is from the Majordomo list management software at
   $SITE
+
 You interact with the Majordomo software by sending commands to
   $MJ
 in the body of a mail message. Please do not put your commands in
@@ -63,8 +64,9 @@ Which Mailing Lists are Served at $WHEREAMI?
 
     lists
 
-  If you would like to see more details, such as the number of subscribers 
-  and how often messages are posted, use this command instead:
+  If you would like to see more details about each mailing list, such as
+  the number of subscribers and how often messages are posted, use this
+  command instead:
 
     lists-full
 
@@ -151,7 +153,7 @@ Unsubscribing from Mailing Lists
 
   Your original intro message should contains the exact command for
   removing your address from the list.  However, in most cases, you
-  may simply send the command "unsubscribe" followed by the list name:
+  can simply send the command "unsubscribe" followed by the list name:
        unsubscribe LISTNAME
   This command may fail if your email address has changed since
   you first subscribed to the mailing list.
