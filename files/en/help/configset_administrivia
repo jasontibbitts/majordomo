@@ -19,7 +19,8 @@ discussion.
 When a message is posted to a mailing list, the message is checked using
 the patterns in the list's admin_body and admin_headers settings. The
 message is also checked using the patterns in the GLOBAL admin_body and
-admin_headers settings.
+admin_headers settings.  By default, only the first 10 lines of the 
+message body are checked.
 
 
 See Also:

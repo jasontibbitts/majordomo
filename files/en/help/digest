@@ -180,6 +180,7 @@ Each preindex, postindex, and footer file supports variable
 substitutions.  Please see the digest_preindex description in 
 "help reply_files" for a list of the supported substitutions.
 
+
 Digest headers
 --------------
 The mail headers that appear in a digest are configurable, according

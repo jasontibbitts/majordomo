@@ -22,8 +22,11 @@ ENDTAG
 
 $INCLUDE-config/admin_body
 
-The following information also applies to the "taboo_body" setting; 
+The following information also applies to the taboo_body setting; 
 just substitute the prefix "taboo_" wherever you see "admin_".
+By default, patterns in the admin_body setting are checked against the
+first 10 lines of the message body, whereas patterns in the taboo_body
+setting are checked against the whole body.
 
 The following information also applies to the "admin_headers" and
 "taboo_headers" settings, but the "nn" line number limit is not
@@ -167,6 +170,10 @@ customized "admin" variables whose names are not all capital letters.
 Similarly, the "taboo" value is the sum of all "taboo" variables
 excepting those whose names are all capitals.
 
+It is possible to disable all of the admin_body and admin_headers checks
+by turning off the administrivia setting.  
+See "help configset_administrivia" for more information.
+
 
                                 Examples
 
@@ -253,6 +260,7 @@ See Also:
    help admin_moderate
    help configset_access_rules
    help configset_admin_headers
+   help configset_administrivia
    help configset_block_headers
    help configset_noarchive_body
    help configset_noarchive_headers
