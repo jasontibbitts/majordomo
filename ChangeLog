@@ -1,4 +1,9 @@
-2004-10-21  Michael Yount <csf@moscow.com>
+2004-10-23  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Inform.pm:  (inform)  Add a shell hook.
+	Suggested by Marc Fournier and John Hansen.
+
+2004-10-22  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Format.pm:  (lists)  Use the lists_aux_none format
 	file when no auxiliary lists are found.

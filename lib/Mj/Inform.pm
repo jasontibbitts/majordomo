@@ -23,6 +23,7 @@ package Mj::Inform;
 use Mj::CommandProps qw(:command);
 use Mj::Lock;
 use Mj::Log;
+use Mj::Util qw(shell_hook);
 use Symbol;
 use strict;
 
@@ -112,13 +113,19 @@ sub inform {
     $self->_inform_owner($list, $req, $requ, $user, $cmd, $int, $stat, 
                          $pass, $comment, $elapsed);
   }
+
+  shell_hook('name' => 'inform',
+             'cmdargs' => [ $self->domain, $list, $req, $requ, $user, 
+                            $cmd, $int, $stat, $pass, $comment, $elapsed ]
+             );
+
   1;
 }
 
 1;
 __END__
 
-=head2 _inform_owner(list, request, requester, user, cmdline, interface, success, passworded, comment)
+=head2 _inform_owner(list, request, requester, user, cmdline, interface, success, passworded, comment, elapsed)
 
 This is a helper function for inform; it constructs a mesage and mails it
 to the owner.  This is removed from inform so that MIME::Entity does not
@@ -246,8 +253,8 @@ sub l_expire {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
-Group.  All rights reserved.
+Copyright (c) 1997, 1998, 2002, 2004 Jason Tibbitts for The Majordomo
+Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the license detailed in the LICENSE file of the

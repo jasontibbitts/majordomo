@@ -21,6 +21,24 @@ The createlist-regen hook is invoked whenever the createlist command is
 run successfully.  The script is passed one parameter:  the domain name.
 Majordomo will not process the output of this script or program.
 
+inform
+------
+The inform hook is invoked immediately after a completed command has
+been recorded in the log.  The script is passed eleven parameters:
+
+  *  The Majordomo domain
+  *  The name of the mailing list
+  *  The name of the command (e.g., subscribe)
+  *  The e-mail address that issued the command
+  *  The e-mail address affected by the command
+  *  The full command line (e.g., unsubscribe LISTNAME joe@example.com)
+  *  The interface from which the command was issued
+  *  The status (1 for succeed, 0 for fail, -1 for stall)
+  *  Password status (1 if a password was used; 0 otherwise)
+  *  An explanation of what happened (usually only present if the 
+     command stalled or failed)
+  *  The time taken by the command (in seconds)
+
 
 See Also:
    help admin_domain
