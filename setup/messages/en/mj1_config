@@ -1,0 +1,8 @@
+Configuring the "$DOMAIN" domain
+
+What is the full path of the Majordomo 1.x configuration file for 
+the lists in this domain?
+
+The file is usually named "majordomo.cf" and is generally in the same
+place as the Majordomo 1 wrapper and scripts.
+

@@ -1,0 +1,7 @@
+Database Storage
+
+To which port is the $DB database software listening?
+
+To contact the database server, Majordomo must know the number of
+the port on "$HOST" which is used by the database server.
+

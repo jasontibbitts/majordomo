@@ -1,0 +1,12 @@
+MTA Configuration
+  
+Should Majordomo maintain virtual user tables?
+
+Majordomo can also automatically maintain virtual user table files to
+allow you to manage multiple virtual domains more easily.  If you answer
+yes, these files will be generated automatically and the aliases will be
+adjusted appropriately.  You still have to make some manual changes (see
+README.$MTA), but this only needs to be done once; after that you can
+add lists without doing any additional configuration of the MTA. 
+
+

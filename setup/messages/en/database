@@ -1,0 +1,10 @@
+Database Storage
+
+Which database backend should Majordomo use to store information?
+
+Majordomo stores lists of subscribers, registration information, message
+statistics, and many other kinds of information in databases.  The
+database backend cannot easily be changed after the software has been
+installed and used.
+
+

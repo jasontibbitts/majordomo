@@ -1,0 +1,10 @@
+Web Component Setup
+
+Can Majordomo make a link to the programs in the cgi-bin directory?
+
+Some web servers will allow a link to programs in the cgi-bin
+directory; others require a separate copy of each program. 
+Majordomo tries to avoid confusion by keeping all of its files together.
+
+If you are unsure, answer no.
+

@@ -1,0 +1,5 @@
+The configuration process has not been completed.  Please run the 
+following command to begin the configuration process:
+
+  perl Makefile.PL
+

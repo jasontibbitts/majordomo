@@ -1,0 +1,9 @@
+Storage Locations
+
+Where will the Majordomo libraries, programs, and documentation be kept?
+
+Majordomo will automatically create this directory and several
+subdirectories if necessary.
+
+Your site's mailing lists need not be stored under this directory.
+

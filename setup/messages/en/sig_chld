@@ -1,0 +1,12 @@
+Mail Handling Setup
+
+Does $SIG{CHLD} = 'IGNORE' reap children on your system?
+
+On most systems, simply ignoring signals about the status of child
+processes will cause the system to clean them up for you.  On some,
+however, this will not happen and Majordomo must use a slightly messier
+method.
+
+If you do not know the answer, say yes.  If mj_queueserv starts to
+accumulate zombie children, reinstall and answer no to this question.
+

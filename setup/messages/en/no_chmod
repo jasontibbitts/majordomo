@@ -1,0 +1,13 @@
+Cannot change permissions to "$MODE" 
+for the "$FILE" file or directory.
+
+**** $ERROR
+
+You have three options:
+  * abort the configuration process.
+  * ignore the failure and continue.
+  * list the shell command(s) necessary to fix the failure and continue.
+    (These commands should be run as root or another user with
+     sufficient privileges.)
+
+What do you want to do next?

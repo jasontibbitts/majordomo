@@ -1,0 +1,8 @@
+Configuring the "$DOMAIN" domain
+
+Where are the Majordomo 1.x lists stored?
+
+Enter the full path of the directory containing Majordomo 1 lists. 
+You can leave this value blank, and specify it later using the
+-o option to convertlist.pl.
+

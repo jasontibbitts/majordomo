@@ -1,0 +1,13 @@
+Basic Security Configuration (setuid)
+
+Should the setuid wrappers be installed?
+
+Some Majordomo programs need to be able to run as the majordomo user
+($UID), regardless of who starts the program.  The Majordomo programs can
+be installed setuid only if the operating system and the perl program
+support it.  If this is not possible, a set of tiny wrapper programs can
+be built which will take care of the setuid needs of Majordomo.
+
+If you are not sure how to answer this question, answer yes.
+There is no loss of functionality when the wrappers are enabled.
+

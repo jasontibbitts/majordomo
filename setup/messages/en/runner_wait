@@ -1,0 +1,8 @@
+Mail Handling Setup
+
+How long should queue servicing processes wait without doing any work
+before they exit?
+
+The queue runners will automatically exit after this many seconds of
+inactivity.
+

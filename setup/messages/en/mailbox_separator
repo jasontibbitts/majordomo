@@ -1,0 +1,15 @@
+What does your MTA use as the mailbox separator?
+
+Majordomo needs to know how it can add additional uninterpreted data to
+the local part of an address.  This is generally a configuration option
+of your MTA.
+
+For example, if the separator is '+', mail sent to the address 'foo+bar'
+will reach the user 'foo'.  If it is '-', then mail to 'foo-bar' will
+reach 'foo'.
+
+Majordomo uses this feature to attach data about the message and the
+recipient to the SMTP envelope.   When a delivery fails, Majordomo uses
+this extra data to identify the e-mail address that failed with greater
+accuracy.
+

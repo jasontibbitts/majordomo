@@ -1,0 +1,12 @@
+MTA Configuration
+
+Should Majordomo maintain your aliases automatically?
+
+Majordomo can automatically maintain your aliases for you.  You still
+have to make some manual changes (see README.$MTA), but this only needs
+to be done once; after that you can add lists without doing any
+additional configuration of the MTA. 
+
+If you say no, Majordomo will provide you with information to paste into
+your aliases file when you create or rename mailing lists.
+

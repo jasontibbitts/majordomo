@@ -1,0 +1,11 @@
+Storage Locations
+
+Where will the Majordomo list data be kept?
+
+This directory will have a subdirectory for each domain your site
+supports.  Each domain's directory will have a subdirectory for each
+mailing list in that domain.
+
+This directory should not be a directory containing lists maintained by
+Majordomo 1, because Majordomo 2 stores its lists in a different format.
+

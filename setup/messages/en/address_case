@@ -1,0 +1,14 @@
+Mail Handling Setup
+
+Would you like Majordomo to ignore case in e-mail addresses by default?
+
+If you say yes, for example, "ruth@example.com" and "RUTH@example.com"
+will be considered the same address.
+
+If you say no, "ruth@example.com" and "RUTH@example.com" will be
+considered different addresses.  This approach complies with Internet
+e-mail standards, but may cause problems if a subscriber's address 
+changes case.
+
+Answering yes is recommended.
+

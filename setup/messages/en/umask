@@ -1,0 +1,18 @@
+Basic Security Configuration (umask)
+
+What umask should Majordomo use?
+
+The umask is the Unix method of restricting the permissions on newly
+created files and directories.
+
+Choices include:
+  077  Only the majordomo user ($UID) can read any Majordomo files.
+  027  Users in the majordomo group ($GID) can read the files.
+  007  Users in the majordomo group can read and write the files.
+  002  Users in the majordomo group can write the files, and anyone
+       can read them.
+  000  Anyone can read or write the files.
+
+Choose 077 for maximum security.  Majordomo operates well with restricted
+permissions.
+

@@ -1,0 +1,14 @@
+Configuring the "DOMAIN" domain.
+
+At what e-mail address should Majordomo receive mail?
+
+This is the address to which list server commands will be sent.
+
+If you are using the "majordomo" address to serve Majordomo 1
+lists, you may want to run Majordomo 2 at a different address,
+such as "mj2".
+
+You can specify a full e-mail address, or just the local part.  If you
+omit the domain name, "@$WHEREAMI" will be appended to 
+the address automatically.
+

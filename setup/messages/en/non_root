@@ -1,0 +1,6 @@
+
+Majordomo 2 can always be installed by the root user.
+
+It may be possible for the majordomo user ($UID) to install
+the software.  Any barriers to this are listed here:
+

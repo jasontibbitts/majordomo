@@ -1,0 +1,9 @@
+The installation can do some basic global configuration using the
+questions answered before installation began.
+
+If you do not do this, the rest of the installation may not proceed
+correctly, since the global password needs to be set in order for this
+program to make configuration changes.
+
+Do you want to continue with the global configuration?
+

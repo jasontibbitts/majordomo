@@ -1,0 +1,8 @@
+Some modules which Majordomo requires were not found.  
+
+If the CPAN module is not supported on your system, you can locate the
+modules by visiting http://search.cpan.org/ with your WWW client.
+
+Otherwise, you can install them by running the following commands as
+root or another user capable of installing modules:
+

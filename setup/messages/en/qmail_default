@@ -1,0 +1,10 @@
+MTA Configuration
+
+Should Majordomo maintain .qmail-default files automatically?
+
+Majordomo can hook into the .qmail-default mechanism and can maintain
+the necessary .qmail-default files for you.  Note that if you have other
+(non-Majordomo) entries in any of your .qmail-default files, Majordomo
+will _not_ overwrite them; it will instead warn you and leave the files
+unchanged.
+

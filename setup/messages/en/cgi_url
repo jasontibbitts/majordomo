@@ -1,0 +1,11 @@
+Web Component Setup
+
+What is the URL of the web server's cgi-bin directory?
+
+Majordomo needs to know how to make a URL that refers to a program in
+the cgi-bin directory of your web server.  For example, if you can reach
+the "blah.cgi" program at this location:
+  http://www.example.com/cgi-bin/blah.cgi
+you would enter the following value:
+  http://www.example.com/cgi-bin/
+

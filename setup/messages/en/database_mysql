@@ -1,0 +1,5 @@
+You have the DBD::mysql module installed, which supports the MySQL
+database management system.  Type "mysql" at the prompt to use
+MySQL databases.
+
+

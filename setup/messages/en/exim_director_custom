@@ -1,0 +1,16 @@
+---------------------------------------------------------------------------
+The following director should be placed in the Directors section of your
+Exim configuration file:
+
+majordomo_aliases_$DOMAIN:
+    driver = aliasfile
+    pipe_transport = address_pipe
+    suffix = "$SEPARATOR*"
+    suffix_optional
+    user = $UID
+    domains = $WHEREAMI
+    file = $LISTS_DIR/ALIASES/mj-alias-$DOMAIN
+    search_type = lsearch
+
+---------------------------------------------------------------------------
+

@@ -1,0 +1,9 @@
+Location of Configuration File (majordomo.cf)
+
+Where should Majordomo keep its system configuration file?
+
+Majordomo keeps some settings in a system configuration file, usually
+called "majordomo.cf" and located in the "/etc" directory.  If you do not 
+intend to install Majordomo as the root user, please specify a different
+location.
+

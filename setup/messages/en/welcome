@@ -1,0 +1,22 @@
+Welcome to the Majordomo 2 configuration system.
+
+In order to configure Majordomo properly when it is installed, we 
+need to know some information about your system.
+
+If you have configured Majordomo 2 before, your previous answers will be
+taken from the ".mj_config" file in this directory.  The default answer
+for each question will be presented in square brackets.  To accept a
+default answer, simply press the enter key.  Otherwise, you will need
+to type the correct answer to a question before you press the enter 
+key.  
+
+There are about twenty basic questions about your site, and about ten
+additional questions that are specific to each virtual domain that you
+wish to support with Majordomo 2.
+
+Please read each question carefully.  If any of the questions are
+unclear, send a polite request for help to the software developers at 
+mj2-dev@csf.colorado.edu.
+
+Press the enter key to continue.
+

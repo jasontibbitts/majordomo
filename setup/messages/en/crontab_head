@@ -1,0 +1,8 @@
+The mj_trigger program performs periodic maintenance tasks, such as
+delivering message digests, removing expired data from Majordomo's
+databases, and deleting lock files that are no longer in use.
+
+Please add the following entries to the crontab of the "$UID" user.  
+(Do not add them to the crontab of root or any other user.)  
+
+

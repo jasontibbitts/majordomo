@@ -1,0 +1,18 @@
+Mail Handling Setup
+
+Would you like to run Majordomo in queueing mode?
+
+Majordomo can be run in two modes:
+
+In direct mode, every message that arrives is processed immediately by a
+new Majordomo process.  No limits are placed on the number of messages
+that can be processed concurrently.  Using direct mode can result in a
+high system load if many messages arrive at in a short span of time.
+
+In queueing mode, incoming messages are put in a queue to be processed
+by a separate program.  Generally queued messages are processed
+immediately, but the number of messages processed concurrently is
+restricted to save computer resources.  
+
+Use queueing mode?
+

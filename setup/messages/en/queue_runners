@@ -1,0 +1,6 @@
+Mail Handling Setup
+
+How many queue servicing processes do you want to run concurrently?
+Queue runners will be created as necessary, not all at once, and
+no more than this number will be running at the same time.
+

@@ -1,0 +1,7 @@
+Storage Locations
+
+Where can Majordomo place temporary files?
+
+Majordomo occasionally needs to store short-lived files in a directory
+to which anyone has write access.
+

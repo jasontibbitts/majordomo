@@ -1,0 +1,12 @@
+Configuring the "$DOMAIN" domain
+
+What is the e-mail address of the manager of this domain?
+(This address should not begin with "$WHOAMI-owner".)
+
+Mail that is sent to $WHOAMI-owner@$WHEREAMI will automatically be
+forwarded to this address.
+
+You can specify a full e-mail address, or just the local part.  If you
+omit the domain name, "@$WHEREAMI" will be appended 
+to the address automatically.
+

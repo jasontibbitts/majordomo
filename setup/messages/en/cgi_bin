@@ -1,0 +1,14 @@
+Web Component Setup
+
+Where is the web server's cgi-bin directory?
+
+Majordomo comes with three WWW interfaces that enable subscribers and
+administrations to confirm Majordomo commands, subscribe to mailing
+lists, manage mailing lists, and many other features.  These programs
+must be stored in the proper directory so that the web server can run
+them.
+
+If the machine running Majordomo does not also run a web server, leave
+this blank.  Otherwise, you must specify the complete path of the
+directory.
+

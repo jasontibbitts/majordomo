@@ -1,0 +1,16 @@
+Mail Handling Setup
+
+What Mail Transfer Agent will be giving mail to Majordomo?
+
+Majordomo needs to know which MTA is running on this system, to create 
+mail aliases and suggest configuration changes.
+
+Currently, the following MTAs are supported:
+  exim
+  postfix
+  qmail
+  sendmail
+
+If your system uses zmailer, enter "sendmail".
+Otherwise, enter "none" if your system's MTA is unsupported.
+

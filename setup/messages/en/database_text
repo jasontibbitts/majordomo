@@ -1,0 +1,6 @@
+Majordomo has a simple database interface, implemented with plain text
+files.  Databases using this method can be viewed and edited by hand,
+but access to them is very slow.  Type "text" at the prompt to choose
+plain text databases.
+
+

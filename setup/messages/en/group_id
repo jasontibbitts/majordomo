@@ -1,0 +1,18 @@
+Basic Security Configuration (group)
+
+What is the name or number of the majordomo group?
+
+The files and directories created by the final installation step will be
+owned by this group.
+
+When you run the "make install" command to install the software, you
+must have sufficient privileges to change the ownership of files and
+directories to this group.
+
+The group you specify here must already exist.
+
+You appear to be group "$GROUP", with ID "$GID".
+
+What is the group ID that Majordomo will run as?
+Either the numeric ID or the group name is fine.
+

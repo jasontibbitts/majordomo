@@ -1,0 +1,19 @@
+Virtual Domains
+
+Which domains will this Majordomo installation support?
+
+Majordomo 2 includes support for virtual domain setups, where one
+machine serves several distinct sets of lists.  You can name these
+collections of lists anything you choose, but it is customary to name
+them after the Internet domains which they serve.
+
+If you have too many domains to list here, you can add them later.
+Consult the README file for more information.  If you do not intend to
+make use of virtual domains, just enter your domain.
+
+Domain names can contain any combination of letters, digits, periods,
+and hyphens.  Any other character is invalid.
+
+Enter a single domain at a time, or a blank line to end.  Enter a space
+to cancel a default value.  
+
