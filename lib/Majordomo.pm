@@ -386,22 +386,23 @@ regexp syntax checker.
 
 =cut
 sub _re_match {
-  my $re  = shift;
-  my $str = shift;
+  my    $re = shift;
+  local $_  = shift;
 #  my $log  = new Log::In 200, "$re, $str";
   my $match;
   return 1 if $re eq 'ALL';
 
   # Hack; untaint things.  That's why we're running inside a safe
-  # compartment.
-  $str =~ /(.*)/;
-  $str = $1;
+  # compartment. XXX Try it without the untainting; it has a speed penalty.
+  # Routines that need it can untaint as appropriate before calling.
+  $_ =~ /(.*)/;
+  $_ = $1;
   $re =~ /(.*)/;
   $re = $1;
 
   local($^W) = 0;
-  $match = $safe->reval("'$str' =~ $re");
-  $::log->complain("_re_match error: $@\nstring: $str\nregexp: $re") if $@;
+  $match = $safe->reval("$re");
+  $::log->complain("_re_match error: $@\nstring: $_\nregexp: $re") if $@;
   if (wantarray) {
     return ($match, $@);
   }

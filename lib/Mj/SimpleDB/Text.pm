@@ -25,8 +25,9 @@ use Mj::File;
 use Mj::Lock;
 use Mj::FileRepl;
 use Mj::Log;
+use Safe;
 use strict;
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA $VERSION $safe);
 
 @ISA=qw(Mj::SimpleDB::Base);
 $VERSION = 1;
@@ -56,6 +57,11 @@ sub new {
   $self->{lock} = shift || $self->{name};
   my $log  = new Log::In 200, "$self->{name}, $self->{lock}";
   $self->{fields} = shift;
+
+  unless (defined($safe)) {
+    $safe = new Safe;
+    $safe->permit_only(qw(const leaveeval null pushmark return rv2sv stub));
+  }
 
   $self;
 }
@@ -595,17 +601,33 @@ sub lookup_quick_regexp {
   return;
 }
 
+# sub _re_match {
+#   my $re   = shift;
+#   my $addr = shift;
+#   my $match;
+#   return 1 if $re eq 'ALL';
+
+#   local($^W) = 0;
+#   $match = $Majordomo::safe->reval("'$addr' =~ $re");
+#   $::log->complain("_re_match error: $@") if $@;
+#   return $match;
+# }
+
 sub _re_match {
-  my $re   = shift;
-  my $addr = shift;
+  my    $re = shift;
+  local $_  = shift;
   my $match;
   return 1 if $re eq 'ALL';
 
   local($^W) = 0;
-  $match = $Majordomo::safe->reval("'$addr' =~ $re");
-  $::log->complain("_re_match error: $@") if $@;
+  $match = $safe->reval("$re");
+  $::log->complain("_re_match error: $@\nstring: $_\nregexp: $re") if $@;
+  if (wantarray) {
+    return ($match, $@);
+  }
   return $match;
 }
+
 1;
 
 =head1 COPYRIGHT
@@ -626,6 +648,5 @@ detailed information.
 
 #
 ### Local Variables: ***
-### mode:cperl ***
 ### cperl-indent-level:2 ***
 ### End: ***

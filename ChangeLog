@@ -1,5 +1,13 @@
 Wed Sep 16 00:10:05 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
+	* lib/Majordomo.pm (_re_match): Use $_ as the comparison string,
+ 	since it's already local and shared.  Simplify the reval'ed
+ 	string.
+
+	* lib/Mj/SimpleDB/Text.pm (_re_match): Change to Majordomo
+ 	version.
+	(new): Create a safe compartment in the package like Majordomo.
+
 	* lib/Majordomo.pm (_re_match): Give better warning on bad
  	regexps.
 
