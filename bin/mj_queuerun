@@ -741,6 +741,7 @@ sub parse_commands {
       (
        'Encoding'    => '8bit',
        'Path'        => $file,
+       'Filename'    => undef,
        '-To'         => $uuser,
       );
   }
@@ -787,6 +788,7 @@ sub parse_commands {
       (
        Encoding    => "8bit",
        Path        => $debug_file,
+       Filename    => undef,
        Description => "Debugging information",
        Top         => 0,
       );
