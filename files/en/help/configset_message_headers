@@ -66,6 +66,8 @@ to the message.   The variables supported include the standard substitutions,
 plus ARCHIVE, ARCURL, DATE, HOST, SENDER, SEQNO, SUBJECT, SUBSCRIBED, 
 and USER.  See "help variables" for more information.
 
+Any headers with leading spaces, with control characters or spaces in
+their names, or without a colon (':') will be ignored.
 
 See Also:
    help admin_delivery
