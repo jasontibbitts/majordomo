@@ -3595,13 +3595,13 @@ sub lists {
   my ($self, $request) = @_;
   my $log = new Log::In 30, "$request->{'mode'}";
   my (@lines, @out, @sublists, $cat, $compact, $count, $data, $desc, 
-      $flags, $limit, $list, $mess, $ok, $regexp, $sublist);
+      $flags, $limit, $list, $mess, $ok, $sublist);
 
   # Stuff the registration information to save lots of database lookups
   $self->_reg_lookup($request->{'user'});
 
   if ($request->{'regexp'}) {
-    ($ok, $mess, $regexp) = Mj::Config::compile_pattern($request->{'regexp'}, 0);
+    ($ok, $mess, $request->{'regexp'}) = Mj::Config::compile_pattern($request->{'regexp'}, 0);
     return ($ok, $mess) unless $ok;
   }
 
@@ -5068,7 +5068,7 @@ sub who_start {
   $base = $request->{'command'}; $base =~ s/_start//i;
 
   if ($request->{'regexp'}) {
-    ($ok, $error, $regexp) = Mj::Config::compile_pattern($request->{'regexp'}, 0);
+    ($ok, $error, $request->{'regexp'}) = Mj::Config::compile_pattern($request->{'regexp'}, 0);
     return ($ok, $error) unless $ok;
   }
 
