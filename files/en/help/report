@@ -51,6 +51,8 @@ installed will be reported. Dates can be specified in many formats:
    2w for 2 weeks
    6m for 6 months
    2y for 2 years
+   NOTE: If you need more accuracy in specifying time spans, you
+         can combine these, as in 2w8h for two weeks and eight hours.
  2. for a given year, month, or day, use "yyyymmdd" as follows:
    1999     for the year  of           1999
    200007   for the month of    July   2000

@@ -33,7 +33,7 @@ The settings can be grouped as follows, and each of these numbered items
 is in a separate section below (specify only one of each group, because
 each one will override the others in the group):
   1. subscription class or subclass
-      (each, nomail, vacation, digest, digest-XXX, all)
+      (each, nomail, nomail-period, nomail-return, vacation, digest, digest-XXX, all)
   2. informative messages
       (noack, ackall, ackimportant, ackstall, ackdeny, ackpost, ackreject)
   3. copies of your own posts (selfcopy, noselfcopy)
@@ -63,15 +63,19 @@ manner if settings are changed without the subscriber's reply.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   1. subscription class or subclass
-      (each, nomail, vacation, digest, digest-XXX)
+(each, nomail, nomail-period, nomail-return, vacation, digest, digest-XXX, all)
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 You can set your subscription class, which controls how (and if) you
 receive messages from the server.  There are three basic classes:
-     each   - you get each message as it is posted.
-     digest - you get periodic collections of messages.
-     nomail - you get nothing.
-     all    - a special class for list owners, NOT a combination of the others
+     each          - you get each message as it is posted.
+     digest        - you get periodic collections of messages.
+     nomail        - you get nothing until you issue another 'set' command.
+     nomail-period - you get nothing for the specified time period.
+     nomail-return - cancels "set nomail", if one is in effect.
+     vacation      - another way of spelling "nomail".
+     all           - special class for list owners, NOT a combination of the others
+
 For the class of "digest", the list owner can define sub-classes on
 a per-list basis. Typical sub-classes, NOT always present, might be:
      digest-weekly
@@ -87,27 +91,36 @@ a per-list basis. Typical sub-classes, NOT always present, might be:
   off (or cancel) the digest and/or nomail options if they are in effect.
 
 
-1b) Subscription Class of "nomail":
+1b) Subscription Class of "nomail" or "vacation":
 
-  NOTE: You can use "nomail" or "vacation", they are identical commands.
+  NOTE: You can use either "nomail" or "vacation", they are the same class.
 
   To temporarily suspend all messages from the list, without unsubscribing,
   send this one-line command to $MJ
      set LISTNAME nomail YourEmailAddressHere
-  where "LISTNAME" is replaced with the name of the list. You can also
-  specify an amount of time that you would like to stop receiving mail,
-  as a number of days/weeks/months. If you don't specify a time period,
-  messages from the list will be suspended until you turn them back on
-  with either 'digest' or 'each'. If you DO specify a time period, you
-  will return to the 'digest' or 'each' setting you had before you set
-  your subscription to 'nomail'. If you didn't specify a time period, or
-  if you come back early, send this command to cancel "nomail":
-     set LISTNAME nomail-return YourEmailAddressHere
-  which will return you to 'each' or 'digest', however your subscription
-  was set before you enabled 'nomail'.
+  where "LISTNAME" is replaced with the name of the list. If you don't specify
+  a time period (as described below), messages from the list will be suspended
+  until you turn them back on with either 'digest' or 'each', or "nomail-return".
 
-  You can specify times in terms of "days", "weeks", and "months". You can
-  leave off all but the first letter of the words  as in '2d', '2w', '2m'.
+  If you didn't specify a time period (as described below), or if you come back
+  early, send this command to cancel "nomail":
+     set LISTNAME nomail-return YourEmailAddressHere
+  which will return you to 'each' or 'digest', however your subscription was
+  set before you enabled 'nomail', without you having to remember.
+
+  You can also specify an amount of time that you would like to stop receiving
+  mail, as a number of days/weeks/months. If you DO specify a time period, you
+  will return to the 'digest' or 'each' setting you had before you set your
+  subscription to 'nomail'. The nomail period can be specified in hours, days,
+  weeks, months, or years. For example, use:
+   3h for 3 hours
+   7d for 7 days
+   2w for 2 weeks
+   6m for 6 months
+   2y for 2 years
+   NOTE: If you need more flexibility in specifying time spans, you
+         can combine these, as in 2w3d for two weeks and three days.
+
   For example, you can send commands like this to $MJ
      set LISTNAME nomail YourEmailAddressHere
   which suspends email from the list "LISTNAME" until you turn it back on,
