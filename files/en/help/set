@@ -27,7 +27,7 @@ list owner, you should see "help configset access_rules".)
 
 The settings can be grouped as follows (specify only one of each
 group, because each one will override the others in the group):
-  1. subscription class (each, digest, nomail)
+  1. subscription class or subclass (each, nomail, digest, digest-XXX)
   2. informative messages (ackall, ackimportant, noack)
   3. copies of your own posts (selfcopy, noselfcopy)
   4. being visible with "who" (hideall, hideaddress, nohide)
@@ -53,9 +53,12 @@ manner if settings are changed without the subscriber's reply.
 1. You can set your subscription class, which controls how (and if) you
    receive messages from the server.  There are three basic classes:
      each   - you get each message as it is posted.
-     digest - you get periodic collections of messages (extra options below).
+     digest - you get periodic collections of messages.
      nomail - you get nothing.
-
+   For the class of "digest", the list owner can define sub-classes on
+   a per-list basis. Typical sub-classes, NOT always present, might be:
+     digest-weekly
+     digest-daily
 
   To receive each message from the list as it is posted, send this
   one-line command to $MJ
@@ -99,9 +102,9 @@ NOTE: You can use "nomail" or "vacation", they are identical commands.
      set LISTNAME digest YourEmailAddressHere
   where "LISTNAME" is replaced with the name of the list.
 
-  Along with 'digest', you can specify which digest you want to receive and
-  how you want it formatted. For example, you can send one of these commands
-  in a message to $MJ
+  Along with 'digest', you can specify which sub-class of digest you want to
+  receive and how you want it formatted. For example, you can send one of these
+  commands in a message to $MJ
      set LISTNAME digest-daily-mime YourEmailAddressHere
      set LISTNAME digest-weekly-index YourEmailAddressHere
   where "LISTNAME" is replaced with the name of the list. The three supported
@@ -110,12 +113,12 @@ NOTE: You can use "nomail" or "vacation", they are identical commands.
      text  - the old, plain text digest format
      index - just an index of messages; you can retrieve the ones you want
              to see using the 'archive-get' command.
-  The name of the digest, 'daily' and 'weekly' in the examples above, is
-  optional. You can leave the digest name and format off the command to get
+  The name of the digest (sub-class of 'daily' and 'weekly' in the examples above)
+  is optional. You can leave the digest name and format off the command to get
   the defaults provided by the list owner.
 
-  You should refer to the introductory document for a list of which
-  digests are available to you. You may choose a digest name based on
+  You should refer to the introductory document for a list of which digest
+  sub-classes are available to you. You may choose a digest name based on
   what the list owner has already set up, which might NOT be the digest
   names shown here ('daily' or 'weekly'). To get that document, send
      intro LISTNAME
