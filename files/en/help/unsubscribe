@@ -31,14 +31,15 @@ A message may be sent to each address being removed acknowledging
 the removal of the subscription.  This "farewell" message will only
 be sent if the "-farewell" option is used.  
 
-The unregister command will automatically remove an address from all lists at
-this site, or the unsubscribe command can be used to selectively remove
-an address from one list at a time.  Even after the address has been
-unsubscribed from all lists one at a time, it will still exist in the
-registration database unless "unregister" is used. 
+The unregister command will automatically remove an address from all
+lists at this site, or the unsubscribe command can be used to
+selectively remove an address from one list at a time.  Even after the
+address has been unsubscribed from all lists one at a time, it will
+still exist in the registration database unless "unregister" is used. 
 
 Without the "-pattern" option, "address" is matched literally with
 no interpretation of special characters. Matching is case sensitive.
+The address must be a valid e-mail address.
 
 If the "-pattern" option is used, "address" is interpreted as a
 Majordomo matching pattern. Review the "help patterns" file carefully.
@@ -81,9 +82,17 @@ farewell command mode works with auxiliary lists, but only if the address
 in question is registered in this domain (see "help register" for more
 information about the Majordomo registry).
 
+It is only possible to unsubscribe an invalid address using the
+"pattern" or "regex" command mode.  Subscribers' addresses can become
+invalid, for example, if the GLOBAL configuration settings that affect
+the validity of e-mail addresses are made stricter.
+
+$INCLUDE-help/admin_modes
+
 
 See Also:
    help access_variables
+   help admin_subscribers
    help approve     (which can eliminate the need to use "accept")
    help auxiliary_list (which is used to manage a set of addresses)
    help changeaddr  (which replaces one address with another)

@@ -27,19 +27,25 @@ addresses are the same, but if the original address (the one
 that was used to subscribe to a mailing list) is an alias for
 another address, the latter address is the canonical address.
 
-When the "-regex" option is used, the canonical addresses are
+When the "pattern" command mode is used, the canonical addresses are
 compared to the pattern.  This may cause some surprising results
 when an original address that does not match the pattern is
 reported to have been unsubscribed.
 
-If the "-allmatching" option is used with "-regex", then every
-address that matches the pattern will be removed from the registry
-(and automatically unsubscribed from every list).
+If the "allmatching" command mode is used with the "pattern" command
+mode, every address that matches the pattern will be removed from the
+registry (and automatically unsubscribed from every list).
 
-The "-pattern" option is identical to the "-regex" option.
+The "regex" command mode is identical to the "pattern" command mode.
+
+It is only possible to unregister an invalid address using the
+"pattern" or "regex" command mode.  Registered addresses can become
+invalid, for example, if the GLOBAL configuration settings that affect
+the validity of e-mail addresses are made stricter.
 
 See Also:
    help access_variables
+   help admin_subscribers
    help changeaddr  (which replaces one address with another)
    help register    (which adds an address to the database)
    help subscribe   (which adds an address to a list)
