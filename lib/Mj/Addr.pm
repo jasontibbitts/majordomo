@@ -447,31 +447,35 @@ without the rest of the address.\n");
   }
 
   # Now check the validity of the domain part of the address.  If we've
-  # seen a domain-literal, all bets are off.
-  if ($self->{'require_fqdn'} && $subdomain < 2 && !$domain_literal) {
-    $::log->out("failed");
-    return (0, "You did not include a complete hostname.\n");
-  }
-  if (($self->{'strict_domain_check'} &&
-       $words[-1] !~ /^\[/ &&
-       !$top_level_domains{lc($words[-1])}) ||
-      $words[-1] !~ /[\w-]{2,5}/)
-    {
-      if ($words[-1] !~ /\D/ &&
-	  $words[-3] && $words[-3] !~ /\D/ &&
-	  $words[-5] && $words[-5] !~ /\D/ &&
-	  $words[-7] && $words[-7] !~ /\D/)
-	{
-	  $::log->out("failed");
-	  return (0, "It looks like you are trying to supply your IP address
+  # seen a domain-literal, all bets are off.  Don't bother if we never even
+  # got to the right hand side; this case will have bombed out earlier of a
+  # domain name is required.
+  if ($on_rhs) {
+    if ($self->{'require_fqdn'} && $subdomain < 2 && !$domain_literal) {
+      $::log->out("failed");
+      return (0, "You did not include a complete hostname.\n");
+    }
+    if (($self->{'strict_domain_check'} &&
+	 $words[-1] !~ /^\[/ &&
+	 !$top_level_domains{lc($words[-1])}) ||
+	$words[-1] !~ /[\w-]{2,5}/)
+      {
+	if ($words[-1] !~ /\D/ &&
+	    $words[-3] && $words[-3] !~ /\D/ &&
+	    $words[-5] && $words[-5] !~ /\D/ &&
+	    $words[-7] && $words[-7] !~ /\D/)
+	  {
+	    $::log->out("failed");
+	    return (0, "It looks like you are trying to supply your IP address
 instead of a hostname.  To do, you must enclose it in
 square brackets like so: [" . join("",@words[-7..-1]) . "]\n");
-	}
-      
-      $::log->out("failed");
-      return (0, "The domain you provided, $words[-1], does not seem
+	  }
+	
+	$::log->out("failed");
+	return (0, "The domain you provided, $words[-1], does not seem
 to be a legal top-level domain.\n");
-    }
+      }
+  }
 
   my $addr = join("", @words);
   my $comm = join(" ", @comment) || "";

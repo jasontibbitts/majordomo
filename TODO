@@ -220,9 +220,6 @@ Top of the list
 - subscriber flag "novice/expert" passed in as a parameter to "post" access
     control.
 
-- Database conversion tool.  Take a topdir, a password and a backend and
-  convert all databases to it.
-
 Well thought out stuff:
 ----------------------
 
