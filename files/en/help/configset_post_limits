@@ -27,7 +27,7 @@ The two required conditions determine the "soft" and "hard" limits,
 respectively. Each set of conditions is a comma-separated list of ratios
 and/or frequencies, and if an address matching the pattern has posted
 too many times a hard or soft limit will be applied. Exceeding a soft
-limit causes the list owne to be consulted by default, while exceeding
+limit causes the list owner to be consulted by default, while exceeding
 a hard limit causes the post to be denied by default. Hard limits take
 precedence, and what happens when either kind of limit is reached can
 be controlled by the list owner (see "help configset access_rules").

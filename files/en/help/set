@@ -231,8 +231,7 @@ WARNING: Using "noack", the default, can make error messages vanish if
        automatically enables ackstall, ackdeny, ackpost, and ackreject.
 
    set LISTNAME ackall YourEmailAddressHere
-     - You receive everything you do when using "ackimportant", plus
-       when your message is posted to the list you get a confirmation.
+     - Identical to ackimportant, use the one you like typing the best.
 
 NOTE: The list owner may want to refer to "help configset ack_attach_original"
       for how to return a denied post along with the pre-defined error text,
@@ -392,21 +391,22 @@ Remember to put in your actual email address and the real list name!
 If you use the special pseudo-list name "ALL", this command changes
 each place where the specified address is subscribed.
 
-1. Subscription class:               (these options set in default_class)
+1. Subscription class:                                (see default_class)
    set LISTNAME each EmailAddress
    set LISTNAME digest[-name][-index][-text][-mime] EmailAddress
    set LISTNAME   nomail[-time] EmailAddress
    set LISTNAME vacation[-time] EmailAddress
 NOTE: "nomail" and "vacation" are identical, use whichever you like.
 
-2. Informative messages about your post:        (default_flags of b,d,f,j)
-   set LISTNAME ackall       EmailAddress   (can not set in default_flags)
-   set LISTNAME ackimportant EmailAddress   (can not set in default_flags)
-   set LISTNAME ackstall     EmailAddress           ('b' in default_flags)
-   set LISTNAME ackdeny      EmailAddress           ('d' in default_flags)
-   set LISTNAME ackpost      EmailAddress           ('f' in default_flags)
-   set LISTNAME ackreject    EmailAddress           ('j' in default_flags)
-   set LISTNAME noack EmailAddress      (none of b,d,f,j in default_flags)
+2. Informative messages about your post:     (see default_flags of b,d,f,j)
+   set LISTNAME ackall       EmailAddress (all of b,d,f,j in default_flags)
+   set LISTNAME ackimportant EmailAddress (all of b,d,f,j in default_flags)
+   set LISTNAME ackstall     EmailAddress            ('b' in default_flags)
+   set LISTNAME ackdeny      EmailAddress            ('d' in default_flags)
+   set LISTNAME ackpost      EmailAddress            ('f' in default_flags)
+   set LISTNAME ackreject    EmailAddress            ('j' in default_flags)
+   set LISTNAME noack EmailAddress       (none of b,d,f,j in default_flags)
+NOTE: "ackall" and "ackimportant" are identical, use whichever you like.
 
 3. Whether you want a copy of your own posts:         (default_flags of S)
    set LISTNAME   selfcopy EmailAddress             ('S' in default_flags)
