@@ -1,3 +1,7 @@
+2002-01-13  Todd Miller  <Todd.Miller@courtesan.com>
+
+	* bin/mj_queueserv: Fix warning on exec if SIG_CHLD_IGNORE == 1.
+
 2002-01-12  Todd Miller  <Todd.Miller@courtesan.com>
 
 	* lib/Mj/Resend.pm (_describe_taboo): Fix warning on undef $match.

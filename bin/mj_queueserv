@@ -196,6 +196,9 @@ while (1) {
       close $child[$i];
       close Client; # Otherwise the runner holds it open
 
+      # Reset SIGCHLD handler to avoid a perl warning
+      $SIG{CHLD} = 'DEFAULT';
+
       # Redirect stdin and out so the runner is simple
       $in = fileno($parent[$i]);
       $out= fileno($parent[$i]);
