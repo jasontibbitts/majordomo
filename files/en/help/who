@@ -1,8 +1,15 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-who[-short][-enhanced][-export][-bounce][-summary] listname [pattern]
-who[-short][-enhanced][-export][-bounce][-alias][-summary] GLOBAL [pattern]
+who[-short][-bounce][-noname] listname [pattern]
+who[-short][-bounce][-noname] GLOBAL [pattern]
+who-alias GLOBAL [pattern]
 who-common[-short][-enhanced][-export][-bounce] listname listname [pattern]
 who-common-alias GLOBAL listname [pattern]
+who-enhanced[-short] listname [pattern]
+who-enhanced[-short] GLOBAL [pattern]
+who-export listname [pattern]
+who-export GLOBAL [pattern]
+who-summary listname [pattern]
+who-summary GLOBAL [pattern]
 who-owners GLOBAL
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (or the word "GLOBAL")
@@ -11,8 +18,9 @@ listname, required, is an email list at this site (or the word "GLOBAL")
 -common,   if specified, shows addresses that appear on both lists
 -enhanced, if specified, displays personal settings each subscriber
 -export,   if specified, produces commands needed to recreate the list
+-noname,   if specified, omits subscribers' names
 -owners,   if specified, shows the addresses of list owners and their lists
--short,    if specified, displays a simple list of email addresses
+-short,    if specified, displays a simple list of e-mail addresses
 -summary,  if specified, displays a statistical summary of subscriptions
 pattern,   if specified, is an address matching string
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -21,15 +29,19 @@ The who command displays a list of some or all of the subscribers of a
 mailing list.  Access to this command may be restricted by the list 
 administrators.
 
-If a "pattern" is supplied, only addresses which match the pattern will be
-listed. Please see "help patterns" for an introduction to Majordomo 
+If a pattern is supplied, only addresses which match the pattern will be
+shown.  Please see "help patterns" for an introduction to Majordomo 
 patterns.
 
-If a "pattern" is not supplied, all subscribers will be listed.
+If a pattern is not supplied, all subscribers will be listed.
 
-The "short" command mode will cause only the names and addresses of the
-subscribers to be displayed, without any extra formatting.
+The "short" command mode will cause any extra formatting, such as a
+count of the number of addresses found, to be removed from the beginning
+and end of the list of subscribers.
 
+The "noname" command mode will cause only the e-mail address of each
+subscriber to be displayed.  Names and other comments that accompany
+each address will not be shown.
 
                  Command Modes for List Administrators
 

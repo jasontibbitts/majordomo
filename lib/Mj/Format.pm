@@ -3315,6 +3315,10 @@ sub who {
         eprint($out, $type, "$line\n");
         next;
       }
+      elsif ($request->{'mode'} =~ /noname/) {
+        eprint($out, $type, "  $i->{'stripaddr'}\n");
+        next;
+      }
       elsif ($request->{'mode'} !~ /bounce|enhanced|summary/) {
         eprint($out, $type, "  $i->{'fulladdr'}\n");
         next;

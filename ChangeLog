@@ -1,3 +1,11 @@
+2004-12-08  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/CommandProps.pm:  Support the who-noname command,
+	which prints the plain address without comments.
+	Suggested by Steven Orr.
+
+	* lib/Mj/Format.pm:  (who)  Support the who-noname command.
+
 2004-12-01  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm:  (_subscribe)  Log a "register" event

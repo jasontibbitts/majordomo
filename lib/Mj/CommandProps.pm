@@ -1019,6 +1019,7 @@ my %commands =
                                    'common'      => 1,
                                    'enhanced'    => 1,
                                    'export'      => {'exclude' => 'bounce|common|enhanced|owners'},
+                                   'noname'      => {'exclude' => 'bounce|enhanced|export|owners|summary'},
                                    'owners'      => {'exclude' => 'bounce|common|enhanced'},
                                    'short'       => 1,
                                    'summary'     => {'exclude' => 'bounce|common|enhanced|export|owners'},
@@ -1297,7 +1298,7 @@ sub command_default {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998, 2003 Jason Tibbitts for The Majordomo
+Copyright (c) 1997, 1998, 2003, 2004 Jason Tibbitts for The Majordomo
 Development Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
