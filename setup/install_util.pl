@@ -1,7 +1,8 @@
 # This file contains routines used by the postinstall script to do basic
 # file copying and ownership manipulation.
 
-use vars (qw($quiet));
+use vars (qw($erroraction $quiet));
+$erroraction = 'abort';
 
 # Copies or links a file from one directory to another, preserving
 # ownership and permissions.
@@ -11,10 +12,28 @@ sub copy_file {
   my $source = shift;
   my $dest   = shift;
   my $link   = shift;
+  my ($ddev, $sdev);
 
   if ($link) {
-    link("$source/$script", "$dest/$script") ||
-      die "Can't make link in $dest, $!.";
+    ($ddev) = stat $dest;
+    ($sdev) = stat $source;
+    unless (defined $ddev) {
+      die "Unable to access $dest:  $!";
+    }
+    unless (defined $sdev) {
+      die "Unable to access $source:  $!";
+    }
+
+    unlink "$dest/$script" if -e "$dest/$script";
+
+    if ($sdev == $ddev) {
+      link("$source/$script", "$dest/$script") ||
+        die "Can't make link in $dest, $!.";
+    }
+    else {
+      symlink("$source/$script", "$dest/$script") ||
+        die "Can't make symlink in $dest, $!.";
+    }
   }
   else {
     cp("$source/$script", "$dest/$script") ||
@@ -47,12 +66,13 @@ sub chownmod {
     $whatnext = 
       get_enum(retr_msg('no_chown', $lang, 'UID' => $uid, 'GID' => $gid,
                         'FILE' => $fil[0], 'ERROR' => $!), 
-               'abort', [qw(abort ignore list)]);
+               $erroraction, [qw(abort ignore list)]);
 
     if ($whatnext eq 'abort') {
       exit 1;
     }
     elsif ($whatnext eq 'list') {
+      print "\n";
       for $file (@fil) {
         print  "  chown $uid $file\n" 
           if (defined ($uid) && ($uid =~ /^[0-9]+$/));
@@ -60,7 +80,12 @@ sub chownmod {
         print  "  chgrp $gid $file\n" 
           if (defined ($gid) && ($gid =~ /^[0-9]+$/));
       }
+      print "\n";
+      $erroraction = 'list';
       ask_continue();
+    }
+    else {
+      $erroraction = 'ignore';
     }
   }
    
@@ -71,7 +96,7 @@ sub chownmod {
     $whatnext = 
       get_enum(retr_msg('no_chmod', $lang, 'MODE' => sprintf("%lo", $mod),
                         'FILE' => $fil[0], 'ERROR' => $!), 
-               'abort', [qw(abort ignore list)]);
+               $erroraction, [qw(abort ignore list)]);
 
     if ($whatnext eq 'abort') {
       exit 1;
@@ -82,7 +107,11 @@ sub chownmod {
         printf ("  chmod %lo $file\n", $mod);
       }
       print "\n";
+      $erroraction = 'list';
       ask_continue();
+    }
+    else {
+      $erroraction = 'ignore';
     }
   }
 }

@@ -1,3 +1,10 @@
+2003-11-03  Michael Yount <csf@moscow.com>
+
+	* setup/install_util.pl:  (copy_file)  If a link was requested
+	and the Mj2 and CGI directories occupy different partitions,
+	use a symbolic link.
+	Thanks to Eric Sorenson.
+
 2003-11-02  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Addr.pm:  (_xform)  Add safe ops for perl 5.8.1
