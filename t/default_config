@@ -131,7 +131,7 @@ $VAR1 = {
                      'taboo_headers' => [],
                      'archive_size' => 'unlimited',
                      'precedence' => 'bulk',
-                     'whereami' => '',
+                     'whereami' => 'example.com',
                      'log_lifetime' => 31,
                      'file_search' => [
                                         ':$LANG',
