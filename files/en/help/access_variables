@@ -495,7 +495,7 @@ remind
   hours or "3d" for three days; see "help times" for more details on
   time spans.  The default value is -1, meaning that the token_remind
   configuration setting is used to determine when the reminder is
-  sent.
+  sent.  A value of 0 will prevent a reminder from being sent.
 
 
 See Also:
