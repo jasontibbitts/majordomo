@@ -416,7 +416,9 @@ my %commands =
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1, 'noaddr' => 1,
-                   'hereargs' => 'message'
+                   'arguments' => { 'sublist' => 'SCALAR' },
+                   'hereargs'  =>   'message',
+                   'tokendata' => { 'arg2'    => 'sublist'},
                   },
     'access'   => {
                    'default' => 'special',
@@ -452,6 +454,7 @@ my %commands =
                     'addr'                         => 3,
                     'fulladdr'                     => 3,
                     'host'                         => 3,
+                    'sublist'                      => 3,
                    },
                    'actions' => \%actions,
                   },
@@ -524,10 +527,14 @@ my %commands =
    {
     'parser'   => [qw(email shell list global all real)],
     'dispatch' => {'top' => 1,
-                   'arguments' => {'setting' => 'SCALAR',
+                   'arguments' => {'optmode' => 'aux',
+                                   'auxlist' => 'OPTSCALAR',
+                                   'setting' => 'SCALAR',
                                    'victims' => 'ARRAYELEM'},
                    'hereargs'  => 'victims',
-                   'tokendata' => {'victim' => 'victims'}
+                   'tokendata' => {'victim' => 'victims',
+                                   'arg1'   => 'setting',
+                                   'arg2'   => 'auxlist'}
                   },
     'access'   => {
                    'default' => 'policy',
