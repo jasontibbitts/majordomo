@@ -26,7 +26,8 @@ The second line holds a description of the digest. The full syntax is described
 in "help configset digests".
 
 A digest is defined by a name, a description, and several pieces of data that
-tell Majordomo when an issue should be generated. The following data can be given:
+tell Majordomo when an issue should be generated. Here is a brief description
+of the data that can be given, with more details below:
 
 name     - A one-word name given to the digest.  It is unwise to name
            the digest "mime", "text" or "index".
@@ -47,9 +48,7 @@ maxsizes - The maximum size of digest that will be created.  Specify
 
 maxage   - If an article is older than this, a digest will be created
            even if enough messages have not been collected.  This
-           prevents messages from becoming "stale" on low traffic
-           lists.  Specify hours like 12h, days like 4d and weeks like
-           2w.  The default is no maximum age.
+           prevents messages from becoming "stale" on low traffic lists.
 
 separate - The minimum amount of time that separates digests.
 
@@ -59,8 +58,7 @@ minage   - A digest will not be created if it most recent article is
            is no minimum age.
 
 deftype -- This specifies the type of digest that new subscribers get
-           by default.  Currently only MIME, text and index digests are
-           supported.  The default is MIME.
+           by default. The default is MIME. Choices are listed below.
 
 These settings take precedence in the following order:
 
@@ -75,7 +73,12 @@ These settings take precedence in the following order:
   hour was given and no digest has been triggered in that hour.
 
 
-You can specify "times" in any of the following forms:
+NAME: You can specify a "name" of any single word, but don't use words
+      that look like other important keywords (like "mime") and keep
+      in mind that users will be typing the name into a "set" command
+      (so it should make sense on its own).
+
+TIMES: You can specify "times" in any of the following forms:
 
      an integer from 0 to 23: digests will be created only
      during this hour of the day.  (0 is midnight.)
@@ -96,7 +99,9 @@ You can specify "times" in any of the following forms:
 
      The default is to allow digest creation anytime.
 
-You can specify "minsizes" in messages or kilobytes or BOTH:
+MINSIZES: You can specify "minsizes" in messages or kilobytes
+     or BOTH. A digest will be distributed only after it reaches
+     this size, subject to "maxage":
 
      10m gives a minimum size of 10 messages;
 
@@ -105,7 +110,17 @@ You can specify "minsizes" in messages or kilobytes or BOTH:
      and 10m, 20k will create a digest when either 10 messages
      or 20 kilobytes of message data have been collected.
 
-You can choose to "separate" digests by delaying them:
+MAXSIZES: see "minsizes" above for syntax
+
+MAXAGE: You can keep digests from getting stale by forcing them
+     to be distributed whenever they reach this age, regardless
+     of whether the other limits have been reached:
+
+     Specify hours like 12h, days like 4d and weeks like 2w.
+
+     The default is no maximum age.
+
+SEPARATE: You can choose to "separate" digests by delaying them:
 
      When messages come in quickly, or when a body of messages
      builds up during the times that digests are not allowed to be
@@ -115,6 +130,21 @@ You can choose to "separate" digests by delaying them:
      from being generated too close to one another, set this to
      some amound of time.  To generate as many digests as
      necessary to clear out the backlog, leave this unset.
+
+MINAGE: see "maxage" above for syntax
+
+DEFTYPE: You can choose the type of digest for users who do not
+     specify it on their "set" command line. Choose from:
+
+     MIME - each post is a separate part of a MIME formatted message
+
+     text - all posts are concatenated in a plain text message
+
+     index - only a summary of posts is sent, like from "index listname"
+
+     numbered - shows the message number, subject, and author only
+                (message number can be used directly with "archive-get")
+
 
 At the top of this help is an example which defines two digests.
 
