@@ -2090,7 +2090,7 @@ sub parse_digests {
   $data = {};
 
   # Parse the table: one line with lots of fields, and one line with two fields
-  ($table, $error) = parse_table('fspppoooofso', $arr);
+  ($table, $error) = parse_table('fspppoooooofso', $arr);
 
   return (0, "Error parsing table: $error")
     if $error;
@@ -2157,21 +2157,41 @@ sub parse_digests {
     # minage
     $elem->{'minage'} = str_to_offset($table->[$i][6]);
 
-    # type
+    # type:  index, mime, or text
     $elem->{'type'} = $table->[$i][7] || 'mime';
     unless (grep { $elem->{'type'} =~ /$_/i }
               keys (%Mj::List::digest_types))
     {
       return (0, qq(Digest type "$elem->{'type'}" is invalid.\n) .
                  qq(Valid types include:\n  ) .
-                 join ("\n  ", keys (%Mj::List::digest_types)));
+                 join ("\n  ", sort keys (%Mj::List::digest_types)));
+    }
+
+    # sort: the order in which the messages are sorted
+    $elem->{'sort'} = $table->[$i][8] || 'numeric';
+    unless (grep { $elem->{'type'} =~ /$_/i }
+              keys (%Mj::List::digest_types))
+    {
+      return (0, qq(Digest sort order "$elem->{'sort'}" is invalid.\n) .
+                 qq(Valid sort orders include:\n  ) .
+                 join ("\n  ", sort keys (%Mj::List::digest_sort_orders)));
+    }
+
+    # index:  what information is displayed about each message.
+    $elem->{'index'} = $table->[$i][9] || '';
+    unless ((! $elem->{'index'}) or grep { $elem->{'index'} =~ /$_/i }
+              keys (%Mj::List::digest_index_types))
+    {
+      return (0, qq(Digest index type "$elem->{'index'}" is invalid.\n) .
+                 qq(Valid index types include:\n  ) .
+                 join ("\n  ", sort keys (%Mj::List::digest_index_types)));
     }
 
     # description
-    $elem->{'desc'} = $table->[$i][8];
+    $elem->{'desc'} = $table->[$i][10];
 
     # subject header
-    $elem->{'subject'} = $table->[$i][9];
+    $elem->{'subject'} = $table->[$i][11];
     $elem->{'subject'} ||= '[$LIST] $DIGESTDESC V$VOLUME #$ISSUE';
   }
   return (1, '', $data);
