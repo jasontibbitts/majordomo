@@ -1,5 +1,5 @@
 <!-- Majordomo tokeninfo_foot format file -->
-</pre>
+
   <input type="submit" name="func" value="accept">
   <input type="submit" name="func" value="reject">
 ?WILLACK <input type="submit" name="func" value="reject-quiet">
