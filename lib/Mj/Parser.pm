@@ -252,7 +252,7 @@ sub parse_part {
   my $title       = $args{'title'};
   my $interface   = $mj->{'interface'};
   my $attachments = $args{'attachments'};
-  my $list        = $args{'list'} || 'GLOBAL';
+  my $list        = $args{'deflist'} || 'GLOBAL';
 
   my $log         = new Log::In 50, "$interface, $title";
   my (@arglist, @help, $action, $cmdargs, $attachhandle, $command, $count,
@@ -401,7 +401,7 @@ sub parse_part {
       if (length $mess) { 
         print $outhandle "$mess\n";
       }
-      unless ($list) {
+      unless (defined $list and length $list) {
         next CMDLINE;
       }
       $list .= ":$sublist" if (length $sublist);
@@ -439,7 +439,7 @@ sub parse_part {
       $ok_count++;
       ($action, $cmdargs) = split(" ", $cmdargs, 2);
       if ($action eq 'list') {
-	$args{'deflist'} = $cmdargs;
+	$args{'deflist'} = $list = $cmdargs;
 	print $outhandle $mj->format_error('default_set', $list, 
                                            'SETTING' => 'list',
                                            'VALUE' => $cmdargs);
