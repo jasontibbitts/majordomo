@@ -63,8 +63,7 @@ use strict;
 use vars qw($VERSION $log_entries $log_level);
 
 # Modules
-use Sys::Syslog;
-use IO::File;
+use Symbol;
 use Carp;
 
 # Public Globals
@@ -94,10 +93,10 @@ sub DESTROY {
 
   for my $i (@{$self->{dests}}) {
     if ($i->{'handle'}) {
-      $i->{'handle'}->close;
+      close $i->{'handle'};
     }
     else {
-      closelog;
+      Sys::Syslog::closelog();
     }
   }
 }
@@ -137,7 +136,8 @@ sub add {
     unless ($dest{'filename'}) { 
       confess "Trying to add file destination with no filename.";
     }
-    $dest{'handle'} = new IO::File ">> $dest{'filename'}" ||
+    $dest{'handle'} = gensym;
+    open ($dest{'handle'}, ">> $dest{'filename'}") ||
       confess "Can't open $dest{'filename'} to write the log!";
   }
   elsif ($dest{'method'} eq 'handle') {
@@ -146,8 +146,9 @@ sub add {
   elsif ($dest{'method'} eq 'syslog') {
     # In perl 5.004, the syslog module will not export setlogsock 
     # if _PATH_LOG is not defined.
+    require Sys::Syslog;
     Sys::Syslog::setlogsock('unix');
-    openlog($dest{id}, 'pid', $dest{subsystem});
+    Sys::Syslog::openlog($dest{id}, 'pid', $dest{subsystem});
   }
   else {
     confess("add called with invalid method $dest{method}");
@@ -203,13 +204,13 @@ sub delete {
     confess "delete called on an inactive destination!";
   }
   if ($self->{dests}[$id]{method} eq 'file') {
-    $self->{dests}[$id]{handle}->close;
+    close $self->{dests}[$id]{handle};
   }
   elsif ($self->{dests}[$id]{method} eq 'handle') {
     # Nothing to do
   }
   elsif ($self->{dests}[$id]{method} eq 'syslog') {
-    closelog;
+    Sys::Syslog::closelog();
   }
 }
 
@@ -247,25 +248,11 @@ sub message {
 	  $string = $message;
 	}
 	if ($i->{method} =~ /^(file|handle)$/) {
-	  # Ugh; can't call print method on globref
-	  if (ref($i->{handle}) =~ /GLOB/) {
-	    my $fh = $i->{handle};
-	    print $fh ("[$$]",'.'x($#{$self->{'state'}}+1),
+          print {$i->{handle}} ("[$$]",'.'x($#{$self->{'state'}}+1),
 		       "$string\n");
-# 	    print $fh ("$i->{id} ",
-# 		       '.'x$#{$self->{'state'}},
-#		       "($level): $string\n");
-	  }
-	  else {
-	    $i->{handle}->print("[$$]",'.'x($#{$self->{'state'}}+1),
-				"$string\n");
-# 	    $i->{handle}->print("$i->{id} ",
-# 				'.'x$#{$self->{'state'}},
-# 				"($level): $string\n");
-	  }
 	}
 	else {
-	  syslog($prio, $string);
+	  Sys::Syslog::syslog($prio, $string);
 	}
       }
   }
