@@ -3805,13 +3805,6 @@ sub set {
   return (0, "The set command is not supported for the $request->{'list'} list.\n")
     if ($request->{'list'} eq 'GLOBAL' or $request->{'list'} eq 'DEFAULT'); 
 
-  if ($request->{'setting'} =~ /(\w+)(-\S+)/) {
-    $request->{'setting'} = lc ($1) . $2;
-  }
-  else {
-    $request->{'setting'} = lc $request->{'setting'};
-  }
-
   ($ok, $mess) =
     $self->list_access_check($request->{'password'}, $request->{'auth'}, 
      $request->{'interface'}, $request->{'mode'}, $request->{'cmdline'},
