@@ -8,3 +8,21 @@ Data Type     : string
 Variable Group: archive
 Password Notes: Visible only with password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXAMPLE:
+configset listname archive_url = http://www.mydomain.org/archives/
+
+
+The URL at which public list archives are made accessible.
+
+The URL will undergo variable substitution if it is added to
+message headers, to support RFC 2369.  It is also used by
+the WWW interface.
+
+
+See Also:
+   help variables (for a list of all possible variables and what they mean)
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
