@@ -54,7 +54,9 @@ the right of the slash has the format shown in the "Time Period" section
 of "help times". If the field to the right of the slash is just an
 integer, it represents the number of posts. If it is an integer followed
 by a letter, it represents a period of time. For example, "5/10" and
-"5/3d" are both valid conditions.
+"5/3d" are both valid conditions. As a special case, a time period of
+one can be abbreviated: "5/1week" and "5/w" are equivalent, as are
+"5/1d" and "5/d" and "5/day".
 
 Note that a limit of 3/10 (3 out of the last 10) would be exceeded if
 not 3 but 4 or more out of 10 messages were posted from the same address.

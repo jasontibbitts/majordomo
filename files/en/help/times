@@ -40,83 +40,126 @@ a qualifier like "d".
 
 Section 2 - Time Stamps (for 'archive-get', 'report', etc)
 
+You can specify a four-digit year, a two--digit month, a two-digit
+day, or a one-digit week:
+  yyyy
+  yyyymm
+  yyyymmdd
+  yyyymmw
+
+NOTE: There is a subtle difference between day and week time stamps...
+days are always two digits, weeks are always one digit! Be careful
+not to forget the leading zero on a day stamp or you might wind up
+getting the wrong data.
+
 To include an entire year, use a four-digit number. For example:
-   1999      for the year  of           1999
+   1999 for the entire year of 1999
 
 To include only one month of a specific year, use a four-digit year
 plus a two-digit month (with a leading '0' if needed):
-   200007    for the month of    July   2000
+   200007 for the month of July 2000
 
 To include a specific WEEK use a four-digit year, plus a two-digit
 month (with a leading '0' if needed), plus a ONE-DIGIT week:
-   2000011  for the first week of January 2000
+   2000011 for the first week of January 2000
 
 To include a specific DAY use a four-digit year, a two-digit month,
 and a TWO-DIGIT day (with a leading '0' on day and month if needed):
-   20000802 for the day   of 02 August 2000
-
-NOTE: There is a subtle difference between day and week time stamps...
-days are always two digits, weeks are always one digit!
+   20000802 for the day of 2 August 2000
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 Section 3 - Time Specs (for administrators and list configuration)
 
 For list configurations that need a time specification, you can use any
-of the following forms:
+of the following forms. Note that ranges are ONLY allowed for hours,
+don't use dashes with day or month specifications. If the syntax you
+want to use isn't specifically mentioned here, it won't work. Don't
+try to extend the patterns (like tacking an hour on a day-of-year spec).
 
-1. HOUR: an integer from 0 to 23
-   - 0 is midnight, 12 is noon
+1a. HOUR: an integer from 0 to 23
    - the action will be taken only during this hour of each day
       (at whatever minute is convenient for the software)
+   - minutes can NOT be specified
+   - EXAMPLES: "0" is midnight, "12" is noon, "23" is late evening
 
-2. HOUR RANGE: two integers separated by a dash
+1b. HOUR RANGE: two HOURs separated by a dash
    - the action will be taken anytime between these two hours each day
    - if the second number is less than the first, the range continues
       into the next day (wraps around midnight)
+   - EXAMPLE: "12-13" is the noon hour, 12noon to 1pm
+   - EXAMPLE: "8-5" is the work day, 8am to 5pm
+   - EXAMPLE: "22-6" most people are asleep, 10pm to 6am
 
-3. HOUR LIST: two or more integers separated by commas (and perhaps dashes)
+1c. HOUR LIST: two or more HOURs and/or HOUR RANGEs separated by commas
    - the action will be taken during each of these hours each day, as needed
-   - can be combined with HOUR RANGE: 6,18 and 6,15-20 are both valid
-      (for example, 6,12-14 would act every day at 6am, noon, 1pm, and 2pm.)
+   - EXAMPLE: "6,18" would act every day at 6am and 6pm
+   - EXAMPLE: "6,12-14,18" would act every day at 6am, noon, 1pm, 2pm, and 6pm
 
-4. WEEK DAY: the name or number representing a day of the week
-   - the action will be taken anytime during that day
-      (early in the day unless an HOUR spec is also used)
-   - can use standard English day names: Monday, Tuesday, etc
-   - can use unique portion of standard day names: mon, tue, etc
-   - can use a number followed by 'w': 1w for sun, 2w for mon, 3w for tue, etc.
-   - can use "daily":  the same as "sun,mon,tue,wed,thu,fri,sat" (see below)
+2a. WEEK DAY: the name or number representing a day of the week
+   - the action will be taken sometime during that day
+      (early in the day unless an HOUR OF DAY spec is used)
+   - can use standard English day names
+      (Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday)
+   - can use unique portion of standard day names
+      (su, m, tu, w, th, f, sa) or preferably (sun, mon, tue, wed, thur, fri, sat)
+   - can use a number from 1 through 7 followed by 'w'
+      (1w for sun, 2w for mon, 3w for tue, 4w for wed, 5w for thur, 6w for fri, 7w for sat)
+   - can use "daily":  the same as a WEEK DAY LIST containing all days (see below)
    - can use "weekly": the same as "sun" (see below)
 
-5. MONTH DAY: the name or number representing a day of the month
-   - the action will be taken anytime during that day
-      (early in the day unless an HOUR spec is also used)
-   - can use ordinals: 1st, 2nd, 26th, etc
+2b. WEEK DAY LIST: two or more WEEK DAYs separated by commas (not dashes)
+   - the action will be taken during each of these days each week, as needed
+      (early in the day unless an HOUR OF DAY spec is also used)
+   - EXAMPLE: "sat,sun" would act on weekends
+   - EXAMPLE: "m,tu,w,th,f" would act on all weekdays (mon-fri IS NOT ALLOWED)
+
+3a. MONTH DAY: the name or number representing a day of each month
+   - the action will be taken sometime during that day of each month
+      (early in the day unless an HOUR OF DAY spec is also used)
+   - do not confuse this once-per-month spec with the once-per-year spec below!
+   - MONTH DAYs beyond the last actual day of a month (like Feb 30th) will be IGNORED
+   - can use standard English ordinals: 1st, 2nd, 3rd, 4th, 5th ... 30th, 31st
    - can use a number followed by 'm': 1m for 1st, 2m for 2nd, 3m for 3rd, etc.
    - can use "monthly": the same as "1st" (see below)
 
-6. HOUR OF DAY: combines day and hour specs (separately described above)
+3b. MONTH DAY LIST: two or more MONTH DAYs separated by commas (not dashes)
+   - the action will be taken during each of these days each month, as needed
+      (early in the day unless an HOUR OF DAY spec is also used)
+   - EXAMPLE: "1st,15th" would act semimonthly (about every two weeks)
+   - EXAMPLE: "1m,2m,3m" for first 3 days of each month (1m-3m or 1-3m NOT ALLOWED)
+
+4a. HOUR OF DAY: combines day and hour specs (separately described above)
    - WEEK DAY or MONTH DAY is followed by HOUR or HOUR RANGE or HOUR LIST in parentheses
+   - action is taken at the specified hour (or hours) on the specified day
    - a spec like fri(6) or 6w(6) limits the action to a specific hour of a specific day
    - a spec like fri(6,18) limits the action to several specific hours of a specific day
    - a spec like 22nd(12-18) limits the action to a range of hours on a specific day
 
-7. SPECIAL NAMES: these can be used as alternatives to the DAY specs above
+4b. HOUR OF DAY LIST: two or more HOUR OF DAYs separated by commas (not dashes)
+   - action is taken at the each of the specified hours on the specified days
+   - EXAMPLE: "sat,sun(10,14)" is just once early saturday, plus 10am and 2pm sunday
+   - EXAMPLE: "sat(22-23),sun(1-2)" acts on 4 consecutive hours (10pm sat until 2am sun)
+
+5. YEAR DAY: one or two numbers representing a day of the year
+   - can use a number from 1-365 followed by 'y'
+   - can use a number from 1-12 followed by 'm' and ANOTHER number from 1-31 and 'd'
+   - do not confuse this once-per-year spec with the once-per-month spec above!
+   - EXAMPLES: "91y"  is April Fool's day and "359y"   is Christmas
+   - EXAMPLES: "4m1d" is April Fool's day and "12m25d" is Christmas
+
+6. SPECIAL NAMES: these can be used as alternatives to the DAY specs above
    - always:    take the action whenever possible (cron usually runs triggers hourly)
    - anytime:   same as 'always'
    - never:     never take this action even if the opportunity arises
    - none:      same as 'never'
-   - daily:     the action is taken early every morning.
-   - weekly:    the action is taken every Sunday.
-   - monthly:   the action is taken on the first of every month.
-   - quarterly: the action is taken on the first day of each quarter
+   - daily:     the action is taken every midnight
+   - weekly:    the action is taken every Sunday at 1am
+   - monthly:   the action is taken on the first day of every month at 2am
+   - quarterly: the action is taken on the first day of each quarter at 3am
                      (the first of January, April, July, and October)
-   - yearly:    the action is taken on every first of January.
+   - yearly:    the action is taken on every first of January at 4am
 
-
-NOTE: Commas can be used to make lists of hours or days, so you
-      can have: mo(6,8,10), tu(12-18,22-6), we, 3rd(4,10-14)
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
