@@ -3,7 +3,7 @@ configset  GLOBAL  wwwadm_url = [VALUE]
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Default Value : [defined during installation]
 Data Type     : string
-Category      : access
+Category      : miscellany
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -19,6 +19,4 @@ See Also:
    help mj_wwwadm
    help mj_wwwusr
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
