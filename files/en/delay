@@ -1,10 +1,9 @@
-Someone ($REQUESTER) has made the following request:
+The following request:
 
   "$CMDLINE"
 
-It has been delayed for the following reason(s):
-
-  $REASONS
+was sent to $SITE
+by $REQUESTER.
 
 This request will take place on or after
 
@@ -12,24 +11,29 @@ This request will take place on or after
 
 unless you act to stop it.
 
-If you do not want it to be carried out, you may reject it 
-by doing one of the following:
+To accept or reject this request, please do one of the following:
 
 1. If you have web browsing capability, visit
    <URL:$URL>
    and follow the instructions there.
 
 2. Reply to $MJ 
-   with the word "reject" (without quotes) on a line by itself.
+   with one of the following two commands in the body of the message:
 
-If you want this action to be taken immediately, please do one of the following:
+    accept
+    reject
 
-1. If you have web browsing capability, visit
-   <URL:$URL>
-   and follow the instructions there.
+   (The number $TOKEN must be in the Subject header)
 
-2. Reply to $MJ 
-   with the word "accept" (without quotes) on a line by itself.
+3. Reply to $MJ 
+   with one of the following two commands in the body of the message:
+   
+    accept $TOKEN
+    reject $TOKEN
+
+The request has been delayed for the following reason(s):
+
+  $REASONS
 
 If you would like to communicate with a person, 
 send mail to $OWNER.
