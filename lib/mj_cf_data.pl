@@ -25,12 +25,6 @@ keys are used:
  
 package Mj::Config;
 
-$std_access_desc = <<EOC;
-One of three values: open, list, closed.  Open allows anyone access to this
-command.  List allows only list members access, while closed completely
-disables the command for everyone.
-EOC
-
 %vars =
   (
    'faq_access' => 
@@ -753,15 +747,6 @@ EOC
     'local'  => 1,
     'global' => 1,
     'mutable'=> 1,
-   },
-   'filedir' =>
-   {
-    'type'   => 'directory',
-    'groups' => [qw(reply)],
-    'global' => 1,
-    'local'  => 1,
-    'mutable'=> 0,
-    'visible'=> 0,
    },
    'file_search' =>
    {

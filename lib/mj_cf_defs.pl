@@ -122,7 +122,6 @@ $Mj::Config::default_string = q(
  'faq_access'           => "open",
  'file_search'          => [':$LANG', ':'],
  'file_share'           => [],
- 'filedir'              => undef,
  'get_access'           => "list",
  'index_access'         => "open",
  'info_access'          => "open",
