@@ -43,6 +43,13 @@ Queueing:
   Server does the same, only some much larger number as it does no
   allocations.
 
+  Priorities: domain, list
+
+  $TMPDIR/queue/xx/DOMAIN/yy/function/queue_file
+
+  xx = domain priority
+  yy = list priority
+
 Add option to set umask of generated alias files.
 
 Don't show the user variables that they can't change.  (Make their values

@@ -1,4 +1,20 @@
+Wed Apr 14 02:32:12 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_enqueue: Take -P and -p arguments to specify domain and
+ 	list priorities.  Create queue files in appropriate priority
+ 	directories.
+
+	* bin/mj_queuerun (run_queue): Two extra levels of nesting to
+ 	handle domain and list priorities.
+
 Tue Apr 13 00:43:29 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* bin/mj_queueserv: More Solaris fixes.  Make sure exec'd
+ 	mj_queuerun has STDIN and STDOUT properly opened onto the $parent
+ 	filehandle.
+
+	* bin/mj_enqueue: Fixes for Solaris: tear down and recreate socket
+ 	before every call to connect.
 
 	* setup/setup_func.pl (suggest_mta): Pay attention to queue_mode
  	when creating qmail_default files.

@@ -32,8 +32,9 @@ sub logmsg { print STDOUT "[$$].Queueserv: @_\n"; }
 sub out { logmsg "Out: $_[1]"; syswrite($_[0], $_[1], length($_[1])) }
 sub in  { sysread($_[0], $_, 1024); logmsg "In: $_"; $_ };
 
-my(@child, @parent, $ein, $eout, $i, $line, $nfound, $pid, $ping, $rin,
-   $rout, $use_child, $win, $wout);
+my(@child, @parent, $ein, $eout, $i, $in, $line, $nfound, $out, $pid,
+   $ping, $rin, $rout, $use_child, $win, $wout);
+
 my $NAME = "$::TMPDIR/mj_queueserv";
 my $uaddr = sockaddr_un($NAME);
 my $proto = getprotobyname('tcp');
@@ -151,8 +152,11 @@ while (1) {
       close Client; # Otherwise the runner holds it open
 
       # Redirect stdin and out so the runner is simple
-      *STDIN->fdopen(fileno($parent[$i]), 'r');
-      *STDOUT->fdopen(fileno($parent[$i]),'w');
+      $in = fileno($parent[$i]);
+      $out= fileno($parent[$i]);
+      open *STDIN , "<&$in";
+      open *STDOUT, ">&$out";
+
       exec "$::BINDIR/mj_queuerun";
       # Never get here...
     }

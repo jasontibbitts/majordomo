@@ -1,0 +1,46 @@
+Majordomo Queueing Fundamentals
+
+Perl is a hybrid language that it both interpreted and compiled.  Whenever
+a Perl program is run is is compiled into an intermediate form and then
+executed.  Compiling the Majordomo code into this intermediate form can
+take a significant amount of time so it is beneficial to Majordomo's
+overall performance to provide a way around this.
+
+In addition, the Majordomo code may be sizeable and the mail system may
+deliver multiple messages at once, leading to a number of concurrent
+Majordomo processes.  This can be taxing on system resources under severe
+load.
+
+The solution that Majordomo uses helps to solve both problems.  Majordomo
+can be configured to take each incoming message and place it in a queue.
+The queueing program is made as small as possible so that the resource
+consumption caused by the arrival of a number of messages simultaneously is
+minimized.
+
+The queueing program then contacts a small server (starting it if
+necessary).  This server manages a pool of queue runner programs which
+implement the Majordomo functionality.  This pool has a certain limited
+maximum size, so that no more than a certain number of copies of the full
+Majordomo code are running at one time.  The queue runners persist for some
+period of time, so that if new messages arrive no large programs have to be
+compiled.  And if no runners are available to handle the incoming message,
+it is queued and will be dealt with by later runners (or perhaps by one of
+the currently executing runners in the cource of its processing).
+
+The three programs involved are:
+
+  mj_enqueue   - add a message to the queue
+  mj_queueserv - manage the queue running processes
+  mj_queuerun  - process outstanding queue entries
+
+Communication between these processes is very simple.  mj_enqueue connects
+to a socket, which provides the signal for mj_queueserv to do something.
+mj_enqueue responds with a string and mj_enqueue is done.  mj_queueserv
+tries to find an idle mj_queuerun process by sending a string containing
+the current time and waiting a bit for it to come back.
+
+Note that nothing ever communicates the name of the queue files.  When
+started, a queue runner will always run through the entire queue in an
+essentially random order.  This helps prevent starvation; if new files were
+serviced first, the old files would just get older without being
+processed.

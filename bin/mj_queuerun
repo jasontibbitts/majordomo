@@ -136,121 +136,146 @@ out('Exiting');
 exit;
 
 sub run_queue {
-  my(@domains, @functions, $dom, $file, $func, $list, $mj, $msg, $ok);
+  my(@domains, @functions, @pri1, @pri2, $dom, $file, $func, $list, $mj,
+     $msg, $ok, $pri1, $pri2);
   my $log = new Log::In 25, 'Running queue';
 
-  # Grab the domains from the queue
-  opendir DOMS, "$::TMPDIR/queue" ||
+  # Grab the domain priorities from the queue, high priorities first
+  opendir PRI1, "$::TMPDIR/queue" ||
     $::log->abort("Can't opendir $::TMPDIR/queue: $!");
-  @domains = grep { $_ !~ /^\./ } readdir DOMS;
+  @pri1 = sort {$b <=> $a} grep { $_ !~ /^\./ } readdir PRI1;
 
-  # XXX Ramdomize domain list to avoid starvation
+  # Loop over domain priorities
+  for $pri1 (@pri1) {
+    $pri1 =~ /(.*)/; $pri1 = $1;
 
-  # Loop over domains
- DOM:
-  for $dom (@domains) {
-    # Untaint $dom; this is safe because only we are able to write to that
-    # directory.
-    $dom =~ /(.*)/; $dom = $1;
+    # Grab the domains from the queue
+    opendir DOMS, "$::TMPDIR/queue/$pri1" ||
+      $::log->abort("Can't opendir $::TMPDIR/queue]${pri1}: $!");
+    @domains = grep { $_ !~ /^\./ } readdir DOMS;
 
-    # undef Majordomo object
-    if ($mj) {
-      $::log->message(50, "info", "-----Calling destructors-----");
-      undef $mj;
-      undef $::mj;
-    }
+    # XXX Ramdomize domain list to avoid starvation
 
-    # Grab the functions from the queue
-    opendir FUNCS, "$::TMPDIR/queue/$dom" ||
-      $::log->abort("Can't opendir $::TMPDIR/queue/$dom: $!");
-    @functions = grep { $_ !~ /^\./ } readdir FUNCS;
+    # Loop over domains
+  DOM:
+    for $dom (@domains) {
+      # Untaint $dom; this is safe because only we are able to write to that
+      # directory.
+      $dom =~ /(.*)/; $dom = $1;
+
+      # undef Majordomo object
+      if ($mj) {
+	$::log->message(50, "info", "-----Calling destructors-----");
+	undef $mj;
+	undef $::mj;
+      }
+
+      # Grab list priorities from the queue, high priorities first
+      opendir PRI2, "$::TMPDIR/queue/$pri1/$dom" ||
+	$::log->abort("Can't opendir $::TMPDIR/queue/$pri1/$dom: $!");
+      @pri2 = sort {$b <=> $a} grep { $_ !~ /^\./ } readdir PRI2;
+
+      # Loop over list priorities
+      for $pri2 (@pri2) {
+	$pri2 =~ /(.*)/; $pri2 = $1;
+
+	# Grab the functions from the queue
+	opendir FUNCS, "$::TMPDIR/queue/$pri1/$dom/$pri2" ||
+	  $::log->abort("Can't opendir $::TMPDIR/queue/$pri1/$dom/$pri2: $!");
+	@functions = grep { $_ !~ /^\./ } readdir FUNCS;
     
-    # XXX Ramdomize function list to avoid starvarion???
+	# XXX Ramdomize function list to avoid starvarion???
 
-    # Loop over functions
-  FUNC:
-    for $func (@functions) {
-      # Untaint $func; this is safe because only we are able to write to
-      # that directory.
-      $func =~ /(.*)/; $func = $1;
+	# Loop over functions
+      FUNC:
+	for $func (@functions) {
+	  # Untaint $func; this is safe because only we are able to write to
+	  # that directory.
+	  $func =~ /(.*)/; $func = $1;
 
-      # Grab the queue files from the queue
-      opendir QDIR, "$::TMPDIR/queue/$dom/$func" ||
-	$::log->abort("Can't opendir $::TMPDIR/queue/$dom/$func: $!");
+	  # Grab the queue files from the queue
+	  opendir QDIR, "$::TMPDIR/queue/$pri1/$dom/$pri2/$func" ||
+	    $::log->abort("Can't opendir $::TMPDIR/queue/$pri1/$dom/$pri2/$func: $!");
 
-      # Loop over queue files (no need to randomize; they're in a random
-      # order and there may be many of them)
-    MSG:
-      while (defined($msg = readdir QDIR)) {
-	next MSG if $msg =~ /^\./;
-	# Untaint $msg; this is safe because only we are able to write
-	# stuff in that directory
-	$msg =~ /(.*)/; $msg = $1;
-	$file = "$::TMPDIR/queue/$dom/$func/$msg";
-	open(MSG, $file);
+	  # Loop over queue files (no need to randomize; they're in a random
+	  # order and there may be many of them)
+	MSG:
+	  while (defined($msg = readdir QDIR)) {
+	    next MSG if $msg =~ /^\./;
 
-	# Lock a file, non-blocking; next if we didn't get it.
-	$ok = flock(MSG, &LOCK_EX|&LOCK_NB);
-	unless ($ok) {
-	  close MSG;
-	  next MSG;
-	}
+	    # Untaint $msg; this is safe because only we are able to write
+	    # stuff in that directory
+	    $msg =~ /(.*)/; $msg = $1;
+	    $file = "$::TMPDIR/queue/$pri1/$dom/$pri2/$func/$msg";
+	    unless (open(MSG, $file)) {
+	      warn "Can't open queue file $file: $!";
+	      next MSG;
+	    }
 
-	# Make sure file has nonzero size to avoid a race with mj_enqueue
-	unless ((stat($file))[7]) {
-	  close MSG;
-	  next;
-	}
+	    # Lock a file, non-blocking; next if we didn't get it.
+	    $ok = flock(MSG, &LOCK_EX|&LOCK_NB);
+	    unless ($ok) {
+	      close MSG;
+	      next MSG;
+	    }
 
-	# OK, have something to process.  Lazily create a Majordomo object
-	# for the domain we're processing.
-	unless (defined $mj) {
-	  $::mj = new Majordomo $opts{t}, $dom; $mj = $::mj;
-	  unless (ref $::mj) {
-	    $::log->abort("Cannot create Majordomo object: $::mj");
+	    # Make sure file has nonzero size to avoid a race with mj_enqueue
+	    unless ((stat($file))[7]) {
+	      close MSG;
+	      next;
+	    }
+
+	    # OK, have something to process.  Lazily create a Majordomo object
+	    # for the domain we're processing.
+	    unless (defined $mj) {
+	      $::mj = new Majordomo $opts{t}, $dom; $mj = $::mj;
+	      unless (ref $::mj) {
+		$::log->abort("Cannot create Majordomo object: $::mj");
+	      }
+	    }
+
+	    # If we're at the Majordom address, just parse commands
+	    if ($func eq 'majordomo') {
+	      parse_commands($mj);
+	      next;
+	    }
+
+	    # Extract the list name
+	    $msg =~ /^\w\w\w-\d+-(.*)$/; $list = $1;
+
+	    # Perform the appropriate function
+	    # If at list address, resend.
+	    if ($func eq 'list' || $func eq 'resend') {
+	      resend($mj, $list);
+	    }
+
+	    # if at -request pull out global 'request_answer' variable and
+	    # figure out what to do
+	    elsif ($func eq 'request') {
+	      $request_ans = $mj->global_config_get(undef, undef, undef, 'email',
+						    'request_answer');
+	      if ($request_ans eq 'majordomo') {
+		parse_commands($mj, $list);
+	      }
+	      elsif ($request_ans eq 'owner') {
+		forward_to_owner($mj, $list);
+	      }
+	      else {
+		respond_with_file($mj, $list);
+	      }
+	    }
+
+	    # if at -owner look for bounces and forward everything else to the
+	    # owner
+	    elsif ($func eq 'owner') {
+	      # forward to owner; if -l is present, forward to that list else assume
+	      # we're majordomo-owner.
+	      forward_to_owner($mj, $list || 'GLOBAL');
+	    }
+	    unlink $file;
+	    close MSG;
 	  }
 	}
-
-	# If we're at the Majordom address, just parse commands
-	if ($func eq 'majordomo') {
-	  parse_commands($mj);
-	  next;
-	}
-
-	# Extract the list name
-	$msg =~ /^\w\w\w-\d+-(.*)$/; $list = $1;
-
-	# Perform the appropriate function
-	# If at list address, resend.
-	if ($func eq 'list' || $func eq 'resend') {
-	  resend($mj, $list);
-	}
-
-	# if at -request pull out global 'request_answer' variable and
-	# figure out what to do
-	elsif ($func eq 'request') {
-	  $request_ans = $mj->global_config_get(undef, undef, undef, 'email',
-						'request_answer');
-	  if ($request_ans eq 'majordomo') {
-	    parse_commands($mj, $list);
-	  }
-	  elsif ($request_ans eq 'owner') {
-	    forward_to_owner($mj, $list);
-	  }
-	  else {
-	    respond_with_file($mj, $list);
-	  }
-	}
-
-	# if at -owner look for bounces and forward everything else to the
-	# owner
-	elsif ($func eq 'owner') {
-	  # forward to owner; if -l is present, forward to that list else assume
-	  # we're majordomo-owner.
-	  forward_to_owner($mj, $list || 'GLOBAL');
-	}
-	unlink $file;
-	close MSG;
       }
     }  
   }

@@ -43,6 +43,8 @@ $ENV{PATH} = '';
 # -l - specify list (arg)
 # -m - run at main majordomo address; -l ignored.
 # -o - run as owner answerer
+# -P - specify domain priority
+# -p - specify list priority
 # -q - run as request answerer; -l _required_.
 # -r - run as resend; -l _required_.
 # -t - specify directory containing domains (arg)
@@ -52,12 +54,14 @@ $ENV{PATH} = '';
 # -S - when done, exit 99 instead of 0 (for qmail)
 # -T - for qmail versions prior to 1.03, trim this string from $ENV{LOCAL}.
 
-getopts('d:l:moqQrSt:T:v:', \%opts);
+getopts('d:l:mop:P:qQrSt:T:v:', \%opts);
 
 # Deal with -Q option
 do_qmail() if $opts{'Q'};
 
 $dom = $opts{'d'} || $::DEFDOM;  $dom =~ /(.*)/; $dom = $1;
+$opts{'p'} = 10 unless defined $opts{'p'};
+$opts{'P'} = 10 unless defined $opts{'P'};
 
 # Choose the function; the queue name
 if    ($opts{'m'}) { $qfunc = 'majordomo'}
@@ -66,11 +70,13 @@ elsif ($opts{'q'}) { $qfunc = 'request'  }
 elsif ($opts{'r'}) { $qfunc = 'list'     }
 
 # Figure out the queue directory and make sure everything exists.
-$qdir = "$::TMPDIR/queue/$dom/$qfunc";
-smkdir("$::TMPDIR",            0777);
-smkdir("$::TMPDIR/queue",      0777);
-smkdir("$::TMPDIR/queue/$dom", 0777);
-smkdir("$qdir",                0777);
+$qdir = "$::TMPDIR/queue/$opts{'P'}/$dom/$opts{'p'}/$qfunc";
+smkdir("$::TMPDIR",                                  0777);
+smkdir("$::TMPDIR/queue",                            0777);
+smkdir("$::TMPDIR/queue/$opts{'P'}",                 0777);
+smkdir("$::TMPDIR/queue/$opts{'P'}/$dom",            0777);
+smkdir("$::TMPDIR/queue/$opts{'P'}/$dom/$opts{'p'}", 0777);
+smkdir("$qdir",                                      0777);
 
 # Construct some strings 
 $q1 = chr(ord('A') + (localtime(time))[2]);
@@ -126,9 +132,14 @@ if (!($ok = connect(SOCK, sockaddr_un($rendezvous)))) {
 
 # Poll with linear backoff until server starts up
 for ($i = 0; $i < 10 || die "connect: $!"; $i++) {
-  $ok ||= connect(SOCK, sockaddr_un($rendezvous));
   last if $ok;
   sleep $i;
+  close SOCK;
+  unless (socket(SOCK, PF_UNIX, SOCK_STREAM, 0)) {
+    warn "Couldn't create socket: $!";
+    exit 0;
+  }
+  $ok ||= connect(SOCK, sockaddr_un($rendezvous));
 }
 while (defined($line = <SOCK>)) {
 }
