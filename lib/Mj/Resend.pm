@@ -2114,9 +2114,9 @@ sub do_digests {
   my $log = new Log::In 40;
   my (%digest, %file, @dfiles, @dtypes, @nuke, @tmp, 
       $digests, $dissues, $dtext, $elapsed, $file, $i, 
-      $j, $k, $l, $list, $seqnum, $subs);
+      $j, $k, $l, $list, $seqnum, $subs, $subject);
 
-  $list = $args{'list'}; $subs = $args{'substitute'};
+  $list = $args{'list'}; $subs = $args{'substitute'}; $subs->{LIST} = $list;
 
   # Pass to digest if we got back good archive data and there is something
   # in the digests variable.
@@ -2146,10 +2146,11 @@ sub do_digests {
       for $i (keys(%digest)) {
         $elapsed = $::log->elapsed;
 	@dtypes = qw(text mime index);
-	$subs->{DIGESTNAME} = $i;
-	$subs->{DIGESTDESC} = $digests->{$i}{desc};
-	$subs->{ISSUE}      = $dissues->{$i}{issue};
-	$subs->{VOLUME}     = $dissues->{$i}{volume};
+	$subs->{DIGESTNAME}   = $i;
+	$subs->{DIGESTDESC}   = $digests->{$i}{desc};
+	$subs->{MESSAGECOUNT} = scalar(@{$digest{$i}});
+	$subs->{ISSUE}        = $dissues->{$i}{issue};
+	$subs->{VOLUME}       = $dissues->{$i}{volume};
 
 	# Fetch the files from storage.  Per digest type, we have three
 	# files that we need, and we look for them under any of four names
@@ -2172,11 +2173,13 @@ sub do_digests {
 	  }
 	}
 
+	$subject = $self->substitute_vars_string($digests->{$i}{subject}, $subs);
+
 	@dfiles = $self->{'lists'}{$list}->digest_build
 	  (messages     => $digest{$i},
 	   types        => [@dtypes],
 	   files        => $dtext,
-	   subject      => $digests->{$i}{desc} . " V$dissues->{$i}{volume} #$dissues->{$i}{issue}",
+	   subject      => $subject,
 	   from         => $args{'sender'},
 	   to           => "$list\@$args{'whereami'}",
 	   tmpdir       => $args{'tmpdir'},

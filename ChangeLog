@@ -1,3 +1,14 @@
+2001-08-19  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/Config.pm (parse_digests): Change parsing; second line
+	now has two fields, the second one contains the subject header for
+	the digest and is optional.  Default to a subject like the old
+	one, but inculde the list name in brackets.
+
+	* lib/Mj/Resend.pm (do_digests): Take the subject for the digest
+	from the digests variable.  Perform variable substitutions on
+	the subject.  Add MESSAGECOUNT substitution.
+
 2001-08-18  Jason Tibbitts  <tibbs@math.uh.edu>
 
 	* lib/Majordomo.pm (_createlist): Use new parsed version of

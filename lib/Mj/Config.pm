@@ -757,7 +757,7 @@ sub vars {
   my ($self, $var, $hidden, $global) = @_;
   my (@vars, $i, $seen);
 
-  $::log->in(140, "$self->{'list'}, $var");
+  $::log->in(140, "$self->{'list'}, $var, $hidden");
 
   # Expand ALL tag
   if ($var eq 'ALL') {
@@ -1864,8 +1864,8 @@ sub parse_digests {
   # %$data will hold the return hash
   $data = {};
 
-  # Parse the table: one line with lots of fields, and single-line field
-  ($table, $error) = parse_table('fspppooool', $arr);
+  # Parse the table: one line with lots of fields, and one line with two fields
+  ($table, $error) = parse_table('fspppoooofso', $arr);
 
   return (0, "Error parsing table: $error")
     if $error;
@@ -1934,6 +1934,10 @@ sub parse_digests {
 
     # description
     $elem->{'desc'} = $table->[$i][8];
+
+    # subject header
+    $elem->{'subject'} = $table->[$i][9];
+    $elem->{'subject'} ||= '[$LIST] $DIGESTDESC V$VOLUME #$ISSUE';
   }
   return (1, '', $data);
 }
@@ -2829,7 +2833,7 @@ sub parse_table {
 
   # Line loops over the elements of the $data arrayref
   $line = 0;
-  
+
   $sc = 1;
   # Do not skip over comments if the specifier string is "x."
   if ($spec eq 'x') {

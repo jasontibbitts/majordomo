@@ -12,21 +12,34 @@ Password Notes: none
 EXAMPLE:
 configset listname digests << ENDTAG
 daily   | 5     | 20K, 5m  | 40K, 10m | 3d     | 1d       |        | mime
-The pre-dawn daily digest for listname.
+The pre-dawn daily digest  | [$LIST] Daily digest ($MESSAGECOUNT messages)
 weekly  | fr(23) |20k, 5m   | 100k,30m |        |          |        | index
 The listname weekly index, generated late friday night.
 ENDTAG
-
 
 Data on the various digests that the list supports (not supported for sublists!).
 Each digest is defined by two lines.  The first line contains data in the
 following order, separated by vertical bars ('|') or colons:
   name    | times  | minsizes | maxsizes | maxage | separate | minage | deftype
-The second line holds a description of the digest.
+The second line holds a description of the digest and an optional subject
+header for the digest, separated by a vertical bar ('|') or colon.
 
-A digest is defined by a name, a description, and several pieces of data that
-tell Majordomo when an issue should be generated. Here is a brief description
-of the data that can be given, with more details below:
+A digest is defined by a name, a description, possibly a subject header to
+be used for the generated digests, and several pieces of data that tell
+Majordomo when an issue should be generated.
+
+The following substitutions are available in the subject header:
+
+\$LIST         - The name of the list
+\$DIGESTNAME   - The name of the digest
+\$DIGESTDESC   - The description of the digest
+\$DIGESTTYPE   - The type of the digest; see DEFTYPE below
+\$MESSAGECOUNT - The number of messages included in the digest
+\$VOLUME       - The current volume number
+\$ISSUE        - The current issue number
+
+Here is a brief description of the data that can be given, with
+more details below:
 
 name     - A one-word name given to the digest.  It is unwise to name
            the digest "mime", "text" or "index".
@@ -134,6 +147,7 @@ See Also:
    help configset_digest_issues (to see the current volume and issue numbers)
    help digest   (to check digest status or force the delivery of digests)
    help put      (for how to create the archive directory)
+   help substitutions (for how to use substitutions in the subject)
    help times
 
 For a list of all help topics send this one-line message

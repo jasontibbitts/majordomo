@@ -2282,7 +2282,7 @@ sub config_get_vars {
   elsif ($var eq uc($var)) {
     $ok = $self->validate_passwd($user, $passwd, $list, "config_$lvar");
   }
-  
+
   # We have a single variable
   else {
     @groups = $self->config_get_groups($var);
@@ -2296,7 +2296,7 @@ sub config_get_vars {
     }
   }
 
-  $hidden = ($ok > 0) ? $ok : 0; 
+  $hidden = ($ok > 0) ? $ok : 0;
   @out = $self->{'lists'}{$list}->config_get_vars($var, $hidden,
                                                   ($list eq 'GLOBAL'));
   $::log->out(($ok>0)?"validated":"not validated"); #XLANG
