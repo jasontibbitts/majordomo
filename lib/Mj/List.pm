@@ -1523,7 +1523,7 @@ sub check_dup {
 
   # XLANG
   return (0, "Unable to access duplicate database $type.\n")
-    unless  $self->_make_dup($type);
+    unless $self->_make_dup($type);
 
   $data = {};
   ($rec) = $rec =~ /(.*)/; # Untaint
@@ -1560,6 +1560,9 @@ sub remove_dup {
   my $log  = new Log::In 150, $rec;
   my ($data, $ok);
 
+  my @types = ('id', 'sum', 'partial');
+  return 0 unless (defined $type and grep { $_ eq $type } @types);
+ 
   $self->_make_dup($type);
   ($rec) = $rec =~ /(.*)/; # Untaint
   ($ok, $data) = $self->{'dup'}{$type}->remove("", $rec);
