@@ -2248,6 +2248,8 @@ files/fr/config/.digest_issues
 files/fr/config/.digests
 files/fr/config/.dup_lifetime
 files/fr/config/.faq_access
+files/fr/config/.farewell
+files/fr/config/.farewell_files
 files/fr/config/.file_search
 files/fr/config/.file_share
 files/fr/config/.get_access
@@ -2397,6 +2399,8 @@ files/fr/config/digest_issues
 files/fr/config/digests
 files/fr/config/dup_lifetime
 files/fr/config/faq_access
+files/fr/config/farewell
+files/fr/config/farewell_files
 files/fr/config/file_search
 files/fr/config/file_share
 files/fr/config/get_access
@@ -3494,6 +3498,7 @@ files/fr/help/.aliasadd
 files/fr/help/.aliasremove
 files/fr/help/.approve
 files/fr/help/.cancel
+files/fr/help/.commands
 files/fr/help/.config
 files/fr/help/.configdefault
 files/fr/help/.configedit
@@ -3526,6 +3531,7 @@ files/fr/help/.configset_description
 files/fr/help/.configset_description_long
 files/fr/help/.configset_description_max_lines
 files/fr/help/.configset_digest_issues
+files/fr/help/.configset_farewell
 files/fr/help/.configset_file_share
 files/fr/help/.configset_latchkey_lifetime
 files/fr/help/.configset_log_lifetime
@@ -3568,12 +3574,14 @@ files/fr/help/.exit
 files/fr/help/.faq
 files/fr/help/.foot
 files/fr/help/.index
+files/fr/help/.info
 files/fr/help/.man
 files/fr/help/.mkdigest
 files/fr/help/.newconfig
 files/fr/help/.newfaq
 files/fr/help/.newinfo
 files/fr/help/.newintro
+files/fr/help/.overview
 files/fr/help/.owner
 files/fr/help/.quit
 files/fr/help/.remove
@@ -3582,10 +3590,12 @@ files/fr/help/.show
 files/fr/help/.signoff
 files/fr/help/.stop
 files/fr/help/.sub
+files/fr/help/.topics
 files/fr/help/.trigger
 files/fr/help/.unalias
 files/fr/help/.unknowntopic
 files/fr/help/.unsub
+files/fr/help/.variables
 files/fr/help/.which
 files/fr/help/accept
 files/fr/help/access
@@ -3594,6 +3604,7 @@ files/fr/help/aliasadd
 files/fr/help/aliasremove
 files/fr/help/approve
 files/fr/help/cancel
+files/fr/help/commands
 files/fr/help/config
 files/fr/help/configdefault
 files/fr/help/configedit
@@ -3626,6 +3637,7 @@ files/fr/help/configset_description
 files/fr/help/configset_description_long
 files/fr/help/configset_description_max_lines
 files/fr/help/configset_digest_issues
+files/fr/help/configset_farewell
 files/fr/help/configset_file_share
 files/fr/help/configset_latchkey_lifetime
 files/fr/help/configset_log_lifetime
@@ -3668,6 +3680,7 @@ files/fr/help/exit
 files/fr/help/faq
 files/fr/help/foot
 files/fr/help/index
+files/fr/help/info
 files/fr/help/man
 files/fr/help/mj_confirm
 files/fr/help/mj_email
@@ -3681,6 +3694,7 @@ files/fr/help/newconfig
 files/fr/help/newfaq
 files/fr/help/newinfo
 files/fr/help/newintro
+files/fr/help/overview
 files/fr/help/owner
 files/fr/help/quit
 files/fr/help/remove
@@ -3689,10 +3703,12 @@ files/fr/help/show
 files/fr/help/signoff
 files/fr/help/stop
 files/fr/help/sub
+files/fr/help/topics
 files/fr/help/trigger
 files/fr/help/unalias
 files/fr/help/unknowntopic
 files/fr/help/unsub
+files/fr/help/variables
 files/fr/help/which
 files/fr/info
 files/fr/inform
@@ -3948,11 +3964,13 @@ setup/messages/fr/database
 setup/messages/fr/database_db_file
 setup/messages/fr/database_mysql
 setup/messages/fr/database_pgsql
+setup/messages/fr/database_sql
 setup/messages/fr/database_text
 setup/messages/fr/dbms_host
 setup/messages/fr/dbms_name
 setup/messages/fr/dbms_password
 setup/messages/fr/dbms_port
+setup/messages/fr/dbms_type
 setup/messages/fr/dbms_user
 setup/messages/fr/domain_name
 setup/messages/fr/domain_owner
@@ -4022,6 +4040,7 @@ setup/messages/fr/sig_chld
 setup/messages/fr/site_config
 setup/messages/fr/site_name
 setup/messages/fr/site_password
+setup/messages/fr/strict_domain_checks
 setup/messages/fr/supported_domains
 setup/messages/fr/syslog_error
 setup/messages/fr/tmp_dir
