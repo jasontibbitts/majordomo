@@ -137,8 +137,8 @@ sub new {
   $self->{'sitedir'}= "$topdir/SITE";
   $self->{'domain'} = $domain;
   $self->{'lists'}  = {};
-  $self->{'defaultdata'} = '';
-  $self->{'installdata'} = '';
+  $self->{'defaultdata'} = {};
+  $self->{'installdata'} = {};
 
   unless (-d $self->{'ldir'}) {
     return "The domain '$domain' does not exist!";
