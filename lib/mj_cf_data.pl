@@ -686,8 +686,9 @@ package Mj::Config;
     'values' => [qw(bounce checksum delay log post session token)],
     'groups' => [qw(miscellany)],
     'local'  => 1,
-    'visible'=> 1,
     'global' => 1,
+    'visible'=> 1,
+    'mutable'=> 2,
    },
    'digests' =>
    {
