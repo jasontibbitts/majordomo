@@ -1148,6 +1148,7 @@ to be a legal top-level domain.\n");
    'er' => 1,
    'es' => 1,
    'et' => 1,
+   'eu' => 1,
    'fi' => 1,
    'fj' => 1,
    'fk' => 1,
