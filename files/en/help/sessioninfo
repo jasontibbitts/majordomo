@@ -1,22 +1,22 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 sessioninfo sessionid
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-sessionid, required, is a 32-digit ID from a previous server command
+sessionid, required, is a unique 40-digit identifier
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 This command returns session data. The sessionid is a string of exactly
-32 hex digits in lower case, to get information on a previous Mj2 session.
+40 hex digits in lower case, to get information on a previous Mj2 session.
 
 Every "connection" to Majordomo (i.e. every email sent, mj_shell started,
 etc.) is called a session.  Each session gets a unique random identifier
-(a 128 bit hex number) and all available information about that session
+(a 160 bit hex number) and all available information about that session
 (message headers, relevant bits from the shell environment, etc.) along
 with a log of each command that was executed is stored in a file with
-things like the headers or the CGI environment..  This information can
+things like the headers or the CGI environment.  This information can
 be retrieved using the sessioninfo command.
 
 Session files are deleted after the amount of time specified in
-session_lifetime.  They are extremely useful in tracking down the source
+the session_lifetime.  They are extremely useful in tracking down the source
 of things like forged subscription requests and spam (particularly on a
 list that strips Received: headers).  The relevant session data is also
 sent out when someone rejects a confirmation token.  (The assumption is
@@ -28,13 +28,13 @@ messages (if configured to do so) that include lines like this:
   | was executed with status:
   |   1 (success)
   | in session:
-  |   f88bf40a18e28ae61a2c9197919f026f
+  |   f88bf40a18e28ae61a2c9197919f026fdb43ac79
   | from the shell interface.
 
 What kind of information do you get from sessioninfo?
 Here is a sample output:
-  | % mj_shell sessioninfo f88bf40a18e28ae61a2c9197919f026f
-  | Stored information from session f88bf40a18e28ae61a2c9197919f026f
+  | % mj_shell sessioninfo f88bf40a18e28ae61a2c9197919f026fdb43ac79
+  | Stored information from session f88bf40a18e28ae61a2c9197919f026fdb43ac79
   | Source: owner
   | PID:    20818
   | 
@@ -52,13 +52,21 @@ This output shows that a message was mailed to test-owner.  You have the
 headers, the PID of the injecting process, the action that was performed
 and its return status (1, meaning success).
 
+In most cases, only the e-mail headers or other basic information about
+the session and command results are saved.  However, a bounce
+(an error message that was mailed to Majordomo because of a delivery 
+failure) is saved in its entirety.  This makes the sessioninfo command
+very useful for trying to determine what caused a delivery failure
+after the fact.  The report-full command can be used by list
+administrators to determine the session identifier that corresponds to a
+particular delivery failure (see "help report" for more details.)
+
 
 See Also:
-   help tokeninfo        (another way to get info similar to sessioninfo)
+   help configset_inform
+   help configset_session_lifetime (for how long session info is kept)
    help showtokens       (for a list of unapproved requests)
+   help tokeninfo        (to get info about a single unapproved request)
    help variables        (for how to insert the session ID into an "inform" msg)
-   help configset session_lifetime (for how long session info is kept around)
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
