@@ -298,6 +298,7 @@ sub set {
   my (@allowed, @class, @settings, $carg1, $carg2, $class, $data, $flags,
       $inv, $isflag, $key, $mask, $ok, $rset);
 
+  $oset = lc $oset;
   @settings = split(',', $oset);
 
   # Loop over settings, checking for legality
@@ -464,8 +465,8 @@ sub make_setting {
       elsif ($rset eq 'digest') {
 	# Process the digest data and pick apart the class
 	$dig = $self->config_get('digests');
-    return (0, "No digests have been configured for the $self->{'name'} list.\n")
-      unless exists $dig->{'default_digest'};
+        return (0, "No digests have been configured for the $self->{'name'} list.\n")
+          unless exists $dig->{'default_digest'};
 	if ($arg) {
 	  # The argument may be a digest type
 	  if ($digest_types{$arg}) {
