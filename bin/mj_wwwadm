@@ -41,96 +41,127 @@ use lib "$::LIBDIR";
 use strict;
 use CGI;
 use Majordomo;
-use Mj::Format;
-use Mj::Parser;
-use Mj::CommandProps qw(:command :function);
-use Mj::Log;
 use Mj::Addr;
+use Mj::CommandProps qw(:command :function);
+use Mj::Format;
+use Mj::Log;
+use Mj::Parser;
 
-my ($cgi, $cgiurl, $domain, $i, $mj, $ok, $mess, $serveradmin, $sess, $token);
-my ($ofunc, $func, $user, $passw, $pathinfo, $mode, $list, @lists, $vict, $extra);
-my ($line, $st, $file, $fh, $cmdform, $localpart, $request, $req, @extra);
-my (%seen, @mlists, @sublists, $otherlists, $subs, @hereargs);
+my (%commands, %seen, @extra, @hereargs, @lists, @mlists, 
+    @settings, @values, $addr, $cgi, $cgidata, $cgiurl, $domain, 
+    $falseuser, $fh, $func, $i, $j, $line, $list, 
+    $mess, $mode, $mj, $ofunc, $ok, $passw, $pathinfo, $req, $request, 
+    $result, $sess, $str, $subs, $tmp, $token, $user);
 
-$ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
+#----- Which commands are supported ?  -----#
+# First  value:  Is a password required?
+# Second value:  Is a list required?
+# Third value:  Should the result be preformatted?
+# Fourth value:  Page to display after the result.
+%commands = (   
+                'accept'        => [1, 0, 1, 'showtokens'],
+                'archive'       => [1, 1, 1, 'showtokens'],
+                'configdef'     => [1, 1, 1, 'configshow'],
+                'configset'     => [1, 1, 1, 'configshow'],
+                'configshow'    => [1, 1, 0, 'configshow'],
+                'digest'        => [1, 1, 1, 'showtokens'],
+                'get'           => [1, 1, 1, 'lists'],
+                'help'          => [0, 0, 1, 'help'],
+                'index'         => [1, 1, 1, 'lists'],
+                'lists'         => [1, 0, 0, 'lists'],
+                'reject'        => [1, 0, 1, 'showtokens'],
+                'report'        => [1, 1, 1, 'showtokens'],
+                'sessioninfo'   => [1, 0, 1, 'showtokens'],
+                'set'           => [1, 1, 1, 'who'],
+                'showtokens'    => [1, 1, 0, 'showtokens'],
+                'subscribe'     => [1, 1, 1, 'who'],
+                'tokeninfo'     => [1, 0, 0, 'showtokens'],
+                'unregister'    => [1, 1, 1, 'who'],
+                'unsubscribe'   => [1, 1, 1, 'who'],
+                'welcome'       => [1, 1, 0, 'welcome'],
+                'which'         => [1, 1, 1, 'who'],
+                'who'           => [1, 1, 0, 'who'],
+            );
 
-umask oct($::UMASK);
+#----- Initialize the Log -----#
+&initialize_log;
 
-# Change the log level to a higher number (600) for complete debugging.
-$::log = new Mj::Log;
-$::log->add
-  (
-   method      => 'handle',
-   id          => 'mjadm',
-   handle      => \*STDERR,
-   level       => 50,
-   subsystem   => 'mail',
-   log_entries => 1,
-   log_exits   => 1,
-   log_args    => 1,
-  );
-
-$::log->in(20, undef, "info", 
-  "Majordomo WWW Admin - ".scalar(localtime)." from $ENV{'REMOTE_ADDR'}");
-$::log->startup_time();
-
-# Start up the page and parse the URL
+#----- Initialize the CGI object -----#
 $cgi = new CGI;
 print $cgi->header;
+$cgiurl = $cgi->script_name . $cgi->path_info;
 $domain = $cgi->param('domain') || $::DEFDOM;
-$domain =~ /([a-zA-Z0-9\-\.]+)/;
-$domain = $1;
+$domain =~ /([a-zA-Z0-9\.\-]+)/; $domain = $1;
 
-# Generate the session information
-for my $i ('REMOTE_ADDR', 'REMOTE_PORT', 'PATH_INFO') {
-  $sess .= "$i = " . substr($ENV{$i}, 0, 70) . "\n" if exists $ENV{$i};
+#----- Make the Majordomo object -----#
+$mj = new Majordomo $::LISTDIR, $domain;
+&surrender($mj) unless (ref $mj);
+
+#----- Generate the session information. -----#
+for my $i ('REMOTE_ADDR','REMOTE_PORT', 'PATH_INFO') {
+  $sess .= "$i = $ENV{$i}\n" if defined $ENV{$i};
 }
 $sess .= scalar(localtime(time)) . "\n";
 
-# Make the Majordomo object
-$mj = new Majordomo $::LISTDIR, $domain;
-&surrender($mess, $sess) unless (ref $mj);
+#----- Determine the address of the user. -----#
+$falseuser = "y$ENV{'REMOTE_ADDR'}\@example.com";
+$user      = $cgi->param('user') || $falseuser;
 
-$serveradmin = $mj->global_config_get(undef, undef, 'whoami_owner');
+#----- Connect to the server -----#
+($ok, $mess) = $mj->connect('wwwadm', $sess, $user);
+unless ($ok) {
+  &surrender($mess);
+} 
 
-($ok, $mess) = $mj->connect('mj_wwwadm', $sess);
-&surrender($mess, $sess, $serveradmin) unless ($ok);
-
-# $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
-# Use the URL with which we were called
-$cgiurl = $ENV{'SCRIPT_NAME'};
-
-$pathinfo = 'GLOBAL';
+#----- Multiple-list specification (used for showtokens) -----#
+$pathinfo = '';
 if (exists $ENV{'PATH_INFO'}) {
   $pathinfo = $ENV{'PATH_INFO'};
-  $cgiurl  .= $pathinfo;
-  $pathinfo =~ m#/([a-zA-Z0-9_\.\-]+)#;
-  $pathinfo = $1;
+  if ($pathinfo =~ m#/([\w\/\-\.]+)#) {
+    $pathinfo = $1;
+  }
+  else {
+    $pathinfo = '';
+  }
+  @mlists = split '/', $pathinfo;
 }
 
-# Get HTML form variables
-$ofunc   = $cgi->param('func') || "help";
-$localpart = $ENV{'REMOTE_ADDR'} || "mj_wwwadm";
-$localpart =~ /(.*)/; $localpart = $1;
-$user    = new Mj::Addr("$localpart\@example.com");
+#----- Print the generic page header -----#
+$ofunc   = $cgi->param('func') || 'welcome';
+@lists   = $cgi->param('list');
+if ((! @lists) and @mlists) {
+  @lists = @mlists;
+}
+$lists[0] ||= 'GLOBAL';
+
+
+#----- Create a temporary password -----#
 $passw   = $cgi->param('passw') || '';
-@lists   = ($pathinfo);
-@lists   = $cgi->param('list') if $cgi->param('list');
-@mlists  = $cgi->param('mlist');
-@extra   = $cgi->param('extra');
-@hereargs = split /\r?\n/, join '', $cgi->param('hereargs');
-$st      = $cgi->param('st') || '';
-if ($st eq 'on' or $st eq 'checked') { $st = 'checked'; }
-$extra[0] ||= '';
-$extra   = $extra[0];
-# Remove duplicates from the list of lists.
-@lists   = grep (!$seen{$_}++, @lists, @mlists);
-
-# Generate temporary password for increased security.
-if (defined $passw and $passw !~ /^[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}$/) {
-  $passw   = $mj->gen_latchkey($passw) if (length $passw);
+if ($passw) {
+  $passw =~ /(.+)/; $passw = $1;
+  $passw = $mj->gen_latchkey($passw) 
+    unless ($mj->t_recognize($passw));
 }
 
+$cgidata = sprintf 'domain=%s&user=%s&passw=%s&list=%s', 
+                   $domain, $user, $passw, $lists[0];
+
+$subs = { $mj->standard_subs($lists[0]),
+          'CGIDATA'   => $cgidata,
+          'CGIURL'    => $cgiurl,
+          'COMMAND'   => $ofunc,
+          'DOMAIN'    => $domain,
+          'PASSWORD'  => $passw,
+          'USER'      => $user,
+        };
+
+
+$tmp = $mj->format_get_string('wwwadm', 'head');
+$str = $mj->substitute_vars_format($tmp, $subs);
+print STDOUT "$str\n";
+
+
+#----- Determine what service was requested -----#
 # Extract "mode" from command name
 if ($ofunc =~ /([^\s=-]+)[=-](.*)/) {
   $func = $1;
@@ -141,636 +172,375 @@ else {
   $func = $ofunc;
   $mode = '';
 }
-$otherlists = '';
-for $list (@mlists) {
-  $otherlists .= "<input type=hidden name=mlist value=$list>\n";
+
+unless (($i) = $mj->valid_list($lists[0], 1, 1)) {
+  &login($mj, $subs, "Invalid list: \"$lists[0]\".");
+}
+unless ($passw) {
+  &login($mj, $subs, '');
+}
+$addr = new Mj::Addr($user);
+unless ($mj->validate_latchkey($addr, $passw, $lists[0], 'ALL')) {
+  &login($mj, $subs, 'Invalid password.');
 }
 
-$subs = {
-         'CGIURL'   => $cgiurl,
-         'DOMAIN'   => $domain,
-         'LIST'     => $lists[0],
-         'MULTILIST'=> $otherlists,
-         'PASSWORD' => $passw,
-         'COMMAND'  => $func,
-         'ST'       => $st,
-        };
-
-($file, undef) = $mj->_list_file_get('GLOBAL', 'wwwadm_head', $subs);
-
-if (! $cgi->param('func') or $func =~ /about/) {
-  $::log->message(50, "info",  "Displaying introduction.");
-  &usage($mj, $lists[0], $cgiurl, $file);
+if ($ofunc eq 'login') {
+  &login($mj, $subs, '');
+}
+elsif ($ofunc eq 'welcome') {
+  &usage($mj, $subs, '');
+}
+elsif ($ofunc eq 'command') {
+  &command($mj, $subs, '');
 }
 
-no strict 'refs';
 # Make sure the command is valid
-unless (command_legal($func)) {
-  $mess = "Invalid command $func in form data.";
-  $::log->message(50, "info", $mess);
-  &surrender($mess, $sess, $serveradmin, $file);
-}
-
-# Make sure the list names are valid
-for ($i = 0; $i < scalar(@lists); $i++) {
-  if ($lists[$i] ne '') {
-    unless (($lists[$i], $sublists[$i])
-             = $mj->valid_list($lists[$i], 1, 1)) {
-      $mess = "Invalid list name: $lists[$i]";
-      $::log->message(50, "info", $mess);
-      &surrender($mess, $sess, $serveradmin, $file);
-    }
-  }
+unless (exists $commands{$func}) {
+  &usage($mj, $subs, "$func is an unsupported command.");
 }
 
 # The archive-get and archive-index commands must use immediate mode,
 # to display the results instead of mailing them.
 if ($func eq 'archive' or $func eq 'get') {
-  $mode .= "-immediate";
+  $mode .= $mode? "-immediate" : "immediate";
 }
 elsif ($func eq 'who') {
   $mode .= $mode? "-enhanced" : "enhanced";
 }
-elsif ($func eq 'configdef') {
-  @hereargs = ();
+
+
+#----- Password check -----#
+if (! $passw) {
+  &usage($mj, $subs, "A password is required to use the $func command.")
+    if ($commands{$func}->[0]);
 }
 
-# Verify the password provided, if the command requires one.
-if ($passw eq '' and $func !~ /help|lists|accept|reject|tokeninfo/) {
-  $mess = "A password is required to use the $func command.";
-  $::log->message(50, "info", $mess);
-  &surrender($mess, $sess, $serveradmin, $file);
+#----- List check -----#
+if ($commands{$func}->[2] and ! scalar @lists) {
+  &usage($mj, $subs, "A mailing list must be provided to use the \"$func\" command.");
 }
-elsif ($passw ne '') {
-  # Check the password against the requester
-  for $i (@lists) {
-    $ok = $mj->validate_latchkey($user, $passw, $i, $func);
-    if ($ok <= 0) {
-      $mess = "The password is invalid or has expired.";
-      $::log->message(50, "info", $mess);
-      &surrender($mess, $sess, $serveradmin, $file);
-    }
-  }
-}
+
+$subs = {
+         $mj->standard_subs($lists[0]),
+         'CGIURL'   => $cgiurl,
+         'DOMAIN'   => $mj->{'domain'},
+         'LIST'     => $lists[0],
+         'PASSWORD' => $passw,
+         'COMMAND'  => $func,
+        };
+
+no strict 'refs';
 
 $request = {
+    'cgiurl'    => $cgiurl,
     'command'   => $func,
     'list'      => $lists[0],
-    'sublist'   => $sublists[0],
     'mode'      => $mode,
-    'password'  => ($func =~ /help|which|lists/)? '' : $passw, 
+    'password'  => $passw, 
     'user'      => $user,
-    'st'        => $st,
 };
+
+# Deal with accept/reject reasons.
+if ($func =~ /accept|reject/) {
+  $request->{'xplanation'} ||= join '', $cgi->param('explanation');
+}
+# Deal with result sets
+elsif ($func eq 'who') {
+  $request->{'chunksize'} = $cgi->param('chunksize') || 0;
+  $request->{'start'} = ($cgi->param('chunk') || 0) * $request->{'chunk'} + 1;
+}
+
 if (function_prop($func, 'iter')) {
   $request->{'command'} .= '_start';
 }
-if (scalar @lists > 1){
-  $request->{'mlist'} = \@lists;
-}
 
-$fh = new IO::File ">>$file";
 
-unless ($fh) {
-  $mess = "Unable to open output file $file.\n";
-  $::log->message(50, "info", $mess);
-  &surrender($mess, $sess, $serveradmin);
-} 
-if ($func ne 'showtokens') {
-  $fh->print("<pre><small>\n") unless ($func =~ /configshow|tokeninfo|who/);
+#----- Process command arguments -----#
+# Normally, the "extra" variable is used to hold command arguments.
+# However, there are some cases in which this approach is inadequate.
+#
+# The first is with the configset command, in the case that more
+# than one setting is changed at once.
+#
+# The second exception is for the subscribe-set command, which
+# must have both addresses and settings available.
+#
+# The third exception is for the accept and reject commands,
+# which must allow an explanation to be sent back to the person
+# whom the command affects.
+#
+# The fourth exception is for the set command, which must include
+# separate settings for each address affected.
+#
+# The fifth exception is for the report command, which must include
+# separate action and time span values.
+#
+# The sixth exception is for the configshow command, which allows
+# an array of variables to be specified.
+#
+# In each of these cases, the basic command form requires that the
+# "extra" variable still be handled if it was used.
+@extra = $cgi->param('extra');
+if (@extra and $func ne 'showtokens') {
   for $req (@extra) {
-    Mj::Parser::parse_args($request, $req, \@hereargs);
-    &{"Mj::Format::$func"}($mj, $fh, $fh, 'html', $request,
-      $mj->dispatch($request));
-    print $fh "\n";
+    Mj::Parser::parse_args($request, $req, '');
+    if ($func eq 'configset') {
+      @values = $cgi->param($req);
+      $request->{'value'} = [@values];
+    }  
+    $result = $mj->dispatch($request); 
+    &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
+    print "<pre><small>\n" if ($commands{$func}->[2]);
+    &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
+    print "</small></pre>\n" if ($commands{$func}->[2]);;
+    if (function_prop($func, 'iter')) {
+      $request->{'command'} =~ s/done/start/;
+    }
   }
-  $fh->print("</small></pre>\n") unless ($func =~ /configshow|tokeninfo|who/);
+}
+elsif ($func eq 'set') {
+  @extra = $cgi->param('victims');
+  for $addr (@extra) {
+    for $j (qw(delivery ackdeny ackpost ackreject ackstall eliminatecc hideaddress
+ hideall prefix replyto selfcopy rewritefrom)) {
+      $i = "$addr;$j";
+      if ($j eq 'delivery') {
+        push @settings, $cgi->param($i);
+      }
+      else {
+        if ($cgi->param($i) eq 'on') {
+          push @settings, $j;
+        }
+        elsif (! $cgi->param($i)) {
+          push @settings, "no$j";
+        }
+        # If the setting is disabled, ignore it.
+      }
+    }
+    $request->{'setting'} = join ",", @settings;
+    $request->{'victims'} = [ $addr ];
+    $result = $mj->dispatch($request); 
+    &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
+    print "<pre><small>\n" if ($commands{$func}->[2]);
+    &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
+    print "</small></pre>\n" if ($commands{$func}->[2]);;
+  }
+}
+# The remaining exceptions, other than showtokens, require only one dispatch call.
+elsif ($func ne 'showtokens') {
+  if ($func eq 'accept' or $func eq 'reject') {
+    @extra = $cgi->param('tokens');
+    $request->{'tokens'} = [ @extra ];
+    $request->{'xplanation'} = join "\n", $cgi->param('xplanation');
+  }
+  elsif ($func eq 'subscribe') {
+    @extra = $cgi->param('victims');
+    $request->{'victims'} = [ @extra ];
+    $request->{'setting'} = join ',', $cgi->param('setting');  
+  }
+  elsif ($func eq 'report') { 
+    $request->{'action'} = join ',', $cgi->param('action');
+    $request->{'date'} = $cgi->param('date');
+  }
+  elsif ($func eq 'configshow') {
+    $request->{'groups'} = join ',', $cgi->param('groups');
+  }
+  $result = $mj->dispatch($request); 
+  &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
+  print "<pre><small>\n" if ($commands{$func}->[2]);
+  &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
+  print "</small></pre>\n" if ($commands{$func}->[2]);;
 }
 
-# If the "show pending requests" button is checked, or if the 
-# showtokens command is chosen from the command menu, a list
-# of pending requests will appear at the bottom of the screen.
-# Unless the command was chosen from the menu, the command
-# arguments are not parsed.
-if ($passw and ($st eq 'checked' or $func eq 'showtokens') and @lists) {
-  # The password may have been omitted earlier.
-  $request->{'password'} = $passw;
-  $request->{'command'} = 'showtokens';
-  # Include delay tokens in the listing.
-  $request->{'mode'} = 'delay';
-  # 'action' is also used by the report command.
-  delete $request->{'action'} if (exists $request->{'action'});
-  Mj::Parser::parse_args($request, $extra[0])
-    if ($func eq 'showtokens');
+#----- Display supplementary information -----#
+# There are five supplementary screens which this script displays. 
+#   command    - Display a command menu
+#   configshow - allow easy access to collections of settings
+#   lists      - Show details about a list, or a collection of lists.
+#   showtokens - Display a list of pending requests
+#   who        - Search the subscriber list or (un)subscribe addresses
+if ($cgi->param('command') eq 'on') {
+  &command($mj, $subs, '');
+}
+elsif ($commands{$func}->[3] eq 'showtokens') {
+  # A separate head and foot are needed because this interface
+  # can display tokens for any number of mailing lists.
+  $tmp = $mj->format_get_string('wwwadm', 'showtokens_head');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print "$str\n";
 
-  print $fh <<EOM;
-<form method=POST action="$cgiurl">
-<input type=submit name=func value="tokeninfo-full">
-<input type=submit name=func value="tokeninfo">
-<input type=submit name=func value="accept">
-<input type=submit name=func value="accept-archive">
-<input type=submit name=func value="reject">
-<input type=hidden name=domain value="$domain">
-<input type=hidden name=passw value="$passw">
-<input type=hidden name=st value="$request->{'st'}">
-<br>
-Choose one or more requests from the following list,
-then press one of the buttons.
-EOM
-
+  Mj::Parser::parse_args($request, $extra[0], '')
+    if ($func eq 'showtokens' and $extra[0]);
   $i = 0;
-  for $list (@lists) {
+  my (%seen);
+  for $list (@lists, @mlists) {
+    next if (exists $seen{$list});
     $request->{'list'} = $list;
-    $i += &{"Mj::Format::showtokens"}($mj, $fh, $fh, 'html', $request,
-                                      $mj->dispatch($request));
+    $result = $mj->dispatch($request);
+    # Increase the token count if any tokens were found.
+    if ($result->[0]) {
+      $i += $#$result;
+    }
+    &{"Mj::Format::showtokens"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', 
+                                      $request, $result);
+    $seen{$list}++;
   }
 
-  print $fh "<br>Requests found: $i.<br>\n";
-  if ($i > 7) {
-  print $fh <<EOM;
-<input type=submit name=func value="tokeninfo-full">
-<input type=submit name=func value="tokeninfo">
-<input type=submit name=func value="accept">
-<input type=submit name=func value="accept-archive">
-<input type=submit name=func value="reject">
-EOM
+  $subs->{'COUNT'} = $i;
+  $tmp = $mj->format_get_string('wwwadm', 'showtokens_foot');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print "$str\n";
+
+  $func = $request->{'command'} = 'showtokens';
+  $request->{'list'} = $lists[0];
+}
+elsif ($commands{$func}->[3] ne $func) {
+  if ($commands{$func}->[3] eq 'configshow') {
+    $func = $request->{'command'} = 'configshow';
+    $request->{'mode'} = 'categories';
+    $request->{'list'} = $lists[0];
   }
-  print $fh "</form>\n";
+  elsif ($commands{$func}->[3] eq 'lists') {
+    $func = $request->{'command'} = 'lists';
+    $request->{'mode'} = 'long';
+    $request->{'list'} = 'GLOBAL';
+    $request->{'regexp'} = $lists[0];
+  }
+  elsif ($commands{$func}->[3] eq 'who') {
+    $func = 'who';
+    $request->{'command'} = 'who_start';
+    $request->{'mode'} = 'enhanced';
+    $request->{'list'} = $lists[0];
+    $request->{'chunksize'} = $cgi->param('chunksize') || 0;
+    $request->{'start'} = $cgi->param('start') || 1;
+  }
+  $result = $mj->dispatch($request); 
+  &usage($mj, $subs, "Unable to obtain result from Majordomo.") unless $result;
+  &{"Mj::Format::$func"}($mj, \*STDOUT, \*STDOUT, 'wwwadm', $request, $result);
 }
 
-$fh->print("<hr>For assistance, contact <a href=\"mailto:$serveradmin\">$serveradmin</a>\n");
-$fh->close();
+#----- Print the Footer -----#
+$tmp = $mj->format_get_string('wwwadm', 'foot');
+$str = $mj->substitute_vars_format($tmp, $subs);
+print STDOUT "$str\n";
 
-&format_print($file);
-unlink $file;
+#----- Subroutines -----#
 
-$::log->out;
-exit 0;
+sub command {
+  my ($mj, $subs, $message) = @_;
+  my ($str, $tmp);
 
-#---------------- Subroutines -----------------#
-sub format_print {
-  my ($file) = shift; 
-  my ($line, $token, $summarize, $hdrs, $remove);
-  $summarize = $hdrs = 0;
+  $subs->{'ERROR'} = $message;
+  $::log->message(50, "info", $message) if $message;
 
-  $fh = new IO::File "<$file";
-  if (! $fh) { 
-    print STDOUT "<h3>Unable to get results</h3>\n";
-    exit 0;
-  }
-  while ($fh->read($line, 4096)) {
-    print STDOUT $line;
-  }
-  1;
-}
+  $tmp = $mj->format_get_string('wwwadm', 'command');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
 
-sub Mj::Format::configshow {
-  my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, "$type, $request->{'list'}";
-  my (@possible, $auto, $ok, $mess, $tag, $varresult, $var, $val, $vardata);
-  select $out;
-
-  $ok = shift @$result;
-  for $varresult (@$result) {
-    ($ok, $mess, $var, $val) = @$varresult;
-    if (! $ok) {
-      print "Configshow error: $mess\n";
-      next;
-    }
-    $mess = Mj::Format::escape($mess); 
-    chomp $mess;
-    # Add a link to the help file for this variable
-    $mess =~ s#^\s*$var#<a href="$cgiurl?domain=$domain&func=help&extra=configset_$var">$var</a><small>#;
-    print "<pre>\n$mess</small></pre>\n";
-
-    # One kind of variable cannot be changed through these HTML forms.
-    # $ok == -1 => automatically maintained variable
-
-    if (ref ($val) eq 'ARRAY') {
-      # Process as an array
-      if ($ok > 0) {
-        print <<EOM;
-<form method=POST action="$cgiurl">
-<input type=hidden name=domain value="$mj->{'domain'}">
-<input type=hidden name=list value="$request->{'list'}">
-<input type=hidden name=extra value="$var">
-<input type=hidden name=passw value="$passw">
-<input type=hidden name=st value="$request->{'st'}">
-<textarea cols=70 rows=8 name=hereargs>
-EOM
-      }
-
-      for (@$val) {
-        print Mj::Format::escape($_) if defined $_;
-      }
-
-      if ($ok > 0) {
-        print <<EOM;
-</textarea><br>
-<input type=submit name=func value="configset">
-<input type=submit name=func value="configdef">
-</form>
-EOM
-      }
-    }
-    else {
-      # Process as a simple variable
-      $val = "" unless defined $val;
-      $val = Mj::Format::escape($val);
-      if ($ok > 0) {
-        print <<EOM;
-<form method=POST action="$cgiurl">
-<input type=hidden name=domain value="$mj->{'domain'}">
-<input type=hidden name=list value="$request->{'list'}">
-<input type=hidden name=passw value="$passw">
-<input type=hidden name=st value="$request->{'st'}">
-<input type=hidden name=extra value="$var">
-EOM
-        $vardata = $Mj::Config::vars{$var};
-        # enum flags 
-        if ($vardata->{'type'} =~ /^(?:integer|word|pw|bool)$/) {
-          print "<input size=16 name=hereargs value=\"$val\">\n";
-        }
-        elsif ($vardata->{'type'} eq 'enum') {
-          @possible = sort @{$vardata->{'values'}};
-          print "<select name=hereargs>\n";
-          for (@possible) {
-            if ($_ eq $val) {
-              print "<option selected> $_\n";
-            }
-            else {
-              print "<option> $_\n";
-            }
-          }
-          print "</select>\n";
-        }
-        elsif ($vardata->{'type'} eq 'flags') {
-          @possible = @{$vardata->{'values'}};
-          print "<select multiple name=hereargs>\n";
-          for (@possible) {
-            if ($val =~ /$_/) {
-              print "<option selected> $_\n";
-            }
-            else {
-              print "<option> $_\n";
-            }
-          }
-          print "</select><br>\n";
-        }
-        else {
-          print "<input size=70 name=hereargs value=\"$val\"><br>\n";
-        }
-
-
-        print <<EOM;
-<input type=submit name=func value="configset">
-<input type=submit name=func value="configdef">
-</form>
-EOM
-      }
-      else {
-        print $val . "<p>\n";
-      }
-    }
-  }
-  select STDOUT;
-  1;
-}
-
-sub Mj::Format::help { 
-  my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, $request->{'topic'};
-  my ($chunk, $chunksize, $topic);
-  my ($ok, $mess) = @$result;
-
-  select $out;
-  unless ($ok > 0) {
-    print "Help $request->{'topic'} failed.\n$mess";
-    return $ok;
-  }
-
-  $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
-                                      "chunksize");
-  return unless $chunksize;
-
-  $request->{'command'} = "get_chunk";
-
-
-  while (1) {
-    ($ok, $chunk) = @{$mj->dispatch($request, $chunksize)};
-    last unless defined $chunk;
-    $chunk = Mj::Format::escape($chunk);
-    $chunk =~ s/(\s{3}|&quot;)(help\s)(configset|admin|mj) (?=\w)/$1$2$3_/g;
-    $chunk =~ s/(\s{3}|&quot;)(help\s)(\w+)/$1$2<a href="$cgiurl?domain=$domain&func=help&extra=$3">$3<\/a>/g;
-    print $chunk;
-  }
-
-  $request->{'command'} = "get_done";
-  $mj->dispatch($request);
-  select STDOUT; 
-}
-
-sub Mj::Format::showtokens {
-  my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, $request->{'list'};
-  my ($count, $created, $data, $ok, $size, @time, $token, @tokens);
-  select $out;
-  print "<input type=hidden name=list value=$request->{'list'}>\n";
-
-  ($ok, @tokens) = @$result;
-  unless ($ok) {
-    print "<p>Showtokens error:  $tokens[0]\n";
-    return 0;
-  }
-  unless (@tokens) {
-    print "<br>There are no pending requests for $request->{'list'}.\n";
-    return 0;
-  }
-  $count = 0;
-  print "<table>\n";
-
-  print "<tr><td colspan=5>Requests for $request->{'list'}\n";
-  while (@tokens) {
-    ($token, $data) = splice @tokens, 0, 2;
-    print "<tr>\n";
-    print "<td><input type=checkbox name=extra value=\"$token\">$token\n";
-    print "<td>$data->{'list'}\n" if ($request->{'list'} eq 'ALL'); 
-    if ($data->{'type'} eq 'consult') {
-      print "<td>O\n";
-    }
-    elsif ($data->{'type'} eq 'delay') {
-      print "<td>D\n";
-    }
-    else {
-      print "<td>S\n";
-    }
-    $size = '';
-    if ($data->{'command'} eq 'post' and $data->{'size'}) {
-      $size = sprintf "(%2d&nbsp;kB)", ($data->{'size'} + 512) / 1024;
-    }
-    print "<td>$data->{'command'}&nbsp;$size\n";
-    @time = localtime($data->{'time'});
-    $created = sprintf "%.2d-%.2d&nbsp;%.2d:%.2d", 
-      $time[4]+1, $time[3], $time[2], $time[1];
-    print "<td>$created\n";
-    print "<td>" . Mj::Format::escape($data->{'user'}) . "\n"; 
-    $count++;
-  }
-  print "</table>\n";
-  select STDOUT;
-  $count;
-} 
-
-sub Mj::Format::tokeninfo {
-  my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, $request->{'token'};
-  my ($body, $chunk, $chunksize, $cmd, $expire);
-  my (@reasons, $showspool, $time, $tmp, $user);
-  my ($ok, $data, $sess) = @$result;
-  select $out;
-
-  unless ($ok > 0) {
-    print "<p>Tokeninfo error: $data\n";
-    return $ok;
-  }
+  $tmp = $mj->format_get_string('wwwadm', 'foot');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
   
-  $time   = localtime($data->{'time'});
-  $expire = localtime($data->{'expire'});
-  $user   = Mj::Format::escape($data->{'user'});
-  $cmd    = Mj::Format::escape($data->{'cmdline'});
+  exit 1;
+}
 
-  print <<EOM;
-<table>
-<tr><td>Token  <td>$request->{'token'}
-<tr><td>Created<td>$time
-<tr><td>By     <td>$user
-<tr><td>Type   <td>$data->{'type'}
-<tr><td>Command<td>$cmd
-<tr><td>Expires<td>$expire
-EOM
+sub initialize_log {
+  $ENV{'PATH'} = "/bin:/usr/bin:/usr/ucb";
 
-  if ($data->{'reasons'}) {
-    @reasons = split "\002", $data->{'reasons'};
-    for (@reasons) {
-      printf "<tr><td>Reason<td>%s\n", Mj::Format::escape($_);
-    }
+  umask oct($::UMASK);
+
+  # Change the log level to a higher number (600) for complete debugging.
+  $::log = new Mj::Log;
+  $::log->add
+    (
+     method      => 'handle',
+     id          => 'wwwadm',
+     handle      => \*STDERR,
+     level       => 550,
+     subsystem   => 'mail',
+     log_entries => 1,
+     log_exits   => 1,
+     log_args    => 1,
+    );
+
+  $::log->in(20, undef, "info", 
+    "Majordomo WWW for List Owners - " . scalar(localtime) .
+     " from $ENV{'REMOTE_ADDR'}");
+
+  $::log->startup_time();
+}
+
+sub login {
+  my $mj = shift; 
+  my $subs = shift;
+  my $message = shift || '';
+  my ($str, $tmp);
+
+  $subs->{'ERROR'} = $message;
+  if ($message) {
+    $::log->message(50, "info", $message);
+    $mj->inform('GLOBAL', 'connect', $subs->{'USER'}, 
+                $subs->{'USER'}, "(wwwadm request from $ENV{'REMOTE_ADDR'})",
+                'wwwadm', 0, 0, 0, $message, $::log->elapsed);
   }
 
-  print "</table>\n";
+  $tmp = $mj->format_get_string('wwwadm', 'login');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
 
-  print <<EOM;
-<form method=POST action="$cgiurl">
-<input type=submit name=func value=accept>
-<input type=submit name=func value=accept-archive>
-<input type=submit name=func value=reject>
-<input type=hidden name=domain value="$domain">
-<input type=hidden name=extra value="$extra">
-<input type=hidden name=list value=$request->{'list'}>
-<input type=hidden name=passw value=$passw>
-<input type=hidden name=st value=$request->{'st'}>
-EOM
-
-  if (exists $request->{'mlist'} and (ref $request->{'mlist'} eq 'ARRAY')) {
-    for (@{$request->{'mlist'}}) {
-      print "<input type=hidden name=mlist value=$_>\n"
-        unless ($list eq $_);
-    }
-  }
-
-  if ($sess) {
-    $request->{'command'} = "get_chunk";
-    $body = $showspool = 0;
-    $chunksize = $tmp =
-      $mj->global_config_get($request->{'user'}, $passw,
-                             "chunksize");
-    if ($request->{'mode'} eq 'full' and $data->{'command'} eq 'post') {
-      $chunksize = 1;
-      $showspool = 1;
-    }
-    print "<pre><small>\n";
-    while (1) {
-      ($ok, $chunk) = @{$mj->dispatch($request, $chunksize)};
-      last unless defined $chunk;
-      if ($showspool and !$body and $chunk =~ /^\r?\n/) {
-        $body = 1;
-        $chunksize = $tmp;
-        print "</small>\n";
-      }
-      print Mj::Format::escape($chunk);
-    }
-    print "</small>" unless $showspool;
-    print "</pre>\n";
-
-    $request->{'command'} = "get_done";
-    $mj->dispatch($request);
-
-    if ($data->{'command'} eq 'post') {
-      print <<EOM;
-<input type=submit name=func value=accept>
-<input type=submit name=func value=accept-archive>
-<input type=submit name=func value=reject>
-EOM
-    }
-
-  }
-
-  print "</form>\n";
-  select STDOUT;
-} 
-
-sub Mj::Format::who {
-  my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, $request->{'list'};
-  my ($arg, $chunksize, $count, $fullclass, $i, $lastchange);
-  my (@lines, $list, $numbered, $remove, @time, $user);
-
-  $list = $request->{'list'};
-  if ($request->{'sublist'} and $request->{'sublist'} ne 'MAIN') {
-    $list .= ":$request->{'sublist'}";
-    $remove = "unsubscribe";
-  }
-  elsif ($request->{'list'} eq 'GLOBAL') { 
-    $remove = "unregister"; 
-  }
-  else {
-    $remove = "unsubscribe";
-  }
-  select $out;
-
-  my ($ok, $regexp, $tmpl) = @$result;
-  if ($ok <= 0) {
-    print "<p>Could not access $request->{'list'}:\n";
-    return $ok;
-  }
-  print <<EOM;
-<form method=POST action="$cgiurl">
-<input type=submit name=func value="$remove">
-<input type=hidden name=domain value="$domain">
-<input type=hidden name=list value="$list">
-<input type=hidden name=passw value="$passw">
-<input type=hidden name=st value="$st">
-<br>To remove addresses, choose one or more 
-addresses from the list below, then press the <b>$remove</b> button.
-<table>
-EOM
-
-  # We know we succeeded
-  $count = 0;
-  $chunksize = $mj->global_config_get($request->{'user'}, $passw, 
-                                      "chunksize");
-  return unless $chunksize;  
-  $request->{'command'} = "who_chunk";
+  $tmp = $mj->format_get_string('wwwadm', 'foot');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
   
-  while (1) {
-    ($ok, @lines) = @{$mj->dispatch($request, $chunksize)};
-    
-    last unless $ok > 0;
-    next unless (@lines);
-    for $i (@lines) {
-      next unless (ref ($i) eq 'HASH');
-      if ($request->{'list'} ne 'GLOBAL') {
-        $fullclass = $i->{'class'};
-        $fullclass .= "-" . $i->{'classarg'} if ($i->{'classarg'});
-        $fullclass .= "-" . $i->{'classarg2'} if ($i->{'classarg2'});
-      }
-      else {
-        $i->{'lists'} =~ s/\002/ /g;
-      }
-      $user = Mj::Format::escape($i->{'fulladdr'});
-      @time = localtime($i->{'changetime'});
-      $lastchange = sprintf "%4d-%.2d-%.2d", $time[5]+1900, $time[4]+1, $time[3];
-
-      $count++;
-      $arg = $i->{'stripaddr'};
-      $arg = "$request->{'auxlist'} $arg" if ($request->{'auxlist'});
-      print "<tr><td><input type=checkbox name=extra value=\"$arg\">$user\n";
-      print "<td>$lastchange\n";
-
-      if ($request->{'list'} eq 'GLOBAL') {
-        print "<td>$i->{'lists'}\n";
-      }
-      else {
-        print "<td>$i->{'flags'}<td>$fullclass\n";
-      }
-        
-      if ($request->{'mode'} =~ /bounces/ && exists $i->{'bouncestats'}) {
-        print "<tr><td colspan=4>Diagnostic of last bounce: $i->{'diagnostic'}\n"
-          if $i->{'diagnostic'};
-        print "<tr><td colspan=4>Bounces in the past week: $i->{'bouncestats'}->{'week'}\n"
-          if $i->{'bouncestats'}->{'week'};
-        print "<tr><td colspan=4>Bounces in the past month: $i->{'bouncestats'}->{'month'}\n"
-          if $i->{'bouncestats'}->{'month'};
-        $numbered = join " ", sort {$a <=> $b} keys %{$i->{'bouncedata'}{'M'}};
-        print "<tr><td colspan=4>Message numbers: $numbered\n"
-          if $numbered;
-       
-      }
-    }
-  }
-  $request->{'command'} = "who_done";
-  $mj->dispatch($request);
-
-  print "<tr><td colspan=4>$count addresses found.\n";
-  print "</table>\n";
-  if (exists $request->{'mlist'} and (ref $request->{'mlist'} eq 'ARRAY')) {
-    for (@{$request->{'mlist'}}) {
-      print "<input type=hidden name=mlist value=$_>\n"
-        unless ($request->{'list'} eq $_);
-    }
-  }
-  print "<input type=submit name=func value=$remove></form>\n";
-  select STDOUT;
+  exit 1;
 }
 
 sub usage {
-  my ($mj, $list, $cgiurl, $file) = @_;
-  my $subs = {
-              'CGIURL'   => $cgiurl,
-              'DOMAIN'   => $mj->{'domain'},
-              'LIST'     => $list,
-              'MJ'       => $mj->global_config_get(undef, undef, 'whoami'),
-              'MJOWNER'  => $mj->global_config_get(undef, undef, 'whoami_owner'),
-              'SITE'     => $mj->global_config_get(undef, undef, 'site_name'),
-          };
-  my ($helpfile, undef) = $mj->_list_file_get('GLOBAL', 'wwwadm_help', $subs);
-  &format_print($file);
-  &format_print($helpfile);
-  unlink $file;
-  unlink $helpfile;
-  exit 0;
+  my ($mj, $subs, $message) = @_;
+  my ($str, $tmp);
+
+  $subs->{'ERROR'} = $message;
+  $::log->message(50, "info", $message) if $message;
+
+  $tmp = $mj->format_get_string('wwwadm', 'welcome');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+
+  $tmp = $mj->format_get_string('wwwadm', 'foot');
+  $str = $mj->substitute_vars_format($tmp, $subs);
+  print STDOUT "$str\n";
+  
+  exit 1;
 }
 
 sub surrender {
-  my ($mess, $sess, $addr, $file) = @_;
+  my ($message) = shift;
+  $::log->message(50, "info", $message) if $message;
 
-  if ($file) {
-    &format_print($file);
-    unlink $file;
-  }
-  else {
-    print <<EOM;
+  print <<EOM;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
 "http://www.w3.org/TR/REC-html40/strict.dtd">
 <html><head>
-<title>Majordomo 2: Error</title>
+<title>Majordomo 2 WWW for List Owners: Error</title>
 </head>
 <body>
+<h2>Majordomo Error</h2>
+$message
+EOM
+
+  if (defined $subs and exists $subs->{'MJOWNER'}) {
+    print <<EOM;
+Please contact 
+<a href="mailto:$subs->{'MJOWNER'}">$subs->{'MJOWNER'}</a>
+ for assistance.
 EOM
   }
 
-  print <<EOM;
-<h2>Error: $mess</h2>
-<pre>
-$sess
-</pre>
-EOM
+print "</body></html>\n";
 
-  print "Please contact <a href=\"mailto:$addr\">$addr</a>\n" .
-        " if you wish to report this error.\n"  if $addr;
-
-  print "</body></html>\n";
   exit 0;
 }
+
 
 =head1 COPYRIGHT
 
