@@ -1,11 +1,12 @@
 The "post_limits" setting establishes limits for how often a particular
 person can post messages to a mailing list.  The format of each line is:
 
-  pattern | soft_limits | hard_limits
+  pattern | soft_limits | hard_limits | lower_limits
 
 The pattern will be matched against the e-mail address of the author of
 the message.  The first line that matches will cause the soft and hard
-limits on that line to be compared to the author's history of posted
-messages.  By default, exceeding a soft limit will cause a posted
-message to be moderated, and exceeding a hard limit will cause a posted
-message to be denied.
+upper limits on that line to be compared to the author's history of
+posted messages.  By default, exceeding a soft limit will cause a posted
+message to be moderated; exceeding a hard limit will cause a posted
+message to be denied; and not meeting a lower limit will cause a posted
+message to be moderated.
