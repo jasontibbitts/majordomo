@@ -296,9 +296,8 @@ sub set_script_perms {
 sub suggest_crontab {
   return <<"EOM";
 
-# Daily and hourly triggers
-10 0 * * * $config->{'install_dir'}/bin/mj_trigger -t daily
-0  * * * * $config->{'install_dir'}/bin/mj_trigger -t hourly
+# Hourly trigger
+20 * * * * $config->{'install_dir'}/bin/mj_trigger -t hourly
 EOM
 }
 
