@@ -1,4 +1,5 @@
-If set, the checksums for the body of a posted message will be saved
-if that message is denied by the access rules.  If the checksums are
-saved, any succeeding message with an identical body will be regarded
-as a duplicate.  
+If set (any value other than 0), the checksums for the body of a posted
+message will be saved if that message is denied by the access rules.
+If the checksums are saved, any succeeding message with an identical
+body will be regarded as a duplicate.  If not set, or set to zero, even
+posts which do not get distributed can cause future posts to be rejected.

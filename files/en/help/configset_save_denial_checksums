@@ -7,10 +7,24 @@ Variable Group: resend, majordomo
 Password Notes: Visible only with password. Set with global password. 
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-If set, the checksums for the body of a posted message will be saved
-if that message is denied by the access rules.  If the checksums are
-saved, any succeeding message with an identical body will be regarded
-as a duplicate.  
+If set (any value other than 0), the checksums for the body of a posted
+message will be saved even if that message is denied by the access rules.
+If the checksums are saved, any succeeding message with an identical
+body will be regarded as a duplicate. If not set, or set to zero, posts
+which are not distributed will not cause future posts to be rejected.
+
+This variable can be used to fix the following problem: A person not
+subscribed to a list tries to post, but the list is configured to only
+allow subscriber posts. The person receives an informative bounce, and
+follows the instructions to become a subscriber. Once subscribed, the
+person tries to post again, and is rejected because the post is seen
+as a duplicate. Setting save_denial_checksums to 0 avoids this.
+
+Note that this variable applies to individual lists, but requires
+the global password. Also note that it is not a boolean even though
+"0" and "not 0" are the only currently defined options. (No reasons
+are available for these two notes as of 4/2000, but you should use
+either 0 or 1 in case the variable becomes a boolean in the future.)
 
 See "help configset access_rules" for how to sent notices about
 checksums and other rules that cause posts to bounce.
