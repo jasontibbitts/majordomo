@@ -52,6 +52,7 @@ connections and speaking SMTP.
 This routine takes the following named arguments:
 
   list    - ref to list object 
+  sublist - name of auxiliary list
   sender  - base part of message sender
   classes - a hashref: each key is an extended class name; each value is a
             hashref with the following keys:
@@ -72,6 +73,11 @@ This routine takes the following named arguments:
 listref is a list object (not the name of a list).  Only the iterator
 methods get_start, get_done and get_matching_chunk are required but the
 object must return reasonable values for the various fields.
+
+sublist is the name of an auxiliary list to which the message
+will be delivered.  If this value is empty, the message is delivered
+to the main subscriber list.  Note that auxiliary lists never
+receive digests.
 
 sender is the envelope sender.  For bounce probing, this will be augmented
 in some fashion.
@@ -115,14 +121,15 @@ the total number of groups, while bucket selects the group to probe.
 =cut
 use Bf::Sender;
 sub deliver {
-  my %args = @_;
+  my (%args) = @_;
   my $log  = new Log::In 150;
 
   my (@data, $addr, $canon, $classes, $datref, $dests, $eclass, $error, $i,
       $j, $matcher, $ok, $probeit, $probes );
 
-  my $rules  = $args{rules};
-  my $list   = $args{list};
+  my $rules   = $args{rules};
+  my $list    = $args{list};
+  my $sublist = $args{sublist};
 
   # Allocate destinations and probers and do some other setup stuff
   ($classes, $dests, $probes) = _setup($rules, %args);
@@ -133,11 +140,24 @@ sub deliver {
     0;
   };
 
-  ($ok, $error) = $list->get_start;
+  if (length $sublist) {
+    # Ensure that a new sublist is not created.
+    ($ok, $error) = $list->validate_aux($sublist);
+    return ($ok, $error) unless $ok;
+    ($ok, $error) = $list->aux_get_start($sublist);
+  }
+  else {
+    ($ok, $error) = $list->get_start;
+  }
   return ($ok, $error) unless $ok;
 
   while (1) {
-    @data = $list->get_matching_chunk($args{chunk}, $matcher);
+    if (length $sublist) {
+      @data = $list->aux_get_matching($sublist, $args{chunk}, $matcher);
+    }
+    else {
+      @data = $list->get_matching_chunk($args{chunk}, $matcher);
+    }
     last unless @data;
 
     # Add each address to the appropriate destination.
@@ -193,7 +213,12 @@ sub deliver {
   }
 
   # Close the iterator.
-  ($ok, $error) = $list->get_done;
+  if (length $sublist) {
+    ($ok, $error) = $list->aux_get_done($sublist);
+  }
+  else {
+    ($ok, $error) = $list->get_done;
+  }
   return ($ok, $error);
 
   # Rely on destruction to flush the destinations
