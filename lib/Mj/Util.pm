@@ -1231,9 +1231,7 @@ sub text_to_html {
         push (@out, '<pre>');
         $state = 'pre';
       }
-      elsif ($state eq 'text' and $i != $#lines 
-             and $lines[$i+1] =~ /^\s*$/) 
-      {
+      elsif ($state eq 'text') {
         push (@out, '<pre>');
         $state = 'pre';
       }
@@ -1245,6 +1243,9 @@ sub text_to_html {
       $state = 'text';
     }
     push (@out, $line);
+    if ($i == $#lines and $state eq 'pre') {
+      push (@out, '</pre>');
+    }
   }
   return join ("\n", @out);
 }
