@@ -57,9 +57,9 @@ added to the message, and the message will only be visible through the
 archive command to people with administrative access.
 
 The "accept-intact" command can be used to prevent a posted message from
-having its content altered due to the attachment rules.  See "help
-configset_attachment_rules" for more details on how messages can be
-changed.
+having its content altered due to the attachment filters.  See 
+"help configset_attachment_filters" for more details on how messages 
+can be changed.
 
 For consult tokens, the presence of a delay will convert the token type
 to "delay," delay the acceptance by the amount of time specified by a
@@ -76,6 +76,7 @@ action was acknowledged.
 See Also:
    help admin_moderate           (how to moderate a mailing list)
    help configset_access_rules   (flexibly change list behavior)
+   help configset_attachment_filters
    help configset_token_lifetime (expiration period)
    help configset_token_remind   (reminder before expiration)
    help default                  (for details on the "delay" option)

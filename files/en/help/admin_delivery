@@ -6,7 +6,7 @@ Among other features, a mailing list can be configured to...
 
   * Add unsubscription instructions to the end of the message.
   * Change the Subject header to show the name of the mailing list.
-  * Remove attachments.
+  * Remove or reformat attachments.
   * Change the Reply-To header to direct replies to the mailing list.
   * Bundle the messages into a digest.
 
@@ -176,28 +176,26 @@ See "help configset_message_fronter" and "help configset_message_footer"
 for more details.
 
 
-Discarding attachments
-----------------------
+Discarding or reformatting attachments
+--------------------------------------
 
-The attachment_rules configuration setting has a dual purpose.  As 
-mentioned in "help admin_moderate", messages can be moderated or
-rejected based upon the type of attachment.  In addition, the attachment
-rules can be used to discard parts of a posted message.
+The attachment filters can be used to change or discard parts of a 
+posted message.
 
-To remove all of the text/html parts from all messages bodies, use the
-following command:
+To remove all of the text/html parts from multipart messages, and
+convert all single-part messages into plain text, use the following 
+command:
 
-configset LISTNAME attachment_rules <<LPQ
+configset LISTNAME attachment_filters <<LPQ
 text/html | discard
+text/html | format
 LPQ
 
 This rule is useful if you want to include a fronter or footer in each 
 message, or want to avoid the security problems associated by HTML in
-e-mail.  Unfortunately, it is not uncommon for people to send messages
-with only a text/html body, in which case this rule would discard
-the entire message.
+e-mail.  
 
-See "help configset_attachment_rules" for more details.
+See "help configset_attachment_filters" for more details.
 
 
 Delivery rules (advanced topic)
