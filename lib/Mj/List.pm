@@ -510,10 +510,10 @@ sub set {
     # Issue partial digest if changing from 'digest' to 'each'
     if ($data->{'class'} eq 'digest' 
         and ($class eq 'each' or $class eq 'unique')) {
-      $ok = $self->digest_examine([$data->{'classarg'}]);
+      $ok = $self->digest_examine([$data->{'classarg'}], 0);
       if ($ok) {
-          $digest = $ok->{$data->{'classarg'}};
-          $digest->{'type'} = $data->{'classarg2'};
+        $digest = $ok->{$data->{'classarg'}};
+        $digest->{'type'} = $data->{'classarg2'};
       }
     }
       
@@ -774,9 +774,11 @@ sub should_ack {
 
 =head2 default_class
 
-This returns the default subscription class for new subscribers.
-
-This should be a per-list variable.
+This returns the default delivery class for new subscribers
+as a three-element array.  If the first element is "digest",
+the second and third elements will contain the digest name
+and type.  Otherwise, the second and third elements will be 
+empty.
 
 =cut
 sub default_class {
@@ -989,8 +991,7 @@ sub get_setting_data {
   }  
 
   @classes = keys %{$self->config_get('allowed_classes')};
-  $dfl = $self->config_get('default_class');
-  $dd = $df = '';
+  ($dfl, $dd, $df) = $self->default_class;
 
   $i = 0;
   for $flag (sort keys %classes) {
@@ -1001,10 +1002,6 @@ sub get_setting_data {
 
     if ($flag eq 'digest') {
       $dig = $self->config_get('digests');
-      if ($dfl eq 'digest') {
-        $dd = $dig->{'default_digest'};
-        $df = $dig->{$dd}->{'type'};
-      }
       
       for $class (sort keys %$dig) {
         next if ($class eq 'default_digest');
@@ -1363,7 +1360,7 @@ Returns an array of addresses corresponding to the list moderators.
 In decreasing precedence, the sources are:
   The "moderators" or another, named auxiliary list.
   The "moderators" configuration setting.
-  The "moderator" configuration setting.
+  The "owners" configuration setting.
   The "whoami_owner" configuration setting.
 
 =cut
@@ -1377,6 +1374,7 @@ sub moderators {
   unless (defined $group and exists $self->{'sublists'}{$group}) {
     $group = 'moderators';
   }
+
   if (exists $self->{'sublists'}{$group}) {
     ($ok, $mess) = $self->get_start($group);
     return unless $ok;
@@ -1387,8 +1385,13 @@ sub moderators {
     }
     return @out if (scalar @out);
   }
+
   @out = @{$self->config_get('moderators')};
   return @out if (scalar @out);
+
+  @out = @{$self->config_get('owners')};
+  return @out if (scalar @out);
+
   $self->config_get('whoami_owner');
 }
  
@@ -2441,7 +2444,7 @@ sub digest_sync {
   return unless $self->_make_archive;
 
   $dig = $self->config_get('digests');
-  $data = $self->digest_examine([ keys %$dig ]);
+  $data = $self->digest_examine([ keys %$dig ], 1);
   for $i (keys %$data) {
     @tmp = %seen = ();
     next unless (exists $data->{$i}->{'messages'});
