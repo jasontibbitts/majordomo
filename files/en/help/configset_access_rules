@@ -382,7 +382,7 @@ Section 1.5 - Moderator Groups:
   group is called "moderators."  When a message is sent to the
   -moderator alias, the addresses in the "moderators" auxiliary list
   are the recipients, if that sublist exists. If not, the "moderators,"
-  "moderator," and "sender" configuration settings are checked in
+  "moderator," and "whoami_owner" configuration settings are checked in
   turn until an address is found.
 
   If you use the "moderators" auxiliary list to store your moderators'

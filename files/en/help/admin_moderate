@@ -60,7 +60,7 @@ stopping when it finds a valid address:
   3. It looks in the "moderator" configuration setting for the list.
      This is provided for backward compatibility with Majordomo version 1.
 
-  4. It looks in the "sender" configuration setting.  This value is
+  4. It looks in the "whoami_owner" configuration setting.  This value is
      usually the list owners' address, so in the last resort, the 
      owners and the moderators are the same people.
 
@@ -535,7 +535,10 @@ See Also:
    help configset
    help configset_access_rules
    help configset_default_flags
+   help configset_moderator
+   help configset_moderators
    help configset_nonmember_flags
+   help configset_whoami_owner
    help configshow
    help reject
    help set        (for a description of the postblock personal setting)
