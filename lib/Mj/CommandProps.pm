@@ -267,7 +267,9 @@ my %commands =
    {
     'parser'   => [qw(email shell list global nohereargs real)],
     'dispatch' => {'top' => 1, 
-                   'arguments' => {'file', {'type' => 'SCALAR'}},
+                   'arguments' => {
+                                   'file' => {'type' => 'SCALAR'}
+                                  },
                    'modes'    =>  {
                                    %generic_modes,
                                    'digest'      => 1,
@@ -290,7 +292,10 @@ my %commands =
    {
     'parser'   => [qw(email shell list real)],
     'dispatch' => {'top' => 1, 'iter' => 1,
-                   'arguments' => {'args', {'type' => 'SCALAR'}},
+                   'arguments' => {
+                                   'args' => {'type' => 'SCALAR'}
+                                  },
+                   'hereargs' => 'patterns',
                    'modes'    =>  {
                                    %generic_modes,
                                    'delete'      => 1,
@@ -303,7 +308,8 @@ my %commands =
                                    'summary'     => 1,
                                    'sync'        => 1,
                                   },
-                   'tokendata' => {'arg1' => 'args'}
+                   'tokendata' => {'arg1' => 'args',
+                                   'arg2' => 'patterns' }
                   },
     'access'   => {
                    'default' => 'access',
@@ -494,7 +500,7 @@ my %commands =
                                     'arg2' => 'password', },
                   },
     'access'   => {
-                   'default' => 'allow',
+                   'default' => 'mismatch',
                    'legal'   => \%reg_legal,
                    'actions' => \%generic_actions,
                   },
@@ -813,7 +819,7 @@ my %commands =
    'unregister' =>
    {
     'parser'   => [qw(email shell real)],
-    'dispatch' => {'top' => 1, 
+    'dispatch' => {'top' => 1, 'noaddr' => 1,
                    'arguments' => {'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  =>  'victims',
                    'modes'    =>  {
@@ -833,7 +839,7 @@ my %commands =
    'unsubscribe' =>
    {
     'parser'   => [qw(email shell list global all real)],
-    'dispatch' => {'top' => 1, 
+    'dispatch' => {'top' => 1, 'noaddr' => 1,
                    'arguments' => {'victims' => {'type' => 'ARRAYELEM'}},
                    'hereargs'  =>  'victims',
                    'modes'    =>  {
@@ -905,14 +911,14 @@ my %commands =
    {
     'access' => {
 		 'legal'   => {
-			       'subscribed'           => 1,
-			       'days_since_subscribe' => 2,
-			       'consecutive'          => 2,
-			       'bouncedpct'           => 2,
-			       'numbered'             => 2,
-			       'day'                  => 2,
-			       'week'                 => 2,
-			       'month'                => 2,
+			       'subscribed'           => 'bool',
+			       'days_since_subscribe' => 'integer',
+			       'consecutive'          => 'integer',
+			       'bouncedpct'           => 'integer',
+			       'numbered'             => 'integer',
+			       'day'                  => 'integer',
+			       'week'                 => 'integer',
+			       'month'                => 'integer',
 			      },
 		 'actions' => {
 			       'remove' => 1,
