@@ -1,3 +1,5 @@
+<pre>$ERROR</pre>
+
 <h4 align=center>Create a Mailing List</h4>
 <p>
 <ol>
@@ -83,7 +85,7 @@ Press the <b>createlist-destroy</b> button to destroy the list.
 </form>
 
 <p>
-<a href="$CGIURL?$CGIDATA&passw=$CMDPASS&func=lists">List of Lists</a>
+<a href="$CGIURL?$CGIDATA&func=lists">List of Lists</a>
 </p>
 
 
