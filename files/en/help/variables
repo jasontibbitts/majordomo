@@ -149,6 +149,10 @@ See "help reply_files" for an overview of each of the reply files.
 In time, a complete list of the other substitutions supported by 
 the error, format, and reply files will be presented here.
 
+\$APPROVALS
+  The number of people who must use the accept command to approve
+  a stalled request.
+
 \$ARCHIVE
   The archive number of a posted message, for example "200008/124".
   This is not the same as the sequence number;  see "help archive"
@@ -159,6 +163,15 @@ the error, format, and reply files will be presented here.
   determined by the archive_url configuration setting;  see 
   "help configset_archive_url" for more information.
 
+\$CGIDATA
+  A supplementary part of the URL of the current CGI script, for use
+  in the web interfaces when the URL is used in an anchor 
+  ("<a href=...>").
+
+\$CGIURL
+  The URL of the current CGI script, when one of the web interfaces
+  is being used.
+
 \$CMDLINE
   The command line that would be used to issue a command via e-mail
   or the mj_shell program.
@@ -166,14 +179,22 @@ the error, format, and reply files will be presented here.
 \$CMDPASS
   The password with which the current command was issued.
 
+\$CONSULT
+  " " if the type of a stalled command is "consult"; '' otherwise.
+  "consult" means that the moderators must confirm the command.
+
 \$DATE
   The date at which a request was originally issued;  in some cases
   this may be the Date header from a posted message.
 
 \$EXPIRE   
-  The number of days before a request that has been stalled expires.
-  This value is determined by the token_lifetime configuration setting
+  The number of days before a request that has been stalled expires, or
+  in some cases the date at which it will expire.  This value is
+  determined by the token_lifetime configuration setting 
   (see "help configset_token_lifetime" for details).
+
+\$ERROR
+  An error message which describes why a command failed.
 
 \$FULFILL
   The date at which a delayed request will be completed
@@ -183,6 +204,10 @@ the error, format, and reply files will be presented here.
   The host from which a posted message is distributed to the subscribers
   of a mailing list.  This value comes from the resend_host configuration
   setting (see "help configset_resend_host" for more details).
+
+\$ISPOST
+  " " if a token refers to a stalled posted message; '' if a token
+  refers to a Majordomo command.
 
 \$PASSWORD
   The personal password corresponding to a particular e-mail address.
@@ -220,13 +245,27 @@ the error, format, and reply files will be presented here.
 \$SUBSCRIBED
   If a message was posted by a subscriber to the mailing list, this
   value is empty.  If not, it is the word "not".
- 
+
+\$TOKEN
+  The twelve-character identifier that is used to accept or reject
+  a stalled command (see "help tokeninfo" for more information.)
+
+\$TYPE
+  The type of a stalled command, such as "confirm" if the person
+  affected by the request must confirm the command, or "consult" if 
+  the moderators must confirm the command.
+
 \$USER
   The e-mail address from which a Majordomo request was originally sent.
   (this needs to be reconciled with \$REQUESTER)
 
 \$VICTIM 
   The e-mail address of the person affected by a Majordomo command.
+
+\$WILLACK
+  " " if an acknowledgement message will be mailed if a token is
+  accepted or rejected; '' otherwise.
+
 
 Extensions for error and format files
 -------------------------------------
