@@ -6,7 +6,7 @@
 
 </dt>
 <dd>
-  <pre>?COMMENT</pre>
+  ?COMMENT <br>
 <textarea cols="70" rows="$LINES" name="$SETTING">
 ?VALUE
 </textarea><br>

@@ -5,6 +5,6 @@
   (level $LEVEL)
 </dt>
 <dd>
-  <pre>?COMMENT</pre>
+  ?COMMENT<br>
   <input size="28" name="$SETTING" value="$VALUE">
 </dd>
