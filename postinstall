@@ -18,7 +18,7 @@ require "setup/setup_func.pl";
 # bomb here than to let a bad installation slip by.
 
 $config = eval { require ".mj_config" };
-die "Can't do postinstall unless Makefile.PL has been run!"
+die retr_msg('no_mj_config', $lang)
   unless $config;
 
 #@dirs = (); %files = (); # Silence warning.
@@ -42,19 +42,6 @@ if ($config->{mta} eq 'sendmail') {
 else {
   push @scripts, qw(mj_email mj_enqueue);
 }
-
-
-$msg2 = <<EOM;
-
-The installation can do some basic global configuration using the questions
- answered before installation began.
-
-If you do not do this, the rest of the installation may not proceed
- correctly, since the global password needs to be set in order for this
- program to make configuration changes.
-
-Do basic global configuration now?
-EOM
 
 set_script_perms(\@sidscripts, \@scripts);
 
@@ -83,7 +70,7 @@ install_response_files();
 do_site_config();
 
 # Configure a few global parameters
-if (!$skip && (!$ask || get_bool($msg2))) {
+if (!$skip && (!$ask || get_bool(retr_msg('global_config', $lang)))) {
   for my $i (@{$config->{'domains'}}) {
     do_default_config($i);
     install_config_templates($config, $i);
@@ -96,7 +83,7 @@ if (!$skip && (!$ask || get_bool($msg2))) {
 mta_setup(@{$config->{'domains'}}) unless $skip;
 
 if ($config->{sendmail_make_symlinks}) {
-  print "Making symlinks in $config->{sendmail_symlink_location}";
+  print retr_msg('link_alias_files', $lang);
   for my $i (@{$config->{'domains'}}) {
     make_alias_symlinks($i, $config->{sendmail_symlink_location});
     &dot;
@@ -105,17 +92,11 @@ if ($config->{sendmail_make_symlinks}) {
 }
 
 if (!$skip && !$quiet && -t STDIN) {
-  print <<"EOM";
-
-Please add the following entries to the $config->{'uid'}
-account\'s crontab (not to the crontab of root or any other user).
-EOM
+  print retr_msg('crontab_head', $lang, 'UID' => $config->{'uid'});
 }
+
 open OUT, ">$config->{install_dir}/majordomo.crontab" or
-  die "Can't open sample crontab file, $!";
-print OUT <<EOM;
-# This is a set of sample crontab entries.
-EOM
+  die "Cannot open sample crontab file: $!";
   
 my $ct;
 $ct = suggest_crontab();
@@ -123,7 +104,9 @@ print $ct if -t STDIN && (!$skip && !$quiet);
 print OUT $ct;
 
 close OUT;
-chownmod(scalar getpwnam($config->{'uid'}), scalar getgrnam($config->{'gid'}), 0755, "$config->{install_dir}/majordomo.crontab");
+chownmod(scalar getpwnam($config->{'uid'}), 
+         scalar getgrnam($config->{'gid'}), 0755, 
+         "$config->{install_dir}/majordomo.crontab");
 
 exit;
 
