@@ -61,7 +61,7 @@ sub parse_entity {
     $count=0;
     while (@parts) {
       ($ok, @ents) =
-	parse_entity($mj, 
+	parse_entity($mj,
 		     %args,
 		     title => "part $count of $args{'title'}",
 		     entity => shift @parts,
@@ -94,7 +94,7 @@ sub parse_entity {
     $body = $entity->bodyhandle;
     $infh = $body->open("r") or
       $::log->abort("Hosed! Couldn't open body part, $!");
-    
+
     # Open handles for all of the attachments to this part
     for $i (@{$args{'parts'}}) {
       # Make sure we have a single part entity
@@ -107,7 +107,7 @@ sub parse_entity {
     $name = "$args{'tmpdir'}/mje." . Majordomo::unique() . ".out";
     $outfh = new IO::File "> $name" or
       $::log->abort("Hosed! Couldn't open output file $name, $!");
-    
+
     # XXX parse_part expects a hashref of "extra stuff" as its last
     # argument.  We just happen to have all of that in our argument hash,
     # so we pass it.  We should just pass a single hash.
@@ -122,14 +122,14 @@ sub parse_entity {
     for $i (@attachments) {
       $i->close;
     }
-    
+
     push @entities, build MIME::Entity(
 				       Path        => $name,
 				       Filename    => undef,
 				       Description => "Results from $args{'title'}",
 				       Top         => 0,
 				      );
-    
+
     # We could also add an entity containing the original message.  We could
     # also do a separate entity for each command, or for those which produce
     # a large amount of output.
@@ -171,8 +171,8 @@ sub parse_part {
 
   my $log         = new Log::In 50, "$interface, $title";
   my (@arglist, @help, $action, $cmdargs, $attachhandle, $command, $count,
-      $ent, $fail_count, $function, $garbage, $list, $mode, $name, 
-      $ok, $ok_count, $out, $outfh, $password, $pend_count, $replacement, 
+      $ent, $fail_count, $function, $garbage, $list, $mode, $name,
+      $ok, $ok_count, $out, $outfh, $password, $pend_count, $replacement,
       $sigsep, $tlist, $true_command, $unk_count, $user);
 
   $count = $ok_count = $pend_count = $fail_count = $unk_count = $garbage = 0;
@@ -182,13 +182,13 @@ sub parse_part {
 
  CMDLINE:
   while (defined($_ = $inhandle->getline)) {
-    
+
     # Skip comments
     next if /^\s*\#/;
-    
+
     # Skip blank lines
     next if /^\s*$/;
-    
+
     # Stop parsing at a signature separator. XXX It is of dubious legality
     # to call a function in the Majordomo namespace from here.  We know the
     # module has been loaded because we have a valid Majordomo object, but
@@ -199,7 +199,7 @@ sub parse_part {
       last CMDLINE;
     }
 
-    # request is a reference to a hash that is used 
+    # request is a reference to a hash that is used
     # to marshal arguments for a call to majordomo core
     # functions via dispatch().
     my ($request) = {};
@@ -222,12 +222,12 @@ sub parse_part {
       print $outhandle "Found empty command!\n";
       next CMDLINE;
     }
-    
+
     # Pull off a command mode
     ($command, $mode) = $command =~ /([^=-]+)[=-]?(.*)/;
     next CMDLINE unless $command;
     $mode = '' unless defined $mode;
-    
+
     $true_command = command_legal($command);
     $log->message(50, "info", "$command aliased to $true_command.")
       if defined $true_command and $command ne $true_command;
@@ -307,7 +307,7 @@ sub parse_part {
         print $outhandle "Command $command doesn't take arguments with << TAG or <@.\n";
         next CMDLINE;
       }
-      
+
     # Warn if command takes no args
     if (command_prop($true_command, "noargs") &&
 	($cmdargs || @arglist || $attachhandle))
@@ -340,7 +340,7 @@ sub parse_part {
         if ($cmdargs) {
           $user = $cmdargs;
         }
-        else { 
+        else {
           $user = $args{'reply_to'};
         }
 	    print $outhandle "User set to \"$user\".\n";
@@ -356,19 +356,19 @@ sub parse_part {
       if ($true_command =~ /accept|reject/) {
 	$cmdargs ||= $args{'token'};
       }
-      elsif ($true_command =~ /newfaq/) { 
+      elsif ($true_command =~ /newfaq/) {
         $cmdargs = "/faq Frequently Asked Questions";
         $true_command = "put";
       }
-      elsif ($true_command =~ /newinfo/) { 
+      elsif ($true_command =~ /newinfo/) {
         $cmdargs = "/info List Information";
         $true_command = "put";
       }
-      elsif ($true_command =~ /newintro/) { 
+      elsif ($true_command =~ /newintro/) {
         $cmdargs = "/intro List Introductory Information";
         $true_command = "put";
       }
-        
+
       $cmdargs ||= '';
 
       # initialize basic information
@@ -546,18 +546,18 @@ sub parse_line {
   # Merge lines ending in backslashes
   chomp;
   while (/\\\s*$/) {
-    s/\\\s*$/ /;                
-    $_ .= $inhandle->getline;        
+    s/\\\s*$/ /;
+    $_ .= $inhandle->getline;
     chomp;
   }
-  
+
   # Trim leading and trailing whitespace and remove tabs
   s/^\s*(.*?)\s*$/$1/;
   s/\t/ /g;
 
   # Echo the line
   $out .= ">>>> $_\n";
-  
+
   # Process an attachment with <@ num, where num is the attachment num.
   # <@1 would pull from the attachment immediately following this one.
   if (/^(.*)\s+<@\s*(\d*)$/) {
@@ -578,12 +578,12 @@ sub parse_line {
   # there can be no digits in the first three positions.
   #  elsif (/^(.*)\s+<<\s*([A-Z]{3}[A-Z0-9]*)$/) {
   elsif (/^(.*)\s+\<\<\s*([A-Z]{3}[A-Z0-9]*)$/) {
-    
+
     # Trim the expression from the command line.
     $_ = $1;
     $tag = $2;
     $log->message(80, "info", "Parsing multiline argument, tag $tag, rest $_.");
-    
+
     # We should scan through the remainder of the message looking for the
     # token.  If we don't find it, we know that something is bogus and we can
     # warn before eating all of the input.  Since it's possible (though
@@ -593,29 +593,29 @@ sub parse_line {
     # a whole additional command structure within the arglist.  So we should
     # warn (but not abort) if we see "^command\s+.* << [A-Z]+$" within the
     # arglist.
-    
+
     # Since we can't yet seek and tell on $inputhandle, the best we can do
     # is go ahead and parse and if we notice that things are hosed, try not
     # to act on any bogus info we grab.  Eryq added seek and tell on
     # bodyhandles, so soon I'll be able to do this.
-    
+
     # Grab input until see see the TAG or EOF.
     while (1) {
       $line = $inhandle->getline;
-      
+
       # Did we run out of input?
       unless (defined $line) {
         $out .= "Reached EOF without seeing tag $tag!\n";
         return $out;
       }
       chomp $line;
-      
+
       $log->message(90, "info", "grabbed line $line");
-      
+
       # Process backslashes
       while ($line =~ /\\\s*$/) {
-        $line =~ s/\\\s*$/ /;                
-        $line .= $inhandle->getline;        
+        $line =~ s/\\\s*$/ /;
+        $line .= $inhandle->getline;
         chomp $line;
       }
 
@@ -631,20 +631,20 @@ sub parse_line {
       # single dash        --> empty line
       # dash anything else --> don't change
       $line =~ s/^-([\s-]|$)/$1/;
-      
+
       # XXX ? # Here warn if this looks like a command followed by another TAG.
-      
+
       push @arglist, $line;
-      
+
       # XXX ? # Here give some indication of the line that we snarfed.
     }
   }
-  
+
   # Extract the command from the line
   $log->message(80, "info", "Extracting command from \"$_\"");
   ($command, $_) = /^(\S+)\s*(.*)$/;
   $log->message(81, "info", "Got command \"$command\", rest \"$_\"");
-  
+
   return ($out, $command, $_, $attachhandle, @arglist);
 }
 
@@ -679,7 +679,7 @@ sub add_deflist {
 
   # XXX Possibly allow "list@host" and "list" to be equal?
   if (grep {$list eq $_}
-      $mj->get_all_lists($reply_to, undef, undef, "email")) 
+      $mj->get_all_lists($reply_to, undef, undef, "email"))
     {
       return "$list$line";
     }
@@ -708,7 +708,7 @@ sub parse_args {
       $useopts = 0;
       for $variable (keys %$arguments) {
         $varcount--
-          if ($arguments->{$variable} =~ /OPT/); 
+          if ($arguments->{$variable} =~ /OPT/);
       }
     }
 
@@ -748,6 +748,7 @@ sub parse_args {
   }
   1;
 }
+
 =head1 COPYRIGHT
 
 Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development

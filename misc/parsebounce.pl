@@ -36,10 +36,10 @@ for $file (@ARGV) {
   print "Parsing $file...\n";
 
   ($type, $msgno, $user, $handler, $data) =
-    Bf::Parser::parse($ent,
-		      'test',
-		      '+',
-		     );
+    Mj::BounceParser::parse($ent,
+			    'test',
+			    '+',
+			   );
 
   if ($type eq 'M') {
     print "Parsed this bounce: message #$msgno, bounce type: $handler.\n";

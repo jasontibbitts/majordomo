@@ -572,7 +572,9 @@ sub parse_lotus {
   # The first non-blank line must contain the greeting
   $bh = $ent->bodyhandle->open('r');
   return unless $bh;
-  while (defined($line = $bh->getline)) {
+  while (1) {
+    $line = $bh->getline;
+    return unless defined $line;
     next if $line =~ /^\s*$/;
     last if $line =~ /^-+\s+failure reasons/i;
     return;
@@ -648,148 +650,6 @@ sub parse_postfix {
     }
   }
   $ok;
-}
-
-
-
-=head2 parse_sendmail
-
-Attempts to parse the bounces issued by older versions of Sendmail.
-
-We read until we get to:
-
-   ----- The following addresses had permanent fatal errors -----
-
-One address per line follows until the next blank line.
-
-After the users are extracted, we call check_dsn_diags to make use of
-the logic there for pulling diagnostics out of the SMTP transaction.
-
-=cut
-sub parse_sendmail {
-  my $log  = new Log::In 50;
-  my $ent  = shift;
-  my $data = shift;
-  my ($bh, $line, $ok, $user);
-
-  return if $ent->parts;
-  $bh = $ent->bodyhandle->open('r');
-  return unless $bh;
-
-  while (1) {
-    $line = $bh->getline;
-    return if !defined($line) || $line =~ /^\s*-+\s+original message/i;
-    last if $line =~ /^\s*-+\s*the following addresses had permanent fatal errors/i;
-  }
-
-  while (defined($line = $bh->getline)) {
-    last if $line =~ /^\s*$/;
-    if ($line =~ /^\s*<(.*)>\s*$/) {
-      $data->{$1}{'status'} = 'failure';
-      $data->{$1}{'diag'}   = 'unknown';
-      $ok = 'Sendmail Classic';
-    }
-  }
-  if ($ok) {
-    check_dsn_diags($ent, $data);
-  }
-  $ok;
-}
-
-=head2 parse_smtp32
-
-Attempts to parse the bounces issued by an MTA I've never heard of called
-SMTP32.
-
-It identifies itself by an X-Mailer header:
-
-X-Mailer: <SMTP32 v991129>
-
-The only thing we care about is the first line of the bounce, which looks
-something like:
-
-User mailbox exceeds allowed size: xxxx@yyyy.net
-
-=cut
-sub parse_smtp32 {
-  my $log  = new Log::In 50;
-  my $ent  = shift;
-  my $data = shift;
-  my ($bh, $diag, $line, $user, $xmailer);
-
-  $xmailer = $ent->head->get('X-Mailer');
-  return unless $xmailer && $xmailer =~ /SMTP32/i;
-
-  return if $ent->parts;
-  $bh = $ent->bodyhandle->open('r');
-  return unless $bh;
-
-  while (1) {
-    $line = $bh->getline;
-    last unless $line =~ /^\s*$/;
-  }
-  return unless $line =~ /([^:]+):\s+(.*)/;
-  $user = $2; $diag = $1;
-  $data->{$user}{'status'} = 'failure';
-  $data->{$user}{'diag'}   = $diag;
-
-  'SMTP32';
-}
-
-=head2 parse_softswitch
-
-Attempts to parse the bounces issued by Soft-Switch LMS.  Subject contains
-"Delivery Report (failure)", bounces are single-part and body has:
-
-This report relates to your message: Majordomo res...
-        of Thu, 23 Dec 1999 16:33:44 +0100
-
-Your message was not delivered to   xxxx@yyyy.es
-        for the following reason:
-        Recipient's Mailbox unavailable
-        Originator could not be auto-registered.
-
-This routine was written with two bounces as examples.  It may not be
-correct for all versions or in general.
-
-=cut
-sub parse_softswitch {
-  my $log  = new Log::In 50;
-  my $ent  = shift;
-  my $data = shift;
-  my ($bh, $diag, $failure, $line, $ok, $user);
-
-  return if $ent->parts;
-
-  $bh = $ent->bodyhandle->open('r');
-  return unless $bh;
-
-  while (defined($line = $bh->getline)) {
-    next if $line =~ /^\s*$/;
-    last if $line =~ /^\s*this report relates to/i;
-    return;
-  }
-
-  while (defined($line = $bh->getline)) {
-    return 0 if $line =~ /^\s*\*/;
-    if ($line =~ /^\s*your message was not delivered to\s+(.*)\s*$/i) {
-      $user = $1; $diag = '';
-      $line = $bh->getline;
-      return unless $line =~ /\s*for the following/i;
-      last;
-    }
-  }
-  while (defined($line = $bh->getline)) {
-    return if $line =~ /^\s*\*/;
-    last if $line =~ /^\s*$/;
-    chomp $line; $line =~ s/^\s+//; $line =~ s/\s+$//;
-    $diag .= ' ' if $diag;
-    $diag .= $line;
-  }
-  $data->{$user}{'status'} = 'failure';
-  $data->{$user}{'diag'}   = $diag;
-
-  'SoftSwitch';
 }
 
 =head2 parse_postoffice
@@ -957,6 +817,148 @@ sub parse_qmail {
       }
   }
   $ok;
+}
+
+=head2 parse_sendmail
+
+Attempts to parse the bounces issued by older versions of Sendmail.
+
+We read until we get to:
+
+   ----- The following addresses had permanent fatal errors -----
+
+One address per line follows until the next blank line.
+
+After the users are extracted, we call check_dsn_diags to make use of
+the logic there for pulling diagnostics out of the SMTP transaction.
+
+=cut
+sub parse_sendmail {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my ($bh, $line, $ok, $user);
+
+  return if $ent->parts;
+  $bh = $ent->bodyhandle->open('r');
+  return unless $bh;
+
+  while (1) {
+    $line = $bh->getline;
+    return if !defined($line) || $line =~ /^\s*-+\s+original message/i;
+    last if $line =~ /^\s*-+\s*the following addresses had permanent fatal errors/i;
+  }
+
+  while (defined($line = $bh->getline)) {
+    last if $line =~ /^\s*$/;
+    if ($line =~ /^\s*<(.*)>\s*$/) {
+      $data->{$1}{'status'} = 'failure';
+      $data->{$1}{'diag'}   = 'unknown';
+      $ok = 'Sendmail Classic';
+    }
+  }
+  if ($ok) {
+    check_dsn_diags($ent, $data);
+  }
+  $ok;
+}
+
+=head2 parse_smtp32
+
+Attempts to parse the bounces issued by an MTA I've never heard of called
+SMTP32.
+
+It identifies itself by an X-Mailer header:
+
+X-Mailer: <SMTP32 v991129>
+
+The only thing we care about is the first line of the bounce, which looks
+something like:
+
+User mailbox exceeds allowed size: xxxx@yyyy.net
+
+=cut
+sub parse_smtp32 {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my ($bh, $diag, $line, $user, $xmailer);
+
+  $xmailer = $ent->head->get('X-Mailer');
+  return unless $xmailer && $xmailer =~ /SMTP32/i;
+
+  return if $ent->parts;
+  $bh = $ent->bodyhandle->open('r');
+  return unless $bh;
+
+  while (1) {
+    $line = $bh->getline;
+    last unless $line =~ /^\s*$/;
+  }
+  return unless $line =~ /([^:]+):\s+(.*)/;
+  $user = $2; $diag = $1;
+  $data->{$user}{'status'} = 'failure';
+  $data->{$user}{'diag'}   = $diag;
+
+  'SMTP32';
+}
+
+=head2 parse_softswitch
+
+Attempts to parse the bounces issued by Soft-Switch LMS.  Subject contains
+"Delivery Report (failure)", bounces are single-part and body has:
+
+This report relates to your message: Majordomo res...
+        of Thu, 23 Dec 1999 16:33:44 +0100
+
+Your message was not delivered to   xxxx@yyyy.es
+        for the following reason:
+        Recipient's Mailbox unavailable
+        Originator could not be auto-registered.
+
+This routine was written with two bounces as examples.  It may not be
+correct for all versions or in general.
+
+=cut
+sub parse_softswitch {
+  my $log  = new Log::In 50;
+  my $ent  = shift;
+  my $data = shift;
+  my ($bh, $diag, $failure, $line, $ok, $user);
+
+  return if $ent->parts;
+
+  $bh = $ent->bodyhandle->open('r');
+  return unless $bh;
+
+  while (1) {
+    $line = $bh->getline;
+    return unless defined $line;
+    next if $line =~ /^\s*$/;
+    last if $line =~ /^\s*this report relates to/i;
+    return;
+  }
+
+  while (defined($line = $bh->getline)) {
+    return 0 if $line =~ /^\s*\*/;
+    if ($line =~ /^\s*your message was not delivered to\s+(.*)\s*$/i) {
+      $user = $1; $diag = '';
+      $line = $bh->getline;
+      return unless $line =~ /\s*for the following/i;
+      last;
+    }
+  }
+  while (defined($line = $bh->getline)) {
+    return if $line =~ /^\s*\*/;
+    last if $line =~ /^\s*$/;
+    chomp $line; $line =~ s/^\s+//; $line =~ s/\s+$//;
+    $diag .= ' ' if $diag;
+    $diag .= $line;
+  }
+  $data->{$user}{'status'} = 'failure';
+  $data->{$user}{'diag'}   = $diag;
+
+  'SoftSwitch';
 }
 
 =head2 check_dsn_diags

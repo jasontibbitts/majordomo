@@ -1,3 +1,9 @@
+2000-07-01  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/BounceParser.pm (parse_lotus): Would accept an all-blank
+	bounce.
+	(parse_softswitch): Would accept an all-blank bounce.
+
 2000-07-01  Michael Yount <csf@moscow.com>
 
 	* lib/Majordomo.pm: (archive_chunk)  Use existing

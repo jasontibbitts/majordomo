@@ -231,7 +231,6 @@ sub handle_bounce {
       $tmpdir, $type, $whoami);
 
   $parser = new Mj::MIMEParser;
-  $parser->output_to_core($self->_global_config_get("max_in_core"));
   $parser->output_dir($self->_global_config_get('tmpdir'));
   $parser->output_prefix("mjo");
 
@@ -243,6 +242,7 @@ sub handle_bounce {
   $whoami = $self->_global_config_get('whoami');
   $whoami =~ s/\@.*$//;
 
+  if (defined $ent) {
   ($type, $msgno, $user, $handler, $data) =
     Mj::BounceParser::parse($ent,
 			    $list eq 'GLOBAL'?$whoami:$list,
