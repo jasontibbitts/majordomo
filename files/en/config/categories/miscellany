@@ -2,7 +2,7 @@
 
 The miscellany category includes the following settings:
    aliases, chunksize, comments, config_defaults, debug, log_lifetime, 
-   max_in_core, priority, session_lifetime, signature_separator, 
-   site_name, tmpdir, triggers, whereami, whoami, whoami_owner, 
-   www_help_window, wwwadm_url, wwwusr_url
+   max_in_core, priority, relocated_lists, session_lifetime, 
+   signature_separator, site_name, tmpdir, triggers, whereami, whoami, 
+   whoami_owner, www_help_window, wwwadm_url, wwwusr_url
 
