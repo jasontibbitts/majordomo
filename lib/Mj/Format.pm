@@ -537,7 +537,8 @@ sub createlist {
   my ($ok, $mess) = @$result;
 
   unless ($ok > 0) {
-    eprint($out, $type, "Createlist failed.\n");
+    eprint($out, $type, 
+           &indicate("The createlist command failed.\n", $ok));
     eprint($out, $type, &indicate($mess, $ok));
     return $ok;
   }
@@ -553,7 +554,8 @@ sub digest {
   my ($comm, $digest, $i, $msgdata);
   my ($ok, $mess) = @$result;
   unless ($ok > 0) {
-    eprint($out, $type, "Digest-$request->{'mode'} failed.\n");
+    eprint($out, $type, 
+           &indicate("The digest-$request->{'mode'} command failed.\n", $ok));
     eprint($out, $type, &indicate($mess, $ok));
     return $ok;
   }
@@ -617,7 +619,7 @@ sub help {
   my ($ok, $mess) = @$result;
 
   unless ($ok > 0) {
-    print $out "Help $request->{'topic'} failed.\n$mess";
+    print $out &indicate("Help $request->{'topic'} failed.\n$mess", $ok);
     return $ok;
   }
 
@@ -991,7 +993,7 @@ sub reject {
   while (@tokens) { 
     ($ok, $res) = splice @tokens, 0, 2;
     unless ($ok) {
-      eprint($out, $type, indicate($res, $ok));
+      eprint($out, $type, &indicate($res, $ok));
       next;
     }
     ($token, $data) = @$res;
@@ -1038,7 +1040,7 @@ sub report {
 
   unless ($ok > 0) {
     eprint($out, $type, "Unable to create report\n");
-    eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+    eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
     return $ok;
   }
 
@@ -1067,7 +1069,7 @@ sub report {
   while (1) {
     ($ok, $chunk) = @{$mj->dispatch($request)};
     unless ($ok) {
-      eprint($out, $type, indicate($chunk, $ok, 1)) if $chunk;
+      eprint($out, $type, &indicate($chunk, $ok, 1)) if $chunk;
       last;
     }
     last unless scalar @$chunk;
@@ -1102,7 +1104,7 @@ sub report {
                   $victim, $outcomes{$data->[6]}, $end;
         }
      
-        eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+        eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
       }
       elsif ($request->{'list'} eq 'ALL') {
         
@@ -1151,7 +1153,7 @@ sub report {
     else {
       $mess = "There was no activity.\n";
     }
-    eprint($out, $type, indicate($mess, $ok, 1));
+    eprint($out, $type, &indicate($mess, $ok, 1));
 
     for $end (sort keys %stats) {
       if ($request->{'list'} eq  'ALL') {
@@ -1165,7 +1167,7 @@ sub report {
                                  $stats{$end}{$begin}{'0'},
                                  $stats{$end}{$begin}{'time'} / 
                                  $stats{$end}{$begin}{'TOTAL'};
-          eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+          eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
         }
       }
       else {
@@ -1174,7 +1176,7 @@ sub report {
                            $stats{$end}{'-1'}, $stats{$end}{'0'},
                            $stats{$end}{'time'} / 
                            $stats{$end}{'TOTAL'};
-        eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+        eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
       }
     }
   }
@@ -1263,7 +1265,7 @@ sub show {
   # get from the address.
   if ($ok == 0) {
     if (ref($data)) {
-      push @$error, "The show command failed.";
+      push @$error, 'The show command failed.';
       push @$error, "$data->{error}";
     }
     else {
@@ -1287,7 +1289,7 @@ sub show {
     push @$error, "Mailbox: $data->{'strip'}";
     push @$error, "Comment: $data->{'comment'}"
       if (defined $data->{comment} && length $data->{comment});
-    push @$error, indicate($data->{error}, $ok);
+    push @$error, &indicate($data->{error}, $ok);
 
     $subs = { %$global_subs,
               'ERROR' => $error,
@@ -1731,7 +1733,7 @@ sub who {
   ($ok, $regexp, $settings) = @$result;
 
   if ($ok <= 0) {
-    $gsubs->{'ERROR'} = indicate($regexp, $ok);
+    $gsubs->{'ERROR'} = &indicate($regexp, $ok);
     $tmp = $mj->format_get_string($type, 'who_error');
     $str = $mj->substitute_vars_format($tmp, $gsubs);
     print $out "$str\n";
@@ -1972,8 +1974,8 @@ sub g_get {
   my ($ok, $mess) = @$result;
 
   unless ($ok > 0) {
-    eprint($out, $type, "The $base command failed\n");
-    eprint($out, $type, indicate($mess, $ok, 1)) if $mess;
+    eprint($out, $type, &indicate("The $base command failed.\n", $ok));
+    eprint($out, $type, &indicate($mess, $ok, 1)) if $mess;
     return $ok;
   }
 
@@ -2060,7 +2062,7 @@ sub g_sub {
   while (@res) {
     ($ok, $addr) = splice @res, 0, 2;
     unless ($ok > 0) {
-      eprint($out, $type, indicate("$addr\n", $ok));
+      eprint($out, $type, &indicate("$addr\n", $ok));
       next;
     }
     for (@$addr) {

@@ -1,5 +1,13 @@
 2001-08-01  Michael Yount <csf@moscow.com>
 
+	* lib/Mj/Access.pm:  (_a_default)  Include longer error
+	messages when a request is denied by default, or due to
+	the use of an absolute path in a file or directory name.
+	Thanks to Nathan Spencer.
+
+	* lib/Mj/Format.pm:  Consistency:  use the indicate
+	routine consistently to mark failure messages.
+
 	* lib/Mj/Resend.pm:  (post, _post)  Use "(no subject)"
 	in the SUBJECT expansion if no subject was provided.
 
