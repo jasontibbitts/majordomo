@@ -22,9 +22,6 @@ handling all archiving and digesting aspects of the list.
 package Mj::List;
 
 use strict;
-use Safe;  # For evaluating the address transforms
-use Mj::File;
-use Mj::FileRepl;
 use Mj::SubscriberList;
 use Mj::Config qw(parse_table);
 use Mj::Addr;
@@ -1214,6 +1211,7 @@ others can be created at any time.  This does not actually create
 the objects, only the hash slots, so that they can be tested for with exists().
 
 =cut
+use Symbol;
 sub _fill_config {
   my $self = shift;
 
@@ -1222,7 +1220,7 @@ sub _fill_config {
   
   $::log->in(120);
 
-  my $dirh = new IO::Handle;
+  my $dirh = gensym();
   my ($file);
   
   my $listdir = $self->_file_path;
@@ -1248,6 +1246,7 @@ time.  This does not actually create the objects, only the hash slots, so
 that they can be tested for with exists().
 
 =cut
+use Symbol;
 sub _fill_aux {
   my $self = shift;
 
@@ -1256,7 +1255,7 @@ sub _fill_aux {
   
   $::log->in(120);
 
-  my $dirh = new IO::Handle;
+  my $dirh = gensym();
   my ($file);
   
   my $listdir = $self->_file_path;
