@@ -8,7 +8,8 @@ This format is used in the following contexts:
   the archive command           (see "help archive")
   the report command            (see "help report")
   the nomail personal setting   (see "help set")
-  the access_rules setting      (see "help access_variables")
+  the access_rules setting      (see "help configset_access_rules")
+  the digests setting           (see "help configset_digests")
   the post_limits setting       (see "help configset_post_limits")
 
 The second format is used to indicate a particular date or time frame, 
@@ -51,9 +52,11 @@ If you are using full words, do not use a space: "2weeks" is correct, but
 Dates and time frames
 ---------------------
 
-You can specify a four-digit year, a two--digit month, a two-digit
-day, or a one-digit week:
+Numbers can be used to indicate a particular month or quarter of a year,
+or a particular week or day of a month.  The basic formats are:
+
   yyyy
+  yyyyq
   yyyymm
   yyyymmdd
   yyyymmw
@@ -61,6 +64,8 @@ day, or a one-digit week:
 NOTE: There is a subtle difference between day and week time stamps:
 days are always two digits, and weeks are always one digit!  Be careful
 to remember the leading zero if the day of the month is less than 10.
+Similarly, months are always two digits, while quarter-years are one
+digit.
 
 To include an entire year, use a four-digit number.  For example:
    1999 for the entire year of 1999
@@ -75,7 +80,7 @@ month (with a leading '0' if needed), plus a one-digit week:
 
 To include a specific day use a four-digit year, a two-digit month,
 and a two-digit day (with a leading '0' on day and month if needed):
-   20000802 for the 2nd day of August, 2000
+   20000802 for the second day of August, 2000
 
 
 Scheduled times
