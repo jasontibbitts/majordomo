@@ -5,7 +5,9 @@ can be used to remove address extensions, to remove part of the domain
 name, or to convert capital letters into small letters, for example.
 
 Each transformation must appear on a separate line and should be in the
-form /pattern/replacement/ unless a special string is used. 
+form:
+  /pattern/replacement/ 
+unless a special name is used. 
 
 Each transformation must continue to give the same result when applied
 to the same email address multiple times in succession.

@@ -6,7 +6,7 @@ and an action to perform when a message with this type or containing
 a part of this type is delivered to the subscribers of a mailing list.  
 Each rule looks something like this:
 
-mime/type | action=argument
+  mime/type | action=argument
 
 Some common MIME types include text/plain, text/html, and image/jpeg.
 

@@ -1,11 +1,11 @@
 The digest_index_format setting is used to choose the information that
 is displayed about each message in the table of contents of a digest.
 
-  Choices include:
-numbered       - show the message number, subject, and author's address.
-numbered_name  - show the message number, subject, and author's name.
-subject        - show the message subject.
-subject_author - show the message subject and author's address.
-subject_name   - show the message subject and author's name.
+Choices include:
+  numbered       - show the message number, subject, and author's address.
+  numbered_name  - show the message number, subject, and author's name.
+  subject        - show the message subject.
+  subject_author - show the message subject and author's address.
+  subject_name   - show the message subject and author's name.
 
 This value can be overridden by the digests configuration setting.

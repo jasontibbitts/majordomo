@@ -3,37 +3,37 @@ to the subscribe command.
 
 The following eight values are supported:
 
-auto           - Anyone can use the subscribe command for any address.
+ auto            Anyone can use the subscribe command for any address.
 
-auto+confirm   - Anyone can use the subscribe command for any address,
+ auto+confirm    Anyone can use the subscribe command for any address,
                  but the command must be confirmed by the person at
                  the affected address.
 
-auto+password  - Anyone can use the subscribe command for any address,
+ auto+password   Anyone can use the subscribe command for any address,
                  but the person issuing the command must supply a
                  personal password.
 
-open           - Anyone can use the subscribe command for her own
+ open            Anyone can use the subscribe command for her own
                  address.  If anyone attempts to use the subscribe
                  command for a different address, the approval of
                  the list moderators will be required.
 
-open+confirm   - Anyone can use the subscribe command for her own
+ open+confirm    Anyone can use the subscribe command for her own
                  address.  If anyone attempts to use the subscribe
                  command for a different address, the approval of
                  the list moderators will be required.  The command
                  must be confirmed by the person at the affected
                  address.
 
-open+password  - Anyone can use the subscribe command for her own
+ open+password   Anyone can use the subscribe command for her own
                  address.  If anyone attempts to use the subscribe
                  command for a different address, the approval of
                  the list moderators will be required.  The person
                  issuing the command must supply a personal password.
 
-closed         - Anyone can use the subscribe command for any address,
+ closed          Anyone can use the subscribe command for any address,
                  but the approval of the list moderators is required.
 
-closed+confirm - Anyone can use the subscribe command for any address,
+ closed+confirm  Anyone can use the subscribe command for any address,
                  but the approval of the person at the affected address
                  and the list moderators is required.
