@@ -39,7 +39,7 @@ use Mj::Log;
 use vars qw(@index_fields);
 
 @index_fields = qw(byte bytes line lines body_lines quoted split date from
-		   subject refs hidden);
+		   subject refs hidden msgid);
 
 use AutoLoader 'AUTOLOAD';
 1;   
@@ -195,7 +195,7 @@ sub add_start {
       # Grab the counts for the subarchive and open a new archive if
       # necessary. XXX Put the archive in the filespace with an appropriate
       # description if creating a new one.
-      $self->_read_counts($sub);
+      $self->_read_counts($sub, 1);
       if ($self->{size} =~ /(\d+)k/) {
 	$count++ if $self->{splits}{$sub}{bytes} &&
 	  $data->{bytes} + $self->{splits}{$sub}{bytes} > $1 * 1024;
@@ -218,10 +218,9 @@ sub add_start {
   $fh->open("$dir/$self->{'list'}.$sub", ">>");
   $data->{'byte'} = $fh->tell;
 
-  # Grab the overall counts for the archive XXX Add force option to
-  # eliminate race possibility here.
-  $self->_read_counts($sub);
-  $self->_read_counts($arc);
+  # Grab the overall counts for the archive 
+  $self->_read_counts($sub, 1);
+  $self->_read_counts($arc, 1);
 
   # Figure out the proper message number, which is from the unsplit count
   # file.
@@ -362,7 +361,7 @@ sub remove {
   $data = $self->{'indices'}{$arc}->lookup($msg);
   return unless $data;
   
-  $self->_read_counts($arc);
+  $self->_read_counts($arc, 1);
   if ($self->{'splits'}{$arc}{'msgs'} == $msg) {
     for ($i = $msg - 1; $i > 0; $i--) {
       last if $self->{'indices'}{$arc}->lookup($i);
@@ -376,7 +375,7 @@ sub remove {
     # Untaint
     if ($data->{'split'} =~ /(\d+)/) {  
       $sub = "$arc-$1";
-      $self->_read_counts($sub);
+      $self->_read_counts($sub, 1);
       $self->{'splits'}{$sub}{'msgs'}--;
       $self->{'splits'}{$sub}{'lines'} -= $data->{'lines'};
       $file= "$dir/$self->{'list'}.$sub";
@@ -468,9 +467,9 @@ sub sync {
 
   # If an index exists for the archive, load its counts.
   if (exists $self->{'archives'}{$arc}) {
-    $self->_read_counts($arc);
+    $self->_read_counts($arc, 1);
     if ($arc ne $sub and exists $self->{'splits'}{$sub}) { 
-      $self->_read_counts($sub);
+      $self->_read_counts($sub, 1);
     }
     # Keep track of highest message number.
     $count = $self->{'splits'}{$arc}{'msgs'};
@@ -618,8 +617,8 @@ sub _sync_msgs {
     $tmpfh->print($line);
   }
   $mbox->commit;
-  $tmpfh->close()
-    or $::log->abort("Unable to close file $tmpfile: $!");
+  $tmpfh->close();
+    # or $::log->abort("Unable to close file $tmpfile: $!");
   unlink $tmpfile;
 
   ($seen, @out);
@@ -839,7 +838,7 @@ sub last_message {
   }
 
   # Read the counts for this archive
-  $self->_read_counts($arc);
+  $self->_read_counts($arc, 0);
 
   # Take the maximum count and build a message name
   return "$arc/$self->{'splits'}{$arc}{'msgs'}";
@@ -1230,7 +1229,7 @@ sub summary {
   my (@out, $arc);
 
   for $arc (sort keys %{$self->{'splits'}}) {
-    $self->_read_counts($arc);
+    $self->_read_counts($arc, 0);
     push @out, [$arc, $self->{'splits'}{$arc}];
   }
 
@@ -1246,11 +1245,12 @@ expects that the index file exists; else some default values are set.
 sub _read_counts {
   my $self = shift;
   my $file = shift;
+  my $force = shift || 0;
   my $dir = $self->{dir};
   my $log = new Log::In 200, "$file";
   my ($fh, $list, $tmp);
 
-  return if defined $self->{splits}{$file}{bytes};
+  return if (defined $self->{splits}{$file}{bytes} and ! $force);
 
   $list = $self->{'list'};
 
