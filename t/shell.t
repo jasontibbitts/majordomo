@@ -101,7 +101,7 @@ ok($e, $r);
 
 # 10. Make sure they're there
 $e = qq!Members of the "bleeargh" list:\n  zork\@example.com!;
-$r = run('who bleeargh');
+$r = run('-p gonzo who bleeargh');
 ok($e, $r);
 
 # 11. Add an address to an auxiliary list
