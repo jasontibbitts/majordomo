@@ -420,8 +420,8 @@ sub suggest_mta {
   }
 
   my @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-p",
-	      "$pw", "createlist=nocreate,quiet" . ($nhead ? ",noheader" :
-	      ''), "GLOBAL");
+	      "$pw", "createlist-quiet" . ($nhead ? ",noheader" :
+	      ''), "GLOBAL $config->{domain}{$dom}{owner}");
 
 #  print "(@args)\n";
   system(@args) == 0 or die "Error executing $args[0], $?";

@@ -1,3 +1,15 @@
+Sat Aug 15 16:33:58 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/RegList.pm: New file to hold registration database.
+
+Fri Aug 14 17:03:15 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* postinstall (suggest_mta): Now create the global list properly,
+ 	so that the owner is set to the configured value.
+
+	* lib/Majordomo.pm (_createlist): Reorder so that even if te MTA
+ 	is unsupported a proper configuration is suggested.
+
 Mon Aug 10 00:00:00 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Majordomo.pm: Bump version number.

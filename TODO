@@ -17,6 +17,8 @@ Cut alpha 2.
 Bugs?
 -----
 
+Alias manipulation commands need to make the alias database.
+
 Messages with empty first part always checksum the same?
 
 
@@ -57,6 +59,8 @@ Top of the list
 
     need routine to add and remove to/from master database.  remove
     function should also kill aliases.
+
+Make new database wrapper to hold regustrations: RegList.pm.
 
 ! Master alias database.
 
@@ -346,6 +350,47 @@ Well thought out stuff:
 
   The default English translations can be placed in the code and used on
   the client side.
+
+From a message to mj-translators:
+
+What remains is the language preference stuff (the file retrieval mechanism
+can deal with a preferred language but nothing ever passes it one) and a
+method for dealing with the short responses.
+
+Short responses are the one or two line messages scattered throughout the
+code.  The way to handle it will be to have an internal three-level hash
+keyed on language, list and 'message tag' which will be loaded
+(incrementally, as languages are needed) from message files.  Those files
+will be retrieved like any response file, which allows global defaults and
+per-list customization even by remote list owners.
+
+The messages in the code will need to be identified and replaced with
+'message tags' concatenated with data; the interface code can take the tags
+and data, look things up in the message hash, expand embedded variables in
+the returned strings and present the result (prettied and wrapped,
+probably) to the user.
+
+In other words, if in the code you see:
+
+return (0, "User $user is a bozo because $list is not a valid list!\n");
+
+and turn it into:
+
+return (0, "user_is_bozo_bad_list\t$user\t$list");
+
+The interface (really the code in Format.pm, which runs on the interface
+side) looks up user_is_bozo_bad_list and gets:
+
+User $A is a bozo because $B is not a valid list!\n
+or
+Yuusano $A ga bakadakara $B ga iyano risuto desu!\n
+
+$A and $B are replaced by the values attached to the tag, resulting in the
+original string (or a really bad but mildly polite Japanese translation of
+it).
+
+At least, that's the plan.
+
 
 - Daemon model.  Startup time is always going to plague us.  The solution
   is to eliminate it.  Have daemons run in the background as necessary to

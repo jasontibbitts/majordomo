@@ -2060,6 +2060,14 @@ sub _createlist {
     }
   }
   
+  if ($mode !~ /nocreate/ && $list ne 'ALL') {
+    # Now do some basic configuration
+    $self->_make_list($list);
+    $self->_list_config_set($list, 'owners', $owner);
+    
+    # XXX mail the owner some useful information
+  }
+
   unless ($mta && $Mj::MTAConfig::supported{$mta}) {
     return (1, '', "Unsupported MTA $mta, can't suggest configuration.");
   }
@@ -2079,14 +2087,6 @@ sub _createlist {
 					       );
     $rmess .= $mess
     }
-  }
-
-  if ($mode !~ /nocreate/ && $list ne 'ALL') {
-    # Now do some basic configuration
-    $self->_make_list($list);
-    $self->_list_config_set($list, 'owners', $owner);
-    
-    # XXX mail the owner some useful information
   }
 
   return (1, $head, $rmess);
