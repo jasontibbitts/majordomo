@@ -332,6 +332,28 @@ name.  Support a "mode" CGI variable that allows the mode to be
 determined independently.
 
 
+Hide addresses in mj_wwwusr archives
+------------------------------------
+To protect the archives from address harvesters, add substitutions
+for the local part and domain name of the author of each message.
+Possibly, attempt to identify or obscure domain names in the bodies
+of messages.
+
+
+Make past digests retrievable
+-----------------------------
+Currently, no record is kept of which messages were contained in a 
+particular digest volume/issue number. 
+
+
+Add cookie support to WWW interfaces
+------------------------------------
+Links to external sites can cause latchkeys and other information to
+be leaked in HTTP headers.  Adding cookie support would alleviate
+this problem.  It would make the continuation of sessions more
+convenient.
+
+
 =======================
 Totally out there stuff
 =======================
