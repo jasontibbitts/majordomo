@@ -2,10 +2,10 @@
 <h4 align=center>Supprimer des adresses ou modifier leurs paramètres</h4>
 
 <p>
-Pour supprimer des abonnés de la liste, cochez la case le
-concernant.  Pour supprimer les adresses sans rien dire, cliquez le
-bouton $HELP:UNSUBSCRIBE. Pour envoyer un message d'adieu, cliquez sur
-le bouton <b>unsubscribe-farewell</b> a la place.
+Pour supprimer des abonnés de la liste, cochez la case le concernant.
+Pour supprimer les adresses sans rien dire, cliquez le bouton
+<b>unsubscribe-nofarewell</b>. Pour envoyer un message d'adieu, cliquez
+sur le bouton <b>unsubscribe-farewell</b> a la place.
 </p>
 
 <p>
@@ -25,7 +25,7 @@ plus étendue des réglages de cette adresse.
 </p>
 
 <form method="POST" action="$CGIURL">
-  <input type="submit" name="func" value="unsubscribe">
+  <input type="submit" name="func" value="unsubscribe-nofarewell">
   <input type="submit" name="func" value="unsubscribe-farewell">
   <input type="submit" name="func" value="set">
   <input type="hidden" name="chunksize" value="$CHUNKSIZE">

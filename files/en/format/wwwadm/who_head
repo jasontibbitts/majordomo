@@ -4,9 +4,9 @@
 <p>
 To remove subscribers from the mailing list, check the box to the left
 of each e-mail address you wish to remove.  To remove the addresses
-quietly, press the $HELP:UNSUBSCRIBE button.  To send a farewell message
-to each address that is removed, press the <b>unsubscribe-farewell</b>
-button instead.
+quietly, press the <b>unsubscribe-nofarewell</b> button.  To send a
+farewell message to each address that is removed, press the
+<b>unsubscribe-farewell</b> button instead.
 </p>
 
 <p>
@@ -25,7 +25,7 @@ of the settings for that address.
 </p>
 
 <form method="POST" action="$CGIURL">
-  <input type="submit" name="func" value="unsubscribe">
+  <input type="submit" name="func" value="unsubscribe-nofarewell">
   <input type="submit" name="func" value="unsubscribe-farewell">
   <input type="submit" name="func" value="set">
   <input type="hidden" name="chunksize" value="$CHUNKSIZE">

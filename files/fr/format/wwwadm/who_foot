@@ -1,7 +1,7 @@
 <!-- Majordomo who_foot format file -->
 <tr><td colspan="13">Adresses trouvées&nbsp;: $COUNT </td></tr>
 </table>
-  <input type="submit" name="func" value="unsubscribe">
+  <input type="submit" name="func" value="unsubscribe-nofarewell">
   <input type="submit" name="func" value="unsubscribe-farewell">
   <input type="submit" name="func" value="set">
 </form>
