@@ -1,3 +1,9 @@
+2004-08-21  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwusr:  Ask for a list name or login as needed
+	instead of displaying an error message.
+	Thanks to Steven Orr.
+
 2004-08-09  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Resend.pm:  (post)  Initialize the admin and

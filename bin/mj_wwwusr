@@ -47,23 +47,24 @@ use Mj::Log;
 use Mj::Parser;
 
 my (%commands, @domains, @lists, $addr, $cgi, $cgidata, $cgiurl, 
-    $domain, $extra, $falseuser, $func, $list, $loc, $mj, $mess, $mode, 
+    $domain, $extra, $falseuser, $func, $i, $list, $loc, $mj, $mess, $mode, 
     $ofunc, $ok, $opass, $part, $passw, $pathinfo, $raw, $request, 
-    $result, $sess, $str, $subs, $tmp, $user);
+    $result, $sess, $str, $sublist, $subs, $tmp, $truelist, $user);
 
 #----- Which commands are supported  -----#
-# First  value:  Is a password required?
+# First  value:  Is a password required? 
+#                (1 = always, 0 = never, -1 = if an access check fails)
 # Second value:  Is a valid address required?
 # Third  value:  Is a list required?
 # Fourth value:  Page to display after the result.
 %commands = (   
                 'alias'         => [1, 1, 0, 'show'],
-                'archive'       => [0, 0, 1, 'list'],
+                'archive'       => [-1, 0, 1, 'archive'],
                 'changeaddr'    => [1, 1, 0, 'show'],
-                'faq'           => [0, 0, 1, 'list'],
-                'help'          => [0, 0, 0, 'help'],
-                'info'          => [0, 0, 1, 'list'],
-                'intro'         => [0, 0, 1, 'list'],
+                'faq'           => [-1, 0, 1, 'list'],
+                'help'          => [-1, 0, 0, 'help'],
+                'info'          => [-1, 0, 1, 'list'],
+                'intro'         => [-1, 0, 1, 'list'],
                 'lists'         => [0, 0, 0, 'lists'],
                 'password'      => [0, 1, 0, 'login'],
                 'register'      => [0, 1, 0, 'login'],
@@ -187,6 +188,7 @@ $subs = { $mj->standard_subs('GLOBAL'),
           'CGIURL'   => $cgiurl,
           'CMDPASS'  => Mj::Format::escape($passw),
           'COMMAND'  => Mj::Format::escape($ofunc),
+          'EXTRA'    => '',
           'USER'     => ($user eq $falseuser) ? '':
                         Mj::Format::escape($user),
         };
@@ -274,9 +276,9 @@ if (defined $tmp and $tmp =~ /\S/) {
 
 #----- Password check -----#
 if (! $passw) {
-  &login($mj, $subs, $mj->format_error('no_password', 'GLOBAL',
+  &login($mj, $subs, $mj->format_error('no_user_password', 'GLOBAL',
                                        'COMMAND' => $func), 1)
-    if ($commands{$func}->[0]);
+    if ($commands{$func}->[0] == 1);
 }
 else {
   unless ($mj->validate_passwd($addr, $passw, 'GLOBAL', 'show')) {
@@ -303,17 +305,37 @@ if ($func eq 'welcome') {
 @lists = $cgi->param('list');
 if ($commands{$func}->[2] and ! scalar @lists) {
   &usage($mj, $cgi, $subs, 
-         $mj->format_error('no_list', 'GLOBAL'),
-         '');
+         $mj->format_error('no_list', 'GLOBAL', 'COMMAND' => $func), 
+         'choose_list');
 }
 $lists[0] ||= 'GLOBAL';
+
+#----- Validate the list names -----#
+for ($i = 0 ; $i < scalar @lists ; $i++) {
+  $lists[$i] =~ s/\s+//g;
+  $str = $lists[$i];
+  $str =~ s/:[^:]*$//;
+
+  unless (Majordomo::legal_list_name($str)) {
+    $tmp = $mj->format_error('invalid_list', 'GLOBAL', 'LIST' => $str);
+    &login($mj, $subs, $tmp, 1);
+  }
+}
+
+($truelist, $sublist, $mess) = $mj->valid_list($lists[0], 1, 1);
+unless (defined $truelist and length $truelist) {
+  unless (defined $mess and length $mess) {
+    $mess = $mj->format_error('unknown_list', 'GLOBAL', 'LIST' => $lists[0]);
+  }
+  &login($mj, $subs, $mess, 1);
+}
 
 #----- Construct the request -----#
 $request = {
   'cgidata'   => $cgidata,
   'cgiurl'    => $cgiurl,
   'command'   => $func,
-  'list'      => $lists[0],
+  'list'      => $truelist,
   'mode'      => $mode,
   'password'  => $passw,
   'user'      => $addr,
@@ -322,7 +344,10 @@ if (function_prop($func, 'iter')) {
   $request->{'command'} .= '_start';
 }
 
-$extra   = $cgi->param('extra') || '';
+$extra = $cgi->param('extra') || '';
+if (defined $extra) {
+  $subs->{'EXTRA'} = Mj::Format::escape($extra);
+}
 
 #----- For changeaddr to work, the user and victim must be exchanged. -----#
 if ($func eq 'changeaddr') {
@@ -334,6 +359,16 @@ no strict 'refs';
 #----- Convert the arguments into the appropriate request values -----#
 Mj::Parser::parse_args ($request, $extra, '') 
   if (defined $extra and length $extra);
+
+#----- If access fails, prompt for a password -----#
+if (! length($passw) and $commands{$func}->[0] == -1) {
+  ($ok, $str) = $mj->list_access_check($request, 'nostall' => 1);
+  unless ($ok) {
+    $subs->{'LIST'} = Mj::Format::escape($lists[0]);
+    &login($mj, $subs, $mj->format_error('no_user_password', $lists[0],
+                                         'COMMAND' => $func), 1);
+  }
+}
 
 #----- Print the generic page header -----#
 unless ($raw) {
