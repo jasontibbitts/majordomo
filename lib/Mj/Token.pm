@@ -699,6 +699,7 @@ sub t_accept {
 
     $self->confirm(%$data, 
                    'chain'   => 1,
+                   'expire'  => -1,
                    'notify'  => [$tmp],
                   );
 
