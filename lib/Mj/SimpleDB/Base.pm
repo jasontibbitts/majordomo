@@ -76,7 +76,7 @@ sub _stringify {
   my $argref   = shift;
   my $nochange = shift;
 
-  my ($i, $string);
+  my ($i, $string, $tmp);
 
   # Supply defaults
   $argref->{'changetime'} = time unless $nochange;
@@ -85,8 +85,9 @@ sub _stringify {
 
   # Could this be done with map?
   for $i (@{$self->{'fields'}}) {
-    $string .= defined($argref->{$i}) ? $argref->{$i} : '';
-    $string .= "\001";
+    $tmp = defined($argref->{$i}) ? $argref->{$i} : '';
+    $tmp =~ s/\001/ /g;
+    $string .= "$tmp\001";
   }
   
   $string =~ s/\001$//;
