@@ -251,6 +251,7 @@ my %commands =
                    'modes'    =>  {
                                    %generic_modes,
                                    'archive'     => 1,
+                                   'hide'        => 1,
                                   },
                    'tokendata' => {'arg1' => 'tokens'},
                   },
@@ -309,7 +310,9 @@ my %commands =
                                    %generic_modes,
                                    'delete'      => 1,
                                    'digest'      => 1,
+                                   'force'       => 1,
                                    'get'         => 1,
+                                   'hidden'      => 1,
                                    'immediate'   => 1,
                                    'index'       => 1,
                                    'mime'        => 1,
@@ -397,6 +400,7 @@ my %commands =
     'dispatch' => {'top' => 1, 'iter' => 1,
                    'modes'    =>  {
                                    %generic_modes,
+                                   'edit'        => 1,
                                   },
                   },
     'access'   => {
@@ -467,6 +471,7 @@ my %commands =
     'dispatch' => {'top' => 1, 'iter' => 1,
                    'modes'    =>  {
                                    %generic_modes,
+                                   'edit'        => 1,
                                   },
                   },
     'access'   => {
@@ -481,6 +486,7 @@ my %commands =
     'dispatch' => {'top' => 1, 'iter' => 1,
                    'modes'    =>  {
                                    %generic_modes,
+                                   'edit'        => 1,
                                   },
                   },
     'access'   => {
@@ -551,6 +557,7 @@ my %commands =
                                    %generic_modes,
                                    'addhdr'      => 1,
                                    'archive'     => 1,
+                                   'hide'        => 1,
                                   },
                    'tokendata' => { 'arg1'   => 'file',
                                     'arg3'   => 'vars',}
@@ -566,11 +573,13 @@ my %commands =
                     'body_length_exceeded'         => 'bool',
                     'taboo'                        => 'integer',
                     'admin'                        => 'integer',
+                    'noarchive'                    => 'integer',
                     'days_since_subscribe'         => 'integer',
                     'dup'                          => 'bool',
                     'dup_msg_id'                   => 'bool',
                     'dup_checksum'                 => 'bool',
                     'dup_partial_checksum'         => 'bool',
+                    'hide_post'                    => 'bool',
                     'invalid_from'                 => 'bool',
                     'limit'                        => 'bool',
                     'limit_hard'                   => 'bool',
@@ -613,7 +622,9 @@ my %commands =
                    'modes'    =>  {
                                    %generic_modes,
                                    'data'        => 1,
+                                   'delete'      => 1,
                                    'dir'         => 1,
+                                   'force'       => 1,
                                   },
                    'tokendata' => { 'arg1'   => 'spool' }
                   },
