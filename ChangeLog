@@ -1,3 +1,7 @@
+2000-07-17  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Add hypertext links to help pages.
+
 2000-07-16  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/TextOutput.pm:  Remove entirely.

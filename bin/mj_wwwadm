@@ -382,10 +382,44 @@ sub format_print {
   }
   1;
 }
- 
+
+sub Mj::Format::help { 
+  my ($mj, $out, $err, $type, $request, $result) = @_;
+  my $log = new Log::In 29, $request->{'topic'};
+  my ($cgiurl, $chunk, $chunksize, $topic);
+  my ($ok, $mess) = @$result;
+
+  select $out;
+  unless ($ok > 0) {
+    print "Help $request->{'topic'} failed.\n$mess";
+    return $ok;
+  }
+
+  # XXX Adjust for multiple domains 
+  $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
+  $chunksize = $mj->global_config_get($request->{'user'}, $request->{'password'},
+                                      "chunksize");
+  return unless $chunksize;
+
+  $request->{'command'} = "get_chunk";
+
+  while (1) {
+    ($ok, $chunk) = @{$mj->dispatch($request, $chunksize)};
+    last unless defined $chunk;
+    $chunk = Mj::Format::escape($chunk);
+    $chunk =~ s/(\s{3}|&quot;)(help\s)(configset|admin|mj) (?=\w)/$1$2$3_/g;
+    $chunk =~ s/(\s{3}|&quot;)(help\s)(\w+)/$1$2<a href="$cgiurl?func=help&extra=$3">$3<\/a>/g;
+    print $chunk;
+  }
+
+  $request->{'command'} = "get_done";
+  $mj->dispatch($request);
+  select STDOUT; 
+}
+
 sub Mj::Format::showtokens {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, "$request->{'list'}";
+  my $log = new Log::In 29, $request->{'list'};
   my ($count, $created, $data, $ok, $size, @time, $token, @tokens);
   select $out;
   print "<input type=hidden name=list value=$request->{'list'}>\n";
@@ -433,7 +467,7 @@ sub Mj::Format::showtokens {
 
 sub Mj::Format::tokeninfo {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, "$request->{'token'}";
+  my $log = new Log::In 29, $request->{'token'};
   my ($body, $chunk, $chunksize, $cgiurl, $cmd, $expire);
   my (@reasons, $showspool, $time, $tmp, $user);
   # XXX Allow multiple domains
@@ -531,7 +565,7 @@ EOM
 
 sub Mj::Format::who {
   my ($mj, $out, $err, $type, $request, $result) = @_;
-  my $log = new Log::In 29, "$request->{'list'}";
+  my $log = new Log::In 29, $request->{'list'};
   my ($cgiurl, $chunksize, $count, $fullclass, $i, $lastchange);
   my (@lines, $numbered, $remove, @time, $user);
   $cgiurl = $mj->{'sitedata'}{'config'}{'cgi_url'} . "mj_wwwadm";
