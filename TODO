@@ -35,6 +35,10 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
+Add option to set umask of generated alias files.
+
+---- Alpha 2 Release ----
+
 Mechanism to set defaults for all lists:
   New DEFAULT pseudo-list.
   DEFAULT is checked before mj_cf_defs.pl.
@@ -82,8 +86,6 @@ $victim->strip; share $svictim (local); pass to reval.
 
 Check validity of addresses in Resend::post and pass the results in as
 access variables.
-
----- Alpha 2 Release ----
 
 ! Database: Mj::DBM
   
