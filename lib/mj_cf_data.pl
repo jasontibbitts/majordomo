@@ -680,7 +680,7 @@ EOC
    'triggers' =>
    {
     'type'   => 'triggers',
-    'values' => [qw(bounce checksum log post session token)],
+    'values' => [qw(bounce checksum delay log post session token)],
     'groups' => [qw(majordomo)],
     'visible'=> 0,
     'local'  => 0,
@@ -697,7 +697,7 @@ EOC
    'digest_index_format' =>
    {
     'type'   => 'enum',
-    'values' => [qw(subject subject_author)],
+    'values' => [qw(numbered subject subject_author)],
     'groups' => ['digest'],
     'visible'=> 0,
     'global' => 0,
