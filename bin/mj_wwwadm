@@ -103,6 +103,7 @@ if ($ofunc =~ /([^\s-]+)-(.*)/) {
   $mode = $2;
 }
 else { 
+  $func = $ofunc;
   $mode = '';
 }
 
