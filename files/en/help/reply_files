@@ -150,6 +150,42 @@ file may be used by customizing the access_rules configuration setting
  TOKEN, URL, VICTIM)
 
 
+digest_archive_preindex
+-----------------------
+This file is displayed immediately before the digest index when a
+digest of posted messages is mailed as a result of the
+archive-get-digest command.
+
+(standard plus DATE, DIGESTTYPE, HOST, MESSAGECOUNT, SENDER, USER)
+
+
+digest_archive_subject
+----------------------
+The contents of this file are used as the subject header when a
+digest of posted messages is mailed as a result of the
+archive-get-digest command.
+
+(standard plus DATE, DIGESTTYPE, HOST, MESSAGECOUNT, SENDER, USER)
+
+
+digest_partial_preindex
+-----------------------
+This file is displayed immediately before the digest index when a
+partial digest of posted messages is sent to a subscriber who changes
+from "digest" delivery to some other form of delivery.
+
+(standard plus DATE, DIGESTTYPE, HOST, MESSAGECOUNT, SENDER, USER)
+
+
+digest_partial_subject
+----------------------
+The contents of this file are used as the subject header when a
+partial digest of posted messages is sent to a subscriber who changes
+from "digest" delivery to some other form of delivery.
+
+(standard plus DATE, DIGESTTYPE, HOST, MESSAGECOUNT, SENDER, USER)
+
+
 digest_preindex
 ---------------
 This file is displayed immediately before the digest index when a
