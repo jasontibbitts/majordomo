@@ -1,4 +1,3 @@
-The request 
-  "$CMDLINE"
-must be confirmed.  Confirmation instructions have been mailed to
-$NOTIFY in a separate message.
+Your request to $COMMAND must be confirmed.  
+Confirmation instructions have been sent in an e-mail message to
+$NOTIFY
