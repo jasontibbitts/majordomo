@@ -211,11 +211,6 @@ else {
   $func = $ofunc;
 }
 
-$raw = 0;
-if ($func eq 'archive' and $mode =~ /get/ and $mode =~ /part/) {
-  $raw = 1;
-}
-
 if ($func eq 'logout') {
   $mj->del_latchkey($passw);
   $subs->{'CMDPASS'} = '';
@@ -233,8 +228,9 @@ elsif ($func eq 'login') {
   &login($mj, $subs, '', 1);
 }
 
-if ($func eq 'archive' and $mode =~ /get/ and ! $raw) {
-  $mode .= $mode? "-immediate" : "immediate";
+$raw = 0;
+if ($func eq 'archive' and $mode =~ /get/ and $mode =~ /part/) {
+  $raw = 1;
 }
 
 # Make sure the command is valid
@@ -315,7 +311,8 @@ if (defined $tmp and $tmp =~ /\S/) {
 if (! $passw) {
   &login($mj, $subs, $mj->format_error('no_user_password', 'GLOBAL',
                                        'COMMAND' => $func), 1)
-    if ($commands{$func}->[0] == 1);
+    if ($commands{$func}->[0] == 1 or ($func eq 'archive' 
+        and $mode =~ /get/ and $mode !~ /part|immediate/));
 }
 else {
   unless ($mj->validate_passwd($addr, $passw, 'GLOBAL', 'show')) {

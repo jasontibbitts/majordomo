@@ -1,3 +1,33 @@
+2004-08-29  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwusr:  Allow the archive-get and archive-get-digest
+	commands to work.
+
+	* lib/Majordomo.pm:  (_list_file_get_string)  Unlink the
+	temporary file if substitutions are provided.
+	(archive_chunk)  Replaced hard-coded English with error files.
+	Use digest_archive_preindex and related files to format digests
+	retrieved by the archive-get-digest command.
+	(_digest_get_headers)  New method.  Retrieve headers from
+	message_headers and other settings and perform variable 
+	substitution.
+	(_set)  Use digest_partial_preindex and related files to 
+	format partial digests.
+
+	* lib/Mj/Format.pm:  (archive)  Add format file support for
+	the archive-get and archive-get-digest commands.
+	(configshow)  Convert comments from plain text to HTML for
+	the web interfaces.
+
+	* lib/Mj/Resend.pm:  (do_digests)  Call _digest_get_headers
+	to obtain headers.
+
+	* lib/Mj/Util.pm:  (text_to_html)  New routine.  Convert
+	text to HTML in a way that allows new line breaks.
+
+	* lib/Mj/Digest/Build.pm:  (build)  Remove redundant "To"
+	and "From" headers.
+
 2004-08-26  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Format.pm:  (lists)  Use separate head and foot
