@@ -145,18 +145,19 @@ sub _inform_owner {
   # Substitute in the body  (standard_subs is not useful here)
   $message = $self->substitute_vars($message,
 				    {
-				     'VICTIM'    => $user,
-				     'USER'      => $user,
-				     'LIST'      => $list,
-				     'COMMAND'   => $req,
-				     'REQUESTER' => $requ,
 				     'CMDLINE'   => $cmd,
+				     'COMMAND'   => $req,
+                                     'COMMENT'   => $comment,
+				     'INTERFACE' => $int,
+				     'LIST'      => $list,
+				     'REQUESTER' => $requ,
+				     'SESSIONID' => $self->{'sessionid'} 
+                                                    || '(none)',
 				     'STATUS'    => $stat,
 				     'STATDESC'  => $statdesc,
-				     'INTERFACE' => $int,
-				     'SESSIONID' => $self->{'sessionid'},
-                                     'COMMENT'   => $comment,
                                      'TIME'      => $elapsed,
+				     'USER'      => $user,
+				     'VICTIM'    => $user,
 				     },
 				   );
   my $ent = build MIME::Entity
