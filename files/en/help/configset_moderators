@@ -11,24 +11,46 @@ Password Notes: Visible only with password.
 
 EXAMPLE:
 configset listname moderators << ENDTAG
-jane@somewhere.org
-joe@nowhere.org
+jane@example.org
+ruth@example.net
 ENDTAG
 
 
 $INCLUDE-config/moderators
 
-The server obtains a list of moderators from
-1) A named auxiliary list
-2) The 'moderators' auxiliary list
-3) The 'moderators' configuration setting
-4) The 'whoami_owner' configuration setting
-in decreasing order of precedence.
+When Majordomo determines who will receive a confirmation notice, it
+looks in the following places:
+1. A named auxiliary list
+2. The "moderators" auxiliary list
+3. The "moderators" configuration setting
+4. The "owners" configuration setting
+5. The "whoami_owner" configuration setting
+in decreasing order of precedence.  Majordomo stops search as soon as it
+finds a valid address.
+
+A named auxiliary list is used only if a rule in the access_rules
+setting explicitly specifies one.  See "help auxiliary_list" for an
+introduction to auxiliary lists.  See the description of the "consult"
+action in the "help configset_access_rules" document for more details.
+
+If moderators' addresses are kept in an auxiliary list instead of the
+moderators setting, individual moderators can temporarily stop receiving
+messages using the "nomail" delivery class.  See "help set" for more
+information about delivery classes.  If an auxiliary list contains no
+addresses, or if all of the addresses are in "nomail" mode, Majordomo
+will continue searching for a valid address to send the confirmation
+notice.
+
+Usually, all of the moderators will receive a copy of a confirmation
+message.  The moderator_group configuration setting can cause a smaller
+number of moderators to be chosen randomly.
 
 
 See Also:
    help admin_moderate
    help auxiliary_list
+   help configset_access_rules
    help configset_moderator_group
+   help set
 
 $INCLUDE-help/foot

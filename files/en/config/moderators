@@ -1,3 +1,4 @@
-List messages requiring consultation will be sent to
-'moderator_group' (or all) of these addresses.  Any of them may
-approve or reject the message.
+The moderators configuration setting contains one or more e-mail
+addresses.  When a command (such as "subscribe" or "unsubscribe")
+or posted message requires administrative approval, one or more of these
+addresses will receive an e-mail confirmation notice.
