@@ -373,7 +373,7 @@ etc.).
      noeliminatecc - turns it off
 
 
-                      Add"a subject header prefix
+                      Add a subject header prefix
 
 The prefix setting determines whether or not you will see a prefix in
 the subject header of messages that you receive from the list.  For
