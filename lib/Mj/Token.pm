@@ -250,8 +250,8 @@ sub confirm {
 
   if (exists($args{'chain'}) and $args{'chain'} == 1) {
     @notify = ($args{'notify'}->[0]);
-    if (exists $notify->[0]->{'expire'} and $notify->[0]->{'expire'} ne '-1') {
-      $tmp = str_to_offset($notify->[0]->{'expire'}, 1);
+    if (exists $notify[0]->{'expire'} and $notify[0]->{'expire'} ne '-1') {
+      $tmp = str_to_offset($notify[0]->{'expire'}, 1);
       if (defined($tmp) and $tmp >= 0) {
         $expire = $tmp;
         $expire_days = int(($expire + 43200) / 86400);
@@ -657,11 +657,11 @@ sub t_accept {
     # Old style
     else {
       if ($data->{'chain2'} eq 'requester') {
-        $tmp = n_defaults('confirm');
+        $tmp = n_defaults('confirm', $data->{'command'});
         $tmp->{'group'} = 'requester';
       }
       else {
-        $tmp = n_defaults('consult');
+        $tmp = n_defaults('consult', $data->{'command'});
       }
 
       if (defined($data->{'chain1'}) and length($data->{'chain1'})) {
