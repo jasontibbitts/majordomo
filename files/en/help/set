@@ -1,29 +1,31 @@
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 set listname flag[,flag,flag...] address
 set ALL      flag[,flag,flag...] address
-set-aux listname auxname flag[,flag,flag...] address
+set-check listname address
+set-aux   listname auxname flag[,flag,flag...] address
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 listname, required, is an email list at this site (ALL is special case)
 flag,     required, is a subscription parameter (listed below)
 address,  required, is an address already subscribed to listname
--aux, if specified, causes the specified auxiliary list to be modified
-auxname, specified with -aux only, is a sublist of 'listname'
+-check, if specified, displays settings instead of changing them
+-aux,   if specified, causes the specified auxiliary list to be modified
+auxname,   specified with -aux only, is a sublist of 'listname'
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 This command sets the values of various subscription parameters, some
 of which can be pre-set by the list owner. Each time you use "set",
 you will get back a summary of all of your settings. If you use the
-pseudo-list "ALL" instead of a specific list name, your subscription
-will be changed for every list to which you are subscribed.
+"set-check" option, any flags you specify will be ignored and you will
+just get back a summary of your existing settings.
+
+NOTE: If you use the pseudo-list "ALL" instead of a specific list name,
+your subscription will be changed for every list to which you are subscribed.
+This can be very handy when you're going on (or returning from) vacation!
 
 You can supply a comma-separated list of flags and classes. If there
 are conflicts, the ones at the end of the list take precedence.  If
 any of the settings are illegal then none of the command takes effect.
 
-WARNING: If you set "noack", you may accidentally cause error
-messages to vanish. (This is especially true when your list is
-configured using using the "replyfile" option - if you are a
-list owner, you should see "help configset access_rules".)
 
                          TABLE OF CONTENTS
 The settings can be grouped as follows, and each of these numbered items
@@ -184,6 +186,13 @@ commands to the server $MJ after you subscribe:
        the list to see if your msg is posted, and you may not see
        important messages about your subscription.
 
+WARNING: Using "noack", the default, can make error messages vanish if
+         your list has access_rules that use replyfile. If your list uses
+         only mailfiles, using "noack" can suppress one of the two messages
+         some errors produce. Use "set LISTNAME noack" with extreme caution,
+         as the list owner has no way to override it except by forcing your
+         subscription options to change.
+
    set LISTNAME ackstall YourEmailAddressHere
      - You are notified if an attempted post is bounced to the moderators
        or the list owner for approval prior to distribution.
@@ -210,20 +219,16 @@ commands to the server $MJ after you subscribe:
      - You receive everything you do when using "ackimportant", plus
        when your message is posted to the list you get a confirmation.
 
-NOTE: To override "noack" for denied posts, or to send additional information,
-      the list owner can configure the list to override the user's settings.
-      Refer to "help configset ack_attach_original" for how to return the denied
-      post along with the pre-defined error text. These are not user commands.
+NOTE: The list owner may want to refer to "help configset ack_attach_original"
+      for how to return a denied post along with the pre-defined error text,
+      "help configset access_rules" for notes about replyfiles and noack, and
+      "help configset default_flags" for how new subscriptions start out.
 
-WARNING: Using "noack", the default, can make error messages vanish if
-         your list has access_rules that use replyfile. If your list uses
-         only mailfiles, using "noack" can suppress one of the two messages
-         some errors produce. Use "set LISTNAME noack" with extreme caution.
 
-   To make sure you get all messages from the server, send this one-line
-   command to $MJ
-      set LISTNAME ackall YourEmailAddressHere
-   Remember to put in your actual email address and the real list name.
+To make sure you get all messages from the server, send this one-line
+command to $MJ
+   set LISTNAME ackall YourEmailAddressHere
+Remember to put in your actual email address and the real list name.
 
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
