@@ -12,7 +12,7 @@ For assistance, contact
     <a href="$CGIURL?$CGIDATA&func=showtokens-delay">
      Moderation</a>
   <td>
-    <a href="$CGIURL?$CGIDATA&func=who">
+    <a href="$CGIURL?$CGIDATA&func=who&chunksize=20">
      Subscribers</a>
   <td>
     <a href="$CGIURL?$CGIDATA&func=configshow-categories">

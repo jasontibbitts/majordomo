@@ -4,9 +4,12 @@
 <form method=POST action="$CGIURL">
   <input type=submit name=func value="$REMOVE">
   <input type=submit name=func value="set">
+  <input type=hidden name=chunksize value="$CHUNKSIZE">
   <input type=hidden name=domain value="$DOMAIN">
   <input type=hidden name=list value="$LIST">
+  <input type=hidden name=start value="$START">
   <input type=hidden name=passw value="$PASSWORD">
+  <input type=hidden name=pattern value="$PATTERN">
 
 <br>To remove addresses, press the button next to one or more
 addresses from the following list, then press the <b>$REMOVE</b> button.

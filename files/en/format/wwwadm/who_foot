@@ -4,8 +4,8 @@
   <input type=submit name=func value=$REMOVE>
   <input type=submit name=func value="set">
 </form>
-<a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?PREVIOUS&chunksize=$CHUNKSIZE">Previous $CHUNKSIZE Results</a>
-<a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?NEXT&chunksize=$CHUNKSIZE">Next $CHUNKSIZE Results</a>
+<a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?PREVIOUS&chunksize=$CHUNKSIZE">Previous $CHUNKSIZE Addresses</a><br>
+<a href="$CGIURL?$CGIDATA&list=$LIST&func=who&extra=$PATTERN&start=?NEXT&chunksize=$CHUNKSIZE">Next $CHUNKSIZE Addresses</a>
 
 <h4 align=center>search the subscriber list</h4>
 
@@ -27,7 +27,7 @@
 Search pattern: <input name=pattern value=".">
 <br>
 Number of addresses to show:
-  <input name=chunksize size=15>
+  <input name=chunksize size=10 value="$CHUNKSIZE">
   <input type=submit value="search">
 </form>
 
