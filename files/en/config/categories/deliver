@@ -1,7 +1,7 @@
 
 
 The deliver category includes the following settings:
-   allowed_classes, allowed_flags, attachment_rules, default_class, 
+   allowed_classes, allowed_flags, attachment_filters, default_class, 
    default_flags, delete_headers, delivery_rules, digest_index_format, 
    digest_issues, digests, message_footer, message_footer_frequency, 
    message_fronter, message_fronter_frequency, message_headers, 
