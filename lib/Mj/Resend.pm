@@ -110,7 +110,6 @@ sub post {
       $ack_attach,           # Should acks attach the message (fron config)
       $spool,                # File to spool
       $subject,              # Header
-      $date,                 # Header
       $list,                 # Includes sublist if applicable
       $user,                 # Obtained from headers
       $passwd,
@@ -196,6 +195,8 @@ sub post {
   $avars->{any} = $avars->{dup} || $avars->{mime} || $avars->{taboo} ||
     $avars->{admin} || $avars->{bad_approval} || '';
   $avars->{'sublist'} = $request->{'auxlist'};
+  # Used to determine the archive.
+  $avars->{'time'} = time;
 
   # Bounce if necessary: concatenate all possible reasons with \002, call
   # access_check with filename as arg1 and reasons as arg2.  XXX Victim
@@ -228,7 +229,6 @@ sub post {
             join("\002", %$avars), $ent);
   }
 
-  chomp($date = $thead->get('date')); 
   chomp($subject = ($thead->get('subject') || '(none)')); 
   $list = $request->{'list'};
   if ($request->{'auxlist'}) {
@@ -239,7 +239,7 @@ sub post {
   # extensive information about the message here so we can do some more.
   $subs = {
            $self->standard_subs($list),
-           DATE     => $date,
+           DATE     => scalar localtime,
 	   HEADERS  => $ent->head->stringify,
 	   SUBJECT  => $subject,
            USER     => $user->full,
@@ -353,16 +353,15 @@ sub post_done {
 }
 
 use Mj::MIMEParser;
-use Date::Parse;
 use Safe;
 sub _post {
   my($self, $list, $user, $victim, $mode, $cmdline, $file, $arg2,
      $avars, $ent) = @_;
   my $log  = new Log::In 35, "$list, $user, $file";
 
-  my(%ackinfo, %avars, %deliveries, %digest, @dfiles, @dtypes, @ent, 
+  my(%ackinfo, %avars, %deliveries, %digest, @dfiles, @dtypes, @dup, @ent, 
      @files, @refs, @tmp, @skip, $ack_attach, $ackfile, $arcdata, 
-     $arcent, $archead, $date, $desc, $digests, $dissues, 
+     $arcent, $archead, $date, $desc, $digests, $dissues, $dup,
      $exclude, $head, $i, $j, $msgnum, $nent, $precedence, $prefix, 
      $replyto, $rtnhdr, $safe, $sender, $seqno, $subject, $sl, $subs, 
      $tmp, $tmpdir, $tprefix, $whereami);
@@ -471,13 +470,8 @@ sub _post {
   # Pass to archive.  XXX Is $user good enough, or should we re-extract?
   $subject = $archead->get('subject') || ''; chomp $subject;
   $subject =~ /(.*)/; $subject = $1;
-  # Convert the message date into a time value.
-  # Use the last Received header, or the Date header.
-  $date = (split /\s*;\s*/, ($arcent->head->get('received'))[-1])[-1]
-          || $arcent->head->get('date');
-  chomp $date;
-  $date = &str2time($date);
-  $date = time unless ($date > 0 and $date < time);
+
+  $date = exists $avars{'time'} ? $avars{'time'} : time;
   $date =~ /(\d+)/; $date = $1;
   # XXX-no-archive (alter sublist or adjust data)
   ($msgnum) = $self->{'lists'}{$list}->archive_add_start
@@ -551,6 +545,40 @@ sub _post {
     $ent[2] = $self->_reply_to($ent[0]->dup, $list, $seqno, $user);
     $ent[3] = $self->_reply_to($ent[1]->dup, $list, $seqno, $user);
 
+    # Obtain list of lists to check for duplicates.
+    $dup = {};
+    if ($self->_global_config_get('dup_lifetime') and !$sl) {
+      my (%seen, @tmp, $msgid);
+      chomp($msgid = $head->get('Message-ID') || '(none)');
+
+      # update the global duplicate databases, obtaining previous data
+      # for this message-id and checksum.  
+      $i = $self->{'lists'}{'GLOBAL'}->check_dup($msgid, 'id', $list);
+      if ($i and exists $i->{'lists'} and $msgid ne '(none)') {
+        @tmp = split ("\002", $i->{'lists'});
+      }
+
+      $i = $self->{'lists'}{'GLOBAL'}->check_dup($avars{'checksum'}, 'sum', $list);
+      # Do not check for duplicates of a message with an empty body.
+      if ($i and exists $i->{'lists'} and 
+          $avars{'checksum'} ne 'd41d8cd98f00b204e9800998ecf8427e') {
+        push @tmp, split ("\002", $i->{'lists'});
+      }
+
+      # remove duplicate lists
+      @seen{@tmp} = ();
+      @tmp = grep { $_ ne $list } keys %seen;  
+      @dup = ();
+ 
+      # initialize the other lists.
+      for (@tmp) {
+        next unless $self->_make_list($_);
+        push @dup, $self->{'lists'}{$_}->{'subs'};
+      }
+      $dup = $self->_find_dup($self->{'lists'}{$list}->{'subs'}, @dup)
+        if scalar @dup;
+    }
+   
     # Generate the exclude list
     $exclude = $self->_exclude($ent[0], $list, $user);
 
@@ -566,7 +594,8 @@ sub _post {
     # These are the deliveries we always make.  If pushing digests, we'll add
     # those later.
     %deliveries =
-      ('each-prefix-noreplyto' =>
+      (
+       'each-prefix-noreplyto' =>
        {
         exclude => $exclude,
         file    => $files[0],
@@ -584,6 +613,26 @@ sub _post {
        'each-noprefix-replyto' =>
        {
         exclude => $exclude,
+        file    => $files[3],
+       },
+       'unique-prefix-noreplyto' =>
+       {
+        exclude => $dup,
+        file    => $files[0],
+       },
+       'unique-noprefix-noreplyto' =>
+       {
+        exclude => $dup,
+        file    => $files[1],
+       },
+       'unique-prefix-replyto' =>
+       {
+        exclude => $dup,
+        file    => $files[2],
+       },
+       'unique-noprefix-replyto' =>
+       {
+        exclude => $dup,
         file    => $files[3],
        }
       );
@@ -836,20 +885,20 @@ sub _within_limits {
           $count++;
           return (1, sprintf "More than %d messages posted in %s",
                   $cond->[1], Mj::List::_time_to_str($cond->[2], 1))
-                  if ($count > $cond->[1]);
+                  if ($count >= $cond->[1]);
         }
       }
     }
     elsif ($cond->[0] eq 'p') {
       # count-dependent
-      $time = $seqno - $cond->[2];
+      $time = $seqno - $cond->[2] + 1;
       $time = 1 if ($time < 1);
       $count = 0;
       for $msg (keys %$data) {
         if ($msg > $time and $msg <= $seqno) {
           $count++;
           return (1, "More than $cond->[1] messages posted out of the last $cond->[2]")
-            if ($count > $cond->[1]);
+            if ($count >= $cond->[1]);
         }
       }
     }
@@ -868,20 +917,20 @@ sub _within_limits {
           $count++;
           return (-1, sprintf "More than %d messages posted in %s",
                   $cond->[1], Mj::List::_time_to_str($cond->[2], 1))
-                  if ($count > $cond->[1]);
+                  if ($count >= $cond->[1]);
         }
       }
     }
     elsif ($cond->[0] eq 'p') {
       # count-dependent
-      $time = $seqno - $cond->[2];
+      $time = $seqno - $cond->[2] + 1;
       $time = 1 if ($time < 1);
       $count = 0;
       for $msg (keys %$data) {
         if ($msg > $time and $msg <= $seqno) {
           $count++;
           return (-1, "More than $cond->[1] messages posted out of the last $cond->[2]")
-            if ($count > $cond->[1]);
+            if ($count >= $cond->[1]);
         }
       }
     }
@@ -1790,6 +1839,7 @@ exclude list if appropriate:
 sub _exclude {
   my($self, $ent, $list, $user) = @_;
   my(@addrs, $addr, $cc, $exclude, $i, $to);
+
   $exclude = {};
 
   # The user doesn't get a copy if they don't have 'selfcopy' set.
@@ -1809,7 +1859,58 @@ sub _exclude {
     $exclude->{$addr->canon} = 1
       if $self->{'lists'}{$list}->flag_set('eliminatecc', $addr);
   }
+
   $exclude;
+}
+
+=head2 _find_dup (list, list, ...)
+
+Returns a list of addresses which have class "unique"
+on the first list and class other than "nomail" on 
+at least one of the succeeding lists.
+
+=cut
+sub _find_dup {
+  my ($self, $first, @others) = @_;
+  my (%check, %found, @tmp, $chunk, $isect, $j);
+  my $log = new Log::In 250;
+  return {} unless (scalar @others);
+
+  $isect = sub {
+    my ($key, $values) = @_;
+    return 0 if ($values->{'class'} eq 'nomail');
+    # return 0 if ($values->{'class'} eq 'digest');
+    if (exists $check{$key}) {
+      delete $check{$key};
+      $found{$key}++;
+    }
+    return 0;
+  };
+
+  $chunk = $self->_global_config_get('chunksize') || 1000;
+  return {} unless $first->get_start;
+ 
+  # Obtain addresses from the primary list, one block
+  # at a time.  For each block, examine the subscriber
+  # list for each other list on which the message has
+  # been posted. 
+  while (1) {
+    @tmp = $first->get_matching_quick($chunk, 'class', 'unique');
+    last unless scalar @tmp;
+    for (@tmp) {
+      $check{$_}++;
+    }
+    for $j (@others) {
+      last unless (scalar keys %check);
+      next unless $j->get_start;
+      @tmp = $j->get_matching(1, $isect);
+      $j->get_done;
+    }
+  }
+
+  $first->get_done;
+
+  \%found;
 }
 
 =head2 do_digests($list, $deliveries, $msgnum, $arcdata, $sender, $whereami, $tmpdir)

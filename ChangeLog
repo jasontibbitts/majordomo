@@ -1,3 +1,10 @@
+2000-10-01  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Resend.pm (_post):  Add support for the "unique"
+	class.  Subscribers with this setting will not receive
+	a duplicate copy if a message with the same ID or checksum
+	has previously been posted to a list in the same domain.
+
 2000-09-30  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Majordomo.pm: Bump version number.
