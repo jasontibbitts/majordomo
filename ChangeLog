@@ -1,3 +1,244 @@
+2000-04-09  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/MailOut.pm:
+	(mail_message) Fix variable name typo.
+
+	* MANIFEST: *** empty log message ***
+
+	* lib/Mj/MailOut.pm:
+	(mail_message)  Change error handling:  call inform() instead of Log::abort()
+	to report an error if a message could not be addressed or delivered.
+
+	* lib/Mj/SimpleDB/DB.pm:
+	(mogrify) Add workaround for cursor incompatibilities between DB_File and
+	Berkeley DB on *BSD operating systems.
+
+2000-04-08  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Deliver/Envelope.pm, lib/Mj/List.pm, lib/Mj/Resend.pm, lib/Bf/Parser.pm, lib/Mj/Access.pm, lib/Mj/CommandProps.pm, lib/mj_cf_data.pl, lib/mj_cf_defs.pl, files/en/config/save_denial_checksums, files/en/repl_consult, files/en/repl_deny, files/INDEX.pl:
+	Temporarily comment out parse_dsn() in the bounce parser.
+
+	Add "save_denial_checksums" configuration variable.  This
+	determines whether or not message body checksums of messages
+	denied by the access rules will be saved in the duplicate
+	database.  It is off by default.
+
+	Add "reason" action to access_rules.  This allows additional
+	information to be added to reply files for denied and stalled
+	requests.
+
+	Cause "unset" access rule action to set a variable to zero
+	instead of deleting it.  This is used by the denial checksum
+	code to determine if the checksum variables were reset
+	by the access rules or never defined in the first place.
+	Thus, no checksum-saving side effects are caused by changing
+	the checksum variables.
+
+	Include the checksums in the access "avars" data used by
+	Mj::Resend::post.
+
+	Cause a 450 return code from RCPT TO to defer delivery for
+	that recipient.
+
+	* bin/mj_shell:
+	Allow here documents to work with commands prefaced by "approve" .
+
+2000-04-07  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/FileSpace.pm:
+	(_find_legal_files) Return immediately if unable to create a DirHandle for
+	a directory.  This will keep the index command from aborting if the
+	path specified in the request does not exist.
+
+2000-04-07  SRE  <sre@climber.org>
+
+	* files/en/help/put, files/en/help/variables, files/en/help/configset_reply_to, files/en/help/configset_signature_separator, files/en/help/configset_subject_prefix, files/en/help/configset_welcome_files, files/en/help/configset_message_footer, files/en/help/configset_message_fronter, files/en/help/configset_message_headers, files/en/help/configset_digests, files/en/help/configset_inform, files/en/help/configset_access_rules, files/en/help/configset_confirm_url, files/en/help/configset_delivery_rules, files/en/config/welcome, files/en/config/welcome_files, files/en/config/signature_separator, files/en/config/subject_prefix, files/en/config/taboo_body, files/en/config/taboo_headers, files/en/config/message_fronter, files/en/config/message_headers, files/en/config/reply_to, files/en/config/restrict_post, files/en/config/sequence_number, files/en/config/delivery_rules, files/en/config/digest_issues, files/en/config/digests, files/en/config/message_footer, files/en/config/addr_allow_ending_dot, files/en/config/admin_headers, files/en/config/attachment_rules, files/en/config/confirm_url, files/en/config/default_flags, files/en/config/access_rules:
+	made sure contents of files/en/help/configset_* is a strict superset of files/en/config
+	and moved ALL substitution variable descriptions into "help variables"
+
+	* files/en/help/configset_welcome_files:
+	added missing backslashes (variable names are supposed to show, not be evaluated)
+
+	* files/en/help/admin:
+	removed obsolete reference to FILES,
+	inserted reference to new "help variables" file
+
+	* files/en/help/unknowntopic:
+	made it more clear why this file was sent
+
+2000-04-06  SRE  <sre@climber.org>
+
+	* files/en/help/digest, files/en/help/put:
+	moved description of digest files (preindex, postindex, and footer)
+	from "help put" to "help digest"
+
+	* files/INDEX.pl:
+	added help/variables, sorted and cleaned up columns on other english entries
+
+	* files/en/help/variables:
+	new help file: a single place where all substituted/expanded variables are listed
+	(mostly variables expanded for "put" files)
+
+	* lib/Majordomo.pm:
+	bug fix: print to closed file handle in substitute_vars() because
+	$INCLUDE caused output file to close when nested read finished
+
+2000-04-05  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Access.pm:
+	(list_access_check) Finish preliminary support for "set" and "unset"
+	access rule actions.  At the moment, it is only possible to set
+	a variable to 1 (if previously unset) or to delete it.  Support
+	for parenthesized expressions and setting variables to specific
+	values will be added later.
+
+2000-04-04  Michael Yount  <csf@moscow.com>
+
+	* bin/mj_queueserv:
+	Zmailer sets $ENV{'IFS'} when delivering mail via a pipe.  Untaint
+	the value by deleting it from %ENV.
+
+	Aside from this problem, Mj2 and Zmailer work well together.
+
+2000-04-01  SRE  <sre@climber.org>
+
+	* lib/Mj/Parser.pm:
+	enable "dash represents blank line" in command parser here documents
+
+2000-03-30  SRE  <sre@climber.org>
+
+	* files/en/help/set:
+	added a note about using 'configshow listname digests' to get list
+	of available digests before sending 'set digest' to server
+
+2000-03-30  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/List.pm:
+	(make_setting) Return an error if an attempt is made to receive
+	digests on a mailing list for which no digests are distributed.
+
+2000-03-29  SRE  <sre@climber.org>
+
+	* lib/Mj/CommandProps.pm:
+	bug fix for command_legal() - missing "exists" test caused hash keys to be added
+	added new command_list() to return all keys of %commands and %aliases
+
+	* lib/mj_cf_data.pl:
+	obsolete variable removed, some text put into help files
+
+2000-03-28  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Deliver/SMTP.pm:
+	(getresp) Treat the 552 error code as a fatal error.  If a 552 is received
+	for a RCPT TO because the message is too large, DATA will fail.
+	Exim will return a 552 for too many recipients in some cases, in
+	which case DATA will fail also.
+
+2000-03-28  SRE  <sre@climber.org>
+
+	* lib/Mj/TextOutput.pm, DESIGN:
+	change comment reference from parser_data.pl to CommandProps.pm
+
+	* MANIFEST:
+	make manifest reflect files deleted yesterday
+
+	* lib/Mj/Config.pm:
+	removed file_header, never used and contained bad info
+
+	* files/en/help/configset_*
+	reworked heading of configset_variable help files...
+	now auto-extracted from release source instead of
+	re-parsing configshow output, more info and more consistent
+
+	* files/en/help/archive, files/en/help/configset_access_rules, files/en/help/configset_digests, files/en/help/digest, files/en/help/mkdigest, files/en/help/owner, files/en/help/post, files/en/help/request_response, files/en/help/sessioninfo, files/en/help/trigger, files/en/help/access:
+	Finally documented the last remaining commands, some of which
+	are not intended for end users, others of which had been overlooked.
+	All commands (parser and otherwise) plus aliases and configset
+	variables, now have help files available.
+
+2000-03-27  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Deliver/Envelope.pm:
+	(address) Await and discard responses if a 452 or 552 error code is
+	received in response to a RCPT TO.
+
+2000-03-27  SRE  <sre@climber.org>
+
+	* files/en/help/admin:
+	inserted text from README.QUICKSTART, for how to quickly set up a list
+
+	* README.QUICKSTART:
+	README.QUICKSTART now contains hints on setting up Mj2,
+	and refers to "help admin" for how to quickly set up a list
+
+	* files/en/help/put:
+	changed note: README.FILES is obsolete
+
+	* README.FILES:
+	this text is a subsection of 'help put', README.FILES is obsolete
+
+	* README:
+	changed reference to ACCESS_RULES file - info is now in 'help configset access_rules'
+
+	* files/en/help/admin:
+	removed references to release file "COOKBOOK", now deleted
+
+	* COOKBOOK:
+	this text is a subsection of "help admin"
+
+	* ACCESS_RULES:
+	this text is a subsection of "help configset access_rules"
+
+	* files/en/help/admin_commands, files/en/help/commands, files/en/help/configset, files/en/help/configshow:
+	inserted the lib/mj_cf_data.pl/$file_header text into
+	various help files, since the variable wasn't used anywhere
+	(syntax of configset variables is now better documented)
+
+	* lib/parser_data.pl:
+	lib/parser_data.pl was completely subsumed by lib/Mj/CommandProps.pm
+	a short while after it started including more than just data for the parser
+
+2000-03-26  Michael Yount  <csf@moscow.com>
+
+	* lib/Mj/Deliver/Envelope.pm, lib/Mj/Deliver/SMTP.pm:
+	Add support for ESMTP options.  To use any of these options,
+	delivery rules must have the "esmtp" option specified.
+
+	pipelining: pipeline RCPT TO commands.  At present, no sanity
+	checks have been implemented to prevent overrunning the
+	remote SMTP server.
+
+	delivery status notification: send ORCPT option with encoded
+	recipient address.
+
+	"one transaction": send ONEX immediately after EHLO/HELO to
+	prevent sendmail forking a grandchild after MAIL FROM.
+
+2000-03-25  tibbs  <tibbs@math.uh.edu>
+
+	* lib/Bf/Parser.pm:
+	More bounce parsing work.
+
+2000-03-24  SRE  <sre@climber.org>
+
+	* setup/mta_sendmail.pl, setup/setup_func.pl, setup/ask_domain.pl:
+	improved transcript messages to avoid invalid answers during install,
+	trapped failure to open ALIASES/* files to avoid "print on closed filehandle"
+
+	* files/en/help/auxremove:
+	add "see also help auxadd" for discussion of auxiliary lists
+
+	* files/en/help/newconfig:
+	noted that newconfig is a synonym for configset
+
+	* files/en/help/put, files/en/help/admin, files/en/help/newfaq, files/en/help/newinfo, files/en/help/newintro:
+	noted that newfaq, newinfo, newintro are shortcuts for 'put' commands
+
+2000-03-24  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/MailOut.pm, lib/Mj/Mode.pm, lib/Bf/Parser.pm, ChangeLog:
+	More simple bounce handling work.
+
 2000-03-24  Jason Tibbitts  <tibbs@morpheus.math.uh.edu>
 
 	* lib/Bf/Parser.pm (parse): Actually detect some bounces now.
