@@ -243,7 +243,7 @@ sub post {
   }
   $ack_attach = $self->_list_config_get($list, 'ack_attach_original');
   chomp($date = $thead->get('date')); 
-  chomp($subject = $thead->get('subject')); 
+  chomp($subject = ($thead->get('subject')|| '')); 
 
   # We handled the OK case, so we have either a stall or a denial.
   # If we got an empty return message, this is a signal not to ack anything

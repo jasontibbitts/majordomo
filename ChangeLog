@@ -1,5 +1,16 @@
 2000-05-04  Jason L Tibbitts III  <tibbs@math.uh.edu>
 
+	* lib/Mj/Config.pm (parse_access_rules): Remove spurious debugging
+	code.
+
+	* lib/Mj/Access.pm (_d_post): Add "non-member submission" reason
+	when restrict_post triggers.
+
+	* lib/Mj/Resend.pm (post): Fix warning when no subject is present.
+
+	* lib/Mj/List.pm (new): Don't try to create any databases if our
+	directory doesn't exist.
+
 	* lib/Mj/Config.pm (parse_restrict_post): Was completely broken.
 
 2000-05-03  Jason L Tibbitts III  <tibbs@math.uh.edu>

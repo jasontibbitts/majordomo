@@ -102,6 +102,8 @@ sub new {
   $self->{name}     = $args{name};
   $self->{sdirs}    = 1; # Obsolete goody
     
+  return unless -d "$self->{ldir}/$self->{name}";
+
   $subfile = $self->_file_path("_subscribers");
 
   # XXX This should probably be delayed

@@ -1232,7 +1232,6 @@ sub parse_access_rules {
 
 	  }
 	}
-	warn Dumper $evars;
       }
 
       # Compile the rule

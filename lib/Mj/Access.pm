@@ -1126,7 +1126,11 @@ sub _d_post {
       }
     }
   }
-  return $self->_a_consult(@_) unless $member || !@$restrict;
+  if (@$restrict && !$member) {
+    # XXX Hack; add something to the bounce reasons
+    $_[10] = "Non-Member Submission from $victim\002" . $_[10];
+    return $self->_a_consult(@_);
+  }
 
   # Now check all of the variables passed in from resend and consult
   # if necessary
