@@ -52,6 +52,7 @@ $Mj::Config::default_string = q(
  'triggers'             => ($list eq 'GLOBAL') ? 
                            [ 'bounce   | daily', 
                              'checksum | daily', 
+                             'delay    | daily', 
                              'log      | daily',
                              'post     | daily',
                              'session  | daily', 
