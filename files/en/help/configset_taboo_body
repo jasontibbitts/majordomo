@@ -29,14 +29,19 @@ substitute the string "taboo_" wherever you see "admin_" in that file.
 See "help configset access_rules" for how to send informative messages
 when one of the taboo_body lines matches.
 
+The admin_body, admin_headers, noarchive_body, noarchive_headers,
+taboo_body, and taboo_headers settings have a special characteristic.
+When these six settings are applied to a message that has been posted to
+a mailing list, the patterns in the GLOBAL settings are also used.
 
 See Also:
-   help configset access_rules
-   help configset admin_body
-   help configset admin_headers
-   help configset block_headers (for how to block server commands)
-   help configset taboo_headers
+   help admin_moderate
+   help configset_access_rules
+   help configset_admin_body
+   help configset_admin_headers
+   help configset_block_headers (for how to block server commands)
+   help configset_noarchive_body
+   help configset_noarchive_headers
+   help configset_taboo_headers
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
