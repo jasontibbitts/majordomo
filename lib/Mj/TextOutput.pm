@@ -205,6 +205,26 @@ sub auxwho {
 		    );
 }
 
+=head2 changeaddr
+
+Changes the address under which a user is registered, preserving
+passwords, list subscriptions, and aliases.
+
+=cut
+sub changeaddr {
+  my ($mj, $name, $user, $pass, $auth, $int,
+      $infh, $outfh, $mode, $list, $newaddr, @arglist) = @_;
+  my $log = new Log::In 27, "$user, $newaddr";
+
+  my @stuff = ($user, $pass, $auth, $int,
+	       "changeaddr".($mode?"=$mode":"")." $newaddr",
+	       $mode, $list, $newaddr);
+
+  Mj::Format::changeaddr($mj, $outfh, $outfh, 'text', @stuff, '', '', '',
+		     $mj->dispatch('changeaddr', @stuff)
+		    );
+}
+
 =head2 configdef
 
 Completely removes the definition of a config variable, causing it to track
@@ -967,7 +987,7 @@ sub unalias {
   my $log = new Log::In 27, "$args";
 
   my @stuff = ($user, $passwd, $auth, $interface,
-	       "alias".($mode?"=$mode":"")." $args", $mode, $list,
+	       "unalias".($mode?"=$mode":"")." $args", $mode, $list,
 	       $args);
   
   Mj::Format::unalias($mj, $outfh, $outfh, 'text', @stuff, '', '','',

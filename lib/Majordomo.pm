@@ -2790,6 +2790,69 @@ sub auxwho_done {
   1;
 }
 
+=head2 changeaddr
+
+This replaces an entry in the master address database.  
+
+=cut
+sub changeaddr {
+  my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
+      $list, $addr) = @_;
+  my $log = new Log::In 30, "$addr, $user";
+  my (@out, @removed, $mismatch, $ok, $regexp, $error, $key, $data);
+
+  $regexp   = 0;
+  ($ok, $error) =
+    $self->global_access_check($passwd, $auth, $interface, $mode, $cmdline,
+			     'changeaddr', $user, $addr, '','','',
+			    );
+  unless ($ok>0) {
+    $log->out("noaccess");
+    return ($ok, $error);
+  }
+  
+  $self->_changeaddr($list, $user, $addr, $mode, $cmdline);
+}
+
+sub _changeaddr {
+  my($self, $list, $requ, $vict, $mode, $cmd) = @_;
+  my $log = new Log::In 35, "$vict, $requ";
+  my(@out, @aliases, $data, $key, $l, $lkey, $ldata);
+
+  ($key, $data) = $self->{'reg'}->remove($mode, $vict->canon);
+
+  unless ($key) {
+    $log->out("failed, nomatching");
+    return (0, "No matching addresses.\n");
+  }
+
+  push @out, $data->{'fulladdr'};
+  $data->{'fulladdr'} = $requ->full;
+  $data->{'stripaddr'} = $requ->strip;
+  $self->{'reg'}->add('', $requ->canon, $data);
+
+  $key = new Mj::Addr($key);
+
+  # Remove from all subscribed lists
+  for $l (split("\002", $data->{'lists'})) {
+    $self->_make_list($l);
+    ($lkey, $ldata) = $self->{'lists'}{$l}->remove('', $key);
+    if ($ldata) {
+      $ldata->{'fulladdr'} = $requ->full;
+      $ldata->{'stripaddr'} = $requ->strip;
+      $self->{'lists'}{$l}->{'subs'}->add('', $requ->canon, $ldata);
+    }
+  }
+
+  @aliases = $self->_alias_reverse_lookup($key);
+  for (@aliases) {
+    $self->{'alias'}->replace('', $_, 'target', $requ->canon);
+    $self->{'alias'}->replace('', $_, 'striptarget', $requ->strip);
+  }
+
+  return (1, @out);
+}
+
 =head2 createlist
 
 Makes all of the directories in the Majordomo system required for a list to
@@ -3924,21 +3987,14 @@ sub unregister {
 
 sub _unregister {
   my($self, $list, $requ, $vict, $mode, $cmd) = @_;
-  my $log = new Log::In 35, "$list, $vict";
-  my(@out, @removed, $data, $key, $l, $lkey, $ldata);
+  my $log = new Log::In 35, "$vict";
+  my(@out, @removed, @aliases, $data, $key, $l);
 
   (@removed) = $self->{'reg'}->remove($mode, $vict->canon);
 
   unless (@removed) {
     $log->out("failed, nomatching");
     return (0, "No matching addresses.\n");
-  }
-  if ($mode =~ /replace/ and $mode !~ /regex/) {
-    $ldata = $removed[1];
-    push @out, $ldata->{'fulladdr'};
-    $ldata->{'fulladdr'} = $requ->full;
-    $ldata->{'stripaddr'} = $requ->strip;
-    $self->{'reg'}->add('', $requ->canon, $ldata);
   }
 
   while (($key, $data) = splice(@removed, 0, 2)) {
@@ -3947,15 +4003,14 @@ sub _unregister {
     # Remove from all subscribed lists
     for $l (split("\002", $data->{'lists'})) {
       $self->_make_list($l);
-      ($lkey, $ldata) = $self->{'lists'}{$l}->remove('', $key);
-      if ($mode =~ /replace/ and $mode !~ /regex/ and $ldata) {
-        $ldata->{'fulladdr'} = $requ->full;
-        $ldata->{'stripaddr'} = $requ->strip;
-        $self->{'lists'}{$l}->{'subs'}->add('', $requ->canon, $ldata);
-      }
+      $self->{'lists'}{$l}->remove('', $key);
     }
-    push (@out, $data->{'fulladdr'})
-      unless ($mode =~ /replace/ and $mode !~ /regex/);
+    push (@out, $data->{'fulladdr'});
+  }
+
+  @aliases = $self->_alias_reverse_lookup($vict);
+  for (@aliases) {
+    $self->{'alias'}->remove('', $_);
   }
 
   return (1, @out);

@@ -42,18 +42,16 @@ The following director should be placed in the Directors section of your
 Exim configuration file:
 
 majordomo_aliases:
-	driver = aliasfile
-        pipe_transport = address_pipe
-        suffix = \"$config->{mta_separator}*\"
-        suffix_optional
-        user = $config->{uid}
-	domains = lsearch;$config->{lists_dir}/ALIASES/mj-domains
-	file = $config->{lists_dir}/ALIASES//mj-alias-\${domain}
-	search_type = lsearch
+    driver = aliasfile
+    pipe_transport = address_pipe
+    suffix = \"$config->{mta_separator}*\"
+    suffix_optional
+    user = $config->{uid}
+    domains = lsearch;$config->{lists_dir}/ALIASES/mj-domains
+    file = $config->{lists_dir}/ALIASES/mj-alias-\${domain}
+    search_type = lsearch
 
-Note that this needs to be tested by an Exim user; the author of this code
-doesn''t currently have access to an Exim-running machine.  Improvements to
-this description are welcomed.
+Improvements to this description are welcomed.
 ---------------------------------------------------------------------------
 
 EOM

@@ -553,7 +553,7 @@ sub get_matching {
   for ($i=0; ($count ? ($i<$count) : 1); $i++) {
     ($k, $v) = $self->_get;
     last unless $k;
-    redo if !$code && _re_match("/\001\Q$value\E/", $v);
+    redo if (!$code && ! _re_match("/\001\Q$value\E/", $v));
     $data = $self->_unstringify($v);
     if ($code) {
       $tmp = &$field($k, $data);

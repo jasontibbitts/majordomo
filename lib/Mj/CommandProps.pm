@@ -179,6 +179,16 @@ my %commands =
                    'actions' => \%actions,
                   },
    },
+   'changeaddr' =>
+   {
+    'parser' => [qw(email shell nohereargs real)],
+    'dispatch' => {'top' => 1},
+    'access'   => {
+                   'default' => 'confirm2',
+                   'legal'   => \%reg_legal,
+                   'actions' => \%actions,
+                  },
+   },
    'createlist' =>
    {
     'parser' => [qw(email shell nohereargs real)],

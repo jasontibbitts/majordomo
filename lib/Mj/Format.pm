@@ -167,6 +167,23 @@ sub auxwho  {
   return $ok;
 }
 
+sub changeaddr {
+  my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
+      $list, $vict, $arg1, $arg2, $arg3, $ok, $mess) = @_;
+
+  if ($ok > 0) { 
+    eprint($out, $type, "Address changed from $vict to $user.\n");
+  }
+  elsif ($ok < 0) {
+    eprint($out, $type, "Change from $vict to $user stalled, awaiting approval.\n");
+  }
+  else {
+    eprint($out, $type, "Address not changed from $vict to $user.\n");
+    eprint($out, $type, &indicate($mess, $ok));
+  }
+  $ok;
+}
+
 sub configdef {}
 
 sub configset {
@@ -659,10 +676,10 @@ sub unalias {
       $list, $vict, $arg1, $arg2, $arg3, $ok, $mess) = @_;
   my $log = new Log::In 29, "$type, $vict, $arg1";
   if ($ok > 0) { 
-    eprint($out, $type, "Alias from $arg1 to $vict successfully removed.\n");
+    eprint($out, $type, "Alias from $vict to $user successfully removed.\n");
   }
   else {
-    eprint($out, $type, "Alias from $arg1 to $vict not successfully removed.\n");
+    eprint($out, $type, "Alias from $vict to $user not successfully removed.\n");
     eprint($out, $type, &indicate($mess, $ok));
   }
   $ok;
