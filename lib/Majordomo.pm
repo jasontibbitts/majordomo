@@ -77,7 +77,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform);
-$VERSION = "0.0199803260";
+$VERSION = "0.0199804020";
 
 use strict;
 no strict 'refs';

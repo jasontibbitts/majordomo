@@ -30,9 +30,9 @@ Majordomo currently understands hourly, daily and weekly functions.
 A sample crontab entry looks like:
 
 # Run the daily trigger at midnight
-0 0 * * * /path/to/mj_trigger -d domain -t daily
+0 0 * * * /path/to/mj_trigger C<-d> domain C<-t> daily
 # Run the hourly trigger at the top of each hour
-0 * * * * /path/to/mj_trigger -d domain -t hourly
+0 * * * * /path/to/mj_trigger C<-d> domain C<-t> hourly
 
 =cut
 
