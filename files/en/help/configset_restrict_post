@@ -45,6 +45,10 @@ example, to allow messages from members of the "squirrel" sublist of the
 "rodent" mailing list, use the following value:
   rodent:squirrel
 
+To allow posted messages from any address that is registered at your
+domain, use the following value:
+  GLOBAL:
+
 If the value you give this setting occupies only one line, more than one
 list or sublist can be placed on that line, with spaces or tabs between
 the individual lists or sublists.  This format is supported for backward
