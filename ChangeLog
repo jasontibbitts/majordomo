@@ -1,3 +1,13 @@
+2002-06-20  Michael Yount <csf@moscow.com>
+
+	* bin/mj_wwwadm:  Bugfix:  do not give an error if a
+	sublist is used.  Thanks to Roger Klorese.
+
+	* lib/Mj/Access.pm:  (validate_passwd)  Check the
+	validity of the mailing list.
+
+	* lib/Mj/Format.pm:  (g_sub)  Escape the victims' addresses.
+
 2002-06-15  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwadm:  The digest command has format file support.

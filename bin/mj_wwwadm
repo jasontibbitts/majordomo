@@ -263,21 +263,21 @@ unless (length $lists[0]) {
 #----- Validate the list names -----#
 for ($i = 0 ; $i < scalar @lists ; $i++) {
   $lists[$i] =~ s/\s+//g;
-  unless (Majordomo::legal_list_name($lists[$i])) {
-    &login($mj, $subs, qq("$lists[$i]" is an invalid list name.));
-  }
-}
-for $i (@mlists) {
-  unless (Majordomo::legal_list_name($i)) {
-    &login($mj, $subs, qq("$i" is an invalid list name.));
+  $str = $lists[$i];
+  $str =~ s/:[^:]*$//;
+
+  unless (Majordomo::legal_list_name($str)) {
+    $tmp = $mj->format_error('invalid_list', 'GLOBAL', 'LIST' => $str);
+    &login($mj, $subs, $tmp);
   }
 }
 
 ($truelist, $sublist, $mess) = $mj->valid_list($lists[0], 1, 1);
 unless ($truelist) {
-  $subs->{'USER'} ||= Mj::Format::escape($user);
-  &login($mj, $subs, $mess);
+  $tmp = $mj->format_error('unknown_list', 'GLOBAL', 'LIST' => $lists[0]);
+  &login($mj, $subs, $tmp);
 }
+
 unless ($passw) {
   &login($mj, $subs, '');
 }
