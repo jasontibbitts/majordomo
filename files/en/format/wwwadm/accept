@@ -23,7 +23,7 @@ Token $TOKEN has been accepted for the following command:
 ?SUCCEED The command succeeded.
 ?STALL The command stalled, and may need further approval.
 ?FAIL  The command failed.
-?NOTIFY <br>The results were mailed to $VICTIM.
+?NOTIFIED <br>The results were mailed to $VICTIM.
 </p>
 
 <pre>?ERROR</pre>

@@ -3,10 +3,10 @@ Token $TOKEN has been accepted for the following command:
   Date:     $DATE
   Session:  $SESSIONID
 
-?SUCCEED The command succeeded.
-?STALL The command stalled, and may need further approval.
-?FAIL  The command failed.
-?NOTIFY The results were mailed to $VICTIM.
+The command succeeded. ?SUCCEED 
+The command stalled, and may need further approval. ?STALL
+The command failed. ?FAIL
+The results were mailed to $VICTIM. ?NOTIFIED 
 
 ?ERROR
 

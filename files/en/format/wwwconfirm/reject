@@ -17,6 +17,6 @@ Token $TOKEN has been rejected for the following command:
 </tr>
 </table>
 
-<p>?NOTIFY A notice was mailed to $VICTIM. </p>
+<p>?NOTIFIED A notice was mailed to $VICTIM. </p>
 
 <pre>?ERROR</pre>

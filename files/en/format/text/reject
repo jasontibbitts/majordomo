@@ -3,7 +3,7 @@ Token $TOKEN has been rejected for the following command:
   Date:     $DATE
   Session:  $SESSIONID
 
-?NOTIFY A notice was mailed to $VICTIM.
+?NOTIFIED A notice was mailed to $VICTIM.
 
 ?ERROR
 
