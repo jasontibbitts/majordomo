@@ -14,6 +14,7 @@ In the examples in this document, wherever you see this word:
   LISTNAME
 substitute the name of any mailing list at $DOMAIN.
 
+
 Interfaces
 ----------
 
@@ -41,6 +42,7 @@ The rest of this document, and most of the Majordomo help system,
 assumes that you are using either the e-mail or the shell interface.
 The WWW interfaces have separate instructions.
 
+
 Passwords
 ---------
 
@@ -53,6 +55,7 @@ use this command first...
 ...substituting the list's administrative password for YOURPASSWORD.
 
 For more details, see "help admin_passwords".
+
 
 Configuration 
 -------------
@@ -165,6 +168,7 @@ control who is able to see the list of subscribers.
 
 For more details, see "help admin_subscribers".
 
+
 Document Management
 -------------------
 
@@ -217,6 +221,7 @@ will cause the 30 most recent messages to be mailed to your address
 individually.
 
 For more details, see "help admin_documents".
+
 
 Monitoring
 ----------
