@@ -1,7 +1,11 @@
 <!-- Majordomo who format file -->
 <tr>
   <td colspan="7">
-    <input type="checkbox" name="victims" value="$STRIPADDR">$FULLADDR
+
+    <input type="checkbox" name="victims" value="$STRIPADDR">
+    <a href="$CGIURL?$CGIDATA&list=$LIST&func=set-check&extra=$STRIPADDR&brief=on">
+      $FULLADDR
+    </a>
   </td>
   <td colspan="6">
     <select name="$STRIPADDR">
