@@ -796,6 +796,8 @@ my %commands =
                    'modes'    =>  {
                                    %generic_modes,
                                    'full'        => 1,
+                                   'nosession'   => 1,
+                                   'remind'      => 1,
                                   },
                    'tokendata' => {'arg1'  => 'token'}
                   },
