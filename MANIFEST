@@ -160,6 +160,7 @@ files/en/config/index_access
 files/en/config/info_access
 files/en/config/inform
 files/en/config/intro_access
+files/en/config/latchkey_lifetime
 files/en/config/log_lifetime
 files/en/config/master_password
 files/en/config/max_header_line_length

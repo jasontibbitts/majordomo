@@ -893,6 +893,13 @@ EOC
     'local'  => 1,
     'visible'=> 0,
    },
+   'latchkey_lifetime' =>
+   {
+    'type'   => 'integer',
+    'groups' => [qw(password)],
+    'global' => 1,
+    'visible'=> 0,
+   },
    'log_lifetime' =>
    {
     'type'   => 'integer',
