@@ -57,13 +57,14 @@ This routine takes the following named arguments:
   classes - a hashref: each key is an extended class name; each value is a
             hashref with the following keys:
             file    - the name of the file to mail
-            exclude - a hashrtef of canonical addresses (the values are not
+            exclude - a hashref of canonical addresses (the values are not
                       used but should be true) that mail won''t be sent to.
   rules   - hashref containing parsed delivery rules
   chunk   - size of various structures
   seqnum  - message sequence number
   manip   - do extended sender manipulation
   probe   - do bounce probe
+  probeall- do bounce probe of every address
   sendsep - extended sender separator
   regexp  - regular expression matching addresses to probe
   buckets - total number of different probe groups
@@ -149,6 +150,16 @@ sub deliver {
   }
   else {
     ($ok, $error) = $list->get_start;
+
+    if ($list->{'name'} eq 'GLOBAL') {
+      $matcher = sub {
+        shift;
+        my ($data) = shift;
+        my ($class) = length $data->{'lists'} ? "each" : "nomail";
+        return 1 if $classes->{$class};
+        0;
+      };
+    }  
   }
   return ($ok, $error) unless $ok;
 
@@ -164,7 +175,12 @@ sub deliver {
     # Add each address to the appropriate destination.
   ADDR:
     while (($canon, $datref) = splice(@data, 0, 2)) {
-      $eclass = _eclass($datref);
+      if (length $sublist or $list->{'name'} ne 'GLOBAL') {
+        $eclass = _eclass($datref);
+      }
+      else {
+        $eclass = length $datref->{'lists'} ? "each" : "nomail";
+      }
 
       # If you're in 'all', you get everything and are never excluded.
       unless ($eclass eq 'all') {
