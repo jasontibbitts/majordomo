@@ -93,7 +93,8 @@ sub new {
   $args{'addresses'} ||= $args{'addrs'};
   if (defined $args{'addresses'}) {
     $args{'deferred'} ||= [];
-    $ok = $self->address($args{'addresses'}, $args{'deferred'});
+    $args{'failed'} ||= [];
+    $ok = $self->address($args{'addresses'}, $args{'deferred'}, $args{'failed'});
     return undef if $ok < 0;
   }
 
@@ -171,6 +172,7 @@ sub address {
   my $self = shift;
   my $addr = shift;
   my $deferred = shift;
+  my $failed = shift;
   my $log = new Log::In 150, "$addr";
   my ($code, $good, $i, $mess, $val, $j, $recip);
   
@@ -207,13 +209,19 @@ sub address {
     }
       
     # If we got a bad error, defer processing the address until all
-    # other addresses have been handled.
+    # other addresses have been handled.  If the address was already
+    # deferred, move it into the failed list.
     if ($val == 0 or (! defined $val
                       and (not $self-{'smtp'}->{'pipelining'} 
                            or $i >= scalar (@{$addr})))) {
       $log->message(150, 'info', "Address ${$addr}[$j] failed during RCPT TO.");
       my ($badaddr) = splice @{$addr}, $j, 1;
-      push @{$deferred}, $badaddr;
+      if (grep {$_->[0] eq $badaddr} @{$deferred}) {
+        push @{$failed}, [$badaddr, $code, $mess];
+      }
+      else {
+        push @{$deferred}, [$badaddr, $code, $mess];
+      }
       return 0;
     }
 
@@ -242,15 +250,28 @@ sub address {
     # 450 return code: mailbox busy; try again at the end of the delivery.
     # 450 is returned by some MTAs if a DNS lookup timed out.
     if ($code == 450) {
-      push @{$deferred}, ${$addr}[$j];
+      my ($badaddr) = splice @{$addr}, $j, 1;
+      if (grep {$_->[0] eq $badaddr} @{$deferred}) {
+        push @{$failed}, [$badaddr, $code, $mess];
+      }
+      else {
+        push @{$deferred}, [$badaddr, $code, $mess];
+      }
+    }
+    # Any other non-fatal error (550 551 553 451) should be reported.
+    elsif ($val == -1) {
+      my ($badaddr) = splice @{$addr}, $j, 1;
+      push @{$failed}, [$badaddr, $code, $mess];
     }
 
-    $j++ if (defined $val);
-    $self->{'addressed'} = 1 if $val > 0;
-    $i++;
+    if ($val > 0) {
+      $i++;
+      $j++; 
+      $self->{'addressed'} = 1;
+    }
   }
      
-  return $val;
+  return $self->{'addressed'} ? 1 : -1;
 }
 
 =head2 send

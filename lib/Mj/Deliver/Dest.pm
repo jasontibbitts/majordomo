@@ -69,7 +69,8 @@ of them are:
  lastdom     - the last domain added to this destination
  stragglers  - a list of straggler addresses
  addrs       - the main address accumulation list
- deferred    - addresses which fail during RCPT TO.
+ deferred    - addresses which fail temporarily during RCPT TO.
+ failed      - addresses which fail permanently during RCPT TO.
 
 =cut
 sub new {
@@ -176,6 +177,7 @@ sub new {
   $self->{'stragglers'} = [];
   $self->{'addrs'}      = [];
   $self->{'deferred'}   = [];
+  $self->{'failed'}     = [];
 
   $self;
 }
@@ -273,8 +275,10 @@ sub sendenvelope {
     next unless $self->{'envelopes'}[$ch];
 
     # We're guaranteed to have an envelope.  Address it and fall through to
-    # error processing of we couldn't.
-    $ok = $self->{'envelopes'}[$ch]->address($self->{'addrs'}, $self->{'deferred'});
+    # error processing if we couldn't.
+    $ok = $self->{'envelopes'}[$ch]->address($self->{'addrs'}, 
+                                             $self->{'deferred'},
+                                             $self->{'failed'});
     # Return now if no addresses remain to be processed.
     return 0 if (!@{$self->{'addrs'}});
     if ($ok == 0) {
@@ -283,16 +287,10 @@ sub sendenvelope {
     }
 
 
-    if ($ok < 0 && @{$self->{'addrs'}} == 1) {
-      # We only had one address and it had a non-fatal error (meaning that
-      # there was a problem with just that address, but no real problems
-      # with the transaction), so we quit without sending anything and
-      # without changing the current host XXX What happens if we have more
-      # than one address and receive a non-fatal error?  Currently we're
-      # just assuming that one of them succeeded, but what we really care
-      # about is whether or not one or more of them made it through.
-      # Otherwise we're sending an unaddressed envelope.  We could have the
-      # address method return a count of successfully sent addresses.
+    if ($ok < 0) {
+      # Some addresses were processed successfully, but the envelope
+      # is not addressed.  This could happen if we reached a recipient
+      # limit, sent the message and reinitialized. 
       return 1;
     }
 
@@ -304,7 +302,7 @@ sub sendenvelope {
   }
 
   # This catches any errors in the sending process; if wa fail at any point
-  # we retry, nuke and acrivate backups, or go into emergency mode.  We
+  # we retry, nuke and activate backups, or go into emergency mode.  We
   # also sleep for a while.
   continue {
     $i++;
@@ -477,10 +475,11 @@ This causes all remaining addresses to be sent.  If sorting is active, the
 list is sorted and pushed out.
 
 =cut
+use IO::File;
 sub flush {
   my $self = shift;
   my $log  = new Log::In 150;
-  my ($addr, @tmp);
+  my ($addr, $ch, $errmsg, $file, $sender, @tmp);
 
   if (@{$self->{'stragglers'}}) {
     if (@{$self->{'addrs'}} >= $self->{'size'}) {
@@ -498,7 +497,7 @@ sub flush {
 #    print "Flushing addrs...\n";
     $self->{'addrs'} = [];
   }
-  # deferred addresses failed during RCPT TO.
+  # deferred addresses failed temporarily during RCPT TO.
   # They are processed last to minimize delays for mail delivered to 
   # other recipients.  To lower retry times, each address
   # is done individually.
@@ -507,12 +506,73 @@ sub flush {
     @tmp = @{$self->{'deferred'}};
     while (@tmp) {
       $addr = shift @tmp;
-      $self->{'addrs'} = [$addr];
+      $self->{'addrs'} = [$addr->[0]];
       $self->sendenvelope;
     }
     $self->{'deferred'} = [];
     $self->{'addrs'} = [];
   }
+  # failed addresses either received a permanent error during
+  # RCPT TO or were deferred and failed during the retry.
+  # Report the problem to the sender.
+  if (@{$self->{'failed'}}) {
+    @tmp = @{$self->{'failed'}};
+    unless (grep {$_->[0] eq $self->{'sender'}} @tmp) {
+      return if ($self->{'sender'} =~ /example\.com$/);
+      # save original values
+      $sender = $self->{'sender'};
+      $file = $self->{'file'};
+      $ch = $self->{'currenthost'};
+
+      # XXX temporary file has original file name with ".flr" appended
+      $self->{'file'} .= ".flr";
+      my ($errmsg) = new IO::File ">$self->{'file'}";
+      return unless $errmsg;
+     
+      # create an error message resembling an exim bounce. 
+      print $errmsg <<EOM;
+To: $sender
+From: $sender
+Subject: Majordomo Delivery Error
+
+This message was created automatically by mail delivery software.
+A Majordomo message could not be delivered to the following addresses:
+
+EOM
+
+      for (@tmp) {
+        print $errmsg "  $_->[0]:\n";
+        print $errmsg "    $_->[1] $_->[2]\n";
+      }
+      print $errmsg "-- Original message omitted --\n";
+      $errmsg->close;
+
+      # reinitialize using temporary values and send the message.
+      $self->sender('failed@example.com');
+      if (lc($self->{'activehosts'}[$ch]) eq '@qmail') {
+	$self->{'envelopes'}[$ch] = $self->make_qqenvelope($ch);
+      }
+      else {
+	$self->{'envelopes'}[$ch] = $self->make_envelope($ch);
+      }
+      $self->add($sender);
+      $self->sendenvelope;
+    
+      # restore original values 
+      unlink $self->{'file'};
+      $self->{'addrs'}    = [];
+      $self->{'deferred'} = [];
+      $self->{'failed'}   = [];
+      $self->sender($sender);
+      $self->{'file'} = $file;
+      if (lc($self->{'activehosts'}[$ch]) eq '@qmail') {
+	$self->{'envelopes'}[$ch] = $self->make_qqenvelope($ch);
+      }
+      else {
+	$self->{'envelopes'}[$ch] = $self->make_envelope($ch);
+      }
+    } # unless the sender is a failed address
+  } # if there are failed addresses
 }
 
 =head2 sender
