@@ -39,8 +39,8 @@ use lib "$::LIBDIR";
 use strict;
 no strict "refs";
 use Getopt::Long;
-my (%opts, $entity, $head, $list, $mime_parser, $mj, $ok, $request_ans, $user,
-    $uuser);
+my (%opts, $entity, $head, $int, $list, $mime_parser, $mj, $ok, 
+    $request_ans, $user, $uuser);
 
 umask oct($::UMASK);
 
@@ -159,13 +159,19 @@ if ($opts{'r'} or $opts{'x'}) {
   resend($mj, $opts{'l'}, $opts{'x'});
 }
 # if at -request (-q) pull out global 'request_answer' variable and figure
-# out what to do
+# out what to do.
 elsif ($opts{'q'} or $opts{'c'}) {
-  $::log->abort("mj_email called with -q or -c and without -l!")
+  $::log->abort('mj_email called with -q or -c and without -l!')
     unless $opts{'l'};
   $request_ans = $mj->global_config_get(undef, undef, 'request_answer');
-  if ($request_ans eq 'majordomo') {
-    parse_commands($mj, $opts{'l'}, $opts{'c'} || '');
+  if ($request_ans eq 'majordomo' || $opts{'c'}) {
+    if ($opts{'c'}) {
+      $int = 'email-command';
+    }
+    else {
+      $int = 'email-request';
+    }
+    parse_commands($mj, $opts{'l'}, $opts{'c'} || '', $int, $opts{'req'});
   }
   elsif ($request_ans eq 'owner') {
     forward_to_owner($mj, $opts{'l'});
@@ -183,8 +189,8 @@ elsif ($opts{'o'} or $opts{'M'}) {
 }
   
 # if at majordomo (-m) parse as normal
-elsif ($opts{'m'} or $opts{'c'}) {
-  parse_commands($mj, $opts{'c'}, $opts{'req'});
+elsif ($opts{'m'}) {
+  parse_commands($mj, '', '', 'email');
 }
 
 # else something's screwed; we already processed the resend case earlier
@@ -398,13 +404,13 @@ sub connect_and_parse {
 # first two for quick confirmation token processing; the latter two for
 # bypassing failed "access" checks.
 sub parse_commands {
-  my ($mj, $deflist, $command, $req) = @_;
+  my ($mj, $deflist, $command, $int, $req) = @_;
   my (@entities, @events, $args, $commands, $data, $debug_file, $debug_log,
       $debug_reply, $entity, $fh, $file, $head, $i, $list, $mode, $ok,
       $repl, $request, $sender, $server, $sub_addin, $subject, $sub_start,
       $time, $top, $token, $user, $uuser);
 
-  ($entity, $head, $user, $uuser) = connect_and_parse($mj, 'email');
+  ($entity, $head, $user, $uuser) = connect_and_parse($mj, $int);
   # 65 is EX_DATAERR (error in input data)
   exit 65 unless $entity;
   $subject = $head->get('subject') || "";
