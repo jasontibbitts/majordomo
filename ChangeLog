@@ -1,3 +1,8 @@
+Wed Sep 16 00:10:05 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Majordomo.pm (_re_match): Give better warning on bad
+ 	regexps.
+
 Tue Sep 15 23:36:08 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* lib/Mj/List.pm (check_dup): Fix tainting bug.

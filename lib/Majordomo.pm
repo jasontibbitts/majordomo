@@ -401,7 +401,7 @@ sub _re_match {
 
   local($^W) = 0;
   $match = $safe->reval("'$str' =~ $re");
-  $::log->complain("_re_match error: $@") if $@;
+  $::log->complain("_re_match error: $@\nstring: $str\nregexp: $re") if $@;
   if (wantarray) {
     return ($match, $@);
   }
