@@ -441,7 +441,7 @@ sub sessioninfo {
 
 sub set {
   my ($mj, $out, $err, $type, $user, $pass, $auth, $int, $cmd, $mode,
-      $list, $vict, $action, $arg, $arg3, $ok, $mess) = @_;
+      $list, $vict, $setting, $arg2, $arg3, $ok, $mess) = @_;
   my $log = new Log::In 29, "$type, $vict";
   $mess ||= '';
 

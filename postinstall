@@ -274,15 +274,14 @@ sub do_config {
   my $dom = shift;
   my(@args, $arg, $errcount, $i, $ignore, $msg, $pw);
 
-  # Prompt for the password if necessary
-  $pw = $config->{'domain'}{$dom}{'master_password'};
+  # Prompt for the site password if necessary
+  $pw = $config->{'site_password'};
   unless ($pw) {
-    ($msg = $msg0) =~ s/\$DOM/$dom/;
-    $pw = get_str($msg);
-    $config->{'domain'}{$dom}{'master_password'} = $pw;
-    $msg0 = $msg0s; # Switch to using the short prompt.
+    $pw = get_str($msg4);
+    $config->{'site_password'} = $pw;
   }
- print "Configuring $dom:" unless $quiet;
+
+  print "Configuring $dom:" unless $quiet;
 
   # Build the command line
   @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-F",
@@ -483,12 +482,11 @@ sub suggest_mta {
   my $nhead = shift;
   my $pw;
 
-  $pw = $config->{'domain'}{$dom}{'master_password'};
+  # Prompt for the site password if necessary
+  $pw = $config->{'site_password'};
   unless ($pw) {
-    ($msg = $msg0) =~ s/\$DOM/$dom/;
-    $pw = get_str($msg);
-    $config->{'domain'}{$dom}{'master_password'} = $pw;
-    $msg0 = $msg0s; # Switch to using the short prompt.
+    $pw = get_str($msg4);
+    $config->{'site_password'} = $pw;
   }
 
   my @args = ("$config->{'install_dir'}/bin/mj_shell", "-d", "$dom", "-p",

@@ -24,15 +24,13 @@ format, seconds since epoch):
   XXX More to come
 
 Reception classes are (not chiseled in stone):
-  each        - each message as it is posted
-  digest(1d)  - daily digest
-  digest(1w)  - weekly digest
-  digest(40k) - digest emitted at 40K
-  digest(*)   - etc; the allowed fields are to be chosen by the list owner.
-  every       - user receives everything, digests, single messages,
-    etc. This is intended for list owners who might want to see everything
-    that does out.
-  none        - the user doesn't receive any mail at all.
+  each             - each message as it is posted
+  digest-name-type - the named digest, received as the given type (test,
+                     MIME, etc.)
+  all              - user receives everything, digests, single messages,
+                     etc. This is intended for list owners who might want
+                     to see everything that does out.
+  none        - the user doesn''t receive any mail at all.
 
 Postpone status could be implemented here, too.  How?
 
@@ -46,7 +44,7 @@ never be the targets of a full search.  This includes:
   selfcopy (S)       - the user receives a copy of their own message.
   CC elimination (C) - the user will _not_ receive a copy from the server
     if the user appears in the To: or CC headers.
-  hideaddress (H)    - the user's address will not appear in unapproved
+  hideaddress (H)    - the user''s address will not appear in unapproved
     who requests.
   
 You can add one or more subscribers to the SubscriberList, remove one or
@@ -108,6 +106,5 @@ detailed information.
 1;
 #
 ### Local Variables: ***
-### mode:cperl ***
 ### cperl-indent-level:2 ***
 ### End: ***

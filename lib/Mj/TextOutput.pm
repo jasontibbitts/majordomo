@@ -278,7 +278,7 @@ sub configshow {
   $groups .= join(',',@arglist);
   
   $groups ||= 'ALL';
-  $mode   ||= 'nocomments';
+  $mode   ||= 'comments';
 
   for $group (split /\s*,\s*/, $groups) {
     # This expands groups and checks visibility and existence of variables
@@ -770,25 +770,22 @@ sub set {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27, "$list, $args";
-  my (@addresses, @stuff, $action, $addr, $arg, $i, $ok, $rok);
+  my (@addresses, @stuff, $addr, $i, $ok, $rok, $setting);
 
   # Deal with action-(arg with spaces) address
-  if ($args =~ /(\S+?)\-\((.*?)\)\s*(.*)/) {
-    $action = $1;
-    $arg = $2;
-    $addr = $3;
+  if ($args =~ /(\S+?\-\(.*?\))\s*(.*)/) {
+    $setting = $1;
+    $addr = $2;
   }
   # action-arg address
-  elsif ($args =~ /(\S+?)-(\S+)\s*(.*)/) {
-    $action = $1;
-    $arg = $2;
-    $addr = $3;
+  elsif ($args =~ /(\S+?-\S+)\s*(.*)/) {
+    $setting = $1;
+    $addr = $2;
   }
   # action address
   else {
     $args =~ /(\S+)\s*(.*)/;
-    $action = $1;
-    $arg = '';
+    $setting = $1;
     $addr = $2;
   }
 
@@ -802,8 +799,8 @@ sub set {
     chomp $i;
     last unless $i;
     $rok =
-      Mj::Format::set($mj, $outfh, $outfh, 'text', @stuff, $i, $action, $arg, '',
-		      $mj->dispatch('set', @stuff, $i, $action, $arg)
+      Mj::Format::set($mj, $outfh, $outfh, 'text', @stuff, $i, $setting, '', '',
+		      $mj->dispatch('set', @stuff, $i, $setting)
 		     );
     $rok ||= $ok;
   }

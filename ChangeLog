@@ -1,4 +1,32 @@
+Fri Jan 29 00:11:52 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Majordomo.pm (set): Take only $setting.
+
+Thu Jan 28 20:42:09 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/TextOutput.pm (set): Just pass a setting, not an
+ 	action/arg pair.
+
+	* lib/Mj/List.pm (set): Call make_setting to do the dirty work.
+  	Why duplicate code?
+	(make_setting): Handle digest names and types properly.  Put flags
+ 	at the head of the return lists in case classarg2 is used.
+
+	* lib/Majordomo.pm (_subscribe): Adapt to new make_setting return.
+
+	* postinstall: Generally use the site password everywhere where a
+ 	password is required.  It's the only password we can know for
+ 	sure, since the domain owners may have changed their passwords
+ 	from those originally installed.
+
+	* lib/Mj/Inform.pm (_inform_owner): Fix very long-standing typo.
+  	Add $STATDESC expansion to give textual description of completion
+ 	status.
+
 Wed Jan 27 21:39:09 1999  Jason L Tibbitts  <tibbs@morpheus.math.uh.edu>
+
+	* lib/Mj/List.pm (describe_class): Improve description of digest
+ 	types.
 
 	* bin/mj_email (forward_to_owner): Remove errant mailbox
  	separator from the message.

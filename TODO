@@ -36,8 +36,6 @@ Define module interface.  Move lesser-used commands out of Majordomo.pm
 Top of the list 
 ---------------
 
-Fix set digest-?-?.
-
 Build complete maintenance scripts so that the installer only needs to add
 two crontab entries period instead of two per domain.
 

@@ -113,6 +113,7 @@ sub _inform_owner {
   my $whereami = $self->_global_config_get('whereami');
   my $owner    = $self->_list_config_get($list, 'sender');
   my $sender   = $self->_global_config_get('whoami');
+  my $statdesc = $stat < 0 ? 'stall' : $stat > 0 ? 'success' : 'failure';
 
   my ($message, %data) = $self->_list_file_get($list, 'inform');
 
@@ -132,13 +133,14 @@ sub _inform_owner {
 				    'REQUESTER' => $requ,
 				    'CMDLINE'   => $cmd,
 				    'STATUS'    => $stat,
+				    'STATDESC'  => $statdesc,
 				    'INTERFACE' => $int,
 				    'SESSIONID' => $self->{'sessionid'},
 				   );
   my $ent = build MIME::Entity
     (
      Path        => $message,
-     Type        => $date{'c_type'},
+     Type        => $data{'c_type'},
      Charset     => $data{'charset'},
      Encoding    => $data{'c_t_encoding'},
      Filename    => undef,

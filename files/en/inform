@@ -5,4 +5,9 @@ issued by:
   $REQUESTER
 
 was executed with status:
-  $STATUS
+  $STATUS ($STATDESC)
+
+in session:
+  $SESSIONID
+
+from the $INTERFACE interface.

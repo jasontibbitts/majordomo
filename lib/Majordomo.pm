@@ -77,7 +77,7 @@ simply not exist.
 package Majordomo;
 
 @ISA = qw(Mj::Access Mj::Token Mj::MailOut Mj::Resend Mj::Inform);
-$VERSION = "0.1199812110";
+$VERSION = "0.119901280";
 $unique = 'AAA';
 
 use strict;
@@ -1548,6 +1548,7 @@ sub password {
   $self->_password($list, $user, $vict, $mode, $cmdline, $pass);  
 }
 
+use MIME::Entity;
 sub _password {
   my ($self, $list, $user, $vict, $mode, $cmdline, $pass) = @_;
   my $log = new Log::In 35, "$vict";
@@ -3208,14 +3209,14 @@ The classes are:
 =cut
 sub set {
   my ($self, $user, $passwd, $auth, $interface, $cmdline, $mode,
-      $list, $addr, $action, $arg) = @_;
-  my $log = new Log::In 30, "$list, $addr, $action";
+      $list, $addr, $setting) = @_;
+  my $log = new Log::In 30, "$list, $addr, $setting";
   my ($isflag, $ok, $raction);
  
   # Check access
 
   $self->_make_list($list);
-  return $self->{'lists'}{$list}->set($addr, $action, $arg);
+  return $self->{'lists'}{$list}->set($addr, $setting);
 }
 
 =head2 show(..., mode,, address)
@@ -3445,7 +3446,7 @@ sub _subscribe {
   # yell at us.  XXX Make this a variable somewhere.
   ($cstr = $mode) =~ s/(quiet|(no)?(welcome|inform|log))[-,]?//g;
   
-  ($ok, $class, $classarg, $flags) =
+  ($ok, $flags, $class, $classarg) =
     $self->{'lists'}{$list}->make_setting($cstr, "");
   
   unless ($ok) {

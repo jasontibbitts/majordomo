@@ -30,7 +30,7 @@ use Mj::AddressList;
 use Mj::Config qw(global_get parse_table);
 use Mj::Addr;
 use Mj::Log;
-use vars (qw($addr %flags %noflags %classes));
+use vars (qw($addr %flags %noflags %classes %digest_types));
 
 # Flags -> [realflag, inverted (2=intermediate), invertible, flag]
 %flags = 
@@ -63,6 +63,13 @@ use vars (qw($addr %flags %noflags %classes));
    'digest'   => ['digest', 2, "messages in a digest"],
    'nomail'   => ['nomail', 1, "no messages"],
    'vacation' => ['nomail', 1],
+  );
+
+%digest_types =
+  (
+   'mime'  => 1,
+   'index' => 1,
+   'text'  => 1,
   );
 
 =head2 new(name, separate_list_dirs)
@@ -267,11 +274,10 @@ sub set {
   my $self = shift;
   my $addr = shift;
   my $set  = shift;
-  my $arg  = shift;
   my $check= shift;
   my $log  = new Log::In 150, "$addr, $set";
-  my (@allowed, @class, $data, $dig, $inv, $isflag, $key, $mask, $mime, $rset,
-      $subflags, $time);
+  my (@allowed, @class, $class, $classarg, $data, $flags, $inv, $isflag,
+      $key, $mask, $ok, $rset);
 
   ($inv = $set) =~ s/^no//;
 
@@ -313,49 +319,16 @@ sub set {
     return (0, "$addr is not a subscriber.\n"); # XLANG
   }
 
-  if ($isflag) {
-    # Process flag setting; remove the flag from the list
-    $data->{'flags'} =~ s/$flags{$rset}->[3]//ig;
+  # Call make_setting to get a new flag list and class setting
+  ($ok, $flags, $class, $classarg) =
+    $self->make_setting($set, $data->{'flags'});
+  return ($ok, $flags) unless $ok;
 
-    # Add the new flag (which may be null)
-    $data->{'flags'} .= $flags{$set}->[3] || '';
-    
-  }
-  else {
-    # Process class setting
-    $data->{'classarg'} = '';
-    if ($classes{$rset}->[1] == 0) {
-      $data->{'class'} = $rset;
-    }
-    elsif ($classes{$rset}->[1] == 1) {
-      # Convert arg to time;
-      if ($arg) {
-	$time = _str_to_time($arg);
-	return (0, "Invalid time $arg") unless $time; # XLANG
-	$data->{'classarg'} = $time;
-      }
-      $data->{'class'} = $rset;
-    }
-    elsif ($rset eq 'digest') {
-      # Process the digest data and pick apart the class
-      $dig = $self->config_get('digests');
-      if ($arg) {
-	if ($arg =~ /(.*)-(.*)/) {
-	  $arg = $1;
-	  $mime = (lc($2) eq 'mime') ? 1 : 0;
-	}
-	return (0, "Illegal digest name: $arg.\n") # XLANG
-	  unless $dig->{$arg};
-      }
-      else {
-	$arg  = $dig->{'default_digest'};
-      }
-      $mime = $self->{'digest_data'}{$arg}{'mime'} unless defined $mime;
-      $data->{'class'} = "$rset-$arg-" . ($mime ? "mime" : "nomime");
-    }
-  }
+  ($data->{'flags'}, $data->{'class'}, $data->{'classarg'}) =
+    ($flags, $class, $classarg);
+
   $self->{'subs'}->replace("", $key, $data);
-  1;
+  return (1, $flags, $class, $classarg);
 }
 
 =head2 make_setting
@@ -369,8 +342,8 @@ sub make_setting {
   my $str   = shift;
   my $flags = shift;
   my $log   = new Log::In 150, "$str, $flags";
-  my($arg, $class, $classarg, $dig, $i, $inv, $isflag, $mime, $rset, $set,
-     $time);
+  my($arg, $class, $classarg, $dig, $i, $inv, $isflag, $rset, $set, $time,
+     $type);
 
   # Split the string on commas; discard empties.  XXX This should probably
   # ignore commas within parentheses.
@@ -401,7 +374,7 @@ sub make_setting {
     }
     else {
       $log->out("failed, invalidaction");
-      return (0, "Invalid setting: $set"); # XLANG
+      return (0, "Invalid setting: $set.\n"); # XLANG
     }
     
     if ($isflag) {
@@ -421,7 +394,7 @@ sub make_setting {
 	# Convert arg to time;
 	if ($arg) {
 	  $classarg = _str_to_time($arg);
-	  return (0, "Invalid time $arg") unless $classarg; # XLANG
+	  return (0, "Invalid time $arg.\n") unless $classarg; # XLANG
 	}
 	$class = $rset;
       }
@@ -429,30 +402,34 @@ sub make_setting {
 	# Process the digest data and pick apart the class
 	$dig = $self->config_get('digests');
 	if ($arg) {
-	  if ($arg eq 'mime') {
+	  # The argument may be a digest type
+	  if ($digest_types{$arg}) {
+	    $type = $arg;
 	    $arg = $dig->{'default_digest'};
-	    $mime = 1;
 	  }
-	  elsif ($arg eq 'nomime') {
-	    $arg = $dig->{'default_digest'};
-	    $mime = 0;
+	  # Or it mught be a digest name
+	  elsif ($dig->{$arg}) {
+	    $type = $dig->{$arg}{'type'};
 	  }
+	  # Or it might be a name-type string
 	  elsif ($arg =~ /(.*)-(.*)/) {
 	    $arg = $1;
-	    $mime = (lc($2) eq 'mime') ? 1 : 0;
+	    $type = $2;
 	  }
-	  return (0, "Illegal digest name: $arg") # XLANG
+	  return (0, "Illegal digest name: $arg.\n") # XLANG
 	    unless $dig->{$arg};
+	  return (0, "Illegal digest type: $type.\n") #XLANG
+	    unless $digest_types{$type};
 	}
 	else {
 	  $arg  = $dig->{'default_digest'};
+	  $type = $dig->{$arg}{'type'};
 	}
-	$mime = $dig->{$arg}{'mime'} unless defined $mime;
-	$class = "digest-$arg-" . ($mime ? "mime" : "nomime");
+	$class = "digest-$arg-$type"
       }
     }
   }
-  return (1, $class, $classarg, $flags);
+  return (1, $flags, $class, $classarg);
 }
 
 =head2 _str_to_time(string)
@@ -595,15 +572,14 @@ sub describe_class {
   my $self  = shift;
   my $class = shift;
   my $arg   = shift;
-  my($dig, $time, $mime);
+  my($dig, $time, $type);
 
   if ($class =~ /^digest-(.*)-(.*)/) {
     $arg  = $1;
-    $mime = lc($2) eq 'mime' ? 1 : 0;
+    $type = lc($2);
     $dig = $self->config_get('digests');
     if ($dig->{$arg}) {
-      return "$dig->{$arg}{'desc'} " .
-	($mime ? "(MIME)" : "(non-MIME)"); # XLANG
+      return "$dig->{$arg}{'desc'} ($type)";
     }
     else {
       return "Undefined digest." # XLANG
