@@ -308,13 +308,14 @@ Returns a list of archive files which match a regular expression
 sub find {
   my $self = shift;
   my $regex = shift;
+  my $log = new Log::In 150, $regex;
   my (@arcs, @out);
   @out = ();
 
   opendir (ARCDIR, $self->{'dir'}) 
     or return;
 
-  @arcs = grep /^$self->{'list'}/, readdir ARCDIR;
+  @arcs = grep { s/^$self->{'list'}\.// } readdir ARCDIR;
   closedir ARCDIR;
 
   for (@arcs) {

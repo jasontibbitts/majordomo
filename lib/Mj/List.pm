@@ -1921,7 +1921,7 @@ sub archive_delete_msg {
 sub archive_find {
   my $self = shift;
   my $patt = shift;
-  my ($ok, $mess, $regex) = compile_pattern($patt, 0, "exact");
+  my ($ok, $mess, $regex) = Mj::Config::compile_pattern($patt, 0, "exact");
   return ($ok, $mess) unless $ok;
   return unless $self->_make_archive;
   $self->{'archive'}->find($regex);

@@ -2905,7 +2905,9 @@ sub _archive {
   if ($mode =~ /sync/) {
     @msgs = $self->{'lists'}{$list}->archive_find($args);
   }
-  @msgs = $self->{'lists'}{$list}->archive_expand_range(0, $args);
+  else {
+    @msgs = $self->{'lists'}{$list}->archive_expand_range(0, $args);
+  }
   $self->{'archct'} = 1;
   return (1, @msgs);
 }
@@ -2913,7 +2915,7 @@ sub _archive {
 sub archive_chunk {
   my ($self, $request, $result) = @_;
   my $log = new Log::In 30, "$request->{'list'}";
-  my (@msgs, $data, $ent, $file, $i, $list, $out, $owner, $fh, $buf);
+  my (@msgs, @out, $data, $ent, $file, $i, $list, $out, $owner, $fh, $buf);
 
   return (0, "The archive was not initialized.\n")
     unless (exists $self->{'archct'});
@@ -2925,7 +2927,11 @@ sub archive_chunk {
 
 
   if ($request->{'mode'} =~ /sync/) {
-    return $self->{'lists'}{$list}->archive_sync($result, $tmpdir);
+    @msgs = @$result;
+    for $i (@msgs) {
+      push @out, $list->archive_sync($i, $tmpdir);
+    }
+    return @out;
   }
   elsif ($request->{'mode'} =~ /immediate/) {
     $buf = '';

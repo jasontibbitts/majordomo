@@ -19,7 +19,7 @@ Format routines take:
   mj - a majordomo object, so that formatting routines can get config
     variables and call other core functions
   outfh - a filehendle to send output to
-  errfh - a filehandle to send error ourput to
+  errfh - a filehandle to send error output to
   output_type - text or html or ???
   user, password, auth, interface, cmd, mode, list, victim - the usual
     stuff
@@ -146,7 +146,7 @@ sub archive {
 
   if ($request->{'mode'} =~ /sync/) {
     for (@msgs) {
-      ($ok, $mess) = @{$mj->dispatch($request, ($_))};
+      ($ok, $mess) = @{$mj->dispatch($request, [$_])};
       eprint($out, $type, indicate($mess, $ok));
     }
   }
