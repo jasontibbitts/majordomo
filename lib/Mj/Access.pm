@@ -27,7 +27,6 @@ size reasons.
 package Mj::Access;
 use Mj::Config qw(parse_table);
 use Mj::CommandProps qw(:rules);
-use Mj::MIMEParser;
 use strict;
 use vars qw($text);
 #use vars qw($current $skip $text $victim $passwd @permitted_ops %args
@@ -939,7 +938,7 @@ sub _a_delay {
   return (-1, $td->{'command'} =~ /post/ ? 'ack_delay' : 'repl_delay');
 }
 
-use MIME::Entity;
+use Mj::MIMEParser;
 sub _a_forward {
   my ($self, $arg, $td, $args) = @_;
 
