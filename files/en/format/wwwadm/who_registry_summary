@@ -1,6 +1,6 @@
 <!-- Majordomo who_registry_summary format file -->
 
-<h4 align="center">Search the Registry</h4>
+<h4 align="center">Search the Registry or Aliases</h4>
 
 <ol>
   <li>Type a search pattern into the <b>Search pattern</b> box. 
@@ -9,24 +9,36 @@
   </li>
   <li>Type the number of addresses you wish to view at
       one time into the <b>Addresses per page</b> box.
+      To see all of the addresses on one page, leave the box empty.
+  </li>
+  <li>Choose the type of results you want to see using
+      the <b>Show</b> menu.
   </li>
 
-  <li>Press the <b>search</b> button.</li>
+  <li>Press the <b>Search</b> button.</li>
 </ol>
 
 <form method="POST" action="$CGIURL">
 
-  <input name="list" type="hidden" value="$LIST">
+  <input name="list" type="hidden" value="GLOBAL">
   <input name="passw" type="hidden" value="$CMDPASS">
   <input name="user" type="hidden" value="$USER">
-  <input name="func" type="hidden" value="who-enhanced">
+  <input name="func" type="hidden" value="who">
 
   Search pattern: <input name="pattern" value="."><br>
 
   Addresses per page:
     <input name="chunksize" size="10" value="$CHUNKSIZE">
+  <br>
 
-  <input type="submit" value="search">
+  Show:
+  <select name="mode">
+    <option value="enhanced">Registered e-mail addresses
+    <option value="alias">E-mail aliases
+  </select>
+  <br>
+
+  <input type="submit" value="Search">
 
 </form>
 
@@ -53,7 +65,7 @@
   <b>Do not</b> send a welcome message to each address.<br>
 
   <input type="radio" name="func" value="unregister"> 
-  Remove addresses from the registry.
+  Remove addresses from the registry.<br>
 
   <textarea name="victims" rows="8" cols="70">
   </textarea>

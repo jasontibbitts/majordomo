@@ -24,7 +24,7 @@
       To see every address on one page, leave the box empty.</li>
   <li>Choose the kind of result you want to see from the
       <b>Show</b> menu.</li>
-  <li>Press the <b>search</b> button.</li>
+  <li>Press the <b>Search</b> button.</li>
 </ol>
 
 <form method="POST" action="$CGIURL">
@@ -48,7 +48,7 @@ Show:
     Only subscribers with bounces (delivery problems)
   </select><br>
 
-  <input type="submit" value="search">
+  <input type="submit" value="Search">
 
 </form>
 
