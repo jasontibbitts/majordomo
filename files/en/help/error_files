@@ -104,6 +104,14 @@ with "immediate" mode.
 
 (standard plus MODE, MODES)
 
+no_address
+----------
+This error message is displayed if the register, set, subscribe, or
+unsubscribe command is issued with the wwwadm interface, but no e-mail
+address is specified.
+
+(standard substitutions only)
+
 no_password
 -----------
 This error message is displayed when a Majordomo command that requires
