@@ -1,0 +1,12 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+_bounce
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+?? used only in "configset access_rules" for the GLOBAL pseudo-list ??
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+There is no documentation available for this command.
+
+
+For a list of all help topics send this one-line message
+   help topics
+to the server at $MJ
