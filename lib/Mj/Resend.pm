@@ -497,7 +497,7 @@ sub _post {
   $head->modify(0);
 
   # Convert/drop MIME parts.  
-  $i = $self->_list_config_get($list, 'attachment_rules');
+  $i = $self->_list_config_get($list, 'attachment_filters');
   if (exists $i->{'change_code'} and $mode !~ /intact/) {
     @changes = $self->_r_strip_body($list, $ent[0], $i->{'change_code'}, 1);
     $ent[0]->sync_headers;
@@ -1397,7 +1397,7 @@ sub _r_strip_body {
       else {
         # If the attachment rules code does not work properly, log
         # the error and keep the part in question.
-        $log->message(50, 'info', "Attachment Rules error: $@");
+        $log->message(50, 'info', "Attachment filters error: $@");
         push @newparts, $i;
       }
     } 
