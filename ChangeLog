@@ -1,3 +1,11 @@
+2002-07-28  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* bin/mj_shell: Fix crash with -D.
+
+	* lib/Majordomo.pm (_lists): Don't modify the values we get from
+	_list_config_get; they're just references and changing them will
+	change the internal structures.
+
 2002-07-22  Michael Yount <csf@moscow.com>
 
 	* bin/mj_wwwusr:  Allow continued session information to
@@ -9,6 +17,14 @@
 	old versions of Perl.  When trying to make directories a second
 	time, add some debugging output.
 	(s_recognize): Don't return $dir2 with a trailing slash.
+
+2002-07-17  Jason Tibbitts  <tibbs@math.uh.edu>
+
+	* lib/Mj/BounceHandler.pm (_hbr_noprobe): Call a hook when users
+	are removed due to bounces.
+
+	* lib/Majordomo.pm (_createlist): Add another call to the
+	createlist-regen hook.
 
 2002-07-16  Michael Yount <csf@moscow.com>
 

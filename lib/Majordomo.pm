@@ -5010,7 +5010,6 @@ sub _createlist {
       }
     }
 
-    # Call out to a shell hook here
     shell_hook(name => 'createlist-regen');
 
     return (1, $result);
@@ -5197,6 +5196,7 @@ sub _createlist {
     $result->{'password'} = $pw;
   }
 
+  shell_hook(name => 'createlist-regen');
   return (1, $result);
 }
 
@@ -5469,7 +5469,7 @@ sub _lists {
   my $log = new Log::In 35, $mode;
   my (@lines, @lists, @out, @tmp, $cat, $compact, $count, $data,
       $desc, $digests, $expose, $flags, $i, $j, $limit, $list,
-      $mess, $sublist, $sublists, $testreq);
+      $mess, $osublists, $sublist, $sublists, $testreq);
 
   $expose = 0;
   $mode ||= $self->_global_config_get('default_lists_format');
@@ -5576,7 +5576,8 @@ sub _lists {
       # If a master password was given, show all auxiliary lists by merging
       # together those in the sublist setting with those that aren't.
       if ($expose > 1) {
-        $sublists = $self->_list_config_get($list, 'sublists');
+	$osublists = $self->_list_config_get($list, 'sublists');
+	$sublists = {};
         for $i (keys %{$self->{'lists'}{$list}->{'sublists'}}) {
           next if ($i eq 'MAIN');
           next if $sublists->{$i};

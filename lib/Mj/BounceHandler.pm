@@ -596,6 +596,7 @@ sub handle_bounce_removal {
 Directly remove a bouncing user, no consultation, no probing.
 
 =cut
+use Mj::Util qw(shell_hook);
 sub _hbr_noprobe {
   my $self = shift;
   my %args = @_;
@@ -617,6 +618,8 @@ sub _hbr_noprobe {
 		$self->{'interface'}, $ok, 0, 0, 
 		$args{reason} || qq(The bounce_rules setting says "remove-noprobe"),
 		$::log->elapsed - $time);
+
+  shell_hook('bouncehandler-unsubscribe');
 
   if ($ok) {
     return "  User was removed.\n";

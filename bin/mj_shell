@@ -102,7 +102,7 @@ $::log->add
   );
 
 if ($opts{D}) {
-  debuglog(5000);
+  debug_log(5000);
 };
 
 if ($opts{R}) {
