@@ -298,6 +298,8 @@ files/en/config/.set_policy
 files/en/config/.signature_separator
 files/en/config/.site_name
 files/en/config/.subject_prefix
+files/en/config/.subject_re_pattern
+files/en/config/.subject_re_strip
 files/en/config/.sublists
 files/en/config/.subscribe_policy
 files/en/config/.taboo_body
@@ -314,6 +316,7 @@ files/en/config/.which_access
 files/en/config/.who_access
 files/en/config/.whoami
 files/en/config/.whoami_owner
+files/en/config/.www_help_window
 files/en/config/.wwwadm_url
 files/en/config/.wwwusr_url
 files/en/config/access_password_override
@@ -438,6 +441,8 @@ files/en/config/set_policy
 files/en/config/signature_separator
 files/en/config/site_name
 files/en/config/subject_prefix
+files/en/config/subject_re_pattern
+files/en/config/subject_re_strip
 files/en/config/sublists
 files/en/config/subscribe_policy
 files/en/config/taboo_body
@@ -454,6 +459,7 @@ files/en/config/which_access
 files/en/config/who_access
 files/en/config/whoami
 files/en/config/whoami_owner
+files/en/config/www_help_window
 files/en/config/wwwadm_url
 files/en/config/wwwusr_url
 files/en/confirm
@@ -741,6 +747,7 @@ files/en/help/.archive
 files/en/help/.auxiliary_list
 files/en/help/.cancel
 files/en/help/.changeaddr
+files/en/help/.command_line
 files/en/help/.command_parser
 files/en/help/.commands
 files/en/help/.config
@@ -851,6 +858,8 @@ files/en/help/.configset_set_policy
 files/en/help/.configset_signature_separator
 files/en/help/.configset_site_name
 files/en/help/.configset_subject_prefix
+files/en/help/.configset_subject_re_pattern
+files/en/help/.configset_subject_re_strip
 files/en/help/.configset_sublists
 files/en/help/.configset_subscribe_policy
 files/en/help/.configset_taboo_body
@@ -867,6 +876,7 @@ files/en/help/.configset_which_access
 files/en/help/.configset_who_access
 files/en/help/.configset_whoami
 files/en/help/.configset_whoami_owner
+files/en/help/.configset_www_help_window
 files/en/help/.configset_wwwadm_url
 files/en/help/.configset_wwwusr_url
 files/en/help/.configshow
@@ -948,6 +958,7 @@ files/en/help/archive
 files/en/help/auxiliary_list
 files/en/help/cancel
 files/en/help/changeaddr
+files/en/help/command_line
 files/en/help/command_parser
 files/en/help/commands
 files/en/help/config
@@ -1058,6 +1069,8 @@ files/en/help/configset_set_policy
 files/en/help/configset_signature_separator
 files/en/help/configset_site_name
 files/en/help/configset_subject_prefix
+files/en/help/configset_subject_re_pattern
+files/en/help/configset_subject_re_strip
 files/en/help/configset_sublists
 files/en/help/configset_subscribe_policy
 files/en/help/configset_taboo_body
@@ -1074,6 +1087,7 @@ files/en/help/configset_which_access
 files/en/help/configset_who_access
 files/en/help/configset_whoami
 files/en/help/configset_whoami_owner
+files/en/help/configset_www_help_window
 files/en/help/configset_wwwadm_url
 files/en/help/configset_wwwusr_url
 files/en/help/configshow

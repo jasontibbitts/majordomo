@@ -38,6 +38,7 @@ These help files are introductory documents:
    help admin_monitor
    help admin_passwords
    help admin_subscribers
+   help command_line
    help commands
    help mj_confirm
    help mj_shell
@@ -223,6 +224,8 @@ These help files describe configuration settings:
    help configset_save_denial_checksums
    help configset_sequence_number
    help configset_subject_prefix
+   help configset_subject_re_pattern
+   help configset_subject_re_strip
    help configset_sublists
    help configset_subscribe_policy
    help configset_unsubscribe_policy
@@ -254,6 +257,7 @@ These help files describe configuration settings:
    help configset_site_name
    help configset_tmpdir
    help configset_whereami
+   help configset_www_help_window
    help configset_wwwadm_url
    help configset_wwwusr_url
 
