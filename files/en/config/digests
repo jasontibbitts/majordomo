@@ -1,11 +1,2 @@
 The digests setting determines when digests of posted messages should be
 delivered to the subscribers of a mailing list.
-
-Each digest is described by two lines.  The lines contains data in
-the following order, separated by vertical bars ('|') or colons:
-
-name times minsize maxsize maxage separate minage type sort index
-description subject
-
-The second line holds a description of the digest and the format of the
-Subject header when the digest is mailed.
