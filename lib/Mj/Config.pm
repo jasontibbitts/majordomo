@@ -2865,7 +2865,8 @@ sub parse_taboo_body {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-  my($class, $data, $err, $inv, $j, $max, $ok, $pat, $re, $sev, $stop);
+  my($class, $data, $epat, $err, $inv, $j, $max, $ok, $pat, $re, $sev,
+     $stop);
 
   $data = {};
   $data->{'inv'} = [];
@@ -2888,6 +2889,11 @@ sub parse_taboo_body {
     return (0, "Error parsing taboo_body line:\n$err")
       unless $ok;
 
+    # Make an escaped version of the pattern
+    $epat = $pat;
+    $epat =~ s/\\/\\\\/g;
+    $epat =~ s/'/\\'/g;
+
     # For backwards compatibility, we have a different default for
     # admin_body
     unless (defined $stop && length $stop) {
@@ -2898,11 +2904,11 @@ sub parse_taboo_body {
     if ($inv) {
       if ($stop > 0) {
 	$data->{'code'} .=
-	  "\$line <= $stop && \$text =~ $re && (push \@out, (\'$pat\', \$&, $sev, \'$class\', 1));\n";
+	  "\$line <= $stop && \$text =~ $re && (push \@out, (\'$epat\', \$&, $sev, \'$class\', 1));\n";
       }
       else {
 	$data->{'code'} .=
-	  "\$text =~ $re && (push \@out, (\'$pat\', \$&, $sev, \'$class\', 1));\n";
+	  "\$text =~ $re && (push \@out, (\'$epat\', \$&, $sev, \'$class\', 1));\n";
       }
 	push @{$data->{'inv'}}, "$self->{list}\t$var\t$pat\t$sev\t$class";
     }
@@ -2911,11 +2917,11 @@ sub parse_taboo_body {
     else {
       if ($stop > 0) {
 	$data->{'code'} .=
-	  "\$line <= $stop && \$text =~ $re && (push \@out, (\'$pat\', \$&, $sev, \'$class\', 0));\n";
+	  "\$line <= $stop && \$text =~ $re && (push \@out, (\'$epat\', \$&, $sev, \'$class\', 0));\n";
       }
       else {
 	$data->{'code'} .=
-	  "\$text =~ $re && (push \@out, (\'$pat\', \$&, $sev, \'$class\', 0));\n";
+	  "\$text =~ $re && (push \@out, (\'$epat\', \$&, $sev, \'$class\', 0));\n";
       }
     }
     $max = $stop ? $stop > $max ? $stop : $max : 0; #Whee!
@@ -2945,7 +2951,7 @@ sub parse_taboo_headers {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150, "$var";
-  my($class, $data, $err, $inv, $j, $ok, $pat, $re, $sev);
+  my($class, $data, $epat, $err, $inv, $j, $ok, $pat, $re, $sev);
 
   $data = {};
   $data->{'inv'} = [];
@@ -2962,12 +2968,17 @@ sub parse_taboo_headers {
     return (0, "Error parsing taboo_headers line:\n$err")
       unless $ok;
 
+    # Make an escaped version of the pattern
+    $epat = $pat;
+    $epat =~ s/\\/\\\\/g;
+    $epat =~ s/'/\\'/g;
+
     if ($inv) {
-      $data->{'code'} .= "\$text =~ $re && (push \@out, (\'$pat\', \$&, $sev, \'$class\', 1));\n";
+      $data->{'code'} .= "\$text =~ $re && (push \@out, (\'$epat\', \$&, $sev, \'$class\', 1));\n";
       push @{$data->{'inv'}}, "$self->{list}\t$var\t$pat\t$sev\t$class";
     }
     else {
-      $data->{'code'} .= "\$text =~ $re && (push \@out, (\'$pat\', \$&, $sev, \'$class\', 0));\n";
+      $data->{'code'} .= "\$text =~ $re && (push \@out, (\'$epat\', \$&, $sev, \'$class\', 0));\n";
     }
   }
   $data->{'code'} .= "return \@out;\n";
