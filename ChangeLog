@@ -1,3 +1,12 @@
+2003-09-14  Michael Yount <csf@moscow.com>
+
+	* lib/Mj/Config.pm:  (_compile_rule)  Bugfix:  A sublist
+	followed by a right paren (e.g., "(!@MAIN)") in a rule
+	would result in a syntax error because the paren was discarded.
+
+	* lib/Mj/Util.pm:  (process_rule)  Bugfix:  The default 
+	"ignore" is not a terminal action.
+
 2003-09-12  Michael Yount <csf@moscow.com>
 
 	* lib/Mj/Format.pm:  (configset, configshow, sescape)

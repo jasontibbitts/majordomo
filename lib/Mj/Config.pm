@@ -4230,7 +4230,7 @@ sub _compile_rule {
       }
 
     # Process @list, @MAIN, and @ forms
-    if (s:^\@(.*?)($|[\s\)])::) {
+    if (s:^\@(.*?)($|[\s\)]):$2:) {
       $arg = $1 || "MAIN";
       $o .= "\n    "."  "x$indent;
       push @{$check_aux}, $arg;
