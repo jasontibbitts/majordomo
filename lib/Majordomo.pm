@@ -528,6 +528,7 @@ sub list_config_set {
 	
 	# Get possible error value and print it here, for error checking.
 	($ok, $mess) = $self->{'lists'}{$list}->config_set($var, @_);
+	$self->_list_config_unlock($list);
 	if (!$ok) {
 	  @out = (0, "Error parsing $var: $mess\n");
 	}
@@ -2030,12 +2031,14 @@ sub createlist {
 sub _createlist {
   my($self, $dummy, $requ, $vict, $mode, $cmd, $owner, $list) = @_;
   my $log = new Log::In 35, "$list";
-  my(@lists, $bdir, $dir, $dom, $head, $mess, $mta, $rmess);
+  my(@lists, $bdir, $dir, $dom, $head, $mess, $mta, $rmess, $who);
 
   $mta  = $self->_global_config_get('mta');
   $dom  = $self->{'domain'};
   $bdir = $self->_global_config_get('install_dir');
   $bdir .= "/bin";
+  $who  = $self->_global_config_get('whoami');
+  $who =~ s/@.*$//; # Just want local part
 
   if ($mode !~ /nocreate/ && $list ne 'GLOBAL' && $list ne 'ALL') {
     # Untaint $list - we know it's a legal name, so no slashes, so it's safe
@@ -2072,6 +2075,7 @@ sub _createlist {
 						'list'   => $i,
 						'bindir' => $bdir,
 						'domain' => $dom,
+						'whoami' => $who,
 					       );
     $rmess .= $mess
     }
@@ -2699,6 +2703,7 @@ doing periodic digest triggers.
 There are two modes: hourly, daily.
 
 =cut
+use Mj::Lock;
 sub trigger {
   my ($self, $user, $passwd, $auth, $int, $cmd, $mode) = @_;
   my $log = new Log::In 27, "$mode";
@@ -2712,7 +2717,6 @@ sub trigger {
     $self->t_expire;
     $self->t_remind;
     $self->s_expire;
-    
     # Loop over lists
     $self->_fill_lists;
     for $list (keys %{$self->{'lists'}}) {

@@ -245,10 +245,8 @@ sub set_script_perms {
   # Properly set ownerships on everything.
   chown($uid, $gid, @$sidscripts, @$scripts) || die "Couldn't change ownership: $!";
   dot;
-  chown($uid, $gid, $id);
-  dot;
-  rchown($uid, $gid, 0644, 0755, "$id/bin", "$id/man", "$id/lib");
-  dot;
+  chown($uid, $gid, $id);dot;
+  rchown($uid, $gid, 0644, 0755, "$id/bin", "$id/man", "$id/lib");dot;
 
   # Make executables setuid; the scripts must be readable while the the
   # wrappers need only be executable.
@@ -259,8 +257,7 @@ sub set_script_perms {
     chmod(06555, @$sidscripts) || die "Couldn't change mode: $!";
   }
   dot;
-  chmod(0555, @$scripts);
-  dot;
+  chmod(0555, @$scripts);dot;
   print "ok\n" unless $quiet;
 }
 
@@ -315,10 +312,10 @@ sub do_config {
   open FILE, ">$config->{wtmpdir}/inst.$$";
   print FILE "approve GLOBAL.pass configset GLOBAL master_password = $pw\n";
   print FILE "default password $pw\n";
-  for $i (qw(tmpdir site_name install_dir lists_dir mta)) {
+  for $i (qw(tmpdir site_name whoami install_dir lists_dir mta)) {
     $arg = $config->{'domain'}{$dom}{$i} || $config->{$i};
     print FILE "configset GLOBAL $i = $arg\n";
-  }    
+  }
   print FILE "configset GLOBAL whereami = $dom\n";
   close FILE;
   # Make sure the file can be read by the Majordomo user.  XXX This is a

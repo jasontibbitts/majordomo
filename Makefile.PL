@@ -508,6 +508,16 @@ EOM
     $def = $config->{'domain'}{$i}{'site_name'};
     $config->{'domain'}{$i}{'site_name'} = get_str($msg, $def);
   
+    #---- Ask for the actual address that Majordomo will receive mail at
+    $msg = <<EOM;
+
+What address will the Majordomo at $i receive mail at?
+ This is normally "majordomo" but if you are running a Majordomo1
+  installation you may want to run Majordomo2 at an address like "mj2".
+EOM
+    $def = $config->{domain}{$i}{whoami} || 'majordomo';
+    $config->{domain}{$i}{whoami} = get_str($msg, $def);
+
     #---- owner address, for alias construction
     $msg = <<EOM;
 

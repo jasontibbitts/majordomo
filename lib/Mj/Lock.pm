@@ -97,7 +97,8 @@ sub lock {
   my $mode    = shift;
   my $noblock = shift;
   my $handle  = new IO::Handle;
-  my ($lm, $lname, $out);
+  my $mhandle = new IO::Handle;
+  my ($lm, $lname, $mname, $out);
 
   $::log->in(140, "$name, $mode");
   if ($mode =~ /^[rs]/i) {
@@ -109,18 +110,24 @@ sub lock {
   else {
     $::log->abort("Mj::Lock::lock called with illegal mode $mode");
   }
-  
+
   if ($noblock) {
     $lm |= LOCK_NB;
   }
   
-  $lname = _name($name);
+  ($lname, $mname) = _name($name);
 
+  if ($mname) {
+    open($mhandle, "+> $mname") || $::log->abort("Couldn't open lockfile $mname, $!");
+    $out = flock($mhandle, LOCK_SH);
+  }
   open($handle, "+> $lname") || $::log->abort("Couldn't open lockfile $lname, $!");
   $out = flock($handle, $lm);
 
   # Here check for EWOULDBLOCK and return undef, else abort on error.
 
+  $self->{'master_handle'} = $mhandle;
+  $self->{'master_name'}   = $mname;
   $self->{'handle'} = $handle;
   $self->{'lname'}  = $lname;
 
@@ -143,6 +150,7 @@ sub unlock {
   }
 
   close $self->{'handle'};
+  close $self->{'master_handle'} if $self->{'master_handle'};
   
   # Removing the lock file at any time seems to completely hose things on
   # some platforms.
@@ -150,9 +158,44 @@ sub unlock {
   #  $::log->abort("Failed unlinking $self->{lname}, $!");
   
   delete $self->{'handle'};
+  delete $self->{'master_handle'};
 
   $::log->out;
   return 1;
+}
+
+=head2 expire_locks
+
+This is a function (not a method) which expires locks.  Because just
+allocating a Majordomo object and connecting will cause the global lock to
+be held, this has to be called directly.  It''s part of this module to keep
+the details hidden.
+
+=cut
+sub expire_locks {
+  my $handle = new IO::Handle;
+  my ($file, $mname, $ok);
+  $::log->in(200);
+  $mname = _name();
+  unless ($mname) {
+    $::log->out('failed');
+    return undef;
+  }
+  open($handle, "+> $mname") || $::log->abort("Couldn't open lockfile $mname, $!");
+  $ok = flock($handle, LOCK_EX);
+  # Just get the filename; we want to ignore it when deleting
+  $mname =~ s/^.*\///;
+
+  opendir DIRH, $::LOCKDIR || return undef;
+  while (defined($file = readdir(DIRH))) {
+    $file =~ /(.*)/;
+    unlink "$::LOCKDIR/$1"
+      unless $1 eq $mname || $1 =~ /^\./;
+  }
+  closedir(DIRH);
+  $handle->close; # Release global lock
+  $::log->out;
+  1;
 }
 
 =head2 _name (private)
@@ -163,25 +206,40 @@ path, the path components are preserved intact.
 If the global $::LOCKDIR is defined and nonempty, locks will be created
 there by concatenating all of the path components and the filename with
 underscores.  This could possibly lead to problems with line length;
-filenames generated in this manner will be trimmed to 128 characters.
+filenames generated in this manner will be trimmed to 128 characters.  The
+name of the master lockfile will also be returned.)
 
 Otherwise the lockfile will be named by prepending .L to the filename, in
-the same directory.
+the same directory.  There is no master lockfile in this case (making the
+non-LOCKDIR situation rather non-optimal).  A test-and-sleep locking
+situation may be better for that case.
+
+If the provided name is undefined, it is assumed that the name of the
+master lock is required and it is retured if possible.  If not, undef is
+returned.
 
 =cut
 sub _name {
-  $_ = shift;
+  my $name = shift;
   my $n;
+
+  # If asked for the master lock, return it if we can
+  unless ($name) {
+    if ($::LOCKDIR) {
+      return "$::LOCKDIR/master.lock";
+    }
+    return undef;
+  }
 
   # Special processing if we have LOCKDIR
   if ($::LOCKDIR && -d $::LOCKDIR) {
-    ($n = $_) =~ s/\//_/g;
+    ($n = $name) =~ s/\//_/g;
     $n = substr($n, -128);
-    return "$::LOCKDIR/$n";
+    return ("$::LOCKDIR/$n", "$::LOCKDIR/master.lock");
   }
 
-  m|^(.*/)?(.*)$|;
-  return ($1 || "") . ".L" . $2;
+  $name =~ m|^(.*/)?(.*)$|;
+  return (($1 || "") . ".L" . $2);
 }
 
 =head1 COPYRIGHT

@@ -48,9 +48,10 @@ sub sendmail {
   my $log  = new Log::In 150;
   my %args = @_;
 
-  my $bin  = $args{'bindir'} || $log->abort("bindir not specified");
-  my $dom  = $args{'domain'} || $log->abort("domain not specified");
-  my $list = $args{'list'}   || 'GLOBAL';
+  my $bin  = $args{bindir} || $log->abort("bindir not specified");
+  my $dom  = $args{domain} || $log->abort("domain not specified");
+  my $list = $args{list}   || 'GLOBAL';
+  my $who  = $args{whoami} || 'majordomo'; 
 
   my $head = <<EOS;
 Please add the following lines to your aliases file, if they are not
@@ -60,9 +61,9 @@ EOS
 
   if ($list eq 'GLOBAL') {
     return ($head, qq(# Aliases for Majordomo at $dom
-majordomo:       "|$bin/mj_email -m -d $dom"
-majordomo-owner: "|$bin/mj_email -o -d $dom"
-owner-majordomo: majordomo-owner,
+$who:       "|$bin/mj_email -m -d $dom"
+$who-owner: "|$bin/mj_email -o -d $dom"
+owner-$who: majordomo-owner,
 # End aliases for Majordomo at $dom
 ));
   }

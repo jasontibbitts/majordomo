@@ -41,6 +41,7 @@ use lib "$::LIBDIR";
 use strict;
 use Majordomo;
 use Mj::Log;
+use Mj::Lock;
 use Getopt::Std;
 use vars qw($program_name);
 
@@ -92,6 +93,16 @@ $mj->dispatch('trigger', '', '', '', 'trigger', 'trigger', $opts{t},
 $::log->message(50, "info", "-----Calling destructors-----");
 undef $mj;
 undef $::mj;
+$::log->message(50, "info", "-----Expiring locks-----");
+# We have to do this while we aren't holding any locks at all.  That means
+# we can't even call it through a Majordomo object.  This is a layering
+# violation, but the simple act of connecting will lock a session, which
+# locks the global lock, which prevents things from expiring.  Note that
+# this will hang indefinitely while the global lock is held by someone
+# else.  On Linux this does not prevent other processes from acquiring the
+# global lock, but on some other OSes it might.  Sigh.
+Mj::Lock::expire_locks();
+
 $::log->out;
 
 exit 0;
