@@ -363,7 +363,7 @@ sub consult {
     # Build a mesage
     $subject = '';
     if ($arg2) {
-      ($subject = $arg2) =~ s/\%\~\%/\n /g;
+      ($subject = $arg2) =~ s/\002/\n /g;
     }
     $subject = "$token : CONSULT $list\n $subject";
     $ent = build MIME::Entity

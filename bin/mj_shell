@@ -24,6 +24,7 @@ use Majordomo;
 use Mj::Log;
 use Mj::TextOutput;
 use Mj::Parser;
+use Mj::CommandProps ':command';
 use Net::Domain qw(hostfqdn);
 use IO::File;
 use Getopt::Long;
@@ -220,9 +221,9 @@ sub parse_command {
   ($command, $mode) = $command =~ /([^=-]+)[=-]?(.*)/;
   $mode ||= "";
   
-  my $true_command = Mj::Parser::command_legal($command);
+  my $true_command = command_legal($command);
   unless (defined($true_command) &&
-	  Mj::Parser::command_property($true_command, "shell"))
+	  command_prop($true_command, "shell"))
     {
       print STDERR "**** Illegal command: $command!\n";
       return (1, 0);
@@ -238,7 +239,7 @@ sub parse_command {
     return parse_command($command, $args, $pass);
   }
 
-  if (Mj::Parser::command_property($true_command, "list")) {
+  if (command_prop($true_command, "list")) {
     ($tlist, $args) = split(" ", $args, 2);
     $tlist ||= "";
     $args ||= "";
@@ -246,8 +247,8 @@ sub parse_command {
       (defined
        ($list =
 	$::mj->valid_list($tlist,
-			  Mj::Parser::command_property($true_command, 'all'),
-			  Mj::Parser::command_property($true_command, 'global'))))
+			  command_prop($true_command, 'all'),
+			  command_prop($true_command, 'global'))))
 	{
 	  print STDERR "**** Illegal list \"$tlist\".\n";
 	  return (1, 0);
@@ -374,7 +375,7 @@ sub completer {
               # on in the string.
   # At the beginning, any command will do
   if ($pos == 0) {
-    @out = Mj::Parser::commands_matching("^$word", $ac, ['shell']);
+    @out = commands_matching("^$word", $ac, ['shell']);
     return sort @out;
   }
   # If we're completing the password, no completion
@@ -388,12 +389,11 @@ sub completer {
   }
   # If now on a command, complete real commands
   if ($line =~ /^\S*$/) {
-    @out = Mj::Parser::commands_matching("^$word", $ac, ['shell', 'real']);
+    @out = commands_matching("^$word", $ac, ['shell', 'real']);
     return sort @out;
   }
   # If on the second word after a command, complete as a list
-  if ($line =~ /^(\S+)\s*(\S*)$/ &&
-      Mj::Parser::command_property($1, 'list'))
+  if ($line =~ /^(\S+)\s*(\S*)$/ && command_prop($1, 'list'))
     {
       @lists = $mj->get_all_lists($user, $pass, '', 'shell');
       return sort(grep(/^$2/, @lists));

@@ -13,10 +13,9 @@ This contains code for the List object, which encapsulates all per-list
 functionality for Majordomo.
 
 A list owns a Config object to maintain configuration data, a
-SubscriberList object to store the list of subscribers and their data, an
-AliasList object to keep track of address aliases, various AddressList
-objects, an Archive object, and a Digest object handling all archiving and
-digesting aspects of the list.
+SubscriberList object to store the list of subscribers and their data,
+various AddressList objects, an Archive object, and a Digest object
+handling all archiving and digesting aspects of the list.
 
 =cut
 
@@ -29,7 +28,6 @@ use Mj::File;
 use Mj::FileRepl;
 use Mj::SubscriberList;
 use Mj::AddressList;
-#use Mj::AliasList;
 use Mj::Config qw(global_get parse_table);
 use Mj::Addr;
 use Mj::Log;
@@ -175,13 +173,6 @@ sub add {
 
   $::log->in(120, "$mode, $addr");
 
-#  ($ok, $saddr, undef) = $self->{'av'}->validate($addr);
-#  $::log->abort("Attempt to add invalid address: $addr, $saddr")
-#    unless $ok;
-  
-#  # Transform address and look up aliases.
-#  $caddr = $self->canon($saddr);
-
   $data = {
 	   'fulladdr'  => $addr->full,
 	   'stripaddr' => $addr->strip,
@@ -199,15 +190,14 @@ sub add {
 
 =head2 remove(mode, address)
 
-Removes addresses from the main list.  Everything at "add" applies.  This
-also removes any aliases which target the address being removed.
+Removes addresses from the main list.  Everything at "add" applies.
 
 =cut
 sub remove {
   my $self = shift;
   my $mode = shift;
   my $addr = shift;
-  my (@removed, @out, $a, $ok, $i);
+  my ($a);
 
   if ($mode =~ /regex/) {
     $a = $addr
@@ -215,21 +205,7 @@ sub remove {
   else {
     $a = $addr->canon;
   }
-  @out = $self->{'subs'}->remove($mode, $a);
-  
-# No more alias processing here
-  # Now we have to go over the removed addresses (since we could have nuked
-  # several with a regexp) and nuke all of the aliases for each one.
-  # Unfortunately I can't walk an array by pairs without modifying it or
-  # using this weird for loop.
-#   for ($i=0; $i<@out; $i+=2) {
-#     # If the target exists as an alias, it must be the bookkeeping alias
-#     # (else we screwed up, and we should nuke it anyway)
-#     if ($self->alias_lookup($out[$i])) {
-#       $self->alias_reverse_remove($out[$i]);
-#     }
-#   }
-  @out;
+  $self->{'subs'}->remove($mode, $a);
 }
 
 =head2 is_subscriber(addr)
@@ -290,7 +266,7 @@ sub set {
     return (0, "Invalid setting: $set.\n"); # XLANG
   }
   
-  # Grab subscriber data (this handles aliasing internally)
+  # Grab subscriber data
   ($key, $data) = $self->get_member($addr);
 
   unless ($data) {
@@ -662,7 +638,7 @@ sub search {
   return ($self->{'subs'}->get_matching_regexp(1, 'fulladdr', "\Q$string\E"))[0];
 }
 
-=head2 get_member(address, noalias)
+=head2 get_member(address)
 
 This takes an address and returns the member data for that address, or
 undef if the address is not a member.
@@ -686,7 +662,6 @@ the event that the transformation rules change.
 sub rekey {
   my $self = shift;
   $self->subscriber_rekey;
-  $self->alias_rekey;
   $self->aux_rekey_all;
 }
 
@@ -731,11 +706,7 @@ sub aux_add {
   unless ($self->{'sdirs'}) {
     $::log->abort("Mj::File::aux_add called in old directory structure.");
   }
-#   ($ok, $addr, undef) = $self->{'av'}->validate($addr);
-#   unless ($ok) {
-#     return (0, $addr);
-#   }
-#  $caddr = $self->canon($addr);
+
   $data  =
     {
      'stripaddr' => $addr->strip,
@@ -923,344 +894,6 @@ sub _fill_aux {
   1;
 }
 
-=head1 Aliasing functions
-
-These functions handle address aliasing.  This is simply a function where
-several addresses can be treated as equivalent for the purposes of
-determining such things as list membership.  Provisions are made for
-general address transformations and specific, possibly user-controlled
-equivalencies.  The latter are kept in an AliasList database object.
-
-The canonical form of an address is one that is the same for any set of
-addresses which are to be considered equivalent.  For example:
-
-tibbs+junk@uh.edu tibbs+crud@uh.edu -> tibbs@uh.edu.
-tibbs@a1.uh.edu   tibbs@b2.uh.edu   -> tibbs@uh.edu.
-
-All four addresses are to be considered as equivalent because they all have
-the same canonical form.  Note that this is _not_ the address that mail
-gets sent to; it's only used for comparing addresses for things like list
-membership.
-
-=head2 transform(stripped_address)
-
-This applies the transformations in the addr_xform config variables for the
-global list (if apply_global_xform is set) and the list.  They are applied
-in order;care should be taken that they are idempotent and that the
-collection is idempotent.  This means that the result of applying them
-repeatedly is the same as the result of applying them once.
-
-Transformations look somewhat like the usual regular expression transforms:
-
-/(.*)\+.*(\@.*)/$1$2/
-
-Removes the sendmail +mailbox specifier from the address, which turns
-tibbs+blah@hurl.edu into tibbs@hurl.edu.  Note that applying this
-repeatedly leaves the address alone.  (What happens when there is more than
-one '+'?)
-
-/(.*\@).*?\.(hurl\.edu)/$1$2/
-
-Removes the machine name from the hurl.edu domain, which turns
-tibbs@a2.hurl.edu into tibbs@hurl.edu.  Note that applying this repeatedly
-leaves the address alone.
-
-The list of transformations is stored in a configuration variable.  It is
-not expected that one list will have a large number of them, as generally
-the internal network structures and mail setups of remote sites are beyond
-the list owner's knowlege and control.
-
-=cut
-# sub transform {
-#   my $self = shift;
-
-#   # Must be local to share with the Safe compartment; previously declared
-#   # with use vars.
-#   local $addr = shift;
-
-#   my (@xforms, $cpt, $i, $eval);
-
-#   $::log->in(120, $addr);
-
-#   $cpt = new Safe;
-#   $cpt->permit_only(qw(const rv2sv concat leaveeval));
-#   $cpt->share('$addr');
-
-#   if ($self->config_get("apply_global_xforms")) {
-#     @xforms = $::mj->_global_config_get("addr_xforms");
-#   }
-
-#   for $i (@xforms, $self->config_get("addr_xforms")) {
-#     # Do the substitution in a _very_ restrictive Safe compartment.
-#     $eval = "\$addr =~ s$i";
-#     $cpt->reval($eval);
-
-#     # Log any messages
-#     if ($@) {
-#       $::log->message(10,
-# 		      "info",
-# 		      "Mj::List::transform: error in Safe compartment: $@"
-# 		     );
-#     }
-#   }
-#   $::log->out;
-#   $addr;
-# }
-
-=head2 canon(stripped_address)
-
-This returns the canonical form of an address by applying all existing
-transforms and then doing an alias database lookup.
-
-=cut
-# sub canon {
-#   my $self = shift;
-#   my $addr = shift;
-#   my $alias;
-
-#   $::log->in(119, $addr);
-
-#   $addr = $self->transform($addr);
-#   $alias = $self->alias_lookup($addr);
-
-#   $::log->out;
-#   return $alias if defined $alias;
-#   $addr;
-# }
-
-=head2 addr_match(a b, astripped, acanon, bstripped, bcanon)
-
-This returns true if two addreses are equivalent.  The addresses are
-stripped (unless astripped or bstripped is true, in which case the
-appropriate address is not stripped and _MUST_ be valid) and canonicalized
-(unless acanon or bcanon is true).
-
-False is returned if either of the addresses are illegal or if they are not
-equivalent.
-
-XXX Should the comparison be done insensitive to case?  Should canonicalization smash case?
-
-=cut
-# sub addr_match {
-#   my ($self, $a1, $a2, $s1, $c1, $s2, $c2) = @_;
-#   my $log = new Log::In 120, "$a1, $a2";
-#   my ($ok);
-
-#   unless ($s1) {
-#     ($ok, $a1) = $self->{'av'}->validate($a1);
-#     return unless $ok;
-#   }
-
-#   unless ($s2) {
-#     ($ok, $a2) = $self->{'av'}->validate($a2);
-#     return unless $ok;
-#   }
-
-#   $a1 = $self->canon($a1) unless $c1;
-#   $a2 = $self->canon($a2) unless $c2;
-
-#   return $a1 eq $a2;
-# }
-
-=head2 alias_add(source, target)
-
-Adds an alias to the AliasList.  This also adds a bookkeeping alias to
-speed up removal.  (This works because if we see that an address is aliased
-to itself then we know we have aliases to remove.  The lookup doesn''t slow
-anything down.)
-
-The target must already be a subscriber to the list (in order to prevent
-the problem where a user aliases himself away from a subscribed address, so
-that he is no longer a member).  The source _cannot_ be a member of the
-list, else that subscriber would alias himself to another subscriber.
-
-=cut
-# sub alias_add {
-#   my $self   = shift;
-#   my $mode   = shift;
-#   my $source = shift;
-#   my $target = shift;
-#   my ($ok, $data, $err, $ssource, $starget, $tsource, $ttarget);
-
-#   ($ok, $ssource, undef) = $self->{'av'}->validate($source);
-#   unless ($ok) {
-#     return (0, $ssource);
-#   }
-#   ($ok, $starget, undef) = $self->{'av'}->validate($target);
-#   unless ($ok) {
-#     return (0, $starget);
-#   }
-
-#   # Perform transforms
-#   $tsource = $self->transform($ssource);
-#   $ttarget = $self->transform($starget);
-  
-#   # Check list membership for target; suppress aliasing
-#   (undef, $ok) = $self->get_member($ttarget, 1);
-#   unless ($ok) {
-#     return (0, "$target is not a member of $self->{'name'}\n"); # XLANG
-#   }
-
-#   $self->_make_aliaslist;
-
-#   # Check list membership for source; suppress aliasing
-#   (undef, $ok) = $self->get_member($tsource, 1);
-
-#   # We get back undef if not a member...
-#   if ($ok) {
-#     return (0, "The alias source, $source,\ncannot be a member of the list ($self->{'name'}).\n"); # XLANG
-#   }
-
-#   # Add bookkeeping alias; don't worry if it fails
-#   $data = {
-# 	   'fulltarget' => $starget,
-# 	   'fullsource' => $starget,
-# 	   'target'     => $ttarget,
-# 	  };
-#   $self->{'aliases'}->add("", $ttarget, $data);
-
-#   # Add alias
-#   $data = {
-# 	   'target'     => $ttarget,
-# 	   'fullsource' => $ssource,
-# 	   'fulltarget' => $starget,
-# 	  };
-#   ($ok, $err) = $self->{'aliases'}->add("", $tsource, $data);
-#   unless ($ok) {
-#     # Really, this cannot happen.
-#     return (0, $err);
-#   }
-#   return 1;
-# }
-
-=head2 alias_remove(mode, source)
-
-This removes an alias pointing from one address.  Note that the target
-address is irrelevant here; an alias can only ever point to one address.
-
-This calls the transform routines, but doesn't call the aliasing routines
-since that would replace the source with the target.  Since aliases don't
-chain, this is fine.
-
-mode is passed to the removal routine; if it =~ /regexp/, address
-transformation is bypassed.
-
-XXX Return value?
-
-=cut
-# sub alias_remove {
-#   my $self = shift;
-#   my $mode = shift;
-#   my $addr = shift;
-  
-#   $addr = $self->transform($addr) unless $mode =~ /regexp/;
-#   $self->_make_aliaslist;
-#   $self->{'aliases'}->remove($mode, $addr);
-# }
-
-=head2 alias_lookup(canonical_address)
-
-This looks up an address in the AliasList.  The address should be
-transformed before calling this.
-
-=cut
-# sub alias_lookup {
-#   my $self = shift;
-#   my $addr = shift;
-#   my $data;
-  
-#   $::log->in(120, $addr);
-#   $self->_make_aliaslist;
-#   $data = $self->{'aliases'}->lookup($addr);
-
-#   $::log->out;
-#   return undef unless $data;
-#   $data->{'target'};
-# }
-
-=head2 alias_reverse_remove(canonical_address)
-
-This removes all aliases pointing _to_ an address.
-
-This returns a list of ($key, $data) pairs that were removed.
-
-=cut
-# sub alias_reverse_remove {
-#   my $self = shift;
-#   my $addr = shift;
-#   my (@kill, @out, $i);
-
-#   $self->_make_aliaslist;
-
-#   @kill = $self->alias_reverse_lookup($addr);
-  
-#   # Nuke the bookkeeping alias, too
-#   push @kill, $addr;
-  
-#   for $i (@kill) {
-#     push @out, $self->{'aliases'}->remove("", $i);
-#   }
-#   @out;
-# }
-
-=head2 alias_reverse_lookup(canonical_address)
-
-This does an inverse lookup; it finds all keys that point to a single
-address, except for the bookkeeping alias.
-
-=cut
-# sub alias_reverse_lookup {
-#   my $self = shift;
-#   my $addr = shift;
-#   my (@data, @out, $key, $args);
-
-#   $self->_make_aliaslist;
-#   $self->{'aliases'}->get_start;
-
-#   # Grab _every_ matching entry
-#   @data = $self->{'aliases'}->get_matching(0, 'target', $addr);
-#   $self->{'aliases'}->get_done;
-
-#   while (($key, $args) = splice(@data, 0, 2)) {
-#     unless ($key eq $args->{'target'}) {
-#       push @out, $args->{'fullsource'};
-#     }
-#   }
-#   @out;
-# }
-
-=head2 alias_rekey()
-
-This rekeys the alias database; that is, it regenerates the transformed
-addresses from the full addresses when the set of transformations changes.
-
-We builda closure which does the changes we want, then we call the mogrify
-routine.
-
-=cut
-# sub alias_rekey {
-#   my $self = shift;
-#   my $sub =
-#     sub {
-#       my $key =  shift;
-#       my $data = shift;
-#       my (@out, $newkey, $changekey, $newtarget, $changedata);
-      
-#       $newkey = $self->transform($data->{'fullsource'});
-#       $changekey = ($newkey ne $key);
-      
-#       $newtarget = $self->transform($data->{'fulltarget'});
-#       $changedata = 0;
-#       if ($newtarget ne $data->{'target'}) {
-#        $changedata = 1;
-#        $data->{'target'} = $newtarget;
-#      }
-#       return ($changekey, $changedata, $newkey);
-#     };
-#   $self->_make_aliaslist;
-#   $self->{'aliases'}->mogrify($sub);
-# }
-
 =head1 FileSpace interface functions
 
 These provide an interface into the list''s FileSpace object.
@@ -1393,27 +1026,6 @@ sub expire_dup {
 
   return @nuked
 }
-
-=head1 Lazy Instantiation functions
-
-These routines are used to allocate the various objects that a List has.
-These functions are moved out of the List constructor in order to cut down
-on startup time; if the objects are not used in a run, the support modules
-don''t even have to be loaded.
-
-=head2 _make_aliaslist
-
-Instantiate the alias list
-
-=cut
-# sub _make_aliaslist {
-#   my $self = shift;
-  
-#   unless (defined $self->{aliaslist}) {
-#     $self->{aliases} =
-#       new Mj::AliasList $self->_file_path("_aliases"), $self->{backend};
-#   }
-# }
 
 =head2 _make_aux (private)
 

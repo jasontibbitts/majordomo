@@ -1,3 +1,48 @@
+Sun Sep 13 02:09:14 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/Resend.pm (_r_ck_body): Majordomo::_re_match doesn't need
+ 	a safe compartment.
+	(_describe_taboo): Make sure $match is defined before modifying
+ 	it.
+
+	* lib/Mj/Token.pm (consult): Missed a %~%.
+
+	* lib/Mj/Parser.pm: Import necessary CommandProps functions and
+ 	unqualify the relevant function calls.
+
+	* lib/Mj/Access.pm (_a_default): Convert to calling
+ 	Mj::CommandProps::access_def to access default actions instead of
+ 	using locally defined variables.
+
+	* lib/Mj/Config.pm: Remove %requests; call CommandProps functions
+ 	instead.  Replace all references to %requests with appropriate
+ 	calls.
+	(_compile_rule): Give more useful message for illegal variables.
+	(parse_access_rules): Give more useful message for illegal
+ 	requests.
+
+Sat Sep 12 14:06:54 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
+
+	* lib/Mj/TextOutput.pm (auxadd): Renamed from auxsubscribe.
+	(auxremove): Renamed from auxunsubscribe.
+
+	* lib/Mj/List.pm (remove): Clean up.
+	(aux_add): Ditto.
+	(add): Ditto.
+	(rekey): Ditto.
+	Remofe dead aliasing stuff.
+
+	* lib/Mj/Parser.pm: Use CommandProps instead of loading
+ 	parser_data.pl.
+
+	* bin/mj_shell: Change command_(legal|property) to
+ 	Mj::CommandProps::command_(legal|prop).
+
+	* lib/Mj/Parser.pm: Ditto.
+
+	* lib/Mj/CommandProps.pm: New file: replace parser_data.pl with
+ 	something encompassing all relevant command data.
+
 Fri Sep 11 18:23:01 1998  Jason L Tibbitts  <tibbs@morpheus.hpc.uh.edu>
 
 	* t/db.t: Unlink the proper lockfile.

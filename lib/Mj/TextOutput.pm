@@ -120,7 +120,7 @@ sub alias {
 This adds an address to one of a list''s auxiliary lists.
 
 =cut
-sub auxsubscribe {
+sub auxadd {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27;
@@ -142,7 +142,7 @@ sub auxsubscribe {
 This removes an address to one of a list''s auxiliary lists.
 
 =cut
-sub auxunsubscribe {
+sub auxremove {
   my ($mj, $name, $user, $passwd, $auth, $interface,
       $infh, $outfh, $mode, $list, $args, @arglist) = @_;
   my $log = new Log::In 27, "$list, $user, $args";

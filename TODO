@@ -39,18 +39,6 @@ Top of the list
   password - change a password
   unregister - leave all lists and delete registration entry
 
-- Consolidate information about commands, so they are easier to add.  Info
-  we keep, per command:
-
-  parser properties
-  dispatcher properties
-  access_rules stuff (legal actions, legal vars)
-  default access actions (in _a_default);
-
-  Put all of this in one place: command_data.pl.  Remove parser_data.pl and
-  integrate the functions into command_data.pl (so interfaces don't have to
-  care about the format of the data structure).
-
 ! Utility method to set the default language from the interface.
   Check the user's chosen language.  Should the language used be that of
   the victim or the requester?  The requester will see the immediate
@@ -72,6 +60,8 @@ Top of the list
 
   add_command: adds a command to the big function structure.  Takes lots of
   data to be filled in.
+
+  add_alias: adds an alias for a command (localization, I suppose).
 
   add_variable: pushes a variable into the big config hash.
 

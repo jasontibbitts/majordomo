@@ -15,7 +15,7 @@ parsing the files out of a MIME entity.
 package Mj::Parser;
 use Mj::Log;
 use Mj::TextOutput;
-require "parser_data.pl";
+use Mj::CommandProps ':command';
 use strict;
 
 use AutoLoader 'AUTOLOAD';
@@ -204,8 +204,8 @@ sub parse_part {
     $log->message(50, "info", "$command aliased to $true_command.")
       if defined $true_command and $command ne $true_command;
     unless (defined($true_command) &&
-	    (command_property($true_command, $interface) ||
-	    (command_property($true_command, "${interface}_parsed"))))
+	    (command_prop($true_command, $interface) ||
+	    (command_prop($true_command, "${interface}_parsed"))))
       {
 	unless ($garbage) {
 	  print $outhandle $out;
@@ -239,7 +239,7 @@ sub parse_part {
       $log->message(50, "info", "$command aliased to $true_command.")
 	if defined $true_command and $command ne $true_command;
       unless (defined($true_command) &&
-	      command_property($true_command, $interface))
+	      command_prop($true_command, $interface))
 	{
 	  print $outhandle "Illegal command!\n";
 	  next CMDLINE;
@@ -254,7 +254,7 @@ sub parse_part {
 
     # If necessary, we extract the list name from the arguments, accounting
     # for a possible default list in effect, and verify its validity
-    if (command_property($true_command, "list")) {
+    if (command_prop($true_command, "list")) {
       $args = add_deflist($mj, $args, $extra->{'deflist'},
 			  $interface, $extra->{'reply_to'});
       ($tlist, $args) = split(" ", $args, 2);
@@ -262,16 +262,18 @@ sub parse_part {
 	print $outhandle "A list name is required.\n";
 	next CMDLINE;
       }
-      unless (defined ($list = $mj->valid_list($tlist,
-				     command_property($true_command, 'all'),
-				     command_property($true_command, 'global'))))
+      unless (defined
+	      ($list = $mj->valid_list
+	       ($tlist,
+		command_prop($true_command, 'all'),
+		command_prop($true_command, 'global'))))
 	{
 	  print $outhandle "Illegal list \"$tlist\".\n";
 	  next CMDLINE;
 	}
     }
     # Bomb if given here args or an attachment when not supposed to
-    if (command_property($true_command, "nohereargs") &&
+    if (command_prop($true_command, "nohereargs") &&
 	(@arglist || $attachhandle))
       {
 	print $outhandle "Command $command doesn't take arguments with << TAG or <@.\n";
@@ -279,14 +281,14 @@ sub parse_part {
       }
       
     # Warn if command takes no args
-    if (command_property($true_command, "noargs") &&
+    if (command_prop($true_command, "noargs") &&
 	($args || @arglist || $attachhandle))
       {
 	print $outhandle "Command $command will ignore any arguments.\n";
       }
 
     # Warn of obsolete usage
-    if ($replacement = command_property($true_command, "obsolete")) {
+    if ($replacement = command_prop($true_command, "obsolete")) {
       print $outhandle "Command $command is obsolete; use $replacement instead.\n\n";
       next CMDLINE;
     }

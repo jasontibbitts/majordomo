@@ -26,7 +26,8 @@ separators:
 
 find . -name \*.T -print -exec perl -p -i.bak -e 's/\t/\001/g; s/%~%/\002/g' {} \;
 
-Then build and install in the usual way.
+Then make certain all of the files have the proper ownership, build and
+install in the usual way.
 
 Then cd back to that safe directory and run the following:
 

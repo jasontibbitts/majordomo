@@ -33,8 +33,9 @@ use Data::Dumper;
 use Mj::Log;
 use Mj::File;
 use Mj::FileRepl;
-use vars qw(@EXPORT_OK @ISA $VERSION %reg_actions %reg_legal %requests %is_array
-	    %is_parsed $list);
+use Mj::CommandProps ':rules';
+
+use vars qw(@EXPORT_OK @ISA $VERSION %is_array %is_parsed $list);
 
 require Exporter;
 require "mj_cf_data.pl";
@@ -44,98 +45,9 @@ $VERSION = "1.0";
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(global_get parse_table parse_keyed);
 
-# The regular set of actions
-%reg_actions =
-  ('allow'           => 1,
-   'confirm'         => 1,
-   'consult'         => 1,
-   'confirm_consult' => 1,
-   'default'         => 1,
-   'deny'            => 1,
-   'forward'         => 1,
-#  'log'             => 1,
-   'mailfile'        => 1,
-   'reply'           => 1,
-   'replyfile'       => 1,
-  );
-
-%reg_legal =
-  ('master_password'=>1,
-   'user_password'  =>1,
-   'mismatch'       =>1,
-  );
-
-# This contains all of the legal requests, along with all of the access
-# variables that are relevant for each request.  Variables with a hash
-# value of '2' can be used in numeric comparisons.
-%requests =
-  (
-   'access'      => {'legal'=>\%reg_legal,
-		     'actions'=>{'allow'=>1, 'deny'=>1, 'mailfile'=>1},
-		    },
-   'advertise'   => {'legal'=>\%reg_legal,
-		     'actions'=>{'allow'=>1, 'deny'=>1, 'mailfile'=>1},
-		    },
-   'alias'       => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'auxadd'      => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'auxwho'      => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'faq'         => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'get'         => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'help'        => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'index'       => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'info'        => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'intro'       => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'lists'       => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'put'         => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'register'    => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'rekey'       => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'request_response' => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'showtokens'  => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'unsubscribe' => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'which'       => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-   'who'         => {'legal'=>\%reg_legal, 'actions'=>\%reg_actions},
-
-   'subscribe'   => {'legal'=>{'master_password'=> 1,
-			       'user_password'  => 1,
-			       'mismatch'       => 1,
-			       'matches_list'   => 1,
-			      },
-		     'actions'=>\%reg_actions,
-		    },
-
-   'post'        =>
-   {
-    'legal' =>
-    {
-     'master_password'              => 1,
-     'user_password'                => 1,
-     'mismatch'                     => 1,
-     'any'                          => 1,
-     'bytes'                        => 2,
-     'bad_approval'                 => 1,
-     'taboo'                        => 2,
-     'admin'                        => 2,
-     'dup'                          => 1,
-     'dup_msg_id'                   => 1,
-     'dup_checksum'                 => 1,
-     'dup_partial_checksum'         => 1,
-     'lines'                        => 2,
-     'max_header_length'            => 2,
-     'max_header_length_exceeded'   => 1,
-     'mime_consult'                 => 1,
-     'mime_deny'                    => 1,
-     'percent_quoted'               => 2,
-     'quoted_lines'                 => 2,
-     'total_header_length'          => 2,
-     'total_header_length_exceeded' => 1,
-    },
-    'actions' => \%reg_actions,
-   },
-  );
-
-
-# This designates that the _raw_ form is an array of lines, not that
-# the parsed data comtains a simple array.
+# This designates that the _raw_ form is an array of lines, not that the
+# parsed data comtains a simple array.  Note that these are types, not
+# variables.
 %is_array =
   (
    'access_rules'     => 1,
@@ -408,9 +320,9 @@ sub _load_new {
   1;
 }
 
-use AutoLoader 'AUTOLOAD';
+#use AutoLoader 'AUTOLOAD';
 1;
-__END__
+#__END__
 
 
 =head2 default(variable)
@@ -1173,8 +1085,8 @@ sub parse_access_rules {
   my $arr  = shift;
   my $var  = shift;
   my $log  = new Log::In 150;
-  my (%rules, @at, $action, $check_aux, $check_main, $code, $data, $error,
-      $i, $j, $k, $ok, $part, $rule, $table, $tmp);
+  my (%rules, @at, @tmp, $action, $check_aux, $check_main, $code, $data,
+      $error, $i, $j, $k, $ok, $part, $rule, $table, $tmp);
 
   # %$data will contain our output hash
   $data = {};
@@ -1207,20 +1119,23 @@ sub parse_access_rules {
     $part = "";
 
     # Check validity of the request
-    return (0, "\nIllegal request name: $i.\n")
-      unless $requests{$i};
+    unless (rules_request($i)) {
+      @tmp = rules_requests();
+      return (0, "\nIllegal request name: $i.\nLegal requests are:\n".
+	      join(' ', sort(@tmp)))
+    }
     
     # Iterate over the action/rule pairs
     while (($action, $rule) = splice @{$rules{$i}}, 0, 2) {
 
-      # Check validity of the action.  XXX Technically we have a problem
-      # with the action arguments (they could be really wrong and we'd
-      # never notice) but that can wait.
+      # Check validity of the action.
       for ($k=0; $k<@{$action}; $k++) {
 	($tmp = $action->[$k]) =~ s/\=.*$//;
-	return (0, "Illegal action: $action->[$k].\nLegal actions for '$i' are:\n".
-		join(' ',sort keys %{$requests{$i}{'actions'}}))
-	  unless $requests{$i}{'actions'}{$tmp};
+	unless (rules_action($i, $tmp)) {
+	  @tmp = rules_actions($i);
+	  return (0, "\nIllegal action: $action->[$k].\nLegal actions for '$i' are:\n".
+		  join(' ',sort(@tmp)));
+	}
       }
 
       # Compile the rule
@@ -2559,6 +2474,7 @@ sub _compile_rule {
       $pr,        # Element prologue
       $ep,        # Element epilogie
       $err,       # Generic error holder
+      @tmp,
    );
 
   $e = "";
@@ -2705,10 +2621,12 @@ sub _compile_rule {
 	$op ||= '';
 	
 	# Weed out bad variables, but allow some special cases
-	unless ($requests{$request}{'legal'}{$var} || 
+	unless (rules_var($request, $var) || 
 	       $var =~ /(global_)?(admin_|taboo_)\w+/)
 	  {
-	    $e .= "Illegal variable for $request: $var.\n";
+	    @tmp = rules_vars($request);
+	    $e .= "Illegal variable for $request: $var.\nLegal variables are:\n".
+	      join(' ', sort(@tmp));
 	    last;
 	  }
 	if ($need_or) {
@@ -2744,7 +2662,7 @@ sub _compile_rule {
 	}
 	else {
 	  if ($var !~ /(global_)?(admin_|taboo_)\w+/ &&
-	      $requests{$request}{'legal'}{$var} != 2) {
+	      rules_var($request, $var) != 2) {
 	    $e .= "Variable '$var' does not allow numeric comparisons.\n";
 	    last;
 	  }

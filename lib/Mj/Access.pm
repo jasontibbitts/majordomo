@@ -717,35 +717,28 @@ directly and return the results.
 XXX Some of these actions require further scrutiny.
 
 =cut
+use Mj::CommandProps ':access';
 sub _a_default {
   my ($self, $arg, $mj_owner, $sender, $list, $request, $requester,
       $victim, $mode, $cmdline, $arg1, $arg2, $arg3, %args) = @_;
   my $log = new Log::In 150, "$request";
   my ($access, $fun);
-  my %allowed_requests   = ('access'=>1, 'help'=>1, 'lists'  =>1,
-			    'request_response' =>1);
-  my %confirmed_requests = ('alias' =>1, 'set' =>1, 'unalias'=>1);
-  my %access_requests    = ('which' =>1, 'info'=>1, 'intro'  =>1,
-			    'index' =>1, 'who' =>1, 'get'    =>1,
-			    'faq'   =>1);
-  my %mismatch_requests  = ('show'  =>1, 'unsubscribe'=>1);
-  my %special_requests   = ('post'  =>1, 'advertise'  =>1, 'subscribe'=>1);
 
   # First check the hash of allowed requests.
-  if ($allowed_requests{$request}) {
-    return $allowed_requests{$request};
+  if (access_def($request, 'allow')) {
+    return $self->_a_allow(@_);
   }
 
   # We'll use the arglist almost verbatim in a couple of places.
   shift @_;
 
   # Allow these if the user supplied their password, else confirm them.
-  if ($confirmed_requests{$request}) {
+  if (access_def($request, 'confirm')) {
     return $self->_a_allow(@_) if $args{'user_password'};
     return $self->_a_confirm(@_)
   }
 
-  if ($access_requests{$request}) {
+  if (access_def($request, 'access')) {
     $access = $self->_list_config_get($list, "${request}_access");
 
     # 'list' access doesn't make sense for GLOBAL; assume nobody's
@@ -774,7 +767,7 @@ sub _a_default {
 
   # If the suplied password was correct for the victim, we don't need to
   # confirm.
-  if ($mismatch_requests{$request}) {
+  if (access_def($request, 'mismatch')) {
     if ($args{'mismatch'} && !$args{'user_password'}) {
       return $self->_a_confirm(@_);
     }
@@ -784,7 +777,7 @@ sub _a_default {
   # Now call the specific default function if it exists; can't just
   # check definedness of the function because autoloading screws this
   # up.
-  if ($special_requests{$request}) {
+  if (access_def($request, 'special')) {
     $fun = "_d_$request";
     return $self->$fun(@_);
   }

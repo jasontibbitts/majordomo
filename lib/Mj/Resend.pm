@@ -708,7 +708,7 @@ sub _r_ck_body {
     # Calculate a few message metrics
     $avars->{lines}++;
     $avars->{bytes} += length($text);
-    $avars->{quoted_lines}++ if Majordomo::_re_match($safe, $qreg, $text);
+    $avars->{quoted_lines}++ if Majordomo::_re_match($qreg, $text);
     $line++;
   }
 
@@ -941,7 +941,7 @@ sub _describe_taboo {
   my ($admin, $global, $reason, $type);
   
   # Make sure messages are pretty
-  $match =~ s/\s+$//;
+  $match =~ s/\s+$// if defined $match;
 
   # Build match type and set the appropriate access variable
   if ($list eq 'GLOBAL') {

@@ -93,6 +93,7 @@ use Mj::MailOut;
 use Mj::Token;
 use Mj::Resend;
 use Mj::Inform;
+use Mj::CommandProps ':function';
 use Safe;
 
 # sub is_tainted {
@@ -214,43 +215,6 @@ sub connect {
   return $id;
 }
 
-# A hash of functions that the dispatcher will allow.  The hash value will
-# eventually convey more useful information.
-my %functions =
-  (
-   'accept'      => {'top' => 1},
-   'alias'       => {'top' => 1},
-   'auxadd'      => {'top' => 1},
-   'auxremove'   => {'top' => 1},
-   'auxwho'      => {'top' => 1, 'iter' => 1},
-   'createlist'  => {'top' => 1},
-   'faq'         => {'top' => 1, 'iter' => 1},
-   'get'         => {'top' => 1, 'iter' => 1},
-   'help'        => {'top' => 1, 'iter' => 1},
-   'index'       => {'top' => 1},
-   'info'        => {'top' => 1, 'iter' => 1},
-   'intro'       => {'top' => 1, 'iter' => 1},
-   'lists'       => {'top' => 1},
-   'owner'       => {'top' => 1, 'iter' => 1, 'noaddr' => 1},
-   'post'        => {'top' => 1, 'iter' => 1, 'noaddr' => 1},
-   'put'         => {'top' => 1, 'iter' => 1},
-   'reject'      => {'top' => 1},
-   'register'    => {'top' => 1},
-   'rekey'       => {'top' => 1},
-   'request_response' => {'top' => 1},
-   'sessioninfo' => {'top' => 1},
-   'set'         => {'top' => 1},
-   'show'        => {'top' => 1},
-   'showtokens'  => {'top' => 1},
-   'subscribe'   => {'top' => 1},
-   'tokeninfo'   => {'top' => 1},
-   'trigger'     => {'top' => 1, 'noaddr' => 1},
-   'unalias'     => {'top' => 1},
-   'unsubscribe' => {'top' => 1, 'noaddr' => 1},
-   'which'       => {'top' => 1},
-   'who'         => {'top' => 1, 'iter' => 1},
-  );
-
 =head2 dispatch(function, user, passwd, auth, interface, mode, cmdline, list, victim, ...)
 
 This is the main interface to all non-utility functionality of the
@@ -300,16 +264,12 @@ sub dispatch {
 
   $log->abort('Not yet connected!') unless $self->{'sessionid'};
 
-  unless (exists $functions{$base_fun}) {
-    return (0, "Illegal core function: $fun");
-  }
-
-  if (($base_fun ne $fun) && !$functions{$base_fun}{'iter'}) {
-    return (0, "Illegal core function: $fun");
+  unless (function_legal($fun)) {
+    return (0, "Illegal core function: $fun.\n");
   }
 
   # Turn some strings into addresses
-  unless ($continued || $functions{$base_fun}{'noaddr'}) {
+  unless ($continued || function_prop($fun, 'noaddr')) {
     $user = new Mj::Addr($user); $vict = new Mj::Addr($vict);
   }
 
@@ -332,7 +292,7 @@ sub dispatch {
     $over = 0;
   }
 
-  unless ($continued || $functions{$base_fun}{'noaddr'}) {
+  unless ($continued || function_prop($fun, 'noaddr')) {
     ($ok, $mess) = $user->valid;
     return (0, "$user is an invalid address:\n$mess")
       unless $ok;
@@ -343,7 +303,7 @@ sub dispatch {
     }
   }
 
-  if ($functions{$base_fun}{'top'}) {
+  if (function_prop($fun, 'top')) {
     @out = $self->$fun($user, $pass, $auth, $int, $cmd, $mode, $list, $vict, @extra);
   }
   else {
