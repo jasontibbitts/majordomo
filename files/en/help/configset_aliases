@@ -18,69 +18,78 @@ subscribe
 unsubscribe
 ALBM
 
+$INCLUDE-config/aliases
 
-A list of aliases that will be made available for this list.  
-After this value has been changed, the createlist-regen command 
-must be run to recreate the aliases.
+Aliases are e-mail addresses to which people send messages.  Each
+alias has a special purpose.
 
-  auxiliary            An alias for each auxiliary list in the "sublists"
-                       setting.
-  moderator            LIST-moderator
-  owner                LIST-owner
-  request              LIST-request
-  resend               LIST
-  subscribe            LIST-subscribe (adds user to the list in the default
-                       class, as given by the default_class setting)
-  subscribe-digest     LIST-subscribe-digest (adds user to the list,
-                       receiving the default digest)
-  subscribe-digest-all An alias for each existing digest, for example
-                       LIST-subscribe-digest-daily.
-  subscribe-nomail     LIST-subscribe-nomail (adds user, but they will
-                       receive no mail)
-  unsubscribe          LIST-unsubscribe
 
-Currently, owner, resend, and request are mandatory.
+The auxiliary alias
+-------------------
+If the 'auxiliary' flag in the "configset aliases" is used, an alias
+will be created for each auxiliary list.  For example, to reach the
+"testers" sublist of the mj2-dev list, a message could be sent to the
+(fictitious) address mj2-dev-testers@csf.colorado.edu Without the
+'auxiliary' flag, the "post" command is the only way to send messages to
+a sublist.
 
-NOTE:  Do not confuse this setting (used by list owners) with the
-"alias" command (intended for regular subscribers).
+Only auxiliary lists explicitly mentioned in the "sublists"
+configuration setting are given aliases (see "help configset_sublists"
+for more details).  See "help auxiliary_list" for an introduction to
+auxiliary lists.
 
-This configuration does not determine the address pointed to by the
-aliases, it simply causes the aliases to be generated for your MTA.
-Flexibility motivated this configuration setting. For example, if
-the owners and moderators are identical, there is no need for an
-additional "-moderator" alias.
 
-Some addresses, like -owner and -moderator, can be set in the list
-configurations. Only sublists explicitly mentioned in the "sublists"
-configuration setting are given aliases (see "help configset sublists").
+The moderator alias
+-------------------
+Mail sent to the LIST-moderator address will be delivered to the
+moderators of a mailing list.
 
-The -subscribe and -unsubscribe addresses cause commands to be
-generated and sent to the server address as if the user had typed
-the command instead of just sending mail to the special address.
 
-What happens to email sent to -request depends upon the (GLOBAL)
-request_answer setting and  (list-specific) request_response file.  
+The owner alias
+---------------
+Mail sent to the LIST-owner address will be delivered to the 
+owners of a mailing list.
+
+
+The request alias
+-----------------
+What happens to mail sent to the LIST-request alias depends upon the
+GLOBAL request_answer setting and the list-specific request_response
+file, as indicated by the following table:  
+
   request_answer       result
   --------------       -----------------------------------------
   majordomo            message is parsed for commands (default)
   owner                message is forwarded to the list owners
   anything else        the request_response file is sent back.
 
-If the 'auxiliary' flag in the "configset aliases" is used, an alias will
-be created for each auxiliary list.  For example, to reach the
-"testers" sublist of the mj2-dev list, a message could be sent
-to the (fictitious) address mj2-dev-testers@csf.colorado.edu
-Without the 'auxiliary' flag, the "post" command is the only way to send
-messages to a sublist.
+
+The resend alias
+----------------
+This alias is the address of the mailing list itself.  Mail sent
+to this address will be delivered to the list's subscribers.
+
+
+The subscribe and unsubscribe aliases
+-------------------------------------
+Mail messages sent to the LIST-subscribe, LIST-unsubscribe, and related
+aliases are treated specially by Majordomo.  The bodies of the messages
+are ignored. Majordomo will attempt to subscribe or unsubscribe the
+address that appears in the "From:" header of the message.
+
+The special extensions of the subscribe alias refer to the delivery
+class of the new subscriber.  For example, a subscription made through
+the LIST-subscribe-nomail address would start in the "nomail" delivery
+class.  See "help set" for a detailed description of delivery classes.
 
 
 See Also:
+   help admin_domain
    help alias
    help announce
-   help createlist (for the -regen option that creates new aliases)
-   help post
-   help configset_default_class (for setting the default class for newly
-     subscribed users)
+   help auxiliary_list
+   help configset_allowed_classes
+   help configset_default_class 
    help configset_digests (for configuring digests for subscribe-digest)
    help configset_moderator
    help configset_moderators
@@ -89,7 +98,7 @@ See Also:
    help configset_sublists
    help configset_whoami
    help configset_whoami_owner
+   help createlist (for the -regen option that creates new aliases)
+   help post
 
-For a list of all help topics send this one-line message
-   help topics
-to the server at $MJ
+$INCLUDE-help/foot
