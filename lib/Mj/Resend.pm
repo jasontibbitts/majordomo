@@ -218,10 +218,9 @@ sub post {
 
     ($ok, $mess, $fileinfo) =
       $self->list_access_check
-	($passwd, undef, $request->{'interface'}, $request->{'mode'}, 
-     $request->{'cmdline'}, $request->{'list'}, "post", $user, '',
-	 $request->{'file'}, join("\002", @$reasons), join("\002", %$avars), 
-     %$avars);
+	($passwd, $request->{'mode'}, $request->{'cmdline'}, $request->{'list'}, 
+     "post", $user, '', $request->{'file'}, join("\002", @$reasons), 
+     join("\002", %$avars), %$avars);
   }
 
   $owner = $self->_list_config_get($request->{'list'}, 'sender');
