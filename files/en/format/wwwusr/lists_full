@@ -45,7 +45,7 @@ $DIGESTS<br>
 <td>
 To subscribe, type your e-mail address into the <b>Address</b> box unless
 it is already present.  Optionally, type your full name into the 
-<b>Name</b> box.  Then press the <b>subscribe</b> button.  
+<b>Name</b> box.  Then, press the <b>subscribe</b> button once.  
 A confirmation message may be sent to your e-mail address.
 
 <form method="POST" action="$CGIURL">
