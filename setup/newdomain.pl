@@ -13,48 +13,50 @@ require "setup/ask_domain.pl";
 require "setup/query_util.pl";
 require "setup/install_util.pl";
 require "setup/setup_func.pl";
-use vars qw($config);
-my (@domains, $newdomain);
+use vars qw($config $lang $nosep $sepclear);
+my (@domains, $dom, $newdomain);
 
 $config = eval { require ".mj_config" };
-die "Can't add a domain unless Makefile.PL has been run!"
+die retr_msg('no_mj_config', $lang)
   unless $config;
 
 $| = 1;
 
-
-my ($msg88) = <<EOM;
-Add a Domain
-
-  Enter a single domain name.  The name may only include letters
-  (upper or lower case), digits, period (.), or hyphen (-).  
-  Enter a blank line to exit the program.
-
-EOM
+#---- Ask about clearing screen
+ask_clear($config);
 
 while (1) {
 
   if (@{$config->{'domains'}}) {
-    printf "The following domains are currently supported:\n  %s",
-      join "\n  ", @{$config->{'domains'}};
+    @domains = @{$config->{'domains'}};
   }
-  elsif (@domains = &get_domains) {
-    printf "The following domains are currently supported:\n  %s",
-      join "\n  ", @{$config->{'domains'}};
+  else { 
+    @domains = &get_domains;
   }
 
-  $newdomain = get_str($msg88, '');
+  if (@domains) {
+    print retr_msg('supported_domains', $lang);
+    for $dom (@domains) {
+      print "  $dom\n";
+    }
+    print "\n";
+    ask_continue();
+  }
+
+  $newdomain = get_str(retr_msg('domain_name', $lang));
   exit 0 unless $newdomain;
 
   if ($newdomain =~ /[^A-Za-z0-9\.\-]/) {
-    print qq(\n**** The domain "$newdomain" is not legitimate.\n);
-    print qq(**** Only letters, digits, period, and hyphen are allowed.\n\n);
+    print retr_msg('invalid_domain', $lang, 'DOMAIN' => $newdomain);
+    ask_continue();
     next;
   }
 
-  if (grep { lc $_ eq lc $newdomain } @domains) {
-    print qq(\n**** The domain "$newdomain" is already supported.\n\n);
-    next;
+  ($dom) = grep { lc $_ eq lc $newdomain } @domains;
+  if (defined $dom) {
+    print retr_msg('existing_domain', $lang, 'DOMAIN' => $dom);
+    $newdomain = $dom;
+    ask_continue();
   }
 
   ask_domain($config, $newdomain);
@@ -79,11 +81,11 @@ while (1) {
     make_alias_symlinks($newdomain,
                         $config->{sendmail_symlink_location});
     &dot;
-    print ".done\n";
+    print ".ok\n";
   }
 
   # save the values in the configuration file.
-  open(CONFIG, ">.mj_config") || die("Can't create .mj_config: $!");
+  open(CONFIG, ">.mj_config") || die("Cannot create .mj_config: $!");
   print CONFIG Dumper($config);
   close CONFIG;
   if ($config->{save_passwords}) {
@@ -102,7 +104,7 @@ sub mta_append {
   &{"setup_$config->{mta}"}($config);
 
   open DOMAINS, ">> $config->{lists_dir}/ALIASES/mj-domains" 
-    or die "Cannot open $config->{lists_dir}/ALIASES/mj-domains";
+    or die "Cannot open $config->{lists_dir}/ALIASES/mj-domains:\n$!";
 
   for my $i (@_) {
     print DOMAINS "$i\n";
@@ -117,7 +119,7 @@ sub get_domains {
   my (@out);
 
   open DOMAINS, "< $config->{lists_dir}/ALIASES/mj-domains" 
-    or die "Cannot open $config->{lists_dir}/ALIASES/mj-domains.\n";
+    or die "Cannot open $config->{lists_dir}/ALIASES/mj-domains.\n$!";
 
   while (<DOMAINS>) {
     chomp $_;
@@ -128,6 +130,22 @@ sub get_domains {
 
   @out;
 }
+
+=head1 COPYRIGHT
+
+Copyright (c) 2002 Jason Tibbitts for The Majordomo Development Group.
+All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the license detailed in the LICENSE file of the
+Majordomo2 distribution.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Majordomo2
+LICENSE file for more detailed information.
+
+=cut
 
 1;
 #
