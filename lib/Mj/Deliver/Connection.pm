@@ -21,8 +21,8 @@ timeouts on socket reads.  (The buffered writes are still used, right now.)
 
 package Mj::Deliver::Connection;
 use strict;
-use IO::Socket;
-use IO::Select;
+use Symbol;
+use Socket;
 use Mj::Log;
 
 =head2 new(host, port, timeout)
@@ -36,6 +36,7 @@ node, and returns.
 sub new {
   my $type  = shift;
   my $class = ref($type) || $type;
+  my ($proto, $sock, $sin, $iaddr, $tmp);
 
   my $self = {};
   bless $self, $class;
@@ -43,18 +44,42 @@ sub new {
   $self->{'host'}      = shift;
   $self->{'port'}      = shift || 25;
   $self->{'timeout'}   = shift || 60;
-  $self->{'outhandle'} = new IO::Socket::INET
-    PeerAddr => $self->{'host'},
-    PeerPort => $self->{'port'},
-    Proto    => 'tcp',
-    Timeout  => $self->{'timeout'};
-  unless ($self->{'outhandle'}) {
+  $proto = getprotobyname('tcp');
+
+  $sock = gensym;
+  $tmp = socket($sock, PF_INET, SOCK_STREAM, $proto);
+  unless ($tmp) {
     warn $@ if $@;
-    return undef;
+    return;
   }
-  $self->{'outhandle'}->autoflush(1);
-  $self->{'outsel'} = new IO::Select $self->{'outhandle'};
-  $self->{buffer} = '';
+
+  $iaddr = inet_aton($self->{'host'});
+  unless ($iaddr) {
+    warn $@ if $@;
+    return;
+  }
+
+  $sin = sockaddr_in($self->{'port'}, $iaddr);
+  unless ($sin) {
+    warn $@ if $@;
+    return;
+  }
+
+  # Autoflush the socket
+  $tmp = select;
+  select $sock;
+  $| = 1;  
+  select $tmp;
+
+  $tmp = connect ($sock, $sin);
+  unless ($tmp) {
+    warn $@ if $@;
+    return;
+  }
+
+  $self->{'outhandle'} = $sock;
+  $self->{'buffer'} = '';
+
   return $self;
 }
 
@@ -66,9 +91,14 @@ This outputs a string to the connection.
 sub print {
   my $self   = shift;
   my $string = shift;
+  my ($win, $ein);
 
-  return unless $self->{'outsel'}->can_write($self->{'timeout'});
-  $self->{'outhandle'}->print($string);
+  $win = '';
+  vec($win, fileno($self->{'outhandle'}), 1) = 1;
+  $ein = $win;
+
+  return unless (select(undef, $win, $ein, $self->{'timeout'}) > 0);
+  print {$self->{'outhandle'}} $string;
 }
 
 =head2 getline
@@ -88,16 +118,21 @@ original reason for this module, but...)
 sub getline {
   my $self = shift;
   my $tomult = shift || 1;
-  my ($len);
-  
+  my ($len, $ein, $rin, $eout, $rout, $tmp);
+
+  $tmp = fileno($self->{'outhandle'});
+  $rin = '';
+  vec($rin, $tmp, 1) = 1;
+  $ein = $rin;
+
   while(!length($self->{buffer}) || $self->{buffer} !~ /\n/) {
-    return undef
-      unless $self->{outsel}->can_read($self->{timeout}*$tomult);
-    $len = $self->{outhandle}->sysread($self->{buffer}, 1024,
-				       length($self->{buffer}));
+    return unless (select($rout=$rin, undef, $eout=$ein, 
+                   $self->{'timeout'}*$tomult) > 0);
+    $len = sysread($self->{'outhandle'}, $self->{'buffer'}, 1024,
+				       length($self->{'buffer'}));
     return undef unless $len;
   }
-  $self->{buffer} =~ s/^([^\n]*\n)//;
+  $self->{'buffer'} =~ s/^([^\n]*\n)//;
   $1;
 }
 
@@ -107,11 +142,11 @@ This returns the filenumber of the input side of the connection, for use in
 building a select vector.
 
 =cut
-sub fileno {
-  my $self = shift;
-  my $handle = $self->{'inhandle'} || $self->{'outhandle'};
-  $handle->fileno;
-}
+# sub fileno {
+  # my $self = shift;
+  # my $handle = $self->{'inhandle'} || $self->{'outhandle'};
+  # $handle->fileno;
+# }
 
 =head2 input_pending
 
@@ -119,10 +154,10 @@ Select on the handle to see if it has something waiting to process.  Useful
 for building a simple polling routine.
 
 =cut
-sub input_pending {
-  my $self = shift;
-  return $self->{'outsel'}->can_read(0);
-}
+# sub input_pending {
+  # my $self = shift;
+  # return $self->{'outsel'}->can_read(0);
+# }
 
 =head1 COPYRIGHT
 
