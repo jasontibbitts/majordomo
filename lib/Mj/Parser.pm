@@ -247,6 +247,7 @@ sub parse_part {
   $delay = 0;
   $user = $args{'reply_to'};
   $sigsep = $mj->global_config_get(undef, undef, 'signature_separator');
+  $interface =~ s/(\w+)-.+/$1/;
 
  CMDLINE:
   while (defined($_ = $inhandle->getline)) {
@@ -295,8 +296,8 @@ sub parse_part {
     $log->message(50, "info", "$command aliased to $true_command.")
       if defined $true_command and $command ne $true_command;
     unless (defined($true_command) &&
-            (command_prop($true_command, $mj->{interface}) ||
-            (command_prop($true_command, "$mj->{interface}_parsed"))))
+            (command_prop($true_command, $interface) ||
+            (command_prop($true_command, "${interface}_parsed"))))
       {
         unless ($garbage) {
           print $outhandle $out;
@@ -330,7 +331,7 @@ sub parse_part {
       $log->message(50, "info", "$command aliased to $true_command.")
         if defined $true_command and $command ne $true_command;
       unless (defined($true_command) &&
-              command_prop($true_command, $mj->{interface}))
+              command_prop($true_command, $interface))
         {
           print $outhandle "Illegal command!\n";
           next CMDLINE;

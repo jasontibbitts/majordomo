@@ -1,5 +1,9 @@
 2001-09-22  Michael Yount <csf@moscow.com>
 
+	* lib/Mj/Parser.pm:  (parse_part)  Bugfix:  account for hyphenated
+	interface names in command validity tests.  Thanks to
+        Marc Fournier.
+
 	* lib/Mj/Resend.pm:  (_r_strip_body)  Do not allow multipart
 	subparts to be discarded wholesale.
 	Bugfix:  call make_singlepart after the subparts have been
