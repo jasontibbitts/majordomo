@@ -8520,7 +8520,7 @@ sub who_chunk {
   my ($self, $request, $chunksize) = @_;
   my $log = new Log::In 100,
                   "$request->{'list'}, $request->{'regexp'}, $chunksize";
-  my (@chunk, @out, @tmp, $addr, $i, $j, $k, $list, $strip);
+  my (@chunk, @out, @tmp, $addr, $cs, $i, $j, $k, $list, $strip);
 
   # Common mode: stop now if no addresses remain to be matched.
   return (0, '')
@@ -8546,14 +8546,21 @@ sub who_chunk {
   }
   # who-alias for GLOBAL will search the alias list
   elsif ($request->{'list'} eq 'GLOBAL' and $request->{'mode'} =~ /alias/) {
-    @tmp = $self->{'alias'}->get_matching_regexp($chunksize, 'stripsource',
+    $cs = $chunksize;
+ACHUNK:
+    @tmp = $self->{'alias'}->get_matching_regexp($cs, 'stripsource',
                                                  $request->{'regexp'});
+    $k = scalar @tmp;
     while (($j, $i) = splice(@tmp, 0, 2)) {
       # Do not show bookkeeping aliases.
       next if ($j eq $i->{'striptarget'});
       $i->{'fulladdr'} = $j;
       $i->{'canon'} = $i->{'striptarget'};
       push @chunk, $i;
+    }
+    if ($k and scalar @chunk < $chunksize) {
+      $cs = $chunksize - scalar @chunk;
+      goto ACHUNK;
     }
   }
   # who for GLOBAL will search the registry
@@ -8566,9 +8573,10 @@ sub who_chunk {
     }
   }
   else {
+    $cs = $chunksize;
 CHUNK:
     @tmp = $list->search($request->{'sublist'}, $request->{'regexp'},
-                         'regex', $chunksize);
+                         'regex', $cs);
 
     $k = scalar @tmp;
     while (($j, $i) = splice(@tmp, 0, 2)) {
@@ -8591,7 +8599,7 @@ CHUNK:
     if ($request->{'mode'} =~ /bounce/ and $k and
         scalar @chunk < $chunksize)
     {
-      $chunksize = $chunksize - scalar @chunk;
+      $cs = $chunksize - scalar @chunk;
       goto CHUNK;
     }
 
