@@ -179,8 +179,8 @@ sub owner_done {
       $list) = @_;
   $list ||= 'GLOBAL';
   my $log  = new Log::In 30, "$list";
-  my (@owners, @bouncers, $data, $diag, $ent, $fh, $i, $mess, $msgno,
-      $nent, $parser, $sender, $lsender, $tmpdir);
+  my (@owners, @bouncers, $data, $diag, $ent, $fh, $i, $lsender, $mess,
+      $msgno, $nent, $parser, $sender, $subj, $tmpdir);
 
   $self->{'owner_fh'}->close;
   $self->_make_list($list);
@@ -230,6 +230,7 @@ sub owner_done {
 	$mess .= "  User:       $user.\n";
 	$mess .= "  Status:     $status\n";
 	$mess .= "  Diagnostic: $diag\n\n";
+	$subj  = " Bounce detected from $user";
       }
 
       # If we don't have a specific user from the envelope, we might have
@@ -241,6 +242,12 @@ sub owner_done {
 	    $mess .= "  User:       $i\n";
 	    $mess .= "  Status:     $data->{$i}{status}\n";
 	    $mess .= "  Diagnostic: $data->{$i}{diag}\n\n";
+	    if ($subj) {
+	      $subj .= ", $i";
+	    }
+	    else {
+	      $subj  = "Bounce detected from $i";
+	    }
 	  }
 	}
       }
@@ -252,7 +259,7 @@ sub owner_done {
 	 Data     => [ $mess,
 		       "The bounce message is attached below.\n\n",
 		     ],
-	 -Subject => "Bounce detected",
+	 -Subject => $subj,
 	 -To      => $lsender,
 	 -From    => $sender,
 	);
