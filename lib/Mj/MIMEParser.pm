@@ -353,6 +353,12 @@ sub replace_part {
     
   $repl->commit;
 
+  # re-examine the file if the whole message was changed.
+  if ($part eq '0') {
+    $entity->purge;
+    $entity = $self->parse_open($file);
+  }
+
   $result = {};
   &get_entity_structure($entity, 1, $result);
   (1, $result);
@@ -360,7 +366,7 @@ sub replace_part {
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997, 1998 Jason Tibbitts for The Majordomo Development
+Copyright (c) 1997, 1998, 2002 Jason Tibbitts for The Majordomo Development
 Group.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
