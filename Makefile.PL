@@ -51,6 +51,7 @@ my %MODULES = map {my $a; ($a=$_)=~s!/!::!g; $a=~s/\.p.$//; ("lib/$_" => "\$(INS
    'IO::File'       => [0,     1],
    'IO::Handle'	    => [0,     1],
    'Date::Format'   => [0,     1],
+   'Date::Parse'    => [0,     1],
    'DirHandle'      => [0,     1],
    'Safe'           => [0,     1],
    'POSIX'          => [0,     1],
