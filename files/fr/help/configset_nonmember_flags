@@ -1,0 +1,27 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste nonmember_flags <<TAG
+[VALEURS]
+TAG
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : (ackdeny ackreject ackstall)
+Type de donnée    : énumérée (paramètres personnels)
+Catégorie         : reply
+Mot de passe      : Visible avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset liste nonmember_flags <<MNO
+ackreject
+postblock
+MNO
+
+$INCLUDE-config/nonmember_flags
+
+Référez vous aussi à :
+   help configset_allowed_flags (pour les paramètres que les abonnés
+				 peuvent modifier)
+   help configset_default_flags (pour les paramètres par défaut des
+				 nouveaux abonnés)
+   help set                     (pour les paramètres d'abonnés)
+
+$INCLUDE-help/foot

@@ -1,0 +1,25 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  description_max_lines = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : 0
+Type de donnée    : entier
+Catégorie         : lists
+Mot de passe      : Visible avec un mot de passe. Modifiable avec le
+		    mot de passe global.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset GLOBAL description_max_lines = 20
+
+
+$INCLUDE-config/description_max_lines
+
+
+Référez vous aussi à :
+   help admin_monitor
+   help configset_default_lists_format
+   help configset_description
+   help configset_description_long
+   help lists
+
+$INCLUDE-help/foot

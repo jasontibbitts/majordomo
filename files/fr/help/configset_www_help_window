@@ -1,0 +1,22 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  www_help_window = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : 0
+Type de donnée    : booléen
+Catégorie         : miscellany
+Mot de passe      : Visible uniquement avec un mot de passe
+		    Modifications avec le mot de passe global.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset GLOBAL www_help_window = 1
+
+$INCLUDE-config/www_help_window
+
+Référez vous aussi à :
+   help admin
+   help admin_domain
+   help mj_wwwadm
+   help mj_wwwusr
+
+$INCLUDE-help/foot

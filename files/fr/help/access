@@ -8,7 +8,7 @@ La commande "access" est uniquement utilisée dans la configuration des
 "access_rules", et uniquement pour la pseudo liste GLOBAL.
 
 La commande "access" permet aux gestionnaires du domaine de
-restreindre l'accès a toutes les fonctionnalités de Majordomo pour
+restreindre l'accès à toutes les fonctionnalités de Majordomo pour
 certaines adresses email. Par exemple, un administrateur du domaine
 peut créer une liste auxiliaire, mechants, et utiliser cette
 "access_rules" :

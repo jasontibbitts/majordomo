@@ -1,0 +1,28 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset GLOBAL confirm_url = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : [définie durant l'installation]
+Type de donnée    : chaîne
+Catégorie         : access
+Mot de passe      : Visible avec un mot de passe. Modifié avec le mot
+		    de passe global.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset GLOBAL confirm_url = aucun serveur configuré
+
+
+$INCLUDE-config/confirm_url
+
+La variable \$TOKEN est remplacée par l'identificateur du ticket du
+message ou de la commande qui à besoin d'être confirmée.
+
+
+Référez vous aussi à :
+   help admin_domain
+   help mj_confirm (détails techniques à propos de l'interface de
+		    confirmation)
+   help tokeninfo  (une introduction aux tickets)
+   help variables  (une introduction aux variables)
+
+$INCLUDE-help/foot

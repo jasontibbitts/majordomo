@@ -8,10 +8,10 @@ ticket,      Si spécifié, un identificateur de ticket
 commentaire, Si spécifié, est envoyé du modérateur à l'abonné.
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-La commande 'accept' indique a Majordomo qu'une action doit être
+La commande 'accept' indique à Majordomo qu'une action doit être
 autorisée ou permise. Notez que le ticket peut être retourné depuis
-n'importe quelle adresse, pas seulement celle a laquelle il a été
-envoyé. Si vous n'avez pas envoyé la demande, faites attention a ce
+n'importe quelle adresse, pas seulement celle à laquelle il a été
+envoyé. Si vous n'avez pas envoyé la demande, faites attention à ce
 que fera la personne qui l'a faite après avoir accepté ou refusé ce
 ticket.
 
@@ -27,7 +27,7 @@ soit de rejeter ou d'accepter l'abonnement avant qu'il soit effectif.
 Un ticket est aussi appelé un chiffre magique, car vous recevrez un
 email avec un long chiffre dans le sujet. Ce chiffre est connu de
 Majordomo. Lorsque vous lui renverrez, Majordomo saura que vous l'avez
-reçu car ce ticket est en quelque sorte un mot de passe a usage
+reçu car ce ticket est en quelque sorte un mot de passe à usage
 unique.
 
 Si le ticket est omit de la commande, Majordomo le cherchera dans
@@ -63,19 +63,19 @@ pour cacher un message dans les archives de la liste. Une en-tête
 visible que via l'archive par les gens qui ont un accès administratif.
 
 La commande "accept-intact" peut être utilisée pour éviter que le
-contenu d'un message ne soit altéré a cause d'un filtre de fichier
-attaché. Référez vous a "help configset_attachment_filters" pour plus
+contenu d'un message ne soit altéré à cause d'un filtre de fichier
+attaché. Référez vous à "help configset_attachment_filters" pour plus
 de détails sur la manière de modifier les messages.
 
 Pour les ticket de type "consult", la présence d'un délai convertira
 le ticket en type "delay", l'acceptation d'un après la durée spécifiée
-dans une commande "delay" précédente (référez vous a "help default" et
+dans une commande "delay" précédente (référez vous à "help default" et
 descendez jusqu'à la section délais), et réduit le nombre
 d'approbation dont il a besoin d'un.
 
 En plus de modifier le comportement par défaut des ticket expirés, la
 commande "access_rules" peut être utilisé pour spécifier le message
-qui est envoyé a un utilisateur lorsqu'une requête nécessite une
+qui est envoyé à un utilisateur lorsqu'une requête nécessite une
 approbation.
 
 Le paramètre "commentaire" est uniquement utilisé pour les ticket de

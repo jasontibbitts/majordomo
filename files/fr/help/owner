@@ -3,7 +3,7 @@ owner
 = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 La commande "owner" est exécutée lorsqu'un message est envoyé aux
-adresses LISTE-owner ou LISTE-moderator pour une liste. L'accès a ces
+adresses LISTE-owner ou LISTE-moderator pour une liste. L'accès à ces
 deux adresses peut être restreint en utilisant le paramètre de
 configuration "block_headers".
 

@@ -1,0 +1,25 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset  GLOBAL  max_in_core = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : 20000
+Type de donnée    : entier
+Catégorie         : miscellany
+Mot de passe      : Modifiée avec le mot de passe global.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset GLOBAL max_in_core = 40000
+
+
+$INCLUDE-config/max_in_core
+
+Quand Majordomo traîte un message, il est découpé en morceaux par le
+processeur MIME. Limiter la taille mémoire occupée rendra le
+traitement des messages legerement plus lent.
+
+
+Référez vous aussi à :
+   help admin_domain
+   help configset_chunksize
+
+$INCLUDE-help/foot

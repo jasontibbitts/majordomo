@@ -6,7 +6,7 @@ La commande trigger n'est utilisable qu'en lançant le programme
 mj_trigger. Ce programme est exécuté une fois par heure pour exécuter
 diverses taches, comme l'envoi de digests et la suppression des
 données expirées. Les paramètres de configuration "triggers" et
-"digests" contrôlent quel tâches seront effectuées et a quelle heure.
+"digests" contrôlent quel tâches seront effectuées et à quelle heure.
 
 Référez vous aussi à :
    help admin_config

@@ -1,0 +1,25 @@
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+configset liste administrivia = [VALEUR]
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Valeur par défaut : yes
+Type de donnée    : booléen, entre 0 n no, 1 y yes
+Catégorie         : moderate
+Mot de passe      : Visible uniquement avec un mot de passe.
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+EXEMPLE :
+configset liste administrivia = no
+
+$INCLUDE-config/administrivia
+
+Il peut être utile de désactiver ce paramètre si des mots, comme
+"unsubscribe", qui sont aussi des commandes Majordomo sont souvent
+utilisées dans les discussions.
+
+
+Référez vous aussi à :
+   help admin_moderate
+   help configset_admin_body
+   help configset_admin_headers
+
+$INCLUDE-help/foot

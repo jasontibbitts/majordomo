@@ -5,10 +5,10 @@ end
 Les quatre commandes ".", "exit", "quit" et "stop" sont équivalentes
 à "end".
 
-La commande "end" demande a Majordomo d'arrêter de lire les commandes
+La commande "end" demande à Majordomo d'arrêter de lire les commandes
 d'un email, ou termine l'interface interactive "mj_shell". Lors de
 l'analyse d'un email, Majordomo s'arrêtera si il trouve une liste qui
-correspond a un motif de "configset GLOBAL signature_separator" (par
+correspond à un motif de "configset GLOBAL signature_separator" (par
 défaut, c'est une ligne séparant par un tiret ou un caractère
 souligné).
 
